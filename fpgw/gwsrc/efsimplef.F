@@ -4,7 +4,7 @@
      i             valn, legas, esmr, !input only for empty case
      i             qbz,nqbz, !index_qbz, n_index_qbz,
      o             ef)
-      use m_readeigen, only: readeval,readcphi,readgeig
+      use m_readeigen, only: readeval 
       use m_mpi, only: mpi__root 
 !!== Calculate efermi for discrete sum. (not for tetrahedron method) ==
 !! You need to call init_reaeigen before you call this.

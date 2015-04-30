@@ -6,7 +6,7 @@
       integer,allocatable :: n1,n2,n3,
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
-      real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_bzcase2(:)
+      real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_(:)
      &    , qbz(:,:),wbz(:),qibz(:,:)
      &    , wibz(:),qbzw(:,:), qibz_r(:,:)
       logical:: done_read_bzdata=.false.
@@ -21,7 +21,7 @@ c-----------------------------------------------------------------
       ifbz = 6661
       write(6,*)' ### readin BZDATA ###'
       allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
-      allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_bzcase2(3))
+      allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_(3))
       open (ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r
       read(ifbz,*)  n1,n2,n3
@@ -41,7 +41,7 @@ c-----------------------------------------------------------------
      i    qbz, wbz,nstbz,           nqbz, 
      i    qibz,wibz, nstar,irk,  nqibz,
      i    idtetf, ntetf, qbzw,ib1bz, nqbzw,
-     i    idteti, nteti,dq_bzcase2, qibz_r, nqibz_r )
+     i    idteti, nteti,dq_, qibz_r, nqibz_r )
       close(ifbz)
 
 C ... Add index to specify qbz. index_qbz is used to find index in qbz.
@@ -98,7 +98,7 @@ Cstop2rx 2013.08.09 kino        stop 'read_BZDATA  sum (wibz) is not 2.'
      x  qbz, wbz  ,nstbz, nqbz, 
      x  qibz,wibz, nstar,irk,  nqibz,
      x  idtetf, ntetf, qbzw,ib1bz, nqbzw,
-     x  idteti, nteti,dq_bzcase2, qibz_r,nqibz_r )
+     x  idteti, nteti,dq_, qibz_r,nqibz_r )
 C- ReadWrite  BZ mesh data reuired for GW ---
 C----------------------------------------------------------------
       implicit none
@@ -107,7 +107,7 @@ C----------------------------------------------------------------
       real(8)   :: plat(3,3),vol,qbasmc(3,3)
       integer(4),allocatable:: ipq(:),iw1(:)
       real(8):: qbz(3,nqbz),wbz(nqbz),qibz(3,nqibz),wibz(nqibz)
-     &         ,qbzw(3,nqbzw),qbas(3,3),ginv(3,3),dq_bzcase2(3), qibz_r(3,nqibz_r)
+     &         ,qbzw(3,nqbzw),qbas(3,3),ginv(3,3),dq_(3), qibz_r(3,nqibz_r)
       integer(4):: idtetf(0:3,ntetf),ib1bz(nqbzw),idteti(0:4,nteti)
      &       ,irk(nqibz,ngrp),nstar(nqibz),nstbz(nqbz),bzcase
       logical tetraf,tetrai
@@ -176,8 +176,8 @@ ccccccccccccccccccccccccccccccccccc
       endif
 
 c      if(bzcase()==2) then
-      if(job<0) write(ifbz,"(3d24.16,' !dq_bzcase2')") dq_bzcase2
-      if(job>0) read (ifbz,"(3d24.16)") dq_bzcase2
+      if(job<0) write(ifbz,"(3d24.16,' !dq_')") dq_
+      if(job>0) read (ifbz,"(3d24.16)") dq_
 c      endif
 
       end

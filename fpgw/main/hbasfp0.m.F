@@ -10,16 +10,16 @@ c  BASFP//ibas :: product basis for each ibas
 c  PPBRD_V2_//ibas :: radial <ppb> integrals. Note indexing of ppbrd
 c
 c The main part of this routine is in the subroutine basnfp_v2
-      use m_rgwinf_v3,only:rgwinf_v3, alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
-     &     nindxv,occv,unoccv,occc,unoccc,iclass
+      use m_rgwinf_v3,only:rgwinf_v3, 
+     & alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
+     & nindxv,occv,unoccv,occc,unoccc,iclass
       use keyvalue,only: getkeyvalue
       implicit none
       real(8):: qbas(3,3),ginv(3,3)
       integer(4)::
-     l     ifphiv(2),ifphic(2),
-     l     iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
-     l     ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,ifinin,iflmto,ifphi,ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,
-     &     l,nn,icore,ifianf,nphi,nradmx,nsp,iopen,maxnn,iclose
+     l ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),
+     l ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,ifinin,iflmto,ifphi,
+     l ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,l,nn,icore,ifianf,nphi,nradmx,nsp,iopen,maxnn,iclose
       integer(4),allocatable:: lcutmxa(:)
       character(12) :: aaa
       integer(4),allocatable::nrofi(:), nocc(:,:),nunocc(:,:),nindx(:,:)

@@ -372,35 +372,35 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)cinvrx.o\
  $(gwsrc)m_freq.o 
 
- UU = \
- $(main)h_uumatrix.m.o \
- $(gwsrc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)gintxx.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)x0kf_v4h$(x0kf_g) \
- $(gwsrc)rs.o \
- $(nfpsrc)u_lat_0.o \
- $(nfpsrc)wronkj.o \
- $(nfpsrc)mklegw.o \
- $(nfpsrc)bessl.o \
- $(nfpsrc)cross.o \
- $(nfpsrc)diagcv2.o
+ # UU = \
+ # $(main)h_uumatrix.m.o \
+ # $(gwsrc)wcf.o \
+ # $(gwsrc)tetwt5$(tet5_g) \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)pplmat.o \
+ # $(gwsrc)getgv2.o \
+ # $(gwsrc)x0kf_v4h$(x0kf_g) \
+ # $(gwsrc)rs.o \
+ # $(nfpsrc)u_lat_0.o \
+ # $(nfpsrc)wronkj.o \
+ # $(nfpsrc)mklegw.o \
+ # $(nfpsrc)bessl.o \
+ # $(nfpsrc)cross.o \
+ # $(nfpsrc)diagcv2.o
 
- UU2 = \
- $(maxloc)huumat.o \
- $(gwsrc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)gintxx.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)rs.o \
- $(nfpsrc)u_lat_0.o \
- $(nfpsrc)wronkj.o \
- $(nfpsrc)mklegw.o \
- $(nfpsrc)bessl.o \
- $(nfpsrc)cross.o
+ # UU2 = \
+ # $(maxloc)huumat.o \
+ # $(gwsrc)wcf.o \
+ # $(gwsrc)tetwt5$(tet5_g) \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)pplmat.o \
+ # $(gwsrc)getgv2.o \
+ # $(gwsrc)rs.o \
+ # $(nfpsrc)u_lat_0.o \
+ # $(nfpsrc)wronkj.o \
+ # $(nfpsrc)mklegw.o \
+ # $(nfpsrc)bessl.o \
+ # $(nfpsrc)cross.o
 
  PSIG = \
  $(maxloc)hpsig.o \

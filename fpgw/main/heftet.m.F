@@ -113,14 +113,6 @@ c---------------------------------------
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
 c--------readin data set when you call read_BZDATA ---------------
-c       integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,
-c     &   n_index_qbz
-c       real(8):: qbas(3,3),ginv(3,3),dq_bzcase2
-c       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:)
-c     &    ,wibz(:),qbzw(:,:)
-c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
-c     &    ,nstar(:),irk(:,:),index_qbz(:,:,:)
-c-----------------------------------------------------------------
       call read_BZDATA()
       write(6,*)' nqbz qbz =',nqbz
 c      write(6,*)  qbz
@@ -245,10 +237,8 @@ cccccccccccccccccccccccccccccccccccccccccc
         nsp   = nspin !26jan2006
         allocate( eband2(nband,nsp,nqbz) )
         ddq = 0d0
-c        if(bzcase()==2) ddq= dq_bzcase2
-        if(.not.qbzreg()) ddq= ddq- dq_bzcase2
-        write(6,*)' nsp nqbz =', nsp,nqbz
-c        write(6,*)' dq_bzcase2 =',dq_bzcase2 ,nsp,nqbz
+        if(.not.qbzreg()) ddq= -dq_
+        write(6,"(' nsp nqbz, q is replaced by q+dq_; dq_ =',2i5,3f13.5)") nsp,nqbz,dq_
         do is  = 1,nsp !Readin eband
           ix = 0
           do iqi = 1,nqbz

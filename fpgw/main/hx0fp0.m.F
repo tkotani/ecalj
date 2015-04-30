@@ -5,7 +5,7 @@
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
-     & dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
+     & dq_,qbz,wbz,qibz,wibz,qbzw,
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
@@ -13,7 +13,7 @@
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
-     & plat, pos,z,ecore, symgg 
+     & plat, pos,ecore, symgg 
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
@@ -386,14 +386,14 @@ c      write(6,*)'Timereversal=',Timereversal()
 C --- Use regular mesh even for bzcase==2 and qbzreg()=T
 ! A little confusing...
 c      ddq = 0d0
-c      if(bzcase()==2) ddq= dq_bzcase2
+c      if(bzcase()==2) ddq= dq_
 c      do iq = 1, nqbz
 c        qbz(1:3,iq) = qbz(1:3,iq) + ddq
 c        ! This new qbz is regular mesh, which are identical in the both bzcase.
 c      enddo
 c      if(.not.qbzreg()) then ! off-regular mesh case
 c        do i=1,nqbz
-c          qbz(:,i) = qbz(:,i) - dq_bzcase2
+c          qbz(:,i) = qbz(:,i) - dq_
 c        enddo
 c      endif
       if(mpi__root) then

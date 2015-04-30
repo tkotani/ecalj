@@ -4,7 +4,6 @@
 
       contains
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
-      use m_read_bzdata,only: dq_bzcase2
       use keyvalue,only: getkeyvalue
 !!- frequency histgram, real axis points, im axis points.
       implicit none

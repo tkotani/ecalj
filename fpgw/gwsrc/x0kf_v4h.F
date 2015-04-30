@@ -2,29 +2,27 @@
      i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  nsp,isp_k,isp_kq,symmetrize,      !ifcphi,ifrb,ifcb,ifrhb,ifchb,
-     i                  qbas,ginv,rk,wk,  !,iindxk,
-     i                  mdim, !nlnm, nlnmv,nlnmc, iclass, ! not the w(pointer)
-c     i                  ppb_unused, 
-c     i                  icore,ncore, ! not the w(pointer)
-     d                  nlmto,nqbz,nctot,!noccx,noccxv,
-     d                  natom, !nl,nclass,natom,nnc,
-     d                  nbloch,nwt, !nlnmx,mdimx,
-     i      iq, ngbb, ngc, ngpmx,ngcmx,  !oct2005 ngbb is not ngc + nbloch for smbasis=T.
+     i                  nsp,isp_k,isp_kq,symmetrize,
+     i                  qbas,ginv,rk,wk,  
+     i                  mdim, 
+     d                  nlmto,nqbz,nctot, 
+     d                  natom, 
+     d                  nbloch,nwt, 
+     i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
      o      rcxq,
-     i     nolfco,zzr,nmbas, zcousq, !ppovl,iepsmode,zzr, nmbas added Sep2006 nmbas1,ppovlz
-     i     chipmzzr,eibzmode, !z1offd,
-c     o     rcxqmean,
-     i     nwgt,igx,igxt,ngrp,eibzsym,crpa)!, zcousqrsum) !aik,aiktimereversal,ngrpt)
-      use m_readqg,only :  readqg
-      use m_readeigen,only: readeval,readcphi,readgeig
-      use keyvalue,only:  getkeyvalue
-      use m_rotMPB,only:  rotMPB2 !rotMPB,
-      use m_readqgcou,only: qtt_,nqnum !itimermap,
-      use m_pkm4crpa,only: readpkm4crpa
-
-      use m_zmel,only: get_zmelt2,  zmel,ppbir ,ppovlz
+     i     nolfco,zzr,nmbas, zcousq,
+     i     chipmzzr,eibzmode, 
+     i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
+      use m_readqg,only   :  readqg
+      use m_readeigen,only:  readeval 
+      use keyvalue,only   :  getkeyvalue
+      use m_rotMPB,only   :  rotMPB2 
+      use m_readqgcou,only:  
+     o qtt_, nqnum 
+      use m_pkm4crpa,only : readpkm4crpa
+      use m_zmel,only     : get_zmelt2,
+     o zmel,ppbir ,ppovlz
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.

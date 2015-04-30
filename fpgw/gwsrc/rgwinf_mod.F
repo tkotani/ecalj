@@ -165,7 +165,6 @@ cccccccccccccccccccccccccccccccccc
       elseif(incwfx==0) then
         write(6,*)' ### Use unocc occ ForX0 for core'
       else
-Cstop2rx 2013.08.09 kino        stop ' ### proper incwf is not given for genallcf2:rgwinf '
         call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
       endif
       deallocate(ncwf2)

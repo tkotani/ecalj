@@ -14,10 +14,8 @@
       elseif(ttt==2) then  
         deltaq_scale=1d0/3.0**.5d0
       else
-Cstop2rx 2013.08.09 kino        stop 'Use Q0Pchoice = 1 or 2 (=1 is default)'
         call rx( 'Use Q0Pchoice = 1 or 2 (=1 is default)')
       endif
-         
       end
 c
       logical function localfieldcorrectionllw()
@@ -452,11 +450,12 @@ c                            ! Note that you have to supply EFERMI by the tetrah
       tetra_hsfp0=.false.
       end
 
+c bzcase==1 only now
 c$$$c--------------------------------------------
 c$$$      integer(4) function bzcase()
 c$$$      bzcase=1
 c$$$      end
-
+c
 c$$$      use keyvalue
 c$$$c      bzcase==2 is for regular-mesh in BZ without gamma point.
 c$$$      logical,save ::init=.true.
@@ -471,36 +470,39 @@ c$$$      endif
 c$$$      bzcase=bzcasex
 c$$$      end
 
-c------------------------------------------
-      real(8) function wgtq0p()
-c  This is effective only for bzcase==2.
-c  Offset gamma has integration weight of 8*wgtq0p*(number of BZmesh)
-c  On the other hand, we subtract weight of wgtq0p*(number of BZmesh)
-c  from the eight nearest mesh points to Gamma.
-c------------------------------------------------------
-      use keyvalue
-      logical,save ::init=.true.
-      real(8),save:: www
-      real(8):: escale,w1,w2
-      integer(4)::  q0pchoice
-c      common /wgtq00/www
-      logical :: noq0p
-      if(init) then
-        call getkeyvalue("GWinput","WgtQ0P",www,default=0.01d0)
-c        write(6,"('wgtq0p (weight for Q0P for BZmesh=2)=',f13.8)")www
-        if(q0pchoice()<0)  then
-          www = escale()**3 !1d0-wres
-c2          call wgtscale(escale(),w1,w2)
-c2           www = 1d0 - w2*( 1d0-escale()**3 )
-cc          www = 1d0
-        endif
-        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-        if(noq0p) www=0d0
-        init =.false.
-      endif
-      wgtq0p = www
-      return
+
+c$$$c------------------------------------------
+      real(8) function wgtq0p() !essentially dummy
+      wgtq0p=0.01d0
       end
+c$$$c  This is effective only for bzcase==2.
+c$$$c  Offset gamma has integration weight of 8*wgtq0p*(number of BZmesh)
+c$$$c  On the other hand, we subtract weight of wgtq0p*(number of BZmesh)
+c$$$c  from the eight nearest mesh points to Gamma.
+c$$$c------------------------------------------------------
+c$$$      use keyvalue
+c$$$      logical,save ::init=.true.
+c$$$      real(8),save:: www
+c$$$      real(8):: escale,w1,w2
+c$$$      integer(4)::  q0pchoice
+c$$$c      common /wgtq00/www
+c$$$      logical :: noq0p
+c$$$      if(init) then
+c$$$        call getkeyvalue("GWinput","WgtQ0P",www,default=0.01d0)
+c$$$c        write(6,"('wgtq0p (weight for Q0P for BZmesh=2)=',f13.8)")www
+c$$$        if(q0pchoice()<0)  then
+c$$$          www = escale()**3 !1d0-wres
+c$$$c2          call wgtscale(escale(),w1,w2)
+c$$$c2           www = 1d0 - w2*( 1d0-escale()**3 )
+c$$$cc          www = 1d0
+c$$$        endif
+c$$$        call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
+c$$$        if(noq0p) www=0d0
+c$$$        init =.false.
+c$$$      endif
+c$$$      wgtq0p = www
+c$$$      return
+c$$$      end
 
       real(8) function escale()
       use keyvalue

@@ -8,6 +8,7 @@
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/rdpp.o
@@ -29,9 +30,6 @@
 ../main/hvccfp0.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hx0fp0.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hx0fp0.sc.m.o:../gwsrc/MPI_fpgw2.o
-../gwsrc/m_freq.o:../gwsrc/rwbzdata.o
-../main/hx0fp0.m.o:../gwsrc/m_freq.o
-../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
 ../gwsrc/m_zmel.o:../gwsrc/rwbzdata.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
@@ -39,6 +37,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -55,12 +54,9 @@
 ../main/hsfp0.sc.m.o:../gwsrc/rwbzdata.o
 ../main/hx0fp0.m.o:../gwsrc/rwbzdata.o
 ../main/hx0fp0.m.o:../gwsrc/rwbzdata.o
-../main/hx0fp0.m.bk1.o:../gwsrc/rwbzdata.o
-../main/hx0fp0.m.bk2.o:../gwsrc/rwbzdata.o
-../main/hx0fp0.m.bk3.o:../gwsrc/rwbzdata.o
-../main/hx0fp0.m.bk4.o:../gwsrc/rwbzdata.o
 ../main/hx0fp0.sc.m.o:../gwsrc/rwbzdata.o
 ../tote/hecor.o:../gwsrc/rwbzdata.o
+../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
 ../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
 ../gwsrc/readeigen.o:../gwsrc/readqg.o
@@ -70,7 +66,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -83,6 +78,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -103,10 +99,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readqg.o
@@ -120,10 +112,6 @@
 ../main/hvccfp0.m.o:../gwsrc/readqg.o
 ../main/hx0fp0.m.o:../gwsrc/readqg.o
 ../main/hx0fp0.m.o:../gwsrc/readqg.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readqg.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readqg.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readqg.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readqg.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readqg.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readqg.o
 ../tote/hecor.o:../gwsrc/readqg.o
@@ -136,6 +124,7 @@
 ../gwsrc/kino_input_test.o:../gwsrc/keyvalue.o
 ../gwsrc/m_freq.o:../gwsrc/keyvalue.o
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
+../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
 ../gwsrc/m_zmel.o:../gwsrc/keyvalue.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
@@ -147,8 +136,10 @@
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
+../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/rgwinf_mod.o:../gwsrc/keyvalue.o
 ../gwsrc/genallcf_mod.o:../gwsrc/rgwinf_mod.o
@@ -159,6 +150,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -175,10 +167,7 @@
 ../main/hsfp0.sc.m.o:../gwsrc/genallcf_mod.o
 ../main/hsfp0.sc.m.o:../gwsrc/genallcf_mod.o
 ../main/hx0fp0.m.o:../gwsrc/genallcf_mod.o
-../main/hx0fp0.m.bk1.o:../gwsrc/genallcf_mod.o
-../main/hx0fp0.m.bk2.o:../gwsrc/genallcf_mod.o
-../main/hx0fp0.m.bk3.o:../gwsrc/genallcf_mod.o
-../main/hx0fp0.m.bk4.o:../gwsrc/genallcf_mod.o
+../main/hx0fp0.m.o:../gwsrc/genallcf_mod.o
 ../main/hx0fp0.sc.m.o:../gwsrc/genallcf_mod.o
 ../main/hx0fp0.sc.m.o:../gwsrc/genallcf_mod.o
 ../tote/hecor.o:../gwsrc/genallcf_mod.o
@@ -231,10 +220,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/keyvalue.o
 ../main/hvccfp0.m.o:../gwsrc/keyvalue.o
 ../main/hx0fp0.m.o:../gwsrc/keyvalue.o
-../main/hx0fp0.m.bk1.o:../gwsrc/keyvalue.o
-../main/hx0fp0.m.bk2.o:../gwsrc/keyvalue.o
-../main/hx0fp0.m.bk3.o:../gwsrc/keyvalue.o
-../main/hx0fp0.m.bk4.o:../gwsrc/keyvalue.o
 ../main/hx0fp0.sc.m.o:../gwsrc/keyvalue.o
 ../main/kino_input_test.o:../gwsrc/keyvalue.o
 ../main/kino_input_test.o:../gwsrc/keyvalue.o
@@ -248,7 +233,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -261,6 +245,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -281,10 +266,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -294,7 +275,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -307,6 +287,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -327,10 +308,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -340,7 +317,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -353,6 +329,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -373,10 +350,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -386,7 +359,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -399,6 +371,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -419,10 +392,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -432,7 +401,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -445,6 +413,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -465,10 +434,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -478,7 +443,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -491,6 +455,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -511,10 +476,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -524,7 +485,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -537,6 +497,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -557,10 +518,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -570,7 +527,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -583,6 +539,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -603,10 +560,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -616,7 +569,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -629,6 +581,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -649,10 +602,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -662,7 +611,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -675,6 +623,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -695,10 +644,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -708,7 +653,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -721,6 +665,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -741,10 +686,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -754,7 +695,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -767,6 +707,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -787,10 +728,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -800,7 +737,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -813,6 +749,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -833,10 +770,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -846,7 +779,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -859,6 +791,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -879,10 +812,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -892,7 +821,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -905,6 +833,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -925,10 +854,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -938,7 +863,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -951,6 +875,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -971,10 +896,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -984,7 +905,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -997,6 +917,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -1017,10 +938,6 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
@@ -1030,7 +947,6 @@
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.o:../gwsrc/readeigen.o
 ../gwsrc/m_pkm4crpa.o:../gwsrc/readeigen.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_pkm4crpa.o
 ../gwsrc/efsimplef.o:../gwsrc/readeigen.o
@@ -1043,6 +959,7 @@
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
 ../main/hsfp0.m.o:../gwsrc/m_zmel.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_zmel.o
+../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
@@ -1063,9 +980,5 @@
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hsfp0.sc.m.o:../gwsrc/readeigen.o
 ../main/hx0fp0.m.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk1.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk2.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk3.o:../gwsrc/readeigen.o
-../main/hx0fp0.m.bk4.o:../gwsrc/readeigen.o
 ../main/hx0fp0.sc.m.o:../gwsrc/readeigen.o
 ../tote/hecor.o:../gwsrc/readeigen.o

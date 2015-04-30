@@ -1,6 +1,6 @@
       module m_sxcf
       contains
-      subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr, !tiat,miat,
+      subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,
      i nsp,isp,             
      i qbas,ginv,
      i qibz,qbz,wk,nstbz,irkip,nrkip, 
@@ -8,26 +8,23 @@
      i ecore,
      i nlmto,nqibz,nqbz,nctot,
      i nl,nnc,nclass,natom,
-     i nbloch,ngrp,niw,nq,      !nlnmx,mdimx,
+     i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
      i exchange,screen,cohtest, ifexsp,
      i nbmx,ebmx,           
      i wklm,lxklm,          
-c     i invg, il,in,im,nn_,lx,nx_,nxx_, !ppbrd, !,nlnm
      i eftrue,
 !! 
      i jobsw,                   != iSigma_en 
      i hermitianW,
      o zsec,coh,nbandmx)
-c     o exx,zsecd)
-
-      use m_readqg,only:readqg0
-      use m_readeigen,only: readeval,readcphi
-      use keyvalue,only: getkeyvalue
-      use m_zmel,only: get_zmelt,ppovlz,  zmel,zmeltt 
+      use m_readqg,only   : readqg0
+      use m_readeigen,only: readeval
+      use keyvalue,only   : getkeyvalue
+      use m_zmel,only     : get_zmelt,
+     o ppovlz, zmel,zmeltt 
       implicit none
-
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------

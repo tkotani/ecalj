@@ -3,9 +3,6 @@
      i qbas,ginv,
      i qibz,qbz,wk,nstbz,wik,  
      i nstar,irkip,  
-c     i iclass,mdim,nlnmv,nlnmc,
-c     i icore,ncore,imdim,
-c     i ppb, 
      i freq_r,freqx,wx, 
      i dw,ecore, 
      d nlmto,nqibz,nqbz,nctot,
@@ -16,15 +13,14 @@ c     i ppb,
      & exchange,tote,screen,cohtest, ifexsp,
      i iwini,iwend,
      i nbmx,ebmx, 
-c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
      i wklm,lxklm, 
-c     i invg,il,in,im,nn_, lx,nx_,nxx_,dwplot, !ppbrd, !cgr,,nlnm
      i dwplot,
      o zsec,coh,exx)
       use m_readqg
-      use m_readeigen,only: readeval,readcphi
+      use m_readeigen,only: readeval
       use keyvalue,only: getkeyvalue
-      use m_zmel,only: get_zmelt,ppovlz,  zmel,zmeltt 
+      use m_zmel,only: get_zmelt,
+     o ppovlz, zmel,zmeltt 
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 

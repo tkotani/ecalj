@@ -8,7 +8,7 @@
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
-     &     dq_bzcase2,qbz,wbz,qibz,wibz,qbzw,
+     &     dq_,qbz,wbz,qibz,wibz,qbzw,
      &     idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
@@ -16,7 +16,7 @@
      &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
      &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      &     invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
-     &     plat, pos,z,ecore, symgg 
+     &     plat, pos, ecore, symgg 
 
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
@@ -402,7 +402,7 @@ c     nwhis=nw
       if(.not.qbzreg()) then
          allocate(qbz2(3,nqbz))
          do iq=1,nqbz
-            qbz2(:,iq)=qbz(:,iq)+dq_bzcase2
+            qbz2(:,iq)=qbz(:,iq)+dq_
          enddo
          call findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
          emax=max(emax,emax2)
@@ -553,7 +553,8 @@ c$$$         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
 c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
 c$$$     o        nwgt,igx,igxt,eibzsym)
 
-         call PBindex(natom,lx,l2nl,nx) !all input. this returns requied index stored in arrays in m_pbindex.
+!All input. this returns requied index stored in arrays in m_pbindex.
+         call PBindex(natom,lx,l2nl,nx) 
                           ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou() ! no input. Read QGcou and store date into variables.
 c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.

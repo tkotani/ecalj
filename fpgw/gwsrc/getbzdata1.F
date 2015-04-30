@@ -6,7 +6,7 @@ c------------------------------------------------------------
       integer(4):: nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r
       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:),wibz(:)
      &   ,qbzw(:,:) ,qibz_r(:,:)
-      real(8):: qbasmc(3,3),dq_bzcase2(3)
+      real(8):: qbasmc(3,3),dq_(3) !,dq_bzcase2(3)
       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
      &   ,irk(:,:),nstar(:),nstbz(:)
       real(8),allocatable:: qbzm(:,:),qbzwm(:,:)
@@ -40,7 +40,6 @@ c         logical:: testtr !invert qibz
 c-------------------------------------------------------
       write(6,*)'getbzdata1: in m_getbzdata1'
       write(6,"(' mkqg: ibzcase()=',i3,'-------------------' )") icase
-Cstop2rx 2013.08.09 kino      if(icase>2) stop 'mkqg: wrong bzcase'
       if(icase>2) call rx( 'mkqg: wrong bzcase')
       print *,' mkqg: CASE1:', n1q,n2q,n3q
 
@@ -119,10 +118,6 @@ cccccccccccccccccccccccccccccccccccccccccc
      o              nteti,idteti)
       endif
       deallocate(ipq,iw1)
-
-c--- for bzcase==2
-      dq_bzcase2 = -matmul(qlat(1:3,1:3),(/.5d0/n1q,.5d0/n2q,.5d0/n3q/) )
-
 
 c---for multipled tetrahedron-----------------
       if(sum(abs(mtet))/=3) then
