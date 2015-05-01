@@ -1,4 +1,3 @@
-%#BIBTEX bibtex ecaljmanual
 \documentclass[a4paper,10pt,epsf,fleqn]{article}
 %\documentclass[a4paper]{jsarticle}
 \setlength{\mathindent}{0mm}
@@ -9,6 +8,8 @@
 \setlength{\textwidth}{15cm}
 \setlength{\textheight}{24cm}
 \pagestyle{plain}
+
+\usepackage{amsmath}
 \usepackage{graphicx}	% required for `\includegraphics' (yatex added)
 %\author{Takao Kotani}
 %\title{ecalj --- Get statrted} 
@@ -19,12 +20,149 @@
 \usepackage{makeidx}
 \usepackage{ascmac}
 %\bibliographystyle{apsrev4-1}
+\bibliographystyle{unsrt}
 \setstretch{1.1}
 
-%\newcommand{\fcode}[1]{\begin{screen} \verb@#1@ \end{screen}}
-\newcommand{\rou}[1]{\noindent------------------------------------------------------------------------------------------------------------
+\def\psibar{\bar{\psi}}
+\def\psidotbar{\dot{\bar{\psi}}}
+\def\scgw{{sc{\em GW}}}
+\def\G0{G^0}
+\def\tphi{{\tilde{\phi}}}
+\def\calR{{\cal A}}
+\def\qsgw{QS{GW}}
+\def\QSGW{QS{GW}}
+\def\ldagw{{lda{\it GW}}}
+\def\GLDA{{G^{\rm LDA}}}
+\def\WLDA{{W^{\rm LDA}}}
+\def\ekn{{\varepsilon_{{\bf k}n}}}
+\def\phidot{\dot{\phi}}
+\def\phidottilde{\dot{\tilde{\phi}}}
+\def\phitilde{\tilde{{\phi}}}
+\def\epsilonaone{\epsilon^{(1)}_a}
+\def\epsilonatwo{\epsilon^{(2)}_a}
+\def\ei{\varepsilon_i}
+\def\eis{\varepsilon_{i\sigma}}
+\def\ej{\varepsilon_j}
+\def\Ekn{{E_{{\bf k}n}}}
+\def\Psikn{\Psi_{{\bf k}n}}
+\def\Psiqn{{\Psi_{{\bf q}n}}}
+\def\Psiqm{{\Psi_{{\bf q}m}}}
+\def\DVo{{\it \Delta}V(\omega)}
+\def\DVoret{{\it \Delta}V^R(\omega)}
+\def\DVoadv{{\it \Delta}V^A(\omega)}
+\def\DV{{\it \Delta}V}
+\def\DVhat{{\it \Delta}\hat{V}}
+\def\HLDA{H^{\rm LDA}}
+\def\veff{V^{\rm eff}}
+\def\vxc{V^{\rm xc}}
+\def\Dvxc{{\it \Delta} V^{\rm xc}}
+\def\vc{V^{\rm c}}
+\def\vext{V^{\rm ext}}
+\def\hVext{\hat{V}^{\rm ext}}
+\def\hVeff{\hat{V}^{\rm eff}}
+\def\hvnl{\hat{V}^{\rm nl}}
+\def\vnl{V^{\rm nl}}
+\def\vh{V^{\rm H}}
+\def\vgw{V^{GW}}
+\def\ReDVo{ {\rm Re}[{\it \Delta}V(\omega)] }
+\def\ImDVo{ {\rm Im}[{\it \Delta}V(\omega)] }
+\def\gwa{$GW$\!A}
+\def\hVee{\hat{V}^{\rm ee}}
+\def\hVext{\hat{V}^{\rm ext}}
+\def\hHk{\hat{H}^{\rm k}}
+\def\Sigmax{{\Sigma}^{\rm x}}
+\def\Sigmac{{\Sigma}^{\rm c}}
+\def\Heff{\hat{H}^{\rm eff}}
+\def\vbar{\bar{V}}
+\def\Sbarc{\bar{\Sigma}^{\rm c}}
+\def\scgw{{QS{\em GW}}}
+\def\ldagw{{lda{\em GW}}}
+\def\ekn{{\varepsilon_{{\bf k}n}}}
+\def\ekm{{\varepsilon_{{\bf k}m}}}
+\def\eknp{{\varepsilon_{{\bf k}n'}}}
+\def\Ekn{{E_{{\bf k}n}}}
+\def\Psiqkm{{\Psi_{{\bf q}-{\bf k}m}}}
+\def\Psikn{{\Psi_{{\bf k}n}}}
+\def\Psikm{{\Psi_{{\bf k}m}}}
+\def\Psikmstar{{ \Psi_{{\bf k}m}^*} }
+\def\Psiknp{{\Psi_{{\bf k}n'}}}
+\def\Psiqnp{{\Psi_{{\bf q}n'}}}
+\def\Psiqn{{\Psi_{{\bf q}n}}}
+\def\brl{{\bf R}L}
+\def\brlp{{{\bf R}'L'}}
+\def\tili{{\widetilde{i}}}
+\def\tilj{{\widetilde{j}}}
+\def\tiln{{\widetilde{n}}}
+\def\tilm{{\widetilde{m}}}
+\def\eak{\varepsilon_{\rm a}(\bfk)}
+\def\ebk{\varepsilon_{\rm b}(\bfk)}
+\def\iDelta{{\it \Delta}}
+\def\efermi{\mbox{$E_{\rm F}$}}
+\def\we{\mbox{$\omega_\varepsilon$}}
+\def\eal{\varepsilon_{al}}
+\def\eallo{\varepsilon^{\rm Lo}_{al}}
+\def\smh{smHankel}
+\def\smhs{smHankels}
+\def\shotone{OneShot}
+\def\shotonez{OneShot Z=1}
+\def\x{\mbox{$\times$}}
+\def\xccut{ {\rm xccut} }
+\def\xccutone{ {\rm xccut1} }
+\def\xccuttwo{ {\rm xccut2} }
+\def\ftn[#1]{\rlap{\footnotemark[#1]}}
+\def\tr{{\rm Tr}}
+\def\bQP{{\it bare QP}}
+\def\bQPs{{\it bare QPs}}
+\def\dQP{{\it dressed QP}}
+\def\dQPs{{\it dressed QPs}}
+\def\Re{{\rm Re}}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\EMAXm{ E^{\rm rmesh}_{\rm MAX} }
+\def\EMAXS{E_{\rm MAX}^\Sigma}
+\def\NAPW{N_{\rm APW}}
+\def\RSM{R_{\rm SM}}
+\def\RSMa{R_{{\rm SM},a}}
+\def\RSMal{R_{{\rm SM},al}}
+\def\epsilonal{\epsilon_{al}}
+\def\RGS{R_{\rm G}}
+\def\RGSa{R_{{\rm G},a}}
+\def\pakl{p_{akl}}
+\def\PakL{P_{akL}}
+\def\wPakL{\widetilde{P}_{akL}}
+\def\CakL{C_{akL}}
+\def\CiakL{C^i_{akL}}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\EMAXm{ E^{\rm rmesh}_{\rm MAX} }
+\def\EMAXvxc{ E^{\rm vxc}_{\rm MAX} }
+\def\nc{n^{\rm c}}
+\def\nzc{n^{\rm Zc}}
+\def\nzcv{n^{\rm Zcv}}
+\def\barnzcv{\bar{n}^{\rm Zcv}}
+\def\MM{{\cal M}}
+\def\RR{v}
+\def\inta{\int_{|\bfr|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
+\def\intaa{\int_{|\bfr|\leq R_a}}
+\def\intad{\int_{|\bfr'|\leq R_a}\!\!\!\!\!\!\!\!\!\!\!\!}
+\def\intar{\int_{|\bfr-\bfR_a|\leq R_a}}
+\def\intard{\int_{|\bfr'-\bfR_a|\leq R_a}}
+\def\rhoij{\rho_{ij}}
+\def\ekcore{E_{\rm k}^{\rm core}}
+\def\ek{E_{\rm k}}
+\def\ehf{E_{\rm Harris}}
+\def\nin{n^{\rm in}}
+\def\nout{n^{\rm out}}
+\def\Vin{V}
+\def\iDelta{{\it \Delta}}
+\def\philo{{\phi}^{\rm Lo}_{al}}
+\def\DEe{{\it \Delta} E_{\rm e}}
+\def\ERPA{E^{\rm RPA}}
+\def\bfp{{\bf p}}
+\def\bfP{{\bf P}}
+\def\EMAX{  E^{\rm APW}_{\rm MAX} }
+\def\H0{H^0}
+\def\hHZ{\hat{H}^0}
+\def\hH{\hat{H}}
 
-\noindent{\bf \large #1}}
 \newcommand{\fl}[1]{\noindent{\sf $\bullet$ #1\index{\sf #1}} : }
 \newcommand{\fx}[1]{\subsection{\sf #1\index{\sf #1}}}
 \newcommand{\ssx}[1]{\subsection{\bf #1\index{\bf #1}}}
@@ -34,68 +172,91 @@
 \newcommand{\GW}{$GW$}
 \newcommand{\GWinput}{{\sf GWinput}\ }
 \newcommand{\GWIN}{{\sf GWIN}\ }
-
 \newcommand{\gbox}[1]{\noindent{\color{Green}\fbox{\parbox{260mm}{#1}}}}
 \newcommand{\rbox}[1]{\noindent{\color{Red}\fbox{\parbox{260mm}{#1}}}}
 \newcommand{\obox}[1]{\noindent{\color{Orange}\fbox{\parbox{260mm}{#1}}}}
 \newcommand{\cyanbox}[1]{\noindent{\color{Cyan}\fbox{\parbox{260mm}{#1}}}}
 \newcommand{\bluebox}[1]{\noindent{\color{Blue}\fbox{\parbox{260mm}{#1}}}}
-
 \newcommand{\keyw}[1]{\fbox{\tt #1}}
-\newcommand{\bfe}{{\bf e}}
+\newcommand{\innera}[1]{{[\![#1]\!]_{R_a}}}
+\newcommand{\bfzero}{{\bf 0}}
 \newcommand{\bfq}{{\bf q}}
 \newcommand{\bfk}{{\bf k}}
 \newcommand{\bfr}{{\bf r}}
-\newcommand{\bfR}{{\bf R}}
+\newcommand{\hbfr}{\hat{\bf r}}
 \newcommand{\bfQ}{{\bf Q}}
+\newcommand{\bfT}{{\bf T}}
+\newcommand{\bfG}{{\bf G}}
+\newcommand{\bfR}{{\bf R}}
 \newcommand{\ds}{\displaystyle}
-
-\newcommand{\exe}[1]{{\bf #1}\index{#1}}
-\newcommand{\io}[1]{{\sf  #1}\index{#1}}
-%\newcommand{\file}[1]{{\sf  #1}}
+\newcommand{\exe}[1]{{\bf #1}}
+\newcommand{\io}[1]{{\sf  #1}}
 \newcommand{\raw}[1]{{\tt #1}}
 \newcommand{\repp}[1]{p.\pageref{#1}}
+\newcommand{\refeq}[1]{Eq.~(\ref{#1})}
+\newcommand{\reffig}[1]{Fig.\ref{#1}}
+\newcommand{\smH}{{\mathcal H}}
+\newcommand{\YY}{{\cal Y}}
+\newcommand{\GG}{{\cal G}}
+\newcounter{Alist}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\ocite}[1]{\cite{#1}}
+\newcommand{\ispone}{}
+\newcommand{\isptwo}{}
+\newcommand{\ooplus}{\oplus}
+\newcommand{\oominus}{\ominus}
 
+\newcommand{\req}[1]{\mbox{Eq.~(\ref{#1})}}
+\newcommand{\refsec}[1]{\mbox{Sec.~\ref{#1}}}
+
+\newcommand{\hHzero}{\hat{H}^{0}}
+\newcommand{\CikL}{{C^{(i)}_{kL}}}
+\newcommand{\CiRkL}{{C^{(i)}_{{\bf R}kL}}}
+\newcommand{\tPkL}{{\widetilde{P}_{kL}}}
+\newcommand{\tPRkL}{{\widetilde{P}_{{\bf R}kL}}}
+\newcommand{\PkL}{{P_{kL}}}
+\newcommand{\PRkL}{{P_{{\bf R}kL}}}
+\newcommand{\rmt}{{s_{\bf R}}}
+\newcommand{\val}{{\rm{VAL}}}
+\newcommand{\core}{{\rm{CORE}}}
+\newcommand{\xc}{_{\rm{xc}}}
+\newcommand{\CORE}{{CORE}}
+\newcommand{\COREone}{{CORE1}}
+\newcommand{\COREtwo}{{CORE2}}
+\newcommand{\VAL}{{\rm{VAL}}}
+\newcommand{\EF}{E_{\rm F}}
+\newcommand{\oneshotgw}{1shot-$GW$}
+\newcommand{\incg}[1]{\includegraphics[width=5.9cm]{#1}}
+\newcommand{\incgg}[1]{\includegraphics[width=8.5cm]{#1}}
+\newcommand{\bfe}{{\bf e}}
 \newcommand{\eiqr}{e^{i \bfq \bfr}}
 \newcommand{\figp}[1]{\rotatebox{-90}{\includegraphics[width=10cm]{#1}}}
-
 \newcommand{\bfex}{{\bf e}_x}
 \newcommand{\bfey}{{\bf e}_y}
 \newcommand{\bfez}{{\bf e}_z}
 \newcommand{\bfa}{{\bf a}}
 \newcommand{\bfb}{{\bf b}}
-\newcommand{\bfT}{{\bf T}}
-
 \newcommand{\bfS}{{\bf S}}
 \newcommand{\bfiS}{{\it \Delta \bf S}}
 \newcommand{\bfB}{{\bf B}}
-
-\newcommand{\ispone}{\downarrow}
-\newcommand{\isptwo}{\uparrow}
-
 \newcommand{\eps}{\epsilon}
 \newcommand{\D}{{\it \Delta}}
-\newcommand{\scgw}{QS{\it GW} }
-
-\newcommand{\req}[1]{Eq.(\ref{#1})}
 \newcommand{\figss}[2]{\hspace{-3cm}\rotatebox{-90}{\includegraphics[width=6cm]{#1}}\rotatebox{-90}{\includegraphics[width=6cm]{#2}}}
 \newcommand{\figs}[2]{\hspace{-2cm}\rotatebox{0}{\includegraphics[width=8cm]{#1}}\rotatebox{0}{\includegraphics[width=8cm]{#2}}}
-
 \newcommand{\lmsuit}{{\tt lmsuit}\ }
 \newcommand{\ecalj}{{\bf ecalj}\ }
-\newcommand{\QSGW}{QSGW\ }
-%\newcommand{\ctrl}[1]{{\tt ctrl.{#1}}\ }
-
-\newenvironment{mspace0}{\baselineskip=1mm}
-
-\newenvironment{mspace}{\baselineskip=2mm}
-
 \newcommand{\lmchk}{{\exe{lmchk}\space }}
 \newcommand{\ctrl}{{\io{ctrl.*}\space }}
 \newcommand{\ctrls}{{\io{ctrls.*}\space }}
-\newcommand{\alat}{{\io{alat}}}
-\newcommand{\plat}{{\io{plat}}}
-\newcommand{\bfp}{{\bf P}}
+\newcommand{\alat}{{\raw{alat}}}
+\newcommand{\plat}{{\raw{plat}}}
+\newcommand{\qlat}{{\raw{qlat}}}
+
+
+%\newenvironment{mspace0}{\baselineskip=1mm}
+%\newenvironment{mspace}{\baselineskip=2mm}
+
+
 \makeindex
 
 \begin{document}
@@ -108,22 +269,26 @@
 
 \abstract{
 \noindent \ecalj is an all-electron full-potential electronic-structure 
-calculation package, available freely.\\
+calculation package, especially for GW related calculations. 
+Available freely from github.\\
 This is based on the formulation in Refs.
 \cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}
 (See Kotani2114QSGWinPMT.pdf and KotaniKinoAkai2015FormulationPMT.pdf at
-ecalj/Document/Manual/). By \ecalj, we can do QSGW and related calculations
+ecalj/Document/Manual/) on top of developments \cite{kotani07a}.
+By \ecalj, we can do QSGW and related calculations
 based on the PMT=LA\underline{P}W+L\underline{MT}O
-method. To get minimum usage for ecalj, need to read up to Section .5
-or Sec.\ref{cautionusage}. (We can generate model Hamiltonian through
-Wannier functions; not documented well yet...) \\
-
+method. To get minimum usage for ecalj, read up to the Section.5
+or Sec.\ref{cautionusage}. 
+(We can generate model Hamiltonian through
+Wannier functions(ecalj/MATERIALS/CuMLWF, and so on, 
+but not documented well yet...) \\
 
 \noindent Be careful. 
 This document still contain many bugs...
 We need your help on this manual.\\
 
 \noindent ------------------------\\
+\begin{quote}
 \noindent {\bf Requirement}\\
 \noindent To support of our ecalj activity, we need your acknowledgment to \ecalj 
 in your publications in the manner shown in ecalj/README.md; \\
@@ -136,6 +301,7 @@ such as:\\
 [2] LMsuit package at http://www.lmsuite.org/. \\
 \ \ \ \ \ \ \ \ \ \  Its GW part is adopted mainly from Ref.[1].}\\
 (as in the same manner of usual papers).\\
+\end{quote}
 
 \noindent ------------------------\\
 \noindent {\bf Relation with \exe{LM suit} at \io{http://www.lmsuite.org/}}:\\
@@ -153,7 +319,6 @@ is still applicable even to the ecalj package.
 %I will write up a new clean manual soon.
 \vspace{2mm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \noindent ------------------------\\
 \noindent {\bf Contributions}\\
 \noindent Main contributors to the ecalj package are
@@ -170,12 +335,14 @@ FP-LMTO part is originally given by
 M.Methfessel, Mark van Schilfgaarde and their collaborators.\\
 }
 
+
 \tableofcontents
 \vspace{5mm}
 \noindent$\bullet${\bf Reference}
 
 %\vspace{5mm}
 %\noindent$\bullet${\bf Index of I/O files, shel scripts and executions.}
+
 
 \newpage
 %\section{Software license agreement}
@@ -188,7 +355,7 @@ M.Methfessel, Mark van Schilfgaarde and their collaborators.\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\bibliographystyle{apsrev4-1}
+%\bibliographystyle{apsrev4-1}
 \newpage
 \section{Introduction}
 The \ecalj\ is an first-principles electronic-structure 
@@ -694,7 +861,8 @@ gas:epsPP_lmfh/                 : EPS*
 (These are just samples; not for practical calculations)
 
 \subsection{Directory structure}
-\begin{mspace0}
+%\begin{mspace0}
+{\baselineskip=1mm
 \begin{verbatim}
 ecalj
 ├── InstallAll.ifort, Install.gfortran ! install and test
@@ -707,7 +875,8 @@ ecalj
 ├── TestInstall/   ! Install test; this is invoked from Install.*
 └── TOOLS/      !Tools for developers
 \end{verbatim}
-\end{mspace0}
+}
+%\end{mspace0}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1758,6 +1927,7 @@ If not converged well, you may need to repeat
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{gwsc script to perform QSGW}
+\label{gwsc}
 
 \subsection{outputs of \exe{gwsc}}
 
@@ -1785,7 +1955,8 @@ subroutine of bash; but not so difficult to understand it.
 (In the followings, we assume \io{/home/binx/} is your bin directory 
 at which we have all binaries for ecalj.)
 
-\begin{mspace}
+%\begin{mspace}
+{\baselineskip=2mm
 \begin{verbatim}
 ### START gwsc: ITER= 10, MPI size=  24, TARGET= gaas
 --- No sigm nor sigm.$TARGET files for starting ---
@@ -1822,7 +1993,8 @@ OK! --> Start echo 0 | /home/binx/hqpe_sc  > lqpe
 == 2 iteration over ==
    ... (this repeat until ITER= 10(the first argument to gwsc) ) ...
 \end{verbatim}
-\end{mspace}
+%\end{mspace}
+}
 This shows that \exe{gwsc} invoke \exe{lmf-MPIK,lmfgw,qg4gw,...} successively.
 \exe{echo~3$|$hbasfp0 } means running a fortran program \exe{hbasfp0} 
 with the argument '3' from the standard input (\io{read(*,*)} in fortran
@@ -1872,18 +2044,18 @@ At the end of this stage,
 we get required eigenfunctions, BZmesh data, and so on,
 which are required for the main stage.
 Note that 
-{\bf echo 0 $|$lmfgw} means supply an integer to the fortran program
+{\bf echo 0 $|$ lmfgw} means supply an integer to the fortran program
 {\bf lmfgw} from standard input by read(*,*).
 \begin{itemize}
 \item \exe{lmf-MPIK} (k-parallel version of \exe{lmf})\\
 This is the one-body calculation for given \io{sigm.gaas}.
 At the beginning, we do not have \io{sigm.gaas}.
 In this case \exe{lmf-MPIK} just perform LDA/GGA calculation. 
-\item{\bf echo 0 $|$lmfgw}: \\
+\item{\bf echo 0 $|$ lmfgw}: \\
   Get some small information files to start {\bf qg4gw}.
   If you type just lmfgw, and observe what occurs.
   It shows a menu and pauses (asking you to supply an integer); then
-  we supply 0 in this case. (If we do {\bf echo 0 $|$lmfgw}, no pause occurs.)
+  we supply 0 in this case. (If we do {\bf echo 0 $|$ lmfgw}, no pause occurs.)
 \item{\bf echo 1 $|$qg4gw }: Get ${\bf k}$ points used
   in the \GW calculations and the corresponding ${\bf G}$ vectors.
   And what is the irreducible k point (See console output of qg4gw.
@@ -1896,7 +2068,7 @@ In this case \exe{lmf-MPIK} just perform LDA/GGA calculation.
   Remember that cutoff of ${\bf G}$ is given by QpGcut\_psi and QpGcut\_cou
   in \io{GWinput}. (Based on the experiences, we use smaller QpGcut\_cou
   to reduce computational time. Explained in other section xxx).
-\item{\bf echo 1 $|$lmfgw-MPIK} : 
+\item{\bf echo 1 $|$ lmfgw-MPIK} : 
  Calculate the LDA eigenfunctions, eigenvalues, and
  $\langle \psi | V^{\rm LDA}_{\rm xc}| \psi \rangle$
  at the irreducible ${\bf k}$ points (shown at the bottom of output
@@ -3522,8 +3694,7 @@ automatically (QPNT section is neglected).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Main Output Files of GW part}
-
-\label{mainoutput}
+\label{mainoutputgw}
 \fx{QPU}
 This is the main output\footnote{Note that QPU also implies QPD and so
 on. U is for up D is for down spins.} in 
@@ -3763,7 +3934,7 @@ in TOTE2.UP at first, and add the difference to the Shown LDA eigenvalue.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{{\bf mkGWIN\_lmf2} and its I/O Files}
+\section{mkGWIN\_lmf2 and its I/O Files}
 (QPNT.chk contains irreducible k
 point for given n1 n2 n3; KPTin1BZ.gwinit.chk contain all k points in
 Brillouin Zone).
@@ -3885,8 +4056,8 @@ from these two files into \io{GWinput}. And it is copied to \io{GWinput.tmp}.
 
 %------------------------------------------------------------------------
 \newpage
-\section{\exe{gwsc} script and its I/O Files}
-\label{gwsc}
+\section{gwsc script and its I/O Files}
+\label{gwscscript}
 In \exe{gwsc}, we have a loop of QSGW self-consistency.
 Look into the \exe{gwsc} script.
 In each iteration, we perform these fortran programs;
@@ -4858,11 +5029,535 @@ m is a magnetic quantum number, n is the degree of freedom which means 1 : $\phi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Theory and algorism for PMT-QSGW}
-At first, note that one-body part \io{lmv7} and \io{fpgw}
-are divided, mainly because of historical reasons.
-Makefiles are different.
+\label{sec:impl}
+
+xxxxxxxxx under construction xxxxxxxxxxxxxxxx\\
+
+The current ecalj contains a version of QSGW method
+described in Ref.\cite{kotani_quasiparticle_2014}.
+This is an improved version of 
+Ref.\cite{kotani_quasiparticle_2007},
+where we took some ideas from papers
+given by Friedrich, Bl\"ugel, and Schindlmayr
+\cite{friedrich_efficient_2010}, and 
+Ref.\cite{Freysoldt2007} by Freysoldt et al.
+In Sec.~\ref{sec:ov}, we give an overview along the line of Ref.\cite{kotani_quasiparticle_2014}.
+
+
+\subsection{overview}
+\label{sec:ov}
+In the PMT method \cite{kotani_fusion_2010}, 
+the valence eigenfunctions for a given $\H0$ are represented
+in the linear combinations of the Bloch-summed MTOs
+$\chi^{\bfk}_{\brl{j}}({\bf r})$ and the APWs $\chi^{\bfk}_\bfG (\bfr)$;
+\begin{eqnarray}
+\label{eq:lmtopsi}
+\Psikn(\bfr) = \sum_{\brl{j}} z^{{\bfk}n}_{\brl{j}}
+\chi^{\bfk}_{\brl{j}}({\bfr})+ \sum_{\bfG} z^{\bfk n}_{\bfG}
+\chi^{\bfk}_\bfG(\bfr),
+\label{eqeigen}
+\end{eqnarray}
+where we use indexes of the wave vector $\bfk$, band index $n$, and 
+reciprocal lattice vector $\bfG$. The MTOs in the primitive cell are 
+specified by the index of MT site $\bfR$, angular momentum $L=(l,m)$, and $j$ for radial functions. 
+As for core eigenfunctions, we calculate them under the condition
+that they are restricted within MTs.
+Then we consider the contributions of the cores only to the exchange part defined in \req{eq:sigx} in the following. 
+(In other words, we apply ``core1'' treatment in 
+Ref.\cite{kotani07a} for all cores.)
+
+To perform the $GW$ calculation, we first
+re-expand $\Psikn(\bfr)$ in \req{eq:lmtopsi}  
+as the sum of the augmentation parts in MTs and the
+PW parts in the interstitial region.
+\begin{eqnarray}
+\Psikn(\bfr)
+= \sum_{\bfR u}  \alpha^{{\bfk}n}_{\bfR u} \varphi^{\bf k}_{\bfR u}({\bf r})
+ + \sum_{\bf G}  \beta^{{\bfk}n}_{\bf G} P^{\bf k}_{\bf G}({\bf r}),
+\label{def:psiexp}
+\end{eqnarray}
+where the interstitial plane wave (IPW) is defined as
+\begin{eqnarray}
+P^{\bf k}_{\bf G}({\bf r}) =
+\begin{cases}
+0    & \text{if {\bf r}} \in \text{any MT} \\
+\exp(i ({\bf k+G})\cdot{\bf r})& \text{otherwise}
+\end{cases}
+\end{eqnarray}
+and $\varphi^{\bf k}_{R u}(\bfr)$ are Bloch sums of the atomic functions
+$\varphi_{R u}(\bfr)$ defined within the MT at $R$,
+\begin{eqnarray}
+\varphi^{\bf k}_{R u}({\bf r}) &\equiv& \sum_{\bf T} \varphi_{R u}({\bf r-R-T}) \exp(i {\bf k\cdot{}T}).
+\end{eqnarray}
+{\bf T} and {\bf G} are lattice translation vectors in real and reciprocal spaces, respectively. 
+xxxx We explain how they can be represented in codes
+in Sec.\ref{crystalstructure}\\
+
+ \ \\
+
+In the $GW$ calculation, we need not only the basis set for
+eigenfunctions, but also the basis set for expanding the product of eigenfunctions.
+The basis is called the mixed product basis (MPB) $\{M^{\bf k}_I({\bf r}) \}$ first introduced in Ref.\cite{kotani_all-electron_2002} by Kotani. The MPB consists of the product basis (PB) within MTs \cite{aryasetiawan_product-basis_1994}
+and the IPW in the interstitial region.
+Since $\{M^{\bf k}_I({\bf r}) \}$ contains IPWs which are not orthogonal,
+we define dual for $\{M^{\bf k}_I({\bf r}) \}$ as
+\begin{eqnarray}
+&& |\tilde{M}^{\bf k}_{I} \rangle \equiv \sum_{I'}
+   |M^{\bf k}_{I'} \rangle (O^{\bf k})^{-1}_{I'I} \, , \\
+&& O^{\bf k}_{I'I} = \langle M^{\bf k}_{I'} |  M^{\bf k}_I \rangle.
+\end{eqnarray}
+%xxx3004
+%kino1  H = E S : generalized eigenvalue problem
+From $v_{IJ}^\bfk= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$,  
+we calculate the eigenfunction for the generalized eigenvalue problem defined by
+$\sum_J (v_{IJ}^\bfk - v^\bfk_\mu O^{\bfk}_{IJ} ) w_{\mu J}^\bfk = 0$, where
+$v_\mu(\bfk)$ are the eigenvalues of the Coulomb interaction matrix.
+Then we have the Coulomb interaction represented by matrix elements as 
+\begin{eqnarray}
+v(\bfk)=\sum_{\mu} | E^{\bfk}_\mu \rangle {v_\mu(\bfk)} 
+\langle E^{\bfk}_\mu |,
+\label{eqvcoue}
+\end{eqnarray}
+where we define a new MPB 
+$|E^{\bf k}_\mu({\bf r})\rangle=\sum_J |M^\bfk_J\rangle w^\bfk_{\mu J}$,
+which is orthonormal and is diagonal to the Coulomb interaction $v(\bfk)$. 
+For the all-electron full-potential $GW$ approximation,
+\req{eqvcoue} is introduced in Ref.\cite{friedrich_efficient_2010}.
+This corresponds to the representation in the plane wave expansion 
+$v(\bfk+\bfG,\bfk+\bfG')=\frac{4 \pi \delta_{\bfG \bfG'}}{|\bfk+\bfG|^2}$.
+$\mu=1$ corresponds to the largest eigenvalue of $v_{\mu}$, and 
+$v_{\mu=1}$ is $\sim \frac{4 \pi e^2}{|\bfk|^2}$, which is related to 
+the divergent term discussed in Sec.\ref{sec:kint}.
+
+With the definition of 
+$\langle A| B\rangle =\int d^3r A^*(\bfr) B(\bfr)$,
+the exchange part of $\Sigma(\omega)$ is written as
+\begin{eqnarray}
+\Sigma^{\rm x}_{nm}(\bfq)=
+\langle \Psiqn|\Sigma_{\rm x} |\Psiqm \rangle
+=-\sum^{\rm BZ}_{{\bf k}}  \sum^{\rm  occ}_{n'}
+\langle \Psiqn| \Psi_{{\bf q-k}n'} E_\mu^{\bf k} \rangle
+v_{\mu}({\bf k})
+\langle E_\mu^\bfk \Psi_{{\bf q-k}n'} | \Psiqm \rangle.
+\label{eq:sigx}
+\end{eqnarray}
+%We evaluate integral on $\bfk$ by a discrete sum on the regular mesh points
+%including $\bfk=0$. However, we need to replace divergent
+%$v_{\mu=1}(\bfk=0)$ with an effective one $\overline{v_{\mu=1}}(\bfk=0)$
+%as explained in Sec.~\ref{sec:kint}.
+
+The screened Coulomb interaction $W(\omega)$ is calculated from
+\begin{equation}
+ W = \epsilon^{-1} v = \left(1-v \Pi\right)^{-1} v,
+\label{eq:defw}
+\end{equation}
+where the polarization function $\Pi(\omega)$
+is written as
+\begin{eqnarray}
+\Pi_{\mu \nu}({\bf q},\omega)
+&&=
+\sum^{\rm BZ}_{\bfk} \sum^{\rm occ}_{n \ispone} \sum^{\rm unocc}_{n'\isptwo}
+\frac{
+\langle E^{\bf q}_\mu \Psikn |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psikn E^{\bf q}_\nu \rangle
+}{\omega-(\varepsilon_{{\bf q+k} n'\isptwo}-\varepsilon_{\bfk n\ispone})+i \delta} \nonumber\\
+&&+ \sum^{\rm BZ}_{\bfk} \sum^{\rm  unocc}_{n \ispone} \sum^{\rm occ}_{n'\isptwo}
+\frac{
+\langle E^{\bf q}_\mu \Psi_{{\bf k}n} |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psi_{{\bf k}n} E^{\bf q}_\nu \rangle
+}{-\omega-(\varepsilon_{\bfk n\ispone}-\varepsilon_{{\bf q+k} n'\isptwo})+i \delta}.
+\label{eq:polf0}
+\end{eqnarray}
+When time-reversal symmetry is assumed, $\Pi(\omega)$ can be simplified to read
+\begin{eqnarray}
+\Pi_{\mu \nu}({\bf q},\omega)
+&&=\sum^{\rm BZ}_{{\bf k}}  \sum^{\rm  occ}_{n} \sum^{\rm  unocc}_{n'}
+\langle E^{\bf q}_\mu \Psi_{{\bf k}n} |\Psi_{{\bf q+k}n'} \rangle
+\langle \Psi_{{\bf q+k}n'}| \Psi_{{\bf k}n} E^{\bf q}_\nu \rangle \nonumber \\
+&& \times
+\left(\frac{1}{\omega-\varepsilon_{{\bf q+k}n'}+\varepsilon_{{\bf k}n}+i \delta}
+-\frac{1}{\omega+\varepsilon_{{\bf q+k}n'}-\varepsilon_{{\bf k}n}-i \delta}\right). \label{dieele}
+\label{eq:polf}
+\end{eqnarray}
+To evaluate \req{eq:polf0} or \req{eq:polf},
+we first accumulate the imaginary parts (anti-Hermitian part) of $\Pi_{\mu \nu}(\bfq,\omega)$
+along bins of histograms on the real axis $\omega$
+by the tetrahedron technique \cite{rath_generalized_1975},
+and then determine the real part via the Hilbert transformation.
+The bins are dense near the Fermi energy and coarser at higher energy as described in 
+Ref.\cite{kotani_quasiparticle_2007}.
+This procedure is not only more efficient but also safer than the methods
+of calculating the real part directly. 
+We also use the extended irreducible zone (EIBZ) 
+symmetrization procedure described in Ref.\cite{friedrich_efficient_2010}.
+
+The correlation part of the screened Coulomb interaction $W^c(\omega)=W(\omega)-v$, 
+which is calculated from $v$ and $\Pi(\omega)$, is given as
+\begin{eqnarray}
+W^{\rm c}(\bfk,\omega)=\sum_{\mu\nu} | E^{\bfk}_\mu \rangle {W^{\rm c}_{\mu\nu}(\bfk,\omega)} 
+\langle E^{\bfk}_\mu |.
+\end{eqnarray}
+With this $W^{\rm c}(\bfk,\omega)$, we have the correlation part of the self-energy  as
+\begin{eqnarray}\
+\Sigma^{\rm c}_{n,n'}(\bfq,\omega)= \sum_{\bfk,m} \int_{-\infty}^\infty  \!d \omega' \sum_{\mu,\nu} 
+\frac{\langle\Psiqn|\Psiqkm E^{\bfk}_\mu \rangle 
+W^{\rm c}_{\mu\nu}(\bfk,\omega')\langle E^{\bfk}_\nu \Psiqkm
+|\Psiqnp\rangle e^{-i \delta \omega'}}
+{\omega-\omega'-\epsilon_{\bfq-\bfk m}\pm i \delta}.
+\label{sigmann}
+\end{eqnarray}
+Here, we use $-i \delta$ for occupied states of
+${\bfq\!-\!\bfk m}$, and $+i \delta$ for unoccupied states.
+In \QSGW, we have to calculate the Hermitian part of $\Sigma_{nn'}(\bfq,\epsilon_{\bfq n})$, 
+to obtain $\vxc_\bfq$ using \req{eq:vxceq}.
+
+There are two key points to handle the $GW$ procedure given above.
+The first key point, given in Sec.\ref{sec:kint},
+is the improved offset-$\Gamma$ method, which treats
+the divergence of $W^{\rm c}(\bfk \to 0,\omega)$ in \req{sigmann}. 
+For this purpose, we define the non-divergent 
+effective interaction $\overline{W^{\rm c}}(\bfk=0,\omega)$ instead of
+${W^{\rm c}}(\bfk=0,\omega)$.
+%; for \req{eq:sigx}, so does $\overline{v_{\mu=1}}(\bfk=0)$ instead of ${v_{\mu=1}}(\bfk=0)$.
+Then we can take a simple discrete sum for both expressions of
+Eqs.(\ref{eq:sigx}) and (\ref{sigmann}).
+
+The second point in Sec.\ref{sec:siginterp} is
+how to perform
+%$\vxc_\bfq$ for $\bfq$ in the whole BZ.
+%That is, we need to make 
+an interpolation to give $\vxc_\bfq$ at any $\bfq$ in the whole BZ,
+from $\vxc_\bfq$ calculated only at limited numbers of $\bfq$ points.
+This is required in the offset-$\Gamma$ method shown in Sec.\ref{sec:kint},
+that is, we have to calculate eigenfunctions at some $\bfq$ points near $\bfq=0$.
+For the interpolation, we expand the static
+nonlocal potential $\vxc$ in \req{eq:vxceq} in highly localized
+MTOs in real space. Thus such MTOs are used for two purposes:
+one as the basis of the eigenfunctions; and two as the basis of 
+expanding $\vxc$. The interpolation procedure of $\vxc_\bfk(\bfr,\bfr')$
+becomes stabler and simpler than the
+complicated interpolation procedure in 
+Ref.\cite{kotani_quasiparticle_2007}.
+This is because we now use highly localized MTOs.
+In the planewave-based \QSGW\ method by Hamann and Vanderbilt \cite{hamann09}, 
+they expand $\vxc$ in the maximally localized Wannier functions instead of MTOs.
+
+In practical implementation, the LDA or GGA exchange-correlation
+potential $V^{\rm xc}_{\rm LDA}$ is used to perform efficient numerical calculations.
+That is, it is used in order to generate core eigenfunctions as well as radial functions within MTs
+(in this paper, we use the subscript LDA even when we use GGA. ``LDA/GGA'' means LDA or GGA).
+The difference $\vxc-V^{\rm xc}_{\rm LDA}$ is used 
+for the interpolation in the BZ (explained in Sec.\ref{sec:siginterp}),
+because this difference is numerically small as long as 
+$V^{\rm xc}_{\rm LDA}$ roughly gives an approximation to $\vxc$.
+This procedure utilizing $V^{\rm xc}_{\rm LDA}$ to perform efficient numerical calculations
+give a very weak dependence to the final numerical results in practice as seen in Sec.\ref{sec:numtest},
+although the results formally does not depend on the LDA/GGA exchange-correlation functions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Improved offset-$\Gamma$ method}
+\label{sec:kint}
+The offset-$\Gamma$ method, originally 
+invented for Ref.\cite{kotani_all-electron_2002} by Kotani 
+(it is described in Ref.\cite{kotani_quasiparticle_2007}), 
+is a key to perform accurate $GW$ calculation.
+It is for the integration of $\bfk$ 
+in Eqs.(\ref{eq:sigx}) and (\ref{sigmann}), where
+we have the integrands that diverge at $\bfk \to 0$.
+It works well for highly symmetric systems; however,
+it can be problematic to apply to less symmetric systems, 
+because the anisotropic divergence of the integrands 
+%in \req{eq:sigx} and \req{sigmann} around $\bfk=0$ 
+may not be treated accurately.
+Here we show an improved offset-$\Gamma$ method, which treats
+the anisotropy of $W(\bfk,\omega)$ accurately.
+In the following, we use expression $W(\bfk)$
+for simplicity (omit subscripts and $\omega$)
+instead of $W_{\mu \nu}(\bfk,\omega)$, 
+since we are concerned with the $\bfk$ integral.
+
+% In the improved offset-$\Gamma$ method presented here,
+% the integrals for the integrand $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$ 
+% with respect to $\bfk$ in the BZ, 
+% is evaluated by the usual discrete sum on the regular $\bfk$ mesh points, 
+% except a point that we replace 
+% $W(\bfk=0)$ (this is divergent) with $\overline{W}(\bfk=0)$ which is
+% not divergent at $\bfk=0$.
+% %$effective $W(\bfk=0)$.
+% Roughly speaking, 
+% $\overline{W}(\bfk=0)$ is evaluated as an average of $W(\bfk)$ 
+% in the microcell named as the $\Gamma$ cell
+% (the microcell including the $\Gamma$ point)\cite{freysoldt_dielectric_2007}.
+
+Let us give a formula for calculating
+$\int_{\rm BZ} f(\bfk) d^3k$ using a discrete sum on $\bfk$-mesh,
+where $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$.
+As the $\bfk$-mesh, we use
+\begin{eqnarray}
+{\bf k}(i_1,i_2,i_3) &=& 2 \pi (\frac{i_1}{N_1} {\bf b}_1 
++ \frac{i_2}{N_2} {\bf b}_2 + \frac{i_3}{N_3} {\bf b}_3),
+\label{kmesh}
+%\\
+%\sum_{\bf k}^{\rm BZ} &\approx& \frac{1}{N_1N_2N_3} \sum_{i_1,i_2,i_3},
+\nonumber
+\end{eqnarray}
+where ${\bf b}_1, {\bf b}_2$, and ${\bf b}_3$ are the primitive reciprocal
+vectors (the same as the Eq.(47) in Ref.\cite{kotani_quasiparticle_2007}). 
+The 1st BZ is divided into $N=N_1 \times N_2 \times N_3$
+microcells ($i_1=0,1,... N_1-1$, and also the same for $i_2$ and $i_3$.).
+The microcell including the $\Gamma$ point is called the
+$\Gamma$ cell \cite{freysoldt_dielectric_2007}.
+The main problem is how to evaluate the contribution of the $\Gamma$ cell.
+%where we have divergent behavior $f(\bfk \to 0)$.
+The divergent part of $f(\bfk)$ behaves $\approx$ (analytic function of $\bfk$) 
+$/(\bfk^{\rm T}{\bf L}\bfk)$, 
+where $\bfk^{\rm T}$ denotes the transpose of $\bfk$; ${\bf L}$
+is a $3\times3$ Hermitian matrix \cite{friedrich_efficient_2010}. 
+%{\sum_{ij} k_i L_{ij}(\omega)k_j}$ at $\bfk \to 0$;
+%$L_{ij}$ means a three-by-three hermitian matrix; $k_i$ means the
+%component of $\bfk$. 
+We neglect an odd part of $\bfk$ in the above (analytic function of $\bfk$)
+because it has no contribution to the integral around $\bfk=0$.
+Thus it is sufficient to consider the integral for $f(\bfk)$ whose divergent parts behave
+as $f(\bfk)=\sum_L \frac{f_L Y_L(\widehat{\bfk})}{|\bfk|^2}$ at $\bfk \to 0$, 
+where $l$ of $L\equiv(l,m)$ is restricted to be an even number.
+We evaluate the integral using the formula
+\begin{eqnarray}
+\int_{\rm BZ} f(\bfk) d^3k \approx \frac{1}{N}\sum^{\bfk \ne 0} f(\bfk)
+ + \sum_L f_L w_L + \frac{1}{N} \tilde{f},
+\label{eq:bzint0}
+\end{eqnarray}
+which is introduced in Ref.\cite{freysoldt_dielectric_2007}. 
+Here the weight $w_L$ is determined in a manner as follows,
+so as to take into account the contributions of the divergent part of $f(\bfk)$
+at $\bfk \to 0$ in the $\Gamma$ cell.
+$\tilde{f}$ is the constant part of $f(\bfk)$ at $\bfk \to 0$.
+
+To determine $w_L$, 
+we can use the following procedure instead of that given 
+in Ref.\cite{freysoldt_dielectric_2007}.
+We first introduce the auxiliary function  
+\begin{eqnarray}
+F_L(\bfk) =\sum_{\bfG} \frac{\exp(- \alpha
+ |\bfk-\bfG|^2)Y_L(\widehat{\bfk-\bfG})}{|\bfk-\bfG|^2}.
+\end{eqnarray}
+This is a generalization of an auxiliary function used in the 
+offset-$\Gamma$ method (then we only used $F_{00}$ \cite{kotani_quasiparticle_2007}).
+We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead.
+Let us apply \req{eq:bzint0} to $F_L(\bfk)$.
+Then we can evaluate the left-hand side of \req{eq:bzint0}
+exactly (the exact values are zero except for $L=(0,0)$). 
+On the other hand, the first and 
+third terms on the right-hand side of \req{eq:bzint0}
+can be evaluated numerically.
+In addition, we know that $f_{L'}$ for $F_L(\bfk)$ is unity for $L'=L$,
+and zero otherwise.
+Thus we can determine $w_L$ in \req{eq:bzint0}
+so that \req{eq:bzint0} is exactly satisfied for $F_L(\bfk)$ for any $L$.
+
+% With a definition $\bar{f}(0) \equiv N \sum_L f_L w_L
+% +\tilde{f}$, we can rewrite \req{eq:bzint0} as
+% \begin{eqnarray}
+% \int_{\rm BZ} f(\bfk) d^3k \approx \frac{1}{N}\sum_{\bfk \ne 0} f(\bfk)
+%  + \frac{1}{N} \bar{f}(0).
+% \label{eq:bzint}
+% \end{eqnarray}
+% That is, we can use the usual formula of discrete sum but with
+% $\bar{f}(0)$, which means the effective value of $f(\bfk)$ at $\bfk \to 0$
+% for integration. 
+
+Let us apply \req{eq:bzint0} to $f(\bfk)=G(\bfq-\bfk) \times W(\bfk)$.
+Then we perform an approximation taking only the most divergent term 
+in $W(\bfk)$ in addition to its analytic part. That is, we use
+\begin{eqnarray}
+W_{\mu \nu}(\bfk) \sim \widetilde{W}_{\mu \nu}(\bfzero) +
+ \frac{4 \pi}{\bfk^{\rm T} {\bf L} \bfk}
+ \delta_{1\mu}\delta_{1\nu}
+\label{eq:wnear0}
+\end{eqnarray}
+at $\bfk \to 0$. 
+$\widetilde{W}_{\mu \nu}(\bfzero)=0$ for $\mu=1$ or $\nu=1$. 
+See Eq.(36) in Ref.\cite{friedrich_efficient_2010} to know what is
+neglected in the approximation of \req{eq:wnear0}.
+%Compare \req{eq:wnear0} with \req{eq:}.
+
+%We use \req{eq:wnear0} for $W$ in $f(\bfk)$ in \req{eq:bzint}. 
+%Furthermore,
+%we neglect the contributions 
+%terms of 0th-order of $\bfk$, yielded as the divergent term
+%in \req{eq:wnear0} multipled by the 2nd-order terms of $\bfk$ in $G(\bfq-\bfk)$.
+Then we finally obtain
+\begin{eqnarray}
+\int_{\rm BZ} d^3k G(\bfq-\bfk) W(\bfk) 
+\approx \overline{\sum G(\bfq-\bfk) W(\bfk)},\label{eq:bzintbar}
+\end{eqnarray}
+where its right-hand side is defined as
+\begin{eqnarray}
+&&\overline{\sum G(\bfq-\bfk) W(\bfk)} \nonumber \\
+&&\equiv 
+\frac{1}{N} \sum_{\bfk \ne 0} G(\bfq-\bfk) W(\bfk) + \frac{1}{N} G(\bfq)\overline{W}(\bfzero),\\
+&&\overline{W}(\bfzero)\equiv N\sum w_L W_L + \widetilde{W}(\bfzero).
+\end{eqnarray}
+Here $\overline{W}(\bfzero)$ can be taken as a kind of 
+average of $W$ in the $\Gamma$ cell.
+With this $\overline{W}(\bfzero)$, we can 
+evaluate integrals just as the sum on the discrete $\bfk$-mesh.
+When the matrix ${\bf L}$ is given 
+(a method of calculating ${\bf L}$ is given in the next paragraph),
+the non-analytic (but non-divergent) function 
+${\bfk^{\rm T}{\bf L}\bfk}/|\bfk^2|$ 
+is expanded in the spherical harmonics. Then
+$W_L$ is calculated for a given ${\bf L}$ in the manner shown in Ref.\cite{friedrich_efficient_2010}. 
+We can evaluate the accuracy of integrals with a discrete $\bfk$-mesh
+in combination with the approximation of \req{eq:wnear0} 
+by calculations while changing the size of the $\bfk$-mesh.
+
+
+%Here we make an approximation
+%to use $G(\bfq) \overline{W}(\bfzero)$ instead of
+%$\overline{G(\bfq) W(\bfzero)}$ for simplicy.
+
+%Neglected terms are terms related to the wing elements of 
+%$W(\bfk \to \bfzero)$, and the quadratic term $W(\bfk \to \bfzero)$.
+%This cause some errors due to some origins
+%(from linear and quadratic order of $\bfk$ for $G(\bfq-\bfk)$)
+%by higher order terms of $G(\bfq-\bfk)$ times divergent terms. 
+%It is not so easy to evaluate the size of error
+
+%\subsection{evalulation of the effective $\overline{W}$ with the offset $\Gamma$ method}
+%Thus we have to calculate 
+%in addition to $W(\bfk)$ for $\bfk \ne \bfzero$.
+
+The remaining problem is how to calculate
+the matrix ${\bf L}$ in \req{eq:wnear0}; there are two possible ways.
+One is the $\bfk \cdot \bfp$ method (perturbation) used in Ref.\cite{friedrich_efficient_2010}; 
+the other is the numerical method to calculate ${\bf L}$ at some
+$\bfk$ points near $\bfk=0$. Here we use the latter method.
+Because of the point-group symmetry of the system, ${\bf L}$ can be expressed by the
+linear combination of invariant tensors $\mu_{ij}^g$ for the symmetry of the unit cell,
+\begin{eqnarray}
+L_{ij}(\omega)=  \sum_{g=1}^{N_g} a_g(\omega) \mu_{ij}^g,
+\end{eqnarray}
+where $g$ is the index of the invariant tensor. 
+The number of $g$'s $N_g$, can be
+from one (cubic symmetry) through six (no symmetry).
+It is possible to determine the coefficient $a_g(\omega)$
+from the dielectric functions ${\hat{\bfk}_{0i}}^{\rm T}{\bf L}\hat{\bfk}_{0i}$
+calculated at $\{\bfk_{0i}\}$ points around
+$\bfk=0$, where $\{\bfk_{0i}; i=1,N_g\}$ is a set of the offset-$\Gamma$ points.
+The offset-$\Gamma$ points are chosen so that the conversion matrix
+from $\hat{\bfk}_{0i}^{\rm T}{\bf L}(\omega)\hat{\bfk^{0i}}$ to $a_g(\omega)$
+is not numerically degenerated. The length $|\bfk^{0i}|$
+can be chosen to be sufficiently enough, but avoiding numerical error
+%(in practice, we now take the length is ten times smaller than $\bfq$ points
+%of the regular mesh points for the BZ integration).
+%
+% (Q0choice=1); one another choice is to be about 
+%the middle of the $\Gamma$ cell (Q0choice=2)
+as the average of $W(\bfk)$ in the $\Gamma$ cell.
+%The latter choice can be meaningful when
+%$\overline{W}(0)$ changes rapidly at $\bfq \to 0$, 
+The improved offset-$\Gamma$ method shown here can be applicable even to metal cases, as long as
+$\hat{\bfk}_{0i}^{\rm T}{\bf L}(\omega)\hat{\bfk_{0i}}$ contains the contribution
+of intraband transition.
+
+
+\subsection{Interpolation of the self-energy in the Brillouin zone}
+\label{sec:siginterp}
+Here we show 
+an interpolation procedure for giving
+$\vxc_{\bfk}$ at any $\bfk$,
+from $\vxc_{\bfk}$ calculated only at the regular mesh points $\bfk(i_1,i_2,i_3)$.
+This interpolation is used for the offset-$\Gamma$ method that
+requires $W(\omega)$ at $\{\bfk_{0i}\}$;
+to calculate this $W(\omega)$, we need 
+eigenfunctions and eigenvalues not only 
+at the regular mesh points $\bfk(i_1,i_2,i_3)$
+but also at $\bfk(i_1,i_2,i_3)+\bfk_{0i}$. 
+This interpolation is also useful for plotting
+energy bands. %, thus to obtain effective mass and so on. 
+%(not so many $GW$ codes can make this interpolation).
+A key point of the interpolation is that $\vxc$ 
+is expanded in real space in highly localized MTOs as follows.
+
+At the end of step (IV) in Sec.\ref{sec:qsgwth}, we obtain the matrix elements
+$\langle \Psikn | \Dvxc_\bfk | \Psikm \rangle$ on the regular mesh
+points of $\bfk$, where
+$\Dvxc_\bfk=\vxc_\bfk-V^{\rm xc,LDA}_\bfk$.
+Then it is converted to the representation in the APW and MTO bases as
+\begin{eqnarray}
+\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle
+= \sum_{n,m} \left(z^{-1}\right)^*_{an}\langle \Psikn |\Dvxc_\bfk |
+\Psikm \rangle z_{bm}^{-1}, \nonumber \\
+\label{eqvxcchi}
+\end{eqnarray}
+where we use the simplified basis index $a$, which is the index for specifying a basis 
+($\brl{j}$ for MTO or ${\bfG}$ for APW).
+Thus $\chi^{\bfk}_a$ denotes the APWs or MTOs in \req{eqeigen};
+$z_{na}$ ($\bfk$ is omitted for simplicity)
+denotes the coefficients of the eigenfunctions at $\bfk$, that is,
+$z^{{\bfk}n}_{\brl{j}}$ and $z^{\bfk n}_{\bfG}$ in \req{eqeigen} together.
+This $z_{an}$ is identified as a conversion matrix that connects
+eigenfunctions (band index $n$) and the APW and MTO bases (basis index $a$).
+
+To obtain real-space representation of $\Dvxc$, we need a representation
+expanded in the basis that consist of the Bloch-summed localized orbitals, 
+which are periodic for $\bfk$ in the BZ. However, this is not the case for the APWs in
+\req{eqvxcchi}. To overcome this problem, we use an approximation 
+in which we only take the matrix elements 
+related to MTOs, that is, the elements 
+$\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle$
+where $a$ and $b$ specify MTOs.
+%This means that $\Dvxc$ is expanded in the basis of MTOs. 
+This means that the part of $\Dvxc$ related to APWs is projected onto the basis of MTOs.
+This approximation can be reasonable as long as the main part of $\Dvxc$ can be
+well expanded in MTOs,
+although we need numerical tests to confirm the accuracy as shown in Sec.\ref{sec:numtest}.
+Then we obtain a real-space representation of 
+$\Dvxc$ expanded in MTOs from the MTO part of 
+$\langle \chi^{\bfk}_a| \Dvxc_\bfk | \chi^{\bfk}_b \rangle$ by Fourier transformation.
+%kino1 one=Dvxc? it=Dvxc? ---> naoshimasu.
+Then we can have interpolated $\Dvxc$ at any $\bfk$ by inverse Fourier transformation.
+%kino1 Since we now usually use very localized MTOs, 
+%kotani1
+Since we use highly localized MTOs, 
+this interpolation is more stable 
+than the previous one in FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}.
+The complicated interpolation procedure 
+given in Sec.II-G in Ref.\cite{kotani_quasiparticle_2007} is no
+longer necessary.
+
+%In the plane wave based implementation, 
+%Hamann and Vanderbilt used the maximally localized Wannier functions 
+%for the latter role \cite{hamann09}.
+%Considering the fact that MTOs themselves are good basis to represent eigenfunctions,
+%we can expect this procedure works well. In principle, it is possible to test
+%numerical errors in this method by changing the number of MTOs.
+%Numerical tests are shown in Sec.\cite{}.
+To reduce the computational time,
+we calculate the matrix elements $\langle \Psikn |\Dvxc_\bfk | \Psikm \rangle$ only up to the states whose
+eigenvalues are less than $\EMAXS$. 
+Then the high energy parts of the matrix elements are assumed 
+to be diagonal, where their values are given by a simple average 
+of calculated diagonal elements.
+
+
+
+
+
+
 
 \subsection{General cautions for developers}
+\exe{gwsc} is the main script to perform QSGW.
+Sec.\ref{gwsc} gives an overview.
+Sec.\ref{mainoutputgw} explain main output files.
+Sec. \ref{gwscscript} explains all i/o files.
+
+At first, note that one-body part \io{lmv7} and \io{fpgw}
+are divided, mainly because of historical reasons.
+Make procedure is complicated, but automatic
+by \io{ecalj/InstallAll.*} (See. \raw{ecalj/README.md}).
+
 Main make system of ecalj is in ecalj/InstallAll.*.
 As you see in it, makefile for fpgw (GW part) is 
 located at \io{fpgw/gwsrc/exec/makefile}. 
@@ -4920,12 +5615,12 @@ For example, we have geteval(eigenvalues),
 readcphi(coefficient of eigenfunction for MTO part),
 readgeig(coefficient of APW part), get\_zmel (\verb#<phi|phi MPB>#).
 In cases, we have initialization routines such as
-\raw{readqgcou()}, defined in \io{readeigen.F}.
+\raw{readqgcou()} defined in \io{readeigen.F}.
 After it is called, we can access to all date in module \verb#m_readqgcou#.
 In principle, this kind of initialization routines must be called
 at the top of main programs... But not organized yet.
-In addition, it may be better to allocate even the scalar (fortran2003).
-But such new features in latest fortran standard is still buggy
+In addition, it may be better to allocate even scalar in fortran2003.
+But such new features in fortran2003 is still buggy
 (at least in ifort15) as long as I tested.
 \item
 A possible mechanism to make things safer 
@@ -4942,15 +5637,22 @@ It is better to use glue languages such as python or bash, as I did in gwsc...
 We use \verb#ibas# for a loop of \verb#do ibas=1,nbas#.
 This is a general rule; another example is \verb#iqbz=1,nqibz#
 where \verb#nqibz# is the number of irreducible q points.
+\item
+\verb#getkeyvalue# defined in \verb#fpgw/gwsrc/keyvalue.F#
+is an universal i/o routine for \io{GWinput}.
+Its arguments can be one of types among 
+"logical, int, real, int array, real array".
+Do grep 'call getkeyvalue' for fpgw/*/*.F 
+to find out how to use it.
 \end{itemize}
 
 \subsection{Overview of gwsc and other scripts}
 The fpgw/exec/gwsc is the main script to run QSGW.
 After we finish one-body self-consistent calculation, 
-we run \exe{echo 0|lmfgw}, resulting small files.
+we run \exe{echo 0$|$lmfgw}, resulting small files.
 See Sec.\ref{gwsc}. Then we run qg4gw to generate q+G vectors
 stored in \io{QGpsi,QGcou,Q0P} files, in addition to EPSwklm, which is for offset-Gamma method \ref{xxx}.
-Then we run lmfgw-MPI which is to calculated eigenfunctions
+Then we run lmfgw-MPI which is to calculate eigenfunctions
 and eigenvalues (and some quantities) required for successive
 main part of QSGW calculation.
 We recommend you to examine this first.
@@ -4966,44 +5668,125 @@ It is in \io{fpgw/Wannier} directory.
 
 
 \subsection{Crystal structure}
-We use unit \alat\ (given in a.u.) to represent length in the code.
+\label{crystalstructure}
+We use unit \alat\ (in a.u.) to represent length in the code.
 Thus, in cases, to convert quantities in the unit of a.u., we
 multiply \alat\ to the quantities.
-For example, primitive cell is given by 
-\alat\ (in a.u.) $\times$ \plat.
-That is, primitive vectors $\bfp_i$ (in a.u.) are
+For example, primitive cell (in a.u.) is given by 
+\alat\ $\times$ \plat. (plat=PLAT in ctrl file).
+This;
+\begin{itemize}
+\item
+primitive vectors $\bfp_i$ (in a.u.) are
 \raw{alat*plat(1:3,i)}, where i=1,2,3. (see \io{LATTC}).
-The locations of MT sites $\{\bfR\}$ in the primitive cell
+\item
+The centers of MT sites $\{\bfR\}$ in the primitive cell
 is given by \raw{alat*bas(1:3,ibas),ibas=1,nbas} 
 (we use \verb#pos,natom# in cases instead of \verb#bas,nbas#). 
-
+\item
 \verb#iclass(ibas)# is the index for class. The equivalent
 MT sites should have the same number as \verb#iclass(ibas1)=iclass(ibas2)#. However, for the convenience of program developments,
 (historical reason), I assume ibas=iclass(ibas); true class
 is iclasst(ibas). This is used to find space group operations
 in \verb#call mptauof#. A little complicated yet...
-
-\verb#getkeyvalue# is an universal i/o routine for \io{GWinput}.
-Its arguments can take one of type among 
-"logical, integer, real, int array, real array, and their arrays".
-Do grep 'call getkeyvalue' for fpgw/*/*.F 
-to find out how to use it.
+\end{itemize}
 
 
-xxxxxxxxxxxxxxxx under construction xxxxxxxxxx
-\end{document}
+\subsection{Some common notations in computer code}
 
 \begin{verbatim}
 alat: unit in a.u. This is in LATTC or (or call genallc_v3)
 plat: primitive vector. this is in LATTC (or call genallc_v3)
-qlat: reciprocal primitive vector  \delta_ij= sum(plat(:,i)*qlat(:,j))
-QpGcut_psi: cutoff to determine G vector for eigenfunction |q+G|< QpGcut_psi
+qlat: reciprocal primitive vector  
+      \delta_ij= sum(plat(:,i)*qlat(:,j))
+QpGcut_psi: cutoff to determine G vector for eigenfunction
+         |q+G|< QpGcut_psi
 QpGcut_cou: cutoff
-symops (or symgg): space group, rotational part. This is in SYMOPS 
-(or call genallc_v3)
+symops (or symgg): 
+   space group, rotational part. This is in SYMOPS 
+   (or call genallc_v3)
 nbas (or natom): number of MTs in the primitive cell.
-bas(1:3,1:natom): MT centers R.
+bas(1:3,1:natom) (or nbas): MT centers for R within the cell
+
+tiat miat: given by subroutine mptauof. Space group operation.
+           (mapping of atoms).
+
+Radial mesh: hbasfp0
+  a,b, rofi,nr (or aa,bb, nrad).
+  MT site radial data. Radial integrals are only in 
+  subroutine basnfp_v2 in hbasfp0.m.F.
+  We assume r(ir)=b*(exp(aa*(ir-1)-1.), ir=1,nr
+  rhoMT is read.
 \end{verbatim}
+
+
+
+
+In Sec.~\ref{sec:kint}, we show a new improvement in the offset-$\Gamma$ method, which is
+made in order to treat the $\bfk \to 0$ divergence of the integrand for the self-energy calculation.
+This improvement can correctly capture the anisotropy of the screened Coulomb interaction,
+although the previous offset-$\Gamma$ method in FP-LMTO-QSGW \cite{kotani_quasiparticle_2007}
+can be problematic for treating anisotropic systems.
+
+In Sec.~\ref{sec:siginterp}, we explain the interpolation procedure of 
+$\vxc_\bfk(\bfr,\bfr')$. The procedure is simplified in comparison with that used in FP-LMTO-QSGW.
+
+
+
+
+%xxxxx this document until here is the same as pmtqsgw8.tex xxxxx
+
+
+\subsection{CPHI and GEIG}
+We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region
+\begin{eqnarray}
+\Psi_{{\bf k}n} = \sum_{{\bf R}u}\alpha_{{\bf R}u}^{{\bf k}n}\phi_{{\bf R}u}^{\bf k}({\bf r}) + \sum_{\bf G}\beta_{\bf G}^{{\bf k}n}P_{\bf G}^{\bf k}({\bf r})
+\end{eqnarray}
+This is Eq.(17) in Ref.\cite{kotani_quasiparticle_2014}.
+Here, Files \io{CPHI} contains the information of $\alpha_{{\bf R}u}^{{\bf k}n}$ and \io{GEIG} contains $\beta_{\bf G}^{{\bf k}n}$. 
+We use subroutines \verb#readcphi# and \verb#readeig# to
+read them; see \verb#m_zeml.F# for example.
+(In future, we may start from better representation
+based on the 3 component formalism in Ref.\cite{kotani2015pmt}.)
+
+We need $\Psi_{{\bf k}n}$ for given $\bfq$ points 
+(in this text, we mix up $\bfq$ and $\bfk$... Sorry.).
+Then $P_{\bf G}^{\bf k}({\bf r})$ is just specified by 
+$\bfG$, which is generated by \exe{qg4gw}.
+$\phi_{{\bf R}u}^{\bf k}({\bf r})$ is specified by
+radial functions. It is contained in \io{PHIVC} read in hbasfp0.m.F. Number of radial functions are
+\verb#ncore(ic)+nrad(ic)# 
+(dependes on $l,n,\sigma$, but not on $m$).
+For simplicity, maximum of $l$ is fixed by LMXA in ctrl file.
+It must be the same for all MTs.
+
+In the GW calculation of ecalj, important matrix elements related
+to the eigenfunction is only the matrix element as
+\begin{eqnarray}
+\langle E^{\bf q}_\mu \Psi_{{\bf k}n} |\Psi_{{\bf q+k}n'} \rangle,
+\end{eqnarray}
+, where $E^{\bf q}_\mu$ is the MPB (an unitary transformation of MPB).
+The information of eigenfunctions are used to calculate this matrix elements, which is read by \verb#get_zmel#.
+
+\subsection{$\bfq$ and $\bfG$ vector generation}
+To see the theory, read Section 3.2 in in \cite{kotani_quasiparticle_2014}
+$\bfk$ points are the regular mesh points used for the integration
+in the BZ. Regular mesh points are given as
+\begin{eqnarray}
+\bfk_{i_1,i2,i3}=(i1/N1)*\bfP_1+(i2/N2)*\bfP_2+(i3/N3)*\bfP_3
+\end{eqnarray}
+, where $\bfP_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$
+Quantities $f(\bfk)$ (periodic in BZ) can
+be integrated just as a sum on the regular mesh points.
+However, when  $f(\bfk=0)$ is divergent, we have careful treatments.
+
+ 
+
+
+\qlat(:,i1), where qlat=$\bfQ_i$ is the reciprocal vectors.
+See Sec.3.2 .
+
+
 
 mkqg.F is the main part of \exe{qg4gw} (fpgw/main/qg4gw.F).
 iq0pin is the job control of mkqg. iq0pin=101 is only for backward compatibility. 
@@ -5011,16 +5794,16 @@ The purpose is generates required q and G vectors.
 Not only regular mesh points, or q along symmetry lines, 
 but also offset Gamma points.
 
+
+
 iq0pin=1: normal mode. Generate q and G for regular mesh point and Q0P
 points (offset Gamma points).
 
 
 iq0pin: input to qg4gw
 
+\begin{verbatim}
 
-, qlat
-nbas, bas, nclass, 
-a,b, rofi,nr (or aa,bb, nrad
 ncindx, lcindx
 
 getkeyvalue
@@ -5028,11 +5811,11 @@ phi
 
 radial mesh
 CLASS
-mptauof tiat miat
 symgg
 core, radial functions
 
 \end{verbatim}
+
 \subsection{bz setting, q+G for phi and for vcoul}
 qg4gw-mkqg routines.
 QIBZ,QBZ 
@@ -5042,6 +5825,7 @@ nqibze Q0P
 
 iq0pin mode:
 generate q0p: algorithm
+
 \subsection{eigenfunction}
 radial function
 
@@ -5049,16 +5833,11 @@ radial function
 
 \subsection{mixed product basis}
 \subsection{PPOVL}
-\subsection{CPHI and GEIG}
-We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region:
-\begin{displaymath}
-\Psi_{{\bf k}n} = \sum_{{\bf R}u}\alpha_{{\bf R}u}^{{\bf k}n}\phi_{{\bf R}u}^{\bf k}({\bf r}) + \sum_{\bf G}\beta_{\bf G}^{{\bf k}n}P_{\bf G}^{\bf k}({\bf r})
-\end{displaymath}
-Here, {\io CPHI} contains the information of $\alpha_{{\bf R}u}^{{\bf k}n}$ and {\io GEIG} contains $\beta_{\bf G}^{{\bf k}n}$.
 
 
 \newpage 
-\printindex
+
+%\printindex
 
 \bibliography{ecaljrefs}
 \end{document}
