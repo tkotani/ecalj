@@ -12,7 +12,7 @@
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     & invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
+     & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
       use keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
@@ -432,7 +432,7 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
       debug=.false.; if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
-      write(6,"(' ncore=',i4)") ncore
+c      write(6,"(' ncore=',i4)") ncore
       write(6,*) 'nw_input delta=',nw_input,delta
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!

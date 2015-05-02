@@ -48,7 +48,7 @@
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     & invg, il, in, im, nlnm, nlnmv, nlnmc,icore,ncore,
+     & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use keyvalue,only: getkeyvalue
 
