@@ -7,7 +7,7 @@
      i freq_r,nw_i,nw, freqx,wx,dw,         
      i ecore,
      i nlmto,nqibz,nqbz,nctot,
-     i nl,nnc,nclass,natom,
+c     i nl,nnc,nclass,natom,
      i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
@@ -160,9 +160,9 @@
 
 ! input variables
       logical, intent(in) :: exchange,screen,cohtest
-      integer, intent(in) :: ntq,natom,nqbz,nqibz,ngrp,nq,niw
+      integer, intent(in) :: ntq,nqbz,nqibz,ngrp,nq,niw !,natom
       integer, intent(in) :: nband,nlmto,nq0i,nctot,isp,nsp !,mdim(*) !,nlnmx
-      integer, intent(in) :: ifvcfpout,nbloch,nclass,nl,nnc, nblochpmx
+      integer, intent(in) :: ifvcfpout,nbloch,nblochpmx !nl,nnc, nclass
       integer, intent(in) :: itq(ntq) !,nstar(nqibz) !miat(natom,ngrp),mdimx,
       integer, intent(in) :: irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq)
       integer, intent(in) :: kount(nqibz,nq),ngpmx,ngcmx,ifexsp,jobsw
@@ -198,7 +198,7 @@ c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass
       real(8),allocatable:: vcoud(:)
 
       integer :: ip, it, itp, i, ix, kx, irot, kr
-      integer :: iatomp(natom), nt0p, nt0m,nstate , nbmax, ntqxx
+      integer :: nt0p, nt0m,nstate , nbmax, ntqxx !iatomp(natom), 
       integer :: nt,nw,ixs,iw,ivc,ifvcoud,ngb0
       integer :: nprecx,mrecl,ifwd,nrot,nwp,nw_i,ierr 
       integer :: nstatetot,iqini,iqend, ngb,ngc !nbcut,
@@ -206,7 +206,7 @@ c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
 
       real(8) :: tpi, ekc(nctot+nband),ekq(nband), det, q(3),ua_
-      real(8) :: expa_(niw), qxx(3), tr(3,natom), symope(3,3),shtv(3)
+      real(8) :: expa_(niw), qxx(3), symope(3,3),shtv(3) !tr(3,natom), 
       real(8) :: efp,efm,wtt,wfac,we,esmrx,qbasinv(3,3)
       real(8) :: qvv(3),pi,fpi,eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),ddw,vc,omega0,omg

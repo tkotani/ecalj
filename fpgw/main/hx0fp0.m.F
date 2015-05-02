@@ -1518,11 +1518,11 @@ c          write(6,"(' -- x0kf_v4hz: newaniso iq nqibz ixc= ',l,10i10)") newanis
      i              q,  
      i              nspin,is,isf, symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
-     i              nblocha, !,nlnm,nlnmv,nlnmc,iclass, 
+c     i              nblocha, !,nlnm,nlnmv,nlnmc,iclass, 
 c     i              ppb(1,is), 
 c     i              icore,ncore,
      d            nlmto,nqbz,nctot, !noccx,noccxv,
-     d            natom, !nl,nclass,natom,nnc,
+c     d            natom, !nl,nclass,natom,nnc,
      d            nbloch,  nwhis, !nlnmx,mdimx,
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
@@ -1548,11 +1548,11 @@ c          if (is==nspinmx) then
      i       q,
      i       nspin,is,isf, symmetrize, !
      i       qbas,ginv,  qbz,wbz,
-     i       nblocha,           !nlnm,nlnmv,nlnmc,iclass,
+c     i       nblocha,           !nlnm,nlnmv,nlnmc,iclass,
 c     i              ppb(1,is),
 c     i              icore,ncore,
      d       nlmto,nqbz,nctot,  !noccx,noccxv,
-     d       natom,             !nl,nclass,natom,nnc,
+c     d       natom,             !nl,nclass,natom,nnc,
      d       nbloch,  nwhis,    ! nlnmx,mdimx,
      i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
      i       nqbze,nband,nqibz,

@@ -4,9 +4,9 @@
      i                  q,
      i                  nsp,isp_k,isp_kq,symmetrize,
      i                  qbas,ginv,rk,wk,  
-     i                  mdim, 
+c     i                  mdim, 
      d                  nlmto,nqbz,nctot, 
-     d                  natom, 
+c     d                  natom, 
      d                  nbloch,nwt, 
      i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
@@ -91,13 +91,13 @@ c  : coefficients of eigenfunctions for argumentation waves in each MT
 c
       implicit none
       integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto !,noccx,noccxv
-     &  ,nl,nclass,nnc,nlnmx,mdimx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen
+     &  ,nl,nclass,nnc,nlnmx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen !mdimx,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
 c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
-      complex(8) :: imag=(0d0,1d0),trc,phase(natom),aaa
+      complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
       complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
       integer(4):: ngpmx, ngcmx, nqbze, nband,
      &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
@@ -109,14 +109,14 @@ c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
 c      real(8) :: ppb_unused(*)
 
-      integer(4) :: mdim(natom)
+c      integer(4) :: mdim(natom)
       
       complex(8),allocatable :: ttx(:,:)
       complex(8),allocatable::  z1p(:,:)
       integer(4) ::  nbnb(nqbz,npm), 
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
-      integer(4)::imdim(natom),iatomp(natom)
+c      integer(4)::imdim(natom),iatomp(natom)
       logical,parameter:: debug=.true.
 c---tetwt5
       logical:: hist      ,ipr
@@ -214,14 +214,14 @@ c$$$            stop 'x0kf_v4h: eibzmode=T only allow nmbas1=nmbas2.'
 c$$$         endif
 c$$$      endif
 !!
-      imdim(1) = 1
-      do iatom = 1,natom
-        iatomp(iatom) = iatom
-        if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
-      enddo
+c$$$      imdim(1) = 1
+c$$$      do iatom = 1,natom
+c$$$        iatomp(iatom) = iatom
+c$$$        if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
+c$$$      enddo
 c      nctot      = noccx - noccxv
       call dinv33(qbas,0,qbasinv,det)
-      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
+c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )

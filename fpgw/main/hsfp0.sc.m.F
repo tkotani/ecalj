@@ -990,7 +990,7 @@ C         enddo
      i   dw,                   
      i   ecore(:,is),
      d   nlmto,nqibz,nqbz,nctot,
-     d   nl,nnc,nclass,natom,
+c     d   nl,nnc,nclass,natom,
      d   nbloch,ngrp,niw,nq,   
      i   nblochpmx, ngpmx,ngcmx,
      i   wgt0,nq0i,q0i,symgg,alat,
