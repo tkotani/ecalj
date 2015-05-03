@@ -1259,9 +1259,9 @@ c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw) 
       sigmamode = mod(lrsig,10) .ne. 0
       if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
       if(sigmamode.and.siginit .and. (.not.(llmfgw.and.jobgw==0)) ) then
-         write(6,*)' --- goto rdsigm2 initialization section ---',procid
          ndimsig= ldim  !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
          if(procid==master) then
+            write(6,*)' --- goto rdsigm2 initialization section ---'
             rsrnge = sham%rsrnge
             write(6,*)'rsrnge procid=',rsrnge,procid
             ifi = fopna('sigm',-1,4)
@@ -1373,7 +1373,7 @@ c            endif
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
          siginit=.false. !this is equivalent to broad casting.
-         write(6,*)' --- end of rdsigm2 initialization section --- procid=',procid
+         if(procid==master) write(6,*)' --- end of rdsigm2 initialization section ---'
       endif    ! end of sigmamode
 
 

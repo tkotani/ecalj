@@ -18,7 +18,11 @@ C     implicit none
       parameter (nstack=7)
       integer vstack(0:nstack-1),stackp
       common /iprnt/ vstack,stackp
+#if MPI | MPIK
+      include "mpif.h"
+#endif
       iprint = vstack(stackp)
+      if(mpipid(1)>0) iprint=0 !write only at master node
       return
 
       entry iprt(istk)
