@@ -12,20 +12,20 @@
      &     idtetf,ib1bz,idteti,
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     &     nclass,natom,nspin,nl,nn,ngrp,
      &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
      &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
 
       use keyvalue,only: getkeyvalue
-      use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
+      use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
-     &   mpi__Qtask,MPI__InitializeQSPBM,MPI__Finalize,mpi__root,
-     &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,mpi__rank,mpi__size,
-     &   mpi__Qranktab,MPI__consoleout,mpi__Ss,mpi__Se, mpi__allreducesumS,
-     &   mpi__barrier, mpi__rankQ,mpi__rootQ,mpi__rootS
+     &   MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
+     &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
+     &   MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
+     &   MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
@@ -159,7 +159,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       write(6,*) ' --- hx0fp0_sc Choose omodes below ----------------'
       write(6,*) '  ixc= 11,10011,or 1011 '
       write(6,*) ' --- Put number above ! -----------------'
-      if( mpi__root ) then
+      if( MPI__root ) then
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
       end if
       call MPI__Broadcast(ixc)
@@ -413,7 +413,7 @@ c     nwhis=nw
       omg2max = (Emax-Emin)*.5d0+.2d0 
              ! (in Hartree) covers all relevant omega, +.2 for margin
       write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
-      call getfreq(.false.,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
+      call getfreq(.false.,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,MPI__root)
       nwp = nw+1
 
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
@@ -433,7 +433,7 @@ c     nwhis=nw
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble        !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
-      if(mpi__root)then
+      if(MPI__root)then
         ifwd   = iopen('WV.d',1,-1,0)
         write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
      &  nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
@@ -531,7 +531,7 @@ c$$$      enddo
 
          write(6,*)
          write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
-         if(mpi__root) iprintx=.true.
+         if(MPI__root) iprintx=.true.
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
      i        timereversal(),ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym,tiii)
@@ -584,15 +584,15 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
       iqinit=.true.
-      write(6,'("irank=",i5," allocated(mpi__qtask)=",L5)')mpi__rank,allocated(mpi__qtask)
+      write(6,'("irank=",i5," allocated(MPI__qtask)=",L5)')MPI__rank,allocated(MPI__qtask)
       do iq = iqxini,iqxend
-         if(mpi__qtask(iq)) write(6,'("irank iq=",i5,i5)') mpi__rank,iq
+         if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
       enddo
 !TIME1 "before 1001 loop"
       do 1001 iq = iqxini,iqxend
-         if( .not. mpi__Qtask(iq) ) cycle
+         if( .not. MPI__Qtask(iq) ) cycle
 !TIME0 
-         if (mpi__rootS) then
+         if (MPI__rootS) then
          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
          endif
@@ -692,7 +692,7 @@ c$$$  endif
 !! ---------------------------------------------------------------
 !TIME1 "before 1003 loop"
 !         do 1003 is = 1,nspinmx
-         do 1003 is = mpi__Ss,mpi__Se
+         do 1003 is = MPI__Ss,MPI__Se
 !TIME0 
             write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
      &           iq, is, nqibz + nq0i,nspin
@@ -987,7 +987,7 @@ c     d              natom, !nl,nclass,natom,nnc,
                iq0 = iq - nqibz
 c               if(newaniso2) then
 c$$$                 if( iq==1 ) then 
-c$$$                    write(6,*)'open EPS0inv mpi=',mpi__rank 
+c$$$                    write(6,*)'open EPS0inv mpi=',MPI__rank 
 c$$$                   ifepstinv = iopen('EPS0inv',0,-1,0)
 c$$$                   write(ifepstinv) ngb
 c$$$                 endif  
@@ -1089,7 +1089,7 @@ c$$$                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),i
                      zw(1:ngb,1:ngb) = zw0
 !TIME1  "after zw=zw0"
 !TIME0
-                     if (mpi__rootS)then
+                     if (MPI__rootS)then
                      write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
                      endif
                      call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
@@ -1249,7 +1249,7 @@ c                  if( newaniso2 .and. iq<=nqibz ) then
 c$$$                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
 
                      zw(1:ngb,1:ngb) = zw0 ! zw(nblochpmx,nblochpmx)
-                     if (mpi__rootS) then
+                     if (MPI__rootS) then
                      write(ifrcwi, rec= iw)  zw !  WP = vsc-v
                      endif
                      call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
@@ -1305,7 +1305,7 @@ c     1002 continue  ! end of frequency block-loop
             if(allocated(zxq )) deallocate(zxq)
             if(allocated(zxqi)) deallocate(zxqi)
 
-            if (mpi__rootS) then
+            if (MPI__rootS) then
             ifrcwi = iclose('WVI.'//charnum5(iq))
             ifrcw  = iclose('WVR.'//charnum5(iq))
             endif
@@ -1314,20 +1314,20 @@ c     1002 continue  ! end of frequency block-loop
 c============end of loop over q point =================================
 c=======================================================================
 !TIME0
-         call mpi__barrier()
+         call MPI__barrier()
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
-c         write(6,*)'mpi__sizerrr=',mpi__size,mpi__rank,mpi__root,mpi__size,nqibz,iqxend
+c         write(6,*)'MPI__sizerrr=',MPI__size,MPI__rank,MPI__root,MPI__size,nqibz,iqxend
 ccccccccccccccccccccccccccc
 CYY!$OMP parallel 
 CYY!$OMP master
-         write(6,*)' eeeeeeeeeeeeeeeee111 mpi__rank=',mpi__rank
-         if(mpi__size/=1) then
+         write(6,*)' eeeeeeeeeeeeeeeee111 MPI__rank=',MPI__rank
+         if(MPI__size/=1) then
             do iq=nqibz+1,iqxend
                iq0 = iq - nqibz
-c     write(6,*)' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
-               if(mpi__Qranktab(iq)/=0) then !jan2012
-               if(mpi__Qranktab(iq) == mpi__rankQ) then
-c     write(6,*)' mpi_send iq from',iq,mpi__ranktab(iq)
+c     write(6,*)' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,MPI__rank,MPI__ranktab(iq),MPI__root,nw,nw_i,niw
+               if(MPI__Qranktab(iq)/=0) then !jan2012
+               if(MPI__Qranktab(iq) == MPI__rankQ) then
+c     write(6,*)' mpi_send iq from',iq,MPI__ranktab(iq)
 c     write(6,*)' send llw sum=',sum(abs(llw(:,iq0))),nw,nw_i
 c     do i=nw_i,nw
 c     write(6,*)'sendxxx',i,llw(i,iq0)
@@ -1336,9 +1336,9 @@ c     write(6,*)' send llwI sum=',sum(abs(llwI(:,iq0))),niw
                   dest=0
                   call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
                   call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
-               elseif(mpi__rootQ) then
-c     write(6,*)' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
-                  src=mpi__Qranktab(iq)
+               elseif(MPI__rootQ) then
+c     write(6,*)' mpi_recv iq from',iq,MPI__ranktab(iq),nw,nw_i,niw
+                  src=MPI__Qranktab(iq)
                   call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
                   call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
 c     do i=nw_i,nw
@@ -1350,7 +1350,7 @@ c     write(6,*)' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
                endif
             enddo  
          endif
-         write(6,*)' eeeeeeeeeeeeeeeee222 mpi__rank=',mpi__rank
+         write(6,*)' eeeeeeeeeeeeeeeee222 MPI__rank=',MPI__rank
 CYY!$OMP end master
 CYY!$OMP end parallel 
 
@@ -1358,7 +1358,7 @@ CYY!$OMP end parallel
 
 c commentout block inversion
 c$$$!! Add LFC (local field correction) to llw and llwI
-c$$$         if(newaniso2 .and. mpi__rank == 0 ) then ! only on root node
+c$$$         if(newaniso2 .and. MPI__rank == 0 ) then ! only on root node
 c$$$            iq=1 !for q=0
 c$$$            vcoudfile='Vcoud.'//charnum5(iq)
 c$$$            ifvcoud = iopen(trim(vcoudfile),0,-1,0)
@@ -1445,8 +1445,8 @@ c$$$         endif
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191    continue
 !TIME0 
-c         if(newaniso2 .and. mpi__rank == 0 ) then ! MIZUHO-IR only on root node
-         if(mpi__rank == 0 ) then ! MIZUHO-IR only on root node
+c         if(newaniso2 .and. MPI__rank == 0 ) then ! MIZUHO-IR only on root node
+         if(MPI__rank == 0 ) then ! MIZUHO-IR only on root node
 
             if(ixc==1011) then !this is only for test.
             ifw0w0i = iopen('W0W0I',0,-1,0) 
@@ -1503,7 +1503,7 @@ c     write(6,*)'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !! === w_ks*wk are stored to zw for iq >nqibz ===
 ! We assume iq=1 is for rank=0
             do iq = 1,1         !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
-c               if( .not. mpi__task(iq) ) cycle
+c               if( .not. MPI__task(iq) ) cycle
                q = qibze(:,iq)
                do ircw=1,2
                   if    (ircw==1) then
@@ -1537,7 +1537,7 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
 !TIME1 "end program"
 !TIMESHOW
       call cputid(0)
-      write(6,*) '--- end of hx0fp0_sc --- irank=',mpi__rank
+      write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
       call flush(6)
       call MPI__Finalize
       if(ixc==11) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')

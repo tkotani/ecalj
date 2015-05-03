@@ -45,7 +45,7 @@
      & ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
      & ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nclass,natom,nspin,nl,nn, ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
@@ -202,7 +202,7 @@ c      logical:: newaniso
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
-      write(6,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
+      write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
 !TIME0_0000
 !TIME0_0010 
       hartree=2d0*rydberg()
@@ -211,7 +211,7 @@ c---------------------------------------
         screen = .true.
         ixc = 2; nz=0
         open(671,file='COH')
-      elseif(mpi__root) then
+      elseif(MPI__root) then
         write(6,*) ' --- Choose modes below ------------'
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) '
         write(6,*) '  [option --- (+ QPNT.{number} ?)] '
@@ -222,7 +222,7 @@ c---------------------------------------
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)
-      if(mpi__root) call headver('hsfp0_sc',ixc)
+      if(MPI__root) call headver('hsfp0_sc',ixc)
       write(ixcc,"('.mode=',i4.4)")ixc
 
       if(ixc>1000) then         !selected QP
@@ -307,7 +307,7 @@ c      shtw = 0d0
       if(ixc==1) then
         exchange=.true.
         write(6,*) ' --- Exchange mode --- '
-        if(mpi__root) then
+        if(MPI__root) then
           ifxc(1)  = iopen('XCU'//xt(nz),1,-1,0)
           ifsex(1) = iopen('SEXU'//xt(nz),1,-1,0)
           ifsex2(1)= iopen('SEX2U',0,-1,0) !out SEX_nn'
@@ -330,7 +330,7 @@ c         endif
         exchange=.false.
         write(6,*) ' --- Correlation mode --- '
         if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
-        if(mpi__root) then
+        if(MPI__root) then
           ifsec(1)   = iopen('SECU'//xt(nz),1,-1,0) ! output files
           ifsec2(1)= iopen('SEC2U',0,-1,0) !out SEC_nn'
           if (nspin == 2) 
@@ -341,7 +341,7 @@ c         endif
         exchange=.true.
         esmr=0d0
         write(6,*) ' --- CORE Exchange mode --- '
-        if(mpi__root) then
+        if(MPI__root) then
           ifsex(1)   = iopen('SEXcoreU'//xt(nz),1,-1,0)
           ifsex2(1)= iopen('SEXcore2U',0,-1,0) !out SEXcore_nn'
           if (nspin == 2) then
@@ -497,7 +497,7 @@ c     write(6,'("    ua      =",f13.6)') ua
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 
 !! Read q-points and states
-      if(selectqp .and. mpi__root) then
+      if(selectqp .and. MPI__root) then
         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
         lqall      = .false.
         laf        = .false.
@@ -532,8 +532,8 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
       endif
 !
       call MPI__Broadcast(nq)
-      if(mpi__root) then
-        do dest=1,mpi__size-1
+      if(MPI__root) then
+        do dest=1,MPI__size-1
           call MPI__REAL8send(q,3*nq,dest)
         enddo
       else  
@@ -557,7 +557,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
  889  continue
 
 !! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
-      if(mpi__root) then
+      if(MPI__root) then
         allocate(eqt(nband))
         ntq=0
         do is = 1,nspin
@@ -580,7 +580,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
 !! I think it it better to determine nbandmx in a manner within LDA 
 !! (need to care degeneracy...).
       allocate(nbandmx(nq,nspinmx))
-      if(mpi__root) then
+      if(MPI__root) then
         allocate(eqt(nband))
         do is = 1,nspinmx
           do ip = 1,nq   
@@ -606,9 +606,9 @@ c            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq)
         deallocate(eqt)
       endif
       do is=1,nspinmx
-        if(mpi__root) then
+        if(MPI__root) then
           print *,'is nbandmx(:,is)=',is,nbandmx(:,is)
-          do dest=1,mpi__size-1
+          do dest=1,MPI__size-1
             call MPI__send_iv(nbandmx(1:nq,is),dest)
           enddo
         else  
@@ -654,7 +654,7 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
       if(ixc==1) then
         allocate(  vxcfp(ntq,nq,nspin) )
         call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
-        if(mpi__root) then
+        if(MPI__root) then
           do is = 1,nspinmx
             write (ifxc(is),*) '==================================='
             write (ifxc(is),"(' LDA exchange-correlation : is=',i3)")is
@@ -684,7 +684,7 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
             if(is==1) isx = iclose('XCU'//xt(nz))
             if(is==2) isx = iclose('XCD'//xt(nz))
           enddo                 !     end of spin-loop
-        endif                   !mpi__root
+        endif                   !MPI__root
         deallocate(vxcfp)
       endif
 
@@ -731,7 +731,7 @@ c     o imdim )                  !in m_zmel
 c$$$!!  ------ write energy mesh for check ----------
 c$$$      ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
 c$$$      deltax0 = 0d0
-c$$$      if(mpi__root) then
+c$$$      if(MPI__root) then
 c$$$        call writeemesh(ifemesh,freqw,niw,freq,nw,deltax0)
 c$$$      endif
 
@@ -846,7 +846,7 @@ c     o        nwgt,igx,igxt,eibzsym,tiii)
         write(6,*)'NOTE:TimeReversal not yet implemented in hsfp0.sc.m.F'
         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
         iprintx=.false.
-        if(mpi__root) iprintx=.true.
+        if(MPI__root) iprintx=.true.
         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
      &   iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
      o   nwgt,igx,igxt,eibzsym,tiiiout)
@@ -947,7 +947,7 @@ C         enddo
 
       do 2000 is = 1,nspinmx
 !TIME0_0020 
-        if(mpi__root) then
+        if(MPI__root) then
           if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
             write(ifsex(is),*) '======================================='
@@ -1007,7 +1007,7 @@ c     i   invg, il,in,im,nn, lx,nx,nxx,
      o   zsec=zsec) 
 !TIME1_0020 "main: end of sxcf_fal3_scz"
         call date_and_time(values=timevalues)
-        write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
+        write(6,'(a,9i5)')'dateandtime2=',MPI__rank,timevalues(1:8) 
         call cpu_time(time_red1)
 
 !! CAUITION! Allreduce wait all cpu jobs done here. 
@@ -1015,7 +1015,7 @@ c     i   invg, il,in,im,nn, lx,nx,nxx,
 !! was just waiting here!
 c      call MPI__AllreduceMax( nbandmx(:,is), nq ) ! MIZUHO-IR
 c      call cpu_time(time_red2)
-c      write(6,*) mpi__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
+c      write(6,*) MPI__rank,'time(MPI__AllreduceMax)=',time_red2-time_red1
 
 c---------------------------------
 !!  electron gas bare exchange (exact)
@@ -1064,7 +1064,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
         call MPI__AllreduceSum( zsec,ntq*ntq*nq )
 !TIME1_0040 'main: MPI__AllreduceSum zsec'
 
-        if(mpi__root) then
+        if(MPI__root) then
           if(exchange) then
             ifoutsex=ifsex(is)
             write(6,*)
@@ -1099,7 +1099,7 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
               write(ifsec2(is)) is, q(1:3,ip), zsec(1:ntq,1:ntq,ip) !SEC_nn' out
             end do
           endif                 !ixc
-        endif                   !mpi__root
+        endif                   !MPI__root
 
  2000 continue                  !end of spin-loop
 
@@ -1192,7 +1192,7 @@ c      isx = iclose ('wc.d')
 c      isx = iclose ('wci.d')
 c      isx = iclose ('hbe.d')
       call cputid(0)
-      write(6,*) '--- end of hsfp0_sc --- irank=',mpi__rank
+      write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
       call flush(6)
       call MPI__Finalize 
 !TIME1_0000 "main: total of hsfp0_sc"

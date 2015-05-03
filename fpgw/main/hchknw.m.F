@@ -2,15 +2,15 @@
 c---     check the number of nw
       use m_readeigen,only: init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3,only: genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot,niw,nw_input=>nw,
-     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,nindxv,nindxc,ncwf,
-     &     invg, il, in, im, ilnm, nlnm, nlnmv,
-     &     nlnmc,nindx,konf,icore,ncore,
-     &     plat, pos,z,ecore,  symgg ! symgg=w(igrp) freq,
 
-      use keyvalue
+      use m_genallcf_v3,only: genallcf_v3,
+     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
+     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & invg, il,in,im,nlnm, 
+     & plat, pos,z,ecore, symgg, konf,nlnx
+
+      use keyvalue,only:getkeyvalue
       implicit none
       logical :: tetra=.false.
       real(8) :: shtw=0d0

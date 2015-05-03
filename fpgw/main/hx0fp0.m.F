@@ -9,17 +9,17 @@
      & idtetf,ib1bz,idteti,
      & nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nclass,natom,nspin,nl,nn, ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
       use keyvalue,only: getkeyvalue
-      use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
+      use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
-      use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
-     & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
-     & mpi__ranktab,MPI__consoleout,mpi__barrier
+      use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,
+     & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
+     & MPI__ranktab,MPI__consoleout,MPI__barrier
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp, !NOTE: "call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
@@ -285,7 +285,7 @@ c takao keeps only the Sergey mode.
 c      write(6,"(a)") ' #2=iqxini   #3=iqxend' '
 c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
       write(6,"(a)")  '-------------------------------------------------------'
-      if( mpi__root ) then
+      if( MPI__root ) then
          read(5,*) ixc
       endif
       call MPI__Broadcast(ixc)
@@ -396,7 +396,7 @@ c        do i=1,nqbz
 c          qbz(:,i) = qbz(:,i) - dq_
 c        enddo
 c      endif
-      if(mpi__root) then
+      if(MPI__root) then
          do i=1,nqbz
             if(i<10.or.i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
             if(i==10.and.nqbz>18) write(6,"('... ')")
@@ -564,7 +564,7 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
         imagomega =.false.
       endif
 !! getfreq returun date given at " use m_freq,only:". E.g  nw is returned.
-      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
+      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,MPI__root)
       nwp = nw+1
       if(.not.imagomega) niw=1
 !! ... get eigenvector corresponds to exp(iqr) (q is almost zero).
@@ -602,7 +602,7 @@ c$$$      endif
 
       nprecx = ndble  !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
-      if (mpi__root) then
+      if (MPI__root) then
         ifwd   = iopen('WV.d',1,-1,0)
         write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
         ifwd = iclose('WV.d'); ifwd=0
@@ -944,7 +944,7 @@ c     iqxendx=nqibz
 !! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
         write(6,*)
         write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
-        if(mpi__root) iprintx=.true.
+        if(MPI__root) iprintx=.true.
         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
      i   timereversal(),ginv,iprintx,
      o   nwgt,igx,igxt,eibzsym,tiii)
@@ -975,7 +975,7 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
 !! === loop over iq ============================================
 !! ---------------------------------------------------------------
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
-        if( .not. mpi__task(iq) ) cycle
+        if( .not. MPI__task(iq) ) cycle
         if(ixc==101.or.normalm) then
           ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
         endif  
@@ -2387,22 +2387,22 @@ C... ImagOmega end ===============================
         endif
  1001 continue 
 !! == end of loop 1001 for q point ==
-      call mpi__barrier()
+      call MPI__barrier()
 
 
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
-      if(mpi__size/=1) then
+      if(MPI__size/=1) then
         do iq=nqibz+1,iqxend
           iq0 = iq - nqibz
-c     write(6,*)' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,mpi__rank,mpi__ranktab(iq),mpi__root,nw,nw_i,niw
-          if(mpi__ranktab(iq)/=0) then !jan2012
-            if(mpi__ranktab(iq) == mpi__rank) then
+c     write(6,*)' iq iq0 mpi_rank mpi_ranktab(iq)=',iq, iq0,MPI__rank,MPI__ranktab(iq),MPI__root,nw,nw_i,niw
+          if(MPI__ranktab(iq)/=0) then !jan2012
+            if(MPI__ranktab(iq) == MPI__rank) then
               dest=0
               call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
               call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
-            elseif(mpi__root) then
-c     write(6,*)' mpi_recv iq from',iq,mpi__ranktab(iq),nw,nw_i,niw
-              src=mpi__ranktab(iq)
+            elseif(MPI__root) then
+c     write(6,*)' mpi_recv iq from',iq,MPI__ranktab(iq),nw,nw_i,niw
+              src=MPI__ranktab(iq)
               call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
               call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
 c     do i=nw_i,nw
@@ -2458,8 +2458,8 @@ c$$$ 1501   continue
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
 !!   Note that this is only for q=0 -->iq=1
-c      if(newaniso2.and.ixc==11.and.mpi__rank==0) then
-      if(ixc==11.and.mpi__rank==0) then
+c      if(newaniso2.and.ixc==11.and.MPI__rank==0) then
+      if(ixc==11.and.MPI__rank==0) then
         write(6,*)
         write(6,*)' ==== newaniso mode W(0) divergent part ==== '
 !! == W(0) divergent part ==

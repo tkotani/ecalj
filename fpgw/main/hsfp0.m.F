@@ -7,7 +7,7 @@
      &  idtetf,ib1bz,idteti,
      &  nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nclass,natom,nspin,nl,nn,ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg,  il,in,im,nlnm, 
@@ -179,14 +179,14 @@ c      logical:: newaniso=.true.
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
-      write(6,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
+      write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
 
       hartree=2d0*rydberg()
       if(cohtest) then
         screen = .true.
         ixc = 2; nz=0
         open(671,file='COH')
-      elseif(mpi__root) then
+      elseif(MPI__root) then
         write(6,*) ' --- Choose omodes below ----------------'
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
         write(6,*) '  EXX_val-val (5)  Exx_core-val(6) '
@@ -197,7 +197,7 @@ C...  mode switch. --------------
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)
-      if(mpi__root) call headver('hsfp0',ixc)
+      if(MPI__root) call headver('hsfp0',ixc)
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0'//trim(ixcc))
       write(6,*) ' ixc nz=',ixc, nz
@@ -279,7 +279,7 @@ C...  mode switch. --------------
         exchange=.true.
         tote=.false.
         write(6,*) ' --- Exchange mode --- '
-        if(mpi__root) then
+        if(MPI__root) then
           ifxc(1)  = iopen('XCU'//xt(nz),1,-1,0)
           ifsex(1) = iopen('SEXU'//xt(nz),1,-1,0)
 c          ifsex2(1)= iopen('SEX2U',0,-1,0) !out SEX_nn'
@@ -303,7 +303,7 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
         tote=.false.
         write(6,*) ' --- Correlation mode --- '
         if(cohtest) write(6,*) ' COH calculation mode. Results in COH'
-         if(mpi__root) then
+         if(MPI__root) then
            ifsec(1)   = iopen('SECU'//xt(nz),1,-1,0) ! output files
            if (nspin == 2) 
      .      ifsec(2)   = iopen('SECD'//xt(nz),1,-1,0)
@@ -313,7 +313,7 @@ c            ifsex2(2)= iopen('SEX2D',0,-1,0) !out SEX_nn'
         tote=.false.
         esmr=0d0
         write(6,*) ' --- CORE Exchange mode --- '
-        if(mpi__root) then
+        if(MPI__root) then
           ifsex(1)   = iopen('SEXcoreU'//xt(nz),1,-1,0)
           if (nspin == 2) then
             ifsex(2)   = iopen('SEXcoreD'//xt(nz),1,-1,0)
@@ -552,8 +552,8 @@ c
 
 ! necessary ?
       call MPI__Broadcast(nq)
-      if(mpi__root) then
-        do dest=1,mpi__size-1
+      if(MPI__root) then
+        do dest=1,MPI__size-1
           call MPI__REAL8send(q,3*nq,dest)
         enddo
       else  
@@ -625,7 +625,7 @@ C...
         allocate(  vxcfp(ntq,nq,nspin) )
         call rsexx2(nspin,itq,q,ntq,nq, ginv, symgg,ngrp, vxcfp) !add ginv july2011
 c     loop over spins
-        if(mpi__root) then
+        if(MPI__root) then
         do is = 1,nspinmx
           write (ifxc(is),*) '==================================='
           write (ifxc(is),"(' LDA exchange-correlation : is=',i3)")is
@@ -654,7 +654,7 @@ c     end of spin-loop
           if(is==1) isx = iclose('XCU'//xt(nz))
           if(is==2) isx = iclose('XCD'//xt(nz))
         enddo
-        endif !mpi__root
+        endif !MPI__root
         deallocate(vxcfp)
       endif
 
@@ -718,7 +718,7 @@ c     o     imdim )
 c     ------ write energy mesh ----------
 c$$$      ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
 c$$$      deltax0 = 0d0
-c$$$      if(mpi__root) then
+c$$$      if(MPI__root) then
 c$$$      call writeemesh(ifemesh,freqw,niw,freq_r,nwp,deltax0)
 c$$$      endif
       iii=ivsumxxx(irk,nqibz*ngrp)
@@ -890,7 +890,7 @@ c      nrkip = nrkip_all         !we don't need to change this for MPI case. It 
 c     loop over spin ----------------------------------------------------
       if (tote) exx = 0d0
       do 2000 is = 1,nspinmx
-        if(mpi__root) then
+        if(MPI__root) then
         if((exchange).and.(.not.tote)) then
           write(ifsex(is),*) '======================================='
           write(ifsex(is),"('Self-energy exchange SEx(q,t): is=',i3)") is
@@ -1004,7 +1004,7 @@ c     call cv      (hartree,sexq,ntq*nq,sexq) !Because vcoul is in a.u.
 
 
 !! write mpi case
-        if(mpi__root) then
+        if(MPI__root) then
         if(ixc==5.or.ixc==6) then
 !     nothing
         elseif(exchange) then
@@ -1081,7 +1081,7 @@ c-------------------------
         endif
  2000 continue                  !end of spin-loop
 !!
-      if(mpi__root) then
+      if(MPI__root) then
       if (tote) then
         write(ifexx,*) '======================================='
         if(ixc==5) write(ifexx,*) 
@@ -1116,7 +1116,7 @@ c     write(ifexx,*) '    Exchange energy     Exx (eV)       '
 
 C     --- EXspectrum ----------------------------------------------------
 c     This section is similar with efsimplef.f
-      if(mpi__root) then
+      if(MPI__root) then
       if(sum(ifexsp(1:nspin))/=0) then
         do is = 1,nspin
           write(6,*)' --- Goto ExSpectrum section --- is=',is
@@ -1196,7 +1196,7 @@ c
       endif
       endif
       call cputid(0)
-      write(6,*) '--- end of hsfp0_sc --- irank=',mpi__rank
+      write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
       call flush(6)
       call MPI__Finalize 
       if(ixc==1 ) call rx0( ' OK! hsfp0: Exchange mode')

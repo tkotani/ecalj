@@ -4,8 +4,14 @@ c hef is from hsfp0 but it is only to calcuate ef and Ex test.
 c so this routine contains unused things so much.
       use m_readeigen,only:init_readeigen,readeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
-      use keyvalue
+      use m_genallcf_v3,only: genallcf_v3,
+     & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
+     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & invg, il,in,im,nlnm, 
+     & plat, pos,z,ecore, symgg, konf,nlnx
+      use keyvalue,only: getkeyvalue
+
       implicit none
 c
 c      real(8) :: shtw
