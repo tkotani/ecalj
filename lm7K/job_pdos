@@ -22,7 +22,7 @@ run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_pdosband $MATERIAL --mkprocar --fu
 ### Read Pdosdata.$MATERIAL and generate PDOS ###
 ### You need to change range -eminp -emaxp (eV) and division -ndos. 
 ### Not need to repeat above run of llmf_pdos when you like to change these settings.
-run_arg '---' 1 $nfpgw /lmf-MPIK llmf_pdos $MATERIAL --writepdos -eminp=-20.0 -emaxp=20.0 -ndos=4000
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_pdos $MATERIAL --writepdos -eminp=-20.0 -emaxp=20.0 -ndos=4000
 
 cat <<EOF
 

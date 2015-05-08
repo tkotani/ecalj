@@ -2907,13 +2907,12 @@ c      call fclose(ifip)
 #if MPIK
       mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      print *,'ppppppqqq',procid
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       allocate (kpproc(0:numprocs), stat=ierr)
       call dstrbp(ntete,numprocs,1,kpproc(0))
       iteti = kpproc(procid)
       itete = kpproc(procid+1)-1
-      print *,'ppppp',numprocs,procid,iteti,itete
+c      print *,'ppppp',numprocs,procid,iteti,itete
 #else
       iteti = 1
       itete = ntete
@@ -2960,7 +2959,7 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
 #if MPIK
       call mpibc2( pdosalla, ndos*nsp*nchanp*nbas, 4 , mlog , 'writepdos' , 'pdosalla' )
 #endif
-
+      if(procid==0) then !master only
       allocate(pdosp (ndos,nchanp))
       bin2 = 2d0 * bin
       do isp =1,nspx
@@ -2983,6 +2982,7 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
       enddo
       enddo   
       deallocate(pdosp,pdosalla)
+      endif
       end
 !!
 !! ----------------------------------
