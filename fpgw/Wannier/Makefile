@@ -56,7 +56,7 @@ clean:
 	 rm -f  $(progs2) *.o 
 
 install:  
-	 cp  $(progs) genMLWF genMLWF2 $(BINDIR)
+	 cp  $(progs) genMLWF genMLWF2 RPAWannier* $(BINDIR)
 
 #install2:  
 #	 cp  $(script) $(HOME)/bin
