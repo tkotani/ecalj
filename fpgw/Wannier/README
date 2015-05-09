@@ -1,7 +1,11 @@
 =============================================================
-Maximally localized Wannier function generator. july2014
+Maximally localized Wannier function generator, 
+RPA and cRPA;
+Apr2015
 =============================================================
-INSTALL: (automatic by Install.ifort and so)
+
+INSTALL: 
+(This is a part of automatic installer such as ecalj/Install.ifort) 
 After you do make at fpge/exec/, 
 >make 
 >make install
@@ -12,8 +16,8 @@ In advance, look at Makefile first (set compilar, library and your bin).
 >genMLWF 
 is the script to generate Wanneir function.
 Required setting is written in the GWinput file.
-
------------
+--------
+We have several samples for genMLWF
 Samples are:
  ecalj/MATERIALS/CuMLWFs    n1n2n3 4 4 4, rough but small within ~five minutes.
  ecalj/MATERIALS/CuMLWF     n1n2n3 10 10 10  
@@ -61,7 +65,7 @@ History:
 2009; Its documentation and Visualizer at Kino's https://github.com/nim-hrkn/visualize
 2014Aug; T.Kotani modified it so as to fit to latest ecalj.
 2015jan: Sengwoo Jang's modification.
-
+2015apr: Sengwoo's RPAWannierTable.py.
 
 =====================================================================
 To plot U, J parameters.
@@ -85,36 +89,24 @@ To plot U, J parameters.
    (Repeat echo 2| hmaxloc >lmaxloc2 until you have satisfactry
     fitting with changing the setting wannier part in GWinput ).
 
----- Followings are very experimental scripts... ---------
----- We will make a better and simple automatic version ----
-2) Modify inputs in "Cal_W.py" 
-  (copy fpgw/Wannier/Cal_W.py to your working directory).
-  In advance to run Cal_W.py, set two of parameters specified in the file.
-    nwf : number of Wannier function
-    ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
-  Then run ./Cal_W.py
+2) Run RPAWannierTable.py
+    (This read
+       nwf : number of Wannier function
+       ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
+     from LMTO and GWinput.)
 
-  fpgw/Wannier/Cal_W.py:
-  In this script, "W*****.dat = Coulomb_v + Screening_W-v" files are generated.
-  (In other words, all matrix elements of W are generated.)
+  In this script, "W*****.dat = Coulomb_v + Screening_W-v" files are
+  generated. Calculate sum of v (in Coulmb_v)  and  W-v (in Screening W-v).
+  In other words, all matrix elements of W are generated.
   For example, "W11234.dat" file contains "Spin up, <12|W|34> element".
   "W21234.dat" file contains "Spin down, <12|W|34> element".
 
-   You need to set f2=open("Screening_W-v_crpa", 'r') instead
-   of f2=open("Screening_W-v", 'r') to plot U of cRPA.
+  Then we have Static_W.dat (RPA) and Static_U.dat (cRPA)
+  These contains static U, U', J, and J' (\omega = 0).
 
-3) Modify inputs in "Read_Sakakibara_W.py"
-   system : name of the material
-   nwf : number of Wannier function
-   ns : 2 for Spin_polar calculation, 1 for Non spin_polar calculation
-  Then run ./Read_Sakakibara_W.py
-  It generates U (or W).
-  For U instead of W, we need to modify Read_Sakakibara_W.py to 
-  Read_Sakakibara_W.py
-  In this script, "Sakakibara_W.dat" and plot files are genereated.
-  "Sakakibara_W.dat" file contains static U, U', J, and J' (\omega = 0).
-
-NOTE: for practical calculation, we need to stop right after a line
+------------
+NOTE: 
+For practical calculations, we need to stop right after a line
 >argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  
 in the genMLWF. 
 (Need to modify genMLWF by hand; 
@@ -127,11 +119,10 @@ and run >echo 2| hmaxloc |tee lmaxloc2
 again and again until you have a reasonable Wannier band plot.
 Then go ahead to the next steps (you may use genMLWF2).
 
-===============================================================================
-----------------------
+-----------
 NOTE: genMLWF  
-      I added the "grep" commands in the last part to make files 
-          containing v and W-v information.
+      I added the "grep" commands in the last part of genMLWF to make
+      three files containing v and W-v information.
           grep "Wannier" lwmatK1 > Coulomb_v
           grep "Wannier" lwmatK2 > Screening_W-v
           grep "Wannier" lwmatK3 > Screening_W-v_crpa
@@ -139,13 +130,13 @@ NOTE: genMLWF
       hwmatK_MPI.F
          print all matrix elements of W and frequency in eV. called in genMLWF
 
--------------------
-Usage: Seungwoo's procedure for extracting Sakakibara's U,J parameters.
+--------------
+CAUTION:
+you must run job_band in advance to genMLWF!
+If not you may need to follow instruction of "Efermi shift" as
+follows;
 
-
------------------------------------------
-Caution:
-Efermi shift:
+NOTE: Efermi shift:
  genMLWF requies bnds.${target} to read the Fermi energy.
  To generate it, we need to run job_band in advance.
  Or run, 
@@ -162,4 +153,5 @@ Efermi shift:
  "bnd4.dat" u 2:3 lt 1 pt 1 not w l,\
  "bnd5.dat" u 2:3 lt 1 pt 1 not w l,\
  "bnds.maxloc.up" u ($5):($6+de) lt 3 w l ti "Wannier"
-----
+
+---- end of README --------
