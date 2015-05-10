@@ -158,7 +158,7 @@ c      vnow=0d0
      . stdo,vnow,efermi,amom,fmom,vnow)
 !!takao for molecule Dec1 2010
         agreemom= abs(amom-fmom) < 1d-6 ! 1d-6 on June-2 2011
-        print *,'ttttt amom fmom=',amom,fmom,agreemom
+        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
 c      if(original_dvdos) then
         call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
         if(agreemom) vhold(12)=0
@@ -204,7 +204,7 @@ c
       ele1 = (zval+amom)/2d0
       ele2 = (zval-amom)/2d0
       sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-      write(stdo,"('bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=',f20.15)")vnow
+      if(iprint()>20) write(stdo,"('bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=',f20.15)")vnow
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
@@ -324,7 +324,7 @@ c      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
      . stdo,vnow,efermi,amom,fmom,vnow)
 !!takao for molecule Dec1 2010
         agreemom= abs(amom-fmom) < 1d-3
-        print *,'ttttt amom fmom=',amom,fmom,agreemom
+        if(iprint()>60) print *,'ttttt amom fmom=',amom,fmom,agreemom
 c      if(original_dvdos) then
         call dvdos(vnow,amom,dosef,vhold,fmom,dvcap,dv)
         if(agreemom) vhold(12)=0
@@ -379,7 +379,7 @@ c
       ele1 = (zval+fmom)/2d0
       ele2 = (zval-fmom)/2d0
       sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-      write(stdo,"('bzwtsf: Set Bias  -Vup+Vdn=',f20.15)")vnow
+      if(iprint()>20) write(stdo,"('bzwtsf: Set Bias  -Vup+Vdn=',f20.15)")vnow
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
@@ -535,7 +535,7 @@ c     . stdo,vnow,efermi,amom,fmom,vnow)
             vnowmin=vnow
           endif
 !!takao for molecule Dec1 2010
-          print *,'ttttt iter fmomx amom=',iter,fmomx,amom,vnowmax,vnowmin
+          if(iprint()>60) print *,'ttttt iter fmomx amom=',iter,fmomx,amom,vnowmax,vnowmin
           if(amom>fmomx-1d-12.and.amom<fmomx+1d-12) quitvnow=.true.
           if(quitvnow) goto 11
  10     continue
@@ -554,7 +554,7 @@ c     . stdo,vnow,efermi,amom,fmom,vnow)
           vnowmax= vnow1
           vnowmin= vnow2
         endif
-        print *,' qqqqq ix=',ix, 'vnowmin vnowmax amom=',vnowmin,vnowmax,amom
+        if(iprint()>60) print *,' qqqqq ix=',ix, 'vnowmin vnowmax amom=',vnowmin,vnowmax,amom
  20   continue
       deallocate(ebs)
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then

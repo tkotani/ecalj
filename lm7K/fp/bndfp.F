@@ -579,7 +579,7 @@ c         ifiqb  = fopna('qbyl',-1,1)
       if (maxit .eq. 0) return
 c      siginit=.true. !commented out on mar2015. this makes reading sigma at every iteration.
       napw = 0
-      ipr  = iprint()
+      ipr  = iprint() !When procid/=master, iprint=0.
       ipl  = ipr
       nsp  = globalvariables%nsp
       nspc = globalvariables%nspc
