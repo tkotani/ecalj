@@ -31,6 +31,9 @@ $echo_run echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "
 if [ ! -e SEBK ]; then
     mkdir SEBK
 fi
+if [ ! -e STDOUT ]; then
+    mkdir STDOUT
+fi
 ## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
 ## sigm is prior to simg.$TARGET.
 if [ -e sigm ]; then
@@ -79,6 +82,8 @@ do
     argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
     run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
+    mv normchk* STDOUT
+
     ##### main stage of gw ################
     argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
     rm gw1* gw2* gwa* gwb*
@@ -94,16 +99,20 @@ do
     argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
     argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
     argin=3; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsxC # Sigma from core1
+    mv stdout* STDOUT
     ### Valence part of the self-energy Sigma ###
     argin=0; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas # Product basis generation 
     argin=0; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
     argin=1; run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsx # Exchange Sigma
+    mv stdout* STDOUT
     if [ -e WV.d ]; then
 	rm -f WV* 
     fi
     # following two runs are most expensive #
     argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0_sc lx0 $lx0_para_option #x0 part
+    mv stdout* STDOUT
     argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hsfp0_sc lsc #correlation Sigma
+    mv stdout* STDOUT
     argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
     $echo_run echo -n 'OK! --> '
     ### final part of iteration loop. Manupulate files ###
