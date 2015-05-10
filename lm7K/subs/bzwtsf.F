@@ -204,7 +204,7 @@ c
       ele1 = (zval+amom)/2d0
       ele2 = (zval-amom)/2d0
       sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-      if(iprint()>20) write(stdo,"('bzwtsf2(METHOD=1:2jun2011): Set Bias  -Vup+Vdn=',f20.15)")vnow
+      if(iprint()>20) write(stdo,"(' bzwtsf2(METHOD=1): Set Bias field -Vup+Vdn=',f20.15)")vnow
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then
@@ -379,7 +379,7 @@ c
       ele1 = (zval+fmom)/2d0
       ele2 = (zval-fmom)/2d0
       sumev=sumev+ ele1*(vnow/2d0) - ele2*(vnow/2d0) !sumev correction takao
-      if(iprint()>20) write(stdo,"('bzwtsf: Set Bias  -Vup+Vdn=',f20.15)")vnow
+      if(iprint()>20) write(stdo,"(' bzwtsf: Set Bias field -Vup+Vdn=',f20.15)")vnow
       if (lswtk.eq.1 .and. lwtkb .eq. 1) then
         lwtkb = 2
       elseif (lswtk.eq.1 .and. lwtkb .eq. 2) then

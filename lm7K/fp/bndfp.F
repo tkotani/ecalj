@@ -1194,7 +1194,7 @@ c            print *,' sum 111 xdatt ',sum(xdatt),nkp,procid
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
 c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (procid.eq.master.and.ix99==1) then
+      if (procid.eq.master.and.ix99==1.and.oncewrite(11)) then
          print *,'-------- qplist --------'
          do iq=1,nkp
             write(6,"(i5,4f8.3)")iq,qplist(:,iq)

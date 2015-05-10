@@ -184,7 +184,7 @@ C             slo(1) = dl + 1d0
 !! takao Sep24 2010
               if(lsemicorepz)then
                 ebar=eferm
-                write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
+                if(iprint()>30) write(6,"(' pnunew: valence with semicore ebar=efermi=',f12.6)")ebar
               endif
 
 cccccccccccccccccc
