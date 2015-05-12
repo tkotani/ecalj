@@ -23,7 +23,7 @@ c             ,nocc, nunocc, occv, unoccv, occc, unoccc
 c----------------------------------------------------------------
 cccc      use m_rgwinf_v3
       implicit none
-      character(120),allocatable:: symgrp
+      character(120):: symgrp
       character(6),allocatable :: clabl(:)
       integer,allocatable:: iclass(:),
      &    nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
@@ -39,7 +39,7 @@ cccc      use m_rgwinf_v3
      o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
       real(8), allocatable:: 
      o  plat(:,:),pos(:,:),z(:),  ecore(:,:), symgg(:,:,:)   !w(igrp) freq(:),
-      real(8),allocatable :: alat,ef, diw,dw,delta,deltaw,esmr
+      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
       logical:: done_genallcf_v3=.false.
 c-----------------------------------------------------------------------
       contains
@@ -72,7 +72,7 @@ c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
 
-      allocate(alat,ef, diw,dw,delta,deltaw,esmr,  symgrp)
+c      allocate(alat,ef, diw,dw,delta,deltaw,esmr,  symgrp)
       iflmto     = iopen('LMTO',1,0,0)
       if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
 

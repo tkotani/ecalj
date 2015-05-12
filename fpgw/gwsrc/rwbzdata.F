@@ -2,8 +2,8 @@
       module m_read_bzdata
 !! we set following data when you call read_BZDATA() 
       implicit none
-      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-      integer,allocatable :: n1,n2,n3,
+      integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer,allocatable :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
       real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_(:)
@@ -20,7 +20,7 @@ c-----------------------------------------------------------------
       real(8) :: qout(3)
       ifbz = 6661
       write(6,*)' ### readin BZDATA ###'
-      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
+c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_(3))
       open (ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r
@@ -42,6 +42,7 @@ c-----------------------------------------------------------------
      i    qibz,wibz, nstar,irk,  nqibz,
      i    idtetf, ntetf, qbzw,ib1bz, nqbzw,
      i    idteti, nteti,dq_, qibz_r, nqibz_r )
+      write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
       close(ifbz)
 
 C ... Add index to specify qbz. index_qbz is used to find index in qbz.
@@ -90,6 +91,7 @@ Cstop2rx 2013.08.09 kino        stop 'read_BZDATA  sum (wibz) is not 2.'
         call rx( 'read_BZDATA  sum (wibz) is not 2.')
       endif
       done_read_bzdata=.true.
+      write(6,*)' end of read_BZdata'
       end subroutine
       end module
 

@@ -70,10 +70,10 @@ cleanall:
 # When you recompile and link, just repeat 'make' (not necessary to repeat 'make init').
 # When checkmodule recompile source, you have to repeat 'make'.
 init:
-	exec ./checkmodule
+	exec ../../TOOLS/checkmodule ../gwsrc/*.F *.F 
 
 checkmod:
-	exec ./checkmodule
+	exec ../../TOOLS/checkmodule ../gwsrc/*.F *.F 
 
 wanplot.o: cubeformat.o xsfformat2.o  
 
@@ -291,6 +291,7 @@ $(gwsrc)llnew.o
 	$(FC) $(FFI) $(FFLAGS_c4) $*.f -c -o $*.c4_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
+include moduledepends.inc
 
 ##### Maxloc Wannier fn. and Finite-temperature GW
 ### Takashi MIYAKE

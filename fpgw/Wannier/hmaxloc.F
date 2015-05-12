@@ -467,6 +467,8 @@ c      enddo
    
 c Rt vectors
       allocate (rt(3,nqbz),rt8(3,8,nqbz),qbz0(3,nqbz))
+c      write(6,"(a,9f9.4)")'qbas=',qbas
+c      write(6,"(a,9f9.4)")'plat=',plat
       call getrt(qbz,qbas,plat,n1,n2,n3,nqbz,
      o           rt,rt8,qbz0)
 

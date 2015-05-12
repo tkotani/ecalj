@@ -239,6 +239,8 @@ c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
       call read_BZDATA()
+c      write(6,"(a,9f9.4)")'hwmatK_MPI:ginv=',ginv
+
       if (Is_IO_Root_RSMPI()) then
       write(6,*)' nqbz  =',nqbz
 c      write(6,*)  qbz 
@@ -252,12 +254,12 @@ c set up work array
 c      call wkinit (iwksize)
       call pshprt(60)
 
-
 C--- readin GWIN and LMTO, then allocate and set datas.
       nwin =-999    !not readin NW file
       efin =-999d0  !not readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+
       if(ngrp/= ngrp2)
      &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted.
@@ -783,18 +785,17 @@ c      deallocate(eqt)
 
 c --- info
       if (Is_IO_Root_RSMPI())
-     & call winfo(6,nspin,nq,ntq,is,nbloch
+     & call winfo(6,nspin,nq,ntq,nspin,nbloch
      &    ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
 c pointer to optimal product basis
-c      allocate(imdim(natom))
+      allocate(imdim(natom)) !bugfix 12may2015
 c      call indxmdm (nblocha,nclass,
 c     i              iclass,natom,
 c     o              imdim )
       do ia = 1,natom
         imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
       enddo
-
       if(niw/=0) then ! generate gaussian frequencies x between (0,1) and w=(1-x)/x
         allocate(freqx(niw),freqw(niw),wwx(niw))!,expa(niw))
         call freq01x  (niw, !ua,

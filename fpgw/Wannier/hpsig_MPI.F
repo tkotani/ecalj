@@ -158,8 +158,10 @@ c$$$      endif
 
       if (myproc.eq.0) then
       write(6,*)' ======== nqbz qbz  =',nqbz
-      write(6,*)' ======== nqibz ngrp=',nqibz,ngrp
-      write(6,*)  qbz 
+      write(6,*)' ======== nqibz ngrp ngrp2=',nqibz,ngrp,ngrp2
+      do i=1,nqbz
+      write(6,"(3f10.5)") qbz(1:3,i)
+      enddo
       write(6,*)'============================'
       write(6,*)
       endif

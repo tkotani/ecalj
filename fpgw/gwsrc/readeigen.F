@@ -508,15 +508,21 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
       if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
-c      write(6,*)'kkk3=',kkk3
-c      write(6,*)'nkey=',nkey
-c      write(6,*)'kk1=',kk1
+      if(debug) write(6,*)'kkk3=',kkk3
+      if(debug) write(6,*)'nkey=',nkey
+      if(debug) write(6,*)'kk1=',kk1
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-c      write(6,*)' ik1,ik2,ik3=',ik1,ik2,ik3
+      if(debug) write(6,*)' ik1,ik2,ik3=',ik1,ik2,ik3
       iqindx = iqkkk(ik1,ik2,ik3)
+      if(debug) then
+         do iqx=1,nqtt
+         write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
+         enddo
+      endif
       qu =qtt(:,iqindx)
+      if(debug) write(6,*) iqindx,qu
       end subroutine
 !!----
       subroutine init_iqindx_qtt(ginv_)
@@ -528,13 +534,15 @@ c      write(6,*)' ik1,ik2,ik3=',ik1,ik2,ik3
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3
       integer,allocatable:: ieord(:)
+      logical::debug=.false.
       ginv=ginv_
       allocate(ieord(nqtt))
-c      write(6,*)' iiiiii nqtt=',nqtt
+      if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
       allocate(key(3,0:nqtt),qxx(3,nqtt))
       key=-99999
       do iq=1,nqtt
          call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
+         if(debug) write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
       enddo
 !! get key and nkey for each ix.
       key(:,0)=0 !dummy
@@ -570,7 +578,8 @@ c      write(6,*)' initqqq nqtt=',nqtt
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-c         write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+         if(debug) write(6,*) ' 1 kkk3=',i,kkk3
+         if(debug) write(6,*) ' 1 ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
       enddo
       deallocate(qxx)
       end subroutine
@@ -1787,8 +1796,10 @@ ccccccccccccccccccccccccccccccccccccccccccc
         cphiW = 0d0
         do ikp= 1,nqtt ! nqi
         do is= 1,nsp
-           write(6,"(' ikp=',i5,3f10.5)") ikp,qtt(:,ikp)
+           if(debug) write(6,"(' ikp=',i5,3f10.5)") ikp,qtt(:,ikp)
            call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2)
+           if(debug)print *,'qqqqqq1',qu
+           if(debug)print *,'qqqqqq2',qtt(:,ikp)
            if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
            call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2)
            if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 2222')
