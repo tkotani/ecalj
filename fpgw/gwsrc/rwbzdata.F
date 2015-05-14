@@ -2,8 +2,9 @@
       module m_read_bzdata
 !! we set following data when you call read_BZDATA() 
       implicit none
-      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-      integer,allocatable :: n1,n2,n3,
+c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer,allocatable :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
       real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_(:)
@@ -20,7 +21,7 @@ c-----------------------------------------------------------------
       real(8) :: qout(3)
       ifbz = 6661
       write(6,*)' ### readin BZDATA ###'
-      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
+c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_(3))
       open (ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r

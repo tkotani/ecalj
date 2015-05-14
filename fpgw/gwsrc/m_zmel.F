@@ -5,49 +5,47 @@
       module m_zmel
 
 !! Base data for crystal structure.
-!! these are set by genallcf_v3 usually in the main routine.
+!! these are set by 'call genallcf_v3' usually in the main routine.
       use m_genallcf_v3,only: 
-     &  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     &  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nw,
-     &  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,iclass,nlnmv,
+     i  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     i  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nw,
+     i  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,iclass,nlnmv,
 c  clabl,nindxv,nindxc,ncwf,
 c     &  il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, 
 c     &  ilc,inc,imc,  ilnmc, 
-     &   invg, nlnmc, !nindx,konf
-     &  icore,ncore,occv,unoccv ,
-     &  occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
-     &  done_genallcf_v3  
-
+     i   invg, nlnmc, !nindx,konf
+     i  icore,ncore,occv,unoccv ,
+     i  occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
+     i  done_genallcf_v3  
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
-!! Before calling them (get coefficients of eigen funcitons), we need init_readeigen, init_readeigen2 in main rouitne.
+!! Before calling them (get coefficients of eigen funcitons), 
+!! We need to call init_readeigen, init_readeigen2 in main rouitne.
       use m_readeigen,only: readcphi,readgeig 
-
 !! Basic data set to get zmel*
 !! these are set by 'call rdpp' in main routine
       use m_rdpp,only:       
-     &  nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
-     &  done_rdpp  
+     i  nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
+     i  done_rdpp  
 !! BZ data. To set these data 'call read_BZDATA' in main rouitne.
       use m_read_bzdata,only: 
-     &  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
-     &  done_read_bzdata  
+     i  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
+     i  done_read_bzdata  
 !! general purpose routine to read values in GWinput file.
       use keyvalue,only: getkeyvalue 
-!! --------------------------------------
-      integer,parameter:: NULL=-99999
 
-!these are set by mptauof in main routine. 'call mptauof'
+!! ---------------------------------------------
+      integer,parameter:: NULL=-99999
+!! These are set by mptauof in main routine. 'call mptauof'
       integer,allocatable :: miat(:,:)
       real(8),allocatable :: tiat(:,:,:),shtvg(:,:)  
-
-!! We set these values in main routine
+!! We set these values in main routine.
       integer:: nband=NULL,ngcmx=NULL,ngpmx=NULL,ntq=NULL !set in main routine
       integer,allocatable :: itq(:)                       !set in main routine
-c      integer,allocatable:: imdim(:)                      !set in main routine
       real(8),allocatable:: ppbir(:,:,:)                  !set in main routine, call pbafp_v2. 
       complex(8),allocatable,target :: ppovlz(:,:)        !set in main rouitne
+c      integer,allocatable:: imdim(:)                     !set in main routine
 
-!! output zmel for exchange=F, zmeltt for exchange=T.
+!! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:) !output
 
 !! local save.
@@ -61,8 +59,8 @@ c      integer,allocatable:: imdim(:)                      !set in main routine
 !! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
-!! ncc=0
 !!
+!! ncc=0
 !! kvec is in the IBZ, rk = Rot_irot(kvec), kx,kr are dummy.
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>

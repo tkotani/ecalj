@@ -7,7 +7,6 @@
      i freq_r,nw_i,nw, freqx,wx,dw,         
      i ecore,
      i nlmto,nqibz,nqbz,nctot,
-c     i nl,nnc,nclass,natom,
      i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
@@ -15,7 +14,6 @@ c     i nl,nnc,nclass,natom,
      i nbmx,ebmx,           
      i wklm,lxklm,          
      i eftrue,
-!! 
      i jobsw,                   != iSigma_en 
      i hermitianW,
      o zsec,coh,nbandmx)
@@ -23,7 +21,8 @@ c     i nl,nnc,nclass,natom,
       use m_readeigen,only: readeval
       use keyvalue,only   : getkeyvalue
       use m_zmel,only     : get_zmelt,
-     o ppovlz, zmel,zmeltt 
+     i ppovlz, 
+     o zmel,zmeltt 
       implicit none
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
@@ -85,9 +84,9 @@ c     i nl,nnc,nclass,natom,
 !!
 !! See paper   
 !! [1]T. Kotani and M. van Schilfgaarde, ??Quasiparticle self-consistent GW method: 
-!!     A basis for the independent-particle approximation,?? Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
-!! [2]T. Kotani, ??Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
-!!    and Muffin-Tin Orbital Method,?? J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
+!!     A basis for the independent-particle approximation, Phys. Rev. B, vol. 76, no. 16, p. 165106[24pages], Oct. 2007.
+!! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
+!!    and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
 !! =======================================================================
 !! Omega integral for SEc
@@ -387,7 +386,7 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
             write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
             call rx( 'hsfp0.m.f:ngb0/=ngb')
           endif
-!! used in get_zmel
+!! ppovlz is used in get_zmel
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
