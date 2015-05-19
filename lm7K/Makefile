@@ -87,9 +87,8 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 
 
 # initialization to check dependency of modules
+init: moduledepends.inc
 
-init:
-	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F FPLOTdir/*.F
 moduledepends.inc:
 	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F FPLOTdir/*.F
 moduledepends.$(PLATFORM).inc: moduledepends.inc
@@ -155,8 +154,7 @@ $(fp_obj_path)/%.o: fp/%.F
 
 #include Make.mod.dependency
 include MAKEINC/Make.inc.$(PLATFORM)
-include moduledepends.inc
-#include moduledepends.$(PLATFORM).inc
+include moduledepends.$(PLATFORM).inc
 #include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
 
 ############################################
