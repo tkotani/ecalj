@@ -1998,7 +1998,7 @@ c            endif
             ndos=5500
             print *,' pdosmode: ndhamx nsp nspx =',ndhamx, nsp, nspx,nevmin !nevmx
             print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
-            ifip= fopna('Pdosdata',-1,4)
+            ifip= fopna('pdosdata',-1,4)
             write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp
             write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
             write(ifip) evlall  !  allocate(evlall(ndhamx,nspx,nkp))

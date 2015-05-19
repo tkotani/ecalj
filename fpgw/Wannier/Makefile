@@ -62,7 +62,7 @@ install:
 #	 cp  $(script) $(HOME)/bin
 
 cleanall:  
-	 rm -f  $(progs2) $(maxloc)*.o
+	 rm -f  $(progs2) $(maxloc) *.o *.mod
 
 #	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  $(maxloc)*.o  $(gwt)*.o 
 

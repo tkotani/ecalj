@@ -159,7 +159,7 @@ c     &   ,ngpmx !,  ifchipmlog
       integer:: iqbz,iqindx,iflegas,nmx
      &   ,ifcor,nqitot,isx,ntot,ieclog,iww,iqq,ieceig,ecorr_on=-1 !,iqqv
       real(8) :: eclda_bh,eclda_pz,wk4ec,faca
-      logical ::legas
+c      logical ::legas
 
       real(8),allocatable::    evall(:)
       complex(8),allocatable:: ovlpc(:,:),evecc(:,:)
@@ -536,7 +536,7 @@ c      if(.not.smbasis()) nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx)) ! work arry
 
 !! ... for legas test (not used so often. To compare homogeneos electron gas).
-      legas = .false.
+c      legas = .false.
 c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
 !!
       iqxend = nqibz + nq0i
@@ -1940,15 +1940,16 @@ C --- ChiPM mode
             elseif(epsmode.and.chipm) then
               allocate( x0meanx(nmbas,nmbas) )
               if(nolfco) then  ! ChiPM mode without LFC
-                if(legas) then
-                   call rx( ' hx0fp0.m.F need to implement thigs here if required')
-! --- three lines below may work for test purpose for legas. But not sure.
-c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
-c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
-c     &            q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
-                else
-                  x0meanx = x0mean(iw,:,:)/2d0  !in Ry unit.
-                endif
+c$$$                if(legas) then
+c$$$                   call rx( ' hx0fp0.m.F need to implement thigs here if required')
+c$$$! --- three lines below may work for test purpose for legas. But not sure.
+c$$$c                  vcmean= sum( dconjg(gbvec) * matmul(vcoul,gbvec) )
+c$$$c                  write(ifchipmn,'(3f12.8,2x,f8.5,2x,2e23.15)')
+c$$$c     &            q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/4d0/pi**2*x0mean(iw)
+c$$$                else
+c$$$                  x0meanx = x0mean(iw,:,:)/2d0  !in Ry unit.
+c$$$                endif
+                x0meanx = x0mean(iw,:,:)/2d0 !in Ry unit.
               else
 C ... ChiPM mode with LFC... NoLFC part
                 zxq(1:ngb,1:ngb,iw) = zxq(1:ngb,1:ngb,iw)/2d0  ! in Ry.

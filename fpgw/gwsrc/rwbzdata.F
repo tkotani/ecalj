@@ -2,6 +2,8 @@
       module m_read_bzdata
 !! we set following data when you call read_BZDATA() 
       implicit none
+!!Caution: ifort15 make problems to allocate scalar.
+c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
       integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
       integer,allocatable :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),

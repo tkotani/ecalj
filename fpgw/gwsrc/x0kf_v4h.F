@@ -22,7 +22,7 @@ c     d                  natom,
      o qtt_, nqnum 
       use m_pkm4crpa,only : readpkm4crpa
       use m_zmel,only     : get_zmelt2,
-     o zmel,ppbir ,ppovlz
+     o zmel !,ppbir ,ppovlz
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
