@@ -690,6 +690,10 @@ c     &     nqbz,nwf,nband,nlmto)
       call updt_mmn(umnk,mmn0,ikbidx,
      d              nwf,nqbz,nbb,
      u              mmn)
+!! takao think mmn here is continious for |b| \to 0 limit
+!!    u=  \sum_n |unk> mmn 
+!!
+
 
       do isc = 1, nsc2
 c <r_n> ([1] eq.31)

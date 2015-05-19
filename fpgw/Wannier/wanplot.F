@@ -107,9 +107,9 @@ c      use m_wfrho_abc
       do isp = 1,nsp
 c         write(6,"('ikp isp=',2i5,3f12.5)") ikp,isp,qreg(:,ikp)
          call readcphi(qreg(:,ikp),ldim2,isp, quu, cphi2)
-         if(sum(abs(qreg(:,ikp)-quu))>1d-6) stop 'mmlf111eeeee'
+         if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot:qreg(:,ikp)/=quu 111')
          call readgeig(qreg(:,ikp),ngpmx,isp, quu, geig2)
-         if(sum(abs(qreg(:,ikp)-quu))>1d-6) stop 'mmlf222eeeee'
+         if(sum(abs(qreg(:,ikp)-quu))>1d-6) call rx('wanplot:qreg(:,ikp)/=quu 222')
          do iwf = 1,nwf
          do ib = iko_ix,iko_fx
             geig(:,iwf,ikp,isp) = geig(:,iwf,ikp,isp) + geig2(:,ib)*dnk(ib,iwf,ikp,isp)

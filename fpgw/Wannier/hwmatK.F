@@ -669,7 +669,7 @@ c --- info
      &    ,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat,esmr)
 
 c pointer to optimal product basis
-c      allocate(imdim(natom))
+      allocate(imdim(natom)) !bugfix 12may2015
 c      call indxmdm (nblocha,nclass,
 c     i              iclass,natom,
 c     o              imdim )
