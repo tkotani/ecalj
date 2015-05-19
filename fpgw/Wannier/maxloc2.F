@@ -307,6 +307,12 @@ c-----------------------------------------------------------------------
             do iq = 1,nqbz
                 rtmp = rtmp
      &        + dimag(log(mmn(in,in,ibb,iq)))*wbz(iq)
+ccccccccccccccccccccccccccccc
+c            if(abs(log(mmn(in,in,ibb,iq)))>0.9) then
+c               write(6,"('mmmnnn in ibb iq log(mmn)',3i5,2f13.4)") 
+c     &         in,ibb,iq,log(mmn(in,in,ibb,iq))
+c            endif
+ccccccccccccccccccccccccccccc
             enddo
             rn(:,in) = rn(:,in) + wbb(ibb)*bb(:,ibb)*rtmp
 c            write(*,*)in,ibb,rtmp
@@ -466,7 +472,6 @@ c U = U * exp(W)
          enddo
       enddo
       enddo
-
       umn = zmn
 
       deallocate(iwmn,ewmn,evecc,zmn,evalc,eval)

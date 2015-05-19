@@ -5,6 +5,9 @@ c      contains
      i    geig,cphi,nwf,  
      o    phipw,phiaug,phitot)
       use m_readeigen,only: readcphi,readgeig
+cccccccccccccccccccccccccccccccccccccc
+      use m_QG,only:ngp
+cccccccccccccccccccccccccccccccccccccc
 c      use m_LMTO
 c      use m_FFT3D
       implicit none
@@ -34,6 +37,9 @@ c      double complex,allocatable :: geig2(:,:),cphi2(:,:)
 
 !------------------------------------------------------------------
       if(debug) write(*,"(a)") '--- calc_phiall_abc2 ---'
+
+c      print *,'eeee dim =', mesh(1)+1,mesh(2)+1,mesh(3)+1,nband_wfn,nq_wfn,nsp
+
 !      call fft_init(npw,'B')
       call calc_augregion_abc(mesh(1),mesh(2),mesh(3),augregion)
 c      allocate(geig2(ngpmx,nband))
@@ -41,7 +47,7 @@ c      allocate(cphi2(ldim2,nband))
 !$omp parallel do private(iq, eikr,eikT, phipwtmp,phiaugtmp )
       do iq_wfn=1,nq_wfn
          q = q_wfn(1:3,iq_wfn) 
-         write(6,"('iq q=',i5,3f10.4)") iq_wfn,q
+c         write(6,"('ffff iq q=',i5,3f10.4)") iq_wfn,q
          call calc_eikreikT_abc(q,mesh,augregion,eikr,eikT)
          do isp=1,nsp
 c            call readgeig(q,ngpmx,isp, quu, geig2)
@@ -52,8 +58,13 @@ c            if(sum(abs(q-quu))>1d-6) stop 'mmlf222eeeee'
 !$omp critical
 c     write(*,"(a,i2,2i5,3f10.4,i5)")
 c     &         '# isp,iq_wfn,iq,q,ib=',isp,iq_wfn,iq,qtt(1:3,iq),ib
-               if(debug) write(*,"(a,i2,2i5,3f10.4,i5)")
-     &         '# isp,iq_wfn,iq,q,ib=',isp,iq_wfn,iq_wfn,q_wfn(1:3,iq_wfn),ib
+c               write(*,"(a,i2,2i5,3f10.4,i5)")
+c     &         '# isp,iq_wfn,iq,q,ib=',isp,iq_wfn,iq_wfn,q_wfn(1:3,iq_wfn),ib
+ccccccccccccccccccccccccccc
+c      if(iq_wfn>=63) write(6,*)'bbbbb222     ',ib,iq_wfn,isp,ngp(iq_wfn)
+c      if(iq_wfn>=63) write(6,*)'bbbbb222 sum ',sum(geig(1:ngp(iq_wfn),ib,iq_wfn,isp))
+ccccccccccccccccccccccccccc
+
 !$omp end critical
                call calc_phi_abc2(geig(1,ib,iq_wfn,isp),ngpmx,cphi(1,ib,iq_wfn,isp),ldim2,
      i              iq_wfn,npw,mesh,augregion,
@@ -62,19 +73,28 @@ c               write(6,*)'sumccc=',sum(abs(phipwtmp)),sum(abs(phiaugtmp))
                do i3=1,mesh(3)+1
                do i2=1,mesh(2)+1
                do i1=1,mesh(1)+1 !   bloch function
+cccccccccccccccccccccccccc
+c         write(6,"('eeeee iq =',100i5)") iq_wfn,nq_wfn,i1,i2,i3,ib,isp
+cccccccccccccccccccccccccc
                   phipw(i1,i2,i3,ib,iq_wfn,isp) =  eikr(i1,i2,i3) *phipwtmp(i1,i2,i3)
                   phiaug(i1,i2,i3,ib,iq_wfn,isp)=  eikT(i1,i2,i3) *phiaugtmp(i1,i2,i3)
                   phitot(i1,i2,i3,ib,iq_wfn,isp)=
      &                 phipw(i1,i2,i3,ib,iq_wfn,isp)+
      &                 phiaug(i1,i2,i3,ib,iq_wfn,isp)
+cccccccccccccccccccccccccc
+c         write(6,"('ggggg iq =',100i5)") iq_wfn,nq_wfn,i1,i2,i3,ib,isp
+cccccccccccccccccccccccccc
                enddo
                enddo
                enddo
-c     write(*,'(6f10.5)') phitot(:,:,:,ib,iq_wfn,isp)
+c       write(*,'(6f10.5)') phitot(:,:,:,ib,iq_wfn,isp)
             enddo               !ib
          enddo                  !isp
+
       enddo                     !iq
 c      deallocate(geig2,cphi2)
+c      print *,'eeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+cccccccccccccc
       end subroutine calc_phiall_abc2
 ccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine calc_augregion_abc(n1,n2,n3,augregion)
@@ -226,14 +246,19 @@ c      use m_genallcf_v3,only: nbas=>natom, bas=>pos,plat,alat
       double precision :: pi=4.0d0*atan(1.0d0),tpi = 8d0*atan(1.0d0)
       logical :: debug=.false.
       if(debug) write(6,*)' --- calc_phi_abc2 ---'
+ccccccccccccccccccccccccccc
+c      if(iq>=63) write(6,*)'aaaaaa222     ',ngp(iq)
+c      if(iq>=63) write(6,*)'aaaaaa222 sum ',sum(geig(1:ngp(iq)))
+ccccccccccccccccccccccccccc
+
       call dinv33x(plat,qlat)
 c      call chkinv33(plat,qlat)
-
       phipwtmp = 0d0
 c      write(6,*)'aaaaaa1',mesh
       do i3=1,mesh(3)+1
       do i2=1,mesh(2)+1
       do i1=1,mesh(1)+1
+c         write(6,*)'aaaaaa',i1,i2,i3
          rtmp(1)=(i1-1)/dble(mesh(1))
          rtmp(2)=(i2-1)/dble(mesh(2))
          rtmp(3)=(i3-1)/dble(mesh(3))
@@ -246,14 +271,22 @@ c         r(:) = rini(:) + (rfin(:)-rini(:))*rtmp(:)
 c   r0(i)=G0(j,i)*r(j)*
 c   G(i)= G0(j,i)*nG(i) 
 c   exp (i 2 pi  G(i)*r(i) ) 
+c         if(iq>=63) write(6,*)'aaaaaa222     ',i1,i2,i3,iq,ngp(iq)
+c         if(iq>=63) write(6,*)'aaaaaa222 sum ',sum(geig(1:ngp(iq)))
+
+!, size(ngvecp(:,:,iq)), size(ngvecp(1,:,iq))
          do ig=1,ngp(iq)
-c           write(6,*)'ig ngpmx',ig,ngpmx
+c           if(iq>=63) write(6,*)'ig ngpmx',ig
            eigr=exp(ci*tpi*sum(r0(:)*dble(ngvecp(:,ig,iq))))
+c           if(iq>=63) write(6,*)'eigr',eigr
+c           if(iq>=63) write(6,*)'geig',geig(ig)
            phipwtmp(i1,i2,i3) = phipwtmp(i1,i2,i3)
      &        + eigr*geig(ig) !,iband) !,iq,isp)
+c           if(iq>=63) write(6,*)'end phip'
 !        phipwtmp(i1,i2,i3)=out_fft(mod(i1-1,npw(1))+1,
 !     &       mod(i2-1,npw(2))+1,mod(i3-1,npw(3))+1)
          enddo ! ig
+c         if(iq>=63) write(6,*)'aaaaaa3333',i1,i2,i3,ngp(iq)
       enddo ! i1
       enddo ! i2
       enddo ! i3

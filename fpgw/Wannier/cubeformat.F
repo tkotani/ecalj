@@ -153,6 +153,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i    job,  ! = 'write' or 'query'
      i    ifile,alat,plat, rini,rfin,natom,apos, Z, nrange ,
      o    natomall )
+!! atoms in range rini:rfin is given. These are in fractional coordinate. 
+!! nrange is allowed range in the unit of plat
       implicit none
       integer:: ifile
       character(*):: job 
@@ -167,9 +169,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision :: v1(3),v2(3),aini(3),afin(3),eps
       double precision,allocatable :: rall(:,:),zall(:)
 
+      integer::ix
+      real(8)::qlat(3,3)
+
+      call dinv33x(plat,qlat)
       eps = 0.05d0
-      aini = alat*(rini-eps)
-      afin = alat*(rfin+eps)
+c      aini = alat*(rini-eps)
+c      afin = alat*(rfin+eps)
+
+      write(6,*)' xxxxxxxxx nrange=',nrange
+      write(6,*)' xxxxxxxxx rini=',rini
+      write(6,*)' xxxxxxxxx rfin=',rfin
 
       natomx=natom*(2*nrange(1)+1)*(2*nrange(2)+1)*(2*nrange(3)+1)
       allocate(rall(3,natomx),zall(natomx))
@@ -181,11 +191,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           v1(1)=dble(i1)
           v1(2)=dble(i2)
           v1(3)=dble(i3)
-          call mymatvec(plat,v1,v2,3,3)
-          v2(1:3)=alat*(v2(1:3)+apos(1:3,i))
-          if ( (v2(1).ge.aini(1).and.v2(1).le.afin(1))
-     &    .and.(v2(2).ge.aini(2).and.v2(2).le.afin(2))
-     &    .and.(v2(3).ge.aini(3).and.v2(3).le.afin(3)) ) then
+c          call mymatvec(plat,v1,v2,3,3)
+c          v2(1:3)=alat*(v2(1:3)+apos(1:3,i)) !
+          do ix=1,3
+            v2(ix)= v1(ix) + sum( apos(1:3,i)*qlat(1:3,ix) ) !atomic position in fractional coordinate
+          enddo
+          if(  rini(1)-eps<v2(1).and. v2(1)<rfin(1)+eps .and.
+     &         rini(2)-eps<v2(2).and. v2(2)<rfin(2)+eps .and.
+     &         rini(3)-eps<v2(3).and. v2(3)<rfin(3)+eps ) then
+c          if ( (v2(1).ge.aini(1).and.v2(1).le.afin(1))
+c     &    .and.(v2(2).ge.aini(2).and.v2(2).le.afin(2))
+c     &    .and.(v2(3).ge.aini(3).and.v2(3).le.afin(3)) ) then
              natomall = natomall + 1
              rall(1:3,natomall) = v2(1:3)
              zall(natomall) = Z(i)

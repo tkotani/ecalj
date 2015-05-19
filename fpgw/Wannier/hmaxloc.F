@@ -167,6 +167,11 @@ c ixc=3
 
       integer::npin 
       real(8):: qiin(3),qfin(3)
+cccccccccccccccccccccccccccccccccccccccccxxxxxxx
+c      open(1107,file='xxx1')
+c      open(1108,file='xxx2')
+cccccccccccccccccccccccccccccccccccccccccccc
+
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -693,14 +698,49 @@ c     &     nqbz,nwf,nband,nlmto)
      d              nwf,nqbz,nbb,
      u              mmn)
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c         do i=1,nbb
+c            write(1106+is,"(a,i4,13f13.5)")'bbbb',i,bb(1:3,i),wbb(i)
+c         enddo
+c         do i=1,nqbz
+c            write(1106+is,"(a,i4,13f13.5)")'www',i,wbz(i)
+c         enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do isc = 1, nsc2
+cccccccccccccccccccccccc
+c      mmn=mmn+(0d0,1d-8)
+ccccccccccccccccccccccc
+
 c <r_n> ([1] eq.31)
          call get_rn(mmn,bb,wbb,wbz,
      d               nwf,nqbz,nbb,
      o               rn)
+ccccccccccccccccccccccccccccccccccccccccccccc
+c         do i=1,nwf
+c            write(1106+is,"(a,3f13.5)")'rrrrrn',rn(1:3,i)
+c         enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccc
+
          do iq = 1,nqbz
             dwmn = (0d0,0d0)
             do ibb = 1,nbb
+cccccccccccccccccccccccccccccccccccccccccccccc
+c      do i = 1,nwf
+c      do j = 1,nwf
+c         write(1106+is,"(a,4i5,2f13.3)")' mmmmm ',i,j,ibb,iq,mmn(i,j,ibb,iq)+(0d0,0.0001)
+c      enddo
+c      enddo
+c      do i = 1,nwf
+c      do j = 1,nwf
+c         write(1106+is,"(a,4i5,2f13.3)")' nnnnnn ',i,j,ibb,iq,mmn0(i,j,ibb,iq)+(0d0,0.0001)
+c      enddo
+c      enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 c (2-3) A[R] matrix
                call getrmn(mmn(:,:,ibb,iq),
      d                     nwf,
@@ -717,6 +757,11 @@ c (2-4) S[T] matrix
      d                     nwf,
      o                     smn)
 
+cccccccccccccccccccccccccccccccccc
+c               smn=0d0
+c               amn=0d0
+cccccccccccccccccccccccccccccccccc
+
 c DW(k) ([1] eq.57)
                dwmn(:,:) =  dwmn(:,:)
      &       + wbb(ibb) * (amn(:,:) - smn(:,:)) * alpha2 / wbbsum
@@ -724,14 +769,27 @@ c DW(k) ([1] eq.57)
 c end of ibb-loop
             enddo
 
+ccccccccccccccccccccccccc
+c            dwmn=0d0
+ccccccccccccccccccccccccc
 c (2-5) DW(k) -> U(k) ([1] eq.60)
             call updt_uk(dwmn,
      d                   nwf,
      u                   umnk(:,:,iq))
 c            call chk_um(umnk(:,:,iq),nwf)
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+c      do i = 1,nwf
+c      do j = 1,nwf
+c         write(1106+is,"(a,3i5,2f13.3)")' zzzzz',iq,i,j,umnk(i,j,iq)
+c      enddo
+c      enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 c end of iq-loop
          enddo   
+
+
 
 c update Mmn ([1] eq.61)
          call updt_mmn(umnk,mmn0,ikbidx,

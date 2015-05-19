@@ -726,7 +726,7 @@ check
           gtmp = c1(j,iwf,is) *  p + c2(j,iwf,is) *  d
          dgtmp = c1(j,iwf,is) * dp + c2(j,iwf,is) * dd
 !         write(*,*)'iwf,j =',iwf,j
-!         write(*,*)'c1,c2             ',c1(j,iwf,is),c2(j,iwf,is)
+         write(*,*)'c1,c2             ',is,c1(j,iwf,is),c2(j,iwf,is)
 !         write(*,*)'phi,phidot        ',p,d
 !         write(*,*)'dphi/dr,dphidot/dr',dp,dd
 !         write(*,*)'g,gtmp            ',g,gtmp

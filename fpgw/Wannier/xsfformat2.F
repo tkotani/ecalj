@@ -7,7 +7,6 @@
      i     mesh,rini,rfin,phipw,phiaug,phitot,
      i     natom,apos,nclass,iclass,zz )
       implicit none
-c input
       character(*),intent(in):: basename,vis_unit
       double precision,intent(in) :: alat,plat(3,3),rini(3),rfin(3)
       integer,intent(in) :: nsp,nq_wfn,nband_wfn,bindx_wfn(nband_wfn),mesh(3)
@@ -25,17 +24,21 @@ c input
       double precision :: rtmp(3),r(3)
       double precision,parameter:: zero=0.0d0 
       double precision :: Z(natom)
-      integer:: ic,ia,nrange(3),idim, iimg
-      write(6,*)'--- goto wrt_xsf basename=',basename,natom
+      integer:: ic,ia,nrange(3),idim, iimg,ix
+      character(3)::ril
+      write(6,*)'wrt_xsf: basename='//trim(basename)
       do ia=1,natom
         ic=iclass(ia)
         Z(ia)=zz(ic)
       enddo
-      do ia=1,3
-         write(6,*)'rini rfin=',ia,rini(ia),rfin(ia)
-         nrange(ia)= max( -floor(rini(ia)), ceiling(rfin(ia)) ) 
+      do ix=1,3
+         write(6,*)'rini rfin=',ix,rini(ix),rfin(ix)
+         nrange(ix)= max( -floor(rini(ix)), ceiling(rfin(ix)) ) 
       enddo 
-      write(*,*) 'nrange=',nrange(1:3) 
+      write(*,*) 'natom nrange=',natom,nrange(1:3) 
+c      do ia=1,natom
+c         write(6,*)'bbb=',ia,apos(:,ia)
+c      enddo
       call wrt_pos_xyz('query natom',ifile,alat,plat, rini,rfin,natom,apos, Z, nrange,
      o     natomall )      
       write(filename,'(a,a)')  basename(:len_trim(basename)), '.xsf'
@@ -44,42 +47,38 @@ c input
       write(ifile,'(a)') '# wavefunction'
       write(ifile,'(a)') 'PRIMVEC'
       do i1=1,3 
-         write(ifile,'(3f20.10)') plat(:,i1)*alat
+        write(ifile,'(3f20.10)') plat(:,i1)*alat
       enddo 
-      call wrt_pos_xyz('write',ifile,alat,plat, rini,rfin,natom,apos, Z, nrange,
+      call wrt_pos_xyz('write',ifile,alat,plat, rini,rfin,natom,apos,Z,nrange,
      o  natomall )
       write(ifile,'(a)') 'BEGIN_BLOCK_DATAGRID_3D'
       write(ifile,'(a)') basename 
       do iimg=1,2
+        if(iimg==1) ril='_Re'
+        if(iimg==2) ril='_Im'
       do isp=1,nsp
       do iq=1,nq_wfn
       do ib=1,nband_wfn
         iband=bindx_wfn(ib)
 c        write(ifile,'(a,i1,a,i3.3,a,i3.3,a,i3.3,a,i1)') 
 c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
-        write(ifile,'(a,i1,a,i3.3,a,i3.3,a,i3.3,a,i1)') 
-     .    'BEGIN_DATAGRID_3D_isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
+        write(ifile,'(a,i1,a,i3.3,a,i3.3,a,i3.3,a)') 
+     .    'BEGIN_DATAGRID_3D_isp',isp,'_iq',iq,'_ib',ib,'_',iband,ril
         write(ifile,'(3i5)') mesh(1:3)+1
         if (trim(vis_unit).eq.'alat') then
            r(:)= rini(:) *alat
-        else if (trim(vis_unit).eq.'abc') then
+           write(ifile,'(3f20.5)') r(1:3) !origin
+           write(ifile,'(3f20.5)') alat*(rfin(1)-rini(1)) 
+           write(ifile,'(3f20.5)') alat*(rfin(2)-rini(2)) 
+           write(ifile,'(3f20.5)') alat*(rfin(3)-rini(3)) 
+        elseif (trim(vis_unit).eq.'abc') then
            r(:) = plat(:,1)*rini(1)+ plat(:,2)*rini(2)+ plat(:,3)*rini(3)
            r= r*alat 
+           write(ifile,'(3f20.5)') r(1:3) !origin
+           write(ifile,'(3f20.5)') alat*plat(:,1)*(rfin(1)-rini(1)) 
+           write(ifile,'(3f20.5)') alat*plat(:,2)*(rfin(2)-rini(2)) 
+           write(ifile,'(3f20.5)') alat*plat(:,3)*(rfin(3)-rini(3)) 
         endif 
-        write(ifile,'(3f20.5)')  r(1:3) 
-        if (vis_unit.eq.'alat') then
-           r = (rfin-rini)*alat
-        else if (vis_unit.eq.'abc') then
-           r = plat(:,1)*(rfin(1)-rini(1))+ plat(:,2)*(rfin(2)-rini(2))+
-     .          plat(:,3)*(rfin(3)-rini(3))
-           r=r*alat 
-        endif
-        idim=1
-        write(ifile,'(3f20.5)') alat*plat(:,1)*(rfin(1)-rini(1)) !r(idim),zero,zero
-        idim=2
-        write(ifile,'(3f20.5)') alat*plat(:,2)*(rfin(2)-rini(2)) !zero,r(idim),zero
-        idim=3
-        write(ifile,'(3f20.5)') alat*plat(:,3)*(rfin(3)-rini(3)) !zero,zero,r(idim)
         do i3=1,mesh(3)+1
           do i2=1,mesh(2)+1
              if (iimg.eq.1) then
@@ -100,12 +99,15 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
       close(ifile)
  100  format(i6,4f20.10)
  200  format(6E20.10)
-      end  subroutine wrt_xsf
+      end subroutine wrt_xsf
+
 !--------------------------------------------------------------------
       subroutine wrt_pos_xyz(
      i    job,  ! = 'write' or 'query'
      i    ifile,alat,plat, rini,rfin,natom,apos, Z, nrange ,
      o    natomall )
+!! atoms in range rini:rfin is given. These are in fractional coordinate. 
+!! nrange is allowed range in the unit of plat
       implicit none
       integer:: ifile
       character(*):: job 
@@ -120,9 +122,17 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
       double precision :: v1(3),v2(3),aini(3),afin(3),eps
       double precision,allocatable :: rall(:,:),zall(:)
 
+      integer::ix
+      real(8)::qlat(3,3)
+
+      call dinv33x(plat,qlat)
       eps = 0.05d0
-      aini = alat*(rini-eps)
-      afin = alat*(rfin+eps)
+c      aini = alat*(rini-eps)
+c      afin = alat*(rfin+eps)
+
+      write(6,*)' xxxxxxxxx nrange=',nrange
+      write(6,*)' xxxxxxxxx rini=',rini
+      write(6,*)' xxxxxxxxx rfin=',rfin
 
       natomx=natom*(2*nrange(1)+1)*(2*nrange(2)+1)*(2*nrange(3)+1)
       allocate(rall(3,natomx),zall(natomx))
@@ -134,13 +144,20 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
           v1(1)=dble(i1)
           v1(2)=dble(i2)
           v1(3)=dble(i3)
-          call mymatvec(plat,v1,v2,3,3)
-          v2(1:3)=alat*(v2(1:3)+apos(1:3,i))
-          if ( (v2(1).ge.aini(1).and.v2(1).le.afin(1))
-     &    .and.(v2(2).ge.aini(2).and.v2(2).le.afin(2))
-     &    .and.(v2(3).ge.aini(3).and.v2(3).le.afin(3)) ) then
+c          call mymatvec(plat,v1,v2,3,3)
+c          v2(1:3)=alat*(v2(1:3)+apos(1:3,i)) !
+          do ix=1,3
+            v2(ix)= v1(ix) + sum( apos(1:3,i)*qlat(1:3,ix) ) !atomic position in fractional coordinate
+          enddo
+          if(  rini(1)-eps<v2(1).and. v2(1)<rfin(1)+eps .and.
+     &         rini(2)-eps<v2(2).and. v2(2)<rfin(2)+eps .and.
+     &         rini(3)-eps<v2(3).and. v2(3)<rfin(3)+eps ) then
+c          if ( (v2(1).ge.aini(1).and.v2(1).le.afin(1))
+c     &    .and.(v2(2).ge.aini(2).and.v2(2).le.afin(2))
+c     &    .and.(v2(3).ge.aini(3).and.v2(3).le.afin(3)) ) then
              natomall = natomall + 1
-             rall(1:3,natomall) = v2(1:3)
+             call mymatvec(plat,v1,v2,3,3)
+             rall(1:3,natomall) = alat*(v2(1:3)+apos(1:3,i)) 
              zall(natomall) = Z(i)
           endif   
         enddo
@@ -148,6 +165,11 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
         enddo
       enddo
 
+c      if (job.eq.'write' .or. job.eq.'output') then
+c      do i=1,natomall
+c         write(ifile,"(i6,4E20.12)") int(zall(i)),zall(i),rall(1:3,i)
+c      enddo
+c      endif 
       if (job.eq.'write' .or. job.eq.'output') then
       write(ifile,'(a)') 'ATOMS' 
       do i=1,natomall
@@ -155,7 +177,8 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
       enddo
       endif 
       deallocate(rall,zall)
-      end subroutine wrt_pos_xyz
+      end  subroutine wrt_pos_xyz
+
       end module m_xsfformat 
 
 

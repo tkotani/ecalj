@@ -7,6 +7,7 @@ wan_out_emax  2    !eV relative to Efermi
 #wan_in_ewin on
 #wan_in_emin  -4  !eV relative to Efermi
 #wan_in_emax   0  !eV relative to Efermi
+vis_skip on
 wan_tb_cut 12
 wan_maxit_1st 300
 wan_conv_1st=1d-8
