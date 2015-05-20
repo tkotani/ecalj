@@ -1206,7 +1206,7 @@ c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
         allocate(xdatt(nkp))
         xdatt=0d0
       endif
-      if(plbnd/=0) then
+      if(PROCARon) then !if(plbnd/=0) then ! march2015
         if(procid/=master) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif  
