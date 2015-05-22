@@ -13,6 +13,10 @@ MATH='-mkl'
 mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
 
+### viewvesta
+cd StructureTool/
+./makelink
+
 ### Use lm7K/Makefile
 cd lm7K/
 make PLATFORM=ifort.cmd LIBMATH="$MATH"

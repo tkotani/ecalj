@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-VESTA='~/VESTA-x86_64/VESTA'
+import commands
+out=commands.getoutput("which VESTA")
+VESTA=out
 import sys
 import os
 import re

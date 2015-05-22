@@ -16,8 +16,12 @@ MATH='-lfftw3 -lscalapack -lblacsF77 -lblacsBASE -lblacsC -llapack -lblas'
 mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
 
+### viewvesta
+cd StructureTool/
+./makelink
+
 ### Use lm7K/Makefile
-cd lm7K/
+cd ../lm7K/
 make PLATFORM=pgi LIBMATH="$MATH"
 if [ ! $? == 0 ]; then
     exit 1
