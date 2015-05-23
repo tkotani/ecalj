@@ -3253,7 +3253,7 @@ c                 write(*,"(a,13f18.3)")'kkkkk eval=',(evlall(i,jsp,ikps+imin-1:
                    write(mass2d,"(f13.8)") 2d0/(2d0*eqq/qqq**2)
                  endif
                  write(ifmass(jsp),"(3i4,i2,' ',f13.8,' ',f13.8,' ',f13.8,' ',a,' ',a,a)")
-     &           isyml,i,ix,jsp,xdatt(ikps+ix-1)-disoff(isyml), 
+     &           isyml,i,ix,jsp,(xdatt(ikps+ix-1)-disoff(isyml))*tpiba, 
      &           (evlall(i,jsp,ikps+ix-1)-eferm)*rydberg,
      &           (evlall(i,jsp,ikps+ix-1)-evlall(i,jsp,ikps))*rydberg,
      &           mass2d,  massd,  trim(acrossef)
