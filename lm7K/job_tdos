@@ -14,7 +14,7 @@ nfpgw=${n%/*}
 
 source $nfpgw/run_arg #this must be after all input arguments are processed
 #mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $MATERIAL --tdos    |tee llmf_tdos
-run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_tdos $MATERIAL ${@:4:($#-2)}
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_tdos $MATERIAL --tdos ${@:4:($#-2)}
 num=`head -2 dos.tot.$MATERIAL |tail -n 1|wc -w`
 
 ufileg=tdos.${MATERIAL}.glt
