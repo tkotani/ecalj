@@ -661,8 +661,6 @@ C     .  'third for graphical output')
      .cmdopt('--quit=band',11,0,a)) then; quit=4
       elseif (outs=='HAM' .or. outs=='ham' .or.
      .cmdopt('--quit=ham',10,0,a)) then; quit=8
-!! --pdos --tdos mode exit at --quit=band
-      elseif (cmdopt('--pdos',6,0,a).or.cmdopt('--tdos',6,0,a)) then; quit=4
       elseif (outs==' ') then
       else
         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')

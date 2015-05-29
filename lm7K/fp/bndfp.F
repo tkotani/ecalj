@@ -437,7 +437,8 @@ c mar2014
       logical:: massline ,initex=.true.
       logical,save:: siginit=.true.
       character(10):: i2char
-      integer::ipos
+      integer::ipos,ndos_,j
+      real(8)::dosmax,emaxp_
 !! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debugbndfp',6,0,strn)
@@ -1961,7 +1962,9 @@ c            endif
       if(nexist) call fclose(ifig)
 !! ========== end of iq loop ====================================================
       if(debug) print *, 'tttttttttt 9999999999999999999 3',procid
-      if(debug.and.PROCARon)print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
+      if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
+
+
 
 !! === pdos mode (--mkprocar and --fullmesh). ===
       if(PROCARon.and.fullmesh) then
@@ -1993,17 +1996,18 @@ c            endif
 !! dwgtall(1:16,nbas,ndhamx,nsp,nkp)
 !!   If we will have a memory problem for dwgtall, we may store dwgtall(i,...) for a file.
 !!   and repeat nchanp times.
-            eminp=-25.0/rydberg
-            emaxp=30.0/rydberg
-            ndos=5500
+c            eminp=-25.0/rydberg
+c            emaxp=30.0/rydberg
+c            ndos=5500
             print *,' pdosmode: ndhamx nsp nspx =',ndhamx, nsp, nspx,nevmin !nevmx
-            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
+c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
+            print *,' pdosmode: nchanp nbas emin emax ef0=', nchanp,nbas,emin,emax,ef0 !mar2015
             ifip= fopna('pdosdata',-1,4)
-            write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp
+            write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
             write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
             write(ifip) evlall  !  allocate(evlall(ndhamx,nspx,nkp))
             write(ifip) dwgtall !  allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
-            write(ifip) eminp,emaxp,ef0
+            write(ifip) ef0 !eminp,emaxp,ef0
             call fclose(ifip)
             deallocate(idtete,ipqe) !remove this if you uncomment above lines.
          endif  
@@ -2477,33 +2481,54 @@ c     .        stdo,evtop,ecbot,ef0)
          enddo
       endif
 
+
 !! === Generate DOS on disk ===
       if(.not. lwndow .and. procid==master) then
-         ndos0 = sbz%ndos
+         ndos0 = sbz%ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
          if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
 c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
-            if(ndos0<0) write(6,"(a,i5)")'... Generating integrated DOS, ndos0=',ndos0
-            if(ndos0>0) write(6,"(a,i5)")'... Generating total DOS, ndos0=',ndos0
+            if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
+            if(ndos0>0) write(6,"(a)")'... Generating total DOS'      !  ndos0=,ndos0
+
+!! Default and external option. 
+            if(tdos) then
+              dosmax = sbz%dosmax
+c            if (cmdopt('--emint=',7,strn)) then    !not yer for dosw(1)
+c              j=10
+c              if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_
+c            endif
+              if (cmdopt('-emax=',6,0,strn)) then
+                j = 6
+                if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) dosmax=emaxp_/rydberg
+              endif
+              if(cmdopt('-ndos=',6,0,strn))  then
+                j = 6
+                if (a2bin(strn,ndos_,2,0,' ',j,len(strn))) ndos=ndos_
+                deallocate(dos_rv)
+                allocate(dos_rv(ndos,2*nsp))
+              endif
+            endif
+
             if (ltet) then
 !! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
-               if(tdos) dosw(2) = sbz%dosmax + eferm !.or.pdos
+               if(tdos) dosw(2) = dosmax + eferm !.or.pdos
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
-               if ( ndos0 .gt. 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
-     .           , nspx , 0 , dos_rv )
+     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )!job=1 integrated dos
+               if ( ndos0 > 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
+     .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
                del = 0d0
             else
-               if(tdos) dosw(2) = sbz%dosmax + eferm  !.or.pdos
+               if(tdos) dosw(2) = dosmax + eferm  !.or.pdos
                if ( mpsord .ge. 100) mpsord = mod(mpsord,100)
-               if ( ndos0 .gt. 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
+               if ( ndos0 > 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
      .           , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-               if ( ndos0 .lt. 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
+               if ( ndos0 < 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
      .           , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
                del = mpsord+dabs(esmear-mpsord)
@@ -2528,6 +2553,8 @@ c            call fclose(ifi)
             if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
+      if(tdos) call rx0('Done tdos mode:')
+
 
 !! efermi.lmf is written for bandplot mode of syml, --band. See subroutine writeband
       if(procid==master.and.plbnd==0) then
@@ -2893,14 +2920,14 @@ c      character*100::filenm(2)
 cfopna('Pdosdata',-1,4)
       ifip= ifile_handle()
       open(ifip,form='unformatted',file='pdosdata.'//trim(ext))
-      read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp
+      read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
       allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
       allocate(evlall(ndhamx,nspx,nkp))             
       allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp)) 
       read(ifip) idtete !,ipqe 
       read(ifip) evlall         
       read(ifip) dwgtall        
-      read(ifip) eminp,emaxp,ef0
+      read(ifip) ef0 !may2015
       close(ifip)
 c      call fclose(ifip)
 
@@ -2918,16 +2945,16 @@ c      print *,'ppppp',numprocs,procid,iteti,itete
       itete = ntete
 #endif
 
+!! Default and external option.
       eminp=-25.0/rydberg
       emaxp=30.0/rydberg
       ndos=5500
-!!
-      if (cmdopt('-eminp=',7,0,strn)) then
-        j = 7
+      if (cmdopt('-emin=',6,0,strn)) then
+        j=6
         if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_/rydberg
       endif
-      if (cmdopt('-emaxp=',7,0,strn)) then
-        j = 7
+      if (cmdopt('-emax=',6,0,strn)) then
+        j =6
         if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) emaxp=emaxp_/rydberg
       endif
       if(cmdopt('-ndos=',6,0,strn))  then
