@@ -45,7 +45,7 @@ define testjob1.exec
 	# --- Test 3.  job_tdos ---------
 	#
 	$(bindir)/lmfa $(TARGET) > /dev/null
-	$(bindir)/job_tdos $(TARGET) -np $(mpi_size) --dos:npts=1001:window=-.7,.8 -vnk=6 NoGnuplot > ljob_tdos
+	$(bindir)/job_tdos $(TARGET) -np $(mpi_size) -vnk=6 NoGnuplot > ljob_tdos
 endef
 
 ###########################################################
