@@ -33,7 +33,7 @@ cccc      use m_rgwinf_v3
      o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
      &    occv(:,:,:),unoccv(:,:,:)   
      &   ,occc(:,:,:),unoccc(:,:,:),
-     o    nocc(:,:,:),nunocc(:,:,:)
+     o    nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
       integer::
      o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
@@ -65,7 +65,7 @@ c-----------------------------------------------------------------------
       character(120):: symgrpt
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
-      integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex
+      integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
       real(8)::a,b,zz
 c      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
@@ -152,7 +152,8 @@ c--------------------------
      &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(tolbas(0:2*(nl-1)))
-      call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass,
+      ifix=ifi
+      call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass, !ifi can be changed.
 c> BZ
      o                  n1,n2,n3,ef,
 c> frequencies
@@ -165,6 +166,10 @@ c> product basis
 c> core
      o                  ncwf,ncwf2 )
 c----
+      allocate(iantiferro(1:natom))
+      read(ifix,*)
+      read(ifix,*)iantiferro(1:natom) !may2015
+
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         occc=0    ! call iclear(nl*nnc*nclass, w(ioccc))

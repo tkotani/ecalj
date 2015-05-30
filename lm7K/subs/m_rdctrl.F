@@ -109,6 +109,7 @@ C ... SITE
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
+      integer,allocatable::iantiferro(:)
 
 C ... Iterations
       character(128) :: iter_mix=' ',iter_amix=' '
@@ -324,6 +325,7 @@ C ... Local variables
       logical:: isanrg, l_dummy_isanrg
 
       integer:: lx
+
 
 C ... For MPI
       procid = mpipid(1)
@@ -1881,7 +1883,7 @@ C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
       endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
-     .mpole(nsite),dpole(3,nsite))
+     .mpole(nsite),dpole(3,nsite), iantiferro(nsite))
 c      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
 C     Default values
@@ -2022,6 +2024,11 @@ C   ... Site positions
         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgn,nm),plv(j),
      .  def_i4=0,cindx=jj,
      .  note='Assign PL potential index to this site')
+
+!! takao
+        nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgn,nm),iantiferro(j),
+     .  cindx=jj,def_i4=0,
+     .  note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
 
 C$$$        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
 C$$$        if (sw /= 2 .and. ltbe) then
@@ -3208,6 +3215,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" GW~")
       call tkadd(" GW_DELRE~")
@@ -3365,6 +3373,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
@@ -3568,6 +3577,7 @@ c      call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_ROT~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" STR~")
 C     call tkadd(" STR_DELRW~")

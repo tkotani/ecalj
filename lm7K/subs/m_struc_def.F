@@ -1795,6 +1795,7 @@ C 25  83  2       spec  1
 C 26  84  4        vel  3
 C 27  87  4      vshft  1
       type s_site
+      integer  :: iantiferro !may2015
       real(8)  ::   size
       real(8)   ::   bfield(3)
       real(8)   ::   clabel !string

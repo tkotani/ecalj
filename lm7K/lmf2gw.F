@@ -83,7 +83,7 @@ c
       character*256,allocatable:: extp(:)
       integer,parameter :: nsize= 1 000 000
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
-      integer,allocatable:: iprocq(:,:)
+      integer,allocatable:: iprocq(:,:),iantiferro(:)
 !!
       call show_programinfo(6)
 
@@ -326,6 +326,8 @@ c
         enddo
         deallocate(rofi_A,gcore_A,ec_A)
  3001 continue
+      allocate(iantiferro(nbas))
+      read(ifigwa)iantiferro(1:nbas)      !iantiferro may2015
 
       ifi=501
       open (ifi,file='DATA4GW_V2',form='unformatted')
@@ -336,6 +338,8 @@ c
      & iclass,lmxa_d,nr,konf_d,ncore_d,
      & zz,aa,bb,bas,alat,plat,
      & qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
+      write(ifi) iantiferro(1:nbas) !may2015
+      write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
       close(ifi)
 
 c      stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '

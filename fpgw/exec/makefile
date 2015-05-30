@@ -7,6 +7,12 @@
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
 PLATFORM=gfortran
+LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+
+#PLATFORM=ifort
+#LIBMATH=-mkl
+
+
 include make.inc.$(PLATFORM)
 
 BINDIR = $(HOME)/bin
@@ -84,61 +90,6 @@ $(tote)rpaq.o
 
 NFPLtot  = $(nfpsrc)diagcv2.o 
 
-GW0tot = \
-$(gwsrc)rwbzdata.o \
-$(gwsrc)keyvalue.o \
-$(gwsrc)genallcf_mod.o \
-$(gwsrc)rgwinf_mod.o \
-$(gwsrc)nocctotg.o \
-$(gwsrc)ppbafp.fal$(para_g) \
-$(gwsrc)psi2b_v2$(para_g) \
-$(gwsrc)psi2b_v3$(para_g) \
-$(gwsrc)wfacx.o \
-$(gwsrc)sortea.o \
-$(gwsrc)rydberg.o \
-$(gwsrc)polinta.o \
-$(gwsrc)efsimplef.o \
-$(gwsrc)extension.o \
-$(gwsrc)rangedq.o \
-$(gwsrc)nword.o \
-$(gwsrc)scg.o \
-$(gwsrc)matm.o \
-$(gwsrc)rdpp.o \
-$(gwsrc)mptauof.o \
-$(gwsrc)rotdlmm.o \
-$(gwsrc)iopen.o \
-$(gwsrc)cputid.o \
-$(gwsrc)rw.o \
-$(gwsrc)ext.o \
-$(gwsrc)ext2.o \
-$(gwsrc)cross.o \
-$(gwsrc)mate.o \
-$(gwsrc)mate1.o \
-$(gwsrc)icopy.o \
-$(gwsrc)bib1.o \
-$(gwsrc)index.o \
-$(gwsrc)idxk.o \
-$(gwsrc)maxnn.o \
-$(gwsrc)reindx.o \
-$(gwsrc)iprint.o \
-$(gwsrc)bz.o \
-$(gwsrc)bzmesh.o \
-$(gwsrc)genqbz.o \
-$(gwsrc)switches.o \
-$(gwsrc)linpackdummy.o \
-$(gwsrc)rppovl.o \
-$(gwsrc)llnew.o
-
- 
-#LMFtot= \
-#$(lmsrc)lmf.o \
-#$(tote)mkpot_exec.o \
-#$(tote)locpot_exec.o \
-#$(tote)vxcnsp_exec.o \
-#$(tote)evxcv_exec.o \
-#$(tote)mkehkf_exec.o \
-#$(tote)smvxcm_exec.o
-
 EO= \
 $(tote)eout.o \
 $(gwsrc)rydberg.o
@@ -150,24 +101,11 @@ $(gwsrc)rydberg.o
 hecor: $(ECOR) $(NFPLtot) $(GW0)   $(MPI)  $(COMM)
 	$(LK) $(LKFLAGS1) $(ECOR) $(GW0) $(NFPLtot)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
-#	$(LK) $(LKFLAGS1) $(ECORtot) $(GW0tot) $(NFPLtot) $(LKFLAGS2) -o $@
-
 eout: $(EO)   $(COMM) 
 	$(LK) $(LKFLAGS1) $(EO) $(COMM) $(LKFLAGS2) -o $@
 
 eout2: $(EO2)  $(COMM) 
 	$(LK) $(LKFLAGS1) $(EO2) $(COMM) $(LKFLAGS2) -o $@
-
-#lmf_exec:	$(LMFtot)
-#	$(LK) $(LKC) $(LMFtot) $(LIBFP) $(LIBSUBS) $(LIBES) -o $@
-##############################################################################
-
-
-
-
-
-
-
 
 ################
 #
@@ -238,28 +176,16 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)rangedq.o \
  $(gwsrc)llnew.o \
  $(gwsrc)iqindx.o \
- $(gwsrc)polinta.o
+ $(gwsrc)polinta.o\
+ $(gwsrc)m_anf.o
 
 
  BAS = \
  $(main)hbasfp0.m.o \
- $(gwsrc)reindx.o \
- $(gwsrc)maxnn.o \
- $(gwsrc)icopy.o \
  $(gwsrc)basnfp.o \
- $(gwsrc)rgwinf_mod.o \
- $(gwsrc)keyvalue.o \
- $(gwsrc)switches.o \
  $(gwsrc)gintxx.o \
  $(gwsrc)rs.o \
- $(gwsrc)ext.o \
- $(gwsrc)iopen.o \
- $(gwsrc)excore.o \
- $(gwsrc)rydberg.o \
- $(gwsrc)extension.o \
- $(gwsrc)rangedq.o \
- $(gwsrc)polinta.o \
- $(gwsrc)llnew.o
+ $(gwsrc)excore.o
 
 
  VCC= \
@@ -474,7 +400,6 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)bz.o \
  $(gwsrc)bzmesh.o \
  $(gwsrc)genqbz.o \
- $(gwsrc)linpackdummy.o \
  $(gwsrc)switches.o \
  $(gwsrc)rwbzdata.o \
  $(gwsrc)llnew.o  \
@@ -482,27 +407,20 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)readqg.o \
  $(gwsrc)iqindx.o  \
  $(gwsrc)alloclist.o \
- $(gwsrc)m_pkm4crpa.o
+ $(gwsrc)m_pkm4crpa.o \
+ $(gwsrc)m_anf.o
 
+# $(gwsrc)linpackdummy.o \
 
  QPE_SC = \
- $(gwsrc)switches.o \
- $(gwsrc)keyvalue.o \
  $(main)hqpe.sc.m$(hqpe_g) \
  $(gwsrc)qpe1.sc.o \
  $(gwsrc)icompvv2.o \
  $(gwsrc)iopenxx.o \
- $(gwsrc)iopen.o \
- $(gwsrc)rw.o \
- $(gwsrc)rydberg.o \
- $(gwsrc)iprint.o \
- $(gwsrc)rwbzdata.o \
- $(slatsmlib)dmcpy.o \
  $(slatsmlib)dsifa.o \
  $(slatsmlib)dsisl.o \
  $(slatsmlib)dsidi.o \
- $(slatsmlib)amix.o 
-
+ $(slatsmlib)amix.o
 # ../../slatsm/slatsm.a 
 
 
@@ -600,8 +518,8 @@ eout2: $(EO2)  $(COMM)
  rdata4gw_v2:	$(RDAT_v2)  $(NFPL) $(MPI)  $(COMM)
 	 $(LK) $(LKFLAGS1) $(RDAT_v2) $(NFPL) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
 
- hbasfp0:	$(BAS)  $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ hbasfp0:	$(BAS)  $(MPI)  $(COMM) $(GW0)
+	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(COMM)  $(GW0) $(LKFLAGS2) -o $@
 
  hvccfp0:	$(MPI) $(VCC)  $(NFPL) $(DERFC) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
@@ -658,8 +576,8 @@ eout2: $(EO2)  $(COMM)
  hqpe:		$(QPE) $(MPI) $(COMM) 
 	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(LKFLAGS2) -o $@
 
- hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) 
-	 $(LK) $(LKFLAGS1) $(QPE_SC) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) $(GW0)
+	 $(LK) $(LKFLAGS1) $(QPE_SC) $(GW0) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hmergewv:	$(MERGE) $(MPI)   $(COMM) 
 	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
