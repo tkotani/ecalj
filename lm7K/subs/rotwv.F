@@ -269,6 +269,8 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       do igx=1,ngrp
         if(debugmode()>0) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
         call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
+c        qx=matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
+c        if(sum(abs(qx-anint(qx)))<1d-8) then
         if(sum(abs(qx))<1d-8) then
           igg=igx
           if(debugmode()>0) then

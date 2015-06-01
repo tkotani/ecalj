@@ -255,6 +255,8 @@ c        print *,' i in nqtt=',i,qtarget
 c          print *,' xxxxx qtti=',q
           do ig=1,ngrp
 c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
+c            qx=matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
+c            if(sum(abs(qx-anint(qx)))<1d-8) then
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
             if(sum(abs(qx))<1d-8) then
               igg=ig
