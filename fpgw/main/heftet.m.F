@@ -34,7 +34,7 @@ c
 c
      &   lowesteb
 
-      logical lqall,laf
+      logical lqall !,laf
 c      character*120 symgrp
 
 c class parameters

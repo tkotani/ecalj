@@ -1,5 +1,5 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
-     .sarray,sbz,slabl,sstrn,mode,wksize)
+     .sarray,sbz,slabl,mode,wksize) !,sstrn
 
       use m_struc_def  !Cgetarg
       use m_pairs
@@ -71,7 +71,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer mode,wksize
-      character*(*) sstrn, prgnam*8
+      character*(*)  prgnam*8 !sstrn,
       character*8 slabl(*)
       type(s_array)::sarray
       type(s_ctrl)::sctrl

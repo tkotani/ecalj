@@ -37,16 +37,17 @@ c#endif MPE
 #endif
 
 C ... Controls for IO
-      integer lstrn
-      parameter (lstrn=20000)
+c      integer lstrn
+c      parameter (lstrn=20000)
 
       character prgnam*8, vrsion(2)*6, ext*100
 C ... Structure for strings
-      character*(lstrn) sstrn
+c      character*(lstrn) sstrn
 
 C ... For structures
       logical lgors
       integer mxspec
+c      type(s_sstrn):: v_sstrn
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_lat):: v_slat
@@ -85,6 +86,9 @@ C ... Program-dependent name and help
       integer::ic
       real(8):: bz_w,dval!test
       logical:: fileexist
+
+      integer,parameter:: lstrn=10000
+      character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
 !! =================================================================
 
 #if MPI|MPIK
@@ -325,7 +329,7 @@ C      call rx('done')
 !! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     . v_sarry,v_smove,v_stb,sstrn)
+     . v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
 
 #if MPI | MPIK
 #if MPE
@@ -343,11 +347,11 @@ c      print *,'goto setcg'
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
-      call upacks('strn symg',i,j)
-      if (j .ge. i) strn = sstrn(i:j+1)
+      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
 !! mar2013 --pdos Also in rdctrl2.F
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
       lc = 10
+
 #ifndef LMFGWD
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 #endif
@@ -355,6 +359,9 @@ C --- Generate symmetry operations; split species into classes  ---
       if (cmdopt('--sfill',7,0,strn)) then
         call rx('no --sfill option in lm7K')
       endif
+!! AF case for QSGW
+      v_ssite
+
 
 C ... Set default values for species data
       call defspc(v_sspec)
@@ -376,7 +383,7 @@ C ... quit after SHOW
 
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,sstrn)
+     .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,trim(sstrnmix))
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif

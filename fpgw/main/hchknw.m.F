@@ -11,6 +11,8 @@ c---     check the number of nw
      & plat, pos,z,ecore, symgg, konf,nlnx
 
       use keyvalue,only:getkeyvalue
+      use m_anf,only: anfcond,
+     & laf
       implicit none
       logical :: tetra=.false.
       real(8) :: shtw=0d0
@@ -47,7 +49,7 @@ c
 c
 c     &   plat(3,3)
 
-      logical lqall,laf
+      logical lqall
 c      character*120 symgrp
 
 c class parameters
@@ -269,7 +271,7 @@ c      if(.not.qpntexist) then
       if(ixc==1) then
         write(6,*) ' Take all bands ank qpnt'
         lqall  = .true.
-        INQUIRE (FILE ='ANFcond', EXIST = laf)
+        call anfcond()
         if(laf) write(6,*)' Find ANFcond--- laf=T only UP band'
         ntq=-1
       else

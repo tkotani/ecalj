@@ -49,7 +49,7 @@
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
      & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
-     & plat, pos,z,ecore, symgg, konf,nlnx
+     & plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use keyvalue,only: getkeyvalue
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
@@ -64,6 +64,9 @@
 
       use m_sxcf,only: sxcf_fal3_scz 
       use m_mpi             
+
+      use m_anf,only: anfcond,
+     & laf
       implicit none
       integer:: nw
 
@@ -102,7 +105,7 @@ c      real(8) :: shtw
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
-      logical lqall,laf
+      logical lqall
       real(8),allocatable    :: q(:,:)
 
       integer,allocatable ::  
@@ -199,7 +202,7 @@ c      logical:: newaniso
       integer,allocatable:: nbandmx(:,:)
 
       integer:: ificlass,ifiq0p,ntqxx
-      logical:: hermitianW
+      logical:: hermitianW,laff
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -499,18 +502,16 @@ c     write(6,'("    ua      =",f13.6)') ua
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
 
 !! Read q-points and states
+      nspinmx = nspin
       if(selectqp .and. MPI__root) then
         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
         lqall      = .false.
-        laf        = .false.
+        laff        = .false.
         call readx   (ifqpnt,10)
         read (ifqpnt,*) iqall,iaf
         if (iqall == 1) lqall = .true.
-        if (iaf   == 1)   laf = .true.
+        if (iaf   == 1)   laff = .true.
         call readx   (ifqpnt,100)
-c         read (ifqpnt,*) ntq 
-c         allocate( itq(ntq) )
-c         read (ifqpnt,*) (itq(i),i=1,ntq)
         if (lqall) then         !all q-points case
           nq         = nqibz
           allocate(q(3,nq))
@@ -524,7 +525,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
           enddo
         endif
         nspinmx = nspin
-        if (laf) nspinmx =1
+        if (laff) nspinmx =1
         close(ifqpnt)
       else
 !     q-points. bzcase()=1
@@ -532,7 +533,7 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
         allocate(q(3,nq))
         q(:,1:nq) = qibz(:,1:nq) !call dcopy   (3*nqibz,qibz,1,q,1)
       endif
-!
+!!
       call MPI__Broadcast(nq)
       if(MPI__root) then
         do dest=1,MPI__size-1
@@ -541,22 +542,10 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
       else  
         call MPI__REAL8recv(q,3*nq,0)
       endif  
-
-      nspinmx = nspin
-!! ANF mode ---> Unused recently. I think we need fixing for ANFcond mode.
-      inquire(file='ANFcond',EXIST=laf)
-      if(laf) then
-        ifianf = 211
-        open(ifianf,file='ANFcond')
-        read(ifianf,*) soflag
-        if(soflag=='SO') then
-          write(6,*)' ANFcond found. but SO case is not implimented. Not using ANF symm'
-          goto 889              !SO case is not implimented
-        endif
-        write(6,*) 'Find ANFcond--- up only'
-        nspinmx =1
-      endif
- 889  continue
+!! antiferro case. Only calculate up spin
+      call anfcond()
+      if(laf) nspinmx=1
+      call MPI__Broadcast(nspinmx)
 
 !! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
       if(MPI__root) then

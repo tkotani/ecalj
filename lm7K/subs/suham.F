@@ -374,7 +374,7 @@ ccccccccccccccccccccccc
       end subroutine gen_hamindex
 
 
-      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz)
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Hamiltonian setup
@@ -449,7 +449,7 @@ C ... Passed parameters
       type(s_pot)::spot
       type(s_bz)::sbz
 
-      character*(*) sstrn
+c      character*(*) sstrn
 C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)

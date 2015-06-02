@@ -37,6 +37,9 @@
 !! frequency
       use m_freq,only: getfreq,
      &   frhis,freq_r,freq_i, nwhis,nw_i,nw,npm !output of getfreq
+!! antiferro
+      use m_anf,only: anfcond,
+     & laf,ibasf,anfvec !,ldima,pos,natom
 
       implicit none
       integer::iopen,maxocc2,iclose, ixc,iqxini,iqxend,
@@ -54,7 +57,7 @@
       real(8):: ua=1d0          ! this is a dummy.
       integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ndble=8, nword
       real(8),allocatable:: vxcfp(:,:),  wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
-      integer,allocatable :: ngveccB(:,:), ngvecc(:,:),iqib(:),ifppb(:) !,lx(:)
+      integer,allocatable :: ngveccB(:,:), iqib(:),ifppb(:) !,lx(:) ngvecc(:,:),
       complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:),
      &     zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
       real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:)
@@ -67,10 +70,9 @@ c     &  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       complex(8),allocatable :: wwk(:,:,:)
       integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:) !qbzw(:,: )
-      real(8) ::qbzx(3),anfvec(3)
-      logical :: anfexist,  debug
-      integer,allocatable:: ibasf(:)
-      real(8),allocatable :: transaf(:,:)
+      real(8) ::qbzx(3)
+      logical :: debug
+c      integer,allocatable:: ibasf(:)
       logical :: realomega, imagomega 
       complex(8),allocatable:: zzr(:,:),ppovl(:,:),ppovlzinv(:,:) !,ppovlz(:,:)
       complex(8) :: epxxx,vcmean
@@ -105,7 +107,7 @@ c      real(8), allocatable ::  ekxxx(:,:,:)
       real(8),allocatable:: qbz2(:,:)
       logical :: qbzreg !,smbasis
 !    logical ::smbasis !smbasis will be implemented in m_zmel.f which generates <phi|phi M>
-      character(2):: soflag
+c      character(2):: soflag
       real(8):: q_r(3)
       complex(8),allocatable:: pomat(:,:)
       logical   :: timereversal,onceww
@@ -430,7 +432,6 @@ c     nwhis=nw
         !max no. of occupied valence states
       if(noccxv>nband) call rx( 'hx0fp0_sc: all the bands filled! too large Ef')
       noccx  = noccxv + nctot
-c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       nprecx = ndble        !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       if(MPI__root)then
@@ -441,44 +442,19 @@ c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
       endif
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
+
 !TIME1 "after write ifwd"
 !TIME0
-!! --- READIN ANFcond. we don't use this path so much, Need to fix this..---
-      inquire(file='ANFcond',EXIST=anfexist)
-      write(6,*)' ANFcond exist? =',anfexist
-      if(anfexist) then
-         allocate(ibasf(natom),transaf(1:3,natom))
-         ifianf = 211
-         open(ifianf,file='ANFcond')
-         read(ifianf,*) soflag
-         if(soflag=='SO') then  !SO case is not implimented
-            write(6,*)' ANFcond found. but SO case is not implimented. '
-     &           ,'Not using ANF symm'
-            anfexist=.false.
-            goto 889
-         endif
-         read(ifianf,*)
-         read(ifianf,*) anfvec(1:3)
-         write(6,'(" ANFcond=",3f13.6)') anfvec
-         do ibas=1,natom
-            read(ifianf,*) ibas1, ibasf(ibas)
-            if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
-            write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
-c     &     ,transaf(1:3,ibas)
-         enddo
-         close(ifianf)
-         nspinmx =1
-      endif
- 889  continue
-c      if(smbasis() .and. anfexist) then
-c         write(6,*)' smbais=T & anfexist=T is not yet. '//
-c     &        ' At leaset anfx0k shold be changed'
-c         call rx( ' smbais=T & anfexist=T is not yet. ')
-c      endif
-      if((.not.timereversal()) .and. anfexist) then
-        write(6,*)' timereversal=F & anfexist=T is not yet examined.'//
-     &       'At leaset you have to consider about anfx0k and so.'
-        call rx( ' timereversal=F & anfexist=T is not yet.')
+
+c      call anfcond()
+c      if(laf) nspinmx=1
+c      if(laf) write(6,*)' AF mode---' 
+      laf=.false. !AF did now work well yet... still have bugs...
+
+      if((.not.timereversal()) .and. laf) then
+        write(6,*)' timereversal=F & laf=T is not yet examined.'//
+     &            ' At leaset you have to consider about anfx0k and so.'
+        call rx( ' timereversal=F & laf=T is not yet.')
       endif
 !!... these are used x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
@@ -487,6 +463,7 @@ c      endif
 
 c$$$!! --- ppb ---
 c$$$!!   <Phi(R,L,n) Phi(R,L',n') B(R,i)> for each spin
+c$$$      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
 c$$$      do  is = 1,nspin
 c$$$         if(debug) write(6,*)" goto ppbafp is=",is
 c$$$         irot = 1
@@ -557,7 +534,7 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
          call PBindex(natom,lx,l2nl,nx) 
                           ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou() ! no input. Read QGcou and store date into variables.
-c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
+!!  call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       else !dummy allocation to overlaid -check bound !sep2014
          iqxendx=iqxend
          allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
@@ -567,7 +544,6 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
       llw=1d99
       llwI=1d99
-
       if(ixc==1011)then !ixc==11 is a debug mode to test contrib. at \Gamma point.
          goto 1191
       endif
@@ -632,19 +608,18 @@ c         if(newaniso2) then
          read(ifvcoud) zcousq
          idummy=iclose(trim(vcoudfile))
          vcousq=sqrt(vcousq)
-c         endif
 
 c         if(newaniso2.and. iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then 
-          if(iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then 
-            if( ngb0/=ngb ) then
-               call rx( 'hx0fp0.m.f:ngb0/=ngb')
-            endif
-            nolfco =.true.
-            nmbas_in = 1 
+         if(iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then 
+           if( ngb0/=ngb ) then
+             call rx( 'hx0fp0.m.f:ngb0/=ngb')
+           endif
+           nolfco =.true.
+           nmbas_in = 1 
 c         elseif(newaniso2) then !.and.iq==1) then
-          else
-            nolfco = .false.
-            nmbas_in = ngb
+         else
+           nolfco = .false.
+           nmbas_in = ngb
          endif
          nmbas1 = nmbas_in
          nmbas2 = nmbas1
@@ -669,7 +644,7 @@ c     &     = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
          endif
          ppovlz = ppovl_
          deallocate(ppovl_,ppovl)
-         
+        
 c$$$  if(ixc==11) then
 c$$$  write(6,*)" xxx2: memsize 8*ngb*ngb*nwhis=", 8*ngb*ngb*nwhis,' ngb nwhis=',ngb,nwhis
 c$$$  allocate( rcxq(ngb,ngb,nwhis,npm) )
@@ -683,10 +658,10 @@ c$$$  &    zxqi(ngb,ngb,niw))
 c$$$  zxq=0d0; zxqi=0d0
 c$$$  endif
 
-!KINO         write(6,'(a,4(1x,i7))')'kino: nmbas1,nmbas2,nwhis,npm',nmbas1,nmbas2,nwhis,npm
          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
          allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
          rcxq = 0d0
+
 !! ---------------------------------------------------------------
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
@@ -698,6 +673,7 @@ c$$$  endif
      &           iq, is, nqibz + nq0i,nspin
             if(debug) write(6,*)' niw nw=',niw,nw
             isf = is
+
 !!===========tetraini block tetra==.true.===============================1ini
 !!     --- tetrahedron method --- preparation
 !!     nbnb = total number of weight.
@@ -727,9 +703,6 @@ c     in the denominator of the dielectric function.
                allocate( demin(nband+nctot,nband+ncc,nqbz,npm),
      &              demax(nband+nctot,nband+ncc,nqbz,npm) )
                allocate( iwgt (nband+nctot,nband+ncc,nqbz,npm) )
-c     allocate( demin(nband+nctot,nband,nqbz),
-c     &                demax(nband+nctot,nband,nqbz) )
-c     allocate(iwgt(nband+nctot,nband,nqbz) )
 !     wgt, demin, demax may require too much memory in epsilon mode.
 !     We will have to remove these memory allocations in future.
 !     tetwt5x_dtet2 can be very slow because of these poor memory allocation.
@@ -763,9 +736,6 @@ c     allocate(iwgt(nband+nctot,nband,nqbz) )
                if(debug) then
                  do kx  = 1, nqbz
                    do jpm = 1, npm
-c do ix  = 1, nbnb(kx,jpm)
-c write(6,"('jpm kx ixx n1b n2b=',5i7)")jpm,kx,ix,n1b(ix,kx,jpm),n2b(ix,kx,jpm)
-c enddo
                      write(6,"('jpm kx  minval n1b n2b=',4i5)")jpm,kx,
      &                minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
      &                minval(n2b(1:nbnb(kx,jpm),kx,jpm))
@@ -787,7 +757,7 @@ c enddo
             endif
 c=========end of tetraini block==========================================1end
 
-c=======TetrahedronWeight_5 block. tetwt5  ixc==,4,6,11 =======4ini
+!! TetrahedronWeight_5 block. tetwt5  ixc==,4,6,11 =======4ini
 c     if(ixc==11) then !sf 21May02
 C     --- METHOD (tetwt5) for the tetrahedron weight
 !     Histogram secstions are specified by frhis(1:nwp)
@@ -818,7 +788,6 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
             deallocate(demin,demax)
             allocate( whw(nhwtot), ! histo-weight
      &           ibjb(nctot+nband,nband+ncc,nqbz,npm) )
-
             whw=0d0
             ibjb = 0
             do jpm=1,npm
@@ -847,36 +816,6 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
      o           whw,           ! job=1
      i           iq,is,is,nqibz, eibzmode,nwgt(:,iq)) 
             deallocate(demin,demax,iwgt) !duumy
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     do ik   = 1,nqbz
-c     do ibib = 1,nbnb(ik)
-c     ib1  = n1b(ibib,ik)
-c     ib2  = n2b(ibib,ik)
-c     write(3666,"('--- ik ib jb =',3i4)") ik,ib1,ib2
-c     ihww = ihw(ibib,ik)
-c     do iw = 1, nhw(ibib,ik)
-c     write(3666,"('ihis [a b] whw =',i4,2f8.5,f18.12,d14.6)")
-c     &         ihww+iw-1, frhis(ihww+iw-1),frhis(ihww+iw),
-c     &         whw(jhw(ibib,ik)+iw-1), whw(jhw(ibib,ik)+iw-1)
-c     enddo
-c     enddo
-c     enddo
-c     stop 'hx0fp0.f ---  testend xxx2'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     write(1236,"('-----',5i8)") noccxvx
-c     do ik  = 1,nqbz
-c     write(1236,"('--- ',5i8)") ik, nbnb(ik),nbnbtt(ik)
-c     do ibib= 1,nbnb(ik)
-c     write(1236,"(2i6,2f12.6)") n1b(ibib,ik),n2b(ibib,ik)
-c     &         ,demin(n1b(ibib,ik),n2b(ibib,ik),ik)
-c     &         ,demax(n1b(ibib,ik),n2b(ibib,ik),ik)
-c     enddo
-c     enddo
-c     stop 'hx0fp0.m.fal.f ---  testend'
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-                                ! endif                        !ixc==11   !sf 21May02
 !! ======TetrahedronWeight_5 block end =========
 
 
@@ -974,7 +913,7 @@ c     d              natom, !nl,nclass,natom,nnc,
                if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
                nwmax = nw
                nwmin = nw_i
-               if (anfexist) then !Antiferro accelaration.
+               if (laf) then !Antiferro accelaration.
                   do iw  = nwmin,nwmax
                      call anfx0k(natom,nclass,nblocha,iclass,pos
      i                    ,nbloch,ngc,
@@ -1210,11 +1149,10 @@ c     endif
                write(6,*)' goto imag omega'
                if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
 c     ... Antiferro accelaration.
-               if (anfexist) then
+               if (laf) then
                   do iw  = 1,niw
                      call anfx0k(natom,nclass,nblocha,iclass,pos
      i                    ,nbloch,ngc,
-c     i      q, ngveccB(1,1,iqx),qbas,    ! for q+G 12jan2004
      i                    q, ngveccB,qbas, ! for q+G
      i                    anfvec,ibasf, ! these are antiferro informations.
      i                    zxqi(1,1,iw)) ! i/o

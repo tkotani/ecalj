@@ -109,9 +109,10 @@ C ... SITE
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
+      integer,allocatable::iantiferro(:)
 
 C ... Iterations
-      character(128) :: iter_mix=' ',iter_amix=' '
+      character(128) :: iter_mix=' ' !,iter_amix=' '
       real(8):: ctrl_tol(3)=1d-4
       type (s_mix):: vmix
       integer:: iter_maxit=1
@@ -324,6 +325,7 @@ C ... Local variables
       logical:: isanrg, l_dummy_isanrg
 
       integer:: lx
+
 
 C ... For MPI
       procid = mpipid(1)
@@ -1881,7 +1883,7 @@ C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
       endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
-     .mpole(nsite),dpole(3,nsite))
+     .mpole(nsite),dpole(3,nsite), iantiferro(nsite))
 c      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
 C     Default values
@@ -2022,6 +2024,11 @@ C   ... Site positions
         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgn,nm),plv(j),
      .  def_i4=0,cindx=jj,
      .  note='Assign PL potential index to this site')
+
+!! takao
+        nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgn,nm),iantiferro(j),
+     .  cindx=jj,def_i4=0,
+     .  note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
 
 C$$$        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
 C$$$        if (sw /= 2 .and. ltbe) then
@@ -2362,21 +2369,21 @@ c     &              " If necessary, you have to fix it (mixrho.F)")
           if (io_show==0) call poppr
         endif
 
-        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
-     .  nmin=10,nout=nout,note=
-     .  'Mixing rules for Euler angles.  Syntax as in MIX')
-C ... Sanity check and printout
-        if (nout==1 .and. io_help==0 .and. sw/=2) then
-          call r8tos8(vamix%fn,alabl)
-          if (io_show==0) call pshpr(0)
-          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
-     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
-     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
-            if (io_show==0) call poppr
-            call rx('READCTRL: parse in parmxp failed 2')
-          endif
-          if (io_show==0) call poppr
-        endif
+c$$$        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
+c$$$     .  nmin=10,nout=nout,note=
+c$$$     .  'Mixing rules for Euler angles.  Syntax as in MIX')
+c$$$C ... Sanity check and printout
+c$$$        if (nout==1 .and. io_help==0 .and. sw/=2) then
+c$$$          call r8tos8(vamix%fn,alabl)
+c$$$          if (io_show==0) call pshpr(0)
+c$$$          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
+c$$$     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
+c$$$     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
+c$$$            if (io_show==0) call poppr
+c$$$            call rx('READCTRL: parse in parmxp failed 2')
+c$$$          endif
+c$$$          if (io_show==0) call poppr
+c$$$        endif
 
 c      if (prgn /= 'LMMC') then
         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
@@ -3208,6 +3215,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" GW~")
       call tkadd(" GW_DELRE~")
@@ -3365,6 +3373,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
@@ -3398,7 +3407,7 @@ c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD_RPAD~")
       call tkadd(" EWALD_TOL~")
       call tkadd(" ITER~")
-      call tkadd(" ITER_AMIX~")
+c      call tkadd(" ITER_AMIX~")
       call tkadd(" ITER_CONV~")
       call tkadd(" ITER_CONVC~")
       call tkadd(" ITER_MIX~")
@@ -3568,6 +3577,7 @@ c      call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_ROT~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
       call tkadd(" STR~")
 C     call tkadd(" STR_DELRW~")

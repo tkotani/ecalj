@@ -1,8 +1,14 @@
+      
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 16:14:42.601747
 Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
 C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
       module m_struc_def
+
+c      type s_sstrn !june2015
+c      integer,parameter:: lstrn=2000
+c      character(lstrn):: mix,symg !,jobid !header,
+c      end type
 
       type s_ri
       integer  ::   t
@@ -1795,6 +1801,7 @@ C 25  83  2       spec  1
 C 26  84  4        vel  3
 C 27  87  4      vshft  1
       type s_site
+      integer  :: iantiferro !may2015
       real(8)  ::   size
       real(8)   ::   bfield(3)
       real(8)   ::   clabel !string
