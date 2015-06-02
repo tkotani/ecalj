@@ -4,9 +4,11 @@
      . prgnam,vrsion,vn,vn2,
      . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      . v_sstr,v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
-      use m_gtv
+      use m_gtv,only: gtv_setst,gtv_setrcd
+
       use m_struc_func
       use m_globalvariables
+
       use m_rdctrl,only:
      &  readctrl,readctrlpq,
      &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_tb,s_spec,s_site,

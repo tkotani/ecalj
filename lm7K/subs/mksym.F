@@ -140,33 +140,14 @@ C ... Re-entry when ngmx was increased
 C ... For memory allocation of class data, assume initially nclass=nbas
 ckino Dec.14.2011:         allocate(rv_p_oag(abs(3*ngmx)))
 ckino Dec.27.2011:         allocate(slat%rv_p_oag(abs(3*ngmx)))
+      if(allocated(slat%rv_a_oag)) then
+         deallocate(slat%rv_a_oag,slat%rv_a_osymgr,sarray%iv_a_oipc,sarray%iv_a_oics)
+       endif  
        allocate(slat%rv_a_oag(abs(3*ngmx)))
-ckino Dec.14.2011:         if (3*ngmx<0) rv_p_oag(:)=0.0d0
-ckino Dec.27.2011:         if (3*ngmx<0) slat%rv_p_oag(:)=0.0d0
-       if (3*ngmx<0) slat%rv_a_oag(:)=0.0d0
-
-ckino Dec.14.2011:         allocate(rv_p_osymgr(abs(9*ngmx)))
-ckino Dec.28.2011:         allocate(slat%rv_p_osymgr(abs(9*ngmx)))
        allocate(slat%rv_a_osymgr(abs(9*ngmx)))
-ckino Dec.14.2011:         if (9*ngmx<0) rv_p_osymgr(:)=0.0d0
-ckino Dec.28.2011:         if (9*ngmx<0) slat%rv_p_osymgr(:)=0.0d0
-       if (9*ngmx<0) slat%rv_a_osymgr(:)=0.0d0
-
-ckino Dec.16.2011:         allocate(iv_p_oipc(abs(nsite)))
-ckino Dec.28.2011:         allocate(sarray%iv_p_oipc(abs(nsite)))
        allocate(sarray%iv_a_oipc(abs(nsite)))
-ckino Dec.16.2011:         if (nsite<0) iv_p_oipc(:)=0
-ckino Dec.28.2011:         if (nsite<0) sarray%iv_p_oipc(:)=0
-       if (nsite<0) sarray%iv_a_oipc(:)=0
-
-ckino Dec.14.2011:         allocate(iv_p_oics(abs(nsite)))
-ckino Dec.27.2011:         allocate(sarray%iv_p_oics(abs(nsite)))
        allocate(sarray%iv_a_oics(abs(nsite)))
-ckino Dec.14.2011:         if (nsite<0) iv_p_oics(:)=0
-ckino Dec.27.2011:         if (nsite<0) sarray%iv_p_oics(:)=0
-       if (nsite<0) sarray%iv_a_oics(:)=0
-
-      allocate(nrspc_iv(nbas))
+       allocate(nrspc_iv(nbas))
 
 
 ckino Dec.8.2011:         rv_p_opos => sarray%rv_p_opos 
@@ -219,43 +200,16 @@ C --- Generate space group ---
       endif
 
 C ... When generating the group the basis may become enlarged ...
-C     copy larger files relevant arrays to larger workspace
-ckino Dec.14.2011:         allocate(iv_p_oistab(abs((ngmx+1)*nbas)))
-ckino Dec.28.2011:         allocate(slat%iv_p_oistab(abs((ngmx+1)*nbas)))
-       allocate(slat%iv_a_oistab(abs((ngmx+1)*nbas)))
-ckino Dec.14.2011:         if ((ngmx+1)*nbas<0) iv_p_oistab(:)=0.0d0
-ckino Dec.28.2011:         if ((ngmx+1)*nbas<0) slat%iv_p_oistab(:)=0.0d0
-       if ((ngmx+1)*nbas<0) slat%iv_a_oistab(:)=0.0d0
-
-C     call defi (oistb2,(ngmx+1)*nbas)
+      if(allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
+      allocate(slat%iv_a_oistab(abs((ngmx+1)*nbas)))
       allocate(ips2_iv(ngmx*nbas))
-
       allocate(pos2_rv(3*ngmx*nbas))
-
-ckino Dec.8.2011:         call icopy ( nbas , iv_p_oips , 1 , ips2_iv , 1 ) 
-ckino Dec.28.2011:         call icopy ( nbas , sarray%iv_p_oips , 1 , ips2_iv , 1 ) 
-       call icopy ( nbas , sarray%iv_a_oips , 1 , ips2_iv , 1 ) 
-
-
-ckino Dec.8.2011:         call dcopy ( 3 * nbas , rv_p_opos , 1 , pos2_rv , 1 ) 
-ckino Jan.04.2012:         call dcopy ( 3 * nbas , sarray%rv_p_opos , 1 , pos2_rv , 1 ) 
-ckino Jan.04.2012:         call dcopy ( 3 * nbas , slat%rv_p_opos , 1 , pos2_rv , 1 ) 
-       call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos2_rv , 1 ) 
-
-
-         call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
+      call icopy ( nbas , sarray%iv_a_oips , 1 , ips2_iv , 1 ) 
+      call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos2_rv , 1 ) 
+      call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
      .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
-ckino Dec.14.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , rv_p_oag , ngen , gen , ssymgr 
-ckino Dec.27.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_p_oag , ngen , gen , ssymgr 
-ckino Dec.28.2011:       .   , nrspc_iv , nsgrp , slat%rv_p_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
      .   , nrspc_iv , nsgrp , slat%rv_a_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
-ckino Dec.14.2011:       .   , nggen , isym , iv_p_oistab ) 
-ckino Dec.28.2011:       .   , nggen , isym , slat%iv_p_oistab ) 
      .   , nggen , isym , slat%iv_a_oistab ) 
-
-
-
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
      .' Check group operations.')
@@ -266,11 +220,7 @@ ckino Dec.28.2011:       .   , nggen , isym , slat%iv_p_oistab )
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-ckino Dec.14.2011:           if (associated(rv_p_oag)) deallocate(rv_p_oag)
-ckino Dec.27.2011:           if (associated(slat%rv_p_oag)) deallocate(slat%rv_p_oag)
-         if (allocated(slat%rv_a_oag)) deallocate(slat%rv_a_oag)
-
-
+        if (allocated(slat%rv_a_oag)) deallocate(slat%rv_a_oag)
         goto 5
       endif
       if (fptol .ne. 0) then
@@ -328,43 +278,12 @@ C --- Printout of symmetry operations ---
       if (mod(mode/10,10) .eq. 0) goto 100
 
 C --- Split species into classes ---
-ckino Dec.16.2011:         allocate(iv_p_onrc(abs(nspec)))
-comment        allocate(sarray%iv_p_onrc(abs(nspec)))
+      if(allocated(sarray%iv_a_onrc)) deallocate(sarray%iv_a_onrc)
        allocate(sarray%iv_a_onrc(abs(nspec)))
-ckino Dec.16.2011:         if (nspec<0) iv_p_onrc(:)=0
-comment        if (nspec<0) sarray%iv_p_onrc(:)=0
-       if (nspec<0) sarray%iv_a_onrc(:)=0
-
-ckino Dec.8.2011:          call icopy ( nsite , iv_p_oips , 1 , iv_p_oipc , 1 ) 
-ckino Dec.16.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , iv_p_oipc , 1 ) 
-ckino Dec.28.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_p_oipc , 1 ) 
-ckino Dec.28.2011:          call icopy ( nsite , sarray%iv_p_oips , 1 , sarray%iv_a_oipc , 1 ) 
-        call icopy ( nsite , sarray%iv_a_oips , 1 , sarray%iv_a_oipc , 1 ) 
-
-
-
-ckino Dec.8.2011:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_p_opos , nbas 
-ckino Jan.04.2012:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , sarray%rv_p_opos , nbas 
-ckino Jan.04.2012:             call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_p_opos , nbas 
-           call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_a_opos , nbas 
-ckino Dec.14.2011:       .     , nsgrp , iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-ckino Dec.16.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , iv_p_oipc , 
-ckino Dec.28.2011:       .     , nsgrp , slat%iv_p_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
-ckino Dec.28.2011:       .     , nsgrp , slat%iv_a_oistab , nspec , slabl , nclass , sarray%iv_p_oipc , 
+       call icopy ( nsite , sarray%iv_a_oips , 1 , sarray%iv_a_oipc , 1 ) 
+       call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_a_opos , nbas 
      .     , nsgrp , slat%iv_a_oistab , nspec , slabl , nclass , sarray%iv_a_oipc , 
-ckino Dec.14.2011:       .     iv_p_oics , iv_p_onrc ) 
-ckino Dec.16.2011:       .     sarray%iv_p_oics , iv_p_onrc ) 
-ckino Dec.27.2011:       .     sarray%iv_p_oics , sarray%iv_p_onrc ) 
-comment      .     sarray%iv_a_oics , sarray%iv_p_onrc ) 
      .     sarray%iv_a_oics , sarray%iv_a_onrc ) 
-
-
-
-
-
-ccccccccccc
-c      print *,'zzz nclass=',nclass
-cccccccccc
 
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr

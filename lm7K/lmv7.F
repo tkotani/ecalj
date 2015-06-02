@@ -1,6 +1,12 @@
       program lmf
       use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_tb,s_spec,s_site
       use m_rdctrl2_func, only: rdctrl2
+
+      use m_hamindex,only: symops,invgx,nbas,ag,
+     &  shtvg,ngrp,miat,tiat,iclasst
+
+      use m_rdctrl,only:symgaf
+
 c      use m_globalvariables
 #if MPI | MPIK
 #if MPE
@@ -49,19 +55,19 @@ C ... For structures
       integer mxspec
 c      type(s_sstrn):: v_sstrn
       type(s_bz):: v_sbz
-      type(s_ctrl):: v_sctrl
-      type(s_lat):: v_slat
+      type(s_ctrl):: v_sctrl,v_sctrl2
+      type(s_lat):: v_slat,v_slat2
       type(s_ham):: v_sham
       type(s_pot):: v_spot
       type(s_mix):: v_smix
-      type(s_array):: v_sarry
+      type(s_array):: v_sarry,v_sarry2
       type(s_move):: v_smove
       type(s_str):: v_sstr
       type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:)
+      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
       parameter (mxspec=256)
-      character*8 slabl(mxspec)
+      character*8 slabl(mxspec) !,slablaf(mxspec)
 C ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
@@ -89,8 +95,14 @@ C ... Program-dependent name and help
 
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
-!! =================================================================
 
+
+      integer,allocatable:: iclasstaf(:)
+      real(8),allocatable:: symops_af(:,:,:), ag_af(:,:)
+      integer:: ngrpaf
+
+!! =================================================================
+      integer:: ig,ib,ibas,nspec,inumaf
 #if MPI|MPIK
       integer  nsize, id
       call mpi_init(ierr)
@@ -125,7 +137,6 @@ C --- Version ---
 C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
-c     .call lmhelp(prgnam,vn(2),vn2(2),wksize)
      .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
@@ -172,13 +183,8 @@ C --- Dynamic memory allocation and other initialization ---
       EVENT_END_BARRIER  = MPE_LOG_GET_EVENT_NUMBER()
 #endif
 C --- Dynamic memory allocation and other initialization ---
-c      if (procid .eq. master) call headl2(prgnam,wksize,stdo)
       if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
-c      call pshpr(0)
-c      call wkinit(wksize)
-c      call wkfast(T)
-c      call poppr
       if (procid .eq. master) then
         i = fextg(ext)
       endif
@@ -227,16 +233,8 @@ c        print *,' xxxx file extension: ',procid,ext(1:i+1)
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #else
 C     Add version to variables table?
-C     j = 0
-C     swtmp = a2bin('T',ltet,1,0,' ',j,-1)
-C     call addsyv('version',vn,i)
-c      call headl2(prgnam,wksize,stdo)
       call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
-c      call pshpr(0)
-c      call wkinit(wksize)
-c      call wkfast(T)
-c      call poppr
       call poseof(fopn('LOG'))
       i = fextg(ext)
       call word(ext,1,i,j)
@@ -285,19 +283,13 @@ C --- Set the top-level verbosity if specified from cmd line ---
 C --- Input from ctrl file ---
 C     recrd, nrecs are obtained.
       nrecs  = 0
-Cki      allocate( recrd( 0:mxrecs*recln0-1 ) )
       if (procid .eq. master) then
         if (.not.cmdopt('--input',7,0,strn)) then
           nfilin = fopna('CTRL',-1,1)
-ctakao
-          call findctrlstart(nfilin)
-
+          call findctrlstart(nfilin) !takao
           alabl = '#{}% ct '
           if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
           call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
-c To show variables.
-c        call shosyv(0,-1,0,6)
-
           i = 60
           if (cmdopt('--show',6,0,strn)) then
             i = 1
@@ -329,7 +321,7 @@ C      call rx('done')
 !! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     . v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
+     . v_sarry,v_smove,v_stb, sstrnmix,sstrnsymg)
 
 #if MPI | MPIK
 #if MPE
@@ -355,12 +347,78 @@ C --- Generate symmetry operations; split species into classes  ---
 #ifndef LMFGWD
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 #endif
-      call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       if (cmdopt('--sfill',7,0,strn)) then
         call rx('no --sfill option in lm7K')
       endif
-!! AF case for QSGW
-      v_ssite
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! read AF case 
+      if(len_trim(symgaf)>0) then
+        nbas = v_sctrl%nbas
+        v_sarry2=v_sarry
+        allocate(v_ssite2(nbas))
+        v_ssite2=v_ssite
+        inumaf=0
+        do j=1,nbas
+          do k=j,nbas
+            if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
+              v_sarry2%iv_a_oips(k) =v_sarry2%iv_a_oips(j)
+              inumaf=inumaf+1
+              exit
+            endif
+          enddo
+        enddo
+        v_sctrl2=v_sctrl
+        nspec= v_sctrl%nspec-inumaf
+        v_sctrl2%nspec=nspec
+        v_slat2=v_slat
+        print *,' goto mksym for Antiferro symgaf=',trim(symgaf)
+        strn=trim(strn)//' '//trim(symgaf)
+        call mksym(lc,slabl,strn ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
+        print *,' mksym out =',trim(strn)
+        ngrpaf=v_slat2%nsgrp
+        allocate(iclasstaf(nbas),invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf),
+     &   shtvg(3,ngrpaf),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
+!! these should be stored...
+        call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
+        call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
+        write(*,*) 'ngrpaf=',ngrpaf
+        do ib=1,nbas
+          iclasstaf(ib)=v_ssite2(ib)%class
+        enddo
+!! we need,  symops, ngrp, plat, nbas, pos, iclasst,  
+        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+     .   , miat , tiat , invgx , shtvg )
+        do ig = 1,ngrpaf
+          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+          do i=1,3
+            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+          enddo
+        enddo
+      endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+!! ---------------------------
+      call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+c$$$!! test1 ------------------
+c$$$      ngrp=v_slat%nsgrp
+c$$$      nbas=v_sctrl%nbas
+c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
+c$$$      call dcopy ( ngrp * 9 , v_slat%rv_a_osymgr , 1 , symops , 1 )
+c$$$      call dcopy ( ngrp * 3 , v_slat%rv_a_oag , 1 , ag , 1 )
+c$$$      write(*,*) 'ngrp=',ngrp
+c$$$      do ib=1,nbas
+c$$$        iclasst(ib)=v_ssite(ib)%class
+c$$$      enddo
+c$$$      call mptauof ( symops , ngrp , v_slat%plat , nbas , v_slat%rv_a_opos , iclasst 
+c$$$     . , miat , tiat , invgx , shtvg )
+c$$$      do ig = 1,ngrp
+c$$$        write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$        do i=1,3
+c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
+c$$$        enddo
+c$$$      enddo
 
 
 C ... Set default values for species data
@@ -550,7 +608,8 @@ Cgetarg       end
 
 
       subroutine findctrlstart(nfilin)
-
+! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
+! this is useful if you like to use script, GWinput, ctrl in a file.
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn

@@ -1,26 +1,24 @@
+!! "call readdctrl" defined in m_rdctrl set all variables read from ctrl file.
+!!  m_rdctrl is used in rdctrl2.F
       module m_rdctrl
       use m_struc_def
       implicit none
-
-C ... Fixed parameters
+!! ... Fixed parameters
       integer,parameter:: NULLI =-99999
       real(8),parameter::    NULLR =-99999
       logical,parameter:: T=.true.,F=.false.
       integer,parameter :: n0=10
       integer,parameter :: nkap0=3
       integer(2):: nono
-
-C ... IO
+!! ... IO
       integer:: io_show=0,io_help=0,nvario=0
-
-C ... HEADER, SYMGRP
+!! ... HEADER, SYMGRP
       character(256):: header,symg=' '
-
-C ... HAM
+      character(256):: symgaf=' '    !june2015 for antiferro
+!! ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
      .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
-c      logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
       real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz, scaledsigma 
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
@@ -1031,6 +1029,11 @@ C --- Symmetry group ---
      .call info0(1,1,0,' --- Symmetry group operations ---')
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .note='Generators for symmetry group')
+C --- Symmetry group AF ---
+      if (io_show+io_help/=0 .and. tksw(prgn,'SYMGRPAF')/=2)
+     .call info0(1,1,0,' --- Symmetry group operations ---')
+      nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgn,nm),symgaf,
+     .note='Generators for adding anti ferro symmetry')
 c
    
 C$$$C --- Crystal Green's function ---
@@ -2688,7 +2691,6 @@ C    if (io_help .ne. 0 .or. ltmp) then
       if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
         nn = NULLI
       else
-Ckino isanrg is logical function,         call isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
         l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
       endif
       nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
@@ -2718,7 +2720,6 @@ C ... Bulirsch-Stoer integration parmaters
         if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
           nn = NULLI
         else
-Ckino isanrg is logical function,           call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
           l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
         endif
         if (nout .gt. 0) nn = nout
@@ -2728,15 +2729,7 @@ Ckino isanrg is logical function,           call isanrg(nn,2,11,'rdctrl','BSINT_
      .  note='Sequence of number of midpoint divisions')
       endif
 
-cxxx int
-C      sdyn_sdmod= sdyn(2)       !xxxxx
-C      sdyn_fscal= sdyn(3)
-C      sdyn_tau = sdyn(4)
-C      sdyn_NoseEtot0= sdyn(5)
-C      sdyn_maxtheta= sdyn(6)
-C      sdyn_etol= sdyn(7)
-
-C$$$C --- GW ---
+C$$$C --- GW --- (from GWinput, not from ctrl)
 C$$$      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,
 C$$$     .  0,' --- Parameters for GW input (job=-1) ---')
 C$$$      nm='GW_MKSIG'; call gtv(trim(nm),tksw(prgn,nm),gw_mksig,
@@ -2787,7 +2780,6 @@ C$$$     .  'retain prod-basis with overlap eigenvalues>PBTOL')
 C$$$      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
 C$$$     .  def_r8=1d0,note=
 C$$$     .  'k-point offset parameter for special BZ integration for xi')
-
 cC --- Plane ---
 c      if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
 c     .  call info0(1,1,0,' --- Parameters defining a plane ---')
@@ -2797,8 +2789,8 @@ c      nm='PLANE_X'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
 c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
-
       end subroutine readctrl
+
 
       subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
      .initc,ics,clabl)
@@ -3118,6 +3110,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")
@@ -3217,6 +3210,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_RELAX~")
       call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" GW~")
       call tkadd(" GW_DELRE~")
       call tkadd(" GW_DELTA~")
@@ -3375,6 +3369,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_RELAX~")
       call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
       call tkadd(" BZ_DELEF~")
@@ -3497,6 +3492,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
       call tkadd(" BZ_COND_MODE~")
@@ -3579,6 +3575,7 @@ c      call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SITE_ATOM_ROT~")
       call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" STR~")
 C     call tkadd(" STR_DELRW~")
 c      call tkadd(" STR_EQUIV~")

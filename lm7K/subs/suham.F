@@ -130,6 +130,7 @@ c ... reverse maping of offset-index for hamiltonian
         offlrev(ibas,l,k)= offl(iorb)
       enddo
 
+
 !!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
       call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 )
@@ -138,10 +139,27 @@ c ... reverse maping of offset-index for hamiltonian
       do ib=1,nbas
         iclasst(ib)=ssite(ib)%class
       enddo
-!!---- get space group information ----
-!!# translation informations also in miat tiat invgx, shtvg
+!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
       call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg )
+
+
+c$$$!!--- symmetry af case for AF 
+c$$$      ngrpaf=slat%nsgrpaf
+c$$$      allocate(symopsaf(3,3,ngrp),agaf(3,ngrp))
+c$$$      call dcopy ( ngrp * 9 , slat%rv_a_osymgraf , 1 , symopsaf , 1 )
+c$$$      call dcopy ( ngrp * 3 , slat%rv_a_oagaf , 1 , agaf , 1 )
+c$$$      allocate(invgxaf(ngrpaf),miataf(nbas,ngrpaf),tiataf(3,nbas,ngrp),shtvgaf(3,ngrpaf))
+c$$$      do ib=1,nbas
+c$$$        iclasst(ib)=ssite(ib)%classaf
+c$$$      enddo
+c$$$!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
+c$$$      call mptauof ( symopsaf , ngrpaf , plat , nbas , slat%rv_a_opos , iclasst 
+c$$$     . , miat , tiat , invgx , shtvg )
+c$$$
+
+
+
 
 !!---- write SYMOPS ---- mar2012takao
 #if (MPI|MPIK)
