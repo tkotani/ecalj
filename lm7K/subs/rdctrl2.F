@@ -3,7 +3,7 @@
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam,vrsion,vn,vn2,
      . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     . v_sstr,v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
+     . v_sstr,v_sarry,v_smove,sstrnmix,sstrnsymg)  !,v_stb
       use m_gtv,only: gtv_setst,gtv_setrcd
 
       use m_struc_func
@@ -11,7 +11,7 @@
 
       use m_rdctrl,only:
      &  readctrl,readctrlpq,
-     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_tb,s_spec,s_site,
+     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_spec,s_site, !s_tb,
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,nmto,lrsig,
@@ -211,7 +211,7 @@ C ... Passed parameters
       type(s_str):: v_sstr
       type(s_array):: v_sarry
       type(s_move):: v_smove
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:)
 

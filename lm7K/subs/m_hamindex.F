@@ -2,6 +2,13 @@
 !! == this is in lm7K/subs/m_hamindex.F and in fpgw/gwsrc/m_hamindex.F ==
 !! We will need to unify make system and source code in fpgw and lmf.
       implicit none
+!! af june2015
+      integer,allocatable:: iclasstaf(:)
+      real(8),allocatable:: symops_af(:,:,:), ag_af(:,:)
+      integer:: ngrpaf,ngrp_original
+c      integer,allocatable:: invgxaf(:),miataf(:,:)
+c      real(8),allocatable:: tiataf(:,:,:),shtvgaf(:,:)
+
       integer,parameter:: null=-999999
       integer:: ngrp=null, lxx=null, kxx=null,norbmto=null,norbtx=null
 !! norbtx is given in gwsrc/readeigen.F init_readeigen2

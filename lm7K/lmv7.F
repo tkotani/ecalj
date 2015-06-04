@@ -1,11 +1,11 @@
       program lmf
-      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_tb,s_spec,s_site
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_spec,s_site !,s_tb
       use m_rdctrl2_func, only: rdctrl2
 
       use m_hamindex,only: symops,invgx,nbas,ag,
-     &  shtvg,ngrp,miat,tiat,iclasst
-
-      use m_rdctrl,only:symgaf
+     &  shtvg,ngrp,miat,tiat,iclasst,
+     & iclasstaf,symops_af,ag_af,ngrpaf
+      use m_rdctrl,only: symgaf
 
 c      use m_globalvariables
 #if MPI | MPIK
@@ -63,13 +63,13 @@ c      type(s_sstrn):: v_sstrn
       type(s_array):: v_sarry,v_sarry2
       type(s_move):: v_smove
       type(s_str):: v_sstr
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
       parameter (mxspec=256)
       character*8 slabl(mxspec) !,slablaf(mxspec)
 C ... miscellaneous local variables
-      character strn*1000,outs*20
+      character strn*1000,outs*20,strn2*1000
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      .igets,a2vec,NULLI
       double precision vn(2),vn2(2),dglob
@@ -96,13 +96,8 @@ C ... Program-dependent name and help
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
 
-
-      integer,allocatable:: iclasstaf(:)
-      real(8),allocatable:: symops_af(:,:,:), ag_af(:,:)
-      integer:: ngrpaf
-
+      integer:: ig,ib,ibas,nspec,inumaf,iprint
 !! =================================================================
-      integer:: ig,ib,ibas,nspec,inumaf
 #if MPI|MPIK
       integer  nsize, id
       call mpi_init(ierr)
@@ -140,7 +135,7 @@ C --- Help ---
      .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w
       if (cmdopt('--version',9,0,outs)) then
         write(*,'(f4.2)') vn(2)
-        call cexit(0,1)
+        call rx0('')
       endif
 
 C --- Dynamic memory allocation and other initialization ---
@@ -245,23 +240,13 @@ C     Add version to variables table?
 
 C ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
-#if MPI | MPIK
-      if (procid .eq. master) then
-#endif
-        if (cmdopt('--input',6,0,strn)) then
-          if (nproc .gt. 0) call rx('--input not allowed with MPI')
-        else
-          if (fxst('CTRL') .ne. 1) then
-            call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
-     .      i1mach(2))
-            swtmp = .true.
-          endif
-        endif
-#if MPI | MPIK
+      if (procid==master) then
+      if (.not.cmdopt('--input',6,0,strn)) then
+        if (fxst('CTRL') .ne. 1) swtmp=.true.
       endif
-#endif
+      endif
       call mpibc1(swtmp,1,1,.false.,'lmf','error')
-      if (swtmp) call cexit(-1,1)
+      if(swtmp) call rx("No ctrl file found!") 
 
 C ... Set special file directory for temporary files
 C     User may which to customize the directory
@@ -273,12 +258,14 @@ C ... File logical units
       i = fadd('TMP',-1,4)
       i = fadd('BAND',-1,4)
 
-C --- Set the top-level verbosity if specified from cmd line ---
+!! Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
         i = 4
         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
         if (i .eq. 1) call setpr(k)
       endif
+!!   iprint() is negative except master
+      if(procid/=master) call setpr(-100) 
 
 C --- Input from ctrl file ---
 C     recrd, nrecs are obtained.
@@ -321,7 +308,7 @@ C      call rx('done')
 !! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     . v_sarry,v_smove,v_stb, sstrnmix,sstrnsymg)
+     . v_sarry,v_smove, sstrnmix,sstrnsymg)  !,v_stb
 
 #if MPI | MPIK
 #if MPE
@@ -351,11 +338,15 @@ C --- Generate symmetry operations; split species into classes  ---
         call rx('no --sfill option in lm7K')
       endif
 
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! read AF case 
       if(len_trim(symgaf)>0) then
         nbas = v_sctrl%nbas
+        if(iprint()>10) then
+          write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
+          do j=1,nbas
+            write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+          enddo
+        endif
         v_sarry2=v_sarry
         allocate(v_ssite2(nbas))
         v_ssite2=v_ssite
@@ -370,34 +361,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           enddo
         enddo
         v_sctrl2=v_sctrl
-        nspec= v_sctrl%nspec-inumaf
-        v_sctrl2%nspec=nspec
+        v_sctrl2%nspec= v_sctrl%nspec-inumaf
         v_slat2=v_slat
-        print *,' goto mksym for Antiferro symgaf=',trim(symgaf)
-        strn=trim(strn)//' '//trim(symgaf)
-        call mksym(lc,slabl,strn ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
-        print *,' mksym out =',trim(strn)
+        strn2=trim(strn)//' '//trim(symgaf)
+        call mksym(lc,slabl,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
+        if(iprint()>10) print *,' AF: mksym out =',trim(strn)
         ngrpaf=v_slat2%nsgrp
-        allocate(iclasstaf(nbas),invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf),
-     &   shtvg(3,ngrpaf),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-!! these should be stored...
+        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
+c       ,invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf), shtvg(3,ngrpaf),
+cc!! these should be stored...
         call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
         call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
         write(*,*) 'ngrpaf=',ngrpaf
         do ib=1,nbas
           iclasstaf(ib)=v_ssite2(ib)%class
         enddo
-!! we need,  symops, ngrp, plat, nbas, pos, iclasst,  
-        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-     .   , miat , tiat , invgx , shtvg )
-        do ig = 1,ngrpaf
-          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-          do i=1,3
-            write(*,"(3e24.16)") symops_af(i,1:3,ig)
-          enddo
-        enddo
+c!! we need,  symops, ngrp, plat, nbas, pos, iclasst,  
+c        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+c     .   , miat , tiat , invgx , shtvg )
+c        do ig = 1,ngrpaf
+c          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c          do i=1,3
+c            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c          enddo
+c        enddo
       endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 !! ---------------------------
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)

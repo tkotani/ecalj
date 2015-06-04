@@ -777,7 +777,7 @@ c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis,
      & nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_struc_def,only:      s_lat,s_ham,s_bz  
       use m_globalvariables,only: globalvariables
-      use m_hamindex,only : getikt,napwk,plat
+      use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -979,8 +979,8 @@ C ------------------------------------------------------------
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
       integer:: ohrss , osigm2 , odelt , oistb2
       integer ,allocatable :: gstar_iv(:)
-      integer ,allocatable :: ipq_iv(:)
-      real(8) ,allocatable :: qp_rv(:)
+      integer ,allocatable,target :: ipq(:,:,:)
+      real(8) ,allocatable :: qp_rv(:,:)
       real(8) ,allocatable :: wgt_rv(:)
       complex(8) ,allocatable :: wk_zv(:)
       complex(8) ,allocatable :: sigm_zv(:,:)
@@ -1015,18 +1015,20 @@ C.....titus
       integer::  ndimsig !sep2012
       complex(8)::sfz(nk1,nk2,nk3,ndimsig,ndimsig,nsp)
       integer:: i_copy_size,ix
-      logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly
+      logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
 
-
-ccccccccccccccccccccccccccccccccc
-      real(8):: qsfz(3,*)
-      integer:: ii1,ii2,ii4,ispr
-      sfz=1d99
-
+      real(8):: qsfz(3,*),qir(3),diffq(3),platt(3,3)
+      integer:: ii1,ii2,ii4,ispr,iaf,ig
+      character(300)::aaa
+      integer,allocatable,target:: ipqaf(:,:,:)
+       integer,pointer:: ipq_pointer(:,:,:)
 C     --- Read sigma(orbital basis) from file ---
       call tcn('rdsigm2')
       print *
       print *,'rdsigm2:'
+      sfz=1d99
+      laf=allocated(symops_af) !jun2015takao
+
       mode=12
       lwsig=0
 c      procid = mpipid(1)
@@ -1065,7 +1067,7 @@ c      call mpibc1(lshft,3,2,mlog,'rdsigm','lshft')
       if (i == nsp) then
         lsplts = .false.
       elseif (i > nsp) then
-        call rx('rdsigm: sigm file spin polarized but calculation is not')
+        call rx('rdsigm: sigm file spin polarized but ctrl is not')
       else
         lsplts = .true.
       endif
@@ -1092,6 +1094,7 @@ c      call mpibc1(lshft,3,2,mlog,'rdsigm','lshft')
       k3=nk3
       nsgrps = nsgrp
 
+      print *,' slat%nsgrp=',slat%nsgrp
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
         llshft(i) = lshft(i) .ne. 0
@@ -1100,55 +1103,85 @@ c      call pshpr(0)
       call bzmsh0(plat,llshft,0,nk1,nk2,nk3,is,ifac,rb,qb)
 c      call poppr
 
-c.takao qmesh
-      do i1=1,nk1
-        do i2=1,nk2
-          do i3=1,nk3
-            qsmesh(:,i1,i2,i3) = (i1*ifac(1)-1)*qb(:,1) +
-     &      (i2*ifac(2)-1)*qb(:,2) +
-     &      (i3*ifac(3)-1)*qb(:,3)
-          enddo
-        enddo
-      enddo
-      if(debug) print *,'rdsigm2: debug111111'
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
       if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
       allocate(sham%rv_p_oqsig(abs(3*mxkp)))
       if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
-      allocate(qp_rv(3*mxkp))
+      allocate(qp_rv(3,mxkp))
       allocate(gstar_iv(abs(-mxkp-1)))
       if (-mxkp-1<0) gstar_iv(:)=0
       gstar_iv = - 2
-      allocate(ipq_iv(mxkp))
+      allocate(ipq(nk1,nk2,nk3))
       allocate(wgt_rv(abs(-mxkp)))
       if (-mxkp<0) wgt_rv(:)=0.0d0
       if(debug) print *,'rdsigm2: debug2222'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq_iv,sham%rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
+      call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,sham%rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
       sham%nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
-     . , nsgrps , ipq_iv , qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
+     . , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
       l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
+
+      platt=transpose(plat)
+!! qmesh
+      do i1=1,nk1
+        do i2=1,nk2
+          do i3=1,nk3
+            qsmesh(:,i1,i2,i3) = 
+     &      (i1*ifac(1)-1)*qb(:,1) +
+     &      (i2*ifac(2)-1)*qb(:,2) +
+     &      (i3*ifac(3)-1)*qb(:,3)
+          enddo
+        enddo
+      enddo
+      if(debug) print *,'rdsigm2: debug111111'
+      if(laf) then
+        if(iprint()>10) write(6,*)'rdsimg2: AF mode, mapping from irr points to regular mesh point'
+        allocate(ipqaf(nk1,nk2,nk3))
+        ipqaf=0
+        do i1=1,nk1
+        do i2=1,nk2
+        do i3=1,nk3
+          do 1111 iq1=1,nqps
+            qir = qp_rv(:,iq1)
+            do ig= ngrp_original+1,ngrp !only AF symmetry (equivalent with symops_af)
+              call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
+              if(sum(abs(diffq))<1d-6) then
+               ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
+               goto 1122
+              endif
+            enddo
+ 1111     continue
+          write(aaa,"(3i5,3f13.5)") i1,i2,i3,qsmesh(:,i1,i2,i3)
+          call rx('rdsigm2: 1111 loop can not find ipqaf'//trim(aaa))
+ 1122     continue
+        enddo
+        enddo
+        enddo
+      endif
+
 
 C --- Generate hrs = sigma(T) from file sigma(k) ---
 C ... Loop over spins, keeping sig in full BZ for only one spin
 c      if (procid .eq. master) then
-        do  isp = 1, nsp
+      do  isp = 1, nsp
 C     If sigma file not spin polarized, use sigma from spin 1
-          if (isp .eq. 2 .and. lsplts) then
+          if (isp==2 .and. lsplts) then
             call iosigh(3,0,1,ndimsig_r,nk1,nk2,nk3,nqp, lshft(1),lshft(2),lshft(3),ifis)
           endif
-C     If to mix in some other sigma file, set up ifis2
-          if (alf(2) .ne. 0) then
-            if (isp .eq. 1 .or. isp .eq. 2 .and. lsplts) then
-              ifis2 = fopna('sigm1',-1,4)
-              call iosigh(3,0,nsp,ndimsig_r,nk1,nk2,nk3,nqp, lshft(1),lshft(2),lshft(3),ifis2)
-            endif
-          endif
+
+c need to fix followings if necessary. Maybe it is better to clean iosigh(too complicated).
+cC     If to mix in some other sigma file, set up ifis2
+c          if (alf(2) .ne. 0) then
+c            if (isp .eq. 1 .or. isp .eq. 2 .and. lsplts) then
+c              ifis2 = fopna('sigm1',-1,4)
+c              call iosigh(3,0,nsp,ndimsig_r,nk1,nk2,nk3,nqp, lshft(1),lshft(2),lshft(3),ifis2)
+c            endif
+c          endif
 
           allocate(wk_zv(ndimsig_r**2))
           nl = globalvariables%nl
@@ -1156,42 +1189,34 @@ C     If to mix in some other sigma file, set up ifis2
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
 
 !! we now not expect ordered data on qp feb2013
-          do  iq1 = 1, nqps
-
+          do iq1 = 1, nqps
+c            print *,' iq1 isp=',iq1,isp
+!! look for a tag qp in sigm, where qp=qp_rv(:,iq1)  for given iq1
             do ix=0,1
-                do 
-                   read(ifis,end=468) qp, ispr  ! ispr is added dec2013
-                   call dpdump ( sigm_zv , ndimsig_r * * 2 * 2 , ifis )
-                   call dpscop(qp,tmp,3,1,1,1d0)
-                   call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
+              do 
+                read(ifis,end=468) qp, ispr ! ispr is added dec2013
+                read(ifis) sigm_zv
+c                print *,'      qp ispr ix=',qp,ispr,ix,ndimsig_r
+                if(laf) then
+                  if(ispr==2) cycle 
+                else
+                  if(ispr/=isp) cycle
+                endif  
+                if(sum(abs(matmul(transpose(plat),qp-qp_rv(:,iq1))))<tolq) goto 460
+c                   call dpdump ( sigm_zv , ndimsig_r * * 2 * 2 , ifis )
+c                   call dpscop(qp,tmp,3,1,1,1d0)
+c                   call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
+c                   qdiff= qp - qp_rv(:,iq1)
 cbug               if (latvec(1,tolq,plat,tmp)) goto 460               ! bug before dec2013
-                   if (latvec(1,tolq,plat,tmp).and.isp==ispr) goto 460 ! bugfix isp==ispr dec2013
-                enddo
- 468            continue
-                rewind ifis
-                read(ifis)
+c                   if (latvec(1,tolq,plat, qp - qp_rv(:,iq1))) goto 460 ! bugfix isp==ispr dec2013
+              enddo
+ 468          continue
+              rewind ifis
+              read(ifis)
             enddo
-!! error exit
-            call dpscop(qp,tmp,3,1,1,1d0)
-            call dpsadd ( tmp , qp_rv , 3 , 1 , 3 * iq1 - 2 , - 1d0 )
-c        call dpsadd(tmp,qoffi,3,1,1,-1d0)
-            !tmp= qp - w((oqp(3*(iq1-1)+1:3*(iq1-1)+3))+qoffi)
-c            if (.not. latvec(1,tolq,plat,tmp)) then
-            call dpscop ( qp_rv , tmp , 3 , 3 * iq1 - 2 , 1 , 1d0 )
-            if (lssym .ge. 4) then
-                call info5(20,0,0,' rdsigm (warning) qp %i : '//
-     .          'expected%3;8,4D read%3;8,4D',iq1,tmp,qp,0,0)
-                call dpscop(tmp,qp,3,1,1,1d0)
-             else
-                print 456, iq1,tmp,qp
-  456           format(' rdsigm: error on reading qp no',i4/
-     .          ' Expected qp=',3f12.6,'     File qp=',3f12.6)
-                call rx(' rdsigm2: incompatible q-mesh')
-             endif
-             call rx(' rdsigm2: read error of rdsigm2 -------')
-cc            endif
- 460       continue
-
+            write(aaa,"(i5,3f13.5)") iq1, qp_rv(:,iq1)
+            call rx(' rdsigm2: read error. In sigm, we did not find iq= '//trim(aaa))
+ 460        continue
 
 c ... scalced sigm. alf(1:2)
             if (alf(1) .ne. 1d0) then
@@ -1218,15 +1243,18 @@ c$$$            sfz(ii4,ii2,ii1,1:ndimsig,1:ndimsig,isp)= sigm_zv(:,:)
 c$$$            qsfz(:,iq1)=qp
 c$$$            cycle
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c            write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
-
-c            call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv
-c     .      , napw_in , ndimh , ndimh , ndimh , qb , ldim , 
-c     .      ifac , gstar_iv , sigm_zv , sfz ( 1 , 1 , 1 , 1 , 1 , isp  ) )
-            call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_iv
-     .      , napw_in , ndimsig , ndimsig , ndimsig , qb , ldim , 
-     .      ifac , gstar_iv , sigm_zv(1:ndimsig,1:ndimsig) , sfz ( 1 , 1 , 1 , 1 , 1 , isp  ) )
+            iaf=0
+            ipq_pointer => ipq
+            if(laf.and.isp==1) then
+              iaf=1
+            elseif(laf.and.isp==2) then
+              iaf=2
+              ipq_pointer => ipqaf
+            endif
+            if(iprint()>60) write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
+            call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_pointer,
+     .       napw_in , ndimsig , ndimsig , ndimsig , qb , ldim , 
+     .       ifac , gstar_iv , sigm_zv(1:ndimsig,1:ndimsig) , iaf, sfz(1,1,1,1,1,isp))
             if(debugmode()>0) write(6,"(a,3f13.5)")'end of hamfbk3'
           enddo
           deallocate(sigm_zv)
@@ -1236,7 +1264,7 @@ C ... End loop over spins
 c      endif ! exit of MPI master loop
       call tcx('rdsigm2')
       if (allocated(wgt_rv)) deallocate(wgt_rv)
-      if (allocated(ipq_iv)) deallocate(ipq_iv)
+      if (allocated(ipq)) deallocate(ipq)
       if (allocated(qp_rv)) deallocate(qp_rv)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       print *,'xxxxxxx end rdsigm2 xxxx'

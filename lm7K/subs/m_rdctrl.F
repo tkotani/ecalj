@@ -408,16 +408,16 @@ C --- Version ---
         endif
       enddo
 
-C --- CMD ---
-C Token ordering: CMD
-c  250 continue
-      nm='CMD'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
-     .'Contents are appended to command-line arguments',nout=nout)
-      if (nout .eq. 1) then
-        call acmdop(bigstr,len_trim(bigstr),0)
-      endif
-
-C --- CONST ---
+c$$$C --- CMD ---
+c$$$C Token ordering: CMD
+c$$$c  250 continue
+c$$$      nm='CMD'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
+c$$$     .'Contents are appended to command-line arguments',nout=nout)
+c$$$      if (nout .eq. 1) then
+c$$$        call acmdop(bigstr,len_trim(bigstr),0)
+c$$$      endif
+c$$$
+C --- CONST --- for backword compatibility
       call numsyv(nvario)
       nm='CONST'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
      .'Constants may declared for use in expressions'//
@@ -1029,12 +1029,13 @@ C --- Symmetry group ---
      .call info0(1,1,0,' --- Symmetry group operations ---')
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .note='Generators for symmetry group')
-C --- Symmetry group AF ---
+
+C --- Symmetry group for AF --- !june2015
       if (io_show+io_help/=0 .and. tksw(prgn,'SYMGRPAF')/=2)
      .call info0(1,1,0,' --- Symmetry group operations ---')
       nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgn,nm),symgaf,
-     .note='Generators for adding anti ferro symmetry')
-c
+     .note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+
    
 C$$$C --- Crystal Green's function ---
 C$$$      if (tksw(prgn,'GF') == 2) goto 269

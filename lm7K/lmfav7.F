@@ -44,7 +44,7 @@ c      type(s_sstrn)::v_sstrn
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_str):: v_sstr
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
 
 ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
       type(s_spec),allocatable:: v_sspec(:)
@@ -232,26 +232,17 @@ C      call rx('done')
 
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     *v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
-
-c
-
+     *v_sarry,v_smove,sstrnmix,sstrnsymg) !,v_stb
       print *,'end of rdctrl2 in imfav7'
 C ... Input to scale MT radii (define RESIZE)
-
-
 
 
 C --- Lattice setup ---
 
 ctakao will add |1)
       call setcg(v_slat,8,12)
-ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-
 
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'

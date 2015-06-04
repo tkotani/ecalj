@@ -116,7 +116,7 @@ C Passed parameters
       double precision args(1),arg2(1),arg3(1)
 C Local parameters 
       integer fopn,fhndl,iprint,i,i2,getdig,i1mach,scrwid,fopnT,mpipid
-      parameter (scrwid=100)
+c      parameter (scrwid=300)
       double precision cpusec,tnew
       character*1 timeu
       character*256 strn, datim*26, hostnm*20
@@ -129,11 +129,9 @@ C Local parameters
       include "mpif.h"
       common /mpifinits/ starttime, endtime
 #endif
-
       goto 5
       entry fexit3(retval,iopt,strng,args,arg2,arg3)
       entry fexit2(retval,iopt,strng,args,arg2)
-
     5 continue
       procid = mpipid(1)
 c      if (procid .eq. master) then
@@ -142,19 +140,10 @@ c      if (procid .eq. master) then
         if (i .ne. 0) then
            if (i .eq. 9) then
               strn = ' Exit %i '//strng
-cc              if (iprint() .gt. 0) then
-                 call strip(strn,i,i2)
-                 i2 = min(i2,scrwid)
-                 call awrit1(strn,' ',i2,i1mach(2),retval)
-cc              endif
-C     print 345, retval, strng(1:min(len(strng),scrwid-9))
-C     345     format(' Exit',i3,' ',a)
+              call strip(strn,i,i2)
+              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
            else
-cc              if (iprint() .gt. 0) then
-                 call awrit3(strng,strn,-scrwid,i1mach(2),args,arg2,arg3)
-cc              endif
-C     strn = strng
-C     print strn, retval, (args(j), j=1,i)
+             call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
            endif
         endif
 
@@ -229,7 +218,6 @@ c     .              ' ',128,i1mach(2),endtime-starttime,MPI_WTICK())
 C- Error exit
 C     implicit none
       character*(*) string
-
       call fexit(-1,119,string,0d0)
       end
       subroutine rx0(string)

@@ -26,7 +26,7 @@ c      type(s_sstrn)::v_sstrn !may2015
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_str):: v_sstr
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:) 
       type(s_site),allocatable:: v_ssite(:) 
       parameter (mxspec=256)
@@ -140,7 +140,7 @@ C     write(stdo,*)' --- end of rdfile --- '
 C     call rx('done')
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .     v_sarry,v_smove,v_stb,sstrnmix,sstrnsymg)
+     .     v_sarry,v_smove,sstrnmix,sstrnsymg) !,v_stb
 C     --- Lattice setup ---
       call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)

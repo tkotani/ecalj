@@ -260,6 +260,7 @@ C       Assign header parameters or check with file correspondence
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
       use m_globalvariables
+      use m_hamindex,only : symops_af
 C- Compare Bloch summed sigma against file sigma(k)
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -341,18 +342,13 @@ C ... Heap
                        ! that is, ndimh< ndimhr=nlmto+napw !apr2012takao
       complex(8),allocatable:: sqr(:,:)
 
-
-ccccccccccccccccccccccccccccc
-c mar2014
-      integer:: lb1,lb2
-ccccccccccccccccccccccccccccccc
-
+      integer:: lb1,lb2 !mar2014takao
+      logical:: laf !jun2015takao
 
       call getpr(ipr)
+      laf=allocated(symops_af) !jun2015takao
       stdo = lgunit(1)
-Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
-Changenglob      mxorb = nglob('mxorb')
       mxorb = globalvariables%mxorb
       opt01 = mod(mod(opt,10),2)
       opt0  = mod(opt,10)
@@ -428,6 +424,7 @@ C ... Read header data
       endif
 
       do  isp = 1, nsp
+        if(laf.and.isp==2) cycle !jun2015takao
         errmxx = 0
 
 C     If sigma file not spin polarized, use sigma from spin 1
