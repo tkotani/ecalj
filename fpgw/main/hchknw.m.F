@@ -11,8 +11,7 @@ c---     check the number of nw
      & plat, pos,z,ecore, symgg, konf,nlnx
 
       use keyvalue,only:getkeyvalue
-      use m_anf,only: anfcond,
-     & laf
+      use m_anf,only: laf,anfcond
       implicit none
       logical :: tetra=.false.
       real(8) :: shtw=0d0
@@ -268,10 +267,10 @@ c      if (nspin == 2) ifev(2) = iopen('EVD', 0,0,mrece)
 c read q-points and states ----------------------------
 c      INQUIRE (FILE ='QPNT', EXIST = qpntexist)
 c      if(.not.qpntexist) then
+      call anfcond()
       if(ixc==1) then
         write(6,*) ' Take all bands ank qpnt'
         lqall  = .true.
-        call anfcond()
         if(laf) write(6,*)' Find ANFcond--- laf=T only UP band'
         ntq=-1
       else

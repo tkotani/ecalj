@@ -21,8 +21,9 @@ c     SEc is in file SEC
 c-----------------------------------------------------------------------
       use keyvalue
       use m_read_bzdata, only: read_bzdata, nstar, nqibz2=>nqibz
-      use m_anf,only: anfcond,
-     & laf,ibasf,ldima,pos,anfvec,natom
+c      use m_anf,only: anfcond,
+c     & laf,ibasf,ldima,pos,anfvec,natom
+      use m_anf,only: laf,anfcond
 
       implicit real*8 (a-h,o-z)
 c     local data
@@ -759,18 +760,18 @@ c$$$c--   end check diagonal elements
  2003   continue                    !ip
         write(6,*)
 
-!! ANFcond case. We will make this an independent program ---
-        if(laf.and.is==1) then
-          do ip = 1,nq
-            call anfsig( natom, ldima, pos, ndimsig2,
-     i              qx(1:3,1,ip),           
-     i              anfvec, ibasf, ! these are antiferro informations.
-     i              sigmv(1:ndimsig2,1:ndimsig2,ip)) ! input and output, from is=1 to is=2 by AF translation symmetry
-            write(ifse_out) qx(1:3,1,ip),is+1 !,eseavr(ip,is) !june2009 add eseavr
-            write(ifse_out) sigmv(:,:,ip)
-          write(6,*) 'ssssss2=', sum(abs(sigmv(:,:,ip)))
-          enddo
-        endif
+c$$$!! ANFcond case. We will make this an independent program ---
+c$$$        if(laf.and.is==1) then
+c$$$          do ip = 1,nq
+c$$$            call anfsig( natom, ldima, pos, ndimsig2,
+c$$$     i              qx(1:3,1,ip),           
+c$$$     i              anfvec, ibasf, ! these are antiferro informations.
+c$$$     i              sigmv(1:ndimsig2,1:ndimsig2,ip)) ! input and output, from is=1 to is=2 by AF translation symmetry
+c$$$            write(ifse_out) qx(1:3,1,ip),is+1 !,eseavr(ip,is) !june2009 add eseavr
+c$$$            write(ifse_out) sigmv(:,:,ip)
+c$$$          write(6,*) 'ssssss2=', sum(abs(sigmv(:,:,ip)))
+c$$$          enddo
+c$$$        endif
 
         deallocate(sex2,sexcore2,sec2,se,ipiv,work)
         deallocate(evec_inv,evec_invt,ev_se_ev) !,se_ev
@@ -779,8 +780,8 @@ c$$$c--   end check diagonal elements
         deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac,
      &        sexcore ,rsec,csec, !zfac,  !sf..13May2002 
      &        itx, qx ,eldax,sex)
-        if (laf) exit
         if (jin .gt. 0) jin = 999999
+        if (laf) exit
  1001 continue !isp
 
 c-------------------------------
@@ -992,93 +993,93 @@ c ...
       close(ifi)
       end
 
-!! ===================================================================
-      subroutine anfsig( natom,ldima,bas, nbloch,
-     i  q,           ! for q+G
-     i  anfvec,iaf,  ! these are antiferro informations.
-     i  zxq)  ! i/o
-C- antiferro part is added to sism
-c We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
-c The translation is specified by a vector,
-c   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
-c   The anfvec(1:3) is given in ANFcond file.
-c
-c Each mixed basis is mapped to the other mixed basis.
-c E.g. the product basis B({\bf r}-{\bf a}) is mapped to
-c  B({\bf r}-{\bf a}-{\bf A}) = B({\bf r}-{\bf a}'-{\bf T}_0),
-c  by the translation specified by AFvec={\bf A}.
-c  Here {\bf T}_0 is some crystal tralslation vector.
-c  In this code you see,
-c      bas(1:3,ia1)+ anfvec  = bas(1:3,iaf(ia1)) + transaf(1:3,ia1)
-c  ==   {\bf a}    +{\bf A}  = {\bf a}'          + {\bf T}_0
-c
-c ---- The corresponding atoms should have the same product basis.
-c
-      implicit none
-      integer natom, nbloch, nclass
-      integer ldima(natom), iaf(natom), iof(natom),
-     &  ix,ia1,ia2,ic1,ic2,ifi,i,j, iaf1,iaf2,igp,im1,im2
-      integer(4):: iam(nbloch),imf(nbloch)
-      real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom),
-     &         anfvec(3),transaf(3,natom),qg(3)
-      complex(8) :: zxq (nbloch,nbloch),fac(nbloch)
-      complex(8):: imagtwopi ,imag=(0d0,1d0)
-      complex(8),allocatable :: zxqw(:,:)
-      real(8) :: pi=3.1415926535897932d0
-cr
-cr    True_q(1:3)     = 2*pi/alat * q(1:3)
-cr  True G is given by
-cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvecc(1:3,igp)) ,igp=1,ngp
-c------------------------
-c      imagtwopi = 2d0*(0d0,3.1415926535897932d0)
-      write(6,"(' q=', 3d23.15)") q
-      do ia1 = 1, natom
-        transaf(1:3,ia1)= bas(1:3,ia1)+ anfvec - bas(1:3,iaf(ia1))
-        write(6,"(' ia1 transaf=',i3, 3d23.15)") ia1,transaf(1:3,ia1)
-      enddo
-      iof(1) = 0
-      do ia1 = 1, natom-1
-        iof(ia1+1)= iof(ia1) + ldima(ia1)
-        iam(iof(ia1)+1:iof(ia1+1)) = ia1
-      enddo
-      iam(iof(natom)+1:nbloch) = natom
-      write(6,*) (ia1, ldima(ia1),ia1 = 1, natom)
-
-c (we had a problem at June18 2007)
-c  this sanitiy check should be removed in fufture...
-      if( nbloch /= iof(natom) +ldima(natom) ) then
-        print *,' nbloch=',nbloch
-        print *,' iof=',iof
-        print *,' ldima=',ldima
-        call rx(' anfsig: nbloch.ne.... not yet for floting orbital case')
-      endif
-c phase shifts
-      do ia1 = 1, natom
-        qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))
-c        write( 6, "(i3,2x,d23.15)") iaf(ia1),sum(q*transaf(1:3,ia1))
-c        write( 6, "(3x,2x,d23.15)") 2d0*pi*sum(q*transaf(1:3,ia1))
-      enddo
-      write(6,*) ' anfsig:  nbloch=',nbloch
-      do im1 = 1,nbloch
-        ia1  = iam(im1)
-        i    = im1 - iof(ia1)
-        imf (im1) = i + iof(iaf(ia1))
-        fac (im1) = exp( imag*qt(ia1) )
-c        write( 6, "(5i6,2d13.5)") ia1,iaf(ia1), i, im1, imf(im1),fac(im1)
-      enddo
-      allocate(zxqw(nbloch,nbloch))
-      zxqw = zxq
-c      write(6,*) ' anfsig: end1 ',sum(abs(zxqw))
-      do im1 = 1,nbloch
-        do im2 = 1,nbloch
-          zxq(im1, im2)= 
-     &               + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
-        enddo
-      enddo
-c      write(6,*) ' anfsig: end2 ',sum(abs(zxq))
-      return
-      end
-
+c$$$!! ===================================================================
+c$$$      subroutine anfsig( natom,ldima,bas, nbloch,
+c$$$     i  q,           ! for q+G
+c$$$     i  anfvec,iaf,  ! these are antiferro informations.
+c$$$     i  zxq)  ! i/o
+c$$$C- antiferro part is added to sism
+c$$$c We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
+c$$$c The translation is specified by a vector,
+c$$$c   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
+c$$$c   The anfvec(1:3) is given in ANFcond file.
+c$$$c
+c$$$c Each mixed basis is mapped to the other mixed basis.
+c$$$c E.g. the product basis B({\bf r}-{\bf a}) is mapped to
+c$$$c  B({\bf r}-{\bf a}-{\bf A}) = B({\bf r}-{\bf a}'-{\bf T}_0),
+c$$$c  by the translation specified by AFvec={\bf A}.
+c$$$c  Here {\bf T}_0 is some crystal tralslation vector.
+c$$$c  In this code you see,
+c$$$c      bas(1:3,ia1)+ anfvec  = bas(1:3,iaf(ia1)) + transaf(1:3,ia1)
+c$$$c  ==   {\bf a}    +{\bf A}  = {\bf a}'          + {\bf T}_0
+c$$$c
+c$$$c ---- The corresponding atoms should have the same product basis.
+c$$$c
+c$$$      implicit none
+c$$$      integer natom, nbloch, nclass
+c$$$      integer ldima(natom), iaf(natom), iof(natom),
+c$$$     &  ix,ia1,ia2,ic1,ic2,ifi,i,j, iaf1,iaf2,igp,im1,im2
+c$$$      integer(4):: iam(nbloch),imf(nbloch)
+c$$$      real(8) :: qt(natom), rf,cf,q(3),qlat(3,3),bas(3,natom),
+c$$$     &         anfvec(3),transaf(3,natom),qg(3)
+c$$$      complex(8) :: zxq (nbloch,nbloch),fac(nbloch)
+c$$$      complex(8):: imagtwopi ,imag=(0d0,1d0)
+c$$$      complex(8),allocatable :: zxqw(:,:)
+c$$$      real(8) :: pi=3.1415926535897932d0
+c$$$cr
+c$$$cr    True_q(1:3)     = 2*pi/alat * q(1:3)
+c$$$cr  True G is given by
+c$$$cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvecc(1:3,igp)) ,igp=1,ngp
+c$$$c------------------------
+c$$$c      imagtwopi = 2d0*(0d0,3.1415926535897932d0)
+c$$$      write(6,"(' q=', 3d23.15)") q
+c$$$      do ia1 = 1, natom
+c$$$        transaf(1:3,ia1)= bas(1:3,ia1)+ anfvec - bas(1:3,iaf(ia1))
+c$$$        write(6,"(' ia1 transaf=',i3, 3d23.15)") ia1,transaf(1:3,ia1)
+c$$$      enddo
+c$$$      iof(1) = 0
+c$$$      do ia1 = 1, natom-1
+c$$$        iof(ia1+1)= iof(ia1) + ldima(ia1)
+c$$$        iam(iof(ia1)+1:iof(ia1+1)) = ia1
+c$$$      enddo
+c$$$      iam(iof(natom)+1:nbloch) = natom
+c$$$      write(6,*) (ia1, ldima(ia1),ia1 = 1, natom)
+c$$$
+c$$$c (we had a problem at June18 2007)
+c$$$c  this sanitiy check should be removed in fufture...
+c$$$      if( nbloch /= iof(natom) +ldima(natom) ) then
+c$$$        print *,' nbloch=',nbloch
+c$$$        print *,' iof=',iof
+c$$$        print *,' ldima=',ldima
+c$$$        call rx(' anfsig: nbloch.ne.... not yet for floting orbital case')
+c$$$      endif
+c$$$c phase shifts
+c$$$      do ia1 = 1, natom
+c$$$        qt(ia1) = 2d0*pi*sum(q*transaf(1:3,ia1))
+c$$$c        write( 6, "(i3,2x,d23.15)") iaf(ia1),sum(q*transaf(1:3,ia1))
+c$$$c        write( 6, "(3x,2x,d23.15)") 2d0*pi*sum(q*transaf(1:3,ia1))
+c$$$      enddo
+c$$$      write(6,*) ' anfsig:  nbloch=',nbloch
+c$$$      do im1 = 1,nbloch
+c$$$        ia1  = iam(im1)
+c$$$        i    = im1 - iof(ia1)
+c$$$        imf (im1) = i + iof(iaf(ia1))
+c$$$        fac (im1) = exp( imag*qt(ia1) )
+c$$$c        write( 6, "(5i6,2d13.5)") ia1,iaf(ia1), i, im1, imf(im1),fac(im1)
+c$$$      enddo
+c$$$      allocate(zxqw(nbloch,nbloch))
+c$$$      zxqw = zxq
+c$$$c      write(6,*) ' anfsig: end1 ',sum(abs(zxqw))
+c$$$      do im1 = 1,nbloch
+c$$$        do im2 = 1,nbloch
+c$$$          zxq(im1, im2)= 
+c$$$     &               + zxqw(imf(im1),imf(im2))*fac(im1)*dconjg(fac(im2))
+c$$$        enddo
+c$$$      enddo
+c$$$c      write(6,*) ' anfsig: end2 ',sum(abs(zxq))
+c$$$      return
+c$$$      end
+c$$$
 c sep2013t
 c$$$      character(5) function charnum5(num)
 c$$$      integer(4) ::num

@@ -38,8 +38,8 @@
       use m_freq,only: getfreq,
      &   frhis,freq_r,freq_i, nwhis,nw_i,nw,npm !output of getfreq
 !! antiferro
-      use m_anf,only: anfcond,
-     & laf,ibasf,anfvec !,ldima,pos,natom
+c      use m_anf,only: anfcond,
+c     & laf,ibasf !,ldima,pos,natom
 
       implicit none
       integer::iopen,maxocc2,iclose, ixc,iqxini,iqxend,
@@ -147,6 +147,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer,allocatable :: iclasst(:), invgx(:)
       integer:: ibasx,ificlass,ifile_handle,ifiq0p
       complex(8),allocatable:: ppovl_(:,:)
+
+      logical:: laf
 !-------------------------------------------------------------------------
 !TIME0 
 !TIME0 
@@ -913,15 +915,16 @@ c     d              natom, !nl,nclass,natom,nnc,
                if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
                nwmax = nw
                nwmin = nw_i
-               if (laf) then !Antiferro accelaration.
-                  do iw  = nwmin,nwmax
-                     call anfx0k(natom,nclass,nblocha,iclass,pos
-     i                    ,nbloch,ngc,
-     i                    q, ngveccB,qbas, ! for q+G
-     i                    anfvec,ibasf, ! these are antiferro informations.
-     i                    zxq(1,1,iw)) ! i/o
-                  enddo
-               endif
+!! this is not correct....
+c$$$               if (laf) then !Antiferro accelaration.
+c$$$                  do iw  = nwmin,nwmax
+c$$$                     call anfx0k(natom,nclass,nblocha,iclass,pos
+c$$$     i                    ,nbloch,ngc,
+c$$$     i                    q, ngveccB,qbas, ! for q+G
+c$$$     i                    anfvec,ibasf, ! these are antiferro informations.
+c$$$     i                    zxq(1,1,iw)) ! i/o
+c$$$                  enddo
+c$$$               endif
 !! prepare for iq0.
                iq0 = iq - nqibz
 c               if(newaniso2) then
@@ -1149,15 +1152,15 @@ c     endif
                write(6,*)' goto imag omega'
                if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
 c     ... Antiferro accelaration.
-               if (laf) then
-                  do iw  = 1,niw
-                     call anfx0k(natom,nclass,nblocha,iclass,pos
-     i                    ,nbloch,ngc,
-     i                    q, ngveccB,qbas, ! for q+G
-     i                    anfvec,ibasf, ! these are antiferro informations.
-     i                    zxqi(1,1,iw)) ! i/o
-                  enddo
-               endif
+c$$$               if (laf) then
+c$$$                  do iw  = 1,niw
+c$$$                     call anfx0k(natom,nclass,nblocha,iclass,pos
+c$$$     i                    ,nbloch,ngc,
+c$$$     i                    q, ngveccB,qbas, ! for q+G
+c$$$     i                    anfvec,ibasf, ! these are antiferro informations.
+c$$$     i                    zxqi(1,1,iw)) ! i/o
+c$$$                  enddo
+c$$$               endif
                imode=1
                do 1016 iw  = 1,niw
 c                  if( newaniso2 .and. iq<=nqibz ) then

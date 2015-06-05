@@ -14,7 +14,7 @@ c The main part of this routine is in the subroutine basnfp_v2
      & alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
      & nindxv,occv,unoccv,occc,unoccc,iclass
       use keyvalue,only: getkeyvalue
-      use m_anf,only: anfcond, ibasf,laf !may2015takao
+      use m_anf,only: ibasf,laf,anfcond !may2015takao
       implicit none
       real(8):: qbas(3,3),ginv(3,3)
       integer(4)::
@@ -221,11 +221,9 @@ c-----------
         ii=0
         do ic=1,nclass
           ibas=ic
-          if( checkdid(idid,ii, ibas) ) cycle
-          phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
-          ii=ii+2
-          idid(ii-1)= ibas
-          idid(ii  )= ibasf(ibas)
+          if( ibasf(ibas)>0 ) then
+            phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
+          endif  
         enddo
         if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
      &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
