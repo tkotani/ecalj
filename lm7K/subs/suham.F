@@ -164,55 +164,12 @@ c ... reverse maping of offset-index for hamiltonian
       endif
 #endif
 
-
-!!--- symmetry for AF. Order AF symmetry operation after normal one. jun2015takao
-      if(allocated(symops_af)) then
-        allocate(symtmp(3,3,ngrpaf))
-        symtmp(:,:,1:ngrp)=symops
-        igadd=ngrp
-        do igaf=1,ngrpaf
-        do ig=1,ngrp
-          diffs=sum(abs(symops_af(:,:,igaf)-symops(:,:,ig)))
-          if(diffs<1d-6) then
-            goto 1013
-          endif  
-        enddo
-        igadd=igadd+1
-        write(6,*) ' add igaf=',igaf
-        symtmp(:,:,igadd)=symops_af(:,:,igaf)
- 1013   continue
-        enddo
-        if(igadd/=ngrpaf) call rx('suham: strange. bug igadd/=ngrpaf')
-        if(iprint()>10) write(6,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
-c        allocate(invgxaf(ngrpaf),miataf(nbas,ngrpaf),tiataf(3,nbas,ngrpaf),shtvgaf(3,ngrpaf))
-!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
-        ngrp_original=ngrp
-        ngrp      = ngrpaf ! Overwrite ngrp nby ngrpaf (larger, because we assume AF site are in
-                           ! the same class).
-        deallocate(symops)
-        allocate(symops(3,3,ngrp))
-        symops = symtmp
-
-        deallocate(invgx,miat,tiat,shtvg)
-        allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-        call mptauof ( symops , ngrp, plat , nbas , slat%rv_a_opos , iclasstaf
-     .   , miat , tiat , invgx , shtvg )
-        if(iprint()>10) write(6,*)' antiferro ngrp ngrp_original=',ngrp,ngrp_original
-        do ig=1,ngrp
-          write(6,"(a,i3,a,100i3)")'ig=',ig, ' miat=',miat(:,ig)
-        enddo
-c        call rx0('xxxxxxxxxxxx test end suham xxxxxxxxxxxxx')
-      endif
-
-
-c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
+!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
-c      print *,' end of rotdlmm'
 
-
-!! no GW-related part
+!! No GW-related part
 c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
       if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         if(iprx) print *,'gen_hamindex: not readin QGpsi.'
@@ -417,7 +374,53 @@ ccccccccccccccccccccccc
       enddo
       call writehamindex() !sep2012takao
       if(iprx) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+
+!! Symmetry for AF. Order AF symmetry operation after normal one. jun2015takao
+!! Caution: symops,and so on are overwritten.
+!!          writehamindex() already wrote HAMindex which is just for SYMGRP.
+      if(allocated(symops_af)) then
+        allocate(symtmp(3,3,ngrpaf))
+        symtmp(:,:,1:ngrp)=symops
+        igadd=ngrp
+        do igaf=1,ngrpaf
+        do ig=1,ngrp
+          diffs=sum(abs(symops_af(:,:,igaf)-symops(:,:,ig)))
+          if(diffs<1d-6) then
+            goto 1013
+          endif  
+        enddo
+        igadd=igadd+1
+c       if(iprx)  write(6,*) ' add igaf=',igaf
+        symtmp(:,:,igadd)=symops_af(:,:,igaf)
+ 1013   continue
+        enddo
+        if(igadd/=ngrpaf) call rx('suham: strange. bug igadd/=ngrpaf')
+        if(iprx) write(6,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
+!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
+        deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
+        ngrp_original=ngrp
+        ngrp      = ngrpaf ! Overwrite ngrp nby ngrpaf (larger, because we assume AF site are in
+                           ! the same class).
+        allocate(symops(3,3,ngrp))
+        symops = symtmp
+        allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
+        call mptauof ( symops , ngrp, plat , nbas , slat%rv_a_opos , iclasstaf
+     .   , miat , tiat , invgx , shtvg )
+        if(iprx) then
+          write(6,*)
+          write(6,"(' ngrp for SYMGRP+GYMGRPAF, ngrp for SYMGRP=',2i5)") ngrp, ngrp_original
+          do ig=1,ngrp
+          write(6,"(a,i3,a,100i3)")'ig=',ig, ' miat=',miat(:,ig)
+          enddo
+        endif  
+!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
+        lxxa=nl-1
+        allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
+        call rotdlmm(symops,ngrp, nl, dlmm)
+c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
+      endif
       end subroutine gen_hamindex
+
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz)

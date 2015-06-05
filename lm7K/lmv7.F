@@ -2,10 +2,11 @@
       use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_spec,s_site !,s_tb
       use m_rdctrl2_func, only: rdctrl2
 
-      use m_hamindex,only: symops,invgx,nbas,ag,
-     &  shtvg,ngrp,miat,tiat,iclasst,
-     & iclasstaf,symops_af,ag_af,ngrpaf
-      use m_rdctrl,only: symgaf
+      use m_rdctrl,only: symgaf !read in call rdctrl2
+      use m_hamindex,only: 
+     & iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
+c     &  symops,invgx,ag,
+c     &  shtvg,ngrp,miat,tiat,iclasst,
 
 c      use m_globalvariables
 #if MPI | MPIK
@@ -91,12 +92,13 @@ C ... Program-dependent name and help
       real(8)::pwmode,pwemin,pwemax
       integer::ic
       real(8):: bz_w,dval!test
-      logical:: fileexist
+      logical:: fileexist,ipr10
 
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
 
-      integer:: ig,ib,ibas,nspec,inumaf,iprint
+      integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
+
 !! =================================================================
 #if MPI|MPIK
       integer  nsize, id
@@ -339,10 +341,15 @@ C --- Generate symmetry operations; split species into classes  ---
       endif
 
 !! read AF case 
+      ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = v_sctrl%nbas
-        if(iprint()>10) then
+        if(ipr10) then
+          write(6,*)
+          write(6,"(a)")       ' AF: ======================================== '
           write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
+          write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
+          write(6,"(a)")       ' AF:  Caution: I use v_sarry2=v_arry. Is this allowed in fortran?'
           do j=1,nbas
             write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
           enddo
@@ -364,32 +371,40 @@ C --- Generate symmetry operations; split species into classes  ---
         v_sctrl2%nspec= v_sctrl%nspec-inumaf
         v_slat2=v_slat
         strn2=trim(strn)//' '//trim(symgaf)
+        if(procid==master) call pshpr(60)
         call mksym(lc,slabl,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
-        if(iprint()>10) print *,' AF: mksym out =',trim(strn)
+        if(procid==master) call poppr()
+        if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
         ngrpaf=v_slat2%nsgrp
         allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-c       ,invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf), shtvg(3,ngrpaf),
-cc!! these should be stored...
+c    ,invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf), shtvg(3,ngrpaf),
         call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
         call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
-        write(*,*) 'ngrpaf=',ngrpaf
+        if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
         do ib=1,nbas
           iclasstaf(ib)=v_ssite2(ib)%class
         enddo
-c!! we need,  symops, ngrp, plat, nbas, pos, iclasst,  
-c        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-c     .   , miat , tiat , invgx , shtvg )
-c        do ig = 1,ngrpaf
-c          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c          do i=1,3
-c            write(*,"(3e24.16)") symops_af(i,1:3,ig)
-c          enddo
-c        enddo
+!! We use  symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
+!!   It is passed through m_hamindex
+!!   The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
+!!
+c$$$        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+c$$$     .   , miat , tiat , invgx , shtvg )
+c$$$        do ig = 1,ngrpaf
+c$$$          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$          do i=1,3
+c$$$            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c$$$          enddo
+c$$$        enddo
+          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
+          if(ipr10) write(6,"(a)")       
       endif
 
 
 !! ---------------------------
+      if(procid==master) call pshpr(60)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+      if(procid==master) call poppr
 c$$$!! test1 ------------------
 c$$$      ngrp=v_slat%nsgrp
 c$$$      nbas=v_sctrl%nbas

@@ -565,8 +565,8 @@ c --- for band mode
             deallocate(rofi,rwgt,gcore,gval)
           endif
         enddo
-        write(ifigwa) iantiferro(1:nat) !iantiferro may2015
-        if(rank0)call fclr('gwa',ifigwa)
+        if(rank0) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
+        if(rank0) call fclr('gwa',ifigwa)
       else
         call rxi('sugw: bad job',job)
       endif

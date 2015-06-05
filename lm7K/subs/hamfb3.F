@@ -3,8 +3,7 @@ c    i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,plat,qlat,ldim,ifac,igstar,
      i k1,k2,k3,ipq,napw_in,ndimh,ldima,ldimb,qb,ldim,ifac,igstar,
      i hq,iaf, !iaf at jun2015
      o gfbz)
-c      use m_hamindex
-C- Generate gfbz (full BZ) from hq (1st BZ).
+!! Generate gfbz (full BZ) from hq (1st BZ).
 Ci q iq: q and index for q
 Ci   nk1,nk2,nk3:  no. divisions for the qp in 3 recip. latt. vecs
 Ci   k1,k2,k3: leading dimensions of gfbz
@@ -42,14 +41,10 @@ C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
           do  i1 = 1, nk1
             iq1 = iq1+1
             if(debugmode()>0) print *,'iq iq1 ipq(iq1)',iq,iq1,ipq(iq1)
-
 !! ipq(iq1) ist gives a table to point irreducible point.
-
+!!          q1,iq1 is target on regular mesh <--- qin,iq is irreducible points; this mapping is by rotsig.
+!!          iq=ipq(iq1) shows iq for given iq1.
             if (ipq(iq1) .ne. iq) cycle !this must make things efficient
-
-
-!! q1 iq1 is target on regular mesh <--- qin iq is irreducible points; this mapping is by rotsig.
-!! iq=ipq(iq1) shows iq for given iq1.
             q1(1) = qk(1,i1,i2,i3)
             q1(2) = qk(2,i1,i2,i3)
             q1(3) = qk(3,i1,i2,i3)
@@ -63,15 +58,12 @@ c        write(6,"(3f10.5)")symops(3,:,ig)
             if(debugmode()>0) write(6,"(a,3f13.5)")' target a        q1 = ', q1 ! qin = g(:,:,ig)^{-1}*q1
 c        write(6,"(a,2i3, 3f13.5)")' target b   qp = ',iq1,ig, matmul(symops(:,:,ig),qin)-q1
 c       write(6,"(a,3f13.5)")
-
             call rotsig(qin,q1,ndimh,napw_in,ldim,hq,gfbz(i1,i2,i3,:,:),ierr,iaf)
             if(ierr/=0) write(aaa,"(' qin=',3f13.6,' q1=',3f13.6)") qin,q1
             if(ierr/=0) call rx('hamfb3: rotsig do not map qin to q1;'//trim(aaa))
-
           enddo
         enddo
       enddo
-ccc 889  continue
       if(debugmode()>0) print *, 'hamfb3k: end...'
       call tcx('hamfb3k')
 c      write(6,"(a,i3,3f13.5)")'end of hamfb3k: ierr qin=',ierr,qin

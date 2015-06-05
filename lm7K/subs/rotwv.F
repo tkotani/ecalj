@@ -256,7 +256,7 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       complex(8):: sig(ndimh,ndimh),sigout(ndimh,ndimh)
       complex(8),allocatable:: sigx(:,:)
       integer :: ldim,debugmode,iaf,ngini,ngend
-
+      character(300)::aaa
       img2pi=2*4d0*datan(1d0)*img
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
@@ -301,8 +301,9 @@ c        if(sum(abs(qx-anint(qx)))<1d-8) then
           goto 1012
         endif
       enddo
-c      write(6,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
-c      print *
+      write(aaa,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
+      call rx(trim(aaa))
+      print *
       return
  1012 continue
 
