@@ -45,6 +45,7 @@ c$$$          enddo
         endif
         if(aaa(1:6)=='AFcond') then
           read(ilmto,*) iantiferro(1:natom)
+          ibasf=-999
           do ibas=1,natom
             do ibasx=ibas+1,natom
               if(abs(iantiferro(ibas))/=0 .and. iantiferro(ibas)+iantiferro(ibasx)==0) then
@@ -52,7 +53,7 @@ c$$$          enddo
                 exit
               endif
             enddo
-            write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
+            if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
           enddo
         endif
       enddo

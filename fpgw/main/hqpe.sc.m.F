@@ -60,7 +60,7 @@ c----------------------------------------------
       real(8),allocatable:: eseavr(:,:) !,eseavr_in(:,:)
       integer,allocatable:: nhqx(:,:)
       integer:: nz,ntqmin, nmto,ndimsig,ndimsig2
-      integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_
+      integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxc_,ifevec_, ipx
       character*256:: extn,ext
       character*256,allocatable:: extp(:)
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
@@ -165,6 +165,7 @@ c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
           deallocate(qqqx_m)
         endif
       endif
+      if(laf) nspin=2
 
       rewind ifse_out
       !sf
@@ -202,9 +203,7 @@ cccccccccccccccccccccccccc
       do isp=1,nspxx
       do iqq=1,nqixx
         read(ifiproc,*) iqqxx, ispxx, ixxx
-Cstop2rx 2013.08.09 kino        if(iqqxx/=iqq) stop 'iqqxx/=iqq'
         if(iqqxx/=iqq) call rx( 'iqqxx/=iqq')
-Cstop2rx 2013.08.09 kino        if(ispxx/=isp) stop 'ispxx/=isp'
         if(ispxx/=isp) call rx( 'ispxx/=isp')
         iprocq(iqq,isp) = ixxx
         write(6,"('iqq isp irank=',i8,i2,i6)") iqq,isp, iprocq(iqq,isp)
@@ -240,16 +239,9 @@ Cstop2rx 2013.08.09 kino        if(ispxx/=isp) stop 'ispxx/=isp'
 
       write(6,*)' ndimh ntq nsp nnn =',nhq,ntq,nsp,nnn !NOTE this ndimh is the maximum dimention of Hamiltonian.
       !In PMT, ndimh is q-dependent. See lm*/gwd/sugw.F  june2009 takao
-Cstop2rx 2013.08.09 kino      if (nspin .ne. nsp)   stop 'hqpe: wrong nspin v_xc'
       if (nspin .ne. nsp)   call rx( 'hqpe: wrong nspin v_xc')
-Cstop2rx 2013.08.09 kino      if (nspin .ne. nspx)  stop 'hqpe: wrong nspin evec'
       if (nspin .ne. nspx)  call rx( 'hqpe: wrong nspin evec')
-c      if (ntq .ne. nhq)   stop 'hqpe: ntq/=nhq' !comment out jan2013
-c     if (ntq .ne. ndimh)   stop 'hqpe: SC ndimh/= ntq v_xc'
-c     if (ntq .ne. ndimhx)  stop 'hqpe: SC ndimh/= ntq evec'
-Cstop2rx 2013.08.09 kino      if (ndimhx /= ndimh)   stop 'hqpe: SC ndimhx/= ndimx'
       if (ndimhx /= ndimh)   call rx( 'hqpe: SC ndimhx/= ndimx')
-Cstop2rx 2013.08.09 kino      if (nnn .ne. nnnx) stop 'hqpe: wrong nnn evec or v_xc' !sf.end
       if (nnn .ne. nnnx) call rx( 'hqpe: wrong nnn evec or v_xc')
       allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
       allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin))
@@ -501,8 +493,11 @@ c     write(6,*)' xxx1'
             enddo
           enddo
         enddo
-        if (is == 1) write(ifse_out) nspin,ndimsig,n1,n2,n3,nq,0,0,0
-
+        if (is==1.and.laf) then
+           write(ifse_out) 1,ndimsig,n1,n2,n3,nq,0,0,0
+        elseif (is == 1) then
+           write(ifse_out) nspin,ndimsig,n1,n2,n3,nq,0,0,0
+        endif
         do 2001 ip=1,nq
 c$$$c sep2013t ccccccccccccccccccccccccccccc
 c$$$           if(is==1) if_ntqxxd=iopenxx('NTQXXD.up.'//charnum5(ip))
@@ -522,7 +517,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccc
               goto 100
             endif
           enddo               !ikp
-Cstop2rx 2013.08.09 kino          stop 'hqpe.sc: not find ikp 100'
           call rx( 'hqpe.sc: not find ikp 100')
  100      continue
           nz = nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq

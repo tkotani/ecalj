@@ -214,7 +214,8 @@ c-----------
       call anfcond()
       if(laf) then
 !!      Check iclass =ibas ; CLASS file contains true classs information.
-        allocate(idid(natom)) 
+c        allocate(idid(natom)) 
+        write(6,*) '--- Antiferro mode --- '
         do ibas=1,natom
           if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
         enddo
@@ -223,11 +224,13 @@ c-----------
           ibas=ic
           if( ibasf(ibas)>0 ) then
             phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
+            write(6,"(a,2i4)") 
+     &       '  radial functions: phi(ibasf)=phi(ibas): ibasf ibas=',ibasf(ibas),ibas
           endif  
         enddo
-        if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
-     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
-        write(6,*)' end of anf section...'
+c        if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
+c     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
+c        write(6,*)' end of anf section...'
       endif
 
 !! override cutbase to make epsPP_lmfh safer. may2013takao
@@ -253,14 +256,14 @@ c-----------
       end
 
 
-      logical function checkdid (idid,ii, ibas)
-      integer(4):: idid(ii),ix
-      checkdid=.true.
-      do ix=1,ii
-        if(idid(ix)==ibas) return
-      enddo
-      checkdid=.false.
-      end
+c      logical function checkdid (idid,ii, ibas)
+c      integer(4):: idid(ii),ix
+c      checkdid=.true.
+c      do ix=1,ii
+c        if(idid(ix)==ibas) return
+c      enddo
+c      checkdid=.false.
+c      end
 
 
 
