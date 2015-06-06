@@ -84,8 +84,8 @@ c2012Sep02 kino, add for
       qlat=slat%qlat
       alat=slat%alat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
-      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
-      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+c      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
+c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!--- MTO part ---
 !!---- obtain norbmto, lxx,kxx ----
       norbmto=0
@@ -122,8 +122,8 @@ c2012Sep02 kino, add for
           nini = ndimham+ 1
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
           ibasindex(nini:ndimham) = ib
-          if(iprx)write(6,"(3i3,2x,2i5,3x,a)") 
-     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
+c          if(iprx)write(6,"(3i3,2x,2i5,3x,a)") 
+c     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
         enddo
       enddo
 c ... reverse maping of offset-index for hamiltonian
@@ -178,7 +178,7 @@ c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
-        return
+        goto 2001 !return !jun2015takao
       endif
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
@@ -378,6 +378,7 @@ ccccccccccccccccccccccc
 !! Symmetry for AF. Order AF symmetry operation after normal one. jun2015takao
 !! Caution: symops,and so on are overwritten.
 !!          writehamindex() already wrote HAMindex which is just for SYMGRP.
+ 2001 continue
       if(allocated(symops_af)) then
         allocate(symtmp(3,3,ngrpaf))
         symtmp(:,:,1:ngrp)=symops
