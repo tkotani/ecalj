@@ -15,7 +15,8 @@ c#define KINODEBUG
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrnmix,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
-      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl
+      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
+
 c     &  ngrp, norbmto, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
 c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
@@ -437,7 +438,7 @@ c mar2014
       character(512),save::sname,schar
       character(512):: aaachar
       logical:: massline ,initex=.true.
-      logical,save:: siginit=.true.
+      logical,save:: siginit=.true.     ,laf
       character(10):: i2char
       integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_
@@ -1270,6 +1271,11 @@ c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw) 
             write(6,*)'rsrnge procid=',rsrnge,procid
             ifi = fopna('sigm',-1,4)
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
+!! takao !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        laf=allocated(symops_af) !jun2015takao
+        if(laf) nspsigm=2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             allocate( qsmesh(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
                allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))

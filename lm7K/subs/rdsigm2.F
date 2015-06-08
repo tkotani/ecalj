@@ -1251,6 +1251,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               iaf=2
               ipq_pointer => ipqaf
             endif
+            write(6,"(a,2i5,' ',13f13.5)")' rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=', isp,iaf,qp
             if(iprint()>60) write(6,"(a,13f13.5)")' rdsigm2:Goto hamfb3k  xxx input qp=', qp
             call hamfb3k ( qp , iq1 , nk1 , nk2 , nk3 , k1 , k2 , k3 , ipq_pointer,
      .       napw_in , ndimsig , ndimsig , ndimsig , qb , ldim , 
