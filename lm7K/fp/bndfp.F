@@ -398,7 +398,7 @@ c      integer:: n_listwf
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),vadd
 
-      logical:: fsmode,PROCARon !for --fermisurface for xcrysden.
+      logical:: fsmode,PROCARon,allband !for --fermisurface for xcrysden.
       integer:: nkk1,nkk2,nkk3  !for fermi surface mode for xcrysden.
 ! add --fermisurface #1 #2 #3
 ! only implemented for lmf-MPIK now.
@@ -487,6 +487,7 @@ c         write(6,*) '... If necessary, we may make a subrouine writepdos() para
    
 !! === Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
+      allband=cmdopt('--allband',9,0,strn)
       if(fsmode) fullmesh=.true.
       if(fullmesh) then
          nkk1=sbz%nkabc(1)
@@ -2120,8 +2121,8 @@ c            endif
                   write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
                   nbxx=0
                   do ib=1,ndhamx
-                     if(minval(evlall(ib,isp,:))<ef0+0.5.and.
-     &                 maxval(evlall(ib,isp,:))>ef0-0.5) then
+                     if(allband.or.(minval(evlall(ib,isp,:))<ef0+0.5.and.
+     &                 maxval(evlall(ib,isp,:))>ef0-0.5)) then
                         nbxx=nbxx+1
                      endif  
                   enddo
@@ -2132,8 +2133,8 @@ c            endif
                   write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
                   write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
                   do ib=1,ndhamx 
-                     if(minval(evlall(ib,isp,:))<ef0+0.5.and.
-     &                 maxval(evlall(ib,isp,:))>ef0-0.5) then
+                     if(allband.or.(minval(evlall(ib,isp,:))<ef0+0.5.and.
+     &                 maxval(evlall(ib,isp,:))>ef0-0.5)) then
                         write(ifi,"(a,i8)")"  BAND: ",ib    
                         write(ifi,"(3x,10(x,f9.5))")
      &                    (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
