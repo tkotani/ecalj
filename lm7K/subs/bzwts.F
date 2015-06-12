@@ -218,7 +218,7 @@ C --- BZ weights, sumev and E_f by tetrahedron method (Blochl wts) ---
      .    ' encountered:  ev=%,6;6d  ec=%,6;6d',emin,emax)
           call info5(20,0,0,' VBmax = %,6;6d  CBmin = %,6;6d  gap = '//
      .    '%,6;6d Ry = %,5;5d eV',emin,emax,emax-emin,
-     .    (emax-emin)*13.6d0,0)
+     .    (emax-emin)*13.6058d0,0)
           goto 2
         endif
         nptdos = 101
