@@ -575,8 +575,12 @@ c         read (ifqpnt,*) (itq(i),i=1,ntq)
 !!   Get ntq
         if(lntq) then
           read(ifih,*) nband_r,nq_r,ntq
-          if(nband_r/=nband.or.nq_r/=nq) call rx('NTQXX read error nband_r/=nband.or.nq_r/=nq')
-        else  
+          if(nband_r/=nband.or.nq_r/=nq) then
+            rewind ifih
+            lntq=.false.
+          endif  
+        endif
+        if(.not.lntq) then
           ntq=0
           allocate(eqt(nband))
           do is = 1,nspin
