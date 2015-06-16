@@ -130,6 +130,10 @@ do
 	run_arg '---' $MPI_SIZE $nfpgw           /lmf-MPIK llmf_oneshot $TARGET
 	cp ctrl.$TARGET rst.$TARGET sigm.$TARGET llmf_oneshot save.$TARGET RUN0
     fi
+
+    mkdir RUN.ITER${ix}
+    cp ctrl.$TARGET rst.$TARGET sigm.$TARGET GWinput save.$TARGET RUN.ITER${ix}
+
     $echo_run echo == $ix 'iteration over =='
 done 
 ################## end of loop #######################
