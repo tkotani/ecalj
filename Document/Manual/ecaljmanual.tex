@@ -1423,14 +1423,18 @@ To do band plot, we need \verb+syml.cu+ in your directory.
 \end{verbatim}
 Then check \verb+syml.cu+; it is
 \begin{verbatim}
-    21  .5 .5 .5     0  0 0           L to Gamma
-    21   0  0  0     1  0 0          Gamma to X
-    0    0 0 0  0 0 0
+    21  .5 .5 .5     0  0 0   L Gamma
+    21   0  0  0     1  0 0   Gamma X
+    0   (this is the terminator line)
 \end{verbatim}
+We supply ten data for each lines
+(integer, three real, three real, two words).
 First line means, we calculate eigenvalues 
 for {\bf k} points from {\bf k}=(0.5,0.5,0.5) to {\bf k}=(0,0,0).
-"L to Gamma" is just a comment since program only read 
-seven numbers for each line.
+"L Gamma" are names of two end points 
+(.5 .5 .5) and (0 0 0) in this case.
+These names are used in a gnuplot script for band plot
+(bndplot.isp*.glt).
 Second line means, we calculate eigenvalues 
 for k points from {\bf k}=(0,0,0) to {\bf k}=(1,0,0).
 3rd line means calculation just stop here.
