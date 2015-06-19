@@ -1423,14 +1423,18 @@ To do band plot, we need \verb+syml.cu+ in your directory.
 \end{verbatim}
 Then check \verb+syml.cu+; it is
 \begin{verbatim}
-    21  .5 .5 .5     0  0 0           L to Gamma
-    21   0  0  0     1  0 0          Gamma to X
-    0    0 0 0  0 0 0
+    21  .5 .5 .5     0  0 0   L Gamma
+    21   0  0  0     1  0 0   Gamma X
+    0   (this is the terminator line)
 \end{verbatim}
+We supply ten data for each lines
+(integer, three real, three real, two words).
 First line means, we calculate eigenvalues 
 for {\bf k} points from {\bf k}=(0.5,0.5,0.5) to {\bf k}=(0,0,0).
-"L to Gamma" is just a comment since program only read 
-seven numbers for each line.
+"L Gamma" are names of two end points 
+(.5 .5 .5) and (0 0 0) in this case.
+These names are used in a gnuplot script for band plot
+(bndplot.isp*.glt).
 Second line means, we calculate eigenvalues 
 for k points from {\bf k}=(0,0,0) to {\bf k}=(1,0,0).
 3rd line means calculation just stop here.
@@ -5029,6 +5033,85 @@ m is a magnetic quantum number, n is the degree of freedom which means 1 : $\phi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Theory and algorism for PMT-QSGW}
+\subsection{Crystal structure}
+\label{how to represent crystalstructure and symmetry}
+We use unit \alat\ (in a.u.) to represent length in the code.
+Thus, in cases, to convert quantities in the unit of a.u., we
+multiply \alat\ to the quantities.
+For example, primitive cell (in a.u.) is given by 
+\alat\ $\times$ \plat. (plat=PLAT in ctrl file).
+This;
+\begin{itemize}
+\item
+primitive vectors $\bfp_i$ (in a.u.) are
+\raw{alat*plat(1:3,i)}, where i=1,2,3. (see \io{LATTC}).
+\raw{qlat(1:3,i)} is reciprocal unit vectors such that
+\raw{sum(plat(1:3,i),qlat(1:3,j))}=$\delta_{ij}$.
+\item
+The centers of MT sites $\{\bfR\}$ in the primitive cell
+is given by \raw{alat*bas(1:3,ibas),ibas=1,nbas} 
+(we use \verb#pos,natom# in cases instead of \verb#bas,nbas#). 
+
+\item
+  We specify atoms in the cell (SPEC) in ctrl file.
+  where the same atoms belonging to the same SPEC can be
+  divided into some classes(CLASS)
+  (we can use \raw{lmchk} to check how they are classifed).
+
+ \item
+  Note that we specify atoms in the cell (SPEC) in ctrl file.
+  where the same atoms belonging to the same SPEC can be
+  classified into some classes(CLASS)
+  (we can use \raw{lmchk} to check how they are classifed).
+  \raw{NBAS >= NSPEC >= NCLASS}
+\item
+\verb#iclass(ibas)# is the id for class. The equivalent
+MT sites should have the same class id as \verb#iclass(ibas1)=iclass(ibas2)#. 
+
+(However, for the convenience of program developments,
+(historical reason), I assume ibas=iclass(ibas); true class
+is iclasst(ibas). This is used to find space group operations
+in \verb#call mptauof#. A little complicated...)
+
+  
+\end{itemize}
+
+\subsection{Some common notations in computer code}
+
+\begin{verbatim}
+alat: unit in a.u. This is in LATTC or (or call genallc_v3)
+plat: primitive vector. this is in LATTC (or call genallc_v3)
+qlat: reciprocal primitive vector  
+      \delta_ij= sum(plat(:,i)*qlat(:,j))
+QpGcut_psi: cutoff to determine G vector for eigenfunction
+         |q+G|< QpGcut_cou (in a.u.)
+QpGcut_cou: cutoff to to determine G vector for Coulmb matrix
+         |q+G|< QpGcut_psi
+symops (or symgg): 
+   space group, rotational part. This is in SYMOPS 
+   (or call genallc_v3)
+   
+nbas (or natom): number of MTs in the primitive cell.
+    corresponding to nbas, we usually use ibas for do loop
+    as "do ibas=1,nbas".
+bas(1:3,1:natom) (or nbas): MT centers for R within the cell
+
+ng (or ngrp):number of space group operations. 
+
+tiat miat: given by subroutine mptauof. Space group operations.
+           (mapping of atoms). (tiat(3,ibas,ig)
+           See explanation it it.
+
+Radial mesh: hbasfp0
+  a,b, rofi,nr (or aa,bb, nrad).
+  MT site radial data. Radial integrals are only in 
+  subroutine basnfp_v2 in hbasfp0.m.F.
+  We assume r(ir)=b*(exp(aa*(ir-1)-1.), ir=1,nr
+  rhoMT is read.
+\end{verbatim}
+
+
+
 \label{sec:impl}
 
 xxxxxxxxx under construction xxxxxxxxxxxxxxxx\\
@@ -5667,59 +5750,7 @@ but also W and U between Wannier functions (RPA and cRPA) together.
 It is in \io{fpgw/Wannier} directory.
 
 
-\subsection{Crystal structure}
-\label{crystalstructure}
-We use unit \alat\ (in a.u.) to represent length in the code.
-Thus, in cases, to convert quantities in the unit of a.u., we
-multiply \alat\ to the quantities.
-For example, primitive cell (in a.u.) is given by 
-\alat\ $\times$ \plat. (plat=PLAT in ctrl file).
-This;
-\begin{itemize}
-\item
-primitive vectors $\bfp_i$ (in a.u.) are
-\raw{alat*plat(1:3,i)}, where i=1,2,3. (see \io{LATTC}).
-\item
-The centers of MT sites $\{\bfR\}$ in the primitive cell
-is given by \raw{alat*bas(1:3,ibas),ibas=1,nbas} 
-(we use \verb#pos,natom# in cases instead of \verb#bas,nbas#). 
-\item
-\verb#iclass(ibas)# is the index for class. The equivalent
-MT sites should have the same number as \verb#iclass(ibas1)=iclass(ibas2)#. However, for the convenience of program developments,
-(historical reason), I assume ibas=iclass(ibas); true class
-is iclasst(ibas). This is used to find space group operations
-in \verb#call mptauof#. A little complicated yet...
-\end{itemize}
-
-
-\subsection{Some common notations in computer code}
-
-\begin{verbatim}
-alat: unit in a.u. This is in LATTC or (or call genallc_v3)
-plat: primitive vector. this is in LATTC (or call genallc_v3)
-qlat: reciprocal primitive vector  
-      \delta_ij= sum(plat(:,i)*qlat(:,j))
-QpGcut_psi: cutoff to determine G vector for eigenfunction
-         |q+G|< QpGcut_psi
-QpGcut_cou: cutoff
-symops (or symgg): 
-   space group, rotational part. This is in SYMOPS 
-   (or call genallc_v3)
-nbas (or natom): number of MTs in the primitive cell.
-bas(1:3,1:natom) (or nbas): MT centers for R within the cell
-
-tiat miat: given by subroutine mptauof. Space group operation.
-           (mapping of atoms).
-
-Radial mesh: hbasfp0
-  a,b, rofi,nr (or aa,bb, nrad).
-  MT site radial data. Radial integrals are only in 
-  subroutine basnfp_v2 in hbasfp0.m.F.
-  We assume r(ir)=b*(exp(aa*(ir-1)-1.), ir=1,nr
-  rhoMT is read.
-\end{verbatim}
-
-
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 
 In Sec.~\ref{sec:kint}, we show a new improvement in the offset-$\Gamma$ method, which is
