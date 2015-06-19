@@ -105,7 +105,7 @@ c      real(8) :: shtw
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
-      logical lqall
+      logical lqall,laf,lntq
       real(8),allocatable    :: q(:,:)
 
       integer,allocatable ::  
@@ -196,13 +196,13 @@ c      logical:: newaniso
       logical:: exchange
       real(8):: exx
       real(8),allocatable:: freq_r(:)
-      integer:: ififr,ifile_handle,nwxx
+      integer:: ififr,ifile_handle,nwxx,ifih
 
       integer:: verbose,iband,isp,iqq
       integer,allocatable:: nbandmx(:,:)
 
-      integer:: ificlass,ifiq0p,ntqxx
-      logical:: hermitianW,laff
+      integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
+      logical:: hermitianW
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -547,42 +547,56 @@ c     write(6,'("    ua      =",f13.6)') ua
       if(laf) nspinmx=1
       call MPI__Broadcast(nspinmx)
 
-!! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
-      if(MPI__root) then
-        allocate(eqt(nband))
-        ntq=0
-        do is = 1,nspin
-          do ip = 1,nq
-            call readeval(qibz(1,ip),is, eqt)
-            do iband=1,nband
-              ntq = max(iband,ntq)
-              if(eqt(iband)-eftrue>ebmx(1)) exit
-            enddo  
-          enddo
-        enddo
-        ntq = min(ntq, nbmx(1))
-        deallocate(eqt)
-        write(6,"(' nband ntq ef eftrue=', 2i8,2f9.4)")nband,ntq,ef,eftrue
-      endif
-      call MPI__Broadcast(ntq)
 
+!! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
+!! FIX NTQ during iteration by the file NTQ 15jun2015
+!!
 !! Determine nbandmx. Moved from sxcf_fal2.sc.F.
 !!!! count number of band to calculate.
 !! I think it it better to determine nbandmx in a manner within LDA 
 !! (need to care degeneracy...).
       allocate(nbandmx(nq,nspinmx))
       if(MPI__root) then
+        inquire(file='NTQXX',EXIST=lntq)
+
+        ifih = ifile_handle()
+        open(ifih,file='NTQXX')
+!!   Get ntq
+        if(lntq) then
+          read(ifih,*) nband_r,nq_r,ntq
+          if(nband_r/=nband.or.nq_r/=nq) call rx('NTQXX read error nband_r/=nband.or.nq_r/=nq')
+        else  
+          ntq=0
+          allocate(eqt(nband))
+          do is = 1,nspin
+            do ip = 1,nq
+              call readeval(qibz(1,ip),is, eqt)
+              do iband=1,nband
+                ntq = max(iband,ntq)
+                if(eqt(iband)-eftrue>ebmx(1)) exit
+              enddo  
+            enddo
+          enddo
+          ntq = min(ntq, nbmx(1))
+          deallocate(eqt)
+          write(ifih,"(3i10)") nband,nq,ntq
+        endif
+!!   Get ntqxx(iq,isp) and nbandmx
         allocate(eqt(nband))
         do is = 1,nspinmx
           do ip = 1,nq   
             call readeval(qibz(1,ip),is, eqt)
-c            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq) 
-            ntqxx = 0
-            do i = 1,ntq
-              if(eqt(i)-eftrue<ebmx(1)) ntqxx =ntqxx  + 1
-            enddo
-            ntqxx = min(ntqxx, nbmx(1))
-            if(ntqxx<nband) then !redudce ntqxx when band tops are degenerated. 
+            if(lntq) then
+              read(ifih,*) ntqxx   ! ntqxx = ntq !jun2016
+            else  
+              ntqxx = 0
+              do i = 1,ntq
+                if(eqt(i)-eftrue<ebmx(1)) ntqxx =ntqxx  + 1
+              enddo
+              ntqxx = min(ntqxx, nbmx(1))
+              write(ifih,"(i10)") ntqxx
+            endif  
+            if(ntqxx<nband) then ! redudce ntqxx when band tops are degenerated. 
               do i=ntqxx,1,-1   
                 if(eqt(i+1)-eqt(i)<1d-2) then !1d-2 is a tol to check degeneracy.
                   ntqxx=i-1
@@ -595,7 +609,10 @@ c            ntqxx = nocc (omega-eftrue,ebmx(1),.true.,ntq)
           enddo
         enddo
         deallocate(eqt)
+        close(ifih)
       endif
+      call MPI__Broadcast(ntq)
+!!
       do is=1,nspinmx
         if(MPI__root) then
           print *,'is nbandmx(:,is)=',is,nbandmx(:,is)
