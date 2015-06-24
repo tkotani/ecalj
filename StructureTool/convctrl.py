@@ -39,7 +39,7 @@ def vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom,rat
 
 def vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3):
 	atom_list = []
-	angs = alat_val*0.529177
+	angs = alat_val*.529177
 	for i in range(NBAS_val):
 		atom_val = vaspread[8+i].split()
 		atom_list.append(atom_val)
@@ -47,15 +47,17 @@ def vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3):
 	plat2= [float(plat2[i]) for i in range(len(plat2)) ] 
 	plat3= [float(plat3[i]) for i in range(len(plat3)) ] 
 	for atom1 in range(len(atom_list)):
-		atom_list[atom1]= [float(atom_list[atom1][i]) for i in range(3)]
-		#print 'xxxxxxxxxxxxx',vaspread[7],atom_list[atom1]
+                x = float(atom_list[atom1][0])
+                y = float(atom_list[atom1][1])
+                z = float(atom_list[atom1][2])
 		if vaspread[7]=='Cartesian':
-			for ix in range(3):
-				atom_list[atom1][ix] = atom_list[atom1][ix]/alat_val/.529177
+                        atom_list[atom1][0] = x/alat_val/.529177
+                        atom_list[atom1][1] = y/alat_val/.529177
+                        atom_list[atom1][2] = z/alat_val/.529177
 		if vaspread[7]=='Direct':
-			for ix in range(3):
-				atom_list[atom1][ix] = atom_list[atom1][0]*plat1[ix] \
-				+ atom_list[atom1][1]*plat2[ix] + atom_list[atom1][2]*plat3[ix]
+                        atom_list[atom1][0] = x*plat1[0] + y*plat2[0]  + z*plat3[0]
+                        atom_list[atom1][1] = x*plat1[1] + y*plat2[1]  + z*plat3[1]
+                        atom_list[atom1][2] = x*plat1[2] + y*plat2[2]  + z*plat3[2]
 	return atom_list
 
 # for ctrl2vasp.
