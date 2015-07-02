@@ -1,6 +1,6 @@
       module m_freq
       real(8),allocatable:: frhis(:),freq_r(:),freq_i(:),wiw(:)
-      integer,allocatable:: nwhis,npm,nw_i,nw
+      integer:: nwhis,npm,nw_i,nw !this caused a problem...
 
       contains
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
@@ -22,7 +22,7 @@
       if(done) call rx('gerfreq is already done')
       done=.true.
 
-      allocate(nwhis,npm,nw_i,nw)
+c      allocate(nwhis,npm,nw_i,nw)
       nw=nw_input
 !! We first accumulate Imaginary parts. 
 !! Then it is K-K transformed to obtain real part.

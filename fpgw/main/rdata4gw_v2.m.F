@@ -221,7 +221,7 @@ c     gg test
 c     reduced weight
       real(8),allocatable:: www(:,:,:)
 c
-      logical(8):: ppovl0l=.true.
+      logical(8):: ppovl0l=.false.
       integer(4):: ippovl0=2301
 
       logical::  ngczero=.false.,qreduce
@@ -1629,7 +1629,7 @@ c      ngggmx  = maxval( nggg(1:nqnumt)  )
 c      ngcgpmx = maxval( ngcgp(1:nqnumt) )
       allocate( nvggg(3,nggg) )
       allocate(nvgcgp(3,ngcgp))
-!! Here the range of G for ngvvv is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
+!! Here the range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
 c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
          qx = 0d0
          call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )

@@ -76,11 +76,14 @@ c screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of
       real(8),save :: ttt
       logical,save:: init=.true.
       if(init) then
-        call getkeyvalue("GWinput","Vkappa",ttt,default=1d-5)
-        write(6,*)'Vkappa=',ttt
+        call getkeyvalue("GWinput","TFscreen",tss, ttt, default=1d-5**.5)
+        ! 1d-5**.5 is just given by rough test. 
+        ! Results should not depend on this value as long as default is small enough.
+        write(6,*)'TFscreen=',tss
         init=.false.
       endif
-      screenfac= -ttt  !note negative sign
+! screenfac = - TFscreen**2 = energy (negative) ==> (\nabla^2 + e) v= \delta(r-r')
+      screenfac= -tss**2 !-ttt  !note negative sign for exp(-sqrt(e)r)
       end
 
 !! testmode
