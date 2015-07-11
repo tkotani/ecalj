@@ -70,6 +70,7 @@ c      if(debug) print *,'nkt=',nkt
       allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))
       allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       allocate(iqmap(nqtt),igmap(nqtt),iqimap(nqtt))
+      write(6,*) 'ngrp=',ngrp
       read(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
       allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
       allocate( offlrev(nbas,0:lxx,kxx))

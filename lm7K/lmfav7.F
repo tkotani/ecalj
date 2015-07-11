@@ -20,18 +20,21 @@ c      equivalence (ws,w(1))
 c      common /w/ w
 
 C ... Controls for IO
-      integer lstrn
-      parameter (lstrn=20000)
+c      integer lstrn
+c      parameter (lstrn=20000)
+      integer,parameter:: lstrn=10000
+      character(lstrn):: sstrnmix,sstrnsymg='' !,jobid !header,
 
       character prgnam*8, vrsion(2)*6, ext*100
 C ... Structure for strings
-      character*(lstrn) sstrn
+c      character*(lstrn) sstrn
 
 C ... For structures
       logical lgors
       integer mxspec
 CKi      integer v_sbz,v_sctrl,v_slat,v_sham,v_spot,v_smix,v_sspec,v_ssite,v_sarry,
 CKi     *  v_smove,v_sstr,v_stb
+c      type(s_sstrn)::v_sstrn
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_lat):: v_slat
@@ -41,7 +44,7 @@ CKi     *  v_smove,v_sstr,v_stb
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_str):: v_sstr
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
 
 ckino Jan.04.2012:        type(s_spec),pointer:: v_sspec(:) =>NULL()
       type(s_spec),allocatable:: v_sspec(:)
@@ -229,31 +232,23 @@ C      call rx('done')
 
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
-ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-ckino Jan.04.2012:       *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     *v_sarry,v_smove,v_stb,sstrn)
-
-c
-
+     *v_sarry,v_smove,sstrnmix,sstrnsymg) !,v_stb
       print *,'end of rdctrl2 in imfav7'
 C ... Input to scale MT radii (define RESIZE)
-
-
 
 
 C --- Lattice setup ---
 
 ctakao will add |1)
       call setcg(v_slat,8,12)
-ckino Jan.04.2012:        call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-
 
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
-      call upacks('strn symg',i,j)
-      if (j .ge. i) strn = sstrn(i:j+1)
+c      call upacks('strn symg',i,j)
+c      if (j .ge. i) strn = sstrn(i:j+1)
+      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
 
@@ -263,7 +258,7 @@ Cgetarg       if (.not. lgors('ctrl lqp,1',v_sctrl)) lc = lc+2
 
 
 ctakao will add |1)
-      print *,'goto mksym'
+      print *,'goto mksym:',trim(strn)
 ckino Jan.04.2012:        call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       print *,'end of mksym x'

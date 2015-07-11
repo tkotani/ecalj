@@ -642,7 +642,7 @@ c=====================================================================
      o      rofi,rkpr,rkmr)
 C-- Generate radial mesh rofi, spherical bessel, and hankel functions
 Cr  rkpr, rkmr are real fucntions --
-ci   ee :  E <0 dumping wave
+ci eee=E= -kappa**2 <0 
 cr      rkpr = (2l+1)!! * j_l(i sqrt(abs(E)) r) * r / (i sqrt(abs(E)))**l
 cr      rkmr = (2l-1)!! * h_l(i sqrt(abs(E)) r) * r * i*(i sqrt(abs(E)))**(l+1)
 cr rkpr reduced to be r**l*r      at E \to 0

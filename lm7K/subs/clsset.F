@@ -49,7 +49,7 @@ C Local variables
       double precision vol,volm
       character*80 outs,fmt
       integer:: ocllst
-      real(8) ,allocatable :: ncltb_rv(:)
+      integer,allocatable :: ncltb_rv(:)
       real(8) ,allocatable :: clctr_rv(:)
 
 C heap:
@@ -169,7 +169,6 @@ C     call awrit2(' clsset: %n:1i',' ',255,lgunit(1),nbas,clssl)
 
 C ... Make cllst
       allocate(ncltb_rv(ncl+1))
-
       allocate(clctr_rv(3*nbas))
 
       call clsctr ( nbas , pos , clssl , clord , ncltb_rv , cllst 

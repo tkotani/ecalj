@@ -5,14 +5,18 @@
       use m_globalvariables
       implicit none
 C     ... Controls for IO
-      integer lstrn
-      parameter (lstrn=20000)
+c      integer lstrn
+c      parameter (lstrn=20000)
       character prgnam*8, vrsion(2)*6, ext*100
 C     ... Structure for strings
-      character*(lstrn) sstrn
+c      character*(lstrn) sstrn
 C     ... For structures
       logical lgors
       integer mxspec
+c      type(s_sstrn)::v_sstrn !may2015
+      integer,parameter:: lstrn=10000
+      character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
+
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_lat):: v_slat
@@ -22,7 +26,7 @@ C     ... For structures
       type(s_array):: v_sarry
       type(s_move):: v_smove
       type(s_str):: v_sstr
-      type(s_tb):: v_stb
+c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:) 
       type(s_site),allocatable:: v_ssite(:) 
       parameter (mxspec=256)
@@ -136,20 +140,22 @@ C     write(stdo,*)' --- end of rdfile --- '
 C     call rx('done')
       call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
      .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .     v_sarry,v_smove,v_stb,sstrn)
+     .     v_sarry,v_smove,sstrnmix,sstrnsymg) !,v_stb
 C     --- Lattice setup ---
       call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 C     --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
-      call upacks('strn symg',i,j)
-      if (j .ge. i) strn = sstrn(i:j+1)
+      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg) 
+      print *,' strn sym=',trim(strn)
+c      call upacks('strn symg',i,j)
+c      if (j .ge. i)strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
       if ( v_sctrl%lqp==0 ) lc = lc+2 
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 C     --- Allocate permanent class arrays, maps and other initialization ---
-      call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec, v_slat,v_sbz,v_sstr,sstrn)
+      call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec, v_slat,v_sbz,v_sstr)!,sstrn)
 C     --- Read available class parameters from file ---
 #if LMCHK
       call aiocls(.false.,0,v_sarry,v_sctrl,v_sham,v_spot,
@@ -158,7 +164,7 @@ C     --- Read available class parameters from file ---
      .     v_sspec,v_slat,1,0)
       if (lc .ge. 20)
      .     call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .     v_slat,v_sbz,v_sstr,sstrn)
+     .     v_slat,v_sbz,v_sstr)!,sstrn)
 #endif
       if (cmdopt('--sfill',7,0,strn)) then
          call rx('no --sfill option in lm7K')
@@ -178,7 +184,7 @@ C     ... quit after SHOW
 #endif
 #if LMCHK
       call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
-     .     v_ssite,v_sstr,v_sarry,v_sbz,slabl,sstrn,auxmod,0) !wksize)
+     .     v_ssite,v_sstr,v_sarry,v_sbz,slabl,auxmod,0) !wksize),sstrn
 #endif
 #if LMDOS
       call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat, v_sspec,v_ssite,v_sarry)
@@ -292,7 +298,7 @@ C     ... Local parameters
 C     getarg       end
       end subroutine findctrlstart 
 
-      subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,sstr,sstrn)
+      subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,sstr) !,sstrn)
       use m_struc_def           !Cgetarg
 C     - Allocate memory for, and try to read, class-related data
 C     ----------------------------------------------------------------------
@@ -348,7 +354,7 @@ C     u   28 Apr 98 allocate space for radial matrix elements of grad
 C     ----------------------------------------------------------------------
 C     implicit none
       integer mode
-      character*(*) sstrn
+c      character*(*) sstrn
       type(s_ctrl)::sctrl
       type(s_array)::sarray
       type(s_ham)::sham
@@ -446,7 +452,7 @@ C     ... Allocate memory for, attempt to read qpp from file
       return
 
       entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .     sstr,sstrn)
+     .     sstr) !,sstrn)
 C     - Copy class data to doubly padded case
       nclass=sctrl%nclass
       nl=sctrl%nl

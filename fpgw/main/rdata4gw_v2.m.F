@@ -94,6 +94,8 @@ Ch     - Apr 2002 takao kotani ver.2 ; generalized to include multiple-augmentat
 C------------------------------------------------------------------
 c     implicit real*8 (a-h,o-z)
       use keyvalue
+c      use m_anf,only: anfcond
+c     &  ,iantiferro               !for check
       implicit none
       integer(4) ::
      &     ifigw0,n1q,n2q,n3q,ifiqg,ifiqc,nqnum,ngpmx,nq0i,i,ifi
@@ -251,7 +253,7 @@ c      logical :: ippovlc_test
       integer:: nxxx(1:3)=0,ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
       real(8):: QpGcutggg,QpGcutgcgp
       complex(8),allocatable:: ggg(:)
-      integer,allocatable:: nvggg(:,:),nvgcgp(:,:)
+      integer,allocatable:: nvggg(:,:),nvgcgp(:,:),iantiferro(:)
       integer:: nggg,ngcgp !q independent 
 
 c---------------------------------------------------
@@ -364,7 +366,7 @@ c
       ificg=421
       open(ificg,file='CphiGeig',form='unformatted')
 
-C --- readin ---
+!! --- readin ---
       call gwinput_v2x(ifi,
      &     nsp,   nbas,   nclass, nrmx,   ncoremx,
      &     lmxamx,ngpmx,  nband,  ldim2,  nqtti , !ldim2
@@ -374,9 +376,12 @@ c
      &     iclass,lmxa,nr,konf,ncore,
      &     zz,aa,bb,bas,alat,plat,
      &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,nocore) !,cphi,geig
+      allocate(iantiferro(nbas))
+      read(ifi) iantiferro !may2015
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
       print *,' iclass=',iclass
       print *,' nqtti nbas',nqtti,nbas
+      write(6,"(a,100i4)") ' iantiferro=',iantiferro(1:nbas)
       do iq=1,nqtti
         write(*,"(' qtti=',i4,3f9.5)")iq, qtti(1:3,iq)
       enddo
@@ -1624,7 +1629,7 @@ c      ngggmx  = maxval( nggg(1:nqnumt)  )
 c      ngcgpmx = maxval( ngcgp(1:nqnumt) )
       allocate( nvggg(3,nggg) )
       allocate(nvgcgp(3,ngcgp))
-!! Here the range of G for ngvvv is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
+!! Here the range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| !triangle inequality.
 c      do iqi =1, nqnumt         !nqibz + nq0i +iadd
          qx = 0d0
          call getgv2( alat,plat,qlat,qx, QpGcutggg,  2, nggg,  nvggg  )
@@ -1886,9 +1891,14 @@ c     BZ
       write(ifigwin,*)"BZ----------------------------------------------"
       write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
       write(ifigwin,"(4i5)") n1q,n2q,n3q
+      write(ifigwin,*)"AFcond-------------------------"
+      write(ifigwin,"(200i6)")iantiferro(1:nbas)
       close(ifigwin)
+
+!! check for anf mode
+c      call anfcond()
+
       print *, " OK! end of rdata4gw_v2 "
-Cstop2rx 2013.08.09 kino      stop ' OK! rdata4gw_v2'
       call rx0( ' OK! rdata4gw_v2')
       end
 

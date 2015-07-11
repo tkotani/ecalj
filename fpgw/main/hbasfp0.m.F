@@ -14,6 +14,7 @@ c The main part of this routine is in the subroutine basnfp_v2
      & alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
      & nindxv,occv,unoccv,occc,unoccc,iclass
       use keyvalue,only: getkeyvalue
+      use m_anf,only: ibasf,laf,anfcond !may2015takao
       implicit none
       real(8):: qbas(3,3),ginv(3,3)
       integer(4)::
@@ -32,7 +33,7 @@ c The main part of this routine is in the subroutine basnfp_v2
       real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:)
       character*11 :: ffaln
       integer(4)::incwfin,ret
-      integer(4),allocatable:: idid(:),ibasf(:)
+      integer(4),allocatable:: idid(:)
       logical :: checkdid ,anfexist
       integer(4):: iread, idummy
 c--------------------------------------------------------------------------
@@ -78,9 +79,10 @@ c--------------------------------------------------------------------------
 
 !! read data in m_rgwinf_v3
 !! Output are allocated and data are setted as above.
-      iflmto     = iopen('LMTO',1,0,0)
+      iflmto = iopen('LMTO',1,0,0)
       if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
       call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
+      iflmto= iclose('LMTO')
       nsp=nspin
       write(6,*)'end of rgwinf'
 !! readin lcutmxa ------------
@@ -207,40 +209,28 @@ c-----------
         goto 998
       endif
 
-
-!! READIN ANFcond ------------------------------------
-      inquire(file='ANFcond',EXIST=anfexist)
-      write(6,*)' ANFcond exist? =',anfexist
-      if(anfexist) then
-        allocate(ibasf(natom),idid(natom)) !,transaf(1:3,natom))
-        ifianf = 211
-        open(ifianf,file='ANFcond')
-        read(ifianf,*)
-        read(ifianf,*)
-        read(ifianf,*)  !anfvec(1:3)
-!       write(6,'(" ANFcond=",3f13.6)') anfvec
-        do ibas=1,natom
-          read(ifianf,*) ibas1, ibasf(ibas)
-          if(ibas1/=ibas) call rx( ' readin ANFcond error:ibas1/=ibas')
-          write(6,"(' anf ',2i3,f13.6)") ibas1,ibasf(ibas)
-        enddo
-        close(ifianf)
-!! Check iclass =ibas ; CLASS file contains true classs information.
+!! antiferro or not. 
+!! For AF case, we have laf=.true. and we have data set for 'call anfsig', stored in m_anf.
+      call anfcond()
+      if(laf) then
+!!      Check iclass =ibas ; CLASS file contains true classs information.
+c        allocate(idid(natom)) 
+        write(6,*) '--- Antiferro mode --- '
         do ibas=1,natom
           if(iclass(ibas)/=ibas) call rx( ' iclass(ibas)/=ibas: ')
         enddo
         ii=0
         do ic=1,nclass
           ibas=ic
-          if( checkdid(idid,ii, ibas) ) cycle
-          phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
-          ii=ii+2
-          idid(ii-1)= ibas
-          idid(ii  )= ibasf(ibas)
+          if( ibasf(ibas)>0 ) then
+            phitotr(:,:,:,ibasf(ibas), :)=phitotr(:,:,:,ibas, :)
+            write(6,"(a,2i4)") 
+     &       '  radial functions: phi(ibasf)=phi(ibas): ibasf ibas=',ibasf(ibas),ibas
+          endif  
         enddo
-        if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
-     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
-        write(6,*)' end of readin ANFcond:'
+c        if( sum (idid(1:ii)) /= natom*(natom+1)/2) 
+c     &    call rx( 'hbasfp0:sum (idid(1:ii)) /= n(n+1)/2')
+c        write(6,*)' end of anf section...'
       endif
 
 !! override cutbase to make epsPP_lmfh safer. may2013takao
@@ -248,7 +238,6 @@ c-----------
          write(6,*)' !!! set tolerance for PB to be 1d-6 ---'
          cutbase=1d-6
       endif
-
 
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
@@ -267,14 +256,14 @@ c-----------
       end
 
 
-      logical function checkdid (idid,ii, ibas)
-      integer(4):: idid(ii),ix
-      checkdid=.true.
-      do ix=1,ii
-        if(idid(ix)==ibas) return
-      enddo
-      checkdid=.false.
-      end
+c      logical function checkdid (idid,ii, ibas)
+c      integer(4):: idid(ii),ix
+c      checkdid=.true.
+c      do ix=1,ii
+c        if(idid(ix)==ibas) return
+c      enddo
+c      checkdid=.false.
+c      end
 
 
 

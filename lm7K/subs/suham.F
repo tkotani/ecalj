@@ -6,6 +6,10 @@ c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,q
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
      &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
      &  napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
+!!
+!june2015
+     &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
+c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
@@ -58,10 +62,11 @@ c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),
       logical:: iprx=.true.,prpushed
 
       integer,parameter:: noutmx=48
-      integer:: iout,nout,nlatout(3,noutmx),iapw
+      integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3)
-      real(8):: qqq(3)
+      real(8):: qqq(3),diffs
+      real(8),allocatable:: symtmp(:,:,:)
 #if (MPI|MPIK)
 c2012Sep02 kino, add for 
        include 'mpif.h'
@@ -79,8 +84,8 @@ c2012Sep02 kino, add for
       qlat=slat%qlat
       alat=slat%alat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
-      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
-      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+c      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
+c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!--- MTO part ---
 !!---- obtain norbmto, lxx,kxx ----
       norbmto=0
@@ -117,8 +122,8 @@ c2012Sep02 kino, add for
           nini = ndimham+ 1
           ndimham = ndimham+ 2*ltabx(iorb,ib)+1
           ibasindex(nini:ndimham) = ib
-          if(iprx)write(6,"(3i3,2x,2i5,3x,a)") 
-     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
+c          if(iprx)write(6,"(3i3,2x,2i5,3x,a)") 
+c     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
         enddo
       enddo
 c ... reverse maping of offset-index for hamiltonian
@@ -130,6 +135,7 @@ c ... reverse maping of offset-index for hamiltonian
         offlrev(ibas,l,k)= offl(iorb)
       enddo
 
+
 !!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
       call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 )
@@ -138,16 +144,13 @@ c ... reverse maping of offset-index for hamiltonian
       do ib=1,nbas
         iclasst(ib)=ssite(ib)%class
       enddo
-!!---- get space group information ----
-!!# translation informations also in miat tiat invgx, shtvg
+!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
       call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg )
-
 !!---- write SYMOPS ---- mar2012takao
 #if (MPI|MPIK)
       if (procid.eq.master) then
 #endif
-ckino2012Sep02      ifisym = fopnx('SYMOPS',2,2,-1) ! open as new, it causes a stop.
       ifisym = fopnx('SYMOPS',2,0,-1) ! open as unknown
       write(ifisym,*) ngrp
       do ig = 1,ngrp
@@ -156,17 +159,17 @@ ckino2012Sep02      ifisym = fopnx('SYMOPS',2,2,-1) ! open as new, it causes a s
           write(ifisym,"(3e24.16)") symops(i,1:3,ig)
         enddo
       enddo
-ckino2012Sep02      call fclr(' ',ifisym)
       call fclose(ifisym)
 #if (MPI|MPIK)
       endif
 #endif
-c ... get rotation matrix dlmm.  We assume nl=lmxa+1.
+
+!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
       lxxa=nl-1
       allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
       call rotdlmm(symops,ngrp, nl, dlmm)
-c      print *,' end of rotdlmm'
-!! no GW-related part
+
+!! No GW-related part
 c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
       if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         if(iprx) print *,'gen_hamindex: not readin QGpsi.'
@@ -175,7 +178,7 @@ c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
-        return
+        goto 2001 !return !jun2015takao
       endif
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
@@ -255,6 +258,8 @@ c        print *,' i in nqtt=',i,qtarget
 c          print *,' xxxxx qtti=',q
           do ig=1,ngrp
 c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
+c            qx=matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
+c            if(sum(abs(qx-anint(qx)))<1d-8) then
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
             if(sum(abs(qx))<1d-8) then
               igg=ig
@@ -369,10 +374,57 @@ ccccccccccccccccccccccc
       enddo
       call writehamindex() !sep2012takao
       if(iprx) print *,' end of gen_hamindex: nkt,napwmx norbmto= ',nkt,napwmx,norbmto
+
+!! Symmetry for AF. Order AF symmetry operation after normal one. jun2015takao
+!! Caution: symops,and so on are overwritten.
+!!          writehamindex() already wrote HAMindex which is just for SYMGRP.
+ 2001 continue
+      if(allocated(symops_af)) then
+        allocate(symtmp(3,3,ngrpaf))
+        symtmp(:,:,1:ngrp)=symops
+        igadd=ngrp
+        do igaf=1,ngrpaf
+        do ig=1,ngrp
+          diffs=sum(abs(symops_af(:,:,igaf)-symops(:,:,ig)))
+          if(diffs<1d-6) then
+            goto 1013
+          endif  
+        enddo
+        igadd=igadd+1
+c       if(iprx)  write(6,*) ' add igaf=',igaf
+        symtmp(:,:,igadd)=symops_af(:,:,igaf)
+ 1013   continue
+        enddo
+        if(igadd/=ngrpaf) call rx('suham: strange. bug igadd/=ngrpaf')
+        if(iprx) write(6,*) '-----SYMGRPAF mode ---- # of additional symmetry=',igadd
+!!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
+        deallocate(symops, invgx,miat,tiat,shtvg,  dlmm )
+        ngrp_original=ngrp
+        ngrp      = ngrpaf ! Overwrite ngrp nby ngrpaf (larger, because we assume AF site are in
+                           ! the same class).
+        allocate(symops(3,3,ngrp))
+        symops = symtmp
+        allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
+        call mptauof ( symops , ngrp, plat , nbas , slat%rv_a_opos , iclasstaf
+     .   , miat , tiat , invgx , shtvg )
+        if(iprx) then
+          write(6,*)
+          write(6,"(' ngrp for SYMGRP+GYMGRPAF, ngrp for SYMGRP=',2i5)") ngrp, ngrp_original
+          do ig=1,ngrp
+          write(6,"(a,i3,a,100i3)")'ig=',ig, ' miat=',miat(:,ig)
+          enddo
+        endif  
+!! Get rotation matrix dlmm.  We assume nl=lmxa+1.
+        lxxa=nl-1
+        allocate( dlmm( -lxxa:lxxa, -lxxa:lxxa, 0:lxxa, ngrp))
+        call rotdlmm(symops,ngrp, nl, dlmm)
+c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
+      endif
       end subroutine gen_hamindex
 
 
-      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+
+      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz)
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Hamiltonian setup
@@ -447,7 +499,7 @@ C ... Passed parameters
       type(s_pot)::spot
       type(s_bz)::sbz
 
-      character*(*) sstrn
+c      character*(*) sstrn
 C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
@@ -465,63 +517,26 @@ C ... Local parameters
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
       integer:: oalph , oiax , ontab , os , ng
-ckino Dec.14.2011 manual correction       real(8),pointer :: rv_p_ogv(:) =>NULL()
       real(8),allocatable :: rv_a_ogv(:)
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
       integer:: obas , oo , opp , oeula , opti , obs , omagf
-ckino Dec.8.2011:            integer,pointer :: iv_p_oipc(:) =>NULL()
-
-ckino Dec.8.2011:           integer,pointer :: iv_p_oips(:) =>NULL()
-
-ckino Dec.14.2011:          integer,pointer :: iv_p_oidxsh(:) =>NULL()
-
-ckino Dec.14.2011:         integer,pointer :: iv_p_offh(:) =>NULL()
-
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
       double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
-C ... For NMTO
-C     integer olmx,ohcr,otral,otrad,oalpha,oadot,nmto
-C     double precision kmto(10),avw,dglob
-C ... Heap
-
-c      integer :: sigswitch
-
-C --- Setup ---
-
-ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips
-
-ckino Dec.8.2011:         iv_p_oipc => sarray%iv_p_oipc
-
-
 
       nbasp=sctrl%nbasp
       nspec=sctrl%nspec
       nl=sctrl%nl
-
-
-c       lham=sctrl%lham
-c       lcgf=sctrl%lcgf
-c       lgen3=sctrl%lgen3
-c       lfp=sctrl%lfp
-
-
       lncol=sctrl%lncol
       nsp=sctrl%nspin
-
-c       lpgf = int(sctrl%lpgf(1))
-
-Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
-
       pwmode=sham%pwmode
       pwemin=sham%pwemin
       pwemax=sham%pwemax
       npwpad=sham%npwpad
-
 
       nspc  = 1
       nspx  = nsp
@@ -530,62 +545,22 @@ Changenglob      nkaph = nglob('nkaph')
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
-ckino Dec.14.2011:         allocate(iv_p_offh(abs(-n0h*nkap0*(nbasp+1))))
-ckino Dec.28.2011:         allocate(sham%iv_p_ooffh(abs(-n0h*nkap0*(nbasp+1))))
       if (allocated(sham%iv_a_ooffH)) deallocate(sham%iv_a_ooffH)
-      allocate(sham%iv_a_ooffH(abs(-n0h*nkap0*(nbasp+1))))
-ckino Dec.14.2011:         if (-n0h*nkap0*(nbasp+1)<0) iv_p_offh(:)=0
-ckino Dec.28.2011:         if (-n0h*nkap0*(nbasp+1)<0) sham%iv_p_ooffh(:)=0
-      if (-n0h*nkap0*(nbasp+1)<0) sham%iv_a_ooffH(:)=0
-
-ckino Dec.14.2011:         allocate(iv_p_oidxsh(abs(ndim+3)))
-ckino Dec.27.2011:         allocate(sham%iv_p_oindxo(abs(ndim+3)))
+      allocate(sham%iv_a_ooffH(n0h*nkap0*(nbasp+1)))
+      sham%iv_a_ooffH(:)=0
       allocate(sham%iv_a_oindxo(abs(ndim+3)))
-ckino Dec.14.2011:         if (ndim+3<0) iv_p_oidxsh(:)=0
-ckino Dec.27.2011:         if (ndim+3<0) sham%iv_p_oindxo(:)=0
-      if (ndim+3<0) sham%iv_a_oindxo(:)=0
-
       stdo = lgunit(1)
-
-C --- Automatic downfolding (2nd generation only?) ---
-c      if (lgen3 .eq. 0 .and. lfp .eq. 0) then
-C$$$      if (lfp .eq. 0) then
-C$$$        adnf = bittst(lham,4)
-C$$$C       Suppress if in gamma repsn (not needed for GF mode)
-C$$$C       if (lgors('ctrl lham,128',sctrl)) adnf = 0
-C$$$Cgetarg...info...           integer :: opp , integer(8) :: spot%opp 1
-C$$$Cgetarg...info...           real(8) :: vmtz , real(8) :: spot%vmtz 1
-C$$$Cgetarg         call upack2('pot opp vmtz',spot,opp,vmtz)
-
-C$$$         opp=spot%opp
-C$$$         vmtz=spot%vmtz
-
-C$$$        call atfold(0,adnf,nl,nsp,vmtz,w(opp),sspec)
-C$$$      endif
 
 C --- Hamiltonian offsets, orbital permutation table ---
       call iinit(ldham,16)
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-ckino Dec.8.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , iv_p_oips
-ckino Dec.28.2011:             call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_p_oips
         call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_a_oips
-ckino Dec.14.2011:       .     , iv_p_offh , iv_p_oidxsh , ldham )
-ckino Dec.14.2011:       .     , iv_p_offh , sham%iv_p_oindxo , ldham )
-ckino Dec.27.2011:       .     , sham%iv_p_ooffh , sham%iv_p_oindxo , ldham )
-ckino Dec.28.2011:       .     , sham%iv_p_ooffh , sham%iv_a_oindxo , ldham ) 
      .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham )
-
-
-
       endif
 C     Default value for hamiltonian dimension
-
       sham%ndham=ldham(1)
-
-C     print *, '!!'; call pack1('ham ndham',sham,ldham+3)
-
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
@@ -594,13 +569,9 @@ C ... Make rest of ldham
       ldham(8) = nspx
 
       sham%ndofH=nbasp+1
-ckino Dec.14.2011:         sham%iv_p_ooffh => iv_p_offh
-
-ckino Dec.14.2011:         sham%iv_p_oindxo => iv_p_oidxsh
 
       i_copy_size=size(sham%ldham)
       call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
-
 
 C ------- Potential- and implementation- specific setup -------
 C --- FP setup ---
@@ -611,15 +582,12 @@ C --- FP setup ---
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
-c      if (lfp .ne. 0) then
       nvi = 0
       nvl = 0
       lmxax = -1
       do  20  ib = 1, nbasp
 
         is=ssite(ib)%spec
-
-
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
         i_copy_size=size(sspec(is)%p)

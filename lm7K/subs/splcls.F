@@ -36,7 +36,7 @@ C Local parameters:
 ccccccccccccccccccccccccccc
 ctakao
       call getpr(ipr)
-      ipr=40
+c      ipr=40
 c     print * ,'nosplt=',nosplt
 ccccccccccccccccccccccccccc
       call icopy(nspec,1,0,nrclas,1)

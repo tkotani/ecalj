@@ -169,21 +169,18 @@ C     do  20  i2 = 0, n2-1
 C     do  20  i1 = 0, n1-1
       i1 = 0
       i3 = 0
-   23 continue
-      i2 = 0
-   22 continue
-      if (lpbc2 .eq. 0) then
+c   23 continue
+      do 23  !main loop here
+       i2 = 0
+   22  continue
+       if (lpbc2 .eq. 0) then
         i1 = 0
-      else
+       else
         i3 = 0
-      endif
-   21 continue
-
-C     print 973, i1,i2,i3,igcnt
-C 973 format(5i4)
-
+       endif
+   21  continue
 C   ... Add qp to list if not flagged as symmetry-related to a prior
-      if (ipq(i1+1,i2+1,i3+1) .eq. 0) then
+       if (ipq(i1+1,i2+1,i3+1) .eq. 0) then
         ii1 = i1*ifac(1)+is(1)
         ii2 = i2*ifac(2)+is(2)
         ii3 = i3*ifac(3)+is(3)
@@ -244,7 +241,6 @@ C ...       Ensure (j1,j2,j3) in first quadrant of Q
           j2 = mod(j2+2*nn2,n2) + 1
           j3 = mod(j3+2*nn3,n3) + 1
           call rxx(j1.le.0.or.j2.le.0.or.j3.le.0,'neg j in bzmesh')
-
           if (ipq(j1,j2,j3) .eq. 0) then
             ipq(j1,j2,j3) = nq+1
             iwgt = iwgt+1
@@ -269,15 +265,15 @@ C              elseif (lstar .eq. -2) then
 C                ii = j1 + (j2-1)*n1 + (j3-1)*n1*n2
 C                igstar(ii) = ig
 C              endif
-#if DEBUG
-            if (ipr .ge. 80 .and. ng .gt. 0) then
-              call dpzero(ag,3)
-              call asymop(g(1,ig),ag,' ',sg)
-              call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
-     .        ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
-     .        v1,ipq(j1,j2,j3),ig)
-            endif
-#endif
+c#if DEBUG
+c            if (ipr .ge. 80 .and. ng .gt. 0) then
+c              call dpzero(ag,3)
+c              call asymop(g(1,ig),ag,' ',sg)
+c              call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
+c     .        ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
+c     .        v1,ipq(j1,j2,j3),ig)
+c            endif
+c#endif
           endif
           call rxx(j1.lt.0.or.j2.lt.0.or.j3.lt.0,'neg j in bzmesh')
    25   continue
@@ -288,26 +284,27 @@ C              endif
         wgt(nq) = iwgt*w0
         if (lsgrp) wgt(nq) = -iwgt*w0
         swgt = swgt + abs(wgt(nq))
-      endif
-
+       endif
 C     End-of-loop for i1,i2,i3
 C  20 continue
-      if (lpbc2 .eq. 0) then
+       if (lpbc2 .eq. 0) then
         i1 = i1+1
         if (i1 .lt. n1) goto 21
-      else
+       else
         i3 = i3+1
         if (i3 .lt. n3) goto 21
-      endif
-      i2 = i2+1
-      if (i2 .lt. n2) goto 22
-      if (lpbc2 .eq. 0) then
+       endif
+       i2 = i2+1
+       if (i2 .lt. n2) goto 22
+       if (lpbc2 .eq. 0) then
         i3 = i3+1
-        if (i3 .lt. n3) goto 23
-      else
+        if (i3 .lt. n3) cycle !goto 23
+       else
         i1 = i1+1
-        if (i1 .lt. n1) goto 23
-      endif
+        if (i1 .lt. n1) cycle !goto 23
+       endif
+       exit
+ 23   continue
 C ... Done accumulating inequivalent qp
 
       if (ipr .ge. 20) then

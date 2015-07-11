@@ -4,6 +4,11 @@ C this is translated from lstra.F in lmv7-beta
 C Kino April2009.
       module m_struc_def
 
+c      type s_sstrn !june2015
+c      integer,parameter:: lstrn=2000
+c      character(lstrn):: mix,symg !,jobid !header,
+c      end type
+
       type s_ri
       integer  ::   t
       integer(8)  ::   i
@@ -54,40 +59,6 @@ Cr   35   26   semsh    nz, modec, emin,emax, ecc,eps delta
 Cr   45   27   size     size of this structure
 Cr   46   28   stnr     parameters for Stoner model (not used)
 Cr   47   29   w        Line broadening for sampling integration
-ccccccccCr   48   30   zval     No. electrons to accumulate in BZ integration
-C ----------------------------------------------------------------
-C       data  /2,3,5,6,7,8,12,13,14,15,16,19,20,21,22,25,26,27,28,        29,30,31,32,33,34,35,45,46,47,48,49/
-C       data /4,4,4,4,4,4,18*2,4,4,-1,4,4,4/
-C  1   2  4        def  1
-C  2   3  4       dosw  2
-C  3   5  4         ef  1
-C  4   6  4      efmax  1
-C  5   7  4      fsmom  1
-C  6   8  4      lcond  4
-C  7  12  2        lio  1
-C  8  13  2       lmet  1
-C  9  14  2      lmull  1
-C 10  15  2       lopt  1
-C 11  16  2      lshft  3
-C 12  19  2          n  1
-C 13  20  2       ndos  1
-C 14  21  2      nevmx  1
-C 15  22  2      nkabc  3
-C 16  25  2        nkp  1
-C 17  26  2       ntet  1
-C 18  27  2       odos  1 possible_structure
-C 19  28  2     oidtet  1 possible_structure
-C 20  29  2       oipq  1 possible_structure
-C 21  30  2      opdos  1 possible_structure
-C 22  31  2        oqp  1 possible_structure
-C 23  32  2      ostar  1 possible_structure
-C 24  33  2      owtkp  1 possible_structure
-C 25  34  4      range  1
-C 26  35  4      semsh 10
-C 27  45 -1       size  1
-C 28  46  4       stnr  1
-C 29  47  4          w  1
-ccccccccccC 30  48  4       zval  1
       type s_bz
       real(8)  ::   size
       real(8)   ::   def
@@ -109,21 +80,10 @@ ccccccccccC 30  48  4       zval  1
       integer(8)   ::   nkabc(3)
       integer(8)   ::   nkp
       integer(8)   ::   ntet
-CCHSTRUC       integer(8)   ::   odos ! not used because of undef
-CCHSTRUC       integer(8)   ::   oidtet
-ckino Dec.28.2011:         integer , pointer ::  iv_p_oidtet (:) =>NULL()
       integer , allocatable ::  iv_a_oidtet (:)
-CCHSTRUC       integer(8)   ::   oipq
-ckino Dec.27.2011:         integer , pointer ::  iv_p_oipq (:) =>NULL()
       integer , allocatable ::  iv_a_oipq (:)
-CCHSTRUC       integer(8)   ::   opdos ! not used because of undef
-CCHSTRUC       integer(8)   ::   oqp
       real(8) , pointer ::  rv_p_oqp (:) =>NULL()
-CCHSTRUC       integer(8)   ::   ostar
-ckino Dec.27.2011:         integer , pointer ::  iv_p_ostar (:) =>NULL()
       integer , allocatable ::  iv_a_ostar (:)
-CCHSTRUC       integer(8)   ::   owtkp
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_owtkp (:) =>NULL()
       real(8) , allocatable ::  rv_a_owtkp (:)
       real(8)   ::   range
       real(8)   ::   semsh(10)
@@ -167,41 +127,6 @@ Cr   30   29   osordn  structure for order-N information
 Cr   31   30   ostni   Stoner
 Cr   32   31   ozos    Stoner DOS
 Cr   33   32   size    size of this structure
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,        22,23,24,25,26,27,28,29,30,31,32,33,34/
-C       data / 31*2,-1/
-C  1   2  2        ncl  1
-C  2   3  2     nclasp  1
-C  3   4  2      nofgl  1
-C  4   5  2      nofgr  1
-C  5   6  2      npadl  1
-C  6   7  2      npadr  1
-C  7   8  2        npl  1
-C  8   9  2     oclabl  1 possible_structure
-C  9  10  2     ocllst  1 possible_structure
-C 10  11  2       oclp  1 possible_structure
-C 11  12  2     oclssl  1 possible_structure
-C 12  13  2     ogroup  1 possible_structure
-C 13  14  2      ogrp2  1 possible_structure
-C 14  15  2      ohave  1 possible_structure
-C 15  16  2       oics  1 possible_structure
-C 16  17  2     oifrlx  1 possible_structure
-C 17  18  2       oipc  1 possible_structure
-C 18  19  2      oipcp  1 possible_structure
-C 19  20  2       oips  1 possible_structure
-C 20  21  2     omxcst  1 possible_structure
-C 21  22  2       onrc  1 possible_structure
-C 22  23  2      onrcp  1 possible_structure
-C 23  24  2     opgfsl  1 possible_structure
-C 24  25  2     opgfvl  1 possible_structure
-C 25  26  2     opgord  1 possible_structure
-C 26  27  2     opgplp  1 possible_structure
-C 27  28  2       opos  1 possible_structure
-C 28  29  2      ormax  1 possible_structure
-C 29  30  2     osordn  1 possible_structure
-C 30  31  2      ostni  1 possible_structure
-C 31  32  2       ozos  1 possible_structure
-C 32  33 -1       size  1
       type s_array
       real(8)  ::   size
       integer(8)   ::   ncl
@@ -211,48 +136,14 @@ C 32  33 -1       size  1
       integer(8)   ::   npadl
       integer(8)   ::   npadr
       integer(8)   ::   npl
-CCHSTRUC       integer(8)   ::   oclabl
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oclabl (:) =>NULL()
       real(8) , allocatable ::  rv_a_oclabl (:)
-CCHSTRUC       integer(8)   ::   ocllst ! not used because of undef
-CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
-CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
-c      integer(8)   ::   ogroup
-CCHSTRUC       integer(8)   ::   ogrp2 ! not used because of undef
-CCHSTRUC       integer(8)   ::   ohave
-ckino Dec.27.2011:         integer , pointer ::  iv_p_ohave (:) =>NULL()
       integer , allocatable ::  iv_a_oipq (:)
-CCHSTRUC       integer(8)   ::   oics
-ckino Dec.27.2011:         integer , pointer ::  iv_p_oics (:) =>NULL()
       integer , allocatable ::  iv_a_oics (:)
-CCHSTRUC       integer(8)   ::   oifrlx ! not used because of undef
-cki      integer(8)   ::   oipc
-ckino Dec.28.2011:        integer, pointer :: iv_p_oipc(:) =>NULL()
       integer, allocatable :: iv_a_oipc(:)
-cki      integer(8)   ::   oipcp
-ckino Dec.28.2011:        integer, pointer :: iv_p_oipcp(:) =>NULL()
-CCHSTRUC       integer(8)   ::   oips
-ckino Dec.28.2011:         integer , pointer ::  iv_p_oips (:) =>NULL()
       integer , allocatable ::  iv_a_oips (:)
-CCHSTRUC       integer(8)   ::   omxcst ! not used because of undef
-CCHSTRUC       integer(8)   ::   onrc
-ckino Jan.04.2012:         integer , pointer ::  iv_p_onrc (:) =>NULL()
       integer , allocatable ::  iv_a_onrc (:)
-CCHSTRUC       integer(8)   ::   onrcp
-ckino Jan.04.2012:         integer , pointer ::  iv_p_onrcp (:) =>NULL()
       integer , allocatable ::  iv_a_onrcp (:)
-CCHSTRUC       integer(8)   ::   opgfsl ! not used because of undef
-CCHSTRUC       integer(8)   ::   opgfvl ! not used because of undef
-CCHSTRUC       integer(8)   ::   opgord ! not used because of undef
-CCHSTRUC       integer(8)   ::   opgplp ! not used because of undef
-cki      integer(8)   ::   opos
-ckino Jan.4.2012         real(8), pointer :: rv_p_opos(:) =>NULL()
-CCHSTRUC       integer(8)   ::   ormax
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_ormax (:) =>NULL()
       real(8) , allocatable ::  rv_a_ormax (:)
-CCHSTRUC       integer(8)   ::   osordn ! not used because of undef
-CCHSTRUC       integer(8)   ::   ostni ! not used because of undef
-CCHSTRUC       integer(8)   ::   ozos ! not used because of undef
       end type s_array
 
 Cr --- explanation of  uctrl ---
@@ -423,64 +314,6 @@ Cr                               in electrostatics but not in xc pot.
 Cr                     zbak(2) = charge used to make MT correction
 Cr                               (ASA only)
 C ----------------------------------------------------------------
-C       data  /2,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,25,        26,27,28,31,32,33,34,35,36,37,43,46,47,48,49,52,53,54,55,56,57,        58,59,60,63,66,67,68,69,70,71,72,77,81,82,84,87,88,90/
-C       data / 4,4,25*2,4,13*2,4,4,2,2,4,4,4,2,4,4,-1,2,4,4,4/
-C  1   2  4       defm  6
-C  2   8  4       elin  1
-C  3   9  2       lasa  1
-C  4  10  2       lbas  1
-C  5  11  2        lcd  1
-C  6  12  2       lcgf  1
-C  7  13  2       ldos  1
-C  8  14  2        lfp  1
-C  9  15  2      lfrce  1
-C 10  16  2      lgen3  1
-C 11  17  2       lham  1
-C 12  18  2       lmet  1
-C 13  19  2      lncol  1
-C 14  20  2      loptc  1
-C 15  21  2      lordn  1
-C 16  22  2       lpgf  2
-C 17  24  2        lqp  1
-C 18  25  2       lrel  1
-C 19  26  2        lrs  1
-C 20  27  2       lscr  1
-C 21  28  2     lstonr  3
-C 22  31  2       lstr  1
-C 23  32  2        lsx  1
-C 24  33  2        ltb  1
-C 25  34  2       lves  1
-C 26  35  2       lxcf  1
-C 27  36  2      maxit  1
-C 28  37  4      mdprm  6
-C 29  43  2    modep..  3
-C 30  46  2       nbas  1
-C 31  47  2      nbasp  1
-C 32  48  2     nclass  1
-C 33  49  2     nesabc  3
-C 34  52  2      nitmv  1
-C 35  53  2         nl  1
-C 36  54  2       nmap  1
-C 37  55  2        npl  1
-C 38  56  2      nsite  1
-C 39  57  2      nspec  1
-C 40  58  2      nspin  1
-C 41  59  2     nvario  1
-C 42  60  4      omax1  3 possible_structure
-C 43  63  4      omax2  3 possible_structure
-C 44  66  2     pfloat  1
-C 45  67  2       quit  1
-C 46  68  4     rmaxes  1
-C 47  69  4     rmines  1
-C 48  70  4     sclwsr  1
-C 49  71  2      sdmod  1
-C 50  72  4      sdprm  5
-C 51  77  4      sdxsi  4
-C 52  81 -1       size  1
-C 53  82  2     smalit  2
-C 54  84  4        tol  3
-C 55  87  4     wsrmax  1
-C 56  88  4       zbak  2
       type s_ctrl
       real(8)  ::   size
       real(8)   ::   defm(6)
@@ -766,65 +599,6 @@ Cr                    10 not used now
 Cr  128   54   size   size of this structure
 Cr  129   55   thrpv  3 PV for cell
 Cr  130   56   udiag  diagonal-only LDA+U
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,8,9,10,11,31,32,38,39,55,56,57,58,59,60,61,        62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,        83,84,85,95,105,106,107,108,111,115,116,117,118,128,129,130,131/
-C       data /4,4,2,4,4,4,4,4,2,4,31*2,5*4,2,6*4,-1,4,2/
-C  1   2  4      alfsi  1
-C  2   3  4       amgm  1
-C  3   4  2      bandw  1
-C  4   5  4       dabc  3
-C  5   8  4        ehf  1
-C  6   9  4        ehk  1
-C  7  10  4      elind  1
-C  8  11  4     eterms 20
-C  9  31  2       hord  1
-C 10  32  4       kmto  6
-C 11  38  2       lasa  1
-C 12  39  2      ldham 16
-C 13  55  2      lgen3  1
-C 14  56  2       lham  1
-C 15  57  2      lmaxu  1
-C 16  58  2      lmxax  1
-C 17  59  2      lncol  1
-C 18  60  2       lsig  1
-C 19  61  2        ltb  1
-C 20  62  2       lxcf  1
-C 21  63  2        nbf  1
-C 22  64  2      ndham  1
-C 23  65  2      ndhrs  1
-C 24  66  2      ndofH  1
-C 25  67  2      neula  1
-C 26  68  2      nkaph  1
-C 27  69  2      nlibu  1
-C 28  70  2       nmto  1
-C 29  71  2     npwmin  1
-C 30  72  2     npwpad  1
-C 31  73  2      nqsig  1
-C 32  74  2     obdots  1 possible_structure
-C 33  75  2      oeula  1 possible_structure
-C 34  76  2       ohrs  1 possible_structure
-C 35  77  2      oiaxs  1 possible_structure
-C 36  78  2     oindxo  1 possible_structure
-C 37  79  2      olmxa  1 possible_structure
-C 38  80  2      omagf  1 possible_structure
-C 39  81  2     ontabs  1 possible_structure
-C 40  82  2      ooffH  1 possible_structure
-C 41  83  2      oqsig  1 possible_structure
-C 42  84  4      oveps  1 possible_structure
-C 43  85  4       pmax 10
-C 44  95  4       pmin 10
-C 45 105  4     pwemax  1
-C 46 106  4     pwemin  1
-C 47 107  2     pwmode  1
-C 48 108  4      qpoff  3
-C 49 111  4        qss  4
-C 50 115  4     rsrnge  1
-C 51 116  4     rsstol  1
-C 52 117  4      seref  1
-C 53 118  4       sigp 10
-C 54 128 -1       size  1
-C 55 129  4      thrpv  1
-C 56 130  2      udiag  1
       type s_ham
       real(8)  ::   size
       real(8)   ::   alfsi
@@ -858,26 +632,11 @@ C 56 130  2      udiag  1
       integer(8)   ::   npwmin
       integer(8)   ::   npwpad
       integer(8)   ::   nqsig
-CCHSTRUC       integer(8)   ::   obdots ! not used because of undef
-CCHSTRUC       integer(8)   ::   oeula ! not used because of undef
-CCHSTRUC       integer(8)   ::   ohrs
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ohrs (:) =>NULL()
       real(8) , allocatable ::  rv_a_ohrs (:)
-cki      integer(8)   ::   oiaxs
-ckino Dec.14.2011:         integer, pointer :: iv_p_oiaxs(:) =>NULL()
       integer, allocatable :: iv_a_oiaxs(:)
-CCHSTRUC       integer(8)   ::   oindxo
-ckino Dec.27.2011:         integer , pointer ::  iv_p_oindxo (:) =>NULL()
       integer , allocatable ::  iv_a_oindxo (:)
-CCHSTRUC       integer(8)   ::   olmxa ! not used because of undef
-CCHSTRUC       integer(8)   ::   omagf ! not used because of undef
-cki      integer(8)   ::   ontabs
-ckino Dec.14.2011:         integer, pointer :: iv_p_ontabs(:) =>NULL()
       integer, allocatable :: iv_a_ontabs(:)
-CCHSTRUC       integer(8)   ::   ooffH
-ckino Dec.28.2011:         integer , pointer ::  iv_p_ooffH (:) =>NULL()
       integer , allocatable ::  iv_a_ooffH (:)
-CCHSTRUC       integer(8)   ::   oqsig
       real(8) , pointer ::  rv_p_oqsig (:) =>NULL()
       real(8)   ::   oveps,delta_stabilize !takao sep2010
       ! H-> H+ delta_stabilize*O^-1
@@ -944,52 +703,6 @@ Cr  110   40    slat    superlattice vectors
 Cr  119   41    tol     Ewald tolerance
 Cr  120   42    tolft   FT mesh tolerance
 Cr  121   43    vol     cell volume
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,6,15,19,20,21,24,25,26,27,28,29,30,31,32,33,        34,35,36,37,38,39,40,41,42,43,44,45,54,63,72,81,90,99,108,109,        110,119,120,121,122/
-C       data / 4,4,4,4,4,4,4,23*2,4,4,4,4,4,4,4,4,-1,4,4,4,4/
-C  1   2  4       alat  1
-C  2   3  4         as  1
-C  3   4  4        avw  1
-C  4   5  4      awald  1
-C  5   6  4       dist  9
-C  6  15  4        gam  4
-C  7  19  4       gmax  1
-C  8  20  2      ldist  1
-C  9  21  2       nabc  3
-C 10  24  2         ng  1
-C 11  25  2        nkd  1
-C 12  26  2      nkdmx  1
-C 13  27  2        nkq  1
-C 14  28  2      nkqmx  1
-C 15  29  2      npgrp  1
-C 16  30  2      nsgrp  1
-C 17  31  2        oag  1 possible_structure
-C 18  32  2       obgv  1 possible_structure
-C 19  33  2        ocg  1 possible_structure
-C 20  34  2        ocy  1 possible_structure
-C 21  35  2       odlv  1 possible_structure
-C 22  36  2        ogv  1 possible_structure
-C 23  37  2     oidxcg  1 possible_structure
-C 24  38  2      oips0  1 possible_structure
-C 25  39  2     oistab  1 possible_structure
-C 26  40  2       ojcg  1 possible_structure
-C 27  41  2        okv  1 possible_structure
-C 28  42  2       opos  1 possible_structure
-C 29  43  2       oqlv  1 possible_structure
-C 30  44  2     osymgr  1 possible_structure
-C 31  45  4     plat..  9
-C 32  54  4    plat0..  9
-C 33  63  4    plat2..  9
-C 34  72  4    plate..  9
-C 35  81  4    platl..  9
-C 36  90  4    platr..  9
-C 37  99  4     qlat..  9
-C 38 108  4     rpad..  1
-C 39 109 -1       size  1
-C 40 110  4       slat  9
-C 41 119  4        tol  1
-C 42 120  4      tolft  1
-C 43 121  4        vol  1
       type s_lat
       real(8)  ::   size
       real(8)   ::   alat
@@ -1063,32 +776,6 @@ Cr   32   20   tolu    tolerance for LDA+U
 Cr   33   21   umix    mixing parameter for LDA+U
 Cr   34   22   w..     Linear mixing weights
 Cr   37   23   wc      Broyden weight
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,19,20,21,22,32,        33,34,37,38/
-C       data  /4,4,4,4,1,2,2,2,2,2,2,2,2,2,1,4,4,-1,4,4,4,4,4/
-C  1   2  4          b  1
-C  2   3  4         bl  1
-C  3   4  4         bv  1
-C  4   5  4      elind  1
-C  5   6  1         fn  1
-C  6   7  2       kill  1
-C  7   8  2      lxpot  1
-C  8   9  2       mmix  1
-C  9  10  2       mode  1
-C 10  11  2      model  1
-C 11  12  2          n  1
-C 12  13  2       nitu  1
-C 13  14  2       nmix  1
-C 14  15  2      nsave  1
-C 15  16  1        r..  3
-C 16  19  4       rms1  1
-C 17  20  4       rms2  1
-C 18  21 -1       size  1
-C 19  22  4       tj.. 10
-C 20  32  4       tolu  1
-C 21  33  4       umix  1
-C 22  34  4        w..  3
-C 23  37  4         wc  1
       type s_mix
       real(8)  ::   size
       real(8)   ::   b
@@ -1137,20 +824,6 @@ Cr   32    8   tnow    duration of simulation to this point, in units of ts
 Cr   33    9   ts      suggested time step size
 Cr   34   10   tsequ   initial equilibration time before stats accumulated
 Cr   35   11   tstot   duration of total simulation, in units of ts
-C ----------------------------------------------------------------
-C       data  /2,5,6,7,10,11,31,32,33,34,35,36/
-C       data / 4,4,4,2,2,4,-1,4,4,4,4 /
-C  1   2  4         ct  3
-C  2   5  4       gyro  1
-C  3   6  4         kt  1
-C  4   7  2       modt  3
-C  5  10  2      nmodt  1
-C  6  11  4     prmint 20
-C  7  31 -1       size  1
-C  8  32  4       tnow  1
-C  9  33  4         ts  1
-C 10  34  4      tsequ  1
-C 11  35  4      tstot  1
       type s_move
       real(8)  ::   size
       real(8)   ::   ct(3)
@@ -1180,22 +853,6 @@ Cr   28   10   ocrng  range of occupied bands
 Cr   30   11   size   size of this structure
 Cr   31   12   unrng  range of unoccupied bands
 Cr   33   13   window energy window for epsilon
-Cr   35   ----------- points past end of structure
-C       data  /2,20,21,22,23,24,25,26,27,28,30,31,33,35/
-C       data / 2,2,2,2,2,4,2,2,2,2,-1,2,4/
-C  1   2  2       axes 18
-C  2  20  2        cll  1
-C  3  21  2        cln  1
-C  4  22  2        cls  1
-C  5  23  2     clsite  1
-C  6  24  4     esciss  1
-C  7  25  2       mode  1
-C  8  26  2      nchi2  1
-C  9  27  2         ne  1
-C 10  28  2      ocrng  2 possible_structure
-C 11  30 -1       size  1
-C 12  31  2      unrng  2
-C 13  33  4     window  2
       type s_optic
       real(8)  ::   size
       integer(8)   ::   axes(18)
@@ -1229,31 +886,12 @@ Cr                     (1) = range for direct inversion
 Cr                     (2) = range for iterative inversion
 Cr                     (3) = range for free-electron GF
 Cr   14   11   size    size of this structure
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,6,7,8,9,10,11,14,15/
-C       data / 4,2,2,2,2,2,2,2,2,4,-1/
-C  1   2  4       efre  1
-C  2   3  2       mode  1
-C  3   4  2        ncl  1
-C  4   5  2      ndofh  1
-C  5   6  2       oclp  1 possible_structure
-C  6   7  2     oclssl  1 possible_structure
-C  7   8  2      oiaxg  1 possible_structure
-C  8   9  2     omapgv  1 possible_structure
-C  9  10  2     ooffch  1 possible_structure
-C 10  11  4      rmaxg  3
-C 11  14 -1       size  1
       type s_ordn
       real(8)  ::   size
       real(8)   ::   efre
       integer(8)   ::   mode
       integer(8)   ::   ncl
       integer(8)   ::   ndofh
-CCHSTRUC       integer(8)   ::   oclp ! not used because of undef
-CCHSTRUC       integer(8)   ::   oclssl ! not used because of undef
-CCHSTRUC       integer(8)   ::   oiaxg ! not used because of undef
-CCHSTRUC       integer(8)   ::   omapgv ! not used because of undef
-CCHSTRUC       integer(8)   ::   ooffch ! not used because of undef
       real(8)   ::   rmaxg(3)
       end type s_ordn
 
@@ -1325,164 +963,31 @@ Cr                     vconst(2) = potential shift of L end region (PGF)
 Cr                     vconst(3) = potential shift of R end region (PGF)
 Cr   63   57   vmtz    ASA muffin-tin zero
 Cr   64   58   vmtz0   Input ASA muffin-tin zero
-C -----------------------------------------------------------------
-C       data  /2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,        24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,        45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,63,64,65/
-C       data / 4,53*2,-1,3*4/
-C  1   2  4     bfield  4
-C  2   6  2       nlma  1
-C  3   7  2       nlml  1
-C  4   8  2      nrhos  1
-C  5   9  2     oaamom  1 possible_structure
-C  6  10  2       obxc  1 possible_structure
-C  7  11  2     odddpf  1 possible_structure
-C  8  12  2      oddpf  1 possible_structure
-C  9  13  2     oddpfr  1 possible_structure
-C 10  14  2       odel  1 possible_structure
-C 11  15  2       odpf  1 possible_structure
-C 12  16  2      odpfr  1 possible_structure
-C 13  17  2       ofes  1 possible_structure
-C 14  18  2       ogma  1 possible_structure
-C 15  19  2      ogmar  1 possible_structure
-C 16  20  2     ogrrme  1 possible_structure
-C 17  21  2       ohab  1 possible_structure
-C 18  22  2      oivso  1 possible_structure
-C 19  23  2       omad  1 possible_structure
-C 20  24  2     oorhat  1 possible_structure
-C 21  25  2      opalp  1 possible_structure
-C 22  26  2      opapg  1 possible_structure
-C 23  27  2      opdel  1 possible_structure
-C 24  28  2        opf  1 possible_structure
-C 25  29  2      opfnc  1 possible_structure
-C 26  30  2       opfr  1 possible_structure
-C 27  31  2     opmpol  1 possible_structure
-C 28  32  2       opnu  1 possible_structure
-C 29  33  2        opp  1 possible_structure
-C 30  34  2       oppi  1 possible_structure
-C 31  35  2       oppn  1 possible_structure
-C 32  36  2     opprel  1 possible_structure
-C 33  37  2       opti  1 possible_structure
-C 34  38  2        oqc  1 possible_structure
-C 35  39  2      oqmom  1 possible_structure
-C 36  40  2       oqnu  1 possible_structure
-C 37  41  2       oqpp  1 possible_structure
-C 38  42  2        oqt  1 possible_structure
-C 39  43  2      orhos  1 possible_structure
-C 40  44  2     orhrmx  1 possible_structure
-C 41  45  2       osab  1 possible_structure
-C 42  46  2       osgw  1 possible_structure
-C 43  47  2     osmpot  1 possible_structure
-C 44  48  2     osmrho  1 possible_structure
-C 45  49  2       osop  1 possible_structure
-C 46  50  2     osoptc  1 possible_structure
-C 47  51  2     osrout  1 possible_structure
-C 48  52  2       otau  1 possible_structure
-C 49  53  2       ovab  1 possible_structure
-C 50  54  2      ovdif  1 possible_structure
-C 51  55  2       oves  1 possible_structure
-C 52  56  2     ovintr  1 possible_structure
-C 53  57  2     ovrmax  1 possible_structure
-C 54  58  2      ovshf  1 possible_structure
-C 55  59 -1       size  1
-C 56  60  4     vconst  3
-C 57  63  4       vmtz  1
-C 58  64  4      vmtz0  1
       type s_pot
       real(8)  ::   size
       real(8)   ::   bfield(4)
       integer(8)   ::   nlma
       integer(8)   ::   nlml
       integer(8)   ::   nrhos
-CCHSTRUC       integer(8)   ::   oaamom ! not used because of undef
-CCHSTRUC       integer(8)   ::   obxc
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_obxc (:) =>NULL()
       real(8) , allocatable ::  rv_a_obxc (:)
-CCHSTRUC       integer(8)   ::   odddpf ! not used because of undef
-CCHSTRUC       integer(8)   ::   oddpf ! not used because of undef
-CCHSTRUC       integer(8)   ::   oddpfr ! not used because of undef
-CCHSTRUC       integer(8)   ::   odel ! not used because of undef
-CCHSTRUC       integer(8)   ::   odpf ! not used because of undef
-CCHSTRUC       integer(8)   ::   odpfr ! not used because of undef
-CCHSTRUC       integer(8)   ::   ofes ! not used because of undef
-CCHSTRUC       integer(8)   ::   ogma ! not used because of undef
-CCHSTRUC       integer(8)   ::   ogmar ! not used because of undef
-CCHSTRUC       integer(8)   ::   ogrrme
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ogrrme (:) =>NULL()
       real(8) , allocatable ::  rv_a_ogrrme (:)
-CCHSTRUC       integer(8)   ::   ohab ! not used because of undef
-CCHSTRUC       integer(8)   ::   oivso ! not used because of undef
-CCHSTRUC       integer(8)   ::   omad
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_omad (:) =>NULL()
       real(8) , allocatable ::  rv_a_omad (:)
-CCHSTRUC       integer(8)   ::   oorhat
-cki       integer , pointer ::  iv_p_oorhat (:)
-ckino Dec.28.2011:         type(s_rv1), pointer :: sv_p_oorhat(:) =>NULL()
       type(s_rv1), allocatable :: sv_a_oorhat(:)
-CCHSTRUC       integer(8)   ::   opalp ! not used because of undef
-CCHSTRUC       integer(8)   ::   opapg ! not used because of undef
-CCHSTRUC       integer(8)   ::   opdel ! not used because of undef
-CCHSTRUC       integer(8)   ::   opf ! not used because of undef
-CCHSTRUC       integer(8)   ::   opfnc ! not used because of undef
-CCHSTRUC       integer(8)   ::   opfr ! not used because of undef
-CCHSTRUC       integer(8)   ::   opmpol
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_opmpol (:) =>NULL()
       real(8) , allocatable ::  rv_a_opmpol (:)
-CCHSTRUC       integer(8)   ::   opnu
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_opnu (:) =>NULL()
       real(8) , allocatable ::  rv_a_opnu (:)
-CCHSTRUC       integer(8)   ::   opp
-ckino Jan.4.2012       real(8) , pointer ::  rv_p_opp (:) =>NULL()
       real(8) , allocatable ::  rv_a_opp (:)
-CCHSTRUC       integer(8)   ::   oppi ! not used because of undef
-CCHSTRUC       integer(8)   ::   oppn ! not used because of undef
-CCHSTRUC       integer(8)   ::   opprel
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_opprel (:) =>NULL()
       real(8) , allocatable ::  rv_a_opprel (:)
-CCHSTRUC       integer(8)   ::   opti ! not used because of undef
-CCHSTRUC       integer(8)   ::   oqc
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_oqc (:) =>NULL()
-CCHSTRUC       integer(8)   ::   oqmom ! not used because of undef
-CCHSTRUC       integer(8)   ::   oqnu
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oqnu (:) =>NULL()
       real(8) , allocatable ::  rv_a_oqnu (:)
-CCHSTRUC       integer(8)   ::   oqpp
-ckino Jan.4.2012       real(8) , pointer ::  rv_p_oqpp (:) =>NULL()
       real(8) , allocatable ::  rv_a_oqpp (:)
-CCHSTRUC       integer(8)   ::   oqt
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oqt (:) =>NULL()
       real(8) , allocatable ::  rv_a_oqt (:)
-CCHSTRUC       integer(8)   ::   orhos
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_orhos (:) =>NULL()
-CCHSTRUC       integer(8)   ::   orhrmx
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_orhrmx (:) =>NULL()
       real(8) , allocatable ::  rv_a_orhrmx (:)
-CCHSTRUC       integer(8)   ::   osab ! not used because of undef
-CCHSTRUC       integer(8)   ::   osgw ! not used because of undef
-CCHSTRUC       integer(8)   ::   osmpot
-ckino Dec.28.2011:         complex(8) , pointer ::  zv_p_osmpot (:) =>NULL()
       complex(8) , allocatable ::  zv_a_osmpot (:)
-CCHSTRUC       integer(8)   ::   osmrho
-ckino Dec.28.2011:         complex(8) , pointer ::  zv_p_osmrho (:) =>NULL()
       complex(8) , allocatable ::  zv_a_osmrho (:)
-CCHSTRUC       integer(8)   ::   osop
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_osop (:) =>NULL()
       real(8) , allocatable ::  rv_a_osop (:)
-CCHSTRUC       integer(8)   ::   osoptc ! not used because of undef
-CCHSTRUC       integer(8)   ::   osrout ! not used because of undef
-CCHSTRUC       integer(8)   ::   otau ! not used because of undef
-CCHSTRUC       integer(8)   ::   ovab ! not used because of undef
-CCHSTRUC       integer(8)   ::   ovdif
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_ovdif (:) =>NULL()
       real(8) , allocatable ::  rv_a_ovdif (:)
-CCHSTRUC       integer(8)   ::   oves
-ckino Dec.27.2011:         real(8) , pointer ::  rv_p_oves (:) =>NULL()
       real(8) , allocatable ::  rv_a_oves (:)
-CCHSTRUC       integer(8)   ::   ovintr
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ovintr (:) =>NULL()
       real(8) , allocatable ::  rv_a_ovintr (:)
-CCHSTRUC       integer(8)   ::   ovrmax
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ovrmax (:) =>NULL()
       real(8) , allocatable ::  rv_a_ovrmax (:)
-CCHSTRUC       integer(8)   ::   ovshf ! not used because of undef
       real(8)   ::   vconst(3)
       real(8)   ::   vmtz
       real(8)   ::   vmtz0
@@ -1578,83 +1083,6 @@ Cr  325    71  uh     Hubbard U
 Cr   55    72  vmtz   Asymptotic potential for fitting functions at rmt
 Cr  341    73  vso    (tbe) spin-orbit parameters
 Cr    2    74  z      atomic number
-C ----------------------------------------------------------------
-C       data  /20,111,24,211,46,17,18,26,37,53,341,291,22,27,23,171,        39,40,161,121,321,131,333,337,329,12,14,56,25,11,31,32,13,43,49,        3,38,28,6,181,7,16,21,5,41,231,29,71,44,45,301,91,42,181,50,57,        51,36,10,35,52,4,54,9,8,15,1,30,33,34,325,55,341,2/
-C       data / 5*4,1,10*4,2,2,4,5*2,4,10*2,4,2,1,7*2,4,2,                  4,1,1,16*4,-1,7*4/
-C  1   1 -1       size  1
-C  2   2  4          z  1
-C  3   3  4       mass  1
-C  4   4  4        rmt  1
-C  5   5  2      ntorb  1
-C  6   6  2       naug  1
-C  7   7  2       norb  1
-C  8   8  4      rsmfa  1
-C  9   9  4       rsma  1
-C 10  10  4         rg  1
-C 11  11  2       lmxa  1
-C 12  12  2       kmxh  1
-C 13  13  2       lmxl  1
-C 14  14  2       kmxt  1
-C 15  15  4       rsmv  1
-C 16  16  2       norp  1
-C 17  17  1      coreh  1
-C 18  18  4      coreq  2
-C 19  20  4          a  1
-C 20  21  2         nr  1
-C 21  22  4       eref  1
-C 22  23  4        etf  1
-C 23  24  4       beta  1
-C 24  25  2      lfoca  1
-C 25  26  4      ctail  1
-C 26  27  4      etail  1
-C 27  28  1       name  1
-C 28  29  2      orhoc  1 possible_structure
-C 29  30  4        stc  1
-C 30  31  2       lmxb  1
-C 31  32  2       lmxf  1
-C 32  33  4       stni  1
-C 33  34  4       stnm  1
-C 34  35  4       rham  1
-C 35  36  4      rfoca  1
-C 36  37  4         dv  1
-C 37  38  2      mxcst  1
-C 38  39  2      group  1
-C 39  40  2       grp2  1
-C 40  41  2        nxi  1
-C 41  42  4         qc  1
-C 42  43  2      lmxpb  1
-C 43  44  1        pb1  1
-C 44  45  1        pb2  1
-C 45  46  4     colxbs  3
-C 46  49  2        lxi  1
-C 47  50  4     radxbs  1
-C 48  51  4       rcut  1
-C 49  52  4       rint  1
-C 50  53  4        eh3  1
-C 51  54  4        rs3  1
-C 52  55  4       vmtz  1
-C 53  56  2       kmxv  1
-C 54  57  4       rcfa  2
-C 55  71  4          p 20
-C 56  91  4          q 20
-C 57 111  4      alpha 10
-C 58 121  2      idmod 10
-C 59 131  2      idxdn 30
-C 60 161  4        hcr 10
-C 61 171  4        exi 10
-C 62 181  2      ngcut 30
-C 63 181  4       qpol 10
-C 64 211  4       chfa 20
-C 65 231  4       orbp 60 possible_structure
-C 66 291  4        enu 10
-C 67 301  4         pz 20
-C 68 321  2        idu  4
-C 69 325  4         uh  4
-C 70 329  4         jh  4
-C 71 333  2        iq1  4
-C 72 337  2       ivso  4
-C 73 341  4       ehvl 10
-C 74 341  4        vso  4
       type s_spec
       real(8)  ::   size
       real(8)   ::   z
@@ -1683,8 +1111,6 @@ C 74 341  4        vso  4
       real(8)   ::   ctail
       real(8)   ::   etail
       real(8)   ::   name !string
-cki      integer(8)   ::   orhoc
-ckino Dec.28.2011:        real(8), pointer :: rv_p_orhoc(:) =>NULL()
       real(8), allocatable :: rv_a_orhoc(:)
       real(8)   ::   stc
       integer(8)   ::   lmxb
@@ -1764,37 +1190,8 @@ Cr   82   24   size    size of this structure
 Cr   83   25   spec    species index
 Cr   84   26   vel     velocity
 Cr   87   27   vshft   constant potential shift for this site
-C ----------------------------------------------------------------
-C       data  /2,5,6,7,8,14,17,20,23,24,25,26,27,28,29,30,31,32,52,        55,58,78,81,82,83,84,87,88/
-C       data / 4,1,2,2,5*4,8*2,4*4,2,2,-1,2,4,4/
-C  1   2  4     bfield  3
-C  2   5  1     clabel  1
-C  3   6  2      class  1
-C  4   7  2        cli  1
-C  5   8  4      delta  6
-C  6  14  4      dpole  3
-C  7  17  4       eula  3
-C  8  20  4      force  3
-C  9  23  4      mpole  1
-C 10  24  2     ndelta  1
-C 11  25  2       norb  1
-C 12  26  2       offh  1 possible_structure
-C 13  27  2       orho  1 possible_structure
-C 14  28  2        ov0  1 possible_structure
-C 15  29  2        ov1  1 possible_structure
-C 16  30  2         pl  1
-C 17  31  2        plv  1
-C 18  32  4        pnu 20
-C 19  52  4        pos  3
-C 20  55  4       pos0  3
-C 21  58  4         pz 20
-C 22  78  2      relax  3
-C 23  81  2        sid  1
-C 24  82 -1       size  1
-C 25  83  2       spec  1
-C 26  84  4        vel  3
-C 27  87  4      vshft  1
       type s_site
+      integer  :: iantiferro !may2015
       real(8)  ::   size
       real(8)   ::   bfield(3)
       real(8)   ::   clabel !string
@@ -1807,13 +1204,7 @@ C 27  87  4      vshft  1
       real(8)   ::   mpole
       integer(8)   ::   ndelta
       integer(8)   ::   norb
-CCHSTRUC       integer(8)   ::   offh ! not used because of undef
-CCHSTRUC       integer(8)   ::   orho ! not used because of undef
-CCHSTRUC       integer(8)   ::   ov0
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ov0 (:) =>NULL()
       real(8) , allocatable ::  rv_a_ov0 (:)
-CCHSTRUC       integer(8)   ::   ov1
-ckino Dec.28.2011:         real(8) , pointer ::  rv_p_ov1 (:) =>NULL()
       real(8) , allocatable ::  rv_a_ov1 (:)
       integer(8)   ::   pl
       integer(8)   ::   plv
@@ -1878,39 +1269,6 @@ Cr   40   28   size    size of this structure
 Cr   41   29   skmsh   parameters for 3rd gen LMTO energy interpolation
 Cr                     not used?
 Cr   47   30   wztcf   weighting of z-points in TCF
-C ----------------------------------------------------------------
-C       data  /2,3,4,5,10,11,17,18,19,20,21,22,23,26,27,28,29,30,31,        32,33,34,35,36,37,38,39,40,41,47,48/
-C       data / 4,2,4,4,2,4,18*2,4,4,4,-1,4,4/
-C  1   2  4       adec  1
-C  2   3  2      amode  1
-C  3   4  4     drwats  1
-C  4   5  4       iinv  5
-C  5  10  2        ivl  1
-C  6  11  4       kaps  6
-C  7  17  2     lequiv  1
-C  8  18  2      lmaxw  1
-C  9  19  2       loka  1
-C 10  20  2      lshow  1
-C 11  21  2      mxnbr  1
-C 12  22  2       nalf  1
-C 13  23  2      nbisi  3
-C 14  26  2      ncupl  1
-C 15  27  2      ndust  1
-C 16  28  2      nitab  1
-C 17  29  2      nkaps  1
-C 18  30  2      nttab  1
-C 19  31  2      oadot  1 possible_structure
-C 20  32  2       oalp  1 possible_structure
-C 21  33  2       oiax  1 possible_structure
-C 22  34  2      ontab  1 possible_structure
-C 23  35  2         os  1 possible_structure
-C 24  36  2      osdot  1 possible_structure
-C 25  37  4       rfit  1
-C 26  38  4       rmax  1
-C 27  39  4      rmaxg  1
-C 28  40 -1       size  1
-C 29  41  4      skmsh  6
-C 30  47  4      wztcf  1
       type s_str
       real(8)  ::   size
       real(8)   ::   adec
@@ -1931,12 +1289,6 @@ C 30  47  4      wztcf  1
       integer(8)   ::   nitab
       integer(8)   ::   nkaps
       integer(8)   ::   nttab
-CCHSTRUC       integer(8)   ::   oadot ! not used because of undef
-CCHSTRUC       integer(8)   ::   oalp ! not used because of undef
-CCHSTRUC       integer(8)   ::   oiax ! not used because of undef
-CCHSTRUC       integer(8)   ::   ontab ! not used because of undef
-CCHSTRUC       integer(8)   ::   os ! not used because of undef
-CCHSTRUC       integer(8)   ::   osdot ! not used because of undef
       real(8)   ::   rfit
       real(8)   ::   rmax
       real(8)   ::   rmaxg
@@ -1956,16 +1308,6 @@ Cr    7    5   nbfit  (tbfit) min/max band numbers to fit
 Cr                    lower and upper band indices to be fit for all k-points
 Cr    9    6   rmfit  (tbfit) real space range to fit TB parameters (fmode=1)
 Cr   11    7   size   size of this structure
-C ----------------------------------------------------------------
-C       data  /2,3,4,6,7,9,11,12/
-C       data  /4,4,4,2,2,4,-1/
-C  1   2  4       alam  1
-C  2   3  4       alsc  1
-C  3   4  4      ebfit  2
-C  4   6  2      fmode  1
-C  5   7  2      nbfit  2
-C  6   9  4      rmfit  2
-C  7  11 -1       size  1
       type s_tb
       real(8)  ::   size
       real(8)   ::   alam
@@ -1979,14 +1321,13 @@ C  7  11 -1       size  1
 
 
 
-c------------------------------------------------------------------
-      module m_struc_func
 
+C------------------------------------------------------------------
+      Module m_struc_func
 c      interface struc_eval_io
 c      module procedure struc_eval_io_r8, struc_eval_io_i8
 c     .     , struc_eval_io_r8v, struc_eval_io_i8v
 c      end interface struc_eval_io
-
       contains
 
       integer function uarray_size()

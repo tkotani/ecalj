@@ -234,10 +234,11 @@ c
       enddo
       end
 c
-      subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr)
+      subroutine rotsig(qin,qout,ndimh,napw_in,ldim,sig,sigout,ierr,iaf) !iaf is added @jun2015takao
 c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
       use m_hamindex,only: symops,invgx,miat,tiat,shtvg,qlat,plat,dlmm,ngrp,norbmto,
-     &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk
+     &  ibastab,ltab,ktab,offl,offlrev,getikt,igv2,igv2rev,napwk,
+     &  ngrp_original
       implicit none
 !!=== sigma rotator. sig at qin to sig at qout. ===
 !! obtain sigout for qout.
@@ -254,7 +255,8 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
 
       complex(8):: sig(ndimh,ndimh),sigout(ndimh,ndimh)
       complex(8),allocatable:: sigx(:,:)
-      integer :: ldim,debugmode
+      integer :: ldim,debugmode,iaf,ngini,ngend
+      character(300)::aaa
       img2pi=2*4d0*datan(1d0)*img
       ierr=1
       platt=transpose(plat) !this is inverse of qlat
@@ -266,9 +268,27 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
 
 ! we try to find qtrget = symops(igx) * q          (this means qin = symops(igc) qout).
 ! this definitions for q and qtarget are following what is used in rotwv.
-      do igx=1,ngrp
+!
+     
+      if(iaf==1) then !iaf mechanism is adde @jun2015takao for antiferro materials such as Nd2CuO4.
+        ngini = 1
+        ngend = ngrp_original
+      elseif(iaf==2) then
+        ngini = ngrp_original + 1
+        ngend = ngrp
+      else
+        ngini = 1
+        ngend = ngrp
+      endif
+ccccccccccccccccccccccccccccccccc
+c      write(6,*)'ngini=',ngini,ngend
+ccccccccccccccccccccccccccccccccc
+!
+      do igx=ngini,ngend
         if(debugmode()>0) print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
         call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
+c        qx=matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
+c        if(sum(abs(qx-anint(qx)))<1d-8) then
         if(sum(abs(qx))<1d-8) then
           igg=igx
           if(debugmode()>0) then
@@ -281,7 +301,8 @@ c      subroutine rotsig(qin,qout,ndimh,napw_in,plat,qlat,ldim,sig,sigout,ierr)
           goto 1012
         endif
       enddo
-      write(6,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
+      write(aaa,"(a,3f7.3,2x,3f7.3)")' rotsig: qtarget is not a star of q',q,qtarget
+      call rx(trim(aaa))
       print *
       return
  1012 continue

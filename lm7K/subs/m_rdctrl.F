@@ -1,26 +1,24 @@
+!! "call readdctrl" defined in m_rdctrl set all variables read from ctrl file.
+!!  m_rdctrl is used in rdctrl2.F
       module m_rdctrl
       use m_struc_def
       implicit none
-
-C ... Fixed parameters
+!! ... Fixed parameters
       integer,parameter:: NULLI =-99999
       real(8),parameter::    NULLR =-99999
       logical,parameter:: T=.true.,F=.false.
       integer,parameter :: n0=10
       integer,parameter :: nkap0=3
       integer(2):: nono
-
-C ... IO
+!! ... IO
       integer:: io_show=0,io_help=0,nvario=0
-
-C ... HEADER, SYMGRP
+!! ... HEADER, SYMGRP
       character(256):: header,symg=' '
-
-C ... HAM
+      character(256):: symgaf=' '    !june2015 for antiferro
+!! ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
      .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
-c      logical:: ltbe  ! set to T if TBE program (used for defaults)
       integer lfp  ! set to T if FP program (used for defaults)
       real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz, scaledsigma 
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
@@ -109,9 +107,10 @@ C ... SITE
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
+      integer,allocatable::iantiferro(:)
 
 C ... Iterations
-      character(128) :: iter_mix=' ',iter_amix=' '
+      character(128) :: iter_mix=' ' !,iter_amix=' '
       real(8):: ctrl_tol(3)=1d-4
       type (s_mix):: vmix
       integer:: iter_maxit=1
@@ -325,6 +324,7 @@ C ... Local variables
 
       integer:: lx
 
+
 C ... For MPI
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -408,16 +408,16 @@ C --- Version ---
         endif
       enddo
 
-C --- CMD ---
-C Token ordering: CMD
-c  250 continue
-      nm='CMD'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
-     .'Contents are appended to command-line arguments',nout=nout)
-      if (nout .eq. 1) then
-        call acmdop(bigstr,len_trim(bigstr),0)
-      endif
-
-C --- CONST ---
+c$$$C --- CMD ---
+c$$$C Token ordering: CMD
+c$$$c  250 continue
+c$$$      nm='CMD'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
+c$$$     .'Contents are appended to command-line arguments',nout=nout)
+c$$$      if (nout .eq. 1) then
+c$$$        call acmdop(bigstr,len_trim(bigstr),0)
+c$$$      endif
+c$$$
+C --- CONST --- for backword compatibility
       call numsyv(nvario)
       nm='CONST'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
      .'Constants may declared for use in expressions'//
@@ -1029,7 +1029,13 @@ C --- Symmetry group ---
      .call info0(1,1,0,' --- Symmetry group operations ---')
       nm='SYMGRP'; call gtv(trim(nm),tksw(prgn,nm),symg,
      .note='Generators for symmetry group')
-c
+
+C --- Symmetry group for AF --- !june2015
+      if (io_show+io_help/=0 .and. tksw(prgn,'SYMGRPAF')/=2)
+     .call info0(1,1,0,' --- Symmetry group operations ---')
+      nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgn,nm),symgaf,
+     .note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+
    
 C$$$C --- Crystal Green's function ---
 C$$$      if (tksw(prgn,'GF') == 2) goto 269
@@ -1881,7 +1887,7 @@ C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
       endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
-     .mpole(nsite),dpole(3,nsite))
+     .mpole(nsite),dpole(3,nsite), iantiferro(nsite))
 c      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
 C     Default values
@@ -2022,6 +2028,11 @@ C   ... Site positions
         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgn,nm),plv(j),
      .  def_i4=0,cindx=jj,
      .  note='Assign PL potential index to this site')
+
+!! takao
+        nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgn,nm),iantiferro(j),
+     .  cindx=jj,def_i4=0,
+     .  note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
 
 C$$$        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
 C$$$        if (sw /= 2 .and. ltbe) then
@@ -2362,21 +2373,21 @@ c     &              " If necessary, you have to fix it (mixrho.F)")
           if (io_show==0) call poppr
         endif
 
-        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
-     .  nmin=10,nout=nout,note=
-     .  'Mixing rules for Euler angles.  Syntax as in MIX')
-C ... Sanity check and printout
-        if (nout==1 .and. io_help==0 .and. sw/=2) then
-          call r8tos8(vamix%fn,alabl)
-          if (io_show==0) call pshpr(0)
-          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
-     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
-     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
-            if (io_show==0) call poppr
-            call rx('READCTRL: parse in parmxp failed 2')
-          endif
-          if (io_show==0) call poppr
-        endif
+c$$$        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
+c$$$     .  nmin=10,nout=nout,note=
+c$$$     .  'Mixing rules for Euler angles.  Syntax as in MIX')
+c$$$C ... Sanity check and printout
+c$$$        if (nout==1 .and. io_help==0 .and. sw/=2) then
+c$$$          call r8tos8(vamix%fn,alabl)
+c$$$          if (io_show==0) call pshpr(0)
+c$$$          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
+c$$$     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
+c$$$     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
+c$$$            if (io_show==0) call poppr
+c$$$            call rx('READCTRL: parse in parmxp failed 2')
+c$$$          endif
+c$$$          if (io_show==0) call poppr
+c$$$        endif
 
 c      if (prgn /= 'LMMC') then
         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
@@ -2681,7 +2692,6 @@ C    if (io_help .ne. 0 .or. ltmp) then
       if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
         nn = NULLI
       else
-Ckino isanrg is logical function,         call isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
         l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
       endif
       nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
@@ -2711,7 +2721,6 @@ C ... Bulirsch-Stoer integration parmaters
         if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
           nn = NULLI
         else
-Ckino isanrg is logical function,           call isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
           l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
         endif
         if (nout .gt. 0) nn = nout
@@ -2721,15 +2730,7 @@ Ckino isanrg is logical function,           call isanrg(nn,2,11,'rdctrl','BSINT_
      .  note='Sequence of number of midpoint divisions')
       endif
 
-cxxx int
-C      sdyn_sdmod= sdyn(2)       !xxxxx
-C      sdyn_fscal= sdyn(3)
-C      sdyn_tau = sdyn(4)
-C      sdyn_NoseEtot0= sdyn(5)
-C      sdyn_maxtheta= sdyn(6)
-C      sdyn_etol= sdyn(7)
-
-C$$$C --- GW ---
+C$$$C --- GW --- (from GWinput, not from ctrl)
 C$$$      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,
 C$$$     .  0,' --- Parameters for GW input (job=-1) ---')
 C$$$      nm='GW_MKSIG'; call gtv(trim(nm),tksw(prgn,nm),gw_mksig,
@@ -2780,7 +2781,6 @@ C$$$     .  'retain prod-basis with overlap eigenvalues>PBTOL')
 C$$$      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
 C$$$     .  def_r8=1d0,note=
 C$$$     .  'k-point offset parameter for special BZ integration for xi')
-
 cC --- Plane ---
 c      if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
 c     .  call info0(1,1,0,' --- Parameters defining a plane ---')
@@ -2790,8 +2790,8 @@ c      nm='PLANE_X'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
 c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
 c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
-
       end subroutine readctrl
+
 
       subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
      .initc,ics,clabl)
@@ -3111,6 +3111,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" EWALD~")
       call tkadd(" EWALD_AS~")
       call tkadd(" EWALD_NKDMX~")
@@ -3208,7 +3209,9 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" GW~")
       call tkadd(" GW_DELRE~")
       call tkadd(" GW_DELTA~")
@@ -3365,7 +3368,9 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_RELAX~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
       call tkadd(" BZ_DELEF~")
@@ -3398,7 +3403,7 @@ c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD_RPAD~")
       call tkadd(" EWALD_TOL~")
       call tkadd(" ITER~")
-      call tkadd(" ITER_AMIX~")
+c      call tkadd(" ITER_AMIX~")
       call tkadd(" ITER_CONV~")
       call tkadd(" ITER_CONVC~")
       call tkadd(" ITER_MIX~")
@@ -3488,6 +3493,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" BZ")
       call tkadd(" BZ_BZJOB~")
       call tkadd(" BZ_COND_MODE~")
@@ -3568,7 +3574,9 @@ c      call tkadd(" SPEC_ATOM_R/W")
       call tkadd(" SITE_ATOM_POS")
       call tkadd(" SITE_ATOM_XPOS")
       call tkadd(" SITE_ATOM_ROT~")
+      call tkadd(" SITE_ATOM_AF~") !may2015
       call tkadd(" SYMGRP~")
+      call tkadd(" SYMGRPAF~")
       call tkadd(" STR~")
 C     call tkadd(" STR_DELRW~")
 c      call tkadd(" STR_EQUIV~")

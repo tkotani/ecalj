@@ -12,10 +12,11 @@
 
 c#define KINODEBUG
 #define USEOPTIONAL 1
-      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrn,
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrnmix,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
-      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl
+      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
+
 c     &  ngrp, norbmto, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
 c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl
@@ -215,11 +216,13 @@ c#endif
       logical mlog
       integer procid,master
       integer nbx,nbas,n0,nab,nppn,iter,maxit,ndham
-      character*(*) sstrn
+c      character*(*) sstrn
       parameter ( nbx=512, n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
+c      type(s_sstrn):: sstrn
+      character*(*):: sstrnmix
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_ham):: sham
@@ -435,7 +438,7 @@ c mar2014
       character(512),save::sname,schar
       character(512):: aaachar
       logical:: massline ,initex=.true.
-      logical,save:: siginit=.true.
+      logical,save:: siginit=.true.     ,laf
       character(10):: i2char
       integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_
@@ -886,7 +889,7 @@ c      allocate( evlall(ndham,nsp,nkp))
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
-      call suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
+      call suham2(sctrl,slat,sspec,ssite,sham,spot) !,sstrn) mjune2015
 c      print *,'end of suham2'
 
 !! --- Options for core level specta (CLS) ---
@@ -1269,6 +1272,11 @@ c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw) 
             write(6,*)'rsrnge procid=',rsrnge,procid
             ifi = fopna('sigm',-1,4)
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
+!! takao !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        laf=allocated(symops_af) !jun2015takao
+        if(laf) nspsigm=2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             allocate( qsmesh(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
                allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
@@ -2702,7 +2710,6 @@ c          print *,'gogo mkehkf procid=',procid,ipr,eks
 #ifdef KINODEBUG
          write(*,*) 'kino allocate qm2_rv',nvl
 #endif
-         call upacks('strn mix',i1,i2)
 #if MPE
          ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
 #endif
@@ -2714,8 +2721,10 @@ cc1          call dcopy(k1*k2*k3*4,w(osmrho),1,smrhobk,1)
 cc2          call dcopy(k1*k2*k3*2,srout_zv,1,smrhobk,1)
 ccccccccccccccccccccccc
 
-         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2
-     .     ) , qval - qbg , elind , sv_p_orhat1 , spot%sv_a_oorhat , k1 , k2
+c         call upacks('strn mix',i1,i2)
+         call mixrho ( ssite , sspec , slat , nsp , iter , sstrnmix
+c         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2)
+     .     , qval - qbg , elind , sv_p_orhat1 , spot%sv_a_oorhat , k1 , k2
      .     , k3 , dmxp , srout_zv , spot%zv_a_osmrho )
 
 ccccccccccccccccccccccccc

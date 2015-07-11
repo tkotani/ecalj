@@ -176,26 +176,6 @@ Cstop2rx 2013.08.09 kino            stop 'chknbnb: '
       end
 c---------------
 
-
-c-------------------------------
-c
-c
-c      if(iread) then
-c        ifi = iopen ('ANFcond',1,0,0)
-c        read ( ifi, *)                !skip lines
-c        read ( ifi, *)
-c        read ( ifi, *)
-c        write( 6, "(' anti ferro condition from ANFcond')")
-c        do ia1 = 1, natom
-c          read ( ifi, *,      err=999) ix, iaf(ia1),(trans(i,ia1),i=1,3)
-c          write( 6, "(2i3,2x,3f10.5)") ix, iaf(ia1),(trans(i,ia1),i=1,3)
-c          if(ix.ne.ia1) goto 999
-c        enddo
-c        ifi = iclose('ANFcond')
-c        iread=.false.
-c      endif
-c----------------------------------------------------------------------
-
       subroutine anfx0k(natom,nclass,mdim,iclass, bas,nbloch,ngci,
      i  q,ngvecc,qlat,    ! for q+G
      i  anfvec,iaf,  ! these are antiferro informations.
@@ -204,7 +184,6 @@ C- antiferro part is added to x0k
 c We assume that the crystal has a magnetic symmetry described by (translataion + spin flip).
 c The translation is specified by a vector,
 c   AFvector = anfvec(1:3)*alat, which is the true real vector in Cartesian coodinate.
-c   The anfvec(1:3) is given in ANFcond file.
 c
 c Each mixed basis is mapped to the other mixed basis.
 c E.g. the product basis B({\bf r}-{\bf a}) is mapped to

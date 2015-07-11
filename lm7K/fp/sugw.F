@@ -226,6 +226,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       real(8):: qqq(3)
       integer:: hreal,mode,iwdummy,lso,jx
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
+      integer,allocatable:: iantiferro(:)
 
 #if MPI | MPIK
       include "mpif.h"
@@ -442,7 +443,7 @@ C     for now
         ifigwn = fopna('gw2',-1,4)
         rewind ifigwn
         if(rank0) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
-        allocate(ips(nbas),lmxa(nat),bas(3,nat))
+        allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
         iat = 0
         do  i = 1, nbas
           lmaxa = int( sspec(int(ssite(i)%spec))%lmxa )
@@ -451,9 +452,11 @@ C     for now
             if (iat .gt. nat) call rx('bug in sugw')
             bas(:,iat)=ssite(i)%pos
             lmxa(iat) = lmaxa
+            iantiferro(iat)=ssite(i)%iantiferro
           endif
         enddo
         if(rank0) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
+        print *,'iantiferro=',iantiferro
         deallocate(ips,lmxa)
 
 !!   ... Determine nphimx
@@ -562,7 +565,8 @@ c --- for band mode
             deallocate(rofi,rwgt,gcore,gval)
           endif
         enddo
-        if(rank0)call fclr('gwa',ifigwa)
+        if(rank0) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
+        if(rank0) call fclr('gwa',ifigwa)
       else
         call rxi('sugw: bad job',job)
       endif

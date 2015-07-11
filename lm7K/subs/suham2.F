@@ -1,4 +1,4 @@
-      subroutine suham2(sctrl,slat,sspec,ssite,sham,spot,sstrn)
+      subroutine suham2(sctrl,slat,sspec,ssite,sham,spot) !,sstrn) removed june2015
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -39,7 +39,7 @@ C ... Passed parameters
       type(s_ham)::sham
       type(s_pot)::spot
 
-      character*(*) sstrn
+c      character*(*) sstrn
 C ... Local parameters
       integer nspec,lfp,nglob
 C ... Needed for

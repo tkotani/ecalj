@@ -1,5 +1,5 @@
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
-     .     sspec,ssite,sstr,smove,sarray,sstrn)
+     .     sspec,ssite,sstr,smove,sarray,sstrnmix) !,sstrnjobid)
       use m_struc_def          
       use m_struc_func, only: mpibc1_s_lat
       use m_globalvariables
@@ -84,7 +84,9 @@ C     u   17 Jun 00 alpha version.  No relaxations yet.
 C     ----------------------------------------------------------------------
 C     implicit none
 C     ... Passed parameters:
-      character sstrn*(*), prgnam*8
+      character  prgnam*8 !sstrn*(*),
+c      type(s_sstrn)::sstrn
+      character*(*)::sstrnmix !,sstrnjobid
       type(s_array)::sarray
       type(s_bz)::sbz
       type(s_ctrl)::sctrl
@@ -412,7 +414,7 @@ C     ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sstrn,sbz)
+      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz) !sstrn removed june2015
 C     ... Quit if --quit=ham given
       if ( int(sctrl%quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
@@ -626,7 +628,7 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
       llmfgw=.false.            !takao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec , slat , sctrl , sham , spot , sbz , sstrn , ndham , 
+     .     , sspec , slat , sctrl , sham , spot , sbz , sstrnmix , ndham , 
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 
@@ -669,8 +671,8 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
               if (lbin) ifi = fopna(fileid,-1,4)
               if (.not. lbin) ifi = fopna(fileid,-1,0)
             endif
-            call upacks('strn jobid',i,j)
-            fileid = 'lmfp:  ' // sstrn(i:j)
+c            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
      .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
@@ -877,8 +879,8 @@ C     Else, use self-consistent
 C     ... Write restart file (to include new positions)
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
-            call upacks('strn jobid',i,j)
-            fileid = 'lmfp:  ' // sstrn(i:j)
+c            call upacks('strn jobid',i,j)
+            fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
      .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
@@ -1019,8 +1021,8 @@ C     Remake qp
 C     ... Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
-        call upacks('strn jobid',i,j)
-        fileid = 'lmfp:  ' // sstrn(i:j)
+c        call upacks('strn jobid',i,j)
+        fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
      .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
