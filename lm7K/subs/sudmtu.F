@@ -65,16 +65,31 @@ C     integer nglob,stdo
 C ... MPI
       integer procid,master,mpipid
       logical mlog
-C ... Heap
 
-C     stdo = nglob('stdo')
+!!
+      real(8)::sss
       call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
       procid = mpipid(1)
       master = 0
       call getpr(ipr)
 C     ipr = 55
 
+!! When LDAU is dummy (usually just in order to print our dmats file).
+      sss=0d0
+      do  ib = 1, nbas
+        if (lldau(ib) .ne. 0) then
+          is = int(ssite(ib)%spec)
+          sss = sss + sum(abs(sspec(is)%uh))+sum(abs(sspec(is)%jh))
+        endif
+      enddo
+      if(sss<1d-6) then
+        dmatu = 0d0
+        havesh = 1
+        goto 1185
+      endif
+
 C --- Read in dmatu if file  dmats.ext  exists ---
+!!
       if (procid .eq. master) then
         if (fxst('dmats') .eq. 1) then
           idmat = fopna('dmats',-1,1)
@@ -177,6 +192,9 @@ C             Skip comment lines
           call fclose(foccn)
         endif
       endif
+!!
+ 1185 continue
+
 C ... Initial printout
       call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' dmats read from disk',dmatu)
