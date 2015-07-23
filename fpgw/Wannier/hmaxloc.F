@@ -167,6 +167,10 @@ c ixc=3
 
       integer::npin 
       real(8):: qiin(3),qfin(3)
+
+      integer(4),allocatable:: 
+     &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
+      integer:: ifoc,iwf,ldim2,ixx
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
 c      open(1108,file='xxx2')
@@ -969,6 +973,21 @@ cc             e2 = (eunk(iband,iq)-ef)*rydberg()
 
 
 !! --------------------------------------------------------------
+c --- Readin nlam index
+      ifoc = iopen('@MNLA_CPHI',1,0,0)
+      ldim2 = nlmto
+      read(ifoc,*)
+      allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
+      do ix =1,ldim2
+        read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
+        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
+      enddo   
+      ix = iclose('@MNLA_CPHI')
+      allocate(ibasiwf(nwf))
+      do iwf=1,nwf
+        ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
+      enddo
+
 !! other k-points
       write(ifbnd,*)ef,' ef'
       write(iftb,*)ef,' ef'
@@ -994,7 +1013,7 @@ c (3-4) diagonalize  -- Small Hamiltonian --
           endif                 ! lsh
 c (3-3) Hrot_mn(k')  -- Tight-binding ---
           call get_hrotkp_tb_ws(rcut,plat,alat,
-     i         hrotr,rws,drws,irws,q(:,iq),
+     i         hrotr,rws,drws,irws,q(:,iq),  ibasiwf,pos,natom,
      d         nwf,nqbz,nrws,
      o         hrotkp)
 c     (3-4) diagonalize -- Tight-binding --

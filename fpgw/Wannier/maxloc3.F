@@ -212,7 +212,7 @@ c see Ref.[2] eq.26
       end
 c-----------------------------------------------------------------------
       subroutine get_hrotkp_tb_ws(rcut,plat,alat,
-     i                     hrotr,rws,drws,irws,q,
+     i                     hrotr,rws,drws,irws,q,  ibasiwf,bas,natom,
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
 
@@ -228,6 +228,9 @@ c see Ref.[2] eq.26
       real(8) :: q(3),rws(3,nrws),drws(nrws),plat(3,3)
       integer(4) :: irws(nrws)
 
+      integer:: ibasiwf(nwf),natom
+      real(8):: bas(3,natom)
+!!
 ctm
 c      rc = rcut + delta
       rc = rcut
@@ -239,16 +242,21 @@ c      rc = rcut + delta
 
       do ir = 1,nrws
          ceikr = (0d0,0d0)
-         rtmp = alat*dsqrt(sum(rws(:,ir)**2))
-         if (rtmp.le.rc) then
+c         rtmp = alat*dsqrt(sum(rws(:,ir)**2))
+c         if (rtmp.le.rc) then
             rk = sum(rws(:,ir)*q(:))
             cikr = ci * 2d0 * pi * rk
             ceikr = exp(cikr) / dble(irws(ir))
-         endif  
+c         endif  
          do im = 1,nwf
+           imp= ibasiwf(im)
          do in = 1,nwf
-            hrotkp(im,in) = hrotkp(im,in) + 
-     &      ceikr * hrotr(im,in,ir)
+           inp= ibasiwf(in)
+           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
+           if(rtmp<rc) then
+             hrotkp(im,in) = hrotkp(im,in) + 
+     &       ceikr * hrotr(im,in,ir)
+           endif 
          enddo
          enddo
       enddo
