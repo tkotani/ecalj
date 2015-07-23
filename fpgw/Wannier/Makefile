@@ -77,6 +77,7 @@ checkmod:
 
 wanplot.o: cubeformat.o xsfformat2.o  
 
+
 ####from tote #################################################################################                                     
 #LIBLOC  = $(ECAL)/fftw/libfftw.a $(LIBMATH)
 ##-L/usr/local/ATLAS/lib/Linux_P4SSE2 -llapack -lcblas -lf77blas -latlas                                                             
@@ -527,5 +528,8 @@ huumat.o: $(gwsrc)keyvalue.o $(gwsrc)readqg.o  $(gwsrc)readeigen.o $(gwsrc)rwbzd
 
 wanplot : ${OBJS2} wanplot.o ${GW0}
 	$(LK) $(LKFLAGS1) $(maxloc)wanplot.o $(OBJS2) $(GW0) $(COMM) $(LKFLAGS2) -o $@
+
+htbplot :  htbplot.o
+	$(LK) $(LKFLAGS1) $(maxloc)htbplot.o $(LKFLAGS2) -o $@
 
 
