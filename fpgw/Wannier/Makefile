@@ -34,7 +34,7 @@ tote = ./
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI # hx0fp0_mlw 
+progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
 progs2 = $(progs) 
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
@@ -76,6 +76,7 @@ checkmod:
 	exec ../../TOOLS/checkmodule ../gwsrc/*.F *.F 
 
 wanplot.o: cubeformat.o xsfformat2.o  
+
 
 ####from tote #################################################################################                                     
 #LIBLOC  = $(ECAL)/fftw/libfftw.a $(LIBMATH)
@@ -527,5 +528,8 @@ huumat.o: $(gwsrc)keyvalue.o $(gwsrc)readqg.o  $(gwsrc)readeigen.o $(gwsrc)rwbzd
 
 wanplot : ${OBJS2} wanplot.o ${GW0}
 	$(LK) $(LKFLAGS1) $(maxloc)wanplot.o $(OBJS2) $(GW0) $(COMM) $(LKFLAGS2) -o $@
+
+htbplot :  htbplot.o
+	$(LK) $(LKFLAGS1) $(maxloc)htbplot.o $(LKFLAGS2) -o $@
 
 

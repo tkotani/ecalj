@@ -170,7 +170,7 @@ c ixc=3
 
       integer(4),allocatable:: 
      &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
-      integer:: ifoc,iwf,ldim2,ixx
+      integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
 c      open(1108,file='xxx2')
@@ -988,6 +988,18 @@ c --- Readin nlam index
         ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
       enddo
 
+!! write HrotRS
+      ifh=ifile_handle()
+      if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
+      if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
+      write(ifh)alat,plat,natom
+      write(ifh)pos
+      write(ifh)ef 
+      write(ifh)nwf,nrws,n1,n2,n3
+      write(ifh) irws,rws,hrotr, ibasiwf
+      close(ifh)
+
+
 !! other k-points
       write(ifbnd,*)ef,' ef'
       write(iftb,*)ef,' ef'
@@ -1224,4 +1236,3 @@ c-----------------------------------------------------------------------
      &     nqbz,nwf,nband,nlmto)
 
       end
-c-----------------------------------------------------------------------
