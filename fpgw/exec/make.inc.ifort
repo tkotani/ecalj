@@ -3,7 +3,7 @@
 ############################################################################
 
 #(1) Compilar ###################
-FC = mpiifort -f90=ifort -132 -xHost -mcmodel=medium -heap-arrays 100
+FC = mpif90 -f90=ifort -132 -xHost -mcmodel=medium -heap-arrays 100
 
 #(2) CPP SWITCHES ###################
 CPPSWITCH_INTELLINUXIFC  = \
@@ -40,13 +40,13 @@ tet5_g = .o
 LIBMATH= -mkl  
 
 #(5) Linker ####################################################
-LK=mpiifort -openmp
+LK=mpif90 -openmp
 LKFLAGS2 = $(LIBMATH) 
 
 # LK = mpif90
-# LK=mpiifort
+# LK=mpif90
 # LK= ifort -parallel 
-# LK=mpiifort -openmp
+# LK=mpif90 -openmp
 #
 ### linux 586
 #LKFLAGS2 = $(ECAL)/slatsm/slatsm.a  -L/usr/intel/mkl/LIB -lmkl32_lapack -lmkl32_p3  -L/usr/lib/gcc-lib/i586-redhat-linux/2.95.3 -lg2c -lpthread  
