@@ -50,9 +50,10 @@ c      complex(8),allocatable :: zcousq(:,:)
      &   ngc,ngb,nbmax,ntqxx)
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
+      use m_mpi
       implicit none
       logical:: exchange
-      integer:: invr,nxx,itp,irot,isp,kr,no,nbmax,ngc,ngb,ntqxx,nbcut
+      integer:: invr,nxx,itp,ivc,irot,isp,kr,no,nbmax,ngc,ngb,ntqxx,nbcut
       integer:: iatomp(natom)
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
      &  , quu(3),q(3), qibz_k(3),qbz_kr(3),wtt
@@ -61,8 +62,8 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
       integer:: nt
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:) ,ppb(:)
       logical:: debug=.false.
-      complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
-
+      complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
+      complex(8):: tpi ! MIZUHO-IR
       complex(8):: expikt(natom)
       integer:: it,ia,kx,verbose,nstate
       logical:: oncew
@@ -71,6 +72,9 @@ c      complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
 c      complex(8), intent(in) :: pomatr(nnmx,nomx,nkpo)
 c      allocate(expikt(natom))
 c      integer(4) ::nbcut
+
+      timer_s(8) = MPI_Wtime()
+      tpi= 8d0*datan(1d0) ! MIZUHO-IR
 
 !TIME0 
       if(verbose()>80) debug=.true.
@@ -144,6 +148,8 @@ c$$$     o              ppb)
       do ia = 1,natom
          expikt(ia) = exp(img *tpi* sum(qibz_k*tr(:,ia)) ) 
       end do
+
+      timer_e(8) = MPI_Wtime() + timer_e(8) - timer_s(8)
 !!   core 
       nt   = nctot + nbmax      ! = nstate for the case of correlation
       allocate( zzzmel(nbloch,nt,ntqxx))
@@ -159,6 +165,7 @@ c$$$      write(*,*)'srrrrr 1',sum(ppb)
 c$$$      write(*,*)'srrrrr 1',sum(expikt)
 c$$$      write(*,*)'srrrrr 1',sum(zzzmel)
 c$$$ccccccccccccccccccccccccccccccccccc
+      timer_s(9) = MPI_Wtime()
       call psicb_v2  (icore,ncore,ntqxx,iclass,
      i  dreal(expikt(1:natom)),dimag(expikt(1:natom)),
      i  cphiq, 
@@ -169,10 +176,12 @@ c     i              nlnmv,nlnmc,mdim,
      d  mdimx,nlmto,nbloch,nlnmx,nt,ntqxx,natom,nclass,
      d  nl,nnc,     
      o  zzzmel)
+      timer_e(9) = MPI_Wtime() + timer_e(9) - timer_s(9)
+
       if(debug)  write(6,*) ' sxcf_fal2sc: goto psi2bc1'
-
-
 !!   valence
+
+      timer_s(10) = MPI_Wtime()
       call psi2b_v2  (nbmax, ntqxx,iclass,
      i  dreal(expikt(1:natom)),dimag(expikt(1:natom)),
      i  cphikq,                 !occ    q-rk nband
@@ -183,6 +192,8 @@ c     i              nlnmv,nlnmc,mdim,
      d  mdimx,nlmto,nbloch,nlnmx, nband, nt,ntqxx,
      d  natom,nclass,
      o  zzzmel)
+      timer_e(10) = MPI_Wtime() + timer_e(10) - timer_s(10)
+
       if(verbose()>50) call timeshow("4 after psi2bc1")
       if(debug) then
          write(6,"('sumof zmel abszmel=',4d23.16)")sum(zzzmel),sum(abs(zzzmel) )
@@ -191,10 +202,15 @@ c     i              nlnmv,nlnmc,mdim,
 !TIME0
 !! -- IPW part.
       if(debug) write(6,*) ' sxcf_fal1: goto drvmelp2 xxx111'
+
       allocate(drealzzzmel(nbloch,nt,ntqxx),dimagzzzmel(nbloch,nt,ntqxx))
+      timer_s(11) = MPI_Wtime()
       drealzzzmel=dreal(zzzmel)
       dimagzzzmel=dimag(zzzmel)
+      timer_e(11) = MPI_Wtime() + timer_e(11) - timer_s(11)
       deallocate(zzzmel)
+
+      timer_s(12) = MPI_Wtime()
       call drvmelp2( q,             ntqxx, ! q in FBZ
      i  q-qbz_kr,  nbmax,       ! q-rk
      i  qibz_k,                 ! k in IBZ for mixed product basis. rk = symope(qibz_k) 
@@ -203,14 +219,18 @@ c     i              nlnmv,nlnmc,mdim,
      i  symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i  drealzzzmel, dimagzzzmel, nbloch, nt,nctot,
      o  rmelt,cmelt)
+      timer_e(12) = MPI_Wtime() + timer_e(12) - timer_s(12)
+
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
       if(verbose()>50) call timeshow("5 after drvmelp")
       if(nbcut/=0.and.(.not.exchange)) then
+      timer_s(13) = MPI_Wtime()
          do it= nctot+1,nctot+min(nbcut,nbmax)
             rmelt(:, it,:) =0d0
             cmelt(:, it,:) =0d0
          enddo
+      timer_e(13) = MPI_Wtime() + timer_e(13) - timer_s(13)
       endif
 !TIME1 "after drvmelp2"
 
@@ -297,14 +317,17 @@ c               if(timemix) call timeshow("22222 k-cycle")
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 !! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
 
+      nstate = nctot + nbmax    ! = nstate for the case of correlation
+
       if(exchange) then
+      timer_s(14) = MPI_Wtime() 
          if(debug) write(*,*) 'exchange mode 0000'
-         allocate( zmel (ngb, nctot+nbmax, ntqxx))
+         allocate( zmel (ngb, nstate, ntqxx))
          zmel = dcmplx (rmelt,cmelt)
          if(debug) write(*,*) 'exchange mode 1111'
          deallocate(rmelt,cmelt)
          if(debug) then
-            do it=1,nctot+nbmax
+            do it=1,nstate
                write(6,"('wwwwwsc ',i5,2f10.4)") it,sum(abs(zmel(:,it,1)))
             enddo
             write(*,*) 'eeeeeeeeeeeee end of wwwwsc',nctot,nbmax
@@ -312,35 +335,58 @@ c               if(timemix) call timeshow("22222 k-cycle")
 c            write(6,*)'sumcheck vcoud=',sum(abs(vcoud(:)))
          endif
 c                  if(.not.newaniso() ) then
-c                     allocate(vcoult(1:ngb,1:ngb),z1p(ngb,nctot+nbmax,ntqxx))
+c                     allocate(vcoult(1:ngb,1:ngb),z1p(ngb,nstate,ntqxx))
 c                     vcoult= transpose(vcoul)
-c                     call matm( vcoult, zmel, z1p, ngb,ngb,(nctot+nbmax)*ntqxx )
+c                     call matm( vcoult, zmel, z1p, ngb,ngb,(nstate)*ntqxx )
 c                     deallocate(vcoult) !, zmel)
 c                  endif  
 !TIME1 "end of matm vcoult"
 !TIME0
 
 c$$$                  if(newaniso()) then
-c                    write(*,'(a,5I10)')'kino: ntqxx,nctot+nbmax,ngb=',ntqxx,nctot+nbmax,ngb
-         allocate(zmeltt(nctot+nbmax,ntqxx,ngb))
+c                    write(*,'(a,5I10)')'kino: ntqxx,nstate,ngb=',ntqxx,nstate,ngb
+         allocate(zmeltt(ngb,nstate,ntqxx))
 c#ifdef USE_GEMM_FOR_SUM
          if(verbose()>39) then
             write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
-            write(*,*)'zgemmsize',ntqxx*(nctot+nbmax),ngb,ngb
+            write(*,*)'zgemmsize',ntqxx*(nstate),ngb,ngb
             write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
             write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
             write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
          endif
-         call flush(6)	
-         call zgemm('T','N',ntqxx*(nctot+nbmax),ngb,ngb,(1d0,0d0),
-     .     zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,ntqxx*(nctot+nbmax) )
-         deallocate(zmel)
 
+         call flush(6)
+
+         zmeltt = 0.0d0
+         do itp=mpi__Ps,mpi__Pe
+c$$$     do itp=1, ntqxx
+
+#ifdef USE_GEMM_FOR_SUM
+            call ZGEMM( "T", "N", ngb, mpi__Tn, ngb, dcmplx(1d0,0d0), 
+     &           ppovlz(1,1), size(ppovlz,dim=1), 
+     &           zmel(1,mpi__Ts,itp), ngb,
+     &           dcmplx(0d0,0d0),
+     &           zmeltt(1,mpi__Ts,itp), ngb )
+#else
+            do it=mpi__Ts, mpi__Te
+c$$$        do it=1, nstate
+               do ivc=1, ngb
+                  zmeltt(ivc,it,itp) = sum( ppovlz(:,ivc) * zmel(:,it,itp) )
+               end do ! ivc
+            end do ! it
+#endif
+         end do ! itp
+
+         call MPI__AllgatherZmelP( zmeltt, ngb )
+
+c$$$         write(*,*) "DEBUG: get_zmel, zmeltt=", sum(abs(zmeltt))
+         deallocate(zmel)
+      timer_e(14) = MPI_Wtime() + timer_e(14) - timer_s(14)
       else
 !! correlation case. Get zmel
 c$$$         if(newaniso()) then
          if(debug) write(*,*) 'correlation mode 0000'
-         nstate = nctot + nbmax ! = nstate for the case of correlation
+
          allocate(zmeltt(ngb, nstate, ntqxx))
          zmeltt= dcmplx (rmelt,-cmelt)
          deallocate(rmelt,cmelt)
@@ -348,13 +394,40 @@ c$$$         if(newaniso()) then
 !!  C means Hermitian conjugate, N means normal
 !! http://www.netlib.org/lapack/lapack-3.1.1/html/zgemm.f.html
          allocate( zmel (ngb, nstate, ntqxx) )
-         call zgemm('C','N',ngb, nstate*ntqxx,ngb,(1d0,0d0),
-     .     ppovlz, ngb, zmeltt,ngb, (0d0,0d0),zmel,ngb)
+
+         call flush(6)
+
+         zmel = 0.0d0
+         do itp=mpi__Ps,mpi__Pe
+c$$$     do itp=1, ntqxx
+#ifdef USE_GEMM_FOR_SUM
+            call ZGEMM( "C", "N", ngb, mpi__Tn, ngb, dcmplx(1d0,0d0), 
+     &           ppovlz(1,1), size(ppovlz,dim=1), 
+     &           zmeltt(1,mpi__Ts,itp), ngb,
+     &           dcmplx(0d0,0d0),
+     &           zmel(1,mpi__Ts,itp), ngb )
+#else
+            do it=mpi__Ts, mpi__Te
+c$$$        do it=1, nstate
+               do ivc=1, ngb
+                  zmel(ivc,it,itp) = sum( dconjg(ppovlz(:,ivc))*zmeltt(:,it,itp) )
+               end do ! ivc
+            end do ! it
+#endif
+         end do ! itp
+
+         call MPI__AllgatherZmelP( zmel, ngb )
+c$$$         call MPI__AllreduceSumP( zmel, ngb*nstate*ntqxx )
+
+c$$$         write(*,*) "DEBUG: get_zmel, zmel=", sum(abs(zmel))
+
          deallocate(zmeltt)
          if(debug) write(*,*)'zz000 ntqxx,ngb,nstate ',ntqxx,ngb,nstate
          if(debug) write(*,*)'zz000 sumchk zmel ',sum(abs(zmel(1:ngb,1:nstate,1:ntqxx)))
          if(debug) write(*,*) 'correlation mode end'
 !TIME1 "matmul zmel ppovlz"
       endif         
+
+
       end subroutine get_zmelt
       end module m_zmel

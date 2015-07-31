@@ -874,7 +874,7 @@ c      nrank=1 !total number of rank
 c      irank=0 !rank for local process
 c      irkip=irkip_all
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
-      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
+      call MPI__hsfp0_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
 c      nrkip = nrkip_all         !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
 !! ----------------------------------------
       nlnx4    = nlnx**4

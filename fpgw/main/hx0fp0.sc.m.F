@@ -22,7 +22,7 @@
       use m_pbindex,only: PBindex,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
-     &   mpi__Qtask,MPI__InitializeQSPBM,MPI__Finalize,mpi__root,
+     &   mpi__Qtask,MPI__hx0fp0_initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,mpi__rank,mpi__size,
      &   mpi__Qranktab,MPI__consoleout,mpi__Ss,mpi__Se, mpi__allreducesumS,
      &   mpi__barrier, mpi__rankQ,mpi__rootQ,mpi__rootS
@@ -129,7 +129,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
       logical:: crpa
 !-------------------------------------------------------------------------
-      call MPI__InitializeQSPBM()
+      call MPI__hx0fp0_initialize ! renamed by MIZUHO-IR
       call MPI__consoleout('hx0fp0_sc')
 !TIME0 
 !TIME0 

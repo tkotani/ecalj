@@ -199,7 +199,12 @@ c      logical:: newaniso
 
       integer:: ificlass,ifiq0p,ntqxx
 c---------------------------------------
-      call MPI__Initialize()    ! MIZUHO-IR
+      timer_e(:) = 0.0d0
+      timer_s(1) = MPI_Wtime()
+
+      timer_s(2) = MPI_Wtime()
+      call MPI__sxcf_initialize    ! added by MIZUHO-IR for hyper-parallel
+c$$$      call MPI__Initialize    ! deleted by MIZUHO-IR
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime1=',mpi__rank,timevalues(1:8)
 !TIME0
@@ -932,13 +937,16 @@ C         enddo
 !! MPI RankDivider for iqibz and irot cycle in sxcf.
 !!     nrkip is weight correspoinding to irkip for a node.
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
-      call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
+      call MPI__hsfp0_rankdividerQ(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! added by MIZUHO-IR, for hyper-parallel
+c$$$      call MPI__hsfp0_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! deleted by MIZUHO-IR
       nrkip = nrkip_all         ! we don't need to change this for MPI case. 
 ! It just need to distribute non-zero irkip.
 !!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) )
 !TIME1 "before 2000 loop"
+
+      timer_e(2) = MPI_Wtime() + timer_e(2) - timer_s(2)
 
       do 2000 is = 1,nspinmx
 !TIME0 
@@ -977,6 +985,9 @@ C         enddo
           allocate(ecore(1,2))
         endif
 
+
+      timer_s(4) = MPI_Wtime()
+
         call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i   nspin,is,   
      i   qbas,ginv,qibz,qbz ,wbz, nstbz, 
@@ -1003,6 +1014,8 @@ C         enddo
         call date_and_time(values=timevalues)
         write(6,'(a,9i5)')'dateandtime2=',mpi__rank,timevalues(1:8) 
         call cpu_time(time_red1)
+
+      timer_e(4) = MPI_Wtime() + timer_e(4) - timer_s(4)
 
 c!TIME0 
 !! CAUITION! Allreduce wait all cpu jobs done here. 
@@ -1054,12 +1067,19 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 
 !! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.
 
+      timer_s(3) = MPI_Wtime()
         if(eibz4sig()) then
 !TIME0 
           call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
 !TIME1 'end of zsecsym and reduce'
         endif
-        call MPI__AllreduceSum( zsec,ntq*ntq*nq )
+      timer_e(3) = MPI_Wtime() + timer_e(3) - timer_s(3)
+
+      timer_s(5) = MPI_Wtime()
+        call MPI__AllreduceSumQP( zsec,ntq*ntq*nq ) ! added by MIZUHO-IR, for hyper-parallel
+c$$$        call MPI__AllreduceSum( zsec,ntq*ntq*nq ) ! deleted by MIZUHO-IR
+      timer_e(5) = MPI_Wtime() + timer_e(5) - timer_s(5)
+        write(*,*) "MIZUHO DEBUG: sxcf_fal3_scz end: ", sum(abs(zsec))
 
 !TIME0 
         if(mpi__root) then
@@ -1100,6 +1120,22 @@ ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
         endif                   !mpi__root
 !TIME1 "before 2000 continue"
  2000 continue                  !end of spin-loop
+
+      timer_e(1) = MPI_Wtime() + timer_e(1) - timer_s(1)
+        write(*,'(a,f10.6)') "timer1: program:   ", timer_e(1)
+        write(*,'(a,f10.6)') "timer2: init:      ", timer_e(2)
+        write(*,'(a,f10.6)') "timer3: zsecsym:   ", timer_e(3)
+        write(*,'(a,f10.6)') "timer4: sxsc:      ", timer_e(4)
+        write(*,'(a,f10.6)') "timer5: allreduce: ", timer_e(5)
+        write(*,'(a,f10.6)') "timer6: get_zmel:  ", timer_e(6)
+        write(*,'(a,f10.6)') "timer7: exchange:  ", timer_e(7)
+        write(*,'(a,f10.6)') "timer8: zmel init: ", timer_e(8)
+        write(*,'(a,f10.6)') "timer9: psicb:     ", timer_e(9)
+        write(*,'(a,f10.6)') "timer10: psi2b:    ", timer_e(10)
+        write(*,'(a,f10.6)') "timer11: cp:       ", timer_e(11)
+        write(*,'(a,f10.6)') "timer12: drvmelp2: ", timer_e(12)
+        write(*,'(a,f10.6)') "timer13: zero:     ", timer_e(13)
+        write(*,'(a,f10.6)') "timer14: exchange: ", timer_e(14)
 
 c$$$!TIME0 
 c$$$!!   --- EXspectrum ----------------------------------------------------
@@ -1198,6 +1234,7 @@ c      isx = iclose ('hbe.d')
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
+
       end program hsfp0_sc 
 
 
