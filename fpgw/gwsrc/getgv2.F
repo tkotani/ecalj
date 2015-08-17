@@ -7,6 +7,12 @@
 !!    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
 !! NOTE: we need some geometorial consideration for this routine.
 !!   Consiser ellipsoid. Takao need to give more detailed explanation...
+!!
+!! We can calculate range of $n_1$ for given maxmum of $|\bfq+\bfG|$ (={\tt QpGcut}).
+!! The range is determined by the condition that the sphere $|\bfq+\bfG|$={\tt QpGcut}
+!! is touching the plane specified by $n_1$ ($n_1$ should be treated as if it takes continuous value). 
+!! The plane is normal to the external product $Q_2 \times Q_3$.
+!! After ranges (as well as n_2 and n_3) are given, we simply check |q+G|< QpGcut or not
 !! -------------------------------------------------------------
       implicit none
       integer(4) :: ng

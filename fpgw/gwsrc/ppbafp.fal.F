@@ -519,7 +519,7 @@ c          igdelta(1:3,inum) = (/ig1,ig2,igc/)
      i       shtv,q, qi, symope, qbas, !
      i       qt, !qt oct2013 for G1
      o       zmelp)
-      use m_mpi, only:mpi__rank
+c      use m_mpi, only:mpi__rank
       use m_read_ppovl,only: getppx2,
      &  nvggg,nvgcgp2,ngvecc, nggg,ngcgp,ngcread, ggg,ppovlinv,
      &  ngc2,ngvecc2

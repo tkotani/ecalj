@@ -359,13 +359,13 @@ M.Methfessel, Mark van Schilfgaarde and their collaborators.\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{Theory and algorism for PMT-QSGW}
+\section{Overview of PMT-QSGW algorithm}
 \label{sec:theory}
 The current {\tt ecalj} is based on the PMT method
 \cite{kotani2015pmt,kotani_linearized_2013,pmt1}.
-We can do total energy, 
-atomic-position relaxations within LDA/GGA, LDA+U, 
-Spin-orbit coupling and so on.
+With {\tt ecalj}, we can do total energy calculation and 
+atomic-position relaxations within LDA/GGA, and LDA+U.
+We can add spin-orbit coupling and so on (some limitations).
 An uniqueness is in the QSGW calculations, say, the PMT-QSGW method
 \cite{kotani_quasiparticle_2014}. 
 In addition, we can do linear responses, Wannier functions and 
@@ -378,7 +378,7 @@ Ref.\cite{friedrich_efficient_2010}
 by Friedrich, Bl\"ugel, and Schindlmayr,
 and Ref.\cite{Freysoldt2007} by Freysoldt et al.
 In this Sec.~\ref{sec:theory}, we try to explain some details along
-the line of Ref.\cite{kotani_quasiparticle_2014,}.
+the line of Ref.\cite{kotani_quasiparticle_2014}.
 
 \subsection{Crystal structure, notations, and common data in code}
 \label{how to represent crystalstructure and symmetry}
@@ -392,26 +392,30 @@ Here is some basic notations.
 \item
 Primitive vectors $\bfp_i$ (in a.u.) are
 \raw{alat*plat(1:3,i)}, where i=1,2,3. (see \io{LATTC}).
-$\bfq_i$\raw{qlat(1:3,i)} is reciprocal unit vectors such that
+$\bfq_i$=\raw{qlat(1:3,i)} is reciprocal unit vectors such that
 \raw{sum(plat(1:3,i),qlat(1:3,j))}=$\delta_{ij}$.
 
 \item
 The centers of MT sites $\{\bfR\}$ in the primitive cell
-is given by \raw{alat*bas(1:3,ibas),ibas=1,nbas} 
-(we use \verb#pos,natom# in cases instead of \verb#bas,nbas#). 
+is given by $\{\bfR\}=$\raw{alat*bas(1:3,ibas),ibas=1,nbas} 
+(we use \verb#pos,natom# in cases instead of \verb#bas,nbas#).
+$\{\bfR\}$ is the position vector measured from 
+a center of primitive cell.
+
 \item
-The MT sites are specified by $\bfR+\bfT$, where $\bfT$ specify
+Thus the MT sites are specified by $\bfR+\bfT$, where $\bfT$ specify
 centers of primitive 
 cells. $\bfT(n1,n2,n3)=n_1 \bfq_1+n_2 \bfq_2 + n_3 \bfq_3$.
 
 \item
-In the followings, we sometimes use $\bfk$ and $\bfq$, both of
+In the followings, we use $\bfk$ and $\bfq$
+(in cases, mixed up... sorry), both of
 which means vectors in the BZ.
 
 \item
-  We specify atoms in the cell (SPEC) in ctrl file.
-  where the same atoms belonging to the same SPEC can be
-  divided into some classes(CLASS)
+  We specify MTs (atoms) in the cell (SPEC) in ctrl file.
+  where the MTs (atoms) belonging to the same SPEC can be
+  divided into some classes (CLASS)
   (we can use \raw{lmchk} to check how they are classifed).
 
  \item
@@ -426,14 +430,15 @@ which means vectors in the BZ.
 MT sites should have the same class id as \verb#iclass(ibas1)=iclass(ibas2)#. 
 
 (However, for the convenience of program developments,
-(historical reason), I assume ibas=iclass(ibas); true class
-is iclasst(ibas). This is used to find space group operations
+(historical reason), I assume {\tt ibas=iclass(ibas)}; true class
+is {\tt iclasst(ibas)}. This is used to find space group operations
 in \verb#call mptauof#. A little complicated...)
   
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Here is a common list of variables in computer code.
+\noindent --------------------\\
+Here is a common list of variables in ecalj code.
 Not all variables shown here.
 \begin{verbatim}
 alat: unit in a.u. This is in LATTC or (or call genallc_v3)
@@ -584,7 +589,7 @@ The coefficients $\alpha^{{\bf k}n}_{au}$ can be calculated as
 \alpha^{{\bf k}n}_{au} = \sum_{\bf G} C^{{\bf k+G}}_{a u} z^{\bf k+G}_n.
 \end{eqnarray}
 
-\subsection{re-expansion of eigenfunctions: CPHI and GEIG}
+\subsection{Re-expansion of eigenfunctions: CPHI and GEIG}
 To perform the $GW$ calculation, we first
 have to prepare all eigenfunctions (and eigenvalues) for
 given setting of BZ mesh. Then the eigenfunctions are
@@ -605,6 +610,7 @@ P^{\bf k}_{\bf G}({\bf r}) =
 0    & \text{if {\bf r}} \in \text{any MT} \\
 \exp(i ({\bf k+G})\cdot{\bf r})& \text{otherwise}
 \end{cases}
+\label{eq:defpg}
 \end{eqnarray}
 and $\varphi^{\bf k}_{R u}(\bfr)$ are Bloch sums of the atomic functions
 $\varphi_{R u}(\bfr)$ defined within the MT at $R$,
@@ -648,7 +654,6 @@ The information of eigenfunctions are used to calculate this matrix elements, wh
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
 %\subsection{Expansion of the eigenfunction}
 %The eigenfunction $\Psi^{{\bf k}n}$ is expanded as the linear combination of the MTO as
 %\begin{eqnarray}
@@ -892,7 +897,7 @@ although the results formally does not depend on the LDA/GGA exchange-correlatio
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{$\bfq$ and $\bfG$ vector generation}
+\section{$\bfq$ and $\bfG$ vector generation. qg4gw}
 \underconstruction
 To see the theory, read Section 3.2 in in \cite{kotani_quasiparticle_2014}
 $\bfk$ points are the regular mesh points used for the integration
@@ -933,7 +938,7 @@ core, radial functions
 
 \end{verbatim}
 \subsubsection{Make $G$ vectors: getgv2}
-To get $\bfG$ vectors, we use an algorism in \verb!fpgw/getgv2.F!, whose head
+To get $\bfG$ vectors, we use an algorithm in \verb!fpgw/getgv2.F!, whose head
 is
 \begin{verbatim}
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
@@ -948,9 +953,23 @@ is
 !! -------------------------------------------------------------
 \end{verbatim}
 We can use this to get $\{\bfG\}$ for given $q$.
-The algorism of \verb!getgv2! is not so straightforward.
+The algorism of \verb!getgv2! is a little complicated.
+We first gives the upper and lower limits {\tt n1max} $\le n_1 \le $ {\tt n1min}, 
+where $\bfG= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
 
 \underconstruction
+
+\noindent {\bf Algorithm of {\tt getgv2}.}\\
+We can calculate range of $n_1$ for given maxmum of $|\bfq+\bfG|$ (={\tt QpGcut}).
+The range is determined by the condition that the sphere $|\bfq+\bfG|$={\tt QpGcut}
+is touching the plane specified by $n_1$ ($n_1$ should be treated as if it takes continuous value). The plane is normal to the external product $Q_2 \times Q_3$.
+
+
+\subsubsection{Make $G$ vectors: shortn3}
+Find shortest vector in modulo of $\{Q_i\}$. That is, pull back $\bfq$ in the 1st BZ.
+Caution; it can be not unique when $\bfq$ is on the BZ boundary;
+then we need to know all $\bfq$ and degeneracy.
+
 
 
 \section{Mixed Product basis}
@@ -1167,7 +1186,7 @@ Our \verb#hvccfp0.m.F# can handle the
 case $\frac{\exp(- |\kappa| |\bfr_1-\bfr_2|)}{|\bfr_1-\bfr_2|}$.
 The default is the bare Coulomb interaction, that is, $\kappa=0$. 
 The energy variable $E$ is given by $E=\kappa^2$, where
-imaginary part of $\kappa$ is positive for negative $E$.
+imaginary part of $\kappa$ is defined to be positive for negative $E$.
 This $E=$\verb#eee=screenfac()# in hvccfp0.m.F. 
 For example, we can set $|\kappa|=0.1$ (a.u.) by a line
 "{\tt TFscreen 0.1}" in \io{GWinput} if necessary. Look for {\tt TFscreen} in \verb#swithes.F#.
@@ -1176,39 +1195,103 @@ The MPB is made of IPWcou ($|\bfq+\bfG|$\verb#<QpGcut_cou#) and PB,
 that is, $\{M^{\bf k}_J\}=\{P_\bfG^\bfk(\bfr), B^\bfk_{\bfR{L}\mu}(\bfr)\}$.
 For given $\bfk$ (not explicitly shown in cases for simplicity), 
 IPWcou is specified just by the $\bfG$ vector.
-PB is generated in the manner of Sec.\ref{sec:mpbsec}. 
+PB is generated in the manner of Sec.\ref{sec:mpbsec} . 
 PB can be specified just by the radial functions for each $l$ 
 (because we have neither $m$ nor spin dependence).
 For $GW$ calculation, we need the Coulomb matrix elements
 $\langle B|v|B \rangle,\langle B|v|P_\bfG \rangle,$　and $\langle B|v|P \rangle$. \verb#hvccfp0.m.F-->vcoulq_4# handles these calculations.
 
-\subsection{subroutine bessl}
-We have  \verb#call bessel(ex2,lx,phi(0:lx),psi(0:lx))# in mkjp.F 
+
+
+\subsection{Spherical Bessel and related functions}
+We use a notation such that $X_L(\bfr)=X_l(r) Y_L(\hat{r})$; note that
+their radial part is dependent only on $l$.
+The ordinary definition of $L$-dependent spherical Bessel functions
+$J_L(E,\bfr),H_L(E,\bfr)$ are
+\begin{eqnarray}
+&&{J}_L(E,\bfr)=j_l(i|\kappa| r)Y_L(\hat{r}) 
+\ {\rm for \ E<0},\ = j_l(\kappa r)Y_L(\hat{r})
+\ {\rm for \ E>0}
+\nonumber \\
+&&{H}_L(E,\bfr)=h_l(i|\kappa| r)Y_L(\hat{r})
+\ {\rm for \ E<0}, 
+\label{eq:OrdinaryBessel}
+\end{eqnarray}
+where $j_l(z)$ and $h_l(z)$ are usual spherical Bessel and Hankel functions
+which behaves 
+\begin{eqnarray}
+&&j_l(z) \sim \frac{z^l}{(2l+1)!!} \nonumber \\
+&&h_l(z) \sim \frac{-i(2l-1)!!}{z^{l+1}}.
+\end{eqnarray}
+For convenience, we define 
+the {\bf Methfessel's Bessel functions (convension)} 
+$\bar{J}_L=\bar{J}_lY_L$ and $\bar{H}_L=\bar{H}_lY_L$, where 
+\begin{eqnarray}
+&&\bar{J}_l(E,\bfr)=j_l(i|\kappa| r) / (i |\kappa|)^l \nonumber \\
+&&\bar{H}_l(E,\bfr)=h_l(i|\kappa| r) i (i |\kappa|)^{l+1}. 
+%&&\bar{J}_l(E,\bfr)=(2l+1)!! j_l(i|\kappa| r) / (i |\kappa|)^l \nonumber \\
+%&&\bar{H}_l(E,\bfr)=\frac{1}{(2l-1)!!} h_l(i|\kappa| r) i (i |\kappa|)^{l+1}. 
+\label{eq:Mbessel}
+\end{eqnarray}
+(memo: for example, $7!!=7\cdot5\cdot3\cdot1$ \verb!;function fac2m(i)!).
+These are real functions for $E\le 0$.
+See note for \verb!genjh! in \verb!mkjp.F!.
+At $E=0$, this is reduced to be 
+\begin{eqnarray}
+&&\bar{J}_l(E=0,\bfr)=r^l/(2l+1)!!, \\
+&&\bar{H}_l(E=0,\bfr)=r^{-l-1} (2l-1)!!.
+\end{eqnarray}
+Our default setting is with very small negetive $E$ to avoid numerical 
+trouble in cases (see default \verb#screefac# in switch.F).
+
+The source codes to define bessl is a little confusing because
+of some convensions are mixed up...(note at the beginning of besslr.F).
+We have \verb#call bessel(ex2,lx,phi(0:lx),psi(0:lx))# in mkjp.F 
 and so on. For given \verb#ex2#$=E\times x^2$,
 this return spherical Bessel functions $j_l(\kappa x)$
 as $j_l(\kappa x)={\tt phi(l)}x^l$.
 % and $n_l(x)={\tt psi}(l)/x^{l+1}$/
 $\kappa^2=E$(for negative $E$, imaginary part of $\kappa$ is positive). 
 \verb!lx! is the upper limit of $l$.
+This is defined in \verb#bessl(ex2,lmax,phi,psi)# in \verb#besslr.F# 
+(it calls \verb#besslr# with \verb#loka=F#). It gives
+\begin{eqnarray}
+\left.
+\begin{array}{ll}
+j_l(i|\kappa|r)={\tt phi(l)} r^l\\
+h_l(i|\kappa|r)={\tt psi(l)} \frac{1}{r^{l+1}}
+\end{array}
+\right\}&& \ {\rm for}\ E<0, \ \kappa=i|\kappa|,
+|\kappa|=\sqrt{|E|} \\
+\left.
+\begin{array}{ll}
+j_l(\kappa r) = {\tt phi(l)} r^l \\
+n_l(\kappa r) = {\tt psi(l)}\frac{1}{r^{l+1}}
+\end{array} 
+\right\}&& \ {\rm for}\ E>0, \ \kappa=\sqrt{E} 
+\end{eqnarray}
+for $0\le l \le{\tt lmax}$. (This means \verb#phi#$=1/(2l+1)!!$
+and \verb#psi#$=(2l-1)!!$ at $E \to 0$). Here $n_l(r)$ is the spherical Neumann functions.
 
-\noindent[note: \verb!psi! is for Hankel function 
-for negative $E$, and for Neuman function for positive $E$. 
+That is, \verb!psi! is for Hankel function 
+for negative $E$, and for Neumann function for positive $E$. 
 See hansmr.F, for example. \verb!psi! is not used so often.
 We have \verb!lm7K/subs/besslr.F!, it is similar.
-I think it will be better to simplify our 
-treatment of bessel functions.] 
+We may need to simplify our treatment of bessel functions in future...
 
 \subsection{Green function}
+(Readers can skip this subsection).
 We explain the free-space Green's function
-$G(\bfr-\bfr',E)$, although this section is not directly to the
-other part of this manuscript.
+$G(\bfr-\bfr',E)$ here.
+%, although this section is not directly to the
+%other part of this manuscript.
 Let us start from $G(\bfr-\bfr',E)$, which satisfies
 \begin{eqnarray}
-(E+i\delta-\nabla^2)G(\bfr-\bfr',E)=\delta(\bfr-\bfr').
+(E+i\delta+\nabla^2)G(\bfr-\bfr',E)=\delta(\bfr-\bfr').
 \label{eq:diffg}
 \end{eqnarray}
-($+i\delta$ is to specify the boundary condition along time axis.
-This pick up the retarded Green's function).
+($+i\delta$ is to specify the boundary condition along time axis. This pick up the retarded Green's function).
+Roughly speaking, this is $(\omega -H) G=1$.
 Its Fourier transform is easily written as
 $G(\bfk,E)=1/(E-|\bfk|^2+ i \delta)$.
 We apply back Fourier transformation to this, and get $G(\bfr-\bfr',E)$.
@@ -1224,6 +1307,42 @@ differential equation; it reduces to the usual Poisson equation at
 $E=0$. For $E<0$, we have Thomas-Fermi type function;
 the numerator of \req{eq:greal} is $\exp(i \kappa |\bfr-\bfr'|)=\exp(- |\kappa| |\bfr-\bfr'|)$.
 
+\subsection{Used formulas}
+\label{usedf}
+
+\begin{eqnarray}
+\frac{1}{4\pi}\frac{1}{|\bfr-\bfr'|}=\sum_K \frac{r^k_<}{r^{k+1}_>}\frac{1}{2k+1}
+Y^*_K(\hat{\bfr})Y_K(\hat{\bfr}) \label{eq:oneorr}
+\end{eqnarray}
+See Appendix A in Ref.\cite{svane_evaluation_1986}.
+This is generalized to be
+\begin{eqnarray}
+\frac{1}{4\pi}\frac{e^{-|\kappa| |\bfr-\bfr'|}}{|\bfr-\bfr'|}=\sum_L 
+\bar{J}_L(E,r_<) \bar{H}_L(E,r_>), \label{eq:oneorr2}
+%Y^*_L(\hat{\bfr})Y_L(\hat{\bfr})
+\end{eqnarray}
+The definition of $\bar{J}$ is in Eq.\ref{eq:Mbessel}.
+Here $E=-|\kappa|^2 <0$; thhen Im part of $\kappa$ is positive.
+
+\begin{eqnarray}
+&&\exp( i {\bf k} {\bf r}) = 4 \pi \sum_L i^l 
+j_l(|{\bf k}|r)  Y^*_L( {\bf \widehat{ k} }) Y_L(\widehat{{\bf r}}) 
+\label{eq:expandpw}\\
+&&\frac{2l+1}{4 \pi} P_l(\cos\Theta) = \sum_m Y^*_L( {\bf \widehat{r}}_1) 
+Y_L({\bf \widehat{r}}_2) \ \ \ \ \ \ 
+[\cos \Theta = {\bf \widehat{r}}_1 \cdot {\bf \widehat{r}}_2].
+\end{eqnarray}
+
+\begin{eqnarray}
+\langle P^{\bf k}_{\bf G}|P^{\bf k}_{{\bf G}'} \rangle
+= \Omega \delta_{{\bf G},{\bf G}'} -  
+\sum_{a,L} \exp( i ({\bf G}-{\bf G}') {\bf R_a}) \times Y_L(\widehat{{\bf k+G}}') 
+Y_L( {\bf \widehat{ k+G} }) \nonumber \\
+\times \int_0^{R_a} j_l(|{\bf k+G}|r)j_l(|{\bf k+G}'|r) 4 \pi^2 r^2 dr,
+\end{eqnarray}
+
+
+
 \subsection{Hankel function and Structure constant}
 We can expand 
 $v(\bfr,\bfr')=\frac{e^{-|\kappa||\bfr-\bfr'|}}{|\bfr-\bfr'|}$
@@ -1235,31 +1354,51 @@ Hankel function \req{eq:offexpand}, that is,
 a Hankel whose center is at $\bfX\equiv\bfR+\bfT$, $H_L(\bfr-\bfX)$, 
 can be expanded in the Bessel functions whose center is at $\bfX'$;
 \begin{eqnarray}
-{H}_L(E,\bfr-\bfX)=\sum_L {J}_{L'}(E,\bfr-\bfX') S_{\bfX'{L},\bfX{L'}} ,
+\bar{H}_L(E,\bfr-\bfX)=\sum_{L'}\bar{J}_{L'}(E,\bfr-\bfX') S_{\bfX'{L'},\bfX{L}}\ ,
 \label{eq:offexpand}
 \end{eqnarray}
 where the Hankel function for negative energy $E$.
-Note the diffrence between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
+Here $E$-dependence of $S_{\bfX'{L},\bfX{L'}}$ is not explicitly shown. 
+Note the difference between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
 
 Thus, for $(\bfR',\bfT')\neq(\bfR,\bfT)$, 
 we have two-center expansion;
 \begin{eqnarray}
-&&\frac{e^{-|\kappa||\bfr+\bfR+\bfT-(\bfr'+\bfR'+\bfT')|}}
+&&
+\frac{1}{4\pi} \frac{e^{-|\kappa||\bfr+\bfR+\bfT-(\bfr'+\bfR'+\bfT')|}}
 {|\bfr+\bfR+\bfT-(\bfr'+\bfR'+\bfT')|}
 %= -4 \pi G(\bfr+\bfR+\bfT-(\bfr'+\bfR'+\bfT'),E)
-\nonumber \\
+%\nonumber \\
 %&&= -4 \pi \sum_L (-i\kappa) \bar{J}_L(E,\hat{\bfr}) 
-%\bar{H}_L(E,\bfr'+\bfR'+\bfT'-\bfR-\bfT) \nonumber \\
-&&= \sum_L \sum_{L'}
-\frac{\bar{J}_L(E,\bfr)}{(2l+1)!!} 
-4 \pi S_{\bfR{L},\bfR'+\bfT'-\bfT{L'}} 
-\frac{\bar{J}_{L'}(E,\bfr')}{(2l'+1)!!} \label{eq:vtwoc}
+%\bar{H}_L(E,\bfr'+\bfR'+\bfT'-\bfR-\bfT) \nonumber
+= \sum_L \sum_{L'}
+{\bar{J}_L(E,\bfr)}
+%{(2l+1)!!} 
+S_{\bfR+\bfT{L},\bfR'+\bfT'{L'}} {\bar{J}_{L'}(E,\bfr')} 
+%{(2l'+1)!!}
+\label{eq:vtwoc}
 \end{eqnarray}
 for $(\bfR',\bfT')\neq(\bfR,\bfT)$. 
 
+The Bloch sum of $S_{{L},\bfX{L'}}$
+gives the structure constant of $\bfk$ as
+\begin{eqnarray}
+S^\bfk_{\bfR{L},\bfR'{L'}}=
+\sum_\bfT S_{\bfR{L},\bfR'+\bfT'{L'}}\exp(i \bfk\bfT'),
+\end{eqnarray}
+Usually 
+we use bare Coulomb at $E=0$.
+
+See the top of \verb#strxq# defined in strxq.F (called in hvccfp0.m.F). 
+This routine is for the one-center expansion of 
+usual Bloch summed Hankels. (not for smooth Hankels).
+This result is finally converted to be the 
+Bloch sum of the structure constant 
+$S^{\bfk}_{\bfR{L},\bfR'{L'}}$ used in \req{eq:vkbb}.
+
 \begin{quote}
-NOTE: This theorem \req{eq:offexpand} is taken from the note of
-strxq.F, it says
+====================\\
+NOTE in strxq.F; it says
 \begin{verbatim}
 -------------------------------------
 Cr Expansion Theorem: H_{RL}(r) = H_L(r-R)
@@ -1270,7 +1409,6 @@ CAUTION!: We use R to denote MT position in the primitive cell;
 thus this R is R+T in our notation.
 --------------------------------
 \end{verbatim}
-We need check more...
 \end{quote}
 
 %
@@ -1280,35 +1418,29 @@ We need check more...
 %
 %J_L(E,\hat{\bfr'}+\bfR'-\bfR)
 
-The bloch sum of $S_{{L},\bfX{L'}}$
-gives the structure constant of $\bfk$ as
-$S^\bfk_{\bfR{L},\bfR'{L'}}=
-\sum_\bfT S_{\bfR{L},\bfR'+\bfT'{L'}}\exp(i \bfk \bfT)$
-($E$-dependence of $S$ is not explicitly shown. Usually
-we use bare Coulomb at $E=0$.).
- 
-\subsubsection{strxq: off-center expansion of Bloch summed Hankel}
-See the top of strxq defined in strxq.F (called in hvccfp0.m.F). 
-This routine is for the one-center expansion of usual Bloch summed Hankels. (not for smooth Hankels).
-This result is finally converted to be the 
-Bloch sum of the structure constant 
-$4 \pi S^{\bfk}_{\bfR{L},\bfR'{L'}}$ used in \req{eq:vkbb}.
-
 
 \subsection{$\langle B|v|B \rangle$ part}
 \label{sec:bvbpart}
-Let us start from $\langle B|B \rangle$ part.
+Let us start from $\langle B|v|B \rangle$ part.
 For this calculation, we need structure constant, and a few types of
 radial integrals.
 With the Bloch-summed structure constant \verb!strx!
-$=4 pi S^\bfk_{RL,R'L'}$, we have
+$=4 \pi S^\bfk_{RL,R'L'}$, we have
 \begin{eqnarray}
-v^\bfk(\bfr,\bfr')=\sum_{L,L'} 
-\frac{\bar{J}_L(E,\bfr-\bfR)}{(2l+1)!!} 
+v^\bfk(\bfr,\bfr')
+=\sum_{\bfT} v(\bfr+\bfT,\bfr') e^{i \bfk \bfT}
+=e^2 \sum_{L,L'} 
+{\bar{J}_L(E,\bfr-\bfR)}
+%{(2l+1)!!} 
 4 \pi S^{\bfk}_{\bfR{L},\bfR'{L'}}
-\frac{\bar{J}_L(E,\bfr'-\bfR')}{(2l+1)!!}. 
+{\bar{J}_{L'}(E,\bfr'-\bfR')},
+%{(2l+1)!!}.
 \label{eq:vkbb}
 \end{eqnarray}
+for $\bfR \ne \bfR'$.
+Note that we use $e^2=1$ (a.u.) in hvccfp0.m.F.
+(See note at the beginning of mkjp.F. And note the normalization check
+at the end of hvccfp0.m.F; $\langle \exp(i \bfq \bfr) |v |\exp(i \bfq \bfr)\rangle=4\pi \Omega/|\bfq|^2$, where $\Omega$ is the cell volume.)
 
 \verb#strx calculated by "call strxq@L806:hvccfp0.m.F"# 
 means $4 \pi S^\bfk_{\bfR{L},\bfR'L'}$. 
@@ -1318,30 +1450,40 @@ This \verb!strx! is used in  \verb!call vcoulq_4!.
 
 Except the contribution for $(\bfR,\bfT)=(\bfR',\bfT')$,
 we can evaluate
-$\langle B^\bfk_{\bfR{L}\mu}(\bfr)|v^\bfk(\bfr,\bfr')|B^\bfk_{\bfR'{L'}\mu'}(\bfr') \rangle$, from the \verb#rojb# integrals $\rho^l(B_{\bfR{l}\mu})$  as
+$\langle B^\bfk_{\bfR{L}\mu}(\bfr)|v^\bfk(\bfr,\bfr')|B^\bfk_{\bfR'{L'}\mu'}(\bfr') \rangle$, from the\\ \verb#rojb# integrals $\rho^l(B_{\bfR{l}\mu})$  as
 \begin{eqnarray}
-\rho^l(B_{\bfR{l}\mu})=
-\frac{1}{(2l+1)!!} \int_0^{R} r\bar{J}_l(E,r) \ r B_{\bfR{l}\mu}(r)  dr
+&&\rho^l(B_{\bfR{l}\mu})=
+%\frac{1}{(2l+1)!!} 
+\int_0^{R} r\bar{J}_l(E,r) \ r B_{\bfR{l}\mu}(r)  dr
+= \frac{1}{(2l+1)!!}\int_0^{R} {\tt rkpr(r) \ rprodx(r)} \ dr
 \end{eqnarray}
 Here $B_{\bfR{l}\mu}(r)$ is the radial part of $B_{\bfR{L}\mu}(\bfr)$.
 This \verb!rojb! integrals are calculated in 
 the subrouitne \verb!mkjb_4! in \verb#mkjp.F#.
+We use radial functions 
 \verb!rprodox! $=r B_{\bfR{l}\mu}(r)$, 
-\verb!rkpr!$=r\bar{J}_l(E,r)$, and \verb!rkmr!$=r\bar{H}_l(E,r)$.
+\verb!rkpr!$=r\bar{J}_l(E,r)(2l+1)!!$, 
+and \verb!rkmr!$=r\bar{H}_l(E,r)/(2l-1)!!$.
+(Here \verb!rkpr! and \verb!rkmr! are propotional to
+$r^l$ and $r^{-l-1}$ for $E =0$.)
 
 The contribution from $(\bfR,\bfT)=(\bfR',\bfT')$
 should be added. This is $\bfk$-independent, and
-given by the \verb!sgbb! integral, which is also calculated in \verb!mkjb_4!.
+given by the\\ \verb!sgbb! integral, which is also calculated in \verb!mkjb_4!.
 \begin{eqnarray}
-\sigma^l(B_{\bfR{l}\mu},B_{\bfR{l}\nu})=
-\frac{4\pi}{2l+1} 
+&&\sigma^l(B_{\bfR{l}\mu},B_{\bfR{l}\nu})=
+{4\pi}
 \int_0^{R}\int_0^{R} (r_<)\bar{J}_l(E,r_<) (r_>)\bar{H}_l(E,r_>)
-r B_{\bfR{l}\mu}(r) r' B_{\bfR{l}\nu}(r') dr dr'.
+r B_{\bfR{l}\mu}(r) r' B_{\bfR{l}\nu}(r') dr dr' \nonumber \\
+&&=\frac{4\pi}{2l+1}
+\int_0^{R}\int_0^{R} {\tt rkpr(r_<) \ rkmr(r_>) \ rprodx(n1,r) \ rprodx(n2, r')} 
+\ dr dr'.
 \end{eqnarray}
-This is from the one-center expansion \req{eq:oneorr2}.
+%This is from the one-center expansion \req{eq:oneorr2}.
 
-This is the core part to calculate the $\langle B|v|B \rangle$ part
-in \verb!vcoulq_4!.\verb!nbloch! means the total number of PB.
+With the integrals \verb#rojb# and \verb#sgbb#, we can calculate
+$\langle B|v|B \rangle$ in \verb!vcoulq_4! as follows
+(\verb!nbloch! means the total number of PB);
 \begin{quote}
 {\baselineskip=3mm
 \begin{verbatim}
@@ -1369,64 +1511,62 @@ in \verb!vcoulq_4!.\verb!nbloch! means the total number of PB.
 \end{verbatim}}
 \end{quote}
 
-\subsection{Two types of IPW:$P^{\bf k}_{{\bf G}}$ and $\bar{P}^{\bf k}_{{\bf G}}$}
-$P^{\bf k}_{{\bf G}}$ is defined in \req{eq:defpg}.
-In contrast, we define BarIPW $\bar{P}^{\bf k}_{{\bf G}}$ as
+\subsection{$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$}
+To evaluate 
+$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$, 
+we can use 
 \begin{eqnarray}
 \bar{P}^{\bf k}_{{\bf G}} \equiv 
 \left( 1- \sum_{\bfR{L}}^{l\le l_{\rm Pmax}} {P}_{\bfR{L}} \right) 
-e^{i ({\bf k+ G}){\bf r}},
+e^{i ({\bf k+ G}){\bf r}}, \label{eq:baripw}
 \end{eqnarray}
-where ${P}_{\bfR{L}}$ denotes the projection operator 
+in the place of ${P}^{\bf k}_{{\bf G}}$
+as long as we use large enough $l_{\rm Pmax}$.
+Here ${P}_{\bfR{L}}$ denotes the projection operator 
 to extract the component of ${\bfR{L}}$ contribution.
-Thus $\bar{P}^{\bf k}_{{\bf G}}$ can contain high-$L$ component
-even within MTs.
-When $l_{\rm Pmax} \to \infty$, we have 
-$\bar{P}^{\bf k}_{{\bf G}}={P}^{\bf k}_{{\bf G}}$.
-
-We take $l_{\rm Pmax} = 2 \times l_{\rm max}$\verb!=2*LMXA!,
+%Thus $\bar{P}^{\bf k}_{{\bf G}}$ can contain high-$L$ %component even within MTs.
+%When $l_{\rm Pmax} \to \infty$, we have 
+%$\bar{P}^{\bf k}_{{\bf G}}={P}^{\bf k}_{{\bf G}}$.
+In fact, we use large enough $l_{\rm Pmax}$;
+$l_{\rm Pmax} = 2 \times l_{\rm max}$\verb!=2*LMXA!,
 where $l_{\rm max}$ denotes the maximum angular momentum 
 for the expansion of eigenfunctions within MT (maximum
 $l$ cutoff for $\alpha^{{\bfk}n}_{\bfR u}$ in \req{eqeigen}). 
-Thus $l_{\rm Pmax}=8$, which will be usually large enough, 
-when we take $l_{\rm max}=4$. 
+In the defalut setting, we use $l_{\rm Pmax}=8$ 
+since we use $l_{\rm max}=4$. 
 
+%Thus we can use $\bar{P}^{\bf k}_{{\bf G}}$ 
+%in \req{eq:baripw} in the place of 
+%$P^{\bf k}_{{\bf G}}$ when we evaluate the
+%Coulomb matrix.
 
-\subsection{$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$}
-
-Since it is not easy to evaluate 
-$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$ exactly,
-we take a little complicated manner.
-That is, we first calculate the matrix element for BarIPW
-$\langle \bar{P}^\bfk_\bfG |v| \bar{P}^\bfk_{\bfG'} \rangle$,
-and then we calculate $\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$
-from that of the BarIPW.
+%To evaluate 
+%$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$ %accurately, 
 
 The matrix elements $\langle P_1 |v| P_2 \rangle$ 
 can be calculated as
 \begin{eqnarray}
-\langle P_1 |v| P_2 \rangle = 
+\langle P_1(phiphi) |v| P_2(phiphi) \rangle=
 \sum_{\bf G_{1'} G_{1''} G_{2'} G_{2''}} 
-\langle P_1(phiphi) | \bar{P_{1'}} \rangle  
-\langle \bar{P}_{1'}| \bar{P}_{1''} \rangle^{-1} 
-\langle \bar{P}_{1''} |v| \bar{P_{2''}} \rangle  
-\langle \bar{P}_{2''}| \bar{P}_{2'} \rangle^{-1} 
-\langle \bar{P_{2'}} | P_2(phiphi) \rangle,  
+\langle P_1(phiphi) | {P_{1'}} \rangle  
+\langle {P}_{1'}| {P}_{1''} \rangle^{-1} 
+\langle {P}_{1''} |v| {P_{2''}} \rangle  
+\langle {P}_{2''}| {P}_{2'} \rangle^{-1} 
+\langle {P_{2'}} | P_2(phiphi) \rangle,  
 \label{eq:pvp}
 \end{eqnarray}
 where $1\equiv ({\bf k},{\bf G_1})$ and so on.
-
-The matrix elements
-$\langle \bar{P}_{2''}| \bar{P}_{2'} \rangle^{-1}$ 
+Here $P_1(phiphi)$ indidates 
+that an IPW made from a product
+of IPWs.The matrix elements
+$\langle {P}_{2''}| {P}_{2'} \rangle^{-1}$ 
 (stored into \io{PPOVLG,PPOVLI})
-and $\langle \bar{P_{2'}} | P_2(phiphi) \rangle$ 
+and $\langle {P_{2'}} | P_2(phiphi) \rangle$ 
 (stored into \io{PPOVLGG})
 are given at {\tt rdata4gw}.
-Note that $\langle \bar{P_{2'}} | P_2(phiphi) \rangle
-=\langle P_{2'} | P_2(phiphi) \rangle$, that is, this is 
-the matrix elements not for BarIPW.
 
-\subsection{PPOVL* files}
+
+\subsection{Overlap matrix of PPOVL* files}
 \io{PPOVL*} files contains the 
 overlap matrix of IPWs 
 $\langle {P}^{\bf k}_{{\bf G}}|{P}^{\bf k}_{{\bf G'}}\rangle$
@@ -1475,10 +1615,12 @@ The melpln2t is for generating the matrix element of
 \end{verbatim}
 
 
-\subsection{$\langle \bar{P}^\bfk_\bfG |v| \bar{P}^\bfk_{\bfG'} \rangle$}
+\subsection{$\langle {P}^\bfk_\bfG |v| {P}^\bfk_{\bfG'} \rangle$}
 To evaluate \req{eq:pvp}, we need to know 
-its main part $\langle \bar{P}^\bfk_\bfG |v| \bar{P}^\bfk_{\bfG'} \rangle$. It is written as
+its main part $\langle {P}^\bfk_\bfG |v| {P}^\bfk_{\bfG'} \rangle$. It is written as
 \begin{eqnarray}
+\langle {P}^\bfk_\bfG |v| {P}^\bfk_{\bfG'} \rangle
+\approx
 \langle \bar{P}^\bfk_\bfG |v| \bar{P}^\bfk_{\bfG'} \rangle
 &=&\langle \exp(i(\bfk+\bfG)\bfr) |v| \exp(i(\bfk+\bfG')\bfr) \rangle
 -\sum_{\bfR{L}} 
@@ -1512,25 +1654,53 @@ This is coded by a line
 
 Let use consider other terms. In the second term,
 we can replace $v$ with $\frac{4 \pi \Omega}{|\bfk+\bfG'|^2+|E|}$
-since $v$ is diagonal for $|\exp(i(\bfk+\bfG')\bfr) \rangle$, the third term as well. Except $v$, we have
+since $v$ is diagonal for $|\exp(i(\bfk+\bfG')\bfr) \rangle$, the third term as well. Except $v$, 
+we have
 \begin{eqnarray}
-&&\langle \exp(i(\bfk+\bfG')\bfr)| P^{\bfk+\bfG'}_{\bfR'{L'}}\rangle
+&&\langle \exp(i(\bfk+\bfG)\bfr)| P^{\bfk+\bfG'}_{\bfR'{L'}}\rangle
 =\sum_{\bfR{L}} \langle 
 P^{\bfk+\bfG}_{\bfR{L}}|
 P^{\bfk+\bfG'}_{\bfR'{L'}}\rangle \nonumber \\
 &&=\sum_{\bfR{L}} 
-({\rm pjyl}(\bfk+\bfG,L) \exp(i(\bfk+\bfG')\bfR))^* 
-\times {\rm jjint}(|\bfk+\bfG|,|\bfk+\bfG'|,l) \nonumber \\
-&&\times {\rm pjyl}(\bfk+\bfG,L) \exp(i(\bfk+\bfG')\bfR),
+({\tt pjyl\_}(\bfk+\bfG,L) \exp(i(\bfk+\bfG)\bfR))^* 
+\times R^{JJ}(|\bfk+\bfG|,|\bfk+\bfG'|,l) \nonumber \\
+&&\times {\tt pjyl\_}(\bfk+\bfG',L) \exp(i(\bfk+\bfG')\bfR), \label{eq:fourvp0}
 \end{eqnarray}
 where we use 
 \begin{eqnarray}
-P^{\bfk+\bfG}_{\bfR{L}}(\bfr)=4 \pi i^l j_l(|{\bfk+\bfG}|r) 
-Y_L(\widehat{\bfk+\bfG}) Y_L(\bfr)
-={\rm pjyl}(\bfk+\bfG,L) j_l(|{\bfk+\bfG}|r) Y_L(\bfr)
+&&P^{\bfk+\bfG}_{\bfR{L}}(\bfr)=4 \pi i^l j_l(|{\bfk+\bfG}|r) 
+Y_L(\widehat{\bfk+\bfG}) Y_L(\hat{\bfr})\exp(i(\bfk+\bfG)\bfR)\nonumber \\
+&&= {\tt pjyl\_}(\bfk+\bfG,L) \bar{J}_l(|{\bfk+\bfG}|r) Y_L(\hat{\bfr})
+\exp(i(\bfk+\bfG)\bfR), 
 \end{eqnarray}
-We have defined pjyl here. 
+where $\bfr$ is measured from the center $\bfR$.
+Here we use {\tt pjyl\_} defined as
+\begin{eqnarray}
+{\tt pjyl\_}(\bfk+\bfG,L) 
+=4 \pi i^l |\bfk+\bfG|^l Y_L(\widehat{\bfk+\bfG}) \end{eqnarray}
+(recall the definition of $\bar{J}_l$.
+In codes, {\tt cy(lm)*yl(lm)}
+$=Y_L(\widehat{\bfk+\bfG})$.)
+Search {\tt pjyl\_} in {\tt mkjp.F}.
 The Bessel functions appear here in the expansion of PW; see \req{eq:expandpw}.
+$R^{JJ}(|\bfk+\bfG|,|\bfk+\bfG'|,l)$
+is given as
+\begin{eqnarray}
+R^{JJ}(|\bfk+\bfG|,|\bfk+\bfG'|,l)
+= \int_0^R  r^2 \bar{J}_l(|{\bfk+\bfG}|r)
+\bar{J}_l(|{\bfk+\bfG'}|r) dr ,
+\end{eqnarray}
+which can be calculated by the wronskian ({\tt wronskj}) by the formula
+\begin{eqnarray}
+R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)=
+\int_0^R \!\!r^2 \bar{J}_l(\kappa_{\rm A} r)
+\bar{J}_l(\kappa_{\rm B} r) dr
+=R^2\frac{
+\bar{J}_l(\kappa_{\rm A} r) \frac{d \bar{J}_l(\kappa_{\rm B} r)}{dr}
+-\frac{d \bar{J}_l(\kappa_{\rm A} r)}{dr}\bar{J}_l(\kappa_{\rm B} r)
+}{\kappa_{\rm A}^2-\kappa_{\rm B}^2}\Big|_{r=R}= {\tt -fjj}
+\end{eqnarray}
+({\tt -fjj} is used in {\tt mkjp.F}.
 In codes, the contributions to the second and third terms of \req{eq:barpvbarp} due to $\bfR{L}$ components are given as (simplified for illustration) 
 \begin{verbatim}
   fouvp_ig1_ig2 = fpi/(absqg2(ig1)-eee)                  &
@@ -1544,7 +1714,7 @@ Look for the keyword \verb!fourvp! in \verb!mkjp.F!.
 Correspondences are
 \begin{verbatim}
 fpi --> 4 pi
-absqg2(ig1) --> |q+G1|
+absqg2(ig1) --> |q+G1|**2
 -eee        --> |E|
 lm2         --> L
 ibas2       --> R
@@ -1553,44 +1723,65 @@ ibas2       --> R
 The last term of \req{eq:barpvbarp} can be calculated essentially
 the same manner with $\langle B| v| B\rangle$, where we use the
 Bessel function instead of $B_{\bfR{l}\mu}(r)$ appeared in Sec.\ref{sec:bvbpart}.
-
-
-\subsection{$\langle B|P \rangle$ part}
+Then we define integrals 
+{\tt rojp} and {\tt sgpp} defined as (in {\tt fpgw/gwsrc/mkjp.F});
 \begin{eqnarray}
-\langle B^\bfk_{\bfR{L}\mu}(\bfr) |v| \bar{P}^\bfk_{\bfG'} \rangle
-&=&\langle B^\bfk_{\bfR{L}\mu}(\bfr) |v| \exp(i(\bfk+\bfG')\bfr) \rangle
+{\tt rojp}(\bfR L)&=&{\tt pjyl\_} \ 
+\exp(i (\bfq+\bfG) \bfR)  \rho^l(\bar{J}_l) \\
+{\tt sgpp}(\bfR L,\bfG,\bfG')&=&{\tt pjyl\_^*(ig1)} \exp(-i (\bfq+\bfG) \bfR)
+{\tt pjyl\_(ig2)} \exp(i (\bfq+\bfG') \bfR) 
 \nonumber \\
-&-&\sum_{\bfR'{L'}} 
-\langle B^\bfk_{\bfR{L}\mu}(\bfr) |v| P^{\bfk+\bfG'}_{\bfR'{L'}}\rangle
-\label{eq:barpvbarp}
+&&  \times {\tt  radsig}, \nonumber \\
+&& \ {\rm where\ }
+{\tt radsig}=\sigma^l(\bar{J}_l(|\bfq+\bfG|r),\bar{J}_l(|\bfq+\bfG'|r)).
+\end{eqnarray} 
+Thus, {\tt rojp} and {\tt sgpp} made of coefficients for explansion
+and radial integral.
+Search {\tt sgpp\_ig1\_ig2} in {\tt mkjp.F}. 
+
+\subsection{$\langle P|B \rangle$ part}
+\begin{eqnarray}
+&&\langle {P}^\bfk_{\bfG} |v| B^\bfk_{\bfR{L}\mu}(\bfr) \rangle
+=\langle  \exp(i(\bfk+\bfG)\bfr) 
+|v|B^\bfk_{\bfR{L}\mu}(\bfr) \rangle
+-\sum_{\bfR'{L'}} 
+\langle P^{\bfk+\bfG}_{\bfR{L}}|v|
+B^\bfk_{\bfR{L}\mu}(\bfr)  \rangle \nonumber \\
+&&={\tt fouvb}(\bfG,\bfR L \mu)
+-\sum_{\bfR'L'} {\tt rojp * strx * rojb}
+\label{eq:pvb}
 \end{eqnarray}
+The first term is stored in {\tt fouvb(ngc,nxx,nlxx,nbas)} allocated at 
+{\tt L824:hvccfp0.m.F}.
+Search {\tt fouvb} in {\tt mkjp.F}. 
+Since $v$ is diagonal to PWs,
+we can evaluate this in the similar manner of \req{eq:fourvp0}.
+The second term can be evaluated from 
+{\tt rojb} and {\tt sgpb} in the same manner of last section.
 
-\underconstruction
+\underconstruction(we will detail a little more...)
 
-\subsection{self-energy}.
-
-\underconstruction
-
-\subsection{Improved offset-$\Gamma$ method; 
+\section{Improved offset-$\Gamma$ method; 
 W(k=0) averaged in the $\Gamma$ cell.}
 \label{sec:kint}
 The offset-$\Gamma$ method, originally 
 invented for Ref.\cite{kotani_all-electron_2002} by Kotani 
 (it is described in Ref.\cite{kotani_quasiparticle_2007}), 
-was a key to perform accurate $GW$ calculation in our successive papers.
+was a key to perform accurate $GW$ 
+calculation in our papers.
 It is for the integration of $\bfk$ 
 in Eqs.(\ref{eq:sigx}) and (\ref{sigmann}), where
 we have the integrands that diverge at $\bfk \to 0$.
-The offset $\Gamma$ method works well 
+The original offset $\Gamma$ method works well 
 for highly symmetric systems; however,
-it can be problematic to apply to less symmetric systems, 
+it may be problematic to apply to less symmetric systems, 
 because the anisotropic divergence of the integrands 
 %in \req{eq:sigx} and \req{sigmann} around $\bfk=0$ 
 may not be treated accurately.
 
 Here we show an improved offset-$\Gamma$ method, which treats
 the anisotropy of $W(\bfk,\omega)$ accurately.
-In the following, we use expression $W(\bfk)$
+In the followings, we use expression $W(\bfk)$
 for simplicity (omit subscripts and $\omega$)
 instead of $W_{\mu \nu}(\bfk,\omega)$, 
 since we are concerned with the $\bfk$ integral here.
@@ -1717,7 +1908,7 @@ where its right-hand side is defined as
 \frac{1}{N} \sum_{\bfk \ne 0} G(\bfq-\bfk) W(\bfk) + \frac{1}{N} G(\bfq)\overline{W}(\bfzero),\\
 &&\overline{W}(\bfzero)\equiv N\sum w_L W_L + \widetilde{W}(\bfzero).
 \end{eqnarray}
-Here $\overline{W}(\bfzero)$ is a type of 
+Here $\overline{W}(\bfzero)$ is an %a type of 
 average of $W$ in the $\Gamma$ cell.
 With this $\overline{W}(\bfzero)$, we can 
 evaluate integrals just as the sum on the discrete $\bfk$-mesh.
@@ -1780,8 +1971,70 @@ The improved offset-$\Gamma$ method shown here can be applicable even to metal c
 $\hat{\bfk}_{0i}^{\rm T}{\bf L}(\omega)\hat{\bfk_{0i}}$ contains the contribution
 of intraband transition.
 
+\section{hx0fp0.sc.m.F. $W(\bfk,\omega)$ calculation}.
+\underconstruction
 
-\subsection{Interpolation of the self-energy in the Brillouin zone}
+
+\section{self-energy}.
+\underconstruction
+
+\section{Fourier transformation of non-local quantity}
+We have "{\tt call bloch}" in {\tt lm7K/fp/bndfp.F}.
+This is for the three dimensional FFT.
+The usual FT is by
+\begin{eqnarray}
+f(\bfT)=\sum_\bfk f(\bfk) \exp(i \bfk \bfT),
+\end{eqnarray}
+where $\{\bfk\}$ is are on the regular mesh points.
+The total number of its members is $N_1 \times N_2 \times N_3$.
+(the number is the same as that of $\{\bfT\}$).
+Note that we have periodicity both in $\bfk$ points
+and in $\bfT$ points. Because of the periodicity, the range of $\{\bfk\}$
+is not unique, the range of $\{\bfT\}$ as well.
+
+Let us think about non-local quantity which is dependent on $\bfT-\bfT'$. Then we have
+\begin{eqnarray}
+f(\bfR\bfT,\bfR'\bfT')=\sum_\bfk 
+f_{\bfR\bfR'}(\bfk) \exp(i \bfk (\bfT-\bfT')),
+\label{eq:nonlocalft}
+\end{eqnarray}
+In practical calculations (static version of self-energy treated by
+{\tt bloch} called in {\tt fp/bndfp.F}), 
+we first calculate $f_{\bfR\bfR'}(\bfk)$ on $\bfk$ of regular mesh points. Then we
+need to obtain its real-space representation
+$f(\bfR\bfT,\bfR'\bfT')$. Because of the periodicity,
+we have ambiguity for the choice of possible 
+$|\bfT-\bfT'|$. If we introduce $\bar{\bf T}=\bfT-\bfT'$,
+\req{eq:nonlocalft} is written as
+$f(\bfR\bar{\bfT},\bfR'0)=\sum_\bfk 
+f_{\bfR\bfR'}(\bfk) \exp(i \bfk \bar{\bfT})$ because of translational symmetry.
+
+A reasonable choice is that we allow $\bar{\bfT}$
+which satisfy $|\bfR-\bfR'+\bar{\bfT}|\le\eta_{\rm FTmax}$.
+Here we should choose $\eta_{\rm FTmax}$ so that
+the number of alllowed $\{\bar{\bf T}\}$ is $N_1 \times N_2 \times N_3$.
+Howerever, it can be not possible, because of
+deneneracy; for the largest value of $|\bfR-\bfR'+\bar{\bfT}|$ in the
+alllowed $\{\bar{\bf T}\}$, we may 
+have some of $\bar{\bfT}$ (we say degenerated). 
+Then we need to give fractional weight for such $\bar{\bfT}$.
+
+To get a list of $\bar{\bfT}$,
+we need to collect them satisfying 
+$|\bfR-\bfR'+\bar{\bf T}|<\eta_{\rm FTmax}$.
+$\eta_{\rm FTmax}$ should be automatically chosen.
+However, in the "{\tt bloch}" subroutine, this it too primitive yet(aug2015);
+we need to specify possible upper limit of 
+"range of allowed pairs" $(\bfR\bar{\bfT},\bfR'0)$ by hand.
+({\tt RSRNGE} in {\tt ctrl} file). This should be fixed in future.
+In the current version {\tt iaxs (=\verb#sham%iv_a_oiaxs#)} contains such pair table.
+It is generated by {\tt call hft2rs} in {\tt call seneinterp} in {\tt bndfp.F}, I think.
+We will have to replace "{\tt bloch}" with better version. Pair table must be generated 
+in a simple manner( with the technique of 
+{\tt getgv2} ({\tt getgv2} is given in {\tt fpgw/gwsrc/getgv2.F} and {\tt lm7K/subs/pairs.F}. 
+
+
+\section{Interpolation of the self-energy in the Brillouin zone}
 \label{sec:siginterp}
 Here we show 
 an interpolation procedure for giving
@@ -1965,7 +2218,7 @@ Do grep 'call getkeyvalue' for fpgw/*/*.F
 to find out how to use it.
 \end{itemize}
 
-\subsection{Overview of gwsc and other scripts}
+\section{Overview of gwsc and other scripts}
 The fpgw/exec/gwsc is the main script to run QSGW.
 After we finish one-body self-consistent calculation, 
 we run \exe{echo 0$|$lmfgw}, resulting small files.
@@ -2021,57 +2274,6 @@ generate q0p: algorism
 \appendix
 \noindent {\Huge Appendix}.  \\Some of them might be obsolate now...
 
-\section{Used formulas}
-\label{usedf}
-
-\begin{eqnarray}
-\frac{1}{|\bfr-\bfr'|}=\sum_K \frac{r^k_<}{r^{k+1}_>}\frac{4\pi}{2k+1}
-Y^*_K(\hat{\bfr})Y_K(\hat{\bfr}) \label{eq:oneorr}
-\end{eqnarray}
-See Appendix A in Ref.\cite{svane_evaluation_1986}.
-This is generalized to be
-\begin{eqnarray}
-\frac{e^{-|\kappa| |\bfr-\bfr'|}}{|\bfr-\bfr'|}=\sum_L 
-\bar{J}_L(E,r_<) \bar{H}_L(E,r_>) \frac{4\pi}{2l+1}
-Y^*_L(\hat{\bfr})Y_L(\hat{\bfr}), \label{eq:oneorr2}
-\end{eqnarray}
-based on the definition Eqs.\ref{eq:Fbessel}.
-Here $E=-|\kappa|^2 <0$. Im part of $\kappa$ is positive.
-
-We use a notation such that $X_L=X_l(r) Y_L(\hat{r})$.
-Here the barBessel functions $
-\bar{J}_L=\bar{J}_lY_L$ and $\bar{H}_L=\bar{H}_lY_L$ are defined as
-\begin{eqnarray}
-&&\bar{J}_l(E,\bfr)=(2l+1)!! j_l(i|\kappa| r) / (i |\kappa|)^l \nonumber \\
-&&\bar{H}_l(E,\bfr)=\frac{1}{(2l-1)!!} h_l(i|\kappa| r) i (i |\kappa|)^{l+1} . \label{eq:Fbessel}
-\end{eqnarray}
-(memo: for example, $7!!=7\cdot5\cdot3\cdot1$ \verb!;function fac2m(i)!).
-These are real functions for $E\le 0$.
-(See note for \verb!genjh! in \verb!mkjp.F!.)
-At $E=0$, this is reduced to be 
-\begin{eqnarray}
-&&\bar{J}_l(E=0,\bfr)=r^l \\
-&&\bar{H}_l(E=0,\bfr)=r^{-l-1}.
-\end{eqnarray}
-Our default setting is with very small negetive $E$ to avoid numerical 
-trouble (switch.F).
-
-\begin{eqnarray}
-&&\exp( i {\bf k} {\bf r}) = 4 \pi \sum_L i^l 
-j_l(|{\bf k}|r)  Y^*_L( {\bf \widehat{ k} }) Y_L(\widehat{{\bf r}}) 
-\label{eq:expandpw}\\
-&&\frac{2l+1}{4 \pi} P_l(\cos\Theta) = \sum_m Y^*_L( {\bf \widehat{r}}_1) 
-Y_L({\bf \widehat{r}}_2) \ \ \ \ \ \ 
-[\cos \Theta = {\bf \widehat{r}}_1 \cdot {\bf \widehat{r}}_2].
-\end{eqnarray}
-
-\begin{eqnarray}
-\langle P^{\bf k}_{\bf G}|P^{\bf k}_{{\bf G}'} \rangle
-= \Omega \delta_{{\bf G},{\bf G}'} -  
-\sum_{a,L} \exp( i ({\bf G}-{\bf G}') {\bf R_a}) \times Y_L(\widehat{{\bf k+G}}') 
-Y_L( {\bf \widehat{ k+G} }) \nonumber \\
-\times \int_0^{R_a} j_l(|{\bf k+G}|r)j_l(|{\bf k+G}'|r) 4 \pi^2 r^2 dr,
-\end{eqnarray}
 
 \section{Spherical Harmonics and Real harmonics in ecalj}
 
