@@ -11,6 +11,7 @@ for iline in lines:
 		iband=0
 		print
 		print '# ' + iline
+		ionline=0
 	if 'band' in iline:
 		if iband>0:
 			www= '%12.5f' % weight

@@ -286,25 +286,32 @@ but not documented well yet...) \\
 
 \noindent Be careful. 
 This document still contain many bugs...
+Let me know bugs in this manual (try to fix things step by step).
 We need your help on this manual.\\
 
 \noindent ------------------------\\
-\begin{quote}
 \noindent {\bf Requirement}\\
 \noindent To support of our ecalj activity, we need your acknowledgment to \ecalj 
 in your publications in the manner shown in ecalj/README.md; \\
 \url{https://github.com/tkotani/ecalj/#we-need-acknowledgment-as}
 such as:\\
-{\small\ \ \ \ \ 
+\begin{quote}
 [1] ecalj package at https://github.com/tkotani/ecalj/. \\
-\ \ \ \ \ \ \ \ \ \  Its one-body part is developed based on Ref.[2].}\\
+\ \ \ \ \ \ \ \ \ \  Its one-body part is developed based on Ref.[2].\\
 {\small\ \ \ \ \ 
 [2] LMsuit package at http://www.lmsuite.org/. \\
 \ \ \ \ \ \ \ \ \ \  Its GW part is adopted mainly from Ref.[1].}\\
-(as in the same manner of usual papers).\\
 \end{quote}
+(as in the same manner of usual papers).\\
 
-\noindent ------------------------\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent {\bf Contributions}\\
+\noindent Main contributors to the ecalj package are
+(only a list of people who directly related to the code developments): \\
+T.Kotani, Hiori Kino, Mark van Schilfgaarde,
+Sergey Faleev, Takashi Miyake, \\Seungwoo Jang, Manabu Usuda.
+They also contribute to this documents.\\
+
 \noindent {\bf Relation with \exe{LM suit} at \io{http://www.lmsuite.org/}}:\\
 There is a full potential LMTO package (with a slightly different
 implementation of PMT) contained in \exe{lmsuit}.
@@ -319,23 +326,28 @@ is still applicable even to the ecalj package.
 %let ask me something, and/or look into the web site to get.
 %I will write up a new clean manual soon.
 \vspace{2mm}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\noindent ------------------------\\
-\noindent {\bf Contributions}\\
-\noindent Main contributors to the ecalj package are
-(only a list of people who directly related to the code developments): \\
-T.Kotani, Hiori Kino, Mark van Schilfgaarde,
-Sergey Faleev, Takashi Miyake, \\Seungwoo Jang, Manabu Usuda.
-They also contribute to this documents.
 
+\noindent {\bf History}\\
 \noindent T.Kotani learned the LMTO-ASA-GW code by {F.Aryasetiawan},
-which is on top of the Stuttgart's LMTO-ASA, mainly by van Schilfgaarde
-under O. Jepsen and O. K. Andersen\\
+which is on top of the Stuttgart's LMTO-ASA, 
+mainly by van Schilfgaarde under O. Jepsen and O. K. Andersen\\
 \url{http://www2.fkf.mpg.de/andersen/LMTODOC/LMTODOC.html}.
-FP-LMTO part is originally given by
-M.Methfessel, Mark van Schilfgaarde and their collaborators.\\
-}
-
+A FP-LMTO package is originally given by
+M.Methfessel, Mark van Schilfgaarde and their collaborators.
+T.Kotani developed an all-electron full-potential GW method on top of the FP-LMTO during his subbatical at 1999-2000 at the lab of M.Schilfgaarde. 
+Then the QSGW method has developed 
+with the help of S.Faleev and M.Schilfgaarde, first published in 2004.
+Then T.Kotani was adding new functionality such as spin fluctuation,
+impact ionization.
+In year 2008, T.Kotani started the PMT=LMTO+LAPW method to remove
+problem of the FP-LMTO. 
+After T.Kotani moved to Tottori-u at 2009, he spends time
+for the improvement of PMT method. 
+T.Kotani and H.Kino showed that the PMT method can describe even the
+diatomic molecules efficiently and accurately.It turns out very limited
+number of APWs can remove such problems.
+Then T.Kotani have developed PMT-QSGW method. It is now stable, easy, 
+and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 
 \tableofcontents
 \vspace{5mm}
@@ -960,9 +972,23 @@ where $\bfG= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
 \underconstruction
 
 \noindent {\bf Algorithm of {\tt getgv2}.}\\
-We can calculate range of $n_1$ for given maxmum of $|\bfq+\bfG|$ (={\tt QpGcut}).
-The range is determined by the condition that the sphere $|\bfq+\bfG|$={\tt QpGcut}
-is touching the plane specified by $n_1$ ($n_1$ should be treated as if it takes continuous value). The plane is normal to the external product $Q_2 \times Q_3$.
+Let us consider the three dimensional space of ${\bf x}= \bfq+\bfG$.
+For given $\bfq$, allowed $\bfG$ make a set of regular mesh points $\{\bfq+\bfG\}$.
+The purpose of {\tt getgv2} is picking up only mesh points satisfying
+$|\bfq+\bfG|<${\tt QpGcut} among these mesh points.
+
+At first, we can calculate allowed range of $n_1$ for given maximum of 
+$|\bfq+\bfG|$ (={\tt QpGcut}). Note $|{\bf x}|=|\bfq+\bfG|$={\tt QpGcut}
+gives a sphere; we have to pick up mesh points within the sphere.
+When we spefcify $n_1$, we have a plane 
+(allowing $n_2,n_3$ can take any values).
+The range is determined by the condition that the sphere 
+$|\bfq+\bfG|$={\tt QpGcut} cross the plane specified by $n_1$ 
+(exactly speaking, such $n_1$ is real number).
+The vector normal to the plane is the external product $Q_2 \times Q_3$.
+
+After we get the range of $n_1$, as well as $n_2,n_3$ ,
+we simply test whether $\bfq+\bfG$ for $(n_1,n_2,n_3)$ is allowed or not.
 
 
 \subsubsection{Make $G$ vectors: shortn3}

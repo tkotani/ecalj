@@ -18,7 +18,7 @@ cd StructureTool/
 ./makelink
 
 ### Use lm7K/Makefile
-cd lm7K/
+cd ../lm7K/
 make PLATFORM=ifort.cmd LIBMATH="$MATH"
 make PLATFORM=ifort.cmd      BINDIR=$BINDIR install
 make PLATFORM=ifort_mpik.cmd LIBMATH="$MATH"

@@ -523,6 +523,167 @@ ecalj
 %\end{mspace0}
 
 
+\newpage
+\section{Theory (note)}
+Except the technical details, we need to know minimum for these theories.
+\begin{itemize}
+\item DFT in LDA/GGA.
+\item GW
+\item QSGW
+\end{itemize}
+There are literatures as for GW. A recent one is 
+Ref.\cite{di_valentin_quasiparticle_2014}.
+In addition, it is better to know the basics of the PMT
+method (LAPW+LMTO method)
+\cite{kotani2015pmt}. 
+Here is a small note for $GW$.\\
+
+\noindent {\bf Green function} \\%: convert differential equation to integral equation}\\
+The Green's function $G(\bfr,\bfr',\omega)$ is the central quantity in
+the GW calculation. 
+%It is the quantity which
+%describes one-body propagation. 
+%It is well defined even in the many-body theory. 
+In the one-particle theory (mean-field theory/non-interacting
+case), the Schr\"odinger eq. is
+\begin{eqnarray}
+(i \frac{\partial }{\partial t} - H_0) \psi(\bfr,t)=0 \label{sch0}
+\end{eqnarray}
+Here $H_0$ is the 
+one-particle Hamiltonian which contains electrostatic potential
+plus exchange-correlation potential $V_{\rm xc}$
+(here we don't care how it is given. This should be static but can be
+non-local as Fock term).
+When we have (unkown) source term $J(\bfr,t)$ instead of 0
+in the right hand side of \req{sch0},
+we can calcuate $\psi(\bfr,t)$ by multipling inversion of
+the operator $(i \frac{\partial }{\partial t} - H_0)$.
+This is the (non-interacting) Green funciton $G(\bfr,\bfr',\omega)$ defined as
+\begin{eqnarray}
+(i \frac{\partial }{\partial t} - H_0) G
+= \delta(t-t')\delta(\bfr-\bfr'). \label{g0def}
+\end{eqnarray}
+As this shows, $G$ is the inverse matrix of 
+the operator $(i \frac{\partial }{\partial t} - H_0)$,
+(we pay attention to the boundary condition, 
+especially for time-direction: retarted, advanced or
+time-ordered). Thus we can write 
+$G=1/(i \frac{\partial }{\partial t} -H_0)=1/(\omega -H_0)$.
+In other words, the Green function $G$ is the integration kernel
+in order to convert a differential equation \req{g0def} to an integral
+equation. This is the same as the case of Poisson equation
+(Laplacian) for the electrostatic problem;then $1/|\bfr-\bfr'|$
+is the Green function for the conversion (then we calculate electro
+static field $\phi(\bfr)$ for give source term $\rho(\bfr)$.
+ 
+In the case of electro static problem, we have two ways to solve the
+problem. One is the direct method to solve differential equation,
+the other is using such integration kernel. They are equivalent, but the
+latter is easy to handle and suitable for numerical calculations
+(under the assumption of ``superposition low'', that is, linear response).
+Although $G(\bfr,\bfr', t-t')$ contains time variables (to describe wave
+propagation), essentials are the same.\\
+
+
+\noindent {\bf Green function: many body case}\\
+$G(\bfr,\bfr',\omega)$ is the quantity which is well defined
+even in the many-body perturbation theory. It is defined
+as the expectation value as 
+$\langle 0|\hat{\psi}(\bfr t) \hat{\psi}^\dagger(\bfr' t')| 0 \rangle$
+(this is not accurate. See literatures..). Here we use
+the second-quantized field-operator $\hat{\psi}$. This definition
+of $G$ is a natural extension of the one-particle case.
+%We now have to talk about time-evolution of 
+%$\langle 0|\hat{\psi}(\bfr t) |1 \rangle$, where $|1 \rangle$ means
+%the state to add one-electron to the system.
+
+However, there are differences in the $G$ of one-particle
+case and many-body case. 
+In the one-particle case, we have no interaction between electrons.
+Thus an electron added to the ground state (which is by filling electrons up the Fermi energy) is the eigenstate. 
+An electron going on can not be an eigenstate,
+because of the correlation effect and exchange effect.
+
+Let me explain the correlation effect.
+In contrast to this, one-particle state 
+(=the quasiparticle(QP))
+in the many-body theory can be not the eigenstate; 
+it moves in the sea of ohter electrons and holes, which can be excited to other states, or an moving electron can move with polalized cloud of other electrons and holes.  Its motion is affected by oher electrons. It will lose
+energy gradually; the QP can have life time.
+This may be identified as the correlation effect.
+
+Let me explain the exchange effect.
+This is due to the Fermi statistics.
+The electron, which you focus on, can not be distinguished from other electrons. (Thus mu-on can not feel this effect.
+$G$ for mu-on in solids only contains pure correlation effect). 
+From a point of view, this exchange effect is interpreted as 
+a hopping effect, sudden jump from an electron to another elecron
+(actually the Hartree-Fock theory gives zero effective mass at the Fermi energy for metallic systems).
+
+We can include both of the effects in the GW calculation at the lowest
+order. Exactly speaking, these two effects are really mixed up. However,
+in GW (since GW is at the lowest order), these two are clearly separated.
+
+
+The rigorous equation for $G$ is
+\begin{eqnarray}
+\left(i \frac{\partial }{\partial t} - H_0 + 
+(\Sigma(\bfr,\bfr',t-t')-V_{\rm xc})\right) G
+= \delta(t-t')\delta(\bfr-\bfr'). \label{gdef}
+\end{eqnarray}
+Only the difference is adding 
+$\Sigma(\bfr,\bfr',t-t')-V_{\rm xc}$.
+In other words, all unknown effects are pushed into this term.
+Many body effect are pushed into (downfolded or projected into) 
+the self-energy (=dynamical one-particle potential)
+$\Sigma(\bfr,\bfr',t-t')$. 
+We don't treat many-body quantities such as
+$X(\bfr_1 t_1, \bfr_2 t_2, \bfr_3 t_3)$ directly in the $GW$
+calculations.
+
+The $GW$ method is how to give the $\Sigma(\bfr,\bfr',t-t')$ in the lowest order.
+Because of the long-range property of the Coulomb interaction, we need
+to have a special technique (not a simple perturbation). 
+$\Sigma(\bfr,\bfr',t-t')$ is calculated as the product of $G \times W$, where $G$
+is (usually) just the non-interacting Green function given in \req{g0def}.
+$W$ is the dynamically screened Coulomb interaction calculated in RPA.\\
+
+\noindent{\bf QSGW}\\
+Note that \req{gdef} completely cancels the effect of 
+$V_{\rm xc}(\bfr,\bfr')$ since it is included in $H_0$.
+Thus this division is not meaningful if we can solve a problem completely.
+However, what we can do is only the perturbation.
+Quantities for $H_0$ is taken as the basic quantities. On it, we apply the perturbation.
+Equivalently we can have a division $H=H_0+(H+H_0)$, where $H$ is the
+many-body Hamiltonian. 
+
+In priniple, we can start from any $V_{\rm xc}$. However,
+as long as we use perturbation theory, we have to minimize 
+the effect of $\Sigma(\bfr,\bfr',t-t')-V_{\rm xc}$.
+The degree of freedom of the choice of $V_{\rm xc}$ is used 
+to minimize it. This is the self-consistent pertubation theory idea for QSGW.\\
+
+If $\Sigma(\bfr,\bfr',t-t')-V_{\rm xc}$ 
+give small effect, we can use the concept of the QP
+(independent particle picture) as the basis to evaluate physical
+quantities.
+
+We have to determine best (or optimum) $V_{\rm xc}$. How to do it?
+An idea is that we should determine it so that 
+the size of $\Sigma(\bfr,\bfr',t-t')-V_{\rm xc}$ should be smallest 
+(how to measure the size?).
+Or, based on the Landau-Silin's theory, 
+the QPs contained in $G$ should be reproduced by $H_0$.
+In anyway, this ends up with the self-consitent petrurbation theory.
+For trial $V_{\rm xc}$ (and electron density), we have $H_0$; from $H_0$
+we can calculate $\Sigma(\bfr,\bfr',t-t')$. Then we have to
+determine new $V_{\rm xc}$ in a method. This is repeated until converged.
+No unique choice for the method. Thus we testes some possible ways
+and now we usually use a standard procedure as described in Ref.
+ \cite{kotani_quasiparticle_2014}.
+%In either way, we somehow need to downfold many-body effect into $V_{\rm xc}$.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{LDA/GGA calculations and Plots}
