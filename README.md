@@ -717,43 +717,22 @@ Note that what we need is at q to zero limit.
 In such a case, a possible way is "take average of degenerated bands,
 and make an interpolation (least squrre fit by gnuplot).
 
-4. least square fit by gnuplot. In the case of GaAs (SO) case for
-qsgw, A problematic part is mhh along 111(L) direction.
-In such a case, we do
->paste Band005Syml004Spin1.mass Band006Syml004Spin1.mass >temp
->gnuplot -persisit massfit.glt
-where, massfit.glt is
-----------start of massfit.glt------------------
-set grid
-set ylabel "mass/mass(electron)"
-set xrange [0.00: 0.02537]
-f(x) = a+ x**2*(b + x**2*c) 
-fit f(x) "temp" u ($6):(($7+$14)/2.0) via a,b, c
-plot \
-"Band005Syml004Spin1.mass" u ($6):($7) lt 5 pt  5 w lp ti "band= 17",\
-"Band006Syml004Spin1.mass" u ($6):($7) lt 6 pt  6 w lp ti "band= 18",\
-f(x) 
-print 'mass=',f(0)
-----------end of massfit------------------
-Then I got mhh(111)=0.796 in QSGW.
-Note that Syml004 means 4th line of syml file.
-("257  0 0 0   .5 .5  .5   1     32     0.1 0.01    Gamma  L" in our example).
+4. least square fit by gnuplot. 
 
-An example is at ~/ecalj/MATERIALS/GaAs_so.qsgw.mass
-Please look into ./job and run it here. 
-(We automatically have three gnuplot figures.
- If we change nk1=nk2=nk3=8, we have different fitting curve).
+We have an example is at ~/ecalj/MATERIALS/mass_fit_test0.tar.gz
+Expand this gives mass_fit_test0/. Look into ./job and run it. 
+See README in it.
 ----
+
 For your convenience, we have dE/dk in the bnd*.spin* files.
 This is useful to determine the Fermi surface.
 See the efermi.lmf to read the Fermi energy.
 </pre>
 
 
-============================================================== 
-How to calculate <ki|Sigma(omega)|ki> ?
---------------------
+
 <pre>
+Spectrum function: How to calculate <ki|Sigma(omega)|ki> ?
 --------
 1. Set <QPNT> section.
 2. Run gwsigma or 
