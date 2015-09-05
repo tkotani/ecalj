@@ -3,7 +3,7 @@
 #(1) Compilar ###################
 # ... Fortran and linker switches for machine LINUX with intel fortran
 
-FC = mpif90 -132 -xHost -mcmodel=medium -heap-arrays 100
+FC = mpif90 -f90=ifort -132 -xHost -mcmodel=medium -heap-arrays 100
 #FC = f95 
 
 # -cm is supress all comment.
@@ -95,7 +95,7 @@ LIBMATH= -mkl
 
 
 #(5) Linker ####################################################
-LK=mpif90 -openmp
+LK=mpif90 -f90=ifort -openmp
 ### gfortran ubuntu12.04 #######
 #LK = mpif90
 #LK= ifort -parallel 

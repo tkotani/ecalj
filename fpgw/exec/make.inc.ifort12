@@ -40,7 +40,7 @@ tet5_g = .o
 LIBMATH= -mkl  
 
 #(5) Linker ####################################################
-LK=mpif90 -openmp
+LK=mpif90 -f90=ifort -openmp
 LKFLAGS2 = $(LIBMATH) 
 
 # LK = mpif90
