@@ -1,25 +1,26 @@
-ecalj 
-============
- A first-principle electronic structure calculation package in
- f90, especially for the PMT-QSGW. 
+ecalj package
+=============================
+This is read me at https://github.com/tkotani/ecalj. 
+A first-principle electronic structure calculation package in
+f90, especially for the PMT-QSGW. 
 
- We have a tutorial course at CMD workshops held by Osaka university (every
- March and Sep). http://phoenix.mp.es.osaka-u.ac.jp/CMD/index_en.html
+Tutorial course: we have course at CMD workshops held by Osaka university (every
+March and Sep). http://phoenix.mp.es.osaka-u.ac.jp/CMD/index_en.html
 
- This is read me at https://github.com/tkotani/ecalj. 
- (checked at Dec2014.This README is still away from perfect...)
-
+We have another home page at http://pmt.sakura.ne.jp/wiki/, but
+not well-organized yet, little in English yet. We will renew it.
+ 
 Overview
-------------
-
-1.  All electron full-potential PMT method: a mixed basis method of two
+--------------------------
+1.  All electron full-potential PMT method: PMT= a mixed basis method of two
    kinds of augmented waves, that is, L(APW+MTO). 
    Relaxiation of atomic positions is possible in GGA/LDA and LDA+U.
    Our recent development shows that very localized MTO (damping
    factor is \sim 1 a.u), together with APW
-   (cutoff is \sim 3 to 4 Ry) works well to get reasonable convergences.
+   (cutoff is \sim 2 to 4 Ry) works well to get reasonable convergences.
    In principle, it is possible to perform default calculations just
    from atomic structures.
+   http://journals.jps.jp/doi/abs/10.7566/JPSJ.83.094711
    
 2. The PMT-QSGW method, that is,
    the Quasiparticle self-consistent GW method (QSGW) based on the PMT method. 
@@ -30,12 +31,22 @@ Overview
    we can use lmf-MPIK and mpi version of hvccfp0,hx0fp0_sc,hsfp0_sc.
    (although we still have so much room to improve it).
    The PMT allows us to perform
-   the QSGW calculations virtually automatically
-   (10.7566/JPSJ.83.094711). http://journals.jps.jp/doi/abs/10.7566/JPSJ.83.094711
+   the QSGW calculations virtually automatically.
+   http://journals.jps.jp/doi/abs/10.7566/JPSJ.83.094711
+
+3.  Wannier function generator and effective model generator
+   (Maxloc Wannier and effective interaction between Wannier funcitons). 
+   This is adopted from codes by Dr.Miyake,Dr.Sakuma, and Dr.Kino.
+   See fpgw/Wannier/README.
+
+Utilities such as a converter between POSCAR(VASP) and our crystal strucrue file
+'ctrls.*' are included. (slightly buggy; let T.Kotani know problems in
+it; note that we should supply numerically accurate atomic positions to judge 
+crystal symmetry automatically).
 
 <pre> 
 !! CAUTION for know bug(or not) for spin susceptibility mode!!! (apr2105).
-T.Kotani think epsPP\_lmfh\_chipm branch may/(or may not) have a bug
+T.Kotani thinks epsPP\_lmfh\_chipm branch may/(or may not) have a bug
 (because of symmetrization). It may be near
 ------------------
           if (is==nspinmx) then 
@@ -52,21 +63,8 @@ If necessary, let me know...
 </pre>
 
 
-3.  Wannier function generator and effective model generator
-   (Maxloc Wannier and effective interaction between Wannier funcitons). 
-   This is mainly from Dr.Miyake,Dr.Sakuma, and Dr.Kino.
-   See fpgw/Wannier/README.
-
-We have another home page at http://pmt.sakura.ne.jp/wiki/, but
-not well-organized yet, little in English yet. We will renew it.
-
-Utilities such as a converter between POSCAR(VASP) and our crystal strucrue file
-'ctrls.*' are included. (slightly buggy; let T.Kotani know problems in
-it; note that we should supply numerically accurate atomic positions to judge 
-crystal symmetry automatically).
-
-We need acknowledgment as
-----------------------------------------------------------
+Requirement for using ecalj
+--------------------------------
 For your publications, please make two citations directly 
 to this homepage as;
 
@@ -75,31 +73,32 @@ Its one-body part is developed based on Ref.[2].
 [2] LMsuit package at http://www.lmsuite.org/. 
 Its GW part is adopted mainly from Ref.[1].
 
-in addition to our papers (in the references).
+in the references on the same footing of other papers.
 
 
-Install and test
------------------------------
+Install and Test 
+--------------------------------
 Follow these steps explained below.  
+However, You can run steps (1)-(5) 
+by a command InstallAll.foobar at ecalj/.
+When install procedure have finished, we have all required binaries and
+shell scripts in your \verb+~/bin/+ directory).
+(or somewhere else where BINDIR specified in InstallAll.*).
+
 (0) Get ecalj package and get tools.  
- --- You can run folling (1)-(4) by a command InstallAll.foobar
-at ecalj/  
 (1) make for single-core LDA part,   
 (2) make for MPIK LDA part,   
 (3) make for MPIK GW part.  
 (4) Install test  
 (5) crystal structure tools  (not necessary).
+
 In the following explanation, we assume gfortran in ubuntu.
-But we can also use ifort, and others in your environment with
-minimum changes in makefiles.
-For testing \ecalj\ for small systems such as Si and GaAs, 
-we can use even Ubuntu + gfortran + note PC.
-When install procedure have finished, we have all required binaries and
-shell scripts in your \verb+~/bin/+ directory).
-(or somewhere else where BINDIR specified in InstallAll.*).
+But we can also use ifort and others in your environment with
+minimum changes in makefiles. Let me have your InstallAll.foobar; it is very helpful for us.
+For for small systems such as Si and GaAs, 
+we can use even Ubuntu + gfortran + note PC for test purpose to observe how QSGW works.
 
-
-##### (0) Get ecalj package and get tools.
+#### (0) Get ecalj package and get tools.
 --- Let us assume you use ubuntu. ---
 You need following tools and libraries to be installed.  
 >sudo apt-get install git  #version control and to get source from github  
@@ -133,15 +132,16 @@ After you did the above git clone command, a directory ecalj/ appears
 We can check history of ecalj code development by
 "\>gik --all" at ecalj/ directory after you did git clone.
 
-#### Automatic command from (1) through (4)  
+#### All from (1) through (5) are performed by InstallAll.foobar.
 Following procedures, (1)-(4), are done automatically by a script,
-for example, InstallAll.ifort (in the case of intel fortran) as;
+InstallAll.ifort (in the case of intel fortran). 
+We can invoke this command as;
 
 >cd ecalj  
 >./InstallAll.ifort  
 (To clean all, do ./CleanAll.ifort).  
 
-Please look into the script "InstallAll.ifort". 
+Please look into the script "InstallAll.ifort". It is a small text file.
 It contains the setting of your BINDIR= directory,
 to which the InstallAll.ifort will copy all binaries and scripts.
 It internally uses three machine-comilar dependent files;  
@@ -156,12 +156,10 @@ InstallAll.ifort may not work for your environment.
 The you may prepare your own InstallAll.foobar,
 in which you have to set compilar, linker, compilar options.
 
-When InstallAll.ifort works well, it will show OK! sign finally.
+When InstallAll.ifort works well, it will show OK! signs finally.
 (one last test (nio_gwsc) may fail in cases, but usually no problem).
-The skip following (1) thru (4). (5) is also not necessary.
 
-
----
+<B> you don't need to read follwings when InstallAll.foobar works fine </B>
 ##### (1) make single core LDA part (it is in ecalj/lm7K/).
 Let us assume gfortran case.
 Move to ecalj/lm7K/, then do "make PLATFORM=gfortran LIBMATH=xxx". 
@@ -212,8 +210,7 @@ make with BINDIR=xxx.
 >make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
 
 
---- WARN! Install problems ---
---------------------
+#### WARN! Install problems ---
 * I saw that current ecalj with gfortran4.6 or 4.7 works fine with
   FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
 * ifort12 may need FFLAGS=-O1 in MAKEINC/Make.inc.ifort. 
@@ -316,6 +313,8 @@ long as "All test are passed!" is shown in the (4)install test.
 
 
 ##### (5) Structure tool.
+This is not necessary if you don't need to need converter between PROCAR and ctrl/ctrls
+(crystal structure file in ecalj).
 In any calculations, we first have to supply crystal structure correctly.
 To help this, we have a converter between POSCAR(VASP's crystal
 structure file) and ctrls(that for ecalj). 
@@ -342,6 +341,8 @@ It depends on your machine. (after editing .bashrc, you have to do
 
 Set the variable of VESTA=, at the begining of 
 ~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
+
+
 
 
 ### How to do version up? ###
@@ -379,32 +380,17 @@ several digits of the begining of its version id).
 >git show 81d27:README is also useful.  
 
 
+### Documents of ecalj ###
+We have documents in ecalj/Document/
+Especially, 
+ecalj/Document/Manual/ecaljmanual.
+is the main document.
+
+
+###  Usage minimum. (e.g, PMT-QSGW(gwsc) for si) ###
+Read ecalj/Document/Manual/ecaaljmanual.pdf
 <pre>
-###### Documents of ecalj #####################
-We have three documents.
-
-1. GetStarted:
-ecalj/Document/Manual/EcaljGetstarted.pdf
-Almost written OK.
-It gives minimum instruction of ecalj.
-
-2. Usage:
-ecalj/Document/Manual/EcaljUsage.pdf
-Not yet completed.
-
-3. Details:
-Two papers (but not yet submitted) are
-  ecalj/Document/Manual/pmttheory17.pdf (for PMT)
-  ecalj/Document/Manual/pmtqsgw13.pdf   (for PMT-QSGW)
-A little extended versions in japanese are
-ecalj/Document/Manual/ecalj_pmttheory17j.pdf (for PMT)
-ecalj/Document/Manual/ecalj_pmqsgw13j.pdf   (for PMT-QSGW)
-We will unify this...
-
-
-#######  Usage minimum. (e.g, PMT-QSGW(gwsc) for si)  ###################
-Read ecalj/Document/Manual/EcaljGetstarted.pdf
-Here is very minimum.
+Here is its very minimum.
 -------------------------------------------
 (1) Write structure file ctrls.si by hand 
     (you can have ctrls from POSCAR(VASP) with vasp2ctrl in
@@ -433,19 +419,12 @@ This shows you band by LDA.
     we have scripts which almost automatically makes these plot in
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
-
-###### PROCASR (VASP format) generator #########
-PROCASR mode for lmf (not yet in lmf-MPIK)
-Band weight decomposition. 
-(Size of circles show the size of components. Superposed on band
-plot). See ecalj/MATERIALS/MgO_PROCAR/README.
-May19.2014
+</pre>
 
 
 
-#####################################################
-Usage problems, Q&A error message.
-
+### Usage problems, Q&A error message. ###
+<pre>
 1.Bandplot for FSMOMMETHOD/=0 
 Even when you use FSMMOMMETHOD/=0 in GWinput for gwsc, 
 yuo need to set FSMOMMETHOD=0 (or comment it out) when you run job_band_nspin2.
@@ -515,38 +494,12 @@ mixing parameter.
 11. Known bug
     a little unstable when metal GGA, especially when we have large
     empty regions.
-
-==========================================
-Wanneir Branch now under developing (imported from T.Miyake's Wannier code and H.Kino's).
-   A. make at ecalj/fpgw/Wannier/ directory, and do make, and make install. 
-      (need to check Makefile first). You first have to install fpgw/exec/ in advance.
-   B. Samples are at these directories. 
-      MATERIALS/CuMLWFs (small samples),
-      MATERIALS/CuMLWF/
-      MATERIALS/CuMLWFs/
-      MATERIALS/FeMLWF/      
-      MATERIALS/NiOMLWF/
-      MATERIALS/SrVO3MLWF/
-   C. With GWinput and ctrl.*, run 
-      >genMLWF
-      at these directories.
-      In GWinput, we supply settings to generate Wannier funcitons. (Sorry,not documentet yet..)
-   D. After genMLWF, do
-      >grep Wan lwmatK*
-      then compare these with Result.grepWanlwmatK
-      These are onsite effective interactions (diagonal part only shown).
-      *.xsf are for plotting the Maximally localized Wannier funcitons.
-Anyway, documentaion on Wannier is on the way half.
-Time consuming part (and also the advantage) is for effective interaction in RPA.
-Look into the shell script genMLWF; you can skip last part if you don't need the effective interaction.
+</pre>
 
 
---------- this is the end for users -----------
 
-
-##################################################################
-######    LOG and MEMO for developers                 ############
-##################################################################
+### LOG and MEMO for developers ###
+<pre>
 =====
 Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
 We set comment lines such as
@@ -577,7 +530,6 @@ NOTE: !TIME can be nested as
 !TIME1 "foobar1"
 !TIME1 "foobar2"
 
-
 =====
 1.branch x0mpi_merge (6b5e3, Aug2013): 
 contains a try to paralellize x0kf
@@ -596,40 +548,35 @@ But no problem.
 (add-hook 'fortran-mode-hook
 	  '(lambda ()
 	     (setq fortran-line-length 132)))
+</pre>
 
 
 
+### other memos ###
+<pre>
 ======
 2014 nov23:
 job_band si -np 4 [options], where
 options can be "-vso=1 -vnspin=2" for SO case.
 --->Need to add documents to GetStarted.
-
 ===
 --ssig option (ScaledSigma option).
 Need explanation...
-
 ======
 PDOS: sigm_fbz is required.
 (when cp sigm,rst,GWinput ->LDA-like result.
  Then cp sigm_fbz ->it fails.
  Need to make new directory, and copy rst,sigm_fbz.)
 And how to check it. (whether 
-
-
 ======
 mixbeta:
 takao@TT4:~/ecalj/fpgw$ grep mixbeta */*.F
 main/hqpe.sc.m.F:      call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
 mixing parameter on sigm file.
 As the default beta is unitiy, mixsigm and mixsigma files are 
-
-
 =======
 Check convergecne on QSGW.
 grep rms lqpe*
-
-
 ======
 other to DO
 (1)
@@ -638,140 +585,11 @@ other to DO
 (2) 
  fortran.
  Read dataflow and data structure.
- Look into gwsc and 
-
- You can insert your own note in souce code.
-
 </pre>
 
-end of file
---------- 
 
-Doxygen:
-
+### Doxygen ###
 At ecalj/fpgw, run doxygen. Because we have Doxyfile there,
 we can have doxygen html and pdfs.
 
 
-============================================================== 
-Effective mass calculation and new band plot march2015
---------------------
-<pre>
---------
-efermi.lmf:
-this is generated by lmf(lmf-MPI), which is used in the job_band.
-
-----------------
-New band plot and effective mass calculation (curvature):
-------------
-We now read syml.* in lm7K/fp/bndfp.F. Thus job_band is changed
-(nspin=1 or nspin=2 is automatically choosed by job_band command).
-We do not use plbnd anymore. If necessary, you can modify
-"writeband" subrouitne in lm7K/fp/bndfp.F by yourself.
-
-Follow step to get effective mass...
-1. 
-New syml read label of k point. It is shown by the gnuscript
-file "bandplot.glt". Type "gnuplot -p bandplot.isp1.glt" and so on,
-when you like to remake band plot.
-
-2. 
-New syml allow a special input suitable to determine effective mass
-for semiconductor. An example of new syml is (this is a case of GaAs)
------- syml example start ------------------
-5  0 0 0   .5 .5  .5    Gamma  L
-5  0 0 0    1.  0  0    Gamma  X
-5  0 0 0   .75 .75 0    Gamma  K
-#############
-## resolution qinit qend iqinit iqend  etolv(Ry) etolc(Ry) symllabels
-## mass*.spin* contains bands which is evaltop-etolv < eband <econtop+etolc
--888 !note -888 start Mass line. Here is a ZB case
-257  0 0 0   .5 .5  .5   1   32     0.1 0.01    Gamma  L
-257  0 0 0    1.  0  0   1   32     0.1 0.01    Gamma  X
-257  0 0 0   .75 .75 0   1   32     0.1 0.01    Gamma  K
-0 !terminator  
--------  end ----------------------
-New feature is start from next line to the -888 line.
-257 means a line connecting 0 0 0 (Gamma) and .5 .5 .5 (L) is divided
-into 256. and we only calculate from the 1st point to the 16th point
-among 513 points (now we need to include 1st point for mass).
-
-We only make "Band001Syml005Spin1.mass" files which contains effective
-math along the line only near the Fermi energy, that is,
-we plot only bands whose energy E at Gamma (exactly speaking, at
-left-end point), is evaltop-etolv < E < econtop + etolc.
-
-(As its head line shows, Band*.mass file contains data
- isyml,iq, ib,isp, QPE-EF, QPE-QPE(start), |q|, mass=2*2*(QPE-QPE(start))/|q|**2).
- here QPE(start) is QPE at the left-end of sym line.)
-
-For GaAs, please use this syml, and run job_band.
-(e.g., job_band gaas -np 2 -vnspin=2 -vso=1; 
- note that -vfoobar=xxx replace value of foobar with xxx in ctrl.gaas)
-Then you can see not only bandplot.isp1.glt, but also
-massplot.isp1.glt, which is to plot data related to the last 3 lines
-after -888. This is the effective mass plot for q points.
-Note that what we need is at q to zero limit.
-
-3. We have to make interpolation to q to zero.
-In such a case, a possible way is "take average of degenerated bands,
-and make an interpolation (least squrre fit by gnuplot).
-
-4. least square fit by gnuplot. 
-
-We have an example is at ~/ecalj/MATERIALS/mass_fit_test0.tar.gz
-Expand this gives mass_fit_test0/. Look into ./job and run it. 
-See README in it.
-----
-
-For your convenience, we have dE/dk in the bnd*.spin* files.
-This is useful to determine the Fermi surface.
-See the efermi.lmf to read the Fermi energy.
-</pre>
-
-
-
-<pre>
-Spectrum function: How to calculate <ki|Sigma(omega)|ki> ?
---------
-1. Set <QPNT> section.
-2. Run gwsigma or 
-   Stop sc calculation after dielectric funciton, and run 
-   echo 4| mpirun -np 24 hsfp0.
-   Then we have SEComg.UP (DN) files, Look for file handle, ifoutsec,
-   for the file in fpgw/main/hsfp0.sc.F to see format for the file.
-3. Be careful about dw and omg_c.
-   (We may not have good accuracy at high energy).
-   We calculate weight of imaginary part along imaginary axis.
-
-There is an example MATERIALS/SiSigma/
-(To generate accurate Sigma(omega),
-  we need to enlarge n1n2n3, and maybe with denser mesh (setting of dw, omg_c).)
-============================================================
-</pre>
-
-====================
-LDA+U, partially occupied core-hole
----------------------
-<pre>
-----------------
-See
-file:///home/takao/ecalj/Document/BACKUP/MarksOriginalDoc/fp.html#ldaplusu
-We need to add lines such as
-  IDU= 0 0 2 2 UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
-for each SPEC_ATOM, And initial occnum.foobar file.
-An example is in ecalj/MATERIALS/GdNldau/
-
-When you just like to generate initial condition for gwsc,
-you have to remove (or comment out) IDU before the 1st iteration
-with sigm file, because sigm may already can contain LDA+U kind of effect.
-(Thus you may need to modify gwsc or stop it at the 0th iteration,
-and then remove IDU...)
-
-Caution: 
-We need the initial condition file such as occnum.gdn for LDA+U. 
-(you may need to set "% real" at the begninig of the file).
-Note that definition of spherical harmonics is in ecaljmanual.pdf.
-(real harmonics is usual ones used in jobpdos).
-Look for the keyword ldau in fp/lmfp.F -> sudmtu.F which read occnum.gdn.
-</pre>
