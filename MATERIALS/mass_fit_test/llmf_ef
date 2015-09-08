@@ -1,0 +1,59 @@
+ mpi size=          24
+HOST_INFORMATION platform: ifort_mpik
+HOST_INFORMATION compiler version: ifort version 15.0.3
+HOST_INFORMATION FFLAGS (<=120): -O2 -xHost -cpp -DHASIARGC -DHASGETARG -DFDATE -DHASGETTIMEOFDAY -DHASGETENVQQ -DHASSETENVQQ -DHASIFPORT -DMPIK -module 
+HOST_INFORMATION LIBLOC (<=120): -mkl
+HOST_INFORMATION uname -a (<=120): Linux hakozaki02.cc.kyushu-u.ac.jp 2.6.32-358.11.1.el6.x86_64 #1 SMP Wed May 15 10:48:38 EDT 2013 x86_64 x86_64 x86_64 G
+HOST_INFORMATION /etc/issue: Red Hat Enterprise Linux Server release 6.4 (Santiago)
+HOST_INFORMATION git branch: refs/heads/anftest
+HOST_INFORMATION git commit: a4349307434201a3b485dd2dd6457c55359e9e3c
+HOST_INFORMATION linked at: Sat Aug 22 18:04:30 JST 2015
+ -----------------------  START LMF      -----------------------
+ Exit -1 No ctrl file found!
+ fexit,fexit2,fexit3 error retval=          -1
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ Exit -1 No ctrl file found!
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ fexit,fexit2,fexit3 error retval=          -1
+ Exit -1 No ctrl file found!
+ fexit,fexit2,fexit3 error retval=          -1
+ Exit -1 No ctrl file found!
+ fexit,fexit2,fexit3 error retval=          -1

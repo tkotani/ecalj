@@ -1,0 +1,8 @@
+51  0 0 0   .5 .5  .5    Gamma  L
+51  0 0 0    1.  0  0    Gamma  X
+51  0 0 0   .75 .75 0    Gamma  K
+-888 !note -888 start Mass line. Here is a ZB case
+1025  0 0 0   .5 .5  .5   1  512     0.1 0.01    Gamma  L
+1025  0 0 0    1.  0  0   1  512     0.1 0.01    Gamma  X
+1025  0 0 0   .75 .75 0   1  512     0.1 0.01    Gamma  K
+0 !terminator  

@@ -1,0 +1,80 @@
+Effective Mass fitting test for ZB structure.
+===================================================
+
+For test,
+run 
+./job 
+---> console output is given in 'out' file.
+
+./job contains
+------------
+python2 ./jobprepare.py >jobbash;bash jobbash
+python2 ./job_mass.py
+------------
+
+Here, jobbash should be
+=========================================
+echo -----------  CdS_so.qsgw.mass
+pushd .
+cd CdS_so.qsgw.mass
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass
+pushd .
+cd GaAs_so.qsgw.mass
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass
+pushd .
+cd GaNzb_so.qsgw.mass
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
+=========================================
+Look into jobprepare.py. At all directories with *.mass,
+we go into them and run job_band, as shown in the above jobbash script.
+See special lies in syml.init
+----------------
+-888 !note -888 start Mass line. Here is a ZB case
+1025  0 0 0   .5 .5  .5   1  512     0.1 0.01    Gamma  L
+1025  0 0 0    1.  0  0   1  512     0.1 0.01    Gamma  X
+1025  0 0 0   .75 .75 0   1  512     0.1 0.01    Gamma  K
+---------------
+First line means 1025 divisions between (0 0 0)-(0.5,0.5,0.5).
+And calcualte eigenvalues 
+from 1 to 512 (thus just up to (0.25 0.25 0.25) in this case).
+"0.1 0.01" means tolerance for what bands we show; range is 
+[VBM-0.1 VBM] and [CBM CBM+0.01].
+
+
+Then we run
+   job_mass.py
+to calculate effective mass.(look into job_mass.py)
+It determines effective mass for ZB semiconductors along symmetry lines 
+and branches.
+    for di  in ['111', '100', '110']:    --> symmetry lines
+        ...
+and branches for
+        for mxx  in ['mso', 'mlh', 'mhh', 'mee']: --> splitoff band, light hole, heavy hole, electron mass.
+.
+
+Finally it shows line such as
+mmm3: CdS_so.qsgw.mass_mso100 mass=  0.348  0.348; E0(eV)=  -0.26  -0.26
+This means
+  mass_so is m/me=0.348 (two lines are gdegenerated).
+
+As JOBmassfit.glt shows,
+formula='   q**2/(2*mass)=(E*(1+E/E0))*ry/2, where E in eV ry=13.605'
+is used for mass fitting. Thus linear behevior for E \gtsim E0 is assumed.
+We do least square fit for mass and E0.
+
+Be careful.
+Along 100, we can determine E0 and mass uniquely but not along another lines.
+This is reasonable from theoretical point of view.
+(it is not so simple in the usual standard text book; for exmaple,
+see
+
+[1]A. N. Chantis, M. van Schilfgaarde, and T. Kotani, “Ab initio prediction of conduction band spin splitting in zinc blende semiconductors,” Phys. Rev. Lett., vol. 96, no. 8, p. 086405, Mar. 2006.
+

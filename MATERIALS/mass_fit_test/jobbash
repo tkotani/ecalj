@@ -1,0 +1,18 @@
+echo -----------  CdS_so.qsgw.mass
+pushd .
+cd CdS_so.qsgw.mass
+cp ../syml.init syml.cds
+~/bin/job_band cds -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaAs_so.qsgw.mass
+pushd .
+cd GaAs_so.qsgw.mass
+cp ../syml.init syml.gaas
+~/bin/job_band gaas -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
+echo -----------  GaNzb_so.qsgw.mass
+pushd .
+cd GaNzb_so.qsgw.mass
+cp ../syml.init syml.ganzb
+~/bin/job_band ganzb -np 24 -vnspin=2 -vso=1 NoGnuplot
+popd
