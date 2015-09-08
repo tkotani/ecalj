@@ -106,6 +106,17 @@ do
  argin=4;  run_arg $argin $MPI_SIZE $nfpgw /hsfp0 lscsp #argin=4 for sigm correlation Sigma
 exit 
 
+########## here is exit ########################
+########## followings are neglected ############
+
+
+
+
+
+
+
+
+
 argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe_sc lqpe #all Sigma are combined.
  $echo_run echo -n 'OK! --> '
  ### final part of iteration loop. Manupulate files ###
