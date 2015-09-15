@@ -171,6 +171,10 @@ c ixc=3
       integer(4),allocatable:: 
      &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
       integer:: ifoc,iwf,ldim2,ixx,ifile_handle
+
+      real(8):: enwfmax,qxx(3),eeee
+      integer:: inii
+      logical:: leauto
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
 c      open(1108,file='xxx2')
@@ -497,6 +501,37 @@ c index for k and k+bb
      &          iki_i(nqbz),iki_f(nqbz),
      &          ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz),
      &          ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz))
+
+!! takao list eigen -----
+      enwfmax=-1d9
+      allocate(eqt(1:nband))
+      do is = 1,nspin
+      do iq = 1,nqbz
+         qxx = qbz(:,iq)
+         call readeval(qxx,is,eqt)
+         ini=1
+         do i=1,nband
+c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
+           if (eqt(i)>eomin) then
+             inii=i
+             exit
+           endif
+         enddo
+         eeee= (eqt(nwf+inii-1)-ef)*rydberg()
+         write(6,"('elist: q iq is nwfi nwfe e(nwf)= ',3f9.4,i5,i2,2i5,f10.3)") qxx,iq,is,inii,nwf+inii-1, eeee
+         if (enwfmax <eeee) enwfmax = eeee
+      enddo   
+      enddo   
+      deallocate(eqt)
+      write(6,"('elist max enwf=',f13.5)") enwfmax
+      call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.true.)
+      if(leauto) then
+         eomax= enwfmax + 1d-3
+         write(6,*)
+         write(6,"(' WE USE wan_out_emax_auto on ==> +1d-3 ==> eomax=',3f13.5)") eomax
+      endif
+      
+c      stop 'qqqqqqqqqqqqqqqqqq'
 
 !! ixc = 1 ----------------
       if (ixc.eq.1) then

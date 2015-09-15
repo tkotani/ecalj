@@ -784,7 +784,7 @@ c-----------------------------------------------------------------------
      &               ikbo_i(nbb,nqbz),ikbo_f(nbb,nqbz),
      &               ikbi_i(nbb,nqbz),ikbi_f(nbb,nqbz)
       logical :: leout,lein
-
+      real(8):: enwfmax,eeee
 c energy window switches
       leout = .false.
       if (ieo_swt .eq. 1) then 
@@ -823,7 +823,7 @@ c
          if (iko_ix .gt. iko_fx) stop 'ewindow: error!'
          nox = iko_fx - iko_ix + 1
       else ! leout
-      allocate (eqt(nband))
+      allocate (eqt(nband))   
 ! k
       do iq = 1,nqbz
          q = qbz(:,iq)
@@ -926,7 +926,7 @@ c iflg = 2: for inner energy window
       do it = 1,nband
          if (eev(it) .le. emax) itf = it
       enddo
-
+!!
       if (iflg.eq.1) then
 c         if (iti .gt. itf)
 c     &       stop 'erange: outer energy window too narrow'
