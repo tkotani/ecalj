@@ -252,7 +252,9 @@ c         endif
            imp= ibasiwf(im)
          do in = 1,nwf
            inp= ibasiwf(in)
-           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
+c           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,imp)-bas(:,inp))**2 ) )
+!! Rn-0m
+           rtmp = alat*dsqrt( sum( (rws(:,ir)+bas(:,inp)-bas(:,imp))**2 ) )
            if(rtmp<rc) then
              hrotkp(im,in) = hrotkp(im,in) + 
      &       ceikr * hrotr(im,in,ir)
