@@ -106,7 +106,8 @@ Te  =" atomz=52@ pz='#PZ=0,0,4.9'@ p='#P=0,0,5.5'@ eh=-1*4@ eh2=-2*3@ R=?@"
 I   =" atomz=53@ pz='#PZ=0,0,4.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Xe  =" atomz=54@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
-Cs  =" atomz=55@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+# We need to give P= for p channel for Cs excplicitly, because default is P=0,5 for p channel (due to historical reason...)
+Cs  =" atomz=55@ pz='PZ=0,5.9'@ p='P=0,6.2'@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Ba  =" atomz=56@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
 La  =" atomz=57@ pz='PZ=0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@  R=1.6@" ( R is just given for test) 
