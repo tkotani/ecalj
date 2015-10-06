@@ -42,6 +42,7 @@ c      call dinv33(plat,1,xxx,vol)
 c      voltot = dabs(vol)*(alat**3)
       write(6,*)' start htbplot: read range cutoff rcut(ang)=?'
       read(5,*) rcuta
+      write(5,*)' rcut (ang)=', rcuta
       rcut=rcuta/0.529177
 !! QPNT data, 
       write(*,*)'---Read k points for bands from SYML ---'
