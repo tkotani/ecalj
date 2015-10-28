@@ -2517,6 +2517,7 @@ c            endif
                 allocate(dos_rv(ndos,2*nsp))
               endif
             endif
+            if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
 
             if (ltet) then
 !! determine eferm
