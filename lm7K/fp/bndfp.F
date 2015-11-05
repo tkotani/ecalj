@@ -242,7 +242,7 @@ ckino lswtk must be 0 initially.
      .  , stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lnoxc , lrsig ,  jobgw , nll !, lpdiag lwsig ,
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
-     .  , onesp , nfbn(2) , mpipid , ldham(16) , ldim , ndimh , ndimhx 
+     .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
      .  , lekkl
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
@@ -635,8 +635,8 @@ c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
       pwemin =sham%pwemin
       pwemax =sham%pwemax
       onesp = 0
-      nfbn(1) = 0
-      nfbn(2) = 0
+c      nfbn(1) = 0
+c      nfbn(2) = 0
       stdo = lgunit(1)
       stdl = lgunit(2)
       ldos = iand(1,int(sctrl%ldos))
@@ -875,6 +875,13 @@ c      allocate( evlall(ndham,nsp,nkp))
          ldos = 0
          lwtkb = -1
          icls = 0
+      endif
+
+!! this section is moved from addrbl.F !nov2015
+!! we have to examine lswtk mechanism. !nov2015 this is temporary fix
+      if (.not.(tdos .or. PROCARon)) then  !if(ndimh*nspc /= nevl) then 
+         call info0(30,0,0,' bndfp: eigenvector matrix not square ... spin weights not evaluated')
+         lswtk = -2
       endif
 
 !! --- More k-point independent local arrays ---
@@ -1194,7 +1201,7 @@ c            print *,' sum 111 xdatt ',sum(xdatt),nkp,procid
 
 !! broadcase nkp and qplist
       call mpibc1( nkp,1,2,mlog,'bndfp','nkp')
-      call mpibc1( nfbn,2,2,mlog,'bndfp','nfbn')
+c      call mpibc1( nfbn,2,2,mlog,'bndfp','nfbn')
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
@@ -1692,7 +1699,8 @@ C       isp serves as a flag for the noncollinear case
 c     &   iq,nkp,qp,trim(i2char(ndimh))//' '//trim(i2char(napw))//' '//trim(i2char(ndimh-napw)),xdatt(iq)
             nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
 !!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
-            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
+c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
+            if (tdos) then 
                nmx = ndimhx
                efmax = 99999
             endif
@@ -2430,7 +2438,7 @@ ckino       maybe a switch for these is lmet.ne.0
          if (lwtkb .eq. -1 .and. lrout .gt. 0) then
             call info0(20,0,0,' Start second band pass ...')
             lwtkb = 1
-            if (nspc .eq. 2) lswtk = 1
+c            if (nspc .eq. 2) lswtk = 1 !commnet out nov2015  right?
             goto99=.true.
          endif
          if (lwtkb .eq. 2 .and. lrout .gt. 0) then

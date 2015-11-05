@@ -260,11 +260,12 @@ C      enddo
 
 C ... Weights for spin moments
       if (lswtk .gt. 0 .and. nspc .eq. 2) then
-        if (ndimhx .ne. nevl) then
-          call info0(30,0,0,' addrbl: eigenvector matrix not square'
-     .    //' ... spin weights not evaluated')
-          lswtk = -2
-        else
+c this section is moved in bndfp.F
+c        if (ndimhx .ne. nevl) then 
+c          call info0(30,0,0,' addrbl: eigenvector matrix not square'
+c     .    //' ... spin weights not evaluated')
+c          lswtk = -2
+c        else
 CSFCPP#if F90
           allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
           call zcopy(ndimhx**2,evec,1,evecc,1)
@@ -282,7 +283,7 @@ C        print 345,i,swtk(i,1,iq),swtk(i,2,iq), swtk(i,1,iq)+swtk(i,2,iq)
 C  345   format(i4,3f14.8)
           enddo
           deallocate(evecc,work)
-        endif
+c        endif
 CSFCPP#else
 CSFCPP        lswtk = -2
 CSFCPP#endif
