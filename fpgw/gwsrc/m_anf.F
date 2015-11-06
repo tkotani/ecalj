@@ -65,7 +65,7 @@ c$$$          enddo
       endif  
 !! Antiferro case --------------
       laf=.true.
-      write(6,"(a,100i4)") ' Antiferromode=',iantiferro
+      if(laf) write(6,"(a,100i4)") ' Antiferromode=',iantiferro
       end subroutine anfcond
       end module
 
