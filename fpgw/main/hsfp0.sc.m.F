@@ -1241,6 +1241,8 @@ c      use m_mpi,only: MPI__AllreduceSum
       complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
       real(8)::tolry=1d-4,qqqx(3),qtarget(3)
+      complex(8),allocatable:: ovl(:,:)
+      integer::nev,j
 !TIME0_0100
       write(6,*)'zsecsym:'
       allocate( zsect(ntq,ntq))
@@ -1282,6 +1284,8 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
       read(ifevec_)  ndimhx, nspx,nnnx 
       read(ifvxc_)              !skip ndimh, nsp,nnn
       allocate(evaliq(nband),iblki(nband),iblke(nband))
+      
+
 !TIME1_0100 "zsecsym: end of allocate zsect"
 
 !TIME0_0110
@@ -1295,8 +1299,8 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
 !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
             read(ifvxc_)  nhdim,ldim
             read(ifvxc_)
-            allocate( evec(nhdim,nhdim), evec_inv(nhdim,nhdim),evecrot(nhdim,nhdim))
-            read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim)
+            allocate( evec(nhdim,nhdim),evecrot(nhdim,nhdim))
+            read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim),nev !nev number of true bands nov2015
             zsect = 0d0
           else                  !skip isx/=is. Need to get access sequential files evec and v_xc.
             read(ifvxc_)  
@@ -1310,15 +1314,29 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
               goto 3011
             endif  
           enddo  
-          deallocate(evec,evec_inv,evecrot)
+          deallocate(evec,evecrot)
           call rx( 'hsfp0_sc: bug:qqqx can not find ...')
  3011     continue
           if(tiii) call rx( 'timereversal is not yet implemented')
-          call readeval(q(:,iqxx), is, evaliq)
-          evec_inv = evec
-          call matcinv(nhdim,evec_inv)
-          nsym = sum(eibzsym(:,:,iqxx))
 
+!! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
+!! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
+          allocate(ovl(nev,nev)) 
+c          print *,'nnnnnnnnn zsecsym: nband=',nhdim,nband,nev
+          do i=1,nev
+          do j=1,nev
+c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
+            ovl(i,j)=sum(dconjg(evec(:,i))*evec(:,j))
+          enddo
+          enddo
+          call matcinv(nev,ovl) !ovl --> ovlinv
+          allocate(evec_inv(nev,nhdim))
+          evec_inv = matmul(ovl(1:nev,1:nev),dconjg(transpose(evec(:,1:nev)))) !note ovl means ovlinv
+          deallocate(ovl)
+c          evec_inv = evec
+c          call matcinv(nhdim,evec_inv)
+          call readeval(q(:,iqxx), is, evaliq)
+          nsym = sum(eibzsym(:,:,iqxx))
           do it=1,1             !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
             do igrp=1,ngrp      !A-rotator
               if( eibzsym(igrp,it,iqxx)==0) cycle

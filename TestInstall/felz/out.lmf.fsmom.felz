@@ -1,24 +1,20 @@
-rdcmd:  lmfa -vrel=1 -vnit=1 -vso=0 felz
 HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.4.3 (Ubuntu 4.4.3-4ubuntu5) 
-HOST_INFORMATION FFLAGS (<=120): -O3 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a
-HOST_INFORMATION uname -a (<=120): Linux mar 2.6.32-30-generic #59-Ubuntu SMP Tue Mar 1 21:30:46 UTC 2011 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 10.04.2 LTS \n \l
+HOST_INFORMATION compiler version: gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04) 
+HOST_INFORMATION FFLAGS (<=120): -g -fbacktrace -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE -DNOQUAD 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.13.0-66-generic #108-Ubuntu SMP Wed Oct 7 15:20:27 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 14.04.3 LTS \n \l
 HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: ec23cb8d31e8adfcee3a7514c597e7df05128f6d
-HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
+HOST_INFORMATION git commit: 62854476e3e889bec3c0ca8ee33d8a6d50414a87
+HOST_INFORMATION linked at: Tue Nov 17 00:18:40 JST 2015
  -----------------------  START LMFA     -----------------------
  ptenv() is called with EXT=felz
  ptenv() not supported, but continue.
  HEADER Fe test spin pol, f-orbitals for cls and mull
- Fe       xxx            1           1
 
  rdctrl: reset global max nl from 5 to 4
-  mxcst switch =           1           0 F F F
   LMFA  vn 7.00(LMFA 7.0)  verb 30
  end of rdctrl2 in imfav7
- lattic:
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -28,39 +24,163 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
 
  LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
- goto mksym
+ goto mksym:i*i
 
  SGROUP: 1 symmetry operations from 1 generators
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
- zzz nclass=           1
  end of mksym x
  goto defspc
  end of defspc
  goto freeat
 
+ttt: pnu qat=  1  0     4.660     2.000
+ttt: pnu qat=  1  1     4.410     0.000
+ttt: pnu qat=  1  2     3.800     6.000
+ttt: pnu qat=  1  3     4.130     0.000
+ttt: pnu qat=  2  0     4.660     0.000
+ttt: pnu qat=  2  1     4.410     0.000
+ttt: pnu qat=  2  2     3.800    -2.200
+ttt: pnu qat=  2  3     4.130     0.000
+=== Charge for l: Qtot=Qv=     0   1.000   1.000
+=== Charge for l: Qtot=Qv=     1   0.000   0.000
+=== Charge for l: Qtot=Qv=     2   1.900   1.900
+=== Charge for l: Qtot=Qv=     3   0.000   0.000
+=== Charge for l: Qtot=Qv=     0   1.000   1.000
+=== Charge for l: Qtot=Qv=     1   0.000   0.000
+=== Charge for l: Qtot=Qv=     2   4.100   4.100
+=== Charge for l: Qtot=Qv=     3   0.000   0.000
+
 conf:SPEC_ATOM= Fe : --- Table for atomic configuration ---
-conf When int(P)z .ne. int(P), Qval is charge for MTOcore(PZ) and MTO(P)
-conf:  isp  l  int(P) int(P)z    Qval    Qcore   CoreConf
-conf:    1  0       4  4        1.000    3.000 => 1,2,3,
-conf:    1  1       4  4        0.000    6.000 => 2,3,
-conf:    1  2       3  3        1.900    0.000 => 
-conf:    1  3       4  4        0.000    0.000 => 
-conf:-----------------------------------------------------
-conf:    2  0       4  4        1.000    3.000 => 1,2,3,
-conf:    2  1       4  4        0.000    6.000 => 2,3,
-conf:    2  2       3  3        4.100    0.000 => 
-conf:    2  3       4  4        0.000    0.000 => 
-conf:-----------------------------------------------------
+conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
+conf:    1  0       4  0         1.000    3.000 => 1,2,3,
+conf:    1  1       4  0         0.000    6.000 => 2,3,
+conf:    1  2       3  0         1.900    0.000 => 
+conf:    1  3       4  0         0.000    0.000 => 
+conf:    2  0       4  0         1.000    3.000 => 1,2,3,
+conf:    2  1       4  0         0.000    6.000 => 2,3,
+conf:    2  2       3  0         4.100    0.000 => 
+conf:    2  3       4  0         0.000    0.000 => 
+usedQ=     2.000     0.000     6.000     0.000
 
  Species Fe:  Z=26  Qc=18  R=2.324967  Q=0  mom=-2.2
  mesh:   rmt=2.324967  rmax=49.589065  a=0.03  nr=321  nr(rmax)=423
-  Pl=  4.5     4.5     3.5     4.5     spn 2   4.5     4.5     3.5     4.5    
-  Ql=  1.0     0.0     1.9     0.0     spn 2   1.0     0.0     4.1     0.0    
+ goto atomc xxx
+ atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
+ >> level: 1  CPUsec=      0.02  enter newrho
+ >>      0.03   exit  newrho          0.01
     1   26.000000   3.315E+03      130.0000    0.1293E+03      -52.2170   0.30
+ >> level: 1  CPUsec=      0.03  enter newrho
+ >>      0.03   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.03  enter newrho
+ >>      0.03   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.03  enter newrho
+ >>      0.04   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.04  enter newrho
+ >>      0.04   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.04  enter newrho
+ >>      0.05   exit  newrho          0.01
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.09  enter newrho
+ >>      0.09   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.09  enter newrho
+ >>      0.09   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.09  enter newrho
+ >>      0.09   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.09  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.11   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.11  enter newrho
+ >>      0.11   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.11  enter newrho
+ >>      0.11   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.11  enter newrho
+ >>      0.11   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.11  enter newrho
+ >>      0.12   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.12   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.12   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.12   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.12   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.15  enter newrho
+ >>      0.15   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.15  enter newrho
+ >>      0.15   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.15  enter newrho
+ >>      0.15   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.15  enter newrho
+ >>      0.15   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
    52   26.000000   3.819E-05      234.0125    0.1701E+05     -160.8066   0.30
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
 
+ end of atomsc xxxxx
+ vsum=  -160.80658395561565                1
+ ifives=          13
+  write end of ifives
 
  sumev=-4.368331  etot=-2540.381937  eref=0.000000
 
@@ -89,36 +209,36 @@ conf:-----------------------------------------------------
     fit: r>rmt  0.896639   r<rmt  1.888174   qtot  2.784813
     rho: r>rmt  0.896639   r<rmt  4.203361   qtot  5.100000
  tailsm: end
-
- coretail: q=0.011, rho(rmt)=0.0147.  Fit with Hankel e=-19.588  coeff=750.85
- end of freats: spid=Fe      
+conf: Core rhoc(rmt)= 0.010971 spillout= 0.014702
+conf:-----------------------------------------------------
+ Fit with Hankel e=-19.588292 coeff=750.846970
+ end of freats: spid nmcore=Fe                 0
 
   Write mtopara.* ...
  Exit 0 LMFA 
-rdcmd:  lmf -vrel=1 -vnit=3 -vso=2 --rs=2 felz -vfsmom=-2
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.4.3 (Ubuntu 4.4.3-4ubuntu5) 
-HOST_INFORMATION FFLAGS (<=120): -O3 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib64/libfftw3.a /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.a
-HOST_INFORMATION uname -a (<=120): Linux mar 2.6.32-30-generic #59-Ubuntu SMP Tue Mar 1 21:30:46 UTC 2011 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 10.04.2 LTS \n \l
+ CPU time:    0.174s     Tue Nov 17 00:21:20 2015   on  
+
+  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
+  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
+      0      0      0        1       0.17       0.17   main
+      0      0      0       53       0.00       0.13   `--newrho
+ mpi size=           4
+HOST_INFORMATION platform: gfortran_mpik
+HOST_INFORMATION compiler version: gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04) 
+HOST_INFORMATION FFLAGS (<=120): -O1 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
+HOST_INFORMATION LIBLOC (<=120): /usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+HOST_INFORMATION uname -a (<=120): Linux TT4 3.13.0-66-generic #108-Ubuntu SMP Wed Oct 7 15:20:27 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+HOST_INFORMATION /etc/issue: Ubuntu 14.04.3 LTS \n \l
 HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: ec23cb8d31e8adfcee3a7514c597e7df05128f6d
-HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
+HOST_INFORMATION git commit: 62854476e3e889bec3c0ca8ee33d8a6d50414a87
+HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  -----------------------  START LMF      -----------------------
- ptenv() is called with EXT=felz
- ptenv() not supported, but continue.
  HEADER Fe test spin pol, f-orbitals for cls and mull
- Fe       xxx            1           1
 
  rdctrl: reset global max nl from 5 to 4
-  mxcst switch =           1           0 F F F
   LMF  vn 7.00(LMF 7.0)  verb 30
+ special:  oveps
  bz:       metal(3), tetra, invit, fixed-spin-mom 
-
- Automatic symmetry finder turned off.  Use: i*i
- goto setcg
- lattic:
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -129,14 +249,13 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
  LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
 
+ Generator 1 already in group as element 1
  SGROUP: 1 symmetry operations from 1 generators
  MKSYM:  found 1 space group operations
          no attempt to add inversion symmetry
- zzz nclass=           1
  
- lstar xxx=          -2
  BZMESH:  64 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- lstar xxx=          -2
+ >> level: 1  CPUsec=      0.04  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -145,7 +264,8 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
 
- gvlist: cutoff radius  13.000 gives   2899   recips of max   4096
+ GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
+         (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
  
 
@@ -165,30 +285,21 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
+ bndfp: ctrl extension is +++felz+++
+ --- BNDFP:  begin iteration 1 of 3
 
- --- BNDFP:  begin iteration 1 of 3 ---
- ttt nevmx w=          34  2.00000000000000004E-002
-
- avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
+ smves:: avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
 
  smooth rhoves     11.233981   charge     3.504402
- smooth rhoeps =   -2.207971 (  -1.020855,  -1.187115)
-         rhomu =   -2.871684 (  -1.304689,  -1.566995)
-       avg vxc =   -0.804896 (  -0.793179,  -0.816613)
  smvxcm: all smrho_w is positive
  smooth rhoeps =   -2.824101 (  -1.319471,  -1.504630)
          rhomu =   -3.675133 (  -1.690112,  -1.985021)
        avg vxc =   -0.847914 (  -0.838949,  -0.856879)
 
  locpot:
-  i job kmax lfltwf=           0           1           4 T
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
  potential shift to crystal energy zero:    0.000780
 
  Energy terms:             smooth           local           total
@@ -205,7 +316,7 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
  Start first of two band passes ...
- end of suham2
+ bndfp: eigenvector matrix not square ... spin weights not evaluated
  -------- qplist --------
     1   0.250   0.000   0.000
     2   0.250   0.250   0.250
@@ -271,305 +382,188 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
    62   1.750  -0.500  -0.500
    63   1.750  -0.250  -0.250
    64   1.750   0.000   0.000
+ gen_hamindex: not readin QGpsi.
+
+  --- Hamiltonian index ---
+  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
+  1  0  1      1    1   Fe
+  1  1  1      2    4   Fe
+  1  2  1      5    9   Fe
+  1  3  1     10   16   Fe
+  1  0  2     17   17   Fe
+  1  1  2     18   20   Fe
+  1  2  2     21   25   Fe
  sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5016 -0.0187 -0.0185  0.0088  0.0534  0.1223  1.6190  1.7888  1.7890
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5284 -0.1707 -0.1706 -0.1481 -0.1053 -0.0501  1.5669  1.7215  1.7217
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2601 -0.0694 -0.0667  0.0689  0.1557  0.1748  0.8698  1.3893  1.3965
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3345 -0.2108 -0.1795 -0.0911 -0.0191  0.0363  0.7726  1.3183  1.3517
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1347 -0.1340 -0.0933  0.1222  0.1238  0.5995  0.6012  0.7440  1.8026
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2480 -0.2466 -0.2251 -0.0456 -0.0443  0.5036  0.5061  0.6642  1.7514
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1347 -0.1340 -0.0932  0.1222  0.1239  0.5995  0.6012  0.7441  1.8026
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2481 -0.2467 -0.2249 -0.0456 -0.0443  0.5035  0.5060  0.6643  1.7515
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.1949 -0.1212 -0.0538  0.1128  0.1240  0.3910  0.6480  1.0999  1.1097
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2999 -0.2535 -0.1526 -0.0591 -0.0505  0.2813  0.5370  1.0269  1.0532
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2600 -0.0692 -0.0671  0.0686  0.1558  0.1751  0.8698  1.3895  1.3964
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3344 -0.2109 -0.1795 -0.0912 -0.0193  0.0366  0.7727  1.3182  1.3518
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3466 -0.0862 -0.0860  0.1023  0.1048  0.1564  1.2760  1.2791  1.3626
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3824 -0.2246 -0.2243 -0.0678 -0.0653 -0.0053  1.1990  1.2022  1.2980
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: 1.8 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 2 ndimh nev=   25   25
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.008910;   8.000000 electrons
          Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
          Mag. moment:      -2.247982
- ttttt amom fmom=  -2.2479823354685156       -2.0000000000000000      F
- ttttt amom fmom=  -2.2697145296766634       -2.0000000000000000      F
- ttttt amom fmom=  -1.1669517724873322       -2.0000000000000000      F
- ttttt amom fmom=  -2.1169965508598660       -2.0000000000000000      F
- ttttt amom fmom=  -2.0172244296423956       -2.0000000000000000      F
- ttttt amom fmom=  -2.0111108493509002       -2.0000000000000000      F
- ttttt amom fmom=  -1.9797700798923739       -2.0000000000000000      F
- ttttt amom fmom=  -1.9966084219672531       -2.0000000000000000      F
- ttttt amom fmom=  -2.0008288775511716       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.008910.
  constraint fmom=-2.000000  actual mmom=-2.000829  ef=0.016052  -Vup+Vdn=0.070326
@@ -578,361 +572,16 @@ HOST_INFORMATION linked at: Fri Apr 29 19:32:59 JST 2011
  BZINTS: Fermi energy:      0.016060;   8.000000 electrons
          Sum occ. bands:   -1.209573, incl. Bloechl correction: -0.005563
          Mag. moment:      -1.999936
-bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
+ bzwtsf: Set Bias field -Vup+Vdn=   0.070325987718772
 
  Saved qp weights ...
  Start second band pass ...
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
- sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5016 -0.0187 -0.0185  0.0088  0.0534  0.1223  1.6190  1.7888  1.7890
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5284 -0.1707 -0.1706 -0.1481 -0.1053 -0.0501  1.5669  1.7215  1.7217
- (warning) DOS window (0.5,2) reset to (-1.0016,0.5161)
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2601 -0.0694 -0.0667  0.0689  0.1557  0.1748  0.8698  1.3893  1.3965
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3345 -0.2108 -0.1795 -0.0911 -0.0191  0.0363  0.7726  1.3183  1.3517
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1347 -0.1340 -0.0933  0.1222  0.1238  0.5995  0.6012  0.7440  1.8026
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2480 -0.2466 -0.2251 -0.0456 -0.0443  0.5036  0.5061  0.6642  1.7514
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1347 -0.1340 -0.0932  0.1222  0.1239  0.5995  0.6012  0.7441  1.8026
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2481 -0.2467 -0.2249 -0.0456 -0.0443  0.5035  0.5060  0.6643  1.7515
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.1949 -0.1212 -0.0538  0.1128  0.1240  0.3910  0.6480  1.0999  1.1097
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2999 -0.2535 -0.1526 -0.0591 -0.0505  0.2813  0.5370  1.0269  1.0532
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2600 -0.0692 -0.0671  0.0686  0.1558  0.1751  0.8698  1.3895  1.3964
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3344 -0.2109 -0.1795 -0.0912 -0.0193  0.0366  0.7727  1.3182  1.3518
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3466 -0.0862 -0.0860  0.1023  0.1048  0.1564  1.2760  1.2791  1.3626
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3824 -0.2246 -0.2243 -0.0678 -0.0653 -0.0053  1.1990  1.2022  1.2980
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ ... Done MPI k-loop: 3.2 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ DOS window (0.5,2) reset to (-1.0016,0.5161)
 
  IORBTM:  orbital moments :
  Class  Spec        spin   Moment decomposed by l ...
@@ -944,15 +593,6 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
  BZINTS: Fermi energy:      0.008910;   8.000000 electrons
          Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
          Mag. moment:      -2.247982
- ttttt amom fmom=  -2.2479823354685156       -2.0000000000000000      F
- ttttt amom fmom=  -2.2697145296766608       -2.0000000000000000      F
- ttttt amom fmom=  -1.1669517724871858       -2.0000000000000000      F
- ttttt amom fmom=  -2.1169965508598541       -2.0000000000000000      F
- ttttt amom fmom=  -2.0172244296423774       -2.0000000000000000      F
- ttttt amom fmom=  -2.0111108493508896       -2.0000000000000000      F
- ttttt amom fmom=  -1.9797700798923608       -2.0000000000000000      F
- ttttt amom fmom=  -1.9966084219672335       -2.0000000000000000      F
- ttttt amom fmom=  -2.0008288775511702       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.008910.
  constraint fmom=-2.000000  actual mmom=-2.000829  ef=0.016052  -Vup+Vdn=0.070326
@@ -961,12 +601,12 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
  BZINTS: Fermi energy:      0.016060;   8.000000 electrons
          Sum occ. bands:   -1.209573, incl. Bloechl correction: -0.005563
          Mag. moment:      -1.999936
-bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
+ bzwtsf: Set Bias field -Vup+Vdn=   0.070325987718772
 
  Saved qp weights ...
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.976185    2.488974    4.487212     -2.055629   -0.239636   -1.815993
+   1    6.976185    2.488974    4.487211     -2.055629   -0.239636   -1.815993
 
  Symmetrize density..
 
@@ -974,54 +614,53 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
 
 
  Make new boundary conditions for phi,phidot..
+  ebar: 
+    without lo    : ebar = center of gravity of occupied states
+    with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
+                    ebar for valence is at the center of gravity of occ. states.
+    with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ
+                    ebar for valence is at the Fermi energy.
+  idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.
 
  site    1   species   1:Fe      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.210129   -0.338709    4.584798    4.584862    4.500000    4.584862
- spn 2 0    0.190323   -0.471329    4.550390    4.549301    4.500000    4.549301
+ spn 2 0    0.190323   -0.471328    4.550390    4.549301    4.500000    4.549301
  1     0    0.228007   -0.315879    4.304074    4.303988    4.250000    4.303988
  spn 2 0    0.183055   -0.471465    4.281633    4.280891    4.250000    4.280891
- 2     0    2.010253   -0.246256    3.539659    3.555883    3.147584    3.555883
+ 2     0    2.010253   -0.246256    3.539659    3.555882    3.147584    3.555882
  spn 2 0    4.127164   -0.207658    3.816931    3.810850    3.147584    3.810850
- 3     0    0.011889   -0.799630    4.108266    4.107914    4.102416    4.107914
- spn 2 0    0.015366   -0.973508    4.104490    4.104601    4.102416    4.104601
+ 3     0    0.011889   -0.799629    4.108266    4.107914    4.102416    4.107914
+ spn 2 0    0.015366   -0.973507    4.104490    4.104601    4.102416    4.104601
 
  Harris energy:
  sumev=       -1.279899  val*vef=     -91.717972   sumtv=      90.438073
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
  rhoeps=    -107.251566     utot=   -5008.410996    ehar=   -2541.027553
 
- srhov:     -4.936538    -86.530634    -91.467172 sumev=   -1.279899   sumtv=   90.187273
+ srhov:     -4.936538    -86.530629    -91.467167 sumev=   -1.279899   sumtv=   90.187267
 
- avg es pot at rmt= 0.633919  avg sphere pot= 0.642388  vconst=-0.633919
+ smves:: avg es pot at rmt= 0.633919  avg sphere pot= 0.642388  vconst=-0.633919
 
- smooth rhoves     11.284022   charge     3.512788
- smooth rhoeps =   -2.213943 (  -1.045623,  -1.168320)
-         rhomu =   -2.879376 (  -1.342752,  -1.536624)
-       avg vxc =   -0.805593 (  -0.797213,  -0.813973)
+ smooth rhoves     11.284023   charge     3.512788
  smvxcm: all smrho_w is positive
  smooth rhoeps =   -2.830482 (  -1.345830,  -1.484652)
          rhomu =   -3.683378 (  -1.730934,  -1.952443)
        avg vxc =   -0.848509 (  -0.842449,  -0.854568)
 
  locpot:
-  i job kmax lfltwf=           0           0           4 F
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.942598       -86.565323       -91.507921
-   rhoval*ves            -30.463013       -45.420559       -75.883573
-   psnuc*ves              53.031057     -9993.546185     -9940.515128
-   utot                   11.284022     -5019.483372     -5008.199350
-   rho*exc                -2.830482      -104.382846      -107.213328
-   rho*vxc                -3.683378      -138.183913      -141.867291
-   valence chg             3.512788         4.487212         8.000000
+   rhoval*vef             -4.942598       -86.565319       -91.507917
+   rhoval*ves            -30.463014       -45.420556       -75.883569
+   psnuc*ves              53.031060     -9993.546183     -9940.515123
+   utot                   11.284023     -5019.483369     -5008.199346
+   rho*exc                -2.830482      -104.382845      -107.213328
+   rho*vxc                -3.683378      -138.183913      -141.867290
+   valence chg             3.512788         4.487211         8.000000
    valence mag            -0.183943        -1.815993        -1.999936
    core charge            18.000000        -0.000000        18.000000
 
@@ -1029,62 +668,54 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.070325987726708
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=       90.187273  sumtc=      2484.196936   ekin=     2574.384209
- rhoep=     -107.213328   utot=     -5008.199350   ehks=    -2541.028470
+ sumtv=       90.187267  sumtc=      2484.196936   ekin=     2574.384204
+ rhoep=     -107.213328   utot=     -5008.199346   ehks=    -2541.028470
  mag. mom=    -1.999936  (bands)       -1.999936  (output rho)
- mixrho: sum smrho  init = 0.835185D+02 0.000000D+00 0.835185D+02       0
- mixrho: sum smrnew new  = 0.854694D+02 0.273867D-16 0.854694D+02       0
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
- mixrho: dqsum rmsuns=  0.10513D-03  0.75492D-03  0.11895D-19
  mixrealsmooth= T
- wgtsmooth=  1.56250000000000000E-002
+ wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=5.09e-3
  AMIX: nmix=0 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=2.54e-3
- mixrealsmooth= T
- smrho qcell: add correction to smrho=  9.81318599713176809E-008  6.15130441500434101E-010
+ mixrho: add corrections to qcell smrho =  0.21283D-06  0.13341D-08
  unscreened rms difference:  smooth  0.001068   local  0.006368
    screened rms difference:  smooth  0.000273   local  0.006368   tot  0.005088
- mixrho: all smrho is positive for isp=           1
- mixrho: all smrho is positive for isp=           2
+ mixrho: all smrho are positive for isp=  1
+ mixrho: all smrho are positive for isp=  2
+ vessm= -0.63391947479460298     
+### Add vref to eigenvalues to get relative to vaccum=   -0.739697
+### mean estatic pot by superposition of atoms(eV)=  -27.429323
+### VBM=    -9.845656 eV CBM=    -9.845656 eV estatic_pot=  -27.429323 eV
+  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  3    ehf=   -2541.027553   ehk=   -2541.028470
-i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf=-2541.0275533 ehk=-2541.0284699
+i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf=-2541.0275533 ehk=-2541.02847
+ bndfp: ctrl extension is +++felz+++
+ --- BNDFP:  begin iteration 2 of 3
 
- --- BNDFP:  begin iteration 2 of 3 ---
- ttt nevmx w=          34  2.00000000000000004E-002
-
- avg es pot at rmt= 0.632848  avg sphere pot= 0.642367  vconst=-0.632848
+ smves:: avg es pot at rmt= 0.632848  avg sphere pot= 0.642367  vconst=-0.632848
 
  smooth rhoves     11.252588   charge     3.508595
- smooth rhoeps =   -2.210757 (  -1.033114,  -1.177643)
-         rhomu =   -2.875265 (  -1.323527,  -1.551739)
-       avg vxc =   -0.805316 (  -0.795287,  -0.815344)
  smvxcm: all smrho_w is positive
- smooth rhoeps =   -2.827516 (  -1.332745,  -1.494770)
+ smooth rhoeps =   -2.827516 (  -1.332746,  -1.494770)
          rhomu =   -3.679548 (  -1.710631,  -1.968917)
        avg vxc =   -0.848181 (  -0.840674,  -0.855687)
 
  locpot:
-  i job kmax lfltwf=           0           1           4 T
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
  potential shift to crystal energy zero:    0.000787
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.940235       -86.686930       -91.627166
-   rhoval*ves            -30.450755       -45.523647       -75.974403
-   psnuc*ves              52.955931     -9993.632980     -9940.677050
-   utot                   11.252588     -5019.578314     -5008.325726
-   rho*exc                -2.827516      -104.407166      -107.234681
-   rho*vxc                -3.679548      -138.216385      -141.895933
+   rhoval*vef             -4.940236       -86.686928       -91.627164
+   rhoval*ves            -30.450755       -45.523646       -75.974401
+   psnuc*ves              52.955932     -9993.632980     -9940.677047
+   utot                   11.252588     -5019.578313     -5008.325724
+   rho*exc                -2.827516      -104.407165      -107.234681
+   rho*vxc                -3.679548      -138.216384      -141.895933
    valence chg             3.508595         4.491405         8.000000
    valence mag            -0.217743        -1.906216        -2.123959
    core charge            18.000000        -0.000000        18.000000
@@ -1092,735 +723,196 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-1.999936 ehf=-2541.0275533 ehk=-2541.0284699
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
  Start first of two band passes ...
- end of suham2
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
+ bndfp: eigenvector matrix not square ... spin weights not evaluated
  sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5037 -0.0258 -0.0251  0.0012  0.0459  0.1150  1.6147  1.7841  1.7846
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5274 -0.1698 -0.1695 -0.1480 -0.1053 -0.0490  1.5682  1.7230  1.7232
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2637 -0.0748 -0.0730  0.0616  0.1475  0.1678  0.8640  1.3847  1.3932
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3337 -0.2102 -0.1784 -0.0906 -0.0187  0.0370  0.7739  1.3196  1.3528
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1400 -0.1390 -0.0991  0.1145  0.1162  0.5936  0.5954  0.7394  1.7995
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2475 -0.2460 -0.2241 -0.0449 -0.0437  0.5044  0.5069  0.6655  1.7525
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1399 -0.1388 -0.0995  0.1144  0.1161  0.5938  0.5956  0.7392  1.7994
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2474 -0.2459 -0.2242 -0.0450 -0.0437  0.5045  0.5069  0.6654  1.7525
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2000 -0.1270 -0.0584  0.1056  0.1156  0.3845  0.6416  1.0953  1.1060
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2994 -0.2523 -0.1518 -0.0580 -0.0505  0.2819  0.5380  1.0281  1.0544
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2636 -0.0743 -0.0737  0.0611  0.1481  0.1678  0.8639  1.3851  1.3930
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3335 -0.2101 -0.1789 -0.0908 -0.0182  0.0370  0.7738  1.3198  1.3527
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3490 -0.0925 -0.0924  0.0945  0.0972  0.1487  1.2709  1.2740  1.3587
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3815 -0.2238 -0.2236 -0.0673 -0.0646 -0.0047  1.2003  1.2034  1.2993
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: 1.9 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 2 ndimh nev=   25   25
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.006437;   8.000000 electrons
-         Sum occ. bands:   -1.295213, incl. Bloechl correction: -0.005944
+         Sum occ. bands:   -1.295214, incl. Bloechl correction: -0.005944
          Mag. moment:      -2.229198
- ttttt amom fmom=  -2.2291981599666597       -2.0000000000000000      F
- ttttt amom fmom=  -2.2841809699129061       -2.0000000000000000      F
- ttttt amom fmom=  -1.1998092030681309       -2.0000000000000000      F
- ttttt amom fmom=  -2.1191917602498456       -2.0000000000000000      F
- ttttt amom fmom=  -2.0212980141089267       -2.0000000000000000      F
- ttttt amom fmom=  -2.0139667863106383       -2.0000000000000000      F
- ttttt amom fmom=  -1.9827537170146781       -2.0000000000000000      F
- ttttt amom fmom=  -2.0023877933081202       -2.0000000000000000      F
- ttttt amom fmom=  -1.9989557430103473       -2.0000000000000000      F
- ttttt amom fmom=  -1.9999771759733864       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.006437.
  constraint fmom=-2.000000  actual mmom=-1.999977  ef=0.012650  -Vup+Vdn=0.062373
 
  BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.012650;   8.000000 electrons
+ BZINTS: Fermi energy:      0.012649;   8.000000 electrons
          Sum occ. bands:   -1.229849, incl. Bloechl correction: -0.005601
          Mag. moment:      -2.000000
-bzwtsf: Set Bias  -Vup+Vdn=   0.062372957146729
+ bzwtsf: Set Bias field -Vup+Vdn=   0.062372968489801
 
  Saved qp weights ...
  Start second band pass ...
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
- sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5037 -0.0258 -0.0251  0.0012  0.0459  0.1150  1.6147  1.7841  1.7846
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5274 -0.1698 -0.1695 -0.1480 -0.1053 -0.0490  1.5682  1.7230  1.7232
- (warning) DOS window (0.5,2) reset to (-1.0037,0.5126)
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2637 -0.0748 -0.0730  0.0616  0.1475  0.1678  0.8640  1.3847  1.3932
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3337 -0.2102 -0.1784 -0.0906 -0.0187  0.0370  0.7739  1.3196  1.3528
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1400 -0.1390 -0.0991  0.1145  0.1162  0.5936  0.5954  0.7394  1.7995
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2475 -0.2460 -0.2241 -0.0449 -0.0437  0.5044  0.5069  0.6655  1.7525
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1399 -0.1388 -0.0995  0.1144  0.1161  0.5938  0.5956  0.7392  1.7994
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2474 -0.2459 -0.2242 -0.0450 -0.0437  0.5045  0.5069  0.6654  1.7525
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2000 -0.1270 -0.0584  0.1056  0.1156  0.3845  0.6416  1.0953  1.1060
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2994 -0.2523 -0.1518 -0.0580 -0.0505  0.2819  0.5380  1.0281  1.0544
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2636 -0.0743 -0.0737  0.0611  0.1481  0.1678  0.8639  1.3851  1.3930
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3335 -0.2101 -0.1789 -0.0908 -0.0182  0.0370  0.7738  1.3198  1.3527
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3490 -0.0925 -0.0924  0.0945  0.0972  0.1487  1.2709  1.2740  1.3587
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3815 -0.2238 -0.2236 -0.0673 -0.0646 -0.0047  1.2003  1.2034  1.2993
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ ... Done MPI k-loop: 3 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ DOS window (0.5,2) reset to (-1.0037,0.5126)
 
  IORBTM:  orbital moments :
  Class  Spec        spin   Moment decomposed by l ...
@@ -1830,32 +922,22 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.062372957146729
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.006437;   8.000000 electrons
-         Sum occ. bands:   -1.295213, incl. Bloechl correction: -0.005944
+         Sum occ. bands:   -1.295214, incl. Bloechl correction: -0.005944
          Mag. moment:      -2.229198
- ttttt amom fmom=  -2.2291981599666588       -2.0000000000000000      F
- ttttt amom fmom=  -2.2841809699992401       -2.0000000000000000      F
- ttttt amom fmom=  -1.1998092029147895       -2.0000000000000000      F
- ttttt amom fmom=  -2.1191917602528156       -2.0000000000000000      F
- ttttt amom fmom=  -2.0212980141060100       -2.0000000000000000      F
- ttttt amom fmom=  -2.0139667863071757       -2.0000000000000000      F
- ttttt amom fmom=  -1.9827537170090537       -2.0000000000000000      F
- ttttt amom fmom=  -2.0023877932993379       -2.0000000000000000      F
- ttttt amom fmom=  -1.9989557430141656       -2.0000000000000000      F
- ttttt amom fmom=  -1.9999771759734855       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.006437.
  constraint fmom=-2.000000  actual mmom=-1.999977  ef=0.012650  -Vup+Vdn=0.062373
 
  BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.012650;   8.000000 electrons
+ BZINTS: Fermi energy:      0.012649;   8.000000 electrons
          Sum occ. bands:   -1.229849, incl. Bloechl correction: -0.005601
          Mag. moment:      -2.000000
-bzwtsf: Set Bias  -Vup+Vdn=   0.062372957146728
+ bzwtsf: Set Bias field -Vup+Vdn=   0.062372968489801
 
  Saved qp weights ...
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.980347    2.482376    4.497971     -2.052092   -0.244992   -1.807100
+   1    6.980347    2.482376    4.497971     -2.052093   -0.244992   -1.807100
 
  Symmetrize density..
 
@@ -1863,51 +945,50 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.062372957146728
 
 
  Make new boundary conditions for phi,phidot..
+  ebar: 
+    without lo    : ebar = center of gravity of occupied states
+    with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
+                    ebar for valence is at the center of gravity of occ. states.
+    with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ
+                    ebar for valence is at the Fermi energy.
+  idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.
 
  site    1   species   1:Fe      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.209505   -0.344223    4.584862    4.583810    4.500000    4.583810
- spn 2 0    0.190194   -0.469911    4.549301    4.549395    4.500000    4.549395
+ spn 2 0    0.190194   -0.469911    4.549301    4.549396    4.500000    4.549396
  1     0    0.225812   -0.321869    4.303988    4.303339    4.250000    4.303339
  spn 2 0    0.182870   -0.470645    4.280891    4.280843    4.250000    4.280843
- 2     0    2.017053   -0.251334    3.555883    3.557437    3.147584    3.557437
+ 2     0    2.017053   -0.251335    3.555882    3.557437    3.147584    3.557437
  spn 2 0    4.127795   -0.207043    3.810850    3.810762    3.147584    3.810762
- 3     0    0.011758   -0.804547    4.107914    4.107848    4.102416    4.107848
- spn 2 0    0.015360   -0.973838    4.104601    4.104568    4.102416    4.104568
+ 3     0    0.011758   -0.804546    4.107914    4.107848    4.102416    4.107848
+ spn 2 0    0.015360   -0.973837    4.104601    4.104568    4.102416    4.104568
 
  Harris energy:
- sumev=       -1.292221  val*vef=     -91.627166   sumtv=      90.334944
+ sumev=       -1.292222  val*vef=     -91.627164   sumtv=      90.334942
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
- rhoeps=    -107.234681     utot=   -5008.325726    ehar=   -2541.028527
+ rhoeps=    -107.234681     utot=   -5008.325724    ehar=   -2541.028527
 
- srhov:     -4.926471    -86.741203    -91.667674 sumev=   -1.292221   sumtv=   90.375452
+ srhov:     -4.926471    -86.741202    -91.667673 sumev=   -1.292222   sumtv=   90.375451
 
- avg es pot at rmt= 0.631880  avg sphere pot= 0.642603  vconst=-0.631880
+ smves:: avg es pot at rmt= 0.631880  avg sphere pot= 0.642603  vconst=-0.631880
 
  smooth rhoves     11.218735   charge     3.502029
- smooth rhoeps =   -2.205253 (  -1.038498,  -1.166755)
-         rhomu =   -2.868054 (  -1.332703,  -1.535351)
-       avg vxc =   -0.804831 (  -0.795989,  -0.813672)
  smvxcm: all smrho_w is positive
  smooth rhoeps =   -2.821565 (  -1.338525,  -1.483041)
          rhomu =   -3.671758 (  -1.720620,  -1.951137)
        avg vxc =   -0.847782 (  -0.841281,  -0.854283)
 
  locpot:
-  i job kmax lfltwf=           0           0           4 F
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.921711       -86.714880       -91.636591
-   rhoval*ves            -30.437807       -45.556298       -75.994105
-   psnuc*ves              52.875276     -9993.620093     -9940.744817
-   utot                   11.218735     -5019.588196     -5008.369461
+   rhoval*vef             -4.921711       -86.714879       -91.636589
+   rhoval*ves            -30.437807       -45.556297       -75.994104
+   psnuc*ves              52.875277     -9993.620093     -9940.744816
+   utot                   11.218735     -5019.588195     -5008.369460
    rho*exc                -2.821565      -104.410155      -107.231720
    rho*vxc                -3.671758      -138.219875      -141.891633
    valence chg             3.502029         4.497971         8.000000
@@ -1918,63 +999,54 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.062372957146728
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=       90.375452  sumtc=      2484.196936   ekin=     2574.572389
- rhoep=     -107.231720   utot=     -5008.369461   ehks=    -2541.028793
+ sumtv=       90.375451  sumtc=      2484.196936   ekin=     2574.572388
+ rhoep=     -107.231720   utot=     -5008.369460   ehks=    -2541.028793
  mag. mom=    -2.000000  (bands)       -2.000000  (output rho)
- mixrho: sum smrho  init = 0.844939D+02 0.000000D+00 0.844939D+02       0
- mixrho: sum smrnew new  = 0.849632D+02-0.504672D-16 0.849632D+02       0
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
- mixrho: dqsum rmsuns= -0.82320D-04  0.32913D-03  0.40803D-22
- mixrealsmooth= T
- wgtsmooth=  1.56250000000000000E-002
+ wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 1.  RMS DQ=2.76e-3  last it=5.09e-3
  AMIX: nmix=1 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=1.38e-3
    tj:-1.13813
- mixrealsmooth= T
- smrho qcell: add correction to smrho=  1.01254123308081034E-007  6.34702058968860911E-010
+ mixrho: add corrections to qcell smrho =  0.21581D-06  0.13528D-08
  unscreened rms difference:  smooth  0.000465   local  0.003470
    screened rms difference:  smooth  0.000167   local  0.003470   tot  0.002760
- mixrho: all smrho is positive for isp=           1
- mixrho: all smrho is positive for isp=           2
+ mixrho: all smrho are positive for isp=  1
+ mixrho: all smrho are positive for isp=  2
+ vessm= -0.63188008696649300     
+### Add vref to eigenvalues to get relative to vaccum=   -0.741521
+### mean estatic pot by superposition of atoms(eV)=  -27.429323
+### VBM=    -9.916885 eV CBM=    -9.916885 eV estatic_pot=  -27.429323 eV
+  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
 
  iors  : write restart file (binary, mesh density) 
 
    it  2  of  3    ehf=   -2541.028527   ehk=   -2541.028793
  From last iter    ehf=   -2541.027553   ehk=   -2541.028470
  diffe(q)= -0.000974 (0.002760)    tol= 0.000100 (0.000100)   more=T
-i rel=1 nit=3 so=2 fsmom=-2 mmom=-2 ehf=-2541.0285269 ehk=-2541.0287928
+i rel=1 nit=3 so=2 fsmom=-2 mmom=-2 ehf=-2541.0285269 ehk=-2541.0287929
+ bndfp: ctrl extension is +++felz+++
+ --- BNDFP:  begin iteration 3 of 3
 
- --- BNDFP:  begin iteration 3 of 3 ---
- ttt nevmx w=          34  2.00000000000000004E-002
-
- avg es pot at rmt= 0.632149  avg sphere pot= 0.642619  vconst=-0.632149
+ smves:: avg es pot at rmt= 0.632149  avg sphere pot= 0.642619  vconst=-0.632149
 
  smooth rhoves     11.223025   charge     3.501576
- smooth rhoeps =   -2.204873 (  -1.038910,  -1.165964)
-         rhomu =   -2.867558 (  -1.333407,  -1.534151)
-       avg vxc =   -0.804769 (  -0.795990,  -0.813548)
  smvxcm: all smrho_w is positive
  smooth rhoeps =   -2.820743 (  -1.338747,  -1.481997)
          rhomu =   -3.670678 (  -1.721088,  -1.949590)
        avg vxc =   -0.847819 (  -0.841380,  -0.854258)
 
  locpot:
-  i job kmax lfltwf=           0           1           4 T
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
  potential shift to crystal energy zero:    0.000793
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.914804       -86.711640       -91.626444
-   rhoval*ves            -30.441047       -45.546157       -75.987204
-   psnuc*ves              52.887096     -9993.609233     -9940.722137
-   utot                   11.223025     -5019.577695     -5008.354671
+   rhoval*vef             -4.914804       -86.711639       -91.626443
+   rhoval*ves            -30.441047       -45.546156       -75.987204
+   psnuc*ves              52.887097     -9993.609233     -9940.722136
+   utot                   11.223025     -5019.577695     -5008.354670
    rho*exc                -2.820743      -104.408255      -107.228998
    rho*vxc                -3.670678      -138.217327      -141.888005
    valence chg             3.501576         4.498424         8.000000
@@ -1984,370 +1056,178 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-2 ehf=-2541.0285269 ehk=-2541.0287928
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
  Start first of two band passes ...
- end of suham2
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
+ bndfp: eigenvector matrix not square ... spin weights not evaluated
  sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5045 -0.0281 -0.0272 -0.0015  0.0433  0.1130  1.6138  1.7830  1.7837
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5256 -0.1631 -0.1628 -0.1420 -0.0994 -0.0414  1.5696  1.7249  1.7253
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2650 -0.0768 -0.0748  0.0592  0.1449  0.1658  0.8626  1.3832  1.3925
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3298 -0.2043 -0.1730 -0.0841 -0.0115  0.0423  0.7774  1.3222  1.3545
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1417 -0.1405 -0.1013  0.1120  0.1138  0.5920  0.5939  0.7379  1.7984
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2425 -0.2407 -0.2183 -0.0380 -0.0367  0.5080  0.5105  0.6687  1.7547
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1417 -0.1403 -0.1015  0.1119  0.1138  0.5922  0.5940  0.7378  1.7984
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2425 -0.2406 -0.2184 -0.0381 -0.0366  0.5081  0.5105  0.6687  1.7547
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2018 -0.1290 -0.0599  0.1035  0.1128  0.3828  0.6398  1.0943  1.1047
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2947 -0.2463 -0.1468 -0.0506 -0.0441  0.2861  0.5420  1.0305  1.0571
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2649 -0.0761 -0.0757  0.0588  0.1458  0.1654  0.8624  1.3837  1.3923
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3297 -0.2036 -0.1741 -0.0842 -0.0107  0.0419  0.7772  1.3228  1.3542
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3499 -0.0947 -0.0945  0.0919  0.0950  0.1465  1.2698  1.2730  1.3573
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3793 -0.2180 -0.2174 -0.0607 -0.0575  0.0019  1.2027  1.2058  1.3022
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: 1.7 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 2 ndimh nev=   25   25
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.009376;   8.000000 electrons
          Sum occ. bands:   -1.270536, incl. Bloechl correction: -0.005872
          Mag. moment:      -2.210063
- ttttt amom fmom=  -2.2100629329128338       -2.0000000000000000      F
- ttttt amom fmom=  -2.2651419506081290       -2.0000000000000000      F
- ttttt amom fmom=  -1.2825560780153709       -2.0000000000000000      F
- ttttt amom fmom=  -2.1171998187609700       -2.0000000000000000      F
- ttttt amom fmom=  -2.0234800334616767       -2.0000000000000000      F
- ttttt amom fmom=  -2.0148372290278744       -2.0000000000000000      F
- ttttt amom fmom=  -1.9871431224529650       -2.0000000000000000      F
- ttttt amom fmom=  -1.9994057589312815       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.009376.
  constraint fmom=-2.000000  actual mmom=-1.999406  ef=0.014889  -Vup+Vdn=0.052544
@@ -2356,361 +1236,16 @@ i rel=1 nit=3 so=2 fsmom=-2 mmom=-2 ehf=-2541.0285269 ehk=-2541.0287928
  BZINTS: Fermi energy:      0.014880;   8.000000 electrons
          Sum occ. bands:   -1.215872, incl. Bloechl correction: -0.005577
          Mag. moment:      -2.000279
-bzwtsf: Set Bias  -Vup+Vdn=   0.052544431503618
+ bzwtsf: Set Bias field -Vup+Vdn=   0.052544455898797
 
  Saved qp weights ...
  Start second band pass ...
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
- sigmamode= F
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5045 -0.0281 -0.0272 -0.0015  0.0433  0.1130  1.6138  1.7830  1.7837
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 1 of 64, k=  0.25000  0.00000  0.00000
- -0.5256 -0.1631 -0.1628 -0.1420 -0.0994 -0.0414  1.5696  1.7249  1.7253
- (warning) DOS window (0.5,2) reset to (-1.0045,0.5149)
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.2650 -0.0768 -0.0748  0.0592  0.1449  0.1658  0.8626  1.3832  1.3925
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 11 of 64, k=  -0.25000  0.00000  -0.50000
- -0.3298 -0.2043 -0.1730 -0.0841 -0.0115  0.0423  0.7774  1.3222  1.3545
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.1417 -0.1405 -0.1013  0.1120  0.1138  0.5920  0.5939  0.7379  1.7984
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 21 of 64, k=  0.75000  -0.25000  -0.25000
- -0.2425 -0.2407 -0.2183 -0.0380 -0.0367  0.5080  0.5105  0.6687  1.7547
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.1417 -0.1403 -0.1015  0.1119  0.1138  0.5922  0.5940  0.7378  1.7984
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 31 of 64, k=  0.25000  -0.25000  -0.75000
- -0.2425 -0.2406 -0.2184 -0.0381 -0.0366  0.5081  0.5105  0.6687  1.7547
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2018 -0.1290 -0.0599  0.1035  0.1128  0.3828  0.6398  1.0943  1.1047
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 41 of 64, k=  0.25000  0.50000  -0.50000
- -0.2947 -0.2463 -0.1468 -0.0506 -0.0441  0.2861  0.5420  1.0305  1.0571
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.2649 -0.0761 -0.0757  0.0588  0.1458  0.1654  0.8624  1.3837  1.3923
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 51 of 64, k=  0.00000  -0.50000  -0.25000
- -0.3297 -0.2036 -0.1741 -0.0842 -0.0107  0.0419  0.7772  1.3228  1.3542
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3499 -0.0947 -0.0945  0.0919  0.0950  0.1465  1.2698  1.2730  1.3573
-  mode napw           0           0
-  end of hambls mode=           0
- bndfp:  kpt 61 of 64, k=  -0.25000  0.25000  0.25000
- -0.3793 -0.2180 -0.2174 -0.0607 -0.0575  0.0019  1.2027  1.2058  1.3022
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
-  mode napw           0           0
-  end of hambls mode=           0
+
+ ... Start MPI k-loop
+ ... Done MPI k-loop: 3.1 seconds elapsed
+ ... Sharing data between processes...
+ MPI broadcast took 0 sec
+ DOS window (0.5,2) reset to (-1.0045,0.5149)
 
  IORBTM:  orbital moments :
  Class  Spec        spin   Moment decomposed by l ...
@@ -2722,14 +1257,6 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.052544431503618
  BZINTS: Fermi energy:      0.009376;   8.000000 electrons
          Sum occ. bands:   -1.270536, incl. Bloechl correction: -0.005872
          Mag. moment:      -2.210063
- ttttt amom fmom=  -2.2100629329128307       -2.0000000000000000      F
- ttttt amom fmom=  -2.2651419507418442       -2.0000000000000000      F
- ttttt amom fmom=  -1.2825560773249893       -2.0000000000000000      F
- ttttt amom fmom=  -2.1171998187208074       -2.0000000000000000      F
- ttttt amom fmom=  -2.0234800333731271       -2.0000000000000000      F
- ttttt amom fmom=  -2.0148372288948178       -2.0000000000000000      F
- ttttt amom fmom=  -1.9871431224386795       -2.0000000000000000      F
- ttttt amom fmom=  -1.9994057588710636       -2.0000000000000000      T
 
  BZWTSF: potential shift bracketed.  Unconstrained efermi=0.009376.
  constraint fmom=-2.000000  actual mmom=-1.999406  ef=0.014889  -Vup+Vdn=0.052544
@@ -2738,12 +1265,12 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.052544431503618
  BZINTS: Fermi energy:      0.014880;   8.000000 electrons
          Sum occ. bands:   -1.215872, incl. Bloechl correction: -0.005577
          Mag. moment:      -2.000279
-bzwtsf: Set Bias  -Vup+Vdn=   0.052544431502090
+ bzwtsf: Set Bias field -Vup+Vdn=   0.052544455898797
 
  Saved qp weights ...
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.977145    2.487407    4.489739     -2.046840   -0.251705   -1.795136
+   1    6.977145    2.487407    4.489738     -2.046840   -0.251704   -1.795136
 
  Symmetrize density..
 
@@ -2751,54 +1278,53 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.052544431502090
 
 
  Make new boundary conditions for phi,phidot..
+  ebar: 
+    without lo    : ebar = center of gravity of occupied states
+    with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
+                    ebar for valence is at the center of gravity of occ. states.
+    with lo & PZ<P: ebar for lo is by atomic calculation phidx for given PZ
+                    ebar for valence is at the Fermi energy.
+  idmod=0-> If P=prty(fractional part is log.-derivative)<pfeee, we use pfree.
 
  site    1   species   1:Fe      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.209366   -0.346354    4.583810    4.583482    4.500000    4.583482
- spn 2 0    0.191224   -0.464207    4.549395    4.550782    4.500000    4.550782
+ spn 2 0    0.191224   -0.464206    4.549396    4.550782    4.500000    4.550782
  1     0    0.225216   -0.324492    4.303339    4.303013    4.250000    4.303013
  spn 2 0    0.185453   -0.462375    4.280843    4.282018    4.250000    4.282018
  2     0    2.018845   -0.253182    3.557437    3.557904    3.147584    3.557904
  spn 2 0    4.119794   -0.200761    3.810762    3.810482    3.147584    3.810482
  3     0    0.011726   -0.807330    4.107848    4.107807    4.102416    4.107807
- spn 2 0    0.015522   -0.964284    4.104568    4.104735    4.102416    4.104735
+ spn 2 0    0.015522   -0.964282    4.104568    4.104735    4.102416    4.104735
 
  Harris energy:
- sumev=       -1.268416  val*vef=     -91.626444   sumtv=      90.358028
+ sumev=       -1.268416  val*vef=     -91.626443   sumtv=      90.358027
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
- rhoeps=    -107.228998     utot=   -5008.354671    ehar=   -2541.028705
+ rhoeps=    -107.228998     utot=   -5008.354670    ehar=   -2541.028705
 
- srhov:     -4.931888    -86.554107    -91.485995 sumev=   -1.268416   sumtv=   90.217579
+ srhov:     -4.931889    -86.554103    -91.485992 sumev=   -1.268416   sumtv=   90.217575
 
- avg es pot at rmt= 0.633448  avg sphere pot= 0.642504  vconst=-0.633448
+ smves:: avg es pot at rmt= 0.633448  avg sphere pot= 0.642504  vconst=-0.633448
 
- smooth rhoves     11.268717   charge     3.510261
- smooth rhoeps =   -2.211953 (  -1.038018,  -1.173935)
-         rhomu =   -2.876788 (  -1.331014,  -1.545774)
-       avg vxc =   -0.805413 (  -0.795946,  -0.814879)
+ smooth rhoves     11.268718   charge     3.510261
  smvxcm: all smrho_w is positive
  smooth rhoeps =   -2.828425 (  -1.338084,  -1.490341)
          rhomu =   -3.680700 (  -1.718965,  -1.961735)
        avg vxc =   -0.848340 (  -0.841222,  -0.855457)
 
  locpot:
-  i job kmax lfltwf=           0           0           4 F
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=F
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
- === rho1 valence true density ===
- === rho2 valence counter density ===
- === rhol1 valence+core density ===
- === rho2 ->valence+smooth core density ===
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.937729       -86.588664       -91.526393
-   rhoval*ves            -30.457237       -45.444433       -75.901670
-   psnuc*ves              52.994671     -9993.549463     -9940.554792
-   utot                   11.268717     -5019.496948     -5008.228231
-   rho*exc                -2.828425      -104.386541      -107.214966
-   rho*vxc                -3.680700      -138.188699      -141.869399
-   valence chg             3.510261         4.489739         8.000000
+   rhoval*vef             -4.937730       -86.588661       -91.526391
+   rhoval*ves            -30.457237       -45.444431       -75.901668
+   psnuc*ves              52.994674     -9993.549463     -9940.554789
+   utot                   11.268718     -5019.496947     -5008.228229
+   rho*exc                -2.828425      -104.386540      -107.214965
+   rho*vxc                -3.680700      -138.188698      -141.869399
+   valence chg             3.510261         4.489738         8.000000
    valence mag            -0.205143        -1.795136        -2.000279
    core charge            18.000000        -0.000000        18.000000
 
@@ -2806,31 +1332,38 @@ bzwtsf: Set Bias  -Vup+Vdn=   0.052544431502090
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=       90.217579  sumtc=      2484.196936   ekin=     2574.414515
- rhoep=     -107.214966   utot=     -5008.228231   ehks=    -2541.028682
+ sumtv=       90.217575  sumtc=      2484.196936   ekin=     2574.414512
+ rhoep=     -107.214965   utot=     -5008.228229   ehks=    -2541.028682
  mag. mom=    -2.000279  (bands)       -2.000279  (output rho)
- mixrho: sum smrho  init = 0.849956D+02 0.000000D+00 0.849956D+02       0
- mixrho: sum smrnew new  = 0.848602D+02-0.651047D-18 0.848602D+02       0
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
- mixrho: dqsum rmsuns=  0.10889D-03  0.15492D-03  0.40409D-20
- mixrealsmooth= T
- wgtsmooth=  1.56250000000000000E-002
- mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=2.94e-4  last it=2.76e-3
+ wgtsmooth=   1.5625000000000000E-002
+ mixrho:  sought 6 iter from file mixm; read 2.  RMS DQ=2.95e-4  last it=2.76e-3
  ...  deleting file mixm : nkill=3
  AMIX: nmix=2 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=1.47e-4
    tj: 0.59702  -0.34852
- mixrealsmooth= T
- smrho qcell: add correction to smrho=  9.96851827750333541E-008  6.24867301092431898E-010
+ mixrho: add corrections to qcell smrho =  0.21363D-06  0.13391D-08
  unscreened rms difference:  smooth  0.000219   local  0.000371
-   screened rms difference:  smooth  0.000119   local  0.000371   tot  0.000294
- mixrho: all smrho is positive for isp=           1
- mixrho: all smrho is positive for isp=           2
+   screened rms difference:  smooth  0.000119   local  0.000371   tot  0.000295
+ mixrho: all smrho are positive for isp=  1
+ mixrho: all smrho are positive for isp=  2
+ vessm= -0.63344817248848495     
+### Add vref to eigenvalues to get relative to vaccum=   -0.740052
+### mean estatic pot by superposition of atoms(eV)=  -27.429323
+### VBM=    -9.866541 eV CBM=    -9.866541 eV estatic_pot=  -27.429323 eV
+  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
 
  iors  : write restart file (binary, mesh density) 
 
    it  3  of  3    ehf=   -2541.028705   ehk=   -2541.028682
  From last iter    ehf=   -2541.028527   ehk=   -2541.028793
- diffe(q)= -0.000178 (0.000294)    tol= 0.000100 (0.000100)   more=F
-x rel=1 nit=3 so=2 fsmom=-2 mmom=-2.0002787 ehf=-2541.0287046 ehk=-2541.0286822
- Exit 0 LMF 
+ diffe(q)= -0.000178 (0.000295)    tol= 0.000100 (0.000100)   more=F
+x rel=1 nit=3 so=2 fsmom=-2 mmom=-2.0002787 ehf=-2541.0287046 ehk=-2541.0286823
+ >>     16.37   exit  lmfp           16.33
+ Exit 0 LMF      on TT4 
+ CPU time:   16.371s     Tue Nov 17 00:21:38 2015   on  
+
+  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
+  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
+      0      0      0        1      16.37      16.37   main
+      0      0      0        1      16.33      16.33   `--lmfp

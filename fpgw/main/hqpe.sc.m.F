@@ -67,6 +67,8 @@ c----------------------------------------------
 
       integer,allocatable:: ntqxx(:)
       real(8):: eseavrmean,eseadd
+      integer,allocatable:: nev(:,:)
+      complex(8),allocatable:: ovl(:,:)
 
       hartree=2d0*rydberg()
 
@@ -244,7 +246,7 @@ cccccccccccccccccccccccccc
       if (ndimhx /= ndimh)   call rx( 'hqpe: SC ndimhx/= ndimx')
       if (nnn .ne. nnnx) call rx( 'hqpe: wrong nnn evec or v_xc')
       allocate(qqq(3,nnn,nspin)) !,se_in(ntq,ntq))                 !sf.beg
-      allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin))
+      allocate(v_xc(nhq,nhq,nnn,nspin),evec(nhq,nhq,nnn,nspin),nev(nnn,nspin))
       if(evec0ex) allocate(evec00(nhq,nhq,nnn,nspin))
       allocate(nhqx(nnn,nspin))
 c     write(6,*)' nnn =',nnn
@@ -262,7 +264,7 @@ c     write(6,*)' nnn =',nnn
           write(6,*) ' reading v_xc ... iq is nz=',iq,is,nz
           nhqx(iq,is) = nz   !nz is introduced instead of nhq
           read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
-          read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is)
+          read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
           if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
 Cstop2rx 2013.08.09 kino     &           stop 'hqpe: qqq/=qqqx'
@@ -670,16 +672,36 @@ c       write(if_eseavr,"(d23.15,i3)") 0d0,is
           call rx( 'hqpe.sc: not find ikp 102')
  102      continue
           nz = nhqx(ikpx,is) !june 2009 takao. we use nz instead of nhq
-!!  Make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
-!!  where \psi is eigenfunction and \phi is basis function
-          evec_inv(1:nz,1:nz) = evec(1:nz,1:nz,ikpx,is) !evec(i,n), i-basis, n - band argumants
-          call zgetrf(nz,nz,evec_inv,nhq,ipiv,info)   !nhq is leading dimension of evec_inv
-          if (info /= 0)  call rx( 'hqpe: zgetrf info/=0')
-          !inverse matrix evec_inv(n,i), i-basis, n - band argumants
-          call zgetri(nz,evec_inv,nhq,ipiv,work,nhq**2,info)
-          if (info /= 0)  call rx( 'hqpe: zgetri info/=0')
-          evec_invt= transpose(dconjg(evec_inv))
 
+
+c!!  Make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i,
+c!!  where \psi is eigenfunction and \phi is basis function
+!! nov2015 
+!! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
+!! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
+          nevv=nev(ikpx,is)
+          allocate(ovl(nevv,nevv)) 
+c          print *,'nnnnnnnnn zsecsym: nband=',nhdim,nband,nev
+          do i=1,nevv
+          do j=1,nevv
+c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
+            ovl(i,j)=sum(dconjg(evec(1:nz,i,ikpx,is))*evec(1:nz,j,ikpx,is))
+          enddo
+          enddo
+          call matcinv(nevv,ovl) !ovl --> ovlinv
+          evec_inv(1:nevv,1:nz) = matmul(ovl(1:nevv,1:nevv),dconjg(transpose(evec(1:nz,1:nevv,ikpx,is)))) !note ovl means ovlinv
+          deallocate(ovl)
+c!! ccccccccccccccccccccccccc before nov2015
+c          evec_inv(1:nz,1:nz) = evec(1:nz,1:nz,ikpx,is) !evec(i,n), i-basis, n - band argumants
+c          call zgetrf(nz,nz,evec_inv,nhq,ipiv,info)   !nhq is leading dimension of evec_inv
+c          if (info /= 0)  call rx( 'hqpe: zgetrf info/=0')
+c          !inverse matrix evec_inv(n,i), i-basis, n - band argumants
+c          call zgetri(nz,evec_inv,nhq,ipiv,work,nhq**2,info)
+c          if (info /= 0)  call rx( 'hqpe: zgetri info/=0')
+
+
+!!
+          evec_invt(1:nz,1:nevv) = transpose(dconjg(evec_inv(1:nevv,1:nz)))
           if(mtosigmaonly()) then
              ndimsig2= nmto
           else
@@ -692,7 +714,7 @@ c       write(if_eseavr,"(d23.15,i3)") 0d0,is
           do itp =1,ndimsig2
           do itpp=1,ndimsig2
             ev_se_ev(itp,itpp) = ev_se_ev(itp,itpp) +
-     &      sum(evec_invt(itp,ntqxx(ip)+1:nz)*evec_inv(ntqxx(ip)+1:nz,itpp))*eseavrmean/2d0 ! in Hartree.
+     &      sum(evec_invt(itp,ntqxx(ip)+1:nevv)*evec_inv(ntqxx(ip)+1:nevv,itpp))*eseavrmean/2d0 ! in Hartree.
           enddo
           enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

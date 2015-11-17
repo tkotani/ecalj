@@ -507,7 +507,8 @@ c        call rwdd1 (ifev(isp), kx, nband, ekxxx(1:nband,kx,isp) )
           call readeval(qbz(:,kx), isp,ekxxx(1:nband,kx,isp) )
           do i=1,nband
             eee= ekxxx(i,kx,isp)
-            if(eee>Emax.and.eee<1d9) Emax=eee
+c            print *,i,eee 
+            if(eee>Emax.and.eee<1d9) Emax=eee !not eee<1d9 corresponds to 1d20 for padding in lmf2gw.F and sugw.Fago
           enddo
         enddo
       enddo

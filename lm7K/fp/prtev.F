@@ -26,7 +26,7 @@ C     ipr = 100
         if (ipr .ge. 35) j = nev
         write(stdo,103) (evl(i), i=1,nev)
   103   format(9f8.4)
-        write(6,"('nev nmx ndim evl(nev)=',3i5,f12.5)") nev,nmx,n,evl(nev)
+        write(6,"('  bndfp: nev nmx ndim evl(nev)=',3i5,f12.5)") nev,nmx,n,evl(nev)
       endif
       if (ipr .ge. 100) then
         do i = 1, nmx

@@ -143,7 +143,7 @@ Cu   23 Apr 01 First created
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,jobb,k1,
      .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, ldham(8,2),
-     .lgunit,lmaxa,lmxax,lpdiag,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
+     .lgunit,lmaxa,lmxax,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,ndimh,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,iqibz,imx, stdo,
@@ -228,6 +228,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer,allocatable:: iantiferro(:)
 
+      integer:: lpdiag=0
 #if MPI | MPIK
       include "mpif.h"
 #endif
@@ -660,6 +661,7 @@ C   ... Read SYML file
       nbalance = nqi*nsp/numproc 
       if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
       if(iprint()>10) print *,'nbalance=',nbalance
+      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") sham%oveps
       iproc = numproc-1         !from bottom
       allocate(iprocq(nqi,nsp))
       iqq  = 0
@@ -841,7 +843,6 @@ c     o        sene)
              if(debug) print *,'end of bloch sene'
           endif
 
-          lpdiag = 0
           jx = 0
           call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
      .         qp , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
@@ -878,53 +879,65 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
-          if (i .eq. -1) lpdiag = 2
+c$$$          if (i .eq. -1) lpdiag = 2
           if(debug) print *,' end of generation of Hamiltonian'
 
 !!   --- Branch job = 1 : make cphi, matrix elements ---
-          if(job .eq. 1) then !   --- Diagonalize ---
+          if(job .eq. 1) then   !   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-            write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
-     &      ' irank=',i4, ' lwvxc=',l,' lpdiag=',i1)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,lpdiag
+c            write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
+c     &      ' irank=',i4, ' lwvxc=',l)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc !,lpdiag
+
 c            if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
-            if (lpdiag .eq. 0) then
-              if (nspc .eq. 2) then
-                call rx('diagonalization not ready for nspc=2')
-              endif
-              allocate(ww_rv(11*ndimh))
-              epsovl = sham%oveps
-              if (epsovl .le. 0) then
-                call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
-     .          , nev , ww_rv , .false. , - 1 , evl ( 1 , isp ) , evec )
-              else
-                nevl = -1
-                call dvset ( ww_rv , 1 , 1 , 99999d0 )
-                call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
-     .          , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
-     .          evec )
-                eomin = dval ( ww_rv , 1 )
-                call info5(30,0,0, ' Overlap''s smallest eigenvalue: %;3g.  '//
-     .          '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
-     .          eomin,ndimh-nevl,ndimh,nevl,0)
-              endif
-              deallocate(ww_rv)
-              if(debug) print *,'wwwww ndimh nev=',ndimh,nev
-              call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
-            elseif (lpdiag .eq. 2) then
-              evec = ovl
-#ifdef USEOPTIONAL
-              call phmbls(mode=2,ndimh=ndimh,eval=evl(1,isp),zhz=ham)
-#else
-              call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
-#endif
-              nev = ndimh
-              call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
-            else
-              call rxi('sugw not ready for lpdiag=',lpdiag)
+c            if (lpdiag .eq. 0) then
+            if (nspc .eq. 2) then
+              call rx('diagonalization not ready for nspc=2')
             endif
+            epsovl = sham%oveps
+c$$$              allocate(ww_rv(11*ndimh))
+c$$$              if (epsovl .le. 0) then
+c$$$                call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
+c$$$     .          , nev , ww_rv , .false. , - 1 , evl ( 1 , isp ) , evec )
+c$$$              else
+c$$$                nevl = -1
+c$$$                call dvset ( ww_rv , 1 , 1 , 99999d0 )
+c$$$                call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
+c$$$     .          , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
+c$$$     .          evec )
+c$$$                eomin = dval ( ww_rv , 1 )
+c$$$                call info5(30,0,0, ' Overlap''s smallest eigenvalue: %;3g.  '//
+c$$$     .          '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
+c$$$     .          eomin,ndimh-nevl,ndimh,nevl,0)
+c$$$              endif
+
+!! we fined evl(i), z(:,i), i=1,nev !nov2015
+            evec=-1d99
+            evl(:,isp)=1d99
+            call zhev_tk3(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,iprint(),
+     &       .false.,.false.,-9999, epsovl)
+c              deallocate(ww_rv)
+            write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
+     &' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev !,lpdiag
+
+            call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
+c$$$            elseif (lpdiag .eq. 2) then
+c$$$              evec = ovl
+c$$$#ifdef USEOPTIONAL
+c$$$              call phmbls(mode=2,ndimh=ndimh,eval=evl(1,isp),zhz=ham)
+c$$$#else
+c$$$              call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
+c$$$#endif
+c$$$              nev = ndimh
+c$$$              call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
+c$$$            else
+c$$$              call rxi('sugw not ready for lpdiag=',lpdiag)
+c$$$            endif
 C       Pad evals between ndimh and ndham with a large positive number
 C       to avoid mixing up integration routines
-            if (ndham .gt. nev) call dvset(evl(1,isp),1+nev,ndham,99999d0)
+
+!! we introduce nev nov2015
+            if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
+                                        !call dvset(evl(1,isp),1+nev,ndham,99999d0)
             if (bandmode .and. jobb .eq. 5) then
               write(ifeigen) evl(1:ndham,isp)
               if (mod(iq,10) .ne. 1) call poppr
@@ -934,7 +947,7 @@ C       to avoid mixing up integration routines
             if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
             if (lwvxc) then
               ifievec = fopna('evec',-1,4)
-              write(ifievec) q, evec(1:ndimh,1:ndimh)
+              write(ifievec) q, evec(1:ndimh,1:ndimh),nev
             endif
 
             if(magexist) then

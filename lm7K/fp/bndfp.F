@@ -1761,17 +1761,26 @@ c     then how can I share the same file among the different processes?
 !! t_zv:eigenfunciton. evl: eigenvalue.
 !! nmx: input, number of requested eigenvalues(funcitons)
 !! nev: out number of obtained eigenfvalues(funcitons)
-            call zhev_tk2( ndimhx - napw , ndimhx , hamm , ovlm , nmx , nev,
+            if(epsovl<1.000001d-14) then
+              call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .        evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
+            else !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
+              call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
+     .        evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
+            endif
 
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
             nevl=nev            !ndimhx    this OK? why nevl and nev???
-            evl(nevl+1:ndhamx,jsp)=1d99 !for sanity check
+            evl(nevl+1:ndhamx,jsp)=1d99 !to skip these data
             nevls(iq,jsp) = nevl  !nov2014 isp and jsp is confusing...
             if(debug) print *,'iq jsp nevls=',iq,jsp,nevls(iq,jsp) !nov201
 #ifndef MPIK            
             call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required?
+#else
+            if (procid.eq.master.and. epsovl>=1.000001d-14.and.plbnd/=0) then
+              write(6,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
+            endif  
 #endif
 !! save to evall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
@@ -3214,7 +3223,7 @@ c              print *,'mmmmx111 band',semiconband,metalband,ibb,i,isyml,jsp
           do jsp = 1, nspx
 c            print *,'qqq1 ',iq,ikp,jsp
             if (iprint() > 20.and.ix99==1) then
-               write(stdo,'(" bndfp: kpt",i5," of",i5, " k jsp=",3f9.5,i2," ndimh=",i5)')
+               write(stdo,'(" bndfp: kpt",i5," of",i5, " k jsp=",3f9.5,i2," nev=",i5)')
      &         ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
             endif
             if(iprint() >=35.and.ix99==1) then
@@ -3245,8 +3254,8 @@ c unused now      diff2eb(iq)=(evlall(i,jsp,ikp+1)-2d0*evlall(i,jsp,ikp)+evlall(
             enddo    
             do iq = 1,ne
               ikp = ikpoff(isyml)+iq
-              write(ifbndsp(jsp),"(i5, (1x,f12.8), 3(1x,f16.10),' ',f8.3)") 
-     &         i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq) 
+              write(ifbndsp(jsp),"(i5, (1x,f12.8), 3(1x,f16.10),' ',f8.3,' ',3f9.5)") 
+     &         i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp)
             enddo  
             write(ifbndsp(jsp),*)
             write(ifbndsp(jsp),*)

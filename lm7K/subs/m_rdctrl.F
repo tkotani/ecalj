@@ -943,8 +943,9 @@ C      print *, nout
 C      print *,pmax
 C      stop
 
+!! We set default oveps=1d-7 16Nov2015. This was zero before the data.
       nm='HAM_OVEPS'; call gtv(trim(nm),tksw(prgn,nm),
-     .oveps, def_r8=0d0, nout=nout, note=
+     .oveps, def_r8=1d-7, nout=nout, note=
      .'Diagonalize hamiltonian in reduced hilbert space,'//
      .'%N%3fdiscarding part with evals of overlap < OVEPS')
 
@@ -3284,6 +3285,7 @@ C     call tkadd(" START~")
       call tkadd(" HAM_SIGP~")
       call tkadd(" HAM_TOL~")
       call tkadd(" HAM_XCFUN~")
+      call tkadd(" HAM_OVEPS~") !nov2015
 C      call tkadd(" DYN~")
 C      call tkadd(" DYN_MD~")
 C      call tkadd(" DYN_MSTAT~")
