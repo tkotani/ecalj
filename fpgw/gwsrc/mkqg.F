@@ -82,6 +82,9 @@ c     q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
             q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale()
             q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale()
             q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale()
+            q0x(:,4)= (q0x(:,1)+q0x(:,2))/2d0
+            q0x(:,5)= (q0x(:,2)+q0x(:,3))/2d0
+            q0x(:,6)= (q0x(:,3)+q0x(:,1))/2d0
 c                  norq0x(1)=sqrt(sum(q0x(:,1)**2))
 c                  norq0x(2)=sqrt(sum(q0x(:,2)**2))
 c                  norq0x(3)=sqrt(sum(q0x(:,3)**2))
@@ -96,21 +99,21 @@ c     q0x(:,4)= (q0x(:,1)-q0x(:,2))/norq0x(4)*(norq0x(1)+norq0x(2))/2d0
 c     q0x(:,5)= (q0x(:,2)-q0x(:,3))/norq0x(5)*(norq0x(2)+norq0x(3))/2d0
 c     q0x(:,6)= (q0x(:,3)-q0x(:,1))/norq0x(6)*(norq0x(3)+norq0x(1))/2d0
 !! shorter ones. no normalization. dec2012
-            if(sum((q0x(:,1)-q0x(:,2))**2)<sum((q0x(:,1)+q0x(:,2))**2)) then
-              q0x(:,4)= (q0x(:,1)-q0x(:,2))/2d0
-            else
-              q0x(:,4)= (q0x(:,1)+q0x(:,2))/2d0
-            endif
-            if(sum((q0x(:,2)-q0x(:,3))**2)<sum((q0x(:,2)+q0x(:,3))**2)) then
-              q0x(:,5)= (q0x(:,2)-q0x(:,3))/2d0
-            else  
-              q0x(:,5)= (q0x(:,2)+q0x(:,3))/2d0
-            endif
-            if(sum((q0x(:,3)-q0x(:,1))**2)<sum((q0x(:,3)+q0x(:,1))**2)) then
-              q0x(:,6)= (q0x(:,3)-q0x(:,1))/2d0
-            else  
-              q0x(:,6)= (q0x(:,3)+q0x(:,1))/2d0
-            endif
+c$$$            if(sum((q0x(:,1)-q0x(:,2))**2)<sum((q0x(:,1)+q0x(:,2))**2)) then
+c$$$              q0x(:,4)= (q0x(:,1)-q0x(:,2))/2d0
+c$$$            else
+c$$$              q0x(:,4)= (q0x(:,1)+q0x(:,2))/2d0
+c$$$            endif
+c$$$            if(sum((q0x(:,2)-q0x(:,3))**2)<sum((q0x(:,2)+q0x(:,3))**2)) then
+c$$$              q0x(:,5)= (q0x(:,2)-q0x(:,3))/2d0
+c$$$            else  
+c$$$              q0x(:,5)= (q0x(:,2)+q0x(:,3))/2d0
+c$$$            endif
+c$$$            if(sum((q0x(:,3)-q0x(:,1))**2)<sum((q0x(:,3)+q0x(:,1))**2)) then
+c$$$              q0x(:,6)= (q0x(:,3)-q0x(:,1))/2d0
+c$$$            else  
+c$$$              q0x(:,6)= (q0x(:,3)+q0x(:,1))/2d0
+c$$$            endif
 c     q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
 c     q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
 c     q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
