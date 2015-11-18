@@ -416,13 +416,14 @@ c     logical :: readgwinput
       integer:: llxxx,lm1,lm2
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:)
       real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
-      character*7:: q0pf        !nov2012
+      character*99:: q0pf        !nov2012
       integer:: dummyia(1,1),iimx,irradd,nmax
       real(8):: epstol=1d-8,tolq=1d-6,qx(3),qxx(3)
       logical :: newoffsetG !july2014
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
-      real(8):: dq_(3)
+      real(8):: dq_(3),dq__(3)
+      integer:: nq0itrue
 c------------------------------------------------
       print *,' mkqg2: '
       qreduce0 = qreduce()
@@ -676,7 +677,17 @@ c  QpGcut = sqrt(300d0/alp)
       endif
       print *,' end fo writing Q0P'
       call cputid (0)
-!! === AnyQ mechanism. ===
+
+!! Timereversal may require q0i. Anyway, qreduce0 will reduce the number of q points by symops.
+      if(.not.timereversal().and.iq0pin==1) then
+         write(6,*)" timereversal==off : add -Q0P points"
+         do iq=1,nq0i
+            q0i(:,iq+nq0i)= -q0i(:,iq)
+         enddo
+         nq0i=nq0i*2
+      endif
+
+!! === AnyQ mechanism. === q0i is extended. nq0i/=nq0itrue
       call getkeyvalue("GWinput","AnyQ",anyq,default=.false.)
       if(anyq.and.iq0pin==1) then
          print *,'AnyQ (read <QPNT> section =T'
@@ -697,20 +708,15 @@ c  QpGcut = sqrt(300d0/alp)
          allocate(qsave(3,nq0i+nany))
          qsave(:,    1 :nq0i)     = q0i (:,1:nq0i)
          qsave(:,nq0i+1:nq0i+nany)= qany(:,1:nany)
+         nq0itrue=nq0i !nov2015
          nq0i = nq0i+nany
          deallocate(q0i)
          allocate(q0i(3,nq0i))
          q0i=qsave
          deallocate(qsave)
          close(ifqpnt)
-      endif
-!! Timereversal may require q0i. Anyway, qreduce0 will reduce the number of q points by symops.
-      if(.not.timereversal().and.iq0pin==1) then
-         write(6,*)" timereversal==off : add -Q0P points"
-         do iq=1,nq0i
-            q0i(:,iq+nq0i)= -q0i(:,iq)
-         enddo
-         nq0i=nq0i*2
+      else
+         nq0itrue=nq0i !nov2015
       endif
 
 !! Four kinds of mesh points. Q0P means offset Gamma (slightly different from Gamma).
@@ -774,6 +780,7 @@ c      if(offmesh) nqnum = nqnum + nqbz
       nnn   =  ix               !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*n3q
       print *,' nnn=',nnn       !This is the number to calcualte Vxc
 !!  Shifted mesh
+      dq__=0d0
       if(regmeshg) then
          do iq00 = 1, nq0i
             do iq   = 1, nqbz
@@ -783,6 +790,7 @@ c      if(offmesh) nqnum = nqnum + nqbz
          enddo
       endif
       if(offmeshg) then
+         dq__=dq_
          do iq00 = 1, nq0i
             do iq   = 1, nqbz
                ix = ix+1
@@ -863,18 +871,20 @@ c      if(offmesh) nqnum = nqnum + nqbz
       imxc=0
       do iq = 1, nqnum
          q = qq(1:3,iq)
-         qxx=q                  !use q for Q0P points.
-         if(iq0pin==1) then
-            do i=1,nq0i
-               if(sum(abs(q0i(:,i)-qxx))<1d-6) then
-                  qxx=(/0d0,0d0,0d0/)
+         qxx=q              
+         if(iq0pin==1) then !use qxx on regular mesh points if q is on regular+Q0P(true).
+            do iqbz=1,nqbz
+            do i=1,nq0itrue ! nq0itrue/=nq0i for anyq=F nov2015
+               if(sum(abs(qbz(1:3,iqbz)-dq__+ q0i(:,i)-qxx))<1d-6) then
+                  qxx=qbz(1:3,iqbz)
                   exit
                endif
+            enddo
             enddo
          endif
          ngpn(iq)=1
 !! get G vector for |q+G| < QpGcut_psi
-         call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx11) !imx11
+         call getgv2(alat,plat,qlat, qxx, QpGcut_psi,1,ngpn(iq),imx11) !imx11 !nov2015
          imx0=imx11(1,1)
          if(imx0>imx) imx=imx0
          ngcn(iq)=1
@@ -906,19 +916,25 @@ c      if(offmesh) nqnum = nqnum + nqbz
          q = qq(1:3,iq)
          qxx=q
          q0pf=''
-         do i=1,nq0i
-            if(sum(abs(q0i(:,i)-qxx))<1d-6) then
-               if(iq0pin==1) then
-                  qxx=(/0d0,0d0,0d0/)
+         do iqbz=1,nqbz  !use qxx on regular mesh points if q is on regular+Q0P(true).
+         do i=1,nq0itrue !nq0itrue/=nq0i for anyq=F nov2015
+            if(sum(abs(qbz(1:3,iqbz)-dq__+ q0i(:,i)-qxx))<1d-6) then
+               if(sum(abs(q0i(:,i)-qxx))<1d-6) then
+                 q0pf=' <--Q0P  '   ! offset Gamma points
+               else
+                 q0pf=' <--Q0P+R'   ! offset Gamma points-shifted nov2015
                endif
-               q0pf=' <--Q0P' ! offset Gamma points
+               if(iq0pin==1) then
+                  qxx=qbz(1:3,iqbz)
+               endif
                exit
             endif
+         enddo
          enddo
          ngp = ngpn(iq)
          ngc = ngcn(iq)
          write(6,"(' iq=',i8,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
-     &        iq, q, ngp, ngc, irr(iq),q0pf
+     &        iq, q, ngp, ngc, irr(iq),trim(q0pf)
          allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) 
          call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunctions (psi)
          call getgv2(alat,plat,qlat, qxx, QpGcut_Cou, 2, ngc,  ngvecc) ! for Coulomb        (cou)
