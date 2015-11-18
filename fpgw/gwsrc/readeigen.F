@@ -766,7 +766,16 @@ c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector
       endif
 !!  qtt(iqq) is rotated to qtt(iq) by sympos(  ,igg).
       if(ngp(iq)==0) return
-      if(ngp(iq)/=ngp(iqq)) call rx( 'readgeig:x ngp(iq)/=ngp(iqq)')
+      if(ngp(iq)/=ngp(iqq)) then
+        write(6,*)' ddddd ginv=',ginv
+        write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg
+        write(6,*)' ddddd q      =',q
+        write(6,*)' ddddd qu      =',qu
+        write(6,*)' ddddd qtarget=',qtarget
+        write(6,*)' ddddd q (iqq)=',qtt(:,iqq)
+        write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
+        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
+      endif  
       if(debug) write(6,*)' ngp=',ngp(iq)
       if(keepeig) then
         geigenr(1:ngp(iq),1:nband) = geig(1:ngp(iq),1:nband,iqi,isp)
