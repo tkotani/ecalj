@@ -106,16 +106,23 @@ C --- Make and print out magnetic moment ---
       ele2 = (zval-fmom)/2d0
       nmom1 = ele1+1d-8
       nmom2 = ele2+1d-8
-
-      ehomo1= maxval(eb(nmom1,1,:))
-      ehomo2= maxval(eb(nmom2,2,:))
       elumo1= minval(eb(nmom1+1,1,:))
       elumo2= minval(eb(nmom2+1,2,:))
+      if(nmom1/=0) then
+        ehomo1= maxval(eb(nmom1,1,:))
+      else
+        ehomo1= elumo1 - 0.5d0
+      endif
+      if(nmom2/=0) then
+        ehomo2= maxval(eb(nmom2,2,:))
+      else
+        ehomo2= elumo2 - 0.5d0
+      endif
       vnow = (ehomo1+elumo1)/2d0 -(ehomo2+elumo2)/2d0
       efermi= ((ehomo1+elumo1)/2d0 +(ehomo2+elumo2)/2d0)/2d0 !/2d0 bug fix Jun26,2014 this only affects to the message.
       write(stdo,"('bzwtsf2: zval fmom nmon1 nmom2=',2f12.8,2x,2i3)")zval,fmom,nmom1,nmom2
-      write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15)")ehomo1,elumo1,elumo1-ehomo1
-      write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15)")ehomo2,elumo2,elumo2-ehomo2
+      write(stdo,"('bzwtsf2: HOMOup LUMOup Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo1,elumo1,elumo1-ehomo1
+      write(stdo,"('bzwtsf2: HOMOdn LUMOdn Diff=',3f20.15,' (Diff=0.5forNoOccupied)')")ehomo2,elumo2,elumo2-ehomo2
       write(stdo,"('bzwtsf2: Set Bias initial cond. -Vup+Vdn=',f20.15)")vnow
 
 !!= takao interted a block taken from original version of bzwtsf.F June-2 2011.=

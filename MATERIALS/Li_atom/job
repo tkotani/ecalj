@@ -1,0 +1,8 @@
+ctrlgenM1.py li --systype=molecule --fsmom=1.0 --nk1=1 --nspin=2 --tratio=-1
+echo 
+echo '####################################################################################'
+echo ' A sample, Li atom in a supercell.'
+echo ' You may change R= and RSMH= (we set this one-half of R) after ctrlgenM1.py'
+echo '   >cp ctrlgenM1.ctrl.li ctrl.li, and '
+echo ' Then edit MMOM of ctrl.li to set initial magnetic moment.'
+echo ' Run lmfa and lmf successively. Then you have total energy of an atom in supercell'.
