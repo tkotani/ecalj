@@ -1,0 +1,80 @@
+Be careful. I think "total energy of an atom" is not so simple. 
+We have three energy dependent on computational metod
+
+---- This is the case of alat=6ang ----
+1.E_lmfa (etot): total energy of spin-polarized spherically symmetric atom by lmfa.
+  > lmfa li |grep etot
+    sumev=-7.717466  etot=-14.689445  eref=0.000000
+2.E_spherical_scell:
+   total energy of spin-polarized spherically symmetric atom
+   by lmf in supercell. (This is the first shot ehf=)
+   >cat save.li
+   h mmom=1 ehf=-14.745995 ehk=-14.7468973
+3.E_scell
+   total energy of spin-polarized non-spherical atom by lmf in supercell.
+   >cat save.li
+   c mmom=1 ehf=-14.7470788 ehk=-14.7470794
+
+In principle, total energy of atom is just E_scell.
+But error due to supercell and basis set.
+Thus correct (as possible) energy of atom is (maybe)
+    E_scell  + (E_lmfa - E_spherical_scell)= -14.7470788 + (-14.689445-(-14.74599))
+where (E_lmfa - E_lmf_spherical) is the correction due to supercell and basis cutoff.
+(E_lmfa is very accurate assuming the spherical symmetry).
+The correction (-14.689445-(-14.74599) is rather large for alat=6ang.
+But get smaller for larger alat. See following data.
+
+
+======================================================
+Spherical atom
+sumev=-7.717466  etot=-14.689445  eref=0.000000
+
+--------------------
+alat=6ang supercell ALAT=6/0.529177
+c mmom=1 ehf=-14.7470798 ehk=-14.7470798
+
+
+--------------------
+alat=8ang supercell ALAT=8/0.529177
+i mmom=1 ehf=-14.7018776 ehk=-14.7020048
+i mmom=1 ehf=-14.7018722 ehk=-14.7020039
+i mmom=1 ehf=-14.7019572 ehk=-14.7020192
+i mmom=1 ehf=-14.7020329 ehk=-14.7020344
+c mmom=1 ehf=-14.7020338 ehk=-14.7020346
+
+Eatom= E_scell + (E_spherical - E_spherical_scell)
+     = -14.7020338 +  (-14.689445-(-14.7018776))  at 8ang
+     =-14.6896012
+
+--------------------
+alat=10ang supercell ALAT=8/0.529177
+c mmom=1 ehf=-14.6916029 ehk=-14.691603
+
+
+--------------------
+alat=15ang ALAT=15/.529177 ALAT=15/0.529177
+h mmom=1 ehf=-14.6894677 ehk=-14.6894219
+i mmom=1 ehf=-14.6894438 ehk=-14.6894155
+i mmom=1 ehf=-14.6894625 ehk=-14.6894152
+i mmom=1 ehf=-14.6894163 ehk=-14.6894159
+c mmom=1 ehf=-14.6894159 ehk=-14.6894159
+
+Eatom= E_scell + (E_spherical - E_spherical_scell)
+     = -14.6894159 +  (-14.689445-(-14.6894677))  at 15ang
+     =-14.6893932
+
+
+Conclusion:
+  etot=-14.689445(lmfa) is vert slightly smaller than -14.6893932 (at
+  alat=15ang). However, theoretically, we expect a little energy gain due
+  to relaxiation (e_sherical > e_non_spherical). 
+  Thus alat=15ang is still too small, or basis set is not so good
+  enough. Anyway, it is not numerically easy to figure out the
+  energy gain in this manner. 
+
+  A possibility is "Use a special constraint
+  to keep the spherical symmetry in the supercell calculation
+  in order to obtain "spherical atom energy" evaluated on the same
+  footing (basis set, meshing). It can be compared with E_lmf.
+
+===================================================================
