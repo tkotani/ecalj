@@ -1894,9 +1894,9 @@ c     BZ
       write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
       write(ifigwin,"(4i5)") n1q,n2q,n3q
       write(ifigwin,*)"AFcond-------------------------"
-      write(ifigwin,"(200i6)")iantiferro(1:nbas)
+      write(ifigwin,"(2000i6)")iantiferro(1:nbas)
       write(ifigwin,*)"Atom label (1:nbas) ----------------------"
-      write(ifigwin,"(200a8)")spid(1:nbas)
+      write(ifigwin,"(2000(a8,x))")spid(1:nbas)
       close(ifigwin)
 
 !! check for anf mode
