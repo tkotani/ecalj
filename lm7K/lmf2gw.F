@@ -84,6 +84,7 @@ c
       integer,parameter :: nsize= 1 000 000
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:),iantiferro(:)
+      character(8),allocatable:: spid(:)
 !!
       call show_programinfo(6)
 
@@ -208,10 +209,10 @@ c
 !! GET nrxx and ncoremx ----------------------
       nrmx    = 0
       ncoremx = 0
-      allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas))
+      allocate(nncx(0:lmxamx,nbas),konf(lmxamx+1,nbas),spid(nbas))
       do  ibas = 1, nbas
         read(ifigwa) z, nr_A, a_A, b_A, rofi_Anr
-     &  ,lmxa,nspdummy,ncore
+     &  ,lmxa,nspdummy,ncore,spid(ibas)
         allocate(rofi_A(nr_A),ec_A(ncore))
         read(ifigwa) konf(1:lmxa+1,ibas)
         read(ifigwa) rofi_A(1:nr_A)
@@ -339,8 +340,12 @@ c
      & zz,aa,bb,bas,alat,plat,
      & qbze,efermi,ec_d,evl_d,vxclda,gx_d,gcore_d,cphi_d,geig_d,nocore)
       write(ifi) iantiferro(1:nbas) !may2015
-      write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
+      write(ifi) spid(1:nbas) !nov2015
       close(ifi)
+      write(6,"(a,100i4)") ' antiferro index=',iantiferro(1:nbas)
+      do ibas=1,nbas
+        write(6,"(a,i4,a)") ' i spid=',ibas,' '//trim(spid(ibas))
+      enddo
 
 c      stop ' OK! lmf2gw: end --- DATA4GW_V2 is written '
       call rx0( ' OK! lmf2gw: end --- DATA4GW_V2 is written ')
