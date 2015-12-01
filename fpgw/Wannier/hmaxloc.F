@@ -16,21 +16,11 @@ cm Oct 2008 Takashi Miyake, updated
 cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
-      use m_readqg,only: readngmx,readqg
-      use m_readeigen,only: init_readeigen,init_readeigen2,readeval
-      use m_read_bzdata,only: read_bzdata,
-     &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
-     &     dq_,qbz,wbz,qibz,wibz,qbzw,
-     &     idtetf,ib1bz,idteti,
-     &     nstar,irk,nstbz
-      use m_genallcf_v3,only: genallcf_v3,
-     &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
-     &     invg, il, in, im, nlnm, 
-     &     plat, pos, ecore, symgg , konf,z,
-     &     spid
-      use keyvalue,only: getkeyvalue
+      use m_readqg
+      use m_readeigen
+      use m_read_bzdata,ngrp2=>ngrp
+      use m_genallcf_v3
+      use keyvalue
       implicit none
 c------------------------------------
       real(8)    :: esmr2,shtw
@@ -254,12 +244,6 @@ c      real(8), allocatable::
 c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),freq(:)
 c-----------------------------------------------------------------------
 
-ccccccccccccccccccccccccccccccccccccccccccccc
-      do i=1,natom
-       print *,'  iatom, spid= ',i,spid(i)
-      enddo
-ccccccccccccccccccccccccccccccccccccccccccccc
-
 c--- Get maximums takao 18June03
       call getnemx(nbmx,ebmx,8,.true.) !8+1 th line of GWIN0
 
@@ -269,7 +253,6 @@ c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       write(6,*)' hsfp0: end of genallcf2'
 c
-
       call pshprt(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat

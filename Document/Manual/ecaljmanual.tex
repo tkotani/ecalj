@@ -1270,7 +1270,7 @@ At $E=0$, this is reduced to be
 &&\bar{H}_l(E=0,\bfr)=r^{-l-1} (2l-1)!!.
 \end{eqnarray}
 Our default setting is with very small negetive $E$ to avoid numerical 
-trouble in cases (see default \verb#screenfac# in switch.F).
+trouble in cases (see default \verb#screefac# in switch.F).
 
 The source codes to define bessl is a little confusing because
 of some convensions are mixed up...(note at the beginning of besslr.F).
@@ -1307,23 +1307,6 @@ See hansmr.F, for example. \verb!psi! is not used so often.
 We have \verb!lm7K/subs/besslr.F!, it is similar.
 We may need to simplify our treatment of bessel functions in future...
 
-
-\paragraph{electron-phonon coupling in MPB}
-To calculate derivative for electron-phonon (EP) coupling, we need
-\begin{eqnarray}
-&&\frac{\partial}{\partial \bfr_i} \left(\bar{J}_l(E,\bfr) Y_L(\hat{r})\right)\big|_{\bfr=0}= 1/3,
-\end{eqnarray}
-only cases for $L=1$, zero for other $L$. 
-For real spherical harmonics, cases are: 
-$i=y$ and $L=(1,-1)$; $i=z$ and $L=(1,0)$; $i=x$ and $L=(1,1)$.
-Because we use MPB, it is necessary to evaluate the 
-the bare matrix element of the Coulomb interaction between nucleus and 
-$\langle B\rangle$ as
-\begin{eqnarray}
-&&\langle B|\frac{\partial v(\bfr-\bfR)}{\partial \bfR_i}\rangle
-\end{eqnarray}
-
- 
 \subsection{Green function}
 (Readers can skip this subsection).
 We explain the free-space Green's function
@@ -1556,7 +1539,7 @@ $\langle B|v|B \rangle$ in \verb!vcoulq_4! as follows
 \end{verbatim}}
 \end{quote}
 
-\subsection{$RL$ expansion of $|P^\bfk_{\bfG'} \rangle$}
+\subsection{$\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$}
 To evaluate 
 $\langle P^\bfk_\bfG |v| P^\bfk_{\bfG'} \rangle$, 
 we can use 
@@ -1682,8 +1665,7 @@ That is,
 $P^{\bfk+\bfG}_{\bfR{L}} \equiv 
 {P}_{\bfR{L}} e^{i ({\bf k+ G}){\bf r}}$.
 
-\paragraph{The first term}  
-The first term in the right-hand side of \req{eq:barpvbarp} is
+The first term is in the right-hand side of \req{eq:barpvbarp} is
 \begin{eqnarray}
 \langle \exp(i(\bfk+\bfG)\bfr) |v| \exp(i(\bfk+\bfG')\bfr) \rangle
 =\frac{4 \pi \Omega}{|\bfk+\bfG|^2+|E|} \delta_{\bfG\bfG'},
@@ -1698,11 +1680,10 @@ This is coded by a line
 @subr:vroulq_4@L281:mkjp.F.
 \end{verbatim}
 
-\paragraph{The second and third term}
-In the second  term,
+Let use consider other terms. In the second term,
 we can replace $v$ with $\frac{4 \pi \Omega}{|\bfk+\bfG'|^2+|E|}$
-since $v$ is diagonal for $|\exp(i(\bfk+\bfG')\bfr) \rangle$, the third term as well. 
-Without $v$, we have
+since $v$ is diagonal for $|\exp(i(\bfk+\bfG')\bfr) \rangle$, the third term as well. Except $v$, 
+we have
 \begin{eqnarray}
 &&\langle \exp(i(\bfk+\bfG)\bfr)| P^{\bfk+\bfG'}_{\bfR'{L'}}\rangle
 =\sum_{\bfR{L}} \langle 
@@ -1767,7 +1748,6 @@ lm2         --> L
 ibas2       --> R
 \end{verbatim}
 
-\paragraph{The forth term}
 The last term of \req{eq:barpvbarp} can be calculated essentially
 the same manner with $\langle B| v| B\rangle$, where we use the
 Bessel function instead of $B_{\bfR{l}\mu}(r)$ appeared in Sec.\ref{sec:bvbpart}.
@@ -2322,101 +2302,9 @@ generate q0p: algorism
 \appendix
 \noindent {\Huge Appendix}.  \\Some of them might be obsolate now...
 
-\section{Block inversion used for dielectric functions and downfolding}
-See Christph's and Pick's paper
-\begin{eqnarray}
-\left(\begin{array}{cc} P & Q \\ R & S \\ \end{array} \right) 
-\left(\begin{array}{cc} W & -WQS^{-1} \\ -S^{-1}RW & S^{-1}+S^{-1}RWQS^{-1} \\ \end{array} \right) 
-=\left(\begin{array}{cc} 1 & 0 \\ 0 & 1 \\ \end{array} \right), 
-\label{eq:blockinv}
-\end{eqnarray}
-where $P$ and $S$ are square matrices, and
-\begin{eqnarray}
-W=(P-QS^{-1}R)^{-1}. \label{eq:blockinvw}
-\end{eqnarray}
-We refer $X=-WQS^{-1}$ and $Y=-S^{-1}RW$.
-
-Proof:
-\begin{eqnarray}
-&&{\rm (1,1) \ component}= PW-QS^{-1}RW=(P-QS^{-1}R)W = 1,\\
-&&{\rm (1,2) \ component}= -PWQS^{-1}+QS^{-1}+QS^{-1}RWQS^{-1}\nonumber\\ 
-&&=(-PW+1+QS^{-1}RW)QS^{-1}=(-(P-QS^{-1}R)W+1)QS^{-1}=0\\
-&&{\rm (2,1) \ component}= RW-SS^{-1}RW=0,\\
-&&{\rm (2,2) \ component}= -RWQS^{-1}+SS^{-1}+SS^{-1}RWQS^{-1}=1
-\end{eqnarray}
-
-\section{Downfolding}
-Downfolding is a general concept which often appears in physics in different context. It is based on the Block inversion Eq.\ref{eq:blockinv}.
-This appears for the inversion of one-body problem, or divide the Fock space
-for many-body theory.
-(divide the Fock space into two Hilbert spaces; one-particle excited states and
-states with more than one-particles). 
-
-For exaple, the Green function is the inversion of the matrix $\omega-H$,
-where $H$ is divided into to
-\begin{eqnarray}
-\left(\begin{array}{cc} H_{11} & H_{12} \\ H_{21}& H_{22} \\ \end{array} \right).
-\label{eq:hdiv}
-\end{eqnarray}
-
-If we have $H_{12}=H_{21}=0$, we have $G^0_{11}=1/(\omega -H_{11})$ 
-as the main part of Green function. This is completely separated from
-from the residual part $G_{22}^0=1/(\omega -H_{22})$.
-
-When $H_{12}$ and $H_{21}$ are non-zero,
-we have to take into their effect by perturbation, or by the block inversion
-Eq.\ref{eq:blockinv}. Then we have
-\begin{eqnarray}
-\left(\begin{array}{cc} G_{11} & G_{12} \\ G_{21} & G_{22} \\ \end{array} \right)
-=
-\left(\begin{array}{cc} G_{11} & -G_{11}H_{12}G^0_{22} 
-                    \\ -G^0_{22}H_{21}G_{11} & G^0_{22}+G^0_{22}H_{21}G_{11}H_{12}G^0_{22} \\ \end{array} \right),
-\end{eqnarray}
-where $W$ in \req{eq:blockinv} is $G_{11}$. Note that the $\omega$ dependence is
-in $G^0_{11}$ and $G^0_{22}$. Here $G_{11}$ given as (See \req{eq:blockinvw}).
-\begin{eqnarray}
-G_{11}=\frac{1}{\omega - H_{11} - H_{12}G^0_{22}H_{21}}.
-\label{eq:g11}
-\end{eqnarray}
-Then $ H_{12}G^0_{22}H_{21}$ is identified as the self-energy.
-
-There are possible cases about how to choose Hilbert space $\Omega_1$ and
-$\Omega_2$ corresponding to the division \req{eq:hdiv}. 
-\begin{itemize}
-\item
-In the one-body problem, for example, we take $\Omega_1$ as low energy part
-and $\Omega_2$ as high energy part. or 3d parts and others. 
-\item
-In a case of many-body theory, 
-$\Omega_1$ is the one-particle Fock space. 
-Then $G_{11}$ is the one-body propagetor, and $G_{22}$ is many-body (two-
-and more particles-) propagetor.
-\item
-We may take $\Omega_1$ as the model space, $\Omega_2$ as the residual space.
-Then we make like to identify $H_{11}$ as the Hubbard Hamiltonian.
-However, it is not so simple since $H_{11}$ contains screening effect
-due to the degree of freedom of $\Omega_2$. We have to consider a little more
-complicated downfolding procedure.
-\end{itemize}
-Warn: not be confused with the division of many-body Hamiltonian $H$ into
-$H_0 + (H-H_0)$ for perturbation.
-
-\section{Causality and analytic property}
-Causality means "cause gives result".
-This is represented by the step function, for example, as
-$\theta(t-t') \exp(i \omega_0 (t-t'))$,
-whose FT gives $1/(\omega-\omega_0-i \delta)$. Thus the position of pole 
-(upper or lower plane) is
-important to determine the direction of time (real time representation).
-
-Sum rule is related but a little different.
-For example, sum rule for Imaginary part of $G_{11}$ is controlled 
-only by the beheavior $G_{11}(\omega)$ at $|\omega| \to \infty$. Thus, as long as
-$H_{12}G^0_{22}H_{21} \propto 0$ for  $|\omega| \to \infty$,
-the sum rule is satisfied.
-
 
 \section{Spherical Harmonics and Real harmonics in ecalj}
+
 In our GW code, we user real harmonics $y_{lm}(\hat{\bf r})$,
 instead of the usual sperical (complex) harmonics $Y_{lm}(\hat{\bf r})$
 in the real implimentation.
@@ -2857,9 +2745,6 @@ FTMESH: denser gives better? ehk=ehf?
 
 
 \end{verbatim}
-
-\newpage
-$1{\rm wn}_i$,${\tt wan}_i m g t$
 
 \newpage 
 \printindex
