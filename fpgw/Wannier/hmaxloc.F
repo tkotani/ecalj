@@ -60,6 +60,7 @@ c
       logical :: screen, exchange, cohtest, legas, tote 
       real(8) ::  rydberg,hartree 
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
+      real(8):: qlat(3,3)
       logical ::nocore
 
 c space group infermation 
@@ -257,6 +258,8 @@ c
       tpia = 2d0*pi/alat
 
       call dinv33(plat,1,xxx,vol)
+      call dinv33(plat,1,qlat,vol)
+
       voltot = dabs(vol)*(alat**3)
 
       ifmlw(1) = iopen('MLWU',0,-1,0)
@@ -1040,6 +1043,14 @@ c --- Readin nlam index
       write(ifh)ef 
       write(ifh)nwf,nrws,n1,n2,n3
       write(ifh) irws,rws,hrotr, ibasiwf
+      close(ifh)
+
+      ifh = ifile_handle()
+
+      call write_hopping_output(is, ifh, hrotr,
+     &                  rws,irws,alat,plat,qlat,pos,natom,
+     &                  ibasiwf, nwf,nrws )
+
       close(ifh)
 
 

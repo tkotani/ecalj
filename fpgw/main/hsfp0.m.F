@@ -1058,8 +1058,8 @@ c-------------------------
                 if(mod(iw-iwini+1,50)==1) 
      &                    write(6,"(' omega-ef=',f9.4,'  Sc=',2f9.4)") 
      &                    (omega(i,iw)-ef)*rydberg(), hartree*zsec(iw,i,ip)
-                write(ifoutsec,"(4i5,3f10.6,3x,f10.6,2x,f16.8,x,3f16.8)")
-     &                    iw,itq(i),ip,is, q(1:3,ip),  eqx(i,ip,is),
+                write(ifoutsec,"(4i5,3f10.6,3x,f10.6,2x,2f16.8,x,3f16.8)")
+     &                    iw,itq(i),ip,is, q(1:3,ip), wibz(ip), eqx(i,ip,is), 
      &                    (omega(i,iw)-ef)*rydberg(),  hartree*zsec(iw,i,ip) !,sumimg
               end do
               write(ifoutsec,*)

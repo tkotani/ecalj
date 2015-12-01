@@ -434,6 +434,7 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)iopenxx.o \
  $(gwsrc)iopen.o \
  $(gwsrc)rw.o \
+ $(gwsrc)polinta.o \
  $(gwsrc)rydberg.o
 
  MERGE = \
