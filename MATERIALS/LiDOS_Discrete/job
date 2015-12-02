@@ -1,0 +1,7 @@
+echo "NOTE the setting W=0.01 (smearing width) in ctrl.li"
+lmfa li |tee llmfa
+lmf li |tee llmf
+job_tdos li -np 2  
+mv dos.tot.li dostet.tot.li
+job_tdos li -np 2 --tdostetf 
+gnuplot -persist tdoscompare.li.glt
