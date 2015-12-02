@@ -32,7 +32,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -437,6 +437,18 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)polinta.o \
  $(gwsrc)rydberg.o
 
+ QPE_QSGW = \
+ $(gwsrc)switches.o \
+ $(gwsrc)keyvalue.o \
+ $(main)hqpe_qsgw.m$(hqpe_g) \
+ $(gwsrc)qpe1.qsgw.o \
+ $(gwsrc)icompvv2.o \
+ $(gwsrc)iopenxx.o \
+ $(gwsrc)iopen.o \
+ $(gwsrc)rw.o \
+ $(gwsrc)polinta.o \
+ $(gwsrc)rydberg.o
+
  MERGE = \
  $(main)hmergewv.m.o \
  $(gwsrc)switches.o \
@@ -579,6 +591,9 @@ eout2: $(EO2)  $(COMM)
 
  hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) $(GW0)
 	 $(LK) $(LKFLAGS1) $(QPE_SC) $(GW0) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hqpe_qsgw:		$(QPE_QSGW)  $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(QPE_QSGW) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hmergewv:	$(MERGE) $(MPI)   $(COMM) 
 	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@

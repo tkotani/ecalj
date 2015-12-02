@@ -39,7 +39,7 @@ c      logical:: readgwinput
       real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:),
      &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
      &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
-      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:),
+      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:), constant_shift(:,:),
      &                    green_ftn_int(:,:,:),  sigma_int(:,:,:)
       real(8),allocatable:: rgreen_ftn2(:,:,:), cgreen_ftn2(:,:,:)
       integer :: ifoutgreen, ifoutsigma, ifoutspect1, ifoutspect2, ifoutsec_int
@@ -65,6 +65,7 @@ c      ifqpnt     = iopenxx ('QPNT')
 c      if(readgwinput()) then
       call getkeyvalue("GWinput","ninter_omega",ninter,default=1)
       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+      !ninter = 1
 c      else
 c        ifqpnt     = iopenxx ('QPNT')
 c      endif
@@ -343,7 +344,7 @@ c      write(6,*)" itc=",itc(i)
 
 
 
-        allocate( eh(ntq,nq), 
+        allocate( eh(ntq,nq), constant_shift(ntq,nq),
      &           green_ftn(iwini:iwend,ntq,nq), sigma(iwini:iwend,ntq,nq),
      &           spect_ftn(iwini:iwend,nq), spect_ftn_tot(iwini:iwend))
 
@@ -397,7 +398,10 @@ c      write(6,*)" itc=",itc(i)
      &                    omega(i,iw),  sex(i,ip), sexcore(i,ip),
      &                    rsecomg(iw,i,ip),  csecomg(iw,i,ip), sigma(iw,i,ip) !,sumimg
 
-              green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)))
+              constant_shift(i,ip) = sex(i,ip) + sexcore(i,ip) + 
+     &                             rsec(2,i,ip) + (0.0, 1.0)*csec(2,i,ip) -vxc(i,ip)
+              green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)
+     &                                     - constant_shift(i,ip)))
 
 !              rdenomi = omega(i,iw) - (eh(i,ip)
 !     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
@@ -434,9 +438,10 @@ c      write(6,*)" itc=",itc(i)
      &                    omega_int(i,iw_int),  sex(i,ip), sexcore(i,ip),
      &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
      &                    sigma_int(iw_int,i,ip) !,sumimg
-  
 
-                green_ftn_int(iw_int,i,ip) = 1./(omega_int(i,iw_int) - (eh(i,ip) + sigma_int(iw_int,i,ip)))
+
+                green_ftn_int(iw_int,i,ip) = 1./(omega_int(i,iw_int) - (eh(i,ip) + sigma_int(iw_int,i,ip)
+     &                                     - constant_shift(i,ip)))
 
 !              rdenomi = omega(i,iw) - (eh(i,ip)
 !     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
@@ -455,6 +460,7 @@ c      write(6,*)" itc=",itc(i)
      &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
      &                    green_ftn_int(iw_int,i,ip) !,sumimg
 !     &                    rgreen_ftn2(iw,i,ip),  cgreen_ftn2(iw,i,ip)
+
               end do
             end if
           end do
@@ -550,7 +556,7 @@ c     i              w(ieldac),w(ivxc),w(isex),
 c     i              w(irsec),w(icsec),w(izfac),eshift,
 c     d              ntq,nq,is,
 c     o              w(ieqp),w(iwqp))
-        call qpe1  (ifqpe(is),iftote(is),iftote2(is),itc,qc,
+        call qpe1_qsgw     (ifqpe(is),iftote(is),iftote2(is),itc,qc,
      i              eldac,vxc,sex,sexcore,
      i              rsec,csec,zfac,jin,deltaw,alat,ef,
      d              ntq,nq,is,
