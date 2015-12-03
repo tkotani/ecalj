@@ -41,6 +41,7 @@ cccc      use m_rgwinf_v3
      o  plat(:,:),pos(:,:),z(:),  ecore(:,:), symgg(:,:,:)   !w(igrp) freq(:),
       real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
       logical:: done_genallcf_v3=.false.
+      character(8),allocatable:: spid(:)
 c-----------------------------------------------------------------------
       contains
 
@@ -166,9 +167,11 @@ c> product basis
 c> core
      o                  ncwf,ncwf2 )
 c----
-      allocate(iantiferro(1:natom))
+      allocate(iantiferro(1:natom),spid(1:natom))
       read(ifix,*)
       read(ifix,*)iantiferro(1:natom) !may2015
+      read(ifix,*)
+      read(ifix,*)spid(1:natom)
 
       inquire(file='NoCore',exist=nocore)
       if(nocore) then

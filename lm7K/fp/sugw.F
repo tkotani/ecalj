@@ -229,6 +229,8 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       integer,allocatable:: iantiferro(:)
 
       integer:: lpdiag=0
+      character spid*8
+
 #if MPI | MPIK
       include "mpif.h"
 #endif
@@ -500,6 +502,8 @@ C   ... Atom data (gwa)
           z=sspec(is)%z
           rmt(ib)=sspec(is)%rmt
           lmaxa = int(sspec(is)%lmxa)
+          call spacks_copy('u',sspec(is)%name,is,is,spid,is)
+c          print *,' ssssssss spid='//spid//'###'
           if (lmaxa .gt. -1) then
             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
      .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
@@ -536,7 +540,7 @@ c --- for band mode
                 enddo
               enddo
             endif
-            if(rank0)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore
+            if(rank0)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
             if(rank0)write(ifigwa) konfig(0:lmaxa)
             if(rank0)write(ifigwa) rofi
 !!         Write orthonormalized valence wave functions for this atom

@@ -114,7 +114,7 @@ c     &  ,iantiferro               !for check
       integer(4)::              !ifrb (nspx),ifcb(nspx),ifrhb(nspx),ifchb(nspx)
      &     ifphi,ifev !ifev(nspx)
      &     ,ifv,ifplane
-      character*4,allocatable:: clablx(:)
+      character*8,allocatable:: clablx(:)
       real(8),allocatable:: rofi(:)
       integer(4),allocatable:: lmxaa(:),nncx(:,:),nrGG(:)
      &     ,ngvecp(:,:),ngvecc(:,:),indxk(:),ipq(:)
@@ -254,6 +254,7 @@ c      logical :: ippovlc_test
       real(8):: QpGcutggg,QpGcutgcgp
       complex(8),allocatable:: ggg(:)
       integer,allocatable:: nvggg(:,:),nvgcgp(:,:),iantiferro(:)
+      character(8),allocatable:: spid(:)
       integer:: nggg,ngcgp !q independent 
 
 c---------------------------------------------------
@@ -376,8 +377,9 @@ c
      &     iclass,lmxa,nr,konf,ncore,
      &     zz,aa,bb,bas,alat,plat,
      &     qtti,efermi,ec,evl,vxclda,gx_raw,gcore,nocore) !,cphi,geig
-      allocate(iantiferro(nbas))
+      allocate(iantiferro(nbas),spid(nbas))
       read(ifi) iantiferro !may2015
+      read(ifi) spid !nov2015
       nocore=.false. ! we fixe nocore=yes for simplicity. See lmf2gw also.
       print *,' iclass=',iclass
       print *,' nqtti nbas',nqtti,nbas
@@ -671,6 +673,7 @@ C --- ATOMIC PART ic = ibas scheme -------------------------------
       nnc = 0
       lmxax = lmxamx
       allocate(clablx(nbas))
+      clablx=spid
       allocate( zzp (nmax,nmax,0:lmxax,nclass,nsp),
      &     zzpi(nmax,nmax,0:lmxax,nclass,nsp),
      &     eb(nmax))
@@ -693,7 +696,7 @@ C ... PHIVC initial
 C ... ibas loop
       do ibas = 1,nbas
         ic   = iclass(ibas)
-        clablx(ibas) = "AT"//char( 48+ibas )
+c        clablx(ibas) = "AT"//char( 48+ibas )
         ic1   = ibas
         allocate(rofi(nr(ic)))
         do ir=1,nr(ic)
@@ -1883,8 +1886,7 @@ c     LMTO
       write(ifigwin,*)"atom          z                   nr "
 !     ibas = ic
       do ibas =1,nbas
-        write(ifigwin,*) "'"//clablx(ibas)//"'"
-     &        ,zz(iclass(ibas)),nr(iclass(ibas))
+        write(ifigwin,*) " "//trim(clablx(ibas))//" ",zz(iclass(ibas)),nr(iclass(ibas))
       enddo
       write(ifigwin,*)
 c     BZ
@@ -1892,7 +1894,9 @@ c     BZ
       write(ifigwin,*)"divisions along G1 G2 G3 (n1 n2 n3)"
       write(ifigwin,"(4i5)") n1q,n2q,n3q
       write(ifigwin,*)"AFcond-------------------------"
-      write(ifigwin,"(200i6)")iantiferro(1:nbas)
+      write(ifigwin,"(2000i6)")iantiferro(1:nbas)
+      write(ifigwin,*)"Atom label (1:nbas) ----------------------"
+      write(ifigwin,"(2000(a8,x))")spid(1:nbas)
       close(ifigwin)
 
 !! check for anf mode
