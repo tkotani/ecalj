@@ -36,10 +36,10 @@ c      logical:: readgwinput
       real(8) :: rdenomi, cdenomi, xxxx!, polinta
       real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:),
      &                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
-      real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:),
+      real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:), constant_shift(:,:),
      &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
      &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
-      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:), constant_shift(:,:),
+      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:), 
      &                    green_ftn_int(:,:,:),  sigma_int(:,:,:)
       real(8),allocatable:: rgreen_ftn2(:,:,:), cgreen_ftn2(:,:,:)
       integer :: ifoutgreen, ifoutsigma, ifoutspect1, ifoutspect2, ifoutsec_int
@@ -399,7 +399,7 @@ c      write(6,*)" itc=",itc(i)
      &                    rsecomg(iw,i,ip),  csecomg(iw,i,ip), sigma(iw,i,ip) !,sumimg
 
               constant_shift(i,ip) = sex(i,ip) + sexcore(i,ip) + 
-     &                             rsec(2,i,ip) + (0.0, 1.0)*csec(2,i,ip) -vxc(i,ip)
+     &                             rsec(2,i,ip) -vxc(i,ip)
               green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)
      &                                     - constant_shift(i,ip)))
 
