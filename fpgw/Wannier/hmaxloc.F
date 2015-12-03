@@ -1053,6 +1053,7 @@ c --- Readin nlam index
         ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
       enddo
 
+
 !! write HrotRS
       ifh=ifile_handle()
       if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
@@ -1068,7 +1069,8 @@ c --- Readin nlam index
 
       call write_hopping_output(is, ifh, hrotr,
      &                  rws,irws,alat,plat,qlat,pos,natom,
-     &                  ibasiwf, nwf,nrws )
+     &                  ibasiwf, nwf,nrws,spid , m_indx, l_indx,
+     &                  nphix, iphi, ldim2)
 
       close(ifh)
 
