@@ -26,15 +26,15 @@ cd StructureTool/
 #make PLATFORM=gfortran_mpik BINDIR=$BINDIR install
 #
 #### Use fpgw/exec/makefile
-#cd ../fpgw/exec/
-#make PLATFORM=gfortran LIBMATH="$MATH"
-#make PLATFORM=gfortran BINDIR=$BINDIR  install
-#make PLATFORM=gfortran BINDIR=$BINDIR install2
-#
-### Use fpgw/Wannier/Makefile
-cd ../fpgw/Wannier/
+cd ../fpgw/exec/
 make PLATFORM=gfortran LIBMATH="$MATH"
-make BINDIR=$BINDIR PLATFORM=gfortran install
+make PLATFORM=gfortran BINDIR=$BINDIR  install
+make PLATFORM=gfortran BINDIR=$BINDIR install2
+#
+#### Use fpgw/Wannier/Makefile
+#cd ../fpgw/Wannier/
+#make PLATFORM=gfortran LIBMATH="$MATH"
+#make BINDIR=$BINDIR PLATFORM=gfortran install
 #
 #cd ../../TestInstall/
 #make mpi_size=4 all

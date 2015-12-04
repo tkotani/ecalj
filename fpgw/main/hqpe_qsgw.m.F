@@ -34,8 +34,8 @@ c      logical:: readgwinput
 
       integer(4),allocatable :: itcomg(:)
       real(8) :: rdenomi, cdenomi, xxxx!, polinta
-      real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:),
-     &                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
+      real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:),k_distance(:),
+&                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
       real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:), constant_shift(:,:),
      &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
      &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
@@ -344,7 +344,7 @@ c      write(6,*)" itc=",itc(i)
 
 
 
-        allocate( eh(ntq,nq), constant_shift(ntq,nq),
+        allocate( eh(ntq,nq), constant_shift(ntq,nq),k_distance(nq), 
      &           green_ftn(iwini:iwend,ntq,nq), sigma(iwini:iwend,ntq,nq),
      &           spect_ftn(iwini:iwend,nq), spect_ftn_tot(iwini:iwend))
 
@@ -466,8 +466,8 @@ c      write(6,*)" itc=",itc(i)
           end do
         end do
 
-        write(ifoutspect1,"(3a6,a25,a10,3x,a16,x,2a16)")
-     &      "# iw", "ip", "is", "q(1:3,ip)","Weight","w-Ef",  "A(k,w)"
+        write(ifoutspect1,"(3a6,a25,a14,3x,a16,x,2a16)")
+     &      "# iw", "ip", "is", "q(1:3,ip)","k_distance","Weight","w-Ef",  "A(k,w)"
         write(ifoutspect2,"(2a6,3x,a16,x,2a16)")
      &      "# iw", "is", "w-Ef",  "A(w)"
 
@@ -487,6 +487,7 @@ c      write(6,*)" itc=",itc(i)
 
         do iw = iwini,iwend
           do ip = 1,nq
+            k_distance(ip) = norm2(qcomg(1:3,ip) - qcomg(1:3,1))
             do i  = 1,ntq
                 spect_ftn(iw,ip) = spect_ftn(iw,ip) + 1./3.141592*abs(dimag(green_ftn(iw,i,ip)))
             end do
@@ -511,14 +512,14 @@ c      write(6,*)" itc=",itc(i)
 
         do ip = 1,nq
           do iw = iwini,iwend
-            write(ifoutspect1,"(3i5,3f10.6,3x,f10.6,f16.8,x,2f16.8)")
-     &          iw,  ip, is, qcomg(1:3,ip), wibz(ip), omega(1,iw),  spect_ftn(iw,ip)
+            write(ifoutspect1,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
+     &          iw,  ip, is, qcomg(1:3,ip), k_distance(ip), wibz(ip), omega(1,iw),  spect_ftn(iw,ip)
           end do
 
           if (ninter >1) then
           do iw_int = iwini_int,iwend_int
-            write(ifoutspect1_int,"(3i5,3f10.6,3x,f10.6,f16.8,x,2f16.8)")
-     &          iw_int,  ip, is, qcomg(1:3,ip), wibz(ip), omega_int(1,iw_int),  spect_ftn_int(iw_int,ip)
+            write(ifoutspect1_int,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
+     &          iw_int,  ip, is, qcomg(1:3,ip), k_distance(ip), wibz(ip), omega_int(1,iw_int),  spect_ftn_int(iw_int,ip)
           end do
           end if
           write(ifoutspect1,*)
