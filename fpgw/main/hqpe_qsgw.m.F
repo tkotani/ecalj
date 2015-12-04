@@ -35,7 +35,7 @@ c      logical:: readgwinput
       integer(4),allocatable :: itcomg(:)
       real(8) :: rdenomi, cdenomi, xxxx!, polinta
       real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:),k_distance(:),
-&                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
+     &                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
       real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:), constant_shift(:,:),
      &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
      &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
