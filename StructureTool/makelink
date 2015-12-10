@@ -1,3 +1,3 @@
-ln -s ~/ecalj/StructureTool/viewvesta.py ~/bin/viewvesta
-ln -s ~/ecalj/StructureTool/ctrl2vasp.py ~/bin/ctrl2vasp
-ln -s ~/ecalj/StructureTool/vasp2ctrl.py ~/bin/vasp2ctrl
+ln -s ~/ecalj_git/ecalj_swj/StructureTool/viewvesta.py ~/bin/viewvesta
+ln -s ~/ecalj_git/ecalj_swj/StructureTool/ctrl2vasp.py ~/bin/ctrl2vasp
+ln -s ~/ecalj_git/ecalj_swj/StructureTool/vasp2ctrl.py ~/bin/vasp2ctrl

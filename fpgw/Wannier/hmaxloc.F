@@ -1129,7 +1129,8 @@ c     (3-4) diagonalize -- Tight-binding --
          enddo
       endif
       call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
-      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws)
+      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, 
+     &           ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
       if (lsh) deallocate(hrotkps,eveccs,evals)
       close(ifbnd)
 c end of loop over spin
