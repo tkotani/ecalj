@@ -188,7 +188,7 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       write(ifh,"('Name : Need to be modified')")
       allocate (cart_coord(3,3))
       do i=1,3
-        cart_coord(1:3,i) = alat*plat(1:3,i)
+        cart_coord(1:3,i) = alat*plat(1:3,i)*0.529177249
         write(ifh,"(3F16.9)") cart_coord(1:3,i)
       enddo
       write(ifh,"(2I6,I12)") nwf,nrws,nwf*nrws
