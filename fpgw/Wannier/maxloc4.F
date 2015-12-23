@@ -205,9 +205,9 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       orbital_sym(1,1)="x"
       orbital_sym(2,-2)="xy"
       orbital_sym(2,-1)="yz"
-      orbital_sym(2,0)="x2y2"
+      orbital_sym(2,0)="z2"
       orbital_sym(2,1)="xz"
-      orbital_sym(2,2)="z2"
+      orbital_sym(2,2)="x2y2"
 
 
       quantum_n = "--"
