@@ -46,7 +46,7 @@ C     ... Program-dependent name and help
       data prgnam /'LMCHK'/ auxmod /1/
 #endif
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
-      parameter (mxrecs=10000,recln0=120)
+      parameter (mxrecs=10000,recln0=511)
       character*8 alabl
       character*(mxrecs*recln0):: recrd
       real(8),parameter::    NULLR =-99999
