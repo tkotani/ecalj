@@ -1229,15 +1229,15 @@ C$$$! exit
       character*1:: jobz
       logical ::savez,getz,nexist
       integer,save:: lworksave=0
-!! ---
-      if(getz) then !temporary fix to acceralate
-        read(ifig) nev,nmx
-        read(ifig) e(1:nev)
-        read(ifig) z(1:n,1:nmx)
-c        if(min(nmx,n)>=nev) goto 901
-        return
-      endif  
- 901  continue
+c$$$!! ---
+c$$$      if(getz) then !temporary fix to acceralate
+c$$$        read(ifig) nev,nmx
+c$$$        read(ifig) e(1:nev)
+c$$$        read(ifig) z(1:n,1:nmx)
+c$$$c        if(min(nmx,n)>=nev) goto 901
+c$$$        return
+c$$$      endif  
+c$$$c 901  continue
       call tcn('zhev_tk2')
 c!! --- calculation
 c      allocate(scale(n))
@@ -1284,12 +1284,12 @@ c      print *,'nev nevx n=',nev,nevx,n
       deallocate(work,iwork,rwork)
 
 
-c!! ==== scale back to the eigenfuntion in original problem ====
-      if(savez) then
-        write(ifig) nev,nmx
-        write(ifig) e(1:nev)
-        write(ifig) z(1:n,1:nmx)
-      endif  
+c$$$c!! ==== scale back to the eigenfuntion in original problem ====
+c$$$      if(savez) then
+c$$$        write(ifig) nev,nmx
+c$$$        write(ifig) e(1:nev)
+c$$$        write(ifig) z(1:n,1:nmx)
+c$$$      endif  
       call tcx('zhev_tk2')
       end
 
@@ -1344,15 +1344,15 @@ c!! ==== scale back to the eigenfuntion in original problem ====
      & zz(:,:),hh(:,:),hhm(:,:),znm(:,:)
       integer:: nevl,nm,nmout,nevout
       logical:: debug=.false.
-!! ---
-      if(getz) then !temporary fix to acceralate
-        read(ifig) nev,nmx
-        read(ifig) e(1:nev)
-        read(ifig) z(1:n,1:nmx)
-c        if(min(nmx,n)>=nev) goto 901
-        return
-      endif  
- 901  continue
+c$$$!! ---
+c$$$      if(getz) then !temporary fix to acceralate
+c$$$        read(ifig) nev,nmx
+c$$$        read(ifig) e(1:nev)
+c$$$        read(ifig) z(1:n,1:nmx)
+c$$$c        if(min(nmx,n)>=nev) goto 901
+c$$$        return
+c$$$      endif  
+c$$$ 901  continue
       call tcn('zhev_tk3')
 
 !! ... eigenvalue of ovarlap matrix
@@ -1464,11 +1464,11 @@ c      endif
         !   print *,'nev nevx n=',nev,nevx,n
       endif ! end of zhev_t2 case
 
-      if(savez) then
-        write(ifig) nev,nmx
-        write(ifig) e(1:nev)
-        write(ifig) z(1:n,1:nmx)
-      endif  
+c$$$      if(savez) then
+c$$$        write(ifig) nev,nmx
+c$$$        write(ifig) e(1:nev)
+c$$$        write(ifig) z(1:n,1:nmx)
+c$$$      endif  
       call tcx('zhev_tk3')
       end
 
