@@ -1,33 +1,11 @@
       program hwmat
-c-------------------------------------------------------------
-c Calculates the bare/screened interaction W
-c
-c W(w) = <phi(n1,dR) phi(n2,0) |W(w)| phi(n3,R') phi(n4,R'+dR')>
-c phi(n,R): maximally localized Wannier orbital
-c     n   : band index
-c       R : site
-c
-c This routine requirs an input from standard IO.
-c In scripts, you can do it like, prompt>echo mode|../exec/hwmat >lwmat,
-c where mode is 1 or 2.
-c
-c  mode= 1: bare Coulomb mode, V, <phi phi | V  | phi phi>
-c  mode= 2: screening mode, Wc,   <phi phi | Wc | phi phi>
-c  mode= 3: effective U mode,   <phi phi | U | phi phi>
-c  mode= 4: similar to mode=1, but phi is atomic orbital+gaussian tail
-c  mode= 5: similar to mode=2, but phi is atomic orbital+gaussian tail
-c  mode= 6: similar to mode=3, but phi is atomic orbital+gaussian tail
-c
-c May 2007 Takashi Miyake, full matrix elements
-c May 2006 Takashi Miyake, updated for new fpgw
-c Sep 2004 Takashi Miyake, off-site W
-c Jul 2004 Takashi Miyake. from hsfp0.m.f
-c May 2002 Takashi Miyake. Total energy calc.
-c Apr 2002 takao kotani. multiple argumentation wave per l. 
-c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
-c------------------------------------------------------------
+!!-------------------------------------------------------------
+!! Calculates the bare/screened interaction W
+!! See note in hmatK_MPI.F
+!!------------------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
+     & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue

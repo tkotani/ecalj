@@ -1,22 +1,33 @@
       program hwmatK_MPI
-c-------------------------------------------------------------
-c Calculates the bare/screened interaction W
-c
-c W(w) = <phi(n1,dR) phi(n2,0) |W(w)| phi(n3,R') phi(n4,R'+dR')>
-c phi(n,R): maximally localized Wannier orbital
-c     n   : band index
-c       R : site
-c
-c This routine requirs an input from standard IO.
-c In scripts, you can do it like, prompt>echo mode|../exec/hwmat >lwmat,
-c where mode is 1 or 2.
-c
-c  mode= 1: bare Coulomb mode, V, <phi phi | V  | phi phi>
-c  mode= 2: screening mode, Wc,   <phi phi | Wc | phi phi>
-c  mode= 3: effective U mode,   <phi phi | U | phi phi>
-c  mode= 4: similar to mode=1, but phi is atomic orbital+gaussian tail
-c  mode= 5: similar to mode=2, but phi is atomic orbital+gaussian tail
-c  mode= 6: similar to mode=3, but phi is atomic orbital+gaussian tail
+!!== Calculates the bare/screened interaction W ===
+!!
+!! W(w) = <phi(n1,dR) phi(n2,0) |W(w)| phi(n3,R') phi(n4,R'+dR')>
+!! phi(n,R): maximally localized Wannier orbital
+!!    n : band index
+!!    R : site
+!!
+!! We included a cRPA method by juelich's group.
+!!
+!! This routine requirs an input from standard IO.
+!! In scripts, you can do it like, prompt>echo mode|../exec/hwmat >lwmat,
+!! where mode is 1 or 2, or 10011.
+!!
+!!  mode= 1: bare Coulomb mode, V, <phi phi | V  | phi phi>
+!!  mode= 2: screening mode, Wc,   <phi phi | Wc | phi phi>
+!!  mode=10011: cRPA mode
+!!
+!!  nwf: total number of wannier within the primitive cell.
+!!  nrws1: index for phi1(n1,dR) phi(n2,0), where range of dR is by dR < rcut1
+!!  nrws2: index for phi(n3,R'), where range of R' is            by R' < rcut2
+!!         This is also for R'+dR'.
+!!  nrws = nrws1*nrws2*nrws2 : total spatial index for W.
+!!  Thus irws=1,nrws where specifies a set (dR,R',dR').
+!!
+cccccccccccccccc old history ----
+cx  mode= 3: effective U mode,   <phi phi | U | phi phi>
+cx  mode= 4: similar to mode=1, but phi is atomic orbital+gaussian tail
+cx  mode= 5: similar to mode=2, but phi is atomic orbital+gaussian tail
+cx  mode= 6: similar to mode=3, but phi is atomic orbital+gaussian tail
 c
 c Mar 2008 Takashi Miyake, MPI version (parallelized along the outer q only)
 c May 2007 Takashi Miyake, full matrix elements
@@ -28,7 +39,7 @@ c Apr 2002 takao kotani. multiple argumentation wave per l.
 c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg
-      use m_readeigen
+      use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,init_readeigen_mlw_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use keyvalue
@@ -326,48 +337,48 @@ c
           ifwmat(1) = iopen('WcMATU',1,-1,0)
           if (nspin == 2) ifwmat(2) = iopen('WcMATD',1,-1,0)
         endif  
-      elseif (ixc ==3) then
-        if (Is_IO_Root_RSMPI())
-     &   write(6,*)' --- Ueff mode --- '
-        exchange =.false.
-        lueff = .true.
-        if (Is_IO_Root_RSMPI()) then
-          ifwmat(1) = iopen('UMATU',1,-1,0)
-          if (nspin == 2) ifwmat(2) = iopen('UMATD',1,-1,0)
-        endif  
-      elseif (ixc==4) then
-        if (Is_IO_Root_RSMPI())
-     &   write(6,*)' --- bare Coulomb mode --- '
-        exchange =.true.
-        lueff = .false.
-        latomic = .true.
-        ixc=1
-        if (Is_IO_Root_RSMPI()) then
-          ifwmat(1) = iopen('VMATaU',1,-1,0)
-          if (nspin == 2) ifwmat(2) = iopen('VMATaD',1,-1,0)
-        endif
-      elseif (ixc ==5) then
-        if (Is_IO_Root_RSMPI())
-     &   write(6,*)' --- screening (Wc) mode --- '
-        exchange =.false.
-        lueff = .false.
-        latomic = .true.
-        ixc=2
-        if (Is_IO_Root_RSMPI()) then
-          ifwmat(1) = iopen('WcMATaU',1,-1,0)
-          if (nspin == 2) ifwmat(2) = iopen('WcMATaD',1,-1,0)
-        endif
-      elseif (ixc ==6) then
-        if (Is_IO_Root_RSMPI())
-     &   write(6,*)' --- Ueff mode --- '
-        exchange =.false.
-        lueff = .true.
-        latomic = .true.
-        ixc=3
-        if (Is_IO_Root_RSMPI()) then
-          ifwmat(1) = iopen('UMATaU',1,-1,0)
-          if (nspin == 2) ifwmat(2) = iopen('UMATaD',1,-1,0)
-        endif  
+c$$$      elseif (ixc ==3) then
+c$$$        if (Is_IO_Root_RSMPI())
+c$$$     &   write(6,*)' --- Ueff mode --- '
+c$$$        exchange =.false.
+c$$$        lueff = .true.
+c$$$        if (Is_IO_Root_RSMPI()) then
+c$$$          ifwmat(1) = iopen('UMATU',1,-1,0)
+c$$$          if (nspin == 2) ifwmat(2) = iopen('UMATD',1,-1,0)
+c$$$        endif  
+c$$$      elseif (ixc==4) then
+c$$$        if (Is_IO_Root_RSMPI())
+c$$$     &   write(6,*)' --- bare Coulomb mode --- '
+c$$$        exchange =.true.
+c$$$        lueff = .false.
+c$$$        latomic = .true.
+c$$$        ixc=1
+c$$$        if (Is_IO_Root_RSMPI()) then
+c$$$          ifwmat(1) = iopen('VMATaU',1,-1,0)
+c$$$          if (nspin == 2) ifwmat(2) = iopen('VMATaD',1,-1,0)
+c$$$        endif
+c$$$      elseif (ixc ==5) then
+c$$$        if (Is_IO_Root_RSMPI())
+c$$$     &   write(6,*)' --- screening (Wc) mode --- '
+c$$$        exchange =.false.
+c$$$        lueff = .false.
+c$$$        latomic = .true.
+c$$$        ixc=2
+c$$$        if (Is_IO_Root_RSMPI()) then
+c$$$          ifwmat(1) = iopen('WcMATaU',1,-1,0)
+c$$$          if (nspin == 2) ifwmat(2) = iopen('WcMATaD',1,-1,0)
+c$$$        endif
+c$$$      elseif (ixc ==6) then
+c$$$        if (Is_IO_Root_RSMPI())
+c$$$     &   write(6,*)' --- Ueff mode --- '
+c$$$        exchange =.false.
+c$$$        lueff = .true.
+c$$$        latomic = .true.
+c$$$        ixc=3
+c$$$        if (Is_IO_Root_RSMPI()) then
+c$$$          ifwmat(1) = iopen('UMATaU',1,-1,0)
+c$$$          if (nspin == 2) ifwmat(2) = iopen('UMATaD',1,-1,0)
+c$$$        endif  
       elseif(ixc==10011) then
         write(6,*) 'ixc=10011 pkm4crpa mode'
         exchange =.false.
