@@ -75,7 +75,7 @@ C ... Program-dependent cagetories
 
 
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
-      parameter (mxrecs=10000,recln0=120)
+      parameter (mxrecs=10000,recln0=511)
       character*8 alabl
 c      character*1 recrd(0:1)
 c      equivalence( recrd(0),w(1))
