@@ -411,7 +411,8 @@ c mar2014
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
       complex(8):: au,as,az
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
-      character*256:: ccc,sss,s222
+      character*256:: sss,s222
+      character*1000::ccc
       logical:: initbd=.true.
 
       integer:: nspsigm,ispsigm !nov2014
@@ -442,6 +443,7 @@ c mar2014
       character(10):: i2char
       integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_
+      integer:: jspend,jspini,jspp
 !! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debugbndfp',6,0,strn)
@@ -597,6 +599,7 @@ c      siginit=.true. !commented out on mar2015. this makes reading sigma at eve
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
 
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
+!! spinoffdiag=T case, the spin loop is too complicated --> we need to fix this.
       if(nspc==2.and.nsp==2) then !nspc==2
          spinoffdiag=.true.
          nspx=1
@@ -759,7 +762,7 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
       if(PROCARon) then
          iprocar1=ifile_handle()
          open(iprocar1,file='PROCAR.UP.'//trim(strprocid))
-         if(nspx==2) then
+         if(nsp==2) then
             iprocar2=ifile_handle()
             open(iprocar2,file='PROCAR.DN.'//trim(strprocid))
          endif
@@ -1230,7 +1233,7 @@ c     call mpibc1 ( sbz%rv_p_oqp , 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
       allocate(evlall(ndhamx,nspx,nkp)) ; evlall=0d0
       nchanp=25
       if(procaron.and.fullmesh) then
-         allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
+         allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
          dwgtall=0d0
       endif
 
@@ -1927,25 +1930,33 @@ c            endif
 !! Decompose to alm components. PROCAR generation.
 !! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
             if(PROCARon) then
-               if(jsp==1) iprocar=iprocar1
-               if(jsp==2) iprocar=iprocar2
-               if(debug)  print *,'iiiii =',iprocar1,iprocar2,jsp,iprocar,ef0
                nlmax = nl*nl
-               if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
-               allocate( auspp(nlmax,ndham*nspc,3,nsp,nbas) )
+               allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
                initbd=.false.
                qold=qp
-               ccc="ion      s     py     pz     px    dxy    dyz    dz2    dxz    dx2"//
-     &           "    f-3    f-2    f-1     f0     f1     f2     f3    tot"
-               write(iprocar,*)
-               write(iprocar,*)
-               write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)") 
-     &           iq,qp,xdatt(iq)
-               write(iprocar,*)
                auspp = 0d0
                call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
      .           0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .           nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
+               if(spinoffdiag) then
+                  jspini=1
+                  jspend=2
+               else
+                  jspini=isp
+                  jspend=isp
+               endif
+               do jspp= jspini, jspend
+                  if(jspp==1) iprocar=iprocar1
+                  if(jspp==2) iprocar=iprocar2
+                  if(debug) print *,'iiiii =',iprocar1,iprocar2,jspp,iprocar,ef0
+                  if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
+                  ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"//
+     &                 "      f-3      f-2      f-1       f0       f1       f2       f3"//
+     &                 "                                                                                 tot"
+                  write(iprocar,*)
+                  write(iprocar,*)
+                  write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
+                  write(iprocar,*)
                do iband = 1, nev
                   write(iprocar,*)
                   write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
@@ -1958,15 +1969,15 @@ c            endif
                      do  l = 0, sspec(is)%lmxa
                         do  m = -l, l
                            ilm = ilm+1
-                           au = auspp(ilm,iband,1,jsp,ib)
-                           as = auspp(ilm,iband,2,jsp,ib)
-                           az = auspp(ilm,iband,3,jsp,ib)
-                           s11 = dconjg(au)*au*ppnl_rv(2,l+1,jsp,ib)
-                           s22 = dconjg(as)*as*ppnl_rv(7,l+1,jsp,ib)
-                           s33 = dconjg(az)*az*ppnl_rv(8,l+1,jsp,ib)
+                           au = auspp(ilm,iband,1,jspp,ib)
+                           as = auspp(ilm,iband,2,jspp,ib)
+                           az = auspp(ilm,iband,3,jspp,ib)
+                           s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
+                           s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
+                           s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
                            s12 = 0
-                           s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jsp,ib)
-                           s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jsp,ib)
+                           s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
+                           s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
                            dwgt(ilm)= s11+s22+s33 + s12+s13+s23
                         enddo
                      enddo
@@ -1974,10 +1985,11 @@ c            endif
                      if(ib==1)  write(iprocar,"(a)") trim(ccc)
                      write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt)
                      if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt)
-                     if(fullmesh) dwgtall(1:nchanp,ib,iband,jsp,iq) = dwgt(1:nchanp)
+                     if(fullmesh) dwgtall(1:nchanp,ib,iband,jspp,iq) = dwgt(1:nchanp)
                   enddo
                enddo
-               if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,isp,sum(dwgtall),nev
+               enddo
+               if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,jsp,sum(dwgtall),nev
                deallocate( auspp )
             endif 
             if(allocated(t_zv)) deallocate(t_zv)
