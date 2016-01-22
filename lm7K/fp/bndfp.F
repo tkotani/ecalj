@@ -259,7 +259,7 @@ ckino lswtk must be 0 initially.
       real(8) ,allocatable :: qmom_rv(:)
       real(8) ,allocatable :: sab_rv(:)
       complex(8) ,allocatable :: srout_zv(:)
-      complex(8) ,allocatable :: t_zv(:)
+      complex(8) ,allocatable :: t_zv(:,:)
       real(8) ,allocatable :: vab_rv(:)
       real(8) ,allocatable :: qm1_rv(:)
       real(8) ,allocatable :: qm2_rv(:)
@@ -1708,7 +1708,7 @@ c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
                efmax = 99999
             endif
             if (allocated(t_zv)) deallocate(t_zv)
-            allocate(t_zv(ndimhx*nmx))
+            allocate(t_zv(ndimhx,nmx))
             if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx
 
 !! == lpdiag=0 only. ===
@@ -1733,9 +1733,9 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                endif
                if(initiqisp) then
 #if (MPI|MPIK)
-c     for parallel write, and eigze is used only in this subroutine. 
-c     gfortran v4.7 add _{procid} at the end of the filename
-c     then how can I share the same file among the different processes? 
+!!  for parallel write, and eigze is temporaly used only in this subroutine. 
+!!     (gfortran v4.7 add _{procid} at the end of the filename
+!!      then how can I share the same file among the different processes? )
                   ifig = fopna('eigze_'//trim(strprocid),-1,4)
                   call fclose(ifig)
                   ifig = fopna('eigze_'//trim(strprocid),-1,4)
@@ -1755,7 +1755,7 @@ c     then how can I share the same file among the different processes?
                getz=.false.
                nmx = ndimhx
                if(allocated(t_zv)) deallocate(t_zv)
-               allocate(t_zv(ndimhx*ndimhx))
+               allocate(t_zv(ndimhx,ndimhx))
             endif
 
 !! == Diagonalize Hamiltonian ==
@@ -1764,12 +1764,24 @@ c     then how can I share the same file among the different processes?
 !! t_zv:eigenfunciton. evl: eigenvalue.
 !! nmx: input, number of requested eigenvalues(funcitons)
 !! nev: out number of obtained eigenfvalues(funcitons)
-            if(epsovl<1.000001d-14) then
-              call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
-     .        evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
-            else !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
-              call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
-     .        evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
+!! ---
+            if(getz) then   ! second pass
+              read(ifig) nev,nmx
+              read(ifig) evl(1:nev,jsp)
+              read(ifig) t_zv(1:ndimhx,1:nmx)
+            else            ! 1st pass
+              if(epsovl<1.000001d-14) then
+                call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
+     .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
+              else              !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
+                call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
+     .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
+              endif
+              if(savez) then
+                write(ifig) nev,nmx
+                write(ifig) evl(1:nev,jsp)
+                write(ifig) t_zv(1:ndimhx,1:nmx)
+              endif  
             endif
 
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
