@@ -21,7 +21,12 @@
      &   nband,itq,ngcmx,ngpmx,
      &   miat,tiat,shtvg, ntq, ppbir
 
-      use m_mpi
+      use m_mpi,only: 
+     &   MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
+     &   MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
+     &   MPI__consoleout,
+     &   MPI__barrier
+
       implicit none
       integer:: nw
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
