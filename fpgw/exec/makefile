@@ -272,6 +272,7 @@ eout2: $(EO2)  $(COMM)
  $(main)hx0fp0.sc.m.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)m_tetwt.o \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(nfpsrc)diagcv2.o \
  $(gwsrc)m_zmel.o \
@@ -281,6 +282,7 @@ eout2: $(EO2)  $(COMM)
  $(main)hx0fp0.m.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)m_tetwt.o \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(nfpsrc)diagcv2.o \
  $(tote)rpaq.o \
@@ -293,6 +295,7 @@ eout2: $(EO2)  $(COMM)
  $(maxloc)hx0fp0.m.o \
  $(maxloc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)m_tetwt.o \
  $(nfpsrc)diagcv2.o \
  $(tote)rpaq.o \
  $(gwsrc)cinvrx.o\
@@ -332,6 +335,7 @@ eout2: $(EO2)  $(COMM)
  $(maxloc)hpsig.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)m_tetwt.o \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \
  $(gwsrc)getgv2.o \
@@ -346,6 +350,7 @@ eout2: $(EO2)  $(COMM)
  $(maxloc)hphig.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)m_tetwt.o \
  $(gwsrc)gintxx.o \
  $(gwsrc)pplmat.o \
  $(gwsrc)getgv2.o \
