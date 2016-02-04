@@ -430,22 +430,9 @@ c     nwhis=nw
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
-
-c$$$!! --- ppb ---
-c$$$!!   <Phi(R,L,n) Phi(R,L',n') B(R,i)> for each spin
-c$$$      allocate( ppb(nlnmx*nlnmx*mdimx*nclass,nspin) )
-c$$$      do  is = 1,nspin
-c$$$         if(debug) write(6,*)" goto ppbafp is=",is
-c$$$         irot = 1
-c$$$         call ppbafp_v2 (irot,ngrpx,is,nspin,
-c$$$     i        il,in,im, nlnm,
-c$$$     d        nl,nn,nclass,nlnmx,
-c$$$     i        mdimx,lx,nx,nxx,  !Bloch wave    
-c$$$     i        cgr, nl-1,        !rotated CG
-c$$$     i        ppbrd,            !radial integrals
-c$$$     o        ppb(1,is))        !,pdb(1,is),dpb(1,is),ddb(1,is) )
-c$$$      enddo
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+!! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
+!! Compare usage in hsfp0 modes.
       irot=1
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,irot,nspin))
       do is = 1,nspin
@@ -651,7 +638,7 @@ c$$$  endif
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          call gettetwt(q,iq,is,nwgt(:,iq))
+          call gettetwt(q,iq,is,isf,nwgt(:,iq))
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
           iqeibz=iq
           symmetrize=.false.

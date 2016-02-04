@@ -2,11 +2,11 @@ c ==============================================================================
       module m_tetwt
 !! input data; read only
       use m_readeigen,only:   readeval !we assume init_readeval is called already
-      use m_genallcf_v3,only: ecore,niw,nctot,ef    !we assume genallcf_v3 called already.
+      use m_genallcf_v3,only: ecore,nctot,ef    !we assume genallcf_v3 called already.
       use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
         ! we assume read_bzdata is called already
       use m_freq,only:                   !we assume getfreq is called already.
-     &   frhis, nwhis,nw_i,nw,npm !output of getfreq
+     &   frhis, nwhis,npm !output of getfreq
       use m_zmel,only: nband
 !! output data for tetrahdron method for dielectric function
       real(8),allocatable :: whw(:)
@@ -16,11 +16,11 @@ c ==============================================================================
 !!
       contains !! ----------------------------------------------------------------------
 !! routine
-      subroutine gettetwt(q,iq,is,nwgt) !this routine set output data above.
+      subroutine gettetwt(q,iq,is,isf,nwgt) !this routine set output data above.
 
       implicit none
       real(8),intent(in):: q(3)
-      integer,intent(in):: is,iq,nwgt(*)
+      integer,intent(in):: is,isf,iq,nwgt(*)
 
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
       logical,allocatable :: iwgt(:,:,:,:)
@@ -45,13 +45,12 @@ c ==============================================================================
 !!     n2b  = band index for unocc. 1\ge n2b \ge nband
 !!     wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
 c      if(tetra) then
-      write(6,"(' tetra mode niw nw nwhis=',3i5)") niw,nw,nwhis
       write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
 !!     ekxx1 for rk
 !!     ekxx2 for q+rk See tetwt4
       do kx = 1, nqbz
-        call readeval(qbz(:,kx),  is, ekxx1(1:nband, kx) ) 
-        call readeval(q+qbz(:,kx), is, ekxx2(1:nband, kx) )
+        call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+        call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
       enddo
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
@@ -65,7 +64,7 @@ c     in the denominator of the dielectric function.
         ncc=nctot
       endif
       allocate( demin(nband+nctot,nband+ncc,nqbz,npm),
-     & demax(nband+nctot,nband+ncc,nqbz,npm) )
+     &          demax(nband+nctot,nband+ncc,nqbz,npm) )
       allocate( iwgt (nband+nctot,nband+ncc,nqbz,npm) )
 !     wgt, demin, demax may require too much memory in epsilon mode.
 !     We will have to remove these memory allocations in future.
@@ -86,12 +85,12 @@ c     in the denominator of the dielectric function.
      i nbnbx,ibjb,nhwtot,       ! job=1    not-used
      i ihw,nhw,jhw,             ! job=1    not-used
      o whw,                     ! job=1    not-used
-     i iq,is,is,nqibz, eibzmode,nwgt) 
+     i iq,is,isf,nqibz, eibzmode,nwgt) 
       deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
       nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
       if(debug) write(6,*)' nbnbx=',nbnbx
       allocate(  n1b(nbnbx,nqbz,npm)
-     & ,n2b(nbnbx,nqbz,npm))
+     &          ,n2b(nbnbx,nqbz,npm))
       n1b=0; n2b=0 
       do jpm=1,npm
         call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx,
@@ -178,7 +177,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
      i nbnbx,ibjb,nhwtot,       ! job=1
      i ihw,nhw,jhw,             ! job=1
      o whw,                     ! job=1
-     i iq,is,is,nqibz, eibzmode,nwgt) 
+     i iq,is,isf,nqibz, eibzmode,nwgt) 
       deallocate(demin,demax,iwgt) !duumy
 !! ======TetrahedronWeight_5 block end =========
       end subroutine

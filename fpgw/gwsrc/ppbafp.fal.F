@@ -20,6 +20,7 @@ c mnl   =  (m,n,l) composite idex --- numbering.
 c in,il,im      = index for n,l,m s. indxlnm.f
 c
 c ppb            = <Phi(RLn) Phi(RL'n') B(R,i)>
+!! this rouitne show index system (ibas,l,m,n)
       implicit none
       integer(4),intent(in) :: ig,ng,isp,nspin,nclass,mnlx,mdimx
       integer(4),intent(in) :: il(mnlx,nclass),in(mnlx,nclass),im(mnlx,nclass)
