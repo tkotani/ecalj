@@ -59,14 +59,24 @@ install2:
 cleanall:  
 	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  $(nfpsrc)*.o  *.mod  $(slatsmlib)*.o $(tote)*.o  $(maxloc)*.o
 
+doxygen:
+	cd $(tags);doxygen;cd ./latex;make
+	echo 'fpgw/latex/refman.pdf generated'
+
 # This is necesaly to compile *.f in right order.
 # When you recompile and link, just repeat 'make' (not necessary to repeat 'make init').
 # When checkmodule recompile source, you have to repeat 'make'.
 init:
+	rm -f $(main)time_hsfp0.sc.m.F   
+	rm -f $(main)time_hx0fp0.sc.m.F  
+	rm -f $(gwsrc)time_sxcf_fal2.sc.F
+	rm -f $(gwsrc)time_rppovl.F      
+	rm -f $(gwsrc)time_x0kf_v4h.F    
+	rm -f $(gwsrc)time_ppbafp.fal.F  
 	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F
 
 checkmod:
-	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F
+	init
 #../../lm7K/subs/m_hamindex.F
 
 

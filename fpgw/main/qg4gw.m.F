@@ -56,7 +56,7 @@
       integer(4)::nnn(3),ret
       integer(4):: verbose,q0pchoice,wgtq0p    !,normcheck !version,
       logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
-      integer(4):: iii, iq0pinxxx 
+      integer(4):: iq0pinxxx ,ifile_handle
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
@@ -76,7 +76,8 @@
       endif   
       idummy=q0pchoice()
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
-      ifi = 6661
+
+      ifi=ifile_handle()
       open (ifi, file='LATTC')
       read(ifi,*) alat
       read(ifi,*) plat(1:3,1)
@@ -85,7 +86,7 @@
       read(ifi,*) !dummy
       close(ifi)
 !! --- readin SYMOPS. point group operations. r'=matmul(symops(:,:),r) for any ig.
-      ifi = 6661
+      ifi=ifile_handle()
       open (ifi, file='SYMOPS')
       read(ifi,*) ngrp
       write(6,*) ' SYMOPS ngrp=',ngrp

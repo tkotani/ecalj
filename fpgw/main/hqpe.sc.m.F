@@ -1,13 +1,8 @@
-      program hqpe_sc
-c     subroutine fmain()
-C     - make Sigma-Vxc --------------
-!     This is a developing version, not completely documented...
+!>  make sigm.* file which contains Sigma-Vxc 
 !     This uses amix in order to guess a better Sigma-Vxc from previous iterations.
-!     * If ANFcond exsit, it add dummy part (zero Sigma-Vxc ) for isp=2.
 !     * iSigma_en==5 is for diagonal-only Sigma-Vxc in LDA basis set.
-!     (Then you need evec0, which contains eigenvector of LDA).
-!
-
+!      (Then you need evec0, which contains eigenvector of LDA).
+      program hqpe_sc
 c------------------------------------------------------------------
 c     calculates quasiparticle energies
 c     E(k,t) = e(k,t) + Z [SEx(k,t) + SEc(k,t) - xcLDA(k,t)]
@@ -21,9 +16,9 @@ c     SEc is in file SEC
 c-----------------------------------------------------------------------
       use keyvalue
       use m_read_bzdata, only: read_bzdata, nstar, nqibz2=>nqibz
-c      use m_anf,only: anfcond,
-c     & laf,ibasf,ldima,pos,anfvec,natom
-      use m_anf,only: laf,anfcond
+!! laf is used (antiferro or not) after anfcond.
+      use m_anf,only: anfcond,
+     & laf
 
       implicit real*8 (a-h,o-z)
 c     local data
@@ -775,20 +770,6 @@ c$$$          deallocate(sen,sen2,evec0)
 c$$$c--   end check diagonal elements
  2003   continue                    !ip
         write(6,*)
-
-c$$$!! ANFcond case. We will make this an independent program ---
-c$$$        if(laf.and.is==1) then
-c$$$          do ip = 1,nq
-c$$$            call anfsig( natom, ldima, pos, ndimsig2,
-c$$$     i              qx(1:3,1,ip),           
-c$$$     i              anfvec, ibasf, ! these are antiferro informations.
-c$$$     i              sigmv(1:ndimsig2,1:ndimsig2,ip)) ! input and output, from is=1 to is=2 by AF translation symmetry
-c$$$            write(ifse_out) qx(1:3,1,ip),is+1 !,eseavr(ip,is) !june2009 add eseavr
-c$$$            write(ifse_out) sigmv(:,:,ip)
-c$$$          write(6,*) 'ssssss2=', sum(abs(sigmv(:,:,ip)))
-c$$$          enddo
-c$$$        endif
-
         deallocate(sex2,sexcore2,sec2,se,ipiv,work)
         deallocate(evec_inv,evec_invt,ev_se_ev) !,se_ev
         if(evec0ex) deallocate(evec00inv)

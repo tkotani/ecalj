@@ -1,8 +1,8 @@
 ../main/hbasfp0.m.o:../gwsrc/m_anf.o
 ../main/hchknw.m.o:../gwsrc/m_anf.o
 ../main/hqpe.sc.m.o:../gwsrc/m_anf.o
-../main/hqpe.sc.m.o:../gwsrc/m_anf.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_anf.o
+../main/hx0fp0.sc.m.o:../gwsrc/m_anf.o
 ../main/rdata4gw_v2.m.o:../gwsrc/m_anf.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o

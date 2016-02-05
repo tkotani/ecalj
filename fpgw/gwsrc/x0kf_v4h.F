@@ -203,7 +203,7 @@ c#endif
       if (symmetrize) goto 5000 
 
 c ------------------------------------------------
-!TIME0 "start xkf_v4hz      
+!TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
 c$$$!! check eibzmode assumes nmbas1=nmbs2
@@ -226,9 +226,6 @@ c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       call getnemx(nbmx,ebmx,7,.true.)
-
-
-!TIME1 "before if smbasis"
 c$$$!TIME0 
 c$$$      if(smbasis()) then !need to check again, when we will make smbasis on.
 c$$$cccccccccccccccccccccccccccccccc
@@ -277,7 +274,7 @@ ckino
 !KINO      write(6,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
 ckinoend
 
-
+!TIME1_1001 "beforedo1000"
 !! loop over k-points -------------------------------------------------------------------------
 c      qq=0d0
       do 1000 k = 1,nqbz
@@ -285,7 +282,7 @@ c      qq=0d0
         if(debug) write(6,'("do 1000  k=",i4)')k
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
-!TIME0 "start do 1000"
+!TIME0_1101
         if(k<=5.or. (mod(k,max(10,nqbz/20))==1.or.k>nqbz-10) ) then
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
@@ -610,8 +607,8 @@ c
  8829   continue
         if(debug) write(6,'("4 zzzppp 222 ",3d15.6)') sum(abs(zmel)),sum(zmel)
 
-
-!TIME0 
+!TIME1_1101 "before_get_zmelt2"
+!TIME0_1201
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
@@ -769,7 +766,7 @@ c$$$  endif
 !$OMP end parallel 
  25     continue
 !kino 2014-08-13  !$OMP end parallel 
-!TIME1 "after rcxq"
+!TIME1_1201 "after_rcxq"
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c        if(ipr) then
@@ -807,7 +804,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccc
          write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
-!TIME0
+!TIME0_1301
 
 
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
@@ -822,7 +819,7 @@ c      if(eibzmode) then !comment out sep2014.
         enddo
         enddo
 c       endif
-!TIME1 "before eibzmode symmetrization"
+!TIME1_1301 "before_eibzmode_symmetrization"
 
 !! == End of eibzmode=F (no symmetrization required). ==
       goto 9999 ! finalize
@@ -852,14 +849,13 @@ c       endif
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
-Cstop2rx 2013.08.09 kino           stop 'x0kf_v4h: ngb/=ngbb'
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
 
-!TIME0 
+!TIME0_1401 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-!TIME1 "after iqindx2"
-!TIME0
+!TIME1_1401 "after_iqindx2"
+!TIME0_1501
         if(sum(abs(q-quu))>1d-8) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
              !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
@@ -883,9 +879,9 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
 
         allocate(zrrx(nmbas,nmbas))
         nrotmx = 10000 !trial value
-!TIME1 "before 1011"
+!TIME1_1501 "before_1011"
         do 1011  !this loop is only in order to to set large enough nrotmx.
-!TIME0 
+!TIME0_1601 
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
         nccc=ngrp*2
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc)) !,zrr_(ngb,ngb,nccc),zrrc_(ngb,ngb,nccc))
@@ -894,7 +890,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         zrr=-99999d0
         zrrc=-99999d0
         call cputid2(' --- x0kf:11111   :',0)
-!TIME1 "call cputid2 x0kf:11111"
+!TIME1_1601 "allocatezrr"
 !!
         icc=0
         do itimer=1,-1,-2
@@ -904,7 +900,7 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
               icc=icc+1
-!TIME0
+!TIME0_1701
 
 !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
@@ -918,7 +914,6 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
                   zrrx= matmul(transpose(zzr), matmul(dconjg(zrotm), zzr)) 
                 endif 
               elseif(nolfco) then 
-Cstop2rx 2013.08.09 kino                 stop 'x0kf_v4h: this case is not implemented xxxxxxxxxxxxxx'
                  call rx( 'x0kf_v4h: this case is not implemented xxxxxxxxxxxxxx')
               else   
 !! zrotm(J,J') is the rotation matrix = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>
@@ -945,8 +940,8 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif 
 
               endif
-!TIME1 "end matmmsparse"
-!TIME0
+!TIME1_1701 "end_matmmsparse"
+!TIME0_1801
               i1(:,icc)=0
               i2(:,icc)=0
               irotm=0
@@ -967,8 +962,8 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif   
               enddo
               enddo
-!TIME1 "before iagain=1"
-!TIME0
+!TIME1_1801 "before_iagain1"
+!TIME0_1901
               if(iagain==1) then
                 nrotmx=irotm !enlarge allocation and do things again.
                 write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
@@ -977,15 +972,13 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
               endif   
               nrotm(icc)=irotm
               if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-!TIME1 "end ig itimer icc, nrotm"
+!TIME1_1901 "end_ig_itimer_icc_nrotm"
             endif
           enddo
         enddo
         exit
  1011   continue !only when nrotmx overflow.
-!KINO        write(6,'(a,4i7)')'kino: nwt,npm,ngrp=',nwt,npm,ngrp
-!TIME0
-
+!TIME0_2001
 
 !! === main part to obtain symmetrized rcxq  ===
 !! neibz is total number of symmetrization operation. 
@@ -1104,7 +1097,7 @@ c$$$           endif
 !$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
 !$OMP end parallel 
-!TIME1 "after sym rcxq"
+!TIME1_2001 "after_sym_rcxq"
         deallocate(zrotm,i1,i2)
 
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))

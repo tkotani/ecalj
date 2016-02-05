@@ -55,18 +55,17 @@
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
-
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:  ! folloiwng data set are stored in this module in the main routin, 
                         ! and used when call get_zmelt, get_zmelt2.
      & nband,itq,ngcmx,ngpmx,
      & miat,tiat,shtvg, ntq, ppbir
-
-      use m_sxcf,only: sxcf_fal3_scz 
-
+!! antiferro condition. only laf is used, after 'call anfcond()'
       use m_anf,only: anfcond,
-     & laf
-
+     &   laf
+!! subroutine only
+      use m_sxcfsc,only: sxcf_fal3_scz
+!! MPI
       use m_mpi,only: 
      &   MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
      &   MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
@@ -75,7 +74,6 @@
 
       implicit none
       integer:: nw
-
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
 c------------------------------------
@@ -962,7 +960,7 @@ C         enddo
 !!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
       allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) )
-!TIME1_0010 "main: before 2000 loop"
+!TIME1_0010 "main:before2000loop"
       do 2000 is = 1,nspinmx
 !TIME0_0020 
         if(MPI__root) then
@@ -1024,10 +1022,10 @@ c          if(sum(irkip(is,:,:,ip))==0) cycle
      i   hermitianW=hermitianW,
      o   zsec=zsec) 
 c 1001   continue
-!TIME1_0020 "main: end of sxcf_fal3_scz"
-        call date_and_time(values=timevalues)
-        write(6,'(a,9i5)')'dateandtime2=',MPI__rank,timevalues(1:8) 
-        call cpu_time(time_red1)
+!TIME1_0020 "main:endofsxcf_fal3_scz"
+c        call date_and_time(values=timevalues)
+c        write(6,'(a,9i5)')'dateandtime2=',MPI__rank,timevalues(1:8) 
+c        call cpu_time(time_red1)
 
 !! CAUITION! Allreduce wait all cpu jobs done here. 
 !! Before nov2013, MPI__sxcf_rankdivider was stpid---> half of cores assigned for isp=2
@@ -1074,11 +1072,11 @@ c$$$        endif
         if(eibz4sig()) then
 !TIME0_0030 
           call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-!TIME1_0030 'main: for zsecsym'
+!TIME1_0030 'zsecsym'
         endif
 !TIME0_0040 
         call MPI__AllreduceSum( zsec,ntq*ntq*nq )
-!TIME1_0040 'main: MPI__AllreduceSum zsec'
+!TIME1_0040 'MPI__AllreduceSumzsec'
 
         if(MPI__root) then
           if(exchange) then
@@ -1119,7 +1117,6 @@ c$$$        endif
 
  2000 continue                  !end of spin-loop
 
-c$$$!TIME0 
 c$$$!!   --- EXspectrum ----------------------------------------------------
 c$$$c     This section is similar with efsimplef.f
 c$$$      if(sum(ifexsp(1:nspin))/=0) then
@@ -1203,7 +1200,6 @@ c$$$            deallocate( eex1, exsp1, nspex, itex1, qqex1 )
 c$$$         enddo
 c$$$         write(6,*)' End of ExSpectrum section ---'
 c$$$      endif
-c$$$!TIME1 "end of exspectrum"
 c      isx = iclose ('wc.d')
 c      isx = iclose ('wci.d')
 c      isx = iclose ('hbe.d')
@@ -1211,7 +1207,7 @@ c      isx = iclose ('hbe.d')
       write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
       call flush(6)
       call MPI__Finalize 
-!TIME1_0000 "main: total of hsfp0_sc"
+!TIME1_0000 "main:totalofhsfp0_sc"
 !TIMESHOW 
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
@@ -1290,10 +1286,7 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
       read(ifevec_)  ndimhx, nspx,nnnx 
       read(ifvxc_)              !skip ndimh, nsp,nnn
       allocate(evaliq(nband),iblki(nband),iblke(nband))
-      
-
-!TIME1_0100 "zsecsym: end of allocate zsect"
-
+!TIME1_0100 "zsecsym:endof_allocate_zsect"
 !TIME0_0110
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
@@ -1413,5 +1406,5 @@ c          call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
       enddo
       deallocate(iblki,iblke,evaliq)
       deallocate(zsect,extp,ifevec__,ifvxc__,iprocq)
-!TIME1_0110 "zsecsym: end"
+!TIME1_0110 "sub_zsecsym"
       end subroutine zsecsym

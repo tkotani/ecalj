@@ -1,4 +1,5 @@
-      module m_sxcf
+!> this module is only because name=name argument binding. No data
+      module m_sxcfsc
       contains
       subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,
      i nsp,isp,             
@@ -37,7 +38,6 @@
 !! \param coh dummy 
 !! \param screen dummy 
 !!
-!!
 !! \remark
 !! \verbatim
 !! Jan2013: eftrue is added.
@@ -75,9 +75,6 @@
 !!             we use that zwz(itp,itpp)=dconjg( zwz(itpp,itp) )
 !! Caution! npm=2 is not examined enough...
 !!
-!! \endverbatim
-!!
-!!
 !! Calculate the exchange part and the correlated part of self-energy.
 !! T.Kotani started development after the analysis of F.Aryasetiawan's LMTO-ASA-GW.
 !! We still use some of his ideas in this code.
@@ -90,12 +87,12 @@
 !!
 !! =======================================================================
 !! Omega integral for SEc
-!! The integral path is deformed along the imaginary-axis, but together with contribution of poles.
-!! See Fig.1 and around in Ref.[1].
+!!   The integral path is deformed along the imaginary-axis, but together with contribution of poles.
+!!   See Fig.1 and around in Ref.[1].
 !!
 !! ---Integration along imaginary axis.---
-!!( Current version for it, wintzsg_npm, do not assume time-reversal when npm=2.)
-!! Integration along the imaginary axis: -----------------
+!!   ( Current version for it, wintzsg_npm, do not assume time-reversal when npm=2.)
+!!   Integration along the imaginary axis: -----------------
 !!    (Here is a memo by F.Aryasetiawan.)
 !!     (i/2pi) < [w'=-inf,inf] Wc(k,w')(i,j)/(w'+w-e(q-k,n) >
 !!    Gaussian integral along the imaginary axis.  
@@ -155,6 +152,7 @@
 !!    zsec(itp,itpp,iq)> = <psi(itp,q(:,iq)) |SEc| psi(iq,q(:,iq)>
 !!
 !! ----------------------------------------------
+!! \endverbatim
       integer:: dummy4doxygen
 
 ! input variables
@@ -415,7 +413,7 @@ c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
 c            endif
             nrot=nrot+1
           enddo  
-!TIME1_01000 "sxcf_fal3scz: before 1000"
+!TIME1_01000 ":BeforDo1000"
 
 
 !! === loop 1000 over rotations irot ===
@@ -480,12 +478,12 @@ c$$$            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
 c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) deallocate(zmel)
             if(allocated(zmeltt)) deallocate(zmeltt)
-!TIME1_1010 "sxcf_fal3scz: before get_zmelt"
+!TIME1_1010 "Beforeget_zmelt"
 ! this return zmeltt (for exchange), or zmel (for correlation)
 !TIME0_1088
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
      &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
-!TIME1_1088 "sxcf_fal3scz: for get_zmelt"
+!TIME1_1088 "get_zmelt"
 
 c$$$!! cccccccccc START: old version, instead of get_zmelt ccccccccccc
 c$$$         call  readcphi(q, nlmto,isp, quu, cphikq)
@@ -735,7 +733,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
                   write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)
                 enddo;    enddo
               endif
-!TIME1_0130 "sxcf_fal3scz: end of w3p newaniso"
+!TIME1_0130 "end_of_w3p"
 
 c$$$#else
 c$$$!kino 2014-08-13  !$OMP parallel  private(vc) 
@@ -829,7 +827,7 @@ c sep2013t a test:c  if(itpp>ntqxxd .and.itp/=itpp) cycle
               enddo
               deallocate( w3p)
 c$$$                  if(.not.newaniso()) deallocate(vcoul)
-!TIME1_0180 "sxcf_fal3scz: enddo of zsec wtt sum"
+!TIME1_0180 "enddo_zsec_wtt_sum"
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
 !! ============== End of exchange section ======================
@@ -911,7 +909,7 @@ cc!TIME1 "end of exchange section"
  1395         continue
  1390       continue
             deallocate(zw)
-!TIME1_0200 "sxcf_fal3scz: end of do 1390"
+!TIME1_0200 "endofdo1390"
 !! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
@@ -952,7 +950,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
  1400       continue  
             deallocate(zwz0,zwz) !zwzs
             if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
-!TIME1_0210 "sxcf_fal3scz: end of do 1400"
+!TIME1_0210 "endofdo1400"
 !! Contribution to Sigma_{ij}(e_i)
             do  1500 itpp= 1,ntqxx
               do 1510 itp = 1,ntqxx
@@ -1081,7 +1079,7 @@ c     &                          ,freqx,wx,ua_,expa_,we,niw, esmrx)
                 enddo
               enddo
             endif               
-!TIME1_0310 "sxcf_fal3scz: end of Re correlation"
+!TIME1_0310 "EndReCorrelation"
 c           goto 2012
 
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -1303,7 +1301,7 @@ c!TIME1_0000 "end of sxcf_fal3_scz"
         enddo     
       enddo
       end subroutine weightset4intreal
-      end module m_sxcf
+      end module m_sxcfsc
 !! --------------------------------------------------------------
       subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,

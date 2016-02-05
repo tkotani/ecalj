@@ -3154,6 +3154,7 @@ c        write(ifglt,'(a)')'set output "'//trim(fname)//'.eps"'
           write(ifglt,"(a,$)")  '"'//trim(fnameb(isyml,jsp))//'" u ($2):($3) lt 1 pt 1 w lp' 
           endif
         enddo  
+        write(ifglt,"(a)")'pause -1'
         write(ifglt,*)
         close(ifglt)
       enddo

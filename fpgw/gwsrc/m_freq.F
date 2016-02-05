@@ -1,11 +1,21 @@
+!>Frequency mesh generator
+!! - OUTPUT
+!!   - fhris :histgram bins to accumlate im part
+!!   - freq_r: omega along real axis
+!!   - freq_i: omega along imag axis
+!!   - wiw: integration weight along im axis
+!!   - npm: npm=1 means only positive omega;npm=2 means positive and negative omega.
+!! - NOTE: change of frequency mesh defined here may destroy consistency or not. Need check
       module m_freq
       real(8),allocatable:: frhis(:),freq_r(:),freq_i(:),wiw(:)
-      integer:: nwhis,npm,nw_i,nw !this caused a problem...
+      integer:: nwhis,npm,nw_i,nw 
 
       contains
+!> Get data set for m_freq. All arguments are input.
+!! - This read GWinput (dw,omg_c) and TimeReversal() 
+!! - All arguments are input
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
       use keyvalue,only: getkeyvalue
-!!- frequency histgram, real axis points, im axis points.
       implicit none
       integer,intent(in):: niw,nw_input
       logical,intent(in):: realomega,imagomega,tetra,mpi__root,epsmode
@@ -19,18 +29,16 @@
       real(8)::  pi       = 4d0*datan(1d0)
 
       logical,save:: done=.false.
-      if(done) call rx('gerfreq is already done')
-      done=.true.
+      if(done) call rx('gerfreq is already done') !sanity check
+      done =.true.
 
-c      allocate(nwhis,npm,nw_i,nw)
-      nw=nw_input
+      nw = nw_input
 !! We first accumulate Imaginary parts. 
 !! Then it is K-K transformed to obtain real part.
-!TIME0 
       call getkeyvalue("GWinput","dw",dw )
       call getkeyvalue("GWinput","omg_c",omg_c )
       write(6,"('dw, omg_c= ',2f13.5)") dw, omg_c
-! histogram divisions
+!! histogram bin divisions
       nw2=int(omg_c/dw*( sqrt(1.+2*omg2max/omg_c)-1. ) )+1+3 !+3 for margin
       allocate(freqr2(nw2))     !+1 b/c (iw-1)
       do iw=1,nw2

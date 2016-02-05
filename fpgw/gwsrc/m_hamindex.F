@@ -17,7 +17,8 @@
       logical,private:: debug=.false.
       contains
 
-      integer function getikt(qin)
+!> get index ikt such that for qin(:)=qq(:,ikt)
+      integer function getikt(qin) !return
       integer::i
       real(8):: qin(3)
 c      if(debug) print *,'nkt=',nkt
@@ -35,13 +36,13 @@ c      if(debug) print *,'nkt=',nkt
       call rx( ' getikt can not find ikt for given q')
       end function
 
+!> write info for wave rotation. 
       subroutine writehamindex()
       integer(4):: ifi
       logical::pmton
       logical,save:: done=.false.
       if(done) call rx('writehamindex is already done')
       done=.true.
-!! == write info for wave rotation. feb2012takao ==
       ifi=1789
       open(ifi,file='HAMindex',form='unformatted')
       write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
@@ -57,8 +58,8 @@ c      if(debug) print *,'nkt=',nkt
       close(ifi)
       end subroutine writehamindex
 
+!> read info for wave rotation. 
       subroutine readhamindex()
-!! == read info for wave rotation. feb2012takao ==
       integer(4):: ifi,nkt
       logical::pmton
       logical,save:: done=.false.

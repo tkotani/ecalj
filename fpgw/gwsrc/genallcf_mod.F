@@ -1,27 +1,27 @@
+!> get basic settings of crystal structure and nlm info
+!!  - genallcf_v3(nwin,efin,incwfx) set data
+!!  - This is old routine. Confusing. We need to clean up.
       module m_genallcf_v3
-c----------------------------------------------------------------
-c> structure
-c     o                   plat,alat,natom,nclass,pos,
-c     o                   ngrp, symgg,
-c     o                   invg, ef,
-c>> l,n and dimensions
-c     o                   clabl, nspin,nl,nn,nnv,nnc,
-c     o                   nindx, nindxv, nindxc, iclass,
-c     d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
-c
-c     o                   z,
-c>> l,n,m indices for Phi
-c     o                   il, in, im,  ilnm,  nlnm,
-c     o                   ilv,inv,imv, ilnmv, nlnmv,
-c     o                   ilc,inc,imc, ilnmc, nlnmc,
-c>> core
-c     o                   ncwf, ecore, konf, icore, ncore,nctot,
-c> frequency
-c     o                   niw,diw,nw,dw,delta,deltaw,esmr, freq)
-c             symgrp
-c             ,nocc, nunocc, occv, unoccv, occc, unoccc
-c----------------------------------------------------------------
-cccc      use m_rgwinf_v3
+!!----------------------------------------------------------------
+!! - structure
+!!  -  o                   plat,alat,natom,nclass,pos,
+!!  -  o                   ngrp, symgg,
+!!  -  o                   invg, ef,
+!! - l,n and dimensions
+!!   - o                   clabl, nspin,nl,nn,nnv,nnc,
+!!   - o                   nindx, nindxv, nindxc, iclass,
+!!   - d                   nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc,
+!!   - o                   z,
+!! - l,n,m indices for Phi (atomic basis)
+!!   -  o                   il, in, im,  ilnm,  nlnm,
+!!   -  o                   ilv,inv,imv, ilnmv, nlnmv,
+!!   -  o                   ilc,inc,imc, ilnmc, nlnmc,
+!! - core
+!!   -  o                   ncwf, ecore, konf, icore, ncore,nctot,
+!! - frequency
+!!   -                   niw,diw,nw,dw,delta,deltaw,esmr, freq)
+!!             symgrp
+!!             ,nocc, nunocc, occv, unoccv, occc, unoccc
       implicit none
       character(120):: symgrp
       character(6),allocatable :: clabl(:)
@@ -46,7 +46,7 @@ c-----------------------------------------------------------------------
       contains
 
       subroutine genallcf_v3(nwin,efin,incwfx)
-!! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
+!!> Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !!r Return iclass=ibas.
 !! nwin,efin,incwfx, are used as switches.
 !! input: nwin,efin,incwfx,

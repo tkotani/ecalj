@@ -132,7 +132,7 @@ cold  nbmax -->nmmax
       logical:: oncew
       real(8),parameter::epsd=1d-6
       integer::ispq,ispm,iii,itps
-!TIME0 
+!TIME0_1001 
       if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel in m_zmel: start'
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
@@ -175,8 +175,8 @@ c      call getsrdpp2( nclass,nl,nxx)
       ppb = ppbir(:,irot,ispq) 
       if(debug) write(*,*) 'get_zmel in m_zmel: 3333333333'
 
-!TIME1 "start in get_zmelt2"
-!TIME0
+!TIME1_1001 "init"
+!TIME0_1101
 
 !! phase factors expikt(ia) is for exp(ik.T(R))
       do ia = 1,natom
@@ -213,9 +213,9 @@ c      call getsrdpp2( nclass,nl,nxx)
      o              zzzmel)
       endif  
       if(debug) write(6,'("5555 zzzmelsum ",3i5,3d13.5)') nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
-!TIME1 "end of psi2b_v3"
+!TIME1_1101 "psi2b_v3"
 
-!TIME0
+!TIME0_1201 
 !! IPW 
       allocate(drealzzzmel(nbloch,nmtot,nqtot),dimagzzzmel(nbloch,nmtot,nqtot))
       drealzzzmel=dreal(zzzmel)
@@ -240,7 +240,7 @@ c      call getsrdpp2( nclass,nl,nxx)
             cmelt(:, it,:) =0d0
          enddo
       endif
-!TIME1 "after drvmelp3"
+!TIME1_1201 "drvmelp"
 
 !! NOTE:=========================================
 !! zmelt = rmelt(igb(rkvec), iocc(q), iunocc(q-rkvec)) + i* cmelt
@@ -324,8 +324,7 @@ c               if(timemix) call timeshow("22222 k-cycle")
       if(debug) write(6,*) ' sxcf: goto wtt'
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 !! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
-!TIME1 "end of zmelt"
-!TIME0
+!TIME0_1301
 
 !! Multipled by ppovlz and reformat
       if(exchange) then
@@ -375,7 +374,7 @@ c         nstate = nctot + nmmax ! = nstate for the case of correlation
          if(debug) write(*,*)'zz000 nmtot,ngb,nstate ',nmtot,ngb,nqtot
          if(debug) write(*,*)'zz000 sumchk zmel ',sum(abs(zmel(1:ngb,1:nmtot,1:nqtot)))
          if(debug) write(*,*) 'correlation mode end'
-!TIME1 "matmul zmel ppovlz"
+!TIME1_1301 "matmul_zmelp_povlz"
       endif         
       end subroutine get_zmelt2
       end module m_zmel

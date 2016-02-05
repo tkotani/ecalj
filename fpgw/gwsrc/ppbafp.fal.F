@@ -298,15 +298,15 @@ c-----------------------------------------------------
       integer(4)::verbose
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
-!TIME0
+!TIME0_1001
       if(verbose()>50) write(*,*) ' drvmelp: start'
       call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
       if(debug) write(6,*)'drvmelp: goto readgeig'
       call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-!TIME1 "drvmelp:after readgeig q q_rk"
-!TIME0
+!TIME1_1001 "drvmelp:QG"
+!TIME0_1201
       if(debug) write(6,*)'drvmelp2: endof readgeig'
       if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
       if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
@@ -324,8 +324,6 @@ c-----------------------------------------------------
       endif
       if(debug) write(6,*)' goto alloc zmelpl'
       if(debug) write(6,*) 'drvmelp2:goto melpln2t'
-!TIME1 "drvmelp:before drv melpln2t"
-!TIME0 
       if(ngc/=0) then
         allocate( zmelpl(ngc,nt0,ntp0) )
         call melpln2t(ngp1, ngvecpB1
@@ -337,8 +335,8 @@ c-----------------------------------------------------
      i   qt,                    !qt oct2013 means q1
      o   zmelpl)
       endif
-!TIME1 "drvmelp:after drv melpln2t"
-!TIME0 
+!TIME1_1201 "drvmelp:drv_melpln2t"
+!TIME0_1301
       if(debug) write(6,*)'end of melpln2t'
       rmelt=0d0
       cmelt=0d0
@@ -355,7 +353,7 @@ c-----------------------------------------------------
         deallocate(zmelpl)
       endif
       if(debug) write(6,*)'end of drvmelp2'
-!TIME1 "drvmelp:end"
+!TIME1_1301 "drvmelp:end"
       end
 
 !> Rotated ngveccB
@@ -554,7 +552,7 @@ c      use m_mpi, only:mpi__rank
 !! getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
 !!      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
 
-!TIME0
+!TIME0_2001 
 !! allocate and return foobar decleared in use m_read_ppovl,only: foobar
       if(debug) write(6,*)' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
@@ -599,7 +597,7 @@ c      use m_mpi, only:mpi__rank
       if(verbose()>=100) write(6,*)' melpln2t: goto rotation of ngvecc xxxx'
       call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
      o    ngveccR) 
-!TIME1 "melpln2t:end of rotgvec"
+!TIME1_2001 "melpln2t:rotgvec"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
 c$$$!!      write(6,*)'--- goto simple case for debug---'
@@ -624,7 +622,7 @@ c$$$      enddo
 c$$$      call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
 c$$$      return
 ccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0
+!TIME0_2101
       if(verbose()>=100) write(6,*)' melpln2t: godo igp1 loop'
       allocate(ggitp(ntp0,ngcgp2))
       ggitp = 0d0
@@ -648,8 +646,8 @@ c         write(6,*)'iggg=',iggg,nggg
       enddo
       enddo
 !$OMP end parallel 
-!TIME1 "melpln2t:end of ggitp loop"
-!TIME0
+!TIME1_2101 "melpln2t:ggitploop"
+!TIME0_2201
       if(verbose()>=100) write(6,*)' melpln2t: 11111111'
       deallocate(igggi)
       ggitp = dconjg(ggitp)
@@ -675,8 +673,8 @@ c         write(6,*)'iggg=',iggg,nggg
       allocate(zmelp0(ngc,nt0,ntp0))
       zmelp0=0d0
       if(verbose()>=100) write(6,*)' melpln2t: 33333333'
-!TIME1 "melpln2t:before zmelp0 loop"
-!TIME0
+!TIME1_2201 "melpln2t:igcloop"
+!TIME0_2301
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
 #ifdef USE_GEMM_FOR_SUM
       if(verbose()>39) write(*,*)'info: USE GEMM FOR SUM (zmelp0=geigq2*ggitp_) in ppbafp.fal.F'
@@ -718,8 +716,8 @@ c         write(6,*)'iggg=',iggg,nggg
       enddo
       enddo
 #endif
-!TIME1 "melpln2t:end of zmelp0 loop"
-!TIME0
+!TIME1_2301 "melpln2t:zmelp0_loop"
+!TIME0_2401
 c$$$      do itp=1,ntp0
 c$$$         do igc =1,ngc
 c$$$            do igp2=1,ngp2
@@ -752,7 +750,7 @@ c      enddo
 c      write(6,*)'pppppppp end of matm' 
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
       if(verbose()>=100) write(6,*)' melpln2t: end'
-!TIME1 "melpln2t:end"
+!TIME1_2401 "melpln2t:end"
       end subroutine melpln2t 
 
 

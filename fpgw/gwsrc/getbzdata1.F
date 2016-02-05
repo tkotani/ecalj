@@ -1,8 +1,8 @@
-C  ... Get BZDATA case1
       module m_get_bzdata1
 c In addition to these variables, this also write mtet file (search ifmtet) for mtet mode.
 c------------------------------------------------------------
-      implicit none  ! all are outputs
+      implicit none  
+!! all are output by getbzdata1
       integer(4):: nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r
       real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:),wibz(:)
      &   ,qbzw(:,:) ,qibz_r(:,:)
@@ -14,7 +14,9 @@ c------------------------------------------------------------
 c------------------------------------------------------------
       contains
       subroutine getbzdata1(icase, plat,qlat,ginv,n1q,n2q,n3q
-     &    ,symops,ngrp,tetrai,tetraf,mtet) !all are inputs
+     &    ,symops,ngrp,tetrai,tetraf,mtet) 
+!! all arguments are inputs
+!! This return all variables in the module m_get_bzdata1
       implicit none
       logical :: tetrai,tetraf,multet
       integer(4):: ngrp,n1q,n2q,n3q, mtet(3),n1qm,n2qm,n3qm,nnn(3),

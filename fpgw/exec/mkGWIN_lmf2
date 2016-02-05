@@ -8,6 +8,7 @@ set n = $0
 set nfpgw = ${n:h}
 echo $nfpgw
 echo $argv[1]
+
 echo $#argv
 if ($#argv == 4) then
  set n1 = $argv[2]
@@ -16,15 +17,19 @@ if ($#argv == 4) then
  goto skipn
 endif   
 
-echo "== Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! =="
-echo "== For QSGW, this is reflected in n1n2n3 in GWinput.tmp You can "
-echo "== change it by hand (not need to repeat this). =="
-echo -n ' n1= '
-set n1 = $<
-echo -n ' n2= '
-set n2 = $<
-echo -n ' n3= '
-set n3 = $<
+set n1 = 4
+set n2 = 4
+set n3 = 4
+
+#echo "== Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! =="
+#echo "== For QSGW, this is reflected in n1n2n3 in GWinput.tmp You can "
+#echo "== change it by hand (not need to repeat this). =="
+#echo -n ' n1= '
+#set n1 = $<
+#echo -n ' n2= '
+#set n2 = $<
+#echo -n ' n3= '
+#set n3 = $<
 
 skipn:
 echo $n1 $n2 $n3 
@@ -79,5 +84,7 @@ foreach head (GWinput GWIN0 GWIN_V2 QPNT)
   endif
 end
 
+echo "== Default 'n1n2n3 4 4 4' in GWinput means k points mesh for the BZ integration =="
+echo "== Change it by hand (not need to repeat this). =="
 echo 'OK! GWinpt.tmp is generated!'
  

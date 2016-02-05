@@ -1,7 +1,11 @@
+!> Antiferro condition module. We have line AFcond at the bottom of 'LMTO' file.
+!! Currently(feb2016), only laf is used (thus AF symmetry is not used yet for hx0fp0_sc)
+!! To access laf, need to call anfcond() in advance.
+
       module m_anf
       implicit none
-      logical:: laf !antiferro switch
-      integer,allocatable:: ibasf(:)
+      logical:: laf !! - laf: antiferro switch
+      integer,allocatable:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
 c      integer:: natom
 c     ,ldima(:),iantiferro(:),iclasst(:)
 c      real(8),allocatable:: pos(:,:),anfvec(:),qlat(:,:),plat(:,:)
@@ -15,8 +19,6 @@ c      real(8),allocatable:: pos(:,:),anfvec(:),qlat(:,:),plat(:,:)
       real(8)::vecs(3),vece(3),basdiff(3)
       integer:: ibas,lkeyplat,i,ibasx,natom
       character(3)::iaaa
-
-
 !! read LMTO file
       write(6,*) 'anfcond:'
       ilmto=ifile_handle()

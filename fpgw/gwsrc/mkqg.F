@@ -1,18 +1,23 @@
-      module m_q0p !this is used in mkqg2 defined in this file.
-!! These are outputs when getq0p is called.
-!! In addition, we write a file EPSwklm, which is key for new offset Gamma method.
-!! deltaq_scale() given by Q0Pchoice in GWinput change the of offset Gamma method.
-!! Q0P means offset Gamma points
+!> Q0P (offset Gamma points) generator
+      module m_q0p 
+!! All of them are outputs when getq0p is called.
       real(8),allocatable:: q0i(:,:),wt(:)  ! Q0P and its weight.
       integer:: nq0i                        ! Number of Q0P
-      integer,private:: nq0x,nmm
-        contains
+      integer,private:: nq0x,nmm !not output
 
+      contains
+!>- Q0P data set is given for 'getq0p'
       subroutine getq0p(newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv,
      & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
-!! return q0i, wt, and write EPSwklm.
-!! all are inputs. 
-      use keyvalue,only: getkeyvalue
+!! this is called in subroutine mkqg2 
+!!  output
+!!    q0i (offset Gamma point)
+!!    wt  (weight of q0i)
+!!    EPSwklm (file)
+!! All arguments are input.
+!! In addition, we write a file EPSwklm, which is key for new offset Gamma method.
+!! deltaq_scale() given by Q0Pchoice in GWinput change the of offset Gamma method.
+      use keyvalue,only: getkeyvalue 
       implicit none
       logical,intent(in):: newoffsetG
       integer,intent(in):: n1q,n2q,n3q,nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp
@@ -352,7 +357,7 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ----------------------------------------------------------------------
       subroutine mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pin,
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
-      use m_get_bzdata1,only:  getbzdata1,
+      use m_get_bzdata1,only:  getbzdata1, !call getbzdata1
      & nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r,
      & qbz,wbz,qibz,wibz,
      & qbzw, qbasmc, qibz_r,

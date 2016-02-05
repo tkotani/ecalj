@@ -1,6 +1,6 @@
 !> Now the ordering of e1,e2 does not matter.May2006
 !! Get weight in window [el,eh] for a Gaussian smearing
-!! with wfacx(x) = \int_el^eh 1/sqrt(2)/esmr exp( -(x-ek/esmr)**2))
+!! with wfacx(x) = \\int_el^eh 1/sqrt(2)/esmr exp( -(x-ek/esmr)**2))
       real(8) function wfacx2(e1,e2, ek,esmr)
       implicit none
       real(8), intent(in) :: e1, e2, ek, esmr
@@ -69,7 +69,7 @@
       end
 
 !> Get weight in window [el,eh] for a Gaussian smearing
-!! with wfacx(x) = \int_el^eh 1/sqrt(2)/esmr exp( -(x-ek/esmr)**2))
+!! with wfacx(x) = \\int_el^eh 1/sqrt(2)/esmr exp( -(x-ek/esmr)**2))
       real(8) function wfacx(el,eh, ek,esmr)
       implicit none
       real(8), intent(in) :: el,eh,ek,esmr

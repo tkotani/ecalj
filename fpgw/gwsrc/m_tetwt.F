@@ -1,14 +1,10 @@
-c ========================================================================================
+!> Get the weights and index for tetrahedron method for the Lindhard function.
+!!    - nbnb = total number of weight.
+!!    - n1b  = band index for occ.   1\ge n1b \ge nband+nctot.
+!!       "Valence index->core index" ordering(Core index follows valence index).
+!!    - n2b  = band index for unocc. 1\ge n2b \ge nband
+!!    - wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
       module m_tetwt
-!! input data; read only
-      use m_readeigen,only:   readeval !we assume init_readeval is called already
-      use m_genallcf_v3,only: ecore,nctot,ef    !we assume genallcf_v3 called already.
-      use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
-        ! we assume read_bzdata is called already
-      use m_freq,only:                   !we assume getfreq is called already.
-     &   frhis, nwhis,npm !output of getfreq
-      use m_zmel,only: nband
-!! output data for tetrahdron method for dielectric function
       real(8),allocatable :: whw(:)
       integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
       integer:: nbnbx,nhwtot
@@ -17,6 +13,14 @@ c ==============================================================================
       contains !! ----------------------------------------------------------------------
 !! routine
       subroutine gettetwt(q,iq,is,isf,nwgt) !this routine set output data above.
+!! input data; read only
+      use m_readeigen,only:   readeval !we assume init_readeval is called already
+      use m_genallcf_v3,only: ecore,nctot,ef    !we assume genallcf_v3 called already.
+      use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
+        ! we assume read_bzdata is called already
+      use m_freq,only:                   !we assume getfreq is called already.
+     &   frhis, nwhis,npm !output of getfreq
+      use m_zmel,only: nband
 
       implicit none
       real(8),intent(in):: q(3)
@@ -38,12 +42,6 @@ c ==============================================================================
       allocate( nbnbtt(nqbz,npm),ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
 !!===========tetraini block tetra==.true.===============================1ini
-!!     --- tetrahedron method --- preparation
-!!     nbnb = total number of weight.
-!!     n1b  = band index for occ.   1\ge n1b \ge nband+nctot.
-!!     Valence-core order(Core index follows valence index).
-!!     n2b  = band index for unocc. 1\ge n2b \ge nband
-!!     wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
 c      if(tetra) then
       write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
 !!     ekxx1 for rk

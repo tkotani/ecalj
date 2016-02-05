@@ -31,10 +31,12 @@ c     &     idteti, nstar,irk,nstbz
 !! frequency
       use m_freq,only: getfreq,
      &   frhis,freq_r,freq_i, nwhis,nw_i,nw,npm !output of getfreq
+!! antiferro
+c      use m_anf,only: anfcond,
+c     & laf,ibasf !,ldima,pos,natom
 !! tetwt
       use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
-
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
      &   MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
@@ -138,8 +140,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: ppovl_(:,:)
       logical:: tetra 
 !-------------------------------------------------------------------------
-!TIME0_ProgAll
-!TIME0_readbzdata
+!TIME0_1001 ProgAll
+!TIME0_11001 readbzdata
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
@@ -174,13 +176,14 @@ c      write(6,"(' ScaledGapX0=',f8.3)") sciss
 !! newaniso2 is now fixed to be .true.
       call getkeyvalue("GWinput","ecut_p" ,ecut, default=1d10 )
       call getkeyvalue("GWinput","ecuts_p",ecuts,default=1d10 )
-!! naraga says this cause a stop in ifort --->why???
+c    Prof.Naraga says this cause a stop in ifort --->why???
 c    write(6,*)'Timereversal=',Timereversal()
 
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
       call read_BZDATA()
-!TIME1_readbzdata
-!TIME0_Q0P
+
+!TIME1_11001 "readbzdata"
+!TIME0_12001 Q0P
 !! Use regular mesh even for bzcase==2 and qbzreg()=T
 !!     off-regular mesh for bzcase==1 and qbzreg()=F
 c      if( ( bzcase()==2.and.qbzreg() )       .or.
@@ -248,8 +251,8 @@ c$$$         wqtsum = sum(abs(wqt(1:nq0i)))
 c$$$         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
 c$$$      endif 
 
-!TIME1_Q0P
-!TIME0_mptauof
+!TIME1_12001 "Q0P"
+!TIME0_13001 mptauof
       call getsrdpp2(nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
@@ -302,8 +305,8 @@ c     o imdim )                  !in m_zmel
       allocate(ngveccB(3,ngcmx))
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
-!TIME1_mptauof
-!TIME0_init_readeigen
+!TIME1_13001 "mptauof"
+!TIME0_14001 init_readeigen
 !!... initialization of readEigen !readin m_hamindex
       call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
@@ -423,8 +426,8 @@ c     nwhis=nw
       endif
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
-!TIME1_init_readeigen
-!TIME0_ppbafp_v2
+!TIME1_14001 "init_readeigen"
+!TIME0_15001 ppbafp_v2
 
 !!... these are used x0k
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
@@ -445,8 +448,8 @@ c     nwhis=nw
      o   ppbir(:,irot,is))      !this is in m_zmel
       enddo  
       if(debug) write(6,*) ' end of ppbafp_v2'
-!TIME1_ppbafp_v2
-!TIME0_readqgcou
+!TIME1_15001 "ppbafp_v2"
+!TIME0_16001 readqgcou
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
@@ -521,8 +524,8 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
       do iq = iqxini,iqxend
         if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
       enddo
-!TIME1_readqgcou
-!TIME0_do1001
+!TIME1_16001 "readqgcou"
+!TIME0_170001 do1001
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
         if (MPI__rootS) then
@@ -622,7 +625,7 @@ c$$$  endif
 !! ---------------------------------------------------------------
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
-!TIME0_Do1003
+!TIME0_180001 Do1003
 !         do 1003 is = 1,nspinmx
         do 1003 is = MPI__Ss,MPI__Se
           write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
@@ -665,10 +668,10 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
           deallocate(ihw,nhw,jhw, whw,ibjb )
           if(tetra)  deallocate( n1b,n2b)
  1003   continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
-!TIME1_Do1003
+!TIME1_180001 "Do1003"
 c===========end of spin loop============================================
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
-!TIME0_x0kf_sym 
+!TIME0_190001 x0kf_sym 
         if(eibzmode)  then
           symmetrize= .true.
           is=1                  ! dummy
@@ -703,13 +706,12 @@ c     d              natom, !nl,nclass,natom,nnc,
           enddo
         enddo
         write(6,*) 'MPI__AllreduceSumS end'
-!TIME1_x0kf_sym
-!TIME0_HilbertTransformation
+!TIME1_190001 "x0kf_sym"
+!TIME0_200001 "HilbertTransformation"
 !! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
         if(allocated(zxq) ) deallocate(zxq,zxqi)
         allocate(zxq (nmbas1,nmbas2,nw_i:nw), zxqi(nmbas1,nmbas2,niw))
-        write(6,'("goto dpsion5: "
-     &//"nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
+        write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
         write(6,*)' -------- nmbas1,nmbas2=', nmbas1,nmbas2
         call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
      i   rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
@@ -717,10 +719,10 @@ c     d              natom, !nl,nclass,natom,nnc,
      i   chipm, schi,is,  ecut,ecuts)
         write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         if(allocated(rcxq) ) deallocate(rcxq)
-!TIME1_HilbertTransformation
+!TIME1_200001 "HilbertTransformation"
 !! ===  RealOmega ===
         if (realomega) then
-!TIME0_ralloc 
+!TIME0_210001 ralloc 
           if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
           nwmax = nw
           nwmin = nw_i
@@ -742,8 +744,8 @@ c$$$                 endif
 c               endif
 !KINO               write(6,*)'kino: nwmin,nwmax,ngb=',nwmin,nwmax,ngb
           write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
-!TIME1_ralloc
-!TIME0_do1015 
+!TIME1_210001 "ralloc"
+!TIME0_2200011 do1015
           do 1015 iw  = nwmin,nwmax
             frr= dsign(freq_r(abs(iw)),dble(iw))
             imode = 1
@@ -766,7 +768,7 @@ c                  if(newaniso2.and.iq<=nqibz) then !for mmmw
               enddo
               epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
               call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-!TIME0_zweqzw0
+!TIME0_3000011 zweqzw0
 
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$  cmmm direct inversion vs. block inversion
@@ -825,15 +827,14 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               enddo
 c$$$                     if(iq==1) write(ifepstinv) epstinv(ix+1:ngb,ix+1:ngb),iq,iw
               zw(1:ngb,1:ngb) = zw0
-!TIME1_zweqzw0
-!TIME0_tr_chkwrite
+!TIME1_3000011 "zweqzw0"
+!TIME0_3100011 tr_chkwrite
               if (MPI__rootS)then
                 write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
               endif
               call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
-!TIME1_tr_chkwrite
+!TIME1_3100011  "tr_chkwrite"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cmmmm 
 c     if(iq>nqibz) then
 c     write(6,"('mmmmz99x ',i3,10(2d13.5,2x))") iw,zw0(1,1)+vcousq(1)**2,zw0(2:10:3,1),zw0(63:70:3,1)
 c     endif
@@ -883,8 +884,6 @@ c$$$c                     sks (1:ngb,iw,iq0)= zxq(2,1:ngb,iw) !nmbas1=2 see z1st
 c$$$                     vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
                 llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
               endif 
-c$$$
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm 
 c     write(6,"('mmmw0  ',i3,10(2d13.5,2x))") iw,zxq(1,1,iw),zxq(1,2:10:3,iw),zxq(1,63:70:3,iw)
@@ -894,9 +893,9 @@ c     &                  w_k(2:10:3)/llw(iw,iq0),w_k(63:70:3)/llw(iw,iq0)
 c     write(6,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0_writeiqiwreal  
+!TIME0_3200011 writeiqiwreal  
               write(6,"('iq iw_real eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
-!TIME1_writeiqiwreal 
+!TIME1_3200011 "writeiqiwreal"
             endif
 
 c$$$                  if(.not.newaniso2) then ! Original mode
@@ -927,7 +926,7 @@ c     write(ifrcw, rec= iw-nw_i+1 ) zw   !  WP = vsc-v
 c     call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 c     endif
  1015     continue              !iw
-!TIME1_do1015
+!TIME1_2200011 "do1015"
 
 c     if(newaniso2) then
 c     if(allocated(sk)) deallocate(sk,sks,w_k,w_ks)
@@ -936,9 +935,8 @@ c     endif
         endif 
 !! === RealOmega end ===
 
-
 !! === ImagOmega ===
-!TIME0_imagomega
+!TIME0_230001 imagomega
         if (imagomega) then
           write(6,*)' goto imag omega'
           if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
@@ -1019,7 +1017,7 @@ c$$$                 if(iq==1) ifepstinv = iclose('EPS0inv') !iq==1 close write 
 c               endif
         endif 
 !! === ImagOmega end ===
-!TIME1_imagomega
+!TIME1_230001 "imagomega"
 
 c     1002 continue  ! end of frequency block-loop
         if(allocated(vcoul)) deallocate(vcoul)
@@ -1033,17 +1031,17 @@ c     1002 continue  ! end of frequency block-loop
         endif
 !!  
  1001 continue
-!TIME1_do1001
+!TIME1_170001 "do1001"
 c============end of loop over q point =================================
 c=======================================================================
       call MPI__barrier()
-!TIME0_w0mpi
+!TIME0_24001 w0mpi
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 c         write(6,*)'MPI__sizerrr=',MPI__size,MPI__rank,MPI__root,MPI__size,nqibz,iqxend
 ccccccccccccccccccccccccccc
 CYY!$OMP parallel 
 CYY!$OMP master
-      write(6,*)' eeeeeeeeeeeeeeeee111 MPI__rank=',MPI__rank
+c      write(6,*)' eeeeeeeeeeeeeeeee111 MPI__rank=',MPI__rank
       if(MPI__size/=1) then
         do iq=nqibz+1,iqxend
           iq0 = iq - nqibz
@@ -1073,10 +1071,10 @@ c     write(6,*)' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
           endif
         enddo  
       endif
-      write(6,*)' eeeeeeeeeeeeeeeee222 MPI__rank=',MPI__rank
+c      write(6,*)' eeeeeeeeeeeeeeeee222 MPI__rank=',MPI__rank
 CYY!$OMP end master
 CYY!$OMP end parallel 
-!TIME1_w0mpi
+!TIME1_24001 "w0mpi"
 
 c commentout block inversion
 c$$$!! Add LFC (local field correction) to llw and llwI
@@ -1166,7 +1164,7 @@ c$$$         endif
 
 !! == W(0) divergent part and W(0) non-analytic constant part.==
  1191 continue
-!TIME0_WVRI
+!TIME0_40001 WVRI
 c         if(newaniso2 .and. MPI__rank == 0 ) then ! MIZUHO-IR only on root node
       if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node
 
@@ -1254,8 +1252,8 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
         end do
       endif
       is = iclose('hbe.d')
-!TIME1_WVRI
-!TIME1_ProgAll
+!TIME1_40001 "WVRI"
+!TIME1_1001 "ProgAll"
 !TIMESHOW
       call cputid(0)
       write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
