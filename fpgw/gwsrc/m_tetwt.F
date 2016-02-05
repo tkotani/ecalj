@@ -4,6 +4,9 @@
 !!       "Valence index->core index" ordering(Core index follows valence index).
 !!    - n2b  = band index for unocc. 1\ge n2b \ge nband
 !!    - wwk(ibib,...)  = (complex)weight for the pair for n1b(ibib...),n2b(ibib...).
+!!
+!! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
+!!   
       module m_tetwt
       real(8),allocatable :: whw(:)
       integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
