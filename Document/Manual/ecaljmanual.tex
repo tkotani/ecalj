@@ -9,7 +9,7 @@
 \setlength{\textwidth}{15cm}
 \setlength{\textheight}{24cm}
 \pagestyle{plain}
-
+%
 \usepackage{amsmath}
 \usepackage{graphicx}	% required for `\includegraphics' (yatex added)
 %\author{Takao Kotani}
@@ -373,6 +373,7 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 
 
 \input{ecaljmanual_part1.tex}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -1226,13 +1227,13 @@ The MPB is made of IPWcou ($|\bfq+\bfG|$\verb#<QpGcut_cou#) and PB,
 that is, $\{M^{\bf k}_J\}=\{P_\bfG^\bfk(\bfr), B^\bfk_{\bfR{L}\mu}(\bfr)\}$.
 For given $\bfk$ (not explicitly shown in cases for simplicity), 
 IPWcou is specified just by the $\bfG$ vector.
-PB is generated in the manner of Sec.\ref{sec:mpbsec} . 
 PB can be specified just by the radial functions for each $l$ 
+PB is generated in the manner of Sec.\ref{sec:mpbsec} . 
 (because we have neither $m$ nor spin dependence).
 For $GW$ calculation, we need the Coulomb matrix elements
-$\langle B|v|B \rangle,\langle B|v|P_\bfG \rangle,$　and $\langle B|v|P \rangle$. \verb#hvccfp0.m.F-->vcoulq_4# handles these calculations.
-
-
+$\langle B|v|B \rangle,\langle B|v|P_\bfG \rangle,$　and $\langle B|v|P
+\rangle$. 
+\verb#hvccfp0.m.F-->vcoulq_4# handles these calculations.
 
 \subsection{Spherical Bessel and related functions}
 We use a notation such that $X_L(\bfr)=X_l(r) Y_L(\hat{r})$; note that
@@ -2902,14 +2903,154 @@ PFLOAT:
 
 FTMESH: denser gives better? ehk=ehf?
 
+\end{verbatim}
+
+
+\newpage
+\section{Developer's memo}
+\begin{verbatim}
+================================================
+fpgw/ directory:
+ main routines are in main/*.m.F
+ subroutines are in gwsrc/
+ makefile, shell scripts are in exec/
+
+Wannier routines (main and sub) are in Wannier/
+
+We use fixed format f90 (or more in future).
+
+====================================================
+How to add new fortran file ? (for the case fo fpgw code. similar for lm7K/ part).
+A problem is you have to describe the dependency of fortran code.
+Because of modules of f90, we need moduledependes.inc, which describe dependency
+of source file in makefile. It is automatic by 'make init'. 
+Steps are:
+1.Make a *.F file in gwsrc/ or main/ or Wannier/
+2.Add *.o in fpgw/exec/makefile
+3.You need to remove time_*.F files (be careful not removing other *.F).
+  Then run 'make init' at fpgw/exec (or fpgw/Wannier/)
+  This check dependecny and moduledependes.inc,
+  which is included when you run make.
+  You may need to removed ../*/*.mod and/or ../*/*.o files if some error occurs.
+4. make
+
+==================================
+!TIME command and makefile:
+At the bottom of makefile, we have conversion from 
+*.F to time*.F. 
+For exmple, hx0fp0.sc.F is converted
+to time_hx0fp0.sc.F and compiled. 
+Here we replace directions "!TIME0" and "!TIME1..."
+by a timing-measurement routine by awk.
+
+Thus, be careful. 
+When you compile hx0fp0.sc.F with -g
+option, it shows the error stop (such as segmentation error)
+in the line number of time_hx0fp0.sc.F
+
+If you have make error such as
+> ERROR: inconsistent key, key= __x0kf_sym                                      
+, it means error when the conversion find syntax error.
+
+You can see 
+>make
+gawk -f script/addtime.awk  -vSTART=1 ../main/hx0fp0.sc.m.F | gawk -f script/then_separate.awk | gawk -f script/add_alloclist.awk > ../main/time_hx0fp0.sc.m.F
+...
+This shows fpgw/exec/script/addtime.awk is used for the conversion.
+
+==================================
+Module dependency.
+In f90, we need to describe dependency of source file.
+It is automatically checked by
+>make init
+This generates moduledependes.inc, which is included in makefile.
+
+=================================
+MODULE discussion 1:
+How we use module in ecalj?
+An exmple is 
+      module m_get_bzdata1 in getbzdata1.F
+This is related to reading BZDATA file.
+All public data defined in the module are 
+output of
+  "call getbzdata(...arguments list ...)",
+where arguments list are all inputs.
+Thus we can see all the public data, suddenly appear
+right after "call getbzdata".
+To make the origin of data, we have to declear 
+"only" option when we use a module.
+Here is an example of hx0fp0.sc.m.F, which uses m_genallcf_v3.
+      use m_genallcf_v3,only: genallcf_v3,
+     &     nclass,natom,nspin,nl,nn,ngrp,
+     &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
+     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     invg, il, in, im, nlnm, 
+     &     plat, pos, ecore, symgg 
+When we call genallcf_v3, all following variables shown are set.
+
+====================================
+MODULE discussion 2:
+To get the matrix element: zmel = <E_nu phi|phi>,
+which is the parts of numerator of equations in the GW calculaitons,
+we use "readeigen mehanism"
+
+At first, we call
+      call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in 
+      call init_readeigen2(mrecb,nlmto,mrecg)
+there are needed for initialization. 
+Then we do
+      call get_zmelt2(exchange, ... (matrix elements generator)
+in x0kf_v4hz which is called from main routine hx0fp0.m.F
+
+get_zmelt2 internally call function readeigen (to get eigenfunctions).
+
+========================
+Variables:
+We use
+ integer::
+ real(8)::
+ complex(8)::
+
+==============================
+MPI is not so efficient yet.
+We like to make simple MPI procedure, not nested.
+For this purpose, it may be better to divide matrix elements generator
+and core of GW part.
+
+When you run gwsc or so, 
+ STDOUT/stdout.0000.hx0fp0_sc
+contains output of hx0fp0_sc due to rank=0000.
+
+==============================
+double path formalism in lmf
+ For eigenvalues, we show twice a iteration.
+ This is historical reason. 
+
+========================================
+emacs(vm) skills
+git
+ediff
+etags
+python
+
+========================================
+doxygen:(this is old memo
+module at the beginning of x0kf_v4h.F.
+1. Not allow comment line in declearation of subrouitne.
+2."doubleprecision" is not allowed.
+3. comments lines outside of subroutine.
+4. To overliad doxygen bug, dummy declear needed.
+   integer:: dummy4doxygen at the begining.
+
+
+========================================
+cif to PROCAR
+./cif2cell --vasp-cartesian --vasp-format=5 cifs/BaTiO3_cubic.cif 
 
 
 \end{verbatim}
 
 \newpage
-$1{\rm wn}_i$,${\tt wan}_i m g t$
-
-\newpage 
 \printindex
 \bibliography{ecaljrefs}
 \end{document}
