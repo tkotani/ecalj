@@ -962,36 +962,3 @@ c      if(offmesh) nqnum = nqnum + nqbz
       if(debug) print *,'--- end of mkqg ---'
       end
 
-!!#############################################################################
-      double precision function tripl(a,b,c)
-!! == tripl (determinant of 3x3 matrix) ==
-      implicit real*8 (a-h,p-z), integer(o)
-      dimension a(0:2),b(0:2),c(0:2)
-c     tripl=a(1)*b(2)*c(3)+a(2)*b(3)*c(1)+a(3)*b(1)*c(2)
-c     .     -a(3)*b(2)*c(1)-a(2)*b(1)*c(3)-a(1)*b(3)*c(2)
-c     ... g77 needs this rewriting
-      tmp = 0.d0
-      do i = 0,2
-         j = mod(i + 1, 3)
-         k = mod(i + 2, 3)
-         tmp = tmp + a(i) * (b(j)*c(k) - b(k)*c(j))
-      enddo
-      tripl = tmp
-      end
-
-!!#############################################################################
-      integer(4) function llxxx(ilm)
-      integer(4),parameter :: lmx=50
-      integer(4),save:: lla((lmx+1)**2)
-      logical:: init=.true.
-      if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
-      if(init) then
-         do l=0,lmx
-            lini= l**2 + 1
-            lend=(l+1)**2
-            lla(lini:lend)=l
-         enddo
-      endif
-      llxxx = lla(ilm)
-      return
-      end

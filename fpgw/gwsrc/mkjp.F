@@ -30,6 +30,7 @@ c  rojp = <j_aL(r) | P(q+G)_aL > where
 c         |P(q+G)_aL> : the projection of exp(i (q+G) r) to aL channnel.
 c         |j_aL>      : \def r^l/(2l+1)!! Y_L.  The spherical bessel functions near r=0.  Energy-dependence is omitted.
 c
+      use m_lldata,only: ll
       implicit none
       integer(4) :: nbloch, nblochpmx, nbas, 
      &              lxx,lx(nbas), nxx, nx(0:lxx,nbas)
@@ -78,13 +79,13 @@ c-------------------
       complex(8) :: img=(0d0,1d0)
       real(8):: bas(3,nbas),r2s,rmax(nbas)
       integer(4):: lm
-#ifdef COMMONLL
-      integer(4)::ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) :: ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4)::ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) :: ll
+c$$$      external ll
+c$$$#endif
       real(8)::  fkk(0:lxx),fkj(0:lxx),fjk(0:lxx),fjj(0:lxx),sigx(0:lxx),radsig(0:lxx)
       complex(8):: fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
 
@@ -439,6 +440,7 @@ Cr oniste integral is based on
 Cr 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
 Cr See PRB34 5512(1986) for sigma type integral
 Cr
+      use m_lldata,only: ll
       implicit none
       integer(4) :: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx
       real(8)    :: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat,
@@ -455,13 +457,13 @@ ci Fourier
 c     &              fouvp(ngc,  ngc, (lxx+1)**2)
 c internal
       integer(4) :: nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
-#ifdef COMMONLL
-      integer(4)::ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) :: ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4)::ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) :: ll
+c$$$      external ll
+c$$$#endif
       real(8)    :: pi,fpi,tpiba, qg1(3),
      &  fkk(0:lx),fkj(0:lx),fjk(0:lx),fjj(0:lx),absqg1,absqg2,
      &  fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx)

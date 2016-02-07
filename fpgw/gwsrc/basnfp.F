@@ -3,6 +3,7 @@
      i    phitoto,phitotr,nsp,nclass,
      i    cutbase,lcutmx,ixx,iread,alat,nc_max)
       use keyvalue
+      use m_lldata,only: ll
 c takao kotani Apr 2002.
 c gives an index for the allowed product basis
 c A new routine by t.kotani mod. from indxbas of fa.
@@ -81,13 +82,13 @@ C---for mode 8
       character(3):: charnum3,charnum3n
       logical:: valmt=.false.
 
-#ifdef COMMONLL
-      integer(4)::ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) :: ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4)::ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) :: ll
+c$$$      external ll
+c$$$#endif
 
       logical :: smbasis,newaniso,addbasnew
       character*15 rprodf

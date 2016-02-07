@@ -83,6 +83,7 @@ c         endif
 c--------------------------------------------------------------------
       subroutine rotcg(lmxax,symops,ng,cgr)
 c --- rotated CG coefficients.
+      use m_lldata,only: ll
       implicit none
       integer(4) :: lmxax, ng, nlmxa,
      &              lnjcg, lnxcg, 
@@ -94,12 +95,12 @@ c --- rotated CG coefficients.
       real(8),allocatable:: cg(:),dlmm(:,:,:,:),cgn(:,:,:)
       integer(4),allocatable :: jcg(:),indxcg(:)
       integer:: ll1,ll2
-#ifdef COMMONLL
-      integer(4)::ll(51**2)
-      common/llblock/ll
-#else
-      integer(4):: ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4)::ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4):: ll
+c$$$#endif
 c --- CG coefficienets. <LM3|lm1 lm2>
 c inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
 c Injcg = indxcg(inxcg) to indxcg(inxcg)-1

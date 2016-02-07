@@ -11,6 +11,7 @@ c  v1         true potential at this site
 c  v2         smooth potential at this site
 c  gpotb      integrals of smooth estat pot times gaussians
 
+      use m_lldata,only: ll
       implicit real*8 (a-h,p-z), integer (o)
       parameter ( kmx=20, lmx=6, nlmx=36, nrx=1501, lmc=14 )
       dimension rho1(nr,1),rho2(nr,1),rofi(nr),rwgt(nr),qmom(1),
@@ -21,12 +22,12 @@ c  gpotb      integrals of smooth estat pot times gaussians
 ctakao
       real(8) :: v1_(nr,nlml),v2_(nr,nlml)
       real(8),allocatable:: rhol1x(:,:)
-#ifdef COMMONLL
-      integer(4) ll(51**2)
-      common/llblock/ll
-#else
-      integer(4):: ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4) ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4):: ll
+c$$$#endif
 
       allocate(rhol1x(nr,nlml))
 c

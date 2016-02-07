@@ -19,6 +19,7 @@ c-------------------------------------------------
       use m_genallcf_v3
       use keyvalue
 
+      use m_lldata,only: ll
       implicit none
       real(8):: q(3),  qgbin(3),qx(3)
       integer(4),allocatable :: ngvecpB(:,:,:),ngveccB(:,:) !,ngveccB(:,:,:)
@@ -86,12 +87,12 @@ c      logical:: test_qbzreg
      & ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx
      &, iopen,ico,lxd,lx !,ll
       real(8):: ylk
-#ifdef COMMONLL
-      integer(4):: ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) ll
-#endif  
+c$$$#ifdef COMMONLL
+c$$$      integer(4):: ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) ll
+c$$$#endif  
 ctm
       integer(4) :: ixc,idummy,idummy2,i1,i2,i3,nbbloop,
      &              ifq0p,ifuu(2),

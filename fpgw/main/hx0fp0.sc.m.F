@@ -176,7 +176,7 @@ c      write(6,"(' ScaledGapX0=',f8.3)") sciss
 !! newaniso2 is now fixed to be .true.
       call getkeyvalue("GWinput","ecut_p" ,ecut, default=1d10 )
       call getkeyvalue("GWinput","ecuts_p",ecuts,default=1d10 )
-c    Prof.Naraga says this cause a stop in ifort --->why???
+c    Prof.Nagara says this cause a stop in ifort --->why???
 c    write(6,*)'Timereversal=',Timereversal()
 
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
@@ -188,6 +188,7 @@ c    write(6,*)'Timereversal=',Timereversal()
 !!     off-regular mesh for bzcase==1 and qbzreg()=F
 c      if( ( bzcase()==2.and.qbzreg() )       .or.
 c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
+!! this mechanism for qbzreg=F is too complicated. We may need to modify difinition of qbz for qbzreg=F.
       if(.not.qbzreg()) then ! set off-gamma mesh
          deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
          do i=1,nqbz
@@ -490,7 +491,7 @@ c$$$         write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
 c$$$         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,tiii,ginv,iprintx,
 c$$$     o        nwgt,igx,igxt,eibzsym)
 
-!All input. this returns requied index stored in arrays in m_pbindex.
+!All input. this returns required index stored in arrays in m_pbindex.
          call PBindex(natom,lx,l2nl,nx) 
                           ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou() ! no input. Read QGcou and store date into variables.

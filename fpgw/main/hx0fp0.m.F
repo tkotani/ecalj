@@ -35,6 +35,7 @@
 !! tetwt
       use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
+      use m_lldata,only: ll
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -152,13 +153,13 @@ c     &   ,ngpmx !,  ifchipmlog
       character*4:: charnum4
       complex(8),allocatable:: jcoup(:,:), mcm(:,:,:)
       real(8)::chg1,chg2,spinmom,schi=1d0
-#ifdef COMMONLL
-      integer::ll(51**2)
-      common/llblock/ll
-#else
-      integer :: ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer::ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer :: ll
+c$$$      external ll
+c$$$#endif
       complex(8),allocatable:: ovlp(:,:),evec(:,:),ovlpi(:,:)
       real(8),allocatable::eval(:)
       integer:: new,nmxx,ii,iy,ipl1,ixx

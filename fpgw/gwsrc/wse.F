@@ -1,7 +1,5 @@
       subroutine checkeq(i,j)
-Cstop2rx 2013.08.09 kino      if(i/=j) stop 
-      if(i/=j) call rx( ''//
-     & " checkeq in hsfp0: dim of WVR and WVI not compatible")
+      if(i/=j) call rx( " checkeq in hsfp0: dim of WVR and WVI not compatible")
       end
 
 c--------------------------------------------------------------------

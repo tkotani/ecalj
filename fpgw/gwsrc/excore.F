@@ -2,6 +2,7 @@
      &  phic,nindxc,iclass,
      &  a,b,nr,rofi)
 C- Calculate core-core exchange energy.
+      use m_lldata,only: ll
       implicit none
       integer(4):: nrmx,nnc,nclass,nspn,ncmx,nl,nbas
       integer(4):: nindxc(0:nl-1,nclass),nr(nclass),iclass(nclass)
@@ -17,13 +18,13 @@ c-local
       integer(4):: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp,
      & isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
       real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
-#ifdef COMMONLL
-      integer(4) ll(51**2)
-      common/llblock/ll
-#else
-      integer(4):: ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4) ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4):: ll
+c$$$      external ll
+c$$$#endif
 
 c-----------------------------------------------------------
 c ncmx
@@ -469,6 +470,7 @@ c      however this routine gives the value oder 1.0d-16, according to
 c      numerical cancellation is not complete.
 c----------------------------------------------------------------c
 c      implicit double precision (a-h,o-z)
+      use m_lldata,only: ll
       implicit none
       integer j1mx
       integer
@@ -479,13 +481,13 @@ c      implicit double precision (a-h,o-z)
       double precision
      &    fac,fac2, igan,
      &    cg( (j1mx+1)**2, (j1mx+1)**2, 0:2*j1mx)
-#ifdef COMMONLL
-      integer(4) ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) ll
-      external ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4) ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) ll
+c$$$      external ll
+c$$$#endif
       external igan
 c
       print *, ' go into clebsh j1mx=',j1mx

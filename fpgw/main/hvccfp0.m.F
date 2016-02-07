@@ -1476,6 +1476,7 @@ c---------------------------------------------------------------------
      i        alat,bas,nbas,nbloch, 
      o        b0mat)
 C--make the matrix elementes < B_q | exp(iq r)>
+      use m_lldata,only: ll
       implicit none
       integer(4) :: nlx,l,n,m,nr,ir,lm,ibl1,ibas,nrx,nbloch
 
@@ -1491,12 +1492,12 @@ c
       real(8),allocatable :: ajr(:,:),rofi(:),rob0(:,:,:)
       real(8),allocatable::cy(:),yl(:)
       complex(8),allocatable :: pjyl(:,:)
-#ifdef COMMONLL
-      integer(4) ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4) ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) ll
+c$$$#endif
 
 c-----
       write(6,*)'mkb0:'

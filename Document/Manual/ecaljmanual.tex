@@ -2395,7 +2395,7 @@ Proof:
 \end{eqnarray}
 
 \section{Downfolding}
-Downfolding is a general concept which often appears in physics in different context. It is based on the Block inversion Eq.\ref{eq:blockinv}.
+Downfolding is a general concept which often appears in physics of varieties of contexts. It is based on the Block inversion Eq.\ref{eq:blockinv}.
 This appears for the inversion of one-body problem, or divide the Fock space
 for many-body theory.
 (divide the Fock space into two Hilbert spaces; one-particle excited states and
@@ -2858,53 +2858,6 @@ The results of ${\rm Re}(\epsilon)$, ${\rm Im}(\epsilon)$,
 ${\rm Re}(\epsilon^{-1})$
 and ${\rm Im}(\epsilon^{-1})$ are stored in \verb|EPS01.dat| .
 
-\newpage
-\section{TODO list(will be written)}
-\begin{verbatim}
-ESEAVR (average of sigm at high energy)
-
-Rotation of q by space group (not unique if q is on the BZ boundary).
-Discontinuity of bands at BZ boundary
-
-Mechanism of GW calculation for Metal. Drude weight.
-
-Tetrahedron method. Accumulation of imaginary part, and Hilbert transformation. No time-reversal symmetry case.
-
-Rseq,Broryden mixing,Anderson mixing (Yellow note by okuda).
-
-zmelt: unified matrix elements generator m_zmel.F
-
-structure constant:
-
-conversion between spherical harmonics and real harmonics
-
-New offset Gamma procedure. Invariant tensor expansion.
-Anisotropy problem.
-
-Wave function and MPB rotation 
-
-EIBZ symmetrization
-
-bloch: FFT of sigm.
-
-Calculate effective mass:
-
-hvccfp0: v(exact) vs. v(cal) (eigenvalue of v matrix).
-
-Spectrum function mode:
-
-lmfa:
-
-alagr3z: efficient? We may need improvement.
-
-PFLOAT:
-
-(not now?) ropbes.f ropyln.f had a problem due to compilar option.
-
-FTMESH: denser gives better? ehk=ehf?
-
-\end{verbatim}
-
 
 \newpage
 \section{Developer's memo}
@@ -3042,13 +2995,73 @@ module at the beginning of x0kf_v4h.F.
 4. To overliad doxygen bug, dummy declear needed.
    integer:: dummy4doxygen at the begining.
 
+=========================
+callcaller tree generation
+We can make a table callcaller.dat by
+>make dep 
+at fpgw/exec/ and lm7K/ (may take one minute).
+Not believe it so much...
+Need to check it in other manner.
 
-========================================
+ 
+\end{verbatim}
+
+\newpage
+\section{Utility}
 cif to PROCAR
+\begin{verbatim}
 ./cif2cell --vasp-cartesian --vasp-format=5 cifs/BaTiO3_cubic.cif 
+\end{verbatim}
 
+
+
+\newpage
+\section{TODO list(will be written)}
+\begin{verbatim}
+ESEAVR (average of sigm at high energy)
+
+Rotation of q by space group (not unique if q is on the BZ boundary).
+Discontinuity of bands at BZ boundary
+
+Mechanism of GW calculation for Metal. Drude weight.
+
+Tetrahedron method. Accumulation of imaginary part, and Hilbert transformation. No time-reversal symmetry case.
+
+Rseq,Broryden mixing,Anderson mixing (Yellow note by okuda).
+
+zmelt: unified matrix elements generator m_zmel.F
+
+structure constant:
+
+conversion between spherical harmonics and real harmonics
+
+New offset Gamma procedure. Invariant tensor expansion.
+Anisotropy problem.
+
+Wave function and MPB rotation 
+
+EIBZ symmetrization
+
+bloch: FFT of sigm.
+
+Calculate effective mass:
+
+hvccfp0: v(exact) vs. v(cal) (eigenvalue of v matrix).
+
+Spectrum function mode:
+
+lmfa:
+
+alagr3z: efficient? We may need improvement.
+
+PFLOAT:
+
+(not now?) ropbes.f ropyln.f had a problem due to compilar option.
+
+FTMESH: denser gives better? ehk=ehf?
 
 \end{verbatim}
+
 
 \newpage
 \printindex

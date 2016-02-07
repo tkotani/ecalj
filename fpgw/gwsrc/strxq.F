@@ -48,6 +48,7 @@ Cr Expansion Theorem: H_{RL}(r) = H_L(r-R)
 Cr   H_{RL}(E,r) = J_{R'L'}(E,r) * S_{R'L',RL}
 Cr   S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
 c ---
+      use m_lldata,only: ll
       implicit none
 C ... Passed parameters
       integer mode,ndim,nlma,nlmh
@@ -68,12 +69,12 @@ c     .  wk((lmxx*2+10)*nrxmx),yl(nrxmx*(lmxx+1)**2),efac(0:lmxx)
      .  ilm,ilma,la,ilmb,lh !sig(0:lmxx),
       logical ldot
       integer(4) :: job
-#ifdef COMMONLL
-      integer(4):: ll(51**2)
-      common/llblock/ll
-#else
-      integer(4)::ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4):: ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4)::ll
+c$$$#endif
 !!    to avoid warinig jan2013takao
       integer ::lmax_(1)
       real(8):: e_(1),rsm_(1)

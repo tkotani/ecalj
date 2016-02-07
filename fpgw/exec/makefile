@@ -12,27 +12,27 @@ LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/l
 #PLATFORM=ifort
 #LIBMATH=-mkl
 
-
 include make.inc.$(PLATFORM)
 
 BINDIR = $(HOME)/bin
 
 #-------------------------------------------------------
 # src directories
-gwsrc   = ../gwsrc/
 main    = ../main/
-nfpsrc  = ../nfpsrc/
-slatsmlib  = ../slatsmlib/
+gwsrc  = ../gwsrc/
 tote = ../tote/
-#maxloc = ../Miyake/maxloc/
-# tag directory
 tags   = ../
 
+#maxloc = ../Miyake/maxloc/
+# tag directory
+#
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+
+# hmergewv hbndout
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -57,11 +57,31 @@ install2:
 	 cp  $(script) $(BINDIR)
 
 cleanall:  
-	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  $(nfpsrc)*.o  *.mod  $(slatsmlib)*.o $(tote)*.o  $(maxloc)*.o
+	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  *.mod  $(tote)*.o  
 
 doxygen:
 	cd $(tags);doxygen;cd ./latex;make
 	echo 'fpgw/latex/refman.pdf generated'
+
+dep:
+	@echo  'This generate a call-caller data set for fpgw/'
+	@echo  'HELP --> ../TOOLS/FparserTools/f_calltree.py --help, and read CallCaller.sh'
+	@echo
+	@echo  '--- Now generating a file 'callcaller.dat' ... Wait!!! It takes 1 minute or so!'
+	@echo '        If you like to apply this to other programs, modify this script'
+	@echo  ' NOTE: T.Kotani is not sure whether this is relaiable enough or not... let me know something wrong...'
+	$(tags)/../TOOLS/FparserTools/f_calltree.py $(main)/*.F $(gwsrc)/*.F $(tote)/*.F >callcaller.dat 2>callcaller.err
+	-egrep -e '^(ERROR|Error)' callcaller.err
+	@echo
+	@echo '------------------------------------------------------------------------------'
+	@echo '--- If no ERROR is shown above (if ERROR is not in callcaller.err), it is succeeded. ---'
+	@echo '       Note that Unsed files might be used by other mainprogram.'
+	@echo '--- If ERROR is shown above, look into callcaller.err. Something wrong.'
+	@echo 
+	@echo ' If you want to make a callcaller-tree picture, try'
+	@echo ' >GenCCtree.sh callcaller.dotdata'
+	@echo ' --> Then you get ccmap.ps.; it is better to use smaller callcaller.dotdata(need to modify this script to make it).' 
+	@echo ' Note that you need graphviz for GenCCtree.sh. as apt-get install graphviz'
 
 # This is necesaly to compile *.f in right order.
 # When you recompile and link, just repeat 'make' (not necessary to repeat 'make init').
@@ -78,58 +98,42 @@ init:
 checkmod:
 	init
 #../../lm7K/subs/m_hamindex.F
+# m_hamindex
 
-
-####from tote #################################################################################                                     
-#LIBLOC  = $(ECAL)/fftw/libfftw.a $(LIBMATH)
-##-L/usr/local/ATLAS/lib/Linux_P4SSE2 -llapack -lcblas -lf77blas -latlas                                                             
-#LIBSLA  = $(ECAL)/slatsm/slatsm.a
-#LIBFP   = $(ECAL)/lm-6.14y/fp/subs.a
-#LIBSUBS = $(ECAL)/lm-6.14y/subs/subs.a
-#LIBES  = $(LIBSLA) $(LIBLOC)
-#lmsrc   = ../../lm-6.14y/
-######################################################################################            
-
-COMM=$(nfpsrc)rxx.o \
-$(gwsrc)mopen.o 
-
+## tete (total energy)  ###############################
+## these are experimental code ###
 ECOR = \
-$(tote)hecor.o \
-$(tote)rpaq.o 
-#eispack.o
-
-NFPLtot  = $(nfpsrc)diagcv2.o 
+$(tote)hecor.o 
 
 EO= \
 $(tote)eout.o \
-$(gwsrc)rydberg.o
 
 EO2= \
-$(tote)eout2.o \
-$(gwsrc)rydberg.o
+$(tote)eout2.o 
 
-hecor: $(ECOR) $(NFPLtot) $(GW0)   $(MPI)  $(COMM)
-	$(LK) $(LKFLAGS1) $(ECOR) $(GW0) $(NFPLtot)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+hecor: $(ECOR) $(GWLIB)   $(MPI)  $(GWLIB) $(COMM)
+	$(LK) $(LKFLAGS1) $(ECOR) $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
-eout: $(EO)   $(COMM) 
-	$(LK) $(LKFLAGS1) $(EO) $(COMM) $(LKFLAGS2) -o $@
+eout: $(EO)   $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(EO) $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
 
-eout2: $(EO2)  $(COMM) 
-	$(LK) $(LKFLAGS1) $(EO2) $(COMM) $(LKFLAGS2) -o $@
+eout2: $(EO2)  $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(EO2) $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
+########################################################
 
-################
-#
+
 # BNDCONN= \
 # $(gwsrc)bndconn.o   ### This is not linked but bndconn.o is used in lm/lmfgw. 
 # It is now included in lm/gw/
- DERFC=   $(nfpsrc)derfc.o \
-          $(nfpsrc)d1mach.o \
-          $(nfpsrc)i1mach.o 
-
+DERFC=   
+# $(gwsrc)derfc.o 
+#          $(gwsrc)d1mach.o \
+#          $(gwsrc)i1mach.o 
+#
 # test_genallcf =  \
 # $(main)test_genallcf.o \
 # $(gwsrc)genallcf_dump.o \
-# $(GW0)
+# $(GWLIB)
 
 
  kino_input_test =  \
@@ -139,178 +143,73 @@ eout2: $(EO2)  $(COMM)
  $(main)convgwin.o 
 
  GWINIT =  \
- $(main)gwinit.m.o \
- $(gwsrc)cross.o \
- $(gwsrc)genqbz.o \
- $(gwsrc)checksymlon.o \
- $(gwsrc)bzmesh.o \
- $(gwsrc)rangedq.o \
- $(gwsrc)iopenxx.o \
- $(gwsrc)iprint.o \
- $(gwsrc)keyvalue.o \
- $(gwsrc)switches.o \
- $(gwsrc)iopen.o 
-
+ $(main)gwinit.m.o 
 
  QG =  \
- $(gwsrc)conv2gwinput.o \
- $(main)qg4gw.m.o \
- $(gwsrc)getbzdata1.o \
- $(gwsrc)mkqg.o \
- $(gwsrc)q0irre.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)zsvd.o \
- $(GW0)
+ $(main)qg4gw.m.o 
 
  RDAT_v2 = \
- $(gwsrc)keyvalue.o \
- $(gwsrc)switches.o \
- $(main)rdata4gw_v2.m.o \
- $(gwsrc)rwbzdata.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)cinvrx.o \
- $(gwsrc)idxk.o \
- $(gwsrc)nword.o \
- $(gwsrc)gwinput_v2.o \
- $(gwsrc)matm.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)iopen.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)bzmesh.o \
- $(gwsrc)ext.o \
- $(gwsrc)ext2.o \
- $(gwsrc)cross.o \
- $(gwsrc)rs.o \
- $(gwsrc)extension.o \
- $(gwsrc)rangedq.o \
- $(gwsrc)llnew.o \
- $(gwsrc)iqindx.o \
- $(gwsrc)polinta.o\
- $(gwsrc)m_anf.o
-
+ $(main)rdata4gw_v2.m.o 
 
  BAS = \
- $(main)hbasfp0.m.o \
- $(gwsrc)basnfp.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)rs.o \
- $(gwsrc)excore.o
-
+ $(main)hbasfp0.m.o
 
  VCC= \
- $(main)hvccfp0.m.o \
- $(gwsrc)mkjp.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)extension.o \
- $(gwsrc)rangedq.o \
- $(gwsrc)keyvalue.o \
- $(gwsrc)switches.o \
- $(gwsrc)strxq.o \
- $(gwsrc)iopen.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)matm.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)cross.o \
- $(gwsrc)llnew.o \
- $(gwsrc)readqg.o \
- $(gwsrc)iqindx.o \
- $(gwsrc)cputid.o
+ $(main)hvccfp0.m.o 
 
  SXC_SC = \
- $(main)hsfp0.sc.m.o \
- $(gwsrc)wse.o \
- $(gwsrc)sxcf_fal2$(sxcf_g) \
- $(gwsrc)sxcf_fal2.sc$(sxcf_g) \
- $(gwsrc)bzints2.o \
- $(gwsrc)wintzsg.o \
- $(nfpsrc)diagcv2.o \
- $(gwsrc)m_zmel.o 
+ $(main)hsfp0.sc.m.o
 
  SXC = \
- $(main)hsfp0.m.o \
- $(gwsrc)wse.o \
- $(gwsrc)wintzsg.o \
- $(gwsrc)sxcf_fal2$(sxcf_g) \
- $(gwsrc)bzints2.o \
- $(gwsrc)genallcf_dump.o \
- $(nfpsrc)diagcv2.o \
- $(gwsrc)m_zmel.o 
+ $(main)hsfp0.m.o 
 
- WMAT = \
- $(maxloc)hwmat.o \
- $(maxloc)maxloc0.o \
- $(gwsrc)wse.o \
- $(maxloc)wmat.o \
- $(gwsrc)genallcf_dump.o
+ # WMAT = \
+ # $(maxloc)hwmat.o \
+ # $(maxloc)maxloc0.o \
+ # $(maxloc)wmat.o
 
- MLOC = \
- $(maxloc)hmaxloc.o \
- $(maxloc)maxloc0.o \
- $(maxloc)maxloc1.o \
- $(maxloc)maxloc2.o \
- $(maxloc)maxloc3.o \
- $(gwsrc)wse.o \
- $(gwsrc)genallcf_dump.o
+ # MLOC = \
+ # $(maxloc)hmaxloc.o \
+ # $(maxloc)maxloc0.o \
+ # $(maxloc)maxloc1.o \
+ # $(maxloc)maxloc2.o \
+ # $(maxloc)maxloc3.o 
 
- MLOC1D = \
- $(maxloc)hmaxloc1D.o \
- $(maxloc)maxloc0.o \
- $(maxloc)maxloc1.o \
- $(maxloc)maxloc2.o \
- $(maxloc)maxloc3.o \
- $(gwsrc)wse.o \
- $(gwsrc)genallcf_dump.o
+ # MLOC1D = \
+ # $(maxloc)hmaxloc1D.o \
+ # $(maxloc)maxloc0.o \
+ # $(maxloc)maxloc1.o \
+ # $(maxloc)maxloc2.o \
+ # $(maxloc)maxloc3.o 
 
  heftet = \
- $(main)heftet.m.o \
- $(gwsrc)bzints2.o
+ $(main)heftet.m.o 
 
- hnocc_mlw = \
- $(maxloc)hnocc_mlw.o \
- $(gwsrc)bzints2.o
+ # hnocc_mlw = \
+ # $(maxloc)hnocc_mlw.o 
 
  hef = \
- $(main)hef.m.o \
- $(gwsrc)wse.o
+ $(main)hef.m.o 
 
  CHK = \
- $(main)hchknw.m.o \
- $(gwsrc)genallcf_dump.o
+ $(main)hchknw.m.o
 
  X0_SC = \
- $(main)hx0fp0.sc.m.o \
- $(gwsrc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)m_tetwt.o \
- $(gwsrc)x0kf_v4h$(x0kf_g) \
- $(nfpsrc)diagcv2.o \
- $(gwsrc)m_zmel.o \
- $(gwsrc)m_freq.o
+ $(main)hx0fp0.sc.m.o 
 
  X0 = \
- $(main)hx0fp0.m.o \
- $(gwsrc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)m_tetwt.o \
- $(gwsrc)x0kf_v4h$(x0kf_g) \
- $(nfpsrc)diagcv2.o \
- $(tote)rpaq.o \
- $(gwsrc)cinvrx.o \
- $(gwsrc)zsvd.o \
- $(gwsrc)m_zmel.o \
- $(gwsrc)m_freq.o 
+ $(main)hx0fp0.m.o
 
- X0mlw = \
- $(maxloc)hx0fp0.m.o \
- $(maxloc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)m_tetwt.o \
- $(nfpsrc)diagcv2.o \
- $(tote)rpaq.o \
- $(gwsrc)cinvrx.o\
- $(gwsrc)m_freq.o 
-
+ # X0mlw = \
+ # $(maxloc)hx0fp0.m.o \
+ # $(maxloc)wcf.o \
+ # $(gwsrc)tetwt5$(tet5_g) \
+ # $(gwsrc)m_tetwt.o \
+ # $(gwsrc)diagcv2.o \
+ # $(tote)rpaq.o \
+ # $(gwsrc)cinvrx.o\
+ # $(gwsrc)m_freq.o 
+ #
  # UU = \
  # $(main)h_uumatrix.m.o \
  # $(gwsrc)wcf.o \
@@ -320,13 +219,13 @@ eout2: $(EO2)  $(COMM)
  # $(gwsrc)getgv2.o \
  # $(gwsrc)x0kf_v4h$(x0kf_g) \
  # $(gwsrc)rs.o \
- # $(nfpsrc)u_lat_0.o \
- # $(nfpsrc)wronkj.o \
- # $(nfpsrc)mklegw.o \
- # $(nfpsrc)bessl.o \
- # $(nfpsrc)cross.o \
- # $(nfpsrc)diagcv2.o
-
+ # $(gwsrc)u_lat_0.o \
+ # $(gwsrc)wronkj.o \
+ # $(gwsrc)mklegw.o \
+ # $(gwsrc)bessl.o \
+ # $(gwsrc)cross.o \
+ # $(gwsrc)diagcv2.o
+ #
  # UU2 = \
  # $(maxloc)huumat.o \
  # $(gwsrc)wcf.o \
@@ -335,45 +234,64 @@ eout2: $(EO2)  $(COMM)
  # $(gwsrc)pplmat.o \
  # $(gwsrc)getgv2.o \
  # $(gwsrc)rs.o \
- # $(nfpsrc)u_lat_0.o \
- # $(nfpsrc)wronkj.o \
- # $(nfpsrc)mklegw.o \
- # $(nfpsrc)bessl.o \
- # $(nfpsrc)cross.o
+ # $(gwsrc)u_lat_0.o \
+ # $(gwsrc)wronkj.o \
+ # $(gwsrc)mklegw.o \
+ # $(gwsrc)bessl.o \
+ # $(gwsrc)cross.o
+ #
+ # PSIG = \
+ # $(maxloc)hpsig.o \
+ # $(gwsrc)wcf.o \
+ # $(gwsrc)tetwt5$(tet5_g) \
+ # $(gwsrc)m_tetwt.o \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)pplmat.o \
+ # $(gwsrc)getgv2.o \
+ # $(gwsrc)rs.o \
+ # $(gwsrc)u_lat_0.o \
+ # $(gwsrc)wronkj.o \
+ # $(gwsrc)mklegw.o \
+ # $(gwsrc)bessl.o \
+ # $(gwsrc)cross.o
+ #
+ # PHIG = \
+ # $(maxloc)hphig.o \
+ # $(gwsrc)wcf.o \
+ # $(gwsrc)tetwt5$(tet5_g) \
+ # $(gwsrc)m_tetwt.o \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)pplmat.o \
+ # $(gwsrc)getgv2.o \
+ # $(gwsrc)rs.o \
+ # $(gwsrc)u_lat_0.o \
+ # $(gwsrc)wronkj.o \
+ # $(gwsrc)mklegw.o \
+ # $(gwsrc)bessl.o \
+ # $(gwsrc)cross.o
 
- PSIG = \
- $(maxloc)hpsig.o \
+ MPI =  $(gwsrc)MPI_fpgw2.o
+
+ GWLIB =  \
+ $(gwsrc)genallcf_dump.o \
+ $(gwsrc)wse.o \
+ $(gwsrc)bzints2.o \
+ $(gwsrc)wintzsg.o \
+ $(gwsrc)gintxx.o \
+ $(gwsrc)gwinput_v2.o \
+ $(gwsrc)pplmat.o \
+ $(gwsrc)rs.o \
+ $(gwsrc)conv2gwinput.o \
+ $(gwsrc)getbzdata1.o \
+ $(gwsrc)getgv2.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)m_tetwt.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)rs.o \
- $(nfpsrc)u_lat_0.o \
- $(nfpsrc)wronkj.o \
- $(nfpsrc)mklegw.o \
- $(nfpsrc)bessl.o \
- $(nfpsrc)cross.o
-
- PHIG = \
- $(maxloc)hphig.o \
- $(gwsrc)wcf.o \
- $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)m_tetwt.o \
- $(gwsrc)gintxx.o \
- $(gwsrc)pplmat.o \
- $(gwsrc)getgv2.o \
- $(gwsrc)rs.o \
- $(nfpsrc)u_lat_0.o \
- $(nfpsrc)wronkj.o \
- $(nfpsrc)mklegw.o \
- $(nfpsrc)bessl.o \
- $(nfpsrc)cross.o
-
- MPI = $(gwsrc)MPI_fpgw2.o
-
- GW0 = \
+ $(gwsrc)x0kf_v4h$(x0kf_g) \
+ $(gwsrc)cinvrx.o \
+ $(gwsrc)zsvd.o \
+ $(gwsrc)m_zmel.o \
+ $(gwsrc)m_freq.o \
  $(gwsrc)m_hamindex.o\
  $(gwsrc)readpomat.o \
  $(gwsrc)keyvalue.o \
@@ -423,90 +341,84 @@ eout2: $(EO2)  $(COMM)
  $(gwsrc)iqindx.o  \
  $(gwsrc)alloclist.o \
  $(gwsrc)m_pkm4crpa.o \
- $(gwsrc)m_anf.o
-
-# $(gwsrc)linpackdummy.o \
-
- QPE_SC = \
- $(main)hqpe.sc.m$(hqpe_g) \
+ $(gwsrc)m_anf.o \
  $(gwsrc)qpe1.sc.o \
  $(gwsrc)icompvv2.o \
  $(gwsrc)iopenxx.o \
- $(slatsmlib)dsifa.o \
- $(slatsmlib)dsisl.o \
- $(slatsmlib)dsidi.o \
- $(slatsmlib)amix.o
-# ../../slatsm/slatsm.a 
+ $(gwsrc)qpe1.o \
+ $(gwsrc)mopen.o \
+ $(gwsrc)checksymlon.o \
+ $(gwsrc)mkqg.o \
+ $(gwsrc)q0irre.o \
+ $(gwsrc)basnfp.o \
+ $(gwsrc)excore.o \
+ $(gwsrc)mkjp.o \
+ $(gwsrc)strxq.o \
+ $(gwsrc)sxcf_fal2.sc$(sxcf_g) \
+ $(gwsrc)sxcf_fal2$(sxcf_g) \
+$(gwsrc)amix.o \
+$(gwsrc)dsifa.o \
+$(gwsrc)dsisl.o \
+$(gwsrc)dsidi.o \
+$(gwsrc)diagcv2.o \
+$(gwsrc)wronkj.o \
+$(gwsrc)rxx.o \
+$(gwsrc)hsmq.o \
+$(gwsrc)u_lat_0.o \
+$(gwsrc)mklegw.o \
+$(gwsrc)bessl.o \
+$(gwsrc)lgen.o \
+$(gwsrc)hansr5.o \
+$(gwsrc)hansr4.o \
+$(gwsrc)lattc.o \
+$(gwsrc)qdist.o \
+$(gwsrc)dlmtor.o \
+$(gwsrc)dpcopy.o \
+$(gwsrc)dpadd.o \
+$(gwsrc)dpzero.o \
+$(gwsrc)ropyln.o \
+$(gwsrc)ropcsm.o \
+$(gwsrc)rpaq.o
 
 
+
+
+ QPE_SC = \
+ $(main)hqpe.sc.m$(hqpe_g)
 
  QPE = \
- $(gwsrc)switches.o \
- $(gwsrc)keyvalue.o \
- $(main)hqpe.m$(hqpe_g) \
- $(gwsrc)qpe1.o \
- $(gwsrc)icompvv2.o \
- $(gwsrc)iopenxx.o \
- $(gwsrc)iopen.o \
- $(gwsrc)rw.o \
- $(gwsrc)rydberg.o
+ $(main)hqpe.m$(hqpe_g)
 
- MERGE = \
- $(main)hmergewv.m.o \
- $(gwsrc)switches.o \
- $(gwsrc)keyvalue.o \
- $(gwsrc)iopen.o
+ # MERGE = \
+ # $(main)hmergewv.m.o \
+ # $(gwsrc)switches.o \
+ # $(gwsrc)keyvalue.o \
+ # $(gwsrc)iopen.o
 
- PARAINFO = \
- $(main)hparainfo.m.o \
- $(gwsrc)charext.o
+ # PARAINFO = \
+ # $(main)hparainfo.m.o \
+ # $(gwsrc)charext.o
 
-
- BNDOUT = \
- $(main)hbndout.m.o \
- $(gwsrc)iqagree.o \
- $(gwsrc)iopenxx.o \
- $(gwsrc)iopen.o \
- $(gwsrc)polinta.o \
- $(gwsrc)rydberg.o \
- $(gwsrc)extension.o \
- $(gwsrc)rangedq.o \
- $(gwsrc)switches.o \
- $(gwsrc)keyvalue.o 
-
-
- NFPL  = $(nfpsrc)wronkj.o \
-         $(nfpsrc)sylm.o \
-         $(nfpsrc)sylmnc.o \
-         $(nfpsrc)u_lat_0.o \
-         $(nfpsrc)mklegw.o \
-         $(nfpsrc)cross.o \
-         $(nfpsrc)setpr.o \
-         $(nfpsrc)bessl.o \
-         $(nfpsrc)hsmq.o \
-         $(nfpsrc)lgen.o \
-         $(nfpsrc)hansr5.o \
-         $(nfpsrc)hansr4.o \
-         $(nfpsrc)lattc.o \
-         $(nfpsrc)ll.o \
-         $(nfpsrc)dpcopy.o \
-         $(nfpsrc)dpadd.o \
-         $(nfpsrc)syscalls.o \
-         $(nfpsrc)qdist.o \
-         $(nfpsrc)dlmtor.o \
-         $(nfpsrc)dpzero.o \
-         $(nfpsrc)ropyln.o \
-         $(nfpsrc)ropcsm.o \
-         $(nfpsrc)dsisl.o \
-         $(nfpsrc)dsifa.o \
-         $(nfpsrc)diagcv2.o \
-         $(gwsrc)scg.o 
-
- SIGMCONV = \
- $(gwsrc)switches.o \
- $(gwsrc)keyvalue.o \
- $(gwsrc)iopen.o \
- $(main)hsigmconv.m.o 
+ # BNDOUT = \
+ # $(main)hbndout.m.o \
+ # $(gwsrc)iqagree.o \
+ # $(gwsrc)iopenxx.o \
+ # $(gwsrc)iopen.o \
+ # $(gwsrc)polinta.o \
+ # $(gwsrc)rydberg.o \
+ # $(gwsrc)extension.o \
+ # $(gwsrc)rangedq.o \
+ # $(gwsrc)switches.o \
+ # $(gwsrc)keyvalue.o 
+ #
+#         $(gwsrc)setpr.o \
+         # $(gwsrc)sylm.o \
+         # $(gwsrc)sylmnc.o \
+ # SIGMCONV = \
+ # $(gwsrc)switches.o \
+ # $(gwsrc)keyvalue.o \
+ # $(gwsrc)iopen.o \
+ # $(main)hsigmconv.m.o 
 
 ###########################################
 
@@ -516,98 +428,98 @@ eout2: $(EO2)  $(COMM)
 
 
 
- hsigmconv:	$(SIGMCONV)  $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(SIGMCONV) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ # hsigmconv:	$(SIGMCONV)  $(MPI)  $(COMM) 
+ # 	 $(LK) $(LKFLAGS1) $(SIGMCONV) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 
- gwinit:	$(GWINIT)  $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(GWINIT) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
+ gwinit:	$(GWINIT)  $(MPI)  $(GWLIB) 
+	 $(LK) $(LKFLAGS1) $(GWINIT) $(MPI) $(GWLIB)  $(LKFLAGS2) -o $@
 
 
- qpwf:		$(maxloc)qpwf.o $(GW0) $(MPI)  $(COMM) 
-	$(LK) $(LKFLAGS1) $(maxloc)qpwf.o $(GW0) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
+ # qpwf:		$(maxloc)qpwf.o $(GWLIB) $(MPI)  $(COMM) 
+ # 	$(LK) $(LKFLAGS1) $(maxloc)qpwf.o $(GWLIB) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
 
- qg4gw:		$(QG)  $(MPI) $(COMM)  
-	 $(LK) $(LKFLAGS1) $(QG) $(MPI) $(COMM)    $(LKFLAGS2) -o $@
+ qg4gw:		$(QG)  $(MPI) $(GWLIB) $(COMM)  
+	 $(LK) $(LKFLAGS1) $(QG) $(MPI) $(GWLIB) $(COMM)    $(LKFLAGS2) -o $@
 
- rdata4gw_v2:	$(RDAT_v2)  $(NFPL) $(MPI)  $(COMM)
-	 $(LK) $(LKFLAGS1) $(RDAT_v2) $(NFPL) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
+ rdata4gw_v2:	$(RDAT_v2)  $(MPI)  $(COMM) $(GWLIB)
+	 $(LK) $(LKFLAGS1) $(RDAT_v2) $(MPI) $(COMM)  $(GWLIB) $(LKFLAGS2) -o $@
 
- hbasfp0:	$(BAS)  $(MPI)  $(COMM) $(GW0)
-	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(COMM)  $(GW0) $(LKFLAGS2) -o $@
+ hbasfp0:	$(BAS)  $(MPI)  $(COMM) $(GWLIB)
+	 $(LK) $(LKFLAGS1) $(BAS) $(MPI)  $(COMM)  $(GWLIB) $(LKFLAGS2) -o $@
 
- hvccfp0:	$(MPI) $(VCC)  $(NFPL) $(DERFC) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(VCC) $(NFPL) $(DERFC) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hvccfp0:	$(MPI) $(VCC)   $(DERFC) $(MPI)  $(COMM) $(GWLIB)
+	 $(LK) $(LKFLAGS1) $(VCC) $(DERFC) $(MPI)  $(COMM) $(GWLIB) $(LKFLAGS2) -o $@
 
- hx0fp0:	$(MPI) $(X0) $(GW0) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(X0)     $(GW0) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hx0fp0:	$(MPI) $(X0) $(GWLIB) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(X0)     $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
-#  hx0fp0_mlw:	$(X0mlw) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(X0mlw)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(X0mlw)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  h_uumatrix:	$(UU) $(GW0)   $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(UU)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  h_uumatrix:	$(UU) $(GWLIB)   $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(UU)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  huumat:	$(UU2) $(GW0) $(MPI) $(COMM)
-# 	$(LK) $(LKFLAGS1) $(UU2)  $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  huumat:	$(UU2) $(GWLIB) $(MPI) $(COMM)
+# 	$(LK) $(LKFLAGS1) $(UU2)  $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  hphig:	$(PHIG) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(PHIG)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) $(LIBSLA) -o $@
+#  hphig:	$(PHIG) $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(PHIG)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) $(LIBSLA) -o $@
 
-#  hpsig: $(PSIG) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(PSIG)     $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  hpsig: $(PSIG) $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(PSIG)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hx0fp0_sc:	$(MPI) $(X0_SC) $(GW0)   $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(X0_SC)     $(GW0) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ hx0fp0_sc:	$(MPI) $(X0_SC) $(GWLIB)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(X0_SC)     $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  hwmat:		$(WMAT) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(WMAT)    $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  hwmat:		$(WMAT) $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(WMAT)    $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  hmaxloc:	$(MLOC)  $(NFPLtot) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(MLOC) $(NFPLtot) $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  hmaxloc:	$(MLOC)   $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(MLOC)  $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
-#  hmaxloc1D:	$(MLOC1D)  $(NFPLtot) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(MLOC1D) $(NFPLtot) $(GW0)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+#  hmaxloc1D:	$(MLOC1D)   $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(MLOC1D)  $(GWLIB)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hsfp0:		$(MPI) $(SXC) $(GW0)   $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(SXC)    $(GW0) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ hsfp0:		$(MPI) $(SXC) $(GWLIB)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(SXC)    $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- hsfp0_sc:	$(MPI) $(SXC_SC) $(GW0)   $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(SXC_SC)    $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hsfp0_sc:	$(MPI) $(SXC_SC) $(GWLIB)   $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(SXC_SC)    $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
-#  hnocc_mlw:	$(hnocc_mlw) $(GW0) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(hnocc_mlw) $(GW0)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+#  hnocc_mlw:	$(hnocc_mlw) $(GWLIB) $(MPI)  $(COMM) 
+# 	$(LK) $(LKFLAGS1) $(hnocc_mlw) $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- heftet:	$(heftet) $(GW0)  $(MPI) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(heftet) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ heftet:	$(heftet) $(GWLIB)  $(MPI) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(heftet) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hef:		$(hef) $(GW0)   $(MPI) $(COMM) 
-	 $(LK) $(LKFLAGS1) $(hef)    $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hef:		$(hef) $(GWLIB)   $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(hef)    $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hchknw:	$(CHK) $(GW0)  $(MPI)
-	 $(LK) $(LKFLAGS1) $(CHK)    $(GW0)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hchknw:	$(CHK) $(GWLIB)  $(MPI)
+	 $(LK) $(LKFLAGS1) $(CHK)    $(GWLIB)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hqpe:		$(QPE) $(MPI) $(COMM) 
-	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(LKFLAGS2) -o $@
+ hqpe:		$(QPE) $(MPI) $(COMM) $(GWLIB)
+	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(GWLIB) $(LKFLAGS2) -o $@
 
- hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) $(GW0)
-	 $(LK) $(LKFLAGS1) $(QPE_SC) $(GW0) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) $(GWLIB)
+	 $(LK) $(LKFLAGS1) $(QPE_SC) $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hmergewv:	$(MERGE) $(MPI)   $(COMM) 
-	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ # hmergewv:	$(MERGE) $(MPI)   $(COMM) 
+ # 	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- # hparainfo:	$(PARAINFO) $(GW0) $(MPI)   $(COMM) 
- # 	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ # hparainfo:	$(PARAINFO) $(GWLIB) $(MPI)   $(COMM) 
+ # 	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hbndout:	$(BNDOUT) $(MPI)   $(COMM) 
-	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+# hbndout:	$(BNDOUT) $(MPI)   $(COMM) 
+#	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- convgwin:	$(convg) $(MPI)   $(COMM) 
-	 $(LK) $(LKFLAGS1) $(convg) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ convgwin:	$(convg) 
+	 $(LK) $(LKFLAGS1) $(convg) $(LKFLAGS2) -o $@
 
- kino_input_test:	$(kino_input_test) $(GW0) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GW0)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ kino_input_test:	$(kino_input_test) $(GWLIB) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 ################################ test
 #

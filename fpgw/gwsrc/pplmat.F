@@ -6,6 +6,7 @@ Co  ppmt(1,lm,nbas): value for (lm,ibas)
 Co  ppmt(2,lm,nbas):
 Cr Oct2005
 C------------------
+      use m_lldata,only: ll
       implicit none
       integer(4) ::  nbas,  ng1,lmxax
      &       ,ig1,ibas,la,lma,lmh, 
@@ -22,12 +23,12 @@ C------------------
       real(8):: theta,phi,rdir(3)
       complex(8)::valx1,valx2
 
-#ifdef COMMONLL
-      integer(4):: ll(51**2)
-      common/llblock/ll
-#else
-      integer(4)::ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4):: ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4)::ll
+c$$$#endif
       logical ::debug=.false.
 c-----------------------------------------------------
       if(debug) allocate(ylr((lmxax+1)**2) )
@@ -651,6 +652,7 @@ c--------------------------------------------------------------
      o         ppovl)
 c < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
 c
+      use m_lldata,only: ll
       implicit none
       integer(4) ::  nbas, ng1,ng2,nx(3),
      &        ig1,ig2,ibas, ngvec1(3,ng1),ngvec2(3,ng2),
@@ -661,12 +663,12 @@ c
       complex(8) :: img =(0d0,1d0)
       complex(8) :: ppovl(ng1,ng2)
       complex(8),allocatable :: ppox(:,:,:)
-#ifdef COMMONLL
-      integer(4) ll(51**2)
-      common/llblock/ll
-#else
-      integer(4) ll
-#endif
+c$$$#ifdef COMMONLL
+c$$$      integer(4) ll(51**2)
+c$$$      common/llblock/ll
+c$$$#else
+c$$$      integer(4) ll
+c$$$#endif
 c-----------------------------------------------------
       print *,' mkppovl2test:'
 c      pi        = 4d0*datan(1d0)

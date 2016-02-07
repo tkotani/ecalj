@@ -598,31 +598,31 @@ c------------
 Cstop2rx 2013.08.09 kino      stop  ' OK! hecor'
       call rx0( ' OK! hecor')
       end
-c--------------------------------------------------------------------
-      subroutine winfo(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef
-     &    ,deltaw,alat,esmr)
-      implicit none
-      integer(4) :: ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz
-      real(8) :: ef,deltaw,alat,esmr
-      write (ifi,*)' ***'
-      write (ifi,6700) nspin,nq,ntq
-      write (ifi,6501) is,nbloch,ngp,ngc,nqbz,nqibz,ef
-     &  ,deltaw,alat,ef,esmr
- 6501 format (' spin =',i2,'   nbloch ngp ngc=',3i4
-     &        ,'  nqbz =',i6,'  nqibz =',
-     .        i6,'   ef=', f10.4,' Rydberg'
-     &        ,/,d23.16,' <= deltaw(Hartree)'
-     &        ,/,d23.16,' <= alat'
-     &        ,/,d23.16,' <= ef '
-     &        ,/,d23.16,' <= esmr')
- 6700 format (1x,3i4,'  nspin  nq  ntq')
-      end
+c$$$c--------------------------------------------------------------------
+c$$$      subroutine winfo(ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz,ef
+c$$$     &    ,deltaw,alat,esmr)
+c$$$      implicit none
+c$$$      integer(4) :: ifi,nspin,nq,ntq,is,nbloch,ngp,ngc,nqbz,nqibz
+c$$$      real(8) :: ef,deltaw,alat,esmr
+c$$$      write (ifi,*)' ***'
+c$$$      write (ifi,6700) nspin,nq,ntq
+c$$$      write (ifi,6501) is,nbloch,ngp,ngc,nqbz,nqibz,ef
+c$$$     &  ,deltaw,alat,ef,esmr
+c$$$ 6501 format (' spin =',i2,'   nbloch ngp ngc=',3i4
+c$$$     &        ,'  nqbz =',i6,'  nqibz =',
+c$$$     .        i6,'   ef=', f10.4,' Rydberg'
+c$$$     &        ,/,d23.16,' <= deltaw(Hartree)'
+c$$$     &        ,/,d23.16,' <= alat'
+c$$$     &        ,/,d23.16,' <= ef '
+c$$$     &        ,/,d23.16,' <= esmr')
+c$$$ 6700 format (1x,3i4,'  nspin  nq  ntq')
+c$$$      end
 c------------------------------------------------------------------
-      subroutine checkeq(i,j)
-Cstop2rx 2013.08.09 kino      if(i/=j) stop 
-      if(i/=j) call rx0( ''//
-     & " checkeq in hsfp0: dim of WVR and WVI not compatible")
-      end
+c      subroutine checkeq(i,j)
+cCstop2rx 2013.08.09 kino      if(i/=j) stop 
+c      if(i/=j) call rx0( ''//
+c     & " checkeq in hsfp0: dim of WVR and WVI not compatible")
+c      end
 c--------------------------------------------------------------------
       real*8 function eclda_bh(rs)
       real(8) :: rs,cp,rp,z
