@@ -909,27 +909,27 @@ c end of if (exchange)
       end subroutine wmatqk
 
 
-c -------------------------------------------------------------------
-      subroutine matzwz2(zw,zmel, ntp0,nstate,ngb, zwz)
-      implicit none
-      integer(4) :: nstate,ntp0,itp,it,itp2,it2,ngb
-      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntp0),
-     c              zwz(ntp0,nstate,nstate,ntp0)
-      complex(8), allocatable :: CC(:,:,:)
-      allocate(CC(ngb,nstate,ntp0) )
-      call matm(zw,zmel,cc, ngb, ngb, nstate*ntp0)
-      do itp2 = 1,ntp0
-      do  it2 = 1,nstate
-      do  it  = 1,nstate
-      do itp  = 1,ntp0
-        zwz(itp,it,it2,itp2) 
-     & = sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it2,itp2))
-      enddo
-      enddo
-      enddo
-      enddo
-      deallocate(CC)
-      end
+c$$$c -------------------------------------------------------------------
+c$$$      subroutine matzwz2(zw,zmel, ntp0,nstate,ngb, zwz)
+c$$$      implicit none
+c$$$      integer(4) :: nstate,ntp0,itp,it,itp2,it2,ngb
+c$$$      complex(8) :: zw(ngb,ngb),zmel(ngb,nstate,ntp0),
+c$$$     c              zwz(ntp0,nstate,nstate,ntp0)
+c$$$      complex(8), allocatable :: CC(:,:,:)
+c$$$      allocate(CC(ngb,nstate,ntp0) )
+c$$$      call matm(zw,zmel,cc, ngb, ngb, nstate*ntp0)
+c$$$      do itp2 = 1,ntp0
+c$$$      do  it2 = 1,nstate
+c$$$      do  it  = 1,nstate
+c$$$      do itp  = 1,ntp0
+c$$$        zwz(itp,it,it2,itp2) 
+c$$$     & = sum( dconjg(zmel(1:ngb,it,itp))*CC(1:ngb,it2,itp2))
+c$$$      enddo
+c$$$      enddo
+c$$$      enddo
+c$$$      enddo
+c$$$      deallocate(CC)
+c$$$      end
 c -------------------------------------------------------------------
       subroutine matzwz3(zw,zmel1,zmel2, ntp0,nstate,ngb, zwz)
       implicit none
