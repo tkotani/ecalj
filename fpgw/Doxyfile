@@ -512,7 +512,7 @@ INPUT = "./gwsrc/mkqg.F" "./gwsrc/mkjp.F" "./gwsrc/x0kf_v4h.F" "./gwsrc/sxcf_fal
         "./main/hsfp0.sc.m.F" "./gwsrc/x0kf_v4h.F" "./gwsrc/m_hamindex.F" \
 	"./gwsrc/m_tetwt.F" "./gwsrc/m_freq.F" "./gwsrc/readqg.F" "./gwsrc/genallcf_mod.F" \
         "./main/qg4gw.m.F" "./main/hvccfp0.m.F" "./main/hbasfp0.m.F" \
-        "./Wannier/hmaxloc.F" "./exec/makefile" "./exec/gwsc" "../lm7K/run_arg" "./Wannier/genMLWF" 
+        "./Wannier/hmaxloc.F" "./exec/makefile" "../lm7K/run_arg" "./Wannier/genMLWF" 
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
