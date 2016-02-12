@@ -64,7 +64,7 @@ for line_all in range(len(atomlist)):
 		#print atomlist[line_all][line_each]
 		#print "coordinates=",coordinates
 		if coordinates=='Cartesian' :
-			atomlist[line_all][line_each] = atomlist[line_all][line_each]*ALAT
+			atomlist[line_all][line_each] = atomlist[line_all][line_each] # *ALAT new VASP
 #		elif coordinates=='Direct' :
 #			atomlist[line_all][line_each] = atomlist[line_all][line_each]
 #		print atomlist[line_all][line_each]
