@@ -44,7 +44,7 @@ Utilities such as a converter between POSCAR(VASP) and our crystal strucrue file
 it; note that we should supply numerically accurate atomic positions to judge 
 crystal symmetry automatically).
 
-<pre> 
+
 !! CAUTION for know bug(or not) for spin susceptibility mode!!! (apr2105).
 T.Kotani thinks epsPP\_lmfh\_chipm branch may/(or may not) have a bug
 (because of symmetrization). It may be near
@@ -60,7 +60,6 @@ especially for cases with more than two atoms in the cell
 (thus fe_epsPP_lmfh test may not work for this case...)
 A possible test is remove symmetrization---> use eibzsym=F.
 If necessary, let me know...
-</pre>
 
 
 Requirement for using ecalj
@@ -540,5 +539,3 @@ other to DO
 ### Doxygen ###
 At ecalj/fpgw, run doxygen. Because we have Doxyfile there,
 we can have doxygen html and pdfs.
-
-
