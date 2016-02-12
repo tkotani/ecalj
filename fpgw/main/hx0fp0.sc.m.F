@@ -79,7 +79,7 @@ c      integer,allocatable:: ibasf(:)
       complex(8) :: epxxx,vcmean
       character*9 fileps
       character*15 filepsnolfc
-      logical :: paralellx0=.true. !, hist
+c      logical :: paralellx0=.true. !, hist
       character(5) :: charnum5
       character(20):: xxt
       real(8) :: Emin, Emax      ,emax2,emin2
@@ -342,13 +342,6 @@ c     else
 c     nw = (epsrng/2d0 - 1d-10)/(dw/2d0) + 2 !epsrng/2d0 corresponds to in a.u.
 c     endif
 c     allocate(epsi(nw,neps))
-c     if(paralellx0) then
-c     ifgb0vec = iopen ( "Mix0vec."
-c     &     //xxt(iqxini,iqxend),1,3,0)
-c     c          "//charnum5(iqxini)//'to'//charnum5(iqxend),1,3,0)
-c     else
-c     ifgb0vec = iopen ( "Mix0vec",1,3,0)
-c     endif
 c     elseif(ixc==4.or.ixc==5.or.ixc==6) then
 c     ! ... These are test modes.
 c     ! ixc=4 tetrahedren weight test. tetwt5.vs.tetwt5. Write tethis.chk
@@ -1036,13 +1029,9 @@ c     1002 continue  ! end of frequency block-loop
 c============end of loop over q point =================================
 c=======================================================================
       call MPI__barrier()
+
 !TIME0_24001 w0mpi
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
-c         write(6,*)'MPI__sizerrr=',MPI__size,MPI__rank,MPI__root,MPI__size,nqibz,iqxend
-ccccccccccccccccccccccccccc
-CYY!$OMP parallel 
-CYY!$OMP master
-c      write(6,*)' eeeeeeeeeeeeeeeee111 MPI__rank=',MPI__rank
       if(MPI__size/=1) then
         do iq=nqibz+1,iqxend
           iq0 = iq - nqibz
@@ -1072,9 +1061,6 @@ c     write(6,*)' recv llwI sum=',sum(abs(llwI(:,iq0))),niw
           endif
         enddo  
       endif
-c      write(6,*)' eeeeeeeeeeeeeeeee222 MPI__rank=',MPI__rank
-CYY!$OMP end master
-CYY!$OMP end parallel 
 !TIME1_24001 "w0mpi"
 
 c commentout block inversion

@@ -499,58 +499,7 @@ mixing parameter.
 
 
 ### LOG and MEMO for developers ###
-<pre>
-=====
-Real TIME and Memory usage command. (H.Kino). rev.jun23.2014
-We set comment lines such as
-----
-!TIME0
-  ... here lines of fortran codes ...
-!TIME1 "foo bar"
-----
-in fortran files, e.g., in fpgw/main/hsfp0.sc.m.F.
-This reports computational time at the end of output from each node.
-(see stdout.{rankID}.* files).
-
-For example, if we see a line (in stdout.*)
->timediff,id= 106 (foo_bar_____)    420.00 sec     4 times
-, we used the CPU time 420 sec (roughly =4 x 105 sec) for
-the lines between '!TIME0' and '!TIME1 "foo bar"'.
-
-See fpgw/exec/makefile. At its bottom,
-gawk replaces '!TIME*' with fortran codes (time_xxx.F are
-generated automatically by this procedure).
-
---
-NOTE: !TIME can be nested as
-!TIME0
-  ... code1 ...
-!TIME0
-  ... code2 ...
-!TIME1 "foobar1"
-!TIME1 "foobar2"
-
-=====
-1.branch x0mpi_merge (6b5e3, Aug2013): 
-contains a try to paralellize x0kf
-(imaginary part of dielectric function) more. It just show a
-strategy, not efficient yet.
-
-2. With FSMOM, Efermi is not uniquely given in job_band_nspin2*.
-It is given by a bndfp-bzwtsf-bzwsf L300 block
-   if ((.not. lfill) .or. (metal .and. (nkp .eq. 1))) then
-   (bisection method to determine a middle of LUMO and HOMO).
-It can give some energy between LUMO and HOMO. 
-Small changes of computational condition can give large change. 
-But no problem.
-
-3. Line length for fortran; Add .emacs the following three lines.
-(add-hook 'fortran-mode-hook
-	  '(lambda ()
-	     (setq fortran-line-length 132)))
-</pre>
-
-
+--> this is moved to ecaljdetails.tex
 
 ### other memos ###
 <pre>
