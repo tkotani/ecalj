@@ -7,7 +7,7 @@
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
-     &     ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,qbasmc,
+     &     ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
      &     dq_,qbz,wbz,qibz,wibz
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,

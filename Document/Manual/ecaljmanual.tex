@@ -2630,6 +2630,80 @@ to get the full spin susceptibility.
 % {\bf eps\_lmfh\_chipm} : spin susceptibility (full mixed basis). Test purpose.
 % \end{itemize}
 
+
+
+\section{Usage problems, QandA error messages.}
+\begin{verbatim}
+1.Bandplot for FSMOMMETHOD/=0 
+  Even when you use FSMMOMMETHOD/=0 in GWinput for gwsc, 
+  you need to set FSMOMMETHOD=0 (or comment it out) when you run job_band_nspin2.
+  [If you run job_band_nspin2 with FSMOMMETHOD/=0, it make a shift 
+  (adding bias magnetic field).]
+
+2.Note that ctrlgenM1.py automatically set this for --systype=molecule.
+   Then we have 
+       TETRA=0
+       N=-1  #Negative is the Fermi distribution function W= gives temperature.
+       W=0.001 #W=0.001 corresponds to T=157K as shown in console
+   In addiiton, FSMOM (n_up-n_down) is needed (FSMOMMETHOD=1)if we
+   have magnetic moment.
+
+3. core>evalence message.
+   Ecore is grater than Evalence.
+   For save, we do not allow this.
+   Complare ECORE file and valence levels, shown in log file or
+   console output.
+
+4. If you see a error message from lmf (e.g., internally called in the gwsc script).;
+  Exit -1 rdsigm: Bloch sum deviates more than allowed tolerance (tol=5e-6)
+  You have to enlarge RSRNG so that lmf finsh normally.
+  See FAQ at the bottom of http://titus.phy.qub.ac.uk/packages/LMTO/gw.html
+  E.g. try RSRNGE=8 for Ni...
+
+5. Back ground charge and fractional Z.
+   You can use fractional numbers for ATOM_Z, and also can set
+   valence charge by BZ_ZBAK (I removed BZ_VAL).
+   You see console out put, e.g,
+     "Charges:  valence    19.80000   cores     8.00000   nucleii   -28.00000
+        hom background       .20000   deviation from neutrality:      0.00000
+   . This is a case with BZ_ZBAK=.2.
+
+   NOTE: at the first iteration, Charges: shows such as
+     Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
+      hom background     0.12300   deviation from neutrality: 0.12300
+      because of the initial condition by superposition of atoms. It show
+      deviation seems nonzero. But charge should be conserved from the
+      next iteration.
+
+6. Not converged in metal. --->mixing may help
+   For example, if you try metal such as Bi2Sr2CuO6, it may fail at LDA/GGA level.
+   Then use ITER MIX=A2,b=.2. or something (.2 means it only mix 20% of output to give
+  new input for next iteration). Then I see convergence. (b is the
+   mixing parameter.
+
+7. Use PZ or not.
+   If spillout of core is not so small (more then 0.05 or something.),
+   it is better to use PZ(lo). Treat the core as valecne.
+   Bi4d is such a case. Maybe use PZ=0,0,4.9
+
+8. Core treatment 
+   See 10.1103/PhysRevB.76.165106 (Eq.35 and after).
+   Now I usually not use CORE2 (CORE1 only).
+
+9. ERROR EXIT! rgwina: 2nd wrong l valence
+   This may be because you use wrong GWinput.
+   Back it up. And run mkGWIN_lmf2 (any n1 n2 n3 is fine).
+
+10. Known bug.
+    Error occurs when system is anisotroic such as CuAlTe2. 
+    Temporary fix is "Add token NPWPAD=100 in HAM category".
+    (guess of used APW fails (more than expected)).
+    CuAlTe2,CuGaTe2 cases.
+
+11. Known bug
+    a little unstable when metal GGA, especially when we have large empty regions.
+\end{verbatim}
+
 \section{Cautions for usage}
 \label{cautionusage}
 \begin{enumerate}
