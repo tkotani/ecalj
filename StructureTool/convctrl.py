@@ -30,7 +30,7 @@ def vasp2ctrl_write(vaspread,alat_val,NBAS_val,atom_list,titleinput,all_atom,rat
 	+' '*2+'NBAS='+str(NBAS_val)+'\n'+'SITE'+'\n'
 	ctrlwrite.write(outputlist1)
 	for sort in range(len(tes)):
-		position  = [x/ratioa for x in atom_list[sort][0:3] ]
+		position  = [float(x)/ratioa for x in atom_list[sort][0:3] ]
 		positions = ' '.join(['%18.11f ' % x for x in position])
 		atoms = '%s' % tes[sort]
 		outputlist2 = ' '*5+'ATOM='+atoms+' '+'POS='+positions +'\n'
@@ -46,18 +46,22 @@ def vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3):
 	plat1= [float(plat1[i]) for i in range(len(plat1)) ] 
 	plat2= [float(plat2[i]) for i in range(len(plat2)) ] 
 	plat3= [float(plat3[i]) for i in range(len(plat3)) ] 
+
 	for atom1 in range(len(atom_list)):
-                x = float(atom_list[atom1][0])
-                y = float(atom_list[atom1][1])
-                z = float(atom_list[atom1][2])
-		if vaspread[7]=='Cartesian':
-                        atom_list[atom1][0] = x #/alat_val/.529177 #for new VASP
-                        atom_list[atom1][1] = y #/alat_val/.529177
-                        atom_list[atom1][2] = z #/alat_val/.529177
-		if vaspread[7]=='Direct':
-                        atom_list[atom1][0] = x*plat1[0] + y*plat2[0]  + z*plat3[0]
-                        atom_list[atom1][1] = x*plat1[1] + y*plat2[1]  + z*plat3[1]
-                        atom_list[atom1][2] = x*plat1[2] + y*plat2[2]  + z*plat3[2]
+		x = float(atom_list[atom1][0])
+		y = float(atom_list[atom1][1])
+		z = float(atom_list[atom1][2])
+
+		if vaspread[7][0:-1]=='Cartesian':
+			atom_list[atom1][0] = x #/alat_val/.529177 #for new VASP
+			atom_list[atom1][1] = y #/alat_val/.529177
+			atom_list[atom1][2] = z #/alat_val/.529177
+
+		if vaspread[7][0:-1]=='Direct':
+			atom_list[atom1][0] = x*plat1[0] + y*plat2[0]  + z*plat3[0]
+			atom_list[atom1][1] = x*plat1[1] + y*plat2[1]  + z*plat3[1]
+			atom_list[atom1][2] = x*plat1[2] + y*plat2[2]  + z*plat3[2]
+
 	return atom_list
 
 # for ctrl2vasp.
