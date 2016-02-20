@@ -131,6 +131,7 @@ ctm, MPI
       integer(4),allocatable:: iq_proc(:)
       character*8 xt
       character(4) charnum4
+      real(8):: ef
 c-------------------------
 
 ctm, MPI
@@ -198,10 +199,10 @@ c$$$      endif
       endif
 
 C--- readin GWIN and LMTO, then allocate and set datas.
-      nwin = -999    !readin condition. Not readin NW file
+c      nwin = -999    !readin condition. Not readin NW file
       incwfin= 0     !readin condition. use ForX0 for core in GWIN
-      efin =  -999d0 !readin condition. Not readin EFERMI
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+c      efin =  -999d0 !readin condition. Not readin EFERMI
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
 c---  These are allocated and setted by genallcf_v3
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,

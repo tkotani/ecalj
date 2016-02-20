@@ -12,8 +12,8 @@
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
+     &     alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
 
@@ -91,7 +91,7 @@ cxxx  !iSigma_en==0 SE_nn'(ef)+img integral:delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(
 cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
                                 !iSigma_en==2 [SE_nn'((e_n+e_n')/2)+h.c.]/2
                                 !iSigma_en==3 [(SE_nn'(e_n)+SE_nn'(e_n'))/2+h.c.]/2
-      real(8) :: omg2max,omg1max
+      real(8) :: omg2max,omg1max,wemax
       logical::imagonly=.false. , noq0p !,readgwinput
       integer::nwin, incwfin, verbose,nbcut,nbcut2,ifpomat,nnmx,ikpo,nn_,noo,iqxxx,nomx
       real(8)::efin
@@ -139,6 +139,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ibasx,ificlass,ifile_handle,ifiq0p
       complex(8),allocatable:: ppovl_(:,:)
       logical:: tetra 
+      integer:: ifief
+      real(8):: ef
 !-------------------------------------------------------------------------
 !TIME0_1001 ProgAll
 !TIME0_11001 readbzdata
@@ -200,13 +202,19 @@ c     &     ( bzcase()==1.and.(.not.qbzreg()))      ) then
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
 !! We set basic data.
-      nwin   = 0                !Readin nw from NW file
+c      nwin   = 0                !Readin nw from NW file
       incwfin= 0                !use ForX0 for core in GWIN
-      efin =  0d0               !readin EFERMI
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+c      efin =  0d0               !readin EFERMI
+c--- EFERMI
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef
+      close(ifief)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c      nw_input = nw ; 
-      write(6,*) 'nw delta=',nw_input,delta
+c      write(6,*) 'nw delta=',nw_input,delta
       debug=.false.
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
@@ -401,8 +409,10 @@ c     nwhis=nw
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
       omg2max = (Emax-Emin)*.5d0+.2d0 
              ! (in Hartree) covers all relevant omega, +.2 for margin
-      write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
-      call getfreq(.false.,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,MPI__root)
+      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      call getwemax(.true.,wemax) !wemax is to determine nw !real axis divisions
+      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
+      call getfreq(.false.,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
       nwp = nw+1
 
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.

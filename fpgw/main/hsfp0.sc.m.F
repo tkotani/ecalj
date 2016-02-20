@@ -46,8 +46,8 @@
      & ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & nlmto,nlnmx, nctot,niw,!nw_input=>nw,
+     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use keyvalue,only: getkeyvalue
@@ -73,7 +73,6 @@
      &   MPI__barrier
 
       implicit none
-      integer:: nw
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
 c------------------------------------
@@ -155,8 +154,7 @@ c
 
       real(8):: volwgt
 
-      integer::nwin, incwfin
-      real(8)::efin
+      integer:: incwfin
       real(8),allocatable::freqx(:),freqw(:),wwx(:)
 
       integer::  ngpn1,mrecg,ngcn1 
@@ -207,6 +205,8 @@ c      logical:: newaniso
 
       integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
       logical:: hermitianW
+      integer:: nw,ifief
+      real(8):: ef
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -255,12 +255,12 @@ c---------------------------------------
 
 !! === readin GWIN and LMTO, then allocate and set datas. ===
 !! See use m_genallcf_v3,only: at the top of this routine
-      nwin   = 0                !Readin nw from NW file
-      efin=-999d0               !not readin EFERMI
+c      nwin   = 0                !Readin nw from NW file
+c      efin=-999d0               !not readin EFERMI
       if(ixc==3) then; incwfin= -2 !core exchange mode
       else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
-      call genallcf_v3(nwin,efin,incwfin) ! module m_genallcf_v3. See use m_genallcf in this rouitine
+      call genallcf_v3(incwfin) ! module m_genallcf_v3. See use m_genallcf in this rouitine
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       esmref=esmr
 
@@ -458,10 +458,17 @@ c     write(6,'("    ua      =",f13.6)') ua
         endif
       endif
 
+!! efermi by tetrahedron. this can be overwritten
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef
+      close(ifief)
+
       if(tetra) goto 201        !tetra is experimental.  usually =F. 
 
 !!== Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==
 !!    When esmr is negative, esmr is geven automatically by efsimplef.
+c      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       legas=.false.
       call efsimplef2a(nspin,wibz,qibz,ginv, 
      i nband,nqibz

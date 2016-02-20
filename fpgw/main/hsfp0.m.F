@@ -8,8 +8,8 @@
      &  nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,ngrp,
-     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & nlmto,nlnmx, nctot,niw,
+     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg,  il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use keyvalue,only: getkeyvalue
@@ -28,7 +28,6 @@
      &   MPI__barrier
 
       implicit none
-      integer:: nw
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
 !!
 c     SEx(q,t,t) = <psi(q,t) |SEx| psi(q,t)>
@@ -137,8 +136,8 @@ c      real(8),allocatable:: qbze(:,:)
 
       real(8):: volwgt
 
-      integer::nwin, incwfin
-      real(8)::efin,ddw
+      integer:: incwfin
+      real(8):: ddw
 c      integer,allocatable::imdim(:)
       real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
 
@@ -181,6 +180,8 @@ c      logical:: newaniso=.true.
       integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
       character(128) :: ixcc
 
+      real(8):: ef
+      integer:: nw,ifief
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -229,14 +230,14 @@ C...  mode switch. --------------
 
 !! === readin GWIN and LMTO, then allocate and set datas. ===
 !! See use m_genallcf_v3,only: at the top of this routine
-      nwin =-999                !not readin NW file
-      efin =-999d0              !not readin EFERMI
+c      nwin =-999                !not readin NW file
+c      efin =-999d0              !not readin EFERMI
       if    (ixc==3) then;  incwfin= -2 !core exchange mode
       elseif(ixc==5) then;  incwfin= -4 ! valence-valence Ex energy mode. ! See rgwinf called from genallcf_*
       elseif(ixc==6) then;  incwfin= -3 ! core-valence Ex energy mode.
       else               ;  incwfin= -1 !use 7th colmn for core at the end section of GWIN
       endif
-      call genallcf_v3(nwin,efin,incwfin) ! module m_genallcf_v3. See use m_genallcf in this rouitine
+      call genallcf_v3(incwfin) ! module m_genallcf_v3. See use m_genallcf in this rouitine
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 
 !! Get maximums 
@@ -444,6 +445,12 @@ c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
      &     call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
         endif
       endif
+
+!! efermi by tetrahedron. this can be overwritten
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef
+      close(ifief)
 
       if(tetraex) goto 201
 

@@ -6,8 +6,8 @@ c so this routine contains unused things so much.
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & nlmto,nlnmx, nctot,niw,!nw_input=>nw,ef
+     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use keyvalue,only: getkeyvalue
@@ -102,8 +102,8 @@ c      common /w/ w(iwksize)
       real(8) :: ex,eee_dummy,exwgt_dummy,eee,exwgt,wfac,wfacx
       logical :: exsptest
 
-      integer(4):: nwin,incwfin,ret
-      real(8)::efin
+      integer(4):: incwfin,ret
+      real(8)::ef
 c      logical:: readgwinput
 
       call headver('hef',0)
@@ -133,12 +133,11 @@ c      call wkinit (iwksize)
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
-      nwin   = -999   ! dummy
+c      nwin   = -999   ! dummy
       incwfin=  0     ! dummy
-      efin=  -999d0   ! dummy
+c      efin=  -999d0   ! dummy
 C--- readin GWIN and LMTO, then allocate and set datas.
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c------------------------------
 c      integer(4)::

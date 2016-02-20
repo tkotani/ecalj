@@ -131,7 +131,7 @@ ctm 010705
       integer(4):: iqindx,iqbz, irecwq
       integer(4),allocatable:: nstibz(:)
       real(8):: erpaq, trpvq, trlogq !accumlating variable
-      real(8):: erpaqw, trpvqw, trlogqw
+      real(8):: erpaqw, trpvqw, trlogqw,  ef
 c---------------------------------------
 
 c set up work array
@@ -173,11 +173,11 @@ c$$$      endif
 c-------------------------------
 c generate all quantities needed
 c-------------------------------
-      nwin = -999d0   !Not readin nw
-      efin = -999d0  !not readin EFERMI
+c      nwin = -999d0   !Not readin nw
+c      efin = -999d0  !not readin EFERMI
       incwfin= 0  !use 7th colmn for core at the end section of GWIN
 c
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
 Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted by genallcf_v3

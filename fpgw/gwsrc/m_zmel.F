@@ -8,8 +8,8 @@
 !! these are set by 'call genallcf_v3' usually in the main routine.
       use m_genallcf_v3,only: 
      i  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     i  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,nw,
-     i  alat,ef, diw,dw,delta,deltaw,esmr,symgrp,iclass,nlnmv,
+     i  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,
+     i  alat,diw,dw,delta,deltaw,esmr,symgrp,iclass,nlnmv,
 c  clabl,nindxv,nindxc,ncwf,
 c     &  il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, 
 c     &  ilc,inc,imc,  ilnmc, 
@@ -32,7 +32,7 @@ c     &  ilc,inc,imc,  ilnmc,
      i  done_read_bzdata  
 !! general purpose routine to read values in GWinput file.
       use keyvalue,only: getkeyvalue 
-
+      implicit none
 !! ---------------------------------------------
       integer,parameter:: NULL=-99999
 !! These are set by mptauof in main routine. 'call mptauof'

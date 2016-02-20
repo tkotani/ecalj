@@ -25,8 +25,8 @@ c------------------------------------------------------------
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     &     alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,ef
+     &     alat,diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg , konf,z,
      &     spid
@@ -182,7 +182,7 @@ c ixc=3
      &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),ibasiwf(:)
       integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 
-      real(8):: enwfmax,qxx(3),eeee,enwfmaxi
+      real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
       integer:: inii
       logical:: leauto,leinauto
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
@@ -228,11 +228,11 @@ c      call wkinit (iwksize)
       call pshprt(60)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
-      nwin =-999    !not readin NW file
-      efin =-999d0  !not readin EFERMI
+c      nwin =-999    !not readin NW file
+c      efin =-999d0  !not readin EFERMI
 c      efin = 0d0    !readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
 c---  These are allocated and setted.
 c      integer(4)::  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,

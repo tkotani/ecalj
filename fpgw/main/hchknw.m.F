@@ -6,7 +6,7 @@ c---     check the number of nw
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat,diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
 
@@ -106,12 +106,12 @@ c      logical:: GaussSmear=.true. !external
       logical ::qpntexist
       integer(4)::ixc,nz,idummy
 
-      integer(4)::nwin, incwfin,ret
-      real(8)::efin
+      integer(4):: incwfin,ret
+c      real(8)::efin
 
       integer(4):: nss(2)
       logical:: debug=.true.
-
+      real(8):: ef
 c---------------------------------------------------------------
 c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       write(6,*) ' --- Choose modes below ------------'
@@ -119,7 +119,6 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       write(6,*) ' --- Put number above ! ------------'
       call readin5(ixc,nz,idummy)
       call headver('hchknw',ixc)
-Cstop2rx 2013.08.09 kino      if(ixc/=0.and.ixc/=1) stop "hchknw:Wrong mode!"
       if(ixc/=0.and.ixc/=1) call rx( "hchknw:Wrong mode!")
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
@@ -150,12 +149,17 @@ c      call wkinit (iwksize)
 
 
 C--- readin GWIN and LMTO, then allocate and set datas.
-      nwin    = -999 !Not readin NW file
-      efin    = 0d0 !readin EFERMI
+c      nwin    = -999 !Not readin NW file
+
+c--- EFERMI
+      open( 1101,file='EFERMI')
+      read( 1101,*) ef
+      close(1101)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+c      efin    = 0d0 !readin EFERMI
 c      if(legas) efin=-999d0! not readin EFERMI
       incwfin = 0 !dummy
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-Cstop2rx 2013.08.09 kino      if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c--- These are allocated and setted.
 c      integer(4)::

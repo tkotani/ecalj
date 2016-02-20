@@ -14,25 +14,26 @@
 !> Get data set for m_freq. All arguments are input.
 !! - This read GWinput (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
-      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,mpi__root)
+      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root)
       use keyvalue,only: getkeyvalue
       implicit none
-      integer,intent(in):: niw,nw_input
+      integer,intent(in):: niw !,nw_input
       logical,intent(in):: realomega,imagomega,tetra,mpi__root,epsmode
       real(8),intent(in):: omg2max,ua
 
       real(8),allocatable:: freqx(:),wx(:),expa(:)
       logical:: timereversal,onceww
       integer:: nw2,iw,ihis
-      real(8)::omg_c,dw,omg2
+      real(8)::omg_c,dw,omg2,wemax
       real(8), allocatable :: freqr2(:)  
       real(8)::  pi       = 4d0*datan(1d0)
 
       logical,save:: done=.false.
       if(done) call rx('gerfreq is already done') !sanity check
       done =.true.
+      nw=-99999 !for sanity check
 
-      nw = nw_input
+c      nw = nw_input
 !! We first accumulate Imaginary parts. 
 !! Then it is K-K transformed to obtain real part.
       call getkeyvalue("GWinput","dw",dw )
@@ -50,6 +51,8 @@
       allocate(frhis(1:nwhis+1))
       frhis = freqr2(1:nwhis+1)
       write(6,*)' we set frhis nwhis=',nwhis
+c      nw  = idint (wemax/2d0/dw) + 3
+
 !! frhis_m
       nw=nw2-1       ! nw+1 is how many points of real omega we use
                      ! for dressed coulomb line W(iw=0:nw) iw=0 corresponds omg=0
@@ -64,7 +67,7 @@
                      ! and one more point omg=frhis_m(nw) needed for extropolation
                      ! used in subroutine alagr3z in  sxcf.f.
          omg2 = (freqr2(iw-2)+freqr2(iw-1))/2d0
-         if (omg2 > dw*(nw_input-3)) then
+         if (omg2 > wemax/2d0 ) then !>dw*(nw_input-3)) then !omg is in unit of Hartree
             nw=iw
             exit     ! 'nw_input' is only used to get maximum frequency for
                      !  dressed coulomb line

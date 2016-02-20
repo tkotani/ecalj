@@ -18,7 +18,7 @@
       subroutine gettetwt(q,iq,is,isf,nwgt) !this routine set output data above.
 !! input data; read only
       use m_readeigen,only:   readeval !we assume init_readeval is called already
-      use m_genallcf_v3,only: ecore,nctot,ef    !we assume genallcf_v3 called already.
+      use m_genallcf_v3,only: ecore,nctot    !we assume genallcf_v3 called already.
       use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
         ! we assume read_bzdata is called already
       use m_freq,only:                   !we assume getfreq is called already.
@@ -34,7 +34,8 @@
       integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:) !qbzw(:,: )
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
-      integer:: kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose
+      integer:: kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
+      real(8)::ef
 
       tetra=.true.
       eibzmode = eibz4x0()
@@ -75,6 +76,11 @@ c     in the denominator of the dielectric function.
         allocate(ecore(1,2))    !this is dummry
       endif
       allocate(ibjb(1,1,1,1),ihw(1,1,1),jhw(1,1,1),nhw(1,1,1),whw(1)) !dummy
+c--- EFERMI
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef
+      close(ifief)
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,

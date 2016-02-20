@@ -36,25 +36,25 @@
      o    nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
       integer::
      o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw
+     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw !,nw
       real(8), allocatable:: 
      o  plat(:,:),pos(:,:),z(:),  ecore(:,:), symgg(:,:,:)   !w(igrp) freq(:),
-      real(8) :: alat,ef, diw,dw,delta,deltaw,esmr
+      real(8) :: alat,diw,dw,delta,deltaw,esmr !ef
       logical:: done_genallcf_v3=.false.
       character(8),allocatable:: spid(:)
 c-----------------------------------------------------------------------
       contains
 
-      subroutine genallcf_v3(nwin,efin,incwfx)
+      subroutine genallcf_v3(incwfx)
 !!> Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !!r Return iclass=ibas.
-!! nwin,efin,incwfx, are used as switches.
-!! input: nwin,efin,incwfx,
+!! efin,incwfx, are used as switches.
+!! input: efin,incwfx,
 !!        GWIN_V2, LMTO
 !! output: All the output are given in the declear section above.
 !! --------------------------------------------------------
       implicit none
-      integer(4)::iflmto,ifinin,nwin,incwfx,ifec,i,j,
+      integer(4)::iflmto,ifinin,incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
      & ,iopen,iclose,nprodxv,nlnax
      & ,noflmto,maxnn
@@ -67,7 +67,8 @@ c-----------------------------------------------------------------------
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
-      real(8)::a,b,zz
+      real(8)::a,b,zz, efdummy
+      integer:: nwdummy
 c      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
@@ -95,8 +96,8 @@ c      write(6,*)' end of rgwinf_v3'
 c-------------------------------------------------------------------------
 c--- rgwinf ---
       ifi = iflmto
-      nw  = nwin
-      ef  = efin
+c      nw  = nwin
+c      ef  = efin
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
@@ -156,9 +157,9 @@ c--------------------------
       ifix=ifi
       call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass, !ifi can be changed.
 c> BZ
-     o                  n1,n2,n3,ef,
+     o                  n1,n2,n3,efdummy,
 c> frequencies
-     o                  niw,diw,nw,dw,delta,deltaw,esmr,imagw,
+     o                  niw,diw,nwdummy,dw,delta,deltaw,esmr,imagw,
 c> coulomb
 c     o                  tolvc,alp,alptx,h,ng,
 c> product basis

@@ -30,7 +30,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe qg4gw gwinit heftet rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
 
 # hmergewv hbndout
 
@@ -191,8 +191,6 @@ DERFC=
  hef = \
  $(main)hef.m.o 
 
- CHK = \
- $(main)hchknw.m.o
 
  X0_SC = \
  $(main)hx0fp0.sc.m.o 
@@ -273,6 +271,7 @@ DERFC=
  MPI =  $(gwsrc)MPI_fpgw2.o
 
  GWLIB =  \
+ $(gwsrc)getwemax.o \
  $(gwsrc)genallcf_dump.o \
  $(gwsrc)wse.o \
  $(gwsrc)bzints2.o \
@@ -497,8 +496,6 @@ $(gwsrc)rpaq.o
  hef:		$(hef) $(GWLIB)   $(MPI) $(COMM) 
 	 $(LK) $(LKFLAGS1) $(hef)    $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hchknw:	$(CHK) $(GWLIB)  $(MPI)
-	 $(LK) $(LKFLAGS1) $(CHK)    $(GWLIB)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hqpe:		$(QPE) $(MPI) $(COMM) $(GWLIB)
 	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(GWLIB) $(LKFLAGS2) -o $@

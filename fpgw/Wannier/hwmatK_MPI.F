@@ -208,6 +208,8 @@ c RS: variables for MPI
       real(8),allocatable:: 
      &           swj_rv_w(:,:,:,:,:),swj_cv_w(:,:,:,:,:),
      &           swj_rv_iw(:,:,:,:,:),swj_cv_iw(:,:,:,:,:)
+      real(8)::ef
+      integer::nw
 c---------------------------------------
 c RS: program begins here
       call RSMPI_Init()
@@ -266,11 +268,11 @@ c      call wkinit (iwksize)
       call pshprt(60)
 
 C--- readin GWIN and LMTO, then allocate and set datas.
-      nwin =-999    !not readin NW file
-      efin =-999d0  !not readin EFERMI
+c      nwin =-999    !not readin NW file
+c      efin =-999d0  !not readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
+      ef=1d99
       if(ngrp/= ngrp2)
      &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c---  These are allocated and setted.
@@ -394,7 +396,7 @@ c---
       write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
-      write(6,'("    niw nw dw   =",2i5,f13.6)') niw,nw,dw
+c      write(6,'("    niw nw dw   =",2i5,f13.6)') niw,nw,dw
       endif
 
 c>> read dimensions of wc,b,hb
@@ -554,24 +556,24 @@ c... Readin eigen functions
 c      ifev(1)   = iopen('EVU', 0,0,mrece)
 c     if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
 
-c     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-!     When esmr is negative, esmr is geven automatically by efsimplef.
-      call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv, 
-     i     nband,nqibz
-     i     ,konf,z,nl,natom,iclass,nclass
-     i     ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
-c     
-     i     qbz,nqbz             !index_qbz, n_index_qbz,
-     o     ,efnew)
-c     
-c     write(6,*)' end of efsimple'
-c     ef = efnew
-c     - check total ele number -------
-      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
-      write(6,*)' ef    =',ef
-      write(6,*)' esmr  =',esmr
-      write(6,*)' valn  =',valn
-      write(6,*)' ntot  =',ntot
+c$$$c     --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
+c$$$!     When esmr is negative, esmr is geven automatically by efsimplef.
+c$$$      call efsimplef2a_RSMPI(nspin,wibz,qibz,ginv, 
+c$$$     i     nband,nqibz
+c$$$     i     ,konf,z,nl,natom,iclass,nclass
+c$$$     i     ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
+c$$$c     
+c$$$     i     qbz,nqbz             !index_qbz, n_index_qbz,
+c$$$     o     ,efnew)
+c$$$c     
+c$$$c     write(6,*)' end of efsimple'
+c$$$c     ef = efnew
+c$$$c     - check total ele number -------
+c$$$      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
+c$$$      write(6,*)' ef    =',ef
+c$$$      write(6,*)' esmr  =',esmr
+c$$$      write(6,*)' valn  =',valn
+c$$$      write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
  1018 continue

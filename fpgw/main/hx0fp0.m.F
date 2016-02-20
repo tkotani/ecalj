@@ -12,8 +12,8 @@
      & nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw,nw_input=>nw,
-     & alat,ef, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & nlmto,nlnmx, nctot,niw, !nw_input=>nw,
+     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
       use keyvalue,only: getkeyvalue
@@ -97,7 +97,7 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       character(20):: xxt
 
       real(8) :: Emin, Emax,emin2,emax2
-      real(8) :: omg2max,omg1max
+      real(8) :: omg2max,omg1max,wemax
       real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
 
       logical::imagonly=.false.,realonly=.false. !,readgwinput
@@ -119,7 +119,7 @@ c     &   ,ngpmx !,  ifchipmlog
      & dwry,dwh,omg_c,omg2
 
       integer::nwin, incwfin,  verbose
-      real(8)::efin
+      real(8)::ef
 
       integer:: ngc,mrecg !bzcase, 
       real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
@@ -231,7 +231,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: src,dest
       logical:: crpa
       integer,allocatable :: iclasst(:), invgx(:)
-      integer:: ificlass,ifile_handle
+      integer:: ificlass,ifile_handle,ifief
       complex(8),allocatable:: ppovl_(:,:)
 
 !! -------------------------------------------------------------------
@@ -389,14 +389,21 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
 !! We set basic data.
-      if(epsmode) then
-        nwin = -999
-      else
-        nwin = 0      !Readin nw from NW file
-      endif
+
+c$$$      if(epsmode) then
+c$$$        nwin = -999
+c$$$      else
+c$$$        nwin = 0      !Readin nw from NW file
+c$$$      endif
       incwfin= 0  !use ForX0 for core in GWIN
-      efin =  0d0 !readin EFERMI
-      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
+c      efin =  0d0 !readin EFERMI
+c--- EFERMI
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef
+      close(ifief)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       tpioa=2d0*pi/alat
 
@@ -404,7 +411,7 @@ c      write(6,"(' ScaledGapX0=',f5.3)") sciss
       debug=.false.; if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
 c      write(6,"(' ncore=',i4)") ncore
-      write(6,*) 'nw_input delta=',nw_input,delta
+c      write(6,*) 'nw_input delta=',nw_input,delta
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -422,7 +429,7 @@ c        tetra = .false. ! switch for tetrahedron method for dielectric function
 
 !! --- read dimensions of h,hb
       ifhbe  = iopen('hbe.d',1,0,0)
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !warn nband is in m_zmel
       is = iclose('hbe.d')
       if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
       if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
@@ -523,7 +530,7 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
       omg2max = (Emax-Emin)*.5d0+.2d0 
              ! (in Hartree) covers all relevant omega, +.2 for margin
-      write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
       realomega = .true.
       imagomega = .true.
       tetra     = .true.
@@ -535,8 +542,10 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
         realomega =.true.
         imagomega =.false.
       endif
-!! getfreq returun date given at " use m_freq,only:". E.g  nw is returned.
-      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,nw_input,niw,ua,MPI__root)
+!! getfreq returun date given at " use m_freq,only:". 
+      call getwemax(.false.,wemax) !wemax is to determine nw !real axis divisions
+      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
+      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
       nwp = nw+1
       if(.not.imagomega) niw=1
 !! ... get eigenvector corresponds to exp(iqr) (q is almost zero).

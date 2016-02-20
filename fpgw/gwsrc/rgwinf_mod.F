@@ -212,20 +212,20 @@ c> divisions along reciprocal base vectors G1 G2 G3
       write(6,"(a,3i5)")' divisions along reciprocal base vectors G1 G2 G3=',
      & n1,n2,n3
 
-c--- EFERMI
-      if(ef/=-999d0) then
-        open( 1101,file='EFERMI')
-        read( 1101,*) ef
-        close(1101)
-        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
-      endif
-c--- NW
-      if(nw/=-999) then
-        open( 1101,file='NW')
-        read( 1101,*) nw
-        close(1101)
-        write(6,"(a,i5)")' --- READIN nw from NW. nw=',nw
-      endif
+c$$$c--- EFERMI
+c$$$      if(ef/=-999d0) then
+c$$$        open( 1101,file='EFERMI')
+c$$$        read( 1101,*) ef
+c$$$        close(1101)
+c$$$        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+c$$$      endif
+c$$$c--- NW
+c$$$      if(nw/=-999) then
+c$$$        open( 1101,file='NW')
+c$$$        read( 1101,*) nw
+c$$$        close(1101)
+c$$$        write(6,"(a,i5)")' --- READIN nw from NW. nw=',nw
+c$$$      endif
 
 c------------
 c FREQUENCIES
