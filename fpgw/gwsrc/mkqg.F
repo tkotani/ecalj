@@ -17,7 +17,7 @@
 !! All arguments are input.
 !! In addition, we write a file EPSwklm, which is key for new offset Gamma method.
 !! deltaq_scale() given by Q0Pchoice in GWinput change the of offset Gamma method.
-      use keyvalue,only: getkeyvalue 
+      use m_keyvalue,only: getkeyvalue 
       implicit none
       logical,intent(in):: newoffsetG
       integer,intent(in):: n1q,n2q,n3q,nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp
@@ -364,7 +364,7 @@ c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & idtetf, ib1bz, idteti,
      & irk, nstar, nstbz,
      & qbzm, qbzwm
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only:getkeyvalue
       use m_q0p,only: getq0p, 
      & q0i,wt,nq0i
 !! == Make required q and G in the expantion of GW. ==

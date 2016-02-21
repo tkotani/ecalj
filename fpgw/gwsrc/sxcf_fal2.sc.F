@@ -20,7 +20,7 @@
      o zsec,coh,nbandmx)
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
-      use keyvalue,only   : getkeyvalue
+      use m_keyvalue,only   : getkeyvalue
       use m_zmel,only     : get_zmelt,
      i ppovlz, 
      o zmel,zmeltt 

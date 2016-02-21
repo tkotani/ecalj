@@ -129,7 +129,8 @@ c
 c----------------------------------------------------------------------
       use m_readqg
       use m_readeigen
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
       integer(4) :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw,
      &  nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,

@@ -93,7 +93,7 @@ C
 Ch     - Apr 2002 takao kotani ver.2 ; generalized to include multiple-augmentation waves in each MT.
 C------------------------------------------------------------------
 c     implicit real*8 (a-h,o-z)
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 c      use m_anf,only: anfcond
 c     &  ,iantiferro               !for check
       implicit none

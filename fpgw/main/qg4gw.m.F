@@ -44,7 +44,7 @@
 !! True q+G is given by
 !!    qplusG(1:3,igp) = 2*pi/alat * (q + matmul(qlat * ngvec(1:3,igp))), for igp=1,ngp
 !! ----------------------------------------------------------------------
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       implicit none
       integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin,idummy
       real(8) ::  alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3)

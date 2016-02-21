@@ -20,7 +20,8 @@ c-------------------------------------------------
       use m_readeigen
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
 c RS: MPI module
       use rsmpi
 

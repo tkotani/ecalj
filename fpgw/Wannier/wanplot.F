@@ -24,7 +24,7 @@ c      program calc_wannier6
 c      use m_LMTO
 c      use m_MLWF
 c      use m_wfrho_abc 
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval,readcphi,readgeig
       use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf

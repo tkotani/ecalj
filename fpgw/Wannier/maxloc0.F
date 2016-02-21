@@ -2,7 +2,8 @@
      &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
      &    eimin,eimax,itin_i,itin_f,
      &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
       real(8) :: eomin,eomax,eimin,eimax,conv1,conv2,alpha1,alpha2,rcut
       real(8) :: alph1,alp2,rc1

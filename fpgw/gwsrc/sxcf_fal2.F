@@ -18,7 +18,7 @@ c     d nl,nnc,nclass,natom,mdimx,
      o zsec,coh,exx)
       use m_readqg
       use m_readeigen,only: readeval
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_zmel,only: get_zmelt,
      o ppovlz, zmel,zmeltt 
       implicit none

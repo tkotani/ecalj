@@ -47,7 +47,8 @@ c
 
       subroutine read_hrotr(filename,nwf,nrws,
      o          hrotr)
-       use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
       character(*),intent(in):: filename
       integer,intent(in):: nwf,nrws

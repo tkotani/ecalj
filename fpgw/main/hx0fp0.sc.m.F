@@ -17,7 +17,7 @@ c     &     idteti, nstar,irk,nstbz
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
 
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
 

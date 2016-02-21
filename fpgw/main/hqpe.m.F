@@ -10,7 +10,8 @@ c SEc(k,t)   = <psi(k,t)| SEc |psi(k,t)>, SEc = GWc
 c xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c SEx and xcLDA are in file SEX
 c SEc is in file SEC
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit real*8 (a-h,o-z)
 
 c local data

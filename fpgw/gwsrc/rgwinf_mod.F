@@ -182,7 +182,8 @@ c> product basis
      o                  noccv,nunoccv,noccc,nunoccc,
 c> core
      o                  ncwf,ncwf2)
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
 c read the rest of GW input data
       implicit real*8(a-h,o-z)
       dimension 

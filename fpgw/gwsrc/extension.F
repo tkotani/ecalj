@@ -68,7 +68,7 @@ Cstop2rx 2013.08.09 kino      if(imx>nmax) stop ' qqsave: imx>=nmax'
       end
 
       subroutine readd_iSigma_en(ifinin,iSigma_en)
-      use keyvalue
+      use m_keyvalue,only:getkeyvalue
       integer(4):: iSigma_en
 c      logical :: readgwinput
 c      if(readgwinput()) then
@@ -94,7 +94,7 @@ c      endif
 c--------------------------
       subroutine getnemx(nbmx,ebmx,im,ipr)
 C- Readin nbmx ebmx for hxofp0 hscfp0
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       real(8)::ebmx
       integer (4)::nbmx,ret
       character(len=100):: recxxx=' '
@@ -129,7 +129,7 @@ c      endif
 c--------------------------
       subroutine getnemx8(nbmx,ebmx)
 C- Readin nbmx ebmx for hscfp0
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       integer(4):: ret
       real(8)::ebmx(2)
       integer (4)::nbmx(2)

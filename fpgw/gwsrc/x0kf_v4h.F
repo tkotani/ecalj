@@ -16,7 +16,7 @@ c     d                  natom,
      i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
       use m_readqg,only   :  readqg
       use m_readeigen,only:  readeval 
-      use keyvalue,only   :  getkeyvalue
+      use m_keyvalue,only   :  getkeyvalue
       use m_rotMPB,only   :  rotMPB2 
       use m_readqgcou,only:  
      o qtt_, nqnum 

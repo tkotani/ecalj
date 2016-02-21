@@ -10,7 +10,7 @@ c so this routine contains unused things so much.
      & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
 
       implicit none
 c

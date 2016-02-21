@@ -30,7 +30,8 @@ c------------------------------------------------------------
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg , konf,z,
      &     spid
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
 c------------------------------------
       real(8)    :: esmr2,shtw
@@ -1130,7 +1131,6 @@ c-----------------------------------------------------------------------
      &     nqbz,nwf,nband,nlmto)
       use m_readqg
       use m_readeigen
-      use keyvalue
       implicit real*8(a-h,o-z)
 
       complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz)
@@ -1200,7 +1200,6 @@ c-----------------------------------------------------------------------
      &     nqbz,nwf,nband,nlmto)
       use m_readqg
       use m_readeigen
-      use keyvalue
       implicit real*8(a-h,o-z)
 
       complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz)
@@ -1271,7 +1270,7 @@ c-----------------------------------------------------------------------
      d                  nwf,nqbz,nband,nlmto)
       use m_readqg
       use m_readeigen
-      use keyvalue
+
       implicit real*8(a-h,o-z)
 
       complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),

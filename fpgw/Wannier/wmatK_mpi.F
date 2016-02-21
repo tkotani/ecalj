@@ -129,7 +129,8 @@ c
 c----------------------------------------------------------------------
       use m_readqg
       use m_readeigen
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
 c RS: modules for MPI    
       use rsmpi
       use rsmpi_qkgroup

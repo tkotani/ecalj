@@ -31,7 +31,7 @@ c     &  ilc,inc,imc,  ilnmc,
      i  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i  done_read_bzdata  
 !! general purpose routine to read values in GWinput file.
-      use keyvalue,only: getkeyvalue 
+      use m_keyvalue,only: getkeyvalue 
       implicit none
 !! ---------------------------------------------
       integer,parameter:: NULL=-99999

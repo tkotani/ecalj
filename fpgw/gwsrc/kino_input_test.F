@@ -17,7 +17,8 @@ c abcd fgw kij
 c </block2>
 c ======to here ================================================
 c Anyway, you can see how to use it by chaning this IN file and codes here.
-      use keyvalue
+      use m_keyvalue,only:getkeyvalue
+
       implicit none
 
       integer:: ikey,iflag,ivkey(10),file,i,ret

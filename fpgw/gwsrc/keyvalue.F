@@ -52,7 +52,7 @@ c     <blockname> and </blockname>. ret= number of the lines.
 C--------------------------------------------------------------------------
 
 
-      module keyvalue
+      module m_keyvalue
       implicit none
       integer,private :: nf_input=0,output=6,default_nf_input=50
       character(120),private:: 
@@ -1493,7 +1493,7 @@ c Takao Aug15 2005
 
 
 c-------------------------------------------------------------
-      end module keyvalue
+      end module m_keyvalue
 
 
 c=============================================================

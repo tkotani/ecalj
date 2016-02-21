@@ -1,7 +1,7 @@
       real(8) function deltaq_scale()
 ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
 ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       integer,save :: ttt
       logical,save:: init=.true.
       if(init) then
@@ -19,7 +19,7 @@
       end
 c
       logical function localfieldcorrectionllw()
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save:: init=.true.,ttt
       if(init) then
         call getkeyvalue("GWinput","LFC@Gamma",ttt,default=.true.)
@@ -40,7 +40,7 @@ c
       logical function eibz4x0() 
 !! T: EIBZ symmetrization in hx0fp0->x0kf_v4h
 !! F: no EIBZ symmetrization
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save:: init=.true.,eibzmode
       logical ::qbzreg
       if(init) then
@@ -72,7 +72,7 @@ c The Coulomb interaction is given as exp(- screeenfac()*r)/r (see hvccfp0.m.F)
 c Formally scrennfac=0d0 is correct, however, we can not choose too small screenfac 
 c in out current implementation. For example,
 c screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of Vcoul for q=0
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       real(8):: ddd
       real(8),save :: tss
       logical,save:: init=.true.
@@ -114,7 +114,7 @@ c============================================================
       end
 
 c      logical function test_symmetric_W()
-c      use keyvalue
+c      use m_keyvalue
 c      logical,save:: init=.true.,ttt
 c      if(init) then
 c        call getkeyvalue("GWinput","TestSymmetricW",ttt,default=.false.)
@@ -131,7 +131,7 @@ c      negative_testtr=.true.
 c      end
 
       logical function TimeReversal()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save:: init=.true.,trevc
       if(init) then
         call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
@@ -177,17 +177,17 @@ c      end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       logical function rmeshrefine()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
       end
       real(8) function delrset()
 ! dr/dI at rmat. used for rmeshrefin=T case
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
       end
 
       logical function qbzreg()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save:: init=.true.,ccrq
       if(init) then
         call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
@@ -198,7 +198,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
       logical function smbasis() !
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       integer(4),save:: smbasis0
       logical,save:: init=.true.,smbasis00=.false.
       if(init) then
@@ -211,7 +211,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       smbasis = smbasis00
       end
       integer(4) function smbasiscut() !
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       integer(4),save:: smbasis0
       logical,save:: init=.true.
       if(init) then
@@ -247,7 +247,7 @@ c      end
 
 c Long-range-only Coulomb interaction
       real(8) function eees()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save:: init=.true.
       real(8),save:: eee
       real(8):: r0cs
@@ -263,7 +263,7 @@ c      logical function testsemif() !test for semicore
 c      testsemif=.false.
 c      end
       real(8) function scissors_x0()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       integer(4):: iopen
       logical,save:: init=.true.
       real(8),save:: sciss,bandgap,ef
@@ -296,7 +296,7 @@ c      version=0
 c      end
 
 c      logical function onlyimagaxis()
-c      use keyvalue
+c      use m_keyvalue,only: getkeyvalue
 c      logical,save ::init=.true.,onlyi
 c      integer(4):: ret
 c      if(init) then
@@ -313,7 +313,7 @@ c      cphigeig_mode=.true.
 c      end
 
       logical function matrix_linear()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 c Use linear interpolation for matrix elements (numerator) in tetrahdron-weight's calculation.
 c matrix_linear=T seems to give little improvements.
       logical,save::init=.true.,matrix_linear0
@@ -327,12 +327,12 @@ c matrix_linear=T seems to give little improvements.
 c      logical function ifgeigb()
 c!See rdpp_v2 x0kf_v2hx. only for epsPP_lmfh mode now.
 c!This option reduce memory usage.
-c      use keyvalue
+c      use m_keyvalue,only: getkeyvalue
 c      call getkeyvalue("GWinput","UseGeigBFile",ifgeigb,default=.false.)
 c      end
 
 c      logical function KeepPPOVL()
-c      use keyvalue
+c      use m_keyvalue,only: getkeyvalue
 cc! Keep data from PPOVL in memory or not; in getppx in rdppovl.f.
 cc KeepPPOVL=T : speed up
 cc KeepPPOVL=F : efficient memory usage
@@ -345,7 +345,7 @@ c      keepppovl = keepppovl0
 c      end
 
       logical function KeepEigen()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 c! Keep data from CPHI and GEIG in memory or not; in readeigen
 c KeepEigen=T : speed up
 c KeepEigen=F : efficient memory usage
@@ -363,7 +363,7 @@ c      readgwinput=.true.
 c      end
 
       logical function core_orth()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save::init=.true.,core_orthx
 c      logical:: readgwinput
       integer(4):: ret
@@ -377,7 +377,7 @@ c       endif
       end
 
       integer(4) function verbose()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       logical,save ::init=.true.,ggg
 c      logical:: readgwinput
       integer(4):: ret
@@ -396,7 +396,7 @@ c        write(6,*)' verbose=',verbosex
       end
 
 c$$$      logical function GaussSmear()
-c$$$      use keyvalue
+c$$$      use m_keyvalue,only: getkeyvalue
 c$$$C- smergin switch for SEx and SEc.
 c$$$c      GaussSmear=.true. ! Gaussian smering.
 c$$$c      GaussSmear=.false.! original rectoangular smering.
@@ -427,7 +427,7 @@ c$$$      GaussSmear=GaussSmearx
 c$$$      end
 
       integer function q0pchoice()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 C- Switch whether you use new seeting Q0P (offsetted Gamma).
 C q0pchoice=0: old---along plat
 C q0pchoice=1: new---along Ex Ey Ez.
@@ -460,7 +460,7 @@ c$$$      integer(4) function bzcase()
 c$$$      bzcase=1
 c$$$      end
 c
-c$$$      use keyvalue
+c$$$      use m_keyvalue,only: getkeyvalue
 c$$$c      bzcase==2 is for regular-mesh in BZ without gamma point.
 c$$$      logical,save ::init=.true.
 c$$$c      logical:: readgwinput
@@ -484,7 +484,7 @@ c$$$c  Offset gamma has integration weight of 8*wgtq0p*(number of BZmesh)
 c$$$c  On the other hand, we subtract weight of wgtq0p*(number of BZmesh)
 c$$$c  from the eight nearest mesh points to Gamma.
 c$$$c------------------------------------------------------
-c$$$      use keyvalue
+c$$$      use m_keyvalue,only: getkeyvalue
 c$$$      logical,save ::init=.true.
 c$$$      real(8),save:: www
 c$$$      real(8):: escale,w1,w2
@@ -509,7 +509,7 @@ c$$$      return
 c$$$      end
 
       real(8) function escale()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 cc--- used q0pchoice<0 mode -------
       call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
       end
@@ -527,7 +527,7 @@ c      test_omitq0p=.false.
 c      end
 
       integer(4) function normcheck()
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 c write normcheck files or not
 c normcheck=0: not
 c normcheck=1: only dia
@@ -545,7 +545,7 @@ c        write(6,"('NormChk mode=',i3)")nnn
       integer(4) function auxfunq0p()
 c =0: usual auxially function  exp(-alpha |q|^2) /q^2
 c =1: new auxally function     exp(-alpha |q|) /q^2
-c      use keyvalue
+c      use m_keyvalue,only: getkeyvalue
 c      integer(4)::nnn
 c      logical,save ::init=.true.
 c      if(init) then

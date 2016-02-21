@@ -15,7 +15,8 @@
 !! - This read GWinput (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root)
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only:getkeyvalue
+
       implicit none
       integer,intent(in):: niw !,nw_input
       logical,intent(in):: realomega,imagomega,tetra,mpi__root,epsmode

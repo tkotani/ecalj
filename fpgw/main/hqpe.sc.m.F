@@ -14,7 +14,7 @@ c     xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c     SEx and xcLDA are in file SEX
 c     SEc is in file SEC
 c-----------------------------------------------------------------------
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_read_bzdata, only: read_bzdata, nstar, nqibz2=>nqibz
 !! laf is used (antiferro or not) after anfcond.
       use m_anf,only: anfcond,
@@ -901,7 +901,8 @@ Co  nmix: (abs)  number of iter actually mixed.
 Co        (sign) <0, intended that caller update nmix for next call.
 C  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
 C             Add mixnit as parameter
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
       logical lsigin
       integer nda,nmix,mmix

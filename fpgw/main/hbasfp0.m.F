@@ -13,7 +13,7 @@ c The main part of this routine is in the subroutine basnfp_v2
       use m_rgwinf_v3,only:rgwinf_v3, 
      & alat,nclass,natom,nspin,nl,nnv,nnc,nrx, cutbase,lcutmx,nindxc,
      & nindxv,occv,unoccv,occc,unoccc,iclass
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_anf,only: ibasf,laf,anfcond !may2015takao
       implicit none
       real(8):: qbas(3,3),ginv(3,3)

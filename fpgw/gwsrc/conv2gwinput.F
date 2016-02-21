@@ -1,5 +1,5 @@
       subroutine conv2gwinput()
-      use keyvalue
+c      use m_keyvalue,only:getkeyvalue
       implicit none
       integer(4) :: ifigw0,ifi,i,ig
       real(8) :: QpGcut_psi, QpGcut_Cou

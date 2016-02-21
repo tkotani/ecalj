@@ -17,8 +17,7 @@ c-------------------------------------------------
       use m_readeigen
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use keyvalue
-
+      use m_keyvalue,only: getkeyvalue
       use m_lldata,only: ll
       implicit none
       real(8):: q(3),  qgbin(3),qx(3)

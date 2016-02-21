@@ -10,7 +10,8 @@ c      implicit real*8(a-h,o-z)
       use m_readqg
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
 c parameter
       real(8),parameter :: 

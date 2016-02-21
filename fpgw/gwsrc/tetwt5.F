@@ -10,7 +10,7 @@
      i          nbnbx,ibjb,nhwtot, ihw,nhw,jhw, !job=1
      o          whw,                            !job=1
      i   iq,isp1,isp2,nqibz,eibzmode,nwgt) ! new input for mtett
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
 !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
 !! ------------------------------------------------------------------------------
 !! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
@@ -31,7 +31,7 @@
 !! \param  nbnbmx
 !! \param  nhwtot  the size od whw
 !! \param  ibjb(nctot+nband,nband,nqbz);ibjb index for given ib jb k.
-!! \param  ihw(ibjb,kx): omega index, specify the division of the histogram.
+!! \param  ihw(ibjb,kx):  omega index, specify the division of the histogram.
 !! \param  nhw(ibjb,kx): the number of histogram data
 !! \param  jhw(ibjb,kx): pointer to whw
 !! \remark

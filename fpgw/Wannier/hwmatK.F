@@ -8,7 +8,8 @@
      & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
       implicit none
       real(8),parameter :: 
      &  ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0 

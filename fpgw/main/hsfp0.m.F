@@ -12,7 +12,7 @@
      & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg,  il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
 
       use m_rdpp,only: rdpp, !"call rdpp" generate following data set.
      &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr

@@ -10,7 +10,7 @@ c     & idtetf,ib1bz,idteti,
 c     & nstar,irk,nstbz
       use m_genallcf_v3,only:
      i  nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw,dw
-      use keyvalue,only:getkeyvalue
+      use m_keyvalue,only:getkeyvalue
       use m_readeigen,only: readeval !init* is alreaday called.
 
       implicit none

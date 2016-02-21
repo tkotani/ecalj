@@ -16,7 +16,7 @@
      & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,

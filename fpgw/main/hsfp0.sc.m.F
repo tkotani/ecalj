@@ -50,7 +50,7 @@
      & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !"call rdpp" generate following data.

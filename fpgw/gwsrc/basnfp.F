@@ -2,7 +2,7 @@
      &    nl,nn,nrx,nrofi,r,aa,bb,ic, 
      i    phitoto,phitotr,nsp,nclass,
      i    cutbase,lcutmx,ixx,iread,alat,nc_max)
-      use keyvalue
+      use m_keyvalue,only:getkeyvalue
       use m_lldata,only: ll
 c takao kotani Apr 2002.
 c gives an index for the allowed product basis

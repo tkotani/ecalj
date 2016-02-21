@@ -42,7 +42,8 @@ c------------------------------------------------------------
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,init_readeigen_mlw_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
-      use keyvalue
+      use m_keyvalue,only: getkeyvalue
+
 c RS: MPI module
       use rsmpi
       use rsmpi_rotkindex
