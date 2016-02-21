@@ -11,7 +11,7 @@ c int
 c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
       use m_readqg,only: readqg,readngmx
-      use keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange

@@ -28,7 +28,7 @@ LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK fplot run_arg job_pdo
 # programs under fpgw dir, required in the tests
 GW_DIR   = $(ecalroot)/fpgw/exec
 GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc
-GW_PROG += rdata4gw_v2 heftet hchknw hbasfp0 dqpu
+GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
 GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm
 
 
