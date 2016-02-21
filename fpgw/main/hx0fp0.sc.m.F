@@ -4,6 +4,7 @@
 !!  tetwt5: tetrahedron weights
 !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
 !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
+      use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
@@ -94,7 +95,7 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
       real(8) :: omg2max,omg1max,wemax
       logical::imagonly=.false. , noq0p !,readgwinput
       integer::nwin, incwfin, verbose,nbcut,nbcut2,ifpomat,nnmx,ikpo,nn_,noo,iqxxx,nomx
-      real(8)::efin
+c      real(8)::efin
       logical :: nolfco=.false.
       integer:: isp1,isp2, ngc,mrecg ! bzcase,
       real(8)::  quu(3),deltaq(3),qqq(3)=0d0 !
@@ -139,8 +140,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ibasx,ificlass,ifile_handle,ifiq0p
       complex(8),allocatable:: ppovl_(:,:)
       logical:: tetra 
-      integer:: ifief
-      real(8):: ef
+c      integer:: ifief
+c      real(8):: ef
 !-------------------------------------------------------------------------
 !TIME0_1001 ProgAll
 !TIME0_11001 readbzdata
@@ -206,11 +207,7 @@ c      nwin   = 0                !Readin nw from NW file
       incwfin= 0                !use ForX0 for core in GWIN
 c      efin =  0d0               !readin EFERMI
 c--- EFERMI
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef
-      close(ifief)
-      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      call readefermi()
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
 c      nw_input = nw ; 

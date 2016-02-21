@@ -24,6 +24,7 @@
       use m_freq,only:                   !we assume getfreq is called already.
      &   frhis, nwhis,npm !output of getfreq
       use m_zmel,only: nband
+      use m_ReadEfermi,only: readefermi,ef
 
       implicit none
       real(8),intent(in):: q(3)
@@ -35,7 +36,6 @@
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:) !qbzw(:,: )
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
       integer:: kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
-      real(8)::ef
 
       tetra=.true.
       eibzmode = eibz4x0()
@@ -77,10 +77,11 @@ c     in the denominator of the dielectric function.
       endif
       allocate(ibjb(1,1,1,1),ihw(1,1,1),jhw(1,1,1),nhw(1,1,1),whw(1)) !dummy
 c--- EFERMI
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef
-      close(ifief)
+c      ifief=ifile_handle()
+c      open(ifief,file='EFERMI')
+c      read(ifief,*) ef
+c      close(ifief)
+      call readefermi()
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,

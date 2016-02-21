@@ -232,6 +232,7 @@ C--- readin GWIN and LMTO, then allocate and set datas.
 c      nwin =-999    !not readin NW file
 c      efin =-999d0  !not readin EFERMI
 c      efin = 0d0    !readin EFERMI
+c      call readefermi()
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'

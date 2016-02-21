@@ -1,4 +1,5 @@
       program hsfp0
+      use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,readeval,lowesteval,init_readeigen2
       use m_read_bzdata,only: read_bzdata,
@@ -180,8 +181,7 @@ c      logical:: newaniso=.true.
       integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
       character(128) :: ixcc
 
-      real(8):: ef
-      integer:: nw,ifief
+      integer:: nw !,ifief
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -447,10 +447,11 @@ c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
       endif
 
 !! efermi by tetrahedron. this can be overwritten
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef
-      close(ifief)
+c      ifief=ifile_handle()
+c      open(ifief,file='EFERMI')
+c      read(ifief,*) ef
+c      close(ifief)
+      call readefermi()
 
       if(tetraex) goto 201
 

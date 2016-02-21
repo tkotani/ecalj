@@ -3,6 +3,7 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
       program hx0fp0
+      use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_read_bzdata,only: read_bzdata,
@@ -118,8 +119,7 @@ c     &   ,ngpmx !,  ifchipmlog
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm,
      & dwry,dwh,omg_c,omg2
 
-      integer::nwin, incwfin,  verbose
-      real(8)::ef
+      integer:: incwfin,  verbose
 
       integer:: ngc,mrecg !bzcase, 
       real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
@@ -231,7 +231,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: src,dest
       logical:: crpa
       integer,allocatable :: iclasst(:), invgx(:)
-      integer:: ificlass,ifile_handle,ifief
+      integer:: ificlass,ifile_handle
       complex(8),allocatable:: ppovl_(:,:)
 
 !! -------------------------------------------------------------------
@@ -397,11 +397,12 @@ c$$$        nwin = 0      !Readin nw from NW file
 c$$$      endif
       incwfin= 0  !use ForX0 for core in GWIN
 c      efin =  0d0 !readin EFERMI
-c--- EFERMI
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef
-      close(ifief)
+cc--- EFERMI
+c      ifief=ifile_handle()
+c      open(ifief,file='EFERMI')
+c      read(ifief,*) ef
+c      close(ifief)
+      call readefermi()
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       call genallcf_v3(incwfin) !in module m_genallcf_v3
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')

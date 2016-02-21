@@ -12,23 +12,26 @@ c     & nstar,irk,nstbz
      i  nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw,dw
       use m_keyvalue,only:getkeyvalue
       use m_readeigen,only: readeval !init* is alreaday called.
-
+      use m_ReadEfermi,only: readefermi,ef
+      use m_anf,only:laf,anfcond
       implicit none
       logical,intent(in):: lqall
       real(8),intent(out):: wemax
       integer:: ntq,i,nq,ifqpnt,ret,iaf,ipx1,itx1,ipx2,itx2
       integer,allocatable:: itq(:)
       real(8),allocatable:: q(:,:),eqt(:) !,q0p(:,:)
-      logical ::  legas = .false.,laf, tetra,lqallxxx
-      real(8):: omegav,omegac,eee,ef,efnew,emaxv,eminc,ffac,we,valn
-      integer:: ifile_handle,ifief,ib,ip,iq,iqall,it,k,is
+      logical ::  legas = .false., tetra,lqallxxx
+      real(8):: omegav,omegac,eee,efnew,emaxv,eminc,ffac,we,valn
+      integer:: ifile_handle,ifief,ib,ip,iq,iqall,it,k,is,nspinmx
 c      logical :: tetra=.false.
 
       lqallxxx=.true.
+      call anfcond()
       if(.not.lqall) then
         call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
         call readx   (ifqpnt,10)
-        read (ifqpnt,*) iqall    
+        iaf=-1
+        read (ifqpnt,*) iqall,iaf    
         if (iqall == 1) then
           lqallxxx = .true.
         else
@@ -58,6 +61,9 @@ c      logical :: tetra=.false.
         q = qibz(1:3,1:nqibz) !call dcopy   (3*nqibz,qibz,1,q,1)
       endif  
 
+      nspinmx = nspin
+      if (laf.or.iaf==1) nspinmx =1
+
 c      if(tetra) then
 c        ifief=ifile_handle()
 c        open( ifief,file='EFERMI')
@@ -65,7 +71,8 @@ c        read( ifief,*) ef
 c        close(ifief)
 c        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
 c      else
-        if(esmr/=0d0) then
+      call readefermi() !readin ef
+      if(esmr/=0d0) then
           call efsimplef2a(nspin,wibz,qibz,ginv, 
      i        nband,nqibz
      i       ,konf,z,nl,natom,iclass,nclass
@@ -79,7 +86,7 @@ c          write(6,*)' ef    =',ef
 c          write(6,*)' esmr=',esmr
 c          write(6,*)' valn  =',valn
 c          write(6,*)' ntot  =',ntot
-        endif
+      endif
 c      endif
 c$$$c ---  q near zero
 c$$$c      write(6,*) 'reading QOP'
@@ -109,7 +116,7 @@ c$$$      enddo
       allocate(eqt(nband))
       omegav =  0d0 !1d99 fixed oct.2003 takao
       omegac =  0d0 !-1d99
-      do is = 1,nspin
+      do is = 1,nspinmx
         do ip = 1,nq
           call readeval(q(1,ip),is,eqt)
           do it=1,ntq
@@ -139,7 +146,7 @@ c        ffac=0.5d0
 c      endif
       emaxv =  0d0 !-1d99 fixed oct.2003 takao
       eminc =  0d0 !1d99
-      do is = 1, nspin
+      do is = 1, nspinmx
         do iq = 1, nqbz
           call readeval(qbz(1,iq),is,eqt)
 c          print *

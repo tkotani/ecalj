@@ -39,6 +39,7 @@
 !!     
 !!     History: We learned so much from LMTO-ASA codeds developed by F.Aryasetiawan.
 !! ----------------------------------------
+      use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
       use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
@@ -205,8 +206,7 @@ c      logical:: newaniso
 
       integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
       logical:: hermitianW
-      integer:: nw,ifief
-      real(8):: ef
+      integer:: nw
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -459,10 +459,11 @@ c     write(6,'("    ua      =",f13.6)') ua
       endif
 
 !! efermi by tetrahedron. this can be overwritten
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef
-      close(ifief)
+c      ifief=ifile_handle()
+c      open(ifief,file='EFERMI')
+c      read(ifief,*) ef
+c      close(ifief)
+      call readefermi()
 
       if(tetra) goto 201        !tetra is experimental.  usually =F. 
 

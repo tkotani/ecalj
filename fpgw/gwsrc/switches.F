@@ -264,14 +264,16 @@ c      testsemif=.false.
 c      end
       real(8) function scissors_x0()
       use m_keyvalue,only: getkeyvalue
+      use m_ReadEfermi,only: readefermi,ef,bandgap
       integer(4):: iopen
       logical,save:: init=.true.
-      real(8),save:: sciss,bandgap,ef
+      real(8),save:: sciss !,bandgap,ef
       if(init) then
         call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
-        ifi  = iopen('EFERMI',1,0,0)
-        read(ifi,*) ef,bandgap
-        close(ifi)
+        call readefermi() !ef bandgap
+c        ifi  = iopen('EFERMI',1,0,0)
+c        read(ifi,*) ef,bandgap
+c        close(ifi)
         init=.false.
       endif
       scissors_x0 = (sciss-1d0) * bandgap

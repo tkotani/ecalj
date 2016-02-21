@@ -1,3 +1,17 @@
+      module m_ReadEfermi
+      real(8):: ef,bandgap
+      contains
+      subroutine readefermi()
+      implicit none
+      integer:: ifief,ifile_handle
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef,bandgap
+      close(ifief)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      end subroutine
+      end module m_ReadEfermi
+
 !> get basic settings of crystal structure and nlm info
 !!  - genallcf_v3(nwin,efin,incwfx) set data
 !!  - This is old routine. Confusing. We need to clean up.

@@ -55,7 +55,7 @@ c     o   imagw_dummy,niw,idummy,
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm,dini,
      & dwry,dwh,omg_c,omg2,xxx
       integer(4)::nwin, incwfin,  verbose
-      real(8)::efin
+c      real(8)::efin
       integer(4)::  mrecg,ifphi, !bzcase,
      & nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc,
      & ldim2,ixx,ngp1,ngp2,nq0it

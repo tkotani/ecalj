@@ -368,9 +368,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
         if(.not. ( qbzreg().and.bzcase==1 ) ) then
           write(6,*)"Fermi energy finder for off-regular mesh"//
      &          "(Chi_RegQbz off)or bzcase==2 is not implimented yet..."
-Cstop2rx 2013.08.09 kino          stop 
-          call rx( ''//
-     &     "Ef finder for off-regular mesh. NotYet implimented")
+          call rx("Ef finder for off-regular mesh. NotYet implimented")
         endif
       endif
 cccccccccccccccccccccccccccccccccccccccccccc
@@ -394,7 +392,6 @@ c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
           if(e2 - e1 < tol) goto 4
         enddo
         write(*,*) 'heftet:bug in fermi level finder or tol too small'
-Cstop2rx 2013.08.09 kino        stop       'heftet:bug in fermi level finder or tol too small'
         call rx( 'heftet:bug in fermi level finder or tol too small')
 c        call
 c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
@@ -422,19 +419,15 @@ c- eband check
 c
       if(imode==1) then
         write(6,"(' Tet EFERMI gap = ',2f24.15)") efermi,bandgap
-Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=1 EFERMI generated '
         call rx0( ' OK! heftet mode=1 EFERMI generated ')
       elseif(imode==2) then
         write(6,"(' Tet EFERMI.check gap= ',2f24.15)") efermi,bandgap
-Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=2 EFERMI.check generated '
         call rx0( ' OK! heftet mode=2 EFERMI.check generated ')
       elseif(imode==3) then
         write(6,"(' Tet EFERMI.QP gap   = ',2f24.15)") efermi,bandgap
-Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=3 EFERMI.QP generated '
         call rx0( ' OK! heftet mode=3 EFERMI.QP generated ')
       elseif(imode==4) then
         write(6,"(' Tet EFERMI.QPz=1 gap= ',2f24.15)") efermi,bandgap
-Cstop2rx 2013.08.09 kino        stop ' OK! heftet mode=4 EFERMI.QPz=1 generated '
         call rx0( ' OK! heftet mode=4 EFERMI.QPz=1 generated ')
       endif
       end
