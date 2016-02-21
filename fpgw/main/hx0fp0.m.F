@@ -229,7 +229,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 
       character(128):: vcoudfile
       integer:: src,dest
-      logical:: crpa
+      logical:: crpa,lqall
       integer,allocatable :: iclasst(:), invgx(:)
       integer:: ificlass,ifile_handle
       complex(8),allocatable:: ppovl_(:,:)
@@ -268,6 +268,8 @@ c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
         call rx( 'these modes are not supported')
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
+        normalm=.true.
+      elseif(ixc==20011) then; write(6,*) " OK ixc=20011 normal mode. fullband"
         normalm=.true.
       elseif(ixc==10011) then; write(6,*) " OK ixc=10011 crpa mode "
         normalm=.true.
@@ -544,9 +546,13 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
         imagomega =.false.
       endif
 !! getfreq returun date given at " use m_freq,only:". 
-      call getwemax(.false.,wemax) !wemax is to determine nw !real axis divisions
-      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
+      lqall=.false.
+      if(ixc==20011.or.ixc==10011) then
+        lqall=.true.
+      endif
+      call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
+      if(MPI__root) write(6,"(' wemax nw=',f13.4,i5)") wemax,nw
       nwp = nw+1
       if(.not.imagomega) niw=1
 !! ... get eigenvector corresponds to exp(iqr) (q is almost zero).
@@ -1918,7 +1924,7 @@ c$$$ 1501   continue
 !! == W(0) divergent part and W(0) non-analytic constant part.==
 !!   Note that this is only for q=0 -->iq=1
 c      if(newaniso2.and.ixc==11.and.MPI__rank==0) then
-      if(ixc==11.and.MPI__rank==0) then
+      if((ixc==11.or.ixc==10011.or.ixc==20011).and.MPI__rank==0) then
         write(6,*)
         write(6,*)' ==== newaniso mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
@@ -2129,6 +2135,8 @@ c$$$        endif
       call cputid(0)
       call MPI__Finalize
       if(ixc==11)  call rx0( ' OK! hx0fp0 mode=11 normal sergeyv')
+      if(ixc==20011)  call rx0( ' OK! hx0fp0 mode=20011 normal sergeyv')
+      if(ixc==10011)  call rx0( ' OK! hx0fp0 mode=10011 crpa normal sergeyv')
       if(ixc==12)  call rx0( ' OK! hx0fp0 mode=12 Ecor sergeyv mode')
       if(ixc==101) call rx0( ' OK! hx0fp0 mode=101 Ecor ')
       if(ixc==202) call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
