@@ -5546,16 +5546,31 @@ fig007
 \figp{gas_fig008.eps}\\
 fig008
 
+
+
 \newpage
 \section{Utility}
-cif to PROCAR
+
+\begin{enumerate}
+ \item 
+{\bf structure tool}
+  viewvesta,ctrl2vasp,vasp2ctrl\\
+\item
+{\bf Other calculation examples}
+A recent paper by Deguch et al \cite{deguchi2016}
+contains a link to a sample package.
+\item
+{\bf cif to PROCAR}
 \begin{verbatim}
 ./cif2cell --vasp-cartesian --vasp-format=5 cifs/BaTiO3_cubic.cif 
 \end{verbatim}
 
+\end{enumerate}
 
+\noindent 
 
 \newpage
+
 \printindex
 \bibliography{ecaljrefs}
 \end{document}
