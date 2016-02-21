@@ -21,7 +21,7 @@ drmsqtol1=1e-4
 bndstol=1e-4
 dfmaxntol1=0.1
 # test2
-dosclstol=1e-3
+dosclstol=0.003 #1e-3
 dosmulltol=1e-3
 pdostol=0.01
 # test3
