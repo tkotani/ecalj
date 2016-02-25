@@ -547,7 +547,7 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       endif
 !! getfreq returun date given at " use m_freq,only:". 
       lqall=.false.
-      if(ixc==20011.or.ixc==10011) then
+      if(.not.ixc==11) then
         lqall=.true.
       endif
       call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
