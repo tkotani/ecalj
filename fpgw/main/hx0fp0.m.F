@@ -269,7 +269,7 @@ c      write(6,"(a)") '  10222 : <e^{iqr}|chi^+-|e^{iqr}> NoLFC'
 ! Sergey (Hilbert-transformation) modes
       elseif(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
         normalm=.true.
-      elseif(ixc==20011) then; write(6,*) " OK ixc=20011 normal mode. fullband"
+      elseif(ixc==111) then; write(6,*) " OK ixc=111 normal mode. fullband"
         normalm=.true.
       elseif(ixc==10011) then; write(6,*) " OK ixc=10011 crpa mode "
         normalm=.true.
@@ -1924,7 +1924,7 @@ c$$$ 1501   continue
 !! == W(0) divergent part and W(0) non-analytic constant part.==
 !!   Note that this is only for q=0 -->iq=1
 c      if(newaniso2.and.ixc==11.and.MPI__rank==0) then
-      if((ixc==11.or.ixc==10011.or.ixc==20011).and.MPI__rank==0) then
+      if((ixc==11.or.ixc==10011.or.ixc==111).and.MPI__rank==0) then
         write(6,*)
         write(6,*)' ==== newaniso mode W(0) divergent part ==== '
 !! == W(0) divergent part ==
@@ -2134,15 +2134,15 @@ c$$$        endif
       endif
       call cputid(0)
       call MPI__Finalize
-      if(ixc==11)  call rx0( ' OK! hx0fp0 mode=11 normal sergeyv')
-      if(ixc==20011)  call rx0( ' OK! hx0fp0 mode=20011 normal sergeyv')
-      if(ixc==10011)  call rx0( ' OK! hx0fp0 mode=10011 crpa normal sergeyv')
-      if(ixc==12)  call rx0( ' OK! hx0fp0 mode=12 Ecor sergeyv mode')
-      if(ixc==101) call rx0( ' OK! hx0fp0 mode=101 Ecor ')
-      if(ixc==202) call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
-      if(ixc==203) call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
-      if(ixc==222) call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-      if(ixc==223) call rx0( ' OK! hx0fp0 mode=223 chi+- LFC sergeyv')
+      if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
+      if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
+      if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
+      if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12  Ecor sergeyv mode')
+      if(ixc==101)  call rx0( ' OK! hx0fp0 mode=101 Ecor ')
+      if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
+      if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
+      if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
+      if(ixc==223)  call rx0( ' OK! hx0fp0 mode=223 chi+- LFC sergeyv')
       end
 
 c--------------------------------------------------------------------
