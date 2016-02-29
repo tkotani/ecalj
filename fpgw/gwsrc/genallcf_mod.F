@@ -1,6 +1,8 @@
       module m_ReadEfermi
-      real(8):: ef,bandgap
+      real(8),protected:: bandgap
+      real(8)::ef
       contains
+
       subroutine readefermi()
       implicit none
       integer:: ifief,ifile_handle
@@ -37,9 +39,9 @@
 !!             symgrp
 !!             ,nocc, nunocc, occv, unoccv, occc, unoccc
       implicit none
-      character(120):: symgrp
-      character(6),allocatable :: clabl(:)
-      integer,allocatable:: iclass(:),
+      character(120),protected:: symgrp
+      character(6),allocatable,protected :: clabl(:)
+      integer,allocatable,protected:: iclass(:),
      &    nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
      o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
      o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
@@ -48,14 +50,19 @@
      &    occv(:,:,:),unoccv(:,:,:)   
      &   ,occc(:,:,:),unoccc(:,:,:),
      o    nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
-      integer::
+      integer,protected::
      o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw !,nw
-      real(8), allocatable:: 
-     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), symgg(:,:,:)   !w(igrp) freq(:),
-      real(8) :: alat,diw,dw,delta,deltaw,esmr !ef
-      logical:: done_genallcf_v3=.false.
-      character(8),allocatable:: spid(:)
+     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot!,nw
+      real(8), allocatable,protected:: 
+     o  plat(:,:),pos(:,:),z(:),  symgg(:,:,:)   !w(igrp) freq(:),
+      real(8),protected :: alat,diw,dw,deltaw !ef
+      logical,protected:: done_genallcf_v3=.false.
+      character(8),allocatable,protected:: spid(:)
+!! unprotected --> need to be protected
+      real(8), allocatable :: ecore(:,:)
+      real(8):: delta
+      integer:: niw
+      real(8):: esmr
 c-----------------------------------------------------------------------
       contains
 

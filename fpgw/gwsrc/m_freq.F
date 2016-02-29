@@ -7,8 +7,8 @@
 !!   - npm: npm=1 means only positive omega;npm=2 means positive and negative omega.
 !! - NOTE: change of frequency mesh defined here may destroy consistency or not. Need check
       module m_freq
-      real(8),allocatable:: frhis(:),freq_r(:),freq_i(:),wiw(:)
-      integer:: nwhis,npm,nw_i,nw 
+      real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:)
+      integer,protected:: nwhis,npm,nw_i,nw 
 
       contains
 !> Get data set for m_freq. All arguments are input.

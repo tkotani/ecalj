@@ -129,7 +129,7 @@ ctm 010705
       integer(4),allocatable:: ngvecc(:,:)
 
 
-      integer(4):: iqindx,iqbz, irecwq
+      integer(4):: iqindx,iqbz, irecwq,ngrp1
       integer(4),allocatable:: nstibz(:)
       real(8):: erpaq, trpvq, trlogq !accumlating variable
       real(8):: erpaqw, trpvqw, trlogqw,  ef
@@ -334,9 +334,9 @@ ccc these are dummy.
       symope(1:3,1) = (/1d0,0d0,0d0/)
       symope(1:3,2) = (/0d0,1d0,0d0/)
       symope(1:3,3) = (/0d0,0d0,1d0/)
-      ngrp=1
+      ngrp1=1
 ccc
-      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin,symope,qbas,
+      call rdpp_v3(nxx, nl, ngrp1, nn, nclass, nspin,symope,qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
       nblochpmx = nbloch + ngcmx
 

@@ -4,8 +4,8 @@
 
       module m_anf
       implicit none
-      logical:: laf !! - laf: antiferro switch
-      integer,allocatable:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
+      logical,protected:: laf !! - laf: antiferro switch
+      integer,allocatable,protected:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
 c      integer:: natom
 c     ,ldima(:),iantiferro(:),iclasst(:)
 c      real(8),allocatable:: pos(:,:),anfvec(:),qlat(:,:),plat(:,:)

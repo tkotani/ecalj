@@ -2,19 +2,22 @@
 !! We will need to unify make system and source code in fpgw and lmf.
 !! norbtx is given in gwsrc/readeigen.F init_readeigen2
       module m_hamindex
-      implicit none
-      integer,parameter:: null=-999999
-      integer:: ngrp=null, lxx=null, kxx=null,norbmto=null,norbtx=null
-      integer:: imx=null,nbas,ndimham=null
-      integer:: nqtt,nqi, nqnum,ngpmx
-      integer,allocatable:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
-      integer,allocatable:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
-      real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
-      real(8):: plat(3,3),qlat(3,3)
-      real(8),allocatable:: qtt(:,:),qtti(:,:)
-      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-      integer::  napwmx=null,lxxa=null
+      integer,parameter,private:: null=-999999
       logical,private:: debug=.false.
+
+      integer,protected:: ngrp=null, lxx=null, kxx=null,norbmto=null
+      integer,protected:: nbas,nqtt,ndimham=null
+      integer,allocatable,protected:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
+      integer,allocatable,protected:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
+      real(8),allocatable,protected:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
+      real(8),protected:: plat(3,3),qlat(3,3)
+      real(8),allocatable,protected:: qtt(:,:),qtti(:,:)
+      integer,allocatable,protected:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
+      integer,protected::  napwmx=null,lxxa=null
+
+
+      integer:: norbtx=null
+      integer:: nqi, nqnum,ngpmx,imx=null
       contains
 
 !> get index ikt such that for qin(:)=qq(:,ikt)
