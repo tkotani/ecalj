@@ -36,6 +36,9 @@
 ../gwsrc/m_tetwt.o:../gwsrc/rwbzdata.o
 ../main/hx0fp0.m.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_tetwt.o
+../gwsrc/m_w0w0i.o:../gwsrc/rwbzdata.o
+../main/hx0fp0.m.o:../gwsrc/m_w0w0i.o
+../main/hx0fp0.sc.m.o:../gwsrc/m_w0w0i.o
 ../gwsrc/m_zmel.o:../gwsrc/rwbzdata.o
 ../gwsrc/getchknw.o:../gwsrc/m_zmel.o
 ../gwsrc/getwemax.o:../gwsrc/m_zmel.o
@@ -233,6 +236,7 @@
 ../main/hqpe.sc.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.sc.m.o:../gwsrc/keyvalue.o
+../main/hvccfp0.m.o:../gwsrc/keyvalue.o
 ../main/hx0fp0.m.o:../gwsrc/keyvalue.o
 ../main/hx0fp0.sc.m.o:../gwsrc/keyvalue.o
 ../main/kino_input_test.o:../gwsrc/keyvalue.o

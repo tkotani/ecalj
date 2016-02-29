@@ -271,6 +271,7 @@ DERFC=
  MPI =  $(gwsrc)MPI_fpgw2.o
 
  GWLIB =  \
+ $(gwsrc)m_w0w0i.o \
  $(gwsrc)getwemax.o \
  $(gwsrc)genallcf_dump.o \
  $(gwsrc)wse.o \

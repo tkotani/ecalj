@@ -36,6 +36,10 @@
 !! tetwt
       use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
+!! w0 and w0i (head part at Gamma point)
+      use m_w0w0i,only: w0w0i,
+     & w0,w0i
+
       use m_lldata,only: ll
       implicit none
 !! ------------------------------------------------
@@ -215,9 +219,8 @@ c      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:),
 c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
-      complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
-      integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
+      complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
+      integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
       complex(8):: vc1vc2
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
 
@@ -233,6 +236,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer,allocatable :: iclasst(:), invgx(:)
       integer:: ificlass,ifile_handle
       complex(8),allocatable:: ppovl_(:,:)
+
+      logical:: readw0w0itest=.false.
 
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -1925,31 +1930,11 @@ c$$$ 1501   continue
 !!   Note that this is only for q=0 -->iq=1
 c      if(newaniso2.and.ixc==11.and.MPI__rank==0) then
       if((ixc==11.or.ixc==10011.or.ixc==111).and.MPI__rank==0) then
-        write(6,*)
-        write(6,*)' ==== newaniso mode W(0) divergent part ==== '
-!! == W(0) divergent part ==
-!! getw0 routine...
-        ifidmlx = iopen('EPSwklm',0,0,0)
-        read(ifidmlx) nq0i,lxklm
-        allocate( dmlx(nq0i,9))
-        allocate( epinvq0i(nq0i,nq0i),epinv(3,3,nq0i))
-        nlxklm=(lxklm+1)**2
-        allocate( wklm(nlxklm))
-        read(ifidmlx) dmlx, epinv,epinvq0i
-        read(ifidmlx) wklm
-        ifidmlx = iclose('EPSwklm') !jan2013 iclose(ifidmlx)
-!! starting from llw(iw,iq0),llwI(iw,iq0)
-!! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
-        allocate(w0(nw_i:nw),w0i(niw))
-c       write(6,*)' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
-!! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
-        call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
-        call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
-
-c       write(6,*)'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
+!! get w0 and w0i (diagonal element at Gamma point
+!! This return w0, and w0i
+        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)
 !! === w0,w0i are stored to zw for q=0 ===
 !! === w_ks*wk are stored to zw for iq >nqibz ===
-cmmm
         do iq = 1,1             !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
           q = qibze(:,iq)
 c          if(iq>nqibz) then
@@ -2014,7 +1999,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               ifrcwx = iclose('WVI.'//charnum5(iq))
             endif
           enddo
-c          if(iq>nqibz) deallocate(vw_k,vw_ks)
         enddo
       endif
 

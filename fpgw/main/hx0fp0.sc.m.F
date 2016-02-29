@@ -38,6 +38,10 @@ c     & laf,ibasf !,ldima,pos,natom
 !! tetwt
       use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
+!! w0 and w0i (head part at Gamma point)
+      use m_w0w0i,only: w0w0i,
+     & w0,w0i
+
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
      &   MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
@@ -117,8 +121,7 @@ c     complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:),
 c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:), 
      &     w_k(:),w_ks(:),w_kI(:), w_ksI(:) 
-      complex(8),allocatable:: llw(:,:), llwI(:,:),w0(:),w0i(:),aaamat(:,:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),epinv(:,:,:),epinvq0i_m1(:,:),wklm(:),qeibz(:,:,:)
+      complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
       integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
       complex(8):: vc1vc2
       integer,allocatable:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
@@ -132,14 +135,15 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
       integer:: ifw0w0i
-      logical :: readw0w0i,symmetrize,eibzmode
+      logical :: symmetrize,eibzmode
       real(8):: schi=-9999 !dummy
       integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
       logical:: crpa
       integer,allocatable :: iclasst(:), invgx(:)
       integer:: ibasx,ificlass,ifile_handle,ifiq0p
       complex(8),allocatable:: ppovl_(:,:)
-      logical:: tetra 
+      logical:: tetra ,readw0w0itest=.false.
+      integer::nw_ixx,nwxx
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
@@ -1162,56 +1166,27 @@ c$$$         endif
 c         if(newaniso2 .and. MPI__rank == 0 ) then ! MIZUHO-IR only on root node
       if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node
 
-        if(ixc==1011) then      !this is only for test.
-          ifw0w0i = iopen('W0W0I',0,-1,0) 
-          read(ifw0w0i) nw_i,nw,niw,nq0i
-          write(6,*)'w0w0i: n=',nw_i,nw,niw,nq0i
+
+!! get w0 and w0i (diagonal element at Gamma point
+!! This return w0, and w0i
+        if(ixc==1011) then  
+          ifw0w0i = ifile_handle('W0W0I')
+          open(ifw0w0i,form='unformatted')
+          read(ifw0w0i) nw_ixx,nwxx,niw,nq0i
+          write(6,*)'w0w0i: n=',nw_ixx,nwxx,niw,nq0i
+          if(nw_i/=nw_ixx) call rx(nw_i/=nw_ixx)
+          if(nw/=nwxx) call rx(nw/=nwxx)
           read(ifw0w0i) llw(nw_i:nw,1:nq0i)
           read(ifw0w0i) llwI(1:niw,1:nq0i)
 c            read(ifw0w0i) w0(nw_i:nw)
 c            read(ifw0w0i) w0i(1:niw)
-          ifw0w0i = iclose('W0W0I')
+          close(ifw0w0i)
         endif  
-        
-        write(6,*)
-        write(6,*)' ==== newaniso2 mode W(0) divergent part ==== '
-!! == W(0) divergent part ==
-!! getw0 routine...
-!!NOTE: we usually only use lxklm=1 --> this should be stable.
-!!  EPSwklm is generated in gwsrc/mkqg.F
-        ifidmlx = iopen('EPSwklm',0,0,0)
-        read(ifidmlx) nq0i,lxklm
-        allocate( dmlx(nq0i,9))
-        allocate( epinvq0i(nq0i,nq0i),epinv(3,3,nq0i))
-        nlxklm=(lxklm+1)**2
-        allocate( wklm(nlxklm))
-        read(ifidmlx) dmlx, epinv,epinvq0i
-        read(ifidmlx) wklm
-        ifidmlx = iclose('EPSwklm')
-!! starting from llw(iw,iq0),llwI(iw,iq0)
-!! === <e|L|e> (eq.36 in Friedrich paper) is expanded in YL -->stored in llwyl. ===
-        allocate(w0(nw_i:nw),w0i(niw))
-c     write(6,*)' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
-!! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
-c            write(6,*)'wbz=',wbz
-        call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0)
-        call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i)
-        if(ixc/=1011) then
-          ifw0w0i = iopen('W0W0I',0,-1,0)
-          write(ifw0w0i) nw_i,nw,niw,nq0i
-          write(ifw0w0i) llw(nw_i:nw,1:nq0i)
-          write(ifw0w0i) llwI(1:niw,1:nq0i)
-          write(ifw0w0i) w0(nw_i:nw)
-          write(ifw0w0i) w0i(1:niw)
-          ifw0w0i = iclose('W0W0I')
-        endif
+        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)
 
-        do i=nw_i,nw
-          write(6,"('w0 =',i4,2f13.4)")i,w0(i)
-        enddo   
-        do i=1,niw
-          write(6,"('w0i=',i4,2f13.4)")i,w0i(i)
-        enddo   
+!! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
+!! Gamma cell) is the micro cell of BZ including Gamma point).
+
 c     write(6,*)'sumcheck w0,w0i=',sum(abs(w0)),sum(abs(w0i))
 !! === w0,w0i are stored to zw for q=0 ===
 !! === w_ks*wk are stored to zw for iq >nqibz ===
