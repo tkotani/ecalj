@@ -1,9 +1,10 @@
       subroutine conv2gwinput()
       use keyvalue
+
       implicit none
       integer(4) :: ifigw0,ifi,i,ig
       real(8) :: QpGcut_psi, QpGcut_Cou
-      real(8) ::  dw,delta,deltaw,esmr
+      real(8) ::  efin,dw,delta,deltaw,esmr
       logical :: gwin0exist
 
       character(len=150):: recrdxxx
@@ -20,7 +21,9 @@ c'
       integer(4)::nnn(3),n
 
       real(8):: emax_sigm2
-      integer(4):: nband_sigm2
+      integer(4):: nband_sigm2, iatom, natom
+      integer(4)::nwin, incwfin
+
       pi= 4d0* atan(1d0)
 
 c -----------
@@ -81,9 +84,54 @@ c ... GWIN0
       close(ifigw0)
 c
       ifi = ifigwinp
+
       write(ifi,"(a)")'!!! Starting from ! (or nonkeyword) is comment line !!! '
       write(ifi,"(a)")'!!! Each lines consists of "keyword value(s)"  !!! '
       write(ifi,"(a)")'!!! Each tag section in <...>... </...> has its own format. !!! '
+
+      write(ifi,"(a)")
+
+      write(ifi,"(a)")'!!! For s,p,d,f the indices 1-16 correspond to: '
+      write(ifi,"(a)")'!!! index l m polynomial '
+      write(ifi,"(a)")'!!! 1 0 0 1 '
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 2 1 -1 y '
+      write(ifi,"(a)")'!!! 3 1 0 z  '
+      write(ifi,"(a)")'!!! 4 1 1 x  '
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 5 2 -2 xy '
+      write(ifi,"(a)")'!!! 6 2 -1 yz  '
+      write(ifi,"(a)")'!!! 7 2 0 3z^2-1 '
+      write(ifi,"(a)")'!!! 8 2 1 xz  '
+      write(ifi,"(a)")'!!! 9 2 2 x^2-y^2 ' 
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 10 3 -3 y(3x^2-y^2) '
+      write(ifi,"(a)")'!!! 11 3 -2 xyz '
+      write(ifi,"(a)")'!!! 12 3 -1 y(5z^2-1) '
+      write(ifi,"(a)")'!!! 13 3 0 z(5z^2-3) '
+      write(ifi,"(a)")'!!! 14 3 1 x(5z^2-1) '
+      write(ifi,"(a)")'!!! 15 3 2 z(x^2-y^2) '
+      write(ifi,"(a)")'!!! ------------------------ '
+      write(ifi,"(a)")'!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.'
+
+      write(ifi,"(a)")
+
+
+      !call genallcf_v3(nwin,efin,incwfin)
+
+      !print *,natom, spid
+      natom = 1
+
+      write(ifi,"(a)")'<Worb> Site '
+      write(ifi,"(a,I6,5x,a)")'nwf ', 16*natom, '! Number of the Wannier function'
+
+      do iatom = 1,natom
+            write(ifi,"(a,i2,1x,a)") '!', iatom,'1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
+      enddo
+      write(ifi,"(a)")'</Worb> '
+      write(ifi,"(a)")
+
+
       write(ifi,"(a)")'!EIBZmode off   !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.'
       write(ifi,"(a)")'!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.'
       write(ifi,"(a)")'!Verbose    0  ! 0-->default; 100--->debug '
@@ -94,7 +142,7 @@ c
       write(ifi,"(a)")'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
 c
       write(ifi,"(a)" )'! ##### From GWIN0 ################ '
-      write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW '
+      write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW, Wannier function and cRPA'
       write(ifi,"(a,f8.3,a,a)") 'QpGcut_psi ', QpGcut_psi,' !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.'
       write(ifi,"(a,f8.3,a,a)") 'QpGcut_cou ', QpGcut_cou,' !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.'
       if(ixx==0)write(ifi,"(a)")'unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat '
