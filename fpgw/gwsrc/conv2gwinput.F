@@ -123,7 +123,6 @@ c
       natom = 1
 
       write(ifi,"(a)")'<Worb> Site '
-      write(ifi,"(a,I6,5x,a)")'nwf ', 16*natom, '! Number of the Wannier function'
 
       do iatom = 1,natom
             write(ifi,"(a,i2,1x,a)") '!', iatom,'1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
@@ -131,6 +130,33 @@ c
       write(ifi,"(a)")'</Worb> '
       write(ifi,"(a)")
 
+      write(ifi,"(a)")'#vis_wan_band_n 3'
+      write(ifi,"(a)")'#vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, this is index for hmaxloc, as you like.'
+      write(ifi,"(a)")'#vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)'
+      write(ifi,"(a)")'#vis_wan_mesh 5 5 5          !integer x 3, # of mesh'
+      write(ifi,"(a)")'#vis_wan_lbound -1.2  -1.2 -1.2 !real x 3, lower bound in alat unit or abc unit'
+      write(ifi,"(a)")'#vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit'
+      write(ifi,"(a)")'#vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf'
+      write(ifi,"(a)")
+      write(ifi,"(a)")'#wan_out_ewin off'
+      write(ifi,"(a)")'#wan_out_bmin 16  !band index for outer window'
+      write(ifi,"(a)")'#wan_out_bmax 18  !band index for outer window'
+      write(ifi,"(a)")'wan_out_emin  -1.05  !eV relative to Efermi'
+      write(ifi,"(a)")'wan_out_emax  2.4  !eV relative to Efermi'
+      write(ifi,"(a)")'#wan_in_ewin on '
+      write(ifi,"(a)")'#wan_in_emin  -1.0  !eV relative to Efermi'
+      write(ifi,"(a)")'#wan_in_emax  -0.3  !eV relative to Efermi'
+      write(ifi,"(a)")'wan_tb_cut 15'
+      write(ifi,"(a)")'wan_maxit_1st 300'
+      write(ifi,"(a)")'wan_conv_1st=1d-7'
+      write(ifi,"(a)")'wan_max_1st=0.1'
+      write(ifi,"(a)")'wan_maxit_2nd 1500'
+      write(ifi,"(a)")'wan_max_2nd=0.3'
+      write(ifi,"(a)")'wan_conv_end=1d-8'
+      write(ifi,"(a)")'#wmat_all .true.'
+      write(ifi,"(a)")'#wmat_rcut1 8'
+      write(ifi,"(a)")'#wmat_rcut2 0.01'
+      write(ifi,"(a)")
 
       write(ifi,"(a)")'!EIBZmode off   !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.'
       write(ifi,"(a)")'!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.'
