@@ -370,6 +370,7 @@ maxloc = ./
  $(maxloc)maxloc2.o \
  $(maxloc)maxloc3.o \
  $(maxloc)maxloc4.o \
+ $(maxloc)m_read_Worb.o \
  $(gwsrc)wse.o \
  $(gwsrc)genallcf_dump.o
 

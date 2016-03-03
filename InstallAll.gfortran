@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -o verbose
 
-BINDIR=${HOME}/bin
+BINDIR=${HOME}/bin_swj
 MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
 
 ### This is an example for ubuntu
@@ -32,9 +32,9 @@ cd StructureTool/
 #make PLATFORM=gfortran BINDIR=$BINDIR install2
 #
 #### Use fpgw/Wannier/Makefile
-#cd ../fpgw/Wannier/
-#make PLATFORM=gfortran LIBMATH="$MATH"
-#make BINDIR=$BINDIR PLATFORM=gfortran install
+cd ../fpgw/Wannier/
+make PLATFORM=gfortran LIBMATH="$MATH"
+make BINDIR=$BINDIR PLATFORM=gfortran install
 #
 #cd ../../TestInstall/
 #make mpi_size=4 all
