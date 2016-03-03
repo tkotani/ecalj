@@ -1,5 +1,7 @@
 c--------------------------------------
 c This module is for readling informations of <Worb> section in GWinput.
+c Then this is transformed to the form for the calculation of MLWF.
+
 c nclass_mlwf : the number of material
 c classname_mlwf : the name of materials
 c nbasclass_mlwf : the number of Wannier orbitals for each line.
@@ -14,6 +16,9 @@ c-------------------------------------
       character(20),protected,allocatable:: classname_mlwf(:)
       integer,protected,allocatable:: iclassin(:)
       integer,parameter,private::maxdat=1024 !it is convenient if you use this type of number.
+      integer(4),protected,allocatable::  iphi(:,:),iphidot(:,:), nphi(:)
+      integer(4),protected:: nphix
+      real(8),protected,allocatable:: r0g(:,:),wphi(:,:)
 
       contains
 
@@ -31,7 +36,6 @@ c-------------------------------------
       write(6,*)' ifmloc ret=',ifmloc,ret
 
       iline=0
-      print *, "ddddddddddddd", ifmloc
       do 
         read(ifmloc,"(a)") aaa
         print *, aaa
@@ -85,6 +89,64 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
 
       end subroutine s_read_Worb
 
+
+
+
+
+      subroutine s_cal_Worb()
+      integer:: iclass, iphidotplus
+
+      allocate (nphi(nwf))
+      nphix = 0
+      do i =1,nwf
+        nphi(i) = 1
+        if(nphi(i).gt.nphix)nphix = nphi(i)
+
+      end do
+
+
+      do i = 1,nwf
+         if(nphi(i).gt.nphix)nphix = nphi(i)
+      enddo
+
+      allocate (r0g(nphix,nwf),iphi(nphix,nwf),iphidot(nphix,nwf),
+     &          wphi(nphix,nwf))
+
+      iphi = 0
+      print *, iphi
+      iphidot = 0
+      print *, iphidot
+      !print *, iphi, iphidot
+
+      r0g = 2.0
+      wphi = 1.0
+
+      iwf = 1
+      do iclass=1,nclass_mlwf
+        do i=1,nbasclass_mlwf(iclass)
+          !print *, iclassin(iclass)
+          if (cbas_mlwf(i,iclass) == 1) then
+            iphidot_plus = 1
+          else if (int(cbas_mlwf(i,iclass))/4.0 <= 1) then
+            iphidot_plus = 3
+          else if (int(cbas_mlwf(i,iclass))/9.0 <= 1) then
+            iphidot_plus = 5
+          else if (int(cbas_mlwf(i,iclass))/16.0 <= 1) then
+            iphidot_plus = 7
+          else if (int(cbas_mlwf(i,iclass))/25.0 <= 1) then
+            iphidot_plus = 9
+          end if
+
+          iphi(nphix,iwf) = 2 * (iclassin(iclass)-1) * (1+3+5+7+9) + cbas_mlwf(i,iclass)
+          iphidot(nphix,iwf) = iphi(nphix,iwf) + iphidot_plus
+          iwf = iwf +1
+        enddo
+      enddo
+      print *, "iphi = ", iphi
+      print *, "iphidot = ", iphidot
+
+
+      end subroutine s_cal_Worb
 
 
       end module m_read_Worb

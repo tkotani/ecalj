@@ -16,9 +16,10 @@ cm Oct 2008 Takashi Miyake, updated
 cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
-      use m_read_Worb,only: s_read_Worb, 
-     &  nbasclass_mlwf, nclass_mlwf, cbas_mlwf, classname_mlwf,
-     &   iclassin, nwf
+      use m_read_Worb,only: s_read_Worb, s_cal_Worb,
+     &  nclass_mlwf, cbas_mlwf, nbasclass_mlwf, nwf, 
+     &   classname_mlwf, iclassin,
+     &  iphi, iphidot, nphi, nphix, r0g, wphi
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
@@ -123,20 +124,17 @@ c for maxloc
       complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:),eveccs(:,:),
      c                         amnk(:,:,:),cnk(:,:,:),umnk(:,:,:)
       real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:),evals(:),
-     c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:),r0g(:,:),
-     c                      wphi(:,:)
+     c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:)
       integer(4):: nbb,isc,ifq0p,
      c             nox,iko_ix,iko_fx,
      c             noxs(2),iko_ixs(2),iko_fxs(2),
-     c             ieo_swt,iei_swt,itin_i,itin_f,itout_i,itout_f,nphix,
-     c             nbbelow,nbabove, iphidot_plus
+     c             ieo_swt,iei_swt,itin_i,itin_f,itout_i,itout_f,
+     c             nbbelow,nbabove
       integer(4),allocatable:: ikbidx(:,:)
       integer(4),allocatable:: iki_i(:),iki_f(:),
      c                         ikbi_i(:,:),ikbi_f(:,:),
      c                         iko_i(:),iko_f(:),
-     c                         ikbo_i(:,:),ikbo_f(:,:),
-     c                         iphi(:,:),iphidot(:,:),
-     c                         nphi(:)
+     c                         ikbo_i(:,:),ikbo_f(:,:)
       logical :: leout,lein,lbin,lq0p,lsyml,lbnds
       logical :: debug=.false.
 !
@@ -439,59 +437,13 @@ c------------
 c input parameters specific to MAXLOC
       call s_read_Worb()
 
+
       do iclass2=1,nclass_mlwf
         write(*,*)'output:',iclassin(iclass2), nwf
      & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
       enddo
 
-      allocate (nphi(nwf))
-      nphix = 0
-      do i =1,nwf
-        nphi(i) = 1
-        if(nphi(i).gt.nphix)nphix = nphi(i)
-
-      end do
-
-
-      do i = 1,nwf
-         if(nphi(i).gt.nphix)nphix = nphi(i)
-      enddo
-
-      allocate (r0g(nphix,nwf),iphi(nphix,nwf),iphidot(nphix,nwf),
-     &          wphi(nphix,nwf))
-
-      iphi = 0
-      iphidot = 0
-      !print *, iphi, iphidot
-
-      r0g = 2.0
-      wphi = 1.0
-
-      iwf = 1
-      do iclass2=1,nclass_mlwf
-        do i=1,nbasclass_mlwf(iclass2)
-          !print *, iclassin(iclass)
-          if (cbas_mlwf(i,iclass2) == 1) then
-            iphidot_plus = 1
-          else if (int(cbas_mlwf(i,iclass2))/4.0 <= 1) then
-            iphidot_plus = 3
-          else if (int(cbas_mlwf(i,iclass2))/9.0 <= 1) then
-            iphidot_plus = 5
-          else if (int(cbas_mlwf(i,iclass2))/16.0 <= 1) then
-            iphidot_plus = 7
-          else if (int(cbas_mlwf(i,iclass2))/25.0 <= 1) then
-            iphidot_plus = 9
-          end if
-!          print *, "iphidot_plus = ", iphidot_plus 
-
-          iphi(nphix,iwf) = 2 * (iclassin(iclass2)-1) * (1+3+5+7+9) + cbas_mlwf(i,iclass2)
-          iphidot(nphix,iwf) = iphi(nphix,iwf) + iphidot_plus
-          iwf = iwf +1
-        enddo
-      enddo
-      print *, "dddddddddd, nwf", nwf
-      print *, "dddddddddd", iphi(nphix,:)
-      print *, "dddddddddd", iphidot(nphix,:)
+      call s_cal_Worb()
 
 
       call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
