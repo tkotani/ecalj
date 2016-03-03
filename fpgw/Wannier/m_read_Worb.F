@@ -18,7 +18,6 @@ c-------------------------------------
       integer,parameter,private::maxdat=1024 !it is convenient if you use this type of number.
       integer(4),protected,allocatable::  iphi(:,:),iphidot(:,:), nphi(:)
       integer(4),protected:: nphix
-      real(8),protected,allocatable:: r0g(:,:),wphi(:,:)
 
       contains
 
@@ -109,8 +108,8 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
          if(nphi(i).gt.nphix)nphix = nphi(i)
       enddo
 
-      allocate (r0g(nphix,nwf),iphi(nphix,nwf),iphidot(nphix,nwf),
-     &          wphi(nphix,nwf))
+      allocate (iphi(nphix,nwf),iphidot(nphix,nwf))
+     &          
 
       iphi = 0
       print *, iphi
@@ -118,8 +117,6 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
       print *, iphidot
       !print *, iphi, iphidot
 
-      r0g = 2.0
-      wphi = 1.0
 
       iwf = 1
       do iclass=1,nclass_mlwf

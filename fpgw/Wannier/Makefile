@@ -392,6 +392,7 @@ maxloc = ./
 
  PSIG = \
  $(maxloc)hpsig.o \
+ $(maxloc)m_read_Worb.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5.o \
  $(gwsrc)gintxx.o \
@@ -412,6 +413,7 @@ maxloc = ./
  $(maxloc)RSMPI_rotkindex_mod.o \
  $(maxloc)RSMPI_utils.o \
  $(maxloc)hpsig_MPI.o \
+ $(maxloc)m_read_Worb.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5.o \
  $(gwsrc)gintxx.o \

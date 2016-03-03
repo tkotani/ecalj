@@ -19,7 +19,7 @@ c------------------------------------------------------------
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
      &  nclass_mlwf, cbas_mlwf, nbasclass_mlwf, nwf, 
      &   classname_mlwf, iclassin,
-     &  iphi, iphidot, nphi, nphix, r0g, wphi
+     &  iphi, iphidot, nphi, nphix
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
@@ -37,6 +37,7 @@ c------------------------------------------------------------
       use keyvalue,only: getkeyvalue
       implicit none
 c------------------------------------
+      real(8),allocatable:: r0g(:,:), wphi(:,:)
       real(8)    :: esmr2,shtw
       integer :: iclass2
       integer(4)::
@@ -442,6 +443,11 @@ c input parameters specific to MAXLOC
         write(*,*)'output:',iclassin(iclass2), nwf
      & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
       enddo
+
+      allocate (r0g(nphix,nwf), wphi(nphix,nwf))
+
+      r0g = 2d0
+      wphi = 1d0
 
       call s_cal_Worb()
 
