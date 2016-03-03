@@ -18,7 +18,7 @@ c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
       use m_read_Worb,only: s_read_Worb, 
      &  nbasclass_mlwf, nclass_mlwf, cbas_mlwf, classname_mlwf,
-     &   iclassin, nwf, ifmloc1, ifmloc2
+     &   iclassin, nwf
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
@@ -437,13 +437,7 @@ c
       if (laf) nspinmx =1
 c------------
 c input parameters specific to MAXLOC
-      call getkeyvalue("GWinput","<Worb>",unit=ifmloc1,status=ret) 
-      call getkeyvalue("GWinput","<Worb>",unit=ifmloc2,status=ret) 
-      write(6,*)' ifmloc1 ret=',ifmloc1,ret
-      write(6,*)' ifmloc2 ret=',ifmloc2,ret
       call s_read_Worb()
-      close(ifmloc1)
-      close(ifmloc2)
 
       do iclass2=1,nclass_mlwf
         write(*,*)'output:',iclassin(iclass2), nwf
