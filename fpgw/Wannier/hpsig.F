@@ -305,12 +305,13 @@ c GWinput data
      & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
       enddo
 
+      call s_cal_Worb()
+
       allocate (r0g(nphix,nwf), wphi(nphix,nwf))
 
       r0g = 2d0
       wphi = 1d0
 
-      call s_cal_Worb()
 
 c 061004
       call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)

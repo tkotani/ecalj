@@ -343,10 +343,11 @@ c GWinput data
      &  ,iclass2)
       enddo
 
+      call s_cal_Worb()
+
       allocate (r0g(nphix,nwf), wphi(nphix,nwf))
       r0g = 2d0
       wphi = 1d0
-      call s_cal_Worb()
 
 c 061004
       if (myproc.eq.0) then
