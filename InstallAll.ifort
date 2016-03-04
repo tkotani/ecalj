@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BINDIR=${HOME}/bin
+BINDIR=${HOME}/bin_swj_test
 MATH='-mkl'
 
 ### This is an example for hakozaki (ifort14) ###
@@ -18,22 +18,23 @@ cd StructureTool/
 ./makelink
 
 ### Use lm7K/Makefile
-cd ../lm7K/
-make PLATFORM=ifort LIBMATH="$MATH"
-make PLATFORM=ifort      BINDIR=$BINDIR install
-make PLATFORM=ifort_mpik LIBMATH="$MATH"
-make PLATFORM=ifort_mpik BINDIR=$BINDIR install
+#cd ../lm7K/
+#make PLATFORM=ifort LIBMATH="$MATH"
+#make PLATFORM=ifort      BINDIR=$BINDIR install
+#make PLATFORM=ifort_mpik LIBMATH="$MATH"
+#make PLATFORM=ifort_mpik BINDIR=$BINDIR install
 
 ### Use fpgw/exec/makefile
-cd ../fpgw/exec/
-make PLATFORM=ifort LIBMATH="$MATH"
-make PLATFORM=ifort BINDIR=$BINDIR  install
-make PLATFORM=ifort BINDIR=$BINDIR install2
-
+#cd ../fpgw/exec/
+#make PLATFORM=ifort LIBMATH="$MATH"
+#make PLATFORM=ifort BINDIR=$BINDIR  install
+#make PLATFORM=ifort BINDIR=$BINDIR install2
+#
 ### Use fpgw/Wannier/Makefile
-cd ../Wannier/
+#cd ../Wannier/
+cd ../fpgw/Wannier/
 make PLATFORM=ifort LIBMATH="$MATH"
 make BINDIR=$BINDIR PLATFORM=ifort install
 
-cd ../../TestInstall/
-make mpi_size=4 all
+#cd ../../TestInstall/
+#make mpi_size=4 all

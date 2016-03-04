@@ -93,7 +93,8 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
 
 
       subroutine s_cal_Worb()
-      integer:: iclass, iphidotplus
+	implicit none
+      integer:: iclass, l_number, correction, i, j, iwf
 
       allocate (nphi(nwf))
       nphix = 0
@@ -103,13 +104,11 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
 
       end do
 
-
       do i = 1,nwf
          if(nphi(i).gt.nphix)nphix = nphi(i)
       enddo
 
       allocate (iphi(nphix,nwf),iphidot(nphix,nwf))
-     &          
 
       iphi = 0
       print *, iphi
@@ -123,28 +122,36 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
         do i=1,nbasclass_mlwf(iclass)
           !print *, iclassin(iclass)
           if (cbas_mlwf(i,iclass) == 1) then
-            iphidot_plus = 1
+            l_number = 0
           else if (int(cbas_mlwf(i,iclass))/4.0 <= 1) then
-            iphidot_plus = 3
+            l_number = 1
           else if (int(cbas_mlwf(i,iclass))/9.0 <= 1) then
-            iphidot_plus = 5
+            l_number = 2
           else if (int(cbas_mlwf(i,iclass))/16.0 <= 1) then
-            iphidot_plus = 7
+            l_number = 3
           else if (int(cbas_mlwf(i,iclass))/25.0 <= 1) then
-            iphidot_plus = 9
+            l_number = 4
           end if
 
-          iphi(nphix,iwf) = 2 * (iclassin(iclass)-1) * (1+3+5+7+9) + cbas_mlwf(i,iclass)
-          iphidot(nphix,iwf) = iphi(nphix,iwf) + iphidot_plus
+	    print *, l_number
+	   
+	    correction = 0
+
+	    do j=0, l_number-1
+	      correction = correction + 2*(2*j+1)
+	    end do		
+
+	    print *, iclassin(iclass)
+          iphi(nphix,iwf) = 2 * (iclassin(iclass)-1) * (1+3+5+7+9) +
+     &                     correction  + cbas_mlwf(i,iclass)
+          iphidot(nphix,iwf) = iphi(nphix,iwf) + l_number*2+1
           iwf = iwf +1
         enddo
       enddo
       print *, "iphi = ", iphi
       print *, "iphidot = ", iphidot
 
-
       end subroutine s_cal_Worb
-
 
       end module m_read_Worb
 

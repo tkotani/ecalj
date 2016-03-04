@@ -234,8 +234,8 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
 
         do iwf1=1,nwf
           do iwf2=1,nwf
-            write(ifh,"(1x, 3i6, 2x,2i4,3f12.6)") 
-     &             int(fract_coord(:,ir)), iwf1, iwf2,
+            write(ifh,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") 
+     &             int(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2,
      &               hrotr(iwf1,iwf2,ir)*13.605698066
           enddo
         enddo
