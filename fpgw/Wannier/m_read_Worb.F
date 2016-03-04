@@ -18,6 +18,7 @@ c-------------------------------------
       integer,parameter,private::maxdat=1024 !it is convenient if you use this type of number.
       integer(4),protected,allocatable::  iphi(:,:),iphidot(:,:), nphi(:)
       integer(4),protected:: nphix
+      integer(4):: natom
 
       contains
 
@@ -89,12 +90,28 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
       end subroutine s_read_Worb
 
 
-
-
-
       subroutine s_cal_Worb()
+      use keyvalue,only: getkeyvalue
+      use m_genallcf_v3, only : natom
 	implicit none
-      integer:: iclass, l_number, correction, i, j, iwf
+      integer:: iclass, iclass2, iphidot_plus, ifmloc, iphi_tmp
+      integer :: i, j, l_number, correction
+      integer(4):: tmp_atom, tmp_l, iatom, il, iwf, ret
+      integer(4):: nnvv(5,natom)
+
+      call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifmloc,status=ret) 
+      read(ifmloc,*)
+      read(ifmloc,*)
+      read(ifmloc,*)
+      read(ifmloc,*)
+      read(ifmloc,*)
+      do iatom =1, natom
+        do il =1, 5
+          read(ifmloc,*,err=888) tmp_atom, tmp_l, nnvv(il,iatom)
+        end do
+      end do
+ 888  continue
+
 
       allocate (nphi(nwf))
       nphix = 0
@@ -118,8 +135,10 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
 
 
       iwf = 1
+
       do iclass=1,nclass_mlwf
         do i=1,nbasclass_mlwf(iclass)
+          iphi_tmp = 0
           !print *, iclassin(iclass)
           if (cbas_mlwf(i,iclass) == 1) then
             l_number = 0
@@ -133,23 +152,35 @@ c        write(*,*) iclassin(iclass),trim(a),(cbastemp(i,iclass),i=1,10)
             l_number = 4
           end if
 
-	    print *, l_number
-	   
+	    print *, "l_number, iclassin(iclass)", l_number , iclassin(iclass)
+         
+          do iclass2 = 1, iclassin(iclass)
+            do j=0, 4
+              if (iclass2 == iclassin(iclass) .and. j == l_number) goto 777
+              iphi_tmp = iphi_tmp + nnvv(j+1,iclass2)*(2*j+1)
+              print *, " iphi_tmp, nnv(j,iclass2)", iphi_tmp, nnvv(j+1,iclass2)
+            end do
+          end do
+ 777      continue
+
 	    correction = 0
 
 	    do j=0, l_number-1
-	      correction = correction + 2*(2*j+1)
+	      correction = correction + (2*j+1) ! Need to be modified.
 	    end do		
 
-	    print *, iclassin(iclass)
-          iphi(nphix,iwf) = 2 * (iclassin(iclass)-1) * (1+3+5+7+9) +
-     &                     correction  + cbas_mlwf(i,iclass)
+          print *, "correction", correction
+
+
+          iphi(nphix,iwf) = iphi_tmp  + cbas_mlwf(i,iclass) - correction 
+
           iphidot(nphix,iwf) = iphi(nphix,iwf) + l_number*2+1
           iwf = iwf +1
         enddo
       enddo
       print *, "iphi = ", iphi
       print *, "iphidot = ", iphidot
+      close(ifmloc)
 
       end subroutine s_cal_Worb
 

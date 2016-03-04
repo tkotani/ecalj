@@ -16,10 +16,6 @@ cm Oct 2008 Takashi Miyake, updated
 cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
-      use m_read_Worb,only: s_read_Worb, s_cal_Worb,
-     &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
-     &   classname_mlwf, iclassin,
-     &  iphi, iphidot, nphi, nphix
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
@@ -34,6 +30,10 @@ c------------------------------------------------------------
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg , konf,z,
      &     spid
+      use m_read_Worb,only: s_read_Worb, s_cal_Worb,
+     &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
+     &   classname_mlwf, iclassin,
+     &  iphi, iphidot, nphi, nphix
       use keyvalue,only: getkeyvalue
       implicit none
 c------------------------------------
