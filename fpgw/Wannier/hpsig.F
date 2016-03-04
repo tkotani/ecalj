@@ -19,7 +19,7 @@ c-------------------------------------------------
       use m_genallcf_v3
       use keyvalue
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
-     &  nclass_mlwf, cbas_mlwf, nbasclass_mlwf, nwf, 
+     &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
      &   classname_mlwf, iclassin,
      &  iphi, iphidot, nphi, nphix
 

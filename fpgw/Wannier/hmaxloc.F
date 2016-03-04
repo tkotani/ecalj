@@ -17,7 +17,7 @@ cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
       use m_read_Worb,only: s_read_Worb, s_cal_Worb,
-     &  nclass_mlwf, cbas_mlwf, nbasclass_mlwf, nwf, 
+     &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
      &   classname_mlwf, iclassin,
      &  iphi, iphidot, nphi, nphix
       use m_readqg,only: readngmx,readqg

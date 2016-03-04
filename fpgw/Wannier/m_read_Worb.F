@@ -10,9 +10,9 @@ c-------------------------------------
 
       module m_read_Worb
 !! all output
-      integer,protected:: nclass_mlwf
+      integer,protected:: nwf, nclass_mlwf
         ! cbas_mlwf(nbasclassMax,nclass_mlwf) !We may need nbasclassMax to pass array to subroutine.
-      integer,protected,allocatable:: cbas_mlwf(:,:),nbasclass_mlwf(:), nwf
+      integer,protected,allocatable:: cbas_mlwf(:,:),nbasclass_mlwf(:)
       character(20),protected,allocatable:: classname_mlwf(:)
       integer,protected,allocatable:: iclassin(:)
       integer,parameter,private::maxdat=1024 !it is convenient if you use this type of number.
