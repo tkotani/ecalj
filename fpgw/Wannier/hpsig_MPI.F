@@ -333,8 +333,8 @@ ctm
 c GWinput data
       call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
       if (myproc.eq.0) write(6,*)' ifmloc ret=',ifmloc,ret
-      read (ifmloc,*) nwf
 ctm 040928
+      read (ifmloc,*) nwf
       allocate (nphi(nwf))
       read (ifmloc,*) (nphi(i),i=1,nwf)
       nphix = 0

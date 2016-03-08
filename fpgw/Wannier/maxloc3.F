@@ -194,6 +194,7 @@ c see Ref.[2] eq.26
       pi = 4d0* atan(1d0)
       ci = (0d0,1d0)
 
+!      print *, hrotkp
       hrotkp = (0d0,0d0)
 
       do ir = 1,nrws

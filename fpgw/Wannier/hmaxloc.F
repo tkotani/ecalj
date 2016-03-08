@@ -43,7 +43,7 @@ c------------------------------------
      &   i,j,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &   mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
      &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
-     &    ifmlw(2),ifmlwe(2) !,ifcphi
+     &    ifmlw(2),ifmlwe(2), ifeval, ifumnk !,ifcphi
      &   ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      &   ifsecomg(2),ifexx,ifwand,ndble=8
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
@@ -118,9 +118,12 @@ c for maxloc
      c             qwf0(3),dqwf0(3),qks(3),q0(3)
       complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:),eveccs(:,:),
      c                         amnk(:,:,:),cnk(:,:,:),umnk(:,:,:)
+      complex(8),allocatable:: evecc_tmp(:,:)
       real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:),evals(:),
      c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:),r0g(:,:),
      c                      wphi(:,:)
+      real(8),allocatable:: eval_tmp(:)
+      integer:: iwf1, iwf2
       integer(4):: nbb,isc,nwf,ifmloc,ifq0p,
      c             nox,iko_ix,iko_fx,
      c             noxs(2),iko_ixs(2),iko_fxs(2),
@@ -160,12 +163,13 @@ c step 2
 c step 3
       complex(8),allocatable:: hrotk(:,:,:),hrotr(:,:,:),hrotkp(:,:)
      c                       , hrotkps(:,:)
+      complex(8),allocatable:: hrotkp_tmp(:,:)
       real(8):: e1,e2,rcut
-      integer(4):: iband,ifbnd,iftb,ifsh,nsh,nsh1,nsh2
+      integer(4):: iband, iband1, iband2, ifbnd,iftb,ifsh,nsh,nsh1,nsh2
       logical :: lsh
       real(8),allocatable :: rws(:,:),drws(:)
       integer(4),allocatable:: irws(:)
-      integer(4):: nrws,ifham
+      integer(4):: nrws,ifham, ir
 
 c ixc=3
       character(20)::filename
@@ -901,6 +905,8 @@ c output
      i             qbz,umnk,cnk,eunk,
      i             iko_ix,iko_fx,iko_i,iko_f,
      d             nwf,nqbz,nband,nlmto, is)
+
+
       call writeOmg(is,mmn,rn,bb,wbb,wbz,tpia,
      d             nwf,nqbz,nbb)
 c 070824
@@ -935,6 +941,8 @@ c open file
 c allocate
       allocate (hrotk(nwf,nwf,nqbz), ! hrotr(nwf,nwf,nqbz),
      o          hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
+      allocate (hrotkp_tmp(nwf,nwf), ! hrotr(nwf,nwf,nqbz),
+     o          evecc_tmp(nwf,nwf), eval_tmp(nwf))
 c for small Hamiltonian
       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
       if (lsh) then
@@ -959,11 +967,32 @@ c (3-2) Hrot_mn(R)
       allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
       call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
       allocate(hrotr(nwf,nwf,nrws)) !real space Hamiltonian in Wannier funciton basis
+
       if (ixc.eq.2) then
          call get_hrotr_ws(hrotk,qbz,wbz,
      i        rws,irws,drws,
      d        nwf,nqbz,nrws,
      o        hrotr)
+! swj
+         do iq = 1,nqbz
+c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
+             call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq), !july2014 qbz->qbze
+     d                     nwf,nqbz,nrws,
+     o                     hrotkp_tmp)
+             call diag_hm(hrotkp_tmp,nwf,eval_tmp,evecc_tmp)
+   
+             do iwf=1,nwf
+               print *, "iwf, eval_tmp, eunk"
+               print *, iwf, eval_tmp(iwf), eunk(iwf,iq)
+             end do
+             print *, "nqbz, iq = ", nqbz, iq
+             do iwf1=1,nwf
+               do iwf2=1,nwf
+                 print *, "iwf1, iwf2, evecc_tmp(iwf2,iwf1), umnk(iwf1,iwf2,iq)"
+                 print *, iwf1, iwf2, evecc_tmp(iwf2,iwf1), umnk(iwf1,iwf2,iq)
+               end do
+             end do
+         end do
 c     skino
 c     write hrotr and *rws 
          if (is .eq. 1) then
@@ -1008,6 +1037,30 @@ c     ekino
 
 !! ----------------------------------------------------------
 !! k-point mesh
+      if (is .eq. 1) then
+          ifeval = iopen('EVAL_MLWF.up',1,-1,0)
+          ifumnk = iopen('Umnk_MLWF.up',1,-1,0)
+      else
+          ifeval = iopen('EVAL_MLWF.dn',1,-1,0)
+          ifumnk = iopen('Umnk_MLWF.dn',1,-1,0)
+      endif
+
+      write(ifeval,"('# ef (Ry) = ',F15.10)"), ef
+      write(ifeval,"('# ispin   iq   Kpoint  iband   Eigenvalue (Ry)   Eigenvalue-ef (eV)')")
+      write(ifumnk,"('# ispin   iq   Kpoint   iband1   iband2   Umnk')")
+        
+      do iq=1,nqbz
+        do iband1=1,nwf
+          write(ifeval,"(2I6, 3F15.10, I6, 2F15.10)"), is, iq, qbz(:,iq), iband1, eunk(iband1,iq), (eunk(iband1,iq)-ef)*rydberg()
+          do iband2=1,nwf
+            write(ifumnk,"(2I6, 3F15.10, 2I6, 2F15.10)"), is, iq, qbz(:,iq), iband1, iband2, umnk(iband1,iband2,iq)
+          end do
+        end do
+      end do
+
+      close(ifeval)
+      close(ifumnk)
+
       call get_nqbze(nqbz,nqbze)
       allocate(qbze(3,nqbze))
       call get_qbze(qbz,nqbz,
@@ -1020,13 +1073,40 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
           call diag_hm(hrotkp,nwf,eval,evecc)
+
+!          do iwf=1,nwf
+!            print *, "iwf, evalkp, eunk"
+!            print *, iwf, eval(iwf), eunk(iwf,iq)
+!          end do
+!            do iwf1=1,nwf
+!              do iwf2=1,nwf
+!                print *, "iwf1, iwf2, evecc(iwf1,iwf2), umnk(iwf1,iwf2,iq)"
+!                print *, iwf1, iwf2, evecc(iwf2,iwf1), umnk(iwf1,iwf2,iq)
+!              end do
+!            end do
+
+
           call wmaxloc_diag(ifmlw(is),ifmlwe(is),
      i                 iq,qbze(1:3,iq),umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
+!          do iwf1=1,nwf
+!            do iwf2=1,nwf
+!              print *, "iwf1, iwf2, evecc", iwf1, iwf2, evecc(iwf1,iwf2)
+!            end do
+!          end do
       enddo
 c      write(6,*)'eeeeeeeee'
+
+!!swjang temp
+!
+!      nq = nqbze
+!      q = qbze
+!      
       deallocate(qbze)
+
+! swj modifying
+
 ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
 cc          if (iq.le.nqbz) then
 cc          do iband = 1,nwf
@@ -1060,6 +1140,8 @@ c --- Readin nlam index
       write(ifh)nwf,nrws,n1,n2,n3
       write(ifh) irws,rws,hrotr, ibasiwf
       close(ifh)
+
+
 
 
 !! other k-points
@@ -1117,6 +1199,11 @@ c     (3-4) diagonalize -- Tight-binding --
       endif
       call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
       deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws)
+
+      deallocate(hrotkp_tmp, evecc_tmp, eval_tmp)
+
+      deallocate(m_indx,n_indx,l_indx,ibas_indx)
+      deallocate(ibasiwf)
       if (lsh) deallocate(hrotkps,eveccs,evals)
       close(ifbnd)
 c end of loop over spin
