@@ -113,13 +113,13 @@ c     &       emax_sigm2,'  !(Ry)  (Optional) emax cutoff for Sigma (as in the n
       write(ifi,"(a,f10.3,a)") 'emax_sigm  ', emax_sigm,' !(Ry)  emax cutoff for Sigma'
 
 c ... GWIN_V2
-      dw = 0.005d0
-      omg_c = 0.04d0
-      iSigMode= 3
-      niw = 10      !niw =10
-      delta  = -1d-6
-      deltaw = 0.02d0
-      esmr   = 0.003d0 ! 0.01d0
+c      dw = 0.005d0
+c      omg_c = 0.04d0
+c      iSigMode= 3
+c      niw = 10      !niw =10
+c      delta  = -1d-6
+c      deltaw = 0.02d0
+c      esmr   = 0.003d0 ! 0.01d0
 
       read(ifig,*)
       read(ifig,*)
@@ -139,22 +139,22 @@ c ... GWIN_V2
 c
       write(ifi,*)
       write(ifi,"(a)" ) '! ##### FREQUENCIES from GWIN_V2 ################ '
-      write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) energy-mesh (bin width size) along real axis.'
-      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced at omg_c'
-      write(ifi,"(a)")         '  !  coaser mesh for higher energy. Width get to be doubled at omg_c.'
-      write(ifi,"(a,i5,a)")    'iSigMode ', iSigMode,' ! QSGW mode switch for gwsc. use =3.'
-      write(ifi,"(a,i5,a)")    'niw      ', niw,' ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
-      write(ifi,"(a)")         '  ! E.g. try niw=6 and niw=12'
-      write(ifi,"(a,d10.2,a)") 'delta    ', delta, ' !(a.u.)  Broadening of x0. negative means tetrahedron method.'
-      write(ifi,"(a)")         '  ! used by hx0fp0. You get smeard x0 witth abs(delta).'
-      write(ifi,"(a,f10.6,a)") 'deltaw   ', deltaw,' !(a.u.) Mesh for numerical derivative to get the Z factor'
-      write(ifi,"(a,f10.6,a)") 'esmr     ', esmr,  ' !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
-      write(ifi,"(a)")         '  ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
-      write(ifi,"(a)")         '  ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
-      write(ifi,"(a)") 'GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
-c      if(esmr_char==eeg) write(ifi,"(a)") 'GaussSmear on  ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
-c      if(esmr_char/=eeg) write(ifi,"(a)") 'GaussSmear off ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
-
+c      write(ifi,"(a,f10.6,a)") 'dw    ', dw,   ' !(a.u.) energy-mesh (bin width size) along real axis.'
+c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced at omg_c'
+      write(ifi,"(a)")  'HistBin_dw    1d-5  ! (a.u.) bin width along real axis at omega=0.'
+      write(ifi,"(a)")  'HistBin_ratio 1.03  ! frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a' 
+      write(ifi,"(a)")  '                    ! This "ba mesh" is from 9Mar2016'
+      write(ifi,"(a)")  '                    ! See fpgw/gwsrc/m_freq.F'
+      write(ifi,"(a)")  'iSigMode  3   ! QSGW mode switch for gwsc. use =3.'
+      write(ifi,"(a)")  'niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c'
+      write(ifi,"(a)")  '              ! To test, try niw=6 and niw=12'
+      write(ifi,"(a)")  'delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.'
+      write(ifi,"(a)")  '              ! used by hx0fp0. You get smeard x0 witth abs(delta).'
+      write(ifi,"(a)")  'deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor'
+      write(ifi,"(a)")  'esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators'
+      write(ifi,"(a)")  '              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
+      write(ifi,"(a)")  '              ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
+      write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '
       write(ifi,"(a)")'<PRODUCT_BASIS> '

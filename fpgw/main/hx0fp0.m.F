@@ -14,7 +14,7 @@
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
      & nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
       use m_keyvalue,only: getkeyvalue
@@ -32,7 +32,7 @@
      & ppbir,shtvg, miat,tiat , ntq
 !! frequency
       use m_freq,only: getfreq, !NOTE: call getfreq generate following data.
-     & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !output of getfreq
+     & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !, frhis0,nwhis0 !output of getfreq
 !! tetwt
       use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
@@ -228,13 +228,13 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer,allocatable:: aiktimer(:,:)
       integer:: l2nl
       logical:: eibz4x0,tiii,iprintx,symmetrize,eibzmode
-      real(8):: qread(3)
+      real(8):: qread(3),imagweight
 
       character(128):: vcoudfile
       integer:: src,dest
       logical:: crpa,lqall
       integer,allocatable :: iclasst(:), invgx(:)
-      integer:: ificlass,ifile_handle
+      integer:: ificlass,ifile_handle,k
       complex(8),allocatable:: ppovl_(:,:)
 
       logical:: readw0w0itest=.false.
@@ -1058,6 +1058,9 @@ c          if(allocated(ppovlzinv)) deallocate(ppovlzinv)
             rcxq=0d0
           endif
 
+c!! Tetrahedron weitht for zero section
+c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis0,nwhis0,npm)
+
 !! Tetrahedron weight.
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
@@ -1067,7 +1070,31 @@ c          if(allocated(ppovlzinv)) deallocate(ppovlzinv)
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          call gettetwt(q,iq,is,isf,nwgt(:,iq))
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm)
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$        jpm=1
+c$$$        do k=1,nqbz
+c$$$c           nkqmin= 999999
+c$$$c           do ibib = 1, nbnb(k,jpm)
+c$$$c              nkqmin = min(n2b(ibib,k,jpm),nkqmin)
+c$$$c           enddo
+c$$$           do ibib = 1, nbnb(k,jpm) !---  ibib loop
+c$$$c              it =  n1b(ibib,k,jpm)    !valence
+c$$$c              itp = n2b(ibib,k,jpm) - itps + 1 !val
+c$$$              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
+c$$$              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
+c$$$                 if(iw<20) then
+c$$$                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+c$$$                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
+c$$$                 endif
+c$$$              enddo             ! iw
+c$$$              endif
+c$$$           enddo
+c$$$        enddo
+c$$$c        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
           call cputid(0)
@@ -1196,7 +1223,10 @@ c              if(newaniso2.and.iq<=nqibz) then !for mmmw
                   enddo
                 enddo
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
+c                write(*,"('rrr: ',i5,2x,f10.4,2x,10(d12.5,x,d12.5,2x))") iw,freq_r(iw),(epstinv(igb,igb),igb=1,5)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+c                write(*,"('ggg: ',i5,2x,f10.4,2x,10(d12.5,x,d12.5))") iw,freq_r(iw),(epstinv(igb,igb),igb=1,5)
+
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$cmmm direct inversion vs. block inversion
 c$$$                if(iq>nqibz) then

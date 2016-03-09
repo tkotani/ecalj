@@ -5,7 +5,7 @@
      i nsp,isp,             
      i qbas,ginv,
      i qibz,qbz,wk,nstbz,irkip,nrkip, 
-     i freq_r,nw_i,nw, freqx,wx,dw,         
+     i freq_r,nw_i,nw, freqx,wx,dwdummy,         
      i ecore,
      i nlmto,nqibz,nqbz,nctot,
      i nbloch,ngrp,niw,nq,     
@@ -171,7 +171,7 @@ c      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
       real(8), intent(in) :: q0i(1:3,1:nq0i),alat,ecore(nctot) !shtvg(3,ngrp),
       real(8), intent(in) :: qbas(3,3),ginv(3,3)
       real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
-      real(8), intent(in) :: qbz(3,nqbz),freqx(niw),wx(niw),ef,esmr,dw
+      real(8), intent(in) :: qbz(3,nqbz),freqx(niw),wx(niw),ef,esmr,dwdummy
       real(8), intent(in) :: ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo)
       real(8), intent(in) :: qip(3,nq),eftrue
 

@@ -128,7 +128,7 @@ c      logical :: sergeys
       real(8):: volwgt
 
       integer(4)::nwin, incwfin
-      real(8)::efin,ddw
+      real(8)::efin,ddw,dwdummy
       integer(4),allocatable::imdim(:)
       real(8),allocatable::freqx(:),freqw(:),wwx(:),expa(:)
 
@@ -790,7 +790,7 @@ c     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i        icore,ncore, imdim,
      i              ppb, ! pdb,dpb,ddb,
      i              freq_r,freqx, wwx, expa,
-     i              ua,dw,  !deltaw,
+     i              ua,dwdummy,  !deltaw,
      i              ecore(:,is), 
 c
      d        nlmto,nqibz,nqbz,nctot,

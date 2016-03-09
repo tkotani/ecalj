@@ -7,7 +7,7 @@ c so this routine contains unused things so much.
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,!nw_input=>nw,ef
-     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use m_keyvalue,only: getkeyvalue

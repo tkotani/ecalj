@@ -9,7 +9,7 @@ c     & dq_,qbz,wbz,qibz,wibz,qbzw,
 c     & idtetf,ib1bz,idteti,
 c     & nstar,irk,nstbz
       use m_genallcf_v3,only:
-     i  nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw,dw
+     i  nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw!,dw
       use m_keyvalue,only:getkeyvalue
       use m_readeigen,only: readeval !init* is alreaday called.
       use m_ReadEfermi,only: readefermi,ef

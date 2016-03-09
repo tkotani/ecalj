@@ -9,7 +9,7 @@
       use m_genallcf_v3,only: 
      i  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      i  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,
-     i  alat,diw,dw,delta,deltaw,esmr,symgrp,iclass,nlnmv,
+     i  alat,delta,deltaw,esmr,symgrp,iclass,nlnmv, !,diw,dw
 c  clabl,nindxv,nindxc,ncwf,
 c     &  il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, 
 c     &  ilc,inc,imc,  ilnmc, 

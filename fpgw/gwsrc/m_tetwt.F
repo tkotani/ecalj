@@ -15,14 +15,14 @@
 !!
       contains !! ----------------------------------------------------------------------
 !! routine
-      subroutine gettetwt(q,iq,is,isf,nwgt) !this routine set output data above.
+      subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm) !this routine set output data above.
 !! input data; read only
       use m_readeigen,only:   readeval !we assume init_readeval is called already
       use m_genallcf_v3,only: ecore,nctot    !we assume genallcf_v3 called already.
       use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
         ! we assume read_bzdata is called already
-      use m_freq,only:                   !we assume getfreq is called already.
-     &   frhis, nwhis,npm !output of getfreq
+c      use m_freq,only:                   !we assume getfreq is called already.
+c     &   frhis, nwhis,npm !output of getfreq
       use m_zmel,only: nband
       use m_ReadEfermi,only: readefermi,ef
 
@@ -37,6 +37,8 @@
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
       integer:: kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
 
+      integer:: nwhis,npm
+      real(8):: frhis(1:nwhis+1)
       tetra=.true.
       eibzmode = eibz4x0()
       debug=.false.

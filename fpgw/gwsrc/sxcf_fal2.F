@@ -4,7 +4,7 @@
      i qibz,qbz,wk,nstbz,wik,  
      i nstar,irkip,  
      i freq_r,freqx,wx, 
-     i dw,ecore, 
+     i dwdummy,ecore, 
      d nlmto,nqibz,nqbz,nctot,
 c     d nl,nnc,nclass,natom,mdimx,
      d nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
@@ -228,7 +228,7 @@ c     i iclass,mdim,nlnmv,nlnmc,
 c     i icore,ncore,imdim,
 c     i ppb, 
      i freq_r,freqx,wx, 
-     i dw,ecore, 
+     i dwdummy,ecore, 
      d nlmto,nqibz,nqbz,nctot,
 c     d nl,nnc,nclass,natom,mdimx,
      d nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
@@ -261,7 +261,7 @@ c
      & eq(nband,nq), 
      & ekq(nband), ekc(nctot+nband),
      & tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,wfacx,we,esmrx, !ua,
-     & dw,wtt,wexx,www,exx,exxq ,wfacx2,weavx2,wex
+     & dwdummy,wtt,wexx,www,exx,exxq ,wfacx2,weavx2,wex
 c      complex(8) :: zsec(-1:1,ntq,nq)
 c      real(8)    ::  shtw
 c                       ! This shft is  to avoid some artificial resonance effects.
@@ -949,7 +949,7 @@ c             if(ixs>ixsmin .and. omg> ef ) ixsmin = ixs
                   wexx  = we
                   if(ixs+1 > nw) then
                     write (*,*) ' nw_i ixsmin',nw_i, ixsmin
-                    write (*,*) ' wexx, dw ',wexx,dw
+c                    write (*,*) ' wexx, dw ',wexx,dw
                     write (*,*) ' omg ekc(it) ef ', omg,ekc(it),ef
 Cstop2rx 2013.08.09 kino                stop ' sxcf 222: |w-e| out of range'
                     call rx( ' sxcf 222: |w-e| out of range')

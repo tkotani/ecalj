@@ -933,6 +933,7 @@ c open file
       write(iftb,*)nq
       write(iftb,*)nwf
 c allocate
+      if(allocated(hrotk)) deallocate(hrotk,hrotkp,evecc,eval)
       allocate (hrotk(nwf,nwf,nqbz), ! hrotr(nwf,nwf,nqbz),
      o          hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
 c for small Hamiltonian
@@ -956,9 +957,12 @@ c (3-1) ~H(k) -> Hrot(k): note eunk is eigenvalues in the basis of cnk
      d              nwf,nqbz,
      o              hrotk) !rotated Hamiltonian in MLW basis. 
 c (3-2) Hrot_mn(R)
+      if(allocated(irws)) deallocate(irws,rws,drws)
       allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
       call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
+      if(allocated(hrotr)) deallocate(hrotr)
       allocate(hrotr(nwf,nwf,nrws)) !real space Hamiltonian in Wannier funciton basis
+c      write(*,*) 'xxxxxxxxxx1'
       if (ixc.eq.2) then
          call get_hrotr_ws(hrotk,qbz,wbz,
      i        rws,irws,drws,
@@ -1005,6 +1009,7 @@ c     skino
          deallocate(hrotrcut)
 c     ekino
       endif
+c      write(*,*) 'xxxxxxxxxx2'
 
 !! ----------------------------------------------------------
 !! k-point mesh
@@ -1039,6 +1044,7 @@ c --- Readin nlam index
       ifoc = iopen('@MNLA_CPHI',1,0,0)
       ldim2 = nlmto
       read(ifoc,*)
+      if(allocated(m_indx)) deallocate(m_indx,n_indx,l_indx,ibas_indx,ibasiwf)
       allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
       do ix =1,ldim2
         read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
@@ -1049,7 +1055,6 @@ c --- Readin nlam index
       do iwf=1,nwf
         ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
       enddo
-
 !! write HrotRS
       ifh=ifile_handle()
       if(is==1) open(ifh,file='HrotRS.up',form='unformatted')

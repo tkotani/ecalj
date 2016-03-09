@@ -48,7 +48,7 @@
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
      & nlmto,nlnmx, nctot,niw,!nw_input=>nw,
-     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use m_keyvalue,only: getkeyvalue
@@ -207,6 +207,7 @@ c      logical:: newaniso
       integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
       logical:: hermitianW
       integer:: nw
+      real(8)::dwdummy
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -440,7 +441,7 @@ c     write(6,'("    ua      =",f13.6)') ua
 !!      nw_i=0 for time-reversal case.
 !!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
 !!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
-        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
+c        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
         ififr=ifile_handle()
         open(UNIT=ififr,file='freq_r')
         read(ififr,*)nwxx
@@ -1012,7 +1013,7 @@ c          if(sum(irkip(is,:,:,ip))==0) cycle
      i   qbas,ginv,qibz,qbz ,wbz, nstbz, 
      i   irkip(is,:,:,:),nrkip(is,:,:,:),
      i   freq_r,nw_i,nw, freqx,wwx, 
-     i   dw,                   
+     i   dwdummy,                   
      i   ecore(:,is),
      d   nlmto,nqibz,nqbz,nctot,
      d   nbloch,ngrp,niw,nq,   

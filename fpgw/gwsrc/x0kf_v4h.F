@@ -1229,31 +1229,28 @@ c ------------------------------------------------
           ispx = 3-isp !flip
         endif
 
-C... Check freqr=frhis_m.
-C... But I think now this is not necessary. You can supply any freqr(iw). But be careful.
+!! Check freqr
         if(realomega) then
           if( nwhis <= nw_w ) then
             write(6,*)nwhis,nw_w
-Cstop2rx 2013.08.09 kino            stop ' dpsion5: nwhis<=nw_w'
             call rx( ' dpsion5: nwhis<=nw_w')
           endif
-Cstop2rx 2013.08.09 kino          if( freqr(0)/=0d0 ) stop ' dpsion5: freqr(0)/=0d0'
           if( freqr(0)/=0d0 ) call rx( ' dpsion5: freqr(0)/=0d0')
-          aaa = 0d0
-          if(nw_w>0) then
-            do iw = 1,nw_w
-              aaa = aaa + abs( freqr(iw) - (frhis(iw)+frhis(iw+1))/2d0 )
-              if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
-     &     iw,freqr(iw),  (frhis(iw)+frhis(iw+1))/2d0
-            enddo
-Cstop2rx 2013.08.09 kino            if(aaa>1d-10)stop 'dpsion5:freqr/=frhis_m is not implimented yet'
-            if(aaa>1d-10)call rx( 'dpsion5:freqr/=frhis_m is not implimented yet')
-          endif
+!! I think current version allows any freqr(iw), independent from frhis.
+c$$$          aaa = 0d0
+c$$$          if(nw_w>0) then
+c$$$            do iw = 1,nw_w
+c$$$              aaa = aaa + abs( freqr(iw) - (frhis(iw)+frhis(iw+1))/2d0 )
+c$$$              if(debug) write(6,"(' iw freqr frhis_m=',i5,2f13.6)" )
+c$$$     &        iw,freqr(iw),  (frhis(iw)+frhis(iw+1))/2d0
+c$$$            enddo
+c$$$            if(aaa>1d-10)call rx( 'dpsion5:freqr/=frhis_m is not implimented yet')
+c$$$          endif
         endif !realomega
 
 C--------------------------------------------------------------
-! Each bin  [his_Left, his_Right]  his_Center is middle.
-! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
+!! Each histogram bins are  [his_Left, his_Right], and  his_Center is middle.
+!! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
         if(debug) write(6,*)' dpsion5: RRR 2222222222 '
         allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
         his_L(1:nwhis) = frhis(  1:  nwhis)

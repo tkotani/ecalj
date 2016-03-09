@@ -232,7 +232,7 @@ c------------
 c FREQUENCIES
 c------------
 c      if(readgwinput()) then
-      call getkeyvalue("GWinput","dw",    dw  )
+c      call getkeyvalue("GWinput","dw",    dw  )
       call getkeyvalue("GWinput","niw",   niw )
       call getkeyvalue("GWinput","delta", delta )
       call getkeyvalue("GWinput","deltaw",deltaw )
@@ -257,10 +257,10 @@ cc> Re (0), Im (1) or both (2) frequencies
 c       read(ifi,6000)blank
 c       read(ifi,6000)blank
 c      endif
-      diw=1d90 !dummy never used.
+c      diw=1d90 !dummy never used.
       imagw=-999999 ! dummy
       write(6,*)' --- Freq ---'
-      write(6,"(a,f12.6)")'    dw   =',dw
+c      write(6,"(a,f12.6)")'    dw   =',dw
       write(6,"(a,i6)")'    niw  =',niw
       write(6,"(a,f12.6)")'    delta=',delta
       write(6,"(a,f12.6)")'    esmr =',esmr

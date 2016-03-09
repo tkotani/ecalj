@@ -55,7 +55,7 @@
      o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot!,nw
       real(8), allocatable,protected:: 
      o  plat(:,:),pos(:,:),z(:),  symgg(:,:,:)   !w(igrp) freq(:),
-      real(8),protected :: alat,diw,dw,deltaw !ef
+      real(8),protected :: alat,deltaw !ef,,diw,dw
       logical,protected:: done_genallcf_v3=.false.
       character(8),allocatable,protected:: spid(:)
 !! unprotected --> need to be protected
@@ -88,7 +88,7 @@ c-----------------------------------------------------------------------
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
-      real(8)::a,b,zz, efdummy
+      real(8)::a,b,zz, efdummy,dw,diw
       integer:: nwdummy
 c      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
 c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)

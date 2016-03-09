@@ -7,7 +7,7 @@ c-------------------------------------------------------------
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,!,nw_input=>nw,
-     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat, delta,deltaw,esmr,symgrp,clabl,iclass,!diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use m_readeigen,only: init_readeigen,readeval

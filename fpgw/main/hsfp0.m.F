@@ -10,7 +10,7 @@
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,ngrp,
      & nlmto,nlnmx, nctot,niw,
-     & alat, diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     & alat,delta,deltaw,esmr,symgrp,clabl,iclass, ! diw,dw,
      & invg,  il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use m_keyvalue,only: getkeyvalue
@@ -182,6 +182,7 @@ c      logical:: newaniso=.true.
       character(128) :: ixcc
 
       integer:: nw !,ifief
+      real(8)::dwdummy
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -362,7 +363,7 @@ c     write(6,'("    ua      =",f13.6)') ua
       write(6,'("    esmr    =",f13.6)') esmr
       if(ixc==6) write(6,'("    esmr2    =",f13.6)') esmr2
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
-      write(6,'("    niw dw   =",i7,f13.6)') niw,dw
+c      write(6,'("    niw dw   =",i7,f13.6)') niw ,dw
 
 !!   read dimensions of wc,b,hb from hbe.d
       ifhbed     = iopen('hbe.d',1,0,0)
@@ -951,7 +952,7 @@ c        if(sum(irkip(is,:,:,ip))==0) cycle
      i   qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
      i   nstar,irkip(is,:,:,:),  
      i   freq_r,freqx, wwx,   
-     i   dw, ecore(:,is),
+     i   dwdummy, ecore(:,is),
      d   nlmto,nqibz,nqbz,nctot,
      d   nbloch,ngrp, nw_i,nw,  niw,niwx,nq, 
      i   nblochpmx,ngpmx,ngcmx,
