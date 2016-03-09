@@ -282,7 +282,8 @@ c      write(6,*)'sxcf_fal3_scz'
       debug=.false.
       if(verbose()>=90) debug=.true.
 
-      corehole=.true.
+c      corehole=.true.
+      corehole=.false.
 
 !! core-hole
       if(corehole) then
