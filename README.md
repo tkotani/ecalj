@@ -40,9 +40,7 @@ Overview
    See fpgw/Wannier/README.
 
 Utilities such as a converter between POSCAR(VASP) and our crystal strucrue file
-'ctrls.*' are included. (slightly buggy; let T.Kotani know problems in
-it; note that we should supply numerically accurate atomic positions to judge 
-crystal symmetry automatically).
+'ctrls.*' are included (slightly buggy).
 
 
 !! CAUTION for know bug(or not) for spin susceptibility mode!!! (apr2105).
@@ -68,9 +66,8 @@ For your publications, please make two citations directly
 to this homepage as;
 
 [1] ecalj package at https://github.com/tkotani/ecalj/. 
-Its one-body part is developed based on Ref.[2].  
-[2] LMsuit package at http://www.lmsuite.org/. 
-Its GW part is adopted mainly from Ref.[1].
+Its one-body part is developed based on LMsuit at
+http://www.lmsuite.org/ whose GW part is mainly adopted from ecalj.
 
 in the references on the same footing of other papers.
 
@@ -85,11 +82,10 @@ shell scripts in your \verb+~/bin/+ directory).
 (or somewhere else where BINDIR specified in InstallAll.*).
 
 (0) Get ecalj package and get tools.  
-(1) make for single-core LDA part,   
-(2) make for MPIK LDA part,   
-(3) make for MPIK GW part.  
-(4) Install test  
-(5) crystal structure tools  (not necessary).
+(1) make for single-core LDA part, make for MPIK LDA part,   
+    make for MPIK GW part,
+    set crystal structure tools.
+(2) Install test  
 
 In the following explanation, we assume gfortran in ubuntu.
 But we can also use ifort and others in your environment with
@@ -131,9 +127,8 @@ After you did the above git clone command, a directory ecalj/ appears
 We can check history of ecalj code development by
 "\>gik --all" at ecalj/ directory after you did git clone.
 
-#### All from (1) through (5) are performed by InstallAll.foobar.
-Following procedures, (1)-(4), are done automatically by a script,
-InstallAll.ifort (in the case of intel fortran). 
+#### (2) is performed by InstallAll.foobar.
+Run InstallAll.ifort (in the case of intel fortran) at ecalj/. 
 We can invoke this command as;
 
 >cd ecalj  
@@ -144,9 +139,9 @@ Please look into the script "InstallAll.ifort". It is a small text file.
 It contains the setting of your BINDIR= directory,
 to which the InstallAll.ifort will copy all binaries and scripts.
 It internally uses three machine-comilar dependent files;  
-  a.lm7K/MAKEINC/Make.inc.ifort (for single core version -->(1))  
-  b.lm7K/MAKEINC/Make.inc.ifort_mpik (k-point paralell version -->(2)  
-  c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version -->(3)).  
+  a.lm7K/MAKEINC/Make.inc.ifort (for single core version )  
+  b.lm7K/MAKEINC/Make.inc.ifort_mpik (k-point paralell version )  
+  c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version ).  
 At the last stage of the script, it runs automatic tests.
 (You can neglect failure for nio_gwsc; it may show one-failure among two checks).
 The test may use ten minutes or more... Have a coffee!
@@ -224,7 +219,7 @@ make with BINDIR=xxx.
   (FC and LK variables).
 
 
-##### (2) make MPI LDA part.
+##### (2)-i make MPI LDA part.
 lmf-MPIK and lmfgw-MPIK are needed for gwsc (srcipt for QSGW). 
 These are k-point parallel version of lmf, and gw driver lmfgw. To
 make it, do  
@@ -251,7 +246,7 @@ at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
 In advance, you have to make your bin, and add ~/bin to  your path
 (e.g. "export PATH=$HOME/bin:$PATH" in .bashrc . Then login again or "source .bashrc")
 
-##### (3) Installation for fpgw/
+##### (2)-ii Installation for fpgw/
 At ecalj/fpgw/exec/ directory, you have to a softlink make.inc such as
 >lrwxrwxrwx 1 takao takao 17 Aug 25 13:18 make.inc -> make.inc.gfortran
 
@@ -261,6 +256,8 @@ and do
 >ln -s make.inc.ifort.cmd make.inc  
 
 to make a soft like make.inc -> make.inc.cmd
+
+
 
 * Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar".  
 
@@ -279,7 +276,7 @@ It is needed to run "ulimit -s unimited" in the job-submition script
 or before running GW jobs. 
 
 
-##### (4) Install test
+##### (2)-iii Install test
 We have to check whether binaries works fine or not.
 Move to ecalj/TestInstall. Then type make (with no arguments). 
 It shows help about how to do test.
@@ -311,7 +308,7 @@ you may see some make procedure is repeated. You can neglect it as
 long as "All test are passed!" is shown in the (4)install test.
 
 
-##### (5) Structure tool.
+##### (2)-iv Structure tool.
 This is not necessary if you don't need to need converter between PROCAR and ctrl/ctrls
 (crystal structure file in ecalj).
 In any calculations, we first have to supply crystal structure correctly.
@@ -340,7 +337,6 @@ It depends on your machine. (after editing .bashrc, you have to do
 
 Set the variable of VESTA=, at the begining of 
 ~/ecalj/StructureTool/viewvesta.py to let it know where is VESTA.
-
 
 
 
