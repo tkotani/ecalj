@@ -36,7 +36,7 @@ c     &     idteti, nstar,irk,nstbz
 c      use m_anf,only: anfcond,
 c     & laf,ibasf !,ldima,pos,natom
 !! tetwt
-      use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
+      use m_tetwt,only: gettetwt,dlo_m_tet,dlo_m_tet2,alo_m_tet, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
@@ -646,7 +646,7 @@ c$$$  endif
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          call gettetwt(q,iq,is,isf,nwgt(:,iq))
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),.true.)
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
           iqeibz=iq
           symmetrize=.false.
@@ -670,8 +670,11 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
      i     chipm,eibzmode,      !z1offd,
      i     nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-          deallocate(ihw,nhw,jhw, whw,ibjb )
-          if(tetra)  deallocate( n1b,n2b)
+!          deallocate(ihw,nhw,jhw, whw,ibjb )
+          call dlo_m_tet
+          if(tetra)then
+             call dlo_m_tet2
+          end if
  1003   continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
 !TIME1_180001 "Do1003"
 c===========end of spin loop============================================

@@ -8,33 +8,65 @@
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!   
       module m_tetwt
-      real(8),allocatable :: whw(:)
-      integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-      integer:: nbnbx,nhwtot
-      integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+      real(8), protected,allocatable :: whw(:)
+      integer, protected,allocatable :: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
+      integer, protected             :: nbnbx,nhwtot
+      integer, protected,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+      real(8), protected,allocatable :: ek_mtet(:,:),eqk_mtet(:,:)
+      integer, protected:: nband_mtet,nqbz_mtet
 !!
       contains !! ----------------------------------------------------------------------
+      subroutine alo_m_tet(nqbz,npm)  !corresponds to L582 of hx0fp0.m.F
+      integer, intent(in):: nqbz,npm
+        allocate(nbnb(nqbz,npm))
+      end 
+      subroutine dlo_m_tet
+      deallocate(ihw,nhw,jhw, whw,ibjb) 
+      end 
+      subroutine dlo_m_tet2
+      deallocate(n1b,n2b)
+      end
+
+      subroutine gettetwt2(q,is,isf,nwgt,ek_input,eqk_input,nband_input,nqbz_input) 
+      use m_keyvalue, only: getkeyvalue     
+      implicit none
+      integer,intent(in):: nband_input,nqbz_input
+      real(8),intent(in):: q(3),ek_input(1:nband_input,1:nqbz_input)
+      real(8),intent(in):: eqk_input(1:nband_input,1:nqbz_input)      
+      integer is,isf,nwgt(*),iq,mtet(3)
+      nband_mtet=nband_input
+      nqbz_mtet=nqbz_input
+      allocate(ek_mtet(1:nband_mtet,1:nqbz_mtet),eqk_mtet(1:nband_mtet,1:nqbz_mtet))
+      ek_mtet(1:nband_mtet,1:nqbz_mtet)=ek_input(1:nband_mtet,1:nqbz_mtet)
+      eqk_mtet(1:nband_mtet,1:nqbz_mtet)=eqk_input(1:nband_mtet,1:nqbz_mtet)
+
+      iq=-999999
+      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
+      if(sum(abs(mtet))/=3) call rx("error: strange value iq in gettetwt2")
+      call gettetwt(q,iq,is,isf,nwgt,.False.)
+      end subroutine  
 !! routine
-      subroutine gettetwt(q,iq,is,isf,nwgt) !this routine set output data above.
+      subroutine gettetwt(q,iq,is,isf,nwgt,vsw) !this routine set output data above.
 !! input data; read only
       use m_readeigen,only:   readeval !we assume init_readeval is called already
       use m_genallcf_v3,only: ecore,nctot    !we assume genallcf_v3 called already.
       use m_read_bzdata,only: nqbz,qbas,ginv,nqbzw,nteti,ntetf,idtetf,qbzw,ib1bz,nqibz,qbz
         ! we assume read_bzdata is called already
+      use m_zmel,only: nband
       use m_freq,only:                   !we assume getfreq is called already.
      &   frhis, nwhis,npm !output of getfreq
-      use m_zmel,only: nband
       use m_ReadEfermi,only: readefermi,ef
 
       implicit none
       real(8),intent(in):: q(3)
-      integer,intent(in):: is,isf,iq,nwgt(*)
+      integer,intent(in):: is,isf,nwgt(*),iq
+!      real(8),intent(in):: ek(1:nband,1:nqbz),eqk(1:nband,1:nqbz) 
 
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
       logical,allocatable :: iwgt(:,:,:,:)
       integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:) !qbzw(:,: )
-      logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
+      logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0,vsw
       integer:: kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
 
       tetra=.true.
@@ -42,18 +74,28 @@
       debug=.false.
       if(verbose()>=100) debug=.true.
 
-      if(.not.allocated(nbnb)) allocate( nbnb(nqbz,npm))
-      allocate( nbnbtt(nqbz,npm),ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+      if(vsw)then
+         nband_mtet=nband
+          nqbz_mtet=nqbz
+      end if
+       
+      if(.not.allocated(nbnb))allocate( nbnb(nqbz_mtet,npm))
+         allocate( nbnbtt(nqbz_mtet,npm),ekxx1(nband_mtet,nqbz),ekxx2(nband_mtet,nqbz))
 
 !!===========tetraini block tetra==.true.===============================1ini
 c      if(tetra) then
       write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
 !!     ekxx1 for rk
 !!     ekxx2 for q+rk See tetwt4
-      do kx = 1, nqbz
-        call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-        call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-      enddo
+      if(vsw)then        
+         do kx = 1, nqbz_mtet
+            call readeval(qbz(:,kx),   is,  ekxx1(1:nband_mtet, kx) ) 
+            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband_mtet, kx) )
+         enddo
+      else
+         ekxx1(1:nband_mtet, 1:nqbz_mtet)=ek_mtet(1:nband_mtet, 1:nqbz_mtet) 
+         ekxx2(1:nband_mtet, 1:nqbz_mtet)=eqk_mtet(1:nband_mtet, 1:nqbz_mtet) 
+      end if
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
 c     the pairs are not dependent on the energy omega
@@ -65,9 +107,9 @@ c     in the denominator of the dielectric function.
       else
         ncc=nctot
       endif
-      allocate( demin(nband+nctot,nband+ncc,nqbz,npm),
-     &          demax(nband+nctot,nband+ncc,nqbz,npm) )
-      allocate( iwgt (nband+nctot,nband+ncc,nqbz,npm) )
+      allocate( demin(nband_mtet+nctot,nband_mtet+ncc,nqbz_mtet,npm),
+     &          demax(nband_mtet+nctot,nband_mtet+ncc,nqbz_mtet,npm) )
+      allocate( iwgt (nband_mtet+nctot,nband_mtet+ncc,nqbz_mtet,npm) )
 !     wgt, demin, demax may require too much memory in epsilon mode.
 !     We will have to remove these memory allocations in future.
 !     tetwt5x_dtet2 can be very slow because of these poor memory allocation.
@@ -84,7 +126,7 @@ c      close(ifief)
       call readefermi()
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
-     d ntetf,nqbzw, nband,nqbz,
+     d ntetf,nqbzw, nband_mtet,nqbz_mtet,
      i nctot,ecore(1,is),idtetf,qbzw,ib1bz, 
      i job,
      o iwgt,nbnb,               !job=0
@@ -101,11 +143,11 @@ c      close(ifief)
      &          ,n2b(nbnbx,nqbz,npm))
       n1b=0; n2b=0 
       do jpm=1,npm
-        call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx,
+        call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz_mtet,nband_mtet,nctot,ncc, nbnbx,
      o   n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
       enddo
       if(debug) then
-        do kx  = 1, nqbz
+        do kx  = 1, nqbz_mtet
           do jpm = 1, npm
             write(6,"('jpm kx  minval n1b n2b=',4i5)")jpm,kx,
      &       minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
@@ -114,7 +156,7 @@ c      close(ifief)
         enddo
       endif
       if(sum(abs(nbnb-nbnbtt))/=0)then
-        do ik=1,nqbz
+        do ik=1,nqbz_mtet
           write(6,*)
           write(6,*)"nbnb  =",nbnb(ik,:)
           write(6,*)"nbnbtt=",nbnbtt(ik,:)
@@ -158,11 +200,11 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       write(6,*)' nhwtot=',nhwtot
       deallocate(demin,demax)
       allocate( whw(nhwtot),    ! histo-weight
-     & ibjb(nctot+nband,nband+ncc,nqbz,npm) )
+     & ibjb(nctot+nband_mtet,nband_mtet+ncc,nqbz_mtet,npm) )
       whw=0d0
       ibjb = 0
       do jpm=1,npm
-        do ik   = 1,nqbz
+        do ik   = 1,nqbz_mtet
           do ibib = 1,nbnb(ik,jpm)
             ib1  = n1b(ibib,ik,jpm)
             ib2  = n2b(ibib,ik,jpm)
@@ -176,7 +218,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
-     d ntetf,nqbzw, nband,nqbz,
+     d ntetf,nqbzw, nband_mtet,nqbz_mtet,
      i nctot,ecore(1,is),idtetf,qbzw,ib1bz, 
      i job,
      o iwgt,nbnb,               ! job=0
