@@ -282,9 +282,7 @@ c      write(6,*)'sxcf_fal3_scz'
       debug=.false.
       if(verbose()>=90) debug=.true.
 
-cccccccccccccccc
-      corehole=.false.
-cccccccccccccccc
+      corehole=.true.
 
 !! core-hole
       if(corehole) then
@@ -296,6 +294,7 @@ cccccccccccccccc
           read(ifcorehole,*) wcorehole(it,1:nsp)
         enddo
         close(ifcorehole)
+        write(*,*) 'end of reading CoreHole' 
       endif
 
       if(.not.exchange) then
@@ -439,10 +438,13 @@ c            if(GaussSmear()) ddw= 10d0
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
-            nt0p = nocc (ekc,efp,.true.,nstatetot)
-            nt0m = nocc (ekc,efm,.true.,nstatetot)
+c            nt0p = nocc (ekc,efp,.true.,nstatetot)
+c            nt0m = nocc (ekc,efm,.true.,nstatetot)
+            nt0p = nocc (ekq,efp,.true.,nstatetot)+ nctot
+            nt0m = nocc (ekq,efm,.true.,nstatetot)+ nctot
 !! nbmx1 ebmx1: to set how many bands of <i|sigma|j>  do you calculate.
 !! nbmx2 ebmx2: to restrict num of bands of G to calculate G \times W
+
             if(exchange) then
               nbmax = nt0p-nctot
             else
@@ -483,6 +485,7 @@ c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
 !TIME0_1088
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
      &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
+            if(debug) write(6,*)' end of get_zmelt'
 !TIME1_1088 "get_zmelt"
 
 c$$$!! cccccccccc START: old version, instead of get_zmelt ccccccccccc

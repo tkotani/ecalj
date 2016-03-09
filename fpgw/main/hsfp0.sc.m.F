@@ -498,16 +498,14 @@ c      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
           write(6,*)' exonly=T ecore shift: ecore---> ecore-100'
           ecore = ecore-100.0
         endif
-        if(maxval(ecore(:,1:nspin))>ef) then
-          write(6,*)' ef nspin=',ef,nspin,nctot
-          do is=1,nspin
-            write(6,*)' maxval( ecore) nctot=', is,nctot
-            do ix=1,nctot
-              write(6,"(i4,d13.5)") ix,ecore(ix, is)
-            enddo
-          enddo
-          call rx( 'hsfp0 ixc=3: ecore>evalence. ')
-        endif
+        write(6,"(a)")' CoreEx mode: We change ef as ef=lowesteval-1d-3, slightly below the bottom of valence.'
+        write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
+        do ix=1,nctot
+           write(6,"(i4,x,d13.5,x,d13.5)") (ix,ecore(ix,is),is=1,nspin)
+        enddo
+c        if(maxval(ecore(:,1:nspin))>ef) then !ef is bottom of valence.
+c          call rx( 'hsfp0 ixc=3: ecore>evalence. ')
+c        endif
       endif
  201  continue
 
