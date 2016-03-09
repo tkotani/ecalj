@@ -32,7 +32,7 @@ tote = ./
 tags   = ./
 
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
-progs= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
+progs= huumat hpsig hmaxloc spin_susceptibility huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
 progs2 = $(progs) 
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
@@ -468,6 +468,14 @@ $(MPI)
  # $(gwsrc)rangedq.o \
  # $(NFPLtot)
 
+ SPIN = \
+ $(maxloc)spin_susceptibility.o \
+ $(maxloc)maxloc0.o \
+ $(maxloc)maxloc1.o \
+ $(maxloc)maxloc2.o \
+ $(maxloc)maxloc3.o \
+ $(maxloc)maxloc4.o
+
  MLOC = \
  $(maxloc)hmaxloc.o \
  $(maxloc)maxloc0.o \
@@ -528,6 +536,9 @@ $(MPI)
 COMM=
 
 COMMX=
+
+ spin_susceptibility:	$(SPIN)  $(GWLIB)
+	$(LK) $(LKFLAGS1) $(SPIN) $(GWLIB)  $(LKFLAGS2) -o $@
 
  hmaxloc:	$(MLOC)  $(GWLIB)
 	$(LK) $(LKFLAGS1) $(MLOC) $(GWLIB)  $(LKFLAGS2) -o $@

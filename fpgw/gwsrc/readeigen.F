@@ -715,6 +715,36 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       endif
       end subroutine
 
+
+      subroutine readeval_model(q,q2, isp, nwf, nqbz, nsp, ev, ev_tmp)
+      use m_hamindex, only: qtt,nqtt,iqimap
+      implicit none
+      integer(4), intent(in) :: isp
+      integer(4) :: iwf, nwf, nqbz, nsp
+      real(8), intent(in) :: q(3), q2(3,nqbz)
+      real(8), intent(out) :: ev(nwf)
+      real(8) :: ev_tmp(nwf,nqbz,nsp)
+
+      integer(4):: iq,iqindx,i
+      real(8):: qu(3)
+      if(init) call rx( 'readeigen: modele is not initialized yet')
+c      iq = iqindx(q, ginv,qtt,nqtt)
+       call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
+      ev(1:nwf) = ev_tmp(1:nwf,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
+!      print *, "iq, iqimap(iq), qbz(iq), qbz(:,iqimap(iq))"
+!      print *, iq, iqimap(iq), q, q2(:,iqimap(iq))
+!      do iwf=1,nwf
+!        print *, "ev(iwf), ev_tmp(iwf,iqimap(iq),isp)"
+!        print *, ev(iwf), ev_tmp(iwf,iqimap(iq),isp)
+!      end do
+      if(debug) then
+        write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
+        write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
+        write(6,"(9f9.4)")ev(1:9)
+      endif
+      end subroutine
+
+
       subroutine findemaxmin_r(emax,emin)
       implicit none
       real(8):: emax,emin,eee

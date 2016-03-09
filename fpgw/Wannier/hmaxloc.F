@@ -1074,27 +1074,11 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
      o                     hrotkp)
           call diag_hm(hrotkp,nwf,eval,evecc)
 
-!          do iwf=1,nwf
-!            print *, "iwf, evalkp, eunk"
-!            print *, iwf, eval(iwf), eunk(iwf,iq)
-!          end do
-!            do iwf1=1,nwf
-!              do iwf2=1,nwf
-!                print *, "iwf1, iwf2, evecc(iwf1,iwf2), umnk(iwf1,iwf2,iq)"
-!                print *, iwf1, iwf2, evecc(iwf2,iwf1), umnk(iwf1,iwf2,iq)
-!              end do
-!            end do
-
 
           call wmaxloc_diag(ifmlw(is),ifmlwe(is),
      i                 iq,qbze(1:3,iq),umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
-!          do iwf1=1,nwf
-!            do iwf2=1,nwf
-!              print *, "iwf1, iwf2, evecc", iwf1, iwf2, evecc(iwf1,iwf2)
-!            end do
-!          end do
       enddo
 c      write(6,*)'eeeeeeeee'
 
