@@ -1060,18 +1060,19 @@ C RS: accumulate zw
         rw_w = rw_w_sum
         call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws,
      &         MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-        if (niw.gt.0) then
         call RSMPI_Check("MPI_AllReduce,cw_w",ierror_rsmpi)
         cw_w = cw_w_sum
-        call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws,
-     &         MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-        call RSMPI_Check("MPI_AllReduce,rw_iw",ierror_rsmpi)
-        rw_iw = rw_iw_sum
-        call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws,
-     &         MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
-        call RSMPI_Check("MPI_AllReduce,cw_iw",ierror_rsmpi)
-        cw_iw = cw_iw_sum
-        endif ! niw
+
+        if (niw.gt.0) then
+           call MPI_AllReduce(rw_iw,rw_iw_sum,niw*nwf**4*nrws,
+     &          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+           call RSMPI_Check("MPI_AllReduce,rw_iw",ierror_rsmpi)
+           rw_iw = rw_iw_sum
+           call MPI_AllReduce(cw_iw,cw_iw_sum,niw*nwf**4*nrws,
+     &          MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierror_rsmpi)
+           call RSMPI_Check("MPI_AllReduce,cw_iw",ierror_rsmpi)
+           cw_iw = cw_iw_sum
+        endif                   ! niw
         deallocate(rw_w_sum,cw_w_sum,rw_iw_sum,cw_iw_sum) 
 
 c      if (debug) write(*,*) 'do-rot out'
