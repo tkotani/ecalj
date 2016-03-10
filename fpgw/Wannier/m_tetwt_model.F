@@ -125,7 +125,6 @@ c      open(ifief,file='EFERMI')
 c      read(ifief,*) ef
 c      close(ifief)
       call readefermi()
-      !print *, "dddddddddddddddddddddddddddD", frhis
       !print *, frhis
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
@@ -183,6 +182,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 !     takao-feb/2002
       !print *, "frhis", frhis
       if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
+      !print *, "swjx"
       write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
       allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
@@ -201,7 +201,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
           enddo
         enddo
       enddo
-      !print *, "swj2"
+      print *, "swj2"
       nhwtot = jhwtot-1
       write(6,*)' nhwtot=',nhwtot
       deallocate(demin,demax)
