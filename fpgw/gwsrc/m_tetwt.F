@@ -178,12 +178,16 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 !     The last  bin  is     [frhis(nw), frhis(nwp)].
 !     nwp=nw+1; frhis(1)=0
 !     takao-feb/2002
+      print *, "swj"
+      print *, "frhis", frhis
       if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
+      print *, "swjx"
       write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
       allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
       ihw=0; nhw=0; jhw=0
       jhwtot = 1
+      print *, "swj1"
       do jpm =1,npm
         do ik   = 1,nqbz
           do ibib = 1,nbnb(ik,jpm)
@@ -196,6 +200,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
           enddo
         enddo
       enddo
+      print *, "swj2"
       nhwtot = jhwtot-1
       write(6,*)' nhwtot=',nhwtot
       deallocate(demin,demax)

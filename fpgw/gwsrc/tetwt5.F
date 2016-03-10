@@ -295,17 +295,20 @@ Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-
         demin=  1d10
         demax= - 1d10
       endif
+      print *, nwgt
 
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
 !! may2013 for eizbmode 
+        !print *, "swj1", eibzmode, kk, nwgt
         if(eibzmode) then
            if(sum(nwgt(kk(0:3)))==0) cycle 
         endif
         kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
 c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out of ntetf=',itet ,ntetf
         do 1100 im = 1,nmtet
+        !  print *, "swj_im", im
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
