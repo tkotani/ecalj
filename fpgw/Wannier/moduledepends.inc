@@ -57,6 +57,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 hmaxloc.o:../gwsrc/rwbzdata.o
 hpsig.o:../gwsrc/rwbzdata.o
 hpsig_MPI.o:../gwsrc/rwbzdata.o
@@ -65,6 +67,8 @@ huumat.o:../gwsrc/rwbzdata.o
 huumat_MPI.o:../gwsrc/rwbzdata.o
 hwmatK.o:../gwsrc/rwbzdata.o
 hwmatK_MPI.o:../gwsrc/rwbzdata.o
+m_tetwt_model.o:../gwsrc/rwbzdata.o
+spin_susceptibility.o:m_tetwt_model.o
 spin_susceptibility.o:../gwsrc/rwbzdata.o
 wanplot.o:../gwsrc/rwbzdata.o
 wfnrho_abc.o:m_FFT3D.o
@@ -78,6 +82,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
@@ -99,6 +105,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -119,6 +127,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -163,6 +173,8 @@ wmatK_mpi.o:../gwsrc/readqg.o
 ../gwsrc/m_tetwt.o:../gwsrc/genallcf_mod.o
 spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/switches.o:../gwsrc/genallcf_mod.o
+m_tetwt_model.o:../gwsrc/genallcf_mod.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/getwemax.o:../gwsrc/genallcf_mod.o
 ../gwsrc/m_tetwt.o:../gwsrc/genallcf_mod.o
 spin_susceptibility.o:../gwsrc/m_tetwt.o
@@ -173,6 +185,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 hmaxloc.o:../gwsrc/genallcf_mod.o
 hpsig.o:../gwsrc/genallcf_mod.o
 hpsig_MPI.o:../gwsrc/genallcf_mod.o
@@ -181,6 +195,8 @@ huumat.o:../gwsrc/genallcf_mod.o
 huumat_MPI.o:../gwsrc/genallcf_mod.o
 hwmatK.o:../gwsrc/genallcf_mod.o
 hwmatK_MPI.o:../gwsrc/genallcf_mod.o
+m_tetwt_model.o:../gwsrc/genallcf_mod.o
+spin_susceptibility.o:m_tetwt_model.o
 spin_susceptibility.o:../gwsrc/genallcf_mod.o
 wfnrho_abc.o:../gwsrc/genallcf_mod.o
 wfnrho_abc.o:../gwsrc/genallcf_mod.o
@@ -206,6 +222,8 @@ wfnrho_abc.o:m_DATA4GW.o
 ../gwsrc/m_freq.o:../gwsrc/keyvalue.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 spin_susceptibility.o:../gwsrc/m_tetwt.o
+m_tetwt_model.o:../gwsrc/m_freq.o
+spin_susceptibility.o:m_tetwt_model.o
 spin_susceptibility.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/keyvalue.o
 spin_susceptibility.o:../gwsrc/m_tetwt.o
@@ -216,6 +234,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/rgwinf_mod.o:../gwsrc/keyvalue.o
@@ -258,7 +278,11 @@ huumat_MPI.o:../gwsrc/keyvalue.o
 hwmatK.o:../gwsrc/keyvalue.o
 hwmatK_MPI.o:../gwsrc/keyvalue.o
 m_freq_model.o:../gwsrc/keyvalue.o
+m_tetwt_model.o:m_freq_model.o
+spin_susceptibility.o:m_tetwt_model.o
 spin_susceptibility.o:m_freq_model.o
+m_tetwt_model.o:../gwsrc/keyvalue.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/keyvalue.o
 maxloc4.o:../gwsrc/keyvalue.o
 spin_susceptibility.o:../gwsrc/keyvalue.o
@@ -290,6 +314,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -310,6 +336,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -342,6 +370,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -362,6 +392,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -394,6 +426,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -414,6 +448,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -446,6 +482,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -466,6 +504,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -498,6 +538,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -518,6 +560,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -550,6 +594,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -570,6 +616,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -602,6 +650,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -622,6 +672,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -654,6 +706,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -674,6 +728,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -706,6 +762,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -726,6 +784,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -758,6 +818,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -778,6 +840,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -810,6 +874,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -830,6 +896,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -862,6 +930,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -882,6 +952,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -914,6 +986,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -934,6 +1008,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -966,6 +1042,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -986,6 +1064,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -1018,6 +1098,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -1038,6 +1120,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -1070,6 +1154,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -1090,6 +1176,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -1122,6 +1210,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -1142,6 +1232,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -1174,6 +1266,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -1194,6 +1288,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
@@ -1226,6 +1322,8 @@ spin_susceptibility.o:../gwsrc/m_tetwt.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_zmel.o
+m_tetwt_model.o:../gwsrc/m_zmel.o
+spin_susceptibility.o:m_tetwt_model.o
 ../gwsrc/nocctotg.o:../gwsrc/readeigen.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readeigen.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/readeigen.o
@@ -1246,6 +1344,8 @@ hwmatK.o:../gwsrc/readeigen.o
 hwmatK_MPI.o:../gwsrc/readeigen.o
 m_MLWF.o:../gwsrc/readeigen.o
 wanplot.o:m_MLWF.o
+m_tetwt_model.o:../gwsrc/readeigen.o
+spin_susceptibility.o:m_tetwt_model.o
 maxloc0.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o
 maxloc2.o:../gwsrc/readeigen.o

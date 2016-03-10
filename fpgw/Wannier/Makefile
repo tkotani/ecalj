@@ -470,6 +470,7 @@ $(MPI)
 
  SPIN = \
  $(maxloc)spin_susceptibility.o \
+ $(maxloc)m_tetwt_model.o \
  $(maxloc)m_freq_model.o \
  $(maxloc)maxloc0.o \
  $(maxloc)maxloc1.o \
