@@ -131,6 +131,7 @@ c      real(8) :: demax(nband+nctot,nband,nqbz),demax_,demaxx
 c     &          ,demin(nband+nctot,nband,nqbz),demin_,deminn
 
       integer(4)::ixx
+      integer(4)::tmp1,tmp2,tmp3,tmp4
 c job=1
       integer(4):: nbnbx,nhwtot,nwhis,inihis,ihis,ikx,ibib, ikk
      &            ,ioff,isum,ini,ied,jini,iini,nnn,    ntetmx,ntetmin
@@ -168,7 +169,18 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       integer:: nwgt(nqbz)
 
 c---------------------------------------------------------------------
+      !print *, frhis, nwhis
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
+!      print *, "nctot+nband, nband+ncc, nqbz,npm <-- ibjb allocate2"
+!      print *, nctot+nband,nband+ncc,nqbz,npm
+      !print *, "ibjb", ibjb
+      !print *, "ibjb(6,5,27,1)", ibjb(6,5,27,1)
+      !do tmp1 =1,npm
+        !do tmp2 = 1, nqbz_mtet
+          !do tmp3 = 
+      !print *, "swjibjb...", ibjb
+      !print *, "nband"
+      !print *, nband
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
@@ -239,6 +251,11 @@ Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
         ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
       enddo
 
+
+
+
+
+
 !! Read eigenvalues at q and q+k ---------------------------------------
 !!  ekzz1 for k
 !!  ekzz2 for q+k.
@@ -266,6 +283,23 @@ Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
         ekzz1=ekxx1
         ekzz2=ekxx2
       endif
+
+
+
+!      print *, "nctot, nqbzm", nctot, nqbzm
+!      print *, "nbnc", nbnc
+!      print *, "eband1"
+!      print *, eband1
+!      print *, "ekzz1"
+!      print *, ekzz1
+!      print *, "eband2"
+!      print *, eband2
+!      print *, "ekzz2"
+!      print *, ekzz2
+
+
+
+
 
 !! Add eigenvalue shift. scissors_x0() is defined in switch.F
 !!         call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
@@ -298,9 +332,11 @@ Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-
       !print *, nwgt
 
 !! === Loop over tetrahedron ===
+      !print *, "swjq", q
       do 1000 itet = 1, ntetf !;
-        print *, "itet, isp1,  isp2", itet, isp1, isp2
+        !print *, "itet, isp1,  isp2", itet, isp1, isp2
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
+        !print *, "swj_itet, kk", itet, kk
 !! may2013 for eizbmode 
         !print *, "swj1", eibzmode, kk, nwgt
         if(eibzmode) then
@@ -309,16 +345,25 @@ Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-
         kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
 c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out of ntetf=',itet ,ntetf
         do 1100 im = 1,nmtet
-          !print *, "swj_im", im
+          !print *, "swjcheck1"
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
                     !the highest number of occupied states (HNOS)
+          print *, "ek_(1:nband,0:3)"
+          print *, ek_(1:nband,0:3)
+          print *, "efermi", efermi
+          print *, "noccx_k", noccx_k
+          
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
+          print *, "noccx_kq", noccx_kq
+          print *, "ekq_(1:nband,0:3)"
+          print *, ekq_(1:nband,0:3)
           nbandmx_k   = nband
           nbandmx_kq  = nband
+          !print *, "swjcheck2"
           do i=1,nband
             if( maxval(ek_(i, 0:3)) >1d9) then
               nbandmx_k = i-1
@@ -342,6 +387,7 @@ c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
             endif
             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
               do jbx  = 1, jbxmx !nband             ! unoccupied
+                !print *, "swjcheck3"
 c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx
@@ -421,10 +467,28 @@ Cstop2rx 2013.08.09 kino     &               stop 'tetwt5:wtthis2/=0 for out of 
                     endif
 !
                     do ikx = 0,3
+                      !print *, "swj_itet, im, jpm, ibx, jbx, kk", itet, im, jpm, ibx, jbx, kk
+                      !print *, "kk(0), kk(1), kk(2), kk(3)", kk(0), kk(1), kk(2), kk(3)
+                      !print *, "swjcheck4, ikx,jpm,npm", ikx,jpm,npm
+                      !print *, "swjcheck ib, jb kk(ikx), ikx, jpm"
+                      !print *, "ib, jb, kk(ikx), ikx, jpm"
+                      !print *, ib, jb, kk(ikx), ikx, jpm
+                      !print *, "swjcheck_ibjb,ikx-1", ibjb(ib, jb, kk(ikx-1), jpm)
+                      !print *, "swjcheck_ibjb,ikx", ibjb(6,5,27,1)
+                      !print *, "ibjb(6,5,27,1)", ibjb(6,5,27,1)
+                      !print *, "swjcheck_ibjb,ikx", ibjb(ib, jb, kk(ikx), jpm)
+                      !print *, "ibjb(ib,jb,kk(0),jpm)", ibjb(ib,jb,kk(0),jpm)
+                      !print *, "ibjb(ib,jb,kk(1),jpm)", ibjb(ib,jb,kk(1),jpm)
+                      !print *, "ibjb(ib,jb,kk(2),jpm)", ibjb(ib,jb,kk(2),jpm)
+                      !print *, "ibjb(ib,jb,kk(3),jpm)", ibjb(ib,jb,kk(3),jpm)
                       ibib = ibjb(ib,jb,kk(ikx),jpm)
+                      !print *, "swjcheck5-ibib", ibib
                       jini = jhw(ibib,kk(ikx),jpm)
+                      !print *, "swjcheck5-jini", jini
                       iini = ihw(ibib,kk(ikx),jpm)
+                      !print *, "swjcheck5-iini", iini
                       nnn =  nhw(ibib,kk(ikx),jpm)
+                      !print *, "swjcheck5-nnn", nnn
 
                       if(matrix_linear()) then
                         whw(jini:jini+nnn-1) = 
@@ -442,9 +506,9 @@ Cstop2rx 2013.08.09 kino     &               stop 'tetwt5:wtthis2/=0 for out of 
             enddo
           enddo
  1100   continue
-        print *, "swj_dddddd"
+        !print *, "swj_dddddd"
  1000 continue
-      print *, "swj_xxxxxx"
+      !print *, "swj_xxxxxx"
       deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
 
 

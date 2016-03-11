@@ -36,6 +36,7 @@
       integer is,isf,nwgt(*),iq,mtet(3)
       nband_mtet=nband_input
       nqbz_mtet=nqbz_input
+      !print *, "swjq", q
       allocate(ek_mtet(1:nband_mtet,1:nqbz_mtet),eqk_mtet(1:nband_mtet,1:nqbz_mtet))
       ek_mtet(1:nband_mtet,1:nqbz_mtet)=ek_input(1:nband_mtet,1:nqbz_mtet)
       eqk_mtet(1:nband_mtet,1:nqbz_mtet)=eqk_input(1:nband_mtet,1:nqbz_mtet)
@@ -44,7 +45,7 @@
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       if(sum(abs(mtet))/=3) call rx("error: strange value iq in gettetwt2")
       call gettetwt(q,iq,is,isf,nwgt,.False.)
-      !deallocate(ek_mtet,eqk_mtet)
+      deallocate(ek_mtet,eqk_mtet)
       end subroutine  
 !! routine
       subroutine gettetwt(q,iq,is,isf,nwgt,vsw) !this routine set output data above.
@@ -85,7 +86,7 @@
 
 !!===========tetraini block tetra==.true.===============================1ini
 c      if(tetra) then
-      write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
+      write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband_mtet,is,q
 !!     ekxx1 for rk
 !!     ekxx2 for q+rk See tetwt4
       if(vsw)then        
@@ -125,7 +126,7 @@ c      open(ifief,file='EFERMI')
 c      read(ifief,*) ef
 c      close(ifief)
       call readefermi()
-      !print *, frhis
+      !print *, "ibjb111111111", ibjb
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband_mtet,nqbz_mtet,
@@ -138,6 +139,7 @@ c      close(ifief)
      i ihw,nhw,jhw,             ! job=1    not-used
      o whw,                     ! job=1    not-used
      i iq,is,isf,nqibz, eibzmode,nwgt) 
+      !print *, "ibjb111111111", ibjb
       deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
       nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
       if(debug) write(6,*)' nbnbx=',nbnbx
@@ -201,12 +203,15 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
           enddo
         enddo
       enddo
-      print *, "swj2"
+      !print *, "swj2"
       nhwtot = jhwtot-1
       write(6,*)' nhwtot=',nhwtot
       deallocate(demin,demax)
       allocate( whw(nhwtot),    ! histo-weight
      & ibjb(nctot+nband_mtet,nband_mtet+ncc,nqbz_mtet,npm) )
+      print *, "nctot+nband_mtet, nband_mtet+ncc, nqbz_mtet,npm <-- ibjb allocate"
+      print *, nctot+nband_mtet,nband_mtet+ncc,nqbz_mtet,npm
+
       whw=0d0
       ibjb = 0
       do jpm=1,npm
@@ -215,13 +220,19 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
             ib1  = n1b(ibib,ik,jpm)
             ib2  = n2b(ibib,ik,jpm)
             ibjb(ib1,ib2,ik,jpm) = ibib
+!            print *, "ib1,ib2,ik,jpm"
+!            print *, ib1,ib2,ik,jpm
+!            print *, "ibjb(ib1,ib2,ik,jpm)"
+!            print *, ibjb(ib1,ib2,ik,jpm)
           enddo
         enddo
       enddo
 !!     ... Generate the histogram weights whw
+      !print *, "Here!!!!", ibjb
       job=1
       write(6,*) 'goto tetwt5x_dtet4 job=',job
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
+      !print *, "ibjb", ibjb
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband_mtet,nqbz_mtet,

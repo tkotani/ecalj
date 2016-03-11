@@ -65,7 +65,8 @@ c find the highest number of occupied states
         do      it = 1,nt
           if(ekt(it,k) .gt. ef)goto 1111
         end do
- 1111   if(it .gt. noccx) noccx = it
+        !if(it .gt. nt) it = nt
+ 1111   if(it .gt. noccx) noccx = it-1
       end do
       noccx1     = noccx
       return
