@@ -209,8 +209,6 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       deallocate(demin,demax)
       allocate( whw(nhwtot),    ! histo-weight
      & ibjb(nctot+nband_mtet,nband_mtet+ncc,nqbz_mtet,npm) )
-      print *, "nctot+nband_mtet, nband_mtet+ncc, nqbz_mtet,npm <-- ibjb allocate"
-      print *, nctot+nband_mtet,nband_mtet+ncc,nqbz_mtet,npm
 
       whw=0d0
       ibjb = 0

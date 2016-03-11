@@ -352,15 +352,8 @@ c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out o
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
                     !the highest number of occupied states (HNOS)
-          print *, "ek_(1:nband,0:3)"
-          print *, ek_(1:nband,0:3)
-          print *, "efermi", efermi
-          print *, "noccx_k", noccx_k
           
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
-          print *, "noccx_kq", noccx_kq
-          print *, "ekq_(1:nband,0:3)"
-          print *, ekq_(1:nband,0:3)
           nbandmx_k   = nband
           nbandmx_kq  = nband
           !print *, "swjcheck2"
@@ -467,28 +460,10 @@ Cstop2rx 2013.08.09 kino     &               stop 'tetwt5:wtthis2/=0 for out of 
                     endif
 !
                     do ikx = 0,3
-                      !print *, "swj_itet, im, jpm, ibx, jbx, kk", itet, im, jpm, ibx, jbx, kk
-                      !print *, "kk(0), kk(1), kk(2), kk(3)", kk(0), kk(1), kk(2), kk(3)
-                      !print *, "swjcheck4, ikx,jpm,npm", ikx,jpm,npm
-                      !print *, "swjcheck ib, jb kk(ikx), ikx, jpm"
-                      !print *, "ib, jb, kk(ikx), ikx, jpm"
-                      !print *, ib, jb, kk(ikx), ikx, jpm
-                      !print *, "swjcheck_ibjb,ikx-1", ibjb(ib, jb, kk(ikx-1), jpm)
-                      !print *, "swjcheck_ibjb,ikx", ibjb(6,5,27,1)
-                      !print *, "ibjb(6,5,27,1)", ibjb(6,5,27,1)
-                      !print *, "swjcheck_ibjb,ikx", ibjb(ib, jb, kk(ikx), jpm)
-                      !print *, "ibjb(ib,jb,kk(0),jpm)", ibjb(ib,jb,kk(0),jpm)
-                      !print *, "ibjb(ib,jb,kk(1),jpm)", ibjb(ib,jb,kk(1),jpm)
-                      !print *, "ibjb(ib,jb,kk(2),jpm)", ibjb(ib,jb,kk(2),jpm)
-                      !print *, "ibjb(ib,jb,kk(3),jpm)", ibjb(ib,jb,kk(3),jpm)
                       ibib = ibjb(ib,jb,kk(ikx),jpm)
-                      !print *, "swjcheck5-ibib", ibib
                       jini = jhw(ibib,kk(ikx),jpm)
-                      !print *, "swjcheck5-jini", jini
                       iini = ihw(ibib,kk(ikx),jpm)
-                      !print *, "swjcheck5-iini", iini
                       nnn =  nhw(ibib,kk(ikx),jpm)
-                      !print *, "swjcheck5-nnn", nnn
 
                       if(matrix_linear()) then
                         whw(jini:jini+nnn-1) = 
