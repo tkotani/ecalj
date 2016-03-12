@@ -7,6 +7,8 @@
       real(8) ::  efin,dw,delta,deltaw,esmr
       logical :: gwin0exist
 
+      integer :: natom
+      character(8),allocatable::spid(:)
       character(len=150):: recrdxxx
       character(len=550):: pppx
       character(len=10) :: keyw1='unit_2pioa',keyw2,add,esmr_char,eeg='GaussSmear'
@@ -16,15 +18,18 @@ c'
       logical :: gwinputexist,qpntexist,anfexist
       integer(4):: ifig,ifigwinp,n1,n2,n3,nband_chi0,nband_sigm
      & ,isigmode,ifigwin,niw,ifiq,ixx
+      integer(4):: ifatomlist
       real(8)::  alpha_OffG, emax_chi0, emax_sigm ,omg_c,
      &  epsrng, dwry
       integer(4)::nnn(3),n
 
       real(8):: emax_sigm2
-      integer(4):: nband_sigm2, iatom, natom
+      integer(4):: nband_sigm2, iatom
+
       integer(4)::nwin, incwfin
 
       pi= 4d0* atan(1d0)
+
 
 c -----------
 c      inquire(file='GWinput',exist= gwinputexist)
@@ -41,6 +46,16 @@ c        n1=nnn(1);n2=nnn(2);n3=nnn(3)
 c        call wGWIN0(n1,n2,n3,QpGcut_psi, QpGcut_Cou, max(nband_sigm,nband_chi0))
 c        return
 c      endif
+
+
+
+!      nwin = -999    !readin condition. Not readin NW file
+!      incwfin= -1     !readin condition. use ForX0 for core in GWIN
+!      efin =  -999d0 !readin condition. Not readin EFERMI
+!
+!      call genallcf_v3(nwin,efin,incwfin)
+
+
 
 c--- Write GWinput from GWIN0 GWIN_V2 QPNT.
       ifigwinp=3501
@@ -258,16 +273,17 @@ c      close(ifi)
 
       write(ifi,"(a)")
 
-
-      !call genallcf_v3(nwin,efin,incwfin)
-
-      !print *,natom, spid
-      natom = 1
-
+      ifatomlist = 999
+      open(ifatomlist,file="ATOM_LIST")
+      read(ifatomlist,*)natom
+      allocate(spid(natom))
+      read(ifatomlist,*)spid
+      close(ifatomlist)
       write(ifi,"(a)")'<Worb> Site '
 
       do iatom = 1,natom
-            write(ifi,"(a,i2,1x,a)") '!', iatom,'1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
+            write(ifi,"(1a,i3,1x,a,2x,a)") '!', iatom,trim(spid(iatom)),
+     &      '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
       enddo
       write(ifi,"(a)")'</Worb> '
       write(ifi,"(a)")

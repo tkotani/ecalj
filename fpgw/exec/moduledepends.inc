@@ -1,6 +1,7 @@
 ../main/hbasfp0.m.o:../gwsrc/m_anf.o
 ../main/hchknw.m.o:../gwsrc/m_anf.o
 ../main/hqpe.sc.m.o:../gwsrc/m_anf.o
+../main/hqpe.sc.m.o:../gwsrc/m_anf.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_anf.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_anf.o
 ../main/rdata4gw_v2.m.o:../gwsrc/m_anf.o
@@ -123,6 +124,7 @@
 ../main/hx0fp0.sc.m.o:../gwsrc/rdpp.o
 ../gwsrc/basnfp.o:../gwsrc/keyvalue.o
 ../gwsrc/conv2gwinput.o:../gwsrc/keyvalue.o
+../gwsrc/conv2gwinput2.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
@@ -149,6 +151,7 @@
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/rgwinf_mod.o:../gwsrc/keyvalue.o
 ../gwsrc/genallcf_mod.o:../gwsrc/rgwinf_mod.o
+../gwsrc/conv2gwinput.o:../gwsrc/genallcf_mod.o
 ../gwsrc/m_zmel.o:../gwsrc/genallcf_mod.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_zmel.o
@@ -217,10 +220,10 @@
 ../main/hchknw.m.o:../gwsrc/keyvalue.o
 ../main/hef.m.o:../gwsrc/keyvalue.o
 ../main/hparainfo.m.o:../gwsrc/keyvalue.o
-../main/hplmlwf.o:../gwsrc/keyvalue.o
 ../main/hqpe.m.o:../gwsrc/keyvalue.o
 ../main/hqpe.sc.m.o:../gwsrc/keyvalue.o
 ../main/hqpe.sc.m.o:../gwsrc/keyvalue.o
+../main/hqpe_qsgw.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.sc.m.o:../gwsrc/keyvalue.o
 ../main/hvccfp0.m.o:../gwsrc/keyvalue.o
@@ -230,6 +233,7 @@
 ../main/kino_input_test.o:../gwsrc/keyvalue.o
 ../main/qg4gw.m.o:../gwsrc/keyvalue.o
 ../main/rdata4gw_v2.m.o:../gwsrc/keyvalue.o
+../main/test.m.o:../gwsrc/keyvalue.o
 ../tote/hecor.o:../gwsrc/keyvalue.o
 ../gwsrc/readeigen.o:../gwsrc/m_hamindex.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o

@@ -40,7 +40,6 @@ c      enddo
       integer:: nkap0 , n0 , ibas , k
       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb
-      character spid*8
       real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),
       integer,allocatable:: ltabx(:,:),ktabx(:,:),offlx(:,:),iqtt(:)
       integer,parameter :: n0nkap0=30
@@ -54,6 +53,7 @@ c      real(8):: qplist(3,nkp)
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
      &  i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
 
+      character(8),allocatable::  spid(:)
       logical:: llmfgw
 c      integer,allocatable:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:),ibasindex(:)
 c      integer::  napwmx=null, nkt=null,ndimham=null
@@ -67,6 +67,7 @@ c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3),diffs
       real(8),allocatable:: symtmp(:,:,:)
+      integer :: ifatomlist
 #if (MPI|MPIK)
 c2012Sep02 kino, add for 
        include 'mpif.h'
@@ -105,12 +106,13 @@ c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!--- make index table ---
       allocate( ibasindex(ndimham))
       allocate( ltab(norbmto),ktab(norbmto),offl(norbmto),ibastab(norbmto) )
+      allocate(spid(nbas))
       norbmto=0
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
         is=ssite(ib)%spec
         do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(ib),i_spacks)
         enddo
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
@@ -126,6 +128,12 @@ c          if(iprx)write(6,"(3i3,2x,2i5,3x,a)")
 c     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(norbmto)+1,trim(spid)
         enddo
       enddo
+      ifatomlist=999
+      open(ifatomlist,file="ATOM_LIST")
+      write(ifatomlist,*)nbas
+      write(ifatomlist,*)spid
+      close(ifatomlist)
+      print *, "SWJ", spid
 c ... reverse maping of offset-index for hamiltonian
       allocate(offlrev(nbas,0:lxx,kxx))
       do iorb=1,norbmto
@@ -178,6 +186,7 @@ c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
 !! --- PW part. info for eigenfunctions are expanded as MTpart+PWpart.!feb2012takao
       inquire(file='QGpsi',EXIST=qpgexist)  !feb2012takao
       if(.not.qpgexist) then
+        call writehamindex()
         goto 2001 !return !jun2015takao
       endif
 !! q on mesh and shortened q.
