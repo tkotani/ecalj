@@ -26,7 +26,7 @@ c-------------------------------------
       use keyvalue,only: getkeyvalue
       implicit none
       integer(4):: ret
-      integer:: i, ifile_handle,il,ix,iclass,iline,nbasclassMax
+      integer:: i, ifile_handle,il,ix,iclass,iline,nbasclassMax,nline
       character*256:: a,aaa
       integer::ifmloc
       integer,allocatable:: cbastemp(:,:)
@@ -36,20 +36,25 @@ c-------------------------------------
       write(6,*)' ifmloc ret=',ifmloc,ret
 
       iline=0
+      nline = 0
+      nclass_mlwf = 0
+
       do 
+        iline = iline + 1
         read(ifmloc,"(a)") aaa
         print *, aaa
+        if (aaa(1:1) == '!') cycle
         if(aaa(1:7) == "</Worb>") then
-          goto 999
+          exit
         else 
-          iline=iline+1
+          nclass_mlwf=nclass_mlwf+1
         end if
       end do
- 999  continue
 
-
-      nclass_mlwf=iline
-      print *, nclass_mlwf
+      nline = iline-1
+      print *, "nline", nline
+      print *, "nclass_mlwf", nclass_mlwf
+      stop
 
       allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf),nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
 
@@ -58,8 +63,9 @@ c-------------------------------------
       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret) 
 
       cbastemp=-999
-      do 1001 iclass=1,nclass_mlwf
+      do 1001 iclass=1,nline
         read(ifmloc,"(a)") aaa
+        if (aaa(1:1) == '!') cycle
 c        print *,' read line===',trim(aaa),'==='
         read(aaa,*,end=1201) iclassin(iclass),a,(cbastemp(i,iclass),i=1,maxdat)
  1201   continue
