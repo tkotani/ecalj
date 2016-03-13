@@ -62,12 +62,19 @@ c-------------------------------------
       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret) 
 
       cbastemp=-999
-      do 1001 iclass=1,nline
+      iclass = 0
+      do 1001 iline=1,nline
         read(ifmloc,"(a)") aaa
-        if (aaa(1:1) == '!') cycle
+        if (aaa(1:1) == '!') then
+          read(aaa,*)
+          cycle
+        end if
 c        print *,' read line===',trim(aaa),'==='
+        iclass = iclass + 1
         read(aaa,*,end=1201) iclassin(iclass),a,(cbastemp(i,iclass),i=1,maxdat)
  1201   continue
+!        read(aaa,*) iclassin(iclass),a,(cbastemp(i,iclass),i=1,maxdat)
+! 1201   continue
         !print *, iclassin(iclass), a, cbastemp(i,iclass)
         !if(iclassin(iclass)/=iclass) call rx('iclass is not i')
         classname_mlwf(iclass)=trim(a)
