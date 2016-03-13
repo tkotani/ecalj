@@ -54,7 +54,6 @@ c-------------------------------------
       nline = iline-1
       print *, "nline", nline
       print *, "nclass_mlwf", nclass_mlwf
-      stop
 
       allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf),nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
 
