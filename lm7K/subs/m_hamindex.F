@@ -44,6 +44,7 @@ c      if(debug) print *,'nkt=',nkt
 
       subroutine writehamindex()
       integer(4):: ifi
+      integer :: ib
       logical::pmton
 !! == write info for wave rotation. feb2012takao ==
       ifi=1789
@@ -58,6 +59,7 @@ c      if(debug) print *,'nkt=',nkt
       if(napwmx/=0) then !for APW rotation used in rotwvigg
          write(ifi) igv2,napwk,igv2rev
       endif   
+      write(ifi)plat,qlat,napwmx
       close(ifi)
       end subroutine writehamindex
 

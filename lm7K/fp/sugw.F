@@ -230,6 +230,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 
       integer:: lpdiag=0
       character spid*8
+
 #if MPI | MPIK
       include "mpif.h"
 #endif

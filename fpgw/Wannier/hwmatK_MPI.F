@@ -651,6 +651,9 @@ ctm, 070521
       call MPI_Bcast(lfull,1,MPI_LOGICAL,io_root_rsmpi,
      &     MPI_COMM_WORLD,ierror_rsmpi)
       call RSMPI_Check("MPI_Bcast(lfull)",ierror_rsmpi)
+
+      print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws
+
       if (lfull) then
          if (Is_IO_Root_RSMPI()) then
          call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )  
@@ -721,6 +724,7 @@ ctm, 070814
          irws2(1) = 1
          nrws = nrws1*nrws2*nrws2
       endif
+      print *, "Here!!!!!!!!!!!!!", lfull, lwssc, nrws
       if (Is_IO_Root_RSMPI()) then
       write(*,'(a14,i5,f12.6)')'nrws1, rcut1 =',nrws1,rcut1
       write(*,'(a14,i5,f12.6)')'nrws2, rcut2 =',nrws2,rcut2
@@ -1209,22 +1213,24 @@ c        write(*,*) rw_w(:,:,:,:,:,0)
 c        write(*,*) cw_w(:,:,:,:,:,0)
 
       write(*,*)'Screened Couloumb interaction (W-v) : Real'
-      do swj_i_freq = 1,nw
-        do i = 1,nwf
-          do swj_j = 1,nwf
-            do swj_k = 1, nwf
-              do swj_l = 1, nwf
-                write(*,"(' Wannier ',5i5,4f12.6)")
-     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
-     &                ,rw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)
-     &                ,cw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)
+      do ir1 = 1,nrws1
+        do swj_i_freq = 1,nw
+          do i = 1,nwf
+            do swj_j = 1,nwf
+              do swj_k = 1, nwf
+                do swj_l = 1, nwf
+                  write(*,"(' Wannier ',2i5, 3f12.6, 5i5,4f12.6)")
+     &                 ir1, irws1(ir1), rws1(:,ir1)
+     &                ,is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
+     &                ,rw_w(i,swj_j,swj_k,swj_l,ir1,swj_i_freq)
+     &                ,cw_w(i,swj_j,swj_k,swj_l,ir1,swj_i_freq)
+                enddo
               enddo
             enddo
           enddo
+          write(*,*)''
         enddo
-      write(*,*)''
       enddo
-
 c      write(*,*)'Screened Couloumb interaction (W) : Real'
 c      do swj_i_freq = 1,nw
 c        do i = 1,nwf
@@ -1253,7 +1259,7 @@ c-----------------------------------------------------------------------
       real(8) :: rydberg,hartree 
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
-      integer:: swj_j,swj_k,swj_l
+      integer:: swj_j,swj_k,swj_l,ir1
  
       hartree=2d0*rydberg()
 
@@ -1277,15 +1283,19 @@ c-----------------------------------------------------------------------
 
 
       write(*,*)'Coulomb interaction (v) : '
-      do i = 1,nwf
-        do swj_j = 1,nwf
-          do swj_k = 1, nwf
-            do swj_l = 1, nwf
-              write(*,"(' Wannier ',5i5,2f12.6)")
-     &              is,i,swj_j,swj_k,swj_l,rw_w(i,swj_j,swj_k,swj_l,1),cw_w(i,swj_j,swj_k,swj_l,1)
+      do ir1 = 1,nrws1
+        do i = 1,nwf
+          do swj_j = 1,nwf
+            do swj_k = 1, nwf
+              do swj_l = 1, nwf
+                write(*,"(' Wannier ',2i5, 3f12.6, 5i5,2f12.6)")
+     &              ir1, irws1(ir1), rws1(:,ir1), is, i, swj_j, swj_k, swj_l
+     &              ,rw_w(i,swj_j,swj_k,swj_l,ir1),cw_w(i,swj_j,swj_k,swj_l,ir1)
+              enddo
             enddo
           enddo
         enddo
+        write(*,*)
       enddo
 
       return

@@ -30,11 +30,16 @@ c------------------------------------------------------------
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg , konf,z,
      &     spid
+      use m_read_Worb,only: s_read_Worb, s_cal_Worb,
+     &  nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, 
+     &   classname_mlwf, iclassin,
+     &  iphi, iphidot, nphi, nphix
       use m_keyvalue,only: getkeyvalue
-
       implicit none
 c------------------------------------
+      real(8),allocatable:: r0g(:,:), wphi(:,:)
       real(8)    :: esmr2,shtw
+      integer :: iclass2
       integer(4)::
      &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifbb,
@@ -71,6 +76,7 @@ c
       logical :: screen, exchange, cohtest, legas, tote 
       real(8) ::  rydberg,hartree 
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
+      real(8):: qlat(3,3)
       logical ::nocore
 
 c space group infermation 
@@ -119,20 +125,17 @@ c for maxloc
       complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:),eveccs(:,:),
      c                         amnk(:,:,:),cnk(:,:,:),umnk(:,:,:)
       real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:),evals(:),
-     c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:),r0g(:,:),
-     c                      wphi(:,:)
-      integer(4):: nbb,isc,nwf,ifmloc,ifq0p,
+     c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:)
+      integer(4):: nbb,isc,ifq0p,
      c             nox,iko_ix,iko_fx,
      c             noxs(2),iko_ixs(2),iko_fxs(2),
-     c             ieo_swt,iei_swt,itin_i,itin_f,itout_i,itout_f,nphix,
+     c             ieo_swt,iei_swt,itin_i,itin_f,itout_i,itout_f,
      c             nbbelow,nbabove
       integer(4),allocatable:: ikbidx(:,:)
       integer(4),allocatable:: iki_i(:),iki_f(:),
      c                         ikbi_i(:,:),ikbi_f(:,:),
      c                         iko_i(:),iko_f(:),
-     c                         ikbo_i(:,:),ikbo_f(:,:),
-     c                         iphi(:,:),iphidot(:,:),
-     c                         nphi(:)
+     c                         ikbo_i(:,:),ikbo_f(:,:)
       logical :: leout,lein,lbin,lq0p,lsyml,lbnds
       logical :: debug=.false.
 !
@@ -262,6 +265,9 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
 
+
+
+
 c--- Get maximums takao 18June03
       call getnemx(nbmx,ebmx,8,.true.) !8+1 th line of GWIN0
 
@@ -271,12 +277,13 @@ c!!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
       if (nclass /= natom ) stop ' hsfp0: nclass /= natom ' ! We assume nclass = natom.
       write(6,*)' hsfp0: end of genallcf2'
 c
-
       call pshprt(30)
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
 
       call dinv33(plat,1,xxx,vol)
+      call dinv33(plat,1,qlat,vol)
+
       voltot = dabs(vol)*(alat**3)
 
       ifmlw(1) = iopen('MLWU',0,-1,0)
@@ -431,23 +438,22 @@ c
       if (laf) nspinmx =1
 c------------
 c input parameters specific to MAXLOC
-      call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
-      write(6,*)' ifmloc ret=',ifmloc,ret
-      read (ifmloc,*) nwf
-      allocate (nphi(nwf))
-      read (ifmloc,*) (nphi(i),i=1,nwf)
-      nphix = 0
-      do i = 1,nwf
-         if(nphi(i).gt.nphix)nphix = nphi(i)
+      call s_read_Worb()
+
+
+      do iclass2=1,nclass_mlwf
+        write(*,*)'output:',iclassin(iclass2), nwf
+     & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
       enddo
-      allocate (r0g(nphix,nwf),iphi(nphix,nwf),iphidot(nphix,nwf),
-     &          wphi(nphix,nwf))
-      do i=1,nwf
-         do j=1,nphi(i)
-            read(ifmloc,*)iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
-         enddo
-      enddo
-      close(ifmloc)
+
+      call s_cal_Worb()
+
+      allocate (r0g(nphix,nwf), wphi(nphix,nwf))
+
+      r0g = 2d0
+      wphi = 1d0
+
+
 
       call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
      &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
@@ -1056,6 +1062,8 @@ c --- Readin nlam index
       do iwf=1,nwf
         ibasiwf(iwf) = ibas_indx(iphi(1,iwf))
       enddo
+
+
 !! write HrotRS
       ifh=ifile_handle()
       if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
@@ -1065,6 +1073,15 @@ c --- Readin nlam index
       write(ifh)ef 
       write(ifh)nwf,nrws,n1,n2,n3
       write(ifh) irws,rws,hrotr, ibasiwf
+      close(ifh)
+
+      ifh = ifile_handle()
+
+      call write_hopping_output(is, ifh, hrotr,
+     &                  rws,irws,alat,plat,qlat,pos,natom,
+     &                  ibasiwf, nwf,nrws,spid , m_indx, l_indx,
+     &                  nphix, iphi, ldim2)
+
       close(ifh)
 
 
@@ -1122,7 +1139,8 @@ c     (3-4) diagonalize -- Tight-binding --
          enddo
       endif
       call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
-      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws)
+      deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, 
+     &           ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
       if (lsh) deallocate(hrotkps,eveccs,evals)
       close(ifbnd)
 c end of loop over spin

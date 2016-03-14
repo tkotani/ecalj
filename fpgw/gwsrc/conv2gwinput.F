@@ -3,9 +3,11 @@ c      use m_keyvalue,only:getkeyvalue
       implicit none
       integer(4) :: ifigw0,ifi,i,ig
       real(8) :: QpGcut_psi, QpGcut_Cou
-      real(8) ::  dw,delta,deltaw,esmr
+      real(8) ::  efin,dw,delta,deltaw,esmr
       logical :: gwin0exist
 
+      integer :: natom
+      character(8),allocatable::spid(:)
       character(len=150):: recrdxxx
       character(len=550):: pppx
       character(len=10) :: keyw1='unit_2pioa',keyw2,add,esmr_char,eeg='GaussSmear'
@@ -15,13 +17,18 @@ c'
       logical :: gwinputexist,qpntexist,anfexist
       integer(4):: ifig,ifigwinp,n1,n2,n3,nband_chi0,nband_sigm
      & ,isigmode,ifigwin,niw,ifiq,ixx
+      integer(4):: ifatomlist
       real(8)::  alpha_OffG, emax_chi0, emax_sigm ,omg_c,
      &  epsrng, dwry
       integer(4)::nnn(3),n
 
       real(8):: emax_sigm2
-      integer(4):: nband_sigm2
+      integer(4):: nband_sigm2, iatom
+
+      integer(4)::nwin, incwfin
+
       pi= 4d0* atan(1d0)
+
 
 c -----------
 c      inquire(file='GWinput',exist= gwinputexist)
@@ -38,6 +45,16 @@ c        n1=nnn(1);n2=nnn(2);n3=nnn(3)
 c        call wGWIN0(n1,n2,n3,QpGcut_psi, QpGcut_Cou, max(nband_sigm,nband_chi0))
 c        return
 c      endif
+
+
+
+!      nwin = -999    !readin condition. Not readin NW file
+!      incwfin= -1     !readin condition. use ForX0 for core in GWIN
+!      efin =  -999d0 !readin condition. Not readin EFERMI
+!
+!      call genallcf_v3(nwin,efin,incwfin)
+
+
 
 c--- Write GWinput from GWIN0 GWIN_V2 QPNT.
       ifigwinp=3501
@@ -81,9 +98,14 @@ c ... GWIN0
       close(ifigw0)
 c
       ifi = ifigwinp
+
       write(ifi,"(a)")'!!! Starting from ! (or nonkeyword) is comment line !!! '
       write(ifi,"(a)")'!!! Each lines consists of "keyword value(s)"  !!! '
       write(ifi,"(a)")'!!! Each tag section in <...>... </...> has its own format. !!! '
+
+      write(ifi,"(a)")
+
+
       write(ifi,"(a)")'!EIBZmode off   !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.'
       write(ifi,"(a)")'!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.'
       write(ifi,"(a)")'!Verbose    0  ! 0-->default; 100--->debug '
@@ -94,7 +116,7 @@ c
       write(ifi,"(a)")'!multitet 2 2 2 ! tetrahedron is devided into micro tetrahedron. This probably now work'
 c
       write(ifi,"(a)" )'! ##### From GWIN0 ################ '
-      write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW '
+      write(ifi,"(a,3i5,a)" )   'n1n2n3     ', n1,n2,n3,  ' ! for BZ meshing in GW, Wannier function and cRPA'
       write(ifi,"(a,f8.3,a,a)") 'QpGcut_psi ', QpGcut_psi,' !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.'
       write(ifi,"(a,f8.3,a,a)") 'QpGcut_cou ', QpGcut_cou,' !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.'
       if(ixx==0)write(ifi,"(a)")'unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat '
@@ -220,6 +242,85 @@ c      else
       write(ifi,"(a)") '!</QforEPSL>'
 c      endif
 c      close(ifi)
+
+      write(ifi,"(a)" )
+      write(ifi,"(a)" )'! ##### Maximally localized Wannier function ################ '
+
+      write(ifi,"(a)")''
+      write(ifi,"(a)")'!!! For s,p,d,f the indices 1-16 correspond to: '
+      write(ifi,"(a)")'!!! index l m polynomial '
+      write(ifi,"(a)")'!!! 1 0 0 1 '
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 2 1 -1 y '
+      write(ifi,"(a)")'!!! 3 1 0 z  '
+      write(ifi,"(a)")'!!! 4 1 1 x  '
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 5 2 -2 xy '
+      write(ifi,"(a)")'!!! 6 2 -1 yz  '
+      write(ifi,"(a)")'!!! 7 2 0 3z^2-1 '
+      write(ifi,"(a)")'!!! 8 2 1 xz  '
+      write(ifi,"(a)")'!!! 9 2 2 x^2-y^2 ' 
+      write(ifi,"(a)")'!!! -----------------------------  '
+      write(ifi,"(a)")'!!! 10 3 -3 y(3x^2-y^2) '
+      write(ifi,"(a)")'!!! 11 3 -2 xyz '
+      write(ifi,"(a)")'!!! 12 3 -1 y(5z^2-1) '
+      write(ifi,"(a)")'!!! 13 3 0 z(5z^2-3) '
+      write(ifi,"(a)")'!!! 14 3 1 x(5z^2-1) '
+      write(ifi,"(a)")'!!! 15 3 2 z(x^2-y^2) '
+      write(ifi,"(a)")'!!! ------------------------ '
+      write(ifi,"(a)")'!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.'
+
+      write(ifi,"(a)")
+
+      ifatomlist = 999
+      open(ifatomlist,file="ATOM_LIST")
+      read(ifatomlist,*)natom
+      allocate(spid(natom))
+      read(ifatomlist,*)spid
+      close(ifatomlist)
+      write(ifi,"(a)")'<Worb> Site '
+
+      do iatom = 1,natom
+            write(ifi,"(1a,i3,1x,a,2x,a)") '!', iatom,trim(spid(iatom)),
+     &      '1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16' 
+      enddo
+      write(ifi,"(a)")'</Worb> '
+      write(ifi,"(a)")
+
+      write(ifi,"(a)")'!wan_out_ewin off'
+      write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
+      write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
+      write(ifi,"(a)")'wan_out_emin  -1.05  !eV relative to Efermi'
+      write(ifi,"(a)")'wan_out_emax  2.4  !eV relative to Efermi'
+      write(ifi,"(a)")'!wan_in_ewin on '
+      write(ifi,"(a)")'!wan_in_emin  -1.0  !eV relative to Efermi'
+      write(ifi,"(a)")'!wan_in_emax  -0.3  !eV relative to Efermi'
+      write(ifi,"(a)")
+
+      write(ifi,"(a)")'wan_tb_cut 15'
+      write(ifi,"(a)")'wan_maxit_1st 300'
+      write(ifi,"(a)")'wan_conv_1st=1d-7'
+      write(ifi,"(a)")'wan_max_1st=0.1'
+      write(ifi,"(a)")'wan_maxit_2nd 1500'
+      write(ifi,"(a)")'wan_max_2nd=0.3'
+      write(ifi,"(a)")'wan_conv_end=1d-8'
+      write(ifi,"(a)")'!wmat_all .true.'
+      write(ifi,"(a)")'!wmat_rcut1 8'
+      write(ifi,"(a)")'!wmat_rcut2 0.01'
+      write(ifi,"(a)")
+      write(ifi,"(a)")'!vis_wan_band_n 3'
+      write(ifi,"(a)")'!vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, this is index for hmaxloc, as you like.'
+      write(ifi,"(a)")'!vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)'
+      write(ifi,"(a)")'!vis_wan_mesh 5 5 5          !integer x 3, # of mesh'
+      write(ifi,"(a)")'!vis_wan_lbound -1.2  -1.2 -1.2 !real x 3, lower bound in alat unit or abc unit'
+      write(ifi,"(a)")'!vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit'
+      write(ifi,"(a)")'!vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf'
+      write(ifi,"(a)")
+
+      write(ifi,"(a)" ) '! ################################################# '
+
+
+
       return
       end
 c

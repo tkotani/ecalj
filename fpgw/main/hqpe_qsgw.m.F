@@ -1,4 +1,4 @@
-      program hqpe
+      program hqpe_qsgw
 
 c Jul,2000 takao mod from hqpe by ferdi. No routines required.
 c calculates quasiparticle energies
@@ -10,8 +10,7 @@ c SEc(k,t)   = <psi(k,t)| SEc |psi(k,t)>, SEc = GWc
 c xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
 c SEx and xcLDA are in file SEX
 c SEc is in file SEC
-      use m_keyvalue,only: getkeyvalue
-
+      use m_keyvalue,only:getkeyvalue
       implicit real*8 (a-h,o-z)
 
 c local data
@@ -35,12 +34,12 @@ c      logical:: readgwinput
 
       integer(4),allocatable :: itcomg(:)
       real(8) :: rdenomi, cdenomi, xxxx!, polinta
-      real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:), k_distance(:),
+      real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:),k_distance(:),
      &                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
-      real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:),
+      real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:), constant_shift(:,:),
      &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
      &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
-      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:),
+      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:), 
      &                    green_ftn_int(:,:,:),  sigma_int(:,:,:)
       real(8),allocatable:: rgreen_ftn2(:,:,:), cgreen_ftn2(:,:,:)
       integer :: ifoutgreen, ifoutsigma, ifoutspect1, ifoutspect2, ifoutsec_int
@@ -66,6 +65,7 @@ c      ifqpnt     = iopenxx ('QPNT')
 c      if(readgwinput()) then
       call getkeyvalue("GWinput","ninter_omega",ninter,default=1)
       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+      !ninter = 1
 c      else
 c        ifqpnt     = iopenxx ('QPNT')
 c      endif
@@ -344,7 +344,7 @@ c      write(6,*)" itc=",itc(i)
 
 
 
-        allocate( eh(ntq,nq), k_distance(nq),
+        allocate( eh(ntq,nq), constant_shift(ntq,nq),k_distance(nq), 
      &           green_ftn(iwini:iwend,ntq,nq), sigma(iwini:iwend,ntq,nq),
      &           spect_ftn(iwini:iwend,nq), spect_ftn_tot(iwini:iwend))
 
@@ -398,7 +398,10 @@ c      write(6,*)" itc=",itc(i)
      &                    omega(i,iw),  sex(i,ip), sexcore(i,ip),
      &                    rsecomg(iw,i,ip),  csecomg(iw,i,ip), sigma(iw,i,ip) !,sumimg
 
-              green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)))
+              constant_shift(i,ip) = sex(i,ip) + sexcore(i,ip) + 
+     &                             rsec(2,i,ip) -vxc(i,ip)
+              green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)
+     &                                     - constant_shift(i,ip)))
 
 !              rdenomi = omega(i,iw) - (eh(i,ip)
 !     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
@@ -435,9 +438,10 @@ c      write(6,*)" itc=",itc(i)
      &                    omega_int(i,iw_int),  sex(i,ip), sexcore(i,ip),
      &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
      &                    sigma_int(iw_int,i,ip) !,sumimg
-  
 
-                green_ftn_int(iw_int,i,ip) = 1./(omega_int(i,iw_int) - (eh(i,ip) + sigma_int(iw_int,i,ip)))
+
+                green_ftn_int(iw_int,i,ip) = 1./(omega_int(i,iw_int) - (eh(i,ip) + sigma_int(iw_int,i,ip)
+     &                                     - constant_shift(i,ip)))
 
 !              rdenomi = omega(i,iw) - (eh(i,ip)
 !     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
@@ -456,12 +460,13 @@ c      write(6,*)" itc=",itc(i)
      &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
      &                    green_ftn_int(iw_int,i,ip) !,sumimg
 !     &                    rgreen_ftn2(iw,i,ip),  cgreen_ftn2(iw,i,ip)
+
               end do
             end if
           end do
         end do
 
-        write(ifoutspect1,"(3a6,a25,a14,3x,2a16,x,2a16)")
+        write(ifoutspect1,"(3a6,a25,a14,3x,a16,x,2a16)")
      &      "# iw", "ip", "is", "q(1:3,ip)","k_distance","Weight","w-Ef",  "A(k,w)"
         write(ifoutspect2,"(2a6,3x,a16,x,2a16)")
      &      "# iw", "is", "w-Ef",  "A(w)"
@@ -510,7 +515,7 @@ c      write(6,*)" itc=",itc(i)
             write(ifoutspect1,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
      &          iw,  ip, is, qcomg(1:3,ip), k_distance(ip), wibz(ip), omega(1,iw),  spect_ftn(iw,ip)
           end do
-!
+
           if (ninter >1) then
           do iw_int = iwini_int,iwend_int
             write(ifoutspect1_int,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
@@ -552,7 +557,7 @@ c     i              w(ieldac),w(ivxc),w(isex),
 c     i              w(irsec),w(icsec),w(izfac),eshift,
 c     d              ntq,nq,is,
 c     o              w(ieqp),w(iwqp))
-        call qpe1  (ifqpe(is),iftote(is),iftote2(is),itc,qc,
+        call qpe1_qsgw     (ifqpe(is),iftote(is),iftote2(is),itc,qc,
      i              eldac,vxc,sex,sexcore,
      i              rsec,csec,zfac,jin,deltaw,alat,ef,
      d              ntq,nq,is,
