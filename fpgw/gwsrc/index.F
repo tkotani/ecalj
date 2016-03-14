@@ -59,15 +59,21 @@ c ef    = fermi level
 c noccx1= highest number of occupied states
       implicit real*8(a-h,o-z)
       dimension ekt(nt,nk)
-c find the highest number of occupied states
-      noccx      = 0
-      do       k = 1,nk
-        do      it = 1,nt
-          if(ekt(it,k) .gt. ef)goto 1111
-        end do
- 1111   if(it .gt. noccx) noccx = it
-      end do
-      noccx1     = noccx
+!! Find the highest number of occupied states
+!! Seungwoo's correction at mar2016. 
+!! Previous version works,But this is necessary when all bands occuied (for model calculaitons).
+      noccx = 0
+      do   k  = 1,nk
+        do it = 1,nt
+c          if(ekt(it,k) .gt. ef) goto 1111
+          if(ekt(it,k) > ef) then
+            noccx = it-1 
+            exit
+          endif
+        enddo
+c 1111   if(it .gt. noccx) noccx = it
+      enddo
+      noccx1 = noccx
       return
       end
 
