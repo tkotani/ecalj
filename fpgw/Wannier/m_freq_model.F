@@ -14,7 +14,7 @@
 !> Get data set for m_freq_model. All arguments are input.
 !! - This read "Input.dat" (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
-      subroutine getfreq_model(tetra,timereversal,omg2max)
+      subroutine getfreq_model(omg2max)
       use m_keyvalue,only:getkeyvalue
 
       implicit none

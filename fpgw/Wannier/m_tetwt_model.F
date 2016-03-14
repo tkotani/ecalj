@@ -14,6 +14,7 @@
       integer, protected,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
       real(8), protected,allocatable :: ek_mtet(:,:),eqk_mtet(:,:)
       integer, protected:: nband_mtet,nqbz_mtet
+      real(8), protected:: efermi_model
 !!
       contains !! ----------------------------------------------------------------------
       subroutine alo_m_tet(nqbz,npm)  !corresponds to L582 of hx0fp0.m.F
@@ -126,6 +127,7 @@ c      open(ifief,file='EFERMI')
 c      read(ifief,*) ef
 c      close(ifief)
       call readefermi()
+      efermi_model = ef
       !print *, "ibjb111111111", ibjb
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 

@@ -17,11 +17,11 @@ cm Aug 2007 Takashi Miyake, berry connection in the Wannier gauge
 c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
       use m_tetwt_model,only: gettetwt2,dlo_m_tet,dlo_m_tet2,alo_m_tet, !followings are output of 'L871:call gettetwt')
-     &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
+     &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb,efermi_model
       use m_freq_model, only: getfreq_model,
      &     frhis, nwhis, npm, nw_i, nw
       use m_readqg,only: readngmx,readqg
-      use m_readeigen,only: init_readeigen,init_readeigen2,readeval,readeval_model
+      use m_readeigen,only: init_readeigen,init_readeigen2,readeval
       use m_read_bzdata,only: read_bzdata,
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
@@ -125,9 +125,11 @@ c for maxloc
       complex(8),allocatable:: evecc_tmp(:,:), evecck(:,:,:,:)
       complex(8),allocatable:: eveccqk(:,:,:,:,:)
       complex(8),allocatable:: K_numerator(:,:,:,:)
-      complex(8),allocatable:: imag_K(:,:,:,:,:,:)
-      complex(8),allocatable:: real_K(:,:,:,:,:,:)
+      complex(8),allocatable:: imag_K(:,:,:,:,:,:,:)
+      complex(8),allocatable:: real_K(:,:,:,:,:,:,:)
       real(8)::imagweight
+      integer :: ibib, jpm
+      integer :: iocc,iunocc
 
 
       logical :: tetra, timereversal
@@ -143,7 +145,7 @@ c for maxloc
       real(8):: Emax, Emin, omg2max
       real(8),allocatable:: ek(:,:), eqk(:,:)
       real(8),allocatable:: qk(:,:)
-      integer:: iwf1, iwf2
+      integer:: iwf1, iwf2, iwf3, iwf4
       integer(4):: nbb,isc,nwf,ifmloc,ifq0p,
      c             nox,iko_ix,iko_fx,
      c             noxs(2),iko_ixs(2),iko_fxs(2),
@@ -622,7 +624,7 @@ ctm, 060923 !!!
 
 ! swj
       allocate (evecck(nwf,nwf,nqbz,nspin), evalk(nwf,nqbz,nspin), ! hrotr(nwf,nwf,nqbz),
-     &          eveccqk(nwf,nwf,nqbz,nqbz,nspin), evalqk(nwf,nqbz,nqbz,nspin))
+     &          eveccqk(nwf,nwf,nqibz,nqbz,nspin), evalqk(nwf,nqibz,nqbz,nspin))
       allocate (ek(nwf,nqbz), eqk(nwf,nqbz))
 
 !! loop over spin -----------------------
@@ -1280,7 +1282,8 @@ c end of loop over spin
 ! swj
       allocate(nwgt(nqbz,nqibz))
       allocate(umnk_model(nwf,nwf,nqbz,nspin), umnqk_model(nwf,nwf,nqibz,nqbz,nspin))
-      allocate(imag_K(nwf,nwf,nwf,nwf,nqibz,nwhis),real_K(nwf,nwf,nwf,nwf,nqibz,nwhis))
+      allocate(imag_K(nwf,nwf,nwf,nwf,nqibz,nwhis,npm))
+      allocate(real_K(nwf,nwf,nwf,nwf,nqibz,nwhis,npm))
       allocate(K_numerator(nwf,nwf,nwf,nwf))
       nwgt = 1
       !print *, "nwgt", nwgt
@@ -1298,6 +1301,7 @@ c end of loop over spin
       end if
 
 
+      print *, "umnqk_model", umnqk_model
       print *, "Emax, Emin", Emax, Emin
       !print *, evalk
       omg2max = (Emax-Emin)*.5d0+.2d0
@@ -1312,6 +1316,9 @@ c end of loop over spin
       print *, "frhis", frhis
       print *, "nwhis", nwhis
 
+      K_numerator = 1d0
+      !imag_K = (1d0,1d0)
+      print *, "K_numerator", K_numerator(1,1,1,1)
 ! swj_tetrahedron
       do iq = 1, nqibz
         do is=1,nspin
@@ -1319,40 +1326,51 @@ c end of loop over spin
           !if(is==1) cycle
           if(is==2) isf=1
 
-
           print *, "is, isf", is, isf
+
+          call gettetwt2(q(:,iq),is,isf,nwgt(:,iq),evalk(:,:,is),evalqk(:,:,iq,isf),nwf,nqbz)
 
           do ik =1, nqbz
             umnk_model(:,:,ik,is)=transpose(evecck(:,:,ik,is))
             umnqk_model(:,:,ik,iq,isf)=transpose(eveccqk(:,:,ik,iq,isf))
-            call gettetwt2(q(:,iq),is,isf,nwgt(:,iq),evalk(:,:,is),evalqk(:,:,iq,isf),nwf,nqbz)
 
+            do jpm =1, npm
+              do ibib = 1, nbnb(ik,jpm) !---  ibib loop
+                do iw = ihw(ibib,ik,jpm),ihw(ibib,ik,jpm)+nhw(ibib,ik,jpm)-1 !iiww=iw+ihw(ibib,k)-1
+                  imagweight = whw(jhw(ibib,ik,jpm)+iw-ihw(ibib,ik,jpm))
+                  print *, "iw", iw
+                  do iocc = 1, nwf
+                    do iunocc = 1, nwf
+                      if (evalk(iocc,is) > efermi_model)
+                      print *, "efermi_model", efermi_model
 
+                      do iwf1 = 1,nwf 
+                        do iwf2 = 1,nwf 
+                          do iwf3 = 1,nwf 
+                            do iwf4 = 1,nwf 
+!                                K_numerator(iwf1,iwf4,iwf4,iwf2) = 
+!
+                            enddo       ! iwf4
+                          enddo   ! iwf3
+                        enddo     ! iwf2
+                      enddo       !iwf1
 
-!              do ibib = 1, nbnb(ik,jpm) !---  ibib loop
-!                do iw = ihw(ibib,ik,jpm),ihw(ibib,ik,jpm)+nhw(ibib,ik,jpm)-1 !iiww=iw+ihw(ibib,k)-1
-!                  imagweight = whw(jhw(ibib,ik,jpm)+iw-ihw(ibib,ik,jpm))
-!                  do iwf1 = 1,nwf 
-!                    do iwf2 = 1,nwf 
-!                      do iwf3 = 1,nwf 
-!                        do iwf4 = 1,nwf 
-!                           if  ! need to understand the equation carefully. expecially index!!!
-!                           K_numerator(iwf1,iwf2,iwf3,iwf4) = umnqk_model(
-!                           imag_K(iwf1,iwf3,iwf4,iwf2,iq,iw) = !here we  sum over ibib (or n, n') and k.
-!         &                   imag_K(iwf1,iwf3,iwf4,iwf2,iq,,iw) + K_numerator(iwf1,iwf3,iwf4,iwf2)*imagweight !sum over spin in hx0fp0
-!    
-!                        enddo       ! iwf4
-!                      enddo   ! iwf3
-!                    enddo     ! iwf2
-!                  enddo       !iwf1
-!                enddo   ! iw
-!              enddo     ! ibib
+                    enddo   ! iunocc
+                  enddo     ! iocc
 
-            call dlo_m_tet
-            call dlo_m_tet2
+                enddo   ! iw
+              enddo     ! ibib
+            end do    !jpm
+
           end do  ! ik
+          call dlo_m_tet
+          call dlo_m_tet2
+
         end do    ! is
       end do      ! iq
+      !print *, imag_K
+!imag_K(iwf1,iwf3,iwf4,iwf2,iq,iw,jpm) + K_numerator(iwf1,iwf3,iwf4,iwf2)*imagweight 
+!sum over spin in hx0fp0
 
       deallocate(evecck, eveccqk, evalk, evalqk)
       deallocate(ek, eqk)
