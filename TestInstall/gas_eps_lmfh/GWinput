@@ -24,9 +24,14 @@ alpha_OffG 1    !(a.u.) parameter in the auxiliary function in the offset-Gamma
 !emax_chi0 999. !emax  cutoff for chi0, Ry  (Optional)
 !nband_sigm 999 !nband cutoff for Sigma (Optional)
 emax_sigm 3   ! Energy cutoff for Sigma, Ry (Optional)
-dw       0.01  !mesh spacing along Real axis (Ry)
+
+
+HistBin_ratio 1.08
+HistBin_dw    0.002
+
+!dw       0.01  !mesh spacing along Real axis (Ry)
 !omg_c   0.04   !Used in S. Faleev's real-axis mode
-omg_c    .05    !Used in S. Faleev's real-axis mode
+!omg_c    .05    !Used in S. Faleev's real-axis mode
 iSigMode 3      !scGW mode switch (scGW only)
 niw      6      !# freq. on Im axis; used for integration to make Sigma_c
 delta    -1e-8  !delta-function broadening for calc. x0, a.u.. delta<0-->tetrahedron

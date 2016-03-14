@@ -26,8 +26,11 @@ emax_chi0 2.    !emax  cutoff for chi0, Ry  (Optional)
 !nband_sigm 999 !nband cutoff for Sigma (Optional)
 !emax_sigm 1     ! Energy cutoff for Sigma, Ry (Optional)
 
-dw       0.0005 !mesh spacing along Real axis (Ry)
-omg_c    0.04   !Used in S. Faleev's real-axis mode
+HistBin_ratio 1.08
+HistBin_dw    0.0005
+
+!dw       0.0005 !mesh spacing along Real axis (Ry)
+!omg_c    0.04   !Used in S. Faleev's real-axis mode
 
 iSigMode 3      !scGW mode switch (scGW only)
 niw      6      !# freq. on Im axis; used for integration to make Sigma_c

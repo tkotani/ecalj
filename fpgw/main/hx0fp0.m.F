@@ -2283,7 +2283,7 @@ c      endif
       do i = 1,ngb
         trwv2 = trwv2 + zw(i,i)
       enddo !  write(6,'(" realomg trwv=",2i6,4d22.14)') iq,iw,trwv(iw),trwv2(iw)
-      write(6,'(a,f8.4,2i5,4d20.12)')trim(adjustl(tagname)),freqq,iq,iw,trwv,trwv2
+      write(6,'(a,f10.6,2i5,4d20.12)')trim(adjustl(tagname)),freqq,iq,iw,trwv,trwv2
 c      do i = 1,ngb
 c        write(6,'("iii i=",i4,a,f10.4,2i5,4d22.14)')i,tagname,freqq,iq,iw,zw(i,i)
 c      enddo
