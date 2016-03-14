@@ -3616,23 +3616,34 @@ Higher bands above them are neglected.
 
 \item 
 Energy mesh related parameters.\\
-\keyw{dw}     : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
-\keyw{omg\_c} : 1 real (a.u.). \\
-{\tt dw} and {\tt omg\_c}
-determines $\omega$ mesh along real axis to calculate $W(\omega)$.
-In other words, \verb+dw+ and \verb+omg_c+ specify real 
+\noindent --- new after march2016 ---\\
+\keyw{HistBin\_dw}     : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
+\keyw{HistBin\_ratio} : 1 real (a.u.). \\
+\verb+HistBin_dw+ and \verb+HistBin_ratio+ specify real 
 space bins which we accumulate imaginary part
-weight of polarization functions. \verb+dw+ is bin width at
-$\omega=0$, then bin width is twiced at \verb+omg_c+.
-(Energy mesh is getting coarser at higher energy; in other words, 
-the bin width is quadratically larger.)
-This choice of getting coarser is because we think $W(\omega)$
+weight of polarization functions.
+The bins are (see \verb+frhis+ in \verb+ecalj/fpgw/gwsc/m_freq.F+)
+\begin{eqnarray}
+\omega_i=b*(\exp(a*(i-1))-1),
+\end{eqnarray}
+where $[\omega_i, \omega_(i+1)]$ ($i=1,2,...,$\verb%nwhis+1%) is the $i$-th bin.
+\verb+HistBin_dw+ is bin width at
+$\omega=0$. The ratio $\omega_(i+1)/\omega_(i)$ for large $\omega$ is
+$\exp(a)$, which is given be \verb+HistBin_ratio+.
+This choice of getting coarser at high energy is because we think $W(\omega)$
 around $\omega \sim 0$ gives most important contribution to the GW approximation.
 If bins are too wide, dielectric function can be less accurate, 
 but results are not necessarily so much affected. 
-For metal, our code can capture Drude weight
-numerically. We do not need to be so sensitive to the choice of
-them usually.
+For metal, our code can capture Drude weight numerically. 
+We do not need to be so sensitive to the choice of them usually.
+\underline{(WARNING! Some of my examples may show as if they are in "(Ry)". 
+But they are Wrong!)}
+\noindent--- old version. before 14march2016 --\\
+\keyw{dw}     : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
+\keyw{omg\_c} : 1 real (a.u.). \\
+{\tt dw} and {\tt omg\_c}
+determines $\omega$ mesh along real axis to calculate $W(\omega)$...\\
+-------------------------\\
 
 %But {\tt omg\_c} is not used in gw\_lmf; then energy mesh is fixed as {\tt dw}.
 %We calculate $W(\omega)$ at these energy mesh as 
@@ -3640,7 +3651,6 @@ them usually.
 %and then use them for the numerically interpolate 
 %to determine $W(\omega'=\omega-\epsilon_{{\bf q-k}n})$. See FIG.1 in Ref.I.
 
-\underline{(WARNING! Some of my examples may show as if they are in "(Ry)". But they are Wrong!)}\\
 
 
 \vspace{2mm}

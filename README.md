@@ -62,12 +62,11 @@ If necessary, let me know...
 
 Requirement for using ecalj
 --------------------------------
-For your publications, please make two citations directly 
-to this homepage as;
+For your publications, make a citation directly to this homepage as;
 
 [1] ecalj package at https://github.com/tkotani/ecalj/. 
-Its one-body part is developed based on LMsuit at
-http://www.lmsuite.org/ whose GW part is mainly adopted from ecalj.
+Its one-body part is developed based on the LMsuit at 
+http://www.lmsuite.org/, though its GW part is mainly adopted from ecalj.
 
 in the references on the same footing of other papers.
 
@@ -75,8 +74,7 @@ in the references on the same footing of other papers.
 Install and Test 
 --------------------------------
 Follow these steps explained below.  
-However, You can run steps (1)-(5) 
-by a command InstallAll.foobar at ecalj/.
+However, You can run steps (1)-(2) by a command InstallAll.foobar at ecalj/.
 When install procedure have finished, we have all required binaries and
 shell scripts in your \verb+~/bin/+ directory).
 (or somewhere else where BINDIR specified in InstallAll.*).
@@ -258,8 +256,7 @@ and do
 to make a soft like make.inc -> make.inc.cmd
 
 
-
-* Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar".  
+*** Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar"  ***
 
 Then you have to run  
 >make  
@@ -306,7 +303,6 @@ If we set LMFP=$(LMF), tests are done with using lmf, not with using lmf-MPIK.
 are correctly generated. However, because of some problem in makefile, 
 you may see some make procedure is repeated. You can neglect it as
 long as "All test are passed!" is shown in the (4)install test.
-
 
 ##### (2)-iv Structure tool.
 This is not necessary if you don't need to need converter between PROCAR and ctrl/ctrls
@@ -415,3 +411,14 @@ This shows you band by LDA.
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
 </pre>
+
+History
+<pre>
+* March 2016: new histgram bin m_freq.F 
+  (HistBin_ratio and HisBin_dw are used to specify new mesh.
+
+* March 2016:  wklm(1) is only used (only f_L for l=m=0 is used. 
+  See Eq.28 in JPSJ83,094711(2014).)
+</pre>
+
+
