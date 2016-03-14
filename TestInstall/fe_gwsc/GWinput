@@ -19,8 +19,8 @@ alpha_OffG    1.000 !(a.u.) Used in auxially function in the offset-Gamma method
 emax_sigm       2.000 !(Ry)  emax cutoff for Sigma
  
 ! ##### FREQUENCIES from GWIN_V2 ################ 
-dw      0.005000 !(a.u.) energy-mesh (bin width size) along real axis.
-omg_c      0.040 !(a.u.) energy-mesh is twiced at omg_c
+Histbin_ratio 1.03
+HistBin_dw    0.01
   !  coaser mesh for higher energy. Width get to be doubled at omg_c.
 iSigMode     3 ! QSGW mode switch for gwsc. use =3.
 niw         10 ! Number of frequencies along Im axis. Used for integration to get Sigma_c

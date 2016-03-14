@@ -21,8 +21,9 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 	errmax=0.0
 	ix1=0
 	ix2=0
-	oxx=linewithkey(comparekeys+['written','comparing'],oxx)
-	oyy=linewithkey(comparekeys+['written','comparing'],oyy)
+	if(len(comparekeys)>0):
+		oxx=linewithkey(comparekeys+['written','comparing'],oxx)
+		oyy=linewithkey(comparekeys+['written','comparing'],oyy)
 #	for ix in range(len(oxx)):
 #		print ix,oxx[ix]
 #	print oxx
@@ -103,8 +104,9 @@ except:
 
 file1 = open(sys.argv[1],'rt').read()
 file2 = open(sys.argv[2],'rt').read()
-tol=3e-3
 comparekeys=sys.argv[3:]
+print '   Comparekeys=',comparekeys
+tol=3e-3
 errmax = comparenum(tol,file1,file2, comparekeys, printsw=0)
 
 if(errmax<tol):

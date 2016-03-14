@@ -18,9 +18,9 @@ nband_sigm      999    9999 !    nband cutoff for Sigma  (Optional) (1st:num in 
 emax_sigm     999.000  9999.000  !(Ry)  (Optional) emax cutoff for Sigma (as in the nband_sigm)
  
 ! ##### FREQUENCIES from GWIN_V2 ################ 
-dw      0.010000 !(a.u.) mesh width along real axis.
-omg_c      0.040 !(a.u.) Only for Sergey mode.
-  !  coaser mesh for higher energy. Width get to be doubled at omg_c.
+HistBin_ratio 1.03
+HistBin_dw    0.01 (a.u.)
+
 iSigMode     3 ! sscGW mode switch. Required only in sscGW.
 niw          6 ! Number of frequencies along Im axis. Used for integration to get Sigma_c
   ! E.g. try niw=6 and niw=12
