@@ -14,15 +14,14 @@
 !> Get data set for m_freq_model. All arguments are input.
 !! - This read "Input.dat" (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
-      subroutine getfreq_model(omg2max)
+      subroutine getfreq_model(tetra,timereversal,omg2max)
       use m_keyvalue,only:getkeyvalue
 
       implicit none
-      logical:: tetra
+      logical:: tetra, timereversal
       real(8),intent(in):: omg2max
 
       real(8),allocatable:: freqx(:),wx(:),expa(:)
-      logical:: timereversal,onceww
       integer:: nw2,iw,ihis
       real(8)::omg_c,dw,omg2,wemax
       real(8), allocatable :: freqr2(:)  
@@ -31,8 +30,8 @@
       logical,save:: done=.false.
 
 
-      tetra = .True.
-
+      tetra = .true.
+      timereversal = .false.
       if(done) call rx('gerfreq is already done') !sanity check
       done =.true.
       nw=-99999 !for sanity check
@@ -60,13 +59,13 @@ c      nw  = idint (wemax/2d0/dw) + 3
 !! Timereversal=F is implimented only for tetra=T and sergeyv=T
       npm=1
       nw_i=0
-!      if(.not.timereversal()) then
-!         write(6,"('TimeReversal off mode')")
-!         npm=2
-!         nw_i=-nw
-!         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
-!      endif
-!      write(6,*)'Timereversal=',Timereversal()
+      if(.not.timereversal) then
+         write(6,"('TimeReversal off mode')")
+         npm=2
+         nw_i=-nw
+         if(.not.tetra)      call rx( ' tetra=T for timereversal=off')
+      endif
+      write(6,*)'Timereversal=',timereversal
 
       end subroutine getfreq_model
       end module m_freq_model
