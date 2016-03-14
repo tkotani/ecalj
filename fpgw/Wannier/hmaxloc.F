@@ -26,7 +26,7 @@ c------------------------------------------------------------
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,ef
-     &     alat,diw,dw,delta,deltaw,esmr,symgrp,clabl,iclass,
+     &     alat,delta,deltaw,esmr,symgrp,clabl,iclass,!,diw,dw
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg , konf,z,
      &     spid
@@ -186,6 +186,7 @@ c ixc=3
       real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
       integer:: inii
       logical:: leauto,leinauto
+
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
 c      open(1107,file='xxx1')
 c      open(1108,file='xxx2')

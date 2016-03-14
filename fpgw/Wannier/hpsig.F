@@ -16,7 +16,8 @@ c-------------------------------------------------
       use m_readqg
       use m_readeigen
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
+c      use m_genallcf_v3
+      use m_genallcf_v3,ncore2=>ncore
       use m_keyvalue,only: getkeyvalue
 
       implicit none
@@ -100,6 +101,8 @@ ctm
       real(8) :: pgnorm,wgt,ndg(3),sij,wphis
       complex(8),allocatable :: psig(:,:,:),qgg(:,:,:)
       logical :: ghead,tailt
+
+      integer,allocatable:: ncore(:)
 c-------------------------
 
 ctm
@@ -182,7 +185,7 @@ c --- read radial functions PHIVC   (taken from hasfp0)
       ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
       read(ifphi) nbas, nradmx, ncoremx,nrx
       if( nbas/=natom ) stop ' nbas(PHIVC) /= natom '
-      deallocate(ncore)
+c      deallocate(ncore)
       allocate(  ncindx(ncoremx,nbas),
      &           lcindx(ncoremx,nbas),
      &           nrad(nbas),

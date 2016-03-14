@@ -7,7 +7,7 @@
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
+      use m_genallcf_v3,nctot2=>nctot
       use m_keyvalue,only: getkeyvalue
 
       implicit none
@@ -160,7 +160,7 @@ c      logical :: sergeys
       real(8),allocatable :: rws(:,:),drws(:),rws1(:,:),rws2(:,:)
       integer(4):: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw,ia
       integer(4),allocatable:: irws(:),irws1(:),irws2(:)
-      integer:: nw
+      integer:: nw, nctot0
 c---------------------------------------
       hartree=2d0*rydberg()
 
@@ -769,7 +769,7 @@ c          call readeval(q(1,ip),is,eq)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c nctot=0 in this version
-      nctot=0
+      nctot0=0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         write(*,*) 'wmatq in'
 
@@ -793,7 +793,7 @@ c     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i              ua,dwdummy,  !deltaw,
      i              ecore(:,is), 
 c
-     d        nlmto,nqibz,nqbz,nctot,
+     d        nlmto,nqibz,nqbz,nctot0,
 c     i        index_qbz, n_index_qbz,
      d              nl,nnc,nclass,natom,
      d              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq,

@@ -210,7 +210,7 @@ c RS: variables for MPI
      &           swj_rv_w(:,:,:,:,:),swj_cv_w(:,:,:,:,:),
      &           swj_rv_iw(:,:,:,:,:),swj_cv_iw(:,:,:,:,:)
       real(8)::ef
-      integer::nw
+      integer::nw,nctot0
 c---------------------------------------
 c RS: program begins here
       call RSMPI_Init()
@@ -993,7 +993,7 @@ c          call readeval(q(1,ip),is,eq)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c nctot=0 in this version
-      nctot=0
+      nctot0=0
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         write(*,*) 'wmatq in'
 
@@ -1017,7 +1017,7 @@ c     i        iiclass,nblocha,i_mnlv,i_mnlc,iicore,incore,iimdim,
      i              ua,dwdummy,  !deltaw,
      i              ecore(:,is), 
 c
-     d        nlmto,nqibz,nqbz,nctot,
+     d        nlmto,nqibz,nqbz,nctot0,
 c     i        index_qbz, n_index_qbz,
      d              nl,nnc,nclass,natom,
      d              nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq,
