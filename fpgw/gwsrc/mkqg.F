@@ -36,6 +36,11 @@
       integer:: bzcase=1,i,iq0i,ifidmlx,iopen,lmxax,lx,lxklm,j,iclose,llxxx
       real(8):: rrr(3),r2s,qxx(3),voltot,tripl
       integer,allocatable::irrx(:)
+
+      real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
+      real(8):: qg(3)
+      integer:: ig,lm,iq
+
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 !! number of spherical points.
 c  nq00ix=12 !spherical points
@@ -304,36 +309,37 @@ c     enddo
 c     stop ' xxxxxxxxx spherical normalization xxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-c$$$  !! test function generation
-c$$$  deallocate(cy,yl)
-c$$$  allocate(cy((lxklm+1)**2),yl((lxklm+1)**2))
-c$$$  tpiba  = 2d0*pi/alat
-c$$$  call sylmnc(cy,lxklm)
-c$$$  do iq=1,nqbz
-c$$$  funa(:,iq)=0d0
-c$$$  do ig=1,ngcx(iq)
-c$$$  qg(1:3) = tpiba * (qbz(1:3,iq)+ matmul(qlat, ngvect(1:3,ig,iq)))
-c$$$  qg2     = sum(qg(1:3)**2)
-c$$$  alpqg2= alp* qg2
-c$$$  call sylm(qg/sqrt(qg2),yl,lxklm,r2s) !spherical factor Y( q+G )
-c$$$  funa(:,iq) = funa(:,iq) + exp(-alpqg2)*(1d0+1/(qg2+5d0))/qg2*cy(:)*yl(:) !cy*yl =Y_L(qg/|qg|)
-c$$$  enddo
-c$$$  enddo
-c$$$  c what is wtrue???
-c$$$  ccccccccccccccccccccccccc
-c$$$  do lm=1,(lxklm+1)**2
-c$$$  wsumau(lm) = sum(funa(lm,2:nqbz))/dble(nqbz)
-c$$$  c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
-c$$$  if(lm==1) then
-c$$$  write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
-c$$$  &     lm,llxxx(lm),wklm(lm), wtrue00,wklm(lm)+wsumau(lm), wsumau(lm)!,wklm(lm)+wsumau(lm)-wtrue00
-c$$$  else
-c$$$  write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
-c$$$  &     lm,llxxx(lm),wklm(lm), 0d0,  wklm(lm)+wsumau(lm), wsumau(lm)
-c$$$  endif
-c$$$  enddo
-c$$$  stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
-c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$!! test wklm
+c$$$          if(allocated(cy)) deallocate(cy,yl)
+c$$$          allocate(cy((lxklm+1)**2),yl((lxklm+1)**2),funa((lxklm+1)**2,nqbz))
+c$$$          tpiba  = 2d0*pi/alat
+c$$$          call sylmnc(cy,lxklm)
+c$$$          do iq=1,nqbz
+c$$$            funa(:,iq)=0d0
+c$$$            do ig=1,ngcx(iq)
+c$$$              qg(1:3) = tpiba * (qbz(1:3,iq)+ matmul(qlat, ngvect(1:3,ig,iq)))
+c$$$              qg2     = sum(qg(1:3)**2)
+c$$$              alpqg2= alp* qg2
+c$$$              call sylm(qg/sqrt(qg2),yl,lxklm,r2s) !spherical factor Y( q+G )
+c$$$              if(qg2<1d-6) cycle !for iq=1 remove divergent part
+c$$$              funa(:,iq) = funa(:,iq) + exp(-alpqg2)/qg2*cy(:)*yl(:) !cy*yl =Y_L(qg/|qg|) 
+c$$$            enddo
+c$$$          enddo
+c$$$          allocate(wsumau((lxklm+1)**2))
+c$$$          do lm=1,(lxklm+1)**2
+c$$$            wsumau(lm) = sum(funa(lm,2:nqbz))/dble(nqbz)
+c$$$c            if(abs(funa(lm,1))>1d-8) write(6,*)' funa1=',lm,funa(lm,1)
+c$$$c        write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm)
+c$$$            if(lm==1) then
+c$$$c              write(*,"('lm l wklm wtrue wsum wsummesh',2i3,4f12.8)")
+c$$$c     &         lm,llxxx(lm),wklm(lm), wtrue00,wklm(lm)+wsumau(lm), wsumau(lm) !,wklm(lm)+wsumau(lm)-wtrue00
+c$$$            else
+c$$$              write(*,"('lm l wsumau+wklm+w0const = wtotal ',2i3,15f12.8)")
+c$$$     &         lm,llxxx(lm), wklm(lm), wsumau(lm), funa(lm,1)/dble(nqbz), wklm(lm)+wsumau(lm)+funa(lm,1)/dble(nqbz)
+c$$$            endif
+c$$$          enddo
+c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
+
           ifidmlx = iopen('EPSwklm',0,-1,0)
           write(ifidmlx) nq0i,lxklm
           write(ifidmlx) dmlx, epinv(:,:,1:nq0i),epinvq0i

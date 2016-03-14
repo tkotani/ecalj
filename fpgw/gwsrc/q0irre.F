@@ -122,7 +122,7 @@ c constant part
          skipg0=.false.
         call auxfunlm(qbz(1:3,iq), alp,alat, qlat, 
      &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funa(:,iq),skipg0)
-        funa(:,iq)= funa(:,iq) - funac(:)
+c        funa(:,iq)= funa(:,iq) - funac(:) !mar2016takao we now consider
       enddo
 
       do lm=1,(lx+1)**2
@@ -135,10 +135,12 @@ c         enddo
 c         if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm),funac(lm)
       enddo
 
-      lm=1
-      wklm(lm)          = wtrue00- wsumau(lm)  -funac(1) 
-      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2) -funac(2:(lx+1)**2)
-!! takao think nagative wklm may cause some problem (break some positive definiteness or so).
+      lm=1  
+!! wklm(lm) = f_L in Eq.(28) T.Kotani,JPSJ83,094711,(2014). mar2016takao: rewrite code equivalently, following Eq.(28) more clearly.
+!! Thus wklmwe use only wklm(lm=1) for integration.
+      wklm(lm)          = wtrue00- wsumau(lm)          - funac(1)/dble(nnn)           
+c      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2) - funac(2:(lx+1)**2)/dble(nnn)
+      wklm(2:(lx+1)**2) = 0d0 ! 14march12016
       write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
       deallocate(funa)
       end

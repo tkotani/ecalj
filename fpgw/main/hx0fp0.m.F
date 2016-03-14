@@ -1322,7 +1322,8 @@ c              if(newaniso2.and.iq>nqibz) then
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
                 llw(iw,iq0)= 1d0/epstinv(1,1)
-                write(6,*) 'iq iw_real  eps(withLFC) eps(woLFC)',iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+                write(6,"('iq iw_real eps(withLFC) eps(woLFC) ',2i5,d13.6,x,d13.6,2x,d13.6,x,d13.6)")
+     &           iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
 c$$$c                read(ifepstinv) epstinv(2:ngb,2:ngb),iqx,iwx
 c$$$c                write(6,*)'sumcheck epstinv=',sum(abs(epstinv(2:ngb,2:ngb)))
 c$$$c                if(iw/=iwx) stop 'hx0fp0: iw/=iwx'  !sanity check

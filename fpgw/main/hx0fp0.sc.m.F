@@ -899,7 +899,9 @@ c     write(6,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0_3200011 writeiqiwreal  
-              write(6,"('iq iw_real eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+              write(6,"('iq iw_real eps(wFC) eps(woLFC) ',2i5,d13.6,x,d13.6,2x,d13.6,x,d13.6)")
+     &           iq,iw,llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
+
 !TIME1_3200011 "writeiqiwreal"
             endif
 
