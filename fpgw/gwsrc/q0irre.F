@@ -136,8 +136,10 @@ c         if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsum
       enddo
 
       lm=1  
-!! wklm(lm) = f_L in Eq.(28) T.Kotani,JPSJ83,094711,(2014). mar2016takao: rewrite code equivalently, following Eq.(28) more clearly.
-!! Thus wklmwe use only wklm(lm=1) for integration.
+!! wklm(lm) = f_L in Eq.(28) T.Kotani,JPSJ83,094711,(2014). mar2016takao: 
+!! We rewrite code equivalently, following Eq.(28).
+!! To keep positive definiteness of integral, we only use wklm(1), 
+!! that is, f_L (L=lm=(0,0)) only.
       wklm(lm)          = wtrue00- wsumau(lm)          - funac(1)/dble(nnn)           
 c      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2) - funac(2:(lx+1)**2)/dble(nnn)
       wklm(2:(lx+1)**2) = 0d0 ! 14march12016
