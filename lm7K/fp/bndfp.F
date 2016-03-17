@@ -3279,7 +3279,7 @@ c unused now      diff2eb(iq)=(evlall(i,jsp,ikp+1)-2d0*evlall(i,jsp,ikp)+evlall(
             enddo    
             do iq = 1,ne
               ikp = ikpoff(isyml)+iq
-              write(ifbndsp(jsp),"(i5, (1x,f12.8), 3(1x,f16.10),' ',f8.3,' ',3f9.5)") 
+              write(ifbndsp(jsp),"(i5, (1x,f12.8), 2(1x,f16.10),x,3f9.5)") 
      &         i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp)
             enddo  
             write(ifbndsp(jsp),*)
