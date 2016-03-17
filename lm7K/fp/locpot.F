@@ -303,7 +303,7 @@ C   --- Make potential and energy terms at this site ---
      .   , rhobg , efg ( 1 , ib ),ifivesint )
 
 !! write density 1st(true) component and counter components.
-        if(cmdopt('--density',9,0,strn)) then
+        if(cmdopt('--density',9,0,strn).and.master_mpi) then
            write(strib,'(i10)') ib
            ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
            do isp=1,nsp
