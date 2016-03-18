@@ -644,10 +644,11 @@ c     takao optbas mode here was removed
 C     --- Write smoothed charge density for contour plotting ---
 C     kino ioden is called everytime! Isn't the location strange?
       if (procid .eq. master) then
-        if (cmdopt('--wden',6,0,strn).or.cmdopt('--density',9,0,strn)) then
-          if(cmdopt('--density',9,0,strn)) strn(7:10)='=g3d' ! --density at march2012
-          call ioden(strn(7:), slat, ssite, sspec, spot%sv_a_oorhat, spot%zv_a_osmrho)
-        endif
+!! --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+c        if (cmdopt('--wden',6,0,strn).or.cmdopt('--density',9,0,strn)) then
+c          if(cmdopt('--density',9,0,strn)) strn(7:10)='=g3d' ! --density at march2012
+c          call ioden(strn(7:), slat, ssite, sspec, spot%sv_a_oorhat, spot%zv_a_osmrho)
+c        endif
 
 C     --- Write restart file (skip if --quit=band) ---
         if ( int(sctrl%quit) .ne. 4 ) then

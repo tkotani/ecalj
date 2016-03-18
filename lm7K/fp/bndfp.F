@@ -444,6 +444,7 @@ c mar2014
       integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_
       integer:: jspend,jspini,jspp
+      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread
 !! ----------------------------
       call tcn ('bndfp')
       debug=cmdopt('--debugbndfp',6,0,strn)
@@ -1867,9 +1868,45 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                   call makusq ( 0 , ssite , sspec , slat , sham , nbas , nsites 
      .              , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
      .              nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   )
-!!     Accumulate output density and sampling DOS
-!!     Even if no output rho, still call addrbl to make DOS when lmet=4
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
+
+!! Density mode. wtkb is the weight for iq,ib. With this setting, 
+!! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
+!! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
+                 if(cmdopt('--density',9,0,strn)) then
+                   iqread=0
+                   iqindex=index(strn(10:),'iq=')+2
+                   if(iqindex==2) then 
+                     iqread=-999
+                   else
+                     read(strn(10+iqindex:),*) iqread
+                   endif
+                   ibindex=index(strn(10:),'ib=')+2
+                   if(ibindex==2) then
+                     ibread=-999
+                   else
+                     do nibread=1,100
+                       read(strn(10+ibindex:),*,err=2019,end=2019) ibread(1:nibread)
+c                       print *,'xxx ibread=',ibread(1:nibread)
+                     enddo
+ 2019                continue
+                     nibread=nibread-1
+                   endif  
+                   if(iqread>0) then
+                     if(maxval(ibread(1:nibread))<=0) call rx('--density mode: wrong ib=foobar. Try,e.g. --density,iq=12,ib=5')
+                     write(6,"('--density bandmode: psi**2 for iq=',i5,' ib=',255i5)") iqread,ibread(1:nibread)
+                     rv_a_owtkb(:,:,:)=0d0
+                     do ib=1,nibread
+                       rv_a_owtkb(ibread(ib),:,iqread)=1d0
+                     enddo
+                     do ib=1,ndimh
+                       if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(6,"('ib wtkb=',i5,2f13.6)") ib,rv_a_owtkb(ib,jsp,iq)
+                     enddo
+                   endif
+                 endif   
+
+!! Accumulate output density and sampling DOS
+!! Even if no output rho, still call addrbl to make DOS when lmet=4
                   if(debug) print *,'goto addrbl nevl=',nevl
                   call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
      .              , qp , sbz%rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
@@ -2719,6 +2756,14 @@ c          print *,'goto mkpot procid=',procid
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
+
+           if(cmdopt('--density',9,0,strn)) then
+#ifdef MPIK
+             call mpi_barrier(MPI_comm_world,ierr)  
+#endif
+             call rx0('end of --density mode')
+           endif  
+             
 ccccccccccccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'

@@ -168,12 +168,17 @@ C ... for core hole
       logical lfltwf
       integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
-      logical master_mpi,master_mpiset
+      
+      integer,parameter:: nbasmx=1000
+      logical:: master_mpi,master_mpiset
+      logical,save:: secondcall(1:nbasmx)=.false.
       logical :: cmdopt
       character*20::strib
+      character strn*120
 C --- Setup ---
       call tcn('locpot')
       stdo = globalvariables%stdo ! stdo = nglob('stdo')
+      print *,'locpot stdo',stdo
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
@@ -303,7 +308,8 @@ C   --- Make potential and energy terms at this site ---
      .   , rhobg , efg ( 1 , ib ),ifivesint )
 
 !! write density 1st(true) component and counter components.
-        if(cmdopt('--density',9,0,strn).and.master_mpi) then
+        if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall(ib)) then
+           write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
            write(strib,'(i10)') ib
            ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
            do isp=1,nsp
@@ -321,6 +327,8 @@ c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
              enddo
            enddo
            call fclose('rho2MT.'//trim(adjustl(strib)))
+        elseif(cmdopt('--density',9,0,strn).and.master_mpi()) then
+          secondcall(ib)=.true.
         endif
 
 C   ... Write true potential to file vtrue.ib

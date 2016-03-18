@@ -228,11 +228,48 @@ C     This ordering must match sham->eterms; see uham
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
       real(8),parameter:: minimumrho=1d-14
       real(8)::sss,smmin(2),srshift
+
+      real(8):: plat(3,3),alat
+      integer:: ifi,isp
+      character strn*120
+      logical:: master_mpi,secondcall=.false.
 c      logical:: enforce_positive_smrho
 C      print *, '!!'
 C      job = job + 30000
       call tcn('mkpot')
-ccccccccccccccccccccccccccccccccc
+
+!! new density mode
+      if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
+        ifi=ifile_handle()
+        plat =slat%plat
+        alat =slat%alat
+        open(ifi,file='smrho.xsf')
+        do isp = 1, nsp
+          write(ifi,'("CRYSTAL")')
+          write(ifi,'("PRIMVEC")')
+          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3)
+     .     ,i2=1,3)
+          write(ifi,'("PRIMCOORD")')
+          write(ifi,'(2i5)') nbas,1
+          do i = 1, nbas
+            ispec=ssite(i)%spec
+            write(ifi,'(i4,2x,3f10.5)') int(sspec(ispec)%z),(ssite(i)%pos(i2)*alat*0.529177208,i2=1,3)
+          enddo
+          write(ifi,'("BEGIN_BLOCK_DATAGRID_3D")')
+          write(ifi,'("charge_density_spin_",i1)') isp
+          write(ifi,'("BEGIN_DATAGRID_3D_isp_",i1)') isp
+          write(ifi,'(3i4)') k1,k2,k3
+          write(ifi,'(3f10.5)') 0.,0.,0.
+          write(ifi,'(3f10.5)') ((plat(i1,i2)*alat*0.529177208,i1=1,3),i2=1,3)
+          write(ifi,'(8e14.6)') (((dble(smrho(i1,i2,i3,isp)),i1=1,k1),i2=1,k2),i3=1,k3)
+          write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
+          write(ifi,'("END_BLOCK_DATAGRID_3D")')
+        enddo
+        call fclose(ifi)
+      else
+        secondcall=.true.
+      endif
+
 c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
 c      open(1898,file='test1vvv')
 c      nnnew=0
@@ -418,6 +455,10 @@ C --- Make local potential at atomic sites and augmentation matrices ---
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .    lmaxu , vorb , lldau )
+!!
+      if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
+        return
+      endif
 
 C ... Combine spin-up and spin-down integrals
       repsm(1)  = repsm(1) + repsm(2)
