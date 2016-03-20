@@ -872,6 +872,7 @@ c     call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
         iqxendx=iqxend
         allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
      &   ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
+        nwgt=1
       endif
 
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )

@@ -178,7 +178,7 @@ C ... for core hole
 C --- Setup ---
       call tcn('locpot')
       stdo = globalvariables%stdo ! stdo = nglob('stdo')
-      print *,'locpot stdo',stdo
+c      print *,'locpot stdo',stdo
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
