@@ -1906,6 +1906,37 @@ See the efermi.lmf to read the Fermi energy.
 
 \end{verbatim}
 
+\subsection{density and $|$eigenfunction$|^2$ plot}
+We can generate density and $\sum_{n} |\Psikn(\bfr)|^2$
+by \verb+--density+ mode (after 18mar2016)
+Usages are
+\begin{verbatim}
+>mpirun -np 24  lmf-MPIK si --density 
+\end{verbatim}
+This is for density. We have \verb+smrho.xsf+,
+and \verb+rho1mt*+(1st components) and \verb+rho2mt*+(2nd components).
+
+\begin{verbatim}
+>mpirun -np 24  lmf-MPIK si --density,iq=1,ib=5
+\end{verbatim}
+\verb+iq=1+ means Gamma point.
+See index shown by the console output of \verb+lmf+.
+The index \verb+ib+ is the band index.
+ 
+\begin{verbatim}
+>mpirun -np 24  lmf-MPIK si --density,iq=1,ib=5,6,7
+\end{verbatim}
+ In this case we have sum for \verb+ib=5,6,7+.
+
+Use xcrysden as
+\begin{verbatim}
+>xcrysden --xsf smrho.xsf
+\end{verbatim}
+Then open menu 'Tools$\rightarrow$DetaGrid'. Then plot isosurface
+and/or planes. For example, you need to set isovalue,
+and/or turn on 'display color plane' buttons.
+
+
 \subsection{LDA+U, partially occupied core-hole}
 
 \begin{verbatim}
@@ -3617,7 +3648,7 @@ Higher bands above them are neglected.
 \item 
 Energy mesh related parameters.\\
 \noindent --- new after march2016 ---\\
-\keyw{HistBin\_dw}     : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
+\keyw{HistBin\_dw}  : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
 \keyw{HistBin\_ratio} : 1 real (a.u.). \\
 \verb+HistBin_dw+ and \verb+HistBin_ratio+ specify real 
 space bins which we accumulate imaginary part
@@ -3629,28 +3660,56 @@ The bins are (see \verb+frhis+ in \verb+ecalj/fpgw/gwsc/m_freq.F+)
 where $[\omega_i, \omega_(i+1)]$ ($i=1,2,...,$\verb%nwhis+1%) is the $i$-th bin.
 \verb+HistBin_dw+ is bin width at
 $\omega=0$. The ratio $\omega_(i+1)/\omega_(i)$ for large $\omega$ is
-$\exp(a)$, which is given be \verb+HistBin_ratio+.
+$\exp(a)$=\verb+HistBin_ratio+.
 This choice of getting coarser at high energy is because we think $W(\omega)$
 around $\omega \sim 0$ gives most important contribution to the GW approximation.
-If bins are too wide, dielectric function can be less accurate, 
-but results are not necessarily so much affected. 
-For metal, our code can capture Drude weight numerically. 
-We do not need to be so sensitive to the choice of them usually.
-\underline{(WARNING! Some of my examples may show as if they are in "(Ry)". 
-But they are Wrong!)}
+If histogram bins are too wide, 
+dielectric function can be less accurate, 
+but results may be not so much affected.
+ 
+In GW calculation, the Plasmon pole is important.
+It is determined not by the Drude weight; it usually gives
+small contribution to the Plasmon pole 
+(for example, Si is described well by a Plasmon pole model, 
+but Si has no Fermi surface).
+We expect that the GW results are not so 
+sensitive to the choice of \verb+HistBin_dw, HistBin_ratio+ 
+usually. We may use fine mesh when we plot quantities 
+such as $W(\omega)$ near $\omega=0$.
+
+The ecalj gives $\bar{W}(\omega=0)\sim 0$ for metal; where
+$\bar{W}(\omega)$ is the effective interaction 
+averaged in the $\Gamma$-cell \cite{kotani_formulation_2015}. 
+And $\bar{W(\omega}$ get closer to $v$ for larger $\omega$.
+
+Default value of them are given in \verb+fpgw/gwsrc/m_freq.F+.
+They are
+\begin{verbatim}
+ call getkeyvalue("GWinput","HistBin_ratio",oratio, default=1.03d0) 
+ call getkeyvalue("GWinput","HistBin_dw",dw, default=1d-5) !a.u.
+\end{verbatim}
+These are safer settings. Thus new \verb+mkGWIN_lmf2+ (GWinput.tmp
+generator) gives default lines in \verb+GWinput+ as
+\begin{verbatim}
+HistBin_dw  2d-3 ! 1d-5 for metal  !(a.u.) bin width along real axis at omega=0.
+HistBin_ratio 1.08 ! 1.03 for check. frhis(iw)= b*(exp(a*(iw-1))-1),
+  where a=ratio-1.0 and dw=b*a 
+\end{verbatim}
+. This is given in the \verb+conv2gwinput.F+.
+
 \noindent--- old version. before 14march2016 --\\
 \keyw{dw}     : 1 real (a.u.). Mesh width along real axis for $W(\omega)$.\\
 \keyw{omg\_c} : 1 real (a.u.). \\
 {\tt dw} and {\tt omg\_c}
 determines $\omega$ mesh along real axis to calculate $W(\omega)$...\\
 -------------------------\\
+\underline{(WARNING! Some of my examples may show as if they are in "(Ry)". But they are Wrong!)}\\
 
 %But {\tt omg\_c} is not used in gw\_lmf; then energy mesh is fixed as {\tt dw}.
 %We calculate $W(\omega)$ at these energy mesh as 
 %$W(\omega=0), W(\omega={\tt dw}), W(\omega=2 \times {\tt dw}), W(\omega=3 \times {\tt dw}), ...$
 %and then use them for the numerically interpolate 
 %to determine $W(\omega'=\omega-\epsilon_{{\bf q-k}n})$. See FIG.1 in Ref.I.
-
 
 
 \vspace{2mm}
