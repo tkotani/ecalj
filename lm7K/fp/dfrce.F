@@ -1,13 +1,8 @@
       subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
      .  , dfh )
-
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
@@ -59,9 +54,6 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
 #if MPI | MPIK
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
       integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
@@ -404,9 +396,6 @@ C$&               ocs,osn,fes1,fes2,fxc)
 C$&        SHARED (job,ng,iiv0,ocnomi,ocvin,ocdvx)
 C$&        MP_SCHEDTYPE=RUNTIME
 #if MPI | MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_DFRCE,procid,"dfrce")
-#endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
       ibini = bproc(procid)
@@ -477,15 +466,7 @@ C
    20   continue
       enddo
 #if MPI | MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_DFRCE,procid,"dfrce")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_BCAST,procid,"broadcast")
-#endif
       do  pid = 0, numprocs-1
         ib = bproc(pid)
         jb = bproc(pid+1) - ib
@@ -504,9 +485,6 @@ C
       enddo
       deallocate (bproc, stat=ierr)
       deallocate (iiv0, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
-#endif
 #endif
       call dpzero(avgdf,3)
       do  23  ib = 1, nbas

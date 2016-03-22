@@ -1,11 +1,7 @@
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
      .numq,nevec,evl,evec,ewgt,f)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,9 +40,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 #if MPI
-#if MPE
-      include "mpef.h"
-#endif
       include "mpif.h"
       integer pid, procid, master, numprocs, ierr,
      .status(MPI_STATUS_SIZE)
@@ -62,10 +55,6 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
       integer nbas,ndimh,nlmto,nevec,numq,iprmb(nlmto)
       real(8):: q(3)
       type(s_site)::ssite(*)
@@ -145,9 +134,6 @@ ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
 
 C --- Loop over first and second site indices ---
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_FSMBL,procid,"fsmbl")
-#endif
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
       call dstrbp(nbas,numprocs,-1,index(0,0))
 c      do  iloop = 1, index(procid,0)
@@ -276,15 +262,7 @@ C                 i1 = orbital index in iprmb order
       enddo
 
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_FSMBL,procid,"fsmbl")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
       allocate(buffer(1:3*nbas*numq), stat=ierr)
       call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -297,9 +275,6 @@ C                 i1 = orbital index in iprmb order
       endif
       call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
       deallocate(index, stat=ierr)
 #endif
 

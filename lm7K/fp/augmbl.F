@@ -1,12 +1,8 @@
-c#define F90 1
       subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -85,9 +81,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 #if MPI
-#if MPE
-      include "mpef.h"
-#endif
       include "mpif.h"
       integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -103,15 +96,10 @@ C ... Passed parameters
       integer i,lgunit
       character*120 strn
 #endif
-
-      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw) 
-     .   , iprmb(ndimh)
+      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh)
       type(s_rv1) :: sv_p_oppi(3,1)
-
       type(s_rv1) :: sv_p_otau(3,1)
-
       type(s_rv1) :: sv_p_osig(3,1)
-
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -121,28 +109,18 @@ C ... Passed parameters
 C ... Local parameters
       integer nlmbx,nlmax,ktop0,lofb,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
-c#if F90
       complex(8),allocatable:: b(:)
-c#else
-c      double complex b(lofb*ndimh),b0(lofb*nlmbx),bos(lofb)
-c#endif
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
      .    , nlmha , nkaph , mode1 , nlmto
-ckino Dec.8.2011:        integer,pointer :: iv_p_ojcg(:) =>NULL()
-ckino Dec.8.2011:        integer,pointer :: iv_p_oidxcg(:) =>NULL()
-ckino Dec.8.2011:        real(8),pointer :: rv_p_ocy(:) =>NULL()
-ckino Dec.8.2011:        real(8),pointer :: rv_p_ocg(:) =>NULL()
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas
       logical:: debug=.false.
-
 #if MPI
       integer, dimension(:), allocatable :: bproc
       complex(8) ,allocatable :: h_zv(:),
      & hbuf_zv(:),  s_zv(:), sbuf_zv(:),  hso_zv(:)
 #endif
-
 C--------------------------
       call tcn ('augmbl')
 #if MPI
@@ -158,40 +136,18 @@ C--------------------------
 #endif
 
 C --- Setup ---
-Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
-Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
-
-ckino Dec.8.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.8.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.8.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.8.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-
       alat=slat%alat
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       vol=slat%vol
-
-C     tpiba = 2d0*4d0*datan(1d0)/alat
-
-c#if F90
       allocate (b(lofb*ndimh))
-c#endif
-
 C --- Loop over augmentation sites --- ---
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_AUGMBL,procid,"augmbl")
-#endif
       allocate(h_zv(abs(-ndimh*ndimh)))
       if (-ndimh*ndimh<0) h_zv(:)=0.0d0
 
@@ -222,82 +178,22 @@ C --- Loop over augmentation sites --- ---
      .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
         endif
 #endif
-
-
         isa=ssite(ia)%spec
         i_copy_size=size(ssite(ia)%pos)
         call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
-
-
         lmxa=sspec(isa)%lmxa
         lmxha=sspec(isa)%lmxb
         kmax=sspec(isa)%kmxt
         rsma=sspec(isa)%rsma
-
         nlmha = (lmxha+1)**2
         nlma  = (lmxa+1)**2
         if (lmxa .eq. -1) goto 10
-
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-c#if F90
-C Check ...
-C        allocate (b(0:kmax,nlma,ndimh))
-Ckino bstrux makes C_kl(=b).
-ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
-ckino Dec.8.2011:              call bstrux ( 0 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:              call bstrux ( 0 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
         call bstrux ( 0 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
-ckino Dec.8.2011:       .      , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.8.2011:       .      , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.27.2011:       .      , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.28.2011:       .      , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx )
         if(debug) print *,'end of bstrux'
-
-C$$$#else
-C$$$C       Zero out strux to eliminate contributions from local orbitals
-C$$$        call dpzero(b,(kmax+1)*nlma*ndimh*2)
-C$$$        do  ib = 1, nbas
-C$$$Cgetarg...info...           integer :: is , integer(8) :: ssite%spec 1
-C$$$Cgetarg...info...           real(8) :: p(3) , real(8) :: ssite%pos 3
-C$$$Cgetarg           call upack('site spec pos',ssite,ib,is,p,0,0)
-
-C$$$           is=ssite(ib)%spec
-C$$$           i_copy_size=size(ssite(ib)%pos)
-C$$$           call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
-
-C$$$C         This line augments no local orbitals
-C$$$C         ik = 1
-C$$$C         This line augments onsite extended local orbitals only
-C$$$C         if (ia .eq. ib) ik = 2
-C$$$C         This line augments extended local orbitals all sites
-C$$$          ik = 2
-C$$$          call uspecb(0,ik,sspec,is,is,lh,rsmh,eh,nkapi)
-C$$$C         Position in h; l,k indices for orbitals connected w/ ib
-C$$$          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-C$$$C         Loop over blocks of envelope functions
-C$$$          do  ik = 1, nkapi
-C$$$            nlmh = (lh(ik)+1)**2
-C$$$            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-C$$$            if (nlmh .gt. nlma .and. ia.eq.ib)
-C$$$     .        call rx('augmbl: nlmh.gt.nlma')
-C$$$            call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,nlma,
-C$$$     .        kmax,nlma,w(ocg),w(oidxcg),w(ojcg),w(ocy),slat,b0)
-C$$$C       ... Subtract strux of on-site heads if ib=ia
-C$$$#ifndef ALL3C
-C$$$            if (ib .eq. ia) then
-C$$$              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
-C$$$              call paugq2(kmax,nlmh,nlma,bos,b0)
-C$$$            endif
-C$$$#endif
-C$$$            call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,b0,b)
-C$$$          enddo
-C$$$        enddo
-C$$$#endif
-
 C   --- Add 1-center and 2-center terms ---
 #if MPI
         if (lcplxp .eq. 0) then
@@ -305,93 +201,51 @@ C   --- Add 1-center and 2-center terms ---
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s_zv , h_zv )
-
-
-
         else
           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
      .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s_zv , h_zv , hso_zv )
-
-
-
         endif
 #else
-c#ifndef ALL3C
         if (lcplxp .eq. 0) then
           call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s , h )
-
-
         else
           call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
      .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s , h , hso )
-
-
         endif
-c#endif
 #endif
-
         if(debug) print *,'augg 1111111'
-
 C   --- Add B+ sig B to S and B+ ppi B to H ---
 #if MPI
-        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
-     .   , b , s_zv )
-
-
+        call augqs3 (kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s_zv )
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-          call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h_zv )
-
-
+          call augqp3(kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h_zv )
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-          call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h_zv , hso_zv )
-
-
+          call augq3z(mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v,b,h_zv,hso_zv)
         endif
 #else
-        call augqs3 ( kmax , lmxa , nlma , ndimh , isp , g , sv_p_osig( 1 , ia )%v 
-     .   , b , s )
-
+        call augqs3( kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-          call augqp3 ( kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h )
-
+          call augqp3( kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h )
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-          call augq3z ( mode1 , kmax , nlma , ndimh , isp , g , sv_p_oppi( 1 , ia )%v 
-     .     , b , h , hso )
-
+          call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         endif
 #endif
-
         if(debug) print *,'augg 222222 ia=',ia
    10   continue
 C ... end loop over ia
       enddo
-
-
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_AUGMBL,procid,"augmbl")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
       allocate(hbuf_zv(ndimh*ndimh))
-
       call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
      ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-
       if (mlog) then
         call gettime(datim)
         call awrit3(' augmbl '//datim//' Process %i of %i on '
@@ -399,16 +253,11 @@ C ... end loop over ia
      .  ' allreduce h ndimh=%i',' ',256,lgunit(3),
      .  procid,numprocs,ndimh)
       endif
-      call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 
-     .)
-
+      call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 )
       if (allocated(hbuf_zv)) deallocate(hbuf_zv)
-
       allocate(sbuf_zv(ndimh*ndimh))
-
       call mpi_allreduce ( s_zv , sbuf_zv , 2 * ndimh * ndimh 
      ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-
       if (mlog) then
         call gettime(datim)
         call awrit3(' augmbl '//datim//' Process %i of %i on '
@@ -416,17 +265,12 @@ C ... end loop over ia
      .  ' allreduce s ndimh=%i',' ',256,lgunit(3),
      .  procid,numprocs,ndimh)
       endif
-      call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , s , 1 
-     .)
-
+      call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , s , 1 )
       if (allocated(sbuf_zv)) deallocate(sbuf_zv)
-
       if (lcplxp .ne. 0) then
         allocate(sbuf_zv(ndimh*ndimh))
-
         call mpi_allreduce ( hso_zv , sbuf_zv , 2 * ndimh * ndimh 
      .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-
         if (mlog) then
           call gettime(datim)
           call awrit3(' augmbl '//datim//' Process %i of %i on '
@@ -434,43 +278,20 @@ C ... end loop over ia
      .    ' allreduce hso ndimh=%i',' ',256,lgunit(3),
      .    procid,numprocs,ndimh)
         endif
-        call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , hso , 
-     .  1 )
-
+        call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , hso , 1 )
         if (allocated(sbuf_zv)) deallocate(sbuf_zv)
-
         if (allocated(hso_zv)) deallocate(hso_zv)
-
       endif
       if (allocated(s_zv)) deallocate(s_zv)
       if (allocated(h_zv)) deallocate(h_zv)
-
-
-Cki#error ERROR, try to release name= os ,but list=null at linenumber= 400 list= (None)
-
       deallocate(bproc, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
 #endif
-#endif
-
-C      call z2herm('U',ndimh,ndimh,h)
-C      call z2herm('U',ndimh,ndimh,s)
-C      call zprm('h-aug',2,h,ndimh,ndimh,ndimh)
-C      call zprm('s-aug',2,s,ndimh,ndimh,ndimh)
-
-c#if F90
       deallocate (b)
-c#endif
-
       call tcx ('augmbl')
-
       end subroutine augmbl
-
 
       subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
      .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
-
 C- Add one and two-center terms to hamiltonian and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -660,16 +481,9 @@ C ... Local parameters
       integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb
       double precision xx
       double complex cadd,cadd1
-c#if F90
       complex(8),allocatable:: tso(:,:,:,:)
-c#else
-c      double complex tso(ndimh,ndimh,2,2)
-c#endif
-
       if (mode1 .eq. 1) then
-c#if F90
         allocate (tso(ndimh,ndimh,2,2))
-c#endif
         call dpzero(tso,ndimh*ndimh*4*2)
       endif
 
@@ -759,9 +573,7 @@ C     ... One-center terms
 
       if (mode1 .eq. 1) then
         call dpadd(hso(1,1),tso(1,1,1,2),1,2*ndimh*ndimh,1d0)
-c#if F90
         deallocate (tso)
-c#endif
       endif
 
       end subroutine augq2z

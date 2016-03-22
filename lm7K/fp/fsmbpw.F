@@ -1,11 +1,7 @@
       subroutine fsmbpw(nbas,ssite,sspec,vavg,ndimh,nlmto,iprmb,numq,
      .nevec,evl,evec,ewgt,napw,qpgv,qpg2v,ylv,nlmax,lmxax,alat,sqv,f)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Force from smoothed hamiltonian (constant potential), PW contribution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -45,9 +41,6 @@ C     implicit none
 C ... Passed parameters
 #if MPI
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
       integer pid, procid, master, numprocs, ierr,
      .status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -62,10 +55,6 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
       integer nbas,ndimh,napw,nlmax,nlmto,nevec,numq,iprmb(nlmto),lmxax
       real(8):: ylv(napw,nlmax)
       type(s_site)::ssite(*)
@@ -130,9 +119,6 @@ C     tpiba = 2d0*pi/alat
 
 C --- Loop over first and second site indices ---
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_FSMBPW,procid,"fsmbpw")
-#endif
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
       call dstrbp(nbas,numprocs,-1,index(0,0))
 c      do  iloop = 1, index(procid,0)
@@ -220,15 +206,7 @@ C             gradient PW * (H - E S)
         enddo                   !ig
       enddo                     !ib1
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_FSMBPW,procid,"fsmbpw")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
       allocate(buffer(1:3*nbas*numq), stat=ierr)
       call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -241,16 +219,10 @@ C             gradient PW * (H - E S)
       endif
       call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
       deallocate(buffer, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
       deallocate(index, stat=ierr)
       deallocate(xf, stat=ierr)
 #endif
-
       call tcx ('fsmbpw')
-
-
       end subroutine fsmbpw
 
 

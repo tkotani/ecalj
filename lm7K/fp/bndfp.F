@@ -30,9 +30,6 @@ c     &  igv2,napwk,igv2rev
 #if defined(__INTEL_COMPILER)
       use ifport, only: unlink
 #endif
-#if MPI | MPIK
-      use m_events              !Event numbers: include "events.ins"
-#endif
 
 !! ==== followings are taken from origitanl lm7beta for reference. ====
 Ci   nbas  :size of basis
@@ -186,9 +183,6 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       logical :: llmfgw
 #if MPI | MPIK
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
       integer ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
@@ -1435,10 +1429,6 @@ C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
 C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
-#if MPE & MPIK
-      ierr = MPE_LOG_EVENT(EVENT_START_KLOOP,procid,"k-loop")
-#endif
-
 #if MPIK
       call info0(30,1,0, ' ... Start MPI k-loop')
       sttime = MPI_WTIME()
@@ -2114,9 +2104,6 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
 
 !! for MPI, collect data of nodes see xmpbnd.
 #if MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_KLOOP,procid,"k-loop")
-#endif
       entime = MPI_WTIME()
       call info2(30,0,0, ' ... Done MPI k-loop: %;1d seconds elapsed',entime-sttime,0)
       call info0(20,0,-1,' ... Sharing data between processes...')
@@ -2807,9 +2794,6 @@ c          print *,'gogo mkehkf procid=',procid,ipr,eks
 #ifdef KINODEBUG
          write(*,*) 'kino allocate qm2_rv',nvl
 #endif
-#if MPE
-         ierr = MPE_LOG_EVENT(EVENT_START_MIXRHO,procid,"mixrho")
-#endif
 
 cccccccccccccccccccccc
 cc          print *,'vvv takao mkekin copy test xxx1---'
@@ -2836,9 +2820,6 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
 c          stop 'xxxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccc
 
-#if MPE
-         ierr = MPE_LOG_EVENT(EVENT_END_MIXRHO,procid,"mixrho")
-#endif
       else
          eks = 0d0
       endif

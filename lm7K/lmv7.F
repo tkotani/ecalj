@@ -10,9 +10,6 @@ c     &  shtvg,ngrp,miat,tiat,iclasst,
 
 c      use m_globalvariables
 #if MPI | MPIK
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 #endif
       implicit none
 !! == Main program for lmf and so on. ==
@@ -21,9 +18,6 @@ c      use m_globalvariables
       integer procid, master, mpipid, nproc
 #if MPI | MPIK
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
 #if MPI | MPIK
       integer fext
 #endif
@@ -37,10 +31,6 @@ c      use m_globalvariables
       integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
-c#if MPE
-cC Event numbers:
-c      include "fp/events.ins"
-c#endif MPE
 #endif
 
 C ... Controls for IO
@@ -140,39 +130,6 @@ C --- Dynamic memory allocation and other initialization ---
       call strcop(shortname(procid),name,10,'.',i)
       namelen(procid) = i-1
       mlog = cmdopt('--mlog',6,0,strn)
-#if MPE
-      ierr = MPE_INIT_LOG()
-      EVENT_START_RDCTRL = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_RDCTRL   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_UGCOMP = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_UGCOMP   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_FSMBL  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_FSMBL    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_PZHEV  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_PZHEV    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_KLOOP  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_KLOOP    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_MIXRHO = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_MIXRHO   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_SMHSBL = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_SMHSBL   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_AUGMBL = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_AUGMBL   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_HSIBL  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_HSIBL    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_RSIBL  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_RSIBL    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_RLOCBL = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_RLOCBL   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_DFRCE  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_DFRCE    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_BCAST  = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_BCAST    = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_ALLRED = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_ALLRED   = MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_START_BARRIER= MPE_LOG_GET_EVENT_NUMBER()
-      EVENT_END_BARRIER  = MPE_LOG_GET_EVENT_NUMBER()
-#endif
 C --- Dynamic memory allocation and other initialization ---
       if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
@@ -181,23 +138,6 @@ C --- Dynamic memory allocation and other initialization ---
       endif
       call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
       if (procid .eq. master) then
-#if MPE
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RDCTRL,EVENT_END_RDCTRL,"rdctrl","pink")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_UGCOMP,EVENT_END_UGCOMP,"ugcomp","maroon")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_FSMBL,EVENT_END_FSMBL,  "fsmbl","aquamarine")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_PZHEV,EVENT_END_PZHEV,  "pzhev","brown")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_KLOOP,EVENT_END_KLOOP,  "k-loop","brown")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_MIXRHO,EVENT_END_MIXRHO,"mixrho","orange")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_SMHSBL,EVENT_END_SMHSBL,"smhsbl","blue")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_AUGMBL,EVENT_END_AUGMBL,"augmbl","cyan")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_HSIBL,EVENT_END_HSIBL,  "hsibl","gray")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RSIBL,EVENT_END_RSIBL,  "rsibl","red")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_RLOCBL,EVENT_END_RLOCBL, "rlocbl","green")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_DFRCE,EVENT_END_DFRCE,  "dfrce","magenta")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_BCAST,EVENT_END_BCAST,  "broadcast","coral")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_ALLRED,EVENT_END_ALLRED, "allreduce","purple")
-        ierr = MPE_DESCRIBE_STATE(EVENT_START_BARRIER,EVENT_END_BARRIER, "barrier","yellow")
-#endif
         call gettime(datim)
         if (mlog) i = fopn('MLOG')
         call poseof(fopn('LOG'))
@@ -240,9 +180,10 @@ C ... Abort with error message if ctrl file is missing (swtmp = .true.)
           if (fxst('CTRL') .ne. 1) call rx("No ctrl file found!") 
         endif
       endif
+
 c      call mpibc1(swtmp,1,1,.false.,'lmf','error')
 c      if(swtmp) call rx("No ctrl file found!") 
-
+c
 C ... Set special file directory for temporary files
 C     User may which to customize the directory
 C     Default is to use the standard directory
@@ -305,14 +246,7 @@ C      call rx('done')
      . v_sarry,v_smove, sstrnmix,sstrnsymg)  !,v_stb
 
 #if MPI | MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_RDCTRL,procid,"rdctrl")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-#endif
 #endif
 C --- Lattice setup ---
 c      print *,'goto setcg'
@@ -438,13 +372,6 @@ C ... Patch for now ... maybe replace
 !! -------------- End of program -------------
  1000 continue
 #if MPI | MPIK
-#if MPE
-      if (procid .eq. master) i = fextg(ext)
-      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
-      i = 0
-      call skp2bl(ext,20,i)
-      ierr = MPE_FINISH_LOG(ext(2:i))
-#endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if ( procid .eq. master ) then
         call rx0(prgnam//' on '//shortname(procid)(1:namelen(procid)))

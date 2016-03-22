@@ -3,9 +3,6 @@ CSFCPP#define F90 1
      .napw,igapw,h,s)
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -135,9 +132,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 #if MPI
-#if MPE
-      include "mpef.h"
-#endif
       include "mpif.h"
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -200,16 +194,8 @@ CSFCPP#endif
       complex(8),allocatable::w_obuff(:)
 c      integer obuff
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
-C ... Heap
-
       integer:: iloop,iloopmx
-
       call tcn('smhsbl')
-
 #if MPI
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
@@ -294,9 +280,6 @@ C$&        SHARED(ssite,sspec,slat,vavg,q,ndimh,iprmb,h,s,nbas,nsp)
 C$&        MP_SCHEDTYPE=RUNTIME
       if (nlmto .ne. 0) then
 #if MPI
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_START_SMHSBL,procid,"smhsbl")
-#endif
         allocate (hbuf(ndimh,ndimh), stat=ierr)
         allocate (sbuf(ndimh,ndimh), stat=ierr)
         call dcopy(2*ndimh*ndimh,0d0,0,hbuf,1)
@@ -489,15 +472,7 @@ C ... end loop over ib1
         enddo
 
 #if MPI
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_SMHSBL,procid,"smhsbl")
-        ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
         call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-        ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
         if (mode .eq. 0) then
 c          call defcc(obuff, ndimh*ndimh)
           allocate(w_obuff(ndimh*ndimh))
@@ -527,9 +502,6 @@ c        call rlse(obuff)
         deallocate(index, stat=ierr)
         deallocate(hbuf, stat=ierr)
         deallocate(sbuf, stat=ierr)
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
 #endif
       endif
 

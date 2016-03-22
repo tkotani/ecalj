@@ -3,9 +3,6 @@ CSFCPP#define F90 1
      .napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -69,9 +66,6 @@ C     implicit none
 C ... Passed parameters
 #if MPI
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
       integer ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
       parameter (MAX_PROCS = 100)
@@ -85,10 +79,6 @@ C ... Passed parameters
       logical mlog,cmdopt
       integer lgunit
       character*120 strn
-#endif
-#if MPE
-C Event numbers:
-      include "events.ins"
 #endif
       integer procid, master, nproc, mpipid
       integer lfrce,nbas,isp,k1,k2,k3,ndimh,nevec,numq,iprmb(1),iq,nspc
@@ -277,9 +267,6 @@ CSFCPP#endif
 
 
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_RSIBL,procid,"rsibl")
-#endif
       allocate(xsmrho(k1,k2,k3,numq,nspc))
       call dpzero(xsmrho,k1*k2*k3*numq*nspc*2)
       if (lfrce .ne. 0) then
@@ -401,17 +388,7 @@ CSFCPP#else
 CSFCPP#endif
 
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_RSIBL,procid,"rsibl")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
-
-c      call defcc(osmbuf, k1*k2*k3*numq*nspc)
       allocate(w_osmbuf(k1*k2*k3*numq*nspc))
       call MPI_ALLREDUCE(xsmrho,w_osmbuf,2*k1*k2*k3*numq*nspc,
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -449,9 +426,6 @@ CC     deallocate(xsmrho,fr)
       if (allocated(fr)) deallocate(fr)
 C
       deallocate(vproc, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
 #endif
 ckino 2011.05 if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
 ckino Dec.8.2011:         if (allocated(rv_p_ogv)) deallocate(rv_p_ogv)

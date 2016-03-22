@@ -186,9 +186,6 @@ CSFCPP#define F90 1
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_prlcb
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -276,9 +273,6 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
 #if MPI
       include "mpif.h"
-#if MPE
-      include "mpef.h"
-#endif
       integer procid,master
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -293,10 +287,6 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
       integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
       type(s_rv1) :: sv_p_oppi(3,1)
@@ -441,9 +431,6 @@ c      enddo
 
 C --- Loop over augmentation sites ---
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_RLOCBL,procid,"rlocbl")
-#endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
 c      do  ia = bproc(procid), bproc(procid+1)-1
@@ -551,15 +538,7 @@ C     ... Contribution to forces
 C ... end loop over ia
       enddo
 #if MPI
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_RLOCBL,procid,"rlocbl")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_BCAST,procid,"broadcast")
-#endif
       do  pid = 0, numprocs-1
         do  ia = bproc(pid), bproc(pid+1)-1
           is = int(ssite(ia)%spec)
@@ -621,9 +600,6 @@ c        call MPI_ALLREDUCE(w(oixf(1)),buffer,3*nbas*numq,
         deallocate(buffer, stat=ierr)
       endif
       deallocate(bproc, stat=ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BCAST,procid,"broadcast")
-#endif
 #else
       if (lfrce .ne. 0) then
 ctakao think mp=1 is assumed in this routine 3rdJune2010

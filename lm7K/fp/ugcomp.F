@@ -1,9 +1,5 @@
-CSFCPP#define F90 1
       subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
       use m_struc_def  !Cgetarg
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -36,9 +32,6 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 #if MPI | MPIK
-#if MPE
-      include "mpef.h"
-#endif
       include "mpif.h"
       integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -53,10 +46,6 @@ C ... Passed parameters
       logical mlog,cmdopt
       character*120 strn
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
       integer nbas
       real(8):: qmom(*) , gpot0(*) , f(3,nbas) , hpot0(nbas) , ugg
       type(s_site)::ssite(*)
@@ -144,9 +133,6 @@ C --- Loop over sites where charge lump making pot is centered ---
       call dpzero(xf, 3*nbas*mp)
       call dpzero(xhpot0, nbas*mp)
 #if MPI | MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_START_UGCOMP,procid,"ugcomp")
-#endif
       allocate (bproc(0:numprocs), stat=ierr)
       call dstrbp(nbas,numprocs,1,bproc(0))
 c      do  ib = bproc(procid), bproc(procid+1)-1
@@ -290,15 +276,7 @@ C     --- Additional h*h, h*g, g*h terms for foca ---
 
 C ... Assemble data from separate threads
 #if MPI | MPIK
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_UGCOMP,procid,"ugcomp")
-      ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-      ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
       allocate(buffer(1:nvl), stat=ierr)
       call MPI_ALLREDUCE(xgpot0,buffer,nvl,
      .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -347,9 +325,6 @@ C ... Assemble data from separate threads
      .  ' allreduce ugg',' ',256,lgunit(3),
      .  procid,numprocs)
       endif
-#if MPE
-      ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
       deallocate(bproc, stat=ierr)
 #else
       do  80  ip = 1, mp
@@ -365,11 +340,7 @@ C ... Assemble data from separate threads
         ugg = ugg + xugg(ip)
    80 continue
 #endif
-
       call tcx('ugcomp')
-C      print *, ugg
-C      call prmx('qmom',qmom,nvl,nvl,1)
-C      call prm('gpot0',gpot0,nvl,nvl,1)
       end subroutine ugcomp
 
 

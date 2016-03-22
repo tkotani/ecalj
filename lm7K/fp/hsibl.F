@@ -3,9 +3,6 @@
      .napw,igapw,h)
       use m_struc_def  !Cgetarg
       use m_globalvariables
-#if MPE
-      use m_events !Event numbers: include "events.ins"
-#endif
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -58,9 +55,6 @@ Cu   22 May 00 Adapted from nfp hsi_q.f
 C ----------------------------------------------------------------------
       implicit none
 #if MPI
-#if MPE
-      include "mpef.h"
-#endif
       include "mpif.h"
       integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -76,10 +70,6 @@ C ----------------------------------------------------------------------
       integer lgunit
       character*120 strn
 #endif
-c#if MPE
-cC Event numbers:
-c      include "events.ins"
-c#endif
 
 C ... Passed parameters
       integer k1,k2,k3,isp,ndimh,iprmb(1),napw,igapw(3,napw)
@@ -273,9 +263,6 @@ C$&              norb2,ltab2,ktab2,nkap2,offl2,blks2,ntab2,xx)
 C$&       SHARED(nbas,n1,n2,n3,k1,k2,k3,ng,vol,ndimh,oiv)
 C$&       MP_SCHEDTYPE=RUNTIME
 #if MPI
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_START_HSIBL,procid,"hsibl")
-#endif
         allocate(h_zv(abs(-ndimh*ndimh)))
         if (-ndimh*ndimh<0) h_zv(:)=0.0d0
 
@@ -429,43 +416,24 @@ C     ... Add to hamiltonian
 C         print *, ib1,ib2
             call hsibl5 ( norb1 , blks1 , offl1 , ndim1 , norb2 , blks2 , 
      .      offl2 , ndim2 , ndimh , wk2_zv , h )
-
 #endif
-
             deallocate(wk2_zv)
-
-C       Ends loop over ib2
-          enddo
-
+          enddo !Ends loop over ib2
 C   ... Matrix elements <Hsm| Vsm |PW>
 #if MPI
           call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv 
      .    , napw , igapw , w_oc1(1,ip) , w_ocf1(1,ip) , h_zv )
-
 #else
           call hsibl6 ( ndimh , nlmto , norb1 , blks1 , offl1 , ng , iv_iv 
      .    , napw , igapw , w_oc1(1,ip) , w_ocf1(1,ip) , h )
-
 #endif
-
-C     Ends loop over ib1
-        enddo
+        enddo !Ends loop over ib1
 
 #if MPI
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_HSIBL,procid,"hsibl")
-        ierr = MPE_LOG_EVENT(EVENT_START_BARRIER,procid,"barrier")
-#endif
         call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_BARRIER,procid,"barrier")
-        ierr = MPE_LOG_EVENT(EVENT_START_ALLRED,procid,"allreduce")
-#endif
         allocate(hbuf_zv(ndimh*ndimh))
-
         call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
      .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-
         if (mlog) then
           call gettime(datim)
           call awrit3(' hsibl '//datim//' Process %i of %i on '
@@ -473,16 +441,10 @@ C     Ends loop over ib1
      .    ' allreduce h ndimh=%i',' ',256,lgunit(3),
      .    procid,numprocs,ndimh)
         endif
-        call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 
-     .  )
-
+        call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1  )
         if (allocated(hbuf_zv)) deallocate(hbuf_zv)
         if (allocated(h_zv)) deallocate(h_zv)
-
         deallocate(index, stat=ierr)
-#if MPE
-        ierr = MPE_LOG_EVENT(EVENT_END_ALLRED,procid,"allreduce")
-#endif
 #endif
         deallocate(hr_rv, he_rv, g2_rv, yl_rv, g_rv, iv_iv, kv_iv, gv_rv,
      &     w_oc1, w_ocf1, w_oc2, w_ocf2,
