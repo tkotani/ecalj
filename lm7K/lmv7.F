@@ -103,11 +103,9 @@ C ... Program-dependent name and help
 #if MPI|MPIK
       integer  nsize, id
       call mpi_init(ierr)
-cstart--- check mpi. You can delete this.
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
-cend-----
 #endif
 
 C --- Version ---
@@ -125,19 +123,15 @@ C --- Version ---
 #endif
       vn(1) = vn(1) + vn2(1)/1d5
       vn(2) = vn(2) + vn2(2)/1d5
+
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
 
-C --- Help ---
-      swtmp = .false.
-      if (swtmp .or. cmdopt('--h',3,0,outs))
-     .call lmhelp(prgnam,vn(2),vn2(2),0) !no common/w
-      if (cmdopt('--version',9,0,outs)) then
-        write(*,'(f4.2)') vn(2)
-        call rx0('')
+      if(cmdopt('--h',3,0,outs)) then
+        call lmhelp(prgnam,vn(2),vn2(2),0) 
       endif
 
 C --- Dynamic memory allocation and other initialization ---
@@ -241,24 +235,22 @@ C     Add version to variables table?
 #endif
 
 C ... Abort with error message if ctrl file is missing (swtmp = .true.)
-      swtmp = .false.
       if (procid==master) then
-      if (.not.cmdopt('--input',6,0,strn)) then
-        if (fxst('CTRL') .ne. 1) swtmp=.true.
+        if (.not.cmdopt('--input',6,0,strn)) then
+          if (fxst('CTRL') .ne. 1) call rx("No ctrl file found!") 
+        endif
       endif
-      endif
-      call mpibc1(swtmp,1,1,.false.,'lmf','error')
-      if(swtmp) call rx("No ctrl file found!") 
+c      call mpibc1(swtmp,1,1,.false.,'lmf','error')
+c      if(swtmp) call rx("No ctrl file found!") 
 
 C ... Set special file directory for temporary files
 C     User may which to customize the directory
 C     Default is to use the standard directory
 C     sttmpd is located at the bottom of this file.
-      call sttmpd
-
+c      call sttmpd
 C ... File logical units
-      i = fadd('TMP',-1,4)
-      i = fadd('BAND',-1,4)
+c      i = fadd('TMP',-1,4)
+c      i = fadd('BAND',-1,4)
 
 !! Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
@@ -332,13 +324,10 @@ C --- Generate symmetry operations; split species into classes  ---
 !! mar2013 --pdos Also in rdctrl2.F
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
       lc = 10
-
 #ifndef LMFGWD
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 #endif
-      if (cmdopt('--sfill',7,0,strn)) then
-        call rx('no --sfill option in lm7K')
-      endif
+      if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 
 !! read AF case 
       ipr10= iprint()>10 !this is only for master
@@ -400,7 +389,6 @@ c$$$        enddo
           if(ipr10) write(6,"(a)")       
       endif
 
-
 !! ---------------------------
       if(procid==master) call pshpr(60)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
@@ -424,10 +412,8 @@ c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
 c$$$        enddo
 c$$$      enddo
 
-
 C ... Set default values for species data
       call defspc(v_sspec)
-
 C ... Patch for now ... maybe replace
 #if LMF
 #ifndef LMFGWD
@@ -437,12 +423,12 @@ C ... Patch for now ... maybe replace
 #endif
 #endif
 
-C ... quit after SHOW
+!! show and quit
       if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
-
+!! main part of lmf
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,trim(sstrnmix))
@@ -568,46 +554,46 @@ C ... Local parameters
       end subroutine lmhelp
 
 
-      subroutine sttmpd
-C- Creates special tmpdir for saving temporary files
-C  User may wish to customize this routine.
-      character tmpdir*100
-      integer fopnT,ifi
-C ... for henry, lm-MPIK
-C      integer i1,i2,nw
-C      character*40 strn
-
-C     return
-C ... Set customization of temporary directory here, if desired
-C     This is usual default (current working directory)
-      tmpdir = ' '
-C     call gtenv('HOME',tmpdir)
-C     call gtenv('TMPDIR',tmpdir)
-C     call getenv('HOME',tmpdir)
-C     call getenv('TMPDIR',tmpdir)
-C     tmpdir = '/home/tmp/'
-
-C ... for henry, lm-MPIK specific
-C      call getenv('HOME',strn)
-C      call strip(strn,i1,i2)
-C      call wrdsg(strn(i1:i2),0,'/',nw)
-C      call wordg(strn,0,'/',nw,i1,i2)
-C      strn = strn(i1:)
-C      if (strn .eq. 'markv') strn = 'svan2'
-C      call word(strn,1,i1,i2)
-C      tmpdir = '/home/' // strn(i1:i2) // '/tmp'
-
-C ... Set the directory
-      ifi = fopnT(tmpdir,0,0,11)
-
-C     debugging check
-C      ifi = fopnT('tmp' ,-1,0,0)
-C      call fshow
-C      print *, ifi
-C      write(ifi,*) 'test'
-C      call rx('done')
-Cgetarg       end
-      end subroutine sttmpd
+c$$$      subroutine sttmpd
+c$$$C- Creates special tmpdir for saving temporary files
+c$$$C  User may wish to customize this routine.
+c$$$      character tmpdir*100
+c$$$      integer fopnT,ifi
+c$$$C ... for henry, lm-MPIK
+c$$$C      integer i1,i2,nw
+c$$$C      character*40 strn
+c$$$
+c$$$C     return
+c$$$C ... Set customization of temporary directory here, if desired
+c$$$C     This is usual default (current working directory)
+c$$$      tmpdir = ' '
+c$$$C     call gtenv('HOME',tmpdir)
+c$$$C     call gtenv('TMPDIR',tmpdir)
+c$$$C     call getenv('HOME',tmpdir)
+c$$$C     call getenv('TMPDIR',tmpdir)
+c$$$C     tmpdir = '/home/tmp/'
+c$$$
+c$$$C ... for henry, lm-MPIK specific
+c$$$C      call getenv('HOME',strn)
+c$$$C      call strip(strn,i1,i2)
+c$$$C      call wrdsg(strn(i1:i2),0,'/',nw)
+c$$$C      call wordg(strn,0,'/',nw,i1,i2)
+c$$$C      strn = strn(i1:)
+c$$$C      if (strn .eq. 'markv') strn = 'svan2'
+c$$$C      call word(strn,1,i1,i2)
+c$$$C      tmpdir = '/home/' // strn(i1:i2) // '/tmp'
+c$$$
+c$$$C ... Set the directory
+c$$$      ifi = fopnT(tmpdir,0,0,11)
+c$$$
+c$$$C     debugging check
+c$$$C      ifi = fopnT('tmp' ,-1,0,0)
+c$$$C      call fshow
+c$$$C      print *, ifi
+c$$$C      write(ifi,*) 'test'
+c$$$C      call rx('done')
+c$$$Cgetarg       end
+c$$$      end subroutine sttmpd
 
 
 

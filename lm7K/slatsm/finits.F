@@ -204,6 +204,7 @@ c     .              ' ',128,i1mach(2),endtime-starttime,MPI_WTICK())
       endif
       if(retval/=0) then
          print *,'fexit,fexit2,fexit3 error retval=',retval
+         print *
          call MPI_abort(MPI_comm_world,retval,ierr)   
          call MPI_FINALIZE(i)
          stop

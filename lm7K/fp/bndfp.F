@@ -447,6 +447,8 @@ c mar2014
       integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread
 !! ----------------------------
       call tcn ('bndfp')
+      stdo = lgunit(1)
+      stdl = lgunit(2)
       debug=cmdopt('--debugbndfp',6,0,strn)
       procid = mpipid(1) !zero for no mpi
       master = 0         !mpi master
@@ -471,6 +473,16 @@ c mar2014
       endif
       if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
       call mpibcc(sname,512,mlog,'bndfp','ext')
+
+!! Write atomic positions    
+      if(procid==master) then
+        write(stdo,"(a)")'== bndfp: Atomic Positions (from rst/ctrl or changing when dynamics ==)'
+        do ib=1,nbas
+          is=ssite(ib)%spec
+          call r8tos8(ssite(is)%clabel,spid)
+          write(stdo,"('  ib clabl pos =',i5,x,a6,3(x,f12.6))") ib, trim(spid),ssite(ib)%pos
+        enddo
+      endif
 
 !! === New pdos mode (use --mkprocar and --fullmesh together). ===
 !! We use all k points (--fullmesh), instead of using crystal symmetry.
@@ -641,8 +653,6 @@ c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
       onesp = 0
 c      nfbn(1) = 0
 c      nfbn(2) = 0
-      stdo = lgunit(1)
-      stdl = lgunit(2)
       ldos = iand(1,int(sctrl%ldos))
       lrsig = int(sham%lsig)
       lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 )

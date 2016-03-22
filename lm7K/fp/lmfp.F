@@ -482,18 +482,17 @@ C     need group info to symmetrize site density matrix
       endif
 C     end LDA+U  initialization section
 
-C ... Invoke the restart editor
-      if (cmdopt('--rsedit',8,0,strn)) then
-        call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz, nbas,nat,nspec)
-        call rx0('lmfp from rsedit')
-      endif
-C     ... Invoke the response function editor
-      if (cmdopt('--chimedit',10,0,strn)) then
-        call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,
-     .        nbas,nat,nspec)
-        call rx0('lmfp from chimedit')
-      endif
-
+c$$$C ... Invoke the restart editor
+c$$$      if (cmdopt('--rsedit',8,0,strn)) then
+c$$$        call rsedit(strn(9:),1,sctrl,ssite,sspec,slat,spot,sbz, nbas,nat,nspec)
+c$$$        call rx0('lmfp from rsedit')
+c$$$      endif
+c$$$C     ... Invoke the response function editor
+c$$$      if (cmdopt('--chimedit',10,0,strn)) then
+c$$$        call chimedit(strn(11:),1,sctrl,ssite,sspec,slat,spot,sbz,
+c$$$     .        nbas,nat,nspec)
+c$$$        call rx0('lmfp from chimedit')
+c$$$      endif
 
 !! === Re-entry point for a new iteration ===
       iter = 1
@@ -625,7 +624,7 @@ C     Hang on to previous site density matrix for this iteration
 
 C     --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
-      llmfgw=.false.            !takao now just lmfgw mode by lmfgw switch.
+      llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
      .     , sspec , slat , sctrl , sham , spot , sbz , sstrnmix , ndham , 
