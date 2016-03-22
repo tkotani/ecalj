@@ -1,42 +1,20 @@
       program lmf
-      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_spec,s_site !,s_tb
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_spec,s_site 
       use m_rdctrl2_func, only: rdctrl2
-
       use m_rdctrl,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
      & iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
 c     &  symops,invgx,ag,
 c     &  shtvg,ngrp,miat,tiat,iclasst,
-
 c      use m_globalvariables
-#if MPI | MPIK
-#endif
       implicit none
 !! == Main program for lmf and so on. ==
 !! For lmf, lmfgw. Single core, MPI, and MPIK modes.
 !! ============================
       integer procid, master, mpipid, nproc
-#if MPI | MPIK
-      include "mpif.h"
-#if MPI | MPIK
-      integer fext
-#endif
-      integer numprocs, ierr, status(MPI_STATUS_SIZE)
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      double precision starttime, endtime
-      logical mlog
-#endif
-      character prgnam*8, ext*100 !vrsion(2)*6, 
-C ... For structures
+      character prgnam*8, ext*100 
       logical lgors
       integer mxspec
-c      type(s_sstrn):: v_sstrn
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl,v_sctrl2
       type(s_lat):: v_slat,v_slat2
@@ -46,19 +24,16 @@ c      type(s_sstrn):: v_sstrn
       type(s_array):: v_sarry,v_sarry2
       type(s_move):: v_smove
       type(s_str):: v_sstr
-c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
       parameter (mxspec=256)
-      character*8 slabl(mxspec) !,slablaf(mxspec)
-C ... miscellaneous local variables
+      character*8 slabl(mxspec) 
       character strn*1000,outs*20,strn2*1000
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
-     .igets,a2vec,NULLI
+     . igets,a2vec,NULLI
       double precision dglob !vn(2),vn2(2),
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
-C ... Program-dependent name and help
 #if LMFGWD
       data prgnam /'LMFGWD'/
 #elif LMF
@@ -75,40 +50,45 @@ C ... Program-dependent name and help
       integer::ic
       real(8):: bz_w,dval!test
       logical:: fileexist,ipr10
-
       integer,parameter:: lstrn=10000
-      character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
-
+      character(lstrn):: sstrnmix,sstrnsymg
       integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
-
-!! =================================================================
-#if MPI|MPIK
+#if MPI | MPIK
+      include "mpif.h"
+      integer fext
+      integer numprocs, ierr, status(MPI_STATUS_SIZE)
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+      integer namelen(0:MAX_PROCS-1)
+      double precision starttime, endtime
+      logical mlog
       integer  nsize, id
+!! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
 #endif
-
-C --- Version ---
+!!
       call show_programinfo(6)
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
-
       if(cmdopt('--h',3,0,outs)) then
         call lmhelp(prgnam) !,vn(2),vn2(2),0) 
       endif
 
-C --- Dynamic memory allocation and other initialization ---
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       call strcop(shortname(procid),name,10,'.',i)
       namelen(procid) = i-1
       mlog = cmdopt('--mlog',6,0,strn)
-C --- Dynamic memory allocation and other initialization ---
       if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
       if (procid .eq. master) then
@@ -128,7 +108,6 @@ C --- Dynamic memory allocation and other initialization ---
         call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
         call bin2a(' ',0,0,procid,2,0,20,ext,i)
         ierr = fext(ext(1:i+1))
-c        print *,' xxxx file extension: ',procid,ext(1:i+1)
         if (mlog) ierr = fopn('MLOG')
         ierr = fextg(ext)
         call gettime(datim)
@@ -141,7 +120,6 @@ c        print *,' xxxx file extension: ',procid,ext(1:i+1)
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #else
-C     Add version to variables table?
       call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
       call poseof(fopn('LOG'))
@@ -152,36 +130,22 @@ C     Add version to variables table?
       if (j .ge. i) call ptenv('EXT='//ext(i:j))
 #endif
 
-C ... Abort with error message if ctrl file is missing (swtmp = .true.)
+!! Abort if ctrl file is missing
       if (procid==master) then
         if (.not.cmdopt('--input',6,0,strn)) then
           if (fxst('CTRL') .ne. 1) call rx("No ctrl file found!") 
         endif
       endif
-
-c      call mpibc1(swtmp,1,1,.false.,'lmf','error')
-c      if(swtmp) call rx("No ctrl file found!") 
-c
-C ... Set special file directory for temporary files
-C     User may which to customize the directory
-C     Default is to use the standard directory
-C     sttmpd is located at the bottom of this file.
-c      call sttmpd
-C ... File logical units
-c      i = fadd('TMP',-1,4)
-c      i = fadd('BAND',-1,4)
-
 !! Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
         i = 4
         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
         if (i .eq. 1) call setpr(k)
       endif
-!!   iprint() is negative except master
-      if(procid/=master) call setpr(-100) 
+      if(procid/=master) call setpr(-100) !iprint() is negative except master
 
-C --- Input from ctrl file ---
-C     recrd, nrecs are obtained.
+!! Input from ctrl file ---
+!!  recrd, nrecs are obtained.
       nrecs  = 0
       if (procid .eq. master) then
         if (.not.cmdopt('--input',7,0,strn)) then
@@ -205,19 +169,6 @@ C     recrd, nrecs are obtained.
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
 #endif
-c      if( cmdopt('--pdos',6,0,strn)) then
-c        write(*,*) ' --pdos: Enforce SYMGRP e. Read sigm_fbz for RDSIG. Set --quit=band.'
-c      endif
-
-C      write(stdo,*)' === TEST out recrd === '
-C      j = 0
-C      do i = 1, nrecs
-C        write(stdo,"(i2,1x,256a1)") procid,recrd(j:j+recln0-1)
-C        j = j + recln0
-C      enddo
-C      write(stdo,*)' --- end of rdfile --- '
-C      call rx('done')
-
 !! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,F, !vrsion,vn,vn2,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
@@ -225,11 +176,11 @@ C      call rx('done')
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-C --- Lattice setup ---
-c      print *,'goto setcg'
+
+!! --- Lattice setup ---
       call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-C --- Generate symmetry operations; split species into classes  ---
+!!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
 !! mar2013 --pdos Also in rdctrl2.F
@@ -239,8 +190,7 @@ C --- Generate symmetry operations; split species into classes  ---
       if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 #endif
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
-
-!! read AF case 
+!! read AF case 2015
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = v_sctrl%nbas
@@ -277,7 +227,6 @@ C --- Generate symmetry operations; split species into classes  ---
         if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
         ngrpaf=v_slat2%nsgrp
         allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-c    ,invgx(ngrpaf),miat(nbas,ngrpaf),tiat(3,nbas,ngrpaf), shtvg(3,ngrpaf),
         call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
         call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
         if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
@@ -299,7 +248,6 @@ c$$$        enddo
           if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
           if(ipr10) write(6,"(a)")       
       endif
-
 !! ---------------------------
       if(procid==master) call pshpr(60)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
@@ -322,10 +270,8 @@ c$$$        do i=1,3
 c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
 c$$$        enddo
 c$$$      enddo
-
-C ... Set default values for species data
+!!  Set default values for species data
       call defspc(v_sspec)
-C ... Patch for now ... maybe replace
 #if LMF
 #ifndef LMFGWD
       ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
@@ -333,7 +279,6 @@ C ... Patch for now ... maybe replace
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
-
 !! show and quit
       if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
