@@ -1,8 +1,6 @@
-#define FP 1
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-
-      use m_struc_def  !Cgetarg
+      use m_struc_def 
       use m_struc_func
       use m_globalvariables
 C- I/O for charge density
@@ -124,17 +122,13 @@ C ... Passed parameters
       logical lbin
       integer:: mode , nbas , nat , nspec , nit , ifi , n0
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-
       parameter (n0=10)
       type(s_ctrl)::sctrl
-cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
-cki      type(s_spec)::sspec(*)
       type(s_spec)::sspec(nspec)
       type(s_lat)::slat
       type(s_pot)::spot
       type(s_bz)::sbz
-
       double precision qnu(3,n0,*)
       character fid*(*)
 C ... Local parameters
@@ -145,21 +139,9 @@ C ... Local parameters
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
       integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw
-ckino Dec.16.2011:             real(8),pointer :: rv_p_orhoca(:) =>NULL()
-
-ckino Dec.14.2011:            real(8),pointer :: rv_p_ov1(:) =>NULL()
-
-ckino Dec.14.2011:           real(8),pointer :: rv_p_ov0(:) =>NULL()
-
-ckino Dec.16.2011:          complex(8),pointer :: zv_p_osmrho(:) =>NULL()
-ckino Dec.14.2011
       complex(8),allocatable :: zv_a_osmrho(:)
-
-ckino Dec.14.2011:         real(8),pointer :: rv_p_oves(:) =>NULL()
-
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
-
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0),lrs(10),nl
       logical isanrg,lgors,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
@@ -172,29 +154,18 @@ ckino Dec.14.2011:         real(8),pointer :: rv_p_oves(:) =>NULL()
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
-
       logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
-
 #if MPI|MPIK
       include 'mpif.h'
       integer:: ierr
 #endif
-
-C ... Heap
-C ... data statements
       data vec0 /0d0,0d0,0d0/
-
-
-C     call wkprnt(1)
-
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,ignore)
-
-
       alat=slat%alat
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
@@ -210,39 +181,28 @@ C ... MPI setup
       elseif (mode .eq. -2 .or. mode .eq. -1 .or. mode .eq. 1) then
         vs   =  1.04d0
       endif
-Changenglob      nsp    = nglob('nsp')
-      nsp    = globalvariables%nsp
-Changenglob      lrel   = nglob('lrel')
+      nsp = globalvariables%nsp
       lrel   = globalvariables%lrel
-      lrs ( 1 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
-
-      lrs ( 2 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
-
-      lrs ( 3 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
-
+      lrs(1) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
+      lrs(2) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
+      lrs(3) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
       if (mode .eq. -2) then
         lrs(1) = 0
         lrs(3) = 0
       endif
-      msg    = '         File mismatch:'
-      msgw   = '         warning:'
-      iors   = -1
+      msg  = '         File mismatch:'
+      msgw = '         warning:'
+      iors = -1
 C     ndyn = igets('move size',smove)
       line = 'header'
       if (mode .eq. 1) then
         call fftz30(n1,n2,n3,k1,k2,k3)
-
-ckino Dec.16.2011:           zv_p_osmrho => spot%zv_p_osmrho
-
-
       endif
       ffmt = '(5f15.10)'
       ifmt = '(20i5)'
 C ... Hardwired for now
       npan = 1
-Changenglob      nl = nglob('nl')
       nl = globalvariables%nl
-
 C ... Message
       if (ipr .ge. 10) then
         fid0 = 'read'
@@ -268,7 +228,6 @@ C ... Message
         write(stdo,700) fid0(1:i)
   700   format(/' iors  : ',a)
       endif
-
 C --- Input ---
       if (ifi .gt. 0) then
         jfi = ifi
@@ -277,7 +236,6 @@ C --- Input ---
         endif
         use    = '         use from  restart file:'
         ignore = '         ignore in restart file:'
-
 C ...   Read header and general information
         line = 'header'
 C       MPI check to see if at least 1st record can be read
@@ -371,9 +329,6 @@ C       Abort with error message if file is missing (lfail = .true.)
             nspec = nspec0
             return
           endif
-
-C       if (isanrg(nspec0, nspec,nspec,msg,'nspec',.true.)) goto 999
-
 C       Number of real atoms may not increase
           if (nat .gt. nat0) then
             if (isanrg(nat0,  nat,nat,msg,'nat',.true.)) goto 999
@@ -399,12 +354,10 @@ C       if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .true.)) goto 999
         call mpibc1(nat0,1,2,mlog,'iors','nat0')
         call mpibc1(plat,9,4,mlog,'iors','plat')
         call mpibc1(nit,1,2,mlog,'iors','nit')
-
 C   --- Read smooth charge density ---
         if (mode .eq. 0) then
 C   ... FP mesh density
         elseif (mode .eq. 1 .or. mode .eq. -2) then
-#if FP
           line = 'smoothed density'
           if (procid .eq. master) then
             if (lbin) then
@@ -413,56 +366,24 @@ C   ... FP mesh density
               read(jfi,*,err=999,end=999)
               read(jfi,*,err=999,end=999) n11,n21,n31
             endif
-
             if (mode .eq. -2) then
               n1 = n11
               n2 = n21
               n3 = n31
-
               i_copy_size=size(slat%nabc)
               call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
-
               call fftz30(n1,n2,n3,k1,k2,k3)
-ckino Dec.14.2011 manual correction              allocate(zv_p_osmrho(abs(-k1*k2*k3*nsp)))
               allocate(zv_a_osmrho(abs(-k1*k2*k3*nsp)))
-ckino Dec.14.2011 manual correction               if (-k1*k2*k3*nsp<0) zv_p_osmrho(:)=0.0d0
               if (-k1*k2*k3*nsp<0) zv_a_osmrho(:)=0.0d0
-
-ckino Dec.14.2011 manual correction               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho
-              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho 
-     .         , lbin , jfi )
-
-ckino Dec.14.2011 manual correction               if (associated(zv_p_osmrho)) deallocate(zv_p_osmrho)
+              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho, lbin , jfi )
               deallocate(zv_a_osmrho)
-
-
             elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
-c          if (ipr .ge. 10) write(stdo,450) n11,n21,n31,n1,n2,n3
-cccccccccccccccccc
-c          write(6,*)'yyyyyyyy 222111',n11,n21,n31,n1,n2,n3,k1,k2,k3
-c          write(6,*)'yyyyyyyy 222444',nsp0,lbin,jfi,osmrho
-cccccccccccccccccc
-ckino Dec.16.2011:                 call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_p_osmrho
-ckino Dec.28.2011:                 call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , spot%zv_p_osmrho
               call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , spot%zv_a_osmrho 
      .         , lbin , jfi )
-
               if (nsp .gt. nsp0) then
-C           call zprm3('smrho before split',0,w(osmrho),k1,k2,k3)
-cccccccccccccccccc
-c          write(6,*)'yyyyyyyy 222333'
-cccccccccccccccccc
                 i = k1*k2*k3*2
-ckino Dec.16.2011:                   call dscal ( i , 0.5d0 , zv_p_osmrho , 1 )
-ckino Dec.28.2011:                   call dscal ( i , 0.5d0 , spot%zv_p_osmrho , 1 )
                 call dscal ( i , 0.5d0 , spot%zv_a_osmrho , 1 )
-
-ckino Dec.16.2011:                   call dpscop ( zv_p_osmrho , zv_p_osmrho , i , 1 , 1 + i , 1d0
-ckino Dec.28.2011:                   call dpscop ( spot%zv_p_osmrho , spot%zv_p_osmrho , i , 1 , 1 + i , 1d0
-                call dpscop ( spot%zv_a_osmrho , spot%zv_a_osmrho , i , 1 , 1 + i , 1d0 
-     .           )
-
-C           call zprm3('smrho after split',0,w(osmrho),k1,k2,k3*2)
+                call dpscop ( spot%zv_a_osmrho , spot%zv_a_osmrho , i , 1 , 1 + i , 1d0 )
               endif
 c   ... or read and remesh
             else
@@ -475,24 +396,17 @@ c   ... or read and remesh
               call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv 
      .        , lbin , jfi )
               if (nsp .gt. nsp0) then
-C           call zprm3('smrho before split',0,w(oh),k1,k2,k3)
                 i = k11*k21*k31*2
                 call dscal ( i , 0.5d0 , h_zv , 1 )
-
                 call dpscop ( h_zv , h_zv , i , 1 , 1 + i , 1d0 )
-
               endif
               call pshpr(50)
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 ,
-ckino Dec.16.2011:       .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_p_osmrho )
-ckino Dec.28.2011:       .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_p_osmrho ) 
      .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho )
-
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
-
             endif
             if (mode .eq. -2) goto 115
 C   ... If cell volume changed, scale smooth density to maintain charge
@@ -501,24 +415,14 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .        ' :  scale smooth density by',f8.4)
-ckino Dec.16.2011:                 call dpcopy ( zv_p_osmrho , zv_p_osmrho , 1 , 2 * k1 * k2 * k3
-ckino Dec.28.2011:                 call dpcopy ( spot%zv_p_osmrho , spot%zv_p_osmrho , 1 , 2 * k1 * k2 * k3
               call dpcopy ( spot%zv_a_osmrho , spot%zv_a_osmrho , 1 , 2 * k1 * k2 * k3 
      .         * nsp , vfac )
 
             endif
           endif
-ckino Dec.16.2011:             call mpibc1 ( zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog
-ckino Dec.28.2011:             call mpibc1 ( spot%zv_p_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog
-          call mpibc1 ( spot%zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog 
-     .     , 'iors' , 'smrho' )
-
+          call mpibc1 ( spot%zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog, 'iors' , 'smrho' )
   115     continue
-#else
-          call rx('smooth density not implemented')
-#endif
         endif
-
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
         if (procid .eq. master) then
@@ -534,13 +438,10 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-
           sbz%ef=wk(1)
           sbz%def=wk(2)
           sbz%w=wk(3)
-
         endif
-
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
         if (lrs(1) .ne. 0) then
@@ -568,16 +469,18 @@ C         Must be enough sites to read from rst file
             endif
           endif
           if (mode .eq. -2) then
-
-            i_copy_size=size(ssite(ib)%pos)
-            call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
-            i_copy_size=size(ssite(ib)%pos0)
-            call dcopy(i_copy_size,pos,1,ssite(ib)%pos0,1)
-            i_copy_size=size(ssite(ib)%force)
-            call dcopy(i_copy_size,force,1,ssite(ib)%force,1)
-            i_copy_size=size(ssite(ib)%vel)
-            call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1)
-
+c            i_copy_size=size(ssite(ib)%pos)
+c            call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
+c            i_copy_size=size(ssite(ib)%pos0)
+c            call dcopy(i_copy_size,pos,1,ssite(ib)%pos0,1)
+c            i_copy_size=size(ssite(ib)%force)
+c            call dcopy(i_copy_size,force,1,ssite(ib)%force,1)
+c            i_copy_size=size(ssite(ib)%vel)
+c            call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1)
+            ssite(ib)%pos =pos
+            ssite(ib)%pos0=pos
+            ssite(ib)%force=force
+            ssite(ib)%vel=vel
           endif
 
           call mpibc1(pos,3,4,mlog,'iors','pos')
@@ -592,22 +495,25 @@ C         rst file positions in pos0
           endif
           call dcopy(3,pos,1,pos0,1)
           if (lrs(1) .ne. 0) then
-
-            i_copy_size=size(ssite(ib)%pos)
-            call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
-
-            call dpzero(vel,3)
+c            i_copy_size=size(ssite(ib)%pos)
+c            call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
+c           call dpzero(vel,3)
+            pos=ssite(ib)%pos
+            vel=0d0 
           endif
-
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
-          i_copy_size=size(ssite(ib)%pos0)
-          call dcopy(i_copy_size,pos0,1,ssite(ib)%pos0,1)
-          i_copy_size=size(ssite(ib)%force)
-          call dcopy(i_copy_size,force,1,ssite(ib)%force,1)
-          i_copy_size=size(ssite(ib)%vel)
-          call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1)
-
+c          i_copy_size=size(ssite(ib)%pos)
+c          call dcopy(i_copy_size,pos,1,ssite(ib)%pos,1)
+c          i_copy_size=size(ssite(ib)%pos0)
+c          call dcopy(i_copy_size,pos0,1,ssite(ib)%pos0,1)
+c          i_copy_size=size(ssite(ib)%force)
+c          call dcopy(i_copy_size,force,1,ssite(ib)%force,1)
+c          i_copy_size=size(ssite(ib)%vel)
+c          call dcopy(i_copy_size,vel,1,ssite(ib)%vel,1)
+c probably this is the same as follows.
+           ssite(ib)%pos  =pos
+           ssite(ib)%pos0 =pos0
+           ssite(ib)%force=force
+           ssite(ib)%vel  =vel
    10     continue
         enddo
 
@@ -650,17 +556,12 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
-
-
             ssite(ib)%spec=is
 
             do i_spacks=ib,ib
               call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,spid,i_spacks)
             enddo
-
-
             sspec(is)%lmxa=lmxa
-
           elseif (mode .eq. -2) then
             read(jfi,'(19x,a8)') spid
             read(jfi,*)
@@ -668,13 +569,8 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
-
-
             ssite(ib)%spec=is
-
-
             sspec(is)%lmxa=lmxa
-
             backspace jfi
             backspace jfi
             backspace jfi
@@ -685,22 +581,14 @@ C         lskip = .false.
             do i_spacks=is,is
               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
             enddo
-
-
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             z=sspec(is)%z
-
-
             lmxa=sspec(is)%lmxa
             lmxl=sspec(is)%lmxl
             kmax=sspec(is)%kmxt
-
-C           lmxa = -1 -> site has no augmentation
             if (lmxa .eq. -1) then
-C             if (ib .gt. nat0) goto 20
-C             lskip = .true.
               goto 20
             endif
           endif
@@ -741,43 +629,33 @@ C         is = -1 -> pack spec struc with file parameters
             do i_spacks=is,is
               call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
             enddo
-
             spid = spid0
-
             sspec(is)%a=a0
             sspec(is)%nr=nr0
             sspec(is)%rmt=rmt0
             sspec(is)%z=z0
-
-
             sspec(is)%lmxa=lmxa0
             sspec(is)%lmxl=lmxl0
             sspec(is)%kmxt=kmax0
-
-
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             z=sspec(is)%z
-
-
             lmxa=sspec(is)%lmxa
             lmxl=sspec(is)%lmxl
             kmax=sspec(is)%kmxt
-
           endif
-
 C     ... Read augmentation data
-          call dpzero(pnu,2*n0)
-          call dpzero(pnz,2*n0)
-          call dpzero(ql,2*n0)
-C         if (lmxa0 .lt. lmxa) call defpq(z,lmxa,nsp,pnu,ql)
-
+c          call dpzero(pnu,2*n0)
+c          call dpzero(pnz,2*n0)
+c          call dpzero(ql,2*n0)
+          pnu=0d0
+          pnz=0d0
+          ql=0d0
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-
           call iinit(idmod,n0)
           call iinit(idmoz,n0)
           if (procid .eq. master) then
@@ -817,10 +695,8 @@ C         read(but don't use) site idmod for compatibility with nfp
               read(jfi,*) (idmoz(l+1), l=0,lmxa0)
             endif
           endif
-
 C     ... Store pnu and pz in site and spec data
 C         if (ib .le. nat) then
-
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnus,1)
           i_copy_size=size(sspec(is)%pz)
@@ -877,12 +753,10 @@ C     ... Verify lowest valence pnu compatible with file
             if (lfail .and. lrs(3) .eq. 1) then
               call rx('iors: file''s pnu is incompatible with input')
             endif
-
             nlml0 = (lmxl0+1)**2
             nlml = (lmxl+1)**2
             if (nr .le. 0)   nr = nr0
             if (a .le. 1d-6) a = a0
-
             if (procid .eq. master) then
 C     ... Sanity checks, or inform about changed parameters
 C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
@@ -892,17 +766,13 @@ C         if (is0 .ne. is) call xxerri('species pointer',is,is0)
               call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
               lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
               if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .false.)) goto 999
-
-#if FP
               if (kmax0.ne.kmax.and.ipr.ge.10)
      .        write(stdo,201) ib,spid,'kmax',kmax0,kmax
-#endif
               if (lmxa0.ne.lmxa.and.ipr.ge.10)
      .        write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
   201         format(9x,'site',i4,', species ',a,
      .        ': augmentation ',a,' changed from',i2,' to',i2)
             endif
-
 C         Case read but skip over this site data
           else
             lmxl = lmxl0
@@ -917,13 +787,8 @@ C         Case read but skip over this site data
 C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
-
-ckino Dec.14.2011:             allocate(rv_p_ov0(abs(nr*nsp)))
-ckino Dec.28.2011:             allocate(ssite(ib)%rv_p_ov0(abs(nr*nsp)))
           if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
           allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
-ckino Dec.14.2011:             if (nr*nsp<0) rv_p_ov0(:)=0.0d0
-ckino Dec.28.2011:             if (nr*nsp<0) ssite(ib)%rv_p_ov0(:)=0.0d0
           if (nr*nsp<0) ssite(ib)%rv_a_ov0(:)=0.0d0
 
 C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
@@ -938,15 +803,9 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
 
             allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
             if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
-
-ckino Dec.14.2011:               allocate(rv_p_ov1(abs(nr*nsp)))
-ckino Dec.28.2011:               allocate(ssite(ib)%rv_p_ov1(abs(nr*nsp)))
             if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
             allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
-ckino Dec.14.2011:               if (nr*nsp<0) rv_p_ov1(:)=0.0d0
-ckino Dec.28.2011:               if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
             if (nr*nsp<0) ssite(ib)%rv_a_ov1(:)=0.0d0
-
 
             if (procid .eq. master) then
               if (.not. lbin) read(jfi,*)
@@ -968,33 +827,14 @@ ckino Dec.28.2011:               if (nr*nsp<0) ssite(ib)%rv_p_ov1(:)=0.0d0
      .         nsp , lbin , jfi )
 
               if (.not. lbin) read(jfi,*)
-ckino Dec.14.2011:                 call dpdbyl ( rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi
-ckino Dec.28.2011:                 call dpdbyl ( ssite(ib)%rv_p_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi
-              call dpdbyl ( ssite(ib)%rv_a_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
-     .         )
-
+              call dpdbyl ( ssite(ib)%rv_a_ov0 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi )
               if (.not. lbin) read(jfi,*)
-ckino Dec.14.2011:                 call dpdbyl ( rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi
-ckino Dec.28.2011:                 call dpdbyl ( ssite(ib)%rv_p_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi
-              call dpdbyl ( ssite(ib)%rv_a_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi 
-     .         )
-
+              call dpdbyl ( ssite(ib)%rv_a_ov1 , nr0 , 1 , 1 , nsp0 , nsp , lbin , jfi )
               if (nsp0 .lt. nsp) then
-ckino Dec.14.2011:                   call dscal ( nr0 * 2 , 2d0 , rv_p_ov0 , 1 )
-ckino Dec.28.2011:                   call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov0 , 1 )
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov0 , 1 )
-
-ckino Dec.14.2011:                   call dscal ( nr0 * 2 , 2d0 , rv_p_ov1 , 1 )
-ckino Dec.28.2011:                   call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_p_ov1 , 1 )
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
-
               endif
-C           call prmx('iors: v0',w(ov0),nr0,nr0,nsp)
             endif
-C           if (ib .gt. nat) then
-C              call rlse(ov0)
-C              goto 20
-C           endif
 
 #if KINODEBUG & (MPI|MPIK)
             call mpi_barrier(mpi_comm_world,ierr)
@@ -1003,41 +843,21 @@ C           endif
 #endif
 
             if (mode .eq. -2) then
-ckino Jan.4.2012               if (associated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
               if (allocated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
-
-ckino Dec.14.2011:                 if (associated(rv_p_ov0)) deallocate(rv_p_ov0)
-ckino Dec.28.2011:                 if (associated(ssite(ib)%rv_p_ov0)) deallocate(ssite(ib)%rv_p_ov0)
               if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
-
-
             else
               call mpibc1 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(1)' )
-
               call mpibc1 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(2)' )
-
-cki bug fix ,size=nr*nsp              call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr * nlml * nsp , 4 ,
               call mpibc1 ( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 , 
      .         mlog , 'iors' , 'rhoat(3)' )
-
-ckino Dec.14.2011:                 call mpibc1 ( rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0'
-ckino Dec.28.2011:                 call mpibc1 ( ssite(ib)%rv_p_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0'
-              call mpibc1 ( ssite(ib)%rv_a_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' 
-     .         )
-
-ckino Dec.14.2011:                 call mpibc1 ( rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1'
-ckino Dec.28.2011:                 call mpibc1 ( ssite(ib)%rv_p_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1'
-              call mpibc1 ( ssite(ib)%rv_a_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' 
-     .         )
-
+              call mpibc1 ( ssite(ib)%rv_a_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' )
+              call mpibc1 ( ssite(ib)%rv_a_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' )
 #if KINODEBUG & (MPI|MPIK)
               call mpi_barrier(mpi_comm_world,ierr)
               write(*,*) 'kino, after mpibc1 orhoat, ov'
 #endif
-
-
             endif
 C     ... ASA sphere densities
           else
@@ -1045,27 +865,14 @@ C     ... ASA sphere densities
 C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
             call dpzero(ql,3*n0*nsp)
             if (procid .eq. master) then
-Ckino aiomom is logical function,               call aiomom(spid0,pnu,qnu(1,1,1+(ib-1)*nsp),
               l_dummy_aiomom=aiomom(spid0,pnu,qnu(1,1,1+(ib-1)*nsp),
      .        idmod,n0,lmxa,nsp,rh,vrmax,jfi)
               if (vs1 .lt. -1.041d0) then
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
-
-ckino Dec.14.2011:                   rv_p_oves => spot%rv_p_oves
-
-
-ckino Dec.14.2011:                   call dvset ( rv_p_oves , ic , ic , vrmax )
-ckino Dec.27.2011:                   call dvset ( spot%rv_p_oves , ic , ic , vrmax )
                 call dvset ( spot%rv_a_oves , ic , ic , vrmax )
-
-
-ckino Dec.14.2011:                   spot%rv_p_oves => rv_p_oves
-
-
               endif
               if ( lrs ( 3 ) .eq.0 ) then
-
                 i_copy_size=size(ssite(ib)%pnu)
                 call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
               endif
@@ -1073,42 +880,26 @@ ckino Dec.14.2011:                   spot%rv_p_oves => rv_p_oves
             endif
           endif
 C     ... store data in strucs
-
           sspec(is)%a=a
           sspec(is)%nr=nr
           sspec(is)%rmt=rmt
           sspec(is)%z=z
-
-
           sspec(is)%lmxa=lmxa
           sspec(is)%lmxl=lmxl
           sspec(is)%kmxt=kmax
           sspec(is)%qc=qc
-
-
-ckino Dec.14.2011:             ssite(ib)%rv_p_ov0 => rv_p_ov0
-
-ckino Dec.14.2011:             ssite(ib)%rv_p_ov1 => rv_p_ov1
-
-
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
 
-#if FP
         if ( lshear .and. iand(256,int(sctrl%lrs)) .ne.0 ) then
-
-
           i_copy_size=size(slat%dist)
           call dcopy(i_copy_size,slat%dist,1,wk,1)
-
 C         call prmx('wk',wk,3,3,3)
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
           call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )
-
         endif
-#endif
 
 C   --- Read data on free-atom core states and fit to fa density ---
         line = 'species data'
@@ -1148,57 +939,31 @@ C   --- Read data on free-atom core states and fit to fa density ---
 
 C     ... FP core densities
           if (mode .eq. 1 .or. mode .eq. -2) then
-ckino Dec.16.2011:               allocate(rv_p_orhoca(abs(nr*nsp)))
-ckino Dec.28.2011:               allocate(sspec(is)%rv_p_orhoc(abs(nr*nsp)))
             if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
             allocate(sspec(is)%rv_a_orhoc(abs(nr*nsp)))
-ckino Dec.16.2011:               if (nr*nsp<0) rv_p_orhoca(:)=0.0d0
-ckino Dec.28.2011:               if (nr*nsp<0) sspec(is)%rv_p_orhoc(:)=0.0d0
             if (nr*nsp<0) sspec(is)%rv_a_orhoc(:)=0.0d0
 
             if (procid .eq. master) then
               if (nr .ne. nr0)
      .        call rx('iors not set up to convert core radial mesh')
               if (lbin) then
-ckino Dec.16.2011:                   call dpdump ( rv_p_orhoca , nr * nsp0 , jfi )
-ckino Dec.28.2011:                   call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi )
                 call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
-
               else
-ckino Dec.16.2011:                   call dfdump ( rv_p_orhoca , nr * nsp0 , jfi )
-ckino Dec.28.2011:                   call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp0 , jfi )
                 call dfdump ( sspec(is)%rv_a_orhoc , nr * nsp0 , jfi )
 
               endif
 C           spin-split core density
               if (nsp .gt. nsp0) then
                 i = nr
-ckino Dec.16.2011:                   call dscal ( i , 0.5d0 , rv_p_orhoca , 1 )
-ckino Dec.28.2011:                   call dscal ( i , 0.5d0 , sspec(is)%rv_p_orhoc , 1 )
                 call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
-
-ckino Dec.16.2011:                   call dpscop ( rv_p_orhoca , rv_p_orhoca , i , 1 , 1 + i , 1d0
-ckino Dec.28.2011:                   call dpscop ( sspec(is)%rv_p_orhoc , sspec(is)%rv_p_orhoc , i , 1 , 1 + i , 1d0
-                call dpscop ( sspec(is)%rv_a_orhoc , sspec(is)%rv_a_orhoc , i , 1 , 1 + i , 1d0 
-     .           )
+                call dpscop ( sspec(is)%rv_a_orhoc , sspec(is)%rv_a_orhoc , i , 1 , 1 + i , 1d0  )
 
               endif
             endif
             if (mode .eq. 1) then
-ckino Dec.16.2011:                 call mpibc1 ( rv_p_orhoca , nr * nsp , 4 , mlog , 'iors' , 'rhoca'
-ckino Dec.28.2011:                 call mpibc1 ( sspec(is)%rv_p_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca'
-              call mpibc1 ( sspec(is)%rv_a_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca' 
-     .         )
-
+              call mpibc1 ( sspec(is)%rv_a_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca'  )
             else
-ckino Dec.16.2011:                 if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
-ckino Dec.28.2011:                 if (associated(sspec(is)%rv_p_orhoc)) deallocate(sspec(is)%rv_p_orhoc)
               if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-ckino Dec.14.2011
-ckino Dec.16.2011:                 nullify(rv_p_orhoca)
-ckino Dec.28.2011:                 nullify(sspec(is)%rv_p_orhoc)
-
-
               do i_spacks=is,is
                 call spacks_copy('p',sspec(i_spacks)%coreh,is,is,' ',i_spacks)
               enddo
@@ -1236,124 +1001,67 @@ ckino Dec.28.2011:                 nullify(sspec(is)%rv_p_orhoc)
             call mpibc1(nxi,1,2,mlog,'iors','nxi')
             call mpibc1(exi,nxi,4,mlog,'iors','exi')
             call mpibc1(hfc,nsp*nxi,4,mlog,'iors','hfc')
-
 C     ... For now, mode 0 (ASA) stores no core data
           elseif (mode .eq. 0) then
-cki            orhoca = 0
-ckino Dec.14.2011
-ckino Dec.16.2011:              if (associated(rv_p_orhoca)) deallocate(rv_p_orhoca)
-ckino Dec.28.2011:              if (associated(sspec(is)%rv_p_orhoc)) deallocate(sspec(is)%rv_p_orhoc)
             if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-ckino Dec.16.2011:              nullify(rv_p_orhoca)
-ckino Dec.28.2011:              nullify(sspec(is)%rv_p_orhoc)
             rsmfa = 0
             nxi = 0
             call dpzero(exi,n0)
             call dpzero(hfc,2*n0)
           endif
-C         call p_spec_hfc(sspec,is,rsmfa,nxi,exi,hfc)
-C         Pack species data
-
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
-ckino Dec.16.2011:             sspec(is)%rv_p_orhoc => rv_p_orhoca
-
-
-
           sspec(is)%nxi=nxi
           i_copy_size=size(sspec(is)%exi)
           call dcopy(i_copy_size,exi,1,sspec(is)%exi,1)
           i_copy_size=size(sspec(is)%chfa)
           call dcopy(i_copy_size,hfc,1,sspec(is)%chfa,1)
           sspec(is)%rsmfa=rsmfa
-
    30   continue
 
 c   ... Copy or rescale cores, in case foca was switched on or off
         if (mode .eq. 1) then
           do  ib = 1, nbas
             is = int(ssite(ib)%spec)
-
-
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
             lmxa=sspec(is)%lmxa
-
-
             lfoc=sspec(is)%lfoca
             qc=sspec(is)%qc
-ckino Dec.16.2011:               rv_p_orhoca => sspec(is)%rv_p_orhoc
-
-
             if (lmxa .eq. -1) goto 40
             if (lfoc .gt. 0) then
-ckino Dec.16.2011:                  call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr
-ckino Dec.28.2011:                  call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr
-              call dpcopy ( sspec(is)%rv_a_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
-     .          * nsp , 1d0 )
-
-
+              call dpcopy ( sspec(is)%rv_a_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr * nsp , 1d0 )
             else
               allocate(rwgt_rv(nr))
-
               call radwgt ( rmt , a , nr , rwgt_rv )
-
-              call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v 
-     .         , sum )
-
-
+              call radsum ( nr , nr , 1 , nsp , rwgt_rv , sv_p_orhoat( 3 , ib )%v , sum )
               fac = 1d0
               if (dabs(sum) .gt. 1d-6) fac = qc/sum
               if (dabs(fac-1d0).gt.1d-7 .and. ipr.ge.30)
      .        write(stdo,787) ib,qc,sum,fac
   787         format(' fix core chg: ib=',i4,'  qc,sum,fac=',3f12.6)
-              call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v 
-     .         , 1 , nr * nsp , fac )
-
+              call dpcopy ( sv_p_orhoat( 3 , ib )%v , sv_p_orhoat( 3 , ib )%v, 1 , nr * nsp , fac )
               if (allocated(rwgt_rv)) deallocate(rwgt_rv)
-
             endif
    40       continue
           enddo
         endif
-
-C   ... MPI broadcast all structures
-C        if (procid .eq. master) then
-C          sttime = MPI_WTIME()
-C        endif
-cki        call mpibc1(ssite,nint(ssite(1)%size)*nbas,4,mlog,'iors','ssite')
         do i_site=1,nbas
           call mpibc1_s_site(ssite(i_site),mlog,'iors','ssite')
         enddo
-cki        call mpibc1(sspec,nint(sspec(1)%size)*nspec,4,mlog,'iors','sspec')
         do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
         enddo
-cki        call mpibc1(sctrl,nint(sctrl%size),4,mlog,'iors','sctrl')
         call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
-cki        call mpibc1(slat,nint(slat%size),4,mlog,'iors','slat')
         call mpibc1_s_lat(slat,mlog,'iors','slat')
-cki        call mpibc1(spot,nint(spot%size),4,mlog,'iors','spot')
         call mpibc1_s_pot(spot,mlog,'iors','spot')
-cki        call mpibc1(sbz,nint(sbz%size),4,mlog,'iors','sbz')
         call mpibc1_s_bz(sbz,mlog,'iors','sbz')
         if (mode .eq. 1) then
         elseif (mode .eq. 0) then
           call mpibc1(qnu,3*n0*nsp*nbas,4,mlog,'iors','qnu')
         endif
-C        if (procid .eq. master) then
-C          entime = MPI_WTIME()
-C          call info2(20,0,0,' iors  : MPI broadcast took %;3d sec',
-C     .      (entime-sttime),0)
-C        endif
-
-C        call shstru('spec',sspec,1,nspec)
-C        call shstru('site',ssite,1,nbas)
-C        call rx0('done')
-
-
 C --- Output ---
       else
         if (procid .ne. master) then
@@ -1365,7 +1073,6 @@ C --- Output ---
 C ...   Write header and general information
         fid0 = fid
         call strip(fid0,i0,i1)
-ckino integer        call fextg(datimp)
         i_dummy_fextg= fextg(datimp)
         jobid = datimp(2:)
         call ftime(datimp)
@@ -1376,9 +1083,7 @@ ckino integer        call fextg(datimp)
         call strip(datimp,i,i2)
         call strip(usernm,i,i3)
         call strip(hostnm,i,i4)
-        if (ipr .ge. 40) write(stdo,710) fid(1:i1),
-     .  usernm(1:i3),hostnm(1:i4),datimp(1:i2)
-
+        if (ipr .ge. 40) write(stdo,710) fid(1:i1), usernm(1:i3),hostnm(1:i4),datimp(1:i2)
   721   format('----------------------- ',a,' -----------------------')
         if (lbin) then
           write(jfi) vs
@@ -1403,42 +1108,31 @@ ckino integer        call fextg(datimp)
           write(jfi,'(1x,a32)') hostnm
 C         write(jfi,'(''  nbas nsp  npan lrel nit'')')
           if (abs(vs) .le. 1.021) then
-            write(jfi,'(5i5,t50,a)') nbas,nsp,npan,lrel,nit,
-     .      '! nbas nsp npan lrel nit'
+            write(jfi,'(5i5,t50,a)') nbas,nsp,npan,lrel,nit,'! nbas nsp npan lrel nit'
           else if (abs(vs) .le. 1.031) then
-            write(jfi,'(6i5,t50,a)') nbas,nsp,npan,lrel,nit,nspec,
-     .      '! nbas nsp npan lrel nit nspec'
+            write(jfi,'(6i5,t50,a)') nbas,nsp,npan,lrel,nit,nspec,'! nbas nsp npan lrel nit nspec'
           else
             write(jfi,'(7i5,t50,a)') nbas,nat,nsp,npan,lrel,nit,nspec,
      .      '! nbas nat nsp npan lrel nit nspec'
           endif
-          write(jfi,'(f15.10,1pe20.10,t50,a)') alat,vol,
-     .    '! alat vol; plat'
+          write(jfi,'(f15.10,1pe20.10,t50,a)') alat,vol,'! alat vol; plat'
           write(jfi,'(3f15.10)') plat
         endif
 
 C   --- Write smooth charge density ---
-#if FP
         if (lbin) then
           write(jfi) n1,n2,n3
         else
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-ckino Dec.16.2011:           call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_p_osmrho
-ckino Dec.28.2011:           call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , spot%zv_p_osmrho
-        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , spot%zv_a_osmrho 
-     .   , lbin , - jfi )
-
-#endif
+        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , spot%zv_a_osmrho, lbin , - jfi )
 
 C   --- Write information related to dynamics ---
-        call dpzero(wk,100)
-
+        wk=0d0 !call dpzero(wk,100)
         wk(1)=sbz%ef
         wk(2)=sbz%def
         wk(3)=sbz%w
-
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else
@@ -1446,14 +1140,15 @@ C   --- Write information related to dynamics ---
           call dfdump(wk,100,-jfi)
         endif
         do  110  ib = 1, nbas
-
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
-          i_copy_size=size(ssite(ib)%force)
-          call dcopy(i_copy_size,ssite(ib)%force,1,force,1)
-          i_copy_size=size(ssite(ib)%vel)
-          call dcopy(i_copy_size,ssite(ib)%vel,1,vel,1)
-
+          pos=ssite(ib)%pos
+          force=ssite(ib)%force
+          vel=ssite(ib)%vel
+c          i_copy_size=size(ssite(ib)%pos)
+c          call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
+c          i_copy_size=size(ssite(ib)%force)
+c          call dcopy(i_copy_size,ssite(ib)%force,1,force,1)
+c          i_copy_size=size(ssite(ib)%vel)
+c          call dcopy(i_copy_size,ssite(ib)%vel,1,vel,1)
           if (lbin) then
             write(jfi) ib,pos,force,vel
           else
@@ -1469,49 +1164,33 @@ C   --- Write information for local densities ---
         if (ipr .ge. 50) write(stdo,364)
         if (.not. lbin) write(jfi,721) 'site densities'
         do  120  ib = 1, nbas
-
-
           ic=ssite(ib)%class
           is=ssite(ib)%spec
-
           do i_spacks=is,is
             call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
           enddo
-
-
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
-
-
           z=sspec(is)%z
           qc=sspec(is)%qc
           i_copy_size=size(sspec(is)%idmod)
           call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
-
-
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl
           lmxb=sspec(is)%lmxb
-
-
           kmxv=sspec(is)%kmxv
           rsmv=sspec(is)%rsmv
           kmax=sspec(is)%kmxt
-
-
           i_copy_size=size(ssite(ib)%pnu)
           call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-ckino Dec.14.2011:             rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-ckino Dec.14.2011:             rv_p_ov1 => ssite(ib)%rv_p_ov1
-
+c         pnu=ssite(ib)%pnu
+c         pnz=ssite(ib)%pz
 
           if (lmxa .eq. -1) goto 120
-
           if (lbin) then
             write(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
           else
@@ -1557,29 +1236,15 @@ C     ... Write arrays for local density and potential
           nlml = (lmxl+1)**2
           if (mode .eq. 1) then
             if (.not. lbin) write(jfi,'('' rho1'')')
-            call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr , nlml , nlml , nsp 
-     .       , nsp , lbin , - jfi )
-
+            call dpdbyl ( sv_p_orhoat( 1 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
             if (.not. lbin) write(jfi,'('' rho2'')')
-            call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr , nlml , nlml , nsp 
-     .       , nsp , lbin , - jfi )
-
+            call dpdbyl ( sv_p_orhoat( 2 , ib )%v , nr , nlml , nlml , nsp  , nsp , lbin , - jfi )
             if (.not. lbin) write(jfi,'('' rhoc'')')
-            call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp 
-     .       , lbin , - jfi )
-
+            call dpdbyl ( sv_p_orhoat( 3 , ib )%v , nr , 1 , 1 , nsp , nsp   , lbin , - jfi )
             if (.not. lbin) write(jfi,'('' v0'')')
-ckino Dec.14.2011:               call dpdbyl ( rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi
-ckino Dec.28.2011:               call dpdbyl ( ssite(ib)%rv_p_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi
-            call dpdbyl ( ssite(ib)%rv_a_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
-     .       )
-
+            call dpdbyl ( ssite(ib)%rv_a_ov0 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
             if (.not. lbin) write(jfi,'('' v1'')')
-ckino Dec.14.2011:               call dpdbyl ( rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi
-ckino Dec.28.2011:               call dpdbyl ( ssite(ib)%rv_p_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi
-            call dpdbyl ( ssite(ib)%rv_a_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi 
-     .       )
-
+            call dpdbyl ( ssite(ib)%rv_a_ov1 , nr , 1 , 1 , nsp , nsp , lbin , - jfi  )
           else
             if (lbin) then
               call rx('iors not ready for this mode')
@@ -1590,27 +1255,14 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               rh = 0
               vrmax(1) = 0
               vrmax(2) = 0
-Ckino aiomom is logical function,               call aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
-              l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),
-     .        idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
-
-ckino Dec.14.2011:                 rv_p_oves => spot%rv_p_oves
-
-
-ckino Dec.14.2011:                 vrmax ( 1 ) = dval ( rv_p_oves , ic )
-ckino Dec.27.2011:                 vrmax ( 1 ) = dval ( spot%rv_p_oves , ic )
+              l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
               vrmax ( 1 ) = dval ( spot%rv_a_oves , ic )
-
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
-C             Not yet; for future versions
-C             call aiopot(nr,nsp,a,rmt,-99d0,w(ov0),-jfi)
             endif
           endif
-
           if (ipr .ge. 50) then
-            write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a,
-     .      (pnu(l+1,1),l=0,lmxa)
+            write(stdo,349) ib,spid,lmxa,lmxl,rmt,nr,a, (pnu(l+1,1),l=0,lmxa)
             if (nsp .eq. 2)  write(stdo,350) (pnu(l+1,2), l=0,lmxa)
 C           if (npan .eq. 2) write(stdo,350) (pz(l+1,1), l=0,lmxa)
 C            if (npan .eq. 2 .and. nsp .eq. 2)
@@ -1620,42 +1272,29 @@ C     .        write(stdo,350) (pz(l+1,2), l=0,lmxa)
 
 C   --- Write data on free-atom core states and fit to fa density ---
         if (.not. lbin) write(jfi,721) 'species data'
-
         do  130  is = 1, nspec
-
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          qc=sspec(is)%qc
+          a  =sspec(is)%a
+          nr =sspec(is)%nr
+          qc =sspec(is)%qc
           lmxa=sspec(is)%lmxa
-
-
           lfoc=sspec(is)%lfoca
           rfoc=sspec(is)%rfoca
-
-
-          cof=sspec(is)%ctail
-          eh=sspec(is)%etail
-          stc=sspec(is)%stc
-ckino Dec.16.2011:             rv_p_orhoca => sspec(is)%rv_p_orhoc
-
-
-
-          nxi=sspec(is)%nxi
+          cof =sspec(is)%ctail
+          eh  =sspec(is)%etail
+          stc =sspec(is)%stc
+          nxi =sspec(is)%nxi
           i_copy_size=size(sspec(is)%exi)
           call dcopy(i_copy_size,sspec(is)%exi,1,exi,1)
           i_copy_size=size(sspec(is)%chfa)
           call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1)
-          rsmfa=sspec(is)%rsmfa
-
+          rsmfa = sspec(is)%rsmfa
           if (lmxa .eq. -1) goto 130
-
           if (lbin) then
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           else
             do i_spacks=is,is
               call spacks_copy('u',sspec(i_spacks)%name,is,is,spid0,i_spacks)
             enddo
-
             write(jfi,'('' spec'',i5,2x,'' label '',a)') is, spid0
             write(jfi,'(''  nr   lfoc'')')
             write(jfi,ifmt) nr,lfoc
@@ -1667,17 +1306,11 @@ ckino Dec.16.2011:             rv_p_orhoca => sspec(is)%rv_p_orhoc
 C     ... For now, ASA stores no core data
           if (mode .eq. 1) then
             if (lbin) then
-ckino Dec.16.2011:                 call dpdump ( rv_p_orhoca , nr * nsp , - jfi )
-ckino Dec.28.2011:                 call dpdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi )
               call dpdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
-
               write(jfi) rsmfa,nxi
               write(jfi) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp)
             else
-ckino Dec.16.2011:                 call dfdump ( rv_p_orhoca , nr * nsp , - jfi )
-ckino Dec.28.2011:                 call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp , - jfi )
               call dfdump ( sspec(is)%rv_a_orhoc , nr * nsp , - jfi )
-
               write(jfi,'('' core tail: rsmfa,n,e,cof=''/f15.10,i4)')
      .        rsmfa,nxi
               write(jfi,ffmt) (exi(i),i=1,nxi)
@@ -1686,24 +1319,18 @@ ckino Dec.28.2011:                 call dfdump ( sspec(is)%rv_p_orhoc , nr * nsp
             endif
           endif
   130   continue
-
       endif
 
   349 format(i11,':',a4,2i2,f9.5,i5,f6.3,1x,8f6.3)
   350 format(41x,8f6.3)
   364 format(/9x,'ib:spc la ll   rmt     nr   a     pnu')
-
       iors = 0
       return
 
-C ... Error handling
-  998 if (ipr .gt. 0)
-     .write(stdo,'('' iors  : empty file ... nothing read'')')
+  998 if (ipr .gt. 0) write(stdo,'('' iors  : empty file ... nothing read'')')
       return
   999 continue
-      if (ipr .gt. 0)
-     .write(stdo,'('' iors  : read failed in: '',a)') line
-
+      if (ipr .gt. 0) write(stdo,'('' iors  : read failed in: '',a)') line
       end function iors
 
 
