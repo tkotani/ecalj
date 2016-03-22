@@ -1,7 +1,7 @@
       module m_rdctrl2_func
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
-     . prgnam,vrsion,vn,vn2,
+     . prgnam, !vrsion,vn,vn2,
      . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      . v_sstr,v_sarry,v_smove,sstrnmix,sstrnsymg)  !,v_stb
       use m_gtv,only: gtv_setst,gtv_setrcd
@@ -219,8 +219,8 @@ c      type(s_tb):: v_stb
 
       character  prgnam*(*) !, sstrn*(*)
       character*(*)::sstrnmix,sstrnsymg
-      character(6):: vrsion(2)
-      double precision vn(2),vn2(2)
+c      character(6):: vrsion(2)
+c      double precision vn(2),vn2(2)
 C ... Local parameters
       character fileid*64
       integer procid,nproc,master
@@ -264,7 +264,7 @@ C --- Initialize gtv; copy recrd to rcd ---
       call gtv_setrcd(recrd,nrecs,recln)
 
 !! --- Read input parameters from contents of rcd ---
-      call readctrl(prgnam,vrsion(1),vn(1))
+      call readctrl(prgnam) !,vrsion(1),vn(1))
       if (io_help > 0) then
         call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
      .  ves,initc,ics,clabl)
@@ -1016,16 +1016,16 @@ C --- Printout ---
           if (iprint() .ge. 20 .and. procid .eq. master) then
             do  90  k = 1, 2
               strn = '  '//prgnam
-              if (vn(2) .eq. 0) then
-                call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
-     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-              else
-                call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
-     .      'verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
-     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-              endif
+c              if (vn(2) .eq. 0) then
+c                call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
+c     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
+c     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
+c              else
+c                call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
+c     .      'verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
+c     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
+c     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
+c              endif
               lxcf=v_sctrl%lxcf
               lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
               call awrit8(' special:%10p'//

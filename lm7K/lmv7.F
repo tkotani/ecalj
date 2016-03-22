@@ -32,15 +32,7 @@ c      use m_globalvariables
       double precision starttime, endtime
       logical mlog
 #endif
-
-C ... Controls for IO
-c      integer lstrn
-c      parameter (lstrn=20000)
-
-      character prgnam*8, vrsion(2)*6, ext*100
-C ... Structure for strings
-c      character*(lstrn) sstrn
-
+      character prgnam*8, ext*100 !vrsion(2)*6, 
 C ... For structures
       logical lgors
       integer mxspec
@@ -63,7 +55,7 @@ C ... miscellaneous local variables
       character strn*1000,outs*20,strn2*1000
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      .igets,a2vec,NULLI
-      double precision vn(2),vn2(2),dglob
+      double precision dglob !vn(2),vn2(2),
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
 C ... Program-dependent name and help
@@ -100,20 +92,6 @@ C ... Program-dependent name and help
 
 C --- Version ---
       call show_programinfo(6)
-      vrsion(1) = 'LM'
-      vrsion(2) = ' '
-      vn(1) = 7.00d0
-      vn2(1) = 0
-      vn(2) = 0.00d0
-      vn2(2) = 0
-#if LMF | LMFGWD
-      vrsion(2) = 'FP'
-      vn(2) = 7.00d0
-      vn2(2) = 0
-#endif
-      vn(1) = vn(1) + vn2(1)/1d5
-      vn(2) = vn(2) + vn2(2)/1d5
-
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
       master = 0
@@ -121,7 +99,7 @@ C --- Version ---
       nproc  = mpipid(0)
 
       if(cmdopt('--h',3,0,outs)) then
-        call lmhelp(prgnam,vn(2),vn2(2),0) 
+        call lmhelp(prgnam) !,vn(2),vn2(2),0) 
       endif
 
 C --- Dynamic memory allocation and other initialization ---
@@ -241,10 +219,9 @@ C      write(stdo,*)' --- end of rdfile --- '
 C      call rx('done')
 
 !! --- Read recrd ---
-      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
+      call rdctrl2(recrd,recln0,nrecs,prgnam,F, !vrsion,vn,vn2,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      . v_sarry,v_smove, sstrnmix,sstrnsymg)  !,v_stb
-
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
@@ -387,7 +364,8 @@ C ... Patch for now ... maybe replace
       end program lmf
 
 
-      subroutine lmhelp(prgnam,vn,vn2,wksize)
+
+      subroutine lmhelp(prgnam) !,vn,vn2,wksize)
 C- Help printout
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -404,7 +382,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       character prgnam*8
-      double precision vn,vn2
+c      double precision vn,vn2
       integer wksize
 C ... Local parameters
       integer i1,i2
@@ -470,13 +448,13 @@ C ... Local parameters
 
       endif
 
-      if (nint(vn2) .ne. 0) then
-        ch = char(nint(vn2)+ichar('a')-1)
-      else
-        ch = ' '
-      endif
-      call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
-     .vn-vn2/1d5,wksize/1000)
+c      if (nint(vn2) .ne. 0) then
+c        ch = char(nint(vn2)+ichar('a')-1)
+c      else
+c        ch = ' '
+c      endif
+c      call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
+c     .vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
       end subroutine lmhelp
 

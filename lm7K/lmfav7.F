@@ -59,7 +59,7 @@ C ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      *igets,a2vec,NULLI
-      double precision vn(2),vn2(2),dglob
+      double precision dglob !
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
 
@@ -101,19 +101,19 @@ c toksw was here. MOved to rdccat
 C --- Version ---
       call show_programinfo(6)
 
-      vrsion(1) = 'LM'
-      vrsion(2) = ' '
-      vn(1) = 7.00d0
-      vn2(1) = 0
-      vn(2) = 0.00d0
-      vn2(2) = 0
-
-      vrsion(2) = 'FP'
-      vn(2) = 7.00d0
-      vn2(2) = 0
-
-      vn(1) = vn(1) + vn2(1)/1d5
-      vn(2) = vn(2) + vn2(2)/1d5
+c$$$      vrsion(1) = 'LM'
+c$$$      vrsion(2) = ' '
+c$$$      vn(1) = 7.00d0
+c$$$      vn2(1) = 0
+c$$$      vn(2) = 0.00d0
+c$$$      vn2(2) = 0
+c$$$
+c$$$      vrsion(2) = 'FP'
+c$$$      vn(2) = 7.00d0
+c$$$      vn2(2) = 0
+c$$$
+c$$$      vn(1) = vn(1) + vn2(1)/1d5
+c$$$      vn(2) = vn(2) + vn2(2)/1d5
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
 #if MPI|MPIK
@@ -127,11 +127,11 @@ C --- Help ---
       swtmp = .false.
       if (swtmp .or. cmdopt('--h',3,0,outs))
 c     *call lmhelp(prgnam,vn(2),vn2(2),wksize)
-     *call lmhelp(prgnam,vn(2),vn2(2),0)
-      if (cmdopt('--version',9,0,outs)) then
-        write(*,'(f4.2)') vn(2)
-        call cexit(0,1)
-      endif
+     *call lmhelp(prgnam)!,vn(2),vn2(2),0)
+c      if (cmdopt('--version',9,0,outs)) then
+c        write(*,'(f4.2)') vn(2)
+c        call cexit(0,1)
+c      endif
 
 C --- Dynamic memory allocation and other initialization ---
 
@@ -231,7 +231,7 @@ C      write(stdo,*)' --- end of rdfile --- '
 C      call rx('done')
 
 C --- Read recrd ---
-      call rdctrl2(recrd,recln0,nrecs,prgnam,vrsion,vn,vn2,F,
+      call rdctrl2(recrd,recln0,nrecs,prgnam,F, !,vrsion,vn,vn2
      *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *v_sarry,v_smove,sstrnmix,sstrnsymg) !,v_stb
       print *,'end of rdctrl2 in imfav7'
@@ -316,7 +316,7 @@ Cgetarg       end
 
 
 
-      subroutine lmhelp(prgnam,vn,vn2,wksize)
+      subroutine lmhelp(prgnam)!,vn,vn2,wksize)
 
 C- Help printout
 C ----------------------------------------------------------------------
@@ -334,8 +334,8 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       character prgnam*8
-      double precision vn,vn2
-      integer wksize
+c      double precision vn,vn2
+c      integer wksize
 C ... Local parameters
       integer i1,i2
       character ch*1,outs*1000
@@ -524,13 +524,13 @@ C     . disp#rcut#expr-center-list#expr-neighbor-list
 
       endif
 
-      if (nint(vn2) .ne. 0) then
-        ch = char(nint(vn2)+ichar('a')-1)
-      else
-        ch = ' '
-      endif
-      call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
-     *vn-vn2/1d5,wksize/1000)
+c      if (nint(vn2) .ne. 0) then
+c        ch = char(nint(vn2)+ichar('a')-1)
+c      else
+c        ch = ' '
+c      endif
+c      call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
+c     *vn-vn2/1d5,wksize/1000)
       call fexit(0,0,' ',0)
 Cgetarg       end
       end subroutine lmhelp

@@ -254,20 +254,14 @@ c      integer :: VERBOS(5),nclasstest, n_verbos
 c      character(16) :: atom(50)
 !
       contains
-      subroutine readctrl(prgn,vstrn,vn)
+      subroutine readctrl(prgn) !,vstrn,vn)
 C- Reads data parsed from ctrl file into m_rdctrl
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   prgn:name of main program
-Ci   vstrn :version
-Ci   vn    :
 Co Outputs
 Cl Local variables
 Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   09 Aug 07
 C ----------------------------------------------------------------------
       use m_toksw
       use m_gtv
@@ -275,8 +269,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       character*(*):: prgn
-      character(6):: vstrn(2)
-      double precision vn(2)
+c      character(6):: vstrn(2)
+c      double precision vn(2)
 C ... Local variables
       integer::nout,i,j,nn,i0,iprint,lgunit,ivec(10),iosite
       integer:: io_iactive,io_tim(2),verbos(5),isw
@@ -384,29 +378,29 @@ C --- IO ---
       if (io_help == 1) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
 
-C --- Version ---
-      do  j = 1, 2
-        vsn = dble(int(vn(j)*100))/100
-        if (vsn .ne. 0d0) then
-          nm = 'VERS_'//vstrn(j)
-          outs = 'Input style'
-          if (j .eq. 2) outs='Program'
-          sw = tksw(prgn,nm)
-          if (sw .ne. 2) then
-            call gtv(trim(nm),sw,vers,note=trim(outs)//
-     .      ' version check: integer part must be at least as large as:')
-            if (io_help .eq. 1) then
-              call info2(1,0,0,'   '//trim(outs)//' version: %d',vsn,0)
-            else
-              if (io_show .ne. 0) call info2(1,0,0,'  Expected '//
-     .        trim(outs)//' version: %d'//' ... found in file: %d',vsn,
-     .        vers)
-              if ( vers .lt. int(vsn)) call fexit(-1,1,
-     .        '  Exit -1 RDCTRL: control file earlier than v%d',vsn)
-            endif
-          endif
-        endif
-      enddo
+c$$$C --- Version ---
+c$$$      do  j = 1, 2
+c$$$        vsn = dble(int(vn(j)*100))/100
+c$$$        if (vsn .ne. 0d0) then
+c$$$          nm = 'VERS_'//vstrn(j)
+c$$$          outs = 'Input style'
+c$$$          if (j .eq. 2) outs='Program'
+c$$$          sw = tksw(prgn,nm)
+c$$$          if (sw .ne. 2) then
+c$$$            call gtv(trim(nm),sw,vers,note=trim(outs)//
+c$$$     .      ' version check: integer part must be at least as large as:')
+c$$$            if (io_help .eq. 1) then
+c$$$              call info2(1,0,0,'   '//trim(outs)//' version: %d',vsn,0)
+c$$$            else
+c$$$              if (io_show .ne. 0) call info2(1,0,0,'  Expected '//
+c$$$     .        trim(outs)//' version: %d'//' ... found in file: %d',vsn,
+c$$$     .        vers)
+c$$$              if ( vers .lt. int(vsn)) call fexit(-1,1,
+c$$$     .        '  Exit -1 RDCTRL: control file earlier than v%d',vsn)
+c$$$            endif
+c$$$          endif
+c$$$        endif
+c$$$      enddo
 
 c$$$C --- CMD ---
 c$$$C Token ordering: CMD
