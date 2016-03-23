@@ -266,8 +266,8 @@ lmf2gw:	lmf2gw.o show_programinfo.o
 #tbe:	tbe.o $(LIBSUBS) $(LIBTB)
 #	$(LK) $(LKFLAGS1) $@.o $(LIBTB) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-rdcmd:	rdcmd.o $(LIBSUBS) $(LIBSLA)
-	$(LK) $(LKFLAGS1) $@.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+#rdcmd:	rdcmd.o $(LIBSUBS) $(LIBSLA)
+#	$(LK) $(LKFLAGS1) $@.o $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 #lm67:	lm67src/lm67.F
 #	(cd lm67src; $(FC) $(FFLAGS_LESS67) lm67.F $(LIBLOC) -o lm67 ; mv lm67 ../)
