@@ -124,7 +124,7 @@ def eset(aaa,bbb):
 print "=== Band00A (A,B)=(5,6) for mhh, (A,B)=(3,4) for mlh, (A,B)=(1,2) for mso ZB case ==="
 print " Syml00C C=4 for [111], C=5 for [100], C=6 for [110] "
 
-### get directory which ends .mass
+### get directory which ends .dat
 matlist=[]
 for i in os.listdir('.'):
     if os.path.isdir(i) and '.mass' in i:
@@ -161,9 +161,9 @@ for mat in matlist:
     print 'mmm0: '+mat
     for di  in ['111', '100', '110']:
 #    for di  in ['100']:
-        if di=='111': syml='4'
-        if di=='100': syml='5'
-        if di=='110': syml='6'
+        if di=='111': syml='1'
+        if di=='100': syml='2'
+        if di=='110': syml='3'
         for mxx  in ['mso', 'mlh', 'mhh', 'mee']:
             yrange=''
             xrange=''
@@ -190,13 +190,13 @@ for mat in matlist:
                 qupper=0.02 #upper limit
                 efitmax='0.03' 
 
-            fname=mat+'/Band00'+band1+'Syml00'+syml+'Spin1.mass'
+            fname=mat+'/Band00'+band1+'Syml00'+syml+'Spin1.dat'
             print 'mmm1:',fname
             f1=open(fname,'r')
             qmin,qmax=cutew(f1,2*float(efitmax),'data1',qupper)
 
             f1.close()
-            fname=mat+'/Band00'+band2+'Syml00'+syml+'Spin1.mass'
+            fname=mat+'/Band00'+band2+'Syml00'+syml+'Spin1.dat'
             print 'mmm2:',fname
             f2=open(fname,'r')
             qmin,qmax=cutew(f2,2*float(efitmax),'data2',qupper)
@@ -235,8 +235,8 @@ for mat in matlist:
             f.write(ggg1+xrange+yrange+ggg2)
             f.close()
               
-#            data1= '"'+mat+'/Band00'+band1+'Syml00'+syml+'Spin1.mass"'
-#            data2= '"'+mat+'/Band00'+band2+'Syml00'+syml+'Spin1.mass"'
+#            data1= '"'+mat+'/Band00'+band1+'Syml00'+syml+'Spin1.dat"'
+#            data2= '"'+mat+'/Band00'+band2+'Syml00'+syml+'Spin1.dat"'
 #
 	    ttt  = '"'+mat+'_'+mxx+di+'"'
 #            aaa='gnuplot '+ eset('data1',data1)+eset('data2',data2)+eset('ttt',ttt) \

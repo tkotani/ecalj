@@ -1,284 +1,260 @@
------------ CdS_so.qsgw.mass
-~/DEGUCHI/mass_fit_test0_start ~/DEGUCHI/mass_fit_test0_start
-/home/usr2/h70252a/bin/job_band cds -np 24 -vnspin=2 -vso=1 NoGnuplot
-NOTE: Use run_arg defined in /home/usr2/h70252a/bin/run_arg
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK cds --quit=band -vnspin=2 -vso=1 NoGnuplot > llmf_ef 
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK cds --band -vnspin=2 -vso=1 NoGnuplot > llmf_band 
-If you like, edit and run job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)
-~/DEGUCHI/mass_fit_test0_start
------------ GaAs_so.qsgw.mass
-~/DEGUCHI/mass_fit_test0_start ~/DEGUCHI/mass_fit_test0_start
-/home/usr2/h70252a/bin/job_band gaas -np 24 -vnspin=2 -vso=1 NoGnuplot
-NOTE: Use run_arg defined in /home/usr2/h70252a/bin/run_arg
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK gaas --quit=band -vnspin=2 -vso=1 NoGnuplot > llmf_ef 
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK gaas --band -vnspin=2 -vso=1 NoGnuplot > llmf_band 
-If you like, edit and run job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)
-~/DEGUCHI/mass_fit_test0_start
------------ GaNzb_so.qsgw.mass
-~/DEGUCHI/mass_fit_test0_start ~/DEGUCHI/mass_fit_test0_start
-/home/usr2/h70252a/bin/job_band ganzb -np 24 -vnspin=2 -vso=1 NoGnuplot
-NOTE: Use run_arg defined in /home/usr2/h70252a/bin/run_arg
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK ganzb --quit=band -vnspin=2 -vso=1 NoGnuplot > llmf_ef 
-OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252a/bin/lmf-MPIK ganzb --band -vnspin=2 -vso=1 NoGnuplot > llmf_band 
-If you like, edit and run job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)
-~/DEGUCHI/mass_fit_test0_start
 === Band00A (A,B)=(5,6) for mhh, (A,B)=(3,4) for mlh, (A,B)=(1,2) for mso ZB case ===
  Syml00C C=4 for [111], C=5 for [100], C=6 for [110] 
+GaNzb_so.qsgw.mass
+mmm0: GaNzb_so.qsgw.mass
+mmm1: GaNzb_so.qsgw.mass/Band001Syml001Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band002Syml001Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03499347'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mso111 mass=  0.247  0.247; E0(eV)=  -0.20  -0.20
+mmm4: GaNzb_so.qsgw.mass_mso111 mass,E0(eV)=  0.247  -0.20 
+mmm5: GaNzb_so.qsgw.mass_mso111.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band003Syml001Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band004Syml001Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.09998134'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mlh111 mass=  0.406  0.406; E0(eV)=   0.02   0.02
+mmm4: GaNzb_so.qsgw.mass_mlh111 mass,E0(eV)=  0.406   0.02 
+mmm5: GaNzb_so.qsgw.mass_mlh111.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band005Syml001Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band006Syml001Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.09998134'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mhh111 mass=  1.685  1.996; E0(eV)=   0.76  -1.66
+mmm4: GaNzb_so.qsgw.mass_mhh111 mass,E0(eV)=  1.841  -0.45 
+mmm5: GaNzb_so.qsgw.mass_mhh111.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band007Syml001Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band008Syml001Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.037493'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mee111 mass=  0.192  0.192; E0(eV)=   2.69   2.69
+mmm4: GaNzb_so.qsgw.mass_mee111 mass,E0(eV)=  0.192   2.69 
+mmm5: GaNzb_so.qsgw.mass_mee111.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band001Syml002Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band002Syml002Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04040698'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mso100 mass=  0.311  0.311; E0(eV)=  -0.21  -0.21
+mmm4: GaNzb_so.qsgw.mass_mso100 mass,E0(eV)=  0.311  -0.21 
+mmm5: GaNzb_so.qsgw.mass_mso100.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band003Syml002Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band004Syml002Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07071221'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mlh100 mass=  0.294  0.294; E0(eV)=   0.04   0.04
+mmm4: GaNzb_so.qsgw.mass_mlh100 mass,E0(eV)=  0.294   0.04 
+mmm5: GaNzb_so.qsgw.mass_mlh100.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band005Syml002Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band006Syml002Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07648464'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mhh100 mass=  0.793  0.793; E0(eV)=   7.30   7.32
+mmm4: GaNzb_so.qsgw.mass_mhh100 mass,E0(eV)=  0.793   7.31 
+mmm5: GaNzb_so.qsgw.mass_mhh100.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band007Syml002Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band008Syml002Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03752077'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mee100 mass=  0.192  0.192; E0(eV)=   3.38   3.38
+mmm4: GaNzb_so.qsgw.mass_mee100 mass,E0(eV)=  0.192   3.38 
+mmm5: GaNzb_so.qsgw.mass_mee100.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band001Syml003Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band002Syml003Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03673549'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mso110 mass=  0.245  0.280; E0(eV)=  -0.22  -0.19
+mmm4: GaNzb_so.qsgw.mass_mso110 mass,E0(eV)=  0.263  -0.20 
+mmm5: GaNzb_so.qsgw.mass_mso110.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band003Syml003Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band004Syml003Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07500163'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mlh110 mass=  0.284  0.485; E0(eV)=   0.04   0.08
+mmm4: GaNzb_so.qsgw.mass_mlh110 mass,E0(eV)=  0.384   0.06 
+mmm5: GaNzb_so.qsgw.mass_mlh110.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band005Syml003Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band006Syml003Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.12245164'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mhh110 mass=  2.766  3.720; E0(eV)=   0.09   0.18
+mmm4: GaNzb_so.qsgw.mass_mhh110 mass,E0(eV)=  3.243   0.14 
+mmm5: GaNzb_so.qsgw.mass_mhh110.png
+mmm6: 
+mmm1: GaNzb_so.qsgw.mass/Band007Syml003Spin1.dat
+mmm2: GaNzb_so.qsgw.mass/Band008Syml003Spin1.dat
+gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03673549'  JOBmassfit.glt
+mmm3: GaNzb_so.qsgw.mass_mee110 mass=  0.193  0.192; E0(eV)=   2.73   2.94
+mmm4: GaNzb_so.qsgw.mass_mee110 mass,E0(eV)=  0.192   2.84 
+mmm5: GaNzb_so.qsgw.mass_mee110.png
+mmm6: 
 CdS_so.qsgw.mass
 mmm0: CdS_so.qsgw.mass
-mmm1: CdS_so.qsgw.mass/Band001Syml004Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band002Syml004Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band001Syml001Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band002Syml001Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mso111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03861119'  JOBmassfit.glt
 mmm3: CdS_so.qsgw.mass_mso111 mass=  0.319  0.319; E0(eV)=  -0.18  -0.18
 mmm4: CdS_so.qsgw.mass_mso111 mass,E0(eV)=  0.319  -0.18 
 mmm5: CdS_so.qsgw.mass_mso111.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band003Syml004Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band004Syml004Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mlh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07770502'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mlh111 mass=  0.118  0.118; E0(eV)=   0.02   0.02
-mmm4: CdS_so.qsgw.mass_mlh111 mass,E0(eV)=  0.118   0.02 
+mmm1: CdS_so.qsgw.mass/Band003Syml001Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band004Syml001Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mlh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07722238'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mlh111 mass=  0.117  0.117; E0(eV)=   0.02   0.02
+mmm4: CdS_so.qsgw.mass_mlh111 mass,E0(eV)=  0.117   0.02 
 mmm5: CdS_so.qsgw.mass_mlh111.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band005Syml004Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band006Syml004Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mhh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.1100419'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mhh111 mass=  1.158  1.825; E0(eV)=   0.31  -0.54
-mmm4: CdS_so.qsgw.mass_mhh111 mass,E0(eV)=  1.492  -0.12 
+mmm1: CdS_so.qsgw.mass/Band005Syml001Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band006Syml001Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mhh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07722238'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mhh111 mass=  1.157  1.829; E0(eV)=   0.31  -0.52
+mmm4: CdS_so.qsgw.mass_mhh111 mass,E0(eV)=  1.493  -0.11 
 mmm5: CdS_so.qsgw.mass_mhh111.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band007Syml004Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band008Syml004Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band007Syml001Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band008Syml001Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mee111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03475007'  JOBmassfit.glt
 mmm3: CdS_so.qsgw.mass_mee111 mass=  0.160  0.160; E0(eV)=   2.12   2.12
 mmm4: CdS_so.qsgw.mass_mee111 mass,E0(eV)=  0.160   2.12 
 mmm5: CdS_so.qsgw.mass_mee111.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band001Syml005Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band002Syml005Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04291245'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mso100 mass=  0.348  0.348; E0(eV)=  -0.26  -0.26
+mmm1: CdS_so.qsgw.mass/Band001Syml002Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band002Syml002Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04235515'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mso100 mass=  0.349  0.347; E0(eV)=  -0.26  -0.27
 mmm4: CdS_so.qsgw.mass_mso100 mass,E0(eV)=  0.348  -0.26 
 mmm5: CdS_so.qsgw.mass_mso100.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band003Syml005Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band004Syml005Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.05628776'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mlh100 mass=  0.219  0.219; E0(eV)=   0.12   0.12
+mmm1: CdS_so.qsgw.mass/Band003Syml002Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band004Syml002Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.05573046'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mlh100 mass=  0.218  0.219; E0(eV)=   0.12   0.12
 mmm4: CdS_so.qsgw.mass_mlh100 mass,E0(eV)=  0.219   0.12 
 mmm5: CdS_so.qsgw.mass_mlh100.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band005Syml005Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band006Syml005Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band005Syml002Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band006Syml002Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mhh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07133498'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mhh100 mass=  0.687  0.686; E0(eV)=   6.13   5.24
-mmm4: CdS_so.qsgw.mass_mhh100 mass,E0(eV)=  0.686   5.68 
+mmm3: CdS_so.qsgw.mass_mhh100 mass=  0.687  0.686; E0(eV)=   6.05   5.20
+mmm4: CdS_so.qsgw.mass_mhh100 mass,E0(eV)=  0.686   5.63 
 mmm5: CdS_so.qsgw.mass_mhh100.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band007Syml005Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band008Syml005Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band007Syml002Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band008Syml002Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mee100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03455288'  JOBmassfit.glt
 mmm3: CdS_so.qsgw.mass_mee100 mass=  0.160  0.160; E0(eV)=   2.81   2.81
 mmm4: CdS_so.qsgw.mass_mee100 mass,E0(eV)=  0.160   2.81 
 mmm5: CdS_so.qsgw.mass_mee100.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band001Syml006Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band002Syml006Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band001Syml003Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band002Syml003Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mso110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04019553'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mso110 mass=  0.311  0.342; E0(eV)=  -0.19  -0.19
+mmm3: CdS_so.qsgw.mass_mso110 mass=  0.313  0.341; E0(eV)=  -0.19  -0.20
 mmm4: CdS_so.qsgw.mass_mso110 mass,E0(eV)=  0.327  -0.19 
 mmm5: CdS_so.qsgw.mass_mso110.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band003Syml006Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band004Syml006Spin1.mass
+mmm1: CdS_so.qsgw.mass/Band003Syml003Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band004Syml003Spin1.dat
 gnuplot -e 'ttt="CdS_so.qsgw.mass_mlh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.06383996'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mlh110 mass=  0.183  0.149; E0(eV)=   0.09   0.03
+mmm3: CdS_so.qsgw.mass_mlh110 mass=  0.184  0.149; E0(eV)=   0.09   0.03
 mmm4: CdS_so.qsgw.mass_mlh110 mass,E0(eV)=  0.166   0.06 
 mmm5: CdS_so.qsgw.mass_mlh110.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band005Syml006Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band006Syml006Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mhh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.13713769'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mhh110 mass=  0.797  1.633; E0(eV)=   0.05   0.12
-mmm4: CdS_so.qsgw.mass_mhh110 mass,E0(eV)=  1.215   0.08 
+mmm1: CdS_so.qsgw.mass/Band005Syml003Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band006Syml003Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mhh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.09457772'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mhh110 mass=  0.797  1.632; E0(eV)=   0.05   0.12
+mmm4: CdS_so.qsgw.mass_mhh110 mass,E0(eV)=  1.214   0.08 
 mmm5: CdS_so.qsgw.mass_mhh110.png
 mmm6: 
-mmm1: CdS_so.qsgw.mass/Band007Syml006Spin1.mass
-mmm2: CdS_so.qsgw.mass/Band008Syml006Spin1.mass
-gnuplot -e 'ttt="CdS_so.qsgw.mass_mee110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03487553'  JOBmassfit.glt
-mmm3: CdS_so.qsgw.mass_mee110 mass=  0.160  0.160; E0(eV)=   2.11   2.44
+mmm1: CdS_so.qsgw.mass/Band007Syml003Spin1.dat
+mmm2: CdS_so.qsgw.mass/Band008Syml003Spin1.dat
+gnuplot -e 'ttt="CdS_so.qsgw.mass_mee110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03428442'  JOBmassfit.glt
+mmm3: CdS_so.qsgw.mass_mee110 mass=  0.160  0.160; E0(eV)=   2.11   2.45
 mmm4: CdS_so.qsgw.mass_mee110 mass,E0(eV)=  0.160   2.28 
 mmm5: CdS_so.qsgw.mass_mee110.png
 mmm6: 
 GaAs_so.qsgw.mass
 mmm0: GaAs_so.qsgw.mass
-mmm1: GaAs_so.qsgw.mass/Band001Syml004Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band002Syml004Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band001Syml001Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band002Syml001Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mso111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03183415'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mso111 mass=  0.176  0.176; E0(eV)=  -0.40  -0.40
 mmm4: GaAs_so.qsgw.mass_mso111 mass,E0(eV)=  0.176  -0.40 
 mmm5: GaAs_so.qsgw.mass_mso111.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band003Syml004Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band004Syml004Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band003Syml001Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band004Syml001Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mlh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02686007'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mlh111 mass=  0.081  0.081; E0(eV)=   0.50   0.50
 mmm4: GaAs_so.qsgw.mass_mlh111 mass,E0(eV)=  0.081   0.50 
 mmm5: GaAs_so.qsgw.mass_mlh111.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band005Syml004Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band006Syml004Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band005Syml001Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band006Syml001Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mhh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07660093'  JOBmassfit.glt
-mmm3: GaAs_so.qsgw.mass_mhh111 mass=  0.748  0.783; E0(eV)=   1.41   4.78
-mmm4: GaAs_so.qsgw.mass_mhh111 mass,E0(eV)=  0.766   3.09 
+mmm3: GaAs_so.qsgw.mass_mhh111 mass=  0.748  0.783; E0(eV)=   1.40   4.69
+mmm4: GaAs_so.qsgw.mass_mhh111 mass,E0(eV)=  0.765   3.05 
 mmm5: GaAs_so.qsgw.mass_mhh111.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band007Syml004Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band008Syml004Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mee111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02437302'  JOBmassfit.glt
+mmm1: GaAs_so.qsgw.mass/Band007Syml001Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band008Syml001Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mee111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02387561'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mee111 mass=  0.076  0.076; E0(eV)=   1.20   1.20
 mmm4: GaAs_so.qsgw.mass_mee111 mass,E0(eV)=  0.076   1.20 
 mmm5: GaAs_so.qsgw.mass_mee111.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band001Syml005Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band002Syml005Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03388712'  JOBmassfit.glt
+mmm1: GaAs_so.qsgw.mass/Band001Syml002Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band002Syml002Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03331276'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mso100 mass=  0.178  0.178; E0(eV)=  -0.96  -0.96
 mmm4: GaAs_so.qsgw.mass_mso100 mass,E0(eV)=  0.178  -0.96 
 mmm5: GaAs_so.qsgw.mass_mso100.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band003Syml005Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band004Syml005Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02814354'  JOBmassfit.glt
+mmm1: GaAs_so.qsgw.mass/Band003Syml002Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band004Syml002Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02756918'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mlh100 mass=  0.096  0.096; E0(eV)=   0.71   0.71
 mmm4: GaAs_so.qsgw.mass_mlh100 mass,E0(eV)=  0.096   0.71 
 mmm5: GaAs_so.qsgw.mass_mlh100.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band005Syml005Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band006Syml005Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mhh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04882043'  JOBmassfit.glt
+mmm1: GaAs_so.qsgw.mass/Band005Syml002Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band006Syml002Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mhh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04824607'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mhh100 mass=  0.316  0.316; E0(eV)=   2.89   2.89
 mmm4: GaAs_so.qsgw.mass_mhh100 mass,E0(eV)=  0.316   2.89 
 mmm5: GaAs_so.qsgw.mass_mhh100.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band007Syml005Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band008Syml005Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band007Syml002Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band008Syml002Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mee100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02412304'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mee100 mass=  0.076  0.076; E0(eV)=   1.77   1.77
 mmm4: GaAs_so.qsgw.mass_mee100 mass,E0(eV)=  0.076   1.77 
 mmm5: GaAs_so.qsgw.mass_mee100.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band001Syml006Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band002Syml006Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mso110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03228753'  JOBmassfit.glt
-mmm3: GaAs_so.qsgw.mass_mso110 mass=  0.174  0.178; E0(eV)=  -0.45  -0.50
+mmm1: GaAs_so.qsgw.mass/Band001Syml003Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band002Syml003Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mso110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03289673'  JOBmassfit.glt
+mmm3: GaAs_so.qsgw.mass_mso110 mass=  0.175  0.178; E0(eV)=  -0.44  -0.50
 mmm4: GaAs_so.qsgw.mass_mso110 mass,E0(eV)=  0.176  -0.47 
 mmm5: GaAs_so.qsgw.mass_mso110.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band003Syml006Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band004Syml006Spin1.mass
-gnuplot -e 'ttt="GaAs_so.qsgw.mass_mlh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02741394'  JOBmassfit.glt
-mmm3: GaAs_so.qsgw.mass_mlh110 mass=  0.084  0.084; E0(eV)=   0.62   0.51
+mmm1: GaAs_so.qsgw.mass/Band003Syml003Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band004Syml003Spin1.dat
+gnuplot -e 'ttt="GaAs_so.qsgw.mass_mlh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02680474'  JOBmassfit.glt
+mmm3: GaAs_so.qsgw.mass_mlh110 mass=  0.084  0.084; E0(eV)=   0.63   0.51
 mmm4: GaAs_so.qsgw.mass_mlh110 mass,E0(eV)=  0.084   0.57 
 mmm5: GaAs_so.qsgw.mass_mlh110.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band005Syml006Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band006Syml006Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band005Syml003Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band006Syml003Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mhh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07797743'  JOBmassfit.glt
-mmm3: GaAs_so.qsgw.mass_mhh110 mass=  0.578  0.577; E0(eV)=   0.30   0.27
+mmm3: GaAs_so.qsgw.mass_mhh110 mass=  0.578  0.576; E0(eV)=   0.30   0.26
 mmm4: GaAs_so.qsgw.mass_mhh110 mass,E0(eV)=  0.577   0.28 
 mmm5: GaAs_so.qsgw.mass_mhh110.png
 mmm6: 
-mmm1: GaAs_so.qsgw.mass/Band007Syml006Spin1.mass
-mmm2: GaAs_so.qsgw.mass/Band008Syml006Spin1.mass
+mmm1: GaAs_so.qsgw.mass/Band007Syml003Spin1.dat
+mmm2: GaAs_so.qsgw.mass/Band008Syml003Spin1.dat
 gnuplot -e 'ttt="GaAs_so.qsgw.mass_mee110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.02436795'  JOBmassfit.glt
 mmm3: GaAs_so.qsgw.mass_mee110 mass=  0.076  0.076; E0(eV)=   1.26   1.36
 mmm4: GaAs_so.qsgw.mass_mee110 mass,E0(eV)=  0.076   1.31 
 mmm5: GaAs_so.qsgw.mass_mee110.png
-mmm6: 
-GaNzb_so.qsgw.mass
-mmm0: GaNzb_so.qsgw.mass
-mmm1: GaNzb_so.qsgw.mass/Band001Syml004Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band002Syml004Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03561835'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mso111 mass=  0.249  0.249; E0(eV)=  -0.19  -0.19
-mmm4: GaNzb_so.qsgw.mass_mso111 mass,E0(eV)=  0.249  -0.19 
-mmm5: GaNzb_so.qsgw.mass_mso111.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band003Syml004Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band004Syml004Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.1093546'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mlh111 mass=  0.402  0.402; E0(eV)=   0.02   0.02
-mmm4: GaNzb_so.qsgw.mass_mlh111 mass,E0(eV)=  0.402   0.02 
-mmm5: GaNzb_so.qsgw.mass_mlh111.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band005Syml004Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band006Syml004Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.11935273'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mhh111 mass=  1.686  1.995; E0(eV)=   0.77  -1.70
-mmm4: GaNzb_so.qsgw.mass_mhh111 mass,E0(eV)=  1.840  -0.46 
-mmm5: GaNzb_so.qsgw.mass_mhh111.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band007Syml004Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band008Syml004Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee111"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03811789'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mee111 mass=  0.192  0.192; E0(eV)=   2.69   2.69
-mmm4: GaNzb_so.qsgw.mass_mee111 mass,E0(eV)=  0.192   2.69 
-mmm5: GaNzb_so.qsgw.mass_mee111.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band001Syml005Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band002Syml005Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.04040698'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mso100 mass=  0.308  0.308; E0(eV)=  -0.22  -0.22
-mmm4: GaNzb_so.qsgw.mass_mso100 mass,E0(eV)=  0.308  -0.22 
-mmm5: GaNzb_so.qsgw.mass_mso100.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band003Syml005Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band004Syml005Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07143377'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mlh100 mass=  0.297  0.297; E0(eV)=   0.04   0.04
-mmm4: GaNzb_so.qsgw.mass_mlh100 mass,E0(eV)=  0.297   0.04 
-mmm5: GaNzb_so.qsgw.mass_mlh100.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band005Syml005Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band006Syml005Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07648464'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mhh100 mass=  0.793  0.793; E0(eV)=   7.28   7.30
-mmm4: GaNzb_so.qsgw.mass_mhh100 mass,E0(eV)=  0.793   7.29 
-mmm5: GaNzb_so.qsgw.mass_mhh100.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band007Syml005Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band008Syml005Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee100"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03752077'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mee100 mass=  0.192  0.192; E0(eV)=   3.38   3.37
-mmm4: GaNzb_so.qsgw.mass_mee100 mass,E0(eV)=  0.192   3.38 
-mmm5: GaNzb_so.qsgw.mass_mee100.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band001Syml006Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band002Syml006Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mso110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03750081'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mso110 mass=  0.247  0.280; E0(eV)=  -0.21  -0.18
-mmm4: GaNzb_so.qsgw.mass_mso110 mass,E0(eV)=  0.264  -0.20 
-mmm5: GaNzb_so.qsgw.mass_mso110.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band003Syml006Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band004Syml006Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mlh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.07500163'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mlh110 mass=  0.279  0.483; E0(eV)=   0.04   0.08
-mmm4: GaNzb_so.qsgw.mass_mlh110 mass,E0(eV)=  0.381   0.06 
-mmm5: GaNzb_so.qsgw.mass_mlh110.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band005Syml006Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band006Syml006Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mhh110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.18061617'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mhh110 mass=  2.779  3.827; E0(eV)=   0.09   0.23
-mmm4: GaNzb_so.qsgw.mass_mhh110 mass,E0(eV)=  3.303   0.16 
-mmm5: GaNzb_so.qsgw.mass_mhh110.png
-mmm6: 
-mmm1: GaNzb_so.qsgw.mass/Band007Syml006Spin1.mass
-mmm2: GaNzb_so.qsgw.mass/Band008Syml006Spin1.mass
-gnuplot -e 'ttt="GaNzb_so.qsgw.mass_mee110"' -e 'efitmin=0.01' -e 'efitmax=0.05' -e 'xl=0.0' -e 'xr=0.03750081'  JOBmassfit.glt
-mmm3: GaNzb_so.qsgw.mass_mee110 mass=  0.193  0.192; E0(eV)=   2.74   2.94
-mmm4: GaNzb_so.qsgw.mass_mee110 mass,E0(eV)=  0.192   2.84 
-mmm5: GaNzb_so.qsgw.mass_mee110.png
 mmm6: 

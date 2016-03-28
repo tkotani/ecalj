@@ -1846,7 +1846,7 @@ We now read syml.* in lm7K/fp/bndfp.F. Thus job_band is changed
 We do not use plbnd anymore. If necessary, you can modify
 "writeband" subrouitne in lm7K/fp/bndfp.F by yourself.
 
-Follow step to get effective mass...
+Follow steps to get effective mass...
 1. 
 New syml read label of k point. It is shown by the gnuscript
 file "bandplot.glt". Type "gnuplot -p bandplot.isp1.glt" and so on,
@@ -1856,48 +1856,49 @@ when you like to remake band plot.
 New syml allow a special input suitable to determine effective mass
 for semiconductor. An example of new syml is (this is a case of GaAs)
 ------ syml example start ------------------
-5  0 0 0   .5 .5  .5    Gamma  L
-5  0 0 0    1.  0  0    Gamma  X
-5  0 0 0   .75 .75 0    Gamma  K
-#############
-## resolution qinit qend iqinit iqend  etolv(Ry) etolc(Ry) symllabels
-## mass*.spin* contains bands which is evaltop-etolv < eband <econtop+etolc
--888 !note -888 start Mass line. Here is a ZB case
-257  0 0 0   .5 .5  .5   1   32     0.1 0.01    Gamma  L
-257  0 0 0    1.  0  0   1   32     0.1 0.01    Gamma  X
-257  0 0 0   .75 .75 0   1   32     0.1 0.01    Gamma  K
-0 !terminator  
+#NOTE: ndiv2, ninit2 nend2 etolv etolc are for mass mode.
+#ndiv qleft(1:3) qright(1:3) llabel rlabel  ndiv2 ninit2 nend2 etolv(Ry) etolc(Ry)
+5  0 0 0   .5 .5  .5    Gamma  L  257 1   32     0.1 0.01
+5  0 0 0    1.  0  0    Gamma  X  
+5  0 0 0   .75 .75 0    Gamma  K  257 1   32     0.1 0.01
 -------  end ----------------------
-New feature is start from next line to the -888 line.
-257 means a line connecting 0 0 0 (Gamma) and .5 .5 .5 (L) is divided
-into 256. and we only calculate from the 1st point to the 16th point
-among 513 points (now we need to include 1st point for mass).
+New feature is start from the next columns of symmetry points labels.
+In this example, 257 means a line connecting 0 0 0 (Gamma) and .5 .5 .5 (L) is divided
+into 256. Then we only calculate from the 1st point to the 32th point
+among 257 points.
 
-We only make "Band001Syml005Spin1.mass" files which contains effective
-math along the line only near the Fermi energy, that is,
-we plot only bands whose energy E at Gamma (exactly speaking, at
-left-end point), is evaltop-etolv < E < econtop + etolc.
+Then we see not only band*.spin*, but also
+we have files such as "Band001Syml001Spin1.dat" 
+files which contains eigenvalues for selected bands, that is,
+we make a table of detailed plot of energy bands 
+whose energy E at Gamma (exactly speaking, at
+left-end point), is evaltop-etolv (Ry) < E < econtop + etolc(Ry).
 
-(As its head line shows, Band*.mass file contains data
+(As its head line shows, Band*Syml*.dat file contains data
  isyml,iq, ib,isp, QPE-EF, QPE-QPE(start), |q|, mass=2*2*(QPE-QPE(start))/|q|**2).
  here QPE(start) is QPE at the left-end of sym line.)
 
-For GaAs, please use this syml, and run job_band.
+This sample is only for Gamma-L and Gamma-K.
+
+Let us use this example for GaA and run job_band.
 (e.g., job_band gaas -np 2 -vnspin=2 -vso=1; 
  note that -vfoobar=xxx replace value of foobar with xxx in ctrl.gaas)
-Then you can see not only bandplot.isp1.glt, but also
-massplot.isp1.glt, which is to plot data related to the last 3 lines
-after -888. This is the effective mass plot for q points.
-Note that what we need is at q to zero limit.
+Then you can see not only bandplot.isp1.glt.
+Then you can see usual energy bands plot in addition to the dense energy bands
+superposed on it. The dense energy bands are controlled by
+the part "257 1   32     0.1 0.01". In the current version, set all lines
+of etolv and etolc are the same.
 
-3. We have to make interpolation to q to zero.
-In such a case, a possible way is "take average of degenerated bands,
-and make an interpolation (least squrre fit by gnuplot).
+There are useful data, not only the eigenvalues in "Band001Syml*Spin*.mass" 
+files. But, anyway, we have to determine effective mass from the eigenvalues
+on the dense symmetry mesh.
 
-4. least square fit by gnuplot. 
 
-We have an example is at ~/ecalj/MATERIALS/mass_fit_test0.tar.gz
-Expand this gives mass_fit_test0/. Look into ./job and run it. 
+3. 
+Least square fit by gnuplot. 
+
+We have an example is at ~/ecalj/MATERIALS/mass_fit_test
+Look into ./job and run it. 
 See README in it.
 ----
 For your convenience, we have dE/dk in the bnd*.spin* files.
@@ -1905,6 +1906,7 @@ This is useful to determine the Fermi surface.
 See the efermi.lmf to read the Fermi energy.
 
 \end{verbatim}
+
 
 \subsection{density and $|$eigenfunction$|^2$ plot}
 We can generate density and $\sum_{n} |\Psikn(\bfr)|^2$

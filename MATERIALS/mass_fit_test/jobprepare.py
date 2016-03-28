@@ -3,14 +3,11 @@
 # then run 'bash jobrun'
 #
 syml='''\
-51  0 0 0   .5 .5  .5    Gamma  L
-51  0 0 0    1.  0  0    Gamma  X
-51  0 0 0   .75 .75 0    Gamma  K
--888 !note -888 start Mass line. Here is a ZB case
-1025  0 0 0   .5 .5  .5   1  512     0.1 0.01    Gamma  L
-1025  0 0 0    1.  0  0   1  512     0.1 0.01    Gamma  X
-1025  0 0 0   .75 .75 0   1  512     0.1 0.01    Gamma  K
-0 !terminator  
+### ndiv2, ninit2 nend2 etolv etolc are for mass mode.
+#ndiv qleft(1:3) qright(1:3) llabel rlabel  ndiv2 ninit2 nend2 etolv(Ry) etolc(Ry)
+51    0 0 0      .5 .5  .5   Gamma  L       513     1    81    0.1       0.01  
+51    0 0 0      1.  0  0    Gamma  X       513     1    81    0.1       0.01  
+51    0 0 0      .75 .75 0   Gamma  K       513     1    81    0.1       0.01  
 '''
 open('syml.init','w').write(syml)
 
@@ -22,5 +19,5 @@ for i in commands.getoutput('ls -1|grep "\.mass"').split("\n"):
     print 'pushd .'
     print 'cd '+ i
     print 'cp ../syml.init syml.'+head
-    print exe+'/job_band '+ head +' -np 24 -vnspin=2 -vso=1 NoGnuplot'
+    print exe+'/job_band '+ head +' -np 4 -vnspin=2 -vso=1 NoGnuplot'
     print 'popd'

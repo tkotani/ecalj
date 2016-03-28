@@ -1,4 +1,5 @@
-Effective Mass fitting test for ZB structure.
+===================================================
+   Effective Mass fitting test for ZB structure.
 ===================================================
 
 For test,
@@ -36,17 +37,15 @@ popd
 Look into jobprepare.py. At all directories with *.mass,
 we go into them and run job_band, as shown in the above jobbash script.
 See special lies in syml.init
-----------------
--888 !note -888 start Mass line. Here is a ZB case
-1025  0 0 0   .5 .5  .5   1  512     0.1 0.01    Gamma  L
-1025  0 0 0    1.  0  0   1  512     0.1 0.01    Gamma  X
-1025  0 0 0   .75 .75 0   1  512     0.1 0.01    Gamma  K
----------------
-First line means 1025 divisions between (0 0 0)-(0.5,0.5,0.5).
-And calcualte eigenvalues 
-from 1 to 512 (thus just up to (0.25 0.25 0.25) in this case).
-"0.1 0.01" means tolerance for what bands we show; range is 
-[VBM-0.1 VBM] and [CBM CBM+0.01].
+--------------------
+### ndiv2, ninit2 nend2 etolv etolc are for mass mode.
+#ndiv qleft(1:3) qright(1:3) llabel rlabel  ndiv2 ninit2 nend2 etolv(Ry) etolc(Ry)
+51    0 0 0      .5 .5  .5   Gamma  L       1025    1    51    0.1       0.01  
+51    0 0 0      1.  0  0    Gamma  X       1025    1    51    0.1       0.01  
+51    0 0 0      .75 .75 0   Gamma  K       1025    1    51    0.1       0.01  
+--------------------
+On each line, after ndiv2, these are for effective mass.
+"0.1 0.01" means tolerance for what bands we show; range is [VBM-0.1 VBM] and [CBM CBM+0.01].
 
 
 Then we run
