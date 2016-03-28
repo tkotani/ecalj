@@ -737,7 +737,9 @@ c            print *,'readout readqkm init'
               wpw_kq=0d0
             endif  
 c            print *,'readout readqkm=',wpw_k,wpw_kq
-          endif
+c            write(6,"('crpaccc:',4i5,3f9.5)")
+c     &           k,jpm,n1b(ibib,k,jpm),n2b(ibib,k,jpm),wpw_k,wpw_kq,(1d0-wpw_k*wpw_kq)
+           endif
           
 ccccccccccccccccccccccccccccccc
 !kino 2014-08-13  !$OMP end do

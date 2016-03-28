@@ -473,6 +473,17 @@ c mar2014
       if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
       call mpibcc(sname,512,mlog,'bndfp','ext')
 
+!! Write atomic positions
+      if(procid==master) then
+         write(stdo,"(a)")' --- bndfp: Used Atomic Positions from rst (or ctrl) ----'
+         do ib=1,nbas
+            is=ssite(ib)%spec
+            call r8tos8(ssite(is)%clabel,spid)
+            write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
+         enddo
+      endif
+
+
 !! Write atomic positions    
       if(procid==master) then
         write(stdo,"(a)")'== bndfp: Atomic Positions (from rst/ctrl or changing when dynamics ==)'
