@@ -1,0 +1,173 @@
+=============================================================
+The samples for generating Maxmally localized Wannier function(MLWF)
+2016 Mar.
+
+This README will be modified and added to the ecalj mannual in future.
+=============================================================
+
+****** 1. Introduction  ******
+
+The interface of maxmally localized Wannier function(MLWF) in ecalj was modified to be a little more user-friendly.
+(Of course, there can be more modification if you will ask for something.)
+Therefore, the samples for the practice were contained.
+The smaples consist of the following three materials.
+
+1) Cu (Non spin-polarized calculation)
+2) Fe (spin-polarized calculation)
+3) La2CuO4 (Non spin-polarized calculaton)
+
+At first, I recommand you to test 1) Cu and 2) Fe because the calculation of La2CuO4 is heavier.
+For the purpose of your practice, you may reduce the kpoints.
+
+
+
+
+****** 2. How to use (For example, Cu) ******
+
+> mkGWIN_lmf2 cu
+> mv GWinput.tmp GWinput
+
+Modify "GWinput" options in "Maximally localized Wannier function" section
+
+> genMLWF cu -np 24
+
+If you just want to generate MLWF,
+stop the calculation after finishing the generation of MLWF.
+(Actually, "genMLWF" command continue to do the cRPA calculation after MLWF generation)
+
+
+
+****** 3. How to use (For example, Cu) with a little more explanation ******
+
+I suppose you have already done the LDA or QSGW calculation and got the band structure.
+Then, please generate the "GWinput".
+
+> mkGWIN_lmf2 cu
+> mv GWinput.tmp GWinput
+
+All of MLWF informations are in "GWinput"
+Then, you can see the MLWF section in "GWinput" like the following.
+
+! ##### Maximally localized Wannier function ################
+...
+... there are options about the MLWF here.
+...
+
+! #################################################
+
+The options in the section is related to MLWF, so you should modify them.
+There are two important options which you should modifiy.
+1) <Worb> subsection and 2) Outer energy window range
+
+1) <Worb> subsection
+Especially, you can see <Worb> subsection.
+
+!  1 Cu  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+
+This indicates the orbitals which you will generate as MLWF.
+The first coloumn corresponds to the atomic stie number.
+The second one is atomic name, the remaining coloumns are orbital numbers.
+For the orbital numbers, you can see which orbital correponds to which orbital number in the following (also contained in "GWinput" file)
+
+***********************************************
+!!! For s,p,d,f the indices 1-16 correspond to:
+!!! index l m polynomial
+!!! 1 0 0 1
+!!! -----------------------------
+!!! 2 1 -1 y
+!!! 3 1 0 z
+!!! 4 1 1 x
+!!! -----------------------------
+!!! 5 2 -2 xy
+!!! 6 2 -1 yz
+!!! 7 2 0 3z^2-1
+!!! 8 2 1 xz
+!!! 9 2 2 x^2-y^2
+!!! -----------------------------
+!!! 10 3 -3 y(3x^2-y^2)
+!!! 11 3 -2 xyz
+!!! 12 3 -1 y(5z^2-1)
+!!! 13 3 0 z(5z^2-3)
+!!! 14 3 1 x(5z^2-1)
+!!! 15 3 2 z(x^2-y^2)
+!!! ------------------------
+!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.
+***********************************************
+
+The "index" in above information corresponds to the orbital number in <Worb> section.
+Therfore, you should modify the <Worb> section with reference to the above "index" information.
+
+For example, if you want to generate five 3d orbital model of Cu. (dxy, dyz, dz^2, dxz, dx^2-y^2)
+You should modify <Worb> subsection like the following.
+ 
+  1 Cu  5 6 7 8 9
+
+If you want to generate t2g orbital model of Cu. (dxy, dyz, dxz),
+<Worb> subsection should be like this.
+
+  1 Cu 5 6 8
+
+
+2) Outer energy window range
+
+You can adjust the outer energy window range by modifying the following options.
+
+wan_out_emin  -2.5  !eV relative to Efermi
+wan_out_emax  2.29  !eV relative to Efermi
+
+
+If you modify the above 1) <Worb> section and 2) Outer energy window range.
+You did the essential minimum things to generate the MLWF.
+
+Then, the following commands generate Wannier function.
+
+> genMLWF cu -np 24
+
+Actually the above command also do the cRPA calculation.
+Therfore, if you only want to generate MLWF, stop the command after finishing the generation of MLWF.
+For the guide, you can stop the calculation after "wanplot" command like the following.
+
+*****************************************************************************
+NOTE: Use run_arg defined in /home/usr2/h70252b/bin_swj_test/run_arg
+### START genMLWF: MPI size=  24, MATERIAL= cu
+--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA
+OK! --> Start echo --- | /home/usr2/h70252b/bin_swj_test/lmfa cu > llmfa
+OK! --> Start echo --- | mpirun -np 24 /home/usr2/h70252b/bin_swj_test/lmf-MPIK cu > llmf_start
+OK! --> Start echo 0 | /home/usr2/h70252b/bin_swj_test/lmfgw cu > llmfgw00
+OK! --> Start echo 1 | /home/usr2/h70252b/bin_swj_test/qg4gw  > lqg4gw
+OK! --> Start echo 1 | mpirun -np 24 /home/usr2/h70252b/bin_swj_test/lmfgw-MPIK cu > llmfgw01
+OK! --> Start echo --- | /home/usr2/h70252b/bin_swj_test/lmf2gw  > llmf2gw
+OK! --> Start echo 0 | /home/usr2/h70252b/bin_swj_test/rdata4gw_v2  > lrdata4gw_v2
+OK! --> Start echo 1 | /home/usr2/h70252b/bin_swj_test/heftet  > leftet
+OK! --> Start echo 1 | /home/usr2/h70252b/bin_swj_test/hchknw  > lchknw
+OK! --> Start echo 0 | /home/usr2/h70252b/bin_swj_test/hbasfp0  > lbas
+OK! --> Start echo 1 | /home/usr2/h70252b/bin_swj_test/hmaxloc  > lmaxloc1
+OK! --> Start echo 1 | mpirun -np 24 /home/usr2/h70252b/bin_swj_test/hpsig_MPI  > lpsig_MPI
+OK! --> Start echo 2 | mpirun -np 24 /home/usr2/h70252b/bin_swj_test/huumat_MPI  > luumat2
+OK! --> Start echo 2 | /home/usr2/h70252b/bin_swj_test/hmaxloc  > lmaxloc2
+OK! --> Start echo --- | /home/usr2/h70252b/bin_swj_test/wanplot  > lwanplot 
+
+!!!!!!!!!! You can stop here during "genMLWF". (end of generation of MLWF) !!!!!!!!!!!!!!!!!!
+*****************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -30,9 +30,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe qg4gw gwinit heftet rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
-
-# hmergewv hbndout
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -380,8 +378,9 @@ $(gwsrc)ropyln.o \
 $(gwsrc)ropcsm.o \
 $(gwsrc)rpaq.o
 
-
-
+ QPE_QSGW = \
+ $(main)hqpe_qsgw.m.o\
+ $(gwsrc)qpe1.qsgw.o
 
  QPE_SC = \
  $(main)hqpe.sc.m$(hqpe_g)
@@ -389,11 +388,8 @@ $(gwsrc)rpaq.o
  QPE = \
  $(main)hqpe.m$(hqpe_g)
 
- # MERGE = \
- # $(main)hmergewv.m.o \
- # $(gwsrc)switches.o \
- # $(gwsrc)keyvalue.o \
- # $(gwsrc)iopen.o
+ MERGE = \
+  $(main)hmergewv.m.o
 
  # PARAINFO = \
  # $(main)hparainfo.m.o \
@@ -504,8 +500,11 @@ $(gwsrc)rpaq.o
  hqpe_sc:		$(QPE_SC)  $(MPI) $(COMM) $(GWLIB)
 	 $(LK) $(LKFLAGS1) $(QPE_SC) $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- # hmergewv:	$(MERGE) $(MPI)   $(COMM) 
- # 	 $(LK) $(LKFLAGS1) $(MERGE) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
+ hqpe_qsgw:		$(QPE_QSGW)  $(GWLIB) $(MPI) $(COMM) 
+	 $(LK) $(LKFLAGS1) $(QPE_QSGW) $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hmergewv:	$(MERGE) $(MPI) $(GWLIB)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(MERGE) $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
  # hparainfo:	$(PARAINFO) $(GWLIB) $(MPI)   $(COMM) 
  # 	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@

@@ -17,14 +17,18 @@ c-------------------------------------------------
       use m_readqg
       use m_readeigen
       use m_read_bzdata,ngrp2=>ngrp
-c      use m_genallcf_v3
       use m_genallcf_v3,ncore2=>ncore
       use m_keyvalue,only: getkeyvalue
+      use m_read_Worb,only: s_read_Worb, s_cal_Worb,
+     &   nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf,
+     &   classname_mlwf, iclassin,
+     &  iphi, iphidot, nphi, nphix
 c RS: MPI module
 !      use rsmpi
 !      use rsmpi_rotkindex
 
       implicit none
+      integer :: iclass2
       real(8):: q(3),  qgbin(3),qx(3)
       integer(4),allocatable :: ngvecpB(:,:,:),ngveccB(:,:) !,ngveccB(:,:,:)
      & , ngvecpf1(:,:), ngvecpf2(:,:), 
@@ -93,13 +97,12 @@ c      logical:: test_qbzreg
 
 ctm
       integer(4) :: ixc,idummy,idummy2,i1,i2,i3,nbbloop,
-     &              ifpsig(2),ifmloc,ret,nwf,
+     &              ifpsig(2),ifmloc,ret,
      &              ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2),
      &              iqibz,iqbz,ibb,itmp,itmp2,iti,itf,
      &              nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,
-     &              ia,iwf,nphix
-      integer(4),allocatable:: ikidx(:),ikbidx(:,:),iphi(:,:),iphidot(:,:),
-     &                         nphi(:)
+     &              ia,iwf
+      integer(4),allocatable:: ikidx(:),ikbidx(:,:)
       real(8),allocatable :: bbv(:,:),r0g(:,:),c1(:,:,:),c2(:,:,:),
      &                       phig(:,:,:,:),wphi(:,:)
       real(8) :: pgnorm,wgt,ndg(3),sij,wphis
@@ -333,25 +336,19 @@ ctm
      o             iko_ixs,iko_fxs,noxs)
 
 c GWinput data
-      call getkeyvalue("GWinput","<MLWF>",unit=ifmloc,status=ret) 
-      if (myproc.eq.0) write(6,*)' ifmloc ret=',ifmloc,ret
-      read (ifmloc,*) nwf
-ctm 040928
-      allocate (nphi(nwf))
-      read (ifmloc,*) (nphi(i),i=1,nwf)
-      nphix = 0
-      do i = 1,nwf
-         if(nphi(i).gt.nphix)nphix = nphi(i)
+      call s_read_Worb()
+
+      do iclass2=1,nclass_mlwf
+        write(*,*)'output:',iclassin(iclass2), nwf
+     & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2)
+     &  ,iclass2)
       enddo
-      allocate (r0g(nphix,nwf),iphi(nphix,nwf),iphidot(nphix,nwf),
-     &          wphi(nphix,nwf))
-      wphi = 0d0
-      do i=1,nwf
-         do j=1,nphi(i)
-            read(ifmloc,*)iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
-         enddo
-      enddo
-      close(ifmloc)
+
+      call s_cal_Worb()
+
+      allocate (r0g(nphix,nwf), wphi(nphix,nwf))
+      r0g = 2d0
+      wphi = 1d0
 
 c 061004
       if (myproc.eq.0) then

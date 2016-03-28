@@ -194,6 +194,7 @@ c----
       read(ifix,*)iantiferro(1:natom) !may2015
       read(ifix,*)
       read(ifix,*)spid(1:natom)
+
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         occc=0    ! call iclear(nl*nnc*nclass, w(ioccc))

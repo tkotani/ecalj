@@ -12,7 +12,7 @@ c
 
       integer:: i,j,k
       integer:: ir,im,in
-       real(8):: rtmp,heps2
+      real(8):: rtmp,heps2
 
       write(ifh,*) 'nwf ',nwf
       write(ifh,*) 'nrws ',nrws
@@ -143,3 +143,113 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       enddo 
       end subroutine make_hrotrcut
  
+
+
+
+
+      subroutine cart_to_fract (cart, fract_coord, qlat)
+      implicit none
+      real(8) :: qlat(3,3)
+      real(8) :: cart(3), fract_coord(3)
+      integer :: i
+      do i=1,3
+        fract_coord(i) = sum(cart(1:3)*qlat(1:3,i))
+      enddo
+
+      return
+
+      end subroutine cart_to_fract
+
+
+      subroutine write_hopping_output(is, ifh, hrotr,
+     &                  rws,irws,alat,plat,qlat,pos,natom,
+     &                  ibasiwf, nwf,nrws, spid, m_indx, l_indx,
+     7                   nphix, iphi, ldim2)
+      implicit none
+      integer:: natom, is
+      real(8) :: alat,plat(3,3),pos(3,natom),qlat(3,3)
+      real(8),allocatable :: cart_coord(:,:), fract_coord(:,:)
+      integer:: i,j,k, ldim2
+      complex(8),intent(in) :: hrotr(nwf,nwf,nrws)
+      integer,intent(in):: ifh, nwf,nrws
+      real(8),intent(in) :: rws(3,nrws)
+      integer,intent(in) :: irws(nrws)
+
+      integer(4) :: ibasiwf(nwf), nphix, iphi(nphix,nwf)
+      integer :: quantum_l, quantum_sym
+      character(4) :: quantum_n, spin
+      character(4), dimension(0:2,-5:5) :: orbital_sym
+      character(8) :: spid(natom)
+      integer(4) ::  m_indx(ldim2), l_indx(ldim2)
+      integer:: ir, iwf, iwf1, iwf2
+
+
+      open(ifh,file='Hopping.dat')
+
+      write(ifh,"('Name : Need to be modified')")
+      allocate (cart_coord(3,3))
+      do i=1,3
+        cart_coord(1:3,i) = alat*plat(1:3,i)*0.529177249
+        write(ifh,"(3F16.9)") cart_coord(1:3,i)
+      enddo
+      write(ifh,"(2I6,I12)") nwf,nrws,nwf*nwf*nrws
+      write(ifh,"(1A,I5)") "spin",is
+      deallocate (cart_coord)
+
+
+      write(ifh,"(9(1A,7X))")
+     &    "leg","atom","n","l","sym","spin","x","y","z"
+
+      orbital_sym(0,0)="s"
+      orbital_sym(1,-1)="y"
+      orbital_sym(1,0)="z"
+      orbital_sym(1,1)="x"
+      orbital_sym(2,-2)="xy"
+      orbital_sym(2,-1)="yz"
+      orbital_sym(2,0)="z2"
+      orbital_sym(2,1)="xz"
+      orbital_sym(2,2)="x2y2"
+
+
+      quantum_n = "--"
+
+      allocate (fract_coord(3,nwf))
+      do iwf=1,nwf
+        if (is == 1) spin = "up"
+        if (is == 2) spin = "down"
+
+        call cart_to_fract(pos(1:3,ibasiwf(iwf)), fract_coord(1:3,iwf),
+     &           qlat)
+
+        write(ifh,"(I3,1A16,A6,I6,2A10,3F16.9)")
+     &    iwf, spid(ibasiwf(iwf)), quantum_n, l_indx(iphi(1,iwf)),
+     &    orbital_sym(l_indx(iphi(1,iwf)),m_indx(iphi(1,iwf))),
+     &    spin, fract_coord(1:3,iwf)
+      end do
+      deallocate (fract_coord)
+
+      allocate (fract_coord(3,nrws))
+      do ir=1,nrws
+      call cart_to_fract(rws(:,ir), fract_coord(1:3,ir),
+     &           qlat)
+
+        do iwf1=1,nwf
+          do iwf2=1,nwf
+            write(ifh,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") 
+     &             int(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2,
+     &               hrotr(iwf1,iwf2,ir)*13.605698066
+          enddo
+        enddo
+!        do iwf1=1,nwf
+!          do iwf2=1,nwf
+!            write(ifh,"(1x, 6f12.6, 2i4,3f12.6)") 
+!     &             rws(:,ir), fract_coord(:,ir), iwf1, iwf2,  hrotr(iwf1,iwf2,ir)
+!          enddo
+!        enddo
+      enddo
+      deallocate (fract_coord)
+
+
+      end subroutine write_hopping_output
+
+

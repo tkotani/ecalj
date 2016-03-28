@@ -474,21 +474,23 @@ $(MPI)
  $(maxloc)maxloc1.o \
  $(maxloc)maxloc2.o \
  $(maxloc)maxloc3.o \
- $(maxloc)maxloc4.o
+ $(maxloc)maxloc4.o \
+ $(maxloc)m_read_Worb.o
 
  PHIG = \
  $(maxloc)hphig.o 
 
  PSIG = \
- $(maxloc)hpsig.o 
+ $(maxloc)hpsig.o \
+ $(maxloc)m_read_Worb.o
 
  PSIG_MPI = \
  $(maxloc)RSMPI_mod.o \
  $(maxloc)RSMPI_qkgroup_mod.o \
  $(maxloc)RSMPI_rotkindex_mod.o \
  $(maxloc)RSMPI_utils.o \
- $(maxloc)hpsig_MPI.o 
-
+ $(maxloc)hpsig_MPI.o \
+ $(maxloc)m_read_Worb.o
 
  # PSIPSI = \
  # $(gwt)hpsipsi.o \
