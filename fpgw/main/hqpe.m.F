@@ -27,29 +27,6 @@ c local data
 c      logical:: readgwinput
       logical :: nozmode=.false.
 
-! swj added
-      integer(4):: n, iwcomg, nw, ninter, iinter, iw_int, iwini_int, iwend_int
-      character(len=1024) :: cip, ci, sss
-      character(len=1024) :: fname_sec
-      dimension ifsecomg(2)
-
-      integer(4),allocatable :: itcomg(:)
-      real(8) :: rdenomi, cdenomi, xxxx!, polinta
-      real(8),allocatable:: spect_ftn(:,:), spect_ftn_tot(:), k_distance(:),
-     &                   spect_ftn_int(:,:), spect_ftn_tot_int(:)
-      real(8),allocatable :: qcomg(:,:),eldacomg(:,:), wibz(:),
-     &        omega(:,:), rsecomg(:,:,:), csecomg(:,:,:), eh(:,:),
-     &        omega_int(:,:), rsecomg_int(:,:,:), csecomg_int(:,:,:)
-      complex(8),allocatable:: green_ftn(:,:,:),  sigma(:,:,:),
-     &                    green_ftn_int(:,:,:),  sigma_int(:,:,:)
-      real(8),allocatable:: rgreen_ftn2(:,:,:), cgreen_ftn2(:,:,:)
-      integer :: ifoutgreen, ifoutsigma, ifoutspect1, ifoutspect2, ifoutsec_int
-      integer :: ifoutgreen_int, ifoutsigma_int, ifoutspect1_int, ifoutspect2_int
-
-
-! swj added
-
-
 
 c shift quasiparticle energies (eV)
       write (*,*)' q+band index for zero?'
@@ -64,7 +41,6 @@ c open files
 c> input files
 c      ifqpnt     = iopenxx ('QPNT')
 c      if(readgwinput()) then
-      call getkeyvalue("GWinput","ninter_omega",ninter,default=1)
       call getkeyvalue("GWinput","<QPNT>",unit=ifqpnt,status=ret)
 c      else
 c        ifqpnt     = iopenxx ('QPNT')
@@ -75,32 +51,6 @@ c      endif
       read (ifqpnt,*) iqall,iaf
       if (iaf .eq. 1) laf = .true.
 
-
-! swj added begin
-
-      call readxxx(ifqpnt)     !skip to ***** for q point for spectrum function.
-      omegamaxin = 1d70
-      read (ifqpnt,*,err=2038,end=2038) dwplot, omegamaxin
-      close(ifqpnt)
- 2038 continue
-      !print *, "dwplot", dwplot, "omegamaxin", omegamaxin
-
-!        if(omegamaxin > omegamax) then
-!          write(6,*)' --omegamaxin > omeagmax <- This case not implemented yet. -SWJ'
-!          This part can cause the problem.
-!          stop
-!        endif
-      write(6,*)' --Use readin dwplot and omegamaxin from <QPNT>'
-      omegamax = omegamaxin
-      if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
-      iwini =  -int( omegamax / dwplot )
-      iwend =   int( omegamax/  dwplot )
-      write(6,*)' iwini:iwend omegamax(Ry)=',iwini,iwend,omegamax
-
-
-! swj added end
-
-
       ifsex(1)   = iopenxx ('SEXU')
       ifsexcore(1) = iopenxx ('SEXcoreU')
       ifsec(1)   = iopenxx ('SECU')
@@ -109,17 +59,6 @@ c      endif
 
       call readx   (ifsex(1),50)
       read (ifsex(1),*) nspin,nq,ntq
-
-! swj added
-      read (ifsex(1),*)
-      read (ifsex(1),*) deltaw
-      read (ifsex(1),*) alat
-      read (ifsex(1),*) ef
-
-      allocate(omega(ntq,iwini:iwend))
-! swj added
-
-
       if (nspin .eq. 2 .and. .not. laf) then
         ifsex(2)   = iopenxx ('SEXD')
         ifsexcore(2)   = iopenxx ('SEXcoreD')
@@ -232,7 +171,7 @@ c
            write(*,*) i,ip,csec(2,i,ip)
           else
             read(ifsec(is),*)
-c  "(3i5,3d24.16,3x,d24.16,3x,3d24.16,  3x,3d24.16,3x,d24.16)")
+c "(3i5,3d24.16,3x,d24.16,3x,3d24.16,  3x,3d24.16,3x,d24.16)")
      &     itc(i),ipxxx,isxxx, qc(1:3,i,ip), eldac(i,ip), 
      &     rsec(1:3,i,ip),csec(1:3,i,ip),zfac(i,ip)
           endif  
@@ -240,299 +179,6 @@ c
 c      write(6,*)" itc=",itc(i)
           enddo
         enddo
-
-! swj added
-        if(is==1) write(6,*)' ###  readin SEComg.UP'
-        if(is==2) write(6,*)' ###  readin SEComg.DN'
-        allocate( itcomg(ntq),qcomg(3,nq),eldacomg(ntq,nq),wibz(ip),
-     &            rsecomg(iwini:iwend,ntq,nq), csecomg(iwini:iwend,ntq,nq) )
-        do ip = 1,nq
-          do i  = 1,ntq
-          write (cip, "(I4)") ip
-          write (ci, "(I4)") itc(i)
-          fname_sec= "SEComg_n"//trim(adjustl(ci))//"k"//trim(adjustl(cip))//".UP"
-          !print "SEComg_n"//trim(adjustl(ci))//"k"//trim(adjustl(cip))//".UP"
-          ifsecomg(is) = iopenxx(fname_sec)
-          !print *, fname_sec
-            do iw = iwini,iwend
-                 read(ifsecomg(is),*) 
-     &              iwcomg, itcomg(i), ipcomg, iscomg, qcomg(1:3,ip), wibz(ip),
-     &          eldacomg(i,ip), omega(i,iw),  rsecomg(iw,i,ip), csecomg(iw,i,ip)
-            !print *, rsecomg(iw,i,ip), csecomg(iw,i,ip)
-            enddo
-          enddo
-          close(ifsecomg(is))
-        enddo
-
-        ! starting for interpolation
-        if (ninter > 1) then
-        !ninter is the number of (interpolated points-1) within each energy bin.
-
-          dwplot_int = dwplot*rydberg()/ninter
-  
-          iwini_int =  -int( omegamax*rydberg() / dwplot_int )
-          iwend_int =   int( omegamax*rydberg()/  dwplot_int )
-  
-          !print *, iwini_int, iwend_int
-          nw = iwend - iwini +1
-          !print *, iwini_int, iwend_int
-          ifoutsec_int=9300
-  
-  
-          allocate(omega_int(ntq,iwini_int:iwend_int), rsecomg_int(iwini_int:iwend_int,ntq,nq),
-     &           csecomg_int(iwini_int:iwend_int,ntq,nq) )
-
-       
-          if(is==1) sss='.UP'
-          if(is==2) sss='.DN'
-          open(ifoutsec_int,file='SEComg_int'//sss)
-          do ip = 1, nq
-            do i  = 1,ntq
-              iw_int = iwini_int 
-              do iw = iwini,iwend
-                if (iw /= iwend) then
-                  do iinter = 0,ninter-1
-                    omega_int(i,iw_int) = omega(i,iw) + iinter*dwplot_int
-                    !if (iinter == 0) goto 313
-                    rsecomg_int(iw_int,i,ip) = polinta(omega_int(i,iw_int),
-     &                      omega(i,:),rsecomg(:,i,ip),nw)
-                    csecomg_int(iw_int,i,ip) = polinta(omega_int(i,iw_int),
-     &                      omega(i,:),csecomg(:,i,ip),nw)
-                    write(ifoutsec_int,"(4i5,3f10.6,3x,f10.6,2x,2f16.8,x,3f16.8)")
-     &              iw_int,itcomg(i),ip,is, qcomg(1:3,ip), wibz(ip), eldacomg(i,ip), 
-     &              omega_int(i,iw_int), rsecomg_int(iw_int,i,ip), csecomg_int(iw_int,i,ip)  !,sumimg
-
-!                  rsecomg_int(iw_int,i,ip) = polinta(omega_int(i,-799),
-!     &                        omega(i,:),rsecomg(:,i,ip),nw)
-!                  csecomg_int(iw_int,i,ip) = polinta(omega_int(i,-799),
-!     &                        omega(i,iw),csecomg_int(iw_int,i,ip),nw)
-  313               continue
-                    iw_int = iw_int + 1
-                  end do
-                else 
-                    omega_int(i,iw_int) = omega(i,iw) 
-                    rsecomg_int(iw_int,i,ip) = rsecomg(iw,i,ip)
-                    csecomg_int(iw_int,i,ip) = csecomg(iw,i,ip)
-                    write(ifoutsec_int,"(4i5,3f10.6,3x,f10.6,2x,2f16.8,x,3f16.8)")
-     &                    iw_int,itcomg(i),ip,is, qcomg(1:3,ip), wibz(ip), eldacomg(i,ip), 
-     &                    omega_int(i,iw_int), rsecomg_int(iw_int,i,ip), csecomg_int(iw_int,i,ip)  !,sumimg
-                end if
-              end do
-            end do
-          end do
-          close(ifoutsec_int)
-
-        end if
-!        do iw_int = iwini_int, iwend_int
-!           print *, omega_int(1,iw_int) 
-!        enddo
-        !stop
-
-
-        if(is==1) sss='.UP'
-        if(is==2) sss='.DN'
-
-	  ifoutgreen = 9301
-	  ifoutsigma = 9302
-        ifoutspect1 = 9303
-        ifoutspect2 = 9304
-
-	  open(ifoutsigma,file='Self_energy'//sss)
-	  open(ifoutgreen,file='Green_ftn'//sss)
-        open(ifoutspect1,file='Spectral_ftn'//sss)
-        open(ifoutspect2,file='Spectral_ftn_tot'//sss)
-
-
-
-        allocate( eh(ntq,nq), k_distance(nq),
-     &           green_ftn(iwini:iwend,ntq,nq), sigma(iwini:iwend,ntq,nq),
-     &           spect_ftn(iwini:iwend,nq), spect_ftn_tot(iwini:iwend))
-
-
-        write(ifoutsigma,"(4a6,a25,3x,2a10,2x,a16,x,8a16)")
-     &            "# iw","ib","ip","is", "q(1:3,ip)", "Weight",  "Ehk",
-     &            "w-Ef",  "SEX", "SEXcore", "Re[SEComg]", "Im[SEComg]",
-     &            "Re[Sig(n,k,w)]",  "Im[Sig(n,k,w)]" !,sumimg
-        write(ifoutgreen,"(4a6,a25,3x,3a12,2x,a16,x,8a16)")
-     &              "# iw","ib","ip","is", "q(1:3,ip)", "Weight",  "Ehk", "Vxc",
-     &              "w-Ef", "SEX", "SEXcore", "Re[SEComg]", "Im[SEComg]", 
-     &              "Re[G(n,k,w)]",  "Im[G(n,k,w)]"
-
-        if (ninter > 1) then
-	    ifoutgreen_int = 9305
-	    ifoutsigma_int = 9306
-          ifoutspect1_int = 9307
-          ifoutspect2_int = 9308
-
-    	    open(ifoutsigma_int,file='Self_energy_int'//sss)
-  	    open(ifoutgreen_int,file='Green_ftn_int'//sss)
-          open(ifoutspect1_int,file='Spectral_ftn_int'//sss)
-          open(ifoutspect2_int,file='Spectral_ftn_tot_int'//sss)
-          allocate(green_ftn_int(iwini_int:iwend_int,ntq,nq),
-     &           sigma_int(iwini_int:iwend_int,ntq,nq),
-     &           spect_ftn_int(iwini_int:iwend_int,nq),
-     &           spect_ftn_tot_int(iwini_int:iwend_int))
-
-          write(ifoutsigma_int,"(4a6,a25,3x,2a10,2x,a16,x,8a16)")
-     &            "# iw","ib","ip","is", "q(1:3,ip)", "Weight",  "Ehk",
-     &            "w-Ef",  "SEX", "SEXcore", "Re[SEComg]", "Im[SEComg]",
-     &            "Re[Sig(n,k,w)]",  "Im[Sig(n,k,w)]" !,sumimg
-          write(ifoutgreen_int,"(4a6,a25,3x,3a12,2x,a16,x,8a16)")
-     &              "# iw","ib","ip","is", "q(1:3,ip)", "Weight",  "Ehk", "Vxc",
-     &              "w-Ef", "SEX", "SEXcore", "Re[SEComg]", "Im[SEComg]", 
-     &              "Re[G(n,k,w)]",  "Im[G(n,k,w)]"
-
-        endif
-  
-
-        do ip = 1,nq
-          do i  = 1,ntq
-            do iw = iwini,iwend
-              !wibz(ip) = 0.4
-
-              eh(i,ip) = eldacomg(i,ip) - vxc(i,ip)
-              sigma(iw,i,ip) = sex(i,ip) + sexcore(i,ip) +
-     &                                 rsecomg(iw,i,ip) + (0.0,1.0)*csecomg(iw,i,ip)
-              write(ifoutsigma,"(4i5,3f10.6,3x,f10.6,3x,f10.6,2x,f16.8,x,8f16.8)")
-     &                    iw,itcomg(i),ip,is, qcomg(1:3,ip),  wibz(ip), eldacomg(i,ip),
-     &                    omega(i,iw),  sex(i,ip), sexcore(i,ip),
-     &                    rsecomg(iw,i,ip),  csecomg(iw,i,ip), sigma(iw,i,ip) !,sumimg
-
-              green_ftn(iw,i,ip) = 1./(omega(i,iw) - (eh(i,ip) + sigma(iw,i,ip)))
-
-!              rdenomi = omega(i,iw) - (eh(i,ip)
-!     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
-!              cdenomi = -csecomg(iw,i,ip)
-
-              !print *, omega(i,iw), eh(i,ip), sex(i,ip), sexcore(i,ip), rsecomg(iw,i,ip)
-              !print *, rdenomi, rdenomi**2
-              !print *, " "
-
-              !rgreen_ftn2(iw,i,ip) = rdenomi/(rdenomi**2+cdenomi**2)
-              !cgreen_ftn2(iw,i,ip) = -cdenomi/(rdenomi**2+cdenomi**2)
-
-              write(ifoutgreen,"(4i5,3f10.6,3x,f10.6,3x,2f12.6,2x,f16.8,x,10f16.8)")
-     &                    iw,itcomg(i),ip,is, qcomg(1:3,ip),  wibz(ip),  eldacomg(i,ip),
-     &                    vxc(i,ip), omega(i,iw),  sex(i,ip), sexcore(i,ip),
-     &                    rsecomg(iw,i,ip),  csecomg(iw,i,ip),
-     &                    green_ftn(iw,i,ip) !,sumimg
-!     &                    rgreen_ftn2(iw,i,ip),  cgreen_ftn2(iw,i,ip)
-
-
-            end do
-            write(ifoutgreen,*)
-            write(ifoutgreen,*)
-            write(ifoutsigma,*)
-            write(ifoutsigma,*)
-            if (ninter >1) then
-              do iw_int = iwini_int,iwend_int
-                !wibz(ip) = 0.4
-  
-                sigma_int(iw_int,i,ip) = sex(i,ip) + sexcore(i,ip) +
-     &                                 rsecomg_int(iw_int,i,ip) + (0.0,1.0)*csecomg_int(iw_int,i,ip)
-                write(ifoutsigma_int,"(4i5,3f10.6,3x,f10.6,3x,f10.6,2x,f16.8,x,8f16.8)")
-     &                    iw_int,itcomg(i),ip,is, qcomg(1:3,ip),  wibz(ip), eldacomg(i,ip),
-     &                    omega_int(i,iw_int),  sex(i,ip), sexcore(i,ip),
-     &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
-     &                    sigma_int(iw_int,i,ip) !,sumimg
-  
-
-                green_ftn_int(iw_int,i,ip) = 1./(omega_int(i,iw_int) - (eh(i,ip) + sigma_int(iw_int,i,ip)))
-
-!              rdenomi = omega(i,iw) - (eh(i,ip)
-!     &                    + sex(i,ip) + sexcore(i,ip) + rsecomg(iw,i,ip))
-!              cdenomi = -csecomg(iw,i,ip)
-
-              !print *, omega(i,iw), eh(i,ip), sex(i,ip), sexcore(i,ip), rsecomg(iw,i,ip)
-              !print *, rdenomi, rdenomi**2
-              !print *, " "
-
-              !rgreen_ftn2(iw,i,ip) = rdenomi/(rdenomi**2+cdenomi**2)
-              !cgreen_ftn2(iw,i,ip) = -cdenomi/(rdenomi**2+cdenomi**2)
-
-                write(ifoutgreen_int,"(4i5,3f10.6,3x,f10.6,3x,2f12.6,2x,f16.8,x,10f16.8)")
-     &                    iw_int,itcomg(i),ip,is, qcomg(1:3,ip),  wibz(ip),  eldacomg(i,ip),
-     &                    vxc(i,ip), omega_int(i,iw_int),  sex(i,ip), sexcore(i,ip),
-     &                    rsecomg_int(iw_int,i,ip),  csecomg_int(iw_int,i,ip),
-     &                    green_ftn_int(iw_int,i,ip) !,sumimg
-!     &                    rgreen_ftn2(iw,i,ip),  cgreen_ftn2(iw,i,ip)
-              end do
-            end if
-          end do
-        end do
-
-        write(ifoutspect1,"(3a6,a25,a14,3x,2a16,x,2a16)")
-     &      "# iw", "ip", "is", "q(1:3,ip)","k_distance","Weight","w-Ef",  "A(k,w)"
-        write(ifoutspect2,"(2a6,3x,a16,x,2a16)")
-     &      "# iw", "is", "w-Ef",  "A(w)"
-
-!        do iw = iwini,iwend
-!          do i  = 1,ntq+1
-!             print *, "iw", iw, "iband", i, "omega", omega(i,iw)
-!          end do
-!        end do
-
-        spect_ftn = 0d0
-        spect_ftn_tot = 0d0
-
-        if (ninter >1) then
-          spect_ftn_int = 0d0
-          spect_ftn_tot_int = 0d0
-        end if
-
-        do iw = iwini,iwend
-          do ip = 1,nq
-            k_distance(ip) = norm2(qcomg(1:3,ip) - qcomg(1:3,1))
-            do i  = 1,ntq
-                spect_ftn(iw,ip) = spect_ftn(iw,ip) + 1./3.141592*abs(dimag(green_ftn(iw,i,ip)))
-            end do
-              spect_ftn_tot(iw) = spect_ftn_tot(iw) + spect_ftn(iw,ip)*wibz(ip)
-          end do
-          write(ifoutspect2,"(2i5,3x,f16.8,x,2f16.8)")
-     &        iw, is, omega(1,iw),  spect_ftn_tot(iw)
-        end do
-
-        if (ninter >1) then
-          do iw_int = iwini_int,iwend_int
-            do ip = 1,nq
-              do i  = 1,ntq
-                  spect_ftn_int(iw_int,ip) = spect_ftn_int(iw_int,ip) + 1./3.141592*abs(dimag(green_ftn_int(iw_int,i,ip)))
-              end do
-                spect_ftn_tot_int(iw_int) = spect_ftn_tot_int(iw_int) + spect_ftn_int(iw_int,ip)*wibz(ip)
-            end do
-            write(ifoutspect2_int,"(2i5,3x,f16.8,x,2f16.8)")
-     &        iw_int, is, omega_int(1,iw_int),  spect_ftn_tot_int(iw_int)
-          end do
-        end if
-
-        do ip = 1,nq
-          do iw = iwini,iwend
-            write(ifoutspect1,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
-     &          iw,  ip, is, qcomg(1:3,ip), k_distance(ip), wibz(ip), omega(1,iw),  spect_ftn(iw,ip)
-          end do
-!
-          if (ninter >1) then
-          do iw_int = iwini_int,iwend_int
-            write(ifoutspect1_int,"(3i5,3f10.6,3x,2f10.6,f16.8,x,2f16.8)")
-     &          iw_int,  ip, is, qcomg(1:3,ip), k_distance(ip), wibz(ip), omega_int(1,iw_int),  spect_ftn_int(iw_int,ip)
-          end do
-          end if
-          write(ifoutspect1,*)
-          write(ifoutspect1,*)
-        end do
-
-        close(ifoutgreen)
-        close(ifoutsigma)
-        close(ifoutspect1)
-        close(ifoutspect2)
-
-        if (ninter >1) then
-          close(ifoutgreen_int)
-          close(ifoutsigma_int)
-          close(ifoutspect1_int)
-          close(ifoutspect2_int)
-        end if
-! swj added
 
 c check that LDA eigenvalues are the same
 cmod 93.06.29
@@ -552,7 +198,7 @@ c     i              w(ieldac),w(ivxc),w(isex),
 c     i              w(irsec),w(icsec),w(izfac),eshift,
 c     d              ntq,nq,is,
 c     o              w(ieqp),w(iwqp))
-        call qpe1  (ifqpe(is),iftote(is),iftote2(is),itc,qc,
+        call qpe1     (ifqpe(is),iftote(is),iftote2(is),itc,qc,
      i              eldac,vxc,sex,sexcore,
      i              rsec,csec,zfac,jin,deltaw,alat,ef,
      d              ntq,nq,is,
@@ -561,29 +207,11 @@ c     o              w(ieqp),w(iwqp))
 
         deallocate( itxc,qxc,eldaxc,vxc ,itc, qc ,eldac,
      &                 sexcore ,rsec,csec,zfac,
-     &       itx, qx ,eldax,sex, 
-     &    itcomg, qcomg, eldacomg, rsecomg, csecomg)
+     &       itx, qx ,eldax,sex)
 
         if (laf) exit
         if (jin .gt. 0) jin = 999999
       end do
-      deallocate( omega)
-
 Cstop2rx 2013.08.09 kino      stop ' OK! hqpe '
       call rx0( ' OK! hqpe ')
-
       end
-
-      subroutine readxxx(ifil)
-      character*72 rchar
-      integer(4):: n=1000
-      do 10 i = 1,n
-        read(ifil,'(a72)')rchar
-        rchar=trim(adjustl(rchar))
-        if(rchar(1:5) .eq. '*****') return
-        if(rchar(1:5) .eq. '#####') return
-   10 continue
-Cstop2rx 2013.08.09 kino      stop 'readx: cannot find the string (gwsrc/wse.f/readxx)'
-      call rx( 'readx: cannot find the string (gwsrc/wse.f/readxx)')
-      end
-
