@@ -3025,26 +3025,28 @@ how to read atm.* file which is the initial atom file by lmfa.
 
 
 \section{Wannier function }
-xxxxxxxxxx under construction xxxxxxxxxxxxxxxxx\\
-(See also ecalj/fpgw/Wannier/README)...
-
 We can generate Wannier functions 
 (maximally localized Wannier Functions or similar) 
-by a script \exe{genMLWF}.
-Run examples in \io{ecalj/fpgw/MATERIALS/*MLWF}.
-To run the script, we need to set options in GWinput.
-For initial condition, we need
-\begin{verbatim}
-<MLWF>
-5          # gaussian, nwf
-1 1 1 1 1  # nphi(1:nwf)
-9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, #iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
-10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
-11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
-12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
-13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
-</MLWF>
-\end{verbatim}
+by a script \exe{genMLWF}. It automatically perform cRPA calculation
+sucessively. (If it is not necessary, insert 'exit' in \exe{genMLWF}, after it
+performs \verb#lmaxloc2#).
+
+Try to run examples in \verb#ecalj/MATERIALS/Sample_MLWF/#.
+Read \verb#README# in it.
+To run the script \exe{genMLWF}, we need to get \verb#GWinput#
+by editing \verb#GWinput.tmp#. (\verb#mkGWin_lmf2# contains default Wannier section).
+%For initial condition, we need
+%\begin{verbatim}
+%<MLWF>
+%5          # gaussian, nwf
+%1 1 1 1 1  # nphi(1:nwf)
+%9 14  2.0 1.0 phi,phidot and lamda(angs) of gaussian 1, %#iphi(j,i),iphidot(j,i),r0g(j,i),wphi(j,i)
+%10 15 2.0 1.0 phi,phidot and lamda(angs) of gaussian 2
+%11 16 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+%12 17 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+%13 18 2.0 1.0 phi,phidot and lamda(angs) of gaussian 3
+%</MLWF>
+%\end{verbatim}
 In addition, we have some settings (energy windows and so on).
 This is the example of the initial conditions for Cu case. 
 5 is the number of Wannier function. The most left one means $\phi$ index and the right one of it is $\dot\phi$ index. They are written in the {\bf @MNLA\_CPHI} file.
