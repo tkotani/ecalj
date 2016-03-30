@@ -1,9 +1,7 @@
 #!/bin/csh
 # --------------------------------
-# Get GWIN.tmp and QPNT.tmp (QPNTforSYML.tmp if(-e SYML))
+# Get GWinpt.tmp
 #
-#for tatara in kyushu-u. This is neglected in other cases.
-#if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
 set n = $0
 set nfpgw = ${n:h}
 echo $nfpgw
@@ -21,70 +19,16 @@ set n1 = 4
 set n2 = 4
 set n3 = 4
 
-#echo "== Type three integers n1 n2 n3 for Brillowin Zone meshing for GW! =="
-#echo "== For QSGW, this is reflected in n1n2n3 in GWinput.tmp You can "
-#echo "== change it by hand (not need to repeat this). =="
-#echo -n ' n1= '
-#set n1 = $<
-#echo -n ' n2= '
-#set n2 = $<
-#echo -n ' n3= '
-#set n3 = $<
-
 skipn:
 echo $n1 $n2 $n3 
 
-
-# This is bug fix for lmto
-#if( `grep -l GW ctrl.$argv[1]` != ctrl.$argv[1]) then
-#  echo "GW NKABC= GCUTB= GCUTX=" >>ctrl.$argv[1]
-#endif
-
-############################################
-# reserve these files.
-foreach head (GWinput GWIN_V2 GWIN0 QPNT)
-  if( -e $head) then
-    mv $head $head.bk12456
-  endif
-end
-
-################################################
-#$nfpgw/gwinit   
-#mv GWIN0.tmp   GWIN0
-
-
-cat <<EOF >GWIN0
-n1 n2 n3
- $n1 $n2 $n3
-cut
- 4.0 3.0
-alpha
- 1
-Number of bands
- 999 99999.0 
- 999 3.0 
-EOF
 $nfpgw/lmfa $argv[1] >llmfa
-echo 0 | $nfpgw/lmfgw $argv[1]     > llmfgw00
-echo 1 | $nfpgw/gwinit   #This changes the <QPNT> setting.
-mv GWIN_V2.tmp GWIN_V2
-mv QPNT.tmp    QPNT
-echo -100 |$nfpgw/qg4gw  $argv[1] > lqg4gw00 # 
-mv QPNT QPNT.chk
-rm GWIN_V2
-mv GWIN0 GWIN0.chk
-mv GWinput GWinput.tmp
+echo 0 | $nfpgw/lmfgw $argv[1]    > llmfgw00
+echo 1 $n1 $n2 $n3| $nfpgw/gwinit   #This changes the <QPNT> setting.
 
-
-############################################
-# reserved files are moved to original names.
-foreach head (GWinput GWIN0 GWIN_V2 QPNT)
-  if( -e $head.bk12456) then
-    mv $head.bk12456 $head 
-  endif
-end
-
-echo "== Default 'n1n2n3 4 4 4' in GWinput means k points mesh for the BZ integration =="
-echo "== Change it by hand (not need to repeat this). =="
+echo
+echo "-------------------------------------------------------------------"
+echo "  We use n1n2n3=" $n1 $n2 $n3 " in GWinput. This is k points mesh for GW mode"
+echo "  You can change it by hand (not need to repeat this). =="
 echo 'OK! GWinpt.tmp is generated!'
  

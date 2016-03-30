@@ -56,7 +56,7 @@
       integer(4)::nnn(3),ret
       integer(4):: verbose,q0pchoice,wgtq0p    !,normcheck !version,
       logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
-      integer(4):: iq0pinxxx ,ifile_handle
+      integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
@@ -69,11 +69,12 @@
       else
         call rx( 'Not allowed iq0pin')
       endif
-!! Generate templeta of GWinput for iq0pin=-100
-      if(iq0pin==-100) then
-         call conv2gwinput()
-         call rx0( ' OK! qg4gw mode=-100 to generate GWinput')
-      endif   
+c this is moved to gwinit.m.F march2016
+c!! Generate templeta of GWinput for iq0pin=-100
+c      if(iq0pin==-100) then
+c         call conv2gwinput()
+c         call rx0( ' OK! qg4gw mode=-100 to generate GWinput')
+c      endif   
       idummy=q0pchoice()
       write(6,"(' q0pchoice() = ',i4)")  q0pchoice()
 
