@@ -367,9 +367,8 @@ c       write(6,"(a100)")recordnla
       ifigwinv2 = ifile_handle()
       open(ifigwinv2,file='GWIN_V2.tmp')
 !! PRODUCT BASIS section
-      write(ifigwinv2,"(a)") "PRODUCT BASIS--------------------------------------------------"
-      write(ifigwinv2,"(a)") 
-     & " tolerance to remove products due to poor linear-independency"
+c      write(ifigwinv2,"(a)") "PRODUCT BASIS--------------------------------------------------"
+      write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
 c      tolopt =1d-2
 c      tolopt =1d-3
       write(ifigwinv2,"(a)") 
@@ -563,7 +562,6 @@ c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced 
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '
       write(ifi,"(a)")'<PRODUCT_BASIS> '
-      write(ifi,"(a)")" tolerance to remove products due to poor linear-independency"
       do
         read(ifigwinv2,"(a)",end=755) pppx
         write(ifi,"(a)")  trim(pppx)
