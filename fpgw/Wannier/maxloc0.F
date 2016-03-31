@@ -936,8 +936,10 @@ c     &       stop 'erange: outer enrgy window too low'
 c         if (eev(itf) .lt. emin)
 c     &       stop 'erange: outer enrgy window too high'
          neo = itf - iti + 1
-         if (neo .lt. nwf)
-     &      stop 'energy range: outer energy window error'
+         if (neo .lt. nwf) then
+           print *,'neo,itf,iti=',neo,itf,iti
+           stop 'energy range: outer energy window error'
+         endif
       elseif (iflg.eq.2) then
          nei = itf - iti + 1
          if (nei .gt. nwf) then
@@ -1025,7 +1027,7 @@ c-----------------------------------------------------------------------
       implicit real*8(a-h,o-z)
       integer(4) :: ikbidx(nbb,nqbz)
       complex(8) :: uum(iti:itf,iti:itf,nbb,nqbz)
-
+      complex(8),allocatable::uumread(:,:)
       if (is.eq.1) then
         ifuu      = iopen('UUU',0,0,0)
       else
@@ -1034,21 +1036,24 @@ c-----------------------------------------------------------------------
 
       read(ifuu)
       read(ifuu)nqbz2,nbb2,iti2,itf2
-      if (nqbz2 .ne. nqbz) stop 'readuu: nqbz error'
-      if (nbb2 .ne. nbb) stop 'readuu: nbb error'
-      if (iti2 .ne. iti) stop 'readuu: iti error'
-      if (itf2 .ne. itf) stop 'readuu: itf error'
+c      if (nqbz2 .ne. nqbz) stop 'readuu: nqbz error'
+c      if (nbb2 .ne. nbb) stop 'readuu: nbb error'
+c      if (iti2 .ne. iti) stop 'readuu: iti error'
+c      if (itf2 .ne. itf) stop 'readuu: itf error'
+      if (nqbz2 /= nqbz)call rx('readuu: nqbz2/= nqbz')
+      if (nbb2  /= nbb) call rx('readuu: nbb2 /= nbb')
+      if (iti2 > iti)   call rx('readuu: iti error')
+      if (itf2 < itf)   call rx('readuu: itf error')
+      allocate(uumread(iti2:itf2,iti2:itf2))
 
       do iqbz = 1,nqbz
       do ibb = 1,nbb
-
          read(ifuu)iflg
-
          if (iflg.eq.-10) then
             read(ifuu) iqbz2,ibb2,ikbidx2
-            read(ifuu)
-     &         ((uum(j1,j2,ibb,iqbz),j1=iti,itf),j2=iti,itf)
-
+            read(ifuu) ((uumread(j1,j2),j1=iti2,itf2),j2=iti2,itf2)
+c     &         ((uum(j1,j2,ibb,iqbz),j1=iti,itf),j2=iti,itf)
+            uum(iti:itf,iti:itf,ibb,iqbz)=uumread(iti:itf,iti:itf)
             if (iqbz2 .ne. iqbz) stop 'readuu: iqbz error'
             if (ibb2 .ne. ibb) stop 'readuu: ibb error'
             if (ikbidx2 .ne. ikbidx(ibb,iqbz))
@@ -1067,11 +1072,9 @@ c-----------------------------------------------------------------------
      &         dconjg(uum(j2,j1,ibbtmp,iqtmp))
             enddo
             enddo
-
          else
             stop 'readuu: iflg error'
          endif
-
       enddo
       enddo
 
@@ -1173,26 +1176,25 @@ c-----------------------------------------------------------------------
 
       implicit real*8(a-h,o-z)
       complex(8) :: psig(iti:itf,nwf,nqbz)
+      complex(8),allocatable:: psigread(:,:,:)
 
       if (is.eq.1) then
         ifpsig      = iopen('PSIGU',0,0,0)
       else
         ifpsig      = iopen('PSIGD',0,0,0)
       endif
-
       read(ifpsig)nqbz2,iti2,itf2,nwf2
-      if (nqbz2 .ne. nqbz) stop 'readpsig: nqbz error'
-      if (iti2 .ne. iti) stop 'readpsig: iti error'
-      if (itf2 .ne. itf) stop 'readpsig: itf error'
-      if (nwf2 .ne. nwf) stop 'readpsig: nwf error'
-
+      if (nqbz2 /= nqbz)call rx('readpsig: nqbz error')
+      if (nwf2  /= nwf) call rx('readpsig: nwf  error')
+      if (iti2 > iti)   call rx('readpsig: iti range error')
+      if (itf2 < itf)   call rx('readpsig: itf range error')
+      allocate(psigread(iti2:itf2,nwf2,nqbz2))
       do iqbz = 1,nqbz
          read(ifpsig)iqbz2
-         if (iqbz2 .ne. iqbz) stop 'readpsig: iqbz error'
-         read(ifpsig)
-     &         ((psig(j1,j2,iqbz),j1=iti,itf),j2=1,nwf)
+         if(iqbz2 .ne. iqbz) call rx('readpsig: iqbz error')
+         read(ifpsig)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)
       enddo
-
+      psig(iti:itf,:,:)=psigread(iti:itf,:,:)
       if (is.eq.1) then
         ifu = iclose('PSIGU')
       else
