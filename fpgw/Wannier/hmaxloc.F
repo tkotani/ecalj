@@ -536,14 +536,18 @@ c index for k and k+bb
       do iq = 1,nqbz
          qxx = qbz(:,iq)
          call readeval(qxx,is,eqt)
-         ini=1
-         do i=1,nband
+         if(leout) then
+           inii=1
+           do i=1,nband
 c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
-           if (eqt(i)>eomin) then
-             inii=i
-             exit
-           endif
-         enddo
+             if (eqt(i)>eomin) then
+               inii=i
+               exit
+             endif
+           enddo
+         else
+           inii=itout_i
+         endif
          eeee= (eqt(nwf+inii-1)-ef)*rydberg()
          write(6,"('elist: q iq is nwfi nwfe e(nwf)= ',3f9.4,i5,i2,2i5,f10.3)") qxx,iq,is,inii,nwf+inii-1, eeee
          if (enwfmax < eeee) enwfmax  = eeee
