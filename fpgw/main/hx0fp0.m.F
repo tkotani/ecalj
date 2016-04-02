@@ -555,9 +555,10 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(.not.ixc==11) then
         lqall=.true.
       endif
-      call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
+!!
+      if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
-      if(MPI__root) write(6,"(' wemax nw=',f13.4,i5)") wemax,nw
+      if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
       if(.not.imagomega) niw=1
 !! ... get eigenvector corresponds to exp(iqr) (q is almost zero).
@@ -582,7 +583,9 @@ c      if(tetra) then
      &    nbnb(nqbz,npm),nbnbtt(nqbz,npm), ekxx1(nband,nqbz), ekxx2(nband,nqbz)) !!! nband=nlmto 
 c        if(tmpwwk)  ifwwk = iopen('tmp.wwk',0,-1,0)
 c      endif ;  if(debug) write(6,*)' xxx1:'
+      if(debug) print *,'goto maxocc2 xxxx'
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
+      if(debug) print *,'end of maxocc2 xxxx'
       if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx      = noccxv + nctot
 

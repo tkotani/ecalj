@@ -751,30 +751,31 @@ c      if(regmesh) nqnum = nqnum + nqbz
 c      if(offmesh) nqnum = nqnum + nqbz
 
 
-!!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
-      nqnum = nqbz
-      allocate( qq(1:3,nqnum),irr(nqnum) )
-      qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
-      do iq0i=1,nq0i
-         do iq=1,nqbz
-            if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolq) goto 2112
-            call rangedq( matmul(ginv,q0i(:,iq0i)-qq(:,iq)), qx)
-            if(sum(abs(qx))< tolq) goto 2112
-         enddo
-         goto 2111
- 2112    continue
-         qq(:,iq) = q0i(:,iq0i) !replaced with equivalent q0i.
-      enddo
-      print *,' --- We find all q0i in qbz. Skip qreduce.'
-      goto 2001
- 2111 continue
+c$$$!!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
+c$$$      nqnum = nqbz
+c$$$      allocate( qq(1:3,nqnum),irr(nqnum) )
+c$$$      qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
+c$$$      do iq0i=1,nq0i
+c$$$         do iq=1,nqbz
+c$$$            if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolq) goto 2112
+c$$$            call rangedq( matmul(ginv,q0i(:,iq0i)-qq(:,iq)), qx)
+c$$$            if(sum(abs(qx))< tolq) goto 2112
+c$$$         enddo
+c$$$         goto 2111
+c$$$ 2112    continue
+c$$$         qq(:,iq) = q0i(:,iq0i) !replaced with equivalent q0i.
+c$$$      enddo
+c$$$      print *,' --- We find all q0i in qbz. Skip qreduce.'
+c$$$      goto 2001
+c$$$ 2111 continue
 
 
 !!  --- Start accumulate all required q points
-      deallocate(qq,irr)
+c$$$      deallocate(qq,irr)
       nqnum = nqbz  + nqbz*nq0i
       nqnum = nqnum + 1         !add Gamma
       nqnum = nqnum + nq0i      !add Gamma + q0i
+      if(offmesh.and.regmesh) nqnum=nqnum+nqbz !apr2016
       allocate( qq(1:3,nqnum),irr(nqnum) )
       ix = 0
       if(regmesh) then
