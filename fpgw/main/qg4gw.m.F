@@ -64,7 +64,7 @@
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
-      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4.or.iq0pin==101) then
+      if(iq0pin==1.or.iq0pin==2.or.iq0pin==4.or.iq0pin==101) then
         continue
       else
         call rx( 'Not allowed iq0pin')
@@ -100,11 +100,11 @@ c      endif
       enddo
       close(ifi)
 !! --- check write
-      write(6,*) ' --- primitive vectors ---'
       write(6,"(' unit(a.u.) alat  =',f13.6 )") alat
-      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
-      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
-      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
+      write(6,*) ' --- primitive vectors ==>see plat ---'
+c      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
+c      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
+c      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
       write(6,*) ' --- point group operations --- '
       do ig = 1,ngrp
         print *, ' ig=',ig
@@ -126,21 +126,21 @@ c      endif
       QpGcut_psi = QpGx2
       write(6,"(' --- k points for GW from GWinput =',3i3)") n1q,n2q,n3q
       write(6,"(' ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
-      ifiqg  = 401
-      ifiqgc = 402
+      ifiqg  = ifile_handle()
+      open(ifiqg ,file='QGpsi',form='unformatted')
+      ifiqgc = ifile_handle()
+      open(ifiqgc,file='QGcou',form='unformatted')
       iq0pinxxx=iq0pin
       if(iq0pin==4) then
          iq0pinxxx=2
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
-      open(ifiqg ,file='QGpsi',form='unformatted')
-      open(ifiqgc,file='QGcou',form='unformatted')
       call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1) call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2) call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
-      if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
+c      if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
       if(iq0pin ==4) call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
       end

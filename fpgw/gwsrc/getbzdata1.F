@@ -3,13 +3,13 @@ c In addition to these variables, this also write mtet file (search ifmtet) for 
 c------------------------------------------------------------
       implicit none  
 !! all are output by getbzdata1
-      integer(4):: nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r
-      real(8),allocatable:: qbz(:,:),wbz(:),qibz(:,:),wibz(:)
+      integer(4),protected:: nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r
+      real(8),allocatable,protected:: qbz(:,:),wbz(:),qibz(:,:),wibz(:)
      &   ,qbzw(:,:) ,qibz_r(:,:)
-      real(8):: qbasmc(3,3),dq_(3) !,dq_bzcase2(3)
-      integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
+      real(8),protected:: qbasmc(3,3),dq_(3) !,dq_bzcase2(3)
+      integer(4),allocatable,protected:: idtetf(:,:),ib1bz(:),idteti(:,:)
      &   ,irk(:,:),nstar(:),nstbz(:)
-      real(8),allocatable:: qbzm(:,:),qbzwm(:,:)
+      real(8),allocatable,protected:: qbzm(:,:),qbzwm(:,:)
 
 c------------------------------------------------------------
       contains

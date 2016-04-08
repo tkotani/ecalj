@@ -444,51 +444,51 @@ c------------------------------------------------
          newoffsetG=.false. !for old oldset Gamma case
       endif
 
-!! band case --- iq0pin == 3 ==>read syml file 
-!!     nqq(is),qq1(1:3,is),qq2(1:3,is),is =1,nline
-      if(iq0pin == 3) then
-         qreduce0=.false.
-         nlinemax = 50
-         allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
-         ifsyml = 3001
-         open(ifsyml,file='SYML')
-         nline = 0
-         do
-            nline = nline + 1
-            read(ifsyml,*,err=601,end=601) 
-     &       nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
-         enddo
- 601     continue
-         close(ifsyml)
-         nline = nline - 1
-         write(6,"(/' Symmetry lines:'/' points',12x,'start',22x,'end')")
-         do is=1,nline
-            write(6,"(i6,2x,3f8.4,2x,3f8.4)") 
-     &      nqq(is),(qq1(i,is),i=1,3),(qq2(i,is),i=1,3)
-         enddo
-         nqnumx = sum(nqq(1:nline))
-         allocate( qq(1:3,nqnumx),irr(nqnumx) )
-         iqq = 0
-         do is = 1,nline
-            nk = nqq(is)
-            do iq=1,nk
-               xx = 0d0
-               if(nk>1) xx=(iq-1d0)/(nk-1d0)
-               qqx = xx*qq2(1:3,is)+(1d0-xx)*qq1(1:3,is)
-               iqq = iqq + 1
-               qq(1:3,iqq) = qqx
-               write (6,"('  q=',3f7.3)") qq(1:3,iqq)
-            enddo
-         enddo
-         nqnum = iqq
-         write (6,"(' Total number of q-points:',i5/)") nqnum
-         call dinv33x (plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
-         goto 2001
-      endif
+c$$$!! band case --- iq0pin == 3 ==>read syml file 
+c$$$!!     nqq(is),qq1(1:3,is),qq2(1:3,is),is =1,nline
+c$$$      if(iq0pin == 3) then
+c$$$         qreduce0=.false.
+c$$$         nlinemax = 50
+c$$$         allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
+c$$$         ifsyml = 3001
+c$$$         open(ifsyml,file='SYML')
+c$$$         nline = 0
+c$$$         do
+c$$$            nline = nline + 1
+c$$$            read(ifsyml,*,err=601,end=601) 
+c$$$     &       nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
+c$$$         enddo
+c$$$ 601     continue
+c$$$         close(ifsyml)
+c$$$         nline = nline - 1
+c$$$         write(6,"(/' Symmetry lines:'/' points',12x,'start',22x,'end')")
+c$$$         do is=1,nline
+c$$$            write(6,"(i6,2x,3f8.4,2x,3f8.4)") 
+c$$$     &      nqq(is),(qq1(i,is),i=1,3),(qq2(i,is),i=1,3)
+c$$$         enddo
+c$$$         nqnumx = sum(nqq(1:nline))
+c$$$         allocate( qq(1:3,nqnumx),irr(nqnumx) )
+c$$$         iqq = 0
+c$$$         do is = 1,nline
+c$$$            nk = nqq(is)
+c$$$            do iq=1,nk
+c$$$               xx = 0d0
+c$$$               if(nk>1) xx=(iq-1d0)/(nk-1d0)
+c$$$               qqx = xx*qq2(1:3,is)+(1d0-xx)*qq1(1:3,is)
+c$$$               iqq = iqq + 1
+c$$$               qq(1:3,iqq) = qqx
+c$$$               write (6,"('  q=',3f7.3)") qq(1:3,iqq)
+c$$$            enddo
+c$$$         enddo
+c$$$         nqnum = iqq
+c$$$         write (6,"(' Total number of q-points:',i5/)") nqnum
+c$$$         call dinv33x (plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
+c$$$         goto 2001
+c$$$      endif
 
 !! --- Ordinary case --- iq0pin == 1 or 2
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      call dinv33x (plat,qlat)  !it was dinv33(plat,1,qlat) by Ferdi
+      call dinv33x (plat,qlat)  ! \delta_ij =sum(plat(:,i)*qlat(:,j))
       call getkeyvalue("GWinput","delta",aaa)
       if(aaa<0d0) then
          print * ,'READ GWIN_V2 --->: tetrahedron method for x0'
@@ -498,34 +498,18 @@ c------------------------------------------------
          tetraf=.false.
       endif
       tetrai = .true.           !used in heftet tetra_hsfp0()
-!! ---  See indxk in index.f \in genbz2 \in genallc_v2
-      call dinv33(qlat,0,ginv,det)
+      ginv = transpose(plat)
       write(6,*)'=== plat ==='
-      write(6,"(3d23.15)") plat
+      write(6,"(3f14.7)") plat
       write(6,*)'=== qlat ==='
-      write(6,"(3d23.15)") qlat
-      write(6,*)'=== ginv==='
-      write(6,"(3f9.4)") ginv
-      do i=1,3
-         do j=1,3
-            aaij=sum(qlat(:,i)*plat(:,j))
-            bbij=sum(qlat(:,i)*ginv(j,:))
-            if(verbose()>=40) print *,' i j aaij bbij', i,j,aaij,bbij
-            if(i==j) then
-               if(abs(aaij-1d0) >1d-10) call rx( 'bug 1 qg4gw')
-               if(abs(bbij-1d0) >1d-10) call rx( 'bug 2 qg4gw')
-            else
-               if(abs(aaij) >1d-10) call rx( 'bug 3 qg4gw')
-               if(abs(bbij) >1d-10) call rx( 'bug 4 qg4gw')
-            endif
-         enddo
-      enddo
+      write(6,"(3f14.7)") qlat
+!!
       mtet=(/1,1,1/)
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       if(sum(abs(mtet))<3) then
          print *, ' we use regular meshing for tetrahedron scheme '
       endif
-!! getbzdata1 allocate data in m_get_bzdata1, use at the begining in this routin.
+!! getbzdata1 allocate data in m_get_bzdata1, Output are in use,only at the begining.
       print *
       print *,'goto getbzdata1...'
       call cputid (0)
@@ -593,7 +577,8 @@ c------------------------------------------------
       print *
       alpm = minval(alpv)
       if(alpm<=0d0) call rx( 'alpha_offG or alpha_offG_vec <=0')
-!! === Large if start. ===
+
+!! Q0P setting (generate or read)
       if(iq0pin==1) then   ! --- get q0x (offsetted q=0 point) ----------------------
 c  QpGcut = 15d0/alpm  !a.u. !exp( -  alp * QpGcut) !alp * QpGcut = 10
 c  QpGcut = sqrt(25d0/alpm) !a.u. !exp( -  alp * QpGcut**2) !alp * QpGcut**2 = 22
@@ -730,7 +715,8 @@ c  QpGcut = sqrt(300d0/alp)
          nq0itrue=nq0i !nov2015
       endif
 
-!! Four kinds of mesh points. Q0P means offset Gamma (slightly different from Gamma).
+!! Four kinds of mesh points. 
+!! NOTE: Q0P means offset Gamma (slightly different from Gamma).
 !! Which we need?
 !! 1. regular 
 !! 2. offregular (not including Gamma)
@@ -746,11 +732,9 @@ c  QpGcut = sqrt(300d0/alp)
       offmeshg = .not.qbzreg()  !Gamma mesh based on off-regular mesh
       print *,' regmesh offmeshg=', regmesh,regmeshg !regular,     regular+shifted
       print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
-!!
+
 c      if(regmesh) nqnum = nqnum + nqbz
 c      if(offmesh) nqnum = nqnum + nqbz
-
-
 c$$$!!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
 c$$$      nqnum = nqbz
 c$$$      allocate( qq(1:3,nqnum),irr(nqnum) )
@@ -770,8 +754,8 @@ c$$$      goto 2001
 c$$$ 2111 continue
 
 
-!!  --- Start accumulate all required q points
-c$$$      deallocate(qq,irr)
+!! ===  Accumulate all required q points ===
+!!  We add all points, and then equivalent points are thrown away
       nqnum = nqbz  + nqbz*nq0i
       nqnum = nqnum + 1         !add Gamma
       nqnum = nqnum + nq0i      !add Gamma + q0i
@@ -791,7 +775,7 @@ c$$$      deallocate(qq,irr)
       endif
       nnn   =  ix               !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*n3q
       print *,' nnn=',nnn       !This is the number to calcualte Vxc
-!!  Shifted mesh
+!!  Q0P-shifted mesh
       dq__=0d0
       if(regmeshg) then
          do iq00 = 1, nq0i
@@ -817,9 +801,7 @@ c$$$      deallocate(qq,irr)
       enddo
       ix=ix+1
       qq(1:3,ix)=0d0
-
-
-!! (not so much used) Get qqm; q point for eigenvalues. 
+!! this section is not used so much now.
 !! Saved to Qmtet. Not so much used now... We need check when we use this...
       if(sum(abs(mtet))/=3) then
          nqnumm= nqbzm * (nq0i+1)
@@ -844,8 +826,6 @@ c$$$      deallocate(qq,irr)
          close(ifiqmtet)
          deallocate(qqm)
       endif
-
-
 !! Remove equivalent q point for translational symmetry 
       if( qreduce0 ) then
          print *,'goto qqsave nq0i nqnum',nq0i,nqnum
@@ -865,9 +845,8 @@ c$$$      deallocate(qq,irr)
          qq(:,1:imx)=qsave(:,1:imx)
          deallocate(qsave)
       endif
-
 !! ------------------------------------------
- 2001 continue
+c 2001 continue
 !! ------------------------------------------
 !! Here we get all requied q points. We do reduce them by space group symmetry.
       if(allocated(wt0)) deallocate(wt0)
@@ -907,7 +886,8 @@ c$$$      deallocate(qq,irr)
          if(verbose()>150)write(6,'(3f12.5,3x,2i4)') q ,ngpn(iq) !,ngcn(iq,iq00)
          if(verbose()>150)write(6,'(3f12.5,3x,2i4)') q ,ngcn(iq) !,ngcn(iq,iq00)
       enddo
-!! ------- Write q+G vectors -----------
+
+!! === Write q+G vectors ===
       ngpmx = maxval(ngpn)
       ngcmx = maxval(ngcn)
       write(ifiqg ) nqnum,ngpmx,QpGcut_psi,nqbz,nqi,imx,nqibz
