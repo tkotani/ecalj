@@ -736,11 +736,22 @@ c            print *,'readout readqkm init'
             else
               wpw_kq=0d0
             endif  
-c            print *,'readout readqkm=',wpw_k,wpw_kq
-c            write(6,"('crpaccc:',4i5,3f9.5)")
-c     &           k,jpm,n1b(ibib,k,jpm),n2b(ibib,k,jpm),wpw_k,wpw_kq,(1d0-wpw_k*wpw_kq)
+c            write(6,"('rrrrrr: n1b wpw_k n2b wpw_kq fac irange=',i5,x,f9.4, i5,x,f9.4, x,f9.4, 2i5)")
+c     &           n1b(ibib,k,jpm),wpw_k, n2b(ibib,k,jpm),wpw_kq, (1d0-wpw_k*wpw_kq),
+c     &           ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
            endif
-          
+     
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$ For SrVO3 test
+c$$$          if(crpa) then
+c$$$             wpw_k=0d0
+c$$$             if(15<n1b(ibib,k,jpm).and.n1b(ibib,k,jpm)<19) wpw_k=1d0
+c$$$             wpw_kq=0d0
+c$$$             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
+c$$$          endif
+c$$$ccccccccccccccccccccccccccccccccccc
+
+
 ccccccccccccccccccccccccccccccc
 !kino 2014-08-13  !$OMP end do
 c$$$  endif

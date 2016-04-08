@@ -1989,6 +1989,11 @@ c             if(iq<=nqibz) read(ifrcwx, rec=((iq-iqxini)*(nend-nini+1)+ iw-nini
 c              if( iq==1 ) then
               if(ircw==1) zw(1,1) = w0(iw)
               if(ircw==2) zw(1,1) = w0i(iw)
+
+c              if(ircw==1) then
+c                 write(6,"('ffffrrr:', f13.6,2x,f13.6,x,f13.6)") hartree*freq_r(iw),w0(iw)
+c              endif
+
 c$$$cmmm3 cccccccccccccccccccccccccccccccccccccccccc
 c$$$          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
 c$$$            write(6,*)'ddd skip readin ifisk ddddddddd'

@@ -536,18 +536,14 @@ c index for k and k+bb
       do iq = 1,nqbz
          qxx = qbz(:,iq)
          call readeval(qxx,is,eqt)
-         if(leout) then
-           inii=1
-           do i=1,nband
+         ini=1
+         do i=1,nband
 c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
-             if (eqt(i)>eomin) then
-               inii=i
-               exit
-             endif
-           enddo
-         else
-           inii=itout_i
-         endif
+           if (eqt(i)>eomin) then
+             inii=i
+             exit
+           endif
+         enddo
          eeee= (eqt(nwf+inii-1)-ef)*rydberg()
          write(6,"('elist: q iq is nwfi nwfe e(nwf)= ',3f9.4,i5,i2,2i5,f10.3)") qxx,iq,is,inii,nwf+inii-1, eeee
          if (enwfmax < eeee) enwfmax  = eeee
@@ -620,6 +616,12 @@ c energy window
      o             iko_ix,iko_fx,nox,
      o             leout,lein)
 !      call chk_ewindow(ifbb,is,nspin,nqbz,nbb,iko_ix,iko_fx)
+
+cccccccccccccccccccccc
+c      do iq=1,nqbz
+c      write(6,"('iiii: iq and internal window region=',3i5)")iq,iki_i(iq),iki_f(iq)
+c      enddo
+cccccccccccccccccccccc
 
 c read uu-matrix
       allocate (uumat(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz))
