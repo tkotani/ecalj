@@ -87,7 +87,7 @@ RANLIB := ranlib
 ################################################
 # program and libraries (choose one of sections; normal, MPI, or MPIK)
 ################################################
-#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  rdcmd
+#programs = lmf lmfa lmfgw lmdos lmchk lmf2gw  
 #SUBS   := libsubs.a
 #FP     := libfp.a
 #SLATSM := slatsm.a
