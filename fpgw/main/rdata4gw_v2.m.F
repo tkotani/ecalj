@@ -105,7 +105,7 @@ c     &  ,iantiferro               !for check
      &     ,mx,nnc,lmxax,ic1,irad1,irad2,l1,n1,l2,n2,nn,ierr,i1,i2,nnv,ikp
      &     ,iband,ib,m,nm,ikpisp,ngp,ngc,ifhvccfp,ngrp,ig,ifiqibz
      &     ,nqibz,iqibz,ifnqibz,iqi,iq,ifigwin  !,ippovl,ngc2mx,ngc2
-     &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,iopen,  iqi2
+     &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,  iqi2 !,iopen
       real(8):: qpgcut_psi,qpgcut_cou,ovvxx,ovvx,qpgcut_psi2,dummy
       integer(4),parameter:: nspx=2
       real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3),det
@@ -222,7 +222,7 @@ c     reduced weight
       real(8),allocatable:: www(:,:,:)
 c
       logical(8):: ppovl0l=.true.
-      integer(4):: ippovl0=2301
+      integer:: ippovl0,ifile_handle,iq0p
 
       logical::  ngczero=.false.,qreduce
       integer(4):: nqnumt,imx     ,ix1     ,idum1,idum2,idum3, idum4 !ingczero
@@ -258,13 +258,14 @@ c      logical :: ippovlc_test
       integer:: nggg,ngcgp !q independent 
 
 c---------------------------------------------------
-      pi         = 4d0*datan(1d0)
+      pi = 4d0*datan(1d0)
       if(verbose()>50 ) debug=.true.
 c      if(zvztest()==1) then
 c        ippovlc_test = .true.
 c      endif
 c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
-      if(ppovl0l)        open (ippovl0,form='unformatted',file='PPOVL0')
+      ippovl0=ifile_handle()
+      if(ppovl0l) open (ippovl0,form='unformatted',file='PPOVL0')
       call readin6(ix1,idum2,idum3,idum4) ! ingczero)
       call headver('rdata4gw_v2',ix1)
       mmm=normcheck()
@@ -282,9 +283,9 @@ c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
 
 !! --- Readin QGpsi and QGcou ---
-      ifiqg  = 101
-      ifiqgc = 102
+      ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
+      ifiqgc = ifile_handle()
       open(ifiqgc,file='QGcou',form='unformatted')
       read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
       read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
@@ -305,14 +306,15 @@ c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
 
 !! --- Readin Q0P
       print *, 'reading QOP'
-      open (103,file='Q0P')
-      read (103,*) nq0i,iq0pin
+      iq0p=ifile_handle()
+      open (iq0p,file='Q0P')
+      read (iq0p,*) nq0i,iq0pin
       allocate( wt(nq0i),q0i(1:3,nq0i) )
-      read (103,*) ( wt(i),q0i(1:3,i),i=1,nq0i)
-      close(103)
+      read (iq0p,*) ( wt(i),q0i(1:3,i),i=1,nq0i)
+      close(iq0p)
 
 !! --- Readin DATA4GW_V2
-      ifi = 104
+      ifi = 104 !ifile_handle()
       open(ifi,file='DATA4GW_V2',form='unformatted')
       call gwinput0_v2(ifi,
      &     nsp,   nbas,   nclass, nrmx,   ncoremx,
@@ -453,7 +455,9 @@ c     write(6,*) ' smooth mixed basis=',smbasis()
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
       nrad = 0
-      ifnlax = iopen('@MNLA_core',1,-1,0)
+      ifnlax=ifile_handle()
+      open(ifnlax,file='@MNLA_core')
+c      ifnlax = iopen('@MNLA_core',1,-1,0)
       write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
       write(ifnlax,'(" ------- core ------------")')
       inum = 0
@@ -521,7 +525,9 @@ Cstop2rx 2013.08.09 kino          stop ' rdata xxx1: ncore(ic)/=icore'
         enddo
       enddo
 !! ... hbe.d
-      ifhbed = iopen('hbe.d',1,-1,0)
+c      ifhbed = iopen('hbe.d',1,-1,0)
+      ifhbed=ifile_handle()
+      open(ifhbed,file='hbe.d')
       nqbz  = n1q*n2q*n3q
       ndble = 8
 c     nword = 4
@@ -534,24 +540,44 @@ c     nword = 4
       close(ifhbed)
 
 !!--- save eigenvalues to EValue, qtti, nqtti also ---
-      ifev= iopen('EValue',0,-1,0)    !feb2012takao
+c      ifev= iopen('EValue',0,-1,0)    !feb2012takao
+      ifev= ifile_handle()
+      open(ifev,file='EValue',form='unformatted')
       write(ifev) nband, nqtti, nsp
       write(ifev) qtti(1:3,1:nqtti) !qtti
       write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
       close(ifev)
 !!
-      ifec   = iopen('ECORE', 1,-1,0) ! Core eigenvalues
-      ifphi  = iopen('PHIVC', 0,-1,0) ! PHIV+PHIC  valence augmentation radial function and core
-      ife0   = iopen('eig0.chk', 1,-1,0) ! chech write for eigenfunction at gamma.
-      ifcphi = iopen('CPHI', 0,-1,mrecb) !  the augmentation wave.
-      ifgeig = iopen('GEIG', 0,-1,mrecg) ! Coefficienets of eigenfunction for q+G wave.
-      ifv    = iopen('VXCFP',0,-1,0)
-      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
+c      ifec   = iopen('ECORE', 1,-1,0) ! Core eigenvalues
+c      ifphi  = iopen('PHIVC', 0,-1,0) ! PHIV+PHIC  valence augmentation radial function and core
+c      ife0   = iopen('eig0.chk', 1,-1,0) ! chech write for eigenfunction at gamma.
+c      ifcphi = iopen('CPHI', 0,-1,mrecb) !  the augmentation wave.
+c      ifgeig = iopen('GEIG', 0,-1,mrecg) ! Coefficienets of eigenfunction for q+G wave.
+c      ifv    = iopen('VXCFP',0,-1,0)
+      ifec=ifile_handle()
+      open(ifec, file='ECORE')
+      ifphi=ifile_handle()
+      open(ifphi,file='PHIVC',form='unformatted')
+      ife0=ifile_handle()
+      open(ife0,file='eig0.chk')
+      ifcphi =ifile_handle()
+      open(ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+      ifgeig=ifile_handle()
+      if(mrecg>0) then
+        open(ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+      else
+        open(ifgeig,file='GEIG',form='unformatted') !this is dummy
+      endif
+      ifv=ifile_handle()
+      open(ifv,file='VXCFP',form='unformatted')
 
+      write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
 !! --- augmentation wave numbering--- idxnlmc in index.f order
 !     m,n,l,ic order. On the other hand, fplmto gives m l n ic  for valence!
 !     This ordering is important for psi2b_v2 and psibc_v2 in x0kf_v2 and sxcf_v2, and so on.
-      ifoc = iopen('@MNLA_CPHI',1,-1,0)
+c      ifoc = iopen('@MNLA_CPHI',1,-1,0)
+      ifoc=ifile_handle()
+      open(ifoc,file='@MNLA_CPHI')
       write(ifoc,"('    m    n    l ibas')")
       allocate(nvmax(0:lmxamx,nclass))
       nvmax=0
@@ -1107,7 +1133,9 @@ c     open (iffg(iff),file='geigB_'//charnum3(iff),form='unformatted') !
 c     enddo
 c     endif
 
-      ifnband = iopen('NBANDikp',1,-1,0)
+c      ifnband = iopen('NBANDikp',1,-1,0)
+      ifnband=ifile_handle()
+      open(ifnband,file='NBANDikp')
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
 
@@ -1522,7 +1550,9 @@ c$$$        enddo
 c$$$      endif
 
 !! --- required Input for hvccfp0 ---
-      ifhvccfp  = iopen('HVCCIN',0,-1,0)
+c      ifhvccfp  = iopen('HVCCIN',0,-1,0)
+      ifhvccfp=ifile_handle()
+      open(ifhvccfp,file='HVCCIN',form='unformatted')
       write(ifhvccfp) alat, plat,qlat,nqtti, nbas,nband
       write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
       ifi = 6661

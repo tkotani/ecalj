@@ -434,7 +434,7 @@ c     logical :: readgwinput
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
       real(8):: dq_(3),dq__(3)
-      integer:: nq0itrue
+      integer:: nq0itrue, ifile_handle
 c------------------------------------------------
       print *,' mkqg2: '
       qreduce0 = qreduce()
@@ -518,7 +518,7 @@ c$$$      endif
       dq_ = -matmul(qlat(1:3,1:3),(/.5d0/n1q,.5d0/n2q,.5d0/n3q/) )
       write(6,'(" dq_=",3f9.4)')dq_
 !! Write BZDATA
-      ifbz = 6661
+      ifbz = ifile_handle()
       open (ifbz, file='BZDATA')
       write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nqibz_r
       write(ifbz,"(10i10)")  n1q,n2q,n3q
@@ -533,7 +533,7 @@ c$$$      endif
       close(ifbz)
 !! Write QIBZ
       write(6,*)' qibz are written in QIBZ file...'
-      ifiqibz = 6661
+      ifiqibz = ifile_handle()
       open (ifiqibz, file='QIBZ') !write q-points in IBZ.
       write(ifiqibz,"(i10)") nqibz
       do iqibz = 1,nqibz
@@ -541,7 +541,7 @@ c$$$      endif
       enddo
       close(ifiqibz)
 !! Write QBZ
-      ifiqbz = 6661
+      ifiqbz = ifile_handle()
       open (ifiqbz, file='QBZ') !write q-points in IBZ.
       write(ifiqbz,"(i10)") nqbz
       do iqbz = 1,nqbz
@@ -549,7 +549,7 @@ c$$$      endif
       enddo
       close(ifiqbz)
 !!  Write to file KPNTin1BZ
-      ifkpt = 335
+      ifkpt = ifile_handle()
       open(ifkpt,file='KPTin1BZ.mkqg.chk')
       write(ifkpt,*)"  qbz --> shoten(qbz)"
       do      i1 = 1,nqbz
