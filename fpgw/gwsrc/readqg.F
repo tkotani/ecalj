@@ -1,3 +1,33 @@
+      module m_readq0p
+      real(8),allocatable,protected::  wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
+      integer,protected:: nq0i
+      contains
+      subroutine readq0p()
+      implicit none
+      integer:: neps,ifiq0p,ifile_handle,i,nq0ix
+      logical:: debug=.false.
+      if(debug) write(6,*) 'reading QOP'
+      ifiq0p=ifile_handle()
+      open (ifiq0p,file='Q0P')
+      read (ifiq0p,"(i5)") nq0i
+      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+      do i=1,nq0i
+         read (ifiq0p, * ) wqt(i),q0i(1:3,i)
+      enddo
+      nq0ix = nq0i
+      do i=1,nq0i
+         if(wqt(i)==0d0 ) then
+            nq0ix = i-1
+            exit
+         endif
+      enddo
+      neps=nq0i-nq0ix ! number of zero weight q0p which are used for ixc=2 or 3 mode.
+      write(6,*) ' num of zero weight q0p=',neps
+      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+      close(ifiq0p)
+      end subroutine
+      end module
+
       subroutine readppovl0(q,ngc,ppovl)
       implicit none
       real(8), intent(in) :: q(3)

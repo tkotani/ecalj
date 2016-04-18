@@ -11,6 +11,8 @@
       end
 
       subroutine rangedq_xxx(qin, qout)
+! this removes integer part. qout is just the fractional part of qin.
+! probably we will replace this with nint.
       real(8):: qin,qout,qx,tolq2=1d-4
       qx    = qin + dble(int(abs(qin))) + 1d0 + tolq2
       qout  = qx - idint(qx)

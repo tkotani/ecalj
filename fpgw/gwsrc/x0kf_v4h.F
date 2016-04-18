@@ -220,6 +220,7 @@ c$$$        iatomp(iatom) = iatom
 c$$$        if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
 c$$$      enddo
 c      nctot      = noccx - noccxv
+      print *, 'qqqqqqqqqqq',qbas
       call dinv33(qbas,0,qbasinv,det)
 c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )
@@ -631,6 +632,13 @@ c----------------------------
             itp =  n2b(ibib,k,jpm) - itps + 1 - nband !core
           endif
 
+
+ccccccccccccccccccccccccc
+c          if(itp/=1) cycle
+c          if(k/=1) cycle
+cccccccccccccccccccccccccc
+
+
           if(jpm==1) then
             if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
               if(iww1) then
@@ -736,20 +744,19 @@ c            print *,'readout readqkm init'
             else
               wpw_kq=0d0
             endif  
-c            write(6,"('rrrrrr: n1b wpw_k n2b wpw_kq fac irange=',i5,x,f9.4, i5,x,f9.4, x,f9.4, 2i5)")
-c     &           n1b(ibib,k,jpm),wpw_k, n2b(ibib,k,jpm),wpw_kq, (1d0-wpw_k*wpw_kq),
-c     &           ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-           endif
-     
-c$$$cccccccccccccccccccccccccccccccccc
-c$$$ For SrVO3 test
-c$$$          if(crpa) then
-c$$$             wpw_k=0d0
-c$$$             if(15<n1b(ibib,k,jpm).and.n1b(ibib,k,jpm)<19) wpw_k=1d0
-c$$$             wpw_kq=0d0
-c$$$             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
-c$$$          endif
-c$$$ccccccccccccccccccccccccccccccccccc
+            write(6,"('rrrrrr: n1b wpw_k n2b wpw_kq fac irange=',i5,x,f9.4, i5,x,f9.4, x,f9.4, 2i5)") 
+     &           n1b(ibib,k,jpm),wpw_k, n2b(ibib,k,jpm),wpw_kq, (1d0-wpw_k*wpw_kq),
+     &           ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
+          endif
+
+c$$$ccccccccccccccccccccccccccccccccccccc
+          if(crpa) then
+             wpw_k=0d0
+             if(15<n1b(ibib,k,jpm).and.n1b(ibib,k,jpm)<19) wpw_k=1d0
+             wpw_kq=0d0
+             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
+          endif
+c$$$cccccccccccccccccccccccccccccccccccc
 
 
 ccccccccccccccccccccccccccccccc

@@ -381,6 +381,7 @@ maxloc = ./
  $(gwsrc)mopen.o \
  $(gwsrc)checksymlon.o \
  $(gwsrc)mkqg.o \
+ $(gwsrc)m_q0p.o \
  $(gwsrc)q0irre.o \
  $(gwsrc)basnfp.o \
  $(gwsrc)excore.o \

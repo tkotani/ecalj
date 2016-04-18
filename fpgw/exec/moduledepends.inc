@@ -71,6 +71,7 @@
 ../tote/hecor.o:../gwsrc/rwbzdata.o
 ../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
 ../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
+../main/hx0fp0.sc.m.o:../gwsrc/readqg.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
 ../gwsrc/readeigen.o:../gwsrc/readqg.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/readeigen.o
@@ -160,7 +161,6 @@
 ../main/hx0fp0.m.o:../gwsrc/rdpp.o
 ../main/hx0fp0.sc.m.o:../gwsrc/rdpp.o
 ../gwsrc/basnfp.o:../gwsrc/keyvalue.o
-../gwsrc/conv2gwinput.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
 ../gwsrc/extension.o:../gwsrc/keyvalue.o
@@ -174,6 +174,8 @@
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
+../gwsrc/m_q0p.o:../gwsrc/keyvalue.o
+../gwsrc/mkqg.o:../gwsrc/m_q0p.o
 ../gwsrc/m_zmel.o:../gwsrc/keyvalue.o
 ../gwsrc/getchknw.o:../gwsrc/m_zmel.o
 ../gwsrc/getwemax.o:../gwsrc/m_zmel.o
@@ -192,7 +194,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_zmel.o
-../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/mkqg.o:../gwsrc/keyvalue.o
 ../gwsrc/rgwinf_mod.o:../gwsrc/keyvalue.o
 ../main/hbasfp0.m.o:../gwsrc/rgwinf_mod.o
@@ -229,11 +230,13 @@
 ../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
 ../gwsrc/tetwt5.o:../gwsrc/keyvalue.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/keyvalue.o
+../main/gwinit.m.o:../gwsrc/keyvalue.o
 ../main/hbasfp0.m.o:../gwsrc/keyvalue.o
 ../main/hef.m.o:../gwsrc/keyvalue.o
 ../main/hqpe.m.o:../gwsrc/keyvalue.o
 ../main/hqpe.sc.m.o:../gwsrc/keyvalue.o
 ../main/hqpe.sc.m.o:../gwsrc/keyvalue.o
+../main/hqpe_qsgw.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.m.o:../gwsrc/keyvalue.o
 ../main/hsfp0.sc.m.o:../gwsrc/keyvalue.o
 ../main/hvccfp0.m.o:../gwsrc/keyvalue.o

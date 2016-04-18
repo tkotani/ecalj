@@ -219,7 +219,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       sss(2,:)=(/0d0,1d0,0d0/)
       sss(3,:)=(/0d0,0d0,1d0/)
       sumcheck1= sum(abs(symgg(:,:,1)-sss))
-Cstop2rx 2013.08.09 kino      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is not E'
       if(sumcheck1>1d-8) call rx( 'eibzgen: symgg(:,:,1) is not E')
 
 !!=== Get key and nkey for each ix. (similar with those in readqg,readeigen) ===
@@ -227,6 +226,9 @@ Cstop2rx 2013.08.09 kino      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is 
       key(:,0)=0 !dummy
       do ibz=1,nqbz
         call rangedq(matmul(ginv,qbz(:,ibz)), qbzl(1,ibz))
+cccccccccccccccccc
+c            write(6,"('ibz=',i5,3f8.4)")ibz,qbzl(:,ibz)
+cccccccccccccccccc
       enddo
       do ix =1,3
          call sortea(qbzl(ix,:),ieord,nqbz,isig)
@@ -239,7 +241,6 @@ Cstop2rx 2013.08.09 kino      if(sumcheck1>1d-8) stop 'eibzgen: symgg(:,:,1) is 
 c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
-Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
                call rx( 'iqindx: bug not sorted well')
             endif
          enddo
@@ -397,7 +398,7 @@ c        call cputid(0)
              inotime=.false.
              write(6,*)' mptauo: we need time reversal'
           enddo
-          call rx( 'eibzgen: bug. nwgt sum is not nqbz')
+ccccc          call rx( 'eibzgen: bug. nwgt sum is not nqbz')
  1202     continue
 
 C cccccccccccccccccccccccccccccccccc

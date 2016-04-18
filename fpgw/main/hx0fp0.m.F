@@ -34,7 +34,7 @@
       use m_freq,only: getfreq, !NOTE: call getfreq generate following data.
      & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !, frhis0,nwhis0 !output of getfreq
 !! tetwt
-      use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
+      use m_tetwt,only: tetdeallocate,gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
@@ -84,7 +84,7 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       complex(8) :: fff,img=(0d0,1d0)
       complex(8),allocatable :: wwk(:,:,:)
       integer,allocatable :: 
-     &         nbnbtt(:,:),noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),
+     &         noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)!,ekxx3(:,:) !,qbzw(:,: )
       real(8) ::qbzx(3),anfvec(3)
       logical :: debug
@@ -439,8 +439,8 @@ c        tetra = .false. ! switch for tetrahedron method for dielectric function
       ifhbe  = iopen('hbe.d',1,0,0)
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !warn nband is in m_zmel
       is = iclose('hbe.d')
-      if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
-      if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
+      if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
+c      if(nqbz /=nqbzt ) call rx('hx0fp0: nqbz /=nqbzt  in hbe.d')
 
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
@@ -555,7 +555,6 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(.not.ixc==11) then
         lqall=.true.
       endif
-!!
       if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
       if(MPI__root) write(6,"(' nw=',i5)") nw
@@ -579,13 +578,11 @@ c          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
 !! tetra init
 c      call getkeyvalue("GWinput","TmpWWK",tmpwwk,default=.false.)
 c      if(tetra) then
-        allocate( !wgt(nband+nctot,nband,nqbz), !noccxvv(nw+niw),
-     &    nbnb(nqbz,npm),nbnbtt(nqbz,npm), ekxx1(nband,nqbz), ekxx2(nband,nqbz)) !!! nband=nlmto 
+c        allocate( !wgt(nband+nctot,nband,nqbz), !noccxvv(nw+niw),
+c     &    nbnbtt(nqbz,npm), ekxx1(nband,nqbz), ekxx2(nband,nqbz)) !!! nband=nlmto 
 c        if(tmpwwk)  ifwwk = iopen('tmp.wwk',0,-1,0)
 c      endif ;  if(debug) write(6,*)' xxx1:'
-      if(debug) print *,'goto maxocc2 xxxx'
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
-      if(debug) print *,'end of maxocc2 xxxx'
       if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx      = noccxv + nctot
 
@@ -1152,7 +1149,7 @@ c     d       natom,             !nl,nclass,natom,nnc,
      i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
      i       nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
           endif
-          deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+          call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
           iecut=1
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then
@@ -1990,9 +1987,14 @@ c              if( iq==1 ) then
               if(ircw==1) zw(1,1) = w0(iw)
               if(ircw==2) zw(1,1) = w0i(iw)
 
-c              if(ircw==1) then
-c                 write(6,"('ffffrrr:', f13.6,2x,f13.6,x,f13.6)") hartree*freq_r(iw),w0(iw)
-c              endif
+cccccccccccccccccccccccccccccccccccccccccccc
+c              if(ircw==1) zw(1,1) = 0d0
+c              if(ircw==2) zw(1,1) = 0d0
+              if(ircw==1) then
+                 write(6,"('ffffrrr:', f13.6,2x,f13.6,x,f13.6)") hartree*freq_r(iw),w0(iw)
+              endif
+ccccccccccccccccccccccccccccccccccccccccccccc
+
 
 c$$$cmmm3 cccccccccccccccccccccccccccccccccccccccccc
 c$$$          elseif( iq>nqibz ) then !-->In future, we store sperical average of zw below to zw(at q=0)===
