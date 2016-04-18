@@ -57,6 +57,7 @@
       integer(4):: verbose,q0pchoice,wgtq0p    !,normcheck !version,
       logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
       integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
+      integer:: gammacellctrl=0
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
@@ -64,8 +65,16 @@
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
-      if(iq0pin==1.or.iq0pin==2.or.iq0pin==4.or.iq0pin==101) then
-        continue
+      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4.or.iq0pin==101) then
+        iq0pinxxx=iq0pin
+      elseif(iq0pin==10002) then
+         iq0pinxxx=2
+         gammacellctrl=1 !Gammacell skip mode
+      elseif(iq0pin==20002) then
+         iq0pinxxx=2
+         gammacellctrl=2 !Gammacell only mode
+      elseif(iq0pin==4) then
+         iq0pinxxx=2
       else
         call rx( 'Not allowed iq0pin')
       endif
@@ -100,11 +109,11 @@ c      endif
       enddo
       close(ifi)
 !! --- check write
+      write(6,*) ' --- primitive vectors ---'
       write(6,"(' unit(a.u.) alat  =',f13.6 )") alat
-      write(6,*) ' --- primitive vectors ==>see plat ---'
-c      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
-c      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
-c      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
+      write(6,"(' primitive_1 =',3f13.6)") plat(1:3,1)
+      write(6,"(' primitive_2 =',3f13.6)") plat(1:3,2)
+      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
       write(6,*) ' --- point group operations --- '
       do ig = 1,ngrp
         print *, ' ig=',ig
@@ -130,17 +139,18 @@ c      write(6,"(' primitive_3 =',3f13.6)") plat(1:3,3)
       open(ifiqg ,file='QGpsi',form='unformatted')
       ifiqgc = ifile_handle()
       open(ifiqgc,file='QGcou',form='unformatted')
-      iq0pinxxx=iq0pin
       if(iq0pin==4) then
-         iq0pinxxx=2
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
+!!
       call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl)
       write(6,*) ' OK! End of qg4gw '
-      if(iq0pin ==1) call rx0( ' OK! qg4gw mode=1 normal mode')
-      if(iq0pin ==2) call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
-c      if(iq0pin ==3) call rx0( ' OK! qg4gw mode=3 band-plot mode')
-      if(iq0pin ==4) call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')
+      if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
+      if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
+      if(iq0pin ==10002) call rx0( ' OK! qg4gw mode=10002 Readin Q0P. Gammacell skipped.')
+      if(iq0pin ==20002) call rx0( ' OK! qg4gw mode=20002 Readin Q0P. Gammacell Only.')
+      if(iq0pin ==3)     call rx0( ' OK! qg4gw mode=3 band-plot mode')
+      if(iq0pin ==4)     call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')      
       end

@@ -3,7 +3,8 @@ C - Calculates the Fermi energy by tetrahedron method.
 c This routine is from hsfp0
 c So it contains many unused variables.
 c-------------------------------------------------------------
-      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata,only: read_bzdata,
+     & ngrp2=>ngrp,idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      & nlmto,nlnmx, nctot,niw,!,nw_input=>nw,

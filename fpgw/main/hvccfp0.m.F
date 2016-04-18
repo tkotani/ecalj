@@ -582,7 +582,7 @@ c        iqxend=nqibz ! comment out at 18nov2012
 c qibz loop
 c      epsx =  0.01d0
 c      if(bzcase()==1) then
-        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
+      if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
 c      endif
       if(wvcc) write(ifvcfpout) nqbz, nblochpmx
 c      if(imode==101) then

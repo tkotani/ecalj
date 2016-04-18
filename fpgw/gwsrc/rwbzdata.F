@@ -89,7 +89,6 @@ c         write(6,*) " O.K. index_qbz is generated; n=", n
 
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         print *, 'sum (wibz)=', sum(wibz(1:nqibz))
-Cstop2rx 2013.08.09 kino        stop 'read_BZDATA  sum (wibz) is not 2.'
         call rx( 'read_BZDATA  sum (wibz) is not 2.')
       endif
       done_read_bzdata=.true.

@@ -772,7 +772,6 @@ c ngrp = no. rotation matrices
       end
 c------------------------------------------------------------------
       subroutine nkstar (qibz,qbz,grp,ginv,
-     w iw1,
      d nqibz,nqbz,ngrp,
      o nstar,irotk)
 c 92.02.22
@@ -787,43 +786,38 @@ c ngrp  = no. rotation matrices
 c nstar(k) = no. times k appears in the FBZ
 c irotk(k{IBZ,R) = index to k{FBZ
       implicit real*8 (a-h,o-z)
-      dimension qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
-      dimension nstar(nqibz),irotk(nqibz,ngrp)
-      integer(4):: verbose
+      real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
+      integer:: nstar(nqibz),irotk(nqibz,ngrp)
+      integer:: verbose,kout
       real(8):: diff(3),diff2(3),tol=1d-6,gg(3,3)
-c initialise index
-c      call iinit   (irotk,nqibz*ngrp)
-c      call iinit   (iw1,nqbz)
-c      call iinit   (nstar,nqibz)
-
-      do kp = 1,nqbz
-        if(verbose()>104) write(6,"(' === kp=',i3,' qbz=',3f8.3)")kp,qbz(:,kp)
-      enddo
-
+      if(verbose()>104) then
+        print *,' nkstar:'
+        do kp = 1,nqbz
+          write(6,"(' === kp=',i3,' qbz=',3f8.3)")kp,qbz(:,kp)
+        enddo
+      endif
       irotk=0
       nstar=0
-      if(verbose()>104) print *,' nkstar:'
       do kp = 1,nqbz
-        if(verbose()>104) write(6,"(' ===== kp=',i3,' qbz=',3f8.3)")kp,qbz(:,kp)
         do k  = 1,nqibz
           do ir = 1,ngrp
-c        if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
+            if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
             diff = matmul(grp(:,:,ir),qibz(:,k)) - qbz(:,kp)
             call rangedq(matmul(ginv,diff), diff2)
-            if(verbose()>104)
-     &      write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
+            if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
             if(sum(abs(diff2))< tol) then
               irotk(k,ir)= kp
+              kout=k
               nstar(k)   = nstar(k) + 1
               goto 1022
             endif
           enddo
         enddo
-Cstop2rx 2013.08.09 kino        stop 'nkstar: can not find irotk'
         call rx( 'nkstar: can not find irotk')
  1022   continue
+        write(6,"(' ===xxx kp=',i3,' qbz=',3f8.3, x,i4,3f8.3)")kp,qbz(:,kp),kout,qibz(:,kout)
       enddo
-c check that the sum of stars equal to the no. k{FBZ
+!! check that the sum of stars equal to the no. k{FBZ
       nsum = ivsum (nstar,nqibz)
       if (nsum .ne. nqbz) then
         print *,' nums nqbz=',nsum,nqbz
@@ -832,7 +826,6 @@ c check that the sum of stars equal to the no. k{FBZ
             if(irotk(k,ir)/=0) write(6,"(' k ir irotk=',3i6)") k,ir, irotk(k,ir)
           enddo
         enddo
-Cstop2rx 2013.08.09 kino        stop 'nkstar: wrong no. stars'
         call rx( 'nkstar: wrong no. stars')
       endif
 c$$$c write k { IBZ and no. stars to file KPNT

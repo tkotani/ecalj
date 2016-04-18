@@ -288,8 +288,7 @@ Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
 c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/6d0)
         enddo
       enddo
-Cstop2rx 2013.08.09 kino      if(abs(volt-voltot)>1d-10) stop ' tetwt: abs(volt-voltot)>1d-10'
-      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
+c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 
       if(job==0) then
         demin=  1d10
@@ -308,6 +307,20 @@ c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out o
         do 1100 im = 1,nmtet
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
+
+c$$$ccccccccccccccccccccccc
+c$$$          if(kkm(0)==1) goto 1105
+c$$$          if(kkm(1)==1) goto 1105
+c$$$          if(kkm(2)==1) goto 1105
+c$$$          if(kkm(3)==1) goto 1105
+c$$$          cycle
+c$$$ 1105     continue
+c$$$          write(6,"('kkkkk  kkm list=',4i5)") kkm(0:3)
+c$$$          do i=0,3
+c$$$             write(6,"('kkkkk ', i5,x,i6,' kvec=',3f9.4)") i, itet, kvec(1:3, i)-kvec(1:3, 1)
+c$$$          enddo
+c$$$cccccccccccccccccccccc
+
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
@@ -338,6 +351,13 @@ c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
             endif
             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
               do jbx  = 1, jbxmx !nband             ! unoccupied
+
+c$$$cccccccccccccccccccc
+c$$$                 if(jbx/=1) cycle
+c$$$cccccccccccccccccccc
+
+
+
 c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx
@@ -1361,7 +1381,7 @@ C- get (n1b n2b) corresponding to non-zero wgt.
       write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 
-      SUBROUTINE TETFBZF(icase,qbas, N1,N2,N3, rk,nqbz,  IDTET,qbzw,ib1bz)
+      SUBROUTINE TETFBZF(icase,qbas, N1,N2,N3, rk,nqbz,  IDTET,qbzw,ib1bz,skipgammacell,half,nadd)
 C-  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1377,16 +1397,17 @@ cr    This require subroutine CCUTUP (lmto-3).
 C ----------------------------------------------------------------------
       IMPLICIT none
       integer(4):: n1,n2,n3, indexkw(0:n1,0:n2,0:n3),nqbz,kount,
-     &  indexk(0:n1-1,0:n2-1,0:n3-1),
+     &  indexk(0:n1,0:n2,0:n3),
      &  i,i1,i2,i3,j1,j2,j3, IPQ(N1,N2,N3),
      .  IBTR(3,3),KCUT(3,4,6),IMC(0:1,0:1,0:1),
      .  idtet(4, 6*n1*n2*n3),iq(4),
      &  ntet,k1,k2,k3,itet,ic 
-     & ,ib1bz((n1+1)*(n2+1)*(n3+1))  ,icase
+     & ,ib1bz((n1+1)*(n2+1)*(n3+1))  ,icase,nadd
       real(8) :: QB(3,3),QB1(3,3), qbas(3,3), rk(3,nqbz) ,qbzx(3)
-     & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),hf
+     & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),hf,half(3)
       real(8),parameter :: epss = 1d-12
       logical,save ::chk=.true.
+      logical:: skipgammacell
 c------------------------------------------------------------------
       hf=0d0
       if(icase==2) hf=0.5d0
@@ -1395,32 +1416,28 @@ c------------------------------------------------------------------
       QB(1:3,3) = QBAS(1:3,3)/N3
 C- index for k in 1st BZ. See genqbz in BZ.FOR.
       kount      = 0
-      do      i1 = 1,n1
-        do      i2 = 1,n2
-          do      i3 = 1,n3
+      do      i1 = 1,n1+nadd
+        do      i2 = 1,n2+nadd
+          do      i3 = 1,n3+nadd
             kount    = kount + 1
             indexk(i1-1,i2-1,i3-1) = kount
-
-c  for check
+!! check
             if(chk) then
-              qbzx(1:3)= qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
+c            qbzx(1:3)= qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
+              qbzx(1:3)= qb(1:3,1)*(i1-1+hf+half(1)) +qb(1:3,2)*(i2-1+hf+half(2)) +qb(1:3,3)*(i3-1+hf+half(3))
 ccccccccccccccccccccc
 c      write(6,"(3d26.18)") rk(1:3,kount)
 c      write(6,"(3d26.18)") qbzx(1:3)
 c      write(6,*)
 ccccccccccccccccccccc
-              if(  sum(abs(rk(1:3,kount)-qbzx(1:3)) ) > epss ) 
-Cstop2rx 2013.08.09 kino     &    stop 'tetfbzf: rk /= qbzx'
-     &    call rx( 'tetfbzf: rk /= qbzx')
+              if( sum(abs(rk(1:3,kount)-qbzx(1:3))) > epss ) call rx( 'tetfbzf: rk /= qbzx')
             endif
           end do
         end do
       end do
       chk=.false.
-Cstop2rx 2013.08.09 kino      if (kount /= n1*n2*n3) stop ' kount: wrong no. k-points'
-      if (kount /= n1*n2*n3) call rx( ' kount: wrong no. k-points')
-Cstop2rx 2013.08.09 kino      if (nqbz  /= n1*n2*n3) stop ' kount: wrong no. k-points'
-      if (nqbz  /= n1*n2*n3) call rx( ' kount: wrong no. k-points')
+      if (kount /= (n1+nadd)*(n2+nadd)*(n3+nadd)) call rx( ' kount: wrong no. k-points 111')
+      if (nqbz  /= kount ) call rx( ' kount: wrong no. k-points 222')
 cccccccccccccccccccccccccccc
 c      DO  j1 = 0,n1-1
 c      DO  j2 = 0,n2-1
@@ -1431,25 +1448,48 @@ c      enddo
 c      enddo
 c      write(6,*)
 cccccccccccccccccccccccccccc
-      kount      = 0
-      do      i1 = 1,n1+1
-        do      i2 = 1,n2+1
-          do      i3 = 1,n3+1
-            kount    = kount + 1
-            indexkw(i1-1,i2-1,i3-1) = kount
-            qbzw(1:3,kount) =
-     &    qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf)
-            ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
+      if(nadd==0) then
+        kount      = 0
+        do      i1 = 1,n1+1
+          do    i2 = 1,n2+1
+            do  i3 = 1,n3+1
+              kount    = kount + 1
+              indexkw(i1-1,i2-1,i3-1) = kount
+              qbzw(1:3,kount) =
+     &         qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf)
+              ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
+            end do
           end do
         end do
-      end do
-c
+      elseif(nadd==1) then
+        qbzw(:,1:nqbz)= rk(:,1:nqbz) !NOTE: nqbz=kount=(n1+nadd)*(n2+nadd)*(n3+nadd)
+        kount      = 0
+        do     i1 = 1,n1+1
+          do   i2 = 1,n2+1
+            do i3 = 1,n3+1
+              kount    = kount + 1
+              indexkw(i1-1,i2-1,i3-1) = kount
+              ib1bz(kount) = indexk(i1-1, i2-1, i3-1)
+            enddo
+          enddo
+        enddo
+      else
+        call rx('tetfbzf:wrong nadd')
+      endif
+
       CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3
       ntet = 0
 C ----- START LOOPING OVER MICROCELLS ---------
       DO  20  I3 = 1, N3
       DO  20  I2 = 1, N2
       DO  20  I1 = 1, N1
+         if(skipgammacell.and.icase==2) then
+            if(i1==n1.and.i2==n2.and.i3==n3) then
+               cycle
+            endif
+         elseif(skipgammacell.and.icase==1) then
+            call rx('tetfbzf:skipgammacell().and.icase==1:not implemented yet')
+         endif   
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
         DO  1  K1 = 0, 1
@@ -1478,6 +1518,7 @@ C ----- LOOP OVER TETRAHEDRA --------------
             idtet(i,ntet) = iq(i)
           enddo
    10   CONTINUE
+        write(6,"('ntet=',3i3,2x,i6)")i1,i2,i3,ntet
    20 CONTINUE
       write(6, "(1x,'TETFBZF: ',2i8 )")  ntet, 6*n1*n2*n3
       END
