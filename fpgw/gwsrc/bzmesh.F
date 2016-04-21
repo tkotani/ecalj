@@ -27,7 +27,7 @@ C---------------------------------------------------------------------
 c icase==2 is for regular-mesh without gamma points.
       IMPLICIT double precision (A-H,O-Z)
       DIMENSION RB(3,3),QB(3,3),WGT(NQMX),V(3),V1(3),IPQ(N1+nadd,N2+nadd,N3+nadd),
-     .   RBAS(3,3),QBAS(3,3),QP(3,NQMX),g(3,3,1)
+     .   RBAS(3,3),QBAS(3,3),QP(3,NQMX),g(3,3,ng)
       real(8):: diff2(3),vv(3),diff(3),det,ginv(3,3),xv(3),xx(3),vi(3),half(3)
       integer(4) :: verbose
       integer:: nadd,nnn
@@ -39,32 +39,15 @@ c icase==2 is for regular-mesh without gamma points.
       DO K = 1, 3
         WRITE(*,"(3F10.5,5X,3F10.5)") (RBAS(M,K),M=1,3),(QBAS(M,K),M=1,3)
       enddo
-      DO  8  M = 1, 3
-        QB(M,1) = QBAS(M,1)/N1
-        QB(M,2) = QBAS(M,2)/N2
-        QB(M,3) = QBAS(M,3)/N3
-        RB(M,1) = RBAS(M,1)*N1
-        RB(M,2) = RBAS(M,2)*N2
-        RB(M,3) = RBAS(M,3)*N3
-    8 continue
+      QB(:,1) = QBAS(:,1)/N1
+      QB(:,2) = QBAS(:,2)/N2
+      QB(:,3) = QBAS(:,3)/N3
+      RB(:,1) = RBAS(:,1)*N1
+      RB(:,2) = RBAS(:,2)*N2
+      RB(:,3) = RBAS(:,3)*N3
       IPQ = 0
       W0  = 2D0/(N1*N2*N3)
-      NQ  = 0
-      SWGT = 0D0
-      ixx=0
-
-c      DO IG = 1, NG
-c        x1=.5
-c        x2=1.5
-c        x3=0
-c        V = matmul(QBAS(:,:),(/x1,x2,x3/))
-c        CALL GRPOP(V,V1,G,IG)
-c        write(6,"(' ig qbas1 rot(qbas1)=', 3f8.3,'  ',3f8.3,'  ',3f8.3)")
-c     &   v,v1,matmul(v1,rbas)
-c      enddo
-c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-      nnn=(N1+nadd)*(N2+nadd)*(N3+nadd)
-
+      nnn = (N1+nadd)*(N2+nadd)*(N3+nadd)
 !! Gamma point first ---
       if(nadd==1) w0= 2d0/nnn
       NQ = 1
@@ -75,7 +58,7 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
       J2=1-hf-half(2)
       J3=1-hf-half(3)
       IPQ(J1,J2,J3) = 1
-!!
+!! All other points
       DO  20  I3 = 1, N3+nadd
       DO  20  I2 = 1, N2+nadd
       DO  20  I1 = 1, N1+nadd
@@ -84,7 +67,7 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
         IF (IPQ(I1,I2,I3) .EQ. 0) THEN
           IWGT = 0
           DO  22  IG = 1, NG
-            CALL GRPOP(V,V1,G,IG)
+            v1 = matmul(g(:,:,ig),v(:))
             XV = matmul(V1,rbas)
             if(nadd==0) then    !periodicity
               call rangedq_xxx(n1*xv(1)-hf,xv1)
@@ -148,7 +131,7 @@ cccccccccccccccccccc
 c      if(verbose()>=100) 
       print *,' Number of Qibz =',nq
 
-!! Rotation check
+!! Rotation check ------------------------------------
       call dinv33(qbas,0,ginv,det)
       DO  I3 = 1, N3+nadd
         DO  I2 = 1, N2+nadd
@@ -196,4 +179,3 @@ c-----------------------------------------
    51 continue
   661 format(i5,2x,3f10.4,i10,f16.6)
       END
-

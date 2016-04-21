@@ -436,7 +436,7 @@ c     logical :: readgwinput
       integer,allocatable::irr(:)
       real(8):: dq_(3),qlatbz(3,3)
       integer:: nq0itrue
-      integer:: gammacellctrl,nnng(3),ifile_handle,ifi0,ifi00
+      integer:: gammacellctrl,nnng(3),ifile_handle,ifi0,ifi00,itet
 c------------------------------------------------
       print *,' mkqg2: '
       qreduce0 = qreduce()
