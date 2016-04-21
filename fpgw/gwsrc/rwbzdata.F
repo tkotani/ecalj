@@ -12,7 +12,8 @@ c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
      &    , qbz(:,:),wbz(:),qibz(:,:)
      &    , wibz(:),qbzw(:,:), qibz_r(:,:)
       logical:: done_read_bzdata=.false.
-c-----------------------------------------------------------------
+
+!! =====================================================
       contains
       subroutine read_BZDATA()
 !! No input except BZDATA file.
@@ -96,99 +97,54 @@ c         write(6,*) " O.K. index_qbz is generated; n=", n
       end subroutine
       end module
 
+!! --------------------------------------------------------------------------
       subroutine rwbzdata(ifbz,job,
      x  ngrp,qbas,ginv,qbasmc,
      x  qbz, wbz  ,nstbz, nqbz, 
      x  qibz,wibz, nstar,irk,  nqibz,
      x  idtetf, ntetf, qbzw,ib1bz, nqbzw,
      x  idteti, nteti,dq_, qibz_r,nqibz_r )
-C- ReadWrite  BZ mesh data reuired for GW ---
-C----------------------------------------------------------------
+!! Read  BZ mesh data reuired for GW 
       implicit none
       integer(4):: nqbz,n1q,n2q,n3q,ntetf,nteti,nqbzw,iqbz,ifbz
      & ,nqibz,iqibz,itet,ngrp,job,nqibz_r
       real(8)   :: plat(3,3),vol,qbasmc(3,3)
-      integer(4),allocatable:: ipq(:),iw1(:)
       real(8):: qbz(3,nqbz),wbz(nqbz),qibz(3,nqibz),wibz(nqibz)
      &         ,qbzw(3,nqbzw),qbas(3,3),ginv(3,3),dq_(3), qibz_r(3,nqibz_r)
-      integer(4):: idtetf(0:3,ntetf),ib1bz(nqbzw),idteti(0:4,nteti)
+      integer,allocatable:: ipq(:),iw1(:)
+      integer:: idtetf(0:3,ntetf),ib1bz(nqbzw),idteti(0:4,nteti)
      &       ,irk(nqibz,ngrp),nstar(nqibz),nstbz(nqbz),bzcase
       logical tetraf,tetrai
-
-      if(job<0) write(ifbz,"(3d24.16)") qbas,ginv,qbasmc
-      if(job>0) read (ifbz,"(3d24.16)") qbas,ginv,qbasmc
-
+!! job is dummy now. only for reading BZ_DATA
+      if(job<0) call rx('rwbzdata is now only for reading')
+      read (ifbz,"(3d24.16)") qbas,ginv,qbasmc
       do iqibz = 1,nqibz
-        if(job<0) then
-          write(ifbz,"(4d24.16,i9)") 
-     &    qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
-          write(ifbz,"(100i8)") irk(iqibz,1:ngrp)
-        else
-          read(ifbz,"(4d24.16,i9)") 
-     &    qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
-          read(ifbz,"(100i8)") irk(iqibz,1:ngrp)
-        endif
+        read(ifbz,"(4d24.16,i9)") 
+     &   qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
+        read(ifbz,"(100i8)") irk(iqibz,1:ngrp)
       enddo
-
-      if(job<0) then
-        write(ifbz,"(i10)") nqibz_r
-      else
-        read (ifbz,"(i10)") nqibz_r
-      endif
+      read (ifbz,"(i10)") nqibz_r
       do iqibz = 1,nqibz_r
-        if(job<0) then
-          write(ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
-        else
-          read (ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
-        endif
+        read (ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
       enddo
-
       do iqbz = 1,nqbz
-        if(job<0) then
-          write(ifbz,"(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
-        else
-          read(ifbz, "(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
+        read(ifbz, "(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
 ! bug fix (kino); May 2004 it was write(ifbz,"(4d24.16)") read(ifbz,"(4d24.16)")
 ! But it was working in ifc
 !   (the strange number in ifbz file was correctly recoverd to the original values!)
-        endif
-ccccccccccccccccccccccccccccccccccc
-c         write(6, "(4d24.16,i5)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
-ccccccccccccccccccccccccccccccccccc
       enddo
-ccccccccccccccccccccccccccccccccccc
-c      stop 'test end'
-ccccccccccccccccccccccccccccccccccc
       if(ntetf>0) then
-        if(job<0) then
-          write(ifbz,"(4i10)") (idtetf(0:3,itet),itet=1,ntetf)
-          write(ifbz,"(i9,3d24.16)") 
-     &       (ib1bz(iqbz), qbzw(1:3,iqbz),iqbz=1,nqbzw)
-        else
-          read(ifbz,"(4i10)") (idtetf(0:3,itet),itet=1,ntetf)
-          read(ifbz,"(i9,3d24.16)") 
-     &       (ib1bz(iqbz), qbzw(1:3,iqbz),iqbz=1,nqbzw)
-        endif
+        read(ifbz,"(4i10)") (idtetf(0:3,itet),itet=1,ntetf)
+        read(ifbz,"(i9,3d24.16)") 
+     &   (ib1bz(iqbz), qbzw(1:3,iqbz),iqbz=1,nqbzw)
       endif
-      if(nteti>0) then
-        if(job<0) then
-          write(ifbz,"(5i10)") (idteti(0:4,itet),itet=1,nteti)
-        else
-          read(ifbz,"(5i10)") (idteti(0:4,itet),itet=1,nteti)
-        endif
-      endif
-
-c      if(bzcase()==2) then
-      if(job<0) write(ifbz,"(3d24.16,' !dq_')") dq_
-      if(job>0) read (ifbz,"(3d24.16)") dq_
-c      endif
-
+      if(nteti>0) read(ifbz,"(5i10)") (idteti(0:4,itet),itet=1,nteti)
+      read (ifbz,"(3d24.16)") dq_
       end
-
+!!
       subroutine checkrange(intq,n1,n2)
       if(intq<n1 .or. intq>n2) then
         print *,'checkrange: intq n1 n2= ',intq,n1,n2
-Cstop2rx 2013.08.09 kino        stop    'checkrange: stop '
         call rx( 'checkrange: stop ')
       endif
       end

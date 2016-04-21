@@ -1407,7 +1407,7 @@ C ----------------------------------------------------------------------
      & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),hf,half(3)
       real(8),parameter :: epss = 1d-12
       logical,save ::chk=.true.
-      logical:: skipgammacell
+      logical:: skipgammacell,qbzreg
 c------------------------------------------------------------------
       hf=0d0
       if(icase==2) hf=0.5d0
@@ -1483,12 +1483,12 @@ C ----- START LOOPING OVER MICROCELLS ---------
       DO  20  I3 = 1, N3
       DO  20  I2 = 1, N2
       DO  20  I1 = 1, N1
-         if(skipgammacell.and.icase==2) then
-            if(i1==n1.and.i2==n2.and.i3==n3) then
+         if(skipgammacell) then
+            if(i1==n1.and.i2==n2.and.i3==n3.and.(.not.qbzreg())) then
                cycle
             endif
-         elseif(skipgammacell.and.icase==1) then
-            call rx('tetfbzf:skipgammacell().and.icase==1:not implemented yet')
+         elseif(skipgammacell.and.qbzreg()) then
+            call rx('tetfbzf:skipgammacell().and.qbzreg():not implemented yet')
          endif   
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)

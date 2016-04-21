@@ -220,6 +220,7 @@ c$$$        iatomp(iatom) = iatom
 c$$$        if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
 c$$$      enddo
 c      nctot      = noccx - noccxv
+      print *, 'qqqqqqqqqqq',qbas
       call dinv33(qbas,0,qbasinv,det)
 c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )

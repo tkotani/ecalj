@@ -65,7 +65,7 @@
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
-      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==4.or.iq0pin==101) then
+      if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==101) then
         iq0pinxxx=iq0pin
       elseif(iq0pin==10002) then
          iq0pinxxx=2

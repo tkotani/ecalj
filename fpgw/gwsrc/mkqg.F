@@ -397,7 +397,7 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
      &     ngpn(:),ngcn(:),ngvect(:,:,:),ngcx(:), nqq(:)   
       real(8),allocatable :: q0x(:,:), 
      &     qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:)
-      real(8) :: qbas(3,3),vol,ginv(3,3),aaa,det,dq(3) !,www
+      real(8) :: vol,ginv(3,3),aaa,det,dq(3) !,www
       integer(4) :: mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3
       logical ::tetrai,tetraf,tetra_hsfp0    
       integer(4):: ifbz
@@ -577,7 +577,7 @@ c     i     qbz, wbz, nstbz,  nqbz,
 c     i     qibz,wibz, nstar,irk,  nqibz,
 c     i     idtetf, ntetf, qbzw,ib1bz, nqbzw,
 c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
-      write(ifbz,"(3d24.16)") qbas,ginv,qbasmc
+      write(ifbz,"(3d24.16)") qlat,ginv,qbasmc
       do iqibz = 1,nqibz
         write(ifbz,"(4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
         write(ifbz,"(100i8)") irk(iqibz,1:ngrp)
