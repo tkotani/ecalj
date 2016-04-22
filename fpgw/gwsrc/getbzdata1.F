@@ -107,7 +107,7 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
       if(tetraf) then
         nqbzw = (n1q+1)*(n2q+1)*(n3q+1)
         ntetf = 6*nqbz
-        if(nadd==1) ntetf=6*n1q*n2q*n3q  
+c        if(nadd==1) ntetf=6*n1q*n2q*n3q  
         allocate( idtetf(0:3,ntetf), ib1bz(nqbzw), qbzw(3,nqbzw) )
         print *,' goto tetfbzf--- ntetf=',ntetf,nqbzw
 !! apr2016

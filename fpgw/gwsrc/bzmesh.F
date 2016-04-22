@@ -54,9 +54,10 @@ c icase==2 is for regular-mesh without gamma points.
       QP(:,1) = 0d0
       WGT(1) = W0
       SWGT = 1d0*W0
-      J1=1-hf-half(1)
-      J2=1-hf-half(2)
-      J3=1-hf-half(3)
+      J1=1
+      J2=1
+      J3=1
+      IPQ = 0
       IPQ(J1,J2,J3) = 1
 !! All other points
       DO  20  I3 = 1, N3+nadd
@@ -81,7 +82,8 @@ c            else
 c              write(6,"('             ', 18x,3d13.6,' go')") xv1, xv2, xv3
 c            endif
 
-              if(abs(xv1)+abs(xv2)+abs(xv3)>3d-6) cycle !this is for the case not on the regular mesh points.
+              if(abs(xv1)+abs(xv2)+abs(xv3)>3d-6) cycle 
+              ! this is for the case not on the regular mesh points.
 
               call rangedq_xxx(xv(1)-hf/n1,xv1)
               call rangedq_xxx(xv(2)-hf/n2,xv2)
@@ -91,10 +93,13 @@ c              j1 = xv1*n1+1 +1d-6
 c              j2 = xv2*n2+1 +1d-6
 c              j3 = xv3*n3+1 +1d-6
 c            else
+              j1= nint(xv1*n1+1-hf)
+              j2= nint(xv2*n2+1-hf)
+              j3= nint(xv3*n3+1-hf)
+c            j1 = xv1*n1+1 +1d-6
+c            j2 = xv2*n2+1 +1d-6
+c            j3 = xv3*n3+1 +1d-6
             endif
-            j1= nint(xv(1)*n1+1-hf-half(1))
-            j2= nint(xv(2)*n2+1-hf-half(2))
-            j3= nint(xv(3)*n3+1-hf-half(3))
             if( (j1<1.or.j1>n1+nadd) .or. (j2<1.or.j2>n2+nadd) .or. (j3<1.or.j3>n3+nadd) ) then
               cycle
             endif
