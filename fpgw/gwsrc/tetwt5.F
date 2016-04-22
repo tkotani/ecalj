@@ -1381,8 +1381,10 @@ C- get (n1b n2b) corresponding to non-zero wgt.
       write(6,*) ' rsvwwk: kx nbnbmax=',kx, maxval(nbnb)
       end
 
-      SUBROUTINE TETFBZF(icase,qbas, N1,N2,N3, rk,nqbz,  IDTET,qbzw,ib1bz,skipgammacell,half,nadd)
-C-  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
+!! ---------------------------------
+      SUBROUTINE TETFBZF(qbas,N1,N2,N3,rk,nqbz, skipgammacell,half,nadd,
+     o  IDTET,qbzw,ib1bz,ntetf)
+!!  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
 C ----------------------------------------------------------------------
 Ci Inputs:
 Ci  qb,n1,n2,n3,ipq, output from BZMESH;
@@ -1395,22 +1397,26 @@ Cm Memory:
 Cm  No large internal storage; heap not accessed.
 cr    This require subroutine CCUTUP (lmto-3).
 C ----------------------------------------------------------------------
-      IMPLICIT none
-      integer(4):: n1,n2,n3, indexkw(0:n1,0:n2,0:n3),nqbz,kount,
+      implicit none
+      integer:: indexkw(0:n1,0:n2,0:n3),kount,
      &  indexk(0:n1,0:n2,0:n3),
      &  i,i1,i2,i3,j1,j2,j3, IPQ(N1,N2,N3),
      .  IBTR(3,3),KCUT(3,4,6),IMC(0:1,0:1,0:1),
      .  idtet(4, 6*n1*n2*n3),iq(4),
      &  ntet,k1,k2,k3,itet,ic 
-     & ,ib1bz((n1+1)*(n2+1)*(n3+1))  ,icase,nadd
-      real(8) :: QB(3,3),QB1(3,3), qbas(3,3), rk(3,nqbz) ,qbzx(3)
+     & ,ib1bz((n1+1)*(n2+1)*(n3+1)) !icase=1 fixed
+      real(8) :: QB(3,3),QB1(3,3), qbas(3,3), qbzx(3)
      & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),hf,half(3)
       real(8),parameter :: epss = 1d-12
       logical,save ::chk=.true.
       logical:: skipgammacell,qbzreg
+      
+      real(8),intent(in) :: rk(3,nqbz)
+      integer,intent(in):: n1,n2,n3,nqbz,nadd
+      integer,intent(out)::ntetf
 c------------------------------------------------------------------
       hf=0d0
-      if(icase==2) hf=0.5d0
+c      if(icase==2) hf=0.5d0
       QB(1:3,1) = QBAS(1:3,1)/N1
       QB(1:3,2) = QBAS(1:3,2)/N2
       QB(1:3,3) = QBAS(1:3,3)/N3
@@ -1480,9 +1486,9 @@ cccccccccccccccccccccccccccc
       CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3
       ntet = 0
 C ----- START LOOPING OVER MICROCELLS ---------
-      DO  20  I3 = 1, N3
-      DO  20  I2 = 1, N2
-      DO  20  I1 = 1, N1
+      DO 20  I3 = 1, N3
+      DO 21  I2 = 1, N2
+      DO 22  I1 = 1, N1
          if(skipgammacell) then
             if(i1==n1.and.i2==n2.and.i3==n3.and.(.not.qbzreg())) then
                cycle
@@ -1492,11 +1498,11 @@ C ----- START LOOPING OVER MICROCELLS ---------
          endif   
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
-        DO  1  K1 = 0, 1
+        do K1 = 0, 1
           J1 = I1 -1 + K1
-        DO  1  K2 = 0, 1
+        do K2 = 0, 1
           J2 = I2 -1 + K2
-        DO  1  K3 = 0, 1
+        do K3 = 0, 1
           J3 = I3 -1 + K3
           IMC(K1,K2,K3)  = indexkw(J1,J2,J3)
 cccccccccccccc
@@ -1504,21 +1510,26 @@ c         write(6,"(' k1k2k3=',3i4,' ix=',i6,' ii=',2i6)")J1,J2,J3
 c     &    ,indexkw(J1,J2,J3), ib1bz(indexkw(J1,J2,J3))
 c     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
 cccccccccccccc
-   1    continue
+        enddo
+        enddo
+        enddo
 C ----- LOOP OVER TETRAHEDRA --------------
-        DO  10  ITET = 1, 6
-          DO  2  IC = 1, 4
+        do 10 ITET = 1, 6
+          do  IC = 1, 4
             K1 = KCUT(1,IC,ITET)
             K2 = KCUT(2,IC,ITET)
             K3 = KCUT(3,IC,ITET)
             IQ(IC) = IMC(K1,K2,K3)
-    2     continue
+          enddo  
           ntet=ntet+1
           do  i = 1, 4
             idtet(i,ntet) = iq(i)
           enddo
-   10   CONTINUE
+   10   continue
         write(6,"('ntet=',3i3,2x,i6)")i1,i2,i3,ntet
-   20 CONTINUE
+   22 CONTINUE
+   21 CONTINUE
+   20 CONTINUE 
       write(6, "(1x,'TETFBZF: ',2i8 )")  ntet, 6*n1*n2*n3
+      ntetf=ntet
       END
