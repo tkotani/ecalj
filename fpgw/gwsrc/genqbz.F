@@ -159,7 +159,7 @@ c======================================================
 
 
 c-Taken from Ferdi's GW  -------------------------------------------------------------------
-      subroutine genqbz (icase,qbas,n1,n2,n3,
+      subroutine genqbz (qbas,n1,n2,n3,
      o qbz,wbz, nstbz, nadd,half)
 c generates the k-points in the 1BZ
 c the 1BZ is a parallepiped formed by G1,G2,G3 (qbas(3,3))
@@ -177,7 +177,8 @@ c wbz  = sampling weight for qbz
       real(8):: qbas(3,3)
       real(8):: qbz(3,*),wbz(*) !wbz(n1*n2*n3)
       real(8):: qmic(3,3),w1(3),w2(3),w3(3),half(3)
-      integer:: icase,nstbz(*),nadd
+      integer:: nstbz(*),nadd
+!! icase=1
 !! vectors forming microcells
       qmic(:,1)= qbas(:,1)/dble(n1)
       qmic(:,2)= qbas(:,2)/dble(n2)
@@ -193,9 +194,9 @@ c wbz  = sampling weight for qbz
         kount      = kount + 1
         qbz(:,kount) = (i1-1+half(1))*qmic(:,1) + (i2-1+half(2))*qmic(:,2) + (i3-1+half(3))*qmic(:,3)
         wbz(kount) = weight
-        if(icase==2.and.(i1==1.or.i1==n1).and.(i2==1.or.i2==n2).and.(i3==1.or.i3==n3)) then
-          nstbz(kount) = 2*2*2
-        endif
+c        if(icase==2.and.(i1==1.or.i1==n1).and.(i2==1.or.i2==n2).and.(i3==1.or.i3==n3)) then
+c          nstbz(kount) = 2*2*2
+c        endif
 c        write(6,"(' iq qbz =',i5,3f9.4)")kount,qbz(:,kount)
       enddo
       enddo

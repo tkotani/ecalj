@@ -14,7 +14,7 @@ c------------------------------------------------------------
 c------------------------------------------------------------
       contains
 c      subroutine getbzdata1(icase, plat,qlat,ginv,n1q,n2q,n3q
-      subroutine getbzdata1(icase, qlat,ginv,n1q,n2q,n3q
+      subroutine getbzdata1(qlat,ginv,n1q,n2q,n3q
      &    ,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
 !! all arguments are inputs
 !! This return all variables in the module m_get_bzdata1
@@ -37,42 +37,43 @@ c      subroutine getbzdata1(icase, plat,qlat,ginv,n1q,n2q,n3q
       real(8):: qbzshift(3)
       integer:: iqi,igrp,iccc,nnng(3),icasetet,nadd=0
 !!      
+!! icase=1
 c-------------------------------------------------------
       write(6,*)'getbzdata1: in m_getbzdata1'
-      write(6,"(' mkqg: ibzcase()=',i3,'-------------------' )") icase
+c      write(6,"(' mkqg: ibzcase()=',i3,'-------------------' )") icase
       print *,' mkqg: CASE1:', n1q,n2q,n3q
       call dinv33x (qlat,plat)  !qlat --> plat 
       qbzshift=0d0
-      if(icase==2) qbzshift=0.5d0
-      if(icase>2) call rx( 'mkqg: wrong bzcase')
+c      if(icase==2) qbzshift=0.5d0
+c      if(icase>2) call rx( 'mkqg: wrong bzcase')
       if(gammacellctrl==2) then
         nadd=1 !nddd=1 give end point of BZ (for gammacell case). See nqbz
         qbzshift=-(/n1q/2d0,n2q/2d0,n3q/2d0/) !this shift is so that gamma point is centerd.
       endif
       nqbz = (n1q+nadd)*(n2q+nadd)*(n3q+nadd) 
-
       allocate(qbz(3,nqbz),wbz(nqbz),nstbz(nqbz))
-      call genqbz (icase,qlat,n1q,n2q,n3q,
+      call genqbz (qlat,n1q,n2q,n3q, !icase,
      o     qbz,wbz,nstbz, nadd,qbzshift)
+
 ccccccccccccccccccccccccccccccccccccccccc
 c        do iq=1,nqbz
 c          write(6,"(' iq qbz nstbz=',i5,3f9.4,i5)")iq,qbz(:,iq),nstbz(iq)
 c        enddo
 c        stop 'xxxxxxxxxxxxxxxxxxxxxxx111111111111'
 ccccccccccccccccccccccccccccccccccccccccc
+c      if(icase/=1) then !get qibz_r, and nqibz_r
+c        allocate(qibz_r(3,nqbz),ipq(nqbz),wibz(nqbz))
+c        call bzmesh(1,plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz_r
+c     &      ,wibz,nqibz_r,nqbz,nadd,qbzshift) !Make q-points in IBZ.
+c        deallocate(ipq,wibz)
+c      else
+c        nqibz_r=0
+c      endif
+      nqibz_r=0
+      allocate(qibz(3,nqbz),ipq(nqbz),wibz(nqbz))
       print *,' ---goto bzmesh--- '
       call pshprt(51)
-      if(icase/=1) then !get qibz_r, and nqibz_r
-        allocate(qibz_r(3,nqbz),ipq(nqbz),wibz(nqbz))
-        call bzmesh(1,plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz_r
-     &      ,wibz,nqibz_r,nqbz,nadd,qbzshift) !Make q-points in IBZ.
-        deallocate(ipq,wibz)
-      else
-        nqibz_r=0
-      endif
-
-      allocate(qibz(3,nqbz),ipq(nqbz),wibz(nqbz))
-      call bzmesh(icase,plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz
+      call bzmesh(plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz !icase,
      &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccc

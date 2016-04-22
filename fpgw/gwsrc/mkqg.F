@@ -401,7 +401,7 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
       integer(4) :: mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3
       logical ::tetrai,tetraf,tetra_hsfp0    
       integer(4):: ifbz
-      integer(4):: bzcase=1
+c      integer(4):: bzcase=1
 c     logical :: readgwinput
       integer(4):: nqnumm,ifiqmtet,verbose,q0pchoice,nn1,nn2,ifiqbz,iqbz !,auxfunq0p
       real(8)::aaij,bbij, qdum(6)
@@ -561,7 +561,7 @@ c------------------------------------------------
       endif
 !! in the case of gammacellctrl=2, we only calculate quantities in the Gamma cell.
 !! Thus we have special meanings of nqbz. GWinput --> GammaDivn1n2n3 4 4 4 
-      call getbzdata1(bzcase,qlatbz,ginv,n1q,n2q,n3q !plat
+      call getbzdata1(qlatbz,ginv,n1q,n2q,n3q !plat bzcase,
      &     ,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all are inputs. output: See use.
       write(6,'(" dq_=",3f9.4)')dq_
 

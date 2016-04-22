@@ -1,6 +1,6 @@
-      SUBROUTINE BZMESH(icase,RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,half)
-C-Divides the reciprocal lattice into microcells
-Cr new version. icase=2 for regular mesh not including gamma.
+      SUBROUTINE BZMESH(RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,half) !icase,
+!!-Divides the reciprocal lattice into microcells
+!! icase=1 only.
 Cr t.kotani. Jan2004
 Cr Original version was from  bz.f of ferdi/gw.
 C--------------------------------------------------------------------
@@ -24,7 +24,7 @@ Cr  k-vector in qp. wgt(j) then contains the sampling weight associated
 Cr  with the j th irreducible k-point in qp : i.e. the number of times
 Cr  it occurs in the whole reciprocal unit cell.
 C---------------------------------------------------------------------
-c icase==2 is for regular-mesh without gamma points.
+
       IMPLICIT double precision (A-H,O-Z)
       DIMENSION RB(3,3),QB(3,3),WGT(NQMX),V(3),V1(3),IPQ(N1+nadd,N2+nadd,N3+nadd),
      .   RBAS(3,3),QBAS(3,3),QP(3,NQMX),g(3,3,ng)
@@ -32,8 +32,8 @@ c icase==2 is for regular-mesh without gamma points.
       integer(4) :: verbose
       integer:: nadd,nnn
       integer:: ix=0
-      hf=0d0
-      if(icase==2) hf=0.5d0
+c      hf=0d0
+c      if(icase==2) hf=0.5d0
       call dinv33(rbas,1,qbas,vol)
       WRITE(*,"(' BZMESH : ',5X,'RBAS',31X,'QBAS')")
       DO K = 1, 3
@@ -63,7 +63,7 @@ c icase==2 is for regular-mesh without gamma points.
       DO  20  I3 = 1, N3+nadd
       DO  20  I2 = 1, N2+nadd
       DO  20  I1 = 1, N1+nadd
-        V = matmul(QB,(/(I1-1+hf+half(1)),(I2-1+hf+half(2)),(I3-1+hf+half(3))/))
+        V = matmul(QB,(/(I1-1+half(1)),(I2-1+half(2)),(I3-1+half(3))/))
         if(sum(abs(v))<1d-6) cycle
         IF (IPQ(I1,I2,I3) .EQ. 0) THEN
           IWGT = 0
@@ -71,9 +71,9 @@ c icase==2 is for regular-mesh without gamma points.
             v1 = matmul(g(:,:,ig),v(:))
             XV = matmul(V1,rbas)
             if(nadd==0) then    !periodicity
-              call rangedq_xxx(n1*xv(1)-hf,xv1)
-              call rangedq_xxx(n2*xv(2)-hf,xv2)
-              call rangedq_xxx(n3*xv(3)-hf,xv3)
+              call rangedq_xxx(n1*xv(1),xv1)
+              call rangedq_xxx(n2*xv(2),xv2)
+              call rangedq_xxx(n3*xv(3),xv3)
 c            write(6,"(' i1 i2 i3 ig=', 4i4,2x,3d13.6)") i1,i2,i3,ig
 c     &      , n1*xv(1), n2*xv(2), n3*xv(3)
 c            if(abs(xv1)+abs(xv2)+abs(xv3)>4d-6) then
@@ -85,20 +85,15 @@ c            endif
               if(abs(xv1)+abs(xv2)+abs(xv3)>3d-6) cycle 
               ! this is for the case not on the regular mesh points.
 
-              call rangedq_xxx(xv(1)-hf/n1,xv1)
-              call rangedq_xxx(xv(2)-hf/n2,xv2)
-              call rangedq_xxx(xv(3)-hf/n3,xv3)
-c              write(6,"('             ', 18x,3d13.6,' xx')") xv1, xv2, xv3
-c              j1 = xv1*n1+1 +1d-6
-c              j2 = xv2*n2+1 +1d-6
-c              j3 = xv3*n3+1 +1d-6
-c            else
-              j1= nint(xv1*n1+1-hf)
-              j2= nint(xv2*n2+1-hf)
-              j3= nint(xv3*n3+1-hf)
-c            j1 = xv1*n1+1 +1d-6
-c            j2 = xv2*n2+1 +1d-6
-c            j3 = xv3*n3+1 +1d-6
+              call rangedq_xxx(xv(1),xv1)
+              call rangedq_xxx(xv(2),xv2)
+              call rangedq_xxx(xv(3),xv3)
+              j1= nint(xv1*n1+1)
+              j2= nint(xv2*n2+1)
+              j3= nint(xv3*n3+1)
+              write(6,"('ggggggg00 ',3d13.6,3i4)") v
+              write(6,"('ggggggg11 ',3d13.6,3i4)") xv
+              write(6,"('ggggggg22 ',3d13.6,3i4)") xv1*n1, xv2*n2, xv3*n3,j1,j2,j3
             endif
             if( (j1<1.or.j1>n1+nadd) .or. (j2<1.or.j2>n2+nadd) .or. (j3<1.or.j3>n3+nadd) ) then
               cycle
@@ -141,7 +136,7 @@ c      if(verbose()>=100)
       DO  I3 = 1, N3+nadd
         DO  I2 = 1, N2+nadd
           DO  I1 = 1, N1+nadd
-            V = matmul(QB,(/(I1-1+hf),(I2-1+hf),(I3-1+hf)/))
+            V = matmul(QB,(/(I1-1),(I2-1),(I3-1)/))
 c        write(6,"(' ===== qbz=',3f8.3)") matmul(ginv,v)
             do k  = 1,nq
               do ir = 1,ng
