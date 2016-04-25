@@ -60,7 +60,7 @@ c        nqibz_r=0
 c      endif
       nqibz_r=0
       allocate(qibz(3,nqbz),ipq(nqbz),wibz(nqbz))
-      print *,' ---goto bzmesh--- '
+      print *,' goto bzmesh--- '
       call pshprt(51)
       call bzmesh(plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz !icase,
      &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.

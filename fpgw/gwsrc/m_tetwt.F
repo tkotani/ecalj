@@ -8,12 +8,15 @@
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!   
       module m_tetwt
-      real(8),allocatable :: whw(:)
-      integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-      integer:: nbnbx,nhwtot
-      integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+      real(8),allocatable,protected :: whw(:)
+      integer,allocatable,protected:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
+      integer,protected:: nbnbx,nhwtot
+      integer,allocatable,protected :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
 !!
       contains !! ----------------------------------------------------------------------
+      subroutine tetdeallocate()
+      deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+      end
 !! routine
       subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm) !this routine set output data above.
 !! input data; read only
@@ -45,7 +48,7 @@ c     &   frhis, nwhis,npm !output of getfreq
       if(verbose()>=100) debug=.true.
 
       if(.not.allocated(nbnb)) allocate( nbnb(nqbz,npm))
-      allocate( nbnbtt(nqbz,npm),ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+      allocate( nbnbtt(nqbz,npm),ekxx1(nband,nqbz),ekxx2(nband,nqbz),nbnb(nqbz,npm))
 
 !!===========tetraini block tetra==.true.===============================1ini
 c      if(tetra) then

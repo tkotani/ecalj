@@ -149,8 +149,8 @@ c      endif
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
-      if(iq0pin ==10002) call rx0( ' OK! qg4gw mode=10002 Readin Q0P. Gammacell skipped.')
-      if(iq0pin ==20002) call rx0( ' OK! qg4gw mode=20002 Readin Q0P. Gammacell Only.')
+      if(iq0pin ==10002) call rx0( ' OK! qg4gw mode=10002 Readin Q0P. GammaCell skipped.')
+      if(iq0pin ==20002) call rx0( ' OK! qg4gw mode=20002 Readin Q0P. GammaCell Only.')
       if(iq0pin ==3)     call rx0( ' OK! qg4gw mode=3 band-plot mode')
       if(iq0pin ==4)     call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')      
       end

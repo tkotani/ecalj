@@ -34,7 +34,7 @@
       use m_freq,only: getfreq, !NOTE: call getfreq generate following data.
      & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !, frhis0,nwhis0 !output of getfreq
 !! tetwt
-      use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
+      use m_tetwt,only: tetdeallocate,gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
@@ -579,7 +579,7 @@ c          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
 c      call getkeyvalue("GWinput","TmpWWK",tmpwwk,default=.false.)
 c      if(tetra) then
         allocate( !wgt(nband+nctot,nband,nqbz), !noccxvv(nw+niw),
-     &    nbnb(nqbz,npm),nbnbtt(nqbz,npm), ekxx1(nband,nqbz), ekxx2(nband,nqbz)) !!! nband=nlmto 
+     &    nbnbtt(nqbz,npm), ekxx1(nband,nqbz), ekxx2(nband,nqbz)) !!! nband=nlmto 
 c        if(tmpwwk)  ifwwk = iopen('tmp.wwk',0,-1,0)
 c      endif ;  if(debug) write(6,*)' xxx1:'
       noccxv     = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
@@ -1149,7 +1149,7 @@ c     d       natom,             !nl,nclass,natom,nnc,
      i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
      i       nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
           endif
-          deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+          call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
           iecut=1
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then

@@ -36,7 +36,7 @@ c     &     idteti, nstar,irk,nstbz
 c      use m_anf,only: anfcond,
 c     & laf,ibasf !,ldima,pos,natom
 !! tetwt
-      use m_tetwt,only: gettetwt, !followings are output of 'L871:call gettetwt')
+      use m_tetwt,only: tetdeallocate,gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
@@ -48,12 +48,15 @@ c     & laf,ibasf !,ldima,pos,natom
      &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
      &   MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
      &   MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
+!! q0p
+      use m_readq0p,only: readq0p,
+     & wqt,q0i,nq0i 
 
       implicit none
       integer,allocatable:: nwgt(:,:)
       integer::iopen,maxocc2,iclose, ixc,iqxini,iqxend,
      &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
-     &     nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
+     &     i,nq0ix,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &     ifepscond,nxx,ifvxcpout,ifgb0vec
      &     ,nw0,iw,ifinin,iw0,noccxv,noccx
@@ -65,7 +68,6 @@ c     & laf,ibasf !,ldima,pos,natom
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg2, q(3),  qgbin(3),qx(3) 
       real(8):: ua=1d0          ! this is a dummy.
       integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ndble=8, nword
-      real(8),allocatable:: vxcfp(:,:),  wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
       integer,allocatable :: ngveccB(:,:), iqib(:),ifppb(:) !,lx(:) ngvecc(:,:),
       complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:),
      &     zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
@@ -235,27 +237,11 @@ c      endif
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       if(nlmto/=nlmtot) call rx( ' hx0fp0: nlmto/=nlmtot in hbe.d')
       if(nqbz /=nqbzt ) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
+
 !! --- Readin Offset Gamma --------
-      if(debug) write(6,*) 'reading QOP'
-      ifiq0p=ifile_handle()
-      open (ifiq0p,file='Q0P')
-      read (ifiq0p,"(i5)") nq0i
-      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-      do i=1,nq0i
-         read (ifiq0p, * ) wqt(i),q0i(1:3,i)
-      enddo
-      nq0ix = nq0i
-      do i=1,nq0i
-         if(wqt(i)==0d0 ) then
-            nq0ix = i-1
-            exit
-         endif
-      enddo
-      neps=nq0i-nq0ix ! number of zero weight q0p which are used for ixc=2 or 3 mode.
-      write(6,*) ' num of zero weight q0p=',neps
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
-      close(ifiq0p)
+      call readq0p()
+      write(6,"(' ### nqibz nq0i=', 2i5)")nqibz,nq0i
+
 c$$$      if(.not.newaniso2) then
 c$$$         wqtsum = sum(abs(wqt(1:nq0i)))
 c$$$         call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
@@ -670,8 +656,8 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
      i     chipm,eibzmode,      !z1offd,
      i     nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-          deallocate(ihw,nhw,jhw, whw,ibjb )
-          if(tetra)  deallocate( n1b,n2b)
+          call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
+c          if(tetra)  deallocate( n1b,n2b)
  1003   continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
 !TIME1_180001 "Do1003"
 c===========end of spin loop============================================
@@ -1174,8 +1160,9 @@ c         if(newaniso2 .and. MPI__rank == 0 ) then ! MIZUHO-IR only on root node
         if(ixc==1011) then  
           ifw0w0i = ifile_handle('W0W0I')
           open(ifw0w0i,form='unformatted')
-          read(ifw0w0i) nw_ixx,nwxx,niw,nq0i
-          write(6,*)'w0w0i: n=',nw_ixx,nwxx,niw,nq0i
+          read(ifw0w0i) nw_ixx,nwxx,niw,nq0ix
+          write(6,*)'w0w0i: n=',nw_ixx,nwxx,niw,nq0ix
+          if(nq0i/=nq0ix)  call rx('nq0i/=nq0ix')
           if(nw_i/=nw_ixx) call rx(nw_i/=nw_ixx)
           if(nw/=nwxx) call rx(nw/=nwxx)
           read(ifw0w0i) llw(nw_i:nw,1:nq0i)

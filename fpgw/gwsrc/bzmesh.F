@@ -1,4 +1,4 @@
-      SUBROUTINE BZMESH(RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,half) !icase,
+      SUBROUTINE BZMESH(RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,qbzshift) !icase,
 !!-Divides the reciprocal lattice into microcells
 !! icase=1 only.
 Cr t.kotani. Jan2004
@@ -28,10 +28,10 @@ C---------------------------------------------------------------------
       IMPLICIT double precision (A-H,O-Z)
       DIMENSION RB(3,3),QB(3,3),WGT(NQMX),V(3),V1(3),IPQ(N1+nadd,N2+nadd,N3+nadd),
      .   RBAS(3,3),QBAS(3,3),QP(3,NQMX),g(3,3,ng)
-      real(8):: diff2(3),vv(3),diff(3),det,ginv(3,3),xv(3),xx(3),vi(3),half(3)
+      real(8):: diff2(3),vv(3),diff(3),det,ginv(3,3),xv(3),xx(3),vi(3),qbzshift(3),xvv(3)
       integer(4) :: verbose
       integer:: nadd,nnn
-      integer:: ix=0
+      integer:: ix=0,iii,jj(3)
 c      hf=0d0
 c      if(icase==2) hf=0.5d0
       call dinv33(rbas,1,qbas,vol)
@@ -45,80 +45,85 @@ c      if(icase==2) hf=0.5d0
       RB(:,1) = RBAS(:,1)*N1
       RB(:,2) = RBAS(:,2)*N2
       RB(:,3) = RBAS(:,3)*N3
-      IPQ = 0
       W0  = 2D0/(N1*N2*N3)
       nnn = (N1+nadd)*(N2+nadd)*(N3+nadd)
+
 !! Gamma point first ---
       if(nadd==1) w0= 2d0/nnn
       NQ = 1
       QP(:,1) = 0d0
       WGT(1) = W0
       SWGT = 1d0*W0
-      J1=1
-      J2=1
-      J3=1
       IPQ = 0
-      IPQ(J1,J2,J3) = 1
+      do I3 = 1, N3+nadd
+      do I2 = 1, N2+nadd
+      do I1 = 1, N1+nadd
+        V = matmul(QB,(/(I1-1+qbzshift(1)),(I2-1+qbzshift(2)),(I3-1+qbzshift(3))/))
+        if(sum(abs(v))<1d-6) then
+          J1=I1
+          J2=I2
+          J3=I3
+        endif
+      enddo
+      enddo
+      enddo
+      IPQ(J1,J2,J3) = NQ
+
 !! All other points
+      iii=1
+      print *,'w0=',w0
+      print *,'qbzshift=',qbzshift
       DO  20  I3 = 1, N3+nadd
       DO  20  I2 = 1, N2+nadd
       DO  20  I1 = 1, N1+nadd
-        V = matmul(QB,(/(I1-1+half(1)),(I2-1+half(2)),(I3-1+half(3))/))
-        if(sum(abs(v))<1d-6) cycle
+        V = matmul(QB,(/(I1-1+qbzshift(1)),(I2-1+qbzshift(2)),(I3-1+qbzshift(3))/))
+c        if(sum(abs(v))<1d-6) then
+c          print *,'0000',i1,i2,i3
+c        endif
         IF (IPQ(I1,I2,I3) .EQ. 0) THEN
           IWGT = 0
-          DO  22  IG = 1, NG
+          NQ = NQ+1
+          do 22 IG = 1, NG
             v1 = matmul(g(:,:,ig),v(:))
-            XV = matmul(V1,rbas)
-            if(nadd==0) then    !periodicity
-              call rangedq_xxx(n1*xv(1),xv1)
-              call rangedq_xxx(n2*xv(2),xv2)
-              call rangedq_xxx(n3*xv(3),xv3)
-c            write(6,"(' i1 i2 i3 ig=', 4i4,2x,3d13.6)") i1,i2,i3,ig
-c     &      , n1*xv(1), n2*xv(2), n3*xv(3)
-c            if(abs(xv1)+abs(xv2)+abs(xv3)>4d-6) then
-c              write(6,"('             ', 18x,3d13.6)") xv1, xv2, xv3
-c            else
-c              write(6,"('             ', 18x,3d13.6,' go')") xv1, xv2, xv3
-c            endif
-
-              if(abs(xv1)+abs(xv2)+abs(xv3)>3d-6) cycle 
-              ! this is for the case not on the regular mesh points.
-
-              call rangedq_xxx(xv(1),xv1)
-              call rangedq_xxx(xv(2),xv2)
-              call rangedq_xxx(xv(3),xv3)
-              j1= nint(xv1*n1+1)
-              j2= nint(xv2*n2+1)
-              j3= nint(xv3*n3+1)
-              write(6,"('ggggggg00 ',3d13.6,3i4)") v
-              write(6,"('ggggggg11 ',3d13.6,3i4)") xv
-              write(6,"('ggggggg22 ',3d13.6,3i4)") xv1*n1, xv2*n2, xv3*n3,j1,j2,j3
-            endif
-            if( (j1<1.or.j1>n1+nadd) .or. (j2<1.or.j2>n2+nadd) .or. (j3<1.or.j3>n3+nadd) ) then
-              cycle
-            endif
-c            if(verbose()>=100) 
-c            write(6,"(' i1 i2 i3 j1 j2 j3=', 3i4,2x,3i4)") i1,i2,i3, j1,j2,j3
-c
-            if(nadd==0) then    !periodicity
-              if(abs(j1-xv1*n1-1)/n1+abs(j2-xv2*n2-1)/n2+abs(j3-xv3*n3-1)/n3>3d-6) then
-                print *,'xxx1=',abs(j1-xv1*n1-1)
-                print *,'xxx2=',abs(j2-xv2*n2-1)
-                print *,'xxx3=',abs(j3-xv3*n3-1)
-                call rx( 'bzmesh: bug! abs(j1-xv1*n1-1)+... >4d-6')
+            XV = matmul(V1,rb)
+            jj(:)  = nint(xv(:)+1-qbzshift(:))
+            xvv(:) = xv(:)+1-qbzshift(:) - jj
+c            call rangedq_xxx(xv(1)+1-qbzshift(1),xv1)
+c            call rangedq_xxx(xv(2)+1-qbzshift(2),xv2)
+c            call rangedq_xxx(xv(3)+1-qbzshift(3),xv3)
+c            print *,ig,i1,i2,i3,xv(1:3),abs(xv1)+abs(xv2)+abs(xv3)
+            if(sum(abs(xvv(:)))>3d-6) then
+              if(nadd==0) then
+                print *,' bzmesh: mapping i1i2i3 to: ',i1,i2,i3,xvv(:)
+                call rx( 'bzmesh: bug! not mapped to regular mesh point')
+              else
+                cycle 
               endif
             endif
-            IF (IPQ(J1,J2,J3) .EQ. 0) then
+c            print *,'aaa ',ig,i1,i2,i3,xv(1:3)
+c            write(6,"('aaab ',i3,f10.5,3i3)") ig,abs(xv1)+abs(xv2)+abs(xv3),j1,j2,j3
+            j1=jj(1)
+            j2=jj(2)
+            j3=jj(3)
+            if(j1<1 .or. j1>n1+nadd) cycle
+            if(j2<1 .or. j2>n2+nadd) cycle
+            if(j3<1 .or. j3>n3+nadd) cycle
+            if(IPQ(J1,J2,J3) == 0) then
               IWGT = IWGT+1
-            endif
-            IPQ(J1,J2,J3) = NQ+1
-c            ixx  = ixx+1
+            endif  
+            IPQ(J1,J2,J3) = NQ
+c            IF (IPQ(J1,J2,J3) .EQ. 0) then
+c              write(6,"('aaab ',i3,f10.5,3i3,' xxx')") ig,abs(xv1)+abs(xv2)+abs(xv3),j1,j2,j3
+c              IWGT = IWGT+1
+c            else
+c              write(6,"('aaab ',i3,f10.5,3i3)") ig,abs(xv1)+abs(xv2)+abs(xv3),j1,j2,j3
+c            endif
    22     continue
-          NQ = NQ+1
           QP(:,NQ) = V
           WGT(NQ) = IWGT*W0
           SWGT = SWGT + WGT(NQ)
+c          III = III + IWGT
+c          print *,'sssss',i1,i2,i3,swgt,iwgt,iii
         ENDIF
 ccccccccccccccccccc
 c        if(i2==i3.and.i1==1) then
@@ -128,10 +133,18 @@ c          write(6,"('qqqq: q=',3f11.4,2x,3f11.4,i5)") VI,V,IPQ(I1,I2,I3)
 c        endif
 cccccccccccccccccccc
    20 CONTINUE
+      DO   I3 = 1, N3+nadd
+      DO   I2 = 1, N2+nadd
+      DO   I1 = 1, N1+nadd
+        write(6,*)i1,i2,i3,ipq(i1,i2,i3)
+      enddo
+      enddo
+      enddo
 c      if(verbose()>=100) 
-      print *,' Number of Qibz =',nq
+      write(6,"(' Number of Qibz =',2i6)") nq,nnn
 
-!! Rotation check ------------------------------------
+!! Rotati
+c ------------------------------------
       call dinv33(qbas,0,ginv,det)
       DO  I3 = 1, N3+nadd
         DO  I2 = 1, N2+nadd
