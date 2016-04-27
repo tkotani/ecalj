@@ -243,8 +243,9 @@ c
 c      shtw = 0d0
 c      if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe)
 c
-      call dinv33(plat,1,xxx,vol)
-      voltot = dabs(vol)*(alat**3)
+c      call dinv33(plat,1,xxx,vol)
+c      voltot = dabs(vol)*(alat**3)
+      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 
 c--- ef is taken as rs for the empty-sphere test case of legas=T case ----
       legas = .false.

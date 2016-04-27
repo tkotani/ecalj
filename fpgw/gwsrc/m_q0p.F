@@ -10,18 +10,18 @@
 
       contains
 
-      subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv,
+      subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
      & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect) !! All arguments are input.
       use m_keyvalue,only: getkeyvalue 
       implicit none
       integer,intent(in):: iq0pin
       logical,intent(in):: newoffsetG
-      integer,intent(in):: n1q,n2q,n3q,nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp
+      integer,intent(in):: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
       real(8),intent(in):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
       integer,intent(in) ::ngvect(3,ngcxx,nqbz)
 
-      integer::nq00ix,nx0,nq00i, xyz2lm(3),nnn
+      integer::nq00ix,nx0,nq00i, xyz2lm(3)
       real(8):: xn !,www,wgtq0
       logical:: noq0p,timereversal
       real(8),allocatable:: q0x(:,:),wt0(:)
@@ -48,7 +48,7 @@
 
       if(iq0pin==1) then
 !! Normal mode. all inputs
-         call getq0p(newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv, !apr2015
+         call getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2015
      i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
          ifi0=ifile_handle()
          open (ifi0,file='Q0P')
@@ -165,7 +165,7 @@
 
 !>- Q0P data set is given for 'getq0p'
 !! only called 
-      subroutine getq0p(newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv,
+      subroutine getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv,
      & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect) !! All arguments are input.
 !! this is called in subroutine mkqg2 
 !!  output
@@ -178,12 +178,12 @@
       use m_keyvalue,only: getkeyvalue 
       implicit none
       logical,intent(in):: newoffsetG
-      integer,intent(in):: n1q,n2q,n3q,nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp
+      integer,intent(in):: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp 
       real(8),intent(in):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
       integer,intent(in) ::ngvect(3,ngcxx,nqbz)
 
-      integer::nq00ix,nx0,nq00i, xyz2lm(3),nnn
+      integer::nq00ix,nx0,nq00i, xyz2lm(3)!,nnnt
       real(8):: xn !,www,wgtq0
       logical:: noq0p,timereversal
       real(8),allocatable:: q0x(:,:),wt0(:)
@@ -197,10 +197,13 @@
 
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
-      integer:: ig,lm,iq,ifile_handle
+      integer:: ig,lm,iq,ifile_handle !,n1q,n2q,n3q
       integer:: nq0x,nmm !not output
 
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+c      n1q=nnn(1)
+c      n2q=nnn(2)
+c      n3q=nnn(3)
 !! number of spherical points.
 c  nq00ix=12 !spherical points
 c  nq00ix=3   !spherical points
@@ -242,15 +245,15 @@ c      www = wgtq0p()
 c     q0x(:,1)=(/-deltaq, deltaq,  deltaq/)
 c     q0x(:,2)=(/deltaq, -deltaq,  deltaq/)
 c     q0x(:,3)=(/deltaq, deltaq,  -deltaq/)
-            q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale()
-            q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale()
-            q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale()
+            do i=1,3
+              q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale()
+            enddo
           elseif(nq00ix==6) then
 !! six independent direction is required to calculate full dielectric matrix (symmetric -->six components).
             nq00i=6
-            q0x(:,1)= qlat(:,1)/n1q/2d0*deltaq_scale()
-            q0x(:,2)= qlat(:,2)/n2q/2d0*deltaq_scale()
-            q0x(:,3)= qlat(:,3)/n3q/2d0*deltaq_scale()
+            do i=1,3
+            q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale()
+            enddo
 c                  norq0x(1)=sqrt(sum(q0x(:,1)**2))
 c                  norq0x(2)=sqrt(sum(q0x(:,2)**2))
 c                  norq0x(3)=sqrt(sum(q0x(:,3)**2))
@@ -407,9 +410,9 @@ c     do lm=1,9; write(*,"('r lm=',3f8.3,i4,' ylm=',f8.3)") rrr,lm,cy(lm)*yl(lm)
           enddo
           deallocate(cy,yl)
           lxklm=6         !this is used for inversion procedure in hx0fp0.sc.m.f
-          nnn=n1q*n2q*n3q
+c          nnnt=n1q*n2q*n3q
           allocate(wklm((lxklm+1)**2)) !wklm-->Klm in Comp.Phys. Comm 176(1007)1-13
-          call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,n1q,n2q,n3q,
+          call getwklm(alat,voltot,plat,qlat,alp,qbz,nqbz,ngcx,ngcxx,ngvect, lxklm,nnn(1),nnn(2),nnn(3),
      o     wklm)                !,wqfac)
 !! Takao think anisotropic treatment in Computer Phys. Comm 176(1007)1-13 
 !! (in our version with auxially function) can be numerically prorematic.
@@ -507,7 +510,7 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
           close(ifidmlx)
         else
           call setq0_2(bzcase, alat, voltot,plat, qlat,alpv, qbz, nstbz, nqbz,
-     i     ngcx, ngcxx, ngvect,   nq0x,nx0,xn,n1q,n2q,n3q,
+     i     ngcx, ngcxx, ngvect,   nq0x,nx0,xn,nnn(1),nnn(2),nnn(3), !n1q,n2q,n3q,
      o     q0x,wt0,nq00i)
 !     ! ... inequivalent q0x points ...
           nq0i=0

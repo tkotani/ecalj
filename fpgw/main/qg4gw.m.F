@@ -133,7 +133,7 @@ c      endif
         QpGcut_cou= QpGcut_cou *unit
       endif
       QpGcut_psi = QpGx2
-      write(6,"(' --- k points for GW from GWinput =',3i3)") n1q,n2q,n3q
+      write(6,"(' --- k points for GW from GWinput =',3i3)") nnn(1:3) 
       write(6,"(' ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
@@ -144,7 +144,7 @@ c      endif
          QpGcut_Cou=0d0
       endif
 !!
-      call mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pinxxx, 
+      call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')

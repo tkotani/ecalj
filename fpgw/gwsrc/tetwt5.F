@@ -1486,16 +1486,17 @@ cccccccccccccccccccccccccccc
       CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3
       ntet = 0
 C ----- START LOOPING OVER MICROCELLS ---------
+      if(skipgammacell.and.qbzreg()) then
+        call rx('tetfbzf:skipgammacell().and.qbzreg():not implemented yet')
+      endif   
       DO 20  I3 = 1, N3
       DO 21  I2 = 1, N2
       DO 22  I1 = 1, N1
-         if(skipgammacell) then
-            if(i1==n1.and.i2==n2.and.i3==n3.and.(.not.qbzreg())) then
-               cycle
-            endif
-         elseif(skipgammacell.and.qbzreg()) then
-            call rx('tetfbzf:skipgammacell().and.qbzreg():not implemented yet')
-         endif   
+        if(skipgammacell) then
+          if(i1==n1.and.i2==n2.and.i3==n3.and.(.not.qbzreg())) then
+            cycle
+          endif
+        endif   
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
         do K1 = 0, 1

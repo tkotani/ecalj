@@ -11,12 +11,12 @@ c------------------------------------------------------------
 
 c------------------------------------------------------------
       contains
-      subroutine getbzdata1(qlat,ginv,n1q,n2q,n3q
-     &    ,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
+      subroutine getbzdata1(qlat,ginv,nnn, !n1q,n2q,n3q
+     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
 !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
       implicit none
       logical :: tetrai,tetraf,multet
-      integer :: ngrp,n1q,n2q,n3q, mtet(3),n1qm,n2qm,n3qm,nnn(3),
+      integer :: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), !n1q,n2q,n3q,
      &    itet,ix,im,ifiqmtet,iq,icase,n1qtet,n2qtet,n3qtet
       real(8)  plat(3,3),qlat(3,3),ginv(3,3),qlattet(3,3),
      &    symops(3,3,ngrp),qc(3,0:3),qb(3,3),qbi(3,3)
@@ -32,18 +32,18 @@ c------------------------------------------------------------
       integer:: iqi,igrp,iccc,nnng(3),icasetet,nadd=0
 !! icase=1
 c-------------------------------------------------------
-      write(6,"('getbzdata1: ',3i5)") n1q,n2q,n3q
+      write(6,"('getbzdata1: n1n2n3=',3i5)") nnn(1:3)
       call minv33tp (qlat,plat)  !qlat --> plat 
       qbzshift=0d0
 c      if(icase==2) qbzshift=0.5d0
 c      if(icase>2) call rx( 'mkqg: wrong bzcase')
       if(gammacellctrl==2) then
         nadd=1  ! nddd=1 give end point of BZ (for gammacell case). See nqbz
-        qbzshift=-(/n1q/2d0,n2q/2d0,n3q/2d0/) !this shift is so that gamma point is centerd.
+        qbzshift=-nnn/2d0 !(/n1q/2d0,n2q/2d0,n3q/2d0/) !this shift is so that gamma point is centerd.
       endif
-      nqbz = (n1q+nadd)*(n2q+nadd)*(n3q+nadd) 
+      nqbz = (nnn(1)+nadd)*(nnn(2)+nadd)*(nnn(3)+nadd) 
       allocate(qbz(3,nqbz),wbz(nqbz),nstbz(nqbz))
-      call genqbz (qlat,n1q,n2q,n3q, !icase,
+      call genqbz (qlat,nnn(1),nnn(2),nnn(3), !icase,
      o     qbz,wbz,nstbz, nadd,qbzshift)
 
 c        do iq=1,nqbz
@@ -52,7 +52,7 @@ c        enddo
 
 c      if(icase/=1) then !get qibz_r, and nqibz_r
 c        allocate(qibz_r(3,nqbz),ipq(nqbz),wibz(nqbz))
-c        call bzmesh(1,plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz_r
+c        call bzmesh(1,plat,qbasmc,nnn(1),n2q,n3q,symops,ngrp,ipq,qibz_r
 c     &      ,wibz,nqibz_r,nqbz,nadd,qbzshift) !Make q-points in IBZ.
 c        deallocate(ipq,wibz)
 c      else
@@ -62,7 +62,7 @@ c      endif
       allocate(qibz(3,nqbz),ipq(nqbz),wibz(nqbz))
       print *,' goto bzmesh--- '
       call pshprt(51)
-      call bzmesh(plat,qbasmc,n1q,n2q,n3q,symops,ngrp,ipq,qibz !icase,
+      call bzmesh(plat,qbasmc,nnn(1),nnn(2),nnn(3),symops,ngrp,ipq,qibz !icase,
      &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c          if(testtr()) then
@@ -92,15 +92,15 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
       nqbzw=-1
 !!
       if(tetraf) then
-        nqbzw = (n1q+1)*(n2q+1)*(n3q+1)
+        nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
         ntetf = 6*nqbz
-c        if(nadd==1) ntetf=6*n1q*n2q*n3q  
+c        if(nadd==1) ntetf=6*nnn(1)*n2q*n3q  
         allocate( idtetf(0:3,ntetf), ib1bz(nqbzw), qbzw(3,nqbzw) )
         print *,' goto tetfbzf--- ntetf=',ntetf,nqbzw
 !! apr2016
         skipgammacell=.false.
         if(gammacellctrl==1) skipgammacell=.true.
-        call TETFBZF(qlat, n1q,n2q,n3q,qbz,nqbz,
+        call TETFBZF(qlat, nnn(1),nnn(2),nnn(3),qbz,nqbz,
      i      skipgammacell,qbzshift,nadd,
      o      idtetf,qbzw,ib1bz,ntetf)
       else
@@ -109,7 +109,7 @@ c        if(nadd==1) ntetf=6*n1q*n2q*n3q
       if(tetrai) then 
         allocate( idteti(0:4,6*nqbz))
         print *,' goto tetirr---' !this should work also for icase==2
-        call tetirr(qbasmc,n1q,n2q,n3q,ipq,nqibz,
+        call tetirr(qbasmc,nnn(1),nnn(2),nnn(3),ipq,nqibz,
      o              nteti,idteti)
       else
         nteti=0
@@ -120,9 +120,9 @@ c        if(nadd==1) ntetf=6*n1q*n2q*n3q
       if(sum(abs(mtet))/=3) then
         icase=1
         print *, 'multitet mode: mtet=',mtet
-        n1qm = mtet(1)*n1q
-        n2qm = mtet(2)*n2q
-        n3qm = mtet(3)*n3q
+        n1qm = mtet(1)*nnn(1)
+        n2qm = mtet(2)*nnn(2)
+        n3qm = mtet(3)*nnn(3)
         if(icase==2) then
           n1qm=n1qm+1
           n2qm=n2qm+1
@@ -142,11 +142,11 @@ c        if(nadd==1) ntetf=6*n1q*n2q*n3q
 !
         allocate( qcm(1:3,0:3, nmtet), wtet(0:3, nmtet, ntetf), 
      &          indexkw(0:n1qm,0:n2qm,0:n3qm) )
-        QB(:,1) = qlat(:,1)/(n1q*mtet(1))
-        QB(:,2) = qlat(:,2)/(n2q*mtet(2))
-        QB(:,3) = qlat(:,3)/(n3q*mtet(3))
+        QB(:,1) = qlat(:,1)/(nnn(1)*mtet(1))
+        QB(:,2) = qlat(:,2)/(nnn(2)*mtet(2))
+        QB(:,3) = qlat(:,3)/(nnn(3)*mtet(3))
         call minv33(qb,qbi)
-        call qwider(icase,qb, mtet(1)*n1q,mtet(2)*n2q,mtet(3)*n3q,
+        call qwider(icase,qb, mtet(1)*nnn(1),mtet(2)*nnn(2),mtet(3)*nnn(3),
      &                       n1qm,n2qm,n3qm, ib1bzm, qbzwm, qbzm, indexkw )
         do itet=1, ntetf  !--- idtetfm(0:3, nmtet, ntetf), nmtet divition.
           do ix=0,3
@@ -168,17 +168,17 @@ c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/
 cccccccccccccccccccccccccccccccccccccccccccccccc
             do ix=0,3     ! its four corners
               !qcm ---> idtetfm(ix,im,itet)
-              nnn(1:3) = matmul (qbi,qcm(1:3,ix,im))+ 1d-10
-              idtetfm(ix,im,itet) = indexkw(nnn(1),nnn(2),nnn(3))
+              nnnx(1:3) = matmul (qbi,qcm(1:3,ix,im))+ 1d-10
+              idtetfm(ix,im,itet) = indexkw(nnnx(1),nnnx(2),nnnx(3))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c                write(6,"(' nnn=',3i3)") nnn(1:3)
+c                write(6,"(' nnnx=',3i3)") nnnx(1:3)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
               ! qbzm is given as qbzm(1:3, ib1bz(idtetfm(ix,im,itet)) )
-              if(abs(sum(nnn - matmul (qbi,qcm(1:3,ix,im))))>1d-8) then
+              if(abs(sum(nnnx - matmul (qbi,qcm(1:3,ix,im))))>1d-8) then
 Cstop2rx 2013.08.09 kino                stop 'getbzdata1: nnn is not integer'
                 call rx( 'getbzdata1: nnn is not integer')
               endif
-c               write(6,"('n1 n2 n3=',3i5)") nnn(1:3)
+c               write(6,"('n1 n2 n3=',3i5)") nnnx(1:3)
             enddo
           enddo
         enddo
