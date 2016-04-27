@@ -1,4 +1,4 @@
-      subroutine mkQG2(alat,plat,symops,ngrp,n1q,n2q,n3q,iq0pin,
+      subroutine mkQG2(alat,plat,symops,ngrp,nnn,iq0pin,
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl)
 !! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only:  getbzdata1, 
@@ -24,7 +24,7 @@
 !!     See the end of console output.
 !! ---------------------------------------------------
       implicit none
-      integer ::n1q,n2q,n3q,ifiqg,ifiqgc,nnn,ngcxx,
+      integer ::nnn(3),ifiqg,ifiqgc,ngcxx,
      &     ngrp,i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,
      &     nline,nlinemax,ifsyml,iqq,is,nk,ix,nqnumx,i1,ifkpt
       real(8)  :: plat(3,3),qlat(3,3),q(3),dummy,qp(3), 
@@ -137,20 +137,20 @@ c------------------------------------------------
 
 !! plat,qlat,ginv
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      call minv33tp(plat,qlat)  !dinv33x
+      call minv33tp(plat,qlat)
       call minv33(qlat,ginv)
-      write(6,*)'=== plat ==='
-      write(6,"(3d23.15)") plat
-      write(6,*)'=== qlat ==='
-      write(6,"(3d23.15)") qlat
-      write(6,*)'=== ginv==='
-      write(6,"(3f9.4)") ginv
       imat33=0d0
       imat33(1,1)=1d0
       imat33(2,2)=1d0
       imat33(3,3)=1d0
       if(sum(abs(matmul(transpose(qlat),plat)-imat33))>1d-6) call rx('qlat*plat err')
-      if(sum(abs(matmul(ginv,qlat)-imat33))>1d-6)       call rx('ginv=qlat^-1 err')
+      if(sum(abs(matmul(ginv,qlat)-imat33))>1d-6)            call rx('ginv=qlat^-1 err')
+      write(6,*)'=== plat ==='
+      write(6,"(3d23.15)") plat
+      write(6,*)'=== qlat ==='
+      write(6,"(3d23.15)") qlat
+c      write(6,*)'=== ginv==='
+c      write(6,"(3f9.4)") ginv
 !! We now use mtet=(1,1,1). If we like to recover this, examine code again.
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
 
@@ -160,26 +160,24 @@ c------------------------------------------------
 !! To get qbz which is in the Gamma cell, we use shift in the getbzdata1 for gammacellctrl=2.
 !! Tetrahedron method is applied for such qbz.
       if(gammacellctrl==2) then
-         qlatbz(:,1) = qlat(:,1)/n1q !qlat for Gamma cell
-         qlatbz(:,2) = qlat(:,2)/n2q
-         qlatbz(:,3) = qlat(:,3)/n3q
-         call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)  
-         n1q = nnng(1)  !division of Gamma cell
-         n2q = nnng(2)
-         n3q = nnng(3)
-         dq_ = -matmul(qlatbz(1:3,1:3),(/.5d0,.5d0,.5d0/)) 
-         !This shift vector is to make the Gamma point centered in the Gamma cell.
-         tetrai=.false.
-         call minv33(qlatbz,ginv)
-         write(6,*)'=== Gammacell qlatgz ==='
-         write(6,"(3d23.15)") qlatbz
-         write(6,*)'=== Gammacell ginv ==='
-         write(6,"(3f9.4)") ginv
+        do i=1,3
+          qlatbz(:,i) = qlat(:,i)/nnn(i) !qlat for Gamma cell
+        enddo
+        call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)  
+        nnn = nnng          !division of Gamma cell
+        dq_ = -matmul(qlatbz(1:3,1:3),(/.5d0,.5d0,.5d0/)) 
+!This shift vector is to make the Gamma point centered in the Gamma cell.
+        tetrai=.false.
+        call minv33(qlatbz,ginv)
+        write(6,*)'=== Gammacell qlatgz ==='
+        write(6,"(3d23.15)") qlatbz
+        write(6,*)'=== Gammacell ginv ==='
+        write(6,"(3f9.4)") ginv
       else
         qlatbz(:,:) = qlat(:,:)
         tetrai = .true.         !used in heftet tetra_hsfp0()
         dq_ = 0d0
-        if(.not.qbzreg()) dq_ = -matmul(qlat(1:3,1:3),(/.5d0/n1q,.5d0/n2q,.5d0/n3q/)) 
+        if(.not.qbzreg()) dq_ = -matmul(qlat(1:3,1:3),(/.5d0/nnn(1),.5d0/nnn(2),.5d0/nnn(3)/)) 
                           !This dq_ is off-gamma mesh, used when qbzreg=F
       endif
       if(sum(abs(dq_))>1d-6) write(6,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
@@ -188,15 +186,15 @@ c------------------------------------------------
 !! See following data after 'use getbzdata1' at the top of this routine.
 !! In the case of gammacellctrl=2, we only calculate quantities in the Gamma cell.
 !! Thus we have special meanings of nqbz. GWinput --> GammaDivn1n2n3 4 4 4 
-      call getbzdata1(qlatbz,ginv,n1q,n2q,n3q !plat bzcase,
-     &     ,symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all are inputs. output: See use.
+      call getbzdata1(qlatbz,ginv,nnn, !plat bzcase,
+     & symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all are inputs. output: See use.
 
 !! Write BZDATA
       print *,' Writing BZDATA...'
       ifbz = ifile_handle()
       open (ifbz, file='BZDATA')
       write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nqibz_r
-      write(ifbz,"(10i10)")  n1q,n2q,n3q
+      write(ifbz,"(10i10)")  nnn(1:3) !n1q,n2q,n3q
 c      call rwbzdata(ifbz,-1,
 c     &     ngrp,qlat, ginv, qbasmc,
 c     i     qbz, wbz, nstbz,  nqbz, 
@@ -291,7 +289,7 @@ c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
 
 !! getallq0p all inputs
 !! Q0P is offset Gamma or k point given in GWinput
-      call getallq0p(iq0pin,newoffsetG,alat,plat,qlat,n1q,n2q,n3q,alp,alpv, !apr2016
+      call getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2016
      i ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
 
 !! Four kinds of mesh points. Q0P means offset Gamma (slightly different from Gamma).
@@ -348,8 +346,8 @@ c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
             qq(1:3,ix) = qbz(1:3,iq) - dq_
          enddo
       endif
-      nnn   =  ix               !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*n3q
-      print *,' nnn=',nnn       !This is the number to calcualte Vxc
+c      nnn   =  ix               !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*n3q
+c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
 !!  - Shifted mesh
       if(regmeshg) then
          do iq00 = 1, nq0i
@@ -525,5 +523,5 @@ c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
       enddo
       deallocate(ngpn,ngcn,ngvecprev,ngveccrev)
       if(iq0pin==1) deallocate(ngvect)
-      if(debug) print *,'--- end of mkqg ---'
+      if(debug) print *,'--- end of mkqg2 ---'
       end
