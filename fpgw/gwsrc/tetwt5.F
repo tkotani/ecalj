@@ -946,7 +946,7 @@ c--- kkvkin: kin is decomplosed into kkv.!!!!!!!!!!
         do i = 1,3
           am(1:3,i) = kkv(1:3,i) - kkv(1:3,4)
         enddo
-        call dinv33x(am, bm)
+        call minv33tp(am, bm)
         kkv4bm(1)= sum( kkv(:,4)*bm(:,1) )
         kkv4bm(2)= sum( kkv(:,4)*bm(:,2) )
         kkv4bm(3)= sum( kkv(:,4)*bm(:,3) )

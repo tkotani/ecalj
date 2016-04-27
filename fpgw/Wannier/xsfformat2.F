@@ -125,7 +125,7 @@ c     .    'isp',isp,'_iq',iq,'_ib',ib,'_',iband,'_ri',iimg
       integer::ix
       real(8)::qlat(3,3)
 
-      call dinv33x(plat,qlat)
+      call minv33tp(plat,qlat)
       eps = 0.05d0
 c      aini = alat*(rini-eps)
 c      afin = alat*(rfin+eps)

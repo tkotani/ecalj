@@ -162,7 +162,7 @@ c
      &   igc, !ngvecpB(3,ngpmx,nqbz),ngveccBr(3,ngcmx,nqibz),
      &  nadd(3)
       real(8) :: wgt0(nq0i,ngrp),wqt(nq0i),qk(3), !qfbz(3),
-     &  qbasinv(3,3), det,qdiff(3),add(3),symope(3,3),
+     &  qbasinv(3,3),qdiff(3),add(3),symope(3,3),
      &  qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot),
      &   ppb(1) !pdb(1),dpb(1),ddb(1)
       complex(8)::   alagr3z,wintz !geigB  (ngpmx,nband,nqbz),
@@ -333,7 +333,8 @@ cccc      iq          = idxk (q,qbze,nqbze) ! index for q
 c      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot) ! core
       nlmtobnd    = nlmto*nband
       nstatetot      = nctot + nband
-      call dinv33(qbas,0,qbasinv,det) 
+c      call dinv33(qbas,0,qbasinv,det) 
+      call minv33(qbas,qbasinv)
 
 c work arrays for psi2br.f
       if(debug) write(6,*) ' sxcf: 1'

@@ -379,7 +379,7 @@ c-----------------------------------------------------
 
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' rotgvec: '
-      call dinv33(qbas,0,qbasinv,det)
+      call minv33(qbas,qbasinv)
 !      symops = grp(:,:,irot)
       if(debug) write(6,'(3f12.6)') symops(1,1:3)
       if(debug) write(6,'(3f12.6)') symops(2,1:3)

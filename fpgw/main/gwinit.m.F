@@ -259,7 +259,7 @@ c$$$      endif
 C --- q in 1BZ KPT1BZ.
       nnn = n1q*n2q*n3q
       allocate ( qbz(3,nnn),qbzs(3,nnn),wbz(nnn),nstbz(nnn) )
-      call dinv33x (plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
+      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
       call genqbz (ibzcase,qlat,n1q,n2q,n3q,
      o  qbz,wbz,nstbz )
 c ... write to file KPNTin1BZ

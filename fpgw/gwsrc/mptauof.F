@@ -209,7 +209,7 @@ cnnn
       read(ifi,*) plat(1:3,2)
       read(ifi,*) plat(1:3,3)
       close(ifi)
-      call dinv33x (plat,qlat)
+      call minv33tp(plat,qlat)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp

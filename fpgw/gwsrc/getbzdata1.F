@@ -33,7 +33,7 @@ c------------------------------------------------------------
 !! icase=1
 c-------------------------------------------------------
       write(6,"('getbzdata1: ',3i5)") n1q,n2q,n3q
-      call dinv33x (qlat,plat)  !qlat --> plat 
+      call minv33tp (qlat,plat)  !qlat --> plat 
       qbzshift=0d0
 c      if(icase==2) qbzshift=0.5d0
 c      if(icase>2) call rx( 'mkqg: wrong bzcase')
@@ -145,8 +145,7 @@ c        if(nadd==1) ntetf=6*n1q*n2q*n3q
         QB(:,1) = qlat(:,1)/(n1q*mtet(1))
         QB(:,2) = qlat(:,2)/(n2q*mtet(2))
         QB(:,3) = qlat(:,3)/(n3q*mtet(3))
-        call dinv33x(qb,qbi)
-        qbi = transpose(qbi)
+        call minv33(qb,qbi)
         call qwider(icase,qb, mtet(1)*n1q,mtet(2)*n2q,mtet(3)*n3q,
      &                       n1qm,n2qm,n3qm, ib1bzm, qbzwm, qbzm, indexkw )
         do itet=1, ntetf  !--- idtetfm(0:3, nmtet, ntetf), nmtet divition.

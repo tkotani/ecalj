@@ -72,7 +72,7 @@ c      use m_wfrho_abc
       call read_BZDATA()
       call read_DATA4GW()
       call set_mnla()
-      call dinv33x (plat,qlat)  !it was dinv33(plat,1,qlat) by Ferdi
+      call minv33tp (plat,qlat)  !inverse and transpose
       do isp=1,nsp
          ifi = 1000
          if (isp.eq.1) fname='MLWU'

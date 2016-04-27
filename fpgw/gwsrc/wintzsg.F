@@ -544,7 +544,8 @@ c
       amat(1:3,1) = 1d0
       amat(1:3,2) = xi(1:3)**2
       amat(1:3,3) = xi(1:3)**4
-      call dinv33(amat,0,amatinv,detxx)
+c      call dinv33(amat,0,amatinv,detxx)
+      call minv33(amat,amatinv)
       alagr3z = dcmplx (
      &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
      &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
@@ -729,7 +730,7 @@ c
       amat(1:3,1) = 1d0
       amat(1:3,2) = xi(1:3)**2
       amat(1:3,3) = xi(1:3)**4
-      call dinv33(amat,0,amatinv,detxx)
+      call minv33(amat,amatinv)
       alagr3z2 = dcmplx (
      &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
      &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
@@ -899,7 +900,7 @@ c Imag part is corrected to be >0
       amat(1:3,1) = 1d0
       amat(1:3,2) = xi(1:3)**2
       amat(1:3,3) = xi(1:3)**4
-      call dinv33(amat,0,amatinv,detxx)
+      call minv33(amat,amatinv)
       alagr3zz = dcmplx (
      &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
      &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )

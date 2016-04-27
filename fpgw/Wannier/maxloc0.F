@@ -216,7 +216,7 @@ c for inverting matrix
 
 
 c begin
-      call dinv33x (plat,qlat) ! dinv33(plat,1,qlat) in Ferdi's code
+      call minv33tp(plat,qlat) ! inverse and tranpose
 
 check write
 c      write(*,*)'n1,n2,n3'

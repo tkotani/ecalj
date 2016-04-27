@@ -75,7 +75,7 @@ c takao
 c 
       logical :: screen, exchange, cohtest, legas, tote 
       real(8) ::  rydberg,hartree 
-      real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
+      real(8):: qreal(3), ntot,nocctotg2,tripl!,xxx(3,3)
       real(8):: qlat(3,3)
       logical ::nocore
 
@@ -281,10 +281,11 @@ c
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
 
-      call dinv33(plat,1,xxx,vol)
-      call dinv33(plat,1,qlat,vol)
-
-      voltot = dabs(vol)*(alat**3)
+c      call dinv33(plat,1,xxx,vol)
+c      call dinv33(plat,1,qlat,vol)
+c      voltot = dabs(vol)*(alat**3)
+      call minv33tp(plat,qlat)
+      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 
       ifmlw(1) = iopen('MLWU',0,-1,0)
       ifmlwe(1)= iopen('MLWEU',0,-1,0)

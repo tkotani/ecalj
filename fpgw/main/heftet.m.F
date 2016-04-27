@@ -61,7 +61,7 @@ c takao
       complex(8),allocatable:: geigB(:,:,:,:) ,zsec(:,:,:)
 c
       logical :: exchange, legas
-      real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
+      real(8):: qreal(3), ntot,nocctotg2,tripl
       logical ::nocore
 
 c space group infermation
@@ -186,8 +186,10 @@ c
 c
       shtw = 0d0
       if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe)
-      call dinv33(plat,1,xxx,vol)
-      voltot = dabs(vol)*(alat**3)
+
+c      call dinv33(plat,1,xxx,vol)
+c      voltot = dabs(vol)*(alat**3)
+      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 
 c--- ef is taken as rs for the empty-sphere test case of legas=T case -------------
       legas = .false.

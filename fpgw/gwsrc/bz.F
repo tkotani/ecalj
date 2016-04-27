@@ -717,7 +717,6 @@ c calculate the lengths
 c------------------------------------------------------------------
       subroutine invgrp (g,ng,
      o invg)
-
 c index for the inverse of group rotations
 c given ig, invg(ig) gives the index of the inverse of g
 
@@ -728,28 +727,21 @@ c invg = given ig, invg gives the index corresponding to
 c        the inverse of g
 
       implicit real*8(a-h,o-z)
-
       dimension g(3*3,ng)
       dimension invg(ng)
       dimension ginv(3*3),w1(9)
       data tol /1.d-5/
-
       do       i = 1,ng
-
-c invert g
-        call dinv33(g(1,i),0,ginv,det)
-
-c find g = ginv
+        call minv33(g(1,i),ginv)
+!! find g = ginv
         do       j = 1,ng
           call vminv   (g(1,j),ginv,9,w1)
           diff       = vdv (w1,w1,9)
           if (diff .lt. tol) goto 1111
         end do
  1111   invg(i)    = j
-Cstop2rx 2013.08.09 kino        if (j .gt. ng) stop 'invgrp: cannot identify inverse of g'
         if (j .gt. ng) call rx( 'invgrp: cannot identify inverse of g')
       end do
-
       return
       end
 c---------------------------------------------------------------------

@@ -141,7 +141,7 @@ cold  nbmax -->nmmax
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
 
       if(init) then
-         call dinv33(qbas,0,qbasinv,det)
+         call minv33(qbas,qbasinv)
          allocate( cphiq(nlmto,nband), cphim(nlmto,nband))
          init=.false.
       endif

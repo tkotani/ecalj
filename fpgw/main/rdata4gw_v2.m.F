@@ -108,9 +108,9 @@ c     &  ,iantiferro               !for check
      &     ,ifiqgc,nqnumc,ngcmx,l,ifoc,ir,isp,  iqi2 !,iopen
       real(8):: qpgcut_psi,qpgcut_cou,ovvxx,ovvx,qpgcut_psi2,dummy
       integer(4),parameter:: nspx=2
-      real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3),det
+      real(8) :: qlat(3,3) ,qm(3,3),ginv(3,3)
       character*30 :: symgrpo='UseSYMOPSfile'
-      real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),qxx(3),volumxx,ecx(2)
+      real(8):: qqq(3),qqqa(3),qqqb(3),qx(3),qxx(3),ecx(2)
       integer(4)::              !ifrb (nspx),ifcb(nspx),ifrhb(nspx),ifchb(nspx)
      &     ifphi,ifev !ifev(nspx)
      &     ,ifv,ifplane
@@ -445,8 +445,9 @@ c$$$        write(6,"(a)")' NoCore case. So we use Vxc(nvalence)'
 c$$$      endif
 c     write(6,*) ' smooth mixed basis=',smbasis()
 
-      call dinv33 ( plat,1,qlat,volumxx )
-      call dinv33(qlat,0,ginv,det)
+      call minv33tp(plat,qlat)
+      call minv33(qlat,ginv)
+
       allocate(lmxaa(1:nbas))
       lmxaa(1:nbas) = lmxa(iclass(1:nbas))
 

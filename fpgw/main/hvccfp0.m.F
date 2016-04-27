@@ -70,7 +70,7 @@ c      integer(4),allocatable:: iqok(:)
       integer(4),allocatable:: ngvecc0(:,:)
       integer(4):: ngc0
 
-      real(8):: ginv(3,3),quu(3),det
+      real(8):: ginv(3,3),quu(3)
 
 c---
       real(8),allocatable :: rkpr(:,:,:),rkmr(:,:,:),rofi(:,:)
@@ -417,7 +417,7 @@ c     &  write(*,*) 'allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))'
       if(allochk) write(6,*)' end of scg: cg coefficients generated.'
 
 
-      call dinv33(qlat,0,ginv,det)
+      call minv33(qlat,ginv)
 
 c --- Get real-space vectors and reciprocal-space vectors for Ewald sum.
 C defaults values for ewald sum

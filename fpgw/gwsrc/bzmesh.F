@@ -34,7 +34,7 @@ C---------------------------------------------------------------------
       integer:: ix=0,iii,jj(3)
 c      hf=0d0
 c      if(icase==2) hf=0.5d0
-      call dinv33(rbas,1,qbas,vol)
+      call minv33(rbas,qbas)
       WRITE(*,"(' BZMESH : ',5X,'RBAS',31X,'QBAS')")
       DO K = 1, 3
         WRITE(*,"(3F10.5,5X,3F10.5)") (RBAS(M,K),M=1,3),(QBAS(M,K),M=1,3)
@@ -149,7 +149,7 @@ c      if(verbose()>=100)
 
 !! Rotate
 c ------------------------------------
-      call dinv33(qbas,0,ginv,det)
+      call minv33(qbas,ginv)
       DO  I3 = 1, N3+nadd
         DO  I2 = 1, N2+nadd
           DO  I1 = 1, N1+nadd

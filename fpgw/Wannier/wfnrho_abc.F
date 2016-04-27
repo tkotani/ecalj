@@ -251,7 +251,7 @@ c      if(iq>=63) write(6,*)'aaaaaa222     ',ngp(iq)
 c      if(iq>=63) write(6,*)'aaaaaa222 sum ',sum(geig(1:ngp(iq)))
 ccccccccccccccccccccccccccc
 
-      call dinv33x(plat,qlat)
+      call minv33tp(plat,qlat)
 c      call chkinv33(plat,qlat)
       phipwtmp = 0d0
 c      write(6,*)'aaaaaa1',mesh
