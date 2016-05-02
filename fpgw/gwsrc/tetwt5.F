@@ -1414,6 +1414,8 @@ C ----------------------------------------------------------------------
       real(8),intent(in) :: rk(3,nqbz)
       integer,intent(in):: n1,n2,n3,nqbz,nadd
       integer,intent(out)::ntetf
+
+      integer:: ngcell
 c------------------------------------------------------------------
       hf=0d0
 c      if(icase==2) hf=0.5d0
@@ -1489,11 +1491,13 @@ C ----- START LOOPING OVER MICROCELLS ---------
       if(skipgammacell.and.qbzreg()) then
         call rx('tetfbzf:skipgammacell().and.qbzreg():not implemented yet')
       endif   
+      call getkeyvalue("GWinput","ngcell",ngcell,default=1)
+
       DO 20  I3 = 1, N3
       DO 21  I2 = 1, N2
       DO 22  I1 = 1, N1
         if(skipgammacell) then
-          if(i1==n1.and.i2==n2.and.i3==n3.and.(.not.qbzreg())) then
+          if(i1=>n1-(ngcell-1).and.i2=>n2-(ngcell-1).and.i3>=n3-(ngcell-1).and.(.not.qbzreg())) then
             cycle
           endif
         endif   
