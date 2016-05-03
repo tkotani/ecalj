@@ -1384,6 +1384,7 @@ C- get (n1b n2b) corresponding to non-zero wgt.
 !! ---------------------------------
       SUBROUTINE TETFBZF(qbas,N1,N2,N3,rk,nqbz, skipgammacell,half,nadd,
      o  IDTET,qbzw,ib1bz,ntetf)
+      use m_keyvalue,only: getkeyvalue
 !!  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -1415,7 +1416,7 @@ C ----------------------------------------------------------------------
       integer,intent(in):: n1,n2,n3,nqbz,nadd
       integer,intent(out)::ntetf
 
-      integer:: ngcell
+      integer:: ngcell,i1x,i2x,i3x,ndx
 c------------------------------------------------------------------
       hf=0d0
 c      if(icase==2) hf=0.5d0
@@ -1488,19 +1489,29 @@ cccccccccccccccccccccccccccc
       CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3
       ntet = 0
 C ----- START LOOPING OVER MICROCELLS ---------
-      if(skipgammacell.and.qbzreg()) then
-        call rx('tetfbzf:skipgammacell().and.qbzreg():not implemented yet')
-      endif   
       call getkeyvalue("GWinput","ngcell",ngcell,default=1)
 
       DO 20  I3 = 1, N3
       DO 21  I2 = 1, N2
       DO 22  I1 = 1, N1
         if(skipgammacell) then
-          if(i1=>n1-(ngcell-1).and.i2=>n2-(ngcell-1).and.i3>=n3-(ngcell-1).and.(.not.qbzreg())) then
-            cycle
-          endif
+           i1x = i1-n1
+           i2x = i2-n2
+           i3x = i3-n3
+           if(i1<n1/2) i1x=i1
+           if(i2<n2/2) i2x=i2
+           if(i3<n3/2) i3x=i3
+           ndx=0
+           if(qbzreg()) ndx=1
+           if( i1x<ngcell .and. -ngcell< i1x-ndx) then
+           if( i2x<ngcell .and. -ngcell< i2x-ndx) then
+           if( i3x<ngcell .and. -ngcell< i3x-ndx) then
+               cycle
+           endif
+           endif
+           endif
         endif   
+c 3010   continue
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
         do K1 = 0, 1
