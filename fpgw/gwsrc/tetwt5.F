@@ -1417,12 +1417,14 @@ C ----------------------------------------------------------------------
       integer,intent(out)::ntetf
 
       integer:: ngcell,i1x,i2x,i3x,ndx
+      real(8):: qqqx(3),rb(3,3),rrr(3)
 c------------------------------------------------------------------
       hf=0d0
 c      if(icase==2) hf=0.5d0
       QB(1:3,1) = QBAS(1:3,1)/N1
       QB(1:3,2) = QBAS(1:3,2)/N2
       QB(1:3,3) = QBAS(1:3,3)/N3
+      call minv33(qb,rb)
 C- index for k in 1st BZ. See genqbz in BZ.FOR.
       kount      = 0
       do      i1 = 1,n1+nadd
@@ -1457,6 +1459,7 @@ c      enddo
 c      enddo
 c      write(6,*)
 cccccccccccccccccccccccccccc
+ccccccccccccccc
       if(nadd==0) then
         kount      = 0
         do      i1 = 1,n1+1
@@ -1465,20 +1468,31 @@ cccccccccccccccccccccccccccc
               kount    = kount + 1
               indexkw(i1-1,i2-1,i3-1) = kount
               qbzw(1:3,kount) =
-     &         qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf)
+     &         qb(1:3,1)*(i1-1+half(1)) + qb(1:3,2)*(i2-1+half(2)) + qb(1:3,3)*(i3-1+half(3))
               ib1bz(kount) = indexk(mod(i1-1,n1), mod(i2-1,n2), mod(i3-1,n3))
             end do
           end do
         end do
       elseif(nadd==1) then
-        qbzw(:,1:nqbz)= rk(:,1:nqbz) !NOTE: nqbz=kount=(n1+nadd)*(n2+nadd)*(n3+nadd)
+c        qbzw(:,1:nqbz)= rk(:,1:nqbz) !NOTE: nqbz=kount=(n1+nadd)*(n2+nadd)*(n3+nadd)
         kount      = 0
         do     i1 = 1,n1+1
           do   i2 = 1,n2+1
             do i3 = 1,n3+1
               kount    = kount + 1
               indexkw(i1-1,i2-1,i3-1) = kount
+              qbzw(1:3,kount) =
+     &         qb(1:3,1)*(i1-1+half(1)) + qb(1:3,2)*(i2-1+half(2)) + qb(1:3,3)*(i3-1+half(3))
               ib1bz(kount) = indexk(i1-1, i2-1, i3-1)
+cccccccccccccccccccccccc
+c              qqqx = qbzw(1:3,kount) -
+c     &         (qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf))
+c              if(sum(abs(qqqx))>1d-6) then
+c                write(6,*) 'qbzw=',qbzw(1:3,kount) 
+c                write(6,*) 'qbx=',(qb(1:3,1)*(i1-1+hf) + qb(1:3,2)*(i2-1+hf) + qb(1:3,3)*(i3-1+hf))
+c                call rx('qbzw error')
+c              endif
+cccccccccccccccccccccccc
             enddo
           enddo
         enddo
@@ -1506,14 +1520,32 @@ C ----- START LOOPING OVER MICROCELLS ---------
            if( i1x<ngcell .and. -ngcell< i1x-ndx) then
            if( i2x<ngcell .and. -ngcell< i2x-ndx) then
            if( i3x<ngcell .and. -ngcell< i3x-ndx) then
-               cycle
+ccccccccccccccccccccccc
+             kount= indexkw(i1-1,i2-1,i3-1)
+             rrr=matmul(rb,qbzw(1:3,kount))
+             write(6,"('qqqqx qbzw=',3i3, 3f9.5)") i1x,i2x,i3x, rrr
+             goto 3010
+            cycle
+cccccccccccccccccccccccc             
            endif
            endif
            endif
-        endif   
-c 3010   continue
+        endif 
+  
+ccccccccccccccccccc
+        cycle
+ 3010   continue
+cccccccccccccc
+
+
+c         write(6,"(' k1k2k3=',3i4,' ix=',i6,' ii=',2i6)")
+c     &    indexkw(J1,J2,J3)    
+c     &    ,indexkw(J1,J2,J3), ib1bz(indexkw(J1,J2,J3))
+c     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
+cccccccccccccc
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
+        print *,'qqqq '
         do K1 = 0, 1
           J1 = I1 -1 + K1
         do K2 = 0, 1
@@ -1522,13 +1554,32 @@ c        write(6,*)
           J3 = I3 -1 + K3
           IMC(K1,K2,K3)  = indexkw(J1,J2,J3)
 cccccccccccccc
-c         write(6,"(' k1k2k3=',3i4,' ix=',i6,' ii=',2i6)")J1,J2,J3
-c     &    ,indexkw(J1,J2,J3), ib1bz(indexkw(J1,J2,J3))
-c     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
+c         if(k1==0.and.k2==0.and.k3==0) then
+           kount= indexkw(j1,j2,j3)
+           write(6,"('qqqq qbzw=',3i3,3f9.5)") j1,j2,j3,matmul(rb,qbzw(1:3,kount))
+c         endif
 cccccccccccccc
         enddo
         enddo
         enddo
+
+ccccccccccccccccccccccccccc
+c         if(i1==1.and.i2==1.and.i3==1) then
+c           goto 4010
+c         endif
+
+c         if(i1==4.and.i2==4.and.i3==4) then
+c           goto 4010
+c         endif
+
+         if(i1==4.and.i2==4.and.i3==1) then
+           goto 4010
+         endif
+
+         cycle
+ 4010    continue
+cccccccccccccccccccccccccc
+
 C ----- LOOP OVER TETRAHEDRA --------------
         do 10 ITET = 1, 6
           do  IC = 1, 4

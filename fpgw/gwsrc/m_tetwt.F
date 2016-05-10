@@ -16,7 +16,7 @@
       contains !! ----------------------------------------------------------------------
       subroutine tetdeallocate()
       deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
-      end
+      end subroutine
 !! routine
       subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm) !this routine set output data above.
 !! input data; read only

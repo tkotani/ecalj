@@ -173,6 +173,9 @@ c      write(6,"(3f9.4)") ginv
         write(6,"(3d23.15)") qlatbz
         write(6,*)'=== Gammacell ginv ==='
         write(6,"(3f9.4)") ginv
+cccccccccccccccccccccc
+c        qreduce0=.false.
+cccccccccccccccccccccc
       else
         qlatbz(:,:) = qlat(:,:)
         tetrai = .true.         !used in heftet tetra_hsfp0()
@@ -180,6 +183,9 @@ c      write(6,"(3f9.4)") ginv
         if(.not.qbzreg()) dq_ = -matmul(qlat(1:3,1:3),(/.5d0/nnn(1),.5d0/nnn(2),.5d0/nnn(3)/)) 
                           !This dq_ is off-gamma mesh, used when qbzreg=F
       endif
+ccccccccccccccccccccccccccc
+c      dq_=0d0
+ccccccccccccccccccccccccccc
       if(sum(abs(dq_))>1d-6) write(6,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
 
 !! Get BZ data by 'call getbzdata1'
@@ -310,6 +316,9 @@ c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
       print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
 
 !!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
+cccccccccccccccc
+      call minv33(qlat,ginv)
+cccccccccccccccc
       nqnum = nqbz
       allocate( qq(1:3,nqnum),irr(nqnum) )
       qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
