@@ -117,7 +117,7 @@ c      integer(4) :: mdim(natom)
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
 c      integer(4)::imdim(natom),iatomp(natom)
-      logical,parameter:: debug=.false.
+      logical,parameter:: debug=.true.
 c---tetwt5
       logical:: hist      ,ipr
       integer(4):: nhwtot,
@@ -129,7 +129,7 @@ c         complex(8), allocatable :: zxq_(:,:,:) !...........sf 21May02
 c         logical :: takao=.false. !.........................sf 21May02
 c         allocate( zxq_( nbloch + ngc,nbloch + ngc,nwt)) !..sf 21May02
       integer(4)::nocc
-      real(8):: eband(nband)
+      real(8):: eband(nband),ebandr(nband),ebandqr(nband)
 c      integer(4):: n_index_qbz
 c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 c-----
@@ -280,7 +280,7 @@ ckinoend
 c      qq=0d0
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
-        if(debug) write(6,'("do 1000  k=",i4)')k
+        if(debug) write(6,'("do 1000  k=",i4,3f10.4)')k,rk(:,k)
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
 !TIME0_1101
@@ -288,7 +288,9 @@ c      qq=0d0
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
         endif
-
+ccccccccccc
+          write(6,"('xxxxxxx  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
+ccccccccccc
 !! --- tetra ------ override nt0 itps ntp0 ---------------
         nkmin = 999999
         nkmax= -999999
@@ -303,6 +305,14 @@ c      qq=0d0
           enddo
         enddo
         call readeval(q+rk(:,k),isp_kq,eband)
+
+
+cccccccccccccccccccccccccccccc
+        ebandqr=eband
+        call readeval(rk(:,k),isp_kq,ebandr)
+cccccccccccccccccccccccccccccc
+
+
         nkqmax = nocc (eband,ebmx,.true.,nband)
         if(npm==2) then
           call readeval(rk(:,k),isp_k,eband)
@@ -336,7 +346,6 @@ c      qq=0d0
 c        if(ipr) then
 c          write(6,"(' nkRange  nkqRange=',2i6,2x,2i6)") nkmin,nkmax,nkqmin,nkqmax
 c        endif
-
 
 
 
@@ -615,6 +624,11 @@ c----------------------------
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
 !KINO        write(6,'(a,i4)')'kino: npm=',npm
 !kino 2014-08-13  !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
+
+ccccccccccccccccccccccccc
+        write(6,"('gggx ',3f9.4,x2x,3f9.4)") q+rk(:,k),rk(:,k)
+ccccccccccccccccccccccccc
+
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
 !KINO          write(6,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
@@ -632,6 +646,9 @@ c----------------------------
             itp =  n2b(ibib,k,jpm) - itps + 1 - nband !core
           endif
 
+ccccccccccccccccccccccccc
+c        write(6,"('gggx ',2i3)") ib,jb,ebandqr(it),ebandr(itp)
+cccccccccccccccccccccc
 
 ccccccccccccccccccccccccc
 c          if(itp/=1) cycle

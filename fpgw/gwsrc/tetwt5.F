@@ -186,6 +186,7 @@ c      fermi_dS=0d0
         mtett=.false.
       endif
 
+      print *,'xxxxxx mtett=',mtett
 !! read mtet or not.
       if(mtett) then
         ifmtet=501
@@ -204,7 +205,6 @@ c      fermi_dS=0d0
         read(ifeig) nband_x,nqnumm,nsp
         print *,'readin eigmtet ', nband_x,nqnumm,nsp
         if(nband_x /=nband ) then
-Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
           call rx( 'tetwt5: nband_x /=nband')
         endif
         allocate( eigtet(nband,nqnumm,nsp) )
@@ -219,16 +219,24 @@ Cstop2rx 2013.08.09 kino          stop 'tetwt5: nband_x /=nband'
         nmtet = 1
         nqbzwm= nqbzw
         nqbzm = nqbz
+        print *,'nqbzw,nqbz=',nqbz,nqbzw
         allocate( 
      &       idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
      &       ib1bzm(nqbzwm),           qbzm(3,nqbzm) , wtet(0:3,nmtet,ntetf) )
+        print *,'sumsssssssssssssss',qbzw
+
         idtetfm(:,1,:)=idtetf
+        print *,'sum(qbzw))=',sum(qbzw),qbzw
+        
         qbzwm =qbzw
+        print *,'ssssssss'
+        print *,'sum(ib1bz)=',sum(ib1bz)
         ib1bzm=ib1bz
         wtet=0.25d0
       endif
 
 !!
+      print *,'xxxxxx 22222222 mtett=',mtett
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -297,6 +305,7 @@ c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
+        print *,'do 1000 tetwt5 ',itet
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
 !! may2013 for eizbmode 
         if(eibzmode) then
@@ -323,6 +332,17 @@ c$$$cccccccccccccccccccccc
 
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
+
+cccccccccccccccccccccc
+          write(6,*)'eeeeeeeeek'
+          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 0),kkm(0)
+          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 1),kkm(1)
+          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 2),kkm(2)
+          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 3),kkm(3)
+          write(6,"('kkkkk  ',10f9.5)") ek_  ( 1:nband+nctot, 0:3)
+          write(6,"('kkkkk  ',10f9.5)") ekq_ ( 1:nband+nctot, 0:3)
+ccccccccccccccccccccccc
+
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
                     !the highest number of occupied states (HNOS)
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
@@ -424,18 +444,37 @@ c                  write(6,"(i4,' [',2f8.3,'] ',4d12.4)") ihis,frhis(ihis),frhis
                           write(6,"('ttt',3i4,f10.5,4d12.4)") itet,ib,jb,(frhis(ihis)+frhis(ihis+1))/2d0, wtthis2(ihis,:)/ddw
 c                   endif
                         endif
-                        do ikx =0,3
-                          ibib = ibjb(ib,jb,kk(ikx),jpm)
-                          if(ihis< ihw(ibib,kk(ikx),jpm).or.
-     &               ihis> ihw(ibib,kk(ikx),jpm)- 1 + nhw(ibib,kk(ikx),jpm) ) then
-                            if(sum(abs(wtthis2(ihis,0:3)))/=0d0) 
-Cstop2rx 2013.08.09 kino     &               stop 'tetwt5:wtthis2/=0 for out of range'
-     &               call rx( 'tetwt5:wtthis2/=0 for out of range')
-                          endif
-                        enddo
+c$$$                        do ikx =0,3
+c$$$                          ibib = ibjb(ib,jb,kk(ikx),jpm)
+c$$$                          if(ihis< ihw(ibib,kk(ikx),jpm).or.
+c$$$     &                     ihis> ihw(ibib,kk(ikx),jpm)- 1 + nhw(ibib,kk(ikx),jpm) ) then
+c$$$                            if(sum(abs(wtthis2(ihis,0:3)))/=0d0) 
+c$$$     &                       call rx( 'tetwt5:wtthis2/=0 for out of range')
+c$$$                          endif
+c$$$                        enddo
                       enddo
                     endif
 !
+
+ccccccccccccccccccccccccccccccccccc
+                  if(ib>6.and.jb<13.and.job==1) then
+                    write(6,"('ttttt ef x(0:3)=',12d13.5)") efermi,x(0:3)
+                    do ikx = 0,3
+                      ibib = ibjb(ib,jb,kk(ikx),jpm)
+                      jini = jhw(ibib,kk(ikx),jpm)
+                      iini = ihw(ibib,kk(ikx),jpm)
+                      nnn =  nhw(ibib,kk(ikx),jpm)
+                      write(6,"('ttttt ')")
+                      write(6,"('ttttt  sum nwhis wtthis2=',d13.5)") sum(wtthis2(iini:iini+nnn-1,ikx))
+                      do ixx=iini,iini+nnn-1
+                        write(6,"('ttttt ', 4i5,x,2d13.5)") ib,jb,ixx,kk(ikx),wtthis2(ixx,ikx)
+                      enddo
+                    enddo
+c                    stop 'qqqqqqqqqqqqqqq'
+                  endif
+c cccccccccccccccccccccccccccccccccc
+
+
                     do ikx = 0,3
                       ibib = ibjb(ib,jb,kk(ikx),jpm)
                       jini = jhw(ibib,kk(ikx),jpm)
@@ -702,11 +741,13 @@ c            isig= -isig
       ee (1:4)    = ea (ieaord(1:4)) - efermi
       xx (1:4)    = x  (ieaord(1:4))
       ebf(1:4)    = eb (ieaord(1:4)) - efermi
+
 ccccccccccccc
 c      write(6,"(' i iea=',2i4)") (i,ieaord(i),i=1,4)
 c      write(6,"(' i=',i3,' xx ee ebf =',3f10.5,'  kk=',3f10.5)")
 c     &     (i,xx(i),ee(i),ebf(i),kk(1:3,i),i=4,1,-1)
 ccccccccccccc
+
       if( 0d0<=ee(4) ) then
         if(chkwrt) write(6,*) 'lindtet6: fig 000'
 !        wttx = (0d0,0d0)
@@ -1520,22 +1561,22 @@ C ----- START LOOPING OVER MICROCELLS ---------
            if( i1x<ngcell .and. -ngcell< i1x-ndx) then
            if( i2x<ngcell .and. -ngcell< i2x-ndx) then
            if( i3x<ngcell .and. -ngcell< i3x-ndx) then
-ccccccccccccccccccccccc
              kount= indexkw(i1-1,i2-1,i3-1)
              rrr=matmul(rb,qbzw(1:3,kount))
              write(6,"('qqqqx qbzw=',3i3, 3f9.5)") i1x,i2x,i3x, rrr
-             goto 3010
-            cycle
-cccccccccccccccccccccccc             
+cccccccccccccccccccccccccc
+c             goto 3010
+cccccccccccccccccccccccccc
+             cycle
            endif
            endif
            endif
         endif 
   
-ccccccccccccccccccc
-        cycle
- 3010   continue
-cccccccccccccc
+ccccccccccccccccccccc
+c        cycle
+c 3010   continue
+cccccccccccccccccccccc
 
 
 c         write(6,"(' k1k2k3=',3i4,' ix=',i6,' ii=',2i6)")
@@ -1545,7 +1586,7 @@ c     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
 cccccccccccccc
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
-        print *,'qqqq '
+        print *,'xxxxxxxx qqqq xxxxxxxx ',i1,i2,i3
         do K1 = 0, 1
           J1 = I1 -1 + K1
         do K2 = 0, 1
@@ -1555,8 +1596,8 @@ c        write(6,*)
           IMC(K1,K2,K3)  = indexkw(J1,J2,J3)
 cccccccccccccc
 c         if(k1==0.and.k2==0.and.k3==0) then
-           kount= indexkw(j1,j2,j3)
-           write(6,"('qqqq qbzw=',3i3,3f9.5)") j1,j2,j3,matmul(rb,qbzw(1:3,kount))
+c           kount= indexkw(j1,j2,j3)
+c           write(6,"('qqqq qbzw=',3i3,3f9.5)") j1,j2,j3,matmul(rb,qbzw(1:3,kount))
 c         endif
 cccccccccccccc
         enddo
@@ -1567,21 +1608,30 @@ ccccccccccccccccccccccccccc
 c         if(i1==1.and.i2==1.and.i3==1) then
 c           goto 4010
 c         endif
-
+c
 c         if(i1==4.and.i2==4.and.i3==4) then
 c           goto 4010
 c         endif
-
-         if(i1==4.and.i2==4.and.i3==1) then
-           goto 4010
-         endif
-
-         cycle
- 4010    continue
+ccccccccccc
+c        write(6,"('ffff =',3i3)") i1,i2,i3
+c
+c         if(i1==1.and.i2==1.and.i3==n3) then
+c          goto 4010
+c        endif
+c
+c         if(i1==4.and.i2==4.and.i3==1) then
+c           goto 4010
+c         endif
+c
+c         cycle
+c 4010    continue
 cccccccccccccccccccccccccc
 
 C ----- LOOP OVER TETRAHEDRA --------------
+ccccccccccccccccccccccccccc
         do 10 ITET = 1, 6
+c        do 10 ITET = 3,3
+ccccccccccccccccccccccccccc
           do  IC = 1, 4
             K1 = KCUT(1,IC,ITET)
             K2 = KCUT(2,IC,ITET)

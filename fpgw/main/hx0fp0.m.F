@@ -530,6 +530,9 @@ c      INQUIRE (FILE = 'LEGAS', EXIST = legas)
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
+ccccccccccccccccccccccccccccccc
+      ginv=transpose(plat)
+ccccccccccccccccccccccccccccccc
       call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
 
@@ -1073,7 +1076,7 @@ c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis0,nwhis0,npm)
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
           call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm)
 
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        jpm=1
 c$$$        do k=1,nqbz
 c$$$c           nkqmin= 999999
@@ -1081,20 +1084,21 @@ c$$$c           do ibib = 1, nbnb(k,jpm)
 c$$$c              nkqmin = min(n2b(ibib,k,jpm),nkqmin)
 c$$$c           enddo
 c$$$           do ibib = 1, nbnb(k,jpm) !---  ibib loop
+c$$$c             print *,' k ibib=',k,ibib
 c$$$c              it =  n1b(ibib,k,jpm)    !valence
 c$$$c              itp = n2b(ibib,k,jpm) - itps + 1 !val
-c$$$              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
+c$$$c              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
 c$$$              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
-c$$$                 if(iw<20) then
+c$$$c                 if(iw<20) then
 c$$$                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-c$$$                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
-c$$$                 endif
+c$$$c                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
+c$$$c                 endif
 c$$$              enddo             ! iw
-c$$$              endif
+c$$$c              endif
 c$$$           enddo
 c$$$        enddo
 c$$$c        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==

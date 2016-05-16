@@ -57,12 +57,15 @@ c      if(tetra) then
 !!     ekxx1 for rk
 !!     ekxx2 for q+rk See tetwt4
       do kx = 1, nqbz
+cccccccccccccccc
+        write(6,"('kkkkk kx ',i4,3f9.4,3x,3f9.4)") kx,qbz(:,kx),qbzw(:,kx)
+cccccccccccccccc
         call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
         call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
       enddo
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
-c     the pairs are not dependent on the energy omega
+c     the pairs are not dependent on the energy otemega
 c     in the denominator of the dielectric function.
       write(6,"(' -- First tetwt5 is to get size of array --')")
       job = 0

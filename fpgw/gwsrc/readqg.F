@@ -193,7 +193,8 @@ c     &     nqnumc, ngcmx, QpGcut_cou
         allocate(ngvecc(3,ngcmx,nqnumc),qc(3,nqnumc),ngc(nqnumc))
         do iq=1, nqnumc
           read(ifiqg) qc(1:3,iq), ngc(iq)
-          if(verbose()>40)  write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
+c          if(verbose()>40)  write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
+          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
           read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
         enddo
       endif
@@ -217,22 +218,38 @@ c     &     nqnumc, ngcmx, QpGcut_cou
       allocate(key(3,0:nqtt),qxx(3,nqtt))
       key(:,0)=0 !dummy
       key=-99999
+c      print *,'ginv_=',ginv_
       do iq=1,nqtt
          call rangedq(matmul(ginv_,qtt(:,iq)), qxx(:,iq))
+ccccccccccccc
+c        ix=1
+c        print *,' xxxx ix qxx=',ix,iq,qtt(ix,iq),matmul(ginv_,qtt(:,iq))
+ccccccccccccc
       enddo
 !! get key and nkey for each ix.
       do ix =1,3
+ccccccccccccc
+c        do i=1,nqtt
+c        print *,' ix qxx=',ix,i,qtt(ix,i),qxx(ix,i)
+c        enddo
+ccccccccccccc
          call sortea(qxx(ix,:),ieord,nqtt,isig)
+ccccccccccccc
+c        do i=1,nqtt
+c        print *,' ix qxx=',ix,i,qxx(ix,ieord(i))
+c        enddo
+ccccccccccccc
          ik=0
          do i=1,nqtt
             kkk=(qxx(ix,ieord(i))+0.5*epsd)/epsd  !kkk is digitized by 1/epsd
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+cccccccccccccccccccc
+c               write(6,*)'kkkkkeyinit=',ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+cccccccccccccccccccccc
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
                call rx( 'iqindx: bug not sorted well')
             endif
          enddo
@@ -270,7 +287,9 @@ c      write(6,*)'kk1=',kk1
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
+cccccccccccccccc
 c      write(6,*)' ik1,ik2,ik3 i=',ik1,ik2,ik3,i
+cccccccccccccccc
       enddo
       deallocate(qxx)
       end subroutine init_readqg
@@ -350,13 +369,14 @@ c         nqtt => nqnumc
          kk2 =>kk2c
          kk3 =>kk3c
       endif
-      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
+c      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
+      write(*,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv_,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
-c      write(6,*)'kkk3=',kkk3
-c      write(6,*)'kk1,nkey1',kk1,nkey(1)
-c      write(6,*)'kk2,nkey2',kk2,nkey(2)
-c      write(6,*)'kk3,nkey3',kk3,nkey(3)
+      write(6,*)'kkk3=',kkk3
+      write(6,*)'kk1,nkey1',kk1,nkey(1)
+      write(6,*)'kk2,nkey2',kk2,nkey(2)
+      write(6,*)'kk3,nkey3',kk3,nkey(3)
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
@@ -364,6 +384,8 @@ c      write(6,*)' ik1ik2ik3=',ik1,ik2,ik3
       iqindx = iqkkk(ik1,ik2,ik3)
 c      write(6,*)'iqindx=',iqindx
       qu = qtt(:,iqindx)
+      write(6,*)'iqindx=',iqindx
+      write(6,*)'qu=',qu
       end subroutine
 
 !> mini-sort routine.

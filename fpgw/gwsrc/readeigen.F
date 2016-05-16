@@ -1089,11 +1089,8 @@ c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
       read(ifev) nband_ev, nqi_, nsp_ev
       write(6,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
-Cstop2rx 2013.08.09 kino      if(nband_ev/=nband) stop 'init_readeigen:nband_ev/=nband'
       if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-Cstop2rx 2013.08.09 kino      if(nsp_ev  /=  nsp) stop 'init_readeigen:nsp_ev/=nsp'
       if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-Cstop2rx 2013.08.09 kino      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
       if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_')
       nqixx=nqi
       allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
@@ -1104,7 +1101,7 @@ Cstop2rx 2013.08.09 kino      if(nqi  /=  nqi_) stop 'init_readeigen:nqi/=nqi_'
         do is= 1,nsp
           do ik= 1,nqi
             do ib= 1,nband
-              write(6,"('ib ik e=',3i5,f13.5)") ib,ik,is,evud(ib,ik,is)
+              write(6,"('ib ik e=',3i5,f13.5,2x,3f9.4)") ib,ik,is,evud(ib,ik,is), qtti_(1:3,ik)
             enddo
           enddo
         enddo

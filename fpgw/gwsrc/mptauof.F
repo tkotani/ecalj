@@ -195,6 +195,7 @@ c$$$      enddo
       real(8),allocatable:: qbzl(:,:)
       logical :: inotime,nexist,debug=.false.
 !!
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cnnn
       real(8):: alatx, plat(3,3)
@@ -202,6 +203,7 @@ cnnn
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3)
+
       ifi = 6661
       open (ifi, file='LATTC')
       read(ifi,*) alatx
@@ -211,6 +213,13 @@ cnnn
       close(ifi)
       call minv33tp(plat,qlat)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+c ginvtest
+ccccccccccccccccccccc
+c      print *,'ginv test'
+c      ginv=ginv/2d0
+c      write(6,"('ginv=',3f9.4)")ginv(:,:)
+ccccccccccccccccccccc
 
       if(iprintx) write(6,"('eibzgen: TimeReversalSwitch ngrp= ',l,i3)") timereversal,ngrp
       ntimer=1
@@ -261,13 +270,14 @@ c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-         if(debug)write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+c         if(debug)write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+         write(6,"(' iqkkk ik1,ik2,ik3,=',i4,3i3,x,3i6)")i,ik1,ik2,ik3,kkk3(:)
       enddo
-      if(debug) then
-      write(6,*)'kk1=',kk1
-      write(6,*)'kk2=',kk2
-      write(6,*)'kk3=',kk3
-      endif
+c      if(debug) then
+        write(6,*)'kk1=',kk1
+        write(6,*)'kk2=',kk2
+        write(6,*)'kk3=',kk3
+c      endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
 ccccccccccccccccccc
@@ -317,8 +327,7 @@ ccccccccccccccccccccccccccccccccccccccccccccc
         eibzsym(:,:,iq)=eallow ! === eibzsym is eallow -----
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-        if(debug)write(6,*)'nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
-
+c        write(6,*)'xxx nqbz=',nqbz,ngrp,ntimer, 8*nqbz*ngrp/1000000000.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !! === Generate all nxx (integered q with epditit) generated from ibz. ===
@@ -326,6 +335,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         allocate(igx_(ngrp*2,nqbz),igxt_(ngrp*2,nqbz))
         immxx=0
         do ibz=1,nqbz
+ccccccccccccccccc
+          write(6,"(' qbz=',i3,' ',3f9.4,' ',3f9.4)")ibz,qbz(:,ibz),matmul(ginv,qbz(:,ibz))
+cccccccccccccccccc
           imm=0
           do it=1,ntimer,-2 !ntimer is 1 or -1.
             timer = dble(it)
@@ -344,7 +356,9 @@ c                 nww(ibz,im) = nww(ibz,im)+1
             nxx(:,ibz,imm)= (qxx+.5*epd)/epd  !integer nxx(i) takes from 0 to 1/epd.
             igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
             igxt_(imm,ibz) = it  !
-            if(debug) write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
+c            if(debug) write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
+            write(6,"('imm ibz it ig nxx qxx qxi=',4i7,x,3i6,x, 3f8.4,x,3f8.4,' qx=',3f8.4)")
+     &       imm,ibz,ig,it ,nxx(:,ibz,imm), qxx, qxi, qx
 c            write(6,*)'qbz=',qbz(:,ibz)
 c            write(6,*)'qx =',qx
 c            write(6,*)'qxi=',qxi
@@ -363,42 +377,62 @@ c        call cputid(0)
 
 !! inequivalent points.
           allocate(mqbz(nqbz))
-          inotime=.true.
+          mqbz=0
+
+!! may2015 there zero-cleare is moved from next ix loop. (bug fix). correct?
+          nwgt(:,iq)=0
+          igx(:,:,iq) =999991
+          igxt(:,:,iq)=999992
+!!
           do ix=1,ntimer,-2 !try no time reversal for ix=1
-             mqbz=0
-             nwgt(:,iq)=0
-             igx(:,:,iq) =999991
-             igxt(:,:,iq)=999992
+             if(ix== 1) inotime=.true.
+             if(ix==-1) inotime=.false.
              do ibz=1,nqbz
+ccccccccccccccccccccccccc
+                write(6,"('1111 ix,ibz',i3,i5,i5)")ix,ibz
+cccccccccccccccccccccccc
                 if(mqbz(ibz)==1) cycle
                 do im=1,immx(ibz) 
                    if(inotime) then
-                      if(igxt_(im,ibz) ==-1) cycle 
-                   endif   
+                      if(igxt_(im,ibz) == -1) cycle
+                   elseif(inotime) then
+                      if(igxt_(im,ibz) ==  1) cycle
+                   endif
                    kkk3 = nxx(:,ibz,im)
-                   if(debug) write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
+cccccccccccccccccccccccccc
+                   write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
+ccccccccccccccccccccccccccc
                    call tabkk(kkk3(1), kk1,nkey(1), ik1)
                    call tabkk(kkk3(2), kk2,nkey(2), ik2)
                    call tabkk(kkk3(3), kk3,nkey(3), ik3)
-                   ibzx=iqkkk(ik1,ik2,ik3)
+cccccccccccccccccccccccccc
+                   write(6,*)'uuuuu ik=',ik1,ik2,ik3
+ccccccccccccccccccccccccccc
+                   ibzx = iqkkk(ik1,ik2,ik3)
                    if(mqbz(ibzx)==1) then
-                      cycle
+                     cycle
                    else  
-                      mqbz(ibzx)=1
-                      nwgt(ibz,iq)= nwgt(ibz,iq) + 1
-                      igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
-                      igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
+                     mqbz(ibzx)=1
+                     nwgt(ibz,iq)= nwgt(ibz,iq) + 1
+                     igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
+                     igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
                    endif   
                 enddo
              enddo
+
+ccccccccccccccccccccccccc
+             do ibz=1,nqbz
+                write(6,"('2222 ix,ibz mqbz nqbz=',i2,i3,i5,i5)")ix,ibz,mqbz(ibz),nwgt(ibz,iq)
+             enddo
+cccccccccccccccccccccccc
+
              if(sum(nwgt(:,iq))==nqbz) then
                 if(ix==1) eibzsym(:,-1,iq)=0
                 goto 1202
              endif   
-             inotime=.false.
-             write(6,*)' mptauo: we need time reversal'
+             write(6,*)' mptauo: we use time reversal'
           enddo
-ccccc          call rx( 'eibzgen: bug. nwgt sum is not nqbz')
+          call rx( 'eibzgen: bug. nwgt sum is not nqbz')
  1202     continue
 
 C cccccccccccccccccccccccccccccccccc
@@ -436,7 +470,9 @@ c        call cputid(0)
            if(nwgt(ibz,iq) /=0) then
               neibzx=neibzx+1
               qeibz(:,neibzx,iq)=qbz(:,ibz)
-c              write(6,"('   ibz qeibz =',i7,3f10.5, ' nwgt=',i7)")ibz,qeibz(:,neibzx,iq),nwgt(ibz,iq)
+cccccccccccccc
+              write(6,"('   ibz qeibz =',i7,3f10.5, ' nwgt=',i7)")ibz,qeibz(:,neibzx,iq),nwgt(ibz,iq)
+cccccccccccccccc
            endif
         enddo   
         neibz(iq) = neibzx !number of eibz for iq
