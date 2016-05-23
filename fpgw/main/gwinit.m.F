@@ -219,8 +219,8 @@ c$$$      endif
 C --- Make q-points in IBZ.
       mxkp   = n1q*n2q*n3q
       allocate(qibz(3,mxkp),IPQ(mxkp),WGT(mxkp))
-      call bzmesh(ibzcase,plat,qm,n1q,n2q,n3q,symops,ngrp,IPQ,qibz
-     &  ,WGT,nqibz,mxkp)
+      call bzmesh(plat,qm,n1q,n2q,n3q,symops,ngrp,IPQ,qibz
+     &  ,WGT,nqibz,mxkp,0,(/0d0,0d0,0d0/))
       deallocate(IPQ,WGT)
 c$$$c      ifiqibz = 6661
 c$$$c      open (ifiqibz, file='QIBZ') !write q-points in IBZ.
@@ -260,8 +260,8 @@ C --- q in 1BZ KPT1BZ.
       nnn = n1q*n2q*n3q
       allocate ( qbz(3,nnn),qbzs(3,nnn),wbz(nnn),nstbz(nnn) )
       call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
-      call genqbz (ibzcase,qlat,n1q,n2q,n3q,
-     o  qbz,wbz,nstbz )
+      call genqbz (qlat,n1q,n2q,n3q,
+     o  qbz,wbz,nstbz,0,(/0d0,0d0,0d0/) )
 c ... write to file KPNTin1BZ
       ifkpt = ifile_handle()
       nqs=0
