@@ -1,4 +1,4 @@
-      SUBROUTINE BZMESH(RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,qbzshift) !icase,
+      SUBROUTINE BZMESH_unused(RBAS,QB,N1,N2,N3,G,NG,IPQ,QP,WGT,NQ,NQMX,nadd,qbzshift) !icase,
 !!-Divides the reciprocal lattice into microcells
 !! icase=1 only.
 Cr t.kotani. Jan2004

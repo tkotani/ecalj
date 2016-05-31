@@ -3,7 +3,7 @@
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,readeval,lowesteval,init_readeigen2
       use m_read_bzdata,only: read_bzdata,
-     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,qbasmc,
+     &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      &  dq_,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
      &  nstar,irk,nstbz

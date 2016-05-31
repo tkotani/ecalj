@@ -58,7 +58,7 @@ c      if(tetra) then
 !!     ekxx2 for q+rk See tetwt4
       do kx = 1, nqbz
 cccccccccccccccc
-        write(6,"('kkkkk kx ',i4,3f9.4,3x,3f9.4)") kx,qbz(:,kx),qbzw(:,kx)
+c        write(6,"('kkkkk kx ',i4,3f9.4,3x,3f9.4)") kx,qbz(:,kx),qbzw(:,kx)
 cccccccccccccccc
         call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
         call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
@@ -91,6 +91,9 @@ c      open(ifief,file='EFERMI')
 c      read(ifief,*) ef
 c      close(ifief)
       call readefermi()
+ccccccccccccccccc
+c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz=',nqbz,nqbzw,nteti,ntetf,nqibz
+
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,

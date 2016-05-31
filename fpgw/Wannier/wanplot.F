@@ -28,8 +28,8 @@ c      use m_wfrho_abc
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval,readcphi,readgeig
       use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf
-     &     ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     &     ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r
+     &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti !qbasmc,
+     &     ,nstar,irk,nstbz,ngrp2=>ngrp !,qibz_r,nqibz_r
       use m_DATA4GW,only: read_data4gw,set_mnla,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas
       use m_QG,only: read_qg,ngp
       use m_cubeformat 

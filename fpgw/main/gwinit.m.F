@@ -43,16 +43,18 @@ Cr    True_q(1:3)     = 2*pi/alat * q(1:3)
 Cr  True G is given by
 Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
 !! -----------------------------------------------------------
+      use m_get_bzdata1,only:  getbzdata1, 
+     &  nqbz, nqibz, qbz,wbz,qibz,wibz
       implicit none
       integer ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig
       real(8) :: plat(3,3), alat,alp,QpGcut_psi, QpGcut_Cou,dummy
       real(8) :: volum,q0(3),qlat0(3,3),QpGx1,QpGx2,
      & dw,delta,deltaw,esmr,tolopt,qm(3,3)
-      real(8),allocatable :: symops(:,:,:),qibz(:,:)
+      real(8),allocatable :: symops(:,:,:) !,qibz(:,:)
 
       integer :: nbas,lmxax,ibas,l,ixxx,lmxa,ibasx,ifigw0t,mxkp,
      &  irs,niw,ic,iclass,
-     &  nqibz,ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk,
+     &  ifiqibz,iqibz,ifqpnt,iqall,iaf,iii, ifigwinv2,lk, !nqibz,
      &  nocc,nunocc,
      &  kkk,noccc,nunoccc,ncinc,ncinc2
       integer,allocatable :: lmxaa(:), konf(:,:),nncx(:,:),lcutmx(:)
@@ -61,8 +63,8 @@ Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
       real(8),allocatable   :: WGT(:)
       real(8):: qlat(3,3),qp(3)
       integer:: nnn,ifkpt,i1,nlinemax=50,ifsyml,nline,iopenxx,nqs
-      integer,allocatable:: nqq(:),symlon(:),nstbz(:)
-      real(8),allocatable:: qbz(:,:),qbzs(:,:),wbz(:),qq1(:,:),qq2(:,:) 
+      integer,allocatable:: nqq(:),symlon(:)!,nstbz(:)
+      real(8),allocatable:: qbzs(:,:),qq1(:,:),qq2(:,:)  !qbz(:,:),wbz(:),
       logical :: extsyml
       integer::checksymlon
       integer::ifinla,izz,izzn,izzz,iatbk
@@ -218,10 +220,15 @@ c$$$      endif
 
 C --- Make q-points in IBZ.
       mxkp   = n1q*n2q*n3q
-      allocate(qibz(3,mxkp),IPQ(mxkp),WGT(mxkp))
-      call bzmesh(plat,qm,n1q,n2q,n3q,symops,ngrp,IPQ,qibz
-     &  ,WGT,nqibz,mxkp,0,(/0d0,0d0,0d0/))
-      deallocate(IPQ,WGT)
+c$$$      allocate(qibz(3,mxkp),IPQ(mxkp),WGT(mxkp))
+c$$$      call bzmesh(plat,qm,n1q,n2q,n3q,symops,ngrp,IPQ,qibz
+c$$$     &  ,WGT,nqibz,mxkp,0,(/0d0,0d0,0d0/))
+c$$$      deallocate(IPQ,WGT)
+      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
+      call getbzdata1(qlat,(/n1q,n2q,n3q/), !n1q,n2q,n3q
+     &    symops,ngrp,tetrai=.false.,tetraf=.false.,mtet=(/1,1,1/),gammacellctrl=0) 
+
+
 c$$$c      ifiqibz = 6661
 c$$$c      open (ifiqibz, file='QIBZ') !write q-points in IBZ.
 c$$$c      write(ifiqibz,"(i10)") nqibz
@@ -255,14 +262,16 @@ c$$$  601   continue
 c$$$        close(ifsyml)
 c$$$        nline = nline - 1
 c$$$      endif
+c$$$
+c$$$C --- q in 1BZ KPT1BZ.
+c$$$      nnn = n1q*n2q*n3q
+c$$$      allocate ( qbz(3,nnn),qbzs(3,nnn),wbz(nnn),nstbz(nnn) )
+c$$$      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
+c$$$      call genqbz (qlat,n1q,n2q,n3q,
+c$$$     o  qbz,wbz,nstbz,0,(/0d0,0d0,0d0/) )
 
-C --- q in 1BZ KPT1BZ.
-      nnn = n1q*n2q*n3q
-      allocate ( qbz(3,nnn),qbzs(3,nnn),wbz(nnn),nstbz(nnn) )
-      call minv33tp(plat,qlat) !it was dinv33(plat,1,qlat) by Ferdi
-      call genqbz (qlat,n1q,n2q,n3q,
-     o  qbz,wbz,nstbz,0,(/0d0,0d0,0d0/) )
-c ... write to file KPNTin1BZ
+
+!! Write to file KPNTin1BZ
       ifkpt = ifile_handle()
       nqs=0
       open(ifkpt,file='KPTin1BZ.gwinit.chk')
@@ -283,7 +292,7 @@ c        else
 c        endif
       end do
       close (ifkpt)
-      deallocate(wbz)
+c      deallocate(wbz)
       write(6,"(' --- TOTAL num of q is n1*n2*n3=',i10)")nnn
 
 C --- Sample QPNT file ---------------
@@ -330,7 +339,7 @@ c$$$        write(ifqpnt,'(i3,3f23.16)')(i,qbzs(1:3,i),i=1,nqs)
 c$$$        close(ifqpnt)
 c$$$      endif
 
-c readin NLAindx.
+!! Readin NLAindx.
       ifinla = ifile_handle()
       open(ifinla,file='NLAindx')
       write(6,
@@ -363,7 +372,7 @@ c       write(6,"(a100)")recordnla
  1040 continue
       call rx( 'gwinit: can not readin recordnla')
  1041 continue
-!!
+!! Write GWIN_V2.tmp
       ifigwinv2 = ifile_handle()
       open(ifigwinv2,file='GWIN_V2.tmp')
 !! PRODUCT BASIS section

@@ -2,9 +2,9 @@
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl)
 !! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only:  getbzdata1, 
-     &  nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,nqibz_r,
+     &  nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,
      &  qbz,wbz,qibz,wibz,
-     &  qbzw, qbasmc, qibz_r,
+     &  qbzw, !qbasmc, 
      &  idtetf, ib1bz, idteti,
      &  irk, nstar, nstbz,
      &  qbzm, qbzwm
@@ -24,6 +24,9 @@
 !!     See the end of console output.
 !! ---------------------------------------------------
       implicit none
+c      integer,parameter:: nqibz_r=0
+c      real(8)::qibz_r(3,1) !dummy
+
       integer ::nnn(3),ifiqg,ifiqgc,ngcxx,
      &     ngrp,i,j,iq,iq00,ngp,ngpmx,ngc,ngcmx,nqnum,iq0pin,
      &     nline,nlinemax,ifsyml,iqq,is,nk,ix,nqnumx,i1,ifkpt
@@ -192,30 +195,25 @@ ccccccccccccccccccccccccccc
 !! See following data after 'use getbzdata1' at the top of this routine.
 !! In the case of gammacellctrl=2, we only calculate quantities in the Gamma cell.
 !! Thus we have special meanings of nqbz. GWinput --> GammaDivn1n2n3 4 4 4 
-      call getbzdata1(qlatbz,ginv,nnn, !plat bzcase,
+      call getbzdata1(qlatbz,nnn, !plat bzcase,
      & symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) !all are inputs. output: See use.
 
 !! Write BZDATA
       print *,' Writing BZDATA...'
       ifbz = ifile_handle()
       open (ifbz, file='BZDATA')
-      write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nqibz_r
+      write(ifbz,"(10i10)")  nqbz,nqibz, nqbzw, ntetf, nteti,ngrp !,nqibz_r
       write(ifbz,"(10i10)")  nnn(1:3) !n1q,n2q,n3q
-c      call rwbzdata(ifbz,-1,
-c     &     ngrp,qlat, ginv, qbasmc,
-c     i     qbz, wbz, nstbz,  nqbz, 
-c     i     qibz,wibz, nstar,irk,  nqibz,
-c     i     idtetf, ntetf, qbzw,ib1bz, nqbzw,
-c     i     idteti, nteti,dq_, qibz_r,nqibz_r)
-      write(ifbz,"(3d24.16)") qlat,ginv,qbasmc
+      write(ifbz,"(3d24.16)") qlat,ginv!,qbasmc
       do iqibz = 1,nqibz
         write(ifbz,"(4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
+        write(6,"('bbbbbbbbb ',4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
         write(ifbz,"(100i8)") irk(iqibz,1:ngrp)
       enddo
-      write(ifbz,"(i10)") nqibz_r
-      do iqibz = 1,nqibz_r
-        write(ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
-      enddo
+c      write(ifbz,"(i10)") nqibz_r
+c      do iqibz = 1,nqibz_r
+c        write(ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
+c      enddo
       do iqbz = 1,nqbz
         write(ifbz,"(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
       enddo

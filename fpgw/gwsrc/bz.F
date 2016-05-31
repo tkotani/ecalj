@@ -28,7 +28,7 @@ Cstop2rx 2013.08.09 kino        stop 'fbz2: qx**2>1d-8 something wrong!!!'
       endif
       end
 
-      SUBROUTINE TETIRR(QB,N1,N2,N3,IPQ,NQ,NTET,IDTET)
+      SUBROUTINE TETIRR_unused(QB,N1,N2,N3,IPQ,NQ,NTET,IDTET)
 C-  Finds inequivalent tetrahedra and counts them
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -763,76 +763,6 @@ c ngrp = no. rotation matrices
       return
       end
 c------------------------------------------------------------------
-      subroutine nkstar (qibz,qbz,grp,ginv,
-     d nqibz,nqbz,ngrp,
-     o nstar,irotk)
-c 92.02.22
-c generates the no. stars of k
-c i.e. the no. times k appears in the FBZ
-c qibz  = k { IBZ
-c qbz   = k { FBZ
-c grp   = rotation matrices
-c nqibz = no. k { IBZ
-c nqbz  = no. k { FBZ
-c ngrp  = no. rotation matrices
-c nstar(k) = no. times k appears in the FBZ
-c irotk(k{IBZ,R) = index to k{FBZ
-      implicit real*8 (a-h,o-z)
-      real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
-      integer:: nstar(nqibz),irotk(nqibz,ngrp)
-      integer:: verbose,kout
-      real(8):: diff(3),diff2(3),tol=1d-6,gg(3,3)
-      if(verbose()>104) then
-        print *,' nkstar:'
-        do kp = 1,nqbz
-          write(6,"(' === kp=',i3,' qbz=',3f8.3)")kp,qbz(:,kp)
-        enddo
-      endif
-      irotk=0
-      nstar=0
-      do kp = 1,nqbz
-        do k  = 1,nqibz
-          do ir = 1,ngrp
-            if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
-            diff = matmul(grp(:,:,ir),qibz(:,k)) - qbz(:,kp)
-            call rangedq(matmul(ginv,diff), diff2)
-            if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
-            if(sum(abs(diff2))< tol) then
-              irotk(k,ir)= kp
-              kout=k
-              nstar(k)   = nstar(k) + 1
-              goto 1022
-            endif
-          enddo
-        enddo
-        call rx( 'nkstar: can not find irotk')
- 1022   continue
-        write(6,"(' ===xxx kp=',i3,' qbz=',3f8.3, x,i4,3f8.3)")kp,qbz(:,kp),kout,qibz(:,kout)
-      enddo
-!! check that the sum of stars equal to the no. k{FBZ
-      nsum = ivsum (nstar,nqibz)
-      if (nsum .ne. nqbz) then
-        print *,' nums nqbz=',nsum,nqbz
-        do k  = 1,nqibz
-          do ir = 1,ngrp
-            if(irotk(k,ir)/=0) write(6,"(' k ir irotk=',3i6)") k,ir, irotk(k,ir)
-          enddo
-        enddo
-        call rx( 'nkstar: wrong no. stars')
-      endif
-c$$$c write k { IBZ and no. stars to file KPNT
-c$$$      ifkpnt     = ifile('KPNT')
-c$$$      if (ifkpnt .gt. 0) then
-c$$$        write (ifkpnt,*) 'irreducible k-points and no. stars'
-c$$$        write (ifkpnt,*) 'k, k-vector, nstar '
-c$$$        do       k = 1,nqibz
-c$$$          write(ifkpnt,"(1x,i5,3f8.5,i3)")k,qibz(1,k),qibz(2,k),qibz(3,k),nstar(k)
-c$$$        end do
-c$$$      endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c      stop 'test end'
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      end
 
 
 c$$$

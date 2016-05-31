@@ -219,24 +219,24 @@ c      fermi_dS=0d0
         nmtet = 1
         nqbzwm= nqbzw
         nqbzm = nqbz
-        print *,'nqbzw,nqbz=',nqbz,nqbzw
+c        print *,'nqbzw,nqbz=',nqbz,nqbzw
         allocate( 
      &       idtetfm(0:3,nmtet,ntetf), qbzwm(3,nqbzwm),
      &       ib1bzm(nqbzwm),           qbzm(3,nqbzm) , wtet(0:3,nmtet,ntetf) )
-        print *,'sumsssssssssssssss',qbzw
+c        print *,'sumsssssssssssssss',qbzw
 
         idtetfm(:,1,:)=idtetf
-        print *,'sum(qbzw))=',sum(qbzw),qbzw
+c        print *,'sum(qbzw))=',sum(qbzw),qbzw
         
         qbzwm =qbzw
-        print *,'ssssssss'
-        print *,'sum(ib1bz)=',sum(ib1bz)
+c        print *,'ssssssss'
+c        print *,'sum(ib1bz)=',sum(ib1bz)
         ib1bzm=ib1bz
         wtet=0.25d0
       endif
 
 !!
-      print *,'xxxxxx 22222222 mtett=',mtett
+c      print *,'xxxxxx 22222222 mtett=',mtett
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -288,6 +288,11 @@ c      fermi_dS=0d0
       volt = 0d0
       do itet = 1, ntetf
         do im   = 1, nmtet
+ccccccccccccccccccccc
+          print *,'iiiiiii111',im,itet
+          print *,'iiiiiii222',idtetfm(0:3,im,itet)
+          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
+cccccccccccccccccccccc
           kvec(1:3,0:3) = qbzwm (1:3, idtetfm(0:3,im,itet) )
           do i = 1,3
             kvec(1:3,i) = kvec(1:3,i) - kvec(1:3,0)
@@ -1423,7 +1428,7 @@ C- get (n1b n2b) corresponding to non-zero wgt.
       end
 
 !! ---------------------------------
-      SUBROUTINE TETFBZF(qbas,N1,N2,N3,rk,nqbz, skipgammacell,half,nadd,
+      SUBROUTINE TETFBZF_notused(qbas,N1,N2,N3,rk,nqbz, skipgammacell,half,nadd,
      o  IDTET,qbzw,ib1bz,ntetf)
       use m_keyvalue,only: getkeyvalue
 !!  Finds tetrahedra in all 1st BZ. takao mod. from tertirr
@@ -1448,7 +1453,7 @@ C ----------------------------------------------------------------------
      &  ntet,k1,k2,k3,itet,ic 
      & ,ib1bz((n1+1)*(n2+1)*(n3+1)) !icase=1 fixed
       real(8) :: QB(3,3),QB1(3,3), qbas(3,3), qbzx(3)
-     & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),hf,half(3)
+     & , qbzw(3,(n1+1)*(n2+1)*(n3+1)),half(3)
       real(8),parameter :: epss = 1d-12
       logical,save ::chk=.true.
       logical:: skipgammacell,qbzreg
@@ -1458,13 +1463,14 @@ C ----------------------------------------------------------------------
       integer,intent(out)::ntetf
 
       integer:: ngcell,i1x,i2x,i3x,ndx
-      real(8):: qqqx(3),rb(3,3),rrr(3)
+      real(8):: qqqx(3),rb(3,3),rrr(3),xvec(3),qh(3)
 c------------------------------------------------------------------
-      hf=0d0
+c      hf=0d0
 c      if(icase==2) hf=0.5d0
       QB(1:3,1) = QBAS(1:3,1)/N1
       QB(1:3,2) = QBAS(1:3,2)/N2
       QB(1:3,3) = QBAS(1:3,3)/N3
+      qh=matmul(qbas,half)
       call minv33(qb,rb)
 C- index for k in 1st BZ. See genqbz in BZ.FOR.
       kount      = 0
@@ -1473,10 +1479,10 @@ C- index for k in 1st BZ. See genqbz in BZ.FOR.
           do      i3 = 1,n3+nadd
             kount    = kount + 1
             indexk(i1-1,i2-1,i3-1) = kount
-!! check
+            xvec = (/I1-1,I2-1,I3-1/) 
             if(chk) then
-c            qbzx(1:3)= qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
-              qbzx(1:3)= qb(1:3,1)*(i1-1+hf+half(1)) +qb(1:3,2)*(i2-1+hf+half(2)) +qb(1:3,3)*(i3-1+hf+half(3))
+c  qbzx(1:3)= qb(1:3,1)*(i1-1+hf) +qb(1:3,2)*(i2-1+hf) +qb(1:3,3)*(i3-1+hf)
+              qbzx(1:3)= matmul(qb,xvec) + qh
 ccccccccccccccccccccc
 c      write(6,"(3d26.18)") rk(1:3,kount)
 c      write(6,"(3d26.18)") qbzx(1:3)

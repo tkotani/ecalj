@@ -4,13 +4,13 @@
       implicit none
 !!Caution: ifort15 make problems to allocate scalar.
 c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-      integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
       integer,allocatable :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
-      real(8),allocatable:: qbas(:,:),ginv(:,:),qbasmc(:,:),dq_(:)
+      real(8),allocatable:: qbas(:,:),ginv(:,:),dq_(:) 
      &    , qbz(:,:),wbz(:),qibz(:,:)
-     &    , wibz(:),qbzw(:,:), qibz_r(:,:)
+     &    , wibz(:),qbzw(:,:)
       logical:: done_read_bzdata=.false.
 
 !! =====================================================
@@ -19,14 +19,15 @@ c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
 !! No input except BZDATA file.
 !! After you call this, you can access Brillowin Zone datas above ----
       implicit none
-      integer(4):: intq(3),iqbz,ifbz,n,verbose
+      integer(4):: intq(3),iqbz,ifbz,n,verbose !, nqibz_r
+c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
       real(8) :: qout(3)
       ifbz = 6661
       write(6,*)' ### readin BZDATA ###'
 c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
-      allocate(qbas(3,3),ginv(3,3),qbasmc(3,3),dq_(3))
+      allocate(qbas(3,3),ginv(3,3),dq_(3)) !,qbasmc(3,3)
       open (ifbz, file='BZDATA')
-      read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, nqibz_r
+      read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp !, nqibz_r
       read(ifbz,*)  n1,n2,n3
       write(6,"(' read_bzdata',10i5)")nqbz,nqibz, nqbzw, ntetf, nteti,ngrp
       allocate(qbz(3,nqbz),wbz(nqbz))
@@ -38,15 +39,20 @@ c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       if(nteti>0) then
         allocate( idteti(0:4,6*nqbz))
       endif
-      allocate( qibz_r(3,nqibz_r) )
+c      allocate( qibz_r(3,nqibz_r) )
       call rwbzdata(ifbz,1,
-     &    ngrp,qbas,ginv,qbasmc,
+     &    ngrp,qbas,ginv, !qbasmc,
      i    qbz, wbz,nstbz,           nqbz, 
      i    qibz,wibz, nstar,irk,  nqibz,
      i    idtetf, ntetf, qbzw,ib1bz, nqbzw,
-     i    idteti, nteti,dq_, qibz_r, nqibz_r )
+     i    idteti, nteti,dq_) !, qibz_r, nqibz_r )
       write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
       close(ifbz)
+
+ccccccccccccc
+c      do itet=1,ntetf
+c        write(6,"('iii ',5i5)") idtetf(0:3,itet)
+c      enddo
 
 C ... Add index to specify qbz. index_qbz is used to find index in qbz.
 C This algolism here can make index_qbz for any qbz(1:3,nqbz).
@@ -99,34 +105,34 @@ c         write(6,*) " O.K. index_qbz is generated; n=", n
 
 !! --------------------------------------------------------------------------
       subroutine rwbzdata(ifbz,job,
-     x  ngrp,qbas,ginv,qbasmc,
+     x  ngrp,qbas,ginv, !qbasmc,
      x  qbz, wbz  ,nstbz, nqbz, 
      x  qibz,wibz, nstar,irk,  nqibz,
      x  idtetf, ntetf, qbzw,ib1bz, nqbzw,
-     x  idteti, nteti,dq_, qibz_r,nqibz_r )
+     x  idteti, nteti,dq_) !, qibz_r,nqibz_r )
 !! Read  BZ mesh data reuired for GW 
       implicit none
       integer(4):: nqbz,n1q,n2q,n3q,ntetf,nteti,nqbzw,iqbz,ifbz
-     & ,nqibz,iqibz,itet,ngrp,job,nqibz_r
-      real(8)   :: plat(3,3),vol,qbasmc(3,3)
+     & ,nqibz,iqibz,itet,ngrp,job !,nqibz_r
+      real(8)   :: plat(3,3),vol !,qbasmc(3,3)
       real(8):: qbz(3,nqbz),wbz(nqbz),qibz(3,nqibz),wibz(nqibz)
-     &         ,qbzw(3,nqbzw),qbas(3,3),ginv(3,3),dq_(3), qibz_r(3,nqibz_r)
+     &         ,qbzw(3,nqbzw),qbas(3,3),ginv(3,3),dq_(3) !, qibz_r(3,nqibz_r)
       integer,allocatable:: ipq(:),iw1(:)
       integer:: idtetf(0:3,ntetf),ib1bz(nqbzw),idteti(0:4,nteti)
      &       ,irk(nqibz,ngrp),nstar(nqibz),nstbz(nqbz),bzcase
       logical tetraf,tetrai
 !! job is dummy now. only for reading BZ_DATA
       if(job<0) call rx('rwbzdata is now only for reading')
-      read (ifbz,"(3d24.16)") qbas,ginv,qbasmc
+      read (ifbz,"(3d24.16)") qbas,ginv!,qbasmc
       do iqibz = 1,nqibz
         read(ifbz,"(4d24.16,i9)") 
      &   qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
         read(ifbz,"(100i8)") irk(iqibz,1:ngrp)
       enddo
-      read (ifbz,"(i10)") nqibz_r
-      do iqibz = 1,nqibz_r
-        read (ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
-      enddo
+c      read (ifbz,"(i10)") nqibz_r
+c      do iqibz = 1,nqibz_r
+c        read (ifbz,"(3d24.16)") qibz_r(1:3,iqibz)
+c      enddo
       do iqbz = 1,nqbz
         read(ifbz, "(4d24.16,i10)") qbz(1:3,iqbz),wbz(iqbz),nstbz(iqbz)
 ! bug fix (kino); May 2004 it was write(ifbz,"(4d24.16)") read(ifbz,"(4d24.16)")

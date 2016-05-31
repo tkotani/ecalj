@@ -42,9 +42,10 @@
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval,lowesteval
-      use m_read_bzdata,only: nqbz,nqibz,nqbzw,nteti,ntetf
-     & ,n1,n2,n3,qbas,ginv,qbasmc,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     & ,nstar,irk,nstbz,ngrp2=>ngrp,qibz_r,nqibz_r,  read_bzdata
+      use m_read_bzdata,only: read_bzdata,
+     & nqbz,nqibz,nqbzw,nteti,ntetf
+     & ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
+     & ,nstar,irk,nstbz,ngrp2=>ngrp 
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
      & nlmto,nlnmx, nctot,niw,!nw_input=>nw,
