@@ -98,9 +98,9 @@ c      weight = 1d0/dble(nnn1t*nnn2t*nnn3t)
 !! Generage qbz
       wsum=0d0
       kount  = 0
-      do i1 = 1,nnnv(1)
-      do i2 = 1,nnnv(2)
       do i3 = 1,nnnv(3)
+      do i2 = 1,nnnv(2)
+      do i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
         call xconvv(xvec,           xvecc) !cell center
         call xconvv(xvec-0.5d0/nnn, xvecs) !cell start
@@ -123,9 +123,9 @@ c        qbzz(:,i1,i2,i3)= qbz(:,kount)
       kountw=0
       nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
       allocate(ib1bz(nqbzw), qbzw(3,nqbzw) )
-      do i1 = 1,nnn(1)+1
-      do i2 = 1,nnn(2)+1
       do i3 = 1,nnn(3)+1
+      do i2 = 1,nnn(2)+1
+      do i1 = 1,nnn(1)+1
         kountw = kountw+1
         indexkw(i1-1,i2-1,i3-1)= kountw
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
@@ -169,9 +169,9 @@ c      nqibz_r=0
 !! Generate qibz. Gamma point first (by igamma loop).
       usediqig=.false.
       do 229 igamma=0,1 !igamma=0 is for gamma point.
-      do 20 i1 = 1,nnnv(1)
-      do 20 i2 = 1,nnnv(2)
       do 20 i3 = 1,nnnv(3)
+      do 20 i2 = 1,nnnv(2)
+      do 20 i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
         call xconvv(xvec,           xvecc)
         if(sum(abs(xvecc+qbzshift))<1d-8 ) then
@@ -222,9 +222,9 @@ c     write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
   661 format(i5,2x,3f10.4,i10,f16.6)
 
 !! Rotation checker
-      do 30 i1 = 1,nnnv(1)
-      do 30 i2 = 1,nnnv(2)
       do 30 i3 = 1,nnnv(3)
+      do 30 i2 = 1,nnnv(2)
+      do 30 i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
         call xconvv(xvec,           xvecc)
         vv = matmul(qlat, xvecc+qbzshift)
@@ -365,10 +365,12 @@ c$$$     o      idtetf,qbzw,ib1bz,ntetf)
         qb(:,1) = qlat(:,1)/nnn(1)
         qb(:,2) = qlat(:,2)/nnn(2)
         qb(:,3) = qlat(:,3)/nnn(3)
-        CALL CCUTUP(qb,QB1,IBTR,KCUT)
-c        call tetirr(qbasmc,nnn(1),nnn(2),nnn(3),ipq,nqibz,
+ccccccccccccccccccccccccc
+c        call tetirr(qb,nnn(1),nnn(2),nnn(3),ipq,nqibz,
 c     o              nteti,idteti)
 c        goto 3333
+ccccccccccccccccccccccccc
+        CALL CCUTUP(qb,QB1,IBTR,KCUT)
         nteti = 0
 !!   START LOOPING OVER MICROCELLS ---------
         DO 220  I3 = 1, nnn(3)
@@ -404,7 +406,7 @@ c        goto 3333
             enddo
             enddo
             do n = 1, nteti
-              if ( sum(abs(idteti(:,n)-iq4(:)))==0) then
+              if ( sum(abs(idteti(1:4,n)-iq4(1:4)))==0) then
                 idteti(0,n) = idteti(0,n) + 1
                 goto 101
               endif
@@ -412,6 +414,7 @@ c        goto 3333
             nteti = nteti+1
             idteti(1:4,nteti) = iq4(1:4)
             idteti(0,nteti)=1
+c            write(6,"(' nnnnn i1i2i3=',3i5,2x,10i3)") i1,i2,i3,idteti(:,nteti)
  101        CONTINUE
  110      CONTINUE
  222     CONTINUE
@@ -419,7 +422,8 @@ c        goto 3333
  220     CONTINUE
         write(6,"(1x,'getbzdata1 TETIRR: nteti=',i8,'  sum(idteti)= full tetrahedra=',2i8)")
      &    nteti, sum(idteti(0,1:nteti)),6*nqbz
- 3333   continue
+c      stop 'xxxxxxxxxxxxxxxx test '
+c 3333   continue
       else
         nteti=0
       endif

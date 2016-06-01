@@ -28,7 +28,7 @@ Cstop2rx 2013.08.09 kino        stop 'fbz2: qx**2>1d-8 something wrong!!!'
       endif
       end
 
-      SUBROUTINE TETIRR_unused(QB,N1,N2,N3,IPQ,NQ,NTET,IDTET)
+      SUBROUTINE TETIRR_notused(QB,N1,N2,N3,IPQ,NQ,NTET,IDTET)
 C-  Finds inequivalent tetrahedra and counts them
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -96,9 +96,10 @@ C ----- order the identifiers -----
             idtet(i,ntet) = iq(i)
     6     continue
           idtet(0,ntet)=1
+          write(6,*)' nnnnn i1i2i3=',i1i2i3,idtet(:,ntet)
    10   CONTINUE
    20 CONTINUE
-      if ( iprint() .ge. 40 ) print 922, ntet, 6*n1*n2*n3
+      print 922, ntet, 6*n1*n2*n3
   922 format(1x,'TETIRR: ',i6,' inequivalent tetrahedra from ',i8)
       END
 

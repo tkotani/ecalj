@@ -207,7 +207,7 @@ ccccccccccccccccccccccccccc
       write(ifbz,"(3d24.16)") qlat,ginv!,qbasmc
       do iqibz = 1,nqibz
         write(ifbz,"(4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
-        write(6,"('bbbbbbbbb ',4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
+c        write(6,"('bbbbbbbbb ',4d24.16,i9)") qibz(1:3,iqibz),wibz(iqibz),nstar(iqibz)
         write(ifbz,"(100i8)") irk(iqibz,1:ngrp)
       enddo
 c      write(ifbz,"(i10)") nqibz_r
