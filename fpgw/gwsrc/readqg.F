@@ -370,13 +370,13 @@ c         nqtt => nqnumc
          kk3 =>kk3c
       endif
 c      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
-      write(*,"(' iqindx2_: q=',3f20.15)") q
+c      write(*,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv_,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
-      write(6,*)'kkk3=',kkk3
-      write(6,*)'kk1,nkey1',kk1,nkey(1)
-      write(6,*)'kk2,nkey2',kk2,nkey(2)
-      write(6,*)'kk3,nkey3',kk3,nkey(3)
+c      write(6,*)'kkk3=',kkk3
+c      write(6,*)'kk1,nkey1',kk1,nkey(1)
+c      write(6,*)'kk2,nkey2',kk2,nkey(2)
+c      write(6,*)'kk3,nkey3',kk3,nkey(3)
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
@@ -384,8 +384,8 @@ c      write(6,*)' ik1ik2ik3=',ik1,ik2,ik3
       iqindx = iqkkk(ik1,ik2,ik3)
 c      write(6,*)'iqindx=',iqindx
       qu = qtt(:,iqindx)
-      write(6,*)'iqindx=',iqindx
-      write(6,*)'qu=',qu
+c      write(6,*)'iqindx=',iqindx
+c      write(6,*)'qu=',qu
       end subroutine
 
 !> mini-sort routine.

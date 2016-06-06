@@ -117,7 +117,7 @@ c      integer(4) :: mdim(natom)
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
 c      integer(4)::imdim(natom),iatomp(natom)
-      logical,parameter:: debug=.true.
+      logical,parameter:: debug=.false.
 c---tetwt5
       logical:: hist      ,ipr
       integer(4):: nhwtot,
@@ -289,7 +289,7 @@ c      qq=0d0
           call cputid(0)
         endif
 ccccccccccc
-          write(6,"('xxxxxxx  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
+c          write(6,"('xxxxxxx  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
 ccccccccccc
 !! --- tetra ------ override nt0 itps ntp0 ---------------
         nkmin = 999999
@@ -626,7 +626,7 @@ c----------------------------
 !kino 2014-08-13  !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
 
 ccccccccccccccccccccccccc
-        write(6,"('gggx ',3f9.4,x2x,3f9.4)") q+rk(:,k),rk(:,k)
+c        write(6,"('gggx ',3f9.4,x2x,3f9.4)") q+rk(:,k),rk(:,k)
 ccccccccccccccccccccccccc
 
         do 25 jpm  = 1, npm !

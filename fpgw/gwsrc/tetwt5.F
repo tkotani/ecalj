@@ -186,7 +186,7 @@ c      fermi_dS=0d0
         mtett=.false.
       endif
 
-      print *,'xxxxxx mtett=',mtett
+c      print *,'xxxxxx mtett=',mtett
 !! read mtet or not.
       if(mtett) then
         ifmtet=501
@@ -289,9 +289,9 @@ c      print *,'xxxxxx 22222222 mtett=',mtett
       do itet = 1, ntetf
         do im   = 1, nmtet
 ccccccccccccccccccccc
-          print *,'iiiiiii111',im,itet
-          print *,'iiiiiii222',idtetfm(0:3,im,itet)
-          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
+c          print *,'iiiiiii111',im,itet
+c          print *,'iiiiiii222',idtetfm(0:3,im,itet)
+c          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
 cccccccccccccccccccccc
           kvec(1:3,0:3) = qbzwm (1:3, idtetfm(0:3,im,itet) )
           do i = 1,3
@@ -310,7 +310,7 @@ c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
-        print *,'do 1000 tetwt5 ',itet
+c        print *,'do 1000 tetwt5 ',itet
         kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
 !! may2013 for eizbmode 
         if(eibzmode) then
@@ -339,13 +339,13 @@ c$$$cccccccccccccccccccccc
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
 
 cccccccccccccccccccccc
-          write(6,*)'eeeeeeeeek'
-          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 0),kkm(0)
-          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 1),kkm(1)
-          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 2),kkm(2)
-          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 3),kkm(3)
-          write(6,"('kkkkk  ',10f9.5)") ek_  ( 1:nband+nctot, 0:3)
-          write(6,"('kkkkk  ',10f9.5)") ekq_ ( 1:nband+nctot, 0:3)
+c          write(6,*)'eeeeeeeeek'
+c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 0),kkm(0)
+c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 1),kkm(1)
+c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 2),kkm(2)
+c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 3),kkm(3)
+c          write(6,"('kkkkk  ',10f9.5)") ek_  ( 1:nband+nctot, 0:3)
+c          write(6,"('kkkkk  ',10f9.5)") ekq_ ( 1:nband+nctot, 0:3)
 ccccccccccccccccccccccc
 
           noccx_k  = noccx1 ( ek_(1:nband, 0:3),4,nband, efermi)  
@@ -461,23 +461,23 @@ c$$$                        enddo
                     endif
 !
 
-ccccccccccccccccccccccccccccccccccc
-                  if(ib>6.and.jb<13.and.job==1) then
-                    write(6,"('ttttt ef x(0:3)=',12d13.5)") efermi,x(0:3)
-                    do ikx = 0,3
-                      ibib = ibjb(ib,jb,kk(ikx),jpm)
-                      jini = jhw(ibib,kk(ikx),jpm)
-                      iini = ihw(ibib,kk(ikx),jpm)
-                      nnn =  nhw(ibib,kk(ikx),jpm)
-                      write(6,"('ttttt ')")
-                      write(6,"('ttttt  sum nwhis wtthis2=',d13.5)") sum(wtthis2(iini:iini+nnn-1,ikx))
-                      do ixx=iini,iini+nnn-1
-                        write(6,"('ttttt ', 4i5,x,2d13.5)") ib,jb,ixx,kk(ikx),wtthis2(ixx,ikx)
-                      enddo
-                    enddo
-c                    stop 'qqqqqqqqqqqqqqq'
-                  endif
-c cccccccccccccccccccccccccccccccccc
+c$$$ccccccccccccccccccccccccccccccccccc
+c$$$                  if(ib>6.and.jb<13.and.job==1) then
+c$$$                    write(6,"('ttttt ef x(0:3)=',12d13.5)") efermi,x(0:3)
+c$$$                    do ikx = 0,3
+c$$$                      ibib = ibjb(ib,jb,kk(ikx),jpm)
+c$$$                      jini = jhw(ibib,kk(ikx),jpm)
+c$$$                      iini = ihw(ibib,kk(ikx),jpm)
+c$$$                      nnn =  nhw(ibib,kk(ikx),jpm)
+c$$$                      write(6,"('ttttt ')")
+c$$$                      write(6,"('ttttt  sum nwhis wtthis2=',d13.5)") sum(wtthis2(iini:iini+nnn-1,ikx))
+c$$$                      do ixx=iini,iini+nnn-1
+c$$$                        write(6,"('ttttt ', 4i5,x,2d13.5)") ib,jb,ixx,kk(ikx),wtthis2(ixx,ikx)
+c$$$                      enddo
+c$$$                    enddo
+c$$$c                    stop 'qqqqqqqqqqqqqqq'
+c$$$                  endif
+c$$$c cccccccccccccccccccccccccccccccccc
 
 
                     do ikx = 0,3
@@ -1592,7 +1592,7 @@ c     &    ,indexk(mod(j1,n1), mod(j2,n2), mod(j3,n3))
 cccccccccccccc
 C ----- SET UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
 c        write(6,*)
-        print *,'xxxxxxxx qqqq xxxxxxxx ',i1,i2,i3
+c        print *,'xxxxxxxx qqqq xxxxxxxx ',i1,i2,i3
         do K1 = 0, 1
           J1 = I1 -1 + K1
         do K2 = 0, 1
