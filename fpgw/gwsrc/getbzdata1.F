@@ -2,12 +2,16 @@
 !!! x --> xqconv : uniform to non uniform mesh converter
 !! x is [0,1] --> xqcon = [0,1]
 !! x can be -1 <= x =< 1
+      use m_keyvalue,only: getkeyvalue
       real(8),parameter:: pi=3.1415926535897932d0
       real(8):: adiv,bdiv,x
-ccccccccccccccccccccccccccccccccccccccccccccccccc
+      logical:: oncew=.true.
 !! BZ division setting.
-      adiv=1d0 !this determine non-uniform meshing
-ccccccccccccccccccccccccccccccccccccccccccccccccc
+      call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+      if(oncew) then
+         write(6,"('BZadiv= ',f6.3)") adiv
+         oncew=.false.
+      endif
 !!   adiv+2b=1
       bdiv = (1d0 -adiv)/2d0
       xqconv           = adiv*x + bdiv*(1-cos(pi*x))

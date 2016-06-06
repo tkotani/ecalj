@@ -270,14 +270,13 @@ c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-c         if(debug)write(6,*) ' ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
-         write(6,"(' iqkkk ik1,ik2,ik3,=',i4,3i3,x,3i6)")i,ik1,ik2,ik3,kkk3(:)
+         if(debug) write(6,"(' iqkkk ik1,ik2,ik3,=',i4,3i3,x,3i6)")i,ik1,ik2,ik3,kkk3(:)
       enddo
-c      if(debug) then
+      if(debug) then
         write(6,*)'kk1=',kk1
         write(6,*)'kk2=',kk2
         write(6,*)'kk3=',kk3
-c      endif
+      endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
 ccccccccccccccccccc
@@ -335,9 +334,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         allocate(igx_(ngrp*2,nqbz),igxt_(ngrp*2,nqbz))
         immxx=0
         do ibz=1,nqbz
-ccccccccccccccccc
-          write(6,"(' qbz=',i3,' ',3f9.4,' ',3f9.4)")ibz,qbz(:,ibz),matmul(ginv,qbz(:,ibz))
-cccccccccccccccccc
+          if(debug) write(6,"(' qbz=',i3,' ',3f9.4,' ',3f9.4)")ibz,qbz(:,ibz),matmul(ginv,qbz(:,ibz))
           imm=0
           do it=1,ntimer,-2 !ntimer is 1 or -1.
             timer = dble(it)
@@ -356,8 +353,7 @@ c                 nww(ibz,im) = nww(ibz,im)+1
             nxx(:,ibz,imm)= (qxx+.5*epd)/epd  !integer nxx(i) takes from 0 to 1/epd.
             igx_ (imm,ibz) = ig  !inefficient memory usage, I think.
             igxt_(imm,ibz) = it  !
-c            if(debug) write(6,"(' imm ibz it ig  nxx=',4i7,'  ',3i6)")imm,ibz,ig,it ,nxx(:,ibz,imm)
-            write(6,"('imm ibz it ig nxx qxx qxi=',4i7,x,3i6,x, 3f8.4,x,3f8.4,' qx=',3f8.4)")
+            if(debug) write(6,"('imm ibz it ig nxx qxx qxi=',4i7,x,3i6,x, 3f8.4,x,3f8.4,' qx=',3f8.4)")
      &       imm,ibz,ig,it ,nxx(:,ibz,imm), qxx, qxi, qx
 c            write(6,*)'qbz=',qbz(:,ibz)
 c            write(6,*)'qx =',qx
@@ -388,26 +384,21 @@ c        call cputid(0)
              if(ix== 1) inotime=.true.
              if(ix==-1) inotime=.false.
              do ibz=1,nqbz
-ccccccccccccccccccccccccc
-                write(6,"('1111 ix,ibz',i3,i5,i5)")ix,ibz
-cccccccccccccccccccccccc
-                if(mqbz(ibz)==1) cycle
-                do im=1,immx(ibz) 
+               if(debug) write(6,"('1111 ix,ibz',i3,i5,i5)")ix,ibz
+               if(mqbz(ibz)==1) cycle
+               do im=1,immx(ibz) 
                    if(inotime) then
                       if(igxt_(im,ibz) == -1) cycle
                    elseif(inotime) then
                       if(igxt_(im,ibz) ==  1) cycle
                    endif
                    kkk3 = nxx(:,ibz,im)
-cccccccccccccccccccccccccc
-                   write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
-ccccccccccccccccccccccccccc
+                   if(debug) write(6,*)'uuuuu ibz,im kkk3=',ibz,im,kkk3
                    call tabkk(kkk3(1), kk1,nkey(1), ik1)
                    call tabkk(kkk3(2), kk2,nkey(2), ik2)
                    call tabkk(kkk3(3), kk3,nkey(3), ik3)
-cccccccccccccccccccccccccc
-                   write(6,*)'uuuuu ik=',ik1,ik2,ik3
-ccccccccccccccccccccccccccc
+                   if(ik1==-999999.or.ik2==-999999.or.ik3==-999999) cycle !! june2016
+                   if(debug) write(6,*)'uuuuu ik=',ik1,ik2,ik3
                    ibzx = iqkkk(ik1,ik2,ik3)
                    if(mqbz(ibzx)==1) then
                      cycle
@@ -417,15 +408,13 @@ ccccccccccccccccccccccccccc
                      igx (nwgt(ibz,iq),ibz,iq) = igx_(im,ibz)  
                      igxt(nwgt(ibz,iq),ibz,iq) = igxt_(im,ibz)  
                    endif   
-                enddo
+               enddo
              enddo
-
-ccccccccccccccccccccccccc
+             if(debug) then
              do ibz=1,nqbz
-                write(6,"('2222 ix,ibz mqbz nqbz=',i2,i3,i5,i5)")ix,ibz,mqbz(ibz),nwgt(ibz,iq)
+               write(6,"('2222 ix,ibz mqbz nqbz=',i2,i3,i5,i5)")ix,ibz,mqbz(ibz),nwgt(ibz,iq)
              enddo
-cccccccccccccccccccccccc
-
+             endif
              if(sum(nwgt(:,iq))==nqbz) then
                 if(ix==1) eibzsym(:,-1,iq)=0
                 goto 1202
@@ -461,7 +450,6 @@ c$$$          enddo
 c$$$ 3312     continue
 c$$$        enddo
         deallocate(igx_,igxt_)
-
 c        write(6,*)'eibz bbbbbb'
 c        call cputid(0)
 !
@@ -470,9 +458,7 @@ c        call cputid(0)
            if(nwgt(ibz,iq) /=0) then
               neibzx=neibzx+1
               qeibz(:,neibzx,iq)=qbz(:,ibz)
-cccccccccccccc
               write(6,"('   ibz qeibz =',i7,3f10.5, ' nwgt=',i7)")ibz,qeibz(:,neibzx,iq),nwgt(ibz,iq)
-cccccccccccccccc
            endif
         enddo   
         neibz(iq) = neibzx !number of eibz for iq
@@ -526,13 +512,12 @@ c$$$            nout=i
 c$$$            return                                                                              
 c$$$         endif                                                                                  
 c$$$      enddo                                                                                     
-      write(6,*) i1,i2,kkin
-      write(6,*) kktable(i1),kktable(i2)
-Cstop2rx 2013.08.09 kino      stop 'takk: error'
-      call rx( 'takk: error')
+!jun2016
+c      call rx( 'takk: error')
+c      write(6,*) i1,i2,kkin
+c      write(6,*) kktable(i1),kktable(i2)
+      nout=-999999
       end subroutine tabkk
-    
-
 
       subroutine mptauof(symops,ng,plat,nbas,bas,
      &             iclass,miat,tiat,invg,delta)
@@ -564,10 +549,8 @@ C--------------------------------------------------------------------
      &                 tiat(3,nbas,ng),am(3,3),b1,b2,b3,bas(3,nbas),
      &                 tr1,tr2,tr3,ep, dd1,dd2,dd3,t1,t2,t3
       integer  iprint
-      external iprint
       integer ires(3, nbas, ng)
       integer(4):: ib1,ib2
-c
       real(8) ::tran(3),delta(3,ng)
       data ep/1.0d-3/
 c      data ep/1.0d-7/
@@ -660,12 +643,9 @@ c
 c When the do-30 loop has been completed, we get out of do-20 loop
           goto 21
    20   continue
-Cstop2rx 2013.08.09 kino        stop 'mptauo2: Can not find miat and tiat'
         call rx( 'mptauo2: Can not find miat and tiat')
-c
    21   continue
         delta(:,ig) = tran          ! r' = am(3,3) r +  delta  !Jun 2000
-
 c- have gotten the translation-> check write --------------------
         if(iprint().ge.40) then
 c          write(6,4658)tr1,tr2,tr3
