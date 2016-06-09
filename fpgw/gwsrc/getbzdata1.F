@@ -5,9 +5,14 @@
       use m_keyvalue,only: getkeyvalue
       real(8),parameter:: pi=3.1415926535897932d0
       real(8):: adiv,bdiv,x
-      logical:: oncew=.true.
+      logical:: oncew=.true.,ggg
 !! BZ division setting.
-      call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+      inquire(file='GWinput',exist=ggg)
+      if(.not.ggg) then
+         adiv=1d0
+      else
+         call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+      endif   
       if(oncew) then
          write(6,"('BZadiv= ',f6.3)") adiv
          oncew=.false.

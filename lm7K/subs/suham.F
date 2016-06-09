@@ -65,7 +65,7 @@ c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3)
-      real(8):: qqq(3),diffs
+      real(8):: qqq(3),diffs,ddf
       real(8),allocatable:: symtmp(:,:,:)
       integer :: ifatomlist
 #if (MPI|MPIK)
@@ -272,18 +272,30 @@ c            if(sum(abs(qx-anint(qx)))<1d-8) then
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
             if(sum(abs(qx))<1d-8) then
               igg=ig
-              if(debug)print *,' q qtarget     =',q,qtarget,ig
-              if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
-              if(debug)print *
+c              if(debug)print *,' q qtarget     =',q,qtarget,ig
+c              if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
+c              if(debug)print *
+              ddf=sum(abs(matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))))
+              if(ddf-nint(ddf) >1d-10) then
+              write(6,"('qqqqqxq ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget,qtarget-matmul(symops(:,:,ig),q)
+              endif
               goto 2012
             endif
           enddo
         enddo
-        if(iprx)write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
-     & ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
 
-        print *,'gen_hamindex: qtarget can not found by SYMOPS.' 
-        call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
+        if(iprx) then
+           write(6,"(a,3f7.3,2x,3f7.3)")'gen_ham: qtarget cannot found.'//
+     &     ' Need to add SYMGRP explicitly (for SO=1), or You have to delete inconsistent QGpsi. qtarget=',qtarget
+           print *,'gen_hamindex: qtarget can not found by SYMOPS.' 
+           write(6,"('qqqqqxq20 ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget, matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
+           do ig=1,ngrp
+           call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
+           write(6,"('qqqqqxq2 ',3d16.8,2x,3d16.8,2x,3d16.8)") qtarget-matmul(symops(:,:,ig),q),qx
+           enddo
+           call rx('gen_hamindex: you may need to repeat echo 1|qg4gw, when you changed SYMOPS.')
+        endif
+
  2012   continue
         iqmap(i)=iqq
         iqimap(i)=iqi_

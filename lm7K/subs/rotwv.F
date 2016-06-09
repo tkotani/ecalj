@@ -432,23 +432,25 @@ c apw part ------------
       integer::ii(n),i,n
       real(8):: a(n),eps=1d-8,aa
       do i=1,n
-        if(a(i)>0) then
-          aa = a(i)
-          ii(i)=  int(aa+eps)
-        else
-          aa=-a(i)
-          ii(i)= -int(aa+eps)
-        endif
-        if(abs(ii(i)-a(i))>eps)stop'conv2int: a is not close to integer'
+c$$$        if(a(i)>0) then
+c$$$          aa = a(i)
+c$$$          ii(i)=  int(aa+eps)
+c$$$        else
+c$$$          aa=-a(i)
+c$$$          ii(i)= -int(aa+eps)
+c$$$        endif
+        ii(i)= nint(a(i))
+        if(abs(ii(i)-a(i))>eps) call rx('conv2int: a is not close to integer')
       enddo
       end
 
       subroutine rangedq(qin, qout)
-      real(8):: qin(3),qout(3),qx(3),tolq2=1d-4
-      qx    = qin + dble(int(abs(qin))) + 1d0 + tolq2
-      qout  = qx - idint(qx)
-      qout  = qout                            - tolq2
-      if(qout(1) <=0d0) qout(1) = 1d-16
-      if(qout(2) <=0d0) qout(2) = 1d-16
-      if(qout(3) <=0d0) qout(3) = 1d-16
+      real(8):: qin(3),qout(3)!,qx(3),tolq2=1d-6 ! !,tolq2=1d-4
+      qout= qin-nint(qin)
+c$$$      qx    = qin + dble(int(abs(qin))) + 1d0 + tolq2
+c$$$      qout  = qx - idint(qx)
+c$$$      qout  = qout                            - tolq2
+c$$$      if(qout(1) <=0d0) qout(1) = 1d-16
+c$$$      if(qout(2) <=0d0) qout(2) = 1d-16
+c$$$      if(qout(3) <=0d0) qout(3) = 1d-16
       end
