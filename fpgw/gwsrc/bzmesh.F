@@ -159,7 +159,7 @@ c        write(6,"(' ===== qbz=',3f8.3)") matmul(ginv,v)
               do ir = 1,ng
 c        if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
                 diff = matmul(g(:,:,ir),qp(:,k)) - v
-                call rangedq3(matmul(ginv,diff), diff2)
+                call rangedq(matmul(ginv,diff), diff2)
 c          if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)")
 c     &      diff, matmul(ginv,diff)
                 if(verbose()>60) then

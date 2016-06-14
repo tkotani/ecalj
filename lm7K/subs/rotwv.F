@@ -444,13 +444,11 @@ c$$$        endif
       enddo
       end
 
-      subroutine rangedq(qin, qout)
-      real(8):: qin(3),qout(3)!,qx(3),tolq2=1d-6 ! !,tolq2=1d-4
+      subroutine rangedq(qin, qout) !renewed jun2015
+      real(8):: qin(3),qout(3),tol=1d-12 
       qout= qin-nint(qin)
-c$$$      qx    = qin + dble(int(abs(qin))) + 1d0 + tolq2
-c$$$      qout  = qx - idint(qx)
-c$$$      qout  = qout                            - tolq2
-c$$$      if(qout(1) <=0d0) qout(1) = 1d-16
-c$$$      if(qout(2) <=0d0) qout(2) = 1d-16
-c$$$      if(qout(3) <=0d0) qout(3) = 1d-16
+      do ix=1,3
+        if(qout(ix)>0.5d0-tol) qout(ix)=-0.5d0 !this is needed to distinguish 0.5d0 and -0.5d0.
+      enddo 
       end
+

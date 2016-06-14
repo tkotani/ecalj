@@ -252,9 +252,9 @@ cccccccccccccccccccccccccccccccccccccccccc
           do iqi = 1,nqbz
             ix = ix+1
 c          write(6,*)'is ix=',is,ix
-c          write(6,"(' --- qbz=',2i5,3f9.4)") iqi,is!,qbz(:,iqi)+ddq
+c          write(6,"(' --- qbz=',2i5,3f9.4,3f9.4)") iqi,is,qbz(:,iqi),ddq
             call readeval(qbz(:,iqi)+ddq, is, eband2(:,is,ix))
-            write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
+c            write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:5,is,ix)
           enddo
         enddo
         ldim  = nband
@@ -304,7 +304,6 @@ c           write(6,*)eband(:,is,iqi)
         iftote=202
         open(iftote,file='TOTE.UP')
         read(iftote,*) nq,ntq, efxx
-Cstop2rx 2013.08.09 kino        if(nq/= nqibz) stop ' heftet: nq TOTE/= nqibz'
         if(nq/= nqibz) call rx( ' heftet: nq TOTE/= nqibz')
         nband = ntq
         allocate( eband(nband,nspin,nqibz), qz(3,nqibz) )
@@ -313,23 +312,18 @@ Cstop2rx 2013.08.09 kino        if(nq/= nqibz) stop ' heftet: nq TOTE/= nqibz'
           if(is==2) then
             open(iftote,file='TOTE.DN')
             read(iftote,*) nq2,ntq2, efxx2
-Cstop2rx 2013.08.09 kino            if(nq2/=nq)   stop 'nq dirrerent TOTE.UP TOTE.DN'
             if(nq2/=nq)   call rx( 'nq dirrerent TOTE.UP TOTE.DN')
-Cstop2rx 2013.08.09 kino            if(ntq2/=ntq) stop 'ntq dirrerent TOTE.UP TOTE.DN'
             if(ntq2/=ntq) call rx( 'ntq dirrerent TOTE.UP TOTE.DN')
-Cstop2rx 2013.08.09 kino            if(efxx/=efxx)stop 'efxx dirrerent TOTE.UP TOTE.DN'
             if(efxx/=efxx)call rx( 'efxx dirrerent TOTE.UP TOTE.DN')
           endif
           do  iqi = 1,nqibz
             do   it = 1,nband
               read(iftote,*) qq(1:3), itx, iqx, elda, eqp01, eqp02, zfac
-Cstop2rx 2013.08.09 kino              if(it /= itx ) stop ' heftet: it /=itx '
               if(it /= itx ) call rx( ' heftet: it /=itx ')
               if(sum(abs(qq(1:3)-qz(1:3,iqi)))>1d-6 ) then
                 write(6,*) 'iqi it=',iqi,it
                 write(6,*) qq(1:3)
                 write(6,*) qz(1:3,iqi)
-Cstop2rx 2013.08.09 kino                stop ' heftet: q in TOTE /=qz (iqi) '
                 call rx( ' heftet: q in TOTE /=qz (iqi) ')
               endif
               if(imode==2) eband(it,is,iqi) = elda /rydberg() + efxx
@@ -340,17 +334,17 @@ Cstop2rx 2013.08.09 kino                stop ' heftet: q in TOTE /=qz (iqi) '
           close(iftote)
         enddo
 
-caaaa jan2006 bug fix: this bug was between 032f5 to 032f8
+!! jan2006 bug fix: this bug was between 032f5 to 032f8
         ldim  = nband
         nbmax = nband
         zval  = valn
         nsp   = nspin
         nkp =nqibz
-caaaa
         allocate(bot(ldim*nsp),top(ldim*nsp))
         call efrang3(nsp,nkp,nbmax,ldim,zval,e1,e2,eband,
      .            bot,top,bot,top,elo,ehi,bandgap)
         deallocate(bot,top)
+
       endif
 ccccccccccccccccccccccccccccccccccc
 c        do  is  = 1,nspin !Readin eband

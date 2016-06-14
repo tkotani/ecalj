@@ -486,9 +486,11 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 
 !! --------------------------------------------------------
       module m_iqindx_qtt
+!! To accelarate inverse mapping, q to 'integer index',
+!! we prepare integer index of q, its resolution is given by epsd.
       use m_hamindex, only: qtt,nqtt
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
-      real(8),private:: epsd=1d-7
+      real(8),private:: epsd=1d-7 !key parameter to map to integer index
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
       contains
@@ -507,7 +509,8 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 
       if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv,q), qzz)
-      kkk3 = (qzz+0.5*epsd)/epsd
+!! we generate qzz integer index for qzz
+      kkk3 = (qzz+0.5*epsd)/epsd 
       if(debug) write(6,*)'kkk3=',kkk3
       if(debug) write(6,*)'nkey=',nkey
       if(debug) write(6,*)'kk1=',kk1
@@ -530,9 +533,10 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
 !!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
 !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
-      real(8):: ginv_(3,3)
+      implicit none
+      real(8):: ginv_(3,3),qzz(3)
       real(8),allocatable:: qxx(:,:)
-      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3
+      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
       integer,allocatable:: ieord(:)
       logical::debug=.false.
       ginv=ginv_
@@ -544,6 +548,8 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
          call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
          if(debug) write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
       enddo
+c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
+
 !! get key and nkey for each ix.
       key(:,0)=0 !dummy
       do ix =1,3
@@ -554,10 +560,11 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-c               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+cccccccccccc
+c               write(6,"('kkkk key qxx=',3i5,3x,i8,f13.6)") ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+ccccccccccc
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
                call rx( 'iqindx: bug not sorted well')
             endif
          enddo
@@ -571,6 +578,10 @@ Cstop2rx 2013.08.09 kino               stop 'iqindx: bug not sorted well'
       kk3(:) = key(3,1:nkey(3))
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
+      iqkkk=-99999
+c      print *,'eeee kk1=',kk1
+c      print *,'eeee kk2=',kk2
+c      print *,'eeee kk3=',kk3
 c      write(6,*)' initqqq nqtt=',nqtt
       do i=1,nqtt
          kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
@@ -613,9 +624,8 @@ c$$$            nout=i
 c$$$            return                                                                              
 c$$$         endif                                                                                  
 c$$$      enddo                                                                                     
-      write(6,*) i1,i2,kkin
-      write(6,*) kktable(i1),kktable(i2)
-Cstop2rx 2013.08.09 kino      stop 'takk: error'
+      write(6,*) 'xxxxx takk ', i1,i2,kkin
+      write(6,*) 'xxxxx takk ',kktable(i1),kktable(i2)
       call rx( 'takk: error')
       end subroutine
       end module

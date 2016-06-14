@@ -72,7 +72,7 @@ c------------------------------------------------------------
       real(8)::qmic(3,3),weight,x1,x2,x3,xqconv,x1i,x2i,x3i,wsum
       integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx,
      &  ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
-      real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3)
+      real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
       logical,allocatable::usediqig(:,:)
 !! icase=1
 c-------------------------------------------------------
@@ -87,6 +87,7 @@ c      if(icase>2) call rx( 'mkqg: wrong bzcase')
               !this was (/n1q/2d0,n2q/2d0,n3q/2d0/) !this shift is so that gamma point is centerd.
       endif
       nnnv = nnn+nadd
+      wfac=dble(product(nnn))/product(nnnv)
       nqbz = product(nnnv) !(nnn(1)+nadd)*(nnn(2)+nadd)*(nnn(3)+nadd) 
       allocate(qbz(3,nqbz),wbz(nqbz))!,nstbz(nqbz))
       allocate(nstbz(nqbz)
@@ -120,14 +121,14 @@ c        write(6,"('xvec=',3i5,3d13.5)")i1,i2,i3,xvec
         weight = product(xvece-xvecs)
         qbz(:,kount) = matmul(qlat,xvecc) !x1*qmic(:,1) + x2*qmic(:,2) + x3*qmic(:,3)
 c        qbzz(:,i1,i2,i3)= qbz(:,kount)
-        wbz(kount) = weight
-        wsum = wsum + weight
+        wbz(kount) =  weight*wfac
+        wsum = wsum + weight*wfac
         indexk(i1-1,i2-1,i3-1)= kount
       enddo
       enddo
       enddo
       write(6,*) 'wsum=',wsum
-      if(abs(wsum-1d0)>1d-6) call rx( 'getbzdata1: wrong wsum check')
+      if( abs(wsum - 1d0) >1d-6) call rx( 'getbzdata1: wrong wsum check')
 !! Generate qbzw
       kountw=0
       nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
@@ -182,16 +183,16 @@ c      nqibz_r=0
       do 20 i2 = 1,nnnv(2)
       do 20 i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
-        call xconvv(xvec,           xvecc)
-        if(sum(abs(xvecc+qbzshift))<1d-8 ) then
+        call xconvv(xvec+qbzshift,           xvecc)
+        if(sum(abs(xvecc))<1d-8 ) then
           if(igamma==1) cycle !skip Gamma since it is already in it.
         else
           if(igamma==0) cycle !get Gamma point only.
         endif
-        vv = matmul(qlat, xvecc+qbzshift)
+        vv = matmul(qlat, xvecc)
         call xconvv(xvec-0.5d0/nnn, xvecs)
         call xconvv(xvec+0.5d0/nnn, xvece)
-        weight= 2d0* product(xvece-xvecs)
+        weight= 2d0* product(xvece-xvecs) *wfac
 !!   Check vv can be mapped to q(iq,ig).
         do 22 iq = 1, nqibz
         do 22 ig = 1, ngrp
@@ -218,9 +219,11 @@ c      nqibz_r=0
  20   continue
  229  continue
       SWGT = sum(wibz(1:nqibz))
-      if (dabs(swgt-2d0)> 1d-9) call rx( 'getbzdata: error in weights swgt')
-c     write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
-      if (sum(iwgt(1:nqibz))-product(nnn)/=0) call rx('getbzdata: sum(iwgt(1:nqibz))-product(nnn)/=0')
+c      if(gammacellctrl/=2) then
+         if (dabs(swgt-2d0)> 1d-9) call rx( 'getbzdata: error in weights swgt')
+c        write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
+      if (sum(iwgt(1:nqibz))-product(nnnv)/=0) call rx('getbzdata: sum(iwgt(1:nqibz))-product(nnn)/=0')
+c      endif
       write(6,"(/' getbzdata: nqibz sum.iwgt nqbz =',3i8)") nqibz,product(nnn)
       write(6,744) nqibz,product(nnnv)
   744 FORMAT(' getbzdata: ',I4,' irreducible k - points. from ',i5,' (',3i3,' )')
@@ -235,13 +238,17 @@ c     write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
       do 30 i2 = 1,nnnv(2)
       do 30 i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
-        call xconvv(xvec,           xvecc)
-        vv = matmul(qlat, xvecc+qbzshift)
+        call xconvv(xvec+qbzshift,           xvecc)
+        vv = matmul(qlat, xvecc)
         do k  = 1,nqibz
         do ir = 1,ngrp
           diff = matmul(symops(:,:,ir),qibz(:,k)) - vv
-          call rangedq3(matmul(diff,plat), diff2)
-           if(sum(abs(diff2))< 1d-6) then
+          if(gammacellctrl/=2) then
+           call rangedq(matmul(diff,plat), diff2)
+          else
+            diff2=diff
+          endif
+          if(sum(abs(diff2))< 1d-6) then
              if(verbose()>50) then
              write(6,"(' i1i2i3= ',3i3,' q qibz k=',2x,3f7.3,2x,3f7.3,2i5)")
      &       i1,i2,i3, vv, qibz(:,k),k,k-ipq(i1,i2,i3) ! matmul(qp(:,NQx),rbas)*8, matmul(v, rbas)*8
@@ -260,7 +267,7 @@ c     &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
       call minv33(qlat,ginv)
       allocate(nstar(nqibz), irk(nqibz,ngrp),iw1(nqbz))
       call nkstar  (qibz,qbz,symops,ginv, !ginv=plat
-     d              nqibz,nqbz,ngrp,
+     d              nqibz,nqbz,ngrp,gammacellctrl,
      o              nstar,irk )
 
 !! irk check. irk(iqi,igrp) specify
@@ -568,7 +575,7 @@ c$$$      print *,' end of getbzdata1'
       end subroutine getbzdata1
 
       subroutine nkstar (qibz,qbz,grp,ginv,
-     d nqibz,nqbz,ngrp,
+     d nqibz,nqbz,ngrp,gammacellctrl,
      o nstar,irotk)
 c 92.02.22
 c generates the no. stars of k
@@ -585,7 +592,7 @@ c irotk(k{IBZ,R) = index to k{FBZ
       integer:: nqibz,nqbz,ngrp,ir,k,kp,nsum,ivsum
       real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
       integer:: nstar(nqibz),irotk(nqibz,ngrp)
-      integer:: verbose,kout
+      integer:: verbose,kout,iccc,gammacellctrl
       real(8):: diff(3),diff2(3),tol=1d-6,gg(3,3)
       if(verbose()>104) then
         print *,' nkstar:'
@@ -600,7 +607,11 @@ c irotk(k{IBZ,R) = index to k{FBZ
           do ir = 1,ngrp
             if(verbose()>104) print *,' grp=',ir !;      print *, grp(:,ir)
             diff = matmul(grp(:,:,ir),qibz(:,k)) - qbz(:,kp)
-            call rangedq(matmul(ginv,diff), diff2)
+            if(gammacellctrl/=2) then
+              call rangedq(matmul(ginv,diff), diff2)
+            else
+              diff2=diff
+            endif
             if(verbose()>104) write(6,"(' matmul(ginv,diff)=',3f8.3,' ',3f8.3)") diff, matmul(ginv,diff)
             if(sum(abs(diff2))< tol) then
               irotk(k,ir)= kp
@@ -617,6 +628,18 @@ c irotk(k{IBZ,R) = index to k{FBZ
       do k  = 1,nqibz
           write(6,"(' k nstar=',3i6)") k,nstar(k)
       enddo
+      print *,'sum nstart=',sum(nstar)
+      iccc=0
+      do k=1,nqibz
+      do ir=1,ngrp
+         if(irotk(k,ir)/=0) then
+            iccc=iccc+1
+         endif
+      enddo
+      enddo
+      print *,'cccccc icc sum=',iccc,sum(irotk)
+ccccccccccc
+
 !! check that the sum of stars equal to the no. k{FBZ
       nsum = ivsum (nstar,nqibz)
       if (nsum .ne. nqbz) then
