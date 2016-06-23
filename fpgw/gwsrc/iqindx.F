@@ -83,7 +83,7 @@ c----------------------------------------------------------
       integer(4) function iqindx(q, ginv,qq,nq)
       implicit none
       integer(4):: nq,i_out, iq,iqx,iqindx0
-      real(8):: q(3),qq(3,nq),ginv(3,3),qx(3)
+      real(8):: q(3),qq(3,nq),ginv(3,3),qx(3),tolq=1d-8
       integer(4),save :: isave=0  !accelation to find iqindx
       if(isave>nq) isave=0
       iqindx= iqindx0(q, ginv,qq,nq,isave)
@@ -94,6 +94,7 @@ Ci ginv is the inverse of plat (premitive translation vector).
       implicit none
       integer(4):: nq,i_out, iq,iqx,isave
       real(8):: q(3),qq(3,nq),ginv(3,3),qx(3)
+      real(8):: tolq=1d-8
       do iqx = isave+1,isave+nq
         if(iqx > nq) then
           iq = iqx -nq
@@ -101,7 +102,7 @@ Ci ginv is the inverse of plat (premitive translation vector).
           iq = iqx
         endif
         call rangedq(matmul(ginv,q-qq(:,iq)), qx)
-        if(sum(abs(qx))< 1d-6) then
+        if(sum(abs(qx))< tolq) then
           iqindx0=iq
           isave =iq
 c          print *,"isave=",isave

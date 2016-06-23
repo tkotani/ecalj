@@ -143,7 +143,7 @@ c      real(8)   :: zq0zq0
       complex(8)   :: zq0zq0 !This is a bug for the case of two atoms per cell!!! oct2006
 c      complex(8):: rcxqmean(nwt,npm,nmbas1,nmbas2)
 
-      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolqu=1d-4,quu1(3),quu2(3)
+      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) !tolqu=1d-4,
 
       integer(4):: nbcut,nbcut2
       logical :: iww1=.true.,iww2=.true.
@@ -893,7 +893,7 @@ c       endif
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1_1401 "after_iqindx2"
 !TIME0_1501
-        if(sum(abs(q-quu))>1d-8) call rx( 'x0kf_v2h: eibz 111 q/quu')
+        if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
              !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
         write(6,"(' --- goto symmetrization --- ikp neibz q=',2i3,3f12.8)")ikp,neibz,q
@@ -1492,10 +1492,10 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
         end
         logical function checkbelong(qin, qall, nq,ieibz) !ieibz is also returned
         integer:: nq,ieibz
-        real(8):: qin(3), qall(3,nq)
+        real(8):: qin(3), qall(3,nq),tolq=1d-8
         checkbelong=.false.
         do i=1,nq
-           if(sum(abs(qin-qall(:,i)))<1d-8) then
+           if(sum(abs(qin-qall(:,i)))<tolq) then
               ieibz=i
               checkbelong=.true.
               return

@@ -130,7 +130,7 @@ cold  nbmax -->nmmax
       complex(8):: expikt(natom)
       integer:: it,ia,kx,verbose,nstate,imdim(natom)
       logical:: oncew
-      real(8),parameter::epsd=1d-6
+      real(8),parameter::tolq=1d-8
       integer::ispq,ispm,iii,itps
 !TIME0_1001 
       if(verbose()>80) debug=.true.
@@ -146,7 +146,7 @@ cold  nbmax -->nmmax
          init=.false.
       endif
 
-      if(sum(abs(q-q_bk))>epsd) then
+      if(sum(abs(q-q_bk))>tolq) then
          call readcphi(q, nlmto,ispq, quu, cphim )
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          q_bk=q
@@ -158,7 +158,7 @@ cold  nbmax -->nmmax
 
 !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       qk =  q - rkvec        
-      if(sum(abs(qk-qk_bk))>epsd) then
+      if(sum(abs(qk-qk_bk))>tolq) then
          call readcphi(qk, nlmto,ispm, quu, cphim)
          qk_bk=qk
       endif

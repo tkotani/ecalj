@@ -202,7 +202,7 @@ cnnn
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
-      real(8):: rlatp(3,3),xmx2(3)
+      real(8):: rlatp(3,3),xmx2(3),tolq=1d-8
 
       ifi = 6661
       open (ifi, file='LATTC')
@@ -228,7 +228,7 @@ ccccccccccccccccccccc
       sss(2,:)=(/0d0,1d0,0d0/)
       sss(3,:)=(/0d0,0d0,1d0/)
       sumcheck1= sum(abs(symgg(:,:,1)-sss))
-      if(sumcheck1>1d-8) call rx( 'eibzgen: symgg(:,:,1) is not E')
+      if(sumcheck1>tolq) call rx( 'eibzgen: symgg(:,:,1) is not E')
 
 !!=== Get key and nkey for each ix. (similar with those in readqg,readeigen) ===
       allocate(qbzl(3,nqbz),key(3,0:nqbz),ieord(nqbz))
@@ -318,7 +318,7 @@ c     check wheter q is on 1st BZ boundary or not
              endif  
           endif
 ccccccccccccccccccccccccccccccccccccccccccccc
-          if(sum(abs(qxx))<1d-8) then
+          if(sum(abs(qxx))<tolq) then
             eallow(ig,it)=1
           endif  
         enddo

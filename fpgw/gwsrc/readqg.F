@@ -33,14 +33,13 @@
       real(8), intent(in) :: q(3)
       integer(4), intent(in) :: ngc
       complex(8), intent(out) :: ppovl(ngc,ngc)
-
       integer(4):: ngc_r,ippovl0
-      real(8):: qx(3)
+      real(8):: qx(3),tolq=1d-8
       ippovl0=2301
       open(ippovl0,file='PPOVL0',form='unformatted')
       do
         read(ippovl0) qx,ngc_r
-        if(sum(abs(qx-q))<1d-6) then
+        if(sum(abs(qx-q))<tolq) then
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl
           exit
@@ -241,13 +240,10 @@ c        enddo
 ccccccccccccc
          ik=0
          do i=1,nqtt
-            kkk=(qxx(ix,ieord(i))+0.5*epsd)/epsd  !kkk is digitized by 1/epsd
+            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-cccccccccccccccccccc
-c               write(6,*)'kkkkkeyinit=',ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-cccccccccccccccccccccc
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
                call rx( 'iqindx: bug not sorted well')

@@ -100,7 +100,7 @@ c
       integer(4) ::ldim,nbmax,nsp,nkp,
      &    itt,ifief ,imode,iftote,it
       real(8) :: zval,elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)
-     &    ,tol=1d-10
+     &    ,tol=1d-10,toql=1d-8
 
       real(8)::volwgt
       real(8),allocatable:: bot(:),top(:),dos(:)
@@ -108,13 +108,13 @@ c
       real(8)::ddq(3),bandgap
 
       integer(4):: bzcase=1
+      real(8):: tolq=1d-8
 
 c---------------------------------------
       write(6,*) 'mode=(1-4)?'
       read(5,*) imode
       call headver('heftet',imode)
       write(6,*) '--- heftet: calculation mode =',imode
-Cstop2rx 2013.08.09 kino      if(imode<1.or.imode>4) stop 'mode out of range(1-4)'
       if(imode<1.or.imode>4) call rx( 'mode out of range(1-4)')
 c---------------------------------------
 
@@ -320,7 +320,7 @@ c           write(6,*)eband(:,is,iqi)
             do   it = 1,nband
               read(iftote,*) qq(1:3), itx, iqx, elda, eqp01, eqp02, zfac
               if(it /= itx ) call rx( ' heftet: it /=itx ')
-              if(sum(abs(qq(1:3)-qz(1:3,iqi)))>1d-6 ) then
+              if(sum(abs(qq(1:3)-qz(1:3,iqi)))>tolq ) then
                 write(6,*) 'iqi it=',iqi,it
                 write(6,*) qq(1:3)
                 write(6,*) qz(1:3,iqi)

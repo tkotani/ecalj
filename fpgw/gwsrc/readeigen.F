@@ -191,6 +191,7 @@ c$$$      end subroutine rotMPB
       complex(8):: zrotm(ngbb,ngbb)
       integer,save:: init=1
       logical ::debug=.false.
+      real(8):: tolq=1d-8
       if(debug) write(6,*)' rotMPB2:'
       if(init==1) then
         lxxa= 2*max_l_tbl
@@ -208,7 +209,7 @@ c$$$      end subroutine rotMPB
       call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu) !iqindx2 is slow. If required, speed it up in a manner as iqindx2_.
       if(debug) write(6,*)' end of iqindx2rotmto2 '
 Cstop2rx 2013.08.09 kino      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
-      if(sum(abs(qin-qu))>1d-6) call rx( 'rotMPB:qin is not included in QGcou')
+      if(sum(abs(qin-qu))>tolq) call rx( 'rotMPB:qin is not included in QGcou')
       sss=1d0
       if(igxt==-1) sss=-1d0
       if(debug) write(6,*)' iqindx2 111111111111 sss=',sss,igx,qin
@@ -557,7 +558,7 @@ ccccccccccccccccccccc
       key=-99999
       do iq=1,nqtt
          call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
-         if(debug) write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
+c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
       enddo
 c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
 
@@ -571,9 +572,6 @@ c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt)))
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
-cccccccccccc
-c               write(6,"('kkkk key qxx=',3i5,3x,i8,f13.6)") ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-ccccccccccc
             elseif (key(ix,ik)>kkk) then
                write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
                call rx( 'iqindx: bug not sorted well')
@@ -590,9 +588,9 @@ ccccccccccc
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
       iqkkk=-99999
-      print *,'eeee kk1=',kk1
-      print *,'eeee kk2=',kk2
-      print *,'eeee kk3=',kk3
+c      print *,'eeee kk1=',kk1
+c      print *,'eeee kk2=',kk2
+c      print *,'eeee kk3=',kk3
 c      write(6,*)' initqqq nqtt=',nqtt
       do i=1,nqtt
          kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
@@ -600,9 +598,9 @@ c      write(6,*)' initqqq nqtt=',nqtt
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-         print *,'111111 kkk3=',kkk3,qxx(:,i)
-         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
-         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
+c         print *,'111111 kkk3=',kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
       enddo
       deallocate(qxx)
 c      stop 'xxxxxxxxxxxxx'
@@ -730,14 +728,14 @@ ctm
       if(init) call rx( 'readeigen: modele is not initialized yet')
 c      iq = iqindx(q, ginv,qtt,nqtt)
        call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
-c      if(debug) then
+      if(debug) then
         write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
         write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
-c      endif
+      endif
       ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
-c      if(debug) then
+      if(debug) then
         write(6,"(9f9.4)")ev(1:9)
-c      endif
+      endif
       end subroutine
 
       subroutine findemaxmin_r(emax,emin)
@@ -1077,7 +1075,6 @@ c      integer(4),allocatable:: ngvecp(:,:)
       allocate(ginv(3,3))
       ginv  = ginv_in
       nsp   = nsp_in
-Cstop2rx 2013.08.09 kino      if(nsp<0.or.nsp>2) stop 'init_reaeigen:nsp wrong'
       if(nsp<0.or.nsp>2) call rx( 'init_reaeigen:nsp wrong')
       nband = nband_in
       mrece = mrece_in
@@ -1091,7 +1088,6 @@ c      write(*,*)'imx=',imx,ngpmx
 c      do iq=1,nqtt
 c        write(*,*) qtt(:,iq)
 c      enddo
-c      stop 'xxxxxxxxxxxxxxxxxx test xxxxx'
 
       call init_iqindx_qtt(ginv)
 
@@ -1633,7 +1629,7 @@ c this should be called after init_readgeigen2
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2,
      & ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,
      & ifuu,nqbz2,nq0i,iko_ix2,iko_fx2,iq0i,iq0i2,j1,j2
-      real(8):: q(3),rnorm,cnorm,qu(3)
+      real(8):: q(3),rnorm,cnorm,qu(3),tolq=1d-8
       real(8),allocatable :: eval(:,:,:)
       complex(8),allocatable :: dnk(:,:,:,:),evec(:,:,:,:),
      &                          geig2(:,:),cphi2(:,:),
@@ -1831,9 +1827,9 @@ ccccccccccccccccccccccccccccccccccccccccccc
            call readgeig(qtt(:,ikp),ngpmx,is, qu,geig2)
            if(debug)print *,'qqqqqq1',qu
            if(debug)print *,'qqqqqq2',qtt(:,ikp)
-           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
+           if(sum(abs(qtt(:,ikp)-qu))>tolq) call rx('init_readeigen_mlw_noeval 1111')
            call readcphi(qtt(:,ikp),ldim2,is, qu,cphi2)
-           if(sum(abs(qtt(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 2222')
+           if(sum(abs(qtt(:,ikp)-qu))>tolq) call rx('init_readeigen_mlw_noeval 2222')
 c           call readgeig(qtti(:,ikp),ngpmx,is, qu,geig2)
 c           if(sum(abs(qtti(:,ikp)-qu))>1d-8) call rx('init_readeigen_mlw_noeval 1111')
 c           call readcphi(qtti(:,ikp),ldim2,is, qu,cphi2)
@@ -2310,13 +2306,6 @@ c ---
       end module
 
 
-
-
-
-
-
-
-
 c taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
       implicit none
@@ -2324,15 +2313,16 @@ c taken from lm7k/subs/rotwv.F
       integer, intent(in) :: n
       integer, intent(out) :: ii(n)
       integer::i
-      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
+      real(8):: eps=1d-8,aa !eps=1d-8 until aug2012
       do i=1,n
-        if(a(i)>0) then
-          aa = a(i)
-          ii(i)=  int(aa+eps)
-        else
-          aa=-a(i)
-          ii(i)= -int(aa+eps)
-        endif
+c        if(a(i)>0) then
+c          aa = a(i)
+c          ii(i)=  int(aa+eps)
+c        else
+c          aa=-a(i)
+c          ii(i)= -int(aa+eps)
+c        endif
+        ii(i)=nint(a(i))
         if(abs(ii(i)-a(i))>eps)call rx( 'conv2int: a is not close to integer')
       enddo
       end subroutine conv2int
@@ -2355,12 +2345,13 @@ c------------------------------------------------------
       integer   :: ig,ndimh,napw_in,nband,ibaso,iorb,nnn(3),igx,init1,init2,iend1,iend2,nlmto,ierr,igg,ikt2,ikt,l,ibas,ig2,k
       real(8)   :: q(3),gout(3),delta(3),ddd(3),qpg(3),platt(3,3),qtarget(3),qx(3),det,qpgr(3),ddd2(3) !,plat(3,3),qlat(3,3)
       complex(8):: evec(ndimh,nband),evecout(ndimh,nband),phase,img=(0d0,1d0),img2pi
+      real(8)::tolq=1d-8
       img2pi=2*4d0*datan(1d0)*img
       platt = transpose(plat) !this is inverse of qlat
       ierr=1
 !! check q is really rotated to qtarget by symops(:,:,igg)
       call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,igg),q)) ), qx)
-      if(sum(abs(qx))>1d-8) then
+      if(sum(abs(qx))>tolq) then
         write(6,"(a,3f7.3,2x,3f7.3)")'  rotwvigg: qtarget is not a star of q',q,qtarget
         call rx( 'rotwvigg: qtarget is not symops(:,:,ig)*q')
       endif  

@@ -251,7 +251,7 @@ c      logical :: ippovlc_test
       integer:: idummy11(1,1)
 
       integer:: nxxx(1:3)=0,ngggmx,ngcgpmx,ippovlg,ippovli,ippovlgg
-      real(8):: QpGcutggg,QpGcutgcgp
+      real(8):: QpGcutggg,QpGcutgcgp,tolq=1d-8
       complex(8),allocatable:: ggg(:)
       integer,allocatable:: nvggg(:,:),nvgcgp(:,:),iantiferro(:)
       character(8),allocatable:: spid(:)
@@ -1402,7 +1402,7 @@ c          print *,'zzzz qqqa=',qqqa
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
           read (ifiqg ) ngvecp
           read (ifiqgc) ngvecc
-          if(sum(abs(qtti(:,ikp)-qqqa))<1d-8) exit
+          if(sum(abs(qtti(:,ikp)-qqqa))<tolq) exit
           deallocate(ngvecp,ngvecc)
           cycle
  1012     continue
@@ -1418,9 +1418,9 @@ c        ngveccf (1:3,1:ngc, ikp) = ngvecc
 c        ngpx (ikp) = ngp
 c        ngvecpf (1:3,1:ngp, ikp) = ngvecp
 Cstop2rx 2013.08.09 kino        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGphi?'
-        if(sum(abs(qtti(:,ikp)-qqqa))>1d-10) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGphi?')
+        if(sum(abs(qtti(:,ikp)-qqqa))>tolq) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGphi?')
 Cstop2rx 2013.08.09 kino        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) stop'rdata4gw_v2:qtti/=qqq wrong QpGcou?'
-        if(sum(abs(qtti(:,ikp)-qqqb))>1d-10) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGcou?')
+        if(sum(abs(qtti(:,ikp)-qqqb))>tolq) call rx( 'rdata4gw_v2:qtti/=qqq wrong QpGcou?')
         if(debug) print *,' ikp ngp ngc qtti =',ikp,ngp,qtti(:,ikp)
         if(debug) print *,' ikp ngp ngc qqqa=',ikp,ngp,qqqa
         if(debug) print *,' ikp ngp ngc qqqb=',ikp,ngp,qqqb
@@ -1765,7 +1765,7 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
           allocate( ngvecp(3,ngp),ngvecc(3,ngc) )
           read (ifiqg ) ngvecp
           read (ifiqgc) ngvecc
-          if(sum(abs(qx-qqqa))<1d-8) exit
+          if(sum(abs(qx-qqqa))<tolq) exit
           deallocate(ngvecp,ngvecc)
           cycle
  1013     continue
@@ -1776,8 +1776,8 @@ c          print *,'iqi,qqqa,ngp=',iqi,qqqa,ngp
           read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
           read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
         enddo
-        if(sum(abs(qx-qqqa))>1d-10) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGphi?')
-        if(sum(abs(qx-qqqb))>1d-10) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGcou?')
+        if(sum(abs(qx-qqqa))>tolq) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGphi?')
+        if(sum(abs(qx-qqqb))>tolq) call rx( 'rdata4gw_v2:qx/=qqq wrong QpGcou?')
 c        ngcx (ikp) = ngc
 c        ngveccf (1:3,1:ngc, ikp) = ngvecc
 c        ngpx (ikp) = ngp

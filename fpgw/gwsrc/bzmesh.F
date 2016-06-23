@@ -32,6 +32,7 @@ C---------------------------------------------------------------------
       integer(4) :: verbose
       integer:: nadd,nnn
       integer:: ix=0,iii,jj(3)
+      real(8):: tolq=1d-8
 c      hf=0d0
 c      if(icase==2) hf=0.5d0
       call minv33(rbas,qbas)
@@ -59,7 +60,7 @@ c      if(icase==2) hf=0.5d0
       do I2 = 1, N2+nadd
       do I1 = 1, N1+nadd
         V = matmul(QB,(/(I1-1+qbzshift(1)),(I2-1+qbzshift(2)),(I3-1+qbzshift(3))/))
-        if(sum(abs(v))<1d-6) then
+        if(sum(abs(v))<tolq) then
           J1=I1
           J2=I2
           J3=I3
@@ -77,7 +78,7 @@ c      if(icase==2) hf=0.5d0
       DO  20  I2 = 1, N2+nadd
       DO  20  I1 = 1, N1+nadd
         V = matmul(QB,(/(I1-1+qbzshift(1)),(I2-1+qbzshift(2)),(I3-1+qbzshift(3))/))
-c        if(sum(abs(v))<1d-6) then
+c        if(sum(abs(v))<tolq) then
           print *,'0000',i1,i2,i3,v
 c        endif
         IF (IPQ(I1,I2,I3) .EQ. 0) THEN
@@ -97,7 +98,7 @@ cc            write(6,"('aaaaaaaab111 ',i3,3f10.5,3i3,x,3f10.5)") ig,xv,jj(:),v1
 c            call rangedq_xxx(xv(1)+1-qbzshift(1),xv1)
 c            call rangedq_xxx(xv(2)+1-qbzshift(2),xv2)
 c            call rangedq_xxx(xv(3)+1-qbzshift(3),xv3)
-            if(sum(abs(xvv(:)))>3d-6) then
+            if(sum(abs(xvv(:)))>tolq) then
               if(nadd==0) then
                 print *,' bzmesh: mapping i1i2i3 to: ',i1,i2,i3,xvv(:)
                 call rx( 'bzmesh: bug! not mapped to regular mesh point')
@@ -166,7 +167,7 @@ c     &      diff, matmul(ginv,diff)
                   write(6,"(' i1i2i3= ',3i3,' v qp k=',2x,3f7.3,2x,3f7.3,i5,3d13.5)")
      &             i1,i2,i3,v,qp(:,k),k,diff2 ! matmul(qp(:,NQx),rbas)*8, matmul(v, rbas)*8
                 endif
-                if(sum(abs(diff2))< 1d-6) then
+                if(sum(abs(diff2))< tolq) then
                   if(verbose()>50) 
      &             write(6,"(' i1i2i3= ',3i3,' v qp k=',2x,3f7.3,2x,3f7.3,i5)")
      &             i1,i2,i3,v, qp(:,k),k ! matmul(qp(:,NQx),rbas)*8, matmul(v, rbas)*8
@@ -182,7 +183,7 @@ c            nstar(k)   = nstar(k) + 1
         enddo
       enddo
 c-----------------------------------------
-      if (dabs(swgt-2d0)> 1.d-9) then
+      if (dabs(swgt-2d0)> tolq) then
         print *,' swgt=',swgt,swgt/w0*2d0/nnn
         call rx( 'BZMESH: error in weights')
       endif

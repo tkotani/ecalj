@@ -61,7 +61,7 @@ c----------------------------------------------
       integer,allocatable:: ifevec__(:),ifvxc__(:),iprocq(:,:)
 
       integer,allocatable:: ntqxx(:)
-      real(8):: eseavrmean,eseadd
+      real(8):: eseavrmean,eseadd,tolq=1d-8
       integer,allocatable:: nev(:,:)
       complex(8),allocatable:: ovl(:,:)
 
@@ -261,7 +261,7 @@ c     write(6,*)' nnn =',nnn
           read(ifvxc_) qqq(1:3,iq,is),v_xc(1:nz,1:nz,iq,is)
           read(ifevec_) qqqx(1:3),    evec(1:nz,1:nz,iq,is), nev(iq,is) !nev number of true bands nov2015
           if(evec0ex) read(ifevec0) qqqx0(1:3), evec00(1:nz,1:nz,iq,is)
-          if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. 1d-10)
+          if (sum(abs( qqq(:,iq,is )-qqqx(:) )) .gt. tolq)
 Cstop2rx 2013.08.09 kino     &           stop 'hqpe: qqq/=qqqx'
      &           call rx( 'hqpe: qqq/=qqqx')
         enddo
@@ -509,7 +509,7 @@ c$$$           endif
 c$$$           write(6,*)' ntqxxd=',ip,qttt(1:3),ntqxxd
 c$$$cccccccccccccccccccccccccccccccccccccccc
           do ikp=1,nnn        !nqbz
-            if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < 1d-10 ) then
+            if (sum ( (qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < tolq ) then
               ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
               goto 100
             endif
@@ -659,7 +659,7 @@ c       write(if_eseavr,"(d23.15,i3)") 0d0,is
 !!-----------------------------------------------------------------
         do 2003 ip=1,nq
           do ikp=1,nnn        !nqbz
-            if (sum ((qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < 1d-10 ) then
+            if (sum ((qqq(1:3,ikp,is)-qx(1:3,1,ip))**2 ) < tolq ) then
               ikpx=ikp      !qc(:,i,:) does not depents on band index i=1:ntq
               goto 102
             endif

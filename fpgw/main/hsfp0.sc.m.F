@@ -1251,7 +1251,7 @@ c      use m_mpi,only: MPI__AllreduceSum
       integer,allocatable::iblki(:),iblke(:)
       complex(8),allocatable:: evec(:,:),evec_inv(:,:),evecrot(:,:),rmatjj(:,:,:)
       real(8),allocatable::evaliq(:)
-      real(8)::tolry=1d-4,qqqx(3),qtarget(3)
+      real(8)::tolry=1d-4,qqqx(3),qtarget(3),tolq=1d-8
       complex(8),allocatable:: ovl(:,:)
       integer::nev,j
 !TIME0_0100
@@ -1317,7 +1317,7 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
             cycle
           endif  
           do i=1,nnnx           !nq     !qqqx from evec v_xc.
-            if(sum(abs(qqqx-q(:,i)))<1d-6) then
+            if(sum(abs(qqqx-q(:,i)))<tolq) then
               iqxx=i
               goto 3011
             endif  

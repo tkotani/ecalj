@@ -146,8 +146,8 @@ c------------------------------------------------
       imat33(1,1)=1d0
       imat33(2,2)=1d0
       imat33(3,3)=1d0
-      if(sum(abs(matmul(transpose(qlat),plat)-imat33))>1d-6) call rx('qlat*plat err')
-      if(sum(abs(matmul(ginv,qlat)-imat33))>1d-6)            call rx('ginv=qlat^-1 err')
+      if(sum(abs(matmul(transpose(qlat),plat)-imat33))>tolq) call rx('qlat*plat err')
+      if(sum(abs(matmul(ginv,qlat)-imat33))>tolq)            call rx('ginv=qlat^-1 err')
       write(6,*)'=== plat ==='
       write(6,"(3d23.15)") plat
       write(6,*)'=== qlat ==='
@@ -189,7 +189,7 @@ cccccccccccccccccccccc
 ccccccccccccccccccccccccccc
 c      dq_=0d0
 ccccccccccccccccccccccccccc
-      if(sum(abs(dq_))>1d-6) write(6,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
+      if(sum(abs(dq_))>tolq) write(6,'(" Shift vector (skip Gamma) by dq_=",3f9.4)')dq_
 
 !! Get BZ data by 'call getbzdata1'
 !! See following data after 'use getbzdata1' at the top of this routine.

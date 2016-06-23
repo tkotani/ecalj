@@ -268,6 +268,7 @@ c      real(8):: wgtq0p
       real(8),allocatable:: wcorehole(:,:)
       logical:: corehole
       integer:: ifcorehole
+      real(8):: tolq=1d-8
 c      real(8),allocatable:: ppb(:)
 c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
 
@@ -372,9 +373,9 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
             allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
             read(ifvcoud) vcoud
             read(ifvcoud) zcousq
-            if(sum(abs(qvv-qxx))<1d-6) goto 1133
+            if(sum(abs(qvv-qxx))<tolq) goto 1133
           enddo
-          if(sum(abs(qvv-qxx))>1d-6) then
+          if(sum(abs(qvv-qxx))>tolq) then
             write(6,*)'qvv =',qvv
             write(6,*)'qxx=',qxx,kx
             call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')

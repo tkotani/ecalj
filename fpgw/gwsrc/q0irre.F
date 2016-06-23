@@ -164,7 +164,7 @@ C========== version 1 ==============
 
       integer,parameter:: nxxx=9
       real(8):: zzz(nxxx,nxxx),UU(nxxx,nxxx),VT(nxxx,nxxx)
-      real(8):: ss(nxxx),sij
+      real(8):: ss(nxxx),sij,tolq=1d-8
 
 !! Generate invariant tensor for each q0x
       write(*,*) ' diele_invariant: nq0x=',nq0x
@@ -232,13 +232,13 @@ c$$$      nq0i = ixx
 !! clean zero
       do ik = 1,nq0i
         do i=1,3
-          if(abs(q0i(i,ik))<1d-8) then !it was 1d-6 until mar2013
+          if(abs(q0i(i,ik))<tolq) then 
             q0i(i,ik)=0d0
           endif
         enddo
         do i=1,3
           do j=1,3
-            if(abs(epinv(i,j,ik))<1d-8) then !it was 1d-6 until mar2013
+            if(abs(epinv(i,j,ik))<1d-8) then 
               epinv(i,j,ik)=0d0
             endif
           enddo
@@ -275,7 +275,7 @@ c inequivalent points
      &   qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
       logical:: ltrans
       real(8):: plat(3,3)
-      real(8):: platt(3,3)
+      real(8):: platt(3,3),tolq=1d-8
 c      print *,'presense trans=',present(ltrans)
 ccccccccc
 c        print *, ' --- rotation ---'
@@ -296,7 +296,7 @@ ccccccccc
       do i = 1,nx06
         qt = q0(:,i)
         do ib = 1,nqibz
-          if(sum(abs(qibz(:,ib)-qt))<1d-8) then
+          if(sum(abs(qibz(:,ib)-qt))<tolq) then
 c            write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
 c            wt(ix) = wt(ix)+wt0(i)
             ixx = ixx+1

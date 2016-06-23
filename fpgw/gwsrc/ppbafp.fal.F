@@ -293,7 +293,7 @@ c-----------------------------------------------------
       integer(4) :: ngp1, ngp2
       integer(4) :: ngvecpB1(3,ngpmx_in),ngvecpB2(3,ngpmx_in),nadd(3)
       real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
-      real(8) :: qdiff(3),add(3)
+      real(8) :: qdiff(3),add(3),tolq=1d-8
       complex(8) :: geig1(ngpmx_in,nband),geig2(ngpmx_in,nband)
       complex(8),allocatable::  zmelpl(:,:,:)
       integer(4)::verbose
@@ -317,7 +317,7 @@ c-----------------------------------------------------
 !! <rk q-rk |q>
       add  = matmul(qbasinv,qdiff)
       nadd = idint( add + dsign(.5d0,add))
-      if(sum(abs(add-nadd))>1d-7) then
+      if(sum(abs(add-nadd))>tolq) then
         write(6,*)' drvmelp qdiff',qdiff
         write(6,'(" add nadd diff =",3f12.5,3i12,d13.6)') 
      &  add,nadd,abs(add-nadd)

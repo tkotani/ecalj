@@ -300,7 +300,8 @@ C External calls:
       real(8):: bandgap
       elo = d1mach(2)
       ehi = -elo
-      nval = zval + 1d-4
+c      nval = zval + 1d-4
+      nval = nint(zval)
 
       if ( nval .eq. zval ) then
         zvalisinteger=.true.
