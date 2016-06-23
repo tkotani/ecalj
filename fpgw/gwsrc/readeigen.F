@@ -505,19 +505,30 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 
       integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
       real(8):: qx(3),qzz(3)
-      logical::debug=.false.
+      logical::debug=.true.
 
+ccccccccccccccccccccc
+      debug=.false.
+      if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
+         debug=.true.
+      endif
+ccccccccccccccccccccc
       if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
       call rangedq(matmul(ginv,q), qzz)
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") qzz
 !! we generate qzz integer index for qzz
-      kkk3 = (qzz+0.5*epsd)/epsd 
+      kkk3 = (qzz+0.5d0*epsd)/epsd 
       if(debug) write(6,*)'kkk3=',kkk3
       if(debug) write(6,*)'nkey=',nkey
       if(debug) write(6,*)'kk1=',kk1
+      if(debug) write(6,*)'kk2=',kk2
+      if(debug) write(6,*)'kk3=',kk3
       call tabkk(kkk3(1), kk1,nkey(1), ik1)
       call tabkk(kkk3(2), kk2,nkey(2), ik2)
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
-      if(debug) write(6,*)' ik1,ik2,ik3=',ik1,ik2,ik3
+      if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
+      if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
+
       iqindx = iqkkk(ik1,ik2,ik3)
       if(debug) then
          do iqx=1,nqtt
@@ -556,7 +567,7 @@ c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt)))
          call sortea(qxx(ix,:),ieord,nqtt,isig)
          ik=0
          do i=1,nqtt
-            kkk=(qxx(ix,ieord(i))+0.5*epsd)/epsd  !kkk is digitized by 1/epsd
+            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
             if(i==1.or.key(ix,ik)<kkk) then
                ik=ik+1
                key(ix,ik) = kkk
@@ -579,20 +590,22 @@ ccccccccccc
       deallocate(key)
       allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
       iqkkk=-99999
-c      print *,'eeee kk1=',kk1
-c      print *,'eeee kk2=',kk2
-c      print *,'eeee kk3=',kk3
+      print *,'eeee kk1=',kk1
+      print *,'eeee kk2=',kk2
+      print *,'eeee kk3=',kk3
 c      write(6,*)' initqqq nqtt=',nqtt
       do i=1,nqtt
-         kkk3= (qxx(:,i)+0.5*epsd)/epsd !kkk is digitized by 1/epsd
+         kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
          call tabkk(kkk3(1), kk1,nkey(1), ik1)
          call tabkk(kkk3(2), kk2,nkey(2), ik2)
          call tabkk(kkk3(3), kk3,nkey(3), ik3)
          iqkkk(ik1,ik2,ik3)=i
-         if(debug) write(6,*) ' 1 kkk3=',i,kkk3
-         if(debug) write(6,*) ' 1 ik1,ik2,ik3,iqkkk=',ik1,ik2,ik3,i
+         print *,'111111 kkk3=',kkk3,qxx(:,i)
+         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
+         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
       enddo
       deallocate(qxx)
+c      stop 'xxxxxxxxxxxxx'
       end subroutine
 
 !! ---
@@ -717,12 +730,14 @@ ctm
       if(init) call rx( 'readeigen: modele is not initialized yet')
 c      iq = iqindx(q, ginv,qtt,nqtt)
        call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
-      ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
-      if(debug) then
+c      if(debug) then
         write(6,*)'iq iqimap(iq)=',iq,iqimap(iq)
-        write(6,"('iq iqimap(iq)=',2i4,3f13.5)")iq,iqimap(iq),q
+        write(6,"('iq iqimap(iq) q=',2i8,3f13.5)")iq,iqimap(iq),q
+c      endif
+      ev(1:nband) = evud(1:nband,iqimap(iq),isp) !iqimap is given in suham.F/gen_hamindex
+c      if(debug) then
         write(6,"(9f9.4)")ev(1:9)
-      endif
+c      endif
       end subroutine
 
       subroutine findemaxmin_r(emax,emin)
@@ -1231,7 +1246,7 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
           read(ifcphi, rec=ikpisp) cphi(1:ldim2,1:nband,ikp,is)
         enddo
       enddo
-c      write(6,*)'eeeeee'
+      write(6,*)'eeeee end of init_readeigen2 eeeee for keepeig=T'
       isx= iclose('CPHI')
       isx= iclose('GEIG')
       end subroutine

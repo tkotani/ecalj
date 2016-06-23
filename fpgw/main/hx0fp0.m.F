@@ -485,6 +485,9 @@ C --- readin by rdpp ; Radial integrals ppbrd and plane wave part
         ini = nqbz*(1 + i -1)
         do ix=1,nqbz
           qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
+          if( abs(qbze(1,ini+ix)+0.1d0)+abs(qbze(2,ini+ix)+0.1d0)<1d-6 ) then
+            write(6,"('aaaaaa qbze=',i8,3f18.14,2x,3f14.10)") ini+ix,qbze(:,ini+ix),q0i(:,i)
+          endif
         enddo
       enddo
       ngrpx = 1
@@ -535,7 +538,7 @@ ccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccc
       call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
-
+      if(verbose()>50) print *,'eeee exit of init_readeigen2'
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))

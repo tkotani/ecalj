@@ -54,15 +54,13 @@ c        if(allocated(qsave)) deallocate(qsave)
 c        allocate( qsave(3,nmax))
 c        imx=0
       real(8):: qi(3),qsave(3,nmax),qx(3),ginv(3,3)
-     . ,tolq=1d-5,tolq2=1d-4
+      real(8):: tolq=1d-8
       do i = 1,imx
         if(sum(abs(qi-qsave(:,i)))<tolq) return
-c 27July2005
         call rangedq( matmul(ginv,qi-qsave(:,i)), qx)
         if(sum(abs(qx))< tolq) return
       enddo
       imx = imx+1
-Cstop2rx 2013.08.09 kino      if(imx>nmax) stop ' qqsave: imx>=nmax'
       if(imx>nmax) call rx( ' qqsave: imx>=nmax')
       qsave(:,imx) = qi
       end

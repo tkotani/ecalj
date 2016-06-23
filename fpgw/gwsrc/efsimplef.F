@@ -504,7 +504,9 @@ c---------------------------------------------------------------
       do isp =1, nspin
         do kx = 1, nqbz
 c        call rwdd1 (ifev(isp), kx, nband, ekxxx(1:nband,kx,isp) )
+          write(6,"('readeval in finemaxmin',3f10.6,i8,i3,255f12.8)") qbz(:,kx), kx,isp
           call readeval(qbz(:,kx), isp,ekxxx(1:nband,kx,isp) )
+          write(6,"('readeval in finemaxmin',255f12.8)")ekxxx(1:nband,kx,isp)
           do i=1,nband
             eee= ekxxx(i,kx,isp)
 c            print *,i,eee 

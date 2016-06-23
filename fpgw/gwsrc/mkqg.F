@@ -69,7 +69,7 @@ c     logical :: readgwinput
       real(8)::volinv,wtrue00,qg(3),alpqg2,qg2,tpiba
       character*99:: q0pf        !nov2012
       integer:: dummyia(1,1),iimx,irradd,nmax
-      real(8):: epstol=1d-8,tolq=1d-6,qx(3),qxx(3)
+      real(8):: epstol=1d-8,tolq=1d-8,qx(3),qxx(3)
       logical :: newoffsetG !july2014
       real(8),allocatable:: wt0(:)
       integer,allocatable::irr(:)
@@ -450,7 +450,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          if(iq0pin==1) then !use qxx on regular mesh points if q is on regular+Q0P(true).
             do iqbz=1,nqbz
             do i=1,nq0itrue ! nq0itrue/=nq0i for anyq=F nov2015
-               if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<1d-6) then
+               if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq) then
                   qxx=qbz(1:3,iqbz)
                   exit
                endif
@@ -494,8 +494,8 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          q0pf=''
          do iqbz=1,nqbz  !use qxx on regular mesh points if q is on regular+Q0P(true).
          do i=1,nq0itrue !nq0itrue/=nq0i for anyq=F nov2015
-            if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<1d-6) then
-               if(sum(abs(q0i(:,i)-qxx))<1d-6) then
+            if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq) then
+               if(sum(abs(q0i(:,i)-qxx))<tolq) then
                  q0pf=' <--Q0P  '   ! offset Gamma points
                else
                  q0pf=' <--Q0P+R'   ! offset Gamma points-shifted nov2015
@@ -509,7 +509,8 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          enddo
          ngp = ngpn(iq)
          ngc = ngcn(iq)
-         write(6,"(' iq=',i8,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
+c         write(6,"(' iq=',i8,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
+         write(6,"(' iq=',i8,' q=',3f17.13,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
      &        iq, q, ngp, ngc, irr(iq),trim(q0pf)
          allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) 
          call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunctions (psi)
