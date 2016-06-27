@@ -3,22 +3,24 @@
 !! x is [0,1] --> xqcon = [0,1]
 !! x can be -1 <= x =< 1
       use m_keyvalue,only: getkeyvalue
+      real(8),intent(in)::x
       real(8),parameter:: pi=3.1415926535897932d0
-      real(8):: adiv,bdiv,x
-      logical:: oncew=.true.,ggg
+      real(8),save:: adiv,bdiv
+      logical,save:: oncew=.true.
+      logical:: ggg
 !! BZ division setting.
-      inquire(file='GWinput',exist=ggg)
-      if(.not.ggg) then
-         adiv=1d0
-      else
-         call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
-      endif   
       if(oncew) then
+         inquire(file='GWinput',exist=ggg)
+         if(.not.ggg) then
+            adiv=1d0
+         else
+            call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+         endif   
          write(6,"('BZadiv= ',f6.3)") adiv
+         bdiv = (1d0 -adiv)/2d0
          oncew=.false.
       endif
 !!   adiv+2b=1
-      bdiv = (1d0 -adiv)/2d0
       xqconv           = adiv*x + bdiv*(1-cos(pi*x))
       if(x>1d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x-1d0))+2d0)
       if(x<0d0) xqconv = adiv*x + bdiv*(1-cos(pi*(x+1d0))-2d0)
@@ -246,6 +248,8 @@ c      endif
         write(6,661) iq,qibz(1:3,iq),iwgt(iq),wibz(iq)
       enddo
   661 format(i5,2x,3f10.4,i10,f16.6)
+      write(6,"(' nqibz= ',i8)")nqibz
+
 
 !! Rotation checker
       do 30 i3 = 1,nnnv(3)
@@ -257,7 +261,7 @@ c      endif
         do k  = 1,nqibz
         do ir = 1,ngrp
           diff = matmul(symops(:,:,ir),qibz(:,k)) - vv
-          if(gammacellctrl/=2) then
+          if(nadd==0) then
            call rangedq(matmul(diff,plat), diff2)
           else
             diff2=diff
@@ -271,9 +275,11 @@ c      endif
            endif
         enddo
         enddo
-        call rx( 'getbz1: not find irotk; it may require accurate symmetry.')
+        call rx( 'getbzdata1: not find irotk; it may require accurate symmetry.')
  1022   continue
  30   continue
+
+
 c      call bzmesh(plat,qbasmc,nnn(1),nnn(2),nnn(3),symops,ngrp,ipq,qibz !icase,
 c     &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
 
