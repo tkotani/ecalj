@@ -374,7 +374,7 @@ c            print *,'kkkkk',ic,itet,k1,k2,k3
           ntetf=ntetf+1
           idtetf(0:3,ntetf) = iq4(1:4)
    10   continue
-        write(6,"('ntetf=',3i3,2x,i6,2x,4i8)")i1,i2,i3,ntetf,idtetf(0:3,1)
+c        write(6,"('ntetf=',3i3,2x,i6,2x,4i8)")i1,i2,i3,ntetf,idtetf(0:3,1)
  122   CONTINUE
  121   CONTINUE
  120   CONTINUE 

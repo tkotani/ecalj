@@ -166,7 +166,8 @@ c      real(8):: fermi_dS(3,3) !not yet used...
 
       logical:: eibzmode
       integer:: nwgt(nqbz)
-
+      real(8):: ebmx
+      integer:: nbmx
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
 c      if(verbose()>=150) chkwrt=.true.
@@ -174,6 +175,10 @@ c      if(verbose()>=150) chkwrt=.true.
       piofvoltot = pi/4d0/voltot
 c      fermi_dS=0d0
       if(job==0) iwgt = .false.
+
+!! 2016jun 
+      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
+      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
 
 !! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       mtet=(/1,1,1/)
@@ -353,14 +358,16 @@ ccccccccccccccccccccccc
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
           nbandmx_k   = nband
           nbandmx_kq  = nband
-          do i=1,nband
-            if( maxval(ek_(i, 0:3)) >1d9) then
+
+!! ebmx band cutoff 2016Jun
+          do i=1,nbmx
+            if( maxval(ek_(i, 0:3)) >ebmx) then
               nbandmx_k = i-1
               exit
             endif
           enddo
-          do i=1,nband
-            if( maxval(ekq_(i, 0:3)) >1d9) then
+          do i=1,nbmx
+            if( maxval(ekq_(i, 0:3)) >ebmx) then
               nbandmx_kq = i-1
               exit
             endif
@@ -376,13 +383,9 @@ c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
             endif
             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
               do jbx  = 1, jbxmx !nband             ! unoccupied
-
 c$$$cccccccccccccccccccc
 c$$$                 if(jbx/=1) cycle
 c$$$cccccccccccccccccccc
-
-
-
 c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx

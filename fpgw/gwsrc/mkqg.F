@@ -509,8 +509,8 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          enddo
          ngp = ngpn(iq)
          ngc = ngcn(iq)
-c         write(6,"(' iq=',i8,' q=',3f7.3,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
-         write(6,"(' iq=',i8,' q=',3f17.13,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
+         write(6,"(' iq=',i8,' q=',3f9.5,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
+c         write(6,"(' iq=',i8,' q=',3f17.13,' ngp ngc= ',2i6,' irr.=',i2,a)") !irr=1 is irreducible k points.
      &        iq, q, ngp, ngc, irr(iq),trim(q0pf)
          allocate( ngvecp(3,max(ngp,1)), ngvecc(3,max(ngc,1)) ) 
          call getgv2(alat,plat,qlat, qxx, QpGcut_psi, 2, ngp,  ngvecp) ! for eigenfunctions (psi)

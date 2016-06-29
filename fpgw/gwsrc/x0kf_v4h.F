@@ -129,7 +129,7 @@ c         complex(8), allocatable :: zxq_(:,:,:) !...........sf 21May02
 c         logical :: takao=.false. !.........................sf 21May02
 c         allocate( zxq_( nbloch + ngc,nbloch + ngc,nwt)) !..sf 21May02
       integer(4)::nocc
-      real(8):: eband(nband),ebandr(nband),ebandqr(nband)
+      real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
 c      integer(4):: n_index_qbz
 c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
 c-----
@@ -155,7 +155,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
       real(8):: q_r(3)
       complex(8):: img=(0d0,1d0),zzz(ngbb)
 
-      integer(4):: nkmin,  nkmax, nkqmin, nkqmax
+      integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
 c      real(8):: qq(3)
       integer(4):: ib1, ib2,      ngcx,ix,iy
 
@@ -226,7 +226,7 @@ c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
       allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
-      call getnemx(nbmx,ebmx,7,.true.)
+c      call getnemx(nbmx,ebmx,7,.true.)
 c$$$!TIME0 
 c$$$      if(smbasis()) then !need to check again, when we will make smbasis on.
 c$$$cccccccccccccccccccccccccccccccc
@@ -304,20 +304,23 @@ ccccccccccc
             if(n2b(ibib,k,jpm)<=nband)  nkqmax = max(n2b(ibib,k,jpm),nkqmax)
           enddo
         enddo
-        call readeval(q+rk(:,k),isp_kq,eband)
-
-
-cccccccccccccccccccccccccccccc
-        ebandqr=eband
-        call readeval(rk(:,k),isp_kq,ebandr)
-cccccccccccccccccccccccccccccc
-
-
-        nkqmax = nocc (eband,ebmx,.true.,nband)
-        if(npm==2) then
-          call readeval(rk(:,k),isp_k,eband)
-          nkmax = nocc (eband,ebmx,.true.,nband)
-        endif
+!! ebmx band cutoff is 
+c$$$!! 
+c$$$        nkmax1=nkmax
+c$$$        nkqmax1=nkqmax
+c$$$cccccccccccccccccccccccccccccc
+c$$$c        ebandqr=eband
+c$$$c        call readeval(rk(:,k),isp_kq,ebandr)
+c$$$cccccccccccccccccccccccccccccc
+c$$$        call readeval(q+rk(:,k),isp_kq,eband)
+c$$$        nkqmax = nocc (eband,ebmx,.true.,nband)
+c$$$        if(npm==2) then
+c$$$          call readeval(rk(:,k),isp_k,eband)
+c$$$          nkmax = nocc (eband,ebmx,.true.,nband)
+c$$$        endif
+c$$$        write(6,"('nnnnnnk  ',2i5,2i5)")nkmax1, nkmax
+c$$$        write(6,"('nnnnnnkq ',2i5,2i5)")nkqmax1,nkqmax
+c$$$!!
         itps  = nkqmin          ! nkqmin = the num of min   n2 =unocc for jpm=1
         nt0   = nkmax
         ntp0  = nkqmax - nkqmin +1
@@ -656,36 +659,35 @@ c          if(k/=1) cycle
 cccccccccccccccccccccccccc
 
 
-          if(jpm==1) then
-            if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
-              if(iww1) then
-                write(6,*)' nband_chi0 nbmx=',nbmx
-                iww1=.false.
-              endif
-              cycle
-            endif
+          if(jpm==1) then !nbmx is moved to tetwt5.
+c$$$            if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
+c$$$              if(iww1) then
+c$$$                write(6,*)' nband_chi0 nbmx=',nbmx
+c$$$                iww1=.false.
+c$$$              endif
+c$$$              cycle
+c$$$            endif
             if( n1b(ibib,k,jpm) <= nbcut .and. nbcut2<n2b(ibib,k,jpm) ) then
-              if(iww2) then
-                write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                iww2=.false.
-              endif
-              cycle
+             if(iww2) then
+              write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+              iww2=.false.
+             endif
+             cycle
             endif
-
           else !jpm==2 ------------------------------
-            if( n1b(ibib,k,jpm) > nbmx) then  !nbmx
-              if(iww1) then
-                write(6,*)' nband_chi0 nbmx=',nbmx
-                iww1=.false.
-              endif
-              cycle
-            endif
+c$$$            if( n1b(ibib,k,jpm) > nbmx) then  !nbmx
+c$$$              if(iww1) then
+c$$$                write(6,*)' nband_chi0 nbmx=',nbmx
+c$$$                iww1=.false.
+c$$$              endif
+c$$$              cycle
+c$$$            endif
             if( n2b(ibib,k,jpm) <= nbcut .and. nbcut2<n1b(ibib,k,jpm) ) then
-              if(iww2) then
-                write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
+             if(iww2) then
+              write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
                 iww2=.false.
-              endif
-              cycle
+             endif
+             cycle
             endif
           endif
 
@@ -735,9 +737,7 @@ c$$$              enddo
 c$$$              enddo
 c$$$            enddo  
 c$$$          else
-Cstop2rx 2013.08.09 kino          if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) stop "x0kf_v4hz: iw>nwt"
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
-
 
 !kino 2014-08-13  !$OMP do private(zmelt2)
           do igb2=1, nmbas     !....................................
