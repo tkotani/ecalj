@@ -4,7 +4,7 @@
 !! job==1 -> return ng (number of G ) and imx(as ngvec(1,1));mar2012takao add imx.
 !! job==2 -> return ng and ngvec
 !! True G is given as
-!!    G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
+!!    G(1:3,1:ng) = 2*pi/alat * matmul(qlat,ngvec(1:3,1:ng))
 !! NOTE: we need some geometorial consideration for this routine.
 !!   Consiser ellipsoid. Takao need to give more detailed explanation...
 !!

@@ -12,7 +12,6 @@
       do i2x=1,n
         if(abs(b(i1x,i2x))>etol) then
          iele=iele+1
-Cstop2rx 2013.08.09 kino         if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
          if(iele>nmax) call rx( ' error in matmsparce: enlarge nmax')
          i1(iele)=i1x
          i2(iele)=i2x
@@ -52,7 +51,6 @@ c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1)
          do i2x=1,n
             if(abs(a(i1x,i2x))>etol) then
                iele=iele+1
-Cstop2rx 2013.08.09 kino               if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
                if(iele>nmax) call rx( ' error in matmsparce: enlarge nmax')
                i1(iele)=i1x
                i2(iele)=i2x
@@ -70,7 +68,6 @@ Cstop2rx 2013.08.09 kino               if(iele>nmax) stop ' error in matmsparce:
          do i2x=1,n
             if(abs(b(i1x,i2x))>etol) then
                iele=iele+1
-Cstop2rx 2013.08.09 kino               if(iele>nmax) stop ' error in matmsparce: enlarge nmax'
                if(iele>nmax) call rx( ' error in matmsparce: enlarge nmax')
                i1(iele)=i1x
                i2(iele)=i2x
@@ -106,7 +103,6 @@ Cstop2rx 2013.08.09 kino               if(iele>nmax) stop ' error in matmsparce:
       call zgetrf(n,n,a,n,ipiv,info)
       if(info/=0) then
         print *,' matcinv: zegtrf info=',info
-Cstop2rx 2013.08.09 kino        stop    ' matcinv: zegtrf '
         call rx( ' matcinv: zegtrf ')
       endif
       allocate(work(n*n))
@@ -114,7 +110,6 @@ Cstop2rx 2013.08.09 kino        stop    ' matcinv: zegtrf '
       deallocate(work)
       if(info/=0) then
         print *,'matcinv: zegtri info=',info
-Cstop2rx 2013.08.09 kino        stop    'matcinv: zegtri '
         call rx( 'matcinv: zegtri ')
       endif
       end
@@ -127,7 +122,6 @@ Cstop2rx 2013.08.09 kino        stop    'matcinv: zegtri '
       call dgetrf(n,n,a,n,ipiv,info)
       if(info/=0) then
         print *,' matinv: degtrf info=',info
-Cstop2rx 2013.08.09 kino        stop    ' matinv: degtrf '
         call rx( ' matinv: degtrf ')
       endif
       allocate(work(n*n))
@@ -135,7 +129,6 @@ Cstop2rx 2013.08.09 kino        stop    ' matinv: degtrf '
       deallocate(work)
       if(info/=0) then
         print *,'matinv: degtri info=',info
-Cstop2rx 2013.08.09 kino        stop    'matinv: degtri '
         call rx( 'matinv: degtri ')
       endif
       end

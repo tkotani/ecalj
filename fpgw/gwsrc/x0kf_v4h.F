@@ -101,8 +101,8 @@ c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
       integer(4):: ngpmx, ngcmx, nqbze, nband,
      &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
-     &             igc, !ngveccB(3,ngcmx),
-     &             ngvecp_kq(3,ngpmx),ngvecp_k(3,ngpmx)
+     &             igc !ngveccB(3,ngcmx),
+c     &             ngvecp_kq(3,ngpmx),ngvecp_k(3,ngpmx)
       complex(8),allocatable :: zmelt(:,:,:)!,zmelt1(:,:,:)
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
      &    ,shtv(3)=(/0d0,0d0,0d0/)
@@ -159,7 +159,7 @@ c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
 c      real(8):: qq(3)
       integer(4):: ib1, ib2,      ngcx,ix,iy
 
-      integer(4),allocatable:: ngvecc(:,:)
+c      integer(4),allocatable:: ngvecc(:,:)
       logical :: onceww !testtr,negative_testtr
 
 !! takao apr2012
@@ -178,7 +178,7 @@ c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt)
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
       complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
-     & ,rzc(ngbb,ngbb),zcousqinv(ngbb,ngbb),cmat(ngbb,ngbb)
+     & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) !zcousqinv(ngbb,ngbb),
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
@@ -904,8 +904,8 @@ c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ng
         if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
 !!
-        zcousqinv=zcousq
-        call matcinv(ngb,zcousqinv)
+c        zcousqinv=zcousq
+c        call matcinv(ngb,zcousqinv)
 
 !! == Assemble rotantion matrx zrr,zrrc ==
 !! Rotation matrix zrrx can be a sparse matrix. 

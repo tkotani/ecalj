@@ -165,6 +165,9 @@
 ../gwsrc/getbzdata1.o:../gwsrc/keyvalue.o
 ../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
 ../main/gwinit.m.o:../gwsrc/getbzdata1.o
+../gwsrc/getbzdata1.o:../gwsrc/keyvalue.o
+../gwsrc/mkqg.o:../gwsrc/getbzdata1.o
+../main/gwinit.m.o:../gwsrc/getbzdata1.o
 ../gwsrc/getchknw.o:../gwsrc/keyvalue.o
 ../gwsrc/getwemax.o:../gwsrc/keyvalue.o
 ../gwsrc/kino_input_test.o:../gwsrc/keyvalue.o
