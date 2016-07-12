@@ -1,5 +1,5 @@
       subroutine mkQG2(alat,plat,symops,ngrp,nnn,iq0pin,
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl,lnq0iadd)
 !! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only:  getbzdata1, 
      &  nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,
@@ -11,7 +11,7 @@
       use m_keyvalue,only:getkeyvalue
 !! 'call getallq0p' give follwing data
       use m_q0p,only: getallq0p, 
-     &   q0i,wt,nq0i,nq0itrue
+     &   q0i,wt,nq0i,nq0itrue, nq0iadd
 !! == Make required q and G in the expantion of GW. ==
 !!     |q+G| < QpGcut_psi for eigenfunction psi.
 !!     |q+G| < QpGcut_Cou for coulomb interaction
@@ -36,7 +36,7 @@ c      real(8)::qibz_r(3,1) !dummy
      &     symops(3,3,ngrp),xx,qqx(3),alpm
       integer,allocatable:: ngvecp(:,:), ngvecc(:,:),
      &     ngpn(:),ngcn(:),ngvect(:,:,:),ngcx(:), nqq(:)   
-      real(8),allocatable :: q0x(:,:), 
+      real(8),allocatable ::
      &     qq(:,:),qq1(:,:),qq2(:,:),qqm(:,:)
       real(8) :: vol,ginv(3,3),aaa,dq(3) !,www
       integer :: mxkp,ifiqibz,iqibz,ifigwin,mtet(3),nm1,nm2,nm3
@@ -76,6 +76,8 @@ c     logical :: readgwinput
       real(8):: dq_(3),qlatbz(3,3)
       integer:: gammacellctrl,nnng(3),ifile_handle,ifi0,itet
       real(8)::imat33(3,3)
+      logical:: lnq0iadd
+
 c------------------------------------------------
       print *,' mkqg2: '
       qreduce0 = qreduce()
@@ -293,8 +295,16 @@ c      enddo
 
 !! getallq0p all inputs
 !! Q0P is offset Gamma or k point given in GWinput
+!! see use m_q0p =>  q0i,wt,nq0i,nq0itrue are outputs
+!! we now have q0i(:,nq0i+1,nq0i+nq0iadd). 
+!!    q0i(:,1:nq0i+n0qiadd) contains all q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale() for i=1,3.
+c      lnq0iadd=.true.
       call getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2016
-     i ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
+     i ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
+c      print *,'size q0i=',size(q0i),ubound(q0i),lbound(q0i)
+      do i=nq0i+1,nq0i+nq0iadd
+        write(6,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
+      enddo
 
 !! Four kinds of mesh points. Q0P means offset Gamma (slightly different from Gamma).
 !! Which we need?
@@ -314,13 +324,11 @@ c      enddo
       print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
 
 !!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
-cccccccccccccccc
       call minv33(qlat,ginv)
-cccccccccccccccc
       nqnum = nqbz
       allocate( qq(1:3,nqnum),irr(nqnum) )
       qq(1:3,1:nqbz) = qbz(1:3,1:nqbz) 
-      do iq0i=1,nq0i
+      do iq0i=1,nq0i+nq0iadd
          do iq=1,nqbz
             if(sum(abs(q0i(:,iq0i)-qq(:,iq)))<tolq) goto 2112
             call rangedq( matmul(ginv,q0i(:,iq0i)-qq(:,iq)), qx)
@@ -337,9 +345,9 @@ cccccccccccccccc
 
 !! Accumulate all required q points
       deallocate(qq,irr)
-      nqnum = nqbz  + nqbz*nq0i
+      nqnum = nqbz  + nqbz*(nq0i+nq0iadd)
       nqnum = nqnum + 1         !add Gamma
-      nqnum = nqnum + nq0i      !add Gamma + q0i
+      nqnum = nqnum + nq0i + nq0iadd      !add Gamma + q0i
       allocate( qq(1:3,nqnum),irr(nqnum) )
       ix = 0
       if(regmesh) then
@@ -357,7 +365,7 @@ c      nnn   =  ix               !n1q*n2q*n3q!      if(offmesh) nnn = 2*n1q*n2q*
 c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
 !!  - Shifted mesh
       if(regmeshg) then
-         do iq00 = 1, nq0i
+         do iq00 = 1, nq0i+ nq0iadd 
             do iq   = 1, nqbz
                ix = ix+1
                qq(1:3,ix) = qbz(1:3,iq) +  q0i(1:3,iq00)
@@ -365,7 +373,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          enddo
       endif
       if(offmeshg) then
-         do iq00 = 1, nq0i
+         do iq00 = 1, nq0i+ nq0iadd 
             do iq   = 1, nqbz
                ix = ix+1
                qq(1:3,ix) = qbz(1:3,iq) - dq_ + q0i(1:3,iq00)
@@ -373,7 +381,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          enddo
       endif
 !!  - Add offset Gamma and Gamma point (these can be removed by qreduce and q0irre)
-      do iq00 = 1, nq0i
+      do iq00 = 1, nq0i+ nq0iadd 
          ix = ix+1
          qq(1:3,ix) = q0i(1:3,iq00)
       enddo
@@ -385,10 +393,10 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
 !! Saved to Qmtet. Not so much used now... 
 !! We need check again if we like to use this branch again (2016apr)
       if(sum(abs(mtet))/=3) then
-         nqnumm= nqbzm * (nq0i+1)
+         nqnumm= nqbzm * (nq0i+ nq0iadd +1)
          allocate( qqm(1:3,nqnumm) )
          ix=0
-         do iq00 = 1, 1 + nq0i
+         do iq00 = 1, 1 + nq0i+ nq0iadd 
             do iq   = 1, nqbzm
                ix = ix+1
                if(iq00==1) then
@@ -410,13 +418,13 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
 
 !! Remove equivalent q point by the translational symmetry 
       if( qreduce0 ) then
-         print *,'goto qqsave nq0i nqnum',nq0i,nqnum
+         print *,'goto qqsave nq0i nq0iadd nqnum',nq0i,nq0iadd,nqnum
          call cputid (0)
-         nmax=nq0i+nqnum
+         nmax= nq0i+nq0iadd+nqnum
          allocate(qsave(3,nmax)) !,qsavel(nmax))
          imx=0
          if(iq0pin /=1) then
-            do iq=1,nq0i
+            do iq=1,nq0i+ nq0iadd 
                call qqsave(q0i(1:3,iq),nmax,ginv,qsave,imx)
             enddo
          endif
@@ -434,7 +442,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
 
 !! Here we get all requied q points. We do reduce them by space group symmetry.
       if(allocated(wt0)) deallocate(wt0)
-      allocate(wt0(nqnum+nq0i),qi(3,nqnum+nq0i),wti(nqnum+nq0i))
+      allocate(wt0(nqnum+nq0i+ nq0iadd ),qi(3,nqnum+nq0i+ nq0iadd ),wti(nqnum+nq0i+ nq0iadd ))
       wt0=1d0
 !! Set irreducible k-point flag. irr=1 for (irredusible point) flag, otherwise =0. 
 !! irr(iq)=1 for irreducile qq(:,iq), iq=1,nqnum
@@ -449,7 +457,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          qxx=q              
          if(iq0pin==1) then !use qxx on regular mesh points if q is on regular+Q0P(true).
             do iqbz=1,nqbz
-            do i=1,nq0itrue ! nq0itrue/=nq0i for anyq=F nov2015
+            do i=1,nq0itrue+ nq0iadd  ! nq0itrue/=nq0i for anyq=F nov2015
                if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq) then
                   qxx=qbz(1:3,iqbz)
                   exit
@@ -493,7 +501,7 @@ c      print *,' nnn=',nnn       !This is the number to calcualte Vxc
          qxx=q
          q0pf=''
          do iqbz=1,nqbz  !use qxx on regular mesh points if q is on regular+Q0P(true).
-         do i=1,nq0itrue !nq0itrue/=nq0i for anyq=F nov2015
+         do i=1,nq0itrue+ nq0iadd  !nq0itrue/=nq0i for anyq=F nov2015
             if(sum(abs(qbz(1:3,iqbz)-dq_+ q0i(:,i)-qxx))<tolq) then
                if(sum(abs(q0i(:,i)-qxx))<tolq) then
                  q0pf=' <--Q0P  '   ! offset Gamma points

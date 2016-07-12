@@ -1,5 +1,5 @@
 c ------------------------------------------------------------------------------
-      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0)
+      subroutine getw0(llw,ii,ie,nq0i,dmlx,epinvq0i,wklm,wbz,lmxax,q0i,epinv, w0,llmat)
 !! == Obtain effective screened Coulomnb interaction W-V at q=0 ==
 !! Output
 !!     w0(ii:ie), others are inputs.
@@ -7,16 +7,20 @@ c ------------------------------------------------------------------------------
 !! ii: start index of iw
 !! iw: end index of iw
       implicit none
-      integer:: ii,ie,nq0i,lm,lm1,lm2,nlklm,lmxax,iw,ll,lm1x,lm2x
-      complex(8):: llw(ii:ie,nq0i),w0(ii:ie)
+      integer,intent(in)::  ii,ie,nq0i,lmxax
+      real(8),intent(in)::  epinvq0i(nq0i,nq0i),dmlx(nq0i,9), wklm((lmxax+1)**2),wbz,epinv(3,3,nq0i),q0i(3,nq0i)
+      complex(8),intent(in):: llw(ii:ie,nq0i)
+      complex(8),intent(out):: w0(ii:ie),llmat(3,3)
+!!
+      integer:: lm,lm1,lm2,nlklm,iw,ll,lm1x,lm2x
       complex(8):: llwyl(9,ii:ie),llw_invr(ii:ie,1:nq0i)
-      real(8):: epinvq0i(nq0i,nq0i),epinvq0i_m1(nq0i,nq0i),dmlx(nq0i,9)
+      real(8):: epinvq0i_m1(nq0i,nq0i)
       real(8)::  cg((lmxax+1)**2,(lmxax+1)**2,(2*lmxax+1)**2)
       complex(8)::   cgllw((lmxax+1)**2,(lmxax+1)**2),sss,sss2
-      real(8):: wklm((lmxax+1)**2),ylm,wbz,rrr2(3)
-      real(8):: fpi,pi,epinv(3,3,nq0i),q0i(3,nq0i),  r2s,emat(3,3),rrr(3),qnorm2(nq0i)
+      real(8):: fpi,pi,r2s,emat(3,3),rrr(3),qnorm2(nq0i),ylm,rrr2(3)
       integer:: nlmm,lx,iq0i,iq0x, i
       real(8),allocatable:: cy(:),yl(:),yl2(:)
+!!
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       nlklm=(lmxax+1)**2
@@ -41,8 +45,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
 c   write(*,"('qqq iw llw',i3,3(2d12.4,x),3x,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
       enddo
-      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
 
+!! omega=0 3x3 matrix, 
+      llmat=0d0
+      do iq0i=1,nq0i
+        llmat(1:3,1:3) = llmat(1:3,1:3) + llw_invr(ii,iq0i)*epinv(1:3,1:3,iq0i)
+      enddo
+
+      call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
 
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      lx=2

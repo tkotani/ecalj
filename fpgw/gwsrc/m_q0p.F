@@ -6,12 +6,14 @@
 !!       EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
 !!                 
       real(8),allocatable,protected:: q0i(:,:),wt(:)  ! Q0P and its weight.
-      integer,protected:: nq0i,nq0itrue               ! Number of Q0P
-
+      integer,protected:: nq0i,nq0itrue,nq0iadd            ! Number of Q0P
+      integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+c      integer,protected:: nq0x
+c      real(8),allocatable,protected:: q0x(:,:)
       contains
 
       subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect) !! All arguments are input.
+     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
       use m_keyvalue,only: getkeyvalue 
       implicit none
       integer,intent(in):: iq0pin
@@ -36,7 +38,7 @@
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3), qdum(6)
       integer:: ig,lm,iq,ifile_handle
-      integer:: nq0x,nmm !not output
+      integer:: nmm !not output
 
       integer:: ifi0,ifi00,il,ix,ni,ifinin
       integer:: nq0i0,nq0i00,nany,ifqpnt,ret
@@ -44,17 +46,18 @@
       integer,allocatable :: ndiv(:)
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
       real(8),allocatable:: qany(:,:)
-      logical:: anyq,ibzqq
+      logical:: anyq,ibzqq,lnq0iadd
 
       if(iq0pin==1) then
 !! Normal mode. all inputs
          call getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv, !apr2015
-     i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect)
+     i    ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
          ifi0=ifile_handle()
          open (ifi0,file='Q0P')
-         write(ifi0,"(2i5,' !nq0i iq0pin' )") nq0i,iq0pin
-         write(ifi0,"(d24.16,3x, 3d24.16)" ) (wt(i),q0i(1:3,i),i=1,nq0i)
+         write(ifi0,"(3i5,' !nq0i iq0pin nq0iadd; weight q0p(1:3) ix')") nq0i,iq0pin,nq0iadd
+         write(ifi0,"(d24.16,3x, 3d24.16,x,i1)" ) (wt(i),q0i(1:3,i),ixyz(i),i=1,nq0i+nq0iadd)
          close(ifi0)
+!!
 !! Get Q0P from GWinput
       elseif(iq0pin==2) then
          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
@@ -120,6 +123,7 @@
          write(ifi00,"(d24.16,3x, 3d24.16)") (wt(i),q0i(1:3,i),i=1,nq0i)
          close(ifi00)
       endif
+
       print *,' end fo writing Q0P'
       call cputid (0)
 !! Timereversal may require q0i. Anyway, qreduce0 will reduce the number of q points by symops.
@@ -166,7 +170,7 @@
 !>- Q0P data set is given for 'getq0p'
 !! only called 
       subroutine getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect) !! All arguments are input.
+     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
 !! this is called in subroutine mkqg2 
 !!  output
 !!    q0i (offset Gamma point)
@@ -177,7 +181,7 @@
 !! deltaq_scale() given by Q0Pchoice in GWinput change the of offset Gamma method.
       use m_keyvalue,only: getkeyvalue 
       implicit none
-      logical,intent(in):: newoffsetG
+      logical,intent(in):: newoffsetG,lnq0iadd
       integer,intent(in):: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp 
       real(8),intent(in):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
@@ -198,7 +202,9 @@
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
       integer:: ig,lm,iq,ifile_handle !,n1q,n2q,n3q
-      integer:: nq0x,nmm !not output
+      integer:: nq0x,nmm ,iq0,iqx!not output
+      real(8):: tolq=1d-8
+
 
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 c      n1q=nnn(1)
@@ -519,5 +525,31 @@ c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
         deallocate(irrx)
       endif
       write(6,"('i wt q0i=',i3,f16.7,2x,3d23.15)")(i,wt(i),q0i(1:3,i),i=1,nq0i)
+
+!! Add q0
+      nq0iadd=0
+      allocate(ixyz(nq0i+3)) !nq0i+3 is large enough
+      ixyz=0
+      if(lnq0iadd) then
+        if(nq00ix/=6 ) then
+          call rx('mkqg: we assumes q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale() for 1=1,3' )
+        endif  
+        do iq=1,3           !we assume q0x(:,i)= qlat(:,i)/nnn(i)/2d0*deltaq_scale() for i=1,3
+          do iq0=1,nq0i
+            if(sum(abs(q0x(:,iq)-q0i(:,iq0)))<tolq) then
+              ixyz(iq0)=iq
+              goto 1011
+            endif  
+          enddo
+          nq0iadd = nq0iadd+1
+          ixyz( nq0i+nq0iadd)= iq
+          q0i(:,nq0i+nq0iadd)=q0x(:,iq)
+ 1011     continue
+        enddo
+!! check write
+c        do iq=1,nq0i+nq0iadd
+c          write(6,"(' Q0P iq q ixyz ',i5,3f10.4,i3)") iq,q0i(:,iq),ixyz(iq)
+c        enddo
+      endif
       end subroutine getq0p
       end module m_q0p

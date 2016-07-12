@@ -40,7 +40,7 @@ c     & laf,ibasf !,ldima,pos,natom
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
-     & w0,w0i
+     & w0,w0i,llmat
 
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
@@ -50,7 +50,7 @@ c     & laf,ibasf !,ldima,pos,natom
      &   MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
 !! q0p
       use m_readq0p,only: readq0p,
-     & wqt,q0i,nq0i 
+     & wqt,q0i,nq0i ,nq0iadd,ixyz
 
       implicit none
       integer,allocatable:: nwgt(:,:)
@@ -146,6 +146,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: ppovl_(:,:)
       logical:: tetra ,readw0w0itest=.false.
       integer::nw_ixx,nwxx
+
+      logical:: w4pmode
+      complex(8),allocatable:: wmu(:,:),wmuk(:,:)
+      integer:: ifw4p,ngbq0,igb
+      real(8):: qv(3,3)
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
@@ -240,7 +245,7 @@ c      endif
 
 !! --- Readin Offset Gamma --------
       call readq0p()
-      write(6,"(' ### nqibz nq0i=', 2i5)")nqibz,nq0i
+      write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
 
 c$$$      if(.not.newaniso2) then
 c$$$         wqtsum = sum(abs(wqt(1:nq0i)))
@@ -253,12 +258,12 @@ c$$$      endif
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
-      nqbze  = nqbz *(1 + nq0i)
-      nqibze = nqibz + nq0i
+      nqbze  = nqbz *(1 + nq0i+nq0iadd)
+      nqibze = nqibz + nq0i+nq0iadd
       allocate( qbze(3, nqbze), qibze(3, nqibze))
       call dcopy(3*nqbz, qbz,  1, qbze,1)
       call dcopy(3*nqibz,qibz, 1, qibze,1)
-      do i = 1,nq0i
+      do i = 1,nq0i+nq0iadd
          qibze(:,nqibz+i)  = q0i(:,i)
          ini = nqbz*(1 + i -1)
          do ix=1,nqbz
@@ -299,7 +304,7 @@ c      call indxmdm (nblocha,nclass,iclass,natom,
 c     o imdim )                  !in m_zmel
       nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx))
-      iqxend = nqibz + nq0i
+      iqxend = nqibz + nq0i + nq0iadd
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 !TIME1_13001 "mptauof"
 !TIME0_14001 init_readeigen
@@ -498,6 +503,13 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
       if(ixc==1011)then !ixc==11 is a debug mode to test contrib. at \Gamma point.
          goto 1191
       endif
+!! for w4phonon. all nodes have wmu array.
+      w4pmode=.false.
+      if(sum(ixyz)/=0) w4pmode=.true.
+      if(w4pmode) then
+        allocate( wmuk(2:nblochpmx,3))
+        wmuk=1d99
+      endif
 
 !! rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
@@ -515,6 +527,15 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
       do iq = iqxini,iqxend
         if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
       enddo
+
+!! Get ngbq0 (for q=0) and broadcast for w4p
+      if( MPI__root.and. w4pmode ) then
+        q = (/0d0,0d0,0d0/)
+        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+        ngbq0 = nbloch+ngc
+        call MPI__Broadcast(ngbq0)
+      endif
+
 !TIME1_16001 "readqgcou"
 !TIME0_170001 do1001
       do 1001 iq = iqxini,iqxend
@@ -523,6 +544,7 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
           ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
           ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
         endif
+!!
         call cputid (0)
         q = qibze(:,iq)
         call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) ! q was qq
@@ -619,10 +641,11 @@ c$$$  endif
 !TIME0_180001 Do1003
 !         do 1003 is = 1,nspinmx
         do 1003 is = MPI__Ss,MPI__Se
-          write(6,"(' ### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ### ')") 
-     &     iq, is, nqibz + nq0i,nspin
+          write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
+     &     iq, is, nqibz + nq0i+nq0iadd, nspin
           if(debug) write(6,*)' niw nw=',niw,nw
           isf = is
+
 !! Tetrahedron weight.
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
@@ -711,6 +734,7 @@ c     d              natom, !nl,nclass,natom,nnc,
         write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         if(allocated(rcxq) ) deallocate(rcxq)
 !TIME1_200001 "HilbertTransformation"
+
 !! ===  RealOmega ===
         if (realomega) then
 !TIME0_210001 ralloc 
@@ -725,11 +749,12 @@ c$$$                    write(6,*)'open EPS0inv mpi=',MPI__rank
 c$$$                   ifepstinv = iopen('EPS0inv',0,-1,0)
 c$$$                   write(ifepstinv) ngb
 c$$$                 endif  
-          if(iqinit) then
-            allocate( sk(ngb,nwmin:nwmax,nq0i),  sks(ngb,nwmin:nwmax,nq0i) )
-            allocate( skI(ngb,niw,nq0i), sksI(ngb,niw,nq0i))
-            iqinit=.false.
-          endif
+c$$$
+c$$$          if(iqinit) then
+c$$$            allocate( sk(ngb,nwmin:nwmax,nq0i),  sks(ngb,nwmin:nwmax,nq0i) )
+c$$$            allocate( skI(ngb,niw,nq0i), sksI(ngb,niw,nq0i))
+c$$$            iqinit=.false.
+c$$$          endif
           allocate(epstilde(ngb,ngb))
           allocate(epstinv(ngb,ngb))
 c               endif
@@ -750,7 +775,7 @@ c                  if(newaniso2.and.iq<=nqibz) then !for mmmw
                 ix=0
               endif
 
-!!  Eqs.(37),(38) in PRB81 125102
+!!  Eqs.(37),(38) in PRB81 125102 (Friedlich)
               do igb1=ix+1,ngb
                 do igb2=ix+1,ngb
                   epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
@@ -759,6 +784,17 @@ c                  if(newaniso2.and.iq<=nqibz) then !for mmmw
               enddo
               epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
               call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
+
+!! w4p writing eps
+              if(iw==0.and.w4pmode) then 
+                !static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion.
+                             !(ix=1 is set for q=0) 
+                ifw4p = ifile_handle('W4PHONON.'//charnum5(iq))
+                open(ifw4p,form='unformatted')
+                write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
+                write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb) 
+                close(ifw4p)
+              endif  
 !TIME0_3000011 zweqzw0
 
 c$$$  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -867,6 +903,13 @@ c !TIME0
                 llw(iw,iq0)= 1d0/epstinv(1,1)
 c !TIME1 "end of matcinv_epstinv" !this gives wrong message, probably 
 c         because of a bug of !TIME1 processing for MPI mode.
+
+!! Wing elements calculation july2016
+!! We need check nqb is the same as that of q=0
+                if(ixyz(iq0)/=0.and.iw==0) then
+                  if(ngb/=ngbq0) call rx('hx0p0_sc: ngb/=nqbq0')
+                  wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) !this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
+                endif
               else
 c commentout block inversion
 c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
@@ -1046,11 +1089,17 @@ c     write(6,*)' send llwI sum=',sum(abs(llwI(:,iq0))),niw
               dest=0
               call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
               call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+              if(ixyz(iq0)/=0) then
+                call MPI__DbleCOMPLEXsendQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,dest)
+              endif
             elseif(MPI__rootQ) then
 c     write(6,*)' mpi_recv iq from',iq,MPI__ranktab(iq),nw,nw_i,niw
               src=MPI__Qranktab(iq)
               call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
               call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
+              if(ixyz(iq0)/=0) then
+                call MPI__DbleCOMPLEXrecvQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,src)
+              endif
 c     do i=nw_i,nw
 c     write(6,*)'recivxxx',i,llw(i,iq0)
 c     enddo   
@@ -1174,8 +1223,28 @@ c            read(ifw0w0i) w0i(1:niw)
 
 !! get w0 and w0i (diagonal element at Gamma point)
 !! This return w0 and w0i. (llw and llwi are input)
-        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)
+!! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
+        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)  !all inputs. get effective W0,W0i, and L(omega=0) matrix.
 
+!! Finalize w44phonon
+!! wmuk(ix)= matmul(wmu,qv) ==> wmu= matmul(wmuk,qvinv)
+        if(w4pmode) then
+          do i=1,3
+            qv(:,i)= tpioa*q0i(:,ixyz(i))
+            qv(:,i)= qv(:,i)/sqrt(sum(qv(:,i)**2))
+          enddo
+          call matinv(qv,3)
+          allocate( wmu(2:ngbq0,3) )
+          do igb=2,ngbq0
+            wmu(igb,:) =matmul(wmuk(igb,:),qv)
+          enddo
+          ifw4p = ifile_handle('W4PHONON.HeadWing')
+          open(ifw4p,form='unformatted')
+          write(ifw4p) llmat(1:3,1:3),ngbq0 !for q~0
+          write(ifw4p) wmu(2:ngbq0,1:3) !for q~0
+          close(ifw4p)
+          deallocate(wmu)
+        endif
 
 !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
 !! Gamma cell) is the micro cell of BZ including Gamma point).

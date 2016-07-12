@@ -55,13 +55,14 @@
       logical ::unit2=.false. !  readgwinput,
       integer(4)::nnn(3),ret
       integer(4):: verbose,q0pchoice,wgtq0p    !,normcheck !version,
-      logical:: GaussSmear,KeepEigen,core_orth,ldummy !keepppovl,
+      logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
       integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       integer:: gammacellctrl=0
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
       write(6,*)'        Generate Q0P->101(old offset Gamma)'
+      write(6,*)'        Generate Q0P and Q0P for xyz ->201 '
       read (5,*) iq0pin
       call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
@@ -75,6 +76,9 @@
          gammacellctrl=2 !Gammacell only mode
       elseif(iq0pin==4) then
          iq0pinxxx=2
+      elseif(iq0pin==201) then
+        iq0pinxxx=1
+        lnq0iadd=.true.
       else
         call rx( 'Not allowed iq0pin')
       endif
@@ -145,7 +149,7 @@ c      endif
       endif
 !!
       call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')

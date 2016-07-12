@@ -1,18 +1,21 @@
       module m_readq0p
-      real(8),allocatable,protected::  wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
-      integer,protected:: nq0i
+      real(8),allocatable,protected:: wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
+      integer,protected:: nq0i,nq0iadd
+      integer,protected,allocatable:: ixyz(:)
+
       contains
       subroutine readq0p()
       implicit none
-      integer:: neps,ifiq0p,ifile_handle,i,nq0ix
+      integer:: neps,ifiq0p,ifile_handle,i,nq0ix,iq0pin
       logical:: debug=.false.
-      if(debug) write(6,*) 'reading QOP'
+c      write(6,*) 'reading QOP'
       ifiq0p=ifile_handle()
       open (ifiq0p,file='Q0P')
-      read (ifiq0p,"(i5)") nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-      do i=1,nq0i
-         read (ifiq0p, * ) wqt(i),q0i(1:3,i)
+      read (ifiq0p,*) nq0i,iq0pin,nq0iadd
+      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i+nq0iadd),ixyz(nq0i+nq0iadd) )
+      do i=1,nq0i+nq0iadd
+         read (ifiq0p, * ) wqt(i),q0i(1:3,i),ixyz(i)
+c         write (*, * ) wqt(i),q0i(1:3,i),ixyz(i)
       enddo
       nq0ix = nq0i
       do i=1,nq0i
@@ -23,19 +26,19 @@
       enddo
       neps=nq0i-nq0ix ! number of zero weight q0p which are used for ixc=2 or 3 mode.
       write(6,*) ' num of zero weight q0p=',neps
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
       close(ifiq0p)
       end subroutine
       end module
 
       subroutine readppovl0(q,ngc,ppovl)
       implicit none
-      real(8), intent(in) :: q(3)
-      integer(4), intent(in) :: ngc
+      integer, intent(in) :: ngc
       complex(8), intent(out) :: ppovl(ngc,ngc)
-      integer(4):: ngc_r,ippovl0
+      real(8), intent(in) :: q(3)
+      integer:: ngc_r,ippovl0,ifile_handle
       real(8):: qx(3),tolq=1d-8
-      ippovl0=2301
+      ippovl0=ifile_handle()
       open(ippovl0,file='PPOVL0',form='unformatted')
       do
         read(ippovl0) qx,ngc_r
