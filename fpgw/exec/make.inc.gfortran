@@ -35,14 +35,12 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 
 #(3) Compilar options ###############################################
-#FFLAGS=-O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
+FFLAGS=-O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 FFLAGS_OMP=-openmp -O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 FFLAGS_LESS=-O0 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 #debug
-FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
-
-
+#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 #FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
