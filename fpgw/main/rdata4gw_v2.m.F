@@ -255,7 +255,7 @@ c      logical :: ippovlc_test
       complex(8),allocatable:: ggg(:)
       integer,allocatable:: nvggg(:,:),nvgcgp(:,:),iantiferro(:)
       character(8),allocatable:: spid(:)
-      integer:: nggg,ngcgp !q independent 
+      integer:: nggg,ngcgp,nq0iadd,ixyz !q independent 
 
 c---------------------------------------------------
       pi = 4d0*datan(1d0)
@@ -308,9 +308,9 @@ c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
       print *, 'reading QOP'
       iq0p=ifile_handle()
       open (iq0p,file='Q0P')
-      read (iq0p,*) nq0i,iq0pin
+      read (iq0p,*) nq0i,iq0pin,nq0iadd
       allocate( wt(nq0i),q0i(1:3,nq0i) )
-      read (iq0p,*) ( wt(i),q0i(1:3,i),i=1,nq0i)
+      read (iq0p,*) ( wt(i),q0i(1:3,i),ixyz,i=1,nq0i)
       close(iq0p)
 
 !! --- Readin DATA4GW_V2
@@ -1798,7 +1798,7 @@ c        write(6,"('   iqi qx ngc ngc2=',i5,3f7.4,4i5)" ) iqi,qx,ngc,ngc2
 c        if(ippovlc_test)  write(ippovlc) qx,ngc
         write(ippovli) qx,ngc
         write(ippovlg) qx,ngc
-        write(6,"(' iqi qx ngc=',i5,3f7.4,4i5)" ) iqi,qx,ngc
+        write(6,"(' iqi qx ngc=',i5,3f8.4,4i5)" ) iqi,qx,ngc
         if(ppovl0l) write(ippovl0)   qx,ngc
         if(ngc==0) then
           deallocate(ngvecc,ngvecp)

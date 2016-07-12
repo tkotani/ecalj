@@ -118,9 +118,9 @@ c      real(8),allocatable,protected:: q0x(:,:)
          wt = 0d0
          ifi00=ifile_handle()
          open (ifi00,file='Q0P')
-         write(ifi00,"(2i5,a)") nq0i,iq0pin, " !nq0i iq0pin ---"//
+         write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
      &        "This is readin Q0P from GWinput <QforEPS> ---"
-         write(ifi00,"(d24.16,3x, 3d24.16)") (wt(i),q0i(1:3,i),i=1,nq0i)
+         write(ifi00,"(d24.16,3x, 3d24.16,i2)") (wt(i),q0i(1:3,i),0,i=1,nq0i)
          close(ifi00)
       endif
 
