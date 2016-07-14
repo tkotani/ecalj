@@ -309,8 +309,8 @@ c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
       iq0p=ifile_handle()
       open (iq0p,file='Q0P')
       read (iq0p,*) nq0i,iq0pin,nq0iadd
-      allocate( wt(nq0i),q0i(1:3,nq0i) )
-      read (iq0p,*) ( wt(i),q0i(1:3,i),ixyz,i=1,nq0i)
+      allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
+      read (iq0p,*) ( wt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
       close(iq0p)
 
 !! --- Readin DATA4GW_V2
@@ -1589,7 +1589,7 @@ C ... Readin qibz form QIBZ
 !!
       ifnqibz = 888
       open(ifnqibz,file='NQIBZ')
-      write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i')") nqibz,nq0i,nqibz+nq0i
+      write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
       close(ifnqibz)
 
 c      QpGcut_psi2 = (2d0+1d-2)*QpGcut_psi + 2d0*pi/alat*dQpG !dec2012
@@ -1600,12 +1600,12 @@ c      if(QpGcut_psi2<1d-9) QpGcut_psi2=0d0 !may2013
 c      if(bzcase==2) iadd=1
       if(ix==1) nqibz=0
       dQpG=0d0
-      do iq0i =1,nq0i
+      do iq0i =1,nq0i+nq0iadd
         abq0i= sum(q0i(1:3,iq0i)**2)**.5
         if(abq0i>dQpG ) dQpG=abq0i
       enddo
-      allocate(qibze(3,nqibz + nq0i+iadd)) !,ngc2x(nqibz + nq0i+iadd)) !nq0i+1 is for gamma point for bzcase==2
-      do iqi =1,nqibz + nq0i
+      allocate(qibze(3,nqibz + nq0i+nq0iadd+iadd)) !,ngc2x(nqibz + nq0i+iadd)) !nq0i+1 is for gamma point for bzcase==2
+      do iqi =1,nqibz + nq0i+nq0iadd
         if( iqi <=nqibz) then
           qibze(1:3,iqi)  = qibz(1:3,iqi)
         elseif( iqi > nqibz) then
@@ -1614,8 +1614,8 @@ c      if(bzcase==2) iadd=1
         write(6,"(' iqi qibze=',i4,3f9.5)")iqi,qibze(:,iqi)
       enddo
 c      if(bzcase()==2) qibze(1:3,nqibz+nq0i+iadd)=0d0
-      nqnumt= nqibz+nq0i+iadd
-      write(6,"(' nqnumt nqibz nq0i iadd =',4i6)")nqnumt,nqibz,nq0i,iadd
+      nqnumt= nqibz+nq0i+nq0iadd+iadd
+      write(6,"(' nqnumt nqibz nq0i+nq0iadd iadd =',4i6)")nqnumt,nqibz,nq0i+nq0iadd,iadd
 
 !     We assuem qibze(iqi<=nqibz) are not changed.
 c     if( qreduce() ) then

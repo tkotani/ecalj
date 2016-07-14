@@ -14,7 +14,7 @@ CPPSWITCH_INTELLINUXIFC  = \
 
 #(3) Compilar options ###############################################
 ### INTEL FORTRAN LINUX ###
-FFLAGS=-O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
+FFLAGS=-O2 -cpp $(CPPSWITCH_INTELLINUXIFC)
 FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
 
 #FFLAGS=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)

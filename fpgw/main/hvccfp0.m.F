@@ -92,11 +92,11 @@ c---
       real(8)::absqq,qqx(3), epsmx,aaaa
       integer(4):: nnmx ,ngcnn,ngbo
 cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
-      integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy
+      integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy,nq0iadd
       logical:: is_mix0vec,wvcc !,newaniso
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
-      integer:: ifiwqfac,iqbz,iqbzx,nnn
+      integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz
       character(128) :: ixcc
 !!------------------------------------------------------------
       call MPI__Initialize()
@@ -535,14 +535,13 @@ c      if(imode==101) allocate( vcoul_org(nblochpmx,nblochpmx) )
 C... q near zero
       write(6,*) '--- readin Q0P -------'
       open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      read (101,*) nq0i,idummy,nq0iadd
       if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
-      write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
+      allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
+      read (101,*)( wqt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
+      write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
       close(101)
-
-      write(6,*) ' *** goto do iq nqibz nq0i=',nqibz,nq0i
+      write(6,*) ' *** goto do iq nqibz+nq0iadd nq0i=',nqibz,nq0i+nq0iadd
 
 C --- Check PARALELL.X0
 c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
@@ -556,7 +555,7 @@ c        if(wvcc) ifvcfpout = iopen( "VCCFP." //xxt(iqxini,iqxend),0,-1,0)
 c        ifgb0vec = iopen ( "Mix0vec."//xxt(iqxini,iqxend),1,3,0)
 c        ifgb0vec1 = iopen ( "Mix0vec1."//xxt(iqxini,iqxend),1,3,0)
 c      else
-        iqxend = nqibz + nq0i
+        iqxend = nqibz + nq0i+nq0iadd
         if(wvcc) ifvcfpout = iopen('VCCFP',0,-1,0)
         ifgb0vec = iopen ( "Mix0vec",1,3,0)
         ifgb0vec1 = iopen ( "Mix0vec1",1,3,0)
@@ -592,8 +591,6 @@ c        if(nblochpmx /= nblochpmx_in)
 c     &     stop 'nblochpmx /= nblochpmx_in VCCFP.ORG'
 c      endif
 
-
-
 C... Readin PRODMT into prodmt. oct2005
       smbb = smbasis()
       write(6,*) ' smooth mixed basis=',smbb
@@ -606,12 +603,10 @@ C... Readin PRODMT into prodmt. oct2005
           read(ifprodmt) nl_r
           if( 2*(nl_r-1) /= lxx ) then
             write(6,*) 2*(nl_r-1),lxx
-Cstop2rx 2013.08.09 kino            stop '2*nl_r-1 /= lxx '
             call rx( '2*nl_r-1 /= lxx ')
           endif
           read(ifprodmt) nxx_r
           write(6,"(' nxx =',100i3)")nxx_r
-Cstop2rx 2013.08.09 kino          if(nxx_r>nxx) stop 'nxx_r>nxx'
           if(nxx_r>nxx) call rx( 'nxx_r>nxx')
           read(ifprodmt) nx_r(0:lxx)
           write(6,"(' nx_r=',100i3)") nx_r(0:lxx)
@@ -619,7 +614,6 @@ Cstop2rx 2013.08.09 kino          if(nxx_r>nxx) stop 'nxx_r>nxx'
           if(sum(abs(nx(0:lx_,ibas)-nx_r(0:lx_))) /=0) then
             write(6,*)' debug: nx  =',nx(0:lx_,ibas)
             write(6,*)' debug: nx_r=',nx_r(0:lx_)
-Cstop2rx 2013.08.09 kino            stop 'nx /=nx_r'
             call rx( 'nx /=nx_r')
           endif
           read(ifprodmt) prodmt(1:2, 1:nxx_r, 0:lxx, ibas)
@@ -627,8 +621,6 @@ Cstop2rx 2013.08.09 kino            stop 'nx /=nx_r'
           isx = iclose(filenamep)
         enddo
 
-
-ccccccccccccccccccccccccccccccccccccccc
 C... Check write for radial part of the product basis
         if(.false.) then
           do ibas= 1,1 !1,nbas

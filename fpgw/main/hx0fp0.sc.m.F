@@ -533,8 +533,8 @@ c$$$     o        nwgt,igx,igxt,eibzsym)
         q = (/0d0,0d0,0d0/)
         call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
         ngbq0 = nbloch+ngc
-        call MPI__Broadcast(ngbq0)
       endif
+      call MPI__Broadcast(ngbq0)
 
 !TIME1_16001 "readqgcou"
 !TIME0_170001 do1001
@@ -789,8 +789,8 @@ c                  if(newaniso2.and.iq<=nqibz) then !for mmmw
               if(iw==0.and.w4pmode) then 
                 !static epstinv is saved. For q=0 epstilde (mu=1 skipped). For q/=0 full matrix inversion.
                              !(ix=1 is set for q=0) 
-                ifw4p = ifile_handle('W4PHONON.'//charnum5(iq))
-                open(ifw4p,form='unformatted')
+                ifw4p = ifile_handle()
+                open(ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted')
                 write(ifw4p) iq,q,ngb,ix !ix=0, or ix=1 for q=0 (iq=1)
                 write(ifw4p) epstinv(ix+1:ngb,ix+1:ngb) 
                 close(ifw4p)
@@ -900,15 +900,18 @@ c                  if(newaniso2.and.iq>nqibz) then
 c !TIME0
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-                llw(iw,iq0)= 1d0/epstinv(1,1)
+                if(iq0<=nq0i) llw(iw,iq0)= 1d0/epstinv(1,1)
 c !TIME1 "end of matcinv_epstinv" !this gives wrong message, probably 
 c         because of a bug of !TIME1 processing for MPI mode.
 
 !! Wing elements calculation july2016
 !! We need check nqb is the same as that of q=0
                 if(ixyz(iq0)/=0.and.iw==0) then
-                  if(ngb/=ngbq0) call rx('hx0p0_sc: ngb/=nqbq0')
-                  wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) !this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
+                   if(ngb/=ngbq0) then
+                      write(6,*)q,iq0,ngb,ngbq0
+                      call rx('hx0p0_sc: ngb/=ngbq0')
+                      wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) !this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
+                   endif
                 endif
               else
 c commentout block inversion
@@ -916,7 +919,7 @@ c$$$                     sk  (1:ngb,iw,iq0)= zxq(1,1:ngb,iw)
 c$$$                     sks (1:ngb,iw,iq0)= zxq(1:ngb,1,iw)
 c$$$c                     sks (1:ngb,iw,iq0)= zxq(2,1:ngb,iw) !nmbas1=2 see z1stcol in x0kf_v4h.
 c$$$                     vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-                llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
+                if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw) 
               endif 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cmmmm 
@@ -928,7 +931,7 @@ c     write(6,"('mmmmw99x ',i3,10(2d13.5,2x))") iw,llw(iw,iq0),
 c     &                  w_ks(2:10:3)/llw(iw,iq0),w_ks(63:70:3)/llw(iw,iq0)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !TIME0_3200011 writeiqiwreal  
-              write(6,"('iq iw_R omg(iw) eps(wFC) eps(woLFC) ',2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))")
+              if(iq0<=nq0i) write(6,"('iq iw_R omg(iw) eps(wFC) eps(woLFC) ',2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))")
      &         iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
 
 !TIME1_3200011 "writeiqiwreal"
@@ -1031,7 +1034,7 @@ c                  if( newaniso2.and.iq>nqibz) then
                 enddo
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-                llwI(iw,iq0)= 1d0/epstinv(1,1)
+                if(iq0<=nq0i) llwI(iw,iq0)= 1d0/epstinv(1,1)
               else
 c commentout block inversion
 c$$$                     skI  (1:ngb,iw,iq0)= zxqi(1,1:ngb,iw)
@@ -1040,9 +1043,10 @@ c$$$                     sksI (1:ngb,iw,iq0)= zxqi(1:ngb,1,iw) !nmbas1=2 see z1s
 c$$$                     vcou1  = fourpi/sum(q**2*tpioa**2) ! test-->vcousq(1)**2 !fourpi/sum(q**2*tpioa**2-eee)
 c$$$                     vcou1sq= sqrt(vcou1)
 c$$$!! llwI without LFC. LFC contribution is added in 
-                llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
+                if(iq0<=nq0i) llwI(iw,iq0)=  1d0 -vcou1*zxqi(1,1,iw) !- vcou1sq*sum( skI(2:ngb) * w_ksI(2:ngb)*vcousq(2:ngb) )
               endif  
-              write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
+              if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")
+     &         iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
             endif
 
  1016     continue
@@ -1087,16 +1091,20 @@ c     write(6,*)'sendxxx',i,llw(i,iq0)
 c     enddo   
 c     write(6,*)' send llwI sum=',sum(abs(llwI(:,iq0))),niw
               dest=0
-              call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
-              call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+              if(iq0<nq0i) then
+                 call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
+                 call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+              endif
               if(ixyz(iq0)/=0) then
                 call MPI__DbleCOMPLEXsendQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,dest)
               endif
             elseif(MPI__rootQ) then
 c     write(6,*)' mpi_recv iq from',iq,MPI__ranktab(iq),nw,nw_i,niw
               src=MPI__Qranktab(iq)
-              call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
-              call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
+              if(iq0<nq0i) then
+                 call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
+                 call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
+              endif
               if(ixyz(iq0)/=0) then
                 call MPI__DbleCOMPLEXrecvQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,src)
               endif
@@ -1233,13 +1241,13 @@ c            read(ifw0w0i) w0i(1:niw)
             qv(:,i)= tpioa*q0i(:,ixyz(i))
             qv(:,i)= qv(:,i)/sqrt(sum(qv(:,i)**2))
           enddo
-          call matinv(qv,3)
+          call matinv(3,qv)
           allocate( wmu(2:ngbq0,3) )
           do igb=2,ngbq0
             wmu(igb,:) =matmul(wmuk(igb,:),qv)
           enddo
-          ifw4p = ifile_handle('W4PHONON.HeadWing')
-          open(ifw4p,form='unformatted')
+          ifw4p = ifile_handle()
+          open(ifw4p,file='W4PHONON.HeadWing',form='unformatted')
           write(ifw4p) llmat(1:3,1:3),ngbq0 !for q~0
           write(ifw4p) wmu(2:ngbq0,1:3) !for q~0
           close(ifw4p)
