@@ -35,6 +35,9 @@ c------------------------------------------------------------
       integer,protected::             nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm 
       real(8),allocatable,protected:: qbz(:,:),wbz(:),qibz(:,:),wibz(:),qbzw(:,:) 
       real(8),protected::             dq_(3)!,qbasmc(3,3) !,dq_bzcase2(3),
+cccccccccccccccccc
+c      real(8),protected::qbasmc(3,3)              !,dq_bzcase2(3),
+ccccccccccccccccc
       integer,allocatable,protected:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
       real(8),allocatable,protected:: qbzm(:,:),qbzwm(:,:)
 c------------------------------------------------------------
@@ -87,8 +90,14 @@ c      if(icase>2) call rx( 'mkqg: wrong bzcase')
       print *,'nnn =',nnn
       print *,'nnnv=',nnnv
 
-c      call genqbz (qlat,nnn(1),nnn(2),nnn(3), !icase,
-c     o     qbz,wbz,nstbz, nadd,qbzshift)
+!! Generage qbz
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$      call genqbz (qlat,nnn(1),nnn(2),nnn(3), !icase,
+c$$$     o     qbz,wbz,nstbz, nadd,qbzshift)
+c$$$      goto 1011
+c$$$ccccccccccccccccccccccccccccc
+      
+c
 c      qmic(:,1)= qlat(:,1)/dble(nnn(1))
 c      qmic(:,2)= qlat(:,2)/dble(nnn(2))
 c      qmic(:,3)= qlat(:,3)/dble(nnn(3))
@@ -98,9 +107,9 @@ c      weight = 1d0/dble(nnn1t*nnn2t*nnn3t)
 !! Generage qbz
       wsum=0d0
       kount  = 0
-      do i3 = 1,nnnv(3)
-      do i2 = 1,nnnv(2)
       do i1 = 1,nnnv(1)
+      do i2 = 1,nnnv(2)
+      do i3 = 1,nnnv(3)
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
         call xconvv(xvec,           xvecc) !cell center
         call xconvv(xvec-0.5d0/nnn, xvecs) !cell start
@@ -123,9 +132,9 @@ c        qbzz(:,i1,i2,i3)= qbz(:,kount)
       kountw=0
       nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
       allocate(ib1bz(nqbzw), qbzw(3,nqbzw) )
-      do i3 = 1,nnn(3)+1
-      do i2 = 1,nnn(2)+1
       do i1 = 1,nnn(1)+1
+      do i2 = 1,nnn(2)+1
+      do i3 = 1,nnn(3)+1
         kountw = kountw+1
         indexkw(i1-1,i2-1,i3-1)= kountw
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
@@ -156,6 +165,15 @@ c      endif
 
 c      nqibz_r=0
       allocate(qibz(3,nqbz),ipq(nnnv(1),nnnv(2),nnnv(3)),wibz(nqbz),iwgt(nqbz),usediqig(nqbz,ngrp))
+c$$$cccccccccccccccccccccccccccccccccc
+c$$$      print *,' goto bzmesh--- '
+c$$$      call pshprt(51)
+c$$$      call bzmesh(plat,qbasmc,nnn(1),nnn(2),nnn(3),symops,ngrp,ipq,qibz !icase,
+c$$$     &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
+c$$$      goto 2011
+c$$$ccccccccccccccccccccccccccccccccccc
+
+cccccccccccccccccccccccccc
       !nqibz instead of nqbz is enough (but nqibz is calculated from now on)
 !! 
       WRITE(6,"(' getbzdata1 : ',5X,'plat',31X,'qlat')")
@@ -273,9 +291,21 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
 
 !! Full bz divided into tetrahedron
       if(tetraf) then 
-cccccccccccccccccccccccccc
-c        goto 3331
-cccccccccccccccccccccccccc
+c$$$cccccccccccccccccccccccccc
+c$$$        nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
+c$$$        ntetf = 6*nqbz
+c$$$c        if(nadd==1) ntetf=6*nnn(1)*n2q*n3q  
+c$$$        if(allocated(ib1bz)) deallocate(ib1bz,qbzw)
+c$$$        allocate( idtetf(0:3,ntetf), ib1bz(nqbzw), qbzw(3,nqbzw) )
+c$$$        print *,' goto tetfbzf--- ntetf=',ntetf,nqbzw
+c$$$!! apr2016
+c$$$        skipgammacell=.false.
+c$$$        if(gammacellctrl==1) skipgammacell=.true.
+c$$$        call TETFBZF(qlat, nnn(1),nnn(2),nnn(3),qbz,nqbz,
+c$$$     i      skipgammacell,qbzshift,nadd,
+c$$$     o      idtetf,qbzw,ib1bz,ntetf)
+c$$$        goto 3331
+c$$$cccccccccccccccccccccccccc
         skipgammacell=.false.
         if(gammacellctrl==1) skipgammacell=.true.
         write(6,"(/' tetfbzf ntetf =',2i8, ' -----')") ntetf
@@ -365,11 +395,11 @@ c$$$     o      idtetf,qbzw,ib1bz,ntetf)
         qb(:,1) = qlat(:,1)/nnn(1)
         qb(:,2) = qlat(:,2)/nnn(2)
         qb(:,3) = qlat(:,3)/nnn(3)
-ccccccccccccccccccccccccc
-c        call tetirr(qb,nnn(1),nnn(2),nnn(3),ipq,nqibz,
-c     o              nteti,idteti)
-c        goto 3333
-ccccccccccccccccccccccccc
+c$$$ccccccccccccccccccccccccc
+c$$$        call tetirr(qb,nnn(1),nnn(2),nnn(3),ipq,nqibz,
+c$$$     o              nteti,idteti)
+c$$$        goto 3333
+c$$$ccccccccccccccccccccccccc
         CALL CCUTUP(qb,QB1,IBTR,KCUT)
         nteti = 0
 !!   START LOOPING OVER MICROCELLS ---------
