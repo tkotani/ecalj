@@ -107,9 +107,10 @@ c      weight = 1d0/dble(nnn1t*nnn2t*nnn3t)
 !! Generage qbz
       wsum=0d0
       kount  = 0
-      do i1 = 1,nnnv(1)
-      do i2 = 1,nnnv(2)
+
       do i3 = 1,nnnv(3)
+      do i2 = 1,nnnv(2)
+      do i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
         call xconvv(xvec,           xvecc) !cell center
         call xconvv(xvec-0.5d0/nnn, xvecs) !cell start
@@ -132,9 +133,10 @@ c        qbzz(:,i1,i2,i3)= qbz(:,kount)
       kountw=0
       nqbzw = (nnn(1)+1)*(nnn(2)+1)*(nnn(3)+1)
       allocate(ib1bz(nqbzw), qbzw(3,nqbzw) )
-      do i1 = 1,nnn(1)+1
-      do i2 = 1,nnn(2)+1
+
       do i3 = 1,nnn(3)+1
+      do i2 = 1,nnn(2)+1
+      do i1 = 1,nnn(1)+1
         kountw = kountw+1
         indexkw(i1-1,i2-1,i3-1)= kountw
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
@@ -145,7 +147,16 @@ c        qbzz(:,i1,i2,i3)= qbz(:,kount)
       enddo
       enddo
       enddo
-
+c$$$ccccccccccccccccc
+c$$$      do i1 = 1,nnnv(1)
+c$$$      do i2 = 1,nnnv(2)
+c$$$      do i3 = 1,nnnv(3)
+c$$$        write(6,"('qqq qbzq',3i5,3f12.5)")i1,i2,i3,qbzw(:,indexkw(i1-1, i2-1, i3-1))
+c$$$      enddo
+c$$$      enddo
+c$$$      enddo
+c$$$      print *,'nadd=',nadd
+c$$$      stop 'zzzzzzzzzzzzzzzzzz'
 c!x1*qmic(:,1) + x2*qmic(:,2) + x3*qmic(:,3)
 c        write(6,"('xxxy=',3f9.4,2x,3f9.4,2x,3f9.4)")xvec,xvecc,weight
 
@@ -187,9 +198,15 @@ cccccccccccccccccccccccccc
 !! Generate qibz. Gamma point first (by igamma loop).
       usediqig=.false.
       do 229 igamma=0,1 !igamma=0 is for gamma point.
-      do 20 i3 = 1,nnnv(3)
-      do 20 i2 = 1,nnnv(2)
+c
+c reproduce old result.
       do 20 i1 = 1,nnnv(1)
+      do 20 i2 = 1,nnnv(2)
+      do 20 i3 = 1,nnnv(3)
+c original
+c      do 20 i3 = 1,nnnv(3)
+c      do 20 i2 = 1,nnnv(2)
+c      do 20 i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
         call xconvv(xvec,           xvecc)
         if(sum(abs(xvecc+qbzshift))<1d-8 ) then
@@ -367,8 +384,9 @@ c            print *,'kkkkk',ic,itet,k1,k2,k3
           enddo  
           ntetf=ntetf+1
           idtetf(0:3,ntetf) = iq4(1:4)
+          write(6,"('ntetf=',3i3,2x,i6,2x,4i8)")i1,i2,i3,ntetf,idtetf(0:3,ntetf)
+          write(6,"('      ',4(3f9.4,x))") qbzw(:,idtetf(0:3,ntetf))
    10   continue
-        write(6,"('ntetf=',3i3,2x,i6,2x,4i8)")i1,i2,i3,ntetf,idtetf(0:3,1)
  122   CONTINUE
  121   CONTINUE
  120   CONTINUE 
