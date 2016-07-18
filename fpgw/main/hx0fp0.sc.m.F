@@ -1091,7 +1091,7 @@ c     write(6,*)'sendxxx',i,llw(i,iq0)
 c     enddo   
 c     write(6,*)' send llwI sum=',sum(abs(llwI(:,iq0))),niw
               dest=0
-              if(iq0<nq0i) then
+              if(iq0<=nq0i) then
                  call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
                  call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
               endif
@@ -1101,7 +1101,7 @@ c     write(6,*)' send llwI sum=',sum(abs(llwI(:,iq0))),niw
             elseif(MPI__rootQ) then
 c     write(6,*)' mpi_recv iq from',iq,MPI__ranktab(iq),nw,nw_i,niw
               src=MPI__Qranktab(iq)
-              if(iq0<nq0i) then
+              if(iq0<=nq0i) then
                  call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
                  call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
               endif
