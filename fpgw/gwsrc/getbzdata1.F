@@ -114,6 +114,9 @@ c      weight = 1d0/dble(nnn1t*nnn2t*nnn3t)
       do i3 = 1,nnnv(3)
       do i2 = 1,nnnv(2)
       do i1 = 1,nnnv(1)
+c      do i1 = 1,nnnv(1)
+c      do i2 = 1,nnnv(2)
+c      do i3 = 1,nnnv(3)
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
         call xconvv(xvec,           xvecc) !cell center
         kount=  kount + 1
@@ -145,6 +148,9 @@ c         write(6,"(' iiiiiiii iq=',i8,' q=',3f17.13)")  kount, qbz(:,kount)
       do i3 = 1,nnn(3)+1
       do i2 = 1,nnn(2)+1
       do i1 = 1,nnn(1)+1
+c      do i1 = 1,nnn(1)+1 
+c      do i2 = 1,nnn(2)+1
+c      do i3 = 1,nnn(3)+1
         kountw = kountw+1
         indexkw(i1-1,i2-1,i3-1)= kountw
         xvec = (/I1-1,I2-1,I3-1/)/dble(nnn) + qbzshift
@@ -187,11 +193,17 @@ c      nqibz_r=0
       wibz  = 0d0
       iwgt  = 0
 !! Generate qibz. Gamma point first (by igamma loop).
+!! This ordering is to keep backword compatibility. 
+!! In principle following do loop ordirng do not affect to the final result.
+!! However, because of degeneracy (in the tetrahedron method), we have a slight effect.
       usediqig=.false.
       do 229 igamma=0,1 !igamma=0 is for gamma point.
-      do 20 i3 = 1,nnnv(3)
-      do 20 i2 = 1,nnnv(2)
+c      do 20 i3 = 1,nnnv(3)
+c      do 20 i2 = 1,nnnv(2)
+c      do 20 i1 = 1,nnnv(1)
       do 20 i1 = 1,nnnv(1)
+      do 20 i2 = 1,nnnv(2)
+      do 20 i3 = 1,nnnv(3)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
         call xconvv(xvec+qbzshift,           xvecc)
         if(sum(abs(xvecc))<tolq ) then
