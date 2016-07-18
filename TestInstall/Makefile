@@ -14,12 +14,12 @@ LM_TEST  = copt te zrt co cr3si6 fe felz gasls gdn eras c crn cu na
 
 # all gw tests provided by this makefile.
 GW_TEST  = gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh
-GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc
+GW_TEST += gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa
 #GW_TEST += nio_gwsc444 yh3fcc_gwsc666 gas_gwsc666 pdo_gwsc443 cugase2_gwsc222
 
 # programs under tools dir, required in the tests
 TL_DIR   = $(ecalroot)/TOOLS
-TL_PROG  = diffnum comp compall comp.eval
+TL_PROG  = diffnum diffnum2 diffnum0.py comp compall comp.eval
 
 # programs under lm7k dir, required in the tests
 LM_DIR   = $(ecalroot)/lm7K
@@ -27,11 +27,12 @@ LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK fplot run_arg job_pdo
 
 # programs under fpgw dir, required in the tests
 GW_DIR   = $(ecalroot)/fpgw/exec
-GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc
+GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc 
 GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
 GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm
 
-
+MLWF_DIR = $(ecalroot)/fpgw/Wannier
+MLWF_PROG  = genMLWFx hmaxloc hpsig_MPI  huumat_MPI  huumat_MPI hwmatK_MPI 
 ###########################################################
 # Do not edit lines below.
 
@@ -63,8 +64,13 @@ GW_BINPROG = $(addprefix $(bindir)/,$(GW_PROG))
 $(GW_BINPROG): $(bindir)/%: $(GW_DIR)/%
 	cp -f $< $@
 
+# for each fpgw program, copy it from tool dir to bin dir if it was updated
+MLWF_BINPROG = $(addprefix $(bindir)/,$(MLWF_PROG))
+$(MLWF_BINPROG): $(bindir)/%: $(MLWF_DIR)/%
+	cp -f $< $@
+
 # install all programs to bindir
-install-program: $(TL_BINPROG) $(LM_BINPROG) $(GW_BINPROG)
+install-program: $(TL_BINPROG) $(LM_BINPROG) $(GW_BINPROG) $(MLWF_BINPROG)
 
 clear-summary:
 	rm -f $(work)/summary.txt

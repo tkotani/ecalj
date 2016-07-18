@@ -4,8 +4,6 @@ import string
 import os
 import re
 import diffnum0
-
-############### main ###################################
 try:
 	print "   Readin two files =     ", sys.argv[1], sys.argv[2]
 except:	
@@ -17,9 +15,9 @@ file1 = open(sys.argv[1],'rt').read()
 file2 = open(sys.argv[2],'rt').read()
 comparekeys=sys.argv[3:]
 print ' Comparekeys=',comparekeys
-tol=3e-3
+tol=1e-2
 errmax = diffnum0.comparenum(tol,file1,file2, comparekeys, printsw=0)
-print 'end of comparenum'
+
 if(errmax<tol):
 	print '   Comparison OK!  MaxDiff=',errmax,'< tol=',tol,' between   ' + sys.argv[1]+ '   and   ' + sys.argv[2] 
 	sys.exit()

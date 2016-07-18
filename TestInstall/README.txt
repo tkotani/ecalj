@@ -1,3 +1,13 @@
+==============================
+How to add new test ?
+1. make a test calculation at a directory.
+2. Make a test directory ecalj/TestInstall/foobar/.
+   Then set keep ctrl.* and so on in it (See other test).
+3. Write Makefile at ecalj/TestInstall/foobar
+   (see other test).
+4. Add test in the main Makefile at ecalj/TestInstall.
+===========================
+
 NAME
 	Makefile - makefile script to test and check ecalj programs.
 
