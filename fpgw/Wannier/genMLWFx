@@ -17,6 +17,11 @@ MPI_SIZE=$3
 NO_MPI=0
 ### end of processing input arguments ###
 
+### end of processing input arguments ###
+if [ ! -e bnds.$1 ];then 
+    $echo_run echo "!!! Perform job_band in advance!" 
+    exit
+fi
 
 ### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
 source $nfpgw/run_arg

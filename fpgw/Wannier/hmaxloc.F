@@ -330,25 +330,28 @@ c      if (nspin==2) ifev(2) = iopen('EVD', 0,0,mrece)
       inquire(file='BNDS',exist=lbnds)      
       if (lbnds) then
         write(*,*)'Read EF from BNDS'
-        open(99,file='BNDS',status='old')
-        read(99,*)ntmp,ef
-        close(99)
+        ifh=ifile_handle()
+        open(ifh,file='BNDS',status='old')
+        read(ifh,*)ntmp,ef
+        close(ifh)
       else ! lbnds   
-c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
-! When esmr is negative, esmr is geven automatically by efsimplef.
-        write(*,*)'Calculate EF in efsimplef2a'
-        legas = .false.
-        call efsimplef2a(nspin,wibz,qibz,ginv, 
-     i        nband,nqibz
-     i       ,konf,z,nl,natom,iclass,nclass
-     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
-c
-     i        qbz,nqbz !index_qbz, n_index_qbz,
-     o       ,efnew)
-c
-c        write(6,*)' end of efsimple'
-        ef = efnew
-      endif ! lbnds
+        call rx('you have to perform job_band in advance')
+      endif
+c$$$c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
+c$$$! When esmr is negative, esmr is geven automatically by efsimplef.
+c$$$        write(*,*)'Calculate EF in efsimplef2a'
+c$$$        legas = .false.
+c$$$        call efsimplef2a(nspin,wibz,qibz,ginv, 
+c$$$     i        nband,nqibz
+c$$$     i       ,konf,z,nl,natom,iclass,nclass
+c$$$     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise. 
+c$$$c
+c$$$     i        qbz,nqbz !index_qbz, n_index_qbz,
+c$$$     o       ,efnew)
+c$$$c
+c$$$c        write(6,*)' end of efsimple'
+c$$$        ef = efnew
+c$$$      endif ! lbnds
 c- check total ele number -------
       ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz) !wbz
       write(6,*)' ef    =',ef
