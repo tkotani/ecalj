@@ -823,13 +823,17 @@ C     ... Exit when relaxation converged or maximum number of iterations
           if (icom .eq. 1) then
             if (procid .eq. master) then
               k = int(sctrl%nvario)
-
               flg = 'C67'
               call nwitsv(1+2,k,flg,nsp,amom,etot)
             endif
-            call tcx('lmfp')
-            call fexit(0,111,
-     .              ' LMFP: relaxation converged after %i iteration(s)',itrlx)
+            if ( procid==maser) then
+              call tcx('lmfp')
+              call fexit(0,111,
+     .         ' LMFP: relaxation converged after %i iteration(s)',itrlx)
+            else
+              call tcx('lmfp')
+              call fexit(0,111,' ',0)
+            endif
           else
             call query('proceed with next relaxation step',-1,0)
           endif
@@ -912,6 +916,7 @@ C     reset mixing block
           call parms0(0,0,0d0,0)
 
 C     ... Exit when maximum number of iterations encountered
+
           if (itrlx .eq. nitrlx) then
             if (procid .eq. master) then
               call tcx('lmfp')
