@@ -18,7 +18,7 @@ echo Going to install required binaries and scripts to ${BINDIR} !
 
 ### viewvesta
 cd StructureTool/
-./makelink
+./makelink $BINDIR
 
 ### Use lm7K/Makefile
 cd ../lm7K/
