@@ -52,12 +52,12 @@ def vasp2ctrl_atom(vaspread,alat_val,NBAS_val,plat1,plat2,plat3):
 		y = float(atom_list[atom1][1])
 		z = float(atom_list[atom1][2])
 
-		if vaspread[7][0:-1]=='Cartesian':
+		if vaspread[7].split()[0]=='Cartesian':
 			atom_list[atom1][0] = x #/alat_val/.529177 #for new VASP
 			atom_list[atom1][1] = y #/alat_val/.529177
 			atom_list[atom1][2] = z #/alat_val/.529177
 
-		if vaspread[7][0:-1]=='Direct':
+		if vaspread[7].split()[0]=='Direct':
 			atom_list[atom1][0] = x*plat1[0] + y*plat2[0]  + z*plat3[0]
 			atom_list[atom1][1] = x*plat1[1] + y*plat2[1]  + z*plat3[1]
 			atom_list[atom1][2] = x*plat1[2] + y*plat2[2]  + z*plat3[2]
