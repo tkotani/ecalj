@@ -1,6 +1,7 @@
       subroutine asados(prgnam,sbz,sctrl,sham,slat,sspec,ssite,sarray)
       use m_struc_def  
       use m_globalvariables
+      use m_rdctrl,only:lso
 !! = Partial density-of-states generator. This works for lmf. =
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -110,7 +111,8 @@ C ... Local variables
       integer ,allocatable :: chan_iv(:)
       integer awrite,fopnn,fopno,i,iblst(1000),ichds,icond,il,imax,
      .iprint,igets,isw,iv(10),j,j1,j2,l,nband,nbandx,ldos, !lham,
-     .lncol,lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp,
+     .lstyle,m,n1,n2,nbas,nblst,nchan,nchan2,nchds,nclasp, 
+c !lncol,
      .nclass,ndum,nevmx,nfilem,nfilqp,nfstg,nkp,nkxyz(3),nl,nlf,nlo,
      .nlstc,norder,np0,npgrp,npln,npts,nqmx,nsp,nspc,nspd,nspec,nspx,
      .ntet,nwin,nwmx,parg,scrwid,stdo,moddos,nsite,nsitmx,lmxch,nll,
@@ -138,7 +140,7 @@ Changenglob      stdo = nglob('stdo')
       nclass=sctrl%nclass
       nl=sctrl%nl
       nspec=sctrl%nspec
-      lncol=sctrl%lncol
+c      lncol=sctrl%lncol
 c       lham=sctrl%lham
       ldos=sctrl%ldos
       nclasp=sarray%nclasp
@@ -605,7 +607,8 @@ C   ... dosspl reads bands and moms on the fly to save work space
       endif
       if (.not. bzmap) then
         i = nsp
-        if (lncol .gt. 0) i = 1
+c        if (lncol .gt. 0) i = 1
+        if (lso>0) i = 1
         call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchds , npts 
      .  , nchds , emin , emax , i , efermi , del , 1 , - fopnn ('DOS') )
       endif

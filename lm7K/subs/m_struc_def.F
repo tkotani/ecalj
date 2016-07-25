@@ -328,7 +328,7 @@ C ----------------------------------------------------------------
       integer(8)   ::   lgen3
       integer(8)   ::   lham
       integer(8)   ::   lmet
-      integer(8)   ::   lncol
+c      integer(8)   ::   lncol
       integer(8)   ::   loptc
       integer(8)   ::   lordn
       integer(8)   ::   lpgf(2)
@@ -617,7 +617,7 @@ Cr  130   56   udiag  diagonal-only LDA+U
       integer(8)   ::   lham
       integer(8)   ::   lmaxu
       integer(8)   ::   lmxax
-      integer(8)   ::   lncol
+c      integer(8)   ::   lncol
       integer(8)   ::   lsig
       integer(8)   ::   ltb
       integer(8)   ::   lxcf
@@ -2040,8 +2040,8 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lmet, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+c     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%loptc, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lordn, 1,MPI_INTEGER8
@@ -2300,8 +2300,8 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lmxax, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
+c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+c     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lsig, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%ltb, 1,MPI_INTEGER8
@@ -3719,7 +3719,7 @@ cki       struc%opos=0
       struc%lgen3=0
       struc%lham=0
       struc%lmet=0
-      struc%lncol=0
+c      struc%lncol=0
       struc%loptc=0
       struc%lordn=0
       struc%lpgf=0
@@ -3812,7 +3812,7 @@ cki       struc%opos=0
       struc%lham=0
       struc%lmaxu=0
       struc%lmxax=0
-      struc%lncol=0
+c      struc%lncol=0
       struc%lsig=0
       struc%ltb=0
       struc%lxcf=0

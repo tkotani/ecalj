@@ -448,6 +448,8 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz)
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_rdctrl,only:lso
+
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -525,7 +527,8 @@ C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
-     .lgunit,lidim,lihdim,lncol,nbasp,nclasp,ndim,neul,nl,
+     .lgunit,lidim,lihdim,nbasp,nclasp,ndim,neul,nl,
+c lncol,
      .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
      .j1,j2,j3,m,npw,npwmin,npwmax,ndham
@@ -551,7 +554,7 @@ C ... Needed for iostr
       nbasp=sctrl%nbasp
       nspec=sctrl%nspec
       nl=sctrl%nl
-      lncol=sctrl%lncol
+c      lncol=sctrl%lncol
       nsp=sctrl%nspin
       nkaph = globalvariables%nkaph
       pwmode=sham%pwmode
@@ -561,7 +564,8 @@ C ... Needed for iostr
 
       nspc  = 1
       nspx  = nsp
-      if (lncol .ne. 0) then
+c      if (lncol .ne. 0) then
+      if (lso .ne. 0) then
         nspc = 2
         nspx = 1
       endif

@@ -65,9 +65,9 @@ c     &  ,lham1,lham4=F,lham8=F,lham16=F,lham32=F,lham64,lham128=F,
 c     .  lham256 !,lves takao2010apr lves is integer
       integer ::lves
 C     Initialize, since read is only executed when NSPIN=2
-      logical:: lncol1=F,lncol2=F,lncol8=F,lncol16=F
+c      logical:: lncol1=F,lncol2=F,lncol8=F,lncol16=F
 c     .  lncol32=F,lncol64=F
-      logical:: lncol4=F, lncol32=F,lncol64=F
+c      logical:: lncol4=F, lncol32=F,lncol64=F
 
 c      character(256):: sxopt=' '
       integer:: lscr,smalit(2),nesabc(3), !lasa3=1,lsx,
@@ -759,7 +759,8 @@ c      if (prgn == 'LMMC') lcd8=T
      .'%N%3f1 for scalar relativistic Schrodinger equation'//
      .'%N%3f2 for Dirac equation')
 C     Fully relativistic => spin-orbit coupling
-      if (lrel==2) lncol4 = T
+c      if (lrel==2) lncol4 = T
+      if (lrel==2) lso=1
 
       if (nsp==2 .or. io_help/=0) then
         if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
@@ -773,9 +774,10 @@ C     Fully relativistic => spin-orbit coupling
      .  '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
 Ckino isanrg is logical function,         if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
         if (io_help==0) l_dummy_isanrg=isanrg(lso,0,3,' rdctrl:','SO',T)
-        if (lso == 1) lncol4 = T
-        if (lso == 2) lncol32= T
-        if (lso == 3) lncol64= T
+c        if (lso == 1) lncol4 = T
+c        if (lso == 2) lncol32= T
+c        if (lso == 3) lncol64= T
+
 c      nm='HAM_NONCOL'; call gtv(trim(nm),tksw(prgn,nm),lncol1,
 c     .  def_lg=F, note='Noncollinear magnetism')
 c      nm='HAM_SS'; call gtv(trim(nm),tksw(prgn,nm),ham_qss,nmin=4,nout=
@@ -1719,7 +1721,8 @@ C   ... tbe specific
      .  ivso(2:nlbj,j),nmin=max(nlbji-1,NULLI),def_i4v=izerv,
      .  note='Switches to freeze TB spin-orbit parameters')
 
-        if (lncol4 .and. lmxaj .ge. 1 .or. io_help .ne. 0) then
+c        if (lncol4 .and. lmxaj .ge. 1 .or. io_help .ne. 0) then
+        if (lso==1 .and. lmxaj .ge. 1 .or. io_help .ne. 0) then
 c          call dpzero(tmp,n0)
 c          if (optio .eq. 1) call pack2('spec alpha',sspec,j,tmp)
 c          i0 = partks(recrd(catbeg),'VSO=','=','spec alpha:2',sspec,j,

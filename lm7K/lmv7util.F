@@ -3,6 +3,7 @@
       use m_struc_def
       use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
+      use m_rdctrl,only:lso
       implicit none
 C     ... Controls for IO
 c      integer lstrn
@@ -416,7 +417,8 @@ C     Even in collinear case, bxc might be written to
          allocate(spot%rv_a_obxc(abs(-3*nclasp)))
          if (-3*nclasp<0) spot%rv_a_obxc(:)=0.0d0
          spot%nrhos=0 
-         if ( sctrl%lncol /=0 ) then 
+c         if ( sctrl%lncol /=0 ) then 
+         if ( lso /=0 ) then 
             neula=sham%neula
             nbf=sham%nbf
             nrhos = max(nl,neula,nbf)

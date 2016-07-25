@@ -3,7 +3,7 @@
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
-
+      use m_rdctrl,only:lso
       use m_struc_def  !Cgetarg
       use m_globalvariables
 !! documents below are under construction.
@@ -190,7 +190,8 @@ C ... Local parameters
       logical cmdopt,lgors
       character*80 outs
       integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
-     .stdl,lxcfun,lso,isw,nsp,isum
+     .stdl,lxcfun,isw,nsp,isum
+c lso,
       real(8) ,allocatable :: fxc_rv(:)
       real(8) ,allocatable :: hpot0_rv(:)
       complex(8) ,allocatable :: smvxc_zv(:)
@@ -287,8 +288,8 @@ cc      stop 'xxxxxxxxxx 1111'
 ccccccccccccccccccccccccccccccccc
       ipr = iprint()
       ipl = ipr
-      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
+c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
+c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
       if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
       stdo = lgunit(1)

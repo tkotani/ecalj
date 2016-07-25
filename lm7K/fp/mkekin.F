@@ -3,6 +3,7 @@
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_rdctrl,only:lso
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -142,13 +143,9 @@ C     implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ndimh,lcplxp
       type(s_rv1) :: sv_p_oppi(3,nbas)
-
       type(s_rv1) :: sv_p_otau(3,1)
-
       type(s_rv1) :: sv_p_osig(3,1)
-
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-
       real(8):: sumev , sumtv , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -158,33 +155,8 @@ C ... Passed parameters
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
-     .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo,lso,isw
-ckino Jan.04.2012:                     real(8),pointer :: rv_p_oppipp(:) =>NULL()
-
-ckino Jan.04.2012:                    real(8),pointer :: rv_p_oppihp(:) =>NULL()
-
-ckino Jan.04.2012:                   real(8),pointer :: rv_p_oppihh(:) =>NULL()
-
-ckino Jan.04.2012:                  real(8),pointer :: rv_p_otaupp(:) =>NULL()
-
-ckino Jan.04.2012:                 real(8),pointer :: rv_p_otauhp(:) =>NULL()
-
-ckino Jan.04.2012:                real(8),pointer :: rv_p_otauhh(:) =>NULL()
-
-ckino Jan.04.2012:               real(8),pointer :: rv_p_osigpp(:) =>NULL()
-
-ckino Jan.04.2012:              real(8),pointer :: rv_p_osighp(:) =>NULL()
-
-ckino Jan.04.2012:             real(8),pointer :: rv_p_osighh(:) =>NULL()
-
-ckino Jan.04.2012:            real(8),pointer :: rv_p_oqpp(:) =>NULL()
-
-ckino Jan.04.2012:           real(8),pointer :: rv_p_oqhp(:) =>NULL()
-
-ckino Jan.04.2012:          real(8),pointer :: rv_p_oqhh(:) =>NULL()
-
-ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
-
+     .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo
+c lso,isw
       logical lgors
       parameter (n0=10,nkap0=3)
       integer nkaph,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
@@ -192,7 +164,6 @@ ckino Dec.14.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
      .sumq,sumt,vol,xx
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-C ... Heap
 #if DEBUG
       integer fopna
 #endif
@@ -205,27 +176,16 @@ c2012Sep02 kino, add for
        iprx=.false.
        if(procid==master) iprx=.true.
 #endif
-
       stdo = lgunit(1)
-Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-Changenglob      nspc = nglob('nspc')
       nspc = globalvariables%nspc
-Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       call getpr(ipr)
-
       i_copy_size=size(slat%nabc)
       call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
-
-
-ckino Dec.14.2011:         iv_p_oiprmb => sham%iv_p_oindxo
-
-
-      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
-
+c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
+c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
 
 C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
 #if DEBUG
@@ -258,74 +218,38 @@ C --- Integral rhout*veff, part from augmentation ---
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
-
-ckino Dec.14.2011:           call orbl ( ib , 0 , ndimh , iv_p_oiprmb , norb , ltab , ktab
-ckino Dec.27.2011:           call orbl ( ib , 0 , ndimh , sham%iv_p_oindxo , norb , ltab , ktab
         call orbl ( ib , 0 , ndimh , sham%iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
-
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
-
-ckino Jan.04.2012:          rv_p_oqhh => sv_p_oqkkl(3,ib)%v
 #define OQHH sv_p_oqkkl(3,ib)%v
-ckino Jan.04.2012:          rv_p_oqhp => sv_p_oqkkl(2,ib)%v
 #define OQHP sv_p_oqkkl(2,ib)%v
-ckino Jan.04.2012:          rv_p_oqpp => sv_p_oqkkl(1,ib)%v
 #define OQPP sv_p_oqkkl(1,ib)%v
-ckino Jan.04.2012:          rv_p_otauhh => sv_p_otau(3,ib)%v
 #define OTAUHH sv_p_otau(3,ib)%v
-ckino Jan.04.2012:          rv_p_otauhp => sv_p_otau(2,ib)%v
 #define OTAUHP sv_p_otau(2,ib)%v
-ckino Jan.04.2012:          rv_p_otaupp => sv_p_otau(1,ib)%v
 #define OTAUPP sv_p_otau(1,ib)%v
-ckino Jan.04.2012:          rv_p_osighh => sv_p_osig(3,ib)%v
 #define OSIGHH sv_p_osig(3,ib)%v
-ckino Jan.04.2012:          rv_p_osighp => sv_p_osig(2,ib)%v
 #define OSIGHP sv_p_osig(2,ib)%v
-ckino Jan.04.2012:          rv_p_osigpp => sv_p_osig(1,ib)%v
 #define OSIGPP sv_p_osig(1,ib)%v
-ckino Jan.04.2012:          rv_p_oppihh => sv_p_oppi(3,ib)%v
 #define OPPIHH sv_p_oppi(3,ib)%v
-ckino Jan.04.2012:          rv_p_oppihp => sv_p_oppi(2,ib)%v
 #define OPPIHP sv_p_oppi(2,ib)%v
-ckino Jan.04.2012:          rv_p_oppipp => sv_p_oppi(1,ib)%v
 #define OPPIPP sv_p_oppi(1,ib)%v
-
         call pvgtkn ( kmax , lmxa , nlma , nkaph , norb , ltab , ktab
-ckino Jan.04.2012:       .              , blks , lmxh , nlmh , rv_p_otauhh , rv_p_osighh , rv_p_oppihh
-ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , rv_p_osighh , rv_p_oppihh
-ckino Jan.04.2012:       .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , rv_p_oppihh 
      .              , blks , lmxh , nlmh , OTAUHH , OSIGHH , OPPIHH
-ckino Jan.04.2012:       .              , rv_p_oppihh , rv_p_otauhp , rv_p_osighp , rv_p_oppihp , rv_p_oppihp
-ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , rv_p_osighp , rv_p_oppihp , rv_p_oppihp
-ckino Jan.04.2012:       .              , rv_p_oppihh , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp
-ckino Jan.04.2012:       .              , OPPIHH , OTAUHP , OSIGHP , rv_p_oppihp , rv_p_oppihp 
      .              , OPPIHH , OTAUHP , OSIGHP , OPPIHP , OPPIHP
-ckino Jan.04.2012:       .              , rv_p_otaupp , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp
-ckino Jan.04.2012:       .              , OTAUPP , rv_p_osigpp , rv_p_oppipp , rv_p_oppipp , lcplxp
-ckino Jan.04.2012:       .              , OTAUPP , OSIGPP , rv_p_oppipp , rv_p_oppipp , lcplxp 
      .              , OTAUPP , OSIGPP , OPPIPP , OPPIPP , lcplxp
-ckino Jan.04.2012:       .              , lso , rv_p_oqhh , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt
-ckino Jan.04.2012:       .              , lso , OQHH , rv_p_oqhp , rv_p_oqpp , nsp , nspc , sumt
-ckino Jan.04.2012:       .              , lso , OQHH , OQHP , rv_p_oqpp , nsp , nspc , sumt 
      .              , lso , OQHH , OQHP , OQPP , nsp , nspc , sumt 
      .              , sumq , sumh )
-
-
 C       Add site augmentation contribution to rhout * (ham - ke)
         sraugm = sraugm + sumh - sumt
    10   continue
       enddo
-
       srhov = srmesh + sraugm
       sumtv = sumev - srhov
       if (ipr .ge. 30) write(stdo,340) srmesh,sraugm,srhov,sumev,sumtv
   340 format(/' srhov:',3f14.6,' sumev=',f12.6,'   sumtv=',f12.6)
-
       end subroutine mkekin
 
 

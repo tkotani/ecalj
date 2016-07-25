@@ -21,7 +21,7 @@
      &    sigp_mode,sigp_nmin,sigp_nmax,
 !! OPTIONAL
      &    lcd2,lcd4,lves,                        
-     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
+c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      &    lscr,smalit,nesabc, 
      &    lstonr,quit,nl,lpfloat, rmines,rmaxes,ham_qss,
 !! STRUC
@@ -228,7 +228,8 @@ C ... Local parameters
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
-     .lfrzw,lgunit,lmet,lncol, !,lham
+     .lfrzw,lgunit,lmet,
+c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
      .nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
@@ -409,9 +410,9 @@ c     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
 
 c takao lncol is used only in limited routines.
 c One of lncol4,lncol32, or lncor64 is true, others are false.
-      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
+c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
       v_sctrl%lmet=lmet
-      v_sctrl%lncol=lncol
+c      v_sctrl%lncol=lncol
 
 C     lrs  switches concerning restart mode.
 C         1 Read from restart file
@@ -585,7 +586,7 @@ C --- Allocate and copy input to sham ---
       call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
 
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-      v_sham%lncol=(int(v_sctrl%lncol))
+c      v_sham%lncol=(int(v_sctrl%lncol))
 
 C     Mop up integer parts of sigp
       sigp(1) = sigp_mode
@@ -915,7 +916,7 @@ CXX  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented ou
 CXX  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 C     Replicate ctrl->lncol in ham->lncol
-          v_sham%lncol=lncol
+c          v_sham%lncol=lncol
 
 C ... Use true spherical harmonics
 c       if ( bittst ( lncol , 4 ) .or. ctrl_loptc .ne. 0 .or. lrel .eq.
@@ -934,9 +935,8 @@ C ... Dirac equation requires spin polarization
 C ... Suppress inversion when noncollinear magnetism, SX, NLO
 c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
 c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
-          if (lncol .ne. 0)
-     .lqp = lqp-bitand(lqp,1)+1
-
+c          if (lncol .ne. 0)
+          if(lso.ne. 0) lqp = lqp-bitand(lqp,1)+1
           v_sctrl%lqp=lqp
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
@@ -969,7 +969,8 @@ C ... Set some global variables
           globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1; xx(1) = dble(stdl)
           globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1; xx(1) = dble(stde)
           nspc = 1
-          if (iand(lncol,4) .ne. 0) nspc = 2
+          if( lso==1 ) nspc = 2
+c          if (iand(lncol,4) .ne. 0) nspc = 2
           globalvariables%nspc = dble(nspc); globalvariables%l_nspc = globalvariables%l_nspc +1; xx(1) = dble(nspc)
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
           if (procid .eq. master) then

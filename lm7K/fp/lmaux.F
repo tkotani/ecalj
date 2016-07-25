@@ -89,7 +89,8 @@ C ... Local parameters
       integer NULLI
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
-      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,lncol,
+      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
+c !lncol,
      .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,

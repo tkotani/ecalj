@@ -19,7 +19,7 @@ c#define KINODEBUG
 
 c     &  ngrp, norbmto, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
 c     &  igv2,napwk,igv2rev
-      use m_rdctrl, only: ncutovl
+      use m_rdctrl, only: ncutovl,lso
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
       use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !these are given here.
@@ -230,7 +230,7 @@ c      type(s_sstrn):: sstrn
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb ,  ldos , lmet , nspc  
-     .  , lrep , lcplxp , lso , nkabc(3) , ndos , ndos0 , nev , nevl 
+     .  , lrep , lcplxp , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp , nsp , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 , nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw , stdo 
      .  , stdl , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
@@ -613,9 +613,12 @@ c      siginit=.true. !commented out on mar2015. this makes reading sigma at eve
       ipl  = ipr
       nsp  = globalvariables%nsp
       nspc = globalvariables%nspc
-      lso =   isw ( iand(4,int(sctrl%lncol))  .ne.0 ) 
-     &  + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 )
-     &  + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
+c      lso =   isw ( iand(4,int(sctrl%lncol))  .ne.0 ) 
+c     &  + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 )
+c     &  + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
+!! lso is read by m_rdctrl.F 
+!! lso  =0 (no so): =1(L.S): =2(LzSz).
+
       lcplxp = 0
       lekkl = int(sctrl%pfloat)
       if (lso .ne. 0) lcplxp = 1
