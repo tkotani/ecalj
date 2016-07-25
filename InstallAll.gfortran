@@ -19,11 +19,11 @@ cd StructureTool/
 ./makelink $BINDIR
 
 ### Use lm7K/Makefile
-cd ../lm7K/
-make PLATFORM=gfortran LIBMATH="$MATH"
-make PLATFORM=gfortran      BINDIR=$BINDIR install
-make PLATFORM=gfortran_mpik LIBMATH="$MATH"
-make PLATFORM=gfortran_mpik BINDIR=$BINDIR install
+#cd ../lm7K/
+#make PLATFORM=gfortran LIBMATH="$MATH"
+#make PLATFORM=gfortran      BINDIR=$BINDIR install
+#make PLATFORM=gfortran_mpik LIBMATH="$MATH"
+#make PLATFORM=gfortran_mpik BINDIR=$BINDIR install
 ### Use fpgw/exec/makefile
 cd ../fpgw/exec/
 make PLATFORM=gfortran LIBMATH="$MATH"

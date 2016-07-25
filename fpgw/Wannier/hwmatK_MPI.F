@@ -1116,7 +1116,7 @@ c write <p p | W | p p>
       if (exchange) then
         call       wvmat (is,ifwmat(is),nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
-     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0))
+     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa)
         rv_w = rw_w(:,:,:,:,:,0)
         cv_w = cw_w(:,:,:,:,:,0)
 c        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
@@ -1178,8 +1178,9 @@ c-----------------------------------------------------------------------
      &           cw_w(nwf,nwf,nwf,nwf,nrws,1:nw)  ! iw is shifted by one
 c     &          ,rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
 c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw) 
-      integer:: iwf1, iwf2, iwf3, iwf4, ,ifreq2
+      integer:: iwf1, iwf2, iwf3, iwf4, ifreq2
       real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
+      logical:: lcrpa
 
       hartree=2d0*rydberg()
  
@@ -1222,13 +1223,13 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
 
       write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
       ifscr = 9991
-      if (is==1 .and. lcrpa == .false.) then
+      if (is==1 .and. lcrpa .eqv. .false.) then
         open(ifscr,file="Screening_W-v.UP")
-      else if (is==2 .and. lcrpa == .false.) then
+      else if (is==2 .and. lcrpa .eqv. .false.) then
         open(ifscr,file="Screening_W-v.DN")
-      else if (is==1 .and. lcrpa == .true.) then
+      else if (is==1 .and. lcrpa .eqv. .true.) then
         open(ifscr,file="Screening_W-v_crpa.UP")
-      else if (is==2 .and. lcrpa == .true.) then
+      else if (is==2 .and. lcrpa .eqv. .true.) then
         open(ifscr,file="Screening_W-v_crpa.DN")
       end if
       do ir1 = 1,nrws1
@@ -1252,9 +1253,9 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
       close(ifscr)
       print *, "lcrpa =", lcrpa
       print *, "lueff=", lueff
-      if (lcrpa == .false.) then
+      if (lcrpa .eqv. .false.) then
         write(*,*) 'See "Screening_W-v.UP" and "Screening_W-v.DN" files'
-      else if (lcrpa == .true.) then
+      else if (lcrpa .eqv. .true.) then
         write(*,*) 'See "Screening_W-v_crpa.UP" and "Screening_W-v_crpa.DN" files'
       end if
 
@@ -1262,7 +1263,8 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
 c-----------------------------------------------------------------------
       subroutine wvmat (is,ifwmat,nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
-     i            alat,rcut1,rcut2,rw_w,cw_w)
+     i            alat,rcut1,rcut2,rw_w,cw_w,
+     i            lcrpa)
 
       implicit real*8(a-h,o-z)
 
@@ -1271,6 +1273,7 @@ c-----------------------------------------------------------------------
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
       integer:: iwf1, iwf2, iwf3, iwf4,ir1
+      logical:: lcrpa
  
       hartree=2d0*rydberg()
 
