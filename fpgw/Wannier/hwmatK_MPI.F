@@ -116,6 +116,7 @@ c takao
       complex(8),allocatable:: geigB(:,:,:,:)
 c 
       logical :: screen, exchange, cohtest, legas, tote, lueff 
+      logical :: lcrpa
       real(8) ::  rydberg,hartree 
       real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
       logical ::nocore
@@ -205,10 +206,11 @@ c RS: variables for MPI
      &  rw_w_sum(:,:,:,:,:,:),rw_iw_sum(:,:,:,:,:,:),
      &  cw_w_sum(:,:,:,:,:,:),cw_iw_sum(:,:,:,:,:,:)
 
-      integer :: swj_j, swj_k, swj_l,ia
+      integer :: iwf1, iwf2, iwf3, iwf4, ia
+      integer :: ifcou, ifscr
       real(8),allocatable:: 
-     &           swj_rv_w(:,:,:,:,:),swj_cv_w(:,:,:,:,:),
-     &           swj_rv_iw(:,:,:,:,:),swj_cv_iw(:,:,:,:,:)
+     &           rv_w(:,:,:,:,:),cv_w(:,:,:,:,:),
+     &           rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
       real(8)::ef
       integer::nw,nctot0
 c---------------------------------------
@@ -337,6 +339,21 @@ c      voltot = dabs(vol)*(alat**3)
      &   write(6,*)' --- screening (Wc) mode --- '
         exchange =.false.
         lueff = .false.
+        lcrpa = .false.
+        print *, "lcrpa =", lcrpa
+        print *, "lueff=", lueff
+        if (Is_IO_Root_RSMPI()) then
+          ifwmat(1) = iopen('WcMATU',1,-1,0)
+          if (nspin == 2) ifwmat(2) = iopen('WcMATD',1,-1,0)
+        endif  
+      elseif (ixc == 100) then
+        if (Is_IO_Root_RSMPI())
+     &   write(6,*)' --- screening_crpa (Wc) mode --- '
+        exchange =.false.
+        lueff = .false.
+        lueff = .false.
+        lcrpa = .true.
+        ixc = 2
         if (Is_IO_Root_RSMPI()) then
           ifwmat(1) = iopen('WcMATU',1,-1,0)
           if (nspin == 2) ifwmat(2) = iopen('WcMATD',1,-1,0)
@@ -867,8 +884,8 @@ c arrays for sxcf.f
      &       cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw),
      &       rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
      &       cw_iw(nwf,nwf,nwf,nwf,nrws,niw),
-     &       swj_rv_w(nwf,nwf,nwf,nwf,nrws),
-     &       swj_cv_w(nwf,nwf,nwf,nwf,nrws))
+     &       rv_w(nwf,nwf,nwf,nwf,nrws),
+     &       cv_w(nwf,nwf,nwf,nwf,nrws))
 
 c RS: set MPI parameters
 c RS: see gwsrc/RSMPI_rotkindex_mod.F
@@ -1100,8 +1117,8 @@ c write <p p | W | p p>
         call       wvmat (is,ifwmat(is),nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0))
-        swj_rv_w = rw_w(:,:,:,:,:,0)
-        swj_cv_w = cw_w(:,:,:,:,:,0)
+        rv_w = rw_w(:,:,:,:,:,0)
+        cv_w = cw_w(:,:,:,:,:,0)
 c        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
 c        write(*,*) rw_w
 c        write(*,*) cw_w
@@ -1113,7 +1130,8 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
      i                    rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i                    alat,rcut1,rcut2,
      i                    freq_r(0:nrw),
-     i                    rw_w,cw_w,swj_rv_w,swj_cv_w)
+     i                    rw_w,cw_w,rv_w,cv_w,
+     i                    lcrpa)
       endif
       endif
  2000 continue !end of spin-loop
@@ -1147,7 +1165,8 @@ c-----------------------------------------------------------------------
      i                  rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i                  alat,rcut1,rcut2,
      i                  freq,
-     i                  rw_w,cw_w,swj_rv_w,swj_cv_w)
+     i                  rw_w,cw_w,rv_w,cv_w,
+     i                  lcrpa)
 
       implicit real*8(a-h,o-z)
 
@@ -1159,8 +1178,8 @@ c-----------------------------------------------------------------------
      &           cw_w(nwf,nwf,nwf,nwf,nrws,1:nw)  ! iw is shifted by one
 c     &          ,rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
 c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw) 
-      integer:: swj_j,swj_k,swj_l, swj_ifreq,swj_i_freq
-      real(8) :: swj_rv_w(nwf,nwf,nwf,nwf,nrws),swj_cv_w(nwf,nwf,nwf,nwf,nrws)
+      integer:: iwf1, iwf2, iwf3, iwf4, ,ifreq2
+      real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
 
       hartree=2d0*rydberg()
  
@@ -1195,59 +1214,50 @@ c      write(ifwmat,*)rw_iw
 c      write(ifwmat,*)'*** cw_iw'
 c      write(ifwmat,*)cw_iw
 
-      write(*,*)'Screening part (W-v) : Real'
-      do i = 1,nwf
-          do swj_j = 1,nwf
-            do swj_k = 1, nwf
-              do swj_l = 1, nwf
-                write(*,"(' ',5i5,3f12.6)")
-     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq),rw_w(i,swj_j,swj_k,swj_l,1,1),cw_w(i,swj_j,swj_k,swj_l,1,1)
-              enddo
-            enddo
-          enddo
-      enddo
-      write(*,*) ''
 
 c        write(*,*) rw_w
 c        write(*,*) cw_w
 c        write(*,*) rw_w(:,:,:,:,:,0)
 c        write(*,*) cw_w(:,:,:,:,:,0)
 
-      write(*,*)'Screened Couloumb interaction (W-v) : Real'
+      write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
+      ifscr = 9991
+      if (is==1 .and. lcrpa == .false.) then
+        open(ifscr,file="Screening_W-v.UP")
+      else if (is==2 .and. lcrpa == .false.) then
+        open(ifscr,file="Screening_W-v.DN")
+      else if (is==1 .and. lcrpa == .true.) then
+        open(ifscr,file="Screening_W-v_crpa.UP")
+      else if (is==2 .and. lcrpa == .true.) then
+        open(ifscr,file="Screening_W-v_crpa.DN")
+      end if
       do ir1 = 1,nrws1
-        do swj_i_freq = 1,nw
-          do i = 1,nwf
-            do swj_j = 1,nwf
-              do swj_k = 1, nwf
-                do swj_l = 1, nwf
-                  write(*,"(' Wannier ',2i5, 3f12.6, 5i5,4f12.6)")
+        do ifreq2 = 1,nw
+          do iwf1 = 1,nwf
+            do iwf2 = 1,nwf
+              do iwf3 = 1, nwf
+                do iwf4 = 1, nwf
+                  write(ifscr,"(' Wannier ',2i5, 3f12.6, 5i5,4f12.6)")
      &                 ir1, irws1(ir1), rws1(:,ir1)
-     &                ,is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
-     &                ,rw_w(i,swj_j,swj_k,swj_l,ir1,swj_i_freq)
-     &                ,cw_w(i,swj_j,swj_k,swj_l,ir1,swj_i_freq)
+     &                ,is,iwf1,iwf2,iwf3,iwf4,freq(ifreq2), freq2(ifreq2)
+     &                ,rw_w(iwf1,iwf2,iwf3,iwf4,ir1,ifreq2)
+     &                ,cw_w(iwf1,iwf2,iwf3,iwf4,ir1,ifreq2)
                 enddo
               enddo
             enddo
           enddo
-          write(*,*)''
+!          write(ifscr,*)''
         enddo
       enddo
-c      write(*,*)'Screened Couloumb interaction (W) : Real'
-c      do swj_i_freq = 1,nw
-c        do i = 1,nwf
-c          do swj_j = 1,nwf
-c            do swj_k = 1, nwf
-c              do swj_l = 1, nwf
-c                write(*,"(' ',5i5,4f12.6)")
-c     &                 is,i,swj_j,swj_k,swj_l,freq(swj_i_freq), freq2(swj_i_freq)
-c     &                ,rw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)+swj_rv_w(i,swj_j,swj_k,swj_l,1)
-c     &                ,cw_w(i,swj_j,swj_k,swj_l,1,swj_i_freq)+swj_rv_w(i,swj_j,swj_k,swj_l,1)
-c              enddo
-c            enddo
-c          enddo
-c        enddo
-c      write(*,*)''
-c      enddo
+      close(ifscr)
+      print *, "lcrpa =", lcrpa
+      print *, "lueff=", lueff
+      if (lcrpa == .false.) then
+        write(*,*) 'See "Screening_W-v.UP" and "Screening_W-v.DN" files'
+      else if (lcrpa == .true.) then
+        write(*,*) 'See "Screening_W-v_crpa.UP" and "Screening_W-v_crpa.DN" files'
+      end if
+
       end
 c-----------------------------------------------------------------------
       subroutine wvmat (is,ifwmat,nwf,
@@ -1260,7 +1270,7 @@ c-----------------------------------------------------------------------
       real(8) :: rydberg,hartree 
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
-      integer:: swj_j,swj_k,swj_l,ir1
+      integer:: iwf1, iwf2, iwf3, iwf4,ir1
  
       hartree=2d0*rydberg()
 
@@ -1284,20 +1294,27 @@ c-----------------------------------------------------------------------
 
 
       write(*,*)'Coulomb interaction (v) : '
+      ifcou = 999
+      if (is==1) then
+        open(ifcou,file="Coulomb_v.UP")
+      else if (is==2) then
+        open(ifcou,file="Coulomb_v.DN")
+      end if
       do ir1 = 1,nrws1
-        do i = 1,nwf
-          do swj_j = 1,nwf
-            do swj_k = 1, nwf
-              do swj_l = 1, nwf
-                write(*,"(' Wannier ',2i5, 3f12.6, 5i5,2f12.6)")
-     &              ir1, irws1(ir1), rws1(:,ir1), is, i, swj_j, swj_k, swj_l
-     &              ,rw_w(i,swj_j,swj_k,swj_l,ir1),cw_w(i,swj_j,swj_k,swj_l,ir1)
+        do iwf1 = 1,nwf
+          do iwf2 = 1,nwf
+            do iwf3 = 1, nwf
+              do iwf4 = 1, nwf
+                write(ifcou,"(' Wannier ',2i5, 3f12.6, 5i5,2f12.6)")
+     &              ir1, irws1(ir1), rws1(:,ir1), is, iwf1, iwf2, iwf3, iwf4
+     &              ,rw_w(iwf1,iwf2,iwf3,iwf4,ir1),cw_w(iwf1,iwf2,iwf3,iwf4,ir1)
               enddo
             enddo
           enddo
         enddo
         write(*,*)
       enddo
+      close(ifcou)
 
       return
       end
