@@ -593,7 +593,7 @@ C ... Make rest of ldham
       ldham(7) = ldham(3) * nspc
       ldham(8) = nspx
 
-      sham%ndofH=nbasp+1
+c      sham%ndofH=nbasp+1
 
       i_copy_size=size(sham%ldham)
       call ii8copy(i_copy_size,ldham,1,sham%ldham,1)

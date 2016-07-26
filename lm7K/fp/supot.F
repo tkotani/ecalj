@@ -19,6 +19,7 @@ Cr   on the mode
 Cu Updates
 C ----------------------------------------------------------------------
 C     implicit none
+      use m_rdctrl,only :lcd4
 C ... Passed parameters
       integer mode
       type(s_ctrl)::sctrl
@@ -50,7 +51,8 @@ C --- Monopole Madelung matrix ---
      .      , nkd , slat%rv_a_oqlv , nkq , spot%rv_a_omad )
       endif
 C --- Setup for FT charge density, potential representation ---
-      if ( iand(4,int(sctrl%lcd)) .ne. 0 ) then
+c      if ( iand(4,int(sctrl%lcd)) .ne. 0 ) then
+      if (lcd4) then
         alat = slat%alat
         plat = slat%plat
         ngabc= slat%nabc

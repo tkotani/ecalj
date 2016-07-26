@@ -103,7 +103,7 @@ c      type(s_sstrn)::sstrn
       integer procid,master,mpipid,nproc
       logical mlog
       logical lgors,cmdopt,bittst
-      integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),iscr,isw,ix(5),j,
+      integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
@@ -262,12 +262,12 @@ C     -------------------------- Unpack & initialization -------------------
       nl=sctrl%nl
       nspec=sctrl%nspec
       nsp=sctrl%nspin
-      iscr=sctrl%lscr
+c      iscr=sctrl%lscr
       nat = globalvariables%nat
       qbg = sctrl%zbak(1)
       maxit = int(sctrl%maxit)
       lrel = isw ( int(sctrl%lrel) .ne.0 )
-      lhf = iand(2,int(sctrl%lcd)) .ne.0
+c      lhf = lcd2 = iand(2,int(sctrl%lcd)) .ne.0
       if (lhf) maxit = 1
       nbaspp = nbas             !+ 2*(npadl + npadr)
       stdo   = lgunit(1)
@@ -280,7 +280,7 @@ C     -------------------------- Unpack & initialization -------------------
 C     ... --rs=3 => always read from atom file
       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0
 
-      l_dummy_isanrg=isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
+c      l_dummy_isanrg=isanrg(iscr, 0,0,'lmfp:','lscr', .true.)
 
 C     ... This shouldn't be ... for backwards compatibility
 C     if (lhf) irs(1) = 0

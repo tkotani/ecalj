@@ -14,13 +14,14 @@
      &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_spec,s_site, !s_tb,
 !!
      &  io_show,io_help,nvario,header,symg,
-     &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,nmto,lrsig,
+     &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
      &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,kmto,rsrnge,vmtz,scaledsigma,
      &  alfsi,dabc,rsstol,pmin,pmax,
      &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
      &    sigp_mode,sigp_nmin,sigp_nmax,
 !! OPTIONAL
-     &    lcd2,lcd4,lves,                        
+     &    lves,                        
+c lcd2,lcd4,
 c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      &    lscr,smalit,nesabc, 
      &    lstonr,quit,nl,lpfloat, rmines,rmaxes,ham_qss,
@@ -316,10 +317,10 @@ C --- Allocate and copy input to sbz ---
       i = 1*isw(bz_lio1)+2*isw(bz_lio2) !+8*isw(bz_lio8)
       i_copy_size=size(v_sbz%lcond)
       call dcopy(i_copy_size,bz_lcond,1,v_sbz%lcond,1)
-      v_sbz%lio=i
+c      v_sbz%lio=i
       v_sbz%lmet=bz_lmet
       v_sbz%lmull=bz_lmull
-      v_sbz%lopt=0
+c      v_sbz%lopt=0
 
 
       i_copy_size=size(v_sbz%lshft)
@@ -331,8 +332,8 @@ C --- Allocate and copy input to sbz ---
       call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
 
       v_sbz%range=bz_range
-      i_copy_size=size(v_sbz%semsh)
-      call dcopy(i_copy_size,bz_semsh,1,v_sbz%semsh,1)
+c      i_copy_size=size(v_sbz%semsh)
+c      call dcopy(i_copy_size,bz_semsh,1,v_sbz%semsh,1)
       v_sbz%w=bz_w
 c      v_sbz%zval=bz_zval
 
@@ -359,12 +360,12 @@ C          8 represent full potential density via TCF
 C         16 unused
 C         32 unused
 C         64 (molecules) XC potential by FFT
-      k = 2*isw(lcd2)+4*isw(lcd4) !+ 1*isw(lcd1)   +8*isw(lcd8)+64*isw(lcd64)
+c      k = 2*isw(lcd2)+4*isw(lcd4) !+ 1*isw(lcd1)   +8*isw(lcd8)+64*isw(lcd64)
 
       i_copy_size=size(v_sctrl%defm)
       call dcopy(i_copy_size,lat_defm,1,v_sctrl%defm,1)
       v_sctrl%lbas=j
-      v_sctrl%lcd=k
+c      v_sctrl%lcd=k
       v_sctrl%ldos=ctrl_ldos
       v_sctrl%lfp=lfp
       v_sctrl%lfrce=ctrl_lfrce
@@ -456,7 +457,7 @@ c        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1)
       v_sctrl%lqp=lqp
       v_sctrl%lrel=lrel
       v_sctrl%lrs=lrs
-      v_sctrl%lscr=lscr
+c      v_sctrl%lscr=lscr
 
 C      lstr  no longer used.
 C      ltb switches for empirical tight-binding
@@ -476,7 +477,7 @@ C      lves    1 take ves as input
 
 C$$$        i_copy_size=size(v_sctrl%lstonr)
 C$$$        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1)
-      v_sctrl%lstr=0
+c      v_sctrl%lstr=0
       v_sctrl%lves=lves
 
 C      lxcf   parameter defining XC functional
@@ -581,7 +582,7 @@ C --- Allocate and copy input to sham ---
       i_copy_size=size(v_sham%dabc)
       call dcopy(i_copy_size,dabc,1,v_sham%dabc,1)
       v_sham%elind=elind
-      v_sham%nmto=nmto
+c      v_sham%nmto=nmto
       i_copy_size=size(v_sham%kmto)
       call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
 
@@ -997,7 +998,7 @@ c      call defi(owk,-nbas)
           call pshpr(0)
           call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
           v_sham%nlibu=nlibu
-          v_sham%lmaxu=k
+c          v_sham%lmaxu=k
           call poppr
 c      call rlse(owk)
           deallocate(wowk)
@@ -1058,21 +1059,21 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
                 if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
               endif
 
-c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
-              ltmp = prgnam.eq.'LM'   .or. 
-     .    prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
-     .    prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
-     .    prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
-
-              if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
-     .    // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
-     .    // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
-     .    // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
-     .    ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
-c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
-     .    , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
-c     .    , isw ( v_sbz%fsmom .ne.0 ) )
-     .    , isw ( v_sbz%fsmom .ne.NULLR ) )
+c$$$c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
+c$$$              ltmp = prgnam.eq.'LM'   .or. 
+c$$$     .         prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
+c$$$     .         prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
+c$$$     .         prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
+c$$$
+c$$$              if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
+c$$$     .         // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
+c$$$     .         // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
+c$$$     .         // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
+c$$$     .         ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
+c$$$c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
+c$$$     .         , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
+c$$$c     .    , isw ( v_sbz%fsmom .ne.0 ) )
+c$$$     .         , isw ( v_sbz%fsmom .ne.NULLR ) )
 
 
    90       continue

@@ -3,6 +3,8 @@
       module m_rdctrl
       use m_struc_def
       implicit none
+!!... OPTIONS
+      logical,protected :: lhf,lcd4
 !! ... Fixed parameters
       integer,parameter:: NULLI =-99999
       real(8),parameter::    NULLR =-99999
@@ -57,8 +59,8 @@ C      equivalence (sigp_mode,sigp(1)),(sigp_nmin,sigp(2)),
 C     .  (sigp_nmax,sigp(4))
 
 C ... OPTIONS
-      logical ::
-     .lcd2,lcd4=F !,lcd64, lasa32=F,lcd1,lcd8=Flasa32 is dummy not used but wor awrit8 in rdctrl2
+c      logical ::
+c     .lcd2,lcd4=F !,lcd64, lasa32=F,lcd1,lcd8=Flasa32 is dummy not used but wor awrit8 in rdctrl2
 C$$$    &  ,lasa4=T,lasa8=F,,lasa64=F,
 C$$$     .  lasa512
 c     &  ,lham1,lham4=F,lham8=F,lham16=F,lham32=F,lham64,lham128=F,
@@ -615,7 +617,7 @@ C --- Options ---
      .0,' --- Program Options ---')
 C      nm='OPTIONS'; call gtv(trim(nm),tksw(prgn,nm),Texist=ltmp,
 C     .  note='Various optional input')
-      nm='OPTIONS_HF'; call gtv(trim(nm),tksw(prgn,nm),lcd2,
+      nm='OPTIONS_HF'; call gtv(trim(nm),tksw(prgn,nm),lhf, !lcd2,
      .def_lg=F,note='T for non-self-consistent Harris')
 c      nm='OPTIONS_SHARM'; call gtv(trim(nm),tksw(prgn,nm),lham256,
 c     .  def_lg=F, note='Use true spherical harmonics')
@@ -751,6 +753,7 @@ ctakao
 
 
 C     Flags representing how cd is represented: default values
+      lcd4=F 
       if (prgn == 'LMF' .or. prgn == 'LMFGWD') lcd4=T
 c      if (prgn == 'LMMC') lcd8=T
 
