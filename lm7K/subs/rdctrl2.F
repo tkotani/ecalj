@@ -3,7 +3,7 @@
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam, !vrsion,vn,vn2,
      . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     . v_sstr,v_sarry,v_smove,sstrnmix,sstrnsymg)  !,v_stb
+     . v_sstr,v_sarry,sstrnmix,sstrnsymg)  !,v_stb,v_smove
       use m_gtv,only: gtv_setst,gtv_setrcd
 
       use m_struc_func
@@ -11,7 +11,7 @@
 
       use m_rdctrl,only:
      &  readctrl,readctrlpq,
-     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_move,s_spec,s_site, !s_tb,
+     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_spec,s_site, !s_tb,,s_move
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
@@ -59,13 +59,14 @@ c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      . str_rmax, str_mxnbr,
 !! ... DYN
      . sdmod, mdprm,lat_defm,sdprm,
-     . prmint,
-     . prmint_ts0,prmint_tol,gd_ct,
-     . move_kt,move_ts,move_tsequ,move_tstot,
-     . prmint_new,lbsprm,lsdyn,
-     . nitmv,prmint_mi,prmint_mx,prmint_nseq,
-     . gd_modt,gd_nmodt,
+c     . prmint,
+c     . prmint_ts0,prmint_tol,gd_ct,
+c     . move_kt,move_ts,move_tsequ,move_tstot,
+c     . prmint_new,lbsprm,lsdyn,
+c     . prmint_mi,prmint_mx,prmint_nseq,
+c     . gd_modt,gd_nmodt,
 c      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
+     . nitmv,
 !! PW
      . pwmode,npwpad,ncutovl,pwemax,pwemin,oveps,delta_stabilize !PW
 
@@ -211,7 +212,7 @@ C ... Passed parameters
       type(s_mix):: v_smix
       type(s_str):: v_sstr
       type(s_array):: v_sarry
-      type(s_move):: v_smove
+c      type(s_move):: v_smove
 c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:)
@@ -638,31 +639,31 @@ c      nnn = umix_size()
 c      call dcopy(nnn,vmix,1,v_smix,1)
       v_smix=vmix
 
-C --- Allocate and copy input to smove ---
-      v_smove%size=umove_size()
-
-      if (lbsprm) then          !Load Bulirsch-Stoer parameters into structure
-        prmint(2) = isw(prmint_new)
-        prmint(3) = prmint_ts0
-        prmint(4) = prmint_tol
-        prmint(5) = prmint_mx
-        prmint(6) = prmint_mi
-        prmint(7:6+prmint_mi) = prmint_nseq(1:prmint_mi)
-      endif
-
-      v_smove%gyro=2d0
-      v_smove%nmodt=gd_nmodt
-      i_copy_size=size(v_smove%modt)
-      call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1)
-      i_copy_size=size(v_smove%ct)
-      call dcopy(i_copy_size,gd_ct,1,v_smove%ct,1)
-      i_copy_size=size(v_smove%prmint)
-      call dcopy(i_copy_size,prmint,1,v_smove%prmint,1)
-
-      v_smove%kt=move_kt
-      v_smove%ts=move_ts
-      v_smove%tsequ=move_tsequ
-      v_smove%tstot=move_tstot
+c$$$C --- Allocate and copy input to smove ---
+c$$$      v_smove%size=umove_size()
+c$$$
+c$$$      if (lbsprm) then          !Load Bulirsch-Stoer parameters into structure
+c$$$        prmint(2) = isw(prmint_new)
+c$$$        prmint(3) = prmint_ts0
+c$$$        prmint(4) = prmint_tol
+c$$$        prmint(5) = prmint_mx
+c$$$        prmint(6) = prmint_mi
+c$$$        prmint(7:6+prmint_mi) = prmint_nseq(1:prmint_mi)
+c$$$      endif
+c$$$
+c$$$      v_smove%gyro=2d0
+c$$$      v_smove%nmodt=gd_nmodt
+c$$$      i_copy_size=size(v_smove%modt)
+c$$$      call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1)
+c$$$      i_copy_size=size(v_smove%ct)
+c$$$      call dcopy(i_copy_size,gd_ct,1,v_smove%ct,1)
+c$$$      i_copy_size=size(v_smove%prmint)
+c$$$      call dcopy(i_copy_size,prmint,1,v_smove%prmint,1)
+c$$$
+c$$$      v_smove%kt=move_kt
+c$$$      v_smove%ts=move_ts
+c$$$      v_smove%tsequ=move_tsequ
+c$$$      v_smove%tstot=move_tstot
 
 C --- Allocate and copy input to sstr ---
       v_sstr%size=ustr_size()

@@ -2564,28 +2564,28 @@ C --- Dynamics ---
      .note='maximum number of relaxation steps (statics)'//
      .' or time steps (dynamics)')
 
-      nm='DYN_SSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
-     .note='Parameters for spin statics:')
-      if (io_help .ne. 0 .or. ltmp) then
-        nm='DYN_SSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),sdmod,
-     .  def_i4=-1,note=
-     .  '%b<0:  No spin statics or dynamics'//
-     .  '%N%3f0:  output Euler angles generated from density matrix'//
-     .  '%N%3f1:  relax along force'//
-     .  '%N%3fAdd 10   to mix angles independently of P,Q'//
-     .  '%N%3fAdd 1000 to suppress self-const in P,Q')
-        nm='DYN_SSTAT_SCALE'; call gtv(trim(nm),tksw(prgn,nm),sdprm(1),
-     .  def_r8=1d0,note='Scale factor amplifying magnetic forces')
-        if (io_help .ne. 0 .or. mod(sdmod,10) .eq. 2) then
-          nm='DYN_SSTAT_TAU'; call gtv(trim(nm),tksw(prgn,nm),sdprm(2),
-     .    note=
-     .    'Time step (only read if Landau-Gilbert dynamics specified)')
-        endif
-        nm='DYN_SSTAT_MAXT'; call gtv(trim(nm),tksw(prgn,nm),sdprm(4),
-     .  def_r8=0d0,note='Maximum allowed change in angle')
-        nm='DYN_SSTAT_ETOL'; call gtv(trim(nm),tksw(prgn,nm),sdprm(5),
-     .  def_r8=0d0,note='Set tau=0 this iter if etot-ehf>ETOL')
-      endif
+c$$$      nm='DYN_SSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
+c$$$     .note='Parameters for spin statics:')
+c$$$      if (io_help .ne. 0 .or. ltmp) then
+c$$$        nm='DYN_SSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),sdmod,
+c$$$     .  def_i4=-1,note=
+c$$$     .  '%b<0:  No spin statics or dynamics'//
+c$$$     .  '%N%3f0:  output Euler angles generated from density matrix'//
+c$$$     .  '%N%3f1:  relax along force'//
+c$$$     .  '%N%3fAdd 10   to mix angles independently of P,Q'//
+c$$$     .  '%N%3fAdd 1000 to suppress self-const in P,Q')
+c$$$        nm='DYN_SSTAT_SCALE'; call gtv(trim(nm),tksw(prgn,nm),sdprm(1),
+c$$$     .  def_r8=1d0,note='Scale factor amplifying magnetic forces')
+c$$$        if (io_help .ne. 0 .or. mod(sdmod,10) .eq. 2) then
+c$$$          nm='DYN_SSTAT_TAU'; call gtv(trim(nm),tksw(prgn,nm),sdprm(2),
+c$$$     .    note=
+c$$$     .    'Time step (only read if Landau-Gilbert dynamics specified)')
+c$$$        endif
+c$$$        nm='DYN_SSTAT_MAXT'; call gtv(trim(nm),tksw(prgn,nm),sdprm(4),
+c$$$     .  def_r8=0d0,note='Maximum allowed change in angle')
+c$$$        nm='DYN_SSTAT_ETOL'; call gtv(trim(nm),tksw(prgn,nm),sdprm(5),
+c$$$     .  def_r8=0d0,note='Set tau=0 this iter if etot-ehf>ETOL')
+c$$$      endif
 c      lncol16 = sdmod .ge. 0
 
       nm='DYN_MSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
@@ -2620,116 +2620,116 @@ c      lncol16 = sdmod .ge. 0
      .  def_r8v=zerov,note='Lattice deformation modes')
       endif
 
-C --- if DYN_MSTAT_MODE < 4 then attempt to read MD ---
-      if (mdprm(1) .lt. 4) then
-        nm='DYN_MD'; sw=tksw(prgn,nm)
-        call gtv(trim(nm),sw,nono,Texist=ltmp,
-     .  note='Parameters for molecular dynamics')
-        if (io_help .ne. 0 .or. ltmp) then
-          nm='DYN_MD_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
-     .    def_i4=0,note=
-     .    '0: no MD '//
-     .    '1: NVE '//
-     .    '2: NVT '//
-     .    '3: NPT')
-          mdprm(1) = i0
-          nm='DYN_MD_TSTEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(2),
-     .    def_r8=fs,note='Time step (a.u.)')
-          nm='DYN_MD_TEMP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
-     .    def_r8=300d0*degK,note='Temperature (a.u.)')
-          nm='DYN_MD_TAUP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
-     .    def_r8=10d0*fs,note='Thermostat relaxation time (a.u.)')
-          nm='DYN_MD_TIME'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
-     .    def_r8=1d6*fs,note='Total MD time (a.u.)')
-          nm='DYN_MD_TAUB'; call gtv(trim(nm),tksw(prgn,nm),mdprm(6),
-     .    def_r8=100d0*fs,note='Barostat relaxation time (a.u.)')
-          if (tksw(prgn,'DYN_MD') .ne. 2) call info2(10,0,0,
-     .    ' NB: 1 deg.K = %e a.u.; 1 fs = %d a.u.',degK,fs)
-        endif
-        if (sw .ne. 2 .and. mdprm(1) .gt. 3)
-     .  call rx('M_RDCTRL: illegal "MODE" parameter in token "DYN_MD"')
-      endif
-
-C Content of mdprm(i)
-C   i = 1: statics/dynamics switch
-C          0 do neither
-C          1-3 MD (1: NVE, 2: NVT; 3: NPT)
-C          >3 statics (4: conjugate gradients, 5: Fletcher-Powell, 6: Broyden)
-C          >100 statics with lattice deformation
-C   i = 2: (stat) 1 read hessian matrix
-C          (dyn)  MD timestep
-C   i = 3: (stat) relaxation x-tolerance
-C          (dyn)  temperature
-C   i = 4: (stat) relaxation g-tolerance
-C          (dyn)  thermostat relaxation time
-C   i = 5: (stat) step length
-C          (dyn)  total MD time
-C   i = 6: (stat) Remove hessian after this many steps
-C          (dyn)  barostat relaxation time
-
-      nm='DYN_SDYN'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=lsdyn,
-     .note='Parameters for spin dynamics')
-C     if (io_help .ne. 0 .or. ltmp) then
-      nm='DYN_SDYN_KT'; call gtv(trim(nm),tksw(prgn,nm),move_kt,
-     .note='Temperature, in a.u.')
-      nm='DYN_SDYN_TS'; call gtv(trim(nm),tksw(prgn,nm),move_ts,
-     .note='Time step in a.u.')
-      nm='DYN_SDYN_TEQU'; call gtv(trim(nm),tksw(prgn,nm),move_tsequ,
-     .def_r8=0d0,note='Equilibration time, a.u.')
-      nm='DYN_SDYN_TTOT'; call gtv(trim(nm),tksw(prgn,nm),move_tstot,
-     .note='Duration of total simulation, in a.u.')
-C     endif
-
-      nm='DYN_MMHAM'; call gtv(trim(nm),tksw(prgn,nm),mmham,
-     .note='Rules for micromagnetics hamiltonian')
-
-C ... Global daemons
-      nm='DYN_GD'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
-     .note='Parameters for Global daemons in theromstats')
-C    if (io_help .ne. 0 .or. ltmp) then
-      nm='DYN_GD_NTHERM'; call gtv(trim(nm),tksw(prgn,nm),gd_nmodt,
-     .def_i4=1,note='Number of GD thermostats')
-      nn = gd_nmodt
-      if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
-        nn = NULLI
-      else
-        l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
-      endif
-      nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
-     .gd_modt(1:max(1,nn)),
-     .nmin=nn,def_i4v=(/31,32,33/),note='Thermostat mode(s)')
-      nm='DYN_GD_CT'; call gtv(trim(nm),tksw(prgn,nm),
-     .gd_ct(1:max(1,nn)),
-     .nmin=nn,def_r8v=(/1d0,1d0,1d0/),note=
-     .'Corresponding thermostat coefficient(s)')
-C     endif
-
-C ... Bulirsch-Stoer integration parmaters
-      nm='DYN_BSINT'; call gtv(trim(nm),tksw(prgn,nm),nono,
-     .Texist=lbsprm,note='Parameters for Bulirsch-Stoer integration')
-      if (io_help .ne. 0 .or. lbsprm) then
-        nm='DYN_BSINT_NEW'; call gtv(trim(nm),tksw(prgn,nm),prmint_new,
-     .  def_lg=T,note='Start new SD run, Bulirsch-Stoer integration')
-        nm='DYN_BSINT_TOL'; call gtv(trim(nm),tksw(prgn,nm),prmint_tol,
-     .  note='Tolerance in numerical integration')
-        nm='DYN_BSINT_TS0'; call gtv(trim(nm),tksw(prgn,nm),prmint_ts0,
-     .  def_r8=0d0,note='Minimum time step in units of TS')
-        nm='DYN_BSINT_MX'; call gtv(trim(nm),tksw(prgn,nm),prmint_mx,
-     .  def_i4=7,note='Maximum order of rational function extrapolation')
-        nm='DYN_BSINT_MI'; call gtv(trim(nm),tksw(prgn,nm),prmint_mi,
-     .  def_i4=11,note='Maximum number of midpoint rules to invoke')
-        nn = prmint_mi
-        if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
-          nn = NULLI
-        else
-          l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
-        endif
-        if (nout .gt. 0) nn = nout
-        nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),
-     .  prmint_nseq(1:max(1,nn)),
-     .  nmin=nn,def_i4v=(/2,4,6,8,12,16,24,32,48,64,96/),
-     .  note='Sequence of number of midpoint divisions')
-      endif
+c$$$C --- if DYN_MSTAT_MODE < 4 then attempt to read MD ---
+c$$$      if (mdprm(1) .lt. 4) then
+c$$$        nm='DYN_MD'; sw=tksw(prgn,nm)
+c$$$        call gtv(trim(nm),sw,nono,Texist=ltmp,
+c$$$     .  note='Parameters for molecular dynamics')
+c$$$        if (io_help .ne. 0 .or. ltmp) then
+c$$$          nm='DYN_MD_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
+c$$$     .    def_i4=0,note=
+c$$$     .    '0: no MD '//
+c$$$     .    '1: NVE '//
+c$$$     .    '2: NVT '//
+c$$$     .    '3: NPT')
+c$$$          mdprm(1) = i0
+c$$$          nm='DYN_MD_TSTEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(2),
+c$$$     .    def_r8=fs,note='Time step (a.u.)')
+c$$$          nm='DYN_MD_TEMP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
+c$$$     .    def_r8=300d0*degK,note='Temperature (a.u.)')
+c$$$          nm='DYN_MD_TAUP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
+c$$$     .    def_r8=10d0*fs,note='Thermostat relaxation time (a.u.)')
+c$$$          nm='DYN_MD_TIME'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
+c$$$     .    def_r8=1d6*fs,note='Total MD time (a.u.)')
+c$$$          nm='DYN_MD_TAUB'; call gtv(trim(nm),tksw(prgn,nm),mdprm(6),
+c$$$     .    def_r8=100d0*fs,note='Barostat relaxation time (a.u.)')
+c$$$          if (tksw(prgn,'DYN_MD') .ne. 2) call info2(10,0,0,
+c$$$     .    ' NB: 1 deg.K = %e a.u.; 1 fs = %d a.u.',degK,fs)
+c$$$        endif
+c$$$        if (sw .ne. 2 .and. mdprm(1) .gt. 3)
+c$$$     .  call rx('M_RDCTRL: illegal "MODE" parameter in token "DYN_MD"')
+c$$$      endif
+c$$$
+c$$$C Content of mdprm(i)
+c$$$C   i = 1: statics/dynamics switch
+c$$$C          0 do neither
+c$$$C          1-3 MD (1: NVE, 2: NVT; 3: NPT)
+c$$$C          >3 statics (4: conjugate gradients, 5: Fletcher-Powell, 6: Broyden)
+c$$$C          >100 statics with lattice deformation
+c$$$C   i = 2: (stat) 1 read hessian matrix
+c$$$C          (dyn)  MD timestep
+c$$$C   i = 3: (stat) relaxation x-tolerance
+c$$$C          (dyn)  temperature
+c$$$C   i = 4: (stat) relaxation g-tolerance
+c$$$C          (dyn)  thermostat relaxation time
+c$$$C   i = 5: (stat) step length
+c$$$C          (dyn)  total MD time
+c$$$C   i = 6: (stat) Remove hessian after this many steps
+c$$$C          (dyn)  barostat relaxation time
+c$$$
+c$$$      nm='DYN_SDYN'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=lsdyn,
+c$$$     .note='Parameters for spin dynamics')
+c$$$C     if (io_help .ne. 0 .or. ltmp) then
+c$$$      nm='DYN_SDYN_KT'; call gtv(trim(nm),tksw(prgn,nm),move_kt,
+c$$$     .note='Temperature, in a.u.')
+c$$$      nm='DYN_SDYN_TS'; call gtv(trim(nm),tksw(prgn,nm),move_ts,
+c$$$     .note='Time step in a.u.')
+c$$$      nm='DYN_SDYN_TEQU'; call gtv(trim(nm),tksw(prgn,nm),move_tsequ,
+c$$$     .def_r8=0d0,note='Equilibration time, a.u.')
+c$$$      nm='DYN_SDYN_TTOT'; call gtv(trim(nm),tksw(prgn,nm),move_tstot,
+c$$$     .note='Duration of total simulation, in a.u.')
+c$$$C     endif
+c$$$
+c$$$      nm='DYN_MMHAM'; call gtv(trim(nm),tksw(prgn,nm),mmham,
+c$$$     .note='Rules for micromagnetics hamiltonian')
+c$$$
+c$$$C ... Global daemons
+c$$$      nm='DYN_GD'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
+c$$$     .note='Parameters for Global daemons in theromstats')
+c$$$C    if (io_help .ne. 0 .or. ltmp) then
+c$$$      nm='DYN_GD_NTHERM'; call gtv(trim(nm),tksw(prgn,nm),gd_nmodt,
+c$$$     .def_i4=1,note='Number of GD thermostats')
+c$$$      nn = gd_nmodt
+c$$$      if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
+c$$$        nn = NULLI
+c$$$      else
+c$$$        l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
+c$$$      endif
+c$$$      nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .gd_modt(1:max(1,nn)),
+c$$$     .nmin=nn,def_i4v=(/31,32,33/),note='Thermostat mode(s)')
+c$$$      nm='DYN_GD_CT'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .gd_ct(1:max(1,nn)),
+c$$$     .nmin=nn,def_r8v=(/1d0,1d0,1d0/),note=
+c$$$     .'Corresponding thermostat coefficient(s)')
+c$$$C     endif
+c$$$
+c$$$C ... Bulirsch-Stoer integration parmaters
+c$$$      nm='DYN_BSINT'; call gtv(trim(nm),tksw(prgn,nm),nono,
+c$$$     .Texist=lbsprm,note='Parameters for Bulirsch-Stoer integration')
+c$$$      if (io_help .ne. 0 .or. lbsprm) then
+c$$$        nm='DYN_BSINT_NEW'; call gtv(trim(nm),tksw(prgn,nm),prmint_new,
+c$$$     .  def_lg=T,note='Start new SD run, Bulirsch-Stoer integration')
+c$$$        nm='DYN_BSINT_TOL'; call gtv(trim(nm),tksw(prgn,nm),prmint_tol,
+c$$$     .  note='Tolerance in numerical integration')
+c$$$        nm='DYN_BSINT_TS0'; call gtv(trim(nm),tksw(prgn,nm),prmint_ts0,
+c$$$     .  def_r8=0d0,note='Minimum time step in units of TS')
+c$$$        nm='DYN_BSINT_MX'; call gtv(trim(nm),tksw(prgn,nm),prmint_mx,
+c$$$     .  def_i4=7,note='Maximum order of rational function extrapolation')
+c$$$        nm='DYN_BSINT_MI'; call gtv(trim(nm),tksw(prgn,nm),prmint_mi,
+c$$$     .  def_i4=11,note='Maximum number of midpoint rules to invoke')
+c$$$        nn = prmint_mi
+c$$$        if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
+c$$$          nn = NULLI
+c$$$        else
+c$$$          l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
+c$$$        endif
+c$$$        if (nout .gt. 0) nn = nout
+c$$$        nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .  prmint_nseq(1:max(1,nn)),
+c$$$     .  nmin=nn,def_i4v=(/2,4,6,8,12,16,24,32,48,64,96/),
+c$$$     .  note='Sequence of number of midpoint divisions')
+c$$$      endif
 
 C$$$C --- GW --- (from GWinput, not from ctrl)
 C$$$      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,

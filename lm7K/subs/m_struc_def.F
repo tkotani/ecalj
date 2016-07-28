@@ -825,19 +825,19 @@ Cr   32    8   tnow    duration of simulation to this point, in units of ts
 Cr   33    9   ts      suggested time step size
 Cr   34   10   tsequ   initial equilibration time before stats accumulated
 Cr   35   11   tstot   duration of total simulation, in units of ts
-      type s_move
-      real(8)  ::   size
-      real(8)   ::   ct(3)
-      real(8)   ::   gyro
-      real(8)   ::   kt
-      integer(8)   ::   modt(3)
-      integer(8)   ::   nmodt
-      real(8)   ::   prmint(20)
-      real(8)   ::   tnow
-      real(8)   ::   ts
-      real(8)   ::   tsequ
-      real(8)   ::   tstot
-      end type s_move
+c$$$      type s_move
+c$$$      real(8)  ::   size
+c$$$      real(8)   ::   ct(3)
+c$$$      real(8)   ::   gyro
+c$$$      real(8)   ::   kt
+c$$$      integer(8)   ::   modt(3)
+c$$$      integer(8)   ::   nmodt
+c$$$      real(8)   ::   prmint(20)
+c$$$      real(8)   ::   tnow
+c$$$      real(8)   ::   ts
+c$$$      real(8)   ::   tsequ
+c$$$      real(8)   ::   tstot
+c$$$      end type s_move
 
 Cr --- explanation of  uoptic ---
 Cr   off offe  name    purpose
@@ -1540,34 +1540,34 @@ C         n=n+2
 #endif  /* MPIADDRESS*/
       end function umix_size
 
-      integer function umove_size()
-#if MPI|MPIK|MPIADDRESS
-      use m_struc_def, only: s_move
-      implicit none
-      type(s_move):: v(2)
-      integer:: iadd(2), ierr,imod,n
-      call mpi_get_address(v(1),iadd(1),ierr)
-      call mpi_get_address(v(2),iadd(2),ierr)
-      n=iadd(2)-iadd(1)
-      imod=mod(n,8)
-      n=n/8
-      if (imod.ne.0) n=n+1
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      umove_size=n
-C        write(*,*) 'umove_size=',n
-#else  /* MPIADDRESS*/
-      integer:: n
-      n=-9999 !n= 34
-C  +2 is margin
-C         n=n+2
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      umove_size=n
-#endif  /* MPIADDRESS*/
-      end function umove_size
+c$$$      integer function umove_size()
+c$$$#if MPI|MPIK|MPIADDRESS
+c$$$      use m_struc_def, only: s_move
+c$$$      implicit none
+c$$$      type(s_move):: v(2)
+c$$$      integer:: iadd(2), ierr,imod,n
+c$$$      call mpi_get_address(v(1),iadd(1),ierr)
+c$$$      call mpi_get_address(v(2),iadd(2),ierr)
+c$$$      n=iadd(2)-iadd(1)
+c$$$      imod=mod(n,8)
+c$$$      n=n/8
+c$$$      if (imod.ne.0) n=n+1
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      umove_size=n
+c$$$C        write(*,*) 'umove_size=',n
+c$$$#else  /* MPIADDRESS*/
+c$$$      integer:: n
+c$$$      n=-9999 !n= 34
+c$$$C  +2 is margin
+c$$$C         n=n+2
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      umove_size=n
+c$$$#endif  /* MPIADDRESS*/
+c$$$      end function umove_size
 
 c$$$      integer function uoptic_size()
 c$$$#if MPI|MPIK|MPIADDRESS
@@ -2612,72 +2612,72 @@ C ... Passed parameters
 #endif
       end subroutine mpibc1_s_mix
 
-      subroutine mpibc1_s_move(struc,mlog,funnam,label)
-      use m_struc_def, only: s_move
-      implicit none
-#if MPI|MPIK
-      include 'mpif.h'
-      integer numprocs, ierr
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      character*256 strn
-      logical lgunit
-      integer procid,master,i_data_size
-      integer:: n=0, cast=4
-C use i_data_size in order to cast an address to integer
-#endif
-C ... Passed parameters
-      logical mlog
-      type(s_move):: struc
-      character funnam*(*), label*(*)
-#if MPI|MPIK
-      master=0
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call mpi_bcast(struc%size, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%ct) ! ct(3)
-      call mpi_bcast(struc%ct, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%gyro, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%kt, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%modt) ! modt(3)
-      call mpi_bcast(struc%modt, i_data_size,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nmodt, 1,MPI_INTEGER8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%prmint) ! prmint(20)
-      call mpi_bcast(struc%prmint, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%tnow, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ts, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%tsequ, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%tstot, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-
-      if (mlog) then
-        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-        call strcop(shortname(procid),name,10,'.',ierr)
-        namelen(procid) = ierr-1
-        call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
-      endif
-#endif
-      end subroutine mpibc1_s_move
+c$$$      subroutine mpibc1_s_move(struc,mlog,funnam,label)
+c$$$      use m_struc_def, only: s_move
+c$$$      implicit none
+c$$$#if MPI|MPIK
+c$$$      include 'mpif.h'
+c$$$      integer numprocs, ierr
+c$$$      integer MAX_PROCS
+c$$$      parameter (MAX_PROCS = 100)
+c$$$      integer resultlen
+c$$$      character*(MPI_MAX_PROCESSOR_NAME) name
+c$$$      character*10 shortname(0:MAX_PROCS-1)
+c$$$      character*26 datim
+c$$$      integer namelen(0:MAX_PROCS-1)
+c$$$      character*256 strn
+c$$$      logical lgunit
+c$$$      integer procid,master,i_data_size
+c$$$      integer:: n=0, cast=4
+c$$$C use i_data_size in order to cast an address to integer
+c$$$#endif
+c$$$C ... Passed parameters
+c$$$      logical mlog
+c$$$      type(s_move):: struc
+c$$$      character funnam*(*), label*(*)
+c$$$#if MPI|MPIK
+c$$$      master=0
+c$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+c$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+c$$$      call mpi_bcast(struc%size, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%ct) ! ct(3)
+c$$$      call mpi_bcast(struc%ct, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%gyro, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%kt, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%modt) ! modt(3)
+c$$$      call mpi_bcast(struc%modt, i_data_size,MPI_INTEGER8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nmodt, 1,MPI_INTEGER8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%prmint) ! prmint(20)
+c$$$      call mpi_bcast(struc%prmint, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%tnow, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%ts, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%tsequ, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%tstot, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$
+c$$$      if (mlog) then
+c$$$        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+c$$$        call strcop(shortname(procid),name,10,'.',ierr)
+c$$$        namelen(procid) = ierr-1
+c$$$        call gettime(datim)
+c$$$        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+c$$$     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+c$$$     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+c$$$        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+c$$$     .  cast)
+c$$$      endif
+c$$$#endif
+c$$$      end subroutine mpibc1_s_move
 
 c$$$      subroutine mpibc1_s_optic(struc,mlog,funnam,label)
 c$$$      use m_struc_def, only: s_optic
@@ -3904,23 +3904,23 @@ cki       struc%opos=0
       struc%wc=0.0d0
       end subroutine umix_init
 
-      subroutine umove_init (struc)
-      use m_struc_def
-      use m_struc_func
-      implicit none
-      type(s_move):: struc
-      struc%size= umove_size()
-      struc%ct=0.0d0
-      struc%gyro=0.0d0
-      struc%kt=0.0d0
-      struc%modt=0
-      struc%nmodt=0
-      struc%prmint=0.0d0
-      struc%tnow=0.0d0
-      struc%ts=0.0d0
-      struc%tsequ=0.0d0
-      struc%tstot=0.0d0
-      end subroutine umove_init
+c$$$      subroutine umove_init (struc)
+c$$$      use m_struc_def
+c$$$      use m_struc_func
+c$$$      implicit none
+c$$$      type(s_move):: struc
+c$$$      struc%size= umove_size()
+c$$$      struc%ct=0.0d0
+c$$$      struc%gyro=0.0d0
+c$$$      struc%kt=0.0d0
+c$$$      struc%modt=0
+c$$$      struc%nmodt=0
+c$$$      struc%prmint=0.0d0
+c$$$      struc%tnow=0.0d0
+c$$$      struc%ts=0.0d0
+c$$$      struc%tsequ=0.0d0
+c$$$      struc%tstot=0.0d0
+c$$$      end subroutine umove_init
 
 c$$$      subroutine uoptic_init (struc)
 c$$$      use m_struc_def

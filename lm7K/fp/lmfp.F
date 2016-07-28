@@ -1,5 +1,5 @@
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
-     .     sspec,ssite,sstr,smove,sarray,sstrnmix) !,sstrnjobid)
+     .     sspec,ssite,sstr,sarray,sstrnmix) !,sstrnjobid) smove,
       use m_struc_def
       use m_rdctrl,only: lhf          
       use m_struc_func, only: mpibc1_s_lat
@@ -98,7 +98,7 @@ c      type(s_sstrn)::sstrn
       type(s_ham)::sham
       type(s_pot)::spot
       type(s_str)::sstr
-      type(s_move)::smove
+c      type(s_move)::smove
 
       integer ::iwdummy ,idummy
       integer procid,master,mpipid,nproc

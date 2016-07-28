@@ -1,5 +1,5 @@
       program lmf
-      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_move,s_str,s_spec,s_site 
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_str,s_spec,s_site  !,s_move
       use m_rdctrl2_func, only: rdctrl2
       use m_rdctrl,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
@@ -22,7 +22,7 @@ c      use m_globalvariables
       type(s_pot):: v_spot
       type(s_mix):: v_smix
       type(s_array):: v_sarry,v_sarry2
-      type(s_move):: v_smove
+c      type(s_move):: v_smove
       type(s_str):: v_sstr
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
@@ -172,7 +172,7 @@ c      use m_globalvariables
 !! --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,F, !vrsion,vn,vn2,
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     . v_sarry,v_smove, sstrnmix,sstrnsymg)  !,v_stb
+     . v_sarry,sstrnmix,sstrnsymg)  !,v_stb !v_smove, 
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
@@ -287,7 +287,7 @@ c$$$      enddo
 !! main part of lmf
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .v_smix,v_sspec,v_ssite,v_sstr,v_smove,v_sarry,trim(sstrnmix))
+     .v_smix,v_sspec,v_ssite,v_sstr,v_sarry,trim(sstrnmix)) !,v_smove
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif
