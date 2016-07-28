@@ -387,35 +387,34 @@ C     Local variables
 
 C     ... Allocate ASA arrays
       if (mod(mode,10) .eq. 1) then
-         allocate(spot%rv_a_opnu(abs(-nlspc)))
-         if (-nlspc<0) spot%rv_a_opnu(:)=0.0d0
-         allocate(spot%rv_a_oqnu(abs(-3*nlspc)))
-         if (-3*nlspc<0) spot%rv_a_oqnu(:)=0.0d0
-         allocate(spot%rv_a_opp(abs(-6*nlspc)))
-         if (-6*nlspc<0) spot%rv_a_opp(:)=0.0d0
-         allocate(spot%rv_a_opprel(abs(-32*nl*nl*max(nclspp,nspec))))
-         if (-32*nl*nl*max(nclspp,nspec)<0) spot%rv_a_opprel(:)=0.0d0
-         allocate(spot%rv_a_oqt(abs(-nclasp)))
-         if (-nclasp<0) spot%rv_a_oqt(:)=0.0d0
-         allocate(sarray%iv_a_oipq(abs(-nclasp)))
-         if (-nclasp<0) sarray%iv_a_oipq(:)=0
-         allocate(spot%rv_a_oves(abs(-nclspp)))
-         if (-nclspp<0) spot%rv_a_oves(:)=0.0d0
-         allocate(spot%rv_a_ovdif(abs(-nclspp)))
-         if (-nclspp<0) spot%rv_a_ovdif(:)=0.0d0
-         allocate(spot%rv_a_orhrmx(abs(-nclspp)))
-         if (-nclspp<0) spot%rv_a_orhrmx(:)=0.0d0
-         allocate(spot%rv_a_ovrmax(abs(-2*nclspp)))
-         if (-2*nclspp<0) spot%rv_a_ovrmax(:)=0.0d0
+         allocate(spot%rv_a_opnu(nlspc))
+         spot%rv_a_opnu(:)=0.0d0
+         allocate(spot%rv_a_oqnu(3*nlspc))
+         spot%rv_a_oqnu(:)=0.0d0
+         allocate(spot%rv_a_opp(6*nlspc))
+         spot%rv_a_opp(:)=0.0d0
+         allocate(spot%rv_a_opprel(32*nl*nl*max(nclspp,nspec)))
+         spot%rv_a_opprel(:)=0.0d0
+         allocate(spot%rv_a_oqt(nclasp))
+         spot%rv_a_oqt(:)=0.0d0
+         allocate(sarray%iv_a_oipq(nclasp))
+         sarray%iv_a_oipq(:)=0
+         allocate(spot%rv_a_oves(nclspp))
+         spot%rv_a_oves(:)=0.0d0
+         allocate(spot%rv_a_ovdif(nclspp))
+         spot%rv_a_ovdif(:)=0.0d0
+         allocate(spot%rv_a_orhrmx(nclspp))
+         spot%rv_a_orhrmx(:)=0.0d0
+         allocate(spot%rv_a_ovrmax(2*nclspp))
+         spot%rv_a_ovrmax(:)=0.0d0
          allocate( ics(nclspp) )
          call icopy ( nclspp , sarray%iv_a_oics , 1 , ics , 1 ) 
          print *,' qqqqq ics nclspp=',ics,nclspp
          allocate(sarray%rv_a_ormax(abs(nclspp)))
-         if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_a_ormax, 1 ) 
 C     Even in collinear case, bxc might be written to
          allocate(spot%rv_a_obxc(abs(-3*nclasp)))
-         if (-3*nclasp<0) spot%rv_a_obxc(:)=0.0d0
+         spot%rv_a_obxc(:)=0.0d0
          spot%nrhos=0 
 c         if ( sctrl%lncol /=0 ) then 
          if ( lso /=0 ) then 
@@ -423,30 +422,29 @@ c         if ( sctrl%lncol /=0 ) then
             nbf=sham%nbf
             nrhos = max(nl,neula,nbf)
             if (allocated(spot%rv_a_obxc)) deallocate(spot%rv_a_obxc)
-            allocate(spot%rv_a_osop(abs(-nlspc*nsp*9)))
-            if (-nlspc*nsp*9<0) spot%rv_a_osop(:)=0.0d0
-            allocate(spot%rv_a_obxc(abs(-3*nclasp)))
-            if (-3*nclasp<0) spot%rv_a_obxc(:)=0.0d0
+            allocate(spot%rv_a_osop(nlspc*nsp*9))
+            spot%rv_a_osop(:)=0.0d0
+            allocate(spot%rv_a_obxc(3*nclasp))
+            spot%rv_a_obxc(:)=0.0d0
             spot%nrhos=nrhos 
          endif
          if (allocated(spot%rv_a_ogrrme)) deallocate(spot%rv_a_ogrrme)
-         if ( int ( sctrl%loptc ) .gt. 0 ) then 
-            allocate(spot%rv_a_ogrrme(abs(-16*nl*nsp*nclasp)))
-            if (-16*nl*nsp*nclasp<0) spot%rv_a_ogrrme(:)=0.0d0
-         endif 
+c$$$         if ( int ( sctrl%loptc ) .gt. 0 ) then 
+c$$$            allocate(spot%rv_a_ogrrme(abs(-16*nl*nsp*nclasp)))
+c$$$            if (-16*nl*nsp*nclasp<0) spot%rv_a_ogrrme(:)=0.0d0
+c$$$         endif 
          if ( iand(3,int(sctrl%lsx)) .ne.0 .or. iand(-1,int(sctrl%lscr)) .ne.0 ) then 
             allocate(spot%rv_a_ovintr(abs(-nclasp*(nl*nsp)**2)))
-            if (-nclasp*(nl*nsp)**2<0) spot%rv_a_ovintr(:)=0.0d0
+            spot%rv_a_ovintr(:)= 0d0
          endif
          lnsph = isw ( .false.)
 C     ... Allocate memory for, attempt to read qpp from file
          if (lnsph .ne. 0 .or. nlibu .ne. 0) then
             allocate(spot%rv_a_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
-            if (-(2*nl-1)*nl**2*3*nsp*nclasp<0) spot%rv_a_opmpol(:)=0.0d0
+            spot%rv_a_opmpol(:)= 0d0
             i1 = nl**2
             nqpp = (i1*(i1+1))/2
-            allocate(spot%rv_a_oqpp(abs(2*nqpp*4*nsp*nbas)))
-            if (2*nqpp*4*nsp*nbas<0) spot%rv_a_oqpp(:)=0.0d0
+            allocate(spot%rv_a_oqpp(2*nqpp*4*nsp*nbas))
             call dvset ( spot%rv_a_oqpp , 1 , 1 , - 1d0 ) 
             call ioqpp(.false.,sctrl,spot)
          endif
@@ -471,14 +469,10 @@ C     ... Allocate ASA arrays
      .        * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
          call dpscop ( spot%rv_a_oqnu , spot%rv_a_oqnu , 3 * nl * nsp * i1 , 3 * 
      .        nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
-         call dpscop ( spot%rv_a_oves , spot%rv_a_oves , i1 , nclass + 1 , nclasp 
-     .        + 1 , 1d0 ) 
-         call dpscop ( spot%rv_a_ovdif , spot%rv_a_ovdif , i1 , nclass + 1 , nclasp 
-     .        + 1 , 1d0 ) 
-         call dpscop ( spot%rv_a_ovrmax , spot%rv_a_ovrmax , i1 , nclass + 1 , nclasp 
-     .        + 1 , 1d0 ) 
-         call dpscop ( spot%rv_a_orhrmx , spot%rv_a_orhrmx , i1 , nclass + 1 , nclasp 
-     .        + 1 , 1d0 ) 
+         call dpscop ( spot%rv_a_oves , spot%rv_a_oves , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( spot%rv_a_ovdif , spot%rv_a_ovdif , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( spot%rv_a_ovrmax , spot%rv_a_ovrmax , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( spot%rv_a_orhrmx , spot%rv_a_orhrmx , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
       else
          call rxi('clsprp: bad mode',mode)
       endif

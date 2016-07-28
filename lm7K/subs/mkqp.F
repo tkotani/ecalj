@@ -45,14 +45,15 @@ C ... Local parameters
 C ... Setup
       ntet = 0
       stdo = globalvariables%stdo
-
-      i_copy_size=size(sbz%nkabc)
-      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-      i_copy_size=size(sbz%lshft)
-      call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
-
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(sbz%nkabc)
+c      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+c      i_copy_size=size(sbz%lshft)
+c      call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      nkxyz=sbz%nkabc
+      lshft=sbz%lshft
+      plat =slat%plat
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
       lpbc = 0
@@ -61,28 +62,26 @@ C ... Setup
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1
 C not now ... q-points from BZMAP, C ... Read qp from disk
-      if ( iand(2,int(sbz%lopt)) .ne.0 ) call rx('recompile mkqp with BZMAP option')
-      if ( iand(1,int(sbz%lio)) .ne.0 ) call rx('not support reading QPTS')
+c      if ( iand(2,int(sbz%lopt)) .ne.0 ) call rx('recompile mkqp with BZMAP option')
+c      if ( iand(1,int(sbz%lio)) .ne.0 ) call rx('not support reading QPTS')
 C ... Make the qp list from bzmesh
       mxkp = nkxyz(1)*nkxyz(2)*nkxyz(3)
       if (lgstar .eq. 0) then
-        allocate(sbz%iv_a_ostar(abs(-1)))
-        if (-1<0) sbz%iv_a_ostar(:)=0
+        allocate(sbz%iv_a_ostar(1))
+        sbz%iv_a_ostar(:)=0
       else
-        allocate(sbz%iv_a_ostar(abs(-mxkp-1)))
-        if (-mxkp-1<0) sbz%iv_a_ostar(:)=0
+        allocate(sbz%iv_a_ostar(mxkp+1))
+        sbz%iv_a_ostar(:)=0
       endif
       allocate(sbz%rv_a_owtkp(abs(-mxkp)))
-      if (-mxkp<0) sbz%rv_a_owtkp(:)=0.0d0
+      sbz%rv_a_owtkp(:)=0.0d0
 #if TRSYMM
       call dvset ( sbz%rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
       if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-      allocate(sbz%rv_p_oqp(abs(3*mxkp)))
-      if (3*mxkp<0) sbz%rv_p_oqp(:)=0.0d0
+      allocate(sbz%rv_p_oqp(3*mxkp))
       if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-      allocate(sbz%iv_a_oipq(abs(6*mxkp)))
-      if (6*mxkp<0) sbz%iv_a_oipq(:)=0
+      allocate(sbz%iv_a_oipq(6*mxkp))
       call dinv33(plat,1,qlat,vol)
 C   ... Restrict BZ to two dimensions
       if (lpbc .eq. 1) then

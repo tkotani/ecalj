@@ -2,9 +2,9 @@ FC = mpif90 #-f90=gfortran
 LK = mpif90 #-f90=gfortran
 
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS = -O1  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
-FFLAGS_LESS = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -O1 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
