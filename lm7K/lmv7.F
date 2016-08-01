@@ -178,8 +178,9 @@ c      type(s_move):: v_smove
 #endif
 
 !! --- Lattice setup ---
-      call setcg(v_slat,8,12)
+c      call setcg(v_slat,8,12) --> moved to rdctl2
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)

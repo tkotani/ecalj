@@ -78,7 +78,7 @@ c      character(256):: sxopt=' '
 
 C ... STRUC
 C     Initializing nbas and alat flags no nbas or alat has been input
-      real(8):: lat_slat(9),dlat,alat=NULLR,plat(9),lat_gam(4),dalat
+      real(8):: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),lat_gam(4),dalat,temp33(9)
       real(8):: vol,avw,lat_dist(9)
       integer:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec,nclass
       integer:: lat_ldist=0
@@ -534,8 +534,11 @@ C     call shosyv(0,0,0,stdo)
         nm='STRUC_NBAS'; call gtv(trim(nm),tksw(prgn,nm),
      .  nbas,note='Size of basis')
         nm='STRUC_PLAT'; call gtv(trim(nm),tksw(prgn,nm),
-     .  plat, nmin=9, nout=nout, note=
+     .  temp33, nmin=9, nout=nout, note=
      .  'Primitive lattice vectors, in units of alat')
+        plat(1:3,1)=temp33(1:3)
+        plat(1:3,2)=temp33(4:6)
+        plat(1:3,3)=temp33(7:9)
       endif
       avw = avwsr(plat,alat,vol,nbas)
       nm='STRUC_NSPEC'; call gtv(trim(nm),tksw(prgn,nm),nspec,
@@ -566,8 +569,11 @@ C     Extra site positions for e.g. point multipoles
       if (nbasp .eq. NULLI) nbasp = nbas
       nsite = nbasp
 
-      nm='STRUC_SLAT'; call gtv(trim(nm),tksw(prgn,nm),lat_slat,
+      nm='STRUC_SLAT'; call gtv(trim(nm),tksw(prgn,nm),temp33,
      .nmin=9,note='Supercell lattice vectors')
+      lat_slat(1:3,1)=temp33(1:3)
+      lat_slat(1:3,2)=temp33(4:6)
+      lat_slat(1:3,3)=temp33(7:9)
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgn,nm),
      .dalat, def_r8=0d0, note='added to alat after input is read')
       nm='STRUC_NL'; call gtv(trim(nm),tksw(prgn,nm),nl,def_i4=3,

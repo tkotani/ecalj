@@ -16,7 +16,7 @@
       type(s_pot):: v_spot
       type(s_mix):: v_smix
       type(s_array):: v_sarry
-      type(s_move):: v_smove
+c      type(s_move):: v_smove
       type(s_str):: v_sstr
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:)
@@ -105,7 +105,7 @@ C --- Read recrd ---
      *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
      *v_sarry,sstrnmix,sstrnsymg) !,v_stb v_smove,
       print *,'end of rdctrl2 in imfav7'
-      call setcg(v_slat,8,12)
+c      call setcg(v_slat,8,12)
       call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 C --- Generate symmetry operations; split species into classes  ---
       strn = 'find'

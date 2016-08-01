@@ -226,10 +226,10 @@ c      double precision vn(2),vn2(2)
 C ... Local parameters
       character fileid*64
       integer procid,nproc,master
-      logical lgors,cmdopt,bittst,ltmp,ioorbp,asa
+      logical lgors,cmdopt,bittst,ltmp,ioorbp!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lasa,lbas,lcd,lqp,
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,lcd,lqp, !,lasa
      .lfrzw,lgunit,lmet,
 c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
@@ -251,8 +251,8 @@ C ... basis
       real(8):: seref
       integer:: ib , ispec
       integer,allocatable:: wowk(:)
-
       logical:: isanrg,l_dummy_isanrg
+      integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
 
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -285,7 +285,7 @@ C     cd represented in plane waves
 c      if (trim(prgnam) .eq. 'LMMC') then
 c        lbas = 1
 c      endif
-      asa = .false.
+c      asa = .false.
 c      if (prgnam .eq. 'LM' .or. prgnam .eq. 'LMGF' .or.
 c     .    prgnam .eq. 'LMPG' .or. prgnam .eq. 'LMCTL') then
 c        asa = .true.
@@ -541,44 +541,66 @@ C      Reset nl
 
 C --- Allocate and copy input to slat ---
       v_slat%size=ulat_size()
-
       if (dalat == NULLR) dalat=0
-
       v_slat%alat=alat+dalat
       v_slat%as=lat_as
       v_slat%avw=avw
       v_slat%nkdmx=lat_nkdmx
       v_slat%nkqmx=lat_nkdmx
-
-      i_copy_size=size(v_slat%gam)
-      call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1)
+      v_slat%gam =lat_gam
       v_slat%gmax=lat_gmax
-      i_copy_size=size(v_slat%nabc)
-      call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1)
-
+c      i_copy_size=size(v_slat%gam)
+c      call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1)
+c      i_copy_size=size(v_slat%nabc)
+c      call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1)
 c takao I think gam is alreay setted above.
 c       i_copy_size=size(v_slat%gam)
 c       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1)
-
-      v_slat%ldist=lat_ldist
-      i_copy_size=size(v_slat%dist)
-      call dcopy(i_copy_size,lat_dist,1,v_slat%dist,1)
-
-      i_copy_size=size(v_slat%plat)
-      call dcopy(i_copy_size,plat,1,v_slat%plat,1)
+c      i_copy_size=size(v_slat%dist)
+c      call dcopy(i_copy_size,lat_dist,1,v_slat%dist,1)
+c      i_copy_size=size(v_slat%plat)
+c      call dcopy(i_copy_size,plat,1,v_slat%plat,1)
 c       i_copy_size=size(v_slat%plat2)
 c       call dcopy(i_copy_size,slat_plat2,1,v_slat%plat2,1)
-
+c      i_copy_size=size(v_slat%slat)
+c      call dcopy(i_copy_size,lat_slat,1,v_slat%slat,1)
+      v_slat%nabc=ftmesh
+      v_slat%ldist= lat_ldist
+      v_slat%dist = lat_dist
+      v_slat%plat=plat
       v_slat%rpad=lat_rpad
-      i_copy_size=size(v_slat%slat)
-      call dcopy(i_copy_size,lat_slat,1,v_slat%slat,1)
+      v_slat%slat=lat_slat
       v_slat%tol=lat_tol
       v_slat%tolft=tolft
       v_slat%vol=vol
+!! setcg
+!!... Choose dimensions for arrays
+      lmxcg=8
+      lmxcy=12
+      if (lmxcg .le. 6) then
+        lnjcg = 6500
+        lnxcg = 1300
+      else if (lmxcg .le. 8) then
+        lnjcg = 22700
+        lnxcg = 3400
+      else if (lmxcg .le. 10) then
+        lnjcg = 62200
+        lnxcg = 7400
+      else
+        call rxi('setcg: cannot handle lmxcg=',lmxcg)
+      endif
+C ... Allocate and occupy the arrays
+      nlm=(lmxcy+1)**2
+      allocate(v_slat%rv_a_ocy(abs(nlm)))
+      allocate(v_slat%rv_a_ocg(abs(lnjcg)))
+      allocate(v_slat%iv_a_ojcg(abs(lnjcg)))
+      allocate(v_slat%iv_a_oidxcg(abs(lnxcg)))
+      call sylmnc ( v_slat%rv_a_ocy , lmxcy )
+      call scg ( lmxcg , v_slat%rv_a_ocg , v_slat%iv_a_oidxcg , v_slat%iv_a_ojcg )
+!!
 
 C --- Allocate and copy input to sham ---
       v_sham%size=uham_size()
-
       v_sham%alfsi=alfsi
       i_copy_size=size(v_sham%dabc)
       call dcopy(i_copy_size,dabc,1,v_sham%dabc,1)
