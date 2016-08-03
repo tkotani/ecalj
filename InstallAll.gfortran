@@ -29,12 +29,12 @@ cd ../fpgw/exec/
 make PLATFORM=gfortran LIBMATH="$MATH"
 make PLATFORM=gfortran BINDIR=$BINDIR  install
 make PLATFORM=gfortran BINDIR=$BINDIR install2
-
+#
 ### Use fpgw/Wannier/Makefile
 cd ../Wannier/
 make PLATFORM=gfortran LIBMATH="$MATH"
 make BINDIR=$BINDIR PLATFORM=gfortran install
 
-cd ../../TestInstall/
-make mpi_size=4 all
+#cd ../../TestInstall/
+#make mpi_size=4 all
 

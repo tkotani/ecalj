@@ -1223,13 +1223,14 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
 
       write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
       ifscr = 9991
-      if (is==1 .and. lcrpa .eqv. .false.) then
+
+      if ((is==1) .and. (lcrpa .eqv. .false.)) then
         open(ifscr,file="Screening_W-v.UP")
-      else if (is==2 .and. lcrpa .eqv. .false.) then
+      else if ((is==2) .and. (lcrpa .eqv. .false.)) then
         open(ifscr,file="Screening_W-v.DN")
-      else if (is==1 .and. lcrpa .eqv. .true.) then
+      else if ((is==1) .and. (lcrpa .eqv. .true.)) then
         open(ifscr,file="Screening_W-v_crpa.UP")
-      else if (is==2 .and. lcrpa .eqv. .true.) then
+      else if ((is==2) .and. (lcrpa .eqv. .true.)) then
         open(ifscr,file="Screening_W-v_crpa.DN")
       end if
       do ir1 = 1,nrws1
