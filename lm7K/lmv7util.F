@@ -52,7 +52,7 @@ C     ... Program-dependent name and help
       character*(mxrecs*recln0):: recrd
       real(8),parameter::    NULLR =-99999
       real(8)::pwmode,pwemin,pwemax
-      integer::ic
+      integer::ic,ibas
       real(8):: bz_w,dval       !test
 
 C     --- Version ---
@@ -144,7 +144,13 @@ C     call rx('done')
      .     v_sarry,sstrnmix,sstrnsymg) !,v_stb ,v_smove
 C     --- Lattice setup ---
 c      call setcg(v_slat,8,12)
-      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+      call lattic(v_slat,v_sctrl%nbas)
+      do ibas=1,v_sctrl%nbas
+        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
+c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+      enddo
 C     --- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg) 

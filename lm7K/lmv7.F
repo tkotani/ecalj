@@ -177,9 +177,13 @@ c      type(s_move):: v_smove
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
 
-!! --- Lattice setup ---
+!! --- Lattice setup:deformation ---
 c      call setcg(v_slat,8,12) --> moved to rdctl2
-      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+      call lattic(v_slat,v_sctrl%nbas)
+      do ibas=1,v_sctrl%nbas
+        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
+      enddo
 
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
