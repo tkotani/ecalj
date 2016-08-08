@@ -38,9 +38,9 @@ c        ifidmlx = iopen('EPSwklm',0,0,0)
       allocate(w0(nw_i:nw),w0i(niw),llmat(3,3))
 c       write(6,*)' goto getw0 nq0i epinvq0i=',nq0i,epinvq0i
 !! wbz(1) is the weight for q=0 = 1/(n1*n2*n3)
-!! llmat is added. July2016
-      call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0,  llmat_dummy)
-      call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i, llmat)
+!! llmat is added. July2016. llw is calculated at iw=0, when nw_i<=0
+      call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0,  llmat)
+      call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i, llmat_dummy)
 
 !! test mode
       if(ixc/=1011) then

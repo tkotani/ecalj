@@ -4,6 +4,10 @@
 !!  tetwt5: tetrahedron weights
 !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
 !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
+
+c      use m_readeps,only: read_eps, epsinv, w_mu, llmat2=>llmat,deallocate_eps
+!!
+
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
@@ -910,8 +914,8 @@ c         because of a bug of !TIME1 processing for MPI mode.
                    if(ngb/=ngbq0) then
                       write(6,*)q,iq0,ngb,ngbq0
                       call rx('hx0p0_sc: ngb/=ngbq0')
-                      wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) !this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
                    endif
+                   wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) !this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
                 endif
               else
 c commentout block inversion
@@ -1234,7 +1238,7 @@ c            read(ifw0w0i) w0i(1:niw)
 !! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
         call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)  !all inputs. get effective W0,W0i, and L(omega=0) matrix.
 
-!! Finalize w44phonon
+!! Finalize w4phonon
 !! wmuk(ix)= matmul(wmu,qv) ==> wmu= matmul(wmuk,qvinv)
         if(w4pmode) then
           do i=1,3
@@ -1251,7 +1255,14 @@ c            read(ifw0w0i) w0i(1:niw)
           write(ifw4p) llmat(1:3,1:3),ngbq0 !for q~0
           write(ifw4p) wmu(2:ngbq0,1:3) !for q~0
           close(ifw4p)
-          deallocate(wmu)
+ccccccccccccccccccccc
+c          write(6,*)'nqbq0=',ngbq0
+c          write(6,*)'llmat=',llmat
+c          write(6,*)'wmu sum=',sum(abs(wmu(2:ngbq0,1:3)))
+c          write(6,*)'wmuksum=',sum(abs(wmuk(2:ngbq0,1:3)))
+c          call rx(' test end xxxxxxxxxxxx')
+cccccccccccccccccccccc
+          deallocate(wmu,wmuk)
         endif
 
 !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where

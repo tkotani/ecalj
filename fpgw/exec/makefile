@@ -377,7 +377,8 @@ $(gwsrc)dpadd.o \
 $(gwsrc)dpzero.o \
 $(gwsrc)ropyln.o \
 $(gwsrc)ropcsm.o \
-$(gwsrc)rpaq.o
+$(gwsrc)rpaq.o \
+$(gwsrc)m_readeps.o
 
  QPE_QSGW = \
  $(main)hqpe_qsgw.m.o\

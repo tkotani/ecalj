@@ -46,11 +46,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   write(*,"('qqq iw llw',i3,3(2d12.4,x),3x,20(2d12.4,2x))")iw,llw(iw,1:nq0i),llwyl(1,iw),llwyl(5:9,iw)
       enddo
 
-!! omega=0 3x3 matrix, 
-      llmat=0d0
-      do iq0i=1,nq0i
-        llmat(1:3,1:3) = llmat(1:3,1:3) + llw_invr(ii,iq0i)*epinv(1:3,1:3,iq0i)
-      enddo
+!! omega=0 3x3 matrix, only when ii<= 0 <= nw (only when incluging iw=0 for omega=0)
+      if(ii<=0) then
+         iw=0
+         llmat=0d0
+         do iq0i=1,nq0i
+            llmat(1:3,1:3) = llmat(1:3,1:3) + llw_invr(iw,iq0i)*epinv(1:3,1:3,iq0i)
+         enddo
+      endif
 
       call rotcg(lmxax,(/1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/),1,cg) !no rotation
 
