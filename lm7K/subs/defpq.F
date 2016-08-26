@@ -27,7 +27,7 @@ C ... Passed parameters
       double precision z,p(n0,2),q(n0,2)
 C ... Local parameters
       logical lchange
-      integer l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin,k02(n0)
+      integer l,k0(n0),q0(n0),q02(n0),iz,iz2,kl,lmx,lgunit,iprint,lmin !,k02(n0)
       double precision pdef(0:3,0:100),dasum,w1,w2
       integer NULLI
       parameter (NULLI=-99999)
@@ -162,7 +162,7 @@ C ... Local parameters
       w2 = (z-iz)/(iz2-iz)
       w1 = 1-w2
 
-c      print *,'conf:xxx iz=',iz,w1,w2,iz,iz2
+      print *,'conf:xxx iz=',iz,w1,w2,iz,iz2
 
 
       lmx = min(lmax,3)
@@ -212,15 +212,16 @@ C     Atomic moments and configuration
 c      call atmoms(k0,q0,dble(iz))
 c      call atmoms(k0,q02,dble(iz2))
       k0=0
-      k02=0
-      call atmoms(k02,q02,dble(iz2))
+c$$$      k02=0
+c$$$      call atmoms(k02,q02,dble(iz2))
       call atmoms(k0,q0,dble(iz)) !takao think this is correct order to obtain k0. Nov29 2010
 
-!! Sanity check for virtual crystal approx. takao Nov29 2010.
-      if(abs(z-int(z))>1d-10 .and. sum(abs(k0-k02))>0) then
-        call rx('For such a case for Virtual crystal approx.'
-     &   //' Core configulation should be the same. Need to set P and Q')
-      endif
+c$$$ Sakakibara found this is wrong for Na0.5Co2O4
+c$$$!! Sanity check for virtual crystal approx. takao Nov29 2010.
+c$$$      if(abs(z-int(z))>1d-10 .and. sum(abs(k0-k02))>0) then
+c$$$        call rx('For such a case for Virtual crystal approx.'
+c$$$     &   //' Core configulation should be the same. Need to set P and Q')
+c$$$      endif
 
 C ... Make default values
       do  l = lmin, lmx
