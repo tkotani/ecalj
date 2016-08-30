@@ -148,7 +148,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 !     The last  bin  is     [frhis(nw), frhis(nwp)].
 !     nwp=nw+1; frhis(1)=0
 !     takao-feb/2002
-      if(frhis(1)/=0d0) call rx( ' hx0fp0: we assume frhis(1)=0d0')
+      if(abs(frhis(1))>1d-12) call rx( ' hx0fp0: we assume frhis(1)=0d0')
       write(6,*)' ----------------nbnbx nqbz= ',nbnbx,nqbz
 !!     ... make index sets
       allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
