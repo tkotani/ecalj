@@ -191,8 +191,11 @@ c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 !! mar2013 --pdos Also in rdctrl2.F
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
       lc = 10
-#ifndef LMFGWD
-      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+!! when lmfgw, 1st digit of lc is nonzero--> no inversion added in mksym.
+#ifndef LMFGWD 
+!! iand(2**n,i) means 2**n ditit of i.
+c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+      if ( iand(1,int(v_sctrl%lqp))==0  ) lc = lc+2
 #endif
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! read AF case 2015

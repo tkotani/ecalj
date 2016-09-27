@@ -80,7 +80,7 @@ c2012Sep02 kino, add for
 !!--- setup ---
       if(.not.siginit) return
       nbas=nbas_in
-      ngrp=slat%nsgrp
+      ngrp=slat%nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=slat%plat
       qlat=slat%qlat
       alat=slat%alat

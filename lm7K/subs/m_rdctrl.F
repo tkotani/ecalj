@@ -751,11 +751,12 @@ Ckino isanrg is logical function,         call isanrg(nsp,1,2,'rdctrl','nsp',T)
       else
         nsp = 1
       endif
-ctakao
-      if(prgn=='LMCHK') then
-        write(6,*) '### ---> ENFORCE nsp=1 for LMCHK ###'
-        nsp=1
-      endif
+
+ctakao !need inversion check...
+c      if(prgn=='LMCHK') then
+c        write(6,*) '### ---> ENFORCE nsp=1 for LMCHK ###'
+c        nsp=1
+c      endif
 
 
 C     Flags representing how cd is represented: default values
@@ -3535,6 +3536,7 @@ c      call tkadd(" BZ_ZVAL~")
       call tkadd(" EWALD_NKDMX~")
       call tkadd(" EWALD_RPAD~")
       call tkadd(" EWALD_TOL~")
+      call tkadd(" HAM")
       call tkadd(" HAM_NSPIN~")
 C      call tkadd(" ITER~")
 C      call tkadd(" ITER_AMIX~")
@@ -3600,9 +3602,17 @@ c      call tkadd(" STR_SHOW~")
       call tkadd(" EWALD_NKDMX~")
       call tkadd(" EWALD_RPAD~")
       call tkadd(" EWALD_TOL~")
+
+      call tkadd(" HAM")
       call tkadd(" HAM_NSPIN~")
       call tkadd(" HAM_NONCOL~ HAM_SS~")
       call tkadd(" HAM_XCFUN~")
+      call tkadd(" HAM_SO~")
+
+      call tkadd(" BZ")
+      call tkadd(" BZ_NOINV~")
+      call tkadd(" BZ_INVIT~")
+
 c      call tkadd(" PGF~")
 c      call tkadd(" PGF_GFOPTS~")
 c      call tkadd(" PGF_MODE~")

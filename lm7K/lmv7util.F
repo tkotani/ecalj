@@ -159,7 +159,10 @@ c      call upacks('strn symg',i,j)
 c      if (j .ge. i)strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
-      if ( v_sctrl%lqp==0 ) lc = lc+2 
+cccccc
+      if (  iand(1,int(v_sctrl%lqp)) == 0 ) lc = lc+2 !iand(2**n,i) means 2**n ditit of i.
+c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+ccccccc
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 C     --- Allocate permanent class arrays, maps and other initialization ---
       call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec, v_slat,v_sbz,v_sstr)!,sstrn)
