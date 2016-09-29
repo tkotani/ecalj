@@ -160,8 +160,9 @@ c      if (j .ge. i)strn = sstrn(i:j+1)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
 cccccc
-      if (  iand(1,int(v_sctrl%lqp)) == 0 ) lc = lc+2 !iand(2**n,i) means 2**n ditit of i.
+c      if (  iand(1,int(v_sctrl%lqp)) == 0 ) lc = lc+2 !iand(2**n,i) means 2**n ditit of i.
 c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+      if( v_sctrl%noinv==0 ) lc = lc+2 !no inversion
 ccccccc
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 C     --- Allocate permanent class arrays, maps and other initialization ---

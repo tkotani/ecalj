@@ -195,7 +195,9 @@ c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
 #ifndef LMFGWD 
 !! iand(2**n,i) means 2**n ditit of i.
 c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
-      if ( iand(1,int(v_sctrl%lqp))==0  ) lc = lc+2
+c      if ( iand(1,int(v_sctrl%lqp))==0  ) lc = lc+2
+c      if( v_sctrl%lqp1==0 ) lc = lc+2 !no inversion
+      if( v_sctrl%noinv==0 ) lc = lc+2 !no inversion
 #endif
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! read AF case 2015

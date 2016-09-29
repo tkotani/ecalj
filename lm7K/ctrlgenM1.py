@@ -901,14 +901,6 @@ tail = tail + """      #For Molecule, you may also need to set FSMOM=n_up-n_dn, 
       #  self-energy breaks time-reversal symmetry. In most cases, lmf program will automatically 
       #  disable this addition in cases that knows the symmetry is broken
       #
-
-      #INVIT=F
-      #  Enables inverse iteration generate eigenvectors (T is the default). 
-      #  It is more efficient than the QL method, but occasionally fails to find all the vectors. 
-      #   When this happens, the program stops with the message:
-      #     DIAGNO: tinvit cannot find all evecs
-      #   If you encounter this message set INVIT=F.
-      #  T.Kotani think (this does not yet for lm7K).
     
 ITER MIX=A2,b=.3,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
 #ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}

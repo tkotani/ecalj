@@ -217,7 +217,7 @@ Cr                     5: Calculate current through structure
 Cr                        Second entry:
 Cr                     0  Make GF using standard approach
 Cr                     1  Use LU decomposition
-Cr   24   17   lqp     1 do not add inversion 2 inverse iteration
+Cr   24   17   noinv    1 do not add inversion !noinv BZ_NOINV
 Cr   25   18   lrel    1 scalar relativistic
 Cr                     2 fully relativistic
 Cr   26   19   lrs     switches concerning restart mode.
@@ -332,7 +332,7 @@ c      integer(8)   ::   lncol
 c      integer(8)   ::   loptc
 c      integer(8)   ::   lordn
 c      integer(8)   ::   lpgf(2)
-      integer(8)   ::   lqp
+      integer(8)   ::   noinv!,lqp2
       integer(8)   ::   lrel
       integer(8)   ::   lrs
       integer(8)   ::   lscr
@@ -2056,8 +2056,10 @@ c     , , master, MPI_COMM_WORLD,ierr)
 c      i_data_size=size(struc%lpgf) ! lpgf(2)
 c      call mpi_bcast(struc%lpgf, i_data_size,MPI_INTEGER8
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lqp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%noinv, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
+c      call mpi_bcast(struc%lqp2, 1,MPI_INTEGER8
+c     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lrel, 1,MPI_INTEGER8
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%lrs, 1,MPI_INTEGER8
@@ -3714,7 +3716,8 @@ c      struc%lncol=0
 c      struc%loptc=0
 c      struc%lordn=0
 c      struc%lpgf=0
-      struc%lqp=0
+      struc%noinv=0
+c      struc%lqp2=0
       struc%lrel=0
       struc%lrs=0
       struc%lscr=0

@@ -1258,6 +1258,7 @@ c            massline=.false.
 !!  ib = atom index
 !!  ltab= L (angular momentum index)
 !!  ktab=  =1 for EH, =2 for EH2, =3 for lo
+!! SYMOPS
       if(onlyonce) then 
          onlyonce=.false.
          nbasp = sctrl%nbasp

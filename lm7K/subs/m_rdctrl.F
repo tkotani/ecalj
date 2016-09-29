@@ -123,7 +123,7 @@ C ... BZ
       real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
      .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0,bz_dosmax
       logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
-     .ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_lqp1,ctrl_lqp2
+     .ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_noinv !,ctrl_lqp2
 
 C$$$C ... TB
 C$$$      integer:: tb_fmode=NULLI,tb_nbfit(2)=0
@@ -2258,7 +2258,7 @@ c      if (ltbe) xx = 5d0
      .'%N%3fIf NEVMX<0, no eigenvectors are generated')
 c      nm='BZ_ZVAL'; call gtv(trim(nm),tksw(prgn,nm),bz_zval,def_r8=0d0,
 c     .note='Number of electrons to accumulate in BZ integration')
-      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp1,
+      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_noinv,
      .def_lg=F,note=
      .'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
@@ -2269,8 +2269,8 @@ c     .note='Number of electrons to accumulate in BZ integration')
 
 c      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
 c     .  def_lg=F,note='Calculate density matrix')
-      nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
-     .def_lg=T,note='Use inverse iteration for diagonalization')
+c      nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
+c     .def_lg=T,note='Use inverse iteration for diagonalization')
       i0 = 0
 c      if (ltbe) i0 = -1
       nm='BZ_MULL'; call gtv(trim(nm),tksw(prgn,nm),bz_lmull,
@@ -3245,7 +3245,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_FSMOM~")
       call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
+c      call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
       call tkadd(" BZ_MULL~")
       call tkadd(" BZ_N~")
@@ -3391,7 +3391,7 @@ C     call tkadd(" SITE_ATOM_PL~")
       call tkadd(" BZ_FSMOM~")
       call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
+c      call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
       call tkadd(" BZ_MULL~")
       call tkadd(" BZ_N~")
@@ -3516,7 +3516,7 @@ C     call tkadd(" SPEC_OMAX2~")
       call tkadd(" BZ_FSMOM~")
       call tkadd(" BZ_FSMOMMETHOD~")
       call tkadd(" BZ_GETQP~")
-      call tkadd(" BZ_INVIT~")
+c      call tkadd(" BZ_INVIT~")
       call tkadd(" BZ_METAL~")
       call tkadd(" BZ_MULL~")
       call tkadd(" BZ_N~")
@@ -3611,7 +3611,7 @@ c      call tkadd(" STR_SHOW~")
 
       call tkadd(" BZ")
       call tkadd(" BZ_NOINV~")
-      call tkadd(" BZ_INVIT~")
+c      call tkadd(" BZ_INVIT~")
 
 c      call tkadd(" PGF~")
 c      call tkadd(" PGF_GFOPTS~")

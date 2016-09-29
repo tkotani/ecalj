@@ -40,7 +40,11 @@ Co         :where phi[n0] is the electrostatic potential without
 Co         :without the contribution from the local charge.
 Co         :To improve accuracy, the latter part is computed
 Co         :analytically; see ugcomp.f
+Co      = Gaussian v n0(r), where n0 is  the last term in Eq.28 in JPSJ.84.034702
+Co
 Co   hpot0 :integrals of phi0 * smooth Hankels (part of contr. to core)
+Co      = Hankel v n0(r), where n0 is the last term in Eq.28 in JPSJ.84.034702
+Co
 Co   qsmc  :smoothed core charge
 Co   zsum  :total nuclear charge
 Cl Local variables

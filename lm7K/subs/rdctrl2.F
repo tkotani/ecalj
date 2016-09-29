@@ -52,7 +52,7 @@ c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      . bz_nabc, bz_lshft, bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,
      . bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
      . bz_semsh,zbak,bz_dosw,bz_lcond,bz_range, bz_lio1,bz_lio2,ctrl_lmet2, 
-     . ctrl_lmet4,ctrl_lmet8,ctrl_lqp1,ctrl_lqp2,bz_dosmax,
+     . ctrl_lmet4,ctrl_lmet8,ctrl_noinv,bz_dosmax, !ctrl_lqp2,
 !! ... Ewald
      . lat_as,lat_tol,lat_rpad, lat_nkdmx,
 !! ... STR
@@ -229,7 +229,7 @@ C ... Local parameters
       logical lgors,cmdopt,bittst,ltmp,ioorbp!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,lcd,lqp, !,lasa
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,lcd,noinv, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
 c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
@@ -438,7 +438,9 @@ C       256 rotate local density after reading
       lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
      . + 256*mod(irs(1)/8,2)
 C     lqp 1 do not add inversion 2 inverse iteration
-      lqp = 1*isw(ctrl_lqp1)+2*isw(ctrl_lqp2)
+c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
+      noinv = isw (ctrl_noinv)  ! T->1 F->0
+c      lpq2 = isw (ctrl_lqp2)  ! T->1 F->0
 C     lscr 0 do nothing
 C          1 Make P0(0)
 C          2 Screen output q and ves
@@ -455,7 +457,9 @@ C            Add 100*k to compute response function only each kth iteration
 
 c        i_copy_size=size(v_sctrl%lpgf)
 c        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1)
-      v_sctrl%lqp=lqp
+c      v_sctrl%lqp=lqp
+      v_sctrl%noinv=noinv
+c      v_sctrl%lqp2=lqp2
       v_sctrl%lrel=lrel
       v_sctrl%lrs=lrs
 c      v_sctrl%lscr=lscr
@@ -823,32 +827,34 @@ CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
 CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
 ckino Jan.04.2012:        allocate(v_ssite(nsite))
         allocate(v_ssite(nsite))
-        do i=1,nsite; v_ssite(i)%size=usite_size(); enddo
-          do  j = 1, nsite
-            v_ssite(j)%spec=ips(j)
-            v_ssite(j)%class=ips(j)
-            i_copy_size=size(v_ssite(j)%dpole)
-            call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
-            v_ssite(j)%mpole=mpole(j)
-            do i_spacks=j,j
-              call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-            enddo
-            v_ssite(j)%pl=ipl(j)
-            v_ssite(j)%plv=plv(j)
+        do i=1,nsite
+          v_ssite(i)%size=usite_size()
+        enddo
+        do  j = 1, nsite
+          v_ssite(j)%spec=ips(j)
+          v_ssite(j)%class=ips(j)
+          i_copy_size=size(v_ssite(j)%dpole)
+          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+          v_ssite(j)%mpole=mpole(j)
+          do i_spacks=j,j
+            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+          enddo
+          v_ssite(j)%pl=ipl(j)
+          v_ssite(j)%plv=plv(j)
 c            i_copy_size=size(v_ssite(j)%pos)
 c            call dcopy(i_copy_size,pos(1,j),1,,1)
 c            i_copy_size=size(v_ssite(j)%vel)
 c            call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
-            v_ssite(j)%pos=pos(1:3,j)
-            v_ssite(j)%vel=vel(1:3,j)
-            v_ssite(j)%vshft=vshft(j)
-            i_copy_size=size(v_ssite(j)%relax)
-            call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
-            i_copy_size=size(v_ssite(j)%eula)
-            call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
+          v_ssite(j)%pos=pos(1:3,j)
+          v_ssite(j)%vel=vel(1:3,j)
+          v_ssite(j)%vshft=vshft(j)
+          i_copy_size=size(v_ssite(j)%relax)
+          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+          i_copy_size=size(v_ssite(j)%eula)
+          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
 !!
-            v_ssite(j)%iantiferro=iantiferro(j)
-          enddo
+          v_ssite(j)%iantiferro=iantiferro(j)
+        enddo
 
 C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
 c          j = len_trim(iter_amix)          ! Euler angle mixing amix
@@ -892,7 +898,8 @@ C     Switches that turn off automatic finder, incl. inversion
             endif
           enddo
           if (symg .eq. ' ') symg = 'e' ! suppress ops if none explicit
-          lqp = lqp-bitand(lqp,1)+1
+c          lqp = lqp-bitand(lqp,1)+1 ! noinv=1 -->do nothing, noinv=0 --> noinv=1
+          noinv=1
         endif
         j = len_trim(symg)               ! Symmetry group symg
         if (j .gt. 0) then
@@ -960,8 +967,8 @@ C ... Suppress inversion when noncollinear magnetism, SX, NLO
 c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
 c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
 c          if (lncol .ne. 0)
-          if(lso.ne. 0) lqp = lqp-bitand(lqp,1)+1
-          v_sctrl%lqp=lqp
+          if(lso.ne. 0) noinv=1 !lqp = lqp-bitand(lqp,1)+1
+          v_sctrl%noinv=noinv
 
 C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 c     j = iand(4,int(v_sctrl%lham)) /4
