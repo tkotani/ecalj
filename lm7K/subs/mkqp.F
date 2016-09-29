@@ -58,7 +58,13 @@ c      call dcopy(i_copy_size,slat%plat,1,plat,1)
       npgrp=slat%npgrp
       lpbc = 0
       ltet = gettet .and. iand(2,int(sctrl%lmet)) .ne.0
-      call lsets_bitop_i8(sctrl%lmet,1,ltet,2)
+c      call lsets_bitop_i8(sctrl%lmet,1,ltet,2) !sep2016 removed, and followings are equilalent, I think.
+      if(ltet) then
+        sctrl%lmet = ior(int(sctrl%lmet),2)               !ltet=T --> lmet2=on (i think)
+      else
+        sctrl%lmet = sctrl%lmet - iand(int(sctrl%lmet),2) !ltet=F --> lmet2=off (i think)
+      endif  
+
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1
 C not now ... q-points from BZMAP, C ... Read qp from disk

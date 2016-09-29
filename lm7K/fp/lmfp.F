@@ -157,7 +157,7 @@ c     integer:: odmatu , ovorbdmat , odmato
       logical:: l_dummy_isanrg,isanrg
 
       real(8):: pnu(20),bz_w
-      logical :: llmfgw
+      logical :: llmfgw,nowriteden=.false.
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -243,8 +243,9 @@ C     No forces or dynamics
         i_copy_size=size(sctrl%mdprm)
         call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
 C     Suppress writing output density
-        call lsets_bitop_i8(sctrl%lrs,1,.false.,8)
-        call lsets_bitop_i8(sctrl%lrs,1,.false.,16)
+c        call lsets_bitop_i8(sctrl%lrs,1,.false.,8) -->lrs8=0
+c        call lsets_bitop_i8(sctrl%lrs,1,.false.,16) -->lrs16=0
+        nowriteden=.true.
 C     Exactly one iteration
         sctrl%maxit=1
 C     Suppress mixing of output density
@@ -273,8 +274,9 @@ c      lhf = lcd2 = iand(2,int(sctrl%lcd)) .ne.0
       nbaspp = nbas             !+ 2*(npadl + npadr)
       stdo   = lgunit(1)
       call setcc(lrel)
-      irs ( 1 ) = iand(7,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 )
-      irs ( 2 ) = iand(8+16,int(sctrl%lrs)) /8
+      irs ( 1 ) = iand( 1+2+4,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 )
+      irs ( 2 ) = iand( 8+16,int(sctrl%lrs)) /8
+      if(nowriteden) irs(2)=0
       irs ( 3 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
       irs ( 4 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
       irs ( 5 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )

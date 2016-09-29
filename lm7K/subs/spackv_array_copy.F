@@ -1,3 +1,26 @@
+!! these are needed historycally. Bothe are the same as icopy.
+      subroutine ii8copy(n,x,incx,y8,incy) 
+      implicit none
+      integer:: n,incx,incy
+      integer:: x(*)
+      integer:: y8(*)
+      integer:: i
+      do i=1,n
+        y8(1+incy*(i-1))=x(1+incx*(i-1))
+      enddo
+      end subroutine ii8copy
+!! ---
+      subroutine i8icopy(n,x8,incx,y,incy) 
+      implicit none
+      integer:: n,incx,incy
+      integer:: x8(*)
+      integer:: y(*)
+      integer:: i
+      do i=1,n
+        y(1+incy*(i-1))=x8(1+incx*(i-1))
+      enddo
+      end subroutine i8icopy
+
 c$$$      subroutine spackv_array_copy_r8_r8(c,v,n,j,s)
 c$$$      implicit none
 c$$$      character,intent(in):: c
@@ -64,59 +87,37 @@ c$$$        write(*,*) 'error in ',thisfunc
 c$$$      endif
 c$$$      end subroutine spacks_copy
 
-      subroutine ii8copy(n,x,incx,y8,incy) !same as icopy now
-      implicit none
-      integer:: n,incx,incy
-      integer:: x(*)
-      integer:: y8(*)
-      integer:: i
-      do i=1,n
-        y8(1+incy*(i-1))=x(1+incx*(i-1))
-      enddo
-      end subroutine ii8copy
-
-      subroutine i8icopy(n,x8,incx,y,incy) !same as icopy now
-      implicit none
-      integer:: n,incx,incy
-      integer:: x8(*)
-      integer:: y(*)
-      integer:: i
-      do i=1,n
-        y(1+incy*(i-1))=x8(1+incx*(i-1))
-      enddo
-      end subroutine i8icopy
-
-      subroutine lsets_bitop_i8(v_iv,n,lval,mask)
-C     - Set a logical bits to a structure entry
-C     ----------------------------------------------------------------
-C     i Inputs
-C     i   lval is a logical T or F, of length of sname entry
-C     i   mask should be an integer multiple of 2.
-C     i        Only the lowest bit of mask is used.
-C     o Outputs
-C     o  struc element corresponding to label 'name' is modified.
-C     o        The mask bit of that entry is set to lval.
-C     ----------------------------------------------------------------
-c      use m_struc_def
-c      use m_struc_func
-      implicit none
-      integer:: v_iv(n)
-      logical,intent(in):: lval
-      integer,intent(in):: mask
-      integer,intent(in):: n
-      integer:: newval,lmask
-      integer:: bitor, bitand ,bitlow
-      integer:: i
-      lmask=bitlow(mask)
-      do i=1,n
-        if (lval) then
-          newval = ior(int(v_iv(i)),lmask)
-        else
-          newval = v_iv(i) - iand(int(v_iv(i)),lmask)
-        endif
-        v_iv(i) = newval
-      enddo
-      end subroutine lsets_bitop_i8
+c$$$      subroutine lsets_bitop_i8(v_iv,n,lval,mask)
+c$$$C     - Set a logical bits to a structure entry
+c$$$C     ----------------------------------------------------------------
+c$$$C     i Inputs
+c$$$C     i   lval is a logical T or F, of length of sname entry
+c$$$C     i   mask should be an integer multiple of 2.
+c$$$C     i        Only the lowest bit of mask is used.
+c$$$C     o Outputs
+c$$$C     o  struc element corresponding to label 'name' is modified.
+c$$$C     o        The mask bit of that entry is set to lval.
+c$$$C     ----------------------------------------------------------------
+c$$$c      use m_struc_def
+c$$$c      use m_struc_func
+c$$$      implicit none
+c$$$      integer:: v_iv(n)
+c$$$      logical,intent(in):: lval
+c$$$      integer,intent(in):: mask
+c$$$      integer,intent(in):: n
+c$$$      integer:: newval,lmask
+c$$$      integer:: bitor, bitand ,bitlow
+c$$$      integer:: i
+c$$$      lmask=bitlow(mask)
+c$$$      do i=1,n
+c$$$        if (lval) then
+c$$$          newval = ior(int(v_iv(i)),lmask)
+c$$$        else
+c$$$          newval = v_iv(i) - iand(int(v_iv(i)),lmask)
+c$$$        endif
+c$$$        v_iv(i) = newval
+c$$$      enddo
+c$$$      end subroutine lsets_bitop_i8
 
 C$$$#if 0
 C$$$      program main
