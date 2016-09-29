@@ -122,11 +122,12 @@ C Passed Parameters
       integer niax
       parameter (niax=10)
       integer nl,nsp,nclass,nbas,nsite,iax(niax,nsite),ipc(nbas)
-      double precision plat(3,3),pos(3,nbas),alat,dclabl(1),
+      double precision plat(3,3),pos(3,nbas),alat,
      .hrs(nl**2,nl**2,nsite),srs(nl**2,nl**2,nsite),
      .srx(nl**2,nl**2,nsite),h1rs(nl**2,nl**2,nsite),
      .h2rs(nl**2,nl**2,nsite),s2rs(nl**2,nl**2,nsite),
      .pp(6,0:nl-1,nsp,1),alpha(1),Don(nl**2,nl**2,nbas)
+      character(8):: dclabl(*)
       logical lasa,lgamma,lov
 C Local Variables
       integer isite,ib,ia,icb,ica,ix,i,j,k,L,lma,lmb,ll,
@@ -204,8 +205,10 @@ C .. get onsite strux
         pvec(3) = iax(5,isite)
         icb = ipc(ib)
         ica = ipc(ia)
-        call r8tos8(dclabl(icb),clabli)
-        call r8tos8(dclabl(ica),clablj)
+c        call r8tos8(dclabl(icb),clabli)
+c        call r8tos8(dclabl(ica),clablj)
+        clabli=dclabl(icb)
+        clablj=dclabl(ica)
         do  ix = 1, 3
           vec(ix) = dx(ix,ia,pvec(1),pvec(2),pvec(3))
         enddo
@@ -357,14 +360,15 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
       integer nl,nsp,nclass
-      double precision pp(6,nl,nsp,nclass),dclabl(nclass)
+      double precision pp(6,nl,nsp,nclass)
 C Local Variables
       integer ifi,ic,l,k
       double precision sqd,d,oalp,pgam,gmina,dsign
-      character*8 clabl
+      character(8):: clabl,dclabl(nclass)
 
       do  ic = 1, nclass
-        call r8tos8(dclabl(ic),clabl)
+c        call r8tos8(dclabl(ic),clabl)
+        clabl=dclabl(ic)
         write (ifi,1) clabl,nl
         do  l = 1, nl
           gmina = pp(6,l,1,ic) - pp(5,l,1,ic)

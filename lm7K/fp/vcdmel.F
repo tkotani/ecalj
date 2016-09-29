@@ -136,7 +136,8 @@ ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
         !  call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
         !enddo
         call dcopy(n0*2,ssite(ib)%pz,1,pnz,1)
-        call r8tos8(sspec(is)%name,clabl)
+c        call r8tos8(sspec(is)%name,clabl)
+        clabl=sspec(is)%name
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
@@ -144,43 +145,25 @@ ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
         lmxa=sspec(is)%lmxa
         if (lmxa .gt. lmxax) call rxi('vcdmel needs lmxax ',lmxa)
         if (lmxa .eq. -1) cycle !  if (lmxa .eq. -1) goto 10
-Cdelw1         call defrr (orofi, nr)
         allocate(rofi_rv(nr))
-Cdelw1         call radmsh (rmt,a,nr,w(orofi))
         call radmsh ( rmt , a , nr , rofi_rv )
 C   --- Augmented wave functions u,s
-Cdelw1         call defrr(oul,   nr*(lmxa+1)*nsp)
         allocate(ul_rv(nr*(lmxa+1)*nsp))
-Cdelw1         call defrr(osl,   nr*(lmxa+1)*nsp)
         allocate(sl_rv(nr*(lmxa+1)*nsp))
-Cdelw1         call defrr(ogz,   nr*(lmxa+1)*nsp)
         allocate(gz_rv(nr*(lmxa+1)*nsp))
-Cdelw1         call defrr(oruu,  nr*(lmxa+1)*2*nsp)
         allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
-Cdelw1         call defrr(orus,  nr*(lmxa+1)*2*nsp)
         allocate(rus_rv(nr*(lmxa+1)*2*nsp))
-Cdelw1         call defrr(orss,  nr*(lmxa+1)*2*nsp)
         allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-
         call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 105
-Cdelw1         call makusp(n0,z,nsp,rmt,lmxa,w(ov0),a,nr,xx,xx,pnu,pnz,rsml,
-Cdelw1      .  ehl,w(oul),w(osl),w(ogz),w(oruu),w(orus),w(orss))
-ckino Dec.12.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , rv_p_ov0 , a , nr ,
-ckino Dec.28.2011:           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_p_ov0 , a , nr ,
         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv )
-
 
 C   --- Matrix elements of u,s with core
         call skpblb(clabl,8,j)
         call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
      .  ' ',120,i1mach(2),ib,ncls,lcls)
-Cdelw1         call defrr(og,   nr*2)
         allocate(g_rv(nr*2))
-        if (nr*2<0) g_rv(:)=0.0d0
 
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
 Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112

@@ -478,7 +478,8 @@ c mar2014
          write(stdo,"(a)")' --- bndfp: Used Atomic Positions from rst (or ctrl) ----'
          do ib=1,nbas
             is=ssite(ib)%spec
-            call r8tos8(ssite(is)%clabel,spid)
+c            call r8tos8(ssite(is)%clabel,spid)
+            spid=ssite(is)%clabel
             write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
@@ -489,7 +490,8 @@ c mar2014
         write(stdo,"(a)")'== bndfp: Atomic Positions (from rst/ctrl or changing when dynamics ==)'
         do ib=1,nbas
           is=ssite(ib)%spec
-          call r8tos8(ssite(is)%clabel,spid)
+          spid=ssite(is)%clabel
+c          call r8tos8(ssite(is)%clabel,spid)
           write(stdo,"('  ib clabl pos =',i5,x,a6,3(x,f12.6))") ib, trim(spid),ssite(ib)%pos
         enddo
       endif
@@ -1273,7 +1275,8 @@ c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw) 
             do iorb = 1, norbmto !Total number of MTO's
               ib   = ibastab(iorb)
               is   = ssite(ib)%spec
-              call r8tos8(sspec(is)%name,spid)
+c              call r8tos8(sspec(is)%name,spid)
+              spid=sspec(is)%name
               write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
      &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
             enddo

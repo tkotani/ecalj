@@ -242,7 +242,8 @@ C$&  MP_SCHEDTYPE=RUNTIME
         z=sspec(is)%z
         qc=sspec(is)%qc
         rg=sspec(is)%rg
-        call r8tos8(sspec(is)%name,spid)
+c        call r8tos8(sspec(is)%name,spid)
+        spid=sspec(is)%name
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
@@ -266,7 +267,8 @@ cccccccccccccc
 c        print *,' i job kmax lfltwf(FRZWF see locpot.F)=',i,job,kmax,lfltwf
 cccccccccccccc
         call corprm(sspec,is,qcorg,qcorh,qsca,cofg,cofh,ceh,lfoc,rfoc,z)
-        call r8tos8(sspec(is)%coreh,chole)
+c        call r8tos8(sspec(is)%coreh,chole)
+        chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc0,qv,qsc0)
         if (qsc0 .ne. qsca .or. qc .ne. qc0-qsc0) then

@@ -27,11 +27,12 @@ C ----------------------------------------------------------------
 C     implicit none
       integer lstyle,nlist,nclass,list(1)
       character*(*) slist
-      double precision z(nclass),dclabl(nclass)
+      double precision z(nclass)
 C Local variables
       integer iv0,ic,ival,is,i,j,ls,ls1
       logical a2bin,sw
-      character strn*120,filnam*72,cnam*72,clabl*8
+      character strn*120,filnam*72,cnam*72
+      character(8):: clabl,dclabl(nclass)
 C Heap:
 c      integer w(1)
 c      common /w/ w
@@ -97,7 +98,8 @@ c   30 continue
       call ffnam(slist(1:ls1+1),filnam)
       do  44  ic = 1, nclass
         call pshpr(0)
-        call r8tos8(dclabl(ic),clabl)
+c        call r8tos8(dclabl(ic),clabl)
+        clabl=dclabl(ic)
         call ffnam(clabl,cnam)
         call poppr
         call awrit0('%xls ' // filnam //'%a|grep -s '

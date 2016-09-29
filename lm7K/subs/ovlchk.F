@@ -29,7 +29,8 @@ C     implicit none
 C Passed parameters
       integer nbas,nbasp
       double precision plat(3,3),pos(3,nbasp),rmax(1),rmt(1),
-     .alat,fovl,volsph,dclabl(1)
+     .alat,fovl,volsph
+      character(8):: dclabl(*)
       integer ips(1),mode(3)
 C Local parameters
       double precision dd(3),dd1,dd2,sumrs,summt,ovlprs,ovlpmt,
@@ -77,8 +78,9 @@ C --- Determine which linear combination of plat is shortest ---
         ic = ips(ibas)
         if (ipr .le. 10) goto 20
         if (ibas .eq. nbas+1) write(stdo,'(''  ... Padding basis'')')
-        call r8tos8(dclabl(ic),clabl)
-        if (dclabl(1) .eq. 0d0) call awrit1('%x%,4i',clabl,8,0,ic)
+c        call r8tos8(dclabl(ic),clabl)
+        clabl=dclabl(ic)
+        if (dclabl(1) .eq.'') call awrit1('%x%,4i',clabl,8,0,ic)
         if (lrmt) then
           write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),
      .    (pos(m,ibas),m=1,3)
@@ -121,8 +123,9 @@ C --- Check sphere overlaps ---
       do  30  ibas = 1, nbasp
         ic = ips(ibas)
         if (ipr .ge. 10) then
-          call r8tos8(dclabl(ic),clabl)
-          if (dclabl(1) .eq. 0d0) call awrit1('%x%,4i',clabl,8,0,ic)
+c          call r8tos8(dclabl(ic),clabl)
+          clabl = dclabl(ic)
+          if (dclabl(1) .eq. '') call awrit1('%x%,4i',clabl,8,0,ic)
         endif
       do  30  jbas = ibas, nbasp
         jc = ips(jbas)
@@ -130,8 +133,9 @@ C --- Check sphere overlaps ---
           goto 30
         endif
         if (ipr .ge. 10) then
-          call r8tos8(dclabl(jc),clablj)
-          if (dclabl(1) .eq. 0d0) call awrit1('%x%,4i',clablj,8,0,jc)
+c          call r8tos8(dclabl(jc),clablj)
+          clablj=dclabl(jc)
+          if (dclabl(1) .eq.'') call awrit1('%x%,4i',clablj,8,0,jc)
         endif
         if (ibas .eq. jbas) then
           if (ddot(3,dlat,1,dlat,1) .eq. 0) goto 30

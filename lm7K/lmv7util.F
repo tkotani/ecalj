@@ -694,7 +694,8 @@ C     --- Open the atom file ---
          outs1 = ' '
          outs2 = ' '
          outs3 = ' '
-         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
+c         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
+         clabl = sarray%rv_a_oclabl(ic)
          if (mode00 .ne. 3) then
             ifi = fopn(clabl)
          endif

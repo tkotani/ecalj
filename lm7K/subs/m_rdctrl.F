@@ -105,7 +105,7 @@ C ... SPEC
       character*(8),allocatable::pb1(:),pb2(:), coreh(:)
 
 C ... SITE
-      character*8:: alabl
+      character(8):: alabl
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
@@ -2370,7 +2370,8 @@ c     &      call rx(" Broyden mixing is problematic."//
 c     &              " If necessary, you have to fix it (mixrho.F)")
 
         if (nout==1 .and. io_help==0 .and. sw/=2) then
-          call r8tos8(vmix%fn,alabl)
+c          call r8tos8(vmix%fn,alabl)
+          alabl=vmix%fn
           if (io_show==0) call pshpr(0)
           if (.not. parmxp(-1,iter_mix,len_trim(iter_mix),
      .    int(vmix%mode),int(vmix%nmix),vmix%w(1),vmix%b,vmix%elind,

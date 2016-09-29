@@ -42,7 +42,8 @@ C     implicit none
         z1(3) = dcos(beta)
       endif
       ic = ipc(iax(1,1))
-      call r8tos8(dclabl(ic),clabl)
+c      call r8tos8(dclabl(ic),clabl)
+      clabl=dclabl(ic)
       print 302, clabl, ic, nint(z(ic))
   302 format(/' Shell decomposition for class ',a,
      .'  class',i4,'  z=',i2/
@@ -96,7 +97,8 @@ C     ... Setup for printout
           kk = 0
           do  16  k = 1, ii
             kk = kk+1
-            call r8tos8(dclabl(ih(2,k)),clabl)
+c            call r8tos8(dclabl(ih(2,k)),clabl)
+            clabl=dclabl(ih(2,k))
             l = awrite('%a  %np%i:'//clabl//
      .      '%a%?;n>1;(%i);%j;',outs2,len(outs2),0,
      .      (kk-1)*14,ih(2,k),ih(1,k),ih(1,k),0,0,0,0)
@@ -813,7 +815,8 @@ C   ... New shell
           oldi1 = i1
           oldiat = iat
           ic = ipc(i1)
-          call r8tos8(dclabl(ic),clabl)
+c          call r8tos8(dclabl(ic),clabl)
+          clabl=dclabl(ic)
           call awrit1('# neighbor list for site %i, class '//clabl,
      .    ' ',80,ifi,i1)
 C         Don't print out on-site entry
@@ -831,7 +834,8 @@ C   ... If i2 already marked, skip this pair
 
         if (mod(ltab,10) .eq. 1) then
           jc = ipc(i2)
-          call r8tos8(dclabl(jc),clabl2)
+c          call r8tos8(dclabl(jc),clabl2)
+          clabl2=dclabl(jc)
           d = dsqrt(ddot(3,rtab(1,iat),1,rtab(1,iat),1))
           if (ltab .lt. 10) then
             write(ifi,331) i1,i2,(rtab(i,iat),i=1,3),d,clabl,clabl2

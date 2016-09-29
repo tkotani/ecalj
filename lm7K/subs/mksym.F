@@ -512,12 +512,11 @@ Cu   18 Dec 01 Packs class label into ssite->clabel
 C ----------------------------------------------------------------------
 C     implicit none
       integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
-      real(8):: dclabl(nclass)
       type(s_site)::ssite(*)
 
       character*8 slabl(nspec)
       integer ic,iclbsj,idx,is,ib
-      character*8 clabl
+      character(8):: clabl,dclabl(nclass)
 
 C --- Make class labels from species labels ---
       if (mod(mode,2) .eq. 1) then
@@ -534,7 +533,8 @@ C --- Make class labels from species labels ---
 
       do  20  ib = 1, nbas
         ic = ipc(ib)
-        call r8tos8(dclabl(ic),clabl)
+c        call r8tos8(dclabl(ic),clabl)
+        clabl=dclabl(ic)
         do i_spacks=ib,ib
           call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
         enddo

@@ -107,7 +107,8 @@ C --- For each site, do ---
 c        do i_spacks=is,is
 c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
 c        enddo
-        call r8tos8(sspec(is)%name,spid)
+c        call r8tos8(sspec(is)%name,spid)
+        spid=sspec(is)%name
 
         if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
 
