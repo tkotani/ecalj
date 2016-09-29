@@ -107,7 +107,7 @@ ckino Dec.14.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
 ckino Dec.14.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
 
       integer ,allocatable :: nrspc_iv(:)
-      real(8) ,allocatable :: pos2_rv(:)
+      real(8) ,allocatable :: pos2_rv(:,:)
       integer ,allocatable :: ips2_iv(:)
 
       integer,allocatable:: iv_a_tmp(:)
@@ -203,7 +203,7 @@ C ... When generating the group the basis may become enlarged ...
       if(allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
       allocate(slat%iv_a_oistab(abs((ngmx+1)*nbas)))
       allocate(ips2_iv(ngmx*nbas))
-      allocate(pos2_rv(3*ngmx*nbas))
+      allocate(pos2_rv(3,ngmx*nbas))
       call icopy ( nbas , sarray%iv_a_oips , 1 , ips2_iv , 1 ) 
       call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos2_rv , 1 ) 
       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
@@ -224,25 +224,19 @@ C ... When generating the group the basis may become enlarged ...
         goto 5
       endif
       if (fptol .ne. 0) then
-        i_copy_size=size(ssite(1)%pos)
+c        i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-     .    , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
-
+c          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+c     .    , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+           ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
+c        enddo
+c       i_copy_size=size(ssite(1)%pos)
+c        do i_spackv=1,nbas
+c           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
+          slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
         enddo
-
-        i_copy_size=size(ssite(1)%pos)
-        do i_spackv=1,nbas
-           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-ckino Dec.8.2011:       .     , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-ckino Jan.04.2012:       .     , i_copy_size , i_spackv + 1 - 1 , sarray%rv_p_opos ) 
-ckino Jan.04.2012:       .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_p_opos ) 
-     .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
-
-        enddo
-
       endif
-
 Cki#error ERROR, try to release name= oips2 ,but list=null at linenumber= 219 list= (None)
 
 
@@ -402,11 +396,9 @@ ckino Dec.28.2011:       .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mks
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
-         call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
-ckino Dec.16.2011:       .   , i_copy_size , i_spackv + 1 - 1 , iv_p_oipc ) 
-ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_p_oipc ) 
-     .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_a_oipc ) 
-
+c         call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
+c     .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_a_oipc ) 
+         ssite ( i_spackv )%class = sarray%iv_a_oipc(i_spackv)
       enddo
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then

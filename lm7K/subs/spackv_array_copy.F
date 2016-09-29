@@ -1,38 +1,38 @@
-      subroutine spackv_array_copy_r8_r8(c,v,n,j,s)
-      implicit none
-      character,intent(in):: c
-      real(8):: v(n)
-      integer,intent(in):: j,n
-      real(8):: s(n*j)
-      integer:: i
-      if (c=='p') then
-        do i=1,n
-          v(i)=s(n*(j-1)+i)
-        enddo
-      else
-        do i=1,n
-          s(n*(j-1)+i)=v(i)
-        enddo
-      endif
-      end
-
-      subroutine spackv_array_copy_i8_i(c,v,n,j,s)
-      implicit none
-      character,intent(in):: c
-      integer:: v(n)
-      integer,intent(in):: j,n
-      integer:: s(n*j)
-      integer:: i
-      if (c=='p') then
-        do i=1,n
-          v(i)=s(n*(j-1)+i)
-        enddo
-      else
-        do i=1,n
-          s(n*(j-1)+i)=v(i)
-        enddo
-      endif
-      end
+c$$$      subroutine spackv_array_copy_r8_r8(c,v,n,j,s)
+c$$$      implicit none
+c$$$      character,intent(in):: c
+c$$$      real(8):: v(n)
+c$$$      integer,intent(in):: j,n
+c$$$      real(8):: s(n*j)
+c$$$      integer:: i
+c$$$      if (c=='p') then
+c$$$        do i=1,n
+c$$$          v(i)=s(n*(j-1)+i)
+c$$$        enddo
+c$$$      else
+c$$$        do i=1,n
+c$$$          s(n*(j-1)+i)=v(i)
+c$$$        enddo
+c$$$      endif
+c$$$      end
+c$$$
+c$$$      subroutine spackv_array_copy_i8_i(c,v,n,j,s)
+c$$$      implicit none
+c$$$      character,intent(in):: c
+c$$$      integer:: v(n)
+c$$$      integer,intent(in):: j,n
+c$$$      integer:: s(n*j)
+c$$$      integer:: i
+c$$$      if (c=='p') then
+c$$$        do i=1,n
+c$$$          v(i)=s(n*(j-1)+i)
+c$$$        enddo
+c$$$      else
+c$$$        do i=1,n
+c$$$          s(n*(j-1)+i)=v(i)
+c$$$        enddo
+c$$$      endif
+c$$$      end
 
 
 c$$$      subroutine spacks_copy(c,struc,i1,i2,name,istr)
@@ -64,7 +64,7 @@ c$$$        write(*,*) 'error in ',thisfunc
 c$$$      endif
 c$$$      end subroutine spacks_copy
 
-      subroutine ii8copy(n,x,incx,y8,incy)
+      subroutine ii8copy(n,x,incx,y8,incy) !same as icopy now
       implicit none
       integer:: n,incx,incy
       integer:: x(*)
@@ -75,7 +75,7 @@ c$$$      end subroutine spacks_copy
       enddo
       end subroutine ii8copy
 
-      subroutine i8icopy(n,x8,incx,y,incy) 
+      subroutine i8icopy(n,x8,incx,y,incy) !same as icopy now
       implicit none
       integer:: n,incx,incy
       integer:: x8(*)
@@ -107,21 +107,15 @@ c      use m_struc_func
       integer:: newval,lmask
       integer:: bitor, bitand ,bitlow
       integer:: i
-
       lmask=bitlow(mask)
-
       do i=1,n
-
         if (lval) then
           newval = ior(int(v_iv(i)),lmask)
         else
           newval = v_iv(i) - iand(int(v_iv(i)),lmask)
         endif
-
         v_iv(i) = newval
-
       enddo
-
       end subroutine lsets_bitop_i8
 
 C$$$#if 0

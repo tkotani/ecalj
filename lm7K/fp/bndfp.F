@@ -2356,8 +2356,9 @@ c     .                 ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
          allocate(ips_iv(nbas))
          do i_spackv=1,nbas
-            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .        , 1 , i_spackv + 1 - 1 , ips_iv )
+c            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+c     .        , 1 , i_spackv + 1 - 1 , ips_iv )
+            ips_iv(i_spackv)=ssite ( i_spackv ) %spec 
          enddo
 !! orbital moment
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )

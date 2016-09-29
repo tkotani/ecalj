@@ -112,7 +112,7 @@ C ... Passed parameters
       integer ,allocatable :: ipc_iv(:)
       integer ,allocatable :: ips_iv(:)
       real(8) ,allocatable :: pos_rv(:)
-      real(8) ,allocatable :: pos0_rv(:)
+      real(8) ,allocatable :: pos0_rv(:,:)
       real(8) ,allocatable :: rho_rv(:)
       real(8) ,allocatable :: sym_rv(:)
       double precision plat(9),qlat(9)
@@ -127,23 +127,24 @@ C ... Passed parameters
       ngrp=slat%nsgrp
       allocate(ips_iv(nbas))
       allocate(ipc_iv(nbas))
-      allocate(pos0_rv(3*nbas))
+      allocate(pos0_rv(3,nbas))
 C ... Separate sites into symmetry classes
 C      call symcls(nbas,ssite,sspec,slat,ngrp,w(og),w(oag),
 C     .  w(oips),w(opos0),nclass,w(oipc))
 C      if (ipr .ge. 40) write(stdo,300) nclass
 C  300 format(/' symrat: number of symmetry classes is',i3)
 
-      i_copy_size=1;
+c      i_copy_size=1;
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
-     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
-
+c        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
+c     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
+        ipc_iv(i_spackv)= ssite( i_spackv)%class
       enddo
-      i_copy_size=size(ssite(1)%pos)
+c      i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .  , i_copy_size , i_spackv + 1 - 1 , pos0_rv )
+c        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .  , i_copy_size , i_spackv + 1 - 1 , pos0_rv )
+        pos0_rv(:,i_spackv)= ssite(i_spackv)%pos 
       enddo
       nclass = mxint ( nbas , ipc_iv )
 C --- Start loop over classes ---

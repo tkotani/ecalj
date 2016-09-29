@@ -237,29 +237,32 @@ ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr
 ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag
 
 
-      i_copy_size=1;
+c      i_copy_size=1;
+c      do i_spackv=1,nbas
+c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+        ipc(i_spackv)  = ssite(i_spackv)%class
+        ips(i_spackv)  = ssite(i_spackv)%spec
+        pos(:,i_spackv)= ssite(i_spackv)%pos
       enddo
 
-      i_copy_size=1;
-      do i_spackv=1,nbas
-        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
-      enddo
+c     i_copy_size=1;
+c      do i_spackv=1,nbas
+c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
+c        ipc(i_spackv)=ssite(i_spackv)%class
+c      enddo
 
-      i_copy_size=size(ssite(1)%pos)
-      do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
-      enddo
+c      i_copy_size=size(ssite(1)%pos)
+c      do i_spackv=1,nbas
+c        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
+c      enddo
 
       nclass = mxint(nbas,ipc)
       do  ib = 1, nbas
         lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
-
       enddo
 
       do  ic = 1, nclass
-
 C   ... Make nrclas,ipa,posc
         call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
         if (nrclas .gt. 0) then

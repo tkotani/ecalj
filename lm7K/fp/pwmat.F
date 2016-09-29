@@ -109,22 +109,23 @@ C --- Setup ---
       do  l = 1, n0
         mimgl(l) = (-img)**l
       enddo
+
 C     Create bas,ips,rmax
-      i_copy_size=size(ssite(1)%pos)
+c      i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+c        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+        bas(:,i_spackv)=ssite(i_spackv)%pos
       enddo
 
-      i_copy_size=1;
+c      i_copy_size=1;
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+        ips(i_spackv) = ssite(i_spackv)%spec
       enddo
 
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         rmax ( ib ) = (sspec(is)%rmt)
-
       enddo
       nlmto = ndimh-napw
 
@@ -332,12 +333,14 @@ C --- Setup ---
 C     Create bas,ips,rmax
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+c        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,bas)
+        bas(:,i_spackv)=ssite(i_spackv)%pos
       enddo
 
       i_copy_size=1;
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
+        ips(i_spackv)=ssite(i_spackv)%spec
       enddo
 
       do  ib = 1, nbas

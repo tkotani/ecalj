@@ -207,18 +207,18 @@ C     implicit none
       type(s_site)::ssite(*)
 
       character*(*) filnam
-      real(8) ,allocatable :: pos_rv(:)
+      real(8) ,allocatable :: pos_rv(:,:)
 
 C heap:
 
 C ... Unpack site positions
-      allocate(pos_rv(3*nbas))
+      allocate(pos_rv(3,nbas))
 
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .  , i_copy_size , i_spackv + 1 - 1 , pos_rv )
-
+c        call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .  , i_copy_size , i_spackv + 1 - 1 , pos_rv )
+        pos_rv(:,i_spackv)=ssite(i_spackv)%pos
       enddo
 
 C ... File I/O
@@ -227,9 +227,9 @@ C ... File I/O
 C ... Repack site positions
       i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-     .  , i_copy_size , i_spackv + 1 - 1 , pos_rv )
-
+c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
+c     .  , i_copy_size , i_spackv + 1 - 1 , pos_rv )
+        ssite(i_spackv)%pos = pos_rv(:,i_spackv)
       enddo
 
       if (allocated(pos_rv)) deallocate(pos_rv)

@@ -114,9 +114,9 @@ C --- Determine shape of smooth Hankel tails for local orbitals ---
 
       i_copy_size=1;
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .  , i_copy_size , i_spackv + 1 - 1 , ips_iv )
-
+c        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+c     .  , i_copy_size , i_spackv + 1 - 1 , ips_iv )
+        ips_iv(i_spackv)=ssite(i_spackv)%spec
       enddo
 
 C ... Loop over species containing extended local orbitals

@@ -101,7 +101,7 @@ c !lncol,
       integer,allocatable :: iv_a_ontab(:)
       integer,allocatable :: iv_a_oiax(:)
       real(8),allocatable :: rv_a_og(:)
-      real(8) ,allocatable :: pos2_rv(:)
+      real(8) ,allocatable :: pos2_rv(:,:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
       real(8) ,allocatable :: lockc_rv(:)
@@ -133,15 +133,16 @@ c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       nspec=sctrl%nspec
       nsp=sctrl%nspin
 
-      i_copy_size=size(sctrl%modep)
-      call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
-
+c      i_copy_size=size(sctrl%modep)
+c      call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
+      modep = sctrl%modep
       lpbc = 0
       nclasp=sarray%nclasp
       avw=slat%avw
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      plat=slat%plat
       nkd=slat%nkd
       nkq=slat%nkq
       mxnbr=sstr%mxnbr
@@ -230,31 +231,24 @@ C        xx = dglob('lrel',1d0,1)
 C        xx = dglob('nsp',1d0,1)
 C       Initial estimate for sphere radii: overlapping atom potentials
           allocate(zz_rv(nspec))
-
-          i_copy_size=1;
-          do i_spackv=1,nspec
-            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %z , 
-     .      i_copy_size , i_spackv + 1 - 1 , zz_rv )
-
-          enddo
-
           allocate(rmt_rv(nspec))
-
-          i_copy_size=1;
+c          i_copy_size=1;
           do i_spackv=1,nspec
-            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
-     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
-
+c            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %z , 
+c     .      i_copy_size , i_spackv + 1 - 1 , zz_rv )
+            zz_rv (i_spackv) = sspec(i_spackv)%z
+            rmt_rv(i_spackv) = sspec(i_spackv)%rmt
           enddo
-
-          allocate(lock_iv(abs(-nspec)))
-          if (-nspec<0) lock_iv(:)=0
-
+c          i_copy_size=1;
+c          do i_spackv=1,nspec
+c            call spackv_array_copy_r8_r8 ( 'u' , sspec ( i_spackv ) %rmt 
+c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+c          enddo
+          allocate(lock_iv(nspec))
+          lock_iv(:)=0
           do  i = 1, nspec
             call ivset ( lock_iv , i , i , bitand ( int ( sspec ( i ) 
      .      %mxcst ) , 2 ) )
-
-
           enddo
           if (lpbc .eq. 0) then
             i = 3
@@ -276,8 +270,9 @@ C   ... Scale sphere radii satisfying constraints
      .      , omax1 , omax2 , rmt_rv )
           i_copy_size=1;
           do i_spackv=1,nspec
-            call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
-     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+c            call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
+c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
+            sspec(i_spackv)%rmt = rmt_rv(i_spackv)
           enddo
           nclspp = max(2*nclasp-nclass,nspec)
           allocate(rmax(nclspp))
@@ -322,24 +317,23 @@ C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
      .    //fnam//'...',0,0)
           j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
      .    sspec,ssite)
-          allocate(pos2_rv(3*nbas))
+          allocate(pos2_rv(3,nbas))
           allocate(ips2_iv(nbas))
-          i_copy_size=size(ssite(1)%pos)
+c          do i_spackv=1,nbas
+c          i_copy_size=size(ssite(1)%pos)
+c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+c          i_copy_size=1;
+c            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+c     .      , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
+c          enddo
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
-
+            pos2_rv(:,i_spackv) = ssite(i_spackv)%pos 
+            ips2_iv(i_spackv)   = ssite(i_spackv)%spec 
           enddo
-          i_copy_size=1;
-          do i_spackv=1,nbas
-            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-     .      , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
-
-          enddo
-          allocate(rv_a_og(abs(9*ngmx)))
-          if (9*ngmx<0) rv_a_og(:)=0.0d0
-          call symlat ( plat , ngrp , rv_a_og , j )
-          j = cmplat ( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips
+          allocate(rv_a_og(9*ngmx))
+          call symlat( plat , ngrp , rv_a_og , j )
+          j = cmplat( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips
      .       , slat%rv_a_opos , ips2_iv , pos2_rv )
           call fexit(j,1,' Exit %i lmchk --basis= ...',j)
         endif

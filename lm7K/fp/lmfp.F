@@ -112,7 +112,7 @@ c      type(s_move)::smove
       real(8),allocatable:: rv_a_opos(:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
-      real(8) ,allocatable :: pos2_rv(:)
+      real(8) ,allocatable :: pos2_rv(:,:)
       real(8) ,allocatable :: wk_rv(:)
       real(8) ,allocatable :: p_rv(:)
       double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
@@ -307,21 +307,23 @@ C     Shorten site positions
         call dcopy(i_copy_size,slat%plat,1,plat,1)
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
 C     unpack from site structure
-          allocate(pos2_rv(3*nbas))
+          allocate(pos2_rv(3,nbas))
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .              , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .              , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+            pos2_rv(:,i_spackv) = ssite(i_spackv)%pos
           enddo
           ix(1) = 2
           ix(2) = 2
           ix(3) = 2
           call info0(50,1,0,' lmfp : shortening basis vectors ... ')
           call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
-          i_copy_size=size(ssite(1)%pos)
+c          i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbaspp
-            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+c            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .              , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+            ssite(i_spackv)%pos = slat%rv_a_opos( 3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -394,7 +396,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
         alat = slat%alat
         if (procid .eq. master) then
           ifi = fopna('bsmv',-1,0)
-          allocate(pos2_rv(3*nbas))
+          allocate(pos2_rv(3,nbas))
           j = 1
           call ivset(ix,1,3,j)
           call shorps ( nbas , plat , ix , slat%rv_a_opos , pos2_rv )
@@ -539,10 +541,13 @@ C     Harris-Foulkes -> always overlap free-atom densities
         call mpibc1(k,1,2,mlog,'lmfp','k')
 
 C     ... Write positions array from site structure
-        i_copy_size=size(ssite(1)%pos)
+c        i_copy_size=size(ssite(1)%pos)
+c        do i_spackv=1,nbaspp
+c          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
+c     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+c        enddo
         do i_spackv=1,nbaspp
-          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+          slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
         enddo
         call mpibc1_s_lat(slat,.false.,'lmfp','slat')
         if (k .lt. 0) then
@@ -584,8 +589,9 @@ C     ... Write positions after file read, and repack
         call dinv33(plat,1,qlat,xv)
         do  i = 1, nbas
           j=ssite(i)%spec
-          i_copy_size=size(ssite(i)%pos)
-          call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
+c          i_copy_size=size(ssite(i)%pos)
+c          call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
+          xv(1:3)=ssite(i)%pos
 c          do i_spacks=j,j
 c            call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
 c          enddo
@@ -598,11 +604,12 @@ c          enddo
 
 C     --- Optionally re-shorten basis vectors ---
       if (cmdopt('--shorps',8,0,strn)) then
-        allocate(pos2_rv(3*nbas))
-        i_copy_size=size(ssite(1)%pos)
+        allocate(pos2_rv(3,nbas))
+c        i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-     .           , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+c          call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c     .           , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+          pos2_rv(:,i_spackv ) = ssite(i_spackv)%pos 
         enddo
         ix(1) = 2
         ix(2) = 2
@@ -611,10 +618,11 @@ C     --- Optionally re-shorten basis vectors ---
         call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
         call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos )
         call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
-        i_copy_size=size(ssite(1)%pos)
+c        i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbaspp
-          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+c          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .           , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+          ssite(i_spackv)%pos= slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
         enddo
         if (allocated(pos2_rv)) deallocate(pos2_rv)
       endif
@@ -754,15 +762,16 @@ ckino Dec.16.2011:              allocate(rv_p_opos(abs(3*nbas)))
           if (allocated(rv_a_opos)) deallocate(rv_a_opos)
           allocate(rv_a_opos(abs(3*nbas)))
 ckino Dec.16.2011:              if (3*nbas<0) rv_p_opos(:)=0.0d0
-          if (3*nbas<0) rv_a_opos(:)=0.0d0
-          i_copy_size=size(ssite(1)%pos)
+c          if (3*nbas<0) rv_a_opos(:)=0.0d0
+c          i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
-ckino Dec.16.2011:       .              , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
+c     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+            rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
           enddo
-          i_copy_size=size(sctrl%mdprm)
-          call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
+c          i_copy_size=size(sctrl%mdprm)
+c          call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
+          mdprm=sctrl%mdprm
           if (lshr) then
 c     kino etot(1)      call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot , irlxsh ,
             call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
@@ -803,7 +812,7 @@ C     Write updated positions to bsmv file
             ifi = fopna('bsmv',-1,0)
             call poseof(ifi)
             bstim = bstim+1
-            allocate(pos2_rv(3*nbas))
+            allocate(pos2_rv(3,nbas))
 
             j = 1
             call ivset(ix,1,3,j)
@@ -816,8 +825,9 @@ C     Write updated positions to bsmv file
 C     repack updated positions in site structure
           i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+c            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+            ssite(i_spackv)%pos = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
 
 
@@ -863,11 +873,11 @@ C     call prmx('minimum-g positions',w(opos),3,3,nbas)
             endif
 
 C     Repack updated positions in site structure
-            i_copy_size=size(ssite(1)%pos)
+c            i_copy_size=size(ssite(1)%pos)
             do i_spackv=1,nbas
-              call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-ckino Dec.16.2011:       .                 , i_copy_size , i_spackv + 1 - 1 , rv_p_opos ) 
-     .                 , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+c              call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .                 , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+              ssite(i_spackv)%pos = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
             enddo
           endif
 
@@ -947,8 +957,9 @@ C     ... Write positions to file
          if (3*nbas<0) rv_a_opos(:)=0.0d0
          i_copy_size=size(ssite(1)%pos)
          do i_spackv=1,nbas
-            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
-     .           , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos
+c     .           , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
+              rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
          enddo
          i_copy_size=size(slat%gam)
          call dcopy(i_copy_size,slat%gam,1,gam,1)
@@ -988,17 +999,18 @@ C     --- Setup to start calculation at new shear ---
 
 C     Restore plat, pos to their undistorted state:
 C     undo original transformation = P P_0^-1
-      allocate(pos2_rv(3*nbas))
+      allocate(pos2_rv(3,nbas))
 
       call dinv33(plat,0,xv,xv(10))
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_a_opos 
      .     , 3 , 0d0 , pos2_rv , 3 )
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
      .     , 3 , 0d0 , slat%rv_a_opos , 3 )
-      i_copy_size=size(ssite(1)%pos)
+c      i_copy_size=size(ssite(1)%pos)
       do i_spackv=1,nbas
-        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c     .        , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+        ssite(i_spackv)%pos  = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
       enddo
       call cppos(1,nbas,ssite)
 C     New shear
@@ -1059,17 +1071,18 @@ C     implicit none
       type(s_site)::ssite(*)
       integer ib
       do  ib = ib1, ib2
-        i_copy_size=size(ssite(1)%pos)
-        do i_spackv=ib,ib
-          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
-        enddo
-        i_copy_size=size(ssite(1)%pos0)
-        do i_spackv=ib,ib
-          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
-        enddo
+c        i_copy_size=size(ssite(1)%pos)
+c        do i_spackv=ib,ib
+c          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
+          pos=ssite(ib)%pos
+c        enddo
+c        i_copy_size=size(ssite(1)%pos0)
+c        do i_spackv=ib,ib
+c          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
+          ssite(ib)%pos0=pos
+c        enddo
       enddo
       end subroutine cppos
-
 
 
       subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)

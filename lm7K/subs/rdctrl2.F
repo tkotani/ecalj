@@ -695,31 +695,34 @@ C --- Allocate and copy input to sstr ---
       v_sstr%size=ustr_size()
       v_sstr%mxnbr=str_mxnbr
       v_sstr%rmax=str_rmax
-
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
-      do i=1,nspec; v_sspec(i)%size=uspec_size(); enddo
+        do i_spackv=1,nspec
+          v_sspec(i_spackv)%size=uspec_size()
+          v_sspec(i_spackv)%eh3=-0.5d0
+          v_sspec(i_spackv)%etf=-1d0
+          v_sspec(i_spackv)%lmxf= 2*nl-2
+          v_sspec(i_spackv)%norp=2
+          v_sspec(i_spackv)%vmtz=-0.5d0
+        enddo
+c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
 
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
-        enddo
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
-        enddo
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
-        enddo
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-        enddo
-        i_copy_size=1;
-        do i_spackv=1,nspec
-          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
-        enddo
+c        i_copy_size=1;
+c        do i_spackv=1,nspec
+c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
+c        enddo
+c        i_copy_size=1;
+c        do i_spackv=1,nspec
+c          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
+c        enddo
+c        i_copy_size=1;
+c        do i_spackv=1,nspec
+c          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
+c        enddo
+c        i_copy_size=1;
+c        do i_spackv=1,nspec
+c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
+c        enddo
 
         do  j = 1, nspec
           slabl_(j) = slabl(j)
@@ -1135,12 +1138,14 @@ c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
           if (nsite<0) v_sarry%iv_a_oips(:)=0
 
           do i_spackv=1,nsite
-            i_copy_size=3
-            call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos
-     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos )
-            i_copy_size=1
-            call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec
-     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips )
+c            i_copy_size=3
+c            call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos
+c     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos )
+c            i_copy_size=1
+c            call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec
+c     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips )
+            v_slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
+            v_sarry%iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
           enddo
           if (procid .eq. master) then
             if (iprint() .ge. 20) then

@@ -96,13 +96,12 @@ C ... Get class list
 
       allocate(ipa_iv(nbas))
 
-      i_copy_size=1;
+c      i_copy_size=1;
       do i_spackv=1,nbas
-        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
-     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
-
+c        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %class 
+c     .  , i_copy_size , i_spackv + 1 - 1 , ipc_iv )
+        ipc_iv(i_spackv)=ssite ( i_spackv ) %class 
       enddo
-
 
 C ... Memory for qnu, site resolved
       allocate(qnu_rv(abs(-3*n0*nsp*nbas)))
