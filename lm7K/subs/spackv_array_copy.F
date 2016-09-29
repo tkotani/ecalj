@@ -20,7 +20,7 @@
       subroutine spackv_array_copy_i8_i(c,v,n,j,s)
       implicit none
       character,intent(in):: c
-      integer(8):: v(n)
+      integer:: v(n)
       integer,intent(in):: j,n
       integer:: s(n*j)
       integer:: i
@@ -69,17 +69,17 @@ c        call r8tos8(struc,name(istr))
       implicit none
       integer:: n,incx,incy
       integer:: x(*)
-      integer(8):: y8(*)
+      integer:: y8(*)
       integer:: i
       do i=1,n
         y8(1+incy*(i-1))=x(1+incx*(i-1))
       enddo
       end subroutine ii8copy
 
-      subroutine i8icopy(n,x8,incx,y,incy)
+      subroutine i8icopy(n,x8,incx,y,incy) 
       implicit none
       integer:: n,incx,incy
-      integer(8):: x8(*)
+      integer:: x8(*)
       integer:: y(*)
       integer:: i
       do i=1,n
@@ -101,7 +101,7 @@ C     ----------------------------------------------------------------
 c      use m_struc_def
 c      use m_struc_func
       implicit none
-      integer(8):: v_iv(n)
+      integer:: v_iv(n)
       logical,intent(in):: lval
       integer,intent(in):: mask
       integer,intent(in):: n

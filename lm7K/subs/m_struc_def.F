@@ -11,7 +11,7 @@ c      end type
 
 c$$$      type s_ri
 c$$$      integer  ::   t
-c$$$      integer(8)  ::   i
+c$$$      integer  ::   i
 c$$$      real(8)  ::   r
 c$$$      end type
 
@@ -67,19 +67,19 @@ Cr   47   29   w        Line broadening for sampling integration
       real(8)   ::   ef
       real(8)   ::   efmax
       real(8)   ::   fsmom
-      integer(8)   ::   fsmommethod !Dec 2010 takao
+      integer   ::   fsmommethod !Dec 2010 takao
       real(8)   ::   lcond(4)
-c      integer(8)   ::   lio
-      integer(8)   ::   lmet
-      integer(8)   ::   lmull
-c      integer(8)   ::   lopt
-      integer(8)   ::   lshft(3)
-      integer(8)   ::   n
-      integer(8)   ::   ndos
-      integer(8)   ::   nevmx
-      integer(8)   ::   nkabc(3)
-      integer(8)   ::   nkp
-      integer(8)   ::   ntet
+c      integer   ::   lio
+      integer   ::   lmet
+      integer   ::   lmull
+c      integer   ::   lopt
+      integer   ::   lshft(3)
+      integer   ::   n
+      integer   ::   ndos
+      integer   ::   nevmx
+      integer   ::   nkabc(3)
+      integer   ::   nkp
+      integer   ::   ntet
       integer , allocatable ::  iv_a_oidtet (:)
       integer , allocatable ::  iv_a_oipq (:)
       real(8) , pointer ::  rv_p_oqp (:) =>NULL()
@@ -129,13 +129,13 @@ Cr   32   31   ozos    Stoner DOS
 Cr   33   32   size    size of this structure
       type s_array
       real(8)  ::   size
-c      integer(8)   ::   ncl
-      integer(8)   ::   nclasp
-c      integer(8)   ::   nofgl
-c      integer(8)   ::   nofgr
-c      integer(8)   ::   npadl
-c      integer(8)   ::   npadr
-c      integer(8)   ::   npl
+c      integer   ::   ncl
+      integer   ::   nclasp
+c      integer   ::   nofgl
+c      integer   ::   nofgr
+c      integer   ::   npadl
+c      integer   ::   npadr
+c      integer   ::   npl
       real(8) , allocatable ::  rv_a_oclabl (:)
       integer , allocatable ::  iv_a_oipq (:)
       integer , allocatable ::  iv_a_oics (:)
@@ -318,56 +318,56 @@ C ----------------------------------------------------------------
       real(8)  ::   size
       real(8)   ::   defm(6)
       real(8)   ::   elin
-c      integer(8)   ::   lasa
-      integer(8)   ::   lbas
-c      integer(8)   ::   lcd
-c      integer(8)   ::   lcgf
-      integer(8)   ::   ldos
-      integer(8)   ::   lfp
-      integer(8)   ::   lfrce
-      integer(8)   ::   lgen3
-      integer(8)   ::   lham
-      integer(8)   ::   lmet
-c      integer(8)   ::   lncol
-c      integer(8)   ::   loptc
-c      integer(8)   ::   lordn
-c      integer(8)   ::   lpgf(2)
-      integer(8)   ::   noinv!,lqp2
-      integer(8)   ::   lrel
-      integer(8)   ::   lrs
-      integer(8)   ::   lscr
-c      integer(8)   ::   lstonr(3)
-      integer(8)   ::   lstr
-      integer(8)   ::   lsx
-c      integer(8)   ::   ltb
-      integer(8)   ::   lves
-      integer(8)   ::   lxcf
-      integer(8)   ::   maxit
+c      integer   ::   lasa
+      integer   ::   lbas
+c      integer   ::   lcd
+c      integer   ::   lcgf
+      integer   ::   ldos
+      integer   ::   lfp
+      integer   ::   lfrce
+      integer   ::   lgen3
+      integer   ::   lham
+      integer   ::   lmet
+c      integer   ::   lncol
+c      integer   ::   loptc
+c      integer   ::   lordn
+c      integer   ::   lpgf(2)
+      integer   ::   noinv!,lqp2
+      integer   ::   lrel
+      integer   ::   lrs
+      integer   ::   lscr
+c      integer   ::   lstonr(3)
+      integer   ::   lstr
+      integer   ::   lsx
+c      integer   ::   ltb
+      integer   ::   lves
+      integer   ::   lxcf
+      integer   ::   maxit
       real(8)   ::   mdprm(6)
-      integer(8)   ::   modep(3)
-      integer(8)   ::   nbas
-      integer(8)   ::   nbasp
-      integer(8)   ::   nclass
-      integer(8)   ::   nesabc(3)
-      integer(8)   ::   nitmv
-      integer(8)   ::   nl
-      integer(8)   ::   nmap
-c      integer(8)   ::   npl
-      integer(8)   ::   nsite
-      integer(8)   ::   nspec
-      integer(8)   ::   nspin
-      integer(8)   ::   nvario
+      integer   ::   modep(3)
+      integer   ::   nbas
+      integer   ::   nbasp
+      integer   ::   nclass
+      integer   ::   nesabc(3)
+      integer   ::   nitmv
+      integer   ::   nl
+      integer   ::   nmap
+c      integer   ::   npl
+      integer   ::   nsite
+      integer   ::   nspec
+      integer   ::   nspin
+      integer   ::   nvario
       real(8)   ::   omax1(3)
       real(8)   ::   omax2(3)
-      integer(8)   ::   pfloat
-      integer(8)   ::   quit
+      integer   ::   pfloat
+      integer   ::   quit
       real(8)   ::   rmaxes
       real(8)   ::   rmines
       real(8)   ::   sclwsr
-      integer(8)   ::   sdmod
+      integer   ::   sdmod
       real(8)   ::   sdprm(5)
       real(8)   ::   sdxsi(4)
-      integer(8)   ::   smalit(2)
+      integer   ::   smalit(2)
       real(8)   ::   tol(3)
       real(8)   ::   wsrmax
       real(8)   ::   zbak(2)
@@ -436,17 +436,17 @@ c$$$      real(8)   ::   ecuts
 c$$$      real(8)   ::   gcutb
 c$$$      real(8)   ::   gcutx
 c$$$      real(8)   ::   gsmear
-c$$$      integer(8)   ::   lgw
-c$$$      integer(8)   ::   lmxpb
-c$$$      integer(8)   ::   mksig
-c$$$      integer(8)   ::   nband
-c$$$      integer(8)   ::   nime
-c$$$      integer(8)   ::   nkabc(3)
+c$$$      integer   ::   lgw
+c$$$      integer   ::   lmxpb
+c$$$      integer   ::   mksig
+c$$$      integer   ::   nband
+c$$$      integer   ::   nime
+c$$$      integer   ::   nkabc(3)
 c$$$      real(8)   ::   pb1 !string
 c$$$      real(8)   ::   pb2 !string
 c$$$      real(8)   ::   pbtol
 c$$$      real(8)   ::   qoffp
-c$$$      integer(8)   ::   rdsig
+c$$$      integer   ::   rdsig
 c$$$      end type s_gw
 
 Cr --- explanation of  uham ---
@@ -604,35 +604,35 @@ Cr  130   56   udiag  diagonal-only LDA+U
       real(8)  ::   size
       real(8)   ::   alfsi
       real(8)   ::   amgm
-      integer(8)   ::   bandw
+      integer   ::   bandw
       real(8)   ::   dabc(3)
       real(8)   ::   ehf
       real(8)   ::   ehk
       real(8)   ::   elind
       real(8)   ::   eterms(20)
-      integer(8)   ::   hord
+      integer   ::   hord
       real(8)   ::   kmto(6)
-c      integer(8)   ::   lasa
-      integer(8)   ::   ldham(16)
-      integer(8)   ::   lgen3
-      integer(8)   ::   lham
-c      integer(8)   ::   lmaxu
-      integer(8)   ::   lmxax
-c      integer(8)   ::   lncol
-      integer(8)   ::   lsig
-c      integer(8)   ::   ltb
-      integer(8)   ::   lxcf
-      integer(8)   ::   nbf
-      integer(8)   ::   ndham
-      integer(8)   ::   ndhrs
-c      integer(8)   ::   ndofH
-      integer(8)   ::   neula
-      integer(8)   ::   nkaph
-      integer(8)   ::   nlibu
-c      integer(8)   ::   nmto
-      integer(8)   ::   npwmin
-      integer(8)   ::   npwpad
-      integer(8)   ::   nqsig
+c      integer   ::   lasa
+      integer   ::   ldham(16)
+      integer   ::   lgen3
+      integer   ::   lham
+c      integer   ::   lmaxu
+      integer   ::   lmxax
+c      integer   ::   lncol
+      integer   ::   lsig
+c      integer   ::   ltb
+      integer   ::   lxcf
+      integer   ::   nbf
+      integer   ::   ndham
+      integer   ::   ndhrs
+c      integer   ::   ndofH
+      integer   ::   neula
+      integer   ::   nkaph
+      integer   ::   nlibu
+c      integer   ::   nmto
+      integer   ::   npwmin
+      integer   ::   npwpad
+      integer   ::   nqsig
       real(8) , allocatable ::  rv_a_ohrs (:)
       integer, allocatable :: iv_a_oiaxs(:)
       integer , allocatable ::  iv_a_oindxo (:)
@@ -645,7 +645,7 @@ c      integer(8)   ::   nmto
       real(8)   ::   pmin(10)
       real(8)   ::   pwemax
       real(8)   ::   pwemin
-      integer(8)   ::   pwmode
+      integer   ::   pwmode
       real(8)   ::   qpoff(3)
       real(8)   ::   qss(4)
       real(8)   ::   rsrnge
@@ -653,7 +653,7 @@ c      integer(8)   ::   nmto
       real(8)   ::   seref
       real(8)   ::   sigp(10)
       real(8)   ::   thrpv
-      integer(8)   ::   udiag
+      integer   ::   udiag
       real(8):: scaledsigma
       end type s_ham
 
@@ -713,15 +713,15 @@ Cr  121   43    vol     cell volume
       real(8)   ::   dist(9)
       real(8)   ::   gam(4)
       real(8)   ::   gmax
-      integer(8)   ::   ldist
-      integer(8)   ::   nabc(3)
-      integer(8)   ::   ng
-      integer(8)   ::   nkd
-      integer(8)   ::   nkdmx
-      integer(8)   ::   nkq
-      integer(8)   ::   nkqmx
-      integer(8)   ::   npgrp
-      integer(8)   ::   nsgrp
+      integer   ::   ldist
+      integer   ::   nabc(3)
+      integer   ::   ng
+      integer   ::   nkd
+      integer   ::   nkdmx
+      integer   ::   nkq
+      integer   ::   nkqmx
+      integer   ::   npgrp
+      integer   ::   nsgrp
       real(8) , allocatable ::  rv_a_oag (:)
       complex(8) , allocatable ::  zv_a_obgv (:)
       real(8) , allocatable ::  rv_a_ocg (:)
@@ -784,15 +784,15 @@ Cr   37   23   wc      Broyden weight
       real(8)   ::   bv
       real(8)   ::   elind
       character(8)   ::   fn !string
-      integer(4)   ::   kill
-      integer(8)   ::   lxpot
-      integer(8)   ::   mmix
-      integer(8)   ::   mode
-      integer(8)   ::   model
-      integer(8)   ::   n
-      integer(8)   ::   nitu
-      integer(8)   ::   nmix
-      integer(8)   ::   nsave
+      integer   ::   kill
+      integer   ::   lxpot
+      integer   ::   mmix
+      integer   ::   mode
+      integer   ::   model
+      integer   ::   n
+      integer   ::   nitu
+      integer   ::   nmix
+      integer   ::   nsave
       character(8)   ::   r(3) !string
       real(8)   ::   rms1
       real(8)   ::   rms2
@@ -830,8 +830,8 @@ c$$$      real(8)  ::   size
 c$$$      real(8)   ::   ct(3)
 c$$$      real(8)   ::   gyro
 c$$$      real(8)   ::   kt
-c$$$      integer(8)   ::   modt(3)
-c$$$      integer(8)   ::   nmodt
+c$$$      integer   ::   modt(3)
+c$$$      integer   ::   nmodt
 c$$$      real(8)   ::   prmint(20)
 c$$$      real(8)   ::   tnow
 c$$$      real(8)   ::   ts
@@ -857,17 +857,17 @@ Cr   33   13   window energy window for epsilon
 
 c$$$      type s_optic
 c$$$      real(8)  ::   size
-c$$$      integer(8)   ::   axes(18)
-c$$$      integer(8)   ::   cll
-c$$$      integer(8)   ::   cln
-c$$$      integer(8)   ::   cls
-c$$$      integer(8)   ::   clsite
+c$$$      integer   ::   axes(18)
+c$$$      integer   ::   cll
+c$$$      integer   ::   cln
+c$$$      integer   ::   cls
+c$$$      integer   ::   clsite
 c$$$      real(8)   ::   esciss
-c$$$      integer(8)   ::   mode
-c$$$      integer(8)   ::   nchi2
-c$$$      integer(8)   ::   ne
-c$$$      integer(8)   ::   ocrng(2)
-c$$$      integer(8)   ::   unrng(2)
+c$$$      integer   ::   mode
+c$$$      integer   ::   nchi2
+c$$$      integer   ::   ne
+c$$$      integer   ::   ocrng(2)
+c$$$      integer   ::   unrng(2)
 c$$$      real(8)   ::   window(2)
 c$$$      end type s_optic
 
@@ -891,9 +891,9 @@ Cr   14   11   size    size of this structure
 c$$$      type s_ordn
 c$$$      real(8)  ::   size
 c$$$      real(8)   ::   efre
-c$$$      integer(8)   ::   mode
-c$$$c      integer(8)   ::   ncl
-c$$$      integer(8)   ::   ndofh
+c$$$      integer   ::   mode
+c$$$c      integer   ::   ncl
+c$$$      integer   ::   ndofh
 c$$$      real(8)   ::   rmaxg(3)
 c$$$      end type s_ordn
 
@@ -972,9 +972,9 @@ Cr   64   58   vmtz0   Input ASA muffin-tin zero
       type s_pot
       real(8)  ::   size
       real(8)   ::   bfield(4)
-      integer(8)   ::   nlma
-      integer(8)   ::   nlml
-      integer(8)   ::   nrhos
+      integer   ::   nlma
+      integer   ::   nlml
+      integer   ::   nrhos
       real(8) , allocatable ::  rv_a_obxc (:)
       real(8) , allocatable ::  rv_a_ogrrme (:)
       real(8) , allocatable ::  rv_a_omad (:)
@@ -1094,74 +1094,74 @@ Cr    2    74  z      atomic number
       real(8)   ::   z
       real(8)   ::   mass
       real(8)   ::   rmt
-      integer(8)   ::   ntorb
-      integer(8)   ::   naug
-      integer(8)   ::   norb
+      integer   ::   ntorb
+      integer   ::   naug
+      integer   ::   norb
       real(8)   ::   rsmfa
       real(8)   ::   rsma
       real(8)   ::   rg
-      integer(8)   ::   lmxa
-      integer(8)   ::   kmxh
-      integer(8)   ::   lmxl
-      integer(8)   ::   kmxt
+      integer   ::   lmxa
+      integer   ::   kmxh
+      integer   ::   lmxl
+      integer   ::   kmxt
       real(8)   ::   rsmv
-      integer(8)   ::   norp
+      integer   ::   norp
       character(8)   ::   coreh !string
       real(8)   ::   coreq(2)
       real(8)   ::   a
-      integer(8)   ::   nr
+      integer   ::   nr
       real(8)   ::   eref
       real(8)   ::   etf
       real(8)   ::   beta
-      integer(8)   ::   lfoca
+      integer   ::   lfoca
       real(8)   ::   ctail
       real(8)   ::   etail
       character(8)   ::   name !string
       real(8), allocatable :: rv_a_orhoc(:)
       real(8)   ::   stc
-      integer(8)   ::   lmxb
-      integer(8)   ::   lmxf
+      integer   ::   lmxb
+      integer   ::   lmxf
       real(8)   ::   stni
       real(8)   ::   stnm
       real(8)   ::   rham
       real(8)   ::   rfoca
       real(8)   ::   dv
-      integer(8)   ::   mxcst
-      integer(8)   ::   group
-      integer(8)   ::   grp2
-      integer(8)   ::   nxi
+      integer   ::   mxcst
+      integer   ::   group
+      integer   ::   grp2
+      integer   ::   nxi
       real(8)   ::   qc
-      integer(8)   ::   lmxpb
+      integer   ::   lmxpb
       character(8)   ::   pb1 !string
       character(8)   ::   pb2 !string
       real(8)   ::   colxbs(3)
-      integer(8)   ::   lxi
+      integer   ::   lxi
       real(8)   ::   radxbs
       real(8)   ::   rcut
       real(8)   ::   rint
       real(8)   ::   eh3
       real(8)   ::   rs3
       real(8)   ::   vmtz
-      integer(8)   ::   kmxv
+      integer   ::   kmxv
       real(8)   ::   rcfa(2)
       real(8)   ::   p(20)
       real(8)   ::   q(20)
       real(8)   ::   alpha(10)
-      integer(8)   ::   idmod(10)
-      integer(8)   ::   idxdn(30)
+      integer   ::   idmod(10)
+      integer   ::   idxdn(30)
       real(8)   ::   hcr(10)
       real(8)   ::   exi(10)
-      integer(8)   ::   ngcut(30)
+      integer   ::   ngcut(30)
       real(8)   ::   qpol(10)
       real(8)   ::   chfa(20)
       real(8)   ::   orbp(60)
       real(8)   ::   enu(10)
       real(8)   ::   pz(20)
-      integer(8)   ::   idu(4)
+      integer   ::   idu(4)
       real(8)   ::   uh(4)
       real(8)   ::   jh(4)
-      integer(8)   ::   iq1(4)
-      integer(8)   ::   ivso(4)
+      integer   ::   iq1(4)
+      integer   ::   ivso(4)
       real(8)   ::   ehvl(10)
       real(8)   ::   vso(4)
       integer :: nmcore !jun2012takao
@@ -1201,26 +1201,26 @@ Cr   87   27   vshft   constant potential shift for this site
       real(8)  ::   size
       real(8)   ::   bfield(3)
       character(8)   ::   clabel !string
-      integer(8)   ::   class
-      integer(8)   ::   cli
+      integer   ::   class
+      integer   ::   cli
       real(8)   ::   delta(6)
       real(8)   ::   dpole(3)
       real(8)   ::   eula(3)
       real(8)   ::   force(3)
       real(8)   ::   mpole
-      integer(8)   ::   ndelta
-      integer(8)   ::   norb
+      integer   ::   ndelta
+      integer   ::   norb
       real(8) , allocatable ::  rv_a_ov0 (:)
       real(8) , allocatable ::  rv_a_ov1 (:)
-      integer(8)   ::   pl
-      integer(8)   ::   plv
+      integer   ::   pl
+      integer   ::   plv
       real(8)   ::   pnu(20)
       real(8)   ::   pos(3)
       real(8)   ::   pos0(3)
       real(8)   ::   pz(20)
-      integer(8)   ::   relax(3)
-      integer(8)   ::   sid
-      integer(8)   ::   spec
+      integer   ::   relax(3)
+      integer   ::   sid
+      integer   ::   spec
       real(8)   ::   vel(3)
       real(8)   ::   vshft
       end type s_site
@@ -1278,23 +1278,23 @@ Cr   47   30   wztcf   weighting of z-points in TCF
       type s_str
       real(8)  ::   size
       real(8)   ::   adec
-      integer(8)   ::   amode
+      integer   ::   amode
       real(8)   ::   drwats
       real(8)   ::   iinv(5)
-      integer(8)   ::   ivl
+      integer   ::   ivl
       real(8)   ::   kaps(6)
-      integer(8)   ::   lequiv
-      integer(8)   ::   lmaxw
-      integer(8)   ::   loka
-      integer(8)   ::   lshow
-      integer(8)   ::   mxnbr
-      integer(8)   ::   nalf
-      integer(8)   ::   nbisi(3)
-      integer(8)   ::   ncupl
-      integer(8)   ::   ndust
-      integer(8)   ::   nitab
-      integer(8)   ::   nkaps
-      integer(8)   ::   nttab
+      integer   ::   lequiv
+      integer   ::   lmaxw
+      integer   ::   loka
+      integer   ::   lshow
+      integer   ::   mxnbr
+      integer   ::   nalf
+      integer   ::   nbisi(3)
+      integer   ::   ncupl
+      integer   ::   ndust
+      integer   ::   nitab
+      integer   ::   nkaps
+      integer   ::   nttab
       real(8)   ::   rfit
       real(8)   ::   rmax
       real(8)   ::   rmaxg
@@ -1320,8 +1320,8 @@ c$$$      real(8)  ::   size
 c$$$      real(8)   ::   alam
 c$$$      real(8)   ::   alsc
 c$$$      real(8)   ::   ebfit(2)
-c$$$      integer(8)   ::   fmode
-c$$$      integer(8)   ::   nbfit(2)
+c$$$      integer   ::   fmode
+c$$$      integer   ::   nbfit(2)
 c$$$      real(8)   ::   rmfit(2)
 c$$$      end type s_tb
       end module m_struc_def
@@ -1803,7 +1803,7 @@ c$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
 c$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
 c$$$      call mpi_bcast(struc%t, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%i, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%i, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%r, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
@@ -1865,29 +1865,29 @@ C ... Passed parameters
       i_data_size=size(struc%lcond) ! lcond(4)
       call mpi_bcast(struc%lcond, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lio, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lio, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmet, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmet, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmull, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmull, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lopt, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lopt, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%lshft) ! lshft(3)
-      call mpi_bcast(struc%lshft, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%lshft, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%n, 1,MPI_INTEGER8
+      call mpi_bcast(struc%n, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ndos, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ndos, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nevmx, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nevmx, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%nkabc) ! nkabc(3)
-      call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ntet, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ntet, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oidtet(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oipq(:) because it is a pointer.
@@ -1949,33 +1949,33 @@ C ... Passed parameters
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call mpi_bcast(struc%size, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%ncl, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%ncl, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nclasp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nclasp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%nofgl, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%nofgl, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%nofgr, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%nofgr, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%npadl, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%npadl, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%npadr, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%npadr, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%npl, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%npl, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oclabl(:) because it is a pointer.
-c       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER8
+c       call mpi_bcast(struc%ogroup, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ohave(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oics(:) because it is a pointer.
-cki       call mpi_bcast(struc%oipc, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%oipc, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
-cki       call mpi_bcast(struc%oipcp, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%oipcp, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oips(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrc(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_onrcp(:) because it is a pointer.
-cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ormax(:) because it is a pointer.
 
@@ -2027,90 +2027,90 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%elin, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lasa, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lasa, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lbas, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lbas, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lcd, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lcd, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lcgf, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lcgf, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ldos, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ldos, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lfp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lfp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lfrce, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lfrce, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lgen3, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lgen3, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lham, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lham, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmet, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmet, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%loptc, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%loptc, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lordn, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lordn, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
 c      i_data_size=size(struc%lpgf) ! lpgf(2)
-c      call mpi_bcast(struc%lpgf, i_data_size,MPI_INTEGER8
+c      call mpi_bcast(struc%lpgf, i_data_size,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%noinv, 1,MPI_INTEGER8
+      call mpi_bcast(struc%noinv, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lqp2, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lqp2, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lrel, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lrel, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lrs, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lrs, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lscr, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lscr, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 c      i_data_size=size(struc%lstonr) ! lstonr(3)
-c      call mpi_bcast(struc%lstonr, i_data_size,MPI_INTEGER8
+c      call mpi_bcast(struc%lstonr, i_data_size,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lstr, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lstr, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lsx, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lsx, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%ltb, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%ltb, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lves, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lves, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lxcf, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lxcf, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%maxit, 1,MPI_INTEGER8
+      call mpi_bcast(struc%maxit, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%mdprm) ! mdprm(6)
       call mpi_bcast(struc%mdprm, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%modep) ! modep(3)
-      call mpi_bcast(struc%modep, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%modep, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nbas, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nbas, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nbasp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nbasp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nclass, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nclass, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%nesabc) ! nesabc(3)
-      call mpi_bcast(struc%nesabc, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%nesabc, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nitmv, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nitmv, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nl, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nl, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nmap, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nmap, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%npl, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%npl, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nsite, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nsite, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nspec, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nspec, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nspin, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nspin, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nvario, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nvario, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%omax1) ! omax1(3)
       call mpi_bcast(struc%omax1, i_data_size,MPI_REAL8
@@ -2118,9 +2118,9 @@ c     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%omax2) ! omax2(3)
       call mpi_bcast(struc%omax2, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%pfloat, 1,MPI_INTEGER8
+      call mpi_bcast(struc%pfloat, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%quit, 1,MPI_INTEGER8
+      call mpi_bcast(struc%quit, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rmaxes, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2128,7 +2128,7 @@ c     , , master, MPI_COMM_WORLD,ierr)
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%sclwsr, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%sdmod, 1,MPI_INTEGER8
+      call mpi_bcast(struc%sdmod, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%sdprm) ! sdprm(5)
       call mpi_bcast(struc%sdprm, i_data_size,MPI_REAL8
@@ -2137,7 +2137,7 @@ c     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%sdxsi, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%smalit) ! smalit(2)
-      call mpi_bcast(struc%smalit, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%smalit, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%tol) ! tol(3)
       call mpi_bcast(struc%tol, i_data_size,MPI_REAL8
@@ -2206,18 +2206,18 @@ c$$$      call mpi_bcast(struc%gcutx, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%gsmear, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%lgw, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%lgw, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%mksig, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%mksig, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%nband, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nband, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%nime, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nime, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%nkabc) ! nkabc(3)
-c$$$      call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nkabc, i_data_size,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%pb1, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
@@ -2227,7 +2227,7 @@ c$$$      call mpi_bcast(struc%pbtol, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%qoffp, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%rdsig, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%rdsig, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$
 c$$$      if (mlog) then
@@ -2277,7 +2277,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%amgm, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%bandw, 1,MPI_INTEGER8
+      call mpi_bcast(struc%bandw, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%dabc) ! dabc(3)
       call mpi_bcast(struc%dabc, i_data_size,MPI_REAL8
@@ -2291,59 +2291,59 @@ C ... Passed parameters
       i_data_size=size(struc%eterms) ! eterms(20)
       call mpi_bcast(struc%eterms, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%hord, 1,MPI_INTEGER8
+      call mpi_bcast(struc%hord, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%kmto) ! kmto(6)
       call mpi_bcast(struc%kmto, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lasa, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lasa, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%ldham) ! ldham(16)
-      call mpi_bcast(struc%ldham, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%ldham, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lgen3, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lgen3, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lham, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lham, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lmaxu, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lmaxu, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxax, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxax, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%lncol, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lsig, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lsig, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%ltb, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%ltb, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lxcf, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lxcf, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nbf, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nbf, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ndham, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ndham, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ndhrs, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ndhrs, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%ndofH, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%ndofH, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%neula, 1,MPI_INTEGER8
+      call mpi_bcast(struc%neula, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkaph, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkaph, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nlibu, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nlibu, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-c      call mpi_bcast(struc%nmto, 1,MPI_INTEGER8
+c      call mpi_bcast(struc%nmto, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%npwmin, 1,MPI_INTEGER8
+      call mpi_bcast(struc%npwmin, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%npwpad, 1,MPI_INTEGER8
+      call mpi_bcast(struc%npwpad, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nqsig, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nqsig, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ohrs(:) because it is a pointer.
-cki       call mpi_bcast(struc%oiaxs, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%oiaxs, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_oindxo(:) because it is a pointer.
-cki       call mpi_bcast(struc%ontabs, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%ontabs, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip iv_p_ooffH(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
@@ -2361,7 +2361,7 @@ Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%pwemin, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%pwmode, 1,MPI_INTEGER8
+      call mpi_bcast(struc%pwmode, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%qpoff) ! qpoff(3)
       call mpi_bcast(struc%qpoff, i_data_size,MPI_REAL8
@@ -2380,7 +2380,7 @@ Cstruc_makeinit.py skip rv_p_oqsig(:) because it is a pointer.
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%thrpv, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%udiag, 1,MPI_INTEGER8
+      call mpi_bcast(struc%udiag, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 
       if (mlog) then
@@ -2442,24 +2442,24 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%gmax, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ldist, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ldist, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%nabc) ! nabc(3)
-      call mpi_bcast(struc%nabc, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%nabc, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ng, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ng, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkd, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkd, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkdmx, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkdmx, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkq, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkq, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkqmx, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkqmx, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%npgrp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%npgrp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nsgrp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nsgrp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oag(:) because it is a pointer.
 Cstruc_makeinit.py skip zv_p_obgv(:) because it is a pointer.
@@ -2472,7 +2472,7 @@ Cstruc_makeinit.py skip iv_p_oips0(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_oistab(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_ojcg(:) because it is a pointer.
 Cstruc_makeinit.py skip iv_p_okv(:) because it is a pointer.
-cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%opos, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_oqlv(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_osymgr(:) because it is a pointer.
@@ -2562,23 +2562,23 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%fn, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%kill, 1,MPI_INTEGER8
+      call mpi_bcast(struc%kill, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lxpot, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lxpot, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%mmix, 1,MPI_INTEGER8
+      call mpi_bcast(struc%mmix, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+      call mpi_bcast(struc%mode, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%model, 1,MPI_INTEGER8
+      call mpi_bcast(struc%model, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%n, 1,MPI_INTEGER8
+      call mpi_bcast(struc%n, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nitu, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nitu, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nmix, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nmix, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nsave, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nsave, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%r) ! r(3)
       call mpi_bcast(struc%r, i_data_size,MPI_REAL8
@@ -2651,9 +2651,9 @@ c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%kt, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%modt) ! modt(3)
-c$$$      call mpi_bcast(struc%modt, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%modt, i_data_size,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%nmodt, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nmodt, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%prmint) ! prmint(20)
 c$$$      call mpi_bcast(struc%prmint, i_data_size,MPI_REAL8
@@ -2711,29 +2711,29 @@ c$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
 c$$$      call mpi_bcast(struc%size, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%axes) ! axes(18)
-c$$$      call mpi_bcast(struc%axes, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%axes, i_data_size,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%cll, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%cll, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%cln, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%cln, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%cls, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%cls, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%clsite, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%clsite, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%esciss, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%mode, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%nchi2, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nchi2, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%ne, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%ne, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%ocrng) ! ocrng(2)
-c$$$      call mpi_bcast(struc%ocrng, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%ocrng, i_data_size,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%unrng) ! unrng(2)
-c$$$      call mpi_bcast(struc%unrng, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%unrng, i_data_size,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%window) ! window(2)
 c$$$      call mpi_bcast(struc%window, i_data_size,MPI_REAL8
@@ -2784,11 +2784,11 @@ c$$$      call mpi_bcast(struc%size, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      call mpi_bcast(struc%efre, 1,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%mode, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%mode, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$c      call mpi_bcast(struc%ncl, 1,MPI_INTEGER8
+c$$$c      call mpi_bcast(struc%ncl, 1,MPI_INTEGER
 c$$$c     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%ndofh, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%ndofh, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%rmaxg) ! rmaxg(3)
 c$$$      call mpi_bcast(struc%rmaxg, i_data_size,MPI_REAL8
@@ -2840,11 +2840,11 @@ C ... Passed parameters
       i_data_size=size(struc%bfield) ! bfield(4)
       call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nlma, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nlma, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nlml, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nlml, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nrhos, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nrhos, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_obxc(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_ogrrme(:) because it is a pointer.
@@ -2924,11 +2924,11 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rmt, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ntorb, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ntorb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%naug, 1,MPI_INTEGER8
+      call mpi_bcast(struc%naug, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norb, 1,MPI_INTEGER8
+      call mpi_bcast(struc%norb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rsmfa, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2936,17 +2936,17 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rg, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxa, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxa, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%kmxh, 1,MPI_INTEGER8
+      call mpi_bcast(struc%kmxh, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxl, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxl, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%kmxt, 1,MPI_INTEGER8
+      call mpi_bcast(struc%kmxt, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rsmv, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norp, 1,MPI_INTEGER8
+      call mpi_bcast(struc%norp, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%coreh, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2955,7 +2955,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%a, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nr, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nr, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%eref, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2963,7 +2963,7 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%beta, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lfoca, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lfoca, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%ctail, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2971,13 +2971,13 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%name, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-cki       call mpi_bcast(struc%orhoc, 1,MPI_INTEGER8
+cki       call mpi_bcast(struc%orhoc, 1,MPI_INTEGER
 cki     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%stc, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxb, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxf, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxf, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%stni, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -2989,17 +2989,17 @@ cki     , , master, MPI_COMM_WORLD,ierr)
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%dv, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%mxcst, 1,MPI_INTEGER8
+      call mpi_bcast(struc%mxcst, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%group, 1,MPI_INTEGER8
+      call mpi_bcast(struc%group, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%grp2, 1,MPI_INTEGER8
+      call mpi_bcast(struc%grp2, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nxi, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nxi, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%qc, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmxpb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%pb1, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -3008,7 +3008,7 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%colxbs) ! colxbs(3)
       call mpi_bcast(struc%colxbs, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lxi, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lxi, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%radxbs, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -3022,7 +3022,7 @@ cki     , , master, MPI_COMM_WORLD,ierr)
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%vmtz, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%kmxv, 1,MPI_INTEGER8
+      call mpi_bcast(struc%kmxv, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%rcfa) ! rcfa(2)
       call mpi_bcast(struc%rcfa, i_data_size,MPI_REAL8
@@ -3037,10 +3037,10 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%alpha, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%idmod) ! idmod(10)
-      call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%idxdn) ! idxdn(30)
-      call mpi_bcast(struc%idxdn, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%idxdn, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%hcr) ! hcr(10)
       call mpi_bcast(struc%hcr, i_data_size,MPI_REAL8
@@ -3049,7 +3049,7 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%exi, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%ngcut) ! ngcut(30)
-      call mpi_bcast(struc%ngcut, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%ngcut, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%qpol) ! qpol(10)
       call mpi_bcast(struc%qpol, i_data_size,MPI_REAL8
@@ -3067,7 +3067,7 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%pz, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%idu) ! idu(4)
-      call mpi_bcast(struc%idu, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%idu, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%uh) ! uh(4)
       call mpi_bcast(struc%uh, i_data_size,MPI_REAL8
@@ -3076,10 +3076,10 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%jh, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%iq1) ! iq1(4)
-      call mpi_bcast(struc%iq1, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%iq1, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%ivso) ! ivso(4)
-      call mpi_bcast(struc%ivso, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%ivso, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%ehvl) ! ehvl(10)
       call mpi_bcast(struc%ehvl, i_data_size,MPI_REAL8
@@ -3136,9 +3136,9 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%clabel, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%class, 1,MPI_INTEGER8
+      call mpi_bcast(struc%class, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%cli, 1,MPI_INTEGER8
+      call mpi_bcast(struc%cli, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%delta) ! delta(6)
       call mpi_bcast(struc%delta, i_data_size,MPI_REAL8
@@ -3154,15 +3154,15 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%mpole, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ndelta, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ndelta, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%norb, 1,MPI_INTEGER8
+      call mpi_bcast(struc%norb, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
 Cstruc_makeinit.py skip rv_p_ov0(:) because it is a pointer.
 Cstruc_makeinit.py skip rv_p_ov1(:) because it is a pointer.
-      call mpi_bcast(struc%pl, 1,MPI_INTEGER8
+      call mpi_bcast(struc%pl, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%plv, 1,MPI_INTEGER8
+      call mpi_bcast(struc%plv, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%pnu) ! pnu(20)
       call mpi_bcast(struc%pnu, i_data_size,MPI_REAL8
@@ -3177,11 +3177,11 @@ Cstruc_makeinit.py skip rv_p_ov1(:) because it is a pointer.
       call mpi_bcast(struc%pz, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%relax) ! relax(3)
-      call mpi_bcast(struc%relax, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%relax, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%sid, 1,MPI_INTEGER8
+      call mpi_bcast(struc%sid, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%spec, 1,MPI_INTEGER8
+      call mpi_bcast(struc%spec, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%vel) ! vel(3)
       call mpi_bcast(struc%vel, i_data_size,MPI_REAL8
@@ -3234,42 +3234,42 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%adec, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%amode, 1,MPI_INTEGER8
+      call mpi_bcast(struc%amode, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%drwats, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%iinv) ! iinv(5)
       call mpi_bcast(struc%iinv, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ivl, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ivl, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%kaps) ! kaps(6)
       call mpi_bcast(struc%kaps, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lequiv, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lequiv, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lmaxw, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lmaxw, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%loka, 1,MPI_INTEGER8
+      call mpi_bcast(struc%loka, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%lshow, 1,MPI_INTEGER8
+      call mpi_bcast(struc%lshow, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%mxnbr, 1,MPI_INTEGER8
+      call mpi_bcast(struc%mxnbr, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nalf, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nalf, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%nbisi) ! nbisi(3)
-      call mpi_bcast(struc%nbisi, i_data_size,MPI_INTEGER8
+      call mpi_bcast(struc%nbisi, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ncupl, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ncupl, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ndust, 1,MPI_INTEGER8
+      call mpi_bcast(struc%ndust, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nitab, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nitab, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkaps, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nkaps, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nttab, 1,MPI_INTEGER8
+      call mpi_bcast(struc%nttab, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%rfit, 1,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
@@ -3333,10 +3333,10 @@ c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%ebfit) ! ebfit(2)
 c$$$      call mpi_bcast(struc%ebfit, i_data_size,MPI_REAL8
 c$$$     , , master, MPI_COMM_WORLD,ierr)
-c$$$      call mpi_bcast(struc%fmode, 1,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%fmode, 1,MPI_INTEGER
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%nbfit) ! nbfit(2)
-c$$$      call mpi_bcast(struc%nbfit, i_data_size,MPI_INTEGER8
+c$$$      call mpi_bcast(struc%nbfit, i_data_size,MPI_INTEGER4
 c$$$     , , master, MPI_COMM_WORLD,ierr)
 c$$$      i_data_size=size(struc%rmfit) ! rmfit(2)
 c$$$      call mpi_bcast(struc%rmfit, i_data_size,MPI_REAL8

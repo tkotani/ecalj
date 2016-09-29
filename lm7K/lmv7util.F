@@ -421,11 +421,13 @@ C     ... Allocate ASA arrays
          call icopy ( nclspp , sarray%iv_a_oics , 1 , ics , 1 ) 
          print *,' qqqqq ics nclspp=',ics,nclspp
          allocate(sarray%rv_a_ormax(abs(nclspp)))
+c         print *,'222222222'
          call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , sarray%rv_a_ormax, 1 ) 
 C     Even in collinear case, bxc might be written to
          allocate(spot%rv_a_obxc(abs(-3*nclasp)))
          spot%rv_a_obxc(:)=0.0d0
          spot%nrhos=0 
+         print *,' qqqqq222 ics nclspp=',ics,nclspp
 c         if ( sctrl%lncol /=0 ) then 
          if ( lso /=0 ) then 
             neula=sham%neula
