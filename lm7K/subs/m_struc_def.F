@@ -783,7 +783,7 @@ Cr   37   23   wc      Broyden weight
       real(8)   ::   bl
       real(8)   ::   bv
       real(8)   ::   elind
-      real(8)   ::   fn !string
+      character(8)   ::   fn !string
       integer(4)   ::   kill
       integer(8)   ::   lxpot
       integer(8)   ::   mmix
@@ -793,7 +793,7 @@ Cr   37   23   wc      Broyden weight
       integer(8)   ::   nitu
       integer(8)   ::   nmix
       integer(8)   ::   nsave
-      real(8)   ::   r(3) !string
+      character(8)   ::   r(3) !string
       real(8)   ::   rms1
       real(8)   ::   rms2
       real(8)   ::   tj(10)
@@ -1106,7 +1106,7 @@ Cr    2    74  z      atomic number
       integer(8)   ::   kmxt
       real(8)   ::   rsmv
       integer(8)   ::   norp
-      real(8)   ::   coreh !string
+      character(8)   ::   coreh !string
       real(8)   ::   coreq(2)
       real(8)   ::   a
       integer(8)   ::   nr
@@ -1116,7 +1116,7 @@ Cr    2    74  z      atomic number
       integer(8)   ::   lfoca
       real(8)   ::   ctail
       real(8)   ::   etail
-      real(8)   ::   name !string
+      character(8)   ::   name !string
       real(8), allocatable :: rv_a_orhoc(:)
       real(8)   ::   stc
       integer(8)   ::   lmxb
@@ -1132,8 +1132,8 @@ Cr    2    74  z      atomic number
       integer(8)   ::   nxi
       real(8)   ::   qc
       integer(8)   ::   lmxpb
-      real(8)   ::   pb1 !string
-      real(8)   ::   pb2 !string
+      character(8)   ::   pb1 !string
+      character(8)   ::   pb2 !string
       real(8)   ::   colxbs(3)
       integer(8)   ::   lxi
       real(8)   ::   radxbs
@@ -1200,7 +1200,7 @@ Cr   87   27   vshft   constant potential shift for this site
       integer  :: iantiferro !may2015
       real(8)  ::   size
       real(8)   ::   bfield(3)
-      real(8)   ::   clabel !string
+      character(8)   ::   clabel !string
       integer(8)   ::   class
       integer(8)   ::   cli
       real(8)   ::   delta(6)
@@ -3887,7 +3887,7 @@ cki       struc%opos=0
       struc%bl=0.0d0
       struc%bv=0.0d0
       struc%elind=0.0d0
-      struc%fn=0.0d0
+      struc%fn=''!0.0d0
       struc%kill=0
       struc%lxpot=0
       struc%mmix=0
@@ -3897,7 +3897,7 @@ cki       struc%opos=0
       struc%nitu=0
       struc%nmix=0
       struc%nsave=0
-      struc%r=0.0d0
+      struc%r='' !0.0d0
       struc%rms1=0.0d0
       struc%rms2=0.0d0
       struc%tj=0.0d0
@@ -3994,7 +3994,7 @@ c$$$      end subroutine uordn_init
       struc%kmxt=0
       struc%rsmv=0.0d0
       struc%norp=0
-      struc%coreh=0.0d0
+      struc%coreh=''!0.0d0
       struc%coreq=0.0d0
       struc%a=0.0d0
       struc%nr=0
@@ -4004,7 +4004,7 @@ c$$$      end subroutine uordn_init
       struc%lfoca=0
       struc%ctail=0.0d0
       struc%etail=0.0d0
-      struc%name=0.0d0
+      struc%name=''!0.0d0
 cki       struc%orhoc=0
       struc%stc=0.0d0
       struc%lmxb=0
@@ -4020,8 +4020,8 @@ cki       struc%orhoc=0
       struc%nxi=0
       struc%qc=0.0d0
       struc%lmxpb=0
-      struc%pb1=0.0d0
-      struc%pb2=0.0d0
+      struc%pb1=''!0.0d0
+      struc%pb2=''!0.0d0
       struc%colxbs=0.0d0
       struc%lxi=0
       struc%radxbs=0.0d0
@@ -4061,7 +4061,7 @@ cki       struc%orhoc=0
       type(s_site):: struc
       struc%size= usite_size()
       struc%bfield=0.0d0
-      struc%clabel=0.0d0
+      struc%clabel=''!0.0d0
       struc%class=0
       struc%cli=0
       struc%delta=0.0d0

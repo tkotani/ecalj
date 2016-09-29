@@ -77,10 +77,10 @@ ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid = sspec(is)%name
 
         a=sspec(is)%a
         nr=sspec(is)%nr

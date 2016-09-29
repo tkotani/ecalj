@@ -47,16 +47,19 @@ C     ----------------------------------------------------------------
       implicit none
       character,intent(in):: c
       integer,intent(in):: i1,i2,istr
-      real(8):: struc
+c      real(8):: struc
+      character(8):: struc
       character(8):: name(i1:i2) ! use only name(istr)
       character(11):: thisfunc='spacks_copy'
 
 c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
 
       if (c=='p') then
-        call s8tor8(name(istr),struc)
+c        call s8tor8(name(istr),struc)
+        struc=name(istr)
       elseif (c=='u') then
-        call r8tos8(struc,name(istr))
+c        call r8tos8(struc,name(istr))
+        name(istr)=struc
       else
         write(*,*) 'error in ',thisfunc
       endif
