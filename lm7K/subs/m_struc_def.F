@@ -136,7 +136,7 @@ c      integer   ::   nofgr
 c      integer   ::   npadl
 c      integer   ::   npadr
 c      integer   ::   npl
-      real(8) , allocatable ::  rv_a_oclabl (:)
+      character(8), allocatable ::  rv_a_oclabl(:) !string
       integer , allocatable ::  iv_a_oipq (:)
       integer , allocatable ::  iv_a_oics (:)
       integer, allocatable :: iv_a_oipc(:)

@@ -47,7 +47,7 @@ ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
 
 C     integer ntab(nbas+1),iax(niax,1)
       double precision plat(3,3),pos(3,nbasp),rmax(1),rmt(1),z(1),alat
-      double precision dclabl(1)
+      character(8):: dclabl(*) !double precision
       integer ips(1),mode(3)
       character sovmin*(*)
 C static:

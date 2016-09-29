@@ -11,15 +11,15 @@ C  nlstc,lstc:  a list of classes to include as pairs (nlstc>0)
 C     implicit none
       logical lves,leul
 #ifdef USEOPTIONAL
-      integer npr,nbas,niax,ipc(1),nlstc
+      integer npr,nbas,niax,ipc(*),nlstc
       integer,optional::lstc(nlstc)
 #else
-      integer npr,nbas,niax,ipc(1),nlstc,lstc(nlstc)
+      integer npr,nbas,niax,ipc(*),nlstc,lstc(nlstc)
 #endif
       parameter (niax=10)
-      integer iax(niax,1)
-      double precision plat(3,3),bas(3,1),dclabl(1),ves(1),eula(nbas,3),
-     .z(32)
+      integer iax(niax,*)
+      double precision plat(3,3),bas(3,*),ves(*),eula(nbas,3),z(32)
+      character(8):: dclabl(*)
       integer ih(2,120),scrwid
       parameter (scrwid=120)
       integer i,l,ishell,nshell,j,k,ii,kk,ic,jc,i1,lgunit,awrite,iclbsj,
@@ -175,9 +175,10 @@ C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
       integer nbas,nclass,mxnbr0,ips(nbas),ipc(nbas),nttab
-      double precision bas(3,nbas),plat(3,3),dclabl(nclass),ves(1),
-ckino z(32?)     .eula(1),z(1)
+      double precision bas(3,nbas),plat(3,3),ves(1),
      .eula(1),z(32)
+      character(8):: dclabl(*)
+ckino z(32?)     .eula(1),z(1)
       character sopts*(*),slabl(nbas)*8
 C Local parameters
       integer niax
@@ -227,7 +228,7 @@ c      olstc = 1
       ldisp = 0
       allocate(dist_rv(nbas*3))
 
-      allocate(mark_rv(nbas))
+c      allocate(mark_rv(nbas))
 
       call dcopy ( nbas * 3 , bas , 1 , dist_rv , 1 )
 
@@ -322,7 +323,7 @@ C       if (ldisp .eq. 1) ltab = 2
 ckino Dec.14.2011:           call psho1 ( ldisp * 10 + ltab , lnn , iv_p_oiax , nbas , nttab
         call psho1 ( ldisp * 10 + ltab , lnn , iv_a_oiax , nbas , nttab 
      .   , nlst1 , lst1_iv , nlst2 , lst2_iv , rtab_rv , plat , bas , 
-     .   dist_rv , mark_rv , ipc , dclabl , ifi )
+     .   dist_rv , ipc , dclabl , ifi )
 
 
 
@@ -331,7 +332,7 @@ Cki#error ERROR, try to release name= ontab ,but list does not have  ontab at li
 
 Cki#error, have return with len(w_varlist)>0 at line 152
         if (allocated(rtab_rv)) deallocate(rtab_rv)
-        if (allocated(mark_rv)) deallocate(mark_rv)
+c        if (allocated(mark_rv)) deallocate(mark_rv)
         if (allocated(dist_rv)) deallocate(dist_rv)
         if (allocated(lst2_iv)) deallocate(lst2_iv)
         if (allocated(lst1_iv)) deallocate(lst1_iv)
@@ -713,7 +714,7 @@ C --- Printout ---
       end subroutine pvang2
 
       subroutine psho1(ltab,lnn,iax,nbas,nttab,nlst1,lst1,nlst2,lst2,
-     .rtab,plat,pos,pos2,mark,ipc,dclabl,ifi)
+     .rtab,plat,pos,pos2,ipc,dclabl,ifi)
 
 C- Kernel called by supcel to displace pairs radially
 C ----------------------------------------------------------------------
@@ -758,7 +759,8 @@ C     implicit none
 C ... Passed parameters
       integer ltab,nlst1,lst1(nlst1),nlst2,lst2(nlst2),ifi,nbas,lnn
       integer niax,nttab,ipc(*),mark(nbas)
-      double precision pos(3,*),pos2(3,*),rtab(3,*),dclabl(*),plat(9)
+      double precision pos(3,*),pos2(3,*),rtab(3,*),plat(9)
+      character(8):: dclabl(*)
       parameter (niax=10)
       integer iax(niax,1)
 C ... Local parameters

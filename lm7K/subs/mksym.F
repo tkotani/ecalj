@@ -408,87 +408,22 @@ ckino Dec.28.2011:       .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_p_oipc
      .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_a_oipc ) 
 
       enddo
-
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
-ckino Dec.14.2011:           allocate(rv_p_oclabl(abs(nclspp)))
-ckino Dec.27.2011:           allocate(sarray%rv_p_oclabl(abs(nclspp)))
-         allocate(sarray%rv_a_oclabl(abs(nclspp)))
-ckino Dec.14.2011:           if (nclspp<0) rv_p_oclabl(:)=0.0d0
-ckino Dec.27.2011:           if (nclspp<0) sarray%rv_p_oclabl(:)=0.0d0
-         if (nclspp<0) sarray%rv_a_oclabl(:)=0.0d0
-
-ckino Dec.16.2011:           allocate(iv_p_onrcp(abs(nclspp)))
-comment          allocate(sarray%iv_p_onrcp(abs(nclspp)))
-         allocate(sarray%iv_a_onrcp(abs(nclspp)))
-ckino Dec.16.2011:           if (nclspp<0) iv_p_onrcp(:)=0
-comment          if (nclspp<0) sarray%iv_p_onrcp(:)=0
-         if (nclspp<0) sarray%iv_a_onrcp(:)=0
-
-ckino Dec.14.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_p_oics , iv_p_oipcp 
-ckino Dec.16.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , iv_p_oipcp 
-ckino Dec.27.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_p_oics , sarray%iv_p_oipcp 
-ckino Dec.28.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_a_oics , sarray%iv_p_oipcp 
-ckino Dec.28.2011:              call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_a_oics , sarray%iv_p_oipc 
-            call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_a_oics , sarray%iv_a_oipc 
-ckino Dec.14.2011:       .      , nspec , slabl , ssite , rv_p_oclabl , iv_p_onrcp ) 
-ckino Dec.16.2011:       .      , nspec , slabl , ssite , sarray%rv_p_oclabl , iv_p_onrcp ) 
-ckino Dec.27.2011:       .      , nspec , slabl , ssite , sarray%rv_p_oclabl , sarray%iv_p_onrcp ) 
-comment      .      , nspec , slabl , ssite , sarray%rv_a_oclabl , sarray%iv_p_onrcp ) 
-     .      , nspec , slabl , ssite , sarray%rv_a_oclabl , sarray%iv_a_onrcp ) 
-
-
-
-
-C$$$     if (nclasp .eq. nclass) then !we only treat nclasp=nclass case. takao Apr2010
-cki        onrc = onrcp
-ckino Dec.16.2011:          iv_p_onrc => iv_p_onrcp
-ckino Jan.04.2012:          sarray%iv_p_onrc => sarray%iv_p_onrcp
+        allocate(sarray%rv_a_oclabl(nclspp))
+        allocate(sarray%iv_a_onrcp(nclspp))
+        sarray%rv_a_oclabl(:)='' !0.0d0
+        sarray%iv_a_onrcp(:)=0
+        call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_a_oics , sarray%iv_a_oipc 
+     .   , nspec , slabl , ssite , sarray%rv_a_oclabl , sarray%iv_a_onrcp ) 
         deallocate(sarray%iv_a_onrc)
         call move_alloc(from=sarray%iv_a_onrcp, to=sarray%iv_a_onrc)
-C$$$     else
-C$$$          call defi (onrc,   nclasp)
-C$$$          call icopy(nclasp,w(onrcp),1,w(onrc),1)
-C$$$          call iaxpy(nclasp-nclass,1,w(onrcp+nclasp),1,w(onrc+nclass),1)
-C$$$C          call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
-C$$$C          call awrit2('%n:1i',' ',100,6,nclspp,w(onrcp))
-C$$$     endif
       else
-cki        oclabl = 0
-ckino Dec.14.2011:          nullify(rv_p_oclabl)
-ckino Dec.27.2011:          nullify(sarray%rv_p_oclabl)
-         if (allocated(sarray%rv_a_oclabl)) deallocate(sarray%rv_a_oclabl)
-cki        onrcp = 0
-ckino Dec.16.2011:          nullify(iv_p_onrcp)
-ckino Jan.04.2012:          nullify(sarray%iv_p_onrcp)
+        if (allocated(sarray%rv_a_oclabl)) deallocate(sarray%rv_a_oclabl)
       endif
-
-C       call awrit2('%n:1i',' ',100,6,nsite,w(oipc))
-C       call awrit2('%n:1i',' ',100,6,nsite,w(oipcp))
-C       pause
-
 C --- Cleanup: poke class and symmetry info into structures ---
-
       sctrl%nclass=nclass
-
-
-ckino Dec.16.2011:         sarray%iv_p_onrcp => iv_p_onrcp 
-
-ckino Dec.16.2011:         sarray%iv_p_oipcp => iv_p_oipcp 
-
-
-
-ckino Dec.14.2011:         sarray%iv_p_oics => iv_p_oics 
-
-ckino Dec.16.2011:         sarray%iv_p_oipc => iv_p_oipc 
-
-ckino Dec.14.2011:         sarray%rv_p_oclabl => rv_p_oclabl 
-
       sarray%nclasp=nclasp
-ckino Dec.16.2011:         sarray%iv_p_onrc => iv_p_onrc 
-
-
-c     call awrit2('%n:1i',' ',100,6,nclasp,w(onrc))
   100 continue
 
       slat%npgrp=npgrp
