@@ -50,10 +50,10 @@ C Local Variables
           jb = lsites(j)
           js = int(ssite(jb)%spec)
 
-          do i_spacks=js,js
-            call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
-          enddo
-
+c          do i_spacks=js,js
+c            call spacks_copy('u',sspec(i_spacks)%name,js,js,clabl,i_spacks)
+c          enddo
+          clabl=sspec(js)%name
           write (lgunit(1),1) j, clabl, (lchan(i,j),i=1,lmdim)
         enddo
       endif

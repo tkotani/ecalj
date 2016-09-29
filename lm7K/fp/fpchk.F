@@ -88,10 +88,10 @@ C --- Loop over species ---
           goto 40
         endif
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid=sspec(is)%name
 
         rmt=sspec(is)%rmt
         rsma=sspec(is)%rsma

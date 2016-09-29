@@ -135,10 +135,10 @@ ckino Dec.28.2011:          sspec(is)%rv_p_orhoc=0.0d0
         allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
         if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(is),i_spacks)
+c       enddo
+        spid(is)=sspec(is)%name
 
         a=sspec(is)%a
         nr=sspec(is)%nr

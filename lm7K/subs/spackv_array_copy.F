@@ -1,4 +1,3 @@
-
       subroutine spackv_array_copy_r8_r8(c,v,n,j,s)
       implicit none
       character,intent(in):: c
@@ -36,34 +35,34 @@
       end
 
 
-      subroutine spacks_copy(c,struc,i1,i2,name,istr)
-C     - Pack/unpack string element in a struc, element referenced by name
-C     ----------------------------------------------------------------
-C     i   lpack   0 for unpack, 1 for pack, 2 to return parameters
-C     i   is1..is2 range of species is for which to pack
-C     For structure without species, set both to 0
-C     ----------------------------------------------------------------
-
-      implicit none
-      character,intent(in):: c
-      integer,intent(in):: i1,i2,istr
-c      real(8):: struc
-      character(8):: struc
-      character(8):: name(i1:i2) ! use only name(istr)
-      character(11):: thisfunc='spacks_copy'
-
-c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
-
-      if (c=='p') then
-c        call s8tor8(name(istr),struc)
-        struc=name(istr)
-      elseif (c=='u') then
-c        call r8tos8(struc,name(istr))
-        name(istr)=struc
-      else
-        write(*,*) 'error in ',thisfunc
-      endif
-      end subroutine spacks_copy
+c$$$      subroutine spacks_copy(c,struc,i1,i2,name,istr)
+c$$$C     - Pack/unpack string element in a struc, element referenced by name
+c$$$C     ----------------------------------------------------------------
+c$$$C     i   lpack   0 for unpack, 1 for pack, 2 to return parameters
+c$$$C     i   is1..is2 range of species is for which to pack
+c$$$C     For structure without species, set both to 0
+c$$$C     ----------------------------------------------------------------
+c$$$
+c$$$      implicit none
+c$$$      character,intent(in):: c
+c$$$      integer,intent(in):: i1,i2,istr
+c$$$c      real(8):: struc
+c$$$      character(8):: struc
+c$$$      character(8):: name(i1:i2) ! use only name(istr)
+c$$$      character(11):: thisfunc='spacks_copy'
+c$$$
+c$$$c      write(*,*)'spacks_copy>',c,struc,i1,i2,name,istr
+c$$$
+c$$$      if (c=='p') then
+c$$$c        call s8tor8(name(istr),struc)
+c$$$        struc=name(istr)
+c$$$      elseif (c=='u') then
+c$$$c        call r8tos8(struc,name(istr))
+c$$$        name(istr)=struc
+c$$$      else
+c$$$        write(*,*) 'error in ',thisfunc
+c$$$      endif
+c$$$      end subroutine spacks_copy
 
       subroutine ii8copy(n,x,incx,y8,incy)
       implicit none

@@ -111,9 +111,10 @@ c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
         is=ssite(ib)%spec
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(ib),i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid(ib),i_spacks)
+c        enddo
+        spid(ib)=sspec(is)%name
         call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)
         do  iorb = 1, norb
           norbmto=norbmto+1

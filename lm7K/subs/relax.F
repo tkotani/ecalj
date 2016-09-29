@@ -286,8 +286,8 @@ C          endif
 c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
-          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
-
+c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
+          clablj = sspec(is)%name
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
@@ -319,8 +319,8 @@ C        endif
 c           do i_spacks=is,is
 c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
 c           enddo
-          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
-
+c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
+          clablj=sspec(is)%name
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)

@@ -128,10 +128,10 @@ Changenglob        nkaph = nglob('nkaph')
           npze = 0
         endif
         do  is = is1, is2
-          do i_spacks=is,is
-            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-          enddo
-
+c          do i_spacks=is,is
+c            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c          enddo
+          spid=sspec(is)%name
           call dpzero(orbp,n0*nkap0*2)
 
           i_copy_size=size(sspec(is)%orbp)

@@ -62,10 +62,10 @@ C ... Local parameters
 
       gg = -1
       do  is = 1, nspec
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid = sspec(is)%name
         nkap1 = 1
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode .gt. 1) then

@@ -42,9 +42,10 @@ ckino      external dpzero,getpr,spacks
 C     totmom = 0
       do  ic = 1, nclass
         is = ics(ic)
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,slabl,i_spacks)
+c        enddo
+        slabl=sspec(is)%name
 
         amom = 0
         do  isp = 1, nsp

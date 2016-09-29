@@ -586,9 +586,10 @@ C     ... Write positions after file read, and repack
           j=ssite(i)%spec
           i_copy_size=size(ssite(i)%pos)
           call dcopy(i_copy_size,ssite(i)%pos,1,xv,1)
-          do i_spacks=j,j
-            call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
-          enddo
+c          do i_spacks=j,j
+c            call spacks_copy('u',sspec(i_spacks)%name,j,j,alabl,i_spacks)
+c          enddo
+          alabl=sspec(j)%name
           call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
           write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
  345      format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)

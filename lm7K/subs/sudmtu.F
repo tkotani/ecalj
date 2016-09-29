@@ -291,9 +291,10 @@ C ... Make Vorb (ldau requires spherical harmonics)
         i_copy_size=size(sspec(is)%jh)
         call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid=sspec(is)%name
 
         i = min(lmxa,3)
         call info8(30,1,0,' Species '//spid//

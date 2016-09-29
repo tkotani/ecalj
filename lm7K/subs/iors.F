@@ -553,22 +553,26 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
             endif
             read(jfi) is,spid,lmxa,lmxl,nr,rmt,a,z,qc
             backspace jfi
-            do i_spacks=is,is
-              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
-            enddo
+c            do i_spacks=is,is
+c              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c            enddo
+            sspec(is)%name=spid
             ssite(ib)%spec=is
 
-            do i_spacks=ib,ib
-              call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,spid,i_spacks)
-            enddo
+c            do i_spacks=ib,ib
+c              call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,spid,i_spacks)
+c            enddo
+            ssite(ib)%clabel=spid
+
             sspec(is)%lmxa=lmxa
           elseif (mode .eq. -2) then
             read(jfi,'(19x,a8)') spid
             read(jfi,*)
             read(jfi,*) is,lmxa,lmxl,nr
-            do i_spacks=is,is
-              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
-            enddo
+c            do i_spacks=is,is
+c              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c            enddo
+            sspec(is)%name=spid
             ssite(ib)%spec=is
             sspec(is)%lmxa=lmxa
             backspace jfi
@@ -578,9 +582,10 @@ C           If 1st entry > nspec => probably nr, not is.  Assume floating
 C         is = -1 -> spec struc does not have these parameters
 C         lskip = .false.
           if (is .ne. -1) then
-            do i_spacks=is,is
-              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-            enddo
+c            do i_spacks=is,is
+c              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c            enddo
+            spid=sspec(is)%name
             a=sspec(is)%a
             nr=sspec(is)%nr
             rmt=sspec(is)%rmt
@@ -626,9 +631,10 @@ c     ... read(but don't use) extra info since record is present
 C         is = -1 -> pack spec struc with file parameters
           if (is .eq. -1 .or. mode .eq. -2) then
             is = is0
-            do i_spacks=is,is
-              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
-            enddo
+c            do i_spacks=is,is
+c              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
+c            enddo
+            sspec(is)%name=spid0
             spid = spid0
             sspec(is)%a=a0
             sspec(is)%nr=nr0
@@ -964,18 +970,18 @@ C           spin-split core density
               call mpibc1 ( sspec(is)%rv_a_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca'  )
             else
               if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
-              do i_spacks=is,is
-                call spacks_copy('p',sspec(i_spacks)%coreh,is,is,' ',i_spacks)
-              enddo
-
-              do i_spacks=is,is
-                call spacks_copy('p',sspec(i_spacks)%pb1,is,is,' ',i_spacks)
-              enddo
-
-              do i_spacks=is,is
-                call spacks_copy('p',sspec(i_spacks)%pb2,is,is,' ',i_spacks)
-              enddo
-
+c              do i_spacks=is,is
+c                call spacks_copy('p',sspec(i_spacks)%coreh,is,is,' ',i_spacks)
+c              enddo
+              sspec(is)%coreh=' '
+c              do i_spacks=is,is
+c                call spacks_copy('p',sspec(i_spacks)%pb1,is,is,' ',i_spacks)
+c              enddo
+              sspec(is)%pb1=' '
+c              do i_spacks=is,is
+c                call spacks_copy('p',sspec(i_spacks)%pb2,is,is,' ',i_spacks)
+c              enddo
+              sspec(is)%pb2=' '
             endif
             call dpzero(exi,n0)
             call dpzero(hfc,n0*2)
@@ -1166,9 +1172,10 @@ C   --- Write information for local densities ---
         do  120  ib = 1, nbas
           ic=ssite(ib)%class
           is=ssite(ib)%spec
-          do i_spacks=is,is
-            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-          enddo
+c          do i_spacks=is,is
+c            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c          enddo
+          spid=sspec(is)%name
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
@@ -1292,9 +1299,10 @@ C   --- Write data on free-atom core states and fit to fa density ---
           if (lbin) then
             write(jfi) nr,a,qc,cof,eh,stc,lfoc,rfoc
           else
-            do i_spacks=is,is
-              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid0,i_spacks)
-            enddo
+c            do i_spacks=is,is
+c              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid0,i_spacks)
+c            enddo
+            spid0=sspec(is)%name
             write(jfi,'('' spec'',i5,2x,'' label '',a)') is, spid0
             write(jfi,'(''  nr   lfoc'')')
             write(jfi,ifmt) nr,lfoc

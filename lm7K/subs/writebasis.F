@@ -22,10 +22,10 @@ C ... Local parameters
       integer:: i_spacks,i_copy_size
       jfi = ifi
       do  110  is = 1, nspec
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid = sspec(is)%name
 
         i_copy_size=size(sspec(is)%orbp)
         call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)

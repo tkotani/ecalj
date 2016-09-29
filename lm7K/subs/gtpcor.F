@@ -27,9 +27,10 @@ C ... Local parameters
       lcore = -1
       qcore(1) = 0
       qcore(2) = 0
-      do i_spacks=is,is
-        call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
-      enddo
+c      do i_spacks=is,is
+c        call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
+c      enddo
+      ch=sspec(is)%coreh
 
       if (ch .eq. ' ') return
 

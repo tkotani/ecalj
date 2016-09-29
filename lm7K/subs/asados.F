@@ -654,9 +654,10 @@ C         Global upper bound to lmax
             if (ldos .eq. 2) nlo = nll
             if (ldos .eq. 4) nlo = nll*nll
           endif
-          do i_spacks=ib,ib
-            call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
-          enddo
+c          do i_spacks=ib,ib
+c            call spacks_copy('u',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+c          enddo
+          clabl=ssite(ib)%clabel
           outs = ' '
           write(outs,333) i, ic, clabl
   333     format(2i5,3x,a8)

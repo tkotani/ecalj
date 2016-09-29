@@ -105,20 +105,20 @@ C       Unpack sctrl data
 
 
 C       Unpack species data
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid=sspec(is)%name
 
         rsmfa=sspec(is)%rsmfa
         rfoca=sspec(is)%rfoca
         i_copy_size=size(sspec(is)%coreq)
         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
+c        enddo
+        chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
 
         z=sspec(is)%z

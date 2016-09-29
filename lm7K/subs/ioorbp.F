@@ -69,10 +69,10 @@ C ... Local parameters
             if (sout(1:1) .eq. '#') goto 18
             call word(sout,1,j1,j2)
    16       continue
-            do i_spacks=ks,ks
-              call spacks_copy('u',sspec(i_spacks)%name,ks,ks,spid,i_spacks)
-            enddo
-
+c            do i_spacks=ks,ks
+c              call spacks_copy('u',sspec(i_spacks)%name,ks,ks,spid,i_spacks)
+c            enddo
+            spid=sspec(ks)%name
             if (spid .ne. sout(j1:j2)) then
               ks = ks+1
               if (ks .gt. is2) then
@@ -198,14 +198,13 @@ C           if (i .lt. 0) lmxi=-i-2
         write(jfi,'(''BASIS:'')')
         if (mode .eq. 1) then
           do  110  is = is1, is2
-            do i_spacks=is,is
-              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-            enddo
-
+c            do i_spacks=is,is
+c              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c            enddo
+            spid=sspec(is)%name
 
             sspec(is)%norp=2
             sspec(is)%ntorb=n0*nkape
-
 
             norp=sspec(is)%norp
             ntorb=sspec(is)%ntorb

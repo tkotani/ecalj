@@ -2324,7 +2324,8 @@ C     Default values for smix (array has same same structure as lstra smix)
         vmix%b = 1               ! beta
         vmix%bv = 1               ! bv
 C     vmix%elind =  0              ! elind
-        call s8tor8('mixm',vmix%fn) ! file name
+c        call s8tor8('mixm',vmix%fn) ! file name
+        vmix%fn='mixm'
         vmix%kill =  0              ! nkill
         vmix%lxpot =  0              ! lxpot
         vmix%mmix = -1              ! mmix
@@ -2334,7 +2335,8 @@ C     vmix%n = 0              ! n     = Number of iterations for this species
 C     vmix%nitu = 1              ! nitu  = max number of LDA+U iterations
 C     vmix%nmix = 1              ! nmix  = actual number mixed
         vmix%nsave = 8              ! nsave = # iter to save on disk
-        call s8tor8(' ',vmix%r) ! expression for rmscst
+c        call s8tor8(' ',vmix%r) ! expression for rmscst
+        vmix%r=' '
         vmix%tolu = 0              ! tolu
         vmix%umix = 1              ! umix (mixing parm for LDA+U)
         vmix%w(1) = 1              ! w(1)
@@ -2343,8 +2345,8 @@ C     vmix%nmix = 1              ! nmix  = actual number mixed
         smalit = NULLI
 c      call dcopy(37,smix,1,samix,1)
         vamix = vmix
-        call s8tor8('mixa',vamix%fn) ! file name
-
+c        call s8tor8('mixa',vamix%fn) ! file name
+        vamix%fn='mixa'
         nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
      .  def_i4=30,
      .  note='maximum number of iterations in self-consistency cycle')
@@ -2428,9 +2430,8 @@ c      endif
      .  '%N%3fXIPMX=1: mix vin and v(qmix)'//
      .  '%N%3fXIPMX=2: mix vin and v(qout)')
         if (nout .gt. 0) then
-Ckino isanrg is logical function,           call isanrg(i0,0,3,'rdctrl','XIPMX',T)
-          l_dummy_isanrg=isanrg(i0,0,3,'rdctrl','XIPMX',T)
-          if (i0 .gt. 0) lves = 1 !it was lves= .true., but this is a bug . sctrl/lves is integer(8).
+          l_dummy_isanrg = isanrg(i0,0,3,'rdctrl','XIPMX',T)
+          if (i0 .gt. 0) lves = 1 
         endif
         vmix%lxpot = i0
 

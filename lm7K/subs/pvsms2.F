@@ -72,10 +72,10 @@ C --- For each site and l, rotate the m-components ---
       do  10  ib = 1, nbas
         is = int(ssite(ib)%spec)
 
-        do i_spacks=is,is
-          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-        enddo
-
+c        do i_spacks=is,is
+c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
+c        enddo
+        spid=sspec(is)%name
 
         nr=sspec(is)%nr
         lmxl=sspec(is)%lmxl

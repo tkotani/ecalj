@@ -525,7 +525,8 @@ C --- Make class labels from species labels ---
             ic = iclbsj(is,ics,-nclass,idx)
             if (ic .lt. 0) goto 13
             call clabel(slabl,is,idx,clabl)
-            call s8tor8(clabl,dclabl(ic))
+c            call s8tor8(clabl,dclabl(ic))
+            dclabl(ic)=clabl
    12     continue
    13     continue
    10   continue
@@ -534,11 +535,11 @@ C --- Make class labels from species labels ---
       do  20  ib = 1, nbas
         ic = ipc(ib)
 c        call r8tos8(dclabl(ic),clabl)
-        clabl=dclabl(ic)
-        do i_spacks=ib,ib
-          call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
-        enddo
-
+c        clabl=dclabl(ic)
+c        do i_spacks=ib,ib
+c          call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
+c        enddo
+        ssite(ib)%clabel = dclabl(ic) !clabl
    20 continue
 
 C      do  ib = 1, nbas

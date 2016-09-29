@@ -143,9 +143,10 @@ C --- print table of sites, l and n
           if (ib .gt. nbas) call rx('suclst: ib > nbas')
           is = int(ssite(ib)%spec)
 
-          do i_spacks=is,is
-            call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
-          enddo
+c          do i_spacks=is,is
+c            call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
+c          enddo
+          clabl=sspec(is)%name
 
           if (nsp .eq. 1) then
             call awrit6('%:3,3i     '//clabl//'%,2i%:1,2i%3f%i,%i,%i',

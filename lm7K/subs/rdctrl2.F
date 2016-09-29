@@ -723,12 +723,16 @@ C --- Allocate and copy input to sspec ---
 
         do  j = 1, nspec
           slabl_(j) = slabl(j)
-          do i_spacks=j,j
-            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
-            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-          enddo
+c          do i_spacks=j,j
+c            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
+c            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
+c            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
+c            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
+c          enddo
+          v_sspec(j)%pb1=pb1(j)
+          v_sspec(j)%pb2=pb2(j)
+          v_sspec(j)%coreh=coreh(j)
+          v_sspec(j)%name=slabl(j)
 
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
@@ -836,9 +840,10 @@ ckino Jan.04.2012:        allocate(v_ssite(nsite))
           i_copy_size=size(v_ssite(j)%dpole)
           call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
           v_ssite(j)%mpole=mpole(j)
-          do i_spacks=j,j
-            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-          enddo
+c          do i_spacks=j,j
+c            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
+c          enddo
+          v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pl=ipl(j)
           v_ssite(j)%plv=plv(j)
 c            i_copy_size=size(v_ssite(j)%pos)

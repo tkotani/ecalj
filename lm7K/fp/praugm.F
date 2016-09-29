@@ -42,10 +42,10 @@ Changenglob        is2 = nglob('nspec')
      .' spec       rmt   rsma lmxa kmxa',5x,
      .' lmxl     rg   rsmv  kmxv foca   rfoca')
       do  10  js = is1,is2
-        do i_spacks=js,js
-          call spacks_copy('u',sspec(i_spacks)%name,js,js,spid,i_spacks)
-        enddo
-
+c        do i_spacks=js,js
+c          call spacks_copy('u',sspec(i_spacks)%name,js,js,spid,i_spacks)
+c        enddo
+        spid=sspec(js)%name
 
         rmt=sspec(js)%rmt
         rsma=sspec(js)%rsma

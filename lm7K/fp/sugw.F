@@ -502,7 +502,8 @@ C   ... Atom data (gwa)
           z=sspec(is)%z
           rmt(ib)=sspec(is)%rmt
           lmaxa = int(sspec(is)%lmxa)
-          call spacks_copy('u',sspec(is)%name,is,is,spid,is)
+c          call spacks_copy('u',sspec(is)%name,is,is,spid,is)
+          spid=sspec(is)%name
 c          print *,' ssssssss spid='//spid//'###'
           if (lmaxa .gt. -1) then
             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
