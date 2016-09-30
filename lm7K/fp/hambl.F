@@ -251,8 +251,9 @@ C ... Local parameters
 
       if (mode .eq. 0) then
 
-        i_copy_size=size(slat%nabc)
-        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c        i_copy_size=size(slat%nabc)
+c        call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+        ngabc=slat%nabc
 
         call mshint(1d0,1,ngabc(1),ngabc(2),ngabc(3),
      .  k1,k2,k3,smpot,vavg,xx)

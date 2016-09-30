@@ -80,7 +80,7 @@ CSFCPP#endif
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
       tpiba = 2*pi/alat
       call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)

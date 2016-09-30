@@ -1159,8 +1159,9 @@ C      double complex gkl(0:k0,nlmx)
 Changenglob      nbas = nglob('nbas')
       nbas = globalvariables%nbas
 
-      i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       vol=slat%vol
 
 

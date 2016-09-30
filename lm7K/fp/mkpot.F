@@ -297,7 +297,7 @@ c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
       i_copy_size=size(sham%eterms)
       call dcopy(i_copy_size,sham%eterms,1,eterms,1)

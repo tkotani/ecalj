@@ -78,7 +78,7 @@ c        enddo
         if ( mode .eq. 2 ) then
 
           i_copy_size=size(sspec(is)%ngcut)
-          call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
+          call icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
         endif
 
         gg0 = gg
@@ -128,8 +128,8 @@ C     ... Find first longer vector, icut is one less
         enddo
 
         i_copy_size=size(sspec(is)%ngcut)
-        call ii8copy(i_copy_size,ncut,1,sspec(is)%ngcut,1)
-
+        call icopy(i_copy_size,ncut,1,sspec(is)%ngcut,1)
+c        sspec(is)%ngcut = ncut
       enddo
       end subroutine sugcut
 

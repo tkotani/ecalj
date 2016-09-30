@@ -166,9 +166,10 @@ C     ... Unless ipq still needed, throw it away
       endif
 C --- Pack new info into structures ---
       sbz%nkp=nkp
-      i_copy_size=size(sbz%nkabc)
-      call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1)
-      sbz%ntet=ntet
+c      i_copy_size=size(sbz%nkabc)
+c      call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1)
+      sbz%nkabc = nkxyz
+      sbz%ntet  = ntet
       if (.not.allocated(sbz%iv_a_oidtet))then
         write(*,*)'warnig in mkqp: sbz%iv_a_oidtet is not allocated. but continue.'
       endif

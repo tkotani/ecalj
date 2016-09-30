@@ -714,9 +714,9 @@ C ... Transformations done by caller: write qp list to disk
         call info0(30,0,0,' ')
         if (lnwmsh) then
           i_copy_size=size(sbz%nkabc)
-          call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+          call icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
           i_copy_size=size(sbz%lshft)
-          call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
+          call icopy(i_copy_size,sbz%lshft,1,lshft,1)
           nqp=sbz%nkp
           rv_p_oqp => sbz%rv_p_oqp
           call info2(20,0,0,

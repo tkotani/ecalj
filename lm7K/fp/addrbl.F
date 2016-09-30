@@ -140,7 +140,7 @@ CSFCPP#endif
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
 CSFCPP#if ! (F90 | AUTO_ARRAY)
 CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)

@@ -79,7 +79,7 @@ C --- Set relaxation variables ---
         do  i = 1, nbas
 c           i_copy_size=size(ssite(i)%relax)
 c           call i8icopy(i_copy_size,ssite(i)%relax,1,ifrlx,1)
-          call i8icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1)
+          call icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1)
 
           do  k = 1, 3
             if (ifrlx(k) .eq. 1) then

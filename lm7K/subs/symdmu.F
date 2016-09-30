@@ -115,7 +115,7 @@ C --- For each site density-matrix, do ---
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
-          call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+          call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
           ofjbl = -1
           do  l = 0, min(lmxa,3)

@@ -320,7 +320,7 @@ C     for now
       if (bandmode) lsig=0
       napw = 0
       i_copy_size=size(sham%ldham)
-      call i8icopy(i_copy_size,sham%ldham,1,ldham,1)
+      call icopy(i_copy_size,sham%ldham,1,ldham,1)
       ldim=ldham(1,1)
       pwmode= sham%pwmode
       pwemin= sham%pwemin
@@ -389,7 +389,7 @@ C     for now
             call dcopy  (i_copy_size ,ssite(ib)%pnu,1,pnu,1)
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy  (i_copy_size,ssite(ib)%pz, 1,pnz,1)
-            call i8icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
+            call icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
             if (lmaxa .gt. -1) then
               do  l = 0, lmaxa
                 npqn = 2

@@ -214,7 +214,7 @@ C   ... Write header
 
           ipll=ssite(ib)%pl
           i_copy_size=size(ssite(ib)%relax)
-          call i8icopy(i_copy_size,ssite(ib)%relax,1,irlx,1)
+          call icopy(i_copy_size,ssite(ib)%relax,1,irlx,1)
           vshftl=ssite(ib)%vshft
 
           if (lxpos) then
@@ -337,27 +337,26 @@ C         Error if species not found in list
               if (is .le. 0) goto 98
 C         Columns 4-6 are site position
               read(a(j2+1:),*,err=98,end=98) posl
-              call dpzero(vell,3)
-              call dpzero(eulal,3)
-              call ivset(irlx,1,3,1)
+              vell=0d0  !call dpzero(vell,3)
+              eulal=0d0 !call dpzero(eulal,3)
+              irlx=1    !call ivset(irlx,1,3,1)
               ipll = 0
               vshftl = 0
-
-              ssite(ib)%spec=is
-              i_copy_size=size(ssite(ib)%pos)
-              call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
-              i_copy_size=size(ssite(ib)%vel)
-              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
-              i_copy_size=size(ssite(ib)%eula)
-              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
-
-
-              ssite(ib)%pl=ipll
-              i_copy_size=size(ssite(ib)%relax)
-              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
-              ssite(ib)%vshft=vshftl
-
-
+              ssite(ib)%spec = is
+c              i_copy_size=size(ssite(ib)%pos)
+c              call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
+c              i_copy_size=size(ssite(ib)%vel)
+c              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
+c              i_copy_size=size(ssite(ib)%eula)
+c              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
+              ssite(ib)%pos = posl
+              ssite(ib)%vel = vell
+              ssite(ib)%eula= eulal
+              ssite(ib)%pl  = ipll
+c              i_copy_size=size(ssite(ib)%relax)
+c              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
+              ssite(ib)%relax= irlx
+              ssite(ib)%vshft= vshftl
             enddo
           endif
           goto 999
@@ -489,8 +488,7 @@ C         No vel,eula,vshft,ipl,irlx available on disk
                 read(a(j2+1:),*,err=98,end=98) posl
               else
                 i = 0
-                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
-     .          .ne. 3) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl).ne. 3) goto 98
               endif
 C          vel,eula,vshft,ipl,irlx are available on disk
             else
@@ -499,18 +497,12 @@ C          vel,eula,vshft,ipl,irlx are available on disk
      .          posl,vell,eulal,vshftl,ipll,iirlx
               else
                 i = 0
-                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl)
-     .          .ne. 3) goto 98
-                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell)
-     .          .ne. 3) goto 98
-                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal)
-     .          .ne. 3) goto 98
-                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl)
-     .          .ne. 1) goto 98
-                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll)
-     .          .ne. 1) goto 98
-                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx)
-     .          .ne. 1) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,posl).ne. 3) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,vell).ne. 3) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,3,ix,eulal).ne. 3) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,4,', ',2,3,1,ix,vshftl).ne. 1) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,ipll) .ne. 1) goto 98
+                if (a2vec(a(j2+1:),len(a)-j2,i,2,', ',2,3,1,ix,iirlx).ne. 1) goto 98
               endif
             endif
             if (lxpos) then
@@ -519,11 +511,10 @@ C          vel,eula,vshft,ipl,irlx are available on disk
             endif
 
             ib = ib+1
-
             ssite(ib)%spec=is
-            i_copy_size=size(ssite(ib)%pos)
-            call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
-
+c            i_copy_size=size(ssite(ib)%pos)
+c            call dcopy(i_copy_size,posl,1,ssite(ib)%pos,1)
+            ssite(ib)%pos=posl
 
 C          Copy vel,eula,vshft,ipl,irlx if sought
             if (lio345 .ge. 32) then
@@ -531,17 +522,17 @@ C          Copy vel,eula,vshft,ipl,irlx if sought
                 irlx(i) = getdig(iirlx,3-i,10)
    46         continue
 
-              i_copy_size=size(ssite(ib)%vel)
-              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
-              i_copy_size=size(ssite(ib)%eula)
-              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
-
-
-              ssite(ib)%pl=ipll
-              i_copy_size=size(ssite(ib)%relax)
-              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
-              ssite(ib)%vshft=vshftl
-
+c              i_copy_size=size(ssite(ib)%vel)
+c              call dcopy(i_copy_size,vell,1,ssite(ib)%vel,1)
+c              i_copy_size=size(ssite(ib)%eula)
+c              call dcopy(i_copy_size,eulal,1,ssite(ib)%eula,1)
+              ssite(ib)%vel = vell
+              ssite(ib)%eula= eulal
+              ssite(ib)%pl  = ipll
+c              i_copy_size=size(ssite(ib)%relax)
+c              call ii8copy(i_copy_size,irlx,1,ssite(ib)%relax,1)
+              ssite(ib)%vshft =vshftl
+              ssite(ib)%relax =irlx
             endif
 
             if (lio345 .ge. 64) then

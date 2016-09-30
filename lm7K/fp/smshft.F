@@ -81,25 +81,17 @@ C     stdo = lgunit(1)
       call tcn('smshft')
 
 C --- Setup and printout ---
-Changenglob      nsp  = nglob('nsp')
       nsp  = globalvariables%nsp
-Changenglob      nbas = nglob('nbas')
       nbas = globalvariables%nbas
-
       alat=slat%alat
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
-
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
-
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
-
       vol=slat%vol
 
       call fftz30(n1,n2,n3,k1,k2,k3)

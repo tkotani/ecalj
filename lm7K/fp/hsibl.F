@@ -166,7 +166,7 @@ Changenglob      nspec = nglob('nspec')
 
 
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
       vol=slat%vol
 
@@ -351,7 +351,7 @@ C   ... Loop over second of (ib1,ib2) site pairs
 
 
             i_copy_size=size(sspec(is2)%ngcut)
-            call i8icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
+            call icopy(i_copy_size,sspec(is2)%ngcut,1,ncut,1)
 ccccccccccccccccccccccc
 c            print *,'wwwww ng=',ng
 c            do i=1,i_copy_size

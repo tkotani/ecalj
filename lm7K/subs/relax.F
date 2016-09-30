@@ -291,7 +291,7 @@ c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
-          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
+          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
@@ -304,7 +304,7 @@ C ... Write new atom positions to LOG file, for use in CTRL file
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
-          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
+          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           if (j .eq. 2) dumstr = ' '
 C        if (prgnam(1:2) .eq. 'TB') then
@@ -324,7 +324,7 @@ c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
 
 c           i_copy_size=size(ssite(j)%relax)
 c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
-          call i8icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
+          call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
 
           call awrit2(dumstr//'ATOM='//clablj//
      .    ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),

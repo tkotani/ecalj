@@ -682,7 +682,7 @@ c     integer mpipid,procid
          if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
          lmx=sspec(is)%lmxa
          i_copy_size=size(sspec(is)%idmod) 
-         call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+         call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
          i_copy_size=size(sspec(is)%p) 
          call dcopy(i_copy_size,sspec(is)%p,1,pdf,1) 
          i_copy_size=size(sspec(is)%q) 

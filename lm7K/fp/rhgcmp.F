@@ -109,22 +109,15 @@ C ... Heap
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
 
-
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng1=slat%ng
-ckino Dec.12.2011:         rv_p_ogv => slat%rv_p_ogv
-
-ckino Dec.12.2011:         iv_p_okv => slat%iv_p_okv
-
       vol=slat%vol
-
-Changenglob      nspec = nglob('nspec')
       nspec = globalvariables%nspec
-Changenglob      nsp   = nglob('nsp')
       nsp   = globalvariables%nsp
       modgkl = mode
       if (mode .ge. 200) modgkl = mod(mode,100)
+
 C      if (mode .eq. 0) then
 C        modgkl = 131
 C      elseif (mode .eq. 1 .or. mode .eq. 3) then

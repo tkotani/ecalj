@@ -1,6 +1,5 @@
       subroutine makidx(nl,nkaph,ib1,ib2,iprma,sspec,ips,offH,iprmb,
      .ldham)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 !! takao think this is too complicated...
@@ -192,7 +191,7 @@ C --- For each site ib = ib1 ... ib2, make offH(ib) ---
         is = ips(ib)
 
         i_copy_size=size(sspec(is)%idxdn)
-        call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
+        call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
         lmxb=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa
 
@@ -204,11 +203,10 @@ C       orbs > lmxb always high; orbs > lmxa always neglected
      .      idxdn(l+1,ik) = 4
           enddo
         enddo
-
         i_copy_size=size(sspec(is)%idxdn)
-        call ii8copy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
-
-        call iinit(ndimi,n0H*nkap0)
+        call icopy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
+c        sspec(is)%idxdn = idxdn
+        ndimi=0 !call iinit(ndimi,n0H*nkap0)
         if (nl .gt. n0) call rx('makidx need more space for idxdn')
 
 C   ... Assemble offH(1..maxp,1..nkaph) for this site
@@ -293,7 +291,7 @@ C       iposn = 0
           iposn = mxorb*(ib-1)
 
           i_copy_size=size(sspec(is)%idxdn)
-          call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
+          call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
 
           do  111 ik = 1, nkaph
           do  111  l = 0, nl-1

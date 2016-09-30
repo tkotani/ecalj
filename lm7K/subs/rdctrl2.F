@@ -324,13 +324,15 @@ c      v_sbz%lio=i
 c      v_sbz%lopt=0
 
 
-      i_copy_size=size(v_sbz%lshft)
-      call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1)
-      v_sbz%n=bz_n
-      v_sbz%ndos=bz_ndos
-      v_sbz%nevmx=bz_nevmx
-      i_copy_size=size(v_sbz%nkabc)
-      call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
+c      i_copy_size=size(v_sbz%lshft)
+c      call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1)
+      v_sbz%lshft = bz_lshft
+      v_sbz%n     = bz_n
+      v_sbz%ndos  = bz_ndos
+      v_sbz%nevmx = bz_nevmx
+c      i_copy_size = size(v_sbz%nkabc)
+c      call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
+      v_sbz%nkabc = bz_nabc
 
       v_sbz%range=bz_range
 c      i_copy_size=size(v_sbz%semsh)
@@ -493,7 +495,7 @@ C      103 for PBE-GGA
       v_sctrl%lxcf= ham_lxcf
 
 !! ==  Set modep ===
-      ix(1:3) = 2
+c      ix(1:3) = 2
 c      if (prgnam == 'LMPG') ix(3) = 0
 c      if (prgnam == 'LMMC') ix(1:3) = 0
 
@@ -501,7 +503,8 @@ c      if (prgnam == 'LMMC') ix(1:3) = 0
       i_copy_size=size(v_sctrl%mdprm)
       call dcopy(i_copy_size,mdprm,1,v_sctrl%mdprm,1)
       i_copy_size=size(v_sctrl%modep)
-      call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1)
+c      call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1)
+      v_sctrl%modep=2
       v_sctrl%nbas=nbas
 
 C      Reset nl
@@ -512,8 +515,9 @@ C      Reset nl
       endif
 
       v_sctrl%nbasp=nbasp
-      i_copy_size=size(v_sctrl%nesabc)
-      call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
+c      i_copy_size=size(v_sctrl%nesabc)
+c      call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
+      v_sctrl%nesabc=nesabc
       v_sctrl%nitmv=nitmv
       v_sctrl%nl=nl
       v_sctrl%nsite=nsite
@@ -521,27 +525,31 @@ C      Reset nl
 
       v_sctrl%nspin=nsp
       v_sctrl%nvario=nvario
-      i_copy_size=size(v_sctrl%omax1)
-      call dcopy(i_copy_size,omax1,1,v_sctrl%omax1,1)
-      i_copy_size=size(v_sctrl%omax2)
-      call dcopy(i_copy_size,omax2,1,v_sctrl%omax2,1)
-      v_sctrl%quit=quit
-
-      v_sctrl%rmaxes=rmaxes
-      v_sctrl%rmines=rmines
-      v_sctrl%sclwsr=sclwsr
-      v_sctrl%sdmod=sdmod
-      i_copy_size=size(v_sctrl%sdprm)
-      call dcopy(i_copy_size,sdprm,1,v_sctrl%sdprm,1)
-
-      i_copy_size=size(v_sctrl%smalit)
-      call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1)
-      i_copy_size=size(v_sctrl%tol)
-      call dcopy(i_copy_size,ctrl_tol,1,v_sctrl%tol,1)
-      v_sctrl%wsrmax=wsrmax
-      i_copy_size=size(v_sctrl%zbak)
-      call dcopy(i_copy_size,zbak,1,v_sctrl%zbak,1)
-      v_sctrl%pfloat=lpfloat
+c      i_copy_size=size(v_sctrl%omax1)
+c      call dcopy(i_copy_size,omax1,1,v_sctrl%omax1,1)
+c      i_copy_size=size(v_sctrl%omax2)
+c      call dcopy(i_copy_size,omax2,1,v_sctrl%omax2,1)
+      v_sctrl%omax1 = omax1
+      v_sctrl%omax2 = omax2
+      v_sctrl%quit  = quit
+      v_sctrl%rmaxes= rmaxes
+      v_sctrl%rmines= rmines
+      v_sctrl%sclwsr= sclwsr
+      v_sctrl%sdmod = sdmod
+c      i_copy_size=size(v_sctrl%sdprm)
+c      call dcopy(i_copy_size,sdprm,1,v_sctrl%sdprm,1)
+c      i_copy_size=size(v_sctrl%smalit)
+c      call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1)
+c      i_copy_size=size(v_sctrl%tol)
+c      call dcopy(i_copy_size,ctrl_tol,1,v_sctrl%tol,1)
+c      i_copy_size=size(v_sctrl%zbak)
+c      call dcopy(i_copy_size,zbak,1,v_sctrl%zbak,1)
+      v_sctrl%sdprm = sdprm
+      v_sctrl%smalit= smalit
+      v_sctrl%tol   = ctrl_tol
+      v_sctrl%wsrmax= wsrmax
+      v_sctrl%zbak  = zbak
+      v_sctrl%pfloat= lpfloat
 
 C --- Allocate and copy input to slat ---
       v_slat%size=ulat_size()
@@ -757,19 +765,23 @@ c          enddo
           i_copy_size=size(v_sspec(j)%hcr)
           call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
 
-          i_copy_size=size(v_sspec(j)%idmod)
-          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
-
+c          i_copy_size=size(v_sspec(j)%idmod)
+c          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
+          v_sspec(j)%idmod=idmod(:,j)
           i_copy_size=size(v_sspec(j)%ehvl)
           call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
 
 C       Set idxdn
-          call ivset(ix,1,n0*nkap0,1)
-          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
-          i_copy_size=size(v_sspec(j)%idxdn)
-          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
-          i_copy_size=size(v_sspec(j)%idu)
-          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+c          call ivset(ix,1,n0*nkap0,1)
+c          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
+          ix = 1
+          ix(1:1+lmxb(j)) = idxdn(1:1+lmxb(j),j)
+c          i_copy_size=size(v_sspec(j)%idxdn)
+c          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
+          v_sspec(j)%idxdn = ix
+c          i_copy_size=size(v_sspec(j)%idu)
+c          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
+          v_sspec(j)%idu = idu(:,j)
           i_copy_size=size(v_sspec(j)%jh)
           call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
           i_copy_size=size(v_sspec(j)%uh)
@@ -840,8 +852,9 @@ ckino Jan.04.2012:        allocate(v_ssite(nsite))
         do  j = 1, nsite
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
-          i_copy_size=size(v_ssite(j)%dpole)
-          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+c          i_copy_size=size(v_ssite(j)%dpole)
+c          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
+          v_ssite(j)%dpole=dpole(:,j)
           v_ssite(j)%mpole=mpole(j)
 c          do i_spacks=j,j
 c            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
@@ -856,11 +869,12 @@ c            call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
-          i_copy_size=size(v_ssite(j)%relax)
-          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
-          i_copy_size=size(v_ssite(j)%eula)
-          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
-!!
+c          i_copy_size=size(v_ssite(j)%relax)
+c          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
+          v_ssite(j)%relax=irlx(:,j)
+c          i_copy_size=size(v_ssite(j)%eula)
+c          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
+          v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
         enddo
 
@@ -1023,12 +1037,12 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
           call mpibc1(nat,1,2,0,'rdctrl','nat')
           globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
 C ... Set modep
-          ix(1) = 2
-          ix(2) = 2
-          ix(3) = 2
-          i_copy_size=size(v_sctrl%modep)
-          call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
-
+c          ix(1) = 2
+c          ix(2) = 2
+c          ix(3) = 2
+c          i_copy_size=size(v_sctrl%modep)
+c          call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
+          v_sctrl%modep=2
 C ... Count LDA+U blocks (printout only)
 c      call defi(owk,-nbas)
           allocate(wowk(nbas))

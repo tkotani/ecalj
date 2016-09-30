@@ -596,18 +596,19 @@ C ... Make rest of ldham
 
 c      sham%ndofH=nbasp+1
 
-      i_copy_size=size(sham%ldham)
-      call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
+c      i_copy_size=size(sham%ldham)
+c      call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
+      sham%ldham=ldham
 
 C ------- Potential- and implementation- specific setup -------
 C --- FP setup ---
-
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat,1)
+c      i_copy_size=size(slat%qlat)
+c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
+      plat=slat%plat
+      qlat=slat%qlat
       nvi = 0
       nvl = 0
       lmxax = -1
@@ -620,55 +621,42 @@ C --- FP setup ---
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-
+c        pnu= sspec(is)%p
+c        pz= sspec(is)%pz
 cccccccccccccc
 c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
 cccccccccccccc
         call dcopy(n0,pz,1,pz(1,2),1)
+cc        pz(:,2)=pz
 C         Augmentation dimensioning parameters
         nvi = nvi + (lmxa+1)**2
         nvl = nvl + (lmxl+1)**2
 C         Poke spec starting pnu to site
-
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
-
+cc        ssite(ib)%pnu=pnu
+cc        ssite(ib)%pz=pz
 C         Find largest lmxa
         lmxax = max(lmxax,lmxa)
    20 continue
-
       sham%lmxax=lmxax
-
-
       spot%nlma=nvi
       spot%nlml=nvl
 
       call info5(30,0,0,' suham :  %i augmentation'//
-     .' channels, %i local potential channels  Maximum lmxa=%i',
-     .nvi,nvl,lmxax,0,0)
-
+     .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
       ng=slat%ng
-ckino Dec.14.2011       rv_p_ogv => slat%rv_p_ogv
-
       alat=slat%alat
       tolgv=slat%tolft
-
-ckino Dec.14.2011       call sugcut ( 1 , nspec , sspec , alat , ng , rv_p_ogv , tolgv
-ckino Dec.27.2011:         call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv
-      call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
-     . )
-
+      call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv  )
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
-
-      pwmode=sham%pwmode
-      pwemax=sham%pwemax
-
+      pwmode = sham%pwmode
+      pwemax = sham%pwemax
       if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
-
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
         if (mod(pwmode/10,10) .eq. 1) then

@@ -523,7 +523,7 @@ c takao
 
 
         i_copy_size=size(sspec(is)%ngcut)
-        call i8icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
+        call icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
 
         call suphas(q,p,ng,iv,n1,n2,n3,qlat,cosgp,singp)
 C       List of orbitals, their l- and k- indices, and ham offsets

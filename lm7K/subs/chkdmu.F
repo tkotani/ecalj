@@ -135,7 +135,7 @@ C     This block requires dmatu to be in spherical harmonics
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
-          call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+          call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
           i_copy_size=size(sspec(is)%uh)
           call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
           i_copy_size=size(sspec(is)%jh)
@@ -209,7 +209,7 @@ C       This block requires dmatu to be in spherical harmonics
 
             lmxa=sspec(is)%lmxa
             i_copy_size=size(sspec(is)%idu)
-            call i8icopy(i_copy_size,sspec(is)%idu,1,idu,1)
+            call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
             i_copy_size=size(sspec(is)%uh)
             call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
             i_copy_size=size(sspec(is)%jh)

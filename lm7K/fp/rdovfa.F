@@ -110,7 +110,7 @@ C     numprocs = mpipid(0)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       vol=slat%vol
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
       call fftz30(n1,n2,n3,k1,k2,k3)
       call dpzero(hfc,n0*2*nspec)

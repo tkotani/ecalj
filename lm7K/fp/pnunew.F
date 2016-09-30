@@ -100,7 +100,7 @@ C --- For each site, do ---
         lmxa=sspec(is)%lmxa
         rmt=sspec(is)%rmt
         i_copy_size=size(sspec(is)%idmod)
-        call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+        call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
         mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10

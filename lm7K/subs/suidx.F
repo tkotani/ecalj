@@ -114,7 +114,7 @@ C     Determine whether basis has any local orbitals
         lmxb=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idxdn)
-        call i8icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
+        call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
 
@@ -176,10 +176,9 @@ C             if (orbp(lp1,1,ik) .eq. 0) idxdn(lp1,ik) = max(idxdn(lp1,ik),2)
 
         enddo
 
-
         i_copy_size=size(sspec(is)%idxdn)
-        call ii8copy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
-
+        call icopy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
+cc        sspec(is)%idxdn = idxdn
       enddo
 
       end subroutine suidx

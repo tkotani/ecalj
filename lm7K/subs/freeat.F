@@ -99,7 +99,7 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
 C       Unpack sctrl data
 
         i_copy_size=size(sctrl%smalit)
-        call i8icopy(i_copy_size,sctrl%smalit,1,nrmix,1)
+        call icopy(i_copy_size,sctrl%smalit,1,nrmix,1)
 
         lxcfun = int(sctrl%lxcf)
 
@@ -134,7 +134,7 @@ c        enddo
         i_copy_size=size(sspec(is)%q)
         call dcopy(i_copy_size,sspec(is)%q,1,qat,1)
         i_copy_size=size(sspec(is)%idmod)
-        call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+        call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
         lmxa=sspec(is)%lmxa
 
 

@@ -170,7 +170,7 @@ C ... MPI setup
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
 
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
@@ -371,7 +371,8 @@ C   ... FP mesh density
               n2 = n21
               n3 = n31
               i_copy_size=size(slat%nabc)
-              call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
+c              call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
+              slat%nabc=ngabc
               call fftz30(n1,n2,n3,k1,k2,k3)
               allocate(zv_a_osmrho(abs(-k1*k2*k3*nsp)))
               if (-k1*k2*k3*nsp<0) zv_a_osmrho(:)=0.0d0
@@ -1182,7 +1183,7 @@ c          enddo
           z=sspec(is)%z
           qc=sspec(is)%qc
           i_copy_size=size(sspec(is)%idmod)
-          call i8icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
+          call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
           rsma=sspec(is)%rsma
           lmxa=sspec(is)%lmxa
           lmxl=sspec(is)%lmxl

@@ -328,7 +328,7 @@ C     lcond=T when contet branch is needed
 C     List of irreducible qp, tetrahedra, ipq
       call mkqp(sctrl,sbz,slat,ltet,lcond,1,0)
       i_copy_size=size(sbz%nkabc)
-      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+      call icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
       nkp=sbz%nkp
       ntet=sbz%ntet
 
@@ -579,7 +579,7 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         call mkqp(sctrl,sbz,slat,ltet,F,0,2)
         nkp=sbz%nkp
         i_copy_size=size(sbz%nkabc)
-        call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
+        call icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
         ntet=sbz%ntet
         allocate(dos_rv(npts,nsp,nchan))
         if (nblst .eq. 0) nblst = nevmx

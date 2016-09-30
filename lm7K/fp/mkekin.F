@@ -182,7 +182,7 @@ c2012Sep02 kino, add for
       nkaph = globalvariables%nkaph
       call getpr(ipr)
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
 c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
 c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )

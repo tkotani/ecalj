@@ -52,7 +52,7 @@ C     implicit none
       nsp = globalvariables%nsp
 
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       call fftz30(n1,n2,n3,k1,k2,k3)
       call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
      . , qbyl , hbyl , f )
@@ -316,7 +316,7 @@ C ... Local parameters
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symsmr')
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
       ngrp=slat%nsgrp
       if (ngrp .gt. 1) then

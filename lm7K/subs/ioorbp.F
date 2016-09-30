@@ -90,7 +90,7 @@ c            enddo
 
             lmxb=sspec(ks)%lmxb
             i_copy_size=size(sspec(ks)%idxdn)
-            call i8icopy(i_copy_size,sspec(ks)%idxdn,1,idxdn,1)
+            call icopy(i_copy_size,sspec(ks)%idxdn,1,idxdn,1)
 
 C         Case determine idxdn locally
             if (mod(mode/10,10) .ne. 0) call iinit(idxdn,n0*nkape)
@@ -176,19 +176,17 @@ C         Reduce lmxb
             if (i .ne. 0) then
 C           lmxi = lmxb
 C           if (i .lt. 0) lmxi=-i-2
-
               i_copy_size=size(sspec(ks)%pz)
               call dcopy(i_copy_size,orbp(1,1,3),1,sspec(ks)%pz,1)
-
               lpz = 1
             endif
-
             i_copy_size=size(sspec(ks)%orbp)
             call dcopy(i_copy_size,orbp,1,sspec(ks)%orbp,1)
             i_copy_size=size(sspec(ks)%idxdn)
-            call ii8copy(i_copy_size,idxdn,1,sspec(ks)%idxdn,1)
-            sspec(ks)%lmxb=lmxb
-
+            call icopy(i_copy_size,idxdn,1,sspec(ks)%idxdn,1)
+cc            sspec(ks)%orbp = orbp
+cc            sspec(ks)%idxdn= idxdn
+            sspec(ks)%lmxb = lmxb
    10     continue
         endif
         ioorbp = .true.
@@ -213,20 +211,16 @@ c            enddo
             lmxb=sspec(is)%lmxb
 
 C         Sanity checks
-Ckino isanrg is logical function,             call isanrg(norp,2,2,'ioorbp:','norp',.true.)
             l_dummy_isanrg=isanrg(norp,2,2,'ioorbp:','norp',.true.)
-Ckino isanrg is logical function,             call isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',
-            l_dummy_isanrg=isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',
-     .      .true.)
-            call dpzero(etab,n0*2)
-            call dpzero(rtab,n0*2)
+            l_dummy_isanrg=isanrg(ntorb,n0*nkapi,n0*nkape,'ioorbp:','ntorb',.true.)
+            etab=0d0 !call dpzero(etab,n0*2)
+            rtab=0d0 !call dpzero(rtab,n0*2)
             sout = ' ' // spid
             do  112  ikap = 1, nkapi
               call dcopy(n0,orbp(1,1,ikap),1,rtab(1,ikap),1)
               call dcopy(n0,orbp(1,2,ikap),1,etab(1,ikap),1)
               if (dasum(n0,orbp(1,1,ikap),1) .ne. 0) then
-                call awrit6(
-     .          '%a RSMH%?#n==2#2##=%n:1;3d EH%?#n==2#2##=%n:1;3d',
+                call awrit6('%a RSMH%?#n==2#2##=%n:1;3d EH%?#n==2#2##=%n:1;3d',
      .          sout,ls,0,
      .          ikap,lmxb+1,rtab(1,ikap),
      .          ikap,lmxb+1,etab(1,ikap))

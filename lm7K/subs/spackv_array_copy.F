@@ -1,25 +1,25 @@
 !! these are needed historycally. Bothe are the same as icopy.
-      subroutine ii8copy(n,x,incx,y8,incy) 
-      implicit none
-      integer:: n,incx,incy
-      integer:: x(*)
-      integer:: y8(*)
-      integer:: i
-      do i=1,n
-        y8(1+incy*(i-1))=x(1+incx*(i-1))
-      enddo
-      end subroutine ii8copy
-!! ---
-      subroutine i8icopy(n,x8,incx,y,incy) 
-      implicit none
-      integer:: n,incx,incy
-      integer:: x8(*)
-      integer:: y(*)
-      integer:: i
-      do i=1,n
-        y(1+incy*(i-1))=x8(1+incx*(i-1))
-      enddo
-      end subroutine i8icopy
+c$$$      subroutine ii8copy(n,x,incx,y8,incy) 
+c$$$      implicit none
+c$$$      integer:: n,incx,incy
+c$$$      integer:: x(*)
+c$$$      integer:: y8(*)
+c$$$      integer:: i
+c$$$      do i=1,n
+c$$$        y8(1+incy*(i-1))=x(1+incx*(i-1))
+c$$$      enddo
+c$$$      end subroutine ii8copy
+c$$$!! ---
+c$$$      subroutine i8icopy(n,x8,incx,y,incy) 
+c$$$      implicit none
+c$$$      integer:: n,incx,incy
+c$$$      integer:: x8(*)
+c$$$      integer:: y(*)
+c$$$      integer:: i
+c$$$      do i=1,n
+c$$$        y(1+incy*(i-1))=x8(1+incx*(i-1))
+c$$$      enddo
+c$$$      end subroutine i8icopy
 
 c$$$      subroutine spackv_array_copy_r8_r8(c,v,n,j,s)
 c$$$      implicit none

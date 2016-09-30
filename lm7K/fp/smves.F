@@ -170,7 +170,7 @@ C ... Setup
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi
       i_copy_size=size(slat%nabc)
-      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ng=slat%ng
       vol=slat%vol
 
