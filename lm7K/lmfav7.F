@@ -119,7 +119,8 @@ C --- Generate symmetry operations; split species into classes  ---
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
       if (cmdopt('--nosym',7,0,outs)) strn = ' '
       lc = 20
-      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+      if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
       print *,'goto mksym:',trim(strn)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       print *,'end of mksym x'
