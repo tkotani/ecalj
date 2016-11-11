@@ -2,7 +2,7 @@
      i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  nsp,isp_k,isp_kq,symmetrize,
+     i                  nsp,isp_k,isp_kq,!symmetrize,
      i                  qbas,ginv,rk,wk,  
 c     i                  mdim, 
      d                  nlmto,nqbz,nctot, 
@@ -166,7 +166,7 @@ c      integer(4),allocatable:: ngvecc(:,:)
       logical :: z1offd !, z1stcol
       complex(8),target :: zzr(ngbb,nmbas) !ppovlz(ngbb,ngbb),
       integer:: igb
-      logical:: symmetrize
+c      logical:: symmetrize
 
 !! jun2012takao
 c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 
@@ -183,7 +183,7 @@ c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousq
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
-      complex(8),pointer:: zmat(:,:)
+c      complex(8),pointer:: zmat(:,:)
 c      complex(8),allocatable,target:: ppovl_(:,:)
 c#ifdef USE_GEMM_FOR_SUM
 c      complex(8),allocatable :: zmelt_tmp(:,:,:)
@@ -200,7 +200,7 @@ c#endif
       integer:: ntqxx,nbmax
       
 
-      if (symmetrize) goto 5000 
+c      if (symmetrize) goto 5000 
 
 c ------------------------------------------------
 !TIME0_1001 
@@ -857,12 +857,89 @@ c      if(eibzmode) then !comment out sep2014.
         enddo
 c       endif
 !TIME1_1301 "before_eibzmode_symmetrization"
+ 9999 continue
+      write(6,"(' --- x0kf_v4hz: end')")
+      end subroutine x0kf_v4hz
 
-!! == End of eibzmode=F (no symmetrization required). ==
-      goto 9999 ! finalize
 
+!! --------------------------------------------------------------------------------
+      subroutine x0kf_v4hz_symmetrize (npm, !ncc,
+c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
+     i                  q,
+     i                  nsp,isp_k,isp_kq, !symmetrize,
+     i                  qbas,ginv,!rk,wk,  
+c     i                  mdim, 
+c     d                  nlmto,nqbz,nctot, 
+c     d                  natom, 
+     d                  nbloch,nwt, 
+     i      iq, ngbb, ngc, ngpmx,ngcmx,  
+     i      nqbze, nband,nqibz, 
+     o      rcxq,
+     i     nolfco,zzr,nmbas, zcousq,
+     i     chipmzzr,eibzmode, 
+     i     ngrp,eibzsym) !, crpa) !nwgt,igx,igxt,
+c      use m_readqg,only   :  readqg
+c      use m_readeigen,only:  readeval 
+c      use m_keyvalue,only   :  getkeyvalue
+      use m_rotMPB,only   :  rotMPB2 
+      use m_readqgcou,only:  
+     o qtt_, nqnum 
+c      use m_pkm4crpa,only : readpkm4crpa
+c      use m_zmel,only     : get_zmelt2,
+c     o zmel !,ppbir ,ppovlz
+!! === symmetrization for EPIBZ mode ===
+      implicit none
+      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq !nlmto !,noccx,noccxv
+     &  ,nl,nclass,nnc,nlnmx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen !mdimx,
+     &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
+     &  ,nn,no,isx,iclose,k,nbnbx,nqbz
+      real(8):: q(3),qbas(3,3),ginv(3,3),ebmx !,rk(3,nqbz),wk(nqbz)
+      complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
+      complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
+      integer(4):: ngpmx, ngcmx, nqbze, nband,
+     &              ngc,nadd(3)
+c      integer(4) ::  nbnb(nqbz,npm), n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
+      logical,parameter:: debug=.false.
+c      integer(4):: nhwtot, ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
+c      real(8):: whw(nhwtot)
+      complex(8) :: zmelt1,zmelt2,zmeltt(ngbb)      !...........................sf 21May02
+      real(8) :: imagweight !............................sf 21May02
+      integer(4)::nocc
+      real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
+      integer(4):: verbose
 
+      logical   :: nolfco !iepsmode
+      integer(4):: nmbas, imb1,imb2, imb !nmbas1x !nmbas2,nmbas1,
+      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) !tolqu=1d-4,
+      integer(4):: nbcut,nbcut2
+      logical :: iww1=.true.,iww2=.true.
+      complex(8):: img=(0d0,1d0)
+      integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
+      integer(4):: ib1, ib2,      ngcx,ix,iy
+      complex(8),target :: zzr(ngbb,nmbas) !ppovlz(ngbb,ngbb),
+      integer:: igb
+      integer:: ngrp !,nwgt(nqbz) !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
+c      integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
+      logical:: checkbelong,eibzmode, chipmzzr
+      complex(8):: zcousq(ngbb,ngbb) ,  zcousqc(ngbb,ngbb)
+      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
+      integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
+      integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
+      complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
+c      complex(8),pointer:: zmat(:,:)
+      complex(8),allocatable:: rcxq_core(:,:)
+      complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
 
+c      logical:: eibz4x0
+c      logical :: crpa 
+c      real(8):: wpw_k,wpw_kq
+c      real(8):: vec_kcrpa(3),vec_kqcrpa(3)
+
+      logical :: exchange=.false.
+      integer:: irot=1
+      integer:: ntqxx,nbmax
+    
 !! ------------------------------------------------------------------------
 !! == Symmetrizer of EIBZ PRB.81,125102(2010) Eq.(51) july2012takao ==
 !! This may be not so effective ---> only for limited cases?
@@ -875,20 +952,19 @@ c       endif
 !! Note that k= \hat{A}^k_i(k) (S_A^k)
 !! See Eq.(51) around in PRB81 125102(2010)
 !! 
- 5000 continue
+c 5000 continue
 !! === zmelt conversion === 
       if(nolfco .and. nmbas==1) then
          write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
          goto 9999
       endif
 !!
-      if(eibzmode.and.symmetrize) then
+      if(eibzmode) then
         ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
         if(ngb/=ngbb) then
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
-
 !TIME0_1401 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
 !TIME1_1401 "after_iqindx2"
@@ -1021,7 +1097,7 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
 !! neibz is total number of symmetrization operation. 
 !!      rcxq is rotated and accumulated; finally divied by neibz
         zcousqc = dconjg(transpose(zcousq))
-        call cputid2(' --- x0kf:qqqqq222ini:',0)
+        if(debug) call cputid2(' --- x0kf:qqqqq222ini:',0)
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !$OMP master
@@ -1174,14 +1250,12 @@ c$$$          rcxq(:,:,iw,jpm)=rcxq0(:,:)/neibz
 c$$$        enddo
 c$$$        enddo
 c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
-        call cputid2(' --- qqqqq222end:',0)
+        if(debug) call cputid2(' --- qqqqq222end:',0)
       endif  
-
  9999 continue
 !kino 2014.08.19 use automatic deallocation,      deallocate(cphi_k,cphi_kq,geig_kq,geig_k)
-c      if(smbasis()) deallocate(pomat)
-      write(6,"(' --- x0kf_v4hz: end')")
-      end subroutine x0kf_v4hz
+      write(6,"(' --- x0kf_v4hz_symmetrize: end')")
+      end subroutine x0kf_v4hz_symmetrize
 
 
 

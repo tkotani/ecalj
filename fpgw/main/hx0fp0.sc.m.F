@@ -677,8 +677,6 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
 !! input
 !!     ekxx1 for   rk,is
 !!     ekxx2 for q+rk,isf 
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           do kx = 1, nqbz
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
@@ -687,12 +685,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
      i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
      i     nbmx,ebmx,mtet,eibzmode) !nov2016
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
           iqeibz=iq
-          symmetrize=.false.
           if(npm==1) then
             ncc=0
           else
@@ -702,7 +697,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      i     ihw,nhw,jhw,whw,nhwtot, ! tetwt5
      i     n1b,n2b,nbnbx,nbnb,  ! use whw by tetwt5 ,
      i     q,  
-     i     nspin,is,isf, symmetrize, !
+     i     nspin,is,isf, !symmetrize, !
      i     qbas,ginv,  qbz,wbz, 
      d     nlmto,nqbz,nctot,    !noccx,noccxv,
      d     nbloch,  nwhis,      !nlnmx,mdimx,
@@ -718,21 +713,21 @@ c          if(tetra)  deallocate( n1b,n2b)
  1003   continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
 !TIME1_180001 "Do1003"
 c===========end of spin loop============================================
+
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
 !TIME0_190001 x0kf_sym 
         if(eibzmode)  then
-          symmetrize= .true.
           is=1                  ! dummy
-          call x0kf_v4hz(npm,ncc,   
-     i     ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i     n1b,n2b,nbnbx,nbnb,  ! use whw by tetwt5 ,
+          call x0kf_v4hz_symmetrize(npm,!ncc,   
+c     i     ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+c     i     n1b,n2b,nbnbx,nbnb,  ! use whw by tetwt5 ,
      i     q,  
-     i     nspin,is,isf, symmetrize, !
-     i     qbas,ginv,  qbz,wbz, 
+     i     nspin,is,isf, !symmetrize, !
+     i     qbas,ginv,  !qbz,wbz, 
 c     i              nblocha,!nlnm,nlnmv,nlnmc,iclass, 
 c     i              ppb(1,is), 
 c     i              icore,ncore,
-     d     nlmto,nqbz,nctot,    !noccx,noccxv,
+c     d     nlmto,nqbz,nctot,    !noccx,noccxv,
 c     d              natom, !nl,nclass,natom,nnc,
      d     nbloch,  nwhis,      !nlnmx,mdimx,
      i     iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
@@ -740,7 +735,7 @@ c     d              natom, !nl,nclass,natom,nnc,
      o     rcxq,                ! rcxq is the accumulating variable for spins 
      i     nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
      i     chipm,eibzmode,      !z1offd,
-     i     nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
+     i     ngrp, eibzsym(:,:,iqeibz))
         endif
 
 !! reduction rcxq in the S-axis

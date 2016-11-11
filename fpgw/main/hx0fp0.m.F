@@ -1133,12 +1133,11 @@ c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
           else
             ncc=nctot
           endif
-          symmetrize=.false.
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
-     i              nspin,is,isf, symmetrize, !
+     i              nspin,is,isf, !symmetrize, !
      i              qbas,ginv,  qbz,wbz, 
      d            nlmto,nqbz,nctot, !noccx,noccxv,
      d            nbloch,  nwhis, !nlnmx,mdimx,
@@ -1155,20 +1154,21 @@ c$$$c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ---------------------------------------------------
 !kino 2014-08-19 add
 
-          if (is==nspinmx.or.chipm) then ! bugfix? at apr2015. Takao think ".or.chipm" is required for chipm mode
+!! == Symmetrizer for crystal symmetry (and also for spin)
+!!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
+          if (is==nspinmx.or.chipm) then ! Apr2015. Takao think ".or.chipm" is required for chipm mode
                                          ! Because rcxq is calculated for each is, symmetrized and its contribution
                                          ! is added to zxq in dpsion5.
-            symmetrize=.true.
-            call x0kf_v4hz(npm,ncc,
-     i       ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i       n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
+            call x0kf_v4hz_symmetrize(npm, !ncc,
+c     i       ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+c     i       n1b,n2b,nbnbx,nbnb, ! use whw by tetwt5 ,
      i       q,
-     i       nspin,is,isf, symmetrize, !
-     i       qbas,ginv,  qbz,wbz,
+     i       nspin,is,isf, !symmetrize, !
+     i       qbas,ginv,  !qbz,wbz,
 c     i       nblocha,           !nlnm,nlnmv,nlnmc,iclass,
 c     i              ppb(1,is),
 c     i              icore,ncore,
-     d       nlmto,nqbz,nctot,  !noccx,noccxv,
+c     d       nlmto,nqbz,nctot,  !noccx,noccxv,
 c     d       natom,             !nl,nclass,natom,nnc,
      d       nbloch,  nwhis,    ! nlnmx,mdimx,
      i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
@@ -1176,7 +1176,7 @@ c     d       natom,             !nl,nclass,natom,nnc,
      o       rcxq,              !  rcxq is the accumulating variable for spins
      i       nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
      i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
-     i       nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+     i       ngrp, eibzsym(:,:,iq))
           endif
           call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
           iecut=1
