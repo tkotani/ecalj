@@ -11,9 +11,10 @@ c      use m_readeps,only: read_eps, epsinv, w_mu, llmat2=>llmat,deallocate_eps
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
-      use m_read_bzdata,only: read_bzdata,
-     &     ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
-     &     dq_,qbz,wbz,qibz,wibz
+      use m_read_bzdata,only: read_bzdata, !<--- 'call read_bzdata' sets up following data.
+     &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
+     &   dq_,qbz,wbz,qibz,wibz,
+     &     ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
@@ -155,6 +156,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: wmu(:,:),wmuk(:,:)
       integer:: ifw4p,ngbq0,igb
       real(8):: qv(3,3)
+
+      real(8)::ebmx
+      integer:: nbmx,mtet(3)
+      real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
+
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
@@ -456,6 +462,14 @@ c     nwhis=nw
       iqxini=1 !for newaniso
       eibzmode = eibz4x0()
 
+!! nov2016 moved from tetwt5 --> here
+      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
+      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+      mtet=(/1,1,1/)
+      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
+      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
 !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
       if(eibzmode) then
@@ -651,6 +665,7 @@ c$$$  endif
           isf = is
 
 !! Tetrahedron weight.
+!! output
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
 !!     nhw(ibjb,kx): the number of histogram sections
@@ -659,7 +674,22 @@ c$$$  endif
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm)
+!! input
+!!     ekxx1 for   rk,is
+!!     ekxx2 for q+rk,isf 
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          do kx = 1, nqbz
+            call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+          enddo
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
+     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+     i     nbmx,ebmx,mtet,eibzmode) !nov2016
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
           iqeibz=iq
           symmetrize=.false.

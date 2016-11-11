@@ -85,7 +85,6 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       complex(8),allocatable :: wwk(:,:,:)
       integer,allocatable :: 
      &         noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
-      real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)!,ekxx3(:,:) !,qbzw(:,: )
       real(8) ::qbzx(3),anfvec(3)
       logical :: debug
       integer,allocatable:: ibasf(:)
@@ -238,6 +237,10 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: ppovl_(:,:)
 
       logical:: readw0w0itest=.false.
+
+      real(8)::ebmx
+      integer:: nbmx,mtet(3)
+      real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -837,6 +840,14 @@ c$$$ 1101  continue
 c$$$          stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+!! nov2016 moved from tetwt5 --> here
+      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
+      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+      mtet=(/1,1,1/)
+      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
+      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+
 
 !! -- EIBZ mode for nolfco -----------------------
       eibzmode=eibz4x0()
@@ -1069,6 +1080,7 @@ c!! Tetrahedron weitht for zero section
 c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis0,nwhis0,npm)
 
 !! Tetrahedron weight.
+!! output
 !!     nbnbx
 !!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
 !!     nhw(ibjb,kx): the number of histogram sections
@@ -1077,7 +1089,17 @@ c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis0,nwhis0,npm)
 !!     : histogram weights for given ib,jb,kx for histogram sections
 !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm)
+!! input
+!!     ekxx1 for   rk,is
+!!     ekxx2 for q+rk,isf 
+          do kx = 1, nqbz
+            call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+          enddo
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
+     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+     i     nbmx,ebmx,mtet,eibzmode) !nov2016
 
 c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        jpm=1

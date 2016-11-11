@@ -9,8 +9,10 @@
      i          frhis,nwhis,
      i          nbnbx,ibjb,nhwtot, ihw,nhw,jhw, !job=1
      o          whw,                            !job=1
-     i   iq,isp1,isp2,nqibz,eibzmode,nwgt) ! new input for mtett
-      use m_keyvalue,only: getkeyvalue
+     i   iq,isp1,isp2,nqibz,eibzmode,nwgt, ! 2016jun 
+     i   nbmx,ebmx,mtet) !
+
+c      use m_keyvalue,only: getkeyvalue
 !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
 !! ------------------------------------------------------------------------------
 !! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
@@ -176,13 +178,13 @@ c      if(verbose()>=150) chkwrt=.true.
 c      fermi_dS=0d0
       if(job==0) iwgt = .false.
 
-!! 2016jun 
-      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
-      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
-
-!! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
-      mtet=(/1,1,1/)
-      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
+c$$$!! 2016jun 
+c$$$      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
+c$$$      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+c$$$
+c$$$!! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+c$$$      mtet=(/1,1,1/)
+c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       if(sum(abs(mtet))/=3) then
         mtett=.true.
         if(sum(abs(mtet))<3) 
