@@ -1,4 +1,6 @@
-# T.Kotani Jan.2015
+### bash subroutine used in gwsc and so on. ###
+### See fpgw/exec/gwsc for usage
+# T.Kotani Jan.2015 
 # SeungWoo Jang Sep.2014
 echo_run=""                    # standard
 serial_run=""                  # standard
@@ -30,30 +32,3 @@ function run_arg
 }
 
 echo "NOTE: Use run_arg defined in $nfpgw/run_arg"
-
-
-### takao. This sometimes cause error. (only replace > with |tee 
-# Because of hakozaki@kyushu-u.ac.jp ?
-# function run_arg_tee
-# {
-#     local argin=$1
-#     local MPI_SIZE=$2
-#     local nfpgw=$3
-#     local command=$4
-#     local output=$5
-#     local TARGET=${@:6:($#-2)}
-#     $echo_run echo -n 'OK! --> Start'
-#     $echo_run echo $argin > _IN_
-#     if [ $MPI_SIZE == '0' ]; then
-#         $echo_run echo " echo $argin | $nfpgw$command $TARGET |tee $output " 
-#         $serial_run $nfpgw$command  $TARGET < _IN_ |tee $output
-#     else
-#         $echo_run echo " echo $argin | mpirun -np $MPI_SIZE $nfpgw$command $TARGET |tee $output " 
-#         $mpi_run $nfpgw$command $TARGET < _IN_ |tee $output
-#     fi
-#     if [ $? != 0 ]; then
-#         $echo_run echo Error in $command input_arg=$argin. See OutputFile=$output
-#         exit 10
-#     fi
-# }
-

@@ -507,8 +507,8 @@ WARN_LOGFILE           =
 # "./Wannier" "./exec/gwsc" "./Wannier/genMLWF"
 
 INPUT = "./gwsrc/mkqg.F" "./gwsrc/mkjp.F" "./gwsrc/x0kf_v4h.F" "./gwsrc/sxcf_fal2.F" \
-        "./gwsrc/sxcf_fal2.sc.F" "./main/hx0fp0.sc.m.F"\
-        "./gwsrc/m_zmel.F" "./gwsrc/m_anf.F"\
+        "./gwsrc/sxcf_fal2.sc.F" "./main/hx0fp0.sc.m.F" "./main/hx0fp0.m.F" \
+        "./gwsrc/m_zmel.F" "./gwsrc/m_anf.F" \
         "./main/hsfp0.sc.m.F" "./gwsrc/x0kf_v4h.F" "./gwsrc/m_hamindex.F" \
 	"./gwsrc/m_tetwt.F" "./gwsrc/m_freq.F" "./gwsrc/readqg.F" "./gwsrc/genallcf_mod.F" \
         "./main/qg4gw.m.F" "./main/hvccfp0.m.F" "./main/hbasfp0.m.F" \

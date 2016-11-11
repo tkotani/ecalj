@@ -39,6 +39,7 @@
 !! \param screen dummy 
 !!
 !! \remark
+!!
 !! \verbatim
 !! Jan2013: eftrue is added.
 !!   ef=eftrue(true fermi energy) for valence exchange and correlation mode.
@@ -85,7 +86,7 @@
 !! [2]T. Kotani, Quasiparticle Self-Consistent GW Method Based on the Augmented Plane-Wave 
 !!    and Muffin-Tin Orbital Method, J. Phys. Soc. Jpn., vol. 83, no. 9, p. 094711 [11 Pages], Sep. 2014.
 !!
-!! =======================================================================
+!! -------------------------------------------------------------------------------
 !! Omega integral for SEc
 !!   The integral path is deformed along the imaginary-axis, but together with contribution of poles.
 !!   See Fig.1 and around in Ref.[1].
@@ -117,8 +118,10 @@
 !!
 !! ---Integration along real axis (contribution from the poles of G: SEc(pole))
 !!    See Eq.(34),(55), and (58) and around in Ref.[1]. We now use Gaussian Smearing.
-!! =======================================================================
-!
+!! -------------------------------------------------------------------------------
+!! \endverbatim
+!! \verbatim
+!!
 !! ----------------------------------------------
 !!     q     =qip(:,iq)  = q-vector in SEc(q,t). 
 !!    itq     = states t at q
