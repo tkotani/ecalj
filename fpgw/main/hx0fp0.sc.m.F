@@ -183,7 +183,7 @@ c      real(8):: ef
       call MPI__Broadcast(ixc)
       crpa=.false.
       if(ixc==0) call rx( ' --- ixc=0 --- Choose computational mode!')
-      call headver('hx0fp0_sc',ixc)
+c      call headver('hx0fp0_sc',ixc)
 c      call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
 c      write(6,"(' ScaledGapX0=',f8.3)") sciss
       if(ixc==11) then

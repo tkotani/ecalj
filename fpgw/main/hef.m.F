@@ -106,7 +106,7 @@ c      common /w/ w(iwksize)
       real(8)::ef
 c      logical:: readgwinput
 
-      call headver('hef',0)
+c      call headver('hef',0)
 
 c-----------------------------------------------------------------------
 c---  readin BZDATA. See gwsrc/rwbzdata.f

@@ -98,11 +98,11 @@ cc now in ppbafp.fal.F
 c      nomatm=1 !use matmul instead of zgemm called from a subroutine matm
 c      end
 c===========================================================
-      subroutine headver(head,id1)
-      character*(*) head
+c      subroutine headver(head,id1)
+c      character*(*) head
 c      write(6,"(a,a, i3)") head,": VerNum= xxx: imode=",id1
 c      if(id1==-9999) call rx( '---end of version check!')
-      end
+c      end
 c============================================================
       logical function is_mix0vec()
 !is_mis0vec=.false. is original version. But it caused a problem at BZ bounday.

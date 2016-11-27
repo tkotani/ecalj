@@ -113,7 +113,7 @@ c
 c---------------------------------------
       write(6,*) 'mode=(1-4)?'
       read(5,*) imode
-      call headver('heftet',imode)
+c      call headver('heftet',imode)
       write(6,*) '--- heftet: calculation mode =',imode
       if(imode<1.or.imode>4) call rx( 'mode out of range(1-4)')
 c---------------------------------------

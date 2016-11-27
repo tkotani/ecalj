@@ -95,7 +95,7 @@ Cr    True_G(1:3,igp) = 2*pi/alat * matmul(qlat * ngvec(1:3,igp)) ,igp=1,ngp
       write(6,"(a)")' === gwinit: ibzcase?: Regular BZ mesh -->1; Without q=0 ->2 + option(n1q,n2q,n3q)'
       read (5,"(a)")  readin
       read(readin,*) ibzcase
-      call headver('gwinit',ibzcase)
+c      call headver('gwinit',ibzcase)
       read(readin,*,end=101) idummy,n1q,n2q,n3q
       goto 102
  101  continue

@@ -2,7 +2,7 @@
       character(16) filename
       complex(8),allocatable:: zw(:,:)
 c
-      call headver('hmergewv',0)
+c      call headver('hmergewv',0)
       ifwd = iopen('WV.d',1,-1,0)
       read (ifwd,*) nprecx,mrecl,nblochpmx,nw,niw, nqnum
       write(6,*) ' WV.d =', nprecx,mrecl,nblochpmx,nw,niw, nqnum

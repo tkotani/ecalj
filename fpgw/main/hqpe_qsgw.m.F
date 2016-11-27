@@ -57,7 +57,7 @@ c shift quasiparticle energies (eV)
          jin=jin-1000
          nozmode=.true.
       endif
-      call headver('hqpe',jin)
+c      call headver('hqpe',jin)
 
 c open files
 c> input files

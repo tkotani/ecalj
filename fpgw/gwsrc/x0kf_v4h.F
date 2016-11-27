@@ -198,86 +198,17 @@ c#endif
       logical :: exchange=.false.
       integer:: irot=1
       integer:: ntqxx,nbmax
-      
 
-c      if (symmetrize) goto 5000 
-
-c ------------------------------------------------
 !TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
-c$$$!! check eibzmode assumes nmbas1=nmbs2
-c$$$      if(eibzmode) then
-c$$$         if(nmbas1/=nmbas2) then
-c$$$            write(6,*)'x0kf_v4h: eibzmode=T only allow nmbas1=nmbas2.',nmbas1,nmbas2,nmbas
-c$$$            stop 'x0kf_v4h: eibzmode=T only allow nmbas1=nmbas2.'
-c$$$         endif
-c$$$      endif
-!!
-c$$$      imdim(1) = 1
-c$$$      do iatom = 1,natom
-c$$$        iatomp(iatom) = iatom
-c$$$        if(iatom<natom) imdim(iatom+1)=imdim(iatom)+mdim(iatom)
-c$$$      enddo
-c      nctot      = noccx - noccxv
-c      print *, 'qqqqqqqqqqq',qbas
       call minv33(qbas,qbasinv)
-c      phase= (1d0,0d0) !coskt = 1d0; sinkt = 0d0
-      allocate(cphi_k(nlmto,nband),cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),  geig_k(ngpmx,nband) )
+      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
-c      call getnemx(nbmx,ebmx,7,.true.)
-c$$$!TIME0 
-c$$$      if(smbasis()) then !need to check again, when we will make smbasis on.
-c$$$cccccccccccccccccccccccccccccccc
-c$$$        if(ncc/=0) then
-c$$$          write(6,*)"Timereversal=F(ncc/=0) not yet implemented for smbasis."
-c$$$          write(6,*)" pomat should be generated correctly                  ."
-c$$$Cstop2rx 2013.08.09 kino          stop "Timereversal=F(ncc/=0) not yet implemented for smbasis."
-c$$$          call rx( "Timereversal=F(ncc/=0) not yet implemented for smbasis.")
-c$$$        endif
-c$$$ccccccccccccccccccccccccccccccccc
-c$$$
-c$$$        ifpomat = iopen('POmat',0,-1,0) !oct2005
-c$$$C... smoothed mixed basis !oct2005
-c$$$C This replace original zmelt with new zmelt based on smoothed mixed basis.
-c$$$        do
-c$$$          read(ifpomat) q_r,nn,no,iqxdummy !readin reduction matrix pomat
-c$$$c          write(6,"('ttt: q  =',3f12.5)") q
-c$$$c          write(6,"('ttt: q_r=',3f12.5)") q_r
-c$$$          allocate( pomat(nn,no) )
-c$$$          read(ifpomat) pomat
-c$$$          if( sum(abs(q-q_r))<1d-10) then ! .and.kx <= nqibz ) then
-c$$$            write(6,*) 'ok find the section for give qibz_k'
-c$$$            exit
-c$$$!         elseif (kx >nqibz ) then
-c$$$!           exit
-c$$$          endif
-c$$$          deallocate(pomat)
-c$$$        enddo
-c$$$        if( sum(abs(q-q_r))>1d-10 ) then
-c$$$          write(6,"('q  =',3f12.5)") q
-c$$$          write(6,"('q_r=',3f12.5)") q_r
-c$$$Cstop2rx 2013.08.09 kino          stop 'POmat reading err q/=q_r'
-c$$$          call rx( 'POmat reading err q/=q_r')
-c$$$        endif
-c$$$        isx = iclose('POmat')
-c$$$      endif
-c$$$!TIME1 "after if smbasis"
-
-ckino
-!KINO      it=0
-!KINO      do k=1,nqbz
-!KINO        if(eibzmode.and.nwgt(k)==0 ) cycle
-!KINO        if(sum(nbnb(k,1:npm))==0) cycle
-!KINO        it=it+1
-!KINO      enddo
-!KINO      write(6,'(a,i3,1x,a,i4)')'iq=',iq,'active-k-points=',it
-ckinoend
 
 !TIME1_1001 "beforedo1000"
 !! loop over k-points -------------------------------------------------------------------------
-c      qq=0d0
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
         if(debug) write(6,'("do 1000  k=",i4,3f10.4)')k,rk(:,k)
@@ -288,10 +219,7 @@ c      qq=0d0
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
         endif
-ccccccccccc
-c          write(6,"('xxxxxxx  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
-ccccccccccc
-!! --- tetra ------ override nt0 itps ntp0 ---------------
+!! tetra 
         nkmin = 999999
         nkmax= -999999
         nkqmin= 999999
@@ -304,23 +232,7 @@ ccccccccccc
             if(n2b(ibib,k,jpm)<=nband)  nkqmax = max(n2b(ibib,k,jpm),nkqmax)
           enddo
         enddo
-!! ebmx band cutoff is 
-c$$$!! 
-c$$$        nkmax1=nkmax
-c$$$        nkqmax1=nkqmax
-c$$$cccccccccccccccccccccccccccccc
-c$$$c        ebandqr=eband
-c$$$c        call readeval(rk(:,k),isp_kq,ebandr)
-c$$$cccccccccccccccccccccccccccccc
-c$$$        call readeval(q+rk(:,k),isp_kq,eband)
-c$$$        nkqmax = nocc (eband,ebmx,.true.,nband)
-c$$$        if(npm==2) then
-c$$$          call readeval(rk(:,k),isp_k,eband)
-c$$$          nkmax = nocc (eband,ebmx,.true.,nband)
-c$$$        endif
-c$$$        write(6,"('nnnnnnk  ',2i5,2i5)")nkmax1, nkmax
-c$$$        write(6,"('nnnnnnkq ',2i5,2i5)")nkqmax1,nkqmax
-c$$$!!
+
         itps  = nkqmin          ! nkqmin = the num of min   n2 =unocc for jpm=1
         nt0   = nkmax
         ntp0  = nkqmax - nkqmin +1
@@ -332,7 +244,7 @@ c$$$!!
           call rx( " nkmin==1 should be.")
         endif
 
-!... feb2006
+!... feb2006 memo --> too old memo?
 !  zzmel(1:nbloch, ib_k,ib_kq)
 !      ib_k =[1:nctot]              core
 !      ib_k =[nctot+1:nctot+nkmax]  valence
@@ -346,253 +258,7 @@ c$$$!!
 !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
 !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
 
-c        if(ipr) then
-c          write(6,"(' nkRange  nkqRange=',2i6,2x,2i6)") nkmin,nkmax,nkqmin,nkqmax
-c        endif
 
-
-
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        goto 8828
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$!TIME1 "before readphi"
-c$$$!TIME0 
-c$$$!!--- calculate the matrix elements <psi(k+q,t') | psi(k,t) B(R,i)>
-c$$$!! Read cphi part of eigenfunctions for k and k+q
-c$$$        call  readcphi(q+rk(:,k)-qq, nlmto,isp_kq, quu2,cphi_kq)
-c$$$        call  readcphi(  rk(:,k)-qq, nlmto,isp_k, quu1,cphi_k) !quu is used q for eigenfunctions.
-c$$$!! ... core
-c$$$        if(debug)  call cputid(0)
-c$$$!!        allocate( zzmel(nbloch,noccx, ntp0) )
-c$$$!!                         q        k    q+k
-c$$$        if(debug)  write(6,*)nbloch,nctot,nt0,ncc,ntp0
-c$$$        allocate( zzmel(nbloch, nctot+nt0, ncc+ntp0) )
-c$$$        if(debug)  write(6,"('zzzw nkmin nkqmin=',2i5)") nkmin,nkqmin
-c$$$        if(onceww(5) ) write(6,*)' nctot ncc=',nctot,ncc
-c$$$c      allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
-c$$$c      ppb=ppbir(:,irot,ispq)
-c$$$        call psicb_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
-c$$$     i              cphi_k (1,nkmin),  
-c$$$     i              cphi_kq(1,nkqmin), 
-c$$$     i              ppbir(:,irot,isp_k),!ppb,            
-c$$$     i              nlnmv,nlnmc,mdim, 
-c$$$     i              imdim,iatomp,
-c$$$     i              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
-c$$$     i              icore,ncore,nl,nnc,
-c$$$     o              zzmel)
-c$$$C ... valence
-c$$$      if(debug) write(6,'("4 zzzqqbbb222 ",3d13.5)') sum(abs(zzmel)),sum(zzmel)
-c$$$        !call cputid(0)
-c$$$        call psi2b_v3  ( nctot,ncc,nt0,ntp0,iclass,phase,
-c$$$     i              cphi_k(1,nkmin), 
-c$$$     i              cphi_kq(1,nkqmin),
-c$$$     i              ppbir(:,irot,isp_k),! ppb,         
-c$$$     i              nlnmv, nlnmc,mdim,
-c$$$     i              imdim,iatomp,
-c$$$     d              mdimx,nlmto,nbloch,nlnmx,natom,nclass,
-c$$$     o              zzmel)
-c$$$        if(debug) call cputid(0)
-c$$$        if(debug) write(6,'("4 zzzqqbbb222 ",3d13.5)') sum(abs(zzmel)),sum(zzmel)
-c$$$!TIME1 "after psicb_v3"
-c$$$!TIME0 
-c$$$!! --- IPW set
-c$$$        call readqg('QGpsi',q+rk(:,k)-qq,ginv, vec_kq, ngp_kq, ngvecp_kq)
-c$$$        call readqg('QGpsi',  rk(:,k)-qq,ginv, vec_k,  ngp_k,  ngvecp_k)
-c$$$!!      ngp_kq = ngpn(kp)  ! q+k   ntp0 in FBZ
-c$$$!!      ngp_k = ngpn(k)   ! k     np0  in FBZ
-c$$$!!      ngc              ! q          in IBZ
-c$$$        ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
-c$$$        if(ngb/=ngbb) then
-c$$$           write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
-c$$$           call rx( 'x0kf_v4h: ngb/=ngbb')
-c$$$        endif
-c$$$!!                        q       k        q+k
-c$$$        allocate( zmel(ngb,nctot+nt0,ncc+ntp0) )
-c$$$        allocate( z1p(ngb,ngb) )
-c$$$!! ... read plane wave part of eigenfunction. (note isp is opposite).
-c$$$        call readgeig(q+rk(:,k)-qq, ngpmx,isp_kq, vec_kq_g, geig_kq)
-c$$$        call readgeig(  rk(:,k)-qq, ngpmx,isp_k,  vec_k_g,  geig_k)
-c$$$        if(sum(abs(vec_kq_g-vec_kq))>tolqu) then
-c$$$          write(6,"('vec_kq_g :',3d23.10)") vec_kq_g
-c$$$          write(6,"('vec_kq  :',3d23.10)") vec_kq
-c$$$          call rx( 'x0kf_v4hz:vec_kq_g/=vec_kq')
-c$$$        endif
-c$$$        if(sum(abs(vec_k_g-vec_k))>tolqu) then
-c$$$          write(6,"('vec_k_g :',3d23.10)") vec_k_g
-c$$$          write(6,"('vec_k:  ',3d23.10)") vec_k
-c$$$          call rx( 'x0kf_v4hz:vec_k_g/=vec_k')
-c$$$        endif
-c$$$!!      qdiff = q   - qbkp(:) + rk(:,k)
-c$$$        qdiff = q    - vec_kq    + vec_k
-c$$$        ! q   - (q+k)   + k  is not zero.
-c$$$        ! qc  -  q1     + q2
-c$$$        add   = matmul(qbasinv, qdiff)
-c$$$        nadd  = idint( add + dsign(.5d0,add))  !  write(6,*)' qdif=',qdiff,qbkp(:),rk(:,k)
-c$$$        if(sum(abs(add-nadd))>1d-10) call rx( "sexc: abs(add-nadd))>1d-10")
-c$$$        zmel = 0d0
-c$$$!TIME1 "before melpln2t"
-c$$$!TIME0  
-c$$$!! <Bq Pq2|Pq1> = < Bq Pqu2|  Pqu1> *exp(i2pi nadd)
-c$$$        if(ngc/=0) then !Aug2005
-c$$$          call melpln2t(ngp_kq, ngvecp_kq  ! q+k  ; kp ngp_kq 1:ntp0 q-point
-c$$$     &             , ngp_k, ngvecp_k       ! k    ; k  ngp_k 1:nt0  occupied
-c$$$     &           , ngc,  nadd,
-c$$$     &       geig_kq(1:ngp_kq, itps:itps+ntp0-1), ntp0, ! q+k  ; kq
-c$$$     &       geig_k(1:ngp_k, 1:nt0     ),  nt0, !    ; k
-c$$$     i       shtv,  q, q,  symope,qbas,
-c$$$     i       vec_kq, !qt oct2013
-c$$$     o       zmel (nbloch+1:nbloch+ngc, nctot+1:nctot+nt0,ncc+1:ncc+ntp0))
-c$$$        endif
-c$$$!! == zmelt contain O^-1=<I|J>^-1 factor. zzmel(J,it,itp)= \sum_I <phi phi|I> O^-1_IJ ==
-c$$$        zmel(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0) = 
-c$$$     &  zzmel(1:nbloch, 1:nctot+nt0, 1:ncc+ntp0)
-c$$$!!                        k            q+k
-c$$$        deallocate(zzmel)
-c$$$         if(debug) write(6,'("4 zzzppp222bbb ",3d13.5)') sum(abs(zmel)),sum(zmel)
-c$$$        if(debug) call cputid(0)
-c$$$!TIME1 "after melpln2t"
-c$$$!TIME0 
-c$$$!! === zmelt conversion on different basis. 
-c$$$        allocate(zmmm(nmbas))   ! this is also obsolete if USE_GEMM_FOR_SUM
-c$$$        if(chipmzzr) then       !spin moment basis.
-c$$$          zmat => zzr
-c$$$        elseif(nolfco .and. nmbas==1) then !for <e^iqr|x0|e^iqr>
-c$$$          zmat => ppovlz
-c$$$        else                    !may2013  this removes O^-1 factor from zmelt
-c$$$          allocate(ppovl_(ngb,ngb))
-c$$$          ppovl_=0d0
-c$$$          do i=1,nbloch
-c$$$            ppovl_(i,i)=1d0
-c$$$          enddo
-c$$$          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-c$$$          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
-c$$$            ppovl_=matmul(ppovl_,zcousq)
-c$$$          endif
-c$$$          zmat => ppovl_
-c$$$        endif
-c$$$!! :: zmelt conversion muplitpled by zzr.
-c$$$        if(verbose()>39) write(6,*)'info: USE GEMM FOR SUM (zmelt = zmelt*zmat) in x0kf_v4h.F'
-c$$$        allocate( zmelt_tmp(ngb,nctot+nt0,ncc+ntp0) )
-c$$$        call zcopy(ngb*(nctot+nt0)*(ncc+ntp0),zmel,1,zmelt_tmp,1)
-c$$$        call zgemm('T','N',ngb,(nctot+nt0)*(ncc+ntp0),ngb,(1d0,0d0),
-c$$$     .   zmat,ngb,zmelt_tmp,ngb,(0d0,0d0),zmel,ngb)
-c$$$        deallocate(zmelt_tmp)
-c$$$        deallocate(zmmm)
-c$$$        if(allocated(ppovl_)) deallocate(ppovl_)
-c$$$!TIME1  "after matmul zmel"
-c$$$c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        print *,'xxxxxxxxxxxx 8829 xxxxxxxxxxxxxx'
-c$$$         goto 8829
-c$$$c        if(debug) write(6,'("4 zzzppp 111 ",3d15.6)') sum(abs(zmel)),sum(zmel)
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$c$$$!!march2013--> this if branch of nolfco is now unified to do 25 
-c$$$c$$$!! No LocalFieldCorrection mode 
-c$$$c$$$        if(nolfco) then !iepsmode==202) then ! just for <exp(iq r)|x0(q,\omega)|exp(iq r)>
-c$$$c$$$          do jpm  = 1,npm !
-c$$$c$$$            do ibib = 1, nbnb(k,jpm) !---  ibib loop
-c$$$c$$$              if(jpm==1) then
-c$$$c$$$                if( n1b(ibib,k,jpm) <= nbcut.and. n2b(ibib,k,jpm)>nbcut2) then !oct2005
-c$$$c$$$                  if(iww2) then
-c$$$c$$$                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-c$$$c$$$                    iww2=.false.
-c$$$c$$$                  endif
-c$$$c$$$                  cycle
-c$$$c$$$                endif
-c$$$c$$$              else
-c$$$c$$$                if( n2b(ibib,k,jpm) <= nbcut.and. n1b(ibib,k,jpm)>nbcut2) then !oct2005
-c$$$c$$$                  if(iww2) then
-c$$$c$$$                    write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-c$$$c$$$                    iww2=.false.
-c$$$c$$$                  endif
-c$$$c$$$                  cycle
-c$$$c$$$                endif
-c$$$c$$$              endif
-c$$$c$$$
-c$$$c$$$              if( jpm==1.and.n2b(ibib,k,jpm) > nbmx) cycle
-c$$$c$$$              if( jpm==2.and.n1b(ibib,k,jpm) > nbmx) cycle
-c$$$c$$$
-c$$$c$$$              if( n1b(ibib,k,jpm) <= nband) then
-c$$$c$$$                it = nctot + n1b(ibib,k,jpm) !valence
-c$$$c$$$              else
-c$$$c$$$                it = n1b(ibib,k,jpm) - nband !core
-c$$$c$$$              endif
-c$$$c$$$
-c$$$c$$$              if( n2b(ibib,k,jpm) <= nband) then
-c$$$c$$$                itp = ncc + n2b(ibib,k,jpm) - itps + 1 !val
-c$$$c$$$                if(itp > ncc + nkqmax-itps+1 ) cycle
-c$$$c$$$              else
-c$$$c$$$                itp =       n2b(ibib,k,jpm) - itps + 1 - nband !core
-c$$$c$$$              endif
-c$$$c$$$
-c$$$c$$$              do imb2=1,nmbas
-c$$$c$$$                zq02 = zmelt(imb2,it,itp)
-c$$$c$$$                do imb1=1,imb2
-c$$$c$$$                  zq01 = zmelt(imb1,it,itp)
-c$$$c$$$                  zq0zq0 = dconjg(zq01)*zq02
-c$$$c$$$                  do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-c$$$c$$$                    if (iw .gt. nwt) stop "x0kf_v4hz: iw > nwt"
-c$$$c$$$                    !iiww=iw+ihw(ibib,k)-1
-c$$$c$$$                    imagweight   = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-c$$$c$$$                    if(eibzmode) imagweight = nwgt(k)*imagweight  
-c$$$c$$$c                    rcxqmean(iw,jpm,imb1,imb2) =  ! here we  sum over ibib (or n, n') and k.
-c$$$c$$$c     &              rcxqmean(iw,jpm,imb1,imb2) + zq0zq0*imagweight
-c$$$c$$$                    rcxq(imb1,imb2,iw,jpm) =  ! here we  sum over ibib (or n, n') and k.
-c$$$c$$$     &              rcxq(imb1,imb2,iw,jpm) + zq0zq0*imagweight !sum over spin in hx0fp0
-c$$$c$$$                  enddo ! iw
-c$$$c$$$                enddo ! imb1
-c$$$c$$$              enddo ! imb2
-c$$$c$$$            enddo ! ----- ibib loop
-c$$$c$$$          enddo ! ----- jpm loop
-c$$$c$$$          deallocate(zmelt,z1p)
-c$$$c$$$          cycle !cycye do 1000 here
-c$$$c$$$        endif  
-c$$$c$$$!TIME1 "before jpm ibib loop"
-c$$$c$$$!TIME0
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$
-c$$$ 8828   continue
-
-
-c$$$ this (ppovlz generation) is moved to hx0fp0 and/or hx0fp0_sc.
-c$$$!! === zmelt conversion on different basis. 
-c$$$        if(chipmzzr) then       !spin moment basis.
-c$$$c          if(allocated(ppovlz)) deallocate(ppovlz)
-c$$$c          allocate(ppovlz(ngb,nmbas))
-c$$$c          ppovlz= zzr
-c$$$        elseif(nolfco .and. nmbas==1) then !for <e^iqr|x0|e^iqr>
-c$$$          continue
-c$$$        else                    !may2013  this removes O^-1 factor from zmelt
-c$$$          allocate(ppovl_(ngb,ngb))
-c$$$          ppovl_=0d0
-c$$$          do i=1,nbloch
-c$$$            ppovl_(i,i)=1d0
-c$$$          enddo
-c$$$          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-c$$$          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
-c$$$            ppovl_=matmul(ppovl_,zcousq)
-c$$$          endif
-c$$$          ppovlz = ppovl_
-c$$$          deallocate(ppovl_)
-c$$$        endif
-c$$$        if(allocated(zmel)) deallocate(zmel)
-c        nbmax= nctot+nt0
-c        ntqxx= ncc+ntp0
-cc        call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-cc     &       ngc,ngb,nbmax,ntqxx,isp_k,isp_kq)
-c
 !! -------------------------------------------------------------------------------
 !!note: for usual correlation mode, I think nctot=0
 !!--- For dielectric funciton, we use irot=1 kvec=rkvec=q
@@ -611,31 +277,24 @@ c
 !!  Output is zmel(ngb, nctot+nt0,ncc+ntp0)  nkmin:nt0, nkqmin:ntp0
 ! nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
         call get_zmelt2(exchange,  
-     &      q,irot,q,ngc,ngb,                       !MPB
-     &                   nkmin, nkmax, isp_k,nctot, !middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
-     &      q+rk(:,k),nkqmin,nkqmax,isp_kq,ncc)  !end state    1:ntp0  -->                     is nkqmin:nkqmin+ntp0-1  
+     &      q,irot,q,ngc,ngb,                   ! MPB
+     &        nkmin, nkmax, isp_k,nctot,        
+              ! middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
+     &      q+rk(:,k),nkqmin,nkqmax,isp_kq,ncc) 
+              ! end state    1:ntp0  --> true index of eigen is nkqmin:nkqmin+ntp0-1  
         zmel = dconjg(zmel)
         allocate( z1p(ngb,ngb) )
-
  8829   continue
-        if(debug) write(6,'("4 zzzppp 222 ",3d15.6)') sum(abs(zmel)),sum(zmel)
+
 
 !TIME1_1101 "before_get_zmelt2"
 !TIME0_1201
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-!KINO        write(6,'(a,i4)')'kino: npm=',npm
-!kino 2014-08-13  !$OMP parallel private(it,itp,iww1,iww2,zmelt2,imagweight)
-
-ccccccccccccccccccccccccc
-c        write(6,"('gggx ',3f9.4,x2x,3f9.4)") q+rk(:,k),rk(:,k)
-ccccccccccccccccccccccccc
 
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
-!KINO          write(6,'(a,5i8)')'kino: ngb,hw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1=',
-!KINO&      ngb,ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
             if(it > nctot + nkmax ) cycle
@@ -649,24 +308,7 @@ ccccccccccccccccccccccccc
             itp =  n2b(ibib,k,jpm) - itps + 1 - nband !core
           endif
 
-ccccccccccccccccccccccccc
-c        write(6,"('gggx ',2i3)") ib,jb,ebandqr(it),ebandr(itp)
-cccccccccccccccccccccc
-
-ccccccccccccccccccccccccc
-c          if(itp/=1) cycle
-c          if(k/=1) cycle
-cccccccccccccccccccccccccc
-
-
           if(jpm==1) then !nbmx is moved to tetwt5.
-c$$$            if(n2b(ibib,k,jpm)>nbmx)  then  !nbmx
-c$$$              if(iww1) then
-c$$$                write(6,*)' nband_chi0 nbmx=',nbmx
-c$$$                iww1=.false.
-c$$$              endif
-c$$$              cycle
-c$$$            endif
             if( n1b(ibib,k,jpm) <= nbcut .and. nbcut2<n2b(ibib,k,jpm) ) then
              if(iww2) then
               write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
@@ -675,13 +317,6 @@ c$$$            endif
              cycle
             endif
           else !jpm==2 ------------------------------
-c$$$            if( n1b(ibib,k,jpm) > nbmx) then  !nbmx
-c$$$              if(iww1) then
-c$$$                write(6,*)' nband_chi0 nbmx=',nbmx
-c$$$                iww1=.false.
-c$$$              endif
-c$$$              cycle
-c$$$            endif
             if( n2b(ibib,k,jpm) <= nbcut .and. nbcut2<n1b(ibib,k,jpm) ) then
              if(iww2) then
               write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
@@ -690,67 +325,16 @@ c$$$            endif
              cycle
             endif
           endif
-
-cccccccccccccccccccccccccccccccccc takao variant begin
-cc         if(takao) then
-cc
-cc         do ic = 1,ngb
-cc           z1p(1:ngb,ic) =
-cc     &     zmelt(ic,it,itp)*dconjg(zmelt(1:ngb,it,itp))
-cc         end do
-cc         ihww = ihw(ibib,k)
-cc
-c1ini------------
-cc         do iw = 1, nhw(ibib,k)
-cc           rviw = whw(jhw(ibib,k)+iw-1)
-cC ... this part dominates the cpu time --------------------!
-c!          call zaddr_(zxq(1,1,ihww+iw-1),rviw,z1p,ngb**2)
-cc           call daxpy(ngb**2*2,rviw,z1p,1,
-cc     &                 zxq(1,1,ihww+iw-1),1)
-cc         enddo
-c1end---------
-c2ini --------
-cc         call  rcxq_zxq(rc1p,z1p,ngb,-1)
-cc         do iw = 1, nhw(ibib,k)
-cc           rviw = whw(jhw(ibib,k)+iw-1)
-C ... this part dominates the cpu time --------------------!
-!          call zaddr_(rcxq(1,1,ihww+iw-1),rviw,z1p,ngb**2)
-cc           call daxpy(ngb**2,rviw,rc1p,1,
-cc     &                rcxq(1,1,ihww+iw-1),1)
-cc         enddo
-c2end --------------
-cc         else
-ccccccccccccccccccccccccc takao variant end
-
-c$$$          if(newanisox.and.eibzmoden==1) then ! This is slow.
-c$$$            zmeltx =  zmelt(:,it,itp)
-c$$$            z1p=0d0
-c$$$            do ieqbz =1, nwgt(k) !equivalent points for ieibz
-c$$$                                 !igx,igxt specifies space-group operation (including ID)
-c$$$              call rotMPB(zcousq,nbloch,ngbb,q,igx(ieqbz,k),igxt(ieqbz,k),ginv,zcousqrx) !zcousqr=Rotate_igx(zcousq) 
-c$$$              zmelty = matmul(zmeltx,zcousqrx)
-c$$$              do igb2=1, ngb !....................................
-c$$$                zmelt2 = zmelty(igb2)
-c$$$              do igb1=1,igb2
-c$$$                z1p(igb1,igb2) = z1p(igb1,igb2) + dconjg(zmelty(igb1)) * zmelt2
-c$$$              enddo
-c$$$              enddo
-c$$$            enddo  
-c$$$          else
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
 
-!kino 2014-08-13  !$OMP do private(zmelt2)
           do igb2=1, nmbas     !....................................
              zmelt2 = zmel(igb2,it,itp) !zmelt(igb2,it,itp)
              do igb1=1,igb2
-c                z1p(igb1,igb2) = dconjg(zmelt(igb1,it,itp)) * zmelt2
                 z1p(igb1,igb2) = dconjg(zmel(igb1,it,itp)) * zmelt2
              enddo
           enddo
-
 !! ---------------------------------
           if(crpa) then
-c            print *,'readout readqkm init'
             if(n1b(ibib,k,jpm) <= nband) then
               call readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k,   wpw_k) !k  n1b
             else
@@ -761,9 +345,6 @@ c            print *,'readout readqkm init'
             else
               wpw_kq=0d0
             endif  
-c            write(6,"('rrrrrr: n1b wpw_k n2b wpw_kq fac irange=',i5,x,f9.4, i5,x,f9.4, x,f9.4, 2i5)") 
-c     &           n1b(ibib,k,jpm),wpw_k, n2b(ibib,k,jpm),wpw_kq, (1d0-wpw_k*wpw_kq),
-c     &           ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
           endif
 c$$$cccccccccccccccccccccccccccccccccc
 c$$$ For SrVO3 test
@@ -774,11 +355,6 @@ c$$$             wpw_kq=0d0
 c$$$             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
 c$$$          endif
 c$$$ccccccccccccccccccccccccccccccccccc
-
-
-ccccccccccccccccccccccccccccccc
-!kino 2014-08-13  !$OMP end do
-c$$$  endif
 
 !$OMP parallel private(imagweight) 
 !$OMP master
@@ -804,48 +380,13 @@ c$$$  endif
  25     continue
 !kino 2014-08-13  !$OMP end parallel 
 !TIME1_1201 "after_rcxq"
-
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c        if(ipr) then
-c$$$          do jpm=1,npm
-c$$$            write(6,"(' k jpm sum(rcxq) ngb ngbb=',2i5,2d23.15,2i8)")
-c$$$     &      k,jpm,sum(rcxq(:,:,:,jpm)),ngb,ngbb
-c$$$          enddo
-c$$$          do ib1 =1,ngbb
-c$$$             if(ib1<4) then
-c$$$             elseif(ib1>ngbb-3) then
-c$$$             else
-c$$$                cycle
-c$$$             endif
-c$$$          do ib2 =1,ngbb
-c$$$             if(ib2<4) then
-c$$$             elseif(ib2>ngbb-3) then
-c$$$             else
-c$$$                cycle
-c$$$             endif
-c$$$          do iw =1,nwt
-c$$$            write(6,"('uuu: k iw ib1 ib2 sum(rcxq)=',4i5,4d23.15)")
-c$$$     &       k,iw,ib1,ib2,(rcxq(ib1,ib2,iw,1)), (rcxq(ib1,ib2,iw,2))
-c$$$          enddo
-c$$$          enddo
-c$$$          enddo
-c$$$c        endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccc
         deallocate(z1p,zmel) !zmelt,z1p)
         if(debug) call cputid(0)
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
  1000 continue
-
-!! Not need to be symmetrized
-      if(nolfco .and. nmbas==1) then
-         write(6,*)' nmbas=1 nolfco=T ---> not need to symmetrize'
-         goto 9999
-      endif
 !TIME0_1301
 
-
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
-c      if(eibzmode) then !comment out sep2014. 
         do jpm=1,npm
         do iw= 1,nwt
          do igb2= 1,nmbas !eibzmode assumes nmbas1=nmbas2
@@ -855,11 +396,11 @@ c      if(eibzmode) then !comment out sep2014.
          enddo
         enddo
         enddo
-c       endif
 !TIME1_1301 "before_eibzmode_symmetrization"
  9999 continue
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
+
 
 
 !! --------------------------------------------------------------------------------

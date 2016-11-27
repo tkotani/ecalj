@@ -204,7 +204,7 @@ C...  mode switch. --------------
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)
-      if(MPI__root) call headver('hsfp0',ixc)
+c      if(MPI__root) call headver('hsfp0',ixc)
       write(ixcc,"('.mode=',i4.4)")ixc
       call MPI__consoleout('hsfp0'//trim(ixcc))
       write(6,*) ' ixc nz=',ixc, nz

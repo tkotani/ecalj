@@ -232,7 +232,7 @@ c---------------------------------------
       endif
       call MPI__Broadcast(ixc)
       call MPI__Broadcast(nz)
-      if(MPI__root) call headver('hsfp0_sc',ixc)
+c      if(MPI__root) call headver('hsfp0_sc',ixc)
       write(ixcc,"('.mode=',i4.4)")ixc
 
       if(ixc>1000) then         !selected QP

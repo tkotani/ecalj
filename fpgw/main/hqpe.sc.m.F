@@ -70,7 +70,7 @@ c----------------------------------------------
 !! Shift quasiparticle energies (eV)
       write (*,*)' q+band index for zero?'
       read (*,*)jin
-      call headver('hqpe_sc',jin)
+c      call headver('hqpe_sc',jin)
       call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret)
       if(wex==0d0) then
         exonly=.false.

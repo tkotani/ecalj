@@ -65,8 +65,8 @@ Requirement for using ecalj
 For your publications, make a citation directly to this homepage as;
 
 [1] ecalj package at https://github.com/tkotani/ecalj/. 
-Its one-body part is developed based on the LMsuit at 
-http://www.lmsuite.org/, though its GW part is mainly adopted from ecalj.
+Its one-body part is developed based on the Questaal at 
+https://lordcephei.github.io/. Its GW part is originally taken from ecalj.
 
 in the references on the same footing of other papers.
 

@@ -42,7 +42,7 @@ c--------------------------------------------------------------------------
      & ' ptest(=4); Excore(=5); for core-valence Ex(=6);'//
      & ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
       call readin5(ix,iread,idummy)
-      call headver('hbasfp0',ix)
+c      call headver('hbasfp0',ix)
       if(ix==3) then
         write(6,*)'  ### coremode; Product basis for SEXcore ### '
         incwfin = -2

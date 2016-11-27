@@ -267,7 +267,7 @@ c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
       ippovl0=ifile_handle()
       if(ppovl0l) open (ippovl0,form='unformatted',file='PPOVL0')
       call readin6(ix1,idum2,idum3,idum4) ! ingczero)
-      call headver('rdata4gw_v2',ix1)
+c      call headver('rdata4gw_v2',ix1)
       mmm=normcheck()
       if(mmm==0) then
         checknorm=.false.

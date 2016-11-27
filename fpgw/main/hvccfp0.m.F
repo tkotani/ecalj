@@ -110,7 +110,7 @@ c      call readin5(imode,iqxini,iqxend)
       call MPI__Broadcast(imode)
       write(ixcc,"('.mode=',i4.4)")imode
       call MPI__consoleout('hvccfp0'//trim(ixcc))
-      call headver('hvccfp0: start',imode)
+c      call headver('hvccfp0: start',imode)
       call cputid (0)
       if(imode==202 ) then
         write(6,*)' hvccfp0: imode=',imode

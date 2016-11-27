@@ -64,7 +64,7 @@
       write(6,*)'        Generate Q0P->101(old offset Gamma)'
       write(6,*)'        Generate Q0P and Q0P for xyz ->201 '
       read (5,*) iq0pin
-      call headver('qg4gw',iq0pin)
+c      call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
       if(iq0pin==-100.or.iq0pin==1.or.iq0pin==2.or.iq0pin==3.or.iq0pin==101) then
         iq0pinxxx=iq0pin
