@@ -4,9 +4,7 @@
      i                  q,
      i                  nsp,isp_k,isp_kq,!symmetrize,
      i                  qbas,ginv,rk,wk,  
-c     i                  mdim, 
      d                  nlmto,nqbz,nctot, 
-c     d                  natom, 
      d                  nbloch,nwt, 
      i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
@@ -22,7 +20,7 @@ c     d                  natom,
      o qtt_, nqnum 
       use m_pkm4crpa,only : readpkm4crpa
       use m_zmel,only     : get_zmelt2,
-     o zmel !,ppbir ,ppovlz
+     o zmel 
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
@@ -46,158 +44,69 @@ c     d                  natom,
 !!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
 !!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
 !!
-c              See also tetwt5. and check weight mode=4 of hx0fp0 and (mode=5,6).
-c
-c- takao kotani Apr 2002   This originated from Ferdi's x0k.
-cr daxpy dominates the cpu time
-c
-c
-c x0(i,j)(q,w) = S[k=FBZ] S[t=occ] S[t'=unocc]
-c  <M(q,i) psi(k,t) |psi(k+q,t')> <psi(k+q,t')| psi(k,t) M(q,j)>
-c  { 1/[w-e(k+q,t')+e(k,t)+i*delta] - 1/[w+e(k+q,t')-e(k,t)-i*delta] }
-c  ; w is real. x0 is stored into rcxq.
-c
-c zzmel =  <psi(k+q,t') | psi(k,t) B(R,i)>
-c zmel  =  <psi(k+q,t') | psi(k,t) M(R,i)>
-c rcxq  =  zeroth order response function along the positive real axis.
-c          Note this is accmulating variable. Equivalnet with zxq. See rcxq2zxq below.
-c
-c q       = q-vector in x(q,iw)
-c ifchi   = direct access unit file for cphi, the coefficient of eigenfunction for argumentation wave.
-c qbas    = base reciprocal lattice vectors
-c ginv    = inverse of qbas s. indxrk.f
-c
-c ppb     = <phi(RLn) phi(RL'n') B(R,i)>
-c
-c iclass  = given an atom, tells the class
-c iindxk  = index for k-points in the FBZ
-c rk      = k-points in the 1st BZ
-c wk      = weight for each k-point in the 1st BZ
-c freq    = frequency points along positive imaginary axis
-c
-c
-c mdim    = dimension of B(R,i) for each atom R
-c nlnmx   = maximum number of l,n,m
-c nlmto   = total number of LMTO basis functions
-c nqbz    = number of k-points in the 1st BZ
-c n1,n2,n3= divisions along base reciprocal lattice vectors
-c natom   = number of atoms
-c noccx   = maximum number of occupied states
-c noccxv  = maximum number of occupied valence states
-c nbloch  = total number of Bloch basis functions
-c
-c cphi_k cphi_kq:  b(k) and b(k+q)
-c  : coefficients of eigenfunctions for argumentation waves in each MT
-c
+!!
+!!!!!
+!! zmel: matrix element <phi phi |M>
+!!    q,iq:
+!! nlmto   = total number of atomic basis functions within MT
+!! nqbz    = number of k-points in the 1st BZ
+!!
       implicit none
-      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto !,noccx,noccxv
-     &  ,nl,nclass,nnc,nlnmx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen !mdimx,
+      integer:: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto 
+     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
-c      complex   (8):: rcxq (ngbb,ngbb, nwt,npm),aaa
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
-      complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
+      complex(8) :: imag=(0d0,1d0),trc,aaa 
       complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
-      integer(4):: ngpmx, ngcmx, nqbze, nband,
-     &              ngc,nadd(3), !ngvecpB(3,ngpmx,nqbze), ngpn(nqbze),
-     &             igc !ngveccB(3,ngcmx),
-c     &             ngvecp_kq(3,ngpmx),ngvecp_k(3,ngpmx)
-      complex(8),allocatable :: zmelt(:,:,:)!,zmelt1(:,:,:)
+      integer:: ngpmx, ngcmx, nqbze, nband,
+     &             ngc,nadd(3), igc
+      complex(8),allocatable :: zmelt(:,:,:)
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
      &    ,shtv(3)=(/0d0,0d0,0d0/)
       data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
-c      real(8) :: ppb_unused(*)
-
-c      integer(4) :: mdim(natom)
-      
       complex(8),allocatable :: ttx(:,:)
       complex(8),allocatable::  z1p(:,:)
-      integer(4) ::  nbnb(nqbz,npm), 
+      integer ::  nbnb(nqbz,npm), 
      &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
-c      integer(4)::imdim(natom),iatomp(natom)
       logical,parameter:: debug=.false.
-c---tetwt5
-      logical:: hist      ,ipr
-      integer(4):: nhwtot,
+      logical:: hist ,ipr
+      integer:: nhwtot,
      &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
       real(8):: whw(nhwtot)
-      complex(8) :: zmelt1,zmelt2,zmeltt(ngbb)      !...........................sf 21May02
-c         complex(8), allocatable :: zxq_(:,:,:) !...........sf 21May02
-      real(8) :: imagweight !............................sf 21May02
-c         logical :: takao=.false. !.........................sf 21May02
-c         allocate( zxq_( nbloch + ngc,nbloch + ngc,nwt)) !..sf 21May02
-      integer(4)::nocc
-      real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
-c      integer(4):: n_index_qbz
-c      integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
-c-----
-c      integer(4):: nlnm(*),nlnmv(*),nlnmc(*)!,iclass(*)!,icore(*),ncore(*)
-      integer(4):: verbose
-c---for iepsmode
-      logical   :: nolfco !iepsmode
-      integer(4):: nmbas, imb1,imb2, imb !nmbas1x !nmbas2,nmbas1,
-      complex(8):: zq01,zq02
-c      real(8)   :: zq0zq0
-      complex(8)   :: zq0zq0 !This is a bug for the case of two atoms per cell!!! oct2006
-c      complex(8):: rcxqmean(nwt,npm,nmbas1,nmbas2)
-
-      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) !tolqu=1d-4,
-
-      integer(4):: nbcut,nbcut2
+      complex(8) :: zmelt1,zmelt2,zmeltt(ngbb) 
+      real(8) :: imagweight 
+      integer::verbose,nmbas, imb1,imb2, imb 
+      real(8):: eband(nband)
+      logical   :: nolfco 
+      complex(8):: zq01,zq02,zq0zq0 
+      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) 
+      integer:: nbcut,nbcut2
       logical :: iww1=.true.,iww2=.true.
-
-      logical:: smbasis
-      integer(4):: ifpomat, nbloch_r, ngbo,iqxdummy
-c      integer(4),allocatable:: io(:),in(:),io_q(:),in_q(:)
+      integer:: ifpomat, nbloch_r, ngbo,iqxdummy
       complex(8),allocatable:: pomat(:,:), zmeltn(:,:,:)
       real(8):: q_r(3)
       complex(8):: img=(0d0,1d0),zzz(ngbb)
-
-      integer(4):: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1
-c      real(8):: qq(3)
-      integer(4):: ib1, ib2,      ngcx,ix,iy
-
-c      integer(4),allocatable:: ngvecc(:,:)
-      logical :: onceww !testtr,negative_testtr
-
-!! takao apr2012
-      logical :: z1offd !, z1stcol
-      complex(8),target :: zzr(ngbb,nmbas) !ppovlz(ngbb,ngbb),
-      integer:: igb
-c      logical:: symmetrize
-
-!! jun2012takao
-c      real(8):: qeibz(3,nqbz),  !    aik(3,3,ngrpt) 
-      integer:: ngrp,nwgt(nqbz) !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
+      integer :: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
+      logical :: onceww , z1offd 
+      complex(8),target :: zzr(ngbb,nmbas) 
+      integer:: ngrp,nwgt(nqbz) 
       integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
-!! nwgt(neibz
       logical:: checkbelong,eibzmode, chipmzzr
-      complex(8):: zcousq(ngbb,ngbb)  !ppovl(ngc,ngc) ,
+      complex(8):: zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
-c      complex(8):: zcousqrsum(ngbb,ngbb,2),    zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb)  
       complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
-     & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) !zcousqinv(ngbb,ngbb),
+     & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) 
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
-      complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
-c      complex(8),pointer:: zmat(:,:)
-c      complex(8),allocatable,target:: ppovl_(:,:)
-c#ifdef USE_GEMM_FOR_SUM
-c      complex(8),allocatable :: zmelt_tmp(:,:,:)
-c#endif
-      complex(8),allocatable:: rcxq_core(:,:)
-!$    integer:: omp_get_num_threads
-      logical:: eibz4x0
-      logical :: crpa 
-      real(8):: wpw_k,wpw_kq
-      real(8):: vec_kcrpa(3),vec_kqcrpa(3)
-
-      logical :: exchange=.false.
-      integer:: irot=1
-      integer:: ntqxx,nbmax
+      complex(8),allocatable::zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:)
+     &  ,zmmm(:),zrrx(:,:),rcxq_core(:,:)
+      logical:: eibz4x0, crpa , exchange=.false.
+      real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
+      integer:: irot=1, ntqxx,nbmax
 
 !TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
@@ -228,8 +137,8 @@ c#endif
           do ibib = 1, nbnb(k,jpm)
             nkmin  = min(n1b(ibib,k,jpm),nkmin)
             nkqmin = min(n2b(ibib,k,jpm),nkqmin)
-            if(n1b(ibib,k,jpm)<=nband)   nkmax = max(n1b(ibib,k,jpm),nkmax)
-            if(n2b(ibib,k,jpm)<=nband)  nkqmax = max(n2b(ibib,k,jpm),nkqmax)
+            if(n1b(ibib,k,jpm)<=nband) nkmax  = max(n1b(ibib,k,jpm),nkmax)
+            if(n2b(ibib,k,jpm)<=nband)   nkqmax = max(n2b(ibib,k,jpm),nkqmax)
           enddo
         enddo
 
@@ -240,16 +149,13 @@ c#endif
           write(6,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
           call rx( " When npm==2, nkqmin==1 should be.")
         endif
-        if(nkmin/=1) then
-          call rx( " nkmin==1 should be.")
-        endif
+        if(nkmin/=1) call rx( " nkmin==1 should be.")
 
-!... feb2006 memo --> too old memo?
 !  zzmel(1:nbloch, ib_k,ib_kq)
 !      ib_k =[1:nctot]              core
-!      ib_k =[nctot+1:nctot+nkmax]  valence
-!      ib_kq =[1:nctot]             core
-!      ib_kq =[ncc+1:ncc+nkqmax - nkqmin] valence range [nkqmin,nkqmax]
+!      ib_k =[nctot+nkmin:nctot+nkmax]  valence
+!      ib_kq =[1:ncc]             core
+!      ib_kq =[ncc+nkqmin:ncc+nkqmax]  valence range [nkqmin,nkqmax]
 !   If jpm=1, ncc=0.
 !   If jpm=2, ncc=ncore. itps=1 should be.
 ! There is a little confusion. n1b index contains cores are after valence.
@@ -295,6 +201,8 @@ c----------------------------
 
         do 25 jpm  = 1, npm !
         do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
+
+!! n1b,n2b --> core after valence.  it,itp --> valence after core
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
             if(it > nctot + nkmax ) cycle
@@ -308,7 +216,8 @@ c----------------------------
             itp =  n2b(ibib,k,jpm) - itps + 1 - nband !core
           endif
 
-          if(jpm==1) then !nbmx is moved to tetwt5.
+!! nbcut mechanism
+          if(jpm==1) then 
             if( n1b(ibib,k,jpm) <= nbcut .and. nbcut2<n2b(ibib,k,jpm) ) then
              if(iww2) then
               write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
@@ -316,17 +225,17 @@ c----------------------------
              endif
              cycle
             endif
-          else !jpm==2 ------------------------------
+          else !jpm==2 
             if( n2b(ibib,k,jpm) <= nbcut .and. nbcut2<n1b(ibib,k,jpm) ) then
              if(iww2) then
               write(6,"(' nband_chi0 nbcut nbcut2 n2b n1b=',4i6)") nbcut,n2b(ibib,k,jpm),n1b(ibib,k,jpm)
-                iww2=.false.
+              iww2=.false.
              endif
              cycle
             endif
           endif
+!!
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwt) call rx( "x0kf_v4hz: iw>nwt")
-
           do igb2=1, nmbas     !....................................
              zmelt2 = zmel(igb2,it,itp) !zmelt(igb2,it,itp)
              do igb1=1,igb2
@@ -401,8 +310,6 @@ c$$$ccccccccccccccccccccccccccccccccccc
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
 
-
-
 !! --------------------------------------------------------------------------------
       subroutine x0kf_v4hz_symmetrize (npm, !ncc,
 c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
@@ -420,19 +327,13 @@ c     d                  natom,
      i     nolfco,zzr,nmbas, zcousq,
      i     chipmzzr,eibzmode, 
      i     ngrp,eibzsym) !, crpa) !nwgt,igx,igxt,
-c      use m_readqg,only   :  readqg
-c      use m_readeigen,only:  readeval 
-c      use m_keyvalue,only   :  getkeyvalue
       use m_rotMPB,only   :  rotMPB2 
       use m_readqgcou,only:  
      o qtt_, nqnum 
-c      use m_pkm4crpa,only : readpkm4crpa
-c      use m_zmel,only     : get_zmelt2,
-c     o zmel !,ppbir ,ppovlz
 !! === symmetrization for EPIBZ mode ===
       implicit none
-      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq !nlmto !,noccx,noccxv
-     &  ,nl,nclass,nnc,nlnmx,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen !mdimx,
+      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq 
+     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),ebmx !,rk(3,nqbz),wk(nqbz)
@@ -446,7 +347,6 @@ c      integer(4):: nhwtot, ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nq
 c      real(8):: whw(nhwtot)
       complex(8) :: zmelt1,zmelt2,zmeltt(ngbb)      !...........................sf 21May02
       real(8) :: imagweight !............................sf 21May02
-      integer(4)::nocc
       real(8):: eband(nband)!,ebandr(nband),ebandqr(nband)
       integer(4):: verbose
 
@@ -460,22 +360,15 @@ c      real(8):: whw(nhwtot)
       integer(4):: ib1, ib2,      ngcx,ix,iy
       complex(8),target :: zzr(ngbb,nmbas) !ppovlz(ngbb,ngbb),
       integer:: igb
-      integer:: ngrp !,nwgt(nqbz) !,ngrpt, aiktimereversal(ngrpt),nwgtieibz,ieibz
-c      integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
+      integer:: ngrp
       logical:: checkbelong,eibzmode, chipmzzr
       complex(8):: zcousq(ngbb,ngbb) ,  zcousqc(ngbb,ngbb)
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
       complex(8),allocatable:: zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:),zmmm(:),zrrx(:,:)
-c      complex(8),pointer:: zmat(:,:)
       complex(8),allocatable:: rcxq_core(:,:)
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
-
-c      logical:: eibz4x0
-c      logical :: crpa 
-c      real(8):: wpw_k,wpw_kq
-c      real(8):: vec_kcrpa(3),vec_kqcrpa(3)
 
       logical :: exchange=.false.
       integer:: irot=1
@@ -501,7 +394,7 @@ c 5000 continue
       endif
 !!
       if(eibzmode) then
-        ngb  = nbloch + ngc ! This is not ngbb for smbasis()=T. oct2005
+        ngb  = nbloch + ngc 
         if(ngb/=ngbb) then
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
            call rx( 'x0kf_v4h: ngb/=ngbb')

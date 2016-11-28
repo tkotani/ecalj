@@ -67,8 +67,8 @@ c-----------------------------------------------------------------------
       contains
 
       subroutine genallcf_v3(incwfx)
-!!> Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
-!!r Return iclass=ibas.
+!! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
+!! Return iclass=ibas.
 !! efin,incwfx, are used as switches.
 !! input: efin,incwfx,
 !!        GWIN_V2, LMTO
@@ -90,35 +90,13 @@ c-----------------------------------------------------------------------
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
       real(8)::a,b,zz, efdummy,dw,diw
       integer:: nwdummy
-c      allocate(nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-c     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw,nw)
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
-
-c      allocate(alat,ef, diw,dw,delta,deltaw,esmr,  symgrp)
       iflmto     = iopen('LMTO',1,0,0)
       if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
 
-c--- readin these by rgwinf_v3
-c      character*120 symgrp
-c      integer(4)::nclass,natom,nspin,nl,nnv,nnc
-c      real(8)::alat
-c      integer(4),allocatable::
-c     &   iclass(:)
-c     &  ,nindxv(:,:),nindxc(:,:)
-c     &  ,occv(:,:,:),unoccv(:,:,:)
-c     &  ,occc(:,:,:),unoccc(:,:,:)
-c     &  ,ncwf(:,:,:)
-c      real(8),allocatable:: plat(:,:),pos(:,:),z(:)
-c      character*6,allocatable:: clabl(:)
-c      write(6,*)' goto rgwin'
-c      call rgwinf_v3 (iflmto,ifinin,nwin,efin,incwfx) !these are inputs
-c      write(6,*)' end of rgwinf_v3'
-c-------------------------------------------------------------------------
 c--- rgwinf ---
       ifi = iflmto
-c      nw  = nwin
-c      ef  = efin
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
@@ -181,8 +159,6 @@ c> BZ
      o                  n1,n2,n3,efdummy,
 c> frequencies
      o                  niw,diw,nwdummy,dw,delta,deltaw,esmr,imagw,
-c> coulomb
-c     o                  tolvc,alp,alptx,h,ng,
 c> product basis
      o                  tolbas,lcutmx,nindxv,nindxc,
      o                  occv,unoccv, occc,unoccc,
@@ -197,27 +173,27 @@ c----
 
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
-        occc=0    ! call iclear(nl*nnc*nclass, w(ioccc))
-        unoccc=0    ! call iclear(nl*nnc*nclass, w(iunoccc))
-        ncwf  =0    ! call iclear(nl*nnc*nclass, w(incwf))
+        occc=0      
+        unoccc=0    
+        ncwf  =0    
       elseif( incwfx==-1 ) then
         write(6,*)' ### incwf=-1 Use ForSxc for core'
-        ncwf = ncwf2  !call icopy(nl*nnc*nclass,w(incwf2),w(incwf))
+        ncwf = ncwf2 
       elseif( incwfx==-2 ) then
         write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
         call notbit(nl*nnc*nclass, ncwf2)
-        ncwf  = ncwf2 ! call icopy (nl*nnc*nclass, w(incwf2),w(incwf))
-        occc= ncwf  ! call icopy (nl*nnc*nclass, w(incwf),w(ioccc))
-        unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
+        ncwf  = ncwf2
+        occc= ncwf  
+        unoccc= 0   
       elseif( incwfx==-3 ) then
         call ibiton(nclass,nl,nnc,nindxc, occc, ncwf)
-        unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
+        unoccc= 0   
         write(6,*)' ### incwf=-3  occ=1 unocc=0 incwf=1 for all core '
       elseif( incwfx==-4 ) then
         write(6,*)' ### incwf=-4  occ=0 and unocc=0 for all core '
-        occc=0  !call iclear(nl*nnc*nclass, w(ioccc))
-        unoccc=0 !call iclear(nl*nnc*nclass, w(iunoccc))
-        ncwf=0  !call iclear(nl*nnc*nclass, w(incwf))
+        occc=0  
+        unoccc=0
+        ncwf=0  
       elseif(incwfx==0) then
         write(6,*)' ### Use unocc occ ForX0 for core'
       else
@@ -227,14 +203,14 @@ c----
 C... End of rgwinf section ----------------------------
 
 
-c> dimensions and constants
+!! dimensions and constants
       lmx        = 2*(nl-1)
       lmx2       = (lmx+1)**2
       nlmto      = noflmto(nindxv,iclass,nl,nclass,natom)
       nlmto2     = nlmto*nlmto
       nn         = maxnn (nindxv,nindxc,nl,nclass)
 
-c>> combine nocc,nunocc,nindx
+!! combine nocc,nunocc,nindx
       allocate(nindx(nl,nclass))
       allocate(nocc(nl,nn,nclass),nunocc(nl,nn,nclass))
       call reindx  (occv,unoccv,nindxv,
@@ -248,39 +224,15 @@ c>> combine nocc,nunocc,nindx
       call maxdim  (nocc,nunocc,nindx,nl,nn,nclass,
      o              nprodx,nlnx,nlnmx,nlnax)
 
-c      nlnx4      = nlnx**4
-c      nphi       = nrx*nl*nn*nclass
-c      pi         = 4d0*datan(1d0)
-c      tpia       = 2d0*pi/alat
-
-c$$$c> frequency mesh
-c$$$c      call defdr   (ifreq,nw)
-c$$$      write(6,*)' nw from rgwinaf=',nw
-c$$$      if(nw>0) then
-c$$$        allocate(freq(nw))
-c$$$        call genfreq (nw,dw,0.d0,
-c$$$     o              freq )
-c$$$      endif
-
-c> index for allowed core states
-c      call defi    (iicore,nl*nl*nnc*nclass)
-c      call defi    (incore,nclass)
+!! index for allowed core states
       allocate(icore(nl**2*nnc,nclass),ncore(nclass))
       icore=9999999
       ncore=9999999
       call incor   (ncwf,nindxc,iclass,
      d              nl,nnc,nclass,natom,
      o              icore,ncore,nctot )
-ccccccccccccccccccccccccccccccccccccccccccccccccc
-c      write(6,*)' nnc=',nnc,nl,nclass,natom
-c      write(6,*)' ncwf ',ncwf
-c      write(6,*)' nindxc ',nindxc
-c      write(6,*)' iclass ',iclass
-c      write(6,*)' --- icore=',icore
-c      write(6,*)' --- ncore nctot=',ncore,nctot
-ccccccccccccccccccccccccccccccccccccccccccccccccc
 
-c> core energies
+!! core energies
       ifec       = iopen ('ECORE',1,0,0)
       allocate(konf(nl,nclass),ecore(nctot,2))
       konf=0
@@ -324,19 +276,7 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
         enddo
       enddo
       deallocate(ecoret)
-c> index for core and LMTO basis
-c      call defi    (iil,nlnmx*nclass)
-c      call defi    (iin,nlnmx*nclass)
-c      call defi    (iim,nlnmx*nclass)
-c      call defi    (iilnm,nn*nl*nl*nclass)
-c      call defi    (iilv,nlnmxv*nclass)
-c      call defi    (iinv,nlnmxv*nclass)
-c      call defi    (iimv,nlnmxv*nclass)
-c      call defi    (iilnmv,nnv*nl*nl*nclass)
-c      call defi    (iilc,nlnmxc*nclass)
-c      call defi    (iinc,nlnmxc*nclass)
-c      call defi    (iimc,nlnmxc*nclass)
-c      call defi    (iilnmc,nnc*nl*nl*nclass)
+!! index for core and LMTO basis
       allocate(
      & il(nlnmx,nclass),
      & in(nlnmx,nclass),

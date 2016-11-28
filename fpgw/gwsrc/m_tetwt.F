@@ -69,19 +69,7 @@ c      if(.not.allocated(nbnb))
       allocate( nbnbtt(nqbz,npm)) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
 !!===========tetraini block tetra==.true.===============================1ini
-c      if(tetra) then
       write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
-
-!! move to upper level nov2016
-c$$$!!     ekxx1 for rk
-c$$$!!     ekxx2 for q+rk See tetwt4
-c$$$      do kx = 1, nqbz
-c$$$cccccccccccccccc
-c$$$c        write(6,"('kkkkk kx ',i4,3f9.4,3x,3f9.4)") kx,qbz(:,kx),qbzw(:,kx)
-c$$$cccccccccccccccc
-c$$$        call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-c$$$        call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-c$$$      enddo
 
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
@@ -222,6 +210,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
      i   nbmx,ebmx,mtet) !nov2016
       deallocate(demin,demax,iwgt,nbnbtt)
+
 !! ======TetrahedronWeight_5 block end =========
       end subroutine gettetwt
       end module
