@@ -67,6 +67,8 @@ c      type(s_move):: v_smove
       double precision starttime, endtime
       logical mlog
       integer  nsize, id
+      character(5) :: charnum5
+
 !! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
@@ -100,6 +102,9 @@ c      type(s_move):: v_smove
         if (mlog) i = fopn('MLOG')
         call poseof(fopn('LOG'))
         if (mlog) then
+c          write(lgunit(3),"(a)")' lmf '//datim//' Process '
+c     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
+c     .    //shortname(procid)(1:namelen(procid)) //' is master'
           call awrit2(' lmf '//datim//' Process %i of %i on '
      .    //shortname(procid)(1:namelen(procid))//' is master',' ',
      .    256,lgunit(3),procid,nproc)
@@ -116,6 +121,10 @@ c      type(s_move):: v_smove
      .    //shortname(procid)(1:namelen(procid))//
      .    ' file extension is '//ext(2:i+1),' ',
      .    256,lgunit(3),procid,nproc)
+c          write(lgunit(3),"(a)")' lmf '//datim//' Process '
+c     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
+c     .    //shortname(procid)(1:namelen(procid))//
+c     .    ' file extension is '//ext(2:i+1)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )

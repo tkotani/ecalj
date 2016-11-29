@@ -1,7 +1,5 @@
       subroutine rlxstp(sctrl,ssite,natrlx,nvar,indrlx,xyzfrz,pdim)
-
       use m_struc_def  !Cgetarg
-
 C- Set up variables for relaxation
 C ----------------------------------------------------------------------
 Ci Inputs:
