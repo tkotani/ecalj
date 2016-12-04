@@ -3,20 +3,21 @@
       module m_rdctrl
       use m_struc_def
       implicit none
-!!... OPTIONS
-      logical,protected :: lhf,lcd4
-!! ... Fixed parameters
-      integer,parameter:: NULLI =-99999
-      real(8),parameter::    NULLR =-99999
-      logical,parameter:: T=.true.,F=.false.
+!! Fixed parameters
+      integer,parameter :: NULLI =-99999
+      real(8),parameter ::    NULLR =-99999
+      logical,parameter :: T=.true.,F=.false.
       integer,parameter :: n0=10
       integer,parameter :: nkap0=3
-      integer(2):: nono
+      integer(2),protected:: nono
+
 !! ... IO
       integer:: io_show=0,io_help=0,nvario=0
+
 !! ... HEADER, SYMGRP
       character(256):: header,symg=' '
       character(256):: symgaf=' '    !june2015 for antiferro
+
 !! ... HAM
       logical :: frzwf,ham_ewald
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
@@ -54,36 +55,39 @@ C                     asig < sigii < bsig
       integer:: sigp_mode=3,sigp_nmin=0,sigp_nmax=0
       equivalence (sigp_emin,sigp(3)),(sigp_emax,sigp(5)),
      .(sigp_a,sigp(6)),(sigp_b,sigp(7)),(sigp_efit,sigp(8))
+
 C      real(8):: sigp_mode,sigp_nmin,sigp_nmax
 C      equivalence (sigp_mode,sigp(1)),(sigp_nmin,sigp(2)),
 C     .  (sigp_nmax,sigp(4))
 
-C ... OPTIONS
+
+!! ... OPTIONS
+      integer ::lves
+      integer:: lscr,smalit(2),nesabc(3), !lasa3=1,lsx,
+     .lstonr(3)=0,quit,nl,lpfloat
+      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,,lham3=0
+      logical,protected :: lhf,lcd4
 c      logical ::
 c     .lcd2,lcd4=F !,lcd64, lasa32=F,lcd1,lcd8=Flasa32 is dummy not used but wor awrit8 in rdctrl2
 C$$$    &  ,lasa4=T,lasa8=F,,lasa64=F,
 C$$$     .  lasa512
 c     &  ,lham1,lham4=F,lham8=F,lham16=F,lham32=F,lham64,lham128=F,
 c     .  lham256 !,lves takao2010apr lves is integer
-      integer ::lves
 C     Initialize, since read is only executed when NSPIN=2
 c      logical:: lncol1=F,lncol2=F,lncol8=F,lncol16=F
 c     .  lncol32=F,lncol64=F
 c      logical:: lncol4=F, lncol32=F,lncol64=F
 
 c      character(256):: sxopt=' '
-      integer:: lscr,smalit(2),nesabc(3), !lasa3=1,lsx,
-     .lstonr(3)=0,quit,nl,lpfloat
-      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,,lham3=0
 
-C ... STRUC
-C     Initializing nbas and alat flags no nbas or alat has been input
+!! ... STRUC 
+!!     Initializing nbas and alat flags no nbas or alat has been input
       real(8):: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),lat_gam(4),dalat,temp33(9)
       real(8):: vol,avw,lat_dist(9)
       integer:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec,nclass
       integer:: lat_ldist=0
 
-C ... SPEC
+!! ... SPEC
       real(8):: omax1(3),omax2(3),wsrmax,sclwsr
       integer,parameter ::mxspec=256
       character*8 slabl(mxspec)
@@ -104,20 +108,20 @@ C ... SPEC
      .amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
       character*(8),allocatable::pb1(:),pb2(:), coreh(:)
 
-C ... SITE
+!! ... SITE
       character(8):: alabl
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable::iantiferro(:)
 
-C ... Iterations
+!! ... Iterations
       character(128) :: iter_mix=' ' !,iter_amix=' '
       real(8):: ctrl_tol(3)=1d-4
       type (s_mix):: vmix
       integer:: iter_maxit=1
 
-C ... BZ
+!! ... BZ
       integer:: bz_nabc(3)=NULLI,bz_lshft(3)=0,
      .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod
       real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
@@ -125,40 +129,15 @@ C ... BZ
       logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
      .ctrl_lmet4=.true.,ctrl_lmet8=.true.,ctrl_noinv !,ctrl_lqp2
 
-C$$$C ... TB
-C$$$      integer:: tb_fmode=NULLI,tb_nbfit(2)=0
-C$$$      real(8):: tb_ebfit(2)=0d0,tb_rmfit(2)=0d0,tb_alam=NULLR,
-C$$$     .  tb_alsc=NULLR
-C$$$      logical:: ltb1,ltb2,ltb4,ltb8,ltb16,
-C$$$     .  ltb32,ltb64,ltb128,ltb256,ltb512,
-C$$$     .  ltb1024,ltb2048,ltb4096,ltb213,ltb214,
-C$$$     .  ltb215,ltb216,ltb217,ltb218
-
-C ... Ewald
+!! ... Ewald
       real(8):: lat_as,lat_tol,lat_rpad
       integer:: lat_nkdmx
 
-C ... STR
-      real(8):: str_rmax=nullr !, str_rmaxg=nullr,
-c     .  str_drwats=NULLR !,iinv_tol                     !str_kaps(6)=NULLR,
-      integer:: str_mxnbr !,str_lmaxw=NULLI !str_mode=nulli,str_nkaps=1,
-c      integer:: iinv_nit,iinv_ncut,
-c      integer:: str_ivl=0  !tcf_nalf,
-c      logical:: str_lshow1 !,str_lequiv1
+!! ... STR
+      real(8):: str_rmax=nullr 
+      integer:: str_mxnbr 
 
-C ... TCF
-c      integer tcf_nbisi(3),tcf_ncupl,tcf_ndust
-c      real(8):: tcf_wztcf !tcf_adec,
-
-C ... CGF
-c      integer:: ctrl_lcgf
-
-C ... PGF
-c      integer:: ctrl_lpgf(2)=0
-c      character(256):: gfopt=' '
-c      real(8):: platl(3)=0d0,platr(3)=0d0
-
-C ... DYN
+!! ... DYN
 C   structure of mdprm:
 C   arg 1: 0 no relaxation or dynamics
 C          1 new dynamics 2  restart dynamics
@@ -207,33 +186,12 @@ C  arg  18:        offset to bs workspace
       character(1024):: mmham=' '
       real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
 
-cC ... GW
-c      integer:: gw_mksig=0,gw_nabc(3)=NULLI,gw_nband=-NULLI,
-c     .  gw_nime=6
-c      real(8):: gw_gcutb=NULLR,gw_gcutx=NULLR,gw_ecuts=NULLR,
-c     .  gw_delre(2)=NULLR,gw_deltax=NULLR,gw_deltaw=NULLR,
-c     .  gw_gsmear=NULLR,gw_pbtol=NULLR,gw_qoffp=NULLR
-
-C ... PLANE
-c      real(8):: slat_plat2(9)
-
-C ... ORDERN
-C      integer lordn
-C      real(8):: plate(9)    !slat, 'lat plate'
-C      real(8):: efre,ordn_rmaxg
-
-C ... OPTICS
-c      integer:: optic_ne,optic_ocrng(2),optic_unrng(2),ctrl_loptc,
-c     .  optic_nchi2=0,optic_axes(18)
-c      real(8):: optic_window(2),optic_esciss
-c      logical :: optic_mode1
-
-C ... PW takao
+!! ... APW
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
       real(8)::    pwemax,pwemin,oveps,delta_stabilize
       character(1)::mmm
+
       integer:: iqnu
-ccccccccccccccccccccccccccccccccccccccccc
 
 Cr         1   amix    amix mode
 cccCr         2   gemb    file names for embedding GF
@@ -256,6 +214,7 @@ c      integer :: VERBOS(5),nclasstest, n_verbos
 c      character(16) :: atom(50)
 !
       contains
+
       subroutine readctrl(prgn) !,vstrn,vn)
 C- Reads data parsed from ctrl file into m_rdctrl
 C ----------------------------------------------------------------------
@@ -268,12 +227,7 @@ C ----------------------------------------------------------------------
       use m_toksw
       use m_gtv
       use m_globalvariables
-C     implicit none
-C ... Passed parameters
       character*(*):: prgn
-c      character(6):: vstrn(2)
-c      double precision vn(2)
-C ... Local variables
       integer::nout,i,j,nn,i0,iprint,lgunit,ivec(10),iosite
       integer:: io_iactive,io_tim(2),verbos(5),isw
       character(256)::  a,outs
@@ -315,11 +269,8 @@ C ... Local variables
      ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
 
       integer:: levelinit=0
-
       logical:: isanrg, l_dummy_isanrg
-
       integer:: lx
-
 
 C ... For MPI
       procid = mpipid(1)
@@ -380,40 +331,7 @@ C --- IO ---
       if (io_help == 1) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
 
-c$$$C --- Version ---
-c$$$      do  j = 1, 2
-c$$$        vsn = dble(int(vn(j)*100))/100
-c$$$        if (vsn .ne. 0d0) then
-c$$$          nm = 'VERS_'//vstrn(j)
-c$$$          outs = 'Input style'
-c$$$          if (j .eq. 2) outs='Program'
-c$$$          sw = tksw(prgn,nm)
-c$$$          if (sw .ne. 2) then
-c$$$            call gtv(trim(nm),sw,vers,note=trim(outs)//
-c$$$     .      ' version check: integer part must be at least as large as:')
-c$$$            if (io_help .eq. 1) then
-c$$$              call info2(1,0,0,'   '//trim(outs)//' version: %d',vsn,0)
-c$$$            else
-c$$$              if (io_show .ne. 0) call info2(1,0,0,'  Expected '//
-c$$$     .        trim(outs)//' version: %d'//' ... found in file: %d',vsn,
-c$$$     .        vers)
-c$$$              if ( vers .lt. int(vsn)) call fexit(-1,1,
-c$$$     .        '  Exit -1 RDCTRL: control file earlier than v%d',vsn)
-c$$$            endif
-c$$$          endif
-c$$$        endif
-c$$$      enddo
-
-c$$$C --- CMD ---
-c$$$C Token ordering: CMD
-c$$$c  250 continue
-c$$$      nm='CMD'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
-c$$$     .'Contents are appended to command-line arguments',nout=nout)
-c$$$      if (nout .eq. 1) then
-c$$$        call acmdop(bigstr,len_trim(bigstr),0)
-c$$$      endif
-c$$$
-C --- CONST --- for backword compatibility
+!!--- CONST --- for backword compatibility
       call numsyv(nvario)
       nm='CONST'; call gtv(trim(nm),tksw(prgn,nm), bigstr, note=
      .'Constants may declared for use in expressions'//
@@ -428,9 +346,7 @@ C --- CONST --- for backword compatibility
 !! begining of log file.
       if (stdl>0 .and. iprint()>0) call headl2(prgn,0,stdl)
 
-C --- Header ---
-C Token ordering: HEADER
-C   10 continue
+!! --- Header ---
       nm='HEADER'; call gtv(trim(nm),tksw(prgn,nm),header,note=
      .'Contents displayed at beginning of program execution',
      .nout=nout)
@@ -782,7 +698,6 @@ c      if (lrel==2) lncol4 = T
      .  '%N%3f1 : Add L.S to hamiltonian'//
      .  '%N%3f2 : Add Lz.Sz only to hamiltonian'//
      .  '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
-Ckino isanrg is logical function,         if (io_help==0) call isanrg(lso,0,3,' rdctrl:','SO',T)
         if (io_help==0) l_dummy_isanrg=isanrg(lso,0,3,' rdctrl:','SO',T)
 c        if (lso == 1) lncol4 = T
 c        if (lso == 2) lncol32= T

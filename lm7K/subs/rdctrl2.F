@@ -72,6 +72,8 @@ c      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for M
 !! PW
      . pwmode,npwpad,ncutovl,pwemax,pwemin,oveps,delta_stabilize !PW
 
+!! followings are old document ------
+!!
 c      use m_susite_func, only: susite
 C- Main input for LMTO programs
 C ----------------------------------------------------------------------
@@ -199,8 +201,6 @@ Cu   24 Aug 01 Extended to handle local orbitals.
 Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
       implicit none
-C     include "mpif.h"
-C ... Passed parameters
       integer:: recln,nrecs
       character slabl_(1)*8
       character strn*(recln)
@@ -220,7 +220,6 @@ c      type(s_tb):: v_stb
       type(s_site),allocatable:: v_ssite(:)
 
       integer:: i_spec
-
       character  prgnam*(*) !, sstrn*(*)
       character*(*)::sstrnmix,sstrnsymg
 c      character(6):: vrsion(2)
@@ -264,7 +263,7 @@ C ... basis
       stdl = lgunit(2)
       stde = stdo
 
-C --- Initialize gtv; copy recrd to rcd ---
+!! --- Initialize gtv; copy recrd to rcd ---
       call gtv_setst(stdo,stdl,stde)
       call gtv_setrcd(recrd,nrecs,recln)
 
@@ -276,36 +275,20 @@ C --- Initialize gtv; copy recrd to rcd ---
         call cexit(0,1)
       endif
 
-C     Set switches depending type of program
+!!   Set switches depending type of program
       lbas = 0
       lcd = 0
-C     For now, LMF => fp; no screening; nfp-style hamiltonian
+!!   For now, LMF => fp; no screening; nfp-style hamiltonian
 C     cd represented in plane waves
       if (lfp .ne. 0) then
         lbas = 3
       endif
-c      if (trim(prgnam) .eq. 'LMMC') then
-c        lbas = 1
-c      endif
-c      asa = .false.
-c      if (prgnam .eq. 'LM' .or. prgnam .eq. 'LMGF' .or.
-c     .    prgnam .eq. 'LMPG' .or. prgnam .eq. 'LMCTL') then
-c        asa = .true.
-c      endif
-
-C ... Optionally read positions from pos file
+!! Optionally read positions from pos file
       if (cmdopt('--rpos=',7,0,fileid)) then
         call iopos(.false.,-1,fileid(8:),nbasp,pos)
       endif
 
-C ------------------- Copy to structures ----------------------
-C     (query-replace-regexp "\\([a-z_]+\\)\\([0-9]+\\)" "\\2*isw(\\1\\2)" nil)
-
-C ... Initialize sstrn
-c      call ustrn(w,0,len(sstrn),0,0,0) !takao this does nothing.
-c      sstrn = ' '
-
-C --- Allocate and copy input to sbz ---
+!! --- Allocate and copy input to sbz ---
       call ubz_init(v_sbz)
       v_sbz%size=ubz_size()
       v_sbz%def=bz_def
@@ -323,40 +306,20 @@ C --- Allocate and copy input to sbz ---
 c      v_sbz%lio=i
       v_sbz%lmet=bz_lmet
       v_sbz%lmull=bz_lmull
-c      v_sbz%lopt=0
-
-
-c      i_copy_size=size(v_sbz%lshft)
-c      call ii8copy(i_copy_size,bz_lshft,1,v_sbz%lshft,1)
       v_sbz%lshft = bz_lshft
       v_sbz%n     = bz_n
       v_sbz%ndos  = bz_ndos
       v_sbz%nevmx = bz_nevmx
-c      i_copy_size = size(v_sbz%nkabc)
-c      call ii8copy(i_copy_size,bz_nabc,1,v_sbz%nkabc,1)
       v_sbz%nkabc = bz_nabc
-
       v_sbz%range=bz_range
-c      i_copy_size=size(v_sbz%semsh)
-c      call dcopy(i_copy_size,bz_semsh,1,v_sbz%semsh,1)
       v_sbz%w=bz_w
-c      v_sbz%zval=bz_zval
 
-
-C --- Allocate and copy input to sctrl ---
+!! Allocate and copy input to sctrl ---
       v_sctrl%size=uctrl_size()
-
-C     lasa: 1 Make V from P,Q  2 Make pp  4 ccor  8 free atm
-C          16 map  32 nonspherical mpol moms 64 MT corr
-C         128 interpretation of sphere Q2; see newrho.f
-C         256 how ASA Q1,Q2 are accumulated; see makwts.f
-C         512 (spin pol) alpha repsn = (gamma(1) + gamma(nsp))/2
-C$$$      lasa=4*isw(lasa4)+32*isw(lasa32)+64*isw(lasa64)+128*ham_qasa
-C$$$     .    +512*isw(lasa512)
-C$$$      if (.not. asa) lasa=0
-C     lbas: 1 Hamiltonian has no screening transformation
-C           2 Hamiltonian is nfp style
-C          16 freeze phi,phidot for all species
+!!     lbas: 1 Hamiltonian has no screening transformation
+!!           2 Hamiltonian is nfp style
+!!          16 freeze phi,phidot for all species
+!! frzwf: freeze basis or not.
       j = lbas + 16*isw(frzwf)
 C     lcd: 1 freeze core
 C          2 non-self-consistent Harris
@@ -374,30 +337,13 @@ c      v_sctrl%lcd=k
       v_sctrl%ldos=ctrl_ldos
       v_sctrl%lfp=lfp
       v_sctrl%lfrce=ctrl_lfrce
-
-C     lham  1 (ASA) 2-center
-C           1 (molecules) two-panel
-C           2 (ASA) 2-c + pert. corr
-C           4 (ASA) auto-down-fold
-C           8 (ASA) change rep interactively
-C          16 (ASA) suppress d hybridization
-C          32 (ASA) preserve ortho. evecs
-C          64 (ASA) save evecs to disk
-C         128 (ASA) gamma-rep
-C         256       use true spherical harmonics
-c      lham = 1*isw(lham1)+4*isw(lham4)+8*isw(lham8)+16*isw(lham16)+
-c     .      32*isw(lham32)+64*isw(lham64)+128*isw(lham128)+
-c     .     256*isw(lham256) + lham3
-c     lham = 256*isw(lham256)
-
-c takao. we may need to remove lmet4 or lmet8... but a little complicated...
-c Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
-C     ctrl_lmet    1 metal  2 tetrahedron
-Cr                 4 (PGF) V-shift1 is zero
-Cr                 8 (PGF) V-shift2 is zero
+!! takao. we may need to remove lmet4 or lmet8... but a little complicated...
+!! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
+!!     ctrl_lmet    1 metal  2 tetrahedron
+!!                 4 (PGF) V-shift1 is zero
+!!                 8 (PGF) V-shift2 is zero
       lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) 
      .+4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
-
 
 C takao in lmf only lncol4, lncol32, lncol64 are used.
 C     lncol 1 noncollinear magnetism                      !=F in lmf
@@ -419,16 +365,8 @@ c One of lncol4,lncol32, or lncor64 is true, others are false.
 c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
       v_sctrl%lmet=lmet
 c      v_sctrl%lncol=lncol
+C     lrs  switches concerning restart mode.
 
-!!
-!!     irs(1) tells what to read and whether to invoke smshft.
-!!     4s' bit of irs(1) -> invoke smshft after file read.
-!!     8s' bit of irs(1) -> rotate local density after file read
-!!     0+1's bits irs(1)     action
-!!    0              read from atom file
-!!    1              read from binary rst file
-!!    2              read from ascii rsta file
-!!    3              read nothing (data already input)
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -440,6 +378,15 @@ c      v_sctrl%lncol=lncol
      . + 8*getdig(irs(1),1,100)
       lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
      . + 256*mod(irs(1)/8,2)
+!!
+!!     irs(1) tells what to read and whether to invoke smshft.
+!!     4s' bit of irs(1) -> invoke smshft after file read.
+!!     8s' bit of irs(1) -> rotate local density after file read
+!!     0+1's bits irs(1)     action
+!!    0              read from atom file
+!!    1              read from binary rst file
+!!    2              read from ascii rsta file
+!!    3              read nothing (data already input)
 
 !!         1 Read from restart file
 !!         2 Read from restart file, ascii mode
@@ -456,7 +403,6 @@ c      v_sctrl%lncol=lncol
 !!       128 read starting pnu level from input file
       irs5 = isw ( iand(128,int(lrs)) .ne.0 )
       irs11 = iand(1+2+4,int(lrs))
-
 
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
@@ -476,41 +422,19 @@ C            Add 10*k to compute intra-site contribution to
 C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
 
-c        i_copy_size=size(v_sctrl%lpgf)
-c        call ii8copy(i_copy_size,ctrl_lpgf,1,v_sctrl%lpgf,1)
-c      v_sctrl%lqp=lqp
       v_sctrl%noinv=noinv
-c      v_sctrl%lqp2=lqp2
       v_sctrl%lrel=lrel
       v_sctrl%lrs=lrs
 c      v_sctrl%lscr=lscr
 
-C      lstr  no longer used.
-C      ltb switches for empirical tight-binding
-C         1 overlap        2 crystal-field     4 ovlp+CF
-C         8 add ebarLL    16 forces           32 fij
-C        64 not used     128 pressure        256 evdisc
-C       512 pair pot    1024 TrH & local E  2048 local rho
-C      2^12 Hubbard U   2^13 No Madelung    2^14 wgt avg U
-C      2^15 L>0 estat   2^16 disc read incr 2^17 gamma-pt
-C$$$       i = 1*isw(ltb1)+2*isw(ltb2)+4*isw(ltb4)+8*isw(ltb8)+16*isw(ltb16)
-C$$$     .   +32*isw(ltb32)+64*isw(ltb64)+128*isw(ltb128)+256*isw(ltb256)
-C$$$     .   +512*isw(ltb512)+1024*isw(ltb1024)+2048*isw(ltb2048)
-C$$$     .   +4096*isw(ltb4096)+2**13*isw(ltb213)+2**14*isw(ltb214)
-C$$$     .   +2**15*isw(ltb215)+2**16*isw(ltb216)+2**17*isw(ltb217)
-C$$$     .   +2**18*isw(ltb218)
-C      lves    1 take ves as input
-
-C$$$        i_copy_size=size(v_sctrl%lstonr)
-C$$$        call ii8copy(i_copy_size,lstonr,1,v_sctrl%lstonr,1)
-c      v_sctrl%lstr=0
+!!  lves    1 take ves as input
       v_sctrl%lves=lves
 
-C      lxcf   parameter defining XC functional
-C      1s digit:
-C      1 for Ceperly-Alder (VWN)
-C      2 for Barth-Hedin (ASW fit)
-C      103 for PBE-GGA
+!!  lxcf   parameter defining XC functional
+!!      1s digit:
+!!      1 for Ceperly-Alder (VWN)
+!!      2 for Barth-Hedin (ASW fit)
+!!      103 for PBE-GGA
       v_sctrl%lxcf= ham_lxcf
 
 !! ==  Set modep ===
@@ -534,8 +458,6 @@ C      Reset nl
       endif
 
       v_sctrl%nbasp=nbasp
-c      i_copy_size=size(v_sctrl%nesabc)
-c      call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
       v_sctrl%nesabc=nesabc
       v_sctrl%nitmv=nitmv
       v_sctrl%nl=nl
@@ -544,10 +466,6 @@ c      call ii8copy(i_copy_size,nesabc,1,v_sctrl%nesabc,1)
 
       v_sctrl%nspin=nsp
       v_sctrl%nvario=nvario
-c      i_copy_size=size(v_sctrl%omax1)
-c      call dcopy(i_copy_size,omax1,1,v_sctrl%omax1,1)
-c      i_copy_size=size(v_sctrl%omax2)
-c      call dcopy(i_copy_size,omax2,1,v_sctrl%omax2,1)
       v_sctrl%omax1 = omax1
       v_sctrl%omax2 = omax2
       v_sctrl%quit  = quit
@@ -555,14 +473,6 @@ c      call dcopy(i_copy_size,omax2,1,v_sctrl%omax2,1)
       v_sctrl%rmines= rmines
       v_sctrl%sclwsr= sclwsr
       v_sctrl%sdmod = sdmod
-c      i_copy_size=size(v_sctrl%sdprm)
-c      call dcopy(i_copy_size,sdprm,1,v_sctrl%sdprm,1)
-c      i_copy_size=size(v_sctrl%smalit)
-c      call ii8copy(i_copy_size,smalit,1,v_sctrl%smalit,1)
-c      i_copy_size=size(v_sctrl%tol)
-c      call dcopy(i_copy_size,ctrl_tol,1,v_sctrl%tol,1)
-c      i_copy_size=size(v_sctrl%zbak)
-c      call dcopy(i_copy_size,zbak,1,v_sctrl%zbak,1)
       v_sctrl%sdprm = sdprm
       v_sctrl%smalit= smalit
       v_sctrl%tol   = ctrl_tol
@@ -580,21 +490,6 @@ C --- Allocate and copy input to slat ---
       v_slat%nkqmx=lat_nkdmx
       v_slat%gam =lat_gam
       v_slat%gmax=lat_gmax
-c      i_copy_size=size(v_slat%gam)
-c      call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1)
-c      i_copy_size=size(v_slat%nabc)
-c      call ii8copy(i_copy_size,ftmesh,1,v_slat%nabc,1)
-c takao I think gam is alreay setted above.
-c       i_copy_size=size(v_slat%gam)
-c       call dcopy(i_copy_size,lat_gam,1,v_slat%gam,1)
-c      i_copy_size=size(v_slat%dist)
-c      call dcopy(i_copy_size,lat_dist,1,v_slat%dist,1)
-c      i_copy_size=size(v_slat%plat)
-c      call dcopy(i_copy_size,plat,1,v_slat%plat,1)
-c       i_copy_size=size(v_slat%plat2)
-c       call dcopy(i_copy_size,slat_plat2,1,v_slat%plat2,1)
-c      i_copy_size=size(v_slat%slat)
-c      call dcopy(i_copy_size,lat_slat,1,v_slat%slat,1)
       v_slat%nabc=ftmesh
       v_slat%ldist= lat_ldist
       v_slat%dist = lat_dist
@@ -657,7 +552,6 @@ C     Mop up integer parts of sigp
       i_copy_size=size(v_sham%sigp)
       call dcopy(i_copy_size,sigp,1,v_sham%sigp,1)
 
-
       i_copy_size=size(v_sham%qss)
       call dcopy(i_copy_size,ham_qss,1,v_sham%qss,1)
       v_sham%rsrnge=rsrnge
@@ -665,58 +559,24 @@ C     Mop up integer parts of sigp
       v_sham%udiag=ham_udiag
       v_sham%scaledsigma=scaledsigma
 
-C     Parameters for APW
-
+!!  Parameters for APW
       v_sham%pwmode=pwmode
       v_sham%npwpad=npwpad
       v_sham%pwemin=pwemin
       v_sham%pwemax=pwemax
-
-
       v_sham%oveps=oveps
       v_sham%delta_stabilize=delta_stabilize !takao sep2010
 
-C ... Allocate and initialize sarray
+!!... Allocate and initialize sarray
       v_sarry%size=uarray_size()
 
-C ... Allocate and initialize spot
+!! ... Allocate and initialize spot
       v_spot%size=upot_size()
       v_spot%vmtz0=vmtz
 
 C --- Allocate and copy input to smix ---
       v_smix%size=umix_size()
-
-ckino's fix for SR11000 size() return's integer(8), right?
-c      nnn = size(smix)
-c      nnn = umix_size()
-c      call dcopy(nnn,vmix,1,v_smix,1)
       v_smix=vmix
-
-c$$$C --- Allocate and copy input to smove ---
-c$$$      v_smove%size=umove_size()
-c$$$
-c$$$      if (lbsprm) then          !Load Bulirsch-Stoer parameters into structure
-c$$$        prmint(2) = isw(prmint_new)
-c$$$        prmint(3) = prmint_ts0
-c$$$        prmint(4) = prmint_tol
-c$$$        prmint(5) = prmint_mx
-c$$$        prmint(6) = prmint_mi
-c$$$        prmint(7:6+prmint_mi) = prmint_nseq(1:prmint_mi)
-c$$$      endif
-c$$$
-c$$$      v_smove%gyro=2d0
-c$$$      v_smove%nmodt=gd_nmodt
-c$$$      i_copy_size=size(v_smove%modt)
-c$$$      call ii8copy(i_copy_size,gd_modt,1,v_smove%modt,1)
-c$$$      i_copy_size=size(v_smove%ct)
-c$$$      call dcopy(i_copy_size,gd_ct,1,v_smove%ct,1)
-c$$$      i_copy_size=size(v_smove%prmint)
-c$$$      call dcopy(i_copy_size,prmint,1,v_smove%prmint,1)
-c$$$
-c$$$      v_smove%kt=move_kt
-c$$$      v_smove%ts=move_ts
-c$$$      v_smove%tsequ=move_tsequ
-c$$$      v_smove%tstot=move_tstot
 
 C --- Allocate and copy input to sstr ---
       v_sstr%size=ustr_size()
@@ -732,33 +592,9 @@ C --- Allocate and copy input to sspec ---
           v_sspec(i_spackv)%norp=2
           v_sspec(i_spackv)%vmtz=-0.5d0
         enddo
-c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%eh3,i_copy_size,1,-0.5d0)
-
-c        i_copy_size=1;
-c        do i_spackv=1,nspec
-c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%etf,i_copy_size,1,-1d0)
-c        enddo
-c        i_copy_size=1;
-c        do i_spackv=1,nspec
-c          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%lmxf,i_copy_size,1,2*nl-2)
-c        enddo
-c        i_copy_size=1;
-c        do i_spackv=1,nspec
-c          call spackv_array_copy_i8_i('p',v_sspec(i_spackv)%norp,i_copy_size,1,2)
-c        enddo
-c        i_copy_size=1;
-c        do i_spackv=1,nspec
-c          call spackv_array_copy_r8_r8('p',v_sspec(i_spackv)%vmtz,i_copy_size,1,-0.5d0)
-c        enddo
 
         do  j = 1, nspec
           slabl_(j) = slabl(j)
-c          do i_spacks=j,j
-c            call spacks_copy('p',v_sspec(i_spacks)%pb1,j,j,pb1(j),i_spacks)
-c            call spacks_copy('p',v_sspec(i_spacks)%pb2,j,j,pb2(j),i_spacks)
-c            call spacks_copy('p',v_sspec(i_spacks)%coreh,j,j,coreh(j),i_spacks)
-c            call spacks_copy('p',v_sspec(i_spacks)%name,j,j,slabl(j),i_spacks)
-c          enddo
           v_sspec(j)%pb1=pb1(j)
           v_sspec(j)%pb2=pb2(j)
           v_sspec(j)%coreh=coreh(j)
@@ -795,11 +631,7 @@ c          call ivset(ix,1,n0*nkap0,1)
 c          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
           ix = 1
           ix(1:1+lmxb(j)) = idxdn(1:1+lmxb(j),j)
-c          i_copy_size=size(v_sspec(j)%idxdn)
-c          call ii8copy(i_copy_size,ix,1,v_sspec(j)%idxdn,1)
           v_sspec(j)%idxdn = ix
-c          i_copy_size=size(v_sspec(j)%idu)
-c          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
           v_sspec(j)%idu = idu(:,j)
           i_copy_size=size(v_sspec(j)%jh)
           call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
@@ -813,7 +645,7 @@ c          call ii8copy(i_copy_size,idu(1,j),1,v_sspec(j)%idu,1)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
           v_sspec(j)%lmxpb=lmxpb(j)
-C       pack mxcst(j)
+
           i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
           call dpzero(orbp,n0*2*nkap0)
           call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
@@ -857,13 +689,6 @@ C       Pack P,Q,PZ for both spins
           v_sspec(j)%rint=rint(j)
         enddo
 
-C --- Allocate and copy input to ssite ---
-C     NB: essential that ssite is LAST array allocated here
-CKi      call defrr(v_ssite,1000)
-CKi      call usite(v_ssite,-1,0,1,0,0,0)
-CKi      call redfrr(v_ssite,nsite*nint(dval(v_ssite,1)))
-CKi      call usite(v_ssite,-1,0,nsite,0,0,0)
-ckino Jan.04.2012:        allocate(v_ssite(nsite))
         allocate(v_ssite(nsite))
         do i=1,nsite
           v_ssite(i)%size=usite_size()
@@ -871,65 +696,36 @@ ckino Jan.04.2012:        allocate(v_ssite(nsite))
         do  j = 1, nsite
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
-c          i_copy_size=size(v_ssite(j)%dpole)
-c          call dcopy(i_copy_size,dpole(1,j),1,v_ssite(j)%dpole,1)
           v_ssite(j)%dpole=dpole(:,j)
           v_ssite(j)%mpole=mpole(j)
-c          do i_spacks=j,j
-c            call spacks_copy('p',v_ssite(i_spacks)%clabel,j,j,slabl(ips(j)),i_spacks)
-c          enddo
           v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pl=ipl(j)
           v_ssite(j)%plv=plv(j)
-c            i_copy_size=size(v_ssite(j)%pos)
-c            call dcopy(i_copy_size,pos(1,j),1,,1)
-c            i_copy_size=size(v_ssite(j)%vel)
-c            call dcopy(i_copy_size,vel(1,j),1,v_ssite(j)%vel,1)
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
-c          i_copy_size=size(v_ssite(j)%relax)
-c          call ii8copy(i_copy_size,irlx(1,j),1,v_ssite(j)%relax,1)
           v_ssite(j)%relax=irlx(:,j)
-c          i_copy_size=size(v_ssite(j)%eula)
-c          call dcopy(i_copy_size,eula(1,j),1,v_ssite(j)%eula,1)
           v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
         enddo
 
-C ... Copy string outputs to sstrn : amix, gfopt, jobid, mix, mmham, sxopt, symg
-c          j = len_trim(iter_amix)          ! Euler angle mixing amix
-c          if (j .gt. 0) then
-c            v_sstrn%amix=trim(iter_amix)
-c            call packs('strn amix',sstrn,iter_amix)
-c            call upacks('strn amix',inix,iendx)
-c          endif
-          j = len_trim(iter_mix)           ! density mixing mix
-          if (j .gt. 0) then
-            sstrnmix=trim(iter_mix)
-          else
-            sstrnmix=''
-c            call packs('strn mix',sstrn,iter_mix)
-          endif
-c          j = len_trim(header)             ! jobid
-c          if (j .gt. 0) then
-c            v_sstrn%header=trim(header)
-c            call packs('strn jobid',sstrn,header)
-c          endif
+        j = len_trim(iter_mix)  ! density mixing mix
+        if (j .gt. 0) then
+          sstrnmix=trim(iter_mix)
+        else
+          sstrnmix=''
+        endif
 
-C ... Suppress symmetry operations for special circumstances
+!! ... Suppress symmetry operations for special circumstances
           lstsym = 0
-c takao comment out next line. !! dec 2012
-c          if (lncol .ne. 0) lstsym=1 !lstsym=1: noncollinear case
-          !      =2: turn off symops
-C     Switches that automatically turn of all symops
+!!     Switches that automatically turn of all symops
           if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
 !! --pdos mar2003 added. Also in lmv7.F
      .     cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
           symg = 'e'
           lstsym = 2            !lstsym=2: turn off symops
         endif
-C     Switches that turn off automatic finder, incl. inversion
+!!     Switches that turn off automatic finder, incl. inversion
         if (lstsym .ne. 0) then
           i = 1
           do while (i .ne. 0)
@@ -939,7 +735,7 @@ C     Switches that turn off automatic finder, incl. inversion
             endif
           enddo
           if (symg .eq. ' ') symg = 'e' ! suppress ops if none explicit
-c          lqp = lqp-bitand(lqp,1)+1 ! noinv=1 -->do nothing, noinv=0 --> noinv=1
+!!          lqp = lqp-bitand(lqp,1)+1 ! noinv=1 -->do nothing, noinv=0 --> noinv=1
           noinv=1
         endif
         j = len_trim(symg)               ! Symmetry group symg
@@ -949,85 +745,29 @@ c            call packs('strn symg',sstrn,symg)
         else
         sstrnsymg=''
         endif
-C ... End of copy
+!!
+        if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
+!!     Add dalat to alat
+!!  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This
+!!  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
-C ... Read the basis from the atm file
-          if (cmdopt('--rdbasp',8,0,strn)) then
-            call rx('not support --rdbasp')
-C$$$        fileid = 'basp'
-C$$$        if (strn(9:12) .eq. ':fn=') then
-C$$$          fileid = strn(13:13+63) !tk to avoid complaint; replace fileid = strn(13:)
-C$$$        else
-C$$$        endif
-C$$$C       Number of envelope functions before modifications
-C$$$        call uspecb(0,1,v_sspec,1,nspec,xx,xx,xx,k1)
-C$$$C       Read new parms; return in k2 max no. env. fns/site read
-C$$$        call strip(fileid,i,j)
-C$$$        ifi = fopna(fileid(1:j),-1,0)
-C$$$        rewind ifi
-C$$$        if (.not. ioorbp(111,2,1,nspec,v_sspec,k2,ifi))
-C$$$     .  call rxs2('lmfp: failed to find BASIS: token in file "',
-C$$$     .  fileid(1:j),'"')
-C$$$        k2 = mod(k2,10)
-C$$$        call fclr(' ',ifi)
-C$$$C       File read cause number of envelope functions to increase?
-C$$$C       If so, increment nkaph by 1; keep old nkaph in k1 for later
-C$$$        if (k2 .gt. k1) then
-C$$$          k1 = nglob('nkaph')
-C$$$          xx(1) = dglob('nkaph',dble(k1+1),1)
-C$$$          k = nglob('nkaph')
-C$$$          call uspecb(0,-1,v_sspec,1,nspec,xx,xx,xx,xx)
-C$$$          nlmax = int(v_sctrl%nl) * * 2
-C$$$          xx(1) = dglob('mxorb',dble(k)*nlmax,1)
-C$$$        endif
-          endif
+!! Dirac equation requires spin polarization
+        if( nsp==1 .and. int(v_sctrl%lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 
-C     Add dalat to alat
-CXX  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This
-CXX  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
-
-C     Replicate ctrl->lncol in ham->lncol
-c          v_sham%lncol=lncol
-
-C ... Use true spherical harmonics
-c       if ( bittst ( lncol , 4 ) .or. ctrl_loptc .ne. 0 .or. lrel .eq.
-c     . 2 ) then
-c       if ( bittst ( lncol , 4 ) .or. lrel .eq. 2 ) then
-c       call lsets_bitop_i8(v_sctrl%lham,1,.true.,256)
-c       endif
-
-
-C ... Dirac equation requires spin polarization
-          if ( nsp.eq.1 .and. int(v_sctrl%lrel) .eq.2 ) then
-
-            call rx('rdccat: Dirac equation requires NSPIN=2')
-          endif
-
-C ... Suppress inversion when noncollinear magnetism, SX, NLO
-c      if (lncol+lsx1 .ne. 0 .or. ctrl_loptc .ge. 10 .or.
-c     .   (mod(lscr,10) .eq. 1 .and. prgnam .eq. 'LM'))
-c          if (lncol .ne. 0)
+!! ... Suppress inversion when noncollinear magnetism, SX, NLO
           if(lso.ne. 0) noinv=1 !lqp = lqp-bitand(lqp,1)+1
           v_sctrl%noinv=noinv
-
-C ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-c     j = iand(4,int(v_sctrl%lham)) /4
-c     j = 2*(1-j)
+!! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
           j= 2
-
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
           if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
-
 C     nfp-style basis:
           if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
-
-Changenglob      call suidx(nglob('nkaph'),j,nspec,v_sspec)
-ckino Jan.04.2012:        call suidx(globalvariables%nkaph,j,nspec,v_sspec)
           call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
-C ... Set some global variables
+!! ... Set some global variables
           globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
           globalvariables%nbas = dble(nbas); globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
           globalvariables%nbasp = dble(nbasp); globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
@@ -1056,67 +796,43 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
           call mpibc1(nat,1,2,0,'rdctrl','nat')
           globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
 C ... Set modep
-c          ix(1) = 2
-c          ix(2) = 2
-c          ix(3) = 2
-c          i_copy_size=size(v_sctrl%modep)
-c          call ii8copy(i_copy_size,ix,1,v_sctrl%modep,1)
           v_sctrl%modep=2
 C ... Count LDA+U blocks (printout only)
-c      call defi(owk,-nbas)
           allocate(wowk(nbas))
           wowk=0
           call pshpr(0)
           call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
           v_sham%nlibu=nlibu
-c          v_sham%lmaxu=k
           call poppr
-c      call rlse(owk)
           deallocate(wowk)
-
 C     Free arrays used to read input
           deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
-     .lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
-     .exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
-     .lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
+     .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
+     .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
+     .     rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
+     .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
           deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
-c      if (ltbe) deallocate(delta,ndelta)
 
-C      call rx0('done copying input to structures')
-
-C --- Printout ---
+!! --- Printout ---
           if (iprint() .ge. 20 .and. procid .eq. master) then
             do  90  k = 1, 2
               strn = '  '//prgnam
-c              if (vn(2) .eq. 0) then
-c                call awrit6('%a  vn %,2d  verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-c     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,
-c     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-c              else
-c                call awrit7('%a  vn %,2d('//trim(prgnam)//' %,1d)  '//
-c     .      'verb %i%?#n#,%i#%j#%?#n#,%i#%j#',
-c     .      strn,scrwid,-lgunit(k),vn(1)-vn2(1)/1d5,vn(2),
-c     .      iprint(),iprint()-iprt(1),iprt(1),iprt(2)-iprt(1),iprt(2))
-c              endif
               lxcf=v_sctrl%lxcf
               lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
               call awrit8(' special:%10p'//
-     .    '%?;n; forces,;;'//
-     .    '%?;n==2; Dirac equation,;;'//
-     .    '%?;n; spherical-harmonics,;;'//
-     .    '%?;n>0; Im(eps(w)),;;%-1j%?;n<0; JDOS,;;'//
-     .    '%?;n==1; eps^-1,;;%-1j%?;(n>=2); scr-rho-out,;;'//
-     .    '%-1j%?;(n>=4);%b(model eps),;;'//
-     .    '%?;n; Order-N:?,;;%-1j'//
-     .    '%?;n==1;%2bEmbedded-Cluster,;;%-1j'//
-     .    '%?;n==2;%2bVanderbuilt,;;'//
-     .    '%?;n; APW basis,;;'//
-     .    '%?;n; oveps,;;'//
-c     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,i,0, !ctrl_loptc,
-c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
-     .    '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
-     .    mod(lscr,10),0,pwmode,isw(oveps.ne.0))
+     .         '%?;n; forces,;;'//
+     .         '%?;n==2; Dirac equation,;;'//
+     .         '%?;n; spherical-harmonics,;;'//
+     .         '%?;n>0; Im(eps(w)),;;%-1j%?;n<0; JDOS,;;'//
+     .         '%?;n==1; eps^-1,;;%-1j%?;(n>=2); scr-rho-out,;;'//
+     .         '%-1j%?;(n>=4);%b(model eps),;;'//
+     .         '%?;n; Order-N:?,;;%-1j'//
+     .         '%?;n==1;%2bEmbedded-Cluster,;;%-1j'//
+     .         '%?;n==2;%2bVanderbuilt,;;'//
+     .         '%?;n; APW basis,;;'//
+     .         '%?;n; oveps,;;'//
+     .         '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
+     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
               if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
               if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
                 if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
@@ -1126,36 +842,16 @@ c     .    mod(lscr,10),lordn,pwmode,isw(oveps.ne.0))
               if (prgnam(1:3) .eq. 'LMF') then
                 call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
      .      // '%b %b' , strn , scrwid , 0 , 0 )
-
                 if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
               endif
-
-c$$$c       ltmp = prgnam.eq.'LM'   .or. prgnam.eq.'LMMC'  .or.
-c$$$              ltmp = prgnam.eq.'LM'   .or. 
-c$$$     .         prgnam.eq.'LMF'  .or. prgnam.eq.'LMFGWD' .or.
-c$$$     .         prgnam.eq.'LMGF' .or. prgnam.eq.'LMPG' .or. 
-c$$$     .         prgnam.eq.'LMDOS'.or. prgnam.eq.'TBE'
-c$$$
-c$$$              if ( ltmp ) call awrit7 ( ' bz:%10p' // '%?;n; metal,; nonmetal,;' 
-c$$$     .         // '%-1j%?;n>1;%b(%-1j%i),;;' // '%?;n; tetra,;;' // '%?;n; get-qp,;;' 
-c$$$     .         // '%?;n; invit,;;' // '%?;n; dens-mat,;;' // '%?;(n>0); %-1jmull=%i,;;' 
-c$$$     .         // '%?;n; fixed-spin-mom,;;%b ' , strn , scrwid , lgunit ( k 
-c$$$     .         ) , int(v_sbz%lmet) , bitand ( lmet , 2 ) , iand(1,int(v_sbz%lio))
-c$$$c    .   , iand(2,int(v_sctrl%lqp)) , iand(8,int(v_sbz%lio)) , int(v_sbz%lmull) 
-c$$$     .         , iand(2,int(v_sctrl%lqp)) , .false.                , int(v_sbz%lmull) 
-c$$$c     .    , isw ( v_sbz%fsmom .ne.0 ) )
-c$$$     .         , isw ( v_sbz%fsmom .ne.NULLR ) )
-
-
    90       continue
           endif
 
-C --- Sanity checks and other initialization ---
-          if ( iand(8,int(v_sctrl%ldos)) .ne.0 .and. iand(4+2,int(v_sctrl%ldos)) .ne.0 
-     .) call rx ( 'inconsistent DOS options' )
+!! -- Sanity checks and other initialization ---
+          if ( iand(8,int(v_sctrl%ldos)) /=0 .and. iand(4+2,int(v_sctrl%ldos)) /=0 ) 
+     &     call rx ( 'inconsistent DOS options' )
 
-C --- takao embed contents in susite here. This is only for lmf and lmfgw.
-c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
+!! --- takao embed contents in susite here. This is only for lmf and lmfgw.
           seref = 0d0
           do ib = 1, nsite
             ispec = v_ssite(ib)%spec
@@ -1165,25 +861,15 @@ c      call susite(v_sctrl,v_sham,v_spot,v_sarry,v_slat,v_sspec,v_ssite)
           enddo
           v_sham%seref=seref
           allocate(v_slat%rv_a_opos(abs(3*nsite)))
-          if (3*nsite<0) v_slat%rv_a_opos(:)=0.0d0
           if (allocated(v_sarry%iv_a_oips)) deallocate(v_sarry%iv_a_oips)
           allocate(v_sarry%iv_a_oips(abs(nsite)))
-          if (nsite<0) v_sarry%iv_a_oips(:)=0
-
           do i_spackv=1,nsite
-c            i_copy_size=3
-c            call spackv_array_copy_r8_r8 ( 'u' , v_ssite ( i_spackv ) %pos
-c     .   , i_copy_size , i_spackv + 1 - 1 , v_slat%rv_a_opos )
-c            i_copy_size=1
-c            call spackv_array_copy_i8_i ( 'u' , v_ssite ( i_spackv ) %spec
-c     .   , i_copy_size , i_spackv + 1 - 1 , v_sarry%iv_a_oips )
             v_slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
             v_sarry%iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
           enddo
           if (procid .eq. master) then
             if (iprint() .ge. 20) then
               if (lstsym .eq. 1) then
-c                call upacks('strn symg',i,j)
                 write(stdo,357) trim(sstrnsymg) !sstrn(i:j)
   357           format(/' Automatic symmetry finder turned off.  Use: ',a)
               elseif (lstsym .eq. 2) then
@@ -1195,19 +881,12 @@ c                call upacks('strn symg',i,j)
           do i_spec=1,nspec
             call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
           enddo
-C --- Debugging printout ---
+!! Debugging printout ---
           if (io_help == 0 .and. io_show > 1) then
             print *, '---------- contents of sstrn ------------'
             print *, 'mix: ', trim(sstrnmix)
             print *, 'symg:', trim(sstrnsymg)
             call rx0('done show')
-c$$$            call upacks('strn amix',i,j)
-c$$$            print *, 'amix:', sstrn(i:j)
-c$$$            call upacks('strn mix',i,j)
-c$$$            print *, 'mix:', sstrn(i:j)
-c$$$            call upacks('strn symg',i,j)
-c$$$            print *, 'symg:', sstrn(i:j)
-c$$$            call rx0('done show')
           endif
           end subroutine rdctrl2
           end module m_rdctrl2_func
