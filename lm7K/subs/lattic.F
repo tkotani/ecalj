@@ -51,32 +51,31 @@ C ... Local parameters
       rpad=slat%rpad
       nkdmx=slat%nkdmx
       nkqmx=slat%nkqmx
-      i_copy_size=size(slat%gam)
-      call dcopy(i_copy_size,slat%gam,1,gam,1)
+      gam(:)=slat%gam(:)
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat0,1)
+c      i_copy_size=size(slat%plat)
+c      call dcopy(i_copy_size,slat%plat,1,plat0,1)
+      plat0=slat%plat
 c      nbas=sctrl%nbas
       nbaspp = nbas 
 
 C ... Apply specified linear transformation of lattice and basis vectors
-      ldist=slat%ldist
-c      i_copy_size=size(slat%dist)
-c      call dcopy(i_copy_size,slat%dist,1,dist,1)
-      dist(1:3,1)=slat%dist(1:3)
-      dist(1:3,2)=slat%dist(4:6)
-      dist(1:3,3)=slat%dist(7:9)
+      ldist = slat%ldist
+      dist(1:3,1)= slat%dist(1:3)
+      dist(1:3,2)= slat%dist(4:6)
+      dist(1:3,3)= slat%dist(7:9)
 
       if (abs(gt-1) .gt. 1d-10) then
         call rdistn ( slat%rv_a_opos , slat%rv_a_opos , nbaspp , gx , gy , gz , gt )
       elseif (ldist .ne. 0) then
         call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_a_opos , 0 ,  0d0 )
       else
-        dist=0d0 !call dpzero(dist,9)
+        dist=0d0 
         dist(1,1) = 1
         dist(2,2) = 1
         dist(3,3) = 1
       endif
+
       allocate(slat%rv_a_odlv(abs(3*nkdmx)))
       allocate(slat%rv_a_oqlv(abs(3*nkqmx)))
       lmxst = 6
@@ -84,16 +83,10 @@ c      call dcopy(i_copy_size,slat%dist,1,dist,1)
      .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_a_odlv
      .  , nkd , slat%rv_a_oqlv , nkq , nkdmx , nkqmx )
 
-      slat%vol=vol
+      slat%vol  =vol
       slat%plat0=plat0
-      slat%plat=plat
-      slat%qlat=qlat
-c      i_copy_size=size(slat%plat0)
-c      call dcopy(i_copy_size,plat0,1,slat%plat0,1)
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,plat,1,slat%plat,1)
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,qlat,1,slat%qlat,1)
+      slat%plat =plat
+      slat%qlat =qlat
 
 !! reduce size. necessary?
       i_data_size=size(slat%rv_a_oqlv)
@@ -118,17 +111,9 @@ c      call dcopy(i_copy_size,qlat,1,slat%qlat,1)
       slat%awald=awald
       slat%nkd=nkd
       slat%nkq=nkq
-!      i_copy_size=size(slat%dist) =9
-c      call dcopy(i_copy_size,dist,1,slat%dist,1)
       slat%dist(1:3)=dist(1:3,1)
       slat%dist(4:6)=dist(1:3,2)
       slat%dist(7:9)=dist(1:3,3)
-c
-!      i_copy_size=size(ssite(1)%pos) =3
-c      do i_spackv=1,nbaspp
-c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
-c      enddo
       end subroutine lattic
 
 

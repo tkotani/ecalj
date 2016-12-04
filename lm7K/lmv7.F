@@ -86,11 +86,10 @@ c      integer namelen(0:MAX_PROCS-1)
         call lmhelp(prgnam) !,vn(2),vn2(2),0) 
       endif
 
+!! set log file for --mlog 
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-c      call strcop(shortname(procid),name,10,'.',i)
       shortname(procid)=trim(name)
-c      namelen(procid) = i-1
       mlog = cmdopt('--mlog',6,0,strn)
       if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
@@ -106,10 +105,6 @@ c      namelen(procid) = i-1
           write(lgunit(3),"(a)")' lmf '//datim//' Process '
      &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
      .    //trim(shortname(procid)) //' is master'
-
-c          call awrit2(' lmf '//datim//' Process %i of %i on '
-c     .    //shortname(procid)(1:namelen(procid))//' is master',' ',
-c     .    256,lgunit(3),procid,nproc)
         endif
       else !for procid !=0
         call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
@@ -119,10 +114,6 @@ c     .    256,lgunit(3),procid,nproc)
         ierr = fextg(ext)
         call gettime(datim)
         if (mlog) then
-c          call awrit2(' lmf '//datim//' Process %i of %i on '
-c     .    //shortname(procid)(1:namelen(procid))//
-c     .    ' file extension is '//ext(2:i+1),' ',
-c     .    256,lgunit(3),procid,nproc)
           write(lgunit(3),"(a)")' lmf '//datim//' Process '
      &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
      .    //trim(shortname(procid))
@@ -147,21 +138,22 @@ c     .    256,lgunit(3),procid,nproc)
           if (fxst('CTRL') .ne. 1) call rx("No ctrl file found!") 
         endif
       endif
+
 !! Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
         i = 4
-        i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
+        i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k) ! --pr=xxx is read as k=xxx
         if (i .eq. 1) call setpr(k)
       endif
       if(procid/=master) call setpr(-100) !iprint() is negative except master
 
-!! Input from ctrl file ---
-!!  recrd, nrecs are obtained.
+!! Input from ctrl file, --input, --show, --showp, options
+!! recrd, nrecs are obtained.
       nrecs  = 0
       if (procid .eq. master) then
         if (.not.cmdopt('--input',7,0,strn)) then
           nfilin = fopna('CTRL',-1,1)
-          call findctrlstart(nfilin) !takao
+          call findctrlstart(nfilin) ! ctrl is read from 'ctrlstart' if it exist.
           alabl = '#{}% ct '
           if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
           call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
@@ -180,22 +172,22 @@ c     .    256,lgunit(3),procid,nproc)
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
 #endif
-!! --- Read recrd ---
-      call rdctrl2(recrd,recln0,nrecs,prgnam,F, !vrsion,vn,vn2,
+
+
+!! --- Read recrd --- We store all readin data to structures v_*.
+      call rdctrl2(recrd,recln0,nrecs,prgnam, 
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     . v_sarry,sstrnmix,sstrnsymg)  !,v_stb !v_smove, 
+     . v_sarry,sstrnmix,sstrnsymg)  
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
 
 !! --- Lattice setup:deformation ---
 c      call setcg(v_slat,8,12) --> moved to rdctl2
-c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic(v_slat,v_sctrl%nbas)
       do ibas=1,v_sctrl%nbas
-        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
+        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
-
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
@@ -210,8 +202,10 @@ c      if ( iand(1,int(v_sctrl%lqp))==0  ) lc = lc+2
 c      if( v_sctrl%lqp1==0 ) lc = lc+2 !no inversion
       if( v_sctrl%noinv==0 ) lc = lc+2 !no inversion
 #endif
+!! --sfill is not allowed.
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
-!! read AF case 2015
+
+!! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = v_sctrl%nbas
@@ -291,29 +285,32 @@ c$$$        do i=1,3
 c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
 c$$$        enddo
 c$$$      enddo
+
 !!  Set default values for species data
       call defspc(v_sspec)
 #if LMF
 #ifndef LMFGWD
       ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
-!! iand(4+1,i) = 1,0,0,4,5,5,4,0,  1,0,0,4,5,5,4,...
+!! iand(2**n,i) means 2**n ditit of i.
+!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
 #endif
+
 !! show and quit
       if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
-!! main part of lmf
+
+!! main part of lmf ------------------------------------
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .v_smix,v_sspec,v_ssite,v_sstr,v_sarry,trim(sstrnmix)) !,v_smove
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif
-!! -------------- End of program -------------
- 1000 continue
+
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if ( procid .eq. master ) then

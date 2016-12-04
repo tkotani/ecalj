@@ -139,9 +139,9 @@ C     j = j + recln0
 C     enddo
 C     write(stdo,*)' --- end of rdfile --- '
 C     call rx('done')
-      call rdctrl2(recrd,recln0,nrecs,prgnam,F, !,vrsion,vn,vn2
+      call rdctrl2(recrd,recln0,nrecs,prgnam,
      .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
-     .     v_sarry,sstrnmix,sstrnsymg) !,v_stb ,v_smove
+     .     v_sarry,sstrnmix,sstrnsymg) 
 C     --- Lattice setup ---
 c      call setcg(v_slat,8,12)
 c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)

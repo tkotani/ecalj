@@ -23,7 +23,7 @@
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
      .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
       integer lfp  ! set to T if FP program (used for defaults)
-      real(8):: lat_gmax,tolft,elind,dqval,kmto(10),rsrnge,vmtz, scaledsigma 
+      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  !kmto(10),
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
       real(8):: pmin(n0),pmax(n0)
 C     sigp holds parameters for approximating self-energy sigma
@@ -277,11 +277,9 @@ C ... For MPI
       nproc  = mpipid(0)
 C     mlog = cmdopt('--mlog',6,0,a)
 
-C     Used to set tbe-dependent or f-dependent defaults
-c      ltbe = prgn .eq. 'TBE'
-      lfp = 0
 c      if (prgn=='LMF' .or. prgn=='LMFGWD' .or. prgn=='LMMC') lfp = 1
-      if (prgn=='LMF' .or. prgn=='LMFGWD') lfp = 1
+c      if (prgn=='LMF' .or. prgn=='LMFGWD') lfp = 1
+      lfp = 1
 
 C      print *, '!! choose default nl? ... NL now only sets defaults'
 C      print *, '!! molecules stuff around LMXB not done yet '
@@ -402,7 +400,7 @@ c      if (ltmp) call wkprnt(1)
       if (io_iactive .gt. 1) io_iactive = 1
       call initqu(io_iactive)
 
- 1234 continue
+c 1234 continue
 
       nm='IO_TIM'; call gtv(trim(nm),tksw(prgn,nm),io_tim,
      .note='Turns CPU timing log.  Value sets tree depth.'//
@@ -1266,16 +1264,16 @@ cccccccccccccccccccccccccccccc
         if (rmt(j) == 0.and.io_help/=1) then !takao iohelp/=1 added.
           lmxa(j) = -1
         elseif (sw == 2) then   !lmxa not read: look for subsitute
-          if (lfp > 0) then     !Possibly replace with a formula
+c          if (lfp > 0) then     !Possibly replace with a formula
             !that depends on rmt
             lmxa(j) = 4
-          elseif (tksw(prgn,'SPEC_ATOM_LMX') /= 2) then
-            lmxa(j) = lmxb(j)
-          elseif (tksw(prgn,'STRUC_NL') /= 2) then
-            lmxa(j) = nl-1
-          else
-            lmxa(j) = 0
-          endif
+c          elseif (tksw(prgn,'SPEC_ATOM_LMX') /= 2) then
+c            lmxa(j) = lmxb(j)
+c          elseif (tksw(prgn,'STRUC_NL') /= 2) then
+c            lmxa(j) = nl-1
+c          else
+c            lmxa(j) = 0
+c          endif
         else
 C         Possibly replace with a formula that depends on rmt
           call gtv(trim(nm),sw,lmxa(j),
@@ -2155,6 +2153,9 @@ C --- Brillouin Zone ---
      .//'%N%3f1 Write DOS to directly disk (NPTS and DOS also needed)'
      .//'%N%3f2 Write weights for partial DOS'
      .//'%N%3f4 Same as (2), but weights m-resolved')
+!! -- Sanity checks and other initialization ---
+      if( iand(8,ctrl_ldos) /=0 .and. iand(4+2,ctrl_ldos) /=0 ) 
+     &   call rx ( 'inconsistent BZ_SAVDOS options' )
       nm='BZ_DOS'; call gtv(trim(nm),tksw(prgn,nm),bz_dosw,def_r8v=
      .(/-1d0,0d0/),note='Energy window over which DOS accumulated')
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgn,nm),bz_ndos,def_i4=1001,
@@ -2718,216 +2719,216 @@ c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
       end subroutine readctrl
 
 
-      subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
-     .initc,ics,clabl)
-C- Read class data from ctrl file
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   prgn
-Ci   nclasp
-Ci   clabl :class name
-Co Outputs
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   17 Oct 07
-C ----------------------------------------------------------------------
-      use m_toksw
-      use m_gtv
-C     implicit none
-C ... Passed parameters
-      character*(*):: prgn
-      integer:: nclasp,nl,nsp
-C ... Class-related arrays
-      integer:: initc(nclasp),ics(nclasp)
-      real(8):: pnu(nl,nsp,nclasp),qnu(3,nl,nsp,nclasp),
-     .pp(6,nl,nsp,nclasp),ves(nclasp),z(nclasp)
-      character*8 clabl(nclasp)
-C ... Local parameters
-      character(128) :: nm
-      character(256) :: outs
-      logical:: ltmp,rdves,cmdopt
-      integer:: stdo,lgunit,i,j,ic,lp1,jj(2),nout,nlaj,nlaji,
-     .iv(100),ii,n,js
-      real(8):: xv(100),xx,pi
-C ... Heap
-
-      stdo = lgunit(1)
-      pi = 4d0*datan(1d0)
-
-C --- Start ---
-      if (tksw(prgn,'START') == 2) goto 159
-C$$$      if (io_show+io_help/=0) call
-C$$$     .  info0(1,1,0,' --- Read potential data (ASA) ---')
-
-C$$$      nm='START_BEGMOM'; call gtv(trim(nm),tksw(prgn,nm),lasa3,
-C$$$     .  def_i4=1,note=
-C$$$     .  '0 Start from potential parameters (on file)'//
-C$$$     .  '%N%3f1 Create potential and pot pars from P,Q'//
-C$$$     .  '%N%3f2 Create pot pars from file potential'//
-C$$$     .  '%N%3f3 Create potential from restart file')
-
-C$$$      nm='START_FREE'; call gtv(trim(nm),tksw(prgn,nm),lasa8,
-C$$$     .  def_lg=F,note=
-C$$$     .  '(Free atom mode): make self-consistent density for free atoms')
-
-      nm='START_CNTROL'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
-     .note='if F, the remainder of this category is ignored')
-      if (io_help==0 .and. .not. ltmp) goto 159
-
-      nm='START_RDVES'; call gtv(trim(nm),tksw(prgn,nm),rdves,
-     .def_lg=F,note='Read Ves(RMT) from this category')
-C     Subtract current ves from pp now; add updated ves later
-      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,T,F)
-
-C ... Read data for each occurence of ATOM=
-C     j = index to jth occurence; ic = class index
-      outs = ' '
-      j = 1
-      do  while (j .gt. 0)
-        if (io_help /= 0) then
-          write(stdo,"(/' For each class, read the following:')")
-        elseif (io_show>0) then
-          write(stdo,"(1x)")
-C         call info(1,0,0,' ... Site %i',j,0)
-        endif
-
-        jj=(/1,j/)
-        nm='START_ATOM'; call gtv(trim(nm),tksw(prgn,nm),alabl,nmin=10,
-     .  cindx=jj,nout=nout,note='Class label')
-        if (nout == 0 .and. io_help == 0) then
-          j = 0
-          cycle
-        endif
-
-        if (io_help == 0) then
-          ic = 0
-          do  i = 1, nclasp
-            if (alabl == clabl(i)) then
-              ic = i
-              call awrit0('%a'//alabl//'%a,',outs,len(outs),0)
-              goto 881
-            endif
-          enddo
-          call info0(10,0,0,' rdctrl: (warning) class "'
-     .    //alabl//'%a" not in class table')
-          j = j+1; cycle
-  881     continue
-          nlaj = 1+lmxa(ic)
-          nlaji = nlaj
-        else                    !help mode; cycle only once
-          nlaj = 1
-          nlaji = NULLI
-          ic = 1
-          j = -1
-        endif
-
-        nm='START_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
-     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
-     .  'Methfessel''s Potential functions')
-C       Copy to pnu, spins separately in case nlja<nl
-        if (nout .gt. 0) then
-          initc(ic) = 2*(initc(ic)/2) + 1
-          call dpzero(pnu(1,1,ic),nl*nsp)
-          call dcopy(nlaj,xv,1,pnu(1,1,ic),1)
-          if (nsp .eq. 2)
-     .    call dcopy(nlaj,xv(1+nlaj),1,pnu(1,2,ic),1)
-C         Fill in values for l>lmxa
-          if (.not. cmdopt('--keepnu',8,0,nm)) then
-            call config(pnu(1,1,ic),-1,z(ic),iv,n)
-            do  i = 1, nsp
-              do  lp1 = 1, nl
-                ii = iv(lp1)
-                xx = pnu(lp1,i,ic)
-C           If P=0, use free-electron value
-                if (xx .eq. 0) then
-                  xx = ii + 0.5d0 - datan(dble(lp1-1))/pi
-C           If fractional part only, add integer part
-                elseif (xx .lt. 1) then
-                  xx = xx + ii
-                endif
-                pnu(lp1,i,ic) = xx
-              enddo
-            enddo
-          endif
-        endif
-
-        nm='START_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
-     .  xv(1:3*nlaj*nsp),nmin=3*nlaji*nsp,nout=nout,cindx=jj,
-     .  note='Energy moments of the spherical density')
-C       Copy to qnu, spins separately in case nlja<nl
-        if (nout .gt. 0) then
-          call dpzero(qnu(1,1,1,ic),3*nl*nsp)
-          call dcopy(3*nlaj,xv,1,qnu(1,1,1,ic),1)
-          if (nsp .eq. 2)
-     .    call dcopy(3*nlaj,xv(1+3*nlaj),1,qnu(1,1,2,ic),1)
-        endif
-
-        nm='START_ATOM_ENU'; call gtv(trim(nm),tksw(prgn,nm),
-     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
-     .  'Linearization energies')
-        if (nout .gt. 0) then
-          call dcopy(nlaj,xv,1,pp(1,1,1,ic),6)
-          if (nsp .eq. 2)
-     .    call dcopy(nlaj,xv(1+nlaj),1,pp(1,1,2,ic),6)
-        endif
-
-        if (rdves) then
-          nm='START_ATOM_V'; call gtv(trim(nm),tksw(prgn,nm),
-     .    xx,nmin=1,nout=nout,cindx=jj,note=
-     .    'ASA potential at MT boundary')
-          if (nout .gt. 0) ves(ic) = xx
-          nm='START_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),
-     .    xx,nmin=1,nout=nout,cindx=jj,note=
-     .    'Add to ASA potential at MT boundary')
-          if (nout .gt. 0) ves(ic) = ves(ic) + xx
-        endif
-
-        j = j+1
-      enddo
-      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,F,T)
-
-C ... Printout
-      if (io_show /= 0 .and. io_help == 0) then
-        call awrit0('%23o%0p%N rdctrl: read P,Q for %a%b%N P,Q,ppars:',
-     .  outs,80,-stdo)
-        do   j = 1, nclasp
-          js = ics(j)
-          nlaj = 1+lmxa(j)
-          if (mod(initc(j),2) .eq. 1) then
-            print 335, 'class ', clabl(j), (pnu(lp1,1,j),lp1=1,nlaj)
-            if (nsp .eq. 2)
-     .      print 335,' spin ', '2       ',(pnu(lp1,2,j),lp1=1,nlaj)
-            print 335,'      ', 'Q       ',(qnu(1,lp1,1,j),lp1=1,nlaj)
-            if (nsp .eq. 2)
-     .      print 335,' spin ', '2       ',(qnu(1,lp1,2,j),lp1=1,nlaj)
-  335       format(4x,a,a,7f8.4)
-          else
-            print 335, 'class ', clabl(j) // '  missing pnu'
-          endif
-          if (mod(initc(j)/2,2) .eq. 1) then
-            print 336,'  enu       ',      (pp(1,lp1,1,j), lp1=1,nlaj)
-            if (nsp .eq. 2)
-     .      print 335, ' spin ', '2       ',(pp(1,lp1,2,j),lp1=1,nlaj)
-            print 336,'    c       ',      (pp(2,lp1,1,j), lp1=1,nlaj)
-            if (nsp .eq. 2)
-     .      print 335, ' spin ', '2       ',(pp(2,lp1,2,j),lp1=1,nlaj)
-            print 336,'srdel       ',      (pp(3,lp1,1,j), lp1=1,nlaj)
-            if (nsp .eq. 2)
-     .      print 335, ' spin ', '2       ',(pp(3,lp1,2,j),lp1=1,nlaj)
-  336       format(6x,a,7f8.4)
-          else
-            print 335, 'class ', clabl(j) // '  missing ppars'
-          endif
-          print *, ' '
-        enddo
-      endif
-
-  159 continue                  ! End of START
-
-      end subroutine readctrlpq
+c$$$      subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
+c$$$     .initc,ics,clabl)
+c$$$C- Read class data from ctrl file
+c$$$C ----------------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   prgn
+c$$$Ci   nclasp
+c$$$Ci   clabl :class name
+c$$$Co Outputs
+c$$$Cl Local variables
+c$$$Cl         :
+c$$$Cr Remarks
+c$$$Cr
+c$$$Cu Updates
+c$$$Cu   17 Oct 07
+c$$$C ----------------------------------------------------------------------
+c$$$      use m_toksw
+c$$$      use m_gtv
+c$$$C     implicit none
+c$$$C ... Passed parameters
+c$$$      character*(*):: prgn
+c$$$      integer:: nclasp,nl,nsp
+c$$$C ... Class-related arrays
+c$$$      integer:: initc(nclasp),ics(nclasp)
+c$$$      real(8):: pnu(nl,nsp,nclasp),qnu(3,nl,nsp,nclasp),
+c$$$     .pp(6,nl,nsp,nclasp),ves(nclasp),z(nclasp)
+c$$$      character*8 clabl(nclasp)
+c$$$C ... Local parameters
+c$$$      character(128) :: nm
+c$$$      character(256) :: outs
+c$$$      logical:: ltmp,rdves,cmdopt
+c$$$      integer:: stdo,lgunit,i,j,ic,lp1,jj(2),nout,nlaj,nlaji,
+c$$$     .iv(100),ii,n,js
+c$$$      real(8):: xv(100),xx,pi
+c$$$C ... Heap
+c$$$
+c$$$      stdo = lgunit(1)
+c$$$      pi = 4d0*datan(1d0)
+c$$$
+c$$$C --- Start ---
+c$$$      if (tksw(prgn,'START') == 2) goto 159
+c$$$C$$$      if (io_show+io_help/=0) call
+c$$$C$$$     .  info0(1,1,0,' --- Read potential data (ASA) ---')
+c$$$
+c$$$C$$$      nm='START_BEGMOM'; call gtv(trim(nm),tksw(prgn,nm),lasa3,
+c$$$C$$$     .  def_i4=1,note=
+c$$$C$$$     .  '0 Start from potential parameters (on file)'//
+c$$$C$$$     .  '%N%3f1 Create potential and pot pars from P,Q'//
+c$$$C$$$     .  '%N%3f2 Create pot pars from file potential'//
+c$$$C$$$     .  '%N%3f3 Create potential from restart file')
+c$$$
+c$$$C$$$      nm='START_FREE'; call gtv(trim(nm),tksw(prgn,nm),lasa8,
+c$$$C$$$     .  def_lg=F,note=
+c$$$C$$$     .  '(Free atom mode): make self-consistent density for free atoms')
+c$$$
+c$$$      nm='START_CNTROL'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
+c$$$     .note='if F, the remainder of this category is ignored')
+c$$$      if (io_help==0 .and. .not. ltmp) goto 159
+c$$$
+c$$$      nm='START_RDVES'; call gtv(trim(nm),tksw(prgn,nm),rdves,
+c$$$     .def_lg=F,note='Read Ves(RMT) from this category')
+c$$$C     Subtract current ves from pp now; add updated ves later
+c$$$      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,T,F)
+c$$$
+c$$$C ... Read data for each occurence of ATOM=
+c$$$C     j = index to jth occurence; ic = class index
+c$$$      outs = ' '
+c$$$      j = 1
+c$$$      do  while (j .gt. 0)
+c$$$        if (io_help /= 0) then
+c$$$          write(stdo,"(/' For each class, read the following:')")
+c$$$        elseif (io_show>0) then
+c$$$          write(stdo,"(1x)")
+c$$$C         call info(1,0,0,' ... Site %i',j,0)
+c$$$        endif
+c$$$
+c$$$        jj=(/1,j/)
+c$$$        nm='START_ATOM'; call gtv(trim(nm),tksw(prgn,nm),alabl,nmin=10,
+c$$$     .  cindx=jj,nout=nout,note='Class label')
+c$$$        if (nout == 0 .and. io_help == 0) then
+c$$$          j = 0
+c$$$          cycle
+c$$$        endif
+c$$$
+c$$$        if (io_help == 0) then
+c$$$          ic = 0
+c$$$          do  i = 1, nclasp
+c$$$            if (alabl == clabl(i)) then
+c$$$              ic = i
+c$$$              call awrit0('%a'//alabl//'%a,',outs,len(outs),0)
+c$$$              goto 881
+c$$$            endif
+c$$$          enddo
+c$$$          call info0(10,0,0,' rdctrl: (warning) class "'
+c$$$     .    //alabl//'%a" not in class table')
+c$$$          j = j+1; cycle
+c$$$  881     continue
+c$$$          nlaj = 1+lmxa(ic)
+c$$$          nlaji = nlaj
+c$$$        else                    !help mode; cycle only once
+c$$$          nlaj = 1
+c$$$          nlaji = NULLI
+c$$$          ic = 1
+c$$$          j = -1
+c$$$        endif
+c$$$
+c$$$        nm='START_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
+c$$$     .  'Methfessel''s Potential functions')
+c$$$C       Copy to pnu, spins separately in case nlja<nl
+c$$$        if (nout .gt. 0) then
+c$$$          initc(ic) = 2*(initc(ic)/2) + 1
+c$$$          call dpzero(pnu(1,1,ic),nl*nsp)
+c$$$          call dcopy(nlaj,xv,1,pnu(1,1,ic),1)
+c$$$          if (nsp .eq. 2)
+c$$$     .    call dcopy(nlaj,xv(1+nlaj),1,pnu(1,2,ic),1)
+c$$$C         Fill in values for l>lmxa
+c$$$          if (.not. cmdopt('--keepnu',8,0,nm)) then
+c$$$            call config(pnu(1,1,ic),-1,z(ic),iv,n)
+c$$$            do  i = 1, nsp
+c$$$              do  lp1 = 1, nl
+c$$$                ii = iv(lp1)
+c$$$                xx = pnu(lp1,i,ic)
+c$$$C           If P=0, use free-electron value
+c$$$                if (xx .eq. 0) then
+c$$$                  xx = ii + 0.5d0 - datan(dble(lp1-1))/pi
+c$$$C           If fractional part only, add integer part
+c$$$                elseif (xx .lt. 1) then
+c$$$                  xx = xx + ii
+c$$$                endif
+c$$$                pnu(lp1,i,ic) = xx
+c$$$              enddo
+c$$$            enddo
+c$$$          endif
+c$$$        endif
+c$$$
+c$$$        nm='START_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .  xv(1:3*nlaj*nsp),nmin=3*nlaji*nsp,nout=nout,cindx=jj,
+c$$$     .  note='Energy moments of the spherical density')
+c$$$C       Copy to qnu, spins separately in case nlja<nl
+c$$$        if (nout .gt. 0) then
+c$$$          call dpzero(qnu(1,1,1,ic),3*nl*nsp)
+c$$$          call dcopy(3*nlaj,xv,1,qnu(1,1,1,ic),1)
+c$$$          if (nsp .eq. 2)
+c$$$     .    call dcopy(3*nlaj,xv(1+3*nlaj),1,qnu(1,1,2,ic),1)
+c$$$        endif
+c$$$
+c$$$        nm='START_ATOM_ENU'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
+c$$$     .  'Linearization energies')
+c$$$        if (nout .gt. 0) then
+c$$$          call dcopy(nlaj,xv,1,pp(1,1,1,ic),6)
+c$$$          if (nsp .eq. 2)
+c$$$     .    call dcopy(nlaj,xv(1+nlaj),1,pp(1,1,2,ic),6)
+c$$$        endif
+c$$$
+c$$$        if (rdves) then
+c$$$          nm='START_ATOM_V'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .    xx,nmin=1,nout=nout,cindx=jj,note=
+c$$$     .    'ASA potential at MT boundary')
+c$$$          if (nout .gt. 0) ves(ic) = xx
+c$$$          nm='START_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),
+c$$$     .    xx,nmin=1,nout=nout,cindx=jj,note=
+c$$$     .    'Add to ASA potential at MT boundary')
+c$$$          if (nout .gt. 0) ves(ic) = ves(ic) + xx
+c$$$        endif
+c$$$
+c$$$        j = j+1
+c$$$      enddo
+c$$$      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,F,T)
+c$$$
+c$$$C ... Printout
+c$$$      if (io_show /= 0 .and. io_help == 0) then
+c$$$        call awrit0('%23o%0p%N rdctrl: read P,Q for %a%b%N P,Q,ppars:',
+c$$$     .  outs,80,-stdo)
+c$$$        do   j = 1, nclasp
+c$$$          js = ics(j)
+c$$$          nlaj = 1+lmxa(j)
+c$$$          if (mod(initc(j),2) .eq. 1) then
+c$$$            print 335, 'class ', clabl(j), (pnu(lp1,1,j),lp1=1,nlaj)
+c$$$            if (nsp .eq. 2)
+c$$$     .      print 335,' spin ', '2       ',(pnu(lp1,2,j),lp1=1,nlaj)
+c$$$            print 335,'      ', 'Q       ',(qnu(1,lp1,1,j),lp1=1,nlaj)
+c$$$            if (nsp .eq. 2)
+c$$$     .      print 335,' spin ', '2       ',(qnu(1,lp1,2,j),lp1=1,nlaj)
+c$$$  335       format(4x,a,a,7f8.4)
+c$$$          else
+c$$$            print 335, 'class ', clabl(j) // '  missing pnu'
+c$$$          endif
+c$$$          if (mod(initc(j)/2,2) .eq. 1) then
+c$$$            print 336,'  enu       ',      (pp(1,lp1,1,j), lp1=1,nlaj)
+c$$$            if (nsp .eq. 2)
+c$$$     .      print 335, ' spin ', '2       ',(pp(1,lp1,2,j),lp1=1,nlaj)
+c$$$            print 336,'    c       ',      (pp(2,lp1,1,j), lp1=1,nlaj)
+c$$$            if (nsp .eq. 2)
+c$$$     .      print 335, ' spin ', '2       ',(pp(2,lp1,2,j),lp1=1,nlaj)
+c$$$            print 336,'srdel       ',      (pp(3,lp1,1,j), lp1=1,nlaj)
+c$$$            if (nsp .eq. 2)
+c$$$     .      print 335, ' spin ', '2       ',(pp(3,lp1,2,j),lp1=1,nlaj)
+c$$$  336       format(6x,a,7f8.4)
+c$$$          else
+c$$$            print 335, 'class ', clabl(j) // '  missing ppars'
+c$$$          endif
+c$$$          print *, ' '
+c$$$        enddo
+c$$$      endif
+c$$$
+c$$$  159 continue                  ! End of START
+c$$$
+c$$$      end subroutine readctrlpq
 
       end module
 

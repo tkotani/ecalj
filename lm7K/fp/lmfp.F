@@ -228,12 +228,9 @@ C     ... Printout properties of species
 C     ... Setup for no screening transformation
       if ( iand(1,int(sctrl%lbas)) .ne. 0 ) then
 C     Shorten site positions
-c        i_copy_size=size(slat%plat)
-c        call dcopy(i_copy_size,slat%plat,1,plat,1)
         plat=slat%plat
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
           allocate(pos2_rv(3,nbas))
-c          i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
             pos2_rv(:,i_spackv) = ssite(i_spackv)%pos
           enddo
@@ -250,7 +247,6 @@ c          i_copy_size=size(ssite(1)%pos)
       endif
 
 !! ... Setup for charge mixing
-c      call dpzero(dmxp,33)
       dmxp=0d0
       dmxp(2)=smix%b
       dmxp(9)=smix%bv
@@ -268,20 +264,13 @@ C     ... Allocate memory for forces
       endif
 C     ... Relaxation setup
       itrlx = 1
-C     nstack = 0
 C     Initial shear was already folded into plat
-c      i_copy_size=size(slat%gam)
-c      call dcopy(i_copy_size,slat%gam,1,gam,1)
       gam=slat%gam
       gam1 = gam(4)
       gam(4) = 1
-c      i_copy_size=size(slat%gam)
-c      call dcopy(i_copy_size,gam,1,slat%gam,1)
       slat%gam=gam
       slat%ldist=0
       nitrlx=sctrl%nitmv
-c      i_copy_size=size(sctrl%mdprm)
-c      call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
       mdprm=sctrl%mdprm
       lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
@@ -289,16 +278,12 @@ c      call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
         call rx('lmf not set up for MD yet')
       endif
       if (nitrlx .gt. 0) then
-c        i_copy_size=size(sctrl%mdprm)
-c        call dcopy(i_copy_size,mdprm,1,sctrl%mdprm,1)
         sctrl%mdprm=mdprm
         allocate(indrx_iv(6*nbas))
 C     Next lines in case lattice relaxation
         if (lshr) then
           if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
      .           'use of SHEAR= incompatible w/ lattice relaxation')
-c          i_copy_size=size(slat%plat0)
-c          call dcopy(i_copy_size,slat%plat0,1,plat0,1)
           plat0=slat%plat0
         endif
         call rlxstp ( sctrl , ssite , natrlx , nvrelx , indrx_iv , 
@@ -411,13 +396,6 @@ C     end LDA+U  initialization section
 !! === Re-entry point for a new iteration ===
       iter = 1
     5 continue
-cccccccccccccccccccccccccccccccccccccccccccccc
-c     takao
-c     do  i = 1, nbas
-c     call upack2('site pnu',ssite,i,pnu)
-c     print *,'check before 10 write pnu=',i,pnu(1:20)
-c     enddo
-ccccccccccccccccccccccccccccccccccccccccccccccc
 C     --- Read restart file or overlap free atom densities ---
 C     irs(1) tells what to read and whether to invoke smshft.
 C     4s' bit of irs(1) -> invoke smshft after file read.
@@ -538,10 +516,6 @@ c     takao optbas mode here was removed
 C     --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then
 !! --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
-c        if (cmdopt('--wden',6,0,strn).or.cmdopt('--density',9,0,strn)) then
-c          if(cmdopt('--density',9,0,strn)) strn(7:10)='=g3d' ! --density at march2012
-c          call ioden(strn(7:), slat, ssite, sspec, spot%sv_a_oorhat, spot%zv_a_osmrho)
-c        endif
 
 C     --- Write restart file (skip if --quit=band) ---
         if ( int(sctrl%quit) .ne. 4 ) then
@@ -693,10 +667,7 @@ C     Write updated positions to bsmv file
             call fclose(ifi)
           endif
 C     repack updated positions in site structure
-          i_copy_size=size(ssite(1)%pos)
           do i_spackv=1,nbas
-c            call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-c     .              , i_copy_size , i_spackv + 1 - 1 , rv_a_opos )
             ssite(i_spackv)%pos = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
 
@@ -747,31 +718,26 @@ C     Repack updated positions in site structure
             enddo
           endif
 
-C     ... New density after atom shifts
-C     If explicitly told to read from atom files after atom movmment
+!! New density after atom shifts
+!! If explicitly told to read from atom files after atom movmment
           if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
             irs(1) = 0
-C     Else, use self-consistent
+!! Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
             call smshft(ssite,sspec,slat,sctrl,sham,spot%sv_a_oorhat,spot%zv_a_osmrho)
           endif
-
-C     ... Write restart file (to include new positions)
+!! Write restart file (to include new positions)
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
-c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
      .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
           endif
-
-C     ... Write positions to file
+!! Write positions to file
           if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
-c            i_copy_size=size(slat%gam)
-c            call dcopy(i_copy_size,slat%gam,1,gam,1)
             gam=slat%gam
             allocate(wk_rv(3*nbas))
             call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
@@ -779,8 +745,7 @@ c            call dcopy(i_copy_size,slat%gam,1,gam,1)
             call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
             if (allocated(wk_rv)) deallocate(wk_rv)
           endif
-
-C     ... Remove mixing file
+!! Remove mixing file
           if (procid .eq. master) then
             call info0(20,0,0,' Delete mixing and band weights files ...')
             ifi = fopna('mixm',-1,4)
@@ -791,8 +756,7 @@ C     ... Remove mixing file
 C     reset mixing block
           call parms0(0,0,0d0,0)
 
-C     ... Exit when maximum number of iterations encountered
-
+!! Exit when maximum number of iterations encountered
           if (itrlx .eq. nitrlx) then
             if (procid .eq. master) then
               call tcx('lmfp')
@@ -804,7 +768,6 @@ C     ... Exit when maximum number of iterations encountered
             endif
           endif
           itrlx = itrlx+1
-
           if (lshr) then
             goto 98
           else
@@ -813,18 +776,15 @@ C     ... Exit when maximum number of iterations encountered
         endif  ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
       endif  ! if (maxit.gt.0
 
-C     ... Write positions to file
+!! Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
      .     cmdopt('--wpos:mode1:',13,0,strn)) then
          if (allocated(rv_a_opos)) deallocate(rv_a_opos)
          allocate(rv_a_opos(abs(3*nbas)))
          if (3*nbas<0) rv_a_opos(:)=0.0d0
-         i_copy_size=size(ssite(1)%pos)
          do i_spackv=1,nbas
               rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
          enddo
-c         i_copy_size=size(slat%gam)
-c         call dcopy(i_copy_size,slat%gam,1,gam,1)
          gam=slat%gam
          allocate(wk_rv(3*nbas))
          call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
@@ -847,7 +807,7 @@ c         call dcopy(i_copy_size,slat%gam,1,gam,1)
       if (allocated(frc_rv)) deallocate(frc_rv)
       return
 
-C     --- Setup to start calculation at new shear ---
+!! Setup to start calculation at new shear ---
  98   continue
       if (procid .eq. master) then
         call info0(20,0,0,' Delete mixing and band weights files ...')
@@ -856,9 +816,8 @@ C     --- Setup to start calculation at new shear ---
         ifi = fopna('wkp',-1,4)
         call dfclos(ifi)
       endif
-
-C     Restore plat, pos to their undistorted state:
-C     undo original transformation = P P_0^-1
+!!  Restore plat, pos to their undistorted state:
+!!  undo original transformation = P P_0^-1
       allocate(pos2_rv(3,nbas))
       call dinv33(plat,0,xv,xv(10))
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_a_opos 
@@ -869,15 +828,11 @@ C     undo original transformation = P P_0^-1
         ssite(i_spackv)%pos  = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
       enddo
       call cppos(1,nbas,ssite)
-C     New shear
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,plat0,1,slat%plat,1)
+!! New shear
       slat%plat=plat0
       slat%ldist=3
-c      i_copy_size=size(slat%dist)
-c      call dcopy(i_copy_size,dist,1,slat%dist,1)
       slat%dist=dist
-C     A little memory leakage rel to 1st pass, but not so serious
+!! A little memory leakage rel to 1st pass, but not so serious
       if (allocated(pos2_rv)) deallocate(pos2_rv)
       if (allocated(lldau_iv)) deallocate(lldau_iv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
@@ -886,14 +841,11 @@ C     A little memory leakage rel to 1st pass, but not so serious
 
       call lattic(slat,sctrl,ssite,sarray)
       allocate(shr_rv(1))
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
       plat=slat%plat
-C     Remake qp
+!! Remake qp
       ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0
       call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
-
-C     ... Write restart file (to include new positions)
+!! Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
@@ -902,7 +854,7 @@ C     ... Write restart file (to include new positions)
      .        , - ifi )
         call fclose(ifi)
       endif
-C     Decide on what density to use
+!! Decide on what density to use
       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
         irs(1) = 0
       else !  Else, use file density
@@ -917,6 +869,7 @@ C     Decide on what density to use
       end subroutine lmfp
 
 
+
       subroutine cppos(ib1,ib2,ssite)
       use m_struc_def           !Cgetarg
 C     - Copy site positions to p0 for a range of sites
@@ -926,16 +879,8 @@ C     implicit none
       type(s_site)::ssite(*)
       integer ib
       do  ib = ib1, ib2
-c        i_copy_size=size(ssite(1)%pos)
-c        do i_spackv=ib,ib
-c          call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,1,pos)
           pos=ssite(ib)%pos
-c        enddo
-c        i_copy_size=size(ssite(1)%pos0)
-c        do i_spackv=ib,ib
-c          call spackv_array_copy_r8_r8('p',ssite(i_spackv)%pos0,i_copy_size,1,pos)
           ssite(ib)%pos0=pos
-c        enddo
       enddo
       end subroutine cppos
 

@@ -45,12 +45,6 @@ C ... Local parameters
 C ... Setup
       ntet = 0
       stdo = globalvariables%stdo
-c      i_copy_size=size(sbz%nkabc)
-c      call i8icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-c      i_copy_size=size(sbz%lshft)
-c      call i8icopy(i_copy_size,sbz%lshft,1,lshft,1)
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
       nkxyz=sbz%nkabc
       lshft=sbz%lshft
       plat =slat%plat
@@ -58,7 +52,6 @@ c      call dcopy(i_copy_size,slat%plat,1,plat,1)
       npgrp=slat%npgrp
       lpbc = 0
       ltet = gettet .and. iand(2,int(sctrl%lmet)) .ne.0
-c      call lsets_bitop_i8(sctrl%lmet,1,ltet,2) !sep2016 removed, and followings are equilalent, I think.
       if(ltet) then
         sctrl%lmet = ior(int(sctrl%lmet),2)               !ltet=T --> lmet2=on (i think)
       else
@@ -166,8 +159,6 @@ C     ... Unless ipq still needed, throw it away
       endif
 C --- Pack new info into structures ---
       sbz%nkp=nkp
-c      i_copy_size=size(sbz%nkabc)
-c      call ii8copy(i_copy_size,nkxyz,1,sbz%nkabc,1)
       sbz%nkabc = nkxyz
       sbz%ntet  = ntet
       if (.not.allocated(sbz%iv_a_oidtet))then

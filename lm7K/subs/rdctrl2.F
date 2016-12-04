@@ -4,7 +4,7 @@
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam, !vrsion,vn,vn2,
-     . pass2,slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
+     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
      . v_sstr,v_sarry,sstrnmix,sstrnsymg)  !,v_stb,v_smove
       use m_gtv,only: gtv_setst,gtv_setrcd
 
@@ -12,12 +12,12 @@
       use m_globalvariables
 
       use m_rdctrl,only:
-     &  readctrl,readctrlpq,
+     &  readctrl,
      &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_spec,s_site, !s_tb,,s_move
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
-     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,kmto,rsrnge,vmtz,scaledsigma,
+     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,rsrnge,vmtz,scaledsigma,
      &  alfsi,dabc,rsstol,pmin,pmax,
      &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
      &    sigp_mode,sigp_nmin,sigp_nmax,
@@ -82,8 +82,6 @@ Ci   recrd (recln*nrecs) : preprocessed input
 Ci   prgnam:name of main program
 Ci   vrsion:string specifying expected program version
 Ci   vn,vn2:major and minor versions
-Ci   pass2 :flags whether call is 1st or 2nd pass. (2nd pass is sometimes
-Ci         :used to read in class-specific info, e.g. ASA moments)
 Co Outputs
 Co   Input file is read and data is packed into these structures:
 Co   slabl :vector of species labels
@@ -179,7 +177,6 @@ Cr rdctrl does:
 Cr  1. allocate the following structure arrays
 Cr     v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,v_sarry
 Cr  2. read input data specified by tokens
-Cr  3. If pass2, read class parameters from START
 Cu Updates
 Cu   19 Sep 07 (TK+MvS) Adapted from rdctrl, 1st cut at new input
 Cu   20 Oct 06 Broadcast species so floating sites work properly in MPI
@@ -205,7 +202,6 @@ C ----------------------------------------------------------------------
       character slabl_(1)*8
       character strn*(recln)
       character*(*) recrd
-      logical pass2
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_ham):: v_sham
@@ -230,7 +226,7 @@ C ... Local parameters
       logical lgors,cmdopt,bittst,ltmp,ioorbp!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,lcd,noinv, !noinv was iand(lqp,1)
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,noinv, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
 c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
@@ -266,23 +262,12 @@ C ... basis
 !! --- Initialize gtv; copy recrd to rcd ---
       call gtv_setst(stdo,stdl,stde)
       call gtv_setrcd(recrd,nrecs,recln)
-
 !! --- Read input parameters from contents of rcd ---
-      call readctrl(prgnam) !,vrsion(1),vn(1))
-      if (io_help > 0) then
-        call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
-     .  ves,initc,ics,clabl)
-        call cexit(0,1)
-      endif
+      call readctrl(prgnam) 
 
-!!   Set switches depending type of program
-      lbas = 0
-      lcd = 0
 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
-C     cd represented in plane waves
-      if (lfp .ne. 0) then
-        lbas = 3
-      endif
+      lbas = 3 
+
 !! Optionally read positions from pos file
       if (cmdopt('--rpos=',7,0,fileid)) then
         call iopos(.false.,-1,fileid(8:),nbasp,pos)
@@ -292,18 +277,13 @@ C     cd represented in plane waves
       call ubz_init(v_sbz)
       v_sbz%size=ubz_size()
       v_sbz%def=bz_def
-      i_copy_size=size(v_sbz%dosw)
-      call dcopy(i_copy_size,bz_dosw,1,v_sbz%dosw,1)
+      v_sbz%dosw=bz_dosw(:)
       v_sbz%dosmax=bz_dosmax
       v_sbz%ef=bz_ef
       v_sbz%efmax=bz_efmax
       v_sbz%fsmom=bz_fsmom
       v_sbz%fsmommethod=bz_fsmommethod
-
-      i = 1*isw(bz_lio1)+2*isw(bz_lio2) !+8*isw(bz_lio8)
-      i_copy_size=size(v_sbz%lcond)
-      call dcopy(i_copy_size,bz_lcond,1,v_sbz%lcond,1)
-c      v_sbz%lio=i
+      v_sbz%lcond=bz_lcond(:)
       v_sbz%lmet=bz_lmet
       v_sbz%lmull=bz_lmull
       v_sbz%lshft = bz_lshft
@@ -316,24 +296,14 @@ c      v_sbz%lio=i
 
 !! Allocate and copy input to sctrl ---
       v_sctrl%size=uctrl_size()
-!!     lbas: 1 Hamiltonian has no screening transformation
+!! lbas: 1 Hamiltonian has no screening transformation
 !!           2 Hamiltonian is nfp style
 !!          16 freeze phi,phidot for all species
-!! frzwf: freeze basis or not.
+!! lbas = 3 = 1+2 in lmf
+!! frzwf: freeze basis or not. j= 1+2+16 if frzwf=T
       j = lbas + 16*isw(frzwf)
-C     lcd: 1 freeze core
-C          2 non-self-consistent Harris
-C          4 represent full potential density on a uniform mesh
-C          8 represent full potential density via TCF
-C         16 unused
-C         32 unused
-C         64 (molecules) XC potential by FFT
-c      k = 2*isw(lcd2)+4*isw(lcd4) !+ 1*isw(lcd1)   +8*isw(lcd8)+64*isw(lcd64)
-
-      i_copy_size=size(v_sctrl%defm)
-      call dcopy(i_copy_size,lat_defm,1,v_sctrl%defm,1)
       v_sctrl%lbas=j
-c      v_sctrl%lcd=k
+      v_sctrl%defm=lat_defm(:)
       v_sctrl%ldos=ctrl_ldos
       v_sctrl%lfp=lfp
       v_sctrl%lfrce=ctrl_lfrce
@@ -342,7 +312,7 @@ c      v_sctrl%lcd=k
 !!     ctrl_lmet    1 metal  2 tetrahedron
 !!                 4 (PGF) V-shift1 is zero
 !!                 8 (PGF) V-shift2 is zero
-      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) 
+      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
      .+4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
 
 C takao in lmf only lncol4, lncol32, lncol64 are used.
@@ -392,17 +362,17 @@ C     lrs  switches concerning restart mode.
 !!         2 Read from restart file, ascii mode
 !!         4 Read from restart file, invoke smshft
 !!       256 rotate local density after reading
-      irs1 = iand(1+2+4,int(lrs)) + 8*isw( iand(256,int(lrs)) .ne.0 )
+      irs1 = 1*mod(irs(1),8) + 256*mod(irs(1)/8,2) !  iand(1+2+4,int(lrs)) + 8*isw( iand(256,int(lrs)) .ne.0 )
 !!         8 Write new density to restart file
 !!        16 Write new density to restart file, ascii format
-      irs2 = iand( 8+16,int(lrs)) /8
+      irs2 = irs(2) !iand( 8+16,int(lrs)) /8
 !!        32 read site positions from input file
-      irs3 = isw ( iand(32,int(lrs)) .ne.0 )
+      irs3 = irs(3) ! isw ( iand(32,int(lrs)) .ne.0 )
 !!        64 read starting fermi level from input file
-      irs4 = isw ( iand(64,int(lrs)) .ne.0 )
+      irs4 = irs(4) !isw ( iand(64,int(lrs)) .ne.0 )
 !!       128 read starting pnu level from input file
-      irs5 = isw ( iand(128,int(lrs)) .ne.0 )
-      irs11 = iand(1+2+4,int(lrs))
+      irs5 = irs(5) !isw ( iand(128,int(lrs)) .ne.0 )
+      irs11 = 1*mod(irs(1),8) !iand(1+2+4,int(lrs))
 
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
@@ -425,7 +395,6 @@ C            Add 100*k to compute response function only each kth iteration
       v_sctrl%noinv=noinv
       v_sctrl%lrel=lrel
       v_sctrl%lrs=lrs
-c      v_sctrl%lscr=lscr
 
 !!  lves    1 take ves as input
       v_sctrl%lves=lves
@@ -443,10 +412,7 @@ c      if (prgnam == 'LMPG') ix(3) = 0
 c      if (prgnam == 'LMMC') ix(1:3) = 0
 
       v_sctrl%maxit=iter_maxit
-      i_copy_size=size(v_sctrl%mdprm)
-      call dcopy(i_copy_size,mdprm,1,v_sctrl%mdprm,1)
-      i_copy_size=size(v_sctrl%modep)
-c      call ii8copy(i_copy_size,ix(1:3),1,v_sctrl%modep,1)
+      v_sctrl%mdprm=mdprm
       v_sctrl%modep=2
       v_sctrl%nbas=nbas
 
@@ -532,8 +498,8 @@ C --- Allocate and copy input to sham ---
       call dcopy(i_copy_size,dabc,1,v_sham%dabc,1)
       v_sham%elind=elind
 c      v_sham%nmto=nmto
-      i_copy_size=size(v_sham%kmto)
-      call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
+c      i_copy_size=size(v_sham%kmto)
+c      call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
 
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
 c      v_sham%lncol=(int(v_sctrl%lncol))
@@ -551,9 +517,9 @@ C     Mop up integer parts of sigp
       v_sham%lsig=lrsig
       i_copy_size=size(v_sham%sigp)
       call dcopy(i_copy_size,sigp,1,v_sham%sigp,1)
-
       i_copy_size=size(v_sham%qss)
       call dcopy(i_copy_size,ham_qss,1,v_sham%qss,1)
+
       v_sham%rsrnge=rsrnge
       v_sham%rsstol=rsstol
       v_sham%udiag=ham_udiag
@@ -599,44 +565,25 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%pb2=pb2(j)
           v_sspec(j)%coreh=coreh(j)
           v_sspec(j)%name=slabl(j)
-
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
           v_sspec(j)%nr=nr(j)
-
-          i_copy_size=size(v_sspec(j)%alpha)
-          call dcopy(i_copy_size,alpha(1,j),1,v_sspec(j)%alpha,1)
-
-          i_copy_size=size(v_sspec(j)%coreq)
-          call dcopy(i_copy_size,coreq(1,j),1,v_sspec(j)%coreq,1)
-
+          v_sspec(j)%alpha=alpha(:,j)
+          v_sspec(j)%coreq=coreq(:,j)
           v_sspec(j)%lxi=lxi(j)
           v_sspec(j)%nxi=nxi(j)
-          i_copy_size=size(v_sspec(j)%exi)
-          call dcopy(i_copy_size,exi(1,j),1,v_sspec(j)%exi,1)
+          v_sspec(j)%exi=exi(:,j)
           v_sspec(j)%group=grp(j)
           v_sspec(j)%grp2=grp2(j)
-
-          i_copy_size=size(v_sspec(j)%hcr)
-          call dcopy(i_copy_size,hcr(1,j),1,v_sspec(j)%hcr,1)
-
-c          i_copy_size=size(v_sspec(j)%idmod)
-c          call ii8copy(i_copy_size,idmod(1,j),1,v_sspec(j)%idmod,1)
+          v_sspec(j)%hcr=hcr(:,j)
           v_sspec(j)%idmod=idmod(:,j)
-          i_copy_size=size(v_sspec(j)%ehvl)
-          call dcopy(i_copy_size,ehvl(1,j),1,v_sspec(j)%ehvl,1)
-
-C       Set idxdn
-c          call ivset(ix,1,n0*nkap0,1)
-c          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
+          v_sspec(j)%ehvl=ehvl(:,j)
           ix = 1
           ix(1:1+lmxb(j)) = idxdn(1:1+lmxb(j),j)
           v_sspec(j)%idxdn = ix
           v_sspec(j)%idu = idu(:,j)
-          i_copy_size=size(v_sspec(j)%jh)
-          call dcopy(i_copy_size,jh(1,j),1,v_sspec(j)%jh,1)
-          i_copy_size=size(v_sspec(j)%uh)
-          call dcopy(i_copy_size,uh(1,j),1,v_sspec(j)%uh,1)
+          v_sspec(j)%jh=jh(:,j)
+          v_sspec(j)%uh=uh(:,j)
           v_sspec(j)%kmxt=kmxt(j)
           v_sspec(j)%kmxv=kmxv(j)
           v_sspec(j)%lfoca=lfoca(j)
@@ -647,35 +594,24 @@ c          call icopy(1+lmxb(j),idxdn(1,j),1,ix,1)
           v_sspec(j)%lmxpb=lmxpb(j)
 
           i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
-          call dpzero(orbp,n0*2*nkap0)
+          orbp=0d0 !call dpzero(orbp,n0*2*nkap0)
           call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
           call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
           call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
           call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
+          i_copy_size=size(v_sspec(j)%orbp)
+          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
 
           v_sspec(j)%mass=mass(j)
           v_sspec(j)%mxcst=i
-          i_copy_size=size(v_sspec(j)%orbp)
-          call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
-C       Pack P,Q,PZ for both spins
-          call dpzero(orbp,n0*6)
-          call dcopy(n0*nsp,pnu(1,1,j),1,orbp(1,1,1),1)
-          call dcopy(n0*nsp,pz(1,1,j),1,orbp(1,1,2),1)
-          call dcopy(n0*nsp,qnu(1,1,j),1,orbp(1,1,3),1)
-          i_copy_size=size(v_sspec(j)%p)
-          call dcopy(i_copy_size,orbp,1,v_sspec(j)%p,1)
-          i_copy_size=size(v_sspec(j)%pz)
-          call dcopy(i_copy_size,orbp(1,1,2),1,v_sspec(j)%pz,1)
-          i_copy_size=size(v_sspec(j)%q)
-          call dcopy(i_copy_size,orbp(1,1,3),1,v_sspec(j)%q,1)
+!!     Pack P,Q,PZ for both spins
+          v_sspec(j)%p = pnu(1:n0*nsp,1,j) 
+          v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
+          v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
-
-          i_copy_size=size(v_sspec(j)%colxbs)
-          call dcopy(i_copy_size,colxbs(1,j),1,v_sspec(j)%colxbs,1)
+          v_sspec(j)%colxbs=colxbs(:,j)
           v_sspec(j)%radxbs=radxbs(j)
-
-          i_copy_size=size(v_sspec(j)%rcfa)
-          call dcopy(i_copy_size,rcfa(1,j),1,v_sspec(j)%rcfa,1)
+          v_sspec(j)%rcfa=rcfa(:,j)
           v_sspec(j)%rcut=rcut(j)
           v_sspec(j)%rfoca=rfoca(j)
           v_sspec(j)%rg=rg(j)
@@ -740,10 +676,9 @@ C       Pack P,Q,PZ for both spins
         endif
         j = len_trim(symg)               ! Symmetry group symg
         if (j .gt. 0) then
-c            call packs('strn symg',sstrn,symg)
-        sstrnsymg=trim(symg)
+          sstrnsymg=trim(symg)
         else
-        sstrnsymg=''
+          sstrnsymg=''
         endif
 !!
         if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
@@ -762,19 +697,22 @@ c            call packs('strn symg',sstrn,symg)
           j= 2
 C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
 C     Probably ought to have lmxb<l<=lmxa => 'high' always
-          if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
+
+c          if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
+          j=3
 C     nfp-style basis:
-          if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
+c          if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
+          j=j+10
           call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
 !! ... Set some global variables
           globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
-          globalvariables%nbas = dble(nbas); globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
-          globalvariables%nbasp = dble(nbasp); globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
-          globalvariables%nsp = dble(nsp); globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
-          globalvariables%nl = dble(nl); globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
-          globalvariables%lrel = dble(avw); globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
-          globalvariables%lrel = dble(lrel); globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
+          globalvariables%nbas = dble(nbas);   globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
+          globalvariables%nbasp= dble(nbasp);  globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
+          globalvariables%nsp =  dble(nsp);    globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
+          globalvariables%nl =   dble(nl);     globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
+          globalvariables%lrel = dble(avw);    globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
+          globalvariables%lrel = dble(lrel);   globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
           lxcf = int(v_sctrl%lxcf)
           globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1; xx(1) = dble(lxcf)
           globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; xx(1) = dble(stdo)
@@ -810,15 +748,16 @@ C     Free arrays used to read input
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
-     .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv)
-          deallocate(pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
+     .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
+     .     pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
 
 !! --- Printout ---
           if (iprint() .ge. 20 .and. procid .eq. master) then
             do  90  k = 1, 2
               strn = '  '//prgnam
               lxcf=v_sctrl%lxcf
-              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
+c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
+              lfrzw = isw(frzwf)
               call awrit8(' special:%10p'//
      .         '%?;n; forces,;;'//
      .         '%?;n==2; Dirac equation,;;'//
@@ -846,10 +785,6 @@ C     Free arrays used to read input
               endif
    90       continue
           endif
-
-!! -- Sanity checks and other initialization ---
-          if ( iand(8,int(v_sctrl%ldos)) /=0 .and. iand(4+2,int(v_sctrl%ldos)) /=0 ) 
-     &     call rx ( 'inconsistent DOS options' )
 
 !! --- takao embed contents in susite here. This is only for lmf and lmfgw.
           seref = 0d0
