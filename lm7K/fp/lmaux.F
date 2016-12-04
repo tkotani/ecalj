@@ -1,6 +1,6 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
      .sarray,sbz,slabl,mode,wksize) !,sstrn
-
+      use m_rdctrl2_func,only: irs11
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
@@ -164,7 +164,7 @@ c      call dcopy(i_copy_size,slat%plat,1,plat,1)
 
 C ... Read from restart file
       if (cmdopt('--rs=',5,0,outs)) then
-        irs ( 1 ) = iand(7,int(sctrl%lrs))
+        irs ( 1 ) = irs11 !iand(7,int(sctrl%lrs))
         if (irs(1) .gt. 0) then
           ifi = fopna('rsta',-1,0)
           call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz ,

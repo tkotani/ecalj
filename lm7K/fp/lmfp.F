@@ -4,6 +4,7 @@
       use m_rdctrl,only: lhf          
       use m_struc_func, only: mpibc1_s_lat
       use m_globalvariables
+      use m_rdctrl2_func,only: irs1,irs2,irs3,irs4,irs5,irs11
 C     - LM-FP self-consistency loop
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -214,12 +215,12 @@ c$$$#endif
       nbaspp = nbas      
       stdo   = lgunit(1)
       call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
-      irs ( 1 ) = iand( 1+2+4,int(sctrl%lrs)) + 8 * isw ( iand(256,int(sctrl%lrs)) .ne.0 )
-      irs ( 2 ) = iand( 8+16,int(sctrl%lrs)) /8
+      irs ( 1 ) = irs1
+      irs ( 2 ) = irs2
       if(nowriteden) irs(2)=0
-      irs ( 3 ) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
-      irs ( 4 ) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
-      irs ( 5 ) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
+      irs ( 3 ) = irs3
+      irs ( 4 ) = irs4
+      irs ( 5 ) = irs5
 !! ... --rs=3 => always read from atom file
       if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0
 C     ... Printout properties of species

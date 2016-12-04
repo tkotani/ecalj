@@ -1,4 +1,6 @@
       module m_rdctrl2_func
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11
+
       contains
       subroutine rdctrl2(recrd,recln,nrecs,
      . prgnam, !vrsion,vn,vn2,
@@ -418,17 +420,16 @@ c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
       v_sctrl%lmet=lmet
 c      v_sctrl%lncol=lncol
 
-C     lrs  switches concerning restart mode.
-C         1 Read from restart file
-C         2 Read from restart file, ascii mode
-C         4 Read from restart file, invoke smshft
-C         8 Write new density to restart file
-C        16 Write new density to restart file, ascii format
-C        32 read site positions from input file
-C        64 read starting fermi level from input file
-C       128 read starting pnu level from input file
-C       256 rotate local density after reading
-      call ivset(irs,1,5,0)
+!!
+!!     irs(1) tells what to read and whether to invoke smshft.
+!!     4s' bit of irs(1) -> invoke smshft after file read.
+!!     8s' bit of irs(1) -> rotate local density after file read
+!!     0+1's bits irs(1)     action
+!!    0              read from atom file
+!!    1              read from binary rst file
+!!    2              read from ascii rsta file
+!!    3              read nothing (data already input)
+      irs=0
       irs(1) = 1
       irs(2) = 1
       if (cmdopt('--rs=',5,0,strn)) then
@@ -439,6 +440,24 @@ C       256 rotate local density after reading
      . + 8*getdig(irs(1),1,100)
       lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
      . + 256*mod(irs(1)/8,2)
+
+!!         1 Read from restart file
+!!         2 Read from restart file, ascii mode
+!!         4 Read from restart file, invoke smshft
+!!       256 rotate local density after reading
+      irs1 = iand(1+2+4,int(lrs)) + 8*isw( iand(256,int(lrs)) .ne.0 )
+!!         8 Write new density to restart file
+!!        16 Write new density to restart file, ascii format
+      irs2 = iand( 8+16,int(lrs)) /8
+!!        32 read site positions from input file
+      irs3 = isw ( iand(32,int(lrs)) .ne.0 )
+!!        64 read starting fermi level from input file
+      irs4 = isw ( iand(64,int(lrs)) .ne.0 )
+!!       128 read starting pnu level from input file
+      irs5 = isw ( iand(128,int(lrs)) .ne.0 )
+      irs11 = iand(1+2+4,int(lrs))
+
+
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
       noinv = isw (ctrl_noinv)  ! T->1 F->0

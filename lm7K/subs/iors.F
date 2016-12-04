@@ -1,5 +1,6 @@
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
+      use m_rdctrl2_func,only: irs3,irs4,irs5
       use m_struc_def 
       use m_struc_func
       use m_globalvariables
@@ -183,9 +184,9 @@ C ... MPI setup
       endif
       nsp = globalvariables%nsp
       lrel   = globalvariables%lrel
-      lrs(1) = isw ( iand(32,int(sctrl%lrs)) .ne.0 )
-      lrs(2) = isw ( iand(64,int(sctrl%lrs)) .ne.0 )
-      lrs(3) = isw ( iand(128,int(sctrl%lrs)) .ne.0 )
+      lrs(1) = irs3 !isw ( iand(32,int(sctrl%lrs)) .ne.0 )
+      lrs(2) = irs4 !isw ( iand(64,int(sctrl%lrs)) .ne.0 )
+      lrs(3) = irs5 !isw ( iand(128,int(sctrl%lrs)) .ne.0 )
       if (mode .eq. -2) then
         lrs(1) = 0
         lrs(3) = 0

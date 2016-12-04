@@ -53,6 +53,7 @@ c      type(s_move):: v_smove
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg
       integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
+      character(5) :: charnum5
 #if MPI | MPIK
       include "mpif.h"
       integer fext
@@ -63,11 +64,10 @@ c      type(s_move):: v_smove
       character*(MPI_MAX_PROCESSOR_NAME) name
       character*10 shortname(0:MAX_PROCS-1)
       character*26 datim
-      integer namelen(0:MAX_PROCS-1)
+c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
       integer  nsize, id
-      character(5) :: charnum5
 
 !! =================================================================
       call mpi_init(ierr)
@@ -88,8 +88,9 @@ c      type(s_move):: v_smove
 
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
+c      call strcop(shortname(procid),name,10,'.',i)
+      shortname(procid)=trim(name)
+c      namelen(procid) = i-1
       mlog = cmdopt('--mlog',6,0,strn)
       if (procid .eq. master) call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
@@ -102,12 +103,13 @@ c      type(s_move):: v_smove
         if (mlog) i = fopn('MLOG')
         call poseof(fopn('LOG'))
         if (mlog) then
-c          write(lgunit(3),"(a)")' lmf '//datim//' Process '
-c     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
-c     .    //shortname(procid)(1:namelen(procid)) //' is master'
-          call awrit2(' lmf '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//' is master',' ',
-     .    256,lgunit(3),procid,nproc)
+          write(lgunit(3),"(a)")' lmf '//datim//' Process '
+     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
+     .    //trim(shortname(procid)) //' is master'
+
+c          call awrit2(' lmf '//datim//' Process %i of %i on '
+c     .    //shortname(procid)(1:namelen(procid))//' is master',' ',
+c     .    256,lgunit(3),procid,nproc)
         endif
       else !for procid !=0
         call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
@@ -117,14 +119,14 @@ c     .    //shortname(procid)(1:namelen(procid)) //' is master'
         ierr = fextg(ext)
         call gettime(datim)
         if (mlog) then
-          call awrit2(' lmf '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' file extension is '//ext(2:i+1),' ',
-     .    256,lgunit(3),procid,nproc)
-c          write(lgunit(3),"(a)")' lmf '//datim//' Process '
-c     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
+c          call awrit2(' lmf '//datim//' Process %i of %i on '
 c     .    //shortname(procid)(1:namelen(procid))//
-c     .    ' file extension is '//ext(2:i+1)
+c     .    ' file extension is '//ext(2:i+1),' ',
+c     .    256,lgunit(3),procid,nproc)
+          write(lgunit(3),"(a)")' lmf '//datim//' Process '
+     &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
+     .    //trim(shortname(procid))
+     .    //' file extension is '//ext(2:i+1)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
@@ -315,7 +317,7 @@ c$$$      enddo
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if ( procid .eq. master ) then
-        call rx0(prgnam//' on '//shortname(procid)(1:namelen(procid)))
+        call rx0(prgnam//' on '//trim(shortname(procid)))
       else
         call fexit(0,0,' ',0)
       endif
@@ -478,3 +480,12 @@ c$$$      end subroutine sttmpd
       rewind(nfilin)
       end subroutine findctrlstart
 
+
+      character(5) function charnum5(num)
+      integer(4) ::num
+      charnum5 = char(48+mod(num/10000,10))//
+     &           char(48+mod(num/1000,10))//
+     &           char(48+mod(num/100,10))//
+     &           char(48+mod(num/10,10))//
+     &           char(48+mod(num,10))
+      end
