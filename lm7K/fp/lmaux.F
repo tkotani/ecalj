@@ -1,6 +1,6 @@
-      subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite,sstr,
+      subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
      .sarray,sbz,slabl,mode,wksize) !,sstrn
-      use m_rdctrl2_func,only: irs11
+      use m_rdctrl2_func,only: irs11,str_mxnbr,str_rmax
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
@@ -80,7 +80,7 @@ C ... Passed parameters
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_str)::sstr
+c      type(s_str)::sstr
       type(s_bz)::sbz
       type(s_site),allocatable::ssite2(:)
 
@@ -91,7 +91,7 @@ C ... Local parameters
       parameter (T=.true., F=.false., NULLI=-99999)
       integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
 c !lncol,
-     .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),mxnbr,parg,nbasp,
+     .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp,
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
      .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
      .ngmx,nsgrp
@@ -112,7 +112,7 @@ c !lncol,
       real(8) ,allocatable :: rmtc_rv(:)
 
       double precision xv(10),xx,alat,plat(3,3),facrmx,facrng, !,plat2(9)
-     .dval,avw,ekap(2),enu,rmaxs,qss(4),ckbas,cksumf,ehterm(4),
+     .dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs,
      .qlat(9),emad,trumad,vmtz(2),omax1(3),omax2(3),wsrmax
       parameter (ngmx=48,mxclas=1000)
 
@@ -145,8 +145,8 @@ c      call dcopy(i_copy_size,slat%plat,1,plat,1)
       plat=slat%plat
       nkd=slat%nkd
       nkq=slat%nkq
-      mxnbr=sstr%mxnbr
-      rmaxs=sstr%rmax
+c      mxnbr=str_mxnbr !sstr%mxnbr
+      rmaxs=str_rmax !sstr%rmax
 
       allocate(lmxa(nclasp),z(nclasp))
       lmxa(1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%lmxa
@@ -192,7 +192,7 @@ C ... Get neighbor table iax for each atom in the cluster
         else
           call rx('ASASTR: not implemented for lpbc>1')
         endif
-        mxcsiz = int(sstr%mxnbr)
+        mxcsiz = str_mxnbr !int(sstr%mxnbr)
 
         call pshpr(iprint()-20)
         call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_a_opos
@@ -297,7 +297,7 @@ C --- Show neighbors by shell ---
         j = 8
         if (cmdopt('--shell',j-1,0,outs)) then
           allocate(eula(nbas,3))
-          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr ,
+          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
      .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
      .         eula  , nclass )
           deallocate(eula)
@@ -305,7 +305,7 @@ C --- Show neighbors by shell ---
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
-          call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , mxnbr ,
+          call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
      .      slabl , sarray%iv_a_oips )
         endif
 C --- Check whether basis w(opos) differs from site file by translation ---

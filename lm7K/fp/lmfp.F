@@ -1,5 +1,5 @@
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
-     .     sspec,ssite,sstr,sarray,sstrnmix) !,sstrnjobid) smove,
+     .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
       use m_struc_def
       use m_rdctrl,only: lhf          
       use m_struc_func, only: mpibc1_s_lat
@@ -43,13 +43,13 @@ C     i                cppos relax
 C     i   sstr  :struct for parameters for screened strux; see routine ustr
 C     i         :(not used for now)
 C     i   smove :struct for dynamics information; see routine umove
-C     i   sarray:structure containing offsets to various arrays
-C     i     Elts read: npadl npadr
-C     i     Stored:    *
-C     i     Passed to: suham
-C     i   sstrn :struct for global strings
-C     i     Elts read: jobid
-C     i     Stored:    *
+cC     i   sarray:structure containing offsets to various arrays
+cC     i     Elts read: npadl npadr
+cC     i     Stored:    *
+cC     i     Passed to: suham
+cC     i   sstrn :struct for global strings
+cC     i     Elts read: jobid
+cC     i     Stored:    *
 C     o Outputs
 C     o   See Remarks
 C     l Local variables
@@ -89,7 +89,7 @@ C     ... Passed parameters:
       character  prgnam*8 !sstrn*(*),
 c      type(s_sstrn)::sstrn
       character*(*)::sstrnmix !,sstrnjobid
-      type(s_array)::sarray
+c      type(s_array)::sarray
       type(s_bz)::sbz
       type(s_ctrl)::sctrl
       type(s_lat)::slat
@@ -98,7 +98,7 @@ c      type(s_sstrn)::sstrn
       type(s_site)::ssite(*)
       type(s_ham)::sham
       type(s_pot)::spot
-      type(s_str)::sstr
+c      type(s_str)::sstr
 c      type(s_move)::smove
 
       integer ::iwdummy ,idummy
@@ -326,7 +326,7 @@ C     ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz) !sstrn removed june2015
+      call suham(sctrl,slat,sspec,ssite,sham,spot,sbz) !sstrn removed june2015 ,sarray 2016
 C     ... Quit if --quit=ham given
       if ( int(sctrl%quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
@@ -839,7 +839,7 @@ C     reset mixing block
       if (allocated(shr_rv)) deallocate(shr_rv)
       deallocate(vorbdmat,dmato,dmatu)
 
-      call lattic(slat,sctrl,ssite,sarray)
+      call lattic(slat,nbas)
       allocate(shr_rv(1))
       plat=slat%plat
 !! Remake qp

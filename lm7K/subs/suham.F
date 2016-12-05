@@ -446,7 +446,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
 
-      subroutine suham(sctrl,slat,sspec,ssite,sarray,sham,spot,sbz)
+      subroutine suham(sctrl,slat,sspec,ssite,sham,spot,sbz)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_rdctrl,only:lso
@@ -470,10 +470,10 @@ Cio  ssite :struct for site-specific information; see routine usite
 Cio    Elts read: spec
 Cio    Stored:    pnu pz
 Cio    Passed to: showbs pvioeu
-Cio  sarray:structure containing offsets to various arrays
-Cio    Elts read: oips oipc nclasp opos
-Cio    Stored:    *
-Cio    Passed to: *
+ccCio  sarray:structure containing offsets to various arrays
+ccCio    Elts read: oips oipc nclasp opos
+ccCio    Stored:    *
+ccCio    Passed to: *
 Cio  sham  :struct for parameters defining hamiltonian; see routine uham
 Cio    Elts read: pwmode pwemax lncol oeula neula qss omagf nbf
 Cio    Stored:    ndham ndofH ooffH oindxo ldham lmxax hord obdots
@@ -518,7 +518,7 @@ C ... Passed parameters
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_array)::sarray
+c      type(s_array)::sarray
       type(s_ham)::sham
       type(s_pot)::spot
       type(s_bz)::sbz
@@ -551,6 +551,7 @@ C ... Needed for iostr
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
       double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
+      integer,allocatable:: ips(:)
 
       nbasp=sctrl%nbasp
       nspec=sctrl%nspec
@@ -582,8 +583,13 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , sarray%iv_a_oips
+        allocate(ips(nbasp))
+        do  ib = 1, nbasp
+          ips(ib) = ssite(ib)%spec
+        enddo  
+        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , ips !sarray%iv_a_oips
      .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham )
+        deallocate(ips)
       endif
 C     Default value for hamiltonian dimension
       sham%ndham=ldham(1)
@@ -593,19 +599,9 @@ C ... Make rest of ldham
       ldham(6) = ldham(2) * nspc
       ldham(7) = ldham(3) * nspc
       ldham(8) = nspx
-
-c      sham%ndofH=nbasp+1
-
-c      i_copy_size=size(sham%ldham)
-c      call ii8copy(i_copy_size,ldham,1,sham%ldham,1)
       sham%ldham=ldham
 
 C ------- Potential- and implementation- specific setup -------
-C --- FP setup ---
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       alat=slat%alat
       plat=slat%plat
       qlat=slat%qlat
@@ -621,8 +617,8 @@ c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-c        pnu= sspec(is)%p
-c        pz= sspec(is)%pz
+c        pnu(:)= sspec(is)%p(:)
+c        pz(:) = sspec(is)%pz(:)
 cccccccccccccc
 c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
 cccccccccccccc
@@ -727,174 +723,18 @@ C    ...  Printout
           call poppr
           call info0(40,1,-1,' G vectors at the Gamma point:')
           allocate(igv2_iv(3*npw))
-
           allocate(kv_iv(3*npw))
-
-ckino Dec.14.2011 manual correction           allocate(rv_p_ogv(abs(3*npw)))
-ckino Dec.14.2011 manual correction           if (3*npw<0) rv_p_ogv(:)=0.0d0
           allocate(rv_a_ogv(abs(3*npw))); rv_a_ogv(:)=0.0d0
-
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
-ckino Dec.14.2011 manual correction     .     8 + 2 , npw , npw , kv_iv , rv_p_ogv , xx , igv2_iv ) 
      .     8 + 2 , npw , npw , kv_iv , rv_a_ogv , xx , igv2_iv )
-
-
           call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
-ckino Dec.14.2011 manual correction           if (associated(rv_p_ogv)) deallocate(rv_p_ogv)
           deallocate(rv_a_ogv)
-
-
         endif
       endif
-c      endif
-
-C ... Printout orbital positions in hamiltonian, resolved by l
-c      if (iprint() .gt. 50) then
-c        call showbs(ssite,sspec,slat,nkaph,nl,0,w(oidxsh),ldham)
-c      endif
-
-
-
-
-c this must be used for the case of QSGW.
-c      if(sigswitch()>0) then
-c        call gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbasp,w(oidxsh),ldim)
-c      endif
-
-
-C --- Third-generation NMTO ---
-c      if (lgen3 .ne. 0) then
-c         stop 'xxxxxxxxxxx third generation nmto path. not meaningful'
-C        call upack('ham nmto kmto',sham,nmto,kmto,0,0,0)
-Ckino isanrg is logical function, C        call isanrg(nmto,2,5,'suham','nmto',.true.)
-C        l_dummy_isanrg=isanrg(nmto,2,5,'suham','nmto',.true.)
-C        call defdr(otral,-4*nl**2*nbasp*nmto)
-C        call defdr(otrad,-4*nl**2*nbasp*nmto)
-C
-C        call sp2cls('spec lmxb',sspec,0,1,1,nspec,olmx)
-C        call sp2cls('spec hcr',sspec,0,nl,1,nspec,ohcr)
-C        call defdr(oalpha,-nl**2*nbasp*nmto)
-C        call defdr(oadot,-nl**2*nbasp*nmto)
-C        avw = dglob('avw',0d0,0)
-C        call dscal(nmto,avw**2,kmto,1)
-C        call dscal(nl*nspec,1/avw,w(ohcr),1)
-C        call pshpr(50)
-C        call mktra2(1,loka,nbasp,w(oips),nl,w(olmx),avw,4,kmto,nmto,
-C     .    w(ohcr),1,w(otral),w(otrad),w(oalpha),w(oadot),w,w)
-C        call poppr
-C
-C        call dscal(nmto,1/avw**2,kmto,1)
-C        call dscal(nl*nspec,avw,w(ohcr),1)
-C        call rlse(olmx)
-c      endif
-
-C --- Second-generation LMTO, ASA ---
-C ... Green's function-specific initialization
-C$$$      if (lcgf .ne. 0 .or. lpgf .ne. 0) then
-C$$$        call upacks('strn gfopt',i1,i2)
-C$$$        gfopts = ' '
-C$$$        if (i2 .ge. i1) then
-C$$$          gfopts = sstrn(i1:i2)
-C$$$          call partk0(0,len(gfopts),1,-1,0,len(gfopts),-1,31,.false.)
-C$$$          hord = 2
-C$$$          ltmp = .false.
-C$$$          i = partok(gfopts,'pz',  ' ;',ltmp,' ',0,0,0,0)
-C$$$          if (ltmp) hord = 4
-C$$$          i = partok(gfopts,'p3',  ' ;',ltmp,' ',0,0,0,0)
-C$$$          if (ltmp) hord = 3
-C$$$          i = partok(gfopts,'p1',  ' ;',ltmp,' ',0,0,0,0)
-C$$$          if (ltmp) hord = 1
-C$$$Cgetarg...info...           integer :: hord , integer(8) :: sham%hord 1
-C$$$Cgetarg           call pack1('ham hord',sham,hord)
-C$$$           sham%hord=hord
-C$$$          if (iprint() .ge. 30) call awrit1(' SUHAM : 2nd generation'//
-C$$$     .      ' ASA; potential functions P%?#n<4#%-1j%i#(z)#',' ',
-C$$$     .      80,stdo,hord)
-C$$$        endif
-C$$$      endif
-
-C ... 2nd gen LMTO-specific initialization
-C     Make pti here since pp in gamma rep
-c      if (lcgf .eq. 0 .and. lfp .eq. 0 .and. lgen3 .eq. 0) then
-c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
-C$$$      if (lfp .eq. 0) then
-
-C$$$        call defdr(opti,-ndim*nsp)
-C$$$        call makipt(nl,nbasp,nsp,w(oipc),lihdim,w(oidxsh),w(opp),ndim,
-C$$$     .    w(opti))
-C$$$Cgetarg...info...           integer :: opti , integer(8) :: spot%opti 1
-C$$$Cgetarg         call pack1('pot opti',spot,opti)
-
-C$$$         spot%opti=opti
-
-
-C$$$      endif
-
-C ... Transform pp's to alpha representation
-c      if (lfp .eq. 0 .and. lgen3 .eq. 0) then
-C$$$      if (lfp .eq. 0) then
-C$$$C       Get screening alpha's
-C$$$Cgetarg...info...           integer :: nclasp , integer(8) :: sarray%nclasp 1
-C$$$Cgetarg...info...           integer :: obas , integer(8) :: sarray%opos 1
-C$$$Cgetarg         call upack('array nclasp opos',sarray,nclasp,obas,0,0,0)
-
-C$$$         nclasp=sarray%nclasp
-C$$$         obas=sarray%opos
-
-C$$$        nlspcp = nl * nsp * nclasp
-C$$$        ckbas = cksumf(w(obas),3*nbasp)
-C$$$        ltmp = iostr(8,'STR',nl,nbasp,1,kap2,0,ckbas,-1,nttab,oalph,
-C$$$     .    oiax,ontab,os)
-C$$$        i = 0
-C$$$        if (bittst(lham,1) .or. bittst(lham,2)) i = 10
-C$$$C       Do the transformation
-C$$$        call defdr(oo,nlspcp)
-C$$$        call pptrns(i,nl,w(oipc),nclasp,nsp,w(oalph),1,w(opp),w(oo))
-C$$$        call rlse(oalph)
-C$$$      endif
-
-C ... Printout Euler angles
-
-c       lncol=sham%lncol
-c       oeula=sham%oeula
-c       neul=sham%neula
-c       i_copy_size=size(sham%qss)
-c       call dcopy(i_copy_size,sham%qss,1,qss,1)
-
-C$$$      if (iprint() .ge. 30 .and. lncol .ne. 0) then
-C$$$        call awrit4('%x          %?#n#Qss%3:1;6d angle %;6d.  #%2j#'//
-C$$$     .    '%?#n#Euler angles:#noncollinear hamiltonian',outs,80,
-C$$$     .    -stdo,bittst(lncol,2),qss,qss(4),isw(bittst(lncol,1).and.
-C$$$     .    iprint().gt.30))
-C$$$        if (iprint().gt.30 .and. bittst(lncol,1))
-C$$$     .    call pvioeu(1,ssite,w(oeula),nbasp,neul)
-C$$$      endif
-
-C ... Make B.sigma for magnetic field
-c      obs = 1
-c      if (lfp.eq.0 .and. lgen3.eq.0 .and. bittst(lncol,8)) then
-C$$$      if (lfp.eq.0 .and. bittst(lncol,8)) then
-C$$$Cgetarg...info...           integer :: oeula , integer(8) :: sham%oeula 1
-C$$$Cgetarg...info...           integer :: omagf , integer(8) :: sham%omagf 1
-C$$$Cgetarg...info...           integer :: nbf , integer(8) :: sham%nbf 1
-C$$$Cgetarg         call upack('ham oeula omagf nbf',sham,oeula,omagf,nbf,0,0)
-
-C$$$         oeula=sham%oeula
-C$$$         omagf=sham%omagf
-C$$$         nbf=sham%nbf
-
-C$$$        call defcc(obs,-4*lihdim)
-C$$$        call mkbfld(nl,nbasp,lihdim,w(oidxsh),w(omagf),nbf,w(oeula),
-C$$$     .    neul,w(obs))
-C$$$      endif
-
-c       sham%obdots=obs
-
-
       end subroutine suham
 
 

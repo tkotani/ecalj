@@ -74,8 +74,6 @@ C     implicit none
       type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_array)::sarray
-
-C ... Heap
        integer ::iwdummy 
 
 C Local variables
@@ -84,53 +82,21 @@ C Local variables
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
      .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
                  integer:: oiwk , aginv 
-ckino Dec.8.2011:                   real(8),pointer :: rv_p_opos(:) =>NULL()
-
-ckino Dec.16.2011:                  integer,pointer :: iv_p_oipcp(:) =>NULL()
-
-ckino Dec.16.2011:                 integer,pointer :: iv_p_oipc(:) =>NULL()
-
-ckino Dec.14.2011:                real(8),pointer :: rv_p_osymgr(:) =>NULL()
-
-ckino Dec.14.2011:               real(8),pointer :: rv_p_oag(:) =>NULL()
-
-ckino Dec.16.2011:              integer,pointer :: iv_p_onrcp(:) =>NULL()
-
-ckino Dec.16.2011:             integer,pointer :: iv_p_onrc(:) =>NULL()
-
-ckino Dec.8.2011:            integer,pointer :: iv_p_oips(:) =>NULL()
-
-ckino Dec.14.2011:           integer,pointer :: iv_p_oistab(:) =>NULL()
-
-ckino Dec.14.2011:          integer,pointer :: iv_p_oics(:) =>NULL()
-
-ckino Dec.14.2011:         real(8),pointer :: rv_p_oclabl(:) =>NULL()
-
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       integer ,allocatable :: ips2_iv(:)
-
       integer,allocatable:: iv_a_tmp(:)
-
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
-      double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,
-     .fptol
-
+      double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,fptol
 
       nbas=sctrl%nbas
       nspec=sctrl%nspec
       nsite=sctrl%nsite
-
-
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      plat=slat%plat
       ldist=slat%ldist
-      i_copy_size=size(slat%dist)
-      call dcopy(i_copy_size,slat%dist,1,dist,1)
-
+      dist=slat%dist
       ngmx = 48
-Changenglob      stdo = nglob('stdo')
       stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
 
@@ -138,33 +104,15 @@ C ... Re-entry when ngmx was increased
     5 continue
 
 C ... For memory allocation of class data, assume initially nclass=nbas
-ckino Dec.14.2011:         allocate(rv_p_oag(abs(3*ngmx)))
-ckino Dec.27.2011:         allocate(slat%rv_p_oag(abs(3*ngmx)))
       if(allocated(slat%rv_a_oag)) then
-         deallocate(slat%rv_a_oag,slat%rv_a_osymgr,sarray%iv_a_oipc,sarray%iv_a_oics)
-       endif  
-       allocate(slat%rv_a_oag(abs(3*ngmx)))
-       allocate(slat%rv_a_osymgr(abs(9*ngmx)))
-       allocate(sarray%iv_a_oipc(abs(nsite)))
-       allocate(sarray%iv_a_oics(abs(nsite)))
-       allocate(nrspc_iv(nbas))
+        deallocate(slat%rv_a_oag,slat%rv_a_osymgr,sarray%iv_a_oipc,sarray%iv_a_oics)
+      endif  
+      allocate(slat%rv_a_oag(abs(3*ngmx)))
+      allocate(slat%rv_a_osymgr(abs(9*ngmx)))
+      allocate(sarray%iv_a_oipc(abs(nsite)))
+      allocate(sarray%iv_a_oics(abs(nsite)))
+      allocate(nrspc_iv(nbas))
 
-
-ckino Dec.8.2011:         rv_p_opos => sarray%rv_p_opos 
-
-ckino Dec.8.2011:         iv_p_oips => sarray%iv_p_oips 
-
-
-C     call defi(oips,nbas)
-C     call defrr(opos,3*nbas)
-C     call spackv(10,'site spec',ssite,1,nbas,w(oips))
-C     call spackv(10,'site pos',ssite,1,nbas,w(opos))
-
-*     call prmx('basis',w(opos),3,3,nbas)
-*     print *, (w(oips-1+i), i=1,nbas)
-
-C ... Extract keywords from input string; copy rest to gens
-C     keyword 'point' is appended to gens
       call words(ssymgr,ngen)
       j1 = 1
       idest = 1
@@ -224,22 +172,11 @@ C ... When generating the group the basis may become enlarged ...
         goto 5
       endif
       if (fptol .ne. 0) then
-c        i_copy_size=size(ssite(1)%pos)
         do i_spackv=1,nbas
-c          call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos 
-c     .    , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
            ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
-c        enddo
-c       i_copy_size=size(ssite(1)%pos)
-c        do i_spackv=1,nbas
-c           call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-c     .     , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos ) 
           slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
         enddo
       endif
-Cki#error ERROR, try to release name= oips2 ,but list=null at linenumber= 219 list= (None)
-
-
 C --- Add inversion to point group ---
       incli = -1
       npgrp = nsgrp
@@ -250,11 +187,7 @@ C --- Add inversion to point group ---
         gen(5,ngen) = -1
         gen(9,ngen) = -1
         call pshpr(iprint()-40)
-ckino Dec.14.2011:           call grpgen ( gen ( 1 , ngen ) , 1 , rv_p_osymgr , npgrp , ngmx 
-ckino Dec.28.2011:           call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_p_osymgr , npgrp , ngmx 
-         call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_a_osymgr , npgrp , ngmx 
-     .   ) 
-
+        call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_a_osymgr , npgrp , ngmx  ) 
         call poppr
         incli = npgrp-nsgrp
       endif
@@ -286,111 +219,30 @@ c       npadr=sarray%npadr
       nclspp = nclass
       nbasp  = nbas !+ npadl + npadr
 
-C ... (pgf) Extra classes for padding layers
-C$$$       lpgf = int(sctrl%lpgf(1))
-C$$$      if (lpgf .gt. 0 .and. lpgf .lt. 10) then
-C$$$C   ... Remake ipc,ics for padding and double-padding layers
-C$$$        call pgfpp(nbas,npadl,npadr,1,1,.true.,.false.,w(oipc),w(oipc))
-C$$$        call redfi(oics,nsite)
-C$$$        call defi(oiwk,nsite)
-C$$$        call pvsym1(nbas,npadl+npadr,nclasp,w(oipc),w(oics))
-C$$$        nclspp = nclasp
-C$$$        call pvsym1(nbasp,npadl+npadr,nclspp,w(oipc),w(oics))
-C$$$        if (iprint() .ge. 30) then
-C$$$          call awrit2('         %i classes for embedding region + %i '//
-C$$$     .      'for padding layers',' ',80,stdo,nclass,nclasp-nclass)
-C$$$        endif
-C$$$        call redfi(oics,   nclspp)
-C$$$C   ... Separate ipc, ipcd (dble padded ic eqiv =sngl pad vs not equiv)
-C$$$        call defi (oipcp,  nsite)
-C$$$        call icopy(nsite,w(oipc),1,w(oipcp),1)
-C$$$        call icopy(npadl+npadr,w(oipc+nbas),1,w(oipc+nbasp),1)
-C$$$      else
 C   ... Reallocate arrays as permanent arrays
-ckino Dec.14.2011:         i_data_size=size(iv_p_oics); allocate(iv_a_tmp(i_data_size))
-ckino Dec.27.2011:         i_data_size=size(sarray%iv_p_oics); allocate(iv_a_tmp(i_data_size))
        i_data_size=size(sarray%iv_a_oics); allocate(iv_a_tmp(i_data_size))
-ckino Dec.14.2011:         iv_a_tmp=iv_p_oics; deallocate(iv_p_oics)
-ckino Dec.27.2011:         iv_a_tmp=sarray%iv_p_oics; deallocate(sarray%iv_p_oics)
        iv_a_tmp=sarray%iv_a_oics; deallocate(sarray%iv_a_oics)
-ckino Dec.14.2011:         i_data_size=min(i_data_size,nclspp); allocate(iv_p_oics(nclspp))
-ckino Dec.27.2011:         i_data_size=min(i_data_size,nclspp); allocate(sarray%iv_p_oics(nclspp))
        i_data_size=min(i_data_size,nclspp); allocate(sarray%iv_a_oics(nclspp))
-ckino Dec.14.2011:         iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-ckino Dec.27.2011:         sarray%iv_p_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
        sarray%iv_a_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-
-cki      oipcp = oipc
-ckino Dec.16.2011:          iv_p_oipcp => iv_p_oipc
-ckino Dec.28.2011:          sarray%iv_p_oipcp => sarray%iv_p_oipc
-C$$$      endif
 
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
-ckino Dec.14.2011:           allocate(iv_p_oistab(abs(npgrp*nbas)))
-ckino Dec.28.2011:           allocate(slat%iv_p_oistab(abs(npgrp*nbas)))
          if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
          allocate(slat%iv_a_oistab(abs(npgrp*nbas)))
-ckino Dec.14.2011:           if (npgrp*nbas<0) iv_p_oistab(:)=0.0d0
-ckino Dec.28.2011:           if (npgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
          if (npgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
-
       else
-ckino Dec.14.2011:           allocate(iv_p_oistab(abs(nsgrp*nbas)))
-ckino Dec.28.2011:           allocate(slat%iv_p_oistab(abs(nsgrp*nbas)))
          if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
          allocate(slat%iv_a_oistab(abs(nsgrp*nbas)))
-ckino Dec.14.2011:           if (nsgrp*nbas<0) iv_p_oistab(:)=0.0d0
-ckino Dec.28.2011:           if (nsgrp*nbas<0) slat%iv_p_oistab(:)=0.0d0
          if (nsgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
-
       endif
       call dinv33(plat,1,qlat,xx)
-C     call prmx('pos',w(opos),3,3,nbas)
-C      call symtab(nbas,w,w(opos),w(osymgr),w(oag),-nsgrp,plat,qlat,w,
-C     .  w(oistab))
-C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-C      call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
-C     .  w(oistab))
-C      call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-ckino Dec.8.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , rv_p_opos , rv_p_osymgr 
-ckino Dec.14.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , rv_p_osymgr 
-ckino Dec.28.2011:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_p_osymgr 
-ckino Jan.04.2012:             call symtbl ( 1 , fptol , nbas , iwdummy , sarray%rv_p_opos , slat%rv_a_osymgr 
-ckino Jan.04.2012:             call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_p_opos , slat%rv_a_osymgr 
            call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_a_opos , slat%rv_a_osymgr 
-ckino Dec.14.2011:       .     , rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-ckino Dec.14.2011:       .     , slat%rv_p_oag , nsgrp , qlat , iv_p_oistab ) 
-ckino Dec.27.2011:       .     , slat%rv_p_oag , nsgrp , qlat , slat%iv_p_oistab ) 
-ckino Dec.28.2011:       .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_p_oistab ) 
      .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_a_oistab ) 
-
-
-
-
-
-C     Debugging check
-C     call shoist(w(oistab),nbas,w(oag),w(osymgr),nsgrp)
-C     call symtbl(0,fptol,nbas,w,w(opos),w(osymgr),w(oag),nsgrp,qlat,
-C     .   w(oistb2))
-C     call shoist(w(oistb2),nbas,w(oag),w(osymgr),nsgrp)
-C     call istbpm(w(oistab),nbas,nsgrp,w(oistb2))
-C     call shoist(w(oistb2),nbas,w(oag),w(osymgr),nsgrp)
-C     stop
 
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
-ckino Dec.14.2011:             if ( aginv ( rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
-ckino Dec.14.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , rv_p_oag , 
-ckino Dec.27.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_p_oag , 
-ckino Dec.28.2011:             if ( aginv ( slat%rv_p_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
            if ( aginv ( slat%rv_a_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
-ckino Dec.14.2011:       .     iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-ckino Dec.28.2011:       .     slat%iv_p_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
      .     slat%iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-
-
-
       endif
 
 C ... poke ipc into ssite
@@ -420,15 +272,8 @@ C --- Cleanup: poke class and symmetry info into structures ---
 
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp
-ckino Dec.14.2011:         slat%iv_p_oistab => iv_p_oistab 
-
-ckino Dec.14.2011:         slat%rv_p_oag => rv_p_oag 
-
-ckino Dec.14.2011:         slat%rv_p_osymgr => rv_p_osymgr 
-
-
-
       end subroutine mksym
+
 
 C$$$      subroutine pvsym1(nbas,npad,nclass,ipc,ics)
 

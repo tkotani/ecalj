@@ -1,5 +1,5 @@
       program lmf
-      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_str,s_spec,s_site  !,s_move
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site  !,s_move,s_str,
       use m_rdctrl2_func, only: rdctrl2
       use m_rdctrl,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
@@ -23,7 +23,7 @@ c      use m_globalvariables
       type(s_mix):: v_smix
       type(s_array):: v_sarry,v_sarry2
 c      type(s_move):: v_smove
-      type(s_str):: v_sstr
+c      type(s_str):: v_sstr
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
       parameter (mxspec=256)
@@ -176,7 +176,7 @@ c      integer namelen(0:MAX_PROCS-1)
 
 !! --- Read recrd --- We store all readin data to structures v_*.
       call rdctrl2(recrd,recln0,nrecs,prgnam, 
-     . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      . v_sarry,sstrnmix,sstrnsymg)  
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
@@ -306,7 +306,7 @@ c$$$      enddo
 !! main part of lmf ------------------------------------
 #if LMF
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .v_smix,v_sspec,v_ssite,v_sstr,v_sarry,trim(sstrnmix)) !,v_smove
+     .v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif

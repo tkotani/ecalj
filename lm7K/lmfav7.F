@@ -17,7 +17,7 @@
       type(s_mix):: v_smix
       type(s_array):: v_sarry
 c      type(s_move):: v_smove
-      type(s_str):: v_sstr
+c      type(s_str):: v_sstr
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:)
       parameter (mxspec=256)
@@ -103,8 +103,9 @@ C     recrd, nrecs are obtained.
       endif
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam,
-     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      *v_sarry,sstrnmix,sstrnsymg) 
+
       print *,'end of rdctrl2 in imfav7'
 c      call setcg(v_slat,8,12)
 c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)

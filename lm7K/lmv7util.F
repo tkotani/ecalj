@@ -26,7 +26,7 @@ c      type(s_sstrn)::v_sstrn !may2015
       type(s_mix):: v_smix
       type(s_array):: v_sarry
 c      type(s_move):: v_smove
-      type(s_str):: v_sstr
+c      type(s_str):: v_sstr
 c      type(s_tb):: v_stb
       type(s_spec),allocatable:: v_sspec(:) 
       type(s_site),allocatable:: v_ssite(:) 
@@ -140,7 +140,7 @@ C     enddo
 C     write(stdo,*)' --- end of rdfile --- '
 C     call rx('done')
       call rdctrl2(recrd,recln0,nrecs,prgnam,
-     .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,
+     .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      .     v_sarry,sstrnmix,sstrnsymg) 
 C     --- Lattice setup ---
 c      call setcg(v_slat,8,12)
@@ -166,7 +166,7 @@ c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
 ccccccc
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
 C     --- Allocate permanent class arrays, maps and other initialization ---
-      call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec, v_slat,v_sbz,v_sstr)!,sstrn)
+      call clsprm(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec, v_slat,v_sbz) !,v_sstr)!,sstrn)
 C     --- Read available class parameters from file ---
 #if LMCHK
       call aiocls(.false.,0,v_sarry,v_sctrl,v_sham,v_spot,
@@ -175,7 +175,7 @@ C     --- Read available class parameters from file ---
      .     v_sspec,v_slat,1,0)
       if (lc .ge. 20)
      .     call clsprp(1,v_sctrl,v_sarry,v_sham,v_spot,v_sspec,
-     .     v_slat,v_sbz,v_sstr)!,sstrn)
+     .     v_slat,v_sbz)! ,v_sstr)!,sstrn)
 #endif
       if (cmdopt('--sfill',7,0,strn)) then
          call rx('no --sfill option in lm7K')
@@ -195,7 +195,7 @@ C     ... quit after SHOW
 #endif
 #if LMCHK
       call lmaux(prgnam,v_sctrl,v_sham,v_spot,v_slat,v_sspec,
-     .     v_ssite,v_sstr,v_sarry,v_sbz,slabl,auxmod,0) !wksize),sstrn
+     .     v_ssite,v_sarry,v_sbz,slabl,auxmod,0) !wksize),sstrn, v_sstr,
 #endif
 #if LMDOS
       call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat, v_sspec,v_ssite,v_sarry)
@@ -309,7 +309,7 @@ c$$$     .     vn-vn2/1d5,wksize/1000)
 C     getarg       end
       end subroutine findctrlstart 
 
-      subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,sstr) !,sstrn)
+      subroutine clsprm(mode,sctrl,sarray,sham,spot,sspec,slat,sbz)!,sstr) !,sstrn)
       use m_struc_def           !Cgetarg
 C     - Allocate memory for, and try to read, class-related data
 C     ----------------------------------------------------------------------
@@ -373,7 +373,7 @@ c      character*(*) sstrn
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       type(s_bz)::sbz
-      type(s_str)::sstr
+c      type(s_str)::sstr
 C     Local variables
       logical lgors,cmdopt
       character*80 strn,clabl*8
@@ -463,8 +463,8 @@ C     ... Allocate memory for, attempt to read qpp from file
       endif
       return
 
-      entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz,
-     .     sstr) !,sstrn)
+      entry clsprp(mode,sctrl,sarray,sham,spot,sspec,slat,sbz)
+c     .     sstr) !,sstrn)
 C     - Copy class data to doubly padded case
       nclass=sctrl%nclass
       nl=sctrl%nl

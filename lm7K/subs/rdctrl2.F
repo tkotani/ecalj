@@ -1,19 +1,20 @@
       module m_rdctrl2_func
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11
+      real(8),protected::str_mxnbr,str_rmax
 
       contains
-      subroutine rdctrl2(recrd,recln,nrecs,
-     . prgnam, !vrsion,vn,vn2,
-     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,
-     . v_sstr,v_sarry,sstrnmix,sstrnsymg)  !,v_stb,v_smove
-      use m_gtv,only: gtv_setst,gtv_setrcd
+      subroutine rdctrl2(
+     i  recrd,recln,nrecs, prgnam, 
+     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
+     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
 
+      use m_gtv,only: gtv_setst,gtv_setrcd
       use m_struc_func
       use m_globalvariables
 
       use m_rdctrl,only:
      &  readctrl,
-     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_str,s_array,s_spec,s_site, !s_tb,,s_move
+     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site, !s_tb,,s_move,s_str
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
@@ -21,7 +22,6 @@
      &  alfsi,dabc,rsstol,pmin,pmax,
      &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
      &    sigp_mode,sigp_nmin,sigp_nmax,
-!! OPTIONAL
      &    lves,                        
 c lcd2,lcd4,
 c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
@@ -48,7 +48,7 @@ c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      .    amom,spec_a,z,eref,rsmv,pb1,pb2, coreh,nmcore,
 !! ... SITE
      .  alabl, pos,vel,eula,vshft, ips,ipl,plv,irlx,ndelta,delta,mpole,dpole,   iantiferro,
-!! ... Iterations
+!! ... Iterations,MIX
      . ctrl_tol,vmix,iter_maxit,iter_mix, !iter_amix,
 !! ... BZ
      . bz_nabc, bz_lshft, bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,
@@ -57,7 +57,7 @@ c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      . ctrl_lmet4,ctrl_lmet8,ctrl_noinv,bz_dosmax, !ctrl_lqp2,
 !! ... Ewald
      . lat_as,lat_tol,lat_rpad, lat_nkdmx,
-!! ... STR
+c!! ... STR
      . str_rmax, str_mxnbr,
 !! ... DYN
      . sdmod, mdprm,lat_defm,sdprm,
@@ -198,17 +198,19 @@ Cu   24 Aug 01 Extended to handle local orbitals.
 Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
       implicit none
-      integer:: recln,nrecs
+      integer,intent(in):: recln,nrecs
+      character*(*),intent(in):: recrd
+      character,intent(in)::  prgnam*(*) 
+
       character slabl_(1)*8
       character strn*(recln)
-      character*(*) recrd
       type(s_bz):: v_sbz
       type(s_ctrl):: v_sctrl
       type(s_ham):: v_sham
       type(s_pot):: v_spot
       type(s_lat):: v_slat
       type(s_mix):: v_smix
-      type(s_str):: v_sstr
+c      type(s_str):: v_sstr
       type(s_array):: v_sarry
 c      type(s_move):: v_smove
 c      type(s_tb):: v_stb
@@ -216,7 +218,6 @@ c      type(s_tb):: v_stb
       type(s_site),allocatable:: v_ssite(:)
 
       integer:: i_spec
-      character  prgnam*(*) !, sstrn*(*)
       character*(*)::sstrnmix,sstrnsymg
 c      character(6):: vrsion(2)
 c      double precision vn(2),vn2(2)
@@ -544,10 +545,10 @@ C --- Allocate and copy input to smix ---
       v_smix%size=umix_size()
       v_smix=vmix
 
-C --- Allocate and copy input to sstr ---
-      v_sstr%size=ustr_size()
-      v_sstr%mxnbr=str_mxnbr
-      v_sstr%rmax=str_rmax
+cC --- Allocate and copy input to sstr ---
+c      v_sstr%size=ustr_size()
+c      v_sstr%mxnbr=str_mxnbr
+c      v_sstr%rmax=str_rmax
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
         do i_spackv=1,nspec

@@ -115,7 +115,7 @@ c      character(256):: sxopt=' '
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable::iantiferro(:)
 
-!! ... Iterations
+!! ... Iteration, MIX
       character(128) :: iter_mix=' ' !,iter_amix=' '
       real(8):: ctrl_tol(3)=1d-4
       type (s_mix):: vmix
@@ -2264,15 +2264,13 @@ c      call dcopy(37,smix,1,samix,1)
 c        call s8tor8('mixa',vamix%fn) ! file name
         vamix%fn='mixa'
         nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
-     .  def_i4=30,
-     .  note='maximum number of iterations in self-consistency cycle')
-
+     .   def_i4=30,
+     .   note='maximum number of iterations in self-consistency cycle')
         nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgn,nm),smalit,
-     .  def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
-     .  '(2) no. prior iter for Anderson mixing ')
-
+     .   def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
+     .   '(2) no. prior iter for Anderson mixing ')
         nm='ITER_MIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_mix,
-     .  nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
+     .   nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
         if (io_help/=0 .and. tksw(prgn,nm)/=2) print 345
   345   format(3x,
      .  'A[nmix][,b=beta][,bv=betv][,n=nit][,w=w1,w2][,nam=fn][,k=nkill]',
