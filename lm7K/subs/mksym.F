@@ -1,5 +1,4 @@
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Setup for symmetry group
@@ -74,9 +73,7 @@ C     implicit none
       type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_array)::sarray
-       integer ::iwdummy 
-
-C Local variables
+      integer ::iwdummy 
       logical T,F,cmdopt,a2bin,ltmp
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
@@ -90,29 +87,27 @@ C Local variables
       character*120 gens,strn*72
       double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,fptol
 
-      nbas=sctrl%nbas
+      nbas =sctrl%nbas
       nspec=sctrl%nspec
       nsite=sctrl%nsite
-      plat=slat%plat
+      plat =slat%plat
       ldist=slat%ldist
-      dist=slat%dist
+      i_copy_size=size(slat%dist)
+      call dcopy(i_copy_size,slat%dist,1,dist,1)
       ngmx = 48
       stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
-
 C ... Re-entry when ngmx was increased
     5 continue
-
 C ... For memory allocation of class data, assume initially nclass=nbas
       if(allocated(slat%rv_a_oag)) then
         deallocate(slat%rv_a_oag,slat%rv_a_osymgr,sarray%iv_a_oipc,sarray%iv_a_oics)
       endif  
-      allocate(slat%rv_a_oag(abs(3*ngmx)))
-      allocate(slat%rv_a_osymgr(abs(9*ngmx)))
-      allocate(sarray%iv_a_oipc(abs(nsite)))
-      allocate(sarray%iv_a_oics(abs(nsite)))
-      allocate(nrspc_iv(nbas))
-
+      allocate( slat%rv_a_oag(3*ngmx)    )
+      allocate( slat%rv_a_osymgr(9*ngmx) )
+      allocate( sarray%iv_a_oipc(nsite)  )
+      allocate( sarray%iv_a_oics(nsite)  )
+      allocate( nrspc_iv(nbas) )
       call words(ssymgr,ngen)
       j1 = 1
       idest = 1
@@ -191,9 +186,6 @@ C --- Add inversion to point group ---
         call poppr
         incli = npgrp-nsgrp
       endif
-C     Not necessary, because it will be remade anyway
-C     call redfi(oistab,npgrp*nbas)
-
 C --- Printout of symmetry operations ---
       call info5(20,0,0,' MKSYM:  found %i space group operations'//
      .'%?#n#; adding inversion generated %i ops#%j#'//
@@ -238,18 +230,14 @@ C ... Remake istab
       call dinv33(plat,1,qlat,xx)
            call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_a_opos , slat%rv_a_osymgr 
      .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_a_oistab ) 
-
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
            if ( aginv ( slat%rv_a_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
      .     slat%iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
       endif
-
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
-c         call spackv_array_copy_i8_i ( 'p' , ssite ( i_spackv ) %class 
-c     .   , i_copy_size , i_spackv + 1 - 1 , sarray%iv_a_oipc ) 
          ssite ( i_spackv )%class = sarray%iv_a_oipc(i_spackv)
       enddo
 C --- Create nrc and class labels ---
@@ -269,66 +257,14 @@ C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass
       sarray%nclasp=nclasp
   100 continue
-
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp
       end subroutine mksym
 
-
-C$$$      subroutine pvsym1(nbas,npad,nclass,ipc,ics)
-
-C$$$C- Fix classes for padding layers
-C$$$C ----------------------------------------------------------------------
-C$$$Ci Inputs
-C$$$Ci   nbas   number of basis atoms without padding layers
-C$$$Ci   nclass number of classes without padding layers
-C$$$Ci Outputs
-C$$$Co   nclass updated
-C$$$Co   ipc(nbas..nbas+npad) updated
-C$$$Co   ics updated
-C$$$C ----------------------------------------------------------------------
-C$$$C     implicit none
-C$$$      integer nbas,nclass,ipc(nbas),ics(nclass)
-C$$$      integer i,npad,nc,is,ic,j
-C$$$      if (npad .eq. 0) return
-
-C$$$C ... ipc->-ipc to flag which classes have been renumbered
-C$$$      do  5  i = nbas+1, nbas+npad
-C$$$    5 ipc(i) = -ipc(i)
-
-C$$$C ... For each site in padding layer, assign class
-C$$$      nc = nclass
-C$$$C ... Look for next occurrence of class not assigned
-C$$$      do  10  i = nbas+1, nbas+npad
-
-C$$$        if (ipc(i) .gt. 0) goto 10
-C$$$C   ... Class ipc(i) need to be assigned:  do for each site in class
-C$$$C       ic is (-)original class, is is species of original class
-C$$$        ic = ipc(i)
-C$$$        is = ics(-ic)
-
-C$$$        nc = nc+1
-C$$$        do  12  j = i, nbas+npad
-C$$$   12   if (ipc(j) .eq. ic) ipc(j) = nc
-
-C$$$C   ... Species index is same as that of original class
-C$$$        ics(nc) = is
-
-C$$$   10 continue
-
-C$$$      nclass = nc
-C$$$C      call awrit2('%n:1i',' ',100,6,nbas+npad,ipc)
-C$$$C      call awrit2('%n:1i',' ',100,6,nclass,ics)
-C$$$C      pause
-
-C$$$Cgetarg       end
-C$$$       end subroutine pvsym1
-
+!! -----------------------------------
       subroutine pvsym2(mode,nbas,nclass,ics,ipc,nspec,slabl,ssite,
      .dclabl,nrc)
-
       use m_struc_def  !Cgetarg
-
 C- Create class labels from species labels (double precision format)
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -350,11 +286,9 @@ C ----------------------------------------------------------------------
 C     implicit none
       integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
       type(s_site)::ssite(*)
-
       character*8 slabl(nspec)
       integer ic,iclbsj,idx,is,ib
       character(8):: clabl,dclabl(nclass)
-
 C --- Make class labels from species labels ---
       if (mod(mode,2) .eq. 1) then
         do  10  is = 1, nspec
@@ -368,23 +302,10 @@ c            call s8tor8(clabl,dclabl(ic))
    13     continue
    10   continue
       endif
-
       do  20  ib = 1, nbas
         ic = ipc(ib)
-c        call r8tos8(dclabl(ic),clabl)
-c        clabl=dclabl(ic)
-c        do i_spacks=ib,ib
-c          call spacks_copy('p',ssite(i_spacks)%clabel,ib,ib,clabl,i_spacks)
-c        enddo
         ssite(ib)%clabel = dclabl(ic) !clabl
    20 continue
-
-C      do  ib = 1, nbas
-C        call spacks(0,'site clabel',ssite,clabl,ib,ib)
-C        print *, ib, clabl
-C      enddo
-C      pause
-
 C --- Create nrc ---
       if (mod(mode/2,2) .eq. 1) then
         call iinit(nrc,nclass)
@@ -393,21 +314,10 @@ C --- Create nrc ---
           nrc(ic) = nrc(ic)+1
    30   continue
       endif
-
-C ... debugging : check class labels
-C      call awrit2('%n:1i',' ',100,6,nclass,nrc)
-C      do  50  ic = 1, nclass
-C        call r8tos8(dclabl(ic),clabl)
-C        print 333, ic, clabl
-C  333   format(i4,1x,a)
-C   50 continue
-C      pause
-
       end subroutine pvsym2
 
 
       integer function aginv(g,npg,nsg,nbas,ag,istab)
-
 C- Finds translation part for extra inversion-generated group ops
 C ----------------------------------------------------------------------
 Ci Inputs

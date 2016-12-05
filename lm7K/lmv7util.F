@@ -17,19 +17,18 @@ C     ... For structures
 c      type(s_sstrn)::v_sstrn !may2015
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg !,jobid !header,
-
-      type(s_bz):: v_sbz
+      type(s_bz)::   v_sbz
       type(s_ctrl):: v_sctrl
       type(s_lat):: v_slat
       type(s_ham):: v_sham
       type(s_pot):: v_spot
       type(s_mix):: v_smix
       type(s_array):: v_sarry
+      type(s_spec),allocatable:: v_sspec(:) 
+      type(s_site),allocatable:: v_ssite(:) 
 c      type(s_move):: v_smove
 c      type(s_str):: v_sstr
 c      type(s_tb):: v_stb
-      type(s_spec),allocatable:: v_sspec(:) 
-      type(s_site),allocatable:: v_ssite(:) 
       parameter (mxspec=256)
       character*8 slabl(mxspec)
 C     ... miscellaneous local variables

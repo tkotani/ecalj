@@ -1,64 +1,46 @@
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-24 16:14:42.601747
-Cstruc_makeinit.py , make *_init, *_mpibc1.  2010-06-18 11:22:12.488426
-C this is translated from lstra.F in lmv7-beta
-C Kino April2009.
+!! explanations are old documents.
+!! A problem in these structures are 'environmental data and iteration data are mixed up'!
+!! Check I/O for bndfp.F
       module m_struc_def
-
-c      type s_sstrn !june2015
-c      integer,parameter:: lstrn=2000
-c      character(lstrn):: mix,symg !,jobid !header,
-c      end type
-
-c$$$      type s_ri
-c$$$      integer  ::   t
-c$$$      integer  ::   i
-c$$$      real(8)  ::   r
-c$$$      end type
-
-c$$$      type s_rv1
-c$$$ckino Jan.4.2012        real(8),pointer:: v(:) =>NULL()
-c$$$      real(8),allocatable:: v(:)
-c$$$      end type s_rv1
-
-Cr --- explanation of  ubz ---
-Cr   off offe  name    purpose
-Cr    2    1   def      Uncertainty in Fermi level
-Cr    3    2   dosw     Energy window over which DOS accumulated
-Cr    5    3   ef       Fermi level
-Cr    6    4   efmax    eigenvalues above efmax are not needed
-Cr    7    5   fsmom    fixed-spin moment (fixed spin moment method)
-Cr    8    6   lcond    conductivity, and directions
-Cr   12    7   lio      1  read qp
-Cr                      2  write qp
-Cr                      4  write dos
-Cr                      8  density matrix
-Cr                      16 save evcs
-Cr                      32 save dos weights
-Cr                      NB: 4,32 out of date ; see ldos
-Cr   13    8   lmet     0 insulator   1 3-point scheme  2 save evcs
-Cr                      3 two passes  4 wt from prior iter
-Cr                      (numbers, not powers of 2)
-Cr   14    9   lmull    not used
-Cr   15   10   lopt     2 BZMAP option
-Cr   16   11   lshft    shift mesh in each of three directions
-Cr   19   12   n        Polynomial order for Methfessel-Paxton sampling
-Cr   20   13   ndos     No. DOS points (sampling integration, and lmdos)
-Cr   21   14   nevmx    eigenvectors above nevmx are not needed
-Cr   22   15   nkabc    number of divisions in qp mesh
-Cr   25   16   nkp      Number of qp
-Cr   26   17   ntet     number of tetrahedra
-Cr   27   18   odos     offset to total dos
-Cr   28   19   oidtet   offset to tetrahedron corners
-Cr   29   20   oipq     offset to ipq array made in bzmesh
-Cr   30   21   opdos    offset to partial dos
-Cr   31   22   oqp      offset to qp array
-Cr   32   23   ostar    offset to array containing info on star of k
-Cr   33   24   owtkp    offset to array containing qp weights
-Cr   34   25   range    number of FWHM for sampling integration
-Cr   35   26   semsh    nz, modec, emin,emax, ecc,eps delta
-Cr   45   27   size     size of this structure
-Cr   46   28   stnr     parameters for Stoner model (not used)
-Cr   47   29   w        Line broadening for sampling integration
+!! --- explanation of  ubz ---
+Cr name    purpose
+Cr def      Uncertainty in Fermi level
+Cr dosw     Energy window over which DOS accumulated
+Cr ef       Fermi level
+Cr efmax    eigenvalues above efmax are not needed
+Cr fsmom    fixed-spin moment (fixed spin moment method)
+Cr lcond    conductivity, and directions
+cCr lio      1  read qp
+cCr          2  write qp
+cCr          4  write dos
+cCr          8  density matrix
+cCr          16 save evcs
+cCr          32 save dos weights
+cCr          NB: 4,32 out of date ; see ldos
+Cr lmet     0 insulator   1 3-point scheme  2 save evcs
+Cr          3 two passes  4 wt from prior iter
+Cr          (numbers, not powers of 2)
+Cr lmull    not used
+Cr lopt     2 BZMAP option
+Cr lshft    shift mesh in each of three directions
+Cr n        Polynomial order for Methfessel-Paxton sampling
+Cr ndos     No. DOS points (sampling integration, and lmdos)
+Cr nevmx    eigenvectors above nevmx are not needed
+Cr nkabc    number of divisions in qp mesh
+Cr nkp      Number of qp
+Cr ntet     number of tetrahedra
+Cr odos     offset to total dos
+Cr oidtet   offset to tetrahedron corners
+Cr oipq     offset to ipq array made in bzmesh
+Cr opdos    offset to partial dos
+Cr oqp      offset to qp array
+Cr ostar    offset to array containing info on star of k
+Cr owtkp    offset to array containing qp weights
+Cr range    number of FWHM for sampling integration
+Cr semsh    nz, modec, emin,emax, ecc,eps delta
+Cr size     size of this structure
+Cr stnr     parameters for Stoner model (not used)
+Cr w        Line broadening for sampling integration
       type s_bz
       real(8)  ::   size
       real(8)   ::   def
@@ -86,75 +68,38 @@ c      integer   ::   lopt
       integer , allocatable ::  iv_a_ostar (:)
       real(8) , allocatable ::  rv_a_owtkp (:)
       real(8)   ::   range
-c      real(8)   ::   semsh(10)
-c      real(8)   ::   stnr
       real(8)   ::   w
-c      real(8)   ::   zval
       end type s_bz
 
-Cr --- explanation of  uarray ---
-Cr    off lsti  name    purpose
-Cr    2    1   ncl     (O-N) number of clusters
-Cr    3    2   nclasp  (pgf) number of classes including PL -1,npl
-Cr    4    3   nofgl   (pgf) number of left  PL for off-diagonal GF
-Cr    5    4   nofgr   (pgf) number of right PL for off-diagonal GF
-Cr    6    5   npadl   (pgf) number of basis atoms in PL -2,-1,0
-Cr    7    6   npadr   (pgf) number of basis atoms in PL npl-1,npl,npl+1
-Cr    8    7   npl     (pgf) number of principal layers
-Cr    9    8   oclabl  offset to class label array (r8tos8 format)
-Cr   10    9   ocllst  (O-N) list of sites belonging to each cluster
-Cr   11   10   oclp    (O-N) cluster-related dimensioning parameters
-Cr   12   11   oclssl  (O-N) site ib belongs to cluster clssl(ib)
-Cr   13   12   ogroup
-Cr   14   13   ogrp2
-Cr   15   14   ohave   Switches containing what info available, by class
-Cr                     1 P,Q  2 pp  4 sop  8 vintra  16 pmpol  32 gradrm
-Cr   16   15   oics    Index to which species each class belongs
-Cr   17   16   oifrlx  (dynamics)
-Cr   18   17   oipc    index to which class each site belongs
-Cr   19   18   oipcp   index to which class each site belongs
-Cr   20   19   oips    index to which species each site belongs
-Cr   21   20   omxcst  mixing constraint
-Cr   22   21   onrc    number of sites in each class
-Cr   23   22   onrcp   number of sites in each class
-Cr   24   23   opgfsl
-Cr   25   24   opgfvl
-Cr   26   25   opgord
-Cr   27   26   opgplp
-Cr   28   27   opos
-Cr   29   28   ormax   sphere radius, by class
-Cr   30   29   osordn  structure for order-N information
-Cr   31   30   ostni   Stoner
-Cr   32   31   ozos    Stoner DOS
-Cr   33   32   size    size of this structure
+!!--- explanation of  uarray ---
+Cr    name    purpose
+Cr   nclasp  (pgf) number of classes including PL -1,npl
+Cr   oclabl  offset to class label array (r8tos8 format)
+Cr   oics    Index to which species each class belongs
+Cr   oipc    index to which class each site belongs
+Cr   oipcp   index to which class each site belongs
+Cr   oips    index to which species each site belongs
+Cr   onrc    number of sites in each class
+Cr   onrcp   number of sites in each class
+Cr   ormax   sphere radius, by class
+Cr   size    size of this structure
       type s_array
-      real(8)  ::   size
-c      integer   ::   ncl
-      integer   ::   nclasp
-c      integer   ::   nofgl
-c      integer   ::   nofgr
-c      integer   ::   npadl
-c      integer   ::   npadr
-c      integer   ::   npl
+      real(8)  ::    size
+      integer  ::   nclasp
       character(8), allocatable ::  rv_a_oclabl(:) !string
       integer , allocatable ::  iv_a_oipq (:)
       integer , allocatable ::  iv_a_oics (:)
-      integer, allocatable :: iv_a_oipc(:)
+      integer,  allocatable ::  iv_a_oipc(:)
       integer , allocatable ::  iv_a_oips (:)
       integer , allocatable ::  iv_a_onrc (:)
       integer , allocatable ::  iv_a_onrcp (:)
       real(8) , allocatable ::  rv_a_ormax (:)
       end type s_array
 
-Cr --- explanation of  uctrl ---
+!! --- explanation of  uctrl ---
 Cr   off offe  name    purpose
 Cr    2    1   defm    Lines for deformation when relaxing plat
 Cr    8    2   elin    ccor linearization energy, 2C hamiltonian
-Cr    9    3   lasa    1 Make V from P,Q  2 Make pp  4 ccor  8 free atm
-Cr                     16 map  32 nonspherical mpol moms 64 MT corr
-Cr                     128 interpretation of sphere Q2; see newrho.f
-Cr                     256 how ASA Q1,Q2 are accumulated; see makwts.f
-Cr                     512 (spin pol) alpha repsn = (gamma(1) + gamma(nsp))/2
 Cr   10    4   lbas    1 Hamiltonian has no screening transformation
 Cr                     2 Hamiltonian is nfp style
 Cr                     16 freeze phi,phidot for all species
@@ -318,7 +263,6 @@ C ----------------------------------------------------------------
       real(8)  ::   size
       real(8)   ::   defm(6)
       real(8)   ::   elin
-c      integer   ::   lasa
       integer   ::   lbas
 c      integer   ::   lcd
 c      integer   ::   lcgf
@@ -372,82 +316,6 @@ c      integer   ::   npl
       real(8)   ::   wsrmax
       real(8)   ::   zbak(2)
       end type s_ctrl
-
-Cr --- explanation of  ugw ---
-Cr   off offe  name    purpose
-Cr    2    1   delre   spacing on real axis for energy contour
-Cr                     delre(1) = dw(0)
-Cr                     delre(2) = omegac (coff to parabolic term)
-Cr    4    2   deltaw  width in finite diff for sigma energy derivative
-Cr    5    3   deltax  Im. E (broadening delta) in computation of x0
-Cr    7    4   ecuts   energy cutoff for calculating sigma_nn'
-Cr    7    5   gcutb   G-vector cutoff for basis
-Cr    8    6   gcutx   G-vector cutoff for response function
-Cr    9    7   gsmear  smearing in pole of Green's function
-Cr   10    8   lgw     specifies mode for GW computation
-Cr                     1s digit
-Cr                     0 standard mode
-Cr                     1 Faleev's fast energy integration
-Cr   11    9   lmxpb   default l-cutoff for product basis
-Cr   12   10   mksig   Mode for generating self-energy sigma matrix
-Cr                     0 do not create sigma matrix
-Cr                     1 Make sigma_nn'(E_f)
-Cr                     2 Make sigma_nn'(E_n/2+E_n'/2)
-Cr                     3 Make sigma_nn'(E_n)/2 + sigma_nn'(E_n')/2
-Cr                     lsig>0 implies 1s digit lgw>0
-Cr   13   11   nband   number of bands in perturbation calculation
-Cr   14   12   nime    # energies along Im axis for energy contour
-Cr   15   13   nkabc   the number of k-points for GW calculation
-Cr   18   14   pb1     default product basis 1
-Cr   19   15   pb2     default product basis 2
-Cr   20   16   pbtol   product-basis overlap cutoff
-Cr   21   17   qoffp   qp offset parameter
-Cr   22   18   rdsig   parameters for how to read,interpolate SE matrix
-Cr   23   19   size    size of this structure
-C -----------------------------------------------------------------------
-C       data  /2,4,5,6,7,8,9,10,11,12,13,14,15,18,19,20,21,22,23,24/
-C       data  /4,4,4,4,4,4,4,2,2,2,2,2,2,1,1,4,4,2,-1/
-C  1   2  4      delre  2
-C  2   4  4     deltaw  1
-C  3   5  4     deltax  1
-C  4   6  4      ecuts  1
-C  5   7  4      gcutb  1
-C  6   8  4      gcutx  1
-C  7   9  4     gsmear  1
-C  8  10  2        lgw  1
-C  9  11  2      lmxpb  1
-C 10  12  2      mksig  1
-C 11  13  2      nband  1
-C 12  14  2       nime  1
-C 13  15  2      nkabc  3
-C 14  18  1        pb1  1
-C 15  19  1        pb2  1
-C 16  20  4      pbtol  1
-C 17  21  4      qoffp  1
-C 18  22  2      rdsig  1
-C 19  23 -1       size  1
-
-c$$$      type s_gw
-c$$$      real(8)  ::   size
-c$$$      real(8)   ::   delre(2)
-c$$$      real(8)   ::   deltaw
-c$$$      real(8)   ::   deltax
-c$$$      real(8)   ::   ecuts
-c$$$      real(8)   ::   gcutb
-c$$$      real(8)   ::   gcutx
-c$$$      real(8)   ::   gsmear
-c$$$      integer   ::   lgw
-c$$$      integer   ::   lmxpb
-c$$$      integer   ::   mksig
-c$$$      integer   ::   nband
-c$$$      integer   ::   nime
-c$$$      integer   ::   nkabc(3)
-c$$$      real(8)   ::   pb1 !string
-c$$$      real(8)   ::   pb2 !string
-c$$$      real(8)   ::   pbtol
-c$$$      real(8)   ::   qoffp
-c$$$      integer   ::   rdsig
-c$$$      end type s_gw
 
 Cr --- explanation of  uham ---
 Cr   off offe  name    purpose
@@ -1224,106 +1092,6 @@ Cr   87   27   vshft   constant potential shift for this site
       real(8)   ::   vel(3)
       real(8)   ::   vshft
       end type s_site
-
-Cr --- explanation of  ustr ---
-Cr   off offe  name    purpose
-Cr    2    1   adec    log spacing in distance for TCF fit
-Cr    3    2   amode   mode for calculating screening alpha's
-Cr                    1s digit
-Cr                     0: alpha=alp0, (which is input)
-Cr                     1: alpha=gamma, calculated from pot pars.
-Cr                        NO LONGER SUPPORTED
-Cr                     2: alpha calculated for hard spheres.
-Cr                        NO LONGER SUPPORTED; see mktral
-Cr                    10s digit 0: adot=Andersen's localized
-Cr                     0: adot=Andersen's localized
-Cr                     1: adot so Kanpur notes Eq 3.87 is zero
-Cr                     2: adot calculated for hard spheres.
-Cr                        NO LONGER SUPPORTED; see mktral
-Cr    4    3   drwats  padding beyond cluster for Watson sphere
-Cr    5    4   iinv    Parameters for iterative inversion of tb-strx
-Cr                     arg 1: number of sites for cutoff
-Cr                     arg 2: number of iterations
-Cr                     arg 3: allowed tolerance
-Cr                     arg 4-5: not used now.
-Cr   10    5   ivl     Type of val-lap functions
-Cr   11    6   kaps    Kinetic energies at which strux evaluated (NMTO)
-Cr   17    7   lequiv  look for equivalent connecting vectors
-Cr   18    8   lmaxw   lmax for Watson sphere
-Cr   19    9   loka    conventions for Hankel and Bessel functions
-Cr                     0 Methfessel's conventions
-Cr                     1 Andersen's 2nd gen LMTO conventions
-Cr   20   10   lshow   show strux
-Cr   21   11   mxnbr   maximum number of neighbors
-Cr   22   12   nalf    polynomial order for d-dependence of TCF fit coffs
-Cr   23   13   nbisi   mesh parameters for TCF
-Cr   26   14   ncupl   reduced polynomial order in TCF
-Cr   27   15   ndust   no. iterations to improve on TCF
-Cr   28   16   nitab   ?? same as nttab
-Cr   29   17   nkaps   number of kaps
-Cr   30   18   nttab   number of pairs in this table
-Cr   31   19   oadot   offset to screening alpha's, e. derivative
-Cr   32   20   oalp    offset to screening alpha's
-Cr   33   21   oiax    offset to neighbor table
-Cr   34   22   ontab   offset to number-of-pairs table
-Cr   35   23   os      offset to strux
-Cr   36   24   osdot   offset to strux energy derivative
-Cr   37   25   rfit    ?? (not used) default hard core radius
-Cr   38   26   rmax    range of strux (tbe: range of hamiltonian)
-Cr   39   27   rmaxg   range of val-lap strux
-Cr   40   28   size    size of this structure
-Cr   41   29   skmsh   parameters for 3rd gen LMTO energy interpolation
-Cr                     not used?
-Cr   47   30   wztcf   weighting of z-points in TCF
-c$$$      type s_str
-c$$$      real(8)  ::   size
-c$$$      real(8)   ::   adec
-c$$$      integer   ::   amode
-c$$$      real(8)   ::   drwats
-c$$$      real(8)   ::   iinv(5)
-c$$$      integer   ::   ivl
-c$$$      real(8)   ::   kaps(6)
-c$$$      integer   ::   lequiv
-c$$$      integer   ::   lmaxw
-c$$$      integer   ::   loka
-c$$$      integer   ::   lshow
-c$$$      integer   ::   mxnbr
-c$$$      integer   ::   nalf
-c$$$      integer   ::   nbisi(3)
-c$$$      integer   ::   ncupl
-c$$$      integer   ::   ndust
-c$$$      integer   ::   nitab
-c$$$      integer   ::   nkaps
-c$$$      integer   ::   nttab
-c$$$      real(8)   ::   rfit
-c$$$      real(8)   ::   rmax
-c$$$      real(8)   ::   rmaxg
-c$$$      real(8)   ::   skmsh(6)
-c$$$      real(8)   ::   wztcf
-c$$$      end type s_str
-
-Cr --- explanation of  utb ---
-Cr   off offe  name    purpose
-Cr    2    1   alam   (tbfit) lambda variable, Levenburg-Marquardt (Numerical Recipes)
-Cr    3    2   alsc   (tbfit) scale factor for Levenburg-Marquardt lambda
-Cr    4    3   ebfit  (tbfit) energy window for fitting eigenvalues
-Cr                    lower and upper limit of eigenvalues to be fit
-Cr    6    4   fmode  (tbfit) mode for fitting TB parmeters
-Cr                    =0 fit parameters used in tbham, =1 not implemented yet
-Cr    7    5   nbfit  (tbfit) min/max band numbers to fit
-Cr                    lower and upper band indices to be fit for all k-points
-Cr    9    6   rmfit  (tbfit) real space range to fit TB parameters (fmode=1)
-Cr   11    7   size   size of this structure
-
-c$$$      type s_tb
-c$$$      real(8)  ::   size
-c$$$      real(8)   ::   alam
-c$$$      real(8)   ::   alsc
-c$$$      real(8)   ::   ebfit(2)
-c$$$      integer   ::   fmode
-c$$$      integer   ::   nbfit(2)
-c$$$      real(8)   ::   rmfit(2)
-c$$$      end type s_tb
       end module m_struc_def
 
 
