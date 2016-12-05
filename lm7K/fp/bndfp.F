@@ -1,5 +1,5 @@
-!! = Core part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
-
+!! = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
+!!
 !! Memo july2012takao
 !! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
 !!   This makes this code too complicated.
@@ -443,7 +443,7 @@ c mar2014
       integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_
       integer:: jspend,jspini,jspp
-      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread
+      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job
 !! ----------------------------
       call tcn ('bndfp')
       stdo = lgunit(1)
@@ -925,7 +925,7 @@ c      allocate( evlall(ndham,nsp,nkp))
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
-      call suham2(sctrl,slat,sspec,ssite,sham,spot) !,sstrn) mjune2015
+      call suham2(slat,sspec,ssite,sham,spot) !,sstrn,sctrl
 c      print *,'end of suham2'
 
 !! --- Options for core level specta (CLS) ---
@@ -2674,7 +2674,7 @@ c            call fclose(ifi)
       if (icls .ne. 0) then
          if (procid .eq. master) then
             eferm=sbz%ef
-            call vcdmel ( sctrl , ssite , sspec , slat , nlmax , ndham , 
+            call vcdmel ( sctrl%nl , ssite , sspec , slat , nlmax , ndham , 
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
      .        nsites , isite , iclsl , iclsn )
             call rx0('done generating core level spectra')
@@ -2736,9 +2736,12 @@ C       call poppr
 !! --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
 !!   ... Correction to harris force
-         call dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 , nvl
+        job=int(sctrl%lfrce)
+        if(job>0 ) then
+          call dfrce (job, ssite , sspec , slat , k1 , k2 , k3 , nvl !sctrl , 
      .     , spot%sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
      .     srout_zv , fh_rv )
+        endif
 !!   ... Evaluate KS total energy and output magnetic moment
          eks = 0d0
          if (leks .ge. 1) then

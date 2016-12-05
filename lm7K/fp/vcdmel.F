@@ -1,21 +1,4 @@
-Cdelw1 var ['orofi', '1', 'orofi', 'nr', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['oul', '1', 'oul', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['osl', '1', 'osl', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['ogz', '1', 'ogz', 'nr*(lmxa+1)*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['oruu', '1', 'oruu', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['orus', '1', 'orus', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['orss', '1', 'orss', 'nr*(lmxa+1)*2*nsp', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['ov0', '-1', 'undef', '0', 'undef', 'x', 'vcdmel']
-Cdelw1 var ['og', '1', 'og', 'nr*2', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['os', '0', 'os', '3*ndimh*nsite*2', 'real(8)', 'rv_w_', 'vcdmel']
-Cdelw1 var ['ocg', '-1', 'undef', '0', 'undef', 'x', 'vcdmel']
-Cdelw1 var ['ojcg', '-1', 'undef', '0', 'undef', 'x', 'vcdmel']
-Cdelw1 var ['oidxcg', '-1', 'undef', '0', 'undef', 'x', 'vcdmel']
-Cdelw1 undel [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
-Cdelw1 undel [['undef', 'wvar', 'wref'], 'ocg', 'vcdmel']
-Cdelw1 undel [['undef', 'wvar', 'wref'], 'ojcg', 'vcdmel']
-Cdelw1 undel [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
-      subroutine vcdmel(sctrl,ssite,sspec,slat,nlmax,ndham,ndimh,
+      subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
       use m_struc_def
 C- Valence-core dipole matrix elements
@@ -57,11 +40,9 @@ C Passed Parameters
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
       real(8):: ef , evl(ndham,nsp,nq)
       type(s_ctrl)::sctrl
-cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nsite)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-
       double complex aus(nlmax,ndham,3,nsp,nsite,nq)
 C Local Variables
       integer n0,lmxax
@@ -69,22 +50,6 @@ C Local Variables
       integer ifi,fopna,isp,ib,is,lcls,ncls,nl,i,j,iomoms,
      .nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
       integer lh(10)
-Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ocg', 'vcdmel']
-Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ojcg', 'vcdmel']
-Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'oidxcg', 'vcdmel']
-Cdelw1 do not change  [['undef', 'wvar', 'wref'], 'ov0', 'vcdmel']
-Cdelw1       integer ocg,ojcg,oidxcg,ocy,ov0,orofi,oul,osl,ogz,oruu,orus,orss,
-Cdelw1      .og,os
-ckino Dec.12.2011:              real(8),pointer :: rv_p_ov0(:) =>NULL()
-
-ckino Dec.12.2011:             integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.12.2011:            integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.12.2011:           real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
-
       real(8) ,allocatable :: rofi_rv(:)
       real(8) ,allocatable :: ul_rv(:)
       real(8) ,allocatable :: sl_rv(:)
@@ -94,49 +59,20 @@ ckino Dec.12.2011:          real(8),pointer :: rv_p_ocg(:) =>NULL()
       real(8) ,allocatable :: rss_rv(:)
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: s_rv(:)
-
       double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
       character clabl*8
-C ... Heap
 
       call tcn ('vcdmel')
       rsml=0d0 !call dpzero(rsml,n0)
       ehl=0d0  !call dpzero(ehl,n0)
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 66
-Cdelw1 do not change ocg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
-
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 67
-Cdelw1 do not change ojcg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 68
-Cdelw1 do not change oidxcg because of ['undef', 'wvar', 'wref']
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
       do  i = 1, nsite
         ib = isite(i)
         ncls = iclsn(i)
         lcls = iclsl(i)
         is = ssite(ib)%spec
-        !i_copy_size=size(ssite(ib)%pnu)
-        !call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-        !pnu(1:n0,1:2)= ssite(ib)%pnu(1:n0,1:2)
         call dcopy(n0*2,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.12.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-        !i_copy_size=size(ssite(ib)%pz)
-        !call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-        !pnz(1:n0,1:2)= ssite(ib)%pz(1:n0,1:2)
-        !do i_spacks=is,is
-        !  call spacks_copy('u',sspec(i_spacks)%name,is,is,clabl,i_spacks)
-        !enddo
         call dcopy(n0*2,ssite(ib)%pz,1,pnz,1)
-c        call r8tos8(sspec(is)%name,clabl)
         clabl=sspec(is)%name
         a=sspec(is)%a
         nr=sspec(is)%nr
@@ -158,36 +94,20 @@ C   --- Augmented wave functions u,s
         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv )
-
 C   --- Matrix elements of u,s with core
         call skpblb(clabl,8,j)
         call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
      .  ' ',120,i1mach(2),ib,ncls,lcls)
         allocate(g_rv(nr*2))
-
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
-Cdelw1 warning(1) , probably  ov0  is not defined yet at linenumber= 112
-Cdelw1         call pvcdm1(ncls,lcls,w(og),z,lmxa,w(ov0),a,nr,w(orofi),
-Cdelw1      .  w(oul),w(osl),nsp,lmxax,ume(0,1,i),sme(0,1,i))
-ckino Dec.12.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , rv_p_ov0 , a
-ckino Dec.28.2011:           call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_p_ov0 , a
         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a 
      .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
      .   0 , 1 , i ) , sme ( 0 , 1 , i ) )
-
-
-Cdelw1 rlse name= orofi old_list= orofi oul osl ogz oruu orus orss og
-Cdelw1 rlse name= orofi new_list= (None)
-Cdelw1         call rlse (orofi)
         deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
-c   10   continue
       enddo
 C --- Open CLS weights file and write first line
-Cdelw1       call defrr(os,3*ndimh*nsite*2)
       allocate(s_rv(3*ndimh*nsite*2))
       if (3*ndimh*nsite*2<0) s_rv(:)=0.0d0
-
-      nl = sctrl%nl
+c      nl = sctrl%nl
       nfstg = 11
       nchan = 3*nsite
       ifi = fopna('cls',-1,4)
@@ -197,7 +117,6 @@ C --- For each qp, make <nk|x,y,z|core> at each site and save to disk in
 C     iomoms-compatible format ---
       do   iq = 1, nq
         do  isp = 1, nsp
-Cdelw1           call dpzero(w(os),3*ndimh*nsite*2)
           call dpzero ( s_rv , 3 * ndimh * nsite * 2 )
 
           do  i = 1, nsite
@@ -207,59 +126,25 @@ Cdelw1           call dpzero(w(os),3*ndimh*nsite*2)
             lmxa=sspec(is)%lmxa
             nlma = (lmxa+1)**2
             if (lmxa .gt. -1) then
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 137
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 137
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 137
-Cdelw1 warning(1) , probably  ocg  is not defined yet at linenumber= 137
-Cdelw1 warning(1) , probably  ojcg  is not defined yet at linenumber= 137
-Cdelw1 warning(1) , probably  oidxcg  is not defined yet at linenumber= 137
-Cdelw1               call pvcdm2(i,nsite,ndham,ndimh,nlma,nlmax,
-Cdelw1      .        aus(1,1,1,isp,i,iq),ume(0,isp,i),sme(0,isp,i),
-Cdelw1      .        lcls,w(ocg),w(ojcg),w(oidxcg),w(os))
               call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
      .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , iv_p_ojcg , iv_p_oidxcg , s_rv
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , iv_p_oidxcg , s_rv
-ckino Dec.12.2011:       .            , isp , i ) , lcls , rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv
-ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_p_oidxcg , s_rv
-ckino Dec.27.2011:       .            , isp , i ) , lcls , slat%rv_p_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv
-ckino Dec.28.2011:       .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_p_ojcg , slat%iv_a_oidxcg , s_rv 
-     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv 
-     .            )
-
-
-
-
+     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv)
             endif
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..
-Cdelw1           call dscal(3*ndimh*nsite*2,1d2,w(os),1)
           call dscal ( 3 * ndimh * nsite * 2 , 1d2 , s_rv , 1 )
-
-Cdelw1           j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,1,1,ndimh,ndimh,
-Cdelw1      .    nchan,nchan,ndimh,evl(1,isp,iq),0d0,w(os),0d0,0d0,0d0)
           j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
      .     , 1 , 1 , ndimh , ndimh , nchan , nchan , ndimh , evl ( 1 , isp 
      .     , iq ) , 0d0 , s_rv , 0d0 , 0d0 , 0d0 )
-
         enddo
       enddo
       iq = nq*nsp + 1
       j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
      .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
-Cdelw1 rlse name= os old_list= os
-Cdelw1 rlse name= os new_list= (None)
-Cdelw1       call rlse(os)
       if (allocated(s_rv)) deallocate(s_rv)
-
       call fclose(ifi)
       call tcx ('vcdmel')
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlistundel: [ov0 ocg ojcg oidxcg]
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine vcdmel
-
 
       subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,
      .lmxax,ume,sme)
@@ -306,10 +191,6 @@ C   ... Correct core energy by using hankel bc's
         call awrit2(' vcdmel: ecor0=%,8d ecore=%,8d%N'
      .  //' (not including electrostatic potential shift)',
      .  ' ',120,i1mach(2),ecor0,ecore)
-C      call prrmsh('gcore',rofi,gcore,nr,nr,1)
-C      call prrmsh('ul',rofi,ul,nr,nr,1+lmxa)
-C      call prrmsh('sl',rofi,sl,nr,nr,1+lmxa)
-
 C --- Matrix elements < (u,s) | r | core > ---
         print 332
   332   format( '   l',3x,'<u|core>',5x,'<s|core>',4x,
@@ -344,9 +225,6 @@ C --- Matrix elements < (u,s) | r | core > ---
   335     format(i4,4f12.6)
         enddo
       enddo
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvcdm1
 
       subroutine pvcdm2(isite,nsite,ndham,ndimh,nlma,nlmax,aus,ume,sme,
@@ -385,8 +263,6 @@ C ... Local parameters
       double complex cxx
 C     Transposes (y,z,x) to (x,y,z)
       data kk /0,2,3,1/
-
-C      write (*,100)
 C ... Loop over lm of (u,s)
       do  11  mlm = 1, nlma
         lm = ll(mlm)
@@ -418,20 +294,11 @@ C     .              aus(mlm,ib,2),cg(icg),cxx
    14     continue
         endif
    11 continue
-
       do  20  k = 1, 3
       do  20  ib = 1, ndimh
         s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
      .    + s(k,isite,ib,2)*s(k,isite,ib,2)
    20 continue
-C  100 format (2x,'n',2x,'L(val)',1x,'L(r)',1x,'L(core)',11x,'au',25x,
-C     .        'as',14x,'CG',20x,'cxx')
-C  200 format (1x,i3,3i5,2x,'(',g12.5,',',g12.5,')',
-C     .  '(',g12.5,',',g12.5,')',g12.5,'(',g12.5,',',g12.5,')')
-
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end subroutine pvcdm2
 
 

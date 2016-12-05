@@ -1,6 +1,5 @@
-      subroutine suham2(sctrl,slat,sspec,ssite,sham,spot) !,sstrn) removed june2015
-
-      use m_struc_def  !Cgetarg
+      subroutine suham2(slat,sspec,ssite,sham,spot) !,sstrn) removed june2015
+      use m_struc_def
       use m_globalvariables
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
@@ -32,49 +31,31 @@ Cu   16 Aug 04 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
       type(s_ham)::sham
       type(s_pot)::spot
-
 c      character*(*) sstrn
 C ... Local parameters
-      integer nspec,lfp,nglob
+      integer nspec,nglob
 C ... Needed for
       integer:: ng , i
-ckino Dec.14.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
-
       double precision alat,tolgv,dum
-
-
 C --- Setup ---
-
-      lfp=sctrl%lfp
-
-Changenglob      nspec = nglob('nspec')
+c      lfp=sctrl%lfp
       nspec = globalvariables%nspec
-
 C --- FP setup ---
-      if (lfp .ne. 0) then
+c      if (lfp .ne. 0) then
         call uspecb(0,0,sspec,1,nspec,dum,dum,dum,i)
         if (i .ge. 100) then
-
           ng=slat%ng
-ckino Dec.14.2011:             rv_p_ogv => slat%rv_p_ogv
-
           alat=slat%alat
           tolgv=slat%tolft
-
-ckino Dec.14.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , rv_p_ogv , tolgv
-ckino Dec.27.2011:             call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_p_ogv , tolgv
-          call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv 
-     .     )
-
+          call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv )
         endif
-      endif
-
+c      endif
       end subroutine suham2
 
 

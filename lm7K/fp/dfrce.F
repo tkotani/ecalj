@@ -1,4 +1,4 @@
-      subroutine dfrce ( ssite , sspec , slat , sctrl , k1 , k2 , k3 
+      subroutine dfrce (job, ssite , sspec , slat , k1 , k2 , k3 !sctrl , 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
      .  , dfh )
       use m_struc_def  !Cgetarg
@@ -73,7 +73,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
 
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
 C Local variables
@@ -122,9 +122,8 @@ C     double precision dqsmo,dval
 C ... Heap
       real(8),allocatable:: cs_(:),sn_(:)
 
-      job = int(sctrl%lfrce)
-
-      if (job .le. 0) return
+c      job = int(sctrl%lfrce)
+c      if (job .le. 0) return
       call tcn('dfrce')
 
 #if MPI | MPIK
