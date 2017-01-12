@@ -410,6 +410,19 @@ This shows you band by LDA.
     we have scripts which almost automatically makes these plot in
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
+
+
+### New: symmetry line finder (jan.2017) ###
+Get symmetry line. syml.* from ctrl.* in ecalj/GetSyml/
+
+In this directory, we have getsyml.py, which is based on the seekpath
+https://github.com/giovannipizzi/seekpath/
+See Lincence.txt
+Folllowing citations are required.
+    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
+       Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
+    2.You should also cite spglib that is an essential library used in the implementation.
+
 </pre>
 
 History
