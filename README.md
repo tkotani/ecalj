@@ -397,6 +397,11 @@ NOTE: If you like to skip them,  run ./job_materials.py Si at /home/takao/ecalj/
  >job_band_nspin1 si
 This shows you band by LDA.
 
+#new 2017jan, takao kotani
+# For preparation of syml file for new materials, use
+# getsyml.py (see below). It automatically generates syml.* file from
+# ctrl file.
+
 (4) For PMT-QSGW, make GWinput.tmp by mkGWIN_v2 si.
     Copy GWinput.tmp as GWinput. (you supply three numbers for the
     command mkGIWN_V2.)
@@ -411,7 +416,6 @@ This shows you band by LDA.
     gnuplot. Thus easy to modify these plots at your desposal.
 -------------------------------------------
 
-
 ### New: symmetry line finder (jan.2017) ###
 Get symmetry line. syml.* from ctrl.* in ecalj/GetSyml/
 
@@ -422,7 +426,6 @@ Folllowing citations are required.
     1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
        Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
     2.You should also cite spglib that is an essential library used in the implementation.
-
 </pre>
 
 History

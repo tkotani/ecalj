@@ -3,11 +3,27 @@ Get symmetry line. syml.* from ctrl.*
 In this directory, we have getsyml.py, which is based on the
 seekpath(v.1.2.0, dec2016). https://github.com/giovannipizzi/seekpath/
 
+
+============
+Requirement:
+ Numerical python
+ spglib
+
 See Lincence.txt
 
-Folllowing citations are required.
-    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
-    Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
 
-    2.You should also cite spglib that is an essential library used in the implementation.
+============
+Citations when we use.
 
+  Folllowing citations are required.
+   1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
+     Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
+   2.You should also cite spglib that is an essential library used in the implementation.
+
+============
+TODO:
+   a.Modify lmchk to write required information to supply reasonable.
+     For example, ndiv (mesh size along lines).
+   b.Numerical accuracy of calculations. 
+     np.set_printoptions(precision=16) is not meaningful since we read
+     output of lmchk
