@@ -362,7 +362,7 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 %\noindent$\bullet${\bf Index of I/O files, shel scripts and executions.}
 
 
-\newpage
+%\newpage
 %\section{Software license agreement}
 % ecalj is free for use, modify and redistribute.
 % However, in any distribution of this codes, you have to
@@ -373,6 +373,13 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 
 
 %\input{ecaljmanual_part1.tex}
+
+\newpage
+\noindent {\Large Change LOG:}\\
+
+$\bullet$ Jan2017 Add minimum description for syml generator at Sec.\ref{sec:getsyml} \\
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\bibliographystyle{apsrev4-1}
@@ -1562,7 +1569,7 @@ same answer.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{DOS, Band, PDOS plot}
+\subsection{DOS, PDOS plot}
 
 We already have script to plot dos, band, and pdos
 from the result of lmf self-consistent calculations.
@@ -1592,8 +1599,47 @@ The range of DOS and division of total DOS is given by
 DOSMAX and NPTS in ctrl. Edit tdos.cu.glt for gnulot for your presentation. 
 Please look into \io{job\_tdos} file in your bin directory. It is a small script.
 
-For band plot, we have to set symmetry lines along which we plot eigenvalues.
+For PDOS plot,
+\begin{verbatim}
+    job_pdos cu
+\end{verbatim}
+It shows figures (number of figures are number of atoms in the cell) in
+gnuplot (they are written in the same position on X-window;
+move top one a little). The command \verb+job_pdos+ is a little 
+time-consuming because we use no symmetry to distinguish all lm channels.
+(PDOS is not yet implemented for SO=1 case; spin-orbit coupling $\L\dot S$ is added.)
+We can edit script of gnuplot (pdos.site*.*.glt) for your purpose.
+To plot again, run
+\begin{verbatim}
+  gnuplot -persist pdos.site001.cu.glt
+\end{verbatim}
+In principle, meanings of all data files are shown (see at the bottom
+of console output about lm ordering in a line), thus not so difficult to
+rewrite *.glt. For example, to plot eg and t2g separately. 
+(NOTE: site id is shown by lmchk).\\
+
+\noindent {\bf WARNING}: 
+Usually lmf and so on recognize options such as -v option. For example,
+' lmf gaas -vnspin=2' or 'lmf gaas -vso=1'. 
+This option changes values of variables defined in \verb+% const+ section.
+This is recorded in save.* file, and also shown at the top of console output. 
+However, job\_tdos and so on, do not yet accept these options.
+Thus we need to modify ctrl file without using -v option.
+Or you need to write these option to these command by hand
+(we will fix this problem in future.)
+
+%\paragraph{Practice}
+%Let start from scratch. 
+%Make directory as \verb+~/ecaljtest/Si+ 
+%And make \verb+ctrls.si+ first.
+%Then generates \verb+ctrl.si+, and run lmfa, lmf successively. 
+%There are other sample. Try it by yourself.
+\subsection{Band plot}
+\label{sec:bandplot}
+For band plot, we have to set symmetry lines along which we plot
+eigenvalues. 
 Collections \verb+syml.*+ are in ecalj/MATERIALS/. 
+(On Jan2017, we prepared automatic generator of syml.* See Sec.\ref{sec:getsyml}).
 Choose and modify one of them and rename it. 
 I will gather other samples soon. 'BZ wikipedia' or something else
 will help you to interpret it.
@@ -1638,41 +1684,17 @@ in cases (but need to change the script)).
  \end{center}
 \end{figure}
 
-For PDOS plot,
-\begin{verbatim}
-    job_pdos cu
-\end{verbatim}
-It shows figures (number of figures are number of atoms in the cell) in
-gnuplot (they are written in the same position on X-window;
-move top one a little). The command \verb+job_pdos+ is a little 
-time-consuming because we use no symmetry to distinguish all lm channels.
-(PDOS is not yet implemented for SO=1 case; spin-orbit coupling $\L\dot S$ is added.)
-We can edit script of gnuplot (pdos.site*.*.glt) for your purpose.
-To plot again, run
-\begin{verbatim}
-  gnuplot -persist pdos.site001.cu.glt
-\end{verbatim}
-In principle, meanings of all data files are shown (see at the bottom
-of console output about lm ordering in a line), thus not so difficult to
-rewrite *.glt. For example, to plot eg and t2g separately. 
-(NOTE: site id is shown by lmchk).\\
+\subsubsection{syml genearator}
+\label{sec:getsyml}
+Jan2017, we added directory {\tt ecalj/GetSyml}, which contains
+automatic generator of symmetry-line file {\tt syml.*} from {\tt
+ctrl.*}). Simultaneously,
+ we plot a picture of BZ showing the symmetry lines by matplotlib.
+See {\tt ecalj/GetSyml/README}.
+We use open softwares {\tt spglib} and {\tt seekpath} (these should be
+installed separetely).
+We have to add acknoledgement to them (see README) )when we use this generator.
 
-\noindent {\bf WARNING}: 
-Usually lmf and so on recognize options such as -v option. For example,
-' lmf gaas -vnspin=2' or 'lmf gaas -vso=1'. 
-This option changes values of variables defined in \verb+% const+ section.
-This is recorded in save.* file, and also shown at the top of console output. 
-However, job\_tdos and so on, do not yet accept these options.
-Thus we need to modify ctrl file without using -v option.
-Or you need to write these option to these command by hand
-(we will fix this problem in future.)
-
-%\paragraph{Practice}
-%Let start from scratch. 
-%Make directory as \verb+~/ecaljtest/Si+ 
-%And make \verb+ctrls.si+ first.
-%Then generates \verb+ctrl.si+, and run lmfa, lmf successively. 
-%There are other sample. Try it by yourself.
 
 
 \subsection{Useful samples: ecalj/MATERIAL/}

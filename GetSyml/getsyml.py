@@ -13,6 +13,9 @@ if len(sys.argv)!=2:
     print 'this is based on https://github.com/giovannipizzi/seekpath'
     print 'we have to cite Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) (JOURNAL LINK, arXiv link).'
     sys.exit(-1)
+
+
+### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 os.system('lmchk '+sys.argv[1]+'> outlmchk')
 os.system('grep Plat -A3 outlmchk > plinfo')
 plfile = open('plinfo','r').read().split('\n')
@@ -43,6 +46,7 @@ for i in range(0,3):
                 print 'qlat i=j'
                 sys.exit(-1)
 
+###
 aaa='"Site     Spec            Rmax"'
 os.system('grep -A10000 '+aaa+ ' outlmchk > siteinfo')
 sitefile = open('siteinfo','r').read().split('\n')
