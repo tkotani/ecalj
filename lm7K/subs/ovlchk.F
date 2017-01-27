@@ -41,6 +41,7 @@ C Local parameters
       character*80 a, ch*1
       logical lterse,cmdopt,lrmt
       character*8 clabl,clablj
+      integer:: ifile_handle,ifp
 
       call getpr(ipr)
       lrmt = rmt(1) .gt. 0
@@ -74,6 +75,9 @@ C --- Determine which linear combination of plat is shortest ---
       volsph = 0d0
       volspp = 0d0
 
+      ifp=ifile_handle()
+      open(ifp,file='SiteInfo.lmchk')
+
       do  20  ibas = 1, nbasp
         ic = ips(ibas)
         if (ipr .le. 10) goto 20
@@ -84,11 +88,13 @@ c        call r8tos8(dclabl(ic),clabl)
         if (lrmt) then
           write(stdo,450) ibas,ic,clabl,rmax(ic),rmt(ic),
      .    (pos(m,ibas),m=1,3)
+          write(ifp,450) ibas,ic,clabl,rmax(ic),rmt(ic),
+     .    (pos(m,ibas),m=1,3)
   450     format(i5,3x,i4,2x,a8,2f12.6,3f11.5)
         else
           write(stdo,351) ibas,ic,clabl,rmax(ic),(pos(m,ibas),m=1,3)
+          write(ifp,351)ibas,ic,clabl,rmax(ic),(pos(m,ibas),m=1,3)
   351     format(i5,3x,i4,2x,a8,f12.6,3f11.6)
-
           if (ipr .ge. 41) then
             call dgemm('T','N',3,1,3,1d0,qlat,3,pos(1,ibas),3,0d0,dd,3)
 C          do  m = 1, 3
@@ -99,9 +105,11 @@ C          enddo
   352       format(13x,'as multiples of plat:',3f11.6)
           endif
         endif
+
         if (ibas .le. nbas) volsph = volsph + 4.188790205d0*rmax(ic)**3
         volspp = volspp + 4.188790205d0*rmax(ic)**3
    20 continue
+      close(ifp)
 
       xx = avwsr(plat,alat,vol,nbas)
       if (ipr .ge. 10 .and. volspp .eq. volsph) then

@@ -1,4 +1,5 @@
 subs_list:=\
+        util.o\
         m_globalvariables.o \
 	m_rdctrl.o \
 	m_toksw.o \

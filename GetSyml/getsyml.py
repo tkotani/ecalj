@@ -17,15 +17,14 @@ if len(sys.argv)!=2:
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 os.system('lmchk '+sys.argv[1]+'> outlmchk')
-os.system('grep Plat -A3 outlmchk > plinfo')
-plfile = open('plinfo','r').read().split('\n')
+#os.system('grep Plat -A3 outlmchk > plinfo')
+plfile = open('PlatQlat.lmchk','r').read().split('\n')
 i=0
 plat=['']*3
 for iline in plfile:
+    if(i==3): break
     i=i+1
-    if(i>1 and i<5): 
-#        print 'iine=',re.split('\s+',iline)
-        plat[i-2] = [float(re.split('\s+',iline)[ix]) for ix in range(1,4)]
+    plat[i-1] = [float(re.split('\s+',iline)[ix]) for ix in range(1,4)]
 cell = plat
 print 'primitive cell=',cell
 
@@ -48,8 +47,8 @@ for i in range(0,3):
 
 ###
 aaa='"Site     Spec            Rmax"'
-os.system('grep -A10000 '+aaa+ ' outlmchk > siteinfo')
-sitefile = open('siteinfo','r').read().split('\n')
+#os.system('grep -A10000 '+aaa+ ' outlmchk > siteinfo')
+sitefile = open('SiteInfo.lmchk','r').read().split('\n')
 
 i=0
 pos=['']*3
@@ -164,7 +163,21 @@ if not ifound:
     print 'can not find qqq equivalent to reciprocal_primitive_lattice'
     sys.exit()
 
+distot = 0e0
+for ipath in a['path']:
+    ii=ipath[0]
+    ppp= a['point_coords'][ii]
+    ppp= ppp[0]*qqq[0]+ppp[1]*qqq[1] +ppp[2]*qqq[2]
+    ii1,ii2,ii3 = [ float(ppp[ixx]) for ixx in range(0,3)]
+    ee=ipath[1]
+    ppp= a['point_coords'][ee]
+    ppp= ppp[0]*qqq[0]+ppp[1]*qqq[1] +ppp[2]*qqq[2]
+    ee1,ee2,ee3 = [ float(ppp[ix]) for ix in range(0,3)]
+    dis= ((ee1-ii1)**2+(ee2-ii2)**2+(ee3-ii3)**2)**.5
+    distot = distot+dis
+
 ###############################################
+totalbandpoint=100
 for ipath in a['path']:
     ii=ipath[0]
     ppp= a['point_coords'][ii]
@@ -176,7 +189,7 @@ for ipath in a['path']:
     ppp= ppp[0]*qqq[0]+ppp[1]*qqq[1] +ppp[2]*qqq[2]
     ee1,ee2,ee3 = [ float(ppp[ix]) for ix in range(0,3)]
     dis= ((ee1-ii1)**2+(ee2-ii2)**2+(ee3-ii3)**2)**.5
-    ndiv=int(30*dis) #this controls number of divisions
+    ndiv=int(totalbandpoint*dis/distot) #this controls number of divisions
     print ii1,ii2,ii3,ii
     print >> sfile, ndiv,ii1,ii2,ii3,' ',ee1,ee2,ee3,'  ', ii,ee 
 print >>sfile, 0

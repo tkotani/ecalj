@@ -44,6 +44,7 @@ C Local parameters
       integer k,iprint,m,i1mach,modeg(3),isw,stdo,lgunit
       double precision qlat0(3,3),vol0,plat0(3,3),radd,qadd
       double precision qdist0,a0,rdist0,tol1,r0,q0,one(3,3),oned(3,3)
+      integer:: ifile_handle,ifp
 
       stdo = lgunit(1)
       call dcopy(9,platin,1,plat0,1)
@@ -57,6 +58,13 @@ C     qlat = (plat+)^-1
       write(stdo,351)
   351 format(/t17,'Plat',t55,'Qlat')
       write (stdo,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+
+      ifp=ifile_handle()
+      open(ifp,file='PlatQlat.lmchk')
+      write (ifp,350) ((plat0(m,k),m=1,3),(qlat0(m,k),m=1,3),k=1,3)
+      write (ifp,"('             PLAT              and         QLAT    ')")
+      close(ifp)
+
   350 format(3f11.6,5x,3f11.6)
       if (dabs(gt-1d0) .gt. 1.d-5) then
         call awrit4(' Distorted with gx,y,z= %d %d %d  gt=%d:',
