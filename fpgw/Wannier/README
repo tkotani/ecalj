@@ -50,6 +50,41 @@ where 12 is cores.
     (off-diagonal elments are also calculated. Sorry, I have not yet
     document how to read this...)
 
+== NOTE for setting orbitals for Wannier ===
+ For the setting of the Wannier functions, you can use
+ <Worb>...</Worb> section as
+---------------
+<Worb> Site 
+  2 Fe    7 6 8 9 5
+  3 Fe    7 6 8 9 5
+</Worb> 
+---------------
+, instead of <MLWF>...</MLWF> setion used in the GWinput in the samples.
+Note that the first column and second  column show the atomic site
+index shown by lmchk.
+
+=== NOTE for symmetric Wannier orbital. ===
+If you like a set of Wannier orbitals keeping the crystal
+symmetries, set 
+------------------
+wan_maxit_2nd 0
+------------------
+in GWinput. This set nsc2=0 in hmaxloc.F.
+(The Marizari's 2nd step is skipped. Only the projection after Souza's
+first step).
+
+
+=== How to make? ====
+for bash, type
+>cat ../../InstallAll.gfortran
+this shows MATH variable. Then set $MATH as enviaromental variable 
+>MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
+and then run make as
+>make PLATFORM=gfortran LIBMATH="$MATH"
+This is also given in ../../InstallAll.gfortran
+
+
+
 ==============================
 Known bugs:
  * Range of plot looks not good;

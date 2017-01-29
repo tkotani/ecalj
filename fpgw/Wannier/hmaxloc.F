@@ -458,12 +458,57 @@ c input parameters specific to MAXLOC
       wphi = 1d0
 
 
-
-      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
-     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
-     &    eimin,eimax,itin_i,itin_f,
-     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
+!! Read parameters in GWinput. expand wan_input
+c      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
+c     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
+c     &    eimin,eimax,itin_i,itin_f,
+c     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
 c
+      ieo_swt = 0
+      eomin   = 0d0
+      eomax   = 0d0
+      itout_i = 0
+      itout_f = 0
+      iei_swt = 0
+      eimin   = 0d0
+      eimax   = 0d0
+      itin_i  = 0
+      itin_f  = 0
+      call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
+      call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
+      call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
+      if (leout) then
+        call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )  
+        call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )  
+        if (eomin.gt.eomax) call rx('hmaxloc: eomin > eomax')
+        ieo_swt = 1
+      else
+        call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )  
+        call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )  
+        if (itout_i.gt.itout_f) call rx('hmaxloc: itout_i > itout_f')
+      endif
+      if (lein) then
+        call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )  
+        call getkeyvalue("GWinput","wan_in_emax",eimax,default=-999d0 )  
+        if (eimin.gt.eimax) call rx('hmaxloc: eimin > eimax')
+        iei_swt = 1
+      endif
+      if (lbin) then
+        call getkeyvalue("GWinput","wan_in_bmin",itin_i,default=999 )  
+        call getkeyvalue("GWinput","wan_in_bmax",itin_f,default=-999 )  
+        if (itin_i.gt.itin_f) call rx('hmaxloc: itin_i > itin_f')
+        iei_swt = 2
+      endif
+      call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)  
+      call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)  
+      call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)  
+      call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)  
+      call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)  
+      call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)  
+      call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)  
+      call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)  
+      call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)  
+!
 
 cskino
       r_v=rcut
