@@ -1,11 +1,15 @@
+!! cp hx0fp0.m.F in order to develop by Okumura (2017/03/23)
 !!  Calculate x0, \epsilon, spin susceptibility. 
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
-      program hx0fp0
+      program test
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
-      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
+      use m_readeigen,only: readeval,init_readeigen,init_readeigen2,
+     &     wan_readeval,wan_readeigen,evud_w,eval_w !for okumura
+!     & wan_readeigen
+      use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      & dq_,qbz,wbz,qibz,wibz,qbzw,
@@ -157,13 +161,7 @@ c     &   ,ngpmx !,  ifchipmlog
       character*4:: charnum4
       complex(8),allocatable:: jcoup(:,:), mcm(:,:,:)
       real(8)::chg1,chg2,spinmom,schi=1d0
-c$$$#ifdef COMMONLL
-c$$$      integer::ll(51**2)
-c$$$      common/llblock/ll
-c$$$#else
-c$$$      integer :: ll
-c$$$      external ll
-c$$$#endif
+
       complex(8),allocatable:: ovlp(:,:),evec(:,:),ovlpi(:,:)
       real(8),allocatable::eval(:)
       integer:: new,nmxx,ii,iy,ipl1,ixx
@@ -243,6 +241,12 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: nbmx,mtet(3),ifq0p
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
+!     okumura
+      integer::ifhamw,nwf,nsp_w,nqtt_w,iwf,inwf,nww
+      real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
+      logical::wan=.true.
+      real,allocatable::kmat(:,:,:,:)
+      
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -283,7 +287,6 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
 !!  nolfco:
 !!    no local field correction
 !!
-cc
       lqall=.true.
       if(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
         normalm=.true.
@@ -314,41 +317,10 @@ cc
         epsmode = .true.
         chipm=.true.
         nolfco=.true.
-c$$$      elseif(ixc==223) then
-c$$$        aaax="ixc=223 chipm with LFC sergey's -->commented out now."
-c$$$        write(6,*) trim(aaax)
-c$$$        call rx(trim(aaax))
-c$$$        realonly=.true.
-c$$$        omitqbz=.true.
-c$$$        chipm =.true. 
-c$$$        nolfco=.true.
-c$$$        epsmode = .true.
-!     -- chipm mode NoLFC
-c      elseif(ixc==10222) then
-c        write(6,*) " OK ixc=10222  <q|chipm_0|q> sergey"
-c        imagomega=.false.
-c        omitqbz=.true.
-c
-c$$$!! Total energy test mode --> need fixing
-c$$$      elseif(ixc==12) then
-c$$$        write(6,*) " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
-c$$$        call rx( " ixc=12 Miyake's total energy Sergey--->need to fix this mode")
-c$$$        realomega=.false.
-c$$$        ecorr_on=901
+
       else
         call rx( ' hx0fp0: given mode ixc is not appropriate')
       endif
-
-c$$$!! files for RPA correlation energy mode.
-c$$$      if(ecorr_on > 0) then
-c$$$        ieclog = 8155
-c$$$        if(ecorr_on==901) then
-c$$$          ieceig=8156
-c$$$          open(ieceig,file='rpa_eigen.chk')
-c$$$          close(ieceig,status='delete')
-c$$$        endif
-c$$$        open(ieclog, file='ecorr.chk')
-c$$$      endif
 
 !! We fix newaniso2=T now.
 
@@ -416,6 +388,14 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !Note: nband is in m_zmel
       is = iclose('hbe.d')
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
+
+!     ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
+      if(ixc==222) then
+         open(ifhamw,file="wan4chi.d",form='unformatted')
+         read(ifhamw) nwf,nsp_w,nqtt_w
+         close(ifhamw)
+         write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
+      endif
 
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
@@ -489,7 +469,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       do i=1,ntq
         itq(i)=i
       enddo
-
+     
 !! Pointer to optimal product basis
       nblochpmx = nbloch + ngcmx
       allocate(ngveccB(3,ngcmx)) ! work arry
@@ -498,11 +478,11 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
 
 !! Initialization of readEigen !readin m_hamindex
       ginv = transpose(plat)
-      call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
+      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
-
+      
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
@@ -520,16 +500,6 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       if(epsmode) then 
         allocate(epsi(nw_i:nw,neps)) 
       endif
-
-c$$$!! Miyake tote mode Nov2004. Need fixing.
-c$$$      if(ecorr_on>0) then  !it was bzcase()==2 Was it bug?
-c$$$        allocate(nstibz(nqibz))
-c$$$        do iq=1,nqibz
-c$$$          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
-c$$$          nstibz(iq) = nstbz(iqbz)
-c$$$c          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
-c$$$        enddo
-c$$$      endif
 
 !! Tetra hedron initialization
       noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
@@ -573,40 +543,7 @@ c$$$      endif
         iqxini= 1
       endif
 
-
-c$$$!! check write 1st part for Ec mode to ecorr.chk Nov2004
-c$$$      if(ecorr_on>0) then
-c$$$!!!!!!!!!!!!! this path is under developing. !!!!!!!!!!!
-c$$$        call rx(' ! hx0fp0: need to fix this path. check subroutine getwk and so on in this path')
-c$$$!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-c$$$        if(ecorr_on >0.and. (.not.imagomega) ) 
-c$$$     &   call rx( ' hx0fp0: ecorr_on .and. (.not.imagomega)')
-c$$$        write(ieclog, "('   iq                q                       wk')")
-c$$$        do iqq = iqxini,iqxend
-c$$$          call getwk(iqq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
-c$$$          write(ieclog,"(i5,3x,3f12.8, f15.5)") iqq, q, wk4ec
-c$$$        enddo
-c$$$        write(ieclog,*)
-c$$$        write(ieclog,"('   iw omega(Ry)       wiw')")
-c$$$        do iww=1,niw
-c$$$          write(ieclog,"(i5, f10.5, f10.5)") iww,2d0*freq_i(iww),wiw(iww)
-c$$$        enddo
-c$$$        write(ieclog,*)
-c$$$        write(ieclog,"(' Note:IntWgt=wk*wiw.',
-c$$$     &'  Ec =\sum_{k,iw) IntWgt(k,iw)*ecqw(k,iw)')")
-c$$$        close(ieclog)
-c$$$        open(ieclog,file="ecorr.chk",access='append')
-c$$$
-c$$$        call getkeyvalue("GWinput","necut_p",necut, default=1 )
-c$$$        allocate(totexc(necut),trpv(necut),trlog(necut))
-c$$$        totexc = 0d0
-c$$$        trpv   = 0d0
-c$$$        trlog  = 0d0
-c$$$      else
-c$$$        necut=1
-c$$$      endif
-
-!!
+!!!!!
       necut=1
       allocate(ecut(necut),ecuts(necut))
       call getkeyvalue("GWinput","ecut_p" ,ecut, necut,default=(/1d10/) )
@@ -689,7 +626,19 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-
+      !okumura
+      allocate(ev_w1(1:nwf,1:nqtt),ev_w2(1:nwf,1:nqtt))
+      !!! To get eigenvalue: evud_w(nwf,nwf,nqtt,nsp)=coefficient a
+      !!! for constructing wavefunction
+      call wan_readeigen(ginv,nspin,nwf)
+c$$$      !!!sumcheck ok 20170427
+c$$$      do iwf=1,nwf
+c$$$         write(6,*) "20170427 iwf:",iwf
+c$$$         write(6,*) "20170427:",sum(abs(evud_w(1:nwf,iwf,1,1))**2)
+c$$$         write(6,*) "20170427:",sum(abs(evud_w(1:nwf,iwf,1,2))**2)
+c$$$      enddo
+      !okumura
+      
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
  !! EIBZ mode memo for nolfco (right?) 
  !! If eibzmode=T, it is efficient but can slightly break crystal symmetry.(how much?)
@@ -921,45 +870,76 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
 !! input
 !!     ekxx1 for   rk,is
 !!     ekxx2 for q+rk,isf 
-          do kx = 1, nqbz
-ccccc change eval; q-vector,is(spin) ---> eval (okumura)
-ccccc need hamiltonian? check readeval (okumura)
-             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-          enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i     nbmx,ebmx,mtet,eibzmode) !nov2016
+c$$$
 
-c$$$ !!! test code to print tetrahedron weight !!! okumura
+!! okumura
+!          wan=.false.
+          if (wan) then
+             write(6,*) "20170429: iq===",iq
+             do kx=1,nqbz
+                call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
+                call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+c$$$  write(6,*) "20170428: kx",kx
+c$$$  write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
+             enddo
+             call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+     i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,ecore,
+     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+     i            nbmx,ebmx,mtet,eibzmode) !nov2016
+
+             write(6,*) "20170511: pass wan_readeval"
+c$$$  else !wan=False
+          else
+             do kx = 1, nqbz
+!     change eval; q-vector,is(spin) ---> eval (okumura)
+!     need hamiltonian? check readeval (okumura)
+                call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+                call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+             enddo
+             call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+     i            qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
+     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+     i            nbmx,ebmx,mtet,eibzmode) !nov2016
+          endif
+          
+!! end okumura
+c$$$  !!! test code to print tetrahedron weight !!! okumura
 !     npm=1
-!          do k=1,nqbz !k-vector loop?
-          k=1
-          jpm=1
-          ibib=2000
-!     do 25 jpm=1,npm !,jpm=2:negative frequency
-!          do ibib=1,nbnb(k,jpm) !,nbnb(k,jpm) !i loop (omega_i)?
-             !!! n1b(ibib,k,jpm) !n :band index for k (occupied)
-             !!! n2b(ibib,k,jpm) !n':band index for q+k (unoccupied)
-!             write(6,*) '---n1b,n2b---',n1b(ibib,k,jpm),n2b(ibib,k,jpm)
-!          enddo
-          write(6,*) "---CHECK---",i
-!     it=n1b(ibib,k,jpm) !index for n for q
-!             n2bminimum=n2b(ibib,k,1) !????
-!             itp=1+n2b(ibib,k,jpm)-n2bminimum !index for n' for q+k
-c========================== caliculate M(:,:)
-c$$$                    M(:,:) caliculate!
-c$$$                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
-c$$$                    zmel=dconjg(zmel) ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
-c$$$                    M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
-c$$$                    Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-c========================== end caliculate M(:,:) 
-!                do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-!                   imagweight=whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-!                   kmatrix(:,:,iw,jpm)=kmatrix(:,:,iw,jpm)+M(:,:)*imagweight
-!                enddo
- !25       continue
+!     do k=1,nqbz !k-vector loop?
+
+c$$$          k=1
+c$$$          jpm=1
+c$$$          ibib=2000
+c$$$          do 25 jpm=1,npm       !,jpm=2:negative frequency
+c$$$          do 25 ibib=1,nbnb(k,jpm) !,nbnb(k,jpm) !i loop (omega_i)?
+c$$$             nww=ihw(ibib,k,jpm)-ihw(ibib,k,jpm)+nhw(ibib,k,jpm)
+c$$$             allocate(kmat(1:nwf,1:nwf,1:nww,1:npm))
+c$$$!             n1b(ibib,k,jpm)=1    !n :band index for k (occupied)
+c$$$!             n2b(ibib,k,jpm)=1    !n':band index for q+k (unoccupied)
+c$$$!             write(6,*) '---n1b,n2b---',n1b(ibib,k,jpm),n2b(ibib,k,jpm)
+c$$$!             write(6,*) 'nbnb,k,jpm',k,jpm,nbnb(k,jpm)
+c$$$             
+c$$$             !for M(:,:) ???
+c$$$c$$$             it=n1b(ibib,k,jpm) !index for n for q
+c$$$c$$$             n2bminimum=minval(n2b(1:nbnb(kx,jpm),kx,jpm))!????
+c$$$c$$$             itp=1+n2b(ibib,k,jpm)-n2bminimum !index for n' for q+k
+c$$$c========================== caliculate M(:,:)
+c$$$c$$$                    M(:,:) caliculate!
+c$$$c$$$                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
+c$$$c$$$                    zmel=dconjg(zmel) ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
+c$$$c$$$                    M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
+c$$$c$$$                    Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+c$$$c========================== end caliculate M(:,:) 
+c$$$
+c$$$             do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
+c$$$                imagweight=whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+c$$$                kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+        imagweight
+c$$$!                kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+M(:,:)*imagweight
+c$$$             enddo
+c$$$             write(6,*) "20170511: kmat",kmat
+c$$$             deallocate(kmat)
+c$$$ 25       continue
+
           
 c$$$          jpm=1
 c$$$          do k=1,nqbz
@@ -1005,7 +985,7 @@ c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
      i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
-
+                
 !! ------Question, Apr2015takao. -------------------
 !! ???  we may need 
 !! ???  "if(is==nspinmx.or.chipm) then" for chipm mode.
@@ -1066,6 +1046,7 @@ c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
             endif
             if(chipm) then
               write(6,*) '--- chi0_{+-}}^{-1}      --- '//ttt
+              write(6,*) "--- test nband",nband
             else
               write(6,*) '--- dielectric constant --- '//ttt
               write(6, *)" trace check for W-V"
@@ -1102,48 +1083,7 @@ c              if(newaniso2.and.iq<=nqibz) then !for mmmw
                 epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
                 call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
 
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$cmmm direct inversion vs. block inversion
-c$$$                if(iq>nqibz) then
-c$$$c direct inversion
-c$$$                ix=0
-c$$$                do igb1=ix+1,ngb
-c$$$                do igb2=ix+1,ngb
-c$$$                  epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
-c$$$                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
-c$$$                enddo
-c$$$                enddo
-c$$$                epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-c$$$                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-c$$$                do igb1=1+ix,ngb
-c$$$                do igb2=1+ix,ngb
-c$$$                  zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
-c$$$                  if(igb1==igb2) zw0(igb1,igb2)= zw0(igb1,igb2)-vcousq(igb1)*vcousq(igb2)
-c$$$                enddo
-c$$$                enddo
-c$$$c block inversion
-c$$$                ix=1
-c$$$                do igb1=ix+1,ngb
-c$$$                do igb2=ix+1,ngb
-c$$$                  epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
-c$$$                  if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
-c$$$                enddo
-c$$$                enddo
-c$$$                epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
-c$$$                call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
-c$$$                absq=sqrt(sum(q**2*tpioa**2))
-c$$$                sk(  1:ngb)= zxq(1,1:ngb,iw)
-c$$$                sks( 1:ngb)= zxq(1:ngb,1,iw)
-c$$$                w_k(1) =0d0
-c$$$                w_ks(1)=0d0
-c$$$                w_k( 2:ngb)= vcousq(2:ngb)*vcousq(1)*matmul(vcousq(1)*sk(2:ngb)*vcousq(2:ngb),epstinv(2:ngb,2:ngb))
-c$$$                w_ks(2:ngb)= vcousq(2:ngb)*vcousq(1)*matmul(epstinv(2:ngb,2:ngb),vcousq(1)*sks(2:ngb)*vcousq(2:ngb))
-c$$$                llw(iw,iq0)=
-c$$$     &             1d0
-c$$$     &            -vcousq(1)*sk(1)*vcousq(1) ! sk(1,1,iw)=sks(1,1,iw)=H of Eq.(40).
-c$$$     &            -vcousq(1)*vcousq(1)* sum( vcousq(2:ngb)*sk(2:ngb) * matmul(epstinv(2:ngb,2:ngb),sks(2:ngb)*vcousq(2:ngb)))
-c$$$                endif
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
                 do igb1=1+ix,ngb
                   do igb2=1+ix,ngb
                     zw0(igb1,igb2)= vcousq(igb1)*epstinv(igb1,igb2)*vcousq(igb2)
@@ -1330,43 +1270,8 @@ c$$$c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/
               write(ifrcwi, rec=iw)  zw    !  WP = vsc-v
               call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
             endif
-c$$$!! --- Miyake's total energy branch !Nov2004. not maintained now... need to fix this maybe(2012takao) -----------
-c$$$            if(.false.) then
-c$$$              if (debug) write(6,*)'ip,ix=',iq,iw,'  niw=',niw
-c$$$              call getwk(iq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
-c$$$              call ecorq2 (vcoul, zw0, ngb, iq,iw,ieceig,
-c$$$     o        erpaqw, trpvqw, trlogqw)
-c$$$C --- Integration along imaginary axis.
-c$$$! omit k and basis index for simplicity
-c$$$! wint = -(i/4pi) < [w'=-inf,inf] Q(w') >
-c$$$!
-c$$$! When w' ==> iw', w' is now real,
-c$$$!   wint =  (1/2pi) < [w'=0,inf] Q(iw') >
-c$$$!
-c$$$! transform: x = 1/(1+w')
-c$$$! this leads to a denser mesh in w' around 0 for equal mesh x
-c$$$! which is desirable since Q is peaked around w'=0
-c$$$!    wint =  (1/2pi) < [x=0,1] Q(iw') / x^2 >
-c$$$              faca   =  wk4ec* wiw(iw)
-c$$$              trpv(iecut)    = trpv(iecut)  + faca* trpvqw
-c$$$              trlog(iecut)   = trlog(iecut) + faca* trlogqw
-c$$$              totexc(iecut)  = totexc(iecut)+ faca* erpaqw !  = trpv+ trlog
-c$$$c            ecqw(iq,iw) = erpaqw
-c$$$              if(iw==1) then
-c$$$                write(ieclog,*)
-c$$$              endif
-c$$$              if(iw==1.and.iq==iqxini) then
-c$$$                write(ieclog,
-c$$$     &         "('   iq   iw   omega/i(Ry)        IntWgt',
-c$$$     &         '    trpvqw(eV)      ecqw(eV)   ecqw*IntWgt',  
-c$$$     &         ' :  ecut   ecuts')")
-c$$$              endif
-c$$$              write(ieclog,"( 2i5,3f14.6,3f14.6,2f8.3)") 
-c$$$     &       iq,iw, 2d0*freq_i(iw), faca, trpvqw*hartree, erpaqw*hartree, 
-c$$$     &       faca*erpaqw*hartree, ecut(iecut),ecuts(iecut)
-c$$$              close(ieclog)
-c$$$              open(ieclog,file="ecorr.chk",access='append')
-c$$$            endif
+
+            !!!
  1016     continue
             deallocate(epstinv)
             if(allocated(epstilde)) deallocate(epstilde)
@@ -1436,120 +1341,7 @@ c              endif
           enddo
         enddo
       endif
-
-c$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
-c$$$      if(epsmode.and.legas) then
-c$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-c$$$        voltot=0d0
-c$$$        ntot=0d0
-c$$$        write(6,*)' Find LEGAS. legas =',legas
-c$$$        iflegas = 2101
-c$$$        open (iflegas,file='LEGAS')
-c$$$        read(iflegas,*)rs
-c$$$        close(iflegas)
-c$$$        alpha  = (9*pi/4d0)**(1d0/3d0)
-c$$$        qfermi = alpha/rs
-c$$$        efx  = qfermi**2
-c$$$        valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$        write (6,*)'     Exact Fermi momentum  qf  =', qfermi
-c$$$        write (6,*)'     Exact Fermi energy    Ef  =', efx
-c$$$        do iq = iqxini,iqxend ! q=(0,0,0) is omitted!
-c$$$          if(iq<=nqibz) cycle
-c$$$          write(6,*)' iq=',iq
-c$$$          iqixc2 = iq- (nqibz+nq0ix)
-c$$$          filele ='EPSEG'//charnum4(iqixc2)//'.dat'
-c$$$          ife = iopen ( filele,1,3,0)
-c$$$          write(ife,"(a)")
-c$$$     &          ' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
-c$$$          q = qibze(:,iq)
-c$$$          qt= sqrt(sum(qibze(1:,iq)**2))*2d0*pi/alat
-c$$$          qs= qt/qfermi
-c$$$          write(6,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
-c$$$          write(6,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
-c$$$          do iw  = nw_i,nw
-c$$$            ww  = freq_r(iw)
-c$$$            muu = ww/qfermi**2
-c$$$            if(     qs<2d0 .and. muu < qs-qs**2/2d0) then
-c$$$              x0mx= -img*qfermi/(4*pi*qs)*2*muu
-c$$$            elseif( qs<2d0 .and. muu < qs+qs**2/2d0) then
-c$$$              x0mx= -img*qfermi/(4*pi*qs)*( 1d0-(muu/qs-.5d0*qs)**2 )
-c$$$            else
-c$$$              x0mx=0d0
-c$$$            endif
-c$$$            vcmmmm= 4*pi/qt**2
-c$$$            epsi(iw,iqixc2) = 1d0/(1- vcmmmm * x0mx)
-c$$$c            epsi(iw,iqixc2) = 1d0/(1- vcmmm(iq) * x0meanx)
-c$$$            write(ife,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') 
-c$$$     &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-c$$$          enddo
-c$$$        enddo
-c$$$        write(6,*)' ----------legas end--------'
-c$$$      endif
-
-c$$$!! Write TEECOR ecorr_on mode
-c$$$      if(imagomega.and.ecorr_on>0) then
-c$$$        hartree=2d0*rydberg()
-c$$$        ifcor   = iopen('TEECORR2',1,-1,0) ! output files
-c$$$        do iecut=1,necut
-c$$$          write(6,"( ' RPA Ec =' 3f23.15,'   ecut ecuts (Ry)=',2d12.4)") 
-c$$$     &   totexc(iecut)*hartree,trpv(iecut)*hartree, trlog(iecut)*hartree 
-c$$$     &    ,ecut(iecut),ecuts(iecut)
-c$$$          write(ifcor,*) '============================'
-c$$$          write(ifcor,*) 'Correlation energy Erpa (eV)'
-c$$$          write(ifcor,*) '============================'
-c$$$          write(ifcor,*)' ### '
-c$$$          write(ifcor,"(5e23.15)") 
-c$$$     &     totexc(iecut)*hartree,trpv(iecut)*hartree,trlog(iecut)*hartree
-c$$$     &    ,ecut(iecut),ecuts(iecut)
-c$$$        enddo
-c$$$!! output ecqw !    write(ifcor,*)'### ecqw(q,w) ###'
-c$$$        write(ifcor,*)' nqibz =',nqibz
-c$$$        write(ifcor,*)' nq0i  =',nq0i
-c$$$        write(ifcor,*)' niw   =',niw
-c$$$        write(ifcor,*)' --- See details of Ec in ecor.chk ---'
-c$$$C... Write electron gas correlation energy
-c$$$c$$$        legas = .false.
-c$$$c$$$        INQUIRE (FILE = 'LEGAS', EXIST = legas)
-c$$$c$$$        if(legas) then !!! test for electron gas case.
-c$$$c$$$          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-c$$$c$$$          voltot=0d0
-c$$$c$$$          ntot=0d0
-c$$$c$$$          write(6,*)' find LEGAS. legas =',legas
-c$$$c$$$          iflegas = 2101
-c$$$c$$$          open (iflegas,file='LEGAS')
-c$$$c$$$          read(iflegas,*)rs
-c$$$c$$$          close(iflegas)
-c$$$c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$c$$$          qfermi = alpha/rs
-c$$$c$$$          efx  = qfermi**2
-c$$$c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
-c$$$c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-c$$$c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-c$$$c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-c$$$c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
-c$$$c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
-c$$$c$$$          qfermi= dsqrt(efz)
-c$$$c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$c$$$          rs    = alpha/qfermi
-c$$$c$$$          write (ifcor,*)' --- electron gas ---'
-c$$$c$$$          write (ifcor,*)' density parameter rs= ', rs
-c$$$c$$$          write (ifcor,*)' kf= ',qfermi
-c$$$c$$$          write (ifcor,*)' ### Barth-Hedin formula'
-c$$$c$$$          ecelgas = eclda_bh(rs) * hartree * ntot
-c$$$c$$$          write (ifcor,*)ecelgas
-c$$$c$$$          write (ifcor,*)' ### Perdew-Zunger formula'
-c$$$c$$$          ecelgas = eclda_pz(rs) * hartree * ntot
-c$$$c$$$          write (ifcor,*)ecelgas
-c$$$c$$$          write (ifcor,*)' ### Gell-Mann and Brueckner formula'
-c$$$c$$$          ecelgas = (-0.0311d0 * dlog(rs) -0.048d0) * hartree * ntot
-c$$$c$$$          write (ifcor,*)ecelgas
-c$$$c$$$        endif
-c$$$            endif
-      !!! okumura check
-!      call get_zmel
-      write(6,*) "-- check ***"
-      !!!
+          
       call cputid(0)
       call MPI__Finalize
       if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')

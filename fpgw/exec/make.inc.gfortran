@@ -154,6 +154,7 @@ tet5_g = .o
 # centos yum install blas, yum install lapack
 #LIBMATH= /usr/lib64/libblas.a /usr/lib64/liblapack.so.3.0.3 -lfftw3
 
+LIBMATH= /usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
 
 #(5) Linker ####################################################
 ### gfortran ubuntu12.04 #######

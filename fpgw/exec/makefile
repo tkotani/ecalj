@@ -6,8 +6,8 @@
 # ---- Machine-specific compiler flags ---
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
-PLATFORM=ifort
-LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+PLATFORM=gfortran
+LIBMATH=/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
 
 #PLATFORM=ifort
 #LIBMATH=-mkl
@@ -30,7 +30,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 x0oku
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -195,6 +195,9 @@ DERFC=
 
  X0 = \
  $(main)hx0fp0.m.o
+
+ X0oku = \
+ $(main)test.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
@@ -451,6 +454,9 @@ $(gwsrc)m_readeps.o
 
  hx0fp0:	$(MPI) $(X0) $(GWLIB) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(X0)     $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ test:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
 #  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 
