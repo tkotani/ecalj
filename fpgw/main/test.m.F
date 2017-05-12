@@ -354,14 +354,14 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
 !! EFERMI
 cc need for gettetwt; automatically read file(okumura) OK
       call readefermi()
-      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      write(6,"(a,f12.6)")' --- READIN aa ef from EFERMI. ef=',ef
 
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine
 !!
       incwfin=0  !use ForX0 for core in GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
-!! incwfin is for core handling
+!     ! incwfin is for core handling
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
@@ -391,6 +391,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
 
 !     ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
       if(ixc==222) then
+         ifhamw=ifile_handle()
          open(ifhamw,file="wan4chi.d",form='unformatted')
          read(ifhamw) nwf,nsp_w,nqtt_w
          close(ifhamw)
@@ -482,7 +483,6 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
-      
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
@@ -646,7 +646,7 @@ c$$$      enddo
  !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
 c     okumura
 c      eibzmode=eibz4x0()
-      eibzmode=.False. !simple symmetry
+      eibzmode=.false. !simple symmetry
 c     end okumura
       if(eibzmode) then
  !! commentout block inversion Use iqxendx=iqxend because of full inversion
@@ -750,6 +750,8 @@ c     end okumura
         nmbas1 = nmbas_in
         nmbas2 = nmbas1
 
+
+        
 !! Open output files for epsilon mode =====
         if(epsmode) then 
           iqixc2 = iq- (nqibz+nq0ix)
@@ -798,6 +800,7 @@ c     end okumura
           write(6,*) "rcxq alloc ngb nwhis npm ---",ngb,nwhis,npm
           allocate( rcxq(ngb,ngb,nwhis,npm) )
         endif
+
 
 !! ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
 !!         ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
@@ -873,26 +876,27 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
 c$$$
 
 !! okumura
-!          wan=.false.
+!     wan=.false.
+          write(6,*) "nctot,ecore",nctot,ecore
+          wan = .true.
           if (wan) then
-             write(6,*) "20170429: iq===",iq
+             ecore=0
              do kx=1,nqbz
                 call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
                 call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
 c$$$  write(6,*) "20170428: kx",kx
 c$$$  write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
              enddo
+             write(6,*) "pass wan_readeval"
              call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
      i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,ecore,
      i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
      i            nbmx,ebmx,mtet,eibzmode) !nov2016
 
-             write(6,*) "20170511: pass wan_readeval"
+             write(6,*) "pass wan_readeval"
 c$$$  else !wan=False
           else
              do kx = 1, nqbz
-!     change eval; q-vector,is(spin) ---> eval (okumura)
-!     need hamiltonian? check readeval (okumura)
                 call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
                 call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
              enddo
@@ -940,30 +944,6 @@ c$$$             write(6,*) "20170511: kmat",kmat
 c$$$             deallocate(kmat)
 c$$$ 25       continue
 
-          
-c$$$          jpm=1
-c$$$          do k=1,nqbz
-c$$$c           nkqmin= 999999
-c$$$c           do ibib = 1, nbnb(k,jpm)
-c$$$c              nkqmin = min(n2b(ibib,k,jpm),nkqmin)
-c$$$c           enddo
-c$$$             do ibib = 1, nbnb(k,jpm) !---  ibib loop
-c$$$c             print *,' k ibib=',k,ibib
-c$$$c              it =  n1b(ibib,k,jpm)    !valence
-c$$$c              itp = n2b(ibib,k,jpm) - itps + 1 !val
-c$$$c              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
-c$$$                do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
-c$$$c                 if(iw<20) then
-c$$$                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-c$$$                 write(6,*) "--check:k,n1b--",k,n1b(ibib,k,jpm)
-c$$$c                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
-c$$$c                 endif
-c$$$              enddo             ! iw
-c$$$c              endif
-c$$$           enddo
-c$$$        enddo
-c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
           call cputid(0)
           if(npm==1) then
@@ -971,20 +951,20 @@ c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
           else
             ncc=nctot
           endif
-          call x0kf_v4hz(npm,ncc,   
-     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
-     i              q,  
-     i              nspin,is,isf, !symmetrize, !
-     i              qbas,ginv,  qbz,wbz, 
-     d            nlmto,nqbz,nctot, !noccx,noccxv,
-     d            nbloch,  nwhis, !nlnmx,mdimx,
-     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i    nqbze,nband,nqibz, 
-     o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
-     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+c$$$          call x0kf_v4hz(npm,ncc,   
+c$$$     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+c$$$     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+c$$$     i              q,  
+c$$$     i              nspin,is,isf, !symmetrize, !
+c$$$     i              qbas,ginv,  qbz,wbz, 
+c$$$     d            nlmto,nqbz,nctot, !noccx,noccxv,
+c$$$     d            nbloch,  nwhis, !nlnmx,mdimx,
+c$$$     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
+c$$$     i    nqbze,nband,nqibz, 
+c$$$     o    rcxq,   !  rcxq is the accumulating variable for spins 
+c$$$     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+c$$$     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
+c$$$     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
                 
 !! ------Question, Apr2015takao. -------------------
 !! ???  we may need 
@@ -994,37 +974,37 @@ c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
 
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
-          if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
-                                        !Because rcxq is calculated for each is, symmetrized and its contribution
-                                        !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize(npm, !ncc,
-     i       q,
-     i       nspin,is,isf, !symmetrize, !
-     i       qbas,ginv,  !qbz,wbz,
-     d       nbloch,  nwhis,    ! nlnmx,mdimx,
-     i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i       nqbze,nband,nqibz,
-     o       rcxq,              !  rcxq is the accumulating variable for spins
-     i       nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
-     i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
-     i       ngrp, eibzsym(:,:,iq))
-          endif
-          call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-          iecut=1
-          if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
-          if(is==nspinmx.or.chipm) then
-            write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
-            call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i       rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
-     o       zxq, zxqi,
-     i       chipm, schi,is,  ecut(iecut),ecuts(iecut))
-            if(nolfco.and.epsmode) then
-              do iw=nw_i,nw
-                x0mean(iw,:,:)=zxq(:,:,iw)
-              enddo
-            endif
-            write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
-          endif
+c$$$          if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
+c$$$                                        !Because rcxq is calculated for each is, symmetrized and its contribution
+c$$$                                        !is added to zxq in dpsion5.
+c$$$            call x0kf_v4hz_symmetrize(npm, !ncc,
+c$$$     i       q,
+c$$$     i       nspin,is,isf, !symmetrize, !
+c$$$     i       qbas,ginv,  !qbz,wbz,
+c$$$     d       nbloch,  nwhis,    ! nlnmx,mdimx,
+c$$$     i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+c$$$     i       nqbze,nband,nqibz,
+c$$$     o       rcxq,              !  rcxq is the accumulating variable for spins
+c$$$     i       nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+c$$$     i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
+c$$$     i       ngrp, eibzsym(:,:,iq))
+c$$$  endif
+          call tetdeallocate()  !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+c$$$          iecut=1
+c$$$          if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
+c$$$          if(is==nspinmx.or.chipm) then
+c$$$            write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
+c$$$            call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
+c$$$     i       rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
+c$$$     o       zxq, zxqi,
+c$$$     i       chipm, schi,is,  ecut(iecut),ecuts(iecut))
+c$$$            if(nolfco.and.epsmode) then
+c$$$              do iw=nw_i,nw
+c$$$                x0mean(iw,:,:)=zxq(:,:,iw)
+c$$$              enddo
+c$$$            endif
+c$$$            write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
+c$$$          endif
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
 

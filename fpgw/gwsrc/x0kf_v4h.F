@@ -310,6 +310,138 @@ c$$$ccccccccccccccccccccccccccccccccccc
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
 
+c$$$      subroutine wan_x0kf_v4hz (npm,ncc,
+c$$$     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+c$$$     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
+c$$$     i                  q,
+c$$$     i                  nsp,isp_k,isp_kq,!symmetrize,
+c$$$     i                  qbas,ginv,rk,wk,  
+c$$$     d                  nlmto,nqbz,nctot, 
+c$$$     d                  nbloch,nwt, 
+c$$$     i      iq, ngbb, ngc, ngpmx,ngcmx,  
+c$$$     i      nqbze, nband,nqibz, 
+c$$$     o      rcxq,
+c$$$     i     nolfco,zzr,nmbas, zcousq,
+c$$$     i     chipmzzr,eibzmode, 
+c$$$     i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
+c$$$      use m_readqg,only   :  readqg
+c$$$      use m_readeigen,only:  readeval 
+c$$$      use m_keyvalue,only   :  getkeyvalue
+c$$$!      use m_rotMPB,only   :  rotMPB2 
+c$$$      use m_readqgcou,only:  
+c$$$     o qtt_, nqnum 
+c$$$      use m_pkm4crpa,only : readpkm4crpa
+c$$$      use m_zmel,only     : get_zmelt2,
+c$$$     o zmel 
+c$$$
+c$$$      implicit none
+c$$$      integer:: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto 
+c$$$     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
+c$$$     &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
+c$$$     &  ,nn,no,isx,iclose,k,nbnbx,nqbz
+c$$$      real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
+c$$$      complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
+c$$$      complex(8) :: imag=(0d0,1d0),trc,aaa 
+c$$$      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
+c$$$      integer:: ngpmx, ngcmx, nqbze, nband,
+c$$$     &             ngc,nadd(3), igc
+c$$$      complex(8),allocatable :: zmelt(:,:,:)
+c$$$      real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
+c$$$     &    ,shtv(3)=(/0d0,0d0,0d0/)
+c$$$      data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
+c$$$      complex(8),allocatable :: ttx(:,:)
+c$$$      complex(8),allocatable::  z1p(:,:)
+c$$$      integer ::  nbnb(nqbz,npm), 
+c$$$     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
+c$$$      complex(8),allocatable:: zzmel(:,:,:)
+c$$$      logical,parameter:: debug=.false.
+c$$$      logical:: hist ,ipr
+c$$$      integer:: nhwtot,
+c$$$     &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
+c$$$      real(8):: whw(nhwtot)
+c$$$      complex(8) :: zmelt1,zmelt2,zmeltt(ngbb) 
+c$$$      real(8) :: imagweight 
+c$$$      integer::verbose,nmbas, imb1,imb2, imb 
+c$$$      real(8):: eband(nband)
+c$$$      logical   :: nolfco 
+c$$$      complex(8):: zq01,zq02,zq0zq0 
+c$$$      real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) 
+c$$$      integer:: nbcut,nbcut2
+c$$$      logical :: iww1=.true.,iww2=.true.
+c$$$      integer:: ifpomat, nbloch_r, ngbo,iqxdummy
+c$$$      complex(8),allocatable:: pomat(:,:), zmeltn(:,:,:)
+c$$$      real(8):: q_r(3)
+c$$$      complex(8):: img=(0d0,1d0),zzz(ngbb)
+c$$$      integer :: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
+c$$$      logical :: onceww , z1offd 
+c$$$      complex(8),target :: zzr(ngbb,nmbas) 
+c$$$      integer:: ngrp,nwgt(nqbz) 
+c$$$      integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
+c$$$      logical:: checkbelong,eibzmode, chipmzzr
+c$$$      complex(8):: zcousq(ngbb,ngbb) 
+c$$$      complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
+c$$$      complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
+c$$$     & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) 
+c$$$      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
+c$$$      integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
+c$$$      integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
+c$$$      complex(8),allocatable::zrotm(:,:),zrr(:,:),zrrc(:,:),zrr_(:,:,:),zrrc_(:,:,:)
+c$$$     &  ,zmmm(:),zrrx(:,:),rcxq_core(:,:)
+c$$$      logical:: eibz4x0, crpa , exchange=.false.
+c$$$      real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
+c$$$      integer:: irot=1, ntqxx,nbmax
+c$$$
+c$$$c------- okumura
+c$$$        do 25 jpm  = 1, npm !
+c$$$        do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop
+c$$$
+c$$$          if(n1b(ibib,k,jpm) <= nband) then
+c$$$            it = nctot + n1b(ibib,k,jpm) !valence
+c$$$            if(it > nctot + nkmax ) cycle
+c$$$          else
+c$$$            it = n1b(ibib,k,jpm) - nband !core
+c$$$          endif
+c$$$          if( n2b(ibib,k,jpm) <= nband) then
+c$$$            itp = ncc + n2b(ibib,k,jpm) - itps + 1 !val
+c$$$            if(itp > ncc + nkqmax-itps+1 ) cycle
+c$$$          else
+c$$$            itp =  n2b(ibib,k,jpm) - itps + 1 - nband !core
+c$$$          endif
+c$$$
+c$$$          do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
+c$$$             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+c$$$             if(crpa) imagweight = imagweight*(1d0-wpw_k*wpw_kq)
+c$$$             if(eibzmode) imagweight = nwgt(k)*imagweight  
+c$$$             do igb2=1,nmbas      !this part dominates cpu time most time consuming...........
+c$$$                do igb1=1,igb2
+c$$$                   rcxq(igb1,igb2,iw,jpm) = !here we  sum over ibib (or n, n') and k.
+c$$$     &                  rcxq(igb1,igb2,iw,jpm) + z1p(igb1,igb2)*imagweight !sum over spin in hx0fp0
+c$$$                enddo           !igb1
+c$$$             enddo              !igb2
+c$$$          enddo                 ! iw
+c$$$ 25     continue
+c$$$!TIME1_1201 "after_rcxq"
+c$$$        deallocate(z1p,zmel) !zmelt,z1p)
+c$$$        if(debug) call cputid(0)
+c$$$        if(debug) write(6,*)' end of kloop k jpm=',k,jpm
+c$$$ 1000 continue
+c$$$!TIME0_1301
+c$$$
+c$$$!! ==== Hermitianize. jun2012takao moved from dpsion5 ====
+c$$$        do jpm=1,npm
+c$$$        do iw= 1,nwt
+c$$$         do igb2= 1,nmbas !eibzmode assumes nmbas1=nmbas2
+c$$$         do igb1= 1,igb2-1
+c$$$           rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
+c$$$         enddo
+c$$$         enddo
+c$$$        enddo
+c$$$        enddo
+c$$$!TIME1_1301 "before_eibzmode_symmetrization"
+c$$$ 9999 continue
+c$$$      write(6,"(' --- x0kf_v4hz: end')")
+c$$$      end subroutine wan_x0kf_v4hz
+      
 !! --------------------------------------------------------------------------------
       subroutine x0kf_v4hz_symmetrize (npm, !ncc,
 c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5

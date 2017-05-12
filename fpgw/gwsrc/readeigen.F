@@ -490,7 +490,7 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 !! To accelarate inverse mapping, q to 'integer index',
 !! we prepare integer index of q, its resolution is given by epsd.
       use m_hamindex, only: qtt,nqtt
-!      use m_readeigen, only: readwan
+!!      use m_readeigen, only: readwan
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       integer,allocatable,private:: kk1w(:),kk2w(:),kk3w(:),iqkkkw(:,:,:) !okumura
       real(8),private:: epsd=1d-7 !key parameter to map to integer index
@@ -553,9 +553,10 @@ ccccccccccccccccccccc
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
       integer,allocatable:: ieord(:)
       logical::debug=.false.
-c$$$      if (readwan .eqv. .true.) then
+
+c$$$      if (readwan) then
 c$$$         deallocate(kk1,kk2,kk3,iqkkk)
-c$$$         !readwan=.false.
+c$$$         readwan=.false.
 c$$$      endif
       ginv=ginv_
       allocate(ieord(nqtt))
@@ -624,11 +625,7 @@ c      stop 'xxxxxxxxxxxxx'
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
       integer,allocatable:: ieord(:)
       logical::debug=.false.
-c$$$      if (readwan .eqv. .true.) then
-c$$$         deallocate(kk1,kk2,kk3,iqkkk)
-c$$$         !readwan=.false.
-c$$$      endif
-!      if (readwan) call rx ('no wan_readeigen')
+
       ginv=ginv_
       allocate(ieord(nqtt))
       if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
@@ -750,7 +747,7 @@ ctm
       integer(4)::nwf_ev
       complex(8),allocatable:: evud_w(:,:,:,:)
       real(8),allocatable:: eval_w(:,:,:)
-      logical:: readwan=.true.
+
       logical:: evalwan=.true.
 
       contains
@@ -793,7 +790,7 @@ ctm
       endif
       end subroutine
 
-
+      
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
       use m_hamindex, only: qtt,nqtt,iqimap
@@ -815,7 +812,7 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       if(debug) then
         write(6,"(9f9.4)")ev(1:9)
       endif
-      write(6,*) "pass!"
+!      write(6,*) "pass!"
       end subroutine
 
       subroutine findemaxmin_r(emax,emin)
@@ -872,8 +869,11 @@ c$$$  !!! Readeigen_w for Wannier
 
 !      call readhamindex() !UNFORMATTED problem 20170423 oku
 !      readhamindex() must be called before calling eigenvalue_w 
-!      readwan=.false.
-      call iqindx_qttw(ginv) !switch: readwan
+
+!      readwan=.true.
+      call iqindx_qttw(ginv)
+c     call iqindx_qttw(ginv)    
+
       
       !for eigenvector: coefficient a, featuring Matrices
       ifevw=ifile_handle()
@@ -907,6 +907,7 @@ c$$$  !!! Readeigen_w for Wannier
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 cccccccccccccc Okumura: for Wannier ccccccccccccccc
+
       
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)

@@ -243,7 +243,7 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
       endif
 
 !!
-c      print *,'xxxxxx 22222222 mtett=',mtett
+      print *,'xxxxxx 22222222 mtett=',mtett
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -253,7 +253,7 @@ c      print *,'xxxxxx 22222222 mtett=',mtett
         ekxx1( nband+1: nband+nctot, kx) = ecore(1:nctot)
         ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
       enddo
-
+      
 !! Read eigenvalues at q and q+k ---------------------------------------
 !!  ekzz1 for k
 !!  ekzz2 for q+k.
@@ -290,7 +290,7 @@ c      print *,'xxxxxx 22222222 mtett=',mtett
         call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm, 
      o   ekzz2)
       endif
-
+      
 !! Check
       volt = 0d0
       do itet = 1, ntetf
@@ -329,6 +329,7 @@ c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out o
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
 
+          
 c$$$ccccccccccccccccccccccc
 c$$$          if(kkm(0)==1) goto 1105
 c$$$          if(kkm(1)==1) goto 1105
@@ -344,7 +345,6 @@ c$$$cccccccccccccccccccccc
 
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
-
 cccccccccccccccccccccc
 c          write(6,*)'eeeeeeeeek'
 c          write(6,"('kkkkkv ',3f9.5,i4)") kvec(1:3, 0),kkm(0)
@@ -374,8 +374,10 @@ ccccccccccccccccccccccc
               exit
             endif
           enddo
-c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
-          do jpm = 1,npm !feb2006
+          if(itet==1037) print *, "--- 2222: nband itet/ntetf",nbandmx_kq,itet,"/",ntetf
+c     write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
+                    
+          do jpm = 1,npm        !feb2006
             if(jpm==1) then
               ibxmx = noccx_k + nctot
               jbxmx = nbandmx_kq !nband  Apr2009takao
@@ -385,14 +387,14 @@ c  write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
             endif
             do ibx  = 1, ibxmx !noccx_k + nctot  !   occupied
               do jbx  = 1, jbxmx !nband             ! unoccupied
-c$$$cccccccccccccccccccc
+c$$$  cccccccccccccccccccc
 c$$$                 if(jbx/=1) cycle
 c$$$cccccccccccccccccccc
 c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx
                 else
-                  ib = ibx - noccx_k + nband
+                   ib = ibx - noccx_k + nband
                 endif
                 if(jbx<=noccx_kq .or. jpm==1  ) then
                   jb = jbx
@@ -411,21 +413,25 @@ c           jbxmx = noccx_kq + nctot
                   eunocc => ek_ (ib,0:3)
                   eocc   => ekq_(jb,0:3)
                 endif
-
                 if( minval(eocc  ) <= efermi .and. 
      &        maxval(eunocc) >= efermi ) then
-                  if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
-                  if(job==0 ) then    !takao
-                    iwgt(ib,jb,kk(0:3),jpm)= .true.
-                    x(0:3) = .5d0*(eocc-eunocc)     ! + omg !Denominator. unit in Hartree.
-                    demax_ =  maxval(-x(0:3))  ! in Hartree
-                    demin_ =  minval(-x(0:3))  ! in Hartree
+                   if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
+                   if(job==0 ) then !takao
+                      if (jbx>=50) print *, "--- 3333 1: jbx",jbx
+                      if (jbx>=50) print *, "--- 4444 ib,jb,jpm",ib,jb,jpm
+                      iwgt(ib,jb,kk(0:3),jpm)= .true.
+                      x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
+                      demax_ =  maxval(-x(0:3)) ! in Hartree
+                      demin_ =  minval(-x(0:3)) ! in Hartree
+
                     do ixx=0,3
                       demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
                       demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
-                    enddo
-                  else
-                    x(0:3) = .5d0*(eocc-eunocc)  ! + omg !Denominator. unit in Hartree.
+                   enddo
+
+
+                else
+                   x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
                     wtthis2 = 0d0
                     if(chkwrt) then
                       write(6,"('### Goto lindtet6: itet ib jb Ef='
@@ -440,10 +446,13 @@ c           jbxmx = noccx_kq + nctot
      i          frhis, nwhis,  
      o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
 c     m          fermi_dS) ! may2012
+                    if (itet==1037) print *, "--- 1111",ibx,"/",ibxmx,jbx,"/",jbxmx
+                                       
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif
 
+                   
                     if(chkwrt) then
                       write(6,"('  === ihis [range(a.u.)] wtthis2(0:3) ===')")
                       do ihis = 1,nwhis
@@ -498,16 +507,18 @@ c$$$c cccccccccccccccccccccccccccccccccc
                         whw(jini:jini+nnn-1) = 
      &          whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,0) * piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
                       endif
-                    enddo
+                      
+                   enddo
 
                   endif
                 endif
+             enddo
+           enddo
+         enddo
+ 1100  continue
 
-              enddo
-            enddo
-          enddo
- 1100   continue
  1000 continue
+      print *, "--- 3000 PASS!!"
       deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
 
 

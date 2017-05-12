@@ -164,6 +164,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       allocate(ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm))
       ihw=0; nhw=0; jhw=0
       jhwtot = 1
+      write(6,*) "--- chk"
       do jpm =1,npm
         do ik   = 1,nqbz
           do ibib = 1,nbnb(ik,jpm)
@@ -176,6 +177,7 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
           enddo
         enddo
       enddo
+      write(6,*) "--- chkk"
       nhwtot = jhwtot-1
       write(6,*)' nhwtot=',nhwtot
       deallocate(demin,demax)
