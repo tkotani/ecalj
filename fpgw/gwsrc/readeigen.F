@@ -882,6 +882,7 @@ c     call iqindx_qttw(ginv)
       write(6,*)'read EVec_w: nwf_ev,nqtt_ev,nsp_ev', nwf_ev, nqtt_ev, nsp_ev
       if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
       if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+      !if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
       if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
       write(6,*) "readeigen_w: nwf,nqtt,nsp",nwf,nqtt,nsp
       allocate(evud_w(nwf_ev,nwf_ev,nqtt,nsp),qtt_w(3,nqtt))
@@ -906,6 +907,84 @@ c     call iqindx_qttw(ginv)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!!!!!!!!!! 2017/06/11 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      subroutine wan_readeval2(q,isp, ev_w)
+      use m_hamindex, only: iqimap
+      implicit none
+      integer(4), intent(in) :: isp
+      real(8), intent(in) :: q(3)
+      real(8), intent(out) :: ev_w(nwf_ev)
+      
+      integer(4):: iq,iqindx,i
+      real(8):: qu(3)
+      
+      if(evalwan) call rx( 'readeigen: readeigen_w should be called in advance')
+      call iqindx2_(q, iq, qu)  !qu is used q. q-qu is a G vector.
+      ev_w(1:nwf_ev) = eval_w(1:nwf_ev,iqimap(iq),isp)      
+      end subroutine wan_readeval2
+
+c$$$!!!   Readeigen_w for Wannier (nqtt -> nqbz)
+      !!! nwf=nband
+      subroutine wan_readeigen2(ginv_in,nsp_in,nwf_in)
+      implicit none
+      integer(4):: iq,is,nnnn,ikp,
+     &     nband_in,ifh,isx,ik,ib,verbose
+      integer:: ifevw,iopen, nqbz_ev, nsp_ev
+      real(8),allocatable:: q_w(:,:)
+      integer::ifile_handle
+      
+      real(8):: ginv_in(3,3)
+      integer(4)::nsp_in,nwf_in
+
+      integer(4)::nqbz
+      
+      ginv  = ginv_in
+      nsp   = nsp_in
+      if(nsp<0.or.nsp>2) call rx('init_reaeigen_w:nsp wrong')
+      nband = nwf_in
+
+!      call readhamindex() !UNFORMATTED problem 20170423 oku
+!      readhamindex() must be called before calling eigenvalue_w 
+
+!      readwan=.true.
+      call iqindx_qttw(ginv)
+c     call iqindx_qttw(ginv)    
+
+      
+      !for eigenvector: coefficient a, featuring Matrices
+      ifevw=ifile_handle()
+      open(ifevw,file='EVec_w',form='unformatted')
+      read(ifevw) nwf_ev,nqbz_ev,nsp_ev
+      nqbz=nqbz_ev
+      write(6,*)'read EVec_w: nwf_ev,nqbz_ev,nsp_ev', nwf_ev, nqbz_ev, nsp_ev
+      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
+      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+!      if(nqbz_ev  /=  nqbz) call rx( 'init_readeigen:nqi/=nqi_')
+      write(6,*) "readeigen_w: nwf,nqbz,nsp",nwf,nqbz,nsp
+      allocate(evud_w(nwf_ev,nwf_ev,nqbz,nsp),q_w(3,nqbz))
+      read(ifevw) q_w(1:3,1:nqbz)
+      read(ifevw) evud_w(1:nwf_ev,1:nwf_ev,1:nqbz,1:nsp)
+      close(ifevw)
+
+      !for eigenvalue_w
+      ifevw=ifile_handle()
+      open(ifevw,file='EValue_w',form='unformatted')
+      read(ifevw) nwf_ev,nqbz_ev,nsp_ev
+      write(6,*)'read EValue_w: nwf_ev,nqbz_ev,nsp_ev',nwf_ev,nqbz_ev,nsp_ev
+      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
+      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+!     if(nqbz_ev  /=  nqbz) call rx( 'init_readeigen:nqi/=nqi_')
+      allocate(eval_w(nwf_ev,nqbz,nsp))
+      read(ifevw) eval_w(1:nwf_ev,1:nqbz,1:nsp)
+      close(ifevw)
+      evalwan=.false.
+      
+      end subroutine wan_readeigen2
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      
 cccccccccccccc Okumura: for Wannier ccccccccccccccc
 
       

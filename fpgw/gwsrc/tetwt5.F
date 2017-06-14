@@ -172,7 +172,7 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       integer:: nbmx
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
-c      if(verbose()>=150) chkwrt=.true.
+c     if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
 c      fermi_dS=0d0
@@ -205,7 +205,7 @@ c      print *,'xxxxxx mtett=',mtett
      &       ib1bzm(nqbzwm), qbzm(3,nqbzm) !,index_qbzm(n_index_qbzm,n_index_qbzm,n_index_qbzm)
         ! qbzm(1:3,ib1bz(iq)) gives q vector within the 1st bz.
      &       , wtet(0:3,nmtet,ntetf) )
-        read(ifmtet) idtetfm,ib1bzm,qbzm,qbzwm,wtet  !,index_qbzm
+        read(ifmtet) idtetfm,ib1bzm,qbzm,qbzwm,wtet !,index_qbzm
         close(ifmtet)
         ifeig=501
         open (ifeig,file='eigmtet',form='unformatted')
@@ -241,6 +241,7 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
         ib1bzm=ib1bz
         wtet=0.25d0
       endif
+      write(6,*) "nmtet:",nmtet
 
 !!
       print *,'xxxxxx 22222222 mtett=',mtett
@@ -296,9 +297,9 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
       do itet = 1, ntetf
         do im   = 1, nmtet
 ccccccccccccccccccccc
-c          print *,'iiiiiii111',im,itet
-c          print *,'iiiiiii222',idtetfm(0:3,im,itet)
-c          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
+c$$$          print *,'iiiiiii111',im,itet
+c$$$          print *,'iiiiiii222',idtetfm(0:3,im,itet)
+c$$$          print *,'iiiiiii333',qbzwm (1:3, idtetfm(0:3,im,itet) )
 cccccccccccccccccccccc
           kvec(1:3,0:3) = qbzwm (1:3, idtetfm(0:3,im,itet) )
           do i = 1,3
@@ -360,23 +361,28 @@ ccccccccccccccccccccccc
           noccx_kq = noccx1 (ekq_(1:nband, 0:3),4,nband, efermi)
           nbandmx_k   = nband
           nbandmx_kq  = nband
-
+          
 !! ebmx band cutoff 2016Jun
-          do i=1,nbmx
-            if( maxval(ek_(i, 0:3)) >ebmx) then
-              nbandmx_k = i-1
-              exit
-            endif
-          enddo
-          do i=1,nbmx
-            if( maxval(ekq_(i, 0:3)) >ebmx) then
-              nbandmx_kq = i-1
-              exit
-            endif
-          enddo
-          if(itet==1037) print *, "--- 2222: nband itet/ntetf",nbandmx_kq,itet,"/",ntetf
+          !! exclude wannier model: (okumura, 2017/06/13)
+          if (nbmx/=nband) then
+             do i=1,nbmx
+                if( maxval(ek_(i, 0:3)) >ebmx) then
+                   nbandmx_k = i-1
+                   exit
+                endif
+             enddo
+             do i=1,nbmx
+                if( maxval(ekq_(i, 0:3)) >ebmx) then
+                   nbandmx_kq = i-1
+                   exit
+                endif
+             enddo
+          endif
+
+!!!   check line (okumura)
+!          if(itet==1037) print *, "--- 2222: nband itet/ntetf",nbandmx_kq,itet,"/",ntetf
 c     write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
-                    
+          
           do jpm = 1,npm        !feb2006
             if(jpm==1) then
               ibxmx = noccx_k + nctot
@@ -390,7 +396,7 @@ c     write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
 c$$$  cccccccccccccccccccc
 c$$$                 if(jbx/=1) cycle
 c$$$cccccccccccccccccccc
-c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
+c     if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 if(ibx<=noccx_k .or. jpm==2  ) then
                   ib = ibx
                 else
@@ -401,7 +407,8 @@ c          if(chkwrt.and.job==1) write(6,*) '****** ib jb=',ib,jb
                 else
                   jb = jbx - noccx_kq + nband
                 endif
-!! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
+
+!     ! This mechanism treat ek_ and ekq_ as occpied or unoccupied.
                 if(jpm==1) then
 c           ibxmx = noccx_k + nctot
 c           jbxmx = nband
@@ -417,8 +424,6 @@ c           jbxmx = noccx_kq + nctot
      &        maxval(eunocc) >= efermi ) then
                    if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
                    if(job==0 ) then !takao
-                      if (jbx>=50) print *, "--- 3333 1: jbx",jbx
-                      if (jbx>=50) print *, "--- 4444 ib,jb,jpm",ib,jb,jpm
                       iwgt(ib,jb,kk(0:3),jpm)= .true.
                       x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
                       demax_ =  maxval(-x(0:3)) ! in Hartree
@@ -446,7 +451,6 @@ c           jbxmx = noccx_kq + nctot
      i          frhis, nwhis,  
      o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
 c     m          fermi_dS) ! may2012
-                    if (itet==1037) print *, "--- 1111",ibx,"/",ibxmx,jbx,"/",jbxmx
                                        
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)

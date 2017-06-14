@@ -1,6 +1,5 @@
 
-c-----
-      --------------------------------------------------------
+c-------------------------------------------------------------
 c construct maximally localized Wannier functions
 c
 c References
@@ -1146,20 +1145,63 @@ c --- Readin nlam index
 
       close(ifh)
 
-!! TEST okumura
-      !data list for wannier
+!! TEST okumura: iq=1,nqbz
+c$$$      !data list for wannier
+c$$$      ifh=ifile_handle()
+c$$$      open(ifh,file="wan4chi.d",form="unformatted")
+c$$$      write(ifh) nwf,nspin,nqtt
+c$$$      close(ifh)
+c$$$
+c$$$      !generate eigenvalue and eigenvector of Wannier Hamiltonian
+c$$$      write(6,*) 
+c$$$      if (is==1) allocate(eval_w(nwf,nqtt,nspin),evecc_w(nwf,nwf,nqtt,nspin))
+c$$$      do iq = 1,nqbz
+c$$$         write(6,*)' got get_hrotkp_ws iq =',iq
+c$$$         call get_hrotkp_ws(hrotr,rws,drws,irws,qtt(:,iq),
+c$$$     d                     nwf,nqtt,nrws,
+c$$$     o                     hrotkp)
+c$$$         call diag_hm(hrotkp,nwf,eval,evecc)
+c$$$         eval_w(1:nwf,iq,is)=eval
+c$$$         evecc_w(1:nwf,1:nwf,iq,is)=evecc
+c$$$      enddo
+c$$$
+c$$$      if(is==2) then
+c$$$         ifh=ifile_handle()
+c$$$         open(ifh,file='EValue_w',form='unformatted')
+c$$$         write(ifh) nwf,nqtt,nspin
+c$$$         write(ifh) eval_w(1:nwf,1:nqtt,1:nspin)
+c$$$         close(ifh)
+c$$$
+c$$$         ifh=ifile_handle()
+c$$$         open(ifh,file='EVec_w',form='unformatted')
+c$$$         write(ifh) nwf,nqtt,nspin
+c$$$         write(ifh) qtt(1:3,1:nqtt)
+c$$$         write(ifh) evecc_w(1:nwf,1:nwf,1:nqtt,1:nspin)
+c$$$         close(ifh)
+c$$$      endif
+c$$$
+c$$$      do iwf=1,nwf
+c$$$         write(6,*) "-20170427: iwf=",iwf
+c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,1))**2.0)
+c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
+c$$$      enddo
+     !! end okumura
+
+!! TEST okumura: iq=1,nq   (2017/06/10)
+      !!! qtt -> q, nqtt -> nqbz     
+      ! data list for wannier
       ifh=ifile_handle()
       open(ifh,file="wan4chi.d",form="unformatted")
-      write(ifh) nwf,nspin,nqtt
+      write(ifh) nwf,nspin,nqbz
       close(ifh)
 
       !generate eigenvalue and eigenvector of Wannier Hamiltonian
       write(6,*) 
-      if (is==1) allocate(eval_w(nwf,nqtt,nspin),evecc_w(nwf,nwf,nqtt,nspin))
-      do iq = 1,nqtt
+      if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
+      do iq = 1,nq
          write(6,*)' got get_hrotkp_ws iq =',iq
-         call get_hrotkp_ws(hrotr,rws,drws,irws,qtt(:,iq),
-     d                     nwf,nqtt,nrws,
+         call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
+     d                     nwf,nqbz,nrws,
      o                     hrotkp)
          call diag_hm(hrotkp,nwf,eval,evecc)
          eval_w(1:nwf,iq,is)=eval
@@ -1169,15 +1211,15 @@ c --- Readin nlam index
       if(is==2) then
          ifh=ifile_handle()
          open(ifh,file='EValue_w',form='unformatted')
-         write(ifh) nwf,nqtt,nspin
-         write(ifh) eval_w(1:nwf,1:nqtt,1:nspin)
+         write(ifh) nwf,nqbz,nspin
+         write(ifh) eval_w(1:nwf,1:nqbz,1:nspin)
          close(ifh)
 
          ifh=ifile_handle()
          open(ifh,file='EVec_w',form='unformatted')
-         write(ifh) nwf,nqtt,nspin
-         write(ifh) qtt(1:3,1:nqtt)
-         write(ifh) evecc_w(1:nwf,1:nwf,1:nqtt,1:nspin)
+         write(ifh) nwf,nqbz,nspin
+         write(ifh) q(1:3,1:nqbz)
+         write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
          close(ifh)
       endif
 
@@ -1188,6 +1230,7 @@ c --- Readin nlam index
       enddo
      !! end okumura
 
+      
 !! other k-points
       write(ifbnd,*)ef,' ef'
       write(iftb,*)ef,' ef'
