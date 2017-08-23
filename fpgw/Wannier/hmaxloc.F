@@ -1187,7 +1187,7 @@ c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**
 c$$$      enddo
      !! end okumura
 
-!! TEST okumura: iq=1,nq   (2017/06/10)
+!! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
       !!! qtt -> q, nqtt -> nqbz     
       ! data list for wannier
       ifh=ifile_handle()
@@ -1195,12 +1195,13 @@ c$$$      enddo
       write(ifh) nwf,nspin,nqbz
       close(ifh)
 
-      !generate eigenvalue and eigenvector of Wannier Hamiltonian
+      ! generate eigenvalue and eigenvector of Wannier Hamiltonian
+      ! Index:: evecc_w (orbital,band,q-point,spin) 
       write(6,*) 
       if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
-      do iq = 1,nq
+      do iq = 1,nqbz
          write(6,*)' got get_hrotkp_ws iq =',iq
-         call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
+         call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq),
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
          call diag_hm(hrotkp,nwf,eval,evecc)
@@ -1214,11 +1215,10 @@ c$$$      enddo
          write(ifh) nwf,nqbz,nspin
          write(ifh) eval_w(1:nwf,1:nqbz,1:nspin)
          close(ifh)
-
          ifh=ifile_handle()
          open(ifh,file='EVec_w',form='unformatted')
          write(ifh) nwf,nqbz,nspin
-         write(ifh) q(1:3,1:nqbz)
+         write(ifh) qbz(1:3,1:nqbz)
          write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
          close(ifh)
       endif

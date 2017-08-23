@@ -8,7 +8,7 @@
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2,
      &     wan_readeval,wan_readeigen,evud_w,eval_w, !for okumura
-     &     wan_readeval2,wan_readeigen2
+     &     wan_readeval2,wan_readeigen2, wan_readeigen3
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -45,6 +45,8 @@
      & w0,w0i
 
       use m_lldata,only: ll
+
+      use m_homoelectron,only: read_qgband !for gsq 
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -242,13 +244,21 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
 !     okumura
-      integer::nwf,nsp_w,nqtt_w,iwf,inwf,nww,iw2
-      integer::ifhamw,ifchipm_wan
+      integer::nwf,nsp_w,nqtt_w,iwf,jwf,inwf,nww,iw2
+      integer::ifhamw,ifchipm_wan,ifgas
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
+      complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
       logical::wan=.true.
       real,allocatable::kmat(:,:,:,:),wanmat(:,:)
       real(8),allocatable:: wan_ecore(:)
       logical::ltmp
+      complex(8)::wan_i,wan_j,wan_k,wan_l,wanijkl
+      integer::igv,bsimple
+      real(8)::qlat(3,3)
+      !For electron gas
+      real(8),allocatable::qgsq1(:,:),qgsq2(:,:)
+      real(8)::spene
+      real(8),allocatable::qcheck(:)
       
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -366,7 +376,7 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
 cc need for gettetwt; automatically read file(okumura) OK
       call readefermi()
       write(6,"(a,f12.6)")' --- READIN aa ef from EFERMI. ef=',ef
-
+      
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine
 !!
@@ -409,6 +419,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
          write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
       endif
 
+      
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
       ifq0p=ifile_handle()
@@ -435,6 +446,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
+
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       nqbze  = nqbz *(1 + nq0i)
       nqibze = nqibz + nq0i
@@ -639,17 +651,20 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
       !okumura
 !!!      allocate(ev_w1(1:nwf,1:nqtt),ev_w2(1:nwf,1:nqtt))
-      allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz))
-      !!! To get eigenvalue: evud_w(nwf,nwf,nqtt,nsp)=coefficient a
-      !!! for constructing wavefunction
+!      allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz))
+!      allocate(evc_w1(nwf,nwf,nqbz),evc_w2(nwf,nwf,nqbz))
+
+!!! To get eigenvalue: evud_w(nwf,nwf,nqtt,nsp)=coefficient a
+!!! for constructing wavefunction
       call wan_readeigen2(ginv,nspin,nwf)
-c$$$      !!!sumcheck ok 20170427
+!!!sumcheck ok 20170613 
 c$$$      do iwf=1,nwf
-c$$$         write(6,*) "20170427 iwf:",iwf
-c$$$         write(6,*) "20170427:",sum(abs(evud_w(1:nwf,iwf,1,1))**2)
-c$$$         write(6,*) "20170427:",sum(abs(evud_w(1:nwf,iwf,1,2))**2)
+c$$$         write(6,*) "20170613 iwf:",iwf
+c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,1))**2)
+c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,2))**2)
 c$$$      enddo
-      !okumura
+
+!okumura
       
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
  !! EIBZ mode memo for nolfco (right?) 
@@ -718,8 +733,41 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
         endif
         call cputid (0)
         q = qibze(:,iq)
-        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
+        
+        print *,"ngv",ngc
+!!!  For Fe
+        if (q(2)/=0 .and. q(2)/=1) then
+           cycle
+        endif
+        if (q(3)/=0 .and. q(3)/=1) then
+           cycle
+        endif
 
+        !!! only Gamma
+        if (q(1)/=0) then
+           cycle
+        endif
+
+!!! |q+G|
+        if (wan) then !!!
+           call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
+        else
+           call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+        endif
+
+        if (wan) then
+           nwf=ngc
+           if(.not. allocated(ev_w1)) allocate(ev_w1(nwf,nqbz))
+           if(.not. allocated(ev_w2)) allocate(ev_w2(nwf,nqbz))
+           if(.not. allocated(evc_w1)) allocate(evc_w1(nwf,nwf,nqbz))
+           if(.not. allocated(evc_w2)) allocate(evc_w2(nwf,nwf,nqbz))
+        endif
+        
+c$$$        do iwf=1,ngc
+c$$$           print *,"checkvec igc,ngveccB:",iwf,ngveccB(:,iwf)
+c$$$        enddo
+        
+        
  !! Caution : confusing point
  !!  ngc by QGcou is shown at the bottom of lqg4gw.
  !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -735,6 +783,7 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
         write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
         write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 
+        
 !! Readin diagonalized Coulomb interaction ===
  !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
         if((.not.chipm)) then
@@ -895,16 +944,83 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
 c$$$
 
 !! okumura
+          !evud_w(nwf,nwf,nqbz,nsp)
 !     wan=.false.
 
+ccccccccccccccc simple band for check
+
+          
+          
+          npm=1
+          print *,"npm::",npm
           write(6,*) "nctot,ecore",nctot,ecore
           if (wan) then
-             do kx=1,nqbz
-                call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
-                call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+c$$$             !!! avoid n1b=0 or n2b=0 check
+c$$$             evc_w1(1:nwf,0,1:nqbz)=0d0
+c$$$             evc_w2(1:nwf,0,1:nqbz)=0d0
+             !!! simple band for chec 1:simple, 2:gas, 3:else
+             bsimple=2
+             print *,"--- EFERMI::",ef
+             if (bsimple==1) then
+                ev_w1(1:nwf,1:nqbz)=3.0+ef
+                ev_w2(1:nwf,1:nqbz)=4.0+ef
+                ev_w1(1,1:nqbz)=-2.0+ef
+                ev_w2(1,1:nqbz)=-1.0+ef
+                ev_w1(2,1:nqbz)=1.0+ef
+                ev_w2(2,1:nqbz)=2.0+ef
+                ev_w1(3,1:nqbz)=2.0+ef
+                ev_w2(3,1:nqbz)=3.0+ef
+                print *,"bsimple pass"
+
+             elseif (bsimple==2) then
+            !!! qgsq: |q+G|^2
+                spene=0d0       ! spin polarization : Delta
+                allocate(qgsq1(ngc,nqbz),qgsq2(ngc,nqbz))
+                qgsq1=0d0;qgsq2=0d0
+                ev_w1=0d0;ev_w2=0d0
+                ifgas=ifile_handle()
+                if (is==1) open(ifgas,file="band_electrongas.dat")
+
+              !  allocate(qcheck(3))
+              !     qcheck(1:3)=0.2
+              !     qcheck(1)=0.1
+                
+                do kx=1,nqbz
+              !     if (is==1) write(ifgas,'("qbz=",3f9.6)') qbz(3,kx)
+c$$$                   if (qbz(1,kx)>1.0) qbz(1,kx)=qbz(1,kx)-2.0
+c$$$                   if (qbz(2,kx)>1.0) qbz(2,kx)=qbz(2,kx)-2.0
+c$$$                   if (qbz(3,kx)>1.0) qbz(3,kx)=qbz(3,kx)-2.0
+
+                   call read_qgband(alat,plat,qbz(:,kx),ngc,ngveccB,is,spene,qgsq1(1:ngc,kx))
+                   call read_qgband(alat,plat,q+qbz(:,kx),ngc,ngveccB,isf,spene,qgsq2(1:ngc,kx))
+                   !if (qbz(1,kx)/=qbz(2,kx) .or. qbz(1,kx)/=qbz(3,kx)) cycle
+                   !if (is==1) write(ifgas,'(f9.6,13f12.6)') tpioa*sqrt(3.0)*qbz(1,kx),qgsq1(:,kx)
+
+                   !!! replace eigenvalue
+                   ev_w1(1:nwf,kx)=qgsq1(:,kx)
+                   ev_w2(1:nwf,kx)=qgsq2(:,kx)
+                   if (is==1) write(ifgas,'(f9.6,13f12.6)') tpioa*sqrt(3.0)*qbz(1,kx),ev_w2(:,kx)     
+                enddo
+                if (is==1) close(ifgas)
+                if (allocated(qgsq1)) deallocate(qgsq1)
+                if (allocated(qgsq2)) deallocate(qgsq2)
+                if (allocated(qcheck)) deallocate(qcheck)
+                
+             else !!! else
+                do kx=1,nqbz
+                   call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
+                   call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+
 c$$$  write(6,*) "20170428: kx",kx
-c$$$                write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
-             enddo
+c$$$  write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
+                
+             !!! for wannier eigenvector (evc_w1, evc_w2)
+c$$$                call wan_readeigen3(qbz(:,kx),is,evc_w1(1:nwf,1:nwf,kx))
+c$$$                write(6,*) " evc_w::",kx,evc_w1(3,4,kx)
+c$$$                call wan_readeigen3(q+qbz(:,kx),isf,evc_w2(1:nwf,1:nwf,kx))
+c$$$                write(6,*) " evc_w::",kx,evc_w2(3,4,kx)
+                enddo
+             endif
 
              write(6,*) "start wan_gettetwt"
              !!! ecore=0, nbmx=nwf
@@ -913,7 +1029,7 @@ c$$$                write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
      i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
      i            nwf,ebmx,mtet,eibzmode) !nov2016
              write(6,*) "end wan_gettetwt"
-             
+
           else
              do kx = 1, nqbz
                 call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
@@ -927,18 +1043,19 @@ c$$$                write(6,*) "20170428: ev_w1",ev_w1(nwf,kx)
           
 !! end okumura
 c$$$  !!! test code to print tetrahedron weight !!! okumura
-!     npm=1
 !     do k=1,nqbz !k-vector loop?
 
           allocate(kmat(1:nwf,1:nwf,1:nwhis,1:npm),wanmat(1:nwf,1:nwf))
-          kmat=0d0
+          kmat=1.0E-15
           wanmat=0d0
-          ltmp=.false.
+          ltmp=.False.
+          
+!          do jpm=1,npm          !,jpm=2:negative frequency
+          jpm=1
           do kx=1,nqbz
-             do 25 jpm=1,npm    !,jpm=2:negative frequency
-             do 25 ibib=1,nbnb(kx,jpm) !,nbnb(k,jpm) !i loop (omega_i)?
-!     n1b(ibib,k,jpm)=1    !n :band index for k (occupied)
-!             n2b(ibib,k,jpm)=1    !n':band index for q+k (unoccupied)
+             do ibib=1,nbnb(kx,jpm) !,nbnb(k,jpm) !i loop (omega_i)?
+!     n1b(ibib,k,jpm) = n :band index for k (occupied)
+!     n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
                 if (ltmp) then
                    write(6,*) 'jpm,ibib,nww:',jpm,ibib,nww
                    write(6,*) 'kx,nbnb',kx,nbnb(kx,jpm)
@@ -948,45 +1065,87 @@ c$$$  !!! test code to print tetrahedron weight !!! okumura
                       write(6,*) 'n1b(unocc),n2b(occ):',n1b(ibib,kx,jpm),n2b(ibib,kx,jpm)
                    endif
                 endif
-             !for M(:,:) ???
-c$$$             it=n1b(ibib,k,jpm) !index for n for q
-c$$$             n2bminimum=minval(n2b(1:nbnb(kx,jpm),kx,jpm))!????
-c$$$             itp=1+n2b(ibib,k,jpm)-n2bminimum !index for n' for q+k
-c========================== caliculate M(:,:)
-c$$$                    M(:,:) caliculate!
-c$$$                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
-c$$$                    zmel=dconjg(zmel) ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
-c$$$                    M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
-c$$$                    Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-ccc tmp part
-                do iwf=1,nwf
-                   wanmat(iwf,iwf)=1
-                enddo
-ccc end tmp part
 
-c==========================end caliculate M(:,:) 
+!!! for M(:,:) ???
+                it=n1b(ibib,kx,jpm) !index for n for q
+                itp=n2b(ibib,kx,jpm)
+                
+c$$$  itp=1+n2b(ibib,k,jpm)-n2bminimum !index for n' for q+k
+c==========================caliculate M(:,:)
+c$$$  M(:,:) caliculate!
+c$$$  call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
+c$$$  zmel=dconjg(zmel) ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
+c$$$  M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
+c$$$  Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+ccc   tmp part
+                ltmp=.True.
+                if (ltmp) then
+                   wanmat=1.0
+c$$$  do iwf=1,nwf
+c$$$                      wanmat(iwf,iwf)=1.0
+c$$$                   enddo
+                else
+!!! evc_w1: upspin ; evc_w2: downspin
+!!! from down(beta) to up(alpha)
+!!! MAKE! module
+!!! iwf: i,j ; jwf; k,l
+                   do iwf=1,nwf
+                      do jwf=1,nwf
+                         wan_j=dconjg(evc_w2(iwf,it,kx)) !a_{Rjbeta}^{kn}*
+                         wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
+                         wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n}
+                         wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n}*
+                         
+!!! wanmat is only Imaginary part of Kmatrix
+!!! include interactions
+                         wanijkl=wan_j*wan_l*wan_i*wan_k
+                         wanmat(iwf,jwf)=aimag(wanijkl)
+                         if (iq==1 .and. ibib==1) then
+                            write(6,*) "wanmat for Magnon(log-scale):",log(wanmat(nwf,1))
+                         endif
+                      enddo
+                   enddo
+                endif
+
+ccc   end tmp part
+c==========================end caliculate M(:,:) : wanmat(nwf,nwf)
 
                 nww=nhw(ibib,kx,jpm) !for simplification
 !!!   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
                 do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
                    iw2=iw-ihw(ibib,kx,jpm)+1
                    imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+                   if (it==0 .or. itp==0) then
+                      write(6, *) "it=0 or itp=0... check imagweight",imagweight
+                   endif
+                   
                    if (imagweight>=20) then
                       print *," imagweight error:",imagweight,jhw(ibib,kx,jpm),ihw(ibib,kx,jpm)
                    endif
-                   !!! accumulate Im[K]
-                   kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+wanmat(:,:)*imagweight
+!!!   accumulate Im[K]
+                   if (ltmp) then
+                      kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+wanmat(:,:)*imagweight
+                   else
+                      do iwf=1,nwf
+                         do jwf=1,nwf
+                            kmat(iwf,jwf,iw,jpm)=kmat(iwf,jwf,iw,jpm)+wanmat(iwf,jwf)*imagweight
+                         enddo
+                      enddo
+                   endif
                 enddo
 
- 25          continue
 
-          enddo                 !!! end k-loop
+             enddo              !!! end ibib-loop
+          enddo                 !!! end jpm-loop
+!          enddo       !!! end k-loop
+
           
           if (wan) then         !writing Kmatrix(kmat) 
-             if (iq==1) write(ifchipm_wan,*) '# nwhis:',nwhis
-             if (iq<=4) then    !check X to Gamma
+             if (iq==1 .and. is==1) write(ifchipm_wan,*) '# nwhis:',nwhis
+!             if (iq<=4) then    !check X to Gamma
+             if (iq>=0) then    !check X to Gamma
                 do iw=1,nwhis
-                   write(ifchipm_wan,*) q(1),frhis(iw)*hartree,log(sum(kmat(:,:,iw,1)))
+                   write(ifchipm_wan,*) q(1),frhis(iw)*hartree,sum(kmat(:,:,iw,jpm))
                 enddo
                 write(ifchipm_wan,*) ""
              endif
@@ -994,7 +1153,7 @@ c==========================end caliculate M(:,:)
           
           if(allocated(kmat)) deallocate(kmat)
           if(allocated(wanmat)) deallocate(wanmat)
-          print *,"kmat pass"
+
           
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
           call cputid(0)
@@ -1580,4 +1739,3 @@ c--------------------------------------------------------------------
       call diagcv(ovlpc,wpvcc, evecc, nbloch, eval, nmx, 1d99, nev)
       deallocate(ovlpc,evecc,wpvcc)
       end
-

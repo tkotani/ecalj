@@ -197,7 +197,7 @@ DERFC=
  $(main)hx0fp0.m.o
 
  X0oku = \
- $(main)test.m.o
+ $(main)homoelectron_mod.o $(main)test.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
