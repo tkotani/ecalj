@@ -197,7 +197,7 @@ DERFC=
  $(main)hx0fp0.m.o
 
  X0oku = \
- $(main)homoelectron_mod.o $(main)test.m.o
+ $(gwsrc)m_homoelectron.o $(main)hmagnon.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
@@ -455,7 +455,7 @@ $(gwsrc)m_readeps.o
  hx0fp0:	$(MPI) $(X0) $(GWLIB) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(X0)     $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- test:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
+ hmagnon:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
