@@ -196,7 +196,7 @@ c     &     nqnumc, ngcmx, QpGcut_cou
         do iq=1, nqnumc
           read(ifiqg) qc(1:3,iq), ngc(iq)
 c          if(verbose()>40)  write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
-          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
+!          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
           read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
         enddo
       endif

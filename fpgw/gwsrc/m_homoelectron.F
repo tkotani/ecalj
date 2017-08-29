@@ -1,24 +1,27 @@
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccc this module for homogeneous electron gas calculation in hmagnon.m.F 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       module m_homoelectron
 
 !!      use m_genallcf_v3,only: genallcf_v3,
 !!    & alat, plat
+      use m_keyvalue,only: getkeyvalue
       implicit none
 
       logical,private:: init=.true.
       real(8),private:: xmx2(3),rlapt(3,3)
 
-
       contains
 !!! generate |q+G| bands
       !!! calculate |q+G|^2
-      subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,spene,gsq,qshort)
+      subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)
       
       integer(4), intent(in):: ngv,isp
       integer(4),intent(in) :: ngvec(3,*)
-      real(8), intent(in) :: q(3),plat(3,3),alat,spene !spin polarization
+      real(8), intent(in) :: q(3),plat(3,3),alat
       real(8), intent(out) :: gsq(:),qshort(3)
       real(8),allocatable :: qgw(:)
-      real(8) :: tpioa,qlat(3,3),pi
+      real(8) :: tpioa,qlat(3,3),pi,spene !spin polarization
       integer:: igv
       logical::gamma
 
@@ -28,6 +31,10 @@
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
       
+      ! get spin polarization : Delta
+      call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+
+
       !!!q+G
       allocate(qgw(1:3))
       call minv33tp(plat,qlat)
@@ -47,11 +54,6 @@
       gsq=0; qgw=0
       do igv=1,ngv
          qgw=tpioa*(qshort+matmul(qlat,ngvec(1:3,igv)))
-         print *, "0822, |QGw|",sqrt(sum(qgw**2))
-
-c$$$         if (gamma) then
-c$$$            gsq(igv)=sqrt(sum((tpioa*matmul(qlat,ngvec(1:3,igv)))**2))
-
          gsq(igv)=sum(qgw**2)
 
          !!! spin polarization
@@ -61,21 +63,42 @@ c$$$            gsq(igv)=sqrt(sum((tpioa*matmul(qlat,ngvec(1:3,igv)))**2))
             gsq(igv)=gsq(igv)+spene
          endif
             
-         print *, "0822, |G|^2",gsq(igv)
       enddo
       end subroutine
 
-c$$$      subroutine efermi_egas
-c$$$
-c$$$      real(8)::ntot,bzvol
-c$$$      
-c$$$c$$$ あと,BZの体積をvoltotとして,
-c$$$c$$$ バレンス電子数にntotに対してefermi,qfermiを与えるには,
-c$$$c$$$  efz=(ntot*3*pi**2/voltot)**(2d0/3d0)
-c$$$!     ef is calculated from ntot.
-c$$$c$$$         qfermi= dsqrt(efz)
-c$$$c$$$         alpha = (9*pi/4d0)**(1d0/3d0)
-c$$$c$$$         rs    = alpha/qfermi
-c$$$c$$$ ここでrsは電子ガスのパラメーターで電子間の距離を表します.
+      subroutine efermi_egas(ntot,alat,plat,efz)
+!      integer(4),intent(in):: ntot
+      real(8),intent(in):: ntot,alat,plat(3,3)
+      real(8),intent(out):: efz
+      real(8):: voltot,pi,alpha,det33 !,tripl
+      real(8):: rs,qfermi,spene
+
+      pi=4d0*datan(1d0)
+      voltot = abs(alat**3*det33(plat))
+      alpha=(9*pi/4d0)**(1d0/3d0)
+
+      ! get spin polarization : Delta
+      call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+
+      efz=(ntot*3*pi**2/voltot)**(2d0/3d0)-3/8.0*spene**2
+      !ef is calculated from ntot.   
+      qfermi= dsqrt(efz)
+      rs    = alpha/qfermi
+
+      print *,"efermi_egas:: efermi[ryd]", efz
+      print *,"efermi_egas:: qfermi, rs", qfermi, rs
+      end subroutine efermi_egas
+
+c--------------------------------
+      real(8) function det33(am)
+      implicit none
+      real(8),intent(in) :: am(3,3)
+      det33= am(1,1)*am(2,2)*am(3,3)
+     &       -am(1,1)*am(3,2)*am(2,3)
+     &       -am(2,1)*am(1,2)*am(3,3)
+     &       +am(2,1)*am(3,2)*am(1,3)
+     &       +am(3,1)*am(1,2)*am(2,3)
+     &       -am(3,1)*am(2,2)*am(1,3)
+      end
       
       end module m_homoelectron

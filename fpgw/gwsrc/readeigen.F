@@ -934,34 +934,33 @@ c$$$!!!   Readeigen_w for Wannier (nqtt -> nqbz)
       
       real(8):: ginv_in(3,3)
       integer(4)::nsp_in,nwf_in
-!      integer(4)::nqbz
+      integer(4)::i,j
       
       ginv  = ginv_in
       nsp   = nsp_in
       if(nsp<0.or.nsp>2) call rx('init_reaeigen_w:nsp wrong')
       nband = nwf_in
-
 !      call readhamindex() !UNFORMATTED problem 20170423 oku
 !      readhamindex() must be called before calling eigenvalue_w 
 
 !      readwan=.true.
+!!!   Error Without init_readeigen and init_readeigen2 (2017/08/28)
       call iqindx_qttw(ginv)
-      
+
       !for eigenvector: coefficient a, featuring Matrices
       ifevw=ifile_handle()
       open(ifevw,file='EVec_w',form='unformatted')
       read(ifevw) nwf_ev,nqbz_ev,nsp_ev
 !      nqbz=nqbz_ev
       write(6,*)'read EVec_w: nwf_ev,nqbz_ev,nsp_ev', nwf_ev, nqbz_ev, nsp_ev
-!      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-!      if(nqbz_ev  /=  nqbz) call rx( 'init_readeigen:nqi/=nqi_')
+!      if(nwf_ev/=nband)     call rx( 'wan_readeigen: nband_ev/=nband')
+      if(nsp_ev  /=  nsp)   call rx( 'wan_readeigen: nsp_ev/=nsp')
+!      if(nqbz_ev  /=  nqbz) call rx( 'wan_readeigen: nqi/=nqi_')
       write(6,*) "readeigen_w: nwf,nqbz,nsp",nwf_ev,nqbz_ev,nsp_ev
       allocate(evud_w(nwf_ev,nwf_ev,nqbz_ev,nsp),q_w(3,nqbz_ev))
       read(ifevw) q_w(1:3,1:nqbz_ev)
       read(ifevw) evud_w(1:nwf_ev,1:nwf_ev,1:nqbz_ev,1:nsp)
       close(ifevw)
-      
 c$$$      do iq=1,nwf_ev
 c$$$         write(6,*) "evud_w:",iq,sum(abs(evud_w(1:nwf,iq,nqbz_ev,1))**2)
 c$$$         write(6,*) "evud_w:",iq,sum(abs(evud_w(1:nwf,iq,nqbz_ev,2))**2)
@@ -972,14 +971,20 @@ c$$$      enddo
       open(ifevw,file='EValue_w',form='unformatted')
       read(ifevw) nwf_ev,nqbz_ev,nsp_ev
       write(6,*)'read EValue_w: nwf_ev,nqbz_ev,nsp_ev',nwf_ev,nqbz_ev,nsp_ev
-!      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-!     if(nqbz_ev  /=  nqbz) call rx( 'init_readeigen:nqi/=nqi_')
+!      if(nwf_ev/=nband)     call rx( 'wan_readeigen: nband_ev/=nband')
+      if(nsp_ev  /=  nsp)   call rx( 'wan_readeigen: nsp_ev/=nsp')
+!      if(nqbz_ev  /=  nqbz) call rx( 'wan_readeigen: nqi/=nqi_')
       allocate(eval_w(nwf_ev,nqbz_ev,nsp))
       read(ifevw) eval_w(1:nwf_ev,1:nqbz_ev,1:nsp)
       close(ifevw)
       evalwan=.false.
-      
+      do i=1,nqbz_ev
+         do j=1,nwf_ev
+            if(eval_w(j,i,1)<-2.0) print *,"wan_eigen:: ",j,eval_w(j,i,1)
+            if(eval_w(j,i,2)<-2.0) print *,"wan_eigen:: ",j,eval_w(j,i,2)
+         enddo
+      enddo
+
       end subroutine wan_readeigen2
 
       subroutine wan_readeigen3(q,isp,evec_w)
