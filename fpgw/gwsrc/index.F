@@ -59,20 +59,25 @@ c ef    = fermi level
 c noccx1= highest number of occupied states
       implicit real*8(a-h,o-z)
       dimension ekt(nt,nk)
-!! Find the highest number of occupied states
-!! Seungwoo's correction at mar2016. 
-!! Previous version works,But this is necessary when all bands occuied (for model calculaitons).
+      logical:: allocc
+!! Find the highest number of occupied states ---
+!! mar2016. (Seungwoo)
+!!   Previous version works,But this is necessary when all bands occuied (for model calculaitons). -->I had bug -->see 
+!! aug2017 below (okumura test)
+!!   bugfix (probably affects little only for metallic case). For single band model, it stops since previous version givs noccx1=0.
+!!
       noccx = 0
-      do   k  = 1,nk
-        do it = 1,nt
-c          if(ekt(it,k) .gt. ef) goto 1111
+      allocc=.true.
+      do   k  = 1,nk !k index
+        do it = 1,nt !band index
           if(ekt(it,k) > ef) then
-            noccx = it-1 
+             allocc=.false.
+            if(it-1> noccx) noccx = it-1 !bugfix aug2017takao => previous verion check noccx only at it=nt because of bug.
             exit
           endif
         enddo
-c 1111   if(it .gt. noccx) noccx = it
       enddo
+      if(allocc) noccx=nt   !completely occupied case. aug2017takao
       noccx1 = noccx
       return
       end

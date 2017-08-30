@@ -4,11 +4,13 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
       program hmagnon
+      use m_readwan,only: write_qdata, wan_readeigen, wan_readeval
+!     &     evecc_w, eval_w
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
-      use m_readeigen,only: readeval,init_readeigen,init_readeigen2,
-     &     wan_readeval,wan_readeigen,evud_w,eval_w, !for okumura
-     &     wan_readeval2,wan_readeigen2, wan_readeigen3
+      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
+c$$$     &     wan_readeval,wan_readeigen,evud_w,!eval_w, !for okumura
+c$$$     &     wan_readeval2,wan_readeigen2, wan_readeigen3
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -353,7 +355,23 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
 !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
       call read_BZDATA()
 
-!! Use off-regular mesh (not including Gamma) for qbzreg()=F See hx0fp0.m.sc.F also.
+cccc wannier hamiltonian test part 20170829
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      if (wan) nsp_w=2
+      do is=1,nsp_w
+         call wan_readeigen(qbz(:,:),nqbz,is,nsp_w)
+         call write_qdata(ginv,nqbz,qbz(:,:))
+      enddo
+      
+!      call rx("=== OK! test end ===")  
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      
+      
+!!Use off-regular mesh (not including Gamma) for qbzreg()=F See hx0fp0.m.sc.F also.
 !! This must be consistent with qg4gw.F-mkqg.F
       if(.not.qbzreg()) then 
          deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
@@ -464,49 +482,48 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
           endif
         enddo
       enddo
-!! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
-      ngrpx = 1
-      l2nl=2*(nl-1)
-      allocate(symope(3,3))
-      symope(1:3,1) = (/1d0,0d0,0d0/)
-      symope(1:3,2) = (/0d0,1d0,0d0/)
-      symope(1:3,3) = (/0d0,0d0,1d0/)
-      ificlass=ifile_handle()
-      open (ificlass,file='CLASS')
-      allocate(iclasst(natom),invgx(ngrp)
-     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      write(6,*)'  --- Readingin CLASS info ---'
-      do ibas = 1,natom
-        read(ificlass,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
-!! Get space-group transformation information. See header of mptaouof. 
-!! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
-      call mptauof(symope,ngrpx,plat,natom,pos,iclasst
-     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
-      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
-
-!!  ppbrd = radial integrals,  cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-      call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas) !see m_rdpp
-      ntq = nband
-      allocate(itq(ntq)) !itq=i for i=1,ntq. a dummy. c.f. hsfp0.sc.F
-      do i=1,ntq
-        itq(i)=i
-      enddo
-     
-!! Pointer to optimal product basis
-      nblochpmx = nbloch + ngcmx
-      allocate(ngveccB(3,ngcmx)) ! work arry
+c$$$!! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
+c$$$      ngrpx = 1
+c$$$      l2nl=2*(nl-1)
+c$$$      allocate(symope(3,3))
+c$$$      symope(1:3,1) = (/1d0,0d0,0d0/)
+c$$$      symope(1:3,2) = (/0d0,1d0,0d0/)
+c$$$      symope(1:3,3) = (/0d0,0d0,1d0/)
+c$$$      ificlass=ifile_handle()
+c$$$      open (ificlass,file='CLASS')
+c$$$      allocate(iclasst(natom),invgx(ngrp)
+c$$$     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+c$$$      write(6,*)'  --- Readingin CLASS info ---'
+c$$$      do ibas = 1,natom
+c$$$        read(ificlass,*) ibasx, iclasst(ibas)
+c$$$        write(6, "(2i10)") ibasx, iclasst(ibas)
+c$$$      enddo
+c$$$      close(ificlass)
+c$$$!! Get space-group transformation information. See header of mptaouof. 
+c$$$!! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
+c$$$      call mptauof(symope,ngrpx,plat,natom,pos,iclasst
+c$$$     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+c$$$      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
+c$$$
+c$$$!!  ppbrd = radial integrals,  cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
+c$$$      call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas) !see m_rdpp
+c$$$      ntq = nband
+c$$$      allocate(itq(ntq)) !itq=i for i=1,ntq. a dummy. c.f. hsfp0.sc.F
+c$$$      do i=1,ntq
+c$$$        itq(i)=i
+c$$$      enddo
+c$$$     
+c$$$!! Pointer to optimal product basis
+c$$$      nblochpmx = nbloch + ngcmx
+c$$$      allocate(ngveccB(3,ngcmx)) ! work arry
       iqxend = nqibz + nq0i
-      write(6,*) ' nqibz nqibze=',nqibz,nqibze
+c$$$      write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
       ginv = transpose(plat)
-      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
-      call init_readeigen2(mrecb,nlmto,mrecg)
-      if(verbose()>50) print *,'eeee exit of init_readeigen2'
-
+c$$$      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
+c$$$      call init_readeigen2(mrecb,nlmto,mrecg)
+c$$$      if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
 
 ccccccccccccccccccccccccccccccccccccc
@@ -567,31 +584,31 @@ ccccccccccccccccccccccccccccccc
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,R(r))> 
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! Compare usage in hsfp0 modes.
-      irot=1
-      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,irot,nspin))
-      do is = 1,nspin
-        call ppbafp_v2 (irot,ngrpx,is,nspin,
-     i   il,in,im,nlnm,      
-     i   nl,nn,nclass,nlnmx,
-     i   mdimx,lx,nx,nxx,       !Bloch wave    
-     i   cgr, nl-1,             !rotated CG
-     i   ppbrd,                 !radial integrals
-     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi B>
-      enddo  
-      if(debug)write(6,*) ' end of ppbafp_v2'
-
+c$$$      irot=1
+c$$$      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,irot,nspin))
+c$$$      do is = 1,nspin
+c$$$        call ppbafp_v2 (irot,ngrpx,is,nspin,
+c$$$     i   il,in,im,nlnm,      
+c$$$     i   nl,nn,nclass,nlnmx,
+c$$$     i   mdimx,lx,nx,nxx,       !Bloch wave    
+c$$$     i   cgr, nl-1,             !rotated CG
+c$$$     i   ppbrd,                 !radial integrals
+c$$$     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi B>
+c$$$      enddo  
+c$$$      if(debug)write(6,*) ' end of ppbafp_v2'
+c$$$
 !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
       if(omitqbz) then
         iqxini= nqibz + 1
       else
         iqxini= 1
       endif
-!!!!!
-      necut=1
-      allocate(ecut(necut),ecuts(necut))
-      call getkeyvalue("GWinput","ecut_p" ,ecut, necut,default=(/1d10/) )
-      call getkeyvalue("GWinput","ecuts_p",ecuts,necut,default=(/1d10/) )
-!!
+c$$$!!!!!
+c$$$      necut=1
+c$$$      allocate(ecut(necut),ecuts(necut))
+c$$$      call getkeyvalue("GWinput","ecut_p" ,ecut, necut,default=(/1d10/) )
+c$$$      call getkeyvalue("GWinput","ecuts_p",ecuts,necut,default=(/1d10/) )
+c$$$!!
       if( chipm ) then
         nmbas=natom
         allocate(imbas(nmbas),imbas_s(nmbas))
@@ -599,96 +616,96 @@ ccccccccccccccccccccccccccccccc
         call getkeyvalue("GWinput","MagAtom", imbas,nmbas,status=istat)
         nmbas = istat
         write(6,"('Readin MagAtom nmbas =',i3,' imbas= ',10i3)") nmbas,imbas(1:nmbas)
-        imbas_s(1:nmbas) = imbas(1:nmbas)
-        imbas(1:nmbas)   = abs(imbas(1:nmbas))
-        allocate(jcoup(nw_i:nw,neps) )
-        allocate( svec(nbloch,nmbas) )  !sep2006
-        svec=0d0
-        allocate( cvec(nbloch,nmbas),momsite(nmbas), mmnorm(nmbas)) !May2007
-        cvec=0d0
-        do imb=1,nmbas
-          ibas= imbas(imb)
-          ifv = iopen ('MixSpin.'//charnum3(ibas),1,3,0)
-          read(ifv,*) ibasx,lxx
-          allocate(nxx_r(0:lxx))
-          do i=0,lxx
-            read(ifv,*) nxx_r(i)   !   write(6,"(2i5,d13.6)") nxx_r(i)
-          enddo
-          allocate(spinvec((lxx+1)**2,maxval(nxx_r)))
-          allocate(consvec((lxx+1)**2,maxval(nxx_r)))
-          spinvec=0d0
-          do ilmx = 1, (lxx+1)**2
-            lb = ll(ilmx )         !  write(6,*)' lb=',lb,lxx,ilmx
-            do ixx = 1, nxx_r(lb)  !  write(6,*)' nn=',nn,nxx_r(lb)
-              if(ilmx==1) then
-                read(ifv,*) ilm_r, nx_r, spinvec(ilmx,ixx),chg1,chg2 ,consvec(ilmx,ixx)
-              else
-                read(ifv,*) ilm_r, nx_r, spinvec(ilmx,ixx),dumm1,dumm2 ,consvec(ilmx,ixx)
-              endif
-!           write(6,"(2i5,d13.6)") ilmx, ixx, spinvec(ilmx,ixx)
-            enddo
-          enddo
-!! Calculate ChiPM. So sign of omega should be correct.
-          if(imb==1) then !determine spin direction with respect to ibas=imbas(imb=1)
-            spinmom=(chg1-chg2)
-            schi=1d0
-            if(spinmom<0d0) then
-              schi  = -1d0   ! This affects to dpsion. Obtained results
-                             ! should be the same in both mode.
-            endif
-          endif
-!!  ReOrdering of spinvec in natom ordering...
-          i=0
-          if(ibas>1) i= sum(nblocha(1:ibas-1))
-          do lb  = 0, lx (ibas)
-            do nb  = 1, nx (lb,ibas)
-              do mb  = -lb, lb
-                i = i+1
-                ilmx = lb**2+ lb+ mb +1
-                svec(i,imb) = spinvec(ilmx,nb)
-                cvec(i,imb) = consvec(ilmx,nb)
-                write(6,"(' i lb mb svec svec**2=',3i4,2d13.5)") 
-     &      i,lb,mb,svec(i,imb),svec(i,imb)**2
-              enddo
-            enddo
-          enddo
-          deallocate(nxx_r,spinvec,consvec)
-          close(ifv)
-          mmnorm (imb) = sqrt(sum(svec(:,imb)**2))
-          momsite(imb) = chg1-chg2
-c        write(6,"(' svecsum=',e23.15)") sum(svec(:,imb)**2
-c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
-          write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
-        enddo
+c$$$        imbas_s(1:nmbas) = imbas(1:nmbas)
+c$$$        imbas(1:nmbas)   = abs(imbas(1:nmbas))
+c$$$        allocate(jcoup(nw_i:nw,neps) )
+c$$$        allocate( svec(nbloch,nmbas) )  !sep2006
+c$$$        svec=0d0
+c$$$        allocate( cvec(nbloch,nmbas),momsite(nmbas), mmnorm(nmbas)) !May2007
+c$$$        cvec=0d0
+c$$$        do imb=1,nmbas
+c$$$          ibas= imbas(imb)
+c$$$          ifv = iopen ('MixSpin.'//charnum3(ibas),1,3,0)
+c$$$          read(ifv,*) ibasx,lxx
+c$$$          allocate(nxx_r(0:lxx))
+c$$$          do i=0,lxx
+c$$$            read(ifv,*) nxx_r(i)   !   write(6,"(2i5,d13.6)") nxx_r(i)
+c$$$          enddo
+c$$$          allocate(spinvec((lxx+1)**2,maxval(nxx_r)))
+c$$$          allocate(consvec((lxx+1)**2,maxval(nxx_r)))
+c$$$          spinvec=0d0
+c$$$          do ilmx = 1, (lxx+1)**2
+c$$$            lb = ll(ilmx )         !  write(6,*)' lb=',lb,lxx,ilmx
+c$$$            do ixx = 1, nxx_r(lb)  !  write(6,*)' nn=',nn,nxx_r(lb)
+c$$$              if(ilmx==1) then
+c$$$                read(ifv,*) ilm_r, nx_r, spinvec(ilmx,ixx),chg1,chg2 ,consvec(ilmx,ixx)
+c$$$              else
+c$$$                read(ifv,*) ilm_r, nx_r, spinvec(ilmx,ixx),dumm1,dumm2 ,consvec(ilmx,ixx)
+c$$$              endif
+c$$$!           write(6,"(2i5,d13.6)") ilmx, ixx, spinvec(ilmx,ixx)
+c$$$            enddo
+c$$$          enddo
+c$$$!! Calculate ChiPM. So sign of omega should be correct.
+c$$$          if(imb==1) then !determine spin direction with respect to ibas=imbas(imb=1)
+c$$$            spinmom=(chg1-chg2)
+c$$$            schi=1d0
+c$$$            if(spinmom<0d0) then
+c$$$              schi  = -1d0   ! This affects to dpsion. Obtained results
+c$$$                             ! should be the same in both mode.
+c$$$            endif
+c$$$          endif
+c$$$!!  ReOrdering of spinvec in natom ordering...
+c$$$          i=0
+c$$$          if(ibas>1) i= sum(nblocha(1:ibas-1))
+c$$$          do lb  = 0, lx (ibas)
+c$$$            do nb  = 1, nx (lb,ibas)
+c$$$              do mb  = -lb, lb
+c$$$                i = i+1
+c$$$                ilmx = lb**2+ lb+ mb +1
+c$$$                svec(i,imb) = spinvec(ilmx,nb)
+c$$$                cvec(i,imb) = consvec(ilmx,nb)
+c$$$                write(6,"(' i lb mb svec svec**2=',3i4,2d13.5)") 
+c$$$     &      i,lb,mb,svec(i,imb),svec(i,imb)**2
+c$$$              enddo
+c$$$            enddo
+c$$$          enddo
+c$$$          deallocate(nxx_r,spinvec,consvec)
+c$$$          close(ifv)
+c$$$          mmnorm (imb) = sqrt(sum(svec(:,imb)**2))
+c$$$          momsite(imb) = chg1-chg2
+c$$$c        write(6,"(' svecsum=',e23.15)") sum(svec(:,imb)**2
+c$$$c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
+c$$$          write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
+c$$$        enddo
       endif
-
-!! nov2016 moved from tetwt5 --> here
-      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
-      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
-      mtet=(/1,1,1/)
-      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
-      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
-
-
-      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-      !okumura
+c$$$  
+c$$$!! nov2016 moved from tetwt5 --> here
+c$$$      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
+c$$$      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+c$$$      mtet=(/1,1,1/)
+c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
+c$$$      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+c$$$
+c$$$
+c$$$      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
+c$$$      !okumura
 !!!      allocate(ev_w1(1:nwf,1:nqtt),ev_w2(1:nwf,1:nqtt))
-!      allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz))
-!      allocate(evc_w1(nwf,nwf,nqbz),evc_w2(nwf,nwf,nqbz))
 
-!!! To get eigenvalue: evud_w(nwf,nwf,nqtt,nsp)=coefficient a
-!!! for constructing wavefunction
-      if (.not. egasmode) then
-         print *,"--- start wan_readeigen2"
-         call wan_readeigen2(ginv,nspin,nwf)
-         print *,"--- end wan_readeigen2"
-      endif
-!!!sumcheck ok 20170613 
-c$$$      do iwf=1,nwf
-c$$$         write(6,*) "20170613 iwf:",iwf
-c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,1))**2)
-c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,2))**2)
-c$$$      enddo
+c$$$!      allocate(evc_w1(nwf,nwf,nqbz),evc_w2(nwf,nwf,nqbz))
+c$$$
+c$$$!!! To get eigenvalue: evud_w(nwf,nwf,nqtt,nsp)=coefficient a
+c$$$!!! for constructing wavefunction
+c$$$c$$$      if (.not. egasmode) then
+c$$$c$$$         print *,"--- start wan_readeigen2"
+c$$$c$$$         call wan_readeigen2(ginv,nspin,nwf)
+c$$$c$$$         print *,"--- end wan_readeigen2"
+c$$$c$$$      endif
+c$$$!!!sumcheck ok 20170613 
+c$$$c$$$      do iwf=1,nwf
+c$$$c$$$         write(6,*) "20170613 iwf:",iwf
+c$$$c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,1))**2)
+c$$$c$$$         write(6,*) "20170613:",sum(abs(evud_w(1:nwf,iwf,nqbz,2))**2)
+c$$$c$$$      enddo
 
       
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -698,7 +715,7 @@ c$$$      enddo
  !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
 c     okumura
 c      eibzmode=eibz4x0()
-      eibzmode=.false. !simple symmetry
+      eibzmode=.false.          !simple symmetry
 c     end okumura
       if(eibzmode) then
  !! commentout block inversion Use iqxendx=iqxend because of full inversion
@@ -726,7 +743,7 @@ c     end okumura
         call cputid(0)
         call readqgcou() !no input. Read QGcou and store date into variables.
       else     !dummy allocation to overlaid -check bound !sep2014
-        iqxendx=iqxend
+         iqxendx=iqxend
         allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
      &   ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
         nwgt=1
@@ -741,13 +758,11 @@ c     end okumura
  !! (or need to modify do 1001 loop).
  !! iq>nqibz for ixc=11 is not time-consuming (right???)
       call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
-
 cccc Okumura 2017/06/13 for gnuplot (3D)
       ifchipm_wan=ifile_handle()
       open(ifchipm_wan,file="wan_ChiPM.mat")          
       write(ifchipm_wan,*) '# nwf:',nwf
       write(ifchipm_wan,*) '# nqbz:',nqbz
-          
 !! ======== Loop over iq ================================
       do 1001 iq = iqxini,iqxend ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if(.not. MPI__task(iq) ) cycle
@@ -757,15 +772,26 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
         endif
 !        call cputid (0)
         q = qibze(:,iq)
-        
+        print *,"check12"
 !!!  For Fe (x,0,0)
-        if (q(2)/=0 .and. q(2)/=1) then
-           cycle
-        endif
-        if (q(3)/=0 .and. q(3)/=1) then
-           cycle
-        endif
+c$$$        if (q(2)/=0 .and. q(2)/=1) then
+c$$$           cycle
+c$$$        endif
+c$$$        if (q(3)/=0 .and. q(3)/=1) then
+c$$$           cycle
+c$$$        endif
 
+cccccccccccccccccccccccccccccccccccccccccc
+        print *,"check16"        
+        allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz))
+        do kx=1,nqbz
+           is=1;isf=2
+           call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
+           call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+        enddo
+        call rx("wannier OK")
+cccccccccccccccccccccccccccccccccccccccccc
+        
 
 !!! |q+G|
         if (egasmode) then      !!! for electron gas
@@ -777,6 +803,7 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
            call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
         endif
 
+        print *,"check13"
         if (wan) then
            if(.not. allocated(ev_w1)) allocate(ev_w1(nwf,nqbz))
            if(.not. allocated(ev_w2)) allocate(ev_w2(nwf,nqbz))
@@ -789,7 +816,7 @@ c$$$        if (q(1)/=1) then
 c$$$           cycle
 c$$$        endif
 
-        
+        print *,"check14"
  !! Caution : confusing point
  !!  ngc by QGcou is shown at the bottom of lqg4gw.
  !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -798,13 +825,14 @@ c$$$        endif
             call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
           endif
         endif
-
+        print *,"check15"
 !! Readin Coulomb matrix ====
         ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
         write(6,*)
         write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
         write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 
+        
         
 !! Readin diagonalized Coulomb interaction ===
  !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
@@ -1025,8 +1053,8 @@ ccc                   !!! end check
                 
              else !!! else
                 do kx=1,nqbz
-                   call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
-                   call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+                   call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
+                   call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
                    
                    if (ev_w1(1,kx) < ef .and. is==1) then
                       write(6,"('A28:kx,ev_w1,ev_w2=',I6,2f9.4)") kx,ev_w1(1,kx),ev_w1(2,kx)

@@ -497,6 +497,7 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
       contains
+      
 !> Find index as q=qq(:,iq) with modulo of premitive vector.===
       subroutine iqindx2_(q,  iqindx,qu)
 !! ginv is the inverse of plat (premitive translation vector).
@@ -542,6 +543,7 @@ ccccccccccccccccccccc
       if(debug) write(6,*) iqindx,qu
       end subroutine
 !!----
+
       subroutine init_iqindx_qtt(ginv_)
 !! === mapping of qtt ===
 !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
@@ -554,10 +556,6 @@ ccccccccccccccccccccc
       integer,allocatable:: ieord(:)
       logical::debug=.false.
 
-c$$$      if (readwan) then
-c$$$         deallocate(kk1,kk2,kk3,iqkkk)
-c$$$         readwan=.false.
-c$$$      endif
       ginv=ginv_
       allocate(ieord(nqtt))
       if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
@@ -709,6 +707,166 @@ c$$$      enddo
       end subroutine
       end module
 
+!! --------------------------------------------------------
+      module m_iqindx_wan
+
+      use m_hamindex, only: readhamindex
+!     ! To accelarate inverse mapping, q to 'integer index',
+!! we prepare integer index of q, its resolution is given by epsd.
+!!      use m_hamindex, only: qtt,nqtt
+!      use m_iqindx_qtt, only: init_iqindx_qtt
+      integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
+      real(8),private:: epsd=1d-7 !key parameter to map to integer index
+      integer,private:: nkey(3)
+      real(8),private:: ginv(3,3)
+      
+      real(8),private,allocatable::qtt(:,:)
+      integer,private::nqtt
+
+      contains
+      
+      subroutine iqindx2_wan(q,  iqindx,qu)
+!! ginv is the inverse of plat (premitive translation vector).
+!! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
+      implicit none
+      real(8), intent(in) :: q(3)
+      integer, intent(out) :: iqindx
+      real(8), intent(out) :: qu(3)
+
+      integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
+      real(8):: qx(3),qzz(3)
+      logical::debug=.true.
+      logical::init=.true.
+
+      if (init) then
+         call readhamindex() !! for iqimap(iq)
+         call wan_getqbz() !!! get nqtt, qtt(3,nqtt),ginv
+         call init_iqindx_wan(ginv)
+         init=.false.
+      endif
+
+!      print *,"iqindx2_wan:: nqtt=",nqtt
+      
+ccccccccccccccccccccc
+      debug=.false.
+      if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
+         debug=.true.
+      endif
+ccccccccccccccccccccc
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
+ !     print *,"ginv,qzz",ginv,qzz
+      call rangedq(matmul(ginv,q), qzz)
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") qzz
+!! we generate qzz integer index for qzz
+      kkk3 = (qzz+0.5d0*epsd)/epsd 
+      if(debug) write(6,*)'kkk3=',kkk3
+      if(debug) write(6,*)'nkey=',nkey
+      if(debug) write(6,*)'kk1=',kk1
+      if(debug) write(6,*)'kk2=',kk2
+      if(debug) write(6,*)'kk3=',kk3
+      call tabkk(kkk3(1), kk1,nkey(1), ik1)
+      call tabkk(kkk3(2), kk2,nkey(2), ik2)
+      call tabkk(kkk3(3), kk3,nkey(3), ik3)
+      if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
+      if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
+
+      iqindx = iqkkk(ik1,ik2,ik3)
+      if(debug) then
+         do iqx=1,nqtt
+         write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
+         enddo
+      endif
+      qu =qtt(:,iqindx)
+      if(debug) write(6,*) iqindx,qu
+      end subroutine iqindx2_wan
+!!-------------------
+      subroutine wan_getqbz()
+      implicit none
+      integer:: ifwqb, ifile_handle
+
+      ifwqb=ifile_handle()
+      open(ifwqb,file="wanqbz",form='unformatted')
+      read(ifwqb) ginv
+      read(ifwqb) nqtt
+      allocate(qtt(3,nqtt))
+      read(ifwqb) qtt
+      close(ifwqb)
+      
+      end subroutine wan_getqbz
+
+c--------------------------------
+      subroutine init_iqindx_wan(ginv_)
+!! === mapping of qtt ===
+!! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
+!!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
+!!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
+      implicit none
+      real(8):: ginv_(3,3),qzz(3)
+      real(8),allocatable:: qxx(:,:)
+      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
+      integer,allocatable:: ieord(:)
+      logical::debug=.false.
+
+      ginv=ginv_
+      allocate(ieord(nqtt))
+      if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
+      allocate(key(3,0:nqtt),qxx(3,nqtt))
+      key=-99999
+      do iq=1,nqtt
+         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
+c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
+      enddo
+c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
+
+!! get key and nkey for each ix.
+      key(:,0)=0 !dummy
+      do ix =1,3
+         call sortea(qxx(ix,:),ieord,nqtt,isig)
+         ik=0
+         do i=1,nqtt
+            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
+            if(i==1.or.key(ix,ik)<kkk) then
+               ik=ik+1
+               key(ix,ik) = kkk
+            elseif (key(ix,ik)>kkk) then
+               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+               call rx( 'iqindx: bug not sorted well')
+            endif
+         enddo
+         nkey(ix)=ik
+      enddo
+      deallocate(ieord)
+!!  key is reallocated. inverse mattping, iqkkk
+      allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
+      kk1(:) = key(1,1:nkey(1))
+      kk2(:) = key(2,1:nkey(2))
+      kk3(:) = key(3,1:nkey(3))
+      deallocate(key)
+      allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
+      iqkkk=-99999
+c      print *,'eeee kk1=',kk1
+c      print *,'eeee kk2=',kk2
+c      print *,'eeee kk3=',kk3
+c      write(6,*)' initqqq nqtt=',nqtt
+      do i=1,nqtt
+         kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
+         call tabkk(kkk3(1), kk1,nkey(1), ik1)
+         call tabkk(kkk3(2), kk2,nkey(2), ik2)
+         call tabkk(kkk3(3), kk3,nkey(3), ik3)
+         iqkkk(ik1,ik2,ik3)=i
+c         print *,'111111 kkk3=',kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
+      enddo
+      deallocate(qxx)
+c      stop 'xxxxxxxxxxxxx'
+      end subroutine init_iqindx_wan
+
+
+      
+      end module m_iqindx_wan
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
 
 
 !! ------------------------------------------------------
@@ -831,79 +989,79 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       emin = minval(evud)
       end subroutine
 
-cccccccccccccc Okumura: for Wannier ccccccccccccccc
-      subroutine wan_readeval(q,isp, ev_w)
-      use m_hamindex, only: qtt,nqtt !,iqimap
-      implicit none
-      integer(4), intent(in) :: isp
-      real(8), intent(in) :: q(3)
-      real(8), intent(out) :: ev_w(nwf_ev)
-      
-      integer(4):: iq,iqindx,i
-      real(8):: qu(3)
-
-      if(evalwan) call rx( 'readeigen: readeigen_w should be called in advance')
-      call iqindx2_(q, iq, qu)  !qu is used q. q-qu is a G vector.
-      ev_w(1:nwf_ev) = eval_w(1:nwf_ev,iq,isp)      
-      end subroutine
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-c$$$  !!! Readeigen_w for Wannier
-      !!! nwf=nband
-      subroutine wan_readeigen(ginv_in,nsp_in,nwf_in)
-      use m_hamindex,only: qtt,nqtt
-      implicit none
-      integer(4):: iq,is,nnnn,ikp,
-     &     nband_in,ifh,isx,ik,ib,verbose
-      integer:: ifevw,iopen, nqtt_ev, nsp_ev
-      real(8),allocatable:: qtt_w(:,:)
-      integer::ifile_handle
-      
-      real(8):: ginv_in(3,3)
-      integer(4)::nsp_in,nwf_in
-
-      ginv  = ginv_in
-      nsp   = nsp_in
-      if(nsp<0.or.nsp>2) call rx('init_reaeigen_w:nsp wrong')
-      nband = nwf_in
-
-!      call readhamindex() !UNFORMATTED problem 20170423 oku
-!      readhamindex() must be called before calling eigenvalue_w 
-
-!      readwan=.true.
-      call iqindx_qttw(ginv)
-      
-      !for eigenvector: coefficient a, featuring Matrices
-      ifevw=ifile_handle()
-      open(ifevw,file='EVec_w',form='unformatted')
-      read(ifevw) nwf_ev,nqtt_ev,nsp_ev
-      write(6,*)'read EVec_w: nwf_ev,nqtt_ev,nsp_ev', nwf_ev, nqtt_ev, nsp_ev
-      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-      !if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
-      if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
-      write(6,*) "readeigen_w: nwf,nqtt,nsp",nwf,nqtt,nsp
-      allocate(evud_w(nwf_ev,nwf_ev,nqtt,nsp),qtt_w(3,nqtt))
-      read(ifevw) qtt_w(1:3,1:nqtt)
-      read(ifevw) evud_w(1:nwf_ev,1:nwf_ev,1:nqtt,1:nsp)
-      close(ifevw)
-
-      !for eigenvalue_w
-      ifevw=ifile_handle()
-      open(ifevw,file='EValue_w',form='unformatted')
-      read(ifevw) nwf_ev,nqtt_ev,nsp_ev
-      write(6,*)'read EValue_w: nwf_ev,nqtt_ev,nsp_ev',nwf_ev,nqtt_ev,nsp_ev
-      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
-      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-      if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
-      allocate(eval_w(nwf_ev,nqtt,nsp))
-      read(ifevw) eval_w(1:nwf_ev,1:nqtt,1:nsp)
-      close(ifevw)
-      evalwan=.false.
-      
-      end subroutine wan_readeigen
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+c$$$cccccccccccccc Okumura: for Wannier ccccccccccccccc
+c$$$      subroutine wan_readeval(q,isp, ev_w)
+c$$$      use m_hamindex, only: qtt,nqtt !,iqimap
+c$$$      implicit none
+c$$$      integer(4), intent(in) :: isp
+c$$$      real(8), intent(in) :: q(3)
+c$$$      real(8), intent(out) :: ev_w(nwf_ev)
+c$$$      
+c$$$      integer(4):: iq,iqindx,i
+c$$$      real(8):: qu(3)
+c$$$
+c$$$      if(evalwan) call rx( 'readeigen: readeigen_w should be called in advance')
+c$$$      call iqindx2_(q, iq, qu)  !qu is used q. q-qu is a G vector.
+c$$$      ev_w(1:nwf_ev) = eval_w(1:nwf_ev,iq,isp)      
+c$$$      end subroutine
+c$$$
+c$$$!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+c$$$c$$$  !!! Readeigen_w for Wannier
+c$$$      !!! nwf=nband
+c$$$      subroutine wan_readeigen(ginv_in,nsp_in,nwf_in)
+c$$$      use m_hamindex,only: qtt,nqtt
+c$$$      implicit none
+c$$$      integer(4):: iq,is,nnnn,ikp,
+c$$$     &     nband_in,ifh,isx,ik,ib,verbose
+c$$$      integer:: ifevw,iopen, nqtt_ev, nsp_ev
+c$$$      real(8),allocatable:: qtt_w(:,:)
+c$$$      integer::ifile_handle
+c$$$      
+c$$$      real(8):: ginv_in(3,3)
+c$$$      integer(4)::nsp_in,nwf_in
+c$$$
+c$$$      ginv  = ginv_in
+c$$$      nsp   = nsp_in
+c$$$      if(nsp<0.or.nsp>2) call rx('init_reaeigen_w:nsp wrong')
+c$$$      nband = nwf_in
+c$$$
+c$$$!      call readhamindex() !UNFORMATTED problem 20170423 oku
+c$$$!      readhamindex() must be called before calling eigenvalue_w 
+c$$$
+c$$$!      readwan=.true.
+c$$$      call iqindx_qttw(ginv)
+c$$$      
+c$$$      !for eigenvector: coefficient a, featuring Matrices
+c$$$      ifevw=ifile_handle()
+c$$$      open(ifevw,file='EVec_w',form='unformatted')
+c$$$      read(ifevw) nwf_ev,nqtt_ev,nsp_ev
+c$$$      write(6,*)'read EVec_w: nwf_ev,nqtt_ev,nsp_ev', nwf_ev, nqtt_ev, nsp_ev
+c$$$      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
+c$$$      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+c$$$      !if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
+c$$$      if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
+c$$$      write(6,*) "readeigen_w: nwf,nqtt,nsp",nwf,nqtt,nsp
+c$$$      allocate(evud_w(nwf_ev,nwf_ev,nqtt,nsp),qtt_w(3,nqtt))
+c$$$      read(ifevw) qtt_w(1:3,1:nqtt)
+c$$$      read(ifevw) evud_w(1:nwf_ev,1:nwf_ev,1:nqtt,1:nsp)
+c$$$      close(ifevw)
+c$$$
+c$$$      !for eigenvalue_w
+c$$$      ifevw=ifile_handle()
+c$$$      open(ifevw,file='EValue_w',form='unformatted')
+c$$$      read(ifevw) nwf_ev,nqtt_ev,nsp_ev
+c$$$      write(6,*)'read EValue_w: nwf_ev,nqtt_ev,nsp_ev',nwf_ev,nqtt_ev,nsp_ev
+c$$$      if(nwf_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
+c$$$      if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
+c$$$      if(nqtt_ev  /=  nqtt) call rx( 'init_readeigen:nqi/=nqi_')
+c$$$      allocate(eval_w(nwf_ev,nqtt,nsp))
+c$$$      read(ifevw) eval_w(1:nwf_ev,1:nqtt,1:nsp)
+c$$$      close(ifevw)
+c$$$      evalwan=.false.
+c$$$      
+c$$$      end subroutine wan_readeigen
+c$$$
+c$$$!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!! 2017/06/11 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
