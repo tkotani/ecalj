@@ -772,36 +772,24 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
         endif
 !        call cputid (0)
         q = qibze(:,iq)
-        print *,"check12"
 !!!  For Fe (x,0,0)
-c$$$        if (q(2)/=0 .and. q(2)/=1) then
-c$$$           cycle
-c$$$        endif
-c$$$        if (q(3)/=0 .and. q(3)/=1) then
-c$$$           cycle
-c$$$        endif
-
-cccccccccccccccccccccccccccccccccccccccccc
-        print *,"check16"        
-        allocate(ev_w1(nwf,nqbz),ev_w2(nwf,nqbz))
-        do kx=1,nqbz
-           is=1;isf=2
-           call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
-           call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
-        enddo
-        call rx("wannier OK")
-cccccccccccccccccccccccccccccccccccccccccc
+        if (q(2)/=0 .and. q(2)/=1) then
+           cycle
+        endif
+        if (q(3)/=0 .and. q(3)/=1) then
+           cycle
+        endif
         
 
 !!! |q+G|
-        if (egasmode) then      !!! for electron gas
-           if (iq==1) then      !only Gamma
-              call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
-           endif
-           if (egasmode) nwf=ngc ! for electron gas
-        else
-           call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
-        endif
+c$$$        if (egasmode) then      !!! for electron gas
+c$$$           if (iq==1) then      !only Gamma
+c$$$              call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+c$$$           endif
+c$$$           if (egasmode) nwf=ngc ! for electron gas
+c$$$        else
+c$$$           call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+c$$$        endif
 
         print *,"check13"
         if (wan) then
@@ -815,8 +803,7 @@ c$$$        !!! only
 c$$$        if (q(1)/=1) then
 c$$$           cycle
 c$$$        endif
-
-        print *,"check14"
+        
  !! Caution : confusing point
  !!  ngc by QGcou is shown at the bottom of lqg4gw.
  !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -831,8 +818,6 @@ c$$$        endif
         write(6,*)
         write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
         write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
-
-        
         
 !! Readin diagonalized Coulomb interaction ===
  !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
@@ -920,51 +905,51 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
         print *,"xxxxxxxxxxxxxx7"
 !! ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
 !!         ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
-        if(chipm.and.nolfco) then
-           if(allocated(ppovlz)) deallocate(ppovlz)
-           allocate(ppovlz(ngb,nmbas1))
-           print *,"xxxxxxxxxxxxxx7.5"
-           ppovlz= zzr
-           print *,"xxxxxxxxxxxxxx8"
-        elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-          if(allocated(ppovlz)) deallocate(ppovlz)
-          if(allocated(ppovl)) deallocate(ppovl)
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-          call readppovl0(q,ngc,ppovl)
-          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-          write(6,*)'nnnnn',nbloch+ngc,ngb
-        else                    !may2013  this removes O^-1 factor from zmelt
-          if(allocated(ppovlz)) deallocate(ppovlz)
-          if(allocated(ppovl)) deallocate(ppovl)
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-          call readppovl0(q,ngc,ppovl)
-          allocate(ppovl_(ngb,ngb))
-          ppovl_=0d0
-          do i=1,nbloch
-            ppovl_(i,i)=1d0
-          enddo
-          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
-            ppovl_= matmul(ppovl_,zcousq)
-          endif
-          ppovlz = ppovl_
-          deallocate(ppovl_,ppovl)
-       endif
-       print *,"xxxxxxxxxxxxxx8"
-!! rcxq: imaginary part after x0kf_v4h and symmetrization. 
-!! zxq and zxqi are the main output after Hilbert transformation
-        if(nolfco) then
-          if(allocated(rcxq)) deallocate(rcxq)
-          if(allocated(zxq) ) deallocate(zxq)
-          if(allocated(zxqi) ) deallocate(zxqi)
-          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
-          allocate( zxq (nmbas1,nmbas2,nw_i:nw), zxqi (nmbas1,nmbas2,niw))
-        else
-          allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
-        endif
-        zxq=0d0;  zxqi=0d0;  rcxq = 0d0
-!! === loop over spin=== =========================================
+c$$$        if(chipm.and.nolfco) then
+c$$$           if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$           allocate(ppovlz(ngb,nmbas1))
+c$$$           print *,"xxxxxxxxxxxxxx7.5"
+c$$$           ppovlz= zzr
+c$$$           print *,"xxxxxxxxxxxxxx8"
+c$$$        elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
+c$$$          if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$          if(allocated(ppovl)) deallocate(ppovl)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
+c$$$          call readppovl0(q,ngc,ppovl)
+c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$          write(6,*)'nnnnn',nbloch+ngc,ngb
+c$$$        else                    !may2013  this removes O^-1 factor from zmelt
+c$$$          if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$          if(allocated(ppovl)) deallocate(ppovl)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
+c$$$          call readppovl0(q,ngc,ppovl)
+c$$$          allocate(ppovl_(ngb,ngb))
+c$$$          ppovl_=0d0
+c$$$          do i=1,nbloch
+c$$$            ppovl_(i,i)=1d0
+c$$$          enddo
+c$$$          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+c$$$          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
+c$$$            ppovl_= matmul(ppovl_,zcousq)
+c$$$          endif
+c$$$          ppovlz = ppovl_
+c$$$          deallocate(ppovl_,ppovl)
+c$$$       endif
+c$$$       print *,"xxxxxxxxxxxxxx8"
+c$$$!! rcxq: imaginary part after x0kf_v4h and symmetrization. 
+c$$$        if(nolfco) then
+c$$$          if(allocated(rcxq)) deallocate(rcxq)
+c$$$          if(allocated(zxq) ) deallocate(zxq)
+c$$$          if(allocated(zxqi) ) deallocate(zxqi)
+c$$$          allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
+c$$$          allocate( zxq (nmbas1,nmbas2,nw_i:nw), zxqi (nmbas1,nmbas2,niw))
+c$$$        else
+c$$$          allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
+c$$$        endif
+c$$$        zxq=0d0;  zxqi=0d0;  rcxq = 0d0
+
+!!=== loop over spin=== =========================================
         do 1003 is = 1,nspinmx
           write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
           if(debug) write(6,*)' niw nw=',niw,nw
@@ -978,6 +963,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
             rcxq=0d0
           endif
 
+cccccccccccccccccccccccccccccccccccccccccc
+        do kx=1,nqbz
+!           is=1;isf=2
+           call wan_readeval(  qbz(:,kx), is,  ev_w1(1:nwf,kx))
+           call wan_readeval(q+qbz(:,kx), isf, ev_w2(1:nwf,kx))
+        enddo
+        call rx("wannier OK")
+cccccccccccccccccccccccccccccccccccccccccc
+
+
+          
 !! Tetrahedron weight.
 !! output
 !!     nbnbx
