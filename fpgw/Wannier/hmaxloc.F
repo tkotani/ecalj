@@ -1133,7 +1133,7 @@ c --- Readin nlam index
       write(ifh)pos
       write(ifh)ef 
       write(ifh)nwf,nrws,n1,n2,n3
-      write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura 20170828
+      write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura Aug28,2017
       close(ifh)
 
       ifh = ifile_handle()

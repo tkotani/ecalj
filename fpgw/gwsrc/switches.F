@@ -270,7 +270,7 @@ c      end
       real(8),save:: sciss !,bandgap,ef
       if(init) then
         call getkeyvalue("GWinput","ScaledGapX0",sciss,default=1d0)
-        call readefermi() !ef bandgap
+c        call readefermi() !ef bandgap
 c        ifi  = iopen('EFERMI',1,0,0)
 c        read(ifi,*) ef,bandgap
 c        close(ifi)

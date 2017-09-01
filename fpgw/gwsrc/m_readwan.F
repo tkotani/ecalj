@@ -57,10 +57,11 @@ c---------------------------------------------
 
       write (6,"('nwf,nrws,n1,n2,n3=',I3,I6,3I4)") nwf,nrws,n1,n2,n3
       if (is==1) then
-         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8),ibaswf(nwf))
-         allocate(hrotr(nwf,nwf,nrws)) !real space Hamiltonian in Wannier funciton basis
+         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),
+     &        drws(n1*n2*n3*8),ibaswf(nwf), hrotr(nwf,nwf,nrws))
+          !real space Hamiltonian in Wannier funciton basis
       endif
-      read(ifh) irws,rws,drws,hrotr, ibaswf
+      read(ifh) irws,rws,drws,hrotr,ibaswf
       close(ifh)
       
       end subroutine readhrotr
@@ -84,9 +85,10 @@ c--------------------------------
       call readhrotr(is)
 
       if (init) then
-         print *,"=== wan_readeigen:: isp="
+         print *,"=== wan_readeigen::"
          allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
-         if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
+         if (is==1) allocate(eval_w(nwf,nqbz,nspin),
+     &        evecc_w(nwf,nwf,nqbz,nspin))
          do iq = 1,nqbz
 !     write(6,*)' got get_hrotkp_ws iq =',iq
             call get_hrotkp_ws2(qbz(:,iq),hrotkp)
@@ -95,42 +97,43 @@ c--------------------------------
             evecc_w(1:nwf,1:nwf,iq,is)=evecc
 
 cccccccccccc   sumcheck for eigenvector  cccccccccccccccc
-            if (iq==nqbz .and. is==2)  then
-!     if (iq==1 .and. is==1) then
-!     if (iq>50 .and. iq<70) then
-               print *," iq:",iq
-               do iwf=1,nwf 
-                  write (6,"('sum evecc(up) evecc(dn) =',2f9.4)") sum(abs(evecc_w(:,iwf,iq,1)**2)),sum(abs(evecc_w(:,iwf,iq,2)**2))
-               enddo
-            endif
+c$$$            if (iq==nqbz .and. is==2)  then
+c$$$!     if (iq==1 .and. is==1) then
+c$$$!     if (iq>50 .and. iq<70) then
+c$$$               print *," iq:",iq
+c$$$               do iwf=1,nwf 
+c$$$                  write (6,"('sum evecc(up) evecc(dn) =',2f9.4)")
+c$$$     &                 sum(abs(evecc_w(:,iwf,iq,1)**2)),
+c$$$     &                 sum(abs(evecc_w(:,iwf,iq,2)**2))
+c$$$               enddo
+c$$$            endif
 cccccccccccccccc  fat band plot (test: Gamma to H) ccccccccccccccccccc
-            if (qbz(2,iq)/=0.0 .and. qbz(2,iq)/=1.0) cycle
-            if (qbz(3,iq)/=0.0 .and. qbz(3,iq)/=1.0) cycle
-            if (qbz(1,iq)>1.05) cycle
-            write (6,"('SYML G-H  qbz',3f9.4)") qbz(:,iq)
-
-            !!! initial operation
-            if (sw) then
-               sw=.false.
-               iffb=ifile_handle()
-               if(is==1) open(iffb,file="fband.up.tmp")
-               if(is==2) open(iffb,file="fband.dn.tmp")
-               write(iffb,"('# ef nwf',f9.4,i4)") ef,nwf
-               write(iffb,*)
-            endif
-
-            !!! write eigenvalue and eigenvector for wannier
-            do iband=1,nwf
-               write(iffb,"(i5,f13.5,'  ',f13.6,i5,' ')",ADVANCE='NO') 
-     &              iq,qbz(1,iq), (eval_w(iband,iq,is)-ef)*rydberg(),iband
-               do iwf=1,nwf
-                  write(iffb,"(f13.6)",ADVANCE='NO')
-     &                 (abs(evecc_w(iwf,iband,iq,is)))**2 
-               enddo
-               write(iffb,*)            
-            enddo
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$            if (qbz(2,iq)/=0.0 .and. qbz(2,iq)/=1.0) cycle
+c$$$            if (qbz(3,iq)/=0.0 .and. qbz(3,iq)/=1.0) cycle
+c$$$            if (qbz(1,iq)>1.05) cycle
+c$$$            write (6,"('SYML G-H  qbz',3f9.4)") qbz(:,iq)
+c$$$
+c$$$            !!! initial operation
+c$$$            if (sw) then
+c$$$               sw=.false.
+c$$$               iffb=ifile_handle()
+c$$$               if(is==1) open(iffb,file="fband.up.tmp")
+c$$$               if(is==2) open(iffb,file="fband.dn.tmp")
+c$$$               write(iffb,"('# ef nwf',f9.4,i4)") ef,nwf
+c$$$               write(iffb,*)
+c$$$            endif
+c$$$            !!! write eigenvalue and eigenvector for wannier
+c$$$            do iband=1,nwf
+c$$$               write(iffb,"(i5,f13.5,' ',f13.6,i5,' ')",ADVANCE='NO')
+c$$$     &          iq,qbz(1,iq),(eval_w(iband,iq,is)-ef)*rydberg(),iband
+c$$$               do iwf=1,nwf
+c$$$                  write(iffb,"(f13.6)",ADVANCE='NO')
+c$$$     &                 (abs(evecc_w(iwf,iband,iq,is)))**2 
+c$$$               enddo
+c$$$               write(iffb,*)            
+c$$$            enddo
+c$$$
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  
          enddo
          sw=.true.
@@ -140,31 +143,36 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (is==2) then
          init=.false.           !!!eigenvalue 
          print *,"=== wan_readeigen end"
+         deallocate(pos,rws,drws,hrotr)
       endif
       if (allocated(hrotkp)) deallocate(hrotkp)
       end subroutine wan_readeigen
 c--------------------------------
-      subroutine wan_readeval(q,isp, ev_w)
+      subroutine wan_readeval(q,isp, ev_w, evc_w)
       use m_hamindex, only: iqimap
       implicit none
       integer(4), intent(in) :: isp
       real(8), intent(in) :: q(3)
       real(8), intent(out) :: ev_w(nwf)
+      complex(8), intent(out) :: evc_w(nwf,nwf)
 
       integer(4):: iq,iqindx,i
       real(8):: qu(3)
       
-      if(init) call rx( 'wan_readeval: wan_readeigen should be called in advance')
+      if(init) call rx('wan_readeval: wan_readeigen should be called')
       call iqindx2_wan(q, iq, qu) !qu is used q. q-qu is a G vector.
-      write (6,"('wan_readeval: iq=',I7,'  ---> iqimap, qu',I7,3f9.4)")
-     &     iq,iqimap(iq),qu
+c$$$      write (6,"('wan_readeval: iq=',I7,'  ---> iqimap, qu',I7,3f9.4)")
+c$$$     &     iq,iqimap(iq),qu
 
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,1)
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
 
       !!! return wannier eigenvalue : ev_w
-      ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)      
+      ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)
+      !!! return wannier eigenvalue : evc_w
+      evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iqimap(iq),isp)
       end subroutine wan_readeval
+
 c--------------------------------almpost same get_hrotkp_ws in maxloc3
       !!!! hrotr (q) => hrotkp
       subroutine get_hrotkp_ws2(q,hrotkp)
@@ -194,11 +202,11 @@ c see Ref.[2] eq.26
       enddo
       end subroutine get_hrotkp_ws2
 c--------------------------------
-      subroutine diag_hm2(zmat,ndim,eval,evecc)
+      subroutine diag_hm2(zmat,ndim,eval,evecc_)
       implicit real*8(a-h,o-z)
       integer:: ndim,i,nev,nmx
       complex(8),allocatable :: zmat2(:,:),ovlpc(:,:)
-      complex(8):: zmat(ndim,ndim),evecc(ndim,ndim)
+      complex(8):: zmat(ndim,ndim),evecc_(ndim,ndim)
       real(8):: eval(ndim),wk(ndim,11)
       integer iwk(ndim)
 
@@ -210,10 +218,10 @@ c--------------------------------
       do i=1,ndim
          ovlpc(i,i) = (1d0,0d0)
       enddo
-      evecc = (0d0,0d0)
+      evecc_ = (0d0,0d0)
       eval = 0d0
 !      call diagno(ndim,zmat2,ovlpc,wk,iwk,evecc,eval)
-      call diagcv(ovlpc,zmat2, evecc, ndim, eval, nmx, 1d99, nev)
+      call diagcv(ovlpc,zmat2, evecc_, ndim, eval, nmx, 1d99, nev)
       deallocate(zmat2,ovlpc)
       end subroutine diag_hm2
 

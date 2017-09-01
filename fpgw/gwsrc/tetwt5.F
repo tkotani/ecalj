@@ -243,6 +243,8 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
       endif
       write(6,*) "nmtet:",nmtet
 
+!!
+      print *,'xxxxxx 22222222 mtett=',mtett,efermi
       nbnc = nband+nctot
       nb1  = nband+1
       allocate( ekxx1(nband+nctot,nqbz),ekxx2(nband+nctot,nqbz))
@@ -252,7 +254,7 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
         ekxx1( nband+1: nband+nctot, kx) = ecore(1:nctot)
         ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
       enddo
-      
+
 !! Read eigenvalues at q and q+k ---------------------------------------
 !!  ekzz1 for k
 !!  ekzz2 for q+k.
@@ -289,7 +291,7 @@ c        print *,'sum(ib1bz)=',sum(ib1bz)
         call addsciss(scissors_x0(),efermi,(nband+nctot)*nqbzm, 
      o   ekzz2)
       endif
-      
+
 !! Check
       volt = 0d0
       do itet = 1, ntetf
@@ -309,11 +311,11 @@ c        write(6,"('itet im vol=',2i5,d13.5)") itet,im,abs(det33(kvec(1:3,1:3))/
       enddo
 c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
 
+
       if(job==0) then
         demin=  1d10
         demax= - 1d10
       endif
-
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
 c        print *,'do 1000 tetwt5 ',itet
@@ -381,6 +383,8 @@ cccccccccccccccccccccccccc
              enddo
           endif
 
+!!!   check line (okumura)
+!          if(itet==1037) print *, "--- 2222: nband itet/ntetf",nbandmx_kq,itet,"/",ntetf
 c     write(*,'("2  before n & np cycles",$)')   !   call cputid(0)
           
           do jpm = 1,npm        !feb2006
@@ -541,6 +545,7 @@ c$$$  c cccccccccccccccccccccccccccccccccc
  1000 continue
       deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
 
+
 !! === Symmetrization of wgt and whw   ===
 !! NOTE: We just enforce the same weight for degenerated bands. 
 !!       In the previous do loop 1000, we judged band connectivity just by the band index.
@@ -679,7 +684,7 @@ c       write(6,*)' tetwt4: end '; call cputid  (0)
       if (allocated(eigtet)) deallocate(eigtet)
       if (allocated(wtet)) deallocate(wtet)
       end
-
+c------------------------------------------------------------------------
 
 
 

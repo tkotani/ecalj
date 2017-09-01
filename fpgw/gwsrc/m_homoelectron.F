@@ -1,40 +1,36 @@
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccc this module for homogeneous electron gas calculation in hmagnon.m.F 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       module m_homoelectron
 
 !!      use m_genallcf_v3,only: genallcf_v3,
-!!    & alat, plat
+!     !    & alat, plat
       use m_keyvalue,only: getkeyvalue
       implicit none
 
       logical,private:: init=.true.
-      real(8),private:: xmx2(3),rlapt(3,3)
+      real(8),private:: xmx2(3),rlatp(3,3)
 
       contains
 !!! generate |q+G| bands
       !!! calculate |q+G|^2
       subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)
       
-      integer(4), intent(in):: ngv,isp
-      integer(4),intent(in) :: ngvec(3,*)
+      integer, intent(in):: ngv,isp
+      integer, intent(in) :: ngvec(3,*)
       real(8), intent(in) :: q(3),plat(3,3),alat
       real(8), intent(out) :: gsq(:),qshort(3)
       real(8),allocatable :: qgw(:)
-      real(8) :: tpioa,qlat(3,3),pi,spene !spin polarization
+      real(8) :: tpioa,pi,spene !spin polarization
       integer:: igv
       logical::gamma
 
-      real(8):: qqin(3),rlatp(3,3)
+      real(8):: qqin(3),qlat(3,3)
       integer:: nlatout(3,48),noutmx,nout,iout
 
       pi=4d0*datan(1d0)
       tpioa=2d0*pi/alat
-      
-      ! get spin polarization : Delta
+
+            ! get spin polarization : Delta
       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
-
-
+      
       !!!q+G
       allocate(qgw(1:3))
       call minv33tp(plat,qlat)
@@ -76,17 +72,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       pi=4d0*datan(1d0)
       voltot = abs(alat**3*det33(plat))
       alpha=(9*pi/4d0)**(1d0/3d0)
-
-      ! get spin polarization : Delta
       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
-
-      efz=(ntot*3*pi**2/voltot)**(2d0/3d0)-3/8.0*spene**2
-      !ef is calculated from ntot.   
+      
+      efz=(ntot*3*pi**2/voltot)**(2d0/3d0) - spene**2*3/8d0  !ef is calculated from ntot.   
       qfermi= dsqrt(efz)
       rs    = alpha/qfermi
 
-      print *,"efermi_egas:: efermi[ryd]", efz
-      print *,"efermi_egas:: qfermi, rs", qfermi, rs
+      write(6,"('efermi_egas:: efermi[ryd], qfermi, rs',5f9.5)")
+     &     efz,qfermi,rs
       end subroutine efermi_egas
 
 c--------------------------------
