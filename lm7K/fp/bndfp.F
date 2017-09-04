@@ -2794,25 +2794,24 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpotbk),w(osmrho),sev,sumtvxxx)
 c          call rlse(osmpotbk)
 c          stop 'xxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccc
-c          call poppr()
-c          call pshpr(ipr-20)
-c          print *,'vvv takao goto mkehfk mode2'
-c          print *,'gogo mkehkf procid=',procid,ipr,eks
             call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
             call togpr()
          endif
-         if( debug) print *, 'tttttttttt 9999999999999999999 9'
+         if(debug) print *, 'tttttttttt 9999999999999999999 9'
 
-!!   --- Add together force terms ---
-         if ( lfrce .gt. 0 ) call totfrc ( nbas , ssite , slat , leks 
+!! --- Add together force terms ---
+!! fes1_rv: contribution to HF forces from estat + xc potential   This is for input  density  !=3rd term in (B.5) in JPSJ.84.034705
+!! fes2_rv: contribution to KS forces from estat + xc potential   This is for output density
+!! fh_rv      : 1st term  in (B.5)
+!! input frc  : 2nd term in (B.5). Puley term
+!! output frc  : totlal
+         if(lfrce .gt. 0) call totfrc( nbas , ssite , slat , leks 
      .     , fes1_rv , fes2_rv , fh_rv , frc )
+
 
 !!   --- Mix input and output densities ---
          allocate(qm1_rv(nvl))
          allocate(qm2_rv(nvl))
-#ifdef KINODEBUG
-         write(*,*) 'kino allocate qm2_rv',nvl
-#endif
 
 cccccccccccccccccccccc
 cc          print *,'vvv takao mkekin copy test xxx1---'

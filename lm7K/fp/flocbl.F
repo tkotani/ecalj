@@ -88,8 +88,8 @@ C         i = index to head term, (ilm,k) to augmentation
               i = i+1
               do  m = 1, 3
                 do  ilm = 1, nlma
-                  do  k = 0, kmax
-                    da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m)
+                  do  k = 0, kmax !da can be written as {d cPkL}/{d R}. See rlocb1 in rlocbl.F for generating cPkL. b is used instead of db
+                    da(k,ilm,m) = da(k,ilm,m) + evec(i)*db(i,ilm,k,m) 
                   enddo
                 enddo
               enddo
