@@ -154,6 +154,8 @@ for q1 in candidate[0]:         #candidates of Q1 as linear combination of qlat
                 qqq[1]=q2
                 qqq[2]=q3
                 print 'OK! We found qqq vectors, which are equilanent to the reciprocal_primitive_lattice.'
+                print 'We can use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice'
+                print 'Following qqq1,qqq2,qqq3 are linear combinations of primitive vectors qlat.'
                 print '  qqq1=',qqq[0] # We can use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice
                 print '  qqq2=',qqq[1] # Here qqq1,qqq2,qqq3 are linear cobination of qlat.
                 print '  qqq3=',qqq[2]
