@@ -220,13 +220,17 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
         nlml = (lmxl+1)**2
 
         allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
+        if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
         allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
+        if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
         allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
-
+        if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
         if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
         allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
+        if (nr*nsp<0) ssite(ib)%rv_a_ov0(:)=0.0d0
         if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
         allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
+c        if (nr*nsp<0) ssite(ib)%rv_a_ov1(:)=0.0d0
 
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
