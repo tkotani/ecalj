@@ -13,7 +13,6 @@
 !! outtput files:
 !!   QGpsi: q and G vector for the eigenfunction
 !!   QGcou: q and G vector for the Coulomb matrix
-!!   QGwan: q and G vector for the wannier mode
 !!   Q0P  : offset Gamma point around \Gamma points
 !!   EPSwklm : offset Gamma method.
 !! and so on.
@@ -59,13 +58,11 @@
       logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
       integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       integer:: gammacellctrl=0
-      logical:: wanmode
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
       write(6,*)'        Generate Q0P->101(old offset Gamma)'
       write(6,*)'        Generate Q0P and Q0P for xyz ->201 '
-      write(6,*)'        Generate Q0P and Q0P for Wannier mode ->301 '
       read (5,*) iq0pin
 c      call headver('qg4gw',iq0pin)
       write(6,*) ' mode iq0pin = ',iq0pin
@@ -82,11 +79,6 @@ c      call headver('qg4gw',iq0pin)
       elseif(iq0pin==201) then
         iq0pinxxx=1
         lnq0iadd=.true.
-ccccccccccccccccccccc
-      elseif(iq0pin==301) then
-         iq0pinxxx=1
-         wanmode=.true.
-cccccccccccccccccccc         
       else
         call rx( 'Not allowed iq0pin')
       endif
@@ -134,22 +126,13 @@ c      endif
         enddo
       enddo
 !! --- Readin GWinput
-      if (iq0pin==301) then
-         nnn=1
-      else
-         call getkeyvalue("GWinput", "n1n2n3", nnn,3)
-      endif
+      call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
 
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
 
-      if(wanmode) then
-ccccccccccccccc      
-      call getkeyvalue("GWinput", "QpGcut_wan",QpGcut_Wan)
-ccccccccccccccc
-      else
-         call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
-      endif
+      call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
+
       
       call getkeyvalue("GWinput", "unit_2pioa",unit2)
       if(unit2) then
@@ -163,16 +146,8 @@ ccccccccccccccc
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
 
-cccccccccccccccccccccccccc
-      if(wanmode) then
-         QpGcut_Cou=QpGcut_wan
-         ifiqgw = ifile_handle()
-         open(ifiqgw,file='QGwan',form='unformatted')
-      else
-         ifiqgc = ifile_handle()
-         open(ifiqgc,file='QGcou',form='unformatted')
-      endif
-cccccccccccccccccccccccc
+      ifiqgc = ifile_handle()
+      open(ifiqgc,file='QGcou',form='unformatted')
       
       if(iq0pin==4) then
          QpGcut_psi=0d0
@@ -180,7 +155,7 @@ cccccccccccccccccccccccc
       endif
 !!
       call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Wan, ifiqg, ifiqgw, gammacellctrl,lnq0iadd)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgw, gammacellctrl,lnq0iadd)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
@@ -188,5 +163,4 @@ cccccccccccccccccccccccc
       if(iq0pin ==20002) call rx0( ' OK! qg4gw mode=20002 Readin Q0P. GammaCell Only.')
       if(iq0pin ==3)     call rx0( ' OK! qg4gw mode=3 band-plot mode')
       if(iq0pin ==4)     call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')      
-      if(iq0pin ==301)   call rx0( ' OK! qg4gw mode=301 Wannier mode')      
       end

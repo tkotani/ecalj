@@ -96,6 +96,19 @@ c--------------------------------
             eval_w(1:nwf,iq,is)=eval
             evecc_w(1:nwf,1:nwf,iq,is)=evecc
 
+ccccccccccc eigenvalue check
+c$$$            if(iq==1) open(iwf,file="waneval_check.data")
+c$$$!     if (kx==1 .and. iq > 100 ) open(iwf,file="wan_eval_check.data")
+c$$$            if (qbz(2,iq)==1.0) then
+c$$$               if (qbz(3,iq)==1.0) then
+c$$$!     if (iq > 100) then
+c$$$
+c$$$                  write(iwf,"('q(1) ev_w1(:,kx)',6f9.4)") qbz(1,iq),eval_w(:,iq,1)
+c$$$               endif
+c$$$            endif
+c$$$            if (iq==nqbz) close(iwf)
+c$$$            if (iq==nqbz) call rx("check: end readwan...")
+
 cccccccccccc   sumcheck for eigenvector  cccccccccccccccc
 c$$$            if (iq==nqbz .and. is==2)  then
 c$$$!     if (iq==1 .and. is==1) then
@@ -149,7 +162,7 @@ c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end subroutine wan_readeigen
 c--------------------------------
       subroutine wan_readeval(q,isp, ev_w, evc_w)
-      use m_hamindex, only: iqimap
+!      use m_hamindex, only: iqimap
       implicit none
       integer(4), intent(in) :: isp
       real(8), intent(in) :: q(3)
@@ -168,9 +181,10 @@ c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,1)
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
 
       !!! return wannier eigenvalue : ev_w
-      ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)
-      !!! return wannier eigenvalue : evc_w
-      evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iqimap(iq),isp)
+      ev_w(1:nwf) = eval_w(1:nwf,iq,isp)
+      !ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)
+      !!! return wannier eigenvalue : evc_w(orbital,band)
+      evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iq,isp)
       end subroutine wan_readeval
 
 c--------------------------------almpost same get_hrotkp_ws in maxloc3

@@ -41,7 +41,9 @@ c         write (*, * ) wqt(i),q0i(1:3,i),ixyz(i)
       ippovl0=ifile_handle()
       open(ippovl0,file='PPOVL0',form='unformatted')
       do
-        read(ippovl0) qx,ngc_r
+         print *,'wwwww q=',q
+         read(ippovl0) qx,ngc_r
+         print *,'wwwww qx,ngc_r=',qx,ngc_r
         if(sum(abs(qx-q))<tolq) then
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl

@@ -608,67 +608,6 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
 c      stop 'xxxxxxxxxxxxx'
       end subroutine
 
-!!!!!
-      subroutine iqindx_qttw(ginv_)
-!! === mapping of qtt ===
-!! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
-!!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
-!!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
-      implicit none
-      real(8):: ginv_(3,3),qzz(3)
-      real(8),allocatable:: qxx(:,:)
-      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
-      integer,allocatable:: ieord(:)
-      logical::debug=.false.
-
-      ginv=ginv_
-      allocate(ieord(nqtt))
-      if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
-      allocate(key(3,0:nqtt),qxx(3,nqtt))
-      key=-99999
-      do iq=1,nqtt
-         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
-c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
-      enddo
-c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
-
-!! get key and nkey for each ix.
-      key(:,0)=0 !dummy
-      do ix =1,3
-         call sortea(qxx(ix,:),ieord,nqtt,isig)
-         ik=0
-         do i=1,nqtt
-            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
-            if(i==1.or.key(ix,ik)<kkk) then
-               ik=ik+1
-               key(ix,ik) = kkk
-            elseif (key(ix,ik)>kkk) then
-               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-               call rx( 'iqindx: bug not sorted well')
-            endif
-         enddo
-         nkey(ix)=ik
-      enddo
-      deallocate(ieord)
-!!  key is reallocated. inverse mattping, iqkkk
-      allocate( kk1w(nkey(1)),kk2w(nkey(2)),kk3w(nkey(3)) )
-      kk1w(:) = key(1,1:nkey(1))
-      kk2w(:) = key(2,1:nkey(2))
-      kk3w(:) = key(3,1:nkey(3))
-      deallocate(key)
-      allocate( iqkkkw(nkey(1),nkey(2),nkey(3)) )
-      iqkkkw=-99999
-      do i=1,nqtt
-         kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-         call tabkk(kkk3(1), kk1w,nkey(1), ik1)
-         call tabkk(kkk3(2), kk2w,nkey(2), ik2)
-         call tabkk(kkk3(3), kk3w,nkey(3), ik3)
-         iqkkkw(ik1,ik2,ik3)=i
-      enddo
-      deallocate(qxx)
-      end subroutine
-!!!!!
-      
 !! ---
       subroutine tabkk(kkin, kktable,n, nout)
       integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
@@ -701,13 +640,13 @@ c$$$      enddo
       write(6,*) 'xxxxx takk ', i1,i2,kkin
       write(6,*) 'xxxxx takk ',kktable(i1),kktable(i2)
       call rx( 'takk: error')
+
       end subroutine
       end module
 
 !! --------------------------------------------------------
       module m_iqindx_wan
 
-      use m_hamindex, only: readhamindex
 !     ! To accelarate inverse mapping, q to 'integer index',
 !! we prepare integer index of q, its resolution is given by epsd.
 !!      use m_hamindex, only: qtt,nqtt
@@ -736,8 +675,7 @@ c$$$      enddo
       logical::init=.true.
 
       if (init) then
-         call readhamindex() !! for iqimap(iq)
-         call wan_getqbz() !!! get nqtt, qtt(3,nqtt),ginv
+         call wan_getqbz()      !!! get nqtt, qtt(3,nqtt),ginv
          call init_iqindx_wan(ginv)
          init=.false.
       endif
@@ -876,7 +814,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!* we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
       module m_readeigen
-      use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt, iqindx_qttw
+      use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
       implicit none
       real(8),allocatable,private:: evud(:,:,:), ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
@@ -1479,9 +1417,6 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
       isx= iclose('CPHI')
       isx= iclose('GEIG')
       end subroutine
-
-
-
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw(nwf_o)

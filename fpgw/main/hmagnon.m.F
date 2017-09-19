@@ -249,10 +249,10 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
       logical::wan=.true.,egasmode
-      complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:)
+      complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:),wanij(:,:)
 !      real,allocatable::kmat(:,:,:,:),wanmat(:,:)
       real(8):: wan_ecore(1)
-      logical::npmtwo,diag=.false.
+      logical::npmtwo,diag=.false.,t2g
       complex(8)::wan_i,wan_j,wan_k,wan_l,tmpwan,wanijkl
       integer::igv,bsimple=3
       real(8)::qlat(3,3),qsh1(3),qsh2(3)
@@ -777,7 +777,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           
 !! ======== Loop over iq ================================
       do 1001 iq = iqxini,iqxend ! NOTE: q=(0,0,0) is omitted when iqxini=2
-        if(.not. MPI__task(iq) ) cycle
+c        if(.not. MPI__task(iq) ) cycle
 c        if(normalm) then
 c          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
 c          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
@@ -785,24 +785,20 @@ c        endif
 
 !        call cputid (0)
         q = qibz(:,iq) !qibze ! you can spefify any q, which you like.
-        
-c        print *,"ngv",ngc
 
-        
 !!!   For Fe (x,0,0)
 c$$$        if (q(2)/=0 .and. q(2)/=1) cycle
 c$$$        if (q(3)/=0 .and. q(3)/=1) cycle
 
 !!!  For Fe (x,x,0) !! G to N
-        if (q(3)/=0 .and. q(3)/=1) cycle
-        if (q(2)/=q(1)) cycle
-        if (q(1)>1.0) q(1)=q(1)-1d0
-        
+        if (q(1)/=0) cycle
+        if (q(2)/=q(3)) cycle
+!     if (q(1)>1.0) q(1)=q(1)-1d0
+
 c$$$        !!! only Gamma
 c$$$        if (q(1)/=0) then
 c$$$           cycle
 c$$$        endif
-
         
 !!! |q+G|
 c$$$        if (wan) then !!!
@@ -984,22 +980,28 @@ c                   write(6,"('qqq222=',3f9.4,2x,3f9.4)")q+qbz(:,kx),qsh2
                 if (allocated(qgsq2)) deallocate(qgsq2)
                 
              else               !!! else
+                iwf=ifile_handle()
+
+                print *,"wan_readeval start"
+                
                 do kx=1,nqbz
                    call wan_readeval(  qbz(:,kx), is,
      o                  ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx))
                    call wan_readeval(q+qbz(:,kx), isf,
      o                  ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
 
-                   if (kx==1 .and. iq > 100 ) open(iwf,file="wan_eval_check.data")
+                   if(iq==1 .and. kx==1) open(iwf,file="waneval_check.data")
+!     if (kx==1 .and. iq > 100 ) open(iwf,file="wan_eval_check.data")
                    if (qbz(2,kx)==1.0) then
-                   if (qbz(3,kx)==1.0) then
+                      if (qbz(3,kx)==1.0) then
+!                   if (iq > 100) then
 
-                   if (iq > 100) then
-                      iwf=ifile_handle()
-
-                      write(iwf,"('q(1) ev_w1(:,kx)',6f9.4)") qbz(1,kx),ev_w1(:,kx)
+                         write(iwf,"('q(1) ev_w1(:,kx)',6f9.4)") qbz(1,kx),ev_w1(:,kx)
+                      endif
                    endif
-c$$$                   !! band shift for normalization check
+                   if (iq==1 .and. kx==nqbz) close(iwf)
+!!!                   if (iq==1 .and. kx==nqbz) call rx("check end")
+c$$$  !! band shift for normalization check
 c$$$                   ev_w1(:,kx)=ev_w1(:,kx)+2d0
 c$$$                   ev_w2(:,kx)=ev_w2(:,kx)-2d0
                    
@@ -1007,22 +1009,20 @@ c$$$                   ev_w2(:,kx)=ev_w2(:,kx)-2d0
 
 c$$$                   if (kx>10 .and. kx<30) then
 c$$$                      !sumcheck
-c$$$                      do iwf=1,nwf
-c$$$                         write(6,"('sum evc1,evc2',I4,2f9.4)") iwf,
-c$$$     &                        sum(abs(evc_w1(:,iwf,kx))**2),
-c$$$     &                        sum(abs(evc_w2(:,iwf,kx))**2)
-c$$$                      enddo
-c$$$                   endif
-                    endif
-                    endif
+                   do iwf=1,nwf
+                      do jwf=1,nwf
+                         if(iwf==jwf) cycle
+                         write(6,"('sum evc1,evc2',2I4,4f9.4)") iwf,jwf,
+     &                        abs(sum((evc_w1(:,iwf,kx))*dconjg((evc_w1(:,jwf,kx))))),
+     &                        abs(sum((evc_w2(:,iwf,kx))*dconjg((evc_w2(:,jwf,kx)))))
+c     &                        sum(abs(evc_w2(:,iwf,kx)))
+                      enddo
+                   enddo
+c$$$  endif
                 enddo
+
              endif
              
-             if (iq > 100) then
-                close(iwf)
-                print *,"iq, q",iq,q
-                call rx("wan_eval_check.data written")
-             endif      
 c$$$             !!!!!!!
 c$$$             do iwf=1,nwf
 c$$$                write(6,"('max[ev_w1(',I1,',:)]',f13.5) =") iwf,minval(ev_w1(iwf,:))
@@ -1038,6 +1038,26 @@ c             enddo
 c             endif
 !             wan_ecore=0.0;nbmx=nwf
 
+!!!!  shift band (2017, Sep, 13)
+             if (.false.) then
+                ev_w1=ev_w1-(maxval(ev_w1)-minval(ev_w2))-0.001
+                ev_w2=ev_w2+(maxval(ev_w1)-minval(ev_w2))+0.001
+             endif
+             write(6,*) "minvalmaxval:",maxval(ev_w1),minval(ev_w2)
+
+             iwf=ifile_handle()
+             open(iwf,file="ev_band1.data")
+             jwf=ifile_handle()
+             open(jwf,file="ev_band2.data")
+             do kx=1,10
+                write(iwf,"(3f9.4,5f9.4)") qbz(:,kx),ev_w1(:,kx)
+                write(jwf,"(3f9.4,5f9.4)") qbz(:,kx),ev_w2(:,kx)             
+             enddo
+             close(jwf)
+             close(iwf)
+
+!             call rx("test end properly")
+             
 cccccccccccccccccccccccccccccccccccc
              call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
      i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
@@ -1067,9 +1087,11 @@ c$$$  !!! test code to print tetrahedron weight !!! okumura
           
 c          print *,'sizen1b =',size(n1b),size(n2b),shape(n1b),shape(n2b)
 c          print *,'sizen1b =',sum(n1b),sum(n2b)
-          do 2011 jpm=1,npm !! jpm=2: negative frequency
+          allocate(wanij(1:nwf,1:nwf))
+          do 2011 jpm=1,npm     !! jpm=2: negative frequency
           wsum=0d0
           do 2012 kx=1,nqbz !! discrete k-point loop
+          wanij=(0d0,0d0)
           do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
 !     n1b(ibib,k,jpm) = n :band index for k (occupied)
 !     n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
@@ -1091,10 +1113,10 @@ c                print *,'ibib kx jpm=',ibib,kx,jpm,' n1b(occ),n2b(unocc):',n1b(
 c========================== caliculate M(:,:) : wanmat(nwf,nwf)
 c matrix elements from wannier eigenvector
 
-!                diag=.false.
+                diag=.false.
                 if (diag) then
                    do iwf=1,nwf
-                      wanmat(iwf,iwf)=(1d0,0d0)
+                      wanmat(iwf,iwf)=(1d-1,0d0)
                    enddo
                 else
                    
@@ -1103,24 +1125,40 @@ c$$$  !!! from down(beta) to upp(alpha)
 c$$$  !!! module ?
  !                  print *,"create M (jpm,kx,ibib)=",jpm,kx,ibib
  !                  print *,"it,itp =",it,itp
+
+c$$$                   do iwf=1,nwf
+c$$$                      write(6,"('wan_i:',5f9.4)") evc_w1(iwf,:,kx)
+c$$$                   enddo
+
+
                    wanmat=0d0
-                   do 3001 iexc=1,2 !direct and exchange
+                   do 3001 iexc=1,1 !Direct and exchange
                       do 3002 iwf=1,nwf
                          do 3003 jwf=1,nwf
                             wan_j=dconjg(evc_w2(jwf,it,kx)) !a_{Rjbeta}^{kn}*
-                            wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n}                                           !!!   direct
-                            if (iexc==1) then
+                            wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
+                            if (iexc==1) then !!!   direct
                                wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-                               wan_k=dconjg(evc_w1(iwf,itp,kx)) !a_{R'kalpha}^{(k+q)n}*                              !!! exchange
-                            elseif (iexc==2) then
+                               wan_k=dconjg(evc_w1(iwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
+                            elseif (iexc==2) then      !!! exchange
                                wan_l=evc_w2(iwf,it,kx) !a_{R'lbeta}^{kn}
-                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n}*
+                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
                             endif
-                            wanijkl=wan_j*wan_l*wan_i*wan_k  !<1 check
+                            wanijkl=wan_j*wan_l*wan_i*wan_k
+
+!                            write(6,"('wansize:',4f9.4)") abs(wan_i),abs(wan_j),abs(wan_k),abs(wan_l)
+                           
+cccccccccccccccc
+!                            if (log(abs(wanijkl))<-0.5) wanijkl=0d0
+!     if (log(aimag(wanijkl))<-5) wanijkl=0d0
+                            
+                            if (iexc==2) wanij(iwf,jwf)=wanij(iwf,jwf)+wan_i*wan_j
                             if (iexc==2 .and. iwf==jwf) cycle
+                            
                             wanmat(iwf,jwf)=wanmat(iwf,jwf)+wanijkl
 !                            write(6,"('iwf,jwf,wanijkl',2I3,2E13.4)") iwf,jwf,wanijkl
-
+cccccccccccccccc
+                            
 c$$$  if (iq==1 .and. ibib==1) then
 c$$$  write(6,*) "wanmat for Magnon(log-scale):",log(wanmat(nwf,1))
 c$$$  endif
@@ -1129,7 +1167,6 @@ c$$$  endif
  3002                 continue     !iwf
  3001              continue        !iexc                     
                 endif
-
                 !!! writing wanmat (Re and Im)
                 if (jpm==1. and. kx==1) then         
                    write(6,*) "Re[wanmat(iwf,jwf)]"
@@ -1140,6 +1177,7 @@ c$$$  endif
                    do iwf=1,nwf
                       write(6,"(5E11.3)") aimag(wanmat(iwf,:))
                    enddo
+                   
                 endif
 
 c========================== end caliculate M(:,:) : wanmat(nwf,nwf)
@@ -1150,21 +1188,42 @@ c========================== end caliculate M(:,:) : wanmat(nwf,nwf)
                    
 !!!   accumulate Im[K]
                    kmat(:,:,iw,jpm) = kmat(:,:,iw,jpm)+imagweight*wanmat(:,:) 
-
 !     rcxq(1,1,iw,jpm) = rcxq(1,1,iw,jpm) + imagweight
 !                   rcxq=kmat
 
 !                   wsum(1)=wsum(1)+imagweight !!! normalization check (wsum=pi)
                 enddo
- 2013        continue
- 2012     continue
+ 2013        continue !ibib-loop
+             if (jpm==1) then
+                write(6,*) "abswan(i,j),ik",kx
+                do iwf=1,nwf
+                   write(6,"(5E11.3)") abs(wanij(iwf,:))
+                enddo
+             endif
+             write(6,*) "sum abswan(i,j)",sum(abs(wanij(:,:)))
+             
+ 2012     continue !k-loop
 !          write(6,"('jpm =',I3,' wsum(:)==',f9.4)") jpm,wsum(1) !normalization
           write(6,"('jpm kmatrix_sum =',I3,2E14.5)") jpm,sum(kmat(:,:,:,jpm))
 ccccc rcxq = tr(kmat)
+          t2g=.true. !!! switch t2g or eg
           do iw=1,nwhis
              do iwf=1,nwf
-                rcxq(1,1,iw,jpm) = rcxq(1,1,iw,jpm) + kmat(iwf,iwf,iw,jpm)
+                do jwf=1,nwf
+                   if (t2g) then !!! t2g only : iwf=1,2,4
+                      if (iwf/=1 .and. iwf/=2 .and. iwf/=4) cycle
+                      if (jwf/=1 .and. jwf/=2 .and. jwf/=4) cycle
+                   else          !!!  eg only : iwf=3,5
+                      if (iwf/=3 .and. iwf/=5) cycle
+                      if (jwf/=3 .and. jwf/=5) cycle
+                   endif
+                   if (iwf/=jwf) cycle
+!     if (iwf<7 .and. iwf==8) cycle
+c                rcxq(1,1,iw,jpm) = rcxq(1,1,iw,jpm) + kmat(iwf,iwf,iw,jpm)
+                      rcxq(1,1,iw,jpm) = rcxq(1,1,iw,jpm) + kmat(iwf,jwf,iw,jpm)
+                   enddo
              enddo
+c             rcxq(1,1,iw,jpm) = rcxq(1,1,iw,jpm) + sum(kmat(:,:,iw,jpm))
           enddo
           write(6,"('jpm rcxq_sum    =',I3,2E14.5)") jpm,sum(rcxq(1,1,:,jpm))
 
@@ -1295,7 +1354,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
        if(allocated(kmat)) deallocate(kmat)
        if(allocated(wanmat)) deallocate(wanmat)
 
-
+       if(allocated(wanij)) deallocate(wanij)
+       
        if(allocated(rcxq) ) deallocate(rcxq)
 c$$$  
 c$$$  
