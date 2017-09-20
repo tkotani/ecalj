@@ -244,7 +244,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
 !     okumura
-      integer::nwf,nsp_w,nqtt_w,iwf,jwf,inwf,iexc
+      integer::nwf,nsp_w,nqtt_w,iwf,jwf,inwf,iexc,kwf,lwf
       integer::ifhamw,ifchipm_wan,ifgas,ifchipmz_wan
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
@@ -1082,16 +1082,14 @@ c$$$     i            nbmx,ebmx,mtet,eibzmode) !nov2016
 c$$$  !!! test code to print tetrahedron weight !!! okumura
 !     do k=1,nqbz !k-vector loop?
 
-          allocate(kmat(1:nwf,1:nwf,1:nwhis,1:npm),wanmat(1:nwf,1:nwf))
-          kmat=0d0; wanmat=0d0
+c     allocate(kmat(1:nwf*nwf,1:nwf*nwf,1:nwhis,1:npm),wanmat(1:nwf*nwf,1:nwf*nwf))
+           allocate(kmat(1:nwf,1:nwf,1:nwhis,1:npm),wanmat(1:nwf,1:nwf))
+           kmat=0d0; wanmat=0d0
           
 c          print *,'sizen1b =',size(n1b),size(n2b),shape(n1b),shape(n2b)
 c          print *,'sizen1b =',sum(n1b),sum(n2b)
-          allocate(wanij(1:nwf,1:nwf))
           do 2011 jpm=1,npm     !! jpm=2: negative frequency
-          wsum=0d0
           do 2012 kx=1,nqbz !! discrete k-point loop
-          wanij=(0d0,0d0)
           do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
 !     n1b(ibib,k,jpm) = n :band index for k (occupied)
 !     n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
@@ -1122,115 +1120,54 @@ c matrix elements from wannier eigenvector
 c                else
                    
 c$$$  !!! evc_w1: upspin ; evc_w2: downspin
-c$$$  !!! from down(beta) to upp(alpha)
-c$$$  !!! module ?
- !                  print *,"create M (jpm,kx,ibib)=",jpm,kx,ibib
- !                  print *,"it,itp =",it,itp
+c$$$  !!! from down(beta) to up(alpha)
 
-c$$$                   do iwf=1,nwf
-c$$$                      write(6,"('wan_i:',5f9.4)") evc_w1(iwf,:,kx)
-c$$$                   enddo
-
-
-c$$$                   wanmat=0d0
-c$$$                   do 3001 iexc=1,1 !Direct and exchange
-c$$$                      do 3002 iwf=1,nwf
-c$$$                         do 3003 jwf=1,nwf
-c$$$                            wan_j=dconjg(evc_w2(iwf,it,kx)) !a_{Rjbeta}^{kn}*
+                wanmat=0d0
+c                   do 3001 iexc=1,1 !Direct and exchange
+                do 3002 iwf=1,nwf
+                do 3003 jwf=1,nwf
+                do 3004 kwf=1,nwf
+                do 3005 lwf=1,nwf
+c$$$  wan_j=dconjg(evc_w2(iwf,it,kx)) !a_{Rjbeta}^{kn}*
 c$$$                            wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
 c$$$                            if (iexc==1) then !!!   direct
 c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
-c$$$
+c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*c$$$
 c$$$                            elseif (iexc==2) then !!! exchange
 c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
 c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
-c$$$                            endif
+C$$$                            Endif
 c$$$                            wanijkl=wan_j*wan_l*wan_i*wan_k
 c$$$
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$c$$$                            wan_j=dconjg(evc_w2(jwf,it,kx)) !a_{Rjbeta}^{kn}*
-c$$$c$$$                            wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
-c$$$c$$$                            if (iexc==1) then !!!   direct
-c$$$c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$c$$$                               wan_k=dconjg(evc_w1(iwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
-c$$$c$$$                            elseif (iexc==2) then      !!! exchange
-c$$$c$$$                               wan_l=evc_w2(iwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
-c$$$c$$$                            endif
-c$$$c$$$                            wanijkl=wan_j*wan_l*wan_i*wan_k
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$                            
-c$$$!                            write(6,"('wansize:',4f9.4)") abs(wan_i),abs(wan_j),abs(wan_k),abs(wan_l)
-c$$$                           
-c$$$cccccccccccccccc
-c$$$!                            if (log(abs(wanijkl))<-0.5) wanijkl=0d0
-c$$$!     if (log(aimag(wanijkl))<-5) wanijkl=0d0
-c$$$                            
-c$$$                            if (iexc==2) wanij(iwf,jwf)=wanij(iwf,jwf)+wan_i*wan_j
-c$$$                            if (iexc==2 .and. iwf==jwf) cycle
-c$$$                            
-c$$$c     wanmat(iwf,jwf)=wanmat(iwf,jwf)+wanijkl
-c$$$                            wanmat(it,itp)=wanmat(it,itp)+wanijkl
-c$$$!                            write(6,"('iwf,jwf,wanijkl',2I3,2E13.4)") iwf,jwf,wanijkl
-c$$$cccccccccccccccc
-c$$$                            
-c$$$c$$$  if (iq==1 .and. ibib==1) then
-c$$$c$$$  write(6,*) "wanmat for Magnon(log-scale):",log(wanmat(nwf,1))
-c$$$c$$$  endif
-c$$$
-c$$$ 3003                    continue  !jwf
-c$$$ 3002                 continue     !iwf
-c$$$ 3001              continue     !iexc
-
-
-
-                   wanmat(1,1)=sum(dconjg(evc_w2(1:nwf,it,kx))*evc_w1(1:nwf,itp,kx))
-     &                  *sum(evc_w2(1:nwf,it,kx)*dconjg(evc_w1(1:nwf,itp,kx)))
-
-c$$$  
-c$$$                   if (iexc==1) then !!!   direct
-c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
-c$$$
-c$$$                            elseif (iexc==2) then !!! exchange
-c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
-c$$$                            endif
-c$$$                            wanijkl=wan_j*wan_l*wan_i*wan_k
-c$$$
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$c$$$                            wan_j=dconjg(evc_w2(jwf,it,kx)) !a_{Rjbeta}^{kn}*
-c$$$c$$$                            wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
-c$$$c$$$                            if (iexc==1) then !!!   direct
-c$$$c$$$                               wan_l=evc_w2(jwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$c$$$                               wan_k=dconjg(evc_w1(iwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
-c$$$c$$$                            elseif (iexc==2) then      !!! exchange
-c$$$c$$$                               wan_l=evc_w2(iwf,it,kx) !a_{R'lbeta}^{kn}
-c$$$c$$$                               wan_k=dconjg(evc_w1(jwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
-c$$$c$$$                            endif
-c$$$c$$$                            wanijkl=wan_j*wan_l*wan_i*wan_k
-c$$$cccccccccccccccccccccccccccccccccccc
-c$$$                            
-c$$$!                            write(6,"('wansize:',4f9.4)") abs(wan_i),abs(wan_j),abs(wan_k),abs(wan_l)
-c$$$                           
-c$$$cccccccccccccccc
-c$$$!                            if (log(abs(wanijkl))<-0.5) wanijkl=0d0
-c$$$!     if (log(aimag(wanijkl))<-5) wanijkl=0d0
-c$$$                            
-c$$$                            if (iexc==2) wanij(iwf,jwf)=wanij(iwf,jwf)+wan_i*wan_j
-c$$$                            if (iexc==2 .and. iwf==jwf) cycle
-c$$$                            
-c$$$c     wanmat(iwf,jwf)=wanmat(iwf,jwf)+wanijkl
-c$$$                            wanmat(it,itp)=wanmat(it,itp)+wanijkl
                    
+c$$$cccccccccccccccccccccccccccccccccccc
+                   wan_j=dconjg(evc_w2(jwf,it,kx)) !a_{Rjbeta}^{kn}*
+                   wan_i=evc_w1(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
+                   wan_l=evc_w2(lwf,it,kx) !a_{R'lbeta}^{kn}
+                   wan_k=dconjg(evc_w1(kwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*  
+                   wanijkl=wan_j*wan_l*wan_i*wan_k
+c$$$  cccccccccccccccccccccccccccccccccccc
+!     if (log(abs(wanijkl))<-0.5) wanijkl=0d0
+!     if (log(aimag(wanijkl))<-5) wanijkl=0d0
+                      
 
-                   
-c$$$                endif
+c     wanmat(iwf,jwf)=wanmat(iwf,jwf)+wanijkl
+                   if (iwf==jwf .and. kwf==lwf) then
+                      wanmat(1,1)=wanmat(1,1)+wanijkl
+                   endif
+!wanmat(it,itp)=wanmat(it,itp)+wanijkl
+
+ 3005  continue     !lwf
+ 3004  continue     !kwf
+ 3003  continue     !jwf
+ 3002  continue     !iwf
+c 3001  continue     !iexc
 
 
-
-                
+ccccccccccc sum over orbitals beforehand.
+c                   wanmat(1,1)=sum(dconjg(evc_w2(1:nwf,it,kx))*evc_w1(1:nwf,itp,kx))
+c     &                  *sum(evc_w2(1:nwf,it,kx)*dconjg(evc_w1(1:nwf,itp,kx)))
+ccccccccccc                            
 c                !!! writing wanmat (Re and Im)
 c                if (jpm==1. and. kx==1) then         
 c                   write(6,*) "Re[wanmat(iwf,jwf)]"
