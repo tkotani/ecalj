@@ -255,7 +255,91 @@ c---------------------------------------
       
       end subroutine write_qdata      
 c---------------------------------------
-      integer function ifile_handle()!! find open file handle
+      subroutine readscr(nwf,scrw_)
+      implicit none
+      integer,intent(in)::nwf
+      integer::ifscrwv,ifscrv,ifd,ife,ifa,ifile_handle
+      integer::ir1,irws1
+      character(len=9)::charadummy !dummy
+      real(8)::rws1(3),freq,freq2 !dummy
+      integer::is,iwf1,iwf2,iwf3,iwf4 !dummy
+      integer::iwf,jwf,kwf,lwf,ijwf,klwf
+!      real(8),allocatable::rw_w(:,:,:,:), cw_w(:,:,:,:)
+      complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
+      complex(8),allocatable,intent(out)::scrw_(:,:)
+
+!      allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
+      allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
+      allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
+      ifscrwv=ifile_handle()
+      open(ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
+      ifscrv=ifile_handle()
+      open(ifscrv,file="Coulomb_v.UP",form="formatted") !only up
+
+      !!! write direct index (ijkl)
+      ifd=ifile_handle()
+      open(ifd,file="ijkl_direct.d",form="formatted")
+      !!! write exchange index (ijkl)
+      ife=ifile_handle()
+      open(ife,file="ijkl_exchange.d",form="formatted")
+      !!! write all index (i,j,k,l --> ijwf,klwf)
+      ifa=ifile_handle()
+      open(ifa,file="ijkl_all.d",form="formatted")
+      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
+      
+!     read Screening W, V
+      write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
+      ijwf=0
+      do 4001 iwf=1,nwf
+      do 4002 jwf=1,nwf
+         ijwf=ijwf+1
+         klwf=0
+      do 4003 kwf=1,nwf
+      do 4004 lwf=1,nwf
+         klwf=klwf+1
+         
+         !!! Vare Coulomb (v)
+         read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")
+     &        charadummy,ir1, irws1, rws1 !dummy
+     &        ,is,iwf1,iwf2,iwf3,iwf4 !dummy
+     &        ,scrv4(iwf1,iwf2,iwf3,iwf4)
+
+         !!! Screened Coulomb (W-v)
+         read(ifscrwv,"(A,2i5, 3f12.6, 5i5,4f12.6)")
+     &        charadummy,ir1, irws1, rws1 !dummy
+     &        ,is,iwf1,iwf2,iwf3,iwf4,freq, freq2 !dummy
+     &        ,scrw4(iwf1,iwf2,iwf3,iwf4)
+
+
+c$$$         print *,"readscr     :",iwf1,iwf2,iwf3,iwf4
+c$$$         print *,"readscr  W-v:",scrw4(iwf1,iwf2,iwf3,iwf4)
+c$$$         print *,"readscr    v:",scrv4(iwf1,iwf2,iwf3,iwf4)
+c$$$         print *,"readscr    W:",scrw4(iwf1,iwf2,iwf3,iwf4)
+c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
+
+         scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
+     &                    + scrv4(iwf1,iwf2,iwf3,iwf4)
+
+         if (iwf==jwf .and. kwf==lwf) then
+            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
+         elseif (iwf==kwf .and. jwf==lwf) then
+            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
+         endif
+
+         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
+         
+ 4004 continue
+ 4003 continue
+ 4002 continue
+ 4001 continue
+      close(ifd)
+      close(ife)
+      close(ifscrv)
+      close(ifscrwv)
+
+      end subroutine readscr
+c---------------------------------------            
+      integer function ifile_handle() !! find open file handle
       implicit none
       integer:: i
       logical:: nexist
