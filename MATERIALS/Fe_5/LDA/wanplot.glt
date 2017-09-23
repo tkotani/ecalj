@@ -1,5 +1,8 @@
+# set term postscript enhanced color eps
+# set output "fe5_wan_chipm.eps"
 set multiplot layout 1,2
 set key right bottom
+set grid
 set xrange[0:8]
 # set xrange[0:3.5]
 set yrange[-6:0]
@@ -7,45 +10,24 @@ set yrange[-6:0]
 set zeroaxis
 set xlabel "{/Symbol w} [eV]"
 set ylabel "Im[K] [1/eV]"
-# set term postscript enhanced color eps
-# set output "wan_chipm_Im.eps"
-plot "wan_ChiPMz.mat" every :::3::3 u (13.6*$5):($7) lw 4 lt 2  ti "q=0.10" w l,\
-     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($7) lw 4 lt 3  ti "q=0.15" w l,\
-     "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($7) lw 4 lt 5  ti "q=0.20" w l,\
-     "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($7) lw 4 lt 6  ti "q=0.25" w l,\
-     "wan_ChiPMz.mat" every :::7::7 u (13.6*$5):($7) lw 4 lt 7  ti "q=0.30" w l,\
-     "wan_ChiPMz.mat" every :::1::1 u (13.6*$5):($7) lw 4 lt 8  ti "q=0.00" w l
-     
-# # # plot all
-# plot "wan_ChiPMz.mat" every :::1::1 u (13.6*$5):($7/27.2) lw 4 lt 1  ti "q=0.00" w l,\
-#      "wan_ChiPMz.mat" every :::2::2 u (13.6*$5):($7/27.2) lw 4 lt 8  ti "q=0.05" w l,\
-#      "wan_ChiPMz.mat" every :::3::3 u (13.6*$5):($7/27.2) lw 4 lt 2  ti "q=0.10" w l,\
-#      "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($7/27.2) lw 4 lt 3  ti "q=0.15" w l,\
-#      "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($7/27.2) lw 4 lt 5  ti "q=0.20" w l,\
-#      "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($7/27.2) lw 4 lt 6  ti "q=0.25" w l,\
-#      "wan_ChiPMz.mat" every :::7::7 u (13.6*$5):($7/27.2) lw 4 lt 7  ti "q=0.30" w l,\
-#      "wan_ChiPMz.mat" every :::8::8 u (13.6*$5):($7/27.2) lw 4 lt 9  ti "q=0.35" w l,\
-#      "wan_ChiPMz.mat" every :::9::9 u (13.6*$5):($7/27.2) lw 4 lt 10  ti "q=0.40" w l,\
-#      "wan_ChiPMz.mat" every :::10::10 u (13.6*$5):($7/27.2) lw 4 lt 11  ti "q=0.45" w l
-
-
+plot "wan_ChiPMz.mat" every :::0::0 u (13.6*$5):($7) lw 4 lt 8  ti "q=0.00" w l,\
+     "wan_ChiPMz.mat" every :::2::2 u (13.6*$5):($7) lw 4 lt 2  ti "q=0.10" w l,\
+     "wan_ChiPMz.mat" every :::3::3 u (13.6*$5):($7) lw 4 lt 3  ti "q=0.15" w l,\
+     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($7) lw 4 lt 5  ti "q=0.20" w l,\
+     "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($7) lw 4 lt 6  ti "q=0.25" w l,\
+     "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($7) lw 4 lt 7  ti "q=0.30" w l
+    
 # ###########################################
 # set xrange[0:2]
 # set output "wan_chipm_Re.eps"
 # set xrange[0:8]
-set yrange[*:*]
+set yrange[-10:10]
 set xlabel "{/Symbol w} [eV]"
 set ylabel "Re[K] [1/eV]"
-plot "wan_ChiPMz.mat" every :::3::3 u (13.6*$5):($6) lw 4 lt 2  ti "q=0.10" w l,\
-     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($6) lw 4 lt 3  ti "q=0.15" w l,\
-     "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($6) lw 4 lt 5  ti "q=0.20" w l,\
-     "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($6) lw 4 lt 6  ti "q=0.25" w l,\
-     "wan_ChiPMz.mat" every :::7::7 u (13.6*$5):($6) lw 4 lt 7  ti "q=0.30" w l,\
-     "wan_ChiPMz.mat" every :::1::1 u (13.6*$5):($6) lw 4 lt 8  ti "q=0.00" w l
-     
-
-# set xrange[0:1]
-# set yrange[0:3]
-# set dgrid3d 30,30
-# set hidden3d
-# splot "wan_ChiPM.mat" u 1:2:(log($3)) with lines
+plot "wan_ChiPMz.mat" every :::0::0 u (13.6*$5):($6) lw 4 lt 8  ti "q=0.00" w l,\
+     "wan_ChiPMz.mat" every :::2::2 u (13.6*$5):($6) lw 4 lt 2  ti "q=0.10" w l,\
+     "wan_ChiPMz.mat" every :::3::3 u (13.6*$5):($6) lw 4 lt 3  ti "q=0.15" w l,\
+     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($6) lw 4 lt 5  ti "q=0.20" w l,\
+     "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($6) lw 4 lt 6  ti "q=0.25" w l,\
+     "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($6) lw 4 lt 7  ti "q=0.30" w l
+    

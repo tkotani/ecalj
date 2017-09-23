@@ -253,6 +253,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:)
      &     ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:)
       complex(8)::trmat
+      real(8),allocatable::trmat2(:)
       real(8),allocatable::imat(:,:) !unit matrix for 1-WK
 !      real,allocatable::kmat(:,:,:,:),wanmat(:,:)
       real(8):: wan_ecore(1)
@@ -265,8 +266,9 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable::qgsq1(:,:),qgsq2(:,:)
       real(8)::ntot_r,www,eta,deta
       !For screening W
-      complex(8),allocatable:: scrw(:,:)
-      real(8),allocatable:: eval_wk(:)
+      complex(8),allocatable:: scrw(:,:) ,cmat2(:,:)
+c     real(8),allocatable:: eval_wk(:)
+      complex(8),allocatable:: eval_wk(:)
       integer:: it,itp,isdummy
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -1267,14 +1269,39 @@ ccccccc
 
        !!! get eta for (1-eta*WK)
        if (iq==1) then
+c       if (.false.) then
           wkmat(1:nnwf,1:nnwf)
      &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
-          call diagcvh2(wkmat(:,:),nnwf,eval_wk)
-          eta= 1d0/minval(eval_wk)
+cccccccc check lapack routine (subroutine diagcvuh3)
+          if (.false.) then
+             allocate(cmat2(2,2))
+             cmat2(1,1)=(1d0,0d0)
+             cmat2(1,2)=(1d0,0d0)
+             cmat2(2,1)=(0d0,1d0)
+             cmat2(2,2)=(1d0,1d0)
+             deallocate(eval_wk)
+             allocate(eval_wk(2))
+             call diagcvuh3(cmat2(:,:),2,eval_wk)
+             print *,"lapack check eval_wk",eval_wk
+             call rx("quit test")
+          endif
+cccccccc
+ 
+          !!! eval_wk is complex array because of Non-Hermite WK
+          call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
+
+          write(6,"('eigenvalue of WK real&imag =',2E15.5)"
+     &         ,advance='NO') eval_wk
+          write(6,*)
+          
+c     eta= 1d0/minval(real(eval_wk)) !moderate peak
+          eta= -1d0/abs(eval_wk(1)) !sharp peak
           print *,"check wkmat freq_r(0)",freq_r(0)
-c          print *,"check wkmat eval_wk",eval_wk
-c          print *,"check wkmat minval(eval_wk)",minval(abs(eval_wk))
           print *,"check wkmat calculated eta:", eta !negative value
+c$$$          call diagcvh2(wkmat(:,:),nnwf,eval_wk) !for hermite matrix
+c$$$          eta= 1d0/minval(eval_wk)
+c$$$          print *,"check wkmat freq_r(0)",freq_r(0)
+c$$$          print *,"check wkmat calculated eta:", eta !negative value
        endif
 
 !!! unit matrix (dimension: nwf*nwf), need for 1-WK matrix
@@ -1285,6 +1312,7 @@ c          print *,"check wkmat minval(eval_wk)",minval(abs(eval_wk))
        enddo
 
 ccccccc
+       print *,"nw_i,nw",nw_i,nw
        do 2050 iw = nw_i,nw
           trmat=0d0
           do iwf=1,nwf
@@ -1294,25 +1322,22 @@ ccccccc
                 trmat=trmat+zxq(ijwf,klwf,iw)
              enddo
           enddo
-          
           www=freq_r(iw)
           if(iw<0) www=-freq_r(-iw)
           write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")q,iw,www*2d0,trmat
-          
+
+
 cccccccccK(1-WK)^(-1)
-          call getkeyvalue("GWinput","deta",deta,default=0d0)
-          eta=eta+deta          !deta<0: left shift
-          
+          call getkeyvalue("GWinput","deta",deta,default=0d0)          
           wkmat(1:nnwf,1:nnwf)
      &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
           !!! 1-eWK
-
-          
-          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-eta*wkmat(1:nnwf,1:nnwf)
+          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-(eta+deta)*wkmat(1:nnwf,1:nnwf)
+          !!! eigenvalue of 1-WK
           if (iq==1 .and. iw==0) then
-             call diagcvh2(wkmat2(:,:),nnwf,eval_wk)
+             call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
              write(6,*) "q=0 and omega=0 case:"
-             write(6,"('eigenvalue of (1-eta*WK)=',f15.8)"
+             write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
      &            ,advance='NO') eval_wk
              write(6,*)
           endif
@@ -1321,20 +1346,55 @@ cccccccccK(1-WK)^(-1)
           rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
      &         wkmat2(1:nnwf,1:nnwf))
 
+          !!! eigenvalue of (1-WK)inv
+          if (iq==1 .and. iw==0) then
+             call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+             write(6,*) "q=0 and omega=0 case:"
+             write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
+     &            ,advance='NO') eval_wk
+             write(6,*)
+          endif
+
+          !!! eigenvalue of rmat
+          if (iq==1 .and. iw==0) then
+c             call diagcvuh3(zxq(1:nnwf,1:nnwf,iw),nnwf,eval_wk)
+             call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
+             write(6,*) "q=0 and omega=0 case:"
+             write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
+c$$$             write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
+c$$$     &            ,advance='NO') eval_wk
+             write(6,*)
+          endif
+
           !!! writing trace(Rmatrix)
+          if (.not. allocated(trmat2)) allocate(trmat2(nw_i:nw))
           trmat=0d0
           do iwf=1,nwf
              ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
              do jwf=1,nwf
                 klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+c                if (ijwf/=klwf) cycle
                 trmat=trmat+rmat(ijwf,klwf,iw)
+
              enddo
           enddo
-
-          write(ifchipmr_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")q,iw,
+!          trmat2(iw)=aimag(trmat)
+c$$$          do iwf=1,nnwf 
+c$$$             if (mod(iwf,6)==1) cycle
+c$$$             trmat=trmat+rmat(iwf,iwf,iw)
+c$$$          enddo
+          
+          write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")q,iw,
      &         www*2d0,trmat
+c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
+
 ccccccccc
  2050  continue
+
+!       write(6,"('maxval(trmat2(iw)'),2f13.5") maxval(trmat2)
+!       deallocate(trmat2)
+
+
        write(ifchipmz_wan,*)
        write(ifchipmr_wan,*)
 
