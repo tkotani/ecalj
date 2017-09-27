@@ -446,27 +446,53 @@ cccccccccccccccccc Screening W for magnon
       allocate(scrw(nnwf,nnwf))
       call readscr(nwf,scrw)
 !!!!! writing W or W'
+c$$$      do iexc=1,2
+c$$$         do iwf=1,nwf
+c$$$            ijwf=(1+nwf)*iwf-nwf
+c$$$            if (iexc==1) then
+c$$$               if (iwf==1) write (6,*) "--- W  (direct) -------------------"
+c$$$               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
+c$$$               write (6,"(i3,6f9.4)") iwf,
+c$$$     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,8)),
+c$$$     &              abs(scrw(ijwf,15)),abs(scrw(ijwf,22)),
+c$$$     &              abs(scrw(ijwf,29)),abs(scrw(ijwf,36))
+c$$$            else
+c$$$               if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
+c$$$               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
+c$$$               write (6,"(i3,6f9.4)") iwf,
+c$$$     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+6,iwf+6)),
+c$$$     &              abs(scrw(iwf+12,iwf+12)),abs(scrw(iwf+18,iwf+18)),
+c$$$     &              abs(scrw(iwf+24,iwf+24)),abs(scrw(iwf+30,iwf+30))
+c$$$            endif
+c$$$         enddo
+c$$$      enddo
+c$$$      write (6,*) "-----------------------------------"
+cccc
       do iexc=1,2
          do iwf=1,nwf
             ijwf=(1+nwf)*iwf-nwf
             if (iexc==1) then
                if (iwf==1) write (6,*) "--- W  (direct) -------------------"
-               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
-               write (6,"(i3,6f9.4)") iwf,
-     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,8)),
-     &              abs(scrw(ijwf,15)),abs(scrw(ijwf,22)),
-     &              abs(scrw(ijwf,29)),abs(scrw(ijwf,36))
+               if (iwf==1) write (6,"('   ',9i9.1)") 1,2,3,4,5,6,7,8,9
+               write (6,"(i3,9f9.4)") iwf,
+     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,11)),
+     &              abs(scrw(ijwf,21)),abs(scrw(ijwf,31)),
+     &              abs(scrw(ijwf,41)),abs(scrw(ijwf,51)),
+     &              abs(scrw(ijwf,61)),abs(scrw(ijwf,71)),
+     &              abs(scrw(ijwf,81))
             else
                if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
                if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
-               write (6,"(i3,6f9.4)") iwf,
-     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+6,iwf+6)),
-     &              abs(scrw(iwf+12,iwf+12)),abs(scrw(iwf+18,iwf+18)),
-     &              abs(scrw(iwf+24,iwf+24)),abs(scrw(iwf+30,iwf+30))
+               write (6,"(i3,9f9.4)") iwf,
+     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+9,iwf+9)),
+     &              abs(scrw(iwf+18,iwf+18)),abs(scrw(iwf+27,iwf+27)),
+     &              abs(scrw(iwf+36,iwf+36)),abs(scrw(iwf+45,iwf+45)),
+     &              abs(scrw(iwf+54,iwf+54)),abs(scrw(iwf+63,iwf+63)),
+     &              abs(scrw(iwf+72,iwf+72))
             endif
          enddo
       enddo
-      write (6,*) "-----------------------------------"
+
 cccccccccccccccccc
 
       
