@@ -1316,18 +1316,16 @@ cccccccc
           !!! eval_wk is complex array because of Non-Hermite WK
           call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
 
-          write(6,"('eigenvalue of WK real&imag =',2E15.5)"
-     &         ,advance='NO') eval_wk
-          write(6,*)
+          if (debug) then
+             write(6,"('eigenvalue of WK real&imag =',2E15.5)"
+     &            ,advance='NO') eval_wk
+             write(6,*)
+          endif
           
 c     eta= 1d0/minval(real(eval_wk)) !moderate peak
           eta= -1d0/abs(eval_wk(1)) !sharp peak
           print *,"check wkmat freq_r(0)",freq_r(0)
           print *,"check wkmat calculated eta:", eta !negative value
-c$$$          call diagcvh2(wkmat(:,:),nnwf,eval_wk) !for hermite matrix
-c$$$          eta= 1d0/minval(eval_wk)
-c$$$          print *,"check wkmat freq_r(0)",freq_r(0)
-c$$$          print *,"check wkmat calculated eta:", eta !negative value
        endif
 
 !!! unit matrix (dimension: nwf*nwf), need for 1-WK matrix
@@ -1360,14 +1358,16 @@ cccccccccK(1-WK)^(-1)
           !!! 1-eWK
           wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-(eta+deta)*wkmat(1:nnwf,1:nnwf)
           !!! eigenvalue of 1-WK
-          if (iq==1 .and. iw==0) then
-             call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
-             write(6,*) "q=0 and omega=0 case:"
-             write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
-     &            ,advance='NO') eval_wk
-             write(6,*)
+          if (debug) then
+             if (iq==1 .and. iw==0) then
+                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+                write(6,*) "q=0 and omega=0 case:"
+                write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
+     &               ,advance='NO') eval_wk
+                write(6,*)
+             endif
           endif
-
+          
           call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
           rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
      &         wkmat2(1:nnwf,1:nnwf))
@@ -1382,16 +1382,15 @@ cccccccccK(1-WK)^(-1)
           endif
 
           !!! eigenvalue of rmat
-          if (iq==1 .and. iw==0) then
-c             call diagcvuh3(zxq(1:nnwf,1:nnwf,iw),nnwf,eval_wk)
-             call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
-             write(6,*) "q=0 and omega=0 case:"
-             write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
-c$$$             write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
-c$$$     &            ,advance='NO') eval_wk
-             write(6,*)
+          if (debug) then
+             if (iq==1 .and. iw==0) then
+                call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
+                write(6,*) "q=0 and omega=0 case:"
+                write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
+                write(6,*)
+             endif
           endif
-
+          
           !!! writing trace(Rmatrix)
           if (.not. allocated(trmat2)) allocate(trmat2(nw_i:nw))
           trmat=0d0
