@@ -6,7 +6,7 @@
       program hmagnon
 c      use matm,only: matm,matcinv
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
-     &     readscr
+     &     readscr, checkorb
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
@@ -269,7 +269,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: scrw(:,:) ,cmat2(:,:)
 c     real(8),allocatable:: eval_wk(:)
       complex(8),allocatable:: eval_wk(:)
-      integer:: it,itp,isdummy
+      integer:: it,itp,isdummy,lorb
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -482,7 +482,7 @@ cccc
      &              abs(scrw(ijwf,81))
             else
                if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
-               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
+               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6,7,8,9
                write (6,"(i3,9f9.4)") iwf,
      &              abs(scrw(iwf,iwf)),abs(scrw(iwf+9,iwf+9)),
      &              abs(scrw(iwf+18,iwf+18)),abs(scrw(iwf+27,iwf+27)),
@@ -1068,6 +1068,13 @@ c$$$                   ev_w2(:,kx)=ev_w2(:,kx)-2d0
 !!!   for wannier eigenvector (evc_w1, evc_w2) for M(:)
 
 
+cccccccc checkorb iwf ---> lorb(1:s, 2:p, 3:d, 4:f, 5:g) 
+                   do iwf=1,nwf
+                      call checkorb(iwf,nwf,lorb)
+c                      print *,"checkorb:: ",lorb
+                   enddo
+cccccccc
+                   
 c$$$                   do iwf=1,nwf
 c$$$                      do jwf=1,nwf
 c$$$                         write(6,"('sum evc1,evc2',2I4,4f9.4)") iwf,jwf,

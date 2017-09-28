@@ -19,8 +19,11 @@ c$$$      complex(8),allocatable:: evecc_w(:,:,:,:)
 c$$$      real(8),allocatable:: eval_w(:,:,:)
       complex(8),private,allocatable:: evecc_w(:,:,:,:)
       real(8),private,allocatable:: eval_w(:,:,:)
-      
       integer::iwf
+
+      !!!d-orbital check
+      integer,private,allocatable:: idorb(:)
+      logical::debug=.false.,sw1=.true.
       
       contains
 
@@ -267,8 +270,12 @@ c---------------------------------------
 !      real(8),allocatable::rw_w(:,:,:,:), cw_w(:,:,:,:)
       complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
       complex(8),allocatable,intent(out)::scrw_(:,:)
-
-!      allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
+      integer::idummy
+      
+      !!! set idorb: iwf ---> lorb
+      call checkorb(1,nwf,idummy)
+      
+!     allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
       allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
       allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
       ifscrwv=ifile_handle()
@@ -317,15 +324,22 @@ c$$$         print *,"readscr    v:",scrv4(iwf1,iwf2,iwf3,iwf4)
 c$$$         print *,"readscr    W:",scrw4(iwf1,iwf2,iwf3,iwf4)
 c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
 
-         scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
-     &                    + scrv4(iwf1,iwf2,iwf3,iwf4)
+!         if (sw1) call rx("'checkorb' should be done in advance")
+         if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
+     &        .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
+            scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
+     &           + scrv4(iwf1,iwf2,iwf3,iwf4)
+         else
+            scrw_(ijwf,klwf)=0d0
+         endif
+            
 
+         !!! write index i,j,k,l ---> ijwf,klwf
          if (iwf==jwf .and. kwf==lwf) then
             write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
          elseif (iwf==kwf .and. jwf==lwf) then
             write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
          endif
-
          write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
          
  4004 continue
@@ -338,6 +352,35 @@ c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
       close(ifscrwv)
 
       end subroutine readscr
+
+c---------------------------------------
+      !!! identify if iwf is d-orbital or not
+      !!! checkorb iwf ---> lorb(1:s, 2:p, 3:d, 4:f, 5:g) 
+      subroutine checkorb(iwf_in,nwf_in,lorb_out) 
+      implicit none
+      integer,intent(in)  ::iwf_in,nwf_in
+      integer,intent(out) ::lorb_out   ! 2=d-orb
+      integer::ifdorb
+
+      if (sw1) then !!initialize
+         print *,"checkorb nwf",nwf_in
+         if (.not. allocated(idorb)) allocate(idorb(nwf_in))
+         ifdorb=ifile_handle()
+         open(ifdorb,file="Worb2lorb.d",form="formatted")
+         read(ifdorb,"(I4)",ADVANCE="NO") idorb
+         close(ifdorb)
+
+         if (debug) then
+            do iwf=1,nwf_in
+               print *,"idorb check, iwf,idorb",sw1,idorb(iwf)
+            enddo
+         endif
+
+         sw1=.false.
+      endif      
+      lorb_out=idorb(iwf_in)   
+      
+      end subroutine checkorb
 c---------------------------------------            
       integer function ifile_handle() !! find open file handle
       implicit none

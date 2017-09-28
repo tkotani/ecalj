@@ -80,6 +80,10 @@ c
       real(8):: qlat(3,3)
       logical ::nocore
 
+c     okumura Sep,2017
+      integer(4):: ifdorb,iiwf
+      integer(4),allocatable::idorb(:),idorb_in(:) !check
+      
 c space group infermation 
       integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
       real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
@@ -445,12 +449,48 @@ c------------
 c input parameters specific to MAXLOC
       call s_read_Worb()
 
-
+      allocate(idorb(nwf)) !!okumura
+      allocate(idorb_in(nwf))
+      idorb=-1
+      iiwf=0
+      
       do iclass2=1,nclass_mlwf
         write(*,*)'output:',iclassin(iclass2), nwf
      & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
-      enddo
+ccc okumura
+        do iwf=1,nbasclass_mlwf(iclass2)
+           iiwf=iiwf+1
+           if (cbas_mlwf(iwf,iclass2) <= 1) then
+              idorb(iiwf)=0     !s
+           elseif (cbas_mlwf(iwf,iclass2) <= 4) then
+              idorb(iiwf)=1     !p
+           elseif (cbas_mlwf(iwf,iclass2) <= 9) then
+              idorb(iiwf)=2     !d
+           elseif (cbas_mlwf(iwf,iclass2) <= 16) then
+              idorb(iiwf)=3     !f
+           elseif (cbas_mlwf(iwf,iclass2) <= 25) then
+              idorb(iiwf)=4     !g
+           endif
+           print *,"checkorb: iiwf,idorb(iiwf)",iiwf,idorb(iiwf)
+        enddo
 
+      enddo
+      ifdorb=ifile_handle()
+c      open(ifdorb,file="worb_list.d",form="unformatted")
+      open(ifdorb,file="Worb2lorb.d",form="formatted")
+      write(ifdorb,"(I4)",ADVANCE='NO') idorb(1:nwf)
+      close(ifdorb)
+
+c$$$      ifdorb=ifile_handle()
+c$$$      open(ifdorb,file="Worb2lorb.d",form="formatted")
+c$$$      read(ifdorb,"(I4)",ADVANCE='NO') idorb_in(1:nwf)
+c$$$      do iwf=1,nwf
+c$$$         print *,"idorb check, iwf,idorb",iwf,idorb_in(iwf)
+c$$$      enddo
+c$$$      close(ifdorb)
+
+ccc end okumura
+      
       call s_cal_Worb()
 
       allocate (r0g(nphix,nwf), wphi(nphix,nwf))
