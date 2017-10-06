@@ -270,6 +270,12 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 c     real(8),allocatable:: eval_wk(:)
       complex(8),allocatable:: eval_wk(:)
       integer:: it,itp,isdummy,lorb
+!!! q on symline
+      real(8)::qrot(3)
+      logical(8)::init2=.true.,llsym,d100,d110,d111,d1xx,d1_xxx
+      real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2
+      integer:: nlatout(3,48),nout,iout
+      
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -378,7 +384,7 @@ c$$$            qbz(:,i) = qbz(:,i) - deltaq/2d0
 c$$$            write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
 c$$$         enddo
 c$$$      endif
-      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
+
 
 c$$$!! check write
 c$$$      if(MPI__root) then
@@ -403,6 +409,7 @@ cc need for gettetwt; automatically read file(okumura) OK
       call genallcf_v3(incwfin) !in module m_genallcf_v3
 !     ! incwfin is for core handling
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
+      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
       if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
 
@@ -581,13 +588,18 @@ c$$$      write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
       ginv = transpose(plat)
-c      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
+      call minv33tp(plat,qlat)
+c     call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
 c      call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
 
 
-
+      do iq=1,nqibz
+         iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
+c     nstibz(iq) = nstbz(iqbz)
+         write(6,"(' iq qibz nstibz=',2i5,3f9.4,i5)")iq,iqbz,qibz(:,iq) !,nstibz(iq)
+      enddo
 
 
 
@@ -849,18 +861,109 @@ c          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
 c          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
 c        endif
 
-!        call cputid (0)
-        q = qibz(:,iq) !qibze ! you can spefify any q, which you like.
+!     call cputid (0)
+         llsym=.true.
+         d100=.false. !Delta
+         d110=.false. !Gamma
+         d111=.false. !Sigma
+         d1xx=.false. !S
+         d1_xxx=.true. !F (bcc)
+         do ig=1,ngrp
+            if (.not. llsym) cycle
+            qrot(1:3)=matmul(symgg(:,:,ig),qibz(:,iq))
+            if(init2) then
+               call shortn3_initialize(qlat,rlatp,xmx2)
+               init2=.false.
+            endif
+            qqin = matmul(transpose(plat),qrot)
+            call shortn3(rlatp,xmx2, qqin,ngrp, nout,nlatout)
+            iout=1
+            qshort(1:3)=  matmul(qlat(:,:), qqin+nlatout(:,iout))
+            
+            write(6,"('xxxx iq qibz ig qshort'i5,3f8.4,i3,3f8.4)")
+     &           iq,qibz(:,iq),ig,qshort(:)
 
-!!!   For Fe (x,0,0)
-c$$$        if (q(2)/=0 .and. q(2)/=1) cycle
-c$$$        if (q(3)/=0 .and. q(3)/=1) cycle
+            qshort2=sqrt(dot_product(qshort,qshort))
+            qshort=int(1d6*qshort)/1d6
+            if (d100) then      !(100)
+               if ((qshort2)/=abs(qshort(1))
+     &              .and. abs(qshort2)/=abs(qshort(2))
+     &              .and. abs(qshort2)/=abs(qshort(3))) then
+                  llsym=.false.
+               endif
+            elseif (d110) then !(110)
+               if (abs(qshort(1))/=0d0 .and. abs(qshort(2))/=0d0 .and. abs(qshort(3))/=0d0) then
+                  llsym=.false.
+                  cycle
+               endif
+               if (abs(qshort(1))/=abs(qshort(2))
+     &              .and. abs(qshort(1))/=abs(qshort(3))
+     &              .and. abs(qshort(2))/=abs(qshort(3))) then
+                  llsym=.false.
+               endif
+            elseif (d111) then !(111)
+               if (abs(qshort(1))/=abs(qshort(2)) .or. abs(qshort(1))/=abs(qshort(3))) then
+                  llsym=.false.
+               endif
+            elseif (d1xx) then !(1xx) on S !no support?
+               if (abs(qshort(1))/=1d0 .and. abs(qshort(2))/=1d0 .and. abs(qshort(3))/=1d0) then
+                  llsym=.false.
+                  cycle
+               endif
+               if (abs(qshort(1))/=abs(qshort(2))
+     &              .and. abs(qshort(1))/=abs(qshort(3))
+     &              .and. abs(qshort(2))/=abs(qshort(3))) then
+                  llsym=.false.
+               endif
+            elseif (d1_xxx) then !(1-x x x) on F (bcc)
+               if (abs(qshort(1))/=abs(qshort(2))
+     &              .and. abs(qshort(1))/=abs(qshort(3))
+     &              .and. abs(qshort(2))/=abs(qshort(3))) then
+                  llsym=.false.
+                  cycle
+               endif
+               if (int(1d5*abs(qshort(1)))/=int(1d5*(1d0-abs(qshort(2))))
+     &              .and. int(1d5*abs(qshort(2)))/=int(1d5*(1d0-abs(qshort(3))))
+     &              .and. int(1d5*abs(qshort(3)))/=int(1d5*(1d0-abs(qshort(1))))) then
+                  llsym=.false.
+               endif
+               
+            endif
+               
+         enddo
 
-!!!  For Fe (x,x,0) !! G to N
-        if (q(1)/=0) cycle
-        if (q(2)/=q(3)) cycle
-!     if (q(1)>1.0) q(1)=q(1)-1d0
+         
+         q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
 
+        !get qsym on symline
+        
+        
+c$$$        !!!  For Fe (x,0,0) !! G to H
+c$$$        if (q(2)/=1) cycle
+c$$$        if (q(3)/=1) cycle
+        
+c$$$        !!!  For Fe (x,x,0) !! G to N
+c$$$        if (q(1)/=0) cycle
+c$$$        if (q(2)/=q(3)) cycle
+
+c$$$        !!!  For Fe (x,x,x) !! G to 
+c$$$        if (q(1)/=q(2)) cycle
+c$$$        if(q(2)/=q(3)) cycle
+
+c$$$        write(6,"('q=',3f9.4)") q
+c$$$        if (q(1)==q(2) .and. q(2)==q(3)) write(6,"('q=',3f9.4)") q
+c$$$        cycle
+
+c$$$        if (q(3)>1.0) then
+c$$$           q(2)=q(2)-0.50
+c$$$           q(3)=q(3)-0.50
+c$$$        endif
+c$$$        if (q(1)/=q(2)) cycle
+c$$$        if (q(3)/=1d0-q(2)) cycle
+c        write(6,"('q=',3f9.4)") q
+         write(6,*) q,llsym
+         if (.not. llsym) cycle
+        
 c$$$        !!! only Gamma
 c$$$        if (q(1)/=0) then
 c$$$           cycle
@@ -1410,7 +1513,20 @@ c                if (ijwf/=klwf) cycle
 
              enddo
           enddo
-!          trmat2(iw)=aimag(trmat)
+
+          !!!for LaMnO3
+          trmat=0d0
+          do iwf=1,9
+             ijwf=20*iwf-19 !!! iwf=jwf 
+             do jwf=1,9
+                klwf=20*iwf-19 !!! kwf=lwf
+c                if (ijwf/=klwf) cycle
+                trmat=trmat+rmat(ijwf,klwf,iw)
+
+             enddo
+          enddo
+
+!     trmat2(iw)=aimag(trmat)
 c$$$          do iwf=1,nnwf 
 c$$$             if (mod(iwf,6)==1) cycle
 c$$$             trmat=trmat+rmat(iwf,iwf,iw)

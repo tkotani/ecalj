@@ -6,7 +6,6 @@
       
       implicit none
       logical,private:: init=.true.
-      real(8),private:: xmx2(3),rlapt(3,3)
       real(8),private::alat,plat(3,3),ef
       integer,private::nwf,natom,nrws,n1,n2,n3
       
@@ -24,6 +23,10 @@ c$$$      real(8),allocatable:: eval_w(:,:,:)
       !!!d-orbital check
       integer,private,allocatable:: idorb(:)
       logical::debug=.false.,sw1=.true.
+
+      !!!
+      real(8),private:: xmx2(3),rlatp(3,3)
+      logical::init2=.true.      
       
       contains
 
@@ -381,7 +384,38 @@ c---------------------------------------
       lorb_out=idorb(iwf_in)   
       
       end subroutine checkorb
-c---------------------------------------            
+
+c---------------------------------------
+c$$$      subroutine getqsym(plat, ngrp, qin, qout)
+c$$$
+c$$$      real(8),intent(in):: plat(3,3), qin(3)
+c$$$      integer,intent(in):: ngrp
+c$$$      real(8),intent(out):: qout(3)
+c$$$      real(8):: qshort(3),qlat(3,3),qrot(3),qqin(3)
+c$$$      integer:: nlatout(3,48),noutmx,nout,iout
+c$$$
+c$$$      do ig=1,ngrp
+c$$$         qrot(1:3)=matmul(symgg(:,:,ig),qibz(:,iqibz)
+c$$$      enddo
+c$$$      
+c$$$      call minv33tp(plat,qlat)
+c$$$      if(init2) then
+c$$$         call shortn3_initialize(qlat,rlatp,xmx2)
+c$$$         init2=.false.
+c$$$      endif
+c$$$      noutmx=48
+c$$$      qqin = matmul(transpose(plat),qin)
+c$$$      call shortn3(rlatp,xmx2, qqin,noutmx, nout,nlatout)
+c$$$      iout=1
+c$$$      qshort(1:3)=  matmul(qlat(:,:), qqin+nlatout(:,iout))
+c$$$
+c$$$      
+c$$$
+c$$$      end subroutine getqsym
+
+      
+      
+c---------------------------------------
       integer function ifile_handle() !! find open file handle
       implicit none
       integer:: i
