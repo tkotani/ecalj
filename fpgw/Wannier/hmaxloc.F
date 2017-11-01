@@ -477,8 +477,10 @@ ccc okumura
       enddo
       ifdorb=ifile_handle()
 c      open(ifdorb,file="worb_list.d",form="unformatted")
-      open(ifdorb,file="Worb2lorb.d",form="formatted")
-      write(ifdorb,"(I4)",ADVANCE='NO') idorb(1:nwf)
+      open(ifdorb,file="Worb2lorb.d",form="unformatted")
+      write(ifdorb) idorb(1:nwf)
+      write(ifdorb) nclass_mlwf
+      write(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
       close(ifdorb)
 
 c$$$      ifdorb=ifile_handle()

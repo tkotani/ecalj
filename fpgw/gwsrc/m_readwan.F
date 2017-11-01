@@ -2,7 +2,10 @@
 
       use m_keyvalue,only: getkeyvalue
       use m_iqindx_wan,only: iqindx2_wan
-!      use m_hamindex, only: iqimap !!tmp use; need to modify
+      use m_read_bzdata,only: read_bzdata, ngrp_w=>ngrp
+      use m_genallcf_v3,only: genallcf_v3, symgg_=>symgg
+
+!     use m_hamindex, only: iqimap !!tmp use; need to modify
       
       implicit none
       logical,private:: init=.true.
@@ -21,13 +24,12 @@ c$$$      real(8),allocatable:: eval_w(:,:,:)
       integer::iwf
 
       !!!d-orbital check
-      integer,private,allocatable:: idorb(:)
+      integer,private,allocatable:: idorb(:), nbasclass_mlwf(:)
+      integer,private:: nclass_mlwf
       logical::debug=.false.,sw1=.true.
 
-      !!!
-      real(8),private:: xmx2(3),rlatp(3,3)
-      logical::init2=.true.      
-      
+!!! for getsyml
+      logical:: init2=.true.
       contains
 
 c---------------------------------------------
@@ -179,7 +181,7 @@ c--------------------------------
       real(8):: qu(3)
       
       if(init) call rx('wan_readeval: wan_readeigen should be called')
-      call iqindx2_wan(q, iq, qu) !qu is used q. q-qu is a G vector.
+      call iqindx2_ wan(q, iq, qu) !qu is used q. q-qu is a G vector.
 c$$$      write (6,"('wan_readeval: iq=',I7,'  ---> iqimap, qu',I7,3f9.4)")
 c$$$     &     iq,iqimap(iq),qu
 
@@ -274,6 +276,7 @@ c---------------------------------------
       complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
       complex(8),allocatable,intent(out)::scrw_(:,:)
       integer::idummy
+      logical(8)::ijklmag
       
       !!! set idorb: iwf ---> lorb
       call checkorb(1,nwf,idummy)
@@ -328,13 +331,20 @@ c$$$         print *,"readscr    W:",scrw4(iwf1,iwf2,iwf3,iwf4)
 c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
 
 !         if (sw1) call rx("'checkorb' should be done in advance")
-         if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
-     &        .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
-            scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
-     &           + scrv4(iwf1,iwf2,iwf3,iwf4)
+         call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+         !!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
+         if (ijklmag) then      !!! check iwf is derived from same atom
+            if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
+     &           .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
+               scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
+     &              + scrv4(iwf1,iwf2,iwf3,iwf4)
+            else
+               scrw_(ijwf,klwf)=0d0
+            endif
          else
             scrw_(ijwf,klwf)=0d0
          endif
+c         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf))
             
 
          !!! write index i,j,k,l ---> ijwf,klwf
@@ -363,16 +373,25 @@ c---------------------------------------
       implicit none
       integer,intent(in)  ::iwf_in,nwf_in
       integer,intent(out) ::lorb_out   ! 2=d-orb
-      integer::ifdorb
+      integer::ifdorb,iiwf
 
       if (sw1) then !!initialize
+
          print *,"checkorb nwf",nwf_in
          if (.not. allocated(idorb)) allocate(idorb(nwf_in))
          ifdorb=ifile_handle()
-         open(ifdorb,file="Worb2lorb.d",form="formatted")
-         read(ifdorb,"(I4)",ADVANCE="NO") idorb
+         open(ifdorb,file="Worb2lorb.d",form="unformatted")
+         read(ifdorb) idorb(1:nwf_in)
+         read(ifdorb) nclass_mlwf
+         if (.not. allocated(nbasclass_mlwf)) allocate(nbasclass_mlwf(nclass_mlwf+1))
+         nbasclass_mlwf(0)=0
+         read(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
          close(ifdorb)
 
+c$$$         print *,"tttt",idorb
+c$$$         print *,"tttt",nclass_mlwf
+c$$$         print *,"tttt",nclass_mlwf,nbasclass_mlwf
+         
          if (debug) then
             do iwf=1,nwf_in
                print *,"idorb check, iwf,idorb",sw1,idorb(iwf)
@@ -386,35 +405,213 @@ c---------------------------------------
       end subroutine checkorb
 
 c---------------------------------------
-c$$$      subroutine getqsym(plat, ngrp, qin, qout)
-c$$$
-c$$$      real(8),intent(in):: plat(3,3), qin(3)
-c$$$      integer,intent(in):: ngrp
-c$$$      real(8),intent(out):: qout(3)
-c$$$      real(8):: qshort(3),qlat(3,3),qrot(3),qqin(3)
-c$$$      integer:: nlatout(3,48),noutmx,nout,iout
-c$$$
-c$$$      do ig=1,ngrp
-c$$$         qrot(1:3)=matmul(symgg(:,:,ig),qibz(:,iqibz)
-c$$$      enddo
-c$$$      
-c$$$      call minv33tp(plat,qlat)
-c$$$      if(init2) then
-c$$$         call shortn3_initialize(qlat,rlatp,xmx2)
-c$$$         init2=.false.
-c$$$      endif
-c$$$      noutmx=48
-c$$$      qqin = matmul(transpose(plat),qin)
-c$$$      call shortn3(rlatp,xmx2, qqin,noutmx, nout,nlatout)
-c$$$      iout=1
-c$$$      qshort(1:3)=  matmul(qlat(:,:), qqin+nlatout(:,iout))
-c$$$
-c$$$      
-c$$$
-c$$$      end subroutine getqsym
+      !!!identify if iwf,jwf,kwf,lwf is derived from same MagAtom
+      !!! if not so, W=0 (or K=0) : return logical iwfmag=F
+      subroutine checkorb2(iwf_in,jwf_in,kwf_in,lwf_in,iwfmag) 
+      implicit none
+      integer,intent(in)  ::iwf_in,jwf_in,kwf_in,lwf_in
+      logical(8),intent(out) ::iwfmag
+      integer::iclass,natom,r_mlwf
+      logical::skip
 
       
+      if (sw1) call rx("checkorb2: call checkorb in advance")
       
+      natom=0
+      skip=.False.
+      iwfmag=.False.
+      do iclass=1,nclass_mlwf
+         !!! iwf
+         if (nbasclass_mlwf(iclass-1) < iwf_in .and.
+     &        iwf_in <= sum(nbasclass_mlwf(1:iclass)) ) then
+            natom=iclass
+         endif
+      enddo
+!!!   jwf
+      r_mlwf=sum(nbasclass_mlwf(1:natom))
+!!!      print *,r_mlwf
+      if (nbasclass_mlwf(natom-1) < jwf_in .and.
+     &     jwf_in <= r_mlwf ) then
+      else
+         skip=.True.
+      endif
+!!! kwf
+      if (.not. skip .and. nbasclass_mlwf(natom-1) < kwf_in .and.
+     &     kwf_in <= r_mlwf ) then
+      else
+         skip=.True.
+      endif
+!!! lwf
+      if (.not. skip .and. nbasclass_mlwf(natom-1) < lwf_in .and.
+     &     lwf_in <= r_mlwf) then
+         iwfmag=.True.
+      endif
+      end subroutine checkorb2
+
+c---------------------------------------
+      subroutine getqsym(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o)
+      real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
+      integer, intent(in) :: ngrp_w, iq
+      real(8),intent(out):: qshort(3)
+      logical(8), intent(out) :: llsym_o
+      
+      real(8)::qrot(3),cr=2d-5
+      logical(8)::gskip
+      logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
+     &     ,dhpb=.false.,dxwf=.false.,dhnb=.false.,dnpb=.false.
+      real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2
+      integer:: nlatout(3,48),nout,iout,ig
+      character*5:: syml
+
+      !!! get syml line
+      call getkeyvalue("GWinput","qsym",syml,default="Gt100")          
+      llsym_o=.true.      
+      if (syml=="100") then
+         d100=.true.           !0 0 0 --> 1 0 0
+      else if (syml=="110") then
+         d110=.true.           !0 0 0 --> 1 1 0
+      else if (syml=="111") then
+         d111=.true.           !0 0 0 --> 1 1 1
+      else if (syml=="fccS") then
+         d1xx=.true.           !S (fcc)
+      else if (syml=="fccXW") then
+         dxwf=.true.            ! X to W (fcc) !1 0 0 --> 1 .5 0
+      else if (syml=="bccHN") then
+         dhnb=.true.           ! G (bcc): H to N !1 0 0 --> .5 .5 0
+      else if (syml=="bccNP") then
+         dnpb=.true.           ! D (bcc): N to P !.5 .5 0 --> .5 .5 .5
+      else if (syml=="bccHP") then
+         dhpb=.true.           !F (bcc): H to P !1 0 0 --> .5 .5 .5
+      else
+         write(6,*) "not supported symmetry line"
+      endif
+         
+      if (iq==1) then
+         if(d1xx .or. dxwf .or. dhnb .or. dnpb .or.dhpb) gskip=.true.
+      else
+         do ig=1,ngrp_w
+            if (.not. llsym_o) cycle
+            qrot(1:3)=matmul(symgg_(:,:,ig),qin(:))
+            if(init2) then
+               call shortn3_initialize(qlat_in,rlatp_,xmx2_)
+               init2=.false.
+            endif
+            qqin = matmul(transpose(plat),qrot)
+            call shortn3(rlatp_,xmx2_, qqin,ngrp_w, nout,nlatout)
+            iout=1
+            qshort(1:3)=  matmul(qlat_in(:,:), qqin+nlatout(:,iout))
+            
+c$$$            write(6,"('xxxx iq q ig qshort'i5,3f8.4,i3,3f8.4)")
+c$$$     &           iq,qin(:),ig,qshort(:)
+
+            qshort2=sqrt(dot_product(qshort,qshort))
+            qshort=int(1d6*qshort)/1d6
+
+cccccccccccccccccsymline check
+            if (d100) then      !(100)
+               if (abs((qshort2)-abs(qshort(1))) > cr
+     &              .and. abs(abs(qshort2)-abs(qshort(2))) > cr
+     &              .and. abs(abs(qshort2)-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (d110) then  !(110)
+               if (abs(qshort(1)) > cr
+     &              .and. abs(qshort(2)) > cr
+     &              .and. abs(qshort(3)) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+!     ! exclude (100) direction
+               if (abs(abs(qshort(1))-abs(qshort(2))) < cr
+     &              .and. abs(qshort(1)) < cr) llsym_o=.false.
+               if (abs(abs(qshort(2))-abs(qshort(3))) < cr
+     &              .and. abs(qshort(2)) < cr) llsym_o=.false.
+               if (abs(abs(qshort(3))-abs(qshort(1))) < cr
+     &              .and. abs(qshort(3)) < cr) llsym_o=.false.
+               
+               if (abs(abs(qshort(1))-abs(qshort(2))) > cr
+     &              .and. abs(abs(qshort(1))-abs(qshort(3))) > cr
+     &              .and. abs(abs(qshort(2))-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (d111) then  !(111)
+               if (abs(abs(qshort(1))-abs(qshort(2))) > cr
+     &              .or. abs(abs(qshort(1))-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (d1xx) then  !(1xx) on S (fcc)
+               if (abs(abs(qshort(1))-1d0) > cr
+     &              .and. abs(abs(qshort(2))-1d0) > cr
+     &              .and. abs(abs(qshort(3))-1d0) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+               if (abs(abs(qshort(1))-abs(qshort(2))) > cr
+     &              .and. abs(abs(qshort(1))-abs(qshort(3))) > cr
+     &              .and. abs(abs(qshort(2))-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (dxwf) then  !(1xx) on S (fcc)
+               if (abs(abs(qshort(1))-1d0) > cr
+     &              .and. abs(abs(qshort(2))-1d0) > cr
+     &              .and. abs(abs(qshort(3))-1d0) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+               if (abs(qshort(1)) > cr
+     &              .and. abs(qshort(2)) > cr
+     &              .and. abs(qshort(3)) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (dhnb) then  ! G: H to N (bcc)
+               if (abs(qshort(1)) > cr
+     &              .and. abs(qshort(2)) > cr
+     &              .and. abs(qshort(3)) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+               if (abs(abs(qshort(1))+abs(qshort(2))-1d0) < cr) then
+               elseif (abs(abs(qshort(2))+abs(qshort(3))-1d0) < cr) then
+               elseif (abs(abs(qshort(3))+abs(qshort(1))-1d0) < cr) then
+               else 
+                  llsym_o=.false.
+               endif
+
+            elseif (dnpb) then  ! D: N to P (bcc)
+               if (abs(abs(qshort(1))-5d-1) < cr
+     &              .and. abs(abs(qshort(2))-5d-1) < cr) then
+               elseif (abs(abs(qshort(2))-5d-1) < cr
+     &                 .and. abs(abs(qshort(3))-5d-1) < cr) then
+               elseif (abs(abs(qshort(3))-5d-1) < cr
+     &                 .and. abs(abs(qshort(1))-5d-1) < cr) then
+               else
+                  llsym_o=.false.
+               endif
+               
+            elseif (dhpb) then  ! F: H to P (bcc)
+               if (abs(abs(qshort(1))-abs(qshort(2))) > cr
+     &              .and. abs(abs(qshort(1))-abs(qshort(3))) > cr
+     &              .and. abs(abs(qshort(2))-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+               if (int(1d5*abs(qshort(1)))/=int(1d5*(1d0-abs(qshort(2))))
+     &              .and. int(1d5*abs(qshort(2)))/=int(1d5*(1d0-abs(qshort(3))))
+     &              .and. int(1d5*abs(qshort(3)))/=int(1d5*(1d0-abs(qshort(1))))) then
+                  llsym_o=.false.
+               endif           
+               
+            endif
+         enddo
+      endif
+      end subroutine getqsym
+
 c---------------------------------------
       integer function ifile_handle() !! find open file handle
       implicit none
@@ -428,7 +625,7 @@ c---------------------------------------
          endif
       enddo
       stop 'ifile_handle: we did not find open file hundle'
-      end
+      end function
 c---------------------------------------            
       real(8) function det33(am)
       implicit none
