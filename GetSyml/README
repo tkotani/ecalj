@@ -9,7 +9,7 @@ Requirement and Install:
 
 1.seekpath
 >git clone https://github.com/giovannipizzi/seekpath/
->python setup.py install
+>python setup.py install --user
 
 2.matplotlib for 3D plot
 > python -m pip install --update pip  #pip update
