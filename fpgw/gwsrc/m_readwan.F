@@ -458,7 +458,7 @@ c---------------------------------------
       real(8)::qrot(3),cr=2d-5
       logical(8)::gskip
       logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
-     &     ,dhpb=.false.,dxwf=.false.,dhnb=.false.,dnpb=.false.
+     &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dhnb=.false.,dnpb=.false.
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2
       integer:: nlatout(3,48),nout,iout,ig
       character*5:: syml
@@ -474,6 +474,8 @@ c---------------------------------------
          d111=.true.           !0 0 0 --> 1 1 1
       else if (syml=="fccS") then
          d1xx=.true.           !S (fcc)
+      else if (syml=="fccWL") then
+         dwlf=.true.            ! W to L (fcc) !.5 1 0 --> .5 .5 .5
       else if (syml=="fccXW") then
          dxwf=.true.            ! X to W (fcc) !1 0 0 --> 1 .5 0
       else if (syml=="bccHN") then
@@ -556,7 +558,22 @@ cccccccccccccccccsymline check
                   llsym_o=.false.
                endif
 
-            elseif (dxwf) then  !(1xx) on S (fcc)
+            elseif (dwlf) then  !  W to L (fcc): 48 lines (pm1/2, pm(1-pmx), pmx)
+c$$$               if     (abs(abs(qshort(1))-5d-1) < cr ) then
+c$$$               elseif (abs(abs(qshort(2))-5d-1) < cr ) then
+c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
+
+               if     (abs(abs(qshort(1))-0.5d0) < cr .and.
+     &              abs(abs(qshort(2))+abs(qshort(3))-1d0) < cr ) then
+               elseif (abs(abs(qshort(2))-0.5d0) < cr .and.
+     &              abs(abs(qshort(3))+abs(qshort(1))-1d0) < cr ) then
+               elseif (abs(abs(qshort(3))-0.5d0) < cr .and.
+     &              abs(abs(qshort(1))+abs(qshort(2))-1d0) < cr ) then
+               else 
+                  llsym_o=.false.
+               endif
+            
+            elseif (dxwf) then     !(1xx) on S (fcc)
                if (abs(abs(qshort(1))-1d0) > cr
      &              .and. abs(abs(qshort(2))-1d0) > cr
      &              .and. abs(abs(qshort(3))-1d0) > cr) then
