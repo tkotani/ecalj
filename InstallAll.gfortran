@@ -2,7 +2,8 @@
 #set -o verbose
 
 BINDIR=${HOME}/bin
-MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
+#MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
+MATH='/sw/lib/libfftw3.a /sw/lib/lapack/librefblas.a /sw/lib/lapack/libreflapack.a'
 
 ### This is an example for ubuntu
 # For each machine, we have to prepare
