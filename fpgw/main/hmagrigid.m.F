@@ -3,7 +3,7 @@
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
-      program hmagnon
+      program hmagrigid
 c      use matm,only: matm,matcinv
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
      &     readscr, checkorb, getqsym, checkorb2
@@ -246,7 +246,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 
 !     okumura
       integer::nwf,nsp_w,nqtt_w,iwf,jwf,inwf,iexc,kwf,lwf,ijwf,klwf,nnwf
-      integer::ifhamw,ifchipm_wan,ifgas,ifchipmz_wan,ifchipmr_wan
+      integer::ifhamw,ifchipm_wan,ifgas,ifchipmz_wan,ifchipmr_wan,ifchipmz_rigid
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
       logical::wan=.true.,egasmode
@@ -268,6 +268,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8)::ntot_r,www,eta,deta
       !For screening W
       complex(8),allocatable:: scrw(:,:) ,cmat2(:,:)
+      real(8):: ucou
 c     real(8),allocatable:: eval_wk(:)
       complex(8),allocatable:: eval_wk(:)
       integer:: it,itp,isdummy,lorb
@@ -860,6 +861,11 @@ cccc Okumura 2017/06/13 for gnuplot (3D)
       open(ifchipmr_wan,file="wan_ChiPMr.mat")          
       print *,'ifchipm=',ifchipm_wan,ifchipmz_wan,ifchipmr_wan
 
+      ifchipmz_rigid=ifile_handle()
+      open(ifchipmz_rigid,file="wan_ChiPMrigid.mat")          
+
+
+
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -889,7 +895,7 @@ cc         if (llsym)F write(6,"('q (on syml)= ',3f9.5)") q
          if (llsym) write(6,"('qshort (on syml) = ',3f9.5)") qshort
 
 cccccc
-         cycle
+c         cycle
 cccccc
          if (.not. llsym) cycle
          
@@ -1371,6 +1377,21 @@ cccc
           imat(iwf,iwf)=1d0
        enddo
 
+       !!!!! decide ucou = 1/K(iw=0) for rigid rotation
+       if (iq==1) then
+          trmat=0d0
+          do iwf=1,nwf
+             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf
+             do jwf=1,nwf
+                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+                trmat=trmat+zxq(ijwf,klwf,0) !!! used for rigid rotation with U
+             enddo
+          enddo
+          ucou=1d0/real(trmat)
+          write(6,*) "one parameter U for rigit rotation = ",ucou
+       endif
+       !!!!   
+
 ccccccc
        print *,"nw_i,nw",nw_i,nw
        do 2050 iw = nw_i,nw
@@ -1385,80 +1406,82 @@ ccccccc
           www=freq_r(iw)
           if(iw<0) www=-freq_r(-iw)
           if(.not. gskip) write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")qshort,iw,www*2d0,trmat
+          if(.not. gskip) write(ifchipmz_rigid,"(3f9.4,i6,E13.4,2x,2E13.4)")
+     &         qshort,iw,www*2d0,trmat/(1d0-ucou*trmat)
 
 cccccccccK(1-WK)^(-1)
-          call getkeyvalue("GWinput","deta",deta,default=0d0)          
-          wkmat(1:nnwf,1:nnwf)
-     &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
-          !!! 1-eWK
-          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-(eta+deta)*wkmat(1:nnwf,1:nnwf)
-          !!! eigenvalue of 1-WK
-          if (debug) then
-             if (iq==1 .and. iw==0) then
-                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
-                write(6,*) "q=0 and omega=0 case:"
-                write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
-     &               ,advance='NO') eval_wk
-                write(6,*)
-             endif
-          endif
-          
-          call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
-          rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
-     &         wkmat2(1:nnwf,1:nnwf))
-
-          !!! eigenvalue of (1-WK)inv
-          if (debug) then
-             if (iq==1 .and. iw==0) then
-                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
-                write(6,*) "q=0 and omega=0 case:"
-                write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
-     &               ,advance='NO') eval_wk
-                write(6,*)
-             endif
-          endif
-
-          !!! eigenvalue of rmat
-          if (debug) then
-             if (iq==1 .and. iw==0) then
-                call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
-                write(6,*) "q=0 and omega=0 case:"
-                write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
-                write(6,*)
-             endif
-          endif
-          
-          !!! writing trace(Rmatrix)
-          if (.not. allocated(trmat2)) allocate(trmat2(nw_i:nw))
-          trmat=0d0
-          do iwf=1,nwf
-             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-             do jwf=1,nwf
-                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-c                if (ijwf/=klwf) cycle
-                trmat=trmat+rmat(ijwf,klwf,iw)
-
-             enddo
-          enddo
-
-          lsmo=.false.
-          !!!for LaMnO3
-          if(lsmo) then
-             trmat=0d0
-             do iwf=1,9
-                ijwf=20*iwf-19  !!! iwf=jwf 
-                do jwf=1,9
-                   klwf=20*iwf-19 !!! kwf=lwf
-c     if (ijwf/=klwf) cycle
-                   trmat=trmat+rmat(ijwf,klwf,iw)
-
-                enddo
-             enddo
-          endif
-          
-          if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-     &         www*2d0,trmat
-c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
+c$$$          call getkeyvalue("GWinput","deta",deta,default=0d0)          
+c$$$          wkmat(1:nnwf,1:nnwf)
+c$$$     &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
+c$$$          !!! 1-eWK
+c$$$          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-(eta+deta)*wkmat(1:nnwf,1:nnwf)
+c$$$          !!! eigenvalue of 1-WK
+c$$$          if (debug) then
+c$$$             if (iq==1 .and. iw==0) then
+c$$$                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+c$$$                write(6,*) "q=0 and omega=0 case:"
+c$$$                write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
+c$$$     &               ,advance='NO') eval_wk
+c$$$                write(6,*)
+c$$$             endif
+c$$$          endif
+c$$$          
+c$$$          call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
+c$$$          rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
+c$$$     &         wkmat2(1:nnwf,1:nnwf))
+c$$$
+c$$$          !!! eigenvalue of (1-WK)inv
+c$$$          if (debug) then
+c$$$             if (iq==1 .and. iw==0) then
+c$$$                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+c$$$                write(6,*) "q=0 and omega=0 case:"
+c$$$                write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
+c$$$     &               ,advance='NO') eval_wk
+c$$$                write(6,*)
+c$$$             endif
+c$$$          endif
+c$$$
+c$$$          !!! eigenvalue of rmat
+c$$$          if (debug) then
+c$$$             if (iq==1 .and. iw==0) then
+c$$$                call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
+c$$$                write(6,*) "q=0 and omega=0 case:"
+c$$$                write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
+c$$$                write(6,*)
+c$$$             endif
+c$$$          endif
+c$$$          
+c$$$          !!! writing trace(Rmatrix)
+c$$$          if (.not. allocated(trmat2)) allocate(trmat2(nw_i:nw))
+c$$$          trmat=0d0
+c$$$          do iwf=1,nwf
+c$$$             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
+c$$$             do jwf=1,nwf
+c$$$                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+c$$$c                if (ijwf/=klwf) cycle
+c$$$                trmat=trmat+rmat(ijwf,klwf,iw)
+c$$$
+c$$$             enddo
+c$$$          enddo
+c$$$
+c$$$          lsmo=.false.
+c$$$          !!!for LaMnO3
+c$$$          if(lsmo) then
+c$$$             trmat=0d0
+c$$$             do iwf=1,9
+c$$$                ijwf=20*iwf-19  !!! iwf=jwf 
+c$$$                do jwf=1,9
+c$$$                   klwf=20*iwf-19 !!! kwf=lwf
+c$$$c     if (ijwf/=klwf) cycle
+c$$$                   trmat=trmat+rmat(ijwf,klwf,iw)
+c$$$
+c$$$                enddo
+c$$$             enddo
+c$$$          endif
+c$$$          
+c$$$          if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
+c$$$     &         www*2d0,trmat
+c$$$c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
 
 ccccccccc
           gskip=.false. !!! Skip Gamma point
@@ -1469,6 +1492,7 @@ ccccccccc
 
 
        write(ifchipmz_wan,*)
+       write(ifchipmz_rigid,*)
        write(ifchipmr_wan,*)
 
 c$$$       print *,"real zxq:: ",real(zxq(25,25,0)),aimag(zxq(25,25,0))
@@ -1747,6 +1771,7 @@ c$$$  endif
  1001 continue !q point loop
 
       close(ifchipm_wan)
+      close(ifchipmz_rigid)
       close(ifchipmz_wan)
       close(ifchipmr_wan)
       

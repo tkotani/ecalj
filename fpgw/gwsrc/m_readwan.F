@@ -458,7 +458,8 @@ c---------------------------------------
       real(8)::qrot(3),cr=2d-5
       logical(8)::gskip
       logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
-     &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dhnb=.false.,dnpb=.false.
+     &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dhnb=.false.
+     &     ,dnpb=.false.,dxms=.false.
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2
       integer:: nlatout(3,48),nout,iout,ig
       character*5:: syml
@@ -484,6 +485,8 @@ c---------------------------------------
          dnpb=.true.           ! D (bcc): N to P !.5 .5 0 --> .5 .5 .5
       else if (syml=="bccHP") then
          dhpb=.true.           !F (bcc): H to P !1 0 0 --> .5 .5 .5
+      else if (syml=="scXM") then
+         dxms=.true.           !F (sc): X to M !.5 0 0 --> .5 .5 0
       else
          write(6,*) "not supported symmetry line"
       endif
@@ -623,7 +626,20 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
      &              .and. int(1d5*abs(qshort(3)))/=int(1d5*(1d0-abs(qshort(1))))) then
                   llsym_o=.false.
                endif           
-               
+
+            elseif (dxms) then  ! F: H to P (bcc)
+               if (abs(qshort(1)) > cr
+     &              .and. abs(qshort(3)) > cr
+     &              .and. abs(qshort(2)) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+               if (abs(abs(qshort(1))-5d-1) > cr
+     &              .and. abs(abs(qshort(2))-5d-1) > cr
+     &              .and. abs(abs(qshort(3))-5d-1) > cr ) then
+                  llsym_o=.false.
+               endif
             endif
          enddo
       endif
