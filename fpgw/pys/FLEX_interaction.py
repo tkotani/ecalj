@@ -2,45 +2,49 @@
 import numpy as np
 
 def read_cRPA_U(nwf,lines):
-	ilines = 0
-	for line in lines:
-		line_sp = line.split()
-
-		isp = int(line_sp[1])
-		i = int(line_sp[2])
-		j = int(line_sp[3])
-		k = int(line_sp[4])
-		l = int(line_sp[5])
-		omega = float(line_sp[7])
+	ilines = 0	
+	for line in lines:		
+		line_sp = line.split()		
+		isp = int(line_sp[6])
+		i = int(line_sp[7])
+		j = int(line_sp[8])
+		k = int(line_sp[9])
+		l = int(line_sp[10])		
+		omega = float(line_sp[12])
+	
 	        if omega == 0.0:
 			v = v1[ilines]
 
 			if i == j == k == l:
-				U[i-1][i-1] =  float(line_sp[8]) + v
+				U[i-1][i-1] =  float(line_sp[13]) + v
 			elif i == j and k == l:
-				U[i-1][k-1] = float(line_sp[8]) + v
+				U[i-1][k-1] = float(line_sp[13]) + v
 			elif i == k and j == l:
-				J[i-1][j-1] = float(line_sp[8]) + v
+				J[i-1][j-1] = float(line_sp[13]) + v
 			elif i == l and k == j:
-				J[i-1][k-1] = float(line_sp[8]) + v
+				J[i-1][k-1] = float(line_sp[13]) + v
 			ilines += 1
 		else :
-			break
+			break		
 		#print line_sp
 
 
 ########## Reading spin from LMTO, nwf from GWinput
 
-f = open("GWinput",'r')
+#f = open("GWinput",'r')
+f = open("hrotr.up",'r')
 lines = f.readlines()
-lread = False
+#lread = False
 for line in lines:
-	if "<MLWF>" in line:
-		lread = True
-	elif lread == True:
-		line_sp = line.split()
-		nwf = int(line_sp[0])
-		break
+	line_sp = line.split()
+	nwf = int(line_sp[1]) 	
+	break
+#	if "<MLWF>" in line:
+#		lread = True
+#	elif lread == True:
+#		line_sp = line.split()
+#		nwf = int(line_sp[0])
+#		break
 f.close()
 
 f = open("LMTO",'r')
@@ -62,8 +66,8 @@ print "nsp = ", nsp
 
 #######################
 
-f1 = open("Coulomb_v",'r')
-f3 = open("Screening_W-v_crpa",'r')
+f1 = open("Coulomb_v.UP",'r')
+f3 = open("Screening_W-v_crpa.UP",'r')
 lines1 = f1.readlines() 
 lines3 = f3.readlines() 
 f1.close()
@@ -88,13 +92,11 @@ ilines2 = 0
 for line1 in lines1:
 	line1_sp = line1.split() 
 	if line1_sp[1] == '1':
-		v1[ilines1] = float(line1_sp[6])
+		v1[ilines1] = float(line1_sp[11])
 		ilines1 += 1
 	elif line1_sp[1] == '2':
-		v2[ilines2] = float(line1_sp[6])
+		v2[ilines2] = float(line1_sp[11])
 		ilines2 += 1
-
-
 
 ################# Writing constrained RPA W : W_cRPA values
 
