@@ -6,8 +6,9 @@
 # For cray, set machine="cray"
 #--------------------------------------------------------------------------
 ### all input arguments are processed ###
-source ./run_argloc
-nfpgw=~/bin
+#nfpgw=`dirname $0`
+nfpgw=~/bin 
+source $nfpgw/run_argloc
 flex=$nfpgw/FLEX_interaction.py
 crpaint=./Interaction.dat
 if [ $# -gt 10 ] ; then
@@ -45,7 +46,7 @@ done
 intornot $MPI_SIZE
 intornot $MPI_NODE
 echo "inputs: -pref="$MATERIAL" -np="$MPI_SIZE" -ppn="$MPI_NODE
-source ./run_argloc
+source $nfpgw/run_argloc
 #nfpgw=`dirname $0` #only for original version intended to be executed in ~/bin
 NO_MPI=0
 MNODEZERO=0
@@ -55,9 +56,6 @@ if [ ! -e bnds.$MATERIAL ];then
     $echo_run echo "!!! Perform job_band in advance!" 
     exit 101
 fi
-
-### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
-#source $nfpgw/run_arg
 
 ######## start here ##########
 $echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
