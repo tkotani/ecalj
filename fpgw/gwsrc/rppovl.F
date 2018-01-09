@@ -74,13 +74,13 @@
 !! read file of iqi. iqi is determined for given qx.
       loopnum=loopnum+1
       write(6,"('loop num=',i4)") loopnum   
-      open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-      open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
       gex=access("PPOVLG."//charnum3(iqi),' ')
       iex=access("PPOVLI."//charnum3(iqi),' ')
       if(gex .ne. 0) write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
-      if(iex .ne. 0) write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum  
-      
+      if(iex .ne. 0) write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
+
+      open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+      open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
       read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
       ngc = ngcread
       read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)         
