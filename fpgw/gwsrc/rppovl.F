@@ -16,25 +16,29 @@
       complex(8),allocatable,private :: ppx_s(:,:,:)
       logical,private:: debug=.false.
 
+      real(8),allocatable,private:: qxtable(:,:)
+
       contains
       subroutine getppx2(qbas,qi) 
 !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
       implicit none
       real(8), intent(in)  ::qbas(3,3),qi(3)
 
-      integer(4):: ngc, iqi,ippovlg,ippovli
+      integer(4):: ngc, iqi,ippovlg = 9221,ippovli = 9222
       real(8)::qx(3)
       logical ::ippovlggooo=.true.
-      integer:: ippovlgg,ngcread2,ifile_handle,dumtest
+      integer:: ngcread2,ippovlgg = 9223
       character*3 charnum3
       integer:: verbose
+
+      logical:: init=.true.
+      integer:: iqi0
       if(verbose()>=100) debug=.true.
       if(ippovlggooo) then
-         ippovlgg=ifile_handle()
          open(ippovlgg,file= "PPOVLGG",form='unformatted')
          read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
          write(6,"('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
-         allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))         
+         allocate(nvggg(1:3,1:nggg),ggg(1:nggg),nvgcgp2(1:3,ngcgp))
          read(ippovlgg) nvgcgp2(1:3,1:ngcgp)
          read(ippovlgg) nvggg(1:3,1:nggg)
          read(ippovlgg) ggg(1:nggg)
@@ -42,37 +46,52 @@
          ippovlggooo=.false.
       endif
 
-c      dumtest=ifile_handle()
-c      open(dumtest,file= "iqi",form='unformatted',status='replace')     
-      do iqi = nqini,nqnumt
-c         write(6,"('iqi,nqini,nqnumt=',3i10)") iqi,nqini,nqnumt
-         ippovlg=ifile_handle()
-         open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')         
-         read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
-         if(debug) print *,'getppx2: iqi qi=',iqi,qi,qx
-         ngc = ngcread
-         if(sum(abs(qx-qi))>1d-10) then
-           close(ippovlg)           
-         else
-           ippovli=ifile_handle()
-           open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
-           read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)
-           if(ngcread/=ngcread2) call rx('rppovl.F: inconsistent PPOVLI PPOVLg')
-           if(ngc==0) exit
-           if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc)
-           allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
-           read(ippovlg) ngvecc(1:3,1:ngc)
-           read(ippovli) ppovlinv(1:ngc,1:ngc)
-           close(ippovlg)
-           close(ippovli)
-c           close(dumtest)
-           goto 1012
-         endif   
-      enddo      
-      write(6,"('qi qx=',3f13.5,3x,3f13.5)") qi,qx
-      call rx('getppx2: can not find given qi')
- 1012 continue
+!! cache qx for finding a file for given qi. dec2017
+      if(init) then
+         init=.false.
+         allocate( qxtable(3,nqini:nqnumt) )
+         do iqi = nqini,nqnumt
+            open(ippovlg,file="PPOVLG."//charnum3(iqi),form='unformatted')
+            read(ippovlg) qx
+            qxtable(:,iqi) = qx
+            close(ippovlg) ! brought from outside of do iqi loop
+         enddo
+!         close(ippovlg)
+      endif
+!! find file name (=charnum3(iqi)) for given qi.
+      do iqi0 = nqini,nqnumt
+        qx = qxtable(:,iqi0)
+        if(sum(abs(qx-qi))<1d-10) then
+           iqi = iqi0
+           goto 1011
+        endif
+      enddo
+      write(6,"('nnnnnnq ',3f10.5)") qi
+      call rx('rppovl.F: qi is not found. some bug.')
+ 1011 continue
+!! read file of iqi. iqi is determined for given qx.
+      open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+      open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
+      read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
+      ngc = ngcread
+      read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)         
+!! sanity checkcs
+      if(ngc==0) then
+         write(6,"('qi qx=',3f13.5,3x,3f13.5)") qi,qx
+         call rx('getppx2: can not find given qi')
+      endif   
+      if(sum(abs(qx-qi))>1d-10) then
+         write(6,"('nnnnnnqiqx ',3f10.5,2x,3f10.5)") qi,qx
+         write(6,"('nnnnfile=',a)")"PPOVLG."//charnum3(iqi)
+         call rx('getppx2: qx\ne qi')
+      endif   
+      if(ngcread/=ngcread2) call rx('rppovl.F: inconsistent PPOVLI PPOVLg') 
+!! main do for ppovlg and ppovli
+      if(allocated(ppovlinv)) deallocate(ppovlinv,ngvecc) 
+      allocate(ppovlinv(1:ngc,1:ngc),ngvecc(1:3,1:ngc))
+      read(ippovlg) ngvecc(1:3,1:ngc)     !main do 1st
+      read(ippovli) ppovlinv(1:ngc,1:ngc) !main do 2nd
+      close(ippovlg)
+      close(ippovli)
       end subroutine getppx2
       end module
-
-
