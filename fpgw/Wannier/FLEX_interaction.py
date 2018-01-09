@@ -73,7 +73,7 @@ if os.path.exists("Screening_W-v.UP") and os.path.exists("Coulomb_v.UP") :
 	mRPA="on"
 	print "mRPA is set up"
 
-if os.path.exists("Screening_W-v_cRPA.UP") and os.path.exists("Coulomb_v.UP") :
+if os.path.exists("Screening_W-v_crpa.UP") and os.path.exists("Coulomb_v.UP") :
         cRPA="on"
 	print "cRPA is set up"
 
