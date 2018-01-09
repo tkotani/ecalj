@@ -25,16 +25,18 @@
       implicit none
       real(8), intent(in)  ::qbas(3,3),qi(3)
 
-      integer(4):: ngc, iqi,ippovlg = 9221,ippovli = 9222 , ippovlginit=9224,access
+      integer(4):: ngc, iqi,ippovlg,ippovli, ippovlginit
+      integer(4):: access,ifile_handle
       real(8)::qx(3)
       logical ::ippovlggooo=.true.
-      integer:: ngcread2,ippovlgg = 9223
+      integer:: ngcread2,ippovlgg
       character*3 charnum3
       integer:: verbose
 
       logical:: init=.true.
       integer:: iqi0
       if(verbose()>=100) debug=.true.
+      ippovlgg=ifile_handle()
       if(ippovlggooo) then
          open(ippovlgg,file= "PPOVLGG",form='unformatted')
          read(ippovlgg) nggg, ngcgp, nqq, nqini,nqnumt
@@ -51,7 +53,8 @@
       if(init) then
          init=.false.
          allocate( qxtable(3,nqini:nqnumt) )
-         do iqi = nqini,nqnumt
+         ippovlginit=ifile_handle()
+         do iqi = nqini,nqnumt            
             open(ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
             read(ippovlginit) qx
             qxtable(:,iqi) = qx
@@ -76,10 +79,19 @@
       write(6,"('loop num=',i4)") loopnum   
       gex=access("PPOVLG."//charnum3(iqi),' ')
       iex=access("PPOVLI."//charnum3(iqi),' ')
-      if(gex .ne. 0) write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
-      if(iex .ne. 0) write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
+      if(gex .ne. 0)then
+         write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
+         call rx('some PPOLVG. file does not exist')
+      end if
+      if(iex .ne. 0)then
+         write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
+         call rx('some PPOLVI. file does not exist')
+      end if
 
+      ippovlg=ifile_handle()
+!      write(*,*) "lg,li",ippovlg,ippovli
       open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+      ippovli=ifile_handle()
       open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
       read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
       ngc = ngcread
@@ -90,7 +102,7 @@
          call rx('getppx2: can not find given qi')
       endif   
       if(sum(abs(qx-qi))>1d-10) then
-         write(6,"('nnnnnnqiqx ',3f10.5,2x,3f10.5)") qi,qx
+         write(6,"('nnnnnnqiqx ',3f10.5,2x,3f10.5)") qi,qx         
          write(6,"('nnnnfile=',a)")"PPOVLG."//charnum3(iqi)
          call rx('getppx2: qx\ne qi')
       endif   
