@@ -60,7 +60,7 @@
             qxtable(:,iqi) = qx
             close(ippovlginit) ! brought from outside of do iqi loop
          enddo
-         loopnum=1
+         loopnum=0
          write(6,"('init ok!:should be done only once')") 
       endif      
 !! find file name (=charnum3(iqi)) for given qi.
@@ -76,7 +76,12 @@
  1011 continue
 !! read file of iqi. iqi is determined for given qx.
       loopnum=loopnum+1
-      write(6,"('loop num=',i10)") loopnum   
+      if(loopnum .eq. 1) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum   
+      if(loopnum .eq. 10) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
+      if(loopnum .eq. 100) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum      
+      if(loopnum .eq. 1000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
+      if(loopnum .eq. 5000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
+      if(loopnum .eq. 10000) write(6,"('iqi=,loop num=',i10,i10)") iqi,loopnum
       gex=access("PPOVLG."//charnum3(iqi),' ')
       iex=access("PPOVLI."//charnum3(iqi),' ')
       if(gex .ne. 0)then
