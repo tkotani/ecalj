@@ -17,6 +17,7 @@
       logical,private:: debug=.false.
 
       real(8),allocatable,private:: qxtable(:,:)
+      integer(4), private:: loopnum = 0, iex,gex
 
       contains
       subroutine getppx2(qbas,qi) 
@@ -24,7 +25,7 @@
       implicit none
       real(8), intent(in)  ::qbas(3,3),qi(3)
 
-      integer(4):: ngc, iqi,ippovlg = 9221,ippovli = 9222
+      integer(4):: ngc, iqi,ippovlg = 9221,ippovli = 9222 , ippovlginit=9224,access
       real(8)::qx(3)
       logical ::ippovlggooo=.true.
       integer:: ngcread2,ippovlgg = 9223
@@ -51,13 +52,14 @@
          init=.false.
          allocate( qxtable(3,nqini:nqnumt) )
          do iqi = nqini,nqnumt
-            open(ippovlg,file="PPOVLG."//charnum3(iqi),form='unformatted')
-            read(ippovlg) qx
+            open(ippovlginit,file="PPOVLG."//charnum3(iqi),form='unformatted')
+            read(ippovlginit) qx
             qxtable(:,iqi) = qx
-            close(ippovlg) ! brought from outside of do iqi loop
+            close(ippovlginit) ! brought from outside of do iqi loop
          enddo
-!         close(ippovlg)
-      endif
+         loopnum=1
+         write(6,"('init ok!:should be done only once')") 
+      endif      
 !! find file name (=charnum3(iqi)) for given qi.
       do iqi0 = nqini,nqnumt
         qx = qxtable(:,iqi0)
@@ -70,8 +72,15 @@
       call rx('rppovl.F: qi is not found. some bug.')
  1011 continue
 !! read file of iqi. iqi is determined for given qx.
+      loopnum=loopnum+1
+      write(6,"('loop num=',i4)") loopnum   
       open(ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
       open(ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted') 
+      gex=access("PPOVLG."//charnum3(iqi),' ')
+      iex=access("PPOVLI."//charnum3(iqi),' ')
+      if(gex .ne. 0) write(6,"('PPOVLG.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum
+      if(iex .ne. 0) write(6,"('PPOVLI.00... does not exist! in iqi=)',i4,'( in loop ',i4)") iqi,loopnum  
+      
       read(ippovlg) qx, ngcread !, ngcx_s(iqi),ngc2_s(iqi)
       ngc = ngcread
       read(ippovli) qx, ngcread2 !, ngcx_s(iqi),ngc2_s(iqi)         
