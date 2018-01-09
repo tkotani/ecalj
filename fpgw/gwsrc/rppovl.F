@@ -76,7 +76,7 @@
  1011 continue
 !! read file of iqi. iqi is determined for given qx.
       loopnum=loopnum+1
-      write(6,"('loop num=',i4)") loopnum   
+      write(6,"('loop num=',i10)") loopnum   
       gex=access("PPOVLG."//charnum3(iqi),' ')
       iex=access("PPOVLI."//charnum3(iqi),' ')
       if(gex .ne. 0)then
