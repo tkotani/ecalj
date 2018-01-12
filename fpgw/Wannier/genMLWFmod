@@ -10,7 +10,7 @@
 nfpgw=~/bin 
 source $nfpgw/run_argloc
 flex=$nfpgw/FLEX_interaction.py
-crpaint=./Interaction.dat
+crpaint=./Interaction_cRPA.dat
 if [ $# -gt 10 ] ; then
     echo "too many variables!(>10)"
 fi
