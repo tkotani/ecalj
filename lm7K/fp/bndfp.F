@@ -1394,7 +1394,7 @@ c     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
               write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
             enddo
             if(writeham) then
-              write(ififft)ldim,lso
+              write(ififft)ldim,lso,nsp
               write(ififft)ib_table,l_table,k_table
               close(ififft)
             endif  
@@ -1908,10 +1908,15 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
 
 !! save hammovlm jan2018kaist
               if(writeham) then
-                write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for *  qp= ",qp
+                write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
-                write(ifih) ovlm(1:ndimhx,1:ndimhx,jsp)
-                write(ifih) hamm(1:ndimhx,1:ndimhx,jsp)
+                if(lso==1) then !L.S case nspc=2 spin block
+                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1:4) 
+                  write(ifih) hamm(1:ndimhx,1:ndimhx,1:4)
+                else  !nspc=1 spin diagonal case
+                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1)
+                  write(ifih) hamm(1:ndimhx,1:ndimhx,1)
+                endif
               endif
 
               if(epsovl<1.000001d-14) then
@@ -1926,6 +1931,11 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
               endif  
+#ifdef MPIK            
+              if(writeham.and.procid==master) then
+                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , efmax , nev ) !efmax is required?
+              endif
+#endif
             endif
 
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
@@ -2241,6 +2251,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
             call fclose(ifip)
             deallocate(idtete,ipqe) !remove this if you uncomment above lines.
          endif  
+         if(writeham) call rx0('Done --writeham: --mkprocar --fullmesh are needed now. HamiltonianMTO* genereted')
          call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
       endif
 
