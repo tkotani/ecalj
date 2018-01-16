@@ -102,14 +102,36 @@
  2019 continue
       write(6,*)'read:total # of q =',iq
       close(ifih)
+      end subroutine readHamiltonianMTO
+      end module m_readHamiltonianMTO
+
+
+!!-------------------------------------------
+      program lmfham
+!! Read Hamiltonian files for MTO only case.
+      use m_readHamiltonianMTO, only: 
+     &  plat, npair,nlat,qwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl,ib_table,
+     &  ReadHamiltonianMTO
+      implicit none
+      integer:: i,j,ikp,ib1,ib2,ifig=-999,it,nmx,nev
+      complex(8)::img=(0d0,1d0),phase
+      complex(8),allocatable:: hamm(:,:),ovlm(:,:),t_zv(:,:)
+      real(8),allocatable:: evl(:)
+      logical:: lprint=.true.,savez=.false.,getz=.false.
+      real(8)::qp(3),pi=4d0*atan(1d0)
+
+!!
+      call show_programinfo(6)
+      call readHamiltonianMTO() 
 
 !! Get H(k) from H(T), and diagonalize
       allocate(ovlm(1:ndimhx,1:ndimhx),hamm(1:ndimhx,1:ndimhx))
       allocate(t_zv(ndimhx,ndimhx),evl(ndimhx))
+      nmx = ndimhx
       do ikp=1,nkp
         qp = qplist(:,ikp) 
-        ovlm=0d0
-        hamm=0d0
+        ovlm= 0d0
+        hamm= 0d0
         do i=1,ndimhx
         do j=1,ndimhx
           ib1 = mod(ib_table(i),ldim)
@@ -121,26 +143,19 @@
           enddo
         enddo
         enddo
+
+!! diagonalization
         if(epsovl<1.000001d-14) then
           call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .     evl, t_zv, lprint,savez,getz,ifig) !stock eigenfunctions z
-        else                    !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
+        else  
           call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
      .     evl, t_zv, lprint,savez,getz,ifig,epsovl) !stock eigenfunctions z
         endif
+
         do i=1,nev
           write(6,"('eigen222 ',2i4,f15.5)") ikp,i,evl(i)
         enddo
       enddo    
       deallocate(ovlm,hamm)
-      end subroutine readHamiltonianMTO
-      end module m_readHamiltonianMTO
-
-!!-------------------------------------------
-      program lmfham
-!! Read Hamiltonian files for MTO only case.
-      use m_readHamiltonianMTO, only: ReadHamiltonianMTO
-      implicit none
-      call show_programinfo(6)
-      call readHamiltonianMTO()
       end program lmfham
