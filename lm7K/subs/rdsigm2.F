@@ -4,14 +4,14 @@
       integer(4)::npairmx
       real(8),allocatable:: qsmesh(:,:,:,:)
       real(8),allocatable:: qwgt(:,:,:)
-      end module
 
+      contains
 !! == Give \Sigma-Vxc for given qp from sfz (this does not work well)==
       subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
      i  sfz,ldim,ndimx, 
      o  sene)
       use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
-      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
+c      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
       implicit none
       integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimx,
      &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
@@ -186,6 +186,7 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
  1019 continue
       call tcx('seneinterp2')
       end subroutine seneinterp2
+      end module
 
 
 !! -----------------------------------------------------------------------------------
