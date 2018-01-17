@@ -1,6 +1,11 @@
-# we introduced {pwmode}.
+# To get QPLIST, run band plot. job_band
+
+# We introduced {pwmode}. as PWMODE={pwmode}
 rm HamiltonianMTO*
+#Get efermi.lmf
+mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK fe --quit=band > lmf_efermi
 mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK si --writeham --mkprocar --fullmesh -vpwmode=0
 cat HamiltonianMTO.* >HamiltonianMTO
 rm HamiltonianMTO.* 
 ~/ecalj/lm7K/lmfham
+

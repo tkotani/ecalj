@@ -1,9 +1,9 @@
       module m_readHamiltonianMTO
-      real(8),allocatable,protected:: plat(:,:),pos(:,:),qwgt(:,:,:),qplist(:,:)
+      real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
       integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),
-     &  ib_table(:),l_table(:),k_table(:)
+     &  ib_table(:),l_table(:),k_table(:),nqwgt(:,:,:)
       integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,ndimhx,nsp,nspx
-      real(8):: epsovl
+      real(8):: epsovl,alat
       complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 
       contains
@@ -19,17 +19,17 @@
 
       ififft = ifile_handle() !return unused file handle
       open(ififft,file='HamiltonianMTOInfo',form='unformatted')
-      allocate(plat(3,3))
-      read(ififft) plat,nkk1,nkk2,nkk3,nbas
+      allocate(plat(3,3),qlat(3,3))
+      read(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
       nkp = nkk1*nkk2*nkk3
       allocate(qplist(3,nkp))
       allocate(pos(3,nbas))
-      read(ififft) pos   !atomic positions
+      read(ififft) pos,alat   !atomic positions
       read(ififft) qplist !qpoint list. all in the BZ
       allocate(npair(nbas,nbas))
       read(ififft) npair,npairmx
-      allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
-      read(ififft) nlat,qwgt
+      allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
+      read(ififft) nlat,nqwgt
       read(ififft) ldim,lso,nsp ! size of Hamiltonian: MTO part
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
       read(ififft)ib_table,l_table,k_table
@@ -44,7 +44,7 @@
           do ib2=1,nbas
             aaaa=0d0
             do it = 1,npair(ib1,ib2) 
-              aaaa =  aaaa + qwgt(it,ib1,ib2)*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+              aaaa =  aaaa + 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
             enddo
             cccx=''
             if(ikp==ikpd) cccx=' <--'
@@ -75,13 +75,13 @@
         allocate(ovlm(1:ndimhx,1:ndimhx),hamm(1:ndimhx,1:ndimhx))
         read(ifih) ovlm(1:ndimhx,1:ndimhx)
         read(ifih) hamm(1:ndimhx,1:ndimhx)
-!! H(k) ->  H(R) FourierTransformation
+!! H(k) ->  H(T) FourierTransformation
         do i=1,ndimhx
         do j=1,ndimhx
           ib1 = mod(ib_table(i),ldim)
           ib2 = mod(ib_table(j),ldim)
           do it =1,npair(ib1,ib2) ! hammr_ij (T)= \sum_k hamm(k) exp(ikT).   it is the index for T
-            phase = exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+            phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
             hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
             ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
           enddo
@@ -113,7 +113,7 @@
       program lmfham
 !! Read Hamiltonian files for MTO only case.
       use m_readHamiltonianMTO, only: 
-     &  plat, npair,nlat,qwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,
+     &  plat, npair,nlat,nqwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,
      &  ReadHamiltonianMTO
       implicit none
       integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
@@ -143,7 +143,7 @@
           ib1 = mod(ib_table(i),ldim) !atomic-site index in the primitive cell
           ib2 = mod(ib_table(j),ldim)
           do it =1,npair(ib1,ib2)
-            phase = qwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+            phase = 1d0/nqwgt(it,ib1,ib2)*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
             hamm(i,j)= hamm(i,j)+ hammr(i,j,it,jsp)*phase
             ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,jsp)*phase
           enddo
