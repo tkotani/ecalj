@@ -6,7 +6,7 @@
       program hmagnon
 c      use matm,only: matm,matcinv
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
-     &     readscr
+     &     readscr, checkorb, getqsym, checkorb2
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
@@ -250,9 +250,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
       logical::wan=.true.,egasmode
+      logical(8):: ijklmag !for checkorb2
       complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:)
      &     ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:)
       complex(8)::trmat
+      real(8),allocatable::trmat2(:)
       real(8),allocatable::imat(:,:) !unit matrix for 1-WK
 !      real,allocatable::kmat(:,:,:,:),wanmat(:,:)
       real(8):: wan_ecore(1)
@@ -265,9 +267,19 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable::qgsq1(:,:),qgsq2(:,:)
       real(8)::ntot_r,www,eta,deta
       !For screening W
-      complex(8),allocatable:: scrw(:,:)
-      real(8),allocatable:: eval_wk(:)
-      integer:: it,itp,isdummy
+      complex(8),allocatable:: scrw(:,:) ,cmat2(:,:)
+c     real(8),allocatable:: eval_wk(:)
+      complex(8),allocatable:: eval_wk(:)
+      integer:: it,itp,isdummy,lorb
+!!! q on symline
+      real(8)::qrot(3),cr=2d-5
+      logical(8)::init2=.true.,llsym,gskip
+      logical(8)::d100,d110,d111,d1xx,dhpb,dxwf,dhnb,dnpb
+      real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2
+      integer:: nlatout(3,48),nout,iout
+!!! temp variable
+      logical(8)::lsmo
+      
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
@@ -376,7 +388,7 @@ c$$$            qbz(:,i) = qbz(:,i) - deltaq/2d0
 c$$$            write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
 c$$$         enddo
 c$$$      endif
-      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
+
 
 c$$$!! check write
 c$$$      if(MPI__root) then
@@ -401,6 +413,7 @@ cc need for gettetwt; automatically read file(okumura) OK
       call genallcf_v3(incwfin) !in module m_genallcf_v3
 !     ! incwfin is for core handling
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
+      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
       if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
 
@@ -443,28 +456,69 @@ cccccccccccccccccc Screening W for magnon
       nnwf=nwf*nwf
       allocate(scrw(nnwf,nnwf))
       call readscr(nwf,scrw)
+
+c$$$      do iwf=1,nnwf
+c$$$         do jwf=1,nnwf
+c$$$            if ( abs(scrw(iwf,jwf))==0d0 ) then
+c$$$               write(6,"(i1)",advance="NO")0
+c$$$            else
+c$$$               write(6,"(i1)",advance="NO") 1            
+c$$$c               iscrw(jwf)=0
+c$$$c               iscrw(jwf)=1
+c$$$            endif
+c$$$         enddo
+c$$$
+c$$$         write(6,*) ""
+c$$$      enddo
+
 !!!!! writing W or W'
+c$$$      do iexc=1,2
+c$$$         do iwf=1,nwf
+c$$$            ijwf=(1+nwf)*iwf-nwf
+c$$$            if (iexc==1) then
+c$$$               if (iwf==1) write (6,*) "--- W  (direct) -------------------"
+c$$$               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
+c$$$               write (6,"(i3,6f9.4)") iwf,
+c$$$     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,8)),
+c$$$     &              abs(scrw(ijwf,15)),abs(scrw(ijwf,22)),
+c$$$     &              abs(scrw(ijwf,29)),abs(scrw(ijwf,36))
+c$$$            else
+c$$$               if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
+c$$$               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
+c$$$               write (6,"(i3,6f9.4)") iwf,
+c$$$     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+6,iwf+6)),
+c$$$     &              abs(scrw(iwf+12,iwf+12)),abs(scrw(iwf+18,iwf+18)),
+c$$$     &              abs(scrw(iwf+24,iwf+24)),abs(scrw(iwf+30,iwf+30))
+c$$$            endif
+c$$$         enddo
+c$$$      enddo
+c$$$      write (6,*) "-----------------------------------"
+cccc
       do iexc=1,2
          do iwf=1,nwf
             ijwf=(1+nwf)*iwf-nwf
             if (iexc==1) then
                if (iwf==1) write (6,*) "--- W  (direct) -------------------"
-               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
-               write (6,"(i3,6f9.4)") iwf,
-     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,8)),
-     &              abs(scrw(ijwf,15)),abs(scrw(ijwf,22)),
-     &              abs(scrw(ijwf,29)),abs(scrw(ijwf,36))
+               if (iwf==1) write (6,"('   ',9i9.1)") 1,2,3,4,5,6,7,8,9
+               write (6,"(i3,9f9.4)") iwf,
+     &              abs(scrw(ijwf,1)),abs(scrw(ijwf,11)),
+     &              abs(scrw(ijwf,21)),abs(scrw(ijwf,31)),
+     &              abs(scrw(ijwf,41)),abs(scrw(ijwf,51)),
+     &              abs(scrw(ijwf,61)),abs(scrw(ijwf,71)),
+     &              abs(scrw(ijwf,81))
             else
                if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
-               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6
-               write (6,"(i3,6f9.4)") iwf,
-     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+6,iwf+6)),
-     &              abs(scrw(iwf+12,iwf+12)),abs(scrw(iwf+18,iwf+18)),
-     &              abs(scrw(iwf+24,iwf+24)),abs(scrw(iwf+30,iwf+30))
+               if (iwf==1) write (6,"('   ',6i9.1)") 1,2,3,4,5,6,7,8,9
+               write (6,"(i3,9f9.4)") iwf,
+     &              abs(scrw(iwf,iwf)),abs(scrw(iwf+9,iwf+9)),
+     &              abs(scrw(iwf+18,iwf+18)),abs(scrw(iwf+27,iwf+27)),
+     &              abs(scrw(iwf+36,iwf+36)),abs(scrw(iwf+45,iwf+45)),
+     &              abs(scrw(iwf+54,iwf+54)),abs(scrw(iwf+63,iwf+63)),
+     &              abs(scrw(iwf+72,iwf+72))
             endif
          enddo
       enddo
-      write (6,*) "-----------------------------------"
+
 cccccccccccccccccc
 
       
@@ -553,13 +607,18 @@ c$$$      write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
       ginv = transpose(plat)
-c      call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
+      call minv33tp(plat,qlat)
+c     call init_readeigen(ginv,nspin,nband,mrece) !EVU EVD are read in init_readeigen
 c      call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
 
 
-
+      do iq=1,nqibz
+         iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
+c     nstibz(iq) = nstbz(iqbz)
+         write(6,"(' iq qibz nstibz=',2i5,3f9.4,i5)")iq,iqbz,qibz(:,iq) !,nstibz(iq)
+      enddo
 
 
 
@@ -821,41 +880,29 @@ c          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
 c          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
 c        endif
 
-!        call cputid (0)
-        q = qibz(:,iq) !qibze ! you can spefify any q, which you like.
+         !!! symmetry check
+         q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
+         call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym)
 
-!!!   For Fe (x,0,0)
-c$$$        if (q(2)/=0 .and. q(2)/=1) cycle
-c$$$        if (q(3)/=0 .and. q(3)/=1) cycle
+        !get qsym on symline
+cc         if (llsym)F write(6,"('q (on syml)= ',3f9.5)") q
+         if (llsym) write(6,"('qshort (on syml) = ',3f9.5)") qshort
 
-!!!  For Fe (x,x,0) !! G to N
-        if (q(1)/=0) cycle
-        if (q(2)/=q(3)) cycle
-!     if (q(1)>1.0) q(1)=q(1)-1d0
+cccccc
+c         cycle
+cccccc
+         if (.not. llsym) cycle
+         
 
-c$$$        !!! only Gamma
-c$$$        if (q(1)/=0) then
-c$$$           cycle
-c$$$        endif
-        
+
 !!! |q+G|
-c$$$        if (wan) then !!!
-c$$$           if (iq==1) then !only Gamma
-c$$$              call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
-c$$$           endif
-c$$$        else
-c$$$           call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
-c$$$        endif
         ngc=1
         if (egasmode) then
            if(.not.allocated(ngveccB)) allocate(ngveccB(3,1))
            ngveccB=0        
            nwf=1
         endif
-        
 
-c     endif
-                
  !! Caution : confusing point
  !!  ngc by QGcou is shown at the bottom of lqg4gw.
  !!  ngc read from PPOVL are given by rdata4gw---> ngc(iq>nqibz )=ngc for q=0
@@ -868,7 +915,8 @@ c     endif
 !! Readin Coulomb matrix ====
 c        ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
 c        write(6,*)
-        write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
+        !!! write qshort instead of q
+        write(6,"('===== do 1001: iq q(qshort)=',i7,3f9.4,' ========')")iq,qshort !qq
 c        write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 
         
@@ -1040,6 +1088,14 @@ c$$$                   ev_w2(:,kx)=ev_w2(:,kx)-2d0
 !!!   for wannier eigenvector (evc_w1, evc_w2) for M(:)
 
 
+cccccccc checkorb iwf ---> lorb(1:s, 2:p, 3:d, 4:f, 5:g) 
+c$$$                   do iwf=1,nwf
+c$$$                      call checkorb(iwf,nwf,lorb)
+c$$$c                      print *,"checkorb:: ",lorb
+c$$$                   enddo
+cc                   call rx("test end")
+cccccccc
+                   
 c$$$                   do iwf=1,nwf
 c$$$                      do jwf=1,nwf
 c$$$                         write(6,"('sum evc1,evc2',2I4,4f9.4)") iwf,jwf,
@@ -1137,13 +1193,19 @@ c$$$  !!! evc_w1: upspin ; evc_w2: downspin
                 do 3005 lwf=1,nwf
                    klwf=klwf+1
 
+                   call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag
+                   if (ijklmag) then !!! same atom
                    !!! calculate numerator of Kmatrix
-                   wan_j=dconjg(evc_w1(jwf,it,kx))   !a_{Rjbeta}^{kn}*
-                   wan_i=evc_w2(iwf,itp,kx)          !a_{Rialpha}^{(k+q)n'}
-                   wan_l=evc_w1(lwf,it,kx)           !a_{R'lbeta}^{kn}
-                   wan_k=dconjg(evc_w2(kwf,itp,kx))  !a_{R'kalpha}^{(k+q)n'}*
-                   wanijkl=wan_j*wan_i*wan_k*wan_l
+                      wan_j=dconjg(evc_w1(jwf,it,kx)) !a_{Rjbeta}^{kn}*
+                      wan_i=evc_w2(iwf,itp,kx) !a_{Rialpha}^{(k+q)n'}
+                      wan_l=evc_w1(lwf,it,kx) !a_{R'lbeta}^{kn}
+                      wan_k=dconjg(evc_w2(kwf,itp,kx)) !a_{R'kalpha}^{(k+q)n'}*
+                      wanijkl=wan_j*wan_i*wan_k*wan_l
                    !!! wanmat (dimension:nnwf)
+                   else
+                      wanijkl=(0d0,0d0)
+                   endif
                    wanmat(ijwf,klwf)=wanijkl
                    
  3005  continue     !lwf
@@ -1267,16 +1329,38 @@ ccccccc
 
        !!! get eta for (1-eta*WK)
        if (iq==1) then
+c       if (.false.) then
           wkmat(1:nnwf,1:nnwf)
      &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
-          call diagcvh2(wkmat(:,:),nnwf,eval_wk)
-          eta= 1d0/minval(eval_wk)
+cccccccc check lapack routine (subroutine diagcvuh3)
+          if (.false.) then
+             allocate(cmat2(2,2))
+             cmat2(1,1)=(1d0,0d0)
+             cmat2(1,2)=(1d0,0d0)
+             cmat2(2,1)=(0d0,1d0)
+             cmat2(2,2)=(1d0,1d0)
+             deallocate(eval_wk)
+             allocate(eval_wk(2))
+             call diagcvuh3(cmat2(:,:),2,eval_wk)
+             print *,"lapack check eval_wk",eval_wk
+             call rx("quit test")
+          endif
+cccccccc
+ 
+          !!! eval_wk is complex array because of Non-Hermite WK
+          call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
+
+          if (debug) then
+             write(6,"('eigenvalue of WK real&imag =',2E15.5)"
+     &            ,advance='NO') eval_wk
+             write(6,*)
+          endif
+          
+c     eta= 1d0/minval(real(eval_wk)) !moderate peak
+          eta= -1d0/abs(eval_wk(1)) !sharp peak
           print *,"check wkmat freq_r(0)",freq_r(0)
-c          print *,"check wkmat eval_wk",eval_wk
-c          print *,"check wkmat minval(eval_wk)",minval(abs(eval_wk))
           print *,"check wkmat calculated eta:", eta !negative value
        endif
-
 !!! unit matrix (dimension: nwf*nwf), need for 1-WK matrix
        if (.not. allocated(imat)) allocate(imat(1:nnwf,1:nnwf))
        imat=0d0
@@ -1285,6 +1369,7 @@ c          print *,"check wkmat minval(eval_wk)",minval(abs(eval_wk))
        enddo
 
 ccccccc
+       print *,"nw_i,nw",nw_i,nw
        do 2050 iw = nw_i,nw
           trmat=0d0
           do iwf=1,nwf
@@ -1294,47 +1379,92 @@ ccccccc
                 trmat=trmat+zxq(ijwf,klwf,iw)
              enddo
           enddo
-          
           www=freq_r(iw)
           if(iw<0) www=-freq_r(-iw)
-          write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")q,iw,www*2d0,trmat
-          
+          if(.not. gskip) write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")qshort,iw,www*2d0,trmat
+
 cccccccccK(1-WK)^(-1)
-          call getkeyvalue("GWinput","deta",deta,default=0d0)
-          eta=eta+deta          !deta<0: left shift
-          
+          call getkeyvalue("GWinput","deta",deta,default=0d0)          
           wkmat(1:nnwf,1:nnwf)
      &         =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
           !!! 1-eWK
-
-          
-          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-eta*wkmat(1:nnwf,1:nnwf)
-          if (iq==1 .and. iw==0) then
-             call diagcvh2(wkmat2(:,:),nnwf,eval_wk)
-             write(6,*) "q=0 and omega=0 case:"
-             write(6,"('eigenvalue of (1-eta*WK)=',f15.8)"
-     &            ,advance='NO') eval_wk
-             write(6,*)
+          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-(eta+deta)*wkmat(1:nnwf,1:nnwf)
+          !!! eigenvalue of 1-WK
+          if (debug) then
+             if (iq==1 .and. iw==0) then
+                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+                write(6,*) "q=0 and omega=0 case:"
+                write(6,"('eigenvalue of (1-eta*WK) real&imag=',2f15.8)"
+     &               ,advance='NO') eval_wk
+                write(6,*)
+             endif
           endif
-
+          
           call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
           rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
      &         wkmat2(1:nnwf,1:nnwf))
 
+          !!! eigenvalue of (1-WK)inv
+          if (debug) then
+             if (iq==1 .and. iw==0) then
+                call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+                write(6,*) "q=0 and omega=0 case:"
+                write(6,"('eigenvalue of (1-eta*WK)inv real&imag=',2f15.8)"
+     &               ,advance='NO') eval_wk
+                write(6,*)
+             endif
+          endif
+
+          !!! eigenvalue of rmat
+          if (debug) then
+             if (iq==1 .and. iw==0) then
+                call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
+                write(6,*) "q=0 and omega=0 case:"
+                write(6,"('eigenvalue of rmat',i5,2f15.8)") iw,eval_wk(1)
+                write(6,*)
+             endif
+          endif
+          
           !!! writing trace(Rmatrix)
+          if (.not. allocated(trmat2)) allocate(trmat2(nw_i:nw))
           trmat=0d0
           do iwf=1,nwf
              ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
              do jwf=1,nwf
                 klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+c                if (ijwf/=klwf) cycle
                 trmat=trmat+rmat(ijwf,klwf,iw)
+
              enddo
           enddo
 
-          write(ifchipmr_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")q,iw,
+          lsmo=.false.
+          !!!for LaMnO3
+          if(lsmo) then
+             trmat=0d0
+             do iwf=1,9
+                ijwf=20*iwf-19  !!! iwf=jwf 
+                do jwf=1,9
+                   klwf=20*iwf-19 !!! kwf=lwf
+c     if (ijwf/=klwf) cycle
+                   trmat=trmat+rmat(ijwf,klwf,iw)
+
+                enddo
+             enddo
+          endif
+          
+          if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
      &         www*2d0,trmat
+c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
+
 ccccccccc
+          gskip=.false. !!! Skip Gamma point
  2050  continue
+
+!       write(6,"('maxval(trmat2(iw)'),2f13.5") maxval(trmat2)
+!       deallocate(trmat2)
+
+
        write(ifchipmz_wan,*)
        write(ifchipmr_wan,*)
 
