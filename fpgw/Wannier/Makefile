@@ -4,7 +4,7 @@
 #LKFLAGS2=-mkl
 
 top=../
-PLATFORM=gfortran
+PLATFORM=ifort
 include ../exec/make.inc.$(PLATFORM)
 
 FFI=-I${top}/exec

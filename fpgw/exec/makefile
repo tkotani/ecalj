@@ -6,8 +6,9 @@
 # ---- Machine-specific compiler flags ---
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
-PLATFORM=gfortran
-LIBMATH=/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
+PLATFORM=ifort ### ucgw
+LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
+#LIBMATH=/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
 
 # PLATFORM=ifort
 # LIBMATH=-mkl
@@ -22,7 +23,6 @@ main    = ../main/
 gwsrc  = ../gwsrc/
 tote = ../tote/
 tags   = ../
-
 
 #maxloc = ../Miyake/maxloc/
 # tag directory
@@ -198,13 +198,16 @@ DERFC=
  $(main)hx0fp0.m.o
 
  X0oku = \
- $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)hmagnon.m.o
+ $(gwsrc)m_homoelectron.o \
+ $(gwsrc)m_readwan.o \
+ $(gwsrc)diagcv3.o \
+ $(main)hmagnon.m.o
 
- egasmagnon = \
- $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)egasmagnon.m.o
-
- hmagrigid = \
- $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)hmagrigid.m.o
+ rigid = \
+ $(gwsrc)m_homoelectron.o \
+ $(gwsrc)m_readwan.o \
+ $(gwsrc)diagcv3.o \
+ $(main)hmagrigid.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
@@ -370,7 +373,6 @@ $(gwsrc)dsifa.o \
 $(gwsrc)dsisl.o \
 $(gwsrc)dsidi.o \
 $(gwsrc)diagcv2.o \
-$(gwsrc)diagcv3.o \
 $(gwsrc)wronkj.o \
 $(gwsrc)rxx.o \
 $(gwsrc)hsmq.o \
@@ -466,11 +468,9 @@ $(gwsrc)m_readeps.o
  hmagnon:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- egasmagnon:	$(MPI) $(GWLIB) $(egasmagnon) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(GWLIB) $(egasmagnon) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+ hmagrigid:	$(MPI) $(GWLIB) $(rigid) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(rigid) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
- hmagrigid:	$(MPI) $(GWLIB) $(hmagrigid) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(GWLIB) $(hmagrigid) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
 #  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 
