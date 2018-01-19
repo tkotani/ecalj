@@ -14,7 +14,7 @@ C     For Hermite matrix, use 'diagcv2.F'
       enddo
       call diagcvz(oo,hhx,zz,n, ev,nmx,1d99,nev)
       end
-
+ccc
       subroutine diagcvz(s,uh,t,n,evl,nmx,emx,nev)
 C  diagonalizes and returns the nev lowest eigenstates
 C  eigenvecs are returned for i.lt.nmx. emx is dummy
@@ -44,6 +44,64 @@ c      LWORK = max(1,2*n-1)+1  ! This caused no problem---why?
       allocate( WORK(LWORK),RWORK(7*n))
       !!! not return eigenvector (vl and vr)
       call ZGEEV( 'N', 'N', n, uh, n, evl, vl, 1,  vr, 1,
+     $                   WORK, LWORK, RWORK, INFO)
+      if(INFO/=0) then
+        print *, 'See http://www.netlib.org/cgi-bin/netlibget.pl',
+     &   '/lapack/complex16/zgeev.f'
+        print *, 'ZGEEV error info=',info
+      endif
+      deallocate(WORK,RWORK)
+      return
+      end 
+
+ccccc
+C     For Hermite matrix, use 'diagcv2.F'
+      subroutine diagcvuh3_vec(uh,n,ev,vr)
+      !!uh:Non-Hermite matrix, n:dimenstion, ev:eigenvalue(COMPLEX), vr:right-eigenvecter
+      implicit none
+      integer(4):: nmx,nev,i,n
+      complex(8):: uh(n,n),hhx(n,n),oo(n,n),zz(n,n)
+      complex(8):: ev(n) !complex eigenvalue
+      complex(8):: vr(n,n)
+      hhx=uh
+      nmx=n
+      oo = 0d0
+      do i=1,n
+        oo(i,i) = 1d0
+      enddo
+      call diagcvz_r(oo,hhx,zz,n, ev,nmx,1d99,nev,vr)
+      end
+cccc
+      subroutine diagcvz_r(s,uh,t,n,evl,nmx,emx,nev,vr)
+C  diagonalizes and returns the nev lowest eigenstates
+C  eigenvecs are returned for i.lt.nmx. emx is dummy
+      implicit none
+      integer n,nmx,nev
+      double precision emx,abstol,dlamch
+      complex(8)::evl(n)
+      complex*16 s(n,n),uh(n,n),t(n,n)
+      complex(8),allocatable:: WORK(:)
+      real(8),allocatable:: RWORK(:)
+c      complex*16:: vl,vr       !bugfix (whis was not decleared) jan2013
+      complex*16:: vl(1) !vr(1)
+      complex(8):: vr(n,n)
+      integer:: LWORK,info
+
+      abstol= 2d0*DLAMCH('S')
+
+c---find optimum work size
+      allocate( WORK(1))
+      lwork = -1
+      call ZGEEV( 'N', 'V', n, uh, n, evl, vl, 1,  vr, n,
+     $                   WORK, LWORK, RWORK, INFO)
+      LWORK = WORK(1) + 1
+      deallocate(WORK)
+c      LWORK = max(1,2*n-1)    ! This caused a  problem---why?
+c      LWORK = max(1,2*n-1)+1  ! This caused no problem---why?
+
+      allocate( WORK(LWORK),RWORK(7*n))
+      !!! return eigenvector (vl and vr)
+      call ZGEEV( 'N', 'V', n, uh, n, evl, vl, 1,  vr, n,
      $                   WORK, LWORK, RWORK, INFO)
       if(INFO/=0) then
         print *, 'See http://www.netlib.org/cgi-bin/netlibget.pl',

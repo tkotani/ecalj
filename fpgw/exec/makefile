@@ -23,6 +23,7 @@ gwsrc  = ../gwsrc/
 tote = ../tote/
 tags   = ../
 
+
 #maxloc = ../Miyake/maxloc/
 # tag directory
 #
@@ -199,6 +200,12 @@ DERFC=
  X0oku = \
  $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)hmagnon.m.o
 
+ egasmagnon = \
+ $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)egasmagnon.m.o
+
+ hmagrigid = \
+ $(gwsrc)m_homoelectron.o $(gwsrc)m_readwan.o $(main)hmagrigid.m.o
+
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
  # $(maxloc)wcf.o \
@@ -363,6 +370,7 @@ $(gwsrc)dsifa.o \
 $(gwsrc)dsisl.o \
 $(gwsrc)dsidi.o \
 $(gwsrc)diagcv2.o \
+$(gwsrc)diagcv3.o \
 $(gwsrc)wronkj.o \
 $(gwsrc)rxx.o \
 $(gwsrc)hsmq.o \
@@ -457,6 +465,12 @@ $(gwsrc)m_readeps.o
 
  hmagnon:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ egasmagnon:	$(MPI) $(GWLIB) $(egasmagnon) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(egasmagnon) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hmagrigid:	$(MPI) $(GWLIB) $(hmagrigid) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(hmagrigid) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
 #  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 

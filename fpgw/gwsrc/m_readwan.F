@@ -465,7 +465,7 @@ c---------------------------------------
       character*5:: syml
 
       !!! get syml line
-      call getkeyvalue("GWinput","qsym",syml,default="Gt100")          
+      call getkeyvalue("GWinput","qsym",syml,default="100")
       llsym_o=.true.      
       if (syml=="100") then
          d100=.true.           !0 0 0 --> 1 0 0
@@ -489,6 +489,7 @@ c---------------------------------------
          dxms=.true.           !F (sc): X to M !.5 0 0 --> .5 .5 0
       else
          write(6,*) "not supported symmetry line"
+         call rx("m_readwan.F: routine end")
       endif
          
       if (iq==1) then
@@ -613,6 +614,7 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
                else
                   llsym_o=.false.
                endif
+
                
             elseif (dhpb) then  ! F: H to P (bcc)
                if (abs(abs(qshort(1))-abs(qshort(2))) > cr
@@ -641,6 +643,9 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
                   llsym_o=.false.
                endif
             endif
+
+            if (llsym_o) print *, "aaaa:",qshort
+
          enddo
       endif
       end subroutine getqsym

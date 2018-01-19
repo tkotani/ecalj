@@ -16,7 +16,7 @@ c-------------------------------------
       character(20),protected,allocatable:: classname_mlwf(:)
       integer,protected,allocatable:: iclassin(:)
       integer,parameter,private::maxdat=1024 !it is convenient if you use this type of number.
-      integer(4),protected,allocatable::  iphi(:,:),iphidot(:,:), nphi(:)
+      integer(4),protected,allocatable:: iphi(:,:),iphidot(:,:), nphi(:)
       integer(4),protected:: nphix
       integer(4):: natom
 
