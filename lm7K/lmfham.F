@@ -113,7 +113,7 @@
       program lmfham
 !! Read Hamiltonian files for MTO only case.
       use m_readHamiltonianMTO, only: 
-     &  plat, npair,nlat,nqwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,
+     &  plat, npair,nlat,nqwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,alat,
      &  ReadHamiltonianMTO
       implicit none
       integer:: i,j,ikp,ib1,ib2,it,nmx,nev,jsp
@@ -135,6 +135,7 @@
       nmx = ndimhx
       do ikp=1,nkp
         qp = qplist(:,ikp) 
+!! true q(i)= 2pi/alat * qplist(i,ikp)
       do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
         ovlm = 0d0
         hamm = 0d0
