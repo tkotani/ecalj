@@ -1481,6 +1481,9 @@ c$$$            endif
             allocate(npair(nbas,nbas),pos(3,nbas))
             call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
+
+            if (allocated(nlat)) deallocate(nlat)
+            if (allocated(nqwgt)) deallocate(nqwgt)
             do !this loop is just to determined npairmx
               npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
               allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
