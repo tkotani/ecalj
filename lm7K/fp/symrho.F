@@ -251,7 +251,7 @@ c  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3
         if (nsp .eq. 1) write(stdo,780)
      .  (l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
         if (nsp .eq. 2) write(stdo,781)
-     .  (l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,1)/qsum(l+1,1),isp=1,nsp), l=0,lmxa)
+     .  (l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
   780   format(' l=',i5,3f12.6)
   781   format(' l=',i5,3f12.6,'   spin 2',3f12.6)
       endif
