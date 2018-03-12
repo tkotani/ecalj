@@ -15,7 +15,13 @@ c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
       use m_readqg
       use m_readeigen
-      use m_read_bzdata,ngrp2=>ngrp
+
+      use m_read_bzdata,only: read_bzdata,
+     & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
+     & dq_,wbz,qibz,wibz,qbzw, qbz,
+     & idtetf,ib1bz,idteti,
+     & nstar,irk,nstbz
+
       use m_genallcf_v3,ncore2=>ncore
       use m_keyvalue,only: getkeyvalue
       use m_lldata,only: ll
@@ -105,7 +111,7 @@ ctm
       real(8),allocatable :: bbv(:,:)
       real(8) :: uunorm,dqx(3),dqx0(3),dq0(3),dg(3),dqmin(3),adq0,
      &           q0wf(3),wgt
-      integer(4) :: iqindx
+      integer(4) :: iqindx,n1,n2
 
       integer,allocatable:: ncore(:)
 c-------------------------

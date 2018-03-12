@@ -18,7 +18,13 @@ c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
       use m_readqg
       use m_readeigen
-      use m_read_bzdata,ngrp2=>ngrp
+c      use m_read_bzdata,ngrp2=>ngrp
+      use m_read_bzdata,only: read_bzdata,
+     & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
+     & dq_,wbz,qibz,wibz,qbzw, qbz,
+     & idtetf,ib1bz,idteti,
+     & nstar,irk,nstbz
+
 c      use m_genallcf_v3
       use m_genallcf_v3,ncore2=>ncore
 
@@ -129,7 +135,7 @@ ctm, ixc=6
 ctm, MPI
 !      include 'mpif.h'
 !      integer(4):: ierr,istatus(MPI_STATUS_SIZE),iclose,input3(3)
-      integer(4):: ierr,iclose,input3(3)
+      integer(4):: ierr,iclose,input3(3),n1,n2
       integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iftmp
       integer(4),allocatable:: iq_proc(:)
       character*8 xt
