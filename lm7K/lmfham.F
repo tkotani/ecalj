@@ -1,9 +1,11 @@
+! Started at Jan2018 at KAIST.
+! Get Real space Hamiltonian for MTO-only case.
       module m_readHamiltonianMTO
       real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
       integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),
      &  ib_table(:),l_table(:),k_table(:),nqwgt(:,:,:)
       integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,ndimhx,nsp,nspx
-      real(8):: epsovl,alat
+      real(8),protected:: epsovl,alat
       complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 
       contains
@@ -34,24 +36,25 @@
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
       read(ififft)ib_table,l_table,k_table
       close(ififft)
-!! delta fun check for FFT: k --> T --> k 
-!!    \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
-      ikpd=7
-      write(6,*)'test for ikpd=',ikpd
-      do ikp=1,nkp
-        qp = qplist(:,ikp) - qplist(:,ikpd)
-        do ib1=1,nbas
-          do ib2=1,nbas
-            aaaa=0d0
-            do it = 1,npair(ib1,ib2) 
-              aaaa =  aaaa + 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
-            enddo
-            cccx=''
-            if(ikp==ikpd) cccx=' <--'
-            write(6,"('\delta-fun test',i4,3f10.4,2i3,2f23.15,a)") ikp, qplist(:,ikp),ib1,ib2,aaaa,cccx
-          enddo
-        enddo
-      enddo
+
+c$$$!! delta fun check for FFT: k --> T --> k 
+c$$$!!    \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+c$$$      ikpd=7
+c$$$      write(6,*)'test for ikpd=',ikpd
+c$$$      do ikp=1,nkp
+c$$$        qp = qplist(:,ikp) - qplist(:,ikpd)
+c$$$        do ib1=1,nbas
+c$$$          do ib2=1,nbas
+c$$$            aaaa=0d0
+c$$$            do it = 1,npair(ib1,ib2) 
+c$$$              aaaa =  aaaa + 1d0/(nkp*nqwgt(it,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib1,ib2))))
+c$$$            enddo
+c$$$            cccx=''
+c$$$            if(ikp==ikpd) cccx=' <--'
+c$$$            write(6,"('\delta-fun test',i4,3f10.4,2i3,2f23.15,a)") ikp, qplist(:,ikp),ib1,ib2,aaaa,cccx
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
 !
       ifih=ifile_handle()
       open(ifih,file='HamiltonianMTO',form='unformatted')
