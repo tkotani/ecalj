@@ -13,12 +13,12 @@
       use m_globalvariables
 
       use m_rdctrl,only:
-     &  readctrl,
+     &  readctrl,!readctrlpq,
      &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site, !s_tb,,s_move,s_str
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
-     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,rsrnge,vmtz,scaledsigma,
+     &  nsp,lrel,lso,ham_udiag, lfp, lat_gmax,tolft,elind,dqval,rsrnge,vmtz,scaledsigma, !kmto,
      &  alfsi,dabc,rsstol,pmin,pmax,
      &  sigp,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit,
      &    sigp_mode,sigp_nmin,sigp_nmax,
@@ -265,6 +265,11 @@ C ... basis
       call gtv_setrcd(recrd,nrecs,recln)
 !! --- Read input parameters from contents of rcd ---
       call readctrl(prgnam) 
+      if (io_help > 0) then
+c        call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
+c    .  ves,initc,ics,clabl)
+        call cexit(0,1)
+      endif
 
 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
       lbas = 3 
