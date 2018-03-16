@@ -7,7 +7,7 @@
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3,nctot2=>nctot
+      use m_genallcf_v3,nctot2=>nctot,niwg=>niw
       use m_keyvalue,only: getkeyvalue
 
       implicit none
@@ -160,10 +160,9 @@ c      logical :: sergeys
       real(8),allocatable :: rws(:,:),drws(:),rws1(:,:),rws2(:,:)
       integer(4):: nrws,nrws1,nrws2,ir1,ir2,ir3,ir,nrw,ia
       integer(4),allocatable:: irws(:),irws1(:),irws2(:)
-      integer:: nw, nctot0
+      integer:: nw, nctot0,niw
 c---------------------------------------
       hartree=2d0*rydberg()
-
       iii=verbose()
       write(6,*)' verbose=',iii
 
@@ -205,6 +204,7 @@ c      nwin =-999    !not readin NW file
 c      efin =-999d0  !not readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
+      niw=niwg
       if(ngrp/= ngrp2) stop 'ngrp inconsistent: BZDATA and LMTO GWIN_V2'
       ef=1d99
 c---  These are allocated and setted.
