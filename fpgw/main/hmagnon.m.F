@@ -264,8 +264,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       logical::npmtwo,diag=.false.,t2g
       complex(8)::wan_i,wan_j,wan_k,wan_l,tmpwan,wanijkl
       integer::igv,bsimple=3
-      real(8)::qlat(3,3),qsh1(3),qsh2(3)
-      complex(8):: wsum(5) !normalization check
+      real(8)::qlat(3,3),qsh1(3),qsh2(3),znorm,rnqbz
       !For electron gas
       real(8),allocatable::qgsq1(:,:),qgsq2(:,:)
       real(8)::ntot_r,www,eta,deta,eta2
@@ -285,8 +284,9 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !!! temp variable
       logical(8)::lsmo
       
+
 !!! for debug (2018/05/23)
-      real(8)::sumkm1,sumkm2,sumkm3,sumkm4,sumkm5,znorm,rnqbz,cellvol
+!      real(8)::sumkm1,sumkm2,sumkm3,sumkm4,sumkm5,znorm,rnqbz,cellvol
 
 !! -------------------------------------------------------------------
       call MPI__Initialize()
@@ -1130,8 +1130,14 @@ ccccccccccc tetrahedron part
              write(6,*) "=== end gettetwt"
              deallocate(ev_w1,ev_w2)
 
+
+ccccccccc normalization of Im[K]:
+             rnqbz=1/real(nqbz)
+             znorm=sum(nbnb(:,:))*pi*rnqbz
+
            endif !end if(wan)
-                     
+
+ccccccccc generate wanmat         
            allocate(kmat(1:nnwf,1:nnwf,1:nwhis,1:npm),
      &          wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2
            if (.not. allocated(kmat_check)) allocate(kmat_check(1:nnwf,1:nnwf,1:nwhis,1:npm))
@@ -1210,12 +1216,9 @@ c
 
 c========================== end caliculate M(:,:) : wanmat(nwf,nwf)
 
-!!!   normalization: pi? (2018/05/23)
-       znorm=sum(nbnb(:,:))*pi*rnqbz
-
 !!!   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
                 do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
-                   imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+                   imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))/znorm
 !!!   accumulate Im[K]
 
 c$$$                   kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:)/(pi*pi)
@@ -1234,6 +1237,10 @@ c       write(6,"('rcxq/nbnb in kloop:',2I6,3f13.5)") kx,nbnb(kx,:),sum(real(rcx
  2011  continue       !jpm-loop
        deallocate(evc_w1,evc_w2)
 
+cccc normalization check
+       write(6,*) "rcxq/nbnb rnqbz:",rnqbz
+       write(6,"('rcxq/nbnb 4:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))
+ 
 c$$$       do iwf=1,nnwf !!! for check sum of imagweight
 ccccc normalization check           
 c$$$       write(6,"('All sum kmat_check(1:nwhis)',3f9.4,2I2,3f9.4)") qshort,nnwf,nnwf,sum(kmat_check(1:nnwf,1:nnwf,1:nwhis,1:2))
@@ -1262,45 +1269,6 @@ ccc
 c$$$          enddo
 c$$$       enddo
 
-cccc normalization check
-       if (iq==1) then
-          sumkm1=0d0;sumkm2=0d0;sumkm3=0d0;sumkm4=0d0;sumkm5=0d0
-          write(6,"('rcxq --- znorm:',E13.5)") znorm
-       endif
-
-       write(6,"('qshort kmat(1:nwhis)',3f9.4,3f9.4)") qshort,sum(abs(kmat(1,1,1:nwhis,1)))
-       write(6,"('qshort npm=1 kmat(1:nwhis)',3f9.4,3f9.4)") sum(abs(kmat(:,:,:,1)))
-       write(6,"('qshort all_kmat(1:nwhis)',3f9.4,3f9.4)") sum(abs(kmat(:,:,:,:)))
-
-       rnqbz=1/real(nqbz)!/cellvol
-       write(6,*) "rcxq/nbnb rnqbz:",rnqbz
-       write(6,"('rcxq/nbnb 0:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm,
-     &      (sum(real(rcxq(:,:,:,:)))/znorm-sumkm1)/sumkm1
-       znorm=pi*rnqbz
-       write(6,"('rcxq/nbnb 1:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-       znorm=pi*pi*rnqbz
-       write(6,"('rcxq/nbnb 2:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-       znorm=sum(nbnb(:,:))*rnqbz !! ---> sum(rcxq) leads to pi
-       write(6,"('rcxq/nbnb 3:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-
-       znorm=sum(nbnb(:,:))*pi*rnqbz !! ---> sum(rcxq) leads to 1
-       write(6,"('rcxq/nbnb 4:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-       znorm=sum(nbnb(:,:))*pi*pi*rnqbz
-       write(6,"('rcxq/nbnb 5:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-       znorm=sum(nbnb(:,:))/pi*rnqbz
-       write(6,"('rcxq/nbnb 6:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-
-       znorm=1d0/pi*rnqbz
-       write(6,"('rcxq/nbnb 7:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-       znorm=1d0/(pi*pi)*rnqbz
-       write(6,"('rcxq/nbnb 8:',3E13.5)")           sum(abs(rcxq(:,:,:,:)))/znorm
-
-
-c$$$       do iw=1,nwhis
-c$$$          write(6,"('qshort rcxq_check(1:nwhis)',3f9.4,3f9.4)") sum(abs(kmat(:,:,iw,1)))
-c$$$          write(6,"('qshort rcxq_check(1:nwhis)',3f9.4,3f9.4)") sum(abs(kmat(:,:,iw,2)))
-c$$$       enddo
-       write(6,*) "qshot ----"
       
 !!-------------------------------------       
 c$$$       if (wan) then            !writing Kmatrix(kmat) 
