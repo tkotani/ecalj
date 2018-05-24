@@ -644,7 +644,7 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
                endif
             endif
 
-            if (llsym_o) print *, "aaaa:",qshort
+c            if (llsym_o) print *, "aaaa:",qshort
 
          enddo
       endif

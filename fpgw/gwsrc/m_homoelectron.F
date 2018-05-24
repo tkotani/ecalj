@@ -30,7 +30,7 @@
 
             ! get spin polarization : Delta
       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
-      
+
       !!!q+G
       allocate(qgw(1:3))
       call minv33tp(plat,qlat)
@@ -92,6 +92,6 @@ c--------------------------------
      &       +am(2,1)*am(3,2)*am(1,3)
      &       +am(3,1)*am(1,2)*am(2,3)
      &       -am(3,1)*am(2,2)*am(1,3)
-      end
+      end function det33
       
       end module m_homoelectron

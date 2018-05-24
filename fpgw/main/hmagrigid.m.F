@@ -1378,17 +1378,35 @@ cccc
        enddo
 
        !!!!! decide ucou = 1/K(iw=0) for rigid rotation
-       if (iq==1) then
+       if (iq==1) then 
           trmat=0d0
-          do iwf=1,nwf
-             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf
-             do jwf=1,nwf
-                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-                trmat=trmat+zxq(ijwf,klwf,0) !!! used for rigid rotation with U
+          if(.true.) then !!! diagnalize all orbitals
+             do iwf=1,nwf
+                ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf
+                do jwf=1,nwf
+                   klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+                   trmat=trmat+zxq(ijwf,klwf,0) !!! used for rigid rotation with U            
+                enddo
              enddo
-          enddo
+          else !!! only d-orbital
+             do  6001 iwf=1,nwf
+             do  6002 jwf=1,nwf
+             do  6003 kwf=1,nwf
+             do  6004 lwf=1,nwf
+                call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+                if (ijklmag) then
+                   ijwf=(iwf-1)*nwf + jwf
+                   klwf=(kwf-1)*nwf + lwf
+                   trmat=trmat+zxq(ijwf,klwf,0) !!! used for rigid rotation with U
+                endif
+ 6004        enddo
+ 6003        enddo
+ 6002        enddo
+ 6001        enddo
+
+          endif
           ucou=1d0/real(trmat)
-          write(6,*) "one parameter U for rigit rotation = ",ucou
+          write(6,*) "one parameter U for rigid rotation = ",ucou
        endif
        !!!!   
 

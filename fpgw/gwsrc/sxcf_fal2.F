@@ -496,6 +496,7 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
             read(ifvcoud) ngb0
             read(ifvcoud) qvv
             if(allocated(vcoud)) deallocate(vcoud)
+            if(allocated(zcousq)) deallocate(zcousq)
             allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
             read(ifvcoud) vcoud
             read(ifvcoud) zcousq
