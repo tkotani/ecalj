@@ -283,6 +283,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer::ifwkeigen,ifkeigen,ifweigen,ifvecr,ifwkeigen2,ifwkeigen3
 !!! temp variable
       logical(8)::lsmo
+      integer::ifwanmat
       
 
 !!! for debug (2018/05/23)
@@ -447,6 +448,7 @@ cccc
             write(6,*) ""
          enddo
       enddo
+      scrw(:,:)=scrw(:,:)/hartree
 cccccccccccccccccc
 
 c$$$!! --- Readin Offset Gamma --------
@@ -792,8 +794,8 @@ c$$$c
                    call wan_readeval(q+qbz(:,kx), isf,
      o                  ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
 
-c compare Friedrich ---> symetric wannier function (evc_w2=evc_w1) (2018/05/22)
-                   evc_w2=evc_w1
+c compare Friedrich ---> symmetric wannier function (evc_w2=evc_w1) (2018/05/22)
+c                   evc_w2=evc_w1
 c
 
                    if(iq==1 .and. kx==1) open(iwf,file="waneval_check.data")
@@ -828,12 +830,18 @@ c$$$     &                        abs(sum(evc_w1(:,iwf,kx)*dconjg((evc_w1(:,jwf,
 c$$$     &                        abs(sum(evc_w2(:,iwf,kx)*dconjg((evc_w2(:,jwf,kx))))),
 c$$$     &                        abs(sum(evc_w1(:,iwf,kx)*dconjg((evc_w2(:,jwf,kx))))),
 c$$$     &                        abs(sum(evc_w2(:,iwf,kx)*dconjg((evc_w1(:,jwf,kx)))))
-c$$$c     &                        abs((evc_w1(1,iwf,kx))*dconjg((evc_w1(2,jwf,kx))))
+c$$$c$$$!!! band sum
+c$$$c$$$     &                        abs(sum(evc_w1(iwf,:,kx)*dconjg((evc_w1(jwf,:,kx))))),
+c$$$c$$$     &                        abs(sum(evc_w2(iwf,:,kx)*dconjg((evc_w2(jwf,:,kx))))),
+c$$$c$$$     &                        abs(sum(evc_w1(iwf,:,kx)*dconjg((evc_w2(jwf,:,kx))))),
+c$$$c$$$     &                        abs(sum(evc_w2(iwf,:,kx)*dconjg((evc_w1(jwf,:,kx)))))
+c$$$
 c$$$
 c$$$c     &                        abs(sum((evc_w2(:,iwf,kx))*dconjg((evc_w2(:,jwf,kx)))))
 c$$$c     &                        sum(abs(evc_w2(:,iwf,kx)))
 c$$$                      enddo
 c$$$                   enddo
+
 c$$$  endif
                 enddo
              endif
@@ -869,11 +877,10 @@ ccccccccccc tetrahedron part
              write(6,*) "=== end gettetwt"
              deallocate(ev_w1,ev_w2)
 
-
 ccccccccc normalization of Im[K]:
              rnqbz=1/real(nqbz)
 !             znorm=1d0
-             znorm=pi
+             znorm=-1d0*pi
 !             znorm=sum(nbnb(:,:))*pi*rnqbz
              write(6,*) "znorm:",znorm
            endif !end if(wan)
@@ -916,6 +923,11 @@ c$$$  !!! evc_w1: upspin ; evc_w2: downspin
 
                 wanmat=0d0
                 ijwf=0
+
+c$$$cc check wanmat
+c$$$                ifwanmat=ifile_handle()
+c$$$                if (iq==1) open(ifwanmat,file="wanmat.mat")
+c$$$cc
                 do 3002 iwf=1,nwf
                 do 3003 jwf=1,nwf
                    ijwf=ijwf+1
@@ -923,16 +935,22 @@ c$$$  !!! evc_w1: upspin ; evc_w2: downspin
                 do 3004 kwf=1,nwf
                 do 3005 lwf=1,nwf
                    klwf=klwf+1
-
+c
                    call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+!                   ijklmag=.true. !test for FeFe
+c
 c$$$                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag !! ijklmag=T: {ijkl} in same atom
-                   if (ijklmag) then !!! same atom
+!                   if (ijklmag) then !!! same atom
+                   if (.true.) then !!! same atom
                    !!! calculate numerator of Kmatrix
                       wan_j=dconjg(evc_w1(jwf,it,kx))  !a_{Rj   beta}^{kn}*
                       wan_i=evc_w2(iwf,itp,kx)         !a_{Ri  alpha}^{(k+q)n'}
                       wan_l=evc_w1(lwf,it,kx)          !a_{R'l  beta}^{kn}
                       wan_k=dconjg(evc_w2(kwf,itp,kx)) !a_{R'k alpha}^{(k+q)n'}*
                       wanijkl=wan_j*wan_i*wan_k*wan_l
+                      !
+c$$$                      write(ifwanmat,"('i j k l ijkltag abs(wan) Re(wan) Im(wan)',4I3,L4,5E13.5)") iwf,jwf,
+c$$$     &                     kwf,lwf,ijklmag,abs(wanijkl),wanijkl
                    !!! wanmat (dimension:nnwf)
                    else
                       wanijkl=(0d0,0d0)
@@ -943,6 +961,10 @@ c$$$                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag !! ijklmag=T
  3004  continue     !kwf
  3003  continue     !jwf
  3002  continue     !iwf
+c$$$cc
+!       if (iq==1) close(ifwanmat)
+c$$$       call rx("wanmat check end")
+c$$$cc
        if (egasmode) wanmat=1d0
 
 c$$$c diag wanmat
@@ -956,7 +978,7 @@ c========================== end caliculate M(:,:) : wanmat(nwf,nwf)
 
 !!!   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
                 do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
-                   imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))/znorm
+                   imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
 !!!   accumulate Im[K]
 
 c$$$                   kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:)/(pi*pi)
@@ -1039,7 +1061,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccc
        allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf))!WKmatrix, WKmatrix_inv
 c       allocate(swkwmat(1:nnwf,1:nnwf),swkwmat2(1:nnwf,1:nnwf))!sW Kmatrix, sW K sW matrix_inv
        allocate(rmat(1:nnwf,1:nnwf,nw_i:nw))!Rmatrix
-       zxq=zxq/Hartree !!! [/Hatree] --> [/eV] for 1-WK (because of W in eV)
+
 ccc
        debug=.true.             !!01/16
 ccc
@@ -1150,8 +1172,8 @@ ccc   eigenvalue check (20180117)
           open(ifwkeigen,file="matrix_wk.mat")
           do iwf=1,nnwf
              do jwf=1,nnwf
-                write(ifweigen, "(2i4,2E13.5)") iwf,jwf,scrw(iwf,jwf)
-                write(ifkeigen, "(2i4,2E13.5)") iwf,jwf,zxq(iwf,jwf,0)
+                write(ifweigen, "(2i4,2E13.5)") iwf,jwf,scrw(iwf,jwf)/hartree
+                write(ifkeigen, "(2i4,2E13.5)") iwf,jwf,zxq(iwf,jwf,0)/hartree
                 write(ifwkeigen,"(2i4,2E13.5)") iwf,jwf,wkmat(iwf,jwf)
              enddo
              write(ifweigen,*) ""
@@ -1228,16 +1250,15 @@ ccccccc
              ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
              do jwf=1,nwf
                 klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-                call checkorb2(iwf,iwf,jwf,jwf,ijklmag)
-                ijklmag=.true.
+                call checkorb2(iwf,iwf,jwf,jwf,ijklmag); ijklmag=.true.
                 if(ijklmag) then
-                   trmat=trmat+zxq(ijwf,klwf,iw)
+                   trmat=trmat+zxq(ijwf,klwf,iw)/znorm
                 endif
              enddo
           enddo
           www=freq_r(iw)
           if(iw<0) www=-freq_r(-iw)
-          if(.not. gskip) write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")qshort,iw,www*2d0,trmat
+          if(.not. gskip) write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")qshort,iw,www*2d0,trmat/hartree
 
 ccccc K/(1-WK)
 cccccccccK(1-WK)^(-1)
@@ -1317,16 +1338,19 @@ c             do iwf=1,nnwf
              ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
              do jwf=1,nwf
                 klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+                call checkorb2(iwf,iwf,jwf,jwf,ijklmag) ; ijklmag=.true.
 c                if (ijwf/=klwf) cycle
-                trmat=trmat+rmat(ijwf,klwf,iw)
-                trmatt=trmatt+rmat(ijwf,klwf,iw)-zxq(ijwf,klwf,iw)
+                if(ijklmag) then
+                   trmat=trmat+rmat(ijwf,klwf,iw)
+                   trmatt=trmatt+(rmat(ijwf,klwf,iw)-zxq(ijwf,klwf,iw))
+                endif
              enddo
           enddo
           
           if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-     &         www*2d0,trmat
+     &         www*2d0,trmat/hartree
           if(.not. gskip) write(ifchipmrk_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-     &         www*2d0,trmatt
+     &         www*2d0,trmatt/hartree
 c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
 
 ccc END K/(1-WK)

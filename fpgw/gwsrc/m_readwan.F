@@ -446,6 +446,10 @@ c---------------------------------------
      &     lwf_in <= r_mlwf) then
          iwfmag=.True.
       endif
+
+ccc test for FeFe case
+c      iwfmag=.True.
+ccc 
       end subroutine checkorb2
 
 c---------------------------------------
