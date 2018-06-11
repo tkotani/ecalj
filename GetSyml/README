@@ -1,24 +1,48 @@
 Get symmetry line. syml.* from ctrl.*
-====================================
+
 In this directory, we have getsyml.py, which is based on the
 seekpath(v.1.2.0, dec2016). https://github.com/giovannipizzi/seekpath/
 
 
-============
-Requirement:
- Numerical python
- spglib
+===========================
+Requirement and Install:
+
+1.seekpath
+>git clone https://github.com/giovannipizzi/seekpath/
+>python setup.py install --user
+
+2.matplotlib for 3D plot
+> python -m pip install --update pip  #pip update
+> pip install matplotlib
+
+3.spglib for crystal structure symmetry
+>git clone https://github.com/atztogo/spglib.git
+>python setup.py install --user
+--user install it locally.
 
 
+===========================
+Usage: (we use python2. I don't know python3 works or not)
+>python getsyml.py nio
+>python getsyml.py ctrls.nio 
+This show 3D Brillouin zone together with symmetry line for band plot.
+The symmetry lines are written into the syml.* file.
+You can edit syml.* for bandplot by the job_band command.
+The number of divisions for syml is give by simple algorism, so edit
+it if necessary.
 
-============
+
+===========================
 Citations when we use.
   In addition to usual ecalj acknowledgement, folllowing citations are
   required when you use getsyml.py.
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
-     Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) 
+     Band structure diagram paths based on crystallography,
+     Comp. Mat. Sci. 128, 140 (2017) 
    2.You should also cite spglib that is an essential library used in the implementation.
+     https://github.com/atztogo/spglib.git
+
 
 ============
 See Lincence.txt for spglib and seekpath.

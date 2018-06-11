@@ -360,41 +360,24 @@ Changenglob      nsp = nglob('nsp')
       call tcn('rlocbl')
 
 C --- Setup ---
-Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
-
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-c      call defi(o,1)
 C ... Find maximum sizes needed to allocate strux; allocate them
       nlmax = 0
       kmaxx = 0
       do  ia = 1, nbas
         isa = int(ssite(ia)%spec)
-
-
         lmxa=sspec(isa)%lmxa
         kmax=sspec(isa)%kmxt
-
         nlma = (lmxa+1)**2
         kmaxx = max(kmaxx,kmax)
         nlmax = max(nlmax,nlma)
       enddo
       nlmto = ndimh-napw
 C     Needed for PW part
-
       alat=slat%alat
 c      i_copy_size=size(slat%qlat)
 c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
       qlat=slat%qlat
-
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
 

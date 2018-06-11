@@ -1,0 +1,61 @@
+### bash subroutine used in gwsc and so on. ###
+### See fpgw/exec/gwsc for usage
+# T.Kotani Jan.2015 
+# SeungWoo Jang Sep.2014
+echo_run=""                    # standard
+serial_run=""                  # standard
+#echo_run="aprun"                                        # cray
+#serial_run="aprun"                                      # cray
+function run_arg
+{
+    local argin=$1
+    local MPI_SIZE=$2
+    local MPI_NODE=$3
+    local nfpgw=$4
+    local command=$5
+    local output=$6
+    local TARGET=${@:7:($#-2)}
+    if [ "$MPI_NODE" = "0" ] ; then
+        local mpi_run="mpirun -np $MPI_SIZE"
+    elif [ "$MPI_NODE" = "1" ] ; then
+        local mpi_run="mpirun -np $MPI_SIZE"
+    else
+	local mpi_run="mpirun -np $MPI_SIZE -ppn $MPI_NODE"
+    fi
+    local serial_run="mpirun -np 1"
+    #local pi_run="aprun -n $LSB_PROCS -d $LSB_CPUS -N $LSB_PPN"  # cray
+    $echo_run echo -n 'OK! --> Start'
+    $echo_run echo $argin > _IN_
+    if [ "$MPI_SIZE" = "0" ] ; then
+       $echo_run echo " echo $argin | $nfpgw$command $TARGET > $output " 
+       $serial_run $nfpgw$command  $TARGET < _IN_ > $output
+    else
+	$echo_run echo " echo $argin | mpirun -np $MPI_SIZE $nfpgw$command $TARGET > $output " 
+        $mpi_run $nfpgw$command $TARGET < _IN_ > $output
+    fi
+    if [ $? != 0 ]; then
+        $echo_run echo Error in $command input_arg=$argin. See OutputFile=$output
+        exit 10
+    fi
+}
+
+echo "NOTE: Use run_arg defined in $nfpgw/run_arg"
+
+
+function intornot
+{
+#### 引数の長さが 0 でなければ、PARAM_1 にそれをセット
+if [ ! -z $1 ]; then
+    PARAM_1=$1
+fi
+ 
+#### PARAM_1 に + 1 をし、その戻り値を RET に保存
+expr $PARAM_1 + 1 > /dev/null 2>&1
+RET=$?
+ 
+#### 戻り値を使って正常か異常か判定
+if [ $RET -ge 2 ]; then
+    echo "error!! input is not a number"
+    exit 101
+fi
+}

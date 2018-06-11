@@ -22,7 +22,8 @@ c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl,lso
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
-      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !these are given here.
+c      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh, Seneinterp2 !these are given here.
+c      use m_seneinput,only: Seneinterp2 !these are given here.
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_w_psir, only: w_psir_cmdopt
@@ -41,7 +42,7 @@ Ci         :U on site ib with dmat in dmats(*,lldau(ib))
 Ci
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: *
-Ci     Stored:    *
+Ci     Sored:    *
 Ci     Passed to: dfaugm mkpot dfqkkl suclst surho sumlst hambl mullmf
 Ci                makusq mkpdos addrbl mshn3p mchan vcdmel dfratm
 Ci                mkrout symrho pnunew dfrce mkekin totfrc mixrho
@@ -280,7 +281,7 @@ c      equivalence (ldim,ldham(1,1))
       double precision sigp(10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
-     .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,pi,def,ef0,ehar,eks,
+     .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
      .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
      .  ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
@@ -336,7 +337,7 @@ ctakao
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer:: isize_hamm(3)
-      real(8):: rrr(3)
+      real(8):: rrr(3),rrrr
       complex(8):: pi2i
       real(8),allocatable:: range(:,:),pos(:,:)
       integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
@@ -436,14 +437,23 @@ c mar2014
 
       character(512),save::sname,schar
       character(512):: aaachar
-      logical:: massline ,initex=.true.
+      logical:: massline ,initex=.true., writeham=.false.
       logical,save:: siginit=.true.     ,laf
       character(10):: i2char
       character(50)::infoq
-      integer::ipos,ndos_,j
-      real(8)::dosmax,emaxp_
+      integer::ipos,ndos_,j,ififft
+      real(8)::dosmax,emaxp_,posp(3)
       integer:: jspend,jspini,jspp
-      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job
+      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ifih,ist,ip,ni,ix
+
+      integer(4),allocatable:: npair(:,:), nlat(:,:,:,:),ib_table(:),k_table(:),l_table(:)
+      integer(4)::npairmx,ikpd
+      real(8),allocatable:: qsmesh2(:,:,:,:)
+      real(8),allocatable:: qwgt(:,:,:)
+      real(8):: tpioa,pi=4d0*datan(1d0)
+      complex(8):: aaaa,img=(0d0,1d0)
+      character*4:: cccx
+
 !! ----------------------------
       call tcn ('bndfp')
       stdo = lgunit(1)
@@ -696,7 +706,6 @@ c      nfbn(2) = 0
      .        rxs2('BNDFP: failed to parse "',strn(1:30),'%a"')
          endif
       endif
-      pi = 4d0*datan(1d0)
       if (procid .eq. master) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
@@ -792,6 +801,97 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
             iprocar2=ifile_handle()
             open(iprocar2,file='PROCAR.DN.'//trim(strprocid))
          endif
+      endif
+
+
+!! jan2018kaist
+      writeham= cmdopt('--writeham',10,0,strn)
+      if(writeham) then
+        ifih=ifile_handle()
+        open(ifih,file='HamiltonianMTO.'//trim(strprocid),form='unformatted')
+!!      
+        if(procid == master) then ! pair-table and weight generator.  nlat,qgt are not used yet...
+          nkk1=sbz%nkabc(1)
+          nkk2=sbz%nkabc(2)
+          nkk3=sbz%nkabc(3)
+          nkp = nkk1*nkk2*nkk3
+          allocate(qplist(3,nkp))
+          iq=0
+          do ik3=1,nkk3
+          do ik2=1,nkk2
+          do ik1=1,nkk1
+             iq=iq+1
+             qplist(:,iq) =  qlat(:,1)*dble(ik1-1)/nkk1
+     &        +   qlat(:,2)*dble(ik2-1)/nkk2
+     &        +   qlat(:,3)*dble(ik3-1)/nkk3
+          enddo
+          enddo
+          enddo
+          do ip=1,nkp
+            write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
+          enddo
+
+c          do ix=1,3
+c            write(ififft,"(3f25.15,' ! plat' )") plat(:,ix)
+c          enddo
+c          write(ififft,"(3i5,'  ! nk')") nkk1,nkk2,nkk3
+c          write(ififft,"(i5,' !nbas')") nbas
+c          do ibas=1,nbas
+c            write(ififft,"(3f25.15,' ! bas' )") pos(:,ibas)
+c          enddo
+          allocate(npair(nbas,nbas),pos(3,nbas))
+          call dcopy(nbas*3 , slat%rv_a_opos , 1 , pos , 1 )
+
+          npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
+          do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
+            npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
+            allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
+            call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,qwgt)
+            if(ok) exit
+            deallocate( nlat, qwgt )
+          enddo
+          print *,'We got nlat and qwgt'
+          do ib1=1,nbas
+          do ib2=1,nbas
+              write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
+c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt sum is not unity')
+              do ni = 1,npair(ib1,ib2) 
+                posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
+                rrrr = sqrt(sum(posp**2))
+                write(6,"(i6,3x,3i4,f21.15,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),qwgt(ni,ib1,ib2),rrrr
+              enddo
+          enddo
+          enddo
+
+          ififft=ifile_handle()
+          open(ififft,file='HamiltonianMTOInfo',form='unformatted')
+          write(ififft) plat,nkk1,nkk2,nkk3,nbas
+          write(ififft) pos
+          write(ififft) qplist
+          write(ififft) npair,npairmx
+          write(ififft) nlat,qwgt
+!! ---------------
+!! delta fun check: k --> T --> k 
+!!     \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
+          ikpd=1
+          do ikp=1,nkp
+            qp = qplist(:,ikp) - qplist(:,ikpd)
+          do ib1=1,nbas
+          do ib2=1,nbas
+            aaaa=0d0
+            do ni = 1,npair(ib1,ib2) 
+                aaaa =  aaaa + qwgt(ni,ib1,ib2)*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,ni,ib1,ib2))))
+            enddo
+            cccx=''
+            if(ikp==ikpd) cccx=' <--'
+            write(6,"('\delta-fun test',3f10.4,2i3,2f23.15,a)") qplist(:,ikp),ib1,ib2,aaaa,cccx
+          enddo
+          enddo
+          enddo
+          deallocate(pos,npair)
+c          stop 'xxxxxxxxxxx test end xxxxxxxxx2222'
+        endif
+
       endif
 
 !! --- Define local arrays used in the generation of the potential ---
@@ -1271,15 +1371,34 @@ c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw) 
          if(procid==master) then
             write(6,*)
             write(6,*) ' --- Hamiltonian index ---'
-            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+            allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
             do iorb = 1, norbmto !Total number of MTO's
               ib   = ibastab(iorb)
               is   = ssite(ib)%spec
 c              call r8tos8(sspec(is)%name,spid)
               spid=sspec(is)%name
-              write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
-     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+c              write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
+c     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
+!!
+              ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+              l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+              k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
             enddo
+
+            write(6,*) ' i  ib l  k trim(spec)'
+            do i= 1, ldim
+              ib   = ib_table(i)
+              is   = ssite(ib)%spec
+              spid = sspec(is)%name
+              write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+            enddo
+            if(writeham) then
+              write(ififft)ldim,lso
+              write(ififft)ib_table,l_table,k_table
+              close(ififft)
+            endif  
+!!
          endif
       endif
 
@@ -1306,7 +1425,7 @@ c              call r8tos8(sspec(is)%name,spid)
         if(laf) nspsigm=2
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-            allocate( qsmesh(3,nk1,nk2,nk3) )
+            allocate( qsmesh2(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
                allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
             else
@@ -1324,7 +1443,7 @@ c              call r8tos8(sspec(is)%name,spid)
 !! sfz is the self-energy roteted in the full BZ.
 !!   ndham is removed sep2012 (read from sigma file )
             call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
-     &        nk1,nk2,nk3,ldim,qsmesh,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
+     &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
             call fclose(ifi)
 c$$$!! --- write sig_fbz for SYMGRP e
 c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
@@ -1353,11 +1472,11 @@ c$$$               enddo
 c$$$               call fclose(ifis2)
 c$$$            endif
 
-!! --- pair-table and weight generator
+!! mesh generator.  Unused yet...->in future, we will use this.
             allocate(npair(nbas,nbas),pos(3,nbas))
             call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
-            do
+            do !this loop is just to determined npairmx
               npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
               allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
               call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
@@ -1365,6 +1484,7 @@ c$$$            endif
               deallocate( nlat, qwgt )
             enddo
             deallocate(pos,npair)
+
 !! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
 !!    The main input of the subroutine seneinterp is sfz. 
 !!    The seneinterp stores real-space sigma to sham%rv_a_ohrs (real space representation), 
@@ -1379,7 +1499,7 @@ c            endif
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in sham%rv_a_ohrs
             call fclose(ifi)
             deallocate(sfz)
-            deallocate(qsmesh,nlat,qwgt)
+            deallocate(qsmesh2,nlat,qwgt)
          endif             !procid==master
 #ifdef MPIK
 !! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
@@ -1785,6 +1905,15 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
               read(ifig) evl(1:nev,jsp)
               read(ifig) t_zv(1:ndimhx,1:nmx)
             else            ! 1st pass
+
+!! save hammovlm jan2018kaist
+              if(writeham) then
+                write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for *  qp= ",qp
+                write(ifih) qp,ndimhx,lso,epsovl,jsp
+                write(ifih) ovlm(1:ndimhx,1:ndimhx,jsp)
+                write(ifih) hamm(1:ndimhx,1:ndimhx,jsp)
+              endif
+
               if(epsovl<1.000001d-14) then
                 call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
@@ -2794,25 +2923,24 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpotbk),w(osmrho),sev,sumtvxxx)
 c          call rlse(osmpotbk)
 c          stop 'xxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccc
-c          call poppr()
-c          call pshpr(ipr-20)
-c          print *,'vvv takao goto mkehfk mode2'
-c          print *,'gogo mkehkf procid=',procid,ipr,eks
             call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
             call togpr()
          endif
-         if( debug) print *, 'tttttttttt 9999999999999999999 9'
+         if(debug) print *, 'tttttttttt 9999999999999999999 9'
 
-!!   --- Add together force terms ---
-         if ( lfrce .gt. 0 ) call totfrc ( nbas , ssite , slat , leks 
+!! --- Add together force terms ---
+!! fes1_rv: contribution to HF forces from estat + xc potential   This is for input  density  !=3rd term in (B.5) in JPSJ.84.034705
+!! fes2_rv: contribution to KS forces from estat + xc potential   This is for output density
+!! fh_rv      : 1st term  in (B.5)
+!! input frc  : 2nd term in (B.5). Puley term
+!! output frc  : totlal
+         if(lfrce .gt. 0) call totfrc( nbas , ssite , slat , leks 
      .     , fes1_rv , fes2_rv , fh_rv , frc )
+
 
 !!   --- Mix input and output densities ---
          allocate(qm1_rv(nvl))
          allocate(qm2_rv(nvl))
-#ifdef KINODEBUG
-         write(*,*) 'kino allocate qm2_rv',nvl
-#endif
 
 cccccccccccccccccccccc
 cc          print *,'vvv takao mkekin copy test xxx1---'

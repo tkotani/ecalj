@@ -12,7 +12,7 @@ c     & nstar,irk,nstbz
      i  nspin, konf,z,nl,natom,iclass,nclass,esmr,deltaw!,dw
       use m_keyvalue,only:getkeyvalue
       use m_readeigen,only: readeval !init* is alreaday called.
-      use m_ReadEfermi,only: readefermi,ef
+      use m_ReadEfermi,only: ef !ef is set at main routine
       use m_anf,only:laf,anfcond
       implicit none
       logical,intent(in):: lqall
@@ -71,22 +71,31 @@ c        read( ifief,*) ef
 c        close(ifief)
 c        write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
 c      else
-      call readefermi() !readin ef
-      if(esmr/=0d0) then
-          call efsimplef2a(nspin,wibz,qibz,ginv, 
-     i        nband,nqibz
-     i       ,konf,z,nl,natom,iclass,nclass
-     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise.
-     i       qbz,nqbz ! index_qbz, n_index_qbz,
-     o       ,efnew)
-          ef = efnew
-cc- check total ele number -------
-c          ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
-c          write(6,*)' ef    =',ef
-c          write(6,*)' esmr=',esmr
-c          write(6,*)' valn  =',valn
-c          write(6,*)' ntot  =',ntot
-      endif
+
+!! comment out followings because esmr is not for hx0fp0, hx0fp0.sc.
+!! sep2017takao
+!! This is a bug; however, we have no changes for previous results, because
+!! a lucky another accicent that scissors_x0() in switches.F called readefermi() (this again read 'EFERMI').
+!! 
+c$$$      call readefermi() !readin ef
+c$$$      if(esmr/=0d0) then
+c$$$          call efsimplef2a(nspin,wibz,qibz,ginv, 
+c$$$     i        nband,nqibz
+c$$$     i       ,konf,z,nl,natom,iclass,nclass
+c$$$     i       ,valn, legas, esmr,  !!! valn is input for legas=T, output otherwise.
+c$$$     i       qbz,nqbz ! index_qbz, n_index_qbz,
+c$$$     o       ,efnew)
+c$$$          ef = efnew
+c$$$cc- check total ele number -------
+c$$$c          ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
+c$$$c          write(6,*)' ef    =',ef
+c$$$c          write(6,*)' esmr=',esmr
+c$$$c          write(6,*)' valn  =',valn
+c$$$c          write(6,*)' ntot  =',ntot
+c$$$      endif
+
+
+
 c      endif
 c$$$c ---  q near zero
 c$$$c      write(6,*) 'reading QOP'

@@ -272,6 +272,7 @@ c$$$     o  qbz,wbz,nstbz,0,(/0d0,0d0,0d0/) )
 
 
 !! Write to file KPNTin1BZ
+      nnn = n1q*n2q*n3q
       ifkpt = ifile_handle()
       nqs=0
       open(ifkpt,file='KPTin1BZ.gwinit.chk')
