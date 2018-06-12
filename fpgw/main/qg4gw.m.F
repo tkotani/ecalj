@@ -155,7 +155,9 @@ c      endif
       endif
 !!
       call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgw, gammacellctrl,lnq0iadd)
+c     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgw, gammacellctrl,lnq0iadd) ! takao@11jun2018. 
+!           I think ifiqgw is  a bug.
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
