@@ -67,7 +67,7 @@
       real(8),intent(in):: ntot,alat,plat(3,3)
       real(8),intent(out):: efz
       real(8):: voltot,pi,alpha,det33 !,tripl
-      real(8):: rs,qfermi,spene
+      real(8):: qfermi,spene,rydberg,rs
 
       pi=4d0*datan(1d0)
       voltot = abs(alat**3*det33(plat))
@@ -78,8 +78,8 @@
       qfermi= dsqrt(efz)
       rs    = alpha/qfermi
 
-      write(6,"('efermi_egas:: efermi[ryd], qfermi, rs',5f9.5)")
-     &     efz,qfermi,rs
+      write(6,"('efermi_egas:: efermi[ryd],efermi[eV], qfermi, rs',5f9.5)")
+     &     efz,efz*rydberg(),qfermi,rs
       end subroutine efermi_egas
 
 c--------------------------------

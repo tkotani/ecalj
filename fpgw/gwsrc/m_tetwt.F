@@ -70,7 +70,7 @@ c      if(.not.allocated(nbnb))
       allocate( nbnbtt(nqbz,npm)) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
 !!===========tetraini block tetra==.true.===============================1ini
-      write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
+      write(6,"(' tetra mode nqbz nband is isf q=',2i7,2i2,3f13.6)") nqbz,nband,is,isf,q
 
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.

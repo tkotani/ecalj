@@ -31,7 +31,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -202,6 +202,12 @@ DERFC=
  $(gwsrc)m_readwan.o \
  $(gwsrc)diagcv3.o \
  $(main)hmagnon.m.o
+
+ X0homo = \
+ $(gwsrc)m_homoelectron.o \
+ $(gwsrc)m_readwan.o \
+ $(gwsrc)diagcv3.o \
+ $(main)hhomogas.m.o
 
  rigid = \
  $(gwsrc)m_homoelectron.o \
@@ -467,6 +473,9 @@ $(gwsrc)m_readeps.o
 
  hmagnon:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hhomogas:	$(MPI) $(GWLIB) $(X0homo) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0homo) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hmagrigid:	$(MPI) $(GWLIB) $(rigid) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(rigid) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
