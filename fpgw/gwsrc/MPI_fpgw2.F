@@ -806,6 +806,31 @@ C     !======================================================
       return
       end subroutine MPI__hx0fp0_rankdivider2
 
+C     !======================================================
+      subroutine MPI__hmagnon_rankdivider(nqbz)
+      implicit none
+      integer, intent(in) :: nqbz
+      integer :: iq,i
+      allocate( mpi__task(1:nqbz),mpi__ranktab(1:nqbz) )
+      mpi__task(:) = .false.
+      mpi__ranktab(1:nqbz)=999999
+      if( mpi__size == 1 ) then
+         mpi__task(:) = .true.
+         mpi__ranktab(:) = mpi__rank
+         return
+      endif
+      if(mpi__rank==0) write(6,*) "MPI_hmagnon_rankdivider:"
+      do iq=1,nqbz
+         mpi__ranktab(iq) = mod(iq-1,mpi__size)  !rank_table for given iq. iq=1 must give rank=0
+         if( mpi__ranktab(iq) == mpi__rank) then
+            mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
+         endif
+         if(mpi__rank==0) then
+           write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
+         endif
+      enddo   
+      return
+      end subroutine MPI__hmagnon_rankdivider
 
 C     !======================================================
       subroutine MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
