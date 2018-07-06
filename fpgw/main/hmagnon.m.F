@@ -259,8 +259,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
      &     ,wmat_check(:,:)
       complex(8)::trmat,trmatt
       real(8),allocatable::imat(:,:) !unit matrix for 1-WK
-!      real,allocatable::kmat(:,:,:,:),wanmat(:,:)
-      real(8):: wan_ecore(1)
+      real(8):: wan_ecore(1),rewanijkl
       logical::npmtwo,diag=.false.,t2g
       complex(8)::wan_i,wan_j,wan_k,wan_l,wanijkl
       integer::igv,bsimple=3
@@ -332,7 +331,7 @@ c$$$      call MPI__Broadcast(ixc)
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
       call read_BZDATA()
-
+      
 !! Read electron gas mode or not.
       call getkeyvalue("GWinput","EGASmode",egasmode,default=.false.)
       print *,"electron gas mode (egasmode): ",egasmode
@@ -397,6 +396,12 @@ c      if(ixc==223) then
       close(ifhamw)
       write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
 c      endif
+
+c     Weight for irreducible q-point (qibz)
+c      do iq=1,nqibz
+c         write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq)
+c      enddo
+c
 
 cccccccccccccccccc Screening W for magnon 
       nnwf=nwf*nwf
@@ -596,7 +601,6 @@ c
          if (egasmode) allocate( rcxq(nnwf,nnwf,nwhis,npm) )
          allocate( zxq (nnwf,nnwf,nw_i:nw), zxqi (nnwf,nnwf,niw))
          zxq=0d0;  zxqi=0d0;  rcxq = 0d0
-
          if(debug) write(6,*)' niw nw=',niw,nw
          
 !     ! ==== spin chi_charge or chi_+- ====
@@ -685,7 +689,7 @@ c$$$  ev_w2(:,kx)=ev_w2(:,kx)-2d0
      o                  ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))
 
 c     compare Friedrich ---> symmetric wannier function (evc_w2=evc_w1) (2018/05/22)
-c     evc_w2=evc_w1
+c      evc_w2=evc_w1
 
 c$$$                   if(iq==1 .and. kx==1) open(iwf,file="waneval_check.data")
 c$$$!     if (kx==1 .and. iq > 100 ) open(iwf,file="wan_eval_check.data")
@@ -772,8 +776,9 @@ ccccccccc normalization of Im[K]:
            endif !end if(wan)
 ccccccccc generate wanmat         
            if (.not. allocated(kmat)) allocate(kmat(1:nnwf,1:nnwf,1:nwhis,1:npm),
-     &          wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2
-           kmat=0d0
+     &          wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2)
+           kmat=(0d0,1d-15)
+!           kmat=(0d0,1d-10) !orbtest
            do 2011 kx=1,nqbz    !! discrete k-point loop
            do 2012 jpm=1,npm !! jpm=2: negative frequency
            do 2013 ibib=1,nbnb(kx,jpm) !! n,n' band loop
@@ -803,7 +808,7 @@ c                else
 c$$$  !!! evc_w1: upspin ; evc_w2: downspin
               it=n1b(ibib,kx,jpm) !index for n  for q
               itp=n2b(ibib,kx,jpm) !index for n' for q+k
-              wanmat=0d0
+              wanmat=(0d0,0d0)
               ijwf=0
 
               do 3002 iwf=1,nwf
@@ -831,8 +836,13 @@ c$$$     &                     kwf,lwf,ijklmag,abs(wanijkl),wanijkl
                  else
                     wanijkl=(0d0,0d0)
                  endif
-!                   wanmat(ijwf,klwf)=wanijkl
-                 wanmat(ijwf,klwf)=wanijkl+(0d0,1d-8)
+c$$$                 if (abs(aimag(wanijkl))<1d-12) then
+c$$$                    rewanijkl=real(wanijkl)
+c$$$                    wanijkl=cmplx(rewanijkl,0d0,kind(0d0))
+c$$$                 endif
+                 wanmat(ijwf,klwf)=wanijkl
+!                 wanmat(ijwf,klwf)=wanijkl+(0d0,1d-9) ! +delta (~ 1d-9?)
+                 ! delta makes a width of Im[R] peaks
                    
  3005  continue     !lwf
  3004  continue     !kwf
@@ -909,6 +919,7 @@ c$$$  call diagcvuh3(swkwmat2(:,:),nnwf,eval_swkw)
 
 !eta= 1d0/minval(real(eval_wk)) !moderate peak
          eta=  -1d0/abs(eval_wk(1)) !sharp peak
+c         eta= -1d0
          write(6,*) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
          write(6,*) "check eigenvalue Re(WK)",real(eval_wk(1))
          write(6,*) "check eigenvalue Im(WK)",aimag(eval_wk(1))
@@ -959,6 +970,9 @@ cccccccdiagonalization for K
                endif
             enddo
          enddo
+         !!!
+         if (aimag(trmat)<0d0 .and. iw > 0 .and. iw < 250) write(6,*) "iq iw (Im(K)<0):",iq,iw
+         !!!   
          www=freq_r(iw)
          if(iw<0) www=-freq_r(-iw)
          if(.not. gskip .and. MPI__task(iq)) write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)")qshort,
@@ -1009,7 +1023,6 @@ ccc   find eigenvalue of (1-WK) at all omega (2018/04/24)
             endif
          endif
 
-
 ccc 1-WK eigenvalue writing (1wk_eval_list.dat)
 c          if (iq==1 .and. iw .ge. 0) then
 
@@ -1018,7 +1031,7 @@ c          if (iw .ge. 0) then ! omega >= 0
          deallocate(wkmat2)
          if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,10E13.5)") qshort,iw,www*2d0,
      &        eval_wk(1),abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
-
+         
 !!! eigenvalue of rmat
          if (debug) then
             if (iq==1 .and. iw==0) then
@@ -1038,6 +1051,24 @@ c          if (iw .ge. 0) then ! omega >= 0
                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
                call checkorb2(iwf,iwf,jwf,jwf,ijklmag) ; ijklmag=.true.
 c     if (ijwf/=klwf) cycle
+!               if (1<iwf<7) then
+               !!! orbtest
+!                if (iwf==1)  then
+!                if (iwf==4 .or. iwf==6)  then
+
+c$$$               if ( (iwf==2 .or. iwf==3 .or. iwf==5) .and. 
+c$$$     &              (jwf==2 .or. jwf==3 .or. jwf==5))  then
+c$$$               if ( (iwf==2 .or. iwf==3 .or. iwf==5) .and. 
+c$$$     &              (jwf==4 .or. jwf==6))  then
+c$$$               if ( (iwf==4 .or. iwf==6)   .and.
+c$$$     &              (jwf==4 .or. jwf==6))  then
+c$$$               if (iwf==2 .and. jwf==2) then
+c$$$               if (iwf==6 .and. jwf==6) then
+c$$$               if (iwf==5 .and. jwf==5) then
+c$$$               if (iwf==2 .and. jwf==6) then
+c$$$               if (iwf==1 .and. jwf==1) then
+
+!               if (jwf==2 .or. jwf==3 .or. jwf==5)  then
                if(ijklmag) then
                   trmat=trmat+rmat(ijwf,klwf,iw)
                   trmatt=trmatt+(rmat(ijwf,klwf,iw)-zxq(ijwf,klwf,iw))
