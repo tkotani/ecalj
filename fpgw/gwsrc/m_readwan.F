@@ -333,9 +333,11 @@ c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
 !         if (sw1) call rx("'checkorb' should be done in advance")
          call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
          !!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
+c         ijklmag=.true.
          if (ijklmag) then      !!! check iwf is derived from same atom
             if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
      &           .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
+c            if (.true.) then
                scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
      &              + scrv4(iwf1,iwf2,iwf3,iwf4)
             else
@@ -463,7 +465,7 @@ c---------------------------------------
       logical(8)::gskip
       logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
      &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dhnb=.false.
-     &     ,dnpb=.false.,dxms=.false.
+     &     ,dnpb=.false.,dxms=.false.,all_iq=.false.
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2
       integer:: nlatout(3,48),nout,iout,ig
       character*5:: syml
@@ -471,7 +473,9 @@ c---------------------------------------
       !!! get syml line
       call getkeyvalue("GWinput","qsym",syml,default="100")
       llsym_o=.true.      
-      if (syml=="100") then
+      if (syml=="all") then
+         all_iq=.true.
+      else if (syml=="100") then
          d100=.true.           !0 0 0 --> 1 0 0
       else if (syml=="110") then
          d110=.true.           !0 0 0 --> 1 1 0
@@ -646,6 +650,8 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
      &              .and. abs(abs(qshort(3))-5d-1) > cr ) then
                   llsym_o=.false.
                endif
+            elseif (all_iq) then
+               llsym_o=.true.
             endif
 
 c            if (llsym_o) print *, "aaaa:",qshort

@@ -80,6 +80,9 @@ C     ! for W(iwt) parallelization
       integer :: mpi__Wn, mpi__Ws, mpi__We
       integer, allocatable :: mpi__Wvn(:), mpi__Wvs(:), mpi__Wve(:)
 
+C     ! for magnon E(q) parallelization
+      integer  :: mpi__MEq
+
 
       interface MPI__Send 
       module procedure
@@ -618,6 +621,7 @@ C     !======================================================
       end subroutine MPI__AllreduceSum
 
 
+
 C     !======================================================
       subroutine MPI__AllreduceMax( data, sizex )
       implicit none
@@ -814,6 +818,9 @@ C     !======================================================
       allocate( mpi__task(1:nqbz),mpi__ranktab(1:nqbz) )
       mpi__task(:) = .false.
       mpi__ranktab(1:nqbz)=999999
+
+      mpi__MEq=1+nqbz/mpi__size
+
       if( mpi__size == 1 ) then
          mpi__task(:) = .true.
          mpi__ranktab(:) = mpi__rank
