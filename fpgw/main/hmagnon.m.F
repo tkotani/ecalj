@@ -28,7 +28,7 @@ c      use matm,only: matm,matcinv
       use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,
      & MPI__hmagnon_rankdivider,
      & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
-     & MPI__ranktab,MPI__consoleout,MPI__barrier
+     & MPI__ranktab,MPI__consoleout,MPI__barrier,MPI__MEq,MPI__REAL8send,MPI__REAL8recv,MPI__AllreduceSum
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !NOTE: "call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
@@ -284,7 +284,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 !!! temp variable
       logical(8)::lsmo
       integer::ifwanmat
-      
+!!! for MAX(Im[R])
+      integer::imaximr=0
+      real(8)::maximr,w_maximr
+      complex(8)::sumrpa_maximr(1),summf_maximr(1)
+      real(8),allocatable:: rpa_maximr(:),mf_maximr(:)
 
 !!! for debug (2018/05/23)
 !      real(8)::sumkm1,sumkm2,sumkm3,sumkm4,sumkm5,znorm,rnqbz,cellvol
@@ -298,20 +302,6 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       fourpi   = 4d0*pi
       sqfourpi = sqrt(fourpi)
 
-c$$$!! computational mode select ! takao keeps only the Sergey mode.
-c$$$      write(6,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
-c$$$      write(6,"(a)") ' #1:run mode'
-c$$$      write(6,"(a)") '    11  : normal    '
-c$$$      write(6,"(a)") '    111 : normal    fullband '
-c$$$      write(6,"(a)") '    10111 : normal  crpa     '
-c$$$      write(6,"(a)") '    202 : epsNoLFC  '
-c$$$      write(6,"(a)") '    203 : eps       '
-c$$$      write(6,"(a)") '    222 : chi^+- NoLFC'
-c$$$      write(6,"(a)") '    223 : chi^+- wannier'
-c$$$c      write(6,"(a)") '    12  : total energy Miyake: developint'
-c$$$      write(6,"(a)")  '-------------------------------------------------------'
-c$$$      if( MPI__root ) read(5,*) ixc
-c$$$      call MPI__Broadcast(ixc)
       call cputid(0)
 
       lqall=.true.
@@ -540,6 +530,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       enddo
       write(6,*) "nqsym:",nqsym
       call MPI__hmagnon_rankdivider(nqsym)
+
+      write(6,*) "nqsym mpi_MEq(:)",nqsym,mpi__MEq
+      allocate(rpa_maximr(mpi__MEq),mf_maximr(mpi__MEq)) !list of w(MAX(Im[R])): magnon peak
+      rpa_maximr=0d0; mf_maximr=0d0
+
       !iqlist for syml
       !qibz(:,iqlist(iq)): intended q (iq=1,nqsym)
       allocate(iqlist(1:nqsym))
@@ -566,13 +561,14 @@ c$$$      enddo
 !      call rx("aa")
 c
 !! ======== Loop over iq ================================
-      do 1001 iq = 1,nqsym ! NOTE: q=(0,0,0) is omitted when iqxini=2
+      do 1001 iq = 1,nqsym      ! NOTE: q=(0,0,0) is omitted when iqxini=2
          if(.not. MPI__task(iq) .and. iq .ne. 1) cycle
          q=qibz(:,iqlist(iq))
          if (iq == 1) then
             qshort=0d0; llsym=.true.
          else
             call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym) !!! exclude Gamma
+            imaximr=imaximr+1 !!! imaximr=1,2,...,mpi__MEq
          endif
          if (llsym) write(6,"('qshort (on syml) = ',3f9.5)") qshort            
 
@@ -958,6 +954,7 @@ ccccccc
       endif
 cccccccdiagonalization for K
       print *,"nw_i,nw",nw_i,nw
+      maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
       do 2050 iw = nw_i,nw
          trmat=0d0
          do iwf=1,nwf
@@ -1080,54 +1077,36 @@ c$$$               if (iwf==1 .and. jwf==1) then
      &           www*2d0,trmat/hartree
             if(.not. gskip) write(ifchipmrk_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
      &           www*2d0,trmatt/hartree
+
+cccc search for MAX(Im[R]) 20180706 (0 - 1500 meV)
+c            if (0d0 <www*hartree .and. www*hartree < 1.5) then
+            if (0d0 < www) then
+               if (maximr < -1d0*aimag(trmat)) then
+                  maximr=-1d0*aimag(trmat)
+                  w_maximr=www
+               endif
+            endif
+cccc
          endif
-c     &         www*2d0,(abs(rmat(ix*6+1,ix*6+1,iw)),ix=0,4)
-
-cccc
-cccc
-c$$$          !!! diagonalization for R
-c$$$          trmat=0d0
-c$$$          do iwf=1,9
-c$$$             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-c$$$             do jwf=1,nwf
-c$$$                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-c$$$                trmat=trmat+rmat(ijwf,klwf,iw)
-c$$$             enddo
-c$$$          enddo
-c$$$          if(.not. gskip) write(ifchipmr_wan1,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-c$$$     &         www*2d0,trmat/hartree
-c$$$cccc
-c$$$          !!! diagonalization for R
-c$$$          trmat=0d0
-c$$$          do iwf=10,nwf
-c$$$             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-c$$$             do jwf=1,nwf
-c$$$                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-c$$$                trmat=trmat+rmat(ijwf,klwf,iw)
-c$$$             enddo
-c$$$          enddo
-c$$$          if(.not. gskip) write(ifchipmr_wan2,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-c$$$     &         www*2d0,trmat/hartree
-c$$$cccc
-c$$$          !!! diagonalization for R
-c$$$          trmat=0d0
-c$$$          do iwf=1,nwf
-c$$$             ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-c$$$             do jwf=1,9
-c$$$                klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-c$$$                trmat=trmat+rmat(ijwf,klwf,iw)
-c$$$             enddo
-c$$$          enddo
-c$$$          if(.not. gskip) write(ifchipmr_wan3,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-c$$$     &         www*2d0,trmat/hartree
-c$$$cccc
-c$$$cccc
-
-
 ccc END K/(1-WK)
 
          gskip=.false.          !!! Skip Gamma point
  2050 continue
+
+      if (.not. iq==1) then 
+         !Tc(MF)
+         ! BZweight*omega[eV] for sum(E(q))/N
+         mf_maximr(imaximr)=wibz(iq)*w_maximr*hartree
+         !Tc(RPA)
+         ! BZweight*omega[eV] for sum(1/E(q))/N
+         rpa_maximr(imaximr)=wibz(iq)/(w_maximr*hartree)
+      endif
+
+      if (MPI__task(iq)) then  !magnon peak
+         write(6,"('AAAA',I4,3f9.4)") iq,qshort
+         write(6,"('AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*13600,maximr/hartree
+      endif
+
       if (MPI__task(iq)) then
          write(ifwkeigen2,*) 
          write(ifwkeigen3,*) 
@@ -1151,9 +1130,25 @@ c$$$  !! ImagOmega end =================
          close(ifchipmrk_wan)
       endif      
  1001 continue                  !q point loop
+      write(6,*) "maximr RPA",rpa_maximr
+      write(6,*) "maximr MFA",mf_maximr
+      sumrpa_maximr=cmplx(sum(rpa_maximr(:)),0d0,kind(0d0))
+      summf_maximr =cmplx(sum( mf_maximr(:)),0d0,kind(0d0))
 c$$$!! =================== end of loop 1001 for q point ========================
 
       call MPI__barrier()
+
+!! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===      
+      write(6,*) "MPIcheck",MPI__size,MPI__rank,sumrpa_maximr
+      if(MPI__size/=1) then
+         call MPI__AllreduceSum(sumrpa_maximr(1),1)
+         call MPI__AllreduceSum( summf_maximr(1),1)
+      endif
+      
+      write(6,*) "mpi__size MPI__size",mpi__size,MPI__size
+      write(6,"('sum(E(q)) for MFA:',f9.4)") real(summf_maximr(1))
+      write(6,"('[sum(1/E(q))]inv for RPA',f9.5)") 1d0/real(sumrpa_maximr(1))
+
       call cputid(0)
       call MPI__Finalize
       write(6,"('eta for 1-eta*WK , delta eta:',2f13.8)") eta,deta
