@@ -392,7 +392,6 @@ c      do iq=1,nqibz
 c         write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq)
 c      enddo
 c
-
 cccccccccccccccccc Screening W for magnon 
       nnwf=nwf*nwf
       allocate(scrw(nnwf,nnwf))
@@ -433,7 +432,6 @@ cccc
          enddo
       enddo
       scrw(:,:)=scrw(:,:)/hartree
-cccccccccccccccccc
       iqxend = nqibz !+ nq0i
 
 !! Initialization of readEigen !readin m_hamindex
@@ -947,8 +945,8 @@ c     imat(ijwf,ijwf)=1d0
       endif
 ccccccc
       if (MPI__task(iq)) then
-         ifwkeigen2=ifile_handle()
-         open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
+c$$$         ifwkeigen2=ifile_handle()
+c$$$         open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
          ifwkeigen3=ifile_handle()
          open(ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
       endif
@@ -995,9 +993,9 @@ cccccccccK(1-WK)^(-1)
             endif
          endif
 ccc   WK eigenvalue writing (wk_eval_list.dat)
-         call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)         
-         if (MPI__task(iq)) write(ifwkeigen2,"(3f9.5,I6,10E13.5)") qshort,iw,www*2d0,
-     &        eval_wk(1),abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3))
+c$$$         call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)         
+c$$$         if (MPI__task(iq)) write(ifwkeigen2,"(3f9.5,I6,10E13.5)") qshort,iw,www*2d0,
+c$$$     &        eval_wk(1),abs(eval_wk(1))!,eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3))
 ccc   
          call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
          rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
@@ -1026,8 +1024,8 @@ c          if (iq==1 .and. iw .ge. 0) then
 c          if (iw .ge. 0) then ! omega >= 0
          call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
          deallocate(wkmat2)
-         if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,10E13.5)") qshort,iw,www*2d0,
-     &        eval_wk(1),abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
+         if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,6E13.5)") qshort,iw,www*2d0,
+     &        eval_wk(1) !,abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
          
 !!! eigenvalue of rmat
          if (debug) then
@@ -1108,7 +1106,7 @@ ccc END K/(1-WK)
       endif
 
       if (MPI__task(iq)) then
-         write(ifwkeigen2,*) 
+c$$$         write(ifwkeigen2,*) 
          write(ifwkeigen3,*) 
          write(ifchipmz_wan,*)
          write(ifchipmr_wan,*)
@@ -1123,7 +1121,7 @@ c$$$  !! ImagOmega end =================
       debug=.False.
       
       if (MPI__task(iq)) then
-         close(ifwkeigen2)
+c$$$         close(ifwkeigen2)
          close(ifwkeigen3)
          close(ifchipmz_wan)
          close(ifchipmr_wan)

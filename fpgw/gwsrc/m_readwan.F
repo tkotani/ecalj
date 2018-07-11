@@ -330,14 +330,14 @@ c$$$         print *,"readscr    v:",scrv4(iwf1,iwf2,iwf3,iwf4)
 c$$$         print *,"readscr    W:",scrw4(iwf1,iwf2,iwf3,iwf4)
 c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
 
-!         if (sw1) call rx("'checkorb' should be done in advance")
+!         if (sw1) call rx("'checkorb should be done in advance")
          call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
          !!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
 c         ijklmag=.true.
          if (ijklmag) then      !!! check iwf is derived from same atom
             if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
      &           .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
-c            if (.true.) then
+c$$$            if (.true.) then
                scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
      &              + scrv4(iwf1,iwf2,iwf3,iwf4)
             else
@@ -413,8 +413,8 @@ c---------------------------------------
       implicit none
       integer,intent(in)  ::iwf_in,jwf_in,kwf_in,lwf_in
       logical(8),intent(out) ::iwfmag
-      integer::iclass,natom,r_mlwf
-      logical::skip
+      integer::iclass,natom,r_mlwfs,r_mlwff
+      logical::skip,sw_orb2
 
       
       if (sw1) call rx("checkorb2: call checkorb in advance")
@@ -422,36 +422,40 @@ c---------------------------------------
       natom=0
       skip=.False.
       iwfmag=.False.
+      sw_orb2=.False.
       do iclass=1,nclass_mlwf
          !!! iwf
-         if (nbasclass_mlwf(iclass-1) < iwf_in .and.
+         if (sw_orb2) then
+            continue
+         elseif (nbasclass_mlwf(iclass-1) < iwf_in .and.
      &        iwf_in <= sum(nbasclass_mlwf(1:iclass)) ) then
             natom=iclass
+            sw_orb2=.True.
          endif
       enddo
-!!!   jwf
-      r_mlwf=sum(nbasclass_mlwf(1:natom))
-!!!      print *,r_mlwf
-      if (nbasclass_mlwf(natom-1) < jwf_in .and.
-     &     jwf_in <= r_mlwf ) then
+!!!   iwf_in comes from (r_mlwfs < iwf <= r_mlwff)
+!!!   jwf (r_mlwfs < jwf_in <= r_mlwff)
+      r_mlwfs=sum(nbasclass_mlwf(1:natom-1))
+      r_mlwff=sum(nbasclass_mlwf(1:natom))
+      if (r_mlwfs < jwf_in .and. jwf_in <= r_mlwff ) then
+         continue
       else
          skip=.True.
       endif
 !!! kwf
-      if (.not. skip .and. nbasclass_mlwf(natom-1) < kwf_in .and.
-     &     kwf_in <= r_mlwf ) then
+      if (.not. skip .and. r_mlwfs < kwf_in .and. kwf_in <= r_mlwff ) then
+         continue
       else
          skip=.True.
       endif
 !!! lwf
-      if (.not. skip .and. nbasclass_mlwf(natom-1) < lwf_in .and.
-     &     lwf_in <= r_mlwf) then
-         iwfmag=.True.
-      endif
+      if (.not. skip .and. r_mlwfs < lwf_in .and. lwf_in <= r_mlwff ) then
+         continue
+      else
+         skip=.True.
+      endif      
+      if (.not. skip) iwfmag = .True.
 
-ccc test for FeFe case
-c      iwfmag=.True.
-ccc 
       end subroutine checkorb2
 
 c---------------------------------------
