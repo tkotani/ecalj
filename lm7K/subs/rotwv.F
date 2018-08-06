@@ -289,7 +289,7 @@ ccccccccccccccccccccccccccccccccc
         call rangedq(   matmul(platt,(qtarget-matmul(symops(:,:,igx),q))), qx)
 c        qx=matmul(platt,(qtarget-matmul(symops(:,:,igx),q)))
 c        if(sum(abs(qx-anint(qx)))<1d-8) then
-        if(sum(abs(qx))<1d-8) then
+        if(sum(abs(qx))<1d-6) then
           igg=igx
           if(debugmode()>0) then
             print *,'ttt: q      =',q

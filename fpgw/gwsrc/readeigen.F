@@ -2313,7 +2313,7 @@ c taken from lm7k/subs/rotwv.F
       integer, intent(in) :: n
       integer, intent(out) :: ii(n)
       integer::i
-      real(8):: eps=1d-8,aa !eps=1d-8 until aug2012
+      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
 c        if(a(i)>0) then
 c          aa = a(i)
@@ -2323,7 +2323,10 @@ c          aa=-a(i)
 c          ii(i)= -int(aa+eps)
 c        endif
         ii(i)=nint(a(i))
-        if(abs(ii(i)-a(i))>eps)call rx( 'conv2int: a is not close to integer')
+        if(abs(ii(i)-a(i))>eps)then
+           write(6,*)' ii a eps=',ii(i),a(i),eps
+           call rx( 'conv2int: a is not close to integer')
+        endif   
       enddo
       end subroutine conv2int
 
