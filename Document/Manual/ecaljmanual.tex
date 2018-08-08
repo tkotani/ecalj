@@ -1961,31 +1961,136 @@ and/or planes. For example, you need to set isovalue,
 and/or turn on 'display color plane' buttons.
 
 
-\subsection{LDA+U, partially occupied core-hole}
 
+
+\subsection{LDA+U}
+There is a document of \verb!ecalj/Document/BACKUP/MarksOriginalDoc/fp.html\#ldaplusu!
+But I include all required things here. Usage is slighly changed. 
+We have examples at \\
+\verb#~/ecalj/MATERIALS/erasldau,GdNldau#.
+I am going to add some samples.
+
+To run LDA+U calculaiton, we need two extra steps in addition to usual
+LDA calculaitons:\\
+\noindent Step.(1)  Set three tokens in ctrl file. LDA+U type, Parameters U and J.\\
+\noindent Step.(2)  Prepare occnum.{\it ext} (initial condition of diagonal part of the density matrix).\\
+Let us explain one by one. \\
+
+\noindent{\bf Step.(1)}\\
+For the point (1), we have a new line in SPEC\_ATOM sections.
+In ecalj/MATERIALS/erasldau, it is 
 \begin{verbatim}
-
-See
-file:///home/takao/ecalj/Document/BACKUP/MarksOriginalDoc/fp.html#ldaplusu
-We need to add lines such as
-  IDU= 0 0 2 2 UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
-for each SPEC_ATOM, And initial occnum.foobar file.
-An example is in ecalj/MATERIALS/GdNldau/
-
-When you just like to generate initial condition for gwsc,
-you have to remove (or comment out) IDU before the 1st iteration
-with sigm file, because sigm may already can contain LDA+U kind of effect.
-(Thus you may need to modify gwsc or stop it at the 0th iteration,
-and then remove IDU...)
-
-Caution: 
-We need the initial condition file such as occnum.gdn for LDA+U. 
-(you may need to set "% real" at the begninig of the file).
-Note that definition of spherical harmonics is in ecaljmanual.pdf.
-(real harmonics is usual ones used in jobpdos).
-Look for the keyword ldau in fp/lmfp.F -> sudmtu.F which read occnum.gdn.
-
+       IDU= 0 0 2 2 UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
 \end{verbatim}
+The SPEC\_ATOM\_IDU token tells lmf that no U is to be added to the s or
+p channels, but that a U is to be added to the d and f channels. 
+IDU=2 specifies LDA+U functional style 2; this is the "Fully Localized
+Limit" described in Liechtenstein, PRB 52, R5467 (1995)). 
+IDU=1 specifies the "Around Mean Field" functional (Petukhov, PRB 67,
+153106 (2003)). U=0.1 Ry is included on the d orbital, and U=0.632 is
+included on the f orbital. Additionally J=0.055 is put on the f orbital.
+
+\noindent{\bf Density matrix:}\\
+It is stored in \verb#dmats.ext#.
+In principle, the density-matrix is read from and written to the file
+\verb#dmats.ext#. Thus, in principle, we need a dmats.ext as an initial condition.
+However, we usually use diagonal-only density matric occunum.ext
+instead. If no \verb#dmats.ext#, we read \verb#occnum.eras# instead. We
+explain it afterwards.
+Two density-matrices (for each spin) are written to this file in a
+(2l+1) by (2l+1) block for each l block for which a U is defined. 
+dmats.ext is an ASCII file which you can read, and it's quite useful to
+interpret what's going on. 
+The diagonal parts are the occupation numbers and are the most
+important. It is in the spherical harmonics (not the real harmonics).
+The harmonics is defined in the ecaljdetail.tex.
+
+Note that in the LDA case, complete information is contained in the
+density, stored in file rst.ext. 
+In the LDA+U, the Density-matrix is stored in file dmats.ext. 
+Thus complete information is contained in the combination of rst.ext and dmats.ext.
+
+The density matrix is printed out in the standard output.
+It can be represented on the real harmonics.
+To check it, run 
+\begin{verbatim}
+>lmf eras --quit=dmat
+\end{verbatim}
+. This stops promptly without side effect.
+Then the symmetrized density matrix represented on the spherical
+harmonics and real harmonics are shown
+(we make symmetrization for the given SYMOPS in ctrl file).
+
+
+\noindent \verb#Step.(2)#\\
+Usually it is too tedious to supply dmats.ext itself.
+Instead, you can supply an "occupation numbers" file occnum.ext, which
+is a starting guess for the density-matrix (its diagonal part). 
+occnum.ext has one line of (2l+1) numbers for the occupation numbers of
+the first spin, following by a line with the occupation numbers for the second spin. 
+In the case of ecalj/MATERIALS/erasldau, we have occnum.eras.
+
+Er has 11 f electrons, 7 of which go into the majority channel and 4
+into the minority channel. 
+There is some choice in which m states to fill and which to keep empty. 
+A key point is that the self-consistent solution you end up with will
+depend on this choice. The ErAs test uses the following input file for occnum.eras :
+\begin{verbatim}
+  0 0 0 0 0
+  0 0 0 0 0
+  1 1 1 1 1 1 1
+  0 1 1 1 1 0 0
+\end{verbatim}
+The first and second lines are occupation numbers for the majority and
+minority d channel; the third corresponds to the majority f channel
+where all states are taken to be filled. 
+The last line corresponds to the minority f channel. In this case,
+m=-2,-1,0,1 are filled and m=-3,2,3 are empty. 
+As the script notes, different choices of starting occupation numbers
+lead to different self-consistent solutions. 
+The one with the lowest energy is that which satisfies Hund's rule (m=0,1,2,3 filled and m=-3,-2,-1 empty).
+
+It is possible to use 'real harmonics (see ecalj/fpgw/exec/jobpdos for definition)'
+instead of 'spherical harmonics'. As for occnum.ext, you can use 
+\begin{verbatim}
+% real
+  0 0 0 0 0
+  0 0 0 0 0
+  1 1 1 1 1 1 1
+  0 1 1 1 1 0 0
+\end{verbatim}
+. Here \verb$'% real'$ means on the basis of real harmonics.
+Check whether this is correctly supplied or not by \verb#>lmf --quit=dmat eras#.
+
+To run with spin-orbit coupling, set HAM\_SO=1, then run
+>grep IORBTM -A20 llmf
+, here llmf is the standard output of lmf.
+Then you see orbital moments at 'IORBTM'.
+
+
+\noindent NOTE for gwsc:\\
+When you just like to generate initial condition for gwsc by LDA+U,
+you have to exit right after sigm generated
+(add \verb#exit# right after 
+\verb#$echo_run echo == $ix 'iteration over=='# in gwsc). 
+Then gwsc stops right after sigm generated.
+Then you have to remove or comment out IDU (or set all zero) in ctrl
+file. Then run lmf together with obtained sigm file. 
+This is because sigm contains LDA+U kind of effect.
+After this, check energy band (jobband) for check.
+And run usual gwsc--- then you can perform QSGW with the LDA+U's initial condition.
+
+
+\subsection{partially occupied core-hole}
+\begin{verbatim}
+See file:///home/takao/ecalj/Document/BACKUP/MarksOriginalDoc/fp.html#ldaplusu
+around.
+Search the keyword ldau in fp/lmfp.F -> sudmtu.F which read occnum.gdn.
+Core-hole procedure is one of the important procedure.But not yet
+documented here.
+\end{verbatim}
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

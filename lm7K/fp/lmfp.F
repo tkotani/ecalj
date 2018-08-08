@@ -391,6 +391,7 @@ C     need group info to symmetrize site density matrix
         if (umix .eq. 0) umix = 1
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
      .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab , dmatu , vorbdmat)
+        if ( int(sctrl%quit) .eq. 16 ) call rx0('quit = dmat')
       endif
 C     end LDA+U  initialization section
 !! === Re-entry point for a new iteration ===

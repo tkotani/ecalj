@@ -259,7 +259,7 @@ C     Print dmats in specified harmonics
 
 
 C     Print dmats in complementary harmonics
-      if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
+c      if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
         i = 1-idvsh
         call rotycs ( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , sspec 
      .  , ssite , lldau )
@@ -268,7 +268,7 @@ C     Print dmats in complementary harmonics
         call praldm ( 0 , 30 , 30 , i , nbas , nsp , lmaxu , lldau , 
      .  sspec , ssite , ' Symmetrized dmats' , dmwk_zv )
 
-      endif
+c      endif
       if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
 
@@ -347,7 +347,7 @@ C     Print vorb in specified harmonics
      .' Symmetrized vorb',vorb)
 
 C     Print vorb in complementary harmonics
-      if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
+c      if (ipr.ge.45 .or. ipr.ge.40 .and. idvsh.eq.0) then
         i = 1-idvsh
         allocate(dmwk_zv(abs(-ivsiz)))
         if (-ivsiz<0) dmwk_zv(:)=0.0d0
@@ -367,7 +367,7 @@ C     .    ' dmats',w(odmwk))
 
         if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
-      endif
+c      endif
 
       eorb = 0
 
