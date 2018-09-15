@@ -1,4 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+##!/usr/bin/env python2
 # takao kotani jan2017 for symmetry line based on https://github.com/giovannipizzi/seekpath
 #
 import numpy as np
@@ -54,19 +55,20 @@ i=0
 pos=['']*3
 positions=[]
 numbers=[]
+#print sitefile
 for iline in sitefile:
     i=i+1
-    if i==1: continue
+    #if i==1: continue
     if len(iline)==0: 
-        nsite=i
+        nsite=i-1
         break
     vec=[re.split('\s+',iline)[ix] for ix in range(1,8)]
 #    print iline
     pos = [float(vec[ix]) for ix in range(4,7)]
-    positions.append([np.dot(pos,qlat[i]) for i in range(0,3)])
+    positions.append([np.dot(pos,qlat[ix]) for ix in range(0,3)])
     numbers.append(int(vec[1]))
-    print 'pos=',pos,' id=',int(vec[1])
-#print positions
+    print i,' pos=',pos,' id=',int(vec[1])
+print 'nsite=',nsite#,positions
 
 
 ###############################################

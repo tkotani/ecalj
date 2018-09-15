@@ -13,6 +13,9 @@ MATH='-mkl'
 mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
 
+# make a link to getsyml
+ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+
 ### viewvesta
 cd StructureTool/
 ./makelink $BINDIR
@@ -37,3 +40,4 @@ make BINDIR=$BINDIR PLATFORM=ifort install
 
 cd ../../TestInstall/
 make mpi_size=4 all
+
