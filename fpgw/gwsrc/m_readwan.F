@@ -333,11 +333,12 @@ c$$$     &                          + scrv4(iwf1,iwf2,iwf3,iwf4)
 !         if (sw1) call rx("'checkorb should be done in advance")
          call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
          !!! ijklmag = F ---> W = 0 ; ijklmag = T ---> W = Wd
-c         ijklmag=.true.
+c$$$         ijklmag=.true.
          if (ijklmag) then      !!! check iwf is derived from same atom
             if (idorb(iwf)==2 .and. idorb(jwf)==2 !!!only d-orbital
      &           .and. idorb(kwf)==2 .and. idorb(lwf)==2) then
 c$$$            if (.true.) then
+c$$$            if (idorb(iwf)==idorb(jwf) .and. idorb(kwf)==idorb(lwf)) then !!!include sp orbitals
                scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
      &              + scrv4(iwf1,iwf2,iwf3,iwf4)
             else
@@ -464,16 +465,20 @@ c---------------------------------------
       integer, intent(in) :: ngrp_w, iq
       real(8),intent(out):: qshort(3)
       logical(8), intent(out) :: llsym_o
-      
-      real(8)::qrot(3),cr=2d-5
-      logical(8)::gskip
+
+      real(8)::qrot(3),cr=2d-5,theta
+      logical(8)::gskip, hcpsym
       logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
-     &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dhnb=.false.
+     &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dwkf=.false.,dhnb=.false.
      &     ,dnpb=.false.,dxms=.false.,all_iq=.false.
-      real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2
-      integer:: nlatout(3,48),nout,iout,ig
+     &     ,hcpgm=.false.,hcpgk=.false.,hcpmk=.false.
+     &     ,hcpal=.false.,hcpah=.false.,hcplh=.false.,hcpga=.false.,hcp=.false.
+      real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2,qlat2(3),qlat3(3),
+     &     alpha, pi, b1, b2
+      integer:: nlatout(3,48),nout,iout,ig, i
       character*5:: syml
 
+      pi=4d0*atan(1d0)
       !!! get syml line
       call getkeyvalue("GWinput","qsym",syml,default="100")
       llsym_o=.true.      
@@ -491,6 +496,8 @@ c---------------------------------------
          dwlf=.true.            ! W to L (fcc) !.5 1 0 --> .5 .5 .5
       else if (syml=="fccXW") then
          dxwf=.true.            ! X to W (fcc) !1 0 0 --> 1 .5 0
+      else if (syml=="fccWK") then
+         dwkf=.true.            ! W to K (fcc) !1 .5 0 --> .75 .75 0
       else if (syml=="bccHN") then
          dhnb=.true.           ! G (bcc): H to N !1 0 0 --> .5 .5 0
       else if (syml=="bccNP") then
@@ -499,13 +506,37 @@ c---------------------------------------
          dhpb=.true.           !F (bcc): H to P !1 0 0 --> .5 .5 .5
       else if (syml=="scXM") then
          dxms=.true.           !F (sc): X to M !.5 0 0 --> .5 .5 0
+      !!!HCP
+      else if (syml=="hcpGM") then
+         hcpgm=.true.          !GM (hcp): G to M !
+         hcp=.true.
+      else if (syml=="hcpGK") then
+         hcpgk=.true.           !GM (hcp): G to K !
+         hcp=.true.
+      else if (syml=="hcpMK") then
+         hcpmk=.true.           !GM (hcp): M to K !
+         hcp=.true.
+      else if (syml=="hcpAL") then
+         hcpal=.true.           !GM (hcp): A to L !
+         hcp=.true.
+      else if (syml=="hcpAH") then
+         hcpah=.true.           !GM (hcp): A to H !
+         hcp=.true.
+      else if (syml=="hcpLH") then
+         hcplh=.true.           !GM (hcp): L to H !
+         hcp=.true.
+      else if (syml=="hcpGA") then
+         hcpga=.true.           !GM (hcp): G to A !
+         hcp=.true.
       else
          write(6,*) "not supported symmetry line"
          call rx("m_readwan.F: routine end")
       endif
          
       if (iq==1) then
-         if(d1xx .or. dxwf .or. dhnb .or. dnpb .or.dhpb) gskip=.true.
+         if(d1xx .or. dxwf .or. dwkf .or. dhnb .or. dnpb .or.dhpb
+     &        .or. hcpal .or. hcpah .or. hcplh .or. hcpmk) gskip=.true.
+         qshort=qin
       else
          do ig=1,ngrp_w
             if (.not. llsym_o) cycle
@@ -513,18 +544,19 @@ c---------------------------------------
             if(init2) then
                call shortn3_initialize(qlat_in,rlatp_,xmx2_)
                init2=.false.
+               if (hcp) qlat2(:)=(qlat_in(:,1)+qlat_in(:,2))/3d0
             endif
             qqin = matmul(transpose(plat),qrot)
             call shortn3(rlatp_,xmx2_, qqin,ngrp_w, nout,nlatout)
             iout=1
             qshort(1:3)=  matmul(qlat_in(:,:), qqin+nlatout(:,iout))
             
-c$$$            write(6,"('xxxx iq q ig qshort'i5,3f8.4,i3,3f8.4)")
-c$$$     &           iq,qin(:),ig,qshort(:)
-
             qshort2=sqrt(dot_product(qshort,qshort))
-            qshort=int(1d6*qshort)/1d6
+            qshort=int(1d8*qshort)/1d8
 
+            if (hcp) then
+               qshort=qin
+            endif
 cccccccccccccccccsymline check
             if (d100) then      !(100)
                if (abs((qshort2)-abs(qshort(1))) > cr
@@ -575,10 +607,6 @@ cccccccccccccccccsymline check
                endif
 
             elseif (dwlf) then  !  W to L (fcc): 48 lines (pm1/2, pm(1-pmx), pmx)
-c$$$               if     (abs(abs(qshort(1))-5d-1) < cr ) then
-c$$$               elseif (abs(abs(qshort(2))-5d-1) < cr ) then
-c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
-
                if     (abs(abs(qshort(1))-0.5d0) < cr .and.
      &              abs(abs(qshort(2))+abs(qshort(3))-1d0) < cr ) then
                elseif (abs(abs(qshort(2))-0.5d0) < cr .and.
@@ -589,7 +617,7 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
                   llsym_o=.false.
                endif
             
-            elseif (dxwf) then     !(1xx) on S (fcc)
+            elseif (dxwf) then
                if (abs(abs(qshort(1))-1d0) > cr
      &              .and. abs(abs(qshort(2))-1d0) > cr
      &              .and. abs(abs(qshort(3))-1d0) > cr) then
@@ -599,6 +627,26 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
                if (abs(qshort(1)) > cr
      &              .and. abs(qshort(2)) > cr
      &              .and. abs(qshort(3)) > cr) then
+                  llsym_o=.false.
+               endif
+
+            elseif (dwkf) then     !W-->K:(fcc)
+               !!! W-K ( |x|=0 and |y|+|z|=1.5)
+               if     (abs(qshort(1)) < cr .and.
+     &              abs(abs(qshort(2))+abs(qshort(3))-1.5d0) < cr ) then
+               elseif (abs(qshort(2)) < cr .and.
+     &              abs(abs(qshort(3))+abs(qshort(1))-1.5d0) < cr ) then
+               elseif (abs(qshort(3)) < cr .and.
+     &              abs(abs(qshort(1))+abs(qshort(2))-1.5d0) < cr ) then
+               !!! U-W (because W corresponds to U)
+               !!! |x|=0 and |y|+|z|=0.50
+               elseif (abs(abs(qshort(1))-1d0) < cr .and.
+     &              abs(abs(qshort(2))+abs(qshort(3))-5d-1) < cr ) then
+               elseif (abs(abs(qshort(2))-1d0) < cr .and.
+     &              abs(abs(qshort(3))+abs(qshort(1))-5d-1) < cr ) then
+               elseif (abs(abs(qshort(3))-1d0) < cr .and.
+     &              abs(abs(qshort(1))+abs(qshort(2))-5d-1) < cr ) then
+               else
                   llsym_o=.false.
                endif
 
@@ -654,15 +702,178 @@ c$$$               elseif (abs(abs(qshort(3))-5d-1) < cr ) then
      &              .and. abs(abs(qshort(3))-5d-1) > cr ) then
                   llsym_o=.false.
                endif
+ccc HCP (gm mk gk ga al lh ah)
+ccc HCP (G-M or A-L)
+            elseif (hcpgm .or. hcpal) then ! F: H to P (bcc)
+               !!!z=0
+               if (abs(qshort(3)) > cr .and. hcpgm) then
+                  llsym_o=.false.
+                  cycle
+               elseif (abs(2d0*qshort(3)-qlat_in(3,3)) > cr .and. hcpal) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+               !!!
+               if (qlat_in(1,1)==0d0) then
+                  alpha=9999d0
+               else
+                  alpha=qlat_in(2,1)/qlat_in(1,1)
+               endif
+               !!!
+               hcpsym=.false.
+               do i=1,6
+                  theta=pi*(i-1)/3d0
+                  b1= cos(theta)*qshort(1)+sin(theta)*qshort(2)
+                  b2=-sin(theta)*qshort(1)+cos(theta)*qshort(2)
+                  if (abs(b1) < cr .and. alpha==9999d0) then
+                     hcpsym=.true.
+                  elseif (abs(b2/b1-alpha) < cr) then
+                     hcpsym=.true.
+                  endif
+               enddo
+               if (.not. hcpsym) llsym_o=.false.
+ccc HCP (G-K or A-H)
+            elseif (hcpgk .or. hcpah) then ! F: H to P (bcc)
+               !!!z=0
+               if (abs(qshort(3)) > cr .and. hcpgk) then
+                  llsym_o=.false.
+                  cycle
+               elseif (abs(2d0*qshort(3)-qlat_in(3,3)) > cr .and. hcpah) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+               !!!
+               if (qlat2(1)==0d0) then
+                  alpha=9999d0
+               else
+                  alpha=qlat2(2)/qlat2(1)
+               endif
+
+               !!!
+               hcpsym=.false.
+               do i=1,6
+                  theta=pi*(i-1)/3d0
+                  b1= cos(theta)*qshort(1)+sin(theta)*qshort(2)
+                  b2=-sin(theta)*qshort(1)+cos(theta)*qshort(2)
+                  if (abs(b1) < cr .and. alpha==9999d0) then
+                     hcpsym=.true.
+                  elseif (abs(b2/b1-alpha) < cr) then
+                     hcpsym=.true.
+                  endif
+               enddo
+               if (.not. hcpsym) llsym_o=.false.
+cccc
+ccc HCP (M-K or L-H)
+            elseif (hcpmk .or. hcplh) then ! F: H to P (bcc)
+               !!!z=0
+               if (abs(qshort(3)) > cr .and. hcpmk) then
+                  llsym_o=.false.
+                  cycle
+               elseif (abs(2d0*qshort(3)-qlat_in(3,3)) > cr .and. hcplh) then
+                  llsym_o=.false.
+                  cycle
+               endif
+               
+               qlat3(:)=qlat2(:)-qlat_in(:,1)/2d0
+               !!!
+               if (qlat3(1)==0d0) then
+                  alpha=9999d0
+               else
+                  alpha=qlat3(2)/qlat3(1)
+               endif
+
+               !!!
+               hcpsym=.false.
+               if (abs(qshort(1)-qlat_in(1,1)/2d0) < cr .and. alpha==9999d0) then
+                  hcpsym=.true.
+               elseif (abs( (qshort(2)-qlat_in(2,1)/2d0)/(qshort(1)-qlat_in(1,1)/2d0) - alpha ) < cr ) then
+                  hcpsym=.true.
+               endif
+               if (.not. hcpsym) llsym_o=.false.
+ccc   HCP (G-A: 001)
+            elseif (hcpga) then !(100)
+               if (abs(qshort(1)) < cr .and. abs(qshort(2)) < cr) then
+                  llsym_o=.true.
+               else
+                  llsym_o=.false.
+               endif
+               
             elseif (all_iq) then
                llsym_o=.true.
-            endif
-
-c            if (llsym_o) print *, "aaaa:",qshort
-
+            endif            
          enddo
       endif
       end subroutine getqsym
+c---------------------------------------
+      !!! create unit matrix 
+      !!! imat(iwf,jwf)= 1 if iwf=jwf,kwf=lwf
+      !!!              = 0 otherwise
+      subroutine wan_imat(nwf,imat_o)
+      implicit none
+      integer,intent(in)  :: nwf
+      complex(8), intent(out) :: imat_o(nwf*nwf,nwf*nwf)
+      integer:: iwf,kwf,ijwf,klwf
+
+      imat_o=0d0
+      !!! diagonalize for iwf=jwf and kwf=lwf
+      do iwf=1,nwf
+         ijwf=(1+nwf)*iwf-nwf   !!! iwf=jwf 
+         do kwf=1,nwf
+            klwf=(1+nwf)*kwf-nwf !!! kwf=lwf
+            imat_o(ijwf,klwf)=(1d0,0d0)
+         enddo
+      enddo
+      !! threshold
+      end subroutine wan_imat
+
+c---------------------------------------
+      !!! extract zmat(ijwf,klwf) ---> eval_o(nnwf)
+      !!! sum of eval_o is trmat
+      subroutine diagwan(zmat,eval_o)
+      implicit none
+      complex(8),intent(in) :: zmat(nwf*nwf,nwf*nwf)
+      complex(8), intent(out) :: eval_o(nwf*nwf)
+      integer:: iwf,kwf,ijwf,klwf
+
+      eval_o=0d0
+      !!! diagonalize for iwf=jwf and kwf=lwf
+      do iwf=1,nwf
+         ijwf=(1+nwf)*iwf-nwf   !!! iwf=jwf 
+         do kwf=1,nwf
+            klwf=(1+nwf)*kwf-nwf !!! kwf=lwf
+            eval_o(nwf*(iwf-1)+kwf)=zmat(ijwf,klwf)
+         enddo
+      enddo
+      !!
+      call bubble_im(nwf*nwf,eval_o)
+      !! threshold
+      end subroutine diagwan
+c---------------------------------------
+      !!! diag for wannier matrix Im[K]
+      !!! sum of element in iwf=jwf and kwf=lwf
+      subroutine diagwan_tr(zmat,trmat_o)
+      implicit none
+      complex(8),intent(in) :: zmat(nwf*nwf,nwf*nwf)
+      complex(8), intent(out) :: trmat_o
+!      real(8):: pi,znorm
+      integer:: iwf,kwf,ijwf,klwf
+
+!      pi = 4d0* atan(1d0)
+!      znorm=-1d0*pi
+      trmat_o=0d0
+      !!! diagonalize for iwf=jwf and kwf=lwf
+      do iwf=1,nwf
+         ijwf=(1+nwf)*iwf-nwf   !!! iwf=jwf 
+         do kwf=1,nwf
+            klwf=(1+nwf)*kwf-nwf !!! kwf=lwf
+            trmat_o=trmat_o+zmat(ijwf,klwf)
+         enddo
+      enddo
+      !! threshold
+!      if (abs(aimag(trmat_o)) < 1d-16) trmat_o=cmplx(dble(trmat_o),0d0,kind(0d0))
+      end subroutine diagwan_tr
 
 c---------------------------------------
       integer function ifile_handle() !! find open file handle
@@ -689,8 +900,27 @@ c---------------------------------------
      &       +am(3,1)*am(1,2)*am(2,3)
      &       -am(3,1)*am(2,2)*am(1,3)
       end function
+c---------------------------------------------------------------------
+      subroutine bubble_im(n,array)
+      !sikinote, 2016/08/08
+      implicit none
+      integer,intent(in)::N
+      complex(8),intent(inout)::array(1:N)
+      integer::i,j
+      complex(8)::t
+      
+      do i=1,N-1
+         do j=i+1,N
+            if(aimag(array(i)) .gt. aimag(array(j)))then
+               t=array(i)
+               array(i)=array(j)
+               array(j)=t
+            end if
+         end do
+      end do
 
-c---------------------------------------      
+      return
+      end subroutine bubble_im
       end module m_readwan
 
 

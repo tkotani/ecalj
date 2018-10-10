@@ -404,7 +404,12 @@ ctm, 080222
           iq = iq + 1
           q(:,iq) = qi(:,i) + (qf(:,i)-qi(:,i))*dble(j)/dble(np(i)-1)
           if(iq>1) then
-            xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
+             !!! xq may be too long if q is outside of 1stBZ
+             if(0.2 < dsqrt(sum((q(:,iq)-qold)**2))) then !!maybe same point (must be checked)
+                xq(iq)= xq(iq-1)
+             else
+                xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
+             endif
           endif
           qold=q(:,iq)
         enddo ! j
