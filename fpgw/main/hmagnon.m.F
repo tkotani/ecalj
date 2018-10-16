@@ -6,7 +6,8 @@
       program hmagnon
 c      use matm,only: matm,matcinv
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
-     &     readscr, checkorb, getqsym, checkorb2, diagwan, diagwan_tr, wan_imat
+     &     readscr, checkorb, getqsym, checkorb2, diagwan, diagwan_tr, wan_imat,
+     &     writehmat
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
@@ -78,7 +79,7 @@ c     &           , ngvecp(:,:), ngvecc(:,:), !,ngpn(:),ngcni(:),iqib(:),
 c     &   ifppb(:)   !ongveccBr(:,:,:),nx(:,:),nblocha(:),lx(:),
       complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:),
      &  zw(:,:),
-     &  zxq(:,:,:),zxqi(:,:,:)
+     &  zxq(:,:,:),zxqi(:,:,:),zxq2(:,:,:)
       real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),
 c     &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:),
 c     &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
@@ -801,12 +802,13 @@ c$$$                   enddo
 c$$$                endif
 c                else
                    
+
 c$$$  !!! evc_w1: upspin ; evc_w2: downspin
               it=n1b(ibib,kx,jpm) !index for n  for q
               itp=n2b(ibib,kx,jpm) !index for n' for q+k
               wanmat=(0d0,0d0)
               ijwf=0
-
+c$$$ O(nwf^4)
               do 3002 iwf=1,nwf
               do 3003 jwf=1,nwf
                  ijwf=ijwf+1
@@ -814,17 +816,22 @@ c$$$  !!! evc_w1: upspin ; evc_w2: downspin
               do 3004 kwf=1,nwf
               do 3005 lwf=1,nwf
                  klwf=klwf+1               
+                 debug=.True.
+                 if ( ijwf <= klwf .or. debug) then !!! Herimite
 c                   call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
 c                   ijklmag=.true. !test for FeFe
 c                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag !! ijklmag=T: {ijkl} in same atom
 !     if (ijklmag) then !!! same atom
-                 if (.true.) then !!! same atom
+!                 elseif (.true.) then !!! same atom
                    !!! calculate numerator of Kmatrix
                     wan_j=dconjg(evc_w1(jwf,it,kx)) !a_{Rj   beta}^{kn}*
                     wan_i=evc_w2(iwf,itp,kx) !a_{Ri  alpha}^{(k+q)n'}
                     wan_l=evc_w1(lwf,it,kx) !a_{R'l  beta}^{kn}
                     wan_k=dconjg(evc_w2(kwf,itp,kx)) !a_{R'k alpha}^{(k+q)n'}*
                     wanijkl=wan_j*wan_i*wan_k*wan_l
+
+                    wanmat(ijwf,klwf)=wanijkl
+                    if (debug) wanmat(klwf,ijwf)=dconjg(wanijkl) !!! Suppose Hermite Kmat
 
 c$$$                      write(ifwanmat,"('i j k l ijkltag abs(wan) Re(wan) Im(wan)',4I3,L4,5E13.5)") iwf,jwf,
 c$$$     &                     kwf,lwf,ijklmag,abs(wanijkl),wanijkl
@@ -835,7 +842,6 @@ c$$$     &                     kwf,lwf,ijklmag,abs(wanijkl),wanijkl
 c$$$                 if (abs(aimag(wanijkl))<1d-16) then
 c$$$                    wanijkl=cmplx(dble(wanijkl),0d0,kind(0d0))
 c$$$                 endif
-                 wanmat(ijwf,klwf)=wanijkl
 !                 wanmat(ijwf,klwf)=wanijkl+(0d0,1d-9) ! +delta (~ 1d-9?)
                  ! delta makes a width of Im[R] peaks
                    
@@ -843,13 +849,14 @@ c$$$                 endif
  3004  continue     !kwf
  3003  continue     !jwf
  3002  continue     !iwf
+       debug=.False.
        if (egasmode) wanmat=1d0
 
-c$$$c diag wanmat
-c$$$       do iwf=1,nnwf
-c$$$          wanmat(iwf,iwf)=(1d0,0d0)
-c$$$       enddo
-c$$$c
+c$$$  c diag wanmat
+c$$$  do iwf=1,nnwf
+c$$$  wanmat(iwf,iwf)=(1d0,0d0)
+c$$$  enddo
+c$$$  c
 
 c========================== end caliculate M(:,:) : wanmat(nwf,nwf)
 ccc   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
@@ -864,6 +871,7 @@ ccc   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
  2012 continue                  !jpm-loop
  2011 continue                  !k-loop
 
+      call writehmat(kmat(:,:,200,1),nwf,"wanmat_check.dat")
 
 
       !!! threshold for Im[K]
@@ -884,11 +892,9 @@ c$$$                  enddo
 c$$$               enddo
 c$$$            enddo
 c$$$         enddo
-c$$$      endif
-
+c$$$      endi
       deallocate(evc_w1,evc_w2,wanmat)
       call tetdeallocate()      !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
 !     ! npm is set by npmtwo=T
       schi=1                    ! flip over maj/min spins.
@@ -905,35 +911,41 @@ c$$$      endif
      i        .false., schi,1,1d99,1d99) !ecut(iecut),ecuts(iecut))
          deallocate(kmat)
       endif
+
       deallocate(zxqi) !!! not used in hmagnon (2018/06/20)
-
-
-
-cccc Hermite check
-      if (iq==4) then
-         ifwanmat=ifile_handle()
-         open(ifwanmat,file="wanmat_check.dat")
-        
-         do iw=1,nw
-            if (200 < iw .and. iw < 210) then
-               write(ifwanmat,"(3f9.5,i5)") qshort,iw
-               do iwf=1,nwf
-                  ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-                  do jwf=1,nwf
-                     klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-
-                     write(ifwanmat,"(3i5,6E13.4)") iw,iwf,jwf,
-     &                    zxq(ijwf,klwf,iw),dconjg(zxq(klwf,ijwf,iw)),zxq(klwf,ijwf,iw)-dconjg(zxq(ijwf,klwf,iw))
-                  enddo
-               enddo
+cccc
+      call writehmat(zxq(:,:,200) ,nwf, "zxqmat_check.dat")
+cccc
+      !!!Hermite for Kmat (zxq)
+      allocate(zxq2(nnwf,nnwf,nw_i:nw))
+      zxq2=zxq
+      zxq=0d0
+      ijwf=0
+      do 3006 iwf=1,nwf
+      do 3007 jwf=1,nwf
+         ijwf=ijwf+1
+         klwf=0
+         do 3008 kwf=1,nwf
+         do 3009 lwf=1,nwf
+            klwf=klwf+1               
+            if ( ijwf < klwf ) then !!! Herimite
+               continue
+               
+            elseif (ijwf == klwf) then
+               zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
+            else !!! ijwf > klwf 
+               zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
+               zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
             endif
-         enddo
-         close(ifwanmat)
-      endif
+ 3009 enddo
+ 3008 enddo
+ 3007 enddo
+ 3006 enddo
+      ijwf=0; klwf=0
+      deallocate(zxq2)
 
-ccc
       !!! threshold for Im[K] (zxq)
-c$$$      threshold=.False.
+      threshold=.False.
       if (threshold) then
          do iw=nw_i,nw
             do iwf=1,nnwf
@@ -950,10 +962,8 @@ c$$$                     zxq(iwf,jwf,iw)=cmplx(dble(zxq(iwf,jwf,iw)),-1d0*aimag(
 cccc
 
       allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
-c     allocate(swkwmat(1:nnwf,1:nnwf),swkwmat2(1:nnwf,1:nnwf))!sW Kmatrix, sW K sW matrix_inv
       allocate(rmat(1:nnwf,1:nnwf,nw_i:nw)) !Rmatrix
-      wkmat=0d0;wkmat2=0d0
-      rmat=0d0
+      wkmat=0d0;wkmat2=0d0;rmat=0d0
 ccc
       debug=.True.              !!01/16
 ccc
@@ -966,6 +976,9 @@ ccc
 
          wkmat(1:nnwf,1:nnwf)
      &        =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
+
+         call writehmat(scrw,nwf,"wmat_check.dat")
+
 
 !!!   eval_wk is complex array because of Non-Hermite WK
          call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
@@ -1038,26 +1051,12 @@ cccccccdiagonalization for K
       maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
       do 2050 iw = nw_i,nw
          trmat=(0d0,0d0)
-c$$$         do iwf=1,nwf
-c$$$            ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
-c$$$            do jwf=1,nwf
-c$$$               klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
-c$$$               call checkorb2(iwf,iwf,jwf,jwf,ijklmag); ijklmag=.true.
-c$$$               if(ijklmag) then
-c$$$                  !!! threshold
-c$$$                  if (log10(abs(aimag(zxq(ijwf,klwf,iw)))/pi) < -16) then
-c$$$                     trmat=trmat+cmplx(dble(zxq(ijwf,klwf,iw))/znorm,0d0,kind(0d0))
-c$$$!                     trmat=trmat+dble(zxq(ijwf,klwf,iw)/znorm)
-c$$$                  else
-c$$$                     trmat=trmat+zxq(ijwf,klwf,iw)/znorm
-c$$$                  endif
-c$$$               endif
-c$$$            enddo
-c$$$         enddo
 
          !!! diag 
          call diagcvuh3(zxq(:,:,iw),nnwf,eval_wk)
-
+         !!! Hermite matrix diagonization
+         !call diagcvh2(zxq(:,:,iw),nnwf,eval_wk) 
+         !!!
 
          do iwf=1,nnwf
             if (abs(aimag(eval_wk(iwf))) < 1d-16) eval_wk(iwf)=cmplx(dble(eval_wk(iwf)),0d0,kind(0d0))
@@ -1070,14 +1069,17 @@ c         call diagwan_tr(zxq(:,:,iw),trmat)
 !     &        iw,www*2d0,trmat/hartree
      &        iw,www*2d0,sum(eval_wk)/(hartree*znorm)
 
-
 !!! K/(1-WK) = K(1-WK)^(-1)
-         if (.not. allocated(wkmat)) allocate(wkmat(1:nnwf,1:nnwf))
+!!! WK matrix
          wkmat(1:nnwf,1:nnwf)
      &        =eta*matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
-c??     &        =eta*matmul(scrw(1:nnwf,1:nnwf),abs(zxq(1:nnwf,1:nnwf,iw)))
 
+c??     &        =eta*matmul(scrw(1:nnwf,1:nnwf),abs(zxq(1:nnwf,1:nnwf,iw)))
+cccc Hermite check (WKmat)
 cccc
+         if (iq==4 .and. iw==205) then
+            call writehmat(wkmat,nwf,"wkmat_check.dat")
+         endif
 cccc
          if (debug) then
             call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
@@ -1094,7 +1096,6 @@ cccc
             endif
          endif
 cccc
-cccc
 
 c$$$ccc threshold for WK
 c$$$         do ijwf=1,nnwf
@@ -1106,8 +1107,12 @@ c$$$            enddo
 c$$$         enddo
 
 !!! 1-eWK ===> 1-WK
-         if (.not. allocated(wkmat2)) allocate(wkmat2(1:nnwf,1:nnwf))
          wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-wkmat(1:nnwf,1:nnwf)
+ccc Hermite check for 1-eWK
+         if (iq==4 .and. iw==205) then
+            call writehmat(wkmat2,nwf,"1wkmat_check.dat")
+         endif
+
 !!! eigenvalue of 1-WK
          if (debug) then
             if (iq==1 .and. iw==0) then
@@ -1121,7 +1126,6 @@ ccc
                write(6,*)
             endif
          endif
-
 cccc
          if (debug) then
             call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
@@ -1148,15 +1152,44 @@ ccc
          rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
      &        wkmat2(1:nnwf,1:nnwf))
 
+ccccc Hermite for Rmat
+c$$$         allocate(rmat2(1:nnwf,1:nnwf))
+c$$$         rmat2(1:nnwf,1:nnwf)=rmat(1:nnwf,1:nnwf,iw)
+c$$$         ijwf=0
+c$$$         do 4006 iwf=1,nwf
+c$$$         do 4007 jwf=1,nwf
+c$$$            ijwf=ijwf+1
+c$$$            klwf=0
+c$$$            do 4008 kwf=1,nwf
+c$$$            do 4009 lwf=1,nwf
+c$$$               klwf=klwf+1               
+c$$$               if ( ijwf < klwf ) then !!! Herimite
+c$$$                  continue
+c$$$                  
+c$$$               elseif (ijwf == klwf) then
+c$$$                  rmat(ijwf,ijwf,:)= rmat2(ijwf,ijwf)
+c$$$               else             !!! ijwf > klwf 
+c$$$                  rmat(ijwf,klwf,:)=( rmat2(ijwf,klwf) + dconjg(rmat2(klwf,ijwf)) )/2.0
+c$$$                  rmat(klwf,ijwf,:)=dconjg( rmat(ijwf,klwf,:) )
+c$$$               endif
+c$$$ 4009    enddo
+c$$$ 4008    enddo
+c$$$ 4007    enddo
+c$$$ 4006    enddo
+c$$$         deallocate(rmat2)
+c$$$
+ccccc
+
+
 ccc   Taylor siries of (1-WK)inv (if WK << 1, (1-WK)inv = 1+WK )
-         do ijwf=1,nnwf
-            do klwf=1,nnwf
-               if (abs(eta*aimag(wkmat(ijwf,klwf))) < 1d-16) then
-                  wkmat2(ijwf,klwf)=1d0+eta*wkmat(ijwf,klwf)
-               endif
-            enddo
-         enddo
-         deallocate(wkmat)
+c$$$         do ijwf=1,nnwf
+c$$$            do klwf=1,nnwf
+c$$$               if (abs(eta*aimag(wkmat(ijwf,klwf))) < 1d-16) then
+c$$$                  wkmat2(ijwf,klwf)=1d0+eta*wkmat(ijwf,klwf)
+c$$$               endif
+c$$$            enddo
+c$$$         enddo
+c$$$         deallocate(wkmat)
 cccq
 !!! eigenvalue of (1-WK)inv
          if (debug) then
@@ -1211,7 +1244,6 @@ cccc
             endif
          endif
 cccc
-         deallocate(wkmat2)
          if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,6E13.5)") qshort,iw,www*2d0,
      &        eval_wk(1) !,abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
 
@@ -1232,6 +1264,9 @@ c$$$            enddo
 c$$$         enddo
 
 cccc diag R
+
+ccc
+
 
 c         write(6,'("trmat_check3",81E12.4)') aimag(eval_wk)
          call diagwan(rmat(:,:,iw),eval_wk)
@@ -1260,7 +1295,17 @@ cccc
 ccc END K/(1-WK)
 
          gskip=.false.          !!! Skip Gamma point
+
+cccc Hermite check (zxq and rmat)
+cccc  
+         if (iq==4 .and. iw==205) then
+            call writehmat(zxq(:,:,iw),nwf,"kmat_check.dat")
+            call writehmat(rmat(:,:,iw),nwf,"rmat_check.dat")
+         endif
+cccc  
+     
  2050 continue
+      deallocate(zxq, rmat, wkmat, wkmat2)
 
       if (.not. iq==1) then 
          !Tc(MF)
@@ -1284,10 +1329,8 @@ c$$$         write(ifwkeigen2,*)
 c         write(ifchipmrk_wan,*)
       endif
       
-      if(allocated(rmat)) deallocate(rmat)
       
 c$$$  !! ImagOmega end =================
-      if(allocated(zxq )) deallocate(zxq)
       
       debug=.False.
       

@@ -341,6 +341,7 @@ c$$$            if (.true.) then
 c$$$            if (idorb(iwf)==idorb(jwf) .and. idorb(kwf)==idorb(lwf)) then !!!include sp orbitals
                scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)
      &              + scrv4(iwf1,iwf2,iwf3,iwf4)
+
             else
                scrw_(ijwf,klwf)=0d0
             endif
@@ -874,6 +875,34 @@ c---------------------------------------
       !! threshold
 !      if (abs(aimag(trmat_o)) < 1d-16) trmat_o=cmplx(dble(trmat_o),0d0,kind(0d0))
       end subroutine diagwan_tr
+c---------------------------------------
+      !!! write matrix element(i=j;k=l)
+      !!! For Hermite check
+      subroutine writehmat(zmat,nwf,filename)
+      implicit none
+      complex(8),intent(in) :: zmat(nwf*nwf,nwf*nwf)
+      integer, intent(in):: nwf
+      character(*):: filename
+!      real(8):: pi,znorm
+      integer:: iwf,jwf,ijwf,klwf,iffile
+
+      
+      iffile=ifile_handle()
+      open(iffile,file=filename(:len_trim(filename)))
+      do iwf=1,nwf
+         ijwf=(1+nwf)*iwf-nwf   !!! iwf=jwf 
+         do jwf=1,nwf
+            klwf=(1+nwf)*jwf-nwf !!! kwf=lwf
+            
+            write(iffile,"(4i5,6E13.4)") iwf,jwf,ijwf,klwf,
+     &           zmat(ijwf,klwf),dconjg(zmat(klwf,ijwf)),
+     &           zmat(ijwf,klwf)-dconjg(zmat(klwf,ijwf))
+         enddo
+      enddo
+      close(iffile)
+
+
+      end subroutine writehmat
 
 c---------------------------------------
       integer function ifile_handle() !! find open file handle
