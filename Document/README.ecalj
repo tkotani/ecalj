@@ -1,0 +1,23 @@
+ecalj package is available from github as
+
+>git clone https://github.com/tkotani/ecalj.git
+(this makes ecalj/ directory)
+or 
+access to 
+https://github.com/tkotani/ecalj/archive/master.zip
+(but git is convenient for version up).
+Install is run
+>./InstallAll.ifort 
+at ecalj/
+
+Manual is
+~/ecalj/Document/Manual/ecaljmanual.pdf
+
+Presentation is at
+~/ecalj/Document/
+See the latest one. Currently(aug2018),
+ CMSIecaljWorkshop2016feb.pdf
+ cmdworkshop2015sep.pdf
+are latest. I will renew it.
+(but it can be a few days before the lecture).
+
