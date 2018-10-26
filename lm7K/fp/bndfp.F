@@ -1828,6 +1828,8 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                deallocate(senex)
             endif
 
+
+
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
@@ -1856,6 +1858,28 @@ c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
 
 !! == lpdiag=0 only. ===
             if(nspc .eq. 2) then
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c              hamm(:,:,2) = hamm(:,:,1)
+c$$$c              ovlm(:,:,2) = ovlm(:,:,1)
+c$$$              write(6,*)'iiix'
+c$$$              do i=1,ndimh
+c$$$                do j=1,ndimh
+c$$$                  if(abs(ovlm(i,j,2)-ovlm(i,j,1))>1d-8) then
+c$$$                  write(*,"('iiiiix2',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,ovlm(i,j,1),ovlm(i,j,2), ovlm(i,j,2)-ovlm(i,j,1)
+c$$$                  endif
+c$$$                enddo
+c$$$              enddo
+c$$$              write(6,*)'iiixh'
+c$$$              do i=1,ndimh
+c$$$                do j=1,ndimh
+c$$$                  if(abs(hamm(i,j,2)-hamm(i,j,1))>1d-8) then
+c$$$                  write(*,"('iiiiix2h',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,hamm(i,j,1),hamm(i,j,2), hamm(i,j,2)-hamm(i,j,1)
+c$$$                  endif
+c$$$                enddo
+c$$$              enddo
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+
 c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
@@ -1926,7 +1950,7 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                   write(ifih) hamm(1:ndimhx,1:ndimhx,1)
                 endif
               endif
-
+!!
               if(epsovl<1.000001d-14) then
                 call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
@@ -2213,6 +2237,31 @@ c            endif
       if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
 
 
+
+!! boltztrap data 
+      if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
+        ifi=ifile_handle()
+        open(unit=ifi,file='boltztrap.dat')
+        write(ifi,"(3d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
+        write(ifi,"(d16.8, ' # alat (a.u.)')") alat
+        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)
+        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)
+        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)
+        write(ifi,"(3d16.8, ' # qlat1  ')") qlat(:,1)
+        write(ifi,"(3d16.8, ' # qlat2  ')") qlat(:,2)
+        write(ifi,"(3d16.8, ' # qlat3  ')") qlat(:,3)
+        do iq=1,nkp
+        do jsp=1,nspx         !=isp.  nspx=1 for so=1
+!! true q= 2pi/alat *qplist(:,iq) in cartesian
+        do iband=1,ndhamx
+          if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
+            write(ifi,"('eee=',3i5,3f9.4,d13.5)") iq,jsp,iband,qplist(:,iq),evlall(iband,jsp,iq)
+        enddo
+        enddo
+        enddo
+        close(ifi)
+        call rx0(' --bolttrap mode: boltztrap.dat is generated')
+      endif
 
 !! === pdos mode (--mkprocar and --fullmesh). ===
       if(PROCARon.and.fullmesh) then
