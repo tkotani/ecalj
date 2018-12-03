@@ -5,6 +5,7 @@
 
       integer :: mpi__info
       integer :: mpi__size
+      integer :: mpi__sizeMG = 1
       integer :: mpi__sizeQ = 1
       integer :: mpi__sizeS = 1
       integer :: mpi__sizeP = 1
@@ -13,6 +14,7 @@
       integer :: mpi__sizeW = 1
 
       integer :: mpi__rank
+      integer :: mpi__rankMG
       integer :: mpi__rankQ
       integer :: mpi__rankS
       integer :: mpi__rankP
@@ -131,6 +133,47 @@ c      endif
       return
       end subroutine MPI__Initialize
 
+C     !======================================================
+      subroutine MPI__Initialize_magnon()
+      implicit none
+      character(1024*4) :: cwd, stdout
+      call getcwd(cwd)          ! get current working directory
+
+c$$$CC Reduce size for magnon (avoid memory leak)      
+c$$$      if (mpi__sizeMG > size_lim) then
+c$$$         mpi__sizeMG=size_lim
+c$$$      endif
+c$$$      if (mpi__sizeMG > 10) then
+c$$$         mpi__sizeMG=10
+c$$$      endif
+
+      call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
+      call MPI_Comm_rank( MPI_COMM_WORLD, mpi__rankMG, mpi__info )
+      call MPI_Comm_size( MPI_COMM_WORLD, mpi__sizeMG, mpi__info )
+
+
+      if( mpi__rankMG == 0 ) then
+         mpi__root = .true.
+      else
+         mpi__root = .false.
+      end if
+
+      if( mpi__root ) then
+         call chdir(cwd)        ! recover current working directory
+      endif
+c! console-output from different nodes to different files
+c      if( mpi__size > 1 ) then
+c        if(mpi__root )write(6,*)'MPI console outputs to following files.'
+c        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+c        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rank,idn
+c        open(unit=6,file=trim(stdout))
+c        write(6,"(a,i3)")" ### console output for rank=",mpi__rank
+c      endif
+c      if(mpi__root ) then
+c        close(unit=6)
+c      endif
+      return
+      end subroutine MPI__Initialize_magnon
       
 C     !======================================================
       subroutine MPI__InitializeQSPBM
@@ -412,6 +455,32 @@ c        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
       endif
       return
       end subroutine MPI__consoleout
+
+C     !======================================================
+      subroutine MPI__consoleout_magnon(idn,size_lim)
+      implicit none
+      character(1024*4) :: cwd, stdout
+      character*(*):: idn
+      integer , intent(in) :: size_lim
+
+CC Reduce size for magnon (avoid memory leak)      
+      if (mpi__sizeMG > size_lim) then
+         mpi__sizeMG=size_lim
+      endif
+
+! console-output from different nodes to different files
+      if( mpi__sizeMG > 1 ) then
+        if( mpi__root ) then
+           write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
+           call flush(6)
+        end if
+c        write(6,"('   stdout.',i4.4,'.',a)") mpi__rank,idn
+        write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
+        open(unit=6,file=trim(stdout))
+        write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
+      endif
+      return
+      end subroutine MPI__consoleout_magnon
 
 
 C     !======================================================
@@ -819,20 +888,22 @@ C     !======================================================
       mpi__task(:) = .false.
       mpi__ranktab(1:nqbz)=999999
 
-      mpi__MEq=1+nqbz/mpi__size
+      write(6,*) "mpi__sizeMG:",mpi__sizeMG
+      mpi__MEq=1+nqbz/mpi__sizeMG
+      write(6,*) "mpi__sizeMG:",mpi__MEq
 
-      if( mpi__size == 1 ) then
+      if( mpi__sizeMG == 1 ) then
          mpi__task(:) = .true.
-         mpi__ranktab(:) = mpi__rank
+         mpi__ranktab(:) = mpi__rankMG
          return
       endif
-      if(mpi__rank==0) write(6,*) "MPI_hmagnon_rankdivider:"
+      if(mpi__rankMG==0) write(6,*) "MPI_hmagnon_rankdivider:"
       do iq=1,nqbz
-         mpi__ranktab(iq) = mod(iq-1,mpi__size)  !rank_table for given iq. iq=1 must give rank=0
-         if( mpi__ranktab(iq) == mpi__rank) then
+         mpi__ranktab(iq) = mod(iq-1,mpi__sizeMG)  !rank_table for given iq. iq=1 must give rank=0
+         if( mpi__ranktab(iq) == mpi__rankMG) then
             mpi__task(iq) = .true.               !mpi__task is nodeID-dependent.
          endif
-         if(mpi__rank==0) then
+         if(mpi__rankMG==0) then
            write(6,"('  iq irank=',2i5)")iq,mpi__ranktab(iq)
          endif
       enddo   

@@ -1,4 +1,4 @@
-!! cp hx0fp0.m.F in order to develop by Okumura (2017/03/23)
+!! hx0fp0.m.F in order to develop by Okumura (2017/03/23)
 !!  Calculate x0, \epsilon, spin susceptibility. 
 !!
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
@@ -27,8 +27,8 @@ c      use matm,only: matm,matcinv
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,
-     & MPI__hmagnon_rankdivider,
-     & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
+     & MPI__hmagnon_rankdivider, MPI__Initialize_magnon, MPI__consoleout_magnon,
+     & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG,
      & MPI__ranktab,MPI__consoleout,MPI__barrier,MPI__MEq,MPI__REAL8send,MPI__REAL8recv,MPI__AllreduceSum
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: rdpp,    !NOTE: "call rdpp" generate following data.
@@ -251,7 +251,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer::ifhamw,ifgas,ifchipmz_wan,ifchipmr_wan,ifchipmrk_wan
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
-      logical::wan=.true.,egasmode
+      logical::wan=.true.,egasmode,lhm,lsvd,nms
       logical(8):: ijklmag !for checkorb2
       complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:)
      &     ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:),rmat2(:,:)
@@ -272,7 +272,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: scrw(:,:) ,cmat2(:,:)
       complex(8),allocatable:: eval_wk(:),vr_w(:,:),eval_k(:),eval_swkw(:)
       complex(8),allocatable:: eval_sqw(:)
-      integer:: it,itp,isdummy,lorb
+      integer:: it,itp,isdummy,lorb, size_lim
 !!! q on symline
       real(8)::qrot(3),cr=2d-5
       logical(8)::init2=.true.,llsym,gskip
@@ -290,13 +290,17 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8)::maximr,w_maximr
       complex(8)::sumrpa_maximr(1),summf_maximr(1)
       real(8),allocatable:: rpa_maximr(:),mf_maximr(:)
-
+!!! TEST 20181018
+      complex(8):: tttt(4,4), eigenvalue_t(4), tttt_1(4,4)
 !!! for debug (2018/05/23)
 !      real(8)::sumkm1,sumkm2,sumkm3,sumkm4,sumkm5,znorm,rnqbz,cellvol
 
 !! -------------------------------------------------------------------
-      call MPI__Initialize()
-      call MPI__consoleout('hmagnon')
+      call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
+      call MPI__Initialize_magnon()
+      call MPI__consoleout_magnon('hmagnon',size_lim) ! size_lim for saving memory (avoid swapping)
+      write(6,*) "hmagnon aaaaaaaaaa:",MPI__size,size_lim
+
       call cputid (0)
       hartree  = 2d0*rydberg()
       pi       = 4d0*datan(1d0)
@@ -325,7 +329,13 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       
 !! Read electron gas mode or not.
       call getkeyvalue("GWinput","EGASmode",egasmode,default=.false.)
-      print *,"electron gas mode (egasmode): ",egasmode
+      call getkeyvalue("GWinput","lHermite",lhm,default=.false.)
+      call getkeyvalue("GWinput","lsvd",lsvd,default=.false.)
+      call getkeyvalue("GWinput","nms",nms,default=.false.)  !!! For NiMnSb
+
+      write(6,*) "lsvd, lhm",lsvd,lhm
+      write(6,*) "electron gas mode (egasmode): ",egasmode
+      write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
       if (egasmode) bsimple=2
       
 c$$$!! check write
@@ -562,6 +572,7 @@ c$$$      enddo
 c
 !! ======== Loop over iq ================================
       do 1001 iq = 1,nqsym      ! NOTE: q=(0,0,0) is omitted when iqxini=2
+         if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
          if(.not. MPI__task(iq) .and. iq .ne. 1) cycle
          q=qibz(:,iqlist(iq))
          if (iq == 1) then
@@ -592,6 +603,8 @@ c
 
 !!! write qshort instead of q
          write(6,"('===== do 1001: iq q(qshort)=',i7,3f9.4,' ========')")iqlist(iq),qshort !qq
+         
+         if (lhm) cycle
 
 !     ! rcxq:imaginary part after x0kf_v4h and symmetrization. 
 !     ! zxq and zxqi are the main output after Hilbert transformation
@@ -816,14 +829,14 @@ c$$$ O(nwf^4)
               do 3004 kwf=1,nwf
               do 3005 lwf=1,nwf
                  klwf=klwf+1               
-                 debug=.True.
-                 if ( ijwf <= klwf .or. debug) then !!! Herimite
+                 if ( ijwf <= klwf ) then !!! Herimite
 c                   call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
 c                   ijklmag=.true. !test for FeFe
 c                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag !! ijklmag=T: {ijkl} in same atom
-!     if (ijklmag) then !!! same atom
+!                   if (ijklmag) then !!! same atom
 !                 elseif (.true.) then !!! same atom
                    !!! calculate numerator of Kmatrix
+
                     wan_j=dconjg(evc_w1(jwf,it,kx)) !a_{Rj   beta}^{kn}*
                     wan_i=evc_w2(iwf,itp,kx) !a_{Ri  alpha}^{(k+q)n'}
                     wan_l=evc_w1(lwf,it,kx) !a_{R'l  beta}^{kn}
@@ -831,7 +844,7 @@ c                   print *,"checkorb2:",iwf,jwf,kwf,lwf,ijklmag !! ijklmag=T: {
                     wanijkl=wan_j*wan_i*wan_k*wan_l
 
                     wanmat(ijwf,klwf)=wanijkl
-                    if (debug) wanmat(klwf,ijwf)=dconjg(wanijkl) !!! Suppose Hermite Kmat
+                    wanmat(klwf,ijwf)=dconjg(wanijkl) !!! Suppose Hermite Kmat
 
 c$$$                      write(ifwanmat,"('i j k l ijkltag abs(wan) Re(wan) Im(wan)',4I3,L4,5E13.5)") iwf,jwf,
 c$$$     &                     kwf,lwf,ijklmag,abs(wanijkl),wanijkl
@@ -917,35 +930,38 @@ cccc
       call writehmat(zxq(:,:,200) ,nwf, "zxqmat_check.dat")
 cccc
       !!!Hermite for Kmat (zxq)
-      allocate(zxq2(nnwf,nnwf,nw_i:nw))
-      zxq2=zxq
-      zxq=0d0
-      ijwf=0
-      do 3006 iwf=1,nwf
-      do 3007 jwf=1,nwf
-         ijwf=ijwf+1
-         klwf=0
-         do 3008 kwf=1,nwf
-         do 3009 lwf=1,nwf
-            klwf=klwf+1               
-            if ( ijwf < klwf ) then !!! Herimite
-               continue
-               
-            elseif (ijwf == klwf) then
-               zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
-            else !!! ijwf > klwf 
-               zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
-               zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
-            endif
- 3009 enddo
- 3008 enddo
- 3007 enddo
- 3006 enddo
-      ijwf=0; klwf=0
-      deallocate(zxq2)
+      if (lhm) then
+         allocate(zxq2(nnwf,nnwf,nw_i:nw))
+         zxq2=zxq
+         zxq=0d0
+         ijwf=0
+         do 3006 iwf=1,nwf
+         do 3007 jwf=1,nwf
+            ijwf=ijwf+1
+            klwf=0
+            do 3008 kwf=1,nwf
+            do 3009 lwf=1,nwf
+               klwf=klwf+1               
+               if ( ijwf < klwf ) then !!! Herimite
+                  continue
+                  
+               elseif (ijwf == klwf) then
+                  zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
+               else             !!! ijwf > klwf 
+                  zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
+                  zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
+               endif
+ 3009       enddo
+ 3008       enddo
+ 3007    enddo
+ 3006    enddo
+         ijwf=0; klwf=0
+         deallocate(zxq2)
+
+      endif
 
       !!! threshold for Im[K] (zxq)
-      threshold=.False.
+      threshold=.True.
       if (threshold) then
          do iw=nw_i,nw
             do iwf=1,nnwf
@@ -959,6 +975,7 @@ c$$$                     zxq(iwf,jwf,iw)=cmplx(dble(zxq(iwf,jwf,iw)),-1d0*aimag(
             enddo
          enddo
       endif
+      threshold=.False.
 cccc
 
       allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
@@ -979,7 +996,47 @@ ccc
 
          call writehmat(scrw,nwf,"wmat_check.dat")
 
+!!! Diag TEST 20181018
+         if (lsvd) then !SVD
+            write(6,*) "lsvd:",lsvd
+            tttt=0d0
+            tttt_1(1,1)=( 3.97, -5.04) ; tttt_1(1,2)=(-4.11,  3.70) ; tttt_1(1,3)=(-0.34,  1.01) ; tttt_1(1,4)=( 1.29, -0.86)
+            tttt_1(2,1)=( 0.34, -1.50) ; tttt_1(2,2)=( 1.52, -0.43) ; tttt_1(2,3)=( 1.88, -5.38) ; tttt_1(2,4)=( 3.36,  0.65)
+            tttt_1(3,1)=( 3.31, -3.85) ; tttt_1(3,2)=( 2.50,  3.45) ; tttt_1(3,3)=( 0.88, -1.08) ; tttt_1(3,4)=( 0.64, -1.48)
+            tttt_1(4,1)=(-1.10,  0.82) ; tttt_1(4,2)=( 1.81, -1.59) ; tttt_1(4,3)=( 3.25,  1.33) ; tttt_1(4,4)=( 1.57, -3.44)
+            do iwf=1,4
+               do jwf=1,4
+                  tttt(iwf,jwf)=tttt_1(iwf,jwf)+dconjg(tttt_1(jwf,iwf))
+               enddo
+            enddo
+            tttt=tttt_1
+!!!write
+            write(6,*) " "
+            do iwf=1,4
+               write(6,"('MAT:',2f9.4,' |',2f9.4,' |',2f9.4,' |',2f9.4)")  tttt(iwf,1), tttt(iwf,2), tttt(iwf,3), tttt(iwf,4)
+            enddo
 
+c     call diagcvh2(tttt(:,:),4,eigenvalue_t)
+            call diagcvuh3(tttt(:,:),4,eigenvalue_t)
+            allocate(SS(nwf),UU(nwf,nwf),VT(nwf,nwf))
+            write(6,*) ""
+            call zgesvdnn(4,tttt,SS,UU,VT)
+            do iwf=1,nwf
+               write(6,'("EIGENVALUE1:",i,f9.4," |",3f9.4)') iwf,SS(iwf),eigenvalue_t(iwf),abs(eigenvalue_t(iwf))
+            enddo
+            do iwf=1,nwf
+               write(6,'("EIGENVALUE2:",10f9.4)') UU(iwf,1:nwf)
+            enddo
+            do iwf=1,nwf
+               write(6,'("EIGENVALUE3:",10f9.4)') VT(iwf,1:nwf)
+            enddo
+            deallocate(SS,UU,VT)
+            allocate(SS(nnwf),UU(nnwf,nnwf),VT(nnwf,nnwf))
+            
+            !call rx("end diag")
+
+         endif
+         
 !!!   eval_wk is complex array because of Non-Hermite WK
          call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
          !call diagwan(wkmat(:,:),eval_wk)
@@ -1031,10 +1088,16 @@ c$$$         open(ifchipmrk_wan,file="wan_ChiPMr-k.mat"//charnum4(iq))
       if (.not. allocated(imat)) then
          allocate(imat(1:nnwf,1:nnwf))
          imat=0d0
-         do iwf=1,nnwf
-            imat(iwf,iwf)=(1d0,0d0)
-         enddo
-
+         if (nms) then
+            do iwf=1,nnwf
+               imat(iwf,iwf)=(1d0,-1d-6)
+            enddo
+            write(6,*) "imat(iwf,iwf)=",imat(1,1)
+         else
+            do iwf=1,nnwf
+               imat(iwf,iwf)=(1d0,0d0)
+            enddo
+q         endif
 c$$$         imat=0d0
 c$$$         call wan_imat(nwf,imat) !
 
@@ -1076,9 +1139,20 @@ c         call diagwan_tr(zxq(:,:,iw),trmat)
 
 c??     &        =eta*matmul(scrw(1:nnwf,1:nnwf),abs(zxq(1:nnwf,1:nnwf,iw)))
 cccc Hermite check (WKmat)
+
+
 cccc
          if (iq==4 .and. iw==205) then
+            eval_wk=0d0
+            write(6,*) "wkmat check"
             call writehmat(wkmat,nwf,"wkmat_check.dat")
+            if (lsvd) then
+               call zgesvdnn(nnwf,zxq(:,:,iw),SS,UU,VT)
+               do iwf=1,nnwf
+                  write(6,'("wkmat eigenvalue:",f9.4)') SS(iwf)
+               enddo
+            endif
+
          endif
 cccc
          if (debug) then
@@ -1263,11 +1337,6 @@ c$$$               !endif
 c$$$            enddo
 c$$$         enddo
 
-cccc diag R
-
-ccc
-
-
 c         write(6,'("trmat_check3",81E12.4)') aimag(eval_wk)
          call diagwan(rmat(:,:,iw),eval_wk)
          trmat=sum(eval_wk(1:nnwf))
@@ -1357,7 +1426,6 @@ c$$$!! =================== end of loop 1001 for q point ========================
          call MPI__AllreduceSum( summf_maximr(1),1)
       endif
       
-      write(6,*) "mpi__size MPI__size",mpi__size,MPI__size
       write(6,"('sum(E(q)) for MFA:',f9.4)") real(summf_maximr(1))
       write(6,"('[sum(1/E(q))]inv for RPA',f9.5)") 1d0/real(sumrpa_maximr(1))
 

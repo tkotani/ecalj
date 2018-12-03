@@ -471,9 +471,10 @@ c---------------------------------------
       logical(8)::gskip, hcpsym
       logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
      &     ,dhpb=.false.,dwlf=.false.,dxwf=.false.,dwkf=.false.,dhnb=.false.
-     &     ,dnpb=.false.,dxms=.false.,all_iq=.false.
+     &     ,dnpb=.false.,dxms=.false.,dxrs=.false.,all_iq=.false.
      &     ,hcpgm=.false.,hcpgk=.false.,hcpmk=.false.
      &     ,hcpal=.false.,hcpah=.false.,hcplh=.false.,hcpga=.false.,hcp=.false.
+     &     ,tetgx=.false.,tetgz=.false.,tetzr=.false.,tetra=.false.,tetaz=.false.
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2,qlat2(3),qlat3(3),
      &     alpha, pi, b1, b2
       integer:: nlatout(3,48),nout,iout,ig, i
@@ -505,8 +506,12 @@ c---------------------------------------
          dnpb=.true.           ! D (bcc): N to P !.5 .5 0 --> .5 .5 .5
       else if (syml=="bccHP") then
          dhpb=.true.           !F (bcc): H to P !1 0 0 --> .5 .5 .5
+      !!!SC (scMR ==> bccNP)
       else if (syml=="scXM") then
          dxms=.true.           !F (sc): X to M !.5 0 0 --> .5 .5 0
+      else if (syml=="scXR") then
+         dxrs=.true.           !F (sc): X to R !.5 0 0 --> .5 .5 .5
+         
       !!!HCP
       else if (syml=="hcpGM") then
          hcpgm=.true.          !GM (hcp): G to M !
@@ -529,6 +534,20 @@ c---------------------------------------
       else if (syml=="hcpGA") then
          hcpga=.true.           !GM (hcp): G to A !
          hcp=.true.
+
+      !!! TET
+      else if (syml=="tetGX") then
+         tetgx=.true.           !GX (TET): G to X !
+      else if (syml=="tetGZ") then
+         tetgz=.true.           !GZ (TET): G to Z !
+      else if (syml=="tetZR") then
+         tetzr=.true.           !ZR (TET): Z to R !
+      else if (syml=="tetRA") then
+         tetra=.true.           !RA (TET): R to A !
+      else if (syml=="tetAZ") then
+         tetaz=.true.           !AZ (TET): A to Z !
+
+      !!! ELSE
       else
          write(6,*) "not supported symmetry line"
          call rx("m_readwan.F: routine end")
@@ -703,6 +722,18 @@ cccccccccccccccccsymline check
      &              .and. abs(abs(qshort(3))-5d-1) > cr ) then
                   llsym_o=.false.
                endif
+
+            elseif (dxrs) then  ! F: X to R (sc)
+               if ( abs(abs(qshort(1))-5d-1) < cr .and.
+     &              abs(abs(qshort(2))-abs(qshort(3))) < cr) then
+               elseif (abs(abs(qshort(2))-5d-1) < cr .and.
+     &                 abs(abs(qshort(3))-abs(qshort(1))) < cr) then
+               elseif (abs(abs(qshort(3))-5d-1) < cr .and.
+     &                 abs(abs(qshort(1))-abs(qshort(2))) < cr) then
+               else
+                  llsym_o=.false.
+               endif           
+
 ccc HCP (gm mk gk ga al lh ah)
 ccc HCP (G-M or A-L)
             elseif (hcpgm .or. hcpal) then ! F: H to P (bcc)
@@ -765,7 +796,6 @@ ccc HCP (G-K or A-H)
                   endif
                enddo
                if (.not. hcpsym) llsym_o=.false.
-cccc
 ccc HCP (M-K or L-H)
             elseif (hcpmk .or. hcplh) then ! F: H to P (bcc)
                !!!z=0
@@ -787,11 +817,22 @@ ccc HCP (M-K or L-H)
 
                !!!
                hcpsym=.false.
-               if (abs(qshort(1)-qlat_in(1,1)/2d0) < cr .and. alpha==9999d0) then
-                  hcpsym=.true.
-               elseif (abs( (qshort(2)-qlat_in(2,1)/2d0)/(qshort(1)-qlat_in(1,1)/2d0) - alpha ) < cr ) then
-                  hcpsym=.true.
-               endif
+               do i=1,12
+                  theta=pi*(i-1)/6d0
+                  b1= cos(theta)*qshort(1)+sin(theta)*qshort(2)
+                  b2=-sin(theta)*qshort(1)+cos(theta)*qshort(2)
+                  if (abs(b1-qlat_in(1,1)/2d0) < cr .and. alpha==9999d0) then
+                     hcpsym=.true.
+                  elseif (abs( (b2-qlat_in(2,1)/2d0)/(b1-qlat_in(1,1)/2d0) - alpha ) < cr ) then
+                     hcpsym=.true.
+                  endif
+
+c$$$                  if (abs(qshort(1)-qlat_in(1,1)/2d0) < cr .and. alpha==9999d0) then
+c$$$                     hcpsym=.true.
+c$$$                  elseif (abs( (qshort(2)-qlat_in(2,1)/2d0)/(qshort(1)-qlat_in(1,1)/2d0) - alpha ) < cr ) then
+c$$$                     hcpsym=.true.
+c$$$                  endif
+               enddo
                if (.not. hcpsym) llsym_o=.false.
 ccc   HCP (G-A: 001)
             elseif (hcpga) then !(100)
@@ -803,6 +844,38 @@ ccc   HCP (G-A: 001)
                
             elseif (all_iq) then
                llsym_o=.true.
+ccc TET (gx(100) xm mg(110) gz zr ra az)
+ccc   TET (G-X: 100)               
+            elseif (tetgx) then
+               if ( abs(qshort(3)) > 0d0 ) then
+                  llsym_o = .false.
+               elseif (abs(qshort(1)) < cr) then
+               elseif (abs(qshort(2)) < cr) then
+               else
+                  llsym_o=.false.
+               endif
+
+ccc   TET (G-Z: 001)               
+            elseif (tetgz) then
+               if ( abs(qshort(1)) < cr .and.
+     &              abs(qshort(2)) < cr .and.
+     &              abs(qshort(3)) > cr) then
+               else
+                  llsym_o=.false.
+               endif
+
+ccc   TET (Z-R: 001-111)               
+            elseif (tetzr) then
+               if (abs(qshort(3)-0.9517) < 0.005 .and.
+     &              abs(qshort(2)) < cr) then
+               elseif (abs(qshort(3)-0.9517) < 0.005 .and.
+     &              abs(qshort(1)) < cr) then
+
+               else
+                  llsym_o=.false.
+               endif
+
+ccc
             endif            
          enddo
       endif
