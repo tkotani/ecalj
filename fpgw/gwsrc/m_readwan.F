@@ -657,7 +657,7 @@ cccccccccccccccccsymline check
                elseif (abs(qshort(2)) < cr .and.
      &              abs(abs(qshort(3))+abs(qshort(1))-1.5d0) < cr ) then
                elseif (abs(qshort(3)) < cr .and.
-     &              abs(abs(qshort(1))+abs(qshort(2))-1.5d0) < cr ) then
+     &              abs(abs(qshort(1))+abs(qshort(2))-1.5d0) < cr ) then                  
                !!! U-W (because W corresponds to U)
                !!! |x|=0 and |y|+|z|=0.50
                elseif (abs(abs(qshort(1))-1d0) < cr .and.

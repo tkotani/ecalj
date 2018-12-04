@@ -1097,7 +1097,7 @@ c$$$         open(ifchipmrk_wan,file="wan_ChiPMr-k.mat"//charnum4(iq))
             do iwf=1,nnwf
                imat(iwf,iwf)=(1d0,0d0)
             enddo
-q         endif
+         endif
 c$$$         imat=0d0
 c$$$         call wan_imat(nwf,imat) !
 

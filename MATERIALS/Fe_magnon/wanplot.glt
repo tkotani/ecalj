@@ -1,5 +1,5 @@
 set term postscript enhanced color eps
-set output "nimnsb_wan_chipm.eps"
+set output "fe9_wan_chipm.eps"
 set multiplot layout 1,2
 set key right top
 set grid
@@ -32,3 +32,4 @@ plot "wan_ChiPMz.mat" every :::1::1 u (13.6*$5):($6) lw 4 lt 1  ti "q=1/12" w l,
      "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($6) lw 4 lt 5  ti "q=4/12" w l,\
      "wan_ChiPMz.mat" every :::5::5 u (13.6*$5):($6) lw 4 lt 6  ti "q=5/12" w l,\
      "wan_ChiPMz.mat" every :::6::6 u (13.6*$5):($6) lw 4 lt 7  ti "q=6/12" w l
+    
