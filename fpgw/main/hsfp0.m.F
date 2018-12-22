@@ -1203,11 +1203,11 @@ c
       call cputid(0)
       write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
       call flush(6)
-      call MPI__Finalize 
       if(ixc==1 ) call rx0( ' OK! hsfp0: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0: Correlation mode')
       if(ixc==3 ) call rx0( ' OK! hsfp0: Core-exchange mode')
       if(ixc==4 ) call rx0( ' OK! hsfp0: spectrum mode')
       if(ixc==5 ) call rx0( ' OK! hsfp0: Exx mode val-val  See TEEXXvv')
       if(ixc==6 ) call rx0( ' OK! hsfp0: Exx mode core-val See TEEXXcv')
+      call MPI__Finalize 
       end program hsfp0

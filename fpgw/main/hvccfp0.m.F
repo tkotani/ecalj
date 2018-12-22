@@ -1277,10 +1277,10 @@ c2---------------------
       deallocate(ngvecc)
       call cputid(0)
       call flush(6)
-      call MPI__Finalize
       if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
       if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
       if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
+      call MPI__Finalize
       end
 
       subroutine checkagree(a,b,char)

@@ -164,9 +164,9 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
+      call MPI__InitializeQSPBM()
 !TIME0_1001 ProgAll
 !TIME0_11001 readbzdata
-      call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       allocate( zzr(1,1)) !dummy
@@ -1333,9 +1333,9 @@ c     write(ifrcwx,rec=((iq-iqxini)*(nend-nini+1)+ iw-nini+1 ) ) zw !(1:ngb,1:ng
       call cputid(0)
       write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
       call flush(6)
-      call MPI__Finalize
       if(ixc==11) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
       if(ixc==1011) call rx0( ' OK! hx0fp0_sc ixc=1011 W0W0Ionly')
+      call MPI__Finalize
       end program hx0fp0_sc 
 
 
