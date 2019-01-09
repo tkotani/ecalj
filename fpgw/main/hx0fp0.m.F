@@ -1508,6 +1508,7 @@ c$$$c$$$          write (ifcor,*)ecelgas
 c$$$c$$$        endif
 c$$$      endif
       call cputid(0)
+      call MPI__Finalize
       if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
       if(ixc==111)  call rx0( ' OK! hx0fp0 mode=111    normal sergeyv')
       if(ixc==10011)call rx0( ' OK! hx0fp0 mode=10011  crpa normal sergeyv')
@@ -1516,7 +1517,6 @@ c$$$      endif
       if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
       if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
       if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-      call MPI__Finalize
       end
 
 c--------------------------------------------------------------------

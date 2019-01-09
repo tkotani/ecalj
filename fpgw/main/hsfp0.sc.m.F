@@ -1217,10 +1217,10 @@ c      isx = iclose ('hbe.d')
       call flush(6)
 !TIME1_0000 "main:totalofhsfp0_sc"
 !TIMESHOW 
+      call MPI__Finalize 
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
-      call MPI__Finalize 
       end program hsfp0_sc 
 
 
