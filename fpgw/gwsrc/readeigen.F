@@ -491,7 +491,6 @@ c        if(maxval(abs(nnn))>imx) stop 'rotipw:maxval(abs(nnn))>imx'
 !! we prepare integer index of q, its resolution is given by epsd.
       use m_hamindex, only: qtt,nqtt
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
-      integer,allocatable,private:: kk1w(:),kk2w(:),kk3w(:),iqkkkw(:,:,:) !okumura
       real(8),private:: epsd=1d-7 !key parameter to map to integer index
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
@@ -552,7 +551,6 @@ ccccccccccccccccccccc
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
       integer,allocatable:: ieord(:)
       logical::debug=.false.
-
       ginv=ginv_
       allocate(ieord(nqtt))
       if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
@@ -640,10 +638,10 @@ c$$$      enddo
       write(6,*) 'xxxxx takk ', i1,i2,kkin
       write(6,*) 'xxxxx takk ',kktable(i1),kktable(i2)
       call rx( 'takk: error')
-
       end subroutine
       end module
 
+ccccc
 !! --------------------------------------------------------
       module m_iqindx_wan
 
@@ -730,6 +728,7 @@ ccccccccccccccccccccc
       end subroutine wan_getqbz
 
 c--------------------------------
+!! For magnon+wannier
       subroutine init_iqindx_wan(ginv_)
 !! === mapping of qtt ===
 !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
@@ -795,15 +794,8 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
       enddo
       deallocate(qxx)
 c      stop 'xxxxxxxxxxxxx'
-      end subroutine init_iqindx_wan
-
-
-      
+      end subroutine init_iqindx_wan      
       end module m_iqindx_wan
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-      
 
 !! ------------------------------------------------------
 !> Return eigenvalus and eigenfunctions for given q and isp.
@@ -837,11 +829,9 @@ ctm
 
       logical,private:: Wpkm4crpa=.false.
 
-      !!!   okumura
       integer(4)::nwf_ev
       complex(8),allocatable:: evud_w(:,:,:,:)
-      real(8),allocatable:: eval_w(:,:,:)
-      
+      real(8),allocatable:: eval_w(:,:,:)      
       logical:: evalwan=.true.
 
       contains
@@ -884,7 +874,7 @@ ctm
       endif
       end subroutine
 
-      
+
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
       use m_hamindex, only: qtt,nqtt,iqimap
@@ -906,7 +896,6 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       if(debug) then
         write(6,"(9f9.4)")ev(1:9)
       endif
-!      write(6,*) "pass!"
       end subroutine
 
       subroutine findemaxmin_r(emax,emin)
@@ -1417,6 +1406,9 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
       isx= iclose('CPHI')
       isx= iclose('GEIG')
       end subroutine
+
+
+
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw(nwf_o)
@@ -2481,7 +2473,7 @@ c taken from lm7k/subs/rotwv.F
       integer, intent(in) :: n
       integer, intent(out) :: ii(n)
       integer::i
-      real(8):: eps=1d-8,aa !eps=1d-8 until aug2012
+      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
 c        if(a(i)>0) then
 c          aa = a(i)
@@ -2491,7 +2483,10 @@ c          aa=-a(i)
 c          ii(i)= -int(aa+eps)
 c        endif
         ii(i)=nint(a(i))
-        if(abs(ii(i)-a(i))>eps)call rx( 'conv2int: a is not close to integer')
+        if(abs(ii(i)-a(i))>eps)then
+           write(6,*)' ii a eps=',ii(i),a(i),eps
+           call rx( 'conv2int: a is not close to integer')
+        endif   
       enddo
       end subroutine conv2int
 

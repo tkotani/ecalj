@@ -52,7 +52,6 @@ c      use m_ReadEfermi,only: readefermi,ef
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
       integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
       real(8),allocatable:: ecore_(:,:)
-
       if(nctot==0) then
         allocate(ecore_(1,2))    !this is dummry
       else
@@ -70,7 +69,7 @@ c      if(.not.allocated(nbnb))
       allocate( nbnbtt(nqbz,npm)) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
 !!===========tetraini block tetra==.true.===============================1ini
-      write(6,"(' tetra mode nqbz nband is isf q=',2i7,2i2,3f13.6)") nqbz,nband,is,isf,q
+      write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
 
 c     takao-feb/2002 I replaced tetwt4 (1d30) with tetwt5(job=0) -----
 C     ... Get pairs (n1b n2b) with non-zero tetrahedron wieghts.
@@ -117,7 +116,7 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
      i   nbmx,ebmx,mtet) !nov2016
  
-      deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
+      deallocate(ibjb,ihw,jhw,nhw,whw) !dumm
       nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
       if(debug) write(6,*)' nbnbx=',nbnbx
       allocate(  n1b(nbnbx,nqbz,npm)
@@ -214,5 +213,4 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
 
 !! ======TetrahedronWeight_5 block end =========
       end subroutine gettetwt
-
       end module

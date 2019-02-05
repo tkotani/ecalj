@@ -24,7 +24,7 @@
      & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
      & MPI__ranktab,MPI__consoleout,MPI__barrier
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-      use m_rdpp,only: rdpp,    !NOTE: "call rdpp" generate following data.
+      use m_rdpp,only: rdpp, !NOTE: "call rdpp" generate following data.
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
@@ -84,8 +84,7 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
       complex(8) :: fff,img=(0d0,1d0)
       complex(8),allocatable :: wwk(:,:,:)
       integer,allocatable :: 
-     &     noccxvv(:),n2bminimum(:,:,:),it,itp
-!     &     n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
+     &         noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
       real(8) ::qbzx(3),anfvec(3)
       logical :: debug
       integer,allocatable:: ibasf(:)
@@ -283,7 +282,6 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
 !!  nolfco:
 !!    no local field correction
 !!
-cc
       lqall=.true.
       if(ixc==11) then; write(6,*) " OK ixc=11 normal mode "
         normalm=.true.
@@ -380,7 +378,6 @@ c$$$      endif
       endif
 
 !! EFERMI
-cc need for gettetwt; automatically read file(okumura) OK
       call readefermi()
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
 
@@ -502,7 +499,6 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
-
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
@@ -572,7 +568,6 @@ c$$$      endif
       else
         iqxini= 1
       endif
-
 
 c$$$!! check write 1st part for Ec mode to ecorr.chk Nov2004
 c$$$      if(ecorr_on>0) then
@@ -695,10 +690,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
  !! If eibzmode=T, it is efficient but can slightly break crystal symmetry.(how much?)
  !! This is because band connectivity is judged by just from band ordering in tetrahedron weitht tetwt5.
  !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
-c     okumura
-c      eibzmode=eibz4x0()
-      eibzmode=.False. !simple symmetry
-c     end okumura
+      eibzmode=eibz4x0() 
       if(eibzmode) then
  !! commentout block inversion Use iqxendx=iqxend because of full inversion
         call cputid(0)
@@ -883,7 +875,7 @@ c     end okumura
         endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
-!! zxq and zxqi are the main output after Hilbert transformation
+!! zxq ans zxqi are the main output after Hilbert transformation
         if(nolfco) then
           if(allocated(rcxq)) deallocate(rcxq)
           if(allocated(zxq) ) deallocate(zxq)
@@ -922,60 +914,29 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
 !!     ekxx1 for   rk,is
 !!     ekxx2 for q+rk,isf 
           do kx = 1, nqbz
-ccccc change eval; q-vector,is(spin) ---> eval (okumura)
-ccccc need hamiltonian? check readeval (okumura)
-             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+            call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
      i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
      i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
      i     nbmx,ebmx,mtet,eibzmode) !nov2016
 
-c$$$ !!! test code to print tetrahedron weight !!! okumura
-!     npm=1
-!          do k=1,nqbz !k-vector loop?
-          k=1
-          jpm=1
-          ibib=2000
-!     do 25 jpm=1,npm !,jpm=2:negative frequency
-!          do ibib=1,nbnb(k,jpm) !,nbnb(k,jpm) !i loop (omega_i)?
-             !!! n1b(ibib,k,jpm) !n :band index for k (occupied)
-             !!! n2b(ibib,k,jpm) !n':band index for q+k (unoccupied)
-!             write(6,*) '---n1b,n2b---',n1b(ibib,k,jpm),n2b(ibib,k,jpm)
-!          enddo
-          write(6,*) "---CHECK---",i
-!     it=n1b(ibib,k,jpm) !index for n for q
-!             n2bminimum=n2b(ibib,k,1) !????
-!             itp=1+n2b(ibib,k,jpm)-n2bminimum !index for n' for q+k
-c========================== caliculate M(:,:)
-c$$$                    M(:,:) caliculate!
-c$$$                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
-c$$$                    zmel=dconjg(zmel) ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
-c$$$                    M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
-c$$$                    Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-c========================== end caliculate M(:,:) 
-!                do iw=ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-!                   imagweight=whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-!                   kmatrix(:,:,iw,jpm)=kmatrix(:,:,iw,jpm)+M(:,:)*imagweight
-!                enddo
- !25       continue
-          
-c$$$          jpm=1
-c$$$          do k=1,nqbz
+c$$$ !!! test code to print tetrahedron weight !!!
+c$$$        jpm=1
+c$$$        do k=1,nqbz
 c$$$c           nkqmin= 999999
 c$$$c           do ibib = 1, nbnb(k,jpm)
 c$$$c              nkqmin = min(n2b(ibib,k,jpm),nkqmin)
 c$$$c           enddo
-c$$$             do ibib = 1, nbnb(k,jpm) !---  ibib loop
+c$$$           do ibib = 1, nbnb(k,jpm) !---  ibib loop
 c$$$c             print *,' k ibib=',k,ibib
 c$$$c              it =  n1b(ibib,k,jpm)    !valence
 c$$$c              itp = n2b(ibib,k,jpm) - itps + 1 !val
 c$$$c              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
-c$$$                do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
+c$$$              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
 c$$$c                 if(iw<20) then
 c$$$                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-c$$$                 write(6,*) "--check:k,n1b--",k,n1b(ibib,k,jpm)
 c$$$c                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
 c$$$c                 endif
 c$$$              enddo             ! iw
@@ -1545,11 +1506,7 @@ c$$$c$$$          write (ifcor,*)' ### Gell-Mann and Brueckner formula'
 c$$$c$$$          ecelgas = (-0.0311d0 * dlog(rs) -0.048d0) * hartree * ntot
 c$$$c$$$          write (ifcor,*)ecelgas
 c$$$c$$$        endif
-c$$$            endif
-      !!! okumura check
-!      call get_zmel
-      write(6,*) "-- check ***"
-      !!!
+c$$$      endif
       call cputid(0)
       call MPI__Finalize
       if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11     read <Q0P> normal sergeyv')
@@ -1560,7 +1517,6 @@ c$$$            endif
       if(ixc==202)  call rx0( ' OK! hx0fp0 mode=202 sergeyv epsPP NoLFC')
       if(ixc==203)  call rx0( ' OK! hx0fp0 mode=203 sergeyv eps LFC ')
       if(ixc==222)  call rx0( ' OK! hx0fp0 mode=222 chi+- NoLFC sergeyv')
-
       end
 
 c--------------------------------------------------------------------
@@ -1666,6 +1622,7 @@ c         call matcinv(ngb,sqovlp)     !  inverse
 c         ovlpi=ovlp
 c         deallocate(ppovl,ovlp)
       end
+
 c--------------------------------------------------------------------
       subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)
 !! == check write for zw, no output == !!

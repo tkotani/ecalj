@@ -1276,7 +1276,7 @@ c2---------------------
  1001 continue
       deallocate(ngvecc)
       call cputid(0)
-      call flush(6)
+c      call flush(6)
       call MPI__Finalize
       if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
       if(imode==0) call rx0( ' OK! hvccfp0 imode=0')

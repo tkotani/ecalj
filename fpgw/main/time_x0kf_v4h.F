@@ -108,22 +108,54 @@
       real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
       integer:: irot=1, ntqxx,nbmax
 
-!TIME0_1001 
+       call realtimediff(100,'')
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
       call minv33(qbas,qbasinv)
+C--------------------------
+C var 0 cphi_k(nlmto,nband)
+C name= cphi_k
+C dim 0 nlmto nlmto
+C dim 1 nband nband
+C--------------------------
+      call add_alloclist("cphi_k",sizeof(cphi_k),
+     & int((nlmto)*(nband),kind=8))  !omplevel0
+C--------------------------
+C var 1 cphi_kq(nlmto,nband)
+C name= cphi_kq
+C dim 0 nlmto nlmto
+C dim 1 nband nband
+C--------------------------
+      call add_alloclist("cphi_kq",sizeof(cphi_kq),
+     & int((nlmto)*(nband),kind=8))  !omplevel0
+C--------------------------
+C var 2 geig_kq(ngpmx,nband)
+C name= geig_kq
+C dim 0 ngpmx ngpmx
+C dim 1 nband nband
+C--------------------------
+      call add_alloclist("geig_kq",sizeof(geig_kq),
+     & int((ngpmx)*(nband),kind=8))  !omplevel0
+C--------------------------
+C var 3 geig_k(ngpmx,nband)
+C name= geig_k
+C dim 0 ngpmx ngpmx
+C dim 1 nband nband
+C--------------------------
+      call add_alloclist("geig_k",sizeof(geig_k),
+     & int((ngpmx)*(nband),kind=8))  !omplevel0
       allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
 
-!TIME1_1001 "beforedo1000"
+       call realtimediff(100,"beforedo1000")
 !! loop over k-points -------------------------------------------------------------------------
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
         if(debug) write(6,'("do 1000  k=",i4,3f10.4)')k,rk(:,k)
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
-!TIME0_1101
+       call realtimediff(102,'')
         if(k<=5.or. (mod(k,max(10,nqbz/20))==1.or.k>nqbz-10) ) then
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
@@ -189,12 +221,20 @@
      &      q+rk(:,k),nkqmin,nkqmax,isp_kq,ncc) 
               ! end state    1:ntp0  --> true index of eigen is nkqmin:nkqmin+ntp0-1  
         zmel = dconjg(zmel)
+C--------------------------
+C var 0 z1p(ngb,ngb)
+C name= z1p
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+      call add_alloclist("z1p",sizeof(z1p),
+     & int((ngb)*(ngb),kind=8))  !omplevel0
         allocate( z1p(ngb,ngb) )
  8829   continue
 
 
-!TIME1_1101 "before_get_zmelt2"
-!TIME0_1201
+       call realtimediff(102,"before_get_zmelt2")
+       call realtimediff(104,'')
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
@@ -265,6 +305,7 @@ c$$$             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
 c$$$          endif
 c$$$ccccccccccccccccccccccccccccccccccc
 
+C omp level= 1
 !$OMP parallel private(imagweight) 
 !$OMP master
 !$        if (jpm.eq.1 .and. ibib.eq.nbnb(k,1)) then 
@@ -285,15 +326,26 @@ c$$$ccccccccccccccccccccccccccccccccccc
              enddo              !igb2
           enddo                 ! iw
 !$OMP end do 
+C omp level= 0
 !$OMP end parallel 
  25     continue
 !kino 2014-08-13  !$OMP end parallel 
-!TIME1_1201 "after_rcxq"
+       call realtimediff(104,"after_rcxq")
+C--------------------------
+C var 0 z1p
+C name= z1p
+C--------------------------
+      call del_alloclist( "z1p") !omplevel0
+C--------------------------
+C var 1 zmel
+C name= zmel
+C--------------------------
+      call del_alloclist( "zmel") !omplevel0
         deallocate(z1p,zmel) !zmelt,z1p)
         if(debug) call cputid(0)
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
  1000 continue
-!TIME0_1301
+       call realtimediff(106,'')
 
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
         do jpm=1,npm
@@ -305,7 +357,7 @@ c$$$ccccccccccccccccccccccccccccccccccc
          enddo
         enddo
         enddo
-!TIME1_1301 "before_eibzmode_symmetrization"
+       call realtimediff(106,"before_eibzmode_symmetrization")
  9999 continue
       write(6,"(' --- x0kf_v4hz: end')")
       end subroutine x0kf_v4hz
@@ -399,10 +451,10 @@ c 5000 continue
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
-!TIME0_1401 
+       call realtimediff(108,'')
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-!TIME1_1401 "after_iqindx2"
-!TIME0_1501
+       call realtimediff(108,"after_iqindx2")
+       call realtimediff(110,'')
         if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
              !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
@@ -412,6 +464,21 @@ c 5000 continue
 c        allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb))
         ntimer=1
         if(sum(eibzsym(:,-1))>0) ntimer=2 !timereversal case
+C--------------------------
+C var 0 zrotm(ngb,ngb)
+C name= zrotm
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+      call add_alloclist("zrotm",sizeof(zrotm),
+     & int((ngb)*(ngb),kind=8))  !omplevel0
+C--------------------------
+C var 1 nrotm(ngrp*2)
+C name= nrotm
+C dim 0 ngrp*2 ngrp*2
+C--------------------------
+      call add_alloclist("nrotm",sizeof(nrotm),
+     & int((ngrp*2),kind=8))  !omplevel0
         allocate(zrotm(ngb,ngb),nrotm(ngrp*2))
 !!
 c        zcousqinv=zcousq
@@ -424,20 +491,83 @@ c        call matcinv(ngb,zcousqinv)
 !!     do irotm1 = 1,nrotm(icc)
 !!       rcxq0(:,i2(irotm1,icc)) = rcxqwww(:,i1(irotm1,icc)) * zrr(irotm1,i2(irotm1,icc))
 
+C--------------------------
+C var 0 zrrx(nmbas,nmbas)
+C name= zrrx
+C dim 0 nmbas nmbas
+C dim 1 nmbas nmbas
+C--------------------------
+      call add_alloclist("zrrx",sizeof(zrrx),
+     & int((nmbas)*(nmbas),kind=8))  !omplevel0
         allocate(zrrx(nmbas,nmbas))
         nrotmx = 10000 !trial value
-!TIME1_1501 "before_1011"
+       call realtimediff(110,"before_1011")
         do 1011  !this loop is only in order to to set large enough nrotmx.
-!TIME0_1601 
-        if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
+       call realtimediff(112,'')
+C         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
+        if(allocated(i1))  then
+C--------------------------
+C var 0 i1
+C name= i1
+C--------------------------
+      call del_alloclist( "i1") !omplevel0
+C--------------------------
+C var 1 i2
+C name= i2
+C--------------------------
+      call del_alloclist( "i2") !omplevel0
+C--------------------------
+C var 2 zrr
+C name= zrr
+C--------------------------
+      call del_alloclist( "zrr") !omplevel0
+C--------------------------
+C var 3 zrrc
+C name= zrrc
+C--------------------------
+      call del_alloclist( "zrrc") !omplevel0
+        deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
+        endif
         nccc=ngrp*2
+C--------------------------
+C var 0 i1(nrotmx,nccc)
+C name= i1
+C dim 0 nrotmx nrotmx
+C dim 1 nccc nccc
+C--------------------------
+      call add_alloclist("i1",sizeof(i1),
+     & int((nrotmx)*(nccc),kind=8))  !omplevel0
+C--------------------------
+C var 1 i2(nrotmx,nccc)
+C name= i2
+C dim 0 nrotmx nrotmx
+C dim 1 nccc nccc
+C--------------------------
+      call add_alloclist("i2",sizeof(i2),
+     & int((nrotmx)*(nccc),kind=8))  !omplevel0
+C--------------------------
+C var 2 zrr(nrotmx,nccc)
+C name= zrr
+C dim 0 nrotmx nrotmx
+C dim 1 nccc nccc
+C--------------------------
+      call add_alloclist("zrr",sizeof(zrr),
+     & int((nrotmx)*(nccc),kind=8))  !omplevel0
+C--------------------------
+C var 3 zrrc(nrotmx,nccc)
+C name= zrrc
+C dim 0 nrotmx nrotmx
+C dim 1 nccc nccc
+C--------------------------
+      call add_alloclist("zrrc",sizeof(zrrc),
+     & int((nrotmx)*(nccc),kind=8))  !omplevel0
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc)) !,zrr_(ngb,ngb,nccc),zrrc_(ngb,ngb,nccc))
         i1=-99999
         i2=-99999
         zrr=-99999d0
         zrrc=-99999d0
         call cputid2(' --- x0kf:11111   :',0)
-!TIME1_1601 "allocatezrr"
+       call realtimediff(112,"allocatezrr")
 !!
         icc=0
         do itimer=1,-1,-2
@@ -447,7 +577,7 @@ c        call matcinv(ngb,zcousqinv)
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
               icc=icc+1
-!TIME0_1701
+       call realtimediff(114,'')
 
 !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
@@ -487,8 +617,8 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif 
 
               endif
-!TIME1_1701 "end_matmmsparse"
-!TIME0_1801
+       call realtimediff(114,"end_matmmsparse")
+       call realtimediff(116,'')
               i1(:,icc)=0
               i2(:,icc)=0
               irotm=0
@@ -509,8 +639,8 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif   
               enddo
               enddo
-!TIME1_1801 "before_iagain1"
-!TIME0_1901
+       call realtimediff(116,"before_iagain1")
+       call realtimediff(118,'')
               if(iagain==1) then
                 nrotmx=irotm !enlarge allocation and do things again.
                 write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
@@ -519,20 +649,71 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
               endif   
               nrotm(icc)=irotm
               if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-!TIME1_1901 "end_ig_itimer_icc_nrotm"
+       call realtimediff(118,"end_ig_itimer_icc_nrotm")
             endif
           enddo
         enddo
         exit
  1011   continue !only when nrotmx overflow.
-!TIME0_2001
+       call realtimediff(120,'')
 
 !! === main part to obtain symmetrized rcxq  ===
 !! neibz is total number of symmetrization operation. 
 !!      rcxq is rotated and accumulated; finally divied by neibz
         zcousqc = dconjg(transpose(zcousq))
         if(debug) call cputid2(' --- x0kf:qqqqq222ini:',0)
+C omp level= 1
 !$OMP parallel private(rcxq000,icc,itt,icount,rcxqwww,rcxq00,rcxq0,rcxq_core)
+C--------------------------
+C var 0 rcxq0(ngb,ngb)
+C name= rcxq0
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+!$OMP critical
+      call add_alloclist("rcxq0/omp1",sizeof(rcxq0),
+     & int((ngb)*(ngb),kind=8))  !omplevel1
+!$OMP end critical
+C--------------------------
+C var 1 rcxq00(ngb,ngb)
+C name= rcxq00
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+!$OMP critical
+      call add_alloclist("rcxq00/omp1",sizeof(rcxq00),
+     & int((ngb)*(ngb),kind=8))  !omplevel1
+!$OMP end critical
+C--------------------------
+C var 2 rcxq000(ngb,ngb)
+C name= rcxq000
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+!$OMP critical
+      call add_alloclist("rcxq000/omp1",sizeof(rcxq000),
+     & int((ngb)*(ngb),kind=8))  !omplevel1
+!$OMP end critical
+C--------------------------
+C var 3 rcxqwww(ngb,ngb)
+C name= rcxqwww
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+!$OMP critical
+      call add_alloclist("rcxqwww/omp1",sizeof(rcxqwww),
+     & int((ngb)*(ngb),kind=8))  !omplevel1
+!$OMP end critical
+C--------------------------
+C var 4 rcxq_core(ngb,ngb)
+C name= rcxq_core
+C dim 0 ngb ngb
+C dim 1 ngb ngb
+C--------------------------
+!$OMP critical
+      call add_alloclist("rcxq_core/omp1",sizeof(rcxq_core),
+     & int((ngb)*(ngb),kind=8))  !omplevel1
+!$OMP end critical
         allocate(rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxq000(ngb,ngb),rcxqwww(ngb,ngb),rcxq_core(ngb,ngb))
 !$OMP master
 !$         write(6,'(a,i5,a,i5)') 'OMP parallel nwt, threads=',omp_get_num_threads(),' nwt=',nwt
@@ -642,9 +823,53 @@ c$$$           endif
           enddo
           enddo
 !$OMP end  do 
+C--------------------------
+C var 0 rcxq00
+C name= rcxq00
+C--------------------------
+!$OMP critical
+      call del_alloclist( "rcxq00/omp1") !omplevel1
+!$OMP end critical
+C--------------------------
+C var 1 rcxq000
+C name= rcxq000
+C--------------------------
+!$OMP critical
+      call del_alloclist( "rcxq000/omp1") !omplevel1
+!$OMP end critical
+C--------------------------
+C var 2 rcxq0
+C name= rcxq0
+C--------------------------
+!$OMP critical
+      call del_alloclist( "rcxq0/omp1") !omplevel1
+!$OMP end critical
+C--------------------------
+C var 3 rcxqwww
+C name= rcxqwww
+C--------------------------
+!$OMP critical
+      call del_alloclist( "rcxqwww/omp1") !omplevel1
+!$OMP end critical
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
+C omp level= 0
 !$OMP end parallel 
-!TIME1_2001 "after_sym_rcxq"
+       call realtimediff(120,"after_sym_rcxq")
+C--------------------------
+C var 0 zrotm
+C name= zrotm
+C--------------------------
+      call del_alloclist( "zrotm") !omplevel0
+C--------------------------
+C var 1 i1
+C name= i1
+C--------------------------
+      call del_alloclist( "i1") !omplevel0
+C--------------------------
+C var 2 i2
+C name= i2
+C--------------------------
+      call del_alloclist( "i2") !omplevel0
         deallocate(zrotm,i1,i2)
 
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
@@ -797,6 +1022,27 @@ C--------------------------------------------------------------
 !! Each histogram bins are  [his_Left, his_Right], and  his_Center is middle.
 !! his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
         if(debug) write(6,*)' dpsion5: RRR 2222222222 '
+C--------------------------
+C var 0 his_L(-nwhis:nwhis)
+C name= his_L
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("his_L",sizeof(his_L),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 1 his_R(-nwhis:nwhis)
+C name= his_R
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("his_R",sizeof(his_R),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 2 his_C(-nwhis:nwhis)
+C name= his_C
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("his_C",sizeof(his_C),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
         allocate(his_L(-nwhis:nwhis),his_R(-nwhis:nwhis),his_C(-nwhis:nwhis))
         his_L(1:nwhis) = frhis(  1:  nwhis)
         his_R(1:nwhis) = frhis(1+1:1+nwhis)
@@ -844,6 +1090,13 @@ cccccccccccccccccccc
 
         if(evaltest().and.nmbas1==nmbas2) then
           write(6,"('hhh --- EigenValues for rcxq --------')")
+C--------------------------
+C var 0 ebb(nmbas1)
+C name= ebb
+C dim 0 nmbas1 nmbas1
+C--------------------------
+      call add_alloclist("ebb",sizeof(ebb),
+     & int((nmbas1),kind=8))  !omplevel0
           allocate(ebb(nmbas1))
           do jpm= 1,npm
             do iw = 1, nwhis
@@ -855,6 +1108,11 @@ cccccccccccccccccccc
               enddo
             enddo
           enddo
+C--------------------------
+C var 0 ebb
+C name= ebb
+C--------------------------
+      call del_alloclist( "ebb") !omplevel0
           deallocate(ebb)
         endif
 
@@ -862,6 +1120,22 @@ C--- realomega case
         if(realomega)then
           write(6,*) " --- realomega --- "
           if(npm==1) then
+C--------------------------
+C var 0 rmat(0:nw_w,-nwhis:nwhis,npm)
+C name= rmat
+C dim 0 0:nw_w ((nw_w)-(0)+1)
+C dim 1 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("rmat",sizeof(rmat),
+     & int((((nw_w)-(0)+1))*(((nwhis)-(-nwhis)+1))*(npm),kind=8))  !omplevel0
+C--------------------------
+C var 1 rrr(-nwhis:nwhis)
+C name= rrr
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("rrr",sizeof(rrr),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
             allocate( rmat(0:nw_w,-nwhis:nwhis,npm), rrr(-nwhis:nwhis))
             rmat  = 0d0
             do it =  0,nw_w
@@ -869,6 +1143,15 @@ C--- realomega case
               call hilbertmat(zz, nwhis,his_L,his_C,his_R, rrr)
               rmat(it,:,1) = dreal(rrr)
             enddo ;   if(debug) write(6,*) 'dpsion5: RRR 55555555555'
+C--------------------------
+C var 0 rmatt(0:nw_w,nwhis,npm)
+C name= rmatt
+C dim 0 0:nw_w ((nw_w)-(0)+1)
+C dim 1 nwhis nwhis
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("rmatt",sizeof(rmatt),
+     & int((((nw_w)-(0)+1))*(nwhis)*(npm),kind=8))  !omplevel0
             allocate( rmatt(0:nw_w,nwhis,npm) )
             if(     chipm.and.ispx==1 ) then
               rmatt(:,:,1) = rmat(:,1:nwhis,1)
@@ -881,8 +1164,34 @@ C--- realomega case
                 rmatt(:,iw,1) = rmat(:,iw,1) - rmat(:,-iw,1)
               enddo
             endif
+C--------------------------
+C var 0 rmat
+C name= rmat
+C--------------------------
+      call del_alloclist( "rmat") !omplevel0
+C--------------------------
+C var 1 rrr
+C name= rrr
+C--------------------------
+      call del_alloclist( "rrr") !omplevel0
             deallocate(rmat,rrr)
           else ! npm==2 case -------------------------------------------------
+C--------------------------
+C var 0 rmatt(-nw_w:nw_w,nwhis,npm)
+C name= rmatt
+C dim 0 -nw_w:nw_w ((nw_w)-(-nw_w)+1)
+C dim 1 nwhis nwhis
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("rmatt",sizeof(rmatt),
+     & int((((nw_w)-(-nw_w)+1))*(nwhis)*(npm),kind=8))  !omplevel0
+C--------------------------
+C var 1 rrr(-nwhis:nwhis)
+C name= rrr
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("rrr",sizeof(rrr),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
             allocate( rmatt(-nw_w:nw_w,nwhis,npm), rrr(-nwhis:nwhis))
             rmatt = 0d0
             do it  =  -nw_w,nw_w
@@ -895,6 +1204,11 @@ C--- realomega case
               rmatt(it,:,1) =  dreal(rrr  (1:nwhis))
               rmatt(it,:,2) = -dreal(rrr(-1:-nwhis:-1))
             enddo ;   if(debug) write(6,*) 'dpsion5: RRR2 55555555555'
+C--------------------------
+C var 0 rrr
+C name= rrr
+C--------------------------
+      call del_alloclist( "rrr") !omplevel0
             deallocate(rrr)
           endif
           rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion5: RRR 6666'
@@ -942,16 +1256,46 @@ Cstop2rx 2013.08.09 kino     &      stop 'x0kf_v4h:npm==2.and.chipm is not meani
 Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
             call rx( 'dpsion5: npm=1 or 2')
           endif
+C--------------------------
+C var 0 rmatt
+C name= rmatt
+C--------------------------
+      call del_alloclist( "rmatt") !omplevel0
           deallocate(rmatt)
         endif
 
 !! === imagomega case      imatt(niwt -->niwt,npm may2005 ===
         if(imagomega) then
+C--------------------------
+C var 0 rrr(-nwhis:nwhis)
+C name= rrr
+C dim 0 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C--------------------------
+      call add_alloclist("rrr",sizeof(rrr),
+     & int((((nwhis)-(-nwhis)+1)),kind=8))  !omplevel0
           allocate( rrr(-nwhis:nwhis))
           if(npm==1) then
+C--------------------------
+C var 0 rmati(niwt,-nwhis:nwhis,npm)
+C name= rmati
+C dim 0 niwt niwt
+C dim 1 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("rmati",sizeof(rmati),
+     & int((niwt)*(((nwhis)-(-nwhis)+1))*(npm),kind=8))  !omplevel0
             allocate( rmati (niwt,-nwhis:nwhis,npm))
             rmati= 0d0
           else
+C--------------------------
+C var 0 rmatiC(niwt,-nwhis:nwhis,npm)
+C name= rmatiC
+C dim 0 niwt niwt
+C dim 1 -nwhis:nwhis ((nwhis)-(-nwhis)+1)
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("rmatiC",sizeof(rmatiC),
+     & int((niwt)*(((nwhis)-(-nwhis)+1))*(npm),kind=8))  !omplevel0
             allocate( rmatiC(niwt,-nwhis:nwhis,npm))
             rmatiC = 0d0
           endif ;   if(debug) write(6,*) 'dpsion5: III 111111155555555555'
@@ -966,23 +1310,66 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
           enddo ;   if(debug) write(6,*) 'dpsion5: III 55555555555'
 !! ==== npm=1 case ====
           if(npm==1) then
+C--------------------------
+C var 0 imatt(niwt,nwhis,npm)
+C name= imatt
+C dim 0 niwt niwt
+C dim 1 nwhis nwhis
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("imatt",sizeof(imatt),
+     & int((niwt)*(nwhis)*(npm),kind=8))  !omplevel0
             allocate( imatt(niwt, nwhis,npm) )
             do iw= 1,nwhis
               imatt(:,iw,1) = rmati(:,iw,1) - rmati(:,-iw,1)
             enddo
+C--------------------------
+C var 0 rmati
+C name= rmati
+C--------------------------
+      call del_alloclist( "rmati") !omplevel0
+C--------------------------
+C var 1 rrr
+C name= rrr
+C--------------------------
+      call del_alloclist( "rrr") !omplevel0
             deallocate(rmati,rrr)
             imatt = imatt/pi; if(debug) write(6,*) 'dpsion5: III  '
             call dgemm('n','t',  2*nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq, 2*nmbas1*nmbas2, imatt, niwt,
      &               0d0, zxqi, 2*nmbas1*nmbas2 )
+C--------------------------
+C var 0 imatt
+C name= imatt
+C--------------------------
+      call del_alloclist( "imatt") !omplevel0
             deallocate(imatt)
 !! ==== npm=2 case ====
           else
+C--------------------------
+C var 0 imattC(niwt,nwhis,npm)
+C name= imattC
+C dim 0 niwt niwt
+C dim 1 nwhis nwhis
+C dim 2 npm npm
+C--------------------------
+      call add_alloclist("imattC",sizeof(imattC),
+     & int((niwt)*(nwhis)*(npm),kind=8))  !omplevel0
             allocate( imattC(niwt, nwhis,npm) )
             do iw= 1,nwhis
               imattC(:,iw,1) =   rmatiC(:, iw,1)
               imattC(:,iw,2) = - rmatiC(:,-iw,1)
             enddo
+C--------------------------
+C var 0 rmatiC
+C name= rmatiC
+C--------------------------
+      call del_alloclist( "rmatiC") !omplevel0
+C--------------------------
+C var 1 rrr
+C name= rrr
+C--------------------------
+      call del_alloclist( "rrr") !omplevel0
             deallocate(rmatiC,rrr)
             imattC = imattC/pi; if(debug) write(6,*) 'dpsion5: IIIc '
             call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
@@ -991,9 +1378,29 @@ Cstop2rx 2013.08.09 kino            stop 'dpsion5: npm=1 or 2'
             call zgemm('n','t',  nmbas1*nmbas2, niwt, nwhis, 1d0, 
      &              rcxq(1,1,1,2), nmbas1*nmbas2, imattC(1,1,2), niwt,
      &              1d0, zxqi,    nmbas1*nmbas2 )
+C--------------------------
+C var 0 imattC
+C name= imattC
+C--------------------------
+      call del_alloclist( "imattC") !omplevel0
             deallocate(imattC)
           endif
         endif
+C--------------------------
+C var 0 his_L
+C name= his_L
+C--------------------------
+      call del_alloclist( "his_L") !omplevel0
+C--------------------------
+C var 1 his_C
+C name= his_C
+C--------------------------
+      call del_alloclist( "his_C") !omplevel0
+C--------------------------
+C var 2 his_R
+C name= his_R
+C--------------------------
+      call del_alloclist( "his_R") !omplevel0
         deallocate(his_L,his_C,his_R)
         write(6,'("         end dpsion5 ",$)')
         call cputid(0)

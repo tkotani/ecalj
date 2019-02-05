@@ -46,8 +46,8 @@
 !! ----------------------------------------------------------------------
       use m_keyvalue,only: getkeyvalue
       implicit none
-      integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifiqgw,ifigw0,ngrp,ifi,i,ig,iq0pin,idummy
-      real(8) ::  alat,QpGcut_psi, QpGcut_Cou,qpgcut_wan,dummy ,plat(3,3)
+      integer(4) ::n1q,n2q,n3q,ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin,idummy
+      real(8) ::  alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3)
       real(8) :: volum,q0(3),qlat0(3,3),QpGx2,a1,a2,pi,unit !,QpGx1
       real(8),allocatable :: symops(:,:,:)
       character(len=150):: recrdxxx
@@ -128,12 +128,8 @@ c      endif
 !! --- Readin GWinput
       call getkeyvalue("GWinput", "n1n2n3", nnn,3)
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
-
       call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
-
       call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
-
-      
       call getkeyvalue("GWinput", "unit_2pioa",unit2)
       if(unit2) then
         unit = 2d0*pi/alat
@@ -145,18 +141,14 @@ c      endif
       write(6,"(' ---  |k+G| < QpG(psi) QpG(Cou)=',2d13.6)") QpGcut_psi, QpGcut_Cou
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
-
       ifiqgc = ifile_handle()
       open(ifiqgc,file='QGcou',form='unformatted')
-      
       if(iq0pin==4) then
          QpGcut_psi=0d0
          QpGcut_Cou=0d0
       endif
 !!
       call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-c     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgw, gammacellctrl,lnq0iadd) ! takao@11jun2018. 
-!           I think ifiqgw is  a bug.
      &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')

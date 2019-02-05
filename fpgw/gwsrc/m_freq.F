@@ -1,4 +1,4 @@
-!! mesh generator
+!>Frequency mesh generator
 !! - OUTPUT
 !!   - fhris :histgram bins to accumlate im part
 !!   - freq_r: omega along real axis
@@ -16,7 +16,7 @@ c      integer,protected:: nwhis0
 !> Get data set for m_freq. All arguments are input.
 !! - This read GWinput (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
-      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo)
+      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root)
       use m_keyvalue,only:getkeyvalue
 
       implicit none
@@ -33,8 +33,6 @@ c      integer,protected:: nwhis0
       integer::nee,noo,ifif,ifile_handle
 
       logical,save:: done=.false.
-      logical,optional:: npmtwo
-      logical:: npm2
       if(done) call rx('gerfreq is already done') !sanity check
       done =.true.
       nw=-99999 !for sanity check
@@ -99,9 +97,7 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
 !! nw_i and npm
       npm=1
       nw_i=0
-      npm2=.false.
-      if(present(npmtwo).and.npmtwo) npm2=.true.
-      if(.not.timereversal().or.npm2) then
+      if(.not.timereversal()) then
          write(6,"('TimeReversal off mode')")
          npm=2
          nw_i=-nw
@@ -140,9 +136,9 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
       if(onceww(1)) then
         write(6,*)' we set frhis nwhis noo-->nee=',nwhis,noo,nee
         write(6,*)' --- Frequency bins to accumulate Im part  (a.u.) are ---- '
-c$$$        do ihis= 1, nwhis !min(10,nwhis)
-c$$$          write(6,"(' ihis Init  End=', i5,2f18.11)") ihis,frhis(ihis),frhis(ihis+1)
-c$$$        enddo
+        do ihis= 1, nwhis !min(10,nwhis)
+          write(6,"(' ihis Init  End=', i5,2f18.11)") ihis,frhis(ihis),frhis(ihis+1)
+        enddo
       endif
       end subroutine getfreq
       end module m_freq

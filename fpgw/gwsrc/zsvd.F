@@ -27,13 +27,14 @@ c$$$      deallocate(ovlpi)
       zw0bk = zzz
 !      print *,' zgesvdnn: singular value decomp '
       call zgesvd('A','A',ngb,ngb,zzz,ngb,SS,UU,ngb,VT,ngb,work,lwork,rwork,info)
-      do i=1,ngb
-         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i) !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)
-         vtt(i,:)=ss(i)*vt(i,:)
-      enddo
-c$$$      write(6,"('sumcheck zzz  zzz-uu*s*vt=',d13.5,d13.5)")
-c$$$     &  sum(abs(zw0bk)), sum(abs(zw0bk - matmul(uu,vtt)))
-c$$$      if(abs(sum(abs(zw0bk - matmul(uu,vtt))))>1d-8*sum(abs(zw0bk)))
-c$$$     &  stop 'sumcheck zzz  zzz-uu*s*vt= error'
+!      do i=1,ngb
+!         write(6,"(' i ss=',i4,' ', d13.5 )")i,SS(i) !    write(6,"(' i ss=',i4,'  ', d13.5,' ss0*ss=',d13.5 )")i,SS(i),ss(i)*ss0(ngb-i+1)
+!         vtt(i,:)=ss(i)*vt(i,:)
+!      enddo
+!      write(6,"('sumcheck zzz  zzz-uu*s*vt=',d13.5,d13.5)")
+!     &  sum(abs(zw0bk)), sum(abs(zw0bk - matmul(uu,vtt)))
+!      if(abs(sum(abs(zw0bk - matmul(uu,vtt))))>1d-8*sum(abs(zw0bk)))
+!     &  stop 'sumcheck zzz  zzz-uu*s*vt= error'
 !      deallocate(vtt)
-      end subroutine zgesvdnn
+      end
+

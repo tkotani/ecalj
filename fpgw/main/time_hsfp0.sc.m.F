@@ -213,8 +213,8 @@ c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
       write(6,'(a,9i5)')'dateandtime1=',MPI__rank,timevalues(1:8)
-!TIME0_0000
-!TIME0_0010 
+       call realtimediff(1,'')
+       call realtimediff(3,'')
       hartree=2d0*rydberg()
       hermitianW=.true.
       if(cohtest) then          !currently not used (may need fixing if necessary)
@@ -397,6 +397,45 @@ c     write(6,'("    ua      =",f13.6)') ua
 !! because the class in the generated GW file is dummy. (iclass(ibas)=ibas should be kept).
       ificlass=ifile_handle()
       open (ificlass,file='CLASS')
+C--------------------------
+C var 0 iclasst(natom)
+C name= iclasst
+C dim 0 natom natom
+C--------------------------
+      call add_alloclist("iclasst",sizeof(iclasst),
+     & int((natom),kind=8))  !omplevel0
+C--------------------------
+C var 1 invgx(ngrp)
+C name= invgx
+C dim 0 ngrp ngrp
+C--------------------------
+      call add_alloclist("invgx",sizeof(invgx),
+     & int((ngrp),kind=8))  !omplevel0
+C--------------------------
+C var 2 miat(natom,ngrp)
+C name= miat
+C dim 0 natom natom
+C dim 1 ngrp ngrp
+C--------------------------
+      call add_alloclist("miat",sizeof(miat),
+     & int((natom)*(ngrp),kind=8))  !omplevel0
+C--------------------------
+C var 3 tiat(3,natom,ngrp)
+C name= tiat
+C dim 0 3 3
+C dim 1 natom natom
+C dim 2 ngrp ngrp
+C--------------------------
+      call add_alloclist("tiat",sizeof(tiat),
+     & int((3)*(natom)*(ngrp),kind=8))  !omplevel0
+C--------------------------
+C var 4 shtvg(3,ngrp)
+C name= shtvg
+C dim 0 3 3
+C dim 1 ngrp ngrp
+C--------------------------
+      call add_alloclist("shtvg",sizeof(shtvg),
+     & int((3)*(ngrp),kind=8))  !omplevel0
       allocate(iclasst(natom),invgx(ngrp)
      & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
@@ -415,9 +454,35 @@ c     write(6,'("    ua      =",f13.6)') ua
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
+C--------------------------
+C var 0 ngvecp(3,ngpmx)
+C name= ngvecp
+C dim 0 3 3
+C dim 1 ngpmx ngpmx
+C--------------------------
+      call add_alloclist("ngvecp",sizeof(ngvecp),
+     & int((3)*(ngpmx),kind=8))  !omplevel0
+C--------------------------
+C var 1 ngvecc(3,ngcmx)
+C name= ngvecc
+C dim 0 3 3
+C dim 1 ngcmx ngcmx
+C--------------------------
+      call add_alloclist("ngvecc",sizeof(ngvecc),
+     & int((3)*(ngcmx),kind=8))  !omplevel0
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
       call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
       call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+C--------------------------
+C var 0 ngvecp
+C name= ngvecp
+C--------------------------
+      call del_alloclist( "ngvecp") !omplevel0
+C--------------------------
+C var 1 ngvecc
+C name= ngvecc
+C--------------------------
+      call del_alloclist( "ngvecc") !omplevel0
       deallocate(ngvecp,ngvecc)
       write(6,*) ' end of read QGcou'
 !!  ppbrd = radial integrals
@@ -448,6 +513,13 @@ c        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
         open(UNIT=ififr,file='freq_r')
         read(ififr,*)nwxx
         if(nwxx/= nw+1) call rx( ' freq_r nw /=nw')
+C--------------------------
+C var 0 freq_r(nw_i:nw)
+C name= freq_r
+C dim 0 nw_i:nw ((nw)-(nw_i)+1)
+C--------------------------
+      call add_alloclist("freq_r",sizeof(freq_r),
+     & int((((nw)-(nw_i)+1)),kind=8))  !omplevel0
         allocate(freq_r(nw_i:nw)) !freq_r(0)=0d0
         do iw= nw_i,nw  
           read(ififr,*) freq_r(iw)
@@ -527,11 +599,27 @@ c        endif
         call readx   (ifqpnt,100)
         if (lqall) then         !all q-points case
           nq         = nqibz
+C--------------------------
+C var 0 q(3,nq)
+C name= q
+C dim 0 3 3
+C dim 1 nq nq
+C--------------------------
+      call add_alloclist("q",sizeof(q),
+     & int((3)*(nq),kind=8))  !omplevel0
           allocate(q(3,nq))
           call dcopy   (3*nqibz,qibz,1,q,1)
         else
           call readx   (ifqpnt,100)
           read (ifqpnt,*) nq
+C--------------------------
+C var 0 q(3,nq)
+C name= q
+C dim 0 3 3
+C dim 1 nq nq
+C--------------------------
+      call add_alloclist("q",sizeof(q),
+     & int((3)*(nq),kind=8))  !omplevel0
           allocate(q(3,nq))
           do       k = 1,nq
             read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
@@ -543,6 +631,14 @@ c        endif
       else
 !     q-points. bzcase()=1
         nq = nqibz
+C--------------------------
+C var 0 q(3,nq)
+C name= q
+C dim 0 3 3
+C dim 1 nq nq
+C--------------------------
+      call add_alloclist("q",sizeof(q),
+     & int((3)*(nq),kind=8))  !omplevel0
         allocate(q(3,nq))
         q(:,1:nq) = qibz(:,1:nq) !call dcopy   (3*nqibz,qibz,1,q,1)
       endif
@@ -568,6 +664,14 @@ c        endif
 !!!! count number of band to calculate.
 !! I think it it better to determine nbandmx in a manner within LDA 
 !! (need to care degeneracy...).
+C--------------------------
+C var 0 nbandmx(nq,nspinmx)
+C name= nbandmx
+C dim 0 nq nq
+C dim 1 nspinmx nspinmx
+C--------------------------
+      call add_alloclist("nbandmx",sizeof(nbandmx),
+     & int((nq)*(nspinmx),kind=8))  !omplevel0
       allocate(nbandmx(nq,nspinmx))
       if(MPI__root) then
         inquire(file='NTQXX',EXIST=lntq)
@@ -584,6 +688,13 @@ c        endif
         endif
         if(.not.lntq) then
           ntq=0
+C--------------------------
+C var 0 eqt(nband)
+C name= eqt
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("eqt",sizeof(eqt),
+     & int((nband),kind=8))  !omplevel0
           allocate(eqt(nband))
           do is = 1,nspin
             do ip = 1,nq
@@ -595,10 +706,22 @@ c        endif
             enddo
           enddo
           ntq = min(ntq, nbmx(1))
+C--------------------------
+C var 0 eqt
+C name= eqt
+C--------------------------
+      call del_alloclist( "eqt") !omplevel0
           deallocate(eqt)
           write(ifih,"(3i10)") nband,nq,ntq
         endif
 !!   Get ntqxx(iq,isp) and nbandmx
+C--------------------------
+C var 0 eqt(nband)
+C name= eqt
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("eqt",sizeof(eqt),
+     & int((nband),kind=8))  !omplevel0
         allocate(eqt(nband))
         do is = 1,nspinmx
           do ip = 1,nq   
@@ -625,6 +748,11 @@ c        endif
             nbandmx(ip,is) = ntqxx !number of bands to be calculated
           enddo
         enddo
+C--------------------------
+C var 0 eqt
+C name= eqt
+C--------------------------
+      call del_alloclist( "eqt") !omplevel0
         deallocate(eqt)
         close(ifih)
       endif
@@ -642,6 +770,13 @@ c        endif
       enddo
 
 !! trivial case of itq itq(i)=i
+C--------------------------
+C var 0 itq(ntq)
+C name= itq
+C dim 0 ntq ntq
+C--------------------------
+      call add_alloclist("itq",sizeof(itq),
+     & int((ntq),kind=8))  !omplevel0
       allocate (itq(ntq))
       do i = 1, ntq
          itq(i) = i !itq is used also in hsfp0.m.F
@@ -652,6 +787,31 @@ c        endif
 
 !! read LDA eigenvalues
 c      allocate(omega(ntq))
+C--------------------------
+C var 0 eqx(ntq,nq,nspin)
+C name= eqx
+C dim 0 ntq ntq
+C dim 1 nq nq
+C dim 2 nspin nspin
+C--------------------------
+      call add_alloclist("eqx",sizeof(eqx),
+     & int((ntq)*(nq)*(nspin),kind=8))  !omplevel0
+C--------------------------
+C var 1 eqx0(ntq,nq,nspin)
+C name= eqx0
+C dim 0 ntq ntq
+C dim 1 nq nq
+C dim 2 nspin nspin
+C--------------------------
+      call add_alloclist("eqx0",sizeof(eqx0),
+     & int((ntq)*(nq)*(nspin),kind=8))  !omplevel0
+C--------------------------
+C var 2 eqt(nband)
+C name= eqt
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("eqt",sizeof(eqt),
+     & int((nband),kind=8))  !omplevel0
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do is = 1,nspin
         do ip = 1,nq
@@ -660,6 +820,11 @@ c      allocate(omega(ntq))
           eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- eftrue)
         enddo
       enddo
+C--------------------------
+C var 0 eqt
+C name= eqt
+C--------------------------
+      call del_alloclist( "eqt") !omplevel0
       deallocate(eqt)
 
       write (6,*)' ***'
@@ -677,6 +842,15 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
 !!     LDA exchange-correlation
 !!-------------------------
       if(ixc==1) then
+C--------------------------
+C var 0 vxcfp(ntq,nq,nspin)
+C name= vxcfp
+C dim 0 ntq ntq
+C dim 1 nq nq
+C dim 2 nspin nspin
+C--------------------------
+      call add_alloclist("vxcfp",sizeof(vxcfp),
+     & int((ntq)*(nq)*(nspin),kind=8))  !omplevel0
         allocate(  vxcfp(ntq,nq,nspin) )
         call rsexx(nspin,itq,q,ntq,nq, ginv, vxcfp) !add ginv july2011
         if(MPI__root) then
@@ -710,6 +884,11 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
             if(is==2) isx = iclose('XCD'//xt(nz))
           enddo                 !     end of spin-loop
         endif                   !MPI__root
+C--------------------------
+C var 0 vxcfp
+C name= vxcfp
+C--------------------------
+      call del_alloclist( "vxcfp") !omplevel0
         deallocate(vxcfp)
       endif
 
@@ -720,6 +899,21 @@ c      call winfo(6,nspin,nq,ntq,is,nbloch,ngpn1,ngcn1,nqbz,nqibz,ef,deltaw,alat
       read (ifiq0p,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
+C--------------------------
+C var 0 wqt(1:nq0i)
+C name= wqt
+C dim 0 1:nq0i ((nq0i)-(1)+1)
+C--------------------------
+      call add_alloclist("wqt",sizeof(wqt),
+     & int((((nq0i)-(1)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 1 q0i(1:3,1:nq0i)
+C name= q0i
+C dim 0 1:3 ((3)-(1)+1)
+C dim 1 1:nq0i ((nq0i)-(1)+1)
+C--------------------------
+      call add_alloclist("q0i",sizeof(q0i),
+     & int((((3)-(1)+1))*(((nq0i)-(1)+1)),kind=8))  !omplevel0
       allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
 c     read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       nq0ix = nq0i
@@ -731,6 +925,14 @@ c     read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       close(ifiq0p)
+C--------------------------
+C var 0 wgt0(nq0i,ngrp)
+C name= wgt0
+C dim 0 nq0i nq0i
+C dim 1 ngrp ngrp
+C--------------------------
+      call add_alloclist("wgt0",sizeof(wgt0),
+     & int((nq0i)*(ngrp),kind=8))  !omplevel0
       allocate( wgt0(nq0i,ngrp) )
       call getkeyvalue("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
       call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
@@ -748,6 +950,27 @@ c      call indxmdm (nblocha,nclass,iclass,natom,
 c     o imdim )                  !in m_zmel
       if(niw/=0) then
 !! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
+C--------------------------
+C var 0 freqx(niw)
+C name= freqx
+C dim 0 niw niw
+C--------------------------
+      call add_alloclist("freqx",sizeof(freqx),
+     & int((niw),kind=8))  !omplevel0
+C--------------------------
+C var 1 freqw(niw)
+C name= freqw
+C dim 0 niw niw
+C--------------------------
+      call add_alloclist("freqw",sizeof(freqw),
+     & int((niw),kind=8))  !omplevel0
+C--------------------------
+C var 2 wwx(niw)
+C name= wwx
+C dim 0 niw niw
+C--------------------------
+      call add_alloclist("wwx",sizeof(wwx),
+     & int((niw),kind=8))  !omplevel0
         allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
         call freq01x  (niw,     !ua,
      o   freqx,freqw,wwx)       !,expa)
@@ -767,8 +990,31 @@ c$$$      endif
         write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
         call rx( 'nq0i from EPSwklm /= nq0i')
       endif
+C--------------------------
+C var 0 dmlx(nq0i,9)
+C name= dmlx
+C dim 0 nq0i nq0i
+C dim 1 9 9
+C--------------------------
+      call add_alloclist("dmlx",sizeof(dmlx),
+     & int((nq0i)*(9),kind=8))  !omplevel0
       allocate( dmlx(nq0i,9))
+C--------------------------
+C var 0 epinvq0i(nq0i,nq0i)
+C name= epinvq0i
+C dim 0 nq0i nq0i
+C dim 1 nq0i nq0i
+C--------------------------
+      call add_alloclist("epinvq0i",sizeof(epinvq0i),
+     & int((nq0i)*(nq0i),kind=8))  !omplevel0
       allocate( epinvq0i(nq0i,nq0i) )
+C--------------------------
+C var 0 wklm((lxklm+1)**2)
+C name= wklm
+C dim 0 (lxklm+1)**2 (lxklm+1)**2
+C--------------------------
+      call add_alloclist("wklm",sizeof(wklm),
+     & int(((lxklm+1)**2),kind=8))  !omplevel0
       allocate( wklm((lxklm+1)**2))
       read(ifidmlx) dmlx, epinvq0i
       read(ifidmlx) wklm
@@ -793,6 +1039,33 @@ c     if(exchange) nene=0
 c     allocate(wtet(nband,nspin,nqibz,0:3*nene),
 c     &    eband(nband,nspin,nqibz), qz(3,nqibz),nstar(nqibz),
 c     &    iene(3*ntq,nq,nspin), ene(0:3*nene) ) ! pointer for
+C--------------------------
+C var 0 wtet(nband,nspin,nqibz,0:0)
+C name= wtet
+C dim 0 nband nband
+C dim 1 nspin nspin
+C dim 2 nqibz nqibz
+C dim 3 0:0 ((0)-(0)+1)
+C--------------------------
+      call add_alloclist("wtet",sizeof(wtet),
+     & int((nband)*(nspin)*(nqibz)*(((0)-(0)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 1 eband(nband,nspin,nqibz)
+C name= eband
+C dim 0 nband nband
+C dim 1 nspin nspin
+C dim 2 nqibz nqibz
+C--------------------------
+      call add_alloclist("eband",sizeof(eband),
+     & int((nband)*(nspin)*(nqibz),kind=8))  !omplevel0
+C--------------------------
+C var 2 qz(3,nqibz)
+C name= qz
+C dim 0 3 3
+C dim 1 nqibz nqibz
+C--------------------------
+      call add_alloclist("qz",sizeof(qz),
+     & int((3)*(nqibz),kind=8))  !omplevel0
         allocate(wtet(nband,nspin,nqibz,0:0),
      &   eband(nband,nspin,nqibz), qz(3,nqibz) ) ! pointer for
         call dcopy (3*nqibz,qibz,1,qz,1)
@@ -840,12 +1113,53 @@ c        endif
         do iqi = 1,nqibz
           wtet(:,:,iqi,:) = wtet(:,:,iqi,:)/nstar(iqi)
         enddo
+C--------------------------
+C var 0 eband
+C name= eband
+C--------------------------
+      call del_alloclist( "eband") !omplevel0
+C--------------------------
+C var 1 qz
+C name= qz
+C--------------------------
+      call del_alloclist( "qz") !omplevel0
+C--------------------------
+C var 2 ene
+C name= ene
+C--------------------------
+      call del_alloclist( "ene") !omplevel0
         deallocate( eband, qz, ene ) ! pointer for
 c -- ibzx denote the index of k{FBZ for given k{1BZ.
+C--------------------------
+C var 0 ibzx(nqbz)
+C name= ibzx
+C dim 0 nqbz nqbz
+C--------------------------
+      call add_alloclist("ibzx",sizeof(ibzx),
+     & int((nqbz),kind=8))  !omplevel0
         allocate(ibzx(nqbz))
         call invkibzx(irk,nqibz,ngrp,nqbz,
      o   ibzx)
       else
+C--------------------------
+C var 0 wtet(1,1,1,1)
+C name= wtet
+C dim 0 1 1
+C dim 1 1 1
+C dim 2 1 1
+C dim 3 1 1
+C--------------------------
+      call add_alloclist("wtet",sizeof(wtet),
+     & int((1)*(1)*(1)*(1),kind=8))  !omplevel0
+C--------------------------
+C var 1 iene(1,1,1)
+C name= iene
+C dim 0 1 1
+C dim 1 1 1
+C dim 2 1 1
+C--------------------------
+      call add_alloclist("iene",sizeof(iene),
+     & int((1)*(1)*(1),kind=8))  !omplevel0
         allocate(wtet(1,1,1,1), iene(1,1,1)) !dummy
       endif
 c ---- end of tetra section --------------------------------------------
@@ -858,7 +1172,42 @@ c      write(6,*) " sum of nonzero iirk=",iii, nqbz
 !!-----------------------------------------------------------
 !! eibz4sig() is EIBZ symmetrization or not...
       if(eibz4sig()) then
+C--------------------------
+C var 0 nwgt(nqbz,1:nq)
+C name= nwgt
+C dim 0 nqbz nqbz
+C dim 1 1:nq ((nq)-(1)+1)
+C--------------------------
+      call add_alloclist("nwgt",sizeof(nwgt),
+     & int((nqbz)*(((nq)-(1)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 1 igx(ngrp*2,nqbz,nq)
+C name= igx
+C dim 0 ngrp*2 ngrp*2
+C dim 1 nqbz nqbz
+C dim 2 nq nq
+C--------------------------
+      call add_alloclist("igx",sizeof(igx),
+     & int((ngrp*2)*(nqbz)*(nq),kind=8))  !omplevel0
         allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq))
+C--------------------------
+C var 0 igxt(ngrp*2,nqbz,nq)
+C name= igxt
+C dim 0 ngrp*2 ngrp*2
+C dim 1 nqbz nqbz
+C dim 2 nq nq
+C--------------------------
+      call add_alloclist("igxt",sizeof(igxt),
+     & int((ngrp*2)*(nqbz)*(nq),kind=8))  !omplevel0
+C--------------------------
+C var 1 eibzsym(ngrp,-1:1,nq)
+C name= eibzsym
+C dim 0 ngrp ngrp
+C dim 1 -1:1 ((1)-(-1)+1)
+C dim 2 nq nq
+C--------------------------
+      call add_alloclist("eibzsym",sizeof(eibzsym),
+     & int((ngrp)*(((1)-(-1)+1))*(nq),kind=8))  !omplevel0
         allocate(igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
         iqxini=1
         iqxend=nq
@@ -898,8 +1247,38 @@ C         enddo
 !! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
 !! ---
 !! NOTE: in future, we will further extend irkip for itp and itpp
+C--------------------------
+C var 0 irkip_all(nspinmx,nqibz,ngrp,nq)
+C name= irkip_all
+C dim 0 nspinmx nspinmx
+C dim 1 nqibz nqibz
+C dim 2 ngrp ngrp
+C dim 3 nq nq
+C--------------------------
+      call add_alloclist("irkip_all",sizeof(irkip_all),
+     & int((nspinmx)*(nqibz)*(ngrp)*(nq),kind=8))  !omplevel0
       allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+C--------------------------
+C var 0 nrkip_all(nspinmx,nqibz,ngrp,nq)
+C name= nrkip_all
+C dim 0 nspinmx nspinmx
+C dim 1 nqibz nqibz
+C dim 2 ngrp ngrp
+C dim 3 nq nq
+C--------------------------
+      call add_alloclist("nrkip_all",sizeof(nrkip_all),
+     & int((nspinmx)*(nqibz)*(ngrp)*(nq),kind=8))  !omplevel0
       allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+C--------------------------
+C var 0 nrkip(nspinmx,nqibz,ngrp,nq)
+C name= nrkip
+C dim 0 nspinmx nspinmx
+C dim 1 nqibz nqibz
+C dim 2 ngrp ngrp
+C dim 3 nq nq
+C--------------------------
+      call add_alloclist("nrkip",sizeof(nrkip),
+     & int((nspinmx)*(nqibz)*(ngrp)*(nq),kind=8))  !omplevel0
       allocate(nrkip(nspinmx,nqibz,ngrp,nq)) !this is global 
       if(eibz4sig()) then
         nrkip_all=0
@@ -947,6 +1326,15 @@ C         enddo
       endif
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+C--------------------------
+C var 0 ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin)
+C name= ppbir
+C dim 0 nlnmx*nlnmx*mdimx*nclass nlnmx*nlnmx*mdimx*nclass
+C dim 1 ngrp ngrp
+C dim 2 nspin nspin
+C--------------------------
+      call add_alloclist("ppbir",sizeof(ppbir),
+     & int((nlnmx*nlnmx*mdimx*nclass)*(ngrp)*(nspin),kind=8))  !omplevel0
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
       do irot = 1,ngrp
         do isp = 1,nspin
@@ -962,16 +1350,51 @@ C         enddo
 
 !! MPI RankDivider for iqibz and irot cycle in sxcf.
 !!     nrkip is weight correspoinding to irkip for a node.
+C--------------------------
+C var 0 irkip(nspinmx,nqibz,ngrp,nq)
+C name= irkip
+C dim 0 nspinmx nspinmx
+C dim 1 nqibz nqibz
+C dim 2 ngrp ngrp
+C dim 3 nq nq
+C--------------------------
+      call add_alloclist("irkip",sizeof(irkip),
+     & int((nspinmx)*(nqibz)*(ngrp)*(nq),kind=8))  !omplevel0
       allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
       nrkip = nrkip_all         ! we don't need to change this for MPI case. 
 ! It just need to distribute non-zero irkip.
 !!
       nlnx4    = nlnx**4        ! niwx     = max0 (nw+1,niw) !nw --->nw+1 feb2006
+C--------------------------
+C var 0 kount(nqibz,nq)
+C name= kount
+C dim 0 nqibz nqibz
+C dim 1 nq nq
+C--------------------------
+      call add_alloclist("kount",sizeof(kount),
+     & int((nqibz)*(nq),kind=8))  !omplevel0
+C--------------------------
+C var 1 zsec(ntq,ntq,nq)
+C name= zsec
+C dim 0 ntq ntq
+C dim 1 ntq ntq
+C dim 2 nq nq
+C--------------------------
+      call add_alloclist("zsec",sizeof(zsec),
+     & int((ntq)*(ntq)*(nq),kind=8))  !omplevel0
+C--------------------------
+C var 2 coh(ntq,nq)
+C name= coh
+C dim 0 ntq ntq
+C dim 1 nq nq
+C--------------------------
+      call add_alloclist("coh",sizeof(coh),
+     & int((ntq)*(nq),kind=8))  !omplevel0
       allocate( kount(nqibz,nq),zsec(ntq,ntq,nq), coh(ntq,nq) )
-!TIME1_0010 "main:before2000loop"
+       call realtimediff(3,"main:before2000loop")
       do 2000 is = 1,nspinmx
-!TIME0_0020 
+       call realtimediff(5,'')
         if(MPI__root) then
           if(exchange) then
             write(ifsex2(is)) nspin, nq, ntq,nqbz,nqibz, n1,n2,n3
@@ -1003,7 +1426,20 @@ C         enddo
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 !! dummy to overlaid -check bounds sep2014
         if(size(ecore)==0) then
+C--------------------------
+C var 0 ecore
+C name= ecore
+C--------------------------
+      call del_alloclist( "ecore") !omplevel0
           deallocate(ecore)
+C--------------------------
+C var 0 ecore(1,2)
+C name= ecore
+C dim 0 1 1
+C dim 1 2 2
+C--------------------------
+      call add_alloclist("ecore",sizeof(ecore),
+     & int((1)*(2),kind=8))  !omplevel0
           allocate(ecore(1,2))
         endif
 
@@ -1031,7 +1467,7 @@ c          if(sum(irkip(is,:,:,ip))==0) cycle
      i   hermitianW=hermitianW,
      o   zsec=zsec) 
 c 1001   continue
-!TIME1_0020 "main:endofsxcf_fal3_scz"
+       call realtimediff(5,"main:endofsxcf_fal3_scz")
 c        call date_and_time(values=timevalues)
 c        write(6,'(a,9i5)')'dateandtime2=',MPI__rank,timevalues(1:8) 
 c        call cpu_time(time_red1)
@@ -1079,13 +1515,13 @@ c$$$        endif
 
 !! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.
         if(eibz4sig()) then
-!TIME0_0030 
+       call realtimediff(7,'')
           call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-!TIME1_0030 'zsecsym'
+       call realtimediff(7,'zsecsym')
         endif
-!TIME0_0040 
+       call realtimediff(9,'')
         call MPI__AllreduceSum( zsec,ntq*ntq*nq )
-!TIME1_0040 'MPI__AllreduceSumzsec'
+       call realtimediff(9,'MPI__AllreduceSumzsec')
 
         if(MPI__root) then
           if(exchange) then
@@ -1215,8 +1651,8 @@ c      isx = iclose ('hbe.d')
       call cputid(0)
       write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
       call flush(6)
-!TIME1_0000 "main:totalofhsfp0_sc"
-!TIMESHOW 
+       call realtimediff(1,"main:totalofhsfp0_sc")
+       call print_realtimediff()
       call MPI__Finalize 
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
@@ -1254,15 +1690,39 @@ c      use m_mpi,only: MPI__AllreduceSum
       real(8)::tolry=1d-4,qqqx(3),qtarget(3),tolq=1d-8
       complex(8),allocatable:: ovl(:,:)
       integer::nev,j
-!TIME0_0100
+       call realtimediff(11,'')
       write(6,*)'zsecsym:'
+C--------------------------
+C var 0 zsect(ntq,ntq)
+C name= zsect
+C dim 0 ntq ntq
+C dim 1 ntq ntq
+C--------------------------
+      call add_alloclist("zsect",sizeof(zsect),
+     & int((ntq)*(ntq),kind=8))  !omplevel0
       allocate( zsect(ntq,ntq))
 !! === readin lmfgw_kdivider, and get extensions === apr2013
       ifiproc=ifile_handle()
       open(unit=ifiproc,file='lmfgw_kdivider',status='old')
       read(ifiproc,*) ext
       read(ifiproc,*) nqixx, nspxx, nrankv
-      if(allocated(iprocq)) deallocate(iprocq)
+C       if(allocated(iprocq)) deallocate(iprocq)
+      if(allocated(iprocq))  then
+C--------------------------
+C var 0 iprocq
+C name= iprocq
+C--------------------------
+      call del_alloclist( "iprocq") !omplevel0
+        deallocate(iprocq)
+        endif
+C--------------------------
+C var 0 iprocq(nqixx,nspxx)
+C name= iprocq
+C dim 0 nqixx nqixx
+C dim 1 nspxx nspxx
+C--------------------------
+      call add_alloclist("iprocq",sizeof(iprocq),
+     & int((nqixx)*(nspxx),kind=8))  !omplevel0
       allocate(iprocq(nqixx,nspxx))
       do isp=1,nspxx
         do iqq=1,nqixx
@@ -1276,6 +1736,27 @@ c      use m_mpi,only: MPI__AllreduceSum
       close(ifiproc)
 !! for multiple files.
 c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
+C--------------------------
+C var 0 extp(0:nrankv-1)
+C name= extp
+C dim 0 0:nrankv-1 ((nrankv-1)-(0)+1)
+C--------------------------
+      call add_alloclist("extp",sizeof(extp),
+     & int((((nrankv-1)-(0)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 1 ifvxc__(0:nrankv-1)
+C name= ifvxc__
+C dim 0 0:nrankv-1 ((nrankv-1)-(0)+1)
+C--------------------------
+      call add_alloclist("ifvxc__",sizeof(ifvxc__),
+     & int((((nrankv-1)-(0)+1)),kind=8))  !omplevel0
+C--------------------------
+C var 2 ifevec__(0:nrankv-1)
+C name= ifevec__
+C dim 0 0:nrankv-1 ((nrankv-1)-(0)+1)
+C--------------------------
+      call add_alloclist("ifevec__",sizeof(ifevec__),
+     & int((((nrankv-1)-(0)+1)),kind=8))  !omplevel0
       allocate(extp(0:nrankv-1),ifvxc__(0:nrankv-1),ifevec__(0:nrankv-1))
       extp(0) = trim(ext)
       write(6,"('  0 ext= ',a,a)") trim(extp(0)),' ----------'
@@ -1294,9 +1775,30 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
       ifevec_= ifevec__(0)
       read(ifevec_)  ndimhx, nspx,nnnx 
       read(ifvxc_)              !skip ndimh, nsp,nnn
+C--------------------------
+C var 0 evaliq(nband)
+C name= evaliq
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("evaliq",sizeof(evaliq),
+     & int((nband),kind=8))  !omplevel0
+C--------------------------
+C var 1 iblki(nband)
+C name= iblki
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("iblki",sizeof(iblki),
+     & int((nband),kind=8))  !omplevel0
+C--------------------------
+C var 2 iblke(nband)
+C name= iblke
+C dim 0 nband nband
+C--------------------------
+      call add_alloclist("iblke",sizeof(iblke),
+     & int((nband),kind=8))  !omplevel0
       allocate(evaliq(nband),iblki(nband),iblke(nband))
-!TIME1_0100 "zsecsym:endof_allocate_zsect"
-!TIME0_0110
+       call realtimediff(11,"zsecsym:endof_allocate_zsect")
+       call realtimediff(13,'')
       iqq=0                     !iqq is to read multiple vxc.* evec.*
       do 3020 iq=1,nq           !nq means iq for which we will calculate sigma
         iqq=iqq+1
@@ -1307,6 +1809,22 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
 !this if-block is due to evec and v_xc file-->they shall be divieded into spin files.
             read(ifvxc_)  nhdim,ldim
             read(ifvxc_)
+C--------------------------
+C var 0 evec(nhdim,nhdim)
+C name= evec
+C dim 0 nhdim nhdim
+C dim 1 nhdim nhdim
+C--------------------------
+      call add_alloclist("evec",sizeof(evec),
+     & int((nhdim)*(nhdim),kind=8))  !omplevel0
+C--------------------------
+C var 1 evecrot(nhdim,nhdim)
+C name= evecrot
+C dim 0 nhdim nhdim
+C dim 1 nhdim nhdim
+C--------------------------
+      call add_alloclist("evecrot",sizeof(evecrot),
+     & int((nhdim)*(nhdim),kind=8))  !omplevel0
             allocate( evec(nhdim,nhdim),evecrot(nhdim,nhdim))
             read(ifevec_) qqqx(1:3), evec(1:nhdim,1:nhdim),nev !nev number of true bands nov2015
             zsect = 0d0
@@ -1322,6 +1840,16 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
               goto 3011
             endif  
           enddo  
+C--------------------------
+C var 0 evec
+C name= evec
+C--------------------------
+      call del_alloclist( "evec") !omplevel0
+C--------------------------
+C var 1 evecrot
+C name= evecrot
+C--------------------------
+      call del_alloclist( "evecrot") !omplevel0
           deallocate(evec,evecrot)
           call rx( 'hsfp0_sc: bug:qqqx can not find ...')
  3011     continue
@@ -1329,6 +1857,14 @@ c      if(allocated(extp)) deallocate(extp,ifvxc__,ifevec__)
 
 !! evec_inv(ib1,iww)= \sum_ib2  ovlinv(ib1,ib2)*dconjg(evec(iww,ib2))  nov2015, we introduce nev. iww is for PMT basis. ib for band index.
 !! This is for converting rotated evec (=evecrot(ib)) in the representation of original evec(ib).
+C--------------------------
+C var 0 ovl(nev,nev)
+C name= ovl
+C dim 0 nev nev
+C dim 1 nev nev
+C--------------------------
+      call add_alloclist("ovl",sizeof(ovl),
+     & int((nev)*(nev),kind=8))  !omplevel0
           allocate(ovl(nev,nev)) 
 c          print *,'nnnnnnnnn zsecsym: nband=',nhdim,nband,nev
           do i=1,nev
@@ -1338,8 +1874,21 @@ c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
           enddo
           enddo
           call matcinv(nev,ovl) !ovl --> ovlinv
+C--------------------------
+C var 0 evec_inv(nev,nhdim)
+C name= evec_inv
+C dim 0 nev nev
+C dim 1 nhdim nhdim
+C--------------------------
+      call add_alloclist("evec_inv",sizeof(evec_inv),
+     & int((nev)*(nhdim),kind=8))  !omplevel0
           allocate(evec_inv(nev,nhdim))
           evec_inv = matmul(ovl(1:nev,1:nev),dconjg(transpose(evec(:,1:nev)))) !note ovl means ovlinv
+C--------------------------
+C var 0 ovl
+C name= ovl
+C--------------------------
+      call del_alloclist( "ovl") !omplevel0
           deallocate(ovl)
 c          evec_inv = evec
 c          call matcinv(nhdim,evec_inv)
@@ -1376,6 +1925,15 @@ c          call matcinv(nhdim,evec_inv)
                 endif
               enddo             ! iband
 !! rotation of evec. Generate evecrot. (Within degenerated block, evec are mapped).e
+C--------------------------
+C var 0 rmatjj(nbsizemx,nbsizemx,nblk)
+C name= rmatjj
+C dim 0 nbsizemx nbsizemx
+C dim 1 nbsizemx nbsizemx
+C dim 2 nblk nblk
+C--------------------------
+      call add_alloclist("rmatjj",sizeof(rmatjj),
+     & int((nbsizemx)*(nbsizemx)*(nblk),kind=8))  !omplevel0
               allocate(rmatjj(nbsizemx,nbsizemx,nblk))
               napw=nhdim-ldim
               do iblk1=1,nblk  
@@ -1401,9 +1959,29 @@ c          call matcinv(nhdim,evec_inv)
      &             rmatjj(1:ne2,1:ne2,iblk2)) )
                 enddo           ! iblk2
               enddo             ! iblk1
+C--------------------------
+C var 0 rmatjj
+C name= rmatjj
+C--------------------------
+      call del_alloclist( "rmatjj") !omplevel0
               deallocate(rmatjj)
             enddo               ! igrp
           enddo                 ! it
+C--------------------------
+C var 0 evec
+C name= evec
+C--------------------------
+      call del_alloclist( "evec") !omplevel0
+C--------------------------
+C var 1 evec_inv
+C name= evec_inv
+C--------------------------
+      call del_alloclist( "evec_inv") !omplevel0
+C--------------------------
+C var 2 evecrot
+C name= evecrot
+C--------------------------
+      call del_alloclist( "evecrot") !omplevel0
           deallocate(evec, evec_inv, evecrot)
           zsec(:,:,iqxx) = zsect(:,:)/dble(nsym)
 c          call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
@@ -1413,7 +1991,47 @@ c          call MPI__AllreduceSum( zsec(:,:,iqxx),ntq*ntq ) ! MIZUHO-IR
         close(ifvxc__(procid) )
         close(ifevec__(procid))
       enddo
+C--------------------------
+C var 0 iblki
+C name= iblki
+C--------------------------
+      call del_alloclist( "iblki") !omplevel0
+C--------------------------
+C var 1 iblke
+C name= iblke
+C--------------------------
+      call del_alloclist( "iblke") !omplevel0
+C--------------------------
+C var 2 evaliq
+C name= evaliq
+C--------------------------
+      call del_alloclist( "evaliq") !omplevel0
       deallocate(iblki,iblke,evaliq)
+C--------------------------
+C var 0 zsect
+C name= zsect
+C--------------------------
+      call del_alloclist( "zsect") !omplevel0
+C--------------------------
+C var 1 extp
+C name= extp
+C--------------------------
+      call del_alloclist( "extp") !omplevel0
+C--------------------------
+C var 2 ifevec__
+C name= ifevec__
+C--------------------------
+      call del_alloclist( "ifevec__") !omplevel0
+C--------------------------
+C var 3 ifvxc__
+C name= ifvxc__
+C--------------------------
+      call del_alloclist( "ifvxc__") !omplevel0
+C--------------------------
+C var 4 iprocq
+C name= iprocq
+C--------------------------
+      call del_alloclist( "iprocq") !omplevel0
       deallocate(zsect,extp,ifevec__,ifvxc__,iprocq)
-!TIME1_0110 "sub_zsecsym"
+       call realtimediff(13,"sub_zsecsym")
       end subroutine zsecsym

@@ -75,7 +75,7 @@ c------------------------------------------------------------
       integer::kount,i1,i2,i3,n2,nnnv(3),ig,ir,j1,j2,j3,jj(3),k,m,i1x,i2x,i3x,ic,k1,k2,k3,kountw,ndx,
      &  ibtr(3,3),kcut(3,4,6),ngcell,i,ii,j,igamma
       real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
-      real(8):: tolq=1d-8
+      real(8):: tolq=1d-6
       logical,allocatable::usediqig(:,:)
 !! icase=1
 c-------------------------------------------------------
@@ -624,7 +624,7 @@ c irotk(k{IBZ,R) = index to k{FBZ
       real(8):: qibz(3,nqibz),qbz(3,nqbz),grp(3,3,ngrp),ginv(3,3)
       integer:: nstar(nqibz),irotk(nqibz,ngrp)
       integer:: verbose,kout,iccc,gammacellctrl
-      real(8):: diff(3),diff2(3),tolq=1d-8,gg(3,3)
+      real(8):: diff(3),diff2(3),tolq=1d-6,gg(3,3)
       if(verbose()>104) then
         print *,' nkstar:'
         do kp = 1,nqbz

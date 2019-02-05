@@ -41,9 +41,7 @@ c         write (*, * ) wqt(i),q0i(1:3,i),ixyz(i)
       ippovl0=ifile_handle()
       open(ippovl0,file='PPOVL0',form='unformatted')
       do
-         print *,'wwwww q=',q
-         read(ippovl0) qx,ngc_r
-         print *,'wwwww qx,ngc_r=',qx,ngc_r
+        read(ippovl0) qx,ngc_r
         if(sum(abs(qx-q))<tolq) then
           if(ngc_r/=ngc) call rx( 'readin ppovl: ngc_r/=ngc')
           read(ippovl0) ppovl
@@ -198,7 +196,7 @@ c     &     nqnumc, ngcmx, QpGcut_cou
         do iq=1, nqnumc
           read(ifiqg) qc(1:3,iq), ngc(iq)
 c          if(verbose()>40)  write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
-!          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
+          write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") qc(1:3,iq), ngc(iq)
           read (ifiqg) ngvecc(1:3,1:ngc(iq),iq)
         enddo
       endif
