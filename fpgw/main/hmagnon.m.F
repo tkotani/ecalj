@@ -776,7 +776,7 @@ ccccccccccc tetrahedron part
              call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
      i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
      i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i            nwf,ebmx,mtet,eibzmode) !nov2016
+     i            nwf,ebmx,mtet,eibzmode,wan) !nov2016
              write(6,*) "=== end gettetwt"
              deallocate(ev_w1,ev_w2)
 ccccccccc normalization of Im[K]:

@@ -14,6 +14,8 @@
 !!
 !!  mode= 1: bare Coulomb mode, V, <phi phi | V  | phi phi>
 !!  mode= 2: screening mode, Wc,   <phi phi | Wc | phi phi>
+!!  mode=11: <phi phi | V(omega=0)  | phi phi>
+!!  mode=12: <phi phi | Wc(omega=0) | phi phi>
 !!  mode=10011: cRPA mode
 !!
 !!  nwf: total number of wannier within the primitive cell.

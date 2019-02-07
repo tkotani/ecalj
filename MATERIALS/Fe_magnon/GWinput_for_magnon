@@ -10,7 +10,7 @@ qsym 100
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3   48  48  48 ! for BZ meshing in GW, Wannier function and cRPA
+n1n2n3   24  24  24 ! for BZ meshing in GW, Wannier function and cRPA
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 

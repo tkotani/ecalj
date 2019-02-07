@@ -22,7 +22,8 @@
       subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm, 
      i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
      i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
-     i   nbmx,ebmx,mtet,eibzmode) !nov2016
+     i   nbmx,ebmx,mtet,eibzmode, !nov2016
+     i   wan ) !Jan2019
 !! INPUT DATA; read only
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
@@ -52,6 +53,8 @@ c      use m_ReadEfermi,only: readefermi,ef
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
       integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
       real(8),allocatable:: ecore_(:,:)
+      logical,optional:: wan
+      logical:: wan1
       if(nctot==0) then
         allocate(ecore_(1,2))    !this is dummry
       else
@@ -101,7 +104,8 @@ c      close(ifief)
 c      call readefermi() !comment out,since ef is passed nov2016 
 ccccccccccccccccc
 c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz_mtet
-
+      wan1=.false.
+      if (present(wan) .and. wan) wan1=.true.
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -114,7 +118,8 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
      i ihw,nhw,jhw,             ! job=1    not-used
      o whw,                     ! job=1    not-used
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
-     i   nbmx,ebmx,mtet) !nov2016
+     i   nbmx,ebmx,mtet, !nov2016
+     i     wan1 ) !Jan2019 for Wannier
  
       deallocate(ibjb,ihw,jhw,nhw,whw) !dumm
       nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
@@ -196,6 +201,9 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       job=1
       write(6,*) 'goto tetwt5x_dtet4 job=',job
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
+
+      wan1=.false.
+      if (present(wan) .and. wan) wan1=.true.
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -208,7 +216,8 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
      i ihw,nhw,jhw,             ! job=1
      o whw,                     ! job=1
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
-     i   nbmx,ebmx,mtet) !nov2016
+     i nbmx,ebmx,mtet, !nov2016
+     i wan1)           !Jan2019
       deallocate(demin,demax,iwgt,nbnbtt)
 
 !! ======TetrahedronWeight_5 block end =========

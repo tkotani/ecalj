@@ -10,7 +10,8 @@
      i          nbnbx,ibjb,nhwtot, ihw,nhw,jhw, !job=1
      o          whw,                            !job=1
      i   iq,isp1,isp2,nqibz,eibzmode,nwgt, ! 2016jun 
-     i   nbmx,ebmx,mtet) !
+     i   nbmx,ebmx,mtet,
+     i     wan)                 !
 
 c      use m_keyvalue,only: getkeyvalue
 !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
@@ -77,6 +78,8 @@ c     now only for mtet=(/1,1,1/) normal mode, or
 c              for mtet=(/2,2,2/) mode (each tetrahedron is devided into 2x2x2 tetrahedrons.
 c
 c takao dec2003; matrix_linear() mode
+c okumura Jan2019
+c wan: skip ebmx cutoff for magnon calculation 
       implicit none
       integer:: dummy4doxygen
       integer(4):: npm,jpm,ibxmx,jbxmx,jbx,nrankc1,nrankc2,nnn1,nnn2,nnni,nnnj,ncc
@@ -170,6 +173,8 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       integer:: nwgt(nqbz)
       real(8):: ebmx
       integer:: nbmx
+
+      logical,optional:: wan
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
 c      if(verbose()>=150) chkwrt=.true.
@@ -192,7 +197,6 @@ c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
       else
         mtett=.false.
       endif
-
 c      print *,'xxxxxx mtett=',mtett
 !! read mtet or not.
       if(mtett) then
@@ -253,7 +257,6 @@ c      print *,'xxxxxx 22222222 mtett=',mtett
         ekxx1( nband+1: nband+nctot, kx) = ecore(1:nctot)
         ekxx2( nband+1: nband+nctot, kx) = ecore(1:nctot)
       enddo
-
 !! Read eigenvalues at q and q+k ---------------------------------------
 !!  ekzz1 for k
 !!  ekzz2 for q+k.
@@ -363,7 +366,9 @@ ccccccccccccccccccccccc
 
 !! exclude wannier model: (okumura, 2017/06/13)
 !! ebmx band cutoff 2016Jun
-          if (nbmx/=nband) then
+          write(6,*) "PASS and wan",wan
+          if (present(wan) .and. wan) then
+          else
              do i=1,nbmx
                 if( maxval(ek_(i, 0:3)) >ebmx) then
                    nbandmx_k = i-1

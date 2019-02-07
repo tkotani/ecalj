@@ -10,13 +10,15 @@
       real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:)
       integer,protected:: nwhis,npm,nw_i,nw 
 
+
 c      real(8),allocatable,protected:: frhis0(:)
 c      integer,protected:: nwhis0
       contains
 !> Get data set for m_freq. All arguments are input.
 !! - This read GWinput (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
-      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root)
+
+      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo)
       use m_keyvalue,only:getkeyvalue
 
       implicit none
@@ -31,6 +33,9 @@ c      integer,protected:: nwhis0
       real(8), allocatable :: freqr2(:)  ,frhis_tmp(:)
       real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio,oratio,daa
       integer::nee,noo,ifif,ifile_handle
+
+      logical,optional:: npmtwo !! Added Aug2017 for hmagnon
+      logical:: npm2
 
       logical,save:: done=.false.
       if(done) call rx('gerfreq is already done') !sanity check
@@ -97,6 +102,8 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
 !! nw_i and npm
       npm=1
       nw_i=0
+      npm2=.false.
+      if(present(npmtwo).and.npmtwo) npm2=.true.
       if(.not.timereversal()) then
          write(6,"('TimeReversal off mode')")
          npm=2
