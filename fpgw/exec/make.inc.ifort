@@ -15,7 +15,8 @@ CPPSWITCH_INTELLINUXIFC  = \
 #(3) Compilar options ###############################################
 ### INTEL FORTRAN LINUX ###
 FFLAGS=-O2 -cpp $(CPPSWITCH_INTELLINUXIFC)
-FFLAGS_OMP= -openmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
+FFLAGS_OMP= -qopenmp -O3 -cpp $(CPPSWITCH_INTELLINUXIFC)
+#-openmp
 
 #FFLAGS=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS_OMP=-O0 -check bounds -traceback -g -cpp $(CPPSWITCH_INTELLINUXIFC)
@@ -40,7 +41,8 @@ tet5_g = .o
 LIBMATH= -mkl  
 
 #(5) Linker ####################################################
-LK=mpif90 -f90=ifort -openmp
+LK=mpif90 -f90=ifort -qopenmp 
+#-openmp
 LKFLAGS2 = $(LIBMATH) 
 
 # LK = mpif90

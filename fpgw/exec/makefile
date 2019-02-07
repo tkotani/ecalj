@@ -6,12 +6,11 @@
 # ---- Machine-specific compiler flags ---
 #include make.inc.ifort_asahi_kino 
 #include make.inc.thinkpad_gfortran_tkotani
-PLATFORM=ifort ### ucgw
+PLATFORM=ifort
 LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-#LIBMATH=/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
 
-# PLATFORM=ifort
-# LIBMATH=-mkl
+#PLATFORM=ifort
+#LIBMATH=-mkl
 
 include make.inc.$(PLATFORM)
 
@@ -208,12 +207,6 @@ DERFC=
  $(gwsrc)m_readwan.o \
  $(gwsrc)diagcv3.o \
  $(main)hhomogas.m.o
-
- rigid = \
- $(gwsrc)m_homoelectron.o \
- $(gwsrc)m_readwan.o \
- $(gwsrc)diagcv3.o \
- $(main)hmagrigid.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
@@ -476,10 +469,6 @@ $(gwsrc)m_readeps.o
 
  hhomogas:	$(MPI) $(GWLIB) $(X0homo) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0homo) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
-
- hmagrigid:	$(MPI) $(GWLIB) $(rigid) $(MPI)  $(COMM) 
-	 $(LK) $(LKFLAGS1) $(GWLIB) $(rigid) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
-
 
 # # for maxloc
 #  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 

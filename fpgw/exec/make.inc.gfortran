@@ -40,7 +40,7 @@ FFLAGS_OMP=-openmp -O2 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-
 FFLAGS_LESS=-O0 $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 #debug
-#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops -ffixed-line-length-132
+#FFLAGS= -g $(CPPSWITCH_INTELLINUXIFC) -fomit-frame-pointer -funroll-loops  -ffast-math -ffixed-line-length-132
 
 #FFLAGS = -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
 #FFLAGS = -g -traceback -check all -132 -ffixed-line-length-132 -c -frange-check -I${top}/exec -checkbound -cpp $(CPPSWITCH_INTELLINUXIFC)
@@ -154,9 +154,6 @@ tet5_g = .o
 # centos yum install blas, yum install lapack
 #LIBMATH= /usr/lib64/libblas.a /usr/lib64/liblapack.so.3.0.3 -lfftw3
 
-#LIBMATH= /usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
-
-LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
 
 #(5) Linker ####################################################
 ### gfortran ubuntu12.04 #######
