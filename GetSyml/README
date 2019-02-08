@@ -7,25 +7,39 @@ seekpath(v.1.2.0, dec2016). https://github.com/giovannipizzi/seekpath/
 ===========================
 Requirement and Install:
 
-1.seekpath
+0.
+python2.7 and standard tools
+We need python 2.7 or higher (probably), not 3.x.
+(you may like to install it locally. 
+ See https://my.justhost.com/hosting/help/python-install).
+
+In a case, we need to do
+>wget https://bootstrap.pypa.io/get-pip.py
+>python get-pip.py
+>python -m pip install future --user
+>python -m pip install matplotlib --user
+>python -m pip install scipy --user
+)
+The option '--user' installs it locally.
+
+1.
+spglib for crystal structure symmetry
+>git clone https://github.com/atztogo/spglib.git
+>python setup.py install --user
+
+2.
+seekpath
 >git clone https://github.com/giovannipizzi/seekpath/
 >python setup.py install --user
 
-2.matplotlib for 3D plot
-> python -m pip install --update pip  #pip update
-> pip install matplotlib
-
-3.spglib for crystal structure symmetry
->git clone https://github.com/atztogo/spglib.git
->python setup.py install --user
---user install it locally.
 
 
 ===========================
-Usage: (we use python2. I don't know python3 works or not)
+Usage: (we use python2. We probably need some fixing for python3)
+
 >python getsyml.py nio
 >python getsyml.py ctrls.nio 
-This show 3D Brillouin zone together with symmetry line for band plot.
+This show 3D Brillouin zone together with symmetry lines for band plot.
 The symmetry lines are written into the syml.* file.
 You can edit syml.* for bandplot by the job_band command.
 The number of divisions for syml is give by simple algorism, so edit
@@ -34,8 +48,8 @@ it if necessary.
 
 ===========================
 Citations when we use.
-  In addition to usual ecalj acknowledgement, folllowing citations are
-  required when you use getsyml.py.
+  In addition to usual ecalj acknowledgement, following citations are
+  required when you make a publication.
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
      Band structure diagram paths based on crystallography,

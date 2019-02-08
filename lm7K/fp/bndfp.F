@@ -446,10 +446,10 @@ c mar2014
       integer:: jspend,jspini,jspp
       integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ifih,ist,ip,ni,ix
 
-      integer(4),allocatable:: npair(:,:), nlat(:,:,:,:),ib_table(:),k_table(:),l_table(:)
-      integer(4)::npairmx,ikpd
+      integer,allocatable:: npair(:,:), nlat(:,:,:,:),ib_table(:),k_table(:),l_table(:)
+      integer::npairmx,ikpd,ifqplist
       real(8),allocatable:: qsmesh2(:,:,:,:)
-      real(8),allocatable:: qwgt(:,:,:)
+      integer,allocatable:: nqwgt(:,:,:)
       real(8):: tpioa,pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
@@ -845,12 +845,12 @@ c          enddo
           npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
           do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
             npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
-            allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
-            call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,qwgt)
+            allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
+            call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,nqwgt)
             if(ok) exit
-            deallocate( nlat, qwgt )
+            deallocate( nlat, nqwgt )
           enddo
-          print *,'We got nlat and qwgt'
+          print *,'We got nlat and nqwgt'
           do ib1=1,nbas
           do ib2=1,nbas
               write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
@@ -858,18 +858,18 @@ c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bu
               do ni = 1,npair(ib1,ib2) 
                 posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
                 rrrr = sqrt(sum(posp**2))
-                write(6,"(i6,3x,3i4,f21.15,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),qwgt(ni,ib1,ib2),rrrr
+                write(6,"(i6,3x,3i4,i3,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),nqwgt(ni,ib1,ib2),rrrr
               enddo
           enddo
           enddo
 
           ififft=ifile_handle()
           open(ififft,file='HamiltonianMTOInfo',form='unformatted')
-          write(ififft) plat,nkk1,nkk2,nkk3,nbas
-          write(ififft) pos
+          write(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
+          write(ififft) pos,alat
           write(ififft) qplist
           write(ififft) npair,npairmx
-          write(ififft) nlat,qwgt
+          write(ififft) nlat,nqwgt
 !! ---------------
 !! delta fun check: k --> T --> k 
 !!     \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
@@ -880,7 +880,7 @@ c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bu
           do ib2=1,nbas
             aaaa=0d0
             do ni = 1,npair(ib1,ib2) 
-                aaaa =  aaaa + qwgt(ni,ib1,ib2)*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,ni,ib1,ib2))))
+                aaaa =  aaaa + 1d0/(nkp*nqwgt(ni,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,ni,ib1,ib2))))
             enddo
             cccx=''
             if(ikp==ikpd) cccx=' <--'
@@ -1320,6 +1320,8 @@ c            massline=.false.
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
       if (procid.eq.master.and.ix99==1.and.oncewrite(11)) then
+         ifqplist=ifile_handle()
+         open(ifqplist,file='QPLIST')
          print *,'-------- qplist --------'
          iq=0
          do isyml=1,nsyml
@@ -1329,8 +1331,11 @@ c            massline=.false.
             if(i==1) infoq=' <-- isyml= '//charnum3(isyml)
             if(i==nqp_syml(isyml)+1) infoq=' <-- isyml Mass= '//charnum3(isyml)
             write(6,"(i5,3f8.3,' ',a)")iq,qplist(:,iq),trim(infoq)
+            write(ifqplist,"(i5,3f23.15,x,f12.6,' ',a)")iq,qplist(:,iq),xdatt(iq),trim(infoq)
          enddo
+           write(ifqplist,*)
          enddo
+         close(ifqplist)
       endif 
 
       if(procaron.and.nsyml==0.and.procid==master) then !xdatt is dummy
@@ -1394,7 +1399,7 @@ c     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
               write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
             enddo
             if(writeham) then
-              write(ififft)ldim,lso
+              write(ififft)ldim,lso,nsp
               write(ififft)ib_table,l_table,k_table
               close(ififft)
             endif  
@@ -1476,12 +1481,15 @@ c$$$            endif
             allocate(npair(nbas,nbas),pos(3,nbas))
             call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
+
+            if (allocated(nlat)) deallocate(nlat)
+            if (allocated(nqwgt)) deallocate(nqwgt)
             do !this loop is just to determined npairmx
               npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
-              allocate( nlat(3,npairmx,nbas,nbas), qwgt(npairmx,nbas,nbas) )
-              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,qwgt)
+              allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
+              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,nqwgt)
               if(ok) exit
-              deallocate( nlat, qwgt )
+              deallocate( nlat, nqwgt )
             enddo
             deallocate(pos,npair)
 
@@ -1499,7 +1507,7 @@ c            endif
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in sham%rv_a_ohrs
             call fclose(ifi)
             deallocate(sfz)
-            deallocate(qsmesh2,nlat,qwgt)
+            deallocate(qsmesh2,nlat,nqwgt)
          endif             !procid==master
 #ifdef MPIK
 !! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
@@ -1820,6 +1828,8 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                deallocate(senex)
             endif
 
+
+
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
@@ -1848,6 +1858,28 @@ c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
 
 !! == lpdiag=0 only. ===
             if(nspc .eq. 2) then
+
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$c              hamm(:,:,2) = hamm(:,:,1)
+c$$$c              ovlm(:,:,2) = ovlm(:,:,1)
+c$$$              write(6,*)'iiix'
+c$$$              do i=1,ndimh
+c$$$                do j=1,ndimh
+c$$$                  if(abs(ovlm(i,j,2)-ovlm(i,j,1))>1d-8) then
+c$$$                  write(*,"('iiiiix2',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,ovlm(i,j,1),ovlm(i,j,2), ovlm(i,j,2)-ovlm(i,j,1)
+c$$$                  endif
+c$$$                enddo
+c$$$              enddo
+c$$$              write(6,*)'iiixh'
+c$$$              do i=1,ndimh
+c$$$                do j=1,ndimh
+c$$$                  if(abs(hamm(i,j,2)-hamm(i,j,1))>1d-8) then
+c$$$                  write(*,"('iiiiix2h',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,hamm(i,j,1),hamm(i,j,2), hamm(i,j,2)-hamm(i,j,1)
+c$$$                  endif
+c$$$                enddo
+c$$$              enddo
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
+
 c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
@@ -1908,12 +1940,17 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
 
 !! save hammovlm jan2018kaist
               if(writeham) then
-                write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for *  qp= ",qp
+                write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
-                write(ifih) ovlm(1:ndimhx,1:ndimhx,jsp)
-                write(ifih) hamm(1:ndimhx,1:ndimhx,jsp)
+                if(lso==1) then !L.S case nspc=2 spin block
+                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1:4) 
+                  write(ifih) hamm(1:ndimhx,1:ndimhx,1:4)
+                else  !nspc=1 spin diagonal case
+                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1)
+                  write(ifih) hamm(1:ndimhx,1:ndimhx,1)
+                endif
               endif
-
+!!
               if(epsovl<1.000001d-14) then
                 call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
@@ -1926,6 +1963,11 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
               endif  
+#ifdef MPIK            
+              if(writeham.and.procid==master) then
+                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , efmax , nev ) !efmax is required?
+              endif
+#endif
             endif
 
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
@@ -2196,6 +2238,31 @@ c            endif
 
 
 
+!! boltztrap data 
+      if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
+        ifi=ifile_handle()
+        open(unit=ifi,file='boltztrap.dat')
+        write(ifi,"(3d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
+        write(ifi,"(d16.8, ' # alat (a.u.)')") alat
+        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)
+        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)
+        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)
+        write(ifi,"(3d16.8, ' # qlat1  ')") qlat(:,1)
+        write(ifi,"(3d16.8, ' # qlat2  ')") qlat(:,2)
+        write(ifi,"(3d16.8, ' # qlat3  ')") qlat(:,3)
+        do iq=1,nkp
+        do jsp=1,nspx         !=isp.  nspx=1 for so=1
+!! true q= 2pi/alat *qplist(:,iq) in cartesian
+        do iband=1,ndhamx
+          if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
+            write(ifi,"('eee=',3i5,3f9.4,d13.5)") iq,jsp,iband,qplist(:,iq),evlall(iband,jsp,iq)
+        enddo
+        enddo
+        enddo
+        close(ifi)
+        call rx0(' --bolttrap mode: boltztrap.dat is generated')
+      endif
+
 !! === pdos mode (--mkprocar and --fullmesh). ===
       if(PROCARon.and.fullmesh) then
 #ifdef MPIK
@@ -2229,9 +2296,9 @@ c            endif
 c            eminp=-25.0/rydberg
 c            emaxp=30.0/rydberg
 c            ndos=5500
-            print *,' pdosmode: ndhamx nsp nspx =',ndhamx, nsp, nspx,nevmin !nevmx
+            write(6,"(' pdosmode: ndhamx nsp nspx =',4i7)") ndhamx, nsp, nspx,nevmin !nevmx
 c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
-            print *,' pdosmode: nchanp nbas emin emax ef0=', nchanp,nbas,emin,emax,ef0 !mar2015
+            write(6,"(' pdosmode: nchanp nbas emin emax ef0=',2i7,3f12.5)") nchanp,nbas,emin,emax,ef0 !mar2015
             ifip= fopna('pdosdata',-1,4)
             write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
             write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
@@ -2241,6 +2308,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
             call fclose(ifip)
             deallocate(idtete,ipqe) !remove this if you uncomment above lines.
          endif  
+         if(writeham) call rx0('Done --writeham: --mkprocar --fullmesh are needed now. HamiltonianMTO* genereted')
          call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
       endif
 
@@ -2785,14 +2853,15 @@ c            call fclose(ifi)
       endif
       if(tdos) call rx0('Done tdos mode:')
 
-
-!! efermi.lmf is written for bandplot mode of syml, --band. See subroutine writeband
+!! efermi.lmf 
       if(procid==master.and.plbnd==0) then
          ifi= ifile_handle()     
          open(unit=ifi,file='efermi.lmf')
          write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d16.8, ' # (Ry) Top of Valence')") evtop
          write(ifi,"(d16.8, ' # (Ry) Bottom of conduction')") ecbot
+         write(ifi,"(d16.8, ' # number of electrons qval-qbg=')") qval-qbg
+         write(ifi,"(d16.8, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
          write(ifi,
      &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
          write(ifi,"('# NOTE: Not by band plot mode')")

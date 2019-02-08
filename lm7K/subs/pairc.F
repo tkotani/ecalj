@@ -1,4 +1,4 @@
-      subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,qwgt)
+      subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,nqwgt)
 !! find
 !!i   pos,nbas,plot,nk,npairmx,range.
 !!o   npair(rewritten), nlat,qwgt.
@@ -9,9 +9,9 @@ c
       integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
       integer:: nlat(3,npairmx,nbas,nbas),nd(3)
       integer,parameter:: noutmx=100
-      integer:: nlatout(3,noutmx),debug=0
+      integer:: nqwgt(npairmx,nbas,nbas),nlatout(3,noutmx),debug=0
       real(8):: pos(3,nbas),plat(3,3), pi,qlat(3,3),q(3),pin(3),rmax2 !,nrmax(3)
-      real(8):: qwgt(npairmx,nbas,nbas),eps=1d-8
+      real(8):: eps=1d-8
       real(8):: posp(3),rxlat(3,3),rxprod(3,3),dummy,rrr,rmax
       logical :: ok
       real(8):: rlatp(3,3),xmx2(3)
@@ -77,7 +77,8 @@ c          write(6,"(3i4,' nmax=',3i4,' nout=',i3)")nd(1:3),nmax(1:3),nout
                 do ix=1,nout
                   nlat(:,nnn+ix,ib1,ib2)=
      &            nd + [nk1*nlatout(1,ix), nk2*nlatout(2,ix), nk3*nlatout(3,ix)]
-                  qwgt(nnn+ix,ib1,ib2)= 1d0/nout
+c                  qwgt(nnn+ix,ib1,ib2)= 1d0/nout
+                  nqwgt(nnn+ix,ib1,ib2)= nout
                 enddo
                 nnn = nnn+nout
               enddo
@@ -91,15 +92,15 @@ c check write
             do ni = 1,npair(ib1,ib2)
               posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2))
               rrr = sqrt(sum(posp**2))
-              write(6,"(i6,3x,3i3,2f8.3)") ni,nlat(1:3,ni,ib1,ib2),rrr,qwgt(ni,ib1,ib2)
+              write(6,"(i6,3x,3i3,f8.3,i5)") ni,nlat(1:3,ni,ib1,ib2),rrr,nqwgt(ni,ib1,ib2)
             enddo
           endif  
         enddo
       enddo
-      qwgt=qwgt/(nk1*nk2*nk3)
+c      qwgt=qwgt/(nk1*nk2*nk3)
       do ib1=1,nbas
       do ib2=1,nbas
-        if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug:qwgt sum is not unity')
+        if(abs(sum(1d0/nqwgt(1:npair(ib1,ib2),ib1,ib2))-nk1*nk2*nk3)>1d-8) call rx('bug:nqwgt sum is not unity')
       enddo
       enddo
       call tcx('gennlat')

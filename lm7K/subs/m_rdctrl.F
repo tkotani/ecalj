@@ -23,7 +23,7 @@
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
      .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
       integer lfp  ! set to T if FP program (used for defaults)
-      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  !kmto(10),
+      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,kmto(10)
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
       real(8):: pmin(n0),pmax(n0)
 C     sigp holds parameters for approximating self-energy sigma
@@ -577,6 +577,8 @@ C     .  'third for graphical output')
      .cmdopt('--quit=band',11,0,a)) then; quit=4
       elseif (outs=='HAM' .or. outs=='ham' .or.
      .cmdopt('--quit=ham',10,0,a)) then; quit=8
+      elseif (outs=='dmat' .or.
+     .cmdopt('--quit=dmat',11,0,a)) then; quit=16
       elseif (outs==' ') then
       else
         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
@@ -2758,6 +2760,7 @@ c$$$      pi = 4d0*datan(1d0)
 c$$$
 c$$$C --- Start ---
 c$$$      if (tksw(prgn,'START') == 2) goto 159
+c$$$
 c$$$C$$$      if (io_show+io_help/=0) call
 c$$$C$$$     .  info0(1,1,0,' --- Read potential data (ASA) ---')
 c$$$
@@ -2945,6 +2948,11 @@ C     implicit none
 
       subroutine toksw_init(debug)
 C- Declares program-specific tokens
+!! For each program such as LMFA:, 
+!!   we supply switches. For example,
+!!   If SPEC_ATOM_RSMA  exits, it means SPEC_ATOM_RSMA is required.
+!!   If SPEC_ATOM_RSMA~ exits, it means SPEC_ATOM_RSMA is optional.
+!!   If SPEC_ATOM_RSMA~ do not exit, it means SPEC_ATOM_RSMA is not used.
       use m_toksw
 C     implicit none
       character*(200):: io_sw, struc_sw

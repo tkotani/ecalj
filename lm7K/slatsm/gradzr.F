@@ -224,7 +224,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C Passed Parameters
       integer n,ir,isw
-      double precision hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:27),
+      double precision hess(n,n),p(n,10),xtoll,dxmx,xtol,gtol,wk(0:*),
      .grfac
 C Local Variables
       logical ltmp,cnvgx,cnvgg,nwlin

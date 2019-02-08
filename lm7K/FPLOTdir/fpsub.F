@@ -459,7 +459,7 @@ c   64   continue
       subroutine ixpand(it,ixv,np,itp)
 C- Expands a list of integer points into a table
       implicit none
-      integer it(4),np,ip,i,ipr,itp(10),ixv(4),idx,ix0,ix1,i1mach
+      integer it(4),np,ip,i,ipr,itp(*),ixv(4),idx,ix0,ix1,i1mach
       character s*80, ch*3
 C      data  ch /' ,:'/
       data  ch /',: '/
@@ -1180,7 +1180,7 @@ C     print *, 'ephi=',ephi
       subroutine mve3d(x,y,z,rotm,shft)
 C- Move point or draw to (x,y,z)
       implicit none
-      double precision x,y,z,rotm(3,3),shft(3),cs(0:3)
+      double precision x,y,z,rotm(3,3),shft(3),cs(0:*)
       double precision xr,yr,zr,xprj,yprj,zprj
       integer iprint
 
@@ -1462,7 +1462,7 @@ Co rtab: table of connecting points
       integer ip,ntp,npr,nlist,list(nlist)
       double precision tp(ntp,4),symat(16,1),rtab(3,1)
       integer is,js,k,jp,ipr
-      double precision rr,r1,r2,xprj,yprj,zprj,dum1(1)
+      double precision rr,r1,r2,xprj,yprj,zprj,dum1(9)
       call getpr(ipr)
       npr = 1
       is = nint(tp(ip,4))

@@ -479,7 +479,7 @@ Cr  130   56   udiag  diagonal-only LDA+U
       real(8)   ::   elind
       real(8)   ::   eterms(20)
       integer   ::   hord
-      real(8)   ::   kmto(6)
+c      real(8)   ::   kmto(6)
 c      integer   ::   lasa
       integer   ::   ldham(16)
       integer   ::   lgen3
@@ -2061,9 +2061,9 @@ C ... Passed parameters
      , , master, MPI_COMM_WORLD,ierr)
       call mpi_bcast(struc%hord, 1,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%kmto) ! kmto(6)
-      call mpi_bcast(struc%kmto, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
+c      i_data_size=size(struc%kmto) ! kmto(6)
+c      call mpi_bcast(struc%kmto, i_data_size,MPI_REAL8
+c     , , master, MPI_COMM_WORLD,ierr)
 c      call mpi_bcast(struc%lasa, 1,MPI_INTEGER
 c     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%ldham) ! ldham(16)
@@ -3567,7 +3567,7 @@ c$$$      end subroutine ugw_init
       struc%elind=0.0d0
       struc%eterms=0.0d0
       struc%hord=0
-      struc%kmto=0.0d0
+c      struc%kmto=0.0d0
 c      struc%lasa=0
       struc%ldham=0
       struc%lgen3=0
