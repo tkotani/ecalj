@@ -1,0 +1,53 @@
+# set term x11
+set terminal postscript enhanced color eps
+set output "fe9_fbplot.eps"
+
+set multiplot layout 1,2
+set xzeroaxis
+set grid
+set ylabel "Energy [eV]"
+
+##### set font
+# set ylabel font "Helvetica, 24"
+# # set xlabel font "Helvetica, 24"
+set title font "Helvetica, 22"
+# set xtics font "Helvetica, 22"
+# set ytics font "Helvetica, 22"
+# set key font "Helvetica, 22"
+
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+
+set size ratio 2
+set title "outer -10:45, inner -5,1"
+set yrange [   -10.00000:    5.00000]
+#set yrange [   -3.00000:    3.00000]
+set xtics ('{/Symbol G}'   0.0000000000,\
+'H'   1.0000000000,\
+'N'   1.5000000000,\
+'P'   2.2071067812,\
+'{/Symbol G}'   3.0731321850,\
+'N'   3.7802389662)
+tpia=2*3.1415926/     7.32460
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd002.spin1" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd003.spin1" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd004.spin1" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd005.spin1" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnds.fb.up" u ($5):($6):(2*($8)) ps variable pt 7 lc rgb "dark-green" ti "s",\
+"bnds.fb.up" u ($5):($6):(2*($9+$10+$11)) ps variable pt 7 lc rgb "cyan" ti "t_{2g}",\
+"bnds.fb.up" u ($5):($6):(2*($12+$13+$15)) ps variable pt 7 lc rgb "orange" ti "t_{2g}",\
+"bnds.fb.up" u ($5):($6):(2*($14+$16)) ps variable pt 7 lc rgb "purple" ti "e_g",\
+"bnds.maxloc.up" u ($5):($6) w l lt 2 lw 4 lc rgb "black" ti ""
+
+plot \
+"bnd001.spin2" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd002.spin2" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd003.spin2" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd004.spin2" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnd005.spin2" u ($2):($3) lt 1 lw 3 lc rgb "grey" w l ti "",\
+"bnds.fb.dn" u ($5):($6):(2*($8)) ps variable pt 7 lc rgb "dark-green" ti "s",\
+"bnds.fb.dn" u ($5):($6):(2*($9+$10+$11)) ps variable pt 7 lc rgb "cyan" ti "t_{2g}",\
+"bnds.fb.dn" u ($5):($6):(2*($12+$13+$15)) ps variable pt 7 lc rgb "orange" ti "t_{2g}",\
+"bnds.fb.dn" u ($5):($6):(2*($14+$16)) ps variable pt 7 lc rgb "purple" ti "e_g",\
+"bnds.maxloc.dn" u ($5):($6) w l lt 2 lw 4 lc rgb "black" ti ""
