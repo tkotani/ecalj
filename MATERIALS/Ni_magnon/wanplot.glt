@@ -1,7 +1,7 @@
 # #########################################
 # ### Im[K]: Stoner excitation
 set term postscript enhanced color eps
-set output "fe9_kmat.eps"
+set output "ni9_kmat.eps"
 set multiplot layout 1,2
 
 set key right top; set grid; set zeroaxis
@@ -23,7 +23,7 @@ unset multiplot
 # #########################################
 # ### Im[R]: magnon
 set term postscript enhanced color eps
-set output "fe9_rmat.eps"
+set output "ni9_rmat.eps"
 set multiplot layout 2,1
 
 set key right bottom; set grid; set ytics
