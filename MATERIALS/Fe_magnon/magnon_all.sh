@@ -3,9 +3,9 @@
 MATERIAL=fe
 NSLOTS=8
 # ### 1. band calculation and create MLWFs
-# cp GWinput_for_MLWF GWinput
-# job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log
-# genMLWF_vw $MATERIAL -np $NSLOTS # &> genmlwf_vw.log
+cp GWinput_for_MLWF GWinput
+job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log
+genMLWF_vw $MATERIAL -np $NSLOTS # &> genmlwf_vw.log
 
 ### 2. magnon calculation
 ### If we implement more detailed k, change n1n2n3 in "GWinput_for_magnon".
@@ -19,3 +19,11 @@ epsPP_magnon_chipm_mpi -np $NSLOTS $MATERIAL
 gnuplot fbplot.glt 
 gnuplot wanplot.glt
 gnuplot mag3d.glt
+
+echo "================================================"
+echo "Magnon calculation finished"
+echo "'wan_ChiPMr.dat' <--- R(q,omega)"
+echo "'wan_ChiPMz.dat' <--- K(q,omega)"
+echo "We can draw results by '*.eps'"
+echo "Compare the results to prepared eps file in /q48"
+echo "================================================"

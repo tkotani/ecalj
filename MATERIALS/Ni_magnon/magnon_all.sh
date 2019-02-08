@@ -19,3 +19,11 @@ epsPP_magnon_chipm_mpi -np $NSLOTS $MATERIAL
 gnuplot fbplot.glt 
 gnuplot wanplot.glt
 gnuplot mag3d.glt
+
+echo "================================================"
+echo "Magnon calculation finished"
+echo "'wan_ChiPMr.dat' <--- R(q,omega)"
+echo "'wan_ChiPMz.dat' <--- K(q,omega)"
+echo "We can draw results by '*.eps'"
+echo "Compare the results to prepared eps file in /q48"
+echo "================================================"
