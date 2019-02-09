@@ -8,6 +8,24 @@ import os,sys,re
 cd=os.getcwd() # current directory
 listdir=os.listdir(cd) # get directory list
 
+### remove files
+### pref="wan_ChiPMr", etc.
+def rmfile(pref):
+    swj=True
+    for j in range(100):
+        if swj:
+            if j < 10:
+                num="0"+str(j)
+            else:
+                num=str(j)
+            filename=pref+num
+            if os.path.isfile(filename):
+                os.system("rm "+filename)
+            else:
+                swj=False
+        else:
+            pass
+
 # wan_ChiPM*.mat (*=tag)
 ltag=['z','r','r-k']
 for itag in range(len(ltag)):
@@ -33,10 +51,14 @@ for itag in range(len(ltag)):
         os.system('cat '+str(lwan[j])+' >> '+wanr_out)
 
     print("--- generate "+wanr_out)
-    os.system("rm wan_ChiPM"+tag+".mat0*")
-    os.system("rm wan_ChiPM"+tag+".mat1*")
-    os.system("rm wan_ChiPM"+tag+".mat2*")
-    os.system("rm wan_ChiPM"+tag+".mat3*")
+
+
+    rmfile(wanr_out)
+
+    # os.system("rm wan_ChiPM"+tag+".mat0*")
+    # os.system("rm wan_ChiPM"+tag+".mat1*")
+    # os.system("rm wan_ChiPM"+tag+".mat2*")
+    # os.system("rm wan_ChiPM"+tag+".mat3*")
 
 ### generate 1wk_eval_list.dat from each 1wk_eval_list.dat0*** (each q)
 # *_eval_list.dat (*=tag)
@@ -64,7 +86,9 @@ for itag in range(len(ltag)):
         os.system('cat '+str(lwan[j])+' >> '+wanr_out)
 
     print("--- generate "+wanr_out)
-    os.system("rm "+tag+"_eval_list.dat0*")
-    os.system("rm "+tag+"_eval_list.dat1*")
-    os.system("rm "+tag+"_eval_list.dat2*")
-    os.system("rm "+tag+"_eval_list.dat3*")
+    rmfile(wanr_out)
+
+    # os.system("rm "+tag+"_eval_list.dat0*")
+    # os.system("rm "+tag+"_eval_list.dat1*")
+    # os.system("rm "+tag+"_eval_list.dat2*")
+    # os.system("rm "+tag+"_eval_list.dat3*")
