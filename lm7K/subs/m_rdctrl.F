@@ -272,6 +272,11 @@ C ----------------------------------------------------------------------
       logical:: isanrg, l_dummy_isanrg
       integer:: lx
 
+      character(512)::sname
+      character*256:: sss
+      logical:: sexist
+      integer:: ipos,ifi,fopn,ifile_handle,lxx
+
 C ... For MPI
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1613,17 +1618,50 @@ cccccccccccccccccccccctakao
         nm='SPEC_ATOM_GRP2'; call gtv(trim(nm),tksw(prgn,nm),
      .  grp2(j),def_i4=0,cindx=jj)
 
+!!
         sw = tksw(prgn,'SPEC_ATOM_IDU')
         if (io_help .gt. 0 .and. sw .lt. 2) then
           call info0(1,0,0,' * ... The next three tokens are for LDA+U')
         endif
         nm='SPEC_ATOM_IDU'; call gtv(trim(nm),sw,idu(:,j),cindx=jj,
      .  def_i4v=(/(0,i=1,n0)/),note=
-     .  'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed ')
+     .  'LDA+U mode:  0 nothing, 1 AMF, 2 FLL, 3 mixed; +10: nothin if sigm.* exist')
         nm='SPEC_ATOM_UH'; call gtv(trim(nm),sw,uh(:,j),cindx=jj,
      .  def_r8v=zerov,note='Hubbard U for LDA+U')
         nm='SPEC_ATOM_JH'; call gtv(trim(nm),sw,jh(:,j),cindx=jj,
      .  def_r8v=zerov,note='Exchange parameter J for LDA+U')
+
+!! 2019 auto off lda+u uh jh if sigm exist
+!
+!!    A trick to get the extension of ctrlfile. It is stored to trim(sname).!followings are take from bndfp.F
+!! check sigm.* exist or not
+        if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
+!! get sexist if sigm.* exist.
+          ifi=fopn('tempyyy') 
+          sss=''
+          INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
+          call fclose(ifi)
+          ipos = scan(sss,'.',back=.true.) !backward search of '.' from the last.
+          sname= sss(ipos+1:256) !sname contains extention such as 'copt'.
+          ifi=ifile_handle()
+          open(ifi, file='tempyyy.'//trim(sname)) 
+          close(ifi,status='delete')
+          inquire(file='sigm.'//trim(sname),exist=sexist)
+          
+          if(sexist) then
+            write(6,*)'We find sigm file --> noLDA+U-> set UH=JH=0'
+            do lxx=0+1,3+1
+              if(idu(lxx,j)>10) then
+                uh(lxx,j) = 0d0
+                jh(lxx,j) = 0d0
+              endif
+            enddo  
+          endif  
+        endif
+        call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
+        call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
+        write(6,"('j uh=',i5,256f10.5)")j, uh(:,j)
+        write(6,"('j jh=',i5,256f10.5)")j, jh(:,j)
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgn,nm),pb1(j),
      .  nmin=10,cindx=jj,note='product basis for GW')
