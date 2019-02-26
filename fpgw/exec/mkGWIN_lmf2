@@ -1,29 +1,27 @@
-#!/bin/csh
+#!/bin/bash
 # --------------------------------
 # Get GWinpt.tmp
 #
-set n = $0
-set nfpgw = ${n:h}
+n=$0
+nfpgw=`dirname $0`
 echo $nfpgw
-echo $argv[1]
+echo $#
+echo $1
 
-echo $#argv
-if ($#argv == 4) then
- set n1 = $argv[2]
- set n2 = $argv[3]
- set n3 = $argv[4]
- goto skipn
-endif   
+if [ $# == 4 ]; then
+n1=$argv[2]
+n2=$argv[3]
+n3=$argv[4]
+else
+n1=4
+n2=4
+n3=4
+fi
 
-set n1 = 4
-set n2 = 4
-set n3 = 4
-
-skipn:
 echo $n1 $n2 $n3 
 
-$nfpgw/lmfa $argv[1] >llmfa
-echo 0 | $nfpgw/lmfgw $argv[1]    > llmfgw00
+$nfpgw/lmfa $1 >llmfa
+echo 0 | $nfpgw/lmfgw $1    > llmfgw00
 echo 1 $n1 $n2 $n3| $nfpgw/gwinit   #This changes the <QPNT> setting.
 
 echo
