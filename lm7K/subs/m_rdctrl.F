@@ -1635,6 +1635,8 @@ cccccccccccccccccccccctakao
 !
 !!    A trick to get the extension of ctrlfile. It is stored to trim(sname).!followings are take from bndfp.F
 !! check sigm.* exist or not
+c        write(*,*) 'xxxxxxxxxxxxxxxxxxxxxxxxxxx22222222222'
+
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
 !! get sexist if sigm.* exist.
           ifi=fopn('tempyyy') 
@@ -1656,12 +1658,17 @@ cccccccccccccccccccccctakao
                 jh(lxx,j) = 0d0
               endif
             enddo  
-          endif  
+          endif
+          do lxx=0+1,3+1
+            idu(lxx,j) = mod(idu(lxx,j),10)
+          enddo  
         endif
+        call mpibc1(idu(:,j),4,2,mlog,'readctrl','idu')
         call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
         call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
-        write(6,"('j uh=',i5,256f10.5)")j, uh(:,j)
-        write(6,"('j jh=',i5,256f10.5)")j, jh(:,j)
+        write(6,"('j idu=',i5,256i5)")j, idu(:,j)
+        write(6,"('j uh =',i5,256f10.5)")j, uh(:,j)
+        write(6,"('j jh =',i5,256f10.5)")j, jh(:,j)
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgn,nm),pb1(j),
      .  nmin=10,cindx=jj,note='product basis for GW')
