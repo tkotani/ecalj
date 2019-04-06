@@ -199,6 +199,11 @@ C ... Add estatic potential of compensating gaussians to smpot
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
+C --- M. OBATA check
+      call esmsmves( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom ,
+     .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+     .   , k3 , smrho, qbg, smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
+
 C ... Compute e.s. potential at MT boundary
       call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval )

@@ -14,6 +14,7 @@ fp_list=\
 	dfrce.o \
 	efldos.o \
 	elocp.o \
+	esmsmves.o \
 	fklbl.o \
 	flocbl.o \
 	fpchk.o \
