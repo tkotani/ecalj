@@ -183,7 +183,8 @@ C --- Add 8pi/G**2 * (FT gaussian+Hankel density) into smpot ---
       if (iprint() .gt. 40) write(stdo,300) cgsum(1),dble(cgsum(1)*vol)
   300 format(/' vesgcm: smooth density G=0 term =',
      .2f11.6,'   Q = ',f12.6)
-      cgsum(1) = (0d0,0d0)
+!! Commented by obata (but not packed in git by obata ---fixed by t.kotani)
+!!  cgsum(1) = (0d0,0d0)
       do  i = 2, ng
         g2 = tpiba*tpiba*(gv(i,1)**2+gv(i,2)**2+gv(i,3)**2)
         cv(i) = cv(i) + (8*pi)*cgsum(i)/g2

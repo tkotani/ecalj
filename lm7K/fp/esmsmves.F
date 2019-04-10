@@ -1,3 +1,4 @@
+!! this file is from M.Obata (Kanazawa univ).
       subroutine esmsmves( nbas , ssite , sspec , slat , cy , qmom ,
      .   ng , gv , kv , cv , cg1 , cgsum , k1 , k2 ,  k3 , smrho, qbg, smpot ,
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
