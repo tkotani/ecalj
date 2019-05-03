@@ -467,6 +467,11 @@ c mar2014
         call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
       endif
 
+#if MPI | MPIK
+      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+      print *,' mpipid=',procid
+#endif      
+
 !! A trick to get the extension of ctrlfile. It is stored to trim(sname).
       if(procid==master.and.initex) then 
         ifi=fopn('temptempxxx') 
@@ -495,7 +500,8 @@ c            call r8tos8(ssite(is)%clabel,spid)
       endif
 
 
-!! Write atomic positions    
+!     ! Write atomic positions
+      print *,' procid=',procid,master
       if(procid==master) then
         write(stdo,"(a)")'== bndfp: Atomic Positions (from rst/ctrl or changing when dynamics ==)'
         do ib=1,nbas
@@ -1903,18 +1909,26 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
 !!  for parallel write, and eigze is temporaly used only in this subroutine. 
 !!     (gfortran v4.7 add _{procid} at the end of the filename
 !!      then how can I share the same file among the different processes? )
-                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
-                  call fclose(ifig)
-                  ifig = fopna('eigze_'//trim(strprocid),-1,4)
+                  !ifig = fopna('eigze_'//trim(strprocid),-1,4)
+                  !call fclose(ifig)
+                  !ifig = fopna('eigze_'//trim(strprocid),-1,4)
+                  inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
+                  if(nexist) close(ifig)
+                  ifig = ifile_handle()
+                  open(ifig,file='eigze_'//trim(strprocid),form='unformatted')
 #else
-                  ifig = fopna('eigze',-1,4)
-                  call fclose(ifig)
-                  ifig = fopna('eigze',-1,4)
+                  !ifig = fopna('eigze',-1,4)
+                  !call fclose(ifig)
+                  !ifig = fopna('eigze',-1,4)
+                  inquire(file='eigze',opened=nexist,number=ifig)
+                  if(nexist) close(ifig)
+                  ifig = ifile_handle()
+                  open(ifig,file='eigze',form='unformatted')
 #endif
                   initiqisp=.false.
                endif  
             endif
-
+            
             if(PROCARon) then   !!2014mar for band weight mode
                nmx=ndimhx
                nev=ndimhx
@@ -2230,8 +2244,11 @@ c            endif
       call mpibc2(nev_,  nkp,2,mlog,'bndfp','nev_')
 #endif
       nevmin=minval(nev_(1:nkp))
-      inquire(unit=ifig,opened=nexist)
-      if(nexist) call fclose(ifig)
+
+      
+c     this inquire is moved above (right before opening ifig files) !may2019
+c     inquire(unit=ifig,opened=nexist)
+c      if(nexist) close(ifig)
 !! ========== end of iq loop ====================================================
       if(debug) print *, 'tttttttttt 9999999999999999999 3',procid
       if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
@@ -3056,8 +3073,10 @@ ccccccccccccccccccccccccc
          ifves=fopna('vessm',-1,1)
          rewind ifves
          read(ifves,*) vessm !smooth part of electrostatic pot. given in smves.F. (es on MT average).
-         ifvesintloc=fopna('vesintloc',-1,1) !generated in mkpot-locpot.F electrostatic pot. integral.
-         rewind ifvesintloc
+c   ifvesintloc=fopna('vesintloc',-1,1) !generated in mkpot-locpot.F electrostatic pot. integral.
+         ifvesintloc = ifile_handle()
+         open(ifvesintloc,file='vesintloc',form='formatted',status='old')
+c         rewind ifvesintloc
          sumvesloc=0d0
          sumvesatm=0d0
          do ib=1,nbas
@@ -3097,7 +3116,8 @@ ccccccccccccccccccccccccc
          call fclose(ifvbm)
          call fclose(ifves)
          call fclose(ifvesintatm)
-         call fclose(ifvesintloc)
+c        call fclose(ifvesintloc)
+         close(ifvesintloc)
  9898    continue
          print *,' not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.'
          if(cmdopt('--vbmonly',9,0,strn)) call rx0('end of --vbmonly mode vrefolny')

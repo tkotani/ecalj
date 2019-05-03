@@ -230,9 +230,13 @@ C$&  REDUCTION(sqlocc,sqloc,saloc,qval,qsc,focvxc,focexc,
 C$&            xcore,rvepsv,rvvxcv,valvef,rhovxc,rhoexc,cpnvsa,vvesat)
 C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
-      ifivesint=-999
-      if(master_mpi()) ifivesint=fopna('vesintloc',-1,2)
 
+      ifivesint=-999
+      if(master_mpi()) then
+         ifivesint = ifile_handle()
+         open(ifivesint,file='vesintloc',form='formatted',status='unknown')
+      endif
+      
       do  ib = 1, nbas
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
@@ -307,7 +311,7 @@ C   --- Make potential and energy terms at this site ---
      .   , wk , valvs , cpnvs , rhexc , rhex , rhec , rhvxc , rvepvl , 
      .   rvexl , rvecl , rvvxvl , rveptl , rvvxtl , valvt , xcor , qloc 
      .   , qlocc , aloc , alocc , gpotb , fcexc , fcex , fcec , fcvxc 
-     .   , rhobg , efg ( 1 , ib ),ifivesint )
+     .       , rhobg , efg ( 1 , ib ),ifivesint )
 
 !! write density 1st(true) component and counter components.
         if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall(ib)) then
@@ -420,7 +424,8 @@ C     ... Use effective potentials with modified xc
         j1 = j1+nlml
    10   continue
       enddo
-      if(master_mpi()) call fclose('vesintloc')
+      if(master_mpi()) close(ifivesint)
+c      if(master_mpi()) call fclose('vesintloc')
 C     Electric field gradient
       if (ipr .gt. 40) call elfigr(nbas,stdo,zz,efg)
       deallocate(efg,zz)
