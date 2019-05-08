@@ -9,9 +9,9 @@ echo $#
 echo $1
 
 if [ $# == 4 ]; then
-n1=$argv[2]
-n2=$argv[3]
-n3=$argv[4]
+n1=$2
+n2=$3
+n3=$4
 else
 n1=4
 n2=4
