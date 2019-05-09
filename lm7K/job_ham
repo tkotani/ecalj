@@ -1,11 +1,24 @@
-# To get QPLIST, run band plot. job_band
+#!/bin/bash
+echo $0
+echo $@
+echo $1
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo "An example of usage: job_ham si -np 4 [options for lmf]"
+  echo " CAUTION: We need PWMODE={pwmode}, where const pwmode=11 (or somegthing) given in ctrl file as follows."
+  echo " %const pwmode=11"
+  echo "   PWMODE={pwmode} "
+else
+  MPI_SIZE=$3
+fi
 
 # We introduced {pwmode}. as PWMODE={pwmode}
 rm HamiltonianMTO*
-
 #Get efermi.lmf
-mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK fe --quit=band -vpwmode=0 > lmf_efermi
-mpirun -np 4 ~/ecalj/lm7K/lmf-MPIK fe --writeham --mkprocar --fullmesh -vpwmode=0
+echo 'runnnig efermi determination for pwmode=0'
+mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band -vpwmode=0 > lmf_efermi
+echo 'runnnig hamiltonian generation for pwmode=0'
+mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0
+
 cat HamiltonianMTO.* >HamiltonianMTO
 rm HamiltonianMTO.* 
 ~/ecalj/lm7K/lmfham

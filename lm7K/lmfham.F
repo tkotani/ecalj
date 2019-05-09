@@ -11,7 +11,7 @@
       contains
       subroutine readHamiltonianMTO()
       implicit none
-      integer:: ififft,ifile_handle,ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimhx2
+      integer:: ififft,ifile_handle,ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimhx2,lold,m
       complex(8):: img=(0d0,1d0),aaaa,phase
       character*4:: cccx
       real(8)::qp(3),pi=4d0*atan(1d0)
@@ -36,7 +36,22 @@
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
       read(ififft)ib_table,l_table,k_table
       close(ififft)
-
+!!      
+!     !
+      write(6,"('MHAM: --- MTO Hamiltonian index (See real-harmonics table in job_pdos script) --- ')")
+      write(6,'("MHAM: Ham dimension=",i5)') ldim
+      lold=-999
+      do i = 1,ldim
+         if(l_table(i)/= lold) then !reset m of lm
+            m=-l_table(i)
+            lold=l_table(i)
+         else
+            m=m+1
+         endif
+         write(6,"('MHAM: i ib(atom) l m k(EH,EH2,PZ)=',5i3)")
+     &        i, ib_table(i),l_table(i),m,k_table(i)
+      enddo
+      
 c$$$!! delta fun check for FFT: k --> T --> k 
 c$$$!!    \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
 c$$$      ikpd=7
