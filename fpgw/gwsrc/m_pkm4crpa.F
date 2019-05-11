@@ -10,13 +10,13 @@
       subroutine readpkm4crpa(ib,q,isp,wpw)
       use m_iqindx_qtt,only:iqindx2_
       implicit none
-      integer:: ib,isp,iq,ibin,iqin,ifi,ispin
+      integer:: ib,isp,iq,ibin,iqin,ifi,ispin,ifile_handle
       real(8):: wpw,q(3),wpwin,qvec(3),qin(3)
       character*8::fname
       logical,save:: init=.true.
       logical:: outofrange,debug=.false.
       if(debug)print *,' iiiiiiqqq readpkm4crpa',init
-      ifi= 8398
+      ifi= ifile_handle()
       fname= 'pkm4crpa'
       if(init) then
          open(ifi,file=fname,form='formatted',status='unknown')

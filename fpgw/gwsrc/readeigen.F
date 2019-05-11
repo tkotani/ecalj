@@ -1064,7 +1064,7 @@ ccccccccccccccccccccccccccc
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,nsp_in, 
-     & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose
+     & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
       real(8):: ginv_in(3,3)
 c      integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
@@ -1092,7 +1092,7 @@ c      enddo
       call init_iqindx_qtt(ginv)
 
 !!--- Readin QGpsi ---
-      ifiqg  = 101
+      ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
       read(ifiqg) nqnum , ngpmx, QpGcut_psi, nnnn,nqi,imx
       write(6,*)'read(ifiqg)', nqnum , ngpmx, QpGcut_psi, nnnn

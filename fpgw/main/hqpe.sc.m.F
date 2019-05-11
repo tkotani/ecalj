@@ -50,7 +50,7 @@ c----------------------------------------------
       character(2):: soflag
       real(8) :: wex !,  eseavrs(2)
       logical :: exonly,mtosigmaonly,nexist
-      integer(4):: ret
+      integer(4):: ret,ifile_handle
       character(3):: iaaa
       real(8),allocatable:: eseavr(:,:) !,eseavr_in(:,:)
       integer,allocatable:: nhqx(:,:)
@@ -99,33 +99,39 @@ c$$$      endif
 
       ifsex(1) = iopenxx ('SEXU')
       ifxc(1)  = iopenxx ('XCU')
-      open(UNIT=3001, file='SEX2U',form='UNFORMATTED', status='OLD') !sf.beg
-      ifsex2(1)=3001
+      ifsex2u = ifile_handle()
+      open(ifsex2u, file='SEX2U',form='UNFORMATTED', status='OLD') !sf.beg
+      ifsex2(1)=ifsex2u
 
       if(.not.exonly) then
-        ifsec(1)     = iopenxx ('SECU')
-        open(UNIT=3003,   file='SEC2U',form='UNFORMATTED', status='OLD')
-        ifsec2(1)=3003         !sf.end
+        ifsec(1) = iopenxx ('SECU')
+        ifsec2u = ifile_handle() 
+        open(ifsec2u, file='SEC2U',form='UNFORMATTED', status='OLD')
+        ifsec2(1)=ifsec2u     !sf.end
       endif
       ifsexcore(1) = iopenxx ('SEXcoreU')
-      open(UNIT=3002,file='SEXcore2U',form='UNFORMATTED',status='OLD')
-      ifsexcore2(1)=3002
+      ifSEXcore2U=ifile_handle()
+      open(ifSEXcore2U,file='SEXcore2U',form='UNFORMATTED',status='OLD')
+      ifsexcore2(1)=ifSEXcore2U
 
       call readx (ifsex(1),50)
       read (ifsex(1),*) nspin,nq,ntq
       if(nspin .eq. 2 .and. .not. laf) then
         ifsex(2)   = iopenxx ('SEXD')
         ifxc(2)    = iopenxx ('XCD')
-        open(UNIT=3004, file='SEX2D',form='UNFORMATTED', status='OLD') !sf.beg
-        ifsex2(2)=3004
+        ifSEX2D=ifile_handle()
+        open(ifSEX2D, file='SEX2D',form='UNFORMATTED', status='OLD') !sf.beg
+        ifsex2(2)=ifSEX2D
         if(.not.exonly) then
           ifsec(2)   = iopenxx ('SECD')
-          open(UNIT=3006, file='SEC2D',form='UNFORMATTED', status='OLD')
-          ifsec2(2)=3006      !sf.end
+          ifSEC2D=ifile_handle()
+          open(ifSEC2D, file='SEC2D',form='UNFORMATTED', status='OLD')
+          ifsec2(2)=ifSEC2D      !sf.end
         endif
         ifsexcore(2)   = iopenxx ('SEXcoreD')
-        open(UNIT=3005,file='SEXcore2D',form='UNFORMATTED',status='OLD')
-        ifsexcore2(2)=3005
+        ifSEXcore2D=ifile_handle()
+        open(ifSEXcore2D,file='SEXcore2D',form='UNFORMATTED',status='OLD')
+        ifsexcore2(2)=ifSEXcore2D
       endif
 
       rewind (ifsex(1))
@@ -143,8 +149,9 @@ c     > output file
 
 C     3 Feb 2004 read sigma and pass to mixing routine
       INQUIRE (FILE='sigm', EXIST = lsigin)
-      open(UNIT=3009, file='sigm',form='UNFORMATTED') !sf
-      ifse_out=3009
+      ifsigm=ifile_handle()
+      open(ifsigm, file='sigm',form='UNFORMATTED') !sf
+      ifse_out=ifsigm
       if (lsigin) then
         rewind ifse_out
         write(6,*) ' ... reading input sigma from file sigm'
@@ -170,8 +177,6 @@ c        read(ifse_out) nspin,ndimsigin,n1,n2,n3,nqx
         ifqpe(2)   = iopenxx ('QPD')
         iftote(2)  = iopenxx ('TOTE.DN')
         iftote2(2) = iopenxx ('TOTE2.DN')
-        !open(UNIT=3010, file='SED',form='UNFORMATTED')                !sf
-        !ifse_out(2)=3010                                              !sf
       endif
 
       if(jin == -101) goto 9998
@@ -184,15 +189,15 @@ cccccccccccccccccccccccccc
         evec0ex=.false.    !true before 12Aug2006 ---> but it caused a problem maybe because of degeneracy.
 cccccccccccccccccccccccccc
         if(evec0ex) then
-          ifevec0 =3018
+          ifevec0 =ifile_handle()
           open(ifevec0,file='evec0',form='UNFORMATTED',status='OLD')
-          ifevecchk=4019
+          ifevecchk=ifile_handle()
           if(isigma_en==5) open(ifevecchk,file='evecfix.chk')
         endif
       endif
 
 !! === readin lmfgw_kdivider, and get extensions === apr2013
-      ifiproc=4001
+      ifiproc=ifile_handle()
       open(unit=ifiproc,file='lmfgw_kdivider',status='old')
       read(ifiproc,*) ext
       read(ifiproc,*) nqixx, nspxx, nrank
@@ -216,17 +221,15 @@ cccccccccccccccccccccccccc
         extp(procid)=trim(adjustl(ext))//'_'//trim(adjustl(extn))
         write(6,"(i3,' ext= ',a,a)") procid,trim(extp(procid)),' ----------'
       enddo
-      ixx=5001 
       do procid=0,nrank-1
-        ixx=ixx+1
+        ixx=ifile_handle()
         open(ixx,file='vxc'//extp(procid),form='unformatted')
         ifvxc__(procid)=ixx
-        ixx=ixx+1
+        ixx=ifile_handle()
         open(ixx,file='evec'//extp(procid),form='unformatted')
         ifevec__(procid)=ixx
       enddo
 !!---------------------------------------------------------------------
-
       ifvxc_ = ifvxc__(0)
       ifevec_= ifevec__(0)
       read(ifvxc_) ndimh, nsp,nnn !sf.beg
@@ -788,6 +791,7 @@ c-------------------------------
 
 C     --- mixing sigma -------------------------------------
 C     ... Once readin sigma
+      ifse_out=ifile_handle()
       open(UNIT=ifse_out, file='sigm',form='UNFORMATTED')
       allocate(sigma_m(ndimsig,ndimsig,nq,nspin),qqqx_m(3,nq,nspin))
       write(6,*)"========= Sigma mixing section using mixsigma ======="
@@ -813,10 +817,10 @@ C     ... write sigm Binary format ---------------------------------------
       close(ifse_out)
 
 C     ... Write sigma ASCII format ---------------------------------------
+      ifse_out=ifile_handle()
       open(UNIT=ifse_out, file='sigma')
       call rwsigmaa (-ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nq) !,eseavr)
       close(ifse_out)
-Cstop2rx 2013.08.09 kino 9999 stop ' OK! hqpe_sc '
  9999 call rx0( ' OK! hqpe_sc ')
       end
 
@@ -918,7 +922,7 @@ C             Add mixnit as parameter
       character*8 fff
       logical fexist
       real(8):: acc
-      integer(4):: ido
+      integer(4):: ido,ifile_handle
       iprintxx = 30
       beta=1d0
       call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
@@ -929,7 +933,7 @@ C' ... reads prior iteration INCLUDING starting sigma for current iteration
       INQUIRE (FILE =fff, EXIST = fexist)
       if(fexist)      write(6,*)'... reading file mixsigma'
       if(.not.fexist) write(6,*)'... No file mixsigma'
-      ifi=3021
+      ifi=ifile_handle()
       open(ifi,file=fff,form='unformatted')
       if(fexist) then
         read(ifi,err=903,end=903) nitr,ndaf

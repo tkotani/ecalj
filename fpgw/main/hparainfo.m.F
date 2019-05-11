@@ -13,7 +13,7 @@ c      logical:: readgwinput
       write(6,*) ' number of machine? '
       read(5,*)   nmachine0
       call headver('hparainfo',machine0)
-      ifix=101
+      ifix=ifile_hanlde()
 
 c --- goto X0KDIV section ---
       write(6,*) ' === Generate X0KDIV section === '
@@ -86,6 +86,5 @@ c
         close(ifix)
         kinit(i+1) = kend(i) +1
       enddo
-Cstop2rx 2013.08.09 kino      stop ' OK! parainfo QPNT.{number} and X0KDIV generated'
       call rx0( ' OK! parainfo QPNT.{number} and X0KDIV generated')
       end

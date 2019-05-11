@@ -169,7 +169,7 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       logical:: eibzmode
       integer:: nwgt(nqbz)
       real(8):: ebmx
-      integer:: nbmx
+      integer:: nbmx,ifile_handle
 c---------------------------------------------------------------------
       write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
 c      if(verbose()>=150) chkwrt=.true.
@@ -196,7 +196,7 @@ c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
 c      print *,'xxxxxx mtett=',mtett
 !! read mtet or not.
       if(mtett) then
-        ifmtet=501
+        ifmtet=ifile_handle()
         open (ifmtet, file='mtet',form='unformatted')
         read(ifmtet) nmtet,nqbzwm,nqbzm,ntetfm !,n_index_qbzm
         allocate( 

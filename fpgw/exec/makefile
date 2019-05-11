@@ -515,7 +515,7 @@ $(gwsrc)m_readeps.o
 #	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
  convgwin:	$(convg) 
-	 $(LK) $(LKFLAGS1) $(convg) $(LKFLAGS2) -o $@
+	 $(LK) $(LKFLAGS1) $(convg) $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
 
  kino_input_test:	$(kino_input_test) $(GWLIB) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@

@@ -16,7 +16,7 @@ c-local
      & gc(:,:,:,:), sxadata(:),sigkcc(:,:,:,:,:)
       integer(4),allocatable:: indxsxa(:,:),lcr(:,:,:),ncr(:,:)
       integer(4):: ir,l,n,ic,ncrr,ncmxx(nclass),kmax,k,it,isp,
-     & isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore
+     & isx,lm1,lm2,lm3,lm4,ibas,icr,icrd,nsxatot,ifexcore,ifile_handle
       real(8):: rkp(nrmx,0:2*(nl-1)),rkm(nrmx,0:2*(nl-1))
 c$$$#ifdef COMMONLL
 c$$$      integer(4) ll(51**2)
@@ -131,7 +131,7 @@ c---------------------
       if(nspn==1) wgtx=2d0
       exacct = sum(exacc(1:nbas,1:nspn))*wgtx
 
-      ifexcore=9051
+      ifexcore=ifile_handle()
       open (ifexcore,file='TEEXXcc')
       write(6,*) '==== EXCORE ==> TEEXXcc ============'
       write(ifexcore,*) '======================================='

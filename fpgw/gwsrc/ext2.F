@@ -3,7 +3,7 @@
       implicit none
       integer:: i
       logical:: nexist
-      do i=5001,9999
+      do i=5001,99999
          inquire(unit=i,opened=nexist)
          if(.not.nexist) then
             ifile_handle=i

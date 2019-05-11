@@ -31,13 +31,13 @@ c iopen = file number, starting from unit 10
       data          namn /0/
       integer(4):: namnmax=0,verbose
       logical :: debug=.false.
-c check that file is not already opened oct2005
-      if(debug) then
-        write(6,*) '------iopenstart ---------'
-        do   i = 1,namnmax
-          write (6,"(i3,' ',a)") i+9,fnamn(i)
-        enddo
-      endif
+c$$$c check that file is not already opened oct2005
+c$$$      if(debug) then
+c$$$        write(6,*) '------iopenstart ---------'
+c$$$        do   i = 1,namnmax
+c$$$          write (6,"(i3,' ',a)") i+9,fnamn(i)
+c$$$        enddo
+c$$$      endif
 
 c skip leading blanks
 c      namt       = nam

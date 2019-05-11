@@ -276,7 +276,7 @@ c      write(6,*)" itc=",itc(i)
           !print *, iwini_int, iwend_int
           nw = iwend - iwini +1
           !print *, iwini_int, iwend_int
-          ifoutsec_int=9300
+          ifoutsec_int=ifile_handle()
   
   
           allocate(omega_int(ntq,iwini_int:iwend_int), rsecomg_int(iwini_int:iwend_int,ntq,nq),

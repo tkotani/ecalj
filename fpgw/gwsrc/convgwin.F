@@ -3,9 +3,10 @@ C- convert GWIN to GWIN_V2
 Cr takao kotani Apr 2002
 C ----------------------------------------------------------------------
       character(len=100)::record
+      integer:: ifile_handle
 
-      ifigwin  = 888
-      ifigwino = 788
+      ifigwin  = ifile_handle()
+      ifigwino = ifile_handle()
       open (ifigwino,file='GWIN')
       open (ifigwin, file='GWIN_V2')
 

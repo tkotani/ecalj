@@ -254,7 +254,7 @@ c---------------------------------------
       integer::nqtt_in
       real(8)::qtt_in(3,nqtt_in)
       real(8)::ginv(3,3)
-      
+      ifwqb=ifile_handle()
       open(ifwqb,file="wanqbz",form='unformatted')
       write(ifwqb) ginv
       write(ifwqb) nqtt_in

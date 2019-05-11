@@ -39,7 +39,7 @@ c----------------------------------------------------------------------------
 c      parameter (mxclass=100)
 c      character*6 clabl(mxclass)
 c      integer(4),parameter:: ngnmax=10
-      integer(4):: ngnmax,imagw,ifi,ifi2
+      integer(4):: ngnmax,imagw,ifi,ifi2,ifile_handle
       real(8) :: gen(9,ngnmax)
 c worksize in megabytes (1 word = 4 bytes)
 c      parameter (mbytes=10)
@@ -49,8 +49,8 @@ c      integer w
 c      common /w/ w(iwksize)
 
 c--------------------------------------------------------
-      ifi =3012
-      ifi2=3023
+      ifi =ifile_handle()
+      ifi2=ifile_handle()
       write(6,*)'genallcf_v3_dump:'
       open (ifi, form='unformatted',file="genallcf3.dump")
       open (ifi2,file="genallcft3.dump")

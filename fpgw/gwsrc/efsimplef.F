@@ -39,7 +39,7 @@ c
 c      real(8) :: efp,efm,wwgo,wfacef
       logical :: legas,autoew,GaussSmear=.true. !is external
 
-      integer(4):: nqbz
+      integer(4):: nqbz,ifile_handle,if8301,if8302
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
 C--------------------------------------------------------------------
@@ -104,9 +104,11 @@ c      do ik  = 1, nband*nqibz*ispin
 c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
 c
-      if (mpi__root) then 
-        open(8301,file = "DOSACC.lda")
-        open(8302,file = "DOSACC2.lda")
+      if (mpi__root) then
+         if8301=ifile_handle()
+         if8302=ifile_handle()
+         open(if8301,file = "DOSACC.lda")
+         open(if8302,file = "DOSACC2.lda")
       endif
       wwg = 0d0
       wwg2= 0d0
@@ -267,7 +269,7 @@ c
 c      real(8) :: efp,efm,wwgo,wfacef
       logical :: legas,autoew,GaussSmear=.true. !is external
 
-      integer(4):: n_index_qbz,nqbz
+      integer(4):: n_index_qbz,nqbz,ifile_handle,if8301,if8302
       integer(4):: index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
 C--------------------------------------------------------------------
@@ -331,8 +333,10 @@ c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
 c
       if (mpi__root) then 
-        open(8301,file = "DOSACC.lda")
-        open(8302,file = "DOSACC2.lda")
+         if8301=ifile_handle()
+         if8302=ifile_handle()
+         open(if8301,file = "DOSACC.lda")
+         open(if8302,file = "DOSACC2.lda")
       endif 
       wwg = 0d0
       wwg2= 0d0
@@ -345,7 +349,7 @@ c---
         if(eee2 +1d-4< ektx(ieaord(ik)).or.ik==nne ) then
 ! degeneracy check
           if (mpi__root) then 
-            if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+            if(ik/=1) write(if8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
           endif 
           wwg2 = wgtx(ieaord(ik))
           eee2 = ektx(ieaord(ik))
@@ -357,7 +361,7 @@ c---
         wwg = wwg + wgtx(ieaord(ik))
         if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
 c
-        write(8301,"(2i6,3d23.15)")
+        write(if8301,"(2i6,3d23.15)")
      &  ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
 c
         if( wwg>valn-1d-8.and.ierr==1 ) then
@@ -411,10 +415,10 @@ ccc gaussian
 c
  8891 continue 
       if (mpi__root) then 
-        write(8301,*) " ef=",ef
-        close(8301)
-        write(8302,*) " ef=",ef
-        close(8302)
+        write(if8301,*) " ef=",ef
+        close(if8301)
+        write(if8302,*) " ef=",ef
+        close(if8302)
       endif
 
 c      write(6,*)' esmr        =',esmr

@@ -77,7 +77,6 @@ c> output file
         iftote2(2) = iopenxx ('TOTE2.DN')
       endif
 
-
 c loop over spin
       do      is = 1,nspin
         write(6,*) ' --- is=',is
@@ -95,23 +94,14 @@ c
 c
         call readx   (ifxc(is),50)
         read (ifxc(is),*) nspinxc,nqxc,ntqxc
-Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinx)  stop 'hqpe: wrong nspin SEx'
         if (nspin .ne. nspinx)  call rx( 'hqpe: wrong nspin SEx')
-Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinc)  stop 'hqpe: wrong nspin SEc'
         if (nspin .ne. nspinc)  call rx( 'hqpe: wrong nspin SEc')
-Cstop2rx 2013.08.09 kino        if (nspin .ne. nspinxc) stop 'hqpe: wrong nspin vxc'
         if (nspin .ne. nspinxc) call rx( 'hqpe: wrong nspin vxc')
-Cstop2rx 2013.08.09 kino        if (nq .ne. nqx)        stop 'hqpe: wrong nq SEx'
         if (nq .ne. nqx)        call rx( 'hqpe: wrong nq SEx')
-Cstop2rx 2013.08.09 kino        if (nq .ne. nqc)        stop 'hqpe: wrong nq SEc'
         if (nq .ne. nqc)        call rx( 'hqpe: wrong nq SEc')
-Cstop2rx 2013.08.09 kino        if (nq .ne. nqxc)       stop 'hqpe: wrong nq vxc'
         if (nq .ne. nqxc)       call rx( 'hqpe: wrong nq vxc')
-Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqx)      stop 'hqpe: wrong ntq SEx'
         if (ntq .ne. ntqx)      call rx( 'hqpe: wrong ntq SEx')
-Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqc)      stop 'hqpe: wrong ntq SEc'
         if (ntq .ne. ntqc)      call rx( 'hqpe: wrong ntq SEc')
-Cstop2rx 2013.08.09 kino        if (ntq .ne. ntqxc)     stop 'hqpe: wrong ntq vxc'
         if (ntq .ne. ntqxc)     call rx( 'hqpe: wrong ntq vxc')
 c
         if(is==1) write(6,*)' ###  readin XCU'

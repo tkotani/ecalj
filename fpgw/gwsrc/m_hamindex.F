@@ -41,12 +41,12 @@ c      if(debug) print *,'nkt=',nkt
 
 !> write info for wave rotation. 
       subroutine writehamindex()
-      integer(4):: ifi
+      integer(4):: ifi,ifile_handle
       logical::pmton
       logical,save:: done=.false.
       if(done) call rx('writehamindex is already done')
       done=.true.
-      ifi=1789
+      ifi=ifile_handle()
       open(ifi,file='HAMindex',form='unformatted')
       write(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
       write(ifi)symops,ag,invgx,miat,tiat,shtvg,qtt,qtti,iqmap,igmap,iqimap
@@ -68,7 +68,7 @@ c      if(debug) print *,'nkt=',nkt
       logical,save:: done=.false.
       if(done) call rx('readhamindex is already done')
       done=.true.
-      ifi=1789
+      ifi=ifile_handle()
       open(ifi,file='HAMindex',form='unformatted')
       read(ifi)ngrp,nbas,kxx,lxx,nqtt,nqi,nqnum,imx,ngpmx,norbmto
       allocate(symops(3,3,ngrp),ag(3,ngrp),qtt(3,nqtt),qtti(3,nqi))

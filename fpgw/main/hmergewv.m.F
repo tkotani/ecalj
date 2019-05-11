@@ -8,17 +8,24 @@ c      call headver('hmergewv',0)
       write(6,*) ' WV.d =', nprecx,mrecl,nblochpmx,nw,niw, nqnum
       allocate( zw(nblochpmx,nblochpmx) )
 c
-      ifWVRLIST =101
-      ifWVILIST =102
-      ifx    = 103
-      ifrcw  = iopen('WVR',0,-1,mrecl)
-      ifrcwi = iopen('WVI',0,-1,mrecl)
+      ifWVRLIST =ifile_handle()
+      ifWVILIST =ifile_handle()
+      ifx    = ifile_handle()
+c      ifrcw  = iopen('WVR',0,-1,mrecl)
+c      ifrcwi = iopen('WVI',0,-1,mrecl)
+      ifrcw  = ifile_handle()
+      ifrcwi  = ifile_handle()
+      open(ifrcw, file='WVR',form='unformatted',access='direct',recl=mrecl)
+      open(ifrcwi,file='WVI',form='unformatted',access='direct',recl=mrecl)
+
       open (ifWVRLIST, file ='WVRLIST')
       open (ifWVILIST, file ='WVILIST')
 c
       do
         read(ifWVRLIST,*,end=1012) filename,iqini, iqend
-        ifrcwin  = iopen(filename,0,-1,mrecl)
+c        ifrcwin  = iopen(filename,0,-1,mrecl)
+        ifrcwin  = ifile_handle()
+        open(ifrcwin, file=trim(filename),form='unformatted',access='direct',recl=mrecl)
         write(6,*) filename,' is merging into WVR ...'
         do iq = iqini,iqend
           do iw  = 1,nw
@@ -29,10 +36,11 @@ c
         close(ifrcwin,status='delete')
       enddo
  1012 continue
-
       do
         read(ifWVILIST,*,end=1013) filename, iqini, iqend
-        ifrcwiin  = iopen(filename,0,-1,mrecl)
+c        ifrcwiin  = iopen(filename,0,-1,mrecl)
+        ifrcwiin  = ifile_handle()
+        open(ifrcwiin,file=trim(filename),form='unformatted',access='direct',recl=mrecl)
         write(6,*) filename,' is merging into WVI ...'
         do iq  =  iqini,iqend
           do iw  = 1,niw
@@ -43,6 +51,5 @@ c
         close(ifrcwiin,status='delete')
       enddo
  1013 continue
-Cstop2rx 2013.08.09 kino      stop ' OK! mergewv WVI and WVR'
       call rx0( ' OK! mergewv WVI and WVR')
       end

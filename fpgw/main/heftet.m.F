@@ -107,7 +107,7 @@ c
       integer(4):: nwin,incwfin
       real(8)::ddq(3),bandgap
 
-      integer(4):: bzcase=1
+      integer(4):: bzcase=1,ifile_handle
       real(8):: tolq=1d-8
 
 c---------------------------------------
@@ -217,12 +217,15 @@ c--------------------
 c      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
 
 c>> read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
+c      ifhbed     = iopen('hbe.d',1,0,0)
+      ifhbed     = ifile_handle()
+      open(ifhbed,file='hbe.d')
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
 Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
-      isx = iclose('hbe.d')
-
+c      isx = iclose('hbe.d')
+      close(ifhbed)
+      
 C --- Locate band limits ---
 c$$$      if(legas) then
 c$$$        write(6,*)' efsimplef2: legas=T use given valn = ',valn
@@ -266,7 +269,7 @@ c            write(6,"(' qbz band=',3f9.4,' ',10f9.4)") qbz(:,iqi)+ddq,eband2(1:
      &               bot,top,bot,top,elo,ehi,bandgap)
         deallocate(bot,top)
 c
-        ifief=201
+        ifief=ifile_handle()
         open(ifief,file='EFERMI')
 c --- ef smering method with esmr
 c --- determine Fermi energy ef for given valn (legas case) or corresponding charge given by z and konf.
@@ -297,11 +300,11 @@ c           write(6,*)eband(:,is,iqi)
           enddo
         endif
       elseif(imode==2.or.imode==3.or.imode==4) then
-        ifief=201
+        ifief=ifile_handle()
         if(imode==2) open(ifief,file='EFERMI.check')
         if(imode==3) open(ifief,file='EFERMI.QP')
         if(imode==4) open(ifief,file='EFERMI.QPz=1')
-        iftote=202
+        iftote=ifile_handle()
         open(iftote,file='TOTE.UP')
         read(iftote,*) nq,ntq, efxx
         if(nq/= nqibz) call rx( ' heftet: nq TOTE/= nqibz')
@@ -397,7 +400,7 @@ c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
         bandgap=0d0
         write(ifief,"(2d23.15,a)") efermi,bandgap," ! This efermi bandgap are obtained by heftet"
       endif
-      close(201)
+      close(ifief)
 
 c- eband check
       if(imode/=1) then

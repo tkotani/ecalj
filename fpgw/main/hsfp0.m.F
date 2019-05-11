@@ -70,7 +70,7 @@ c     test switches to calculate the self-energy based on an another separation 
 c------------------------------------
       real(8):: esmr2,shtw
       integer::
-     &     ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
+     &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, !nband,
      &     ibas,ibasx,nxx,ifqpnt,ifwd, !ngpmx,ngcmx,nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
@@ -181,7 +181,7 @@ c      logical:: newaniso=.true.
       integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
       character(128) :: ixcc
 
-      integer:: nw !,ifief
+      integer:: nw,ifcoh !,ifief
       real(8)::dwdummy
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
@@ -192,7 +192,8 @@ C...  mode switch. --------------
       if(cohtest) then
         screen = .true.
         ixc = 2; nz=0
-        open(671,file='COH')
+        ifcoh=ifile_handle()
+        open(ifcoh,file='COH')
       elseif(MPI__root) then
         write(6,*) ' --- Choose omodes below ----------------'
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '
@@ -1166,10 +1167,10 @@ c
               qqex1(:,1:nnex,itpex,ipex)= qqex1 (:,ieord(1:nnex),itpex,ipex)
 
               filenameex = 'EXSP'//charnum3(ipex)//charnum3(itpex)//'.'//char(48+is)
-              ifexspx=4111
+              ifexspx=ifile_handle()
               open(ifexspx,file=filenameex)
               filenameex = 'EXSS'//charnum3(ipex)//charnum3(itpex)//'.'//char(48+is)
-              ifexspxx=4112
+              ifexspxx=ifile_handle()
               open(ifexspxx,file=filenameex)
               do i=1,nnex
                 write(ifexspx, "(2d14.6, i4, 3f14.6)")

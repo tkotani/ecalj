@@ -107,7 +107,7 @@ c$$$#endif
       integer(4),allocatable:: ipx(:,:)
 
       real(8):: bb1,bb1s,aa_in,bb_in
-      integer(4):: iread,nl2m1,nrofi_in
+      integer(4):: iread,nl2m1,nrofi_in,ifq0p,ifile_handle
 c-------------------------------------------
       print *,' basnfp_v2: ********** start ******** nrofi=',nrofi
       if(iread==1) goto 2001
@@ -339,8 +339,9 @@ c      lxx  = 4
 c q near zero test
 c This section is just to set nxxx and absqg2x(1:nxxx).
         write(6,*) '--- readin Q0P -------'
-        open (101,file='Q0P')
-        read (101,"(i5)") nq0i
+        ifq0p=ifile_handle()
+        open (ifq0p,file='Q0P')
+        read (ifq0p,"(i5)") nq0i
         allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),absqg2x(nq0i) )
 c     nq0ix = nq0i
         nzz = max(2,nq0i)
@@ -350,7 +351,7 @@ c     nq0ix = nq0i
           do i=1,nzz !nq0i
             ix=ix+1
             if(i<= nq0i) then
-              read (101, * ) wqt(i),q0i(1:3,i)
+              read (ifq0p, * ) wqt(i),q0i(1:3,i)
               absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !bug 30jan2005 ---q0i(q:3,nq0i)
             else
               absqg2x(ix) = absqg2x(1)*i*2
@@ -368,7 +369,7 @@ cccccccccccccccccccccc
         else
           ix=0
           do i=1,nq0i
-            read (101, * ) wqt(i),q0i(1:3,i)
+            read (ifq0p, * ) wqt(i),q0i(1:3,i)
             if(wqt(i)==0d0 ) then
               ix=ix+1
               absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,i))**2) !nq0i ---> q0i
@@ -380,7 +381,7 @@ cccccccccccccccccccccc
 c      neps = nq0i - nq0ix
         nxxx = ix
         deallocate(wqt,q0i)
-        close(101)
+        close(ifq0p)
 c      write(6,*)"----- read end of Q0P -----"
 ccccccccccccccccccccccc q near zero test end
 c     nxxx= 4
@@ -891,7 +892,7 @@ Cr2  ValMT.* is written with subroutine savemtval(ib,rho1,rofi,nr,nlml,nsp)
 Cr    in fp/locpot.f just befor locpt2 in lmto (lmf).
       if(ixx==8) then
         sqrtfpi = sqrt(fpi)
-        ifv = 6301
+        ifv = ifile_handle()
         ibas=ic
 
         if(valmt) then

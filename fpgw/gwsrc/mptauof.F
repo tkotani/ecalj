@@ -213,11 +213,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cnnn
       real(8):: alatx, plat(3,3)
       integer,parameter:: noutmx=48
-      integer:: iout,nout,nlatout(3,noutmx),iapw
+      integer:: iout,nout,nlatout(3,noutmx),iapw,ifile_handle
       real(8)::ppin(3)
       real(8):: rlatp(3,3),xmx2(3),tolq=1d-8
 
-      ifi = 6661
+      ifi = ifile_handle()
       open (ifi, file='LATTC')
       read(ifi,*) alatx
       read(ifi,*) plat(1:3,1)
@@ -293,7 +293,7 @@ c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
       deallocate(qbzl)
 !! -----------------------------------------------------------
 ccccccccccccccccccc
-      ifiese=9039
+      ifiese=ifile_handle()
       inquire(unit=ifiese,opened=nexist)
       if(nexist) stop 'eibzgen: I assumed ifio=9039 is not used(too sloppy) pwmode'
       open(ifiese,file='PWMODE')

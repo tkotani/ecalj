@@ -72,8 +72,9 @@ c----------------------------------
       subroutine readngmx(key,ngmx)
 c- get ngcmx or mgpmx
       implicit none
-      integer(4):: ngmx,ifiqg=4052
+      integer(4):: ngmx,ifile_handle,ifiqg
       character*(*) key
+      ifiqg=ifile_handle()
       if    (key=='QGpsi') then
         open(ifiqg, file='QGpsi',form='unformatted')
         read(ifiqg) nqnump, ngpmx, QpGcut_psi
@@ -166,14 +167,14 @@ c- get ngcmx or mgpmx
       integer(4), intent(in) :: ifi
       real(8), intent(in) :: ginv(3,3)
 
-      integer(4):: ifiqg,iq,verbose
+      integer(4):: ifiqg,iq,verbose,ifile_handle
       real(8)::qq(3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,ik
       integer,allocatable:: ieord(:),key(:,:)
       ginv_=ginv
       write(6,*)' init_readqg ifi=',ifi
-      ifiqg=4052
+      ifiqg=ifile_handle()
       if(ifi==1) then
         open(ifiqg, file='QGpsi',form='unformatted')
         read(ifiqg) nqnump, ngpmx, QpGcut_psi

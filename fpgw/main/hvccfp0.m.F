@@ -17,7 +17,7 @@ c
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
 
       implicit none
-      integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,
+      integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,if1011,if3011,
      &  nband, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,
      &  ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, iclose,
      &  nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg,
@@ -96,7 +96,7 @@ cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       logical:: is_mix0vec,wvcc !,newaniso
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
-      integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz
+      integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,ifile_handle
       character(128) :: ixcc
 !!------------------------------------------------------------
       call MPI__Initialize()
@@ -534,13 +534,14 @@ c      if(imode==101) allocate( vcoul_org(nblochpmx,nblochpmx) )
 
 C... q near zero
       write(6,*) '--- readin Q0P -------'
-      open (101,file='Q0P')
-      read (101,*) nq0i,idummy,nq0iadd
+      ifq0p=ifile_handle()
+      open (ifq0p,file='Q0P')
+      read (ifq0p,*) nq0i,idummy,nq0iadd
       if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
       allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
-      read (101,*)( wqt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
+      read (ifq0p,*)( wqt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
       write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
-      close(101)
+      close(ifq0p)
       write(6,*) ' *** goto do iq nqibz+nq0iadd nq0i=',nqibz,nq0i+nq0iadd
 
 C --- Check PARALELL.X0
@@ -625,23 +626,18 @@ C... Check write for radial part of the product basis
         if(.false.) then
           do ibas= 1,1 !1,nbas
             do l   =  0,lx(ibas)
-              open(1011,file='ProdOld_ibas'//charnum3(ibas)//'_l'//charnum3(l))
-c         open(2011,file='ProdNew_ibas'//charnum3(ibas)//'_l'//charnum3(l))
+              if1011=ifile_handle()
+              open(if1011,file='ProdOld_ibas'//charnum3(ibas)//'_l'//charnum3(l))
               nxdim = nx(l,ibas)
               do ix=1,nxdim
-                write(1011,"(' -- -- -- ',3i3,' --- ' )") ix,l,ibas
-c         write(2011,"(' -- -- -- ',3i3,' --- ' )") ix,l,ibas
+                write(if1011,"(' -- -- -- ',3i3,' --- ' )") ix,l,ibas
                 do ir =1,nr(ibas)
-                  write(1011,"(d13.5,2x,2d18.8)")   
+                  write(if1011,"(d13.5,2x,2d18.8)")   
      &   rofi(ir,ibas), rprodx(ir,ix,l,ibas) 
      &   , rprodx(ir,ix,l,ibas) /rofi(ir,ibas)
-c         write(2011,"(d13.5,2x,2d18.8)")
-c     &   rofi(ir,ibas), sum(rprodx(ir,1:nxdim,l,ibas)*rdmatch(1:nxdim,ix,l,ibas))
-c     &   , sum(rprodx(ir,1:nxdim,l,ibas)*rdmatch(1:nxdim,ix,l,ibas))/rofi(ir,ibas)
                 enddo
               enddo
-              close(1011)
-c         close(2011)
+              close(if1011)
             enddo
           enddo
 c       stop 'text end'
@@ -988,7 +984,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ccccccccccccccccccccccccccc
           if(.false.) then
-            open(3011,file='oontest'//charnum5(iqx))
+            open(if3011,file='oontest'//charnum5(iqx))
             do ix=nbln+1,nn
               igc=ix-nbln
               qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
@@ -997,15 +993,15 @@ c           absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,nq0i))**2)
               do iy=nbln+ 1,nn
                 igc2=iy-nbln
                 if(ix==iy) then
-                  write(3011,"('on : ',2i8,3i3,2x,3i3,f13.5,3x,2f20.10)")
+                  write(if3011,"('on : ',2i8,3i3,2x,3i3,f13.5,3x,2f20.10)")
      &       ix,iy, ngvecc(1:3,igc),ngvecc(1:3,igc2),absqq, oon(ix,iy)
                 else
-                  write(3011,"('off:', 2i8,3i3, 2f20.10)")ix,iy,
+                  write(if3011,"('off:', 2i8,3i3, 2f20.10)")ix,iy,
      &       ngvecc(1:3,igc)-ngvecc(1:3,igc2),  oon(ix,iy)
                 endif
               enddo
             enddo
-            close(3011)
+            close(if3011)
           endif
 ccccccccccccccccccccccccccccccc
 

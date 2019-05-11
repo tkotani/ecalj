@@ -152,7 +152,8 @@ c------------------------------------------------------------------------
         hartreeinv=.5d0/rydberg()
         print *," EGAS mode eshift?"
         read(5,*) eshift0
-        open(1111,file='egas.rlt')
+        ifegas=ifile_handle()
+        open(ifegas,file='egas.rlt')
         eshift0 = eshift0/rydberginv
         print *,' deltaw=',deltaw
         print *,' alat  =',alat
@@ -168,14 +169,14 @@ c
             zinv1= 1d0-hartreeinv*(rsec(3,it,iq) - rsec(1,it,iq))/2d0/deltaw
             zinv2=    -hartreeinv*(csec(3,it,iq) - csec(1,it,iq))/2d0/deltaw
 
-            write (1111,6110) tpia*sqrt(sum(q(1:3,it,iq)**2)/ef)
+            write (ifegas,6110) tpia*sqrt(sum(q(1:3,it,iq)**2)/ef)
      &    ,q(1:3,it,iq),itq(it),
      &    rydberginv*sm1,rydberginv*sm2,zinv1,zinv2,
      &    rydberginv/dcmplx(zinv1,zinv2)*dcmplx(sm1,sm2)
  6110       format (f10.5,2x,
      &     3f9.5,1x,i2,'  M=',2f12.5'  Zinv=',2f12.5,'  E=',2f12.5)
           end do
-          write (1111,*)
+          write (ifegas,*)
         end do
       endif
 c------------------------------------------------------------------------

@@ -37,7 +37,9 @@ c---------------------------------
 
       inquire(file='TOTE2',exist=allb) !if allb=F, we only plot LDA ones.
       if(allb) then
-        iftote = iopenxx('TOTE2')
+c        iftote = iopenxx('TOTE2')
+         iftote=ifile_handle()
+         open(iftote,'TOTE2')
       else
         nq=0
         ntq=0

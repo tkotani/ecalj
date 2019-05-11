@@ -35,7 +35,7 @@ c The main part of this routine is in the subroutine basnfp_v2
       integer(4)::incwfin,ret
       integer(4),allocatable:: idid(:)
       logical :: checkdid ,anfexist
-      integer(4):: iread, idummy
+      integer(4):: iread, idummy,ifile_handle
 c--------------------------------------------------------------------------
       ifinin=-99999 !dummy
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
@@ -79,10 +79,13 @@ c      call headver('hbasfp0',ix)
 
 !! read data in m_rgwinf_v3
 !! Output are allocated and data are setted as above.
-      iflmto = iopen('LMTO',1,0,0)
+c     iflmto = iopen('LMTO',1,0,0)
+      iflmto=ifile_handle()
+      open(iflmto,file='LMTO')
       if (iflmto <= 0) call rx( 'unit file for LMTO <= 0')
       call rgwinf_v3 (iflmto,ifinin,incwfin) ! readin inputs. See use use m_rgwinf_v3,only: ... at the begining.
-      iflmto= iclose('LMTO')
+c      iflmto= iclose('LMTO')
+      close(iflmto)
       nsp=nspin
       write(6,*)'end of rgwinf'
 !! readin lcutmxa ------------
@@ -139,7 +142,9 @@ c> reindex nocc,nunocc,nindx
 c-----------
 c read PHIVC  and reserve it to phitot
 c----------
-      ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
+c      ifphi  = iopen('PHIVC', 0,-1,0)     ! PHIV+PHIC augmentation wave and core
+      ifphi=ifile_handle()
+      open(ifphi,file='PHIVC',form='unformatted')
       read(ifphi) nbas, nradmx, ncoremx
       allocate(  ncindx(ncoremx,nbas),
      &           lcindx(ncoremx,nbas),
@@ -182,11 +187,14 @@ c----------
           enddo
         enddo
       enddo
+      close(ifphi)
 c-----------
 
 !! check write
       ffaln ='PHIV.chk'
-      ifaln = iopen(ffaln,1,-1,0)
+      ifaln = ifile_handle()
+      open(ifaln,file=trim(ffaln))
+c      ifaln = iopen(ffaln,1,-1,0)
       do ibas = 1,nbas
         ic = ibas
         do irad = 1, nrad(ic)
@@ -198,8 +206,8 @@ c-----------
           enddo
         enddo
       enddo
-      ifaln = iclose(ffaln)
-
+c      ifaln = iclose(ffaln)
+      close(ifaln)
 !!  excore mode ---------
       if(ix==5 ) then
         call excore(nrx,nl,nnc,nclass,nsp,natom,

@@ -28,7 +28,7 @@ c     o   iilv,iinv,iimv,iilnmv,inlnmv,
 c     o   iilc,iinc,iimc,iilnmc,inlnmc,
 c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,  
-     &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband, !iopen,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -102,7 +102,7 @@ c      common /w/ w(iwksize)
       real(8) :: ex,eee_dummy,exwgt_dummy,eee,exwgt,wfac,wfacx
       logical :: exsptest
 
-      integer(4):: incwfin,ret
+      integer(4):: incwfin,ret,ifile_handle
       real(8)::ef
 c      logical:: readgwinput
 
@@ -218,8 +218,11 @@ c      voltot = dabs(vol)*(alat**3)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 
 c>> read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
+c      ifhbed     = iopen('hbe.d',1,0,0)
+      ifhbed=ifile_handle()
+      open(ifhbed,file='hbe.d')
       read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
+      close(ifhbed)
 Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 
@@ -297,11 +300,11 @@ c -------------------
           do itpex=1,ntq
             filenameex = 'EXSS'//charnum3(ipex)//charnum3(itpex)
      &    //'.'//char(48+is)
-            ifexspxx =4112
+            ifexspxx =ifile_handle()
             open(ifexspxx, file=filenameex)
             filenameex='EXWT'//charnum3(ipex)//charnum3(itpex)
      &    //'.'//char(48+is)
-            ifexspxxw=4113
+            ifexspxxw=ifile_handle()
             open(ifexspxxw,file=filenameex)
             ex=0d0
             do

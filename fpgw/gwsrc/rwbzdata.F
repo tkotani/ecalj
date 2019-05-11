@@ -19,10 +19,10 @@ c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
 !! No input except BZDATA file.
 !! After you call this, you can access Brillowin Zone datas above ----
       implicit none
-      integer(4):: intq(3),iqbz,ifbz,n,verbose !, nqibz_r
+      integer :: intq(3),iqbz,ifbz,n,verbose,ifile_handle !, nqibz_r
 c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
       real(8) :: qout(3)
-      ifbz = 6661
+      ifbz = ifile_handle()
       write(6,*)' ### readin BZDATA ###'
 c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       allocate(qbas(3,3),ginv(3,3),dq_(3)) !,qbasmc(3,3)

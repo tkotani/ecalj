@@ -89,7 +89,7 @@ c-----------------------------------------------------------------------
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
       real(8)::a,b,zz, efdummy,dw,diw
-      integer:: nwdummy
+      integer:: nwdummy,ifile_handle
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
       iflmto     = iopen('LMTO',1,0,0)
@@ -308,7 +308,7 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
         call rx( " Not: UseSYMOPSfile in LMTO file")
       endif
       write(6,*) ' symgrp==UseSYMOPSfile'
-      ifi = 6661
+      ifi = ifile_handle()
       open (ifi, file='SYMOPS')
       read(ifi,*) ngrp
       allocate(symgg(3,3,ngrp))
