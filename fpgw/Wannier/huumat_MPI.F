@@ -124,7 +124,7 @@ ctm
       integer(4) :: iqindx
 ctm, ixc=5
       integer(4) :: nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax,
-     &        nmin,nmax,iq2,ntmp
+     &        nmin,nmax,iq2,ntmp,if99,ifile_handle
       real(8) :: emin,emax,rydberg
       real(8),allocatable :: qbandx(:,:),qband(:,:),eband(:)
       logical:: lbnds
@@ -238,9 +238,10 @@ c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(i
       inquire(file='BNDS',exist=lbnds)      
       if (lbnds) then
         write(*,*)'Read EF from BNDS'
-        open(99,file='BNDS',status='old')
-        read(99,*)ntmp,ef
-        close(99)
+        if99=ifile_handle()
+        open(if99,file='BNDS',status='old')
+        read(if99,*)ntmp,ef
+        close(if99)
       else ! lbnds 
         call RSMPI_Stop( ' huumat_MPI: Cannot find BNDS')
       endif ! lbnds  

@@ -25,9 +25,9 @@ c
 ccccccccccccccccccccccccccccccccccccc
       subroutine read_DATA4GW()
       implicit none
-      integer :: ifi
+      integer :: ifi,ifile_handle
       write(6,*) '# --- read_DATA4GW ---'
-      ifi = 1000
+      ifi = ifile_handle()
       open(ifi,file='DATA4GW_V2',form='unformatted',status='old',
      &     action='read')
 c from gwinput0_v2

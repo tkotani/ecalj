@@ -3,14 +3,14 @@ c-------------------------------------------------------------
 c Gather datas from files and write final output.
 c------------------------------------------------------------
       implicit none
-      integer(4) :: ifx,ierr
+      integer(4) :: ifx,ierr,ifile_handle
       real(8) :: rydberg,eks, rhoexc, rhoexc2, exc_lda,exc_lda2,
      &    alat,etot,ex, exxcc, exxcv, exxvv, ecorr, ex_lda, ec_lda
       call getexx('TEEXXcc',exxcc,ierr)
       call getexx('TEEXXcv',exxcv,ierr)
       call getexx('TEEXXvv',exxvv,ierr)
       call getexx('TEECORR',ecorr,ierr)
-      ifx = 101
+      ifx = ifile_handle()
       open(ifx,file='LATTC')
       read(ifx,*)alat
       close(ifx)
@@ -47,7 +47,7 @@ c------------------------------------
       subroutine getexx(tefil,exx,ierr)
       character*(*) tefil
       real(8)::exx
-      ifx = 101
+      ifx = ifile_handle()
       open(ifx,file=tefil)
       call readxx3(ifx,ierr)
       read (ifx,*) exx

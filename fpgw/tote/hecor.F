@@ -129,7 +129,7 @@ ctm 010705
       integer(4),allocatable:: ngvecc(:,:)
 
 
-      integer(4):: iqindx,iqbz, irecwq,ngrp1
+      integer(4):: iqindx,iqbz, irecwq,ngrp1,if102,ifile_handle
       integer(4),allocatable:: nstibz(:)
       real(8):: erpaq, trpvq, trlogq !accumlating variable
       real(8):: erpaqw, trpvqw, trlogqw,  ef
@@ -252,7 +252,7 @@ c--- ef is taken as rs for the empty-sphere test case of legas=T case ----
       INQUIRE (FILE = 'LEGAS', EXIST = legas)
       if(legas) then !!! test for electron gas case.
         print *,' find LEGAS. legas =',legas
-        iflegas = 2101
+        iflegas = ifile_handle()
         open (iflegas,file='LEGAS')
         read(iflegas,*)rs
         close(iflegas)
@@ -284,16 +284,17 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single preci
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
-c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      open (102,file='CLASS')
+c     because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
+      if102=ifile_handle()
+      open (if102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       print *,'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-        read(102,*) ibasx, iclasst(ibas)
+        read(if102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
-
+      close(if102)
 c Get space-group transformation information. See header of mptaouof.
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
      o              ,miat,tiat,invgx,shtvg )

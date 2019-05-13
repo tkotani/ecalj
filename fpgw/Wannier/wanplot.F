@@ -51,7 +51,7 @@ c      use m_wfrho_abc
       integer:: i_rini(3),i_rfin(3)
       integer :: npw(3),mesh(3),mesh0(3),mesh1(3),meshrange(2,3)
       integer :: iq,ib,  ngpmx
-      integer:: i,id,j,ifi,iqbz2
+      integer:: i,id,j,ifi,iqbz2,ifile_handle
       integer :: isp,iqbz,ikp,iwf,nprecb,mrecb,mrece,nlmtot,nqbzt, mrecg,ifhbed,iopen,nband
       real(8):: r_rini0(3),r_rfin0(3),ang,alat_ang
       real(8):: r_rini(3), r_rfin(3),r
@@ -74,7 +74,7 @@ c      use m_wfrho_abc
       call set_mnla()
       call minv33tp (plat,qlat)  !inverse and transpose
       do isp=1,nsp
-         ifi = 1000
+         ifi = ifile_handle()
          if (isp.eq.1) fname='MLWU'
          if (isp.eq.2) fname='MLWD'
          open(ifi,file=fname,form='unformatted',status='old', action='read')

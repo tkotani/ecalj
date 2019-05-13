@@ -13,11 +13,11 @@ cccccccccccccccccccccccccccccccccccccccccccc
       subroutine read_QG()
       implicit none
       integer :: ikp
-      integer :: ifiqg,ifiqgc
+      integer :: ifiqg,ifiqgc,ifile_handle
 
       write(6,*) '--- read_QG ---'
-      ifiqg  = 101
-      ifiqgc = 102
+      ifiqg  = ifile_handle()
+      ifiqgc = ifile_handle()
 
       open(ifiqg ,file='QGpsi',form='unformatted')
       open(ifiqgc,file='QGcou',form='unformatted')

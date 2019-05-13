@@ -11,11 +11,11 @@ c input
      &     phitot(mesh(1)+1,mesh(2)+1,mesh(3)+1,nband_wfn,nq_wfn,nsp)
 
 c local
-      integer :: isp,iq,ib,iband,ifile,i1,i2,i3
+      integer :: isp,iq,ib,iband,ifile,i1,i2,i3,ifile_handle
       double precision :: rtmp(3),r(3)
       character*(23) :: fn
 
-      ifile=100
+      ifile=ifile_handle()
       do isp=1,nsp
       do iq=1,nq_wfn
       do ib=1,nband_wfn

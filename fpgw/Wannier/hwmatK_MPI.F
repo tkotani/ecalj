@@ -190,7 +190,7 @@ c      logical :: sergeys
       real(8)::sumimg
       logical allq0i                                             !S.F.Jan06
 
-      integer(4):: nw_i
+      integer(4):: nw_i,ifile_handle,if102,if3111,if101
 
       logical:: latomic,lfull,lstatic,lwssc
       logical:: l1d,lll
@@ -429,17 +429,19 @@ c>> read dimensions of wc,b,hb
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
-c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      open (102,file='CLASS')
+c     because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
+      if102=ifile_handle()
+      open (if102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       if (Is_IO_Root_RSMPI())
      & write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-        read(102,*) ibasx, iclasst(ibas)
+        read(if102,*) ibasx, iclasst(ibas)
         if (Is_IO_Root_RSMPI())
      &   write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
+      close(if102)
 
 c Get space-group transformation information. See header of mptaouof.
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
@@ -547,15 +549,16 @@ c        read(3111,*)nwxx             !number of energy points
 c        if(nwxx/=nw) stop ' freq_r nw /=nw'
 c        allocate(freq_r(nw))       !freq_r(1)=0d0
 c        read(3111,*)freq_r
-c        close(3111)
-        open(UNIT=3111,file='freq_r') !this is in a.u.
-        read(3111,*)nwxx             !number of energy points
+c     close(3111)
+        if3111=ifile_handle()
+        open(if3111,file='freq_r') !this is in a.u.
+        read(if3111,*)nwxx             !number of energy points
         if(nwxx/= nw+1) stop ' freq_r nw /=nw'
         allocate(freq_r(nw_i:nw))       !freq_r(1)=0d0
         do iw = nw_i,nw
-        read(3111,*)freq_r(iw)
+        read(if3111,*)freq_r(iw)
         enddo
-        close(3111)
+        close(if3111)
 
       else 
        ifvcfpout = iopen('VCCFP',0,-1,0) 
@@ -752,8 +755,9 @@ ctm, 070814
 
 c ---  q near zero
       write(6,*) 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      if101=ifile_handle()
+      open (if101,file='Q0P')
+      read (if101,"(i5)") nq0i
       if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       if (Is_IO_Root_RSMPI())
      & write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
@@ -762,7 +766,7 @@ c ---  q near zero
 c      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       nq0ix = nq0i
       do i=1,nq0i
-      read (101,* ) wqt(i),q0i(1:3,i)
+      read (if101,* ) wqt(i),q0i(1:3,i)
       if(wqt(i)==0d0 ) nq0ix = i-1
       enddo
       nq0i = nq0ix ! New nq0i July 2001
@@ -770,7 +774,7 @@ c      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       endif
-      close(101)
+      close(if101)
       allocate( wgt0(nq0i,ngrp) )
 C Sergey's 1stFeb2005
 c      call q0iwgt2(symgg,ngrp,wqt,q0i,nq0i, 
@@ -1223,7 +1227,7 @@ c        write(*,*) rw_w(:,:,:,:,:,0)
 c        write(*,*) cw_w(:,:,:,:,:,0)
 
       write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
-      ifscr = 9991
+      ifscr = ifile_handle()
 
       if ((is==1) .and. (lcrpa .eqv. .false.)) then
         open(ifscr,file="Screening_W-v.UP")
@@ -1299,7 +1303,7 @@ c-----------------------------------------------------------------------
 
 
       write(*,*)'Coulomb interaction (v) : '
-      ifcou = 999
+      ifcou = ifile_handle()
       if (is==1) then
         open(ifcou,file="Coulomb_v.UP")
       else if (is==2) then
@@ -1327,11 +1331,11 @@ c-----------------------------------------------------------------------
       subroutine chkrot (ngrp)
 
       implicit real*8(a-h,o-z)
-
+      integer:: ifile_handle
       parameter (eps = 1d-6)
       real(8) :: symope(3,3,ngrp)
 
-      ifi = 441
+      ifi = ifile_handle()
       open(ifi,file='SYMOPS')
       read(ifi,*)ngrp2
       if (ngrp .ne. ngrp2) stop 'chkrot: ngrp error'

@@ -46,7 +46,7 @@ c
 c      real(8) :: efp,efm,wwgo,wfacef
       logical :: legas,autoew ,GaussSmear=.true. !is external
 
-      integer(4):: nqbz
+      integer(4):: nqbz,if8301,if8302,ifile_handle
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
 
@@ -121,8 +121,10 @@ c
 
 c RS: only ioroot opens these files
       if (Is_IO_Root_RSMPI()) then
-        open(8301,file = "DOSACC.lda")
-        open(8302,file = "DOSACC2.lda")
+        if8301=ifile_handle()
+        if8302=ifile_handle()
+        open(if8301,file = "DOSACC.lda")
+        open(if8302,file = "DOSACC2.lda")
       endif
 
       wwg = 0d0
@@ -136,7 +138,7 @@ c---
         if(eee2 +1d-4< ektx(ieaord(ik)).or.ik==nne ) then    
 ! degeneracy check 
           if((ik/=1).and.Is_IO_Root_RSMPI()) then
-            write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+            write(if8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
           endif
           wwg2 = wgtx(ieaord(ik))
           eee2 = ektx(ieaord(ik))
@@ -151,7 +153,7 @@ c        if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
           write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
         endif
 c
-        if (Is_IO_Root_RSMPI()) write(8301,"(2i6,3d23.15)")
+        if (Is_IO_Root_RSMPI()) write(if8301,"(2i6,3d23.15)")
      &       ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
 c
         if( wwg>valn-1d-8.and.ierr==1 ) then
@@ -205,10 +207,10 @@ ccc gaussian
       ef = 0.5d0*(ew1+ew2)
 c
  8891 if (Is_IO_Root_RSMPI()) then
-        write(8301,*) " ef=",ef
-        close(8301)
-        write(8302,*) " ef=",ef
-        close(8302)
+        write(if8301,*) " ef=",ef
+        close(if8301)
+        write(if8302,*) " ef=",ef
+        close(if8302)
       endif
 c      write(6,*)' esmr        =',esmr
 c      write(6,*)' determined ef =',ef

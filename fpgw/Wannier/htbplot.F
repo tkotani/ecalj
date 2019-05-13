@@ -31,7 +31,7 @@ c      use keyvalue
       integer, allocatable:: 
      &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:),iposwf(:)
       real(8):: rydberg=13.6058d0, alat,ef,plat(3,3),rcut,rcuta
-      integer:: ifile_handle,iband,ifh,n1,n2,n3,natom,i,iq,j,nq,nwf,is
+      integer:: ifile_handle,iband,ifh,n1,n2,n3,natom,i,iq,j,nq,nwf,is,if99
 c---------------------------------------
 c      hartree=2d0*rydberg()
 c      iii=verbose()
@@ -46,10 +46,11 @@ c      voltot = dabs(vol)*(alat**3)
       rcut=rcuta/0.529177
 !! QPNT data, 
       write(*,*)'---Read k points for bands from SYML ---'
-      open(99,file='SYML',status='old') !symmetry line
+      if99=ifile_handle()
+      open(if99,file='SYML',status='old') !symmetry line
       nline=0
       do i = 1,nlinex
-        read(99,*,err=551,end=552)npin,qiin,qfin
+        read(if99,*,err=551,end=552)npin,qiin,qfin
         if (npin==0) exit
         nline = nline+1
         np(nline)=npin
@@ -59,7 +60,7 @@ c      voltot = dabs(vol)*(alat**3)
       enddo
  552  continue
       if (nline>nlinex) stop 'hmaxloc: too many lines in SYML'
-      close(99)
+      close(if99)
       nq = 0
       do i = 1,nline
         nq = nq + np(i)

@@ -19,7 +19,7 @@
       integer,intent(in) :: natom,nclass,iclass(natom)
       double precision,intent(in) :: apos(3,natom),zz(nclass)
       character(200):: filename
-      integer:: ifile=150
+      integer:: ifile,ifile_handle
       integer :: isp,iq,ib,iband,i1,i2,i3,natomall
       double precision :: rtmp(3),r(3)
       double precision,parameter:: zero=0.0d0 
@@ -43,9 +43,11 @@ c      enddo
      o     natomall )      
       write(filename,'(a,a)')  basename(:len_trim(basename)), '.xsf'
       write(*,*) 'open ',filename
+      ifile=ifile_handle()
       open(ifile,file=filename,status='unknown')
       write(ifile,'(a)') '# wavefunction'
       write(ifile,'(a)') 'PRIMVEC'
+      close(ifile)
       do i1=1,3 
         write(ifile,'(3f20.10)') plat(:,i1)*alat
       enddo 

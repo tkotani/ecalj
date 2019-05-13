@@ -11,11 +11,11 @@ c input
      &     phitot(mesh(1)+1,mesh(2)+1,mesh(3)+1,nband_wfn,nq_wfn,nsp)
 
 c local
-      integer :: isp,iq,ib,iband,ifile,i1,i2,i3
+      integer :: isp,iq,ib,iband,ifile,i1,i2,i3,ifile_handle
       double precision :: rtmp(3),r(3)
       character*(23) :: fn
 
-      ifile=100
+      ifile=ifile_handle()
       do isp=1,nsp
       do iq=1,nq_wfn
       do ib=1,nband_wfn
@@ -103,9 +103,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       double precision,intent(in) :: alat,plat(3,3)
       character*(*) :: fn
 c local
-      integer :: ifile,i1,i2,i3
+      integer :: ifile,i1,i2,i3,ifile_handle
       double precision :: v1(3),v2(3)
-      ifile=1000
+      ifile=ifile_handle()
       open(ifile,file=fn)
       write(ifile,"(a)") 'header = marker "DATA\n"'
       write(ifile,"(a)") 'grid = 2 x 2 x 2'
@@ -141,12 +141,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       integer,intent(in) :: natom,nrange(3)
       character*(*) :: fn
 c local
-      integer :: natomall
+      integer :: natomall,ifile_handle
       integer :: ifile,i,i1,i2,i3
       double precision :: v1(3),v2(3)
 
       natomall=natom*(2*nrange(1)+1)*(2*nrange(2)+1)*(2*nrange(3)+1)
-      ifile=1000
+      ifile=ifile_handle()
       open(ifile,file=fn)
       write(ifile,"(a)") 'header = marker "DATA\n"'
       write(ifile,"(a,i6)") 'points = ', natomall
@@ -185,6 +185,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccc
       integer,intent(in) :: natom,nrange(3)
       character*(*) :: fn
 c local
+      integer:: ifile_handle
       integer :: natomall,natomx
       integer :: ifile,i,i1,i2,i3
       double precision :: v1(3),v2(3),aini(3),afin(3),eps
@@ -220,7 +221,7 @@ c local
         enddo
       enddo
 
-      ifile=1000
+      ifile=ifile_handle()
       open(ifile,file=fn)
       write(ifile,*)natomall
       write(ifile,*)
@@ -234,13 +235,14 @@ c local
 cccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine dump_box_2(alat,rini,rfin,plat,fn)
       implicit none
+      integer:: ifile_handle
       double precision,intent(in) :: alat,plat(3,3),rini(3),rfin(3)
       double precision :: eps
       character*(*) :: fn
 c local
       integer :: ifile,i1,i2,i3
       double precision :: v1(3),v2(3)
-      ifile=1000
+      ifile=ifile_handle()
       open(ifile,file=fn)
       write(ifile,"(a)") 'header = marker "DATA\n"'
       write(ifile,"(a)") 'grid = 2 x 2 x 2'

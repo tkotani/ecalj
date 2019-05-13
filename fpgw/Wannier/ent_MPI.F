@@ -340,7 +340,7 @@ c-----------------------------------------------------------------------
 
         nlinemax = 50
         allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
-        ifsyml = 3001
+        ifsyml = ifile_handle() !3001
         open(ifsyml,file='SYML')
         nline = 0
         do 

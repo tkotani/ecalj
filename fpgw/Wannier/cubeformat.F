@@ -21,15 +21,15 @@ c input
       double precision,intent(in) :: apos(3,natom),zz(nclass)
 
       character(200):: filename
-      integer:: ifile=150
+      integer:: ifile !150
 
       integer :: isp,iq,ib,iband,i1,i2,i3,natomall
       double precision :: rtmp(3),r(3)
       double precision,parameter:: zero=0.0d0 
 
       double precision :: Z(natom)
-      integer:: ic,ia,nrange(3),idim, iimg
-
+      integer:: ic,ia,nrange(3),idim, iimg,ifile_handle
+      ifile=ifile_handle()
 
       do ia=1,natom
         ic=iclass(ia)
