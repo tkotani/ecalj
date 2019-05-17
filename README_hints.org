@@ -123,6 +123,37 @@ This gives rmsdel. Diffence of self-energy
 
 
 
+* How to make 80%QSGW +20% LDA, with SO added?
+  For practical prediction of band structure, such as band gap and so
+  on, it may be better to use 80% QSGW +20% LDA procedure when you
+  make band plot. Run it with
+  >job_band gaas -np 4 -vssig=0.80 
+  Then you will have 80%QSGW+20%LDA with SO=1 (L.S method).
+
+  If you like to include L.S method 
+  >job_band gaas -np 4 -vssig=0.80 -vso=1 -vnspin=2
+  (nspin=2 is required for so=1)
+ 
+  (See TableII of QSGW80(NoSC)+SO in 
+  https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf)
+  Check band gap, and SO splitting at top of valence of Gamma point for
+  ZB structure as GaAs.
+
+  Before run it, make sure your ctrl file include variables ssig, so,
+  nspin by   
+  >grep ssig ctrl.gaas
+  >grep so   ctrl.gaas
+  >grep nspin ctrl.gaas
+  to know the variable ssigm is defined and used as
+  ScaledSigma={ssig}, NSPIN={nspin}.
+  For -vso=1 work, you also need to so is defined and SO={so} is set.
+  
+  Another posibility is run
+  mpirun -np 24 lmf-MPIK gaas -vssig=.80 -vso=1 -vnspin=2
+  until converged and then do
+  >job_band gaas -np 4 -vssig=0.80 -vso=1 -vnspin=2
+  (self-consistency with keeping sigm file
+
 * NOTE
  In ctrl file, we use default PWMODE=11 (2019may),
  But t.kotani will change it to PWMODE=1, 
