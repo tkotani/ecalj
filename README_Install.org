@@ -1,8 +1,8 @@
-Installation NOTE (Easy to read by org mode in emacs).
+Installation NOTE (Easy to read this file by org mode in emacs).
 
-Follow these steps. 
- (0) Get ecalj package and get tools required.  
- (1) Make single-core LDA part. Make k-paralell LDA part. Make for GW part. Set crystal structure tools.
+To install, follow these steps. 
+ (0) Get ecalj package and some required softwares.
+ (1) Make single-core LDA part, k-paralell LDA part, GW part. Then set crystal structure tools.
  (2) Install test.
 
 However, you can do steps (1)-(2) just by a command, 
