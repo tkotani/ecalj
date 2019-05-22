@@ -121,7 +121,7 @@ c---
         if(eee2 +1d-4< ektx(ieaord(ik)).or.ik==nne ) then
 ! degeneracy check
           if (mpi__root) then 
-            if(ik/=1) write(8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
+            if(ik/=1) write(if8302,"(2i6,2d23.15)") ikini,ik-1,eee2,wwg2
           endif 
           wwg2 = wgtx(ieaord(ik))
           eee2 = ektx(ieaord(ik))
@@ -189,10 +189,10 @@ ccc gaussian
 c
  8891 continue 
       if (mpi__root) then 
-        write(8301,*) " ef=",ef
-        close(8301)
-        write(8302,*) " ef=",ef
-        close(8302)
+        write(if8301,*) " ef=",ef
+        close(if8301)
+        write(if8302,*) " ef=",ef
+        close(if8302)
       endif 
 
 c      write(6,*)' esmr        =',esmr
