@@ -1,19 +1,25 @@
-Installation NOTE (Easy to read this file by org mode in emacs).
+#+TITLE: install ecalj
+#+Author: takao kotani
+#+email: takaokotani@gmail.com
+* How to install 
 
-To install, follow these steps. 
- (0) Get ecalj package and some required softwares.
- (1) Make single-core LDA part, k-paralell LDA part, GW part. Then set crystal structure tools.
- (2) Install test.
-
-However, you can do steps (1)-(2) just by a command, 
-$InstallAll.foobar 
+To install, you have to do these steps. 
+ 1. Get ecalj package and some required softwares.
+ 2. Make single-core LDA(one-body) part, k-paralell LDA(one-body) part, and the GW part. 
+ 3. Install test.
+ 4. Install crystal structure tools. Viewer, converter, BZ and symmetry line generators. These are at ecalj/StructureTool and eecalj/GetSyml.
+However, you can perform steps 2 and 3 just by a command. That is
+#+begin_src
+InstallAll.foobar 
+#+end_src
 at ecalj/.
 When installation procedure have finished, we have all required binaries and
 shell scripts in your ~/bin/ directory, or somewhere else where BINDIR 
 specified in InstallAll.foobar. 
 Watch InstallAll.foobar show no serious errors. 
 As long as all binaries generated, things fine.
-But, when you do version up, be careful ---if error occurs, you may still use old versions.
+But, when you do version up, be careful ---if error occurs, you may still use old versions,
+because the installer may not stop even when linker causes errors.
 
 In the following explanation, we assume gfortran in ubuntu.
 But we can also use ifort and others in your environment with
@@ -21,113 +27,76 @@ minimum changes in makefiles.
 Let me have your InstallAll.foobar; it is very helpful for us.
 For small systems such as Si and GaAs, 
 we can use even Ubuntu + gfortran + note PC to observe how QSGW works.
+Usually, I expect that you can get QSGW band structure of GaAs in half of a day.
 
-* (0) Get ecalj package and get tools.
---- Let us assume you use ubuntu. ---
+** Get ecalj package and get tools.
 You need following tools and libraries to be installed.  
->sudo apt-get install git  #version control and to get source from github  
->sudo apt-get install gitk #git gui.   
->sudo apt-get install gfortran      # GFORTRAN  
->sudo apt-get install openmpi-bin libopenmpi-dev #  or openmpi-dev ?
->sudo apt-get install libfftw3-3     or something else # FFTW  
->sudo apt-get install libblas3gf     or something else # BLAS  
->sudo apt-get install liblapack3gf   or something else  # LAPACK  
->sudo apt-get install csh bash tcsh gawk  # shells  
-
-memo: I think etags is automatically installed when you install 
-      emacs in the latest ubuntu. etags is essentially needed only for developers.
-
-Note that python 2.x is also assumed 
-(usually already in ubuntu. Type \>python (ctrl+D for quit)).
-Version ctrl is by git (which makes things easier, but not
-necessarily required for installation).
+It dependes on systems. Here is a case of ubuntu.
+#+begin_src bash
+ sudo apt-get install git  #version control and to get source from github  
+ sudo apt-get install gitk #git gui if you like. >gitk --all is convenient to observe git branch.   
+ sudo apt-get install gfortran      # GFORTRAN  
+ sudo apt-get install openmpi-bin libopenmpi-dev #  or openmpi-dev ?
+ sudo apt-get install libfftw3-3     or something else # FFTW  
+ sudo apt-get install libblas3gf     or something else # BLAS  
+ sudo apt-get install liblapack3gf   or something else  # LAPACK  
+ sudo apt-get install csh bash tcsh gawk  # shells  
+#+end_src
+Some memos here.
++ I think etags is automatically installed when you install emacs in the latest ubuntu. etags is only for developers.
++ Note that python 2.x is also assumed (usually already in ubuntu. Type \>python (ctrl+D for quit)).
++ Version ctrl, git, which makes things easier. Especiall for version up. >git diff at ecalj/ shows orginal and your modification.
 
 After you have installed git (version control software), you can get ecalj package by  
->git clone https://github.com/tkotani/ecalj.git # Get source code  
-
-for ecalj. or get it in the form *.zip 
-from the page https://github.com/tkotani/ecalj
-(push zip button). I recommend you to use git, 
-to check your changes ($git diff), know version id, and upgrade.
-After you did the above git clone command, a directory ecalj/ appears
+#+begin_src bash
+git clone https://github.com/tkotani/ecalj.git # Get source code  
+#+end_src
+for ecalj. or get it in the form *.zip from the page https://github.com/tkotani/ecalj (push zip button). 
+I recommend you to use git, to check your changes ($git diff), and know the ecalj version id, and upgrade.
+After you did the above git clone command, a directory ecalj/ appears 
 (under the directory at which you did git clone).
 
-We can check history of ecalj by "$gitk --all" at ecalj/ directory after you got git clone.
+We can check history of ecalj by ">gitk --all" at ecalj/ directory after you got git clone.
 
-* (1) and (2) are performed by InstallAll.foobar.
-Run InstallAll.ifort (in the case of intel fortran) at ecalj/. 
-We can invoke this command as;
 
->cd ecalj  
->./InstallAll.ifort  
-(To clean all, do ./CleanAll.ifort).  
+** Steps. 2 and 3 are performed by InstallAll.foobar.
+Do
+#+begin_src bash
+ cd ecalj  
+ InstallAll.gfortran
+#+end_src
+(in the case of intel fortran) at ecalj/. To clean all, do ./CleanAll.ifort.  
 
 Please look into the script "InstallAll.ifort". It is a small text file.
 It contains the setting of your BINDIR= directory,
-to which the InstallAll.ifort will copy all binaries and scripts.
-It internally uses three machine-comilar dependent files;  
+to which the InstallAll.ifort will copy all required binaries and scripts.
+It internally uses three machine-compilar dependent files;  
   a.lm7K/MAKEINC/Make.inc.ifort (for single core version )  
   b.lm7K/MAKEINC/Make.inc.ifort_mpik (k-point paralell version )  
   c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version ).  
-At the last stage of the script, it runs automatic tests.
-(You can neglect failure for nio_gwsc; it may show one-failure among two checks).
+At the last stage of the script, it starts a series of automatic tests.
+You can neglect failure for nio_gwsc; it may show one-failure among two checks.
 The test may use ten minutes or more... Have a coffee!
   
-InstallAll.ifort may not work for your environment. Then you need to prepare your own InstallAll.foobar, in which you have to set compilar, linker, compilar options.
+InstallAll.ifort may not work for your environment. 
+Then you need to prepare your own InstallAll.foobar, in which you have to set compilar, linker, compilar options.
+When InstallAll.ifort works well, it will show OK! signs finally. 
+(Some tests such as nio_gwsc may fail in cases, but usually no problem. 
+ Ask to takaokotani@gmail.com if too much errors you observed.).
 
-When InstallAll.ifort works well, it will show OK! signs finally. (some tests such as nio_gwsc may fail in cases, but usually no problem. Ask to takaokotani@gmail.com if too much errors you observed.).
-
-
-* explanation of of (1). Make single core LDA part (it is in ecalj/lm7K/).
-Let us assume gfortran case.
-Move to ecalj/lm7K/, then do "make PLATFORM=gfortran LIBMATH=xxx". 
-Then make process start. (LIBMATH= specify BLAS,Lapack, and fftw.)
-The main makefile is ecalj/lm7K/Makefile, which contains lines
->  PLATFORM=gfortran   #default is PLATFORM=gfortran  
->  ...  
->  include MAKEINC/Make.inc.$(PLATFORM)  
-
-This means that this Makefile uses ecalj/lm7K/MAKEINC/Make.inc.gfortran
-as a part of the Makefile. Thus we have to check settings in it 
-in advance to run "make PLATFORM=...".
-LIBMATH= should contain path to the math libraries, FFTW, BLAS and LAPACK.
-An example is   
-  LIBMATH="/usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf
-  /usr/lib/libblas.so.3gf"  
-Compilar options FFLAGS=, FFLAGS_LESS=... can be choosed by your own
-manner. But usually Make.inc.gfortran works without changes
-(let me know your changes; I like to include it in ecalj).
-
-Let us consider ifort case. In this case, we run  
->make PLATFORM=ifort LIBMATH='-mkl'   
-
-There are several MAKEINC/Make.inc.ifort*
-(not _mpik*) with which we installed to machines. 
-You can choose one of them or you can set your own Make.inc.ifort.*
-(compilar, compilar options, math library).
-
-Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
-just because of problem of Makefile. you can neglect this. We will fix it..
-
-Parallel make like  
->make -j24 PLATFORM=gfortran  
-
-can speed it up for multicore machines(24 core in this case). 
-But it stops because of dependency is not well-described in our current Makefile. 
-In such case, repeat it a few times, or repeat it without -j24.
-
-Finally run  
->make PLATFORM=gfortran install  
-
-This just copy required files (binaries and scripts) to your ~/bin.
-(check it in Makefile). If you like to copy them to ~/xxx instead of~/bin,
-make with BINDIR=xxx.
-
-(For CMD workshop participants: run  
->make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
-
+** Structure tools
+You have to install VESTA and make sure that 'viewvesta' command works.
+You need to read GetSyml/README, to install getsyml.py.
+It is useful to get Brillowin zone plot and symmetry line plot in it.
+Generated syml.* is used for the band plot in ecalj.
 
 * WARN! Some install problems 
+** Compilar bug: 
+In cases, we have troubles due to the compilar.
+Usually we use -O2 in Make.inc.*. But we may need to use -O0 for some files to avoid compilar bug
+
+** Ifort 2018 fails tests (or not compiled)
+   Version up, please.
 ** I saw that current ecalj with gfortran4.6 or 4.7 works fine with
   FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
 ** ifort12 may need FFLAGS=-O1 in MAKEINC/Make.inc.ifort. 
@@ -164,26 +133,12 @@ Look into Makefile if you like to know what they do.
 "make cleanall" removes all *.o *.a modules, and binaries.
 
 ** Move binaries to your bin by 
->make install
-at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
+make install at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
 In advance, you have to make your bin, and add ~/bin to  your path
 (e.g. "export PATH=$HOME/bin:$PATH" in .bashrc . Then login again or "source .bashrc")
 
 
-* exlanation of (1), Installation for fpgw/
-This is GW part.
-At ecalj/fpgw/exec/ directory, you have to a softlink make.inc such as
->lrwxrwxrwx 1 takao takao 17 Aug 25 13:18 make.inc -> make.inc.gfortran
-
-For each machine you have to prepare your own make.inc.foobar 
-(There are samples. Here is the case of make.inc.ifort.cmd), 
-and do  
->ln -s make.inc.ifort.cmd make.inc  
-
-to make a soft like make.inc -> make.inc.cmd
-
-
-* Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar"  ***
+** Q. What is soft link foo -> bar?  A. "foo" is an alias of the file "bar"  ***
 
 Then you have to run  
 >make  
@@ -194,14 +149,93 @@ Before this, you have to set blas and lapack in fpge/exec/make.inc.
 (for ifort, -mkl is enough. LIBMATH= should be the same as that in Make.inc.*.
 "make install" copy requied files to your ~/bin.
 
+** Repeat make should do nothing when all binaries
+are correctly generated. However, because of some problem in makefile, 
+you may see some make procedure is repeated. You can neglect it as
+long as "All test are passed!" is shown in the (4)install test.
 
-* Caution!: we often see "Segmentation fault"due to stacksize limit 
+** We often see "Segmentation fault"due to stacksize limit 
 (See the size by a command "ulimit -a"). 
 It is needed to run "ulimit -s unimited" in the job-submition script 
 or before running GW jobs. 
 
 
-* Explanation of step (2), Install test
+
+----------------
+* Detail of Make single core LDA part (it is in ecalj/lm7K/) 
+Let us assume gfortran case.
+Move to ecalj/lm7K/, then do "make PLATFORM=gfortran LIBMATH=xxx". 
+Then make process start. (LIBMATH= specify BLAS,Lapack, and fftw.)
+The main makefile is ecalj/lm7K/Makefile, which contains lines
+#+begin_src bash
+  PLATFORM=gfortran   #default is PLATFORM=gfortran  
+  ...  
+  include MAKEINC/Make.inc.$(PLATFORM)  
+#+end_src
+This means that this Makefile uses /ecalj/lm7K/MAKEINC/Make.inc.gfortran/
+as a part of the Makefile. Thus we have to check settings in it 
+in advance to run "make PLATFORM=...".
+LIBMATH= should contain path to the math libraries, FFTW, BLAS and LAPACK.
+An example is   
+#+begin_src bash
+  LIBMATH="/usr/lib/libfftw3.so.3 /usr/lib/liblapack.so.3gf
+  /usr/lib/libblas.so.3gf"  
+#+end_src
+Compilar options FFLAGS=, FFLAGS_LESS=... can be choosed by your own
+manner. But usually Make.inc.gfortran works without changes
+(let me know your changes; I like to include it in ecalj).
+
+Let us consider ifort case. In this case, we run  
+#+begin_src bash
+make PLATFORM=ifort LIBMATH='-mkl'   
+#+end_src
+
+There are several MAKEINC/Make.inc.ifort*
+(not _mpik*) with which we installed to machines. 
+You can choose one of them or you can set your own Make.inc.ifort.*
+(compilar, compilar options, math library).
+
+Warning messages like ": warning: ignoring old commands for target `/vxcnls.o'" is
+just because of problem of Makefile. you can neglect this. We will fix it..
+
+Parallel make like  
+#+begin_src bash
+ make -j24 PLATFORM=gfortran  
+#+end_src
+
+can speed it up for multicore machines(24 core in this case). 
+But it stops because of dependency is not well-described in our current Makefile. 
+In such case, repeat it a few times, or repeat it without -j24.
+
+Finally run  
+#+begin_src bash
+make PLATFORM=gfortran install  
+#+end_src
+
+
+This just copy required files (binaries and scripts) to your ~/bin.
+(check it in Makefile). If you like to copy them to ~/xxx instead of~/bin,
+make with BINDIR=xxx.
+
+(For CMD workshop participants: run  
+#+begin_src bash
+make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
+#+end_src
+
+* Detail of GW part of install, Installation for fpgw/
+This is for GW part to get self-energy.
+The makefile is a little different from what is in lmv7/
+At ecalj/fpgw/exec/ directory, you have to a softlink make.inc such as
+>lrwxrwxrwx 1 takao takao 17 Aug 25 13:18 make.inc -> make.inc.gfortran
+
+For each machine you have to prepare your own make.inc.foobar 
+(There are samples. Here is the case of make.inc.ifort.cmd), 
+and do  
+>ln -s make.inc.ifort.cmd make.inc  
+
+to make a soft like make.inc -> make.inc.cmd
+
+* Detail of Install test
 We have to check whether binaries works fine or not.
 Move to ecalj/TestInstall. Then type make (with no arguments). 
 It shows help about how to do test.
@@ -221,14 +255,3 @@ Help of make (no arguments) at ecalj/TestInstall, shows
 >make gwall   !tests only GW part.  
 
 
-* NOTE (nov19 2014 kino):   In TestInstall/Makefile.define,
-we define  
-LMF=lmf  
-LMFP=lmf-MPIK  
-(it is possible to use "LMFP=lmf-MPI" instead(for future development).
-If we set LMFP=$(LMF), tests are done with using lmf, not with using lmf-MPIK.
-
-* NOTE: in principle, repeat make should do nothing when all binaries
-are correctly generated. However, because of some problem in makefile, 
-you may see some make procedure is repeated. You can neglect it as
-long as "All test are passed!" is shown in the (4)install test.
