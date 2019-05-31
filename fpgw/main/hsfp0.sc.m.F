@@ -207,7 +207,7 @@ c      logical:: newaniso
 
       integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
       logical:: hermitianW
-      integer:: nw
+      integer:: nw,if671
       real(8)::dwdummy
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
@@ -220,7 +220,7 @@ c---------------------------------------
       if(cohtest) then          !currently not used (may need fixing if necessary)
         screen = .true.
         ixc = 2; nz=0
-        open(671,file='COH')
+        open(if671,file='COH')
       elseif(MPI__root) then
         write(6,*) ' --- Choose modes below ------------'
         write(6,*) '  Sx(1) Sc(2) ScoreX(3) '

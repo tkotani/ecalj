@@ -361,8 +361,10 @@ c---
         wwg = wwg + wgtx(ieaord(ik))
         if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
 c
-        write(if8301,"(2i6,3d23.15)")
-     &  ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
+        if(mpi__root) then
+           write(if8301,"(2i6,3d23.15)")
+     &          ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
+        endif 
 c
         if( wwg>valn-1d-8.and.ierr==1 ) then
           write(6,*)

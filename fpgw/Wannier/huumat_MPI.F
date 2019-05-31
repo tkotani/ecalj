@@ -136,7 +136,7 @@ ctm, MPI
 !      include 'mpif.h'
 !      integer(4):: ierr,istatus(MPI_STATUS_SIZE),iclose,input3(3)
       integer(4):: ierr,iclose,input3(3),n1,n2
-      integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iftmp
+      integer(4):: myproc,nproc,nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101
       integer(4),allocatable:: iq_proc(:)
       character*8 xt
       character(4) charnum4
@@ -355,16 +355,17 @@ c --- Readin nlam index
 
 c ---  q near zero
       if (myproc.eq.0) write(6,*) 'reading QOP'
-      open (101,file='Q0P')
-      read (101,"(i5)") nq0i
+      if101=ifile_handle()
+      open (if101,file='Q0P')
+      read (if101,"(i5)") nq0i
 !      if(.not.exchange) call checkeq(nqibz+nq0i-1, nqnum)
       if (myproc.eq.0) write(6,*) ' *** nqibz nq0i_total=', nqibz,nq0i
       nq0it = nq0i
       allocate( q0i(1:3,1:nq0i) ) !wqt(1:nq0i),
-!      read (101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
+!      read (if101,"(d24.16,3x, 3d24.16)" )( wqt(i),q0i(1:3,i),i=1,nq0i)
       nq0ix = nq0i
       do i=1,nq0i
-      read (101,* ) xxx,q0i(1:3,i)
+      read (if101,* ) xxx,q0i(1:3,i)
       if(xxx==0d0 ) nq0ix = i-1
       enddo
       nq0i = nq0ix ! New nq0i July 2001
@@ -372,7 +373,7 @@ c ---  q near zero
       write(6,*) ' Used k number in Q0P =', nq0i
       write(6,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
       endif
-      close(101)
+      close(if101)
 
 ctm 
 c read BBVEC
@@ -572,7 +573,7 @@ ctm, MPI
       nproc2 = nproc - nproc1
       allocate(iq_proc(nq_proc+1))
       iq_proc = 0
-      iftmp = 100 + myproc
+      iftmp = ifile_handle() !100 + myproc
       write(iftmp,*)'*** myproc,i,q(i)'
       kk = 0
       do jj = 1,nproc
