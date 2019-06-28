@@ -3368,7 +3368,7 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
       character(100),allocatable:: fnameb(:,:),fnamem(:,:,:)
       logical:: initii
       logical:: semiconband,metalband
-      integer:: idat,ichangesign,ifglts(2)
+      integer:: idat,ichangesign,ifglts(2),iqplist
       character(100)::acrossef
       character(13)::massd,mass2d
       logical:: scd
@@ -3428,7 +3428,9 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
         enddo  
       enddo
 
-!! Write bnd**.isp*.glt
+!! Write bnd**.isp*.glt, open qplist.dat 
+      iqplist = ifile_handle()
+      open(iqplist,file='qplist.dat')
       do 4111 isyml = 1,nsyml  
         ne = nqp_syml(isyml) !+nqp2n_syml(isyml)
         do iq = 1,ne
@@ -3461,13 +3463,24 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
               ikp = ikpoff(isyml)+iq
               write(ifbndsp(jsp),"(i5, (1x,f12.8), 2(1x,f16.10),x,3f9.5)") 
      &         i,xdatt(ikp),(evlall(i,jsp,ikp)-eferm)*rydberg,diffeb(iq), qplist(:,ikp)
-            enddo  
+
+!! write qplist.dat (xaxis, q, efermi) used for band plot
+              if(i==1.and.jsp==1) then
+                if(iq==1.and.isyml==1) write(iqplist,"(f16.10,' ! ef')") eferm
+                ikp = ikpoff(isyml)+iq
+                write(iqplist,"(f16.10,x,3f9.5,' !x q')") 
+     &          xdatt(ikp), qplist(:,ikp)
+              endif
+            
+           enddo
+
             deallocate(diffeb)
             write(ifbndsp(jsp),*)
  5113     continue
           close(ifbndsp(jsp))
  4113   continue
  4111 continue
+      close(iqplist)
 
 c$$$
 c$$$!! write massplotband.glt for gnuplot

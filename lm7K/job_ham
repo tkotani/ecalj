@@ -7,6 +7,7 @@ if [ $# -le 2 ] || [ $2 != "-np" ]; then
   echo " CAUTION: We need PWMODE={pwmode}, where const pwmode=11 (or somegthing) given in ctrl file as follows."
   echo " %const pwmode=11"
   echo "   PWMODE={pwmode} "
+  exit
 else
   MPI_SIZE=$3
 fi
@@ -19,7 +20,10 @@ mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band -vpwmode=0 > lmf_efermi
 echo 'runnnig hamiltonian generation for pwmode=0'
 mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0
 
+# Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianMTO.* >HamiltonianMTO
 rm HamiltonianMTO.* 
+
+# Read HamiltonianMTO.
 ~/ecalj/lm7K/lmfham
 

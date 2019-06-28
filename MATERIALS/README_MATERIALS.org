@@ -1,0 +1,120 @@
+# -*- Mode: org ; Coding: utf-8-unix -*-
+#+TITLE: ecalj: examples in ecalj/MATERIALS/
+#+AUTHOR: takao kotani @ tottori university, Japan
+#+email: takaokotani@gmail.com
+
+We have some examples in ecalj/MATERIALS/
+Somethings in this directory are obsolate (or just unused recently).
+At least, we have following samples working.
+
+* Extact MTO-only Hamiltonian (we have samples Si_HamMTO/ and Fe_HamMTO/).
+Here we show how to get MTO-only Hamiltonian after you get convergence in the PMT=MTO+APW method.
+Examples are in Si_HamMTO, Fe_HamMTO.
+Follow instructions below.
+
+** step0 Need setting of {pwmode} in ctrl file. 
+Instead of PWMODE=11, you have to set
+#+begin_src
+%const pwmode=11
+  PWMODE={pwmode}
+#+end_src
+in ctrl file. Then option -vpwmode=0 (see below) can override the option written in ctrl file.
+This is used in nest steps.
+
+** step1 Get rst (and/or sigm).
+From ctrl.fe (or others like ctrl.si), you do self-consistent calculations.
+#+begin_src bash
+lmfa fe
+lmf fe
+#+end_src
+It can be LDA or QSGW, final results are in
+rst.fe (sigm.fe in QSGW in addition to this).
+
+** step2 Band plot
+  Make band plot. We need syml.fe
+  (you can get it by >getsylm fe; getsyml need to be soft linked to ecalj/GetSyml/getsyml.py).
+job_band fe -np 24
+
+  In llmf_band, you can find following lines  at
+     bndfp: kpt     2 of    97 k=  0.0000 -0.0500  0.0000 ndimh = nmto+napw =    41   28   13
+#+end_src
+  This means 28 MTOs and 13 APWs used.
+  Try
+  >grep bndfp nmto fe
+  Note job_band does not change rst file.
+*** Eigenvalues are written as
+ bndfp: kpt    1 of   97 k jsp=  0.00000  0.00000  0.00000 2 nev=   34
+ -3.7314 -3.7314 -3.7314 -0.5675 -0.0092 -0.0091 -0.0091  0.1240  0.1240
+  1.7952  1.7952  1.7952  2.4145  2.4145  2.4311  2.4311  2.4312  3.1464
+  3.1465  3.1465  3.7662  4.7800  4.7801  4.7801  6.2200  6.2204  6.3346
+  6.4887  7.3912  7.3913  7.3914  8.3638  8.3642  8.3648
+
+** step3 Band Plot without APW
+  > job_band fe -np 24 -vpwmode=0
+
+  Check calcualtion without APW is good enough or not.
+  We may need to use Many MTOs and start over if necessary.
+  
+  In the case of Si, this is not satisfied. Without APWs, we have 
+  ---> we use very localize MTOs in the default setting.
+  Band gap is too large by \sim 0.2eV in the case of pwmode=0.
+  Without calculations, you can see the difference in ecalj/MATERIALS/Si_HamMTO/SiPWMODE11vs0.png
+  or with gnuplot bandplot.glt
+
+  
+** step4 Generate MTO-only Hamiltonian
+   >job_ham si -np 24
+   See job_ham script.
+   HamiltonianMTO contains Hamiltonian in the BZ.
+   Final step of lmfham generetes Hamiltonian and overlap matrix, and diagonalize it.
+   You have to read ecalj/lm7K/lmfham.F
+
+   This generates "band_lmfham1.dat" (and band_lmfham2.dat for isp=2).
+   To plot them, use bandplotall.glt 
+   (or make by yourself. Need to set Fermi energy. See head of qplist.dat to take the fermi energy.
+    It is the fermi energy (top of valence) when you run last job_band).
+      
+** step5 Run lmfham again if you like. and Read lm7K/lmfham.F
+  From HamiltonianMTO and HamitonianMTOinfo, we can run lmfham.
+  It reads these two files, and show eigenvalues at k points.
+  Look into ecalj/lm7K/lmfham.F
+ 
+  The MTO index is shown in the console output of lmfham.F
+  Do
+  >lmfham |grep MHAM
+  It shows the Hamiltonian index corresponds to which MTOs.
+
+  Note the current version of lmfham.F is with symlcase=.true. (look into the source).
+  In lmfham.F,we read HamiltonianMTO and HamitonianMTOinfo by readHamiltonianMTO(),
+  (We read  hammr, ovlmr : real-space hamiltonian and overlap.).
+  Then we generate hamm, for k along the k points on symmetry line.
+  And then diagonalize it by "call zhev_tk2" 
+  (the subroutine's main inputs are hamm and ovlm, epsovl is for removing basis with poor linear dependency).
+  
+  The index of MTO basis is included in HamiltonianMTOInfo. See m_readhamiltonianMTO in lmfham.F.
+   + ldim: Hamiltonian dimension
+   + ib_table: site index (site ordering is shown by lmchk).
+   + l_tabale: l table. m takes -l to l ordering. See ends of jobpdos (showing real space harmonics).
+   + k_table: k takes 1(EH),2(EH2), or 3(LO).
+  Ask to takaokotani@gmail.com 
+
+* job_materials.py :Variety of mateirals samples
+(type without arguments; it shows help.)
+It can perform LDA/GGA calculations in MATERIALS/Materials.ctrls.database.
+
+ This job_materials.py works as follows for given material names.
+ Step 1. Generate ctrls.* file for Materials.ctrls.database. (names are in DATASECTION:)
+ Step 2. Generate ctrl by ctrlgenM1.py
+ Make directtory such as Si/
+
+* MgO_PROCAR : PROCAR generation sample
+ Run jobprocar. This gives *.eps file which shows Fat band picture.
+ PROCAR (vasp format) is generated and analysed by a script BandWeight.py.
+
+* Samples_MLWF : Wannier function generator and cRPA 
+  wannier90 method implemented in ecalj and cRPA. 
+  (a cRPA method by Juelich group).
+  See Samples_MLWF/README.
+
+* mass_fit_test
+  Effective mass calculation. See README.
