@@ -412,6 +412,15 @@ $(gwsrc)dpzero.o \
 $(gwsrc)ropyln.o \
 $(gwsrc)ropcsm.o \
 $(gwsrc)rpaq.o \
+$(gwsrc)m_readeps.o \
+$(gwsrc)m_readq0p.o \
+$(gwsrc)m_readQGcou.o\
+$(gwsrc)m_pbindex.o \
+$(gwsrc)m_rotMPB.o \
+$(gwsrc)m_iqindx_qtt.o \
+$(gwsrc)rotwave.o \
+$(gwsrc)rotcg.o \
+$(gwsrc)rotgvec.o \
 $(MPI)
 
  MPI =  $(gwsrc)MPI_fpgw2.o
