@@ -161,6 +161,11 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: nbmx,mtet(3)
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
+      logical:: eginit=.true.
+      real(8),allocatable,save:: gfmat(:,:)
+      complex(8),allocatable:: rcxqin(:)
+      real(8):: egauss
+      integer:: imbas1,imbas2,ipm
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
@@ -749,6 +754,33 @@ c     d              natom, !nl,nclass,natom,nnc,
           enddo
         enddo
         write(6,*) 'MPI__AllreduceSumS end'
+        
+!! Gaussian filtering of rcxq. Smearging Imag(X0). We may use egauss = 0.05 a.u.\sim 1eV for example.
+        if(eginit) then
+           call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
+           if(abs(egauss)>1d-15) then
+              allocate(gfmat(nwhis,nwhis))
+              call gaussianfilterhis(egauss,frhis,nwhis,gfmat)
+           endif
+           eginit=.false.
+c$$$           do i=1,nwhis
+c$$$           do j=1,nwhis
+c$$$                 write(6,"(2i5,x,f10.8)")i,j,gfmat(i,j)
+c$$$           enddo
+c$$$           enddo
+        endif
+        if(abs(egauss)>1d-15) then
+           do ipm=1,npm
+           do imbas1=1,nmbas1
+           do imbas2=1,nmbas2
+              rcxqin = rcxq(imbas1,imbas2,1:nwhis,ipm)
+              rcxq(imbas1,imbas2,1:nwhis,ipm) = matmul(gfmat,rcxqin)
+           enddo
+           enddo
+           enddo
+           write(6,"(' End of Gaussian Filter egauss=',f9.4)") egauss
+        endif
+        
 !TIME1_190001 "x0kf_sym"
 !TIME0_200001 "HilbertTransformation"
 !! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
