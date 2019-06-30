@@ -106,8 +106,8 @@ c      enddo
 c
       if (mpi__root) then
          if8301=ifile_handle()
-         if8302=ifile_handle()
          open(if8301,file = "DOSACC.lda")
+         if8302=ifile_handle()
          open(if8302,file = "DOSACC2.lda")
       endif
       wwg = 0d0
@@ -134,7 +134,7 @@ c---
         if(wwg<valn+2d0) write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wwg
 c
         if (mpi__root) then 
-          write(8301,"(2i6,3d23.15)")
+          write(if8301,"(2i6,3d23.15)")
      &    ik,ieaord(ik),ektx(ieaord(ik)),wwg,wgtx(ieaord(ik))
         endif 
 c
