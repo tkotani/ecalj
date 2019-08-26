@@ -1103,7 +1103,7 @@ c three-point interpolation for Wc(we)
                   if(omg < ef .and. nw_i/=0) iir = -1 !May2006 because of \int d omega' G(omega-omega') W(omega')
                   if(zwz3mode) then
                     zwz3=(0d0,0d0)
-                    if(debug) write(6,"('wwwwwww ixs=',10i4)"),ixs,igb2,it,itp
+                    if(debug) write(6,"('wwwwwww ixs=',10i4)")ixs,igb2,it,itp
                     if(debug) write(6,*)'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
                     do ix = ixs, ixs+2
                       do igb2=1,ngb
@@ -1111,7 +1111,7 @@ c three-point interpolation for Wc(we)
                         zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
                       enddo     !igb2
                     enddo       !ix
-                    if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)"),ixs
+                    if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)")ixs
                     if(debug) write(6,*)zwz3(1:3) !,freq_r(ixs-1),zwz3(1:3)
                     if(debug) write(6,*)'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
                     if(debug) write(6,*)'2011 bbb www zmel=',sum(abs(zmel(:,:,:)))
