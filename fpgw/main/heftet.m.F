@@ -107,7 +107,7 @@ c
       integer(4):: nwin,incwfin
       real(8)::ddq(3),bandgap
 
-      integer(4):: bzcase=1,ifile_handle
+      integer(4):: bzcase=1,ifile_handle,ifi
       real(8):: tolq=1d-8
 
 c---------------------------------------
@@ -226,16 +226,23 @@ Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single preci
 c      isx = iclose('hbe.d')
       close(ifhbed)
       
-C --- Locate band limits ---
+!! Get number of valence electron valn
 c$$$      if(legas) then
 c$$$        write(6,*)' efsimplef2: legas=T use given valn = ',valn
 c$$$      else
-        call getvaln(
-     i       konf,z,nl,natom,iclass,nclass
-     o      ,valn)
+c
+c$$$      call getvaln(
+c$$$     i       konf,z,nl,natom,iclass,nclass
+c$$$     o      ,valn)
 c$$$      endif
-cccccccccccccccccccccccccccccccccc
-
+!! aug2019: Read valence number of electron vanl=qval-qbg from efermi.lmf, not use efermi given in efermi.lmf.
+      ifi= ifile_handle()     
+      open(unit=ifi,file='efermi.lmf')
+      read(ifi,*)
+      read(ifi,*)
+      read(ifi,*)
+      read(ifi,*) valn
+      close(ifi)             
 
 cccccccccccccccccccccccccccccccccccccccccc
 c      valn=29d0

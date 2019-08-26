@@ -136,7 +136,7 @@ Cu   23 Apr 01 First created
       type(s_spec):: sspec(*)
       type(s_lat):: slat
       type(s_ham):: sham
-      real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas)
+      real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas) !, coreq(2)
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
       integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
@@ -542,6 +542,18 @@ c --- for band mode
               enddo
             endif
             if(rank0)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
+!!            
+c$$$ccccccccccccccccccccccccccc
+c$$$            if(rank0) then
+c$$$              if(sspec(is)%coreh == ' ') then
+c$$$                coreq = 0d0
+c$$$              else
+c$$$                coreq = sspec(is)%coreq
+c$$$              endif  
+c$$$              write(stdo,"(' CoreHole: ',a,' Q and MOM= ',2f10.4)") trim(sspec(is)%coreh),coreq
+c$$$            endif   
+c$$$ccccccccccccccccccccccccccc
+c$$$            if(rank0)write(ifigwa) sspec(is)%coreh,coreq
             if(rank0)write(ifigwa) konfig(0:lmaxa)
             if(rank0)write(ifigwa) rofi
 !!         Write orthonormalized valence wave functions for this atom
