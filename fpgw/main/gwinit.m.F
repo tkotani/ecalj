@@ -569,6 +569,9 @@ c      write(ifi,"(a,f10.3,a)") 'omg_c ', omg_c,' !(a.u.) energy-mesh is twiced 
       write(ifi,"(a)")  '              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. '
       write(ifi,"(a)")  '              ! Change esmr for metals.  See DOSACC*---especailly around Ef.'
       write(ifi,"(a)")  'GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.'
+      write(ifi,"(a)")  '!GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. 
+      write(ifi,"(a)")  '                         ! This stabilize convergence for metallic systems'
+      write(ifi,"(a)")  '                         ! This can be a default setting in the future'
       write(ifi,*)
       write(ifi,"(a)" ) '! ################################################# '
       write(ifi,"(a)")'<PRODUCT_BASIS> '
