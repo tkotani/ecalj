@@ -17,9 +17,8 @@ cccccccccccccccccccccccccccccccccccccccccccc
 
       write(6,*) '--- read_QG ---'
       ifiqg  = ifile_handle()
-      ifiqgc = ifile_handle()
-
       open(ifiqg ,file='QGpsi',form='unformatted')
+      ifiqgc = ifile_handle()
       open(ifiqgc,file='QGcou',form='unformatted')
       read(ifiqg  ) nqnum , ngpmx_qg, QpGcut_psi,nnnn
       read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
