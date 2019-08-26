@@ -47,7 +47,7 @@ c      enddo
       open(ifile,file=filename,status='unknown')
       write(ifile,'(a)') '# wavefunction'
       write(ifile,'(a)') 'PRIMVEC'
-      close(ifile)
+c      close(ifile)
       do i1=1,3 
         write(ifile,'(3f20.10)') plat(:,i1)*alat
       enddo 
