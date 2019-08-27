@@ -72,7 +72,10 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ::iwdummy ,i_copy_size,nnz,nnv
       real(8):: eferm,eee
-      logical:: lsemicorepz
+      logical:: lsemicorepz,phispinsym,cmdopt,master_mpi
+      real(8):: pmean
+      character strn*120
+     
 
       pi = 4d0*datan(1d0)
       stdo = lgunit(1)
@@ -339,10 +342,21 @@ C         ... Permit pnu no lower than free electron value
 
             elseif (lpz) then
             endif
+          enddo !end of spin loop
 
-          enddo
-        enddo
+!! spin averaged pnu takaoAug2019
+          phispinsym= cmdopt('--phispinsym',12,0,strn)
+          if(phispinsym) then
+             if(master_mpi().and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
+             pmean = sum(pnu(m,1:nsp))/nsp
+             pnu(m,1:nsp) = pmean
+             if (lpz) then
+                pmean = sum(pnz(m,1:nsp))/nsp
+                pnz(m,1:nsp) = pmean
+             endif
+          endif
 
+       enddo !l loop
 
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)

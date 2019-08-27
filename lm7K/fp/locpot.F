@@ -172,9 +172,10 @@ C ... for core hole
       integer,parameter:: nbasmx=1000
       logical:: master_mpi,master_mpiset
       logical,save:: secondcall(1:nbasmx)=.false.
-      logical :: cmdopt
+      logical :: cmdopt,phispinsym
       character*20::strib
       character strn*120
+      real(8):: ov0mean,pmean
 C --- Setup ---
       call tcn('locpot')
       stdo = globalvariables%stdo ! stdo = nglob('stdo')
@@ -347,6 +348,30 @@ C   ... Update the potential used to define basis set
             call dpscop ( v1 , ssite(ib)%rv_a_ov0 , nr , 1 + nr * nlml * i , 1 + nr * i , y0 )
           enddo
         endif
+       
+!! spin averaged oV0 to generate phi and phidot. takaoAug2019
+        phispinsym= cmdopt('--phispinsym',12,0,strn)
+        if(phispinsym) then
+           if(master_mpi().and.nsp==2) then
+             write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
+           endif   
+           do ir=1,nr
+              ov0mean = 0d0
+              do isp=1,nsp
+                 ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+              enddo
+              ov0mean = ov0mean/nsp
+              do isp=1,nsp
+                 ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+              enddo
+           enddo
+           if(master_mpi().and.nsp==2)then
+              do l=0,lmxa
+              write(6,"('  ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
+              enddo
+           endif
+        endif
+      
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
           call dpscop ( v1 , ssite(ib)%rv_a_ov1, nr , 1 + nr * nlml * i , 1 + nr* i , y0 )

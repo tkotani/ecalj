@@ -28,11 +28,6 @@ plot \
 "bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\
 "bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\
 "bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\
-"BANDPMT/bnd001.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BANDPMT/bnd002.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BANDPMT/bnd003.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BANDPMT/bnd004.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BANDPMT/bnd005.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BANDPMT/bnd006.spin1" u ($2):($3) lt 2 pt 2 w lp
+"band_lmfham1.dat" u ($1):($2-0.019853916)*13.605 pt 2 w p
 pause -1
 

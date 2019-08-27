@@ -454,6 +454,9 @@ c mar2014
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
 
+      real(8):: pnu(n0,2),pnz(n0,2),pmean
+      integer:: i_copy_size
+      logical:: lpz,phispinsym
 !! ----------------------------
       call tcn ('bndfp')
       stdo = lgunit(1)
@@ -809,6 +812,38 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
          endif
       endif
 
+!! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
+      phispinsym= cmdopt('--phispinsym',12,0,strn)
+      if(phispinsym) then
+         if(master_mpi()) write(6,*) 'bndfp: --phispinsym use spin-averaged potential for phi and phidot' 
+         do ib = 1,nbas
+            i_copy_size=size(ssite(ib)%pnu)
+            call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
+            i_copy_size=size(ssite(ib)%pz)
+            call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
+            is = int(ssite(ib)%spec)
+            lmxa = sspec(is)%lmxa
+            do l=0,lmxa
+              pmean = sum(pnu(l+1,1:nsp))/nsp
+              if(master_mpi().and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
+     &             ib,l,pnu(l+1,1:nsp),pmean
+              pnu(l+1,1:nsp) = pmean
+              lpz = pnz(l+1,1) /= 0
+              if (lpz) then
+                 pmean = sum(pnz(l+1,1:nsp))/nsp
+                 if(master_mpi().and.nsp==2) write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
+     &                ib,l,pnz(l+1,1:nsp),pmean
+                 pnz(l+1,1:nsp) = pmean
+              endif
+            enddo
+            i_copy_size=size(ssite(ib)%pnu)
+            call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
+            i_copy_size=size(ssite(ib)%pz)
+            call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1)
+         enddo   
+      endif
+      
+      
 
 !! jan2018kaist
       writeham= cmdopt('--writeham',10,0,strn)
