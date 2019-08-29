@@ -23,6 +23,15 @@
      i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
      i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
      i   nbmx,ebmx,mtet,eibzmode) !nov2016
+
+c$$$cccccccccccccccccccccccccccc
+c$$$      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
+c$$$     &   MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
+c$$$     &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
+c$$$     &   MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
+c$$$     &   MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
+c$$$cccccccccccccccccccccccccccc
+
 !! INPUT DATA; read only
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
@@ -52,8 +61,10 @@ c      use m_ReadEfermi,only: readefermi,ef
       logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
       integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
       real(8),allocatable:: ecore_(:,:)
+      integer:: ix
+
       if(nctot==0) then
-        allocate(ecore_(1,2))    !this is dummry
+        allocate(ecore_(1,2))    !this is dummy
       else
         allocate(ecore_(nctot,2))
         ecore_=ecore
@@ -63,11 +74,9 @@ c      use m_ReadEfermi,only: readefermi,ef
 c      eibzmode = eibz4x0()
       debug=.false.
       if(verbose()>=100) debug=.true.
-
 c      if(.not.allocated(nbnb)) 
-      allocate( nbnb(nqbz,npm))
-      allocate( nbnbtt(nqbz,npm)) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-
+      allocate( nbnb(nqbz,npm)   )
+      allocate( nbnbtt(nqbz,npm) ) !,ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 !!===========tetraini block tetra==.true.===============================1ini
       write(6,"(' tetra mode nqbz nband ispin q=',2i7,i2,3f13.6)") nqbz,nband,is,q
 
@@ -121,19 +130,38 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
       if(debug) write(6,*)' nbnbx=',nbnbx
       allocate(  n1b(nbnbx,nqbz,npm)
      &          ,n2b(nbnbx,nqbz,npm))
-      n1b=0; n2b=0 
+      n1b=0
+      n2b=0 
       do jpm=1,npm
         call rsvwwk00_4(jpm, iwgt(1,1,1,jpm),nqbz,nband,nctot,ncc, nbnbx,
      o   n1b(1,1,jpm), n2b(1,1,jpm), noccxvx(jpm), nbnbtt(1,jpm))
       enddo
+!!
       if(debug) then
         do kx  = 1, nqbz
-          do jpm = 1, npm
-            write(6,"('jpm kx  minval n1b n2b=',4i5)")jpm,kx,
-     &       minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
-     &       minval(n2b(1:nbnb(kx,jpm),kx,jpm))
-          enddo
+        do jpm = 1, npm
+           if( nbnb(kx,jpm) >0) then
+              write(6,"('jpm kx minval n1b,n2b=',5i5)")jpm,kx,nbnb(kx,jpm),
+     &             minval(n1b(1:nbnb(kx,jpm),kx,jpm)),
+     &             minval(n2b(1:nbnb(kx,jpm),kx,jpm))
+           else
+              write(6,"('jpm kx minval nbnb=0',5i5)")jpm,kx
+           endif
         enddo
+        enddo
+c$$$cccccccccccccccccccccc
+c$$$          do kx  = 1, nqbz
+c$$$          do jpm = 1, npm
+c$$$          do ix=1,nbnb(kx,jpm)
+c$$$            write(6,"('jpm kx  minval n1b n2b=',3i5,2x,2i10)")jpm,kx,ix,
+c$$$     &       n1b(ix,kx,jpm),n2b(ix,kx,jpm)
+c$$$          enddo
+c$$$          enddo
+c$$$          enddo
+c          call MPI__Finalize
+c          call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
+c          stop 'vvvvvvvvvvvvvv111'
+cccccccccccccccccccccc
       endif
       if(sum(abs(nbnb-nbnbtt))/=0)then
         do ik=1,nqbz

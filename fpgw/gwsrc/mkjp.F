@@ -354,8 +354,10 @@ c     vcoul = 2d0*vcoul !  in Ry unit.
 c
 
 c check write
-      do ix = 1,nbloch+ngc,20
+      do ix = 1,nbloch+ngc
+        if(mod(ix,20)==1.or.ix>nbloch+ngc-10) then
         write(6,"(' Diagonal Vcoul =',i5,2d18.10)") ix,vcoul(ix,ix)
+        endif
       enddo
       if( allocated(yl)   ) deallocate(yl)
       if( allocated(cy)   ) deallocate(cy)
