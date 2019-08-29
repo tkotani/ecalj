@@ -426,8 +426,9 @@ c     .   lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx,w(owork))
 c- taken from lattc.f
 
 c default values ok?
-      awald0 = 2d0   !See p_lat_0
-      tol    = 1d-9
+      awald0 = 2d0   ! See p_lat_0
+      tol    = 1d-14 ! It was 1d-9 before aug2019. Sakakibara had a problem when he treat slab model of KF
+                     ! for 18 atoms per cell. --> The lowest eigenvalue of coulomb matrix becomes negative.
       nkdmx  = 800
       nkqmx  = 800
       lmax   = 2*lxx  !lxx or lmax=6 ???
