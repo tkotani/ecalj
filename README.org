@@ -20,7 +20,7 @@ Email to takaokotani@gmail.com.
    https://journals.jps.jp/doi/abs/10.7566/JPSJ.82.124714 (PMT applied to diatomic molecules).
    As we can use automatic settings of MTOs paremeters all the time, 
    we don't need to be bothered with the setting of them.
-   The PMT method method is promising since it can connect physics and chemistry, and virtually it can
+   The PMT method is promising since it can connect physics and chemistry, and virtually it can
    be a very efficient method (currenty the ability is limited by the implementetion in ecalj).
 
    In principle, it is possible to perform reasonable calculations just from atomic structures and
@@ -47,34 +47,38 @@ Email to takaokotani@gmail.com.
    This is adopted from codes by Dr.Miyake,Dr.Sakuma, and Dr.Kino.
    See fpgw/Wannier/README. cRPA is implemented, mRPA will be implemented.
 
-4. Utilitys are included, to write crystal structures. For example, a converter between POSCAR(VASP) and our crystal strucrue file 'ctrls.*' are included.
-
+4. Utilitys are included, to write crystal structures. 
+   For example, a converter between POSCAR(VASP) and our crystal strucrue file 'ctrls.*' are included.
+   As it is combined with seekpath and spglib, 
+   Brillowin Zone and symmetry lines are automatically drawn with matplotlib.
 
 * Permission
 - For publications, make a citation cleary to this homepage such as;
 [1] ecalj package at https://github.com/tkotani/ecalj/. Its one-body part is developed based on the Questaal at  https://lordcephei.github.io/. Its GW part is originally taken from ecalj.
-in the references on the same footing of other papers.
+in the references on the same footing of other papers. 
 
 - Except commercial use, you can freely use and modify this package for your purpose. 
 You can re-distribute your modified package as long as you cited our ecalj package. For commercial use, ask to takaokotani.
 
 
 * Automatic installation script and test
-See file:README_Install.org
+See [[file:README_Install.org][README_Install.org]]
 
 
 * Manuals and Samples of ecalj 
-We have presentations of ecalj in file:Document/
-Especially, file:Document/Manual/ecaljmanual.pdf is the main document.
-Varieties of samples are at file:MATERIALS/ (some of them are obsolate), see file:MATERIALS/README_MATERIALS.org
+We have presentations of ecalj in [[file:Document/][Document/]]
+Especially, [[file:Document/Manual/ecaljmanual.pdf][ecaljmanual.pdf]] is the main document.
+Varieties of samples are at [[file:MATERIALS/][MATERIALS/]] (some of them are obsolate, job_materials.py), 
+see [[file:MATERIALS/README_MATERIALS.org][README_MATERIALS.org]].
 
 
 * How to perform paper quality calculations with minimum costs?
-See file:README_hints.org
+  See [[file:README_hints.org][README_hints.org]]
+
 
 
 * Usage minimum. QSGW for Si
-See file:Document/Manual/ecaljmanual.pdf
+See [[file:Document/Manual/ecaljmanual.pdf][Document/Manual/ecaljmanual.pdf]]
 Here I show its very minimum.
 In Japanese, see http://gomisai.blog75.fc2.com/blog-entry-675.html (and others. Use search engine.)
 -------------------------------------------
@@ -82,9 +86,9 @@ In Japanese, see http://gomisai.blog75.fc2.com/blog-entry-675.html (and others. 
     (you can have ctrls from POSCAR(VASP) with vasp2ctrl in
     ecalj/StructureTool/.)
 
-(2) conver ctrls.si to ctrl.si by ctrlgen2.py si --nk=6 
+(2) conver ctrls.si to ctrl.si by ctrlgenM1.py si --nk=6 
    (without argument, it shows help). 
-   Then you have default ctrl.si (rename ctrlgen2.ctr.si to ctrl.si). 
+   Then you have default ctrl.si (rename ctrlgenM1.ctr.si to ctrl.si). 
 
 (3) Run "lmfa si" to prepare atom.
 
@@ -122,7 +126,7 @@ In the case of ecalj, we write it ctrls.*. All calculaitons can be performed fro
 For this purpose, we have converters between POSCAR
 (VASP's crystal structure file) and ctrls.*(that for ecalj). 
 In addition, we have a simple script to invoke crystal strucrure
-viewer, usually VESTA. It is in file:Structure/tool/.
+viewer, usually VESTA. It is in [[file:StructureTool/README.txt][StructureTool]].
 
 Furthermore, we have a tool to generate BZ and symmetry lines on it for
 band plot. The symmetry line is written into syml.* and used for the
