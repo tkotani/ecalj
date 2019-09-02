@@ -1,5 +1,5 @@
-%#BIBTEX bibtex ecaljmanual
 \documentclass[a4paper,10pt,epsf,fleqn]{article}
+%#BIBTEX bibtex ecaljmanual
 %\documentclass[a4paper]{jsarticle}
 \setlength{\mathindent}{0mm}
 %\usepackage[dvipdfm]{graphicx} 
@@ -192,7 +192,7 @@
 \newcommand{\bfG}{{\bf G}}
 \newcommand{\bfR}{{\bf R}}
 \newcommand{\ds}{\displaystyle}
-\newcommand{\exe}[1]{{\bf #1}}
+\newcommand{\exe}[1]{{\tt #1}}
 \newcommand{\io}[1]{{\sf  #1}}
 \newcommand{\raw}[1]{{\tt #1}}
 \newcommand{\repp}[1]{p.\pageref{#1}}
@@ -246,8 +246,8 @@
 \newcommand{\D}{{\it \Delta}}
 \newcommand{\figss}[2]{\hspace{-3cm}\rotatebox{-90}{\includegraphics[width=6cm]{#1}}\rotatebox{-90}{\includegraphics[width=6cm]{#2}}}
 \newcommand{\figs}[2]{\hspace{-2cm}\rotatebox{0}{\includegraphics[width=8cm]{#1}}\rotatebox{0}{\includegraphics[width=8cm]{#2}}}
-\newcommand{\lmsuit}{{\tt lmsuit}\ }
-\newcommand{\ecalj}{{\bf ecalj}\ }
+\newcommand{\questaal}{{\tt Questaal}\ }
+\newcommand{\ecalj}{{\tt ecalj}\ }
 \newcommand{\lmchk}{{\exe{lmchk}\space }}
 \newcommand{\ctrl}{{\io{ctrl.*}\space }}
 \newcommand{\ctrls}{{\io{ctrls.*}\space }}
@@ -276,20 +276,23 @@
 calculation package, especially for GW/QSGW calculations, in addition to
 its unique one-body problem solver which uses both augmented plane wave (APW)
 and the Muffin-tin oribital (MTO) simultaneously.
-Available freely from github.\\
+Available freely from github.
+
 This is based on the formulation in Refs.
 \cite{kotani2015pmt} and \cite{kotani_quasiparticle_2014}
 (See Kotani2114QSGWinPMT.pdf and KotaniKinoAkai2015FormulationPMT.pdf at
 ecalj/Document/Manual/) on top of developments \cite{kotani07a}.
-By \ecalj, we can do QSGW and related calculations
+In \ecalj, we can do QSGW and related calculations
 based on the PMT=LA\underline{P}W+L\underline{MT}O
-method. To get minimum usage for ecalj, read up to the Section.5
+method.
+
+To get minimum usage for ecalj, read up to the Section.5
 or Sec.\ref{cautionusage}. 
 (We can generate model Hamiltonian through
 Wannier functions(ecalj/MATERIALS/CuMLWF, and so on, 
-but not documented well yet...) \\
+but not documented well yet...) 
 
-\noindent Be careful. 
+Be careful. 
 This document still contain many bugs...
 Let me know bugs in this manual (try to fix things step by step).
 We need your help on this manual.\\
@@ -297,40 +300,31 @@ We need your help on this manual.\\
 \noindent ------------------------\\
 \noindent {\bf Requirement}\\
 \noindent To support of our ecalj activity, we need your acknowledgment to \ecalj 
-in your publications in the manner shown in ecalj/README.md; \\
-\url{https://github.com/tkotani/ecalj/#we-need-acknowledgment-as}
-such as:\\
-\begin{quote}
-[1] ecalj package at https://github.com/tkotani/ecalj/. \\
-\ \ \ \ \ \ \ \ \ \  Its one-body part is developed based on Ref.[2].\\
-{\small\ \ \ \ \ 
-[2] LMsuit package at http://www.lmsuite.org/. \\
-\ \ \ \ \ \ \ \ \ \  Its GW part is adopted mainly from Ref.[1].}\\
-\end{quote}
-(as in the same manner of usual papers).\\
+in your publications See ecalj/README.org at
+\url{https://github.com/tkotani/ecalj/}.\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent {\bf Contributions}\\
-\noindent Main contributors to the ecalj package are
-(only a list of people who directly related to the code developments): \\
-T.Kotani, Hiori Kino, Mark van Schilfgaarde,
-Sergey Faleev, Takashi Miyake, \\Seungwoo Jang, Manabu Usuda.
-They also contribute to this documents.\\
+There are many contributors to this package. T.Kotani currently maintain
+the ecalj package as a results of them.\\
+%\noindent Main contributors to the ecalj package are
+%(only a list of people who directly related to the code developments): \\
+%T.Kotani, Haruki Okumura, Hirofumi Sakakibara, Hiori Kino, Mark van Schilfgaarde,
+%Sergey Faleev, Takashi Miyake, Seungwoo Jang, Manabu Usuda.
+%They also contribute to this documents.\\
 
-\noindent {\bf Relation with \exe{LM suit} at \io{http://www.lmsuite.org/}}:\\
-There is a full potential LMTO package (with a slightly different
-implementation of PMT) contained in \exe{lmsuit}.
-In the package, there is the driver to use
-a modified version of the GW code in \exe{ecalj}
-(GW part in \exe{ecalj} is occasionally adopted in \lmsuit).
-The FP-LMTO in \exe{lmsuit} and \exe{ecalj} have some similarities 
-(for input files and outputs). 
-Thus some part of its document in the web site 
-is still applicable even to the ecalj package.
+\noindent {\bf Relation with \exe{Questaal} at \io{http://www.questaal.org/}}:\\
+\exe{Questaal} is one-another package to perfome QSGW distributed by
+Mark van Schilfgaarde mainly in FP-LMTO, not in the PMT.
+In the package, there is the driver to use a modified version of the GW code in \exe{ecalj}
+(GW part in \questaal is originated in \ecalj).
+The FP-LMTO in \exe{questaal} and \exe{ecalj} have some similarities 
+(for input files and outputs).\\
+%Thus some part of its document in the web site 
+%is still applicable even to the ecalj package.
 %Since this manual of the ecalj package have many missing points,
 %let ask me something, and/or look into the web site to get.
 %I will write up a new clean manual soon.
-\vspace{2mm}
 
 \noindent {\bf History}\\
 \noindent T.Kotani learned the LMTO-ASA-GW code by {F.Aryasetiawan},
@@ -369,7 +363,7 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 % clearly show thisection "Software licence agreement" in the pacakge.
 % In any publications which uses (a part of) ecalj, 
 % we need citation of the homepage of ecalj package
-% https://github.com/tkotani/ecalj/ and lmsuite.
+% https://github.com/tkotani/ecalj/ and questaal.
 
 
 %\input{ecaljmanual_part1.tex}
@@ -378,7 +372,7 @@ and reliable rather than the previous version of QSGW on top of FP-LMTO.}
 \noindent {\Large Change LOG:}\\
 
 $\bullet$ Jan2017 Add minimum description for syml generator at Sec.\ref{sec:getsyml} \\
-
+$\bullet$ Aug2019 slight modification for CMD35
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -818,28 +812,32 @@ Wannier function. (not only one-body part, but also effective
 \section{Install}
 \label{install}
 Install and minimum tests are easy; even in a note PC, e.g.,
-we can use gfortran in Ubuntu 14.04 on e.g., Thinkpad T420s for a test purpose.
+we can use gfortran in Ubuntu. In Thinkpad T480s (2018) install may take five
+minutes, and all tests may take another fifteen minutes.
+
 For productive runs, we may need multi-cores. 
 Current implementation for parallelization by MPI is limited
 (not so much especially for the dielectric function part yet). 
 Thus, probably, it may be not so efficient to use too many cores.
 
-Follow the instruction of \io{ecalj/README.md}.\\
-or we can see the same one at \url{https://github.com/tkotani/ecalj/#install-and-test}.
+Follow the instruction of \io{ecalj/README.org}.\\
+or we can see the same one at \url{https://github.com/tkotani/ecalj/README.org}.
 We have a command \exe{ecalj/InsallAll.ifort} and so on.
 This command installs \ecalj and run a series of install tests automatically.
 
 
 \subsection{Binaries and Scripts}
-Binary and Scripts contained in \ecalj are
+Main binaries and Scripts contained in \ecalj are
 \begin{itemize}
 \item {\tt ctrlgenM1.py}\\
   Generate default input file \ctrl from the structure file
   \ctrls. The latter file only contains information of crystal structure.
 \item {\tt lmfa}\\
-  Spherical atom calculation as initial condition, and core charge 
+      Spherical atom calculation as initial condition, and core charge.
 \item \lmchk\\
-  Check atomic positions, crystal symmetry, and computational conditions.
+      Check atomic positions, crystal symmetry, and computational conditions.
+      Check ID of MuffinTins (MTs of atoms specified by ctrl file is re-ordered
+      by computer.
 \item \exe{lmf} and \exe{lmf-MPIK}
   LDA/GGA,LDA+U calculations. (or we can use Vxc in QSGW instead).
   We mainly use \exe{lmf-MPI} ($\bfk$-parallel version) instead of \exe{lmf}.
@@ -850,8 +848,17 @@ Binary and Scripts contained in \ecalj are
     Run \exe{./job} at the directory).
 \item \exe{gwsc}\\
      QSGW calculation
-\item \verb#job_band,job_fermisurface,job_tdos,job_pdos#\\
+\item \verb#job_band,job_tdos,job_pdos#\\
      band, fermi surface, tdos, pdos plot.
+
+ \item \verb#job_fermisurface#\\
+      Run \verb#job_fermisurface cu -np 4 10 10 10#.
+      This write down all band energies (around Ef) for 10x10x10 in BZ.
+      Then we can view it with xcrysden as \verb#xcrysden --bxsf fermiup.bxsf#
+      (usage of xcrysden need to be written here).
+      With --allband added for \verb#job_fermisurface#, we can write all the
+      bands. So, we need this option if you like to write iso-energy
+      surface at high (or low) energy.     
 \item \exe{epsPP\_lmfh}\\
      Dielectric funciton without local field correction (LFC).
 \item \exe{eps\_lmfh}\\
@@ -866,8 +873,6 @@ Binary and Scripts contained in \ecalj are
 \item \exe{dqpu}\\
       A small python script to compare QPU.* files (eigenvalues are
       compared) numerically. 
-      (Seungwoo say it cause ``index error''; Need to fix dqpu if
-      something strange).
 \end{itemize}
 
 
@@ -895,10 +900,11 @@ ecalj
 ├── InstallAll.ifort, Install.gfortran ! install and test
 ├── Document/
 ├── fpgw/       ! full potential GW code
-├── fpgw/Wannier  ! Miyake's Wannier code is reorganized here.
+├── fpgw/Wannier  ! MaxLoc Wannier and cRPA code.
 ├── lm7K/       ! PMT method 
 ├── MATERIALS/  !job_materials.py contains examples. 
-├── StructureTool/ ! POSCAR converter, and a utility to 
+├── StructureTool/ ! POSCAR converter, and structure tool
+├── GetSyml/ ! Brillouin zone and symmetry lines generator and visualizer.
 ├── TestInstall/   ! Install test; this is invoked from Install.*
 └── TOOLS/      !Tools for developers
 \end{verbatim}
@@ -1964,7 +1970,7 @@ and/or turn on 'display color plane' buttons.
 
 
 \subsection{LDA+U}
-There is a document of \verb!ecalj/Document/BACKUP/MarksOriginalDoc/fp.html\#ldaplusu!
+There is a document of \url{file://../BACKUP/MarksOriginalDoc/fp.html\#ldaplusu}.
 But I include all required things here. Usage is slighly changed. 
 We have examples at \\
 \verb#~/ecalj/MATERIALS/erasldau,GdNldau#.
@@ -2080,17 +2086,56 @@ This is because sigm contains LDA+U kind of effect.
 After this, check energy band (jobband) for check.
 And run usual gwsc--- then you can perform QSGW with the LDA+U's initial condition.
 
+\subsection{QSGW after LDA+U}
+We modified \verb#lm7K/subs/m_rdctrl.F#(feb2019), so that
+An option which makes ``QSGW after LDA+U'' easy to run.
+A line for atom section
+\begin{verbatim}
+       IDU=0 0 0 12  UH=0 0 0 .7  JH=0 0 0 0
+\end{verbatim}
+works in ctrl file. Here 12=10+2 instead of 2 means that we set UH=JH=0 when
+sigm.* exits. Thus we can perform QSGW(without U term) calculaiton,
+after LDA+U calculaiton. This can be convenient for cases when we
+control the initial condition of QSGW.
+
 
 \subsection{partially occupied core-hole}
+See \url{file://../BACKUP/MarksOriginalDoc/fp.html#ldaplusu} around.
+Search the keyword ldau in fp/lmfp.F $\rightarrow$ sudmtu.F which read occnum.gdn.
+	
+Core-hole procedure is one of the important procedure.
+An example setting for Nd case is 
 \begin{verbatim}
-See file:///home/takao/ecalj/Document/BACKUP/MarksOriginalDoc/fp.html#ldaplusu
-around.
-Search the keyword ldau in fp/lmfp.F -> sudmtu.F which read occnum.gdn.
-Core-hole procedure is one of the important procedure.But not yet
-documented here.
+--------------------------
+      ATOM=Nd Z=60 R=3.00
+      C-HOLE=4f C-HQ=-11 P=6.5,6.5,5.5,5.2　　<-- this line is added
+--------------------------
 \end{verbatim}
+\begin{enumerate}
+\item 
+C-HOLE=4f means that 4f core is to set ``core hole''.
+\item 
+  P=6.5,6.5,5.5,5.2 is to set principle (fractinal) quantum number
+  explicitly for valence electrons.
+　To set this, try {\tt lmfa nd|grep conf} first. The you can see the
+  electronic configulation of an atom. Key point here is to set ``5.2''
+      for f channel. Thus 4f is treated as core and 5f as valence.
+      Fractional parts (0.2 of 5.2) means the radial funciton contains
+      nodes as 5f and closer to the energy right on the change of 4f to 5f. 
+      If 5.9, it is closer to the enrgy almost have noded of 6f.
+\item
+      C-HQ means that corehole is −１１. Thus we have only 14-11=3
+      electrons for 4f (spherically occupied). 
+\item
+     Run lmfa. If it does not show that
+     \verb#freeat (warning) atom not neutral#, it is the neutral atom.
+     You can also chage the message tagged by \verb#Add core hole:#
+     Simultaneously you can control initial total valence charge by \verb$Q=...$
+\end{enumerate}
 
-
+Very recently (aug2019), I fixed a bug of EFERMI(fermi energy for GW
+calculaiton, given by \verb#fpgw/main/heftet.m.F#) for the case C-HOLE
+is supplied.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2212,6 +2257,18 @@ calculate self-energy on dense BZ mesh 8x8x8.
 
 The template of GWinput is usually not so bad. But 
 it may give a little expensive setting (or not very good enough in cases).
+
+NOTE:
+GWinput allows some options. Some newer points are
+\begin{enumerate}
+ \item 
+       For the atoms without 3d involved, you can use lcutmx=2.
+       Typically we use lcutmx=2 for oxygen.
+ \item
+      \verb#GaussianFilterX0 0.0001# given in GWinput is effective to
+      stabilize the convergence for  metals.
+\end{enumerate}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

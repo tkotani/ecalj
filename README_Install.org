@@ -63,9 +63,10 @@ We can check history of ecalj by ">gitk --all" at ecalj/ directory after you got
 Do
 #+begin_src bash
  cd ecalj  
- InstallAll.gfortran
+ InstallAll.ifort
 #+end_src
-(in the case of intel fortran) at ecalj/. To clean all, do ./CleanAll.ifort.  
+(in the case of ifort) at ecalj/. To clean all, do ./CleanAll.ifort.
+You also have InstallAll.gfortran as well.
 
 Please look into the script "InstallAll.ifort". It is a small text file.
 It contains the setting of your BINDIR= directory,
@@ -76,7 +77,7 @@ It internally uses three machine-compilar dependent files;
   c.fpgw/exec/make.inc.ifort  (this is only for mpi-omp version ).  
 At the last stage of the script, it starts a series of automatic tests.
 You can neglect failure for nio_gwsc; it may show one-failure among two checks.
-The test may use ten minutes or more... Have a coffee!
+The test may use fourteen minutes (in my thinkpadT480s)... 
   
 InstallAll.ifort may not work for your environment. 
 Then you need to prepare your own InstallAll.foobar, in which you have to set compilar, linker, compilar options.
@@ -86,14 +87,20 @@ When InstallAll.ifort works well, it will show OK! signs finally.
 
 ** Structure tools
 You have to install VESTA and make sure that 'viewvesta' command works.
-You need to read GetSyml/README, to install getsyml.py.
+You need to read [[file:GetSyml/README.org][GetSyml/README.org]] to install getsyml.py.
 It is useful to get Brillowin zone plot and symmetry line plot in it.
 Generated syml.* is used for the band plot in ecalj.
+
+* Clean up:  
+If something wrong. do "make clean" or "make cleanall" and start over.
+Look into Makefile if you like to know what they do.
+"make cleanall" removes all *.o *.a modules, and binaries.
+
 
 * WARN! Some install problems 
 ** Compilar bug: 
 In cases, we have troubles due to the compilar.
-Usually we use -O2 in Make.inc.*. But we may need to use -O0 for some files to avoid compilar bug
+Usually we use -O2 in Make.inc.*. But we may need to use -O1 or -O0 for some files to avoid compilar bugs.
 
 ** Ifort 2018 fails tests (or not compiled)
    Version up, please.
@@ -101,36 +108,15 @@ Usually we use -O2 in Make.inc.*. But we may need to use -O0 for some files to a
   FFLAGS=-O2, but failed with FFLAGS=-O3. (I am not sure now).
 ** ifort12 may need FFLAGS=-O1 in MAKEINC/Make.inc.ifort. 
   -->Try InstallAll.ifort12.
-** We may need -heap-arrays 100 (when zero, we had a problem in a version
-  of ifort). In cases, -heap-arrays option did not generate working binaries.
+** We may need -heap-arrays 100 
+  (when zero, we had a problem in a version of ifort). 
+  In cases, -heap-arrays option did not generate working binaries.
   However, I think "ulimit -s unlimited" before QSGW calculations and
   so on works OK. So, maybe we don't need -heap-arrays option.
-** mpiifort works for liker, but mpif90 did not... (but opposite case
-  maybe). Need to set this in lm7K/MAKEINC/Make.inc.ifort
+** mpiifort works for liker, but mpif90 did not... 
+  (but opposite case maybe). Need to set this in lm7K/MAKEINC/Make.inc.ifort
   lm7K/MAKEINC/Make.inc.ifort_mpik and fpgw/exec/make.inc.ifort
   (FC and LK variables).
-
-
-##### (2)-i make MPI LDA part.
-lmf-MPIK and lmfgw-MPIK are needed for gwsc (srcipt for QSGW). 
-These are k-point parallel version of lmf, and gw driver lmfgw. To
-make it, do  
-"make PLATFORM=gfortran_mpik".  
-For ifort, set PLATFORM=ifort_mpik.  
-Then Makefile includes ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.
-You may need to add -heap-arrays 1 (for large calculations. Because we
-use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpi, but I
-am not so sure about this.
-
-(For CMD workshop participants: run  
- >make PLATFORM=ifort_mpik.cmd LIBMATH='-mkl'
-
-which corresponds to MAKEINC/Make.inc.ifort_mpik.cmd)
-
-*Clean up:  
-If something wrong. do "make clean" or "make cleanall" and start over.
-Look into Makefile if you like to know what they do.
-"make cleanall" removes all *.o *.a modules, and binaries.
 
 ** Move binaries to your bin by 
 make install at ecalj/lm7K. It just moves all requied binaries to your ~/bin.
@@ -217,10 +203,22 @@ This just copy required files (binaries and scripts) to your ~/bin.
 (check it in Makefile). If you like to copy them to ~/xxx instead of~/bin,
 make with BINDIR=xxx.
 
-(For CMD workshop participants: run  
-#+begin_src bash
-make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
-#+end_src
+# (For CMD workshop participants: run  
+# #+begin_src bash
+# make PLATFORM=ifort.cmd LIBMATH='-mkl' BINDIR=~/bin
+# #+end_src
+
+* Detail of MPI part of LDA(one-body) part
+lmf-MPIK and lmfgw-MPIK are needed for the main script of QSGW: gwsc.
+These are the k-point parallel version of lmf, and gw driver lmfgw. 
+To make it, do  
+"make PLATFORM=gfortran_mpik".  
+For ifort, set PLATFORM=ifort_mpik.  
+Then Makefile includes ecalj/lm7K/MAKEINC/Make.inc.ifort_mpik.
+You may need to add -heap-arrays 1 (for large calculations. Because we
+use large stacksize) to ecalj/lm7K/MAKEINC/Make.inc.ifort_mpi, but I
+am not so sure about this.
+
 
 * Detail of GW part of install, Installation for fpgw/
 This is for GW part to get self-energy.
