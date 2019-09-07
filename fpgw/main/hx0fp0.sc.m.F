@@ -754,14 +754,16 @@ c     d              natom, !nl,nclass,natom,nnc,
           enddo
         enddo
         write(6,*) 'MPI__AllreduceSumS end'
-        
+
 !! Gaussian filtering of rcxq. Smearging Imag(X0). We may use egauss = 0.05 a.u.\sim 1eV for example.
         if(eginit) then
            call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
+           if(MPI__root) write(6,'("GaussianFilterX0= ",d13.6)') egauss
            if(abs(egauss)>1d-15) then
               allocate(gfmat(nwhis,nwhis))
               call gaussianfilterhis(egauss,frhis,nwhis,gfmat)
            endif
+           allocate(rcxqin(1:nwhis))
            eginit=.false.
 c$$$           do i=1,nwhis
 c$$$           do j=1,nwhis
