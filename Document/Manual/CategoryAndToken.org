@@ -1,5 +1,5 @@
 # -*- Mode: org ; Coding: utf-8-unix -*-
-j#+TITLE: ecalj : Category and token in ctrl file
+#+TITLE: ecalj : Category and token in ctrl file
 #+AUTHOR: takao kotani @ tottori university, Japan
 #+email: takaokotani@gmail.com
 
@@ -17,6 +17,7 @@ Currently, ctrl file have nested structure.
     classes, and so the program differentiates names by
     appending integers to the label for species with
     multiple classes.
+
 Under each ATOM=XXX, we set following subtokens.
 *** Z=       
 nuclear charge. We can use fractional number
@@ -105,6 +106,7 @@ Default: R*0.4, with R=augmentation (muffin-tin) radius.
 *** RSMFA
 smoothing radius for tails of free-atom charge density. Irrelevant except first iteration only (non-self-consistent harris). A large radius produces smoother interstitial charge, but somewhat less accurate fit.
 Default: R/2, with R=augmentation (muffin-tin) radius. 
+
 
 * SYMGRP
 Category SYMGRP provides symmetry information; it helps in two
@@ -326,7 +328,6 @@ equivalent specifications
 
 ** TOL=    error criterion for the Ewald sums.
 
-
 * HAM
 ** GMAX
 an energy cutoff used to create mesh for the interstitial density. 
@@ -358,7 +359,7 @@ a parameter in the the Lindhard response function, namely the Fermi level for a 
 
 Default:-1
 
-* ITER
+* ITERa
 ** MIX 
 
 Example: MIX=A2,b=.3,n=3
@@ -453,3 +454,5 @@ Default: no relaxation
 
 ** NIT
 maximum number of relaxation steps 
+* STRUC 
+
