@@ -1,0 +1,1189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-09-09 月 18:07 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ecalj : Category and token in ctrl file</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="takao kotani @ tottori university, Japan" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">ecalj : Category and token in ctrl file</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org60329ad">1. SPEC</a>
+<ul>
+<li><a href="#org8c67272">1.1. ATOM</a>
+<ul>
+<li><a href="#org79dc1b9">1.1.1. Z=</a></li>
+<li><a href="#org06249c5">1.1.2. R=</a></li>
+<li><a href="#org24e29a0">1.1.3. NR=,A=</a></li>
+<li><a href="#orga4d0a48">1.1.4. LMX=</a></li>
+<li><a href="#org618579b">1.1.5. IDMOD=   (special option)</a></li>
+<li><a href="#org4bb156d">1.1.6. IDU=, UH=, JH=</a></li>
+<li><a href="#orgcfdd85e">1.1.7. P=real,real,&#x2026;.</a></li>
+<li><a href="#org8a658df">1.1.8. PZ= real,real,&#x2026;</a></li>
+<li><a href="#org1e43458">1.1.9. Q= real,real,&#x2026;</a></li>
+<li><a href="#org5c05486">1.1.10. MMOM=real,real,&#x2026;</a></li>
+<li><a href="#orgd7c75be">1.1.11. LFOCA</a></li>
+<li><a href="#org3002341">1.1.12. LMXA</a></li>
+<li><a href="#org6be9f26">1.1.13. C-HOLE</a></li>
+<li><a href="#org4c2fff7">1.1.14. C-HQ= real[,real]</a></li>
+<li><a href="#orga4a596e">1.1.15. KMXA</a></li>
+<li><a href="#orgdef3203">1.1.16. RSMA</a></li>
+<li><a href="#org483424c">1.1.17. RSMG</a></li>
+<li><a href="#orgece06c4">1.1.18. LMXL (obsolate?)</a></li>
+<li><a href="#org65eb810">1.1.19. RFOCA</a></li>
+<li><a href="#orge6e72d3">1.1.20. RSMFA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org369364d">2. SYMGRP</a></li>
+<li><a href="#org10e2aeb">3. BZ</a>
+<ul>
+<li><a href="#org2e99a55">3.1. NKABC=  (1-3 integers)</a></li>
+<li><a href="#orga12204e">3.2. TETRA=</a></li>
+<li><a href="#org3126538">3.3. SAVDOS=</a></li>
+<li><a href="#orgd90ce1e">3.4. NPT=   number of points in the density-of-states mesh used in</a></li>
+<li><a href="#orgd8bb590">3.5. DOS=    (two numbers) Energy window over which DOS accumulated.</a></li>
+<li><a href="#org9784a79">3.6. METAL= 4</a></li>
+<li><a href="#org043ccce">3.7. NEVMX=  nevmx&gt;0 : Find at most nevmx eigenvectors;</a></li>
+<li><a href="#org492df97">3.8. ZVAL=   Number of electrons to accumulate in BZ integration.</a></li>
+<li><a href="#orgec12d27">3.9. NOINV=  suppress the automatic addition of the inversion to the</a></li>
+<li><a href="#org6beb190">3.10. FSMOM=  set the global magnetic moment (collinear magnetic case).</a></li>
+<li><a href="#org9cd419e">3.11. INVIT=  enables inverse iteration generate eigenvectors (this is</a></li>
+</ul>
+</li>
+<li><a href="#org494b81a">4. EWALD</a>
+<ul>
+<li><a href="#org011f119">4.1. NKDMX=  the maximum number of real-space lattice vectors</a></li>
+<li><a href="#org196ba11">4.2. AS=     controls the relative number of lattice vectors in real</a></li>
+<li><a href="#org91dcdb1">4.3. TOL=    error criterion for the Ewald sums.</a></li>
+</ul>
+</li>
+<li><a href="#org35addb1">5. HAM</a>
+<ul>
+<li><a href="#org9385b65">5.1. GMAX</a></li>
+<li><a href="#org598e5e8">5.2. FTMESH</a></li>
+<li><a href="#org3bc7ec8">5.3. TOL</a></li>
+<li><a href="#orga3c125e">5.4. FRZWF (=T or F)</a></li>
+<li><a href="#orgf27ea60">5.5. FORCES (=0 or 1)</a></li>
+<li><a href="#org9dd1436">5.6. ELIND (Default=-1)</a></li>
+</ul>
+</li>
+<li><a href="#orga802d8c">6. ITERa</a>
+<ul>
+<li><a href="#org29ee64e">6.1. MIX</a></li>
+<li><a href="#org7d596c2">6.2. CONV</a></li>
+<li><a href="#org326bd56">6.3. CONVC</a></li>
+<li><a href="#org87a3b4a">6.4. NIT</a></li>
+</ul>
+</li>
+<li><a href="#org33ea36d">7. DYN</a>
+<ul>
+<li><a href="#orgcbde9f3">7.1. MSTAT</a></li>
+<li><a href="#orgff8f765">7.2. NIT</a></li>
+</ul>
+</li>
+<li><a href="#orgb108822">8. STRUC</a></li>
+</ul>
+</div>
+</div>
+<p>
+Currently, ctrl file have nested structure.
+</p>
+
+<div id="outline-container-org60329ad" class="outline-2">
+<h2 id="org60329ad"><span class="section-number-2">1</span> SPEC</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org8c67272" class="outline-3">
+<h3 id="org8c67272"><span class="section-number-3">1.1</span> ATOM</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+a few-character string that labels the atom of that
+species.  This string names the disk file that will
+hold information about that atom (potential
+parameters, moments, potential and some sundry other
+information), and is used elsewhere in the input (see
+categories SITE and START below) to identify a
+particular atom.  Note: species are split into
+classes, and so the program differentiates names by
+appending integers to the label for species with
+multiple classes.
+</p>
+
+<p>
+Under each ATOM=XXX, we set following subtokens.
+</p>
+</div>
+<div id="outline-container-org79dc1b9" class="outline-4">
+<h4 id="org79dc1b9"><span class="section-number-4">1.1.1</span> Z=</h4>
+<div class="outline-text-4" id="text-1-1-1">
+<p>
+nuclear charge. We can use fractional number
+</p>
+</div>
+</div>
+<div id="outline-container-org06249c5" class="outline-4">
+<h4 id="org06249c5"><span class="section-number-4">1.1.2</span> R=</h4>
+<div class="outline-text-4" id="text-1-1-2">
+<p>
+the sphere radius, in atomic units (Bohr)
+</p>
+</div>
+</div>
+<div id="outline-container-org24e29a0" class="outline-4">
+<h4 id="org24e29a0"><span class="section-number-4">1.1.3</span> NR=,A=</h4>
+<div class="outline-text-4" id="text-1-1-3">
+<p>
+defines the radial mesh, together with R, on which
+           densities and potentials are tabulated with MT sphere
+           It is a shifted logarithmic radial mesh of points
+           const*exp(A*(0..NR-1)-1).
+</p>
+</div>
+</div>
+<div id="outline-container-orga4d0a48" class="outline-4">
+<h4 id="orga4d0a48"><span class="section-number-4">1.1.4</span> LMX=</h4>
+<div class="outline-text-4" id="text-1-1-4">
+<p>
+basis l-cutoff inside the sphere.  If not specified,
+           it defaults to NL-1.
+</p>
+</div>
+</div>
+<div id="outline-container-org618579b" class="outline-4">
+<h4 id="org618579b"><span class="section-number-4">1.1.5</span> IDMOD=   (special option)</h4>
+<div class="outline-text-4" id="text-1-1-5">
+<p>
+a set of integers, one for each l-channel controlling
+           how the potential parameter enu changes from
+           one iteration to the next in a self-consistency cycle.
+           0:  lets the enu shift to the center of gravity
+              of the occupied part of the band (this is the default);
+           1:  freezes the logarithmic derivative of the
+              wave function phi at the sphere radius from one iteration
+              to the next;
+           2:  freezes the enu's from one iteration to the next.
+</p>
+</div>
+</div>
+<div id="outline-container-org4bb156d" class="outline-4">
+<h4 id="org4bb156d"><span class="section-number-4">1.1.6</span> IDU=, UH=, JH=</h4>
+<div class="outline-text-4" id="text-1-1-6">
+<p>
+pecify parameters for LDA+U.  IDU=#,#,#,&#x2026; specifies which
+          l-channels are to have U and the type of LDA+U implementation.
+          0 in a particular l-channel means no U is to be applied
+          1,2,3 are for particular forms of LDA+U.  However,
+          at present the ASA code does not have a proper implementation of LDA+U;
+          instead potential parameters C and enu may be shifted by a constant.
+          Use IDU=4 to shift both spin channels by a constant (specified by U)
+          or  IDU=5 to shift majority channel by U and minority by J.
+          Example:
+             IDU= 0 0 0 5 UH= 0 0 0 -0.28    JH=0 0 0 0.23
+          shifts the majority f channel by -0.28 Ry and the minority f channel
+          by 0.23 Ry.  This mimics an LDA+U calculation for Gd.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgcfdd85e" class="outline-4">
+<h4 id="orgcfdd85e"><span class="section-number-4">1.1.7</span> P=real,real,&#x2026;.</h4>
+<div class="outline-text-4" id="text-1-1-7">
+<p>
+Starting values for potential functions, one for each of l=0..LMXA (real numbers for s,p,d,f
+Default: taken from an internal table.&#x2014;&gt; See by 'lmfa si|grep conf' for ctrl.si.
+</p>
+</div>
+</div>
+<div id="outline-container-org8a658df" class="outline-4">
+<h4 id="org8a658df"><span class="section-number-4">1.1.8</span> PZ= real,real,&#x2026;</h4>
+<div class="outline-text-4" id="text-1-1-8">
+<p>
+Starting values for local orbital's potential functions, one for each of l=0..LMX. Setting PZ=0 for any l means that no local orbital is specified for this l. Each integer part of PZ must be either one less than P (semicore state) or one greater (high-lying state).
+Default: zero.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1e43458" class="outline-4">
+<h4 id="org1e43458"><span class="section-number-4">1.1.9</span> Q= real,real,&#x2026;</h4>
+<div class="outline-text-4" id="text-1-1-9">
+<p>
+charges for each l-channel making up free-atom density
+Default: taken from an internal table.
+</p>
+</div>
+</div>
+<div id="outline-container-org5c05486" class="outline-4">
+<h4 id="org5c05486"><span class="section-number-4">1.1.10</span> MMOM=real,real,&#x2026;</h4>
+<div class="outline-text-4" id="text-1-1-10">
+<p>
+magnetic moments for each l-channel making up free-atom density Relevant only for the spin-polarized case.
+Default: 0,0,&#x2026; 
+</p>
+</div>
+</div>
+<div id="outline-container-orgd7c75be" class="outline-4">
+<h4 id="orgd7c75be"><span class="section-number-4">1.1.11</span> LFOCA</h4>
+<div class="outline-text-4" id="text-1-1-11">
+<p>
+prescribes how core is treated.
+    0 confines core to within RMT. Usually the least accurate. 
+    1 treats the core as frozen but lets it spill into the interstitial 
+    2 same as 1, but interstitial contribution to vxc treated perturbatively. 
+Default: 1 
+</p>
+</div>
+</div>
+<div id="outline-container-org3002341" class="outline-4">
+<h4 id="org3002341"><span class="section-number-4">1.1.12</span> LMXA</h4>
+<div class="outline-text-4" id="text-1-1-12">
+<p>
+angular momentum l-cutoff for projection of wave functions tails centered at other sites in this sphere. Must be at least the basis l-cutoff (specified by LMX=).
+Default:NL-1.
+LMXA should be the same for all sites for QSGW (2019,because of implementation problem).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6be9f26" class="outline-4">
+<h4 id="org6be9f26"><span class="section-number-4">1.1.13</span> C-HOLE</h4>
+<div class="outline-text-4" id="text-1-1-13">
+<p>
+channel for core hole. You can force partial core occupation. Syntax consists of two characters, the principal quantum number and the second one of `s',`d',`d',`f' for the l quantum number, e.g. `2s' See Partially occupied core holes for description and examples.
+Default: nothing 
+</p>
+</div>
+</div>
+<div id="outline-container-org4c2fff7" class="outline-4">
+<h4 id="org4c2fff7"><span class="section-number-4">1.1.14</span> C-HQ= real[,real]</h4>
+<div class="outline-text-4" id="text-1-1-14">
+<p>
+First number specifies the number of electrons to remove from the l channel specified by C-HOLE=.
+Second (optional) number specifies the hole magnetic moment.
+See Partially occupied core holes for description and examples. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga4a596e" class="outline-4">
+<h4 id="orga4a596e"><span class="section-number-4">1.1.15</span> KMXA</h4>
+<div class="outline-text-4" id="text-1-1-15">
+<p>
+polynomial cutoff for projection of wave functions in sphere. Smoothed Hankels are expanded in polynomials around other sites instead of Bessel functions as in the case of normal Hankels.
+Default:3
+</p>
+</div>
+</div>
+<div id="outline-container-orgdef3203" class="outline-4">
+<h4 id="orgdef3203"><span class="section-number-4">1.1.16</span> RSMA</h4>
+<div class="outline-text-4" id="text-1-1-16">
+<p>
+smoothing radius for projection of smoothed Hankel tails into augmentation spheres. sm-Hankels are expanded in polynomials by integrating with Gaussians at that site. Thus RSMA=0 =&gt; sm-Hankels Taylor series expansion about the origin. For large KMXA the choice is irrelevant, but RSMA is best chosen that maximizes the convergence of sm-Hankels with KMXA.
+Default: R*0.5, with R=augmentation (muffin-tin) radius. 
+</p>
+</div>
+</div>
+<div id="outline-container-org483424c" class="outline-4">
+<h4 id="org483424c"><span class="section-number-4">1.1.17</span> RSMG</h4>
+<div class="outline-text-4" id="text-1-1-17">
+<p>
+smoothing radius for Gaussians added to sphere densities to correct multipole moments needed for electrostatics. Value should be as large as possible 
+but small enough that the Gaussian doesn't spill out significantly beyond rmt.
+Default: R/4, with R=augmentation (muffin-tin) radius. 
+</p>
+</div>
+</div>
+<div id="outline-container-orgece06c4" class="outline-4">
+<h4 id="orgece06c4"><span class="section-number-4">1.1.18</span> LMXL (obsolate?)</h4>
+<div class="outline-text-4" id="text-1-1-18">
+<p>
+angular momentum l-cutoff for explicit representation of local charge on a radial mesh.
+Default:NL-1 
+</p>
+</div>
+</div>
+<div id="outline-container-org65eb810" class="outline-4">
+<h4 id="org65eb810"><span class="section-number-4">1.1.19</span> RFOCA</h4>
+<div class="outline-text-4" id="text-1-1-19">
+<p>
+smoothing radius fitting tails of core density. A large radius produces smoother interstitial charge, but less accurate fit.
+Default: R*0.4, with R=augmentation (muffin-tin) radius. 
+</p>
+</div>
+</div>
+<div id="outline-container-orge6e72d3" class="outline-4">
+<h4 id="orge6e72d3"><span class="section-number-4">1.1.20</span> RSMFA</h4>
+<div class="outline-text-4" id="text-1-1-20">
+<p>
+smoothing radius for tails of free-atom charge density. Irrelevant except first iteration only (non-self-consistent harris). A large radius produces smoother interstitial charge, but somewhat less accurate fit.
+Default: R/2, with R=augmentation (muffin-tin) radius. 
+</p>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org369364d" class="outline-2">
+<h2 id="org369364d"><span class="section-number-2">2</span> SYMGRP</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Category SYMGRP provides symmetry information; it helps in two
+ways.  First it is the relevant information to find which sites
+are equivalent, which makes for simpler and more accurate band
+calculations, and second, it reduces the number of k-points
+needed in Brillouin zone integrations.
+</p>
+
+<p>
+Unless you are doing something special, normally you don't need
+SYMGRP; the program is capable of finding its own symmetry
+operations.  However, if you want to restrict operations to a set
+you specify, or if you are doing something (like noncollinear
+magnetism) where the symmetry group isn't specified by atomic
+positions along, use SYMGRP to explicitly declare a set of
+generators from which the entire group can be created.  For
+example, the three operations R4X, MX and R3D are sufficient to
+generate all 48 elements of cubic symmetry (the inversion is
+always assumed).
+</p>
+
+<p>
+A symbol describing a generator for a point group operation has
+the form O(nx,ny,nz) where O is one of M, I or Rj for mirror,
+inversion and j-fold rotation; and nx,ny,nz are a triplet of
+indices specifying the axis of operation.  You may use X, Y, Z or
+D as shorthand for (1,0,0), (0,1,0), (0,0,1), (1,1,1).  You may
+also enter products, such as I*R4X.  Example:
+  SYMGRP  R4X MX R3D
+specifies three generators (4-fold rotation around x, mirror in
+x, 3-fold rotation around (1,1,1)) and will result in 48 symmetry
+operations.
+</p>
+
+<p>
+To suppress all symmetry operations, use
+  SYMGRP i*i
+</p>
+
+<p>
+The keyword `find' tells the program to determine its own
+symmetry operations.  Thus
+  SYMGRP find
+is amounts to the same as not including a SYMGRP category
+in the input at all.
+</p>
+
+<p>
+You can also specify a mix of generators you supply, and
+tell the program to find any others that might exist.
+For example,
+  SYMGRP r4x find
+specifies that 4-fold symop be included, and `find' tells
+the program to look for any other symops that might exist.
+</p>
+
+<p>
+Full-potential implementations require you to specify the full
+space group operation.  This you do by appending a string of the
+form `:(x1,x2,x3)' to the point group operation, or an alternate
+form `::(p1,p2,p3)' with the double `::'.  The first defines the
+translation in Cartesian coordinates; the second as multiples of
+plat.  These two lines taken from testing/ctrl.cr3si6 are
+equivalent specifications
+  SYMGRP   r6z:(0,0,0.4778973) r2(1/2,sqrt(3)/2,0)
+  SYMGRP   r6z::(0,0,1/3)      r2(1/2,sqrt(3)/2,0)
+</p>
+</div>
+</div>
+
+<div id="outline-container-org10e2aeb" class="outline-2">
+<h2 id="org10e2aeb"><span class="section-number-2">3</span> BZ</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Category BZ holds information concerning the numerical
+integration of energy bands over the Brillouin Zone.  The LMTO
+programs are not tied to any one method, so the desired method
+must be specified by a token.  Unless a table of k-points is
+supplied and the GETQP switch is set, the program will divide
+the BZ into a uniform mesh of points by making NKABC divisions
+along the primitive reciprocal cell vectors.
+</p>
+</div>
+
+
+<div id="outline-container-org2e99a55" class="outline-3">
+<h3 id="org2e99a55"><span class="section-number-3">3.1</span> NKABC=  (1-3 integers)</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+the number of divisions in the three
+       directions of the reciprocal lattice vectors.  The
+       number of k-points in the full BZ is the product of
+       these numbers, this may be reduced by symmetry
+       operations.  Alternatively, you may specify k-points
+       explicitly in a separate file, as the following shows:
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga12204e" class="outline-3">
+<h3 id="orga12204e"><span class="section-number-3">3.2</span> TETRA=</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+selects BZ integration method
+       0: Methfessel-Paxton sampling integration
+	  Tokens NPTS, N, W, EF0, DELEF described below are
+	  relevant to this integration scheme.
+       1: tetrahedron integration
+</p>
+
+<p>
+W=      Line broadening for Gaussian sampling integration (Ry).
+	Used only if TETRA=0 and MET&gt;0.
+	NB: if N=-1 below, the sampling weights are computed
+	from the Fermi function instead of the error function.
+	In that case, token W= corresponds to temperature, in Ry.
+</p>
+
+<p>
+N=      If N=#, #&gt;0: integration uses generalized gaussian
+	functions, i.e. polynomial of order N * gaussian to
+	generate integration weights
+	(see Methfessel &amp; Paxton, Phys. Rev. B, 40, 3616 (1989))
+</p>
+
+<p>
+If N=#, #&lt;0: integration uses the Fermi function to
+generate integration weights .
+</p>
+
+<p>
+By default, if a gap is found separating occupied and
+occupied states, the program will treat the system as
+and insulator, even when MET&gt;0.  To suppress this,
+add 100(-100 for Fermi distribution) to N.
+</p>
+
+<p>
+Used only if TETRA=0 and MET&gt;0.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3126538" class="outline-3">
+<h3 id="org3126538"><span class="section-number-3">3.3</span> SAVDOS=</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+0: does not save dos on disk
+</p>
+
+<p>
+1: writes the total density of states on NPTS mesh
+	 points to disk file `dos'.
+</p>
+
+<p>
+2: Write weights to disk for partial DOS
+	 (In the ASA, with METAL=t this occurs anyway)
+</p>
+
+<p>
+4: Same as option (2), but write weights m-resolved.
+	 You may also cause lm to generate m-resolved dos using
+	 the &#x2013;pdos command-line argument.
+	 NB: you must turn OFF all symmetry operations to produce
+	 correct results.  (The extra inversion symmetry in the
+	 k-points from time-reversal symmetry is still allowed.)
+       Note: SAVDOS&gt;0 requires NPTS and DOS also.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd90ce1e" class="outline-3">
+<h3 id="orgd90ce1e"><span class="section-number-3">3.4</span> NPT=   number of points in the density-of-states mesh used in</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+conjunction with sampling integration.  Needed for
+sampling or if SAVDOS&gt;0.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd8bb590" class="outline-3">
+<h3 id="orgd8bb590"><span class="section-number-3">3.5</span> DOS=    (two numbers) Energy window over which DOS accumulated.</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+Needed for sampling or if SAVDOS&gt;0.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9784a79" class="outline-3">
+<h3 id="org9784a79"><span class="section-number-3">3.6</span> METAL= 4</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+(old document)
+ specifies how the weights are generated for BZ
+      integration.  There is a difficulty in that EITHER the
+      weights must be known in advance before looping over
+      k-points, in order accumulate the output density, OR
+      the eigenvectors for each k-point must be kept until
+      the Fermi level is determined.  When just accumulating
+      the spherical part of the charge, as in the the ASA,
+      the eigenvector information can be contracted over m,
+      and is not prohibitive, but the situation is rather
+      worse in general.  There are several ways out of this
+      difficulty:
+</p>
+
+<p>
+METAL=0 system assumed to be an insulator; weights
+	known a priori
+</p>
+
+<p>
+METAL=2 integration weights are read from file `wkp',
+	which was generated in a prior band pass (if
+	file is missing, program will temporarily
+	switch to mode METAL=3:)
+</p>
+
+<p>
+METAL=3 two band passes are made; the first generates
+	only eigenvalues and the Fermi level is
+	determined.
+</p>
+
+<p>
+METAL=4 weights and related information is retained for
+	three distinct Fermi levels.  After the Fermi
+	level is determined, the density is obtained by
+	quadratic interpolation through the three
+	points.  (This scheme is suitable for sampling
+	only, since in that case just the Fermi level
+	is needed to set integration weights.  When
+	this scheme is used in conjunction with the
+	tetrahedron method, the charge density is
+	calculated with sampling.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org043ccce" class="outline-3">
+<h3 id="org043ccce"><span class="section-number-3">3.7</span> NEVMX=  nevmx&gt;0 : Find at most nevmx eigenvectors;</h3>
+<div class="outline-text-3" id="text-3-7">
+<p>
+nevmx=0 : program uses internal default
+nevmx&lt;0 : no eigenvectors are generated (and
+	  correspondingly, nothing associated with
+	  eigenvectors such as density.)
+</p>
+
+<p>
+Caution: if you want to look and partial DOS well above
+the Fermi level (which comes out around 0), you must
+set EFMAX and NEVMX high enough to encompass the range
+of interest.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org492df97" class="outline-3">
+<h3 id="org492df97"><span class="section-number-3">3.8</span> ZVAL=   Number of electrons to accumulate in BZ integration.</h3>
+<div class="outline-text-3" id="text-3-8">
+<p>
+Normally zval is computed by the program.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgec12d27" class="outline-3">
+<h3 id="orgec12d27"><span class="section-number-3">3.9</span> NOINV=  suppress the automatic addition of the inversion to the</h3>
+<div class="outline-text-3" id="text-3-9">
+<p>
+list of point group operations.  Usually addition of
+inversion is allowed because of time reversal symmetry.
+There are some cases, where this symmetry is broken,
+such as when spin-orbit coupling is included.  The
+program will automatically disable this addition in
+cases that knows the symmetry is broken.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6beb190" class="outline-3">
+<h3 id="org6beb190"><span class="section-number-3">3.10</span> FSMOM=  set the global magnetic moment (collinear magnetic case).</h3>
+<div class="outline-text-3" id="text-3-10">
+<p>
+In the fixed-spin moment method, a spin-dependent potential
+shift is added to constrain the total magnetic moment to
+value assigned by FSMOM=.  No constraint is imposed if this
+value is zero (the default).
+Notes:
+</p>
+<ol class="org-ol">
+<li>At present there is ba term missing in the HF
+energy, so it should not be used.</li>
+<li>an iterative scheme is used to determine the potential
+and it not foolproof.</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org9cd419e" class="outline-3">
+<h3 id="org9cd419e"><span class="section-number-3">3.11</span> INVIT=  enables inverse iteration generate eigenvectors (this is</h3>
+<div class="outline-text-3" id="text-3-11">
+<p>
+the default). It is more efficient than the QL method,
+but occasionally fails to find all the vectors.  When
+this happens, the program stops with the message:
+   DIAGNO: tinvit cannot find all evecs
+If you encounter this message set INVIT=F.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org494b81a" class="outline-2">
+<h2 id="org494b81a"><span class="section-number-2">4</span> EWALD</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Category EWALD holds information controlling the Ewald sums for
+structure constants entering into, e.g. the Madelung summations.
+The defaults are usually adequate; for a detailed description
+the reader is referred to documentation on the Madelung sums.
+</p>
+</div>
+
+<div id="outline-container-org011f119" class="outline-3">
+<h3 id="org011f119"><span class="section-number-3">4.1</span> NKDMX=  the maximum number of real-space lattice vectors</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+entering into the Ewald sum, used for memory allocation.
+Normally you should not need this token.  Increase
+NKDMX if you encounter an error message like
+   xlgen: too many vectors, n=&#x2026;
+</p>
+</div>
+</div>
+
+<div id="outline-container-org196ba11" class="outline-3">
+<h3 id="org196ba11"><span class="section-number-3">4.2</span> AS=     controls the relative number of lattice vectors in real</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+and reciprocal space.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org91dcdb1" class="outline-3">
+<h3 id="org91dcdb1"><span class="section-number-3">4.3</span> TOL=    error criterion for the Ewald sums.</h3>
+</div>
+</div>
+
+
+<div id="outline-container-org35addb1" class="outline-2">
+<h2 id="org35addb1"><span class="section-number-2">5</span> HAM</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-org9385b65" class="outline-3">
+<h3 id="org9385b65"><span class="section-number-3">5.1</span> GMAX</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+an energy cutoff used to create mesh for the interstitial density. 
+A uniform mesh is created that best `fits into' cutoff gmax.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org598e5e8" class="outline-3">
+<h3 id="org598e5e8"><span class="section-number-3">5.2</span> FTMESH</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+he number of divisions specifying the uniform mesh 
+density along the three reciprocal lattice vectors. The second and third arguments default to the value of the first one, if they are not specified. Required input; alternatively information may be specified by the preceding token..
+</p>
+</div>
+</div>
+<div id="outline-container-org3bc7ec8" class="outline-3">
+<h3 id="org3bc7ec8"><span class="section-number-3">5.3</span> TOL</h3>
+<div class="outline-text-3" id="text-5-3">
+<p>
+specifies the precision to which the wave functions are expanded in a Fourier expansion.
+Default:10E-6
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga3c125e" class="outline-3">
+<h3 id="orga3c125e"><span class="section-number-3">5.4</span> FRZWF (=T or F)</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+specifies whether the augmented part of the wave functions be frozen. Normally they are updated as the potential changes, but with FRZWF=t the potential used to make augmentation wave functions is frozen at what is read from the restart file (or free-atom potential if starting from superposing free atoms).
+Default:F
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf27ea60" class="outline-3">
+<h3 id="orgf27ea60"><span class="section-number-3">5.5</span> FORCES (=0 or 1)</h3>
+<div class="outline-text-3" id="text-5-5">
+<p>
+controls how forces are to be calculated, and how the second-order corrections are to be evaluated. Through the variational principle, the total energy is correct to second order in deviations from self-consistency, but forces are correct only to first order. To obtain forces to second order, it is necessary to know how the density would change with a (virtual) displacement of the core+nucleus, which requires a linear response treatment. lmf estimates this changes in one of two ways:
+    the free-atom density is subtracted from the total density for nuclei centered at the original position and added back again at the (virtually) displaced position.
+    For this ansatz, use FORCES=1.
+    the core+nucleus is shifted and screened assuming a Lindhard dielectric response.
+    For this ansatz, use FORCES=12. You also must specify ELIND, below. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9dd1436" class="outline-3">
+<h3 id="org9dd1436"><span class="section-number-3">5.6</span> ELIND (Default=-1)</h3>
+<div class="outline-text-3" id="text-5-6">
+<p>
+a parameter in the the Lindhard response function, namely the Fermi level for a free-electron gas relative to the bottom of the band. You can specify this energy directly, by using a positive number for the parameter. If you use instead a negative number, the program will choose a default value from the total number of valence electrons and assuming a free-electron gas, scale that default by the absolute value of the number you specify. If you have a simple sp bonded system, the default value is an excellent choice. If you have d or f electrons, it tends to overestimate the response. Use a something smaller, e.g. ELIND=-0.7. ELIND is used in three contexts:
+    (1) in the force correction term; see FORCES= above 
+    (2) to estimate a self-consistent density from the input and output densities after a band pass 
+    (3) to estimate a reasonable smooth density from a starting density after atoms are moved in a relaxation step. 
+</p>
+
+<p>
+Default:-1
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga802d8c" class="outline-2">
+<h2 id="orga802d8c"><span class="section-number-2">6</span> ITERa</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-org29ee64e" class="outline-3">
+<h3 id="org29ee64e"><span class="section-number-3">6.1</span> MIX</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+Example: MIX=A2,b=.3,n=3
+</p>
+
+<p>
+&#x2014;follwings still may have some inconsistency &#x2014;
+</p>
+
+<p>
+Category MIX controls the mixing scheme used in the iterations
+ towards self-consistency.  There is a choice
+ between the Broyden and Anderson mixing schemes. 
+ Both schemes
+ mix in linear combinations of the input and output density
+ both from the present iteration and prior
+ iterations to accelerate convergence to self-consistency (output
+ = input).  For Anderson mixing, the mixing beta controls how
+ much output and how much input moment is used in the next
+ estimate such as: Q* = beta*Qout + (1-beta)*Qin.  Here
+ Qout and Qin are charges, and
+ the "charges" generated by the input "charge" for a sequence of
+ prior iterations.  For small systems, you can take beta close to
+ one; for large systems charge sloshing becomes a problem and you
+ have to do something different.  Possible choices need to take
+ beta much smaller.  See slatsm/amix.f for a description of the
+ Anderson mixing scheme, and how it chooses the linear
+ combination of prior iterations in the mix.
+</p>
+
+<p>
+The syntax for Anderson mixing is
+</p>
+
+<p>
+MIX=A[nmix][,b=beta][,n=nit]
+</p>
+
+<p>
+where the optional b=val assigns val to beta.
+</p>
+
+<p>
+Broyden mixing uses a more sophisticated procedure, in which it
+tries to build up the Hessian matrix.  It usually works better
+but has more pitfalls than Anderson.  As with Anderson, it uses
+linear mixing in the absence of prior iterations, Q* = beta*Qout
+</p>
+<ul class="org-ul">
+<li>(1-beta)*Qin.  Broyden has an additional parameter, wc, that</li>
+</ul>
+<p>
+controls how much weight is given to prior iterations in the mix
+(see below).  The syntax for Broyden mixing is
+</p>
+
+<p>
+MODE=B[nmix][,b=beta][,n=nit]
+</p>
+
+<p>
+These parameters are as follows.  Fortran routine parmxp.f parses
+the MODE line to read the parameters, and pqmix.f does
+the mixing.
+</p>
+
+<p>
+nmix: maximum number of prior iterations to include in the mix
+      (the mixing file may contain more than nmix prior
+      iterations.)  NB: nmix=0 implies linear mixing.
+</p>
+
+<p>
+beta: the mixing beta (see above)
+</p>
+
+<p>
+nit:  the number of iterations to use mix with this set of
+      parameters before passing on to the next set. After the
+      last set is exhausted, it starts over with the first
+      set.
+</p>
+</div>
+</div>
+<div id="outline-container-org7d596c2" class="outline-3">
+<h3 id="org7d596c2"><span class="section-number-3">6.2</span> CONV</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+maximum allowed change in energy between iterations to reach self-consistency. 
+Search diffe in concole output.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org326bd56" class="outline-3">
+<h3 id="org326bd56"><span class="section-number-3">6.3</span> CONVC</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+maximum allowed change in output-input density to reach self-consistency. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-org87a3b4a" class="outline-3">
+<h3 id="org87a3b4a"><span class="section-number-3">6.4</span> NIT</h3>
+<div class="outline-text-3" id="text-6-4">
+<p>
+maximum number of iteration 
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org33ea36d" class="outline-2">
+<h2 id="org33ea36d"><span class="section-number-2">7</span> DYN</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+is used for atomic position relaxiation.
+(no automatic cell relaxiation yet). Only at LDA/GGA level.
+</p>
+</div>
+<div id="outline-container-orgcbde9f3" class="outline-3">
+<h3 id="orgcbde9f3"><span class="section-number-3">7.1</span> MSTAT</h3>
+<div class="outline-text-3" id="text-7-1">
+<p>
+Sample: MSTAT[MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015]
+a collection of parameters specifying how site positions are relaxed given the internuclear forces
+</p>
+
+<p>
+MODE
+  =0: skip relaxation of atom positions
+   4: relax using conjugate-gradients
+   5: relax using Fletcher-Powell
+   6: relax using Broyden
+</p>
+
+<p>
+HESS
+    T: read hessian from disk
+   F: assume initial hessian=1
+</p>
+
+<p>
+XTOL convergence criterion in displacements
+   r3=0 means not to use this criterion
+</p>
+
+<p>
+GTOL convergence criterion in forces
+   r4=0 means not to use this criterion
+   NOTE: you should have either r3&gt;0 or r4&gt;0
+</p>
+
+<p>
+STEP initial step length, in units of the lattice parameter a
+</p>
+
+<p>
+Default: no relaxation 
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgff8f765" class="outline-3">
+<h3 id="orgff8f765"><span class="section-number-3">7.2</span> NIT</h3>
+<div class="outline-text-3" id="text-7-2">
+<p>
+maximum number of relaxation steps 
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb108822" class="outline-2">
+<h2 id="orgb108822"><span class="section-number-2">8</span> STRUC</h2>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: takao kotani @ tottori university, Japan</p>
+<p class="date">Created: 2019-09-09 月 18:07</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

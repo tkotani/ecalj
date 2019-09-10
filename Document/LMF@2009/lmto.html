@@ -1,0 +1,3100 @@
+<HTML><HEAD><TITLE>LMTO-ASA basic package (v6.11) </TITLE></HEAD><BODY bgcolor="#cccccc">
+<H1><B><FONT size="+3">LMTO-ASA basic package (v6.11)</FONT></B></H1>
+
+This file documents the basic LMTO and TBE program packages.
+<pre>
+  Written by M. van Schilfgaarde, A.T.Paxton, J. Klepeis and M. Methfessel
+  email      mvansch@ca.sandia.gov
+  Documentation for Version 6.11, July 2001
+</pre>
+
+
+<H2><A name="section1"><FONT size="+2"><FONT size="+2">
+1.  Purpose of the LMTO and supplemental packages
+ </FONT></FONT></A></H2>
+
+This documentation is oriented mainly for basic package
+ASA.<I>vsn</I>.tar.gz, the ASA electronic structure program and
+supporting programs.  But much of the description and input is
+relevant for the extension packages as well, in particular the
+full-potential program package (FP.<I>vsn</I>.tar.gz).  Relatively minor
+additional input are needed for any of the extension packages.
+<BR><BR>
+`LMTO' is an acronym for 'Linear Muffin-Tin Orbitals,' which is a basis set
+for ab initio electronic structure calculations; it was originally
+formulated (together with the LAPW method --- Linear Augmented Plane Wave
+method) by O. K. Andersen.  For a long time, LMTO was implemented in the
+Atomic Spheres Approximation (ASA), an additional approximation that
+replaces the proper charge density and potentials by their spherical
+averages.
+<BR><BR>
+At present the basic package consists of an ASA program with supporting
+programs as described below, and is implemented for what Andersen describes
+as `second-generation' LMTO --- namely a reworking of the original method
+into a tight-binding form, so that the orbitals are short-ranged.  Since
+then Andersen has devised a `third-generation' LMTO, and more recently a
+`NMTO' scheme [See O. K. Andersen, T. Saha-Dasgupta, R. W. Tank, and
+G. K. C. Arcangeli O. Jepsen, in Electronic Structure and Physical
+Properties of Solids: The Uses of the LMTO Method, edited by H. Dreysse
+(Springer-Verlag, Berlin, 2000)] which while formally make significant
+improvements over the `second-generation' LMTO, there remain difficulties
+with implementation.  At present, this package has non-self-consistent NMTO
+scheme implementation, but it should largely be regarded as experimental,
+as there are practical pitfalls associated that haven't been fully worked
+out.
+<BR><BR>
+Additionally there is a full-potential method, which is more accurate, but
+also significantly slower.  It uses an LMTO basis where the envelope
+functions are not screened but generalized to smoothed Hankel functions
+[See M. Methfessel, M. van Schilfgaarde, and R. A. Casali, ``A
+full-potential LMTO method based on smooth Hankel functions,'' in
+Electronic Structure and Physical Properties of Solids: The Uses of the
+LMTO Method, Lecture Notes in Physics, 535.  H. Dreysse,
+ed. (Springer-Verlag, Berlin) 2000; there is a postscript file included in
+this directory.]  The full-potential extension requires a supplemental
+package, distributed as FP.<I>vsn</I>.tar.gz.  An additional package
+is available that sets up the LDA input needed for an all-electron GW
+method written by T. Kotani.
+<BR><BR>
+There is also a collection executables that generate electronic structure
+from empirical tight-binding hamiltonians, and are included in the basic
+package.  See emp-tb.txt and emp-tb-update.txt for some (unfortunately,
+rather old) documentation.
+<BR><BR>
+As mentioned in file <A href="README">README</A>, other supplemental packages extend the
+basic capability of the ASA package, including code for noncollinear
+magnetism, ASA optics, ASA Green's functions, and a beyond-LDA `screened
+exchange' package that is still under development.
+Each extension package has it own documentation file; see
+
+<A href="fp.html">fp.html</A>       for a full-potential program;
+<A href="gw.txt">gw.txt</A>         for a driver for a full-potential GW program written by T. Kotani;
+<A href="gf.txt">gf.txt</A>         for the ASA-Green's function program;
+<A href="nc.txt">nc.txt</A>         for noncollinear extensions to the lm program;
+<A href="optics.txt">optics.txt</A> for optical calculations within the lm program;
+<A href="pgf.txt">pgf.txt</A>       for the ASA-layer Green's function program;
+<A href="sx.txt">sx.txt</A>         for beyond-LDA extensions to the lm program.
+
+<BR><BR>
+
+This file is the main documentation of the ASA package.  See file
+<A href="README">README</A> for installation notes, the <A
+href="ASAtutorial.html">ASA tutorial</A> for help in getting
+started, the <A  href="FPtutorial.html">FP tutorial</A> for a
+tutorial using the full-potential program.
+
+<BR><BR>
+
+
+<H2><A name="section2"><FONT size="+2"><FONT size="+2">
+2.  Overview of the LMTO-ASA method.
+ </FONT></FONT></A></H2>
+
+Augmented-wave programs, including the present suite, divide into an
+``atomic'' part and a ``band'' part.  In general the ``band'' part requires
+potential parameters and structure constants as its input, from which it
+generates bands, energy moments, densities-of-states, etc.  The ``atomic''
+part takes moments as its input and produces potential parameters from it.
+The atomic part requires very little information beyond the moments and
+boundary conditions to completely specify the electronic structure within
+an atomic sphere, and the atomic program here embodies that idea.
+<BR><BR>
+An LMTO-ASA calculation is self-consistent when the atomic part produces,
+from moments generated by the solid part, once again the same potential
+parameters that the solid part used to generate the moments in the first
+place.  The self-consistency works by alternating between the solid part
+and atomic part, generating moments, then potential parameters, then
+moments again until the process converges.  The program can be started
+either with the solid part, specifying potential parameters, or with the
+atomic part, specifying the moments.
+<BR><BR>
+Because the method is a linear one, and because the density is (assumed to
+be) spherical, only three functions can carry charge inside a sphere per l
+channel ($\phi_l^2$, $\phi_l\dot\phi_l$, $\dot\phi_l^2$) and therefore the
+properties of a sphere, for a spherical potential and a linear method are
+completely determined by the first three energy moments Q0, Q1, and Q2 of
+the density of states for each l channel, which are called the atomic
+number and the boundary conditions at the surface of the sphere.  In some
+sense these numbers are ``fundamental'' to a sphere; the atomic program
+will generate a self-consistent potential for a specified set of moments
+Q0..Q2 and boundary conditions.  This simplification depends on assumption
+of spherical densities, and is unique to the ASA.
+<BR><BR>
+Once a potential is specified, "potential parameters" can be generated.
+"Potential parameters" are a compact representation of information needed in
+a linear method to specify the hamiltonian.  A description of how the
+parameters are generated and their significance is too involved to be
+described here; moreover, what parameters are generated depends on the
+choice of basis.  (The 2nd generation potential parameters are particularly
+helpful because they refer to conceptually accessible quantities, such as
+the band-center parameter C, and the bandwidth parameter delta.)
+Particularly useful for the 2nd generation LMTO are Andersen's notes in the
+following references:
+
+<pre>
+  O.K. Andersen, A.V. Postnikov, and S. Yu. Savrasov, in "Applications of
+  Multiple Scattering Theory to Materials Science," eds. W.H. Butler,
+  P.H. Dederichs, A. Gonis, and R.L. Weaver, MRS Symposia Proceedings
+  No. 253 (Materials Research Society, Pittsburgh, 1992) pp 37-70.
+
+  O.K. Andersen, O. Jepsen and M. Sob, in Lecture Notes in Physics:
+  Electronic Band Structure and Its Applications, eds.  M. Yussouff
+  (Springer-Verlag, Berlin, 1987).
+</pre>
+
+and later descriptions, evolving beyond 2nd generation LMTO:
+
+<pre>
+  O.K. Andersen, O. Jepsen, and G. Krier in Lectures on Methods of
+  Electronic Structure Calculations, edited by V. Kumar, O. K. Andersen,
+  and A. Mookerjee (World Scientific Publishing Co., Singapore, 1994),
+  pp. 63-124.
+
+  O.K. Andersen, C. Arcangeli, R.W. Tank, T. Saha-Dasgupta, G.  Krier,
+  O. Jepsen, and I. Dasgupta in Tight-Binding Approach to Computational
+  Materials Science, Eds. L. Colombo, A. Gonis, P. Turchi, Mat.
+  Res. Soc. Symp. Proc. Vol. 491 (Materials Research Society, Pittsburgh,
+  1998) pp 3-34.
+</pre>
+
+From the point of view of the bands, the Hamiltonian is completely
+specified by the potential parameters.  These are fundamental to the band
+program; it will generate moments Q0..Q2 from the eigenvectors of the
+Hamiltonian.  (Alternatively, they may be generated via a Green's function,
+using programs lmgf or lmpg).  Full self-consistency is achieved when the
+``input moments'' coincide with the ``output moments'', or equivalently
+when the input ppars coincide with the output ppars.  It is merely a matter
+of preference to whether to consider the moments as fundamental or the
+potential parameters.
+<BR><BR>
+The lm program (the basic ASA self-consistency program, described in the
+"Executable programs" section) can start equally as well from either
+potential parameters or moments, though it is generally customary to start
+from the moments, mainly because one can usually begin with a very simple
+starting guess (choosing the zeroth moment to be the charge of the free
+atom, the first and second to be zero) that is usually good enough to
+iterate to self-consistency.  Actually, you don't need to specify a guess
+at all.  Programs lm, lmgf, and lmpg will assume defaults values if none
+are supplied.
+<BR><BR>
+If you have potential parameters at your disposal, you may choose to begin
+directly with a band calculation and need not worry about the moments.  You
+will need to put the potential parameters in the proper atom file,
+described below.  If you wish to make a self-consistent calculation, you
+must also supply the boundary condition for l channel.  In these programs,
+the boundary conditions is encapsulated in the "continuously variable"
+principal quantum P described in the following paragraphs.
+<BR><BR>
+To make a sphere self-consistent one needs the moments and also to specify
+the boundary condition on the wave function at the sphere radius, or what
+is essentially equivalent, the E_nu of the wave function phi.  For a given
+potential, there is a unique correspondence between the logarithmic
+derivative D_nu at the sphere radius and E_nu, so in principle, it is
+possible to specify either one.  As a practical matter, however, it is only
+straightforward to make the sphere self- consistent by specifying the
+logarithmic derivative (since the potential changes while the sphere is
+made self-consistent).
+<BR><BR>
+There is a set of numbers called P (one for each l channel) that
+supplies the information about both the principal quantum number and
+the logarithmic derivative.  P is defined as
+
+<pre>
+      P = .5 - arc tan(D_nu)/pi + (princ.quant.number).
+</pre>
+
+Its integer part is the principal quantum number; its fractional part
+varies smoothly from 0 (for the bottom extreme of the band for that
+principal quantum number) to 1 (the top extreme of the band), and can be
+thought of in some sense as a "continuously variable" principal quantum
+number.
+<BR><BR>
+P must be supplied to the atom program.  The fractional part of P is to be
+automatically supplied by the output of a band calculation (provided IDMOD
+is not 1; see description of IDMOD in the documentation on the control
+file), but P must be supplied (in addition to the moments Q) if you choose
+to begin with moments.  P, together with the moments Q can be input
+directly through the control file.  (As mentioned, the programs will supply
+default values for both P and Q, which for the most part are sufficient to
+get the program to converge to self-consistency.)  A word on choices for the
+fractional part of P: .3 is quite free- electron-like and suitable for
+free-electron like l channels such as Si d electrons, while .8 is quite
+tight-binding like and suitable for deep states like Cu d orbitals.  To be
+safe, and probably avoid ghost bands, choose .5 for all l channels.  In
+awkward cases, it is best to set the ADNF switch (see below) in the first
+few iterations; especially for heavier elements like Hf or f-electron
+elements like Gd.
+<BR><BR>
+NOTE: In the case of spin-polarized calculations, the moments should all be
+half of what they are in non-spin polarized calculations.
+<BR><BR>
+When iterating to self-consistency, you have a choice, through the
+parameter IDMOD described in the <A href="#section7">Documentation of Categories and Tokens</A>
+section, regarding the related pair of parameters P and E_nu.  You may let
+P and E_nu float to the center of gravity of the occupied part of the band
+(most accurate for self-consistent calculations); this is the default.  You
+may also freeze alternatively P or E_nu in the self-consistency cycle.
+This is more stable, and is preferable if there is difficulty in achieving
+convergence or if problems with ghost bands arise.
+<BR><BR>
+The program iterates towards self-consistency by mixing the moments and the
+parameters P as come out of the next iteration.  A choice of Broyden,
+Anderson, or linear mixing is available; as explained in the
+description of category MIX in section <A href="#section7">Documentation of Categories and Tokens</A>.
+
+<H2><A name="section3"><FONT size="+2"><FONT size="+2">
+3.  Executable programs
+ </FONT></FONT></A></H2>
+
+There are a number of executable programs in the basic package, all of
+which are created from the same source file (main/lm.f), using
+preprocessor `ccomp' described in this file.  The most useful ones
+are:
+
+<pre>
+  lm     the self-consistent band program for the ASA
+
+  lmstr  generates the real-space structure constants for the ASA
+         It must be invoked prior to invoking `lm'.
+
+  lmchk  displays sphere overlaps.  There is an option to move
+         atoms (empty spheres) to minimize the overlap.
+
+  lmctl  writes out moments (to the log file) in the style of the
+         input file, so that a complete calculation can be
+         retained within a single file.  See <A href="ASAtutorial.html#lmctl">here</A>
+         for an example.
+
+  lmdos  generates the electron density-of-states (DOS) and
+         related quantities as a function of energy for plotting
+         or other analysis.  It can generate the total DOS (or
+         DOS-related quantities), or resolve the total into
+         partial contributions DOS-related quantities lmdos is
+         equipped to deal with are:
+           *integral d^k delta(E(k)-E) , i.e. just the DOS itself
+
+           *integral d^k delta(E(k)-E) grad_1 E(k) . grad_2 E(k)
+            from which a `diffusive' conductivity sigma_12 can easily be
+             computed within a relaxation time approximation
+
+           *integral d^k delta(E(k)-E) grad_1 E(k) . direction-vector
+            which is the Landauer `ballistic' conductance along some
+            unit direction-vector
+
+           *core-level spectroscopy such as EELS derived from the
+            full-potential program
+
+  catdos concatenates density-of-states generated from different
+         files into a single file.
+
+  lmscell generates supercells from smaller unit cells.
+
+  lmxbs   generates an input file for Methfessel's ball-and-stick
+          program xbs, which creates a 3D visual display of
+          molecules.  You can create an input to his program to
+          view the crystal structure specified in the ctrl file.
+
+  lmplan  is a special-purpose program oriented to analysis of layer
+          calculations.
+
+  lmimp  imports potential data from other inputs to create
+         trial potentials or densities.
+         It can also import data from older versions,
+         and Stuttgart versions, of the ASA package.
+
+  lmbnd  Generates ASA energy bands.
+         This program is obsolete:   use lm --band[:options]
+</pre>
+
+The following programs to generate electronic structure from empirical
+tight-binding hamiltonians, whose form the user specifies.  They are
+included in the basic package.  there is some  documentation
+<A href="tbe.html">HERE</A>.
+
+<pre>
+
+  tbe    empirical tight-binding energy, forces, and dynamics
+
+</pre>
+
+With extension packages, there are also the following programs or extensions:
+
+<pre>
+  lmf    (FP) the self-consistent full-potential band program
+
+  lmfa   (FP) computes the free-atom densities and related information.
+         lmfa must be invoked prior to invoking lmf.
+
+  lm     may be extended in the following ways.
+         (NC) enables noncollinear extensions to the usual LSDA
+         (OPTICS) calculates epsilon(omega) from LDA bands
+         (SX) an ASA screened exchange, originally designed to correct
+              bandgaps in semiconductors in an ab initio way.
+              This latter is not well documented.
+
+  lmgf   (GF) an ASA Green's function program.  This program uses Green's
+         functions to perform an function approximately similar to program
+         lm.  Also a branch to compute magnetic exchange interactions.
+
+  lmpg   (PGF) an ASA layer Green's function program.  It is similar to
+         lmgf, but uses a layer technique (real-space GF in one dimension,
+         k-space in the other two)
+
+  lmfgw  (GW) a driver for T. Kotani's all-electron GW implementation.
+
+</pre>
+Additionally there are the following executables:
+
+<pre>
+  rdcmd  a program with a function approximately similar to a shell script
+         that reads commands and executes them.  It is used extensively
+         in the test suites.
+
+  ccomp  a program written in C which provides a fortran-compatible
+         functionality approximately similar to that of the unix
+         preprocessor, cpp.  It is documented in this file; see section
+         `program ccomp'
+</pre>
+
+Finally, there is a plotting package available, FPLOT.version.tar.gz, with
+a collection of programs suitable for plotting density-of-states, bands,
+and other x-y plots.  In includes a general-purpose plotting program,
+fplot, which creates x-y and contour plots, in postscript format.  For
+plotting bands and dos, you can use the programs plbnds and pldos to
+generate a postscript file directly, or to generate an fplot command.  The
+latter can be used to tailor a figure to taste.
+
+
+<H2><A name="section4"><FONT size="+2"><FONT size="+2">
+4.  Input files
+ </FONT></FONT></A></H2>
+
+The control file, called ctrl.<I>extension</I> is the main input file for
+all programs.  It together with command line arguments (see section
+"Command-line switches") that affect some program execution flow, are the
+two principal (often sole) input streams needed to run these packages.  The
+string <I>extension</I> is supplied as a command-line argument.  If no
+extension is supplied on the command-line, `dat' is used as the extension.
+<BR><BR>
+<FONT color="#0033ff">
+Caution: The programs cannot read a ctrl file containing tabs or
+unreadable characters.
+</FONT>
+<BR><BR>
+Thus the invocation of any `lm' program has a form
+<pre>
+  program-name [-switches] [file-extension]
+</pre>
+Nearly all files associated with the input file have the same
+extension appended to them as does the ctrl file.  Thus if the
+ctrl file is called `ctrl.cr3si6', the <A href="#section5">log file</A> is called `log.cr3si6'.
+<A href="#section9">Section 9</A> documents command-line switches.
+<BR><BR>
+Other input files are:
+<pre>
+ symmetry-line file : input for plotting energy bands along
+    selected symmetry lines or for generating constant-energy
+    contours such as a Fermi surface.  This file (whose name is
+    specified as a modifier with the command-line argument
+    --band, described in the "Command-line switches" section) can
+    take on of several forms.
+
+    First format: generate bands along specific symmetry lines.
+    The following sample input illustrates input for lines
+    X->Gamma and Gamma->M for the simple cubic lattice.
+       21  .5 0  0    0  0  0         X to Gamma
+       21  0  0  0    .5 .5 0         Gamma to M
+       0   0  0  0    0  0  0
+    The first number designates how many points along each line.
+    The next six label the starting and ending q-points,
+    respectively.  Note that the last line must contain zeros.
+
+    Second format: generate bands for a 2D mesh in a specified
+    plane for Fermi-surface plotting.  This example applies to
+    the bcc structure:
+        vx     range  n     vy     range  n   height  band
+       1 0 0   -1 1   51   0 1 0   -1 1   51   0.00    4,5
+    It saves bands 4,5 on a 51 x 51 mesh in the xy plane that
+    passes through the origin.
+
+ site file : Normally site data is read through the ctrl file.
+    However you may choose to read structural and site data
+    through a separate file.  It is intended that this file
+    accommodate any of several formats.  To date there is a
+    format `standard' to this program, and one specified by
+    Kotani.  See <A href="../subs/iosite.f">subs/iosite.f</A> for syntax of file structure.
+
+    You specify this option, and the file name using the `FILE='
+    token in the ctrl file, described in section
+    <A href="#section7">Documentation of Categories and Tokens</A>.
+    Supercell generator `lmscell' has the capability to write a site
+    file suitable for reading by other programs.
+
+ positions file : similar to the site file, but limited to
+    specification of site positions.  File is read (and named) by
+    command-line switch --rpos=`filename'; and some programs (eg
+    lmctl) will create this file when command-line switch
+    --wpos=`filename' is supplied.
+
+ qpts file : Programs needing to loop over the Brillouin zone
+    normally generate their own table of q-points.  However, you
+    may specify your own set of points (with certain
+    restrictions; see description of token GETQP= in
+    "<A href="#section7">Documentation of Categories and Tokens</A>").  Here is a sample
+    q-points file:
+
+            8    4    4    4       0
+            1    0.00    0.00    0.00    0.03125
+            2   -0.25    0.25    0.25    0.25000
+            3   -0.50    0.50    0.50    0.12500
+            4    0.00    0.00    0.50    0.18750
+            5   -0.25    0.25    0.75    0.75000
+            6   -0.50    0.50    1.00    0.37500
+            7    0.00    0.00    1.00    0.09375
+            8    0.00    0.50    1.00    0.18750
+
+    The first line specifies the total number of qp; the next
+    three numbers are not used; the last should be zero.  Next
+    follows lines, one line per qpt, each line with 5 numbers.
+    The first merely labels the qp index; the next three are the
+    qp in Cartesian coordinates.  The last is the qp weighting
+    factor, and the weights should sum to 2.
+</pre>
+
+<H2><A name="section5"><FONT size="+2"><FONT size="+2">
+5.  Generated files
+ </FONT></FONT></A></H2>
+
+The executables above generate many kinds of derivative files,
+briefly described below.  The file extension is suppressed in the
+following table.
+
+<pre>
+  File  (creator), and description
+  ---   --------------
+  ctrl  the main input for all programs.
+        It is never altered by any program in the package.
+
+  log   (*) records a log of the most important output in
+        abbreviated form.
+
+  str   (lmstr;binary) real-space structure constant file
+  sdot  (lmstr;binary) file containing energy derivative of str.
+
+  moms (lm,lmf;binary) partial weights of overlap matrix
+        decomposed into <I>Rl</I> or <I>Rlm</I> channels.  Used in two
+        contexts: (1) to save information needed to the energy
+        moments after the sampling weights are known, and (2)
+        this is the data needed resolve density-of-states
+        information into into <I>Rl</I> (or <I>Rlm</I>) channels.  For large
+        systems, this file can become large, particularly if the
+        dos need to be m-resolved.  See also the <A href="#section9lm">--pdos</A>
+        command-line option.  See file <A href="../subs/asaddq.f">asaddq.f</A> for the
+        generation of the dos weights and their storage;
+        program <A href="#section9lmdos">lmdos</A> reads this or a similar file to
+        create a the partial DOS.
+
+  qpp   (lm;binary) information similar to moms, but intended for
+        retaining information for nonspherical density inside MT
+        spheres.
+
+  wkp   (lm,lmf;binary) table of band weights needed to find Fermi
+        level, and corresponding fermi level.
+
+  mixm  (lm,lmgf,lmpg,lmf;binary) retains prior iterations of sets
+        of input and output moments.  Used by the Anderson or
+        Broyden mixing scheme to accelerate convergence towards
+        self-consistency.  Usually you should delete these when
+        starting a new calculation (such as changing the lattice
+        constant) so it doesn't get used in subsequent runs.  NB
+        mixm is the default name of the mixing file, but this
+        name may be set by the user.
+
+  tmp   (*,binary) used for virtual memory or temporary storage
+
+  atom-files (ASA) one file is assigned for each inequivalent
+        atom in a calculation.  Its name is fixed by the species
+        label ATOM= in the SPEC category of the control file, as
+        described in <A href="#section7">Section 7</A>.  A complete file contains some
+        general information, the moments, potential parameters, or
+        other parameters such as matrix elements for needed for
+        spin-orbit coupling or matrix elements of the gradient
+        operator needed for optics calculations, and the ASA potential
+        within the sphere, or some subset of this information.  The
+        moments and potential parameters are most read from this file
+        if they are available; but it is possible to input the moments
+        instead from the control file or the restart file as well.
+        Data in the atomic file is grouped into categories delineated
+        by a nonblank character in the first column.  Examples of
+        categories are: GEN: a table of miscellaneous data, such as
+        the site atomic number MOMNTS: the "log derivatives" P and
+        moments Q PPAR: the potential parameters.  POT: the potential
+
+
+  bnds  (lm,lmf,lmbnd,tbbnd) energy bands, in a tabular form. See
+        description of plotting package FPLOT.*.gz for plotting
+        bands.
+
+  dos   (lmdos,tbdos) density-of-states, in tabular
+        form. See description of plotting package FPLOT.*.gz for
+        plotting dos.
+
+  sv    (lm,lmgf,lmpg) records the total energy deviation from
+        self-consistency for each iteration.
+
+  save  (lm,lmgf,lmpg,lmf) outputs the magnetization and total
+        energy each iteration in the self-consistency cycle,
+        together with some variables assigned by the user.  Used
+        in conjunction with script startup/vextract, the total
+        energy as a function of some user-specified parameters
+        can be conveniently extracted in tabular form.
+
+  atm   (lmfa) free-atom densities and related information, needed
+        to start full-potential programs
+
+  rst   (lmf,binary) restart file, containing density and related
+        information.  Together with the ctrl file, this file contains
+        all information needed for a calculation
+  rsta  (lmf) same information as rst, but file is formatted, and
+        therefore both portable across machines and amenable to
+        editing.
+
+  eula  (noncollinear package) holds a table of Euler angles.
+
+  jr    (lmgf) table of pairwise exchange interaction parameters
+
+  qpts  (lm,lmgf,lmpg,lmf) table of q-points, if user chooses to
+        specify them.
+
+  hssn  (lm,lmgf,lmpg,lmf) hessian matrix, containing densities of
+        prior iterations, used for charge mixing in the
+        self-consistency cycle.
+
+  gfqp  (lmgf;binary) temporary file holding Green's functions for
+        each q-point in the BZ at one energy.  Used in branches
+        where the GF over the entire zone is need at once,
+        (e.g. linear-response branches).  For large systems or
+        many k-points, this file can become extremely large.
+
+  psta  (lm,lmgf) bare ASA response function for e->0, q->0.
+        See documentation file linear-response-asa.txt
+
+  sigm  (lm:sx) ASA self-energy, generated using sx branch
+
+  vshft (lmgf,lmpg) a list of site potential shifts
+</pre>
+
+<H2><A name="section6"><FONT size="+2"><FONT size="+2">
+6.  A sample input file:  Si
+ </FONT></FONT></A></H2>
+
+For a description of the generic structure of input files and its
+organization into categories and tokens, see
+<A href="input-file-style.txt">input-file-style.txt</A>
+<BR><BR>
+The following is a typical example of the input file called `ctrl';
+the description of each input token is documented in section
+<A href="#section7">Documentation of Categories and Tokens</A>
+Each category in the sample below is displayed as hyperlink which
+points to the documentation for that category.
+
+<pre>
+ <A href="#section7">HEADER</A>  Example of an ASA input file : Si with empty spheres
+         You can put here as many lines as you like.
+ # Any line beginning with `#' is a comment and is ignored
+ <A href="#section7">VERS</A>    LMASA-6
+ <A href="#section7">IO</A>      SHOW=F HELP=t VERBOS=31,20 WKP=F
+ <A href="#OPTIONS">OPTIONS</A> NSPIN=1 REL=F CCOR=F ADNF=T
+ <A href="#section7">CONST</A>   a0=.5292 nk=4
+ <A href="#STR">STR</A>     RMAX=3.6
+ <A href="#STR">STR</A>     RMAX=2.7
+ <A href="#SYMGRP">SYMGRP</A>  R3D R4Z MZ
+ <A href="#BZ">BZ</A>      NKABC=nk nk nk METAL=F DOSWT=T SAVDOS=F
+         BZJOB=1
+ <A href="#STRUC">STRUC</A>   NBAS=4 NCLASS=2 NL=3
+         ALAT=5.431/a0 PLAT= 0 .5 .5   .5 0 .5   .5 .5 0
+ <A href="#SITE">SITE</A>    ATOM=SI   POS= 0 0 0
+         ATOM=SI   POS= .25 .25 .25
+         ATOM=ES   POS= .5 .5 .5
+         ATOM=ES   POS= .75 .75 .75
+ <A href="#SPEC">SPEC</A>    ATOM=SI   R/W=1  Z=14
+         ATOM=ES   R/W=1  Z=0
+ <A href="#MIX">MIX</A>     MODE=A,b=.8
+ <A href="#START">START</A>   NIT=3
+         BEGMOM=T (=T to begin with moments, =F to begin with band-structure)
+         CNTROL=T (=T to use following to override disk; =F to ignore following)
+           ATOM=SI  P=3.5 3.5 3.5    Q=1 0 0    2 0 0   0 0 0
+           ATOM=ES  P=1.5 2.5 3.5    Q=.5 0 0  .5 0 0   0 0 0
+</pre>
+
+The control file is the main (and typically, only) input file, and also can
+serve to document a calculation.  Data is read from the control file by
+categories, one category at a time.  A category begins with a nonblank
+character in the first column; it ends with the next occurrence of one.
+Within each category are tokens, which is where the input is read.  In the
+above example, in the STRUC category displayed above the following strings
+are parsed as tokens by program lm:
+<pre>    NBAS= NCLASS= NL= ALAT= PLAT=</pre>
+File <A href="input-file-style.txt ">input-file-style.txt </A>
+describes the generic structure of the input file, and some
+categories and tokens shared by most programs.  Some tokens (and
+some categories) are optional; others are required.  Which are
+required depends on the particular program.  Some tokens (or
+categories) may be sought by one program but not by another.
+<BR><BR>
+
+Because the above example has HELP=T, if you invoke a program (or
+if you include the command-line switch --input in the call; <A
+href="#section9">Section 9</A> describes many command-line
+switches) the executing program reading that file would not
+execute what it normally does, but instead prints out what what
+would input have been attempted had HELP not been true.
+
+<H2><A name="section6lmio"></A></H2>
+
+Invoking 'lm --input' produces the following output.
+
+<pre>
+ -----------------------  START LM (80000K)  -----------------------
+ category  IO (optional)
+   token  SHOW=  of cast logical (optional)
+   token  HELP=  of cast logical (optional)
+   token  VERBOS=  of cast integer and length <= 5 (optional)
+   token  WKP=  of cast logical (optional)
+   token  IACTIV=  of cast logical (optional)
+   token  TIM=  of cast integer and length <= 2 (optional)
+ category  HEADER (optional)
+ category  VERS
+ ---- Input for program version LMASA- 6.14.0 ---
+ category  IO (optional)
+   token  SHOW=  of cast logical (optional)
+   token  HELP=  of cast logical (optional)
+   token  VERBOS=  of cast integer and length <= 5 (optional)
+   token  WKP=  of cast logical (optional)
+   token  IACTIV=  of cast logical (optional)
+   token  TIM=  of cast integer and length <= 2 (optional)
+ category  CMD (optional):  Contents are appended to command-line arguments
+ category  MASTER (optional):  defines job-dependent variables
+ category  CONST (optional):  constants may declared for use in expressions
+ category  HAM (optional):  Parameters defining hamiltonian
+   token  GMAX=  of cast double    --- OR: :
+          Energy cutoff for FT mesh
+   token  FTMESH=  of cast integer and length <= 3 (optional) :
+          No. divisions for charge density mesh
+   token  TOL=  of cast double (optional) :
+          FT mesh tolerance
+   token  FORCES=  of cast integer (optional) :
+          controls the ansatz for density shift in force calculation.
+          -1 no force          0 no shift
+           1 free-atom shift  12 screened core+nucleus
+   token  ELIND=  of cast double (optional) :
+          Lindhard energy for model screening
+   token  XCFUN=  of cast integer (optional) :
+          Chooses local exchange correlation functional:
+           1 for Ceperly-Alder
+           2 for Barth-Hedin (ASW fit)
+   token  RDSIG=  of cast integer (optional) :
+          Add self-energy to local exchange correlation functional:
+           1s digit:
+             0 do not read Sigma
+             1 to add sigma to ham.
+             Add 2 to symmetrize Sigma(T)
+             Add 4 to include Re(Sigma(T)) only
+           10s digit:
+             0 simple interpolation
+             1 approx high and low sigma by diagonal (see sigp)
+             3 interpolate sigma by LDA evecs
+           optional 100s digit (10s digit=3): no. interpolation points
+   token  RSRNGE=  of cast double (optional) :
+          Maximum range in connecting vectors for r.s. sigma (units of alat)
+   token  RSSTOL=  of cast double (optional) :
+          Max tolerance in Bloch sum error for r.s. sigma
+   token  NMTO=  of cast integer (optional) :
+          order of polynomial approximation for NMTO
+          (For 3rd generation, require NMTO>=2)
+   token  KMTO=  of cast integer and length * (optional) :
+          corresponding NMTO kinetic energies
+   token  EWALD=  of cast logical (optional) :
+          make strux by Ewald summation
+   token  VMTZ=  of cast double (optional) :
+          Muffin-tin zero defining wave functions
+   token  QASA=  of cast integer (optional) :
+          0 => Methfessel conventions for 2nd gen ASA moments Q0..2
+          1 => Q2 = coff to phidot**2 - p phi**2 in sphere
+          2 => Q1,Q2 accumulated as coffs to <phi*phidot> and <phidot**2>
+          3 => 1+2 (Stuttgart conventions)
+   token  PMIN=  of cast integer and length <= 10 (optional) :
+          global minimum in fractional part of potential functions.
+          One number for each l does the following:
+          0 no minimum set
+          n with n<1 set fractional part to n
+          1 use free-electron value as minimum
+ category  STRUC:  Lattice information
+   token  NSPEC=  of cast integer    --- OR: :
+          Number of atom species to read
+   token  NCLASS=  of cast integer
+   ...    Read NBAS, PLAT, and optionally ALAT from site file with this token:
+   token  FILE=  of cast char (optional)
+   ...    Otherwise, read them from the ctrl file:
+   token  NBAS=  of cast integer :
+          Size of basis
+   token  PLAT=  of cast double and length 9 :
+          primitive lattice vectors, in units of alat
+   token  ALAT=  of cast double :
+          scaling of lattice vectors, in a.u.
+   token  DALAT=  of cast double (optional) :
+          added to alat after input is read
+   token  NL=  of cast integer (optional) :
+          lmax+1 for basis and augmentation
+   token  SHEAR=  of cast double and length 4    --- OR: :
+          voluming-conserving shear of PLAT (1=ideal)
+   token  ROT=  of cast char    --- OR:
+   token  DEFGRD=  of cast double and length 9    --- OR:
+   token  STRAIN=  of cast double and length 6 (optional) :
+          6 Voigt strain matrix elements
+   token  ALPHA=  of cast double (optional) :
+          amplitude of (Voigt) strain
+   token  LOADV (optional) :
+          When token is present, vol and avw are loaded into variables table
+ category  OPTIONS (optional)
+   token  HF=  of cast logical (optional) :
+          T for non-selfconsistent Harris
+   token  CCOR=  of cast logical (optional) :
+          Turn on combined correction
+   token  ADNF=  of cast logical (optional) :
+          Turn on automatic downfolding
+   token  GRCOR=  of cast logical (optional) :
+          Turn on gradient corrections
+   token  FRZ=  of cast logical (optional) :
+          Freeze core
+   token  NSPH=  of cast logical (optional) :
+          generate multipole moments in output density
+   token  SHARM=  of cast logical (optional) :
+          Use true spherical harmonics
+   token  NSPIN=  of cast integer (optional) :
+          set to 2 for spin polarized calculations
+   ... the following tokens for nspin=2:
+   token  NONCOL=  of cast logical (optional) :
+          noncollinear magnetism
+   token  BFIELD=  of cast logical (optional) :
+          applied magnetic field (requires NONCOL=t
+   token  SS=  of cast double and length <= 4 (optional) :
+          direction vector and angle of magnetic spin spiral
+   token  SO=  of cast logical (optional) :
+          spin-orbit coupling
+   token  REL=  of cast integer (optional) :
+          0 for nonrelativistic Schrodinger equation
+          1 for scalar relativistic Schrodinger equation
+          2 for Dirac equation
+   token  SDYN: of cast struc, elements: force sdmod sdprm (optional)
+          Parameters for spin dynamics:
+          force=T calculate magnetic forces; move atoms according to mode:
+          sdmod= 0: output Euler angles from dens. matrix
+                 1: relax along force
+                 2: dynamics
+                 Add 10   to mix angles independently of P,Q
+                 Add 1000 to suppress self-const in P,Q
+          sdprm= fscal,tau,Nose-etot0,max-theta,etol
+   token  SCR=  of cast integer (optional) :
+          Use scr to accelerate convergence:
+          0 do nothing
+          1 Make ASA dielectric response function (see documentation)
+          2 Use response to screen output q and ves
+          3 Use response to screen output ves only
+        Add 10*k to compute intra-site contribution to vbare each kth iteration
+        Add 100*k to compute response function only each kth iteration
+   token  SX=  of cast integer (optional) :
+          Screened exchange:
+           0 do nothing
+           1 Calculate SX Sigma
+          11 Calculate SX Sigma w/ local W
+   token  SXOPTS=  of cast char (optional)
+   token  TWOC=  of cast integer (optional) :
+          two-center ASA hamiltonian
+   token  GAMMA=  of cast logical (optional) :
+          gamma rep'n
+   token  ELIN=  of cast double (optional) :
+          energy to linearize for ccor in 2C hamiltonian
+   token  NEWREP=  of cast logical (optional) :
+          Interactively transform tb-representation
+   token  NOHYB=  of cast logical (optional) :
+          turns off hybridisation
+   token  SAVVEC=  of cast logical (optional) :
+          Save eigenvectors on disk
+   token  ZBAK: of cast struc, elements: mtcor zbak (optional)
+          mtcor turns on Ewald MT correction
+          zbak, first entry adds constant background charge to density
+          Optional second number specifies background q for Ewald MT correction
+   token  NRMIX=  of cast integer and length <= 2 (optional) :
+          Sphere program, (1) max iter; (2) no. prior iter for Anderson mixing
+   token  STONER=  of cast integer and length <= 3 (optional) :
+          generalised Stoner rigid band calculation
+          second argument is number of points; third for graphical output
+   token  Q=SHOW    --- OR: :
+          Stop after band pass
+   token  Q=ATOM    --- OR: :
+          Stop after band pass
+   token  Q=BAND (optional) :
+          Stop after band pass
+ category  SPEC:  For species information (may also use CLASS)
+
+   ...    The next four tokens apply to the sphere resizer
+   token  SCLWSR=  of cast double (optional) :
+          SCLWSR>0 turns on sphere resizer and scales spheres trying
+          to reach volume = SCLWSR * cell volume.
+          Add  10  to initially scale non-ES first;
+           or  20  to scale ES independently.
+   token  OMAX1=  of cast double and length <= 3 (optional) :
+          Sphere overlap constraints when adjusting MT radii
+   token  OMAX2=  of cast double and length <= 3 (optional) :
+          Sphere overlap constraints of second type
+   token  WSRMAX=  of cast double (optional) :
+          Constrain maximum scaled sphere radius to WSRMAX
+
+    ...  The following tokens are input for each species.
+         Data sandwiched between successive occurences of
+         token ATOM= apply to one species.
+   token  ATOM=  of cast char
+   token  Z=  of cast double :
+          atomic number
+   token  R=  of cast double    --- OR: :
+          rmax for augmentation
+   token  R/W=  of cast double    --- OR: :
+          rmax relative to average WS radius
+   token  R/A=  of cast double :
+          rmax relative to lattice constant
+   token  NR=  of cast integer (optional) :
+          number of radial mesh points
+   token  A=  of cast double (optional) :
+          radial mesh point spacing
+   token  LMX=  of cast integer (optional) :
+          l-cutoff for basis
+   token  LMXA=  of cast integer (optional) :
+          l-cutoff for augmentation
+   token  IDXDN=  of cast integer and length <= 3 (optional) :
+          downfolding index: 0, auto; 1, no dnf; 2, fold down; 3, neglect
+   token  SIGMA=  of cast double and length 3 (optional) :
+          Hard sphere radii for structure constants
+   token  ALPHA=  of cast double and length 3 (optional) :
+          screening parameters for structure constants
+   token  DV=  of cast double (optional) :
+          extra constant potential shift for this species
+   token  IDMOD=  of cast integer and length <= 3 (optional) :
+          idmod=0 floats P to band CG, 1 freezes P, 2 freezes enu
+   token  GROUP=  of cast integer (optional)
+   token  GRP2=  of cast integer (optional)
+   token  MIX=  of cast integer (optional) :
+          (ASA) set nonzero to suppress self-consistency of classes in this spec
+   token  CSTRMX=  of cast logical (optional) :
+          Exclude this species when automatically resizing sphere radii (SCLWSR>0)
+
+   ...    The next three tokens are for LDA+U
+   token  IDU=  of cast integer and length <= 4 (optional) :
+          idu=0,1,2,3 LDA+U, 0 nothing, 1 AMF, 2 FLL, 3 mixed
+   token  UH=  of cast double and length <= 4 (optional) :
+          Hubbard U for LDA+U
+   token  JH=  of cast double and length <= 4 (optional) :
+          Exchange parameter J for LDA+U
+
+
+   token  P=  of cast double and length <= 3 (optional) :
+          Starting log der. parameters for each l
+   token  Q=  of cast double and length <= 3 (optional) :
+          Starting sphere charges for each l channel
+   token  MMOM=  of cast double and length <= 3 (optional) :
+          Starting mag. moms for each l channel
+   token  EREF=  of cast double (optional) :
+          Reference energy subtracted from total energy
+ category  SITE:  Site-specific data
+   ...    You may read SITE category from site file with following token
+   token  FILE=  of cast char (optional)
+   ...    Otherwise, read it from the ctrl file:
+   token  MODE=  of cast logical (optional) :
+          Set to T if input positions are fractions of plat
+   token  ATOM=  of cast char
+   token  POS=  of cast double and length 3 :
+          Atom coordinates, in units of alat
+   token  DPOS=  of cast double and length 3 (optional) :
+          shift in atom coordinates added to pos
+   token  ROT=  of cast char (optional)
+          (non-collinear fields): rotation of local coordinates.  Syntax:
+          ROT=rot1[,rot2...] with rotj=(x,y,z)angle.  (x,y,z) may be x: y: or z:
+   token  RELAX=  of cast integer and length <= 3 (optional) :
+          relax site positions (lattice dynamics) or Euler angles (spin dynamics)
+   token  PL=  of cast integer (optional) :
+          (pgf) Assign principal layer number to this site
+ category  SYMGRP (optional):  for explicit specification of symmetry group
+   token  SYMGRP  of cast char (optional)
+ category  BZ:  for Brillouin zone and energy integrations
+   token  GETQP=  of cast logical    --- OR: :
+          Read qp from disk
+   token  NKABC=  of cast integer and length <= 3 :
+          No. qp along each of 3 lattice vectors
+   token  BZJOB=  of cast integer and length <= 3 (optional) :
+          0 centers BZ mesh at origin, 1 centers off origin
+   token  METAL=  of cast integer (optional) :
+          0 assume insulator; 1 save evecs on disk; 2 use wgt from prior iter
+          3 always make two band passes; 4 BZ integration with 3-point scheme
+   token  TETRA=  of cast logical (optional) :
+          Tetrahedron integration
+   token  N=  of cast integer (optional) :
+          Polynomial order for Methfessel-Paxton sampling
+   token  W=  of cast double    --- OR: :
+          Line broadening for sampling integration
+   token  EF0=  of cast double (optional) :
+          Initial guess at Fermi energy
+   token  DELEF=  of cast double (optional) :
+          Initial uncertainty in Fermi energy
+   token  ZBAK=  of cast double (optional) :
+          Background charge
+   token  SAVDOS=  of cast integer (optional) :
+          Choose some combination of the following:
+          1 Write DOS to directly disk (NPTS and DOS also needed)
+          2 Write weights for partial DOS
+          4 Same as (2), but weights m-resolved
+   token  DOS=  of cast double and length 2 (optional) :
+          Energy window over which DOS accumulated
+   token  NPTS=  of cast integer (optional) :
+          No. DOS points (sampling integration, and lmdos)
+   token  PUTQP=  of cast logical (optional) :
+          Write qp to disk
+   token  EFMAX=  of cast double (optional) :
+          Find evecs up to efmax
+   token  NEVMX=  of cast integer (optional) :
+          Find at most nevmx eigenvectors
+          If NEVMX=0, program uses internal default
+          If NEVMX<0, no eigenvectors are generated
+   token  ZVAL=  of cast double (optional) :
+          Number of electrons to accumulate in BZ integration
+   token  NOINV=  of cast logical (optional) :
+          Suppress automatic inclusion of inversion symmetry for BZ
+   token  FSMOM=  of cast double (optional) :
+          Fixed-spin moment (fixed-spin moment method)
+   token  DMAT=  of cast logical (optional) :
+          Calculate density matrix
+   token  INVIT=  of cast logical (optional) :
+          Use inverse iteration for diagonalization
+   token  MULL=  of cast integer (optional) :
+          Mulliken population analysis
+ category  EWALD (optional):  for Ewald summations
+   token  AS=  of cast double (optional) :
+          Ewald smoothing parameter
+   token  TOL=  of cast double (optional) :
+          Ewald tolerance
+   token  NKDMX=  of cast integer (optional) :
+          Ewald tolerance
+ category  MIX (optional):  for density mixing in self-consistency cycle
+   token  MODE=  of cast char (optional)
+          A[nmix][,b=beta][,n=nit][,w=w1,w2][,nam=fn][,k=nkill][;...]  or
+          B[nmix][,b=beta][,wc=wc][,n=#][,w=w1,w2][,nam=fn][,k=nkill]
+   token  CONV=  of cast double (optional) :
+          tolerance in energy change from prior iteration for self-consistency
+   token  CONVC=  of cast double (optional) :
+          tolerance in output-input charge for self-consistency
+   token  AMODE=  of cast char (optional)
+   token  XIPMX=  of cast integer (optional) :
+          mix potential independently of charge:
+          XIPMX=1: mix vin and v(qmix)
+          XIPMX=2: mix vin and v(qout)
+ category  START (optional)
+   token  NIT=  of cast integer (optional) :
+          maximum number of iterations in self-consistency cycle
+   token  BEGMOM=  of cast integer (optional) :
+          0 start from file pot pars
+          1 Create potential and pot pars from P,Q
+          2 Create pot pars from file potential
+          3 Create potential from restart file
+   token  CNVG=  of cast double (optional)
+   token  FREE=  of cast logical (optional)
+ category  MAP (optional)
+   token  MAP  of cast logical (optional)
+ category  OPTICS (optional):  for optics calculations
+   token  MODE=  of cast integer :
+           0: do nothing;
+          -1: generate joint DOS
+           1: generate linear eps_2
+           2: generate second harmonic eps
+              1 and 2 allowed in combination
+   token  NPTS=  of cast integer :
+          No. energy points
+   token  WINDOW=  of cast double and length <= 2 :
+          Energy window over which to calc. eps
+   token  FILBND=  of cast integer and length <= 2 (optional) :
+          Occ. energy bands from which to calc. eps
+   token  EMPBND=  of cast integer and length <= 2 (optional) :
+          Unocc energy bands from which to calc. eps
+   token  PART=  of cast logical (optional) :
+          Band-to-band decomposition of epsilon
+   token  CHI2: of cast struc, elements: nchi2 axes (optional)
+          For second harmonic generation:
+            nchi2=number of (abc) sets for which to calc. chi2
+            axes=a,b,c for each of the nchi2 sets
+   token  ESCISS=  of cast double (optional) :
+          Scissors operator (energy added to unoccupied bands)
+
+</pre>
+
+NB: this program lm was compiled with extension packages nc,optics,sx.
+Without these extensions, a few tokens may be missing.
+
+<H2><A name="section7"><FONT size="+2"><FONT size="+2">
+7.  Documentation of Categories and Tokens
+ </FONT></FONT></A></H2>
+
+This section documents the categories and tokens listed in <A
+href="#section6lmio">Section 6</A> (Generated by program lm, it
+lists all tokens that `lm' would try to read.)  Many of them are
+shared in common with most executables, though not all.
+Categories<pre> HEADER, VERS, IO, CONST, CMD </pre> are generic
+categories common to all programs, and are described in <A
+href="input-file-style.txt">input-file-style.txt</A>.  Those not
+sought by `lm' but by other programs are not displayed there;
+nevertheless they are documented either in this file or in
+another file in this directory.
+
+
+<BR>
+<UL>
+In the following descriptions,
+<LI>  Those specific to the ASA are qualified with (ASA)
+<LI>  Those specific to the FP are qualified with (FP)
+<LI>  Those specific to the noncollinear package are qualified with (NC)
+<LI>  Those specific to the optics package are qualified with (OPTICS)
+<LI>  Those specific to the Green's function package are qualified with (GF)
+</UL>
+
+
+<H2><A name="HAM"></A></H2>
+Category HAM
+
+<pre>
+ This category is designed to read parameters defining
+ hamiltonian.  For historical reasons, many parameters that
+ should be in this category actually lie elsewhere.  To maintain
+ backward compatibility, corrections will be deferred until v7.
+
+
+  Token
+  FTMESH= (FP) specifies the number of divisions for the uniform
+           mesh density; see <A href="fp.html#HAM">fp.html</A>
+
+  GMAX=   (FP) energy cutoff for FT mesh; see <A href="fp.html#HAM">fp.html</A>
+
+  TOL     (FP) FT mesh tolerance; see <A href="fp.html#HAM">fp.html</A>
+
+  FORCES= (ASA, noncollinear package) magnetic forces
+          (FP)  see <A href="fp.html#HAM">fp.html</A>
+
+  ELIND=  Lindhard energy for model screening; see <A href="fp.html#HAM">fp.html</A>
+
+  XCFUN=  Chooses the local <A href="../subs/evxcv.f">exchange correlation functional</A>
+          1 for Ceperly-Alder
+          2 for Barth-Hedin, ASW fit
+
+  NMTO=   Order of polynomial approximation for NMTO (require
+          NMTO>=2) Setting NMTO>0 causes the lm program to
+          compute the NMTO hamiltonian in place of the 2nd
+          generation one.  At present, no self-consistency is
+          allowed in NMTO.
+
+  KMTO=   corresponding NMTO kinetic energies about which w.f. are
+          linearized, in Ry.
+
+  EWALD=  (ASA, NMTO) make screened strux by Ewald summation.  The
+          default is to interpolate the k-summed strux to each of
+          the NMTO energies KMTO from the real space strux,
+          calculated by program lmstr and energies KAPS; see
+          category STR below.
+
+  VMTZ=   Muffin-tin zero defining wave functions.  Normally this
+          is calculated by the program.
+
+  QASA=   Defines how of energy moments <A href="#section2">Q0,Q1,Q2</A> are
+          generated and used to construct a density in the ASA.
+          QASA= is a compound of two switches.
+
+          The 1s bit specifies one of two meanings of Q0 in the
+          sphere program; see Remarks in subroutine newrho, found
+          in <A href="../subs/atomsr.f">subs/atomsr.f</A>).
+
+          The 2s bit specifies whether moments are accumulation
+          of moments as true power moments, assuming a connection
+          between LMTO and KKR, or as coefficients to phi, phidot
+          products; see <A href="../subs/makwts.f">subs/makwts.f</A>
+
+          0 => Methfessel conventions for 2nd gen ASA moments Q0..2
+          1 => Q2 = coff to phidot**2 - p phi**2 in sphere
+          2 => Q1,Q2 accumulated as coffs to <phi*phidot> and <phidot**2>
+          3 => 1+2 (Stuttgart conventions)
+<FONT color="#0033ff">          Caution: the default value is 0; the preferred value is 3.</FONT>
+
+  PMIN=   (not implmented in ASA) constrains fractional part of
+          potential functions
+
+ (The following apply to the ASA when the SX package is installed.  See sx.txt.
+  RDSIG= also applies to the FP code in conjunction with the GW package; see gw.txt)
+
+   RDSIG=  token specifying whether to read the self-energy generated
+           by lm and add to to the LDA hamiltonian.
+           The argument of RDSIG= consists of three digits:
+           1s digit 1  : read sigma but to not symmetrize
+                    2  : read sigma and symmetrize it
+
+   RSRNGE= token specifying the maximum range of the r.s. sigma
+           computed by fourier transform of sigma(k) generated by the SX package.
+
+   RSSTOL= token specifying the maximum allowed deviation in the
+           forward fourier transform of the r.s. sigma as compared to
+           the original sigma(k) as read from disk.  This error should
+           vanish if RSRNGE is taken large enough.
+
+</pre>
+<H2><A name="STRUC"></A></H2>
+Category STRUC
+
+<pre>
+ Category STRUC supplies information about the lattice.
+
+  Token   Description
+
+  NSPEC=  number of atom species (one in Si, or two if you
+          include empty spheres)
+
+  NCLASS= provides the same information as NSPEC=.  (This token
+          is obsolete but included for backward compatibility.
+          In pre- lm-6 versions, classes were specified instead
+          of species.  Current versions split species into
+          classes internally).
+
+  FILE=   provides a mechanism to read structural data using
+          alternate input styles from a separate file.  File
+          <A href="../subs/iosite.f">subs/iosite.f</A> documents the syntax of the file structure.
+          In this version there are two formats available.
+
+         *Standard format. The first line should contain a '%' sign
+          and a `version' token vn=#. On the same line, supply tokens
+          nbas= and plat=, similar to the input file, viz:
+            % vn=1.0 nbas=7 plat= -0.5 0.5 1 0.5 -0.5 1 0.5 0.5 1
+          Following this you can optionally supply SITE data,
+	  described in the <A href="#SITE">SITE</A> documented.
+
+         *Kotani format. The first line should contain a '%' sign
+          and a `version' token vn=kotani. Then follow four lines
+          containing real numbers:
+            #              <-- alat
+            # # #	   <-- plat(1,1) plat(2,1) plat(3,1)
+            # # #	   <-- plat(1,2) plat(2,2) plat(3,2)
+            # # #	   <-- plat(1,3) plat(2,3) plat(3,3)
+          Following this you can optionally supply SITE data,
+	  described in the <A href="#SITE">SITE</A> documented.
+
+          Otherwise, NBAS=, PLAT= and ALAT= are input from the
+          ctrl file:
+
+  NBAS=   size of basis
+
+  PLAT=   (dimensionless) primitive translation vectors.
+
+  ALAT=   is a scaling, in atomic units, of the primitive
+          translation and basis vectors.
+
+  DALAT=  is added to ALAT.  However, the average WS radius is
+          computed from alat, so quantities scaled by avw (R/W in
+          SPEC, for example) are fixed while ALAT varies.  NB:
+          this is Not Particularly Useful for the ASA, since
+          spheres must be space-filling.
+
+  NL=     1 + l-cutoff for the basis
+
+  SHEAR=  enables shearing of the lattice in a volume-conserving
+          manner For SHEAR=#1,#2,#3,#4, #4 is the distortion
+          amplitude, and #1,#2,#3 are a direction vector.  Thus
+          for a cubic material, SHEAR=0,0,1,0.01 distorts the
+          lattice to tetragonal by 0.01.
+
+  ROT=    rotates the lattice and basis vectors, and the symmetry
+          group operations by a unitary matrix.  Example:
+             ROT=z:pi/4,y:pi/3,z:pi/2
+          generates a rotation matrix corresponding to the Euler
+          angles alpha=pi/4, beta=pi/3 gamma=pi/2.
+          See <A href="rotations.html">rotations.html</A> for the general syntax.
+
+  DEFGRD= a 3x3 matrix defining a general distortion of the
+          lattice vectors.
+
+  STRAIN= a sequence of six numbers defining 6 Voigt strain
+          matrix elements
+
+  ALPHA=  amount of Voigt strain
+
+</pre>
+<H2><A name="OPTIONS"></A></H2>
+Category OPTIONS
+
+<pre>
+ Category OPTIONS is a catch-all to input a variety of options.
+ Many of these tokens are in this category for historical
+ reasons, and in v7 will moved elsewhere.
+
+  Token    Description
+   REL=    F for nonrelativistic Schrodinger equation
+           T for scalar relativistic Schrodinger equation
+           NB: the same wave equation is used in both cases, but the speed
+           of light in the nonrel case is set to a large number.
+           2 use fully relativistic Dirac equation (still in progress)
+
+   HF=     restrict calculations to Harris functional;
+           do not evaluate output density.
+
+   CCOR=   F suppresses on the combined correction (ASA only)
+           T (default) enables the combined correction
+           NB: if any orbitals are downfolded, CCOR is automatically enabled
+
+   ADNF=   (ASA) enables automatic downfolding of orbitals.
+
+   GRCOR=  enables gradient corrections to the local density functional.
+           For Barth-Hedin local functional, the Langreth-Mehl-Hu
+           functional is used; see PRB40,1997(1989) and PRB28,1809(1983).
+           For Ceperly-Alder local functional, the PW91 functional is used.
+
+   FRZ=    (ASA) turns on frozen core.
+           (FP) freezes the potential used to make augmented w.f.,
+                so that the w.f. do not change with potential.
+
+   NSPH=   (ASA) generate l>0 contributions to l=0 electrostatic potential.
+
+   SHARM=  (ASA) if true, use true spherical harmonics, rather real harmonics.
+
+   NSPIN=  1 for non-spin-polarized calculations
+           2 for spin-polarized calculations
+
+ (The following apply to the ASA when the noncollinear package is installed.  See nc.txt)
+
+   NONCOL= (ASA,NC) if true, enables noncollinear magnetism.
+           Default is collinear magnetism, where spin up- and down-channels
+           are decoupled.
+
+   BFIELD= T adds external magnetic field to hamiltonian (Zeeman term).
+           See <A href="nc.txt">nc.txt</A> for documentation.
+
+   SS=     enables spin spirals.  See <A href="nc.txt">nc.txt</A> for documentation..
+
+   SO=     if true, enable spin-orbit coupling.  See <A href="nc.txt">nc.txt</A> for documentation..
+
+   SDYN:   parameters for spin statics and dynamics.  See <A href="nc.txt">nc.txt</A> for documentation..
+
+   SCR=    (SX or GF) is connected with the generation or use of the q->0 ASA
+           dielectric response function.  It is useful in cases
+           when there is difficulty in making the density self-consistent.
+           See linear-response-asa.txt for documentation.
+
+   SX=     (SX) compute or use screened exchange self-energy.
+           See <A href="sx.txt">sx.txt</A> for documentation.
+
+   SXOPTS= (SX) string specify extra parameters to be used in SX
+           See <A href="sx.txt">sx.txt</A> for documentation.
+
+   TWOC=   (ASA) uses the two-center approximation ASA hamiltonian
+
+   GAMMA=  rotate strux to gamma representation.  This should have
+           no effect on the eigenvalues for the usual
+           three-center hamiltonian, but converts the two-center
+           hamiltonian from first order to second order.  May not
+           be used in conjunction with downfolding.
+
+   ELIN=   archaic, not used.
+
+   SAVVEC= save eigenvectors on disk. (May be enabled automatically by
+           setting of some switches)
+
+   ZBAK=   adds a constant background charge to the density.
+           (Not included in the exchange potential).
+           ZBAK=#1[,#2] :
+           #1 nonzero turns on MT correction
+           #2 specifies constant background charge
+
+   NRMIX=  (ASA sphere program) : NRMIX=#1[,#2]
+           Generally user is advised not to play with this parameter.
+           #1 max number of internal iterations within sphere program
+           #2 no. prior iter for Anderson mixing
+
+   Q=BAND, Q=MAD, Q=ATOM, Q=SHOW make the program stop
+           at selected points without trying to become self-consistent.
+
+   STONER= for a generalized Stoner rigid band calculation,
+           It requires special compilation to be effective.
+
+   NEWREP= rotates structure constants to a user-specified representation.
+           It requires special compilation to be effective.
+
+</pre>
+<H2><A name="SPEC"></A></H2>
+Category SPEC
+
+<pre>
+ Category SPEC contains species-specific information.  Because
+ data must be read for each species, tokens are repeated (once
+ for each species).  For that reason, there is some restriction
+ as to the order of tokens.  Data for a specific species
+ (Z=, R=, R/W=, LMX=, IDXDN= and the like described below)
+ begins with a token ATOM=; input of tokens specific to that
+ species must precede the next occurence of a token ATOM=;
+ see <A href="input-file-style.txt">input-file-style.txt</A>.
+
+  Tokens not particular to one species:
+  token    Description
+
+  SCLWSR=  SCLWSR>0 turns on the <A href="#section8.1">automatic sphere resizer</A>.
+           It defaults to 0, which turns off the resizer.
+           The 10's digit tells the resizer how to deal with resizing
+           empty spheres; see <A href="#section8.1">Section 8</A>.
+
+  The next three tokens are constraints that the sphere resizer will
+  satisfy.  In addition, there is a species-specific constraint CSTRMX.
+
+  OMAX1=   constrains maximum allowed values of sphere overlaps.
+           You may input up to three numbers, which correspond to
+           atom-atom, and atom-empty-sphere, and empty-sphere-empty-sphere
+           overlaps respectively.
+           Default values for these numbers are 0.16, 0.18 and 0.20.
+
+  OMAX1=   constrains maximum allowed values of sphere overlaps defined
+           differently from OMAX1; see <A href="#section8.1">Section 8</A>.
+           Both constraints are applied.
+           Default values for these numbers are 0.40, 0.45 and 0.50.
+
+  WSRMAX=  imposes a upper limit to any one sphere radius.
+
+  The next tokens are species-specific:
+  token    Description
+
+  ATOM=    a few-character string that labels the atom of that
+           species.  This string names the disk file that will
+           hold information about that atom (potential
+           parameters, moments, potential and some sundry other
+           information), and is used elsewhere in the input (see
+           categories SITE and START below) to identify a
+           particular atom.  Note: species are split into
+           classes, and so the program differentiates names by
+           appending integers to the label for species with
+           multiple classes.
+
+  Z=       nuclear charge
+
+  R=       the sphere radius, in atomic units, or alternatively:
+  R/W=     the ratio of the sphere radius to the average Wigner
+  R/A=     Seitz radius (R/W=), or the sphere radius in units of the
+           lattice constant.  The average WSR is defined such that if
+           all R/W were 1, the sum of volumes from each sphere would
+           fill space, as is usual in the ASA.
+<FONT color="#0033ff">
+           Caution: Results are sometimes sensitive to choice of
+           sphere radii. This is a main drawback to the ASA.
+
+           Note: full-potential results are much less sensitive
+           to the choice of sphere radii. Generally however, you
+           much choose them smaller than ASA spheres, because
+           accuracy begins to degrade when sphere overlaps exceed
+           approximately 10%.</FONT>
+
+           Program <A href="#section9lmchk"><B>lmchk</B></A> can help you find sphere radii
+           automatically; see <A href="#section8">Selection of Sphere Radii</A>,
+           Section 8. Also, once you have selected sphere radii,
+	   programs that use sphere radii can automatically rescale
+           them (see SCLWSR= above).
+
+  NR=,A=   defines the radial mesh, together with R, on which
+           densities and potentials are tabulated with MT sphere
+           It is a shifted logarithmic radial mesh of points
+           const*exp(A*(0..NR-1)-1).
+
+  LMX=     basis l-cutoff inside the sphere.  If not specified,
+           it defaults to NL-1.
+
+  LMXA=    l-cutoff for augmentation of tails from functions
+           centered at other sites.  With screened orbitals at
+           present (such as ASA), LMXA should be the same as LMX.
+
+  IDXDN=   a set of integers, one for each l-channel marking which
+           orbitals should be downfolded.
+           0 use automatic downfolding
+           in this channel.  1 leaves the orbitals in the basis.  2
+           folds down about the inverse potential function at E_nu 3
+           folds down about the screening constant alpha.
+
+  IDMOD=   a set of integers, one for each l-channel controlling
+           how the potential parameter enu changes from
+           one iteration to the next in a self-consistency cycle.
+           0  lets the enu shift to the center of gravity
+              of the occupied part of the band (this is the default);
+           1  freezes the logarithmic derivative of the
+              wave function phi at the sphere radius from one iteration
+              to the next;
+           2  freezes the enu's from one iteration to the next.
+
+  CSTRMX=  is a logical switch that when set, tells the sphere resizing
+           routine to exclude this species when <A href="#section8.1">resizing sphere radii</A>.
+
+  IDU=, UH=, JH= specify parameters for LDA+U.  IDU=#,#,#,... specifies which
+          <I>l</I>-channels are to have <I>U</I> and the type of LDA+U implementation.
+          0 in a particular <I>l</I>-channel means no <I>U</I> is to be applied
+          1,2,3 are for particular forms of <A href="fp.html#ldaplusu">LDA+U</A>.  However,
+          at present the ASA code does not have a proper implementation of LDA+U;
+          instead potential parameters C and enu may be shifted by a constant.
+          Use IDU=4 to shift both spin channels by a constant (specified by <I>U</I>)
+          or  IDU=5 to shift majority channel by <I>U</I> and minority by <I>J</I>.
+          Example:
+             IDU= 0 0 0 5 UH= 0 0 0 -0.28    JH=0 0 0 0.23
+          shifts the majority f channel by -0.28 Ry and the minority f channel
+          by 0.23 Ry.  This mimics an LDA+U calculation for Gd.
+
+  DV=      (ASA) adds a constant potential inside this sphere, in
+           the case when the potential is decoupled from the
+           charge density in non-self-consistent calculations.
+
+  GROUP=   is not documented.
+
+  GRP2=    a special-purpose token designed to force equivalence
+           between inequivalent atoms when the output moments are
+           mixed.  Classes with the same absolute value of GRP2
+           identifier are averaged.  Classes with negative values
+           are included with the spin up- and down- channels
+           reversed.  Thus classes A with GRP2=1 and B with
+           GRP2=-1 will be constrained to have the same moments,
+           with the A up and B down channels equal, and the A
+           down and B up channels equal.
+
+  C-HOLE and C-HQ= enable partial occupation of a particular core channel.
+           This option is the same in both the asa and full-potential codes;
+           See <A href="fp.html#corehole">Partially occupied core holes</A> for description and examples.
+
+</pre>
+
+<H2><A name="SITE"></A></H2>
+Category SITE
+
+<pre>
+ Category SITE holds site information.  As in the SPEC category,
+ tokens must read for each site entry, and a similar restriction
+ applies as to the order of tokens.  Token ATOM= must be the
+ first token for each site, and all tokens defining parameters
+ for that site must occur before a subsequent ATOM=.
+
+  Token   Description
+
+  FILE=   provides a mechanism to read site data using
+          alternate input styles from a separate file.  File
+          <A href="../subs/iosite.f">subs/iosite.f</A> documents the syntax of the file structure.
+          In this version there are two formats available.
+
+         *Standard format. The first line should contain a '%' in
+          the first column, and a `version' token vn=#.
+          Structural data (see category <A href="#STRUC">STRUC</A> documentation)
+          may also be put this line.  Each subsequent line supplies
+          input for one site.  In the simplest format, a line would
+          would have the following:
+            spid   x y z
+          where spid is the species identifier (same information
+          would otherwise be specified by token ATOM= below)
+          and x y z are the site positions.
+
+         *Kotani format. The first four lines always specify data read
+          in the STRUC category; see FILE= in <A href="#STRUC">STRUC</A>.
+          Then follow lines, one line for each site:
+             ib iclass spid x y z
+          The first number is merely a basis index and should
+          increment 1,2,3,4,... in successive lines.  The second class
+          index is ignored by these programs.  The remaining columns
+          columns are the species identifier the site positions.
+
+          Bug: when you read site data from an alternate file, the
+          reader doesn't compute the reference energy.
+
+          Otherwise: the following are read from the ctrl file:
+
+  ATOM=   identifies the species (by label) to which this atom belongs.
+          It is a fatal error for the species not to have been defined.
+
+  MODE=   Set to T if positions are multiples of plat (default are
+          Cartesian coordinates).
+
+  POS=    the basis vector (length 3), in dimensionless Cartesian
+          coordinates (or multiple of plat, if MODE=t).  As with the
+          primitive lattice translation vectors, the true vectors (in
+          atomic units) are scaled from these by ALAT in category
+          STRUC.
+
+  PL=     (PGF) Assign principal layer number to this site
+
+</pre>
+<H2><A name="SYMGRP"></A></H2>
+Category SYMGRP
+
+<pre>
+Category SYMGRP provides symmetry information; it helps in two
+ways.  First it is the relevant information to find which sites
+are equivalent, which makes for simpler and more accurate band
+calculations, and second, it reduces the number of k-points
+needed in Brillouin zone integrations.
+
+Unless you are doing something special, normally you don't need
+SYMGRP; the program is capable of finding its own symmetry
+operations.  However, if you want to restrict operations to a set
+you specify, or if you are doing something (like noncollinear
+magnetism) where the symmetry group isn't specified by atomic
+positions along, use SYMGRP to explicitly declare a set of
+generators from which the entire group can be created.  For
+example, the three operations R4X, MX and R3D are sufficient to
+generate all 48 elements of cubic symmetry (the inversion is
+always assumed).
+
+A symbol describing a generator for a point group operation has
+the form O(nx,ny,nz) where O is one of M, I or Rj for mirror,
+inversion and j-fold rotation; and nx,ny,nz are a triplet of
+indices specifying the axis of operation.  You may use X, Y, Z or
+D as shorthand for (1,0,0), (0,1,0), (0,0,1), (1,1,1).  You may
+also enter products, such as I*R4X.  Example:
+  SYMGRP  R4X MX R3D
+specifies three generators (4-fold rotation around x, mirror in
+x, 3-fold rotation around (1,1,1)) and will result in 48 symmetry
+operations.
+
+To suppress all symmetry operations, use
+  SYMGRP i*i
+
+The keyword `find' tells the program to determine its own
+symmetry operations.  Thus
+  SYMGRP find
+is amounts to the same as not including a SYMGRP category
+in the input at all.
+
+You can also specify a mix of generators you supply, and
+tell the program to find any others that might exist.
+For example,
+  SYMGRP r4x find
+specifies that 4-fold symop be included, and `find' tells
+the program to look for any other symops that might exist.
+
+Full-potential implementations require you to specify the full
+space group operation.  This you do by appending a string of the
+form `:(x1,x2,x3)' to the point group operation, or an alternate
+form `::(p1,p2,p3)' with the double `::'.  The first defines the
+translation in Cartesian coordinates; the second as multiples of
+plat.  These two lines taken from testing/ctrl.cr3si6 are
+equivalent specifications
+  SYMGRP   r6z:(0,0,0.4778973) r2(1/2,sqrt(3)/2,0)
+  SYMGRP   r6z::(0,0,1/3)      r2(1/2,sqrt(3)/2,0)
+
+</pre>
+<H2><A name="BZ"></A></H2>
+Category BZ
+
+<pre>
+ Category BZ holds information concerning the numerical
+ integration of energy bands over the Brillouin Zone.  The LMTO
+ programs are not tied to any one method, so the desired method
+ must be specified by a token.  Unless a table of k-points is
+ supplied and the GETQP switch is set, the program will divide
+ the BZ into a uniform mesh of points by making NKABC divisions
+ along the primitive reciprocal cell vectors.
+
+  Token
+
+  NKABC=  (1-3 integers) the number of divisions in the three
+          directions of the reciprocal lattice vectors.  The
+          number of k-points in the full BZ is the product of
+          these numbers, this may be reduced by symmetry
+          operations.  Alternatively, you may specify k-points
+          explicitly in a separate file, as the following shows:
+
+  GETQP= if true, causes the the program use a set of k-points and
+          weights provided in a file `qpts'.  This is the way to use
+          your own customized set of special points; token NKABC is
+          not used.  Not suitable in conjunction with tetrahedron
+          integration.  See section "Input files" above for a sample
+          `qpts' file.
+
+  TETRA=  selects BZ integration method
+          0: Methfessel-Paxton sampling integration
+             Tokens NPTS, N, W, EF0, DELEF described below are
+             relevant to this integration scheme.
+          1: tetrahedron integration
+
+  W=      Line broadening for Gaussian sampling integration (Ry).
+          Used only if TETRA=0 and MET>0.
+          NB: if N=-1 below, the sampling weights are computed
+          from the Fermi function instead of the error function.
+          In that case, token W= corresponds to temperature, in Ry.
+
+  N=      If N=#, #>0: integration uses generalized gaussian
+          functions, i.e. polynomial of order N * gaussian to
+          generate integration weights
+          (see Methfessel & Paxton, Phys. Rev. B, 40, 3616 (1989))
+
+          If N=#, #<0: integration uses the Fermi function to
+          generate integration weights .
+
+          By default, if a gap is found separating occupied and
+          occupied states, the program will treat the system as
+          and insulator, even when MET>0.  To suppress this,
+          add 100(-100 for Fermi distribution) to N.
+
+          Used only if TETRA=0 and MET>0.
+
+  SAVDOS= 0 does not save dos on disk
+          1 writes the total density of states on NPTS mesh
+            points to disk file `dos'.
+          2 Write weights to disk for partial DOS
+            (In the ASA, with METAL=t this occurs anyway)
+          4 Same as option (2), but write weights m-resolved.
+            You may also cause lm to generate m-resolved dos using
+            the <A href="#section9lm">--pdos</A> command-line argument.
+            NB: you must turn OFF all symmetry operations to produce
+            correct results.  (The extra inversion symmetry in the
+            k-points from time-reversal symmetry is still allowed.)
+<FONT color="#0033ff">          Note: SAVDOS>0 requires NPTS and DOS also.</FONT>
+
+  NPTS=   number of points in the density-of-states mesh used in
+          conjunction with sampling integration.  Needed for
+          sampling or if SAVDOS>0.
+
+  DOS=    (two numbers) Energy window over which DOS accumulated.
+          Needed for sampling or if SAVDOS>0.
+
+  EF0=    (sampling integration) initial guess at Fermi energy
+
+  DELEF=  (sampling integration, three-point scheme; see METAL=4)
+          initial uncertainty in Fermi level for sampling
+          integration.
+
+  PUTQP=  writes out the list of q-points to file `qpts'.
+
+  METAL=  specifies how the weights are generated for BZ
+          integration.  There is a difficulty in that EITHER the
+          weights must be known in advance before looping over
+          k-points, in order accumulate the output density, OR
+          the eigenvectors for each k-point must be kept until
+          the Fermi level is determined.  When just accumulating
+          the spherical part of the charge, as in the the ASA,
+          the eigenvector information can be contracted over m,
+          and is not prohibitive, but the situation is rather
+          worse in general.  There are several ways out of this
+          difficulty:
+
+          METAL=0 system assumed to be an insulator; weights
+                  known a priori
+
+          METAL=1 eigenvectors are written to disk, in which case
+                  the integration for the charge density can be
+                  deferred until all the bands are obtained (ok
+                  for ASA)
+
+          METAL=2 integration weights are read from file `wkp',
+                  which was generated in a prior band pass (if
+                  file is missing, program will temporarily
+                  switch to mode METAL=3:)
+
+          METAL=3 two band passes are made; the first generates
+                  only eigenvalues and the Fermi level is
+                  determined.
+
+          METAL=4 weights and related information is retained for
+                  three distinct Fermi levels.  After the Fermi
+                  level is determined, the density is obtained by
+                  quadratic interpolation through the three
+                  points.  (This scheme is suitable for sampling
+                  only, since in that case just the Fermi level
+                  is needed to set integration weights.  When
+                  this scheme is used in conjunction with the
+                  tetrahedron method, the charge density is
+                  calculated with sampling.
+<FONT color="#0033ff">
+          Note: The ASA lm implements METAL=0,1,2;
+          the full-potential lmf implements METAL= 0,2,3,4.</FONT>
+
+  EFMAX=  Only eigenvectors whose eigenvalues are less than efmax
+          are computed; this improves execution efficiency.
+
+  NEVMX=  nevmx>0 : Find at most nevmx eigenvectors;
+          nevmx=0 : program uses internal default
+          nevmx<0 : no eigenvectors are generated (and
+                    correspondingly, nothing associated with
+                    eigenvectors such as density.)
+<FONT color="#0033ff">
+          Caution: if you want to look and partial DOS well above
+          the Fermi level (which comes out around 0), you must
+          set EFMAX and NEVMX high enough to encompass the range
+          of interest.</FONT>
+
+  ZVAL=   Number of electrons to accumulate in BZ integration.
+          Normally zval is computed by the program.
+
+  NOINV=  suppress the automatic addition of the inversion to the
+          list of point group operations.  Usually addition of
+          inversion is allowed because of time reversal symmetry.
+          There are some cases, where this symmetry is broken,
+          such as when spin-orbit coupling is included.  The
+          program will automatically disable this addition in
+          cases that knows the symmetry is broken.
+
+  FSMOM=  set the global magnetic moment (collinear magnetic case).
+          In the fixed-spin moment method, a spin-dependent potential
+          shift is added to constrain the total magnetic moment to
+          value assigned by FSMOM=.  No constraint is imposed if this
+          value is zero (the default).
+          Notes:
+          1. At present there is ba term missing in the HF
+             energy, so it should not be used.
+          2. an iterative scheme is used to determine the potential
+             and it not foolproof.
+
+  INVIT=  enables inverse iteration generate eigenvectors (this is
+          the default). It is more efficient than the QL method,
+          but occasionally fails to find all the vectors.  When
+          this happens, the program stops with the message:
+             DIAGNO: tinvit cannot find all evecs
+          If you encounter this message set INVIT=F.
+
+  DMAT=   Calculate density matrix (not implemented)
+
+  MULL=   (tbe) Mulliken population analysis
+          Mulliken population analysis is also implemented in
+          program lmf, but you specify the analysis with a
+          command-line argument.
+
+</pre>
+<H2><A name="EWALD"></A></H2>
+Category EWALD
+
+<pre>
+ Category EWALD holds information controlling the Ewald sums for
+ structure constants entering into, e.g. the Madelung summations.
+ The defaults are usually adequate; for a detailed description
+ the reader is referred to documentation on the Madelung sums.
+
+  Token   Description
+
+  NKDMX=  the maximum number of real-space lattice vectors
+          entering into the Ewald sum, used for memory allocation.
+          Normally you should not need this token.  Increase
+          NKDMX if you encounter an error message like
+             xlgen: too many vectors, n=...
+
+  AS=     controls the relative number of lattice vectors in real
+          and reciprocal space.
+
+  TOL=    error criterion for the Ewald sums.
+
+</pre>
+<H2><A name="MIX"></A></H2>
+Category MIX
+
+<pre>
+ Category MIX controls the mixing scheme used in the iterations
+ towards self-consistency in the LM program.  There is a choice
+ between the Broyden and Anderson mixing schemes.  Both schemes
+ mix in linear combinations of the input and output density
+ (recall that in the ASA, P's and Q's are enough to completely
+ specify the density) both from the present iteration and prior
+ iterations to accelerate convergence to self-consistency (output
+ = input).  For Anderson mixing, the mixing beta controls how
+ much output and how much input moment is used in the next
+ estimate for the moments: Q* = beta*Qout + (1-beta)*Qin.  Here
+ Qout and Qin are charges (that is, moments or densities), and
+ the "charges" generated by the input "charge" for a sequence of
+ prior iterations.  For small systems, you can take beta close to
+ one; for large systems charge sloshing becomes a problem and you
+ have to do something different.  Possible choices need to take
+ beta much smaller.  See slatsm/amix.f for a description of the
+ Anderson mixing scheme, and how it chooses the linear
+ combination of prior iterations in the mix.
+
+ The syntax for Anderson mixing is
+
+   MODE=A[,b=val]
+
+ where the optional b=val assigns val to beta.
+
+ Broyden mixing uses a more sophisticated procedure, in which it
+ tries to build up the Hessian matrix.  It usually works better
+ but has more pitfalls than Anderson.  As with Anderson, it uses
+ linear mixing in the absence of prior iterations, Q* = beta*Qout
+ + (1-beta)*Qin.  Broyden has an additional parameter, wc, that
+ controls how much weight is given to prior iterations in the mix
+ (see below).  The syntax for Broyden mixing is
+
+   MODE=B[,b=val][,wc=val]
+
+ There are other switches available to handle more complex cases.
+ You can change the name of the mixing file, kill the mixing file
+ after a number of iterations, and change to a different set of
+ mixing parameters after a specified number of iterations.  The
+ most general syntax is
+   MODE=parm-set-1[;parm-set-2;parm-set-3...]
+ Each parm-set has a general syntax:
+
+   A[nmix][,b=beta][,n=nit][,fn=fnam][,k=nkill][,w=w1,w2][,wa=wa][,bv=betv]  or
+   B[nmix][,b=beta][,wc=wc][,n=nit][,fn=fnam][,k=nkill][,w=w1,w2][,wa=wa][,bv=betv]
+   (NB: additional parm [,r=rmscst] for constrained mixing)
+
+ The optional parameters (b=, wc=, etc) may occur in any order.
+
+ These parameters are as follows.  Fortran routine <A href="../subs/parmxp.f">parmxp.f</A> parses
+ the MODE line to read the parameters, and <A href="../subs/pqmix.f">pqmix.f</A> does
+ the mixing.
+
+   nmix: maximum number of prior iterations to include in the mix
+         (the mixing file may contain more than nmix prior
+         iterations.)  NB: nmix=0 implies linear mixing.
+
+   beta: the mixing beta (see above)
+
+   betv: (when XIPMX=t): the Madelung potential as generated from
+         the mixed moments is damped out.  This is done by taking
+         using instead of this potential V = (1-betv) V_prior +
+         betv V_rhomixed; see XIPMX below.
+
+   nit:  the number of iterations to use mix with this set of
+         parameters before passing on to the next set. After the
+         last set is exhausted, it starts over with the first
+         set.
+
+   fnam: change the mixing file name (mixm is the default).
+         Must be four characters or fewer.
+
+   nkill:kill mixing file after nkill iterations.  This is
+         occasionally helpful when the mixing runs out of steam,
+         or when the mixing parameters change.
+
+   wc:   (Broyden only) that controls how much weight is given to
+         prior iterations in estimating the Jacobian.  wc=1 is
+         fairly conservative.  Choosing wc<0 assigns a floating
+         value to wc, equal to -wc-input/rms-err.  This increases
+         wc as the error becomes small.
+
+   w1,w2 (spin-polarized calculations only) pqmix mixes the sum
+         (up+down) and difference (up-down) of the two spin
+         channels.  They are weighted by w1 and w2 in the mixing,
+         more heavily emphasizing the more heavily weighted.  As
+         special cases, w1=0 freezes the charge and mixes the
+         magnetic moments only w2=0 freezes the moments and mixes
+         the charge only
+
+   wa:   weight for extra quantities included with P,Q in the
+         mixing procedure.  For noncollinear magnetism, includes
+         the Euler angles.  For nonspherical density, includes
+         the qpp.  As special cases, any one or two of w1,w2 and
+         wa may be zero.  A zero weight freezes the values
+         corresponding to those weights.
+
+   Example: MODE=B30,n=8,w=2,1,fn=mxm,wc=11,k=3;A2,b=1
+
+   does 8 iterations of Broyden mixing, followed by Anderson mixing
+   The Broyden iterations weight the (up+down) double that of
+   (up-down) for the spin pol case, and iterations are saved in a file
+   which is deleted at the end of every third iteration.  WC is 11.
+   beta assumes the default value.
+   The Anderson iterations mix two prior iterations with beta of 1.
+
+  Other tokens in category MIX:
+
+  XIPMX= (ASA) if 1, program lm mixes potential at the MT
+          boundary more slowly than the charge.  This is
+          particularly helpful when charge sloshing is a problem.
+          To turn on this mode, set token XIPMX=1.  In the ASA,
+          it varies the electrostatic potential at the MT
+          boundary independently than the charge.  That is, after
+          computing the mixed charges Q, it computes the
+          electrostatic potential of Q, and makes a linear mix of
+          the starting electrostatic potential Vin and the
+          potential Vmix from the mixed Q.  The linear mixing
+          parameter is betv; see below.  Thus, the potential
+          mixing isn't really independent of the charge mixing,
+          but reacts more sluggishly (if betv=1, the potential
+          mixing has no effect), which damps out potential
+          arising from long-wavelength (and low energy) charge
+          sloshing
+
+          Alternatively, you can can make the potential mix truly
+          independently.  Using XIPMX=2 you linearly mix Vin and
+          the estat potential of the output Q (=Vout).  XIPMX=2
+          is like XIPMX=1, but mixes Vin and Vout instead of Vin
+          and Vmix.
+
+  CONV=   (FP) maximum allowed change in energy between iterations
+          to reach self-consistency.  At present, used only by
+          lmf.
+
+  CONVC=  (FP) maximum allowed change in output-input density to
+          reach self-consistency.  In the ASA, token CNVG in
+          category START plays the role of CONVC= at present.
+          This will change in v7.
+
+  AMODE=  (NC) mixing parameters for independent mixing of
+          noncollinear Euler angles; used in spin statics.  Has
+          same syntax as MODE=
+
+</pre>
+<H2><A name="START"></A></H2>
+Category START
+
+<pre>
+ Category START is specific to the ASA (with the exception of token NIT=).
+ It controls whether the code starts with moments P,Q or potential
+ parameters; also the moments P,Q may be input in this category.
+
+  NIT=    the number of iterations executed, unless self-consistency
+          is reached within specified tolerance.
+
+  CNVG=   (ASA) the tolerance in the RMS change in the zeroth
+          moments before self-consistency is achieved.
+
+  FREE=   is intended to facilitate a self-consistent free-atom
+          calculation.  When FREE is true, the program uses
+          rmax=30 for the sphere radius rather than whatever rmax
+          is passed to it; the boundary conditions at rmax are
+          taken to be value=slope=0 (rmax=30 should be large
+          enough that these boundary conditions are sufficiently
+          close to that of a free atom.); subroutine atscpp does
+          not calculate potential parameters or save anything to
+          disk; and program LM terminates after all the atoms
+          have been calculated.
+
+  BEGMOM= when true, causes program lm to begin with moments from
+          which potential parameters are generated.  If false,
+          the potential parameters are used and the program
+          proceeds directly to the band calculation.
+
+  CNTROL= when true, attempts to read whatever moments are
+          supplied in the following lines of the control file,
+          overriding whatever is read from disk.  When false, the
+          P,Q data following CNTROL is not used.  Both the
+          ``<A href="#section2">continuously variable principal quantum numbers</A>''
+          P and the moments <A href="#section2">Q0,Q1,Q2</A> must be present for a given
+          atom as displayed in the <A href="#section6">sample input file</A>; however,
+          it is not necessary to have an input for each atom.
+          Moments <A href="#section2">Q0,Q1,Q2</A> are read in for each l channel and
+          class, and for each spin for the spin-polarized case.
+          In the case ATOM=SI in the <A href="#section6">sample input file</A>,
+          one electron is put in the s orbital, 2 in the p and
+          none in the d, while 0.5 electrons are put in the s and
+          p channels for the empty sphere.  All first and second
+          moments are zero.  Of course, this rough guess produces
+          a correspondingly rough potential.  and are not
+          self-consistent.  The self-consistent P,Q look
+          something like:
+
+             ATOM=SI       P=  3.8303101  3.7074067  3.2545634
+                           Q=  1.1694276  0.0000000  0.0297168
+                               1.8803181  0.0000000  0.0489234
+                               0.1742629  0.0000000  0.0063520
+             ATOM=ES       P=  1.4162942  2.2521617  3.1546386
+                           Q=  0.2873686  0.0000000  0.0129888
+                               0.3485430  0.0000000  0.0165416
+                               0.1400664  0.0000000  0.0055459
+          The P's were allowed to float to the band center-of gravity
+          which corresponds to Q1=0.
+
+</pre>
+<H2><A name="OPTICS"></A></H2>
+Category OPTICS
+<pre>
+ Category OPTICS only functions with the ASA extension package OPTICS.
+ See <A href="optics.txt">optics.txt</A> for documentation.
+
+</pre>
+<H2><A name="MAP"></A></H2>
+Category MAP
+
+<pre>
+ Category MAP is used for arcane purposes, and is not documented.
+
+</pre>
+<H2><A name="STR"></A></H2>
+Category STR
+
+<pre>
+ Category STR contains information connected with real-space structure
+ constants, used by the ASA programs.  It is not read by program lm, but is
+ done by program lmstr, which must be run before program lm.  Invoke 'lmstr
+ --input' and look for `category STR'.  It will show that the
+ the following tokens are sought by lmstr in the STR category.
+
+  RMAX=   the maximum sphere radius (in units of the average WSR)
+          over which neighbors will be included in the generation
+          of structure constants.  This takes a default value and
+          is not required input.  It is an interesting exercise
+          to see how much the structure constants and eigenvalues
+          change when this radius is increased.
+
+  MODE=   archaic; should be zero.
+
+  NKAPS=  Number of LMTO or NMTO energies.  For
+          second-generation, use 0.  For NMTO, NKAPS= must be
+          >=2.  Setting nkaps>0 switches the convention from
+          second-generation LMTO conventions to NMTO conventions.
+
+  KAPS=   NMTO kinetic energies for for real space structure
+          constants, are computed, in Ry.  KAPS must be a vector
+          of length NKAPS.
+
+  MXNBR=  make lmstr allocate enough memory in dimensioning
+          arrays for MXNBR neighbors in the neighbor table.  This
+          is rarely needed.
+
+  SHOW=   if true, print out some or all of the strux.
+
+  EQUIV=  if true, try to find equivalent neighbor tables, to
+          reduce the computational effort in generating strux.
+          Not generally recommended.
+
+  IINV:   parameters for iterative inversion of screened strux.
+          Not documented.
+
+  LMAXW=  l-cutoff for (optional) Watson sphere, used to help
+          localize strux
+
+  DELRW=  range extending beyond cluster radius for Watson sphere.
+
+</pre>
+<H2><A name="section8"><FONT size="+2">
+8.  Selection of Sphere Radii
+</FONT></A></H2>
+
+One of the biggest nuisances for augmented-wave programs is the choice
+of sphere radius.  Results are much more sensitive to choice of
+spheres in the ASA than in the full-potential case, in part because
+the energy functional (and potential) change with MT radii, whereas in
+the FP case, this only weakly so.  Either for the ASA or FP, the radii
+are chosen by balancing the following competing needs:
+
+<DL>
+<DT><I>MT potentials are exactly solvable</I>
+<DD>
+  The KKR method is essentially exact for a MT potential, i.e. one
+  that is spherical inside augmentation spheres and flat in the
+  interstitial.  The LMTO basis starts from the KKR basis; thus a
+  partitioning of space which best resembles a MT potential is the
+  best choice.  This is particularly true for the ASA.
+
+</DD>
+<DT><I>Geometry violation of overlapping spheres</I>
+<DD>
+Overlapping spheres count some parts of space twice and others not at
+all.  In the ASA, the "combined correction" term partially undoes this
+error, but not completely.  The full-potential hamiltonian is
+constructed so that the sphere contributions vanish quadratically for
+radii approaching the MT radius.  Errors tend to be small until
+overlaps reach about 10% of the internuclear distance.
+
+</DD>
+<DT><I>ASA Requirement for space-filling spheres</I>
+<DD>
+The ASA functional pretty much requires that the sum-of-sphere volumes
+equals the cell volume.  More precisely, the density is carried by the
+spheres (superposition of spherically symmetrical sphere densities).
+
+</DD>
+<DT><I>Large sphere radii assign more volume to augmented functions</I>
+<DD>
+  Augmented wave functions are very accurate, and the more space covered
+  by them the more reliable the basis set.
+
+</DD>
+<DT><I>l-convergence is most rapid for small sphere radii</I>
+<DD>
+The larger the sphere radius, the more <I>l's</I> are required for convergence
+
+</DD>
+<DT><I>Larger spheres better contain shallow semicore states</I>
+<DD>
+Ideally the core is completely localized within augmentation spheres.
+Particularly in the full-potential case where spheres overlap less
+than in the ASA, shallow semicore states can be an issue.
+
+</DL>
+
+This program suite helps you set sphere radii in several ways.  Programs
+using already-chosen (or guessed) sphere radii can <A href="#section8.1">rescale
+sphere radii</A> up to a specified volume within constraints you supply.
+Also program <A href="#section9lmchk"><B>lmchk</B></A> can
+supply intelligent <A href="#section8.2">initial values</B></A>
+for sphere radii.
+
+<H2><A name="section8.1"><FONT size="+0">
+Automatic scaling of sphere radii
+ </FONT></A></H2>
+
+Programs needing sphere radii can <A href="#section8.1">scale sphere
+radii</A> as large as possible within constraints you supply.  This
+option iteratively adjusts sphere radii as large as possible (or until
+the combined sphere volumes equals the cell volume) within certain
+constraints.  To set this option, set SPEC token SCLWSR=1.  (Actually,
+the number 1 is just the target sphere volume as a fraction of the
+cell volume.  You can choose any number SCLWSR=n with n between 0 and
+1.  Usually you just choose n=1.  recall that the ASA expects the
+sphere volumes to add to the cell volume), in which case n should be
+1.  In the FP case, you still want good sphere packing, so again
+usually you choose n=1.
+
+The constraints come in three flavors (all of them are imposed):
+
+<DL>
+<DT><I>Constraints on sphere overlaps</I>
+<DD>
+  There are two constraints OMAX1 and OMAX2 on sphere overlaps.  If we
+  call ri the radius for sphere i and rij the distance between sites i
+  and j:
+<DL>
+<DD>
+  ri+rj-rij is constrained to be less than OMAX1 <S>x</S> rij
+<DD>
+  ri+rj-rij is constrained to be less than OMAX2 <S>x</S> min(si,sj)
+</DL>
+ Set OMAX1 and OMAX2 in category <A href="#SPEC">SPEC</A>.
+<BR><BR>
+
+</DD>
+<DT><I>Maximum sphere radius</I>
+<DD>
+  No sphere radius is allowed to exceed WSRMAX (set in the
+  <A href="#SPEC">SPEC</A> category).
+<BR><BR>
+
+</DD>
+<DT><I>Lock sphere radii of specific species</I>
+<DD>
+You can "lock down" the sphere radii of specific species.  You set it
+using token CSTRMX= in the <A
+href="#SPEC">SPEC</A> category for species you want to lock.
+
+</DD>
+
+</DL>
+
+<H2><A name="section8.2"><FONT size="+0">
+Choosing initial values of sphere radii
+ </FONT></A></H2>
+
+The ideal choice of sphere radii best approximates a potential that is
+spherical within the MT spheres and flat outside.  Program <A
+href="#section9lmchk"><B>lmchk</B></A> has implemented one algorithm that
+makes a reasonable initial choice for MT radii.  The algorithm works by
+computing the (electrostatic) potential obtained from overlapping free-atom
+densities along all connecting vectors between a given site and its
+relatively near neighbors.  The MT radius is taken as the first potential
+maximum along any ray.  This choice is a pretty reasonable estimate for the
+potential being approximately spherical inside.  Also, note that for a
+completely symmetric bond, the potential maximum will fall exactly midway
+between the bond, so for that case the two sphere radii will exactly touch
+and have equal potentials.  To tell <A
+href="#section9lmchk"><B>lmchk</B></A> to find these radii, invoke lmchk as
+<pre>lmchk --getwsr</pre> Once lmchk determines these radii, you must enter
+them in (by hand) to the input file using <A href="#SPEC">SPEC</A> token
+RMAX=.  There is at present no automatic way to use the radii generated by lmchk.
+
+<H2><A name="section8.3"><FONT size="+0">
+Finding empty spheres
+ </FONT></A></H2>
+
+You can use "empty spheres" as a device to fill space.  The ASA
+requires the sum of sphere volumes to match the cell volume; however
+this can only be done with reasonable sphere overlaps (<15%) for
+fairly close-packed systems.
+
+The solution, in the ASA, is to pack the volume with "atoms" with
+atomic number zero ("empty spheres").  This is tedious but quite often
+necessary.  Program <A href="#section9lmchk"><B>lmchk</B></A> has an
+automatic "empty sphere" finder that can greatly facilitate this step.
+
+</DD>
+<DT><I>Assigning lower priority to resizing empty spheres</I>
+<DD>
+
+Particularly in the ASA, empty spheres are often needed to get
+reasonable sphere packing.  However, it is reasonable that their radii
+should be scaled after the real spheres are rescaled.  You can tell
+the resizer to do this through the 10's digit of token SCLWSR.  The
+10's digit behaves like a flag to cause the resizer to treat empty spheres
+on a different footing from all the other spheres.
+
+<pre>
+   Add  10 to SCLWSR to initially scale real atoms (those with Z>0) first.
+   The scaling is done using radii of size zero for all empty spheres.
+   After this initial scaling, the resizer will proceed rescaling
+   all the spheres.
+
+  Add 20 to SCLWSR is similar to adding 10.  However, The final
+  rescaling applies only to the empty spheres; the real atoms' spheres
+  change only in the first scaling, without reference to the empty
+  spheres.
+</pre>
+
+<H2><A name="section9"><FONT size="+2">
+9.  Command-line switches
+ </FONT></A></H2>
+
+All of the programs have special branches that may be (and
+sometimes must be) set from command-line switches.
+<BR>
+Here is an example:
+<pre>  lmf -vns=4 -vnm=5 --rpos=pos </pre>
+
+<BR>
+Following unix style, switches always begin with `-'.  There are many
+command-line switches that are specific to a particular executable;
+a number of others a common to most or all programs.
+
+<BR><BR>
+Some switches have a single `-'; some have two (`--').  Those with a single
+`-' tend to have an `assignment' function, such as a variables declaration
+(eg -vx=3), while those with two tend to control program flow (eg. --show).
+Sometimes there is not a clear distinction between the two (eg --pr,
+described below) and you can use either `-' or `--'
+
+<BR><BR>
+These switches can be set from the command line only for an operating
+system that accepts them, such as unix or MS-DOS.  You can also put these
+switches in the CMD category in the input file.  The function is similar to
+a command-line argument, but not identical, since preprocessor has already
+read the input file before the `CMD' switches are read.  Thus the "-v" and
+"-c" variable declarations have a somewhat different effect.
+
+<BR><BR>
+<STRONG>Switches common to most or all programs:</STRONG>
+<PRE>
+  --h             lists command-line switches for that program
+                  and quits.  (warning: sometimes documentation
+                  is slightly out of date)
+
+  --input         same as turning on HELP=T in category IO; see
+                  HELP= in the description of the IO category
+                  above.
+
+  --show          same as turning on SHOW=T in category IO; see
+                  SHOW= in the description of the IO category
+                  above.
+
+  --showp         prints out input file after having run through
+                  the preprocessor, and exits.  This can be
+                  useful because it shows the action of the
+                  preprocessor.  When trying to parse a
+                  complicated input file, it is often simpler to
+                  run it through the preprocessor, and use the
+                  output of the preprocessor as the input file
+
+  --pr#1[,#2]     sets print verbosities, overriding any
+   -pr#1[,#2]     specification in the input file's IO category.
+                  #2 is verbosity for the potential generation
+                  segment of code and assumes the value of #1
+                  unless specified.  See input-file-style.txt for
+                  a description of the verbosity.
+
+  --time=#1[,#2]  prints out a summary of timings in various
+                  branches of the code at the close of program
+                  execution.  Timings are kept to a nesting level
+                  of #1.  If #2 is nonzero, timings are printed
+                  `on the fly'
+
+  --iactive       turns on `interactive' mode. This overrides
+                  specification of interactive mode this in the
+                  ctrl file `IO IACTIV=' See input-file-style.txt
+                  for a description of the interactive mode.
+
+  --no-iactive    turns off `interactive' mode, overriding
+                  specification in the ctrl file.
+
+  -c"name=strn"   declares a character variable and assigns to
+                  value `strn'
+
+  -v"name=expr"   declares a numeric variable and assigns to the
+                  value of expression `expr'. Be advised that
+                  only the first declaration of a variable is
+                  used.  Later declarations have no effect.  In
+                  addition to the declaration `name=...'  there
+                  are assignment operators
+                  `*=','/=','+=','-=','^=' modify existing
+                  variables, following C syntax, as described in
+                  description of category CONST above.
+
+</pre>
+<STRONG>Switches common to programs using site information:</STRONG>
+<pre>
+  --rpos=filename tells the program to read site positions from
+                  file `filename' after the CTRL file has been
+                  read
+
+  --fixpos[:tol=#]
+  --fixpos[:#]   tells the symmetry finder to adjust positions
+                 to sites that are `slightly displaced', that is that
+                 if they were displaced a small amount, would make the
+                 basis conform to a group operation.  Optional tolerance
+                 specifies the maximum amount of adjustment allowed.
+                 Example: lmchk --fixpos:tol=.001
+
+  --sfill=class-list tells the program to adjust the sphere sizes
+                 to space filling.
+                *By default, `class-list' is a list of integers.
+                 These enumerate class indices for which spheres
+                 you wish to resize, eg 1,5,9 or 2:11.  See
+                 <A href="#IntegerListSyntax">Syntax of Integer Lists</A> for syntax of `class-list'.
+
+                *A second alternative specification a class-list uses
+                 the following:  `-sfill~style=2~expression'
+                 The expression can involve the class index ic and atomic number z.
+                 Any class satisfying expression is included in the list.
+                 Example: `-sfill~style=2~ic<6&z==14'
+
+                *A third alternative specification of a class-list is
+                 specifically for unix systems.  The syntax is
+                 `-sfill~style=3~fnam'.  Here "fnam" is a filename
+                 with the usual unix wildcards.  For each class,
+                 the program makes a system call `ls fnam | grep
+                 class' and any class which grep finds is
+                 included in the list.  Example:
+                 `-sfill~style=3~a[1-6]'
+
+</pre>
+<H2><A name="section9lm"></H2></A>
+<STRONG>Switches special to `lm':</STRONG>
+<pre>
+ --band[~option~option...] tells lm to generate energy bands instead
+                  of making a self-consistent calculation.  The energy
+                  bands can be generated in one of several modes.
+
+                  Options:
+                  ~con         use contour plot mode (see *Output modes below)
+
+                  ~qp          use list mode (see *Output modes below)
+
+                  ~fn=fnam     read specifications from file 'fnam'.
+                               Default is 'qp'.
+
+                  ~ef=#        Use # for Fermi level.
+
+                  The following options are specific to contour mode:
+                  ~long        write bands with extra digits precision
+                               (has no effect for default mode)
+
+                  ~lst=list    write only those bands specified in a list.
+                               (contour mode only)
+                               For syntax of 'list', see <A href="#IntegerListSyntax">Syntax of Integer Lists</A>.
+
+                  ~col=orbital-list    assign weights to orbitals specified in a list.
+                               (For syntax of 'list', see <A href="#IntegerListSyntax">Syntax of Integer Lists</A>.)
+                               This option tells the band generator to save, in
+                               addition to the energy bands, a corresponding
+                               weight for each energy.  Each band is resolved
+                               into individual orbital character (Mulliken
+                               decomposition), and the weight assigned to a
+                               state is the contribution from the supplied list
+                               of orbitals.  (If you choose all the orbitals,
+                               all weights will be unity.)
+                               See <A href="ASAtutorial.html#bandweights">the ASA tutorial</A>
+                               for further description and an example.
+
+                  ~col2=orbital-list   generate a second weight to orbitals specified in a list.
+		               With this option you can make band plots
+                               with three independent colors.
+
+                  ~evn=#       keep track of smallest, largest eval for
+                               #th band, and printout at close.
+
+
+                  *Output modes:
+                  *default mode: the qp file consists of a list of lines
+		                 and the number of qp in each line.  In
+		                 this mode, a file specifies the lines
+		                 and the number of points per line: the
+		                 file consists of one line per qp line
+		                 with the syntax
+                                   #pts  start-q   end-q
+                                 start-q and end-q each consist of three
+		                 numbers specifying a q-point.  A line
+                                 starting with zero flags the end-of-file
+                                   51   0  0  0    0  0  1
+                                   51   0  0  1    0 .5 .5
+				   0    0  0  0    0  0  0
+
+		  *list mode   : the qp file consists of a list of qp, e.g.
+
+                                 -.01  0  0
+                                   0   0  0
+                                  .01  0  0
+
+		  *contour mode: input for specifying qp on a uniform 2D
+		                 mesh, for contour plots.  Here the mesh
+		                 is spcified by file containing lines of
+		                 the form
+                        vx     range  n     vy     range  n   height  band
+                                 where vx and vy are two reciprocal lattice
+		                 vectors of a plane, range are two
+		                 numbers marking starting and ending
+		                 points along each vector, n the number
+		                 of points along each line; finally
+		                 height specifies the offset normal to
+		                 the plane and band specifies which band
+		                 is to be saved.  Example:
+
+		       1 0 0   -1 1   51   0 1 0   -1 1   51   0.00    4
+		       1 0 0   -1 1   51   0 1 0   -1 1   51   0.00    5
+
+
+
+ --mix=#          start the density mixing rule `#'
+                  (See category MIX in section
+                  <A href="#section7">Documentation of Categories and Tokens</A>
+                  for a description of mixing rules).
+
+ --onesp          in the spin-polarized collinear case, tells the program that
+                  the spin-up and spin-down hamiltonians are equivalent
+                  (special antiferromagnetic case)
+
+ -sh=cmd          invoke the shell `cmd' after every iteration
+
+ --pdos[:mode=#][nl=#][:sites=site-list] tells lm what to store in the
+                  partial weights file `moms'.  By default lm creates
+                  the partial weights for all classes, and writes them
+                  ordered by class.  This file may become quite large,
+                  particularly if the moments are to be m-resolved.
+                  Using --pdos you can specify whether the dos are
+                  resolved by l or lm, and what sites to store.  Also
+                  when invoking --pdos, the partial weights are
+                  ordered by site, not by class; which site data is
+                  kept depends on the options you use with --pdos.
+                  This switch is also used by the full-potential
+                  <B>lmf</B>; the following documents the options to
+                  this switch for both programs.
+
+		  sites=site-list lets you specify that the partial
+                       dos are created only for a specified list
+                       of sites.  By default <B>lm</B> or <B>lmf</B> will store
+                       the weights for all sites, which can become
+                       expensive to store.  For the site-list syntax,
+                       see <A href="#IntegerListSyntax">Syntax of Integer Lists</A>
+
+                  nl=<I>#</I> tells <B>lmf</B> to make the dos to a constant
+                       <I>l</I>-cutoff (<I>l=#-</I>1), independent of site.
+                       By default <B>lmf</B> uses a site-dependent
+		       <I>l</I>-cutoff = <I>lmxa</I>.  <B>lm</B> ignores this switch.
+
+                  mode 0: weights for all sites atom-resolved
+                         (available only for <B>lmf</B> at present)
+                       1: weights for all sites l-resolved
+                       2: weights for all sites lm-resolved
+                  By default the mode is 2.<FONT color="#0033ff">
+	          Caution: at present programs <STRONG>lm</STRONG> and <STRONG>lmf</STRONG> don't
+                  symmetrize the moments.  If you resolve dos by m,
+                  you should <A href="#SYMGRP">suppress all symmetry operations.</A></FONT>
+</pre>
+<H2><A name="section9lmf"></H2></A>
+<STRONG>Switches special to `lmf' or `lmfa':</STRONG>
+<pre> See <A href="fp.html#section4">fp.html</A>
+</pre>
+<H2><A name="section9lmctl"></H2></A>
+<STRONG>Switches special to `lmctl':</STRONG>
+<pre>
+  -spin1           add spin-polarized moments into a non-polarized set
+
+  -spinf           exchange up- and down- moments
+
+  -mad             also write out the ves at RMAX.
+
+</pre>
+<H2><A name="section9lmchk"></H2></A>
+<STRONG>Command-line arguments special to `lmchk':</STRONG>
+<pre>
+  --getwsr         tells lmchk to use an <A href="#section8.2">algorithm</A> to find reasonable
+                   initial sphere radii automatically.
+
+  --findes         tells lmchk to locate empty spheres to fill space.
+                   It works by adding adding empty spheres (largest possible first)
+                   until space is filled with sum-of-sphere volumes = cell volume.
+
+                   Inputs affecting this switch are:
+
+                   OPTIONS RMAXES=  : maximum allowed radius of ES to use when
+                                      when adding new spheres
+			   RMINES=  : minimum allowed radius of ES to use
+
+                   SPEC  SCLWSR= OMAX1=  OMAX2=  WSRMAX= 
+
+                   --findes uses these parameters to constrain size of spheres as 
+                   new ones are added; see category <A href="#SPEC">SPEC</A>.
+
+  --mino~site-list tells lmchk to shuffle atom positions in site-list to minimize some
+                   simple function of the overlap. (For now, the function has been set
+                   arbitrarily to the sixth power of the overlap).
+                  *By default, site-list' is a list of integers.  These enumerate
+                   site indices for which positions you wish to move, eg 1,5,9
+                   or 2:11.  There are See "Syntax of Integer Lists" below for the
+                   complete syntax of a list of this type.
+                  *Alternatively, you can enumerate a `class-list'.  lmchk will expand
+                   the class-list into a site-list.  For this alternative, use
+                   `--mino~style=1~class-list', e.g.  `--mino~style=1~1,6'
+                  *Another alternative, or "style" to specifying a class-list uses
+                   the following:  `--mino~style=2~expression'
+                   It is just like `-sfill~style=2 ... above, but now the class
+                   list is expanded into a site-list.
+                  *Similarly, you can specify a class-list is with style=3 like
+                   the -sfill~style=3, above.
+                  *As a special case, you can invoke --mino:z, which specifies in
+                   the list all sites with atomic number Z=0 (empty spheres).
+
+  --wpos=filnam    writes the site positions to file `filnam'.
+
+
+
+  --shell[:opts]   print out a neighbor table, in one of two styles.
+
+                   Standard style: a table of neighbors is printed, grouped in
+                   shells of neighbors centered the site in question.  By
+                   default a table is printed for one site of each inequivalent
+                   class.
+                   Options for this style:
+
+                   :r=# Specifies range of neighbors for this table. Default
+                        value is 5.
+
+                   :v   prints electrostatic potential for each pair
+
+                   :e   prints inner product between euler angles
+                        (noncollinear magnetism)
+
+                   :sites=site-list restricts neighbors in shell to list.
+                        NB this option must be the last one.
+
+
+                   Tab style: a table of neighbors is printed in a table format
+                   suitable for subsequent processing; see in particular the
+                   --disp switch in lmscell.  To invoke tab style, use
+		   --shell:tab[...].  Options for tab style:
+
+                   :tab[=#] Invokes tab style, optionally in # format.
+                            Tab style has several formats.  Defining:
+
+                            ib is the site around which the table is made;
+                            jb is the site index of a particular neighbor;
+                            dpos(1..3,jb) is the connecting vector between
+                            sites ib and jb (relative position)
+
+                          mode format
+
+		  	    1  (default mode)
+		  	        ib jb dpos(1..3,jb)
+
+		  	    2  (just the positions)
+		  	       dpos(1..3,jb)
+
+                               ... OR if :disp= is also set: two sets of pos:
+
+		  	       dpos0(1..3,jb) dpos(1..3,jb)
+
+                               ... The first set corresponds to the original
+                                   positions; the latter for the positions as
+                                   specified by the displaced positions file.
+                                   In this mode, only neighbors for which there
+                                   is some displacement are written. This mode
+                                   is useful in conjuction with lmscell.
+
+		  	    3 (sparse matrix format)
+		  	         1 jb dpos(1,jb)
+		  	         2 jb dpos(2,jb)
+		  	         3 jb dpos(3,jb)
+
+		   :fn=fnam write neighbor table to file fnam
+
+		   :disp=fnam
+                            read a second (displaced) set of positions from a
+		            positions file (file fnam).  In this mode, a
+		            neighbor table for both original and displaced
+		            positions is written.
+
+                   :r=#     Specifies range of neighbors for this table. Default
+                            value is 5.
+
+		   :nn      only print first (closest neighbor) entry for a
+		            given pair of indices (ib,jb)
+
+  --angles[opts]   similar to --shell, but prints angles between triples of
+                   sites.  opts are as follows (you may substitute another
+                   character for `:' below)
+                   :r=# Specifies range for this table. Default value is 2.5.
+		   :sites=site-list  loops over only sites in site-list
+		   :bonds=site-list prints out table only for triples
+                   :                   whose neighbors are in site-list
+                   Example : --angles/r=3/sites/style=3/Si/bonds/style=3/Cr
+
+
+  --terse          print out minimum information about overlaps
+
+</pre>
+<H2><A name="section9lmdos"></H2></A>
+<STRONG>Program `lmdos' and its command-line arguments:</STRONG>
+<UL>
+
+<B>lmdos</B> reads in the partial dos weights from a (binary) weights
+file, which must have been generated previously by some program that has
+a capability to decompose the dos into channels (<B>lm</B>, <B>lmf</B>,
+<B>tbe</B>).  By default, <B>lmdos</B> reads weights from file `moms',
+which is a file automatically generated by program <B>lm</B>.  Programs
+<B>lm</B>, <B>lmf</B> and <B>tbe</B> can decompose the dos into to Rl or
+Rlm channels at the various sites.  Note: <B>lm</B> and <B>tbe</B>
+normally generate dos weights for inequivalent classes only; the weights
+are ordered by <I>class</I>.  <B>lmf</B> will not generate a weights file by
+default, but can make it do so by using the --pdos command-line
+argument; in that case, you supply a list of <I>sites</I>.  (The <A href="#section9lm">--pdos</A>
+switch also works in program <B>lm</B>, in which case the weights
+file is created for a specified site list as in program <B>lmf</B>.)
+
+<BR><BR>
+
+<B>lmdos</B> reads the dos weights file as input, and generates as its
+output an (ascii) file containing the partial dos resolved by energy for
+each channel.  If you have the <B>fplot</B> plotting package installed,
+program <B>pldos</B> can translate this file into a figure.
+
+<BR><BR>
+
+<B>lmdos</B> doesn't need to know what the origin of the channels is; it
+simply reads the number of channels from the the weights file.  However,
+to assist you in making an identification of the channels with
+(atom-centered) functions, <B>lmdos</B> will print out what it thinks
+the connection is.  If you use the generating program inconsistently
+with <B>lmdos</B>, it may print out an erroneous table.
+
+</UL>
+
+<pre>
+   --pdos[:mode=#][:lst=site-list]  tells <B>lmdos</B> that the weights file was
+                                generated using this switch.  It doesn't
+                                affect what <B>lmdos</B> makes but affects the
+                                printout making the identification of <I>Rl</I>
+                                (or <I>Rlm</I>) indices and DOS channels.  Usually
+                                you use this switch only when you also
+                                used it when invoking the program (<B>lm</B>
+                                or <B>lmf</B>) that creates the weights file.
+                                See description of <A href="#section9lm">--pdos</A> as a
+                                command-line argument to <B>lm</B>.
+
+   --dos:option1:option2...  various options that affect action of <B>lmdos</B>.
+              Options are:
+                wtfn=file-name  file-name is file containing bands and
+                                dos weights.  By default, <B>lmdos</B> uses file
+                                `moms'
+
+                cls             equivalent to wtfn=cls
+
+                tbdos           sets defaults for to generate dos from
+                                the tbe program, which uses slightly
+                                different conventions for the moments file,
+                                e.g. the moments file is named 'BAND'
+
+                idos            generate energy-integrated dos
+
+                npts=#          number of energy points.  If not specified with
+                                command-line --dos, user is prompted for input.
+
+                window=#,# 	energy window over which data is to be computed.
+                           	#,# are minimum, maximum energies.  If not
+                           	specified using command-line argument --dos,
+                           	the user is prompted for input.
+
+                mode=#  	This mode lets you compute quantities other than
+                                the DOS.  depending on mode, lmdos computes:
+				mode  calculate
+                                0    integral dk delta(E-E_k)
+                                     (DOS)
+                                1    1/2 integral dk grad_1 E_k delta(E-E_k)
+                                     (Ballistic conductance, Landauer formula)
+                                2    integral dk grad_1 E_k grad_2 E_k delta(E-E_k)
+                                     (`diffusive conductivity' in relaxation
+                                      time approximation apart from scattering time)
+
+                vec=#,#,#  	direction vector 1 for conductance; see mode=#
+
+                vec2=#,#,# 	direction vector 2 for `diffusive'
+                           	conductance; see mode= above
+
+                totdos     	compute total dos by combining weights from all
+                           	partial dos
+
+                bands=list 	compute contribution to dos from a prescribed
+                           	list of bands
+
+                classes=list	generate dos for a specified list of classes.
+                           	list syntax follows standard class-list syntax;
+                           	see description of --sfill, above.
+                                Caution: this option is only compatible
+                           	with default moments files generated by the
+                           	ASA, which stores dos weights by class,
+                           	for all classes; it is incompatible
+                           	with, e.g., the --pdos switch which stores
+                                weights by site.
+</pre>
+<I>Example</I>: compute the ballistic conductance in the z direction
+over an energy range (-0.8,0.5)Ry:
+<pre>
+         --dos:mode=1:npts=501:window=-.8,.5:vec=0,0,1
+</pre>
+
+</pre>
+<STRONG>Switches special to `lmxbs':</STRONG>
+<pre>
+  -bs=expr    factor that scales the default ball (sphere) size.
+              This factor scales the RMAX in the CLASS category.
+              By default, the scaling is 0.5 * sphere radius
+
+  -ss=expr    controls the criterion for what length defines a
+              connected bond.  This switch scales the default
+              factor scaling a 'bond' which must be less close
+              than RMAX_i+RMAX_j (RMAX defined in <A href="SPEC">SPEC</A>).
+              The default scaling is 1.
+
+  -scale=val  sets the xbs variable `scale'
+
+  -sp:rule1[:rule2][...]  modifies the species rmax and colors.
+              `rule' has the syntax
+              [expr],[rmax],[red],[green],[blue] `expr' is a
+              logical expression involving the class index ic and
+              atomic number z.  Optional rmax, red, green, blue
+              are the ball size, and intensity of those colors
+              for the ball.  Default values are taken for those
+              numbers omitted.  For the colors, the defaults are
+              random numbers between 0 and 1.
+
+  -dup=n1,n2,n3[,expr] makes replicas of the unit cell by adding
+              all combinations (0..n1,0..n2,0..n3) of the lattice
+              translation vectors (p1,p3,p3) to every site in the
+              cell.  The optional `expr' is a constraint that can
+              be used to exclude sites that don't satisfy it.
+              Variables that may be used in `expr' are:
+                x1,x2,x3 are (dimensionless) site positions
+                p1,p2,p3 are the same positions, as projections onto plat
+                ic,z are class index, basis index and atomic number
+              Example: select sites in a (dimensionless) cube of
+                       size 1 and exclude empty spheres:
+              lmxbs "-dup=4,4,4,0<=x1&x1<1.01&0<=x2&x2<1.01&0<=x3&x3<1.01&z>0"
+
+  -sfill=class-list tells the program to adjust the sphere sizes to space filling.
+
+
+</pre>
+<H2><A name="section9lmimp"></H2></A>
+<STRONG>Program `lmimp' and its command-line arguments:</STRONG>
+<UL>
+
+<B>lmimp</B> is a kind of 'restart file' editor, to import data either
+from restart files, or from older versions (or Stuttgart versions) of
+the lmto-ASA packages.  Importation is done in in one of two flavors:
+either you import parts of restart files, or you read atom files
+from earlier (or Stuttgart) versions of the code.
+
+<DL>
+<DD>
+  <I>Restart files</I> (invoked by -rs command-line argument):
+  <BR>
+  In this most you invoke a ``restart file'' editor.
+  Use this editor to read site potential data from
+  one or more restart files and poke the information into site
+  data for the current lattice.  After entering the name of a restart
+  file, the program will the number of sites in that file and
+  prompt you for a list of sites from which to import site-potential data
+  (P,Q for the ASA).
+  <BR>  <BR>
+  You can enter a single site or a <A href="#IntegerListSyntax">list of sites</A>.
+  If you enter only one site, it can be distributed to whatever sites you choose for the
+  destination sites.  If you enter a list of more than one site,
+  the list of destination sites must be the same number as the list
+  of importing sites.
+
+  <BR> <BR>
+  <I>Translate atom files</I> (invoked by one of the command-line arguments
+  -4 -5 or -3s -4s -47u -5s for Stuttgart formats):
+  <BR>
+  In this mode, <B>lmimp</B> will attempt to read files following older formats
+  (or Stuttgart formats).  Data is read by class.  NB: Stuttgart atom
+  files have no extension and the names are in capital letters.
+  <B>lmimp</B> will list the classes and data for which the conversion was successful.
+
+</DD>
+</DL>
+</UL>
+
+
+</pre>
+<H2><A name="section9lmscell"></H2></A>
+<STRONG>Program `lmscell' and its command-line arguments:</STRONG>
+<UL>
+
+<B>lmscell</B> is a supercell generator.  User must supply a set of
+   new (supercell) lattice vectors.  You can do so using token SLAT=
+   in category STRUC; if you do not, you will be prompted to input 9
+   numbers from the terminal.  <B>lmscell</B> works by generating a
+   list of lattice vectors from the primitive lattice vectors, and
+   adding these lattice vectors to the basis vectors.  Basis vectors
+   which differ by a lattice vector in the supercell are discarded An
+   expanded list of basis vectors is thus generated.  Warning:
+   <B>lmscell</B> may fail if you choose a supercell significantly
+   elongated from the original, because the list of lattice vectors
+   may not encompass all the translations needed to create the new
+   basis.
+
+<BR><BR>
+Command-line arguments special to <B>lmscell</B>:
+
+<pre>
+  --wsite=name   writes a site-file to disk, which can be used to
+   -wsite=name   read structural and site data.
+
+  --shorten      shorten basis vectors
+   -shorten
+
+  --sort:'expr [expr2 ...]'
+                 sort basis vectors, ordering positions by increasing
+                 value of `expr'.  Allowed values in expr are x-, y-, and z-
+		 coordinates of basis.  Optional `expr2' sorts subsets of
+                 sites with equivalent values of `expr1'
+
+
+  --pl:expr      Used in conjunction with the layer codes (lmpg).
+                 Assign principal-layer index according to `expr'.
+                 Sites with equivalent values of `expr' are
+                 assigned the same index.
+
+  --sites:site-list
+                 Generate supercell only for sites in the site-list. For
+                 the site-list syntax, see <A href="#IntegerListSyntax">Syntax of Integer Lists</A>
+
+  --wrsj[:fn=name][:scl=#]
+                 Used in writing the pairwise exchange parameters of the
+                 supercell generated, e.g., from a Green's function code.
+                 Input file 'rsj' must be present.
+
+                 fn=name writes to file 'name'  (default name is rsj2)
+                 scl=#   scales the parameters by #
+
+  --first        Not documented
+
+  --disp:fnam:site-list
+      		This switch is intended to displace sites within a certain
+                range of a specified site (or list of sites), according to
+                displacements read from file fnam.
+		(NB: you can use this switch in conjunction with lmchk, using
+                switch --shell:tab:disp=fnam).
+
+                In this mode, a displacements file is read, which contains a
+                neighbor table for both undisplaced relative positions and
+                displaced positions around a particular site.
+
+                The undisplaced (relative) positions identify particular sites
+                in the neighborhood of the site in site-list.  Each sites
+                corresponding to the undiplaced relative position in the
+                neighbor table is identified, and is position is displaced by
+                the same amount as the displacements in the neighbor table.
+
+  Example:
+    lmscell --wsite=site --sort:'x3 x2'
+  will order the sites by increasing z; those with (nearly) identical
+  z will be ordered by increasing  y.
+
+  For an illustration of lmchk and lmscell used to generate a displaced
+  positions table, invoke testing/test.lmscell 2.
+
+</pre>
+
+</UL>
+
+
+</pre>
+<H2><A name="section9lmplan"></H2></A>
+<STRONG>Program `lmplan' and its command-line arguments:</STRONG>
+<UL>
+
+<B>lmplan</B> is a special-purpose code originally designed for
+analysis of layered systems, and for changing relative positions of
+planes, etc.  A prompt appears at which you can do a variety of
+things.  However, this code is somewhat obsolete; at present it is not
+carefully maintained, and many of the options can be better done other
+ways.  However, there are a couple of useful options:
+
+<DL>
+<DD>
+  <I>Write site files</I> (invoke by typing <I>wsite</I> to the prompt):
+  <BR>
+  You can also create sites files with `lmscell'... however this one
+  is useful in the context of the layer Green's function code, because
+  it will write out the padded site information, if you invoke
+  <I>wsite -pad</I> , or <I>wsite -ppad</I>.
+  <BR>  <BR>
+
+  <I>Analysis of layer electrostatic potentials</I>
+  <BR>
+  This is useful for computing, e.g. band offsets.  Invoke by <I>qsum</I>
+  or <I>qsum i1 i2</I> , where <I>i1</I> and <I>i2</I> are layer indices.
+</DD>
+</DL>
+</UL>
+
+
+
+</pre>
+<H2><A name="IntegerListSyntax"></A></H2>
+<STRONG>Syntax of integer lists</STRONG> used in some command-line switches or at some input prompts:
+
+
+<pre>
+ Here is the syntax for a list of integers that some switches
+ use.  (slatsm/mkilst.f contains the source the code that
+ generates this list).  The syntax is:
+
+       Na,Nb,...
+
+ where each of Na, Nb, ... assumes one of the three following forms:
+
+   (a)   a single integer (or expression)
+   (b)   two integers (expressions) separated by a colon, viz
+         low:high which gets expanded into
+         low, low+1, low+2, ... high
+   (c)   three expressions separated by colons, viz low:high:step
+         which gets expanded into
+         low, low+step, low+2*step, ... high
+
+  Examples:
+    `5+1'       becomes a single number, 6.
+    `5+1:8+2'   becomes a sequence of numbers, 6 7 8 9 10
+    `5+1:8+2:2' becomes a sequence of numbers, 6 8 10.
+    `1:4,7:11'  becomes the sequence 1 2 3 4  7 8 9 10 11.
+
+</pre>
+<H2><A name="section10"><FONT size="+2"><FONT size="+2">
+10.  Program ccomp
+ </FONT></FONT></A></H2>
+<pre>
+
+*A preprocessor, ccomp, provides a simplified, FORTRAN compatible
+ version of C conditional compilation.  FORTRAN statements
+ beginning with C# are preprocessor directives; the ones
+ implemented now are C#ifdef, C#ifndef, C#else, C#elseif, C#endif
+ (also C#define defines a name).  Directives C#ifdef, C#ifndef,
+ C#elseif, and C#endif are followed by a name, eg C#ifdef CRAY.
+ when C#ifdef is false (either name is not defined or it lies
+ within an #if/#endif block that is false), ccomp comments out
+ until a change of state (new C#ifdef, C#ifndef, C#else,
+ C#elseif, C#endif encountered); C#ifdef is true, ccomp
+ uncomments lines following until another conditional compilation
+ directive is encountered.
+
+*Conditional compilation blocks may be nested.  As with C, ccomp
+ distinguishes case.  Output is to standard out.
+
+*There is a primitive facility to make logical expressions using
+ the AND (&) and OR (|) operators, such C#ifdef john & bill, or
+ C#ifdef john | bill, is provided.  Precedence of operators is
+ strictly left to right, so that john | bill & mike is equivalent
+ to (john | bill) & mike, whereas john & bill | mike is
+ equivalent to (john & bill) | mike
+
+*How ccomp determines whether to modify code (i.e. add comments,
+ or delete comments from a code segment)
+
+ Whether the lines following a C#ifdef, C#ifndef, C#else,
+ C#elseif, C#endif need to be commented out or uncommented
+ depends on whether they have been commented out in a previous
+ pass.  This information is contained in a `C' following the
+ directive, eg C#ifdefC, C#ifndefC, C#elseC, C#elseifC, C#endifC.
+ The preprocessor will set this, it is best advised to create any
+ new blocks uncommented and let the preprocessor do the
+ commenting.
+
+ Programs lm, lmstr, lmdos, lmchk, etc..  are in fact the same
+ source code, the only difference being that one is run through
+ ccomp with different keywords defined.  ccomp is used
+ extensively by `configure' both to create new branches code, to
+ and customize code specific to certain compilers, either for
+ optimization purposes or to avoid compiler bugs.
+
+</pre>
+<h2><a name="section11"><font size="+2"><font size="+2">
+11.  2nd generation Orbital Downfolding
+ </FONT></FONT></A></H2>
+<pre>
+This is a procedure for constructing minimal basis sets and for
+avoiding ghost bands. The best description is in Ole Andersen's
+Varenna Notes (section 4.12), and for the stout-hearted, there is
+a full account in Lambrecht and Andersen, Phys. Rev. B, 34, 2439
+(1986).  It is implemented here including combined correction
+which is described in Ole Andersen's unpublished notes,
+"Transformation to a minimal LMTO set; downfolding" Aug 15, 1988.
+We include in this documentation a plain TeX source file of notes
+<A href="dnfpap.tex">dnfpap.tex</A> which may be of some use, and
+which concerns our implementation directly (2nd generation lmto
+only)
+
+One way to look at the scheme is the following. When an electron
+encounters an atomic sphere, the scattering it experiences can be
+described in terms of its phase shift, eta_l.  The tangent of the
+phase shift is a property of the scattering potential and the
+angular momentum of the electron, l, and is a function of energy.
+Some electrons are weakly scattered, while others (for example
+d-electrons in transition metals) may scatter strongly,
+especially when their energy is close to the resonant energy E_l.
+In a linear method, the phase shift is parameterized:
+
+    tan eta_l(E) = W_l / ( E_l  -  E)
+
+so that one can construct an energy-independent hamiltonian. In
+LMTO, it is customary to use the kappa=0 KKR phase shift in the
+following parameterization:
+
+    1 / P_l(E) = Delta / ( E  -  C )   +   gamma         (1)
+
+which is correct to second order in (E - C); Delta is the width W
+of the resonance, and C is the band center (analogous to E_l in
+KKR theory). gamma is the second order distortion parameter. (In
+practice one also includes third order terms using the small
+parameter p (see Varenna notes)). 1/P is called the inverse
+potential function, and is the LMTO analogue of the tangent of
+the phase shift in multiple scattering and KKR theories.
+
+For electrons that scatter only weakly, one can further
+approximate the hyperbola (1) by a linear function. This is
+exactly what happens if one throws away orbitals from the
+basis---one approximates 1/P for these "high" partial waves by a
+tangent drawn through the hyperbola (1) at the energy V^0, which
+is the depth of a square well pseudopotential with the same
+scattering properties as the atomic sphere for energy E_nu. (If
+the structure constants have been screened in these channels then
+the tangent goes through the potential parameter V^alpha.)
+
+The best possible way to treat weakly scattered electrons is to
+make the tangent at E_nu since then the eigenvalues are exact at
+E_nu, and the wavefunctions are correct to zeroth order. The way
+to do this, is to change the representation of the hamiltonian
+before discarding the orbitals. The effect of using a
+representation beta is to shift the inverse potential function
+(1) rigidly by the amount beta. This is done by choosing a beta
+such that V^beta = E_nu so that when the orbitals are then
+discarded from the basis, this amounts to approximating their
+scattering by a linear tangent to 1/P at E_nu. This is called
+folding down about 1/P(E_nu).
+
+If one merely wants to avoid ghost bands, then set the ADNF
+switch and keep an eye on which orbitals are being folded down.
+The automatic switch will choose to fold down about 1/P(E_nu) or
+about alpha depending on how weakly they are scattering. It is
+often useful to set the switches manually as the criteria in the
+automatic mode are set to cause no loss of accuracy. Very often
+one can fold down orbitals and save a lot of time with only a
+small error in the eigenvalues. Examples are p-orbitals in
+transition metals and d-orbitals in Al. In Fe, the f-orbitals
+must be folded down to avoid a ghost band. Another application is
+in constructing minimal basis sets. As an exercise try folding
+down orbitals in Si right down to s and p on the atoms and s in
+the empty spheres (these are the analogues of Vogl's sp^3s*
+basis). Now try folding down the empty sphere s as well: any
+worse than Harrison's minimal basis? (Try the deformation
+potentials!)
+
+</pre>
+</HTML>

@@ -1,0 +1,241 @@
+\documentclass{article}
+\usepackage[dvips]{graphicx}
+\usepackage{html,makeidx,color}
+
+\usepackage[letterpaper,left=1.0in,right=1in,top=1.0in,bottom=1.0in]{geometry}
+\oddsidemargin=0in
+\evensidemargin=0in
+
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{floatflt}
+%\usepackage{hyperref}
+\usepackage{amsmath}
+
+%\parskip 6pt
+%\parindent 0pt
+
+\def\itemia{\addtocounter{enumi}{1}\item[\arabic{enumi}]}
+\def\itemir{\addtocounter{enumi}{1}\item[\roman{enumi}]}
+\def\itemiR{\addtocounter{enumi}{1}\item[\Roman{enumi}]}
+\def\itemiia{\addtocounter{enumii}{1}\item[\arabic{enumii}]}
+\def\itemiir{\addtocounter{enumii}{1}\item[\roman{enumii}]}
+\def\itemiiR{\addtocounter{enumii}{1}\item[\Roman{enumii}]}
+
+\begin{document}
+
+\title{\Large Input Syntax for LM Suite (version 7)}
+\author{Mark van Schilfgaarde}
+\date{1 Nov, 2007}
+\maketitle
+
+\section{\large Introduction}
+\label{sec:intro}
+
+The input system for the LM program suite is unique in the following
+respects:
+\begin{enumerate}
+
+\item Input files are nearly free-format \footnote{there are some mild
+      exceptions to this; see discussion of categories in
+      Sec.~\ref{sec:input-struct}} and input does not need to be arranged
+      in a particular order.  Data parsed by identifying \emph{tokens}
+      (labels) in the input file, and reading the information following the
+      token.  In the string:\\ \indent{\tt \quad NSPIN=2 } \\ token {\tt
+      NSPIN} tells the input parser where to find the contents ({\tt 2})
+      associated with it.  Note that a token such as {\tt{}NSPIN} only acts
+      as a marker to locate data: they are not themselves part of the data.
+
+\item A tree of tokens completely specifies a particular marker.  The full
+      identifer we call a \emph{tag}; it is written as a string of tokens
+      separated by underscores, e.g. {\tt SPEC\_SCLWSR},
+      {\tt{}SPEC\_ATOM\_Z}, {\tt ITER\_CONV}.  Thus a tag is analogous to
+      a path in a tree directory structure, and a token is
+      analogous to either a directory or a file.  Tokens analogous to
+      'files' (e.g. {\tt{}NSPIN} above) are markers for data; tokens
+      analogous to directories contain as their contents tokens nested more
+      deeply into the tree.
+
+      The same token may appear in more than one tag; their meaning is
+      distinct, as we will see below.  Thus contents of token {\tt NIT} in
+      the tag {\tt STR\_IINV\_NIT} are different from the contents of {\tt
+      NIT} in the tag {\tt ITER\_NIT}.  Sec.~\ref{sec:input-struct} shows
+      how the structure is implemented for input files, which enables these
+      cases to be distinguished.
+
+\item The parser can read algebraic expressions. Variables can be assigned
+      and used in the expressions.
+
+\item The input parser has a limited programming language.  Input files can
+      contain directives such as \\
+        \indent \qquad {\tt{}\%if (expression)} \\
+      that are not part of the input proper, but control what is read into
+      the input stream, and what is left out.  Thus input files can serve
+      multiple uses --- containing information for many kinds of
+      calculations, or as a kind of data base.
+
+\end{enumerate}
+
+\section{\large Input structure: syntax for parsing tokens}
+\label{sec:input-struct}
+
+This section explain how the tree structured tokens are
+supplied in the input file.
+A typical input fragment looks something like:
+\begin{verbatim}
+ITER NIT=2  CONV=0.001
+     MIX=A,b=3
+DYN  NIT=3
+... (fragment 1)
+\end{verbatim}
+The full path
+identifier we refer to as a \emph{tag}.  Tags in this fragment are:
+\quad {\tt ITER, ITER\_NIT, ITER\_CONV, ITER\_MIX, DYN, DYN\_NIT}.\quad
+(Tags do not explicitly appear in the input, only tokens do.)
+
+\vskip 6pt\noindent A token is one link in the path.  A token's contents
+consist of a string, which may include data (when it is the last link in
+the path, e.g. {\tt{}NIT}), or other tokens which name links
+further down the tree.
+%which can contain other tokens
+%either contains other tokens, or
+%it contains data (when it is the last link in the path, e.g. {\tt NIT}).  It
+It is analogous to a file directory structure, where names refer to
+files, or to directories (folders) which contain files or other directories.  
+
+\vskip 6pt\noindent The first or top-level tokens we designate as
+\emph{categories}, ({\tt ITER, DYN} in the fragment above). 
+What designates the range of a category?  Any string that begins in the
+first column of a line is a category.  A category's contents begin right
+after its name, and end just before the start of the next category.
+In the fragment shown,
+{\tt ITER} contains this string:\\
+\indent `{\tt NIT=2 CONV=0.001 MIX=A,b=3}'\\
+while {\tt DYN} contains\\
+\indent `{\tt NIT=3}'\\
+Thus categories are treated a little differently from other tokens.  The
+input data structure usually does not rely on line or column information;
+however this use of columns to mark categories and delimt their range is an
+important exception.
+
+\vskip 6pt\noindent When a token's contents contain data, the kind of data
+it contains depends on the token.  Data may consist of logical, integers or
+real scalars or vectors, or a string. The contents of {\tt{}NIT},
+{\tt{}CONV}, and {\tt{}MIX} are respectively an integer, a real number, and
+a string.  This fragment illustrate tokens {\tt{}PLAT} and {\tt{}NKABC} that
+contain vectors:
+\begin{verbatim}
+STRUC  PLAT= 1 1/2 -1/2    1/2 -1/2 0   1 1 2
+BZ     NKABC=3,3,4
+\end{verbatim}
+Numbers (more properly, expressions) may be separated either by spaces or
+commas.
+
+\vskip 6pt\noindent How are the start and end points of a token delineated
+in a general tree structure?  The style shown in the input {\tt{}fragment 1} does
+not have the ability to handle tree-structured input in general.  Some
+other information must be added when the path has more than two levels,
+e.g. {\tt STR\_IINV\_NIT}.  A logical and unambiguous way to delimit the
+range of a token would be to embed its contents in brackets {\tt []}, e.g.
+\begin{verbatim}
+ITER[ NIT[2]  CONV[0.001]  MIX=[A,b=3]]
+DYN[NIT[3]]
+STR[RMAX[3] IINV[NIT[5] NCUT[20] TOL[1E-4]]]
+... (fragment 2)
+\end{verbatim}
+Tags {\tt ITER} and {\tt STR\_IINV} contain these strings:
+
+`{\tt NIT[2]  CONV[0.001]  MIX=[A,b=3]}' \quad and \quad `{\tt NIT[5] NCUT[20] TOL[1E-4]}'\\
+while {\tt ITER\_NIT}, {\tt DYN\_NIT} and {\tt
+STR\_IINV\_NIT} are all readily distinguished (contents {\tt 2, 3}, and
+{\tt 5}).
+
+%{\tt SPEC\_SCLWSR}, {\tt{}SPEC\_ATOM\_NR} and
+%{\tt{}SPEC\_ATOM\_Z} are {\tt 1}, {\tt 251}, and {\tt 14}, respectively,
+%while {\tt ITER\_NIT} and {\tt DYN\_NIT} contain {\tt 2} and {\tt 3}.
+%
+
+\vskip 6pt\noindent
+The LM parser reads input structured by the bracket delimiters, as in
+{\tt{}fragment 2}. However such a format is aesthetically unpleasant and
+hard for a person to read.  For aesthetic reasons, some small compromises
+$^{}$are made, and ambiguities tolerated, so that the format similar to
+that of {\tt fragment 1} at the beginning of this section can be used most
+of the time.  These are:
+
+\begin{enumerate}
+
+\item Categories must start in the first column.
+
+\item When brackets are not used, a token's contents are delimited by the
+      end of the category.  Thus the content of {\tt{}ITER\_CONV} from
+      {\tt{}fragment 1} is \ `{\tt{}0.001 MIX=A,b=3}', while in
+      {\tt{}fragment 2} it is the more sensible \ `{\tt{}0.001}'.
+
+      In practice this difference matters only occasionally.  Usually
+      contents refer to numerical data. The parser will read only as many
+      numbers as it needs.  If {\tt{}CONV} contains only one number, the
+      difference is moot.  On the other hand a suppose the contents of
+      {\tt{}CONV} can contain more than one number.  Then the two styles
+      might generate a difference.  In practice, the parser can only find
+      one number to convert in the contents of {\tt{}fragment 2}, and that
+      is all it would generate.\footnote{Whether or not reading only one
+      number later produces an error, will depends on whether {\tt{}CONV}
+      \emph{must} contain more than one number or it only \emph{may} do
+      so.}  For {\tt{}fragment 1}, the parser would see a second string
+      `{\tt{}MIX=...}' but it fail to convert it to a number (it not a
+      valid representation of a number). Thus, the net effect would be the
+      same: only one number would be parsed.
+
+\item When a token's contents consist of a string (as distinct from a
+      string representation of a number) and brackets are \emph{not} used,
+      there is an ambiguity in where the string ends.  In this case, the
+      parser will delimit strings in one of two ways.  Usually a space
+      delimits the end-of-string, as in \quad {\tt{}MIX=A,b=3}.\quad
+      However, in a few cases the end-of-category delimits the
+      end-of-string --- usually when the entire category contains just a
+      string, as in \quad {\tt{}SYMGRP R4Z M(1,1,0) R3D}.\quad If
+      you want to be sure, use brackets.
+
+\item Tags containing three or more levels of nesting, e.g {\tt{}STR\_IINV\_NIT},
+      must be bracketed after the second level.  Any of the following
+      are acceptable:\\
+      {\tt{} STR[RMAX[3] IINV[NIT[5] NCUT[20] TOL[1E-4]]]}\\
+      {\tt{} STR[RMAX=3 IINV[NIT=5 NCUT=20 TOL=1E-4]]}\\
+      {\tt{} STR RMAX=3 IINV[NIT=5 NCUT=20 TOL=1E-4]}
+
+%      Note: (see below for a possible exception to this rule)
+
+\end{enumerate}
+
+\noindent
+Finally, multiple occurences of a token are sometimes required, for example
+multiple site positions or species data.  The following fragment
+illustrates such a case:
+\begin{verbatim}
+SITE   ATOM[C1  POS= 0          0   0    RELAX=1]
+       ATOM[A1  POS= 0          0   5/8  RELAX=0]
+       ATOM[C1  POS= 1/sqrt(3)  0   1/2]
+\end{verbatim}
+The parser will try to read multiple instances of tag {\tt{}SITE\_ATOM}, as
+well as its contents\footnote{ Note that token {\tt{}ATOM} plays a dual
+role: it is simultaneously a marker for input data---the string for
+{\tt{}ATOM}'s label (e.g. {\tt{}C1})---and a marker for tokens nested
+one level deeper, (e.g. contents of tags {\tt{}SITE\_ATOM\_POS} and
+{\tt{}SITE\_ATOM\_RELAX}).}  The contents of the first and second occurences
+of token {\tt{}ATOM} are thus: \quad `{\tt{}C1 POS= 0 0 0 RELAX=1}'\quad
+and \quad `{\tt{}A1 POS= 0 0 5/8 RELAX=0}'.
+
+\vskip 6pt\noindent 
+The format shown is consistent with rule 4 above.  For historical reasons,
+LM accepts another kind of format for this special case of repeated inputs:
+\begin{verbatim}
+SITE    ATOM=C1  POS= 0          0   0    RELAX=1
+        ATOM=A1  POS= 0          0   5/8  RELAX=0
+        ATOM=C1  POS= 1/sqrt(3)  0   1/2
+\end{verbatim}
+In the latter format, the contents of tag {\tt{}SITE\_ATOM} are delimited
+by either the \emph{next} occurence of this tag, or by the end-of-category,
+whichever occurs first. 
+
+\end{document}
