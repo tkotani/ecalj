@@ -112,12 +112,12 @@ c$$$      enddo
 !     jsp=isp in the collinear case; jsp=1 in the noncollinear
          if(jsp==1) iq=iq+1
          write(6,"('=== iq spin q=',2i4,3f9.5)") iq,jsp,qp
-         if(ndimhx2/=ldim.and.(lso==0.or.lso==2)) call rx('lmfham:   ndimhx/=ldim')
-         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ldim') ! L.S mode or not
-         allocate(ovlm(1:ndimhx,1:ndimhx),hamm(1:ndimhx,1:ndimhx))
-         read(ifih) ovlm(1:ndimhx,1:ndimhx)
-         read(ifih) hamm(1:ndimhx,1:ndimhx)
-!     ! H(k) ->  H(T) FourierTransformation
+c         if(ndimhx2/=ldim.and.(lso==0.or.lso==2)) call rx('lmfham:   ndimhx/=ldim')
+c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ldim') ! L.S mode or not
+         allocate(ovlm(1:ndimhx2,1:ndimhx2),hamm(1:ndimhx2,1:ndimhx2))
+         read(ifih) ovlm(1:ndimhx2,1:ndimhx2)
+         read(ifih) hamm(1:ndimhx2,1:ndimhx2)
+!     ! H(k) ->  H(T) FourierTransformation !only MTO part when ndimhx is 
          do i=1,ndimhx
             do j=1,ndimhx
                ib1 = mod(ib_table(i),ldim)
@@ -135,14 +135,16 @@ c$$$      enddo
             deallocate(ovlm,hamm)
             cycle
          else
-!!    diagonalization test (H-eO)z=0
-            allocate(t_zv(ndimhx,ndimhx),evl(ndimhx))
+!! Diagonalization test (H-eO)z=0
+!!    These eigenvalues must generate the same eigenvalues as
+!!    we perfermoed lmf-MPIK --writeham mode to generete HamiltonianMTO
+            allocate(t_zv(ndimhx2,ndimhx2),evl(ndimhx2))
             nmx = ndimhx
             if(epsovl<1.000001d-14) then
-               call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
+               call zhev_tk2( ndimhx2 , hamm(1:ndimhx2,1:ndimhx2) , ovlm(1:ndimhx2,1:ndimhx2) , nmx , nev,
      .              evl, t_zv, lprint,savez,getz,ifig) 
             else                    
-               call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
+               call zhev_tk3( ndimhx2 , hamm(1:ndimhx2,1:ndimhx2) , ovlm(1:ndimhx2,1:ndimhx2) , nmx , nev,
      .              evl, t_zv, lprint,savez,getz,ifig,epsovl) 
             endif
             do i=1,nev

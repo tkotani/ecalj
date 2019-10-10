@@ -135,7 +135,7 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
                 # =2 Birth-Hedin (if this variable is not set).
 		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
-% const pwmode=11
+% const pwmode=1
       PWMODE={pwmode} # 0:  MTO basis only (LMTO)
                 # 11: APW+MTO        (PMT)
                 # 12: APW basis only (LAPW)

@@ -16,9 +16,9 @@ fi
 rm HamiltonianMTO*
 #Get efermi.lmf
 echo 'runnnig efermi determination for pwmode=0'
-mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band -vpwmode=0 > lmf_efermi
+mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band -vpwmode=1 > lmf_efermi
 echo 'runnnig hamiltonian generation for pwmode=0'
-mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0
+mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=1
 
 # Get Hamiltonian file, namded as HamiltonianMTO
 cat HamiltonianMTO.* >HamiltonianMTO
