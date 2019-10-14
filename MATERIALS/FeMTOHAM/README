@@ -1,0 +1,18 @@
+Please look into job_ham
+
+After you have finished self-consistent calculation (LDA,QSGW),
+do the same procedure in job_ham (look into job_ham first).
+
+You can get Hamiltonian and Ovealap matrix for MTOs. 
+It is in the file HamiltonianMTO.
+This is without APWs. (we set pwmode=0 in ctrl.fe in job_ham)
+Use the efermi.lmf for the fermi energy.
+
+
+lmfham is given in lm7K/lmfham.F
+This reads HamiltonianMTO and diagonalize it.
+( this is an exmple of module based coding I recommend.
+  Right after " call readHamiltonianMTO() ", we have all required
+  things allocated in the main routine of lmfham.)
+For test purpose,  search eigen111 and eigen222 in lmfham.F.
+Both gives the same eigenvalues.

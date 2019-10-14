@@ -117,7 +117,7 @@ C ... Patch to handle strings of length longer than 267 on the CRAY.
 #endif
       character*(*) fmt,sout
       double precision
-     .a1(1),a2(1),a3(1),a4(1),a5(1),a6(1),a7(1),a8(1)
+     .a1(*),a2(*),a3(*),a4(*),a5(*),a6(*),a7(*),a8(*)
 C ... Local parameters
       integer i,lfmt,ip,jp,cast,ia,iff,i2,iterm,ndec,iv(5),nblk,nx,j,
      .mxl,ls,icond,ivawrt,lens,nsyv,ires,fw

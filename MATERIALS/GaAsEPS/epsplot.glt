@@ -1,0 +1,3 @@
+set datafile fortran
+set xrange [0:20]
+plot "EPS0001.nlfc.dat" u ($4*13.605):($6) lt 1 pt 1 w lp,

@@ -1,4 +1,0 @@
-# we introduced {pwmode}.
-mpirun -np ~/ecalj/lm7K/lmf-MPIK si --writeham --mkprocar --fullmesh -vpwmode=0
-cat HamiltonianMTO.* >HamiltonianMTO
-~/ecalj/lm7K/lmfham

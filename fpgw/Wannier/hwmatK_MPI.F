@@ -43,7 +43,7 @@ c------------------------------------------------------------
       use m_readqg
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
-      use m_genallcf_v3
+      use m_genallcf_v3,niwg=>niw
       use m_keyvalue,only: getkeyvalue
 
 c RS: MPI module
@@ -214,10 +214,9 @@ c RS: variables for MPI
      &           rv_w(:,:,:,:,:),cv_w(:,:,:,:,:),
      &           rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
       real(8)::ef
-      integer::nw,nctot0
-
 c For hmagnon (only omega=0 is used)
       logical:: lomega0=.False.
+      integer::nw,nctot0,niw
 c---------------------------------------
 c RS: program begins here
       call RSMPI_Init()
@@ -289,6 +288,7 @@ c      nwin =-999    !not readin NW file
 c      efin =-999d0  !not readin EFERMI
       incwfin= -1  !use 7th colmn for core at the end section of GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
+      niw=niwg
       ef=1d99
       if(ngrp/= ngrp2)
      &  call RSMPI_Stop( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')

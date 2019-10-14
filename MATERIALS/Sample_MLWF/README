@@ -124,6 +124,7 @@ Then, the following commands generate Wannier function.
 > genMLWF cu -np 24
 
 Actually the above command also do the cRPA calculation.
+
 Therfore, if you only want to generate MLWF, stop the command after finishing the generation of MLWF.
 For the guide, you can stop the calculation after "wanplot" command like the following.
 
@@ -151,22 +152,26 @@ OK! --> Start echo --- | /home/usr2/h70252b/bin_swj_test/wanplot  > lwanplot
 *****************************************************************************
 
 
+'bnds.maxloc.up' is generated after echo 1|hmaxloc. Please run
+ gnuplot bandplot.isp1.glt.maxloc at at Cu/Band.
 
 
+wanplot is only for band plot.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+Head of Wannier/hmaxloc.F
+c-------------------------------------------------------------
+c construct maximally localized Wannier functions
+c
+c References
+c [1] N. Marzari and D.Vanderbilt, PRB56,12847(1997)
+c [2] I. Souza, N. Marzari and D.Vanderbilt, PRB65,035109(2002)
+c
+c mode 1:  determine parameters for <u(m,k)|u(n,k+b> (uu-matrix)
+c mode 2:  main part
+c    Step 1: choose Hilbert space  (Ref.[2])
+c    Step 2: maximally localize Wannier functions (Ref.[1])
+c    Step 3: construct effective Hamiltonian and interpolate bands (Ref.[2])
 
 
 

@@ -1,4 +1,8 @@
-#!/bin/bash                                                                                                                                                                      
+#!/bin/bash                                                                                                
+
+n=$0
+nfpgw=`dirname $0`
+                                                                      
 # -------------------------------------------------------------------------
 # magnon calculation. 
 # NOTE: q-mesh is set in GWinput (For Fe case, 20*20*20 is better choice) 
@@ -41,8 +45,8 @@ fi
 
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
 
-mpirun -np $MPI_SIZE ~/ecaljmagnon/fpgw/exec/hmagnon
-chipm_mat #combine wan_ChiPMr* --> wan_ChiPMr.mat
+mpirun -np $MPI_SIZE $nfpgw/hmagnon
+$nfpgw/chipm_mat #combine wan_ChiPMr* --> wan_ChiPMr.mat
 
 $echo_run echo "--- OK! It's finished well. ---"
 exit 0

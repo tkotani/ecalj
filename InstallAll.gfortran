@@ -16,6 +16,9 @@ MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib
 mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
 
+# make a link to getsyml
+ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+
 ### viewvesta
 cd StructureTool/
 ./makelink $BINDIR
