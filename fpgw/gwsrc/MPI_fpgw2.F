@@ -864,6 +864,7 @@ C     !======================================================
       if( mpi__size == 1 ) then
          mpi__task(:) = .true.
          mpi__ranktab(:) = mpi__rank
+         write(6,*) "rankdivider"
          return
       end if
       if(mpi__rank==0) write(6,*) "MPI_hx0fp0_rankdivider2:"
@@ -1286,7 +1287,6 @@ C     !!  C = a*A + C
 
       return
       end subroutine MPI__ZAMPM
-
 
 C     !======================================================
 C     !! B = reduce A

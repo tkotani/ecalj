@@ -367,7 +367,7 @@ ccccccccccccccccccccccc
 !! exclude wannier model: (okumura, 2017/06/13)
 !! ebmx band cutoff 2016Jun
           if (present(wan) .and. wan) then
-          else
+          elseif (nbmx/=nband) then
              do i=1,nbmx
                 if( maxval(ek_(i, 0:3)) >ebmx) then
                    nbandmx_k = i-1

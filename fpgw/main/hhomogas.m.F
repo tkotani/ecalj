@@ -537,6 +537,7 @@ c                   write(6,"('qqq222=',3f9.4,2x,3f9.4)")q+qbz(:,kx),qsh2
        write(6,"('rcxq/nbnb 4:',3E13.5)") sum(abs(rcxq(:,:,:,:)))
        call tetdeallocate()     !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
 
+
        write(6,"('  nmbas1 nmbas2 npm=',3i8)") nmbas1,nmbas2,npm
        schi=1                   ! flip over maj/min spins.
 
@@ -556,8 +557,21 @@ c                   write(6,"('qqq222=',3f9.4,2x,3f9.4)")q+qbz(:,kx),qsh2
        do iw=nw_i,nw
          write(ifz, "(2i4,3f9.4,x,f10.5,E13.5,x,2E13.5)") iq,iw,q,qlength,freq_r(iw), zxq(1,1,iw)*hartree
        enddo
+!!       write(ifz,*)
        write(ifz,*)
-       write(ifz,*)
+
+ccccccccccccccccccccccccccccccccccccccccccccc 20190818
+       zxqi=0d0
+       write(6,*) "AAAAA, nw_i,nw:",nw_i,nw
+       do iw=nw_i,nw
+          if (iw/=0) zxqi(1,1,:) = zxqi(1,1,:) + zxq(1,1,:)/freq_r(iw)*(freq_r(iw)-freq_r(iw-1))/2
+       enddo
+       write(6,'("sum(aimag(zxq(1,1,:)))=",3E13.5)') sum(aimag(zxq(1,1,:))),sum(aimag(zxqi(1,1,:))),real(zxq(1,1,0))
+       !write(6,*) "sum(aimag(zxq(1,1,:)))=",sum(aimag(zxq(1,1,:))),real(zxq(1,1,0))
+ccccccccccccccccccccccccccccccccccccccccccccc
+
+
+
 
        if(allocated(rcxq) ) deallocate(rcxq)
        if(allocated(zw0)) deallocate(zw0)
