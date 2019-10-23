@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-import re,sys,string,os,signal,time,commands
+#!/usr/bin/env python3
+import re,sys,string,os,signal,time,subprocess #commands
 scfile = open("Materials.ctrls.database",'rt').read().split('\n')
 #print scfile
 sec={}
@@ -43,17 +43,17 @@ for line in sec['DATASECTION:'].split('\n'):
 AllMaterials= material.keys()
 AllMaterials=sorted(AllMaterials)
 print
-print  '=== Materials in Materials.ctrls.database are:==='
+print('=== Materials in Materials.ctrls.database are:===')
 aaa=''
 ix=0
 for x in AllMaterials:
     aaa= aaa + '  '+ x
     ix=ix+1
     if(ix==10): 
-        print aaa
+        print( aaa)
         ix=0
         aaa=''
-print aaa
+print(aaa)
 
 ###############
 nargv = len(sys.argv) -1
@@ -73,7 +73,7 @@ print
 if not '--noexec' in  argset:
     for i in ['LaGaO3','4hSiC','Bi2Te3']:
         if i not in argset:
-            print ' "--all" skips ',i,', otherwise added explicitly.'
+            print( ' "--all" skips ',i,', otherwise added explicitly.')
             AllMaterials.remove(i)
 #print AllMaterials
 #sys.exit()
@@ -84,32 +84,32 @@ if not '--noexec' in  argset:
 if ('--all' in  argset):
 	choosedmaterials=AllMaterials
 elif(nargv==0 or '--help' in argset):
-      print
-      print "=== HELP: job_marerials.py ==="
-      print " PURPOSE:  Perform GGA/LDA calculations for sysmtems in Materials.ctrl.database"
-      print "           This makes directory for each. See llmf(Console output) and save.* (Energy)"
-      print " USAGE:    job_materials.py [options] "
-      print "        [options] are material names above separeted by space."
-      print "        --all   : all materials are specified (in an hour now.)"
-      print "        --noexec: Not do lmf. Just generates directories and ctrl files"
-      print "        -np 2   : Number of core for lmf-MPIK. 2 core is default."
-      print " (WARN! settings for all atoms are not yet examined carefully. Let me know something wrong.)" 
-      print " "
-      print " "
-      print " --- Please type job_materials.py with above options!!! ---" 
-      print "   type ./job_check (show save file), even during running." 
-      print " "
+      print()
+      print( "=== HELP: job_marerials.py ===")
+      print(" PURPOSE:  Perform GGA/LDA calculations for sysmtems in Materials.ctrl.database")
+      print("           This makes directory for each. See llmf(Console output) and save.* (Energy)")
+      print(" USAGE:    job_materials.py [options] ")
+      print("        [options] are material names above separeted by space.")
+      print("        --all   : all materials are specified (in an hour now.)")
+      print("        --noexec: Not do lmf. Just generates directories and ctrl files")
+      print("        -np 2   : Number of core for lmf-MPIK. 2 core is default.")
+      print(" (WARN! settings for all atoms are not yet examined carefully. Let me know something wrong.)" )
+      print(" ")
+      print(" ")
+      print(" --- Please type job_materials.py with above options!!! ---" )
+      print("   type ./job_check (show save file), even during running." )
+      print(" ")
       sys.exit(0)
 else:
     choosedmaterials=args
 
-    print
-    print ' ==>We use cores -np =',numcore
+    print()
+    print(' ==>We use cores -np =',numcore)
 
 ###########################################
-print 
-print ' We are going to do LDA/GGA for ',choosedmaterials
-dummy=raw_input(' !!! Go ahead? Push return to continue !!!')
+print()
+print(' We are going to do LDA/GGA for ',choosedmaterials)
+dummy=input(' !!! Go ahead? Push return to continue !!!')
 if dummy != '': sys.exit()
 
 ################################################
@@ -118,17 +118,17 @@ for matr in choosedmaterials:
     lll = material[matr]
     m = re.search(r'\w+:',lll)
     STRUCTURE= m.group()
-    #print STRUCTURE
+    #print(STRUCTURE
     aaa= re.sub(STRUCTURE,'',material[matr]).lstrip()
     matdat= re.split(r'\s+',aaa)
-    print  matdat
+    print(matdat)
     #sys.exit()
     constdat=''
     option=''
     optionlmf=''
     optiongw=''
     for ii in matdat:
-        print ii
+        print(ii)
         if re.match(r'@[0-9]+=',ii):
             pass
         elif re.match(r'--\w*',ii):
@@ -142,19 +142,19 @@ for matr in choosedmaterials:
             constdat=constdat+' '+ii
         
     aaa= '#id  = '+ matr +'\n'
-    #print STRUCTURE
-    #print sec
+    #print(STRUCTURE
+    #print(sec
     structemp = sec[STRUCTURE]
-    #print '---- -----'
+    #print('---- -----'
     #m = re.findall(r'@[0-9]+',sec[STRUCTURE])
-    #print m
-    #print '*************************'
+    #print(m
+    #print('*************************'
     for ix in matdat:
         try:
             m=re.match(r'@[0-9]+=',ix)
             mid= m.group()
             mat=re.split(mid,ix)
-            #print 'vvvvvvvv',mid[0:-1],mat[1]
+            #print('vvvvvvvv',mid[0:-1],mat[1]
             structemp=re.sub(mid[0:-1]+' ',mat[1]+' ',structemp)
             structemp=re.sub(mid[0:-1]+'\n',mat[1]+'\n',structemp)
         except:
@@ -165,13 +165,13 @@ for matr in choosedmaterials:
             iss= iss + constdat
         stot=stot+iss+'\n'
     aaa = aaa+  stot
-    ext=string.lower(matr)
+    ext=matr.lower()
     ctrlsnm = "ctrls."+ext
     ctrlgenc= 'ctrlgenM1.py '+ext+' ' + option 
-    print '============ start================================'
-    print '=== /'+matr+' :  ',ctrlsnm,' '+option+ ' ==='
-    print ' command=',ctrlgenc
-    print aaa
+    print( '============ start================================')
+    print( '=== /'+matr+' :  ',ctrlsnm,' '+option+ ' ===')
+    print( ' command=',ctrlgenc)
+    print( aaa)
 
     ctrls = open(ctrlsnm ,'w')
     ctrls.write(aaa)
@@ -189,24 +189,24 @@ for matr in choosedmaterials:
     os.chdir(wdir)
     os.system('pwd')
     os.system('lmfa '+ext+optionlmf+' >llmfa')
-    print    'mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN'
+    print(    'mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN')
     os.system('mkGWIN_lmf2 '+ext+optiongw +'> lmkGWIN')
     os.system('cp GWinput.tmp GWinput')
    
     #joblmf='lmf  '+ext+optionlmf+' >llmf'   
     joblmf='mpirun -np '+numcore+' lmf-MPIK  '+ext+optionlmf+' >llmf'
-    print 'Runnning!: ',joblmf,  '   ;this is in joblmf file.'
+    print ('Runnning!: ',joblmf,  '   ;this is in joblmf file.')
     os.system('echo '+joblmf +'>joblmf')
     if ('--noexec' in  argset):
         pass
     else:
         try:
-            commands.getoutput(joblmf)
+            out=subprocess.run(joblmf,shell=True)
             os.system('echo Finished!: tail '+matr+'/save.'+ext +':` tail -n 1 save.'+ext+'`')
         except KeyboardInterrupt:
             'Keyboad interrrupt by user'
             sys.exit()
-    print '============ end  ================================'
+    print ('============ end  ================================')
     os.chdir(rdir)
     #os.system('pwd')
     os.system('echo ""')

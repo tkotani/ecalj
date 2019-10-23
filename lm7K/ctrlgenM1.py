@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # CAUTION; R here is in Angstrom, converted to a.u. in ctrlgenM1.ctrl.* 
 #########################################################################
 # Generate a temprate of ctrl file from ctrls.
@@ -17,7 +17,7 @@
 # (HEADER and so are at the begining of lines)
 # take Kino's change.
 #########################################################################
-import os, sys, string, re
+import os, sys, string, re, locale
 
 atomlist="""
 
@@ -193,83 +193,82 @@ def manip_argset(argset):
 #    rlmchk=0
 #    r_mul_val="1.0"
 #    systype_val="molecule"
-
     for arg in argset:
-	if re.match("--nspin",arg)!=None:
-		nspinlist=arg.split("=")
-		if len(nspinlist)==2:
-			nspin_val=nspinlist[1]
-	elif re.match("--so",arg)!=None:
-		nsolist=arg.split("=")
-		if len(nsolist)==2:
-			so_val=nsolist[1]
-                        nspin_val='2'
-	elif re.match("--xcfun",arg)!=None:
-		xclist=arg.split("=")
-		if len(xclist)==2:
-			xcfun_str=xclist[1]
-	elif re.match("--mmom",arg)!=None:
-		mmomlist=arg.split("=")
-		if len(mmomlist)==2:
-			mmom_val=mmomlist[1]
+        if re.match("--nspin",arg)!=None :
+            nspinlist=arg.split("=")
+            if len(nspinlist)==2:
+                nspin_val=nspinlist[1]
+        elif re.match("--so",arg)!=None:
+            nsolist=arg.split("=")
+            if len(nsolist)==2:
+                so_val=nsolist[1]
+            nspin_val='2'
+        elif re.match("--xcfun",arg)!=None:
+            xclist=arg.split("=")
+            if len(xclist)==2:
+                xcfun_str=xclist[1]
+        elif re.match("--mmom",arg)!=None:
+            mmomlist=arg.split("=")
+            if len(mmomlist)==2:
+                mmom_val=mmomlist[1]
         elif re.match("--insulator",arg)!=None:
             metali=0
-#	elif re.match("--r_mul",arg)!=None:
+#    elif re.match("--r_mul",arg)!=None:
 #                rlist=arg.split("=")
 #                if len(rlist)==2:
 #                        r_mul_val=rlist[1]
-	elif re.match("--nk1",arg)!=None:
-                nklist=arg.split("=")
-                if len(nklist)==2:
-                        nk_val1=nklist[1]
-	elif re.match("--nk2",arg)!=None:
-                nklist=arg.split("=")
-                if len(nklist)==2:
-                        nk_val2=nklist[1]
-	elif re.match("--nk3",arg)!=None:
-                nklist=arg.split("=")
-                if len(nklist)==2:
-                        nk_val3=nklist[1]
+        elif re.match("--nk1",arg)!=None:
+            nklist=arg.split("=")
+            if len(nklist)==2:
+                nk_val1=nklist[1]
+        elif re.match("--nk2",arg)!=None:
+            nklist=arg.split("=")
+            if len(nklist)==2:
+                nk_val2=nklist[1]
+        elif re.match("--nk3",arg)!=None:
+            nklist=arg.split("=")
+            if len(nklist)==2:
+                nk_val3=nklist[1]
         elif re.match("--systype",arg)!=None:
-                syslist=arg.split("=")
-                if len(syslist)==2:
-                        systype_val=syslist[1]
-	elif re.match("--fsmom",arg)!=None:
-                nklist=arg.split("=")
-                if len(nklist)==2:
-                        fsmom_val=nklist[1]
-	elif re.match("--ssig",arg)!=None:
-                nklist=arg.split("=")
-                if len(nklist)==2:
-                        ssig_val=nklist[1]
-	elif re.match("--tratio",arg)!=None:
-                ttt=arg.split("=")
-                if len(ttt)==2:
-                        touchingratio=ttt[1]
-                        touchingratio=float(touchingratio)
-	elif re.match("--ehmol",arg)!=None:
+            syslist=arg.split("=")
+            if len(syslist)==2:
+                systype_val=syslist[1]
+        elif re.match("--fsmom",arg)!=None:
+            nklist=arg.split("=")
+            if len(nklist)==2:
+                fsmom_val=nklist[1]
+        elif re.match("--ssig",arg)!=None:
+            nklist=arg.split("=")
+            if len(nklist)==2:
+                ssig_val=nklist[1]
+        elif re.match("--tratio",arg)!=None:
+            ttt=arg.split("=")
+            if len(ttt)==2:
+                touchingratio=ttt[1]
+                touchingratio=float(touchingratio)
+        elif re.match("--ehmol",arg)!=None:
                 eh1set=0
-#	elif arg=="--rlmchk":
-#		rlmchk=1
+#    elif arg=="--rlmchk":
+#        rlmchk=1
         elif arg=="--showatomlist":
             showatomlist=1
-	elif arg=="--help":
-		showhelp=1
-#	elif arg=="--readrmt":
-#		readrmt=1
-	elif re.match("-",arg):
-		sys.stderr.write( error_title + ", unknown arg:  "+arg+"\n")
-		ierror+=1
+        elif arg=="--help":
+            showhelp=1
+#    elif arg=="--readrmt":
+#        readrmt=1
+        elif re.match("-",arg):
+            sys.stderr.write( error_title + ", unknown arg:  "+arg+"\n")
+            ierror+=1
         
     if xcfun_str.upper()=="PBE":
-	xcfun_val="103"
+        xcfun_val="103"
     elif xcfun_str.upper()=="VWN":
-	xcfun_val="1"
+        xcfun_val="1"
     elif xcfun_str.upper()=="BH":
-	xcfun_val="2"
+        xcfun_val="2"
     else:
-	sys.stderr.write(error_title+", --xc="+xcfun_str+" : unknown\n")
-	ierror+=1
+        sys.stderr.write(error_title+", --xc="+xcfun_str+" : unknown\n")
+        ierror+=1
 
     if systype_val.upper()=="MOLECULE":
         do_nothing=0
@@ -283,144 +282,144 @@ def manip_argset(argset):
         ierror+=1
 
     if ierror!=0:
-	print "ABORT. Check names of args. Some are not defined."
-	sys.exit(-1)
+        print ("ABORT. Check names of args. Some are not defined.")
+        sys.exit(-1)
     return nspin_val,so_val,xcfun_val,xcfun_str,mmom_val,systype_val,nk_val1,nk_val2,nk_val3, showatomlist, showhelp,metali,fsmom_val,ssig_val,touchingratio,eh1set
 
 
 #-------------------------------------------------------
 def  line2Token(linein):
-	""" convert the result of readline to token """
-#	""" input=readlines() output=token""
-	listout = []
-	for s in linein:
-		if s=="":
-			continue
-		s = string.replace(s,'\n','')
-		s = string.replace(s,',',' ')
-                s = string.replace(s,'=',"= ")
-		s = string.replace(s,':',": ")
+    """ convert the result of readline to token """
+#    """ input=readlines() output=token""
+    listout = []
+    for s in linein:
+        if s=="":
+            continue
+        s = s.replace('\n','')
+        s = s.replace(',',' ')
+        s = s.replace('=',"= ")
+        s = s.replace(':',": ")
 
-		lista=string.split(s)
-		for x in lista:
-			if x<>"":
-				listout.append(x)
+        lista=s.split()
+        for x in lista:
+            if x!="":
+                listout.append(x)
 
-	return listout
+    return listout
 
 #---------------------------------------------------
 def lineReadfile(filename):
-	""" read file and make list of the content of the file, and \n->'' """
-#	"input:filename output=readlines() "
-	f = open(filename)
-	list1 =[]
-	while 1:
-		s = f.readline()
-		if s=="":
-			break
-		s=string.replace(s,"\n","")
-		if s=="":
-			continue
-		list1.append(s)
-	f.close()
-	return list1
+    """ read file and make list of the content of the file, and \n->'' """
+#    "input:filename output=readlines() "
+    f = open(filename)
+    list1 =[]
+    while 1:
+        s = f.readline()
+        if s=="":
+            break
+        s=s.replace("\n","")
+        if s=="":
+            continue
+        list1.append(s)
+    f.close()
+    return list1
 
 #----------------------------------------------------------------------------
 def RemoveCat(listctrl,key):
-	""" remove a category (key) from listctrl input:devided line, output: combined line"""
-	res=''
-	ix=0
-	sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
-	for x in listctrl:
-		if(ix==1):
-			if(re.match('^\w',x)): ix=0
-		if(re.match(sss,x)): ix=1
-		if(ix==0): res = res+'\n'+ x
+    """ remove a category (key) from listctrl input:devided line, output: combined line"""
+    res=''
+    ix=0
+    sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
+    for x in listctrl:
+        if(ix==1):
+            if(re.match('^\w',x)): ix=0
+        if(re.match(sss,x)): ix=1
+        if(ix==0): res = res+'\n'+ x
 
-	res=res+'\n'
-#	print res
-#	sys.exit()
+    res=res+'\n'
+#    print res
+#    sys.exit()
 
-	return res
+    return res
 
 def RemoveCat2(listctrl,key):
-	""" remove a category (key) from listctrl input:devided line, output: devided line"""
-	res=[]
-	ix=0
-	sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
-	for x in listctrl:
-		if(ix==1):
-			if(re.match('^\w',x)): ix=0
-		if(re.match(sss,x)): ix=1
-		if(ix==0): res.append(x)
+    """ remove a category (key) from listctrl input:devided line, output: devided line"""
+    res=[]
+    ix=0
+    sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
+    for x in listctrl:
+        if(ix==1):
+            if(re.match('^\w',x)): ix=0
+        if(re.match(sss,x)): ix=1
+        if(ix==0): res.append(x)
 
-#	res=res+'\n'
-#	print res
-#	sys.exit()
-	return res
+#    res=res+'\n'
+#    print res
+#    sys.exit()
+    return res
 
 def GetCat(listctrl,key):
-	""" get a category (key) from listctrl This returns lines. Not good correspondence to RemoveCat """
-	res=[]
-	ix=0
-	sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
-#	print sss
-	for x in listctrl:
-#		print x
-		if(ix==1):
-			if(re.match('^\w',x)): break
-		if(re.match(sss, x )): ix=1
-		if(ix==1): res.append(x)
+    """ get a category (key) from listctrl This returns lines. Not good correspondence to RemoveCat """
+    res=[]
+    ix=0
+    sss ='^('+key.upper()+'|'+key.lower()+')'+'(\s|\Z)'
+#    print sss
+    for x in listctrl:
+#        print x
+        if(ix==1):
+            if(re.match('^\w',x)): break
+        if(re.match(sss, x )): ix=1
+        if(ix==1): res.append(x)
 
-#	res=res+'\n'
-#	print res
-#	sys.exit()
-	return res
+#    res=res+'\n'
+#    print res
+#    sys.exit()
+    return res
 
 def countnum(mmm,key):
-	xx2=re.split(key+"\s*",mmm)
-	#print 'xx2=',key, xx2
-	try:
-		xx=re.split(' *',xx2[1])
-	except:
-		return 0
-	num=0
-	for i in xx:
-		try:
-			yy = float(i)
-			#print yy
-			num=num+1
-		except:
-			break
-	return num
+    xx2=re.split(key+"\s*",mmm)
+    #print 'xx2=',key, xx2
+    try:
+        xx=re.split(' *',xx2[1])
+    except:
+        return 0
+    num=0
+    for i in xx:
+        try:
+            yy = float(i)
+            #print yy
+            num=num+1
+        except:
+            break
+    return num
 
 def getsitename(listsite):
-	ddd=[]
-	for x in listsite:
-		xx=re.split('\WATOM=\W*',x)
-		ddd=ddd+xx[1:]
-	rrr=[]
-	for i in ddd:
-		rrr.append(re.split(' ',i)[0])
-	return rrr
+    ddd=[]
+    for x in listsite:
+        xx=re.split('\WATOM=\W*',x)
+        ddd=ddd+xx[1:]
+    rrr=[]
+    for i in ddd:
+        rrr.append(re.split(' ',i)[0])
+    return rrr
 
 def glist(list):
-	aaa=''
-	for i in list:
-		aaa=aaa+i+'\n'
-	return aaa
+    aaa=''
+    for i in list:
+        aaa=aaa+i+'\n'
+    return aaa
 
 def uniq(list):
-	result = []
-	for l in list:
-		if not l in result:
-			result.append(l)
-	return result
+    result = []
+    for l in list:
+        if not l in result:
+            result.append(l)
+    return result
 def getdataa(aaa,key):
-    return string.strip(aaa.split(key)[1].split('@')[0])+' '
+    return (aaa.split(key)[1].split('@')[0]).strip()+' '
 
 def getdataa2(aaa,key):
-    return string.strip(aaa.split(key+"'")[1].split("'@")[0])+' '
+    return (aaa.split(key+"'")[1].split("'@")[0]).strip()+' '
 
 
 
@@ -449,7 +448,7 @@ if(metali==0): insulatorw='given'
 
 ### help sections ###
 if(showhelp==1):
-    print \
+    print( \
 """ 
 ctrlgenM1.py. tkotani and h.kino aug_2013 version :
 ---------------
@@ -462,27 +461,27 @@ ctrlgenM1.py. tkotani and h.kino aug_2013 version :
  Example: 
        After you write ctrls.si, run
        >ctrlgenM1.py si --nk1=8 --nk2=8 --nk3=8 --tratio=1.0  --xcfun=vwn
-"""
-print 
-print " === INPUT options (shown values are default) === "
-print "  --help  %s"      % showhelpw
-print "  --showatomlist  %s"      % showatomlistw
-print "  --nspin=%s"  % nspin_val
-print "  --so=%s"     % so_val
-print "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1
-print "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2
-print "  --nk3=%s   (if not give, nk3=nk1) along c-axis"   % nk_val3
-print "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str #,xcfun_val
-#print "  --mmom='%s\' ! mmom is the initial magnetic moment for each spec,l-channel. Effective for --nspin=2" % mmom_val
-print " +++ Followings are for experts to change +++"
-print "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio
-print "               if negative, we use use defalut MT radius in ctrlgenM1.py)"
-print "  --systype=%s !(bulk,molecule)" % systype_val
-print "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw
-print "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val
-print "  --ssig=%s ! ScaledSigma(experimental =1.0 is the standard QSGW"    %  ssig_val
-#print "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)"
-print 
+""")
+print() 
+print( " === INPUT options (shown values are default) === ")
+print( "  --help  %s"      % showhelpw)
+print( "  --showatomlist  %s"      % showatomlistw)
+print( "  --nspin=%s"  % nspin_val)
+print( "  --so=%s"     % so_val)
+print( "  --nk1=%s Division for BZ integral along a-axis"   % nk_val1)
+print( "  --nk2=%s   (if not give, nk2=nk1) along b-axis"   % nk_val2)
+print( "  --nk3=%s   (if not give, nk3=nk1) along c-axis"   % nk_val3)
+print( "  --xcfun=%s   !(bh,vwn,pbe)"      % xcfun_str )#,xcfun_val
+#print( "  --mmom='%s\' ! mmom is the initial magnetic moment for each spec,l-channel. Effective for --nspin=2" % mmom_val
+print( " +++ Followings are for experts to change +++")
+print( "  --tratio=%s (for MT radius: we use touching MT radius \\times this ratio. lmf --getwsr is called." % touchingratio)
+print( "               if negative, we use use defalut MT radius in ctrlgenM1.py)")
+print( "  --systype=%s !(bulk,molecule)" % systype_val)
+print( "  --insulator  %s !not set this if you are not expert. (do not set for --systype=molecule)"    %  insulatorw)
+print( "  --fsmom=%s ! (only for FSMOM mode. --systype=molecule automatically set this)"    %  fsmom_val)
+print( "  --ssig=%s ! ScaledSigma(experimental =1.0 is the standard QSGW"    %  ssig_val)
+#print( "  --ehmol ! if this exists, set EH used for a molecule paper (Not for PMT-QSGW. --ehmol may give better total energy in LDA)")
+print( )
 if(showhelp==1): sys.exit('--- end of help ---')
 
 
@@ -492,9 +491,9 @@ aused=open('atomlist.used','w')
 dicatom={}
 for line in alist:
     if(line[0:1]=='#' or len(line)==0): continue
-    keya=string.strip(line.split("=")[0])
+    keya=(line.split("=")[0]).strip()
     dicatom[keya]=''.join(line)   #line.split("@")[0:-1]
-    if(showatomlist): print ''.join(line) #line.split("@")[0:-1]
+    if(showatomlist): print( ''.join(line) )#line.split("@")[0:-1]
     aaa= '%s' % ''.join(line) #line.split("@")[0:-1]
     aused.write(aaa+'\n')
 #for ikey in dicatom.keys():
@@ -506,8 +505,8 @@ for line in alist:
 #    aaa=mat.group().split('"')[1]
 #    print keya,line.split("@")[2:-1]
 if(showatomlist==1):
-	print "--- This is atomlist in ctrlgenM1.py (not yet set after Kr) ---."
-	sys.exit()
+    print( "--- This is atomlist in ctrlgenM1.py (not yet set after Kr) ---.")
+    sys.exit()
 specstd=dicatom.keys()
 #print specstd
 #print dicatom
@@ -534,7 +533,7 @@ try:
 except:
     sys.exit()
 print 
-print "... Generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ..."
+print( "... Generate ctrlgenM1.ctrl."+ext+" from ctrls."+ext + " ...")
 ctrls = "ctrls." + ext
 f=open(ctrls,'rt')
 ctrlsdat = f.read() 
@@ -542,7 +541,7 @@ f.close()
 
 listctrls  = lineReadfile(ctrls) 
 listspec   = GetCat(listctrls,"SPEC")  # SPEC section only
-print 'readin SPEC and #=',listspec,len(listspec)
+print ('readin SPEC and #=',listspec,len(listspec))
 
 listsite   = GetCat(listctrls,"SITE")  # SITE section only
 liststruc  = GetCat(listctrls,"STRUC")  # SPEC section only 
@@ -550,9 +549,9 @@ listno     = RemoveCat2(RemoveCat2(RemoveCat2(listctrls,"SITE"),"SPEC"),"STRUC")
 
 sitename = getsitename(listsite)
 speclist = getsitename(listspec)
-print '### SITE  ', sitename
-print '### SPEC  ', speclist
-print '### other ', listno
+print( '### SITE  ', sitename)
+print( '### SPEC  ', speclist)
+print( '### other ', listno)
 
 ########### obtain mapping spec to Z dictionary spec2z ####
 spec2z={}
@@ -562,7 +561,7 @@ if(len(listspec)==0):
     #listspec = re.split('\n',specstd)  # SPEC standard if no SPEC is in ctrls.*
     #print specstd
     #sys.exit()
-    print " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgenM1.py --showatomlist"
+    print( " NO SPEC is found in "+ctrls+". USE standard SPEC; try to see; ctrlgenM1.py --showatomlist")
 #    for ils in sitename:
 #        print 'site=',ils
 #         spec2z[ils]=dicatom[ils].split('atomz=')[1].split('@')[0]
@@ -574,14 +573,14 @@ else:
     zspec=True
     for ils in listspec:
         atomsss=ils.split('ATOM=')
-        print 'readin spec=',len(atomsss),atomsss
+        print( 'readin spec=',len(atomsss),atomsss)
         if(len(atomsss)>1):
             specname=atomsss[1].split(' ')[0]
             specz=ils.split('Z=')[1].split(' ')[0]
             spec2z[specname]=specz
             sss =re.split(r'Z\s*=\s*[0-9]+\s',' '.join(atomsss))[-1].strip()
             specextra[specname]= sss
-            print ils,specname,specz
+            print( ils,specname,specz)
     specextradata=True
 
 #print spec2z
@@ -621,13 +620,13 @@ VERS    LM=7 FP=7        # version check. Fixed.
 
 IO      SHOW=T VERBOS=35 TIM=0,0 #Use TIM=3,3 or more for debug (to show which routines go through).
              # SHOW=T shows readin data (and default setting at the begining of console output)
-	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
-	     # larger VERBOSE gives more detailed console output.
+         # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
+         # larger VERBOSE gives more detailed console output.
 
 SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automatically.
               #
               # Usually 'find is OK', but lmf may use lower symmetry
-	      # if you did not supply accurate structure.
+          # if you did not supply accurate structure.
               # 'lmchk foobar --pr60' shows, what symmetry is recognized.
               # See file://Document/Manual/CaterogyAndToken.org
               # To read its results.
@@ -640,9 +639,9 @@ SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automat
                # Enlarge this, when your enlarge pwemax, and check little dependence on kmxa. 
 """
 alltmp = head + glist(listno) \
-	 + glist(liststruc)  + "     NL=4  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
-	 + glist(listsite) \
-	 + 'SPEC\n' #specsec
+     + glist(liststruc)  + "     NL=4  NBAS= "+ ansite + "  NSPEC="+ anspec +'\n' \
+     + glist(listsite) \
+     + 'SPEC\n' #specsec
 f = open("ctrl.tmp",'wt')
 f.write(alltmp+specsec0)
 f.close()
@@ -662,37 +661,37 @@ if(rlmchk==1):
     try:
         listr = lineReadfile("rmt.tmp")
     except:
-        print ' Error: Can not readin rmt.tmp! '
+        print( ' Error: Can not readin rmt.tmp! ')
         sys.exit()
-	
+    print( listr)
     rdic={}
     for i in listr:
- 	xx=re.split(' *',i)
- 	#print xx
- 	#rdic[xx[0]]=xx[1]
- 	rdic[xx[0]]= string.atof(xx[1]) #*string.atof(touchingratio) #r_mul_val)
- 	rdic[xx[0]]= str(rdic[xx[0]])
+        xx=re.split(' +',i)
+        print(xx)
+        #rdic[xx[0]]=xx[1]
+        rdic[xx[0]]= float(xx[1]) #*string.atof(touchingratio) #r_mul_val)
+        rdic[xx[0]]= str(rdic[xx[0]])
 
 #print " Rmax is taken from lmchk --getwsr. See llmchk_getwsr "
-    print
-    print ' rmt.tmp: --getwsr gives  R= -->', rdic
-    print '  note: we use R=3.0 if R is larger than 3.0'
-    print 'rdic',rdic
+    print()
+    print( ' rmt.tmp: --getwsr gives  R= -->', rdic)
+    print( '  note: we use R=3.0 if R is larger than 3.0')
+    print( 'rdic',rdic)
 ################################################################### 
 
 #print dicatom
-print 'zspec=',zspec
+print ('zspec=',zspec)
 #specdat = re.split('\WATOM=\W*',glist(listspec))[1:]
 #print  'specdat',specdat
 #specdic={}
 #for i in specdat:
-#	xx=re.split(' *',i)
-#	ii=re.sub("\n","",i)
-#	specdic[xx[0]]= '  ATOM='+ii +'\n'
+#    xx=re.split(' *',i)
+#    ii=re.sub("\n","",i)
+#    specdic[xx[0]]= '  ATOM='+ii +'\n'
 ###############
 #print specdic
 #print sitename,'yyy',uniq(sitename)
-#print 'xxxx',sitename	
+#print 'xxxx',sitename    
 specsec=''
 for ispec in uniq(sitename):
     aaa=''
@@ -707,58 +706,63 @@ for ispec in uniq(sitename):
     try:
 #### in the case of touching MT
 #        print ispec,speckey,'tratio=',touchingratio
-        print 'from atomlist= ', dicatom[speckey]
+        print( 'from atomlist= ', dicatom[speckey])
         if touchingratio >0:
 #            rrr = string.atof(rdic[speckey]) * touchingratio
-            rrr = string.atof(rdic[ispec]) * touchingratio
+            rrr = float(rdic[ispec]) * touchingratio
         else:
             rrr = float(getdataa(dicatom[speckey],'R='))/0.529177 #*r_mul_val
-        print rrr
+        print( rrr)
         if(rrr>3.0): rrr=3.0 #upper limit of R
         rrrh = rrr/2.0
         if(rrrh<0.5): rrrh=0.5 #lower limit of RSMH
     except:
-        print 'ERROR: R are not set. need bug fix'
+        print ('ERROR: R are not set. need bug fix')
         sys.exit(-1)
 
-    try:    
+    try:
+        print('skey=',speckey)
         eh1data= getdataa( dicatom[speckey],'eh=')
         eh1value= eh1data.split('*')[0]+' '
-        eh1count= string.atoi(eh1data.split('*')[1])
+        eh1count = int(eh1data.split('*')[1])
+        print('   ',eh1data,eh1value,eh1count)
 
         eh2data= getdataa( dicatom[speckey],'eh2=')
         eh2value= eh2data.split('*')[0]+' '
-        eh2count= string.atoi(eh2data.split('*')[1])
+        eh2count= int(eh2data.split('*')[1])
+        print('   ',eh2data,eh2value,eh2count)
 
         if eh1set==1: eh1value='-1 '
         rsize= '%6.2f' % rrr
         rsizeh= '%6.2f' % rrrh
-        #print ispec,specextra[ispec]
-        aaa= '    ATOM='+ispec +' Z='+ z + ' R='+string.strip(rsize)
+
+        print('  ',rsize,rsizeh)
+
+        aaa= '    ATOM='+ispec +' Z='+ z + ' R='+rsize.strip()
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'pz=')
         aaa=aaa+  ' '+getdataa2( dicatom[speckey],'p=')+'\n'
         if specextradata: aaa=aaa+ ' '*6+specextra[ispec] +'\n'  #mar2013
         aaa=aaa+ '      EH='+  eh1value*eh1count
-        aaa=aaa+ ' RSMH='+(string.strip(rsizeh)+' ')*eh1count+'\n'
+        aaa=aaa+ ' RSMH='+(rsizeh.strip()+' ')*eh1count+'\n'
         aaa=aaa+ '      EH2='+ eh2value*eh2count
-        aaa=aaa+ ' RSMH2='+(string.strip(rsizeh)+' ')*eh2count+'\n' \
-			    +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
+        aaa=aaa+ ' RSMH2='+(rsizeh.strip()+' ')*eh2count+'\n' \
+                +'      KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1\n' \
                             +'      '+mmom_val+' #s,p,d,f initial condition\n' \
                             +'      #NOTE: lmfa(rhocor) generates spin-averaged rho for any MMOM,jun2012\n'\
                             +'      #Q=0 0.5 1 0 #s,p,d,f initial condition \n' \
                             +'      #MMOM and Q are to set electron population. grep conf: in lmfa output\n'
     except:
-        print 'ERROR this is probably because we have not yet set default values in ctrlgenM1.py for a spec'
+        print( 'ERROR this is probably because we have not yet set default values in ctrlgenM1.py for a spec')
         sys.exit(-1)
     specsec= specsec + aaa +'\n'
 
 
 ### Read in "ctrls."+ext ###################################################
 # try:
-# 	listctrl  = lineReadfile("ctrl.tmp") 
+#     listctrl  = lineReadfile("ctrl.tmp") 
 # except:
-# 	print '---> no ctrl or some problem'
-# 	sys.exit()
+#     print '---> no ctrl or some problem'
+#     sys.exit()
 #print listctrl
 ### ctrl.tmp contains R=. Do lmfa to get mtopara.*
 #f.write('\n'.join(listctrl) +'\nHAM  XCFUN=')
@@ -774,12 +778,12 @@ f=open("exitcode",'rt')
 iexit=int(f.read())
 f.close()
 if (iexit != 0):
-	print '! Exit -1: not go through lmfa. You may need to modify SPEC for atoms not in atomlist.'
+    print ('! Exit -1: not go through lmfa. You may need to modify SPEC for atoms not in atomlist.')
 else:
-	print ' ------tail of llmf.tmp2 ----------------------------------'
-	os.system("tail llmfa.tmp2")
-	print ' ----  lmfa has done! --------------------------------------'
-	print 
+    print( ' ------tail of llmf.tmp2 ----------------------------------')
+    os.system("tail llmfa.tmp2")
+    print( ' ----  lmfa has done! --------------------------------------')
+    print ()
 
 # mmmx = mtodic[ikey]
 # mmm = re.sub(","," ",mmmx)
@@ -789,7 +793,7 @@ else:
 # rsmh= '%6.3f' % rsmh
 # mmm= 'RSMH='+4*rsmh+' EH= -0.5 -0.5 -0.5 -0.5 \n'
 # mmm= mmm+ '     RSMH2='+4*rsmh+' EH2= -2 -2 -2 -2\n'
-# if(len(pz)==2):	mmm= mmm +'     PZ'+pz[1]
+# if(len(pz)==2):    mmm= mmm +'     PZ'+pz[1]
 
 # il1 = countnum(mmm,'RSMH=')
 # il2 = countnum(mmm,'PZ=')
@@ -818,7 +822,7 @@ tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
                 #   Corresponding mimimum is automatically chosen to cover all valence states.
                 # NPTS: division of plots. To get a high-energy resolution plot, use large NPTS.
                 #
-		# To get better plot, Use large NKABC (even after converged).
+        # To get better plot, Use large NKABC (even after converged).
                 # Larger NKABC may give smoother plot. Use large enough NKABC.
                 #
                 # NOTE: current version automatically enfoce TETRA=T and MEAL=3 for --pdos and --tdos
@@ -842,7 +846,7 @@ tail = tail + "BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.\n"\
 
 tail =  tail + "%const bzw=1e-4  fsmom="+str(fsmom_val)
 if (systype_val.upper()=="BULK") :
-	tail =  tail + \
+    tail =  tail + \
 """
       #TETRA=0 
       #N=-1    #Negative is the Fermi distribution function W= gives temperature.
@@ -864,7 +868,7 @@ if (systype_val.upper()=="BULK") :
       #      It seems good enough to use W=0.001. Smaller W= may cause instability.
 """
 else :
-	tail =  tail + \
+    tail =  tail + \
 """
       TETRA=0 
       N=-1     #Negative is Fermi distribution function W= gives temperature.
@@ -918,7 +922,7 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
 tail = tail + "      XCFUN={xcfun}"+ """
           # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
-		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
+        #    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
       PWMODE=11 # 0:  MTO basis only (LMTO)
@@ -929,10 +933,10 @@ tail = tail + "      XCFUN={xcfun}"+ """
                       # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
 """
 if (False): #systype_val.upper()=="BULK") :
-	tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.
+    tail = tail + """      ELIND=-1    # this is to accelarate convergence. Not affect to the final results.
 """
 else :
-	tail =  tail + """      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
+    tail =  tail + """      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
 """
 
 tail = tail + """                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
@@ -990,6 +994,6 @@ g = open("ctrlgenM1.ctrl."+ext,'wt')
 #g.write('\n'.join(listctrl)+tail)
 g.write(alltmp+specsec+tail)
 g.close()
-print "OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated."
+print( "OK! A template of ctrl file, ctrlgenM1.ctrl."+ext+", is generated.")
 #print "Copy it to ctrl."+ext+"; then Do lmchk "+ext" to check crystal structure (option --pr60 show more info)."
 sys.exit()

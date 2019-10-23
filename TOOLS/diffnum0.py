@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
-import string
+#import string
 import os
 import re
 
@@ -16,8 +16,8 @@ def linewithkey(comparekeys,lines):
 
 def comparenum(tol,file1,file2,comparekeys,printsw):
 	pr = (printsw==1)
-	oxx= string.split(file1,'\n') 
-	oyy= string.split(file2,'\n')
+	oxx= file1.split('\n') 
+	oyy= file2.split('\n')
 	errmax=0.0
 	ix1=0
 	ix2=0
@@ -37,7 +37,7 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 			while izz < len(oxx):
 				izz = izz+1
 				iline = oxx[izz]
-				iii1 = string.split(iline)
+				iii1 = iline.split()
 				if(not iii1 ==[]): break
 		except:
 			break
@@ -46,7 +46,7 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 			ix1 = ix1+1
 			iline= re.sub('D\+','e+',oxx[ix1])
 			iline= re.sub('D\-','e-',iline)
-			iii1=string.split(iline)
+			iii1= iline.split()
 			if(not iii1 ==[]): break
 		#print	
 		#print '1=',ix1,iii1
@@ -55,7 +55,7 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 			ix2 = ix2+1
 			ilin2= re.sub('D\+','e+',oyy[ix2])
 			ilin2= re.sub('D\-','e-',ilin2)
-			iii2=string.split(ilin2)
+			iii2= ilin2.split()
 			if(not iii2 ==[]): break
 		#print '2=',ix2,iii2
 
@@ -69,13 +69,13 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 		for i in range(len(iii1)):
 			ixx=0
 			try:
-				w1=string.atof(iii1[i])
+				w1=float(iii1[i])
 				ixx=1
 			except:
 				continue
 
 			if(ixx==1):
-				w2=string.atof(iii2[i])
+				w2=float(iii2[i])
 				#print 
 				#print ' w1=',w1
 				#print ' w2=',w2
@@ -84,12 +84,12 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 
 				if (  abs(w1-w2) > tol ):
 					errmax=abs(w1-w2)
-					print
-					print ix,iline
-					print ix,ilin2
+					print()
+					print( ix,iline)
+					print( ix,ilin2)
 					ierrl=ierrl+1
 					if(ierrl>10):
-						print 'Error lines (less than ten shown) with > tol=',tol
+						print ('Error lines (less than ten shown) with > tol=',tol)
 						return errmax
 
 	return errmax

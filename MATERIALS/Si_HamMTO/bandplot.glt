@@ -11,20 +11,16 @@ set xtics ('L'   0.0000000000,\
 'Gamma'   0.8660254038,\
 'X'   1.8660254038,\
 'W'   2.3660254038,\
-'to'   3.4840593925)
-set x2tics ('to'   0.8660254038,\
-'to'   1.8660254038,\
-'to'   2.3660254038,\
-'to'   3.4840593925)
+'Gamma'   3.4840593925)
 tpia=2*3.1415926/    10.26301
 plot \
-"BNDpwmode11/bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
-"BNDpwmode11/bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
-"BNDpwmode11/bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
-"BNDpwmode11/bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\
-"BNDpwmode0/bnd001.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BNDpwmode0/bnd002.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BNDpwmode0/bnd003.spin1" u ($2):($3) lt 2 pt 2 w lp,\
-"BNDpwmode0/bnd004.spin1" u ($2):($3) lt 2 pt 2 w lp
+"BNDpwmode11/bnd001.spin1" u ($2):($3) lt 1 pt 1 w l,\
+"BNDpwmode11/bnd002.spin1" u ($2):($3) lt 1 pt 1 w l,\
+"BNDpwmode11/bnd003.spin1" u ($2):($3) lt 1 pt 1 w l,\
+"BNDpwmode11/bnd004.spin1" u ($2):($3) lt 1 pt 1 w l,\
+"BNDpwmode0/bnd001.spin1" u ($2):($3) lt 2 pt 2 w p,\
+"BNDpwmode0/bnd002.spin1" u ($2):($3) lt 2 pt 2 w p,\
+"BNDpwmode0/bnd003.spin1" u ($2):($3) lt 2 pt 2 w p,\
+"BNDpwmode0/bnd004.spin1" u ($2):($3) lt 2 pt 2 w p
 pause -1
 

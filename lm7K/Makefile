@@ -87,7 +87,7 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 
 
 # initialization to check dependency of modules
-init: moduledepends.inc
+init:	moduledepends.inc
 
 moduledepends.inc:
 	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F FPLOTdir/*.F

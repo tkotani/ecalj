@@ -1,20 +1,22 @@
-#!/usr/bin/env python
-import commands
-out=commands.getoutput("which VESTA")
-VESTA=out
+#!/usr/bin/env python3
+import subprocess,sys
 import sys
 import os
 import re
+
+out=subprocess.getoutput("which VESTA")
+VESTA=str(out)
+print(VESTA)
 rootpath=os.path.dirname(os.path.abspath(sys.argv[0])) 
 
 argvs = sys.argv
 argc = len(argvs)
 
-print 'args= ',argvs,argc
+print( 'args= ',argvs,argc)
 
 if (argc != 2 or '--help' in argvs):
-	print ' == Image Display VASP(input file of lmf) to ctrl =='
-	print '    usage: viewvesta POSCAR_foo.vasp    '
+	print( ' == Image Display VASP(input file of lmf) to ctrl ==')
+	print( '    usage: viewvesta POSCAR_foo.vasp    ')
 	sys.exit(-1)
 
 fname=argvs[1]
@@ -30,9 +32,9 @@ if ix==1:
 		os.system(rootpath+'/ctrl2vasp.py '+argvs[1])
 	else:
 		os.system(rootpath+'/ctrl2vasp '+argvs[1])
-
-print fname
+print('cwd=',os.getcwd())
+print(fname)
 vestaopen= VESTA + ' '+os.getcwd()+'/'+fname
-print vestaopen
+print( vestaopen)
 os.system(vestaopen) 
 

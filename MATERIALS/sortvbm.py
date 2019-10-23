@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import re,sys,string,os,signal,time
 vbm  = open("VBM.dat",'rt').read().split('\n')
 vbmref= open("VBMref.dat",'rt').read().split('\n')

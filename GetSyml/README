@@ -7,21 +7,18 @@ and spglib
 ===========================
 Requirement and Install:
 
-0.
-Install Anaconda2. It contains all scientific tools.
-We need python 2.7 or higher (probably),
-not 3.x (if 3.x, need to modify getsyml.py)
+0.Install Anaconda.
+It contains all scientific tools.
+We need python 3.x
 
-1.
-spglib
+1.spglib
 for crystal structure symmetry
 See its home page to install for anaconda case.
+>pip install --user spglib
 
 2.
 seekpath
->git clone https://github.com/giovannipizzi/seekpath/
->python setup.py install --user
-
+>pip install --user seekpath
 
 
 ===========================

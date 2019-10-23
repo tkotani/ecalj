@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-##!/usr/bin/env python2
+#!/usr/bin/env python3
+###!/usr/bin/env python2
 # takao kotani jan2017 for symmetry line based on https://github.com/giovannipizzi/seekpath
 #
 import numpy as np
@@ -9,10 +9,10 @@ import getpaths
 np.set_printoptions(precision=16)
 
 if len(sys.argv)!=2:
-    print ' Usage: >getsyml.py nio !!!'
-    print '   for ctrl.nio. We run lmchk internally in getsyml !!!'
-    print 'this is based on https://github.com/giovannipizzi/seekpath'
-    print 'we have to cite Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) (JOURNAL LINK, arXiv link).'
+    print (' Usage: >getsyml.py nio ')
+    print ('  for ctrl.nio. We run lmchk internally in getsyml !!!')
+    print ('  this is based on https://github.com/giovannipizzi/seekpath')
+    print ('  we have to cite Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) ).')
     sys.exit(-1)
 
 
@@ -27,7 +27,7 @@ for iline in plfile:
     i=i+1
     plat[i-1] = [float(re.split('\s+',iline)[ix]) for ix in range(1,4)]
 cell = plat
-print 'primitive cell=',cell
+print ('primitive cell=',cell)
 
 ### qlat = inverse plat
 qlat=[]
@@ -39,11 +39,11 @@ for i in range(0,3):
     for j in range(0,3):
         if(i!=j):
             if np.dot(qlat[i],cell[j])>1e-5:
-                print 'qlat i/=j'
+                print( 'qlat i/=j')
                 sys.exit(-1)
         else:
             if abs(np.dot(qlat[i],cell[j])-1e0)>1e-5:
-                print 'qlat i=j'
+                print( 'qlat i=j')
                 sys.exit(-1)
 
 ###
@@ -67,8 +67,8 @@ for iline in sitefile:
     pos = [float(vec[ix]) for ix in range(4,7)]
     positions.append([np.dot(pos,qlat[ix]) for ix in range(0,3)])
     numbers.append(int(vec[1]))
-    print i,' pos=',pos,' id=',int(vec[1])
-print 'nsite=',nsite#,positions
+    print( i,' pos=',pos,' id=',int(vec[1]))
+print('nsite=',nsite)#,positions)
 
 
 ###############################################
@@ -155,16 +155,16 @@ for q1 in candidate[0]:         #candidates of Q1 as linear combination of qlat
                 qqq[0]=q1
                 qqq[1]=q2
                 qqq[2]=q3
-                print 'OK! We found qqq vectors, which are equilanent to the reciprocal_primitive_lattice.'
-                print 'We can use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice'
-                print 'Following qqq1,qqq2,qqq3 are linear combinations of primitive vectors qlat.'
-                print '  qqq1=',qqq[0] # We can use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice
-                print '  qqq2=',qqq[1] # Here qqq1,qqq2,qqq3 are linear cobination of qlat.
-                print '  qqq3=',qqq[2]
+                print( 'OK! We found qqq vectors defining the same Z-lattice by the reciprocal_primitive_lattice.')
+                print( 'We use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice')
+                print( 'Following qqq1,qqq2,qqq3 are linear combinations of primitive vectors qlat.')
+                print( '  qqq1=',qqq[0] )# We can use qqq1,qqq2,qqq3 instead of reciprocal_primitive_lattice)
+                print( '  qqq2=',qqq[1] )# Here qqq1,qqq2,qqq3 are linear cobination of qlat.)
+                print( '  qqq3=',qqq[2])
                 ifound=True
                 break
 if not ifound:
-    print 'can not find qqq equivalent to reciprocal_primitive_lattice'
+    print( 'can not find qqq equivalent to reciprocal_primitive_lattice')
     sys.exit()
 
 distot = 0e0
@@ -194,13 +194,14 @@ for ipath in a['path']:
     ee1,ee2,ee3 = [ float(ppp[ix]) for ix in range(0,3)]
     dis= ((ee1-ii1)**2+(ee2-ii2)**2+(ee3-ii3)**2)**.5
     ndiv=int(totalbandpoint*dis/distot) #this controls number of divisions
-    print ii1,ii2,ii3,ii
-    print >> sfile, ndiv,ii1,ii2,ii3,' ',ee1,ee2,ee3,'  ', ii,ee 
-print >>sfile, 0
-print
+    print(ii1,ii2,ii3,ii)
+    linex= '{0}  {1} {2} {3}  {4} {5} {6}  {7} {8}\n'.format(ndiv,ii1,ii2,ii3,ee1,ee2,ee3,ii,ee)
+    sfile.write(linex)
+sfile.write('0 !terminator\n')
+print()
 sfile.close()
-print 'OK! Check ',symlfile,' file!----------'
-print 
+print ('OK! Check ',symlfile,' file!----------')
+print ()
 from brillouinzone import brillouinzone_takao
 brillouinzone_takao.plotws(qlat[0],qlat[1],qlat[2])
 
