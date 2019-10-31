@@ -123,10 +123,11 @@ C     if (iprint() .ge. 20)  then
         call word(sg,1,j1,j2)
         if (i2-i1 .lt. j2-j1) sg = sg1
         call awrit0('%a '//sg,sout2(9:),len(sout2)-9,0)
+        !print *,'len(sout2)=',isop,len(sout2)
    20 continue
       if (ngen .gt. ngen0 .and. iprint() .ge. 20) then
-        call awrit0('%a',sout,len(sout),-stdo)
-        call awrit0('%a',sout2,len(sout2),-stdo)
+        write(stdo,"(' Generator(cart): ', a)") trim(adjustl(sout))  ! call awrit0('%a',sout,len(sout),-stdo)
+        write(stdo,"(' Generator(frac): ', a)") trim(adjustl(sout2)) ! call awrit0('%a',sout2,len(sout2),-stdo)
       endif
       gens = sout2
 C     endif
