@@ -429,8 +429,9 @@ c default values ok?
       awald0 = 2d0   ! See p_lat_0
       tol    = 1d-14 ! It was 1d-9 before aug2019. Sakakibara had a problem when he treat slab model of KF
                      ! for 18 atoms per cell. --> The lowest eigenvalue of coulomb matrix becomes negative.
-      nkdmx  = 800
-      nkqmx  = 800
+      nkdmx  = 8000  !    800->8000 to treat GdN. !31oct2019
+      nkqmx  = 8000  !    nkdmx and nqkmx should be determined automatically in future. 
+      
       lmax   = 2*lxx  !lxx or lmax=6 ???
 
       vol0= abs(tripl(plat,plat(1,2),plat(1,3)))
