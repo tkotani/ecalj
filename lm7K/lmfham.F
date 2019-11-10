@@ -15,7 +15,7 @@
       do
         ix=ix+1
         read(ifqplistsy,*,end=1011) xdat(ix),qplistsy(:,ix)
-        print *,'xxxxxx ix=',ix
+c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(:,ix)
       enddo
  1011 continue
       ndat=ix-1
@@ -24,18 +24,18 @@
       
 ! Started at Jan2018 at KAIST.
 ! Get Real space Hamiltonian for MTO-only case.
-      module m_readHamiltonianMTO
+      module m_readHamiltonianPMT
       real(8),allocatable,protected:: plat(:,:),pos(:,:),qplist(:,:),qlat(:,:)
       integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),
      &  ib_table(:),l_table(:),k_table(:),nqwgt(:,:,:)
-      integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,ndimhx,nsp,nspx
+      integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,ndimMTO,nsp,nspx
       real(8),protected:: epsovl,alat
       complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 
       contains
-      subroutine readHamiltonianMTO()
+      subroutine readHamiltonianPMT()
       implicit none
-      integer:: ififft,ifile_handle,ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimhx2,lold,m
+      integer:: ififft,ifile_handle,ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m
       complex(8):: img=(0d0,1d0),aaaa,phase
       character*4:: cccx
       real(8)::qp(3),pi=4d0*atan(1d0)
@@ -44,7 +44,7 @@
       real(8),allocatable:: evl(:)
 
       ififft = ifile_handle() !return unused file handle
-      open(ififft,file='HamiltonianMTOInfo',form='unformatted')
+      open(ififft,file='HamiltonianPMTInfo',form='unformatted')
       allocate(plat(3,3),qlat(3,3))
       read(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
       nkp = nkk1*nkk2*nkk3
@@ -56,7 +56,7 @@
       read(ififft) npair,npairmx
       allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
       read(ififft) nlat,nqwgt
-      read(ififft) ldim,lso,nsp ! size of Hamiltonian: MTO part
+      read(ififft) ldim,lso,nsp ! size of Hamiltonian: PMT part
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
       read(ififft)ib_table,l_table,k_table
       close(ififft)
@@ -96,30 +96,31 @@ c$$$        enddo
 c$$$      enddo
 !
       ifih=ifile_handle()
-      open(ifih,file='HamiltonianMTO',form='unformatted')
-      write(6,*)'Reaing HamiltonianMTO...'
-      ndimhx=ldim
+      open(ifih,file='HamiltonianPMT',form='unformatted')
+      write(6,*)'Reaing HamiltonianPMT...'
+      ndimMTO=ldim
       if(lso==1) ldim=ldim*2 !L.S mode
       nspx=nsp
       if(lso==1) nspx=1
-      allocate(ovlmr(1:ndimhx,1:ndimhx,npairmx,nspx), hammr(1:ndimhx,1:ndimhx,npairmx,nspx))
-      print *,'ndimhx　ldim lso=',ndimhx,ldim,lso
+      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
+      write(6,"('ndimMTO ldim lso=',i6,4i3)") ndimMTO,ldim,lso
       hammr=0d0
       ovlmr=0d0
       iq=0
       do 
-         read(ifih,end=2019) qp,ndimhx2,lso,epsovl,jsp
+         read(ifih,end=2019) qp,ndimPMT,lso,epsovl,jsp
 !     jsp=isp in the collinear case; jsp=1 in the noncollinear
          if(jsp==1) iq=iq+1
-         write(6,"('=== iq spin q=',2i4,3f9.5)") iq,jsp,qp
-c         if(ndimhx2/=ldim.and.(lso==0.or.lso==2)) call rx('lmfham:   ndimhx/=ldim')
-c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ldim') ! L.S mode or not
-         allocate(ovlm(1:ndimhx2,1:ndimhx2),hamm(1:ndimhx2,1:ndimhx2))
-         read(ifih) ovlm(1:ndimhx2,1:ndimhx2)
-         read(ifih) hamm(1:ndimhx2,1:ndimhx2)
-!     ! H(k) ->  H(T) FourierTransformation !only MTO part when ndimhx is 
-         do i=1,ndimhx
-            do j=1,ndimhx
+         write(6,"('=== Reading Ham for iq,spin,q=',2i4,3f9.5)") iq,jsp,qp
+c         if(ndimPMT/=ldim.and.(lso==0.or.lso==2)) call rx('lmfham:   ndimMTO/=ldim')
+c         if(ndimPMT/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimMTO/=ldim') ! L.S mode or not
+         allocate(ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT))
+         read(ifih) ovlm(1:ndimPMT,1:ndimPMT)
+         read(ifih) hamm(1:ndimPMT,1:ndimPMT)
+!! H(k) ->  H(T) FourierTransformation to real space
+!!       only MTO part ndimMTO (ndimPMT = ndimMTO + ndimAPW)
+         do i=1,ndimMTO
+            do j=1,ndimMTO
                ib1 = mod(ib_table(i),ldim)
                ib2 = mod(ib_table(j),ldim)
                do it =1,npair(ib1,ib2) ! hammr_ij (T)= \sum_k hamm(k) exp(ikT).   it is the index for T
@@ -130,44 +131,44 @@ c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ld
             enddo
          enddo
          
-!! skip diagonalization test or not
+!! skip diagonalization test or not ---> daigonalization test should reproduce original enery bands.
          if(skipdiagtest) then
             deallocate(ovlm,hamm)
             cycle
          else
 !! Diagonalization test (H-eO)z=0
 !!    These eigenvalues must generate the same eigenvalues as
-!!    we perfermoed lmf-MPIK --writeham mode to generete HamiltonianMTO
-            allocate(t_zv(ndimhx2,ndimhx2),evl(ndimhx2))
-            nmx = ndimhx
-            if(epsovl<1.000001d-14) then
-               call zhev_tk2( ndimhx2 , hamm(1:ndimhx2,1:ndimhx2) , ovlm(1:ndimhx2,1:ndimhx2) , nmx , nev,
+!!    we perfermoed lmf-MPIK --writeham mode to generete HamiltonianPMT
+            allocate(t_zv(ndimPMT,ndimPMT),evl(ndimPMT))
+            nmx = ndimPMT
+            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis
+               call zhev_tk2( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
      .              evl, t_zv, lprint,savez,getz,ifig) 
             else                    
-               call zhev_tk3( ndimhx2 , hamm(1:ndimhx2,1:ndimhx2) , ovlm(1:ndimhx2,1:ndimhx2) , nmx , nev,
+               call zhev_tk3( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
      .              evl, t_zv, lprint,savez,getz,ifig,epsovl) 
             endif
             do i=1,nev
-               if(jsp==1) write(6,"('eigen111_1 ',3i4,f15.5)") iq,jsp,i,evl(i)
-               if(jsp==2) write(6,"('eigen111_2 ',3i4,f15.5)") iq,jsp,i,evl(i)
+               if(jsp==1) write(6,"('eigenPMT_spin1 ',3i4,f15.5)") iq,jsp,i,evl(i)
+               if(jsp==2) write(6,"('eigenPMT_spin2 ',3i4,f15.5)") iq,jsp,i,evl(i)
             enddo
             deallocate(ovlm,hamm,t_zv,evl)
          endif  
       enddo
  2019 continue
 
-      write(6,*)'read:total # of q =',iq
+      write(6,*)'Read: total # of q for Ham=',iq
       close(ifih)
-      end subroutine readHamiltonianMTO
-      end module m_readHamiltonianMTO
+      end subroutine readHamiltonianPMT
+      end module m_readHamiltonianPMT
 
 
 !!-------------------------------------------
       program lmfham
-!! Read Hamiltonian files for MTO only case.
-      use m_readHamiltonianMTO, only: 
-     &  plat, npair,nlat,nqwgt, ldim,ndimhx, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,alat,
-     &     ReadHamiltonianMTO
+!! Read HamiltonianPMT and generates MTO-only Hamiltonian
+      use m_readHamiltonianPMT, only: 
+     &  plat, npair,nlat,nqwgt, ldim,ndimMTO, hammr,ovlmr, nkp,qplist, epsovl, ib_table,nspx,alat,
+     &     ReadHamiltonianPMT
       use m_readqplist,only:
      &  readqplistsy,eferm,qplistsy,ndat,xdat
       implicit none
@@ -187,22 +188,22 @@ c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ld
       call show_programinfo(6)
 
 !! Read Hamiltonian files and Get H(T) (real space Hamiltonian).
-      call readHamiltonianMTO() 
+      call readHamiltonianPMT() 
 
 !! If symlcase=T, we read qplist.dat (q point list, see bndfp.F), and use q points in it to compare
-!! bands by original ecalj (by job_band), and TB hamiltonian read by readHamiltonianMTO.
+!! bands by original ecalj (by job_band), and TB hamiltonian read by readHamiltonianPMT.
       if(symlcase) then
          call readqplistsy()
          ifsy1 = ifile_handle()
-         ifsy2 = ifile_handle()
-         open(ifsy1,file='band_lmfham1.dat')
-         open(ifsy2,file='band_lmfham2.dat')
-         write(6,*)'ndat=',ndat
+         open(ifsy1,file='band_lmfham_spin1.dat')
+         if(nspx==2) ifsy2 = ifile_handle()
+         if(nspx==2) open(ifsy2,file='band_lmfham_spin2.dat')
+         write(6,*)  'ndat=',ndat
       endif
 !     ! Get H(k) from H(T), and diagonalize
-      allocate(ovlm(1:ndimhx,1:ndimhx),hamm(1:ndimhx,1:ndimhx))
-      allocate(t_zv(ndimhx,ndimhx),evl(ndimhx))
-      nmx = ndimhx
+      allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
+      allocate(t_zv(ndimMTO,ndimMTO),evl(ndimMTO))
+      nmx = ndimMTO
       ndatx = nkp
       if(symlcase) ndatx=ndat
       do ikp=1,ndatx
@@ -211,13 +212,13 @@ c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ld
         else
            qp = qplist(:,ikp) 
         endif
-        write(6,"(' ikp, q=',i5,3f9.4)")ikp,qp
+        write(6,"(' ikp along qplist, q=',i5,3f9.4)")ikp,qp
 !     ! true q(i)= 2pi/alat * qplist(i,ikp)
       do jsp=1,nspx !nsp is the number of spin.  When lso=1(Lz.Sz), nspx=1
         ovlm = 0d0
         hamm = 0d0
-        do i=1,ndimhx
-        do j=1,ndimhx
+        do i=1,ndimMTO
+        do j=1,ndimMTO
           ib1 = mod(ib_table(i),ldim) !atomic-site index in the primitive cell
           ib2 = mod(ib_table(j),ldim)
           do it =1,npair(ib1,ib2)
@@ -227,20 +228,23 @@ c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ld
           enddo
         enddo
         enddo
-
-!! Diagonalization
+!!
+!! Diagonalization. savez,getz,ifig are dummy.
+!! Both zhev_tk2,3 works in the same manner except epsovl mechanism (linear dependency trancation of basis).
+!! evl are eigenvalues, t_zv are eigenvuncitons. nmx is how many eigenvalues functions you get.
+!! Usually obtaied # is nev, which is the same as nmx.        
         if(epsovl<1.000001d-14) then
-          call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
-     .     evl, t_zv, lprint,savez,getz,ifig) !stock eigenfunctions z
+          call zhev_tk2( ndimMTO , hamm , ovlm , nmx , nev,
+     .     evl, t_zv, lprint,savez,getz,ifig) 
         else  
-          call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
-     .     evl, t_zv, lprint,savez,getz,ifig,epsovl) !stock eigenfunctions z
+          call zhev_tk3( ndimMTO , hamm , ovlm , nmx , nev,
+     .     evl, t_zv, lprint,savez,getz,ifig,epsovl) 
         endif
 
-        do i=1,nev
-          if(jsp==1) write(6,"('eigen222_1 ',3i4,f15.5)") ikp,jsp,i,evl(i)
-          if(jsp==2) write(6,"('eigen222_2 ',3i4,f15.5)") ikp,jsp,i,evl(i)
-        enddo
+c        do i=1,nev
+c          if(jsp==1) write(6,"('Eigen of MTO ham spin1 ',3i4,f15.5)") ikp,jsp,i,evl(i)
+c          if(jsp==2) write(6,"('Eigen of MTO ham spin2 ',3i4,f15.5)") ikp,jsp,i,evl(i)
+c        enddo
 !!
         if(symlcase) then
         if(jsp==1) ifsy=ifsy1
@@ -253,6 +257,10 @@ c         if(ndimhx2/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimhx/=ld
       enddo    
       enddo
       close(ifsy1)
-      close(ifsy2)
+      if(nspx==2) close(ifsy2)
+      write(6,"(a)")'OK! band_lmfham_spin*.dat has generated!'
+      write(6,"(a)")'NOTE: We need to implement Fermi energy for MTO Hamiltonian.'
+      write(6,"(a)")'  For a while, you may use Fermi energy when you plot bands (shown at L1:qplist.dat)'
+      write(6,"(a)")'  See README_MATERIALS.org for how to make a plot for band_lmfham_spin*.dat'
       deallocate(ovlm,hamm)
       end program lmfham

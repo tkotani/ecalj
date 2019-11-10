@@ -1202,17 +1202,13 @@ C$$$! exit
 !!   nmx:  requested number of eigenvectors to be found (and eigenvalues). If nmx>n, nmx is taken to be n.
 !!         if nmx=0, nev=n (see NOTE below).
 !!   ipr :print switch
-!!   ifig: eigenfunctions should be saved, or get.
-!!   savez,getz
+!!   ifig, savez,getz:dummy
 !! Outputs:
 !!   e:    eigenvalues
 !!   nev:  number of eigenvectors (=nmx) or (=n if nmx=0)
 !!   z:    eigenvectors (1..nev)  (declared as z(n,*)
 !!   h and s are destroyed on exit.
 !!   july2012takao
-!! Saved data:
-!!      When savez=T and getz=F, eigenfunctions are saved to a file with ifig
-!!      When savez=F and getz=T, eigenfunctions are returned. Read from afile with ifig
 !! NOTE: this can be called in the loop of ikp,isp loop. Then data are appended to a file ifig.
 !!   If nmx==0, all eigenvalues are returned but without eigenfunctions.
 !! -----------------------------------------------------------------------
@@ -1306,8 +1302,7 @@ c$$$      endif
 !!   nmx:  requested number of eigenvectors to be found (and eigenvalues). If nmx>n, nmx is taken to be n.
 !!         if nmx=0, nev=n (see NOTE below).
 !!   ipr :print switch
-!!   ifig: eigenfunctions should be saved, or get.
-!!   savez,getz
+!!   ifig,savez,getz: dummy
 !!   epsovl: cutoff to remove Hlbert space.
 !! Outputs:
 !!   e:    eigenvalues
@@ -1316,10 +1311,6 @@ c$$$      endif
 !!   h and s are destroyed on exit.
 !!   july2012takao
 !! nm is the matrix dimension of the reduced space by epsovl
-!! Saved data:
-!!      When savez=T and getz=F, eigenfunctions are saved to a file with ifig
-!!      When savez=F and getz=T, eigenfunctions are returned. Read from afile with ifig
-!! NOTE: this can be called in the loop of ikp,isp loop. Then data are appended to a file ifig.
 !!   If nmx==0, all eigenvalues are returned but without eigenfunctions.
 !!
 !! Essentially similar with zhevo

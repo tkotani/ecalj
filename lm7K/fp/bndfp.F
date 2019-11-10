@@ -849,7 +849,7 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
       writeham= cmdopt('--writeham',10,0,strn)
       if(writeham) then
         ifih=ifile_handle()
-        open(ifih,file='HamiltonianMTO.'//trim(strprocid),form='unformatted')
+        open(ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
 !!      
         if(procid == master) then ! pair-table and weight generator.  nlat,qgt are not used yet...
           nkk1=sbz%nkabc(1)
@@ -905,7 +905,7 @@ c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bu
           enddo
 
           ififft=ifile_handle()
-          open(ififft,file='HamiltonianMTOInfo',form='unformatted')
+          open(ififft,file='HamiltonianPMTInfo',form='unformatted')
           write(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
           write(ififft) pos,alat
           write(ififft) qplist
@@ -2507,6 +2507,9 @@ c            endif
       goto99=.false.
       do  iq = 1, nkp
          qp=qplist(:,iq)
+cccccccccccc
+c         write(stdo,"(' procid i1 qp=',2i5,3f9.4)")procid,iq,qp(:)
+cccccccccccc         
          do isp = 1, nsp
             ispc = min(isp,nspc)
             if( .not. ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) ) cycle
