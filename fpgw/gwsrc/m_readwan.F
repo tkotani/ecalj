@@ -293,16 +293,16 @@ c---------------------------------------
       ifscrv=ifile_handle()
       open(ifscrv,file="Coulomb_v.UP",form="formatted") !only up
 
-      !!! write direct index (ijkl)
-      ifd=ifile_handle()
-      open(ifd,file="ijkl_direct.d",form="formatted")
-      !!! write exchange index (ijkl)
-      ife=ifile_handle()
-      open(ife,file="ijkl_exchange.d",form="formatted")
-      !!! write all index (i,j,k,l --> ijwf,klwf)
-      ifa=ifile_handle()
-      open(ifa,file="ijkl_all.d",form="formatted")
-      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
+c$$$      !!! write direct index (ijkl)
+c$$$      ifd=ifile_handle()
+c$$$      open(ifd,file="ijkl_direct.d",form="formatted")
+c$$$      !!! write exchange index (ijkl)
+c$$$      ife=ifile_handle()
+c$$$      open(ife,file="ijkl_exchange.d",form="formatted")
+c$$$      !!! write all index (i,j,k,l --> ijwf,klwf)
+c$$$      ifa=ifile_handle()
+c$$$      open(ifa,file="ijkl_all.d",form="formatted")
+c$$$      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
       
 !     read Screening W, V
       write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
@@ -355,13 +355,13 @@ c$$$            if (idorb(iwf)==idorb(jwf) .and. idorb(kwf)==idorb(lwf)) then !!
 c         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf))
             
 
-         !!! write index i,j,k,l ---> ijwf,klwf
-         if (iwf==jwf .and. kwf==lwf) then
-            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
-         elseif (iwf==kwf .and. jwf==lwf) then
-            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
-         endif
-         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
+c$$$         !!! write index i,j,k,l ---> ijwf,klwf
+c$$$         if (iwf==jwf .and. kwf==lwf) then
+c$$$            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
+c$$$         elseif (iwf==kwf .and. jwf==lwf) then
+c$$$            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
+c$$$         endif
+c$$$         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
          
  4004 continue
  4003 continue
@@ -369,6 +369,7 @@ c         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf)
  4001 continue
       close(ifd)
       close(ife)
+      close(ifa)
       close(ifscrv)
       close(ifscrwv)
 
@@ -521,7 +522,7 @@ c---------------------------------------
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2,qlat2(3),qlat3(3),
      &     alpha, pi, b1, b2, qmax
       integer:: nlatout(3,48),nout,iout,ig, i
-      character*5:: syml
+      character*6:: syml
 
       pi=4d0*atan(1d0)
 
@@ -532,6 +533,8 @@ c---------------------------------------
       if (present(qsyml)) then
          syml=qsyml
          d100=.false.; d110=.false.; d111=.false.; d1xx=.false.
+         dhpb=.false.;dwlf=.false.;dxwf=.false.;dwkf=.false.;dhnb=.false.
+         dnpb=.false.;dxms=.false.;dxrs=.false.;all_iq=.false.
       else
          call getkeyvalue("GWinput","qsym",syml,default="100")
       endif
@@ -1004,7 +1007,7 @@ c--------- Hesuler (gxkgl = .true.: G-X-K-G-L mode)
 !      logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
       logical(8):: gxkgl=.false., llsym_o2
       integer:: i, i_div, n_gxkgl
-      character*5:: syml, qsyml_o2
+      character*6:: syml, qsyml_o2
       character*5, allocatable:: syml_l(:)
 
       !!! get syml line
@@ -1033,6 +1036,47 @@ c--------- Hesuler (gxkgl = .true.: G-X-K-G-L mode)
          endif
       enddo
       end subroutine getqsym_heusler
+c--------- Hesuler (bccALL: bcc G-H-N-P-G-N)
+      subroutine getqsym_bcc(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o, qsyml_o)
+      real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
+      integer, intent(in) :: ngrp_w, iq
+      real(8),intent(out):: qshort(3)
+      logical(8), intent(out)  :: llsym_o
+      character*5, intent(out) :: qsyml_o
+
+      logical(8):: symbcc=.false., llsym_o2
+      integer:: i, i_div, n_symbcc
+      character*6:: syml, qsyml_o2
+      character*5, allocatable:: syml_l(:)
+
+      !!! get syml line
+      call getkeyvalue("GWinput","qsym",syml,default="100")
+      if ( syml== "bccALL" ) then
+         n_symbcc=5 ! number of devisions
+      else
+         call rx("getqsyml_bcc: only bccALL mode is available")
+      endif
+
+      !!!
+      allocate(syml_l(n_symbcc))
+      syml_l="999"
+      syml_l(1)="100"
+      syml_l(2)="110"
+      syml_l(3)="111"
+      syml_l(4)="bccHN"
+      syml_l(5)="bccNP"
+      !syml_l(6)="bccHP"
+      !!! main
+      llsym_o  = .false.; llsym_o2 = .false.
+      do i_div = 1, n_symbcc
+         if (llsym_o) cycle
+         call getqsym(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
+         if (llsym_o2) then
+            llsym_o = .true.
+            qsyml_o = qsyml_o2
+         endif
+      enddo
+      end subroutine getqsym_bcc
 c---------------------------------------
       !!! create unit matrix 
       !!! imat(iwf,jwf)= 1 if iwf=jwf,kwf=lwf

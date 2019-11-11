@@ -5,7 +5,8 @@
 !! (only epsPP_magnon_chipm mode works).
       program hmagnon
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
-     &     readscr, checkorb, getqsym, getqsym_heusler, checkorb2, diagwan, diagwan_tr, wan_imat,
+     &     readscr, checkorb, getqsym, getqsym_heusler, getqsym_bcc,
+     &     checkorb2, diagwan, diagwan_tr, wan_imat,
      &     writehmat, writeddmat
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
@@ -155,7 +156,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2
       integer:: nlatout(3,48),nout,iout,nqsym
       integer,allocatable:: iqlist(:)
-      character*5:: qsyml_in, qsyml
+      character*6:: qsyml_in, qsyml
       character*5, allocatable:: symllist(:)
 !!! WK eigenvalue check
       integer::ifwkeigen,ifwkeigen2,ifwkeigen3
@@ -387,6 +388,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
          if (qsyml_in == "gxkgl") then
             call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
+         elseif (qsyml_in == "bccALL") then
+            call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
          else
             call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
          endif
@@ -407,6 +410,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
          if (qsyml_in == "gxkgl") then
             call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
+         elseif (qsyml_in == "bccALL") then
+            call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
          else
             call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
          endif
@@ -437,6 +442,8 @@ c
          else
             if (qsyml_in == "gxkgl") then
                call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
+            elseif (qsyml_in == "bccALL") then
+               call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
             else
                call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
             endif
@@ -460,7 +467,7 @@ c
      &        iqlist(iq),wibz(iqlist(iq)),qshort !qq
          
          if (lhm) cycle
-         !if (qsyml_in == "gxkgl") cycle
+         !if (qsyml_in == "bccALL") cycle
             
 
 !     ! zxq and zxqi are the main output after Hilbert transformation
@@ -505,9 +512,9 @@ ccccccccccccccc simple band for check
             !! only Cu2MnAl (cma)
             !! Energy of Mn3d(dn) is moved by cma_shitf
             if (cma_mode) then
-               if (iq==1) write(6,*) "cma_mode: True"
-               if (iq==1) write(6,"('cma_mode: iwf_s, iwf_e',2i4)") cma_iwf_s,cma_iwf_e
-               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2E13.5,' [eV]')") cma_up_shift,cma_dn_shift
+c$$$               if (iq==1) write(6,*) "cma_mode: True"
+c$$$               if (iq==1) write(6,"('cma_mode: iwf_s, iwf_e',2i4)") cma_iwf_s,cma_iwf_e
+c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2E13.5,' [eV]')") cma_up_shift,cma_dn_shift
                do iwf = 1, nwf
                   if ( cma_iwf_s <= iwf <= cma_iwf_e ) then
                      ev_w1(iwf,kx) = ev_w1(iwf,kx) + cma_up_shift/rydberg()
