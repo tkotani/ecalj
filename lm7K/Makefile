@@ -230,8 +230,8 @@ lmfgw.o: lmv7.F
 #	$(FC) $(FFLAGS) -DTBE -c lmv7.F -o $@
 lmf2gw.o: lmf2gw.F
 	$(FC) $(FFLAGS_NONE) -c lmf2gw.F -o $@
-lmfham.o: lmfham.F
-	$(FC) $(FFLAGS_NONE) -c lmfham.F -o $@
+lmfham1.o: lmfham1.F
+	$(FC) $(FFLAGS_NONE) -c lmfham1.F -o $@
 
 ########################################
 # programs
@@ -265,7 +265,7 @@ lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 lmf2gw:	lmf2gw.o show_programinfo.o
 	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
-lmfham:	lmfham.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
+lmfham1: lmfham1.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 #tbe:	tbe.o $(LIBSUBS) $(LIBTB)

@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-11-11 月 16:03 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ecalj: MTO-based effective Hamiltonian Project.</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="takao kotani @ tottori university, Japan" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">ecalj: MTO-based effective Hamiltonian Project.</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgbe3687b">1. CAUTION</a></li>
+<li><a href="#org7b5cd90">2. step1: Get rst (and/or sigm).</a></li>
+<li><a href="#org6803350">3. step2: Band plot with APW+MTO</a></li>
+<li><a href="#org6575ad3">4. step3: Band Plot with MTO only</a></li>
+<li><a href="#org4d038f7">5. step4: Generate PMT Hamiltonian for all mesh points.</a></li>
+<li><a href="#orge59f1fc">6. step 5: Run lmfham1 and Read lm7K/lmfham1.F</a></li>
+<li><a href="#orgf9e798c">7. Plan for development. -------------</a></li>
+</ul>
+</div>
+</div>
+<p>
+This file is written in org-mode in emacs.
+</p>
+
+<p>
+Here we show how to get MTO-only Hamiltonian after you get convergence in the PMT=MTO+APW method.
+Examples are in Si_HamMTO, Fe_HamMTO. Follow instructions below at first.
+</p>
+
+
+<div id="outline-container-orgbe3687b" class="outline-2">
+<h2 id="orgbe3687b"><span class="section-number-2">1</span> CAUTION</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>iprint=0 except master in bndfp.F 
+To supress output except master, I have a line in bndfp.F as</li>
+</ul>
+<pre class="example">
+ipr=iprint() !When procid/=master, iprint=0
+</pre>
+
+<p>
+. So, what is done in other nodes are not shown.
+</p>
+
+
+<ul class="org-ul">
+<li>We now use pwmode=1 (but =11 should work as well).</li>
+
+<li>Spin symmetric MTOs with &#x2013;phispinsym.</li>
+</ul>
+<p>
+This is implmented in 
+</p>
+<pre class="example">
+commit c81819cc16fd34d4bb352ba2eb9dc3e1d354aa56
+</pre>
+
+<p>
+Its log says 
+</p>
+
+<pre class="example">
+Author: Takao Kotani &lt;takaokotani@gmail.com&gt;
+Date:   Tue Aug 27 12:36:50 2019 +0900
+   
+    With --phispinsym option for lmf,lmf-MPIK, we can use spin-averages pnu and V0.
+    You can use job_ham_phispinsym instead of job_ham.
+    
+    From V0 and pnu, we calculate radial funcitons phi and phidot.
+       pnu corresponding to energies of radial schrodinger eq.
+       V0 is the spherical potential, ssite(ib)%rv_a_ov0.
+    
+    
+    Search --phispinsym in the console output. It shows
+    ----
+     bndfp: --phispinsym use spin-averaged potential for phi and phidot
+      ibas l=  1  0 pnu=   4.58531   4.57791 --&gt;   4.58161
+      ibas l=  1  1 pnu=   4.40324   4.38211 --&gt;   4.39268
+    .... (this is symmetrization of pnu) at the begining of bndfp
+    ----
+     locpot: --phispinsym mode: use spin-averaged potential for phi and phidot
+      ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   4.58161   4.58161   0.00000   0.00000
+      ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   4.39268   4.39268   3.94432   3.94432
+    ... (this shows pnu used in locpot).
+    
+    What we can do are
+    
+    1. self-consistent calculations can be performed with --phispinsym
+    
+    2. Even if the self-consistency is spin-dependent phi,phidot,
+       job_ham_phispinsym (see --phispinsym option) gives Hamiltonian, based on the spin-symmetric radial functions.
+       Then the radial functions are calculated from the spin-averaged V0 and pnu.
+    ---
+    I think we can perfrom QSGW calculation if we use the option for lmf,lmfgw
+       (not tested yet). We may need to insert --phispinsym in gwsc script (not yet).
+    I think we can give Hamiltonian based on the spin-averaged phi,phidot
+       even in QSGW self-consistent results without --phispinsym.
+    
+    =====================================================================
+    MEMO for development:
+     =====================================================================
+    At first, note that we have lmf subroutines;
+    --------
+    fp/bndfp.F (main one-iteration loop of band calculation)
+      -mkpot (potential generation)
+      --locpot (MT parts)
+      ---augmat (augmentation matrix: MT-part of Hamiltonian and overlap matrix).
+    Note mkpot is called even in bndfp-sugw-mkpot
+    
+    locpot: gives ov0. ov0 is symmetrized.
+    pnunew: renew pnu---so pnu should symmetrized.
+    bndfp:  pnu is symmetrized at the begining befor mkpot-locpot
+</pre>
+</div>
+</div>
+
+
+
+<div id="outline-container-org7b5cd90" class="outline-2">
+<h2 id="org7b5cd90"><span class="section-number-2">2</span> step1: Get rst (and/or sigm).</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+From ctrl.si (or others like ctrl.fe), you do self-consistent calculations.
+Check pwmode=1 as 
+% const pwmode=1
+      PWMODE={pwmode} 
+in ctrl file
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">lmfa fe
+lmf fe
+</pre>
+</div>
+<p>
+It can be LDA or QSGW, final results are in
+rst.fe (sigm.fe in QSGW in addition to this).
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org6803350" class="outline-2">
+<h2 id="org6803350"><span class="section-number-2">3</span> step2: Band plot with APW+MTO</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Make band plot. We need syml.fe or syml.si
+(you can get it by &gt;getsylm fe; getsyml need to be soft linked to ecalj/GetSyml/getsyml.py).
+</p>
+<pre class="example">
+job_band fe -np 24, or si
+</pre>
+
+
+<p>
+In llmf_band, you can find following lines  at
+</p>
+<pre class="example">
+bndfp: kpt     2 of    97 k=  0.0000 -0.0500  0.0000 ndimh = nmto+napw =    41   28   13
+</pre>
+
+<p>
+This means 28 MTOs and 13 APWs used.
+Try
+</p>
+<pre class="example">
+&gt;grep bndfp nmto fe
+</pre>
+
+<p>
+Note job_band does not change rst file.
+</p>
+
+<p>
+Keep your band plot. For example,
+</p>
+<pre class="example">
+&gt;mkdir PWMODE1
+&gt;cd PWMODE1
+&gt;cp bandplot* PWMODE1
+&gt;cp bnd* PWMODE1
+</pre>
+
+<p>
+You can replot bands by 
+</p>
+<pre class="example">
+&gt;cd PWMODE1
+&gt;gnuplot -p bandplot.isp1.glt
+</pre>
+
+
+<p>
+Current version of band mode generates qplist.dat which contains q point llist for band plot.
+</p>
+
+<p>
+NOTE: Eigenvalues are written as (in Ry)
+</p>
+<pre class="example">
+bndfp: kpt    1 of   97 k jsp=  0.00000  0.00000  0.00000 2 nev=   34
+-3.7314 -3.7314 -3.7314 -0.5675 -0.0092 -0.0091 -0.0091  0.1240  0.1240
+ 1.7952  1.7952  1.7952  2.4145  2.4145  2.4311  2.4311  2.4312  3.1464
+ 3.1465  3.1465  3.7662  4.7800  4.7801  4.7801  6.2200  6.2204  6.3346
+ 6.4887  7.3912  7.3913  7.3914  8.3638  8.3642  8.3648
+</pre>
+</div>
+</div>
+
+
+
+<div id="outline-container-org6575ad3" class="outline-2">
+<h2 id="org6575ad3"><span class="section-number-2">4</span> step3: Band Plot with MTO only</h2>
+<div class="outline-text-2" id="text-4">
+<pre class="example">
+&gt; job_band si -np 4 -vpwmode=0
+</pre>
+
+
+<p>
+Check 'calculations without APW' are good enough or not. (superpose bands in the step2 and step3.)
+(energy bands are plotted by the gnuplot script bandplot.isp*.glt)
+</p>
+
+<p>
+In the case of Si, a little differnce between PMT=APW+MTO and MTO-only.
+Without APWs, we have Band gap is too large by &sim; 0.2eV in the case of pwmode=0.
+(one reason is that we use very localize MTOs in the default setting. or no empty spheres)
+</p>
+
+<p>
+Keep your band plot. For example,
+</p>
+<pre class="example">
+&gt;mkdir PWMODE0
+&gt;cd PWMODE0
+&gt;cp bandplot* PWMODE0
+&gt;cp bnd* PWMODE01
+</pre>
+
+<p>
+You can replot bands by 
+</p>
+<pre class="example">
+&gt;cd PWMODE0
+&gt;gnuplot -p bandplot.isp1.glt
+</pre>
+
+
+<p>
+You can compare two band plot with -vpmode=1 and -vpmode=0 by a gnuplot command as follows.
+gnuplot commands can be
+</p>
+<pre class="example">
+plot \
+"PWMODE0/bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE0/bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE0/bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE0/bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE0/bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE0/bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"PWMODE1/bnd001.spin1" u ($2):($3) lt 2 pt 2 w lp,\
+"PWMODE1/bnd002.spin1" u ($2):($3) lt 2 pt 2 w lp,\
+"PWMODE1/bnd003.spin1" u ($2):($3) lt 2 pt 2 w lp,\
+"PWMODE1/bnd004.spin1" u ($2):($3) lt 2 pt 2 w lp,\
+"PWMODE1/bnd005.spin1" u ($2):($3) lt 2 pt 2 w lp,\
+"PWMODE1/bnd006.spin1" u ($2):($3) lt 2 pt 2 w lp
+pause -1
+</pre>
+<p>
+(you can see the difference in ecalj/MATERIALS/Si_HamMTO/SiPWMODE11vs0.png)
+</p>
+
+
+<p>
+At this point, you can check discrapancy between PMT=MTO+APW and MTO-block only diagonalization.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org4d038f7" class="outline-2">
+<h2 id="org4d038f7"><span class="section-number-2">5</span> step4: Generate PMT Hamiltonian for all mesh points.</h2>
+<div class="outline-text-2" id="text-5">
+<pre class="example">
+&gt;job_ham si -np 24 -np 4
+</pre>
+
+<p>
+See job_ham script.
+HamiltonianPMT contains Hamiltonian and ovarlap matrix in the 1st BZ.
+In the job_ham script, we use full mesh option &#x2013;fullmesh, which means we calculate 
+Hamiltonian of all mesh points, e.g. 64 k point for 4x4x4. IF -np 4, only eigenvalues 64/4=16 k 
+points are shown in the console output( In bndfp.F, we plot only the output of master core).
+</p>
+
+<p>
+Be careful. At the begining of job_ham, we calculate the fermi energy by
+&gt;mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 &#x2013;quit=band &gt; lmf_efermi
+This generate fermi energy file efermi.lmf.
+This is for default pwmode if you don't specify -vpwmode=1.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orge59f1fc" class="outline-2">
+<h2 id="orge59f1fc"><span class="section-number-2">6</span> step 5: Run lmfham1 and Read lm7K/lmfham1.F</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+lmfham1 read <code>HamltonianPMT</code> and <code>HamiltonianPMTinfo</code>.
+Here HamiltonianPMT contains the Hamiltonian and overlap matrix for MTO+APW.
+Look into ecalj/lm7K/lmfham1.F
+</p>
+
+<p>
+You can run lmfham1 only from files
+</p>
+<pre class="example">
+HamiltonianPMT     (hamiltonian and overlap matrix)
+HamiltonianPMTinfo (info lf lattice and  index 
+qplits.dat         (qpoint for which we plot bands).
+</pre>
+
+<p>
+(For example, you put only these files in a directory and run lmfham1)
+Run 
+</p>
+<pre class="example">
+&gt;lmfham1
+</pre>
+
+<p>
+lmfham1 generetes HamiltonianMTO and overlap matrix, and diagonalize it.
+You have to read ecalj/lm7K/lmfham1.F
+</p>
+
+<p>
+This generates "band_lmfham_spin1.dat" (and band_lmfham_spin2.dat for isp=2).
+To plot them, use gnuplot scipt such as
+</p>
+<pre class="example">
+ef=0.2239816400'                                     
+plot \'                                              
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\'         
+"band_lmfham_spin1.dat" u ($1):(13.605*($2-ef)) pt 2'
+</pre>
+<p>
+Here we need to set Fermi energy <code>ef</code>. See L1:qplist.dat to take the Fermi energy for temporay use.
+L1:qpllist.dat is the fermi energy (top of valence) from your last run of job_band).
+(this is shown at the end of console output of lmfham1 for convenience).
+</p>
+
+<p>
+In future, fermi energy should be determined within lmfham1.
+</p>
+
+<ul class="org-ul">
+<li>The PMT index is shown in the console output of lmfham1.F
+Do
+&gt;lmfham1 |grep MHAM
+It shows the Hamiltonian index corresponds to which PMTs.</li>
+</ul>
+
+<p>
+&#x2014;
+In lmfham1.F, we read HamiltonianPMT and HamitonianPMTinfo by call ReadHamPMTinfo(),
+Then we generate real-space Hamiltonian and Ovelap for MTO only by call HamPMTtoHamRsMTO, which
+results in a file HamRsMTO.
+This is readin by call ReadHamRsMTO(). 
+NOTE: for separation in future, we write and read HamRsMTO in lmfham1.
+</p>
+
+<p>
+Then, mainly in the main routine in lmfham1.F, we generate hamm, for k along the k points on symmetry line.
+See the current version of lmfham1.F is with symlcase=.true (you may modify this to any k points).
+And then diagonalize it by "call zhev_tk2" 
+(the subroutine's main inputs are hamm and ovlm, epsovl is for removing basis with poor linear dependency).
+</p>
+
+<p>
+The index of PMT basis is included in HamiltonianPMTInfo. 
+See m_readhamiltonianPMT in lmfham1.F.
+</p>
+<ul class="org-ul">
+<li>ldim: Hamiltonian dimension</li>
+<li>ib_table: site index (site ordering is shown by lmchk).</li>
+<li>l_tabale: l table. m takes -l to l ordering. See ends of jobpdos (showing real space harmonics).</li>
+<li>k_table: k takes 1(EH),2(EH2), or 3(LO).</li>
+</ul>
+<p>
+Ask to takaokotani@gmail.com 
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgf9e798c" class="outline-2">
+<h2 id="orgf9e798c"><span class="section-number-2">7</span> Plan for development. -------------</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+We have to modify HamPMTtoHamRsMTO().
+which is including the energy correction.
+That is, 
+</p>
+<hr />
+<p>
+From Hij(k)^PMT and Oij(k)^PMT,
+we have to generates Hij(k)^MTO and Oij(k)^MTO.
+(we don't need to touch conversion part from k to real). 
+In the current vertion, we simply take the MTO block of PMT Hamiltonians.
+In the next vertion,
+  Hij(k)^PMT &#x2013;&gt; Hij(k)^MTO
+should be corrected.
+</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: takao kotani @ tottori university, Japan</p>
+<p class="date">Created: 2019-11-11 月 16:03</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
