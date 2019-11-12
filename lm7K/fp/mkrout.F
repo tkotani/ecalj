@@ -219,6 +219,7 @@ C --- Start loop over atoms ---
       sumec = 0d0
       sumt0 = 0d0
       if (ipr.ge.30 .and. lrout.gt.0) then
+        write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
         if (nsp .eq. 1) write(stdo,201)
         if (nsp .eq. 2) write(stdo,202)
   201   format(/' mkrout:  Qtrue      sm,loc       local')

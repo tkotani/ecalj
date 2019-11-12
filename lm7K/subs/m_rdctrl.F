@@ -1666,9 +1666,9 @@ c        write(*,*) 'xxxxxxxxxxxxxxxxxxxxxxxxxxx22222222222'
         call mpibc1(idu(:,j),4,2,mlog,'readctrl','idu')
         call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
         call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
-        write(6,"('j idu=',i5,256i5)")j, idu(:,j)
-        write(6,"('j uh =',i5,256f10.5)")j, uh(:,j)
-        write(6,"('j jh =',i5,256f10.5)")j, jh(:,j)
+c        write(6,"('j idu=',i5,256i5)")j, idu(:,j)
+c        write(6,"('j uh =',i5,256f10.5)")j, uh(:,j)
+c        write(6,"('j jh =',i5,256f10.5)")j, jh(:,j)
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgn,nm),pb1(j),
      .  nmin=10,cindx=jj,note='product basis for GW')

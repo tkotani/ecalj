@@ -162,7 +162,7 @@ C ... Local parameters
       w2 = (z-iz)/(iz2-iz)
       w1 = 1-w2
 
-      print *,'conf:xxx iz=',iz,w1,w2,iz,iz2
+      if(iprint()>59) print *,'conf:xxx iz=',iz,w1,w2,iz,iz2
 
 
       lmx = min(lmax,3)

@@ -134,7 +134,7 @@ c     &    ib,ltab(norbmto),ktab(norbmto), offl(norbmto)+1,offl(norbmto)+2*ltab(
       write(ifatomlist,*)nbas
       write(ifatomlist,*)spid
       close(ifatomlist)
-      print *, "SWJ", spid
+c      print *, "SWJ", spid
 c ... reverse maping of offset-index for hamiltonian
       allocate(offlrev(nbas,0:lxx,kxx))
       do iorb=1,norbmto
