@@ -13,7 +13,7 @@ else
 fi
 
 # We introduced {pwmode}. as PWMODE={pwmode}
-rm HamiltonianMTO*
+rm -f HamiltonianPMT*
 #Get efermi.lmf
 echo 'runnnig efermi determination for pwmode=0'
 mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --quit=band -vpwmode=0 --phispinsym > lmf_efermi
@@ -21,9 +21,8 @@ echo 'runnnig hamiltonian generation for pwmode=0'
 mpirun -np $3 ~/ecalj/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0 --phispinsym
 
 # Get Hamiltonian file, namded as HamiltonianMTO
-cat HamiltonianMTO.* >HamiltonianMTO
-rm HamiltonianMTO.* 
+cat HamiltonianPMT.* >HamiltonianPMT
+rm HamiltonianPMT.* 
 
 # Read HamiltonianMTO.
-~/ecalj/lm7K/lmfham
-
+#~/ecalj/lm7K/lmfham1
