@@ -1,0 +1,60 @@
+#+TITLE: Converter between ctrl(or ctrls) and POSCAR. And viewvesta to call VESTA.
+=============================================================
+
+These commands below just treat the crystal structure part of ctrl
+file and POSCAR(for VASP).
+If you see something wrong or inconvenient, let takaokotani@gmail.com know it.
+
+* INSTALL:
+ As a viewer, we  use VESTA (http://jp-minerals.org/vesta/jp/download.html).
+ This is required to invoke viewer by a command viewvesta.py in the followings
+ At the begining of viewvesta.py. We run 'which VESTA' to know where is VESTA.
+
+ ./InstallAll.* contains a line (makelike) to make softlinks for three commands below.
+
+* Usage:
+We now have three commands below. These command uses functions in convert/, 
+so relative path is important.
+
+** viewvesta 
+  A simple utility to invoke VESTA with POSCAR_foo, ctrl.* and ctrls*. 
+
+  You can replace VESTA with any command of a viewer. 
+  (VESTA is a little inconvenient because of its GUI).
+
+  Example to see structre is
+    cd sample
+    viewvesta ctrl.nio
+    viewvesta ctrl.cu2gase2
+    (this calls ctrl2vasp internally; thus POSCAR_cu2gase2 is generated).
+
+** ctrl2vasp
+　Convert POSCAR to ctrl file. For help, type this command without
+  arguments.
+  Example is
+    mkdir TEST
+    cd TEST
+    cp ../sample/ctrl.nio .
+    vasp2ctrl ctrl.nio 
+
+** vasp2ctrl
+  POSCAR file to ctrl. (current version is for Cartesian, but not so difficult if you like Direct).
+  Example
+    mkdir TEST
+    cd TEST
+    cp ../sample/10-Opal.cif.vasp POSCAR_opal
+    vasp2ctrl.py POSCAR_opal
+　  viewvesta.py POSCAR_cugase2
+ OR
+    mkdir TEST
+    cd TEST
+    cp ../sample/ctrl.cu2gase2 .
+    vasp2ctrl.py ctrl.cu2gase2
+　  viewvesta.py POSCAR_cugase2
+　To show bonds, use Edit-Bond in VESTA console
+
+You can test it in your new directory with some files in sample/ directory.
+Crystal structure files sample/STRUC-CIF/*.cif are taken from
+AIST(osaka), http://staff.aist.go.jp/nomura-k/japanese/itscgallary.htm
+
+
