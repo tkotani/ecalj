@@ -820,7 +820,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-            write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E13.4)") qshort,
+            write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E17.9)") qshort,
 !     &        iw,www*2d0,trmat/hartree
      &           iw,www*2d0,hartree*sum(eval_wk)/(znorm)         
             !!! Im[K] [1/Ry] ?

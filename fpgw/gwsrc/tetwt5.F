@@ -13,7 +13,7 @@
      i   nbmx,ebmx,mtet,
      i     wan)                 !
 
-c      use m_keyvalue,only: getkeyvalue
+      use m_keyvalue,only: getkeyvalue
 !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
 !! ------------------------------------------------------------------------------
 !! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
@@ -90,9 +90,10 @@ c---in out -------------------------------
       real(8) :: q(3),
      &   eband1(nband,nqbz), eband2(nband,nqbz),
      &   qbas(3,3),ginv(3,3),efermi,
+     &   efermia, efermib, dmua, dmub,
      &   ecore(nctot), qbzw(3,nqbzw) !(n1+1)*(n2+1)*(n3+1))
       complex(8):: omg
-      logical :: iwgt(nband+nctot,nband+ncc,nqbz,npm)
+      logical :: iwgt(nband+nctot,nband+ncc,nqbz,npm), exb
 c----------------------------------
       integer(4):: itet,ic, ib,jb
       real(8) :: !ek(nband,0:3), ekq(nband,0:3),
@@ -318,6 +319,14 @@ c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
         demax= - 1d10
       endif
 
+      call getkeyvalue("GWinput","defermia",dmua,default=0d0)
+      call getkeyvalue("GWinput","defermib",dmub,default=0d0)
+      call getkeyvalue("GWinput","exband",exb,default=.false.)
+      efermia = efermi + dmua
+      efermib = efermi + dmub
+      write(6,*) "defermia, defermib:", dmua,dmub
+      write(6,*) " efermia,  efermib:", efermia,efermib
+
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
 c        print *,'do 1000 tetwt5 ',itet
@@ -345,8 +354,14 @@ c$$$             write(6,"('kkkkk ', i5,x,i6,' kvec=',3f9.4)") i, itet, kvec(1:3
 c$$$          enddo
 c$$$cccccccccccccccccccccc
 
-          ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
-          ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
+          !!! exchange band ea <--> eb for lindtet6
+          if (exb) then
+             ek_ ( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k
+             ekq_( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k+q
+          else
+             ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
+             ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
+          endif
 
 cccccccccccccccccccccc
 c          write(6,*)'eeeeeeeeek'
@@ -420,9 +435,9 @@ c           jbxmx = noccx_kq + nctot
                   eocc   => ekq_(jb,0:3)
                 endif
 
-                if( minval(eocc  ) <= efermi .and. 
-     &        maxval(eunocc) >= efermi ) then
-                  if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
+                if( minval(eocc  ) <= efermia .and. 
+     &        maxval(eunocc) >= efermib ) then
+                  if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
                   if(job==0 ) then    !takao
                     iwgt(ib,jb,kk(0:3),jpm)= .true.
                     x(0:3) = .5d0*(eocc-eunocc)     ! + omg !Denominator. unit in Hartree.
@@ -444,10 +459,15 @@ c           jbxmx = noccx_kq + nctot
                     endif
                     call lindtet6( 
      i          kkv,kvec,eocc,eunocc,
-     i          x, efermi, 
+     i          x, efermia, efermib, 
      i          frhis, nwhis,  
      o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
 c     m          fermi_dS) ! may2012
+                    do i = 0,3
+                       do ihis = 1,nwhis
+                          if (wtthis2(ihis,i)<0d0) write(6,*) "---aaa wtthis2 negative"
+                       enddo
+                    enddo
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif
@@ -517,7 +537,6 @@ c$$$c cccccccccccccccccccccccccccccccccc
  1100   continue
  1000 continue
       deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
-
 
 !! === Symmetrization of wgt and whw   ===
 !! NOTE: We just enforce the same weight for degenerated bands. 
@@ -700,7 +719,7 @@ Cstop2rx 2013.08.09 kino        stop ' hisrange: wrong'
 
 c------------------------------------------------------------------------
       subroutine lindtet6(
-     i  kkv,kvec, ea, eb, x, efermi,      ! kvec(1:3, 0:3), ea(0:3), x(0:3) 
+     i  kkv,kvec, ea, eb, x, efermia, efermib,      ! kvec(1:3, 0:3), ea(0:3), x(0:3) 
      i  frhis, nwhis,  
      o  wtthis ) 
 c     m  fermi_ds)
@@ -716,7 +735,7 @@ ctakao/Feb/2002 ----------------------------------------------------------------
       integer(4) :: ieaord(1:4),i,isig,n,itmp,ix
       real(8)    ::  kvec(1:3, 1:4), x(1:4), ea(1:4),
      &  kk(3,1:8),xx(1:8),ee(1:4), am(3,3), eb(1:4),ebf(1:8), !ebfKx(1:4),Kx(1:3,4),xKx(4),
-     &  vcell,efermi,etest ,  kkv(3,4)
+     &  vcell,efermi,etest ,  kkv(3,4), efermia, efermib
       integer(4):: nwhis
       real(8):: frhis(nwhis+1),wtthis(nwhis,4)
       logical:: chkwrt=.false.
@@ -725,7 +744,7 @@ c-------------------------------------------------------------------------------
       if(chkwrt) then
         print *, ' lindtet6: *****************************'
         write(6,"(' i=',i3,' x ea eb =',3f10.5)") 
-     &  (i, x(i), ea(i)-efermi, eb(i)-efermi,i=4,1,-1)
+     &  (i, x(i), ea(i)-efermia, eb(i)-efermib,i=4,1,-1)
       endif
 
 #ifdef EXPAND_SORTEA
@@ -756,9 +775,9 @@ c            isig= -isig
       ! the order E_4,E_3,E_2,E_1 This suits for Rath&Freeman.
       kk(1:3,1:4) = kvec(1:3,ieaord(1:4))
       ! 4 corners  denoted by kvec(:,1:4), ee(1:4), and xx(1:4)
-      ee (1:4)    = ea (ieaord(1:4)) - efermi
+      ee (1:4)    = ea (ieaord(1:4)) - efermia
       xx (1:4)    = x  (ieaord(1:4))
-      ebf(1:4)    = eb (ieaord(1:4)) - efermi
+      ebf(1:4)    = eb (ieaord(1:4)) - efermib
 
 ccccccccccccc
 c      write(6,"(' i iea=',2i4)") (i,ieaord(i),i=1,4)
