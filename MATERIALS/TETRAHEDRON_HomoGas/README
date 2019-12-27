@@ -1,0 +1,63 @@
+This shows how to use the tetrahedron method.
+The main rouitne is hhomogas.m.F. 
+
+Please run job file (it will take a minnute or so in your lattop.)
+Look into job file before execting it.
+When job finishes, you will get x0homo.dat 
+(the original results is saved as x0homo.result.dat). 
+
+Let me review the job.
+After lmfa, we do lmf calculaiton. It is for the empty sphere 
+(no electrons for Z=0 atom. See ctrl file). The lattice is taken from
+bulk Li case. We have a band plot on the way of the job.
+Then qg4gw gives the q points and tetrahedron division information. 
+
+Then we finally run the key routine hhomogas.m.F. Please look into this file.
+Some parameter settings are fixed in the code. So you may need to
+change them for your purpose (e.g. change fermi energy).
+
+Our final results is the plot by egaschi0.glt for the final results
+x0homo.dat, which contains the real and imag part of the
+non-interacting Lindhard polarization function x0.
+You should get a smooth good result for enlarged n1n2n3 in GWinput
+(it gets closer to the analytic result of Lindhard. See Fetter & Walecka, for example).
+As egaschi0.glt show only a part of x0homo.dat,
+you may need to edit egaschi0.glt to show more data in x0homo.dat.
+
+For enlarged n1n2n3, you may run only a few cycles of do 1001 loop to
+reduce computational time (   do 1001 iq = iqxini,iqxend ).
+The loop index iq corresponds to the irreducible BZ q points for which we calculate x0.
+
+
+We use single band case for any q (we take only the lowest
+band in this example). Thus results are correct only for small q case,
+in the current setting of hhomogas.m.F
+
+
+do 1001 iq loop
+  call shortn3 shows equivalent shortest q vectors (pull back to the 1st BZ).
+  ngc=1 means we only use G=0. 
+
+   These gives energy qgsq = q**2/2m.
+          call read_qgband(alat,plat,  qbz(:,kx),ngc,ngveccB,is,qgsq1(1:ngc,kx),qsh1)
+          call read_qgband(alat,plat,q+qbz(:,kx),ngc,ngveccB,isf,qgsq2(1:ngc,kx),qsh2)
+
+   This return whw (tetrahedron weight), and related quantities.
+        call gettetwt(q,iq, is,isf,nwgt(:,iq),frhis,nwhis,npm,
+     i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
+     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+     i            nwf,ebmx,mtet,eibzmode) !nov2016
+
+   We accumulate imaginary part along histgram bins along real axis.
+            rcxq(1:nmbas1,1:nmbas2,iw,jpm) = rcxq(1:nmbas1,1:nmbas2,iw,jpm) + imagweight
+
+
+   Hilbert transformation. zxq (complex(8), along real axis), and zxqi (complex(8), along imag axis).
+       call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
+
+
+   Final results written down to x0homo.dat file by
+       do iw=nw_i,nw
+         write(ifz, "(2i4,3f9.4,x,f10.5,E13.5,x,2E13.5)") iq,iw,q,qlength,freq_r(iw), zxq(1,1,iw)*hartree
+       enddo
+1001 end

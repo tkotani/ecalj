@@ -1,0 +1,40 @@
+# #########################################
+# ### Im[K]: Stoner excitation
+set term postscript enhanced color eps
+set output "ni9_kmat.eps"
+set multiplot layout 1,2
+
+set key right top; set grid; set zeroaxis
+set xrange[0:8]
+set xlabel "{/Symbol w} [eV]"; set ylabel "Im[K] [1/eV]"
+ 
+plot "wan_ChiPMz.mat" every :::0::0 u (13.6*$5):($7) lw 4 lt 1  ti "q=0/6" w l,\
+     "wan_ChiPMz.mat" every :::2::2 u (13.6*$5):($7) lw 4 lt 2  ti "q=2/6" w l,\
+     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($7) lw 4 lt 3  ti "q=4/6" w l
+   
+# ### Re[K]
+set ylabel "Re[K] [1/eV]"
+plot "wan_ChiPMz.mat" every :::0::0 u (13.6*$5):($6) lw 4 lt 1  ti "q=0/6" w l,\
+     "wan_ChiPMz.mat" every :::2::2 u (13.6*$5):($6) lw 4 lt 2  ti "q=2/6" w l,\
+     "wan_ChiPMz.mat" every :::4::4 u (13.6*$5):($6) lw 4 lt 3  ti "q=4/6" w l
+
+#    
+unset multiplot
+# #########################################
+# ### Im[R]: magnon
+set term postscript enhanced color eps
+set output "ni9_rmat.eps"
+set multiplot layout 2,1
+
+set key right bottom; set grid; set ytics
+set xlabel "{/Symbol w} [meV]"; set ylabel "Im[R] [1/eV]"
+
+set xrange[-0.02:1000]; set yrange[-500:0] 
+plot "wan_ChiPMr.mat" every :::0::0 u (13600*$5):($7) lw 4 lt  2  ti " 0/6" w l,\
+     "wan_ChiPMr.mat" every :::1::1 u (13600*$5):($7) lw 4 lt  1  ti " 1/6" w l,\
+     "wan_ChiPMr.mat" every :::2::2 u (13600*$5):($7) lw 4 lt  3  ti " 2/6" w l
+    		      	    	      		      	 
+set xrange[-0.01:2000]; set yrange[-20:0]
+plot "wan_ChiPMr.mat" every :::3::3 u (13600*$5):($7) lw 4 lt  2  ti " 3/6" w l,\
+     "wan_ChiPMr.mat" every :::4::4 u (13600*$5):($7) lw 4 lt  1  ti " 4/6" w l,\
+     "wan_ChiPMr.mat" every :::5::5 u (13600*$5):($7) lw 4 lt  3  ti " 5/6" w l

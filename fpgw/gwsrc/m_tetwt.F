@@ -22,16 +22,8 @@
       subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm, 
      i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
      i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
-     i   nbmx,ebmx,mtet,eibzmode) !nov2016
-
-c$$$cccccccccccccccccccccccccccc
-c$$$      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
-c$$$     &   MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
-c$$$     &   MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
-c$$$     &   MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
-c$$$     &   MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
-c$$$cccccccccccccccccccccccccccc
-
+     i   nbmx,ebmx,mtet,eibzmode, !nov2016
+     i   wan ) !Jan2019 okumura's option
 !! INPUT DATA; read only
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
@@ -62,6 +54,8 @@ c      use m_ReadEfermi,only: readefermi,ef
       integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
       real(8),allocatable:: ecore_(:,:)
       integer:: ix
+      logical,optional:: wan
+      logical:: wan1
 
       if(nctot==0) then
         allocate(ecore_(1,2))    !this is dummy
@@ -110,7 +104,8 @@ c      close(ifief)
 c      call readefermi() !comment out,since ef is passed nov2016 
 ccccccccccccccccc
 c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz_mtet
-
+      wan1=.false.
+      if (present(wan) .and. wan) wan1=.true.
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -123,10 +118,11 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
      i ihw,nhw,jhw,             ! job=1    not-used
      o whw,                     ! job=1    not-used
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
-     i   nbmx,ebmx,mtet) !nov2016
+     i   nbmx,ebmx,mtet, !nov2016
+     i     wan1 ) !Jan2019 for Wannier
  
-      deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
-      nbnbx = maxval(nbnb(1:nqbz,1:npm)) !nbnbx = nbnbxx
+      deallocate(ibjb,ihw,jhw,nhw,whw) !dumm
+      nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
       if(debug) write(6,*)' nbnbx=',nbnbx
       allocate(  n1b(nbnbx,nqbz,npm)
      &          ,n2b(nbnbx,nqbz,npm))
@@ -224,6 +220,9 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       job=1
       write(6,*) 'goto tetwt5x_dtet4 job=',job
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
+
+      wan1=.false.
+      if (present(wan) .and. wan) wan1=.true.
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -236,7 +235,8 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
      i ihw,nhw,jhw,             ! job=1
      o whw,                     ! job=1
      i iq,is,isf,nqibz_mtet, eibzmode,nwgt,
-     i   nbmx,ebmx,mtet) !nov2016
+     i nbmx,ebmx,mtet, !nov2016
+     i wan1)           !Jan2019
       deallocate(demin,demax,iwgt,nbnbtt)
 
 !! ======TetrahedronWeight_5 block end =========

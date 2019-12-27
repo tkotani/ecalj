@@ -1,4 +1,4 @@
-      program hmaxloc
+
 c-------------------------------------------------------------
 c construct maximally localized Wannier functions
 c
@@ -18,6 +18,7 @@ c  May 2004 Takashi Miyake, from hwmat.f
 c------------------------------------------------------------
       use m_readqg,only: readngmx,readqg
       use m_readeigen,only: init_readeigen,init_readeigen2,readeval
+      use m_hamindex,only: qtt,nqtt
       use m_read_bzdata,only: read_bzdata,
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv, !qbasmc,
      &     dq_,qbz,wbz,qibz,wibz,qbzw,
@@ -79,6 +80,10 @@ c
       real(8):: qlat(3,3)
       logical ::nocore
 
+c     okumura Sep,2017
+      integer(4):: ifdorb,iiwf
+      integer(4),allocatable::idorb(:),idorb_in(:) !check
+      
 c space group infermation 
       integer(4),allocatable :: iclasst(:), invgx(:), miat(:,:)
       real(8),allocatable    :: tiat(:,:,:),shtvg(:,:)
@@ -123,7 +128,7 @@ c for maxloc
      c             eomin,eomax,eimin,eimax,
      c             qwf0(3),dqwf0(3),qks(3),q0(3)
       complex(8),allocatable:: uumat(:,:,:,:),evecc(:,:),eveccs(:,:),
-     c                         amnk(:,:,:),cnk(:,:,:),umnk(:,:,:)
+     c     amnk(:,:,:),cnk(:,:,:),umnk(:,:,:),evecc1(:,:,:),evecc2(:,:,:)
       real(8),allocatable:: ku(:,:),kbu(:,:,:),eunk(:,:),eval(:),evals(:),
      c                      eks(:),rt(:,:),rt8(:,:,:),qbz0(:,:)
       integer(4):: nbb,isc,ifq0p,
@@ -164,7 +169,7 @@ c step 3
       complex(8),allocatable:: hrotk(:,:,:),hrotr(:,:,:),hrotkp(:,:)
      c                       , hrotkps(:,:)
       real(8):: e1,e2,rcut
-      integer(4):: iband,ifbnd,iftb,ifsh,nsh,nsh1,nsh2
+      integer(4):: iband,ifbnd,iftb,ifsh,nsh,nsh1,nsh2,iffb
       logical :: lsh
       real(8),allocatable :: rws(:,:),drws(:)
       integer(4),allocatable:: irws(:)
@@ -172,12 +177,12 @@ c step 3
 
 c ixc=3
       character(20)::filename
-      complex(8),allocatable::  hrotrcut(:,:,:)
+      complex(8),allocatable::  hrotrcut(:,:,:),evecc_w(:,:,:,:)
       integer:: ifh
       real(8):: heps ,r_v
 
       real(8)::qold(3)
-      real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:)
+      real(8),allocatable:: xq(:),eval1(:,:),eval2(:,:),eval3(:,:),eval_w(:,:,:)
 
       integer::npin 
       real(8):: qiin(3),qfin(3)
@@ -220,7 +225,7 @@ c     &    ,wibz(:),qbzw(:,:)
 c       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
 c     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
 c-----------------------------------------------------------------
-      call read_BZDATA()
+      call read_Bzdata()
       write(6,*)' nqibz ngrp=',nqibz,ngrp
       write(6,*)' nqbz  =',nqbz
 c      write(6,*)  qbz 
@@ -260,9 +265,9 @@ c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:),  symgg(:,:,:) ! symgg=w(igrp),fre
 c-----------------------------------------------------------------------
 
 ccccccccccccccccccccccccccccccccccccccccccccc
-      do i=1,natom
-       print *,'  iatom, spid= ',i,spid(i)
-      enddo
+c$$$      do i=1,natom
+c$$$       print *,'  iatom, spid= ',i,spid(i)
+c$$$      enddo
 ccccccccccccccccccccccccccccccccccccccccccccc
 
 
@@ -300,7 +305,7 @@ c>> read dimensions of wc,b,hb
       if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
 
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
-
+      
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
 c     because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
@@ -401,7 +406,12 @@ ctm, 080222
           iq = iq + 1
           q(:,iq) = qi(:,i) + (qf(:,i)-qi(:,i))*dble(j)/dble(np(i)-1)
           if(iq>1) then
-            xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
+             !!! xq may be too long if q is outside of 1stBZ
+             if(0.2 < dsqrt(sum((q(:,iq)-qold)**2))) then !!maybe same point (must be checked)
+                xq(iq)= xq(iq-1)
+             else
+                xq(iq)= xq(iq-1) + dsqrt( sum((q(:,iq)-qold)**2) )
+             endif
           endif
           qold=q(:,iq)
         enddo ! j
@@ -446,12 +456,50 @@ c------------
 c input parameters specific to MAXLOC
       call s_read_Worb()
 
-
+      allocate(idorb(nwf)) !!okumura
+      allocate(idorb_in(nwf))
+      idorb=-1
+      iiwf=0
+      
       do iclass2=1,nclass_mlwf
         write(*,*)'output:',iclassin(iclass2), nwf
      & ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
-      enddo
+ccc okumura
+        do iwf=1,nbasclass_mlwf(iclass2)
+           iiwf=iiwf+1
+           if (cbas_mlwf(iwf,iclass2) <= 1) then
+              idorb(iiwf)=0     !s
+           elseif (cbas_mlwf(iwf,iclass2) <= 4) then
+              idorb(iiwf)=1     !p
+           elseif (cbas_mlwf(iwf,iclass2) <= 9) then
+              idorb(iiwf)=2     !d
+           elseif (cbas_mlwf(iwf,iclass2) <= 16) then
+              idorb(iiwf)=3     !f
+           elseif (cbas_mlwf(iwf,iclass2) <= 25) then
+              idorb(iiwf)=4     !g
+           endif
+           print *,"checkorb: iiwf,idorb(iiwf)",iiwf,idorb(iiwf)
+        enddo
 
+      enddo
+      ifdorb=ifile_handle()
+c      open(ifdorb,file="worb_list.d",form="unformatted")
+      open(ifdorb,file="Worb2lorb.d",form="unformatted")
+      write(ifdorb) idorb(1:nwf)
+      write(ifdorb) nclass_mlwf
+      write(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
+      close(ifdorb)
+
+c$$$      ifdorb=ifile_handle()
+c$$$      open(ifdorb,file="Worb2lorb.d",form="formatted")
+c$$$      read(ifdorb,"(I4)",ADVANCE='NO') idorb_in(1:nwf)
+c$$$      do iwf=1,nwf
+c$$$         print *,"idorb check, iwf,idorb",iwf,idorb_in(iwf)
+c$$$      enddo
+c$$$      close(ifdorb)
+
+ccc end okumura
+      
       call s_cal_Worb()
 
       allocate (r0g(nphix,nwf), wphi(nphix,nwf))
@@ -460,21 +508,66 @@ c input parameters specific to MAXLOC
       wphi = 1d0
 
 
-
-      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
-     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
-     &    eimin,eimax,itin_i,itin_f,
-     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
+!! Read parameters in GWinput. expand wan_input
+c      call wan_input(leout,lein,lbin,ieo_swt,iei_swt,
+c     &    eomin,eomax,itout_i,itout_f,nbbelow,nbabove,
+c     &    eimin,eimax,itin_i,itin_f,
+c     &    nsc1,nsc2,conv1,conv2,alpha1,alpha2,rcut)
 c
-
-cskino
+      ieo_swt = 0
+      eomin   = 0d0
+      eomax   = 0d0
+      itout_i = 0
+      itout_f = 0
+      iei_swt = 0
+      eimin   = 0d0
+      eimax   = 0d0
+      itin_i  = 0
+      itin_f  = 0
+      call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
+      call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
+      call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
+      if (leout) then
+         call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )  
+         call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )  
+         if (eomin.gt.eomax) call rx('hmaxloc: eomin > eomax')
+         ieo_swt = 1
+      else
+         call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )  
+         call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )  
+         if (itout_i.gt.itout_f) call rx('hmaxloc: itout_i > itout_f')
+      endif
+      if (lein) then
+         call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )  
+         call getkeyvalue("GWinput","wan_in_emax",eimax,default=-999d0 )  
+         if (eimin.gt.eimax) call rx('hmaxloc: eimin > eimax')
+         iei_swt = 1
+      endif
+      if (lbin) then
+         call getkeyvalue("GWinput","wan_in_bmin",itin_i,default=999 )  
+         call getkeyvalue("GWinput","wan_in_bmax",itin_f,default=-999 )  
+         if (itin_i.gt.itin_f) call rx('hmaxloc: itin_i > itin_f')
+         iei_swt = 2
+      endif
+      call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)  
+      call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)  
+      call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)  
+      call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)  
+      call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)  
+      call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)  
+      call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)  
+      call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)  
+      call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)  
+!     
+      
+c     skino
       r_v=rcut
       call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v) 
       call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0) 
       write(*,*) 'mloc.heps ', heps 
-cekino
-
-
+c     ekino
+      
+      
 cc --- read LDA eigenvalues
       ntq = nwf
 cc     ntp0=ntq
@@ -493,7 +586,7 @@ c      deallocate(eqt)
 
 c --- info
       call winfo(6,nspin,nq,ntq,is,nbloch
-     &    ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
+     &     ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
 
 c
       iii=ivsumxxx(irk,nqibz*ngrp)
@@ -624,10 +717,10 @@ c energy window
      o             leout,lein)
 !      call chk_ewindow(ifbb,is,nspin,nqbz,nbb,iko_ix,iko_fx)
 
-cccccccccccccccccccccc
-c      do iq=1,nqbz
-c      write(6,"('iiii: iq and internal window region=',3i5)")iq,iki_i(iq),iki_f(iq)
-c      enddo
+ccccccccccccccccccccccc
+      do iq=1,nqbz
+      write(6,"('iiii: iq and internal window region=',3i5)")iq,iki_i(iq),iki_f(iq)
+      enddo
 cccccccccccccccccccccc
 
 c read uu-matrix
@@ -876,7 +969,7 @@ c end of iq-loop
          enddo   
 
 
-
+         
 c update Mmn ([1] eq.61)
          call updt_mmn(umnk,mmn0,ikbidx,
      d                 nwf,nqbz,nbb,
@@ -944,14 +1037,18 @@ c open file
       if (is .eq. 1) then
          ifbnd = iopen('bnds.maxloc.up',1,-1,0)         
          iftb  = iopen('bnds.tb.up',1,-1,0)         
+         iffb  = iopen('bnds.fb.up',1,-1,0)
       else
          ifbnd = iopen('bnds.maxloc.dn',1,-1,0)         
-         iftb  = iopen('bnds.tb.dn',1,-1,0)         
+         iftb  = iopen('bnds.tb.dn',1,-1,0)
+         iffb  = iopen('bnds.fb.dn',1,-1,0)         
       endif
       write(ifbnd,*)nq
       write(ifbnd,*)nwf
       write(iftb,*)nq
       write(iftb,*)nwf
+      write(iffb,*)'#',nq
+      write(iffb,*)'#',nwf
 c allocate
       if(allocated(hrotk)) deallocate(hrotk,hrotkp,evecc,eval)
       allocate (hrotk(nwf,nwf,nqbz), ! hrotr(nwf,nwf,nqbz),
@@ -1049,7 +1146,8 @@ c         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
      i                 iq,qbze(1:3,iq),umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
-      enddo
+          write(6,*)"iq is",iq,is
+       enddo
 c      write(6,*)'eeeeeeeee'
       deallocate(qbze)
 ccc          write(*,990)'iq =',iq,qbz(1:3,iq)
@@ -1085,7 +1183,7 @@ c --- Readin nlam index
       write(ifh)pos
       write(ifh)ef 
       write(ifh)nwf,nrws,n1,n2,n3
-      write(ifh) irws,rws,hrotr, ibasiwf
+      write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura Aug28,2017
       close(ifh)
 
       ifh = ifile_handle()
@@ -1097,51 +1195,164 @@ c --- Readin nlam index
 
       close(ifh)
 
+!! TEST okumura: iq=1,nqbz
+c$$$      !data list for wannier
+c$$$      ifh=ifile_handle()
+c$$$      open(ifh,file="wan4chi.d",form="unformatted")
+c$$$      write(ifh) nwf,nspin,nqtt
+c$$$      close(ifh)
+c$$$
+c$$$      !generate eigenvalue and eigenvector of Wannier Hamiltonian
+c$$$      write(6,*) 
+c$$$      if (is==1) allocate(eval_w(nwf,nqtt,nspin),evecc_w(nwf,nwf,nqtt,nspin))
+c$$$      do iq = 1,nqbz
+c$$$         write(6,*)' got get_hrotkp_ws iq =',iq
+c$$$         call get_hrotkp_ws(hrotr,rws,drws,irws,qtt(:,iq),
+c$$$     d                     nwf,nqtt,nrws,
+c$$$     o                     hrotkp)
+c$$$         call diag_hm(hrotkp,nwf,eval,evecc)
+c$$$         eval_w(1:nwf,iq,is)=eval
+c$$$         evecc_w(1:nwf,1:nwf,iq,is)=evecc
+c$$$      enddo
+c$$$
+c$$$      if(is==2) then
+c$$$         ifh=ifile_handle()
+c$$$         open(ifh,file='EValue_w',form='unformatted')
+c$$$         write(ifh) nwf,nqtt,nspin
+c$$$         write(ifh) eval_w(1:nwf,1:nqtt,1:nspin)
+c$$$         close(ifh)
+c$$$
+c$$$         ifh=ifile_handle()
+c$$$         open(ifh,file='EVec_w',form='unformatted')
+c$$$         write(ifh) nwf,nqtt,nspin
+c$$$         write(ifh) qtt(1:3,1:nqtt)
+c$$$         write(ifh) evecc_w(1:nwf,1:nwf,1:nqtt,1:nspin)
+c$$$         close(ifh)
+c$$$      endif
+c$$$
+c$$$      do iwf=1,nwf
+c$$$         write(6,*) "-20170427: iwf=",iwf
+c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,1))**2.0)
+c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
+c$$$      enddo
+     !! end okumura
 
+!! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
+      !!! qtt -> q, nqtt -> nqbz     
+      ! data list for wannier
+      ifh=ifile_handle()
+      open(ifh,file="wan4chi.d",form="unformatted")
+      write(ifh) nwf,nspin,nqbz
+      close(ifh)
+
+      ! generate eigenvalue and eigenvector of Wannier Hamiltonian
+      ! Index:: evecc_w (orbital,band,q-point,spin) 
+      write(6,*) 
+      if (is==1) allocate(eval_w(nwf,nqbz,nspin),evecc_w(nwf,nwf,nqbz,nspin))
+      do iq = 1,nqbz
+         write(6,*)' got get_hrotkp_ws iq =',iq
+         call get_hrotkp_ws(hrotr,rws,drws,irws,qbz(:,iq),
+     d                     nwf,nqbz,nrws,
+     o                     hrotkp)
+         call diag_hm(hrotkp,nwf,eval,evecc)
+         eval_w(1:nwf,iq,is)=eval
+         evecc_w(1:nwf,1:nwf,iq,is)=evecc
+      enddo
+
+      if(is==2) then
+         ifh=ifile_handle()
+         open(ifh,file='EValue_w',form='unformatted')
+         write(ifh) nwf,nqbz,nspin
+         write(ifh) eval_w(1:nwf,1:nqbz,1:nspin)
+         close(ifh)
+         ifh=ifile_handle()
+         open(ifh,file='EVec_w',form='unformatted')
+         write(ifh) nwf,nqbz,nspin
+         write(ifh) qbz(1:3,1:nqbz)
+         write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
+         close(ifh)
+      endif
+
+      do iwf=1,nwf
+         write(6,*) "-20170427: iwf=",iwf
+         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,1))**2.0)
+         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
+      enddo
+     !! end okumura
+
+      
 !! other k-points
       write(ifbnd,*)ef,' ef'
       write(iftb,*)ef,' ef'
+      write(iffb,*)'#',ef,' ef'
       if (lsh) write(ifsh,*)ef,' ef'
-      allocate(eval1(nwf,nq),eval3(nwf,nq))
-      if(lsh) allocate(eval2(nwf,nq))
+      allocate(eval1(nwf,nq),eval3(nwf,nq),evecc1(nwf,nwf,nq))
+      if(lsh) allocate(eval2(nwf,nq),evecc2(nwf,nwf,nq))
+
       do iq = 1,nq
-c         write(6,*)' got get_hrotkp_ws iq =',iq
+c     write(6,*)' got get_hrotkp_ws iq =',iq
 c (3-3) Hrot_mn(k')
           call get_hrotkp_ws(hrotr,rws,drws,irws,q(:,iq),
      d                     nwf,nqbz,nrws,
      o                     hrotkp)
 c (3-4) diagonalize
           call diag_hm(hrotkp,nwf,eval,evecc)
+ccccccccccccccccccccccccccccccccccccccccccc
+c$$$     do ib=1,nwf
+c$$$          write(*,*) '----------------------------------------------'
+c$$$          do j=1,nwf
+c$$$             write(*,*) 'test',evecc(1,1)
+c$$$          enddo
+c$$$          do j=1,nwf
+c$$$             write(*,*) 'sumcheck',sum(abs(evecc(:,j)**2))
+c$$$          enddo
+c$$$     enddo
+Ccccccccccccccccccccccccccccccccccccccccccccc
           eval1(1:nwf,iq)=eval
-c (3-4) diagonalize  -- Small Hamiltonian --
+          evecc1(1:nwf,1:nwf,iq)=evecc
+c     (3-4) diagonalize  -- Small Hamiltonian --
           if (lsh) then
              hrotkps(1:nsh,1:nsh) = hrotkp(nsh1:nsh2,nsh1:nsh2)
              call diag_hm(hrotkps,nsh,evals,eveccs)
              write(ifsh,*)'iq =',iq
              write(ifsh,990)q(1:3,iq)
              eval2(1:nsh,iq)= evals(1:nsh)
+             evecc2(1:nwf,1:nwf,iq)=eveccs
           endif                 ! lsh
 c (3-3) Hrot_mn(k')  -- Tight-binding ---
           call get_hrotkp_tb_ws(rcut,plat,alat,
      i         hrotr,rws,drws,irws,q(:,iq),  ibasiwf,pos,natom,
      d         nwf,nqbz,nrws,
      o         hrotkp)
+
 c     (3-4) diagonalize -- Tight-binding --
           call diag_hm(hrotkp,nwf,eval,evecc)
           eval3(1:nwf,iq)=eval
-      enddo
-!     ! write eval july2014takao
-      do iband = 1,nwf
+
+       enddo
+       do iband = 1,nwf
          do iq = 1,nq
-            write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+            write(ifbnd,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )")
      &           iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
-            write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )") 
+            write(iftb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' !eee! x eval-ef(ev) iband' )")
      &           iq,q(1:3,iq),  xq(iq),(eval3(iband,iq)-ef)*rydberg(),iband
+
+            write(iffb,"(i5,3f13.5,'  ',f13.6,f13.6,i5,' ')",ADVANCE='NO') 
+     &           iq,q(1:3,iq),  xq(iq),(eval1(iband,iq)-ef)*rydberg(),iband
+            do iwf=1,nwf
+               write(iffb,"(f13.6)",ADVANCE='NO')
+     &              (abs(evecc1(iwf,iband,iq)))**2 
+            enddo
+            write(iffb,*)            
          enddo
          write(ifbnd,*)
          write(iftb,*)
+         write(iffb,*)
+         write(iffb,*)
       enddo
-      deallocate(eval1,eval3)
+
+!     write(6,*)"--- check !!! nq:",nq !! nq=84 (lsmo)
+      deallocate(eval1,eval3,evecc1)
 
       if(lsh) then
          do iband = 1,nsh
@@ -1154,9 +1365,9 @@ c     (3-4) diagonalize -- Tight-binding --
       call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspin,natom,nwf,nqbz,nrws)
       deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, 
      &           ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
-      if (lsh) deallocate(hrotkps,eveccs,evals)
+      if (lsh) deallocate(hrotkps,eveccs,evals,evecc2)
       close(ifbnd)
-c end of loop over spin
+c     end of loop over spin
  1000 continue
  950  format(a14,3f23.16)
  990  format(3f12.6)

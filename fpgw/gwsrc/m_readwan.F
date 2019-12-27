@@ -178,7 +178,7 @@ c--------------------------------
       complex(8), intent(out) :: evc_w(nwf,nwf)
 
       integer(4):: iq,iqindx,i
-      real(8):: qu(3)
+      real(8):: qu(3), shift_ev
       
       if(init) call rx('wan_readeval: wan_readeigen should be called')
       call iqindx2_ wan(q, iq, qu) !qu is used q. q-qu is a G vector.
@@ -188,8 +188,12 @@ c$$$     &     iq,iqimap(iq),qu
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,1)
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
 
+      !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
+      call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+      if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
       !!! return wannier eigenvalue : ev_w
-      ev_w(1:nwf) = eval_w(1:nwf,iq,isp)
+
+      ev_w(1:nwf) = eval_w(1:nwf,iq,isp) + shift_ev/13.605693009
       !ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)
       !!! return wannier eigenvalue : evc_w(orbital,band)
       evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iq,isp)
@@ -289,16 +293,16 @@ c---------------------------------------
       ifscrv=ifile_handle()
       open(ifscrv,file="Coulomb_v.UP",form="formatted") !only up
 
-      !!! write direct index (ijkl)
-      ifd=ifile_handle()
-      open(ifd,file="ijkl_direct.d",form="formatted")
-      !!! write exchange index (ijkl)
-      ife=ifile_handle()
-      open(ife,file="ijkl_exchange.d",form="formatted")
-      !!! write all index (i,j,k,l --> ijwf,klwf)
-      ifa=ifile_handle()
-      open(ifa,file="ijkl_all.d",form="formatted")
-      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
+c$$$      !!! write direct index (ijkl)
+c$$$      ifd=ifile_handle()
+c$$$      open(ifd,file="ijkl_direct.d",form="formatted")
+c$$$      !!! write exchange index (ijkl)
+c$$$      ife=ifile_handle()
+c$$$      open(ife,file="ijkl_exchange.d",form="formatted")
+c$$$      !!! write all index (i,j,k,l --> ijwf,klwf)
+c$$$      ifa=ifile_handle()
+c$$$      open(ifa,file="ijkl_all.d",form="formatted")
+c$$$      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
       
 !     read Screening W, V
       write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
@@ -351,13 +355,13 @@ c$$$            if (idorb(iwf)==idorb(jwf) .and. idorb(kwf)==idorb(lwf)) then !!
 c         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf))
             
 
-         !!! write index i,j,k,l ---> ijwf,klwf
-         if (iwf==jwf .and. kwf==lwf) then
-            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
-         elseif (iwf==kwf .and. jwf==lwf) then
-            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
-         endif
-         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
+c$$$         !!! write index i,j,k,l ---> ijwf,klwf
+c$$$         if (iwf==jwf .and. kwf==lwf) then
+c$$$            write(ifd,"('ijwf,klwf=',2i6)") ijwf,klwf
+c$$$         elseif (iwf==kwf .and. jwf==lwf) then
+c$$$            write(ife,"('ijwf,klwf=',2i6)") ijwf,klwf
+c$$$         endif
+c$$$         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
          
  4004 continue
  4003 continue
@@ -365,6 +369,7 @@ c         write(6,"('ijklmag:',4I3,2f9.4)") iwf,jwf,kwf,lwf,abs(scrw_(ijwf,klwf)
  4001 continue
       close(ifd)
       close(ife)
+      close(ifa)
       close(ifscrv)
       close(ifscrwv)
 
@@ -410,7 +415,7 @@ c$$$         print *,"tttt",nclass_mlwf,nbasclass_mlwf
 
 c---------------------------------------
       !!!identify if iwf,jwf,kwf,lwf is derived from same MagAtom
-      !!! if not so, W=0 (or K=0) : return logical iwfmag=F
+      !!! if not so, W=0 (or K=0) : return iwfmag=.False.
       subroutine checkorb2(iwf_in,jwf_in,kwf_in,lwf_in,iwfmag) 
       implicit none
       integer,intent(in)  ::iwf_in,jwf_in,kwf_in,lwf_in
@@ -459,13 +464,50 @@ c---------------------------------------
       if (.not. skip) iwfmag = .True.
 
       end subroutine checkorb2
+c---------------------------------------
+      !!!identify iwf is from the intended atom(iddmat)
+      !!! if not so, return intended_iwf = .False.
+      !!! Now we can choose only 1 atom. It should be updated. Aug28,2019 Okumura
+      !!! it is useful to combine checkorb for identifying the intended orbital and atom
+      subroutine checkorb3(iwf_in,iddmat,intended_iwf) 
+      implicit none
+      integer,intent(in)  ::iwf_in
+      integer(8),intent(in) ::iddmat
+      logical(8),intent(out) ::intended_iwf
+      integer::iclass,r_mlwfs,r_mlwff
+
+      if (sw1) call rx("checkorb3: call checkorb in advance")
+      
+      natom=0
+      intended_iwf=.False.
+
+ccc Example: Cu2MnAl
+ccc Cu1: 1 2 3 4 5 6 7 8 9; nbasclass_(1)=9
+ccc Cu2: 1 2 3 4 5 6 7 8 9; nbasclass_(2)=9
+ccc Mn : 1 2 3 4 5 6 7 8 9; nbasclass_(3)=9
+ccc Al : 1 2 3 4          ; nbasclass_(4)=4
+ccc if we want to extract Mn3d
+ccc r_mlwfs = (9+9), r_mlwff = (9+9+9) --> 18 < iwf <= 27 is a requirement
+ccc 
+      
+!!!   iwf_in comes from (r_mlwfs < iwf <= r_mlwff)
+      r_mlwfs=sum(nbasclass_mlwf(1:iddmat-1))
+      r_mlwff=sum(nbasclass_mlwf(1:iddmat))
+      if (r_mlwfs < iwf .and. iwf<= r_mlwff ) then
+         intended_iwf = .True.
+      else
+         intended_iwf = .False.
+      endif
+      end subroutine checkorb3
 
 c---------------------------------------
-      subroutine getqsym(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o)
+      subroutine getqsym(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o,qsyml_o, qsyml)
       real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
       integer, intent(in) :: ngrp_w, iq
       real(8),intent(out):: qshort(3)
       logical(8), intent(out) :: llsym_o
+      character*5, intent(out):: qsyml_o
+      character*5, intent(in), optional:: qsyml !See getqsym_heusler
 
       real(8)::qrot(3),cr=2d-5,theta
       logical(8)::gskip, hcpsym
@@ -475,17 +517,36 @@ c---------------------------------------
      &     ,hcpgm=.false.,hcpgk=.false.,hcpmk=.false.
      &     ,hcpal=.false.,hcpah=.false.,hcplh=.false.,hcpga=.false.,hcp=.false.
      &     ,tetgx=.false.,tetgz=.false.,tetzr=.false.,tetra=.false.,tetaz=.false.
+     &     ,qcut=.false., gamma=.false.
+     &     ,at_k_cma=.false.
       real(8)::rlatp_(3,3),xmx2_(3),qqin(3),qshort2,qlat2(3),qlat3(3),
-     &     alpha, pi, b1, b2
+     &     alpha, pi, b1, b2, qmax
       integer:: nlatout(3,48),nout,iout,ig, i
-      character*5:: syml
+      character*6:: syml
 
       pi=4d0*atan(1d0)
+
+      !!!
+      llsym_o = .true.
+      qsyml_o = "NoSYM"
       !!! get syml line
-      call getkeyvalue("GWinput","qsym",syml,default="100")
-      llsym_o=.true.      
+      if (present(qsyml)) then
+         syml=qsyml
+         d100=.false.; d110=.false.; d111=.false.; d1xx=.false.
+         dhpb=.false.;dwlf=.false.;dxwf=.false.;dwkf=.false.;dhnb=.false.
+         dnpb=.false.;dxms=.false.;dxrs=.false.;all_iq=.false.
+      else
+         call getkeyvalue("GWinput","qsym",syml,default="100")
+      endif
+
+      !!!
       if (syml=="all") then
          all_iq=.true.
+      else if (syml=="qcut") then
+         qcut=.true.          !calc stiffness for q-cutoff 
+         call getkeyvalue("GWinput","qcut",qmax,default=3d-1)
+      else if (syml=="gamma") then
+         gamma=.true.
       else if (syml=="100") then
          d100=.true.           !0 0 0 --> 1 0 0
       else if (syml=="110") then
@@ -547,9 +608,16 @@ c---------------------------------------
       else if (syml=="tetAZ") then
          tetaz=.true.           !AZ (TET): A to Z !
 
+      !!! At only K point (for checking SW in Cu2MnAl) 2019/09/27
+      else if (syml=="atK" .or. syml=="atk") then
+         at_k_cma=.true.           
+
+      else if (syml=="100") then
+         d100=.true.           !0 0 0 --> 1 0 0
+
       !!! ELSE
       else
-         write(6,*) "not supported symmetry line"
+         write(6,*) "not supported symmetry line like syml=",syml
          call rx("m_readwan.F: routine end")
       endif
          
@@ -577,8 +645,22 @@ c---------------------------------------
             if (hcp) then
                qshort=qin
             endif
-cccccccccccccccccsymline check
-            if (d100) then      !(100)
+ccccccccccccccccc symline check
+            !cutoff for stiffness
+            if (gamma) then
+               if (iq==1) then
+                  llsym_o=.true.
+               else
+                  llsym_o=.false.
+                  cycle
+               endif
+            elseif (qcut) then
+               if (qshort2 > qmax) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+            elseif (d100) then      !(100)
                if (abs((qshort2)-abs(qshort(1))) > cr
      &              .and. abs(abs(qshort2)-abs(qshort(2))) > cr
      &              .and. abs(abs(qshort2)-abs(qshort(3))) > cr) then
@@ -606,6 +688,37 @@ cccccccccccccccccsymline check
      &              .and. abs(abs(qshort(2))-abs(qshort(3))) > cr) then
                   llsym_o=.false.
                endif
+
+! ! at K only (at_k_cma)
+            elseif (at_k_cma) then !(110)
+               if (abs(qshort(1)) > cr
+     &              .and. abs(qshort(2)) > cr
+     &              .and. abs(qshort(3)) > cr) then
+                  llsym_o=.false.
+                  cycle
+               endif
+
+!     ! exclude (100) direction
+               if (abs(abs(qshort(1))-abs(qshort(2))) < cr
+     &              .and. abs(qshort(1)) < cr) llsym_o=.false.
+               if (abs(abs(qshort(2))-abs(qshort(3))) < cr
+     &              .and. abs(qshort(2)) < cr) llsym_o=.false.
+               if (abs(abs(qshort(3))-abs(qshort(1))) < cr
+     &              .and. abs(qshort(3)) < cr) llsym_o=.false.
+               
+               if (abs(abs(qshort(1))-abs(qshort(2))) > cr
+     &              .and. abs(abs(qshort(1))-abs(qshort(3))) > cr
+     &              .and. abs(abs(qshort(2))-abs(qshort(3))) > cr) then
+                  llsym_o=.false.
+               endif
+               
+               if ( abs(qshort(1))+abs(qshort(2))+abs(qshort(3)) < 1.3d0) then
+                  llsym_o = .false.
+               endif
+
+               !if (llsym_o) write(6,'("qsyml cma: ",3f9.4)') qshort
+
+! ! end at K
 
             elseif (d111) then  !(111)
                if (abs(abs(qshort(1))-abs(qshort(2))) > cr
@@ -879,7 +992,91 @@ ccc
             endif            
          enddo
       endif
+      !!! out
+      if (llsym_o) qsyml_o = syml
       end subroutine getqsym
+c---------------------------------------
+c--------- Hesuler (gxkgl = .true.: G-X-K-G-L mode)
+      subroutine getqsym_heusler(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o, qsyml_o)
+      real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
+      integer, intent(in) :: ngrp_w, iq
+      real(8),intent(out):: qshort(3)
+      logical(8), intent(out)  :: llsym_o
+      character*5, intent(out) :: qsyml_o
+
+!      logical(8)::d100=.false.,d110=.false.,d111=.false.,d1xx=.false.
+      logical(8):: gxkgl=.false., llsym_o2
+      integer:: i, i_div, n_gxkgl
+      character*6:: syml, qsyml_o2
+      character*5, allocatable:: syml_l(:)
+
+      !!! get syml line
+      call getkeyvalue("GWinput","qsym",syml,default="100")
+      if ( syml== "gxkgl" ) then
+         n_gxkgl=4 ! number of devisions (G-X, X-K, K-G, and G-L)
+      else
+         call rx("getqsyml_heusler: only GXKGL mode is available")
+      endif
+
+      !!!
+      allocate(syml_l(n_gxkgl))
+      syml_l="999"
+      syml_l(1)="100"
+      syml_l(2)="fccS"
+      syml_l(3)="110"
+      syml_l(4)="111"
+      !!! main
+      llsym_o  = .false.; llsym_o2 = .false.
+      do i_div = 1, n_gxkgl
+         if (llsym_o) cycle
+         call getqsym(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
+         if (llsym_o2) then
+            llsym_o = .true.
+            qsyml_o = qsyml_o2
+         endif
+      enddo
+      end subroutine getqsym_heusler
+c--------- Hesuler (bccALL: bcc G-H-N-P-G-N)
+      subroutine getqsym_bcc(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o, qsyml_o)
+      real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
+      integer, intent(in) :: ngrp_w, iq
+      real(8),intent(out):: qshort(3)
+      logical(8), intent(out)  :: llsym_o
+      character*5, intent(out) :: qsyml_o
+
+      logical(8):: symbcc=.false., llsym_o2
+      integer:: i, i_div, n_symbcc
+      character*6:: syml, qsyml_o2
+      character*5, allocatable:: syml_l(:)
+
+      !!! get syml line
+      call getkeyvalue("GWinput","qsym",syml,default="100")
+      if ( syml== "bccALL" ) then
+         n_symbcc=5 ! number of devisions
+      else
+         call rx("getqsyml_bcc: only bccALL mode is available")
+      endif
+
+      !!!
+      allocate(syml_l(n_symbcc))
+      syml_l="999"
+      syml_l(1)="100"
+      syml_l(2)="110"
+      syml_l(3)="111"
+      syml_l(4)="bccHN"
+      syml_l(5)="bccNP"
+      !syml_l(6)="bccHP"
+      !!! main
+      llsym_o  = .false.; llsym_o2 = .false.
+      do i_div = 1, n_symbcc
+         if (llsym_o) cycle
+         call getqsym(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
+         if (llsym_o2) then
+            llsym_o = .true.
+            qsyml_o = qsyml_o2
+         endif
+      enddo
+      end subroutine getqsym_bcc
 c---------------------------------------
       !!! create unit matrix 
       !!! imat(iwf,jwf)= 1 if iwf=jwf,kwf=lwf
@@ -976,6 +1173,111 @@ c---------------------------------------
 
 
       end subroutine writehmat
+
+c---------------------------------------
+      !!! write matrix element(i=j;k=l)
+      !!! For Hermite check
+      subroutine writeddmat(zmat,nwf,filename,diag,zmat_o)
+      implicit none
+      complex(8),intent(in)  ::  zmat(nwf*nwf,nwf*nwf)
+      complex(8),intent(out) ::  zmat_o(nwf*nwf,nwf*nwf)
+      integer, intent(in):: nwf
+      character(*):: filename
+      logical:: diag
+      logical(8)::intended_iwf
+      real(8):: iddmat_in
+
+      integer:: iwf,jwf,kwf,lwf,
+     &     ijwf,klwf,iffile, lorb
+      integer(8):: iddmat
+      
+      iffile=ifile_handle()
+      open(iffile,file=filename(:len_trim(filename)))
+      !!! diagonal
+      call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
+      iddmat=int(iddmat_in)
+      write(6,"('output_ddmat_atom =',i5)") iddmat
+
+      ijwf=0; klwf=0; zmat_o=(0d0,0d0)
+      if (diag) then
+         do 5001 iwf=1,nwf
+         do 5002 jwf=1,nwf
+            ijwf = ijwf + 1
+            do 5003 kwf=1,nwf
+            do 5004 lwf=1,nwf
+               klwf = klwf + 1
+
+               !!! checkorb3: identify whether iwf is from indicated atom (iddmat)
+               !!! checkorb:  identify whehter iwf is from 3d (lorb = .True.)
+               call checkorb3(iwf,iddmat,intended_iwf)            
+               if (.not. intended_iwf) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb3(jwf,iddmat,intended_iwf)
+               if (.not. intended_iwf) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb3(kwf,iddmat,intended_iwf)            
+               if (.not. intended_iwf) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb3(lwf,iddmat,intended_iwf)
+               if (.not. intended_iwf) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               
+               call checkorb(iwf,nwf,lorb) 
+               if (.not. lorb==2) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb(jwf,nwf,lorb) 
+               if (.not. lorb==2) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb(kwf,nwf,lorb) 
+               if (.not. lorb==2) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               call checkorb(lwf,nwf,lorb) 
+               if (.not. lorb==2) then
+                  zmat_o(ijwf,klwf) = (0d0,0d0)
+                  cycle
+               endif
+               zmat_o(ijwf,klwf)=zmat(ijwf,klwf)
+               
+ 5004       continue
+ 5003       continue
+ 5002       continue
+ 5001       continue
+
+      !!! off-diagonal
+      else
+         do 6001 iwf=1,nwf
+         do 6002 jwf=1,nwf
+            do 6003 kwf=1,nwf
+            do 6004 lwf=1,nwf
+               !!! checkorb3: identify whether iwf is from indicated atom (iddmat)
+               !!! checkorb:  identify whehter iwf is from 3d (lorb = .True.)
+               call checkorb3(iwf,iddmat,intended_iwf)            
+               
+               call checkorb(iwf,nwf,lorb)       
+               ijwf=(1+nwf)*iwf-nwf !!! iwf=jwf 
+               
+ 6004 continue
+ 6003 continue
+ 6002 continue
+ 6001 continue
+      endif
+
+      close(iffile)
+      end subroutine writeddmat
 
 c---------------------------------------
       integer function ifile_handle() !! find open file handle

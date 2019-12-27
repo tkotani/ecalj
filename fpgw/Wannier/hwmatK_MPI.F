@@ -14,6 +14,8 @@
 !!
 !!  mode= 1: bare Coulomb mode, V, <phi phi | V  | phi phi>
 !!  mode= 2: screening mode, Wc,   <phi phi | Wc | phi phi>
+!!  mode=11: <phi phi | V(omega=0)  | phi phi>
+!!  mode=12: <phi phi | Wc(omega=0) | phi phi>
 !!  mode=10011: cRPA mode
 !!
 !!  nwf: total number of wannier within the primitive cell.
@@ -212,6 +214,8 @@ c RS: variables for MPI
      &           rv_w(:,:,:,:,:),cv_w(:,:,:,:,:),
      &           rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
       real(8)::ef
+c For hmagnon (only omega=0 is used)
+      logical:: lomega0=.False.
       integer::nw,nctot0,niw
 c---------------------------------------
 c RS: program begins here
@@ -226,9 +230,18 @@ c mode switch. --------------
       if (Is_IO_Root_RSMPI()) then
       write(6,*) ' --- Choose omodes below ----------------'
       write(6,*) '  V (1) or W (2) or U(3)' 
+      write(6,*) '  V_omega=0 (11) or W_omega=0 (12)' 
       write(6,*) '  [option --- (+ QPNT.{number} ?)] '
       write(6,*) ' --- Put number above ! -----------------'
       call readin5(ixc,nz,idummy)
+      if (ixc==11) then
+         ixc=1
+         lomega0=.True.
+      elseif(ixc==12) then
+         ixc=2
+         lomega0=.True.
+      endif
+
       input3(1) = ixc
       input3(2) = nz
       input3(3) = idummy
@@ -1121,7 +1134,7 @@ c write <p p | W | p p>
       if (exchange) then
         call       wvmat (is,ifwmat(is),nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
-     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa)
+     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa,lomega0)
         rv_w = rw_w(:,:,:,:,:,0)
         cv_w = cw_w(:,:,:,:,:,0)
 c        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
@@ -1136,7 +1149,7 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
      i                    alat,rcut1,rcut2,
      i                    freq_r(0:nrw),
      i                    rw_w,cw_w,rv_w,cv_w,
-     i                    lcrpa)
+     i                    lcrpa,lomega0)
       endif
       endif
  2000 continue !end of spin-loop
@@ -1171,7 +1184,7 @@ c-----------------------------------------------------------------------
      i                  alat,rcut1,rcut2,
      i                  freq,
      i                  rw_w,cw_w,rv_w,cv_w,
-     i                  lcrpa)
+     i                  lcrpa,lomega0)
 
       implicit real*8(a-h,o-z)
 
@@ -1185,7 +1198,7 @@ c     &          ,rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
 c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw) 
       integer:: iwf1, iwf2, iwf3, iwf4, ifreq2
       real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
-      logical:: lcrpa
+      logical:: lcrpa,lomega0
 
       hartree=2d0*rydberg()
  
@@ -1238,6 +1251,10 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
       else if ((is==2) .and. (lcrpa .eqv. .true.)) then
         open(ifscr,file="Screening_W-v_crpa.DN")
       end if
+      if (lomega0) then
+         nrws1=1
+         nw=1
+      endif
       do ir1 = 1,nrws1
         do ifreq2 = 1,nw
           do iwf1 = 1,nwf
@@ -1270,7 +1287,7 @@ c-----------------------------------------------------------------------
       subroutine wvmat (is,ifwmat,nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i            alat,rcut1,rcut2,rw_w,cw_w,
-     i            lcrpa)
+     i            lcrpa,lomega0)
 
       implicit real*8(a-h,o-z)
 
@@ -1279,7 +1296,7 @@ c-----------------------------------------------------------------------
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
       integer:: iwf1, iwf2, iwf3, iwf4,ir1
-      logical:: lcrpa
+      logical:: lcrpa,lomega0
  
       hartree=2d0*rydberg()
 
@@ -1309,6 +1326,10 @@ c-----------------------------------------------------------------------
       else if (is==2) then
         open(ifcou,file="Coulomb_v.DN")
       end if
+      if (lomega0) then
+         nrws1=1
+         nw=1
+      endif
       do ir1 = 1,nrws1
         do iwf1 = 1,nwf
           do iwf2 = 1,nwf

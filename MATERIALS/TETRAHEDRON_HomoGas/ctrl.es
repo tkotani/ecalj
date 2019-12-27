@@ -1,0 +1,163 @@
+#NOTE: I set PWMODE=1 instead of 11 (default). This makes band plot
+# smooth in the BZ because G of q+G is given at Gamma, and used  for
+# whole BZ.
+
+### dummy ctrl for homogas.###
+# a case for empty sphere test. Use lattice of bulk Li #
+#id  = EsSetting
+
+VERS    LM=7 FP=7        # version check. Fixed.
+IO      SHOW=T VERBOS=35 TIM=0,0 #Use TIM=3,3 or more for debug (to show which routines go through).
+SYMGRP find   # 'find' evaluate space-group symmetry (just from lattice) automatically.
+
+%const bohr=0.529177 a=6.35
+STRUC   ALAT={a} PLAT= -.5  .5  .5   .5 -.5  .5   .5  .5 -.5
+        NL=4  NBAS= 1  NSPEC=1
+SITE 
+    ATOM=Li POS= 0 0 0
+SPEC
+    ATOM=Li 
+      Z=0 R=2.67
+      EH=-1 -1 -1  RSMH=1.33 1.33 1.33 
+      EH2=-2 -2  RSMH2=1.33 1.33 
+
+% const pwemax=3 nk1=4 nk2=4 nk3=4 nit=30  gmax=12  nspin=1 metal=3 so=0 xcfun=1 ssig=1.0
+BZ    NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
+      METAL={metal}
+                # METAL=3 is safe setting (double path method but not repeat diagonalization), 
+                # no problem even for insulator.
+                # For insulator, METAL=0 may be a little faster.
+
+              DOSMAX=1.5 NPTS=2001 SAVDOS=T
+                # These are used to plot total dos, and pdos.
+                # DOSMAX: is the maximum of the total dos plot. It is relative to the Fermi energy.
+                #   Corresponding mimimum is automatically chosen to cover all valence states.
+                # NPTS: division of plots. To get a high-energy resolution plot, use large NPTS.
+                #
+		# To get better plot, Use large NKABC (even after converged).
+                # Larger NKABC may give smoother plot. Use large enough NKABC.
+                #
+                # NOTE: current version automatically enfoce TETRA=T and MEAL=3 for --pdos and --tdos
+                # ---TOTAL DOS plot---      
+                # you can use job_tdos_nspin*.
+                # It just do lmf --tdos foobar; then you have dos.tot.foobar, and we can plot it.
+                #  
+                # --- PDOS plot --
+                # you can do folloings by job_pdos_nspin*
+                # run lmf --pdos foobar  (this stops quickly, or write SYMOPS (only e) in it by hand.)
+                #     echo 1| qg4gw      (this is needed to generate QGpsi for no symmetry).
+                #     lmf --pdos foobar  (it is a little time-consuming since we do not use symmetry).
+                #     lmdos --pdos foobar
+
+             # KNOWN BUG: For a hydrogen in a large cell, METAL=0 for (NSPIN=2 MMOM=1 0 0) 
+             # results in non-magnetic solution. Use METAL=3 for a while in this case.
+
+      # TETRA=0 N=-1 W=0.001 FSMOM below
+      #  are for molecules. No tetrahedron integration. (Smearing))
+      #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
+%const bzw=1e-4  fsmom=0.0
+      #TETRA=0 
+      #N=-1    #Negative is the Fermi distribution function W= gives temperature.
+      #W=0.001 #W=0.001 corresponds to T=157K as shown in console output
+               #W=0.01 is T=1573K. It makes stable convergence for molecule. 
+               #Now you don't need to use NEVMX in double band-path method,
+               #which obtain only eigenvalues in first-path to obtain integration weights
+               #, and accumulate eigenfunctions in second path.
+
+      #FSMOM={fsmom} real number (fixed moment method)
+      #  FSMOM is for he fixed-spin moment method. 
+      #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
+      #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)
+      #  NOTE: current version is for ferro magnetic case (total mag moment) only.
+      #FSMOMMETHOD=0 #only effective when FSMOM exists. #Added by t.kotani on Dec8.2010
+      #  =0: original mode suitable for solids.(default)
+      #  =1: discrete eigenvalue case. Calculate bias magnetic field from LUMO-HOMO gap for each spins.
+      #      Not allowed to use together with HAM_SO=1 (L.S). 
+      #      It seems good enough to use W=0.001. Smaller W= may cause instability.
+      #For Molecule, you may also need to set FSMOM=n_up-n_dn, and FSMOMMETHOD=1 below.
+
+
+      #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat for tokens below.
+
+      #NOINV=T (for inversion symmetry)
+      #  Suppress the automatic addition of the inversion to the list of point group operations. 
+      #  Usually the inversion symmetry can be included in the determination of the irreducible 
+      #  part of the BZ because of time reversal symmetry. There may be cases where this symmetry 
+      #  is broken: e.g. when spin-orbit coupling is included or when the (beyond LDA) 
+      #  self-energy breaks time-reversal symmetry. In most cases, lmf program will automatically 
+      #  disable this addition in cases that knows the symmetry is broken
+      #
+    
+ITER MIX=A2,b=.3,n=3 CONV=1e-5 CONVC=1e-5 NIT={nit}
+#ITER MIX=B CONV=1e-6 CONVC=1e-6 NIT={nit}
+                # MIX=A: Anderson mixing.
+                # MIX=B: Broyden mixing (default). 
+                #        Unstable than Anderson mixing. But faseter. It works fine for sp bonded systems.
+                #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#ITERcat
+
+HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
+      FORCES=0  # 0: no force calculation, 1: forces calculaiton 
+      GMAX={gmax}   # this is for real space mesh. See GetStarted. (Real spece mesh for charge density).
+                # Instead of GMAX, we can use FTMESH.
+                # You need to use large enough GMAX to reproduce smooth density well.
+                # Look into sugcut: shown at the top of console output. 
+                # It shows required gmax for given tolelance HAM_TOL.
+      REL=T     # T:Scaler relativistic, F:non rela.
+      XCFUN={xcfun}
+          # =1 for VWN.
+                # =2 Birth-Hedin (if this variable is not set).
+		#    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
+                # =103 PBE-GGA
+
+      PWMODE=1 # 0:  MTO basis only (LMTO)
+                # 11: APW+MTO        (PMT)
+                # 12: APW basis only (LAPW)
+                #
+      PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
+                      # about overcompleteness. In cases, e.g.Fe, you may need larger KMXA for larger PWEMAX.
+      ELIND=0    # this is to accelarate convergence. Not affect to the final results.
+                 # For sp-bonded solids, ELIND=-1 may give faster convergence.
+                 # For O2 molecule, Fe, and so on, use ELIND=0(this is default).
+
+      FRZWF=F #If T, fix augmentation function. This is worth to test in future.
+      #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#HAMcat
+
+      #For LDA+U calculation, see http://titus.phy.qub.ac.uk/packages/LMTO/fp.html#ldaplusu
+
+      #For QSGW. you have to set them. Better to get some samples.
+      RDSIG=12
+      SIGP[MODE=3]
+      # Now we use no cutoff procedure for Sigma-Vxc in lmf. (only in emax_sigm is effective in GWinput). 
+      # default:SIGP_EMAX=9999.
+      RSRNGE=15.0  #If you see Exit -1 rdsigm: Bloch sum derivates mor..., Set this large enough.
+      # This occurs when you set large n1n2n3 in GWinput, and/or large cell.
+      # Reducing RSRNGE makes speed up a little ---> no effect to final results, but have chance 
+      # to show the above message.
+
+      ScaledSigma={ssig} # ScaledSigma* \Sigma + (1-ScaledSigma)*Vxc^LDA
+      # This is a RPA-level hybridyzation method, in contrast to the B3LYP (hartree-fock level hybridyzation)
+
+      SO={so}   #default = 0 
+      #Spin-orbit coupling (for REL=1)
+      #0 : no SO coupling
+      #1 : Add L.S to hamiltonian (but non-colinear density yet).
+      #2 : Add Lz.Sz only to hamiltonian
+      #
+      # For QSGW with SO=1 pertubation, run SO=1 with --rs=1,0 with NIT=1,
+      #  starting from converged rst.* sigm.*  ESEAVR, and
+      #  QpGpsi (it is easily generated by echo 1|qg4gw if you lost it).
+
+      OVEPS=1d-7
+      # nov2015 added. This is for removing poor linear-dependent basis in the diagonalization (H-eO)z=0
+      # See cal zhev_tk3 in ecalj/lm7K/fp/bndfp.F. For using large pwemax, you may need to set OVEPS=1d-6 ~ 1d-8.
+      # If you use larger OVEPS, you have smaller number of basis (APW+MTO) for expanding eigenfunctions.
+
+OPTIONS PFLOAT=1 #not need to change this. Just for backward compatibility.
+
+      # Q=band (this is quit switch if you like to add)
+
+
+# Relaxiation sample
+#DYN     MSTAT[MODE=5 HESS=T XTOL=.001 GTOL=0 STEP=.015]  NIT=20
+# See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html#DYNcat
+

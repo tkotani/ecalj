@@ -1,0 +1,20 @@
+## run lmfa, and lmf first.
+
+
+### 
+### We have to introduced {pwmode}. as PWMODE={pwmode} in ctrl file.
+rm -f HamiltonianMTO*
+
+#Get efermi.lmf without APW 
+mpirun -np 4 lmf-MPIK fe --quit=band -vpwmode=0 > lmf_efermi
+
+# Get HamiltonianMTO without APW
+# Look into ecalj/lm7K/lmfham.F
+
+mpirun -np 4 lmf-MPIK fe --writeham --mkprocar --fullmesh -vpwmode=0
+cat HamiltonianMTO.* >HamiltonianMTO
+rm HamiltonianMTO.* 
+
+# this read Hamiltonian from MamiltonianMTO and do diagonalizaiton
+lmfham
+

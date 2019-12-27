@@ -1,0 +1,8 @@
+# ctrl, GWinput
+lmfa es >llmfa
+mpirun -np 2 lmf-MPIK es  >llmf
+job_band es -np 2 
+echo 0| lmfgw es >llmfgw0
+echo 1|qg4gw >lqg4gw
+hhomogas > lhhomogas
+gnuplot egaschi0.glt

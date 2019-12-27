@@ -20,7 +20,7 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
 ##### MATH libraries FFTW,BLAS LAPACK ###
 # ubuntu 11.10 apt-get install libfftw-dev liblapack-dev libblas-dev
-#LIBMATH= /usr/lib/libfftw3.so.3 
+LIBMATH= /usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a
 #LIBLOC=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf 
 
 LIBLOC = ${LIBMATH}

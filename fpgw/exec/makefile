@@ -30,7 +30,7 @@ tags   = ../
 # lmf_exec
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2  hx0fp0_fal hx0fp1 
 
-progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2
+progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
 
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
@@ -39,7 +39,7 @@ progs2 = $(progs) $(tags)TAGS
 #checkmod 
 
 #script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp mkG*
-script = cleargw* dqpu eps* gw* mkG* 
+script = cleargw* dqpu eps* gw* mkG* chipm_mat
 
 #### You can choose these options. all is default.
 
@@ -195,6 +195,18 @@ DERFC=
 
  X0 = \
  $(main)hx0fp0.m.o
+
+ X0oku = \
+ $(gwsrc)m_homoelectron.o \
+ $(gwsrc)m_readwan.o \
+ $(gwsrc)diagcv3.o \
+ $(main)hmagnon.m.o
+
+ X0homo = \
+ $(gwsrc)m_homoelectron.o \
+ $(gwsrc)m_readwan.o \
+ $(gwsrc)diagcv3.o \
+ $(main)hhomogas.m.o
 
  # X0mlw = \
  # $(maxloc)hx0fp0.m.o \
@@ -460,6 +472,12 @@ $(gwsrc)rotgvec.o
 
  hx0fp0:	$(MPI) $(X0) $(GWLIB) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(X0)     $(GWLIB) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hmagnon:	$(MPI) $(GWLIB) $(X0oku) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0oku) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ hhomogas:	$(MPI) $(GWLIB) $(X0homo) $(MPI)  $(COMM) 
+	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0homo) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
 # # for maxloc
 #  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 
