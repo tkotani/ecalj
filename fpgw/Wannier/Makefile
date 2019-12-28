@@ -4,7 +4,7 @@
 #LKFLAGS2=-mkl
 
 top=../
-PLATFORM=gfortran
+PLATFORM=ifort
 include ../exec/make.inc.$(PLATFORM)
 
 FFI=-I${top}/exec
@@ -54,7 +54,7 @@ clean:
 	 rm -f  $(progs2) *.o 
 
 install:  
-	 cp  $(progs) genMLWF genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py $(BINDIR) 
+	 cp  $(progs) genMLWF genMLWF_vw genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py $(BINDIR) 
 
 #install2:  
 #	 cp  $(script) $(HOME)/bin
