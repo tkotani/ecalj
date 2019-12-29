@@ -54,7 +54,7 @@ clean:
 	 rm -f  $(progs2) *.o 
 
 install:  
-	 cp  $(progs) genMLWF genMLWF2 genMLWF_vw genMLWFmod run_argloc RPAWannier* FLEX_interaction.py $(BINDIR) 
+	 cp  $(progs) genMLWF genMLWF_vw genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py $(BINDIR) 
 
 #install2:  
 #	 cp  $(script) $(HOME)/bin

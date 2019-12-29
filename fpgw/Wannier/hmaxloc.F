@@ -192,7 +192,7 @@ c ixc=3
       integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 
       real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
-      integer:: inii,if102
+      integer:: inii
       logical:: leauto,leinauto
 
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
@@ -308,17 +308,15 @@ c>> read dimensions of wc,b,hb
       
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
-c     because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      if102=ifile_handle()
-      open (if102,file='CLASS')
+c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
+      open (102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-        read(if102,*) ibasx, iclasst(ibas)
+        read(102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
-      close(if102)
 
 c Get space-group transformation information. See header of mptaouof.
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
@@ -638,8 +636,7 @@ c index for k and k+bb
          ini=1
          do i=1,nband
 c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
-c           if (eqt(i)>eomin) then
-           if( (eqt(i)-ef)*rydberg() >eomin) then
+           if (eqt(i)>eomin) then
              inii=i
              exit
            endif
@@ -1279,7 +1276,6 @@ c$$$      enddo
          write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
       enddo
      !! end okumura
-
       
 !! other k-points
       write(ifbnd,*)ef,' ef'

@@ -256,6 +256,14 @@ c mode switch. --------------
       nz=input3(2)
       idummy=input3(3)
 
+      if (ixc==11) then
+         ixc=1
+         lomega0=.true.
+      elseif(ixc==12) then
+         ixc=2
+         lomega0=.true.
+      endif
+
 c---  readin BZDATA. See gwsrc/rwbzdata.f
 c--------readin data set when you call read_BZDATA ---------------
 c       integer(4)::ngrp,nqbz,nqibz,nqbzw,nteti,ntetf
@@ -1134,7 +1142,7 @@ c write <p p | W | p p>
       if (exchange) then
         call       wvmat (is,ifwmat(is),nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
-     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa,lomega0)
+     i            alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
         rv_w = rw_w(:,:,:,:,:,0)
         cv_w = cw_w(:,:,:,:,:,0)
 c        write(*,*) "This one!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!"
@@ -1149,7 +1157,7 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
      i                    alat,rcut1,rcut2,
      i                    freq_r(0:nrw),
      i                    rw_w,cw_w,rv_w,cv_w,
-     i                    lcrpa,lomega0)
+     i                    lcrpa, lomega0)
       endif
       endif
  2000 continue !end of spin-loop
@@ -1184,7 +1192,7 @@ c-----------------------------------------------------------------------
      i                  alat,rcut1,rcut2,
      i                  freq,
      i                  rw_w,cw_w,rv_w,cv_w,
-     i                  lcrpa,lomega0)
+     i                  lcrpa, lomega0)
 
       implicit real*8(a-h,o-z)
 
@@ -1198,7 +1206,7 @@ c     &          ,rw_iw(nwf,nwf,nwf,nwf,nrws,niw),
 c     &           cw_iw(nwf,nwf,nwf,nwf,nrws,niw) 
       integer:: iwf1, iwf2, iwf3, iwf4, ifreq2
       real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
-      logical:: lcrpa,lomega0
+      logical:: lcrpa, lomega0
 
       hartree=2d0*rydberg()
  
@@ -1251,7 +1259,7 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
       else if ((is==2) .and. (lcrpa .eqv. .true.)) then
         open(ifscr,file="Screening_W-v_crpa.DN")
       end if
-      if (lomega0) then
+      if (lomega0) then !only omega=0
          nrws1=1
          nw=1
       endif
@@ -1274,7 +1282,7 @@ c        write(*,*) cw_w(:,:,:,:,:,0)
         enddo
       enddo
       close(ifscr)
-      print *, "lcrpa =", lcrpa
+      print *, "lcrpa, lomega0 =", lcrpa, lomega0
       print *, "lueff=", lueff
       if (lcrpa .eqv. .false.) then
         write(*,*) 'See "Screening_W-v.UP" and "Screening_W-v.DN" files'
@@ -1287,7 +1295,7 @@ c-----------------------------------------------------------------------
       subroutine wvmat (is,ifwmat,nwf,
      i            rws1,rws2,irws1,irws2,nrws1,nrws2,nrws,
      i            alat,rcut1,rcut2,rw_w,cw_w,
-     i            lcrpa,lomega0)
+     i            lcrpa, lomega0)
 
       implicit real*8(a-h,o-z)
 
@@ -1296,7 +1304,7 @@ c-----------------------------------------------------------------------
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
       integer:: iwf1, iwf2, iwf3, iwf4,ir1
-      logical:: lcrpa,lomega0
+      logical:: lcrpa, lomega0
  
       hartree=2d0*rydberg()
 
@@ -1326,7 +1334,7 @@ c-----------------------------------------------------------------------
       else if (is==2) then
         open(ifcou,file="Coulomb_v.DN")
       end if
-      if (lomega0) then
+      if (lomega0) then !only omega=0
          nrws1=1
          nw=1
       endif
