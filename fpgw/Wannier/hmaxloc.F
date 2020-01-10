@@ -192,7 +192,7 @@ c ixc=3
       integer:: ifoc,iwf,ldim2,ixx,ifile_handle
 
       real(8):: enwfmax,qxx(3),eeee,enwfmaxi, ef
-      integer:: inii
+      integer:: inii,if102
       logical:: leauto,leinauto
 
 cccccccccccccccccccccccccccccccccccccccccxxxxxxx
@@ -309,14 +309,16 @@ c>> read dimensions of wc,b,hb
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------
 c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      open (102,file='CLASS')
+      if102=ifile_handle()
+      open (if102,file='CLASS')
       allocate(iclasst(natom),invgx(ngrp)
      &         ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
-        read(102,*) ibasx, iclasst(ibas)
+        read(if102,*) ibasx, iclasst(ibas)
         write(6, "(2i10)") ibasx, iclasst(ibas)
       enddo
+      close(if102)
 
 c Get space-group transformation information. See header of mptaouof.
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
@@ -636,7 +638,7 @@ c index for k and k+bb
          ini=1
          do i=1,nband
 c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
-           if (eqt(i)>eomin) then
+            if( (eqt(i)-ef)*rydberg() >eomin) then
              inii=i
              exit
            endif
@@ -1192,48 +1194,6 @@ c --- Readin nlam index
 
       close(ifh)
 
-!! TEST okumura: iq=1,nqbz
-c$$$      !data list for wannier
-c$$$      ifh=ifile_handle()
-c$$$      open(ifh,file="wan4chi.d",form="unformatted")
-c$$$      write(ifh) nwf,nspin,nqtt
-c$$$      close(ifh)
-c$$$
-c$$$      !generate eigenvalue and eigenvector of Wannier Hamiltonian
-c$$$      write(6,*) 
-c$$$      if (is==1) allocate(eval_w(nwf,nqtt,nspin),evecc_w(nwf,nwf,nqtt,nspin))
-c$$$      do iq = 1,nqbz
-c$$$         write(6,*)' got get_hrotkp_ws iq =',iq
-c$$$         call get_hrotkp_ws(hrotr,rws,drws,irws,qtt(:,iq),
-c$$$     d                     nwf,nqtt,nrws,
-c$$$     o                     hrotkp)
-c$$$         call diag_hm(hrotkp,nwf,eval,evecc)
-c$$$         eval_w(1:nwf,iq,is)=eval
-c$$$         evecc_w(1:nwf,1:nwf,iq,is)=evecc
-c$$$      enddo
-c$$$
-c$$$      if(is==2) then
-c$$$         ifh=ifile_handle()
-c$$$         open(ifh,file='EValue_w',form='unformatted')
-c$$$         write(ifh) nwf,nqtt,nspin
-c$$$         write(ifh) eval_w(1:nwf,1:nqtt,1:nspin)
-c$$$         close(ifh)
-c$$$
-c$$$         ifh=ifile_handle()
-c$$$         open(ifh,file='EVec_w',form='unformatted')
-c$$$         write(ifh) nwf,nqtt,nspin
-c$$$         write(ifh) qtt(1:3,1:nqtt)
-c$$$         write(ifh) evecc_w(1:nwf,1:nwf,1:nqtt,1:nspin)
-c$$$         close(ifh)
-c$$$      endif
-c$$$
-c$$$      do iwf=1,nwf
-c$$$         write(6,*) "-20170427: iwf=",iwf
-c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,1))**2.0)
-c$$$         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
-c$$$      enddo
-     !! end okumura
-
 !! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
       !!! qtt -> q, nqtt -> nqbz     
       ! data list for wannier
@@ -1269,12 +1229,6 @@ c$$$      enddo
          write(ifh) evecc_w(1:nwf,1:nwf,1:nqbz,1:nspin)
          close(ifh)
       endif
-
-      do iwf=1,nwf
-         write(6,*) "-20170427: iwf=",iwf
-         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,1))**2.0)
-         write(6,*) "-20170427: sum evecc",sum(abs(evecc_w(iwf,1:nwf,1,2))**2.0)
-      enddo
      !! end okumura
       
 !! other k-points
@@ -1293,17 +1247,6 @@ c (3-3) Hrot_mn(k')
      o                     hrotkp)
 c (3-4) diagonalize
           call diag_hm(hrotkp,nwf,eval,evecc)
-ccccccccccccccccccccccccccccccccccccccccccc
-c$$$     do ib=1,nwf
-c$$$          write(*,*) '----------------------------------------------'
-c$$$          do j=1,nwf
-c$$$             write(*,*) 'test',evecc(1,1)
-c$$$          enddo
-c$$$          do j=1,nwf
-c$$$             write(*,*) 'sumcheck',sum(abs(evecc(:,j)**2))
-c$$$          enddo
-c$$$     enddo
-Ccccccccccccccccccccccccccccccccccccccccccccc
           eval1(1:nwf,iq)=eval
           evecc1(1:nwf,1:nwf,iq)=evecc
 c     (3-4) diagonalize  -- Small Hamiltonian --
@@ -1347,7 +1290,6 @@ c     (3-4) diagonalize -- Tight-binding --
          write(iffb,*)
       enddo
 
-!     write(6,*)"--- check !!! nq:",nq !! nq=84 (lsmo)
       deallocate(eval1,eval3,evecc1)
 
       if(lsh) then
@@ -1363,6 +1305,8 @@ c     (3-4) diagonalize -- Tight-binding --
      &           ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
       if (lsh) deallocate(hrotkps,eveccs,evals,evecc2)
       close(ifbnd)
+      close(iftb)
+      close(iffb)
 c     end of loop over spin
  1000 continue
  950  format(a14,3f23.16)

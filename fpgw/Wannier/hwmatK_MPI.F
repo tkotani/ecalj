@@ -215,7 +215,7 @@ c RS: variables for MPI
      &           rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
       real(8)::ef
 c For hmagnon (only omega=0 is used)
-      logical:: lomega0=.False.
+      logical:: lomega0
       integer::nw,nctot0,niw
 c---------------------------------------
 c RS: program begins here
@@ -234,13 +234,6 @@ c mode switch. --------------
       write(6,*) '  [option --- (+ QPNT.{number} ?)] '
       write(6,*) ' --- Put number above ! -----------------'
       call readin5(ixc,nz,idummy)
-      if (ixc==11) then
-         ixc=1
-         lomega0=.True.
-      elseif(ixc==12) then
-         ixc=2
-         lomega0=.True.
-      endif
 
       input3(1) = ixc
       input3(2) = nz
@@ -256,6 +249,7 @@ c mode switch. --------------
       nz=input3(2)
       idummy=input3(3)
 
+      lomega0=.false.
       if (ixc==11) then
          ixc=1
          lomega0=.true.

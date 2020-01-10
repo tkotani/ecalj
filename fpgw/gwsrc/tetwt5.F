@@ -405,6 +405,7 @@ ccccccccccccccccccccccc
 !! exclude wannier model: (okumura, 2017/06/13)
 !! ebmx band cutoff 2016Jun
           if (present(wan) .and. wan) then
+             write(6,*) "tetwt5: wan",wan
           elseif (nbmx/=nband) then
              do i=1,nbmx
                 if( maxval(ek_(i, 0:3)) >ebmx) then
@@ -460,7 +461,8 @@ c           jbxmx = noccx_kq + nctot
 
                 if( minval(eocc  ) <= efermia .and. 
      &        maxval(eunocc) >= efermib ) then
-                  if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
+                  !if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
+                  if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
                   if(job==0 ) then    !takao
                     iwgt(ib,jb,kk(0:3),jpm)= .true.
                     x(0:3) = .5d0*(eocc-eunocc)     ! + omg !Denominator. unit in Hartree.
@@ -486,11 +488,6 @@ c           jbxmx = noccx_kq + nctot
      i          frhis, nwhis,  
      o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
 c     m          fermi_dS) ! may2012
-                    do i = 0,3
-                       do ihis = 1,nwhis
-                          if (wtthis2(ihis,i)<0d0) write(6,*) "---aaa wtthis2 negative"
-                       enddo
-                    enddo
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif

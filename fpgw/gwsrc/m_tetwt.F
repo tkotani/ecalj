@@ -121,7 +121,7 @@ c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz
      i   nbmx,ebmx,mtet, !nov2016
      i     wan1 ) !Jan2019 for Wannier
  
-      deallocate(ibjb,ihw,jhw,nhw,whw) !dumm
+      deallocate(ibjb,ihw,jhw,nhw,whw) !dummy
       nbnbx = max(maxval(nbnb(1:nqbz,1:npm)),1) !nbnbx = nbnbxx
       if(debug) write(6,*)' nbnbx=',nbnbx
       allocate(  n1b(nbnbx,nqbz,npm)
