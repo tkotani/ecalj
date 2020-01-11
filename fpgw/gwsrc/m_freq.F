@@ -10,7 +10,6 @@
       real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:)
       integer,protected:: nwhis,npm,nw_i,nw 
 
-
 c      real(8),allocatable,protected:: frhis0(:)
 c      integer,protected:: nwhis0
       contains

@@ -638,6 +638,7 @@ c index for k and k+bb
          ini=1
          do i=1,nband
 c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
+c            if (eqt(i)>eomin) then
             if( (eqt(i)-ef)*rydberg() >eomin) then
              inii=i
              exit

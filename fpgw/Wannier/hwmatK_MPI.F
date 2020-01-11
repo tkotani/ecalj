@@ -215,8 +215,8 @@ c RS: variables for MPI
      &           rv_iw(:,:,:,:,:),cv_iw(:,:,:,:,:)
       real(8)::ef
 c For hmagnon (only omega=0 is used)
-      logical:: lomega0
       integer::nw,nctot0,niw
+      logical:: lomega0
 c---------------------------------------
 c RS: program begins here
       call RSMPI_Init()

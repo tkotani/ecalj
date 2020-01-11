@@ -111,6 +111,7 @@ c      voltot = dabs(vol)*(alat**3)
       read(ifh) irws,rws,hrotr, iposwf
       close(ifh)
       allocate(eval3(nwf,nq),evecc(nwf,nwf),eval(nwf)) 
+
 !! hrotkp= Hrot_mn(q)  -- Tight-binding Hamiltonian at q(1:3,iq) ---
 !! Conversion from hrotr --> hrotkp by FT.
       allocate(hrotkp(nwf,nwf))

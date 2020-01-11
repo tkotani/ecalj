@@ -406,7 +406,8 @@ ccccccccccccccccccccccc
 !! ebmx band cutoff 2016Jun
           if (present(wan) .and. wan) then
              write(6,*) "tetwt5: wan",wan
-          elseif (nbmx/=nband) then
+c          elseif (nbmx/=nband) then
+          else
              do i=1,nbmx
                 if( maxval(ek_(i, 0:3)) >ebmx) then
                    nbandmx_k = i-1
