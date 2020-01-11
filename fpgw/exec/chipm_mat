@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import os,sys,re
 
 ### 2018/06/17 okumura
@@ -8,24 +7,7 @@ import os,sys,re
 cd=os.getcwd() # current directory
 listdir=os.listdir(cd) # get directory list
 
-### remove files
-### pref="wan_ChiPMr", etc.
-def rmfile(pref):
-    swj=True
-    for j in range(100):
-        if swj:
-            if j < 10:
-                num="0"+str(j)
-            else:
-                num=str(j)
-            filename=pref+num
-            if os.path.isfile(filename):
-                os.system("rm "+filename)
-            else:
-                swj=False
-        else:
-            pass
-
+os.system("wan_ChiPM*.mat*syml*")
 # wan_ChiPM*.mat (*=tag)
 ltag=['z','r','r-k']
 for itag in range(len(ltag)):
@@ -42,23 +24,55 @@ for itag in range(len(ltag)):
         ### remove existing file
         if wanr_out == listdir[i]:
             os.remove(wanr_out)
+        if wanr_out+".syml*" == listdir[i]:
+            os.remove(wanr_out+".syml*")
 
     lwan.sort()
                 
     ### combine each file
+    symltaglist=[]
     for j in range(len(lwan)):
-        print(lwan[j])
-        os.system('cat '+str(lwan[j])+' >> '+wanr_out)
+        # print(lwan[j])
 
-    print("--- generate "+wanr_out)
+        ### Oct.05, 2019 for Heusler
+        ### G-X-K-G-L calculation and devides files into groups
+        f=open(lwan[j],"r")
+        for line in f:
+            if "#" in line:
+                sline=line.split()
+                print(lwan[j])
+                symltag=".syml"+sline[2]
+                tag_new=True
+                for k in range(len(symltaglist)):
+                    if symltag == symltaglist[k]:
+                        tag_new = False
+                if tag_new:
+                    symltaglist.append(symltag)
+            else:
+                symltag=""
+            break
+        f.close()
 
+        ### finally removed
+        os.system('cat '+str(lwan[j])+' >> '+wanr_out+symltag+".tmp")
+        print('cat '+str(lwan[j])+' >> '+wanr_out+symltag+".tmp")
 
-    rmfile(wanr_out)
+    for k in range(len(symltaglist)):
+        if symltaglist[k] == "Gamma":
+            pass
+        else:
+            os.system('cat '+wanr_out+".symlGamma.tmp"     +' >> '+wanr_out+symltaglist[k])
+            os.system('cat '+wanr_out+symltaglist[k]+'.tmp'+' >> '+wanr_out+symltaglist[k])
+    print(len(symltaglist),symltaglist)
 
+    print("--- generate "+wanr_out+".syml***")
+    os.system("rm wan_ChiPM"+tag+"*tmp")
     # os.system("rm wan_ChiPM"+tag+".mat0*")
     # os.system("rm wan_ChiPM"+tag+".mat1*")
     # os.system("rm wan_ChiPM"+tag+".mat2*")
     # os.system("rm wan_ChiPM"+tag+".mat3*")
+    # os.system("rm wan_ChiPM"+tag+".mat4*")
+    # os.system("rm wan_ChiPM"+tag+".mat5*")
 
 ### generate 1wk_eval_list.dat from each 1wk_eval_list.dat0*** (each q)
 # *_eval_list.dat (*=tag)
@@ -86,9 +100,9 @@ for itag in range(len(ltag)):
         os.system('cat '+str(lwan[j])+' >> '+wanr_out)
 
     print("--- generate "+wanr_out)
-    rmfile(wanr_out)
-
-    # os.system("rm "+tag+"_eval_list.dat0*")
-    # os.system("rm "+tag+"_eval_list.dat1*")
-    # os.system("rm "+tag+"_eval_list.dat2*")
-    # os.system("rm "+tag+"_eval_list.dat3*")
+    os.system("rm "+tag+"_eval_list.dat0*")
+    os.system("rm "+tag+"_eval_list.dat1*")
+    os.system("rm "+tag+"_eval_list.dat2*")
+    os.system("rm "+tag+"_eval_list.dat3*")
+    os.system("rm "+tag+"_eval_list.dat4*")
+    os.system("rm "+tag+"_eval_list.dat5*")

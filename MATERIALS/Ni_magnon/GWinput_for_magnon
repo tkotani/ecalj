@@ -4,8 +4,7 @@
 
 !!! qsym: 100 110 111 fccWK fccXW fccWL fccS
 ! qsym gxkgl
-qsym 111
-mpi_size_lim 15
+qsym 100
 
 ! cma .true.
 ! cma_wshift 1.0
@@ -20,7 +19,7 @@ mpi_size_lim 15
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3  8 8 8
+n1n2n3  12 12 12
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
