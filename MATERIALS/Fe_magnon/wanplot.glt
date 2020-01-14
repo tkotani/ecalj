@@ -6,6 +6,7 @@ set multiplot layout 1,2
 
 set key right top; set grid; set zeroaxis
 set xrange[0:8]
+set yrange[0:*]
 set xlabel "{/Symbol w} [eV]"; set ylabel "Im[K] [1/eV]"
  
 plot "wan_ChiPMz.mat.syml100" every :::0::0 u (13.605*$5):($7) lw 4 lt 1  ti "q=0/6" w l,\

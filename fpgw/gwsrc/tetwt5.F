@@ -405,7 +405,6 @@ ccccccccccccccccccccccc
 !! exclude wannier model: (okumura, 2017/06/13)
 !! ebmx band cutoff 2016Jun
           if (present(wan) .and. wan) then
-             write(6,*) "tetwt5: wan",wan
 c          elseif (nbmx/=nband) then
           else
              do i=1,nbmx
