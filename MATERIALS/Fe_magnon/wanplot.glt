@@ -14,6 +14,7 @@ plot "wan_ChiPMz.mat.syml100" every :::0::0 u (13.605*$5):($7) lw 4 lt 1  ti "q=
      "wan_ChiPMz.mat.syml100" every :::4::4 u (13.605*$5):($7) lw 4 lt 3  ti "q=4/6" w l
    
 # ### Re[K]
+set yrange[*:*]
 set ylabel "Re[K] [1/eV]"
 plot "wan_ChiPMz.mat.syml100" every :::0::0 u (13.605*$5):($6) lw 4 lt 1  ti "q=0/6" w l,\
      "wan_ChiPMz.mat.syml100" every :::2::2 u (13.605*$5):($6) lw 4 lt 2  ti "q=2/6" w l,\
