@@ -296,6 +296,7 @@ DERFC=
  $(gwsrc)getgv2.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
+ $(gwsrc)tetrakbt.o \
  $(gwsrc)m_tetwt.o \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(gwsrc)cinvrx.o \

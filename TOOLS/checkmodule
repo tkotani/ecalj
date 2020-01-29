@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # This routine checks module-dependency in fortran90 and compile them in right order.
 #
 import os

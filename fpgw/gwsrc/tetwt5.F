@@ -21,7 +21,7 @@
       enddo
       deallocate(frc,gfm)
       end
-
+!! -----------------------------------------
       subroutine  tetwt5x_dtet4(npm, ncc,
      i    q, eband1,eband2,
      i    qbas,ginv,efermi,   
@@ -194,13 +194,14 @@ c-devided tet
       integer :: nbandmx_kq,nbandmx_k
 c      real(8):: fermi_dS(3,3) !not yet used...
 
-      logical:: eibzmode
+      logical:: eibzmode, usetetrakbt
       integer:: nwgt(nqbz)
-      real(8):: ebmx
+      real(8):: ebmx,  voltet
       integer:: nbmx,ifile_handle
       logical,optional:: wan
+      real(8):: kbt
 c---------------------------------------------------------------------
-      write(6,"('  tetwt5_dtet3:init job efermi:=',i2,d13.6)") job,efermi
+      write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt()
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
@@ -342,13 +343,15 @@ c      if(abs(volt-voltot)>1d-10) call rx( ' tetwt: abs(volt-voltot)>1d-10')
         demax= - 1d10
       endif
 
-      call getkeyvalue("GWinput","defermia",dmua,default=0d0)
-      call getkeyvalue("GWinput","defermib",dmub,default=0d0)
-      call getkeyvalue("GWinput","exband",exb,default=.false.)
-      efermia = efermi + dmua
-      efermib = efermi + dmub
-      write(6,*) "defermia, defermib:", dmua,dmub
-      write(6,*) " efermia,  efermib:", efermia,efermib
+c     call getkeyvalue("GWinput","defermia",dmua,default=0d0)
+c     call getkeyvalue("GWinput","defermib",dmub,default=0d0)
+c     call getkeyvalue("GWinput","exband",exb,default=.false.)
+c     efermia = efermi + dmua
+c     efermib = efermi + dmub
+c      write(6,*) "defermia, defermib:", dmua,dmub
+c      write(6,*) " efermia,  efermib:", efermia,efermib
+      efermia = efermi 
+      efermib = efermi 
 
 !! === Loop over tetrahedron ===
       do 1000 itet = 1, ntetf !;
@@ -363,6 +366,11 @@ c        if(mod(itet,1000)==1.and.verbose()>=150) write(6,*)' tetwt5: itet out o
         do 1100 im = 1,nmtet
           kkm (0:3)       = ib1bzm( idtetfm(0:3,im,itet) ) !  k   in micro-tet
           kvec(1:3, 0:3) = qbzwm ( 1:3, idtetfm(0:3,im,itet) )
+!!
+          do i = 1,3
+             am(1:3,i) = kvec(1:3,i-1) - kvec(1:3,3)
+          enddo
+          voltet = abs(det33(am)/6d0)
 
 c$$$ccccccccccccccccccccccc
 c$$$          if(kkm(0)==1) goto 1105
@@ -460,7 +468,7 @@ c           jbxmx = noccx_kq + nctot
                 endif
 
                 if( minval(eocc  ) <= efermia .and. 
-     &        maxval(eunocc) >= efermib ) then
+     &              maxval(eunocc) >= efermib ) then
                   !if( maxval(eunocc(:)-eocc(:)) <dmub-dmua ) cycle ! this makes a bit effective.
                   if( maxval(eunocc(:)-eocc(:)) <0 ) cycle ! this makes a bit effective.
                   if(job==0 ) then    !takao
@@ -482,12 +490,20 @@ c           jbxmx = noccx_kq + nctot
                       write(6,"('  eunocc- Ef= ',4f10.3)") eunocc-efermi
                       write(6,"('  -x(a.u.)= ',4f10.3)") -x(0:3)
                     endif
-                    call lindtet6( 
-     i          kkv,kvec,eocc,eunocc,
-     i          x, efermia, efermib, 
-     i          frhis, nwhis,  
-     o          wtthis2) ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
-c     m          fermi_dS) ! may2012
+
+                    if(usetetrakbt()) then
+                       KbT = 0d0  !temperature in Ry.
+                       call tetrakbt( eunocc-efermib, eocc-efermia, x, voltet, frhis, nwhis, KbT,
+     o                      wtthis2 )
+                    else
+                       call lindtet6( 
+     i                   kkv,kvec,eocc,eunocc,
+     i                   x, efermia, efermib, 
+     i                   frhis, nwhis,  
+     o                   wtthis2) 
+!     ! kvec(1:3, 0:3), ea(0:3), x(0:3) !  wgt(ib,jb,kk(0:3)) = wgt(ib,jb,kk(0:3)) + wttx/4d0/voltot
+                    endif
+
                     if(chkwrt) then
                       write(6,"('  sum nwhis wtthis2=',i5,d13.5)") nwhis,sum(wtthis2)
                     endif
@@ -757,15 +773,9 @@ ctakao/Feb/2002 ----------------------------------------------------------------
      &  kk(3,1:8),xx(1:8),ee(1:4), am(3,3), eb(1:4),ebf(1:8), !ebfKx(1:4),Kx(1:3,4),xKx(4),
      &  vcell,efermi,etest ,  kkv(3,4), efermia, efermib
       integer(4):: nwhis
-      real(8):: frhis(nwhis+1),wtthis(nwhis,4)
+      real(8):: frhis(nwhis+1),wtthis(nwhis,4),det33
       logical:: chkwrt=.false.
 c      real(8):: fermi_ds(3,3)
-c---------------------------------------------------------------------------------
-      if(chkwrt) then
-        print *, ' lindtet6: *****************************'
-        write(6,"(' i=',i3,' x ea eb =',3f10.5)") 
-     &  (i, x(i), ea(i)-efermia, eb(i)-efermib,i=4,1,-1)
-      endif
 
 #ifdef EXPAND_SORTEA
       n=4
@@ -804,6 +814,7 @@ c      write(6,"(' i iea=',2i4)") (i,ieaord(i),i=1,4)
 c      write(6,"(' i=',i3,' xx ee ebf =',3f10.5,'  kk=',3f10.5)")
 c     &     (i,xx(i),ee(i),ebf(i),kk(1:3,i),i=4,1,-1)
 ccccccccccccc
+
 
       if( 0d0<=ee(4) ) then
         if(chkwrt) write(6,*) 'lindtet6: fig 000'
@@ -1207,19 +1218,16 @@ c--------------------------------------------------------------
      & V1,V2,V3,V4,D1,D2,D3,D4,e1,e2,e3,e4
       integer(4)::i1,i2,i3
 c-------------------------------------------------------------
-c      if((.not.(e(1)<=e(2))).or.(.not.(e(2)<=e(3)))
-c     & .or.(.not.(e(3)<=e(4))) ) then
+c      if((.not.(e(1)<=e(2))).or.(.not.(e(2)<=e(3))).or.(.not.(e(3)<=e(4))) ) then
 c        write(6,"(/,' --- integtetn wrong order of e=',4d14.6)") e
-c        stop 'integtetn: wrong order of e'
+c        call rx('integtetn: wrong order of e')
 c      endif
-
 c      write(6,"(' --- integtetn e =',4d23.16)") e
 c      write(6,"(' --- integtetn ee=',d23.16)") ee
-      if    ( ee<e(1) ) then  !jan2008 ee<=e(1) ---> ee<e(1)
+      if ( ee<e(1) ) then  !jan2008 ee<=e(1) ---> ee<e(1)
         integb = 0d0
         return
       elseif (ee>e(4) ) then
-Cstop2rx 2013.08.09 kino        stop ' integtetn: ee>e(4)'
         call rx( ' integtetn: ee>e(4)')
       endif
 
