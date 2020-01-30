@@ -5,9 +5,10 @@
 !! (only epsPP_magnon_chipm mode works).
       program hmagnon
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
-     &     readscr, checkorb, getqsym, getqsym_heusler, getqsym_bcc,
+     &     readscr, checkorb, getqsym,
      &     checkorb2, diagwan, diagwan_tr, wan_imat,
-     &     writehmat, writeddmat
+     &     writehmat, writeddmat,
+     &     read_wandata, nwf, nsp_w, nqtt_w
       use m_ReadEfermi,only: readefermi,ef
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
@@ -126,11 +127,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: nbmx,mtet(3)!,ifq0p
 
 !     okumura
-      integer::nwf,nsp_w,nqtt_w,iwf,jwf,inwf,iexc,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
-      integer::ifhamw,ifgas,ifchipmz_wan,ifchipmr_wan,ifchipmrk_wan
+      integer::iwf,jwf,inwf,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
+      integer::ifgas,ifchipmz_wan,ifchipmr_wan,ifchipmrk_wan
       real(8),allocatable::ev_w1(:,:),ev_w2(:,:)
       complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
       logical::wan=.true.,lhm,lsvd,nms,eibzmode
+      logical(8):: lqsh_all
       real(8):: nms_delta
       logical(8):: ijklmag !for checkorb2
       complex(8),allocatable::kmat(:,:,:,:),wanmat(:,:)
@@ -151,13 +153,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: it,itp,isdummy,lorb, size_lim
 !!! q on symline
       real(8)::qrot(3),cr=2d-5
-      logical(8)::init2=.true.,llsym,gskip
-      logical(8)::d100,d110,d111,d1xx,dhpb,dxwf,dhnb,dnpb
+      logical(8)::init, init2=.true.,gskip
       real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2
       integer:: nlatout(3,48),nout,iout,nqsym
       integer,allocatable:: iqlist(:)
       character*6:: qsyml_in, qsyml
       character*5, allocatable:: symllist(:)
+      real(8),allocatable:: qshort_all(:,:)
+      real(8),allocatable:: qshort_dammy(:,:)
 !!! WK eigenvalue check
       integer::ifwkeigen,ifwkeigen2,ifwkeigen3
 !!! temp variable
@@ -175,6 +178,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 
 !! -------------------------------------------------------------------
       call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
+
       call MPI__Initialize_magnon()
       call MPI__consoleout_magnon('hmagnon',size_lim) ! size_lim for saving memory (avoid swapping)
 
@@ -193,6 +197,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       chipm=.true.
       nolfco=.true.
       wan=.true.
+
+
 
 !! We fix newaniso2=T now.
 
@@ -251,12 +257,11 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       tpioa=2d0*pi/alat
 
 !     ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
-c      if(ixc==223) then
-      ifhamw=ifile_handle()
-      open(ifhamw,file="wan4chi.d",form='unformatted')
-      read(ifhamw) nwf,nsp_w,nqtt_w
-      close(ifhamw)
-      write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+      call read_wandata() ! nwf, nsp_w,nqtt_w
+      call readscr(nwf,scrw)
+      nnwf=nwf*nwf
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      endif
 
 c$$$      !Weight for irreducible q-point (qibz)
@@ -265,44 +270,8 @@ c$$$         write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq)
 c$$$      enddo
 c
 cccccccccccccccccc Screening W for magnon 
-      nnwf=nwf*nwf
-      allocate(scrw(nnwf,nnwf))
-      call readscr(nwf,scrw)
-cccc display W
-      do iexc=1,2
-         do iwf=1,nwf
-            ijwf=(1+nwf)*iwf-nwf
 
-            if (iexc==1) then
-               if (iwf==1) write (6,*) "--- W  (direct) -------------------"
-               do jwf=1,nwf
-                  if (iwf==1) write (6,"(A6)",advance="no") "     "
-                  if (iwf==1) write (6,"(i3)",advance="no") jwf
-               enddo
-               if (iwf==1) write(6,*) ""
 
-               write (6,"(i3)",advance="no") iwf
-               do jwf=1,nwf
-                  ijwf_j=(1+nwf)*jwf-nwf
-                  write (6,"(f9.4)",advance="no") abs(scrw(ijwf,ijwf_j))
-               enddo
-            else
-               if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
-               do jwf=1,nwf
-                  if (iwf==1) write (6,"(A4)",advance="no") "    "
-                  if (iwf==1) write (6,"(i4)",advance="no") jwf
-               enddo
-               if (iwf==1) write(6,*) ""
-
-               write (6,"(i3)",advance="no") iwf
-               do jwf=1,nwf
-                  ijwf_j=(jwf-1)*nwf+iwf
-                  write (6,"(f9.4)",advance="no") abs(scrw(ijwf_j,ijwf_j))
-               enddo
-            endif
-            write(6,*) ""
-         enddo
-      enddo
 
       scrw(:,:)=scrw(:,:)/hartree
       iqxend = nqibz !+ nq0i
@@ -381,75 +350,44 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       enddo      
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      !!! For MPI test (intended symmetric iq)
-      call getkeyvalue("GWinput","qsym"  ,qsyml_in,default="999") !G-X-K-G-L mode for Heusler
-      nqsym=0
-      do iq=1,nqibz
-         q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
-         if (qsyml_in == "gxkgl") then
-            call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         elseif (qsyml_in == "bccALL") then
-            call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         else
-            call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         endif
-         if (llsym) nqsym=nqsym+1
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      !allocate(qshort_all(3,7))
+      !! qshort_all=(q0, q1, q2, ...)
+      !! symlist=("Gamma", "100", "100", ...)
+      !! iqlist: original iq for qibz(3,iq)
+      !! nqsym: total number of qibz for magnon
+      !! lqsh_all: T/F = qshort_all (all irreducible point / qsyml in GWinput)
+      lqsh_all=.false.
+      call getqsym(
+     i     qlat,ngrp,symgg,qibz,nqibz,
+     o     qshort_all, nqsym, symllist, iqlist,
+     i     lqsh_all)
+      write(6,"('nqsym:',I4)") nqsym
+      do iq=1,nqsym
+         write(6,"(I3,'  qshort (on ',A6,') = ',3f9.5)") iq,symllist(iq),qshort_all(:,iq)
       enddo
-      write(6,*) "nqsym:",nqsym
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call MPI__hmagnon_rankdivider(nqsym)
 
       write(6,*) "nqsym mpi_MEq(:)",nqsym,mpi__MEq
       allocate(rpa_maximr(mpi__MEq),mf_maximr(mpi__MEq)) !list of w(MAX(Im[R])): magnon peak
       rpa_maximr=0d0; mf_maximr=0d0
 
-      !iqlist for syml
-      !qibz(:,iqlist(iq)): intended q (iq=1,nqsym)
-      allocate(iqlist(1:nqsym),symllist(1:nqsym))
-      nqsym=0
-      do iq=1,nqibz
-         q = qibz(:,iq)         !qibze ! you can spefify any q, which you like.
-         if (qsyml_in == "gxkgl") then
-            call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         elseif (qsyml_in == "bccALL") then
-            call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         else
-            call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-         endif
-         if (llsym) then
-            nqsym=nqsym+1
-            iqlist(nqsym)=iq
-            symllist(nqsym)=qsyml
-            write(6,"('qshort (on syml) = ',I3,6f9.5)") iq,qshort,q
-         endif
-      enddo
-
       !!! for MPI (finally nqsym ---> nqibz)
       do iq=1,nqsym
          if (MPI__task(iq)) write(6,'("iq,MPI_rank, mpi__ranktab",3I8)') iq,MPI__rank,mpi__ranktab(iq)
-!         if (MPI__task(iq)) write(6,'("iq,qshort,I8,3f13.5")') iq,qibz(:,iqlist(iq))
       enddo
       call MPI__barrier()
 
-!      call rx("aa")
-c
 !! ======== Loop over iq ================================
       do 1001 iq = 1,nqsym      ! NOTE: q=(0,0,0) is omitted when iqxini=2
          if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
          if(.not. MPI__task(iq) .and. iq .ne. 1) cycle
+         qshort=qshort_all(:,iq)!qibz(:,iqlist(iq))
          q=qibz(:,iqlist(iq))
-         if (iq == 1) then
-            qshort=0d0; llsym=.true.
-         else
-            if (qsyml_in == "gxkgl") then
-               call getqsym_heusler(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-            elseif (qsyml_in == "bccALL") then
-               call getqsym_bcc(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-            else
-               call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym,qsyml)
-            endif
-            imaximr=imaximr+1 !!! imaximr=1,2,...,mpi__MEq
-         endif
-         if (llsym) write(6,"('qshort (on syml) = ',I3,3f9.5)") iq,qshort
+         imaximr=imaximr+1      !!! imaximr=1,2,...,mpi__MEq
+         !write(6,"('qshort (on syml) = ',I3,3f9.5)") iq,qshort
 
 !! Caution : confusing point
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
@@ -464,12 +402,10 @@ c
          !write(6,"('===== do 1001: iq q(qshort)=',i7,3f9.4,' ========')")iqlist(iq),qshort !qq
          !wibz: BZ weight 
          write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')")
-     &        iqlist(iq),wibz(iqlist(iq)),qshort !qq
-         
-         if (lhm) cycle
-         !if (qsyml_in == "bccALL") cycle
-            
+     &        iq,wibz(iqlist(iq)),qshort !qq
 
+         if (lhm) cycle
+            
 !     ! zxq and zxqi are the main output after Hilbert transformation
 !     ! zxqi is not used in hmagnon (imagomega=.false.)
          if (.not. allocated(zxq) )  allocate( zxq (nnwf,nnwf,nw_i:nw), zxqi (nnwf,nnwf,niw))

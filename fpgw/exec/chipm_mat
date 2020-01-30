@@ -7,40 +7,45 @@ import os,sys,re
 cd=os.getcwd() # current directory
 listdir=os.listdir(cd) # get directory list
 
-os.system("wan_ChiPM*.mat*syml*")
+print(" ----- START: chipm_mat for combing files ----\n")
+
 # wan_ChiPM*.mat (*=tag)
-ltag=['z','r','r-k']
+# ltag=['z','r','r-k']
+ltag=['z','r']
 for itag in range(len(ltag)):
     tag=ltag[itag]
-    wanr_out="wan_ChiPM"+tag+".mat"                  
+    wanr_out="wan_ChiPM"+tag+".out"
+    wanr_mat="wan_ChiPM"+tag+".mat"
     lwan=[]
 
     ### search wan_ChiPM*.mat00**
     for i in range(len(listdir)):
+        ### remove existing file
+        # if wanr_mat == listdir[i]:
+        #     print(listdir[i])
+        #     os.remove(wanr_mat)
+        if wanr_mat+".syml" in listdir[i]:
+            print(listdir[i])
+            os.system("echo '' > "+listdir[i])
+
         if "wan_ChiPM"+tag+".mat" in listdir[i]: 
             if not "wan_ChiPM"+tag+".mat" == listdir[i]: # exclude 'wan_ChiPM*.mat'
                 lwan.append(listdir[i]) # append 'wan_ChiPM*.mat0***'
 
-        ### remove existing file
-        if wanr_out == listdir[i]:
-            os.remove(wanr_out)
-        if wanr_out+".syml*" == listdir[i]:
-            os.remove(wanr_out+".syml*")
 
-    lwan.sort()
                 
+    lwan.sort()
+
     ### combine each file
     symltaglist=[]
     for j in range(len(lwan)):
-        # print(lwan[j])
-
         ### Oct.05, 2019 for Heusler
         ### G-X-K-G-L calculation and devides files into groups
         f=open(lwan[j],"r")
         for line in f:
             if "#" in line:
                 sline=line.split()
-                print(lwan[j])
+                # print(lwan[j])
                 symltag=".syml"+sline[2]
                 tag_new=True
                 for k in range(len(symltaglist)):
@@ -55,7 +60,10 @@ for itag in range(len(ltag)):
 
         ### finally removed
         os.system('cat '+str(lwan[j])+' >> '+wanr_out+symltag+".tmp")
-        print('cat '+str(lwan[j])+' >> '+wanr_out+symltag+".tmp")
+        # print('cat '+str(lwan[j])+' >> '+wanr_out+symltag+".tmp")
+
+    # print("number of syml:",len(symltaglist))
+    # print("tags   of syml:",symltaglist)
 
     for k in range(len(symltaglist)):
         if symltaglist[k] == "Gamma":
@@ -63,46 +71,45 @@ for itag in range(len(ltag)):
         else:
             os.system('cat '+wanr_out+".symlGamma.tmp"     +' >> '+wanr_out+symltaglist[k])
             os.system('cat '+wanr_out+symltaglist[k]+'.tmp'+' >> '+wanr_out+symltaglist[k])
-    print(len(symltaglist),symltaglist)
 
-    print("--- generate "+wanr_out+".syml***")
+
     os.system("rm wan_ChiPM"+tag+"*tmp")
-    # os.system("rm wan_ChiPM"+tag+".mat0*")
-    # os.system("rm wan_ChiPM"+tag+".mat1*")
-    # os.system("rm wan_ChiPM"+tag+".mat2*")
-    # os.system("rm wan_ChiPM"+tag+".mat3*")
-    # os.system("rm wan_ChiPM"+tag+".mat4*")
-    # os.system("rm wan_ChiPM"+tag+".mat5*")
+    os.system("rm wan_ChiPM"+tag+".mat*")
+    for k in range(len(symltaglist)):
+        os.system("mv "+wanr_out+symltaglist[k]+" "+wanr_mat+symltaglist[k])
+    print(" --- Generated "+wanr_mat+".syml*** ---\n")
 
-### generate 1wk_eval_list.dat from each 1wk_eval_list.dat0*** (each q)
-# *_eval_list.dat (*=tag)
-ltag=['wk','1wk']
-for itag in range(len(ltag)):
-    tag=ltag[itag]
-    wanr_out=tag+"_eval_list.dat"                  
-    lwan=[]
+print(" ----- END: chipm_mat for combing files ----")
+# ### generate 1wk_eval_list.dat from each 1wk_eval_list.dat0*** (each q)
+# # *_eval_list.dat (*=tag)
+# ltag=['wk','1wk']
+# for itag in range(len(ltag)):
+#     tag=ltag[itag]
+#     wanr_out=tag+"_eval_list.dat"                  
+#     lwan=[]
 
-    ### search wan_ChiPM*.mat00**
-    for i in range(len(listdir)):
-        if tag+"_eval_list.dat" in listdir[i]: 
-            if not tag+"_eval_list.dat" == listdir[i]: # exclude 'wan_ChiPM*.mat'
-                lwan.append(listdir[i]) # append 'wan_ChiPM*.mat0***'
+#     ### search wan_ChiPM*.mat00**
+#     for i in range(len(listdir)):
+#         if tag+"_eval_list.dat" in listdir[i]: 
+#             if not tag+"_eval_list.dat" == listdir[i]: # exclude 'wan_ChiPM*.mat'
+#                 lwan.append(listdir[i]) # append 'wan_ChiPM*.mat0***'
 
-        ### remove existing file
-        if wanr_out == listdir[i]:
-            os.remove(wanr_out)
+#         ### remove existing file
+#         if wanr_out == listdir[i]:
+#             os.remove(wanr_out)
 
-    lwan.sort()
+#     lwan.sort()
                 
-    ### combine each file
-    for j in range(len(lwan)):
-        print(lwan[j])
-        os.system('cat '+str(lwan[j])+' >> '+wanr_out)
+#     ### combine each file
+#     for j in range(len(lwan)):
+#         print(lwan[j])
+#         os.system('cat '+str(lwan[j])+' >> '+wanr_out)
 
-    print("--- generate "+wanr_out)
-    os.system("rm "+tag+"_eval_list.dat0*")
-    os.system("rm "+tag+"_eval_list.dat1*")
-    os.system("rm "+tag+"_eval_list.dat2*")
-    os.system("rm "+tag+"_eval_list.dat3*")
-    os.system("rm "+tag+"_eval_list.dat4*")
-    os.system("rm "+tag+"_eval_list.dat5*")
+#     print("--- generate "+wanr_out)
+#     os.system("rm "+tag+"_eval_list.dat0*")
+#     os.system("rm "+tag+"_eval_list.dat1*")
+#     os.system("rm "+tag+"_eval_list.dat2*")
+#     os.system("rm "+tag+"_eval_list.dat3*")
+#     os.system("rm "+tag+"_eval_list.dat4*")
+#     os.system("rm "+tag+"_eval_list.dat5*")
+

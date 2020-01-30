@@ -10,8 +10,9 @@
       implicit none
       logical,private:: init=.true.
       real(8),private::alat,plat(3,3),ef
-      integer,private::nwf,natom,nrws,n1,n2,n3
-      
+      integer,private::natom,nrws,n1,n2,n3
+      integer:: nwf,nsp_w,nqtt_w
+
       integer,private,allocatable:: irws(:),ibaswf(:)
       real(8),private,allocatable:: pos(:,:),rws(:,:),drws(:)
       complex(8),private,allocatable:: hrotr(:,:,:), evecc(:,:)
@@ -29,7 +30,7 @@ c$$$      real(8),allocatable:: eval_w(:,:,:)
       logical::debug=.false.,sw1=.true.
 
 !!! for getsyml
-      logical:: init2=.true.
+      logical:: init2=.true., init_qsyml=.true.
       contains
 
 c---------------------------------------------
@@ -267,6 +268,17 @@ c---------------------------------------
       
       end subroutine write_qdata      
 c---------------------------------------
+      subroutine read_wandata() !nwf,nsp_w,nqtt_w
+      integer::ifhamw
+
+      ifhamw=ifile_handle()
+      open(ifhamw,file="wan4chi.d",form='unformatted')
+      read(ifhamw) nwf,nsp_w,nqtt_w
+      close(ifhamw)
+      write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
+      end subroutine read_wandata
+
+c---------------------------------------
       subroutine readscr(nwf,scrw_)
       implicit none
       integer,intent(in)::nwf
@@ -373,6 +385,7 @@ c$$$         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
       close(ifscrv)
       close(ifscrwv)
 
+      call writescrw(scrw_) !! display matrix element of Wijkl
       end subroutine readscr
 
 c---------------------------------------
@@ -501,7 +514,103 @@ ccc
       end subroutine checkorb3
 
 c---------------------------------------
-      subroutine getqsym(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o,qsyml_o, qsyml)
+      subroutine getqsym(qlat_in,ngrp_w,symgg_,qibz_, nqibz_, qshort_all, nqsym, symllist,iqlist,lqshort_all)
+      real(8),intent(in) :: qlat_in(3,3), symgg_(3,3,48)!, qin(3)
+      integer,intent(in) :: nqibz_
+      real(8),intent(in) :: qibz_(3,nqibz_) !, qin(3)
+      integer, intent(in) :: ngrp_w
+      logical(8), intent(in):: lqshort_all
+      real(8),allocatable,intent(out):: qshort_all(:,:)
+      character*5, allocatable, intent(out):: symllist(:)
+      integer,allocatable, intent(out):: iqlist(:)
+      integer, intent(out):: nqsym
+  
+
+      real(8):: q(3),qshort(3)
+      integer:: iq
+      integer(8)::  ijob
+      character*6:: qsyml_in
+      character*5:: qsyml
+      logical(8):: llsym
+
+      if (lqshort_all) then
+         qsyml_in="all"
+      else
+         call getkeyvalue("GWinput","qsym"  ,qsyml_in,default="999") !G-X-K-G-L mode for Heusler
+      endif
+      !!! MPI divider      
+     
+      do ijob=0,1
+         if (ijob==1) allocate(qshort_all(3,nqsym), symllist(nqsym),iqlist(nqsym))
+         nqsym=0
+         do iq=1,nqibz_
+            q = qibz_(:,iq)     !qibze ! you can spefify any q, which you like.
+            if (qsyml_in == "gxkgl") then
+               call getqsym_heusler(qlat_in,ngrp_w,iq,symgg_,q,qshort,llsym,qsyml)
+            elseif (qsyml_in == "bccALL") then
+               call getqsym_bcc(qlat_in,ngrp_w,iq,symgg_,q,qshort,llsym,qsyml)
+            else
+               call getqsym_0(qlat_in,ngrp_w,iq,symgg_,q,qshort,llsym,qsyml,qsyml_in)
+            endif
+            if (llsym) then
+               nqsym=nqsym+1
+               if (ijob==1) then
+                  qshort_all(:,nqsym)=qshort
+                  symllist(nqsym)=qsyml
+                  iqlist(nqsym)=iq
+                  !write(6,"('qshort (on syml) = ',I3,6f9.5)") iq,qshort,q
+               endif
+            endif
+         enddo
+      enddo
+      end subroutine getqsym
+c---------------------------------------
+      subroutine writescrw(scrw_)
+      implicit none
+      integer::iwf,jwf,kwf,lwf,ijwf,klwf
+!      real(8),allocatable::rw_w(:,:,:,:), cw_w(:,:,:,:)
+      integer:: iexc
+      !integer::iwf,jwf,inwf,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
+      integer::ijwf_j
+      complex(8),intent(in)::scrw_(:,:)
+
+      do iexc=1,2
+         do iwf=1,nwf
+            ijwf=(1+nwf)*iwf-nwf
+
+            if (iexc==1) then
+               if (iwf==1) write (6,*) "--- W  (direct) -------------------"
+               do jwf=1,nwf
+                  if (iwf==1) write (6,"(A6)",advance="no") "     "
+                  if (iwf==1) write (6,"(i3)",advance="no") jwf
+               enddo
+               if (iwf==1) write(6,*) ""
+
+               write (6,"(i3)",advance="no") iwf
+               do jwf=1,nwf
+                  ijwf_j=(1+nwf)*jwf-nwf
+                  write (6,"(f9.4)",advance="no") abs(scrw_(ijwf,ijwf_j))
+               enddo
+            else
+               if (iwf==1) write (6,*) "--- W' (exchange) -----------------"
+               do jwf=1,nwf
+                  if (iwf==1) write (6,"(A4)",advance="no") "    "
+                  if (iwf==1) write (6,"(i4)",advance="no") jwf
+               enddo
+               if (iwf==1) write(6,*) ""
+
+               write (6,"(i3)",advance="no") iwf
+               do jwf=1,nwf
+                  ijwf_j=(jwf-1)*nwf+iwf
+                  write (6,"(f9.4)",advance="no") abs(scrw_(ijwf_j,ijwf_j))
+               enddo
+            endif
+            write(6,*) ""
+         enddo
+      enddo
+      end subroutine writescrw
+c---------------------------------------
+      subroutine getqsym_0(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o,qsyml_o, qsyml)
       real(8),intent(in) :: qlat_in(3,3), qin(3),symgg_(3,3,48)
       integer, intent(in) :: ngrp_w, iq
       real(8),intent(out):: qshort(3)
@@ -994,7 +1103,7 @@ ccc
       endif
       !!! out
       if (llsym_o) qsyml_o = syml
-      end subroutine getqsym
+      end subroutine getqsym_0
 c---------------------------------------
 c--------- Hesuler (gxkgl = .true.: G-X-K-G-L mode)
       subroutine getqsym_heusler(qlat_in, ngrp_w, iq, symgg_, qin, qshort, llsym_o, qsyml_o)
@@ -1029,7 +1138,7 @@ c--------- Hesuler (gxkgl = .true.: G-X-K-G-L mode)
       llsym_o  = .false.; llsym_o2 = .false.
       do i_div = 1, n_gxkgl
          if (llsym_o) cycle
-         call getqsym(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
+         call getqsym_0(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
          if (llsym_o2) then
             llsym_o = .true.
             qsyml_o = qsyml_o2
@@ -1070,7 +1179,7 @@ c--------- Hesuler (bccALL: bcc G-H-N-P-G-N)
       llsym_o  = .false.; llsym_o2 = .false.
       do i_div = 1, n_symbcc
          if (llsym_o) cycle
-         call getqsym(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
+         call getqsym_0(qlat_in,ngrp_w,iq,symgg_,qin,qshort,llsym_o2,qsyml_o2,syml_l(i_div))
          if (llsym_o2) then
             llsym_o = .true.
             qsyml_o = qsyml_o2
