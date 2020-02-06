@@ -38,6 +38,7 @@
      i     wan)                 !
 
       use m_keyvalue,only: getkeyvalue
+      use m_tetrakbt,only: tetrakbt
 !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
 !! ------------------------------------------------------------------------------
 !! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
@@ -201,7 +202,8 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       logical,optional:: wan
       real(8):: kbt
 c---------------------------------------------------------------------
-      write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt()
+      call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+      write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
@@ -491,9 +493,9 @@ c           jbxmx = noccx_kq + nctot
                       write(6,"('  -x(a.u.)= ',4f10.3)") -x(0:3)
                     endif
 
-                    if(usetetrakbt()) then
+                    if(usetetrakbt) then
                        KbT = 0d0  !temperature in Ry.
-                       call tetrakbt( eunocc-efermib, eocc-efermia, x, voltet, frhis, nwhis, KbT,
+                       call tetrakbt( eunocc-efermib, eocc-efermia, x, voltet, frhis, nwhis, KbT+1d-15,
      o                      wtthis2 )
                     else
                        call lindtet6( 

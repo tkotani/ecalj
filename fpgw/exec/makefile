@@ -14,7 +14,7 @@ LIBMATH=/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/l
 
 include make.inc.$(PLATFORM)
 
-BINDIR = $(HOME)/bin
+BINDIR = $(HOME)/ecaljdev/bin
 
 #-------------------------------------------------------
 # src directories
@@ -296,7 +296,7 @@ DERFC=
  $(gwsrc)getgv2.o \
  $(gwsrc)wcf.o \
  $(gwsrc)tetwt5$(tet5_g) \
- $(gwsrc)tetrakbt.o \
+ $(gwsrc)m_tetrakbt.o \
  $(gwsrc)m_tetwt.o \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
  $(gwsrc)cinvrx.o \

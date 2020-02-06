@@ -8,7 +8,7 @@ PLATFORM=ifort
 include ../exec/make.inc.$(PLATFORM)
 
 FFI=-I${top}/exec
-BINDIR=${HOME}/bin
+BINDIR=${HOME}/ecaljdev/bin
 ########### gfortran #############
 #FC=mpif90
 #LK=mpif90
@@ -317,7 +317,7 @@ maxloc = ./
  $(gwsrc)getbzdata1.o \
  $(gwsrc)getgv2.o \
  $(gwsrc)wcf.o \
- $(gwsrc)tetrakbt.o \
+ $(gwsrc)m_tetrakbt.o \
  $(gwsrc)tetwt5$(tet5_g) \
  $(gwsrc)m_tetwt.o \
  $(gwsrc)x0kf_v4h$(x0kf_g) \
