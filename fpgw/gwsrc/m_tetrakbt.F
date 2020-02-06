@@ -2,7 +2,7 @@
 
       use m_keyvalue,only: getkeyvalue
       implicit none
-      real(8):: kbt=1d-10
+      real(8):: kbt
       real(8):: eps=1d-10!to avoid ZeroDIV
       integer(8):: i
       integer(8):: ndiv=10000 !for numerical integration; h=(b-a)/ndiv
@@ -232,13 +232,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !! write(6,"('--oku e1, e2-e1, e3-e2, e3-e1: ',4E13.5)") e1,(e2-e1)/e1,(e3-e2)/e1,(e3-e1)/e1
 
 
-      if (kbt <= e1) then
+      if (3*kbt <= e1) then
          factri = 0d0
 c$$$         elseif( 0d0 < e2  ) then   
 c$$$            factri = e1**2/(e2-e1+eps)/(e3-e1+eps)
 c$$$         elseif( 0d0 < e3  ) then   
 c$$$            factri = 1d0 - e3**2/(e3-e2+eps)/(e3-e1+eps)
-      elseif (e3 <= -kbt) then
+      elseif (e3 <= -3*kbt) then
          factri = 1d0
       else
 !! norm factor for triangle prism (volume of triangle prism)

@@ -200,10 +200,16 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       real(8):: ebmx,  voltet
       integer:: nbmx,ifile_handle
       logical,optional:: wan
-      real(8):: kbt
+      real(8):: kbt, rydberg
+      real(8):: temperature = 300 ![K], temporally
+      real(8):: kb=8.6171d-5 ![eV/K]
 c---------------------------------------------------------------------
       call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
       write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt
+      if (usetetrakbt) then
+         kbt=kb*temperature/rydberg()
+         write(6,"(' tetrakbt: T[K], kbt[Ry], kbt[eV]',3E13.5)") temperature,kbt,kbt*rydberg()
+      endif
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
@@ -494,8 +500,7 @@ c           jbxmx = noccx_kq + nctot
                     endif
 
                     if(usetetrakbt) then
-                       KbT = 0d0  !temperature in Ry.
-                       call tetrakbt( eunocc-efermib, eocc-efermia, x, voltet, frhis, nwhis, KbT+1d-15,
+                       call tetrakbt( eunocc-efermib, eocc-efermia, x, voltet, frhis, nwhis, kbt+1d-15,
      o                      wtthis2 )
                     else
                        call lindtet6( 
