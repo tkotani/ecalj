@@ -6,7 +6,9 @@ qsym 100
 defermia 0d0
 defermib 0d0
 exband off
-tetrakbt off
+
+tetrakbt on
+t_tetrakbt 100
 
 !EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
 !chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.

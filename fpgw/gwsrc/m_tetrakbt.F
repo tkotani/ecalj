@@ -2,23 +2,46 @@
 
       use m_keyvalue,only: getkeyvalue
       implicit none
-      real(8):: kbt
-      real(8):: eps=1d-10!to avoid ZeroDIV
+      real(8):: kbt, tt
+      real(8):: eps=1d-26 !to avoid ZeroDIV, severe condition
       integer(8):: i
-      integer(8):: ndiv=10000 !for numerical integration; h=(b-a)/ndiv
-      contains
+      integer(8), private:: ndiv !for numerical integration; h=(b-a)/ndiv
+      logical:: init = .true.
+      real(8):: kb=8.6171d-5 ![eV/K]
 
-!! ---------------------
-      subroutine tetrakbt(ebfin,eafin,v,voltet, frhis, nwhis, kbt_,
-     o         wtthis ) !this is accumlating variable
-!! kbt vertion 
+      !! developer
+      real(8):: err_sum=0d0, err_sum2=0d0
+      integer(8):: nn
+      contains
+!! tt: temperature [K]
+c-----------------------------------------------------
+      subroutine tetrakbt_init()
+      real(8):: temperature, rydberg
+      call getkeyvalue("GWinput","t_tetrakbt",temperature,default=3d+2)
+      tt = temperature+1d-12 !avoid 0
+      kbt=kb*tt/rydberg()
+      if (init) then
+         ndiv = ndiv_tt(tt)
+         write(6,"(' tetrakbt_init: T[K], kbt[Ry], kbt[eV]',3E13.5)") tt,kbt,kbt*rydberg()
+         init = .false.
+         write(6,*) "ndiv",ndiv
+      endif
+      end subroutine
+c-----------------------------------------------------
+      subroutine tetrakbt(
+     i     ebfin,eafin,v,voltet,
+     i     frhis, nwhis,
+     o     wtthis) !this is accumlating variable
+!     i     kbt_,tt_,
+
+!! kbt version 
 !! Histgram weights for each bin.
 !! The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
 !! wtthis(ihis) += \int_{frhis(ihis)^{frhis(ihis+1)} d \omega  \int d^3k (fb-fa) * \delta(\omega +v(k) )
 !!  Total sum of the histgram weight is equal to voltet.
 !!  wtthis(ihis): Note this is accumulating variable.
       implicit none
-      real(8),intent(in):: ebfin(4),eafin(4),v(4), voltet,kbt_
+      real(8):: ebfin(4),eafin(4),v(4), voltet
       real(8):: ebft(4),eaft(4),ebf(3),eaf(3)
       integer(4)::  inihis, iedhis, nwhis,ichk=2313
       integer(4) :: ieaord(1:4),i,isig,idif(3),idf,ix,n,itmp,ihis
@@ -32,9 +55,8 @@ c        print *, ' tetrakbt: ==========================='
 c        write(6,"(' i=',i3,' x ea eb =',3f10.5)") 
 c     &    (i, v(i), eafin(i), ebfin(i),i=4,1,-1)
 c      endif
-      kbt=kbt_
+ ! sorted so that ww(1)<ww(2)<ww(3)<ww(4)
 
-!! sorted so that ww(1)<ww(2)<ww(3)<ww(4)
 #ifdef EXPAND_SORTEA
       n=4
       do i = 1,n
@@ -142,7 +164,7 @@ c          dini = frhis(ihis)
 c        enddo
 c      endif
 c      if(chkwrt) write(ichk,*) ' end of intttvc6'
-      end
+      end subroutine
 
 c-----------------------------------------------------
       subroutine eaf_triangle(el,eh,ww,eaft, fafac) 
@@ -220,7 +242,7 @@ c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
       real(8):: voltp, s1tp, s2tp ! return s1tp+s2tp
       real(8):: s1int1, s1int2, stp
       integer:: isig,ieaord(3)
-      real(8) :: e1,e2,e3
+      real(8) :: e1,e2,e3, factri_ref
       logical(8):: fdfunc = .false.
 
       call sortea( eaf,ieaord, 3 ,isig)
@@ -231,16 +253,12 @@ c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !! write(6,"('--oku e1, e2-e1, e3-e2, e3-e1: ',4E13.5)") e1,(e2-e1)/e1,(e3-e2)/e1,(e3-e1)/e1
 
-
-      if (3*kbt <= e1) then
+      !! save calculation time
+      if     ( 5*kbt <= e1 ) then
          factri = 0d0
-c$$$         elseif( 0d0 < e2  ) then   
-c$$$            factri = e1**2/(e2-e1+eps)/(e3-e1+eps)
-c$$$         elseif( 0d0 < e3  ) then   
-c$$$            factri = 1d0 - e3**2/(e3-e2+eps)/(e3-e1+eps)
-      elseif (e3 <= -3*kbt) then
+      elseif (e3 <= -5*kbt ) then
          factri = 1d0
-      else
+      else         
 !! norm factor for triangle prism (volume of triangle prism)
          voltp=(e2-e1)*(e3-e1)/2d0
          if (.true.) then
@@ -253,7 +271,7 @@ c$$$            factri = 1d0 - e3**2/(e3-e2+eps)/(e3-e1+eps)
             s2tp=int_simpson(e2,e3,e3)
             stp = s1tp - s2tp*(e2-e1)/(e3-e2)
             stp = stp/(voltp+eps)
-
+            factri=stp
 !! divided I0 + I1
          else
 !! analitically calculated: int_a^b dx/(exp(x)+1)
@@ -267,15 +285,41 @@ c$$$            factri = 1d0 - e3**2/(e3-e2+eps)/(e3-e1+eps)
             s1int2 = integral_1t(e2,e3)
             s1tp = s1int1 - s1int2*(e2-e1)/(e3-e2+eps)
             stp  = (s1tp+s2tp)/(voltp+eps)
+            factri=stp
          endif
 !! write(6,"('voltp,s1,s2,s1+s2/voltp',4E13.5)") voltp, s1tp, s2tp, stp
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       endif
       !! !! check comparision
-      !! write(6,"('factri,stp',3E13.5)") factri,stp, abs(stp-factri)
+      factri_ref=factri0(e1,e2,e3)
+c$$$      if ( log10(abs(factri-factri_ref)) > -7d0 ) then
+c$$$         write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
+c$$$      endif
 
+      err_sum  = err_sum  + (factri-factri_ref)
+      err_sum2 = err_sum2 + (factri-factri_ref)**2
+      nn = nn + 1
+      if (nn == 10000) then
+         write(6,"('nn, error(average)',I8,2E13.5)") nn,err_sum/nn,sqrt(err_sum2/nn-(err_sum/nn)**2)
+         !call rx("end")
+      endif
       end
 
+c--------------------------------------------------------------
+      !! available only 0 K 
+      real(8) function factri0(e1,e2,e3)
+      implicit none
+      real(8),intent(in):: e1, e2, e3
+      if (    0d0 <= e1) then
+         factri0 = 0d0
+      elseif( 0d0 < e2  ) then   
+         factri0 = e1**2/(e2-e1+eps)/(e3-e1+eps)
+      elseif( 0d0 < e3  ) then   
+         factri0 = 1d0 - e3**2/(e3-e2+eps)/(e3-e1+eps)
+      elseif ( e3 <= 0d0) then
+         factri0 = 1d0
+      endif
+      end function
 c--------------------------------------------------------------
       !! numerical integration: int x/(exp(x)+1) dx
       real(8) function integral_1t(e_start,e_end)
@@ -342,6 +386,23 @@ c--------------------------------------------------------------
       implicit none
       real(8):: x, ee
       funcgx2 = (x-ee)/(exp(x/kbt)+1)
+      end function
+c--------------------------------------------------------------
+      integer(8) function ndiv_tt(ttt)
+      implicit none
+      real(8):: ttt
+      integer(8):: n0 = 100000
+      if (ttt < 1d0) then
+         ndiv_tt = n0/2d0
+      else
+      !! ex: ndiv_tt = 10^4 for T=10  K
+      !! ex: ndiv_tt = 10^3 for T=100 K
+         ndiv_tt = int(n0/ttt) 
+         !! ndiv_tt must be an even number (for Simpson's rule)
+         if (mod(ndiv_tt, 2) == 1) then
+            ndiv_tt = ndiv_tt + 1
+         endif
+      endif
       end function
 c--------------------------------------------------------------
       real(8) function int_simpson(e_start,e_end,eeref)
