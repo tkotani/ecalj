@@ -1,6 +1,6 @@
       module m_ReadEfermi
       real(8),protected:: bandgap
-      real(8)::ef
+      real(8)::ef, ef_kbt
       contains
 
       subroutine readefermi()
@@ -12,6 +12,17 @@
       close(ifief)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       end subroutine
+
+      subroutine readefermi_kbt()
+      implicit none
+      integer:: ifief_kbt,ifile_handle
+      ifief_kbt=ifile_handle()
+      open(ifief_kbt,file='EFERMI_kbt')
+      read(ifief_kbt,*) ef,bandgap
+      close(ifief_kbt)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
+      end subroutine
+
       end module m_ReadEfermi
 
 !> get basic settings of crystal structure and nlm info

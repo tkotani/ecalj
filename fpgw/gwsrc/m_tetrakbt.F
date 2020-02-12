@@ -21,10 +21,11 @@ c-----------------------------------------------------
       tt = temperature+1d-12 !avoid 0
       kbt=kb*tt/rydberg()
       if (init) then
-         ndiv = ndiv_tt(tt)
-         write(6,"(' tetrakbt_init: T[K], kbt[Ry], kbt[eV]',3E13.5)") tt,kbt,kbt*rydberg()
+         !ndiv = ndiv_tt(tt)
+         ndiv = 1000 ! tmp
+         write(6,"(' tetrakbt_init: T[K], kbt[Ry], kbt[eV]',I5,2E13.5)") int(tt),kbt,kbt*rydberg()
          init = .false.
-         write(6,*) "ndiv",ndiv
+         !write(6,*) "ndiv",ndiv
       endif
       end subroutine
 c-----------------------------------------------------
@@ -299,9 +300,12 @@ c$$$      endif
       err_sum  = err_sum  + (factri-factri_ref)
       err_sum2 = err_sum2 + (factri-factri_ref)**2
       nn = nn + 1
-      if (nn == 10000) then
+      
+      if (nn == 10000 .and. tt < 1d-6 ) then !! only T=0 K
          write(6,"('nn, error(average)',I8,2E13.5)") nn,err_sum/nn,sqrt(err_sum2/nn-(err_sum/nn)**2)
-         !call rx("end")
+      endif
+      if (nn < 10000) then
+         write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
       endif
       end
 

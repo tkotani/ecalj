@@ -516,7 +516,9 @@ c        endif
 c      endif
       END
 
-      SUBROUTINE fermi(QVAL,DOS,NDOS,EMIN,EMAX,EFERM,e1,e2,dosef)
+      subroutine fermi(
+     i     qval,dos,ndos,emin,emax,
+     o     eferm,e1,e2,dosef)
 C- Makes fermi energy from integrated density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -532,13 +534,13 @@ Cr   emin and e1 (and emax and e2) may point to the same address.
 C ----------------------------------------------------------------------
 
 C Passed parameters
-      integer ndos
-      double precision qval,dos,emin,emax,eferm,e1,e2,dosef
+      integer:: ndos
+      real(8):: qval,dos,emin,emax,eferm,e1,e2,dosef
 C Local parameters
-      integer i1,ie
-      double precision de,q,q1,q2,d1mach
+      integer:: i1,ie
+      real(8):: de,q,q1,q2,d1mach
 C External procedures
-      external d1mach
+      external:: d1mach
 
       DIMENSION DOS(NDOS)
 
@@ -559,7 +561,6 @@ Cstop2rx 2013.08.09 kino        stop 'FERMI: Fermi energy lies above EMAX'
         call rx( 'FERMI: Fermi energy lies above EMAX')
       endif
 
-
       DE = (EMAX-EMIN)/(NDOS-1)
       I1 = 1
       q = qval + d1mach(3)
@@ -579,12 +580,202 @@ C ------------------
 c     e1 = emin + de*(i1 - 1)  -de
 c      e2 = e1 + 3*de
 c----------------------
-      print *,e1,QVAL,Q1,Q2,DE
+      !write(6,"('fermi:: i1,e1,qval,q1,q2,de',I7,5E13.5)") i1,e1,qval,q1,q2,de
       EFERM = e1 + (QVAL-Q1)/(Q2-Q1)*DE
       dosef = (q2-q1)/de
-      END
+      end subroutine fermi
+c-------------------------------------------------------------
+      subroutine fermi_kbt(
+     i     qval,dos,ndos,emin,emax,
+     i     kbt, eferm_init,
+     o     eferm_kbt)!,e1,e2,dosef_kbt)
 
+C- Makes fermi energy from integrated density
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   qval, number of electrons to fermi level; dos(i) integrated
+Ci   density at bin i; ndos, number of bins + 1; emin, emax, energy
+Ci   window.
+Co Outputs
+Co   Eferm, Fermi energy; e1, e2, confidence limits on Fermi energy
+Co   i.e., Fermi energy lies between e1 and e2.
+Co   dosef_kbt:  density of states at fermi level
+Cr Remarks
+Cr   emin and e1 (and emax and e2) may point to the same address.
+C ----------------------------------------------------------------------
 
+C Passed parameters
+      integer ndos
+      real(8):: qval,dos,emin,emax
+      real(8):: eferm_init,eferm_kbt,e0,e1,e2,dosef_kbt
+      real(8):: kbt, ec
+C Local parameters
+      integer:: i1,ie,ii,nii=100, ii_conv, i
+      real(8):: de,q,q1,q2,d1mach
+      real(8):: idos, idos_old, idos_l, rydberg
+      real(8):: eferm_i(4) !!Efermi(i+1),Efermi(i),Efermi(i-1),Efermi(i-2)
+C External procedures
+      external d1mach
+      logical:: debug = .false.
+      logical:: lessqval, moreqval
+
+      DIMENSION dos(ndos)
+
+      if (debug) then
+         write(6,"('ndos',I8)") ndos
+         write(6,"('qval,dos(1),dos(ndos)',3E13.5)") qval,dos(1),dos(ndos)
+         write(6,"('emin,emax',2E13.5)") emin,emax
+         write(6,"('kbt,efermi_init',2E13.5)") kbt,efermi_init
+      endif
+c$$$      do ii = 2,ndos
+c$$$         write(6,*) "aaaaaaaa:",ii,dos(ii)-dos(ii-1)
+c$$$      enddo
+c$$$      call rx("end")      
+      if (dos(1) .gt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
+      if (dos(1) .gt. qval) call rx( 'FERMI: Fermi energy lies below EMIN')
+      if (dos(ndos) .lt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
+      if (dos(ndos) .lt. qval) then
+        call rx( 'FERMI: Fermi energy lies above EMAX')
+      endif
+
+      de = (emax-emin)/(ndos-1)
+      q = qval + d1mach(3)
+      !write(6,"('fermi_kbt_plot:: ## fermi level (T=0 K)',E13.5)") eferm_init
+      !!! self-consistently determined Fermi energy Efermi(T)
+      eferm_i=-9999; eferm_i(1)=eferm_init
+
+      lessqval = .false.
+      moreqval = .false.
+      write(6,*) "fermi_i: iter, EF(i) EF(i-1) EF(i-2) EF(i-3)"
+      write(6,"(' fermi_i  iter =',I5,':',4E13.5)") 0,eferm_i(1:4)
+      do 200 ii = 1,nii
+         if (abs(eferm_i(2)-eferm_i(1)) < 1d-8 ) cycle !! check convergence
+         idos   = dos(1) !!initial
+         idos_l = dos(1) !!initial; left idos is necessarry for T=0 K
+         do 300 ie = 2, ndos
+            ddos = dos(ie)-dos(ie-1)
+            e0 = emin + de*(ie - 2)
+            e1 = emin + de*(ie - 1)
+            e2 = e1 + de
+            ec = (e1+e2)/2d0
+            idos = idos + ddos*(1d0/(exp((ec-eferm_i(1))/kbt)+1))
+            idos_l = idos_l + ddos*(1d0/(exp((e0-eferm_i(1))/kbt)+1))
+            if (debug) then
+               write(6,"('weight of fermi distribution',2E13.5)") 
+     &              1d0/(exp((ec-eferm_old)/kbt)+1)!,1d0/(exp((e0-eferm_old)/kbt)+1)
+               write(6,"('e1,e2,ec,eferm_old',4E13.5)") e1,e2,ec,eferm_old
+               write(6,"('ec,dos(i1),idos',I6,5E13.5)") ec,dos(i1),idos,idos_l
+            endif
+300      continue
+
+         !!! shift Efermi(i-1) <-- Efermi(i) for Efermi(i+1)
+         do i = 3,1,-1
+            eferm_i(i+1) = eferm_i(i)
+         enddo
+         !!! new Fermi energy Efermi(i+1) is determined in two cases (1) and (2)
+         !!! (1) Fermi energy is between Efermi(i-1) and Efermi(i)
+         if (lessqval .and. moreqval .and. ii >= 2) then
+            if (idos_l <= qval) then !! Eferm(i) <= qval
+               eferm_i(1)=(eferm_i(2) + eferm_i(3))/2d0
+            else                !! qval < idos_l !! Eferm(i) > qval
+               eferm_i(1)=(eferm_i(2) + eferm_i(4))/2d0
+            endif
+         !!! searching Fermi energy at finite temperature
+         !!! (2) Fermi energy is shifted by kbt/10
+         else
+            if (idos_l <= qval) then
+               eferm_i(1)=eferm_i(2)+kbt/real(ii) !!! E(i+1)=E(i)+kbt
+               lessqval = .true.
+            else                !! qval < idos_l (Efermi moves to lower energy)
+               eferm_i(1)=eferm_i(2)-kbt/real(ii) !!! E(i+1)=E(i)+kbt
+               moreqval = .true.
+            endif
+         endif
+         !eferm_i(1)=-8888
+         write(6,"(' fermi_i  iter =',I5,':',4E13.5)") ii,eferm_i(1:4)
+         ii_conv=ii
+200   continue !! unless converged 
+      if (ii_conv == nii) then
+         write(6,*) "fermi_kbt:: ----------- Note -----------"
+         write(6,*) "fermi_kbt:: EFermi(T) is not converged"
+         write(6,*) "fermi_kbt:: ----------------------------"
+      endif
+      write(6,*) "--------------------------------------------------------------------"
+      write(6,"(' fermi_kbt:: Efermi(T), Efermi(0) [Ry]',2f15.7)") eferm_i(1),eferm_init
+      write(6,"(' fermi_kbt:: Efermi(T), Efermi(0) [eV]',2f15.7)") eferm_i(1)*rydberg(),eferm_init*rydberg()
+      write(6,*) "--------------------------------------------------------------------"
+      !!! return
+      eferm_kbt = eferm_i(1)
+      end subroutine fermi_kbt
+c-------------------------------------------------------------
+ccc old version
+c$$$
+c$$$      if (debug) then
+c$$$         write(6,"('ndos',I8)") ndos
+c$$$         write(6,"('qval,dos(1),dos(ndos)',3E13.5)") qval,dos(1),dos(ndos)
+c$$$         write(6,"('emin,emax',2E13.5)") emin,emax
+c$$$         write(6,"('kbt,efermi_init',2E13.5)") kbt,efermi_init
+c$$$      endif
+c$$$c$$$      do ii = 2,ndos
+c$$$c$$$         write(6,*) "aaaaaaaa:",ii,dos(ii)-dos(ii-1)
+c$$$c$$$      enddo
+c$$$c$$$      call rx("end")      
+c$$$      if (dos(1) .gt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
+c$$$      if (dos(1) .gt. qval) call rx( 'FERMI: Fermi energy lies below EMIN')
+c$$$      if (dos(ndos) .lt. qval) print *, 'FERMI: EMIN,EMAX=', emin,emax
+c$$$      if (dos(ndos) .lt. qval) then
+c$$$        call rx( 'FERMI: Fermi energy lies above EMAX')
+c$$$      endif
+c$$$
+c$$$      de = (emax-emin)/(ndos-1)
+c$$$      q = qval + d1mach(3)
+c$$$      eferm  = eferm_init
+c$$$      !write(6,"('fermi_kbt_plot:: ## fermi level (T=0 K)',E13.5)") eferm_init
+c$$$
+c$$$      !!! self-consistently determined Fermi energy Efermi(T)
+c$$$      do 200 ii = 1,nii
+c$$$         if (abs(eferm-eferm_old) < 1d-8 ) cycle !! check convergence
+c$$$         idos   = dos(1)        !!initial
+c$$$         idos_l = dos(1)        !!initial; left idos is necessarry for T=0 K
+c$$$         eferm_old = eferm
+c$$$         do 300 ie = 2, ndos
+c$$$            if ( idos_l .gt. q ) cycle
+c$$$            idos_old = idos
+c$$$            ddos = dos(ie)-dos(ie-1)
+c$$$            e0 = emin + de*(ie - 2)
+c$$$            e1 = emin + de*(ie - 1)
+c$$$            e2 = e1 + de
+c$$$            ec = (e1+e2)/2d0
+c$$$            idos = idos + ddos*(1d0/(exp((ec-eferm_old)/kbt)+1))
+c$$$            idos_l = idos_l + ddos*(1d0/(exp((e0-eferm_old)/kbt)+1))
+c$$$            i1 = ie
+c$$$            if (debug) then
+c$$$               write(6,"('weight of fermi distribution',2E13.5)") 
+c$$$     &              1d0/(exp((ec-eferm_old)/kbt)+1)!,1d0/(exp((e0-eferm_old)/kbt)+1)
+c$$$               write(6,"('e1,e2,ec,eferm_old',4E13.5)") e1,e2,ec,eferm_old
+c$$$               write(6,"('i1,ec,dos(i1),idos',I6,5E13.5)") i1,ec,dos(i1),idos,idos_l
+c$$$            endif
+c$$$300      continue
+c$$$         q1 = dos(i1)
+c$$$         q2 = dos(i1+1)
+c$$$         eferm = e1 + (qval-q1)/(q2-q1)*de
+c$$$         !dosef_kbt = (q2-q1)/de
+c$$$         !write(6,"('fermi_kbt: i1,e1,qval,q1,q2,de',I7,5E13.5)") i1,e1,qval,q1,q2,de
+c$$$         write(6,"('fermi_kbt: iter,efermi,efermi_old',I5,2E13.5)") ii,eferm,eferm_old
+c$$$         ii_conv=ii
+c$$$200   continue !! unless converged 
+c$$$      if (ii_conv == nii+1) then
+c$$$         write(6,*) "fermi_kbt:: ----------- Note -----------"
+c$$$         write(6,*) "fermi_kbt:: EFermi(T) is not converged"
+c$$$         write(6,*) "fermi_kbt:: ----------------------------"
+c$$$      endif
+c$$$      write(6,*) "----------------------------------------------------------"
+c$$$      write(6,"('fermi_kbt:: Efermi(T), Efermi(0)',2E17.8)") eferm,eferm_init
+c$$$      !call rx("STOP routine")
+c$$$      write(6,"('emin,emax',2E13.5)") emin,emax
+c-------------------------------------------------------------
+
+c-------------------------------------------------------------
       subroutine fbzws(gu,g,q)
 
 c takes q into the 1st BZ

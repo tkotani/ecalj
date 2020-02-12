@@ -9,7 +9,7 @@
      &     checkorb2, diagwan, diagwan_tr, wan_imat,
      &     writehmat, writeddmat,
      &     read_wandata, nwf, nsp_w, nqtt_w
-      use m_ReadEfermi,only: readefermi,ef
+      use m_ReadEfermi,only: readefermi,ef, readefermi_kbt,ef_kbt
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_hamindex,only:qtt,nqtt
@@ -241,7 +241,8 @@ c$$$!! check write
 
 !! EFERMI
 cc need for gettetwt; automatically read file(okumura) OK
-      call readefermi()
+      call readefermi()     !!! ef:     Fermi energy at 0 K
+      call readefermi_kbt() !!! ef_kbt: Fermi energy at finite temperature
 
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine

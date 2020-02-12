@@ -12,6 +12,8 @@ c-------------------------------------------------------------
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use m_readeigen,only: init_readeigen,readeval
+      use m_tetrakbt,only: tetrakbt_init, kbt
+      use m_keyvalue,only: getkeyvalue
 
       implicit none
       real(8) :: shtw
@@ -109,6 +111,13 @@ c
 
       integer(4):: bzcase=1,ifile_handle,ifi
       real(8):: tolq=1d-8
+
+      !! fermi_kbt
+      integer:: nptdos_kbt = 100001
+      integer(4):: ifief_kbt
+      real(8), allocatable:: dos_kbt(:), dosef_kbt
+      real(8) :: efermi_kbt, e11, e22
+      logical:: usetetrakbt
 
 c---------------------------------------
       write(6,*) 'mode=(1-4)?'
@@ -381,21 +390,24 @@ cccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccc
 
       if(e1 == e2) then ! --- Find band gap  e1=e2 is at the middle of gap---
-        efermi = e1
+        efermi     = e1
         write(6,*)'heftet: only filled or empty bands encountered.'
         write(ifief,"(2d23.15,a)") efermi,bandgap,
      &  ' ! This efermi bandgap are obtained by heftet: '
         write(ifief,"(a)")'heftet: only filled or empty bands encountered.'
       else ! --- Find the Fermi energy by the Tetrahedron method ---
         write(6,*)' goto bzints2 for dos'
-        allocate(dos(nptdos))
+        allocate(dos(nptdos), dos_kbt(nptdos_kbt))
         volwgt = (3.d0 - nsp) / ntetf ! ntetf was =6*n1*n2*n3
         write (6,"(1x,'heftet : ---- Tetrahedron Integration ---- ')")
+
         do itt = 1, 10
           call bzints2x(volwgt,eband,dum111,nkp,ldim,nbmax,
-     .              nsp,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
-          call fermi(zval,dos,nptdos,e1,e2,efermi,e1,e2,dosef)
-c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
+     &          nsp,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
+          call fermi(
+     i         zval,dos,nptdos,e1,e2,
+     o         efermi,e1,e2,dosef)
+          !! write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
           if(e2 - e1 < tol) goto 4
         enddo
         write(*,*) 'heftet:bug in fermi level finder or tol too small'
@@ -403,6 +415,28 @@ c          write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef
 c        call
 c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
     4   continue
+
+c--------- Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
+        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+        if (usetetrakbt) then
+           call tetrakbt_init() !! read kbt
+           e11 = efermi - 10*kbt
+           e22 = efermi + 10*kbt
+           nptdos_kbt = 10001
+           call bzints2x(volwgt,eband,dum111,nkp,ldim,nbmax,
+     &          nsp,e11,e22,dos_kbt, nptdos_kbt ,efermi,1,nteti,idteti)
+           call fermi_kbt(
+     i          zval,dos_kbt,nptdos_kbt,e11,e22,
+     i          kbt, efermi,    !!efermi: Fermi level at 0K
+     o          efermi_kbt)     !,e11,e22,dosef_kbt) !!efermi_kbt: Fermi level at finite tempearture.
+           ifief_kbt = ifile_handle()
+           open(ifief_kbt,file='EFERMI_kbt')
+           write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,
+     &          ' ! This efermi kbt are obtained by heftet: '
+           close(ifief_kbt)
+        endif
+c--------------------------------------------------------------------------
+
         deallocate(dos)
         bandgap=0d0
         write(ifief,"(2d23.15,a)") efermi,bandgap," ! This efermi bandgap are obtained by heftet"
@@ -423,6 +457,7 @@ c- eband check
         write(6,*) ' check OK! eband(nband,:,:) is greater than efermi.'
  666    continue
       endif
+
 c
       if(imode==1) then
         write(6,"(' Tet EFERMI gap = ',2f24.15)") efermi,bandgap
