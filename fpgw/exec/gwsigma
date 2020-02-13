@@ -89,7 +89,7 @@ do
    cp EVU EVD  # This is for ANFcond. Rarely used recently
  fi
  argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
- argin=1; run_arg $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
+# argin=1; run_arg $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
  ### Core part of the self-energy (exchange only) ###
 # argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
 # argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
