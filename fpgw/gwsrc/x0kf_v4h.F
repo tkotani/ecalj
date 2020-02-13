@@ -307,7 +307,9 @@ c$$$ccccccccccccccccccccccccccccccccccc
         enddo
 !TIME1_1301 "before_eibzmode_symmetrization"
  9999 continue
-      write(6,"(' --- x0kf_v4hz: end')")
+      write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
+      if(debug) write(6,"(' --- ', 3d13.5)")
+     &     sum(abs(rcxq(1:nmbas,1:nmbas,1:nwt,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwt,1:npm)))
       end subroutine x0kf_v4hz
 
 !! --------------------------------------------------------------------------------

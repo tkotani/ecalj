@@ -1,5 +1,5 @@
       logical function usetetrakbt()
-      usetetrakbt=.true.
+      usetetrakbt=.false.
       end
 
 !! ---------------------

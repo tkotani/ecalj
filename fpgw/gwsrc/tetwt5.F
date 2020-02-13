@@ -201,7 +201,7 @@ c      real(8):: fermi_dS(3,3) !not yet used...
       logical,optional:: wan
       real(8):: kbt
 c---------------------------------------------------------------------
-      write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt()
+      write(6,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,2x,l)") job,efermi,usetetrakbt()
 c      if(verbose()>=150) chkwrt=.true.
       voltot = abs(det33(qbas))
       piofvoltot = pi/4d0/voltot
