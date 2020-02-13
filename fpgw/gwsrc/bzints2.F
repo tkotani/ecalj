@@ -329,7 +329,7 @@ cmod Apr.21.1999
           nbbot = nbtop
         endif
       else    ! zval is not integer
-        nbbot = nval / 2  +1
+        nbbot = int(zval/2) + 1 !nval / 2  +1
         nbtop = nbbot
       endif
 c e1 is for bottom of conduction.
