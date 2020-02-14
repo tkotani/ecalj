@@ -18,7 +18,7 @@
       integer:: ifief_kbt,ifile_handle
       ifief_kbt=ifile_handle()
       open(ifief_kbt,file='EFERMI_kbt')
-      read(ifief_kbt,*) ef,bandgap
+      read(ifief_kbt,*) ef_kbt,bandgap
       close(ifief_kbt)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
       end subroutine

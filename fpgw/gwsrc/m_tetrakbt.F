@@ -22,10 +22,10 @@ c-----------------------------------------------------
       kbt=kb*tt/rydberg()
       if (init) then
          !ndiv = ndiv_tt(tt)
-         ndiv = 1000 ! tmp
+         ndiv = 10000 ! tmp
          write(6,"(' tetrakbt_init: T[K], kbt[Ry], kbt[eV]',I5,2E13.5)") int(tt),kbt,kbt*rydberg()
          init = .false.
-         !write(6,*) "ndiv",ndiv
+         write(6,*) "ndiv",ndiv
       endif
       end subroutine
 c-----------------------------------------------------
@@ -255,9 +255,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !! write(6,"('--oku e1, e2-e1, e3-e2, e3-e1: ',4E13.5)") e1,(e2-e1)/e1,(e3-e2)/e1,(e3-e1)/e1
 
       !! save calculation time
-      if     ( 5*kbt <= e1 ) then
+      if     ( 10*kbt <= e1 ) then
          factri = 0d0
-      elseif (e3 <= -5*kbt ) then
+      elseif (e3 <= -10*kbt ) then
          factri = 1d0
       else         
 !! norm factor for triangle prism (volume of triangle prism)
@@ -293,6 +293,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       endif
       !! !! check comparision
       factri_ref=factri0(e1,e2,e3)
+      factri = factri_ref       !! check Feb13, 2020
 c$$$      if ( log10(abs(factri-factri_ref)) > -7d0 ) then
 c$$$         write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
 c$$$      endif

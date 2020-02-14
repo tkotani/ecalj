@@ -68,7 +68,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
      &     zxq_d(:,:)
 
 !  tetrahedron method
-      logical :: tetra=.true.
+      logical :: tetra=.true., usetetrakbt
       ! so as to reduce the memory usage.
       complex(8) :: fff,img=(0d0,1d0)
       logical :: debug
@@ -241,8 +241,15 @@ c$$$!! check write
 
 !! EFERMI
 cc need for gettetwt; automatically read file(okumura) OK
-      call readefermi()     !!! ef:     Fermi energy at 0 K
-      call readefermi_kbt() !!! ef_kbt: Fermi energy at finite temperature
+!! tetrakbt mode (usetetrakbt)
+      call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+      if (usetetrakbt) then
+         call readefermi_kbt()  !!! ef_kbt: Fermi energy at finite temperature
+         ef = ef_kbt
+      else
+         call readefermi()      !!! ef:     Fermi energy at 0 K
+      endif
+
 
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine

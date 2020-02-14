@@ -43,6 +43,8 @@ if [ -e ${lqg4gw} ]; then
 fi
 
 
+
+echo 1 | $nfpgw/heftet # EFERMI_kbt
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
 
 mpirun -np $MPI_SIZE $nfpgw/hmagnon
