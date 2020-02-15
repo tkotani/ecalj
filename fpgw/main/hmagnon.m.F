@@ -250,7 +250,6 @@ cc need for gettetwt; automatically read file(okumura) OK
          call readefermi()      !!! ef:     Fermi energy at 0 K
       endif
 
-
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine
 !!

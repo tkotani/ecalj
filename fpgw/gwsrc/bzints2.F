@@ -1,6 +1,6 @@
 c taken from the gwx1/lib/tetra.for
-      SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,NSP,EMIN,EMAX,
-     .   DOS,NR,EF,JOB,NTET,IDTET)
+      SUBROUTINE BZINTS2x(volwgt,EP,WP,NQ,nband,NB,
+     &     NSP,EMIN,EMAX,DOS,NR,EF,JOB,NTET,IDTET)
 C-  Bz integrations by linear method.
 C ----------------------------------------------------------------------
 Ci Inputs:

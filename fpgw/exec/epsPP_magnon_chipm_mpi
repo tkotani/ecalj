@@ -22,6 +22,8 @@ TARGET=$3
 # source $nfpgw/run_arg
 ###
 
+### create EFERMI_kbt if usetetrakbt mode
+
 ### check n1n2n3 in GWinput and lqg4gw
 ### if n1n2n3 same each other, then we skip lqg4gw
 lqg4gw="lqg4gw"
@@ -34,7 +36,16 @@ if [ -e ${lqg4gw} ]; then
     for ((i=1;i<4;i++)); do
 	if [ ${arygwin[$i]} = ${aryqg[$i+1]} ]; then
 	    echo "n"${i}" is same."
+	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt
 	else
+	    ### EFERMI_kbt for original n1n2n3
+	    cp GWinput GWinput.magnon
+	    tmpnn=${aryqg[2]}" "${aryqg[3]}" "${aryqg[4]}"  \! comment"
+	    # echo ${tmpnn}
+	    sed -i -e "s/^n1n2n3/n1n2n3 $tmpnn/" GWinput
+	    echo 5 | $nfpgw/heftet &> leftet_kbt # EFERMI_kbt	   
+	    mv GWinput.magnon GWinput
+	    ### qg4gw for n1n2n3 GWinput_for_magnon
 	    echo "start qg4gw"
 	    echo 1 | ~/bin/qg4gw > lqg4gw ### generate BZdata
 	    break
@@ -42,9 +53,6 @@ if [ -e ${lqg4gw} ]; then
     done
 fi
 
-
-
-echo 1 | $nfpgw/heftet # EFERMI_kbt
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
 
 mpirun -np $MPI_SIZE $nfpgw/hmagnon

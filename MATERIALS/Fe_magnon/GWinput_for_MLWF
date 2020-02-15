@@ -3,8 +3,6 @@
 !!! Each tag section in <...>... </...> has its own format. !!! 
 
 qsym 100
-tetrakbt on
-t_tterakbt 0
 
 !EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
 !chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.

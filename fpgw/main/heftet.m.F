@@ -120,11 +120,11 @@ c
       logical:: usetetrakbt
 
 c---------------------------------------
-      write(6,*) 'mode=(1-4)?'
+      write(6,*) 'mode=(1-5)?'
       read(5,*) imode
 c      call headver('heftet',imode)
       write(6,*) '--- heftet: calculation mode =',imode
-      if(imode<1.or.imode>4) call rx( 'mode out of range(1-4)')
+      if(imode<1.or.imode>5) call rx( 'mode out of range(1-4)')
 c---------------------------------------
 
 c---  readin BZDATA. See gwsrc/rwbzdata.f
@@ -258,7 +258,7 @@ c      valn=29d0
 c      write(6,*)' valn=',valn
 cccccccccccccccccccccccccccccccccccccccccc
 
-      if(imode==1) then
+      if(imode==1 .or. imode==5) then
         call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
         ! EValue is readin in init_readeigen
         nsp   = nspin !26jan2006
@@ -418,7 +418,7 @@ c     &  fexit(-1,'heftet:bug in fermi level finder or tol too small')
 
 c--------- Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
         call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
-        if (usetetrakbt) then
+        if (imode==5 .and. usetetrakbt) then
            call tetrakbt_init() !! read kbt
            e11 = efermi - 10*kbt
            e22 = efermi + 10*kbt
@@ -430,6 +430,7 @@ c--------- Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
      i          kbt, efermi,    !!efermi: Fermi level at 0K
      o          efermi_kbt)     !,e11,e22,dosef_kbt) !!efermi_kbt: Fermi level at finite tempearture.
            ifief_kbt = ifile_handle()
+           deallocate(dos_kbt)
            open(ifief_kbt,file='EFERMI_kbt')
            write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,
      &          ' ! This efermi kbt are obtained by heftet: '
@@ -444,7 +445,7 @@ c--------------------------------------------------------------------------
       close(ifief)
 
 c- eband check
-      if(imode/=1) then
+      if(imode/=1 .or. imode/=5) then
         do  is  = 1,nspin
           do  iqi = 1,nqibz
             if( eband(nband,is,iqi) <efermi) then
@@ -471,5 +472,8 @@ c
       elseif(imode==4) then
         write(6,"(' Tet EFERMI.QPz=1 gap= ',2f24.15)") efermi,bandgap
         call rx0( ' OK! heftet mode=4 EFERMI.QPz=1 generated ')
+      elseif(imode==5) then
+        write(6,"(' Tet EFERMI EFERMI_kbt = ',2f24.15)") efermi,efermi_kbt
+        call rx0( ' OK! heftet mode=5 EFERMI and EFERMI_kbt ')
       endif
       end
