@@ -222,6 +222,7 @@ c$$$      write(6,"('xxx eaft00=',4d19.4)") eaft(1:4)
 c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
       end 
 
+c-------------------------------------------------------------------------
       real(8) function eafww(ecenter,i,j, ww, eaft)
       implicit none
       integer,intent(in):: i,j
@@ -231,6 +232,7 @@ c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
       eafww = eaft(i)* (1d0-wgt) + eaft(j)* wgt
       end
 
+c-------------------------------------------------------------------------
       real(8) function factri(eaf)
 !! Triangle weight for the domain of eaf<0. ---> we will make it for finite temperature version
 !! Temperature factor kbt will be implemented by H.Okumura soon!
@@ -245,15 +247,14 @@ c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
       integer:: isig,ieaord(3)
       real(8) :: e1,e2,e3, factri_ref
       logical(8):: fdfunc = .false.
+      logical(8):: debug = .false.
 
       call sortea( eaf,ieaord, 3 ,isig)
       e1= eaf(ieaord(1)) ! Note that e1,e2,e3 are just nicknames for variables.
       e2= eaf(ieaord(2)) ! e1 < e2 <e3
       e3= eaf(ieaord(3))
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !! write(6,"('--oku e1, e2-e1, e3-e2, e3-e1: ',4E13.5)") e1,(e2-e1)/e1,(e3-e2)/e1,(e3-e1)/e1
-
       !! save calculation time
       if     ( 10*kbt <= e1 ) then
          factri = 0d0
@@ -292,23 +293,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       endif
       !! !! check comparision
-      factri_ref=factri0(e1,e2,e3)
-      factri = factri_ref       !! check Feb13, 2020
-c$$$      if ( log10(abs(factri-factri_ref)) > -7d0 ) then
-c$$$         write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
-c$$$      endif
+      if (debug) then
+         factri_ref=factri0(e1,e2,e3)
+         factri = factri_ref    !! check Feb13, 2020
+         if ( log10(abs(factri-factri_ref)) > -7d0 ) then
+            write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
+         endif
+         err_sum  = err_sum  + (factri-factri_ref)
+         err_sum2 = err_sum2 + (factri-factri_ref)**2
+         nn = nn + 1      
+         if (nn == 10000 .and. tt < 1d-6 ) then !! only T=0 K
+            write(6,"('nn, error(average)',I8,2E13.5)") nn,err_sum/nn,sqrt(err_sum2/nn-(err_sum/nn)**2)
+         endif
+         if (nn < 10000) then
+            write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
+         endif
+      endif
 
-      err_sum  = err_sum  + (factri-factri_ref)
-      err_sum2 = err_sum2 + (factri-factri_ref)**2
-      nn = nn + 1
-      
-      if (nn == 10000 .and. tt < 1d-6 ) then !! only T=0 K
-         write(6,"('nn, error(average)',I8,2E13.5)") nn,err_sum/nn,sqrt(err_sum2/nn-(err_sum/nn)**2)
-      endif
-      if (nn < 10000) then
-         write(6,"('factri,factri0,diff',3E13.5)") factri,factri_ref,factri-factri_ref
-      endif
-      end
+      end function factri
 
 c--------------------------------------------------------------
       !! available only 0 K 
@@ -325,6 +327,7 @@ c--------------------------------------------------------------
          factri0 = 1d0
       endif
       end function
+
 c--------------------------------------------------------------
       !! numerical integration: int x/(exp(x)+1) dx
       real(8) function integral_1t(e_start,e_end)
@@ -342,7 +345,8 @@ c--------------------------------------------------------------
          sumval = sumval + 2d0*funcgx(x,1)
       enddo
       integral_1t = (funcgx(e_start,1)+sumval+funcgx(e_end,1))*hdiv/2d0
-      end function
+      end function integral_1t
+
 c--------------------------------------------------------------
       !! numerical integration: int 1/(exp(x)+1) dx
       real(8) function integral_0t(e_start,e_end)
@@ -360,14 +364,16 @@ c--------------------------------------------------------------
          sumval = sumval + 2d0*funcgx(x,0)
       enddo
       integral_0t = (funcgx(e_start,0)+sumval+funcgx(e_end,0))*hdiv/2d0
-      end function
+      end function integral_0t
+
 c--------------------------------------------------------------
       real(8) function funcgx(x,n)
       implicit none
       integer(8):: n
       real(8):: x!, kbt 
       funcgx = x**n/(exp(x/kbt)+1)
-      end function
+      end function funcgx
+
 c--------------------------------------------------------------
       real(8) function numintall(e_start,e_end,eeref)
       !! trapezoidal rule
@@ -384,14 +390,16 @@ c--------------------------------------------------------------
          sumval = sumval + 2d0*funcgx2(x,eeref)
       enddo
       numintall = (funcgx2(e_start,eeref)+sumval+funcgx2(e_end,eeref))*hdiv/2d0
-      end function
+      end function numintall
+
 c--------------------------------------------------------------
       !! (x-e)f(x)
       real(8) function funcgx2(x,ee)
       implicit none
       real(8):: x, ee
       funcgx2 = (x-ee)/(exp(x/kbt)+1)
-      end function
+      end function funcgx2
+
 c--------------------------------------------------------------
       integer(8) function ndiv_tt(ttt)
       implicit none
@@ -408,7 +416,8 @@ c--------------------------------------------------------------
             ndiv_tt = ndiv_tt + 1
          endif
       endif
-      end function
+      end function ndiv_tt
+
 c--------------------------------------------------------------
       real(8) function int_simpson(e_start,e_end,eeref)
       !! Simpson's rule for integration
@@ -434,6 +443,7 @@ c--------------------------------------------------------------
       enddo
       int_simpson = (funcgx2(e_start,eeref)+sumval+funcgx2(e_end,eeref))*hdiv/3d0
       end function
+
 c--------------------------------------------------------------
       end module m_tetrakbt
 
