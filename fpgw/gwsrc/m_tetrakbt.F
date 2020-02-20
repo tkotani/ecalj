@@ -21,8 +21,8 @@ c-----------------------------------------------------
       tt = temperature+1d-12 !avoid 0
       kbt=kb*tt/rydberg()
       if (init) then
-         !ndiv = ndiv_tt(tt)
-         ndiv = 10000 ! tmp
+         ndiv = ndiv_tt(tt)
+         ! ndiv = 10000 ! tmp
          write(6,"(' tetrakbt_init: T[K], kbt[Ry], kbt[eV]',I5,2E13.5)") int(tt),kbt,kbt*rydberg()
          init = .false.
          write(6,*) "ndiv",ndiv

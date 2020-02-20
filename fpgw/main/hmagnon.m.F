@@ -4,7 +4,7 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_magnon_chipm mode works).
       program hmagnon
-      use m_readwan,only: write_qdata, wan_readeigen, wan_readeval,
+      use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2,
      &     readscr, checkorb, getqsym,
      &     checkorb2, diagwan, diagwan_tr, wan_imat,
      &     writehmat, writeddmat,
@@ -110,7 +110,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       complex(8),allocatable:: UU0(:,:),VT0(:,:)
 
       logical ::  chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
-     &  ,epsmode=.false.,normalm=.false., crpa=.false. 
+     &     ,epsmode=.false.,normalm=.false., crpa=.false.
+     &     ,autogamma=.false., l1wkout=.false.
       real(8):: qs,qt,ww,muu, ddq(3)
 
 ! Feb2006 time-reversal=off case
@@ -124,7 +125,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer,allocatable:: nwgt(:,:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       integer:: ificlass,ifile_handle,k
       real(8)::ebmx
-      integer:: nbmx,mtet(3)!,ifq0p
+      integer:: nbmx,mtet(3)
+
+! Feb2020 QforEPS mode
+      integer:: ifq0p, nq0ix, neps, nqbze, nqibze!, ngcmx, ngpmx
+      real(8), allocatable:: qbze(:,:), qibze(:,:)
 
 !     okumura
       integer::iwf,jwf,inwf,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
@@ -192,13 +197,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 
       write(6,*) " OK ixc=223    chipm_wannier sergey's "
       imagomega =.false.
-      omitqbz=.false.
+      omitqbz=.true. ! for QforEPS (20Feb, 2020)
       epsmode = .true.
       chipm=.true.
       nolfco=.true.
       wan=.true.
-
-
 
 !! We fix newaniso2=T now.
 
@@ -263,27 +266,64 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
 
       tpioa=2d0*pi/alat
 
-!     ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
+!! QforEPS mode: 19Feb, 2020
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! --- Readin Offset Gamma --------
+      if(debug) write(6,*) 'reading QOP'
+      ifq0p=ifile_handle()
+      open (ifq0p,file='Q0P')
+      read (ifq0p,"(i5)") nq0i
+      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
+      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+      do i=1,nq0i
+        read (ifq0p, * ) wqt(i),q0i(1:3,i)
+      enddo
+      close(ifq0p)
+      nq0ix = nq0i
+      do i=1,nq0i
+        if(wqt(i)==0d0 ) then
+          nq0ix = i-1
+          exit
+        endif
+      enddo
+      neps = nq0i - nq0ix  ! number of zero weight q0p 
+      write( 6,*) ' num of zero weight q0p=',neps
+      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+
+!! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
+      nqbze  = nqbz *(1 + nq0i)
+      nqibze = nqibz + nq0i
+      allocate( qbze(3, nqbze), qibze(3, nqibze))
+      qbze(:,1:nqbz)   = qbz(:,1:nqbz)
+      qibze(:,1:nqibz) = qibz(:,1:nqibz)
+      do i = 1,nq0i
+        qibze(:,nqibz+i)  = q0i(:,i)
+        ini = nqbz*(1 + i -1)
+        do ix=1,nqbz
+          qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
+          if( abs(qbze(1,ini+ix)+0.1d0)+abs(qbze(2,ini+ix)+0.1d0)<1d-6 ) then
+            write(6,"('hx0fp0 qbze q0i=',i8,3f18.14,2x,3f14.10)") ini+ix,qbze(:,ini+ix),q0i(:,i)
+          endif
+        enddo
+      enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+!! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
       call read_wandata() ! nwf, nsp_w,nqtt_w
       call readscr(nwf,scrw)
       nnwf=nwf*nwf
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      endif
-
 c$$$      !Weight for irreducible q-point (qibz)
 c$$$      do iq=1,nqibz
 c$$$         write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq)
 c$$$      enddo
 c
-cccccccccccccccccc Screening W for magnon 
 
-
-
+!! Screening W for magnon 
       scrw(:,:)=scrw(:,:)/hartree
       iqxend = nqibz !+ nq0i
       
-ccccccccccccccccccccc Shift W by hand (Oct.02, 2019)
+!! Shift W by hand (Oct.02, 2019)
       if (cma_mode) then
          allocate(scrw_original(nnwf,nnwf))
          scrw_original = scrw
@@ -300,7 +340,6 @@ c     nstibz(iq) = nstbz(iqbz)
          write(6,"(' iq qibz nstibz=',2i5,3f9.4,i5)")iq,iqbz,qibz(:,iq) !,nstibz(iq)
       enddo
 
-ccccccccccccccccccccccccccccccccccccc
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       wemax=    5d0 !max value for plot
       omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
@@ -326,9 +365,7 @@ c$$$      endif
       !if (wan) then
       noccxv = nwf
       print *,"noccxv ",noccxv
-ccccccccccc
       noccx  = noccxv + nctot
-cccccccccc
       nprecx = ndble  !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       nspinmx = nspin
@@ -336,6 +373,20 @@ cccccccccc
       mtet=(/1,1,1/) !dummy
 c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
 !okumura
+
+!! Set iqxini !omitqbz means skip loopf for iq=1,nqibz !19Feb,2020
+      if(omitqbz) then
+        iqxini= nqibz + 1
+      else
+        iqxini= 1
+      endif
+      iqxend = nqibz + nq0i
+
+      write(6,"('iqxini,iqxend',2I8)") iqxini,iqxend
+      do iq = iqxini,iqxend
+         write(6,"('iq, qibze:',I8,3E13.5)") iq-iqxini,qibze(:,iq)
+         autogamma=.true.
+      enddo
       
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
  !! EIBZ mode memo for nolfco (right?) 
@@ -350,33 +401,26 @@ c$$$c     end okumura
      &     ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       nwgt=1
             
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! Wannier eigenvalues are read
       do is=1,nspinmx
-         call wan_readeigen(qbz(:,:),nqbz,is,nsp_w)
+         !call wan_readeigen(qbz(:,:),nqbz,is) !QforEPSL ver. (20Feb, 2020)
          call write_qdata(ginv,nqbz,qbz(:,:))
-      enddo      
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      !allocate(qshort_all(3,7))
-      !! qshort_all=(q0, q1, q2, ...)
-      !! symlist=("Gamma", "100", "100", ...)
-      !! iqlist: original iq for qibz(3,iq)
-      !! nqsym: total number of qibz for magnon
-      !! lqsh_all: T/F = qshort_all (all irreducible point / qsyml in GWinput)
-      lqsh_all=.false.
-      call getqsym(
-     i     qlat,ngrp,symgg,qibz,nqibz,
-     o     qshort_all, nqsym, symllist, iqlist,
-     i     lqsh_all)
-      write(6,"('nqsym:',I4)") nqsym
-      do iq=1,nqsym
-         write(6,"(I3,'  qshort (on ',A6,') = ',3f9.5)") iq,symllist(iq),qshort_all(:,iq)
       enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      call MPI__hmagnon_rankdivider(nqsym)
 
+!! Gamma point is automatically added if qibze does not include.
+      if (.not. sum(abs(qibze(:,iqxini)**2)) == 0d0) then
+         write(6,*) "Gamma point is automatically added"
+         iqxini=iqxini-1 !! Gamma: iqxini-1
+      endif
+      nqsym=iqxend-iqxini+1
+      write(6,"('nqsym:',I4)") nqsym
+      
+!! symllist is not valid in this version (20Feb,2020); tmporally
+      allocate(symllist(nqsym))
+      symllist="EPSL"
+
+!! mpi processing for QforEPSL
+      call MPI__hmagnon_rankdivider(nqsym)
       write(6,*) "nqsym mpi_MEq(:)",nqsym,mpi__MEq
       allocate(rpa_maximr(mpi__MEq),mf_maximr(mpi__MEq)) !list of w(MAX(Im[R])): magnon peak
       rpa_maximr=0d0; mf_maximr=0d0
@@ -388,13 +432,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call MPI__barrier()
 
 !! ======== Loop over iq ================================
-      do 1001 iq = 1,nqsym      ! NOTE: q=(0,0,0) is omitted when iqxini=2
+      do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
+         iq = iqq-iqxini+1 !! start with iq=1 for convenience
          if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
          if(.not. MPI__task(iq) .and. iq .ne. 1) cycle
-         qshort=qshort_all(:,iq)!qibz(:,iqlist(iq))
-         q=qibz(:,iqlist(iq))
+
+         !! automatically set q=(0 0 0)
+         if (autogamma .and. iq==1) then
+            q = 0d0
+         else
+            q = qibze(:,iqq)
+         endif
          imaximr=imaximr+1      !!! imaximr=1,2,...,mpi__MEq
-         !write(6,"('qshort (on syml) = ',I3,3f9.5)") iq,qshort
 
 !! Caution : confusing point
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
@@ -404,13 +453,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
             endif
          endif
-
 !!! write qshort instead of q
-         !write(6,"('===== do 1001: iq q(qshort)=',i7,3f9.4,' ========')")iqlist(iq),qshort !qq
          !wibz: BZ weight 
+         wibz=0d0 !! not valid this version 20Feb,2020
          write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')")
-     &        iq,wibz(iqlist(iq)),qshort !qq
-
+     &        iq,q!,wibz(iqlist(iq)),qshort !qq
          if (lhm) cycle
             
 !     ! zxq and zxqi are the main output after Hilbert transformation
@@ -419,7 +466,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if (.not. allocated(zxq_d)) allocate( zxq_d(nnwf,nnwf) )
          zxq=0d0;  zxqi=0d0
          if(debug) write(6,*)' niw nw=',niw,nw
-         
+
 !     ! ==== spin chi_charge or chi_+- ====
          is=1
          isf=2
@@ -446,10 +493,10 @@ ccccccccccccccc simple band for check
          iwf=ifile_handle()
          print *,"wan_readeval start"
          
-         do kx=1,nqbz           !!! ev_w1, ev_w2 unit: [Ry]
-            call wan_readeval(  qbz(:,kx), is,
+         do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
+            call wan_readeval2(  qbz(:,kx), is,
      o           ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx))
-            call wan_readeval(q+qbz(:,kx), isf,
+            call wan_readeval2(q+qbz(:,kx), isf,
      o           ev_w2(1:nwf,kx), evc_w2(1:nwf,1:nwf,kx))            
 
             !! only Cu2MnAl (cma)
@@ -466,7 +513,7 @@ c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2
                enddo
             endif
             !! end cma
-         enddo
+ 5001    continue
 
          write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
@@ -712,12 +759,15 @@ c$$$         call wan_imat(nwf,imat) !
 
       endif
 ccccccc
-      if (MPI__task(iq)) then
-c$$$         ifwkeigen2=ifile_handle()
-c$$$         open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
-         ifwkeigen3=ifile_handle()
-         open(ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
+      if (l1wkout) then
+         if (MPI__task(iq)) then
+c$$$  ifwkeigen2=ifile_handle()
+c$$$  open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
+            ifwkeigen3=ifile_handle()
+            open(ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
+         endif
       endif
+
 cccccccdiagonalization for K
       print *,"nw_i,nw",nw_i,nw
       maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
@@ -747,23 +797,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                 iw,sum((zxq(:,:,:)))
                do iww=nw_i,nw
                   if (iww==0) cycle !skip w=0 (Cauthy principle integral)
-                  call diagcvuh3(zxq(:,:,iww),nnwf,eval_wk2)
-
+                  call diagcvuh3(zxq(:,:,iww),nnwf,eval_wk2)               
                   do iwf=1,nnwf
                      if (abs(aimag(eval_wk2(iwf))) < 1d-16) eval_wk2(iwf)=cmplx(dble(eval_wk(iwf)),0d0,kind(0d0))
                   enddo
-
+               
                   www2 = freq_r(iww)
                   if (iww<0) www2 = -freq_r(iww)
                   trmat2 = trmat2 + 
      &                 sum(eval_wk2)/(znorm)*www2*abs(freq_r(abs(iww))-freq_r(abs(iww)-1))
-               enddo
+               enddo                              
                call diagcvuh3(zxq(:,:,0),nnwf,eval_wk2) !for Re[K(w=0)]
                write(ifchipmz_wan,"('# int ImK/omega dw, Re[K(0)]=',2E13.5)") aimag(trmat2),sum(real(eval_wk2))
             endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-            write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E17.9)") qshort,
+            write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E17.9)") q,
 !     &        iw,www*2d0,trmat/hartree
      &           iw,www*2d0,hartree*sum(eval_wk)/(znorm)         
             !!! Im[K] [1/Ry] ?
@@ -786,7 +834,7 @@ cc W shift (q is far from Gamma)
 cc W shift for Cu2MnAl
          if (cma_mode) then
             scrw = scrw_original
-            if (sqrt(dot_product(qshort,qshort)) > 0.5) then
+            if (sqrt(dot_product(q,q)) > 0.5) then
                do jwf=1,nwf
                   if (.not. cma_iwf_s <= jwf.and.jwf <= cma_iwf_e) cycle
                   ijwf_j=(jwf-1)*nwf+iwf                  
@@ -796,16 +844,12 @@ cc W shift for Cu2MnAl
             endif
          endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 !!! WK matrix
          wkmat(1:nnwf,1:nnwf)
      &        =eta*matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw))
-
+            
 c??     &        =eta*matmul(scrw(1:nnwf,1:nnwf),abs(zxq(1:nnwf,1:nnwf,iw)))
 cccc Hermite check (WKmat)
-
-
 cccc  For developing program
          if (write_hmat) then
             if (iq==4 .and. iw==205) then
@@ -820,7 +864,7 @@ cccc  For developing program
                endif
             endif
          endif
-cccc
+cccc            
          if (debug) then
             call diagcvuh3(wkmat(:,:),nnwf,eval_wk)
             if (iw==45) then
@@ -843,6 +887,7 @@ ccc Hermite check for 1-eWK for developing code
                call writehmat(wkmat2,nwf,"1wkmat_check.dat")
             endif
          endif
+            
 !!! eigenvalue of 1-WK
          if (debug) then
             if (iq==1 .and. iw==0) then
@@ -876,6 +921,7 @@ c$$$         call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
 c$$$         if (MPI__task(iq)) write(ifwkeigen2,"(3f9.5,I6,10E13.5)") qshort,iw,www*2d0,
 c$$$     &        eval_wk(1),abs(eval_wk(1))!,eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3))
 ccc   
+
          call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
          rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw),
      &        wkmat2(1:nnwf,1:nnwf))
@@ -895,11 +941,10 @@ ccc
 ccc   find eigenvalue of (1-WK) at all omega (2018/04/24)
             if (iw==0) then
 c               call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
-               write(6,"('WKWK: eig 1-WK inv Re',3f9.4,f15.8)") qshort, dble(eval_wk(1))
-               write(6,"('WKWK: eig 1-WK inv Im',3f9.4,f15.8)") qshort,aimag(eval_wk(1))
+               write(6,"('WKWK: eig 1-WK inv Re',3f9.4,f15.8)") q, dble(eval_wk(1))
+               write(6,"('WKWK: eig 1-WK inv Im',3f9.4,f15.8)") q,aimag(eval_wk(1))
             endif
          endif
-
 ccc 1-WK eigenvalue writing (1wk_eval_list.dat)
 c          if (iq==1 .and. iw .ge. 0) then
 c          if (iw .ge. 0) then ! omega >= 0
@@ -930,8 +975,10 @@ cccc
             endif
          endif
 cccc
-         if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,6E13.5)") qshort,iw,www*2d0,
-     &        eval_wk(1) !,abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
+         if (l1wkout) then
+            if (MPI__task(iq)) write(ifwkeigen3,"(3f9.5,I6,6E13.5)") q,iw,www*2d0,
+     &           eval_wk(1)     !,abs(eval_wk(1)),eval_wk(2),abs(eval_wk(2)),eval_wk(3),abs(eval_wk(3)) !iwf=1,2,3
+         endif
 
 
 !!! diagonalization for R
@@ -952,13 +999,14 @@ c$$$         enddo
 c         write(6,'("trmat_check3",81E12.4)') aimag(eval_wk)
          call diagwan(rmat(:,:,iw),eval_wk)
          trmat=sum(eval_wk(1:nnwf))
+
          call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
 c$$$         write(6,'("trmat_check diagwan and diagcvuh",3f9.4,i6,3E12.4)') qshort,iw,
 c$$$     &        aimag(trmat),aimag(sum(eval_wk(1:nnwf))),aimag(sum(eval_wk(:)))
 cccc
          if (MPI__task(iq)) then
-            if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
-     &           www*2d0,hartree*trmat, wibz(iqlist(iq))!,
+            if(.not. gskip) write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")q,iw,
+     &           www*2d0,hartree*trmat!, wibz(iqlist(iq))!,
 c     &           www*2d0,sum(eval_wk(1:nnwf))/hartree
 c            if(.not. gskip) write(ifchipmrk_wan,"(3f9.4,i6,E12.4,x,12E12.4)")qshort,iw,
 c     &           www*2d0,trmatt/hartree
@@ -976,7 +1024,6 @@ cccc
 ccc END K/(1-WK)
 
          gskip=.false.          !!! Skip Gamma point
-
 cccc Hermite check (zxq and rmat) for developing code
          if (write_hmat) then
             if (iq==4 .and. iw==205) then
@@ -999,13 +1046,13 @@ cccc
       endif
 
       if (MPI__task(iq)) then  !magnon peak
-         write(6,"('AAAA',I4,3f9.4)") iq,qshort
-         write(6,"('AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*13600,maximr/hartree
+         write(6,"('AAAA',I4,3f9.4)") iq,q
+         write(6,"('AAAA, w(MAX(im[R])), Im[R]',f13.5,E12.4)") w_maximr*2d0*rydberg()*1000,maximr/hartree
       endif
 
       if (MPI__task(iq)) then
 c$$$         write(ifwkeigen2,*) 
-         write(ifwkeigen3,*) 
+         if (l1wkout) write(ifwkeigen3,*) 
          write(ifchipmz_wan,*)
          write(ifchipmr_wan,*)
 c         write(ifchipmrk_wan,*)
@@ -1018,7 +1065,7 @@ c$$$  !! ImagOmega end =================
       
       if (MPI__task(iq)) then
 c$$$         close(ifwkeigen2)
-         close(ifwkeigen3)
+         if (l1wkout) close(ifwkeigen3)
          close(ifchipmz_wan)
          close(ifchipmr_wan)
 c         close(ifchipmrk_wan)

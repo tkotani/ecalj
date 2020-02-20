@@ -57,7 +57,6 @@ ccccccccccccccccccccc
       call tabkk(kkk3(3), kk3,nkey(3), ik3)
       if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
       if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
-
       iqindx = iqkkk(ik1,ik2,ik3)
       if(debug) then
          do iqx=1,nqtt

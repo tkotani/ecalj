@@ -9,17 +9,16 @@
       
       implicit none
       logical,private:: init=.true.
+      logical,private:: readwan=.false.,lreadhrotr=.false.
       real(8),private::alat,plat(3,3),ef
       integer,private::natom,nrws,n1,n2,n3
-      integer:: nwf,nsp_w,nqtt_w
+      integer:: nwf,nsp_w,nqtt_w !! read by read_wandata
 
       integer,private,allocatable:: irws(:),ibaswf(:)
       real(8),private,allocatable:: pos(:,:),rws(:,:),drws(:)
-      complex(8),private,allocatable:: hrotr(:,:,:), evecc(:,:)
+      complex(8),private,allocatable:: hrotr(:,:,:,:), evecc(:,:)
 
       !!!!! wannier eigenvalue and eigenvector
-c$$$      complex(8),allocatable:: evecc_w(:,:,:,:)
-c$$$      real(8),allocatable:: eval_w(:,:,:)
       complex(8),private,allocatable:: evecc_w(:,:,:,:)
       real(8),private,allocatable:: eval_w(:,:,:)
       integer::iwf
@@ -31,10 +30,11 @@ c$$$      real(8),allocatable:: eval_w(:,:,:)
 
 !!! for getsyml
       logical:: init2=.true., init_qsyml=.true.
+     
       contains
 
 c---------------------------------------------
-      subroutine readhrotr(is)
+      subroutine readhrotr()
       implicit none
       integer(4):: is, ifh, n1, n2, n3, ifile_handle,nq
             
@@ -49,41 +49,44 @@ c---------------------------------------------
 !! rws(3,i): R-R' vector, i=1,nrws
 !! irws(i) : degeneracy, i=1,nrws
 !! drws(i) : distance, i=1,nrws
-!! hrotr(nwf,nwf,nrws) = Hmn(R) = <0m|H |Rn> (m=1,nwf; n=1,nwf, R=1,nrws)
-!! 
+!! hrotr(nwf,nwf,nrws,is) = Hmn(R) = <0m|H |Rn> (m=1,nwf; n=1,nwf, R=1,nrws)
+!! is: spin index
 !! natom: number of atoms in the primitive cell.
 !! ibaswf(nwf): atomic position for the Wannier orbital.
 !! pos(3,natom): atomic poisition in the cell.
-      write (6,"('--- Reading HrotRS  :: isp=',I6)") is
-      ifh=ifile_handle()
-      if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
-      if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
-      read(ifh)alat,plat,natom
-      if (is==1) allocate(pos(3,natom))
-      read(ifh)pos
-      read(ifh)ef 
-      read(ifh)nwf,nrws,n1,n2,n3
+      if (.not. readwan) call rx("read_wandata have not yet done.") !! use nsp_w, nwf
+      do 6001 is=1,nsp_w
+         write (6,"('--- Reading HrotRS  :: isp=',I6)") is
+         ifh=ifile_handle()
+         if(is==1) open(ifh,file='HrotRS.up',form='unformatted')
+         if(is==2) open(ifh,file='HrotRS.dn',form='unformatted')
+         read(ifh)alat,plat,natom
+         if (is==1) allocate(pos(3,natom))
+         read(ifh)pos
+         read(ifh)ef 
+         read(ifh)nwf,nrws,n1,n2,n3
 
-      write (6,"('nwf,nrws,n1,n2,n3=',I3,I6,3I4)") nwf,nrws,n1,n2,n3
-      if (is==1) then
-         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),
-     &        drws(n1*n2*n3*8),ibaswf(nwf), hrotr(nwf,nwf,nrws))
-          !real space Hamiltonian in Wannier funciton basis
-      endif
-      read(ifh) irws,rws,drws,hrotr,ibaswf
-      close(ifh)
-      
+         write (6,"('nwf,nrws,n1,n2,n3=',I3,I6,3I4)") nwf,nrws,n1,n2,n3
+         if (is==1) then
+            allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),
+     &           drws(n1*n2*n3*8),ibaswf(nwf), hrotr(nwf,nwf,nrws,nsp_w))
+!real space Hamiltonian in Wannier funciton basis
+         endif
+         read(ifh) irws,rws,drws,hrotr(:,:,:,is),ibaswf
+         close(ifh)
+ 6001 continue
+      lreadhrotr=.true.          !initialize
       end subroutine readhrotr
 c--------------------------------
       !!! generate eigenvalue list
-      subroutine wan_readeigen(qbz,nqbz,is,nspin)
+      subroutine wan_readeigen(qbz,nqbz,isp)
       implicit none
 
-      integer,intent(in)::nqbz,nspin
+      integer,intent(in)::nqbz,isp
       real(8),intent(in)::qbz(:,:)
       complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)
       real(8),allocatable:: eval(:)
-      integer::iq,is
+      integer::iq
 
       !!! fat band plot test
       integer::iffb,ifile_handle,iband
@@ -91,19 +94,19 @@ c--------------------------------
       logical::sw=.true.
       
       !! get HrotRS by file handling
-      call readhrotr(is)
+      if (.not. lreadhrotr) call readhrotr()
 
       if (init) then
          print *,"=== wan_readeigen::"
          allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
-         if (is==1) allocate(eval_w(nwf,nqbz,nspin),
-     &        evecc_w(nwf,nwf,nqbz,nspin))
+         if (isp==1) allocate(eval_w(nwf,nqbz,nsp_w),
+     &        evecc_w(nwf,nwf,nqbz,nsp_w))
          do iq = 1,nqbz
 !     write(6,*)' got get_hrotkp_ws iq =',iq
-            call get_hrotkp_ws2(qbz(:,iq),hrotkp)
+            call get_hrotkp_ws2(qbz(:,iq),hrotkp,isp)
             call diag_hm2(hrotkp,nwf,eval,evecc)
-            eval_w(1:nwf,iq,is)=eval
-            evecc_w(1:nwf,1:nwf,iq,is)=evecc
+            eval_w(1:nwf,iq,isp)=eval
+            evecc_w(1:nwf,1:nwf,iq,isp)=evecc
 
 ccccccccccc eigenvalue check
 c$$$            if(iq==1) open(iwf,file="waneval_check.data")
@@ -162,12 +165,11 @@ c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          close(iffb)
       endif
       deallocate(hrotkp,evecc,eval)
-      if (is==2) then
+      if (isp==2) then
          init=.false.           !!!eigenvalue 
          print *,"=== wan_readeigen end"
-         deallocate(pos,rws,drws,hrotr)
+         !deallocate(pos,rws,drws,hrotr)
       endif
-      if (allocated(hrotkp)) deallocate(hrotkp)
       end subroutine wan_readeigen
 c--------------------------------
       subroutine wan_readeval(q,isp, ev_w, evc_w)
@@ -180,12 +182,11 @@ c--------------------------------
 
       integer(4):: iq,iqindx,i
       real(8):: qu(3), shift_ev
-      
+
       if(init) call rx('wan_readeval: wan_readeigen should be called')
-      call iqindx2_ wan(q, iq, qu) !qu is used q. q-qu is a G vector.
+      call iqindx2_wan(q, iq, qu) !qu is used q. q-qu is a G vector.
 c$$$      write (6,"('wan_readeval: iq=',I7,'  ---> iqimap, qu',I7,3f9.4)")
 c$$$     &     iq,iqimap(iq),qu
-
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,1)
 c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
 
@@ -200,16 +201,53 @@ c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
       evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iq,isp)
       end subroutine wan_readeval
 
+c--------------------------------
+      subroutine wan_readeval2(q,isp, ev_w, evc_w)
+!      use m_hamindex, only: iqimap
+      implicit none
+      integer(4), intent(in) :: isp
+      real(8), intent(in) :: q(3)
+      real(8), intent(out)    :: ev_w(nwf)      !eigenvalue
+      complex(8), intent(out) :: evc_w(nwf,nwf) !eigenfunction
+
+      real(8):: qu(3), shift_ev
+      complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)
+      real(8),allocatable:: eval(:)
+
+      !!! fat band plot test
+      real(8):: rydberg
+
+      !! need matrix
+      if (.not. lreadhrotr) call readhrotr()
+      
+      !! solve Hrotkp for given q (or q+k) --> eigenvalues and eigenfunction
+      if (.not. allocated(hrotkp)) then
+         allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))         
+      endif
+      call get_hrotkp_ws2(q ,hrotkp,isp)
+      call diag_hm2(hrotkp,nwf,eval,evecc)
+
+      !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
+      call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+      if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
+
+      ev_w(1:nwf) = eval(1:nwf) + shift_ev/13.605693009
+      evc_w(1:nwf,1:nwf) = evecc(1:nwf,1:nwf)
+      deallocate(hrotkp,evecc,eval)
+      !write (6,"('qqq:',3E13.5)") q
+      !write (6,"('eval_w=',9f9.4)") ev_w(1:nwf)
+      end subroutine wan_readeval2
+
 c--------------------------------almpost same get_hrotkp_ws in maxloc3
       !!!! hrotr (q) => hrotkp
-      subroutine get_hrotkp_ws2(q,hrotkp)
+      subroutine get_hrotkp_ws2(q,hrotkp,is)
 
 c see Ref.[2] eq.26
       implicit real*8(a-h,o-z)
       complex(8) :: hrotkp(nwf,nwf),
      &     ci,cikr,ceikr,ctmp
       real(8) :: q(3)
-      integer::im,in,ir
+      integer::im,in,ir,is
 
       pi = 4d0* atan(1d0)
       ci = (0d0,1d0)
@@ -223,7 +261,7 @@ c see Ref.[2] eq.26
          do im = 1,nwf
             do in = 1,nwf
                hrotkp(im,in) = hrotkp(im,in) + 
-     &              ceikr * hrotr(im,in,ir)
+     &              ceikr * hrotr(im,in,ir,is)
             enddo
          enddo
       enddo
@@ -276,6 +314,7 @@ c---------------------------------------
       read(ifhamw) nwf,nsp_w,nqtt_w
       close(ifhamw)
       write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
+      readwan=.true. !! initialize
       end subroutine read_wandata
 
 c---------------------------------------
