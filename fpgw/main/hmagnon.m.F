@@ -111,7 +111,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 
       logical ::  chipm=.false.,nolfco=.false. !sergeyv only ngczero=.false.,
      &     ,epsmode=.false.,normalm=.false., crpa=.false.
-     &     ,autogamma=.false., l1wkout=.false.
+     &     ,autogamma=.false., l1wkout=.false., addgamma=.false.
       real(8):: qs,qt,ww,muu, ddq(3)
 
 ! Feb2006 time-reversal=off case
@@ -130,6 +130,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 ! Feb2020 QforEPS mode
       integer:: ifq0p, nq0ix, neps, nqbze, nqibze!, ngcmx, ngpmx
       real(8), allocatable:: qbze(:,:), qibze(:,:)
+      integer:: idammy
+      integer, allocatable:: epslgroup(:)
 
 !     okumura
       integer::iwf,jwf,inwf,kwf,lwf,ijwf,klwf,nnwf,ijwf_j
@@ -163,7 +165,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: nlatout(3,48),nout,iout,nqsym
       integer,allocatable:: iqlist(:)
       character*6:: qsyml_in, qsyml
-      character*5, allocatable:: symllist(:)
       real(8),allocatable:: qshort_all(:,:)
       real(8),allocatable:: qshort_dammy(:,:)
 !!! WK eigenvalue check
@@ -274,9 +275,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       open (ifq0p,file='Q0P')
       read (ifq0p,"(i5)") nq0i
       write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),epslgroup(nq0i) )
       do i=1,nq0i
-        read (ifq0p, * ) wqt(i),q0i(1:3,i)
+        read (ifq0p, * ) wqt(i),q0i(1:3,i),idammy,epslgroup(i)
       enddo
       close(ifq0p)
       nq0ix = nq0i
@@ -384,7 +385,7 @@ c$$$      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/))
 
       write(6,"('iqxini,iqxend',2I8)") iqxini,iqxend
       do iq = iqxini,iqxend
-         write(6,"('iq, qibze:',I8,3E13.5)") iq-iqxini,qibze(:,iq)
+         write(6,"('iq, qibze:',I8,3f9.4)") iq-iqxini,qibze(:,iq)
          autogamma=.true.
       enddo
       
@@ -411,14 +412,11 @@ c$$$c     end okumura
       if (.not. sum(abs(qibze(:,iqxini)**2)) == 0d0) then
          write(6,*) "Gamma point is automatically added"
          iqxini=iqxini-1 !! Gamma: iqxini-1
+         addgamma=.true.
       endif
       nqsym=iqxend-iqxini+1
       write(6,"('nqsym:',I4)") nqsym
       
-!! symllist is not valid in this version (20Feb,2020); tmporally
-      allocate(symllist(nqsym))
-      symllist="EPSL"
-
 !! mpi processing for QforEPSL
       call MPI__hmagnon_rankdivider(nqsym)
       write(6,*) "nqsym mpi_MEq(:)",nqsym,mpi__MEq
@@ -733,8 +731,13 @@ cccc open file each iq
             write(ifchipmz_wan,*) "# syml: Gamma"
             write(ifchipmr_wan,*) "# syml: Gamma"
          else
-            write(ifchipmz_wan,*) "# syml: ",symllist(iq)," "
-            write(ifchipmr_wan,*) "# syml: ",symllist(iq)," "
+            if (addgamma) then
+               write(ifchipmz_wan,*) "# syml: ",epslgroup(iq-1)," "
+               write(ifchipmr_wan,*) "# syml: ",epslgroup(iq-1)," "
+            else
+               write(ifchipmz_wan,*) "# syml: ",epslgroup(iq)," "
+               write(ifchipmr_wan,*) "# syml: ",epslgroup(iq)," "
+            endif
          endif
 c$$$         ifchipmrk_wan=ifile_handle()
 c$$$         open(ifchipmrk_wan,file="wan_ChiPMr-k.mat"//charnum4(iq))          

@@ -47,6 +47,7 @@ c      real(8),allocatable,protected:: q0x(:,:)
       real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
       real(8),allocatable:: qany(:,:)
       logical:: anyq,ibzqq,lnq0iadd
+      integer,allocatable:: epslgroup(:)
 
       if(iq0pin==1) then
 !! Normal mode. all inputs
@@ -99,6 +100,8 @@ c      real(8),allocatable,protected:: q0x(:,:)
             if(nq0i0>0) then
                call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0)
                allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
+               allocate(epslgroup(nq0i))
+               epslgroup=0
                do i=1, nq0i0
                read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
                write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
@@ -109,6 +112,7 @@ c      real(8),allocatable,protected:: q0x(:,:)
                   do i=1, ndiv(il)
                      q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/ndiv(il) * i
                   enddo
+                  epslgroup(ni+1:ni+ndiv(il)) = il !!group of QforEPSL
                   ni= ni + ndiv(il)
                enddo
                deallocate(qmin,qmax,ndiv)
@@ -120,7 +124,7 @@ c      real(8),allocatable,protected:: q0x(:,:)
          open (ifi00,file='Q0P')
          write(ifi00,"(3i5,a)") nq0i,iq0pin,0, " !nq0i iq0pin ---"//
      &        "This is readin Q0P from GWinput <QforEPS> ---"
-         write(ifi00,"(d24.16,3x, 3d24.16,i2)") (wt(i),q0i(1:3,i),0,i=1,nq0i)
+         write(ifi00,"(d24.16,3x, 3d24.16,2i3)") (wt(i),q0i(1:3,i),0,epslgroup(i),i=1,nq0i)
          close(ifi00)
       endif
 
