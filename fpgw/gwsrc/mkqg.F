@@ -1,5 +1,5 @@
       subroutine mkQG2(alat,plat,symops,ngrp,nnn,iq0pin,
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl,lnq0iadd)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc,gammacellctrl,lnq0iadd,lmagnon)
 !! 'call getbzdata1' gives all follwing data 
       use m_get_bzdata1,only:  getbzdata1, 
      &  nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm,
@@ -76,7 +76,7 @@ c     logical :: readgwinput
       real(8):: dq_(3),qlatbz(3,3)
       integer:: gammacellctrl,nnng(3),ifile_handle,ifi0,itet
       real(8)::imat33(3,3)
-      logical:: lnq0iadd
+      logical:: lnq0iadd, lmagnon
 
 c------------------------------------------------
       print *,' mkqg2: '
@@ -306,6 +306,8 @@ c      print *,'size q0i=',size(q0i),ubound(q0i),lbound(q0i)
         write(6,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
       enddo
 
+      if (lmagnon) return !! exit because we get QforEPSL data (21 Feb, 2020)
+      
 !! Four kinds of mesh points. Q0P means offset Gamma (slightly different from Gamma).
 !! Which we need?
 !! 1. regular 
@@ -322,7 +324,6 @@ c      print *,'size q0i=',size(q0i),ubound(q0i),lbound(q0i)
       offmeshg = .not.qbzreg()  !Gamma mesh based on off-regular mesh
       print *,' regmesh offmeshg=', regmesh,regmeshg !regular,     regular+shifted
       print *,' offmesh offmeshg=', offmesh,offmeshg !offregmesh, offregular+shifted
-
 !!  We check wether all q0i \in qbz or not. <--- Takao think this block is not necessary now.
       call minv33(qlat,ginv)
       nqnum = nqbz

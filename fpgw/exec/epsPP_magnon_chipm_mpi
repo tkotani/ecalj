@@ -47,7 +47,8 @@ if [ -e ${lqg4gw} ]; then
 	    mv GWinput.magnon GWinput
 	    ### qg4gw for n1n2n3 GWinput_for_magnon
 	    echo "start qg4gw"
-	    echo 1 | ~/bin/qg4gw > lqg4gw ### generate BZdata
+	    # echo 1 | ~/bin/qg4gw > lqg4gw ### generate BZdata
+	    # echo 4 | ~/bin/qg4gw > lqg4gw ### generate BZdata
 	    break
 	fi
     done
@@ -55,7 +56,7 @@ fi
 
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
 
-echo 2 | ~/bin/qg4gw > lqg4gw02 ### generate BZdata
+echo 40001 | ~/bin/qg4gw > lqg4gw04 ### generate BZdata
 mpirun -np $MPI_SIZE $nfpgw/hmagnon
 $nfpgw/chipm_mat #combine wan_ChiPMr* --> wan_ChiPMr.mat
 

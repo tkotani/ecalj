@@ -58,6 +58,7 @@
       logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
       integer(4):: iq0pinxxx ,ifile_handle,n1,n2,n3
       integer:: gammacellctrl=0
+      logical:: lmagnon = .false.
       pi= 4d0* atan(1d0)
       call cputid (0)
       write(6,*)' qg4gw: Generate Q0P->1; Readin Q0P->2; band mode->3; SW(chipm)->4'
@@ -76,6 +77,9 @@ c      call headver('qg4gw',iq0pin)
          gammacellctrl=2 !Gammacell only mode
       elseif(iq0pin==4) then
          iq0pinxxx=2
+      elseif(iq0pin==40001) then
+         iq0pinxxx=2
+         lmagnon=.true. !! QforEPSL for magnon
       elseif(iq0pin==201) then
         iq0pinxxx=1
         lnq0iadd=.true.
@@ -149,7 +153,7 @@ c      endif
       endif
 !!
       call mkQG2(alat,plat,symops,ngrp,nnn,iq0pinxxx, 
-     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd)
+     &     QpGcut_psi, QpGcut_Cou, ifiqg, ifiqgc, gammacellctrl,lnq0iadd,lmagnon)
       write(6,*) ' OK! End of qg4gw '
       if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
       if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')
@@ -157,4 +161,5 @@ c      endif
       if(iq0pin ==20002) call rx0( ' OK! qg4gw mode=20002 Readin Q0P. GammaCell Only.')
       if(iq0pin ==3)     call rx0( ' OK! qg4gw mode=3 band-plot mode')
       if(iq0pin ==4)     call rx0( ' OK! qg4gw mode=4 Readin Q0P mode. Set ngp=ngc=0')      
+      if(iq0pin ==40001) call rx0( ' OK! qg4gw mode=40001 QforEPSL for magnon')      
       end
