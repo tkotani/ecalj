@@ -120,20 +120,6 @@ eout2: $(EO2)  $(GWLIB) $(MPI)
 ########################################################
 
 
-# BNDCONN= \
-# $(gwsrc)bndconn.o   ### This is not linked but bndconn.o is used in lm/lmfgw. 
-# It is now included in lm/gw/
-DERFC=   
-# $(gwsrc)derfc.o 
-#          $(gwsrc)d1mach.o \
-#          $(gwsrc)i1mach.o 
-#
-# test_genallcf =  \
-# $(main)test_genallcf.o \
-# $(gwsrc)genallcf_dump.o \
-# $(GWLIB)
-
-
  kino_input_test =  \
  $(main)kino_input_test.o 
 
@@ -161,25 +147,6 @@ DERFC=
  SXC = \
  $(main)hsfp0.m.o 
 
- # WMAT = \
- # $(maxloc)hwmat.o \
- # $(maxloc)maxloc0.o \
- # $(maxloc)wmat.o
-
- # MLOC = \
- # $(maxloc)hmaxloc.o \
- # $(maxloc)maxloc0.o \
- # $(maxloc)maxloc1.o \
- # $(maxloc)maxloc2.o \
- # $(maxloc)maxloc3.o 
-
- # MLOC1D = \
- # $(maxloc)hmaxloc1D.o \
- # $(maxloc)maxloc0.o \
- # $(maxloc)maxloc1.o \
- # $(maxloc)maxloc2.o \
- # $(maxloc)maxloc3.o 
-
  heftet = \
  $(main)heftet.m.o 
 
@@ -188,7 +155,6 @@ DERFC=
 
  hef = \
  $(main)hef.m.o 
-
 
  X0_SC = \
  $(main)hx0fp0.sc.m.o 
@@ -207,76 +173,6 @@ DERFC=
  $(gwsrc)m_readwan.o \
  $(gwsrc)diagcv3.o \
  $(main)hhomogas.m.o
-
- # X0mlw = \
- # $(maxloc)hx0fp0.m.o \
- # $(maxloc)wcf.o \
- # $(gwsrc)tetwt5$(tet5_g) \
- # $(gwsrc)m_tetwt.o \
- # $(gwsrc)diagcv2.o \
- # $(tote)rpaq.o \
- # $(gwsrc)cinvrx.o\
- # $(gwsrc)m_freq.o 
- #
- # UU = \
- # $(main)h_uumatrix.m.o \
- # $(gwsrc)wcf.o \
- # $(gwsrc)tetwt5$(tet5_g) \
- # $(gwsrc)gintxx.o \
- # $(gwsrc)pplmat.o \
- # $(gwsrc)getgv2.o \
- # $(gwsrc)x0kf_v4h$(x0kf_g) \
- # $(gwsrc)rs.o \
- # $(gwsrc)u_lat_0.o \
- # $(gwsrc)wronkj.o \
- # $(gwsrc)mklegw.o \
- # $(gwsrc)bessl.o \
- # $(gwsrc)cross.o \
- # $(gwsrc)diagcv2.o
- #
- # UU2 = \
- # $(maxloc)huumat.o \
- # $(gwsrc)wcf.o \
- # $(gwsrc)tetwt5$(tet5_g) \
- # $(gwsrc)gintxx.o \
- # $(gwsrc)pplmat.o \
- # $(gwsrc)getgv2.o \
- # $(gwsrc)rs.o \
- # $(gwsrc)u_lat_0.o \
- # $(gwsrc)wronkj.o \
- # $(gwsrc)mklegw.o \
- # $(gwsrc)bessl.o \
- # $(gwsrc)cross.o
- #
- # PSIG = \
- # $(maxloc)hpsig.o \
- # $(gwsrc)wcf.o \
- # $(gwsrc)tetwt5$(tet5_g) \
- # $(gwsrc)m_tetwt.o \
- # $(gwsrc)gintxx.o \
- # $(gwsrc)pplmat.o \
- # $(gwsrc)getgv2.o \
- # $(gwsrc)rs.o \
- # $(gwsrc)u_lat_0.o \
- # $(gwsrc)wronkj.o \
- # $(gwsrc)mklegw.o \
- # $(gwsrc)bessl.o \
- # $(gwsrc)cross.o
- #
- # PHIG = \
- # $(maxloc)hphig.o \
- # $(gwsrc)wcf.o \
- # $(gwsrc)tetwt5$(tet5_g) \
- # $(gwsrc)m_tetwt.o \
- # $(gwsrc)gintxx.o \
- # $(gwsrc)pplmat.o \
- # $(gwsrc)getgv2.o \
- # $(gwsrc)rs.o \
- # $(gwsrc)u_lat_0.o \
- # $(gwsrc)wronkj.o \
- # $(gwsrc)mklegw.o \
- # $(gwsrc)bessl.o \
- # $(gwsrc)cross.o
 
  MPI =  $(gwsrc)MPI_fpgw2.o
 
@@ -415,46 +311,11 @@ $(gwsrc)rotgvec.o
  MERGE = \
   $(main)hmergewv.m.o
 
- # PARAINFO = \
- # $(main)hparainfo.m.o \
- # $(gwsrc)charext.o
 
- # BNDOUT = \
- # $(main)hbndout.m.o \
- # $(gwsrc)iqagree.o \
- # $(gwsrc)iopenxx.o \
- # $(gwsrc)iopen.o \
- # $(gwsrc)polinta.o \
- # $(gwsrc)rydberg.o \
- # $(gwsrc)extension.o \
- # $(gwsrc)rangedq.o \
- # $(gwsrc)switches.o \
- # $(gwsrc)keyvalue.o 
- #
-#         $(gwsrc)setpr.o \
-         # $(gwsrc)sylm.o \
-         # $(gwsrc)sylmnc.o \
- # SIGMCONV = \
- # $(gwsrc)switches.o \
- # $(gwsrc)keyvalue.o \
- # $(gwsrc)iopen.o \
- # $(main)hsigmconv.m.o 
-
-###########################################
-
-# bndconn.o:	$(BNDCONN)  
-#
-############### dependency for use ##################
-
-
-
- # hsigmconv:	$(SIGMCONV)  $(MPI)  $(COMM) 
- # 	 $(LK) $(LKFLAGS1) $(SIGMCONV) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
-
+############################################
 
  gwinit:	$(GWINIT)  $(MPI)  $(GWLIB) 
 	 $(LK) $(LKFLAGS1) $(GWINIT) $(MPI) $(GWLIB)  $(LKFLAGS2) -o $@
-
 
  # qpwf:		$(maxloc)qpwf.o $(GWLIB) $(MPI)  $(COMM) 
  # 	$(LK) $(LKFLAGS1) $(maxloc)qpwf.o $(GWLIB) $(MPI) $(COMM)  $(LKFLAGS2) -o $@
@@ -480,33 +341,8 @@ $(gwsrc)rotgvec.o
  hhomogas:	$(MPI) $(GWLIB) $(X0homo) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(GWLIB) $(X0homo) $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
-# # for maxloc
-#  hx0fp0_mlw:	$(X0mlw) $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(X0mlw)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  h_uumatrix:	$(UU) $(GWLIB)   $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(UU)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  huumat:	$(UU2) $(GWLIB) $(MPI) $(COMM)
-# 	$(LK) $(LKFLAGS1) $(UU2)  $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  hphig:	$(PHIG) $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(PHIG)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) $(LIBSLA) -o $@
-
-#  hpsig: $(PSIG) $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(PSIG)     $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
  hx0fp0_sc:	$(MPI) $(X0_SC) $(GWLIB)   $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(X0_SC)     $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  hwmat:		$(WMAT) $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(WMAT)    $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  hmaxloc:	$(MLOC)   $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(MLOC)  $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
-#  hmaxloc1D:	$(MLOC1D)   $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(MLOC1D)  $(GWLIB)   $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hsfp0:		$(MPI) $(SXC) $(GWLIB)   $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(SXC)    $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
@@ -514,15 +350,11 @@ $(gwsrc)rotgvec.o
  hsfp0_sc:	$(MPI) $(SXC_SC) $(GWLIB)   $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(SXC_SC)    $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
-#  hnocc_mlw:	$(hnocc_mlw) $(GWLIB) $(MPI)  $(COMM) 
-# 	$(LK) $(LKFLAGS1) $(hnocc_mlw) $(GWLIB)  $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
  heftet:	$(heftet) $(GWLIB)  $(MPI) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(heftet) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
 
  hef:		$(hef) $(GWLIB)   $(MPI) $(COMM) 
 	 $(LK) $(LKFLAGS1) $(hef)    $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
-
 
  hqpe:		$(QPE) $(MPI) $(COMM) $(GWLIB)
 	 $(LK) $(LKFLAGS1) $(QPE) $(MPI) $(COMM) $(GWLIB) $(LKFLAGS2) -o $@
@@ -536,12 +368,6 @@ $(gwsrc)rotgvec.o
  hmergewv:	$(MERGE) $(MPI) $(GWLIB)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(MERGE) $(GWLIB) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
 
- # hparainfo:	$(PARAINFO) $(GWLIB) $(MPI)   $(COMM) 
- # 	 $(LK) $(LKFLAGS1) $(PARAINFO) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
-
-# hbndout:	$(BNDOUT) $(MPI)   $(COMM) 
-#	 $(LK) $(LKFLAGS1) $(BNDOUT) $(MPI)  $(COMM)  $(LKFLAGS2) -o $@
-
  convgwin:	$(convg) 
 	 $(LK) $(LKFLAGS1) $(convg) $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
 
@@ -553,10 +379,8 @@ $(gwsrc)rotgvec.o
 # test_genallcf:	$(test_genallcf) 
 #	 $(LK) $(LKFLAGS1) $(test_genallcf) $(LKFLAGS2) -o $@
 
-
  $(tags)TAGS: $(progs)
 	cd $(tags);etags ./*/*/*.F ./*/*.F
-
 
 # --- Make rules ---
 .SUFFIXES:
@@ -591,9 +415,11 @@ $(gwsrc)rotgvec.o
 	$(FC) $(FFLAGS_c4) $*.f -c -o $*.c4_o
 	etags $*.f -o $(tags)`echo $*.f| sed 's/..\///' | sed 's/\//-/g'`.tags
 
+$(gwsrc)wintzsg.o :  $(gwsrc)wintzsg.F
+	$(FC)  $(FFLAGS) $(gwsrc)wintzsg.F  -c -o $*.o
 
-check:
-	(cd ../TESTinstallGW;./testgw.py --enforce --all) 
+#check:
+#	(cd ../TESTinstallGW;./testgw.py --enforce --all) 
 
 # test for f90 dependency
 #../main/hvccfp0.m.o	:	../main/hx0fp0.m.o
@@ -603,42 +429,38 @@ check:
 include moduledepends.inc
 
 
-################################################################################
-##### You can comment out these blocks to commnet out memory and time check (verbose output)
-addtime=script/addtime.awk 
-septhen=script/then_separate.awk
-alloclist=script/add_alloclist.awk
-$(main)hsfp0.sc.m.o:  $(main)hsfp0.sc.m.F
-	gawk -f $(addtime) -vSTART=1 $(main)hsfp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hsfp0.sc.m.F
-	$(FC) $(FFLAGS) $(main)time_hsfp0.sc.m.F -c -o $*.o
-
-$(main)hx0fp0.sc.m.o: $(main)hx0fp0.sc.m.F
-	gawk -f $(addtime) -vSTART=1 $(main)hx0fp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hx0fp0.sc.m.F
-	$(FC) $(FFLAGS) $(main)time_hx0fp0.sc.m.F -c -o $*.o
-
-$(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
-	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
-	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
-
-#$(gwsrc)rppovl.o: $(gwsrc)rppovl.F
-#	gawk -f $(addtime) -vSTART=200 $(gwsrc)rppovl.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_rppovl.F
-#	$(FC) $(FFLAGS) $(gwsrc)time_rppovl.F -c -o $*.o
-
-$(gwsrc)x0kf_v4h$(x0kf_g): $(gwsrc)x0kf_v4h.F 
-	gawk -f $(addtime) -vSTART=100 $(gwsrc)x0kf_v4h.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_x0kf_v4h.F
-	$(FC) $(FFLAGS) $(gwsrc)time_x0kf_v4h.F -c -o $*.o
-
-$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
-	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
-	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
-#$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
-#	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
-#	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
-###################################################################################
 
 
-$(gwsrc)wintzsg.o :  $(gwsrc)wintzsg.F
-	$(FC)  $(FFLAGS) $(gwsrc)wintzsg.F  -c -o $*.o
 
+# ################################################################################
+# ##### You can comment out these blocks to commnet out memory and time check (verbose output)
+# addtime=script/addtime.awk 
+# septhen=script/then_separate.awk
+# alloclist=script/add_alloclist.awk
+# $(main)hsfp0.sc.m.o:  $(main)hsfp0.sc.m.F
+# 	gawk -f $(addtime) -vSTART=1 $(main)hsfp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hsfp0.sc.m.F
+# 	$(FC) $(FFLAGS) $(main)time_hsfp0.sc.m.F -c -o $*.o
 
-# DO NOT DELETE
+# $(main)hx0fp0.sc.m.o: $(main)hx0fp0.sc.m.F
+# 	gawk -f $(addtime) -vSTART=1 $(main)hx0fp0.sc.m.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(main)time_hx0fp0.sc.m.F
+# 	$(FC) $(FFLAGS) $(main)time_hx0fp0.sc.m.F -c -o $*.o
+
+# $(gwsrc)sxcf_fal2.sc$(sxcf_g): $(gwsrc)sxcf_fal2.sc.F
+# 	gawk -f $(addtime) -vSTART=100 $(gwsrc)sxcf_fal2.sc.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_sxcf_fal2.sc.F
+# 	$(FC) $(FFLAGS) $(gwsrc)time_sxcf_fal2.sc.F -c -o $*.o
+
+# #$(gwsrc)rppovl.o: $(gwsrc)rppovl.F
+# #	gawk -f $(addtime) -vSTART=200 $(gwsrc)rppovl.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_rppovl.F
+# #	$(FC) $(FFLAGS) $(gwsrc)time_rppovl.F -c -o $*.o
+
+# $(gwsrc)x0kf_v4h$(x0kf_g): $(gwsrc)x0kf_v4h.F 
+# 	gawk -f $(addtime) -vSTART=100 $(gwsrc)x0kf_v4h.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_x0kf_v4h.F
+# 	$(FC) $(FFLAGS) $(gwsrc)time_x0kf_v4h.F -c -o $*.o
+
+# $(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
+# 	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
+# 	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
+# #$(gwsrc)ppbafp.fal$(para_g): $(gwsrc)ppbafp.fal.F
+# #	gawk -f $(addtime) -vSTART=300 $(gwsrc)ppbafp.fal.F | gawk -f $(septhen) | gawk -f $(alloclist) > $(gwsrc)time_ppbafp.fal.F
+# #	$(FC) $(FFLAGS) $(gwsrc)time_ppbafp.fal.F -c -o $*.o
+# ###################################################################################

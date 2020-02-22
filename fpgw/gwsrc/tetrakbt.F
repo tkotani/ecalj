@@ -28,26 +28,7 @@ c     &    (i, v(i), eafin(i), ebfin(i),i=4,1,-1)
 c      endif
 
 !! sorted so that ww(1)<ww(2)<ww(3)<ww(4)
-#ifdef EXPAND_SORTEA
-      n=4
-      do i = 1,n
-        ieaord(i) = i
-      enddo
-      do ix= 2,n
-        do i=ix,2,-1
-          if( -v(ieaord(i-1)) > -v(ieaord(i) ) ) then
-            itmp = ieaord(i-1)
-            ieaord(i-1) = ieaord(i)
-            ieaord(i) = itmp
-c            isig= -isig
-            cycle
-          endif
-          exit
-        enddo
-      enddo
-#else
       call sortea( -v,ieaord,4,isig)
-#endif
       WW(1:4) = -v( ieaord(1:4) )
       ebft = ebfin( ieaord(1:4) )
       eaft = eafin( ieaord(1:4) )

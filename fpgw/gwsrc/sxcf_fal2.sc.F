@@ -11,7 +11,7 @@
      i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
-     i exchange,screen,cohtest, ifexsp,
+     i exchange,screen, ifexsp, !,cohtest
      i nbmx,ebmx,           
      i wklm,lxklm,          
      i eftrue,
@@ -159,7 +159,7 @@
       integer:: dummy4doxygen
 
 ! input variables
-      logical, intent(in) :: exchange,screen,cohtest
+      logical, intent(in) :: exchange,screen!,cohtest
       integer, intent(in) :: ntq,nqbz,nqibz,ngrp,nq,niw !,natom
       integer, intent(in) :: nband,nlmto,nq0i,nctot,isp,nsp !,mdim(*) !,nlnmx
       integer, intent(in) :: ifvcfpout,nbloch,nblochpmx !nl,nnc, nclass
