@@ -100,7 +100,7 @@ C ... Passed parameters
       integer isp,nsp,nspc,iq,k1,k2,k3,ldos,lmet,lrout,lwtkb,lswtk,
      .lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
       integer nevl
-      double precision def,ef0,emax,emin,esmear,qval,vconst,wtkp(iq)
+      double precision def,ef0,emax,emin,esmear,qval,vconst,wtkp(*)
       real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
      ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
       type(s_site)::ssite(*)

@@ -1224,7 +1224,17 @@ ckino getef is integer          call getef(ifi,0,ef0)
       if(allocated(qplist)) deallocate(qplist)
       if( procid==master .and. plbnd==0) then
          allocate(qplist(3,nkp))
-         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1) 
+         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1)
+c-----------------
+         ifqplist=ifile_handle()
+         open(ifqplist,file='QPLIST.IBZ')
+         do iq=1,nkp
+            write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), sbz%rv_a_owtkp(iq)/2d0
+         enddo
+         close(ifqplist)
+         if(abs(sum(sbz%rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
+         write(6,*)'qplist.ibz sumcheck=',sum(sbz%rv_a_owtkp(1:nkp))
+c-----------------
          !I think sbz%rv_p_oqp is not used in the following.
       elseif(procid==master) then
          if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
