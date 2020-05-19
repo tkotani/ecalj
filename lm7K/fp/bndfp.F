@@ -2325,9 +2325,12 @@ c      if(nexist) close(ifig)
         enddo
         enddo
         close(ifi)
-        call rx0(' --bolttrap mode: boltztrap.dat is generated')
+c        call rx0(' --bolttrap mode: boltztrap.dat is generated')
       endif
-
+      if( cmdopt('--boltztrap',11,0,strn)) then
+         call rx0(' --bolttrap mode: boltztrap.dat is generated')
+      endif
+      
 !! === pdos mode (--mkprocar and --fullmesh). ===
       if(PROCARon.and.fullmesh) then
 #ifdef MPIK
