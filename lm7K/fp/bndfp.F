@@ -1232,8 +1232,10 @@ c-----------------
             write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), sbz%rv_a_owtkp(iq)/2d0
          enddo
          close(ifqplist)
-         if(abs(sum(sbz%rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
-         write(6,*)'qplist.ibz sumcheck=',sum(sbz%rv_a_owtkp(1:nkp))
+         if( jobgw/=0.and.jobgw/=1 )then
+            write(6,*)'qplist.ibz sumcheck=',nkp,sum(sbz%rv_a_owtkp(1:nkp))
+            if(abs(sum(sbz%rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
+         endif   
 c-----------------
          !I think sbz%rv_p_oqp is not used in the following.
       elseif(procid==master) then
