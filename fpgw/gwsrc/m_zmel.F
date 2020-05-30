@@ -32,18 +32,18 @@ c     &  ilc,inc,imc,  ilnmc,
      i  done_read_bzdata  
 !! general purpose routine to read values in GWinput file.
       use m_keyvalue,only: getkeyvalue 
+
+      use m_itq,only: itq,ntq,ngcmx,ngpmx,nband
       implicit none
 !! ---------------------------------------------
       integer,parameter:: NULL=-99999
-!! These are set by mptauof in main routine. 'call mptauof'
-      integer,allocatable :: miat(:,:)
-      real(8),allocatable :: tiat(:,:,:),shtvg(:,:)  
-!! We set these values in main routine.
-      integer:: nband=NULL,ngcmx=NULL,ngpmx=NULL,ntq=NULL !set in main routine
-      integer,allocatable :: itq(:)                       !set in main routine
-      real(8),allocatable:: ppbir(:,:,:)                  !set in main routine, call pbafp_v2. 
-      complex(8),allocatable,target :: ppovlz(:,:)        !set in main rouitne
-c      integer,allocatable:: imdim(:)                     !set in main routine
+!! These are set by mptauof in 'call mptauof_zmel'
+      integer,allocatable,protected :: miat(:,:)
+      real(8),allocatable,protected :: tiat(:,:,:),shtvg(:,:)  
+      integer,allocatable,protected ::  invgx(:)
+!!
+      real(8),allocatable,protected :: ppbir(:,:,:)                  
+      complex(8),allocatable,target :: ppovlz(:,:)        
 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:) !output
@@ -56,7 +56,118 @@ c      integer,allocatable:: imdim(:)                     !set in main routine
       integer,private::kxold=-9999
 
       contains
-!! ------------------------------------
+!     !
+!! set ppovlz for given q      
+      subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
+      implicit none
+      integer,intent(in) :: ngc,ngb
+      real(8),intent(in) :: q(3)
+      complex(8),intent(in):: zcousq(ngb,ngb)
+      complex(8),allocatable :: ppovl(:,:)
+      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+      call readppovl0(q,ngc,ppovl)
+      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+      ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+      deallocate(ppovl)
+      end subroutine setppovlz_sxcf
+      
+!! set ppovlz for given q      
+      subroutine setppovlz(q,ngc,zcousq,ngb)
+c     & ppovlz)
+      implicit none
+      integer,intent(in) :: ngc,ngb
+      real(8),intent(in) :: q(3)
+      complex(8),intent(in):: zcousq(ngb,ngb)
+c      complex(8),intent(out) :: ppovlz(ngb,ngb)
+      complex(8),allocatable :: ppovl_(:,:),ppovl(:,:),ppovlzinv(:,:)
+      logical:: eibz4x0
+      integer:: i,nbloch
+      nbloch=ngb-ngc !number of MTOs. !ngc is the number of APWs
+      if(allocated(ppovlz)) deallocate(ppovlz)
+      if(allocated(ppovlzinv)) deallocate(ppovlzinv)
+      if(allocated(ppovl)) deallocate(ppovl)
+      allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
+      call readppovl0(q,ngc,ppovl) !q was qq
+      allocate(ppovl_(ngb,ngb))
+      ppovl_=0d0
+      do i=1,nbloch
+        ppovl_(i,i)=1d0
+      enddo
+      ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+      if(.not.eibz4x0()) then   !sep2014 added for eibz4x0=F
+         ppovl_= matmul(ppovl_,zcousq)
+      endif
+      ppovlz = ppovl_
+      deallocate(ppovl_,ppovl)
+      end subroutine setppovlz 
+
+      subroutine setppovlz_ee(q,ngc,ngb,zcousq)
+      implicit none
+      integer,intent(in):: ngc,ngb
+      real(8),intent(in):: q(3)
+      complex(8),intent(in):: zcousq(:,:)
+      integer:: nbloch
+      complex(8),allocatable :: ppovl(:,:)
+      if(allocated(ppovlz)) deallocate(ppovlz)
+      if(allocated(ppovl)) deallocate(ppovl)
+      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
+      call readppovl0(q,ngc,ppovl)
+      nbloch = ngb-ngc
+      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+      ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c      write(6,*)'nnnnn',nbloch+ngc,ngb
+      end subroutine setppovlz_ee
+
+      subroutine setppovlz_chipm(zzr,ngb,nmbas1)
+      implicit none
+      integer,intent(in)::ngb,nmbas1
+      complex(8),intent(in):: zzr(ngb,nmbas1)
+      if(allocated(ppovlz)) deallocate(ppovlz)
+      allocate(ppovlz(ngb,nmbas1))
+      ppovlz= zzr
+      end subroutine setppovlz_chipm
+
+      
+!! Set miat,tiat,invgx,shtvg
+      subroutine mptauof_zmel(symops,ng,platx,nbas,pos,iclass)
+      implicit none
+      integer,intent(in):: ng,nbas,iclass(nbas)
+      real(8),intent(in):: symops(9,ng),platx(3,3),pos(3,nbas)
+      integer,allocatable ::  invgx(:)
+      allocate(invgx(ng),miat(nbas,ng),tiat(3,nbas,ng),shtvg(3,ng))
+      call mptauof(symops,ng,platx,nbas,pos,iclass
+     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      end subroutine mptauof_zmel
+
+!! Set ppbir
+      subroutine ppbafp_v2_zmel (ng,nspin,
+     i                 il,in,im, mnl,
+     d                 nl,nn,nclass,mnlx,
+     i                 mdimx,lx,nx,nxx, !Bloch wave    
+     i                 cgr,lmxax,   !rotated CG
+     i                 ppbrd)           !radial integrals
+c     o  ppb)
+      implicit none
+      integer,intent(in) :: ng,nspin,nclass,mnlx,mdimx,nl,nn
+      integer,intent(in) :: il(*),in(*),im(*), lx(*),nx(*),mnl(*)
+      integer,intent(in) :: nxx,lmxax
+      real(8),intent(in) :: cgr(*), ppbrd(*)
+      integer:: is,irot
+      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
+      do irot = 1,ng
+      do is = 1,nspin
+         call ppbafp_v2 (irot,ng,is,nspin,
+     i                 il,in,im, mnl,
+     d                 nl,nn,nclass,mnlx,
+     i                 mdimx,lx,nx,nxx, !Bloch wave    
+     i                 cgr,lmxax,   !rotated CG
+     i                 ppbrd,           !radial integrals
+     o        ppbir(:,irot,is)) !this is in m_zmel
+      enddo  
+      enddo  
+      end subroutine ppbafp_v2_zmel
+
+!     ! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
 !!
@@ -147,6 +258,8 @@ cold  nbmax -->nmmax
       endif
 
       if(sum(abs(q-q_bk))>tolq) then
+         print *,' go to readcphi',q,nlmto,ispq,quu
+ccccccccccccccccccccccccccccccccc         
          call readcphi(q, nlmto,ispq, quu, cphim )
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          q_bk=q

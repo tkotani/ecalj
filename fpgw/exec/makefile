@@ -295,7 +295,9 @@ $(gwsrc)m_rotMPB.o \
 $(gwsrc)m_iqindx_qtt.o \
 $(gwsrc)rotwave.o \
 $(gwsrc)rotcg.o \
-$(gwsrc)rotgvec.o
+$(gwsrc)rotgvec.o\
+$(gwsrc)m_readVcoud.o\
+$(gwsrc)m_itq.o
 
 
  QPE_QSGW = \

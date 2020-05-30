@@ -1,27 +1,27 @@
       program hsfp0
-      use m_ReadEfermi,only: readefermi,ef
-      use m_readqg,only: readqg,readngmx
-      use m_readeigen,only: init_readeigen,readeval,lowesteval,init_readeigen2
-      use m_read_bzdata,only: read_bzdata,
+      use m_ReadEfermi,only: Readefermi,ef
+      use m_readqg,only: Readqg,Readngmx
+      use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
+      use m_read_bzdata,only: Read_bzdata,
      &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
      &  dq_,qbz,wbz,qibz,wibz,qbzw,
      &  idtetf,ib1bz,idteti,
      &  nstar,irk,nstbz
-      use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn,ngrp,
-     & nlmto,nlnmx, nctot,niw,
-     & alat,delta,deltaw,esmr,symgrp,clabl,iclass, ! diw,dw,
-     & invg,  il,in,im,nlnm, 
-     & plat, pos,z,ecore, symgg, konf,nlnx
-      use m_keyvalue,only: getkeyvalue
-
-      use m_rdpp,only: rdpp, !"call rdpp" generate following data set.
+      use m_genallcf_v3,only: Genallcf_v3,
+     &     nclass,natom,nspin,nl,nn,ngrp,
+     &     nlmto,nlnmx, nctot,niw,
+     &     alat,delta,deltaw,esmr,symgrp,clabl,iclass, ! diw,dw,
+     &     invg,  il,in,im,nlnm, 
+     &     plat, pos,z,ecore, symgg, konf,nlnx
+      use m_keyvalue,only: Getkeyvalue
+      use m_rdpp,only: Rdpp, !"call rdpp" generate following data set.
      &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
-
-      use m_zmel,only: !these data are stored in this program.
-     &   nband,itq,ngcmx,ngpmx,
-     &   miat,tiat,shtvg, ntq, ppbir
-
+      use m_zmel,only: 
+     &     Ppbafp_v2_zmel, Mptauof_zmel
+      use m_itq,only: Setitq_hsfp0, 
+     &     itq,ntq
+c     &   nband,itq,ngcmx,ngpmx,
+c     &   miat,tiat,shtvg, ntq, ppbir
       use m_mpi,only: 
      &   MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
      &   MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
@@ -70,8 +70,8 @@ c     test switches to calculate the self-energy based on an another separation 
 c------------------------------------
       real(8):: esmr2,shtw
       integer::
-     &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, !nband,
-     &     ibas,ibasx,nxx,ifqpnt,ifwd, !ngpmx,ngcmx,nbloch,
+     &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, nband,
+     &     ibas,ibasx,nxx,ifqpnt,ifwd, ngpmx,ngcmx,!nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -379,8 +379,9 @@ c      write(6,'("    niw dw   =",i7,f13.6)') niw ,dw
 !!  because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
       ificlass=ifile_handle()
       open (ificlass,file='CLASS')
-      allocate(iclasst(natom),invgx(ngrp)
-     &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+      allocate(iclasst(natom))
+c      ,invgx(ngrp)
+c     &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(ificlass,*) ibasx, iclasst(ibas)
@@ -388,11 +389,12 @@ c      write(6,'("    niw dw   =",i7,f13.6)') niw ,dw
       enddo
       close(ificlass)
 !! ===  Get space-group transformation information. See header of mptaouof. ===
-      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
-     o     ,miat,tiat,invgx,shtvg )
+      call Mptauof_zmel(symgg,ngrp,plat,natom,pos,iclasst) 
+c     o     ,miat,tiat,invgx,shtvg )
 
+      
 !! ====  Get array size to call rdpp ====
-      call getsrdpp2( nclass,nl,nxx)
+      call Getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
@@ -414,7 +416,7 @@ c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 !     ngveccB (in IBZ)   contains G vector for Coulomb matrix.
 c      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
 c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-      call rdpp(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas)
+      call Rdpp(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas)
       !     output ==>     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr
       call pshprt(60)
 
@@ -514,6 +516,7 @@ c     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of 
 !     maxocc seems to give (the maxmum number of occ + 1).
 
       call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
 
       if(.not.tote) then
         if(nz==0) then
@@ -534,19 +537,8 @@ c      write(6,*)' ifqpnt ret=',ifqpnt,ret
         if (iaf   == 1)   laf = .true.
         call readx   (ifqpnt,100)
       endif
-
-!     states
-      if (tote) then
-        ntq    = noccxv
-        allocate( itq(ntq) )
-        do i   = 1,ntq
-          itq(i) = i
-        enddo
-      else
-        read (ifqpnt,*) ntq
-        allocate( itq(ntq) )
-        read (ifqpnt,*) (itq(i),i=1,ntq)
-      endif
+!!
+      call setitq_hsfp0(nband,ngcmx,ngpmx,tote,ifqpnt,noccxv,nss)
 
 !     q-points
       if (lqall) then           !all q-points case
@@ -598,17 +590,6 @@ c
 
       close(ifqpnt)
 
-C...
-      call getkeyvalue("GWinput","QPNT_nbandrange",nss,2 !nov2005
-     &     ,default=(/-99997,-99997/) )
-      if(nss(2)/=-99997) then
-        if(allocated(itq)) deallocate(itq)
-        ntq=nss(2)-nss(1)+1
-        allocate( itq(ntq) )
-        do i=max(1,nss(1)),min(nss(2),nband)
-          itq(i-nss(1)+1) = i
-        enddo
-      endif
 
 !! omega
 !! this is also in sxcf.
@@ -878,18 +859,24 @@ c-----------------------------------------------------------
  
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
-      do irot = 1,ngrp
-      do isp = 1,nspin
-        call ppbafp_v2 (irot,ngrp,isp,nspin,
-     i              il,in,im,nlnm, !w(i_mnl),
-     d              nl,nn,nclass,nlnmx,
-     i              mdimx,lx,nx,nxx, !Bloch wave    
-     i              cgr, nl-1,  !rotated CG
-     i              ppbrd,      !radial integrals
-     o              ppbir(:,irot,isp))
-      enddo  
-      enddo  
+c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
+      call ppbafp_v2_zmel (ngrp,nspin, !all inputs. This is in m_zmel
+     i   il,in,im,nlnm,         !w(i_mnl),
+     i   nl,nn,nclass,nlnmx,
+     i   mdimx,lx,nx,nxx,       !Bloch wave    
+     i   cgr, nl-1,             !rotated CG
+     i   ppbrd) !,                 !radial integrals
+c$$$      do irot = 1,ngrp
+c$$$      do isp = 1,nspin
+c$$$        call ppbafp_v2 (irot,ngrp,isp,nspin,
+c$$$     i              il,in,im,nlnm, !w(i_mnl),
+c$$$     d              nl,nn,nclass,nlnmx,
+c$$$     i              mdimx,lx,nx,nxx, !Bloch wave    
+c$$$     i              cgr, nl-1,  !rotated CG
+c$$$     i              ppbrd,      !radial integrals
+c$$$     o              ppbir(:,irot,isp))
+c$$$      enddo  
+c$$$      enddo  
 
 !! == job divider for MPI ==
 c      nrank=1 !total number of rank

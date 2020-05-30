@@ -1,9 +1,9 @@
       module m_rdpp
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
       integer,parameter:: NULL=-9999
-      integer:: mdimx=NULL,nbloch=NULL
-      integer,allocatable:: nblocha(:) ,lx(:), nx(:,:)
-      real(8),allocatable:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
+      integer,protected:: mdimx=NULL,nbloch=NULL
+      integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
+      real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical:: done_rdpp=.false.
       contains
 
@@ -113,20 +113,18 @@ c      lmxax = nl-1
       write(6,*)' rdpp_v3:end '
       end
 
-      subroutine getsrdpp2(nclass,nl,nxx) !  ngpmx,ngcmx,nxx)
-c get dimensiton for PLN and PPBRD_V2_/atom
-      integer(4)  :: nx(0:2*(nl-1),nclass)
+      subroutine Getsrdpp2(nclass,nl,nxx) 
+!     ! Get dimension for PLN and PPBRD_V2_/atom
+      integer(4),intent(in):: nclass,nl
+      integer(4)  :: nx(0:2*(nl-1),nclass),nxx,ifppb
       character*11 :: filename
       do ic = 1,nclass
         filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        ifppb = iopen(filename,0,-1,0)
-        read(ifppb) nblocha,lx, nx(0:2*(nl-1),ic)
-        is = iclose(filename)
+        open(newunit=ifppb, file=trim(filename), action='read',form='unformatted')
+        read(ifppb) nblocha,lxx, nx(0:2*(nl-1),ic)
+        close(ifppb)
       enddo
       nxx   = maxval( nx )
-c      ifplane = iopen('PLN',0,-1,0)
-c      read (ifplane) ngpmx, ngcmx
-c      is = iclose('PLN')
       end
 
       subroutine getsrdpp(nclass,nl, ngpmx,ngcmx,nxx)

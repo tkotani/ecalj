@@ -21,9 +21,9 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : get_zmelt,
-     i ppovlz, 
-     o zmel,zmeltt 
+      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf,Setppovlz_ee,Setppovlz_chipm,
+c     i   ppovlz, 
+     o   zmel,zmeltt 
       implicit none
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
@@ -393,12 +393,14 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-          call readppovl0(qibz_k,ngc,ppovl)
-          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
-          deallocate(zcousq,ppovl)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+c$$$          call readppovl0(qibz_k,ngc,ppovl)
+c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
+c$$$          deallocate(zcousq,ppovl)
+          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          print *,'end of setppovlz'
 !! === open WVR,WVI ===
           if(.not.exchange) then
             ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
@@ -1232,7 +1234,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
             ifrcw  = iclose('WVR.'//charnum5(kx))
             ifrcwi = iclose('WVI.'//charnum5(kx))
           endif   
-          deallocate(ppovlz)
+c          deallocate(ppovlz)
  1100   continue                ! end of kx-loop
         ifvcoud =iclose('Vcoud')
         if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))

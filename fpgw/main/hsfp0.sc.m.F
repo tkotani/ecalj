@@ -55,13 +55,16 @@
       use m_keyvalue,only: GETKEYVALUE
 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-      use m_rdpp,only: rdpp,    !"call rdpp" generate following data.
-     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
+      use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
+     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 !! Generate matrix element for "call get_zmelt".
-      use m_zmel,only:  ! folloiwng data set are stored in this module in the main routin, 
-                        ! and used when call get_zmelt, get_zmelt2.
-     & nband,itq,ngcmx,ngpmx,
-     & miat,tiat,shtvg, ntq, ppbir
+      use m_zmel,only:  
+     &     Ppbafp_v2_zmel, Mptauof_zmel
+
+      use m_itq,only: Setitq_hsfp0sc, 
+     &     itq,ntq,nbandmx
+c     & nband,itq,ngcmx,ngpmx, miat,tiat,shtvg, ntq, ppbir
+      
 !! antiferro condition. only laf is used, after 'call anfcond()'
       use m_anf,only: anfcond,
      &   laf
@@ -97,7 +100,7 @@ c     ! Tetrahedron mehod for correlation is a bit
 
 c      real(8) :: shtw
       integer::
-     & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
+     & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      & ibas,ibasx,nxx,ifqpnt,ifwd, 
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -107,7 +110,7 @@ c      real(8) :: shtw
      & ifsec(2)             
      & ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      & ifsex2(2),ifsec2(2),     !out S_nn'
-     & ifsecomg(2),ndble=8
+     & ifsecomg(2),ndble=8, ngpmx,ngcmx
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
@@ -204,9 +207,9 @@ c      logical:: newaniso
       integer:: ififr,ifile_handle,nwxx,ifih
 
       integer:: verbose,iband,isp,iqq
-      integer,allocatable:: nbandmx(:,:)
+c      integer,allocatable:: nbandmx(:,:)
 
-      integer:: ificlass,ifiq0p,ntqxx,nq_r,nband_r
+      integer:: ificlass,ifiq0p,nq_r,nband_r
       logical:: hermitianW
       integer:: nw,if671
       real(8)::dwdummy
@@ -356,8 +359,9 @@ c     if(nocore) nctot=0
 !! because the class in the generated GW file is dummy. (iclass(ibas)=ibas should be kept).
       ificlass = ifile_handle()
       open (ificlass,file='CLASS')
-      allocate(iclasst(natom),invgx(ngrp)
-     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+      allocate(iclasst(natom))
+c      ,invgx(ngrp)
+c     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)' --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(ificlass,*) ibasx, iclasst(ibas)
@@ -365,8 +369,9 @@ c     if(nocore) nctot=0
       enddo
       close(ificlass)
 !!  Get space-group transformation information. See header of mptaouof.
-      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
-     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      call Mptauof_zmel(symgg,ngrp,plat,natom,pos,iclasst) 
+c      call mptauof(symgg,ngrp,plat,natom,pos,iclasst
+c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !! ====  Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
@@ -502,109 +507,14 @@ c        endif
         allocate(q(3,nq))
         q(:,1:nq) = qibz(:,1:nq) !call dcopy   (3*nqibz,qibz,1,q,1)
       endif
-!!
-c$$$      call MPI__Broadcast(nq)
-c$$$      if(MPI__root) then
-c$$$        do dest=1,MPI__size-1
-c$$$          call MPI__REAL8send(q,3*nq,dest)
-c$$$        enddo
-c$$$      else  
-c$$$        call MPI__REAL8recv(q,3*nq,0)
-c$$$      endif  
+      do iq=1,nq
+         write(6,'(" Target iq q=",i6,3f9.4)')iq,q(:,iq)
+      enddo
 
 !! antiferro case. Only calculate up spin
       call anfcond()
       if(laf) nspinmx=1
-c$$$      call MPI__Broadcast(nspinmx)
-
-
-!! Determine ntq.  See also in sxcf_fal.sc.F ntq should be common for all ixc modes.
-!! FIX NTQ during iteration by the file NTQ 15jun2015
-!!
-!! Determine nbandmx. Moved from sxcf_fal2.sc.F.
-!!!! count number of band to calculate.
-!! I think it it better to determine nbandmx in a manner within LDA 
-!! (need to care degeneracy...).
-      allocate(nbandmx(nq,nspinmx))
-c      if(MPI__root) then
-        inquire(file='NTQXX',EXIST=lntq)
-        ifih = ifile_handle()
-        open(ifih,file='NTQXX')
-!!   Get ntq
-        if(lntq) then
-          read(ifih,*) nband_r,nq_r,ntq
-          if(nband_r/=nband.or.nq_r/=nq) then
-            rewind ifih
-            lntq=.false.
-          endif  
-        endif
-        if(.not.lntq) then
-          ntq=0
-          allocate(eqt(nband))
-          do is = 1,nspin
-            do ip = 1,nq
-              call READEVAL(qibz(1,ip),is, eqt)
-              do iband=1,nband
-                ntq = max(iband,ntq)
-                if(eqt(iband)-eftrue>ebmx(1)) exit
-              enddo  
-            enddo
-          enddo
-          ntq = min(ntq, nbmx(1))
-          deallocate(eqt)
-          write(ifih,"(3i10)") nband,nq,ntq
-        endif
-!!   Get ntqxx(iq,isp) and nbandmx
-        allocate(eqt(nband))
-        do is = 1,nspinmx
-          do ip = 1,nq   
-            call READEVAL(qibz(1,ip),is, eqt)
-            if(lntq) then
-              read(ifih,*) ntqxx   ! ntqxx = ntq !jun2016
-            else  
-              ntqxx = 0
-              do i = 1,ntq
-                if(eqt(i)-eftrue<ebmx(1)) ntqxx =ntqxx  + 1
-              enddo
-              ntqxx = min(ntqxx, nbmx(1))
-              write(ifih,"(i10)") ntqxx
-            endif  
-            if(ntqxx<nband) then ! redudce ntqxx when band tops are degenerated. 
-              do i=ntqxx,1,-1   
-                if(eqt(i+1)-eqt(i)<1d-2) then !1d-2 is a tol to check degeneracy.
-                  ntqxx=i-1
-                else
-                  exit
-                endif
-              enddo
-            endif  
-            nbandmx(ip,is) = ntqxx !number of bands to be calculated
-          enddo
-        enddo
-        deallocate(eqt)
-        close(ifih)
-c      endif
-c      call MPI__Broadcast(ntq)
-!!
-c$$$      do is=1,nspinmx
-c$$$        if(MPI__root) then
-c$$$          print *,'is nbandmx(:,is)=',is,nbandmx(:,is)
-c$$$          do dest=1,MPI__size-1
-c$$$            call MPI__send_iv(nbandmx(1:nq,is),dest)
-c$$$          enddo
-c$$$        else  
-c$$$          call MPI__recv_iv(nbandmx(1:nq,is),0)
-c$$$        endif  
-c$$$      enddo
-
-!! trivial case of itq itq(i)=i
-      allocate (itq(ntq))
-      do i = 1, ntq
-         itq(i) = i !itq is used also in hsfp0.m.F
-      enddo
-      do iq=1,nq
-         write(6,'(" Target iq q=",i6,3f9.4)')iq,q(:,iq)
-      enddo
+      call Setitq_hsfp0sc(qibz,nqibz,nband,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
 
 !! read LDA eigenvalues
 c      allocate(omega(ntq))
@@ -889,18 +799,24 @@ C         enddo
       endif
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
-      do irot = 1,ngrp
-        do isp = 1,nspin
-          call ppbafp_v2 (irot,ngrp,isp,nspin,
-     i     il,in,im,nlnm,       !w(i_mnl),
-     i     nl,nn,nclass,nlnmx,
-     i     mdimx,lx,nx,nxx,     !Bloch wave    
-     i     cgr, nl-1,           !rotated CG
-     i     ppbrd,               !radial integrals
-     o     ppbir(:,irot,isp))   !this is in m_zmel
-        enddo  
-      enddo  
+      call ppbafp_v2_zmel (ngrp,nspin, !all inputs. This is in m_zmel
+     i   il,in,im,nlnm,         !w(i_mnl),
+     i   nl,nn,nclass,nlnmx,
+     i   mdimx,lx,nx,nxx,       !Bloch wave    
+     i   cgr, nl-1,             !rotated CG
+     i   ppbrd) !,                 !radial integrals
+c$$$      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
+c$$$      do irot = 1,ngrp
+c$$$        do isp = 1,nspin
+c$$$          call ppbafp_v2 (irot,ngrp,isp,nspin,
+c$$$     i     il,in,im,nlnm,       !w(i_mnl),
+c$$$     i     nl,nn,nclass,nlnmx,
+c$$$     i     mdimx,lx,nx,nxx,     !Bloch wave    
+c$$$     i     cgr, nl-1,           !rotated CG
+c$$$     i     ppbrd,               !radial integrals
+c$$$     o     ppbir(:,irot,isp))   !this is in m_zmel
+c$$$        enddo  
+c$$$      enddo  
 
 !! MPI RankDivider for iqibz and irot cycle in sxcf.
 !!     nrkip is weight correspoinding to irkip for a node.
