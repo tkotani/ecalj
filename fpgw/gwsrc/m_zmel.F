@@ -31,22 +31,29 @@ c     &  ilc,inc,imc,  ilnmc,
      i  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i  done_read_bzdata  
 !! general purpose routine to read values in GWinput file.
-      use m_keyvalue,only: getkeyvalue 
+      use m_keyvalue,only: Getkeyvalue 
 
-      use m_itq,only: itq,ntq,ngcmx,ngpmx,nband
+c      integer,allocatable :: itq(:),nbandmx(:,:)
+c      integer  :: ntq,ngcmx,ngpmx,nband
+      
+      use m_itq,only: itq,ntq,ngcmx,ngpmx,nband,nbandmx
       implicit none
-!! ---------------------------------------------
+!     ! ---------------------------------------------
+c      integer,allocatable :: itq(:),nbandmx(:,:)
+c      integer :: ntq,ngcmx,ngpmx!,nband
+c      integer:: nband
       integer,parameter:: NULL=-99999
 !! These are set by mptauof in 'call mptauof_zmel'
       integer,allocatable,protected :: miat(:,:)
       real(8),allocatable,protected :: tiat(:,:,:),shtvg(:,:)  
-      integer,allocatable,protected ::  invgx(:)
+c      integer,allocatable ::  invgx(:)
 !!
       real(8),allocatable,protected :: ppbir(:,:,:)                  
-      complex(8),allocatable,target :: ppovlz(:,:)        
+      complex(8),allocatable,protected,target :: ppovlz(:,:)        
 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
-      complex(8),allocatable :: zmel(:,:,:),zmeltt(:,:,:) !output
+      complex(8),allocatable :: zmel(:,:,:) !,zmeltt(:,:,:) !output
+      complex(8),allocatable :: zmeltt(:,:,:) !output
 
 !! local save.
       real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d0
@@ -64,6 +71,7 @@ c     &  ilc,inc,imc,  ilnmc,
       real(8),intent(in) :: q(3)
       complex(8),intent(in):: zcousq(ngb,ngb)
       complex(8),allocatable :: ppovl(:,:)
+      if(allocated(ppovlz)) deallocate(ppovlz)
       allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
       call readppovl0(q,ngc,ppovl)
       ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
@@ -137,6 +145,7 @@ c      write(6,*)'nnnnn',nbloch+ngc,ngb
       allocate(invgx(ng),miat(nbas,ng),tiat(3,nbas,ng),shtvg(3,ng))
       call mptauof(symops,ng,platx,nbas,pos,iclass
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      deallocate(invgx)
       end subroutine mptauof_zmel
 
 !! Set ppbir
@@ -243,7 +252,9 @@ cold  nbmax -->nmmax
       logical:: oncew
       real(8),parameter::tolq=1d-8
       integer::ispq,ispm,iii,itps
-!TIME0_1001 
+!!
+      if(allocated(zmel)) deallocate(zmel)
+      if(allocated(zmeltt)) deallocate(zmeltt)
       if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel in m_zmel: start'
       call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )

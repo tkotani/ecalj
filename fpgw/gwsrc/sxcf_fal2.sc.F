@@ -400,6 +400,7 @@ c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+
 c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 c$$$          deallocate(zcousq,ppovl)
           call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          deallocate(zcousq)
           print *,'end of setppovlz'
 !! === open WVR,WVI ===
           if(.not.exchange) then
@@ -485,8 +486,6 @@ c$$$            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
 
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
-            if(allocated(zmel)) deallocate(zmel)
-            if(allocated(zmeltt)) deallocate(zmeltt)
 !TIME1_1010 "Beforeget_zmelt"
 ! this return zmeltt (for exchange), or zmel (for correlation)
 !TIME0_1088
@@ -737,7 +736,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
               vcoud(1) = vc     !restore vcoud(1)
               deallocate(z1r,z2r,w3pi)
               if(verbose()>=30) call cputid2(' complete w3p',0)
-              deallocate(zmeltt)
+c              deallocate(zmeltt)
               if(debug) then
                 do  it  = 1,nctot+nbmax; do  itp = 1,ntqxx
                   write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)

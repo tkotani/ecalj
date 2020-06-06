@@ -2,10 +2,15 @@
       use m_keyvalue,only: Getkeyvalue
       use m_readeigen,only: Readeval
       integer,allocatable,protected :: itq(:),nbandmx(:,:)
-      integer,protected :: ntq,ngcmx,ngpmx,nband
+      integer,protected  :: ntq,ngcmx,ngpmx, nband
 
 !!======================================================================
       contains
+      subroutine setnband(nband_in)
+      integer:: nband_in
+      nband=nband_in
+      end
+
       subroutine setitq(ntq_in,nband_in,ngcmx_in,ngpmx_in)
       implicit none
       integer,intent(in):: nband_in,ngcmx_in,ngpmx_in,ntq_in
@@ -20,9 +25,9 @@
       enddo
       end subroutine setitq
 !!======================================================================
-      subroutine setitq_hsfp0sc(qibz,nqibz,nband,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
+      subroutine setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
       implicit none
-      integer,intent(in):: nqibz,nq,nspin,nbmx(2),nband,nspinmx
+      integer,intent(in):: nqibz,nq,nspin,nbmx(2),nspinmx
       real(8),intent(in):: qibz(3,nqibz),ebmx(2),eftrue
       real(8),allocatable:: eqt(:)
       integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r

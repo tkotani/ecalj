@@ -4,7 +4,7 @@
       integer,protected:: mdimx=NULL,nbloch=NULL
       integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
-      logical:: done_rdpp=.false.
+      logical,protected:: done_rdpp=.false.
       contains
 
       subroutine rdpp(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas)

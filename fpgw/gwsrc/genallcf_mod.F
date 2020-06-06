@@ -1,5 +1,6 @@
       module m_ReadEfermi
       real(8),protected:: bandgap
+c      real(8),protected::ef
       real(8)::ef
       contains
 
@@ -59,9 +60,9 @@
       logical,protected:: done_genallcf_v3=.false.
       character(8),allocatable,protected:: spid(:)
 !! unprotected --> need to be protected
-      real(8), allocatable :: ecore(:,:)
-      real(8):: delta
       integer:: niw
+      real(8):: delta
+      real(8),allocatable :: ecore(:,:)
       real(8):: esmr
 c-----------------------------------------------------------------------
       contains

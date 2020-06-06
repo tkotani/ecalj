@@ -43,39 +43,39 @@
       use m_readqg,only: READQG,READNGMX
       use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,READEVAL,LOWESTEVAL
       use m_READ_BZDATA,only: READ_BZDATA,
-     & nqbz,nqibz,nqbzw,nteti,ntetf
-     & ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
-     & ,nstar,irk,nstbz,ngrp2=>ngrp 
+     &     nqbz,nqibz,nqbzw,nteti,ntetf
+     &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
+     &     ,nstar,irk,nstbz,ngrp2=>ngrp 
       use m_genallcf_v3,only: GENALLCF_V3,
-     & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw,!nw_input=>nw,
-     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
-     & invg, il,in,im,nlnm, 
-     & plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
+     &     nclass,natom,nspin,nl,nn, ngrp,
+     &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
+     &     alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
+     &     invg, il,in,im,nlnm, 
+     &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use m_keyvalue,only: GETKEYVALUE
-
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
-!! Generate matrix element for "call get_zmelt".
-      use m_zmel,only:  
-     &     Ppbafp_v2_zmel, Mptauof_zmel
-
-      use m_itq,only: Setitq_hsfp0sc, 
-     &     itq,ntq,nbandmx
-c     & nband,itq,ngcmx,ngpmx, miat,tiat,shtvg, ntq, ppbir
-      
-!! antiferro condition. only laf is used, after 'call anfcond()'
-      use m_anf,only: anfcond,
-     &   laf
-!! subroutine only
-      use m_sxcfsc,only: sxcf_fal3_scz
-!! MPI
+!     ! Generate matrix element for "call get_zmelt".
+      use m_zmel,only:          ! folloiwng data set are stored in this module in the main routin, 
+     &     Ppbafp_v2_zmel, Mptauof_zmel ! and used when call get_zmelt, get_zmelt2.
+c     &                          !ppbir,miat,tiat,shtvg,
+      use m_itq,only:
+     &     Setitq_hsfp0sc,Setnband,
+     &     nband,
+     &     itq,nbandmx,
+     &     ntq,ngcmx,ngpmx
+!     ! antiferro condition. only laf is used, after 'call anfcond()'
+      use m_anf,only: Anfcond,
+     &     laf
+!     ! subroutine only
+      use m_sxcfsc,only: Sxcf_fal3_scz
+!     ! MPI
       use m_mpi,only: 
-     &   MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
-     &   MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
-     &   MPI__consoleout,
-     &   MPI__barrier
+     &     MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
+     &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
+     &     MPI__consoleout,
+     &     MPI__barrier
 
       implicit none
 !! -----------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ c     ! Tetrahedron mehod for correlation is a bit
 
 c      real(8) :: shtw
       integer::
-     & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      & ibas,ibasx,nxx,ifqpnt,ifwd, 
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -110,7 +110,7 @@ c      real(8) :: shtw
      & ifsec(2)             
      & ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      & ifsex2(2),ifsec2(2),     !out S_nn'
-     & ifsecomg(2),ndble=8, ngpmx,ngcmx
+     & ifsecomg(2),ndble=8
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
@@ -181,7 +181,6 @@ c
 !! newaniso mode
 c      logical:: newaniso
       real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
-      complex(8),allocatable:: zcousq(:,:)
       integer:: ifvcoud,lxklm,ifidmlx
 
       integer,allocatable:: irkip_all(:,:,:,:),irkip(:,:,:,:)
@@ -346,10 +345,10 @@ c     if(nocore) nctot=0
 !! read dimensions of wc,b,hb
       ifhbed = ifile_handle()   !  ifhbed = iopen('hbe.d',1,0,0)
       open (ifhbed,file='hbe.d',status='old')
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband_r,mrecg
       close(ifhbed)             !isx = iclose ('hbe.d')
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
-
+      call Setnband(nband_r)
 !!
       call INIT_READEIGEN(ginv,nspin,nband,mrece) !initialization of readEigen
 ! required for readeigen readchpi readgeig.
@@ -514,8 +513,11 @@ c        endif
 !! antiferro case. Only calculate up spin
       call anfcond()
       if(laf) nspinmx=1
-      call Setitq_hsfp0sc(qibz,nqibz,nband,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
-
+      call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
+c      do i=1,ntq
+c         print *,' xxxxxx itq=',itq(i)
+c      enddo
+c      stop 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx x'
 !! read LDA eigenvalues
 c      allocate(omega(ntq))
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
