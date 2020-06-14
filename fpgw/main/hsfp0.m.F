@@ -15,7 +15,7 @@
      &     plat, pos,z,ecore, symgg, konf,nlnx
       use m_keyvalue,only: Getkeyvalue
       use m_rdpp,only: Rdpp, !"call rdpp" generate following data set.
-     &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
+     &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
       use m_zmel,only: 
      &     Ppbafp_v2_zmel, Mptauof_zmel
       use m_itq,only: Setitq_hsfp0, 
@@ -71,7 +71,7 @@ c------------------------------------
       real(8):: esmr2,shtw
       integer::
      &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, nband,
-     &     ibas,ibasx,nxx,ifqpnt,ifwd, ngpmx,ngcmx,!nbloch,
+     &     ibas,ibasx,ifqpnt,ifwd, ngpmx,ngcmx,!nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -394,7 +394,7 @@ c     o     ,miat,tiat,invgx,shtvg )
 
       
 !! ====  Get array size to call rdpp ====
-      call Getsrdpp2( nclass,nl,nxx)
+c      call Getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
@@ -416,7 +416,7 @@ c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 !     ngveccB (in IBZ)   contains G vector for Coulomb matrix.
 c      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
 c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-      call Rdpp(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas)
+      call Rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
       !     output ==>     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr
       call pshprt(60)
 

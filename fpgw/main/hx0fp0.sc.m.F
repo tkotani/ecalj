@@ -23,7 +23,7 @@ c     &     idteti, nstar,irk,nstbz
       use m_readqgcou,only: Readqgcou
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,      !"call rdpp" generate following data.
-     &     lx,nx,mdimx,nbloch,cgr,ppbrd 
+     &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
 !! Set data for "call get_zmelt".
       use m_zmel,only:  !these data set are stored in this module, and used when 
      &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz
@@ -61,7 +61,7 @@ c     & laf,ibasf !,ldima,pos,natom
      &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &     i,nq0ix,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx 
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
-     &     ifepscond,nxx,ifvxcpout,ifgb0vec
+     &     ifepscond,ifvxcpout,ifgb0vec
      &     ,nw0,iw,ifinin,iw0,noccxv,noccx
      &     ,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &     ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0
@@ -217,7 +217,7 @@ c      real(8):: ef
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
       tpioa=2d0*pi/alat
       call Readefermi() !readin EFERMI
-      call Getsrdpp2(nclass,nl,nxx) !Get nxx: max dim of nx
+c      call Getsrdpp2(nclass,nl,nxx) !Get nxx: max dim of nx
 !!!! caution: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
 !! --- tetra or not
@@ -257,8 +257,9 @@ c      l2nl=2*(nl-1)
         write(6,"(2i10)") ibasx, iclasst(ibas)
       enddo
       close(ificlass)
+
 !! Get space-group transformation information. See header of mptaouof.
-!!   But we only use symops=E only for hx0fp0 mode. c.f hsfp0.sc 
+!! But we only use symops=E only for hx0fp0 mode. c.f hsfp0.sc 
 !! Set up miat,tiat,invgx,shtvg in m_zmel, but ngrpx=1 
       ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1
       allocate(symope(3,3))
@@ -268,7 +269,7 @@ c      l2nl=2*(nl-1)
       call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst)
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
-      call Rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas)
+      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq(nband,nband, ngcmx, ngpmx)
       nblochpmx = nbloch + ngcmx
@@ -334,7 +335,7 @@ c      l2nl=2*(nl-1)
      i   nl,nn,nclass,nlnmx,
      i   mdimx,lx,nx,nxx,       !Bloch wave    
      i   cgr, nl-1,             !rotated CG
-     i   ppbrd) !,                 !radial integrals
+     i   ppbrd) !,              !radial integrals
 c     o   ppbir(:,irot,is))      !this is in m_zmel 
       if(debug) write(6,*) ' end of ppbafp_v2x'
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )

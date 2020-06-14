@@ -913,7 +913,7 @@ ecalj
 
 
 \newpage
-\section{Theory (note)}
+\section{Theory (note)}aaa
 Except the technical details, we need to know minimum for these theories.
 \begin{itemize}
 \item DFT in LDA/GGA.
@@ -1555,7 +1555,7 @@ Eigenvalues are shown as
  -0.0174 -0.0174 -0.0174  0.1094  0.1095  0.1095  0.2864  0.2864  0.4170
   0.4170  0.4736  0.6445  0.6445  0.6445
 \end{verbatim}
-This is at k=  0.00000  0.00000  0.00000 .
+This is at k=  0.00000  0.00000  0.00000.
 (because of historical reason, two same bndfp: are shown in each
 iteration; two band path method).  ``\verb+lmf cu| grep -A6 BZWTS+'' shows the Fermi energy
 (for insulator, we see band gap). 
@@ -5755,12 +5755,12 @@ So in conclusion, I think a best way to do is
 2. You can use small QpGcut_cou but all ngc should be one or more.
 
 3. As for the Product basis setting in epsPP* scripts, only
-   lcutmx and tolerance (this can be like 0.001 or so) are relevant.
+   lcutmx and tolerance (this can be like 0.001 or so) are relevant.to determine eps(omega=0, q=0).
    E.g. set lcutmx=4 or so.
+   
+   5. To get eps with LFC, set QpGcut_cut as xxx, and set lcutmx=2 where
+   4. Do nk=20 18 16 and take interpolarion 
 
-4. Do nk=20 18 16 and take interpolarion to determine eps(omega=0, q=0).
-
-5. To get eps with LFC, set QpGcut_cut as xxx, and set lcutmx=2 where
    (occupied sp) \timex (unoccupied spd) are included.
    But correct EPS*.nolfc.d is rather from epsPP_lmfh script.
 

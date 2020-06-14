@@ -55,7 +55,7 @@
       use m_keyvalue,only: GETKEYVALUE
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
-     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
+     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
 !     ! Generate matrix element for "call get_zmelt".
       use m_zmel,only:          ! folloiwng data set are stored in this module in the main routin, 
      &     Ppbafp_v2_zmel, Mptauof_zmel ! and used when call get_zmelt, get_zmelt2.
@@ -101,7 +101,7 @@ c     ! Tetrahedron mehod for correlation is a bit
 c      real(8) :: shtw
       integer::
      & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
-     & ibas,ibasx,nxx,ifqpnt,ifwd, 
+     & ibas,ibasx,ifqpnt,ifwd, !nxx,
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
      & i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
@@ -374,7 +374,7 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !! ====  Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
-      call getsrdpp2( nclass,nl,nxx)
+c      call getsrdpp2( nclass,nl,nxx)
       call READNGMX('QGpsi',ngpmx)
       call READNGMX('QGcou',ngcmx)
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
@@ -386,7 +386,7 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
 
 !! === ppbrd = Radial integrals
 !!  cgr   = rotated cg coeffecients.
-      call rdpp(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas)
+      call rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
 !  output: nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr are stored in m_rdpp.
       call pshprt(60)
 

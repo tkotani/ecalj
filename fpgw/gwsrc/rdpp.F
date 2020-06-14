@@ -1,52 +1,46 @@
       module m_rdpp
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
-      integer,parameter:: NULL=-9999
-      integer,protected:: mdimx=NULL,nbloch=NULL
+      Use NaNum,only: NaN
+c      integer,parameter:: NULL=-9999
+      integer,protected:: mdimx=NaN,nbloch=NaN,nxx=NaN
       integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical,protected:: done_rdpp=.false.
       contains
-
-      subroutine rdpp(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas)
+      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
 !     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.
       implicit none
-      integer:: nxx,nl,ngrp,nn,nclass
+      integer:: nl,ngrp,nn,nclass
       integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
      i      nspin,nblochpmx,
      &      n1,n2,n3,iq0,
      &      ifppb(nclass)
       real(8)    ::  symope(3,3,ngrp),  pi,qbas(3,3)
       integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
-     &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
+     &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,ifile_handle
       character*11 :: filename(nclass)
-      if(done_rdpp) call rx('rdpp is already called')
-      allocate( nblocha(nclass) ,lx(nclass),
-     &     nx(0:2*(nl-1),nclass),
-     &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
-     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) )
       write(6,*)" rdpp: "
+      if(done_rdpp) call rx('rdpp is already called')
 !!  Radial integrals ppbrd
+      allocate( nblocha(nclass) ,lx(nclass),
+     &     nx(0:2*(nl-1),nclass))
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        ifppb(ic) = iopen(filename(ic),0,-1,0)
+        open(newunit=ifppb(ic),file=filename(ic),form='unformatted')
+        write(6,*)'ifppb=',ifppb(ic),nl
         read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
-c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
       enddo
-
-c      nxx   = maxval( nx )
-c     nspin =ispin
+      nxx = maxval( nx )
+      allocate(  ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
+     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) )
       write(6,*)' ppbrd size',nl,nn,nxx,nclass,nspin
       do ic = 1,nclass
         do isp= 1,nspin
-c      do ip2= 1,2
-c      do ip1= 1,2
-c        ioff = 1 + (ic-1) + 4*nclass*(isp-1)
           nxic = maxval( nx(0:2*(nl-1),ic) )
           read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
-c          write(*,*)'srrrrrr cccccccccc',sum(ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1)))
-c      enddo;  enddo;
         enddo
-        is= iclose(filename(ic))
+        close(ifppb(ic))
       enddo
 c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)

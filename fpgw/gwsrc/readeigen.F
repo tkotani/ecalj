@@ -597,7 +597,7 @@ c      write(6,*) 'init_readeigen:1'
 !!--- store requied index
       call readhamindex()
 c      write(*,*)ngrp,nbas,kxx,lxx
-c      write(*,*)'nqtt=',nqtt,nqi,nqnum
+      write(*,*)'nqi=',nqi!,nqnum
 c      write(*,*)'imx=',imx,ngpmx
 c      do iq=1,nqtt
 c        write(*,*) qtt(:,iq)
@@ -609,7 +609,7 @@ c      enddo
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
       read(ifiqg) nqnum , ngpmx, QpGcut_psi, nnnn,nqi,imx
-      write(6,*)'read(ifiqg)', nqnum , ngpmx, QpGcut_psi, nnnn
+      write(6,*)'read(ifiqg)', nqnum , ngpmx, QpGcut_psi, nnnn,nqi
       allocate( qtt_(3,nqnum),ngp(nqnum) )
       allocate( ngvecp(3,ngpmx,nqnum))
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )

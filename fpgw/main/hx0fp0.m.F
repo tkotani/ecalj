@@ -24,8 +24,8 @@
      & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
      & MPI__ranktab,MPI__consoleout,MPI__barrier
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-      use m_rdpp,only: rdpp, !NOTE: "call rdpp" generate following data.
-     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
+      use m_rdpp,only: Rdpp, !NOTE: "call rdpp" generate following data.
+     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
      &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm
@@ -114,7 +114,7 @@ c      logical::imagonly=.false.,realonly=.false. !,readgwinput
      &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx,ngcmx,ngpmx
      &   ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
-     &   ifepscond,nxx !,ifvxcpout,ifgb0vec
+     &   ifepscond !,ifvxcpout,ifgb0vec,nxx
      &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
      &   ,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
      &   ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy
@@ -440,7 +440,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
-      call getsrdpp2( nclass,nl,nxx)
+c      call getsrdpp2( nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
       call readngmx('QGcou',ngcmx)
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
@@ -484,7 +484,7 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !!  ppbrd = radial integrals,  cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-      call Rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas) !see m_rdpp
+      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq(nband,nband, ngcmx, ngpmx)
 

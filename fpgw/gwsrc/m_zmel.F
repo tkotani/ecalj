@@ -3,67 +3,48 @@
 !! Then we have matrix elements zmel (exchange=F for correlation)
 !! or zmeltt (exchange=T). In future, they may be unified...
       module m_zmel
-
 !! Base data for crystal structure.
 !! these are set by 'call genallcf_v3' usually in the main routine.
       use m_genallcf_v3,only: 
-     i  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     i  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,
-     i  alat,delta,deltaw,esmr,symgrp,iclass,nlnmv, !,diw,dw
-c  clabl,nindxv,nindxc,ncwf,
-c     &  il, in, im, ilnm, nlnm, ilv,inv,imv,  ilnmv, 
-c     &  ilc,inc,imc,  ilnmc, 
-     i   invg, nlnmc, !nindx,konf
-     i  icore,ncore,occv,unoccv ,
-     i  occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
-     i  done_genallcf_v3  
+     i     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     i     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw,
+     i     alat,delta,deltaw,esmr,symgrp,iclass,nlnmv, !,diw,dw
+     i     invg, nlnmc,         !nindx,konf
+     i     icore,ncore,occv,unoccv ,
+     i     occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
+     i     done_genallcf_v3  
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
 !! Before calling them (get coefficients of eigen funcitons), 
 !! We need to call init_readeigen, init_readeigen2 in main rouitne.
-      use m_readeigen,only: readcphi,readgeig 
-!! Basic data set to get zmel*
-!! these are set by 'call rdpp' in main routine
+      use m_readeigen,only: Readcphi,Readgeig 
+!! these are set by 'call rdpp' 
       use m_rdpp,only:       
-     i  nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
-     i  done_rdpp  
-!! BZ data. To set these data 'call read_BZDATA' in main rouitne.
+     i     nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
+     i     done_rdpp  
+!! BZ data. To set these data 'call read_BZDATA'
       use m_read_bzdata,only: 
-     i  nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
-     i  done_read_bzdata  
-!! general purpose routine to read values in GWinput file.
-      use m_keyvalue,only: Getkeyvalue 
-
-c      integer,allocatable :: itq(:),nbandmx(:,:)
-c      integer  :: ntq,ngcmx,ngpmx,nband
-      
+     i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
+     i     done_read_bzdata  
+      use m_keyvalue,only: Getkeyvalue ! general purpose routine to read values in GWinput file.
       use m_itq,only: itq,ntq,ngcmx,ngpmx,nband,nbandmx
       implicit none
-!     ! ---------------------------------------------
-c      integer,allocatable :: itq(:),nbandmx(:,:)
-c      integer :: ntq,ngcmx,ngpmx!,nband
-c      integer:: nband
-      integer,parameter:: NULL=-99999
-!! These are set by mptauof in 'call mptauof_zmel'
-      integer,allocatable,protected :: miat(:,:)
-      real(8),allocatable,protected :: tiat(:,:,:),shtvg(:,:)  
-c      integer,allocatable ::  invgx(:)
-!!
-      real(8),allocatable,protected :: ppbir(:,:,:)                  
-      complex(8),allocatable,protected,target :: ppovlz(:,:)        
 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable :: zmel(:,:,:) !,zmeltt(:,:,:) !output
       complex(8),allocatable :: zmeltt(:,:,:) !output
 
-!! local save.
-      real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d0
+!! Local private ---------------------
+!!    These are set by mptauof in 'call mptauof_zmel'
+      integer,allocatable,protected,private :: miat(:,:)     ! mptauof_zmel
+      real(8),allocatable,protected,private :: tiat(:,:,:),shtvg(:,:)  
+      real(8),allocatable,protected,private :: ppbir(:,:,:)  ! ppbafp_v2_zmel 
+      complex(8),allocatable,protected,private :: ppovlz(:,:)        
+      real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
       logical,private:: init=.true.
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
-      integer,private::kxold=-9999
 
       contains
-!     !
 !! set ppovlz for given q      
       subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
       implicit none
@@ -78,15 +59,12 @@ c      integer,allocatable ::  invgx(:)
       ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
       deallocate(ppovl)
       end subroutine setppovlz_sxcf
-      
 !! set ppovlz for given q      
       subroutine setppovlz(q,ngc,zcousq,ngb)
-c     & ppovlz)
       implicit none
       integer,intent(in) :: ngc,ngb
       real(8),intent(in) :: q(3)
       complex(8),intent(in):: zcousq(ngb,ngb)
-c      complex(8),intent(out) :: ppovlz(ngb,ngb)
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:),ppovlzinv(:,:)
       logical:: eibz4x0
       integer:: i,nbloch
@@ -108,7 +86,7 @@ c      complex(8),intent(out) :: ppovlz(ngb,ngb)
       ppovlz = ppovl_
       deallocate(ppovl_,ppovl)
       end subroutine setppovlz 
-
+!! set ppovlz
       subroutine setppovlz_ee(q,ngc,ngb,zcousq)
       implicit none
       integer,intent(in):: ngc,ngb
@@ -123,9 +101,8 @@ c      complex(8),intent(out) :: ppovlz(ngb,ngb)
       nbloch = ngb-ngc
       ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
       ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c      write(6,*)'nnnnn',nbloch+ngc,ngb
       end subroutine setppovlz_ee
-
+!! set ppovlz
       subroutine setppovlz_chipm(zzr,ngb,nmbas1)
       implicit none
       integer,intent(in)::ngb,nmbas1

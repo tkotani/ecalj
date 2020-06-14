@@ -298,7 +298,8 @@ $(gwsrc)rotwave.o \
 $(gwsrc)rotcg.o \
 $(gwsrc)rotgvec.o\
 $(gwsrc)m_readVcoud.o\
-$(gwsrc)m_itq.o
+$(gwsrc)m_itq.o\
+$(gwsrc)nan.o
 
 
  QPE_QSGW = \

@@ -1,10 +1,11 @@
       module m_pbindex !generate index table for product basis.
-      integer,parameter::NULLI=-9999999
-      integer:: norbt=NULLI !number of PB block. 
+      Use NaNum,only: NaN
+c      integer,parameter::NaN=-9999999
+      integer:: norbt=NaN !number of PB block. 
       integer,allocatable:: 
      &    ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
       integer::
-     &    max_ibas_tbl=NULLI,max_l_tbl=NULLI,max_k_tbl=NULLI,max_offset_tbl=NULLI
+     &    max_ibas_tbl=NaN,max_l_tbl=NaN,max_k_tbl=NaN,max_offset_tbl=NaN
       logical::init=.true.
       contains !-----------------------------------------------
 
