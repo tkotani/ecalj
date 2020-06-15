@@ -2,21 +2,16 @@
 !!! Each lines consists of "keyword value(s)"  !!! 
 !!! Each tag section in <...>... </...> has its own format. !!! 
 
-qsym 100
-defermia 0d0
-defermib 0d0
-exband off
-
-tetrakbt on
+tetrakbt off
 t_tetrakbt 0
 
 !EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
-!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
+chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
 !Verbose    0  ! 0-->default; 100--->debug 
 !LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
-n1n2n3   12 12 12
+n1n2n3   8 8 8
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
@@ -121,10 +116,9 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
  0d0 0d0 0.02d0
  0d0 0d0 0.04d0
 </QforEPS>
-!<QforEPSL>
-! 0d0 0d0 0d0   1d0   0d0  0d0 8
-! 0d0 0d0 0d0  .5d0  .5d0  0d0 8
-!</QforEPSL>
+<QforEPSL>
+ 0d0 0d0 0d0   1d0   0d0  0d0 50
+</QforEPSL>
 
 ! ##### Maximally localized Wannier function ################ 
 
