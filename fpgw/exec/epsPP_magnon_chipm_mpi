@@ -56,7 +56,7 @@ fi
 
 # run_arg '---' $MPI_SIZE $nfpgw /hmagnon magnon.log
 
-echo 40001 | ~/bin/qg4gw > lqg4gw04 ### generate BZdata
+echo 40001 | $nfpgw/qg4gw > lqg4gw04 ### generate BZdata
 mpirun -np $MPI_SIZE $nfpgw/hmagnon
 $nfpgw/chipm_mat #combine wan_ChiPMr* --> wan_ChiPMr.mat
 
