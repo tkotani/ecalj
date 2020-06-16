@@ -34,7 +34,8 @@ ext2=argvs[1]
 	# 	break
 for ix in argvs:
         if '--alat=' in ix: 
-                alatin=string.atof(eval(re.sub('--alat=','',ix) ))
+#                alatin=string.atof(eval(re.sub('--alat=','',ix) ))
+                alatin=float(eval(re.sub('--alat=','',ix) ))
         else:
                 alatin=None
                 ratioa=1.00000000000
