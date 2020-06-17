@@ -11,7 +11,7 @@
      i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
-     i exchange,screen,cohtest, ifexsp,
+     i exchange,screen, ifexsp, !,cohtest
      i nbmx,ebmx,           
      i wklm,lxklm,          
      i eftrue,
@@ -21,9 +21,9 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : get_zmelt,
-     i ppovlz, 
-     o zmel,zmeltt 
+      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf,Setppovlz_ee,Setppovlz_chipm,
+c     i   ppovlz, 
+     o   zmel,zmeltt 
       implicit none
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
@@ -159,7 +159,7 @@
       integer:: dummy4doxygen
 
 ! input variables
-      logical, intent(in) :: exchange,screen,cohtest
+      logical, intent(in) :: exchange,screen!,cohtest
       integer, intent(in) :: ntq,nqbz,nqibz,ngrp,nq,niw !,natom
       integer, intent(in) :: nband,nlmto,nq0i,nctot,isp,nsp !,mdim(*) !,nlnmx
       integer, intent(in) :: ifvcfpout,nbloch,nblochpmx !nl,nnc, nclass
@@ -393,12 +393,15 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-          call readppovl0(qibz_k,ngc,ppovl)
-          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
-          deallocate(zcousq,ppovl)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+c$$$          call readppovl0(qibz_k,ngc,ppovl)
+c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
+c$$$          deallocate(zcousq,ppovl)
+          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          deallocate(zcousq)
+          print *,'end of setppovlz'
 !! === open WVR,WVI ===
           if(.not.exchange) then
             ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
@@ -483,8 +486,6 @@ c$$$            nbandmx(ip)=ntqxx   !number of bands to be calculated Sep2012.
 
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
-            if(allocated(zmel)) deallocate(zmel)
-            if(allocated(zmeltt)) deallocate(zmeltt)
 !TIME1_1010 "Beforeget_zmelt"
 ! this return zmeltt (for exchange), or zmel (for correlation)
 !TIME0_1088
@@ -735,7 +736,7 @@ C             call zprm('w3pi',w3p,ntqxx,ntqxx,ntqxx)
               vcoud(1) = vc     !restore vcoud(1)
               deallocate(z1r,z2r,w3pi)
               if(verbose()>=30) call cputid2(' complete w3p',0)
-              deallocate(zmeltt)
+c              deallocate(zmeltt)
               if(debug) then
                 do  it  = 1,nctot+nbmax; do  itp = 1,ntqxx
                   write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)
@@ -1232,7 +1233,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
             ifrcw  = iclose('WVR.'//charnum5(kx))
             ifrcwi = iclose('WVI.'//charnum5(kx))
           endif   
-          deallocate(ppovlz)
+c          deallocate(ppovlz)
  1100   continue                ! end of kx-loop
         ifvcoud =iclose('Vcoud')
         if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))

@@ -19,8 +19,8 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readqg
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: get_zmelt,
-     o ppovlz, zmel,zmeltt 
+      use m_zmel,only: Get_zmelt,Setppovlz_sxcf,
+     o  zmel,zmeltt  !ppovlz,
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 
@@ -517,12 +517,14 @@ c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
 !! ppovlz= O Zcousq
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-          if(allocated(ppovl)) deallocate(ppovl,ppovlz)
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-          call readppovl0(qibz_k,ngc,ppovl)
-          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$          if(allocated(ppovl)) deallocate(ppovl,ppovlz)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+c$$$          call readppovl0(qibz_k,ngc,ppovl)
+c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
           deallocate(zcousq)
+          
 !! === open WVR,WVI for correlation mode ===
           if(.not.exchange) then
             ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
@@ -586,7 +588,7 @@ c        if(GaussSmear) ddw= 10d0
             ntqxx= ntp0
 
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
+c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) deallocate(zmel)
             if(allocated(zmeltt)) deallocate(zmeltt)
 ! this return zmeltt (for exchange), or zmel (for correlation)

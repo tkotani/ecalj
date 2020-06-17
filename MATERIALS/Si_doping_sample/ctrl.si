@@ -37,7 +37,7 @@ SITE
      ATOM=Si POS=0.0 0.0 0.0
      ATOM=Si POS=0.25 0.25 0.25
 SPEC
-    ATOM=Si Z=14.1 R=2.16 Q=2,2.1 MMOM=0,0.2
+    ATOM=Si Z=14 R=2.16 Q=2,2 MMOM=0,0.2
       EH=-1 -1 -1 -1  RSMH=1.08 1.08 1.08 1.08 
       EH2=-2 -2 -2  RSMH2=1.08 1.08 1.08 
       KMXA={kmxa}  LMX=3 LMXA=4 NMCORE=1
@@ -47,8 +47,8 @@ SPEC
       #MMOM and Q are to set electron population. grep conf: in lmfa output
 
 
-% const pwemax=3 nk1=4 nk2=4 nk3=4 nit=30  gmax=12  nspin=2 metal=3 so=0 xcfun=1 ssig=1.0
-BZ    ZBAK=0.0
+% const pwemax=2 nk1=8 nk2=8 nk3=8 nit=30  gmax=12  nspin=2 metal=3 so=0 xcfun=1 ssig=1.0
+BZ    ZBAK=0.2
       NKABC={nk1} {nk2} {nk3} # division of BZ for q points.
       METAL={metal}
                 # METAL=3 is safe setting (double path method but not repeat diagonalization), 
@@ -82,7 +82,7 @@ BZ    ZBAK=0.0
       # TETRA=0 N=-1 W=0.001 FSMOM below
       #  are for molecules. No tetrahedron integration. (Smearing))
       #  See http://titus.phy.qub.ac.uk/packages/LMTO/tokens.html
-%const bzw=1e-4  fsmom=0.0
+%const bzw=1e-4  fsmom=0.2
       #TETRA=0 
       #N=-1    #Negative is the Fermi distribution function W= gives temperature.
       #W=0.001 #W=0.001 corresponds to T=157K as shown in console output
@@ -91,7 +91,7 @@ BZ    ZBAK=0.0
                #which obtain only eigenvalues in first-path to obtain integration weights
                #, and accumulate eigenfunctions in second path.
 
-      #FSMOM={fsmom} real number (fixed moment method)
+      FSMOM={fsmom} real number (fixed moment method)
       #  FSMOM is for he fixed-spin moment method. 
       #  a spin-dependent potential shift is added to constrain the total magnetic moment to value 
       #  assigned by FSMOM=. Default is NULL (no FSMOM). FSMOM=0 works now (takao Dec2010)

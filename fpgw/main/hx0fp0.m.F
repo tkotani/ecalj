@@ -28,8 +28,11 @@
      & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 !! Generate matrix element for "call get_zmelt".
       use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
-     & nband,itq,ngcmx,ngpmx, ppovlz,
-     & ppbir,shtvg, miat,tiat , ntq
+     &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm
+c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
+      
+      use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
+      
 !! frequency
       use m_freq,only: getfreq, !NOTE: call getfreq generate following data.
      & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !, frhis0,nwhis0 !output of getfreq
@@ -108,8 +111,8 @@ c      logical::imagonly=.false.,realonly=.false. !,readgwinput
       integer::iopen,maxocc2,iclose,
      & ixc,iqxini,iqxend,iqxendx,
      &   ifhbe,
-     &   nprecb,mrecb,mrece,nlmtot,nqbzt,!nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx !ngcmx,
+     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx,ngcmx,ngpmx
      &   ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond,nxx !,ifvxcpout,ifgb0vec
      &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
@@ -465,8 +468,9 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       symope(1:3,3) = (/0d0,0d0,1d0/)
       ificlass=ifile_handle()
       open (ificlass,file='CLASS')
-      allocate(iclasst(natom),invgx(ngrp)
-     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+      allocate(iclasst(natom))
+c      ,invgx(ngrp)
+c     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(ificlass,*) ibasx, iclasst(ibas)
@@ -475,17 +479,14 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       close(ificlass)
 !! Get space-group transformation information. See header of mptaouof. 
 !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
-      call mptauof(symope,ngrpx,plat,natom,pos,iclasst
-     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst)
+c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !!  ppbrd = radial integrals,  cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-      call rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas) !see m_rdpp
-      ntq = nband
-      allocate(itq(ntq)) !itq=i for i=1,ntq. a dummy. c.f. hsfp0.sc.F
-      do i=1,ntq
-        itq(i)=i
-      enddo
+      call Rdpp(nxx, nl, ngrpx, nn, nclass, nspin, symope,qbas) !see m_rdpp
+!! Set nband, ngcmx, nqpmx and itq in m_zmel
+      call Setitq(nband,nband, ngcmx, ngpmx)
 
 !! Pointer to optimal product basis
       nblochpmx = nbloch + ngcmx
@@ -549,17 +550,14 @@ c$$$      endif
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,R(r))> 
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! Compare usage in hsfp0 modes.
-      irot=1
-      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,irot,nspin))
-      do is = 1,nspin
-        call ppbafp_v2 (irot,ngrpx,is,nspin,
-     i   il,in,im,nlnm,      
+c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrpx,nspin))
+      call ppbafp_v2_zmel (ngrpx,nspin, !all inputs. This is in m_zmel
+     i   il,in,im,nlnm,         !w(i_mnl),
      i   nl,nn,nclass,nlnmx,
      i   mdimx,lx,nx,nxx,       !Bloch wave    
      i   cgr, nl-1,             !rotated CG
-     i   ppbrd,                 !radial integrals
-     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi B>
-      enddo  
+     i   ppbrd) !,                 !radial integrals
+c     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi B>
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
@@ -845,33 +843,28 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
 !! ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
 !!         ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
         if(chipm.and.nolfco) then
-          if(allocated(ppovlz)) deallocate(ppovlz)
-          allocate(ppovlz(ngb,nmbas1))
-          ppovlz= zzr
+          call setppovlz_chipm(zzr,ngb,nmbas1)
         elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-          if(allocated(ppovlz)) deallocate(ppovlz)
-          if(allocated(ppovl)) deallocate(ppovl)
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-          call readppovl0(q,ngc,ppovl)
-          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-          write(6,*)'nnnnn',nbloch+ngc,ngb
+          call setppovlz_ee(q,ngc,ngb,zcousq) 
         else                    !may2013  this removes O^-1 factor from zmelt
-          if(allocated(ppovlz)) deallocate(ppovlz)
-          if(allocated(ppovl)) deallocate(ppovl)
-          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-          call readppovl0(q,ngc,ppovl)
-          allocate(ppovl_(ngb,ngb))
-          ppovl_=0d0
-          do i=1,nbloch
-            ppovl_(i,i)=1d0
-          enddo
-          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
-            ppovl_= matmul(ppovl_,zcousq)
-          endif
-          ppovlz = ppovl_
-          deallocate(ppovl_,ppovl)
+!! Used in get_zmelt in m_zmel in x0kf_v4hz
+          call Setppovlz(q,ngc,zcousq,ngb)
+c$$$
+c$$$          if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$          if(allocated(ppovl)) deallocate(ppovl)
+c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
+c$$$          call readppovl0(q,ngc,ppovl)
+c$$$          allocate(ppovl_(ngb,ngb))
+c$$$          ppovl_=0d0
+c$$$          do i=1,nbloch
+c$$$            ppovl_(i,i)=1d0
+c$$$          enddo
+c$$$          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
+c$$$          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
+c$$$            ppovl_= matmul(ppovl_,zcousq)
+c$$$          endif
+c$$$          ppovlz = ppovl_
+c$$$          deallocate(ppovl_,ppovl)
         endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
