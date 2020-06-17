@@ -111,11 +111,11 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 !EPSdw     0.05 !(Ry) energy mesh  for dielectric function plot.
  
 !QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
-<QforEPS>
- 0d0 0d0 0.01d0
- 0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
-</QforEPS>
+! <QforEPS>
+!  0d0 0d0 0.01d0
+!  0d0 0d0 0.02d0
+!  0d0 0d0 0.04d0
+! </QforEPS>
 <QforEPSL>
  0d0 0d0 0d0   1d0   0d0  0d0 40
 </QforEPSL>
