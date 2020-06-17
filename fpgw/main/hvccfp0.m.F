@@ -541,7 +541,9 @@ C... q near zero
       read (ifq0p,*) nq0i,idummy,nq0iadd
       if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
       allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
-      read (ifq0p,*)( wqt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
+      do i=1,nq0i+nq0iadd
+         read (ifq0p,*) wqt(i),q0i(1:3,i)
+      enddo
       write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
       close(ifq0p)
       write(6,*) ' *** goto do iq nqibz+nq0iadd nq0i=',nqibz,nq0i+nq0iadd

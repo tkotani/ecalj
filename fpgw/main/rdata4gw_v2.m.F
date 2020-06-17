@@ -310,7 +310,9 @@ c      call headver('rdata4gw_v2',ix1)
       open (iq0p,file='Q0P')
       read (iq0p,*) nq0i,iq0pin,nq0iadd
       allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
-      read (iq0p,*) ( wt(i),q0i(1:3,i),ixyz,i=1,nq0i+nq0iadd)
+      do i=1,nq0i+nq0iadd
+         read (iq0p,*) wt(i),q0i(1:3,i)
+      enddo
       close(iq0p)
 
 !! --- Readin DATA4GW_V2
