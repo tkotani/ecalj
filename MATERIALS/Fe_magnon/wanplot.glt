@@ -9,16 +9,16 @@ set xrange[0:8]
 set yrange[0:*]
 set xlabel "{/Symbol w} [eV]"; set ylabel "Im[K] [1/eV]"
  
-plot "wan_ChiPMz.mat.syml100" every :::0::0 u (13.605*$5):($7) lw 4 lt 1  ti "q=0/6" w l,\
-     "wan_ChiPMz.mat.syml100" every :::2::2 u (13.605*$5):($7) lw 4 lt 2  ti "q=2/6" w l,\
-     "wan_ChiPMz.mat.syml100" every :::4::4 u (13.605*$5):($7) lw 4 lt 3  ti "q=4/6" w l
+plot "wan_ChiPMz.mat.syml1" every :::0::0 u (13.605*$5):($7) lw 4 lt 1  ti "q=0/40" w l,\
+     "wan_ChiPMz.mat.syml1" every :::4::4 u (13.605*$5):($7) lw 4 lt 2  ti "q=4/40" w l,\
+     "wan_ChiPMz.mat.syml1" every :::8::8 u (13.605*$5):($7) lw 4 lt 3  ti "q=8/40" w l
    
 # ### Re[K]
 set yrange[*:*]
 set ylabel "Re[K] [1/eV]"
-plot "wan_ChiPMz.mat.syml100" every :::0::0 u (13.605*$5):($6) lw 4 lt 1  ti "q=0/6" w l,\
-     "wan_ChiPMz.mat.syml100" every :::2::2 u (13.605*$5):($6) lw 4 lt 2  ti "q=2/6" w l,\
-     "wan_ChiPMz.mat.syml100" every :::4::4 u (13.605*$5):($6) lw 4 lt 3  ti "q=4/6" w l
+plot "wan_ChiPMz.mat.syml1" every :::0::0 u (13.605*$5):($6) lw 4 lt 1  ti "q=0/40" w l,\
+     "wan_ChiPMz.mat.syml1" every :::4::4 u (13.605*$5):($6) lw 4 lt 2  ti "q=4/40" w l,\
+     "wan_ChiPMz.mat.syml1" every :::12::12 u (13.605*$5):($6) lw 4 lt 3  ti "q=12/40" w l
 
 #    
 unset multiplot
@@ -31,12 +31,12 @@ set multiplot layout 2,1
 set key right bottom; set grid; set ytics
 set xlabel "{/Symbol w} [meV]"; set ylabel "Im[R] [1/eV]"
 
-set xrange[-0.02:1000]; set yrange[-150000:0] 
-plot "wan_ChiPMr.mat.syml100" every :::0::0 u (13605*$5):($7) lw 4 lt  2  ti " 0/6" w l,\
-     "wan_ChiPMr.mat.syml100" every :::1::1 u (13605*$5):($7) lw 4 lt  1  ti " 1/6" w l,\
-     "wan_ChiPMr.mat.syml100" every :::2::2 u (13605*$5):($7) lw 4 lt  3  ti " 2/6" w l
+set xrange[-0.02:400]; set yrange[-150000:0] 
+plot "wan_ChiPMr.mat.syml1" every :::0::0 u (13605*$5):($7) lw 4 lt  2  ti " 0/40" w l,\
+     "wan_ChiPMr.mat.syml1" every :::4::4 u (13605*$5):($7) lw 4 lt  1  ti " 4/40" w l,\
+     "wan_ChiPMr.mat.syml1" every :::8::8 u (13605*$5):($7) lw 4 lt  3  ti " 8/40" w l
     		      	    	      		      	 
 set xrange[-0.01:2000]; set yrange[-20000:0]
-plot "wan_ChiPMr.mat.syml100" every :::3::3 u (13605*$5):($7) lw 4 lt  2  ti " 3/6" w l,\
-     "wan_ChiPMr.mat.syml100" every :::4::4 u (13605*$5):($7) lw 4 lt  1  ti " 4/6" w l,\
-     "wan_ChiPMr.mat.syml100" every :::5::5 u (13605*$5):($7) lw 4 lt  3  ti " 5/6" w l
+plot "wan_ChiPMr.mat.syml1" every :::12::12 u (13605*$5):($7) lw 4 lt  2  ti " 12/40" w l,\
+     "wan_ChiPMr.mat.syml1" every :::16::16 u (13605*$5):($7) lw 4 lt  1  ti " 16/40" w l,\
+     "wan_ChiPMr.mat.syml1" every :::20::20 u (13605*$5):($7) lw 4 lt  3  ti " 20/40" w l

@@ -3,9 +3,9 @@
       implicit none
       integer,parameter :: m_var_total=5000
       character(30):: var_name(m_var_total)
-      integer(8):: var_size(m_var_total)=m_var_total*0 
+      integer(4):: var_size(m_var_total)=m_var_total*0 
       integer:: var_total=0 
-      integer(8):: var_unit=1024*1024 
+      integer(4):: var_unit=1024*1024 
       end module m_alloclist
 !-----------------------------------------------
       subroutine add_alloclist(name,ik,isi)
@@ -14,10 +14,10 @@
       implicit none
       character(*),intent(in)::name
       integer,intent(in):: ik 
-      integer(8),intent(in)::isi
+      integer(4),intent(in)::isi
 
       integer:: i,iadd
-      integer(8):: total,isize
+      integer(4):: total,isize
       logical:: idone
 cccccccccccccccccccc
       integer verbose
@@ -66,7 +66,7 @@ ccccccccccccccccccc
       implicit none
       character(*),intent(in):: name
       integer:: i,idel
-      integer(8):: total,isize
+      integer(4):: total,isize
 cccccccccccccccccccc
       integer verbose
       if (verbose()<40) return

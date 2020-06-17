@@ -4,14 +4,14 @@
       implicit none
       real(8):: kbt, tt
       real(8):: eps=1d-26 !to avoid ZeroDIV, severe condition
-      integer(8):: i
-      integer(8), private:: ndiv !for numerical integration; h=(b-a)/ndiv
+      integer(4):: i
+      integer(4), private:: ndiv !for numerical integration; h=(b-a)/ndiv
       logical:: init = .true.
       real(8):: kb=8.6171d-5 ![eV/K]
 
       !! developer
       real(8):: err_sum=0d0, err_sum2=0d0
-      integer(8):: nn
+      integer(4):: nn
       contains
 !! tt: temperature [K]
 c-----------------------------------------------------
@@ -369,7 +369,7 @@ c--------------------------------------------------------------
 c--------------------------------------------------------------
       real(8) function funcgx(x,n)
       implicit none
-      integer(8):: n
+      integer(4):: n
       real(8):: x!, kbt 
       funcgx = x**n/(exp(x/kbt)+1)
       end function funcgx
@@ -401,10 +401,10 @@ c--------------------------------------------------------------
       end function funcgx2
 
 c--------------------------------------------------------------
-      integer(8) function ndiv_tt(ttt)
+      integer(4) function ndiv_tt(ttt)
       implicit none
       real(8):: ttt
-      integer(8):: n0 = 100000
+      integer(4):: n0 = 100000
       if (ttt < 1d0) then
          ndiv_tt = n0/2d0
       else
@@ -425,7 +425,7 @@ c--------------------------------------------------------------
       real(8),intent(in):: e_start, e_end, eeref
       real(8):: hdiv, sumval, xeven, xodd
       real(8) :: intsum !! the value of integral
-      integer(8):: n2div
+      integer(4):: n2div
       hdiv=(e_end-e_start)/float(ndiv)
       sumval=0d0
       int_simpson=0d0

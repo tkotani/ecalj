@@ -5,7 +5,7 @@
 !! (only epsPP_magnon_chipm mode works).
       program hmagnon
       use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2,
-     &     readscr, checkorb, getqsym,
+     &     readscr, checkorb, !, getqsym,
      &     checkorb2, diagwan, diagwan_tr, wan_imat,
      &     writehmat, writeddmat,
      &     read_wandata, nwf, nsp_w, nqtt_w
@@ -164,7 +164,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2
       integer:: nlatout(3,48),nout,iout,nqsym
       integer,allocatable:: iqlist(:)
-      character*6:: qsyml_in, qsyml
       real(8),allocatable:: qshort_all(:,:)
       real(8),allocatable:: qshort_dammy(:,:)
 !!! WK eigenvalue check

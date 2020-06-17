@@ -1,8 +1,7 @@
 !! hhomogas, originally included in hmagnon.m.F by Okumura 
       program hhomogas
-      use m_readwan,only: getqsym
       use m_ReadEfermi,only: readefermi,ef
-      use m_readqg,only: readqg,readngmx
+c      use m_readqg,only: readqg,readngmx
 c      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
 c      use m_hamindex,only:qtt,nqtt
 
@@ -426,14 +425,6 @@ c      if(.not.imagomega) niw=1
      &     (sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2))**.5,
      &     matmul(qlat(:,:),ppin+nlatout(:,iout))
          enddo
-
-c         call getqsym(qlat,ngrp,iq,symgg,q,qshort,llsym)
-c         write(6,*)
-c         write(6,*)
-c         if (llsym) write(6,"('qibz             = ',3f9.5)") q
-c         if (llsym) write(6,"('qshort (on syml) = ',3f9.5)") qshort
-c         if (.not. llsym) cycle
-c         cycle
 
 !!! |q+G|
         ngc=1
