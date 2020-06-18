@@ -392,8 +392,6 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       if(debug) write(6,*)' end of genallc'
       tpioa=2d0*pi/alat
 
-      call ReadGWinputKeys()    !readin GWinput
-
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -413,6 +411,9 @@ c$$$      endif
       is = iclose('hbe.d')
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
 
+      call ReadGWinputKeys(nband)    !readin GWinput
+
+      
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
       ifq0p=ifile_handle()

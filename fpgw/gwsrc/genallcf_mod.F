@@ -71,8 +71,8 @@
       logical,protected:: done_genallcf_v3=.false.
       character(8),allocatable,protected:: spid(:)
 !! unprotected --> need to be protected
-      integer,protected:: niw
-      real(8),protected:: delta
+      integer:: niw !,protected
+      real(8):: delta !,protected
       real(8),allocatable,protected :: ecore(:,:)
       real(8),protected:: esmr
 c-----------------------------------------------------------------------

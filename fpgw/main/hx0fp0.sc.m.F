@@ -207,7 +207,6 @@ c      real(8):: ef
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
       tpioa=2d0*pi/alat
       call Readefermi() !readin EFERMI
-      call ReadGWinputKeys() !readin GWinput
 !!!! caution: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
       
@@ -221,6 +220,7 @@ c      write(6,*)' hx0fp0.sc: tetrahedron mode delta=',delta
       close(ifhbe)
       if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
       if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
+      call ReadGWinputKeys(nband) !readin GWinput
       
 !! --- Readin Offset Gamma --------
       call Readq0p()
@@ -933,7 +933,7 @@ c            read(ifw0w0i) w0i(1:niw)
 !! get w0 and w0i (diagonal element at Gamma point)
 !! This return w0 and w0i. (llw and llwi are input)
 !! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
-        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw_,q0i)  !all inputs. get effective W0,W0i, and L(omega=0) matrix.
+        call w0w0i(llw,llwI,nw_i,nw,nq0i,niw,q0i)  !all inputs. get effective W0,W0i, and L(omega=0) matrix.
 !! Finalize w4phonon
 !! wmuk(ix)= matmul(wmu,qv) ==> wmu= matmul(wmuk,qvinv)
         if(w4pmode) then
