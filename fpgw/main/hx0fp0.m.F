@@ -3,31 +3,31 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
       program hx0fp0
-      use m_ReadEfermi,only: readefermi,ef
-      use m_readqg,only: readqg,readngmx
-      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
-      use m_read_bzdata,only: read_bzdata,
-     & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
-     & dq_,qbz,wbz,qibz,wibz,qbzw,
-     & idtetf,ib1bz,idteti,
-     & nstar,irk,nstbz
-      use m_genallcf_v3,only: genallcf_v3,
-     & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
-     & invg, il,in,im,nlnm, 
-     & plat, pos,ecore, symgg 
-      use m_keyvalue,only: getkeyvalue
+      use m_ReadEfermi,only: Readefermi,ef
+      use m_readqg,only: Readqg,Readngmx
+      use m_readeigen,only: Readeval,Init_readeigen,Init_readeigen2
+      use m_read_bzdata,only: Read_bzdata,
+     &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
+     &     dq_,qbz,wbz,qibz,wibz,qbzw,
+     &     idtetf,ib1bz,idteti,
+     &     nstar,irk,nstbz
+      use m_genallcf_v3,only: Genallcf_v3,
+     &     nclass,natom,nspin,nl,nn, ngrp,
+     &     nlmto,nlnmx, nctot,niw_in=>niw, !nw_input=>nw,
+     &     alat, deltaw,esmr,symgrp,clabl,iclass, !diw,dw,delta,
+     &     invg, il,in,im,nlnm, 
+     &     plat, pos,ecore, symgg 
+c      use m_keyvalue,only: getkeyvalue
       use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
       use m_readqgcou,only: readqgcou
       use m_mpi,only: MPI__hx0fp0_rankdivider2,MPI__task,MPI__Initialize,MPI__Finalize,MPI__root,
-     & MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
-     & MPI__ranktab,MPI__consoleout,MPI__barrier
-!! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-      use m_rdpp,only: Rdpp, !NOTE: "call rdpp" generate following data.
-     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
-!! Generate matrix element for "call get_zmelt".
-      use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
+     &     MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size,
+     &     MPI__ranktab,MPI__consoleout,MPI__barrier
+!     ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
+      use m_rdpp,only: Rdpp,    !NOTE: "call rdpp" generate following data.
+     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
+!     ! Generate matrix element for "call get_zmelt".
+      use m_zmel,only:          !NOTE: these data set are stored in this module, and used  
      &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm
 c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       
@@ -44,6 +44,10 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
      & w0,w0i
 
       use m_lldata,only: ll
+
+      use m_readgwinput,only: ReadGwinputKeys,
+     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx
+      
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -136,7 +140,7 @@ c     &   ,ngpmx !,  ifchipmlog
 
       real(8),allocatable:: qbz2(:,:)
       logical :: qbzreg !if true, we use off-gamma mesh.
-      integer:: nbcut,nbcut2
+c      integer:: nbcut,nbcut2
 
       integer,allocatable:: nstibz(:) !Nov2004 Miyake's tote
       real(8),allocatable:: ecqw(:,:) !,wiw(:)
@@ -149,7 +153,7 @@ c     &   ,ngpmx !,  ifchipmlog
       complex(8),allocatable:: ovlpc(:,:),evecc(:,:)
       integer:: nev !,  ifdpin
 
-      real(8),allocatable:: ecut(:),ecuts(:) ,totexc(:), trpv(:),trlog(:)
+      real(8),allocatable:: totexc(:), trpv(:),trlog(:) !ecut(:),ecuts(:) ,
       integer:: necut,iecut
 
       integer:: ifv,lxx,ibasx,ilmx,ilm_r,nx_r,lb,nb,mb
@@ -222,7 +226,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
-      integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
+      integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2,niw
       complex(8):: vc1vc2
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
 
@@ -239,10 +243,10 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: ificlass,ifile_handle,k
       complex(8),allocatable:: ppovl_(:,:)
 
-      logical:: readw0w0itest=.false.
+      logical:: readw0w0itest=.false.,hx0
 
-      real(8)::ebmx
-      integer:: nbmx,mtet(3),ifq0p
+c      real(8)::ebmx
+      integer:: ifq0p !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
 !! -------------------------------------------------------------------
@@ -358,17 +362,7 @@ c$$$      endif
 
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
-      call read_BZDATA()
-
-!! Use off-regular mesh (not including Gamma) for qbzreg()=F See hx0fp0.m.sc.F also.
-!! This must be consistent with qg4gw.F-mkqg.F
-      if(.not.qbzreg()) then 
-         deltaq= qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
-         do i=1,nqbz
-            qbz(:,i) = qbz(:,i) - deltaq/2d0
-            write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
-         enddo
-      endif
+      call read_BZDATA(hx0)
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 
 !! check write
@@ -396,20 +390,22 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       debug=.false.
       if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
-
       tpioa=2d0*pi/alat
+
+      call ReadGWinputKeys()    !readin GWinput
+
 
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' nclass /= natom ')
 
-!! --- Only tetrahedron method is allowed now.
-      if(delta > 0d0) then
-        call rx(' hx0fp0: only tetra=T is supported. delta in GWinput should be negative')
-      else
-        delta = -delta
-        write(6,"(' hx0fp0: tetrahedron mode delta=',d13.6)") delta
-      endif
+c$$$!! --- Only tetrahedron method is allowed now.
+c$$$      if(delta > 0d0) then
+c$$$        call rx(' hx0fp0: only tetra=T is supported. delta in GWinput should be negative')
+c$$$      else
+c$$$        delta = -delta
+c$$$        write(6,"(' hx0fp0: tetrahedron mode delta=',d13.6)") delta
+c$$$      endif
 
 !! --- Read dimensions of h,hb
       ifhbe  = iopen('hbe.d',1,0,0)
@@ -509,10 +505,12 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
 
 !! getfreq returun date given at " use m_freq,only:". 
       if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
+      niw=niw_in
+      if(.not.imagomega) niw=1  !dummy
+    
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
-      if(.not.imagomega) niw=1
 !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
       if(epsmode) then 
         allocate(epsi(nw_i:nw,neps)) 
@@ -543,9 +541,9 @@ c$$$      endif
       nspinmx = nspin
 
 !!... these are used x0k
-      call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
-      call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
-      write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
+c      call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
+c      call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
+c      write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,R(r))> 
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
@@ -600,18 +598,12 @@ c$$$        necut=1
 c$$$      endif
 
 !!
-      necut=1
-      allocate(ecut(necut),ecuts(necut))
-      call getkeyvalue("GWinput","ecut_p" ,ecut, necut,default=(/1d10/) )
-      call getkeyvalue("GWinput","ecuts_p",ecuts,necut,default=(/1d10/) )
+c      necut=1
+c      allocate(ecut(necut),ecuts(necut))
 !!
       if( chipm ) then
         nmbas=natom
-        allocate(imbas(nmbas),imbas_s(nmbas))
-        istat=-9999 ! istat=-9999 means noumber of readin arguments is returened in istat.
-        call getkeyvalue("GWinput","MagAtom", imbas,nmbas,status=istat)
-        nmbas = istat
-        write(6,"('Readin MagAtom nmbas =',i3,' imbas= ',10i3)") nmbas,imbas(1:nmbas)
+        allocate(imbas_s(nmbas))
         imbas_s(1:nmbas) = imbas(1:nmbas)
         imbas(1:nmbas)   = abs(imbas(1:nmbas))
         allocate(jcoup(nw_i:nw,neps) )
@@ -676,10 +668,6 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
       endif
 
 !! nov2016 moved from tetwt5 --> here
-      call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband )
-      call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
-      mtet=(/1,1,1/)
-      call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
@@ -984,14 +972,14 @@ c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
      i       ngrp, eibzsym(:,:,iq))
           endif
           call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-          iecut=1
+c          iecut=1
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then
             write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
             call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
      i       rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
      o       zxq, zxqi,
-     i       chipm, schi,is,  ecut(iecut),ecuts(iecut))
+     i       chipm, schi,is,  ecut,ecuts)!ecut(iecut),ecuts(iecut))
             if(nolfco.and.epsmode) then
               do iw=nw_i,nw
                 x0mean(iw,:,:)=zxq(:,:,iw)

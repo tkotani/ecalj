@@ -49,7 +49,7 @@
       use m_genallcf_v3,only: GENALLCF_V3,
      &     nclass,natom,nspin,nl,nn, ngrp,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     &     alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
+     &     alat, delta,deltaw,esmr_in=>esmr,symgrp,clabl,iclass, !diw,dw,
      &     invg, il,in,im,nlnm, 
      &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use m_keyvalue,only: GETKEYVALUE
@@ -194,7 +194,7 @@ c      logical:: newaniso
       logical :: selectqp=.false.,diagonly=.false.
       integer:: ret,dest,nnn 
       character(128) :: ixcc
-      real(8):: eftrue,esmref   !jan2013
+      real(8):: eftrue,esmref,esmr   !jan2013
       real(4):: time_red1,time_red2
       integer:: timevalues(8) ,ibz
 
@@ -211,7 +211,7 @@ c      integer,allocatable:: nbandmx(:,:)
       integer:: ificlass,ifiq0p,nq_r,nband_r
       logical:: hermitianW
       integer:: nw,if671
-      real(8)::dwdummy
+      real(8)::dwdummy,ecorem
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -252,6 +252,7 @@ c        open(if671,file='COH')
       write(6,"(' nqbz nqibz ngrp=',3i12)")nqbz,nqibz,ngrp2
       call pshprt(60)
 
+      esmr=esmr_in
 !! === Readin GWIN and LMTO, then allocate and set datas. ===
 !! See use m_genallcf_v3 at the top of this routine
       if(ixc==3) then; incwfin= -2 !core exchange mode
@@ -450,15 +451,17 @@ c      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       write(6,*)' ntot  =',ntot
 
 !! == Core-exchange case. ef means just below the valence eigenvalue (to take only core in sxcf).==
+      ecorem = 0d0
       if(ixc==3) then
         ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
         call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
         if(wex==0d0) then
           exonly=.false.
         else
-          exonly=.true.
-          write(6,*)' exonly=T ecore shift: ecore---> ecore-100'
-          ecore = ecore-100.0
+           exonly=.true.
+           ecorem = -100d0
+c          write(6,*)' exonly=T ecore shift: ecore---> ecore-100'
+c          ecore = ecore-100.0
         endif
         write(6,"(a)")' CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
         write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
@@ -834,11 +837,6 @@ c$$$      enddo
 c        coh   = 0d0
         kount = 0
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
-!! dummy to overlaid -check bounds sep2014
-        if(size(ecore)==0) then
-          deallocate(ecore)
-          allocate(ecore(1,2))
-        endif
 !!== ip loop to spedify external q ==
         call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i   nspin,is,   
@@ -846,7 +844,7 @@ c        coh   = 0d0
      i   irkip(is,:,:,:),nrkip(is,:,:,:),
      i   freq_r,nw_i,nw, freqx,wwx, 
      i   dwdummy,                   
-     i   ecore(:,is),
+     i   ecore(:,is)-ecorem, !ecorem is to push core eigenvalues below enough from Ef for core ex mode.
      d   nlmto,nqibz,nqbz,nctot,
      d   nbloch,ngrp,niw,nq,   
      i   nblochpmx, ngpmx,ngcmx,

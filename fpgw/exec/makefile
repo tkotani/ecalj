@@ -299,7 +299,9 @@ $(gwsrc)rotcg.o \
 $(gwsrc)rotgvec.o\
 $(gwsrc)m_readVcoud.o\
 $(gwsrc)m_itq.o\
-$(gwsrc)nan.o
+$(gwsrc)nan.o\
+$(gwsrc)m_readgwinput.o\
+$(gwsrc)m_qbze.o
 
 
  QPE_QSGW = \

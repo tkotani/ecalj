@@ -15,13 +15,15 @@ c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
 
 !! =====================================================
       contains
-      subroutine read_BZDATA()
+      subroutine read_BZDATA(hx0)
 !! No input except BZDATA file.
 !! After you call this, you can access Brillowin Zone datas above ----
       implicit none
-      integer :: intq(3),iqbz,ifbz,n,verbose,ifile_handle !, nqibz_r
+      integer :: intq(3),iqbz,ifbz,n,verbose,ifile_handle,i !, nqibz_r
 c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
-      real(8) :: qout(3)
+      real(8) :: qout(3),deltaq(3)
+      logical,optional:: hx0
+      logical:: qbzreg
       ifbz = ifile_handle()
       write(6,*)' ### readin BZDATA ###'
 c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
@@ -49,6 +51,18 @@ c      allocate( qibz_r(3,nqibz_r) )
       write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
       close(ifbz)
 
+!! this block is moved from hx0fp0 @jun2020
+!! Use regular mesh even for bzcase==2 and qbzreg()=T
+!!     off-regular mesh for bzcase==1 and qbzreg()=F
+!! caution:this mechanism for qbzreg=F is too complicated. We may need to modify difinition of qbz for qbzreg=F.
+      if(present(hx0) .and. (.not.qbzreg())) then ! set off-gamma mesh
+         deltaq = qbas(:,1)/n1 + qbas(:,2)/n2 +qbas(:,3)/n3
+         do i=1,nqbz
+            qbz(:,i) = qbz(:,i) - deltaq/2d0
+            write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
+         enddo
+      endif
+      
 ccccccccccccc
 c      do itet=1,ntetf
 c        write(6,"('iii ',5i5)") idtetf(0:3,itet)

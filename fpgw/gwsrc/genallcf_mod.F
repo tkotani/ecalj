@@ -1,9 +1,8 @@
       module m_ReadEfermi
       real(8),protected:: bandgap
       real(8)::ef, ef_kbt
-cc      real(8),protected::ef
+!!      real(8),protected::ef
       contains
-
       subroutine readefermi()
       implicit none
       integer:: ifief,ifile_handle
@@ -13,7 +12,7 @@ cc      real(8),protected::ef
       close(ifief)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       end subroutine
-
+!!
       subroutine readefermi_kbt()
       implicit none
       integer:: ifief_kbt,ifile_handle
@@ -23,9 +22,10 @@ cc      real(8),protected::ef
       close(ifief_kbt)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
       end subroutine
-
       end module m_ReadEfermi
 
+
+      
 !> get basic settings of crystal structure and nlm info
 !!  - genallcf_v3(nwin,efin,incwfx) set data
 !!  - This is old routine. Confusing. We need to clean up.
@@ -71,10 +71,10 @@ cc      real(8),protected::ef
       logical,protected:: done_genallcf_v3=.false.
       character(8),allocatable,protected:: spid(:)
 !! unprotected --> need to be protected
-      integer:: niw
-      real(8):: delta
-      real(8),allocatable :: ecore(:,:)
-      real(8):: esmr
+      integer,protected:: niw
+      real(8),protected:: delta
+      real(8),allocatable,protected :: ecore(:,:)
+      real(8),protected:: esmr
 c-----------------------------------------------------------------------
       contains
 
@@ -287,6 +287,11 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
         enddo
         enddo
       enddo
+!! dummy to overlaid -check bounds sep2014 jun2020 moved from sxcf
+      if(size(ecore)==0) then
+         deallocate(ecore)
+         allocate(ecore(1,2))
+      endif
       deallocate(ecoret)
 !! index for core and LMTO basis
       allocate(

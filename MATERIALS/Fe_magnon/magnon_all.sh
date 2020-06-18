@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MATERIAL=fe
-NSLOTS=8
+NSLOTS=4
 # ### 1. band calculation and create MLWFs
 cp GWinput_for_MLWF GWinput
 job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log

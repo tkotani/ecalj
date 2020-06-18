@@ -1304,7 +1304,7 @@ c-----------------------------------------------------------
       integer:: def_var(size),istatus,nbuf
       character:: buf(100)
 c
-c       print *,' getkeyvalue_iv: 1'
+c       print *,' getkeyvalue_iv: 1',status
 
       call input_open(filename,unusedfid(), success)
       if (.not.success) then
@@ -1329,7 +1329,7 @@ c       print *,' getkeyvalue_iv: 3'
       if (present(status)) istatus=status !takao sep2006
       call input_integerv(key,size,var,def_var,istatus)
 cccccccccccccccccccccccccc
-c      print *,'size=',size,' var=',var
+c      print *,' xxxxxx size=',size,' var=',var, istatus
 cccccccccccccccccccccccccc
       if (istatus==input_err_lessvaluenum) then
         call getkeyvalue_err_exit('getkeyvalue_iv: # of values is wrong', key,filename)

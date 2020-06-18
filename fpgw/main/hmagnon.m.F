@@ -20,7 +20,7 @@
      & nstar,irk,nstbz
       use m_genallcf_v3,only: genallcf_v3,
      & nclass,natom,nspin,nl,nn, ngrp,
-     & nlmto,nlnmx, nctot,niw, !nw_input=>nw,
+     & nlmto,nlnmx, nctot,niw_in=>niw, !nw_input=>nw,
      & alat, delta,deltaw,esmr,symgrp,clabl,iclass, !diw,dw,
      & invg, il,in,im,nlnm, 
      & plat, pos,ecore, symgg 
@@ -176,7 +176,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer(4):: cma_iwf_s,cma_iwf_e
       integer::ifwanmat, npm2
 !!! for MAX(Im[R])
-      integer::imaximr=0
+      integer::imaximr=0,niw
       real(8)::maximr,w_maximr
       complex(8)::sumrpa_maximr(1),summf_maximr(1)
       real(8),allocatable:: rpa_maximr(:),mf_maximr(:)
@@ -356,10 +356,11 @@ c$$$         call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua
 c$$$      else
 c$$$         call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root, npmtwo=.true.)
 c$$$      endif
+      niw=niw_in
+      if(.not.imagomega) niw=1  !dummy
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root, npmtwo=.true.)
 
       if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
-      if(.not.imagomega) niw=1
 
 !! Tetra hedron initialization
       !if (wan) then

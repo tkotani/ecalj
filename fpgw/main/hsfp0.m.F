@@ -10,7 +10,7 @@
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
      &     nlmto,nlnmx, nctot,niw,
-     &     alat,delta,deltaw,esmr,symgrp,clabl,iclass, ! diw,dw,
+     &     alat,delta,deltaw,esmr_in=>esmr,symgrp,clabl,iclass, ! diw,dw,
      &     invg,  il,in,im,nlnm, 
      &     plat, pos,z,ecore, symgg, konf,nlnx
       use m_keyvalue,only: Getkeyvalue
@@ -68,7 +68,7 @@ c     test switches to calculate the self-energy based on an another separation 
       ! If you want to calculate exchange, use tetraex=T .
       ! Note that you have to supply EFERMI by the tetrahedon method.
 c------------------------------------
-      real(8):: esmr2,shtw
+      real(8):: esmr2,shtw,esmr
       integer::
      &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, nband,
      &     ibas,ibasx,ifqpnt,ifwd, ngpmx,ngcmx,!nbloch,
@@ -261,7 +261,7 @@ c      voltot = dabs(vol)*(alat**3)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       shtw = 0d0
 !! if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe), I used this until sep2012
-
+      esmr=esmr_in
 c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
 c$$$!! HOMOGENIOUS GAS code. Usually not used.Need fixing if necessary.
 c$$$      INQUIRE (FILE = 'LEGAS', EXIST = legas)
