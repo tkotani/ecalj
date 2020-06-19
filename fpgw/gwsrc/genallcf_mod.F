@@ -1,7 +1,5 @@
       module m_ReadEfermi
-      real(8),protected:: bandgap
-      real(8)::ef, ef_kbt
-!!      real(8),protected::ef
+      real(8),protected:: bandgap, ef, ef_kbt
       contains
       subroutine readefermi()
       implicit none
@@ -12,7 +10,7 @@
       close(ifief)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       end subroutine
-!!
+!------------------------------------
       subroutine readefermi_kbt()
       implicit none
       integer:: ifief_kbt,ifile_handle

@@ -1,148 +1,3 @@
-      module m_iqindx_wan
-      implicit none
-!! To accelarate inverse mapping, q to 'integer index',
-!! we prepare integer index of q, its resolution is given by epsd.
-!!      use m_hamindex, only: qtt,nqtt
-!      use m_iqindx_qtt, only: init_iqindx_qtt
-      public:: Iqindx2_wan
-      
-      private
-      integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
-      real(8),private:: epsd=1d-7 !key parameter to map to integer index
-      integer,private:: nkey(3)
-      real(8),private:: ginv(3,3)
-      real(8),private,allocatable::qtt(:,:)
-      integer,private::nqtt
-      contains
-!------------------------------------------------------
-      subroutine iqindx2_wan(q,  iqindx,qu)
-      intent(in) ::          q
-      intent(out) ::             iqindx,qu
-!! ginv is the inverse of plat (premitive translation vector).
-!! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
-      real(8):: q(3),qu(3)
-      integer:: iqindx
-      integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
-      real(8):: qx(3),qzz(3)
-      logical::debug=.true., init=.true.
-      if (init) then
-         call wan_getqbz()      !!! get nqtt, qtt(3,nqtt),ginv
-         call init_iqindx_wan(ginv)
-         init=.false.
-      endif
-!      print *,"iqindx2_wan:: nqtt=",nqtt
-ccccccccccccccccccccc
-      debug=.false.
-      if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
-         debug=.true.
-      endif
-ccccccccccccccccccccc
-      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
- !     print *,"ginv,qzz",ginv,qzz
-      call rangedq(matmul(ginv,q), qzz)
-      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") qzz
-!! we generate qzz integer index for qzz
-      kkk3 = (qzz+0.5d0*epsd)/epsd 
-      if(debug) write(6,*)'kkk3=',kkk3
-      if(debug) write(6,*)'nkey=',nkey
-      if(debug) write(6,*)'kk1=',kk1
-      if(debug) write(6,*)'kk2=',kk2
-      if(debug) write(6,*)'kk3=',kk3
-      call tabkk(kkk3(1), kk1,nkey(1), ik1)
-      call tabkk(kkk3(2), kk2,nkey(2), ik2)
-      call tabkk(kkk3(3), kk3,nkey(3), ik3)
-      if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
-      if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
-      iqindx = iqkkk(ik1,ik2,ik3)
-      if(debug) then
-         do iqx=1,nqtt
-         write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
-         enddo
-      endif
-      qu =qtt(:,iqindx)
-      if(debug) write(6,*) iqindx,qu
-      end subroutine iqindx2_wan
-!!-------------------
-      subroutine wan_getqbz()
-      implicit none
-      integer:: ifwqb, ifile_handle
-      ifwqb=ifile_handle()
-      open(ifwqb,file="wanqbz",form='unformatted')
-      read(ifwqb) ginv
-      read(ifwqb) nqtt
-      allocate(qtt(3,nqtt))
-      read(ifwqb) qtt
-      close(ifwqb)
-      end subroutine wan_getqbz
-c--------------------------------
-      subroutine init_iqindx_wan(ginv_)
-      intent(in):: ginv_
-!! For magnon+wannier
-!! === mapping of qtt ===
-!! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
-!!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
-!!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
-      real(8):: ginv_(3,3),qzz(3)
-      real(8),allocatable:: qxx(:,:)
-      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
-      integer,allocatable:: ieord(:)
-      logical::debug=.false.
-      ginv=ginv_
-      allocate(ieord(nqtt))
-      if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
-      allocate(key(3,0:nqtt),qxx(3,nqtt))
-      key=-99999
-      do iq=1,nqtt
-         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
-c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
-      enddo
-c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
-c
-!! get key and nkey for each ix.
-      key(:,0)=0 !dummy
-      do ix =1,3
-         call sortea(qxx(ix,:),ieord,nqtt,isig)
-         ik=0
-         do i=1,nqtt
-            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
-            if(i==1.or.key(ix,ik)<kkk) then
-               ik=ik+1
-               key(ix,ik) = kkk
-            elseif (key(ix,ik)>kkk) then
-               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
-               call rx( 'iqindx: bug not sorted well')
-            endif
-         enddo
-         nkey(ix)=ik
-      enddo
-      deallocate(ieord)
-!!  key is reallocated. inverse mattping, iqkkk
-      allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
-      kk1(:) = key(1,1:nkey(1))
-      kk2(:) = key(2,1:nkey(2))
-      kk3(:) = key(3,1:nkey(3))
-      deallocate(key)
-      allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
-      iqkkk=-99999
-c      print *,'eeee kk1=',kk1
-c      print *,'eeee kk2=',kk2
-c      print *,'eeee kk3=',kk3
-c      write(6,*)' initqqq nqtt=',nqtt
-      do i=1,nqtt
-         kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
-         call tabkk(kkk3(1), kk1,nkey(1), ik1)
-         call tabkk(kkk3(2), kk2,nkey(2), ik2)
-         call tabkk(kkk3(3), kk3,nkey(3), ik3)
-         iqkkk(ik1,ik2,ik3)=i
-c         print *,'111111 kkk3=',kkk3,qxx(:,i)
-c         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
-c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
-      enddo
-      deallocate(qxx)
-      end subroutine init_iqindx_wan      
-      end module m_iqindx_wan
-
-      
 !! ------------------------------------------------------
 !> Return eigenvalus and eigenfunctions for given q and isp.
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
@@ -153,10 +8,12 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
 !!----------------
       module m_readeigen
       use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
+      use m_hamindex,only: ngpmx,nqtt
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
      &     Readcphiw,Readgeigw
+
       private
       integer:: ifgeigW,ifcphiW
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
@@ -184,8 +41,8 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
       logical:: lll
       Wpkm4crpa=lll
       end subroutine
+
       subroutine readgeigW(q,ngp_in,isp, qu,geigen)
-      use m_hamindex
       integer(4):: isp,iq,iqindx,ngp_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: geigen(ngp_in,nwf)
@@ -204,7 +61,6 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
       end subroutine
 
       subroutine readcphiW(q,ldim2_in,isp,  qu,cphif)
-      use m_hamindex
       integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: cphif(ldim2_in,nwf)
@@ -221,7 +77,7 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
-      use m_hamindex, only: qtt,nqtt,iqimap
+      use m_hamindex, only: qtt,iqimap
       integer(4), intent(in) :: isp
       real(8), intent(in) :: q(3)
       real(8), intent(out) :: ev(nband)
@@ -257,7 +113,7 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
-      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
+      use m_hamindex, only: iqmap,igmap,qtt,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
       real(8),intent(in) :: q(3)
       integer,intent(in) :: isp,ngp_in
       real(8),intent(out) :: qu(3)
@@ -346,7 +202,7 @@ c      endif
 
 !!
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
-      use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
+      use m_hamindex, only: iqmap,igmap,qtt,nqtt,qlat,plat,invgx,iqimap,
      &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas ,  norbtx
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       real(8), intent(in) :: q(3)
@@ -503,7 +359,6 @@ c$$$      end subroutine readcphi
 
 c------------------------------
       subroutine readgeig_mlw(q,ngp_in,isp, qu,geigen)
-      use m_hamindex
 ! return ev(1:nband) for given q(1:3) and isp
       implicit none
       integer(4):: isp,iq,iqindx,ngp_in,ikpisp
@@ -532,7 +387,6 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: ngpmx<ngp(iq)'
 
 c------------------------------
       subroutine readcphi_mlw(q,ldim2_in,isp,  qu,cphif)
-      use m_hamindex
 !!-- return ev(1:nband) for given q(1:3) and isp
       implicit none
       integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
@@ -556,7 +410,7 @@ c      write(6,*)' readgcphi_mlw: q=',q
 
 ccccccccccccccccccccccccccc
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt !,nqtt
+      use m_hamindex,only: readhamindex,imx,nqi,nqnum  ,qtt !,nqtt
 
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       implicit none
@@ -565,7 +419,7 @@ ccccccccccccccccccccccccccc
       real(8):: ginv_in(3,3)
 c      integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
-      integer:: ifev,nband_ev, nqi_, nsp_ev !,nqnum
+      integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ !,nqnum
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
 
       write(6,*) 'init_readeigen:'
@@ -591,8 +445,9 @@ c      enddo
 !!--- Readin QGpsi ---
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
-      read(ifiqg) nqnum , ngpmx, QpGcut_psi, nnnn,nqi,imx
-      write(6,*)'read(ifiqg)', nqnum , ngpmx, QpGcut_psi, nnnn,nqi
+      read(ifiqg) nqnum , ngpmx_, QpGcut_psi, nnnn,nqi,imx
+      write(6,*)'read(ifiqg)', nqnum , ngpmx_, QpGcut_psi, nnnn,nqi
+      if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
       allocate( qtt_(3,nqnum),ngp(nqnum) )
       allocate( ngvecp(3,ngpmx,nqnum))
       allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,nqnum) )
@@ -654,7 +509,7 @@ C$$$      if(nsp==2) isx = iclose('EVD')
       end function
 c-------------------------------------------------------------
       subroutine init_readeigen2(mrecb_in,ldim2_in,mrecg_in)
-      use m_hamindex,only: norbtx,nqi,ngpmx
+      use m_hamindex,only: norbtx,nqi
 c this should be called after init_readgeigen
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,ldim2_in, 
@@ -749,7 +604,6 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw(nwf_o)
-      use m_hamindex
 c allocate cphi_mlw and geig_mlw
 c for hx0fp0_mlw (ixc=112 mode)
 c this should be called after init_readgeigen2
@@ -1114,8 +968,7 @@ c$$$
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
-c      use m_hamindex
-      use m_hamindex,only: readhamindex,imx,ngpmx,nqi,nqnum  ,qtt ,qtti, nqtt
+      use m_hamindex,only: readhamindex,imx,nqi,nqnum  ,qtt ,qtti, nqtt
 
 c replace cphi and geig
 c for hwmat
@@ -1405,7 +1258,6 @@ c replace dimensions
 
 c-------------------------------------------------------------
       subroutine init_readeigen_phi_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
-      use m_hamindex
 c replace cphi and geig
 c for hwmat_phi
 c this should be called after init_readgeigen2
@@ -1503,8 +1355,6 @@ c ---
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_diag(nwf_o,nband_o,mrecb_o,mrecg_o)
-      use m_hamindex
-
 c replace cphi, geig and evud
 c for hx0fp0_mlw, ixc=11 mode
 c this should be called after init_readgeigen2
@@ -1804,7 +1654,152 @@ c ---
 
       
 c-----------------------------------------------------------------------
-c taken from lm7k/subs/rotwv.F
+      module m_iqindx_wan
+      implicit none
+!! To accelarate inverse mapping, q to 'integer index',
+!! we prepare integer index of q, its resolution is given by epsd.
+!!      use m_hamindex, only: qtt,nqtt
+!      use m_iqindx_qtt, only: init_iqindx_qtt
+      public:: Iqindx2_wan
+      
+      private
+      integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
+      real(8),private:: epsd=1d-7 !key parameter to map to integer index
+      integer,private:: nkey(3)
+      real(8),private:: ginv(3,3)
+      real(8),private,allocatable::qtt(:,:)
+      integer,private::nqtt
+      contains
+!------------------------------------------------------
+      subroutine iqindx2_wan(q,  iqindx,qu)
+      intent(in) ::          q
+      intent(out) ::             iqindx,qu
+!! ginv is the inverse of plat (premitive translation vector).
+!! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
+      real(8):: q(3),qu(3)
+      integer:: iqindx
+      integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
+      real(8):: qx(3),qzz(3)
+      logical::debug=.true., init=.true.
+      if (init) then
+         call wan_getqbz()      !!! get nqtt, qtt(3,nqtt),ginv
+         call init_iqindx_wan(ginv)
+         init=.false.
+      endif
+!      print *,"iqindx2_wan:: nqtt=",nqtt
+ccccccccccccccccccccc
+      debug=.false.
+      if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
+         debug=.true.
+      endif
+ccccccccccccccccccccc
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") q
+ !     print *,"ginv,qzz",ginv,qzz
+      call rangedq(matmul(ginv,q), qzz)
+      if(debug) write(6,"(' iqindx2_: q=',3f20.15)") qzz
+!! we generate qzz integer index for qzz
+      kkk3 = (qzz+0.5d0*epsd)/epsd 
+      if(debug) write(6,*)'kkk3=',kkk3
+      if(debug) write(6,*)'nkey=',nkey
+      if(debug) write(6,*)'kk1=',kk1
+      if(debug) write(6,*)'kk2=',kk2
+      if(debug) write(6,*)'kk3=',kk3
+      call tabkk(kkk3(1), kk1,nkey(1), ik1)
+      call tabkk(kkk3(2), kk2,nkey(2), ik2)
+      call tabkk(kkk3(3), kk3,nkey(3), ik3)
+      if(debug) write(6,"(' 222222a q=',3i8,3f18.12)") kkk3,qzz
+      if(debug) write(6,"(' 222222a ik1,ik2,ik3,q=',3i8,3f18.12)") ik1,ik2,ik3,q
+      iqindx = iqkkk(ik1,ik2,ik3)
+      if(debug) then
+         do iqx=1,nqtt
+         write(6,"(i5,3f13.5)")iqx,qtt(:,iqx)
+         enddo
+      endif
+      qu =qtt(:,iqindx)
+      if(debug) write(6,*) iqindx,qu
+      end subroutine iqindx2_wan
+!!-------------------
+      subroutine wan_getqbz()
+      implicit none
+      integer:: ifwqb, ifile_handle
+      ifwqb=ifile_handle()
+      open(ifwqb,file="wanqbz",form='unformatted')
+      read(ifwqb) ginv
+      read(ifwqb) nqtt
+      allocate(qtt(3,nqtt))
+      read(ifwqb) qtt
+      close(ifwqb)
+      end subroutine wan_getqbz
+c--------------------------------
+      subroutine init_iqindx_wan(ginv_)
+      intent(in):: ginv_
+!! For magnon+wannier
+!! === mapping of qtt ===
+!! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
+!!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
+!!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
+      real(8):: ginv_(3,3),qzz(3)
+      real(8),allocatable:: qxx(:,:)
+      integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
+      integer,allocatable:: ieord(:)
+      logical::debug=.false.
+      ginv=ginv_
+      allocate(ieord(nqtt))
+      if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
+      allocate(key(3,0:nqtt),qxx(3,nqtt))
+      key=-99999
+      do iq=1,nqtt
+         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
+c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
+      enddo
+c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
+c
+!! get key and nkey for each ix.
+      key(:,0)=0 !dummy
+      do ix =1,3
+         call sortea(qxx(ix,:),ieord,nqtt,isig)
+         ik=0
+         do i=1,nqtt
+            kkk=(qxx(ix,ieord(i))+0.5d0*epsd)/epsd  !kkk is digitized by 1/epsd
+            if(i==1.or.key(ix,ik)<kkk) then
+               ik=ik+1
+               key(ix,ik) = kkk
+            elseif (key(ix,ik)>kkk) then
+               write(6,*)ix, ik,i, key(ix,ik), qxx(ix,ieord(i))
+               call rx( 'iqindx: bug not sorted well')
+            endif
+         enddo
+         nkey(ix)=ik
+      enddo
+      deallocate(ieord)
+!!  key is reallocated. inverse mattping, iqkkk
+      allocate( kk1(nkey(1)),kk2(nkey(2)),kk3(nkey(3)) )
+      kk1(:) = key(1,1:nkey(1))
+      kk2(:) = key(2,1:nkey(2))
+      kk3(:) = key(3,1:nkey(3))
+      deallocate(key)
+      allocate( iqkkk(nkey(1),nkey(2),nkey(3)) )
+      iqkkk=-99999
+c      print *,'eeee kk1=',kk1
+c      print *,'eeee kk2=',kk2
+c      print *,'eeee kk3=',kk3
+c      write(6,*)' initqqq nqtt=',nqtt
+      do i=1,nqtt
+         kkk3= (qxx(:,i)+0.5d0*epsd)/epsd !kkk is digitized by 1/epsd
+         call tabkk(kkk3(1), kk1,nkey(1), ik1)
+         call tabkk(kkk3(2), kk2,nkey(2), ik2)
+         call tabkk(kkk3(3), kk3,nkey(3), ik3)
+         iqkkk(ik1,ik2,ik3)=i
+c         print *,'111111 kkk3=',kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
+c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
+      enddo
+      deallocate(qxx)
+      end subroutine init_iqindx_wan      
+      end module m_iqindx_wan
+
+c-----------------------------------------
+c     taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
       implicit none
       real(8), intent(in) :: a(n)

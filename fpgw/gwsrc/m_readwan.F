@@ -3,25 +3,26 @@
       use m_iqindx_wan,only: iqindx2_wan
       implicit none
 
+      public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, Readscr,
+     &     Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata
       integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
-c      integer,private:: iwf !I don't know ??? somtthing wrong
-      
-      logical,private:: init=.true.
-      logical,private:: readwan=.false.,lreadhrotr=.false.
-      real(8),private::alat,plat(3,3),ef
-      integer,private::natom,nrws,n1,n2,n3
-      integer,private,allocatable:: irws(:),ibaswf(:)
-      real(8),private,allocatable:: pos(:,:),rws(:,:),drws(:)
-      complex(8),private,allocatable:: hrotr(:,:,:,:), evecc(:,:)
-      !!!!! wannier eigenvalue and eigenvector
-      complex(8),private,allocatable:: evecc_w(:,:,:,:)
-      real(8),private,allocatable:: eval_w(:,:,:)
-      !!!d-orbital check
-      integer,private,allocatable:: idorb(:), nbasclass_mlwf(:)
-      integer,private:: nclass_mlwf
-      logical,private::debug=.false.,sw1=.true.
 
-      private:: diag_hm2
+      private
+      logical:: init=.true.
+      logical:: readwan=.false.,lreadhrotr=.false.
+      real(8):: alat,plat(3,3),ef
+      integer:: natom,nrws,n1,n2,n3
+      integer,allocatable:: irws(:),ibaswf(:)
+      real(8),allocatable:: pos(:,:),rws(:,:),drws(:)
+      complex(8),allocatable:: hrotr(:,:,:,:), evecc(:,:)
+      !!!!! wannier eigenvalue and eigenvector
+      complex(8),allocatable:: evecc_w(:,:,:,:)
+      real(8),allocatable:: eval_w(:,:,:)
+      !!!d-orbital check
+      integer,allocatable:: idorb(:), nbasclass_mlwf(:)
+      integer:: nclass_mlwf
+      logical:: debug=.false.,sw1=.true.
+
       contains
 
 c---------------------------------------------

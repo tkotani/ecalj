@@ -1,5 +1,5 @@
       program hsfp0
-      use m_ReadEfermi,only: Readefermi,ef
+      use m_ReadEfermi,only: Readefermi,ef_read=>ef
       use m_readqg,only: Readqg,Readngmx2,ngpmx,ngcmx
       use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
@@ -182,7 +182,7 @@ c      logical:: newaniso=.true.
       character(128) :: ixcc
 
       integer:: nw,ifcoh !,ifief
-      real(8)::dwdummy
+      real(8)::dwdummy, ef
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -458,7 +458,7 @@ c      open(ifief,file='EFERMI')
 c      read(ifief,*) ef
 c      close(ifief)
       call readefermi()
-
+      ef=ef_read
       if(tetraex) goto 201
 
 !!== Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==

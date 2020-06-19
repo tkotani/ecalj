@@ -39,7 +39,7 @@
 !!     
 !!     History: We learned so much from LMTO-ASA codeds developed by F.Aryasetiawan.
 !! ----------------------------------------
-      use m_readefermi,only: READEFERMI,ef
+      use m_readefermi,only: READEFERMI,ef_read=>ef
       use m_readqg,only: READQG,READNGMX2, ngpmx,ngcmx
       use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,READEVAL,LOWESTEVAL
       use m_READ_BZDATA,only: READ_BZDATA,
@@ -210,7 +210,7 @@ c      integer,allocatable:: nbandmx(:,:)
       integer:: ificlass,ifiq0p,nq_r,nband_r
       logical:: hermitianW
       integer:: nw,if671
-      real(8)::dwdummy,ecorem
+      real(8)::dwdummy,ecorem,ef
 c---------------------------------------
       call MPI__Initialize()    ! MIZUHO-IR
       call date_and_time(values=timevalues)
@@ -428,6 +428,7 @@ c        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
 
 !! efermi by tetrahedron. this can be overwritten
       call READEFERMI()
+      ef=ef_read
 c     if(tetra) goto 201        !tetra is experimental.  usually =F. 
 
 !!== Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==

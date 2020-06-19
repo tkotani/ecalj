@@ -9,7 +9,7 @@
      &     checkorb2, diagwan, diagwan_tr, wan_imat,
      &     writehmat, writeddmat,
      &     read_wandata, nwf, nsp_w, nqtt_w
-      use m_ReadEfermi,only: readefermi,ef, readefermi_kbt,ef_kbt
+      use m_ReadEfermi,only: readefermi,ef_read=>ef, readefermi_kbt,ef_kbt
       use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_hamindex,only:qtt,nqtt
@@ -181,6 +181,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       complex(8)::sumrpa_maximr(1),summf_maximr(1)
       real(8),allocatable:: rpa_maximr(:),mf_maximr(:)
 
+      real(8):: ef
 !! -------------------------------------------------------------------
       call getkeyvalue("GWinput","mpi_size_lim",size_lim,default=999)
 
@@ -251,6 +252,7 @@ cc need for gettetwt; automatically read file(okumura) OK
          ef = ef_kbt
       else
          call readefermi()      !!! ef:     Fermi energy at 0 K
+         ef = ef_read
       endif
 
 !! === Readin by genallcf. Set basic data for crystal

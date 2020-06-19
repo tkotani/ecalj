@@ -3,8 +3,12 @@
 !! norbtx is given in gwsrc/readeigen.F init_readeigen2
       module m_hamindex
       use NaNum,only: NaN
+
+      integer::  norbtx=NaN
+      integer::  nqi=NaN, nqnum=NaN,  imx=NaN 
+
       integer,protected:: ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
-     &     nbas=NaN,nqtt=NaN,ndimham=NaN, napwmx=NaN,lxxa=NaN
+     &     nbas=NaN, nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN
       integer,allocatable,protected::
      &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
      &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
@@ -12,10 +16,8 @@
       real(8),protected:: plat(3,3)=NaN,qlat(3,3)=NaN
       real(8),allocatable,protected:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
      &     qtt(:,:),qtti(:,:)
+
       logical,private:: debug=.false.
-
-      integer:: norbtx=NaN, nqi=NaN, nqnum=NaN,ngpmx=NaN,imx=NaN
-
       contains
 !> get index ikt such that for qin(:)=qq(:,ikt)
       integer function getikt(qin) !return

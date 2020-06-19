@@ -1,6 +1,6 @@
 !! hhomogas, originally included in hmagnon.m.F by Okumura 
       program hhomogas
-      use m_ReadEfermi,only: readefermi,ef
+c      use m_ReadEfermi,only: readefermi,ef_read
 c      use m_readqg,only: readqg,readngmx
 c      use m_readeigen,only: readeval,init_readeigen,init_readeigen2
 c      use m_hamindex,only:qtt,nqtt
@@ -283,7 +283,7 @@ c      logical::wan=.true.,egasmode
 
       logical:: initiq
       integer:: ifz,ifi
-
+      real(8):: ef
 !! -------------------------------------------------------------------
       hartree  = 2d0*rydberg()
       pi       = 4d0*datan(1d0)
