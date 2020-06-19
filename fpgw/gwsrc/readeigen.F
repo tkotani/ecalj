@@ -8,8 +8,9 @@
 !!----------------
       module m_readeigen
       use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
-      use m_hamindex,only:   ngpmx,nqtt,nqi,nqnum, Readhamindex,qtt 
-      
+      use m_hamindex,only:   Readhamindex, ngpmx, nqtt, nqi, nqnum, qtt,iqimap,
+     &     iqmap,igmap,shtvg,qlat,symops,plat,invgx,
+     &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
@@ -79,7 +80,6 @@
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
-      use m_hamindex, only: qtt,iqimap
       integer(4), intent(in) :: isp
       real(8), intent(in) :: q(3)
       real(8), intent(out) :: ev(nband)
@@ -115,7 +115,6 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
-      use m_hamindex, only: iqmap,igmap,qtt,nqtt,shtvg,qlat,symops,plat,invgx,iqimap !,imx
       real(8),intent(in) :: q(3)
       integer,intent(in) :: isp,ngp_in
       real(8),intent(out) :: qu(3)
@@ -204,8 +203,6 @@ c      endif
 
 !!
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
-      use m_hamindex, only: iqmap,igmap,qtt,nqtt,qlat,plat,invgx,iqimap,
-     &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas 
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       real(8), intent(in) :: q(3)
       integer, intent(in)  :: ldim2_in
@@ -509,7 +506,7 @@ C$$$      if(nsp==2) isx = iclose('EVD')
       end function
 c-------------------------------------------------------------
       subroutine init_readeigen2(mrecb_in,ldim2_in,mrecg_in)
-      use m_hamindex,only: nqi
+c      use m_hamindex,only: nqi
 c this should be called after init_readgeigen
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,ldim2_in, 
@@ -968,7 +965,7 @@ c$$$
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
-      use m_hamindex,only: readhamindex,nqi,nqnum  ,qtt ,qtti, nqtt
+c      use m_hamindex,only: nqi,nqnum,qtti
 
 c replace cphi and geig
 c for hwmat
