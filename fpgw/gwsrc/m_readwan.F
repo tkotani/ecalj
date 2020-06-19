@@ -4,7 +4,7 @@
       implicit none
 
       integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
-      integer,private:: iwf !I don't know ??? somtthing wrong
+c      integer,private:: iwf !I don't know ??? somtthing wrong
       
       logical,private:: init=.true.
       logical,private:: readwan=.false.,lreadhrotr=.false.
@@ -393,7 +393,7 @@ c---------------------------------------
       implicit none
       integer,intent(in)  ::iwf_in,nwf_in
       integer,intent(out) ::lorb_out   ! 2=d-orb
-      integer::ifdorb,iiwf,ief
+      integer::ifdorb,iiwf,ief,iwf
 
       if (sw1) then !!initialize
 
@@ -430,7 +430,7 @@ c---------------------------------------
       subroutine checkorb2(iwf_in,jwf_in,kwf_in,lwf_in,iwfmag) 
       intent(in) ::iwf_in,jwf_in,kwf_in,lwf_in
       intent(out)::                                    iwfmag
-      integer ::   iwf_in,jwf_in,kwf_in,lwf_in
+      integer ::   iwf_in,jwf_in,kwf_in,lwf_in,iwf
       logical(8) :: iwfmag
       integer::iclass,natom,r_mlwfs,r_mlwff
       logical::skip,sw_orb2
@@ -482,8 +482,7 @@ c---------------------------------------
       integer,intent(in)  ::iwf_in
       integer(4),intent(in) ::iddmat
       logical(8),intent(out) ::intended_iwf
-      integer::iclass,r_mlwfs,r_mlwff
-
+      integer::iclass,r_mlwfs,r_mlwff,iwf
       if (sw1) call rx("checkorb3: call checkorb in advance")
       
       natom=0
@@ -501,7 +500,7 @@ ccc
 !!!   iwf_in comes from (r_mlwfs < iwf <= r_mlwff)
       r_mlwfs=sum(nbasclass_mlwf(1:iddmat-1))
       r_mlwff=sum(nbasclass_mlwf(1:iddmat))
-      if (r_mlwfs < iwf .and. iwf<= r_mlwff ) then
+      if (r_mlwfs < iwf_in .and. iwf_in<= r_mlwff ) then
          intended_iwf = .True.
       else
          intended_iwf = .False.
@@ -632,8 +631,6 @@ c---------------------------------------
       character(*):: filename
 !      real(8):: pi,znorm
       integer:: iwf,jwf,ijwf,klwf,iffile
-
-      
       iffile=ifile_handle()
       open(iffile,file=filename(:len_trim(filename)))
       do iwf=1,nwf
@@ -647,18 +644,17 @@ c---------------------------------------
          enddo
       enddo
       close(iffile)
-
-
       end subroutine writehmat
 
 c---------------------------------------
       !!! write matrix element(i=j;k=l)
       !!! For Hermite check
       subroutine writeddmat(zmat,nwf,filename,diag,zmat_o)
-      implicit none
-      complex(8),intent(in)  ::  zmat(nwf*nwf,nwf*nwf)
-      complex(8),intent(out) ::  zmat_o(nwf*nwf,nwf*nwf)
-      integer, intent(in):: nwf
+      intent(in)::          zmat,nwf,filename,diag
+      intent(out)::                                zmat_o
+      complex(8) ::  zmat(nwf*nwf,nwf*nwf)
+      complex(8) ::  zmat_o(nwf*nwf,nwf*nwf)
+      integer    :: nwf
       character(*):: filename
       logical:: diag
       logical(8)::intended_iwf
@@ -667,7 +663,7 @@ c---------------------------------------
       integer:: iwf,jwf,kwf,lwf,
      &     ijwf,klwf,iffile, lorb
       integer(4):: iddmat
-      
+     
       iffile=ifile_handle()
       open(iffile,file=filename(:len_trim(filename)))
       !!! diagonal
