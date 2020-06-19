@@ -64,6 +64,7 @@ c      use m_wfrho_abc
       complex(8),allocatable :: cphi(:,:,:,:),geig(:,:,:,:),geig2(:,:),cphi2(:,:)
       character*4::fname
       logical:: debug=.false.,vis_skip
+      integer::nqbzx
 !-----------------------------------------------------
       call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. ) 
       if(vis_skip) call rx0('wanplot: we found vis_skip on. Do nothing and Quit!')
@@ -78,7 +79,8 @@ c      use m_wfrho_abc
          if (isp.eq.1) fname='MLWU'
          if (isp.eq.2) fname='MLWD'
          open(ifi,file=fname,form='unformatted',status='old', action='read')
-         read(ifi)nqbz,nwf,iko_ix,iko_fx
+         read(ifi)nqbzx,nwf,iko_ix,iko_fx
+         if(nqbz/=nqbzx)  call rx('wanplot:nqbz/=nqbzx')
          if (isp.eq.1) allocate(dnk(iko_ix:iko_fx,nwf,nqbz,nsp),qreg(3,nqbz))
          do iqbz = 1,nqbz
             read(ifi)iqbz2,q(1:3)

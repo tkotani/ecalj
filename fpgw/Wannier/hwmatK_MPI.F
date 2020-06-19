@@ -40,7 +40,8 @@ c May 2002 Takashi Miyake. Total energy calc.
 c Apr 2002 takao kotani. multiple argumentation wave per l. 
 c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
-      use m_readqg
+      use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
+      
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,niwg=>niw
@@ -70,7 +71,7 @@ c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,  
       integer(4)::
      &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
-     &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifmloc,
+     &   ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc,
      &   nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
      &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
@@ -467,8 +468,9 @@ c Get array size to call rdpp
 c      call getsrdpp( nclass,nl,  
 c     o               ngpmx,ngcmx,nxx )
       call getsrdpp2( nclass,nl,nxx)
-      call readngmx('QGpsi',ngpmx)
-      call readngmx('QGcou',ngcmx)
+      call readngmx2()
+c      call readngmx('QGpsi',ngpmx)
+c      call readngmx('QGcou',ngcmx)
       if (Is_IO_Root_RSMPI())
      & write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
       allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),

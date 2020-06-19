@@ -127,7 +127,7 @@ c nw      = no. frequencies along the real axis
 c niwx    = max(niw,nw)
 c
 c----------------------------------------------------------------------
-      use m_readqg
+      use m_readqg,only: readqg0
       use m_readeigen
       use m_keyvalue,only: getkeyvalue
 
@@ -977,7 +977,7 @@ c -------------------------------------------------------------------
      i        symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz,
      i       rmel, cmel, nbloch,noccx,nctot,
      o       zmelt) 
-      use m_readqg
+      use m_readqg,only:readqg,readqg0
       use m_readeigen
 c ! q1=q    ---> iq 1:ntp0 q-point
 c ! q2=q-rk ---> kp 1:nt0  occupied                        

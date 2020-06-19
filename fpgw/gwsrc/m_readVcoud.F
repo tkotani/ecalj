@@ -1,14 +1,15 @@
       module m_readVcoud
+      implicit none
       real(8),allocatable,protected    :: vcousq(:)   !,vcousq0(:),vcoudummy(:)
       complex(8),allocatable,protected :: zcousq(:,:) !,zcousqrsum(:,:,:),zcousqr(:,:)
       contains
       
       subroutine readvcoud(q,iq,ngb)
+      intent(in)::         q,iq,ngb
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
-      implicit none
-      integer,intent(in):: iq,ngb
-      real(8),intent(in):: q(3)
+      integer:: iq,ngb
+      real(8):: q(3)
       integer:: ngb0,ifvcoud
       real(8):: qvv(3)
       character(128):: vcoudfile

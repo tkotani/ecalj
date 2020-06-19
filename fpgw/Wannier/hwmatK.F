@@ -3,7 +3,7 @@
 !! Calculates the bare/screened interaction W
 !! See note in hmatK_MPI.F
 !!------------------------------------------------------------
-      use m_readqg
+      use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
      & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
       use m_read_bzdata,ngrp2=>ngrp
@@ -31,7 +31,7 @@ c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,  
       integer(4)::
      &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
-     &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifmloc,
+     &   ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc,
      &   nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
      &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
@@ -337,8 +337,9 @@ c Get array size to call rdpp
 c      call getsrdpp( nclass,nl,  
 c     o               ngpmx,ngcmx,nxx )
       call getsrdpp2( nclass,nl,nxx)
-      call readngmx('QGpsi',ngpmx)
-      call readngmx('QGcou',ngcmx)
+c      call readngmx('QGpsi',ngpmx)
+c      call readngmx('QGcou',ngcmx)
+      call readngmx2()
       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx
       allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),
      &   ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),

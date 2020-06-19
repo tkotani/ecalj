@@ -40,16 +40,16 @@
 !!     History: We learned so much from LMTO-ASA codeds developed by F.Aryasetiawan.
 !! ----------------------------------------
       use m_readefermi,only: READEFERMI,ef
-      use m_readqg,only: READQG,READNGMX
+      use m_readqg,only: READQG,READNGMX2, ngpmx,ngcmx
       use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,READEVAL,LOWESTEVAL
       use m_READ_BZDATA,only: READ_BZDATA,
      &     nqbz,nqibz,nqbzw,nteti,ntetf
      &     ,n1,n2,n3,qbas,ginv,qbz,wbz,qibz,wibz,qbzw,idtetf,ib1bz,idteti
      &     ,nstar,irk,nstbz,ngrp2=>ngrp 
-      use m_genallcf_v3,only: GENALLCF_V3,
+      use m_genallcf_v3,only: GENALLCF_V3,Setesmr,
      &     nclass,natom,nspin,nl,nn, ngrp,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     &     alat, delta,deltaw,esmr_in=>esmr,symgrp,clabl,iclass, !diw,dw,
+     &     alat, delta,deltaw,symgrp,clabl,iclass,esmr_in=>esmr, !diw,dw, 
      &     invg, il,in,im,nlnm, 
      &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
       use m_keyvalue,only: GETKEYVALUE
@@ -64,7 +64,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     Setitq_hsfp0sc,Setnband,
      &     nband,
      &     itq,nbandmx,
-     &     ntq,ngcmx,ngpmx
+     &     ntq
 !     ! antiferro condition. only laf is used, after 'call anfcond()'
       use m_anf,only: Anfcond,
      &     laf
@@ -76,7 +76,6 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &     MPI__consoleout,
      &     MPI__barrier
-
       implicit none
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -194,7 +193,7 @@ c      logical:: newaniso
       logical :: selectqp=.false.,diagonly=.false.
       integer:: ret,dest,nnn 
       character(128) :: ixcc
-      real(8):: eftrue,esmref,esmr   !jan2013
+      real(8):: eftrue,esmref,esmr!,esmr_in   !jan2013
       real(4):: time_red1,time_red2
       integer:: timevalues(8) ,ibz
 
@@ -251,8 +250,6 @@ c        open(if671,file='COH')
       call READ_BZDATA()
       write(6,"(' nqbz nqibz ngrp=',3i12)")nqbz,nqibz,ngrp2
       call pshprt(60)
-
-      esmr=esmr_in
 !! === Readin GWIN and LMTO, then allocate and set datas. ===
 !! See use m_genallcf_v3 at the top of this routine
       if(ixc==3) then; incwfin= -2 !core exchange mode
@@ -260,6 +257,7 @@ c        open(if671,file='COH')
       endif
       call GENALLCF_V3(incwfin) ! module m_GENALLCF_V3. See use m_genallcf in this rouitine
       if(ngrp/= ngrp2) call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2')
+      esmr=esmr_in
       esmref=esmr
 !! iSigMode
       call readd_iSigma_en(ifinin,iSigMode) !reading self-energy mode parameter from file 'GWinput'
@@ -337,7 +335,8 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
 
 c     inquire(file='NoCore',exist=nocore)
 c     if(nocore) nctot=0
-
+!!
+      call setesmr(esmr_in=esmr) !in genalloc_v3
       write(6,'(" --- computational conditions --- ")')
       write(6,'("    deltaw  =",f13.6)') deltaw
       write(6,'("    esmr    =",f13.6)') esmr
@@ -376,8 +375,9 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
 
 !! ====  Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
 c      call getsrdpp2( nclass,nl,nxx)
-      call READNGMX('QGpsi',ngpmx)
-      call READNGMX('QGcou',ngcmx)
+c      call READNGMX('QGpsi',ngpmx)
+c      call READNGMX('QGcou',ngcmx)
+      call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
       call READQG('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
@@ -459,9 +459,7 @@ c      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
           exonly=.false.
         else
            exonly=.true.
-           ecorem = -100d0
-c          write(6,*)' exonly=T ecore shift: ecore---> ecore-100'
-c          ecore = ecore-100.0
+           ecorem = -100d0 !write(6,*)' exonly=T ecore shift: ecore---> ecore-ecorem'
         endif
         write(6,"(a)")' CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
         write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
@@ -837,6 +835,11 @@ c$$$      enddo
 c        coh   = 0d0
         kount = 0
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
+!! dummy to overlaid -check bounds sep2014
+c        if(size(ecore)==0) then
+c          deallocate(ecore)
+c          allocate(ecore(1,2))
+c        endif
 !!== ip loop to spedify external q ==
         call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
      i   nspin,is,   

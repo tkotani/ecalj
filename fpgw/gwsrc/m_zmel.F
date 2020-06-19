@@ -26,31 +26,42 @@
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
       use m_keyvalue,only: Getkeyvalue ! general purpose routine to read values in GWinput file.
-      use m_itq,only: itq,ntq,ngcmx,ngpmx,nband,nbandmx
+      use m_itq,only: itq,ntq,nband,nbandmx
+      use m_readQG,only: ngpmx,ngcmx
       implicit none
 
-!! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
-      complex(8),allocatable :: zmel(:,:,:) !,zmeltt(:,:,:) !output
-      complex(8),allocatable :: zmeltt(:,:,:) !output
+!!--- OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
+      complex(8),allocatable,protected :: zmel(:,:,:) !,zmeltt(:,:,:) !output
+      complex(8),allocatable,protected :: zmeltt(:,:,:) !output
 
 !! Local private ---------------------
 !!    These are set by mptauof in 'call mptauof_zmel'
-      integer,allocatable,protected,private :: miat(:,:)     ! mptauof_zmel
-      real(8),allocatable,protected,private :: tiat(:,:,:),shtvg(:,:)  
-      real(8),allocatable,protected,private :: ppbir(:,:,:)  ! ppbafp_v2_zmel 
-      complex(8),allocatable,protected,private :: ppovlz(:,:)        
+      integer,allocatable,private :: miat(:,:)     ! mptauof_zmel
+      real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)  
+      real(8),allocatable,private :: ppbir(:,:,:)  ! ppbafp_v2_zmel 
+      complex(8),allocatable,private :: ppovlz(:,:)        
       real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
       logical,private:: init=.true.
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
 
       contains
-!! set ppovlz for given q      
+      subroutine Dconjg_zmel()
+      zmel = dconjg(zmel)
+      end
+      subroutine Deallocate_zmel()
+      deallocate(zmel)
+      end
+      subroutine Deallocate_zmeltt()
+      deallocate(zmeltt)
+      end
+!
+!     set ppovlz for given q      
       subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
-      implicit none
-      integer,intent(in) :: ngc,ngb
-      real(8),intent(in) :: q(3)
-      complex(8),intent(in):: zcousq(ngb,ngb)
+      intent(in)::              q,ngc,zcousq,ngb
+      integer :: ngc,ngb
+      real(8) :: q(3)
+      complex(8) :: zcousq(ngb,ngb)
       complex(8),allocatable :: ppovl(:,:)
       if(allocated(ppovlz)) deallocate(ppovlz)
       allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
@@ -59,12 +70,13 @@
       ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
       deallocate(ppovl)
       end subroutine setppovlz_sxcf
+      
 !! set ppovlz for given q      
       subroutine setppovlz(q,ngc,zcousq,ngb)
-      implicit none
-      integer,intent(in) :: ngc,ngb
-      real(8),intent(in) :: q(3)
-      complex(8),intent(in):: zcousq(ngb,ngb)
+      intent(in)::         q,ngc,zcousq,ngb
+      integer :: ngc,ngb
+      real(8) :: q(3)
+      complex(8) :: zcousq(ngb,ngb)
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:),ppovlzinv(:,:)
       logical:: eibz4x0
       integer:: i,nbloch
@@ -85,13 +97,14 @@
       endif
       ppovlz = ppovl_
       deallocate(ppovl_,ppovl)
-      end subroutine setppovlz 
+      end subroutine setppovlz
+      
 !! set ppovlz
       subroutine setppovlz_ee(q,ngc,ngb,zcousq)
-      implicit none
-      integer,intent(in):: ngc,ngb
-      real(8),intent(in):: q(3)
-      complex(8),intent(in):: zcousq(:,:)
+      intent(in)::            q,ngc,ngb,zcousq
+      integer:: ngc,ngb
+      real(8):: q(3)
+      complex(8):: zcousq(:,:)
       integer:: nbloch
       complex(8),allocatable :: ppovl(:,:)
       if(allocated(ppovlz)) deallocate(ppovlz)
@@ -102,22 +115,22 @@
       ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
       ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
       end subroutine setppovlz_ee
+      
 !! set ppovlz
       subroutine setppovlz_chipm(zzr,ngb,nmbas1)
-      implicit none
-      integer,intent(in)::ngb,nmbas1
-      complex(8),intent(in):: zzr(ngb,nmbas1)
+      intent(in)::               zzr,ngb,nmbas1
+      integer::ngb,nmbas1
+      complex(8):: zzr(ngb,nmbas1)
       if(allocated(ppovlz)) deallocate(ppovlz)
       allocate(ppovlz(ngb,nmbas1))
       ppovlz= zzr
       end subroutine setppovlz_chipm
-
       
 !! Set miat,tiat,invgx,shtvg
       subroutine mptauof_zmel(symops,ng,platx,nbas,pos,iclass)
-      implicit none
-      integer,intent(in):: ng,nbas,iclass(nbas)
-      real(8),intent(in):: symops(9,ng),platx(3,3),pos(3,nbas)
+      intent(in)::            symops,ng,platx,nbas,pos,iclass
+      integer:: ng,nbas,iclass(nbas)
+      real(8):: symops(9,ng),platx(3,3),pos(3,nbas)
       integer,allocatable ::  invgx(:)
       allocate(invgx(ng),miat(nbas,ng),tiat(3,nbas,ng),shtvg(3,ng))
       call mptauof(symops,ng,platx,nbas,pos,iclass
@@ -132,12 +145,16 @@
      i                 mdimx,lx,nx,nxx, !Bloch wave    
      i                 cgr,lmxax,   !rotated CG
      i                 ppbrd)           !radial integrals
-c     o  ppb)
-      implicit none
-      integer,intent(in) :: ng,nspin,nclass,mnlx,mdimx,nl,nn
-      integer,intent(in) :: il(*),in(*),im(*), lx(*),nx(*),mnl(*)
-      integer,intent(in) :: nxx,lmxax
-      real(8),intent(in) :: cgr(*), ppbrd(*)
+      intent(in)::               ng,nspin,
+     i                 il,in,im, mnl,
+     d                 nl,nn,nclass,mnlx,
+     i                 mdimx,lx,nx,nxx, !Bloch wave    
+     i                 cgr,lmxax,   !rotated CG
+     i                 ppbrd           !radial integrals
+      integer :: ng,nspin,nclass,mnlx,mdimx,nl,nn
+      integer :: il(*),in(*),im(*), lx(*),nx(*),mnl(*)
+      integer :: nxx,lmxax
+      real(8) :: cgr(*), ppbrd(*)
       integer:: is,irot
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
       do irot = 1,ng
@@ -155,13 +172,13 @@ c     o  ppb)
 
 !     ! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
+      intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
 !!
 !! ncc=0
 !! kvec is in the IBZ, rk = Rot_irot(kvec), kx,kr are dummy.
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
-      implicit none
       logical:: exchange
       integer:: kx,kr,isp,ngc,ngb,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
@@ -211,9 +228,12 @@ cold  nbmax -->nmmax
      &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc)  !end state for phi_q
+      intent(in)::          exchange,
+     &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
+     &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
+     &    q,nqini,nqmax,ispq,ncc   !end state for phi_q
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
-      implicit none
       logical:: exchange
       integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,ngc,ngb,nqmax,nbcut
       integer:: iatomp(natom),nmini,nqini,nctot,ncc
@@ -480,6 +500,7 @@ c         nstate = nctot + nmmax ! = nstate for the case of correlation
       end subroutine get_zmelt2
       end module m_zmel
 
+      
       subroutine timeshowx(info)
       character*(*) :: info
       write(*,'(a,$)')info

@@ -335,7 +335,7 @@ c        print *,'ssssssss',ig,symgg(:,:,ig)
 
       tpioa=2d0*pi/alat
       iqxend = nqibz !+ nq0i
-      ginv = transpose(plat)   !ginv is inverse of plat.
+c      ginv = transpose(plat)   !ginv is inverse of plat.
       call minv33tp(plat,qlat) !plat -> qlat (confusing. qlat is reciprocal vector). 
       do iq=1,nqibz
          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)

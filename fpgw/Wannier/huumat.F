@@ -13,7 +13,7 @@ c modified by Takahi Miyake, Jul, 2005 (ixc=3)
 c modified by Takahi Miyake, May, 2004
 c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
-      use m_readqg
+      use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
       use m_readeigen
 
       use m_read_bzdata,only: read_bzdata,
@@ -48,7 +48,7 @@ c     o   imagw_dummy,niw,idummy,
      &   nw_input,
      &   ifhbe,
      &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,ngcmx,mxx,nqbze,nqibze,ini,ix,ngrpx
+     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
      &   ,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx

@@ -4,7 +4,7 @@
 !! (only epsPP_lmf_chipm mode works).
       program hx0fp0
       use m_ReadEfermi,only: Readefermi,ef
-      use m_readqg,only: Readqg,Readngmx
+      use m_readqg,only: Readqg,Readngmx2,ngpmx,ngcmx
       use m_readeigen,only: Readeval,Init_readeigen,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
      &     ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -46,7 +46,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_lldata,only: ll
 
       use m_readgwinput,only: ReadGwinputKeys,
-     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx
+     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas
       
       implicit none
 !! ------------------------------------------------
@@ -116,8 +116,8 @@ c      logical::imagonly=.false.,realonly=.false. !,readgwinput
      & ixc,iqxini,iqxend,iqxendx,
      &   ifhbe,
      &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx,ngcmx,ngpmx
-     &   ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
+     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx,!ngcmx,ngpmx
+     &   nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond !,ifvxcpout,ifgb0vec,nxx
      &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
      &   ,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
@@ -201,8 +201,8 @@ c$$$#endif
       real(8),allocatable:: ebb(:)
       logical :: evaltest !for a debug test
       character*300:: aline
-      integer:: istat,nmbas,imb,imb1,imb2,nmbas_in
-      integer,allocatable:: imbas(:), imbas_s(:),iibas(:)
+      integer:: imb,imb1,imb2,nmbas_in !nmbas,
+      integer,allocatable:: aimbas(:), iibas(:) !imbas_s(:),
 !...
       complex(8),allocatable:: am1(:),am2(:),mmat(:,:),
      &     x0mat(:,:),x0matinv(:,:),eiqrm(:)
@@ -438,8 +438,9 @@ c$$$      endif
 
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
 c      call getsrdpp2( nclass,nl,nxx)
-      call readngmx('QGpsi',ngpmx)
-      call readngmx('QGcou',ngcmx)
+c      call readngmx('QGpsi',ngpmx)
+c      call readngmx('QGcou',ngcmx)
+      call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       nqbze  = nqbz *(1 + nq0i)
       nqibze = nqibz + nq0i
@@ -492,7 +493,7 @@ c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
-      ginv = transpose(plat)
+c      ginv = transpose(plat)
       call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
@@ -603,17 +604,18 @@ c      necut=1
 c      allocate(ecut(necut),ecuts(necut))
 !!
       if( chipm ) then
-        nmbas=natom
-        allocate(imbas_s(nmbas))
-        imbas_s(1:nmbas) = imbas(1:nmbas)
-        imbas(1:nmbas)   = abs(imbas(1:nmbas))
+c        nmbas=natom
+c        allocate(imbas_s(nmbas))
+c        imbas_s(1:nmbas) = imbas(1:nmbas)
+        allocate(aimbas(nmbas))
+        aimbas(1:nmbas)   = abs(imbas(1:nmbas))
         allocate(jcoup(nw_i:nw,neps) )
         allocate( svec(nbloch,nmbas) )  !sep2006
         svec=0d0
         allocate( cvec(nbloch,nmbas),momsite(nmbas), mmnorm(nmbas)) !May2007
         cvec=0d0
         do imb=1,nmbas
-          ibas= imbas(imb)
+          ibas= aimbas(imb)
           ifv = iopen ('MixSpin.'//charnum3(ibas),1,3,0)
           read(ifv,*) ibasx,lxx
           allocate(nxx_r(0:lxx))
@@ -635,7 +637,7 @@ c      allocate(ecut(necut),ecuts(necut))
             enddo
           enddo
 !! Calculate ChiPM. So sign of omega should be correct.
-          if(imb==1) then !determine spin direction with respect to ibas=imbas(imb=1)
+          if(imb==1) then !determine spin direction with respect to ibas=aimbas(imb=1)
             spinmom=(chg1-chg2)
             schi=1d0
             if(spinmom<0d0) then
@@ -808,14 +810,14 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           if(chipm.and. wqt(iq-nqibz)==0d0) then
             ifchipmn_mat=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.mat',1,3,0)
             write(ifchipmn_mat,"(255i5)") nmbas
-            write(ifchipmn_mat,"(255i5)") imbas(1:nmbas)
+            write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
             write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
             write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
             write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')") 
             if(.not.nolfco) then
               ifchipm_fmat=iopen('ChiPM'//charnum4(iqixc2)//'.fmat',0,3,0)
               write(ifchipm_fmat) nbloch, natom,nmbas, iqxini,iqxend, nw_i,nw
-              write(ifchipm_fmat) imbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
+              write(ifchipm_fmat) aimbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
               write(ifchipm_fmat) nblocha(1:natom),svec(1:nbloch,1:nmbas)
               write(ifchipm_fmat) zzr0(1:nbloch) !zzr(1:nbloch,1)
             endif

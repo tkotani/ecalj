@@ -1,24 +1,28 @@
       module m_itq
       use m_keyvalue,only: Getkeyvalue
       use m_readeigen,only: Readeval
+      implicit none
+
       integer,allocatable,protected :: itq(:),nbandmx(:,:)
-      integer,protected  :: ntq,ngcmx,ngpmx, nband
+      integer,protected  :: ntq, nband !ngcmx,ngpmx,
 
 !!======================================================================
       contains
+
       subroutine setnband(nband_in)
+      intent(in)::        nband_in
       integer:: nband_in
       nband=nband_in
       end
-
+!!======================================================================
       subroutine setitq(ntq_in,nband_in,ngcmx_in,ngpmx_in)
-      implicit none
-      integer,intent(in):: nband_in,ngcmx_in,ngpmx_in,ntq_in
+      intent(in)::      ntq_in,nband_in,ngcmx_in,ngpmx_in
+      integer:: nband_in,ngcmx_in,ngpmx_in,ntq_in
       integer:: i
       ntq   = ntq_in
       nband = nband_in
-      ngcmx = ngcmx_in
-      ngpmx = ngpmx_in
+c      ngcmx = ngcmx_in
+c      ngpmx = ngpmx_in
       allocate(itq(ntq))
       do i=1,ntq
         itq(i)=i
@@ -26,9 +30,9 @@
       end subroutine setitq
 !!======================================================================
       subroutine setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
-      implicit none
-      integer,intent(in):: nqibz,nq,nspin,nbmx(2),nspinmx
-      real(8),intent(in):: qibz(3,nqibz),ebmx(2),eftrue
+      intent(in)::              qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx
+      integer:: nqibz,nq,nspin,nbmx(2),nspinmx
+      real(8):: qibz(3,nqibz),ebmx(2),eftrue
       real(8),allocatable:: eqt(:)
       integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r
       logical:: lntq
@@ -102,12 +106,12 @@
       end subroutine
 !!======================================================================
       subroutine setitq_hsfp0 (nband_in,ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss)
-      integer,intent(in):: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv
-      logical,intent(in):: tote
-      integer:: i,nss(2)
+      intent(in)::             nband_in,ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
+      integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2)
+      logical:: tote
       nband = nband_in
-      ngcmx = ngcmx_in
-      ngpmx = ngpmx_in
+c      ngcmx = ngcmx_in
+c      ngpmx = ngpmx_in
       if (tote) then
         ntq    = noccxv
         allocate( itq(ntq) )

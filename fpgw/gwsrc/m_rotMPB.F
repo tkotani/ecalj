@@ -5,68 +5,25 @@
 !! I don't know why. 
 !! This has developed for eibz mode jun2012, not tested completely. 
 !! In future, this routine can be for some application.
-!!takao2012jun
+!!takao2012jun started
       use m_pbindex,only: norbt, ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,
-     &    max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
+     &     max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
       use m_hamindex, only: qlat,plat,invgx,
-     &  miat,tiat,shtvg,symops,nbas,ngrp
+     &     miat,tiat,shtvg,symops,nbas,ngrp
       use m_readqgcou,only: imxc,ngvecc,qtt_,nqnum,ngc,ngveccrev
+      implicit none
+
+      public:: RotMPB2
+      private
       integer:: lxxa
       real(8),allocatable:: dlmm(:,:,:,:)
-!! --- 
+
       contains
-c$$$      subroutine rotMPB(zcousq,nbloch,ngbb,qin,igx,igxt,ginv
-c$$$     o ,zcousqr) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
-c$$$      implicit none
-c$$$      real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3)
-c$$$      integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,iqindx,nl,i,j
-c$$$      complex(8):: zcousq(ngbb,ngbb),zcousqr(ngbb,ngbb)
-c$$$      integer,save:: init=1
-c$$$      if(init==1) then
-c$$$        lxxa= 2*max_l_tbl
-c$$$        nl= lxxa +1 
-c$$$        allocate(dlmm(-lxxa:lxxa,-lxxa:lxxa,0:lxxa,ngrp))
-c$$$        call rotdlmm(symops,ngrp,nl,dlmm)
-c$$$        init=0
-c$$$      endif   
-c$$$      call rotmto(qin,zcousq(1:nbloch,1:ngbb),nbloch,ngbb,
-c$$$     i  norbt,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,max_ibas_tbl,max_l_tbl,max_k_tbl,
-c$$$     i  ginv,symops(:,:,igx),shtvg(:,igx),dlmm(:,:,:,igx),lxxa,miat(:,igx),tiat(:,:,igx),igxt,nbas, 
-c$$$     o  zcousqr(1:nbloch,1:ngbb))
-c$$$c      write(6,*)' end of rotmto '
-c$$$      call iqindx2(qin,ginv,qtt_,nqnum, iqin,qu)
-c$$$      if(sum(abs(qin-qu))>1d-6) stop 'rotMPB:qin is not included in QGcou'
-c$$$      call iqindx2(matmul(symops(:,:,igx),qin),ginv,qtt_,nqnum, iqout,qout)
-c$$$!!
-c$$$      ngcx=ngc(iqin)
-c$$$      if(ngcx/=ngc(iqout).or.ngcx/=ngbb-nbloch) then
-c$$$         write(6,*)' ngbb qin  =',ngbb,qin
-c$$$         write(6,*)' iqin iqout=',iqin,iqout
-c$$$         write(6,*)' qout=',qout
-c$$$         write(6,*)' ngc(iqin),ngc(iqout)=',ngc(iqin),ngc(iqout)
-c$$$         write(6,*)' ngcx nbloch ngbb=',ngcx,nbloch,ngbb
-c$$$         write(6,*)' ngc(iqout)=',ngc(iqout)
-c$$$         if(ngcx/=ngbb-nbloch) stop 'rotMPB:ngc(iqin)/=ngbb-nbloch'
-c$$$         stop 'rotMPB:ngc(iqin)/=ngc(iqout)'
-c$$$      endif   
-c$$$      platt=transpose(plat)
-c$$$c      write(6,*)' iqin iqout igx=',iqin,iqout,igx
-c$$$c      write(6,*)' goto  rotipw ',sum(zcousq(nbloch+1:nbloch+ngcx,1:ngbb))
-c$$$c      write(6,*)'qin  =',qin,iqin,igx
-c$$$c      write(6,*)'qout =',qout,iqout
-c$$$c      write(6,*)'ngcx ngbb=',ngcx,ngbb
-c$$$c      write(6,*)'platt=',platt
-c$$$c      write(6,*)' qlat=',qlat
-c$$$      call rotipw(qin,qout,zcousq(nbloch+1:nbloch+ngcx,1:ngbb),ngcx,ngbb,
-c$$$     &  platt,qlat,symops(1,1,igx),ngvecc(1,1,iqin),ngveccrev(:,:,:,iqout),shtvg(:,igx),igxt,imxc,
-c$$$     o  zcousqr(nbloch+1:nbloch+ngcx,1:ngbb) )
-c$$$c      if(igxt<0) then !time-reversal
-c$$$c        zcousqr = dconjg(zcousqr)
-c$$$c      endif  
-c$$$      end subroutine rotMPB
-!! ------------------------------------
-      subroutine rotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
+      subroutine RotMPB2(nbloch,ngbb,qin,igx,igxt,ginv
      o ,zrotm) !zcousqr=Rotate_igx(zcousq) igxt=-1 means timereversal case.
+      intent(in)::       nbloch,ngbb,qin,igx,igxt,ginv
+      intent(out)::
+     o  zrotm 
 !! --- zrotm(J,J') = <Mbar^k_J| \hat{A}^k_i Mbar^k_J'>. ---
 !! See Eq.(51) around in PRB81 125102(2010). 
 !! Eq. (51) can be written as
@@ -80,7 +37,6 @@ c$$$      end subroutine rotMPB
 !! input qin = q
 !! \hat{A}^k_i  is specified by symops(:,:,igx),and igxt (-1 for time-reversal).
 !! Note that k= \hat{A}^k_i(k) (S_A^k)
-      implicit none
       real(8):: qin(3),ginv(3,3),platt(3,3),qout(3),qu(3),sss
       integer:: igx,igxt,ngbb,iqin,iqout,ngcx,nbloch,nl,i,j
       complex(8):: zrotm(ngbb,ngbb)

@@ -5,7 +5,7 @@
 !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
 !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
       use m_ReadEfermi,only: Readefermi,ef
-      use m_readqg,only: Readngmx,Readqg
+      use m_readqg,only: Readngmx2,Readqg,ngpmx,ngcmx
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
@@ -71,7 +71,7 @@ c     & laf,ibasf !,ldima,pos,natom
      &     ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0
      &     ,kx,isf,kqxx,kp,job,nwmax !,ifev1,ifev2 !,nhwtot
      &     ,ihis,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode
-     &     ,  ifchipmlog ,   nw_w,nwmin  ,ngpmx,ngcmx
+     &     ,  ifchipmlog ,   nw_w,nwmin  !,ngpmx,ngcmx
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg2, q(3),  qgbin(3),qx(3) 
       real(8):: ua=1d0          ! this is a dummy.
       integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ndble=8, nword
@@ -226,8 +226,9 @@ c      write(6,*)' hx0fp0.sc: tetrahedron mode delta=',delta
       call Readq0p()
       write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
 !! --- Read Qpoints
-      call Readngmx('QGpsi',ngpmx)
-      call Readngmx('QGcou',ngcmx)
+c      call Readngmx('QGpsi',ngpmx)
+c     call Readngmx('QGcou',ngcmx)
+      call Readngmx2()          !return ngpmx and ngcmx in m_readqg
       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
       call Setqbze()
 c$$$      nqbze  = nqbz *(1 + nq0i+nq0iadd)

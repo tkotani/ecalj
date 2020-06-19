@@ -8,28 +8,20 @@ c      complex(8),protected :: llmat(3,3)
 
       contains
 
-! read info for inverse dielectric function. 
       subroutine check_eps()
-      implicit none
-
+!! read info for inverse dielectric function. 
       integer:: iq,iq_read,ngb_read
       real(8):: q_read(3),tolq=1d-8
-      integer::ifile_handle
       integer::ifw4p,ifw4pchk,ngbq0,ix
       character(5)::charnum5
       logical::ext
-
-
-      ifw4pchk = ifile_handle('checkW4PHONON')
-      open(ifw4pchk,file='checkW4PHONON',status='replace')
-
+      open(newunit=ifw4pchk,file='checkW4PHONON',status='replace')
       iq=0
       do 
          iq=iq+1
          inquire(file='W4PHONON.'//charnum5(iq),exist=ext)
          if(ext) then
-            ifw4p = ifile_handle('W4PHONON.'//charnum5(iq))
-            open(ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
+            open(newunit=ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
             read(ifw4p) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
             close(ifw4p)
             write(ifw4pchk,*) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
@@ -38,28 +30,24 @@ c      complex(8),protected :: llmat(3,3)
          endif
       end do
       close(ifw4pchk)
-
       end subroutine check_eps
 
       subroutine read_eps(q,iqx,ngb)
-      implicit none
-      integer,intent(in):: iqx,ngb
-      real(8),intent(in):: q(3)
-
+      intent(in)::        q,iqx,ngb
+      integer:: iqx,ngb
+      real(8):: q(3)
       integer:: iq,iq_read,ngb_read
       real(8):: q_read(3),tolq=1d-8
       integer::ifile_handle
       integer::ifw4p,ngbq0,ix
       character(5)::charnum5
       logical::ext
-
       iq=0
       do
          iq=iq+1
          inquire(file='W4PHONON.'//charnum5(iq),exist=ext)
          if(ext) then
-            ifw4p = ifile_handle('W4PHONON.'//charnum5(iq))
-            open(ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
+            open(newunit=ifw4p,file='W4PHONON.'//charnum5(iq),form='unformatted',status='old')
             read(ifw4p) iq_read,q_read,ngb_read,ix !ix=0, or ix=1 for q=0 (iq=1)
 c            if(iqx /=iq_read) call rx('m_readeps: iqx/=iqf')
             if(sum(abs(q-q_read)) <tolq) then
@@ -80,11 +68,9 @@ c               write(*,*) 'm_readeps: epsinv size',size(epsinv,1),size(epsinv,2
             call rx('m_readeps: W4PHONON'//charnum5(iq)//' not found for given q.')
          endif
       enddo
-
       inquire(file='W4PHONON.HeadWing',exist=ext)
       if(ext) then
-         ifw4p = ifile_handle('W4PHONON.HeadWing')            
-         open(ifw4p,file='W4PHONON.HeadWing',form='unformatted',status='old')
+         open(newunit=ifw4p,file='W4PHONON.HeadWing',form='unformatted',status='old')
          allocate(llmat(3,3))
          read(ifw4p) llmat(1:3,1:3),ngbq0 !for q~0
          write(*,*) 'm_readeps: llmat r1', llmat(1,:) 
@@ -110,16 +96,14 @@ c               write(*,*) 'm_readeps: epsinv size',size(epsinv,1),size(epsinv,2
       else
          call rx('m_readeps: W4PHONON.HeadWing not found.')
       endif
-      
       end subroutine read_eps
 
       subroutine deallocate_eps(iqx)
       implicit none
       integer,intent(in):: iqx
-
       deallocate(epsinv)
       deallocate(llmat)
       if(iqx==1) deallocate(w_mu)
-
       end subroutine deallocate_eps
+
       end module

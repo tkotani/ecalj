@@ -50,45 +50,37 @@ c     7.    call getkeyvalue("IN","<blockname>",unit=file,status=ret,errstop='on
 c     : unit is the file handle to read contants sandwitched by
 c     <blockname> and </blockname>. ret= number of the lines.
 C--------------------------------------------------------------------------
-
-
       module m_keyvalue
       implicit none
-      integer,private :: nf_input=0,output=6,default_nf_input=50
-      character(120),private:: 
+      public:: getkeyvalue
+      private
+      integer :: nf_input=0,output=6,default_nf_input=50
+      character(120):: 
      &     filename0="adfadjpfijwpojobuwhfqeijqope"
-
-      integer,private,parameter:: input_err_success=0
-      integer,private,parameter:: input_err_conv=-1
-      integer,private,parameter:: input_err_lessvaluenum=-2
-      integer,private,parameter:: input_err_nokey=-3
-      integer,private,parameter:: input_err_nofile=-4
-
-      integer,private,parameter:: nlogical=14
-      character(7),private:: logicalstr(nlogical)=
+      integer,parameter:: input_err_success=0
+      integer,parameter:: input_err_conv=-1
+      integer,parameter:: input_err_lessvaluenum=-2
+      integer,parameter:: input_err_nokey=-3
+      integer,parameter:: input_err_nofile=-4
+      integer,parameter:: nlogical=14
+      character(7):: logicalstr(nlogical)=
      i     (/'true   ', 'ok     ', '.true. ', 'yes    ','on     ',
      i     '1      ', 'T      ',
      i     'false  ', 'ng     ', '.false.', 'no     ','off    ',
      i     '0      ', 'F      '/)
-      integer,private :: logicalint(nlogical) =
+      integer :: logicalint(nlogical) =
      i     (/1,1,1,1,1,1,1,0,0,0,0,0,0,0/)
-c     debug
-      integer,private:: printlevel=0
-
-c     error report
-      integer,private,parameter:: max_error_count=5
-      integer,private :: error_count=0
-      character(120),private:: error_message(max_error_count)
-
+      integer:: printlevel=0 !!debug
+      integer,parameter:: max_error_count=5 !!error report
+      integer :: error_count=0
+      character(120):: error_message(max_error_count)
       interface getkeyvalue
       module procedure getkeyvalue_i, getkeyvalue_r8, 
      i     getkeyvalue_iv, getkeyvalue_rv, getkeyvalue_l  , 
      i     getkeyvalue_c
       end interface
-
-c     ----------------------------------------------------------
+!! ----------------------------------------------------------
       contains
-
 c----------------------------------------------------------
 c     used only for internal use
 c

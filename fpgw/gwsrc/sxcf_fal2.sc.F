@@ -21,8 +21,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf,Setppovlz_ee,Setppovlz_chipm,
-c     i   ppovlz, 
+      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf, Setppovlz_ee, Setppovlz_chipm, Deallocate_zmel,
      o   zmel,zmeltt 
       implicit none
 !> \brief
@@ -1218,7 +1217,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
  2012       continue
             deallocate(we_,wfac_,ixss,ititpskip,iirx)
  2002       continue
-            deallocate(zw3, zmel, zmel1)
+            deallocate(zw3, zmel1)
+            call Deallocate_zmel()
             if(allocated(zmel1_)) deallocate(zmel1_)
             if(verbose()>50) call timeshow("11after alagr3z iw,itp,it cycles")
             if(debug) then

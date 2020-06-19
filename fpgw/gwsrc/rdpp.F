@@ -1,11 +1,11 @@
       module m_rdpp
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
-      Use NaNum,only: NaN
-c      integer,parameter:: NULL=-9999
+      use NaNum,only: NaN
       integer,protected:: mdimx=NaN,nbloch=NaN,nxx=NaN
       integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical,protected:: done_rdpp=.false.
+
       contains
       subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
 !     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.

@@ -1,22 +1,25 @@
       module m_rgwinf_v3
-      integer(4)::nclass,natom,nspin,nl,nnv,nnc,lcutmx,nrx
-      real(8)::alat
-      integer(4),allocatable:: 
+      integer,protected:: nclass,natom,nspin,nl,nnv,nnc,lcutmx,nrx
+      real(8),protected:: alat
+      integer,allocatable,protected:: 
      &   iclass(:)
      &  ,nindxv(:,:),nindxc(:,:)
      &  ,occv(:,:,:),unoccv(:,:,:),ooo(:,:,:)
      &  ,occc(:,:,:),unoccc(:,:,:)
      &  ,ncwf(:,:,:)
-      real(8),allocatable:: z(:),cutbase(:)
+      real(8),allocatable,protected:: z(:),cutbase(:)
+
       contains
-      subroutine rgwinf_v3 (iflmto,ifinin,incwfx) !these are inputs
+
+      subroutine rgwinf_v3 (iflmto,ifinin,incwfx) 
+      implicit real*8(a-h,o-z)
+      intent(in)::          iflmto,ifinin,incwfx
 C- readin GWIN_V2 and LMTO(crystal) data.
 C all the output are given in the declear section
 C!
 Cr Return iclass=ibas.
 Cr nwin,efin,incwfx, are used as switches.
 C--------------------------------------------------------
-      implicit real*8(a-h,o-z)
 c      character(120):: symgrp
 c      character(120):: symgrpt
       integer(4):: infwfx,nwin

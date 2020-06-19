@@ -1,17 +1,19 @@
       module m_tetrakbt
-
       use m_keyvalue,only: getkeyvalue
       implicit none
-      real(8):: kbt, tt
+      public:: tetrakbt_init, tetrakbt, kbt
+      
+      private
+      real(8):: tt,kbt
       real(8):: eps=1d-26 !to avoid ZeroDIV, severe condition
-      integer(4):: i
-      integer(4), private:: ndiv !for numerical integration; h=(b-a)/ndiv
+      integer:: i
+      integer:: ndiv !for numerical integration; h=(b-a)/ndiv
       logical:: init = .true.
       real(8):: kb=8.6171d-5 ![eV/K]
-
       !! developer
       real(8):: err_sum=0d0, err_sum2=0d0
-      integer(4):: nn
+      integer:: nn
+
       contains
 !! tt: temperature [K]
 c-----------------------------------------------------
@@ -33,19 +35,21 @@ c-----------------------------------------------------
      i     ebfin,eafin,v,voltet,
      i     frhis, nwhis,
      o     wtthis) !this is accumlating variable
-!     i     kbt_,tt_,
-
+      intent(in)::
+     i     ebfin,eafin,v,voltet,
+     i     frhis, nwhis
+      intent(out)::
+     o     wtthis
 !! kbt version 
 !! Histgram weights for each bin.
 !! The i-th bin of the Histgrams is [frhis(i) frhis(i+1)].
 !! wtthis(ihis) += \int_{frhis(ihis)^{frhis(ihis+1)} d \omega  \int d^3k (fb-fa) * \delta(\omega +v(k) )
 !!  Total sum of the histgram weight is equal to voltet.
 !!  wtthis(ihis): Note this is accumulating variable.
-      implicit none
       real(8):: ebfin(4),eafin(4),v(4), voltet
       real(8):: ebft(4),eaft(4),ebf(3),eaf(3)
-      integer(4)::  inihis, iedhis, nwhis,ichk=2313
-      integer(4) :: ieaord(1:4),i,isig,idif(3),idf,ix,n,itmp,ihis
+      integer::  inihis, iedhis, nwhis,ichk=2313
+      integer :: ieaord(1:4),i,isig,idif(3),idf,ix,n,itmp,ihis
       real(8)   ::  WW(4),  norm,s1,s2,pvn,
      &       integb3p, integb3m , integb2p, integb2m,ww2p,ww3p
       real(8)::frhis(nwhis+1),wtthis(nwhis,4),intega,integb,stot,xxx,wx,fafac,fbfac
@@ -169,10 +173,11 @@ c      if(chkwrt) write(ichk,*) ' end of intttvc6'
 
 c-----------------------------------------------------
       subroutine eaf_triangle(el,eh,ww,eaft, fafac) 
+      intent(in) ::          el,eh, ww,eaft
+      intent(out)::                          fafac
 !! We assume ww are soreted as ww(1)<ww(2)<ww(3)<ww(4)
-      implicit none
-      real(8),intent(in) :: el,eh, ww(4),eaft(4)
-      real(8),intent(out):: fafac
+      real(8):: el,eh, ww(4),eaft(4)
+      real(8):: fafac
       real(8):: eaf(3),ecenter,fafac2,fafac1,s2,s3,s2e,s3e
       ecenter=(el+eh)/2d0
 
@@ -224,7 +229,6 @@ c$$$      write(6,"('xxx eaf000=',3d19.4)") eaf(1:3)
 
 c-------------------------------------------------------------------------
       real(8) function eafww(ecenter,i,j, ww, eaft)
-      implicit none
       integer,intent(in):: i,j
       real(8),intent(in):: ww(4),eaft(4)
       real(8)::wgt,ecenter
@@ -239,7 +243,6 @@ c-------------------------------------------------------------------------
 !! Return f(eaf)-f(efb) factor
 !!  input: kbt: Temperature in Ry.
 !!         eaf:  ea - efermi in Ry.
-      implicit none
       real(8),intent(in):: eaf(3)
       !real(8),intent(in):: kbt
       real(8):: voltp, s1tp, s2tp ! return s1tp+s2tp
@@ -369,7 +372,7 @@ c--------------------------------------------------------------
 c--------------------------------------------------------------
       real(8) function funcgx(x,n)
       implicit none
-      integer(4):: n
+      integer:: n
       real(8):: x!, kbt 
       funcgx = x**n/(exp(x/kbt)+1)
       end function funcgx
@@ -401,10 +404,10 @@ c--------------------------------------------------------------
       end function funcgx2
 
 c--------------------------------------------------------------
-      integer(4) function ndiv_tt(ttt)
+      integer function ndiv_tt(ttt)
       implicit none
       real(8):: ttt
-      integer(4):: n0 = 100000
+      integer:: n0 = 100000
       if (ttt < 1d0) then
          ndiv_tt = n0/2d0
       else
@@ -425,7 +428,7 @@ c--------------------------------------------------------------
       real(8),intent(in):: e_start, e_end, eeref
       real(8):: hdiv, sumval, xeven, xodd
       real(8) :: intsum !! the value of integral
-      integer(4):: n2div
+      integer:: n2div
       hdiv=(e_end-e_start)/float(ndiv)
       sumval=0d0
       int_simpson=0d0

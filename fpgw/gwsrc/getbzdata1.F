@@ -48,14 +48,18 @@ c------------------------------------------------------------
       real(8),protected::             dq_(3)!,qbasmc(3,3) !,dq_bzcase2(3),
       integer,allocatable,protected:: idtetf(:,:),ib1bz(:),idteti(:,:),irk(:,:),nstar(:),nstbz(:)
       real(8),allocatable,protected:: qbzm(:,:),qbzwm(:,:)
+
+      private:: nkstar
 c------------------------------------------------------------
       contains
 
-      subroutine getbzdata1(qlat,nnn, !n1q,n2q,n3q
+      subroutine getbzdata1(qlat,nnn, 
      &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl) 
       use m_keyvalue,only: getkeyvalue
 !! all arguments are inputs. getbzdata1 returns all variables in the module m_get_bzdata1
       implicit none
+      intent(in)::          qlat,nnn, 
+     &    symops,ngrp,tetrai,tetraf,mtet,gammacellctrl 
       logical :: tetrai,tetraf,multet,qbzreg
       integer :: ngrp,nnn(3), mtet(3),n1qm,n2qm,n3qm,nnnx(3), !n1q,n2q,n3q,
      &    itet,ix,im,ifiqmtet,iq,icase,n1qtet,n2qtet,n3qtet,IMC(0:1,0:1,0:1)

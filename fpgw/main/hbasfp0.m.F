@@ -36,6 +36,7 @@ c The main part of this routine is in the subroutine basnfp_v2
       integer(4),allocatable:: idid(:)
       logical :: checkdid ,anfexist
       integer(4):: iread, idummy,ifile_handle
+      real(8),allocatable:: cutbasex(:)
 c--------------------------------------------------------------------------
       ifinin=-99999 !dummy
       write(6,'(a)') ' --- Input normal(=0); coremode(=3);'//
@@ -242,16 +243,18 @@ c        write(6,*)' end of anf section...'
       endif
 
 !! override cutbase to make epsPP_lmfh safer. may2013takao
+      allocate( cutbasex(0:2*(nl-1)) )
+      cutbasex=cutbase
       if(ix==4) then
          write(6,*)' !!! set tolerance for PB to be 1d-6 ---'
-         cutbase=1d-6
+         cutbasex=1d-6
       endif
-
+      
       do ic = 1,nclass
         call basnfp_v2(nocc(1,ic),nunocc(1,ic),nindx(1,ic), ! Product Basis functions
      &    nl,nn,nrx, nrofi(ic),rr(1,ic),aa(ic),bb(ic),ic,
      &    phitoto,phitotr,nsp,nclass,
-     i    cutbase, lcutmxa(ic),ix,iread,alat
+     i    cutbasex, lcutmxa(ic),ix,iread,alat
      i  ,nc_max(0,ic) )
       end do
       if(ix==0) call rx0( ' OK! hbasfp0 ix=0 normal mode ')

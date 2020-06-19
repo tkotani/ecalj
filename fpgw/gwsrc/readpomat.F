@@ -1,25 +1,20 @@
-C ... read pomat
       module m_pomat
-c------Return eigenvalus and eigenfunctions for given q and isp.
-c Routines are:
-C   readeval: ev (eigenvalue)
-c
       implicit none
-      complex(8),allocatable:: pomat(:,:)
-      integer(4):: nn,no
+
+      complex(8),allocatable,protected:: pomat(:,:)
+      integer,protected:: nn,no
+
 c-----------------------------------------------------------------
       contains
-
-c------------------------------
       subroutine readpomat(q)
+      intent(in)::         q
 ! This returns nn,no, and pomat(nn,no)
-      implicit none
       real(8):: q_r(3),q(3)
       integer(4):: nn,iqx,isx
       integer(4):: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,iopen,iclose
 c      complex(8),allocatable:: pomat(:,:)
 c      if( allocated(pomat) ) deallocate(pomat)
-      ifpomat = iopen('POmat',0,-1,0) !oct2005
+      open(newunit=ifpomat,file='POmat',form='unformatted')
 C... smoothed mixed basis !oct2005
 C This replace original zmelt with new zmelt based on smoothed mixed basis.
       do
@@ -41,6 +36,6 @@ c          write(6,"('q  =',3f12.5)") q
 c          write(6,"('q_r=',3f12.5)") q_r
 c          stop 'POmat reading err q/=q_r'
 c       endif
-      isx = iclose('POmat')
+      close(ifpomat)
       end subroutine
       end module

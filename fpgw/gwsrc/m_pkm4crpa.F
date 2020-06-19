@@ -1,19 +1,23 @@
 !! === read pkmU for cRPA calclaitons ===
 !! subroutine wmaxloc in maxloc2.F write pkmU file.
-!! takao jan2015 
+!! takao jan2015 started
       module m_pkm4crpa
       implicit none
-      real(8),allocatable,private:: pkmud(:,:,:),qvecud(:,:,:)
-      integer,private:: nqbz,nsp,iko_ix,iko_fx,nwf
+      public:: Readpkm4crpa
+      
+      private
+      real(8),allocatable:: pkmud(:,:,:),qvecud(:,:,:)
+      integer:: nqbz,nsp,iko_ix,iko_fx,nwf
+      logical:: init=.true.
       contains
 
-      subroutine readpkm4crpa(ib,q,isp,wpw)
-      use m_iqindx_qtt,only:iqindx2_
-      implicit none
+      subroutine Readpkm4crpa(ib,q,isp,wpw)
+      use m_iqindx_qtt,only: iqindx2_
+      intent(in)::            ib,q,isp
+      intent(out)::                    wpw
       integer:: ib,isp,iq,ibin,iqin,ifi,ispin,ifile_handle
       real(8):: wpw,q(3),wpwin,qvec(3),qin(3)
       character*8::fname
-      logical,save:: init=.true.
       logical:: outofrange,debug=.false.
       if(debug)print *,' iiiiiiqqq readpkm4crpa',init
       ifi= ifile_handle()

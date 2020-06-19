@@ -1,40 +1,36 @@
       module m_iqindx_wan
-
-!     ! To accelarate inverse mapping, q to 'integer index',
+      implicit none
+!! To accelarate inverse mapping, q to 'integer index',
 !! we prepare integer index of q, its resolution is given by epsd.
 !!      use m_hamindex, only: qtt,nqtt
 !      use m_iqindx_qtt, only: init_iqindx_qtt
+      public:: Iqindx2_wan
+      
+      private
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       real(8),private:: epsd=1d-7 !key parameter to map to integer index
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
-      
       real(8),private,allocatable::qtt(:,:)
       integer,private::nqtt
-
       contains
-      
+!------------------------------------------------------
       subroutine iqindx2_wan(q,  iqindx,qu)
+      intent(in) ::          q
+      intent(out) ::             iqindx,qu
 !! ginv is the inverse of plat (premitive translation vector).
 !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
-      implicit none
-      real(8), intent(in) :: q(3)
-      integer, intent(out) :: iqindx
-      real(8), intent(out) :: qu(3)
-
+      real(8):: q(3),qu(3)
+      integer:: iqindx
       integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
       real(8):: qx(3),qzz(3)
-      logical::debug=.true.
-      logical::init=.true.
-
+      logical::debug=.true., init=.true.
       if (init) then
          call wan_getqbz()      !!! get nqtt, qtt(3,nqtt),ginv
          call init_iqindx_wan(ginv)
          init=.false.
       endif
-
 !      print *,"iqindx2_wan:: nqtt=",nqtt
-      
 ccccccccccccccccccccc
       debug=.false.
       if(abs(q(1)+0.1d0)+abs(q(2)+0.1d0)<1d-3) then
@@ -70,7 +66,6 @@ ccccccccccccccccccccc
       subroutine wan_getqbz()
       implicit none
       integer:: ifwqb, ifile_handle
-
       ifwqb=ifile_handle()
       open(ifwqb,file="wanqbz",form='unformatted')
       read(ifwqb) ginv
@@ -78,23 +73,20 @@ ccccccccccccccccccccc
       allocate(qtt(3,nqtt))
       read(ifwqb) qtt
       close(ifwqb)
-      
       end subroutine wan_getqbz
-
 c--------------------------------
-!! For magnon+wannier
       subroutine init_iqindx_wan(ginv_)
+      intent(in):: ginv_
+!! For magnon+wannier
 !! === mapping of qtt ===
 !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
 !!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
 !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
-      implicit none
       real(8):: ginv_(3,3),qzz(3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
       integer,allocatable:: ieord(:)
       logical::debug=.false.
-
       ginv=ginv_
       allocate(ieord(nqtt))
       if(debug) write(6,"(a,2i5,20f9.4)")' iiiiii nqtt=',nqtt,size(qtt),ginv_(1:3,1:3),ginv(1:3,1:3)
@@ -105,7 +97,7 @@ c--------------------------------
 c         write(6,"(a,i5,3f13.5,2x,3f13.5)") ' qqqttxx =',iq,qtt(:,iq),qxx(:,iq)
       enddo
 c      write(6,*)'sssqqq=',sum(abs(qtt(1,1:nqtt))),      sum(abs(qtt(2,1:nqtt))),   sum(abs(qtt(3,1:nqtt)))
-
+c
 !! get key and nkey for each ix.
       key(:,0)=0 !dummy
       do ix =1,3
@@ -147,10 +139,10 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqxx=',3i8,3f18.12)") kkk3,qxx(:,i)
 c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,i,qtt(:,i)
       enddo
       deallocate(qxx)
-c      stop 'xxxxxxxxxxxxx'
       end subroutine init_iqindx_wan      
       end module m_iqindx_wan
 
+      
 !! ------------------------------------------------------
 !> Return eigenvalus and eigenfunctions for given q and isp.
 !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
@@ -162,6 +154,16 @@ c      stop 'xxxxxxxxxxxxx'
       module m_readeigen
       use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
       implicit none
+      public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
+     &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
+     &     Readcphiw,Readgeigw
+      private
+      integer:: ifgeigW,ifcphiW
+      complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
+      integer(4)::nwf_ev
+      complex(8),allocatable:: evud_w(:,:,:,:)
+      real(8),allocatable:: eval_w(:,:,:)      
+      logical:: evalwan=.true.
       real(8),allocatable,private:: evud(:,:,:), ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
@@ -169,7 +171,6 @@ c      stop 'xxxxxxxxxxxxx'
      &   nnnn, nsp,ldim2,mrecg,ifcphi,ifgeig
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
-ctm
       integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
@@ -177,17 +178,7 @@ ctm
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)
-
-      integer:: ifgeigW,ifcphiW
-      complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
-
       logical,private:: Wpkm4crpa=.false.
-
-      integer(4)::nwf_ev
-      complex(8),allocatable:: evud_w(:,:,:,:)
-      real(8),allocatable:: eval_w(:,:,:)      
-      logical:: evalwan=.true.
-
       contains
       subroutine onoff_write_pkm4crpa(lll)
       logical:: lll
@@ -195,7 +186,6 @@ ctm
       end subroutine
       subroutine readgeigW(q,ngp_in,isp, qu,geigen)
       use m_hamindex
-      implicit none
       integer(4):: isp,iq,iqindx,ngp_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: geigen(ngp_in,nwf)
@@ -212,9 +202,9 @@ ctm
         read(ifgeigW, rec=ikpisp) geigen(1:ngpmx,1:nwf)
       endif
       end subroutine
+
       subroutine readcphiW(q,ldim2_in,isp,  qu,cphif)
       use m_hamindex
-      implicit none
       integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: cphif(ldim2_in,nwf)
@@ -232,11 +222,9 @@ ctm
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
       use m_hamindex, only: qtt,nqtt,iqimap
-      implicit none
       integer(4), intent(in) :: isp
       real(8), intent(in) :: q(3)
       real(8), intent(out) :: ev(nband)
-
       integer(4):: iq,iqindx,i
       real(8):: qu(3)
       if(init) call rx( 'readeigen: modele is not initialized yet')
@@ -253,7 +241,6 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       end subroutine
 
       subroutine findemaxmin_r(emax,emin)
-      implicit none
       real(8):: emax,emin,eee
       integer:: ib,iq,isp
       emax=-1d9
@@ -271,7 +258,6 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
-      implicit none
       real(8),intent(in) :: q(3)
       integer,intent(in) :: isp,ngp_in
       real(8),intent(out) :: qu(3)
@@ -363,7 +349,6 @@ c      endif
       use m_hamindex, only: iqmap,igmap,qtt,ngpmx,nqtt,qlat,plat,invgx,iqimap,
      &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas ,  norbtx
 !!-- return mto part of eigenfunction for given q(1:3) and isp
-      implicit none
       real(8), intent(in) :: q(3)
       integer, intent(in)  :: ldim2_in
       integer, intent(in)  :: isp
@@ -379,8 +364,6 @@ c      endif
 
       complex(8):: img2pi ! MIZUHO-IR
       img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-
-
 Cstop2rx 2013.08.09 kino      if(init2) stop 'readcphi: modele is not initialized yet'
       if(init2) call rx( 'readcphi: modele is not initialized yet')
 !! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
@@ -1819,7 +1802,8 @@ c ---
       end subroutine
       end module m_readeigen
 
-
+      
+c-----------------------------------------------------------------------
 c taken from lm7k/subs/rotwv.F
       subroutine conv2int(a,ii,n)
       implicit none
@@ -1829,13 +1813,6 @@ c taken from lm7k/subs/rotwv.F
       integer::i
       real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
-c        if(a(i)>0) then
-c          aa = a(i)
-c          ii(i)=  int(aa+eps)
-c        else
-c          aa=-a(i)
-c          ii(i)= -int(aa+eps)
-c        endif
         ii(i)=nint(a(i))
         if(abs(ii(i)-a(i))>eps)then
            write(6,*)' ii a eps=',ii(i),a(i),eps
@@ -1844,9 +1821,7 @@ c        endif
       enddo
       end subroutine conv2int
 
-
-      subroutine rx_(string)
-c  routine for error exit
+      subroutine rx_(string) !error exit routine
       character*(*) string
       write(6,892) string
       write(6,890)

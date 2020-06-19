@@ -19,11 +19,11 @@ c      integer,protected:: nwhis0
 
       subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo)
       use m_keyvalue,only:getkeyvalue
-
       implicit none
-      integer,intent(in):: niw !,nw_input
-      logical,intent(in):: realomega,imagomega,tetra,mpi__root,epsmode
-      real(8),intent(in):: omg2max,ua
+      intent(in)::       epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo
+      integer:: niw !,nw_input
+      logical:: realomega,imagomega,tetra,mpi__root,epsmode
+      real(8):: omg2max,ua
 
       real(8),allocatable:: freqx(:),wx(:),expa(:)
       logical:: timereversal,onceww

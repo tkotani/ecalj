@@ -18,14 +18,19 @@
       close(ippovl0)
       end
 
+      
 !> Return QGcou and QGpsi ===
       module m_readQG
+      use NaNum,only:NaN
       implicit none
+      public:: Readqg, Readqg0, Readngmx, Readngmx2, ngpmx, ngcmx
+      integer,protected:: ngpmx=NaN,ngcmx=NaN
+      private
       real(8),allocatable,private,target:: qc(:,:),qp(:,:)
       logical,private:: init(2)=.true.
       real(8),private:: QpGcut_cou, QpGcut_psi
-      integer(4),private,target::   nqnumc,nqnump,ngcmx,ngpmx
-      integer(4),allocatable,private:: ngvecp(:,:,:),ngp(:),ngvecc(:,:,:),ngc(:)
+      integer,private,target::   nqnumc,nqnump
+      integer,allocatable,private:: ngvecp(:,:,:),ngp(:),ngvecc(:,:,:),ngc(:)
       integer,pointer,private::nqtt
       real(8),pointer,private::qtt(:,:)
       real(8),private:: epsd=1d-7
@@ -36,10 +41,21 @@
       real(8),private:: ginv_(3,3)
       contains
 c----------------------------------
+      subroutine readngmx2()
+      integer:: ngmx,ifile_handle,ifiqg
+      open(newunit=ifiqg, file='QGpsi',form='unformatted')
+      read(ifiqg) nqnump, ngpmx, QpGcut_psi
+      close(ifiqg)
+      open(newunit=ifiqg, file='QGcou',form='unformatted')
+      read(ifiqg) nqnumc, ngcmx, QpGcut_cou
+      close(ifiqg)
+      end subroutine
+
       subroutine readngmx(key,ngmx)
+      intent(in) ::        key
+      intent(out)::           ngmx
 c- get ngcmx or mgpmx
-      implicit none
-      integer(4):: ngmx,ifile_handle,ifiqg
+      integer:: ngmx,ifile_handle,ifiqg,ngcmx,ngpmx
       character*(*) key
       ifiqg=ifile_handle()
       if    (key=='QGpsi') then
@@ -59,13 +75,13 @@ c- get ngcmx or mgpmx
 !> Get ngv and ngvec(3,ngv) for given qin(3)
 !! key=='QGcou' or 'QGpsi'
       subroutine readqg(key,qin,ginv,  qu,ngv,ngvec)
-      implicit none
-      character*(*), intent(in) :: key
-      real(8), intent(in) :: qin(3),ginv(3,3)
-      real(8), intent(out) :: qu(3)
-      integer(4), intent(out) :: ngv, ngvec(3,*)
-
-      integer(4):: ifi, iq,verbose
+      intent(in) ::     key,qin,ginv
+      intent(out)::                    qu,ngv,ngvec
+      character*(*) :: key
+      real(8) :: qin(3),ginv(3,3)
+      real(8) :: qu(3)
+      integer :: ngv, ngvec(3,*)
+      integer:: ifi, iq,verbose
       if    (key=='QGpsi') then
         ifi=1
         if(verbose()>=80) write (6,"(' readqg psi: qin=',3f8.3,i5)") qin
@@ -96,13 +112,13 @@ c- get ngcmx or mgpmx
 !> Get ngv
 !! key=='QGcou' or 'QGpsi'
       subroutine readqg0(key,qin,ginv,  qu,ngv)
-      implicit none
-      character*(*), intent(in) :: key
-      integer(4), intent(out) :: ngv
-      real(8), intent(in):: qin(3),ginv(3,3)
-      real(8), intent(out):: qu(3)
-
-      integer(4):: ifi, iq,verbose
+      intent(in)::       key,qin,ginv
+      intent(out)::                     qu,ngv
+      character*(*) :: key
+      integer :: ngv
+      real(8):: qin(3),ginv(3,3)
+      real(8):: qu(3)
+      integer:: ifi, iq,verbose
       if    (key=='QGpsi') then
         ifi=1
         if(verbose()>=80) write (6,"('readqg0 psi: qin=',3f8.3,i5)") qin
@@ -130,11 +146,9 @@ c- get ngcmx or mgpmx
 
 !> initialization. readin QGpsi or QGcou.
       subroutine init_readqg(ifi,ginv)
-      implicit none
-      integer(4), intent(in) :: ifi
+      integer, intent(in) :: ifi
       real(8), intent(in) :: ginv(3,3)
-
-      integer(4):: ifiqg,iq,verbose,ifile_handle
+      integer:: ifiqg,iq,verbose,ifile_handle,ngcmx,ngpmx
       real(8)::qq(3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,ik
@@ -292,7 +306,7 @@ c$$$c--- release to save memory area.
 c$$$      subroutine releaseqg_notusednow(key)
 c$$$      implicit none
 c$$$      character*(*) key
-c$$$      integer(4):: ifi
+c$$$      integer:: ifi
 c$$$      if    (key=='QGpsi') then
 c$$$        ifi=1
 c$$$        deallocate(qp,ngvecp)
@@ -310,7 +324,6 @@ c$$$      end subroutine
 !! ginv is the inverse of plat (premitive translation vector).
 !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
       subroutine iqindx2qg(q,ifi, iqindx,qu)
-      implicit none
       integer, intent(in):: ifi
       integer, intent(out):: iqindx
       real(8), intent(in) :: q(3)
@@ -358,7 +371,7 @@ c      write(6,*)'qu=',qu
 !> mini-sort routine.
       subroutine sortea(ea,ieaord,n,isig)
       real(8), intent(in) :: ea(n)
-      integer(4), intent(inout) :: ieaord(n)
+      integer, intent(inout) :: ieaord(n)
       integer, intent(in) :: n
       integer, intent(out) :: isig
       integer :: ix,i
@@ -378,7 +391,6 @@ c      write(6,*)'qu=',qu
       enddo
       end subroutine
       subroutine iswap(i,j)
-      implicit none
       integer,intent(inout) :: i, j
       integer:: iwork
       iwork = j

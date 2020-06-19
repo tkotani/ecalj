@@ -330,7 +330,7 @@ c
       endif
 
 !! Initialization of readEigen !readin m_hamindex
-      ginv = transpose(plat)
+c      ginv = transpose(plat)
       call minv33tp(plat,qlat)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 
@@ -453,7 +453,7 @@ c$$$c     end okumura
          endif
 !!! write qshort instead of q
          !wibz: BZ weight 
-         wibz=0d0 !! not valid this version 20Feb,2020
+c         wibz=0d0 !! not valid this version 20Feb,2020
          write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')")
      &        iq,q!,wibz(iqlist(iq)),qshort !qq
          if (lhm) cycle

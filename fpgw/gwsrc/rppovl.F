@@ -2,29 +2,26 @@
 !!  ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2) are returned.
       module m_read_ppovl
       implicit none
-      integer(4):: ngc2
-      complex(8),allocatable :: ppx(:,:)
-      integer(4),allocatable :: ngvecc2(:,:)
-      complex(8),allocatable:: ggg(:),ppovlinv(:,:)
-      integer,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
-      integer:: nggg,ngcgp,ngcread
-
+      integer,protected:: ngc2
+      complex(8),protected,allocatable :: ppx(:,:)
+      integer,protected,allocatable :: ngvecc2(:,:)
+      complex(8),protected,allocatable:: ggg(:),ppovlinv(:,:)
+      integer,protected,allocatable:: nvggg(:,:),nvgcgp2(:,:),ngvecc(:,:)
+      integer,protected:: nggg,ngcgp,ngcread
+!!
       integer(4),private:: iqix=-1, ippovl=0, ngcmx, ngc2mx, nqq, ngggmx, ngcgpmx,nqini,nqnumt
       logical,private:: ppovlclosed=.true.,init=.true.
       integer(4),allocatable,private :: ngcx_s(:),ngc2_s(:) ,ngvecc2_0_s(:,:,:)
       real(8),allocatable,private    :: qx_s(:,:)
       complex(8),allocatable,private :: ppx_s(:,:,:)
       logical,private:: debug=.false.
-
       real(8),allocatable,private:: qxtable(:,:)
       integer(4), private:: loopnum = 0, iex,gex
 
       contains
       subroutine getppx2(qbas,qi) 
 !! This return nvggg,nvgcgp2,ngvecc,  nggg,ngcgp,ngcread, ggg,ppovlinv
-      implicit none
       real(8), intent(in)  ::qbas(3,3),qi(3)
-
       integer(4):: ngc, iqi,ippovlg,ippovli, ippovlginit
       integer(4):: access,ifile_handle
       real(8)::qx(3)

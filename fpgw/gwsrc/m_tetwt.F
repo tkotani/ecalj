@@ -8,10 +8,11 @@
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!   
       module m_tetwt
+      implicit none
       real(8),allocatable,protected :: whw(:)
-      integer,allocatable,protected:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-      integer,protected:: nbnbx,nhwtot
+      integer,allocatable,protected :: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
       integer,allocatable,protected :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+      integer,protected:: nbnbx,nhwtot
 !!
       contains !! ----------------------------------------------------------------------
       subroutine tetdeallocate()
@@ -23,7 +24,12 @@
      i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
      i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
      i   nbmx,ebmx,mtet,eibzmode, !nov2016
-     i   wan ) !Jan2019 okumura's option
+     i     wan )                !Jan2019 okumura's option
+      intent(in)::        q,iq,is,isf,nwgt,frhis,nwhis,npm, 
+     i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
+     i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
+     i   nbmx,ebmx,mtet,eibzmode,
+     i     wan
 !! INPUT DATA; read only
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
@@ -40,13 +46,11 @@ c     &   frhis, nwhis,npm !output of getfreq
 c      use m_zmel,only: nband
 c      use m_ReadEfermi,only: readefermi,ef
 
-      implicit none
-      integer,intent(in):: is,isf,iq,nwgt(:),nqibz_mtet,nqbz,nqbzw,nband,npm,nwhis,nctot,nbmx,mtet(3)
-      integer,intent(in):: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
-      real(8),intent(in):: q(3),qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
-      real(8),intent(in):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
-      real(8),intent(in):: frhis(1:nwhis+1),ecore(nctot,2)
-
+      integer:: is,isf,iq,nwgt(:),nqibz_mtet,nqbz,nqbzw,nband,npm,nwhis,nctot,nbmx,mtet(3)
+      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
+      real(8):: q(3),qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
+      real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
+      real(8):: frhis(1:nwhis+1),ecore(nctot,2)
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
       logical,allocatable :: iwgt(:,:,:,:)
       integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)

@@ -2,26 +2,24 @@
 !! We will need to unify make system and source code in fpgw and lmf.
 !! norbtx is given in gwsrc/readeigen.F init_readeigen2
       module m_hamindex
-      integer,parameter,private:: null=-999999
+      use NaNum,only: NaN
+      integer,protected:: ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
+     &     nbas=NaN,nqtt=NaN,ndimham=NaN, napwmx=NaN,lxxa=NaN
+      integer,allocatable,protected::
+     &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
+     &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
+     &     igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
+      real(8),protected:: plat(3,3)=NaN,qlat(3,3)=NaN
+      real(8),allocatable,protected:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
+     &     qtt(:,:),qtti(:,:)
       logical,private:: debug=.false.
 
-      integer,protected:: ngrp=null, lxx=null, kxx=null,norbmto=null
-      integer,protected:: nbas,nqtt,ndimham=null
-      integer,allocatable,protected:: ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:)
-      integer,allocatable,protected:: iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:) !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
-      real(8),allocatable,protected:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:)
-      real(8),protected:: plat(3,3),qlat(3,3)
-      real(8),allocatable,protected:: qtt(:,:),qtti(:,:)
-      integer,allocatable,protected:: igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
-      integer,protected::  napwmx=null,lxxa=null
+      integer:: norbtx=NaN, nqi=NaN, nqnum=NaN,ngpmx=NaN,imx=NaN
 
-
-      integer:: norbtx=null
-      integer:: nqi, nqnum,ngpmx,imx=null
       contains
-
 !> get index ikt such that for qin(:)=qq(:,ikt)
       integer function getikt(qin) !return
+      intent(in)::            qin
       integer::i
       real(8):: qin(3)
 c      if(debug) print *,'nkt=',nkt

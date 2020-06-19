@@ -6,11 +6,8 @@
       implicit none
       logical,protected:: laf !! - laf: antiferro switch
       integer,allocatable,protected:: ibasf(:) !! - ibasf(ibas) specify AF pair atom.
-c      integer:: natom
-c     ,ldima(:),iantiferro(:),iclasst(:)
-c      real(8),allocatable:: pos(:,:),anfvec(:),qlat(:,:),plat(:,:)
-      contains
 
+      contains
       subroutine anfcond()
       implicit none
       integer,allocatable:: iantiferro(:)

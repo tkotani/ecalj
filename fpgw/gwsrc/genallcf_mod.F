@@ -54,30 +54,36 @@
       character(120),protected:: symgrp
       character(6),allocatable,protected :: clabl(:)
       integer,allocatable,protected:: iclass(:),
-     &    nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
-     o    invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
-     o    ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
-     o    ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
-     o    nindx(:,:),konf(:,:),icore(:,:),ncore(:),
-     &    occv(:,:,:),unoccv(:,:,:)   
-     &   ,occc(:,:,:),unoccc(:,:,:),
-     o    nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
+     &     nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
+     o     invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
+     o     ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
+     o     ilc(:),inc(:),imc(:),  ilnmc(:), nlnmc(:),
+     o     nindx(:,:),konf(:,:),icore(:,:),ncore(:),
+     &     occv(:,:,:),unoccv(:,:,:)   
+     &     ,occc(:,:,:),unoccc(:,:,:),
+     o     nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
       integer,protected::
-     o  nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o  nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot!,nw
+     o     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
+     o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot !,nw
       real(8), allocatable,protected:: 
-     o  plat(:,:),pos(:,:),z(:),  symgg(:,:,:)   !w(igrp) freq(:),
+     o     plat(:,:),pos(:,:),z(:),  symgg(:,:,:) !w(igrp) freq(:),
       real(8),protected :: alat,deltaw !ef,,diw,dw
       logical,protected:: done_genallcf_v3=.false.
       character(8),allocatable,protected:: spid(:)
-!! unprotected --> need to be protected
-      integer:: niw !,protected
-      real(8):: delta !,protected
+!     ! unprotected --> need to be protected
+      integer,protected:: niw   !,protected
+      real(8),protected:: delta !,protected
       real(8),allocatable,protected :: ecore(:,:)
       real(8),protected:: esmr
 c-----------------------------------------------------------------------
       contains
 
+      subroutine setesmr(esmr_in)
+      intent(in)::       esmr_in
+      real(8):: esmr_in
+      esmr=esmr_in
+      end
+      
       subroutine genallcf_v3(incwfx)
 !! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !! Return iclass=ibas.
@@ -87,6 +93,7 @@ c-----------------------------------------------------------------------
 !! output: All the output are given in the declear section above.
 !! --------------------------------------------------------
       implicit none
+      intent(in)::           incwfx
       integer(4)::iflmto,ifinin,incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
      & ,iopen,iclose,nprodxv,nlnax

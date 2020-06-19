@@ -4,24 +4,25 @@
 !! Read GWinput
 !! Write Q0P: Q0P contains offset Gamma, or k points specified in GWinput
 !!       EPSwklm: Sperical integration weitht. But currently only l=0 is used to keep positive definitness.
-!!                 
-      real(8),allocatable,protected:: q0i(:,:),wt(:)  ! Q0P and its weight.
-      integer,protected:: nq0i,nq0itrue,nq0iadd            ! Number of Q0P
-      integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
-c      integer,protected:: nq0x
-c      real(8),allocatable,protected:: q0x(:,:)
-      contains
-
-      subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
-      use m_keyvalue,only: getkeyvalue 
+!!
       implicit none
-      integer,intent(in):: iq0pin
-      logical,intent(in):: newoffsetG
-      integer,intent(in):: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
-      real(8),intent(in):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
-     & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
-      integer,intent(in) ::ngvect(3,ngcxx,nqbz)
+
+      integer,protected:: nq0i,nq0itrue,nq0iadd ! Number of Q0P
+      integer,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
+      real(8),allocatable,protected:: q0i(:,:),wt(:)  ! Q0P and its weight.
+
+      contains
+      subroutine getallq0p(iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
+     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
+      use m_keyvalue,only: getkeyvalue 
+      intent(in)           iq0pin,newoffsetG,alat,plat,qlat,nnn,alp,alpv,
+     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
+      integer:: iq0pin
+      logical:: newoffsetG
+      integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
+      integer::ngvect(3,ngcxx,nqbz)
+      real(8):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
+     &     ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
 
       integer::nq00ix,nx0,nq00i, xyz2lm(3)
       real(8):: xn !,www,wgtq0
@@ -170,11 +171,13 @@ c      real(8),allocatable,protected:: q0x(:,:)
          nq0itrue=nq0i !nov2015
       endif
       end subroutine getallq0p
-
+!! ==================================================================
 !>- Q0P data set is given for 'getq0p'
-!! only called 
       subroutine getq0p(newoffsetG,alat,plat,qlat,nnn,alp,alpv,
-     & ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
+     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
+      use m_keyvalue,only: getkeyvalue 
+      intent(in)::      newoffsetG,alat,plat,qlat,nnn,alp,alpv,
+     &     ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
 !! this is called in subroutine mkqg2 
 !!  output
 !!    q0i (offset Gamma point)
@@ -183,13 +186,11 @@ c      real(8),allocatable,protected:: q0x(:,:)
 !!
 !! In addition, we write a file EPSwklm, which is key for new offset Gamma method.
 !! deltaq_scale() given by Q0Pchoice in GWinput change the of offset Gamma method.
-      use m_keyvalue,only: getkeyvalue 
-      implicit none
-      logical,intent(in):: newoffsetG,lnq0iadd
-      integer,intent(in):: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp 
-      real(8),intent(in):: alat,qlat(3,3),alp,alpv(3),plat(3,3)
+      logical :: newoffsetG,lnq0iadd
+      integer :: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp 
+      real(8) :: alat,qlat(3,3),alp,alpv(3),plat(3,3)
      & ,qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
-      integer,intent(in) ::ngvect(3,ngcxx,nqbz)
+      integer ::ngvect(3,ngcxx,nqbz)
 
       integer::nq00ix,nx0,nq00i, xyz2lm(3)!,nnnt
       real(8):: xn !,www,wgtq0
@@ -202,13 +203,11 @@ c      real(8),allocatable,protected:: q0x(:,:)
       integer:: bzcase=1,i,iq0i,ifidmlx,lmxax,lx,lxklm,j,iclose,llxxx
       real(8):: rrr(3),r2s,qxx(3),voltot,tripl
       integer,allocatable::irrx(:)
-
       real(8),allocatable:: funa(:,:),wsumau(:),yll(:,:),alpqg2,qg2,tpiba,wtrue00
       real(8):: qg(3)
       integer:: ig,lm,iq,ifile_handle !,n1q,n2q,n3q
       integer:: nq0x,nmm ,iq0,iqx!not output
       real(8):: tolq=1d-8
-
 
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
 c      n1q=nnn(1)

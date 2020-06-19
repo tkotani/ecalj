@@ -1,6 +1,6 @@
       program hsfp0
       use m_ReadEfermi,only: Readefermi,ef
-      use m_readqg,only: Readqg,Readngmx
+      use m_readqg,only: Readqg,Readngmx2,ngpmx,ngcmx
       use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
       use m_read_bzdata,only: Read_bzdata,
      &  ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,qbas,ginv,
@@ -71,7 +71,7 @@ c------------------------------------
       real(8):: esmr2,shtw,esmr
       integer::
      &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, nband,
-     &     ibas,ibasx,ifqpnt,ifwd, ngpmx,ngcmx,!nbloch,
+     &     ibas,ibasx,ifqpnt,ifwd, !ngpmx,ngcmx,!nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -395,8 +395,9 @@ c     o     ,miat,tiat,invgx,shtvg )
       
 !! ====  Get array size to call rdpp ====
 c      call Getsrdpp2( nclass,nl,nxx)
-      call readngmx('QGpsi',ngpmx)
-      call readngmx('QGcou',ngcmx)
+c      call readngmx('QGpsi',ngpmx)
+c      call readngmx('QGcou',ngcmx)
+      call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
       call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)

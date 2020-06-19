@@ -18,8 +18,8 @@
       use m_rotMPB,only   :  rotMPB2 
       use m_readqgcou,only:  
      o qtt_, nqnum 
-      use m_pkm4crpa,only : readpkm4crpa
-      use m_zmel,only     : get_zmelt2,
+      use m_pkm4crpa,only : Readpkm4crpa
+      use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel,
      o zmel 
 
 !! === calculate chi0, or chi0_pm ===
@@ -188,7 +188,7 @@
               ! middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
      &      q+rk(:,k),nkqmin,nkqmax,isp_kq,ncc) 
               ! end state    1:ntp0  --> true index of eigen is nkqmin:nkqmin+ntp0-1  
-        zmel = dconjg(zmel)
+        call Dconjg_zmel() !zmel = dconjg(zmel) 
         allocate( z1p(ngb,ngb) )
  8829   continue
 
@@ -289,7 +289,8 @@ c$$$ccccccccccccccccccccccccccccccccccc
  25     continue
 !kino 2014-08-13  !$OMP end parallel 
 !TIME1_1201 "after_rcxq"
-        deallocate(z1p,zmel) !zmelt,z1p)
+        deallocate(z1p)         !zmelt,z1p)
+        call Deallocate_zmel()
         if(debug) call cputid(0)
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
  1000 continue

@@ -16,11 +16,11 @@ c     d nl,nnc,nclass,natom,mdimx,
      i wklm,lxklm, 
      i dwplot,
      o zsec,coh,exx)
-      use m_readqg
+      use m_readqg,only:readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmelt,Setppovlz_sxcf,
-     o  zmel,zmeltt  !ppovlz,
+      use m_zmel,only: Get_zmelt,Setppovlz_sxcf, Deallocate_zmel,Deallocate_zmeltt,
+     &  zmel,zmeltt  !ppovlz,
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 
@@ -589,8 +589,8 @@ c        if(GaussSmear) ddw= 10d0
 
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
-            if(allocated(zmel)) deallocate(zmel)
-            if(allocated(zmeltt)) deallocate(zmeltt)
+            if(allocated(zmel)) call Deallocate_zmel()
+            if(allocated(zmeltt)) call Deallocate_zmeltt()
 ! this return zmeltt (for exchange), or zmel (for correlation)
             call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
      &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
@@ -753,12 +753,13 @@ CCC!$OMP parallel do private(itp,it,igb2,zz2)
             zwz0 = dreal(zwz0)
 c COH term test ----- The sum of the all states for zwz00 gives the delta function.
             if(cohtest) then
-              do itp = 1,ntq
-                coh(itp,ip)  = coh(itp,ip) 
-     &           + .5d0*wtt*sum(dreal(zwz0(1:nstate,itp)))
-              enddo
-              deallocate(zw,zwz0,zmel)
-              cycle
+               do itp = 1,ntq
+                  coh(itp,ip)  = coh(itp,ip) 
+     &                 + .5d0*wtt*sum(dreal(zwz0(1:nstate,itp)))
+               enddo
+               call Deallocate_zmel()
+               deallocate(zw,zwz0)
+               cycle
             endif
 c
             nx  = niw
@@ -1032,7 +1033,8 @@ c zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-r
      o           zwz(ix,1:nstatex,1:ntp0))
 ! zmel (ngb, nstate, ntp0)
               enddo
-              deallocate(zmel)
+c              deallocate(zmel)
+              call Deallocate_zmel()
               deallocate(zw)
             endif
 c---------------------------------------------
@@ -1143,7 +1145,8 @@ c three-point interpolation for Wc(we)
               enddo
             endif
             if(zwz3mode) then
-              deallocate(zmel,zw3)
+              call Deallocate_zmel()
+              deallocate(zw3)
             else
               deallocate(zwz)
             endif
@@ -1159,8 +1162,8 @@ c      if(newaniso) ifvcoud =iclose('Vcoud.'//charnum5(kx))
           exx = exx + wik(ip) * exxq * 0.25d0
         endif
         if (allocated(zz)) deallocate(zz)
-        if (allocated(zmel)) deallocate(zmel)
-        if (allocated(zzmel))deallocate(zzmel)
+        if (allocated(zmel))  call Deallocate_zmel()
+        if (allocated(zzmel)) deallocate(zzmel)
         if (allocated(zw)) deallocate(zw)
         if (allocated(zwz)) deallocate(zwz)
         if (allocated(zwz0)) deallocate(zwz0)

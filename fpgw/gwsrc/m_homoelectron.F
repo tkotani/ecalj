@@ -1,27 +1,27 @@
       module m_homoelectron
-
 !!      use m_genallcf_v3,only: genallcf_v3,
 !     !    & alat, plat
       use m_keyvalue,only: getkeyvalue
       implicit none
+      public:: Read_qgband,Efermi_egas
 
-      logical,private:: init=.true.
-      real(8),private:: xmx2(3),rlatp(3,3)
-
+      private
+      logical:: init=.true.
+      real(8):: xmx2(3),rlatp(3,3)
       contains
+      
 !!! generate |q+G| bands
       !!! calculate |q+G|^2
       subroutine read_qgband(alat,plat,q,ngv,ngvec,isp,gsq,qshort)
-      
-      integer, intent(in):: ngv,isp
-      integer, intent(in) :: ngvec(3,*)
-      real(8), intent(in) :: q(3),plat(3,3),alat
-      real(8), intent(out) :: gsq(:),qshort(3)
+      intent(in)::           alat,plat,q,ngv,ngvec,isp
+      intent(out)::                                    gsq,qshort
+      integer :: ngv,isp, ngvec(3,*)
+      real(8) :: q(3),plat(3,3),alat
+      real(8) :: gsq(:),qshort(3)
       real(8),allocatable :: qgw(:)
       real(8) :: tpioa,pi,spene !spin polarization
       integer:: igv
       logical::gamma
-
       real(8):: qqin(3),qlat(3,3)
       integer:: nlatout(3,48),noutmx,nout,iout
 
@@ -63,9 +63,11 @@
       end subroutine
 
       subroutine efermi_egas(ntot,alat,plat,efz)
-!      integer(4),intent(in):: ntot
-      real(8),intent(in):: ntot,alat,plat(3,3)
-      real(8),intent(out):: efz
+      intent(in)::           ntot,alat,plat
+      intent(out)::                         efz
+!     integer(4),intent(in):: ntot
+      real(8):: ntot,alat,plat(3,3)
+      real(8):: efz
       real(8):: voltot,pi,alpha,det33 !,tripl
       real(8):: qfermi,spene,rydberg,rs
 

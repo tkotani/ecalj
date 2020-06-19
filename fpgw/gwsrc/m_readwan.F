@@ -1,38 +1,31 @@
       module m_readwan
-
       use m_keyvalue,only: getkeyvalue
       use m_iqindx_wan,only: iqindx2_wan
-
-!     use m_hamindex, only: iqimap !!tmp use; need to modify
-      
       implicit none
+
+      integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
+      integer,private:: iwf !I don't know ??? somtthing wrong
+      
       logical,private:: init=.true.
       logical,private:: readwan=.false.,lreadhrotr=.false.
       real(8),private::alat,plat(3,3),ef
       integer,private::natom,nrws,n1,n2,n3
-      integer:: nwf,nsp_w,nqtt_w !! read by read_wandata
-
       integer,private,allocatable:: irws(:),ibaswf(:)
       real(8),private,allocatable:: pos(:,:),rws(:,:),drws(:)
       complex(8),private,allocatable:: hrotr(:,:,:,:), evecc(:,:)
-
       !!!!! wannier eigenvalue and eigenvector
       complex(8),private,allocatable:: evecc_w(:,:,:,:)
       real(8),private,allocatable:: eval_w(:,:,:)
-      integer::iwf
-
       !!!d-orbital check
       integer,private,allocatable:: idorb(:), nbasclass_mlwf(:)
       integer,private:: nclass_mlwf
-      logical::debug=.false.,sw1=.true.
+      logical,private::debug=.false.,sw1=.true.
 
+      private:: diag_hm2
       contains
 
 c---------------------------------------------
       subroutine readhrotr()
-      implicit none
-      integer(4):: is, ifh, n1, n2, n3, ifile_handle,nq
-            
 !!--- Required data set --------------------- (copied from htbplot.F)
 !! q(:,1:nq) 
 !! ef: fermi energy or VBM
@@ -49,6 +42,7 @@ c---------------------------------------------
 !! natom: number of atoms in the primitive cell.
 !! ibaswf(nwf): atomic position for the Wannier orbital.
 !! pos(3,natom): atomic poisition in the cell.
+      integer(4):: is, ifh, n1, n2, n3, ifile_handle,nq
       if (.not. readwan) call rx("read_wandata have not yet done.") !! use nsp_w, nwf
       do 6001 is=1,nsp_w
          write (6,"('--- Reading HrotRS  :: isp=',I6)") is
@@ -72,17 +66,16 @@ c---------------------------------------------
  6001 continue
       lreadhrotr=.true.          !initialize
       end subroutine readhrotr
-c--------------------------------
-      !!! generate eigenvalue list
-      subroutine wan_readeigen(qbz,nqbz,isp)
-      implicit none
 
-      integer,intent(in)::nqbz,isp
-      real(8),intent(in)::qbz(:,:)
+!#############################################################3
+      subroutine wan_readeigen(qbz,nqbz,isp)
+      intent(in)::             qbz,nqbz,isp
+!! generate eigenvalue list
+      integer::nqbz,isp
+      real(8)::qbz(:,:)
       complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)
       real(8),allocatable:: eval(:)
       integer::iq
-
       !!! fat band plot test
       integer::iffb,ifile_handle,iband
       real(8):: rydberg
@@ -154,8 +147,7 @@ c$$$               write(iffb,*)
 c$$$            enddo
 c$$$
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
- 
-         enddo
+          enddo
          sw=.true.
          close(iffb)
       endif
@@ -166,66 +158,50 @@ c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          !deallocate(pos,rws,drws,hrotr)
       endif
       end subroutine wan_readeigen
+      
 c--------------------------------
       subroutine wan_readeval(q,isp, ev_w, evc_w)
-!      use m_hamindex, only: iqimap
-      implicit none
-      integer(4), intent(in) :: isp
-      real(8), intent(in) :: q(3)
-      real(8), intent(out) :: ev_w(nwf)
-      complex(8), intent(out) :: evc_w(nwf,nwf)
-
+      intent(in)::            q,isp
+      intent(out)::                  ev_w, evc_w
+      integer :: isp
+      real(8) :: q(3), ev_w(nwf)
+      complex(8) :: evc_w(nwf,nwf)
       integer(4):: iq,iqindx,i
       real(8):: qu(3), shift_ev
-
       if(init) call rx('wan_readeval: wan_readeigen should be called')
       call iqindx2_wan(q, iq, qu) !qu is used q. q-qu is a G vector.
-c$$$      write (6,"('wan_readeval: iq=',I7,'  ---> iqimap, qu',I7,3f9.4)")
-c$$$     &     iq,iqimap(iq),qu
-c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,1)
-c$$$      write (6,"('eval_w=',5f9.4)") eval_w(1:nwf,1,2)
-
       !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
       if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
       !!! return wannier eigenvalue : ev_w
-
-      ev_w(1:nwf) = eval_w(1:nwf,iq,isp) + shift_ev/13.605693009
-      !ev_w(1:nwf) = eval_w(1:nwf,iqimap(iq),isp)
-      !!! return wannier eigenvalue : evc_w(orbital,band)
+      ev_w(1:nwf)  = eval_w(1:nwf,iq,isp) + shift_ev/13.605693009
       evc_w(1:nwf,1:nwf) = evecc_w(1:nwf,1:nwf,iq,isp)
       end subroutine wan_readeval
 
 c--------------------------------
       subroutine wan_readeval2(q,isp, ev_w, evc_w)
-!      use m_hamindex, only: iqimap
-      implicit none
-      integer(4), intent(in) :: isp
-      real(8), intent(in) :: q(3)
-      real(8), intent(out)    :: ev_w(nwf)      !eigenvalue
-      complex(8), intent(out) :: evc_w(nwf,nwf) !eigenfunction
-
+      intent(in)::             q,isp
+      intent(out)::                   ev_w, evc_w
+      integer :: isp
+      real(8) :: q(3)
+      real(8) :: ev_w(nwf)      !eigenvalue
+      complex(8) :: evc_w(nwf,nwf) !eigenfunction
       real(8):: qu(3), shift_ev
       complex(8),allocatable:: hrotk(:,:,:),hrotkp(:,:),evec(:,:)
       real(8),allocatable:: eval(:)
-
       !!! fat band plot test
       real(8):: rydberg
-
       !! need matrix
       if (.not. lreadhrotr) call readhrotr()
-      
       !! solve Hrotkp for given q (or q+k) --> eigenvalues and eigenfunction
       if (.not. allocated(hrotkp)) then
          allocate(hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))         
       endif
       call get_hrotkp_ws2(q ,hrotkp,isp)
       call diag_hm2(hrotkp,nwf,eval,evecc)
-
       !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
       if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
-
       ev_w(1:nwf) = eval(1:nwf) + shift_ev/13.605693009
       evc_w(1:nwf,1:nwf) = evecc(1:nwf,1:nwf)
       deallocate(hrotkp,evecc,eval)
@@ -236,19 +212,13 @@ c--------------------------------
 c--------------------------------almpost same get_hrotkp_ws in maxloc3
       !!!! hrotr (q) => hrotkp
       subroutine get_hrotkp_ws2(q,hrotkp,is)
-
-c see Ref.[2] eq.26
-      implicit real*8(a-h,o-z)
-      complex(8) :: hrotkp(nwf,nwf),
-     &     ci,cikr,ceikr,ctmp
-      real(8) :: q(3)
+!! see Ref.[2] eq.26
+      complex(8) :: hrotkp(nwf,nwf), ci,cikr,ceikr,ctmp
+      real(8) :: q(3),pi,rk
       integer::im,in,ir,is
-
       pi = 4d0* atan(1d0)
       ci = (0d0,1d0)
-
       hrotkp = (0d0,0d0)
-
       do ir = 1,nrws
          rk = sum(rws(:,ir)*q(:))
          cikr = ci * 2d0 * pi * rk
@@ -261,15 +231,16 @@ c see Ref.[2] eq.26
          enddo
       enddo
       end subroutine get_hrotkp_ws2
+      
 c--------------------------------
       subroutine diag_hm2(zmat,ndim,eval,evecc_)
-      implicit real*8(a-h,o-z)
+      intent(in)::        zmat,ndim
+      intent(out)::                 eval,evecc_
       integer:: ndim,i,nev,nmx
       complex(8),allocatable :: zmat2(:,:),ovlpc(:,:)
       complex(8):: zmat(ndim,ndim),evecc_(ndim,ndim)
       real(8):: eval(ndim),wk(ndim,11)
       integer iwk(ndim)
-
       allocate(zmat2(ndim,ndim),ovlpc(ndim,ndim))
       nev  = ndim
       nmx  = ndim
@@ -287,7 +258,7 @@ c--------------------------------
 
 c---------------------------------------
       subroutine write_qdata(ginv,nqtt_in,qtt_in)
-      implicit none
+      intent(in)             ginv,nqtt_in,qtt_in
       integer::ifwqb,ifile_handle
       integer::nqtt_in
       real(8)::qtt_in(3,nqtt_in)
@@ -298,12 +269,10 @@ c---------------------------------------
       write(ifwqb) nqtt_in
       write(ifwqb) qtt_in
       close(ifwqb)
-      
       end subroutine write_qdata      
 c---------------------------------------
       subroutine read_wandata() !nwf,nsp_w,nqtt_w
       integer::ifhamw
-
       ifhamw=ifile_handle()
       open(ifhamw,file="wan4chi.d",form='unformatted')
       read(ifhamw) nwf,nsp_w,nqtt_w
@@ -311,12 +280,12 @@ c---------------------------------------
       write(6,*) "nwf,nsp_w,nqtt",nwf,nsp_w,nqtt_w
       readwan=.true. !! initialize
       end subroutine read_wandata
-
 c---------------------------------------
       subroutine readscr(nwf,scrw_)
-      implicit none
-      integer,intent(in)::nwf
-      integer::ifscrwv,ifscrv,ifd,ife,ifa,ifile_handle
+      intent(in)::       nwf
+      intent(out)::          scrw_
+      integer::nwf
+      integer::ifscrwv,ifscrv!,ifd,ife,ifa,ifile_handle
       integer::ir1,irws1
       character(len=9)::charadummy !dummy
       real(8)::rws1(3),freq,freq2 !dummy
@@ -324,13 +293,11 @@ c---------------------------------------
       integer::iwf,jwf,kwf,lwf,ijwf,klwf
 !      real(8),allocatable::rw_w(:,:,:,:), cw_w(:,:,:,:)
       complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:)
-      complex(8),allocatable,intent(out)::scrw_(:,:)
+      complex(8),allocatable::scrw_(:,:)
       integer::idummy
       logical(8)::ijklmag
-      
       !!! set idorb: iwf ---> lorb
       call checkorb(1,nwf,idummy)
-      
 !     allocate(rw_w(nwf,nwf,nwf,nwf),cw_w(nwf,nwf,nwf,nwf))
       allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
       allocate(scrw_(nwf*nwf,nwf*nwf));scrw_=0d0
@@ -338,7 +305,6 @@ c---------------------------------------
       open(ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
       ifscrv=ifile_handle()
       open(ifscrv,file="Coulomb_v.UP",form="formatted") !only up
-
 c$$$      !!! write direct index (ijkl)
 c$$$      ifd=ifile_handle()
 c$$$      open(ifd,file="ijkl_direct.d",form="formatted")
@@ -349,7 +315,6 @@ c$$$      !!! write all index (i,j,k,l --> ijwf,klwf)
 c$$$      ifa=ifile_handle()
 c$$$      open(ifa,file="ijkl_all.d",form="formatted")
 c$$$      write(ifa,*) "# iwf jwf kwf lwf ijwf klwf"
-      
 !     read Screening W, V
       write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
       ijwf=0
@@ -413,12 +378,11 @@ c$$$         write(ifa,"(6i5)") iwf,jwf,kwf,lwf,ijwf,klwf
  4003 continue
  4002 continue
  4001 continue
-      close(ifd)
-      close(ife)
-      close(ifa)
-      close(ifscrv)
-      close(ifscrwv)
-
+c      close(ifd)
+c      close(ife)
+c      close(ifa)
+c      close(ifscrv)
+c      close(ifscrwv)
       call writescrw(scrw_) !! display matrix element of Wijkl
       end subroutine readscr
 
@@ -429,7 +393,7 @@ c---------------------------------------
       implicit none
       integer,intent(in)  ::iwf_in,nwf_in
       integer,intent(out) ::lorb_out   ! 2=d-orb
-      integer::ifdorb,iiwf
+      integer::ifdorb,iiwf,ief
 
       if (sw1) then !!initialize
 
@@ -464,15 +428,13 @@ c---------------------------------------
       !!!identify if iwf,jwf,kwf,lwf is derived from same MagAtom
       !!! if not so, W=0 (or K=0) : return iwfmag=.False.
       subroutine checkorb2(iwf_in,jwf_in,kwf_in,lwf_in,iwfmag) 
-      implicit none
-      integer,intent(in)  ::iwf_in,jwf_in,kwf_in,lwf_in
-      logical(8),intent(out) ::iwfmag
+      intent(in) ::iwf_in,jwf_in,kwf_in,lwf_in
+      intent(out)::                                    iwfmag
+      integer ::   iwf_in,jwf_in,kwf_in,lwf_in
+      logical(8) :: iwfmag
       integer::iclass,natom,r_mlwfs,r_mlwff
       logical::skip,sw_orb2
-
-      
       if (sw1) call rx("checkorb2: call checkorb in advance")
-      
       natom=0
       skip=.False.
       iwfmag=.False.
@@ -509,7 +471,6 @@ c---------------------------------------
          skip=.True.
       endif      
       if (.not. skip) iwfmag = .True.
-
       end subroutine checkorb2
 c---------------------------------------
       !!!identify iwf is from the intended atom(iddmat)

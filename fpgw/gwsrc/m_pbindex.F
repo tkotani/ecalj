@@ -1,16 +1,17 @@
       module m_pbindex !generate index table for product basis.
       Use NaNum,only: NaN
-c      integer,parameter::NaN=-9999999
-      integer:: norbt=NaN !number of PB block. 
-      integer,allocatable:: 
-     &    ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
-      integer::
-     &    max_ibas_tbl=NaN,max_l_tbl=NaN,max_k_tbl=NaN,max_offset_tbl=NaN
-      logical::init=.true.
-      contains !-----------------------------------------------
-
-      subroutine PBindex(natom,lx,l2nl,nx)
       implicit none
+
+      integer,protected::
+     &     norbt=NaN,  !number of PB block. 
+     &     max_ibas_tbl=NaN, max_l_tbl=NaN, max_k_tbl=NaN, max_offset_tbl=NaN
+      integer,allocatable,protected:: 
+     &     ibas_tbl(:),l_tbl(:),k_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
+
+      logical,private::init=.true.
+      contains !-----------------------------------------------
+      subroutine PBindex(natom,lx,l2nl,nx)
+      intent(in)::       natom,lx,l2nl,nx
       integer::natom,l2nl,ibas,lb,nb,iorbt,kn,lx(natom),nx(0:l2nl,natom),mb
       if(.not.init) return
       init=.false.

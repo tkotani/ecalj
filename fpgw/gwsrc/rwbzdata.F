@@ -3,22 +3,22 @@
 !! we set following data when you call read_BZDATA() 
       implicit none
 !!Caution: ifort15 make problems to allocate scalar.
-c      integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-      integer :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
-      integer,allocatable :: 
+c     integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
+      integer,protected :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
+      integer,allocatable,protected :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
-      real(8),allocatable:: qbas(:,:),ginv(:,:),dq_(:) 
+      real(8),allocatable,protected:: qbas(:,:),ginv(:,:),dq_(:) 
      &    , qbz(:,:),wbz(:),qibz(:,:)
      &    , wibz(:),qbzw(:,:)
-      logical:: done_read_bzdata=.false.
+      logical,protected:: done_read_bzdata=.false.
 
+c      private:: rwbzdata
 !! =====================================================
       contains
       subroutine read_BZDATA(hx0)
 !! No input except BZDATA file.
 !! After you call this, you can access Brillowin Zone datas above ----
-      implicit none
       integer :: intq(3),iqbz,ifbz,n,verbose,ifile_handle,i !, nqibz_r
 c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
       real(8) :: qout(3),deltaq(3)

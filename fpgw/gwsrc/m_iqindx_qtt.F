@@ -1,21 +1,27 @@
       module m_iqindx_qtt
 !! To accelarate inverse mapping, q to 'integer index',
 !! we prepare integer index of q, its resolution is given by epsd.
-      use m_hamindex, only: qtt,nqtt
+      use m_hamindex,only: qtt,nqtt
+      implicit none
+
+      public:: iqindx2_, init_iqindx_qtt
+      private
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
-      real(8),private:: epsd=1d-7 !key parameter to map to integer index
       integer,private:: nkey(3)
       real(8),private:: ginv(3,3)
+      real(8),private:: epsd=1d-7 !key parameter to map to integer index
+
       contains
-!> Find index as q=qq(:,iq) with modulo of premitive vector.===
+
       subroutine iqindx2_(q,  iqindx,qu)
+      intent(in)::        q
+      intent(out)::           iqindx,qu
+!> Find index as q=qq(:,iq) with modulo of premitive vector.===
 !! ginv is the inverse of plat (premitive translation vector).
 !! Use kk1,kk2,kk3,nkey(1:3),iqkkk to get iqindx.
-      implicit none
-      real(8), intent(in) :: q(3)
-      integer, intent(out) :: iqindx
-      real(8), intent(out) :: qu(3)
-
+      real(8) :: q(3)
+      integer :: iqindx
+      real(8) :: qu(3)
       integer:: i_out, iq,iqx ,kkk3(3),ik1,ik2,ik3
       real(8):: qx(3),qzz(3)
       logical::debug=.true.
@@ -53,11 +59,11 @@ ccccccccccccccccccccc
       end subroutine
 !!----
       subroutine init_iqindx_qtt(ginv_)
+      intent(in)::               ginv_
 !! === mapping of qtt ===
 !! nkey, kk1,kk2,kk3, iqkkk are to get iqindx.
 !!  q --> call rangedq(matmul(ginv,q), qx) ---> n= (qx+0.5*epsd)/epsd
 !!       --->  ik1,ik2,ik3= tabkk(kkk,iqk,nkey) ---> iqkkk(ik1,ik2,ik3)
-      implicit none
       real(8):: ginv_(3,3),qzz(3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,iq,ik
@@ -120,6 +126,8 @@ c      stop 'xxxxxxxxxxxxx'
 
 !! ---
       subroutine tabkk(kkin, kktable,n, nout)
+      intent(in)::     kkin, kktable,n
+      intent(out)::                     nout
       integer:: nout,n, kkin, kktable(n),i,mm,i1,i2
       i1=1
       i2=n
