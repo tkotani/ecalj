@@ -7,15 +7,16 @@
 !!* we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
       module m_readeigen
-      use m_iqindx_qtt,only: iqindx2_, init_iqindx_qtt
-      use m_hamindex,only: ngpmx,nqtt
+      use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
+      use m_hamindex,only:   ngpmx,nqtt,nqi,nqnum, Readhamindex,qtt 
+      
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
      &     Readcphiw,Readgeigw
 
       private
-      integer:: ifgeigW,ifcphiW
+      integer:: ifgeigW,ifcphiW,norbtx,imx
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
       integer(4)::nwf_ev
       complex(8),allocatable:: evud_w(:,:,:,:)
@@ -36,6 +37,7 @@
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)
       logical,private:: Wpkm4crpa=.false.
+
       contains
       subroutine onoff_write_pkm4crpa(lll)
       logical:: lll
@@ -113,7 +115,7 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
-      use m_hamindex, only: iqmap,igmap,qtt,nqtt,shtvg,qlat,symops,plat,invgx,iqimap,imx
+      use m_hamindex, only: iqmap,igmap,qtt,nqtt,shtvg,qlat,symops,plat,invgx,iqimap !,imx
       real(8),intent(in) :: q(3)
       integer,intent(in) :: isp,ngp_in
       real(8),intent(out) :: qu(3)
@@ -203,7 +205,7 @@ c      endif
 !!
       subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
       use m_hamindex, only: iqmap,igmap,qtt,nqtt,qlat,plat,invgx,iqimap,
-     &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas ,  norbtx
+     &  miat,tiat,dlmm,shtvg,symops,lxxa,nbas 
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       real(8), intent(in) :: q(3)
       integer, intent(in)  :: ldim2_in
@@ -410,16 +412,12 @@ c      write(6,*)' readgcphi_mlw: q=',q
 
 ccccccccccccccccccccccccccc
       subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
-      use m_hamindex,only: readhamindex,imx,nqi,nqnum  ,qtt !,nqtt
-
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
-      implicit none
-      integer(4):: iq,is,ifiqg,nnnn,ikp,nsp_in, 
+      integer:: iq,is,ifiqg,nnnn,ikp,nsp_in, 
      & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
+      integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
       real(8):: ginv_in(3,3)
-c      integer(4),allocatable:: ngvecp(:,:)
       real(8):: QpGcut_psi
-      integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ !,nqnum
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
 
       write(6,*) 'init_readeigen:'
@@ -442,11 +440,13 @@ c      enddo
 
       call init_iqindx_qtt(ginv)
 
-!!--- Readin QGpsi ---
+!!--- Readin QGpsi --- 
       ifiqg  = ifile_handle()
       open(ifiqg ,file='QGpsi',form='unformatted')
-      read(ifiqg) nqnum , ngpmx_, QpGcut_psi, nnnn,nqi,imx
+      read(ifiqg) nqnum_ , ngpmx_, QpGcut_psi, nnnn,nqi_ ,imx 
       write(6,*)'read(ifiqg)', nqnum , ngpmx_, QpGcut_psi, nnnn,nqi
+      if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_ 11111')
+      if(nqnum/=  nqnum_) call rx( 'init_readeigen:nqnum/=nqnum_ 11111')
       if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
       allocate( qtt_(3,nqnum),ngp(nqnum) )
       allocate( ngvecp(3,ngpmx,nqnum))
@@ -509,7 +509,7 @@ C$$$      if(nsp==2) isx = iclose('EVD')
       end function
 c-------------------------------------------------------------
       subroutine init_readeigen2(mrecb_in,ldim2_in,mrecg_in)
-      use m_hamindex,only: norbtx,nqi
+      use m_hamindex,only: nqi
 c this should be called after init_readgeigen
       implicit none
       integer(4):: iq,is,ifiqg,nnnn,ikp,ldim2_in, 
@@ -968,7 +968,7 @@ c$$$
 
 c-------------------------------------------------------------
       subroutine init_readeigen_mlw_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
-      use m_hamindex,only: readhamindex,imx,nqi,nqnum  ,qtt ,qtti, nqtt
+      use m_hamindex,only: readhamindex,nqi,nqnum  ,qtt ,qtti, nqtt
 
 c replace cphi and geig
 c for hwmat

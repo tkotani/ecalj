@@ -4,8 +4,9 @@ c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,q
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
-     &  imx,ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
-     &  napwk,napwmx,igv2,igv2rev !for APW part of rotation (for rdsigm2.F)
+     &  ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
+     &     napwk,napwmx,igv2,igv2rev, !for APW part of rotation (for rdsigm2.F)
+     &    imx 
 !!
 !june2015
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
@@ -37,7 +38,7 @@ c      enddo
       type(s_bz)::sbz
       type(s_ham)::sham
       integer iprmb(*),nl
-      integer:: nkap0 , n0 , ibas , k
+      integer:: nkap0 , n0 , ibas , k 
       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb
       real(8):: alat,dum,qb(3,3),ddd(3) !plat(3,3),qlat(3,3),
@@ -47,7 +48,7 @@ c      enddo
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
       real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
-      integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ !imx,
+      integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ 
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
@@ -192,7 +193,7 @@ c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
       endif
 !! q on mesh and shortened q.
       ifiqg  = fopnx('QGpsi',2,4,-1)
-      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi,imx !,nqibz
+      read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi !,imx !,nqibz
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
 c$$$      if(allocated(qq)) deallocate(qq)

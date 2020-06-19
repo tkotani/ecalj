@@ -4,7 +4,7 @@
       use m_hamindex,only: qtt,nqtt
       implicit none
 
-      public:: iqindx2_, init_iqindx_qtt
+      public:: Iqindx2_, Init_iqindx_qtt
       private
       integer,allocatable,private:: key(:,:),kk1(:),kk2(:),kk3(:),iqkkk(:,:,:)
       integer,private:: nkey(3)
