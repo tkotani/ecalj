@@ -15,24 +15,24 @@
      i      nspin,nblochpmx,
      &      n1,n2,n3,iq0,
      &      ifppb(nclass)
-      real(8)    ::  symope(3,3,ngrp),  pi,qbas(3,3)
+      real(8) ::  symope(3,3,ngrp),  pi,qbas(3,3)
       integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,ifile_handle
       character*11 :: filename(nclass)
-      write(6,*)" rdpp: "
+      write(6,*)" rdpp: nclass=",nclass
       if(done_rdpp) call rx('rdpp is already called')
 !!  Radial integrals ppbrd
       allocate( nblocha(nclass) ,lx(nclass),
      &     nx(0:2*(nl-1),nclass))
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        open(newunit=ifppb(ic),file=filename(ic),form='unformatted')
-        write(6,*)'ifppb=',ifppb(ic),nl
+        open(newunit=ifppb(ic),file=trim(filename(ic)),form='unformatted')
+c        write(6,*)'ifppb=',ifppb(ic),nl
         read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
-        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
+c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
       enddo
       nxx = maxval( nx )
-      allocate(  ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
+      allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
      &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp) )
       write(6,*)' ppbrd size',nl,nn,nxx,nclass,nspin
       do ic = 1,nclass

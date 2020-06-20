@@ -406,9 +406,9 @@ c$$$        write(6,"(' hx0fp0: tetrahedron mode delta=',d13.6)") delta
 c$$$      endif
 
 !! --- Read dimensions of h,hb
-      ifhbe  = iopen('hbe.d',1,0,0)
+      open(newunit=ifhbe,file='hbe.d')
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !Note: nband is in m_zmel
-      is = iclose('hbe.d')
+      close(ifhbe)
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
 
       call ReadGWinputKeys(nband)    !readin GWinput
@@ -437,9 +437,6 @@ c$$$      endif
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
-c      call getsrdpp2( nclass,nl,nxx)
-c      call readngmx('QGpsi',ngpmx)
-c      call readngmx('QGcou',ngcmx)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       nqbze  = nqbz *(1 + nq0i)
@@ -457,6 +454,7 @@ c      call readngmx('QGcou',ngcmx)
           endif
         enddo
       enddo
+      
 !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
       ngrpx = 1
       l2nl=2*(nl-1)
@@ -467,8 +465,6 @@ c      call readngmx('QGcou',ngcmx)
       ificlass=ifile_handle()
       open (ificlass,file='CLASS')
       allocate(iclasst(natom))
-c      ,invgx(ngrp)
-c     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       write(6,*)'  --- Readingin CLASS info ---'
       do ibas = 1,natom
         read(ificlass,*) ibasx, iclasst(ibas)
@@ -477,11 +473,10 @@ c     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
       close(ificlass)
 !! Get space-group transformation information. See header of mptaouof. 
 !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
-      call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst)
-c     o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
+      call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst) !we set thing in m_zmel for matrix elemenets generator
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
-!!  ppbrd = radial integrals,  cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
+!! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
       call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq(nband,nband, ngcmx, ngpmx)
@@ -509,26 +504,13 @@ c      ginv = transpose(plat)
       if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
       niw=niw_in
       if(.not.imagomega) niw=1  !dummy
-    
       call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
 !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
-      if(epsmode) then 
-        allocate(epsi(nw_i:nw,neps)) 
-      endif
+      if(epsmode) allocate(epsi(nw_i:nw,neps)) 
 
-c$$$!! Miyake tote mode Nov2004. Need fixing.
-c$$$      if(ecorr_on>0) then  !it was bzcase()==2 Was it bug?
-c$$$        allocate(nstibz(nqibz))
-c$$$        do iq=1,nqibz
-c$$$          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
-c$$$          nstibz(iq) = nstbz(iqbz)
-c$$$c          write(6,"(' iq qibz nstibz=',i5,3f9.4,i5)")iq,qibz(:,iq),nstibz(iq)
-c$$$        enddo
-c$$$      endif
-
-!! Tetra hedron initialization
+!! Tetrahedron initialization
       noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
       if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
       noccx  = noccxv + nctot
@@ -542,11 +524,6 @@ c$$$      endif
       allocate(  zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
 
-!!... these are used x0k
-c      call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
-c      call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
-c      write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
-
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,R(r))> 
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! Compare usage in hsfp0 modes.
@@ -557,7 +534,6 @@ c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrpx,nspin))
      i   mdimx,lx,nx,nxx,       !Bloch wave    
      i   cgr, nl-1,             !rotated CG
      i   ppbrd) !,                 !radial integrals
-c     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi B>
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
@@ -566,42 +542,6 @@ c     o   ppbir(:,irot,is))      ! this is in m_zmel, used to generate <phi|phi 
       else
         iqxini= 1
       endif
-
-c$$$!! check write 1st part for Ec mode to ecorr.chk Nov2004
-c$$$      if(ecorr_on>0) then
-c$$$!!!!!!!!!!!!! this path is under developing. !!!!!!!!!!!
-c$$$        call rx(' ! hx0fp0: need to fix this path. check subroutine getwk and so on in this path')
-c$$$!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-c$$$        if(ecorr_on >0.and. (.not.imagomega) ) 
-c$$$     &   call rx( ' hx0fp0: ecorr_on .and. (.not.imagomega)')
-c$$$        write(ieclog, "('   iq                q                       wk')")
-c$$$        do iqq = iqxini,iqxend
-c$$$          call getwk(iqq, wibz, wqt,nqbz,nqibz,nstibz,nq0i, wk4ec)
-c$$$          write(ieclog,"(i5,3x,3f12.8, f15.5)") iqq, q, wk4ec
-c$$$        enddo
-c$$$        write(ieclog,*)
-c$$$        write(ieclog,"('   iw omega(Ry)       wiw')")
-c$$$        do iww=1,niw
-c$$$          write(ieclog,"(i5, f10.5, f10.5)") iww,2d0*freq_i(iww),wiw(iww)
-c$$$        enddo
-c$$$        write(ieclog,*)
-c$$$        write(ieclog,"(' Note:IntWgt=wk*wiw.',
-c$$$     &'  Ec =\sum_{k,iw) IntWgt(k,iw)*ecqw(k,iw)')")
-c$$$        close(ieclog)
-c$$$        open(ieclog,file="ecorr.chk",access='append')
-c$$$
-c$$$        call getkeyvalue("GWinput","necut_p",necut, default=1 )
-c$$$        allocate(totexc(necut),trpv(necut),trlog(necut))
-c$$$        totexc = 0d0
-c$$$        trpv   = 0d0
-c$$$        trlog  = 0d0
-c$$$      else
-c$$$        necut=1
-c$$$      endif
-
-!!
-c      necut=1
-c      allocate(ecut(necut),ecuts(necut))
 !!
       if( chipm ) then
 c        nmbas=natom
@@ -674,6 +614,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
+      
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
  !! EIBZ mode memo for nolfco (right?) 
  !! If eibzmode=T, it is efficient but can slightly break crystal symmetry.(how much?)
@@ -711,18 +652,16 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
      &   ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
         nwgt=1
       endif
-
-!! llw, and llwI are for L(omega) for Q0P in PRB81,125102
-      allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
-
-
 !! Calculate x0(q,iw) and W == main loop 1001 for iq. 
  !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
  !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
  !! (or need to modify do 1001 loop).
  !! iq>nqibz for ixc=11 is not time-consuming (right???)
       call MPI__hx0fp0_rankdivider2(iqxini,iqxend)
+      
 
+!! llw, and llwI are for L(omega) for Q0P in PRB81,125102
+      allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
 !! ======== Loop over iq ================================
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if(.not. MPI__task(iq) ) cycle

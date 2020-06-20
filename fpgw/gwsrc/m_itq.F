@@ -36,7 +36,7 @@ c      ngpmx = ngpmx_in
       real(8),allocatable:: eqt(:)
       integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r
       logical:: lntq
-      inquire(file='NTQXX',EXIST=lntq)
+      inquire(file='NTQXX',EXIST=lntq) !NTQXX is to keep number of bands for calculation
       open(newunit=ifih,file='NTQXX')
 !! Get ntq
       if(lntq) then
