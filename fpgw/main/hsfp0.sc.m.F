@@ -509,12 +509,14 @@ c        endif
       
 !! itq.  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
 !! during iteration. We neek it by NTQXX file.
-      inquire(file='NTQXX',EXIST=lntq) 
-      if((.not.lntq).and.MPI__root) then !write NTQXX file
+!! If we already have NTQXX (in your prerious gwsc calcution), the NTQXX is read.
+      if(MPI__root) then !write NTQXX file
          call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
-         call MPI__barrier()
       endif
-      call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx) !read NTQXX
+      call MPI__barrier()
+      if(.not.MPI__root) then !write NTQXX file
+         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx) !read NTQXX
+      endif
       
 !! Read LDA eigenvalues
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
