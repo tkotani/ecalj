@@ -76,7 +76,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real(8) :: omg2max, wemax
 
-      integer::iopen,maxocc2,iclose,
+      integer::maxocc2,iclose,
      & ixc,iqxini,iqxend,iqxendx,
      &   nq0i,i,mxx,ini,ix,is
      &   ,iw,noccxv,noccx,iq,ngb
@@ -123,7 +123,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
       integer,allocatable:: nwgt(:,:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-      integer:: ificlass,ifile_handle,k
+      integer:: ificlass,k !,ifile_handle
       real(8)::ebmx
       integer:: nbmx,mtet(3)
 
@@ -272,8 +272,7 @@ c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! --- Readin Offset Gamma --------
       if(debug) write(6,*) 'reading QOP'
-      ifq0p=ifile_handle()
-      open (ifq0p,file='Q0P')
+      open (newunit=ifq0p,file='Q0P')
       read (ifq0p,"(i5)") nq0i
       write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
       allocate( wqt(1:nq0i),q0i(1:3,1:nq0i),epslgroup(nq0i) )
@@ -490,9 +489,6 @@ ccccccccccccccc simple band for check
          print *,"npm::",npm
          write(6,*) "nctot,ecore",nctot,ecore
          
-         iwf=ifile_handle()
-         print *,"wan_readeval start"
-         
          do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
             call wan_readeval2(  qbz(:,kx), is,
      o           ev_w1(1:nwf,kx), evc_w1(1:nwf,1:nwf,kx))
@@ -517,17 +513,17 @@ c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2
 
          write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
-ccccccccccctetrahedron part             
+!! tetrahedron weight 
          call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
      i        qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
      i        nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
      i        nwf,ebmx,mtet,eibzmode,wan) !nov2016
          write(6,*) "=== end gettetwt"
          deallocate(ev_w1,ev_w2)
-cccccccccnormalization of Im[K]:
+!!!! normalization of Im[K]:
          rnqbz=1/dble(nqbz)
          znorm=-1d0*pi
-ccccccccc generate wanmat         
+!!!! generate wanmat         
            if (.not. allocated(kmat)) allocate(kmat(1:nnwf,1:nnwf,1:nwhis,1:npm),
      &          wanmat(1:nnwf,1:nnwf)) !! (nwf^2*nwf^2)
 !           kmat=(0d0,1d-15)
@@ -723,10 +719,8 @@ c$$$                     zxq(iwf,jwf,iw)=cmplx(dble(zxq(iwf,jwf,iw)),-1d0*aimag(
 
 cccc open file each iq
       if (MPI__task(iq)) then
-         ifchipmz_wan=ifile_handle()
-         open(ifchipmz_wan,file="wan_ChiPMz.mat"//charnum4(iq))
-         ifchipmr_wan=ifile_handle()
-         open(ifchipmr_wan,file="wan_ChiPMr.mat"//charnum4(iq))          
+         open(newunit=ifchipmz_wan,file="wan_ChiPMz.mat"//charnum4(iq))
+         open(newunit=ifchipmr_wan,file="wan_ChiPMr.mat"//charnum4(iq))          
          print *,'ifchipm=',ifchipmz_wan,ifchipmr_wan
          !!!
          if (iq==1) then
@@ -768,8 +762,7 @@ ccccccc
          if (MPI__task(iq)) then
 c$$$  ifwkeigen2=ifile_handle()
 c$$$  open(ifwkeigen2,file="wk_eval_list.dat"//charnum4(iq))
-            ifwkeigen3=ifile_handle()
-            open(ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
+            open(newunit=ifwkeigen3,file="1wk_eval_list.dat"//charnum4(iq))
          endif
       endif
 
@@ -1063,11 +1056,8 @@ c$$$         write(ifwkeigen2,*)
 c         write(ifchipmrk_wan,*)
       endif
       
-      
 c$$$  !! ImagOmega end =================
-      
       debug=.False.
-      
       if (MPI__task(iq)) then
 c$$$         close(ifwkeigen2)
          if (l1wkout) close(ifwkeigen3)
@@ -1098,8 +1088,9 @@ c$$$!! =================== end of loop 1001 for q point ========================
       call MPI__Finalize
       write(6,"('eta for 1-eta*WK:',f13.8)") eta
       call rx0( ' OK! hmagnon mode')
-
       end
+
+      
 
 c ----------------------------------------------------
       function matcinvf(a) result(b)
