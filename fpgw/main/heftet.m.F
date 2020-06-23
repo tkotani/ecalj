@@ -14,11 +14,12 @@ c-------------------------------------------------------------
       use m_readeigen,only: init_readeigen,readeval
       use m_tetrakbt,only: tetrakbt_init, kbt
       use m_keyvalue,only: getkeyvalue
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband_in=>nband,mrecg
 
       implicit none
       real(8) :: shtw
       integer(4) :: mxclass,ngnmax,
-     &   iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   iopen,!ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -114,7 +115,7 @@ c
 
       !! fermi_kbt
       integer:: nptdos_kbt = 100001
-      integer(4):: ifief_kbt
+      integer(4):: ifief_kbt, nband
       real(8), allocatable:: dos_kbt(:), dosef_kbt
       real(8) :: efermi_kbt, e11, e22
       logical:: usetetrakbt
@@ -227,13 +228,15 @@ c      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
 
 c>> read dimensions of wc,b,hb
 c      ifhbed     = iopen('hbe.d',1,0,0)
-      ifhbed     = ifile_handle()
-      open(ifhbed,file='hbe.d')
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
+c      ifhbed     = ifile_handle()
+c      open(ifhbed,file='hbe.d')
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
 Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
+c      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 c      isx = iclose('hbe.d')
-      close(ifhbed)
+c     close(ifhbed)
+      call Readhbe()
+      nband=nband_in
       
 !! Get number of valence electron valn
 c$$$      if(legas) then
@@ -259,7 +262,7 @@ c      write(6,*)' valn=',valn
 cccccccccccccccccccccccccccccccccccccccccc
 
       if(imode==1 .or. imode==5) then
-        call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+        call init_readeigen(nband,mrece) !initialization of readEigen
         ! EValue is readin in init_readeigen
         nsp   = nspin !26jan2006
         allocate( eband2(nband,nsp,nqbz) )

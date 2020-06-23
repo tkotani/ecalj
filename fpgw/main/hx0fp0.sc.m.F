@@ -242,7 +242,7 @@ c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
       iqxend = nqibz + nq0i + nq0iadd
 
 !! ... initialization of readEigen !readin m_hamindex
-      call Init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are stored in m_readeigen
+      call Init_readeigen(nband,mrece)!EVU EVD are stored in m_readeigen
       call Init_readeigen2(mrecb,nlmto,mrecg)
 
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 

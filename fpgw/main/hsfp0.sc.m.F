@@ -348,7 +348,7 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
       call Readhbe()    !Read dimensions of h,hb
       if (nprecb == 4) call rx( 'hsfp0_sc: b,hb in single precision')
 !! Initialization of readEigen
-      call INIT_READEIGEN(ginv,nspin,nband,mrece) 
+      call INIT_READEIGEN(nband,mrece) 
       ! required for readeigen readchpi readgeig.
      
 !! Get space-group transformation information. See header of mptaouof. (duplicated with hamindex (need fixing).

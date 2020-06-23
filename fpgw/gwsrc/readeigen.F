@@ -11,6 +11,8 @@
       use m_hamindex,only:   Readhamindex, ngpmx, nqtt, nqi, nqnum, qtt,iqimap,
      &     iqmap,igmap,shtvg,qlat,symops,plat,invgx,
      &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas
+      use m_read_bzdata,only: ginv
+      use m_genallcf_v3,only: nsp=>nspin
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
@@ -23,11 +25,11 @@
       complex(8),allocatable:: evud_w(:,:,:,:)
       real(8),allocatable:: eval_w(:,:,:)      
       logical:: evalwan=.true.
-      real(8),allocatable,private:: evud(:,:,:), ginv(:,:)
+      real(8),allocatable,private:: evud(:,:,:)!, ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
       integer(4),private:: nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
-     &   nnnn, nsp,ldim2,mrecg,ifcphi,ifgeig
+     &   nnnn, ldim2,mrecg,ifcphi,ifgeig
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
       integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
@@ -408,9 +410,9 @@ c      write(6,*)' readgcphi_mlw: q=',q
       end subroutine
 
 ccccccccccccccccccccccccccc
-      subroutine init_readeigen(ginv_in,nsp_in,nband_in,mrece_in)
+      subroutine init_readeigen(nband_in,mrece_in)
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
-      integer:: iq,is,ifiqg,nnnn,ikp,nsp_in, 
+      integer:: iq,is,ifiqg,nnnn,ikp,!,nsp_in, 
      & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
       integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
       real(8):: ginv_in(3,3)
@@ -418,9 +420,9 @@ ccccccccccccccccccccccccccc
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
 
       write(6,*) 'init_readeigen:'
-      allocate(ginv(3,3))
-      ginv  = ginv_in
-      nsp   = nsp_in
+c      allocate(ginv(3,3))
+c      ginv  = ginv_in
+c      nsp   = nsp_in
       if(nsp<0.or.nsp>2) call rx( 'init_reaeigen:nsp wrong')
       nband = nband_in
       mrece = mrece_in

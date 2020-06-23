@@ -249,7 +249,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       logical:: readw0w0itest=.false.,hx0
 
 c      real(8)::ebmx
-      integer:: ifq0p !nbmx,mtet(3),
+      integer:: ifq0p,ifwc !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 c      integer:: nqbze,nqibze
 c      real(8),allocatable:: qbze(:,:),qibze(:,:)
@@ -347,10 +347,8 @@ c$$$        open(ieclog, file='ecorr.chk')
 c$$$      endif
 
 !! We fix newaniso2=T now.
-
-!! Prof.Naraga said " write(6,*)'Timereversal=',Timereversal()" 
-!! here caused a stop in ifort ver.1x.x. Why? May be a compilar bug, and fixed now.
-
+!!  write(6,*)'Timereversal=',Timereversal() works ok?
+      
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
       call Read_BZDATA(hx0)
@@ -395,25 +393,7 @@ c      close(ifhbe)
       call ReadGWinputKeys()    !Readin GWinput
       
 !! --- Readin Offset Gamma --------
-c$$$      if(debug) write(6,*) 'reading QOP'
-c$$$      ifq0p=ifile_handle()
-c$$$      open (ifq0p,file='Q0P')
-c$$$      read (ifq0p,"(i5)") nq0i
-c$$$      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
-c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-c$$$      do i=1,nq0i
-c$$$        read (ifq0p, * ) wqt(i),q0i(1:3,i)
-c$$$      enddo
-c$$$      close(ifq0p)
-c$$$      nq0ix = nq0i
-c$$$      do i=1,nq0i
-c$$$        if(wqt(i)==0d0 ) then
-c$$$          nq0ix = i-1
-c$$$          exit
-c$$$        endif
-c$$$      enddo
-c$$$      neps = nq0i - nq0ix  ! number of zero weight q0p 
-      call Readq0p()
+      call ReadQ0P()
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 
@@ -421,22 +401,16 @@ c$$$      neps = nq0i - nq0ix  ! number of zero weight q0p
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       call Setqbze()    ! extented BZ points list
-c$$$      nqbze  = nqbz *(1 + nq0i)
-c$$$      nqibze = nqibz + nq0i
-c$$$      allocate( qbze(3, nqbze), qibze(3, nqibze))
-c$$$      qbze(:,1:nqbz)   = qbz(:,1:nqbz)
-c$$$      qibze(:,1:nqibz) = qibz(:,1:nqibz)
-      do i = 1,nq0i+1
-c$$$        qibze(:,nqibz+i)  = q0i(:,i)
-        ini = nqbz*(i-1)
-        do ix=1,nqbz
-c$$$          qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
-c$$$          if( abs(qbze(1,ini+ix)+0.1d0)+abs(qbze(2,ini+ix)+0.1d0)<1d-6 ) then
-            write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
-c$$$          endif
-         enddo
-         write(6,*)
-      enddo
+c$$$      do i = 1,nq0i+1
+c$$$        ini = nqbz*(i-1)
+c$$$        do ix=1,nqbz
+c$$$            write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
+c$$$         enddo
+c$$$         write(6,*)
+c$$$      enddo
+
+!! Get space-group transformation information. See header of mptaouof. 
+!! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
 !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
       ngrpx = 1
       l2nl=2*(nl-1)
@@ -444,12 +418,7 @@ c$$$          endif
       symope(1:3,1) = [1d0,0d0,0d0]
       symope(1:3,2) = [0d0,1d0,0d0]
       symope(1:3,3) = [0d0,0d0,1d0]
-
-!! Get space-group transformation information. See header of mptaouof. 
-!! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
       call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
-      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
-
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
       call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
@@ -463,7 +432,7 @@ c$$$          endif
 
 !! Initialization of readEigen !readin m_hamindex
 c      ginv = transpose(plat)
-      call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
+      call init_readeigen(nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 !!
@@ -480,11 +449,11 @@ c      ginv = transpose(plat)
       nprecx = ndble  !We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       if (MPI__root) then
-        ifwd   = iopen('WV.d',1,-1,0)
+        open(newunit=ifwd,file='WV.d')
         write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
-        ifwd = iclose('WV.d'); ifwd=0
+        close(ifwd)
       endif
-      allocate(  zw(nblochpmx,nblochpmx) )
+      allocate( zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,R(r))> 
@@ -496,7 +465,7 @@ c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrpx,nspin))
      i   nl,nn,nclass,nlnmx,
      i   mdimx,lx,nx,nxx,       !Bloch wave    
      i   cgr, nl-1,             !rotated CG
-     i   ppbrd) !,                 !radial integrals
+     i   ppbrd) !,              !radial integrals
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz

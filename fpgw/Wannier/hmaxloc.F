@@ -36,13 +36,15 @@ c      use m_readqg,only: readngmx,readqg
      &   classname_mlwf, iclassin,
      &  iphi, iphidot, nphi, nphix
       use m_keyvalue,only: getkeyvalue
+      use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+
       implicit none
 c------------------------------------
       real(8),allocatable:: r0g(:,:), wphi(:,:)
       real(8)    :: esmr2,shtw
       integer :: iclass2
       integer(4)::
-     &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   ixc,iopen, !ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,ifbb,
      &   nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -118,7 +120,7 @@ c
       character*(150):: ddd
 
 
-      integer(4):: bzcase,  ngpn1,mrecg,verbose,ngcn1,nwxx
+      integer(4):: bzcase,  ngpn1,verbose,ngcn1,nwxx !mrecg,
       real(8)   :: wgtq0p,quu(3)
 
       integer(4):: iii,isx,ivsumxxx
@@ -300,11 +302,11 @@ c      voltot = dabs(vol)*(alat**3)
       endif
 
 c>> read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+c      ifhbed     = iopen('hbe.d',1,0,0)
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+c      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+      call Readhbe()
+      call init_readeigen(nband,mrece) !initialization of readEigen
       
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

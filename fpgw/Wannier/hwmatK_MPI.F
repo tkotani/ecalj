@@ -46,6 +46,7 @@ c------------------------------------------------------------
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,niwg=>niw
       use m_keyvalue,only: getkeyvalue
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
 c RS: MPI module
       use rsmpi
@@ -70,7 +71,7 @@ c     o   iilc,iinc,iimc,iilnmc,i_mnlc,
 c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,  
       integer(4)::
-     &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   ixc,iopen, !ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,nxx,nbloch,ifqpnt,ifwd,ifmloc,
      &   nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -178,7 +179,7 @@ c      logical :: sergeys
       character*(150):: ddd
 
 
-      integer(4)::  ngpn1,mrecg,verbose,ngcn1,nwxx !bzcase, 
+      integer(4)::  ngpn1,verbose,ngcn1,nwxx !bzcase, mrecg,
       real(8)   :: wgtq0p,quu(3)
 
       real(8),allocatable:: freq_r(:)
@@ -436,12 +437,12 @@ c      write(6,'("    niw nw dw   =",2i5,f13.6)') niw,nw,dw
       endif
 
 c>> read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      if (nprecb == 4)
-     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
-
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+c      ifhbed     = iopen('hbe.d',1,0,0)
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+c      if (nprecb == 4)
+c     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
+      call Readhbe()
+      call init_readeigen(nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

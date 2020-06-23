@@ -14,7 +14,7 @@ c modified by Takahi Miyake, May, 2004
 c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
-      use m_readeigen
+      use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval,Readcphi,Readgeig
 
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
@@ -48,7 +48,7 @@ c     o   iecore,ikonf,iicore,incore,nctot,             !core
 c     o   imagw_dummy,niw,idummy,
       integer(4)
      &   nw_input,
-     &   ifhbe,
+c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
@@ -267,7 +267,7 @@ c--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
       call rotcg(nl-1,symope,ngrpx,cg)
 
 c --- initiallization to get eigenfunctions
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+      call init_readeigen(nband,mrece) !initialization of readEigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband),geig2(ngpmx,nband))

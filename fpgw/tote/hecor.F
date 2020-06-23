@@ -11,6 +11,7 @@ c      implicit real*8(a-h,o-z)
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3
       use m_keyvalue,only: getkeyvalue
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
       implicit none
 c parameter
@@ -29,7 +30,7 @@ c                           ! If you want to calculate with tetra=T for exchange
 c------------------------------------
       integer(4) ::
      o   nqitot,
-     &   ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
+     &   ixc,iopen,!ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,mrecl,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -275,12 +276,12 @@ c---
 c      write(6,'("    niw nw dw   =",2i3,f13.6)') niw,nw,dw
 
 c>> read dimensions of wc,b,hb
-      ifhbed     = iopen('hbe.d',1,0,0)
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single precision'
-      if (nprecb == 4) call rx( 'hecor: b,hb in single precision')
-
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+c      ifhbed     = iopen('hbe.d',1,0,0)
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
+cCstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single precision'
+c      if (nprecb == 4) call rx( 'hecor: b,hb in single precision')
+      call Readhbe()
+      call init_readeigen(nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

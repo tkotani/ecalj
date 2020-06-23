@@ -23,6 +23,7 @@ c-------------------------------------------------
      &   nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf,
      &   classname_mlwf, iclassin,
      &  iphi, iphidot, nphi, nphix
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 c RS: MPI module
 !      use rsmpi
 !      use rsmpi_rotkindex
@@ -48,8 +49,8 @@ c     o   iecore,ikonf,iicore,incore,nctot,             !core
 c     o   imagw_dummy,niw,idummy,
       integer(4)
      &   nw_input,
-     &   ifhbe,
-     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+c     &   ifhbe,
+c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
@@ -64,7 +65,7 @@ c     o   imagw_dummy,niw,idummy,
      & dwry,dwh,omg_c,omg2,xxx
       integer(4)::nwin, incwfin,  verbose
       real(8)::efin
-      integer(4):: mrecg,ifphi, !bzcase, 
+      integer(4):: ifphi, !bzcase, mrecg,
      & nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc,
      & ldim2,ixx,ngp1,ngp2,nq0it
       real(8):: qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
@@ -199,11 +200,12 @@ c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(i
       if(nclass /= natom) stop ' nclass /= natom '
 
 c --- read dimensions of h,hb
-      ifhbe      = iopen('hbe.d',1,0,0)
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
-      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
-
+c      ifhbe      = iopen('hbe.d',1,0,0)
+c      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+c      if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
+c      if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
+      call Readhbe()
+      
 c --- read by rdpp ; Radial integrals ppbrd and plane wave part
       call getsrdpp2(nclass,nl,nxx)
       call readngmx('QGpsi',ngpmx)
@@ -287,7 +289,7 @@ c--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
       call rotcg(nl-1,symope,ngrpx,cg)
 
 c --- initiallization to get eigenfunctions
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+      call init_readeigen(nband,mrece) !initialization of readEigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband) )

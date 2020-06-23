@@ -373,7 +373,7 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c      isx = iclose ('hbe.d')
       call Readhbe()    !Read dimensions of h,hb
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+      call init_readeigen(nband,mrece) !initialization of readEigen
 
 !!  === get space group information ===
 !!  True class information in order to determine the space group -----------

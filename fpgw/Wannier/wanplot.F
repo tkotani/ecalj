@@ -35,6 +35,8 @@ c      use m_wfrho_abc
       use m_cubeformat 
       use m_xsfformat 
       use m_expand_mesh 
+      use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+
       implicit none
       integer :: nwf,iko_ix,iko_fx,nband_wfn
       real(8) :: a,qdum(3)
@@ -52,7 +54,7 @@ c      use m_wfrho_abc
       integer :: npw(3),mesh(3),mesh0(3),mesh1(3),meshrange(2,3)
       integer :: iq,ib,  ngpmx
       integer:: i,id,j,ifi,iqbz2,ifile_handle
-      integer :: isp,iqbz,ikp,iwf,nprecb,mrecb,mrece,nlmtot,nqbzt, mrecg,ifhbed,iopen,nband
+      integer :: isp,iqbz,ikp,iwf,iopen!,nprecb,mrecb,mrece,nlmtot,nqbzt,ifhbed, mrecg,nband 
       real(8):: r_rini0(3),r_rfin0(3),ang,alat_ang
       real(8):: r_rini(3), r_rfin(3),r
       real(8):: r_rini1(3), r_rfin1(3)
@@ -92,9 +94,10 @@ c      use m_wfrho_abc
       enddo                     ! isp
       write(6,*)'read end of MLWU/D ...'
 !!
-      ifhbed     = iopen('hbe.d',1,0,0)
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      call init_readeigen(ginv,nsp,nband,mrece) !initialization of readEigen
+c      ifhbed     = iopen('hbe.d',1,0,0)
+c     read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+      call Readhbe()
+      call init_readeigen(nband,mrece) !initialization of readEigen
       call init_readeigen2(mrecb,ldim2,mrecg) !initialize m_readeigen
 
 !! replace geig and cphi with those for WF. Converted by the dnk matrix.

@@ -11,6 +11,7 @@ c so this routine contains unused things so much.
      & invg, il,in,im,nlnm, 
      & plat, pos,z,ecore, symgg, konf,nlnx
       use m_keyvalue,only: getkeyvalue
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
       implicit none
 c
@@ -28,7 +29,7 @@ c     o   iilv,iinv,iimv,iilnmv,inlnmv,
 c     o   iilc,iinc,iimc,iilnmc,inlnmc,
 c     o   incwf,iecore,ikonf,iicore,incore,nctot,
 c     o   imagw,niw,nw,ifreq,  
-     &   ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband, !iopen,
+     &   ixc,!ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, nband, !iopen,
      &   ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd,
      &   nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx,
      &   ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq,
@@ -219,16 +220,16 @@ c      voltot = dabs(vol)*(alat**3)
 
 c>> read dimensions of wc,b,hb
 c      ifhbed     = iopen('hbe.d',1,0,0)
-      ifhbed=ifile_handle()
-      open(ifhbed,file='hbe.d')
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
-      close(ifhbed)
-Cstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
-      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
+c      ifhbed=ifile_handle()
+c      open(ifhbed,file='hbe.d')
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
+c      close(ifhbed)
+cCstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hsfp0: b,hb in single precision'
+c      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
+      call Readhbe()
 
 
-
-      call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
+      call init_readeigen(nband,mrece) !initialization of readEigen
 
 c------------
 c open files
