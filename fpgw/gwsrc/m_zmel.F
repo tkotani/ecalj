@@ -26,8 +26,10 @@
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
       use m_keyvalue,only: Getkeyvalue ! general purpose routine to read values in GWinput file.
-      use m_itq,only: itq,ntq,nband,nbandmx
+      use m_readhbe,only: nband
+      use m_itq,only: itq,ntq
       use m_readQG,only: ngpmx,ngcmx
+      use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
       implicit none
 
 !!--- OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
@@ -127,13 +129,14 @@
       end subroutine setppovlz_chipm
       
 !! Set miat,tiat,invgx,shtvg
-      subroutine mptauof_zmel(symops,ng,platx,nbas,pos,iclass)
-      intent(in)::            symops,ng,platx,nbas,pos,iclass
-      integer:: ng,nbas,iclass(nbas)
-      real(8):: symops(9,ng),platx(3,3),pos(3,nbas)
+      subroutine mptauof_zmel(symops,ng)
+      intent(in)::            symops,ng
+      integer:: ng
+      real(8):: symops(9,ng)
       integer,allocatable ::  invgx(:)
-      allocate(invgx(ng),miat(nbas,ng),tiat(3,nbas,ng),shtvg(3,ng))
-      call mptauof(symops,ng,platx,nbas,pos,iclass
+      call Readclasst() !true class from CLASS file (genalloc_v3 may contain iclass=iatom)
+      allocate(invgx(ng),miat(natom,ng),tiat(3,natom,ng),shtvg(3,ng))
+      call mptauof(symops,ng,plat,natom,pos,iclasst
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       deallocate(invgx)
       end subroutine mptauof_zmel

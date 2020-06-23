@@ -33,7 +33,7 @@
       integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
-      logical,private:: debug=.false.
+      logical,private:: debug=.true.
       integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)

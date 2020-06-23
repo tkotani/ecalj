@@ -13,7 +13,7 @@
      &     nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn, ngrp,
-     &     nlmto,nlnmx, nctot,niw_in=>niw, !nw_input=>nw,
+     &     nlmto,nlnmx, nctot, !niw_in=>niw, !nw_input=>nw,
      &     alat, deltaw,esmr,symgrp,clabl,iclass, !diw,dw,delta,
      &     invg, il,in,im,nlnm, 
      &     plat, pos,ecore, symgg 
@@ -34,20 +34,23 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
       
 !! frequency
-      use m_freq,only: getfreq, !NOTE: call getfreq generate following data.
-     & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw !, frhis0,nwhis0 !output of getfreq
+      use m_freq,only: Getfreq3, !NOTE: call getfreq generate following data.
+     & frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
 !! tetwt
-      use m_tetwt,only: tetdeallocate,gettetwt, !followings are output of 'L871:call gettetwt')
+      use m_tetwt,only: Tetdeallocate,Gettetwt, !followings are output of 'L871:call gettetwt')
      &  whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
 !! w0 and w0i (head part at Gamma point)
-      use m_w0w0i,only: w0w0i,
+      use m_w0w0i,only: W0w0i,
      & w0,w0i
-
       use m_lldata,only: ll
-
       use m_readgwinput,only: ReadGwinputKeys,
      &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas
-      
+      use m_qbze,only: Setqbze,
+     &     nqbze,nqibze,qbze,qibze
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+!! q0p
+      use m_readq0p,only: Readq0p,
+     &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -71,7 +74,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer:: ndble=8
       integer:: nword
       real(8),allocatable:: vxcfp(:,:),
-     &  wqt(:), wgt0(:,:),q0i(:,:)
+     &   wgt0(:,:)!wqt(:),,q0i(:,:)
       integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:) !,ngveccB(:,:,:)
      &           , ngvecp(:,:), ngvecc(:,:), !,ngpn(:),ngcni(:),iqib(:),
      &   ifppb(:)   !ongveccBr(:,:,:),nx(:,:),nblocha(:),lx(:),
@@ -80,20 +83,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
      &  zxq(:,:,:),zxqi(:,:,:)
       real(8),allocatable :: eqt(:), !ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),
      &  ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:),
-     &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:), 
-     &  qbze(:,:),qibze(:,:)  !,ecore(:,:)  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
+     &  ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:) 
+c     &  qbze(:,:),qibze(:,:)  !,ecore(:,:)  freqr(:),freqi(:) !rw(:,:),cw(:,:) --->zw
       complex(8),allocatable :: trwv(:),trwv2(:),rcxq(:,:,:,:)
 c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case of rcxq(nmbas,nmbas)
 
 !  tetrahedron method
-      logical :: tetra=.true. !,tmpwwk=.true.! If tmpwwk=.true., this use a temporary file tmp.wwk
+c      logical :: tetra=.true. !,tmpwwk=.true.! If tmpwwk=.true., this use a temporary file tmp.wwk
       ! so as to reduce the memory usage.
       complex(8) :: fff,img=(0d0,1d0)
       complex(8),allocatable :: wwk(:,:,:)
       integer,allocatable :: 
      &         noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
       real(8) ::qbzx(3),anfvec(3)
-      logical :: debug
+      logical :: debug=.false.
       integer,allocatable:: ibasf(:)
       real(8),allocatable :: transaf(:,:)
       logical :: realomega=.true., imagomega=.true.
@@ -114,9 +117,9 @@ c     & ,rcxqmean(:,:,:,:),rcxqmeanc(:,:,:,:) !now rcxqmean is treated as a case
 c      logical::imagonly=.false.,realonly=.false. !,readgwinput
       integer::iopen,maxocc2,iclose,
      & ixc,iqxini,iqxend,iqxendx,
-     &   ifhbe,
-     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-     &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx,!ngcmx,ngpmx
+c     &   ifhbe,
+c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+     &   i,ngrpmx,mxx,ini,ix,ngrpx,!ngcmx,ngpmx nq0i,nq0ix,
      &   nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond !,ifvxcpout,ifgb0vec,nxx
      &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
@@ -131,7 +134,7 @@ c     &   ,ngpmx !,  ifchipmlog
 
       integer:: incwfin,  verbose
 
-      integer:: ngc,mrecg !bzcase, 
+      integer:: ngc!,mrecg !bzcase, 
       real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
       logical:: omitqbz=.false., noq0p
 
@@ -226,7 +229,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), 
      &  w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
       complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
-      integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2,niw
+      integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
       complex(8):: vc1vc2
       integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
 
@@ -239,7 +242,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       character(128):: vcoudfile,aaax
       integer:: src,dest
       logical:: lqall
-      integer,allocatable :: iclasst(:), invgx(:)
+      integer,allocatable ::  invgx(:) !iclasst(:),
       integer:: ificlass,ifile_handle,k
       complex(8),allocatable:: ppovl_(:,:)
 
@@ -248,11 +251,14 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
 c      real(8)::ebmx
       integer:: ifq0p !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
+c      integer:: nqbze,nqibze
+c      real(8),allocatable:: qbze(:,:),qibze(:,:)
 
 !! -------------------------------------------------------------------
       call MPI__Initialize()
       call MPI__consoleout('hx0fp0')
       call cputid (0)
+      if(verbose()>=100) debug=.true.
       hartree  = 2d0*rydberg()
       pi       = 4d0*datan(1d0)
       fourpi   = 4d0*pi
@@ -319,21 +325,6 @@ c      write(6,"(a)") '    12  : total energy Miyake: developint'
         epsmode = .true.
         chipm=.true.
         nolfco=.true.
-c$$$      elseif(ixc==223) then
-c$$$        aaax="ixc=223 chipm with LFC sergey's -->commented out now."
-c$$$        write(6,*) trim(aaax)
-c$$$        call rx(trim(aaax))
-c$$$        realonly=.true.
-c$$$        omitqbz=.true.
-c$$$        chipm =.true. 
-c$$$        nolfco=.true.
-c$$$        epsmode = .true.
-!     -- chipm mode NoLFC
-c      elseif(ixc==10222) then
-c        write(6,*) " OK ixc=10222  <q|chipm_0|q> sergey"
-c        imagomega=.false.
-c        omitqbz=.true.
-c
 c$$$!! Total energy test mode --> need fixing
 c$$$      elseif(ixc==12) then
 c$$$        write(6,*) " ixc=12 Miyake's total energy Sergey--->need to fix this mode"
@@ -362,7 +353,7 @@ c$$$      endif
 
 !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
 !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
-      call read_BZDATA(hx0)
+      call Read_BZDATA(hx0)
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 
 !! check write
@@ -375,7 +366,7 @@ c$$$      endif
       endif
 
 !! EFERMI
-      call readefermi()
+      call Readefermi()
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
 
 !! === Readin by genallcf. Set basic data for crystal
@@ -387,99 +378,82 @@ c$$$      endif
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
       if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_V2')
       if(chipm.and.nspin==1) call rx( 'chipm mode is for nspin=2')
-      debug=.false.
-      if(verbose()>=100) debug=.true.
       if(debug) write(6,*)' end of genallc'
       tpioa=2d0*pi/alat
-
-
 !!!! WE ASSUME iclass(iatom)= iatom !!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!  We assume nclass = natom.     !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' nclass /= natom ')
 
-c$$$!! --- Only tetrahedron method is allowed now.
-c$$$      if(delta > 0d0) then
-c$$$        call rx(' hx0fp0: only tetra=T is supported. delta in GWinput should be negative')
-c$$$      else
-c$$$        delta = -delta
-c$$$        write(6,"(' hx0fp0: tetrahedron mode delta=',d13.6)") delta
-c$$$      endif
-
-!! --- Read dimensions of h,hb
-      open(newunit=ifhbe,file='hbe.d')
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !Note: nband is in m_zmel
-      close(ifhbe)
+!! --- Read dimensions 
+c      open(newunit=ifhbe,file='hbe.d')
+c      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg !Note: nband is in m_zmel
+c      close(ifhbe)
+      call Readhbe()   
+      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
       if(nlmto/=nlmtot) call rx('hx0fp0: nlmto/=nlmtot in hbe.d')
-
-      call ReadGWinputKeys(nband)    !readin GWinput
-
+!!
+      call ReadGWinputKeys()    !Readin GWinput
       
 !! --- Readin Offset Gamma --------
-      if(debug) write(6,*) 'reading QOP'
-      ifq0p=ifile_handle()
-      open (ifq0p,file='Q0P')
-      read (ifq0p,"(i5)") nq0i
-      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
-      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
-      do i=1,nq0i
-        read (ifq0p, * ) wqt(i),q0i(1:3,i)
-      enddo
-      close(ifq0p)
-      nq0ix = nq0i
-      do i=1,nq0i
-        if(wqt(i)==0d0 ) then
-          nq0ix = i-1
-          exit
-        endif
-      enddo
-      neps = nq0i - nq0ix  ! number of zero weight q0p 
+c$$$      if(debug) write(6,*) 'reading QOP'
+c$$$      ifq0p=ifile_handle()
+c$$$      open (ifq0p,file='Q0P')
+c$$$      read (ifq0p,"(i5)") nq0i
+c$$$      write(6,*) ' ### nqibz nq0i=', nqibz,nq0i
+c$$$      allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )
+c$$$      do i=1,nq0i
+c$$$        read (ifq0p, * ) wqt(i),q0i(1:3,i)
+c$$$      enddo
+c$$$      close(ifq0p)
+c$$$      nq0ix = nq0i
+c$$$      do i=1,nq0i
+c$$$        if(wqt(i)==0d0 ) then
+c$$$          nq0ix = i-1
+c$$$          exit
+c$$$        endif
+c$$$      enddo
+c$$$      neps = nq0i - nq0ix  ! number of zero weight q0p 
+      call Readq0p()
       write( 6,*) ' num of zero weight q0p=',neps
       write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
 
 !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
-      nqbze  = nqbz *(1 + nq0i)
-      nqibze = nqibz + nq0i
-      allocate( qbze(3, nqbze), qibze(3, nqibze))
-      qbze(:,1:nqbz)   = qbz(:,1:nqbz)
-      qibze(:,1:nqibz) = qibz(:,1:nqibz)
-      do i = 1,nq0i
-        qibze(:,nqibz+i)  = q0i(:,i)
-        ini = nqbz*(1 + i -1)
+      call Setqbze()    ! extented BZ points list
+c$$$      nqbze  = nqbz *(1 + nq0i)
+c$$$      nqibze = nqibz + nq0i
+c$$$      allocate( qbze(3, nqbze), qibze(3, nqibze))
+c$$$      qbze(:,1:nqbz)   = qbz(:,1:nqbz)
+c$$$      qibze(:,1:nqibz) = qibz(:,1:nqibz)
+      do i = 1,nq0i+1
+c$$$        qibze(:,nqibz+i)  = q0i(:,i)
+        ini = nqbz*(i-1)
         do ix=1,nqbz
-          qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
-          if( abs(qbze(1,ini+ix)+0.1d0)+abs(qbze(2,ini+ix)+0.1d0)<1d-6 ) then
-            write(6,"('hx0fp0 qbze q0i=',i8,3f18.14,2x,3f14.10)") ini+ix,qbze(:,ini+ix),q0i(:,i)
-          endif
-        enddo
+c$$$          qbze (:,ini+ix)   = q0i(:,i) + qbze(:,ix)
+c$$$          if( abs(qbze(1,ini+ix)+0.1d0)+abs(qbze(2,ini+ix)+0.1d0)<1d-6 ) then
+            write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
+c$$$          endif
+         enddo
+         write(6,*)
       enddo
-      
 !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
       ngrpx = 1
       l2nl=2*(nl-1)
       allocate(symope(3,3))
-      symope(1:3,1) = (/1d0,0d0,0d0/)
-      symope(1:3,2) = (/0d0,1d0,0d0/)
-      symope(1:3,3) = (/0d0,0d0,1d0/)
-      ificlass=ifile_handle()
-      open (ificlass,file='CLASS')
-      allocate(iclasst(natom))
-      write(6,*)'  --- Readingin CLASS info ---'
-      do ibas = 1,natom
-        read(ificlass,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
+      symope(1:3,1) = [1d0,0d0,0d0]
+      symope(1:3,2) = [0d0,1d0,0d0]
+      symope(1:3,3) = [0d0,0d0,1d0]
+
 !! Get space-group transformation information. See header of mptaouof. 
 !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
-      call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst) !we set thing in m_zmel for matrix elemenets generator
+      call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
       call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
-      call Setitq(nband,nband, ngcmx, ngpmx)
+      call Setitq()
 
 !! Pointer to optimal product basis
       nblochpmx = nbloch + ngcmx
@@ -492,19 +466,8 @@ c      ginv = transpose(plat)
       call init_readeigen(ginv,nspin,nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
-
-!! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
-      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-      if (nctot > 0) Emin=minval(ecore(:,1:nspin))
-      omg2max = (Emax-Emin)*.5d0+.2d0 
-             ! (in Hartree) covers all relevant omega, +.2 for margin
-      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
-
-!! getfreq returun date given at " use m_freq,only:". 
-      if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
-      niw=niw_in
-      if(.not.imagomega) niw=1  !dummy
-      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
+!!
+      call getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
 !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
@@ -613,7 +576,6 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
 !! nov2016 moved from tetwt5 --> here
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-
       
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
  !! EIBZ mode memo for nolfco (right?) 
@@ -779,22 +741,6 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
         else                    !may2013  this removes O^-1 factor from zmelt
 !! Used in get_zmelt in m_zmel in x0kf_v4hz
           call Setppovlz(q,ngc,zcousq,ngb)
-c$$$
-c$$$          if(allocated(ppovlz)) deallocate(ppovlz)
-c$$$          if(allocated(ppovl)) deallocate(ppovl)
-c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-c$$$          call readppovl0(q,ngc,ppovl)
-c$$$          allocate(ppovl_(ngb,ngb))
-c$$$          ppovl_=0d0
-c$$$          do i=1,nbloch
-c$$$            ppovl_(i,i)=1d0
-c$$$          enddo
-c$$$          ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-c$$$          if(.not.eibz4x0()) then !sep2014 added for eibz4x0=F
-c$$$            ppovl_= matmul(ppovl_,zcousq)
-c$$$          endif
-c$$$          ppovlz = ppovl_
-c$$$          deallocate(ppovl_,ppovl)
         endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 

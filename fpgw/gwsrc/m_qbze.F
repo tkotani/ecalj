@@ -1,5 +1,7 @@
       module m_qbze
       use NaNum,only: NaN
+      use m_read_bzdata,only: nqbz,nqibz, qbz,qibz
+      use m_readq0p,only:     q0i,nq0i,nq0iadd
       implicit none
 
       integer,protected::    nqbze=NaN, nqibze=NaN
@@ -7,8 +9,6 @@
       
       contains
       subroutine setqbze()
-      use m_read_bzdata,only: nqbz,nqibz, qbz,qibz
-      use m_readq0p,only:     q0i,nq0i,nq0iadd
       integer:: i,iq
 !!
       nqbze  = nqbz *(1 + nq0i+nq0iadd)

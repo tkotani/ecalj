@@ -424,6 +424,10 @@ $(gwsrc)rotcg.o \
 $(gwsrc)rotgvec.o \
 $(gwsrc)m_readVcoud.o\
 $(gwsrc)m_itq.o \
+$(gwsrc)m_qbze.o \
+$(gwsrc)nan.o\
+$(gwsrc)m_readgwinput.o\
+$(gwsrc)getwemax.o\
 $(MPI)
 
  MPI =  $(gwsrc)MPI_fpgw2.o

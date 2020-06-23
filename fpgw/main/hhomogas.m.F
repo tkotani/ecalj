@@ -361,7 +361,7 @@ cccccccccccccccccccccccccccccccccccc
 
 
 !! npmtwo=F means only positive energy for real axis.
-      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root, npmtwo=.false.)
+      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root, npmtwo=.false.) !tetra,
 
       if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
 c      nwp = nw+1

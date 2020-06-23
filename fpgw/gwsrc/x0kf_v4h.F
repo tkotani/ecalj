@@ -59,7 +59,7 @@
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
-      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
+c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
       integer:: ngpmx, ngcmx, nqbze, nband,
      &             ngc,nadd(3), igc
       complex(8),allocatable :: zmelt(:,:,:)
@@ -112,7 +112,7 @@
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       call cputid(0)
       call minv33(qbas,qbasinv)
-      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
+c      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
 

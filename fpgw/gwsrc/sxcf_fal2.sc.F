@@ -1,13 +1,23 @@
 !> this module is only because name=name argument binding. No data
       module m_sxcfsc
+      use m_readqg,only   : readqg0
+      use m_readeigen,only: readeval
+      use m_keyvalue,only   : getkeyvalue
+      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf, Setppovlz_ee, Setppovlz_chipm, Deallocate_zmel,
+     o     zmel,zmeltt
+      use m_itq,only: itq,ntq
+      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot
+      use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
+c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,         
+
       contains
-      subroutine sxcf_fal3_scz(kount,qip,itq,ntq,ef,esmr,
-     i nsp,isp,             
-     i qbas,ginv,
-     i qibz,qbz,wk,nstbz,irkip,nrkip, 
-     i freq_r,nw_i,nw, freqx,wx,dwdummy,         
+      subroutine sxcf_fal3_scz(kount,qip,ef,esmr, !itq,ntq,
+     i isp,             !nsp,
+c     i qbas,ginv,
+     i irkip,nrkip, !qibz,qbz,wk,nstbz,
+     i freq_r,nw_i,nw, freqx,wx, !,dwdummy,         
      i ecore,
-     i nlmto,nqibz,nqbz,nctot,
+c     i nctot, !nqibz,nqbz,nlmto,
      i nbloch,ngrp,niw,nq,     
      i nblochpmx ,ngpmx,ngcmx, 
      i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
@@ -18,11 +28,6 @@
      i jobsw,                   != iSigma_en 
      i hermitianW,
      o zsec,coh,nbandmx)
-      use m_readqg,only   : readqg0
-      use m_readeigen,only: readeval
-      use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf, Setppovlz_ee, Setppovlz_chipm, Deallocate_zmel,
-     o   zmel,zmeltt 
       implicit none
 !> \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
@@ -159,22 +164,22 @@
 
 ! input variables
       logical, intent(in) :: exchange,screen!,cohtest
-      integer, intent(in) :: ntq,nqbz,nqibz,ngrp,nq,niw !,natom
-      integer, intent(in) :: nband,nlmto,nq0i,nctot,isp,nsp !,mdim(*) !,nlnmx
+      integer, intent(in) :: ngrp,nq,niw !,natom ntq,nqbz,nqibz,
+      integer, intent(in) :: nband,nq0i,isp!,nsp !,mdim(*) !,nlnmx nlmto,nctot,
       integer, intent(in) :: ifvcfpout,nbloch,nblochpmx !nl,nnc, nclass
-      integer, intent(in) :: itq(ntq) !,nstar(nqibz) !miat(natom,ngrp),mdimx,
+c      integer, intent(in) :: itq(ntq) !,nstar(nqibz) !miat(natom,ngrp),mdimx,
       integer, intent(in) :: irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq)
       integer, intent(in) :: kount(nqibz,nq),ngpmx,ngcmx,ifexsp,jobsw
       integer, intent(in) :: nbmx(2) !,nlnmv(*),nlnmc(*)!,iclass(*),icore(*)
-      integer, intent(in) :: nstbz(nqbz) !,nomx !,nkpo,nnmx,imdim(*)ncore(*),
+c      integer, intent(in) :: nstbz(nqbz) !,nomx !,nkpo,nnmx,imdim(*)ncore(*),
       integer, intent(in) :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
 c      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
       real(8), intent(in) :: wgt0(nq0i,ngrp),symgg(3,3,ngrp)
       real(8), intent(in) :: q0i(1:3,1:nq0i),alat,ecore(nctot) !shtvg(3,ngrp),
-      real(8), intent(in) :: qbas(3,3),ginv(3,3)
-      real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
-      real(8), intent(in) :: qbz(3,nqbz),freqx(niw),wx(niw),ef,esmr,dwdummy
-      real(8), intent(in) :: ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo)
+c      real(8), intent(in) :: qbas(3,3),ginv(3,3)
+c      real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
+c      real(8), intent(in) :: qbz(3,nqbz)
+      real(8), intent(in) :: freqx(niw),wx(niw),ef,esmr,ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy
       real(8), intent(in) :: qip(3,nq),eftrue
 
 c      integer,intent(in):: iwini,iwend
@@ -210,7 +215,7 @@ c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass
       real(8) :: qvv(3),pi,fpi,eq(nband),omega(ntq),quu(3),freqw,ratio
       real(8) :: qibz_k(3),qbz_kr(3),ddw,vc,omega0,omg
 
-      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
+c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
       complex(8) :: zwzs0,zz2,zwz3(3)
 
 ! local arrays
@@ -1311,6 +1316,7 @@ c!TIME1_0000 "end of sxcf_fal3_scz"
       enddo
       end subroutine weightset4intreal
       end module m_sxcfsc
+      
 !! --------------------------------------------------------------
       subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,

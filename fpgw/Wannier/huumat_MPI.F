@@ -32,8 +32,8 @@ c      use m_genallcf_v3
 
 c RS: MPI module
       use rsmpi
-
       use m_lldata,only: ll
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
       implicit none
       real(8):: q(3),  qgbin(3),qx(3)
@@ -57,7 +57,7 @@ c     o   imagw_dummy,niw,idummy,
       integer(4)
      &   nw_input,
      &   ifhbe,
-     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &   nq0i,i,nq0ix,neps,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx
      &  ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp,
      &   ifepscond,nxx,ifvxcpout,ifgb0vec
@@ -72,7 +72,7 @@ c     o   imagw_dummy,niw,idummy,
      & dwry,dwh,omg_c,omg2,xxx
       integer(4)::nwin, incwfin,  verbose
 c      real(8)::efin
-      integer(4)::  mrecg,ifphi,!bzcase,
+      integer(4)::  ifphi,!bzcase,mrecg,
      & nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc,
      & ldim2,ixx,ngp1,ngp2,nq0it
       real(8):: qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
@@ -251,8 +251,9 @@ c     o  plat(:,:),pos(:,:),z(:),  ecore(:,:), freq(:), symgg(:,:,:) ! symgg=w(i
       if(nclass /= natom) stop ' nclass /= natom '
 
 c --- read dimensions of h,hb
-      ifhbe      = iopen('hbe.d',1,0,0)
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+c      ifhbe      = iopen('hbe.d',1,0,0)
+c      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      call Readhbe()    !Read dimensions of h,hb
       if(nlmto/=nlmtot) stop ' hx0fp0: nlmto/=nlmtot in hbe.d'
       if(nqbz /=nqbzt ) stop ' hx0fp0: nqbz /=nqbzt  in hbe.d'
 

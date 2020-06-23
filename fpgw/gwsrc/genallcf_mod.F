@@ -1,3 +1,29 @@
+      module m_readclasst
+      use m_genallcf_v3,only: natom
+      integer,allocatable,protected :: iclasst(:)!, invgx(:)
+      contains
+      subroutine Readclasst()
+      allocate(iclasst(natom))
+      write(6,*)'  --- Read CLASS info ---'
+      open(newunit=ificlass, file='CLASS', action='read')
+      do ibas = 1,natom
+        read(ificlass,*)  ibasx, iclasst(ibas)
+        write(6,"(2i10)") ibasx, iclasst(ibas)
+      enddo
+      close(ificlass)
+      end subroutine
+      end module
+!------------------------    
+      module m_readhbe
+      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      contains
+      subroutine readhbe()
+      open(newunit=ifhbe, file='hbe.d', action='read')
+      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      close(ifhbe)
+      end subroutine
+      end module
+!------------------------    
       module m_ReadEfermi
       real(8),protected:: bandgap, ef, ef_kbt
       contains

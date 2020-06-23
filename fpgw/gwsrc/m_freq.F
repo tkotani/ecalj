@@ -7,9 +7,19 @@
 !!   - npm: npm=1 means only positive omega;npm=2 means positive and negative omega.
 !! - NOTE: change of frequency mesh defined here may destroy consistency or not. Need check
       module m_freq
-      real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:)
-      integer,protected:: nwhis,npm,nw_i,nw 
+      use m_read_bzdata,only:
+     &   dq_,qbz,nqbz
+      use m_qbze,only: 
+     &     nqbze,nqibze,qbze,qibze
+      use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
+      use m_readhbe,only: nband
 
+      implicit none
+      real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:),freqx(:),wx(:)
+      integer,protected:: nwhis,npm,nw_i,nw,niw
+      
+      real(8),private:: emin,emax,omg2max
+      
 c      real(8),allocatable,protected:: frhis0(:)
 c      integer,protected:: nwhis0
       contains
@@ -17,15 +27,64 @@ c      integer,protected:: nwhis0
 !! - This read GWinput (dw,omg_c) and TimeReversal() 
 !! - All arguments are input
 
-      subroutine getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo)
-      use m_keyvalue,only:getkeyvalue
-      implicit none
-      intent(in)::       epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,mpi__root,npmtwo
-      integer:: niw !,nw_input
-      logical:: realomega,imagomega,tetra,mpi__root,epsmode
+      subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)!,tetra
+      intent(in)::        lqall,epsmode,realomega,imagomega,ua,mpi__root  
+      real(8):: wemax
+      integer:: iq
+c      logical,optional:: npmtwo !! Added Aug2017 for hmagnon
+c      integer:: niw !,nw_input
+      logical:: realomega,imagomega,mpi__root,epsmode,lqall
       real(8):: omg2max,ua
+!! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
+      call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+      if (nctot > 0) Emin=minval(ecore(:,1:nspin))
+      omg2max = (Emax-Emin)*.5d0+.2d0 
+             ! (in Hartree) covers all relevant omega, +.2 for margin
+      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      wemax=1d10!dummy
+      if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
+      niw=niw_in
+      if(.not.imagomega) niw=1  !dummy
+      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root)!tetra,
+      end subroutine
 
-      real(8),allocatable:: freqx(:),wx(:),expa(:)
+      subroutine getfreq2(epsmode,realomega,imagomega,ua,mpi__root,npmtwo) !,tetra
+      intent(in)::        epsmode,realomega,imagomega,ua,mpi__root,npmtwo  
+      real(8)::emax2,emin2,wemax
+      real(8),allocatable:: qbz2(:,:)
+      integer:: iq
+      logical,optional:: npmtwo !! Added Aug2017 for hmagnon
+c      integer:: niw !,nw_input
+      logical:: realomega,imagomega,mpi__root,epsmode,qbzreg
+      real(8):: omg2max,ua
+      call Findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
+      if(.not.qbzreg()) then
+         allocate(qbz2(3,nqbz))
+         do iq=1,nqbz
+            qbz2(:,iq)=qbz(:,iq)+dq_
+         enddo
+         call Findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
+         emax=max(emax,emax2)
+         emin=min(emin,emin2)
+         deallocate(qbz2)
+      endif
+      if(nctot > 0) Emin=minval(ecore(:,1:nspin))
+      omg2max = (Emax-Emin)*.5d0+.2d0 
+             ! (in Hartree) covers all relevant omega, +.2 for margin
+      call Getwemax(.true.,wemax) !wemax is to determine nw !real axis divisions
+      niw=niw_in
+      call Getfreq(.false.,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root)!,npmtwo,tetra,
+      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
+      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      end subroutine
+
+      subroutine getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo) !,tetra
+      use m_keyvalue,only: getkeyvalue
+      intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo  
+      integer:: niw !,nw_input
+      logical:: realomega,imagomega,mpi__root,epsmode
+      real(8):: omg2max,ua
+      real(8),allocatable:: expa(:)
       logical:: timereversal,onceww
       integer:: nw2,iw,ihis
       real(8)::omg_c,dw,omg2,wemax
@@ -107,7 +166,7 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
          write(6,"('TimeReversal off mode')")
          npm=2
          nw_i=-nw
-         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
+c         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
       endif
       write(6,*)'Timereversal=',Timereversal()
 
@@ -135,7 +194,7 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
          do iw=1,niw
            wiw(iw)=wx(iw)/(2d0*pi*freqx(iw)*freqx(iw))
          enddo
-         deallocate(freqx,wx,expa)
+         deallocate(wx,expa) !freqx,
       endif
 
 !! Plot frhis 

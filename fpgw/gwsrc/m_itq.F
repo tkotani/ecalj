@@ -1,26 +1,25 @@
       module m_itq
       use m_keyvalue,only: Getkeyvalue
       use m_readeigen,only: Readeval
-      implicit none
+      use m_readhbe,only: nband
 
+      implicit none
       integer,allocatable,protected :: itq(:),nbandmx(:,:)
-      integer,protected  :: ntq, nband !ngcmx,ngpmx,
+      integer,protected  :: ntq !ngcmx,ngpmx,
 
 !!======================================================================
       contains
 
-      subroutine setnband(nband_in)
-      intent(in)::        nband_in
-      integer:: nband_in
-      nband=nband_in
-      end
+c      subroutine setnband(nband_in)
+c      intent(in)::        nband_in
+c      integer:: nband_in
+c      nband=nband_in
+c      end
 !!======================================================================
-      subroutine setitq(ntq_in,nband_in,ngcmx_in,ngpmx_in)
-      intent(in)::      ntq_in,nband_in,ngcmx_in,ngpmx_in
-      integer:: nband_in,ngcmx_in,ngpmx_in,ntq_in
+      subroutine setitq()
       integer:: i
-      ntq   = ntq_in
-      nband = nband_in
+      ntq   = nband
+c      nband = nband_in
 c      ngcmx = ngcmx_in
 c      ngpmx = ngpmx_in
       allocate(itq(ntq))
@@ -105,11 +104,11 @@ c      ngpmx = ngpmx_in
       enddo
       end subroutine
 !!======================================================================
-      subroutine setitq_hsfp0 (nband_in,ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss)
-      intent(in)::             nband_in,ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
+      subroutine setitq_hsfp0 (ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss)
+      intent(in)::             ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
       integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2)
       logical:: tote
-      nband = nband_in
+c      nband = nband_in
 c      ngcmx = ngcmx_in
 c      ngpmx = ngpmx_in
       if (tote) then

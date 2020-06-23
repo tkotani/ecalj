@@ -7,12 +7,12 @@
       integer,protected,allocatable:: imbas(:)
 
       contains
-      subroutine ReadGWinputKeys(nband)
+      subroutine ReadGWinputKeys()
       use m_keyvalue,only: Getkeyvalue
       use m_genallcf_v3,only: natom
-      intent(in)::               nband
+      use m_readhbe,only: nband
 c     use NaNum,only: NaN
-      integer:: nband
+c      integer:: nband
       integer:: istat
       integer,allocatable:: imbasd(:)
       call Getkeyvalue("GWinput","ecut_p" ,ecut, default=1d10 )

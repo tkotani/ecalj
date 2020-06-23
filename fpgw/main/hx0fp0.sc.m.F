@@ -14,7 +14,7 @@
 c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
-     &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
+     &     nlmto,nlnmx, nctot,!niw, !nw_input=>nw,
      &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
@@ -30,8 +30,8 @@ c     &        ppovlz,  shtvg, miat,tiat  !ppbir,itq, ntq, nband,ngcmx,ngpmx,
       use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
       
 !! Frequency
-      use m_freq,only: Getfreq,
-     &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm !output of getfreq
+      use m_freq,only: Getfreq2,
+     &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
 !! Antiferro
 c     use m_anf,only: anfcond,
 c     & laf,ibasf !,ldima,pos,natom
@@ -58,11 +58,12 @@ c     & laf,ibasf !,ldima,pos,natom
      &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx
       use m_qbze,only: Setqbze,
      &     nqbze,nqibze,qbze,qibze
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 !! ------------------------------------------------------------------------      
       implicit none
       integer,allocatable:: nwgt(:,:)
       integer::maxocc2,iclose, ixc,iqxini,iqxend, !iopen,
-     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
+c     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &     i,nq0ix,ngrpmx,mxx,ini,ix,ngrpx !nqbze,nqibze,
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &     ifepscond,ifvxcpout,ifgb0vec
@@ -110,10 +111,9 @@ cxxx  !iSigma_en==1 SE_nn'(ef)+delta_nn'([SE_nn(e_n)+c.c.]/2-SE_nn(ef))
       integer::nwin, incwfin, verbose,ifpomat,nnmx,ikpo,nn_,noo,iqxxx,nomx
 c      real(8)::efin
       logical :: nolfco=.false.
-      integer:: isp1,isp2, ngc,mrecg ! bzcase,
+      integer:: isp1,isp2, ngc!,mrecg ! bzcase,
       real(8)::  quu(3),deltaq(3),qqq(3)=0d0 !
       complex(8),allocatable:: wgt(:,:,:)
-      real(8),allocatable:: qbz2(:,:)
       logical :: qbzreg 
 !    logical ::smbasis !smbasis will be implemented in m_zmel.f which generates <phi|phi M>
       real(8):: q_r(3)
@@ -146,9 +146,8 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8):: schi=-9999 !dummy
       integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
       logical:: crpa
-      integer,allocatable :: iclasst(:)!, invgx(:)
       integer:: ibasx,ificlass,ifile_handle,ifiq0p
-      logical:: tetra ,readw0w0itest=.false.
+      logical:: readw0w0itest=.false. !tetra ,
       integer::nw_ixx,nwxx
 
       logical:: w4pmode
@@ -199,75 +198,46 @@ c      real(8):: ef
 !!  newaniso2=T is fixed now
       call Read_BZDATA(hx0) !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
-      
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
-!! We set basic data.
       call Genallcf_v3(incwfx=0) ! incwfin= 0 takes ForX0 for core in GWIN
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
       tpioa=2d0*pi/alat
       call Readefermi() !readin EFERMI
-!!!! caution: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
-      
-!! --- tetra or not
-      tetra =  .true.
-c      delta = -delta
-c      write(6,*)' hx0fp0.sc: tetrahedron mode delta=',delta
-!! --- read dimensions of h,hb
-      open(newunit=ifhbe, file='hbe.d', action='read')
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      close(ifhbe)
+
+      call Readhbe()            !Read dimensions of h,hb
       if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
       if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
-      call ReadGWinputKeys(nband) !readin GWinput
-      
+      call ReadGWinputKeys() !Readin GWinput
 !! --- Readin Offset Gamma --------
       call Readq0p()
       write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
 !! --- Read Qpoints
-c      call Readngmx('QGpsi',ngpmx)
-c     call Readngmx('QGcou',ngcmx)
-      call Readngmx2()          !return ngpmx and ngcmx in m_readqg
+c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
+      call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
       write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
-      call Setqbze()
-c$$$      nqbze  = nqbz *(1 + nq0i+nq0iadd)
-c$$$      nqibze = nqibz + nq0i+nq0iadd
-c$$$      allocate( qbze(3, nqbze), qibze(3, nqibze))
-c$$$      qibze(:,1:nqibz)= qibz(:,1:nqibz)
-c$$$      qibze(:,nqibz+1:nqibz+nq0i+nq0iadd ) = q0i(:, 1:nq0i+nq0iadd)
-c$$$      qbze (:,1:nqbz) = qbz (:,1:nqbz)
-c$$$      do i = 1,nq0i+nq0iadd
-c$$$      do iq = 1,nqbz
-c$$$         qbze (:,nqbz*i + iq) = qbz(:,iq) + q0i(:,i) 
-c$$$      enddo   
-c$$$      enddo
-c      l2nl=2*(nl-1)
-      write(6,*)'  --- Read CLASS info ---'
-      open(newunit=ificlass, file='CLASS', action='read')
-      allocate(iclasst(natom))
-      do ibas = 1,natom
-        read(ificlass,*)  ibasx, iclasst(ibas)
-        write(6,"(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
-
+      call Setqbze()    ! extented BZ points list
+ 
 !! Get space-group transformation information. See header of mptaouof.
 !! But we only use symops=E only for hx0fp0 mode. c.f hsfp0.sc 
 !! Set up miat,tiat,invgx,shtvg in m_zmel, but ngrpx=1 
       ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1
       allocate(symope(3,3))
-      symope(1:3,1) = (/1d0,0d0,0d0/)
-      symope(1:3,2) = (/0d0,1d0,0d0/)
-      symope(1:3,3) = (/0d0,0d0,1d0/)
-      call Mptauof_zmel(symope,ngrpx,plat,natom,pos,iclasst)
+      symope(1:3,1) = [1d0,0d0,0d0]
+      symope(1:3,2) = [0d0,1d0,0d0]
+      symope(1:3,3) = [0d0,0d0,1d0]
+      call Mptauof_zmel(symope,ngrpx)
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
       call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
-!! Set nband, ngcmx, nqpmx and itq in m_zmel
-      call Setitq(nband,nband, ngcmx, ngpmx)
+!! Set itq in m_zmel
+      call Setitq()
+!!
       nblochpmx = nbloch + ngcmx
-!!                MTO      APW 
+      !MPBmax   =  MTO   +   APWmax 
       allocate(ngveccB(3,ngcmx))
       iqxend = nqibz + nq0i + nq0iadd
 
@@ -278,35 +248,17 @@ c      l2nl=2*(nl-1)
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
       realomega = .true.
       imagomega = .true.
-      tetra     = .true.
-      call Findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
-      if(.not.qbzreg()) then
-         allocate(qbz2(3,nqbz))
-         do iq=1,nqbz
-            qbz2(:,iq)=qbz(:,iq)+dq_
-         enddo
-         call Findemaxmin(nband,qbz2,nqbz,nspin ,emax2,emin2)
-         emax=max(emax,emax2)
-         emin=min(emin,emin2)
-         deallocate(qbz2)
-      endif
-      if(nctot > 0) Emin=minval(ecore(:,1:nspin))
-      omg2max = (Emax-Emin)*.5d0+.2d0 
-             ! (in Hartree) covers all relevant omega, +.2 for margin
-      call Getwemax(.true.,wemax) !wemax is to determine nw !real axis divisions
-      call Getfreq(.false.,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root)
-      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
-      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
+      call Getfreq2(.false.,realomega,imagomega,ua,MPI__root)!tetra,
 
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
       nwp = nw+1
       noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
         !max no. of occupied valence states
       if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
-      noccx  = noccxv + nctot !currently we usually assume nctot=0
-      nprecx = ndble        !We use double precision arrays only.
+      noccx  = noccxv + nctot ! We usually assume nctot=0
+      nprecx = ndble          ! We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
-      if(MPI__root)then
+      if(MPI__root)then ! We don't recommend to give a subroutine for writing a file.
         open(newunit=ifwd, file='WV.d', action='write')
         write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
      &       nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
@@ -314,8 +266,6 @@ c      l2nl=2*(nl-1)
       endif
       allocate( zw(nblochpmx,nblochpmx) )
       nspinmx = nspin
-
-!!... These are used x0k
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
@@ -332,8 +282,9 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
       iqxini=1 !for newaniso
       eibzmode = eibz4x0()
 
-!! nov2016 moved from tetwt5 --> here
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+
+!! Array for eigenvalues.
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -385,6 +336,7 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
       do iq = iqxini,iqxend
         if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
       enddo
+      
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
@@ -412,14 +364,14 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
         endif
         q = qibze(:,iq)
         if(iq==1 .and. sum(q**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
+        call Readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
 
 !! Caution : confusing point
 !!  ngc by QGcou is shown at the bottom of lqg4gw.
 !!  ngc read from PPOVL are given by rdata4gw.
 !!  Note that  ngc(iq>nqibz )=ngc (q=0), because when it is generated in mkqg.F
 
-!! ==== readin Coulomb matrix ====
+!! ==== Readin Coulomb matrix ====
         ngb = nbloch + ngc
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
         write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc

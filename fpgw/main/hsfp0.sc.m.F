@@ -61,8 +61,7 @@
      &     Ppbafp_v2_zmel, Mptauof_zmel ! and used when call get_zmelt, get_zmelt2.
 c     &                          !ppbir,miat,tiat,shtvg,
       use m_itq,only:
-     &     Setitq_hsfp0sc,Setnband,
-     &     nband,
+     &     Setitq_hsfp0sc,!Setnband,nband
      &     itq,nbandmx,
      &     ntq
 !     ! antiferro condition. only laf is used, after 'call anfcond()'
@@ -76,6 +75,8 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &     MPI__consoleout,
      &     MPI__barrier
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+
       implicit none
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -99,7 +100,7 @@ c     ! Tetrahedron mehod for correlation is a bit
 
 c      real(8) :: shtw
       integer::
-     & ixc,iopen,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
+     & ixc,iopen, !,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      & ibas,ibasx,ifqpnt,ifwd, !nxx,
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -133,7 +134,7 @@ c
       logical ::nocore
 
 c     space group infermation
-      integer,allocatable :: iclasst(:), invgx(:)
+      integer,allocatable ::  invgx(:)!iclasst(:),
 c     tetra
       real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:),
      & eband(:,:,:), ene(:) 
@@ -162,7 +163,7 @@ c
       integer:: incwfin
       real(8),allocatable::freqx(:),freqw(:),wwx(:)
 
-      integer::  ngpn1,mrecg,ngcn1 
+      integer::  ngpn1,ngcn1  !mrecg,
       real(8)   :: wgtq0p,quu(3)
 
       character(2):: soflag
@@ -207,7 +208,7 @@ c      logical:: newaniso
       integer:: verbose,iband,isp,iqq
 c      integer,allocatable:: nbandmx(:,:)
 
-      integer:: ificlass,ifiq0p,nq_r,nband_r
+      integer:: ificlass,ifiq0p,nq_r!,nband_r
       logical:: hermitianW
       integer:: nw,if671
       real(8)::dwdummy,ecorem,ef
@@ -344,31 +345,14 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
       write(6,'("    alat voltot =",2f13.6)') alat, voltot
 
 !! Read dimensions of wc,b,hb
-      open (newunit=ifhbed,file='hbe.d',status='old')
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband_r,mrecg
-      close(ifhbed)             
-      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
-      call Setnband(nband_r) !m_itq (need fixing)
-!!
-      call INIT_READEIGEN(ginv,nspin,nband,mrece) !initialization of readEigen
+      call Readhbe()    !Read dimensions of h,hb
+      if (nprecb == 4) call rx( 'hsfp0_sc: b,hb in single precision')
+!! Initialization of readEigen
+      call INIT_READEIGEN(ginv,nspin,nband,mrece) 
       ! required for readeigen readchpi readgeig.
-
-!! True class information in order to determine the space group,
-!! because the class in the generated GW file is dummy. (iclass(ibas)=ibas should be kept).
-      ificlass = ifile_handle()
-      open (ificlass,file='CLASS')
-      allocate(iclasst(natom))
-c      ,invgx(ngrp)
-c     & ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      write(6,*)' --- Readingin CLASS info ---'
-      do ibas = 1,natom
-        read(ificlass,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
-      
+     
 !! Get space-group transformation information. See header of mptaouof. (duplicated with hamindex (need fixing).
-      call Mptauof_zmel(symgg,ngrp,plat,natom,pos,iclasst) 
+      call Mptauof_zmel(symgg,ngrp) 
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof'
 
 !! Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
@@ -420,7 +404,7 @@ c        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
 
 !! efermi by tetrahedron. this can be overwritten
       call READEFERMI()
-      ef=ef_read
+      ef = ef_read
 
 !! Determine Fermi energy ef for given valn (legas case), or corresponding charge given by z and konf.==
 !!    When esmr is negative, esmr is geven automatically by efsimplef.
@@ -811,14 +795,14 @@ c        coh   = 0d0
         kount = 0
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 !!== ip loop to spedify external q ==
-        call sxcf_fal3_scz (kount,q,itq,ntq,ef,esmr,
-     i   nspin,is,   
-     i   qbas,ginv,qibz,qbz ,wbz, nstbz, 
+        call sxcf_fal3_scz (kount,q,ef,esmr, !,itq,ntq
+     i   is,   !nspin,
+c     i   qibz,qbz ,wbz, nstbz,  !qbas,ginv,
      i   irkip(is,:,:,:),nrkip(is,:,:,:),
      i   freq_r,nw_i,nw, freqx,wwx, 
-     i   dwdummy,                   
+c     i   dwdummy,                   
      i   ecore(:,is)-ecorem, !ecorem is to push core eigenvalues below enough from Ef for core ex mode.
-     d   nlmto,nqibz,nqbz,nctot,
+c     d   nctot, !,nqibz,nqbz,nlmto,
      d   nbloch,ngrp,niw,nq,   
      i   nblochpmx, ngpmx,ngcmx,
      i   wgt0,nq0i,q0i,symgg,alat,

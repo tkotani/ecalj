@@ -1,12 +1,12 @@
       module m_readQ0P
       implicit none
       real(8),allocatable,protected:: wqt(:), wgt0(:,:),q0i(:,:) !,nx(:,:),nblocha(:)
-      integer,protected:: nq0i,nq0iadd
+      integer,protected:: nq0i,nq0iadd,nq0ix,neps
       integer,protected,allocatable:: ixyz(:)
 
       contains
       subroutine readq0p()
-      integer:: neps,ifiq0p,ifile_handle,i,nq0ix,iq0pin
+      integer:: ifiq0p,ifile_handle,i,iq0pin
       logical:: debug=.false.
 c      write(6,*) 'reading QOP'
 c      ifiq0p=ifile_handle()

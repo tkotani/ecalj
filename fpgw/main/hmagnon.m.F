@@ -359,7 +359,7 @@ c$$$         call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua
 c$$$      endif
       niw=niw_in
       if(.not.imagomega) niw=1  !dummy
-      call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua,MPI__root, npmtwo=.true.)
+      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root, npmtwo=.true.)!,tetra
 
       if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
 

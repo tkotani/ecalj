@@ -27,7 +27,7 @@ c     &   miat,tiat,shtvg, ntq, ppbir
      &   MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &   MPI__consoleout,
      &   MPI__barrier
-
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       implicit none
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
 !!
@@ -70,7 +70,7 @@ c     test switches to calculate the self-energy based on an another separation 
 c------------------------------------
       real(8):: esmr2,shtw,esmr
       integer::
-     &     ixc,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,iopen, nband,
+     &     ixc,iopen, !nband, !ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,
      &     ibas,ibasx,ifqpnt,ifwd, !ngpmx,ngcmx,!nbloch,
      &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
@@ -103,7 +103,7 @@ c      integer,allocatable :: itq(:)
       logical ::nocore
 
 c     space group infermation
-      integer,allocatable :: iclasst(:), invgx(:) !, miat(:,:)
+      integer,allocatable ::  invgx(:) !, miat(:,:) iclasst(:),
 c      real(8),allocatable    :: shtvg(:,:) !tiat(:,:,:),
 
 c     tetra
@@ -147,7 +147,7 @@ c      logical:: GaussSmear=.true.      !readgwinput,
       character*(150):: ddd
 
 
-      integer:: bzcase=1,  ngpn1,mrecg,verbose,ngcn1,nwxx
+      integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx !mrecg,
       real(8)   :: wgtq0p,quu(3)
 
       real(8),allocatable:: freq_r(:)
@@ -368,30 +368,30 @@ c     write(6,'("    ua      =",f13.6)') ua
 c      write(6,'("    niw dw   =",i7,f13.6)') niw ,dw
 
 !!   read dimensions of wc,b,hb from hbe.d
-      ifhbed     = iopen('hbe.d',1,0,0)
-      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
-      isx = iclose ('hbe.d')
+c      ifhbed     = iopen('hbe.d',1,0,0)
+c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+c      isx = iclose ('hbe.d')
+      call Readhbe()    !Read dimensions of h,hb
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       call init_readeigen(ginv,nspin,nband,mrece) !initialization of readEigen
 
 !!  === get space group information ===
 !!  True class information in order to determine the space group -----------
 !!  because the class in the generated GW file is dummy.(iclass(ibas)=ibas should be kept).
-      ificlass=ifile_handle()
-      open (ificlass,file='CLASS')
-      allocate(iclasst(natom))
-c      ,invgx(ngrp)
-c     &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
-      write(6,*)'  --- Readingin CLASS info ---'
-      do ibas = 1,natom
-        read(ificlass,*) ibasx, iclasst(ibas)
-        write(6, "(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
+c$$$      ificlass=ifile_handle()
+c$$$      open (ificlass,file='CLASS')
+c$$$      allocate(iclasst(natom))
+c$$$c      ,invgx(ngrp)
+c$$$c     &     ,miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
+c$$$      write(6,*)'  --- Readingin CLASS info ---'
+c$$$      do ibas = 1,natom
+c$$$        read(ificlass,*) ibasx, iclasst(ibas)
+c$$$        write(6, "(2i10)") ibasx, iclasst(ibas)
+c$$$      enddo
+c$$$  close(ificlass)
+      
 !! ===  Get space-group transformation information. See header of mptaouof. ===
-      call Mptauof_zmel(symgg,ngrp,plat,natom,pos,iclasst) 
-c     o     ,miat,tiat,invgx,shtvg )
-
+      call Mptauof_zmel(symgg,ngrp) !in m_zmel
       
 !! ====  Get array size to call rdpp ====
 c      call Getsrdpp2( nclass,nl,nxx)
@@ -539,7 +539,7 @@ c      write(6,*)' ifqpnt ret=',ifqpnt,ret
         call readx   (ifqpnt,100)
       endif
 !!
-      call setitq_hsfp0(nband,ngcmx,ngpmx,tote,ifqpnt,noccxv,nss)
+      call setitq_hsfp0(ngcmx,ngpmx,tote,ifqpnt,noccxv,nss)
 
 !     q-points
       if (lqall) then           !all q-points case
