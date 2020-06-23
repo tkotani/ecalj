@@ -401,6 +401,15 @@ c      close(ifhbe)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       call Setqbze()    ! extented BZ points list
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      do i = 1,nq0i+1
+        ini = nqbz*(i-1)
+        do ix=1,nqbz
+            write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
+         enddo
+         write(6,*)
+      enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$      do i = 1,nq0i+1
 c$$$        ini = nqbz*(i-1)
 c$$$        do ix=1,nqbz
