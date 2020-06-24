@@ -1,18 +1,22 @@
       module m_rdpp
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
+!     ppbrd = radial integrals
+!     cgr   = rotated cg coeffecients.
       use NaNum,only: NaN
+      use m_genallcf_v3,only: 
+     &     nclass,nspin,nl,nn, qbas=>pos
+      implicit none
       integer,protected:: mdimx=NaN,nbloch=NaN,nxx=NaN
       integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical,protected:: done_rdpp=.false.
 
       contains
-      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
+      subroutine rdpp(ngrp,symope) !nxx,
 !     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.
-      implicit none
-      integer:: nl,ngrp,nn,nclass
-      integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
-     i      nspin,nblochpmx,
+c      integer:: nl,ngrp,nn,nclass
+      integer :: ngrp, ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
+     i      nblochpmx,
      &      n1,n2,n3,iq0,
      &      ifppb(nclass)
       real(8) ::  symope(3,3,ngrp),  pi,qbas(3,3)
@@ -37,7 +41,8 @@ c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
       write(6,*)' ppbrd size',nl,nn,nxx,nclass,nspin
       do ic = 1,nclass
         do isp= 1,nspin
-          nxic = maxval( nx(0:2*(nl-1),ic) )
+           nxic = maxval( nx(0:2*(nl-1),ic) )
+           print *,'xxxxxxxxx nxic=',nxic,isp, nspin,ic
           read(ifppb(ic)) ppbrd(:,:,:,:,:,1:nxic, isp+nspin*(ic-1))
         enddo
         close(ifppb(ic))

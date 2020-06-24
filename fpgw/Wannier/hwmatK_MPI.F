@@ -442,7 +442,7 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c      if (nprecb == 4)
 c     & call RSMPI_Stop( 'hsfp0: b,hb in single precision')
       call Readhbe()
-      call init_readeigen(nband,mrece) !initialization of readEigen
+      call init_readeigen()!nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

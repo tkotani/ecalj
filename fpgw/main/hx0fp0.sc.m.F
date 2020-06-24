@@ -68,7 +68,7 @@ c     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &     ,nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &     ifepscond,ifvxcpout,ifgb0vec
      &     ,nw0,iw,ifinin,iw0,noccxv,noccx
-     &     ,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas
+     &     ,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas ,nprecx,mrecl
      &     ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0
      &     ,kx,isf,kqxx,kp,job,nwmax !,ifev1,ifev2 !,nhwtot
      &     ,ihis,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode
@@ -200,17 +200,16 @@ c      real(8):: ef
       write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
-      call Genallcf_v3(incwfx=0) ! incwfin= 0 takes ForX0 for core in GWIN
+      call Genallcf_v3(incwfx=0) ! incwfin=0 reads 'ForX0 for core' in GWIN
       if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
       tpioa=2d0*pi/alat
       call Readefermi() !readin EFERMI
-
 !!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
-
+!!
       call Readhbe()            !Read dimensions of h,hb
-      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
-      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
+c      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
+c      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
       call ReadGWinputKeys() !Readin GWinput
 !! --- Readin Offset Gamma --------
       call Readq0p()
@@ -232,17 +231,15 @@ c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
       call Mptauof_zmel(symope,ngrpx)
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
-      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
+      call Rdpp(ngrpx,symope)
 !! Set itq in m_zmel
       call Setitq()
 !!
-      nblochpmx = nbloch + ngcmx
-      !MPBmax   =  MTO   +   APWmax 
+      nblochpmx = nbloch + ngcmx !MPBmax   =  MTO   +   APWmax 
       allocate(ngveccB(3,ngcmx))
       iqxend = nqibz + nq0i + nq0iadd
-
 !! ... initialization of readEigen !readin m_hamindex
-      call Init_readeigen(nband,mrece)!EVU EVD are stored in m_readeigen
+      call Init_readeigen()!nband,mrece)!EVU EVD are stored in m_readeigen
       call Init_readeigen2(mrecb,nlmto,mrecg)
 
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
@@ -279,16 +276,11 @@ c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
 c     o   ppbir(:,irot,is))      !this is in m_zmel 
       if(debug) write(6,*) ' end of ppbafp_v2x'
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
-      iqxini=1 !for newaniso
-      eibzmode = eibz4x0()
-
-      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
-
-!! Array for eigenvalues.
-      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-
+      iqxini=1                  !for newaniso
+      
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
 !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
+      eibzmode = eibz4x0()
       if(eibzmode) then
 !! commentout block inversion Use iqxendx=iqxend because of full inversion
          iqxendx=iqxend
@@ -320,15 +312,6 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
       if(ixc==1011)then !ixc==11 is a debug mode to test contrib. at \Gamma point.
          goto 1191
       endif
-      
-!! w4phonon. all nodes have wmu array. !still developing mode
-      w4pmode=.false.
-      if(sum(ixyz)/=0) w4pmode=.true.
-      if(w4pmode) then
-        allocate( wmuk(2:nblochpmx,3))
-        wmuk=1d99
-      endif
-
 !! Rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
       call MPI__hx0fp0_rankdivider2S(nspinmx)
@@ -336,6 +319,16 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
       do iq = iqxini,iqxend
         if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
       enddo
+
+!! w4phonon. all nodes have wmu array. !still developing mode
+      w4pmode=.false.
+      if(sum(ixyz)/=0) w4pmode=.true.
+      if(w4pmode) then
+        allocate( wmuk(2:nblochpmx,3))
+        wmuk=1d99
+      endif
+!! Array for eigenvalues.
+      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
       
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode

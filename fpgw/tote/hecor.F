@@ -281,7 +281,7 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband
 cCstop2rx 2013.08.09 kino      if (nprecb == 4) stop 'hecor: b,hb in single precision'
 c      if (nprecb == 4) call rx( 'hecor: b,hb in single precision')
       call Readhbe()
-      call init_readeigen(nband,mrece) !initialization of readEigen
+      call init_readeigen()!nband,mrece) !initialization of readEigen
 
 c --- get space group information ---------------------------------
 c true class information in order to determine the space group -----------

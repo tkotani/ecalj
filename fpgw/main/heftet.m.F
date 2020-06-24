@@ -262,7 +262,7 @@ c      write(6,*)' valn=',valn
 cccccccccccccccccccccccccccccccccccccccccc
 
       if(imode==1 .or. imode==5) then
-        call init_readeigen(nband,mrece) !initialization of readEigen
+        call init_readeigen()!nband,mrece) !initialization of readEigen
         ! EValue is readin in init_readeigen
         nsp   = nspin !26jan2006
         allocate( eband2(nband,nsp,nqbz) )

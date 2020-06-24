@@ -28,6 +28,8 @@ c     &   miat,tiat,shtvg, ntq, ppbir
      &   MPI__consoleout,
      &   MPI__barrier
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_sxcf,only: Sxcf_fal3z
+      use m_freq,only: ReadfreqWV,freq_r,nw,nqnum,nblochpmx
       implicit none
 !! = Calculate the  self-energy \Sigma within the GW approximation. Some other functions =
 !!
@@ -72,7 +74,7 @@ c------------------------------------
       integer::
      &     ixc,iopen, !nband, !ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt,
      &     ibas,ibasx,ifqpnt,ifwd, !ngpmx,ngcmx,!nbloch,
-     &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, nqnum,nblochpmx, !mdimx,
+     &     nprecx,mrecl,nblochpmx2,nwp=0,niwt, !nqnum,nblochpmx, !mdimx,
 !     nwp=0 for initialization March26-2007
      &     noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
      &     i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
@@ -140,7 +142,7 @@ c      real(8),allocatable:: qbze(:,:)
       integer:: incwfin
       real(8):: ddw
 c      integer,allocatable::imdim(:)
-      real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
+c      real(8),allocatable::freqx(:),freqw(:),wwx(:) !,expa(:)
 
 c      logical:: GaussSmear=.true.      !readgwinput,
       integer::ret
@@ -150,7 +152,7 @@ c      logical:: GaussSmear=.true.      !readgwinput,
       integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx !mrecg,
       real(8)   :: wgtq0p,quu(3)
 
-      real(8),allocatable:: freq_r(:)
+c      real(8),allocatable:: freq_r(:)
 
       logical ::smbasis
       integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,nss(2)
@@ -181,7 +183,7 @@ c      logical:: newaniso=.true.
       integer:: timevalues(8)  ,isp,dest,ificlass,ifiq0p
       character(128) :: ixcc
 
-      integer:: nw,ifcoh !,ifief
+      integer:: ifcoh !,ifief nw,
       real(8)::dwdummy, ef
 C...  mode switch. --------------
       call MPI__Initialize()      ! MIZUHO-IR
@@ -260,9 +262,9 @@ c      call dinv33(plat,1,xxx,vol)
 c      voltot = dabs(vol)*(alat**3)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       shtw = 0d0
-!! if(esmr<1d-5) shtw=0.01d0 ! Ferdi's shift to avoid resonance effect(maybe), I used this until sep2012
       esmr=esmr_in
-c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
+
+c$$$  !! ef is taken as rs for the empty-sphere test case of legas=T case 
 c$$$!! HOMOGENIOUS GAS code. Usually not used.Need fixing if necessary.
 c$$$      INQUIRE (FILE = 'LEGAS', EXIST = legas)
 c$$$      if(legas) then            !!! test for electron gas case.
@@ -373,7 +375,7 @@ c      read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
 c      isx = iclose ('hbe.d')
       call Readhbe()    !Read dimensions of h,hb
       if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
-      call init_readeigen(nband,mrece) !initialization of readEigen
+      call init_readeigen()!nband,mrece) !initialization of readEigen
 
 !!  === get space group information ===
 !!  True class information in order to determine the space group -----------
@@ -394,69 +396,34 @@ c$$$  close(ificlass)
       call Mptauof_zmel(symgg,ngrp) !in m_zmel
       
 !! ====  Get array size to call rdpp ====
-c      call Getsrdpp2( nclass,nl,nxx)
-c      call readngmx('QGpsi',ngpmx)
-c      call readngmx('QGcou',ngcmx)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
-      allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
-      call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
-      call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
-      deallocate(ngvecp,ngvecc)
-      if(debug) write(6,*) ' end of read QGcou'
+      
+c      allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
+c      call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
+c      call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+c      deallocate(ngvecp,ngvecc)
+c      if(debug) write(6,*) ' end of read QGcou'
 
 c      allocate( nx(0:2*(nl-1),nclass), nblocha(nclass) ,lx(nclass),
 c     &     ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
 c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 
 !! === readin plane wave parts, and Radial integrals ppbrd. ===
-!     ppbrd = radial integrals
-!     cgr   = rotated cg coeffecients.
 !     geigB = eigenfunction's coefficiens for planewave.
 !     ngvecpB (in 1stBZ) contains G vector for eigen function.
 !     ngveccB (in IBZ)   contains G vector for Coulomb matrix.
 c      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
 c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-      call Rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
-      !     output ==>     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr
+      call Rdpp(ngrp,symgg)!nxx,
       call pshprt(60)
 
 !! Readin WV.d
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
-        ifwd = iopen('WV.d',1,-1,0) !direct access files WVR and WVI which include W-V.
-        read (ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
-        write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
-        ifwd =iclose('WV.d')
-        call checkeq(nprecx,ndble)
-        nw=nwp-1
-        if (niwt /= niw) call rx( 'hsfp0: wrong niw')
-!! Energy mesh; along real axis. Read 'freq_r' 
-!! NOTE nw_i=nw for non-timereversal case.
-!!      nw_i=0 for time-reversal case.
-!!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
-!!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
-        ififr=ifile_handle()
-        open(UNIT=ififr,file='freq_r')
-        read(ififr,*)nwxx       !number of energy points
-        if(nwxx/= nw+1) call rx( ' freq_r nw /=nw')
-        allocate(freq_r(nw_i:nw)) !freq_r(1)=0d0
-        do iw = nw_i,nw
-          read(ififr,*)freq_r(iw)
-        enddo
-        close(ififr)
-        if(nw_i/=0) then
-          if(nw/= -nw_i)        call rx( "sxcf_fal3: nw/=-nw_i")
-          if(freq_r(0)/=0d0)    call rx( "sxcf_fal3: freq_r(0)/=0")
-          if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
-     &     call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
-        endif
+         call Readfreqwv()
       endif
 
 !! efermi by tetrahedron. this can be overwritten
-c      ifief=ifile_handle()
-c      open(ifief,file='EFERMI')
-c      read(ifief,*) ef
-c      close(ifief)
       call readefermi()
       ef=ef_read
       if(tetraex) goto 201
@@ -706,12 +673,12 @@ c      allocate(imdim(natom))
 c      call indxmdm (nblocha,nclass,
 c     i     iclass,natom,
 c     o     imdim )
-      if(niw/=0) then
-!! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
-         allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
-         call freq01x  (niw,    !ua,
-     o        freqx,freqw,wwx)  !,expa)
-      endif
+c$$$      if(niw/=0) then
+c$$$!! Generate gaussian frequencies x between (0,1) and w=(1-x)/x
+c$$$         allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
+c$$$         call freq01x  (niw,    !ua,
+c$$$     o        freqx,freqw,wwx)  !,expa)
+c$$$      endif
 
 c     ------ write energy mesh ----------
 c$$$      ifemesh = iopen('emesh.hsfp0'//xt(nz),1,-1,0)
@@ -941,10 +908,10 @@ c        if(sum(irkip(is,:,:,ip))==0) cycle
      i   nspin,is,
      i   qbas,ginv,qibz,qbz,wbz,nstbz, wibz, 
      i   nstar,irkip(is,:,:,:),  
-     i   freq_r,freqx, wwx,   
+c     i   freq_r,freqx, wwx,   
      i   dwdummy, ecore(:,is),
      d   nlmto,nqibz,nqbz,nctot,
-     d   nbloch,ngrp, nw_i,nw,  niw,niwx,nq, 
+     d   nbloch,ngrp,  niw,niwx,nq, !nw_i,nw, 
      i   nblochpmx,ngpmx,ngcmx,
      i   wgt0,nq0i,q0i, symgg,alat, nband, ifvcfpout, 
      i   exchange, tote, screen, cohtest, ifexsp(is),

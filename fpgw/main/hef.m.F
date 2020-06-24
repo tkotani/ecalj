@@ -229,7 +229,7 @@ c      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
       call Readhbe()
 
 
-      call init_readeigen(nband,mrece) !initialization of readEigen
+      call init_readeigen()!nband,mrece) !initialization of readEigen
 
 c------------
 c open files

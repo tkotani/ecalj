@@ -9,13 +9,14 @@
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
 c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,         
+      use m_freq,only: freq_r,nw_i,nw,freqx,wx=>wwx
 
       contains
       subroutine sxcf_fal3_scz(kount,qip,ef,esmr, !itq,ntq,
      i isp,             !nsp,
 c     i qbas,ginv,
      i irkip,nrkip, !qibz,qbz,wk,nstbz,
-     i freq_r,nw_i,nw, freqx,wx, !,dwdummy,         
+c     i freq_r,nw_i,nw, freqx,wx, !,dwdummy,         
      i ecore,
 c     i nctot, !nqibz,nqbz,nlmto,
      i nbloch,ngrp,niw,nq,     
@@ -29,7 +30,8 @@ c     i nctot, !nqibz,nqbz,nlmto,
      i hermitianW,
      o zsec,coh,nbandmx)
       implicit none
-!> \brief
+
+!     > \brief
 !! Calcualte full simga_ij(e_i)= <i|Re[Sigma](e_i)|j> 
 !! ---------------------
 !! \param exchange 
@@ -179,7 +181,7 @@ c      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
 c      real(8), intent(in) :: qbas(3,3),ginv(3,3)
 c      real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
 c      real(8), intent(in) :: qbz(3,nqbz)
-      real(8), intent(in) :: freqx(niw),wx(niw),ef,esmr,ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy
+      real(8), intent(in) :: ef,esmr,ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy freqx(niw),wx(niw),
       real(8), intent(in) :: qip(3,nq),eftrue
 
 c      integer,intent(in):: iwini,iwend
@@ -203,8 +205,8 @@ c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass
 
       integer :: ip, it, itp, i, ix, kx, irot, kr
       integer :: nt0p, nt0m,nstate , nbmax, ntqxx !iatomp(natom), 
-      integer :: nt,nw,ixs,iw,ivc,ifvcoud,ngb0
-      integer :: nprecx,mrecl,ifwd,nrot,nwp,nw_i,ierr 
+      integer :: nt,ixs,iw,ivc,ifvcoud,ngb0 !nw,
+      integer :: nprecx,mrecl,ifwd,nrot,nwp,ierr ! nw_i,
       integer :: nstatetot,iqini,iqend, ngb,ngc !nbcut,
       integer :: invr,nbmxe,ia,nn,ntp0,no,itpp,nrec,npm,itini,itend
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
@@ -219,7 +221,7 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
       complex(8) :: zwzs0,zz2,zwz3(3)
 
 ! local arrays
-      real(8),intent(in) :: freq_r(nw_i:nw)
+c      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
@@ -404,6 +406,7 @@ c            endif
 
 !! === loop 1000 over rotations irot ===
           do 1000 irot = 1,ngrp
+            print *,'kx irot=',kx,irot
             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
             qbz_kr= qbz (:,kr) 

@@ -1,13 +1,21 @@
+      module m_sxcf
+      use m_readqg,only:readqg0
+      use m_readeigen,only: readeval
+      use m_keyvalue,only: getkeyvalue
+      use m_zmel,only: Get_zmelt,Setppovlz_sxcf, Deallocate_zmel,Deallocate_zmeltt,
+     &  zmel,zmeltt  !ppovlz,
+      use m_freq,only: freq_r,nw_i,nw,freqx,wx=>wwx
+      contains
       subroutine sxcf_fal3z(kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2,
      i nsp,isp,                 !tiat,miat, 
      i qbas,ginv,
      i qibz,qbz,wk,nstbz,wik,  
      i nstar,irkip,  
-     i freq_r,freqx,wx, 
+c     i freq_r,freqx,wx, 
      i dwdummy,ecore, 
      d nlmto,nqibz,nqbz,nctot,
 c     d nl,nnc,nclass,natom,mdimx,
-     d nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
+     d nbloch,ngrp, niw,niwx,nq, !nlnmx,nw_i,nw 
      & nblochpmx ,ngpmx,ngcmx, 
      & wgt0,nq0i,q0i,symgg,alat, nband, ifvcfpout, !shtvg,
      & exchange,tote,screen,cohtest, ifexsp,
@@ -16,11 +24,6 @@ c     d nl,nnc,nclass,natom,mdimx,
      i wklm,lxklm, 
      i dwplot,
      o zsec,coh,exx)
-      use m_readqg,only:readqg0
-      use m_readeigen,only: readeval
-      use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmelt,Setppovlz_sxcf, Deallocate_zmel,Deallocate_zmeltt,
-     &  zmel,zmeltt  !ppovlz,
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 
@@ -227,11 +230,11 @@ c----------------------------------------------------------------------
 c     i iclass,mdim,nlnmv,nlnmc,
 c     i icore,ncore,imdim,
 c     i ppb, 
-     i freq_r,freqx,wx, 
+c     i freq_r,freqx,!wx, 
      i dwdummy,ecore, 
      d nlmto,nqibz,nqbz,nctot,
 c     d nl,nnc,nclass,natom,mdimx,
-     d nbloch,ngrp, nw_i,nw ,niw,niwx,nq, !nlnmx,
+     d nbloch,ngrp, niw,niwx,nq, !nlnmx,nw_i,nw 
      & nblochpmx ,ngpmx,ngcmx, 
      & wgt0,nq0i,q0i,symgg,alat, nband, ifvcfpout, !shtvg,
      & exchange,tote,screen,cohtest, ifexsp,
@@ -241,7 +244,7 @@ c     d nl,nnc,nclass,natom,mdimx,
 c     i   pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, 
 c     i invg,!il,in,im,nn_, lx,nx_,nxx_,dwplot !ppbrd, !cgr,,nlnm
 
-      integer :: ntq, nqbz,nqibz,ngrp,nq,nw,niw, !natom,
+      integer :: ntq, nqbz,nqibz,ngrp,nq,niw, !natom,nw,
      & nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex,
      & irot,  iqisp,ikpisp,isp,nsp, !nlnmx, !iq, idxk,
 c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
@@ -257,7 +260,7 @@ c     i iiclass,                 !mdim(*),
 c
       real(8) :: q(3),qbas(3*3),ginv(3*3), !tr(3,natom), !,tiat(3,natom,ngrp)
      & wk(nqbz),wik(nqibz),qibz(3,nqibz),qbz(3,nqbz),
-     & freqx(niw),wx(niw),      !expa(niw),
+c     & freqx(niw),wx(niw),      !expa(niw),
      & eq(nband,nq), 
      & ekq(nband), ekc(nctot+nband),
      & tpi,ef,ef2,esmr,esmr2,efp,efm,wtx,wfac,wfacx,we,esmrx, !ua,
@@ -316,13 +319,13 @@ c      complex(8),allocatable:: expikt(:)
 ctakao
 c      complex(8):: cphiq(nlmto,nband), cphikq(nlmto,nband)
 
-      integer(4) :: nt_max, igb1,igb2,iigb,  nw_i !nw_i is at feb2006 TimeReversal off case
+      integer(4) :: nt_max, igb1,igb2,iigb!,  nw_i !nw_i is at feb2006 TimeReversal off case
       complex(8),allocatable:: zmel3(:) !zmel1(:),
       complex(8), allocatable :: zw_(:,:) !,zzmel(:,:)
       complex(8), allocatable :: zwz2(:,:),zw2(:,:),zmel2(:,:) !0 variant
       complex(8) ::  zz2 ,zwz3(3) ,zwz3x
       real(8) :: dd,omg_c,dw2,omg
-      real(8) :: freq_r(nw_i:nw)
+c      real(8) :: freq_r(nw_i:nw)
       complex(8), allocatable :: zw3(:,:,:)
 
 
@@ -1185,4 +1188,5 @@ c      if (allocated(zw2)) deallocate(zw2)
         if (allocated(uaa)) deallocate(uaa)
  1001 continue
 c      if (allocated(expikt)) deallocate(expikt)
-      end
+      end subroutine
+      end module
