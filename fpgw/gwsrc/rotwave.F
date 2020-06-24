@@ -73,8 +73,8 @@ c$$$!! ------------
 c         write(6,*)'iorb=',iorb
         ibas = ibas_tbl(iorb)
         if(ibas/=ibaso) then
-          print *,' xxx111=',qrot,ibas
-          print *,' xxx phase=',tiat
+c          print *,' xxx111=',qrot,ibas
+c          print *,' xxx phase=',tiat
           phase = exp( -img2pi*sum(qrot*tiat(:,ibas))) 
         endif   
         ibaso=ibas
@@ -85,7 +85,7 @@ c         write(6,*)'iorb=',iorb
         ini2 = offset_rev_tbl(miat(ibas),l,k)+1
         iend2 = ini2+2*l
 c     write(6,"(' === PBs index: iorb ibas l k ini1 ini2',10i4)")iorb,ibas,miat(ibas),l,k,ini1,ini2
-        write(6,*)'yyyyyyy ',iorb,norbt, ini2,iend2,miat(ibas),l,k,offset_rev_tbl(miat(ibas),l,k)
+c        write(6,*)'yyyyyyy ',iorb,norbt, ini2,iend2,miat(ibas),l,k,offset_rev_tbl(miat(ibas),l,k)
 c        write(6,*)'xxx1',sum( dlmm(-l:l,-l:l,l))
 c        write(6,*)'xxx2', phase
 c        write(6,*)'xxx3', sum(cphiin(ini1:iend1,:))

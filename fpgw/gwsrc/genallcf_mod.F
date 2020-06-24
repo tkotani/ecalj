@@ -1,56 +1,4 @@
-      module m_readclasst
-      use m_genallcf_v3,only: natom
-      integer,allocatable,protected :: iclasst(:)!, invgx(:)
-      contains
-      subroutine Readclasst()
-      allocate(iclasst(natom))
-      write(6,*)'  --- Read CLASS info ---'
-      open(newunit=ificlass, file='CLASS', action='read')
-      do ibas = 1,natom
-        read(ificlass,*)  ibasx, iclasst(ibas)
-        write(6,"(2i10)") ibasx, iclasst(ibas)
-      enddo
-      close(ificlass)
-      end subroutine
-      end module
-!------------------------    
-      module m_readhbe
-      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      contains
-      subroutine readhbe()
-      open(newunit=ifhbe, file='hbe.d', action='read')
-      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      close(ifhbe)
-      end subroutine
-      end module
-!------------------------    
-      module m_ReadEfermi
-      real(8),protected:: bandgap, ef, ef_kbt
-      contains
-      subroutine readefermi()
-      implicit none
-      integer:: ifief,ifile_handle
-      ifief=ifile_handle()
-      open(ifief,file='EFERMI')
-      read(ifief,*) ef,bandgap
-      close(ifief)
-      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
-      end subroutine
-!------------------------------------
-      subroutine readefermi_kbt()
-      implicit none
-      integer:: ifief_kbt,ifile_handle
-      ifief_kbt=ifile_handle()
-      open(ifief_kbt,file='EFERMI_kbt')
-      read(ifief_kbt,*) ef_kbt,bandgap
-      close(ifief_kbt)
-      write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
-      end subroutine
-      end module m_ReadEfermi
-
-
-      
-!> get basic settings of crystal structure and nlm info
+!     > get basic settings of crystal structure and nlm info
 !!  - genallcf_v3(nwin,efin,incwfx) set data
 !!  - This is old routine. Confusing. We need to clean up.
       module m_genallcf_v3
@@ -594,3 +542,58 @@ c total no. allowed core states
       end do
       return
       end
+
+!------------------------    
+      module m_readhbe
+      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      contains
+      subroutine readhbe()
+      open(newunit=ifhbe, file='hbe.d', action='read')
+      read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      close(ifhbe)
+      end subroutine
+      end module
+!------------------------    
+      module m_ReadEfermi
+      real(8),protected:: bandgap, ef, ef_kbt
+      contains
+      subroutine readefermi()
+      implicit none
+      integer:: ifief,ifile_handle
+      ifief=ifile_handle()
+      open(ifief,file='EFERMI')
+      read(ifief,*) ef,bandgap
+      close(ifief)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
+      end subroutine
+!------------------------------------
+      subroutine readefermi_kbt()
+      implicit none
+      integer:: ifief_kbt,ifile_handle
+      ifief_kbt=ifile_handle()
+      open(ifief_kbt,file='EFERMI_kbt')
+      read(ifief_kbt,*) ef_kbt,bandgap
+      close(ifief_kbt)
+      write(6,"(a,f12.6)")' --- READIN ef from EFERMI_kbt. ef=',ef_kbt
+      end subroutine
+      end module m_ReadEfermi
+   
+      
+c----------------------------------------------------------
+!! we neede module reading m_genallfc_v3 should be here after it is dedined in this file
+      module m_readclasst
+      use m_genallcf_v3,only: natom
+      integer,allocatable,protected :: iclasst(:)!, invgx(:)
+      contains
+      subroutine Readclasst()
+      allocate(iclasst(natom))
+      write(6,*)'  --- Read true CLASS (crystalographyically equivalent sites) ---'
+      open(newunit=ificlass, file='CLASS', action='read')
+      do ibas = 1,natom
+        read(ificlass,*)  ibasx, iclasst(ibas)
+        write(6,"(2i10)") ibasx, iclasst(ibas)
+      enddo
+      close(ificlass)
+      end subroutine
+      end module
+

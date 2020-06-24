@@ -269,7 +269,7 @@ cold  nbmax -->nmmax
       endif
 
       if(sum(abs(q-q_bk))>tolq) then
-         print *,' go to readcphi',q,nlmto,ispq,quu
+c         print *,' go to readcphi',q,nlmto,ispq,quu
 ccccccccccccccccccccccccccccccccc         
          call readcphi(q, nlmto,ispq, quu, cphim )
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))

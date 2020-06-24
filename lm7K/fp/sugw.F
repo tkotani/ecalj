@@ -972,9 +972,10 @@ C       to avoid mixing up integration routines
                if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
             endif   
 
-            if(debug) write(6,"(' ppppppp 111111111')")
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$!! test for takao wave function rotater si 5x5x5.
+c            write(6,"(' ppppppp 111111111')")
+            
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c$$$!! wave function rotation test for si 5x5x5.
 c$$$            if(.false.) then
 c$$$c       if(iq==8) then
 c$$$              ifievv=1012

@@ -100,7 +100,7 @@ c     ! Tetrahedron mehod for correlation is a bit
 
 c      real(8) :: shtw
       integer::
-     & ixc,iopen, !,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
+     & ixc,!iopen, !,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      & ibas,ibasx,ifqpnt,ifwd, !nxx,
      & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
@@ -609,20 +609,7 @@ c$$$      endif
      i   nl,nn,nclass,nlnmx,
      i   mdimx,lx,nx,nxx,       !Bloch wave    
      i   cgr, nl-1,             !rotated CG
-     i   ppbrd) !,                 !radial integrals
-c$$$      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
-c$$$      do irot = 1,ngrp
-c$$$        do isp = 1,nspin
-c$$$          call ppbafp_v2 (irot,ngrp,isp,nspin,
-c$$$     i     il,in,im,nlnm,       !w(i_mnl),
-c$$$     i     nl,nn,nclass,nlnmx,
-c$$$     i     mdimx,lx,nx,nxx,     !Bloch wave    
-c$$$     i     cgr, nl-1,           !rotated CG
-c$$$     i     ppbrd,               !radial integrals
-c$$$     o     ppbir(:,irot,isp))   !this is in m_zmel
-c$$$        enddo  
-c$$$      enddo  
-      
+     i   ppbrd)                 !radial integrals
 
 c$$$c---- tetra block is experimental. unused usually. ----------------
 c$$$      if(tetra) then 

@@ -401,7 +401,9 @@ c      close(ifhbe)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,"(' ngcmx ngpmx= ',2i8)") ngcmx,ngpmx 
       call Setqbze()    ! extented BZ points list
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+!! This check write was required to pass check for commit 299baa Tue Jun 23 21:16:02 2020 +0900
+!!    gfortran gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) 
       do i = 1,nq0i+1
         ini = nqbz*(i-1)
         do ix=1,nqbz
@@ -409,8 +411,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          enddo
          write(6,*)
       enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$      do i = 1,nq0i+1
+
+c$$$  do i = 1,nq0i+1
 c$$$        ini = nqbz*(i-1)
 c$$$        do ix=1,nqbz
 c$$$            write(6,"('hx0fp0 qbze q0i=',i8,3f10.4,2x,3f10.4)") ini+ix,qbze(:,ini+ix)!,q0i(:,i)
@@ -440,14 +442,14 @@ c$$$      enddo
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
 
 !! Initialization of readEigen !readin m_hamindex
-c      ginv = transpose(plat)
       call init_readeigen(nband,mrece)!EVU EVD are read in init_readeigen
       call init_readeigen2(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
-!!
+!! Frequency      
       call getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
+      
 !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
       if(epsmode) allocate(epsi(nw_i:nw,neps)) 
 
@@ -550,9 +552,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           write(6,"( 'mmom mmnorm= ',2f14.10)")  momsite(imb),mmnorm(imb)
         enddo
       endif
-
-!! nov2016 moved from tetwt5 --> here
-      ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
+!!
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
       
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -562,7 +562,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
  !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
       eibzmode=eibz4x0() 
       if(eibzmode) then
- !! commentout block inversion Use iqxendx=iqxend because of full inversion
+ !! comment-out block inversion. Use iqxendx=iqxend because of full inversion
         call cputid(0)
         write(6,*)' ---goto eibzmode block ---'
         iqxendx=iqxend
