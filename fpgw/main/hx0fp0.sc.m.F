@@ -25,10 +25,9 @@ c     &     idteti, nstar,irk,nstbz
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
 !! Set data for "call get_zmelt".
       use m_zmel,only:  !these data set are stored in this module, and used when 
-     &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz
+     &      Mptauof_zmel, Setppovlz !Ppbafp_v2_zmel,
 c     &        ppovlz,  shtvg, miat,tiat  !ppbir,itq, ntq, nband,ngcmx,ngpmx,
       use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-      
 !! Frequency
       use m_freq,only: Getfreq2,
      &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
@@ -162,7 +161,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: rcxqin(:)
       real(8):: egauss
       integer:: imbas1,imbas2,ipm,niw_
-      complex(8),allocatable:: ppovlz(:,:)
+c      complex(8),allocatable:: ppovlz(:,:)
 c      integer:: ifief
 c      real(8):: ef
 !-------------------------------------------------------------------------
@@ -233,13 +232,13 @@ c      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: ma
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
 c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
-      call Rdpp(ngrpx,symope)
+c      call Rdpp(ngrpx,symope) !moved to m_zmel
 !! Set itq in m_zmel
       call Setitq()
 !!
 !! ... initialization of readEigen !readin m_hamindex
-      call Init_readeigen()!nband,mrece)!EVU EVD are stored in m_readeigen
-      call Init_readeigen2(mrecb,nlmto,mrecg)
+      call Init_readeigen() !nband,mrece)!EVU EVD are stored in m_readeigen
+      call Init_readeigen2() !mrecb,nlmto,mrecg)
 
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
       realomega = .true.
@@ -270,13 +269,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! ppbafp_v2x generates ppbir in m_zmel
-      call ppbafp_v2_zmel (ngrpx) !nspin, !all inputs. This is in m_zmel
-c     i   il,in,im,nlnm,         !w(i_mnl),
-c     i   nl,nn,nclass,nlnmx,
-c     i   mdimx,lx,nx,nxx,       !Bloch wave    
-c     i   cgr, nl-1,             !rotated CG
-c     i   ppbrd) !,              !radial integrals
-c     o   ppbir(:,irot,is))      !this is in m_zmel 
+c      call ppbafp_v2_zmel (ngrpx)
       if(debug) write(6,*) ' end of ppbafp_v2x'
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
       iqxini=1 !for newaniso
@@ -314,6 +307,7 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
          allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
      &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       endif
+!!
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
       llw = 1d99
       llwI= 1d99
@@ -328,6 +322,13 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
         allocate( wmuk(2:nblochpmx,3))
         wmuk=1d99
       endif
+!! Get ngbq0 (for q=0) and broadcast for w4p
+      if( MPI__root.and. w4pmode ) then
+        q = (/0d0,0d0,0d0/)
+        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+        ngbq0 = nbloch+ngc
+      endif
+      call MPI__Broadcast(ngbq0)
 
 !! Rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
@@ -344,15 +345,9 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
 !! ---------------------------------------------------------------
 !! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
-!! Get ngbq0 (for q=0) and broadcast for w4p
-      if( MPI__root.and. w4pmode ) then
-        q = (/0d0,0d0,0d0/)
-        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
-        ngbq0 = nbloch+ngc
-      endif
-      call MPI__Broadcast(ngbq0)
 
 !! main loop ========================================================
+      if(sum(qibze(:,1)**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         call cputid (0)
         if( .not. MPI__Qtask(iq) ) cycle
@@ -363,16 +358,11 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
      &          status='unknown',access='direct',recl=mrecl)
         endif
         q = qibze(:,iq)
-        if(iq==1 .and. sum(q**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
         call Readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
-
-!! Caution : confusing point
-!!  ngc by QGcou is shown at the bottom of lqg4gw.
-!!  ngc read from PPOVL are given by rdata4gw.
-!!  Note that  ngc(iq>nqibz )=ngc (q=0), because when it is generated in mkqg.F
+!!  ngc, number of PW for the interaction matrix (in QGcou), is shown at the bottom of lqg4gw.
 
 !! ==== Readin Coulomb matrix ====
-        ngb = nbloch + ngc
+        ngb = nbloch + ngc !number of MPB = PB part + IPW part
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
         write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
         call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
@@ -387,7 +377,7 @@ c     o   ppbir(:,irot,is))      !this is in m_zmel
         nmbas1 = nmbas_in
         nmbas2 = nmbas1
 
-!! Used in get_zmelt in m_zmel in x0kf_v4hz
+!! We need to set ppovlz to call get_zmelt \in m_zmel in x0kf_v4hz
         call Setppovlz(q,ngc,zcousq,ngb)
 !!
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )

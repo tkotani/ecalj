@@ -13,20 +13,18 @@
      &     nqbze,nqibze,qbze,qibze
       use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
       use m_readhbe,only: nband
-
       implicit none
-      real(8),allocatable,protected:: frhis(:),freq_r(:),freq_i(:),wiw(:),freqx(:),wx(:)
-      integer,protected:: nwhis,npm,nw_i,nw,niw
-      
+!!--------------
+      public:: getfreq2, getfreq3, getfreq
+      real(8),allocatable,protected,public:: frhis(:),freq_r(:),freq_i(:),wiw(:), freqx(:),wx(:)
+      integer,protected,public:: nwhis, npm, nw_i, nw, niw
+!!
+      private
       real(8),private:: emin,emax,omg2max
-      
-c      real(8),allocatable,protected:: frhis0(:)
-c      integer,protected:: nwhis0
-      contains
-!> Get data set for m_freq. All arguments are input.
-!! - This read GWinput (dw,omg_c) and TimeReversal() 
-!! - All arguments are input
 
+      contains
+      
+!> Get data set for m_freq. All arguments are input.
       subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)!,tetra
       intent(in)::        lqall,epsmode,realomega,imagomega,ua,mpi__root  
       real(8):: wemax
@@ -47,7 +45,7 @@ c      integer:: niw !,nw_input
       if(.not.imagomega) niw=1  !dummy
       call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root)!tetra,
       end subroutine
-
+!----------------
       subroutine getfreq2(epsmode,realomega,imagomega,ua,mpi__root,npmtwo) !,tetra
       intent(in)::        epsmode,realomega,imagomega,ua,mpi__root,npmtwo  
       real(8)::emax2,emin2,wemax
@@ -77,7 +75,7 @@ c      integer:: niw !,nw_input
       if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
       if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
       end subroutine
-
+!----------------
       subroutine getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo) !,tetra
       use m_keyvalue,only: getkeyvalue
       intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo  
@@ -91,15 +89,12 @@ c      integer:: niw !,nw_input
       real(8), allocatable :: freqr2(:)  ,frhis_tmp(:)
       real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio,oratio,daa
       integer::nee,noo,ifif,ifile_handle
-
       logical,optional:: npmtwo !! Added Aug2017 for hmagnon
       logical:: npm2
-
       logical,save:: done=.false.
       if(done) call rx('gerfreq is already done') !sanity check
       done =.true.
       nw=-99999 !for sanity check
-
 c      nw = nw_input
 !! Histogram bin divisions
 !! We first accumulate Imaginary parts. 
@@ -145,7 +140,6 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
                      ! Now, frhis_m(nw-1)> all relevent frequensies for Wc(omg)
                      ! and one more point omg=frhis_m(nw) needed for extropolation
                      ! used in subroutine alagr3z in  sxcf.f.
-
 !! Determine freq_r
       if(epsmode) then
         nw  = nwhis-1
@@ -155,7 +149,6 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
       do iw=1,nw
         freq_r(iw)=(frhis(iw)+frhis(iw+1))/2d0
       enddo
-
 !! Timereversal=F is implimented only for tetra=T and sergeyv=T
 !! nw_i and npm
       npm=1
@@ -169,7 +162,6 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
 c         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
       endif
       write(6,*)'Timereversal=',Timereversal()
-
 !! Write freq_r
       if(realomega .and. mpi__root) then
         ifif=ifile_handle()
@@ -183,7 +175,6 @@ c         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
          enddo
          close(ifif)
       endif
-
 !! Determine freq_i  : gaussian frequencies x between (0,1) and w=(1-x)/x      
       if (imagomega) then
          write(6,*)' freqimg: niw =',niw
@@ -196,7 +187,6 @@ c         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
          enddo
          deallocate(wx,expa) !freqx,
       endif
-
 !! Plot frhis 
       if(onceww(1)) then
         write(6,*)' we set frhis nwhis noo-->nee=',nwhis,noo,nee

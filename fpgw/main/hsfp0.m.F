@@ -17,7 +17,7 @@
       use m_rdpp,only: Rdpp, !"call rdpp" generate following data set.
      &   nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
       use m_zmel,only: 
-     &     Ppbafp_v2_zmel, Mptauof_zmel
+     &      Mptauof_zmel !Ppbafp_v2_zmel,
       use m_itq,only: Setitq_hsfp0, 
      &     itq,ntq
 c     &   nband,itq,ngcmx,ngpmx,
@@ -418,7 +418,7 @@ c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 c      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
 c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
 c      call Rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
-      call Rdpp(ngrp,symgg)
+c      call Rdpp(ngrp,symgg)
       !     output ==>     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr
       call pshprt(60)
 
@@ -517,7 +517,7 @@ c     noccxv = maxocc (ifev,nspin, ef2+ ddw*esmr2, nband,nqbz)
 c     noccxv = maxocc (ifev,nspin, ef+0.5d0*esmr, nband,nqbz)  ! maximum no. of occupied valence states
 !     maxocc seems to give (the maxmum number of occ + 1).
 
-      call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
       call Getkeyvalue("GWinput","QPNT_nbandrange",nss,2,default=(/-99997,-99997/) )
 
       if(.not.tote) then
@@ -862,7 +862,7 @@ c-----------------------------------------------------------
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrp,nspin))
-      call ppbafp_v2_zmel (ngrp)!,nspin, !all inputs. This is in m_zmel
+c      call ppbafp_v2_zmel (ngrp)!,nspin, !all inputs. This is in m_zmel
 c     i   il,in,im,nlnm,         !w(i_mnl),
 c     i   nl,nn,nclass,nlnmx,
 c     i   mdimx,lx,nx,nxx,       !Bloch wave    

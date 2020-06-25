@@ -14,16 +14,14 @@
      i     occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
      i     done_genallcf_v3,
      &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
-
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
- 
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
 !! Before calling them (get coefficients of eigen funcitons), 
 !! We need to call init_readeigen, init_readeigen2 in main rouitne.
       use m_readeigen,only: Readcphi,Readgeig 
 !! these are set by 'call rdpp' 
-      use m_rdpp,only:       
+      use m_rdpp,only: Rdpp,       
      i     nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
      i     done_rdpp  
 !! BZ data. To set these data 'call read_BZDATA'
@@ -38,9 +36,12 @@
       implicit none
 
 !!--- OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
-      complex(8),allocatable,protected :: zmel(:,:,:) !,zmeltt(:,:,:) !output
-      complex(8),allocatable,protected :: zmeltt(:,:,:) !output
+      public:: get_zmelt,get_zmelt2, Dconjg_zmel,Deallocate_zmel,Deallocate_zmeltt,
+     &       Setppovlz,Setppovlz_sxcf,Setppovlz_ee,Setppovlz_chipm,  mptauof_zmel
+      complex(8),allocatable,protected,public :: zmel(:,:,:)   
+      complex(8),allocatable,protected,public :: zmeltt(:,:,:) 
 
+      private
 !! Local private ---------------------
 !!    These are set by mptauof in 'call mptauof_zmel'
       integer,allocatable,private :: miat(:,:)     ! mptauof_zmel
@@ -53,6 +54,7 @@
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
 
       contains
+
       subroutine Dconjg_zmel()
       zmel = dconjg(zmel)
       end
@@ -62,8 +64,8 @@
       subroutine Deallocate_zmeltt()
       deallocate(zmeltt)
       end
-!
-!     set ppovlz for given q      
+
+!! set ppovlz for given q      
       subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
       intent(in)::              q,ngc,zcousq,ngb
       integer :: ngc,ngb
@@ -77,7 +79,6 @@
       ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
       deallocate(ppovl)
       end subroutine setppovlz_sxcf
-      
 !! set ppovlz for given q      
       subroutine setppovlz(q,ngc,zcousq,ngb)
       intent(in)::         q,ngc,zcousq,ngb
@@ -105,7 +106,6 @@
       ppovlz = ppovl_
       deallocate(ppovl_,ppovl)
       end subroutine setppovlz
-      
 !! set ppovlz
       subroutine setppovlz_ee(q,ngc,ngb,zcousq)
       intent(in)::            q,ngc,ngb,zcousq
@@ -122,7 +122,6 @@
       ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
       ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
       end subroutine setppovlz_ee
-      
 !! set ppovlz
       subroutine setppovlz_chipm(zzr,ngb,nmbas1)
       intent(in)::               zzr,ngb,nmbas1
@@ -133,7 +132,7 @@
       ppovlz= zzr
       end subroutine setppovlz_chipm
       
-!! Set miat,tiat,invgx,shtvg
+!! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
       subroutine mptauof_zmel(symops,ng)
       intent(in)::            symops,ng
       integer:: ng
@@ -144,21 +143,17 @@
       call mptauof(symops,ng,plat,natom,pos,iclasst
      o ,miat,tiat,invgx,shtvg ) !note: miat,tiat,shtvg are defined in m_zmel.
       deallocate(invgx)
+      call Rdpp(ng,symops)
+      call ppbafp_v2_zmel(ng)
       end subroutine mptauof_zmel
-
-!! Set ppbir
+!!   Set ppbir
       subroutine ppbafp_v2_zmel(ng) !nspin,
 c     i                 il,in,im, mnl,
 c     d                 nl,nn,nclass,mnlx,
 c     i                 mdimx,lx,nx,nxx, !Bloch wave    
 c     i                 cgr,lmxax,   !rotated CG
 c     i                 ppbrd)           !radial integrals
-      intent(in)::               ng !nspin,
-c     i                 il,in,im, mnl,
-c     d                 nl,nn,nclass,mnlx,
-c     i                 mdimx,lx,nx,nxx, !Bloch wave    
-c     i                 cgr,lmxax,   !rotated CG
-c     i                 ppbrd           !radial integrals
+      intent(in)::               ng 
       integer :: ng 
       integer:: is,irot
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
@@ -175,7 +170,7 @@ c     i                 ppbrd           !radial integrals
       enddo  
       end subroutine ppbafp_v2_zmel
 
-!     ! ------------------------------------
+!! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
       intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1

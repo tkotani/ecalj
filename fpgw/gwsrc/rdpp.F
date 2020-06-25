@@ -32,9 +32,7 @@ c      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
       do ic = 1,nclass
         filename(ic)='PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
         open(newunit=ifppb(ic),file=trim(filename(ic)),form='unformatted')
-c        write(6,*)'ifppb=',ifppb(ic),nl
         read(ifppb(ic)) nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
-c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
       enddo
       nxx = maxval( nx )
       allocate( ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass),
@@ -50,19 +48,14 @@ c        write(*,*)'srrrrr bbbbb',ic,nblocha(ic),lx(ic),nx(0:2*(nl-1),ic)
 c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
-c     call icopy(nclass, nblocha,w(imdim))
-c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
 c --- rotated CG setup
       write(6,*)' rdpp mdimx=',mdimx
-c      lmxax = nl-1
       cgr=1d99
       call rotcg(nl-1,symope,ngrp,cgr)
       done_rdpp=.true.
       write(6,*)' rdpp:end '
       end subroutine rdpp
       end module m_rdpp
-
-
 
       subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope,!qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)

@@ -545,8 +545,8 @@ c total no. allowed core states
 
 !------------------------    
       module m_readhbe
-      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,mrecg
-      integer:: nband !not yet protected!
+      integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,mrecg,nband
+c      integer:: nband !not yet protected!
       contains
       subroutine readhbe()
       open(newunit=ifhbe, file='hbe.d', action='read')

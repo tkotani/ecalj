@@ -29,8 +29,8 @@ c!! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
 c      use m_rdpp,only: rdpp,    !NOTE: "call rdpp" generate following data.
 c     & nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr
 c!! Generate matrix element for "call get_zmelt".
-      use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
-     & nband
+c      use m_zmel,only:       !NOTE: these data set are stored in this module, and used  
+c     & nband
 c    & ,itq,ngcmx,ngpmx, ppovlz,
 c     & ppbir,shtvg, miat,tiat , ntq
 !! frequency

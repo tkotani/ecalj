@@ -28,7 +28,7 @@ c      use m_keyvalue,only: getkeyvalue
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
 !     ! Generate matrix element for "call get_zmelt".
       use m_zmel,only:          !NOTE: these data set are stored in this module, and used  
-     &     Ppbafp_v2_zmel, Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm
+     &      Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm !Ppbafp_v2_zmel,
 c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       
       use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
@@ -432,7 +432,7 @@ c$$$      enddo
       call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
 c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
-      call Rdpp(ngrpx,symope)
+c      call Rdpp(ngrpx,symope)
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq()
 
@@ -444,7 +444,7 @@ c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 
 !! Initialization of readEigen !readin m_hamindex
       call init_readeigen()!nband,mrece)!EVU EVD are read in init_readeigen
-      call init_readeigen2(mrecb,nlmto,mrecg)
+      call init_readeigen2()!(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 !! Frequency      
       call getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
@@ -472,7 +472,7 @@ c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! Compare usage in hsfp0 modes.
 c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrpx,nspin))
-      call ppbafp_v2_zmel (ngrpx)!,nspin, !all inputs. This is in m_zmel
+c      call ppbafp_v2_zmel (ngrpx)!,nspin, !all inputs. This is in m_zmel
 c     i   il,in,im,nlnm,         !w(i_mnl),
 c     i   nl,nn,nclass,nlnmx,
 c     i   mdimx,lx,nx,nxx,       !Bloch wave    

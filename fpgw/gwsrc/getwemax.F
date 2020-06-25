@@ -1,8 +1,7 @@
       subroutine getwemax(lqall,wemax)
 !!> this routine is just in order to get |e_ip-ef| on real space integration
 !! too complicated ---> need to fix in future
-      use m_zmel,only:
-     & nband 
+      use m_readhbe,only: nband
       use m_read_bzdata,only: read_bzdata,
      & nqibz,qibz,ginv,qbz,nqbz,wibz
 c     & dq_,qbz,wbz,qibz,wibz,qbzw,

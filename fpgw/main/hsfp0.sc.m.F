@@ -58,7 +58,7 @@
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
 !     ! Generate matrix element for "call get_zmelt".
       use m_zmel,only:          ! folloiwng data set are stored in this module in the main routin, 
-     &     Ppbafp_v2_zmel, Mptauof_zmel ! and used when call get_zmelt, get_zmelt2.
+     &      Mptauof_zmel ! and used when call get_zmelt, get_zmelt2. Ppbafp_v2_zmel,
 c     &                          !ppbir,miat,tiat,shtvg,
       use m_itq,only:
      &     Setitq_hsfp0sc,!Setnband,nband
@@ -367,7 +367,7 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
 !! === ppbrd = Radial integrals
 !!  cgr   = rotated cg coeffecients.
 c      call rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
-      call Rdpp(ngrp,symgg)
+c      call Rdpp(ngrp,symgg)
 !  output: nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr are stored in m_rdpp.
       call pshprt(60)
 
@@ -450,7 +450,7 @@ c        endif
  201  continue
 
 !! initialization to read eigenfunction and eigenvalues
-      call INIT_READEIGEN2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call INIT_READEIGEN2()!mrecb,nlmto,mrecg) !initialize m_readeigen
 
 !! Read q-points and states read from QPNT
       nspinmx = nspin
@@ -605,7 +605,7 @@ c$$$      endif
       close(ifidmlx)
       
 !! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> for m_zmel
-      call ppbafp_v2_zmel (ngrp) !,nspin, !all inputs. This is in m_zmel
+c      call ppbafp_v2_zmel (ngrp) !,nspin, !all inputs. This is in m_zmel
 c     i   il,in,im,nlnm,         !w(i_mnl),
 c     i   nl,nn,nclass,nlnmx,
 c     i   mdimx,lx,nx,nxx,       !Bloch wave    

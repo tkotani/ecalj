@@ -10,30 +10,32 @@
       use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
       use m_hamindex,only:   Readhamindex, ngpmx, nqtt, nqi, nqnum, qtt,iqimap,
      &     iqmap,igmap,shtvg,qlat,symops,plat,invgx,
-     &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas
+     &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas 
       use m_read_bzdata,only: ginv
-      use m_genallcf_v3,only: nsp=>nspin
-      use m_readhbe,only: nband
+      use m_genallcf_v3,only: nsp =>nspin,ldim2_in=>nlmto
+      use m_readhbe,only: mrecb_in=>mrecb, mrece,nband_in =>nband, mrecg_in => mrecg
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
      &     Readcphiw,Readgeigw
+      integer,public:: nband    ! a little confusing, nband and nband_in?
+!      Takao think nband is replacew with nwf only for Wannier/ case.
 
       private
       integer:: ifgeigW,ifcphiW,norbtx,imx
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
-      integer(4)::nwf_ev
+      integer::nwf_ev
       complex(8),allocatable:: evud_w(:,:,:,:)
       real(8),allocatable:: eval_w(:,:,:)      
       logical:: evalwan=.true.
       real(8),allocatable,private:: evud(:,:,:)!, ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
-      integer(4),allocatable,private:: ngp(:)
-      integer(4),private:: nprecb,mrecb,mrece,nlmtot,nqbzt, 
-     &   nnnn, ldim2,mrecg,ifcphi,ifgeig
+      integer,allocatable,private:: ngp(:)
+      integer,private:: nprecb,
+     &   nnnn, ifcphi,ifgeig ,mrecg,mrecb ,ldim2!,mrece,
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
-      integer(4),private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
+      integer,private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
       logical,private:: debug=.false.
@@ -49,7 +51,7 @@
       end subroutine
 
       subroutine readgeigW(q,ngp_in,isp, qu,geigen)
-      integer(4):: isp,iq,iqindx,ngp_in,ikpisp
+      integer:: isp,iq,iqindx,ngp_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: geigen(ngp_in,nwf)
       if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
@@ -67,7 +69,7 @@
       end subroutine
 
       subroutine readcphiW(q,ldim2_in,isp,  qu,cphif)
-      integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
+      integer:: isp,iq,iqindx,ldim2_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: cphif(ldim2_in,nwf)
       if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
@@ -83,10 +85,10 @@
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
-      integer(4), intent(in) :: isp
+      integer, intent(in) :: isp
       real(8), intent(in) :: q(3)
       real(8), intent(out) :: ev(nband)
-      integer(4):: iq,iqindx,i
+      integer:: iq,iqindx,i
       real(8):: qu(3)
       if(init) call rx( 'readeigen: modele is not initialized yet')
 c      iq = iqindx(q, ginv,qtt,nqtt)
@@ -320,7 +322,7 @@ c$$$c------------------------------
 c$$$      subroutine readgeig(q,ngp_in,isp, qu,geigen)
 c$$$! return ev(1:nband) for given q(1:3) and isp
 c$$$      implicit none
-c$$$      integer(4):: isp,iq,iqindx,ngp_in,ikpisp
+c$$$      integer:: isp,iq,iqindx,ngp_in,ikpisp
 c$$$      real(8)   :: q(3),qu(3)
 c$$$      complex(8):: geigen(ngp_in,nband)
 c$$$      if(init2) then
@@ -344,7 +346,7 @@ c$$$c------------------------------
 c$$$      subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
 c$$$! return ev(1:nband) for given q(1:3) and isp
 c$$$      implicit none
-c$$$      integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
+c$$$      integer:: isp,iq,iqindx,ldim2_in,ikpisp
 c$$$      real(8)   :: q(3),qu(3)
 c$$$      complex(8):: cphif(ldim2_in,nband) !takao 1->*->nband
 c$$$      if(init2) then
@@ -363,7 +365,7 @@ c------------------------------
       subroutine readgeig_mlw(q,ngp_in,isp, qu,geigen)
 ! return ev(1:nband) for given q(1:3) and isp
       implicit none
-      integer(4):: isp,iq,iqindx,ngp_in,ikpisp
+      integer:: isp,iq,iqindx,ngp_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: geigen(ngp_in,nwf)
       if(init2) then
@@ -391,7 +393,7 @@ c------------------------------
       subroutine readcphi_mlw(q,ldim2_in,isp,  qu,cphif)
 !!-- return ev(1:nband) for given q(1:3) and isp
       implicit none
-      integer(4):: isp,iq,iqindx,ldim2_in,ikpisp
+      integer:: isp,iq,iqindx,ldim2_in,ikpisp
       real(8)   :: q(3),qu(3)
       complex(8):: cphif(ldim2_in,nwf)
       if(init2) then
@@ -413,8 +415,8 @@ c      write(6,*)' readgcphi_mlw: q=',q
 ccccccccccccccccccccccccccc
       subroutine init_readeigen() !nband_in,mrece_in)
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
-      integer:: iq,is,ifiqg,nnnn,ikp,!,nsp_in, 
-     & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
+      integer:: iq,is,ifiqg,nnnn,ikp,!,nsp_in, nband_in,mrece_in,
+     & iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
       integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
       real(8):: ginv_in(3,3)
       real(8):: QpGcut_psi
@@ -425,7 +427,7 @@ c      allocate(ginv(3,3))
 c      ginv  = ginv_in
 c      nsp   = nsp_in
       if(nsp<0.or.nsp>2) call rx( 'init_reaeigen:nsp wrong')
-c      nband = nband_in
+      nband = nband_in
 c      mrece = mrece_in
 c      write(6,*) 'init_readeigen:1'
 
@@ -508,12 +510,12 @@ C$$$      if(nsp==2) isx = iclose('EVD')
       lowesteval=leval
       end function
 c-------------------------------------------------------------
-      subroutine init_readeigen2(mrecb_in,ldim2_in,mrecg_in)
+      subroutine init_readeigen2() !mrecb_in,ldim2_in,mrecg_in)
 c      use m_hamindex,only: nqi
 c this should be called after init_readgeigen
       implicit none
-      integer(4):: iq,is,ifiqg,nnnn,ikp,ldim2_in, 
-     & iopen,iclose,isx,mrecb_in,ikpisp,mrecg_in,verbose,ifoc,
+      integer:: iq,is,ifiqg,nnnn,ikp, !ldim2_in, 
+     & iopen,iclose,isx,ikpisp,verbose,ifoc, !mrecg_in,mrecb_in,
      & i1,i2,i3,i4,i5,iorb,iorbold
       logical :: keepeigen
 
@@ -608,7 +610,7 @@ c allocate cphi_mlw and geig_mlw
 c for hx0fp0_mlw (ixc=112 mode)
 c this should be called after init_readgeigen2
       implicit none
-      integer(4):: iq,is,ifiqg,ikp,
+      integer:: iq,is,ifiqg,ikp,
      & iopen,iclose,isx,mrecb_o,ikpisp,mrecg_o,
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,
      & iqbz,iqbz2,nwf2,ib,iwf,iwf2,iko_ix,iko_fx,in,
@@ -791,7 +793,7 @@ c$$$c replace cphi and geig
 c$$$c for hwmat
 c$$$c this should be called after init_readgeigen2
 c$$$      implicit none
-c$$$      integer(4):: iq,is,ifiqg,ikp,
+c$$$      integer:: iq,is,ifiqg,ikp,
 c$$$     & iopen,iclose,isx,mrecb_o,ikpisp,mrecg_o,
 c$$$     & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2,
 c$$$     & ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,
@@ -974,7 +976,7 @@ c replace cphi and geig
 c for hwmat
 c this should be called after init_readgeigen2
       implicit none
-      integer(4):: iq,is,ifiqg,ikp,
+      integer:: iq,is,ifiqg,ikp,
      & iopen,iclose,isx,mrecb_o,ikpisp,mrecg_o,
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2,
      & ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,
@@ -1262,7 +1264,7 @@ c replace cphi and geig
 c for hwmat_phi
 c this should be called after init_readgeigen2
       implicit none
-      integer(4):: iq,is,ifiqg,ikp,
+      integer:: iq,is,ifiqg,ikp,
      & iopen,iclose,isx,mrecb_o,ikpisp,mrecg_o,
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbz2,nqbze,nqbze2,
      & iqbz,iqbz2,nwf2,nsp2,nlmto2,ngpmx2,
@@ -1359,7 +1361,7 @@ c replace cphi, geig and evud
 c for hx0fp0_mlw, ixc=11 mode
 c this should be called after init_readgeigen2
       implicit none
-      integer(4):: iq,is,ifiqg,ikp,
+      integer:: iq,is,ifiqg,ikp,
      & iopen,iclose,isx,mrecb_o,ikpisp,mrecg_o,
      & nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2,
      & ib,iwf,iwf2,iko_ix,iko_fx,in,ifcphi_o,ifgeig_o,
