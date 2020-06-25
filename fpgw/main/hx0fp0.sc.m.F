@@ -170,11 +170,6 @@ c      real(8):: ef
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       if(verbose()>=100) debug=.true.
-      allocate( zzr(1,1))       !dummy
-      hartree= 2d0*rydberg()
-      pi     = 4d0*datan(1d0)
-      fourpi = 4d0*pi
-      sqfourpi= sqrt(fourpi)
       write(6,*) ' --- hx0fp0_sc Choose omodes below ----------------'
       write(6,*) '  ixc= 11,10011,or 1011 '
       write(6,*) ' --- Put number above ! -----------------'
@@ -195,30 +190,35 @@ c      real(8):: ef
          call Rx( 'error: give allowed arg for hx0fp0_sc.')
       endif
 
+      allocate( zzr(1,1))       !dummy
+      hartree= 2d0*rydberg()
+      pi     = 4d0*datan(1d0)
+      fourpi = 4d0*pi
+      sqfourpi= sqrt(fourpi)
+      
 !!  newaniso2=T is fixed now
       call Read_BZDATA(hx0) !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
+c      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
       call Genallcf_v3(incwfx=0) ! incwfin= 0 takes ForX0 for core in GWIN
-      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
+c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
       tpioa=2d0*pi/alat
       call Readefermi() !readin EFERMI
 
 !!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
-
       call Readhbe()            !Read dimensions of h,hb
-      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
-      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
+c      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
+c      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
       call ReadGWinputKeys() !Readin GWinput
 !! --- Readin Offset Gamma --------
       call Readq0p()
-      write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
+c      write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
 !! --- Read Qpoints
 c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
       call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
-      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
+c      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
       call Setqbze()    ! extented BZ points list
  
 !! Get space-group transformation information. See header of mptaouof.
@@ -270,12 +270,12 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! ppbafp_v2x generates ppbir in m_zmel
-      call ppbafp_v2_zmel (ngrpx,nspin, !all inputs. This is in m_zmel
-     i   il,in,im,nlnm,         !w(i_mnl),
-     i   nl,nn,nclass,nlnmx,
-     i   mdimx,lx,nx,nxx,       !Bloch wave    
-     i   cgr, nl-1,             !rotated CG
-     i   ppbrd) !,              !radial integrals
+      call ppbafp_v2_zmel (ngrpx) !nspin, !all inputs. This is in m_zmel
+c     i   il,in,im,nlnm,         !w(i_mnl),
+c     i   nl,nn,nclass,nlnmx,
+c     i   mdimx,lx,nx,nxx,       !Bloch wave    
+c     i   cgr, nl-1,             !rotated CG
+c     i   ppbrd) !,              !radial integrals
 c     o   ppbir(:,irot,is))      !this is in m_zmel 
       if(debug) write(6,*) ' end of ppbafp_v2x'
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2

@@ -12,7 +12,12 @@
      i     invg, nlnmc,         !nindx,konf
      i     icore,ncore,occv,unoccv ,
      i     occc,unoccc, nocc, nunocc, plat, pos,z,ecore,  symgg,
-     i     done_genallcf_v3  
+     i     done_genallcf_v3,
+     &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
+
+      use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
+     &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
+ 
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
 !! Before calling them (get coefficients of eigen funcitons), 
 !! We need to call init_readeigen, init_readeigen2 in main rouitne.
@@ -142,31 +147,28 @@
       end subroutine mptauof_zmel
 
 !! Set ppbir
-      subroutine ppbafp_v2_zmel (ng,nspin,
-     i                 il,in,im, mnl,
-     d                 nl,nn,nclass,mnlx,
-     i                 mdimx,lx,nx,nxx, !Bloch wave    
-     i                 cgr,lmxax,   !rotated CG
-     i                 ppbrd)           !radial integrals
-      intent(in)::               ng,nspin,
-     i                 il,in,im, mnl,
-     d                 nl,nn,nclass,mnlx,
-     i                 mdimx,lx,nx,nxx, !Bloch wave    
-     i                 cgr,lmxax,   !rotated CG
-     i                 ppbrd           !radial integrals
-      integer :: ng,nspin,nclass,mnlx,mdimx,nl,nn
-      integer :: il(*),in(*),im(*), lx(*),nx(*),mnl(*)
-      integer :: nxx,lmxax
-      real(8) :: cgr(*), ppbrd(*)
+      subroutine ppbafp_v2_zmel(ng) !nspin,
+c     i                 il,in,im, mnl,
+c     d                 nl,nn,nclass,mnlx,
+c     i                 mdimx,lx,nx,nxx, !Bloch wave    
+c     i                 cgr,lmxax,   !rotated CG
+c     i                 ppbrd)           !radial integrals
+      intent(in)::               ng !nspin,
+c     i                 il,in,im, mnl,
+c     d                 nl,nn,nclass,mnlx,
+c     i                 mdimx,lx,nx,nxx, !Bloch wave    
+c     i                 cgr,lmxax,   !rotated CG
+c     i                 ppbrd           !radial integrals
+      integer :: ng 
       integer:: is,irot
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
       do irot = 1,ng
       do is = 1,nspin
          call ppbafp_v2 (irot,ng,is,nspin,
      i                 il,in,im, mnl,
-     d                 nl,nn,nclass,mnlx,
+     d                 nl,nn,nclass,nlnmx,!mnlx,
      i                 mdimx,lx,nx,nxx, !Bloch wave    
-     i                 cgr,lmxax,   !rotated CG
+     i                 cgr,nl-1,       !rotated CG
      i                 ppbrd,           !radial integrals
      o        ppbir(:,irot,is)) !this is in m_zmel
       enddo  

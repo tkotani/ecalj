@@ -472,12 +472,12 @@ c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
 !! Compare usage in hsfp0 modes.
 c      allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ngrpx,nspin))
-      call ppbafp_v2_zmel (ngrpx,nspin, !all inputs. This is in m_zmel
-     i   il,in,im,nlnm,         !w(i_mnl),
-     i   nl,nn,nclass,nlnmx,
-     i   mdimx,lx,nx,nxx,       !Bloch wave    
-     i   cgr, nl-1,             !rotated CG
-     i   ppbrd) !,              !radial integrals
+      call ppbafp_v2_zmel (ngrpx)!,nspin, !all inputs. This is in m_zmel
+c     i   il,in,im,nlnm,         !w(i_mnl),
+c     i   nl,nn,nclass,nlnmx,
+c     i   mdimx,lx,nx,nxx,       !Bloch wave    
+c     i   cgr, nl-1,             !rotated CG
+c     i   ppbrd) !,              !radial integrals
       if(debug)write(6,*) ' end of ppbafp_v2'
 
 !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz

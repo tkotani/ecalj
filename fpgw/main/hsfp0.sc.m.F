@@ -605,12 +605,12 @@ c$$$      endif
       close(ifidmlx)
       
 !! ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)> for m_zmel
-      call ppbafp_v2_zmel (ngrp,nspin, !all inputs. This is in m_zmel
-     i   il,in,im,nlnm,         !w(i_mnl),
-     i   nl,nn,nclass,nlnmx,
-     i   mdimx,lx,nx,nxx,       !Bloch wave    
-     i   cgr, nl-1,             !rotated CG
-     i   ppbrd)                 !radial integrals
+      call ppbafp_v2_zmel (ngrp) !,nspin, !all inputs. This is in m_zmel
+c     i   il,in,im,nlnm,         !w(i_mnl),
+c     i   nl,nn,nclass,nlnmx,
+c     i   mdimx,lx,nx,nxx,       !Bloch wave    
+c     i   cgr, nl-1,             !rotated CG
+c     i   ppbrd)                 !radial integrals
 
 c$$$c---- tetra block is experimental. unused usually. ----------------
 c$$$      if(tetra) then 
