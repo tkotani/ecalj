@@ -13,10 +13,10 @@
      &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas
       use m_read_bzdata,only: ginv
       use m_genallcf_v3,only: nsp=>nspin
-      use m_readhbe,only: mrece,nband
+      use m_readhbe,only: nband
       implicit none
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
-     &     Init_readeigen_mlw_noeval,  Onoff_write_pkm4crpa, Init_readeigen_phi_noeval ,
+     &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
      &     Readcphiw,Readgeigw
 
       private
@@ -29,7 +29,7 @@
       real(8),allocatable,private:: evud(:,:,:)!, ginv(:,:)
       logical,private:: init=.true.,init2=.true.,keepeig
       integer(4),allocatable,private:: ngp(:)
-      integer(4),private:: nprecb,mrecb,nlmtot,nqbzt, !nband,mrece,
+      integer(4),private:: nprecb,mrecb,mrece,nlmtot,nqbzt, 
      &   nnnn, ldim2,mrecg,ifcphi,ifgeig
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
@@ -411,7 +411,7 @@ c      write(6,*)' readgcphi_mlw: q=',q
       end subroutine
 
 ccccccccccccccccccccccccccc
-      subroutine init_readeigen()!nband_in,mrece_in)
+      subroutine init_readeigen() !nband_in,mrece_in)
 !!-- initialization. Save QpGpsi EVU EVD to arrays.--
       integer:: iq,is,ifiqg,nnnn,ikp,!,nsp_in, 
      & nband_in,mrece_in,iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
@@ -1643,7 +1643,6 @@ c            write(7500,*)cphi(:,:,ikp,is)
       deallocate(cbwf)
 
 c replace dimensions
-!!
       nband = nwf
       nwf_o = nwf
       nband_o = nband

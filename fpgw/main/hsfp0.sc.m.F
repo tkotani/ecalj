@@ -76,7 +76,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__consoleout,
      &     MPI__barrier
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      use m_freq,only: ReadfreqWV,nqnum,nblochpmx !, freq_r,nw,!freqx,wwx !,nw_i
+
       implicit none
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -102,7 +102,7 @@ c      real(8) :: shtw
       integer::
      & ixc,!iopen, !,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
      & ibas,ibasx,ifqpnt,ifwd, !nxx,
-     & nblochpmx2,nwp,niwt,  !mdimx,nbloch nprecx,mrecl,
+     & nprecx,mrecl,nblochpmx2,nwp,niwt, nqnum,nblochpmx, !mdimx,nbloch
      & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
      & i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,nq0i,ig, !iclose
      & mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
@@ -110,7 +110,7 @@ c      real(8) :: shtw
      & ifsec(2)             
      & ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
      & ifsex2(2),ifsec2(2),     !out S_nn'
-     & ifsecomg(2)
+     & ifsecomg(2),ndble=8
       real(8) :: pi,tpia,vol,voltot,rs,alpha,
      & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
      & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
@@ -161,7 +161,7 @@ c
       real(8):: volwgt
 
       integer:: incwfin
-c      real(8),allocatable::freqx(:),freqw(:),wwx(:)
+      real(8),allocatable::freqx(:),freqw(:),wwx(:)
 
       integer::  ngpn1,ngcn1  !mrecg,
       real(8)   :: wgtq0p,quu(3)
@@ -175,7 +175,7 @@ c      real(8),allocatable::freqx(:),freqw(:),wwx(:)
       integer,allocatable:: nnr(:),nor(:)
 
       logical :: allq0i       
-c      integer:: nw_i
+      integer:: nw_i
       logical:: exonly
       real(8):: wex
 !! newaniso mode
@@ -194,7 +194,7 @@ c      logical:: newaniso
       logical :: selectqp=.false.,diagonly=.false.
       integer:: ret,dest,nnn 
       character(128) :: ixcc
-      real(8):: eftrue,esmr!,esmr_in esmref,  !jan2013
+      real(8):: eftrue,esmref,esmr!,esmr_in   !jan2013
       real(4):: time_red1,time_red2
       integer:: timevalues(8) ,ibz
 
@@ -202,6 +202,7 @@ c      logical:: newaniso
       real(8),allocatable:: wgt0(:,:)
       logical:: exchange
       real(8):: exx
+      real(8),allocatable:: freq_r(:)
       integer:: ififr,ifile_handle,nwxx,ifih
 
       integer:: verbose,iband,isp,iqq
@@ -209,9 +210,8 @@ c      integer,allocatable:: nbandmx(:,:)
 
       integer:: ificlass,ifiq0p,nq_r!,nband_r
       logical:: hermitianW
-      integer::if671 ! nw,
+      integer:: nw,if671
       real(8)::dwdummy,ecorem,ef
-
 
 c---------------------------------------
       call MPI__Initialize() 
@@ -260,12 +260,8 @@ c        open(if671,file='COH')
       endif
       call GENALLCF_V3(incwfin) ! module m_GENALLCF_V3. See use m_genallcf in this rouitine
       if(ngrp/= ngrp2) call rx('ngrp inconsistent: BZDATA and LMTO GWIN_V2')
-      if(ixc==3) then
-         esmr = 0d0
-      else
-         esmr = esmr_in  !read from GWinput
-      endif
-      call setesmr(esmr_in=esmr) !we set esmr in m_genalloc_v3
+      esmr  = esmr_in !read from GWinput
+      esmref= esmr
       
 !! iSigMode
       call readd_iSigma_en(ifinin,iSigMode) !reading self-energy mode parameter from file 'GWinput'
@@ -286,7 +282,8 @@ c        open(if671,file='COH')
       pi   = 4d0*datan(1d0)
       tpia = 2d0*pi/alat
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      
+c      tetra= tetra_hsfp0()
+
 c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
 c$$$!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
 c$$$!! Keep this just as a memo.
@@ -314,17 +311,34 @@ c$$$!!
       if(ixc==1) then
         exchange = .true.
         write(6,*) ' --- Exchange mode --- '
+c         INQUIRE (FILE = 'EXspTEST', EXIST = exspwrite)
+c         if(exspwrite) then
+c            write(6,*)'--- Find EXspTEST ExspectrumWrite=',exspwrite
+c            write(6,*)'--- esmr is chosen to be 2d0 Ry'
+c            esmr= 2d0
+c            do is=1,nspin
+c               ifexsp(is)  = iopen('EXSP.'//char(48+is),1,-1,0)
+c            enddo
+c         endif
       elseif(ixc==2) then
         exchange=.false.
         write(6,*) ' --- Correlation mode --- '
       elseif(ixc==3) then
+         esmr=0d0
          exchange = .true.
          write(6,*) ' --- CORE Exchange mode --- '
+!! spectrum funciton mode, we do not use ixc==4
+c     elseif(ixc==4) then
+c     write(6,*) ' --- Spectrum function Sigma(\omega) mode --- '
+c     exchange=.false.
+c     ifsecomg(1) = iopen('SEComgU'//xt(nz),1,-1,0) ! output files
+c     if (nspin == 2)
+c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
       else
         call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
       endif
 !!
-c      call setesmr(esmr_in=esmr) !in genalloc_v3
+      call setesmr(esmr_in=esmr) !in genalloc_v3
       write(6,'(" --- computational conditions --- ")')
       write(6,'("    deltaw  =",f13.6)') deltaw
       write(6,'("    esmr    =",f13.6)') esmr
@@ -344,20 +358,48 @@ c      call setesmr(esmr_in=esmr) !in genalloc_v3
 !! Get array size to call rdpp can call rdpp to generate base data for get_zmel ====
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
-c      allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
-c      call READQG('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
-c      call READQG('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
-c      deallocate(ngvecp,ngvecc)
-c      write(6,*) ' end of read QGcou'
+      allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
+      call READQG('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
+      call READQG('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+      deallocate(ngvecp,ngvecc)
+      write(6,*) ' end of read QGcou'
 
 !! === ppbrd = Radial integrals
 !!  cgr   = rotated cg coeffecients.
-      call rdpp(ngrp,symgg)!nxx,
+      call rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
+!  output: nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr are stored in m_rdpp.
       call pshprt(60)
 
 !! Readin WV.d (dimension file)
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
-         call ReadfreqWV()
+!direct access files WVR and WVI which include W-V.
+        open(newunit=ifwd,file='WV.d')
+        read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
+        write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
+        close(ifwd)             
+        call checkeq(nprecx,ndble)
+        nw = nwp-1
+        if(niwt /= niw) call rx( 'hsfp0_sc: wrong niw')
+!! Energy mesh along real axis. Read 'freq_r' 
+!!  NOTE nw_i=-nw for non-timereversal case.
+!!       nw_i=0 for time-reversal case.
+!!  NOTE: We assume freq_r(i) == -freq_r(-i) in this code. feb2006
+!!  NOTE: this program assumes freq_r(iw)=freq_r(-iw). freq_r(iw <0) is redundant.
+c        write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
+        open(newunit=ififr,file='freq_r')
+        read(ififr,*)nwxx
+        if(nwxx/= nw+1) call rx( ' freq_r nw /=nw')
+        allocate(freq_r(nw_i:nw)) !freq_r(0)=0d0
+        do iw= nw_i,nw  
+          read(ififr,*) freq_r(iw)
+        enddo
+        close(ififr)
+        if(nw_i/=0) then
+          if(nw/= -nw_i)        call rx( "sxcf_fal3_scz: nw/=-nw_i")
+          if(freq_r(0)/=0d0)    call rx( "sxcf_fal3_scz: freq_r(0)/=0")
+          if( sum(abs( freq_r(1:nw)+freq_r(-1:-nw:-1)))/=0) 
+     &     call rx( "sxcf_fal3_scz: freq_r /= -freq_r")
+        endif
       endif
 
 !! efermi by tetrahedron. this can be overwritten
@@ -371,7 +413,7 @@ c      write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       call efsimplef2a(nspin,wibz,qibz,ginv, 
      i nband,nqibz
      i ,konf,z,nl,natom,iclass,nclass
-     i ,valn, legas, esmr,    !!! valn is input for legas=T, output otherwise.
+     i ,valn, legas, esmref,    !!! valn is input for legas=T, output otherwise.
      i qbz,nqbz                 ! index_qbz, n_index_qbz,
      o ,efnew)
       if(ixc/=3) ef = efnew
@@ -539,6 +581,13 @@ c$$$      if(bzcase()==2) then
 c$$$         wgt0= wgt0*wgtq0p()/dble(nqbz)
 c$$$         write(6,"('bzcase=2:  sum(wgt0_modified )=',d14.6)")sum(wgt0)
 c$$$      endif
+
+!! Generate frequencies x between (0,1) and w=(1-x)/x for Gaussian integral along im axis
+      if(niw/=0) then
+        allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
+        call freq01x  (niw,     !ua,
+     o   freqx,freqw,wwx)       !,expa)
+      endif
 
 !! Readin Vcoud and EPSwklm for newaniso()=T ===
       open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
@@ -737,7 +786,7 @@ c        coh   = 0d0
      i   is,   !nspin,
 c     i   qibz,qbz ,wbz, nstbz,  !qbas,ginv,
      i   irkip(is,:,:,:),nrkip(is,:,:,:),
-c     i   freq_r,nw_i,nw, freqx,wwx, 
+     i   freq_r,nw_i,nw, freqx,wwx, 
 c     i   dwdummy,                   
      i   ecore(:,is)-ecorem, !ecorem is to push core eigenvalues below enough from Ef for core ex mode.
 c     d   nctot, !,nqibz,nqbz,nlmto,

@@ -370,7 +370,7 @@ c$$$      endif
 !! === Readin by genallcf. Set basic data for crystal
 !! See "use m_genallcf_v3" at the begining of this routine
 !!
-      incwfin=0  !use 'ForX0 for core' in GWIN
+      incwfin=0  !use ForX0 for core in GWIN
       call genallcf_v3(incwfin) !in module m_genallcf_v3
 !! incwfin is for core handling
 c     write(6,*)' ncore nw_input delta=', ncore,nw_input,delta
@@ -431,7 +431,7 @@ c$$$      enddo
       symope(1:3,3) = [0d0,0d0,1d0]
       call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-      call Rdpp(ngrpx,symope) !nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
+      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq()
 

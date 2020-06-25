@@ -323,7 +323,7 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
       call cputid(0)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3
-      end module m_genallcf_v3
+      end module
 
       subroutine idxlnmc(nindxv,nindxc,
      d                   nl,nn,nnv,nnc,nlnmx,nlnmxv,nlnmxc,nclass,
@@ -546,7 +546,7 @@ c total no. allowed core states
 !------------------------    
       module m_readhbe
       integer,protected:: nprecb,mrecb,mrece,nlmtot,nqbzt,mrecg
-      integer:: nband
+      integer:: nband !not yet protected!
       contains
       subroutine readhbe()
       open(newunit=ifhbe, file='hbe.d', action='read')
@@ -554,7 +554,6 @@ c total no. allowed core states
       close(ifhbe)
       end subroutine
       end module
-      
 !------------------------    
       module m_ReadEfermi
       real(8),protected:: bandgap, ef, ef_kbt
@@ -568,7 +567,7 @@ c total no. allowed core states
       close(ifief)
       write(6,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
       end subroutine
-!----
+!------------------------------------
       subroutine readefermi_kbt()
       implicit none
       integer:: ifief_kbt,ifile_handle
