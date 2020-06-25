@@ -431,7 +431,8 @@ c$$$      enddo
       symope(1:3,3) = [0d0,0d0,1d0]
       call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
+c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
+      call Rdpp(ngrpx,symope)
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq()
 

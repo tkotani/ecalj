@@ -232,15 +232,11 @@ c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
       call Mptauof_zmel(symope,ngrpx)
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
-      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
+c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
+      call Rdpp(ngrpx,symope)
 !! Set itq in m_zmel
       call Setitq()
 !!
-      nblochpmx = nbloch + ngcmx
-      !MPBmax   =  MTO   +   APWmax 
-      allocate(ngveccB(3,ngcmx))
-      iqxend = nqibz + nq0i + nq0iadd
-
 !! ... initialization of readEigen !readin m_hamindex
       call Init_readeigen()!nband,mrece)!EVU EVD are stored in m_readeigen
       call Init_readeigen2(mrecb,nlmto,mrecg)
@@ -251,21 +247,25 @@ c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
       call Getfreq2(.false.,realomega,imagomega,ua,MPI__root)!tetra,
 
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
+c      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
+c        !max no. of occupied valence states
+c      if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
+c     noccx  = noccxv + nctot ! We usually assume nctot=0
+      
+      nblochpmx = nbloch + ngcmx ! MPBmax   =  MTO   +   APWmax 
+      iqxend = nqibz + nq0i + nq0iadd
       nwp = nw+1
-      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
-        !max no. of occupied valence states
-      if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
-      noccx  = noccxv + nctot ! We usually assume nctot=0
       nprecx = ndble          ! We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
-      if(MPI__root)then ! We don't recommend to give a subroutine for writing a file.
+      nspinmx = nspin
+      allocate( zw(nblochpmx,nblochpmx) )
+      allocate(ngveccB(3,ngcmx))
+
+      if(MPI__root)then         ! We don't recommend to give a subroutine for writing a file.
         open(newunit=ifwd, file='WV.d', action='write')
-        write (ifwd,"(1x,10i14)") !"(1x,i3,i8,i5,5i4)") 
-     &       nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
+        write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
         close(ifwd)
       endif
-      allocate( zw(nblochpmx,nblochpmx) )
-      nspinmx = nspin
 
 !! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
 !! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
@@ -449,7 +449,8 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
      i     nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
           call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
- 1003   continue;write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
+ 1003  continue
+c       write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
 c===========end of spin loop============================================
 
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode

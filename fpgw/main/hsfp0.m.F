@@ -417,7 +417,8 @@ c     &     cgr(nl**2,nl**2,(2*nl-1)**2,ngrp))
 !     ngveccB (in IBZ)   contains G vector for Coulomb matrix.
 c      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
 c     o     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
-      call Rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
+c      call Rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
+      call Rdpp(ngrp,symgg)
       !     output ==>     nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr
       call pshprt(60)
 

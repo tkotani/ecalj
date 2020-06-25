@@ -1,21 +1,26 @@
       module m_rdpp
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
       use NaNum,only: NaN
-      integer,protected:: mdimx=NaN,nbloch=NaN,nxx=NaN
-      integer,allocatable,protected:: nblocha(:) ,lx(:), nx(:,:)
-      real(8),allocatable,protected:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
-      logical,protected:: done_rdpp=.false.
+      use m_genallcf_v3,only: nl,nn,nclass,nspin !,qbas=>pos
 
+      public:: Rdpp,Rdpp_v3
+      integer,protected,public:: mdimx=NaN,nbloch=NaN,nxx=NaN
+      integer,allocatable,protected,public:: nblocha(:) ,lx(:), nx(:,:)
+      real(8),allocatable,protected,public:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
+      logical,protected,public:: done_rdpp=.false.
+      private
+      
       contains
-      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
+c      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
+      subroutine Rdpp( ngrp, symope) !nxx,
 !     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.
       implicit none
-      integer:: nl,ngrp,nn,nclass
+      integer:: ngrp !,nl,nn,nclass
       integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
-     i      nspin,nblochpmx,
+     i      nblochpmx, !nspin,
      &      n1,n2,n3,iq0,
      &      ifppb(nclass)
-      real(8) ::  symope(3,3,ngrp),  pi,qbas(3,3)
+      real(8) ::  symope(3,3,ngrp),  pi!,qbas(3,3)
       integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,ifile_handle
       character*11 :: filename(nclass)
@@ -59,14 +64,14 @@ c      lmxax = nl-1
 
 
 
-      subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope,qbas,
+      subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope,!qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
       implicit none
       integer(4) :: ngpmx,ngcmx,nxx,  nqbz,nqibz, nband,nl,ngrp,
      i      nclass,nspin,nn,nblochpmx,nbloch,mdimx,
      &      n1,n2,n3,iq0,
      &      nblocha(nclass) ,lx(nclass),ifppb(nclass)
-      real(8)    ::  symope(3,3,ngrp),  pi,qbas(3,3)
+      real(8)    ::  symope(3,3,ngrp) !, pi !qbas(3,3)
       integer(4) :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
      &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1
       character*11 :: filename(nclass)
@@ -268,7 +273,7 @@ c----------------------------------
       subroutine rdpp_v2( ngpmx,ngcmx,nxx,  qibz,nqibz, qbz,nqbz,
      i      nband,nl,ngrp, nn,
      i      nclass, nspin,
-     i      symope,         qbas,
+     i      symope,         !qbas,
      o      nblocha, lx, nx, 
      o      ppbrd ,
      o      mdimx,nbloch,  
@@ -288,7 +293,7 @@ c-- read radial integerals <p|pb> and so on.
      &      nblocha(nclass) ,lx(nclass),ifppb(nclass)
       complex(8) :: geigB(ngpmx,nband,nqbz,nspin),img=(0d0,1d0),phase2
       real(8)    :: qibz(3,nqibz), qbz(3,nqbz), symope(3,3,ngrp),
-     & cgr(nl**2,nl**2,(2*nl-1)**2,ngrp),    pi,qbas(3,3),
+     & cgr(nl**2,nl**2,(2*nl-1)**2,ngrp),    pi,!qbas(3,3),
      & ppbrd ( 0:nl-1, nn, 0:nl-1,nn, 0:2*(nl-1),nxx, nspin*nclass)
 c
       complex(8),allocatable:: geig(:,:,:)

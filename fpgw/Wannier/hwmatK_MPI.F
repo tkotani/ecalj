@@ -489,7 +489,7 @@ c     i      nband, nl,ngrp, nn,  nclass, nspin, symgg,    qbas,
 c     o      nblocha, lx, nx, ppbrd ,
 c     o      mdimx, nbloch, cgr, 
 c     o      nblochpmx, ngpn,geigB,ngvecpB,  ngcni,ngveccB )
-      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,qbas,
+      call rdpp_v3(nxx, nl, ngrp, nn, nclass, nspin, symgg,!qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr)
 c      nblochpmx = nbloch + ngcmx
 

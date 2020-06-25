@@ -366,7 +366,8 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
 
 !! === ppbrd = Radial integrals
 !!  cgr   = rotated cg coeffecients.
-      call rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
+c      call rdpp( nl, ngrp, nn, nclass, nspin, symgg,qbas)!nxx,
+      call Rdpp(ngrp,symgg)
 !  output: nblocha, lx, nx,  ppbrd , mdimx, nbloch, cgr are stored in m_rdpp.
       call pshprt(60)
 
