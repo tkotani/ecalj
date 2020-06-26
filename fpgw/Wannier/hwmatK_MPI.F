@@ -42,7 +42,8 @@ c This hsfp0 is build from hsec10.f by F.Aryasetiawan.
 c------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       
-      use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
+      use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2,
+     &     init_readeigen_mlw_noeval,init_readeigen_phi_noeval,  nwf
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,niwg=>niw
       use m_keyvalue,only: getkeyvalue
@@ -77,7 +78,7 @@ c     o   imagw,niw,nw,ifreq,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
      &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &   mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
-     &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,nwf,
+     &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,!nwf,
 c
 c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2)
 c     &    ifev(2),
@@ -627,20 +628,20 @@ c      ifcphi  = iopen('CPHI',0,0,mrecb)
       !this is for writing pkm4crpa in init_readeigen_mlw_noeval.
 
       if (latomic) then
-         call init_readeigen_phi_noeval(nwf,nband,mrecb,mrecg)
+         call init_readeigen_phi_noeval()!nwf,nband,mrecb,mrecg)
       else   
 !         if (l1d) then
 !           call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
 !         else
-           call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg)
+           call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
 !         endif
       endif
       if (Is_IO_Root_RSMPI()) then
       write(*,*)'Caution! evals are zero hereafter.'
       write(*,*)'nwf =',nwf
-      write(*,*)'nband =',nband
-      write(*,*)'mrecb =',mrecb
-      write(*,*)'mrecg =',mrecg
+c      write(*,*)'nband =',nband
+c      write(*,*)'mrecb =',mrecb
+c      write(*,*)'mrecg =',mrecg
       write(*,*)'init_readeigen_mlw: done'
       endif
 

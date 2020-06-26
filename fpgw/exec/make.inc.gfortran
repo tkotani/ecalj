@@ -52,7 +52,6 @@ tet5_g = .o
 #(4) BLAS + LAPACK ####################################################
 ### ifort ###
 #LIBMATH= -mkl  
-LIBMATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
 
 ### ubuntu12.04 gfortran ####
 #LIBMATH= /usr/lib64/libfftw3.so.3 /usr/lib64/liblapack.so.3gf /usr/lib64/libblas.so.3gf 

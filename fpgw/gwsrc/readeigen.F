@@ -12,15 +12,15 @@
      &     iqmap,igmap,shtvg,qlat,symops,plat,invgx,
      &     miat,tiat,dlmm,shtvg,symops,lxxa,nbas 
       use m_read_bzdata,only: ginv
-      use m_genallcf_v3,only: nsp =>nspin,ldim2_in=>nlmto
-      use m_readhbe,only: mrecb_in=>mrecb, mrece,nband_in =>nband, mrecg_in => mrecg
+      use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
+      use m_readhbe,only: mrecb, mrece,nband, mrecg
       implicit none
+
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
      &     Readcphiw,Readgeigw
-      integer,public:: nband    ! a little confusing, nband and nband_in?
-!      Takao think nband is replacew with nwf only for Wannier/ case.
-
+      integer,public:: nwf
+      
       private
       integer:: ifgeigW,ifcphiW,norbtx,imx
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
@@ -32,10 +32,10 @@
       logical,private:: init=.true.,init2=.true.,keepeig
       integer,allocatable,private:: ngp(:)
       integer,private:: nprecb,
-     &   nnnn, ifcphi,ifgeig ,mrecg,mrecb ,ldim2!,mrece,
+     &   nnnn, ifcphi,ifgeig !,mrecg,mrecb ,ldim2!,mrece,
       complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
       real(8),private:: leval
-      integer,private :: nwf,ifcphi_mlw,ifgeig_mlw, nqixx
+      integer,private :: ifcphi_mlw,ifgeig_mlw, nqixx
       complex(8),allocatable,private:: geig_mlw(:,:,:,:),
      &           cphi_mlw(:,:,:,:)
       logical,private:: debug=.false.
@@ -68,10 +68,10 @@
       endif
       end subroutine
 
-      subroutine readcphiW(q,ldim2_in,isp,  qu,cphif)
-      integer:: isp,iq,iqindx,ldim2_in,ikpisp
+      subroutine readcphiW(q,ldim2_dummy,isp,  qu,cphif)
+      integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
       real(8)   :: q(3),qu(3)
-      complex(8):: cphif(ldim2_in,nwf)
+      complex(8):: cphif(ldim2,nwf)
       if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
       call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
       if(keepeig) then
@@ -207,18 +207,18 @@ c      endif
       end subroutine readgeig
 
 !!
-      subroutine readcphi(q,ldim2_in,isp,  qu,cphif)
+      subroutine readcphi(q,ldim2,isp,  qu,cphif)
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       real(8), intent(in) :: q(3)
-      integer, intent(in)  :: ldim2_in
+      integer, intent(in)  :: ldim2
       integer, intent(in)  :: isp
       real(8), intent(out)  :: qu(3)
-      complex(8), intent(out)  :: cphif(ldim2_in,nband)
+      complex(8), intent(out)  :: cphif(ldim2,nband)
 
       integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
       real(8)   :: qrot(3) ,qout(3)
-      complex(8):: phase,cphifr(ldim2_in,nband),phaseatom !takao 1->*->nband
+      complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
 !      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
 
@@ -243,7 +243,7 @@ c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector
         ikpisp= isp + nsp*(iqi-1)
         read(ifcphi, rec=ikpisp) cphifr(1:ldim2,1:nband)
       endif
-      if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2_in,ldim2,norbtx,
+      if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
 !!
       igxt=1 !not timereversal
@@ -390,12 +390,12 @@ Cstop2rx 2013.08.09 kino        stop 'readgeig_mlw: ngpmx<ngp(iq)'
       end subroutine
 
 c------------------------------
-      subroutine readcphi_mlw(q,ldim2_in,isp,  qu,cphif)
+      subroutine readcphi_mlw(q,ldim2_dummy,isp,  qu,cphif)
 !!-- return ev(1:nband) for given q(1:3) and isp
       implicit none
-      integer:: isp,iq,iqindx,ldim2_in,ikpisp
+      integer:: isp,iq,iqindx,ldim2_dummy,ikpisp
       real(8)   :: q(3),qu(3)
-      complex(8):: cphif(ldim2_in,nwf)
+      complex(8):: cphif(ldim2,nwf)
       if(init2) then
 Cstop2rx 2013.08.09 kino        stop 'readcphi_mlw: modele is not initialized yet'
         call rx( 'readcphi_mlw: modele is not initialized yet')
@@ -418,7 +418,7 @@ ccccccccccccccccccccccccccc
       integer:: iq,is,ifiqg,nnnn,ikp,!,nsp_in, nband_in,mrece_in,
      & iopen,iclose,isx,mrecb_in,ik,ib,verbose,ifile_handle
       integer:: ifev,nband_ev, nqi_, nsp_ev ,ngpmx_ ,nqnum_
-      real(8):: ginv_in(3,3)
+c      real(8):: ginv_in(3,3)
       real(8):: QpGcut_psi
       real(8),allocatable:: qtt_(:,:),qtti_(:,:)
 
@@ -427,7 +427,7 @@ c      allocate(ginv(3,3))
 c      ginv  = ginv_in
 c      nsp   = nsp_in
       if(nsp<0.or.nsp>2) call rx( 'init_reaeigen:nsp wrong')
-      nband = nband_in
+c      nband = nband_in
 c      mrece = mrece_in
 c      write(6,*) 'init_readeigen:1'
 
@@ -519,9 +519,9 @@ c this should be called after init_readgeigen
      & i1,i2,i3,i4,i5,iorb,iorbold
       logical :: keepeigen
 
-      mrecb = mrecb_in
-      ldim2 = ldim2_in
-      mrecg = mrecg_in
+c      mrecb = mrecb_in
+c      ldim2 = ldim2_in
+c      mrecg = mrecg_in
       keepeig = keepeigen()
 
       init2=.false.
@@ -605,7 +605,7 @@ c        read(ifgeig, rec=ikpisp) geig(1:ngpmx,1:nband,ikp,is)
 
 
 c-------------------------------------------------------------
-      subroutine init_readeigen_mlw(nwf_o)
+      subroutine init_readeigen_mlw()!nwf_o)
 c allocate cphi_mlw and geig_mlw
 c for hx0fp0_mlw (ixc=112 mode)
 c this should be called after init_readgeigen2
@@ -969,7 +969,7 @@ c$$$
 
 
 c-------------------------------------------------------------
-      subroutine init_readeigen_mlw_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
+      subroutine init_readeigen_mlw_noeval()!nwf_o,nband_o,mrecb_o,mrecg_o)
 c      use m_hamindex,only: nqi,nqnum,qtti
 
 c replace cphi and geig
@@ -1249,17 +1249,17 @@ c            write(7500,*)cphi(:,:,ikp,is)
         ifcphiW = iopen('CPHI.mlw',0,0,mrecb_o)
       endif
       deallocate(cbwf)
-c replace dimensions
-      nband = nwf
-      nwf_o = nwf
-      nband_o = nband
-      mrecb = mrecb_o
-      mrecg = mrecg_o
+c$$$c replace dimensions
+c$$$      nband = nwf
+c$$$      nwf_o = nwf
+c$$$      nband_o = nband
+c$$$      mrecb = mrecb_o
+c$$$      mrecg = mrecg_o
       end subroutine init_readeigen_mlw_noeval
 
 
 c-------------------------------------------------------------
-      subroutine init_readeigen_phi_noeval(nwf_o,nband_o,mrecb_o,mrecg_o)
+      subroutine init_readeigen_phi_noeval()!nwf_o,nband_o,mrecb_o,mrecg_o)
 c replace cphi and geig
 c for hwmat_phi
 c this should be called after init_readgeigen2
@@ -1345,18 +1345,18 @@ c         enddo
 c         deallocate(geig2,cphi2)
       endif
 c replace dimensions
-      nband = nwf
-      nwf_o = nwf
-      nband_o = nband
-      mrecb = mrecb_o
-      mrecg = mrecg_o
+c      nband = nwf
+c      nwf_o = nwf
+c      nband_o = nband
+c      mrecb = mrecb_o
+c      mrecg = mrecg_o
 c ---
       end subroutine
 
 
 
 c-------------------------------------------------------------
-      subroutine init_readeigen_mlw_diag(nwf_o,nband_o,mrecb_o,mrecg_o)
+      subroutine init_readeigen_mlw_diag()!nwf_o,nband_o,mrecb_o,mrecg_o)
 c replace cphi, geig and evud
 c for hx0fp0_mlw, ixc=11 mode
 c this should be called after init_readgeigen2
@@ -1644,12 +1644,12 @@ c            write(7500,*)cphi(:,:,ikp,is)
 
       deallocate(cbwf)
 
-c replace dimensions
-      nband = nwf
-      nwf_o = nwf
-      nband_o = nband
-      mrecb = mrecb_o
-      mrecg = mrecg_o
+c$$$c replace dimensions
+c$$$      nband = nwf
+c$$$      nwf_o = nwf
+c$$$      nband_o = nband
+c$$$      mrecb = mrecb_o
+c$$$      mrecg = mrecg_o
 c ---
       end subroutine
       end module m_readeigen

@@ -14,7 +14,7 @@ c-------------------------------------------------------------
       use m_readeigen,only: init_readeigen,readeval
       use m_tetrakbt,only: tetrakbt_init, kbt
       use m_keyvalue,only: getkeyvalue
-      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband_in=>nband,mrecg
+      use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
       implicit none
       real(8) :: shtw
@@ -115,7 +115,7 @@ c
 
       !! fermi_kbt
       integer:: nptdos_kbt = 100001
-      integer(4):: ifief_kbt, nband
+      integer(4):: ifief_kbt!, nband
       real(8), allocatable:: dos_kbt(:), dosef_kbt
       real(8) :: efermi_kbt, e11, e22
       logical:: usetetrakbt
@@ -236,7 +236,7 @@ c      if (nprecb == 4) call rx( 'hsfp0: b,hb in single precision')
 c      isx = iclose('hbe.d')
 c     close(ifhbed)
       call Readhbe()
-      nband=nband_in
+c      nband=nband_in
       
 !! Get number of valence electron valn
 c$$$      if(legas) then

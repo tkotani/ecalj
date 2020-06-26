@@ -5,7 +5,7 @@
 !!------------------------------------------------------------
       use m_readqg,only: Readngmx2,ngcmx,ngpmx,Readqg0,Readqg
       use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen
-     & ,init_readeigen2,init_readeigen_mlw_noeval,init_readeigen_phi_noeval
+     & ,init_readeigen2, init_readeigen_mlw_noeval, init_readeigen_phi_noeval,  nwf
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,nctot2=>nctot,niwg=>niw
       use m_keyvalue,only: getkeyvalue
@@ -37,7 +37,7 @@ c     o   imagw,niw,nw,ifreq,
      &   ifrcw,ifrcwi,  noccxv,maxocc2,noccx,ifvcfpout,iqall,iaf,ntq,
      &   i,k,nspinmx, nq,is,ip,iq,idxk,ifoutsex,iclose,nq0i,ig,
      &   mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
-     &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,nwf,
+     &   nlnx4,niwx,irot,invr,invrot,ivsum, ifoutsec,ntqx,
 c
 c     &   ifrb(2),ifcb(2),ifrhb(2),ifchb(2)
 c     &    ifev(2),
@@ -482,22 +482,25 @@ c$$$        write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
-      call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
+      call init_readeigen2() !mrecb,nlmto,mrecg) !initialize m_readeigen
       write(*,*)'nnn3 nband =',nband,latomic
+      
+!! We get nwf after one of following init_... are called
       if (latomic) then
-         call init_readeigen_phi_noeval(nwf,nband,mrecb,mrecg)
+         call init_readeigen_phi_noeval() !nwf,nband,mrecb,mrecg)
       else   
 !     if (l1d) then
 !     call init_readeigen_mlw_noeval1D(nwf,nband,mrecb,mrecg)
 !     else
-         call init_readeigen_mlw_noeval(nwf,nband,mrecb,mrecg)
+         call init_readeigen_mlw_noeval() !nwf,nband,mrecb,mrecg)
 !     endif
       endif
+
       write(*,*)'Caution! evals are zero hereafter.'
       write(*,*)'nwf =',nwf
-      write(*,*)'nband =',nband
-      write(*,*)'mrecb =',mrecb
-      write(*,*)'mrecg =',mrecg
+c      write(*,*)'nwf =',nwf
+c      write(*,*)'mrecb =',mrecb
+c      write(*,*)'mrecg =',mrecg
       write(*,*)'init_readeigen_mlw: done'
 
 c QPNT data
@@ -710,7 +713,7 @@ c-----------------------------------------------------------
 c arrays for sxcf.f
       nlnx4    = nlnx**4
       niwx     = max0 (nw,niw)
-      allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nband), 
+      allocate( ppb(nlnmx*nlnmx*mdimx*nclass),  eq(nwf), 
      & kount(nqibz), 
      &       rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw),
      &       cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw),
@@ -771,7 +774,7 @@ c        endif
 c loop over q
 c        do ip = 1,nq   !;write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
 c          iq  = idxk (q(1,ip),qbz,nqbz)
-c          call rwdd1 (ifev(is),iq, nband,eq)
+c          call rwdd1 (ifev(is),iq, nwf,eq)
 c          call readeval(q(1,ip),is,eq)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -810,7 +813,7 @@ c     i     nblochpmx, ngpn,ngcni,ngpmx,ngcmx,
 c     i     geigB(1,1,1,is), ngvecpB,ngveccBr,
 c     i     ngveccBr,
      i     wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat,
-     i     matmul(symgg(:,:,irot),shtvg(:,invr)),nband,
+     i     matmul(symgg(:,:,irot),shtvg(:,invr)),nwf,
      i     ifvcfpout,
 c     i     shtw, 
      i     exchange, !tote, screen, cohtest, ifexsp(is),
