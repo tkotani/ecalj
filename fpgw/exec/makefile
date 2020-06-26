@@ -21,9 +21,9 @@ BINDIR = $(HOME)/ecaljdev/bin
 main    = ../main/
 gwsrc  = ../gwsrc/
 tote = ../tote/
+maxloc = ../Wannier/
 tags   = ../
 
-#maxloc = ../Miyake/maxloc/
 # tag directory
 #
 #progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hparainfo hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv
@@ -32,14 +32,18 @@ tags   = ../
 
 progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
 
+progsw= huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
+
 # progs  = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hchknw qg4gw gwinit heftet hmergewv hbndout rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 h_uumatrix hsigmconv hwmat hmaxloc huumat qpwf hpsig hnocc_mlw hx0fp0_mlw hphig
 
 # hmaxloc1D
-progs2 = $(progs) $(tags)TAGS 
+progs2 = $(progs) $(progsw) $(tags)TAGS 
 #checkmod 
 
 #script = cleargw* dqpu dtote eps* ex* gw* hqpemetal* inf* lmgw* plotg save* tote_lmfh2 xqp mkG*
-script = cleargw* dqpu eps* gw* mkG* chipm_mat
+scriptw = genMLWF genMLWF_vw genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py
+
+script = cleargw* dqpu eps* gw* mkG* chipm_mat $(scriptw)
 
 #### You can choose these options. all is default.
 
@@ -55,7 +59,7 @@ install2:
 	 cp  $(script) $(BINDIR)
 
 cleanall:  
-	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  *.mod  $(tote)*.o  
+	 rm -f  $(progs2) $(main)*.o $(gwsrc)*.o  *.mod  $(tote)*.o  $(maxloc)*.o
 
 doxygen:
 	cd $(tags);doxygen;cd ./latex;make
@@ -91,10 +95,28 @@ init:
 	rm -f $(gwsrc)time_rppovl.F      
 	rm -f $(gwsrc)time_x0kf_v4h.F    
 	rm -f $(gwsrc)time_ppbafp.fal.F  
-	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F
+	exec ../../TOOLS/checkmodule ../gwsrc/*.F ../main/*.F ../tote/*.F ../Wannier/*.F
 
 checkmod:
 	init
+
+$(maxloc)wanplot.o: $(maxloc)cubeformat.o $(maxloc)xsfformat2.o  
+
+OBJS2=\
+$(maxloc)m_DATA4GW.o\
+$(maxloc)m_QG.o\
+$(maxloc)m_FFT3D.o\
+$(maxloc)mymath.o\
+$(maxloc)myYlm.o\
+$(maxloc)wfn2dx_2.o\
+$(maxloc)m_MLWF.o\
+$(maxloc)cubeformat.o\
+$(maxloc)xsfformat2.o\
+$(maxloc)expand_mesh.o\
+$(maxloc)wfn2dx_abc.o\
+$(maxloc)wfnrho_abc.o\
+$(maxloc)write_mesh2d.o 
+
 
 #../../lm7K/subs/m_hamindex.F
 # m_hamindex
@@ -380,6 +402,97 @@ $(gwsrc)m_eibz.o
 
  kino_input_test:	$(kino_input_test) $(GWLIB) $(MPI)  $(COMM) 
 	 $(LK) $(LKFLAGS1) $(kino_input_test) $(GWLIB)  $(MPI)  $(COMM) $(LKFLAGS2) -o $@
+
+ MLOC = \
+ $(maxloc)hmaxloc.o \
+ $(maxloc)maxloc0.o \
+ $(maxloc)maxloc1.o \
+ $(maxloc)maxloc2.o \
+ $(maxloc)maxloc3.o \
+ $(maxloc)maxloc4.o \
+ $(maxloc)m_read_Worb.o
+
+ PHIG = \
+ $(maxloc)hphig.o 
+
+ PSIG = \
+ $(maxloc)hpsig.o \
+ $(maxloc)m_read_Worb.o
+
+ PSIG_MPI = \
+ $(maxloc)RSMPI_mod.o \
+ $(maxloc)RSMPI_qkgroup_mod.o \
+ $(maxloc)RSMPI_rotkindex_mod.o \
+ $(maxloc)RSMPI_utils.o \
+ $(maxloc)hpsig_MPI.o \
+ $(maxloc)m_read_Worb.o
+
+ # PSIPSI = \
+ # $(gwt)hpsipsi.o \
+ # $(gwsrc)gintxx.o \
+ # $(gwsrc)mopen.o \
+ # $(gwsrc)u_lat_0.o \
+ # $(gwsrc)wronkj.o \
+ # $(gwsrc)mklegw.o \
+ # $(gwsrc)rxx.o \
+ # $(gwsrc)bessl.o \
+ # $(gwsrc)cross.o 
+
+ UU2 = \
+ $(maxloc)huumat.o 
+
+ UU2_MPI = \
+ $(maxloc)RSMPI_mod.o \
+ $(maxloc)RSMPI_utils.o \
+ $(maxloc)huumat_MPI.o \
+ $(maxloc)ent_MPI.o
+
+ WMATK = \
+ $(maxloc)hwmatK.o \
+ $(maxloc)wmatK.o \
+ $(maxloc)maxloc0.o
+
+ WMATK_MPI = \
+ $(maxloc)RSMPI_mod.o \
+ $(maxloc)RSMPI_qkgroup_mod.o \
+ $(maxloc)RSMPI_rotkindex_mod.o \
+ $(maxloc)RSMPI_utils.o \
+ $(maxloc)hwmatK_MPI.o \
+ $(maxloc)wmatK_mpi.o \
+ $(maxloc)maxloc0.o \
+ $(maxloc)efsimplef_RSMPI.o
+
+
+ hmaxloc:	$(MLOC)  $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(MLOC) $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
+
+ hpsig: $(PSIG) $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(PSIG)     $(GWLIB) $(MPI)   $(LKFLAGS2) -o $@
+
+ hpsig_MPI:	$(PSIG_MPI) $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(PSIG_MPI)	$(GWLIB) $(MPI)	$(LKFLAGS2) -o $@
+
+ huumat:	$(UU2) $(GWLIB) $(MPI)
+	$(LK) -o $@ $(LKFLAGS1) $(UU2)     $(GWLIB) $(MPI)  $(LKFLAGS2) 
+
+ huumat_MPI:	$(UU2_MPI) $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(UU2_MPI)     $(GWLIB) $(MPI)  $(LKFLAGS2) -o $@
+
+ hwmatK:		$(WMATK) $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(WMATK) $(COMMX)   $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
+
+ hwmatK_MPI:		$(WMATK_MPI) $(GWLIB) $(MPI)
+	$(LK) $(LKFLAGS1) $(WMATK_MPI) $(COMMX)   $(GWLIB) $(MPI) $(LKFLAGS2) -o $@
+
+
+#huumat.o: $(gwsrc)keyvalue.o $(gwsrc)readqg.o  $(gwsrc)readeigen.o $(gwsrc)rwbzdata.o  \
+#          $(gwsrc)genallcf_mod.o 
+
+wanplot : ${OBJS2} $(maxloc)wanplot.o ${GWLIB} $(MPI)
+	$(LK) $(LKFLAGS1) $(maxloc)wanplot.o $(OBJS2) $(GWLIB) $(MPI) $(COMM) $(LKFLAGS2) -o $@
+
+htbplot :  $(maxloc)htbplot.o
+	$(LK) $(LKFLAGS1) $(maxloc)htbplot.o $(LKFLAGS2) -o $@
 
 ################################ test
 #

@@ -98,7 +98,7 @@ c      logical:: test_qbzreg
 
 ctm
       integer(4) :: ixc,idummy,idummy2,i1,i2,i3,nbbloop,
-     &              ifpsig(2),ifmloc,ret,
+     &              ifpsig,ifmloc,ret,
      &              ifbb,nbb,iko_ixs(2),iko_fxs(2),noxs(2),
      &              iqibz,iqbz,ibb,itmp,itmp2,iti,itf,
      &              nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,
@@ -398,17 +398,14 @@ c matching condition at MT radius
       enddo
       endif ! myproc
 
-c file open
       if (myproc.eq.0) then
-      ifpsig(1) = iopen('PSIGU.'//charnum4(0),0,-1,0)
-      write(ifpsig(1))nqbz,iko_ixs(1),iko_fxs(1),nwf
-      ifpsig(1) = iclose('PSIGU.'//charnum4(0))
-      if (nspin.eq.2) then
-        ifpsig(2) = iopen('PSIGD.'//charnum4(0),0,-1,0)
-        write(ifpsig(2))nqbz,iko_ixs(2),iko_fxs(2),nwf
-        ifpsig(2) = iclose('PSIGD.'//charnum4(0))
-      endif
-      endif ! myproc
+         open(newunit=ifpsig,file='PSIGU.'//charnum4(0), form='unformatted')
+         write(ifpsig)nqbz,iko_ixs(1),iko_fxs(1),nwf
+         close(ifpsig)
+         open(newunit=ifpsig,file='PSIGD.'//charnum4(0), form='unformatted')
+         write(ifpsig)nqbz,iko_ixs(2),iko_fxs(2),nwf
+         close(ifpsig)
+      endif                     ! myproc
 
 c======================================================================
 c --- Set q1(j1range)
@@ -456,11 +453,7 @@ ctm, MPI
          if (iqbz.eq.0) cycle
          write(*,*)'iqbz =',iqbz, 'out of',nqbz
          write(iftmp,*)'iqbz =',iqbz, 'out of',nqbz
-ctm
-c      do 1070 iqbz = 1,nqbz
-
          q1(:) = qbz(:,iqbz)
-
 C --- q1x
       call readqg0('QGpsi',q1,ginv,  q1x, ngp1)
 c      call checkagree(q1,q1x,' q1 ne q1x')
@@ -538,21 +531,17 @@ c       do j1=j1min,j1max
        deallocate(cphi1)
  1050 continue
 
-c--- write result 
-ctm, MPI
-      ifpsig(1) = iopen('PSIGU.'//charnum4(iqbz),0,-1,0)
-      if (nspin.eq.2) ifpsig(2) = iopen('PSIGD.'//charnum4(iqbz),0,-1,0)
-ctm
+!! write result 
       do ispin = 1,nspin
+         if(ispin==1) open(newunit=ifpsig,file='PSIGU.'//charnum4(iqbz),form='unformatted')
+         if(ispin==2) open(newunit=ifpsig,file='PSIGD.'//charnum4(iqbz),form='unformatted')
          iti = iko_ixs(ispin)
          itf = iko_fxs(ispin)
-         write(ifpsig(ispin)) iqbz
-         write(ifpsig(ispin))
-     &         ((psig(j1,j2,ispin),j1=iti,itf),j2=1,nwf)
+c         write(6,*)'wwwwwww', iqbz,ispin,iti,itf
+         write(ifpsig) iqbz
+         write(ifpsig) ((psig(j1,j2,ispin),j1=iti,itf),j2=1,nwf)
+         close(ifpsig)
       enddo
-ctm, MPI
-      ifpsig(ispin) = iclose('PSIGU.'//charnum4(iqbz))
-      if (nspin.eq.2) ifpsig(ispin) = iclose('PSIGD.'//charnum4(iqbz))
 
 check write
 !      if (mod(iqbz,10).eq.1) then
@@ -589,21 +578,17 @@ check write
 !      enddo
       
       deallocate(ngvecpf1, qgg, phig)
-
 c end of qbz-loop
  1070 continue
-
  1100 continue
       call mpi_barrier(MPI_COMM_WORLD,ierr)
 c finalize MPI
       call mpi_finalize(ierr)
-!      call RSMPI_finalize()
-
       if (myproc.eq.0)
      & write(6,*) ' ====== end ========================================'
-c      stop ' ====== end ========================================'
       if (myproc.eq.0) write(*,*) 'hpsig: ok'
       end
+      
 c====================================================================
       subroutine checkagree(a,b,char)
       real(8):: a(3),b(3) 

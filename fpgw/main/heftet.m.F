@@ -115,7 +115,7 @@ c
 
       !! fermi_kbt
       integer:: nptdos_kbt = 100001
-      integer(4):: ifief_kbt!, nband
+      integer(4):: ifief_kbt, nbandx
       real(8), allocatable:: dos_kbt(:), dosef_kbt
       real(8) :: efermi_kbt, e11, e22
       logical:: usetetrakbt
@@ -317,7 +317,8 @@ c ... read eband
 c           write(6,*)eband(:,is,iqi)
             enddo
           enddo
-        endif
+       endif
+       nbandx=nband
       elseif(imode==2.or.imode==3.or.imode==4) then
         ifief=ifile_handle()
         if(imode==2) open(ifief,file='EFERMI.check')
@@ -327,8 +328,8 @@ c           write(6,*)eband(:,is,iqi)
         open(iftote,file='TOTE.UP')
         read(iftote,*) nq,ntq, efxx
         if(nq/= nqibz) call rx( ' heftet: nq TOTE/= nqibz')
-        nband = ntq
-        allocate( eband(nband,nspin,nqibz), qz(3,nqibz) )
+        nbandx = ntq
+        allocate( eband(nbandx,nspin,nqibz), qz(3,nqibz) )
         call dcopy (3*nqibz,qibz,1,qz,1)
         do  is  = 1,nspin !Readin eband
           if(is==2) then
@@ -339,7 +340,7 @@ c           write(6,*)eband(:,is,iqi)
             if(efxx/=efxx)call rx( 'efxx dirrerent TOTE.UP TOTE.DN')
           endif
           do  iqi = 1,nqibz
-            do   it = 1,nband
+            do   it = 1,nbandx
               read(iftote,*) qq(1:3), itx, iqx, elda, eqp01, eqp02, zfac
               if(it /= itx ) call rx( ' heftet: it /=itx ')
               if(sum(abs(qq(1:3)-qz(1:3,iqi)))>tolq ) then
@@ -357,8 +358,8 @@ c           write(6,*)eband(:,is,iqi)
         enddo
 
 !! jan2006 bug fix: this bug was between 032f5 to 032f8
-        ldim  = nband
-        nbmax = nband
+        ldim  = nbandx
+        nbmax = nbandx
         zval  = valn
         nsp   = nspin
         nkp =nqibz
@@ -451,14 +452,14 @@ c- eband check
       if(imode/=1 .or. imode/=5) then
         do  is  = 1,nspin
           do  iqi = 1,nqibz
-            if( eband(nband,is,iqi) <efermi) then
+            if( eband(nbandx,is,iqi) <efermi) then
               write(6,*)' heftet: WARNING! eband(maxband) is less than efermi:
-     &    you might have to enlarge nband to get efermi by tetrahedron'
+     &    you might have to enlarge nbandx to get efermi by tetrahedron'
               goto 666
             endif
           enddo
         enddo
-        write(6,*) ' check OK! eband(nband,:,:) is greater than efermi.'
+        write(6,*) ' check OK! eband(nbandx,:,:) is greater than efermi.'
  666    continue
       endif
 
