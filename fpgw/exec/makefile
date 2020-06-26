@@ -50,10 +50,10 @@ script = cleargw* dqpu eps* gw* mkG* chipm_mat $(scriptw)
 all :$(progs2) 
 
 clean:  
-	 rm -f  $(progs)
+	 rm -f  $(progs) $(progsw)
 
 install:  
-	 cp  $(progs)  $(BINDIR)
+	 cp  $(progs) $(progsw) $(BINDIR)
 
 install2:  
 	 cp  $(script) $(BINDIR)

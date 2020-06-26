@@ -31,7 +31,7 @@ GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc
 GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
 GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm
 
-MLWF_DIR = $(ecalroot)/fpgw/Wannier
+MLWF_DIR = $(ecalroot)/fpgw/exec
 MLWF_PROG  = genMLWFx hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI 
 ###########################################################
 # Do not edit lines below.
