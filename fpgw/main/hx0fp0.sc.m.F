@@ -5,7 +5,7 @@
 !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
 !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
       use m_ReadEfermi,only: Readefermi,ef
-      use m_readqg,only: Readngmx2,Readqg,ngpmx,ngcmx
+      use m_readqg,only: Readngmx2,Readqg0,ngpmx,ngcmx
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
@@ -18,8 +18,6 @@ c     &     idteti, nstar,irk,nstbz
      &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
      &     invg, il, in, im, nlnm, 
      &     plat, pos, ecore, symgg 
-      use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
-      use m_readqgcou,only: Readqgcou
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,      !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
@@ -58,9 +56,9 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_qbze,only: Setqbze,
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
 !! ------------------------------------------------------------------------      
       implicit none
-      integer,allocatable:: nwgt(:,:)
       integer::maxocc2,iclose, ixc,iqxini,iqxend, !iopen,
 c     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &     i,nq0ix,ngrpmx,mxx,ini,ix,ngrpx !nqbze,nqibze,
@@ -75,7 +73,7 @@ c     &     ifhbe,  nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
       real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg2, q(3),  qgbin(3),qx(3) 
       real(8):: ua=1d0          ! this is a dummy.
       integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2), ndble=8, nword
-      integer,allocatable :: ngveccB(:,:), iqib(:),ifppb(:) !,lx(:) ngvecc(:,:),
+      integer,allocatable ::  iqib(:),ifppb(:) !,lx(:) ngvecc(:,:),ngveccB(:,:),
       complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:),vcoul(:,:),
      &     zw(:,:),zw0(:,:), zxq(:,:,:),zxqi(:,:,:)
       real(8),allocatable :: eqt(:), 
@@ -131,7 +129,6 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
       integer:: lxklm,nlxklm,ifidmlx,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,niwxxx,iwx,icc1,icc2
       complex(8):: vc1vc2
-      integer,allocatable:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: nmbas_in , iqxendx,imb2 !iqqv,l2nl, 
@@ -250,15 +247,15 @@ c      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze)
 c        !max no. of occupied valence states
 c      if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
 c     noccx  = noccxv + nctot ! We usually assume nctot=0
-      
       nblochpmx = nbloch + ngcmx ! MPBmax   =  MTO   +   APWmax 
+      iqxini = 1 
       iqxend = nqibz + nq0i + nq0iadd
       nwp = nw+1
       nprecx = ndble          ! We use double precision arrays only.
       mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
       nspinmx = nspin
       allocate( zw(nblochpmx,nblochpmx) )
-      allocate(ngveccB(3,ngcmx))
+c      allocate( ngveccB(3,ngcmx))
 
       if(MPI__root)then         ! We don't recommend to give a subroutine for writing a file.
         open(newunit=ifwd, file='WV.d', action='write')
@@ -272,41 +269,14 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 c      call ppbafp_v2_zmel (ngrpx)
       if(debug) write(6,*) ' end of ppbafp_v2x'
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
-      iqxini=1 !for newaniso
-      eibzmode = eibz4x0()
-
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
 
 !! Array for eigenvalues.
       allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
 
-!! === Use of symmetry. EIBZ procedure PRB81,125102 ===
-!!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
-      if(eibzmode) then
-!! commentout block inversion Use iqxendx=iqxend because of full inversion
-         iqxendx=iqxend
-         allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
-     &        igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
-     &        eibzsym(ngrp,-1:1,iqxini:iqxendx))
-         iprintx=.false.
-         write(6,*)
-         write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
-         if(MPI__root) iprintx=.true.
-         call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
-     i        timereversal(),ginv,iprintx,
-     o        nwgt,igx,igxt,eibzsym,tiii)
-         write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
-         call cputid(0)
-!All input. this returns required index stored in arrays in m_pbindex.
-         call PBindex(natom,lx,2*(nl-1),nx) 
-         ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
-         call readqgcou() ! no input. Read QGcou and store date into variables.
-!!  call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
-      else !dummy allocation to overlaid -check bound !sep2014
-         iqxendx=iqxend
-         allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
-     &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
-      endif
+!! EIBZ mode
+      eibzmode = eibz4x0()
+      call seteibz(iqxini,iqxend,MPI__root)
 !!
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
       llw = 1d99
@@ -325,7 +295,7 @@ c      call ppbafp_v2_zmel (ngrpx)
 !! Get ngbq0 (for q=0) and broadcast for w4p
       if( MPI__root.and. w4pmode ) then
         q = (/0d0,0d0,0d0/)
-        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB)
+        call readqg0('QGcou', q, ginv,  quu,ngc)
         ngbq0 = nbloch+ngc
       endif
       call MPI__Broadcast(ngbq0)
@@ -358,7 +328,7 @@ c      call ppbafp_v2_zmel (ngrpx)
      &          status='unknown',access='direct',recl=mrecl)
         endif
         q = qibze(:,iq)
-        call Readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
+        call Readqg0('QGcou', q, ginv,  quu,ngc)
 !!  ngc, number of PW for the interaction matrix (in QGcou), is shown at the bottom of lqg4gw.
 
 !! ==== Readin Coulomb matrix ====
@@ -377,7 +347,7 @@ c      call ppbafp_v2_zmel (ngrpx)
         nmbas1 = nmbas_in
         nmbas2 = nmbas1
 
-!! We need to set ppovlz to call get_zmelt \in m_zmel in x0kf_v4hz
+!! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
         call Setppovlz(q,ngc,zcousq,ngb)
 !!
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )

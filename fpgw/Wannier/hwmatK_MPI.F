@@ -618,7 +618,7 @@ c$$$      write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
  1018 continue
-      call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
       write(*,*)'nband =',nband
 !! jan2015
       lll=.false.

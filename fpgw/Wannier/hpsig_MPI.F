@@ -15,7 +15,7 @@ c Takashi Miyake, Mar 2008, parallelized
 c Takashi Miyake, Jun 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
-      use m_readeigen
+      use m_readeigen,only:init_readeigen,init_readeigen2,readcphi,readgeig
       use m_read_bzdata,ngrp2=>ngrp
       use m_genallcf_v3,ncore2=>ncore
       use m_keyvalue,only: getkeyvalue
@@ -290,7 +290,7 @@ c--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
 
 c --- initiallization to get eigenfunctions
       call init_readeigen()!nband,mrece) !initialization of readEigen
-      call init_readeigen2(mrecb,nlmto,mrecg)
+      call init_readeigen2()!mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband) )
       if (myproc.eq.0) write(6,*) 'end of initialization'

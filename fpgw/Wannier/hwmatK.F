@@ -482,7 +482,7 @@ c$$$        write(6,*)' ntot  =',ntot
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
-      call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
       write(*,*)'nnn3 nband =',nband,latomic
       if (latomic) then
          call init_readeigen_phi_noeval(nwf,nband,mrecb,mrecg)

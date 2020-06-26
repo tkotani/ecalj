@@ -4,7 +4,7 @@
      u                    cnk,
      o                    eunk)
 
-      use m_readeigen
+      use m_readeigen,only:readeval
 
       implicit real*8(a-h,o-z)
 
@@ -68,7 +68,7 @@ c-----------------------------------------------------------------------
       subroutine chk_eunk(is,qbz,eunk,ef,
      d                    nqbz,nband,nwf)
 
-      use m_readeigen
+      use m_readeigen,only:readeval
 
       implicit real*8(a-h,o-z)
 
@@ -882,7 +882,7 @@ c-----------------------------------------------------------------------
      i                   iko_ix,iko_fx,iko_i,iko_f,
      d                   nband,nwf,nqbz)
 
-      use m_readeigen
+      use m_readeigen,only:readeval
 
       implicit real*8(a-h,o-z)
 

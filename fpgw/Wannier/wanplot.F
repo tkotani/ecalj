@@ -98,7 +98,7 @@ c      ifhbed     = iopen('hbe.d',1,0,0)
 c     read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
       call Readhbe()
       call init_readeigen()!nband,mrece) !initialization of readEigen
-      call init_readeigen2(mrecb,ldim2,mrecg) !initialize m_readeigen
+      call init_readeigen2()!mrecb,ldim2,mrecg) !initialize m_readeigen
 
 !! replace geig and cphi with those for WF. Converted by the dnk matrix.
 !! geig2 = cphi2 = 0 for ik > nqbz

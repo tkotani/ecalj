@@ -128,7 +128,7 @@ c niwx    = max(niw,nw)
 c
 c----------------------------------------------------------------------
       use m_readqg,only: readqg0
-      use m_readeigen
+      use m_readeigen,only:readcphiw
       use m_keyvalue,only: getkeyvalue
 
 c RS: modules for MPI    
@@ -978,7 +978,7 @@ c -------------------------------------------------------------------
      i       rmel, cmel, nbloch,noccx,nctot,
      o       zmelt) 
       use m_readqg,only:readqg,readqg0
-      use m_readeigen
+      use m_readeigen,only:readgeigw
 c ! q1=q    ---> iq 1:ntp0 q-point
 c ! q2=q-rk ---> kp 1:nt0  occupied                        
 c- Contributions to matrix elements <psi |psi Plane> from interstitial plane wave.

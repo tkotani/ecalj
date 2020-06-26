@@ -268,7 +268,7 @@ c--- cg coefficient.  y = cg y y ; y is the real spherical harmonics
 
 c --- initiallization to get eigenfunctions
       call init_readeigen()!nband,mrece) !initialization of readEigen
-      call init_readeigen2(mrecb,nlmto,mrecg)
+      call init_readeigen2()!mrecb,nlmto,mrecg)
       call readngmx('QGpsi',ngpmx)
       allocate( geig1(ngpmx,nband),geig2(ngpmx,nband))
       write(6,*) 'end of initialization'

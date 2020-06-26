@@ -773,7 +773,7 @@ c-----------------------------------------------------------------------
      o                   iko_ix,iko_fx,nox,
      o                   leout,lein)
 
-      use m_readeigen
+      use m_readeigen,only:readeval
 
       implicit real*8(a-h,o-z)
 
@@ -1177,7 +1177,7 @@ c-----------------------------------------------------------------------
       implicit real*8(a-h,o-z)
       complex(8) :: psig(iti:itf,nwf,nqbz)
       complex(8),allocatable:: psigread(:,:,:)
-
+      print *,'readpsig:'
       if (is.eq.1) then
         ifpsig      = iopen('PSIGU',0,0,0)
       else
@@ -1190,6 +1190,9 @@ c-----------------------------------------------------------------------
       if (itf2 < itf)   call rx('readpsig: itf range error')
       allocate(psigread(iti2:itf2,nwf2,nqbz2))
       do iqbz = 1,nqbz
+ccccccccccccccc
+         print *,'readpsig:',iti2,itf2,nwf,iqbz
+ccccccccccccccc
          read(ifpsig)iqbz2
          if(iqbz2 .ne. iqbz) call rx('readpsig: iqbz error')
          read(ifpsig)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)

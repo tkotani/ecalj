@@ -5,7 +5,6 @@
      o                     amnk,cnk)
 
       implicit real*8(a-h,o-z)
-      
       logical :: lein
 c      complex(8),allocatable :: psig(:,:,:)
       complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz),
@@ -14,13 +13,12 @@ c      complex(8),allocatable :: psig(:,:,:)
      &           ovlp(iko_ix:iko_fx)
       integer(4) :: iko_i(nqbz),iko_f(nqbz),
      &              iki_i(nqbz),iki_f(nqbz)
-
-
 c initialize
       cnk = (0d0,0d0)
       amnk = (0d0,0d0)
 
 c read psig(it,iwf,iqbz) = < psi(it,iqbz) | g(iwf) >
+      print *,'goto readpsig'
       call readpsig(is,iko_ix,iko_fx,
      d              nqbz,nwf,
 c     o              psig)

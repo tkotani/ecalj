@@ -370,7 +370,7 @@ c- check total ele number -------
 
 c      ifcphi  = iopen('CPHI',0,0,mrecb)
 
-      call init_readeigen2(mrecb,nlmto,mrecg) !initialize m_readeigen
+      call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
 
 !c QPNT data
 ctm, 080222
@@ -1318,172 +1318,172 @@ c     end of loop over spin
       call rx0('hmaxloc: ixc=2 ok')
       end
 
+c$$$c-----------------------------------------------------------------------
+c$$$      subroutine chk_amnkweight(qbz,iko_ix,iko_fx,amnk,
+c$$$     &     nqbz,nwf,nband,nlmto)
+c$$$      use m_readqg
+c$$$      use m_readeigen
+c$$$      implicit real*8(a-h,o-z)
+c$$$
+c$$$      complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz)
+c$$$      complex(8),allocatable:: cphi1(:,:),cphi2(:,:)
+c$$$      real(8) :: qbz(3,nqbz),q(3),quu(3)
+c$$$      real(8),allocatable:: wbas(:,:)
+c$$$      integer(4),allocatable:: 
+c$$$     &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
+c$$$
+c$$$c --- Readin nlam index
+c$$$      ifoc = iopen('@MNLA_CPHI',1,0,0)
+c$$$      ldim2 = nlmto
+c$$$      read(ifoc,*)
+c$$$      allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
+c$$$      do ix =1,ldim2
+c$$$        read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
+c$$$        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
+c$$$      enddo   
+c$$$
+c$$$      nbas = ibas_indx(nlmto)
+c$$$      allocate(cphi1(nlmto,nband),cphi2(nlmto,nwf),wbas(nbas,nwf))
+c$$$      wbas = 0d0
+c$$$      cphi2=0d0
+c$$$      do iq = 1,nqbz
+c$$$      q = qbz(:,iq)
+c$$$      call readcphi(q,nlmto,1,quu,cphi1)
+c$$$
+c$$$       do iwf=1,nwf
+c$$$         do ib=iko_ix,iko_fx
+c$$$            cphi2(:,iwf) = cphi2(:,iwf) + cphi1(:,ib)*amnk(ib,iwf,iq)
+c$$$         enddo
+c$$$      enddo
+c$$$
+c$$$      enddo ! iq
+c$$$
+c$$$      do iwf=1,nwf
+c$$$         do ia=1,nlmto
+c$$$            ibas = ibas_indx(ia)
+c$$$            wbas(ibas,iwf) = wbas(ibas,iwf) + 
+c$$$     &                 conjg(cphi2(ia,iwf))*cphi2(ia,iwf)
+c$$$         enddo ! ia
+c$$$      enddo ! iwf
+c$$$      wbas = wbas / dble(nqbz**2)
+c$$$
+c$$$      write(*,*)'*** ibas,iwf,wbas'
+c$$$      do iwf=1,nwf
+c$$$      do ibas=1,nbas
+c$$$         write(*,*)ibas,iwf,wbas(ibas,iwf)
+c$$$      enddo
+c$$$      write(*,*)
+c$$$      enddo   
+c$$$      write(*,*)'*** ibas,wbas'
+c$$$      do ibas=1,nbas
+c$$$         w = 0d0
+c$$$         do iwf=1,nwf
+c$$$            w = w + wbas(ibas,iwf)
+c$$$         enddo
+c$$$         write(*,*)ibas,w
+c$$$      enddo
+c$$$   
+c$$$      deallocate(cphi1,cphi2,wbas,m_indx,l_indx,n_indx,ibas_indx)
+c$$$      ix = iclose('@MNLA_CPHI')
+c$$$
+c$$$      end
+c$$$c-----------------------------------------------------------------------
+c$$$      subroutine chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
+c$$$     &     nqbz,nwf,nband,nlmto)
+c$$$      use m_readqg
+c$$$      use m_readeigen
+c$$$      implicit real*8(a-h,o-z)
+c$$$
+c$$$      complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz)
+c$$$      complex(8),allocatable:: cphi1(:,:),cphi2(:,:)
+c$$$      real(8) :: qbz(3,nqbz),q(3),quu(3)
+c$$$      real(8),allocatable:: wbas(:,:)
+c$$$      integer(4),allocatable:: 
+c$$$     &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
+c$$$
+c$$$c --- Readin nlam index
+c$$$      ifoc = iopen('@MNLA_CPHI',1,0,0)
+c$$$      ldim2 = nlmto
+c$$$      read(ifoc,*)
+c$$$      allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
+c$$$      do ix =1,ldim2
+c$$$        read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
+c$$$        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
+c$$$      enddo   
+c$$$
+c$$$      nbas = ibas_indx(nlmto)
+c$$$      allocate(cphi1(nlmto,nband),cphi2(nlmto,nwf),wbas(nbas,nwf))
+c$$$      wbas = 0d0
+c$$$      cphi2=0d0
+c$$$
+c$$$      do iq = 1,nqbz
+c$$$      q = qbz(:,iq)
+c$$$      call readcphi(q,nlmto,1,quu,cphi1)
+c$$$
+c$$$      do iwf=1,nwf
+c$$$         do ib=iko_ix,iko_fx
+c$$$            cphi2(:,iwf) = cphi2(:,iwf) + cphi1(:,ib)*cnk(ib,iwf,iq)
+c$$$         enddo
+c$$$      enddo
+c$$$
+c$$$      enddo ! iq
+c$$$
+c$$$      do iwf=1,nwf
+c$$$         do ia=1,nlmto
+c$$$            ibas = ibas_indx(ia)
+c$$$            wbas(ibas,iwf) = wbas(ibas,iwf) + 
+c$$$     &                 conjg(cphi2(ia,iwf))*cphi2(ia,iwf)
+c$$$         enddo ! ia
+c$$$      enddo ! iwf
+c$$$      wbas = wbas / dble(nqbz*nqbz)
+c$$$
+c$$$      write(*,*)'*** ibas,iwf,wbas'
+c$$$      do iwf=1,nwf
+c$$$      do ibas=1,nbas
+c$$$         write(*,*)ibas,iwf,wbas(ibas,iwf)
+c$$$      enddo
+c$$$      write(*,*) 
+c$$$      enddo   
+c$$$
+c$$$      write(*,*)'*** ibas,wbas'
+c$$$      do ibas=1,nbas
+c$$$         w = 0d0
+c$$$         do iwf=1,nwf
+c$$$            w = w + wbas(ibas,iwf)
+c$$$         enddo
+c$$$         write(*,*)ibas,w
+c$$$      enddo
+c$$$      deallocate(cphi1,cphi2,wbas,m_indx,l_indx,n_indx,ibas_indx)
+c$$$      ix = iclose('@MNLA_CPHI')
+c$$$      end
 c-----------------------------------------------------------------------
-      subroutine chk_amnkweight(qbz,iko_ix,iko_fx,amnk,
-     &     nqbz,nwf,nband,nlmto)
-      use m_readqg
-      use m_readeigen
-      implicit real*8(a-h,o-z)
-
-      complex(8) :: amnk(iko_ix:iko_fx,nwf,nqbz)
-      complex(8),allocatable:: cphi1(:,:),cphi2(:,:)
-      real(8) :: qbz(3,nqbz),q(3),quu(3)
-      real(8),allocatable:: wbas(:,:)
-      integer(4),allocatable:: 
-     &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
-
-c --- Readin nlam index
-      ifoc = iopen('@MNLA_CPHI',1,0,0)
-      ldim2 = nlmto
-      read(ifoc,*)
-      allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
-      do ix =1,ldim2
-        read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
-      enddo   
-
-      nbas = ibas_indx(nlmto)
-      allocate(cphi1(nlmto,nband),cphi2(nlmto,nwf),wbas(nbas,nwf))
-      wbas = 0d0
-      cphi2=0d0
-      do iq = 1,nqbz
-      q = qbz(:,iq)
-      call readcphi(q,nlmto,1,quu,cphi1)
-
-       do iwf=1,nwf
-         do ib=iko_ix,iko_fx
-            cphi2(:,iwf) = cphi2(:,iwf) + cphi1(:,ib)*amnk(ib,iwf,iq)
-         enddo
-      enddo
-
-      enddo ! iq
-
-      do iwf=1,nwf
-         do ia=1,nlmto
-            ibas = ibas_indx(ia)
-            wbas(ibas,iwf) = wbas(ibas,iwf) + 
-     &                 conjg(cphi2(ia,iwf))*cphi2(ia,iwf)
-         enddo ! ia
-      enddo ! iwf
-      wbas = wbas / dble(nqbz**2)
-
-      write(*,*)'*** ibas,iwf,wbas'
-      do iwf=1,nwf
-      do ibas=1,nbas
-         write(*,*)ibas,iwf,wbas(ibas,iwf)
-      enddo
-      write(*,*)
-      enddo   
-      write(*,*)'*** ibas,wbas'
-      do ibas=1,nbas
-         w = 0d0
-         do iwf=1,nwf
-            w = w + wbas(ibas,iwf)
-         enddo
-         write(*,*)ibas,w
-      enddo
-   
-      deallocate(cphi1,cphi2,wbas,m_indx,l_indx,n_indx,ibas_indx)
-      ix = iclose('@MNLA_CPHI')
-
-      end
-c-----------------------------------------------------------------------
-      subroutine chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
-     &     nqbz,nwf,nband,nlmto)
-      use m_readqg
-      use m_readeigen
-      implicit real*8(a-h,o-z)
-
-      complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz)
-      complex(8),allocatable:: cphi1(:,:),cphi2(:,:)
-      real(8) :: qbz(3,nqbz),q(3),quu(3)
-      real(8),allocatable:: wbas(:,:)
-      integer(4),allocatable:: 
-     &  m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
-
-c --- Readin nlam index
-      ifoc = iopen('@MNLA_CPHI',1,0,0)
-      ldim2 = nlmto
-      read(ifoc,*)
-      allocate(m_indx(ldim2),n_indx(ldim2),l_indx(ldim2),ibas_indx(ldim2))
-      do ix =1,ldim2
-        read(ifoc,*)m_indx(ix),n_indx(ix),l_indx(ix),ibas_indx(ix),ixx
-        if(ixx/=ix) call rx('failed to readin @MNLA_CPHI')
-      enddo   
-
-      nbas = ibas_indx(nlmto)
-      allocate(cphi1(nlmto,nband),cphi2(nlmto,nwf),wbas(nbas,nwf))
-      wbas = 0d0
-      cphi2=0d0
-
-      do iq = 1,nqbz
-      q = qbz(:,iq)
-      call readcphi(q,nlmto,1,quu,cphi1)
-
-      do iwf=1,nwf
-         do ib=iko_ix,iko_fx
-            cphi2(:,iwf) = cphi2(:,iwf) + cphi1(:,ib)*cnk(ib,iwf,iq)
-         enddo
-      enddo
-
-      enddo ! iq
-
-      do iwf=1,nwf
-         do ia=1,nlmto
-            ibas = ibas_indx(ia)
-            wbas(ibas,iwf) = wbas(ibas,iwf) + 
-     &                 conjg(cphi2(ia,iwf))*cphi2(ia,iwf)
-         enddo ! ia
-      enddo ! iwf
-      wbas = wbas / dble(nqbz*nqbz)
-
-      write(*,*)'*** ibas,iwf,wbas'
-      do iwf=1,nwf
-      do ibas=1,nbas
-         write(*,*)ibas,iwf,wbas(ibas,iwf)
-      enddo
-      write(*,*) 
-      enddo   
-
-      write(*,*)'*** ibas,wbas'
-      do ibas=1,nbas
-         w = 0d0
-         do iwf=1,nwf
-            w = w + wbas(ibas,iwf)
-         enddo
-         write(*,*)ibas,w
-      enddo
-      deallocate(cphi1,cphi2,wbas,m_indx,l_indx,n_indx,ibas_indx)
-      ix = iclose('@MNLA_CPHI')
-      end
-c-----------------------------------------------------------------------
-      subroutine chk_umn(cnk,umnk,qbz,
-     i                  iko_ix,iko_fx,iko_i,iko_f,
-     d                  nwf,nqbz,nband,nlmto)
-      use m_readqg
-      use m_readeigen
-
-      implicit real*8(a-h,o-z)
-
-      complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),
-     &              dnk(iko_ix:iko_fx,nwf,nqbz),
-     &              umnk(nwf,nwf,nqbz)
-      real(8) :: qbz(3,nqbz)
-      integer(4) :: iko_i(nqbz),iko_f(nqbz)
-
-      dnk = (0d0,0d0)
-      do iq = 1,nqbz
-         do imp = iko_i(iq),iko_f(iq)
-         do in = 1,nwf
-            do im = 1,nwf
-               dnk(imp,in,iq) = dnk(imp,in,iq) 
-     &                 + umnk(im,in,iq) * cnk(imp,im,iq)
-            enddo ! im
-         enddo ! in
-         enddo ! imp      
-      enddo ! iq  
-
-      call chk_cnkweight(qbz,iko_ix,iko_fx,dnk,
-     &     nqbz,nwf,nband,nlmto)
-
-      end
+c$$$      subroutine chk_umn(cnk,umnk,qbz,
+c$$$     i                  iko_ix,iko_fx,iko_i,iko_f,
+c$$$     d                  nwf,nqbz,nband,nlmto)
+c$$$      use m_readqg
+c$$$      use m_readeigen
+c$$$
+c$$$      implicit real*8(a-h,o-z)
+c$$$
+c$$$      complex(8) :: cnk(iko_ix:iko_fx,nwf,nqbz),
+c$$$     &              dnk(iko_ix:iko_fx,nwf,nqbz),
+c$$$     &              umnk(nwf,nwf,nqbz)
+c$$$      real(8) :: qbz(3,nqbz)
+c$$$      integer(4) :: iko_i(nqbz),iko_f(nqbz)
+c$$$
+c$$$      dnk = (0d0,0d0)
+c$$$      do iq = 1,nqbz
+c$$$         do imp = iko_i(iq),iko_f(iq)
+c$$$         do in = 1,nwf
+c$$$            do im = 1,nwf
+c$$$               dnk(imp,in,iq) = dnk(imp,in,iq) 
+c$$$     &                 + umnk(im,in,iq) * cnk(imp,im,iq)
+c$$$            enddo ! im
+c$$$         enddo ! in
+c$$$         enddo ! imp      
+c$$$      enddo ! iq  
+c$$$
+c$$$      call chk_cnkweight(qbz,iko_ix,iko_fx,dnk,
+c$$$     &     nqbz,nwf,nband,nlmto)
+c$$$
+c$$$      end
