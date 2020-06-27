@@ -443,7 +443,7 @@ c        ngc = ngcni(k)  ! k-points in IBZ
 c        write(6,*) ' k ngc=',k,ngc
 c        ngb = nbloch + ngcni(k)
 
-        call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
+        call readqg0('QGcou',qibz_k,  quu,ngc)
 c        ngc = ngcni(k)  ! k-points in IBZ
         ngb = nbloch + ngc
 
@@ -1011,8 +1011,8 @@ c      write(6,*)' drvmelp',ngpn(iq),ngpn(kp),ngc
       if(verbose()>50) write(6,*)' drvmelp2:'
 c      ngp1 = ngpn(iq)  ! q        in FBZ 
 c      ngp2 = ngpn(kp)  ! q-rk     in FBZ
-      call readqg('QGpsi', q,   ginv, qt,   ngp1, ngvecpB1)
-      call readqg('QGpsi', q_rk,ginv, q_rkt,ngp2, ngvecpB2)
+      call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
+      call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
       call readgeigW(q,    ngpmx, isp, qu1, geig1)
       call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
 c debug

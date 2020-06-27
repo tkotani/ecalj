@@ -525,7 +525,7 @@ c----------------
       nlxx= (lxx+1)**2
 c      ngb = nbloch + ngcn(1)
       allocate(ngvecc0(3,ngcmx))
-      call readqg('QGcou',(/0d0,0d0,0d0/),ginv,  quu,ngc0, ngvecc0)
+      call readqg('QGcou',(/0d0,0d0,0d0/),  quu,ngc0, ngvecc0)
       deallocate(ngvecc0)
       ngb = nbloch + ngc0
       if(allochk) write(*,*) 'allocate( vcoul)'
@@ -762,7 +762,7 @@ c$$$        if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
 c$$$          if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
 c$$$        endif
 !! ==== q+G vector ====
-        call readqg('QGcou',q,ginv,  quu,ngc, ngvecc ) !qq-->q
+        call readqg('QGcou',q,  quu,ngc, ngvecc ) !qq-->q
         ngb = nbloch + ngc  !it was ngcnn(iq)
         write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
 

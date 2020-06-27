@@ -612,7 +612,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
         endif
         call cputid (0)
         q = qibze(:,iq)
-        call readqg('QGcou', q, ginv,  quu,ngc,ngveccB) 
+        call readqg('QGcou', q,  quu,ngc,ngveccB) 
 
  !! Caution : confusing point
  !!  ngc by QGcou is shown at the bottom of lqg4gw.

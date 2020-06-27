@@ -359,8 +359,8 @@ c     .  ifsecomg(2) = iopen('SEComgD'//xt(nz),1,-1,0)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
-      call READQG('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
-      call READQG('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+      call READQG('QGpsi',qibz(1:3,1), quu,ngpn1, ngvecp)
+      call READQG('QGcou',qibz(1:3,1), quu,ngcn1, ngvecc)
       deallocate(ngvecp,ngvecc)
       write(6,*) ' end of read QGcou'
 

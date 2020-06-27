@@ -486,7 +486,7 @@ c        q = qibz(:,iq)
         endif
         write(6,"('iq qq =',3f9.4,i5,' out of',i5)") qq, iq,nqibz+nq0i
 
-        call readqg('QGcou', qq, ginv, quu,ngc,ngvecc)
+        call readqg('QGcou', qq, quu,ngc,ngvecc)
         ngb = nbloch + ngc
 
 c allocate

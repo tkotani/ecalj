@@ -388,7 +388,7 @@ ctm
          q1(:) = qbz(:,iqbz)
 
 C --- q1x
-      call readqg0('QGpsi',q1,ginv,  q1x, ngp1)
+      call readqg0('QGpsi',q1, q1x, ngp1)
 c      call checkagree(q1,q1x,' q1 ne q1x')
       write(6,"('q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
 
@@ -400,7 +400,7 @@ C --- < q+G | g >
       if (tailt) then
         qgg = 0d0
       else
-      call readqg('QGpsi',q1,ginv, q1x, ngp1, ngvecpf1)
+      call readqg('QGpsi',q1, q1x, ngp1, ngvecpf1)
 c      call checkagree(q1,q1x,' q1 ne q1x xxx2')
       call qggmat(q1,alat,plat,qbas,
      i            iphi,r0g,pos,

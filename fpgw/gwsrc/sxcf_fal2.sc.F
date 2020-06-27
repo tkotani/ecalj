@@ -334,7 +334,7 @@ c      real(8):: wgtq0p
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
-          call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
+          call readqg0('QGcou',qibz_k,  quu,ngc)
           ngb = nbloch + ngc
           if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
 !! ===Readin diagonalized Coulomb interaction===

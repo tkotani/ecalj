@@ -24,8 +24,8 @@ c     &     idteti, nstar,irk,nstbz
       contains
 
       subroutine Seteibz(iqxini,iqxend,MPI__root)
-      logical:: eibzmode,eibz4x0,MPI__root,tiii
-      integer:: iqxini,iqxend,iqxendx,timereversal,iprintx
+      logical:: eibzmode,eibz4x0,MPI__root,tiii,iprintx
+      integer:: iqxini,iqxend,iqxendx,timereversal
       eibzmode = eibz4x0()
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
 !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).

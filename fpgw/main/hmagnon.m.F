@@ -10,7 +10,7 @@
      &     writehmat, writeddmat,
      &     read_wandata, nwf, nsp_w, nqtt_w
       use m_ReadEfermi,only: readefermi,ef_read=>ef, readefermi_kbt,ef_kbt
-      use m_readqg,only: readqg,readngmx
+c      use m_readqg,only: readqg,readngmx
       use m_readeigen,only: readeval,init_readeigen,init_readeigen2
       use m_hamindex,only:qtt,nqtt
       use m_read_bzdata,only: read_bzdata,

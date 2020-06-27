@@ -21,6 +21,7 @@
       
 !> Return QGcou and QGpsi ===
       module m_readQG
+      use m_read_bzdata,only: ginv
       use NaNum,only:NaN
       implicit none
       public:: Readqg, Readqg0, Readngmx, Readngmx2, ngpmx, ngcmx
@@ -38,7 +39,7 @@
       integer,target,private :: nkeyp(3),nkeyc(3)
       integer,target,allocatable,private:: keyp(:,:),kk1p(:),kk2p(:),kk3p(:),iqkkkp(:,:,:)
       integer,target,allocatable,private:: keyc(:,:),kk1c(:),kk2c(:),kk3c(:),iqkkkc(:,:,:)
-      real(8),private:: ginv_(3,3)
+c      real(8),private:: ginv(3,3)
       contains
 c----------------------------------
       subroutine readngmx2()
@@ -74,11 +75,11 @@ c- get ngcmx or mgpmx
 
 !> Get ngv and ngvec(3,ngv) for given qin(3)
 !! key=='QGcou' or 'QGpsi'
-      subroutine readqg(key,qin,ginv,  qu,ngv,ngvec)
-      intent(in) ::     key,qin,ginv
+      subroutine readqg(key,qin,  qu,ngv,ngvec)
+      intent(in) ::     key,qin
       intent(out)::                    qu,ngv,ngvec
       character*(*) :: key
-      real(8) :: qin(3),ginv(3,3)
+      real(8) :: qin(3)!,ginv(3,3)
       real(8) :: qu(3)
       integer :: ngv, ngvec(3,*)
       integer:: ifi, iq,verbose
@@ -92,7 +93,7 @@ c- get ngcmx or mgpmx
         call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
-        call init_readqg(ifi,ginv)
+        call init_readqg(ifi)
         init(ifi)=.false.
       endif
       if(verbose()>=40) write(6,*)'end of init_readqg'
@@ -111,9 +112,9 @@ c- get ngcmx or mgpmx
 
 !> Get ngv
 !! key=='QGcou' or 'QGpsi'
-      subroutine readqg0(key,qin,ginv,  qu,ngv)
-      intent(in)::       key,qin,ginv
-      intent(out)::                     qu,ngv
+      subroutine readqg0(key,qin,qu,ngv)
+      intent(in)::       key,qin
+      intent(out)::               qu,ngv
       character*(*) :: key
       integer :: ngv
       real(8):: qin(3),ginv(3,3)
@@ -129,7 +130,7 @@ c- get ngcmx or mgpmx
         call rx( "readqg: wrongkey")
       endif
       if(init(ifi)) then
-        call init_readqg(ifi,ginv)
+        call init_readqg(ifi)
         init(ifi)=.false.
       endif
       call iqindx2qg(qin,ifi, iq,qu)
@@ -145,15 +146,15 @@ c- get ngcmx or mgpmx
       end subroutine
 
 !> initialization. readin QGpsi or QGcou.
-      subroutine init_readqg(ifi,ginv)
+      subroutine init_readqg(ifi)
       integer, intent(in) :: ifi
-      real(8), intent(in) :: ginv(3,3)
+c      real(8), intent(in) :: ginv(3,3)
       integer:: ifiqg,iq,verbose,ifile_handle,ngcmx,ngpmx
       real(8)::qq(3)
       real(8),allocatable:: qxx(:,:)
       integer:: isig,i,ix,kkk,kkk3(3),ik1,ik2,ik3,ik
       integer,allocatable:: ieord(:),key(:,:)
-      ginv_=ginv
+c      ginv=ginv
       write(6,*)' init_readqg ifi=',ifi
       ifiqg=ifile_handle()
       if(ifi==1) then
@@ -202,12 +203,12 @@ c          if(verbose()>40)  write (6,"('init_readqg cou  qc ngc =',3f8.3,i5)") 
       allocate(key(3,0:nqtt),qxx(3,nqtt))
       key(:,0)=0 !dummy
       key=-99999
-c      print *,'ginv_=',ginv_
+c      print *,'ginv=',ginv
       do iq=1,nqtt
-         call rangedq(matmul(ginv_,qtt(:,iq)), qxx(:,iq))
+         call rangedq(matmul(ginv,qtt(:,iq)), qxx(:,iq))
 ccccccccccccc
 c        ix=1
-c        print *,' xxxx ix qxx=',ix,iq,qtt(ix,iq),matmul(ginv_,qtt(:,iq))
+c        print *,' xxxx ix qxx=',ix,iq,qtt(ix,iq),matmul(ginv,qtt(:,iq))
 ccccccccccccc
       enddo
 !! get key and nkey for each ix.
@@ -351,7 +352,7 @@ c         nqtt => nqnumc
       endif
 c      if(debug) write(*,"(' iqindx2_: q=',3f20.15)") q
 c      write(*,"(' iqindx2_: q=',3f20.15)") q
-      call rangedq(matmul(ginv_,q), qzz)
+      call rangedq(matmul(ginv,q), qzz)
       kkk3 = (qzz+0.5*epsd)/epsd
 c      write(6,*)'kkk3=',kkk3
 c      write(6,*)'kk1,nkey1',kk1,nkey(1)

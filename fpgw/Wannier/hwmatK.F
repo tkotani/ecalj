@@ -375,8 +375,8 @@ c     &       qibz(1:3,iq),quu,ngcni(iq)
 c      enddo
 c for info
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
-      call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
-      call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+      call readqg('QGpsi',qibz(1:3,1), quu,ngpn1, ngvecp)
+      call readqg('QGcou',qibz(1:3,1), quu,ngcn1, ngvecc)
       deallocate(ngvecp,ngvecc)
 
       write(6,*) ' end of read QGcou' 

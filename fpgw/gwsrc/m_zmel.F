@@ -159,6 +159,9 @@ c     i                 ppbrd)           !radial integrals
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
       do irot = 1,ng
       do is = 1,nspin
+!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+!! This is general for rotated CG coefficient
+!! ppbafp_v2 generates ppbir
          call ppbafp_v2 (irot,ng,is,nspin,
      i                 il,in,im, mnl,
      d                 nl,nn,nclass,nlnmx,!mnlx,

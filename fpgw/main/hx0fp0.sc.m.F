@@ -198,34 +198,32 @@ c      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
       call Genallcf_v3(incwfx=0) ! incwfin= 0 takes ForX0 for core in GWIN
-c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
-      tpioa=2d0*pi/alat
-      call Readefermi() !readin EFERMI
-
 !!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
       if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
-      call Readhbe()            !Read dimensions of h,hb
+      tpioa=2d0*pi/alat
+      call Readefermi() !Readin EFERMI
+      call Readhbe()    !Read dimensions 
+      call ReadGWinputKeys() !Readin GWinput
+c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
 c      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
 c      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
-      call ReadGWinputKeys() !Readin GWinput
 !! --- Readin Offset Gamma --------
       call Readq0p()
 c      write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
 !! --- Read Qpoints
-c      call Readngmx('QGpsi',ngpmx), c     call Readngmx('QGcou',ngcmx)
+c      call Readngmx('QGpsi',ngpmx), call Readngmx('QGcou',ngcmx)
       call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
-c      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
       call Setqbze()    ! extented BZ points list
+c      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
  
 !! Get space-group transformation information. See header of mptaouof.
-!! But we only use symops=E only for hx0fp0 mode. c.f hsfp0.sc 
-!! Set up miat,tiat,invgx,shtvg in m_zmel, but ngrpx=1 
-      ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1
+!! But we only use symops=E for hx0fp0 mode. c.f hsfp0.sc 
+      ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
       allocate(symope(3,3))
       symope(1:3,1) = [1d0,0d0,0d0]
       symope(1:3,2) = [0d0,1d0,0d0]
       symope(1:3,3) = [0d0,0d0,1d0]
-      call Mptauof_zmel(symope,ngrpx)
+      call Mptauof_zmel(symope,ngrpx) !Since we only use E, 
       if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
 c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas)
@@ -247,27 +245,19 @@ c      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze)
 c        !max no. of occupied valence states
 c      if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
 c     noccx  = noccxv + nctot ! We usually assume nctot=0
-      nblochpmx = nbloch + ngcmx ! MPBmax   =  MTO   +   APWmax 
+      nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
       iqxini = 1 
-      iqxend = nqibz + nq0i + nq0iadd
-      nwp = nw+1
+      iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
+      nwp = nw+1              ! energy mesh along real zxis 
       nprecx = ndble          ! We use double precision arrays only.
-      mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+      mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()!record size
       nspinmx = nspin
       allocate( zw(nblochpmx,nblochpmx) )
-c      allocate( ngveccB(3,ngcmx))
-
-      if(MPI__root)then         ! We don't recommend to give a subroutine for writing a file.
+      if(MPI__root) then  ! I think it is not so meaningful to give a subroutine for writing WV.d.
         open(newunit=ifwd, file='WV.d', action='write')
         write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
         close(ifwd)
       endif
-
-!! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-!! This is general for rotated CG coefficient; but hx0fp0 mode is only for  ngrpx=1 (not rotated).
-!! ppbafp_v2x generates ppbir in m_zmel
-c      call ppbafp_v2_zmel (ngrpx)
-      if(debug) write(6,*) ' end of ppbafp_v2x'
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
       ! multitet=T ==> micro tetrahedron method (divided-tetrahedron). Not used so much now...
 
@@ -295,7 +285,7 @@ c      call ppbafp_v2_zmel (ngrpx)
 !! Get ngbq0 (for q=0) and broadcast for w4p
       if( MPI__root.and. w4pmode ) then
         q = (/0d0,0d0,0d0/)
-        call readqg0('QGcou', q, ginv,  quu,ngc)
+        call readqg0('QGcou', q,  quu,ngc)
         ngbq0 = nbloch+ngc
       endif
       call MPI__Broadcast(ngbq0)
@@ -328,7 +318,7 @@ c      call ppbafp_v2_zmel (ngrpx)
      &          status='unknown',access='direct',recl=mrecl)
         endif
         q = qibze(:,iq)
-        call Readqg0('QGcou', q, ginv,  quu,ngc)
+        call Readqg0('QGcou', q,  quu,ngc)
 !!  ngc, number of PW for the interaction matrix (in QGcou), is shown at the bottom of lqg4gw.
 
 !! ==== Readin Coulomb matrix ====

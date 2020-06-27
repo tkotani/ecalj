@@ -200,8 +200,8 @@ c-----------------------------------------------------
       if(verbose()>=90) debug=.true.
 !TIME0_1001
       if(verbose()>50) write(*,*) ' drvmelp: start'
-      call readqg('QGpsi',q,   ginv, qt,  ngp1, ngvecpB1) !qt is used q in practice.
-      call readqg('QGpsi',q_rk,ginv, q_rkt,ngp2,ngvecpB2)
+      call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
+      call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
       if(debug) write(6,*)'drvmelp: goto readgeig'
       call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)

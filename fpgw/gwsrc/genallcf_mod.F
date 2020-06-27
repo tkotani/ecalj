@@ -554,7 +554,8 @@ c      integer:: nband !not yet protected!
       close(ifhbe)
       end subroutine
       end module
-!------------------------    
+
+!------------------------
       module m_ReadEfermi
       real(8),protected:: bandgap, ef, ef_kbt
       contains

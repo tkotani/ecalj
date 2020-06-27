@@ -477,7 +477,7 @@ c          else
 c            qibz_k= 0d0
 c         endif
           if(verbose()>=40)  write(6,*) ' sxcf_fal3z: loop 1100 kx=',kx
-          call readqg0('QGcou',qibz_k,ginv,  quu,ngc)
+          call readqg0('QGcou',qibz_k,  quu,ngc)
           ngb = nbloch + ngc    !oct2005
           if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
 

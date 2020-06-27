@@ -528,8 +528,8 @@ c         write(*,*)'q1 =',q1
 c         write(*,*)'q2 =',q2
 
 C --- q1x and q2x
-      call readqg0('QGpsi',q1,ginv,  q1x, ngp1)
-      call readqg0('QGpsi',q2,ginv,  q2x, ngp2)
+      call readqg0('QGpsi',q1,  q1x, ngp1)
+      call readqg0('QGpsi',q2,  q2x, ngp2)
 c      call checkagree(q1,q1x,' q1 ne q1x')
 c      call checkagree(q2,q2x,' q2 ne q2x')
       write(6,"('q1 q1x=',3f9.4,3x,3f9.4)") q1,q1x
@@ -573,8 +573,8 @@ c debug ***************
 
 C --- ppovl= <P_{q1+G1}|P_{q2+G2}> 
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
-      call readqg('QGpsi',q1,ginv, q1x, ngp1, ngvecpf1)
-      call readqg('QGpsi',q2,ginv, q2x, ngp2, ngvecpf2)
+      call readqg('QGpsi',q1, q1x, ngp1, ngvecpf1)
+      call readqg('QGpsi',q2, q2x, ngp2, ngvecpf2)
 c      call checkagree(q1,q1x,' q1 ne q1x xxx2')
 c      call checkagree(q2,q2x,' q2 ne q2x xxx2')
 c      write(6,*)' ngp1,ngp2 sum check=',ngp1,ngp2,sum(abs(ngvecpf1)),sum(abs(ngvecpf2))

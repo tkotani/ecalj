@@ -400,8 +400,8 @@ c      call readngmx('QGcou',ngcmx)
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
       allocate(ngvecp(3,ngpmx),ngvecc(3,ngcmx))
-      call readqg('QGpsi',qibz(1:3,1),ginv, quu,ngpn1, ngvecp)
-      call readqg('QGcou',qibz(1:3,1),ginv, quu,ngcn1, ngvecc)
+      call readqg('QGpsi',qibz(1:3,1), quu,ngpn1, ngvecp)
+      call readqg('QGcou',qibz(1:3,1), quu,ngcn1, ngvecc)
       deallocate(ngvecp,ngvecc)
       if(debug) write(6,*) ' end of read QGcou'
 
