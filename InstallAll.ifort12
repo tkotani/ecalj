@@ -31,9 +31,9 @@ make PLATFORM=ifort12 BINDIR=$BINDIR  install
 make PLATFORM=ifort12 BINDIR=$BINDIR install2
 
 ### Use fpgw/Wannier/Makefile
-cd ../Wannier/
-make PLATFORM=ifort12 LIBMATH="$MATH"
-make BINDIR=$BINDIR PLATFORM=ifort install
+#cd ../Wannier/
+#make PLATFORM=ifort12 LIBMATH="$MATH"
+#make BINDIR=$BINDIR PLATFORM=ifort install
 
 cd ../../TestInstall/
 make mpi_size=4 all
