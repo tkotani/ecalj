@@ -3,7 +3,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmelt, Setppovlz_sxcf, Setppovlz_ee, Setppovlz_chipm, Deallocate_zmel,
+      use m_zmel,only     : Get_zmelt, Setppovlz, Setppovlz_chipm, Deallocate_zmel,
      o     zmel,zmeltt
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot
@@ -376,7 +376,8 @@ c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 c$$$          deallocate(zcousq,ppovl)
-          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+c          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          call Setppovlz(qibz_k,ngc,zcousq,ngb,matz=.true.)
           deallocate(zcousq)
           print *,'end of setppovlz'
 !! === open WVR,WVI ===

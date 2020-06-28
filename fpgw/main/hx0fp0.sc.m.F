@@ -352,7 +352,9 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
         nmbas2 = nmbas_in
 
 !! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
-        call Setppovlz(q,ngc,zcousq,ngb)
+!!
+        call Setppovlz(q,ngc,zcousq,ngb,matz=.not.eibz4x0())
+
 !!
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
         allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )

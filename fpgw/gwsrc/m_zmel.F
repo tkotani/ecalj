@@ -37,7 +37,7 @@
 
 !!--- OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       public:: get_zmelt,get_zmelt2, Dconjg_zmel,Deallocate_zmel,Deallocate_zmeltt,
-     &       Setppovlz,Setppovlz_sxcf,Setppovlz_ee,Setppovlz_chipm,  mptauof_zmel
+     &       Setppovlz,Setppovlz_chipm,  mptauof_zmel !,Setppovlz_ee Setppovlz_sxcf,
       complex(8),allocatable,protected,public :: zmel(:,:,:)   
       complex(8),allocatable,protected,public :: zmeltt(:,:,:) 
 
@@ -66,62 +66,39 @@
       end
 
 !! set ppovlz for given q      
-      subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
-      intent(in)::              q,ngc,zcousq,ngb
-      integer :: ngc,ngb
-      real(8) :: q(3)
-      complex(8) :: zcousq(ngb,ngb)
-      complex(8),allocatable :: ppovl(:,:)
-      if(allocated(ppovlz)) deallocate(ppovlz)
-      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-      call readppovl0(q,ngc,ppovl)
-      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-      ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-      deallocate(ppovl)
-      end subroutine setppovlz_sxcf
-!! set ppovlz for given q      
-      subroutine setppovlz(q,ngc,zcousq,ngb)
+      subroutine setppovlz(q,ngc,zcousq,ngb,matz)
+!! zcousq is the eigenfunciton of the Coulomb matrix
+!  Blocked matrix multiplication      
+!    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
+!                       (0 ppovl)   
+!    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
       intent(in)::         q,ngc,zcousq,ngb
       integer :: ngc,ngb
       real(8) :: q(3)
       complex(8) :: zcousq(ngb,ngb)
-      complex(8),allocatable :: ppovl_(:,:),ppovl(:,:),ppovlzinv(:,:)
-      logical:: eibz4x0
-      integer:: i,nbloch
-      nbloch=ngb-ngc !number of PBs. !ngc is the number of IPWs
+      complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
+      logical:: eibz4x0,matz
+      integer:: i!,nbloch
+c      matz=.not.eibz4x0()
+c     nbloch=ngb-ngc !number of PBs. !ngc is the number of IPWs
+c      if(allocated(ppovlzinv)) deallocate(ppovlzinv)
       if(allocated(ppovlz)) deallocate(ppovlz)
-      if(allocated(ppovlzinv)) deallocate(ppovlzinv)
       if(allocated(ppovl)) deallocate(ppovl)
-      allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb),   ppovlzinv(ngb,ngb))
+      allocate( ppovl(ngc,ngc),ppovlz(ngb,ngb))!,   ppovlzinv(ngb,ngb))
       call readppovl0(q,ngc,ppovl) !q was qq
-      allocate(ppovl_(ngb,ngb))
-      ppovl_=0d0
-      do i=1,nbloch
-        ppovl_(i,i)=1d0
-      enddo
-      ppovl_(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc)=ppovl
-      if(.not.eibz4x0()) then   !sep2014 added for eibz4x0=F
-         ppovl_= matmul(ppovl_,zcousq)
+      if(matz) then   !sep2014 added for eibz4x0=F
+         ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+         ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c         ppovlz= matmul(ppovl_,zcousq)
+      else
+         ppovlz=0d0
+         do i=1,nbloch
+            ppovlz(i,i)=1d0
+         enddo
+         ppovlz(nbloch+1:nbloch+ngc,nbloch+1:nbloch+ngc) = ppovl
       endif
-      ppovlz = ppovl_
-      deallocate(ppovl_,ppovl)
+      deallocate(ppovl)
       end subroutine setppovlz
-!! set ppovlz
-      subroutine setppovlz_ee(q,ngc,ngb,zcousq)
-      intent(in)::            q,ngc,ngb,zcousq
-      integer:: ngc,ngb
-      real(8):: q(3)
-      complex(8):: zcousq(:,:)
-      integer:: nbloch
-      complex(8),allocatable :: ppovl(:,:)
-      if(allocated(ppovlz)) deallocate(ppovlz)
-      if(allocated(ppovl)) deallocate(ppovl)
-      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-      call readppovl0(q,ngc,ppovl)
-      nbloch = ngb-ngc
-      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-      ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-      end subroutine setppovlz_ee
 !! set ppovlz
       subroutine setppovlz_chipm(zzr,ngb,nmbas1)
       intent(in)::               zzr,ngb,nmbas1
@@ -131,6 +108,36 @@
       allocate(ppovlz(ngb,nmbas1))
       ppovlz= zzr
       end subroutine setppovlz_chipm
+c$$$!! set ppovlz for given q      
+c$$$      subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
+c$$$      intent(in)::              q,ngc,zcousq,ngb
+c$$$      integer :: ngc,ngb
+c$$$      real(8) :: q(3)
+c$$$      complex(8) :: zcousq(ngb,ngb)
+c$$$      complex(8),allocatable :: ppovl(:,:)
+c$$$      if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
+c$$$      call readppovl0(q,ngc,ppovl)
+c$$$      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$      ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$      deallocate(ppovl)
+c$$$      end subroutine setppovlz_sxcf
+c$$$!! set ppovlz
+c$$$      subroutine setppovlz_ee(q,ngc,ngb,zcousq)
+c$$$      intent(in)::            q,ngc,ngb,zcousq
+c$$$      integer:: ngc,ngb
+c$$$      real(8):: q(3)
+c$$$      complex(8):: zcousq(:,:)
+c$$$      integer:: nbloch
+c$$$      complex(8),allocatable :: ppovl(:,:)
+c$$$      if(allocated(ppovlz)) deallocate(ppovlz)
+c$$$      if(allocated(ppovl)) deallocate(ppovl)
+c$$$      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
+c$$$      call readppovl0(q,ngc,ppovl)
+c$$$      nbloch = ngb-ngc
+c$$$      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
+c$$$      ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+c$$$      end subroutine setppovlz_ee
       
 !! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
       subroutine mptauof_zmel(symops,ng)

@@ -19,7 +19,7 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readqg,only:readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmelt,Setppovlz_sxcf, Deallocate_zmel,Deallocate_zmeltt,
+      use m_zmel,only: Get_zmelt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
      &  zmel,zmeltt  !ppovlz,
       implicit none
 !! TimeReversal off. when nw_i is not zero.
@@ -522,7 +522,7 @@ c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
 c$$$          call readppovl0(qibz_k,ngc,ppovl)
 c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          call Setppovlz(qibz_k,ngc,zcousq,ngb,matz=.true.)
           deallocate(zcousq)
           
 !! === open WVR,WVI for correlation mode ===

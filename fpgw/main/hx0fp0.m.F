@@ -28,7 +28,7 @@ c      use m_keyvalue,only: getkeyvalue
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
 !     ! Generate matrix element for "call get_zmelt".
       use m_zmel,only:          !NOTE: these data set are stored in this module, and used  
-     &      Mptauof_zmel, Setppovlz,Setppovlz_ee,Setppovlz_chipm !Ppbafp_v2_zmel,
+     &      Mptauof_zmel, Setppovlz,Setppovlz_chipm !Ppbafp_v2_zmel,Setppovlz_ee,
 c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       
       use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
@@ -723,15 +723,14 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           allocate( rcxq(ngb,ngb,nwhis,npm) )
         endif
 
-!! ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
+!! Set ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
 !!         ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
         if(chipm.and.nolfco) then
           call setppovlz_chipm(zzr,ngb,nmbas1)
         elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-          call setppovlz_ee(q,ngc,ngb,zcousq) 
-        else                    !may2013  this removes O^-1 factor from zmelt
-!! Used in get_zmelt in m_zmel in x0kf_v4hz
-          call Setppovlz(q,ngc,zcousq,ngb)
+          call Setppovlz(q,ngc,zcousq,ngb,matz=.true.)
+        else                     !may2013  this removes O^-1 factor from zmelt
+          call Setppovlz(q,ngc,zcousq,ngb,matz=.not.eibz4x0())
         endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
