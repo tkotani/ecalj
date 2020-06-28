@@ -39,6 +39,7 @@ c      use m_readqg,only: readqg,readngmx
 !! w0 and w0i (head part at Gamma point)
       use m_w0w0i,only: w0w0i,
      & w0,w0i
+      use m_readgwinput,only: ReadGWinputKeys
 
       implicit none
 !! ------------------------------------------------
@@ -214,6 +215,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       call read_BZDATA()
       
 !! Read electron gas mode or not.
+      call ReadGWinputKeys() ! jun2020 new routint to read all inputs
+
       call getkeyvalue("GWinput","lHermite",lhm,default=.false.)
       call getkeyvalue("GWinput","lsvd",lsvd,default=.false.)
       call getkeyvalue("GWinput","nms",nms,default=.false.)  !!! For NiMnSb
@@ -229,7 +232,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       call getkeyvalue("GWinput","cma_iwf_start",cma_iwf_s,default=999)
       call getkeyvalue("GWinput","cma_iwf_end"  ,cma_iwf_e,default=999)
       !! How to use "call getkeyvalue("IN","n1n2n3",ivkey,nsize,status=ret ) "
-
       write(6,*) "lsvd, lhm, nms, nms_delta",lsvd,lhm,nms,nms_delta,cma_mode
       write(6,*) "negative_cut",negative_cut
       write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
@@ -526,7 +528,7 @@ c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2
          write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
 !! tetrahedron weight 
-          call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,eibzmode,wan) 
+          call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,nwf,eibzmode,wan) 
 c$$$         call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
 c$$$     i        qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
 c$$$     i        nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,

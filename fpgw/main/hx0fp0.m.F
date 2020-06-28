@@ -780,7 +780,7 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode) 
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) 
 c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
 c     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
 c     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,

@@ -25,7 +25,7 @@
      &     nqbz,qbz,nqbzw,qbzw, !, qbzw,nqbzw,qbz, nqibz
      &     idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
       use m_ReadEfermi,only: ef
-      use m_readhbe,only: nband
+c      use m_readhbe,only: nband
       use m_readgwinput,only: ebmx,nbmx,mtet
       implicit none
 !!      
@@ -42,10 +42,13 @@
       end subroutine
 
 !! routine --------------------------------------------------------
-      subroutine gettetwt(q,iq,is,isf,nwgt, 
-     i     ekxx1,ekxx2,eibzmode, 
+      subroutine gettetwt(q,iq,is,isf,nwgt,
+     i     ekxx1,ekxx2,nband,eibzmode, 
      i     wan )                 !Jan2019 okumura's option
-!! INPUT DATA; read only
+      intent(in)::        q,iq,is,isf,nwgt,
+     i     ekxx1,ekxx2,nband,eibzmode, 
+     i     wan 
+!!
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
 !! output data in returened in the module variables above.
@@ -61,7 +64,7 @@ c     &   frhis, nwhis,npm !output of getfreq
 c      use m_zmel,only: nband
 c      use m_ReadEfermi,only: readefermi,ef
 
-      integer:: is,isf,iq,nwgt(:) 
+      integer:: is,isf,iq,nwgt(:),nband
 c      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
       real(8):: q(3) !,qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
       real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )

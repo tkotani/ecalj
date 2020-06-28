@@ -368,9 +368,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode)
-
-          
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
 c          call x0kf_v4hz(q,is,isf,iq, ngb,ngc,
@@ -378,6 +376,11 @@ c     o     rcxq,     ! rcxq is the accumulating variable for spins
 c     i     nmbas_in, 
 c     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          if(npm==1) then
+            ncc=0
+          else
+            ncc=nctot
+          endif
           call x0kf_v4hz(npm,ncc,   
      i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
      i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
@@ -395,7 +398,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
           call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
- 1003  continue
+ 1003   continue
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
         if(eibzmode)  then
           is=1                  ! dummy

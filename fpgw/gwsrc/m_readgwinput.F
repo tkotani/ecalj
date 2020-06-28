@@ -31,7 +31,7 @@ c      integer:: nband
       nmbas=natom
       allocate(imbas(nmbas),imbasd(nmbas))
       imbasd = -9999
-      istat=-999               ! istat=-9999 means noumber of readin arguments is returened in istat.
+      istat=-9999   ! istat=-9999 means number of readin arguments is returened in istat.
       call getkeyvalue("GWinput","MagAtom", imbas,nmbas,status=istat,default=imbasd)
       nmbas = istat
       if(nmbas>0) write(6,"('Readin MagAtom nmbas =',i3,' imbas= ',10i3)") nmbas,imbas(1:nmbas)

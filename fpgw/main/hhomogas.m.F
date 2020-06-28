@@ -504,7 +504,7 @@ c                   write(6,"('qqq222=',3f9.4,2x,3f9.4)")q+qbz(:,kx),qsh2
         wan_ecore=0d0
         is=1
         isf=1
-        call gettetwt(q,iq,is,isf,nwgt(:,iq),ev_w1,ev_w2,eibzmode) 
+        call gettetwt(q,iq,is,isf,nwgt(:,iq),ev_w1,ev_w2,nwf,eibzmode) 
 c$$$        call gettetwt(q,iq, is,isf,nwgt(:,iq),frhis,nwhis,npm,
 c$$$     i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
 c$$$     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
