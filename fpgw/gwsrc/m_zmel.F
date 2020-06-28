@@ -66,16 +66,17 @@
       end
 
 !! set ppovlz for given q      
-      subroutine setppovlz(q,ngc,zcousq,ngb,matz)
-!! zcousq is the eigenfunciton of the Coulomb matrix
+      subroutine setppovlz(q,ngc,ngb,matz)
+      use m_readVcoud,only: 
+     &     zcousq !! zcousq is the eigenfuncition of the Coulomb matrix
+      intent(in)::         q,ngc,ngb,matz
 !  Blocked matrix multiplication      
 !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
 !                       (0 ppovl)   
 !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
-      intent(in)::         q,ngc,zcousq,ngb
       integer :: ngc,ngb
       real(8) :: q(3)
-      complex(8) :: zcousq(ngb,ngb)
+c      complex(8) :: zcousq(ngb,ngb)
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
       logical:: eibz4x0,matz
       integer:: i!,nbloch

@@ -526,10 +526,11 @@ c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2
          write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
 !! tetrahedron weight 
-         call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
-     i        qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
-     i        nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i        nwf,ebmx,mtet,eibzmode,wan) !nov2016
+          call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),ev_w1,ev_w2,eibzmode,wan) 
+c$$$         call gettetwt(q,iq,isdummy,isdummy,nwgt(:,iq),frhis,nwhis,npm,
+c$$$     i        qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
+c$$$     i        nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+c$$$     i        nwf,ebmx,mtet,eibzmode,wan) !nov2016
          write(6,*) "=== end gettetwt"
          deallocate(ev_w1,ev_w2)
 !!!! normalization of Im[K]:

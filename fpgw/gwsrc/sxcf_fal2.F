@@ -522,7 +522,7 @@ c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
 c$$$          call readppovl0(qibz_k,ngc,ppovl)
 c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-          call Setppovlz(qibz_k,ngc,zcousq,ngb,matz=.true.)
+          call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
           deallocate(zcousq)
           
 !! === open WVR,WVI for correlation mode ===

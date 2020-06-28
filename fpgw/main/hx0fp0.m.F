@@ -728,9 +728,9 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
         if(chipm.and.nolfco) then
           call setppovlz_chipm(zzr,ngb,nmbas1)
         elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-          call Setppovlz(q,ngc,zcousq,ngb,matz=.true.)
+          call Setppovlz(q,ngc,ngb,matz=.true.)
         else                     !may2013  this removes O^-1 factor from zmelt
-          call Setppovlz(q,ngc,zcousq,ngb,matz=.not.eibz4x0())
+          call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
         endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
@@ -776,10 +776,11 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i     nbmx,ebmx,mtet,eibzmode) !nov2016
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode) 
+c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+c     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
+c     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+c     i     nbmx,ebmx,mtet,eibzmode) !nov2016
 
 c$$$ !!! test code to print tetrahedron weight !!!
 c$$$        jpm=1
@@ -805,32 +806,16 @@ c$$$        enddo
 c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-          call cputid(0)
-          if(npm==1) then
-            ncc=0
-          else
-            ncc=nctot
-          endif
-          call x0kf_v4hz(npm,ncc,   
-     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
-     i              q,  
-     i              nspin,is,isf, !symmetrize, !
-     i              qbas,ginv,  qbz,wbz, 
-     d            nlmto,nqbz,nctot, !noccx,noccxv,
-     d            nbloch,  nwhis, !nlnmx,mdimx,
-     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i    nqbze,nband,nqibz, 
-     o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
-     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
-
-!! ------Question, Apr2015takao. -------------------
-!! ???  we may need 
-!! ???  "if(is==nspinmx.or.chipm) then" for chipm mode.
-!! ???  really OK ??? Need check more... Compare with old code...
-!! ---------------------------------------------------
+c          call cputid(0)
+c$$$          if(npm==1) then
+c$$$            ncc=0
+c$$$          else
+c$$$            ncc=nctot
+c$$$          endif
+          call x0kf_v4hz(q, is,isf,  iq,ngb,ngc, 
+     o    rcxq,     !  rcxq is the accumulating variable for spins 
+     i    nmbas_in, 
+     i    eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq), eibzsym(:,:,iq), crpa)
 
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode

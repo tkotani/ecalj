@@ -377,7 +377,7 @@ c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+
 c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 c$$$          deallocate(zcousq,ppovl)
 c          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
-          call Setppovlz(qibz_k,ngc,zcousq,ngb,matz=.true.)
+          call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
           deallocate(zcousq)
           print *,'end of setppovlz'
 !! === open WVR,WVI ===

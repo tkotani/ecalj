@@ -504,10 +504,11 @@ c                   write(6,"('qqq222=',3f9.4,2x,3f9.4)")q+qbz(:,kx),qsh2
         wan_ecore=0d0
         is=1
         isf=1
-        call gettetwt(q,iq, is,isf,nwgt(:,iq),frhis,nwhis,npm,
-     i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
-     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i            nwf,ebmx,mtet,eibzmode) !nov2016
+        call gettetwt(q,iq,is,isf,nwgt(:,iq),ev_w1,ev_w2,eibzmode) 
+c$$$        call gettetwt(q,iq, is,isf,nwgt(:,iq),frhis,nwhis,npm,
+c$$$     i            qbas,ginv, ef, nqibz, nwf,ev_w1,ev_w2, nctot,wan_ecore,
+c$$$     i            nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+c$$$     i            nwf,ebmx,mtet,eibzmode) !nov2016
         write(6,*) "=== end gettetwt. we now have the tetrahedron weight whw"
         deallocate(ev_w1,ev_w2)
 

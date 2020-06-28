@@ -1,3 +1,13 @@
+!! Tetrahedron weight. -----------------------
+!! output of gettetwt is passed to x0kf_v4hz
+!!     nbnbx
+!!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
+!!     nhw(ibjb,kx): the number of histogram sections
+!!     jhw(ibjb,kx): pointer to whw
+!!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
+!!     : histogram weights for given ib,jb,kx for histogram sections
+!!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
+!      
 !> Get the weights and index for tetrahedron method for the Lindhard function.
 !!    - nbnb = total number of weight.
 !!    - n1b  = band index for occ.   1\ge n1b \ge nband+nctot.
@@ -8,28 +18,33 @@
 !! - NOTE: 'call getbzdata1' generates nteti,ntetf,... See mkqg.F about how to call it.
 !!   
       module m_tetwt
+      use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
+      use m_freq,only: Getfreq2,
+     &     frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
+      use m_read_bzdata,only: qbas,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,
+     &     nqbz,qbz,nqbzw,qbzw, !, qbzw,nqbzw,qbz, nqibz
+     &     idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
+      use m_ReadEfermi,only: ef
+      use m_readhbe,only: nband
+      use m_readgwinput,only: ebmx,nbmx,mtet
       implicit none
-      real(8),allocatable,protected :: whw(:)
-      integer,allocatable,protected :: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-      integer,allocatable,protected :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
-      integer,protected:: nbnbx,nhwtot
+!!      
+      real(8),allocatable,protected,public :: whw(:)
+      integer,allocatable,protected,public :: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
+      integer,allocatable,protected,public :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+      integer,protected,public:: nbnbx,nhwtot
+      public:: gettetwt,tetdeallocate
+      private
 !!
-      contains !! ----------------------------------------------------------------------
+      contains                  !! ----------------------------------------------------------------------
       subroutine tetdeallocate()
       deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
       end subroutine
 
 !! routine --------------------------------------------------------
-      subroutine gettetwt(q,iq,is,isf,nwgt,frhis,nwhis,npm, 
-     i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
-     i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
-     i   nbmx,ebmx,mtet,eibzmode, !nov2016
-     i     wan )                !Jan2019 okumura's option
-      intent(in)::        q,iq,is,isf,nwgt,frhis,nwhis,npm, 
-     i   qbas,ginv, ef, nqibz_mtet, nband,ekxx1,ekxx2, nctot,ecore,
-     i   nqbz,qbz,nqbzw,qbzw, ntetf,idtetf,ib1bz,
-     i   nbmx,ebmx,mtet,eibzmode,
-     i     wan
+      subroutine gettetwt(q,iq,is,isf,nwgt, 
+     i     ekxx1,ekxx2,eibzmode, 
+     i     wan )                 !Jan2019 okumura's option
 !! INPUT DATA; read only
 !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
 !! 
@@ -46,16 +61,16 @@ c     &   frhis, nwhis,npm !output of getfreq
 c      use m_zmel,only: nband
 c      use m_ReadEfermi,only: readefermi,ef
 
-      integer:: is,isf,iq,nwgt(:),nqibz_mtet,nqbz,nqbzw,nband,npm,nwhis,nctot,nbmx,mtet(3)
-      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
-      real(8):: q(3),qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
+      integer:: is,isf,iq,nwgt(:) 
+c      integer:: ntetf,idtetf(0:3,ntetf),ib1bz(nqbzw)
+      real(8):: q(3) !,qbas(3,3),ginv(3,3),ef,qbz(3,nqbz),qbzw(3,nqbzw),ebmx
       real(8):: ekxx1(nband,nqbz),ekxx2(nband,nqbz) !qbzw(:,: )
-      real(8):: frhis(1:nwhis+1),ecore(nctot,2)
+c      real(8):: frhis(1:nwhis+1),ecore(nctot,2)
       real(4),allocatable :: demin(:,:,:,:),demax(:,:,:,:)
       logical,allocatable :: iwgt(:,:,:,:)
       integer,allocatable:: nbnbtt(:,:),noccxvv(:) !  &         idtetf(:,:),ib1bz(:)
-      logical :: eibzmode,tetra,tmpwwk=.false.,debug,eibz4x0
-      integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief,ifile_handle
+      logical :: eibzmode,tetra,tmpwwk=.false.,debug 
+      integer::kx,ncc,job,jpm,noccxvx(2)=-9999,ik,jhwtot,ib1,ib2,ibib,noccx,noccxv,verbose,ifief!,ifile_handle
       real(8),allocatable:: ecore_(:,:)
       integer:: ix
       logical,optional:: wan

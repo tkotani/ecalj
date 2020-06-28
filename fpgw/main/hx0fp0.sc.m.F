@@ -134,7 +134,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       integer:: nmbas_in , iqxendx,imb2 !iqqv,l2nl, 
       logical:: eibz4x0,tiii,iprintx=.false.,chipm=.false.,iqinit,localfieldcorrectionllw
       real(8)::hartree,rydberg,pi
-      integer :: iqeibz
+c      integer :: iqeibz
       complex(8):: epslfc, axxx(10)
       integer:: src,dest
       integer:: ifw0w0i
@@ -320,28 +320,25 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! ---------------------------------------------------------------
 
 !! main loop ========================================================
-      if(sum(qibze(:,1)**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+      if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
+        if( .not. MPI__Qtask(iq) ) cycle
         q = qibze(:,iq)
         call cputid (0)
-        if( .not. MPI__Qtask(iq) ) cycle
 !! open WVR (W-V along real axis), WVI (along imag axis) for given q (iq).
-        if (MPI__rootS) then
-           open(newunit=ifrcwi, file='WVI.'//charnum5(iq), action='write',form='unformatted',
-     &          status='unknown',access='direct',recl=mrecl)
-           open(newunit=ifrcw,  file='WVR.'//charnum5(iq), action='write',form='unformatted',
-     &          status='unknown',access='direct',recl=mrecl)
+        if(MPI__rootS) then
+          open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
+          open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
         endif
         call Readqg0('QGcou', q,  quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
-                      ! is shown at the bottom of lqg4gw.
-                      ! quu is in the list of q point generated in qg4gw (in BZ), equivalent to q 
+        ! ngc is shown at the end of console output of qg4gw.
+        ! quu, equivalent to q, is in the output.
 !! ==== Readin Coulomb matrix ====
         ngb = nbloch + ngc !number of MPB = PB part + IPW part
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
         write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
         call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
-!!        
-        if( iq>nqibz .and. (.not.localfieldcorrectionllw())  ) then 
+        if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
           nolfco =.true.
           nmbas_in = 1 
         else ! We usually use localfieldcorrectionllw()=T
@@ -350,35 +347,20 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
         endif
         nmbas1 = nmbas_in
         nmbas2 = nmbas_in
-
 !! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
-!!
-        call Setppovlz(q,ngc,zcousq,ngb,matz=.not.eibz4x0())
-
-!!
-        allocate( rcxq(nmbas1,nmbas2,nwhis,npm) )
-        allocate( zw0(ngb,ngb) ) !, zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
+        call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
+        allocate( rcxq(nmbas1,nmbas2,nwhis,npm), zw0(ngb,ngb) ) 
         rcxq = 0d0
-!! ---------------------------------------------------------------
-!! === loop over spin=== =========================================
-!! ---------------------------------------------------------------
-!       do 1003 is = 1,nspinmx
-        do 1003 is = MPI__Ss,MPI__Se
+!! ----------------------
+!! === loop over spin=== 
+!! ----------------------
+        do 1003 is = MPI__Ss,MPI__Se  !is=1,nspinmx
           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
      &     iq, is, nqibz + nq0i+nq0iadd, nspin
           if(debug) write(6,*)' niw nw=',niw,nw
           isf = is
-
 !! Tetrahedron weight. -----------------------
-!! output of gettetwt
-!!     nbnbx
-!!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
-!!     nhw(ibjb,kx): the number of histogram sections
-!!     jhw(ibjb,kx): pointer to whw
-!!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
-!!     : histogram weights for given ib,jb,kx for histogram sections
-!!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
+!! output of gettetwt is passed to x0kf_v4hz
 !! input
 !!     ekxx1 for   rk,is
 !!     ekxx2 for q+rk,isf 
@@ -386,39 +368,15 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-     i     nbmx,ebmx,mtet,eibzmode) !nov2016
-!! --------------------------------------------
-          
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode) 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
-          iqeibz=iq
-          if(npm==1) then
-            ncc=0
-          else
-            ncc=nctot
-          endif
-          call x0kf_v4hz(npm,ncc,   
-     i     ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i     n1b,n2b,nbnbx,nbnb,  ! use whw by tetwt5 ,
-     i     q,  
-     i     nspin,is,isf, !symmetrize, !
-     i     qbas,ginv,  qbz,wbz, 
-     d     nlmto,nqbz,nctot,    !noccx,noccxv,
-     d     nbloch,  nwhis,      !nlnmx,mdimx,
-     i     iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i     nqbze,nband,nqibz, 
-     o     rcxq,                ! rcxq is the accumulating variable for spins 
-     i     nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
-     i     chipm,eibzmode,      !z1offd,
-     i     nwgt(:,iqeibz),igx(:,:,iqeibz),igxt(:,:,iqeibz),ngrp, eibzsym(:,:,iqeibz),crpa)
+          call x0kf_v4hz(q,is,isf,iq, ngb,ngc,
+     o     rcxq,     ! rcxq is the accumulating variable for spins 
+     i     nmbas_in, 
+     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
           call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
  1003  continue
-c       write(6,*) 'end of spin-loop nwp=',nwp !end of spin-loop
-c===========end of spin loop============================================
-
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
         if(eibzmode)  then
           is=1                  ! dummy
@@ -432,7 +390,7 @@ c===========end of spin loop============================================
      o     rcxq,                ! rcxq is the accumulating variable for spins 
      i     nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
      i     chipm,eibzmode,      !z1offd,
-     i     ngrp, eibzsym(:,:,iqeibz))
+     i     ngrp, eibzsym(:,:,iq))
         endif
 
 !! reduction rcxq in the S-axis
@@ -714,6 +672,8 @@ c============end of loop over q point =================================
 c=======================================================================
       call MPI__barrier()
 
+
+      
       
 !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
       if(MPI__size/=1) then
