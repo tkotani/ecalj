@@ -88,7 +88,7 @@
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:),ppovlzinv(:,:)
       logical:: eibz4x0
       integer:: i,nbloch
-      nbloch=ngb-ngc !number of MTOs. !ngc is the number of APWs
+      nbloch=ngb-ngc !number of PBs. !ngc is the number of IPWs
       if(allocated(ppovlz)) deallocate(ppovlz)
       if(allocated(ppovlzinv)) deallocate(ppovlzinv)
       if(allocated(ppovl)) deallocate(ppovl)

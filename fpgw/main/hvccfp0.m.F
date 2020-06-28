@@ -1,35 +1,33 @@
       program hvccfp0
 c- Coulomb matrix. <f_i | v| f_j>_q. ------------------------
-c input files
-c    HVCCIN      : some inputs by hbg0.
-c    PLN         : plane wave expansion data by nbg0.
-c    BASFP//atom : product basis by hbasfp0. ic=iatom should be kept!
 c output
 c    VCCFP : the coulomb matrix vcoul(nblochpmx,nblochpmx) for all qibz.
 c-------------------------------------------------------------
 c int
 c    strx: structure constant for e=0 (means 1/|r-r'| )
 c
-      use m_readqg,only: readqg,readngmx
-      use m_keyvalue,only: getkeyvalue
+      use m_genallcf_v3,only: Genallcf_v3,  alat,nbas=>natom, bas=>pos
+      use m_hamindex,only:    Readhamindex,plat,qlat
+      use m_read_bzdata,only: Read_bzdata, ginv,nqbz,qbz,nqibz,qibz
+      use m_readqg,only:   readqg,readngmx
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
 
       implicit none
-      integer(4) :: ifvcfpout,iopen,ifhvccfp,is, nqbz, nbas,lmxcg,if1011,if3011,
-     &  nband, ifplane,ngpmx, ngcmx, nblochpmx, nbloch,
-     &  ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, iclose,
+      integer(4) :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, !nqbz,nbas,iopen,
+     &   ifplane,ngpmx, ngcmx, nblochpmx, nbloch, !nband,
+     &  ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, !iclose,
      &  nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg,
-     &  nkd,nkq ,ibas1,ibas2,nlx1,nlx2, nqibz,iqibz
-      real(8) :: alat, plat(3,3),qlat(3,3),q(3),p(3),voltot,
+     &  nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz !nqibz,
+      real(8) ::  q(3),p(3),voltot, !alat plat(3,3),qlat(3,3),
      &  pi,fpi,tripl,alat0,epsx,
      &  tol,as,tpiba,qb0(3,3),vol0,rdist0,qdist0,radd,qadd,
      &  a0,awald,alat1,tol1,r0,q0,awald0,qg(3),   absqg2,aaa,aaa12
       integer(4),allocatable :: jcg(:),indxcg(:),
      &  lx(:),kmx(:),nblocha(:),nr(:),ificrb(:),
      &  nx(:,:),ngvecp(:,:),ngvecc(:,:),ngvecci(:,:,:),iqibzx(:)
-      real(8),allocatable :: qbz(:,:),qibz(:,:),bas(:,:),rmax(:),
+      real(8),allocatable :: rmax(:), !qbz(:,:),,bas(:,:),qibz(:,:)
      &  cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:),
      &  rojb(:,:,:), sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),
      &  wqt(:), q0i(:,:)
@@ -39,45 +37,32 @@ c
      &  s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:)
       character*7,allocatable :: filename(:)
       character(20) :: xxt
-
       complex(8):: phasep,img=(0d0,1d0)
       integer(4)::ir,ig1,n1,n2
-
       complex(8),allocatable :: hh(:,:),oox(:,:),ooxi(:,:),oo(:,:),zz(:,:),zzr(:)
       real(8),allocatable    :: eb(:)
-
       complex(8),allocatable :: matp(:),matp2(:)
       complex(8) :: xxx,trwv
       integer(4) :: ngb,nev,nmx,iqx,ipl1,ipl2,nq0i,igx1,igx2
       logical checkeig
       logical:: besseltest=.false. !test
       real(8) :: sss1,sss2,dnorm
-c
-
       complex(8),allocatable:: gbvec(:), ppovl(:,:), b0mat(:)
-
       integer(4) ::igc,igc0,ifgb0vec,ifgb0vec1,ix, iy
-
       integer(4) :: iqxini, iqxend,imode
-      logical :: allochk=.false. !paralellx0=.true., 
-
+      logical :: allochk=.true.
       complex(8),allocatable:: hh1(:,:),oo1(:,:)
       integer(4)::  nqnumc,ifiqgc !bzcase,
 c      character(5)  :: charnum5
 c      integer(4),allocatable:: iqok(:)
       real(8):: qqq(3),QpGcut_Cou       !,qq(3)
-
       integer(4),allocatable:: ngvecc0(:,:)
       integer(4):: ngc0
-
-      real(8):: ginv(3,3),quu(3)
-
-c---
+      real(8):: quu(3) !ginv(3,3),
       real(8),allocatable :: rkpr(:,:,:),rkmr(:,:,:),rofi(:,:)
       real(8):: eee,eees, q_org(3),screenfac
       integer(4):: ifvcfporg,nqbz_in,nblochpmx_in
       complex(8),allocatable:: vcoul_org(:,:)
-
       logical :: smbasis,debug=.false.,smbb
       integer(4)   :: ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew,
      &  nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2
@@ -91,169 +76,55 @@ c---
       complex(8):: pval,pslo,phasex
       real(8)::absqq,qqx(3), epsmx,aaaa
       integer(4):: nnmx ,ngcnn,ngbo
-cki      integer(4):: is_mix0vec ,ifgb0vec_a,ifgb0vec_b
       integer(4):: ifgb0vec_a,ifgb0vec_b , ifvcoud,idummy,nq0iadd
       logical:: is_mix0vec,wvcc !,newaniso
       character(128):: vcoudfile
       real(8),allocatable:: wqfac(:),qbzwww(:,:)
-      integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,ifile_handle
+      integer:: ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,ifile_handle,incwfin
       character(128) :: ixcc
+     
 !!------------------------------------------------------------
       call MPI__Initialize()
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
-      if(mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
-c      call readin5(imode,iqxini,iqxend)
+      if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
       if( mpi__root ) then
          read(5,*) imode
-      end if
+      endif
       call MPI__Broadcast(imode)
       write(ixcc,"('.mode=',i4.4)")imode
       call MPI__consoleout('hvccfp0'//trim(ixcc))
-c      call headver('hvccfp0: start',imode)
       call cputid (0)
       if(imode==202 ) then
         write(6,*)' hvccfp0: imode=',imode
-c      elseif(imode==101) then
-c        write(6,*)' hvccfp0: imode=',imode
-c        write(6,*)' remove_r0c is effective'
-c        write(6,*)' Generate VCCFP = VCCFP.ORG - new_VCCFP'
-c        ifvcfporg = iopen( "VCCFP.ORG",0,-1,0)
-c      elseif(imode==102) then
-c        write(6,*)' hvccfp0: imode=',imode
-c        write(6,*)' remove_r0c is effective'
       elseif(imode==0) then
       elseif(imode==3) then
       else
-Cstop2rx 2013.08.09 kino        stop 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101'
         call rx( 'hvccfp0: now hvccfp0 support just normal mode=0 3 202 101')
       endif
-c      if(iqxini< 2) paralellx0=.false.
-c      if(paralellx0) then
-c        write(6,"(' PARALELL.X0 mode: iqxini iqxend=',2i3)")
-c     &  iqxini, iqxend
-c      endif
-
-C --- q, nqbz, alat, qlat, nbas, bas
-      ifhvccfp = iopen('HVCCIN',0,-1,0)
-      read (ifhvccfp) alat, plat,qlat, nqbz, nbas, nband
-      if(allochk)
-     & write(*,*) 'allocate(qbz(3,nqbz),bas(3,nbas),rmax(nbas))'
-      allocate(qbz(3,nqbz),bas(3,nbas),rmax(nbas))
-      read(ifhvccfp) qbz, bas,rmax
-      read(ifhvccfp) nqibz
-      if(allochk) 
-     &  write(*,*)'allocate(qibz(3,nqibz),iqibzx(nqbz))'
-      allocate(qibz(3,nqibz),iqibzx(nqbz))
-      read(ifhvccfp) qibz(1:3,1:nqibz)
-      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      write(6,*)' voltot=',voltot
-      write(6,*)
-      write(6,"(i4,3f13.6)")(i,qibz(1:3,i),i=1,nqibz)
-c$$$!! Use instead of HVCCIN
-c$$$      call read_bzdata()
-c$$$      nwin   = 0                !Readin nw from NW file
-c$$$      incwfin= 0                !use ForX0 for core in GWIN
-c$$$      efin =  0d0               !readin EFERMI
-c$$$      call genallcf_v3(nwin,efin,incwfin) !in module m_genallcf_v3
-c$$$      call dinv33x (plat,qlat)
-c$$$      allocate(rmax(nbas))
-c$$$      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-c$$$      write(6,*)' voltot=',voltot
-c$$$      write(6,*)
-c$$$      write(6,"(i4,3f13.6)")(i,qibz(1:3,i),i=1,nqibz)
-      is = iclose ('HVCCIN')
-
-c$$$!!! 9dec2012
-c$$$      ifiwqfac = iopen('WQFAC',0,-1,0)
-c$$$      read(ifiwqfac) nnn
-c$$$      write(6,*)'nnn nqbz=',nnn,nqbz
-c$$$c      if(nnn/=nqbz) stop 'hvccfp0_sc: readin nnn WQFAC/= nqbz'
-c$$$      allocate( wqfac(nnn),qbzwww(3,nnn) )
-c$$$      read(ifiwqfac) wqfac,qbzwww
-c$$$      ifiwqfac = iclose('WQFAC')
-
-c$$$c-----------------------------------------------------
-c$$$      iqibzx =0
-c$$$      do iqibz=1,nqibz
-c$$$        do iq =1,nqbz
-c$$$          if( sum(abs(qibz(:,iqibz)-qbz(:,iq)))<1d-8 ) then
-c$$$            iqibzx(iq)=iqibz !iqibzx is the index for iqx in bz
-c$$$            goto 119
-c$$$          endif
-c$$$        enddo
-c$$$        stop " hvccfp: cannot find iqx"
-c$$$  119 enddo
-c$$$c --- Readin PLN. plane wave contributions 2000 May
-c$$$      ifplane = iopen('PLN',0,-1,0)
-c$$$      read (ifplane) ngpmx, ngcmx
-c$$$c q+G vector
-c$$$      if(allochk)
-c$$$     & write(*,*) 'allocate( ngcn(nqbz), ngvecci(3,ngcmx,nqibz))'
-c$$$      allocate( ngcn(nqbz), ngvecci(3,ngcmx,nqibz))
-c$$$      do iq=1, nqbz
-c$$$        read(ifplane) ngp, ngc
-c$$$        if(allochk)write(*,*)'allocate( geig, ngvecp, ngvecc)'
-c$$$        allocate( geig(ngp,nband), ngvecp(3,ngp), ngvecc(3,ngc))
-c$$$        read(ifplane) ngvecp, ngvecc, geig
-c$$$        if(iqibzx(iq) /=0) then
-c$$$          iqibz = iqibzx(iq)
-c$$$          ngcn(iqibz) = ngc
-c$$$          ngvecci(1:3,1:ngc,iqibz) = ngvecc(1:3,1:ngc)
-c$$$        endif
-c$$$        if(allochk)write(*,*) 'deallocate( geig, ngvecp, ngvecc)'
-c$$$        deallocate( geig, ngvecp, ngvecc)
-c$$$      enddo
-c-----------------------------------------------------
-
-c q+G vector
-c$$$      ifiqgc = 1302
-c$$$      open(ifiqgc, file='QGcou',form='unformatted')
-c$$$      read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
-c$$$      allocate( ngcn(nqbz), ngvecci(3,ngcmx,nqibz), ngvecc(3,ngcmx),iqok(nqibz))
-c$$$      iqok=1
-c$$$      do iq=1, nqnumc
-c$$$        read (ifiqgc) qqq, ngc
-c$$$        read (ifiqgc) ngvecc(1:3,1:ngc)
-c$$$        do iqibz=1,nqibz
-c$$$          if( sum(abs(qibz(:,iqibz)-qqq))<1d-8 ) then
-c$$$            ngcn(iqibz) = ngc
-c$$$            ngvecci(1:3,1:ngc,iqibz) = ngvecc(1:3,1:ngc)
-c$$$            iqok(iqibz)=0
-c$$$            exit
-c$$$          endif
-c$$$        enddo
-c$$$        if(sum(iqok)==0) exit
-c$$$      enddo
-c$$$      if(sum(iqok)/=0) stop 'hvccfp0: iqok/=0;wrong QGcou?'
-c$$$      deallocate(ngvecc,iqok)
-c$$$      close(ifiqgc)
-
-
+!! jun2020, We read data not thru HVCCIN
+      incwfin= 0                !use ForX0 for core in GWIN
+      call Genallcf_v3(incwfin) !in module m_genallcf_v3
+      call Readhamindex()
+      call Read_bzdata()
       call readngmx('QGcou',ngcmx)
       allocate(ngvecc(3,ngcmx))
-c        allocate( ngcn(nqibz), ngvecci(3,ngcmx,nqibz),ngveccc0(3,ngcmx))
-c        do iqibz = 1,nqibz
-c          call readqg('QGcou',qibz(:,iqibz), ngcn(iqibz),ngvecci(1,1,iqibz))
-c        enddo
-c        call readqg('QGcou',(/0d0,0d0,0d0/), ngc0, ngvecc0(1,1))
-c        call releaseqg('QGcou')
+      voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
+      write(6,*)' voltot=',voltot
 
-
-
-c --- Readin BASFP//atom. The product basis functions.
-      if(allochk)
-     &  write(*,*)'allocte(lx,kmx,nblocha,nr,aa,bb,filename,ificrb'
+!! Readin BASFP//atom. The product basis functions.
+      if(allochk) write(*,*)'allocte(lx,kmx,nblocha,nr,aa,bb,filename,ificrb'
       allocate(lx(nbas),kmx(nbas),nblocha(nbas),
      &         nr(nbas),aa(nbas),bb(nbas),filename(nbas),
-     &         ificrb(nbas) )
-
+     &         ificrb(nbas),rmax(nbas) )
       do ibas = 1,nbas
         ic = ibas !
         filename(ibas)= 'BASFP'//char( 48+ic/10 )//char( 48+mod(ic,10))
-        ificrb(ibas)  = iopen ( filename(ibas),1,3,0)
+        open(newunit=ificrb(ibas),file=trim(filename(ibas)))
         read(ificrb(ibas),"(4i6,2d24.16)") 
-     &    lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
+     &       lx(ibas), kmx(ibas), nblocha(ibas), nr(ibas),aa(ibas),bb(ibas)
+!! rmax here jun2020
+        rmax(ibas) = bb(ibas)*(exp((nr(ibas)-1)*aa(ibas))-1d0)
       enddo
       lxx = maxval(lx)
       if(allochk) write(*,*) 'allocate( nx(0:lxx,nbas) )'
@@ -265,40 +136,20 @@ c --- Readin BASFP//atom. The product basis functions.
       nrx = maxval(nr)
       if(allochk) write(*,*) 'allocate( rprodx(nrx,nxx,0:lxx,nbas) )'
       allocate( rprodx(nrx,nxx,0:lxx,nbas) )
-
       do ibas = 1,nbas
         do l = 0, lx(ibas)
           do n = 1, nx(l,ibas)
             read(ificrb(ibas),"(3i5)"   ) k, kdummy,kdummy
             read(ificrb(ibas),"(d23.15)") (rprodx(i,n,l,ibas),i=1,nr(ibas))
-cccccccccccccc
-c      write(660+ibas,*)
-c      write(660+ibas,'(" *** nlibas=",3i3)')  n,l,ibas
-c      do i=1,nr(ibas)
-c       write(660+ibas,'(2d16.8)') bb(ibas)*( exp(aa(ibas)*(i-1))- 1d0),
-c     & rprodx(i,n,l,ibas)
-c      enddo
-cccccccccccccc
           enddo
         enddo
-c      isx = iclose(filename(ibas))
       enddo
-
-
-cccccccccccccccccccccccccccccccccccccccccccccc
-cccc TEST cccccccccccccccc
-c      open(117, file='xin')
-c      do i=1,nr(1)
-c        read(117,"(d24.16)") rprodx(i,1,0,1)
-c      enddo
-cccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
-
-
-ccccccccccccccccccccccccccccccccccccccccccccc
-c TEST cccccccccccccccccccccccccccccccccccccc
+      do ibas = 1,nbas
+        close(ificrb(ibas))
+      enddo
+      
+      
+!! Bessel TEST block -------------------------------------
       if(besseltest) then
         write(6,*)
         write(6,*)
@@ -308,7 +159,6 @@ ccc You can change these values for tests. ccccccccccccc
         iqx  = 2
         igx1 = 1
         igx2 = 35
-c
         write(6,"(' iqx=',i3,' ig1 ig2=',2i3)") iqx,igx1,igx2
         write(6,"(a)")
      & ' <q+G|v|q+G> for the corresponding iqx ig1 ig2 should be exact!'
@@ -317,7 +167,6 @@ c
      & ' Errors will be from the radial function integrals !!!'
         write(6,"(a)") ' You can slso so similar test from hbasfp0.'
         write(6,"(a)") ' See test1 in basnfp0.'
-c
         if(allochk) write(*,*) 'deallocate(rprodx,nx)'
         deallocate(rprodx,nx)
         tpiba=8.d0*datan(1.d0)/alat
@@ -346,7 +195,6 @@ c
           qg(1:3) = 
      &    tpiba * (qibz(1:3,iqx)+ matmul(qlat, ngvecci(1:3,ig1,iqx)))
           absqg2  = sum(qg(1:3)**2)
-c
           do ir =1,nrx
             call bessl(absqg2*rofit(ir)**2,lxx,phi,psi)
             do ibas=1,nbas
@@ -382,20 +230,18 @@ c --- orthogonalized rprodx.
           enddo
         enddo
       endif
-cccc TEST end ccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccc
-
+!! Bessel test block end ccccccccccccccccccccccccccccccc
+      
 
       nbloch    = sum(nblocha)
       nblochpmx = nbloch + ngcmx
 
-c --- CG coefficienets. <LM3|lm1 lm2>
+c --- CG coefficienets. <LM3|lm1 lm2> (confusing, use subroutine clebsh)
 c inxcg = lm1(lm1-1)/2 + lm2 (lm1>lm2)
 c Injcg = indxcg(inxcg) to indxcg(inxcg)-1
 c cg(inxcg)  : = <lm3|lm1 lm2>
 c jcg(lnjcg) : = lm3
       lmxcg = lxx
-
       call scg_sizechk(lmxcg,lnjcg,lnxcg) !(lmax,c,cindx,js)
       write(6,*)'scg_sizechk= ',lnjcg,lnxcg
 c      if (lmxcg .le. 6) then
@@ -415,10 +261,7 @@ c     &  write(*,*) 'allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))'
       allocate(cg(lnjcg),jcg(lnjcg),indxcg(lnxcg))
       call scg(lmxcg,cg,indxcg,jcg)
       if(allochk) write(6,*)' end of scg: cg coefficients generated.'
-
-
-      call minv33(qlat,ginv)
-
+      
 c --- Get real-space vectors and reciprocal-space vectors for Ewald sum.
 C defaults values for ewald sum
 c      call lattc(awald0,tol,alat,alat,plat0,gx,gy,gz,gam,plat,qlat,
@@ -431,14 +274,11 @@ c default values ok?
                      ! for 18 atoms per cell. --> The lowest eigenvalue of coulomb matrix becomes negative.
       nkdmx  = 8000  !    800->8000 to treat GdN. !31oct2019
       nkqmx  = 8000  !    nkdmx and nqkmx should be determined automatically in future. 
-      
       lmax   = 2*lxx  !lxx or lmax=6 ???
 
       vol0= abs(tripl(plat,plat(1,2),plat(1,3)))
       as   = awald0
-c      alat0= alat
       alat1= alat
-c      if(alat1.le.0.5d0) alat1=alat
       tpiba=8.d0*datan(1.d0)/alat
       call cross_x(plat(1,2),plat(1,3),qb0)
       call cross_x(plat(1,3),plat(1,1),qb0(1,2))
@@ -451,12 +291,7 @@ c      if(alat1.le.0.5d0) alat1=alat
       qadd=.7*qdist0
       a0=as/rdist0
       awald=a0/alat
-cccccccccccccccccccccccccccccccccccc
-c takao
-c      tol1= tol*alat**(lmax+1) *0.01
-cccccccccccccccccccccccccccccccccccccc
       tol1= tol*alat**(lmax+1)
-      if(allochk) write(*,*) 'allocate(dlv, qlv, work) '
       allocate(dlv(3,nkdmx), qlv(3,nkqmx), work(max0(nkdmx,nkqmx)) )
       call lctoff(a0,vol0,lmax,tol1,r0,q0)
       nkdest =4.18879*(r0+radd)**3/vol0+.5
@@ -471,17 +306,9 @@ cccccccccccccccccccccccccccccccccccccc
       call lgen(qb0,q0+qadd,nkq,nkqmx,qlv,work)
       write(6,341) q0,q0*tpiba,qadd,nkq
   341 format('  q0=',f9.4,'   qc=',f9.4,'   qadd=',f9.4,'   nkr=', i7)
-      if(allochk) write(*,*) 'deallocate(work)'
       deallocate(work)
-
-C... readin r0c
-c      if(newaniso()) then
-        eee=screenfac() !takao feb2012
-c      elseif(imode==101.or.imode==102) then
-c        eee = eees()
-c      else
-c        eee=0d0
-c      endif
+!!
+      eee=screenfac()           !takao feb2012
 
 !! for eps_lmf and epsPP_lmf mode, 
 !! even the small eee=1d-4 can affect to dielectric function near q=0 when its values is large as one-hundred or more.
@@ -489,7 +316,6 @@ c      endif
       if(imode==202) then !
          eee=0d0
       endif
-
       write(6,"(' Coulomb is exp(sqrt(-eee)*r)/r. eee=',d13.6,d13.6)")eee
 
 C--- bessel and hankel for the expansion of exp(-r/r_0)/r.
@@ -502,14 +328,6 @@ c  rkpr means r^l*r for e=0 (r0c =infinity) case
       enddo
 
 C--- onsite integrals <j(e=0)|B> and <B|v(onsite)|B>
-cc      if(allochkw) write(*,*) ' allocate  rojb, sgbb '
-c      allocate( rojb(nxx, 0:lxx, nbas), sgbb(nxx,  nxx,  0:lxx, nbas))
-c      do ibas = 1,nbas
-c        call mkjb( lxx, lx(ibas),nxx, nx(0:lxx,ibas),
-c     i                 aa(ibas),bb(ibas), nr(ibas), nrx,
-c     i                 rprodx(1,1,0,ibas),
-c     o        rojb(1,0,ibas), sgbb(1,1,0,ibas))
-c      enddo
       allocate( rojb(nxx, 0:lxx, nbas), sgbb(nxx,  nxx,  0:lxx, nbas))
       do ibas = 1,nbas
         call mkjb_4( lxx, lx(ibas),nxx, nx(0:lxx,ibas),  
@@ -523,21 +341,17 @@ c----------------
 C--- coulomb matrix for each q = qibz
 c----------------
       nlxx= (lxx+1)**2
-c      ngb = nbloch + ngcn(1)
       allocate(ngvecc0(3,ngcmx))
       call readqg('QGcou',(/0d0,0d0,0d0/),  quu,ngc0, ngvecc0)
       deallocate(ngvecc0)
       ngb = nbloch + ngc0
       if(allochk) write(*,*) 'allocate( vcoul)'
       allocate( vcoul(nblochpmx,nblochpmx) )
-c      if(imode==101) allocate( vcoul_org(nblochpmx,nblochpmx) )
-
       vcoul  = 0d0
 
 C... q near zero
       write(6,*) '--- readin Q0P -------'
-      ifq0p=ifile_handle()
-      open (ifq0p,file='Q0P')
+      open (newunit=ifq0p,file='Q0P')
       read (ifq0p,*) nq0i,idummy,nq0iadd
       if(allochk) write(*,*)'allocate( wqt(1:nq0i),q0i(1:3,1:nq0i) )'
       allocate( wqt(1:nq0i+nq0iadd),q0i(1:3,1:nq0i+nq0iadd) )
@@ -546,65 +360,38 @@ C... q near zero
       enddo
       write (6,"(d13.5,3x, 3d13.5)" )( wqt(i),q0i(1:3,i),i=1,nq0i+nq0iadd)
       close(ifq0p)
-      write(6,*) ' *** goto do iq nqibz+nq0iadd nq0i=',nqibz,nq0i+nq0iadd
 
-C --- Check PARALELL.X0
-c      INQUIRE (FILE = 'PARALELL.X0', EXIST = paralellx0)
-c$$$      wvcc=.true.
-c$$$      if(newaniso()) wvcc=.false.
-      wvcc=.false.
+c      wvcc=.false.
       write(6,'(a)') " Mix0vec.XXX is not empty only when"
-     &   //" the corresponding q is in Q0P with zero weight."
-c      if(paralellx0) then
-c        if(wvcc) ifvcfpout = iopen( "VCCFP." //xxt(iqxini,iqxend),0,-1,0)
-c        ifgb0vec = iopen ( "Mix0vec."//xxt(iqxini,iqxend),1,3,0)
-c        ifgb0vec1 = iopen ( "Mix0vec1."//xxt(iqxini,iqxend),1,3,0)
-c      else
-        iqxend = nqibz + nq0i+nq0iadd
-        if(wvcc) ifvcfpout = iopen('VCCFP',0,-1,0)
-        ifgb0vec = iopen ( "Mix0vec",1,3,0)
-        ifgb0vec1 = iopen ( "Mix0vec1",1,3,0)
-c      endif
+     &     //" the corresponding q is in Q0P with zero weight."
+      iqxend = nqibz + nq0i+nq0iadd
+c      if(wvcc) open(newunit=ifvcfpout,file='VCCFP')
+      open(newunit=ifgb0vec, file="Mix0vec")
+      open(newunit=ifgb0vec1,file="Mix0vec1")
 
       if(imode==202) then
         iqxini= nqibz + 1
-c      elseif(paralellx0) then
-c     &  !skip
-c$$$      elseif(bzcase()==1) then
-c$$$!        iqxini = 2
-c$$$        iqxini = 1 !oct2005
       else
         iqxini = 1
       endif
-!!
-c      if(newaniso().and.imode==0) then
       if(imode==0) then
         iqxini=1
-c        iqxend=nqibz ! comment out at 18nov2012
       endif
       write(6,*)'iqxini iqxend=',iqxini,iqxend
-c qibz loop
-c      epsx =  0.01d0
-c      if(bzcase()==1) then
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( 'hvccfp0: sum(q**2)==0d0')
-c      endif
-      if(wvcc) write(ifvcfpout) nqbz, nblochpmx
-c      if(imode==101) then
-c        read(ifvcfporg) nqbz_in, nblochpmx_in
-c        if(nqbz /= nqbz_in) stop 'nqbz /= nqbz_in VCCFP.ORG'
-c        if(nblochpmx /= nblochpmx_in) 
-c     &     stop 'nblochpmx /= nblochpmx_in VCCFP.ORG'
-c      endif
+c     if(wvcc) write(ifvcfpout) nqbz, nblochpmx
+      
 
 C... Readin PRODMT into prodmt. oct2005
-      smbb = smbasis()
+      smbb = smbasis() !smabsis =F usually, may need fixing in future
       write(6,*) ' smooth mixed basis=',smbb
       if(smbasis()) then
         allocate( prodmt(2,nxx,0:lxx,nbas))
         allocate( nx_r(0:lxx))
         do ibas =1,nbas
-          filenamep = 'PRODMT_'//charnum3(ibas)
-          ifprodmt  = iopen(filenamep,0,-1,0)
+c          filenamep = 'PRODMT_'//charnum3(ibas)
+c          ifprodmt  = iopen(filenamep,0,-1,0)
+          open(newunit=ifprodmt,file=trim('PRODMT_'//charnum3(ibas)))
           read(ifprodmt) nl_r
           if( 2*(nl_r-1) /= lxx ) then
             write(6,*) 2*(nl_r-1),lxx
@@ -623,10 +410,9 @@ C... Readin PRODMT into prodmt. oct2005
           endif
           read(ifprodmt) prodmt(1:2, 1:nxx_r, 0:lxx, ibas)
           write(6,*)' sumcheck prodmt=',sum(abs(prodmt(:,:,:,ibas)))
-          isx = iclose(filenamep)
+          close(ifprodmt) !isx = iclose(filenamep)
         enddo
-
-C... Check write for radial part of the product basis
+!!... Check write for radial part of the product basis
         if(.false.) then
           do ibas= 1,1 !1,nbas
             do l   =  0,lx(ibas)
@@ -636,9 +422,9 @@ C... Check write for radial part of the product basis
               do ix=1,nxdim
                 write(if1011,"(' -- -- -- ',3i3,' --- ' )") ix,l,ibas
                 do ir =1,nr(ibas)
-                  write(if1011,"(d13.5,2x,2d18.8)")   
-     &   rofi(ir,ibas), rprodx(ir,ix,l,ibas) 
-     &   , rprodx(ir,ix,l,ibas) /rofi(ir,ibas)
+                   write(if1011,"(d13.5,2x,2d18.8)")   
+     &                  rofi(ir,ibas), rprodx(ir,ix,l,ibas) 
+     &                  , rprodx(ir,ix,l,ibas) /rofi(ir,ibas)
                 enddo
               enddo
               close(if1011)
@@ -646,8 +432,6 @@ C... Check write for radial part of the product basis
           enddo
 c       stop 'text end'
         endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!
         allocate( rdmatch(nxx,nxx,0:lxx,nbas) )
         do ibas= 1, nbas
           do l   = 0, lx(ibas)
@@ -661,9 +445,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
      o          rdmatch(1:nxdim,1:nxdim,l,ibas) )
           enddo
         enddo
-
-
-
 ! index (mx,nx,lx,ibas) ordering: taken from voul_4
         allocate(ibl(-lxx:lxx,nxx,0:lxx,nbas))
         ibl1 = 0
@@ -681,28 +462,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
         if(ibl1/= nbloch) then
           write(6,*)' ibl1 nbloch',ibl1, nbloch
-Cstop2rx 2013.08.09 kino          stop ' hvccfp0:smbasis mode  error ibl1/= nbloch'
           call rx( ' hvccfp0:smbasis mode  error ibl1/= nbloch')
         endif
 ! index (mx,nx,lx,ibas) ordering
-ctttt
         nnr = 2 ! =2 new
         ! =0 equivalence with original mixed basis
         write(6,*)' sss:nbas lx=',nbas,lx(1:nbas)
-
         nbln=0
         do ibas= 1, nbas
           do l   = 0, lx(ibas)
             write(6,"('sss: nx=',3i4)") ibas,l,nx(l,ibas)
             if(nx(l,ibas)<=0) cycle
-Cstop2rx 2013.08.09 kino            if(nx(l,ibas)==1) stop 'nx(l,ibas) =1'
             if(nx(l,ibas)==1) call rx( 'nx(l,ibas) =1')
-ccccccccccccccccd
-ctttt
-c         nnr = 2 ! =2 new
-c               ! =0 equivalence with original mixed basis
-c         if(l<=3) nnr=0
-cccccccccccccccccc
             nbln = nbln + (2*l+1)*(nx(l,ibas)-nnr)
           enddo
         enddo
@@ -711,80 +482,39 @@ cccccccccccccccccc
         ibln = 0
         do ibas= 1, nbas
           do l   = 0, lx(ibas)
-ccccccccccccccccccc
-ctttt
-c         nnr = 2 ! =2 new
-c               ! =0 equivalence with original mixed basis
-c         if(l<=3) nnr=0
-cccccccccccccccccc
             do nn  = nnr+1, nx(l,ibas) !nn=1 and nn=2 corresponds to non-zero val sol
               do m   = -l, l
                 ibln = ibln +1
                 nxdim = nx(l,ibas)
                 pmat( ibl(m,1:nxdim,l,ibas), ibln)
      &    =  rdmatch(1:nxdim, nn, l,ibas)
-ctttt
-c          pmat( ibl(m,nn,l,ibas), ibln)
-c     &    =  1d0
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
               enddo
             enddo
           enddo
         enddo
 C... Store matting matrix (imatchn,imatcho,pmatch)
-        ifpomat   = iopen('POmat',0,-1,0)
+c        ifpomat   = iopen('POmat',0,-1,0)
+        open(newunit=ifpomat,file='POmat',form='unformatted')
 c       write(6,*)'ttt= sumchk pmat(b)=',sum(abs(pmat(1:nbloch, 1:nbln)))
       endif
-!! === open file Vcoud ===
-!! This contains E(\nu,I), given in PRB81,125102
-
+      
+!! Vcoud file, which contains E(\nu,I), given in PRB81,125102
 !! == main loop for iqx ==
       call MPI__getRange( mpi__iini, mpi__iend, iqxini, iqxend )
       do 1001 iqx = mpi__iini, mpi__iend ! q=(0,0,0) is omitted!
-c$$$      do 1001 iqx = iqxini, iqxend ! q in IBZ. avoid q=0 case for iqx=1
-        write(6,"('#### do 1001 start iqx=',i5)")iqx
+        write(6,"('#### do 1001 start iqx=',5i5)")iqx,nqibz
         vcoudfile='Vcoud.'//charnum5(iqx)  !this is closed at the end of do 1001
-        ifvcoud = iopen(trim(vcoudfile),0,-1,0)
+        open(newunit=ifvcoud,file=trim(vcoudfile),form='unformatted')
         if(iqx > nqibz) then  !       iq = 1
           q  = q0i(:,iqx-nqibz)
-c          qq = 0d0
         else                  !       iq = iqx
           q  = qibz(:,iqx)
-c          qq = q
         endif
-cccccccccccccccccccccccc
-c        if(imode==202) then !for iqx>nqibz
-c           qq=q
-c        endif
-cccccccccccccccccccccccc
-
-c$$$        if(.not. newaniso() ) then !this is for fe_epsPP_lmfh_chipm feb2012
-c$$$          if(sum(q**2)<1d-12) q=(/1d-4,0d0,0d0/) !takao oct2006
-c$$$        endif
-!! ==== q+G vector ====
+!! q+G vector 
         call readqg('QGcou',q,  quu,ngc, ngvecc ) !qq-->q
         ngb = nbloch + ngc  !it was ngcnn(iq)
         write(6,'(" iqx q ngc =",i5,3f10.4,i5)') iqx,q,ngc
-
-c$$$        if(newaniso()) then
-c$$$          continue
-c$$$        elseif(bzcase()==1.and.iqx==1) then
-c$$$          goto 1101
-c$$$        endif
-
-c        ngc = ngcn(iq)
-c        ngvecc(1:3,1:ngc) = ngvecci(1:3,1:ngc,iq)
-c        write(6,*)' iq ngc=',iq, ngc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  q test
-c       q=(/ 0.09d0,0.09d0,0.09d0/)
-c      q = q+(/ 0.01d0,0.01d0,0.01d0/)
-c        q=q/4
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-C--- strxq structure factor.
-        if(allochk) write(6,*)' goto strxq'
-        if(allochk) write(*,*) 'allocate( strx(nlxx,nbas,nlxx,nbas))'
+!! strxq: structure factor.
         allocate( strx(nlxx,nbas,nlxx,nbas))
         do ibas1 =1,nbas
           do ibas2 =1,nbas
@@ -794,7 +524,6 @@ C--- strxq structure factor.
             nlx2 = (lx(ibas2)+1)**2
             if(allochk) write(*,*) 'allocate( s(nlx1,nlx2))'
             allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
-c          call strxq(1,0d0,q,p,nlx1,nlx2,nlx1,alat,voltot,
             call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,
      i        awald,nkd,nkq,dlv,qlv, 
      i        cg,indxcg,jcg,  
@@ -804,18 +533,11 @@ c          call strxq(1,0d0,q,p,nlx1,nlx2,nlx1,alat,voltot,
             deallocate( s,sd )
           enddo
         enddo
-ccccccccccccccccccccccccccc
-c        strx=0d0
-cccccccccccccccccccccccccccc
-
-C--- onsite integrals <j(e=0)|P^(q+G)_L> and <B|v(onsite)|B>
-c$$$      if(.true.) then !==New version without sgpp and fouvp allocation June2004=====
+!!  onsite integrals <j(e=0)|P^(q+G)_L> and <B|v(onsite)|B>
         if(allochk) write(*,*)'allocate(rojp,sgpb,fouvb)'
         allocate(  rojp(ngc,      nlxx, nbas),
      &            sgpb(ngc, nxx, nlxx, nbas),  
      &           fouvb(ngc, nxx, nlxx, nbas))
-c     &            sgpp(ngc, ngc, nlxx, nbas),
-c     &           fouvp(ngc, ngc, nlxx, nbas) )
         do ibas = 1,nbas
           if(allochk) write(6,*)' --- goto mkjp_4',ibas
           call mkjp_4(q,ngc, ngvecc, alat, qlat, 
@@ -825,12 +547,6 @@ c     &           fouvp(ngc, ngc, nlxx, nbas) )
      i   eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas),
      o      rojp(1,1,ibas),  sgpb(1,1,1,ibas),
      o      fouvb(1,1,1,ibas))
-c          call mkjp3(q,ngc, ngvecc, alat, qlat,
-c     i      lxx, lx(ibas),nxx, nx(0:lxx,ibas),
-c     i      bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas),
-c     i      nr(ibas), nrx, rprodx(1,1,0,ibas),
-c     o      rojp(1,1,ibas),  sgpb(1,1,1,ibas),
-c     o      fouvb(1,1,1,ibas))
         enddo
 
 C--- the Coulomb matrix
@@ -842,45 +558,8 @@ C--- the Coulomb matrix
      i       nblochpmx, bas,rmax, 
      i    eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,
      o          vcoul)
-c       call vcoulq2(q, nbloch, ngc,
-c     i                  nbas, lx,lxx, nx,nxx,
-c     i                  alat, qlat, voltot, ngvecc,
-c     i       strx, rojp,rojb, sgbb,sgpb, fouvb, !sgpp,fouvp,
-c     i       nblochpmx, bas,rmax,
-c     o          vcoul)
         if(allochk) write(6,*)' end of vcoulq_4'
         deallocate( strx, rojp,sgpb,fouvb)
-
-c$$$      else !===old version (allocation of sgpp and fouvp are required) ====
-c$$$
-c$$$       if(allochk) write(*,*) 'allocate(rojp,sgpb,sgpp,fouvb,fouvp)'
-c$$$       allocate( rojp(ngc,      nlxx, nbas),
-c$$$     &            sgpb(ngc, nxx, nlxx, nbas),
-c$$$     &           fouvb(ngc, nxx, nlxx, nbas),
-c$$$     &            sgpp(ngc, ngc, nlxx, nbas),
-c$$$     &           fouvp(ngc, ngc, nlxx, nbas) )
-c$$$       do ibas = 1,nbas
-c$$$          write(6,*)' xxx goto mkjp',ibas
-c$$$          call mkjp2(q,ngc, ngvecc, alat, qlat,
-c$$$     i      lxx, lx(ibas),nxx, nx(0:lxx,ibas),
-c$$$     i      bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas),
-c$$$     i      nr(ibas), nrx, rprodx(1,1,0,ibas),
-c$$$     o      rojp(1,1,ibas),  sgpb(1,1,1,ibas),
-c$$$     o      fouvb(1,1,1,ibas),
-c$$$     o      sgpp(1,1,1,ibas),fouvp(1,1,1,ibas) )
-c$$$       enddo
-c$$$c--- the Coulomb matrix
-c$$$       write(6,*)' goto vcoulq'
-c$$$       call vcoulq(q, nbloch, ngc,
-c$$$     i                  nbas, lx,lxx, nx,nxx,
-c$$$     i                  alat, qlat, voltot, ngvecc,
-c$$$     i          strx, rojp,rojb, sgbb,sgpb,sgpp, fouvb,fouvp, nblochpmx,
-c$$$     o          vcoul)
-c$$$       if(allochk)
-c$$$     &   write(*,*)'deallocate(strx, rojp,sgpb,sgpp, fouvb,fouvp)'
-c$$$       deallocate( strx, rojp,sgpb,sgpp, fouvb,fouvp)
-c$$$
-c$$$      endif !=============================================================
 
 c----check write
         trwv = 0d0
@@ -889,18 +568,15 @@ c----check write
         enddo
         write(6,'(" vcoul trwi=",i6,2d22.14)') iqx,trwv
         write(6,'("### sum vcoul(1:ngb,      1:ngb) ",2d22.14,2x,d22.14)')
-     & sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
+     &       sum(vcoul(1:ngb,1:ngb)), sum(abs(vcoul(1:ngb,1:ngb)))
         write(6,'("### sum vcoul(1:nbloch,1:nbloch) ",2d22.14,2x,d22.14)')
-     & sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
+     &       sum(vcoul(1:nbloch,1:nbloch)),sum(abs(vcoul(1:nbloch,1:nbloch)))
         write(6,*)
-ccccccccccccccccccccccccccccccc
-c      vcoul(:, nbloch+1:ngb)=0d0
-c      vcoul(nbloch+1:ngb,:)=0d0
-ccccccccccccccccccccccccccccccc
-
  1101   continue
         ngbo=ngb
-C... Generate ppmt mattix oct2005 .......................
+
+!!.. Generate ppmt mattix oct2005 .......................
+!!   smbasis option is not used now-- we may recover in future
         if(smbasis()) then
           allocate( ppmt(2,(lxx+1)**2,nbas,ngc) )
           ppmt = 0d0
@@ -909,21 +585,15 @@ C... Generate ppmt mattix oct2005 .......................
      i    rmax, nbas,  bas, lx, lxx,
      o    ppmt) ! ppmt contains value and slove of e(i q+G r) at MT boundaries.
           ! ppmt(2,lmxaa,nbas)
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c        write(6,*) 'lxx ppmtsum=',lxx, sum(abs(ppmt))
           write(6,*) 'nbln ngc',nbln,ngc
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C... Matching matrix pmtch. ppmt and prodmt
           pmat(:, nbln+1:nbln+ngc)=0d0
-c        write(6,*) 'sss nbln ngc',nbln,ngc
           do igc=1,ngc
-c          write(6,*) 'igc=',igc
             pmat(nbloch+igc, nbln+igc) = 1d0
             do ibas= 1, nbas
               do l  =  0, lx(ibas)
                 do m  = -l, l
-c           write(6,*) 'ibas l m=',ibas,l,m
                   pval= ppmt(1, l**2 + l+1 +m, ibas,igc)
                   pslo= ppmt(2, l**2 + l+1 +m, ibas,igc)
                   do n = 1,nx(l,ibas)
@@ -962,38 +632,16 @@ C... oo(no,no). The original overlap matrix.
             enddo
           enddo
           if(debug) write(6,*) 'end of oo'
-
-
 C... oon(nn,nn) is the overlap matrix with new basis
           allocate(oon(nn,nn))
           oon = matmul( dconjg(transpose(pmat(1:no,1:nn)))
      &               ,matmul(oo,pmat(1:no,1:nn)) )
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Reduction of pmat by SVD ... not meaningful
-c      nnmx = 1000000
-c      epsmx= 1D20
-cc      write(6,*)' sumchk pmat=',sum(abs(pmat(1:no,1:nn)))
-c      call  zgesvdnn2(nn,nn, nnmx,epsmx,
-c     o   oon, ! pmat is reduced to pmat(1:no,1:nnn) by SVD.
-c     o   ngcnn)
-cc      call  zgesvdnn2(no,ngc, nnmx,epsmx,
-cc     i   pmat(1:no,nbln+1:nbln+ngc), ! pmat is reduced to pmat(1:no,1:nnn) by SVD.
-cc     o   ngcnn)
-cc      nn= nbln+ngcnn
-c      write(6,*)' svd ngc ngcnn=',ngc, ngcnn
-c      stop 'test end xxxxxx'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-ccccccccccccccccccccccccccc
           if(.false.) then
-            open(if3011,file='oontest'//charnum5(iqx))
+            open(newunit=if3011,file='oontest'//charnum5(iqx))
             do ix=nbln+1,nn
               igc=ix-nbln
               qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
               absqq  =  sqrt(sum(qqx(1:3)**2))
-c           absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,nq0i))**2)
               do iy=nbln+ 1,nn
                 igc2=iy-nbln
                 if(ix==iy) then
@@ -1007,9 +655,6 @@ c           absqg2x(ix) =sum( (2*pi/alat *q0i(1:3,nq0i))**2)
             enddo
             close(if3011)
           endif
-ccccccccccccccccccccccccccccccc
-
-
 C... Generat pomat
 !    zmelt_new(K, ij) = \sum_I pomat(K,I)* zmelt(I, ij)
 !    means <psi_i psi_j | K> where |K> denote new mixed basis.
@@ -1017,24 +662,6 @@ C... Generat pomat
 !   Be carefull its transpose procedure---it is a little confusing...
           call pmatorth(oo,oon, pmat(1:no,1:nn), no, nn,
      o    pomat)
-
-ccccccccccccccccccccccccccccccccccccccccccccc
-ctttt
-c        pomat=0d0
-c        do ix= 1,ngb
-c          pomat(ix,ix)=1d0
-c        enddo
-c        do ix= 1,ngb
-c        do iy= 1,ngb
-c          if(pmat(ix,iy)/=0d0 )
-c     &   write(6,"(' ttt: pmat=',2i3,2d13.6)")
-c     &   ix,iy,pmat(ix,iy)
-c        enddo
-c        enddo
-c        write(6,"(' ttt:sumchk=',2d13.6,2i4)")
-c     &     sum(pomat(:,:)), no,nn
-cccccccccccccccccccccccccccccccccccccccccccccc
-
           if( iqx <= nqibz ) deallocate(oon)
           deallocate(ppovl,oo)
 C... Store matching matrix
@@ -1042,12 +669,6 @@ C... Store matching matrix
           write(ifpomat) pomat
           deallocate(pomat)
         endif
-
-c$$$        if(newaniso()) then
-c$$$          continue
-c$$$        elseif(bzcase()==1.and.iqx==1)then
-c$$$          cycle
-c$$$        endif
 
 !! == Write out VCCFP ==
         if(debug) write(6,*) 'write out vcoul'
@@ -1059,16 +680,15 @@ c$$$        endif
           vcoul(1:ngb,1:ngb)= vcoulnn
           deallocate(vcoulnn)
         endif
-        if(wvcc) then
-          write(ifvcfpout) ngb
-          write(ifvcfpout) vcoul(1:ngb,1:ngb),q
-        endif  
+c        if(wvcc) then
+c          write(ifvcfpout) ngb
+c          write(ifvcfpout) vcoul(1:ngb,1:ngb),q
+c        endif  
         write(6,"(' ngc ngb/ngbo=',6i6)") ngc,ngb,ngbo
 
-c Mix0vec ---------------------------------
+!! Mix0vec ---------------------------------
 !! diagonalize the Coulomb matrix
-        if(.true.) then
-c        if( iqx > nqibz .or. iqx==1) then !feb2012 add iqx==1 for newansio()=T
+c        if(.true.) then
           if(allochk) write(*,*) 'allocate( ppovl(ngc,ngc))'
           allocate( oo(ngb,ngb) )
           allocate( ppovl(ngc,ngc) )
@@ -1111,57 +731,15 @@ c          nmx = 15
           enddo
           write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
 
-c$$$!! Modify -eb
-c$$$          if(iqx<=nqibz) then
-c$$$             do iqbz=1,nqbz     !! check          
-c$$$                if(sum(abs(qbzwww(:,iqbz)-q))<1d-6) then
-c$$$                   iqbzx=iqbz
-c$$$                   goto 888
-c$$$                endif
-c$$$             enddo
-c$$$             stop 'hvccfp0:sum(abs(qbzwww(:,iq)-qbz(:,iq)))>1d-6'
-c$$$ 888         continue
-c$$$             if(abs((-eb(1)+eb(2))/eb(2))<1d-2) then
-c$$$!! Center. touching case. Respect smoothness when we change n1n2n3 division.
-c$$$                eb(1)=eb(1)*wqfac(iqbzx)
-c$$$                eb(2)=eb(2)*wqfac(iqbzx)
-c$$$             else
-c$$$                eb(1)=eb(1)*wqfac(iqbzx)
-c$$$             endif   
-c$$$          endif
-
-!     ! === save zz === apr2012takao
-c          if( newaniso().and.iqx==1 ) then
-c            if(sum(q**2)>1d-10) then
-c               stop ' hvccfp0: sanity check. |q(iqx)| /= 0'
-c            endif
           write(ifvcoud) ngb
           write(ifvcoud) q
           write(ifvcoud) -eb
           write(ifvcoud) zz
-
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$        write(6,*)' dddddddddddddddd q=',q
-c$$$        do ix=1,ngb
-c$$$        do iy=1,ngb
-c$$$          aaaa=  sum(  dconjg(zz(1:ngb,ix))*matmul( oox,zz(1:ngb,iy))  )
-c$$$           if(ix==iy .and.  abs(aaaa-1d0) >1d-8 ) then
-c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif
-c$$$           if(ix/=iy .and.  abs(aaaa) >1d-8 ) then
-c$$$            write(*,*)' dddd zcousum check',ix,iy,aaaa
-c$$$           endif
-c$$$        enddo
-c$$$        enddo
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-
-
           write(6,*)
           write(6,'(" eig0 must be equal to the largest =", 2d24.16)')
      &       sum(  dconjg(zz(1:ngb,1))*matmul( vcoul0,zz(1:ngb,1))  )
           write(6,'(" zz norm check=",d24.16)')
-     &    sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
+     &         sum( dconjg(zz(1:ngb,1))*matmul(oox,zz(1:ngb,1)) )
           write(6,*)
 c          write(6,'(" --- vcoul(exact  no eee)=",d14.6," absq2=",d24.16)')
 c     &    fpi*voltot/(sum(tpiba**2*q(1:3)**2))
@@ -1171,7 +749,7 @@ c     &             , (sum(tpiba**2*q(1:3)**2))
      &             , (sum(tpiba**2*q(1:3)**2)-eee)
           write(6,'(" --- vcoul(cal ) =",2d14.6)') 
      &    sum( dconjg(zz(1:ngb,1))*matmul( vcoul0,zz(1:ngb,1)) )*voltot
-ccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccc
 c          do igc=1,ngb
 c          qqx(1:3) = (q(1:3)+ matmul(qlat, ngvecc(1:3,igc)))
 c          write(6,'(" --- vcoul(exact) xxx =",d14.6," absq2=",d24.16)')
@@ -1185,14 +763,11 @@ cccccccccccccccccccccccccccccccccccccccccc
 
           if( iqx-nqibz>=1 ) then
              if( wqt(iqx-nqibz)==0d0) then ! MIZUHO-IR
-
-C --- To get the vector <Mixed basis| q=0> --------------
-cki            if(is_mix0vec()==0) then     !used original befor oct2006
+!! --- To get the vector <Mixed basis| q=0> --------------
             if(.not.is_mix0vec()) then     !used original befor oct2006
 ! See switch.F ---> this is not used now.
               ifgb0vec_a =ifgb0vec1
               ifgb0vec_b =ifgb0vec
-cki            elseif(is_mix0vec()==1) then !oct2006 new case
             else
 ! ismix0vec=1 is to avoid problem at BZ boundary when is_mix0vec()=0.
               ifgb0vec_a =ifgb0vec
@@ -1212,43 +787,22 @@ c1... Case1 to write ifgb0vec -------------------------------------
               write(6,*)' igc0=',igc0,ngvecc(1:3,igc0)
               zzr(nbloch+1:nbloch+ngc) = ppovl(1:ngc,igc0)
             endif
-
             allocate( gbvec(ngb), b0mat(nbloch) )
-            write(6,*)' goto mkb0'
-
-C ... get a vector <Product Basis| q+0>
+!! ... get a vector <Product Basis| q+0>
             call mkb0( q, lxx,lx,nxx,nx, aa,bb,nr,nrx,rprodx,
      i        alat,bas,nbas,nbloch, 
      o        b0mat)
             zzr(1:nbloch) = b0mat(1:nbloch)
-cccccccccccccccccccccccccccc
-c           do igc=1,ngb
-c             write(6,"('ssss: ',i5,2d14.6)") igc, zzr(igc)
-c           enddo
-cccccccccccccccccccccccccccc
             allocate(ooxi(ngb,ngb))
             ooxi=oox
             call matcinv(ngb,ooxi)
             gbvec = matmul(ooxi, zzr)
-
-cccccccccccccc
-c           do igc=1,ngb
-c             write(6,"('ssss: ',i5,2d14.6)") igc, gbvec(igc)
-c           enddo
-ccccccccccccccc
             deallocate(ooxi)
             dnorm = sqrt( sum(dconjg(gbvec)*zzr) )
-! remove /dnorm at 14June2008. See main/hx0fp0.
-! dnorm corresponds to volume (or sum of MT volume if no IPW).
-c            gbvec = gbvec /dnorm
-c            zzr   = zzr   /dnorm
-! Not dnorm=1 at 14June2008. See main/hx0fp0.
-c            dnorm=1
             write(ifgb0vec_a,"(3d24.16,2i10,d24.16)") q, ngb,igc0,dnorm
             write(ifgb0vec_a,"(4d24.16)") (gbvec(i),zzr(i),i=1,ngb)
             deallocate( gbvec, b0mat)
 c1----------------------------------------------------
-
 c2... --- Case2 to write ifgb0vec c2 is problematic at BZ boundary...------
             dnorm  = 1d0
             zzr(:) = matmul (oox, zz(:,1))
@@ -1266,22 +820,20 @@ c phasex ---just to clean. this is irrelevant
             write (ifgb0vec_b,"(4d24.16)") (zz(i,1),zzr(i),i=1,ngb)
           endif
           endif ! MIZUHO-IR
-          if(allochk) !bugfix ---this was in inside or above if 7Feb2006
-     &    write(*,*)'deallocate(hh,oo,zz,eb,oox,zzr)'
           deallocate(hh,oo,zz,eb,oox,zzr)
           deallocate(ppovl)
 c2---------------------
-        endif
-        idummy=iclose(trim(vcoudfile))
+c        endif
+        close(ifvcoud)
  1001 continue
       deallocate(ngvecc)
       call cputid(0)
-c      call flush(6)
       call MPI__Finalize
       if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
       if(imode==0) call rx0( ' OK! hvccfp0 imode=0')
       if(imode==3) call rx0( ' OK! hvccfp0 imode=3')
       end
+      
 
       subroutine checkagree(a,b,char)
       real(8):: a(3),b(3)

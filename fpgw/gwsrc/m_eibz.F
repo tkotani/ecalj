@@ -23,8 +23,8 @@ c     &     idteti, nstar,irk,nstbz
       integer,allocatable:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       contains
 
-      subroutine Seteibz(iqxini,iqxend,MPI__root)
-      logical:: eibzmode,eibz4x0,MPI__root,tiii,iprintx
+      subroutine Seteibz(iqxini,iqxend,iprintx)
+      logical:: eibzmode,eibz4x0,tiii,iprintx
       integer:: iqxini,iqxend,iqxendx,timereversal
       eibzmode = eibz4x0()
 !! === Use of symmetry. EIBZ procedure PRB81,125102 ===
@@ -38,7 +38,6 @@ c     &     idteti, nstar,irk,nstbz
          iprintx=.false.
          write(6,*)
          write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
-         if(MPI__root) iprintx=.true.
          call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
      i        timereversal(),ginv,iprintx,
      o        nwgt,igx,igxt,eibzsym,tiii)

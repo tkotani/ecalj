@@ -25,35 +25,35 @@
       contains
       
 !> Get data set for m_freq. All arguments are input.
-      subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)!,tetra
-      intent(in)::        lqall,epsmode,realomega,imagomega,ua,mpi__root  
+      subroutine getfreq3(lqall,epsmode,realomega,imagomega,ua,iprint)!,tetra
+      intent(in)::        lqall,epsmode,realomega,imagomega,ua,iprint  
       real(8):: wemax
       integer:: iq
 c      logical,optional:: npmtwo !! Added Aug2017 for hmagnon
 c      integer:: niw !,nw_input
-      logical:: realomega,imagomega,mpi__root,epsmode,lqall
+      logical:: realomega,imagomega,iprint,epsmode,lqall
       real(8):: omg2max,ua
 !! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
       call findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if (nctot > 0) Emin=minval(ecore(:,1:nspin))
       omg2max = (Emax-Emin)*.5d0+.2d0 
              ! (in Hartree) covers all relevant omega, +.2 for margin
-      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      if(iprint) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
       wemax=1d10!dummy
       if(.not.epsmode) call getwemax(lqall,wemax) !wemax is to determine nw !real axis divisions
       niw=niw_in
       if(.not.imagomega) niw=1  !dummy
-      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root)!tetra,
+      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua)!tetra,
       end subroutine
 !----------------
-      subroutine getfreq2(epsmode,realomega,imagomega,ua,mpi__root,npmtwo) !,tetra
-      intent(in)::        epsmode,realomega,imagomega,ua,mpi__root,npmtwo  
+      subroutine getfreq2(epsmode,realomega,imagomega,ua,iprint,npmtwo) !,tetra
+      intent(in)::        epsmode,realomega,imagomega,ua,iprint,npmtwo  
       real(8)::emax2,emin2,wemax
       real(8),allocatable:: qbz2(:,:)
       integer:: iq
       logical,optional:: npmtwo !! Added Aug2017 for hmagnon
 c      integer:: niw !,nw_input
-      logical:: realomega,imagomega,mpi__root,epsmode,qbzreg
+      logical:: realomega,imagomega,iprint,epsmode,qbzreg
       real(8):: omg2max,ua
       call Findemaxmin(nband,qbze,nqbze,nspin, emax,emin)
       if(.not.qbzreg()) then
@@ -71,16 +71,16 @@ c      integer:: niw !,nw_input
              ! (in Hartree) covers all relevant omega, +.2 for margin
       call Getwemax(.true.,wemax) !wemax is to determine nw !real axis divisions
       niw=niw_in
-      call Getfreq(.false.,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root)!,npmtwo,tetra,
-      if(MPI__root) write(6,"(' wemax=  ',f13.4)") wemax
-      if(MPI__root) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
+      call Getfreq(.false.,realomega,imagomega,omg2max,wemax,niw,ua)!,npmtwo,tetra,
+      if(iprint) write(6,"(' wemax=  ',f13.4)") wemax
+      if(iprint) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
       end subroutine
 !----------------
-      subroutine getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo) !,tetra
+      subroutine Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo) !,tetra
       use m_keyvalue,only: getkeyvalue
-      intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,mpi__root,npmtwo  
+      intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo  
       integer:: niw !,nw_input
-      logical:: realomega,imagomega,mpi__root,epsmode
+      logical:: realomega,imagomega,epsmode
       real(8):: omg2max,ua
       real(8),allocatable:: expa(:)
       logical:: timereversal,onceww
@@ -162,19 +162,6 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
 c         if(.not.tetra)   call rx( ' tetra=T for timereversal=off')
       endif
       write(6,*)'Timereversal=',Timereversal()
-!! Write freq_r
-      if(realomega .and. mpi__root) then
-        ifif=ifile_handle()
-         open(UNIT=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
-         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
-         do iw= nw_i,-1
-            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
-         enddo
-         do iw= 0,nw
-            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
-         enddo
-         close(ifif)
-      endif
 !! Determine freq_i  : gaussian frequencies x between (0,1) and w=(1-x)/x      
       if (imagomega) then
          write(6,*)' freqimg: niw =',niw

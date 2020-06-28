@@ -176,7 +176,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       integer(4):: cma_iwf_s,cma_iwf_e
       integer::ifwanmat, npm2
 !!! for MAX(Im[R])
-      integer::imaximr=0,niw
+      integer::imaximr=0,niw,ifif
       real(8)::maximr,w_maximr
       complex(8)::sumrpa_maximr(1),summf_maximr(1)
       real(8),allocatable:: rpa_maximr(:),mf_maximr(:)
@@ -359,7 +359,19 @@ c$$$         call getfreq(epsmode,realomega,imagomega,tetra,omg2max,wemax,niw,ua
 c$$$      endif
       niw=niw_in
       if(.not.imagomega) niw=1  !dummy
-      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root, npmtwo=.true.)!,tetra
+      call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua, npmtwo=.true.)!,tetra
+!! Write freq_r
+      if(realomega .and. mpi__root) then
+         open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
+         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
+         do iw= nw_i,-1
+            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
+         enddo
+         do iw= 0,nw
+            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
+         enddo
+         close(ifif)
+      endif
 
       if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
 

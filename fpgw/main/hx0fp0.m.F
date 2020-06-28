@@ -249,7 +249,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       logical:: readw0w0itest=.false.,hx0
 
 c      real(8)::ebmx
-      integer:: ifq0p,ifwc !nbmx,mtet(3),
+      integer:: ifq0p,ifwc,ifif !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 c      integer:: nqbze,nqibze
 c      real(8),allocatable:: qbze(:,:),qibze(:,:)
@@ -447,7 +447,19 @@ c      call Rdpp(ngrpx,symope)
       call init_readeigen2()!(mrecb,nlmto,mrecg)
       if(verbose()>50) print *,'eeee exit of init_readeigen2'
 !! Frequency      
-      call getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
+      call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
+!! Write freq_r
+      if(realomega .and. mpi__root) then
+         open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
+         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
+         do iw= nw_i,-1
+            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
+         enddo
+         do iw= 0,nw
+            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
+         enddo
+         close(ifif)
+      endif
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
       

@@ -132,7 +132,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
       integer:: nmbas_in , iqxendx,imb2 !iqqv,l2nl, 
-      logical:: eibz4x0,tiii,iprintx,chipm=.false.,iqinit,localfieldcorrectionllw
+      logical:: eibz4x0,tiii,iprintx=.false.,chipm=.false.,iqinit,localfieldcorrectionllw
       real(8)::hartree,rydberg,pi
       integer :: iqeibz
       complex(8):: epslfc, axxx(10)
@@ -157,7 +157,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       real(8),allocatable,save:: gfmat(:,:)
       complex(8),allocatable:: rcxqin(:)
       real(8):: egauss
-      integer:: imbas1,imbas2,ipm,niw_
+      integer:: imbas1,imbas2,ipm,niw_,ifif
 c      complex(8),allocatable:: ppovlz(:,:)
 c      integer:: ifief
 c      real(8):: ef
@@ -173,6 +173,7 @@ c      real(8):: ef
          read(5,*) ixc !c     call readin5(ixc,iqxini,iqxend)
       endif
       call MPI__Broadcast(ixc)
+      if(MPI__root) iprintx=.true.
       crpa = .false.
       if(ixc==11) then
          write(6,*) " OK ixc=11 normal mode "
@@ -238,7 +239,19 @@ c      call Rdpp(ngrpx,symope) !moved to m_zmel
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
       realomega = .true.
       imagomega = .true.
-      call Getfreq2(.false.,realomega,imagomega,ua,MPI__root)!tetra,
+      call Getfreq2(.false.,realomega,imagomega,ua,iprintx)!tetra,
+!! Write freq_r
+      if(realomega .and. mpi__root) then
+         open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
+         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
+         do iw= nw_i,-1
+            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
+         enddo
+         do iw= 0,nw
+            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
+         enddo
+         close(ifif)
+      endif
 
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
 c      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
@@ -266,7 +279,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 
 !! EIBZ mode
       eibzmode = eibz4x0()
-      call seteibz(iqxini,iqxend,MPI__root)
+      call seteibz(iqxini,iqxend,iprintx)
 !!
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
       llw = 1d99
@@ -309,25 +322,26 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! main loop ========================================================
       if(sum(qibze(:,1)**2)>1d-10) call rx( ' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
+        q = qibze(:,iq)
         call cputid (0)
         if( .not. MPI__Qtask(iq) ) cycle
+!! open WVR (W-V along real axis), WVI (along imag axis) for given q (iq).
         if (MPI__rootS) then
            open(newunit=ifrcwi, file='WVI.'//charnum5(iq), action='write',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
            open(newunit=ifrcw,  file='WVR.'//charnum5(iq), action='write',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
         endif
-        q = qibze(:,iq)
-        call Readqg0('QGcou', q,  quu,ngc)
-!!  ngc, number of PW for the interaction matrix (in QGcou), is shown at the bottom of lqg4gw.
-
+        call Readqg0('QGcou', q,  quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
+                      ! is shown at the bottom of lqg4gw.
+                      ! quu is in the list of q point generated in qg4gw (in BZ), equivalent to q 
 !! ==== Readin Coulomb matrix ====
         ngb = nbloch + ngc !number of MPB = PB part + IPW part
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
         write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
         call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
 !!        
-        if(iq>nqibz.and.(.not.localfieldcorrectionllw())  ) then 
+        if( iq>nqibz .and. (.not.localfieldcorrectionllw())  ) then 
           nolfco =.true.
           nmbas_in = 1 
         else ! We usually use localfieldcorrectionllw()=T
@@ -335,7 +349,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
           nmbas_in = ngb
         endif
         nmbas1 = nmbas_in
-        nmbas2 = nmbas1
+        nmbas2 = nmbas_in
 
 !! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
         call Setppovlz(q,ngc,zcousq,ngb)
@@ -346,7 +360,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! ---------------------------------------------------------------
 !! === loop over spin=== =========================================
 !! ---------------------------------------------------------------
-!         do 1003 is = 1,nspinmx
+!       do 1003 is = 1,nspinmx
         do 1003 is = MPI__Ss,MPI__Se
           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
      &     iq, is, nqibz + nq0i+nq0iadd, nspin

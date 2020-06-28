@@ -282,7 +282,7 @@ c      logical::wan=.true.,egasmode
       integer,parameter:: noutmx=48
 
       logical:: initiq
-      integer:: ifz,ifi
+      integer:: ifz,ifi,ifif
       real(8):: ef
 !! -------------------------------------------------------------------
       hartree  = 2d0*rydberg()
@@ -361,7 +361,19 @@ cccccccccccccccccccccccccccccccccccc
 
 
 !! npmtwo=F means only positive energy for real axis.
-      call getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,MPI__root, npmtwo=.false.) !tetra,
+      call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo=.false.) !tetra,
+!! Write freq_r
+      if(realomega .and. mpi__root) then
+         open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
+         write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
+         do iw= nw_i,-1
+            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
+         enddo
+         do iw= 0,nw
+            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
+         enddo
+         close(ifif)
+      endif
 
       if(MPI__root) write(6,"(' nw npm=',2i5)") nw,npm
 c      nwp = nw+1
