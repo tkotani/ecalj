@@ -15,16 +15,11 @@
      i     done_genallcf_v3,
      &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
-     &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd 
+     &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
 !! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
 !! Before calling them (get coefficients of eigen funcitons), 
 !! We need to call init_readeigen, init_readeigen2 in main rouitne.
       use m_readeigen,only: Readcphi,Readgeig 
-!! these are set by 'call rdpp' 
-      use m_rdpp,only: Rdpp,       
-     i     nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr,
-     i     done_rdpp  
-!! BZ data. To set these data 'call read_BZDATA'
       use m_read_bzdata,only: 
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  

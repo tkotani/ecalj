@@ -51,6 +51,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
 !! q0p
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
+      use m_readVcoud,only: Readvcoud,vcousq,zcousq
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -219,8 +220,8 @@ c$$$#endif
 !!
 c      logical :: newaniso,newaniso2,newanisox !,z1offd
       integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,nmbas1,nmbas2,iq0,ifisk,iqx,ig,nmbas1x,ifiss,iq0x
-      complex(8),allocatable:: zcousq(:,:),epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)
-      real(8),allocatable:: vcousq(:)
+      complex(8),allocatable:: epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)!zcousq(:,:),
+c      real(8),allocatable:: vcousq(:) 
       real(8):: fourpi,sqfourpi,tpioa,absq,vcou1,vcou1sq
 
 !! Eq.(40) in PRB81 125102
@@ -644,21 +645,22 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
 !! Readin diagonalized Coulomb interaction ===
  !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
         if((.not.chipm)) then
-          vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
-          ifvcoud = iopen(trim(vcoudfile),0,-1,0)
-          read(ifvcoud) ngb0
-          if( ngb0/=ngb ) call rx( 'hx0fp0.m.f:ngb0/=ngb')
-          read(ifvcoud) qvv
-          if(sum(abs(qvv-q))>1d-10) then
-            write(6,*)'qvv =',qvv
-            call rx( 'hx0fp0: qvv/=0 hvcc is not consistent')
-          endif
-          if(allocated(zcousq)) deallocate( zcousq,vcousq )
-          allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
-          read(ifvcoud) vcousq
-          read(ifvcoud) zcousq
-          idummy=iclose(trim(vcoudfile))
-          vcousq=sqrt(vcousq)
+          call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
+c$$$          vcoudfile='Vcoud.'//charnum5(iq)  !this is closed at the end of do 1001.  iq was iqqv
+c$$$          ifvcoud = iopen(trim(vcoudfile),0,-1,0)
+c$$$          read(ifvcoud) ngb0
+c$$$          if( ngb0/=ngb ) call rx( 'hx0fp0.m.f:ngb0/=ngb')
+c$$$          read(ifvcoud) qvv
+c$$$          if(sum(abs(qvv-q))>1d-10) then
+c$$$            write(6,*)'qvv =',qvv
+c$$$            call rx( 'hx0fp0: qvv/=0 hvcc is not consistent')
+c$$$          endif
+c$$$          if(allocated(zcousq)) deallocate( zcousq,vcousq )
+c$$$          allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
+c$$$          read(ifvcoud) vcousq
+c$$$          read(ifvcoud) zcousq
+c$$$          idummy=iclose(trim(vcoudfile))
+c$$$          vcousq=sqrt(vcousq)
           if(allocated(zzr)) deallocate(zzr)
           allocate(zzr(1,1)) !dummy
           zzr=0d0
@@ -723,6 +725,7 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           allocate( rcxq(ngb,ngb,nwhis,npm) )
         endif
 
+c       print *,' iiiiiiiiii of setppovlz ...',nmbas1,nolfco
 !! Set ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal) related.
 !!         ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
         if(chipm.and.nolfco) then
@@ -731,7 +734,8 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
           call Setppovlz(q,ngc,ngb,matz=.true.)
         else                     !may2013  this removes O^-1 factor from zmelt
           call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
-        endif
+       endif
+c       print *,' end of setppovlz ...'
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
 !! zxq ans zxqi are the main output after Hilbert transformation
@@ -805,18 +809,37 @@ c$$$           enddo
 c$$$        enddo
 c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
 
-!! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-c          call cputid(0)
-c$$$          if(npm==1) then
-c$$$            ncc=0
-c$$$          else
-c$$$            ncc=nctot
-c$$$          endif
-          call x0kf_v4hz(q, is,isf,  iq,ngb,ngc, 
-     o    rcxq,     !  rcxq is the accumulating variable for spins 
-     i    nmbas_in, 
-     i    eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq), eibzsym(:,:,iq), crpa)
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc          
+!! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
+c          call x0kf_v4hz(q, is,isf,  iq,ngb,ngc, 
+c     o    rcxq,     !  rcxq is the accumulating variable for spins 
+c     i    nmbas_in, 
+c     i    eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq), eibzsym(:,:,iq), crpa)
+!! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
+          call cputid(0)
+          if(npm==1) then
+            ncc=0
+          else
+            ncc=nctot
+          endif
+          call x0kf_v4hz(npm,ncc,   
+     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+     i              q,  
+     i              nspin,is,isf, !symmetrize, !
+     i              qbas,ginv,  qbz,wbz, 
+     d            nlmto,nqbz,nctot, !noccx,noccxv,
+     d            nbloch,  nwhis, !nlnmx,mdimx,
+     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i    nqbze,nband,nqibz, 
+     o    rcxq,   !  rcxq is the accumulating variable for spins 
+     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          
+          
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode

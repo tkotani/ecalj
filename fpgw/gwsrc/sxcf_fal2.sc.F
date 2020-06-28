@@ -9,7 +9,7 @@
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
 c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,         
-
+      use m_readVcoud,only: ReadVcoud,vcoud
       contains
       subroutine sxcf_fal3_scz(kount,qip,ef,esmr, !itq,ntq,
      i isp,             !nsp,
@@ -199,7 +199,7 @@ c      real(8)::ppbrd ( 0:nl-1, nn_, 0:nl-1,nn_, 0:2*(nl-1),1:nxx_, 1:nsp*nclass
 
       integer :: ifrcw,ifrcwi
       logical :: initp=.true.
-      real(8),allocatable:: vcoud(:)
+c      real(8),allocatable:: vcoud(:)
 
       integer :: ip, it, itp, i, ix, kx, irot, kr
       integer :: nt0p, nt0m,nstate , nbmax, ntqxx !iatomp(natom), 
@@ -272,7 +272,7 @@ c      real(8):: wgtq0p
       logical:: tote=.false.
       logical:: hermitianW
 
-      real(8),allocatable:: wcorehole(:,:)
+      real(8),allocatable:: wcorehole(:,:),vcoud_(:)
       logical:: corehole
       integer:: ifcorehole
       real(8):: tolq=1d-8
@@ -344,27 +344,27 @@ c      real(8):: wgtq0p
 !! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
 !! These can be also separeted into WVR.ID and WVI.ID files.
 !! NOTE: vcoud and zcousq are in module m_zmelt.
-          qxx = qibz_k
-          open(newunit=ifvcoud,file="Vcoud."//charnum5(kx),form='unformatted')
-          do
-            read(ifvcoud) ngb0
-            read(ifvcoud) qvv
-            if(allocated(vcoud)) deallocate(vcoud)
-            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
-            read(ifvcoud) vcoud
-            read(ifvcoud) zcousq
-            if(sum(abs(qvv-qxx))<tolq) goto 1133
-          enddo
-          if(sum(abs(qvv-qxx))>tolq) then
-            write(6,*)'qvv =',qvv
-            write(6,*)'qxx=',qxx,kx
-            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
-          endif
- 1133     continue
-          if( ngb0/=ngb ) then  !sanity check
-            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
-            call rx( 'hsfp0.m.f:ngb0/=ngb')
-          endif
+c$$$          qxx = qibz_k
+c$$$          open(newunit=ifvcoud,file="Vcoud."//charnum5(kx),form='unformatted')
+c$$$          do
+c$$$            read(ifvcoud) ngb0
+c$$$            read(ifvcoud) qvv
+c$$$            if(allocated(vcoud)) deallocate(vcoud)
+c$$$            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
+c$$$            read(ifvcoud) vcoud
+c$$$            read(ifvcoud) zcousq
+c$$$            if(sum(abs(qvv-qxx))<tolq) goto 1133
+c$$$          enddo
+c$$$          if(sum(abs(qvv-qxx))>tolq) then
+c$$$            write(6,*)'qvv =',qvv
+c$$$            write(6,*)'qxx=',qxx,kx
+c$$$            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
+c$$$          endif
+c$$$ 1133     continue
+c$$$          if( ngb0/=ngb ) then  !sanity check
+c$$$            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
+c$$$            call rx( 'hsfp0.m.f:ngb0/=ngb')
+c$$$          endif
 !! ppovlz is used in get_zmel
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
@@ -376,10 +376,11 @@ c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 c$$$          deallocate(zcousq,ppovl)
-c          call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+c     call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
+          
+          call Readvcoud(qibz_k,kx,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
           call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
-          deallocate(zcousq)
-          print *,'end of setppovlz'
+          
 !! === open WVR,WVI ===
           if(.not.exchange) then
 c            ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
@@ -460,14 +461,16 @@ c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
 c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
 c     
 c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
-              vc = vcoud(1)     ! save vcoud(1)
-              if (kx == iqini) vcoud(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+              allocate(vcoud_(ngb)) 
+              vcoud_= vcoud 
+c              vc = vcoud(1)     ! save vcoud(1)
+              if (kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
               allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
               allocate(w3p(nctot+nbmax,ntqxx,ntqxx))
               do  it = 1, nctot+nbmax
                 do  ivc = 1, ngb
                   do  itp = 1, ntqxx
-                    z1r(itp,ivc) = zmeltt(it,itp,ivc) * vcoud(ivc)
+                    z1r(itp,ivc) = zmeltt(it,itp,ivc) * vcoud_(ivc)
                     z2r(itp,ivc) = zmeltt(it,itp,ivc)
                   enddo         ! ivc
                 enddo           ! it
@@ -479,8 +482,8 @@ c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
                   enddo
                 enddo
               enddo
-              vcoud(1) = vc     !restore vcoud(1)
-              deallocate(z1r,z2r,w3pi)
+c              vcoud(1) = vc     !restore vcoud(1)
+              deallocate(z1r,z2r,w3pi,vcoud_)
               if(verbose()>=30) call cputid2(' complete w3p',0)
 c              deallocate(zmeltt)
               if(debug) then

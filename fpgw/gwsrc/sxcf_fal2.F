@@ -20,7 +20,8 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
       use m_zmel,only: Get_zmelt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
-     &  zmel,zmeltt  !ppovlz,
+     &     zmel,zmeltt          !ppovlz,
+      use m_readVcoud,only: ReadVcoud, vcoud,zcousq
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 
@@ -387,8 +388,8 @@ c      real(8):: qrr(3,nkpo)
       real(8)::voltot
 c      logical :: newaniso !fixed to be T
 
-      complex(8),allocatable:: ppovl(:,:),zcousq(:,:) !,ppovlz(:,:)
-      real(8),allocatable::vcoud(:),vcousq(:)
+c      complex(8),allocatable:: ppovl(:,:)!,zcousq(:,:) !,ppovlz(:,:)
+c      real(8),allocatable::vcoud(:)!,vcousq(:)
       integer:: mrecl,nprecx,ifwd
       character(5):: charnum5
 
@@ -479,7 +480,7 @@ c         endif
           if(verbose()>=40)  write(6,*) ' sxcf_fal3z: loop 1100 kx=',kx
           call readqg0('QGcou',qibz_k,  quu,ngc)
           ngb = nbloch + ngc    !oct2005
-          if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
+c          write(6,*) ' xxxxxxxxxxxx sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
 !!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
@@ -490,28 +491,29 @@ c         endif
 !! NOTE: vcoud and zcousq are in module m_zmelt.
 c          if(kx<=nqibz) qxx=qibz_k
 c          if(kx>nqibz ) qxx=q0i(:,kx-nqibz)
-          qxx=qibz_k
-          ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
-          do
-            read(ifvcoud) ngb0
-            read(ifvcoud) qvv
-            if(allocated(vcoud)) deallocate(vcoud)
-            if(allocated(zcousq)) deallocate(zcousq)
-            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
-            read(ifvcoud) vcoud
-            read(ifvcoud) zcousq
-            if(sum(abs(qvv-qxx))<tolq) goto 1133
-          enddo
-          if(sum(abs(qvv-qxx))>tolq) then
-            write(6,*)'qvv =',qvv
-            write(6,*)'qxx=',qxx,kx
-            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
-          endif
- 1133     continue
-          if( ngb0/=ngb ) then  !sanity check
-            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
-            call rx( 'hsfp0.m.f:ngb0/=ngb')
-          endif
+c          qxx=qibz_k
+c          write(6,*) ' xxxxxxxxxxxx2222222222 sxcf: ngb=',ngb,nbloch
+c          ifvcoud = iopen('Vcoud.'//charnum5(kx),0,0,0)
+c          do
+c            read(ifvcoud) ngb0
+c            read(ifvcoud) qvv
+c            if(allocated(vcoud)) deallocate(vcoud)
+c            if(allocated(zcousq)) deallocate(zcousq)
+c            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
+c            read(ifvcoud) vcoud
+c            read(ifvcoud) zcousq
+c            if(sum(abs(qvv-qxx))<tolq) goto 1133
+c          enddo
+c          if(sum(abs(qvv-qxx))>tolq) then
+c            write(6,*)'qvv =',qvv
+c            write(6,*)'qxx=',qxx,kx
+c            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
+c          endif
+c 1133     continue
+c          if( ngb0/=ngb ) then  !sanity check
+c            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
+c            call rx( 'hsfp0.m.f:ngb0/=ngb')
+c          endif
 !! used in get_zmel
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
@@ -522,9 +524,10 @@ c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
 c$$$          call readppovl0(qibz_k,ngc,ppovl)
 c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
+
+          call Readvcoud(qibz_k,kx,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
           call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
-          deallocate(zcousq)
-          
+
 !! === open WVR,WVI for correlation mode ===
           if(.not.exchange) then
             ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)

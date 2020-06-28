@@ -368,12 +368,31 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode) 
+          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,eibzmode)
+
+          
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
-          call x0kf_v4hz(q,is,isf,iq, ngb,ngc,
-     o     rcxq,     ! rcxq is the accumulating variable for spins 
-     i     nmbas_in, 
-     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
+c          call x0kf_v4hz(q,is,isf,iq, ngb,ngc,
+c     o     rcxq,     ! rcxq is the accumulating variable for spins 
+c     i     nmbas_in, 
+c     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          call x0kf_v4hz(npm,ncc,   
+     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+     i              q,  
+     i              nspin,is,isf, !symmetrize, !
+     i              qbas,ginv,  qbz,wbz, 
+     d            nlmto,nqbz,nctot, !noccx,noccxv,
+     d            nbloch,  nwhis, !nlnmx,mdimx,
+     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
+     i    nqbze,nband,nqibz, 
+     o    rcxq,   !  rcxq is the accumulating variable for spins 
+     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
           call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
  1003  continue

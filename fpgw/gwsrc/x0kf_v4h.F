@@ -1,17 +1,17 @@
-      subroutine x0kf_v4hz (!ncc,  !npm,
-c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
+      subroutine x0kf_v4hz (npm,ncc,
+     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  isp_k,isp_kq,!symmetrize,nsp,
-c     i                  qbas,ginv,rk,wk,  
-c     d                  nlmto,nqbz,nctot, 
-c     d                  nbloch,nwt, 
-     i      iq, ngbb, ngc, !ngpmx,ngcmx,  
-c     i      nqbze, nband,nqibz, 
+     i                  nsp,isp_k,isp_kq,!symmetrize,
+     i                  qbas,ginv,rk,wk,  
+     d                  nlmto,nqbz,nctot, 
+     d                  nbloch,nwt, 
+     i      iq, ngbb, ngc, ngpmx,ngcmx,  
+     i      nqbze, nband,nqibz, 
      o      rcxq,
-     i     nmbas, !zcousq, !zzr,nolfco,
-     i     eibzmode, !chipmzzr,
-     i     nwgt,igx,igxt,eibzsym, crpa) !,ngrp
+     i     nolfco,zzr,nmbas, zcousq,
+     i     chipmzzr,eibzmode, 
+     i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
       use m_readqg,only   :  readqg
       use m_readeigen,only:  readeval 
       use m_keyvalue,only   :  getkeyvalue
@@ -21,22 +21,7 @@ c     i      nqbze, nband,nqibz,
       use m_pkm4crpa,only : Readpkm4crpa
       use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel,
      o zmel 
-!! Frequency
-      use m_freq,only: Getfreq2,
-     &     frhis,freq_r,freq_i, nwt=> nwhis,nw_i,nw,npm,niw !output of getfreq
-      use m_tetwt,only: whw,ihw,nhw,jhw,ibjb,n1b,n2b,nbnb,nbnbx,nhwtot
-      use m_genallcf_v3,only: nsp=>nspin,nlmto,nctot,ngrp
-      use m_readhbe,only: nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      use m_read_bzdata,only: 
-     &   nqbz,nqibz,n1,n2,n3,qbas,ginv,
-     &   rk=>qbz,wk=>wbz,qibz,wibz,
-     &   ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-      use m_rdpp,only: nbloch
-      use m_readqg,only: ngpmx,ngcmx
-      use m_qbze,only: nqbze,nqibze,qbze,qibze
-!! q-dependent quantities
-      use m_readVcoud,only:  zcousq
-      
+
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -67,15 +52,15 @@ c     i      nqbze, nband,nqibz,
 !! nqbz    = number of k-points in the 1st BZ
 !!
       implicit none
-      integer:: ncc,natom,isp_k,isp_kq,ngbb !nlmto !npm,nwt,nsp,
-     &  ,nl,nclass,nnc,iq,iatom,nbmx,iopen !nqibz nbloch,,nctot
+      integer:: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto 
+     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
-     &  ,nn,no,isx,iclose,k !,nqbz !,nbnbx
-      real(8):: q(3)!,rk(3,nqbz),wk(nqbz)!,ebmx !qbas(3,3),ginv(3,3),
+     &  ,nn,no,isx,iclose,k,nbnbx,nqbz
+      real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
 c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
-      integer::   !ngpmx, ngcmx,nqbze, nband,
+      integer:: ngpmx, ngcmx, nqbze, nband,
      &             ngc,nadd(3), igc
       complex(8),allocatable :: zmelt(:,:,:)
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
@@ -83,19 +68,19 @@ c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:
       data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
       complex(8),allocatable :: ttx(:,:)
       complex(8),allocatable::  z1p(:,:)
-c      integer ::  nbnb(nqbz,npm), 
-c     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
+      integer ::  nbnb(nqbz,npm), 
+     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
       logical,parameter:: debug=.false.
       logical:: hist ,ipr
-c      integer:: nhwtot,
-c     &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
-c      real(8):: whw(nhwtot)
+      integer:: nhwtot,
+     &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
+      real(8):: whw(nhwtot)
       complex(8) :: zmelt1,zmelt2,zmeltt(ngbb) 
       real(8) :: imagweight 
       integer::verbose,nmbas, imb1,imb2, imb 
       real(8):: eband(nband)
-c      logical   :: nolfco 
+      logical   :: nolfco 
       complex(8):: zq01,zq02,zq0zq0 
       real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) 
       integer:: nbcut,nbcut2
@@ -106,11 +91,11 @@ c      logical   :: nolfco
       complex(8):: img=(0d0,1d0),zzz(ngbb)
       integer :: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
       logical :: onceww , z1offd 
-c      complex(8),target :: zzr(ngbb,nmbas) 
-      integer:: nwgt(nqbz) !ngrp,
+      complex(8),target :: zzr(ngbb,nmbas) 
+      integer:: ngrp,nwgt(nqbz) 
       integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
-      logical:: checkbelong,eibzmode!, chipmzzr
-c      complex(8):: zcousq(ngbb,ngbb) 
+      logical:: checkbelong,eibzmode, chipmzzr
+      complex(8):: zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
       complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
      & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) 
@@ -125,11 +110,6 @@ c      complex(8):: zcousq(ngbb,ngbb)
 
 !TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
-      if(npm==1) then
-         ncc=0
-      else
-         ncc=nctot
-      endif
       call cputid(0)
       call minv33(qbas,qbasinv)
 c      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
@@ -347,21 +327,19 @@ c     d                  natom,
      i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
      o      rcxq,
-     i     nolfco,zzr,nmbas, !zcousq,
+     i     nolfco,zzr,nmbas, zcousq,
      i     chipmzzr,eibzmode, 
      i     ngrp,eibzsym) !, crpa) !nwgt,igx,igxt,
       use m_rotMPB,only   :  rotMPB2 
       use m_readqgcou,only:  
-     o     qtt_, nqnum
-      use m_readVcoud,only: 
-     &    zcousq
+     o qtt_, nqnum 
 !! === symmetrization for EPIBZ mode ===
       implicit none
       integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq 
      &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k,nbnbx,nqbz
-      real(8):: q(3),qbas(3,3),ginv(3,3)!,ebmx !,rk(3,nqbz),wk(nqbz)
+      real(8):: q(3),qbas(3,3),ginv(3,3),ebmx !,rk(3,nqbz),wk(nqbz)
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
       integer(4):: ngpmx, ngcmx, nqbze, nband,
@@ -387,7 +365,7 @@ c      real(8):: whw(nhwtot)
       integer:: igb
       integer:: ngrp
       logical:: checkbelong,eibzmode, chipmzzr
-      complex(8)::  zcousqc(ngbb,ngbb) !zcousq(ngbb,ngbb) , 
+      complex(8):: zcousq(ngbb,ngbb) ,  zcousqc(ngbb,ngbb)
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)

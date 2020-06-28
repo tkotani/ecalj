@@ -1,14 +1,15 @@
       module m_readVcoud
       implicit none
-      real(8),allocatable,protected    :: vcousq(:)   !,vcousq0(:),vcoudummy(:)
+      real(8),allocatable,protected    :: vcousq(:),vcoud(:)    !,vcousq0(:),vcoudummy(:)
       complex(8),allocatable,protected :: zcousq(:,:) !,zcousqrsum(:,:,:),zcousqr(:,:)
       contains
       
-      subroutine readvcoud(q,iq,ngb)
-      intent(in)::         q,iq,ngb
+      subroutine Readvcoud(q,iq,ngb)
+      intent(in)::         q,iq
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
-      integer:: iq,ngb
+      integer:: iq
+      integer,optional ::ngb !dummy
       real(8):: q(3)
       integer:: ngb0,ifvcoud
       real(8):: qvv(3)
@@ -20,14 +21,18 @@
       read(ifvcoud) qvv
       if(sum(abs(qvv-q))>1d-10) then
          write(6,*)'qvv =',qvv
-         call rx( 'hx0fp0_sc: qvv/=0 is not consistent')
+         call rx( 'readvcoud: qvv/=0 is not consistent')
       endif
-      if(allocated(zcousq)) deallocate( zcousq,vcousq )
-      allocate( zcousq(ngb0,ngb0),vcousq(ngb0))
-      read(ifvcoud) vcousq
+c      if( ngb0/=ngb ) then      !sanity check
+c         write(6,*)' qxx ngb0 ngb=',q,ngb0,ngb
+c         call rx( 'readvcoud:ngb0/=ngb')
+c      endif   
+      if(allocated(zcousq)) deallocate( zcousq,vcousq,vcoud )
+      allocate( zcousq(ngb0,ngb0),vcousq(ngb0),vcoud(ngb0))
+      read(ifvcoud) vcoud
       read(ifvcoud) zcousq
       close(ifvcoud)
-      vcousq = sqrt(vcousq)
+      vcousq = sqrt(vcoud)
       end subroutine
 
       end module
