@@ -4,9 +4,9 @@ c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
      i                  isp_k,isp_kq,!symmetrize,nsp,
 c     i                  qbas,ginv,
-     i        rk,wk,  
+c     i        rk,wk,  
 c     d                  nlmto,nqbz,nctot, 
-     d                  nbloch,nwt, 
+c     d                  nbloch,nwt, 
      i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
      o      rcxq,
@@ -23,15 +23,16 @@ c     d                  nlmto,nqbz,nctot,
       use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel,
      o zmel 
 !! Frequency
-      use m_freq,only: npm
-c     &     frhis,freq_r,freq_i, nwt=> nwhis,nw_i,nw,npm,niw !output of getfreq
+      use m_freq,only: npm,nwt=> nwhis
+c     &     frhis,freq_r,freq_i, ,nw_i,nw,npm,niw !output of getfreq
       use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot!,ngrp
       use m_read_bzdata,only: 
-     &   nqbz,qbas,ginv !,nqibz,n1,n2,n3,qbas,ginv,
-c     &   rk=>qbz,wk=>wbz,qibz,wibz,
+     &   nqbz,qbas,ginv, !,nqibz,n1,n2,n3,qbas,ginv,
+     &   rk=>qbz,wk=>wbz !,qibz,wibz,
 c     &   ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c      use m_genallcf_v3,only: nctot
+      use m_rdpp,only: nbloch
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
@@ -63,11 +64,11 @@ c      use m_genallcf_v3,only: nctot
 !! nqbz    = number of k-points in the 1st BZ
 !!
       implicit none
-      integer:: ncc,ngbb,natom,nwt,isp_k,isp_kq !nlmto !npm,ncc,nsp,
-     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nbmx,iopen 
+      integer:: ncc,ngbb,natom,isp_k,isp_kq !nlmto !npm,ncc,nsp,nwt,,nbloch
+     &  ,nl,nclass,nnc,iq,nqibz,iatom,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k !,nqbz
-      real(8):: q(3),rk(3,nqbz),wk(nqbz),ebmx !qbas(3,3),ginv(3,3),
+      real(8):: q(3),ebmx !qbas(3,3),ginv(3,3),,rk(3,nqbz),wk(nqbz)
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
 c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
