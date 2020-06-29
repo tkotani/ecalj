@@ -10,9 +10,9 @@ c     d                  nbloch,nwt,
      i      iq, ngbb, ngc, !nband, ngpmx,ngcmx,  
 c     i      nqbze, nqibz, 
      o     rcxq,
-     i     nolfco,zzr,nmbas, zcousq,
-     i     chipmzzr,eibzmode, 
-     i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
+     i     nmbas, !zcousq, !zzr,nolfco,
+     i     eibzmode, !chipmzzr,
+     i     nwgt,igx,igxt,eibzsym, crpa) !,ngrp
       use m_readqg,only   :  readqg
       use m_readeigen,only:  readeval 
       use m_keyvalue,only   :  getkeyvalue
@@ -25,8 +25,7 @@ c     i      nqbze, nqibz,
 !! Frequency
       use m_freq,only: npm,nwt=> nwhis
 c     &     frhis,freq_r,freq_i, ,nw_i,nw,npm,niw !output of getfreq
-      use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
-      use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot!,ngrp
+      use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only: 
      &   nqbz,qbas,ginv,nqibz, !,n1,n2,n3,qbas,ginv,
      &   rk=>qbz,wk=>wbz       !,qibz,wibz,
@@ -36,6 +35,10 @@ c      use m_genallcf_v3,only: nctot
       use m_readqg,only: ngpmx,ngcmx
       use m_qbze,only: nqbze!,nqibze,qbze,qibze
       use m_readhbe,only: nband!,mrecg Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,
+
+!! q-dependent quantities
+      use m_readVcoud,only:  zcousq
+      use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
@@ -94,7 +97,7 @@ c     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       real(8) :: imagweight 
       integer::verbose,nmbas, imb1,imb2, imb 
       real(8):: eband(nband)
-      logical   :: nolfco 
+c      logical   :: nolfco 
       complex(8):: zq01,zq02,zq0zq0 
       real(8):: vec_kq_g(3),vec_k_g(3),vec_kq(3),vec_k(3),quu(3),tolq=1d-8,quu1(3),quu2(3) 
       integer:: nbcut,nbcut2
@@ -104,12 +107,12 @@ c     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       real(8):: q_r(3)
       complex(8):: img=(0d0,1d0),zzz(ngbb)
       integer :: nkmin,  nkmax, nkqmin, nkqmax,nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
-      logical :: onceww , z1offd 
-      complex(8),target :: zzr(ngbb,nmbas) 
-      integer:: ngrp,nwgt(nqbz) 
+      logical :: onceww , z1offd ,eibzmode
+c      complex(8),target :: zzr(ngbb,nmbas) 
+      integer:: nwgt(nqbz) !ngrp,
       integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
-      logical:: checkbelong,eibzmode, chipmzzr
-      complex(8):: zcousq(ngbb,ngbb) 
+c      logical:: checkbelong, chipmzzr
+c      complex(8):: zcousq(ngbb,ngbb) 
       complex(8),allocatable:: zcousqr(:,:,:),rcxq0(:,:),rcxq00(:,:),rcxq000(:,:),rcxqwww(:,:)
       complex(8):: zmeltx(ngbb),zmelty(ngbb),zcousqrx(ngbb,ngbb) ,zcousqc(ngbb,ngbb)
      & ,rzc(ngbb,ngbb),cmat(ngbb,ngbb) 

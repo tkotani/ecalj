@@ -834,9 +834,9 @@ c     d            nbloch,  nwhis, !nlnmx,mdimx,
      i    iq,ngb,ngc,!nband, !ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
 c     i    nqbze,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
-     i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),ngrp, eibzsym(:,:,iq),crpa)
+     i    nmbas_in, !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
+     i    eibzmode, !z1offd,!for nolfco Add nmbas Sep2006 chipm,
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) !ngrp,
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           
           
