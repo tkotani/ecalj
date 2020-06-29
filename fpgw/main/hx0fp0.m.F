@@ -831,8 +831,8 @@ c     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
 c     i               qbz,wbz, !qbas,ginv, 
 c     d            nlmto,nqbz,nctot, !noccx,noccxv,
 c     d            nbloch,  nwhis, !nlnmx,mdimx,
-     i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i    nqbze,nband,nqibz, 
+     i    iq,ngb,ngc,!nband, !ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
+c     i    nqbze,nqibz, 
      o    rcxq,   !  rcxq is the accumulating variable for spins 
      i    nolfco,zzr,nmbas_in, zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, 
      i    chipm,eibzmode, !z1offd,!for nolfco Add nmbas Sep2006

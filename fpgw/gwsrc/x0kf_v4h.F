@@ -7,9 +7,9 @@ c     i                  qbas,ginv,
 c     i        rk,wk,  
 c     d                  nlmto,nqbz,nctot, 
 c     d                  nbloch,nwt, 
-     i      iq, ngbb, ngc, ngpmx,ngcmx,  
-     i      nqbze, nband,nqibz, 
-     o      rcxq,
+     i      iq, ngbb, ngc, !nband, ngpmx,ngcmx,  
+c     i      nqbze, nqibz, 
+     o     rcxq,
      i     nolfco,zzr,nmbas, zcousq,
      i     chipmzzr,eibzmode, 
      i     nwgt,igx,igxt,ngrp,eibzsym, crpa)
@@ -28,11 +28,14 @@ c     &     frhis,freq_r,freq_i, ,nw_i,nw,npm,niw !output of getfreq
       use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot!,ngrp
       use m_read_bzdata,only: 
-     &   nqbz,qbas,ginv, !,nqibz,n1,n2,n3,qbas,ginv,
-     &   rk=>qbz,wk=>wbz !,qibz,wibz,
+     &   nqbz,qbas,ginv,nqibz, !,n1,n2,n3,qbas,ginv,
+     &   rk=>qbz,wk=>wbz       !,qibz,wibz,
 c     &   ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c      use m_genallcf_v3,only: nctot
       use m_rdpp,only: nbloch
+      use m_readqg,only: ngpmx,ngcmx
+      use m_qbze,only: nqbze!,nqibze,qbze,qibze
+      use m_readhbe,only: nband!,mrecg Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
@@ -65,15 +68,14 @@ c      use m_genallcf_v3,only: nctot
 !!
       implicit none
       integer:: ncc,ngbb,natom,isp_k,isp_kq !nlmto !npm,ncc,nsp,nwt,,nbloch
-     &  ,nl,nclass,nnc,iq,nqibz,iatom,nbmx,iopen 
+     &  ,nl,nclass,nnc,iatom,nbmx,iopen, iq !nqibz,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
      &  ,nn,no,isx,iclose,k !,nqbz
       real(8):: q(3),ebmx !qbas(3,3),ginv(3,3),,rk(3,nqbz),wk(nqbz)
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
 c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
-      integer:: ngpmx, ngcmx, nqbze, nband,
-     &             ngc,nadd(3), igc
+      integer::   ngc,nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, 
       complex(8),allocatable :: zmelt(:,:,:)
       real(8) :: qbasinv(3,3), det,qdiff(3),add(3),symope(3,3)
      &    ,shtv(3)=(/0d0,0d0,0d0/)
