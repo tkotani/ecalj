@@ -85,9 +85,10 @@
 
 !> Return ev(1:nband) for given q(1:3) and isp 
       subroutine readeval(q,isp, ev)
-      integer, intent(in) :: isp
-      real(8), intent(in) :: q(3)
-      real(8), intent(out) :: ev(nband)
+      intent(in)  ::       q,isp
+      intent(out) ::             ev
+      integer :: isp
+      real(8) :: q(3), ev(nband)
       integer:: iq,iqindx,i
       real(8):: qu(3)
       if(init) call rx( 'readeigen: modele is not initialized yet')

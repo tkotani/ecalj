@@ -19,8 +19,9 @@ c     &     idteti, nstar,irk,nstbz
       use m_readqgcou,only: Readqgcou
       implicit none
 
-      integer,allocatable:: nwgt(:,:)
-      integer,allocatable:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+      integer,allocatable,protected:: nwgt(:,:)
+      integer,allocatable,protected:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+      
       contains
 
       subroutine Seteibz(iqxini,iqxend,iprintx)
@@ -43,12 +44,10 @@ c     &     idteti, nstar,irk,nstbz
      o        nwgt,igx,igxt,eibzsym,tiii)
          write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
          call cputid(0)
-!All input. this returns required index stored in arrays in m_pbindex.
-         call PBindex(natom,lx,2*(nl-1),nx) 
-         ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
+         call PBindex(natom,lx,2*(nl-1),nx) !this returns required index stored in arrays in m_pbindex.
+           ! PBindex: index for product basis.  We will unify this system; still similar is used in ppbafp_v2.
          call readqgcou() ! no input. Read QGcou and store date into variables.
-!!  call Spacegrouprot(symgg,ngrp,plat,natom,pos) ! all inputs.
-      else !dummy allocation to overlaid -check bound !sep2014
+      else 
          iqxendx=iqxend
          allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
      &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy

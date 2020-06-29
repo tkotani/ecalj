@@ -52,13 +52,12 @@ c     & laf,ibasf !,ldima,pos,natom
      &     vcousq,zcousq
 !!
       use m_readgwinput,only: ReadGwinputKeys,
-     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx
+     &     egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
       use m_qbze,only: Setqbze,
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
       use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize
-
 !! ------------------------------------------------------------------------      
       implicit none
       integer::maxocc2,iclose, ixc,iqxini,iqxend, !iopen,
@@ -155,14 +154,8 @@ c      integer :: iqeibz
 
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 
-      logical:: eginit=.true.,hx0
-      real(8),allocatable,save:: gfmat(:,:)
-      complex(8),allocatable:: rcxqin(:)
-      real(8):: egauss
+      logical:: hx0
       integer:: imbas1,imbas2,ipm,niw_,ifif
-c      complex(8),allocatable:: ppovlz(:,:)
-c      integer:: ifief
-c      real(8):: ef
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
@@ -200,13 +193,13 @@ c      real(8):: ef
 c      write(6,"(' nqbz nqibz ngrp=',3i5)") nqbz,nqibz,ngrp
 !! === Readin by genallcf ===
 !! See "use m_genallcf_v3" at the begining of this routine
-      call Genallcf_v3(incwfx=0) ! incwfin= 0 takes ForX0 for core in GWIN
+      call Genallcf_v3(incwfx=0) ! incwfin= 0 takes 'ForX0 for core' in GWinput
 !!!!  CAUTION: WE ASSUME iclass(iatom)= iatom,  nclass = natom.  !!!!!!!!!!!!!!!!!!!!!!!!!
-      if(nclass /= natom) call rx( ' hx0fp0_sc: nclass /= natom ')
+      if(nclass /= natom) call Rx( ' hx0fp0_sc: nclass /= natom ')
       tpioa=2d0*pi/alat
       call Readefermi() !Readin EFERMI
       call Readhbe()    !Read dimensions 
-      call ReadGWinputKeys() !Readin GWinput
+      call ReadGWinputKeys() !Readin dataset in GWinput
 c      if(ngrp/= ngrp2) call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
 c      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
 c      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
@@ -281,7 +274,7 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 
 !! EIBZ mode
       eibzmode = eibz4x0()
-      call seteibz(iqxini,iqxend,iprintx)
+      call Seteibz(iqxini,iqxend,iprintx)
 !!
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
       llw = 1d99
@@ -325,120 +318,89 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
-        q = qibze(:,iq)
         call cputid (0)
-!! open WVR (W-V along real axis), WVI (along imag axis) for given q (iq).
-        if(MPI__rootS) then
-          open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
-          open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
-        endif
-        call Readqg0('QGcou', q,  quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
-        ! ngc is shown at the end of console output of qg4gw.
-        ! quu, equivalent to q, is in the output.
-!! ==== Readin Coulomb matrix ====
-        ngb = nbloch + ngc !number of MPB = PB part + IPW part
+        q = qibze(:,iq)
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
-        write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
-        call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
-        if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
-          nolfco =.true.
-          nmbas_in = 1 
-        else ! We usually use localfieldcorrectionllw()=T
-          nolfco = .false.
-          nmbas_in = ngb
+        if(MPI__rootS) then
+!! open WVR (W-V along real axis), WVI (along imag axis) for given q (iq).
+         open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
+         open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
         endif
-        nmbas1 = nmbas_in
+        call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
+                                           ! quu: equivalent to q.
+        ngb = nbloch + ngc    ! number of MPB = PB part + IPW part
+                              ! ngc is shown at the end of console output of qg4gw.
+        write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
+!! Read Coulomb matrix 
+        call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq for the Coulomb matrix
+        if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
+           nolfco =.true.
+           nmbas_in = 1 
+        else          ! We usually use localfieldcorrectionllw()=T
+           nolfco = .false.
+           nmbas_in = ngb
+        endif
+        nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
         nmbas2 = nmbas_in
-!! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
+!! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
         call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
-        allocate( rcxq(nmbas1,nmbas2,nwhis,npm), zw0(ngb,ngb) ) 
 !! ----------------------
 !! === loop over spin=== 
 !! ----------------------
+        allocate( rcxq(nmbas1,nmbas2,nwhis,npm)) 
         rcxq = 0d0
-        do 1003 is = MPI__Ss,MPI__Se  !is=1,nspinmx
-          write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
-     &     iq, is, nqibz + nq0i+nq0iadd, nspin
-          if(debug) write(6,*)' niw nw=',niw,nw
-          isf = is
-!! Tetrahedron weight. -----------------------
-!! output of gettetwt is passed to x0kf_v4hz
-!! input
-!!     ekxx1 for   rk,is
-!!     ekxx2 for q+rk,isf 
-          do kx = 1, nqbz
-            call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-          enddo
-          call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode)
-          call x0kf_v4hz(
-     i         q, is,isf,  iq,ngb,ngc,
-     o         rcxq,            !  rcxq is the accumulating variable for spins 
-     i         nmbas_in, 
-     i         eibzmode, 
-     i         nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa) 
-c          write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-          call tetdeallocate()
+        do 1003 is = MPI__Ss,MPI__Se !is=1,nspinmx
+           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
+     &          iq, is, nqibz + nq0i+nq0iadd, nspin
+           if(debug) write(6,*)' niw nw=',niw,nw
+           isf = is
+           do kx = 1, nqbz
+              call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) !read eigenvalue
+              call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+           enddo
+           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight. 
+           call x0kf_v4hz(
+     i          q, is,isf,  iq,ngb,ngc,
+     o          rcxq,           !  rcxq is the accumulating variable for spins 
+     i          nmbas_in, 
+     i          eibzmode, 
+     i          nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa) 
+           call tetdeallocate()
  1003   continue
-!! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
+!! Symmetrize and convert to Enu basis.
+!!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
         if(eibzmode)  then
-          is=1                  ! dummy
           call x0kf_v4hz_symmetrize(!npm,!ncc,   
-     i     q,  
-     i     is,isf, 
-     i     iq,ngb,ngc, 
+     i     q,iq,ngb,ngc, 
      o     rcxq,                ! rcxq is the accumulating variable for spins 
      i     nolfco,zzr,nmbas_in, 
      i     chipm,eibzmode,      
      i     eibzsym(:,:,iq)) 
         endif
-
-!! reduction rcxq in the S-axis
+!! Reduction rcxq in the S-axis
         write(6,*) 'MPI__AllreduceSumS start'
         do i_reduction_npm=1,npm
-          do i_reduction_nwhis=1,nwhis
-            do i_reduction_nmbas2=1,nmbas2
-              call MPI__AllreduceSumS(
-     .         rcxq(1,i_reduction_nmbas2,i_reduction_nwhis,i_reduction_npm), nmbas1)
-            enddo
-          enddo
+        do i_reduction_nwhis=1,nwhis
+        do i_reduction_nmbas2=1,nmbas2
+           call MPI__AllreduceSumS(
+     .          rcxq(1,i_reduction_nmbas2,i_reduction_nwhis,i_reduction_npm), nmbas1)
+        enddo
+        enddo
         enddo
         write(6,*) 'MPI__AllreduceSumS end'
-
-!! Gaussian filtering of rcxq. Smearging Imag(X0). We may use egauss = 0.05 a.u.\sim 1eV for example.
-        if(eginit) then
-           if(MPI__root) write(6,'("GaussianFilterX0= ",d13.6)') egauss
-           if(abs(egauss)>1d-15) then
-              allocate(gfmat(nwhis,nwhis))
-              call gaussianfilterhis(egauss,frhis,nwhis,gfmat)
-           endif
-           allocate(rcxqin(1:nwhis))
-           eginit=.false.
-        endif
-        if(abs(egauss)>1d-15) then
-           do ipm=1,npm
-           do imbas1=1,nmbas1
-           do imbas2=1,nmbas2
-              rcxqin = rcxq(imbas1,imbas2,1:nwhis,ipm)
-              rcxq(imbas1,imbas2,1:nwhis,ipm) = matmul(gfmat,rcxqin)
-           enddo
-           enddo
-           enddo
-           write(6,"(' End of Gaussian Filter egauss=',f9.4)") egauss
-        endif
-        
-!! --- Hilbert transform.  Genrerate Real part from Imaginary part. ======
+!! Hilbert transform.  Genrerate Real part from Imaginary part. ======
         if(allocated(zxq) ) deallocate(zxq,zxqi)
-        allocate(zxq (nmbas1,nmbas2,nw_i:nw), zxqi(nmbas1,nmbas2,niw))
+        allocate( zxq(nmbas1,nmbas2,nw_i:nw), zxqi(nmbas1,nmbas2,niw) )
         write(6,'("goto dpsion5: nwhis nw_i niw nw_w nmbas1 nmbas2=",6i5)') nwhis,nw_i,nw,niw,nmbas1,nmbas2
-        write(6,*)' -------- nmbas1,nmbas2=', nmbas1,nmbas2
-        call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i   rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
+        call dpsion5(           !frhis,nwhis, freq_r, nw, freq_i,niw,
+     i   realomega, imagomega, 
+     i   rcxq, nmbas1,nmbas2, ! rcxq is alterd---used as work npm,nw_i, 
      o   zxq, zxqi,
      i   chipm, schi,is,  ecut,ecuts)
-        write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
         if(allocated(rcxq) ) deallocate(rcxq)
-
+        write(6,*)' --- end of dpsion5 ----',sum(abs(zxq)),sum(abs(zxqi))
+!!        
+        allocate( zw0(ngb,ngb) ) 
 !! ===  RealOmega ===
         if (realomega) then
           if (nspin == 1) zxq = 2d0*zxq !if paramagnetic, multiply x0 by 2
@@ -656,17 +618,14 @@ c                  if( newaniso2 .and. iq<=nqibz ) then
           if(allocated(epstilde)) deallocate(epstilde)
         endif 
 !! === ImagOmega end ===
-
         if(allocated(vcoul)) deallocate(vcoul)
         if(allocated(zw0)) deallocate(zw0)
         if(allocated(zxq )) deallocate(zxq)
         if(allocated(zxqi)) deallocate(zxqi)
-
         if (MPI__rootS) then
-          close(ifrcwi)! = iclose('WVI.'//charnum5(iq))
-          close(ifrcw)!  = iclose('WVR.'//charnum5(iq))
+          close(ifrcwi)
+          close(ifrcw)
         endif
-!!  
  1001 continue
 c============end of loop over q point =================================
 c=======================================================================
@@ -846,11 +805,9 @@ c            read(ifw0w0i) w0i(1:niw)
               nend=nw
               open(newunit=ifrcwx,  file='WVR.'//charnum5(iq), form='unformatted',
      &          status='old',access='direct',recl=mrecl)
-c              ifrcwx = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
             elseif(ircw==2) then;  nini=1;      nend=niw;
               open(newunit=ifrcwx,  file='WVI.'//charnum5(iq), form='unformatted',
      &          status='old',access='direct',recl=mrecl)
-c              ifrcwx = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
             endif
             do iw=nini,nend
               read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)

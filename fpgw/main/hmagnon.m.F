@@ -524,7 +524,6 @@ c$$$               if (iq==1) write(6,"('cma_mode: cma_up_shift, cma_dn_shift',2
             endif
             !! end cma
  5001    continue
-
          write(6,"('= start wan_gettetwt =',2i6,3f9.4)") nwf,iq,q
 
 !! tetrahedron weight 
@@ -614,11 +613,10 @@ ccc   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
 !!!   accumulate Im[K]
           kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:)
        enddo
-       
+      
  2013 continue                  !ibib-loop
  2012 continue                  !jpm-loop
  2011 continue                  !k-loop
-
       deallocate(evc_w1,evc_w2,wanmat)
       call tetdeallocate()      !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
 
@@ -627,12 +625,12 @@ ccc   print *,"ihw,nhw",ihw(ibib,kx,jpm),nhw(ibib,kx,jpm)
       schi=1                    ! flip over maj/min spins (<0 flip??).
       if (negative_cut) kmat(:,:,:,2)=(0d0,0d0)
       !! kmat ---> zxq
-      call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i     kmat, npm,nw_i, nnwf,nnwf,
+      call dpsion5(             !frhis,nwhis, freq_r, nw, freq_i,niw,
+     i     realomega, imagomega, 
+     i     kmat, nnwf,nnwf, !npm,nw_i,
      o     zxq, zxqi,
      i     .false., schi,1,1d99,1d99) !ecut(iecut),ecuts(iecut))
       deallocate(kmat)
-
       deallocate(zxqi) !!! not used in hmagnon (2018/06/20)
 
 !     ! write matrix K(:,:,iq=200)

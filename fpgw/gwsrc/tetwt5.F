@@ -1,26 +1,3 @@
-      subroutine gaussianfilterhis(egauss, frhis,nwhis,gfmat)
-      implicit none
-      integer,intent(in):: nwhis
-      real(8),intent(in):: egauss,frhis(nwhis+1)
-      real(8),intent(out):: gfmat(nwhis,nwhis)
-      real(8),allocatable:: frc(:),gfm(:)
-      real(8):: ggg
-      integer:: i,j
-      allocate(frc(nwhis),gfm(nwhis))
-      do i=1,nwhis
-         frc(i)=(frhis(i)+frhis(i+1))/2d0
-      enddo
-      do i=1,nwhis
-         do j=1,nwhis
-            gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*egauss))
-         enddo
-         ggg = sum(gfm(:))
-         do j=1,nwhis
-            gfmat(j,i)= gfm(j)/ggg
-         enddo
-      enddo
-      deallocate(frc,gfm)
-      end
 !! -----------------------------------------
       subroutine  tetwt5x_dtet4(npm, ncc,
      i    q, eband1,eband2,

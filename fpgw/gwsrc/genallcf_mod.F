@@ -1,8 +1,6 @@
-!     > get basic settings of crystal structure and nlm info
-!!  - genallcf_v3(nwin,efin,incwfx) set data
-!!  - This is old routine. Confusing. We need to clean up.
       module m_genallcf_v3
-!!----------------------------------------------------------------
+!!-- Read basis data ----------------------------------
+!!! here is old memo      
 !! - structure
 !!  -  o                   plat,alat,natom,nclass,pos,
 !!  -  o                   ngrp, symgg,
@@ -23,9 +21,9 @@
 !!             symgrp
 !!             ,nocc, nunocc, occv, unoccv, occc, unoccc
       implicit none
-      character(120),protected:: symgrp
-      character(6),allocatable,protected :: clabl(:)
-      integer,allocatable,protected:: iclass(:),
+      public:: Setesmr,Genallcf_v3
+      integer,allocatable,protected,public::
+     &     iclass(:),
      &     nindxv(:,:),nindxc(:,:),ncwf(:,:,:) ,
      o     invg(:), il(:,:), in(:,:), im(:,:),   ilnm(:),  nlnm(:),
      o     ilv(:),inv(:),imv(:),  ilnmv(:), nlnmv(:),
@@ -34,19 +32,20 @@
      &     occv(:,:,:),unoccv(:,:,:)   
      &     ,occc(:,:,:),unoccc(:,:,:),
      o     nocc(:,:,:),nunocc(:,:,:),   iantiferro(:)
-      integer,protected::
+      integer,protected,public::
      o     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
-     o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot !,nw
-      real(8), allocatable,protected:: 
-     o     plat(:,:),pos(:,:),z(:),  symgg(:,:,:) !w(igrp) freq(:),
-      real(8),protected :: alat,deltaw !ef,,diw,dw
-      logical,protected:: done_genallcf_v3=.false.
-      character(8),allocatable,protected:: spid(:)
-!     ! unprotected --> need to be protected
-      integer,protected:: niw   !,protected
-      real(8),protected:: delta !,protected
-      real(8),allocatable,protected :: ecore(:,:)
-      real(8),protected:: esmr
+     o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw 
+      real(8),protected,public::
+     &     alat,deltaw,esmr,delta
+      real(8), allocatable,protected,public:: 
+     &     plat(:,:),pos(:,:),z(:),symgg(:,:,:),ecore(:,:)
+      logical,protected,public::
+     &     done_genallcf_v3=.false.
+      character(8),allocatable,protected,public::
+     &     spid(:)
+      character(120),protected,public:: symgrp
+      character(6),allocatable,protected,public :: clabl(:)
+      private
 c-----------------------------------------------------------------------
       contains
 
@@ -57,6 +56,7 @@ c-----------------------------------------------------------------------
       end
       
       subroutine genallcf_v3(incwfx)
+      intent(in)::           incwfx
 !! Readin GWIN_V2 and LMTO(crystal) data and allocate all required.
 !! Return iclass=ibas.
 !! efin,incwfx, are used as switches.
@@ -64,11 +64,9 @@ c-----------------------------------------------------------------------
 !!        GWIN_V2, LMTO
 !! output: All the output are given in the declear section above.
 !! --------------------------------------------------------
-      implicit none
-      intent(in)::           incwfx
-      integer(4)::iflmto,ifinin,incwfx,ifec,i,j,
+      integer(4)::ifinin,incwfx,ifec,i,j,
      & lmx, lmx2,nlmto2,nprodxc,nlnaxc,nlnaxv,nprodx,ifi,ig,is
-     & ,iopen,iclose,nprodxv,nlnax
+     & ,nprodxv,nlnax
      & ,noflmto,maxnn
       integer(4):: infwfx
       integer(4):: n1,n2,n3,imagw,lcutmx,n,ic
@@ -83,11 +81,8 @@ c-----------------------------------------------------------------------
       integer:: nwdummy,ifile_handle
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
-      iflmto     = iopen('LMTO',1,0,0)
-      if (iflmto < 0) call rx( 'unit file for GWIN_V2 < 0')
-
 c--- rgwinf ---
-      ifi = iflmto
+      open(newunit=ifi,file='LMTO')
       read(ifi,*);  read(ifi,*)
       read(ifi,*)symgrpt        !SYMMETRY
       j = 0
@@ -144,7 +139,7 @@ c--------------------------
      &        occc(nl,nnc,nclass),unoccc(nl,nnc,nclass))
       allocate(ncwf2(nl,nnc,nclass),ncwf(nl,nnc,nclass))
       allocate(tolbas(0:2*(nl-1)))
-      ifix=ifi
+c      ifix=ifi
       call rgwinaf    (ifi,ifinin,nl,nnv,nnc,nclass, !ifi can be changed.
 c> BZ
      o                  n1,n2,n3,efdummy,
@@ -157,11 +152,12 @@ c> core
      o                  ncwf,ncwf2 )
 c----
       allocate(iantiferro(1:natom),spid(1:natom))
-      read(ifix,*)
-      read(ifix,*)iantiferro(1:natom) !may2015
-      read(ifix,*)
-      read(ifix,*)spid(1:natom)
-
+      read(ifi,*)
+      read(ifi,*)iantiferro(1:natom) !may2015
+      read(ifi,*)
+      read(ifi,*)spid(1:natom)
+      close(ifi)
+      
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
         occc=0      
@@ -191,9 +187,8 @@ c----
         call rx( ' ### proper incwf is not given for genallcf2:rgwinf ')
       endif
       deallocate(ncwf2)
-C... End of rgwinf section ----------------------------
-
-
+C...  End of rgwinf section ----------------------------
+      
 !! dimensions and constants
       lmx        = 2*(nl-1)
       lmx2       = (lmx+1)**2
@@ -224,7 +219,7 @@ C... End of rgwinf section ----------------------------
      o              icore,ncore,nctot )
 
 !! core energies
-      ifec       = iopen ('ECORE',1,0,0)
+      open(newunit=ifec,file='ECORE')
       allocate(konf(nl,nclass),ecore(nctot,2))
       konf=0
       allocate(ecoret(0:nl-1,nnc,2,nclass))
@@ -250,6 +245,7 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
           end do
         end do
       end do
+      close(ifec)
       i = 0
       do ia = 1,nclass
         ic  = iclass(ia)
@@ -304,8 +300,7 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
         call rx( " Not: UseSYMOPSfile in LMTO file")
       endif
       write(6,*) ' symgrp==UseSYMOPSfile'
-      ifi = ifile_handle()
-      open (ifi, file='SYMOPS')
+      open (newunit=ifi, file='SYMOPS')
       read(ifi,*) ngrp
       allocate(symgg(3,3,ngrp))
       do ig = 1,ngrp
@@ -314,12 +309,10 @@ c           write(6,"(' read ecore=',3i4,2d13.5)")l,n,ic,ecoret(l,n,1:nspin,ic)
           read(ifi,"(3d24.16)") symgg(i,1:3,ig)
         enddo
       enddo
-      close(ifi)
       allocate(invg(ngrp))
       call invgrp  (symgg,ngrp,
      o              invg)
-      is = iclose ('LMTO')
-      is = iclose ('ECORE')
+      close(ifi)
       call cputid(0)
       write(6,*) 'genallcf_v3'
       end subroutine genallcf_v3

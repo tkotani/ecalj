@@ -540,18 +540,14 @@ c$$$     i            nwf,ebmx,mtet,eibzmode) !nov2016
        write(6,*) "rcxq/nbnb rnqbz:",rnqbz
        write(6,"('rcxq/nbnb 4:',3E13.5)") sum(abs(rcxq(:,:,:,:)))
        call tetdeallocate()     !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-
-
        write(6,"('  nmbas1 nmbas2 npm=',3i8)") nmbas1,nmbas2,npm
        schi=1                   ! flip over maj/min spins.
-
 !! Hilbert transformation. zxq (complex(8), along real axis), and zxqi (complex(8), along imag axis).
-       call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i         rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
-     o         zxq, zxqi,
-     i         .false., schi,1,1d99,1d99) !ecut(iecut),ecuts(iecut))
-
-
+       call dpsion5(            !frhis,nwhis, freq_r, nw, freq_i,niw,
+     i      realomega, imagomega, 
+     i      rcxq, nmbas1,nmbas2, ! rcxq is alterd---used as work npm,nw_i, 
+     o      zxq, zxqi,
+     i      .false., schi,1,1d99,1d99) !ecut(iecut),ecuts(iecut))
 !! Write final results. zxq is just 1x1 matrix for homogenious gas.
        if(initiq) then
          ifz = ifile_handle()

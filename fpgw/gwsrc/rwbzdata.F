@@ -1,34 +1,34 @@
 !! read BZDATA
       module m_read_bzdata
-!! we set following data when you call read_BZDATA() 
       implicit none
-!!Caution: ifort15 make problems to allocate scalar.
-c     integer,allocatable :: ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r
-      integer,protected :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
-      integer,allocatable,protected :: 
+
+      public:: Read_bzdata
+!! We set following data when you call read_BZDATA() 
+      integer,protected,public :: n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf ,itet
+      integer,allocatable,protected,public :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
-      real(8),allocatable,protected:: qbas(:,:),ginv(:,:),dq_(:) 
+      real(8),allocatable,protected,public:: qbas(:,:),ginv(:,:),dq_(:) 
      &    , qbz(:,:),wbz(:),qibz(:,:)
      &    , wibz(:),qbzw(:,:)
-      logical,protected:: done_read_bzdata=.false.
-
-c      private:: rwbzdata
+      logical,protected,public:: done_read_bzdata=.false.
+      private
+      
 !! =====================================================
       contains
       subroutine read_BZDATA(hx0)
+      intent(in)::           hx0
 !! No input except BZDATA file.
 !! After you call this, you can access Brillowin Zone datas above ----
-      integer :: intq(3),iqbz,ifbz,n,verbose,ifile_handle,i !, nqibz_r
+      integer :: intq(3),iqbz,ifbz,n,verbose,i !, nqibz_r
 c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
       real(8) :: qout(3),deltaq(3)
       logical,optional:: hx0
       logical:: qbzreg
-      ifbz = ifile_handle()
       write(6,*)' ### readin BZDATA ###'
 c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       allocate(qbas(3,3),ginv(3,3),dq_(3)) !,qbasmc(3,3)
-      open (ifbz, file='BZDATA')
+      open(newunit=ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp !, nqibz_r
       read(ifbz,*)  n1,n2,n3
       write(6,"(' read_bzdata',10i5)")nqbz,nqibz, nqbzw, ntetf, nteti,ngrp
@@ -41,7 +41,6 @@ c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
       if(nteti>0) then
         allocate( idteti(0:4,6*nqbz))
       endif
-c      allocate( qibz_r(3,nqibz_r) )
       call rwbzdata(ifbz,1,
      &    ngrp,qbas,ginv, !qbasmc,
      i    qbz, wbz,nstbz,           nqbz, 
@@ -50,7 +49,6 @@ c      allocate( qibz_r(3,nqibz_r) )
      i    idteti, nteti,dq_) !, qibz_r, nqibz_r )
       write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
       close(ifbz)
-
 !! this block is moved from hx0fp0 @jun2020
 !! Use regular mesh even for bzcase==2 and qbzreg()=T
 !!     off-regular mesh for bzcase==1 and qbzreg()=F
@@ -62,12 +60,11 @@ c      allocate( qibz_r(3,nqibz_r) )
             write(6,"('i qbz=',i3,3f8.4)") i,qbz(:,i)
          enddo
       endif
-      
 ccccccccccccc
 c      do itet=1,ntetf
 c        write(6,"('iii ',5i5)") idtetf(0:3,itet)
 c      enddo
-
+c
 C ... Add index to specify qbz. index_qbz is used to find index in qbz.
 C This algolism here can make index_qbz for any qbz(1:3,nqbz).
 c With fbz2, you can get index iq for given q(1:3) so that
@@ -78,7 +75,7 @@ c      call rangedq(matmul(ginv,q), qout)
 c      intq =  qout*n +1
 c      iqbz= index_qbz(intq(1),intq(2),intq(3))
 c See fbz2.
-
+c
 c         n = 0
 c         allocate(index_qbz(1,1,1)) !dummy
 c 1120    continue
@@ -107,10 +104,10 @@ c           index_qbz(intq(1),intq(2),intq(3)) = iqbz
 c         enddo
 c         n_index_qbz=n
 c         write(6,*) " O.K. index_qbz is generated; n=", n
-
+c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         print *, 'sum (wibz)=', sum(wibz(1:nqibz))
-        call rx( 'read_BZDATA  sum (wibz) is not 2.')
+        call Rx( 'read_BZDATA  sum (wibz) is not 2.')
       endif
       done_read_bzdata=.true.
       write(6,*)' end of read_BZdata'

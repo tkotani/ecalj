@@ -24,8 +24,10 @@
       use m_read_bzdata,only: ginv
       use NaNum,only:NaN
       implicit none
-      public:: Readqg, Readqg0, Readngmx, Readngmx2, ngpmx, ngcmx
-      integer,protected:: ngpmx=NaN,ngcmx=NaN
+
+      public:: Readqg, Readqg0, Readngmx, Readngmx2
+      integer,protected,public:: ngpmx=NaN, ngcmx=NaN
+
       private
       real(8),allocatable,private,target:: qc(:,:),qp(:,:)
       logical,private:: init(2)=.true.

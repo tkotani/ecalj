@@ -1,9 +1,7 @@
       module m_x0kf
-      
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
       use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel, zmel 
-!! Frequency
       use m_freq,only:  npm, nwt=> nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz       
@@ -120,7 +118,6 @@ c      complex(8):: zcousq(ngbb,ngbb)
       real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
       integer:: irot=1, ntqxx,nbmax!,nctot
 
-!TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
       if(npm==1) then
          ncc=0
@@ -133,14 +130,12 @@ c      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),
       call getkeyvalue("GWinput","nbcutlow",nbcut, default=0 )
       call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
 
-!TIME1_1001 "beforedo1000"
 !! loop over k-points -------------------------------------------------------------------------
       do 1000 k = 1,nqbz
         if(eibzmode.and.nwgt(k)==0 ) cycle
         if(debug) write(6,'("do 1000  k=",i4,3f10.4)')k,rk(:,k)
         ipr=(k<5.or.k==nqbz.or.debug)
         if(sum(nbnb(k,1:npm))==0) cycle
-!TIME0_1101
         if(k<=5.or. (mod(k,max(10,nqbz/20))==1.or.k>nqbz-10) ) then
           write(6,"('  x0kf_v4hz: k rk=',i7,3f10.4,$)")k, rk(:,k)
           call cputid(0)
@@ -209,9 +204,6 @@ c      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband),
         allocate( z1p(ngb,ngb) )
  8829   continue
 
-
-!TIME1_1101 "before_get_zmelt2"
-!TIME0_1201
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
@@ -305,13 +297,11 @@ c$$$ccccccccccccccccccccccccccccccccccc
 !$OMP end parallel 
  25     continue
 !kino 2014-08-13  !$OMP end parallel 
-!TIME1_1201 "after_rcxq"
         deallocate(z1p)         !zmelt,z1p)
         call Deallocate_zmel()
         if(debug) call cputid(0)
         if(debug) write(6,*)' end of kloop k jpm=',k,jpm
  1000 continue
-!TIME0_1301
 
 !! ==== Hermitianize. jun2012takao moved from dpsion5 ====
         do jpm=1,npm
@@ -323,7 +313,6 @@ c$$$ccccccccccccccccccccccccccccccccccc
          enddo
         enddo
         enddo
-!TIME1_1301 "before_eibzmode_symmetrization"
  9999 continue
       write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
       if(debug) write(6,"(' --- ', 3d13.5)")
@@ -332,14 +321,14 @@ c$$$ccccccccccccccccccccccccccccccccccc
 
 !! --------------------------------------------------------------------------------
       subroutine X0kf_v4hz_symmetrize (
-     i     q, isp_k,isp_kq, iq, ngbb, ngc, 
+     i     q, iq, ngbb, ngc, 
      o     rcxq,
      i     nolfco,zzr,nmbas, chipmzzr,eibzmode, eibzsym) 
       use m_readqgcou,only: qtt_, nqnum
       use m_rotMPB,only:  rotMPB2 
 !! === symmetrization for EPIBZ mode ===
       implicit none
-      integer(4):: ncc,ngbb,natom,isp_k,isp_kq   !nsp,npm,nwt,
+      integer(4):: ncc,ngbb,natom!,isp_k,isp_kq   !nsp,npm,nwt,
      &  ,nclass,nnc,iq,iatom,nctot,nbmx,iopen !nbloch,nl,nqibz,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, ngb,
      &  nn,no,isx,iclose,k !nbnbx,nqbz
@@ -405,10 +394,7 @@ c 5000 continue
            write(6,*)' x0kf_v4h: ngb ngbb=',ngb,ngbb
            call rx( 'x0kf_v4h: ngb/=ngbb')
         endif
-!TIME0_1401 
         call iqindx2(q, ginv, qtt_, nqnum, ikp,quu) !to get ikp for timereversal mode
-!TIME1_1401 "after_iqindx2"
-!TIME0_1501
         if(sum(abs(q-quu))>tolq) call rx( 'x0kf_v2h: eibz 111 q/quu')
         neibz = sum(eibzsym(:,1))+sum(eibzsym(:,-1)) 
              !itimer=-1 means time reversal. eibzsym(ig,itimer) where ig: space rotation.
@@ -432,9 +418,7 @@ c        call matcinv(ngb,zcousqinv)
 
         allocate(zrrx(nmbas,nmbas))
         nrotmx = 10000 !trial value
-!TIME1_1501 "before_1011"
         do 1011  !this loop is only in order to to set large enough nrotmx.
-!TIME0_1601 
         if(allocated(i1)) deallocate(i1,i2,zrr,zrrc)!,zrr_,zrrc_)
         nccc=ngrp*2
         allocate(i1(nrotmx,nccc),i2(nrotmx,nccc),zrr(nrotmx,nccc),zrrc(nrotmx,nccc)) !,zrr_(ngb,ngb,nccc),zrrc_(ngb,ngb,nccc))
@@ -443,7 +427,6 @@ c        call matcinv(ngb,zcousqinv)
         zrr=-99999d0
         zrrc=-99999d0
         call cputid2(' --- x0kf:11111   :',0)
-!TIME1_1601 "allocatezrr"
 !!
         icc=0
         do itimer=1,-1,-2
@@ -453,7 +436,6 @@ c        call matcinv(ngb,zcousqinv)
           do ig=1,ngrp
             if(eibzsym(ig,itimer)==1) then
               icc=icc+1
-!TIME0_1701
 
 !! Get rotation matrix zrrx, which can be a sparse matrix. Thus stored to zrr.
               call rotMPB2(nbloch,ngb,q,ig,itimer,ginv,zrotm) 
@@ -493,8 +475,6 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif 
 
               endif
-!TIME1_1701 "end_matmmsparse"
-!TIME0_1801
               i1(:,icc)=0
               i2(:,icc)=0
               irotm=0
@@ -515,8 +495,6 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
                 endif   
               enddo
               enddo
-!TIME1_1801 "before_iagain1"
-!TIME0_1901
               if(iagain==1) then
                 nrotmx=irotm !enlarge allocation and do things again.
                 write(6,*)' warn:(slow speed) xxxx goto 1011 xxxxxx nrotmx+=nrotmx+10000 again'
@@ -525,13 +503,11 @@ c                  call matmmsparse(dconjg(zcousqinv),dconjg(zrotm),zcousq,zrrx,
               endif   
               nrotm(icc)=irotm
               if(debug) write(6,*)'ig itimer icc nrotm=',ig,itimer,icc,nrotm(icc) ,iele
-!TIME1_1901 "end_ig_itimer_icc_nrotm"
             endif
           enddo
         enddo
         exit
  1011   continue !only when nrotmx overflow.
-!TIME0_2001
 
 !! === main part to obtain symmetrized rcxq  ===
 !! neibz is total number of symmetrization operation. 
@@ -650,7 +626,6 @@ c$$$           endif
 !$OMP end  do 
         deallocate(rcxq00,rcxq000,rcxq0,rcxqwww)
 !$OMP end parallel 
-!TIME1_2001 "after_sym_rcxq"
         deallocate(zrotm,i1,i2)
 
 c$$$        allocate(zcousqr(ngb,ngb,neibz),rcxq0(ngb,ngb),rcxq00(ngb,ngb),rcxqtr(ngb,ngb))
@@ -696,19 +671,24 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
 !kino 2014.08.19 use automatic deallocation,      deallocate(cphi_k,cphi_kq,geig_kq,geig_k)
       write(6,"(' --- x0kf_v4hz_symmetrize: end')")
       end subroutine x0kf_v4hz_symmetrize
+      end module m_x0kf
 
-      end module
-
-
+      
 C=====================================================================
-        subroutine dpsion5  (frhis,nwhis, freqr,nw_w, freqi,niwt, 
-     i                                 realomega,   imagomega,      !freqr ->frhis ...sf
-     i                    rcxq, npm, nw_i,nmbas1,nmbas2,
-     o    zxq,zxqi,
-c     i    nolfco,chipm,schi,isp,  rcxqmean,nmbas,  !iepsmode, rcxqmean, ! epsmode
-     i    chipm,schi,isp,   !No nolfco mode. Apr2012.
-     i    ecut,ecuts)
-c     o    x0mean)
+      subroutine dpsion5(       !frhis,nwhis, freqr,nw_w, freqi,niwt, 
+     i     realomega,   imagomega, rcxq, nmbas1,nmbas2, !npm, nw_i,
+     o     zxq,zxqi,
+     i     chipm,schi,isp, ecut,ecuts)
+      use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
+      use m_readgwinput,only: egauss
+      use m_GaussianFilter,only: GaussianFilter
+      
+      implicit none
+      intent(in)::
+     i     realomega,   imagomega, rcxq, nmbas1,nmbas2, 
+     i     chipm,schi,isp, ecut,ecuts
+      intent(out)::
+     o     zxq,zxqi
 C- Calculate W-v zxqi(on the imaginary axis) and zxq(real axis) from sperctum weight rcxq.
 Cr v4 works for timereversal=F (npm=2 case).
 Cr  See rcxq_zcxq for rcxq, which contains the spectrum weight for given bins along the real-axis.
@@ -729,15 +709,13 @@ C! July2005: v3Add spin chipm mode
 C! July2005: This version alter rcxq----it is used as work area.
 C! sergey faleev Apr 2002 ; Rebuiled by takao
 C------------------------------------------------------------------
-        implicit none
-        integer(4):: nw_w,niwt,igb1,igb2, iw,iwp,nwhis,ix,npm,ifxx,nmbas1,nmbas2
-        real(8) :: freqi(niwt),pi,px,omp,om,om2,om1, !omg2max from hx0fp0
-     &  frhis(nwhis+1), freqr(0:nw_w), aaa,d_omg
+        integer(4):: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2 ! nw_w,niwt,,nwhis,npm,nw_i,
+        real(8) :: pi,px,omp,om,om2,om1, 
+     &   aaa,d_omg !frhis(nwhis+1), freqr(0:nw_w),  freqi(niwt),
         logical :: realomega, imagomega
         complex(8):: rcxq(nmbas1,nmbas2, nwhis,npm) !sf 13June
 c      logical   :: iepsmode
         logical :: chipm
-
         integer(4)::isp,ispx !, nmbas
 c      complex(8):: rcxqmean(nwhis,npm,nmbas,nmbas)  !takao sep2006 add nmbas
 C... ecut mode
@@ -752,22 +730,25 @@ C... ecut mode
         complex(8):: zz
         complex(8),allocatable :: zxqn(:,:),zxqn1(:,:,:),rx0mean1(:,:,:),rx0mean(:)
         complex(8),allocatable:: rrr(:)
-
-        integer(4)::nw_i,jpm,ipm,verbose,isgi
+        integer(4):: jpm,ipm,verbose,isgi
 c      complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
         complex(8):: 
      o   zxq (nmbas1,nmbas2, nw_i: nw_w), !iw=0 means omg=0,
         !iw=1:nw_w corresponds to iw's bit of the frequensy histogram 
      o   zxqi(nmbas1,nmbas2,niwt),img !npm), img  !zxqi(...,npm) may2006
-
         real(8),allocatable:: ebb(:)
         integer(4):: ii,i,ibas1,ibas2
         logical :: evaltest !,testtr
-
-c        if(verbose()>89) debug=.true.
 c ------------------------------------------------
         write(6,'(" -- dpsion5: start...   ",$)')
         write(6,"('  nw_w nwhis=',2i5)") nw_w,nwhis
+        
+!! Gaussian filtering of rcxq. Smearging Imag(X0). We may use egauss = 0.05 a.u.\sim 1eV for example.
+!! Jun2020
+        if(abs(egauss)>1d-15) then
+          call GaussianFilter(rcxq,nmbas1,nmbas2,egauss,iprint=.true.)
+        endif   
+
         if(debug) then
           write(6,*)' nmbas1 nmbas2 nwhis npm =',  nmbas1,nmbas2,nwhis,npm
           write(6,*)' sumchk rcxq=', sum(abs(rcxq))
@@ -830,24 +811,7 @@ C
 c         if(debug) write(6,*) 'dpsion5: RRR 7777 iw wfac=',iw,wfac,ecut,ecuts
         enddo
         if(debug) write(6,*)'sumchk 122 rcxq=', sum(abs(rcxq))
-
-C... Temporary. maybe, we will have better procedure...
-ctakao moved this to x0kv_v4h.F jun2012takao
-!! hermitianize.
-c        if(nmbas1==nmbas2) then !Is this required??? apr2012takao
-c          do jpm=1,npm
-c            do iw= 1, nwhis
-c              do igb2= 1, nmbas2
-c                do igb1= 1, igb2-1
-c                  rcxq(igb2,igb1,iw,jpm) = dconjg(rcxq(igb1,igb2,iw,jpm))
-c                enddo
-c              enddo
-c            enddo
-c          enddo
-c        endif
-cccccccccccccccccccc
         if(debug) write(6,*)'sumchk 222 rcxq=', sum(abs(rcxq))
-
         if(evaltest().and.nmbas1==nmbas2) then
           write(6,"('hhh --- EigenValues for rcxq --------')")
           allocate(ebb(nmbas1))
@@ -904,18 +868,10 @@ C--- realomega case
             deallocate(rrr)
           endif
           rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion5: RRR 6666'
-
 !! takao remove if(nolfc) block here.
 c          write(6,*) " --- realomega dgemm--- "
-
-
 !! WARN! I think npm==2.and.chipm does not make sense. apr2012.
-!!
-          if(npm==2.and.chipm) 
-Cstop2rx 2013.08.09 kino     &      stop 'x0kf_v4h:npm==2.and.chipm is not meaningful probably'
-     &      call rx( 'x0kf_v4h:npm==2.and.chipm is not meaningful probably')
-
-
+          if(npm==2.and.chipm) call rx( 'x0kf_v4h:npm==2.and.chipm is not meaningful probably')
 !! Note rcxq is negative now (converted at the top of this routine !!!
           if(     chipm .and. ispx==2 ) then
             !nothing here

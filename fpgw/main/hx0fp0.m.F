@@ -44,7 +44,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
      & w0,w0i
       use m_lldata,only: ll
       use m_readgwinput,only: ReadGwinputKeys,
-     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas
+     &     ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,nmbas,imbas,egauss
       use m_qbze,only: Setqbze,
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
@@ -118,7 +118,7 @@ c      logical :: tetra=.true. !,tmpwwk=.true.! If tmpwwk=.true., this use a tem
       real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)
 
 c      logical::imagonly=.false.,realonly=.false. !,readgwinput
-      integer::iopen,maxocc2,iclose,
+      integer::maxocc2,  !iclose,iopen,
      & ixc,iqxini,iqxend,iqxendx,
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
@@ -508,7 +508,7 @@ c        imbas_s(1:nmbas) = imbas(1:nmbas)
         cvec=0d0
         do imb=1,nmbas
           ibas= aimbas(imb)
-          ifv = iopen ('MixSpin.'//charnum3(ibas),1,3,0)
+          open (newunit=ifv,file='MixSpin.'//charnum3(ibas))
           read(ifv,*) ibasx,lxx
           allocate(nxx_r(0:lxx))
           do i=0,lxx
@@ -617,8 +617,8 @@ c$$$      endif
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if(.not. MPI__task(iq) ) cycle
         if(normalm) then
-          ifrcwi = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
-          ifrcw  = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
+          open(newunit=ifrcw,  file='WVR.'//charnum5(iq), form='unformatted', access='direct',recl=mrecl)
+          open(newunit=ifrcwi,  file='WVI.'//charnum5(iq), form='unformatted',access='direct',recl=mrecl)
         endif
         call cputid (0)
         q = qibze(:,iq)
@@ -681,12 +681,10 @@ c$$$          vcousq=sqrt(vcousq)
             x0mean=0d0
           endif  
           if((.not.chipm).and.wqt(iq-nqibz)==0d0) then
-            filepsnolfc ='EPS'//charnum4(iqixc2)//'.nlfc.dat'
-            ifepsdatnolfc = iopen ( filepsnolfc,1,3,0)
+            open(newunit=ifepsdatnolfc,file='EPS'//charnum4(iqixc2)//'.nlfc.dat')
             write(ifepsdatnolfc,"(a)")' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
             if(.not.nolfco) then 
-              fileps = 'EPS'//charnum4(iqixc2)//'.dat'
-              ifepsdat = iopen ( fileps,1,3,0)
+              open(newunit=ifepsdat,file='EPS'//charnum4(iqixc2)//'.dat')
               write(ifepsdat,"(a)") ' q(1:3)   w(Ry)   eps  epsi --- LFC included. '
             endif
           endif
@@ -699,14 +697,14 @@ c$$$          vcousq=sqrt(vcousq)
           endif
 !! ... Open ChiPM* files for \Chi_+-
           if(chipm.and. wqt(iq-nqibz)==0d0) then
-            ifchipmn_mat=iopen('ChiPM'//charnum4(iqixc2)//'.nlfc.mat',1,3,0)
+            open(newunit=ifchipmn_mat,file='ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
             write(ifchipmn_mat,"(255i5)") nmbas
             write(ifchipmn_mat,"(255i5)") aimbas(1:nmbas)
             write(ifchipmn_mat,"(255e23.15)") momsite(1:nmbas)
             write(ifchipmn_mat,"(255e23.15)")  mmnorm(1:nmbas)
             write(ifchipmn_mat,"( ' Here was eiqrm: If needed, need to fix hx0fp0')") 
             if(.not.nolfco) then
-              ifchipm_fmat=iopen('ChiPM'//charnum4(iqixc2)//'.fmat',0,3,0)
+              open(newunit=ifchipm_fmat,file='ChiPM'//charnum4(iqixc2)//'.fmat')
               write(ifchipm_fmat) nbloch, natom,nmbas, iqxini,iqxend, nw_i,nw
               write(ifchipm_fmat) aimbas(1:nmbas),momsite(1:nmbas),mmnorm(1:nmbas)
               write(ifchipm_fmat) nblocha(1:natom),svec(1:nbloch,1:nmbas)
@@ -746,7 +744,6 @@ c       print *,' end of setppovlz ...'
           allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
         endif
         zxq=0d0;  zxqi=0d0;  rcxq = 0d0
-
 !! === loop over spin=== =========================================
         do 1003 is = 1,nspinmx
           write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
@@ -759,20 +756,6 @@ c       print *,' end of setppovlz ...'
             if(is==2) isf=1
             rcxq=0d0
           endif
-
-!! Tetrahedron weight.
-!! output
-!!     nbnbx
-!!     ihw(ibjb,kx): omega index, to specify the section of the histogram.
-!!     nhw(ibjb,kx): the number of histogram sections
-!!     jhw(ibjb,kx): pointer to whw
-!!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
-!!     : histogram weights for given ib,jb,kx for histogram sections
-!!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
-!! input
-!!     ekxx1 for   rk,is
-!!     ekxx2 for q+rk,isf 
           do kx = 1, nqbz
             call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
@@ -799,65 +782,35 @@ c$$$              enddo             ! iw
 c$$$c              endif
 c$$$           enddo
 c$$$        enddo
-c$$$        stop 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv'
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc          
-!! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-c          call x0kf_v4hz(q, is,isf,  iq,ngb,ngc, 
-c     o    rcxq,     !  rcxq is the accumulating variable for spins 
-c     i    nmbas_in, 
-c     i    eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq), eibzsym(:,:,iq), crpa)
+c$$$        stop ' end of pringing tetrahedron weight'
+c         
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
           call cputid(0)
-c          if(npm==1) then
-c            ncc=0
-c          else
-c            ncc=nctot
-c          endif
-          call x0kf_v4hz(!npm,ncc,   
-c     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-c     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
-     i              q,  
-     i              is,isf, !symmetrize, !nspin,
-c     i               qbz,wbz, !qbas,ginv, 
-c     d            nlmto,nqbz,nctot, !noccx,noccxv,
-c     d            nbloch,  nwhis, !nlnmx,mdimx,
-     i    iq,ngb,ngc,!nband, !ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-c     i    nqbze,nqibz, 
+          call x0kf_v4hz( q,is,isf, iq,ngb,ngc,
      o    rcxq,   !  rcxq is the accumulating variable for spins 
      i    nmbas_in, !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
      i    eibzmode, !z1offd,!for nolfco Add nmbas Sep2006 chipm,
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) !ngrp,
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          
-          
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
                                         !Because rcxq is calculated for each is, symmetrized and its contribution
                                         !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize(!npm, !ncc,
-     i       q,
-     i       is,isf, !symmetrize, !nspin,
-c     i       qbas,ginv,  !qbz,wbz,
-c     d       nbloch,  nwhis,    ! nlnmx,mdimx,
-     i       iq,ngb,ngc, !ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-c     i       nqbze,nband,nqibz,
+            call x0kf_v4hz_symmetrize( q, iq,ngb,ngc, 
      o       rcxq,              !  rcxq is the accumulating variable for spins
-     i       nolfco,zzr,nmbas_in, !zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
-     i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
-     i       eibzsym(:,:,iq)) !ngrp, 
+     i       nolfco, zzr, nmbas_in, 
+     i       chipm, eibzmode,    
+     i       eibzsym(:,:,iq)) 
           endif
           call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-c          iecut=1
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
           if(is==nspinmx.or.chipm) then
             write(6,"('  nmbas1,nmbas2=',2i10)") nmbas1,nmbas2
-            call dpsion5(frhis,nwhis, freq_r, nw, freq_i,niw, realomega, imagomega, 
-     i       rcxq, npm,nw_i, nmbas1,nmbas2, ! rcxq is alterd---used as work
+            call dpsion5(       !frhis,nwhis, freq_r, nw, freq_i,niw,
+     i       realomega, imagomega, 
+     i       rcxq, nmbas1,nmbas2, ! rcxq is alterd---used as work npm,nw_i, 
      o       zxq, zxqi,
-     i       chipm, schi,is,  ecut,ecuts)!ecut(iecut),ecuts(iecut))
+     i       chipm, schi,is,  ecut,ecuts)
             if(nolfco.and.epsmode) then
               do iw=nw_i,nw
                 x0mean(iw,:,:)=zxq(:,:,iw)
@@ -867,7 +820,6 @@ c          iecut=1
           endif
  1003   continue  !end of spin loop =====
         if(allocated(rcxq) ) deallocate(rcxq)
-
 
 !! ===  RealOmega ====================================
         if (realomega) then
@@ -1074,16 +1026,16 @@ c$$$c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2)/
 !! ... Close files for epsmode
         if(epsmode) then 
           if(chipm) then
-            ifchipmn_mat=iclose('ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
+            close(ifchipmn_mat) !=iclose('ChiPM'//charnum4(iqixc2)//'.nlfc.mat')
             if(.not.nolfco) then
-              ifchipm_fmat=iclose( 'ChiPM'//charnum4(iqixc2)//'.fmat')
+            close(ifchipm_fmat) !=iclose( 'ChiPM'//charnum4(iqixc2)//'.fmat')
             endif
           else
             filepsnolfc ='EPS'//charnum4(iqixc2)//'.nolfc.dat'
-            ifepsdatnolfc = iclose( filepsnolfc)
+            close(ifepsdatnolfc) ! = iclose( filepsnolfc)
             if(.not.nolfco) then
               fileps = 'EPS'//charnum4(iqixc2)//'.dat'
-              ifepsdat  = iclose(fileps)
+              close(ifepsdat) !  = iclose(fileps)
             endif
           endif
         endif
@@ -1198,8 +1150,8 @@ c$$$            endif
         if(allocated(zxq )) deallocate(zxq)
         if(allocated(zxqi)) deallocate(zxqi)
         if (normalm) then
-          ifrcwi = iclose('WVI.'//charnum5(iq))
-          ifrcw  = iclose('WVR.'//charnum5(iq))
+          close(ifrcwi)
+          close(ifrcw)
         endif
  1001 continue 
 !! =================== end of loop 1001 for q point ========================
@@ -1234,25 +1186,22 @@ c$$$            endif
         do iq = 1,1             !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
           q = qibze(:,iq)
           do ircw=1,2
-            if    (ircw==1) then;  nini=nw_i;   nend=nw;
-              ifrcwx = iopen('WVR.'//charnum5(iq),0,-1,mrecl)
-            elseif(ircw==2) then;  nini=1;     nend=niw;
-              ifrcwx = iopen('WVI.'//charnum5(iq),0,-1,mrecl)
+           if  (ircw==1) then
+              nini=nw_i
+              nend=nw
+              open(newunit=ifrcwx, file='WVR.'//charnum5(iq), form='unformatted', access='direct',recl=mrecl)
+           elseif(ircw==2) then
+              nini=1
+              nend=niw
+              open(newunit=ifrcwx, file='WVI.'//charnum5(iq), form='unformatted',access='direct',recl=mrecl)
             endif
             do iw=nini,nend
-              read(ifrcwx, rec= iw-nini+1) zw !(1:ngb,1:ngb)
+              read(ifrcwx, rec= iw-nini+1) zw 
               if(ircw==1) zw(1,1) = w0(iw)
               if(ircw==2) zw(1,1) = w0i(iw)
-c              if(ircw==1) then
-c                 write(6,"('ffffrrr:', f13.6,2x,f13.6,x,f13.6)") hartree*freq_r(iw),w0(iw)
-c              endif
-              write(ifrcwx,rec= iw-nini+1 ) zw !(1:ngb,1:ngb)
+              write(ifrcwx,rec= iw-nini+1 ) zw 
             enddo
-            if    (ircw==1) then
-              ifrcwx = iclose('WVR.'//charnum5(iq))
-            elseif(ircw==2) then
-              ifrcwx = iclose('WVI.'//charnum5(iq))
-            endif
+            close(ifrcwx)
           enddo
         enddo
       endif
