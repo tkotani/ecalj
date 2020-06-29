@@ -2,9 +2,10 @@
 c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
 c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  nsp,isp_k,isp_kq,!symmetrize,
-     i                  qbas,ginv,rk,wk,  
-     d                  nlmto,nqbz,nctot, 
+     i                  isp_k,isp_kq,!symmetrize,nsp,
+c     i                  qbas,ginv,
+     i        rk,wk,  
+c     d                  nlmto,nqbz,nctot, 
      d                  nbloch,nwt, 
      i      iq, ngbb, ngc, ngpmx,ngcmx,  
      i      nqbze, nband,nqibz, 
@@ -25,6 +26,11 @@ c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
       use m_freq,only: npm
 c     &     frhis,freq_r,freq_i, nwt=> nwhis,nw_i,nw,npm,niw !output of getfreq
       use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
+      use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot!,ngrp
+      use m_read_bzdata,only: 
+     &   nqbz,qbas,ginv !,nqibz,n1,n2,n3,qbas,ginv,
+c     &   rk=>qbz,wk=>wbz,qibz,wibz,
+c     &   ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
 c      use m_genallcf_v3,only: nctot
 
 !! === calculate chi0, or chi0_pm ===
@@ -57,11 +63,11 @@ c      use m_genallcf_v3,only: nctot
 !! nqbz    = number of k-points in the 1st BZ
 !!
       implicit none
-      integer:: ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto !npm,ncc,
+      integer:: ncc,ngbb,natom,nwt,isp_k,isp_kq !nlmto !npm,ncc,nsp,
      &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
-     &  ,nn,no,isx,iclose,k,nqbz
-      real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
+     &  ,nn,no,isx,iclose,k !,nqbz
+      real(8):: q(3),rk(3,nqbz),wk(nqbz),ebmx !qbas(3,3),ginv(3,3),
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
 c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:)
@@ -111,7 +117,7 @@ c     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
      &  ,zmmm(:),zrrx(:,:),rcxq_core(:,:)
       logical:: eibz4x0, crpa , exchange=.false.
       real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
-      integer:: irot=1, ntqxx,nbmax,nctot
+      integer:: irot=1, ntqxx,nbmax!,nctot
 
 !TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q

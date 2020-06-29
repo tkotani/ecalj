@@ -385,9 +385,9 @@ c          endif
 c     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
 c     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
-     i              nspin,is,isf, !symmetrize, !
-     i              qbas,ginv,  qbz,wbz, 
-     d            nlmto,nqbz,nctot, !noccx,noccxv,
+     i              is,isf, !symmetrize, !nspin,
+     i             qbz,wbz, !qbas,ginv, 
+c     d            nlmto,nqbz,nctot, !noccx,noccxv,
      d            nbloch,  nwhis, !nlnmx,mdimx,
      i    iq,ngb,ngc,ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
      i    nqbze,nband,nqibz, 
