@@ -52,6 +52,8 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_readVcoud,only: Readvcoud,vcousq,zcousq
+      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize
+      use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.
@@ -167,13 +169,6 @@ c      integer:: nbcut,nbcut2
       character*4:: charnum4
       complex(8),allocatable:: jcoup(:,:), mcm(:,:,:)
       real(8)::chg1,chg2,spinmom,schi=1d0
-c$$$#ifdef COMMONLL
-c$$$      integer::ll(51**2)
-c$$$      common/llblock/ll
-c$$$#else
-c$$$      integer :: ll
-c$$$      external ll
-c$$$#endif
       complex(8),allocatable:: ovlp(:,:),evec(:,:),ovlpi(:,:)
       real(8),allocatable::eval(:)
       integer:: new,nmxx,ii,iy,ipl1,ixx
@@ -232,7 +227,7 @@ c     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
       complex(8),allocatable:: llw(:,:), llwI(:,:),aaamat(:,:)
       integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
       complex(8):: vc1vc2
-      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
 
       real(8),allocatable:: aik(:,:,:,:)
       integer,allocatable:: aiktimer(:,:)
@@ -574,38 +569,40 @@ c        write(ifchipmlog,"(2e23.15,' ! mmom mmnorm')")momsite(imb),mmnorm(imb)
  !! If eibzmode=T, it is efficient but can slightly break crystal symmetry.(how much?)
  !! This is because band connectivity is judged by just from band ordering in tetrahedron weitht tetwt5.
  !!  For rotation of zcousq.  See readeigen.F rotwv.F ppbafp.fal.F(for index of product basis).
-      eibzmode=eibz4x0() 
-      if(eibzmode) then
- !! comment-out block inversion. Use iqxendx=iqxend because of full inversion
-        call cputid(0)
-        write(6,*)' ---goto eibzmode block ---'
-        iqxendx=iqxend
-        if(epsmode) iqxendx=iqxend
-        allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
-     &   igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
-     &   eibzsym(ngrp,-1:1,iqxini:iqxendx))
- !! Check timereversal is required for symmetrization operation or not. 
- !! If tiii=timereversal=F is enforced,
- !!   the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
-        write(6,*)
-        write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
-        if(MPI__root) iprintx=.true.
-        call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
-     i   timereversal(),ginv,iprintx,
-     o   nwgt,igx,igxt,eibzsym,tiii)
-        write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
-        call cputid(0)
- !! PBindex: index for product basis. 
- !! We will unify this system; still similar is used in ppbafp_v2.
-        call PBindex(natom,lx,l2nl,nx)!all input. Returns requied index stored in arrays in m_pbindex.
-        call cputid(0)
-        call readqgcou() !no input. Read QGcou and store date into variables.
-      else     !dummy allocation to overlaid -check bound !sep2014
-        iqxendx=iqxend
-        allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
-     &   ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
-        nwgt=1
-      endif
+!! EIBZ mode
+      eibzmode = eibz4x0()
+      call seteibz(iqxini,iqxend,iprintx)
+c$$$      if(eibzmode) then
+c$$$ !! comment-out block inversion. Use iqxendx=iqxend because of full inversion
+c$$$        call cputid(0)
+c$$$        write(6,*)' ---goto eibzmode block ---'
+c$$$        iqxendx=iqxend
+c$$$        if(epsmode) iqxendx=iqxend
+c$$$        allocate( nwgt(nqbz,iqxini:iqxendx), !qeibz(3,nqbz,iqxini:nqibz),neibz(iqxini:nqibz),
+c$$$     &   igx(ngrp*2,nqbz,iqxini:iqxendx),igxt(ngrp*2,nqbz,iqxini:iqxendx),
+c$$$     &   eibzsym(ngrp,-1:1,iqxini:iqxendx))
+c$$$ !! Check timereversal is required for symmetrization operation or not. 
+c$$$ !! If tiii=timereversal=F is enforced,
+c$$$ !!   the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
+c$$$        write(6,*)
+c$$$        write(6,"('=== Goto eibzgen === TimeRevesal switch =',l1)")timereversal() 
+c$$$        if(MPI__root) iprintx=.true.
+c$$$        call eibzgen(nqibz,symgg,ngrp,qibze(:,iqxini:iqxend),iqxini,iqxendx,qbz,nqbz,
+c$$$     i   timereversal(),ginv,iprintx,
+c$$$     o   nwgt,igx,igxt,eibzsym,tiii)
+c$$$        write(6,"('Used timeRevesal for EIBZ = ',l1)") tiii
+c$$$        call cputid(0)
+c$$$ !! PBindex: index for product basis. 
+c$$$ !! We will unify this system; still similar is used in ppbafp_v2.
+c$$$        call PBindex(natom,lx,l2nl,nx)!all input. Returns requied index stored in arrays in m_pbindex.
+c$$$        call cputid(0)
+c$$$        call readqgcou() !no input. Read QGcou and store date into variables.
+c$$$      else     !dummy allocation to overlaid -check bound !sep2014
+c$$$        iqxendx=iqxend
+c$$$        allocate( nwgt(1,iqxini:iqxendx),igx(1,1,iqxini:iqxendx)
+c$$$     &   ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
+c$$$        nwgt=1
+c$$$      endif
 !! Calculate x0(q,iw) and W == main loop 1001 for iq. 
  !! NOTE: iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
  !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
@@ -781,11 +778,6 @@ c            write(6,*) ' --- goto x0kf_v4hz ---- newaniso= ',newaniso2
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) 
-c          call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-c     i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-c     i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-c     i     nbmx,ebmx,mtet,eibzmode) !nov2016
-
 c$$$ !!! test code to print tetrahedron weight !!!
 c$$$        jpm=1
 c$$$        do k=1,nqbz
@@ -845,17 +837,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
                                         !Because rcxq is calculated for each is, symmetrized and its contribution
                                         !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize(npm, !ncc,
+            call x0kf_v4hz_symmetrize(!npm, !ncc,
      i       q,
-     i       nspin,is,isf, !symmetrize, !
-     i       qbas,ginv,  !qbz,wbz,
-     d       nbloch,  nwhis,    ! nlnmx,mdimx,
-     i       iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i       nqbze,nband,nqibz,
+     i       is,isf, !symmetrize, !nspin,
+c     i       qbas,ginv,  !qbz,wbz,
+c     d       nbloch,  nwhis,    ! nlnmx,mdimx,
+     i       iq,ngb,ngc, !ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
+c     i       nqbze,nband,nqibz,
      o       rcxq,              !  rcxq is the accumulating variable for spins
-     i       nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
+     i       nolfco,zzr,nmbas_in, !zcousq, !ppovl,nmbas1,nmbas2, is removed ppovlz, 
      i       chipm,eibzmode,    !z1offd,!for nolfco Add nmbas Sep2006
-     i       ngrp, eibzsym(:,:,iq))
+     i       eibzsym(:,:,iq)) !ngrp, 
           endif
           call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
 c          iecut=1

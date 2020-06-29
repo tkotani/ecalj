@@ -57,6 +57,8 @@ c     & laf,ibasf !,ldima,pos,natom
      &     nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
+      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize
+
 !! ------------------------------------------------------------------------      
       implicit none
       integer::maxocc2,iclose, ixc,iqxini,iqxend, !iopen,
@@ -350,10 +352,10 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
 !! We set ppovlz for calling get_zmelt \in m_zmel in x0kf_v4hz
         call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm), zw0(ngb,ngb) ) 
-        rcxq = 0d0
 !! ----------------------
 !! === loop over spin=== 
 !! ----------------------
+        rcxq = 0d0
         do 1003 is = MPI__Ss,MPI__Se  !is=1,nspinmx
           write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')") 
      &     iq, is, nqibz + nq0i+nq0iadd, nspin
@@ -369,50 +371,26 @@ c     noccx  = noccxv + nctot ! We usually assume nctot=0
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 ==
-c          call x0kf_v4hz(q,is,isf,iq, ngb,ngc,
-c     o     rcxq,     ! rcxq is the accumulating variable for spins 
-c     i     nmbas_in, 
-c     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c          if(npm==1) then
-c            ncc=0
-c          else
-c            ncc=nctot
-c          endif
-          call x0kf_v4hz(!npm,ncc,   
-c     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-c     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
-     i              q,  
-     i              is,isf, !symmetrize, !nspin,
-c     i             qbz,wbz, !qbas,ginv, 
-c     d            nlmto,nqbz,nctot, !noccx,noccxv,
-c     d            nbloch,  nwhis, !nlnmx,mdimx,
-     i    iq,ngb,ngc,!nband,!ngpmx,ngcmx,  !ngb/=ngc+nbloch for smbasis()=T oct2005
-c     i    nqbze,nqibz, 
-     o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nmbas_in, !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
-     i    eibzmode, !z1offd,!for nolfco Add nmbas Sep2006 chipm,
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa) !ngrp,
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
-          call tetdeallocate() !deallocate(ihw,nhw,jhw, whw,ibjb )
+          call x0kf_v4hz(
+     i         q, is,isf,  iq,ngb,ngc,
+     o         rcxq,            !  rcxq is the accumulating variable for spins 
+     i         nmbas_in, 
+     i         eibzmode, 
+     i         nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa) 
+c          write(6,*)' end of x0kf_v4h sum rcxq=',sum(abs(rcxq))
+          call tetdeallocate()
  1003   continue
 !! symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
         if(eibzmode)  then
           is=1                  ! dummy
-          call x0kf_v4hz_symmetrize(npm,!ncc,   
+          call x0kf_v4hz_symmetrize(!npm,!ncc,   
      i     q,  
-     i     nspin,is,isf, !symmetrize, !
-     i     qbas,ginv,  !qbz,wbz, 
-     d     nbloch,  nwhis,      !nlnmx,mdimx,
-     i     iq,ngb,ngc,ngpmx,ngcmx, !ngb/=ngc+nbloch for smbasis()=T oct2005
-     i     nqbze,nband,nqibz, 
+     i     is,isf, 
+     i     iq,ngb,ngc, 
      o     rcxq,                ! rcxq is the accumulating variable for spins 
-     i     nolfco,zzr,nmbas_in, zcousq, !ppovl,nmbas2 is removed.,nmbas1 ppovlz, 
-     i     chipm,eibzmode,      !z1offd,
-     i     ngrp, eibzsym(:,:,iq))
+     i     nolfco,zzr,nmbas_in, 
+     i     chipm,eibzmode,      
+     i     eibzsym(:,:,iq)) 
         endif
 
 !! reduction rcxq in the S-axis

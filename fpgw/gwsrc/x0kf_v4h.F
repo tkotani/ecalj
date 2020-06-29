@@ -1,10 +1,32 @@
-      subroutine x0kf_v4hz (!npm,ncc,
+      module m_x0kf
+      
+      use m_keyvalue,only : Getkeyvalue
+      use m_pkm4crpa,only : Readpkm4crpa
+      use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel, zmel 
+!! Frequency
+      use m_freq,only:  npm, nwt=> nwhis
+      use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
+      use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz       
+      use m_rdpp,only: nbloch
+      use m_readqg,only: ngpmx,ngcmx
+      use m_qbze,only: nqbze 
+      use m_readhbe,only: nband
+!! q-dependent quantities
+      use m_readVcoud,only:  zcousq
+      use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
+      implicit none
+      
+      public:: X0kf_v4hz, X0kf_v4hz_symmetrize
+      private
+      
+      contains
+      subroutine X0kf_v4hz (
+c     npm,ncc,
 c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
 c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
      i                  isp_k,isp_kq,!symmetrize,nsp,
-c     i                  qbas,ginv,
-c     i        rk,wk,  
+c     i                  qbas,ginv, rk,wk,  
 c     d                  nlmto,nqbz,nctot, 
 c     d                  nbloch,nwt, 
      i      iq, ngbb, ngc, !nband, ngpmx,ngcmx,  
@@ -13,33 +35,6 @@ c     i      nqbze, nqibz,
      i     nmbas, !zcousq, !zzr,nolfco,
      i     eibzmode, !chipmzzr,
      i     nwgt,igx,igxt,eibzsym, crpa) !,ngrp
-      use m_readqg,only   :  readqg
-      use m_readeigen,only:  readeval 
-      use m_keyvalue,only   :  getkeyvalue
-      use m_rotMPB,only   :  rotMPB2 
-      use m_readqgcou,only:  
-     o qtt_, nqnum 
-      use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel,
-     o zmel 
-!! Frequency
-      use m_freq,only: npm,nwt=> nwhis
-c     &     frhis,freq_r,freq_i, ,nw_i,nw,npm,niw !output of getfreq
-      use m_genallcf_v3,only: nsp=>nspin ,nlmto,nctot,ngrp
-      use m_read_bzdata,only: 
-     &   nqbz,qbas,ginv,nqibz, !,n1,n2,n3,qbas,ginv,
-     &   rk=>qbz,wk=>wbz       !,qibz,wibz,
-c     &   ntetf,idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-c      use m_genallcf_v3,only: nctot
-      use m_rdpp,only: nbloch
-      use m_readqg,only: ngpmx,ngcmx
-      use m_qbze,only: nqbze!,nqibze,qbze,qibze
-      use m_readhbe,only: nband!,mrecg Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,
-
-!! q-dependent quantities
-      use m_readVcoud,only:  zcousq
-      use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
-
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -336,36 +331,22 @@ c$$$ccccccccccccccccccccccccccccccccccc
       end subroutine x0kf_v4hz
 
 !! --------------------------------------------------------------------------------
-      subroutine x0kf_v4hz_symmetrize (npm, !ncc,
-c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
-     i                  q,
-     i                  nsp,isp_k,isp_kq, !symmetrize,
-     i                  qbas,ginv,!rk,wk,  
-c     i                  mdim, 
-c     d                  nlmto,nqbz,nctot, 
-c     d                  natom, 
-     d                  nbloch,nwt, 
-     i      iq, ngbb, ngc, ngpmx,ngcmx,  
-     i      nqbze, nband,nqibz, 
-     o      rcxq,
-     i     nolfco,zzr,nmbas, zcousq,
-     i     chipmzzr,eibzmode, 
-     i     ngrp,eibzsym) !, crpa) !nwgt,igx,igxt,
-      use m_rotMPB,only   :  rotMPB2 
-      use m_readqgcou,only:  
-     o qtt_, nqnum 
+      subroutine X0kf_v4hz_symmetrize (
+     i     q, isp_k,isp_kq, iq, ngbb, ngc, 
+     o     rcxq,
+     i     nolfco,zzr,nmbas, chipmzzr,eibzmode, eibzsym) 
+      use m_readqgcou,only: qtt_, nqnum
+      use m_rotMPB,only:  rotMPB2 
 !! === symmetrization for EPIBZ mode ===
       implicit none
-      integer(4):: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq 
-     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
-     &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
-     &  ,nn,no,isx,iclose,k,nbnbx,nqbz
-      real(8):: q(3),qbas(3,3),ginv(3,3),ebmx !,rk(3,nqbz),wk(nqbz)
+      integer(4):: ncc,ngbb,natom,isp_k,isp_kq   !nsp,npm,nwt,
+     &  ,nclass,nnc,iq,iatom,nctot,nbmx,iopen !nbloch,nl,nqibz,
+     &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, ngb,
+     &  nn,no,isx,iclose,k !nbnbx,nqbz
+      real(8):: q(3),ebmx !,rk(3,nqbz),wk(nqbz) qbas(3,3),ginv(3,3),
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
-      integer(4):: ngpmx, ngcmx, nqbze, nband,
-     &              ngc,nadd(3)
+      integer(4):: ngc,nadd(3) !ngpmx, ngcmx, nqbze, !nband,
 c      integer(4) ::  nbnb(nqbz,npm), n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       logical,parameter:: debug=.false.
 c      integer(4):: nhwtot, ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
@@ -385,9 +366,9 @@ c      real(8):: whw(nhwtot)
       integer(4):: ib1, ib2,      ngcx,ix,iy
       complex(8),target :: zzr(ngbb,nmbas) !ppovlz(ngbb,ngbb),
       integer:: igb
-      integer:: ngrp
+c      integer:: ngrp
       logical:: checkbelong,eibzmode, chipmzzr
-      complex(8):: zcousq(ngbb,ngbb) ,  zcousqc(ngbb,ngbb)
+      complex(8)::  zcousqc(ngbb,ngbb) !zcousq(ngbb,ngbb) , 
       integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele
       integer:: irotm,nrotmx,ixx,iyy,itt,ntimer, nccc, nxx,iagain,irotm1,irotm2
       integer,allocatable:: i1(:,:),i2(:,:),nrotm(:)
@@ -716,7 +697,7 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
       write(6,"(' --- x0kf_v4hz_symmetrize: end')")
       end subroutine x0kf_v4hz_symmetrize
 
-
+      end module
 
 
 C=====================================================================
