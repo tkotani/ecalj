@@ -376,14 +376,14 @@ c     o     rcxq,     ! rcxq is the accumulating variable for spins
 c     i     nmbas_in, 
 c     i     eibzmode,nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-          if(npm==1) then
-            ncc=0
-          else
-            ncc=nctot
-          endif
-          call x0kf_v4hz(npm,ncc,   
-     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
-     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
+c          if(npm==1) then
+c            ncc=0
+c          else
+c            ncc=nctot
+c          endif
+          call x0kf_v4hz(!npm,ncc,   
+c     i        ihw,nhw,jhw,whw,nhwtot,  ! tetwt5
+c     i        n1b,n2b,nbnbx,nbnb,    ! use whw by tetwt5 ,
      i              q,  
      i              nspin,is,isf, !symmetrize, !
      i              qbas,ginv,  qbz,wbz, 

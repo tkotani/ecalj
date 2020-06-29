@@ -1,6 +1,6 @@
-      subroutine x0kf_v4hz (npm,ncc,
-     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
+      subroutine x0kf_v4hz (!npm,ncc,
+c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
+c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
      i                  nsp,isp_k,isp_kq,!symmetrize,
      i                  qbas,ginv,rk,wk,  
@@ -21,6 +21,11 @@
       use m_pkm4crpa,only : Readpkm4crpa
       use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel,
      o zmel 
+!! Frequency
+      use m_freq,only: npm
+c     &     frhis,freq_r,freq_i, nwt=> nwhis,nw_i,nw,npm,niw !output of getfreq
+      use m_tetwt,only: whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
+c      use m_genallcf_v3,only: nctot
 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
@@ -52,10 +57,10 @@
 !! nqbz    = number of k-points in the 1st BZ
 !!
       implicit none
-      integer:: npm,ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto 
-     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nctot,nbmx,iopen 
+      integer:: ncc,ngbb,natom,nwt,nsp,isp_k,isp_kq,nlmto !npm,ncc,
+     &  ,nl,nclass,nnc,nbloch,iq,nqibz,iatom,nbmx,iopen 
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
-     &  ,nn,no,isx,iclose,k,nbnbx,nqbz
+     &  ,nn,no,isx,iclose,k,nqbz
       real(8):: q(3),qbas(3,3),ginv(3,3),rk(3,nqbz),wk(nqbz),ebmx
       complex   (8):: rcxq (nmbas,nmbas,nwt,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
@@ -68,14 +73,14 @@ c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:
       data symope /1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/
       complex(8),allocatable :: ttx(:,:)
       complex(8),allocatable::  z1p(:,:)
-      integer ::  nbnb(nqbz,npm), 
-     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8),allocatable:: zzmel(:,:,:)
       logical,parameter:: debug=.false.
       logical:: hist ,ipr
-      integer:: nhwtot,
-     &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
-      real(8):: whw(nhwtot)
+c      integer:: nhwtot,nbnbx,
+c     &  ihw(nbnbx,nqbz,npm),nhw(nbnbx,nqbz,npm),jhw(nbnbx,nqbz,npm)
+c      real(8):: whw(nhwtot)
+c      integer ::  nbnb(nqbz,npm), 
+c     &  n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       complex(8) :: zmelt1,zmelt2,zmeltt(ngbb) 
       real(8) :: imagweight 
       integer::verbose,nmbas, imb1,imb2, imb 
@@ -106,10 +111,15 @@ c      complex(8),allocatable:: cphi_k(:,:),cphi_kq(:,:),geig_kq(:,:),geig_k(:,:
      &  ,zmmm(:),zrrx(:,:),rcxq_core(:,:)
       logical:: eibz4x0, crpa , exchange=.false.
       real(8):: wpw_k,wpw_kq, vec_kcrpa(3),vec_kqcrpa(3)
-      integer:: irot=1, ntqxx,nbmax
+      integer:: irot=1, ntqxx,nbmax,nctot
 
 !TIME0_1001 
       write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
+      if(npm==1) then
+         ncc=0
+      else
+         ncc=nctot
+      endif
       call cputid(0)
       call minv33(qbas,qbasinv)
 c      allocate(cphi_k(nlmto,nband), cphi_kq(nlmto,nband), geig_kq(ngpmx,nband), geig_k(ngpmx,nband))
