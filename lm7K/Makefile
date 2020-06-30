@@ -236,7 +236,7 @@ lmfham1.o: lmfham1.F
 ########################################
 # programs
 ########################################
-show_programinfo.o: make_fc_version ../show_programinfo.F
+show_programinfo.o:  ../show_programinfo.F lmf-MPIK.o lmfgw-MPIK.o 
 	$(FC) $(FFLAGS)  $(VERSIONFLAGS)  $(CPP_SW) -c ../show_programinfo.F -o show_programinfo.o
 
 lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA) show_programinfo.o
