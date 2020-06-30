@@ -1,5 +1,8 @@
 #!/bin/bash
 #set -o verbose
+function my_error() {
+    exit 1
+}
 
 BINDIR=${HOME}/bin
 MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
@@ -26,16 +29,14 @@ cd StructureTool/
 
 ### Use lm7K/Makefile
 cd ../lm7K/
-make PLATFORM=gfortran LIBMATH="$MATH"
-make PLATFORM=gfortran      BINDIR=$BINDIR install
-make PLATFORM=gfortran_mpik LIBMATH="$MATH"
-make PLATFORM=gfortran_mpik BINDIR=$BINDIR install
+make PLATFORM=gfortran      BINDIR=$BINDIR install ||my_error
+make PLATFORM=gfortran_mpik LIBMATH="$MATH" ||my_error
+make PLATFORM=gfortran_mpik BINDIR=$BINDIR install ||my_error
 ### Use fpgw/exec/makefile
 cd ../fpgw/exec/
-make PLATFORM=gfortran LIBMATH="$MATH"
-make PLATFORM=gfortran BINDIR=$BINDIR  install
-make PLATFORM=gfortran BINDIR=$BINDIR install2
-#
+make PLATFORM=gfortran LIBMATH="$MATH" ||my_error
+make PLATFORM=gfortran BINDIR=$BINDIR  install ||my_error
+make PLATFORM=gfortran BINDIR=$BINDIR install2 ||my_error
 ### Use fpgw/Wannier/Makefile
 #cd ../Wannier/
 #make PLATFORM=gfortran LIBMATH="$MATH"
