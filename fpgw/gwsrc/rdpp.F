@@ -2,13 +2,15 @@
 !> Read PPBRD_V2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
       use NaNum,only: NaN
       use m_genallcf_v3,only: nl,nn,nclass,nspin !,qbas=>pos
-
+      use m_readqg,only: ngcmx
+      
       public:: Rdpp,Rdpp_v3
-      integer,protected,public:: mdimx=NaN,nbloch=NaN,nxx=NaN
+      integer,protected,public:: mdimx=NaN,nbloch=NaN,nxx=NaN,nblochpmx=NaN, nprecx=NaN, mrecl=NaN
       integer,allocatable,protected,public:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected,public:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
       logical,protected,public:: done_rdpp=.false.
       private
+      integer:: ndble=8
       
       contains
 c      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
@@ -16,13 +18,13 @@ c      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
 !     o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr) ---> these are set in m_rdpp.
       implicit none
       integer:: ngrp !,nl,nn,nclass
-      integer :: ngpmx,ngcmx, nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
-     i      nblochpmx, !nspin,
+      integer :: ngpmx,nqbz,nqibz, nband,! nl,ngrp, nxx, nn,
+c     i      nblochpmx, !nspin,
      &      n1,n2,n3,iq0,
      &      ifppb(nclass)
       real(8) ::  symope(3,3,ngrp),  pi!,qbas(3,3)
       integer :: iclose,is,iopen,iqi,iq,ic,isp,ip1,ip2,ioff,nxic,
-     &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,ifile_handle
+     &  ifplane ,ngpmx_dum, ngcmx_dum,iqbzx,idxk,ngp,ngc,ig1,nword
       character*11 :: filename(nclass)
       write(6,*)" rdpp: nclass=",nclass
       if(done_rdpp) call rx('rdpp is already called')
@@ -48,6 +50,11 @@ c      subroutine rdpp( nl,ngrp, nn, nclass, nspin,symope,qbas) !nxx,
 c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
+      nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
+!! ---------- WV.d
+      nprecx = ndble          ! We use double precision arrays only.
+      mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()!record size
+     
 c --- rotated CG setup
       write(6,*)' rdpp mdimx=',mdimx
       cgr=1d99

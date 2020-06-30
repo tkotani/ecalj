@@ -25,6 +25,7 @@ c ------------------------------------------------------------------------------
       fpi = 4d0*pi
       nlklm=(lmxax+1)**2
       epinvq0i_m1=epinvq0i
+c      write(6,"(' getw0 start1:',4i3,d13.6)") nq0i,lmxax,ii,ie
       write(6,"(' getw0 start:',4i3,d13.6)") nq0i,lmxax,ii,ie,sum(abs(llw(ii:ie,1:nq0i)))
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      nlm=(lmxax+1)**2

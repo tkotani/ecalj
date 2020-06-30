@@ -26,7 +26,7 @@
       implicit none
 
       public:: Readqg, Readqg0, Readngmx, Readngmx2
-      integer,protected,public:: ngpmx=NaN, ngcmx=NaN
+      integer,protected,public:: ngpmx=NaN, ngcmx=NaN!,nblochpmx
 
       private
       real(8),allocatable,private,target:: qc(:,:),qp(:,:)

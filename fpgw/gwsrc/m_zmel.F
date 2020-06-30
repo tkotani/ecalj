@@ -1,7 +1,7 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz.
-!! To use this module, set data in this module, and call "call get_zmelt" or "call get_zmelt2". 
-!! Then we have matrix elements zmel (exchange=F for correlation)
-!! or zmeltt (exchange=T). In future, they may be unified...
+!!  To use this module, set data in this module, and call "call get_zmelt" or "call get_zmelt2". 
+!!  Then we have matrix elements zmel (exchange=F for correlation)
+!!  or zmeltt (exchange=T). In future, they may be unified...
       module m_zmel
 !! Base data for crystal structure.
 !! these are set by 'call genallcf_v3' usually in the main routine.
@@ -16,9 +16,6 @@
      &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
-!! Get eigenfuncitons. cphi is coefficients of MTO+lo part, geig is IPW parts.
-!! Before calling them (get coefficients of eigen funcitons), 
-!! We need to call init_readeigen, init_readeigen2 in main rouitne.
       use m_readeigen,only: Readcphi,Readgeig 
       use m_read_bzdata,only: 
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
@@ -30,15 +27,16 @@
       use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
       implicit none
 
-!!--- OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
-      public:: get_zmelt,get_zmelt2, Dconjg_zmel,Deallocate_zmel,Deallocate_zmeltt,
-     &       Setppovlz,Setppovlz_chipm,  mptauof_zmel !,Setppovlz_ee Setppovlz_sxcf,
+!! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
+      public:: Get_zmelt, Get_zmelt2,
+     &       Dconjg_zmel, Deallocate_zmel, Deallocate_zmeltt,
+     &       Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
       complex(8),allocatable,protected,public :: zmel(:,:,:)   
       complex(8),allocatable,protected,public :: zmeltt(:,:,:) 
 
-      private
 !! Local private ---------------------
 !!    These are set by mptauof in 'call mptauof_zmel'
+      private
       integer,allocatable,private :: miat(:,:)     ! mptauof_zmel
       real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)  
       real(8),allocatable,private :: ppbir(:,:,:)  ! ppbafp_v2_zmel 
@@ -49,7 +47,7 @@
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
 
       contains
-
+!----------------------------------------------------
       subroutine Dconjg_zmel()
       zmel = dconjg(zmel)
       end
@@ -59,12 +57,11 @@
       subroutine Deallocate_zmeltt()
       deallocate(zmeltt)
       end
-
-!! set ppovlz for given q      
+!----------------------------------------------------
       subroutine setppovlz(q,ngc,ngb,matz)
-      use m_readVcoud,only: 
-     &     zcousq !! zcousq is the eigenfuncition of the Coulomb matrix
+      use m_readVcoud,only:   zcousq !! zcousq is the eigenfuncition of the Coulomb matrix
       intent(in)::         q,ngc,ngb,matz
+!! set ppovlz for given q      
 !  Blocked matrix multiplication      
 !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
 !                       (0 ppovl)   
@@ -95,7 +92,7 @@ c         ppovlz= matmul(ppovl_,zcousq)
       endif
       deallocate(ppovl)
       end subroutine setppovlz
-!! set ppovlz
+!----------------------------------------------------
       subroutine setppovlz_chipm(zzr,ngb,nmbas1)
       intent(in)::               zzr,ngb,nmbas1
       integer::ngb,nmbas1
@@ -104,39 +101,9 @@ c         ppovlz= matmul(ppovl_,zcousq)
       allocate(ppovlz(ngb,nmbas1))
       ppovlz= zzr
       end subroutine setppovlz_chipm
-c$$$!! set ppovlz for given q      
-c$$$      subroutine setppovlz_sxcf(q,ngc,zcousq,ngb)
-c$$$      intent(in)::              q,ngc,zcousq,ngb
-c$$$      integer :: ngc,ngb
-c$$$      real(8) :: q(3)
-c$$$      complex(8) :: zcousq(ngb,ngb)
-c$$$      complex(8),allocatable :: ppovl(:,:)
-c$$$      if(allocated(ppovlz)) deallocate(ppovlz)
-c$$$      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-c$$$      call readppovl0(q,ngc,ppovl)
-c$$$      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-c$$$      ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c$$$      deallocate(ppovl)
-c$$$      end subroutine setppovlz_sxcf
-c$$$!! set ppovlz
-c$$$      subroutine setppovlz_ee(q,ngc,ngb,zcousq)
-c$$$      intent(in)::            q,ngc,ngb,zcousq
-c$$$      integer:: ngc,ngb
-c$$$      real(8):: q(3)
-c$$$      complex(8):: zcousq(:,:)
-c$$$      integer:: nbloch
-c$$$      complex(8),allocatable :: ppovl(:,:)
-c$$$      if(allocated(ppovlz)) deallocate(ppovlz)
-c$$$      if(allocated(ppovl)) deallocate(ppovl)
-c$$$      allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb)) !,   ppovlzinv(ngb,ngb))
-c$$$      call readppovl0(q,ngc,ppovl)
-c$$$      nbloch = ngb-ngc
-c$$$      ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-c$$$      ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c$$$      end subroutine setppovlz_ee
-      
-!! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
+!----------------------------------------------------
       subroutine mptauof_zmel(symops,ng)
+!! Set miat,tiat,invgx,shtvg, and then call ppbafp_v2_zmel successively
       intent(in)::            symops,ng
       integer:: ng
       real(8):: symops(9,ng)
@@ -149,14 +116,14 @@ c$$$      end subroutine setppovlz_ee
       call Rdpp(ng,symops)
       call ppbafp_v2_zmel(ng)
       end subroutine mptauof_zmel
-!!   Set ppbir
+!----------------------------------------------------
       subroutine ppbafp_v2_zmel(ng) !nspin,
+      intent(in)::              ng 
 c     i                 il,in,im, mnl,
 c     d                 nl,nn,nclass,mnlx,
 c     i                 mdimx,lx,nx,nxx, !Bloch wave    
 c     i                 cgr,lmxax,   !rotated CG
 c     i                 ppbrd)           !radial integrals
-      intent(in)::               ng 
       integer :: ng 
       integer:: is,irot
       allocate( ppbir(nlnmx*nlnmx*mdimx*nclass,ng,nspin))
@@ -176,6 +143,7 @@ c     i                 ppbrd)           !radial integrals
       enddo  
       end subroutine ppbafp_v2_zmel
 
+      
 !! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
       intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc
@@ -302,9 +270,6 @@ c      call getsrdpp2( nclass,nl,nxx)
       ppb = ppbir(:,irot,ispq) 
       if(debug) write(*,*) 'get_zmel in m_zmel: 3333333333'
 
-!TIME1_1001 "init"
-!TIME0_1101
-
 !! phase factors expikt(ia) is for exp(ik.T(R))
       do ia = 1,natom
         imdim(ia)  = sum(nblocha(iclass(1:ia-1)))+1
@@ -340,9 +305,6 @@ c      call getsrdpp2( nclass,nl,nxx)
      o              zzzmel)
       endif  
       if(debug) write(6,'("5555 zzzmelsum ",3i5,3d13.5)') nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
-!TIME1_1101 "psi2b_v3"
-
-!TIME0_1201 
 !! IPW 
       allocate(drealzzzmel(nbloch,nmtot,nqtot),dimagzzzmel(nbloch,nmtot,nqtot))
       drealzzzmel=dreal(zzzmel)
@@ -360,14 +322,13 @@ c      call getsrdpp2( nclass,nl,nxx)
      o  rmelt,cmelt)
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
-      if(verbose()>50) call timeshowx("5 after drvmelp")
+c      if(verbose()>50) call timeshowx("5 after drvmelp")
       if(nbcut/=0.and.(.not.exchange)) then
          do it= nctot+1,nctot+min(nbcut,nmmax)
             rmelt(:, it,:) =0d0
             cmelt(:, it,:) =0d0
          enddo
       endif
-!TIME1_1201 "drvmelp"
 
 !! NOTE:=========================================
 !! zmelt = rmelt(igb(rkvec), iocc(q), iunocc(q-rkvec)) + i* cmelt
@@ -451,7 +412,6 @@ c               if(timemix) call timeshow("22222 k-cycle")
       if(debug) write(6,*) ' sxcf: goto wtt'
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
 !! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
-!TIME0_1301
 
 !! Multipled by ppovlz and reformat
       if(exchange) then
@@ -501,15 +461,14 @@ c         nstate = nctot + nmmax ! = nstate for the case of correlation
          if(debug) write(*,*)'zz000 nmtot,ngb,nstate ',nmtot,ngb,nqtot
          if(debug) write(*,*)'zz000 sumchk zmel ',sum(abs(zmel(1:ngb,1:nmtot,1:nqtot)))
          if(debug) write(*,*) 'correlation mode end'
-!TIME1_1301 "matmul_zmelp_povlz"
       endif         
       end subroutine get_zmelt2
       end module m_zmel
 
       
-      subroutine timeshowx(info)
-      character*(*) :: info
-      write(*,'(a,$)')info
-      call cputid(0)
-      end
+c      subroutine timeshowx(info)
+c      character*(*) :: info
+c      write(*,'(a,$)')info
+c      call cputid(0)
+c      end
 

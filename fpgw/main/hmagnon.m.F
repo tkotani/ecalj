@@ -500,8 +500,7 @@ ccccccccccccccc simple band for check
          if(.not. allocated(evc_w1)) allocate(evc_w1(nwf,nwf,nqbz))
          if(.not. allocated(evc_w2)) allocate(evc_w2(nwf,nwf,nqbz))
           
-         print *,"npm::",npm
-         write(6,*) "nctot,ecore",nctot,ecore
+         write(6,*) "mpm nctot",npm,nctot
          
          do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
             call wan_readeval2(  qbz(:,kx), is,
@@ -1084,10 +1083,8 @@ c         close(ifchipmrk_wan)
       sumrpa_maximr=cmplx(sum(rpa_maximr(:)),0d0,kind(0d0))
       summf_maximr =cmplx(sum( mf_maximr(:)),0d0,kind(0d0))
 c$$$!! =================== end of loop 1001 for q point ========================
-
       call MPI__barrier()
-
-!! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===      
+      
       write(6,*) "MPIcheck",MPI__size,MPI__rank,sumrpa_maximr
       if(MPI__size/=1) then
          call MPI__AllreduceSum(sumrpa_maximr(1),1)

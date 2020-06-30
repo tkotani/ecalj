@@ -19,20 +19,21 @@
       
       contains
       subroutine X0kf_v4hz (
-c     npm,ncc,
-c     i            ihw,nhw,jhw,whw,nhwtot, ! tetwt5
-c     i            n1b,n2b,nbnbx,nbnb,     !  use whw by tetwt5 ,
      i                  q,
-     i                  isp_k,isp_kq,!symmetrize,nsp,
-c     i                  qbas,ginv, rk,wk,  
-c     d                  nlmto,nqbz,nctot, 
-c     d                  nbloch,nwt, 
-     i      iq, ngbb, ngc, !nband, ngpmx,ngcmx,  
-c     i      nqbze, nqibz, 
-     o     rcxq,
-     i     nmbas, !zcousq, !zzr,nolfco,
-     i     eibzmode, !chipmzzr,
-     i     nwgt,igx,igxt,eibzsym, crpa) !,ngrp
+     i                  isp_k,isp_kq,
+     i      iq, ngbb, ngc, 
+     o                    rcxq,
+     i     nmbas, 
+     i     eibzmode, 
+     i     nwgt,igx,igxt,eibzsym, crpa) 
+      intent(in)::      q,
+     i                  isp_k,isp_kq,
+     i      iq, ngbb, ngc, 
+     i     nmbas, 
+     i     eibzmode, 
+     i     nwgt,igx,igxt,eibzsym, crpa
+      intent(inout)::
+     o                    rcxq
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -62,7 +63,6 @@ c     i      nqbze, nqibz,
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
-      implicit none
       integer:: ncc,ngbb,natom,isp_k,isp_kq !nlmto !npm,ncc,nsp,nwt,,nbloch
      &  ,nl,nclass,nnc,iatom,nbmx,iopen, iq !nqibz,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1,ngb
@@ -682,7 +682,6 @@ C=====================================================================
       use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
       use m_readgwinput,only: egauss
       use m_GaussianFilter,only: GaussianFilter
-      
       implicit none
       intent(in)::
      i     realomega,   imagomega, rcxq, nmbas1,nmbas2, 

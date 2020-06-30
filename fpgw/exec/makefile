@@ -325,7 +325,8 @@ $(gwsrc)nan.o\
 $(gwsrc)m_readgwinput.o\
 $(gwsrc)m_qbze.o\
 $(gwsrc)m_eibz.o\
-$(gwsrc)m_gaussianfilter.o
+$(gwsrc)m_gaussianfilter.o\
+$(gwsrc)m_llw.o\
 
 
  QPE_QSGW = \

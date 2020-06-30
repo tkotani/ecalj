@@ -1,10 +1,8 @@
-!! ------------------------------------------------------
+!! -----------------------------------------------------------
 !> Return eigenvalus and eigenfunctions for given q and isp.
-!! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
-!! qtti(1:3,nqi) :eivenvalues, eigenvectors are calculated only for them.
-!!                  See lmfgw (q-vector with irr flag in QGpsi).
+!! We can get eigenfunctions for Wannier, as well. See hmagnon.F
 !!
-!!* we have to call init_foobar to call readeval, readcphi, readgeig.
+!! note: we have to call init_foobar to call readeval, readcphi, readgeig.
 !!----------------
       module m_readeigen
       use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
@@ -14,11 +12,14 @@
       use m_read_bzdata,only: ginv
       use m_genallcf_v3,only: nsp =>nspin ,ldim2=>nlmto
       use m_readhbe,only: mrecb, mrece,nband, mrecg
+!! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
+!! qtti(1:3,nqi) :eivenvalues, eigenvectors are calculated only for them.
+!!                  See lmfgw (q-vector with irr flag in QGpsi).
       implicit none
-
+!-------------------------------
       public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
-     &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval , Onoff_write_pkm4crpa,
-     &     Readcphiw,Readgeigw
+     &     Onoff_write_pkm4crpa,
+     &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
       integer,public:: nwf
       
       private
@@ -45,7 +46,7 @@
       logical,private:: Wpkm4crpa=.false.
 
       contains
-      subroutine onoff_write_pkm4crpa(lll)
+      subroutine onoff_write_pkm4crpa(lll) 
       logical:: lll
       Wpkm4crpa=lll
       end subroutine

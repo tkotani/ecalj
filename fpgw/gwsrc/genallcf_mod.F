@@ -36,7 +36,7 @@
      o     nclass,natom,nspin,nl,nn,nnv,nnc, ngrp,
      o     nlmto,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, nctot, niw 
       real(8),protected,public::
-     &     alat,deltaw,esmr,delta
+     &     alat,deltaw,esmr,delta,tpioa
       real(8), allocatable,protected,public:: 
      &     plat(:,:),pos(:,:),z(:),symgg(:,:,:),ecore(:,:)
       logical,protected,public::
@@ -77,7 +77,7 @@ c-----------------------------------------------------------------------
       real(8),   allocatable:: ecoret(:,:,:,:)
       integer(4),allocatable::ncwf2(:,:,:)
       integer:: ia,l,m,ic1,isp,lt,nt,nsp,nr,ncorex,ifix
-      real(8)::a,b,zz, efdummy,dw,diw
+      real(8)::a,b,zz, efdummy,dw,diw,pi
       integer:: nwdummy,ifile_handle
       if(done_genallcf_v3) call rx('genallcf_v3 is already called')
       done_genallcf_v3=.true.
@@ -91,7 +91,10 @@ c--- rgwinf ---
       read(ifi,*)
       read(ifi,*)
       read(ifi,*)
-      read(ifi,*)alat              !lattice constant
+      read(ifi,*)alat           !lattice constant
+      pi=4d0*datan(1d0)
+      tpioa=2d0*pi/alat
+      
       allocate(plat(3,3))          !primitive lattice vectors
       read(ifi,*)
       read(ifi,*)plat(1:3,1)
@@ -547,7 +550,8 @@ c      integer:: nband !not yet protected!
       close(ifhbe)
       end subroutine
       end module
-
+c----------------------------------
+ 
 !------------------------
       module m_ReadEfermi
       real(8),protected:: bandgap, ef, ef_kbt
