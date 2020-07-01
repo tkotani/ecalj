@@ -53,7 +53,7 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:    Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
-      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize
+      use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
       use m_llw,only:     WVRllwR,WVIllwI,MPI__sendllw
       use m_readwvd,only: Readwvd,Setwvd
       use m_w0w0i,only:   Finalizew4p,w0w0i
@@ -231,15 +231,25 @@ c$$$      endif
               call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) !read eigenvalue
               call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
            enddo
-           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight. 
-           call x0kf_v4hz( !core routine to accumulate imaginary part of x0 to rcxq
-     i          q, is, isf, iq, ngb,ngc,
-c     i          q, is, isf, iq, ngc,
+           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight.
+           
+           call x0kf_v4hz_init(0, !core routine to accumulate imaginary part of x0 to rcxq
+     i          q, is, isf, iq, ngc,
+     i          nmbas_in, 
+     i          eibzmode, 
+     i          nwgt(:,iq),crpa) 
+           call x0kf_v4hz_init(1, !core routine to accumulate imaginary part of x0 to rcxq
+     i          q, is, isf, iq, ngc,
+     i          nmbas_in, 
+     i          eibzmode, 
+     i          nwgt(:,iq),crpa) 
+
+           call x0kf_v4hz(      !core routine to accumulate imaginary part of x0 to rcxq
+     i          q, is, isf, iq, ngc,
      o          rcxq,           !  rcxq is the accumulating variable for spins 
      i          nmbas_in, 
      i          eibzmode, 
-c     i          nwgt(:,iq), crpa) 
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) 
+     i          nwgt(:,iq),crpa) 
            call tetdeallocate()
  1003   continue
 !! Symmetrize and convert to Enu basis.

@@ -52,7 +52,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
       use m_readVcoud,only: Readvcoud,vcousq,zcousq
-      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize
+      use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init
       use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
       use m_w0w0i,only: Finalizew4p,w0w0i
@@ -667,13 +667,22 @@ c$$$        enddo
 c$$$        stop ' end of pringing tetrahedron weight'
 c         
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-          call cputid(0)
-          call x0kf_v4hz( q, is, isf, iq, ngb,ngc,
-c+          call x0kf_v4hz( q, is, isf, iq, ngc,
-     o    rcxq,   !  rcxq is the accumulating variable for spins 
-     i    nmbas_in, !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
-     i    eibzmode, !z1offd,!for nolfco Add nmbas Sep2006 chipm,
-     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) !ngrp,
+          call x0kf_v4hz_init(0,      
+     i         q, is, isf, iq, ngc,
+     i         nmbas_in, 
+     i         eibzmode, 
+     i         nwgt(:,iq),crpa) 
+          call x0kf_v4hz_init(1,      
+     i         q, is, isf, iq, ngc,
+     i         nmbas_in, 
+     i         eibzmode, 
+     i         nwgt(:,iq),crpa)
+           
+          call x0kf_v4hz( q, is, isf, iq, ngc,
+     o         rcxq,            !  rcxq is the accumulating variable for spins 
+     i         nmbas_in,        !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
+     i         eibzmode,        !z1offd,!for nolfco Add nmbas Sep2006 chipm,
+     i         nwgt(:,iq),crpa) !ngrp,
 c     i    nwgt(:,iq),crpa) !ngrp,
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode

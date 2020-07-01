@@ -15,120 +15,84 @@
       use m_tetwt,only:     whw,ihw,nhw,jhw,n1b,n2b,nbnb,nbnbx,nhwtot
       implicit none
       
-      public:: X0kf_v4hz, X0kf_v4hz_symmetrize
+      public:: X0kf_v4hz_init, X0kf_v4hz, X0kf_v4hz_symmetrize
       private
-      integer,allocatable:: nkmin(:),  nkmax(:),nkqmin(:),nkqmax(:)
-      real(8),allocatable:: whwx(:)
-      logical,allocatable:: skipk(:)
+      integer:: ncc, ncount
+      integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:)
+      real(8),allocatable:: whwc(:)
+      integer,allocatable:: kc(:),iwc(:),itc(:),itpc(:),jpmc(:)
+c      logical,allocatable:: skipk(:)
       contains
-      subroutine X0kf_v4hz (
-     i                  q,
-     i                  isp_k,isp_kq,
-     i      iq, ngbb, ngc, 
-     o                    rcxq,
+      
+!--------------------------------------------------------------------------      
+      subroutine X0kf_v4hz_init (
+!! === initialzation for calling x0kf_v4h.
+!! Get ncount index for x0kf_v4h in the private variables
+!! Call job=0 and job=1 successively.      
+!!   ncount, ngb and nqibz are the key to estimate computational efforts.
+!! See x0kf_v4hz.
+     i                  job,q,isp_k,isp_kq,
+     i     iq, ngc, 
      i     nmbas, 
      i     eibzmode, 
-     i     nwgt,igx,igxt,eibzsym, crpa) 
-      intent(in)::      q,
-     i                  isp_k,isp_kq,
-     i      iq, ngbb, ngc, 
+     i     nwgt, crpa) 
+      intent(in)::      job,q, isp_k,isp_kq,
+     i     iq, ngc, 
      i     nmbas, 
      i     eibzmode, 
-     i     nwgt,igx,igxt,eibzsym, crpa
-      intent(inout)::
-     o                    rcxq
-!! === calculate chi0, or chi0_pm ===
-!! We calculate imaginary part of chi0 along real axis.
-!!
-!! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
-!!  
-!!
-!! ppovl= <I|J> = O , V_IJ=<I|v|J>
-!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
-!!
-!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
-!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
-!!
-!! when nmbas1=2, this works in a special manner for nolfco=T chipm=F. mar2012takao
-!!
-!! 
-!! OUTPUT:
-!!  rcxq (nmbas,nmbas,nwhis,npm): for given q,
-!!       rcxq(I,J,iw,ipm) = 
-!!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
-!!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
-!!
-!!
-!!!!!
-!! zmel: matrix element <phi phi |M>
-!!    q,iq:
-!! nlmto   = total number of atomic basis functions within MT
-!! nqbz    = number of k-points in the 1st BZ
-!!
-      integer:: k,ncc,isp_k,isp_kq 
-     &  ,iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp
-      real(8):: q(3)
-      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
-      complex(8) :: imag=(0d0,1d0),trc,aaa 
-      integer::   ngc,nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, 
-      complex(8),allocatable :: zmelt(:,:,:)
-      complex(8),allocatable::  z1p(:,:)
-      logical,parameter:: debug=.false.
-      real(8) :: imagweight 
-      integer:: nmbas !, imb1,imb2, imb verbose,
-      logical :: iww2=.true.
-      complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
-      integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
-      logical :: eibzmode  
-      integer::  nwgt(nqbz) 
-      logical::  crpa, exchange=.false. !eibz4x0,
-      real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
+     i     nwgt,crpa
       integer::  irot=1         !, ntqxx,nbmax!,nctot
-
-      integer::  eibzsym(ngrp,-1:1),neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele,ngbb
-      integer:: igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),ieqbz
-      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
+      integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp,job,icount,ngc, nmbas
+      integer::  nwgt(nqbz) 
+      real(8):: q(3), imagweight, wpw_k, wpw_kq
+      logical :: iww2=.true., eibzmode, crpa, exchange=.false.
 !!-----------------------------------------------------------
-      write(6,'(" x0kf_v4hz: q=",3f8.4,$)')q
+      write(6,'(" x0kf_v4hz_init: job q=",i3,3f8.4)') job,q
       if(npm==1) then
          ncc=0
       else
-         ncc=nctot
+         ncc=nctot !stored to private variable
       endif
-
-!! Pre loop over k-points, to get imgw(iw,ib,jb,k,jpm) and so on for main loop do 1000
-!!   I think do 110 is not time-consuming.
-c      allocate(imgw(nwhis,nbnbx,nqbz,npm))
-      allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz),skipk(nqbz) )
-      allocate(it_(nbnbx,npm,nqbz),itp_(nbnbx,npm,nqbz),whwx(nhwtot))
-      skipk=.false.
+      if(job==0) then
+         allocate( nkmin(nqbz),nkmax(nqbz),nkqmin(nqbz),nkqmax(nqbz)) !,skipk(nqbz) )
+      endif   
+c      allocate(it_(nbnbx,npm,nqbz),itp_(nbnbx,npm,nqbz)) !,whwx(nhwtot))
+      if(job==1) then
+         allocate( whwc(ncount), kc(ncount), iwc(ncount), itc(ncount), itpc(ncount), jpmc(ncount) )
+      endif
+      
+      icount=0
       do 110 k = 1,nqbz
         if( (eibzmode.and.nwgt(k)==0) .or. sum(nbnb(k,1:npm))==0   ) then
-           skipk(k)=.true.
+c           skipk(k)=.true.
            cycle
         endif
-        nkmin(k) = 999999
-        nkmax(k)= -999999
-        nkqmin(k)= 999999
-        nkqmax(k)=-999999
-        do jpm=1,npm !npm
-        do ibib = 1, nbnb(k,jpm)
-            nkmin(k)  = min(n1b(ibib,k,jpm),nkmin(k))
-            nkqmin(k) = min(n2b(ibib,k,jpm),nkqmin(k))
-            if(n1b(ibib,k,jpm)<=nband) nkmax(k)  = max(n1b(ibib,k,jpm),nkmax(k))
-            if(n2b(ibib,k,jpm)<=nband) nkqmax(k) = max(n2b(ibib,k,jpm),nkqmax(k))
-        enddo
-        enddo
-c        nkqmin(k)  = nkqmin(k)          ! nkqmin = the num of min   n2 =unocc for jpm=1
-c        nt0   = nkmax(k)
-c        ntp0  = nkqmax(k) - nkqmin(k) +1
+        if(job==0) then
+           nkmin(k) = 999999
+           nkmax(k)= -999999
+           nkqmin(k)= 999999
+           nkqmax(k)=-999999
+           do jpm=1,npm         !npm
+              do ibib = 1, nbnb(k,jpm)
+                 nkmin(k)  = min(n1b(ibib,k,jpm),nkmin(k))
+                 nkqmin(k) = min(n2b(ibib,k,jpm),nkqmin(k))
+                 if(n1b(ibib,k,jpm)<=nband) nkmax(k)  = max(n1b(ibib,k,jpm),nkmax(k))
+                 if(n2b(ibib,k,jpm)<=nband) nkqmax(k) = max(n2b(ibib,k,jpm),nkqmax(k))
+              enddo
+           enddo
+        endif
+c     nkqmin(k)  = nkqmin(k)          ! nkqmin = the num of min   n2 =unocc for jpm=1
+c     nt0   = nkmax(k)
+c     ntp0  = nkqmax(k) - nkqmin(k) +1
+        
+!! sanity check
         if( npm==2.and. nkqmin(k)/=1) then
           write(6,*)' npm==2 nkqmin nkqmax  nkmin nkmax=',nkqmin,nkqmax,nkmin,nkmax
           call rx( " When npm==2, nkqmin==1 should be.")
         endif
         if(nkmin(k)/=1) call rx( " nkmin==1 should be.")
-!      ib_k =[1:nctot]              core
+
+!     ib_k =[1:nctot]              core
 !      ib_k =[nctot+nkmin:nctot+nkmax]  valence
 !      ib_kq =[1:ncc]             core
 !      ib_kq =[ncc+nkqmin:ncc+nkqmax]  valence range [nkqmin,nkqmax]
@@ -142,8 +106,8 @@ c        ntp0  = nkqmax(k) - nkqmin(k) +1
         do 125 jpm  = 1, npm ! npm=1 usually (or =2)
         do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
-          it_(ibib, jpm,k)= -999
-          itp_(ibib,jpm,k)= -999
+c          it_(ibib, jpm,k)= -999
+c          itp_(ibib,jpm,k)= -999
           if(n1b(ibib,k,jpm) <= nband) then
             it = nctot + n1b(ibib,k,jpm) !valence
             if(it > nctot + nkmax(k) ) cycle
@@ -178,9 +142,6 @@ c        ntp0  = nkqmax(k) - nkqmin(k) +1
                 endif
              endif
           endif
-!!          
-         it_(ibib, jpm,k)= it ! band index for occupied
-         itp_(ibib,jpm,k)= itp! band index for unoccupied
 !! sanity check
           if (ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 >nwhis) call rx( "x0kf_v4hz: iw>nwhis")
 !! constraint RPA mode (juelich verison)
@@ -196,24 +157,97 @@ c        ntp0  = nkqmax(k) - nkqmin(k) +1
               wpw_kq=0d0
             endif  
           endif
-c$$$cccccccccccccccccccccccccccccccccc
-c$$$ For SrVO3 test
-c$$$          if(crpa) then
-c$$$             wpw_k=0d0
-c$$$             if(15<n1b(ibib,k,jpm).and.n1b(ibib,k,jpm)<19) wpw_k=1d0
-c$$$             wpw_kq=0d0
-c$$$             if(15<n2b(ibib,k,jpm).and.n2b(ibib,k,jpm)<19) wpw_kq=1d0
-c$$$          endif
-c$$$ccccccccccccccccccccccccccccccccccc
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
              imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
              if(crpa)     imagweight = imagweight*(1d0-wpw_k*wpw_kq)
              if(eibzmode) imagweight = nwgt(k)*imagweight
-             whwx(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm)) = imagweight
+             icount = icount+1
+             if(job==1) then
+                whwc (icount)= imagweight
+                kc   (icount) = k
+                iwc  (icount)= iw
+                itc  (icount)= it
+                itpc (icount)= itp
+                jpmc (icount)= jpm
+c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+             endif
           enddo                 ! iw
  125     continue
  110  continue
-      
+      ncount = icount
+      if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngc+nbloch, nqibz
+      end subroutine x0kf_v4hz_init
+
+!! --------------------------------------------------------------------------------
+      subroutine X0kf_v4hz (
+     i                  q,
+     i                  isp_k,isp_kq,
+     i      iq,  ngc, 
+     o                    rcxq,
+     i     nmbas, 
+     i     eibzmode, 
+     i     nwgt, crpa) 
+      intent(in)::      q,
+     i                  isp_k,isp_kq,
+     i      iq,  ngc, 
+     i     nmbas, 
+     i     eibzmode, 
+     i     nwgt, crpa !igx,igxt,eibzsym,
+      intent(inout)::
+     o                    rcxq
+!! === calculate chi0, or chi0_pm ===
+!! We calculate imaginary part of chi0 along real axis.
+!!
+!! NOTE: rcxq is i/o variable for accumulation. We use E_mu basis when chipm=F.
+!!  
+!!
+!! ppovl= <I|J> = O , V_IJ=<I|v|J>
+!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
+!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)     
+!!
+!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
+!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
+!!
+!! when nmbas1=2, this works in a special manner for nolfco=T chipm=F. mar2012takao
+!!
+!! 
+!! OUTPUT:
+!!  rcxq (nmbas,nmbas,nwhis,npm): for given q,
+!!       rcxq(I,J,iw,ipm) = 
+!!       Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
+!!      When npm=2 we calculate negative energy part. (time-reversal asymmetry)
+!!
+!!
+!!!!!
+!! zmel: matrix element <phi phi |M>
+!!    q,iq:
+!! nlmto   = total number of atomic basis functions within MT
+!! nqbz    = number of k-points in the 1st BZ
+!!
+      integer:: k,isp_k,isp_kq 
+     &  ,iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp
+      real(8):: q(3)
+      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
+      complex(8) :: imag=(0d0,1d0),trc,aaa 
+      integer::   ngc,nadd(3), igc !nband,!ngpmx, ngcmx,nqbze, 
+      complex(8),allocatable :: zmelt(:,:,:)
+      complex(8),allocatable::  z1p(:,:)
+      logical,parameter:: debug=.false.
+      real(8) :: imagweight 
+      integer:: nmbas !, imb1,imb2, imb verbose,
+      logical :: iww2=.true.
+      complex(8):: img=(0d0,1d0),zmelt2 !,zzz(ngbb)
+      integer ::  nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb !nkqmin, nkqmax,
+      logical :: eibzmode  
+      integer::  nwgt(nqbz) 
+      logical::  crpa, exchange=.false. !eibz4x0,
+      real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
+      integer::  irot=1         !, ntqxx,nbmax!,nctot
+
+      integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
+      integer:: ieqbz,kold !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
+c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
+!!-----------------------------------------------------------
 !! Main loop over k-points ---------------------------------------------------------
 !! z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !     ! zxq(iw,ibg1,igb2) = \sum_ibib imgw(iw,ibib)* z1p(ibib, igb1,igb2) !ibib means band pair (occ,unocc)
@@ -248,64 +282,59 @@ c
 !! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz
 !! zmel(ngb, nctot+nt0,ncc+ntp0) in m_zmel
 !        nkmin:nt0,           nkqmin:ntp0
-!        nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
-      ngb = nbloch + ngc
-      allocate( z1p(ngb,ngb) )
-      do 1000 k = 1,nqbz
-        if( skipk(k) )  cycle
-        if( debug ) write(6,'("do 1000  k=",i4,3f10.4)')k,rk(:,k)
-        if( k<=5.or. (mod(k,max(10,nqbz/20))==1.or.k>nqbz-10) ) then
-           write(6,"('  x0kf_v4hz do1000: k rk=',i7,3f10.4,$)")k, rk(:,k)
-           call cputid(0)
+!     nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1
+      ngb  =  nbloch + ngc
+      kold = -999
+      do 1000 icount = 1,ncount
+        if(debug) call cputid(0)
+        k = kc(icount)
+c        write(6,'(" x0kf_v4hz: do1000 q,k=",3f8.4,2x,3f8.4)') q,rk(:,k)
+        if(kold/=k) then 
+           call Get_zmelt2(exchange,  
+     &       q,irot,q,ngc,ngb, ! MPB
+     &       nkmin(k), nkmax(k), isp_k,nctot, ! middle state. index of eigen is mkmin:mkmin+nt0-1  + nctot
+     &       q+rk(:,k),nkqmin(k),nkqmax(k),isp_kq,ncc) ! end state.   index of eigen is nkqmin:nkqmin+ntp0-1 +ncc 
+           call Dconjg_zmel()   !zmel = dconjg(zmel)
+           kold=k
         endif
-        call Get_zmelt2(exchange,  
-     &      q,irot,q,ngc,ngb,                   ! MPB
-     &        nkmin(k), nkmax(k), isp_k,nctot,        
-              ! middle state 1:nt0   --> true index of eigen is mkmin:mkmin+nt0-1     + nctot
-     &      q+rk(:,k),nkqmin(k),nkqmax(k),isp_kq,ncc) 
-              ! end state    1:ntp0  --> true index of eigen is nkqmin:nkqmin+ntp0-1  
-        call Dconjg_zmel() !zmel = dconjg(zmel) 
 c----------------------------
 !!  z1p = <M_ibg1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
 !!  zxq(iw,ibg1,igb2) = sum_ibib wwk(iw,ibib)* z1p(ibib, igb1,igb2)
-        do 25 jpm  = 1, npm ! npm=1 usually (or =2)
-        do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
+c        do 25 jpm  = 1, npm ! npm=1 usually (or =2)
+c        do 25 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
 !! z1p=zmel* \times zmel        
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
-           it = it_(ibib,jpm,k)
-           itp= itp_(ibib,jpm,k)
-           if(it ==-999) cycle
-           if(itp==-999) cycle
-           do igb2=1, nmbas     !....................................
-              zmelt2 = zmel(igb2,it,itp) !zmelt(igb2,it,itp)
-              do igb1=1,igb2
-                 z1p(igb1,igb2) = dconjg(zmel(igb1,it,itp)) * zmelt2
-              enddo
-           enddo
+c              !it_(ibib,jpm,k)
+c        !itp_(ibib,jpm,k)
+c        do igb2=1, nmbas        !....................................
+c           zmelt2 = zmel(igb2,it,itp) !zmelt(igb2,it,itp)
+c           do igb1=1,igb2
+c              z1p(igb1,igb2) = dconjg(zmel(igb1,it,itp)) * zmelt2
+c           enddo
+c        enddo
 !! == This do loops for iw,igb1,igb2 is heaviest core part of im part of polarization funciton ===
 !$OMP parallel => Takao do not know this is good or not.
 !$OMP do 
-          do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
-          do igb2=1,nmbas      !this part dominates cpu time most time consuming...........
-          do igb1=1,igb2
+        it  = itc(icount)  !occ      
+        itp = itpc(icount) !unocc       
+        iw  = iwc(icount)  !omega-bin
+        jpm = jpmc(icount)      ! \pm omega
+c        write(6,"(a,6i5,d13.5)")'icount k it itp iw jpm whw=',icount,k,it,itp,iw,jpm,whwc(icount)
+        do igb2=1,nmbas  !this part dominates cpu time most time consuming...........
+        do igb1=1,igb2
              rcxq(igb1,igb2,iw,jpm) = 
-     &       rcxq(igb1,igb2,iw,jpm) 
-     &           + z1p(igb1,igb2) * whwx( jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm) ) 
-!! NOTE                             whwx = imgw(iw, it,itp,k,jpm)
-          enddo     
-          enddo     
-          enddo     
+     &       rcxq(igb1,igb2,iw,jpm) + dconjg(zmel(igb1,it,itp))*zmel(igb2,it,itp) * whwc(icount)
+!! NOTE                               whwc is the img weight given by tetrahedron method.
+        enddo     
+        enddo     
 !$OMP end do 
 !$OMP end parallel 
- 25     continue
-        call Deallocate_zmel()
-        if(debug) call cputid(0)
-        if(debug) write(6,*)' end of kloop k jpm=',k,jpm
+c 25     continue
  1000 continue
-      deallocate(nkmin,nkmax,nkqmin,nkqmax,skipk)
-      deallocate(z1p,whwx) 
-      
-!! ==== Hermitianize. jun2012takao moved from dpsion5 ====
+      call Deallocate_zmel()
+      deallocate(nkmin,nkmax,nkqmin,nkqmax)!,skipk)
+      deallocate(whwc,kc,itc,itpc,iwc,jpmc) !z1p
+!! Hermitianize. jun2012takao moved from dpsion5 ====
         do jpm=1,npm
         do iw= 1,nwhis
          do igb2= 1,nmbas !eibzmode assumes nmbas1=nmbas2
@@ -321,8 +350,6 @@ c----------------------------
      &     sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
       end subroutine x0kf_v4hz
       
-
-!! --------------------------------------------------------------------------------
 !! --------------------------------------------------------------------------------
       subroutine X0kf_v4hz_symmetrize (
      i     q, iq, ngbb, ngc, 
@@ -332,7 +359,7 @@ c----------------------------
       use m_rotMPB,only:  rotMPB2 
 !! === symmetrization for EPIBZ mode ===
       implicit none
-      integer(4):: ncc,ngbb,natom!,isp_k,isp_kq   !nsp,npm,nwhis,
+      integer(4):: ngbb,natom!,isp_k,isp_kq   !nsp,npm,nwhis,
      &  ,nclass,nnc,iq,iatom,nctot,nbmx,iopen !nbloch,nl,nqibz,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, ngb,
      &  nn,no,isx,iclose,k !nbnbx,nqbz
