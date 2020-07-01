@@ -191,15 +191,14 @@ c$$$      endif
 !! ---------------------------------------------------------------
 
 !! main loop ========================================================
+!     ! note for paralellinzation
+!     ! iq, isp, k, (jpm, ibib, igb1, igb2) in x0kf_v4h
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
         call cputid (0)
         q = qibze(:,iq)
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
-c       if(MPI__rootS) then
-!! open WVR (W-V along real axis), WVI (along imag axis) for given q (iq).
-c        endif
         call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
                                            ! quu: equivalent to q.
         ngb = nbloch + ngc    ! number of MPB = PB part + IPW part
@@ -233,12 +232,14 @@ c        endif
               call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
            enddo
            call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight. 
-           call x0kf_v4hz(
-     i          q, is,isf,  iq,ngb,ngc,
+           call x0kf_v4hz( !core routine to accumulate imaginary part of x0 to rcxq
+     i          q, is, isf, iq, ngb,ngc,
+c     i          q, is, isf, iq, ngc,
      o          rcxq,           !  rcxq is the accumulating variable for spins 
      i          nmbas_in, 
      i          eibzmode, 
-     i          nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),eibzsym(:,:,iq), crpa) 
+c     i          nwgt(:,iq), crpa) 
+     i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) 
            call tetdeallocate()
  1003   continue
 !! Symmetrize and convert to Enu basis.
@@ -288,6 +289,7 @@ c        endif
 c============end of loop over q point =================================
       call MPI__barrier()
       call MPI__sendllw(iqxend) !!! mpi send LLW to root.
+      
 !! == W(0) divergent part and W(0) non-analytic constant part.==. This can be in another fortran program.
 c$$$ 1191 continue
       if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node

@@ -8,7 +8,7 @@
       integer,allocatable,protected,public :: 
      &    idtetf(:,:),ib1bz(:),idteti(:,:),
      &    nstar(:),irk(:,:),nstbz(:) !,index_qbz(:,:,:)
-      real(8),allocatable,protected,public:: qbas(:,:),ginv(:,:),dq_(:) 
+      real(8),allocatable,protected,public:: qbas(:,:),ginv(:,:),dq_(:),qbasinv(:,:)
      &    , qbz(:,:),wbz(:),qibz(:,:)
      &    , wibz(:),qbzw(:,:)
       logical,protected,public:: done_read_bzdata=.false.
@@ -27,7 +27,7 @@ c      real(8),allocatable:: qbasmc(:,:), qibz_r(:,:)
       logical:: qbzreg
       write(6,*)' ### readin BZDATA ###'
 c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
-      allocate(qbas(3,3),ginv(3,3),dq_(3)) !,qbasmc(3,3)
+      allocate(qbas(3,3),ginv(3,3),dq_(3),qbasinv(3,3)) !,qbasmc(3,3)
       open(newunit=ifbz, file='BZDATA')
       read(ifbz,*)  nqbz,nqibz, nqbzw, ntetf, nteti, ngrp !, nqibz_r
       read(ifbz,*)  n1,n2,n3
@@ -49,6 +49,7 @@ c      allocate(n1,n2,n3,ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,nqibz_r)
      i    idteti, nteti,dq_) !, qibz_r, nqibz_r )
       write(6,"(a,9f9.4)")'read_BZDATA:ginv=',ginv
       close(ifbz)
+      call minv33(qbas,qbasinv)
 !! this block is moved from hx0fp0 @jun2020
 !! Use regular mesh even for bzcase==2 and qbzreg()=T
 !!     off-regular mesh for bzcase==1 and qbzreg()=F

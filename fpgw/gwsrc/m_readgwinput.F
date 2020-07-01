@@ -19,7 +19,7 @@ c      integer:: nband
       call Getkeyvalue("GWinput","ecuts_p",ecuts,default=1d10 )
       
       call getkeyvalue("GWinput","nbcutlow",  nbcut, default=0 )
-      call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=0 )
+      call getkeyvalue("GWinput","nbcutlowto",nbcut2, default=999999 )
       write(6,"(' nbcut nbcutlowto=',2i5)") nbcut,nbcut2
       
       call getkeyvalue("GWinput","nband_chi0",nbmx, default=nband)

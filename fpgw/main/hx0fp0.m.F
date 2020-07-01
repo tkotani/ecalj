@@ -668,17 +668,19 @@ c$$$        stop ' end of pringing tetrahedron weight'
 c         
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
           call cputid(0)
-          call x0kf_v4hz( q,is,isf, iq,ngb,ngc,
+          call x0kf_v4hz( q, is, isf, iq, ngb,ngc,
+c+          call x0kf_v4hz( q, is, isf, iq, ngc,
      o    rcxq,   !  rcxq is the accumulating variable for spins 
      i    nmbas_in, !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
      i    eibzmode, !z1offd,!for nolfco Add nmbas Sep2006 chipm,
      i    nwgt(:,iq),igx(:,:,iq),igxt(:,:,iq),  eibzsym(:,:,iq),crpa) !ngrp,
+c     i    nwgt(:,iq),crpa) !ngrp,
 !! == Symmetrizer for crystal symmetry (and also for spin)
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
                                         !Because rcxq is calculated for each is, symmetrized and its contribution
                                         !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize( q, iq,ngb,ngc, 
+            call x0kf_v4hz_symmetrize( q, iq, ngb,ngc, 
      o       rcxq,              !  rcxq is the accumulating variable for spins
      i       nolfco, zzr, nmbas_in, 
      i       chipm, eibzmode,    
