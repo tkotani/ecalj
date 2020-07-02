@@ -55,7 +55,6 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
       use m_llw,only:     WVRllwR,WVIllwI,MPI__sendllw
-      use m_readwvd,only: Readwvd,Setwvd
       use m_w0w0i,only:   Finalizew4p,w0w0i
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,

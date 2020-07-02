@@ -29,6 +29,7 @@ cd StructureTool/
 
 ### Use lm7K/Makefile
 cd ../lm7K/
+make PLATFORM=gfortran       LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran      BINDIR=$BINDIR install ||my_error
 make PLATFORM=gfortran_mpik LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran_mpik BINDIR=$BINDIR install ||my_error
