@@ -146,7 +146,17 @@ c-------------------------------------------------------------------------------
      i                   imdim,iatomp,
      i                   mdimx,nlmto,nbloch,nlnmx,natom,nclass,
      i                   icore,ncore,nl,nnc,  
-     o zpsi2b)
+     o            zpsi2b)
+      implicit none
+      intent(in)          nctot,ncc,nt0,ntp0,  iclass, phase, 
+     i                   cphik,
+     i                   cphikq, 
+     i                   ppb,
+     i                   nlnmv,nlnmc,mdim,
+     i                   imdim,iatomp,
+     i                   mdimx,nlmto,nbloch,nlnmx,natom,nclass,
+     i                   icore,ncore,nl,nnc  
+      intent(out) zpsi2b
 C- Calculates <psi (k+q,t) |core(k,t) B(R,ibloch)> ---------------------
 C      also   <core(k+q,t) |psi (k,t) B(R,ibloch)>
 Cr B(R,i)   = Mixed basis.
@@ -171,7 +181,6 @@ Ch           takao at Apr2002(v2) : mixed basis version 2
 Ch                    Feb2006(v3) : Add case with ncc/=0
 Cr
 C-------------------------------------------------------------------------
-      implicit none
       integer(4):: nl,nlmto,nbloch,nclass,natom,nctot,ncc,nt0,ntp0,mdimx,nlnmx,nnc,
      & ib,ias,ics,ia,ic,nc,nv,nc1,iap,icp,i,itp,it,icr
       integer(4)::  icore(nl*nl*nnc,nclass),ncore(nclass),

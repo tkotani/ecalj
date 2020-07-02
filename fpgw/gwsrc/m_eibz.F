@@ -20,7 +20,7 @@ c     &     idteti, nstar,irk,nstbz
       implicit none
 
       integer,allocatable,protected:: nwgt(:,:)
-      integer,allocatable,protected:: neibz(:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
+      integer,allocatable,protected:: neibz(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
       
       contains
 
@@ -53,5 +53,87 @@ c     &     idteti, nstar,irk,nstbz
      &    ,igxt(1,1,iqxini:iqxendx), eibzsym(1,1,iqxini:iqxendx)) !dummy
       endif
       end subroutine
-!!
+      end module
+      
+!! ------------------------------------------------------------------
+      module m_eibzhs
+      use m_read_bzdata,only: qbz,nqibz,ginv,irk,nqbz
+      use m_genallcf_v3,only: ngrp, symgg 
+      use m_readhbe,only: nband
+      use m_rdpp,only:  nbloch
+      implicit none
+!------------------------------
+      integer,allocatable,protected:: nwgt(:,:)
+      integer,allocatable,protected:: irkip_all(:,:,:,:),nrkip_all(:,:,:,:),eibzsym(:,:,:)
+      logical:: tiii
+!------------------------------
+      contains
+      subroutine Seteibzhs(nspinmx,nq,q,iprintx)
+      intent(in)::         nspinmx,nq,q,iprintx
+      integer   ::    nspinmx,nq,iqxini,iqxend,iqq,is,kr,kx,igrp
+      integer,allocatable:: neibz(:),nwgt(:,:),igx(:,:,:),igxt(:,:,:)
+      logical:: eibz4sig,tiii=.false.,tiiiout,iprintx
+      real(8):: q(3,nq)
+      allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+      allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
+!! eibz4sig() is EIBZ symmetrization or not...
+      if(eibz4sig()) then
+        allocate(nwgt(nqbz,1:nq),igx(ngrp*2,nqbz,nq))
+        allocate(igxt(ngrp*2,nqbz,nq), eibzsym(ngrp,-1:1,nq))
+        iqxini=1
+        iqxend=nq
+c         write(6,"('TimeRevesal switch = ',l1)") timereversal()
+c         call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
+c     &        iqxini,iqxend,qbz,nqbz,timereversal(),ginv,iprintx,
+c     o        nwgt,igx,igxt,eibzsym,tiii)
+!! Check timereversal is required for symmetrization operation or not. If tiii=timereversal=F is enforced,
+!! the symmetrization procedure in x0kf_v4h becomes a little time-consuming.
+        tiii=.false.            !Enforce no time reversal. time reversal not yet...
+        write(6,*)'NOTE:TimeReversal not yet implemented in hsfp0.sc.m.F'
+        write(6,"('=== goto eibzgen === used timereversal=',l1)")tiii
+        call eibzgen(nq,symgg,ngrp,q(:,iqxini:iqxend),
+     &   iqxini,iqxend,qbz,nqbz,tiii,ginv,iprintx,
+     o   nwgt,igx,igxt,eibzsym,tiiiout)
+        nrkip_all=0
+        irkip_all=0
+        is=1                    ! not spin dependent
+        do iqq=1,nq
+        do kx=1,nqibz
+        do igrp=1,ngrp
+          kr = irk(kx,igrp) !ip_all(is,kx,igrp,iqq) !kr is index for qbz (for example, nonzero # of kr is 64 for 4x4x4)
+          if(kr==0) cycle
+          if(nwgt(kr,iqq)/=0) then
+            irkip_all(is,kx,igrp,iqq)= irk(kx,igrp)
+            nrkip_all(is,kx,igrp,iqq)= nwgt(kr,iqq)
+           endif   
+        enddo
+        enddo
+        enddo  
+C          do iqq=1,nq
+C             write(6,"('iq=',i4,' # of EIBZ: Used(TimeR 1 or -1)=',i3,'=',i3,'+',i3)")
+C      &           iqq,sum(eibzsym(:,:,iqq)),sum(eibzsym(:,1,iqq)),sum(eibzsym(:,-1,iqq))
+C             write(6,"('eibz: iqq sum(nrkip_all)=nqbz  ',i3,3f11.5,3i8)")
+C      &           iqq,q(:,iqq),sum(nrkip_all(is,:,:,iqq)),nqbz
+C             do kx=1,nqibz
+C                do igrp=1,ngrp
+C                   kr = irkip_all(is,kx,igrp,iqq) !kr is index for qbz
+C                   if(kr/=0) write(6,"('      ',i8,3f11.5,i8,2x,25(i4,i2))")
+C      &                 kr,qbz(:,kr),nrkip_all(is,kx,igrp,iqq)
+C      &                 ,(igx(i,kr,iqq),igxt(i,kr,iqq),i=1,nwgt(kr,iqq))
+C                enddo
+C             enddo
+C!     !   Probably partial group symmetrization is enough. But it may not reduce computational time so much.
+C         enddo  
+        if(nspinmx==2) then
+          irkip_all(2,:,:,:)=irkip_all(1,:,:,:)
+          nrkip_all(2,:,:,:)=nrkip_all(1,:,:,:)
+        endif
+      else                      ! not eibz4sig
+        do is = 1,nspinmx
+          do iqq=1,nq
+            irkip_all(is,:,:,iqq)=irk
+          enddo
+        enddo
+      endif
+      end subroutine
       end module

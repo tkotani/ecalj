@@ -25,7 +25,7 @@ c      use m_keyvalue,only: getkeyvalue
      &     MPI__ranktab,MPI__consoleout,MPI__barrier
 !     ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !NOTE: "call rdpp" generate following data.
-     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl
+     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
 !     ! Generate matrix element for "call get_zmelt".
       use m_zmel,only:          !NOTE: these data set are stored in this module, and used  
      &      Mptauof_zmel, Setppovlz,Setppovlz_chipm !Ppbafp_v2_zmel,Setppovlz_ee,
@@ -51,9 +51,9 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
 !! q0p
       use m_readq0p,only: Readq0p,
      &     wqt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
-      use m_readVcoud,only: Readvcoud,vcousq,zcousq
+      use m_readVcoud,only: Readvcoud,vcousq,zcousq,ngb,ngc
       use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init
-      use m_eibz,only:Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
+      use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
       use m_w0w0i,only: Finalizew4p,w0w0i
       implicit none
@@ -125,11 +125,11 @@ c      logical::imagonly=.false.,realonly=.false. !,readgwinput
 c     &   ifhbe,
 c     &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
      &   i,ngrpmx,mxx,ini,ix,ngrpx,!ngcmx,ngpmx nq0i,nq0ix,
-     &   nblochpmx,ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
+     &   ndummy1,ndummy2,ifcphi,is,nwp, !ifvcfpout,,mdimx,nbloch
      &   ifepscond !,ifvxcpout,ifgb0vec,nxx
      &   ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx
      &   ,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas !,nprecx
-     &   ,ibas1,irot,iq,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy
+     &   ,ibas1,irot,iq,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy
      &   ,kx,isf,kqxx,kp,job,noccxvx(2)=-9999,nwmax  !,ifev1,ifev2 nbnbx,nhwtot,
      &   ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j
 c     &   ,ngpmx !,  ifchipmlog
@@ -139,7 +139,7 @@ c     &   ,ngpmx !,  ifchipmlog
 
       integer:: incwfin,  verbose
 
-      integer:: ngc!,mrecg !bzcase, 
+c      integer:: ngc!,mrecg !bzcase, 
       real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
       logical:: omitqbz=.false., noq0p
 
@@ -393,12 +393,12 @@ c      if(ngrp/=ngrp2       ) call rx( 'ngrp inconsistent: BZDATA and LMTO GWIN_
       symope(1:3,3) = [0d0,0d0,1d0]
       call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
 !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-c      call Rdpp(nl, ngrpx, nn, nclass, nspin, symope,qbas) !nxx, see m_rdpp
-c      call Rdpp(ngrpx,symope)
+!! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
+!!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
 !! Set nband, ngcmx, nqpmx and itq in m_zmel
       call Setitq()
 !! Pointer to optimal product basis
-      nblochpmx = nbloch + ngcmx
+c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel  
       allocate(ngveccB(3,ngcmx)) ! work arry
       iqxend = nqibz + nq0i
       write(6,*) ' nqibz nqibze=',nqibz,nqibze
@@ -422,10 +422,8 @@ c      call Rdpp(ngrpx,symope)
       endif
       if(MPI__root) write(6,"(' nw=',i5)") nw
       nwp = nw+1
-      
 !! Get eigenvector corresponds to exp(iqr) (q is almost zero).
       if(epsmode) allocate(epsi(nw_i:nw,neps)) 
-
 !! Tetrahedron initialization
       noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) ! maximum no. occupied valence states
       if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
@@ -525,29 +523,22 @@ c      call Rdpp(ngrpx,symope)
 !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
       allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
 !! ======== Loop over iq ================================
+      if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend  ! NOTE: q=(0,0,0) is omitted when iqxini=2
         if(.not. MPI__task(iq) ) cycle
         call cputid (0)
         q = qibze(:,iq)
-        call readqg('QGcou', q,  quu,ngc,ngveccB) 
-        if( iq==1 ) then ! *sanity check
-          if(sum(q**2)>1d-10) then
-            call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
-          endif
-        endif
-!! Readin Coulomb matrix ====
-        ngb = nbloch + ngc !ngb is readin from vcoul 25jan2006
-        write(6,*)
-        write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q !qq
-        write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 !! Readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
+        write(6,*)
+        write(6,"('===== do 1001: iq q=',i7,3f9.4,' ========')")iq,q 
+        call Readvcoud(q,iq,chipm) ! Set ngb,ngc and vcousq,zcousq !for the Coulomb matrix
         if((.not.chipm)) then
-          call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
           if(allocated(zzr)) deallocate(zzr)
           allocate(zzr(1,1)) !dummy
           zzr=0d0
         endif
+        write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
 !!      
         if(chipm .and. nolfco) then 
           nmbas_in = nmbas
@@ -607,11 +598,11 @@ c      call Rdpp(ngrpx,symope)
 !! Set ppovlz: zmelt conversion. Non-orthogonality and Enu(coulomb-diagonal basis) related.
 !!     ppovlz is used in get_zmelt2 in m_zmel (called in x0kf_v4h).
         if(chipm.and.nolfco) then
-          call setppovlz_chipm(zzr,ngb,nmbas1)
+          call setppovlz_chipm(zzr,nmbas1)
         elseif(nolfco .and. nmbas1==1) then !for <e^iqr|x0|e^iqr>
-          call Setppovlz(q,ngc,ngb,matz=.true.)
+          call Setppovlz(q,matz=.true.)
         else                     !may2013  this removes O^-1 factor from zmelt
-          call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
+          call Setppovlz(q,matz=.not.eibz4x0())
        endif
 
 !! rcxq: imaginary part after x0kf_v4h and symmetrization. 
@@ -626,11 +617,10 @@ c      call Rdpp(ngrpx,symope)
           allocate( zw0(ngb,ngb), zxq (ngb,ngb,nw_i:nw), zxqi(ngb,ngb,niw) )
         endif
         zxq=0d0;  zxqi=0d0;  rcxq = 0d0
-!! === loop over spin=== =========================================
         do 1003 is = 1,nspinmx
           write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, is, nqibz + nq0i,nspin
           if(debug) write(6,*)' niw nw=',niw,nw
-!! ==== spin chi_charge or chi_+- ====
+!!        chi(charge) or chi_+-(spin when chipm=T)
           isf=is
           if(chipm) then
             write(6,*)" chi_+- mode nolfc=",nolfco
@@ -643,57 +633,18 @@ c      call Rdpp(ngrpx,symope)
             call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) 
-c$$$ !!! test code to print tetrahedron weight !!!
-c$$$        jpm=1
-c$$$        do k=1,nqbz
-c$$$c           nkqmin= 999999
-c$$$c           do ibib = 1, nbnb(k,jpm)
-c$$$c              nkqmin = min(n2b(ibib,k,jpm),nkqmin)
-c$$$c           enddo
-c$$$           do ibib = 1, nbnb(k,jpm) !---  ibib loop
-c$$$c             print *,' k ibib=',k,ibib
-c$$$c              it =  n1b(ibib,k,jpm)    !valence
-c$$$c              itp = n2b(ibib,k,jpm) - itps + 1 !val
-c$$$c              if(n1b(ibib,k,jpm)==n2b(ibib,k,jpm)) then
-c$$$              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
-c$$$c                 if(iw<20) then
-c$$$                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-c$$$c                 write(*,'("eeee ",4i5,2x,d13.5,x,d13.5)') k, n1b(ibib,k,jpm),n2b(ibib,k,jpm), iw, imagweight
-c$$$c                 endif
-c$$$              enddo             ! iw
-c$$$c              endif
-c$$$           enddo
-c$$$        enddo
-c$$$        stop ' end of pringing tetrahedron weight'
-c         
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-          call x0kf_v4hz_init(0,      
-     i         q, is, isf, iq, ngc,
-     i         nmbas_in, 
-     i         eibzmode, 
-     i         nwgt(:,iq),crpa) 
-          call x0kf_v4hz_init(1,      
-     i         q, is, isf, iq, ngc,
-     i         nmbas_in, 
-     i         eibzmode, 
-     i         nwgt(:,iq),crpa)
-           
-          call x0kf_v4hz( q, is, isf, iq, ngc,
-     o         rcxq,            !  rcxq is the accumulating variable for spins 
-     i         nmbas_in,        !zcousq,   !ppovl,nmbas1,nmbas2, is removed ppovlz, zzr,nolfco,
-     i         eibzmode,        !z1offd,!for nolfco Add nmbas Sep2006 chipm,
-     i         nwgt(:,iq),crpa) !ngrp,
-c     i    nwgt(:,iq),crpa) !ngrp,
-!! == Symmetrizer for crystal symmetry (and also for spin)
+          call x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
+          call x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
+          call x0kf_v4hz(        q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa, 
+     o         rcxq)           !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
                                         !Because rcxq is calculated for each is, symmetrized and its contribution
                                         !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize( q, iq, ngb,ngc, 
-     o       rcxq,              !  rcxq is the accumulating variable for spins
-     i       nolfco, zzr, nmbas_in, 
-     i       chipm, eibzmode,    
-     i       eibzsym(:,:,iq)) 
+            call x0kf_v4hz_symmetrize( q, iq, 
+     i       nolfco, zzr, nmbas_in, chipm, eibzmode, eibzsym(:,:,iq),
+     o       rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
           endif
           call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '
@@ -717,7 +668,7 @@ c     i    nwgt(:,iq),crpa) !ngrp,
 !! ===  RealOmega ====================================
 !     ! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         if(realomega.and.(.not.epsmode)) then
-           call WVRllwR(q,iq,zxq,nmbas1,nmbas2,ngb)
+           call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
            deallocate(zxq)
         elseif(realomega.and.epsmode) then
            if(nolfco.and.(.not.chipm)) then 
@@ -830,7 +781,7 @@ c$$$  c     & q, 2*schi*frr, 1d0-vcmean*2*x0mean(iw,1,1)  !4*pi*alat**2/sum(q**2
 
 !! ImagOmega start ============================
         if (imagomega.and.(.not.epsmode)) then
-           call WVIllwI(q,iq,zxqi,nmbas1,nmbas2,ngb)
+           call WVIllwI(q,iq,zxqi,nmbas1,nmbas2)
            deallocate(zxqi)
         elseif(imagomega.and.epsmode) then
            call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')

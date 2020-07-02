@@ -6,26 +6,30 @@
       use m_zmel,only     : Get_zmelt, Setppovlz, Setppovlz_chipm, Deallocate_zmel,
      o     zmel,zmeltt
       use m_itq,only: itq,ntq
-      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot
+      use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
 c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,         
-      use m_readVcoud,only: ReadVcoud,vcoud
+      use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
+      use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx
+      use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
+     &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
+      use m_readqg,only:  ngpmx,ngcmx
+      use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
+      use m_readhbe,only: nband,mrecg
+!---------------------------------      
+      public sxcf_scz
+!SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       contains
-      subroutine sxcf_fal3_scz(kount,qip,ef,esmr, !itq,ntq,
-     i isp,             !nsp,
-c     i qbas,ginv,
-     i irkip,nrkip, !qibz,qbz,wk,nstbz,
-     i freq_r,nw_i,nw, freqx,wx, !,dwdummy,         
-     i ecore,
-c     i nctot, !nqibz,nqbz,nlmto,
-     i nbloch,ngrp,niw,nq,     
-     i nblochpmx ,ngpmx,ngcmx, 
-     i wgt0,nq0i,q0i,symgg, alat, nband, ifvcfpout,
-     i exchange,screen, ifexsp, !,cohtest
+      subroutine sxcf_scz(qip,ef,esmr, 
+     i isp,             
+     i irkip,nrkip, 
+     i ecorem,
+     i nq,!wgt0,
+     i exchange,!screen, 
      i nbmx,ebmx,           
      i wklm,lxklm,          
      i eftrue,
-     i jobsw,                   != iSigma_en 
+     i jobsw,           
      i hermitianW,
      o zsec,coh,nbandmx)
       implicit none
@@ -163,24 +167,24 @@ c     i nctot, !nqibz,nqbz,nlmto,
       integer:: dummy4doxygen
 
 ! input variables
-      logical, intent(in) :: exchange,screen!,cohtest
-      integer, intent(in) :: ngrp,nq,niw !,natom ntq,nqbz,nqibz,
-      integer, intent(in) :: nband,nq0i,isp!,nsp !,mdim(*) !,nlnmx nlmto,nctot,
-      integer, intent(in) :: ifvcfpout,nbloch,nblochpmx !nl,nnc, nclass
+      logical, intent(in) :: exchange!,screen!,cohtest
+      integer, intent(in) :: nq !,natom ntq,nqbz,nqibz,
+      integer, intent(in) :: isp !nband,nq0i,isp!,nsp !,mdim(*) !,nlnmx nlmto,nctot,
+c      integer, intent(in) :: ifvcfpout !,nbloch!,nblochpmx !nl,nnc, nclass
 c      integer, intent(in) :: itq(ntq) !,nstar(nqibz) !miat(natom,ngrp),mdimx,
       integer, intent(in) :: irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq)
-      integer, intent(in) :: kount(nqibz,nq),ngpmx,ngcmx,ifexsp,jobsw
+      integer, intent(in) :: jobsw !kount(nqibz,nq),ngpmx,ngcmx,ifexsp,
       integer, intent(in) :: nbmx(2) !,nlnmv(*),nlnmc(*)!,iclass(*),icore(*)
 c      integer, intent(in) :: nstbz(nqbz) !,nomx !,nkpo,nnmx,imdim(*)ncore(*),
       integer, intent(in) :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
 c      integer, intent(in) :: il(*),in(*),im(*),nn_,lx(*),nx_(*),nxx_ !,nlnm(*)
-      real(8), intent(in) :: wgt0(nq0i,ngrp),symgg(3,3,ngrp)
-      real(8), intent(in) :: q0i(1:3,1:nq0i),alat,ecore(nctot) !shtvg(3,ngrp),
+c      real(8), intent(in) :: wgt0(nq0i,ngrp)!,symgg(3,3,ngrp)
+c      real(8), intent(in) :: ecore(nctot) !shtvg(3,ngrp),q0i(1:3,1:nq0i),
 c      real(8), intent(in) :: qbas(3,3),ginv(3,3)
 c      real(8), intent(in) :: wk(nqbz),qibz(3,nqibz) !tiat(3,natom,ngrp),
 c      real(8), intent(in) :: qbz(3,nqbz)
-      real(8), intent(in) :: freqx(niw),wx(niw),ef,esmr,ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy
-      real(8), intent(in) :: qip(3,nq),eftrue
+      real(8), intent(in) :: ef,esmr,ebmx(2),wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy freqx(niw),wx(niw),
+      real(8), intent(in) :: qip(3,nq),eftrue,ecorem
 
 c      integer,intent(in):: iwini,iwend
 c      real(8),optional::exx
@@ -203,9 +207,9 @@ c      real(8),allocatable:: vcoud(:)
 
       integer :: ip, it, itp, i, ix, kx, irot, kr
       integer :: nt0p, nt0m,nstate , nbmax, ntqxx !iatomp(natom), 
-      integer :: nt,nw,ixs,iw,ivc,ifvcoud,ngb0
-      integer :: nprecx,mrecl,ifwd,nrot,nwp,nw_i,ierr 
-      integer :: nstatetot,iqini,iqend, ngb,ngc !nbcut,
+      integer :: nt,ixs,iw,ivc,ifvcoud,ngb0
+      integer :: nprecx,mrecl,ifwd,nrot,nwp,ierr 
+      integer :: nstatetot,iqini,iqend!, ngb,ngc !nbcut,
       integer :: invr,nbmxe,ia,nn,ntp0,no,itpp,nrec,npm,itini,itend
       integer :: iwp,nwxi,nwx,iir, igb1,igb2,ix0,iii
 
@@ -219,7 +223,7 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
       complex(8) :: zwzs0,zz2,zwz3(3)
 
 ! local arrays
-      real(8),intent(in) :: freq_r(nw_i:nw)
+c      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
@@ -308,7 +312,7 @@ c      real(8):: wgtq0p
         if(nw_i/=0) npm = 2     ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
       endif 
       tpi         = 8d0*datan(1d0)
-      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot) ! core
+      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)-ecorem ! core
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
 
@@ -334,9 +338,8 @@ c      real(8):: wgtq0p
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
-          call readqg0('QGcou',qibz_k,  quu,ngc)
-          ngb = nbloch + ngc
-          if(debug) write(6,*) ' sxcf: ngb=',ngb,nbloch
+c          call readqg0('QGcou',qibz_k,  quu,ngc)
+c          ngb = nbloch + ngc
 !! ===Readin diagonalized Coulomb interaction===
 !!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
 !!  A possible choice for paralellization is "Vcoud.ID" files where ID=kx
@@ -378,8 +381,9 @@ c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
 c$$$          deallocate(zcousq,ppovl)
 c     call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
           
-          call Readvcoud(qibz_k,kx,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
-          call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
+          call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin ngc,ngb,vcousq,zcousq !for the Coulomb matrix
+          call Setppovlz(qibz_k,matz=.true.)
+          if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch
           
 !! === open WVR,WVI ===
           if(.not.exchange) then
@@ -771,8 +775,8 @@ c     endif
         if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
         if (allocated(vcoul)) deallocate(vcoul)
  1001 continue                  ! end do ip
-      end subroutine sxcf_fal3_scz
-
+      end subroutine sxcf_scz
+!SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i     ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,
      o     we_,wfac_,ixss,ititpskip,iirx)
@@ -842,7 +846,7 @@ c     endif
       end subroutine weightset4intreal
       end module m_sxcfsc
       
-!! --------------------------------------------------------------
+!SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
      o nwxi,nwx,nt_max)

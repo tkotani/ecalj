@@ -131,5 +131,52 @@ c      ngpmx = ngpmx_in
         enddo
       endif
       end subroutine setitq_hsfp0
-
       end module 
+
+!!------------------------------------------------------------------      
+      module m_selectqp
+      use m_keyvalue,only: GETKEYVALUE
+      implicit none
+      integer nq
+      real(8),allocatable ::q(:,:)
+      contains
+      subroutine getqpoint(selectqp,nqibz,qibz)
+      real(8):: qibz(3,nqibz)
+      logical:: lqall,laff,selectqp
+      integer:: ifqpnt,ret,nqibz,i,iaf,iq,iqall,k
+      if(selectqp) then ! .and. MPI__root) then
+        call GETKEYVALUE("GWinput","<QPNT>",unit=ifqpnt,status=ret)
+        lqall      = .false.
+        laff        = .false.
+        call readx   (ifqpnt,10)
+        read (ifqpnt,*) iqall,iaf
+        if (iqall == 1) lqall = .true.
+        if (iaf   == 1) laff = .true.
+        call readx   (ifqpnt,100)
+        if (lqall) then         !all q-points case
+          nq         = nqibz
+          allocate(q(3,nq))
+          call dcopy   (3*nqibz,qibz,1,q,1)
+        else
+          call readx   (ifqpnt,100)
+          read (ifqpnt,*) nq
+          allocate(q(3,nq))
+          do       k = 1,nq
+            read (ifqpnt,*) i,q(1,k),q(2,k),q(3,k)
+          enddo
+        endif
+c        nspinmx = nspin
+c        if (laff) nspinmx =1
+        close(ifqpnt)
+c        nspinmx = nspin
+      else
+!!     q-points. bzcase()=1
+        nq = nqibz
+        allocate(q(3,nq))
+        q(:,1:nq) = qibz(:,1:nq) !call dcopy   (3*nqibz,qibz,1,q,1)
+      endif
+      do iq=1,nq
+        write(6,'(" Target iq q=",i6,3f9.4)')iq,q(:,iq)
+      enddo
+      end subroutine
+      end module

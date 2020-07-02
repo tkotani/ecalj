@@ -21,7 +21,8 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_keyvalue,only: getkeyvalue
       use m_zmel,only: Get_zmelt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
      &     zmel,zmeltt          !ppovlz,
-      use m_readVcoud,only: ReadVcoud, vcoud,zcousq
+!!
+      use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       implicit none
 !! TimeReversal off. when nw_i is not zero.
 !! Calcualte diagonal part only version of simga_ii(e_i)= <i|Re[S](e)|i> 
@@ -249,7 +250,7 @@ c     &  iwr1,iwr2,iwr3,iwr4,iwc1,iwc2,iwc3,iwc4
      & ip, it,itp,              !ifcphi,    ! ifrb,ifcb,ifrhb,ifchb, 
 c     i iiclass,                 !mdim(*),
      i ifrcw,ifrcwi,            !iindxk,
-     & ifvcfpout,ndummy1,ndummy2,kx,kr,ngc,ngb,nbloch, !n1,n2,n3, k,
+     & ifvcfpout,ndummy1,ndummy2,kx,kr,nbloch, !n1,n2,n3, k,ngc,ngb,
      & kp,nt0,nocc, nt0p,nt0m,irkp,i,nt0org,nmax,nt,ntp0,
      & nbmax,nblochpmx,ix,nx,iw,iwp,ixs,ixsmx, !nclass,nl,nnc, 
      &  nwx,niwx,
@@ -477,9 +478,9 @@ c          if( kx <= nqibz ) then
 c          else
 c            qibz_k= 0d0
 c         endif
-          if(verbose()>=40)  write(6,*) ' sxcf_fal3z: loop 1100 kx=',kx
-          call readqg0('QGcou',qibz_k,  quu,ngc)
-          ngb = nbloch + ngc    !oct2005
+c          if(verbose()>=40)  write(6,*) ' sxcf_fal3z: loop 1100 kx=',kx
+c          call readqg0('QGcou',qibz_k,  quu,ngc)
+c          ngb = nbloch + ngc    !oct2005
 c          write(6,*) ' xxxxxxxxxxxx sxcf: ngb=',ngb,nbloch
 
 !! ===Readin diagonalized Coulomb interaction===
@@ -525,8 +526,9 @@ c$$$          call readppovl0(qibz_k,ngc,ppovl)
 c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
 c$$$          ppovlz(nbloch+1:nbloch+ngc,:) = matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
 
-          call Readvcoud(qibz_k,kx,ngb) ! Readin vcousq,zcousq !for the Coulomb matrix
-          call Setppovlz(qibz_k,ngc,ngb,matz=.true.)
+          call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin vcousq,zcousq !for the Coulomb matrix
+          call Setppovlz(qibz_k,matz=.true.)
+          if(debug) write(6,*) ' sxcf_fal2: ngb ngc nbloch=',ngb,ngc,nbloch
 
 !! === open WVR,WVI for correlation mode ===
           if(.not.exchange) then

@@ -1,20 +1,29 @@
-      module m_readVcoud
+      module m_readVcoud        ! Coulomb matrix for given q
+      use m_readqg,only: Readqg0
+      use m_rdpp,only: nbloch
       implicit none
-      real(8),allocatable,protected    :: vcousq(:),vcoud(:)    !,vcousq0(:),vcoudummy(:)
+!-----------------------------------      
+      integer,protected :: ngb, ngc, iq
+      real(8),protected :: q(3)
+      real(8),allocatable,protected    :: vcousq(:), vcoud(:) !,vcousq0(:),vcoudummy(:)
       complex(8),allocatable,protected :: zcousq(:,:) !,zcousqrsum(:,:,:),zcousqr(:,:)
       contains
-      
-      subroutine Readvcoud(q,iq,ngb)
-      intent(in)::         q,iq
+!-----------------------------------      
+      subroutine Readvcoud(q,iq,NoVcou)
+      intent(in)::         q,iq,NoVcou
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
       integer:: iq
-      integer,optional ::ngb !dummy
-      real(8):: q(3)
+      logical:: NoVcou
+      real(8):: q(3),quu(3)
       integer:: ngb0,ifvcoud
       real(8):: qvv(3)
       character(128):: vcoudfile
       character(5) :: charnum5
+      call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
+                                         ! quu: equivalent to q generated in qg4g4.
+      ngb = ngc+nbloch
+      if(NoVcou) return
       vcoudfile='Vcoud.'//charnum5(iq) ! iq was iqqv this is closed at the end of do 1001
       open(newunit=ifvcoud, file=trim(vcoudfile), action='read',form='unformatted')
       read(ifvcoud) ngb0

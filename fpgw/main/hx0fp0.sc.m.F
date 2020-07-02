@@ -47,12 +47,12 @@ c     & laf,ibasf !,ldima,pos,natom
      &                                   whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb 
       use m_w0w0i,only:       W0w0i,     w0,w0i,llmat
       use m_readq0p,only:     Readq0p,   wqt,q0i,nq0i ,nq0iadd,ixyz
-      use m_readVcoud,only:   Readvcoud, vcousq,zcousq
+      use m_readVcoud,only:   Readvcoud, vcousq,zcousq,ngb,ngc
       use m_readgwinput,only: ReadGwinputKeys,
      &                                   egauss,ecut,ecuts,nbcut,nbcut2,mtet,ebmx,nbmx,imbas
       use m_qbze,only:    Setqbze, nqbze,nqibze,qbze,qibze
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-      use m_eibz,only:    Seteibz, nwgt,neibz,ngrpt,igx,igxt,eibzsym
+      use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
       use m_llw,only:     WVRllwR,WVIllwI,MPI__sendllw
       use m_readwvd,only: Readwvd,Setwvd
@@ -66,7 +66,7 @@ c     & laf,ibasf !,ldima,pos,natom
 !! ------------------------------------------------------------------------      
       implicit none
       real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
-      integer:: iq,isf,kx,ngb,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,ngc,nmbas1,nmbas2,nmbas_in,ifif
+      integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
       real(8):: ua=1d0, q(3), quu(3), hartree, rydberg, schi=-9999
       real(8),allocatable :: symope(:,:), ekxx1(:,:),ekxx2(:,:)
       complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
@@ -138,7 +138,7 @@ c      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
       realomega = .true.
       imagomega = .true.
       call Getfreq2(.false.,realomega,imagomega,ua,iprintx)!tetra,
-!! Write freq_r (real omega) for check
+!! Write freq_r (real omega). Read from hsfp0
       if(realomega .and. mpi__root) then
          open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
          write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
@@ -189,23 +189,17 @@ c$$$      endif
 !! ---------------------------------------------------------------
 !! === do 1001 loop over iq ============================================
 !! ---------------------------------------------------------------
-
-!! main loop ========================================================
-!     ! note for paralellinzation
-!     ! iq, isp, k, (jpm, ibib, igb1, igb2) in x0kf_v4h
+!!  iq (q vector)> is (spin)> k (k vector)> it,itp (band)
+!!      > jpm,iw (omega) >igb1,igb2 (MPB index)
+!!
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
         call cputid (0)
         q = qibze(:,iq)
         write(6,"('do 1001: iq q=',i5,3f9.4)")iq,q
-        call Readqg0('QGcou',q,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
-                                           ! quu: equivalent to q.
-        ngb = nbloch + ngc    ! number of MPB = PB part + IPW part
-                              ! ngc is shown at the end of console output of qg4gw.
-        write(6,*)'nbloch ngb ngc=',nbloch,ngb,ngc
 !! Read Coulomb matrix 
-        call Readvcoud(q,iq,ngb) ! Readin vcousq,zcousq for the Coulomb matrix
+        call Readvcoud(q,iq,NoVcou=.false.) ! Readin vcousq,zcousq ngb ngc for the Coulomb matrix for given q
         if(iq > nqibz .and. (.not.localfieldcorrectionllw())  ) then 
            nolfco =.true.
            nmbas_in = 1 
@@ -216,10 +210,7 @@ c$$$      endif
         nmbas1 = nmbas_in !We (will) use nmbas1 and nmbas2 for block division of matrices.
         nmbas2 = nmbas_in
 !! We set ppovlz for calling get_zmelt (get matrix elements) \in m_zmel \in subroutine x0kf_v4hz
-        call Setppovlz(q,ngc,ngb,matz=.not.eibz4x0())
-!! ----------------------
-!! === loop over spin=== 
-!! ----------------------
+        call Setppovlz(q,matz=.not.eibz4x0())
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm)) 
         rcxq = 0d0
         do 1003 is = MPI__Ss,MPI__Se !is=1,nspin
@@ -232,35 +223,18 @@ c$$$      endif
               call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
            enddo
            call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight.
-           
-           call x0kf_v4hz_init(0, !core routine to accumulate imaginary part of x0 to rcxq
-     i          q, is, isf, iq, ngc,
-     i          nmbas_in, 
-     i          eibzmode, 
-     i          nwgt(:,iq),crpa) 
-           call x0kf_v4hz_init(1, !core routine to accumulate imaginary part of x0 to rcxq
-     i          q, is, isf, iq, ngc,
-     i          nmbas_in, 
-     i          eibzmode, 
-     i          nwgt(:,iq),crpa) 
-
-           call x0kf_v4hz(      !core routine to accumulate imaginary part of x0 to rcxq
-     i          q, is, isf, iq, ngc,
-     o          rcxq,           !  rcxq is the accumulating variable for spins 
-     i          nmbas_in, 
-     i          eibzmode, 
-     i          nwgt(:,iq),crpa) 
+           call x0kf_v4hz_init(0, q, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa)
+           call x0kf_v4hz_init(1, q, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa)
+           call x0kf_v4hz(        q, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa, 
+     o          rcxq)           !  rcxq is the accumulating variable for spins 
            call tetdeallocate()
  1003   continue
-!! Symmetrize and convert to Enu basis.
+!! Symmetrize and convert to Enu basis (diagonalized basis for the Coulomb matrix).
 !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
         if(eibzmode)  then
-          call x0kf_v4hz_symmetrize(!npm,!ncc,   
-     i     q,iq,ngb,ngc, 
-     o     rcxq,                ! rcxq is the accumulating variable for spins 
-     i     nolfco,zzr,nmbas_in, 
-     i     chipm,eibzmode,      
-     i     eibzsym(:,:,iq)) 
+           call x0kf_v4hz_symmetrize( q, iq, 
+     i       nolfco, zzr, nmbas_in, chipm, eibzmode, eibzsym(:,:,iq),
+     o       rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
         endif
 !! Reduction rcxq in the Spin-axis
         write(6,*) 'MPI__AllreduceSumS start'
@@ -286,22 +260,20 @@ c$$$      endif
         if(allocated(rcxq) ) deallocate(rcxq)
 !! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
         if (realomega) then
-           call WVRllwR(q,iq,zxq,nmbas1,nmbas2,ngb)
+           call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
            deallocate(zxq)
         endif 
 !! === ImagOmega ===
         if (imagomega) then
-           call WVIllwI(q,iq,zxqi,nmbas1,nmbas2,ngb)
+           call WVIllwI(q,iq,zxqi,nmbas1,nmbas2)
            deallocate(zxqi)
         endif 
 !! === ImagOmega end ===
- 1001 continue
-c============end of loop over q point =================================
-      call MPI__barrier()
-      call MPI__sendllw(iqxend) !!! mpi send LLW to root.
+ 1001 continue ! =end of loop over q point =================================
       
 !! == W(0) divergent part and W(0) non-analytic constant part.==. This can be in another fortran program.
-c$$$ 1191 continue
+      call MPI__barrier()
+      call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
       if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node
 c$$$!! ix=1011 is a special mode to overwrite llw and llwI for test purpose
 c$$$        if(ixc==1011) then  

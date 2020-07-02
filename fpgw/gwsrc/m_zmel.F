@@ -20,17 +20,20 @@
       use m_read_bzdata,only: 
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
-      use m_keyvalue,only: Getkeyvalue ! general purpose routine to read values in GWinput file.
+      use m_readgwinput,only:nbcutlow_sig
       use m_readhbe,only: nband
       use m_itq,only: itq,ntq
       use m_readQG,only: ngpmx,ngcmx
       use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
+!! q-dependent
+      use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
       implicit none
 
-!! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
+!! Subroutines      
       public:: Get_zmelt, Get_zmelt2,
      &       Dconjg_zmel, Deallocate_zmel, Deallocate_zmeltt,
      &       Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
+!! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   
       complex(8),allocatable,protected,public :: zmeltt(:,:,:) 
 
@@ -58,15 +61,14 @@
       deallocate(zmeltt)
       end
 !----------------------------------------------------
-      subroutine setppovlz(q,ngc,ngb,matz)
-      use m_readVcoud,only:   zcousq !! zcousq is the eigenfuncition of the Coulomb matrix
-      intent(in)::         q,ngc,ngb,matz
+      subroutine setppovlz(q,matz)
+      intent(in)::         q,matz
 !! set ppovlz for given q      
 !  Blocked matrix multiplication      
 !    ppolvz(igb,ivcou)= (1    0 ) \times  zcousq(igb, ivcou)
 !                       (0 ppovl)   
 !    If matz=F, no multiplication by ivcou.  Thus we have ppolz(igb,igb)
-      integer :: ngc,ngb
+c      integer :: ngc,ngb
       real(8) :: q(3)
 c      complex(8) :: zcousq(ngb,ngb)
       complex(8),allocatable :: ppovl_(:,:),ppovl(:,:)!,ppovlzinv(:,:)
@@ -93,9 +95,9 @@ c         ppovlz= matmul(ppovl_,zcousq)
       deallocate(ppovl)
       end subroutine setppovlz
 !----------------------------------------------------
-      subroutine setppovlz_chipm(zzr,ngb,nmbas1)
-      intent(in)::               zzr,ngb,nmbas1
-      integer::ngb,nmbas1
+      subroutine setppovlz_chipm(zzr,nmbas1)
+      intent(in)::               zzr,nmbas1
+      integer::nmbas1
       complex(8):: zzr(ngb,nmbas1)
       if(allocated(ppovlz)) deallocate(ppovlz)
       allocate(ppovlz(ngb,nmbas1))
@@ -145,8 +147,8 @@ c     i                 ppbrd)           !radial integrals
 
       
 !! ------------------------------------
-      subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc)
-      intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngc,ngb,nmmax,nqmax, nctot,ncc
+      subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngcxxx,ngbxxx,nmmax,nqmax, nctot,ncc)
+      intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngcxxx,ngbxxx,nmmax,nqmax, nctot,ncc
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
 !!
 !! ncc=0
@@ -154,14 +156,14 @@ c     i                 ppbrd)           !radial integrals
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       logical:: exchange
-      integer:: kx,kr,isp,ngc,ngb,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
+      integer:: kx,kr,isp,ngcxxx,ngbxxx,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
       ispq = isp
       ispm = isp
       nmini=1
       nqini=1
       call get_zmelt2(exchange,  
-     &   kvec,irot,rkvec,ngc,ngb,    !MPB        for  MPB_rkvec
+     &   kvec,irot,rkvec,ngcxxx,ngbxxx,    !MPB        for  MPB_rkvec
      &      nmini,nmmax,ispm,nctot,  !middle-phi for  phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc  )  !end-phi    for  phi_q
       end subroutine get_zmelt
@@ -199,17 +201,17 @@ cold  nbmax -->nmmax
 !! <rkvec,1:ngb   q-rkvec, 1:nmtot | q, 1:nqtot>
 !! ----------------------------------------
       subroutine get_zmelt2(exchange,
-     &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
+     &   kvec,irot,rkvec,   ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc)  !end state for phi_q
       intent(in)::          exchange,
-     &   kvec,irot,rkvec,ngc,ngb,  !MPB for       MPB_rkvec
+     &   kvec,irot,rkvec,   ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc   !end state for phi_q
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       logical:: exchange
-      integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,ngc,ngb,nqmax,nbcut
+      integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,nqmax, ngbxxx,ngcxxx!,nbcut !ngc,ngb,
       integer:: iatomp(natom),nmini,nqini,nctot,ncc
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
      &  , quu(3),q(3), kvec(3),rkvec(3),wtt
@@ -228,7 +230,6 @@ cold  nbmax -->nmmax
       if(allocated(zmeltt)) deallocate(zmeltt)
       if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel in m_zmel: start'
-      call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
       if(.not.done_rdpp)        call rx('m_zmel: not yet call rdpp')
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
@@ -323,8 +324,8 @@ c      call getsrdpp2( nclass,nl,nxx)
       if(debug) write(6,*) ' sxcf_fal1: end of drvmelp2 sum rmelt cmelt',sum(rmelt),sum(cmelt)
       deallocate(drealzzzmel,dimagzzzmel)
 c      if(verbose()>50) call timeshowx("5 after drvmelp")
-      if(nbcut/=0.and.(.not.exchange)) then
-         do it= nctot+1,nctot+min(nbcut,nmmax)
+      if(nbcutlow_sig/=0.and.(.not.exchange)) then
+         do it= nctot+1,nctot+min(nbcutlow_sig,nmmax)
             rmelt(:, it,:) =0d0
             cmelt(:, it,:) =0d0
          enddo

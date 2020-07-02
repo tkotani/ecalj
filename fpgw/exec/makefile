@@ -327,7 +327,7 @@ $(gwsrc)m_qbze.o\
 $(gwsrc)m_eibz.o\
 $(gwsrc)m_gaussianfilter.o\
 $(gwsrc)m_llw.o\
-
+$(gwsrc)m_readfreq_r.o\
 
  QPE_QSGW = \
  $(main)hqpe_qsgw.m.o\
