@@ -236,8 +236,11 @@ lmfham1.o: lmfham1.F
 ########################################
 # programs
 ########################################
-show_programinfo.o:  ../show_programinfo.F lmf-MPIK.o lmfgw-MPIK.o 
+show_programinfo.o:  ../show_programinfo.F lmf.o lmfham1.o lmfa.o
 	$(FC) $(FFLAGS)  $(VERSIONFLAGS)  $(CPP_SW) -c ../show_programinfo.F -o show_programinfo.o
+
+show_programinfo_mpik.o:  ../show_programinfo.F lmf-MPIK.o lmfgw-MPIK.o 
+	$(FC) $(FFLAGS)  $(VERSIONFLAGS)  $(CPP_SW) -c ../show_programinfo.F -o show_programinfo_mpik.o
 
 lmchk:	lmchk.o $(LIBFP) $(LIBSUBS) $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -294,14 +297,14 @@ lmfgw-MPI:      lmfgw-MPI.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 lmf-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -c lmv7.F -o $@
 
-lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA) show_programinfo.o
-	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmf-MPIK:       lmf-MPIK.o $(LIBSUBS) $(LIBFP) $(LIBSLA) show_programinfo_mpik.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo_mpik.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 lmfgw-MPIK.o: lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c lmv7.F -o $@
 
-lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
-	$(LK) $(LKFLAGS1) $@.o show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
+lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo_mpik.o
+	$(LK) $(LKFLAGS1) $@.o show_programinfo_mpik.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
 
 ##########################################
