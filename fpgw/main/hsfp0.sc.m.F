@@ -107,9 +107,7 @@ c------------------------------------
 !!!   test switches to calculate the self-energy based on an another separation of \Sigma.
 !!!     \Sigma = \Sigma_{sx} + \Sigma_{coh} + \Sigma_{img axis} + \Sigma_{pole} by Hedin PR(1965)A785
 !!!     I found COH term has inevitably poor accuracy.
-      logical ::  !tetra, tetra_hsfp0,         
-     & screen = .false. !,        ! \Sigma_{sx} for mode 1 and
-
+c
 !\Sigma_{img axis} + \Sigma_{pole} for mode 2
 c     & cohtest= .false.         ! \Sigma_{coh}. mode swich is not required.
 c     &  , tetra  = .false.  ! test switch for tetrahedron method test.
@@ -120,119 +118,21 @@ c     ! Tetrahedron mehod for correlation is a bit
 ! have to uncomment tetra related part in
 ! sxcf.f, and a part calling sxcf in this routine. Note wtet wtetef!
 ! They sometimes cause array destruction if you run tetra=T without comment them.
-
-c      real(8) :: shtw
+c
       integer::
-     & ixc,!iopen, !,ifhbed, nprecb,mrecb,mrece,nlmtot,nqbzt, !nband,
-     & ibas,ibasx,ifqpnt,ifwd, !nxx,
-     & nblochpmx2, !niwt, nqnum,nblochpmx, !mdimx,nbloch nwp,nprecx,mrecl,
-     & noccxv,maxocc,noccx,ifvcfpout,iqall,iaf, !ntq, !ifrcw,ifrcwi,  
-     & i,k,nspinmx, is,ip,iq,idxk,ifoutsex,ig, !iclose ,nq0i
-     & mxkp,nqibzxx,ntet,nene,iqi, ix,iw,
-     & nlnx4,invr,ivsum, ifoutsec, !niwx,
-     & ifsec(2)             
-     & ,ifxc(2),ifsex(2), ifphiv(2),ifphic(2),ifec,ifexsp(2),
-     & ifsex2(2),ifsec2(2),     !out S_nn'
-     & ifsecomg(2),ndble=8
-      real(8) :: pi,tpia,vol,voltot,rs,alpha,
-     & qfermi,efx,valn,efnew,edummy,efz,qm,xsex,egex,edummyd(1),
-     & zfac1,zfac2,dscdw1,dscdw2,dscdw,zfac
-c      logical :: lqall,laff,lntq
-c      real(8),allocatable    :: q(:,:)
-
-      integer,allocatable ::  
-     & ngvecp(:,:), ngvecc(:,:),iqib(:) 
-c     & kount(:,:) 
-      real(8),allocatable:: vxcfp(:,:,:),
-     & !wqt(:), !q0i(:,:),
-     & eqt(:), 
-     & ppbrdx(:,:,:,:,:,:,:), 
-     & eq(:),       
-     & eqx(:,:,:),eqx0(:,:,:),ekc(:)!,coh(:,:)
-      complex(8),allocatable:: zsec(:,:,:)  
-c     
-      logical :: legas
-      real(8) :: rydberg,hartree
-      real(8):: qreal(3), ntot,nocctotg2,tripl,xxx(3,3)
-      logical ::nocore
-
-c     space group infermation
-      integer,allocatable ::  invgx(:)!iclasst(:),
-c     tetra
-      real(8),allocatable :: qz(:,:),qbzxx(:),wbzxx(:),wtet(:,:,:,:),
-     & eband(:,:,:), ene(:) 
-      integer,allocatable ::idtetx(:,:),idtet(:,:),ipq(:)
-     & ,iene(:,:,:),ibzx(:) 
-      integer ::ib,iqx,igp,iii,ivsumxxx,isx,iflegas, iqpntnum
-c     
-      real(8),allocatable   :: eex1(:,:,:),exsp1(:,:,:),qqex1(:,:,:,:)
-      integer,allocatable:: nspex(:,:),ieord(:),itex1(:,:,:)
-      real(8)    :: qqex(1:3), eex,exsp,eee, exwgt,deltax0
-      integer :: itmx,ipex,itpex,itex,nspexmx,nnex,isig,iex,ifexspx
-     & ,ifexspxx ,ifefsm, nq0ix,ifemesh!,nz=0
-      character(3)  :: charnum3
-      character(12) :: filenameex
-      logical :: exspwrite=.false.
-      character*8 xt
-
-      integer :: iSigMode,ifinin ,idummy,idummy1,idummy2
-
-      real(8),allocatable:: omega(:) 
-      real(8)   :: ebmx(2)
-      integer:: nbmx(2)
-
-      real(8):: volwgt
-
-      integer:: incwfin
-
-      integer::  ngpn1,ngcn1  !mrecg,
-      real(8)   :: wgtq0p,quu(3)
-
-      character(2):: soflag
-      integer:: ifianf
-
-      integer:: ifpomat,nkpo,nnmx,nomx,ikpo,no
-      real(8):: q_r(3)
-      real(8),allocatable:: qrr(:,:)
-      integer,allocatable:: nnr(:),nor(:)
-
-      logical :: allq0i       
-c      integer:: nw_i
-      logical:: exonly
-      real(8):: wex
-!! newaniso mode
-c      logical:: newaniso
-      real(8),allocatable:: vcousq(:),dmlx(:,:),epinvq0i(:,:),wklm(:),vcoud(:)
-      integer:: ifvcoud,lxklm,ifidmlx
-
-      integer,allocatable:: irkip(:,:,:,:) !irkip_all(:,:,:,:),
-      integer,allocatable:: nrkip(:,:,:,:)!,nrkip_all(:,:,:,:)
-c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-
-      integer:: iqxend,iqxini
-      integer:: l2nl,igrp,kx,kr
-      logical :: iprintx, eibz4sig
-
-      logical :: selectqp=.false.,diagonly=.false.
-      integer:: ret,dest,nnn 
+     & ixc, noccxv, maxocc, noccx, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
+     & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
+     & iSigMode, nq0ix, nbmx(2), incwfin, ngpn1,ngcn1,
+     & lxklm,ifidmlx, iqxend,iqxini, timevalues(8) , ret,dest 
+      real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), ntot,nocctotg2,tripl !rs,alpha,
+      real(8) :: ebmx(2), wgtq0p,quu(3),wex, eftrue,esmref,esmr,ecorem,ef
       character(128) :: ixcc
-      real(8):: eftrue,esmref,esmr!,esmr_in   !jan2013
-      real(4):: time_red1,time_red2
-      integer:: timevalues(8) ,ibz
-
-      integer::irot !,nn_
-      real(8),allocatable:: wgt0(:,:)
-      logical:: exchange
-      real(8):: exx
-c      real(8),allocatable:: freq_r(:)
-      integer:: ififr,ifile_handle,nwxx,ifih
-
-      integer:: verbose,iband,isp,iqq
-c      integer,allocatable:: nbandmx(:,:)
-
-      integer:: ificlass,ifiq0p,nq_r!,nband_r
-      logical:: hermitianW
-      real(8)::dwdummy,ecorem,ef
+      logical :: legas, exonly, iprintx, eibz4sig, selectqp=.false.,diagonly=.false.
+      logical :: exchange, hermitianW, screen = .false. 
+      integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
+      real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
+      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),wklm(:)
+      complex(8),allocatable:: zsec(:,:,:)  
 c---------------------------------------
 c      if(cohtest) then          !currently not used (may need fixing if necessary)
 c        screen = .true.
@@ -286,8 +186,6 @@ c        open(if671,file='COH')
       ebmx(2)=1d10    !unused now
       write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx(1),ebmx(1)
       call pshprt(30)
-      pi   = 4d0*datan(1d0)
-c      tpia = 2d0*pi/alat
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
 
 c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
@@ -393,7 +291,7 @@ c$$$      endif
       if(.not.MPI__root) then !write NTQXX file
          call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx) !read NTQXX
       endif
-!! Read eigenvalues given by lmf
+!! Read eigenvalues given by lmf for writing out files.
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do is = 1,nspin
         do ip = 1,nq
@@ -407,12 +305,12 @@ c$$$      endif
       call Hswriteinit() !internal subroutine.  Write initial part of output files
 !! Offset Gamma point Q0P (slightly shifted from Gamma)
       call Readq0p()
-      allocate( wgt0(nq0i,ngrp) )
-      call GETKEYVALUE("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
-      call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
-     o wgt0)                    ! added allq0i argument
-      if (nq0i/=0 ) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
-      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
+c      allocate( wgt0(nq0i,ngrp) )
+c      call GETKEYVALUE("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
+c      call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
+c     o wgt0)                    ! added allq0i argument
+c      if (nq0i/=0 ) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
+c      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
 !! Readin Vcoud and EPSwklm for newaniso()=T ===
       open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
       read(ifidmlx) nq0ix,lxklm

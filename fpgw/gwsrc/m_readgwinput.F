@@ -1,8 +1,8 @@
       module m_readgwinput
       implicit none
 !! Read values from GWinput
-      real(8),protected:: egauss,ecut,ecuts,ebmx
-      integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig
+      real(8),protected:: egauss,ecut,ecuts,ebmx !,ebmx_sig
+      integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig!,nbmx_sig
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
 
@@ -27,7 +27,11 @@ c      integer:: nband
       call getkeyvalue("GWinput","multitet",mtet,3,default=(/1,1,1/)) 
       call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
       call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
-      
+
+c      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
+c      call getkeyvalue("GWinput","nband_sigm",nbmx_sig,1, default=(/9999999/),status=ret)
+c      call getkeyvalue("GWinput","emax_sigm", ebmx_sig, default=(/1d10/),status=ret)
+       
 !! this is effective only for chipm mode
       nmbas=natom
       allocate(imbas(nmbas),imbasd(nmbas))

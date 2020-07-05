@@ -187,10 +187,14 @@ c$$$      endif
 !! (or need to modify do 1001 loop).
 !! ---------------------------------------------------------------
 !! === do 1001 loop over iq ============================================
-!! ---------------------------------------------------------------
-!!  iq (q vector)> is (spin)> k (k vector)> it,itp (band)
+!     ! ---------------------------------------------------------------
+!! We have to do sum for iq,is,k,it,itp,jpm,iw,igb1,igb2      
+!!   iq (q vector IBZ), is (spin)> k (k vector BZ)> it,itp (band)
 !!      > jpm,iw (omega) >igb1,igb2 (MPB index)
-!!
+!!   (usually, we only use jpm=1 only--- This meand no negative omega needed).
+!! I think, iq,igb1,igb2,(it,itp) are suitable for decomposition (computation, and memory distribution).
+!!     !note The pair (it,itp) gives very limited range of allowed iw.
+!!           
       if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
       do 1001 iq = iqxini,iqxend
         if( .not. MPI__Qtask(iq) ) cycle
