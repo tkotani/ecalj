@@ -1,12 +1,16 @@
       module m_readgwinput
       implicit none
 !! Read values from GWinput
-      real(8),protected:: egauss,ecut,ecuts,ebmx !,ebmx_sig
-      integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig!,nbmx_sig
+      real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,wex
+      integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig,nbmx_sig,iSigmode
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
 
       contains
+      subroutine SetIsigmode(ism)
+      integer ism
+      isigmode=ism
+      end subroutine
       subroutine ReadGWinputKeys()
       use m_keyvalue,only: Getkeyvalue
       use m_genallcf_v3,only: natom
@@ -28,10 +32,12 @@ c      integer:: nband
       call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
       call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
 
-c      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
-c      call getkeyvalue("GWinput","nband_sigm",nbmx_sig,1, default=(/9999999/),status=ret)
-c      call getkeyvalue("GWinput","emax_sigm", ebmx_sig, default=(/1d10/),status=ret)
-       
+      call getkeyvalue("GWinput","iSigMode"  ,iSigMode, default=3 )
+      call getkeyvalue("GWinput","nband_sigm",nbmx_sig, default=9999999)
+      call getkeyvalue("GWinput","emax_sigm", ebmx_sig, default=1d10)
+      
+      call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
+      
 !! this is effective only for chipm mode
       nmbas=natom
       allocate(imbas(nmbas),imbasd(nmbas))

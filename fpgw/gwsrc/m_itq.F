@@ -9,12 +9,6 @@
 
 !!======================================================================
       contains
-
-c      subroutine setnband(nband_in)
-c      intent(in)::        nband_in
-c      integer:: nband_in
-c      nband=nband_in
-c      end
 !!======================================================================
       subroutine setitq()
       integer:: i
@@ -28,14 +22,14 @@ c      ngpmx = ngpmx_in
       enddo
       end subroutine setitq
 !!======================================================================
-      subroutine setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
-      intent(in)::              qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx
-      integer:: nqibz,nq,nspin,nbmx(2),nspinmx
-      real(8):: qibz(3,nqibz),ebmx(2),eftrue
+      subroutine setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
+      intent(in)::              qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx
+      integer:: nqibz,nq,nspin,nbmx_sig,nspinmx
+      real(8):: qibz(3,nqibz),ebmx_sig,eftrue
       real(8),allocatable:: eqt(:)
       integer:: ifih,ntqxx,is,ip,iband,i,nband_r,nq_r
       logical:: lntq
-      inquire(file='NTQXX',EXIST=lntq) !NTQXX is to keep number of bands for calculation
+      inquire(file='NTQXX',EXIST=lntq) !NTQXX is to keep the same number of bands during iteration.
       open(newunit=ifih,file='NTQXX')
 !! Get ntq
       if(lntq) then
@@ -52,11 +46,11 @@ c      ngpmx = ngpmx_in
                call READEVAL(qibz(1,ip),is, eqt)
                do iband=1,nband
                   ntq = max(iband,ntq)
-                  if(eqt(iband)-eftrue>ebmx(1)) exit
+                  if(eqt(iband)-eftrue>ebmx_sig) exit
                enddo  
             enddo
          enddo
-         ntq = min(ntq, nbmx(1))
+         ntq = min(ntq, nbmx_sig)
          deallocate(eqt)
          write(ifih,"(3i10)") nband,nq,ntq
       endif
@@ -78,9 +72,9 @@ c      ngpmx = ngpmx_in
             else  
                ntqxx = 0
                do i = 1,ntq
-                  if(eqt(i)-eftrue<ebmx(1)) ntqxx =ntqxx  + 1
+                  if(eqt(i)-eftrue<ebmx_sig) ntqxx =ntqxx  + 1
                enddo
-               ntqxx = min(ntqxx, nbmx(1))
+               ntqxx = min(ntqxx, nbmx_sig)
                write(ifih,"(i10)") ntqxx
             endif  
             if(ntqxx<nband) then ! redudce ntqxx when band tops are degenerated. 
@@ -108,9 +102,6 @@ c      ngpmx = ngpmx_in
       intent(in)::             ngcmx_in,ngpmx_in,tote,ifqpnt,noccxv,nss
       integer:: nband_in,ngcmx_in,ngpmx_in,ifqpnt,noccxv,i,nss(2)
       logical:: tote
-c      nband = nband_in
-c      ngcmx = ngcmx_in
-c      ngpmx = ngpmx_in
       if (tote) then
         ntq    = noccxv
         allocate( itq(ntq) )

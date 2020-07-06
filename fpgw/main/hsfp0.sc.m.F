@@ -72,7 +72,7 @@
      &     alat, delta,deltaw,symgrp,clabl,iclass,esmr_in=>esmr, !diw,dw, 
      &     invg, il,in,im,nlnm, 
      &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
-      use m_keyvalue,only: GETKEYVALUE
+c      use m_keyvalue,only: GETKEYVALUE
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
@@ -100,6 +100,8 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,q,nq
       use m_eibzhs,only: Seteibzhs,  eibzsym,irkip_all,nrkip_all,tiii
+      use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,wex,ISigMode
+      
       implicit none
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -122,10 +124,10 @@ c
       integer::
      & ixc, noccxv, maxocc, noccx, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
      & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
-     & iSigMode, nq0ix, nbmx(2), incwfin, ngpn1,ngcn1,
+     & nq0ix, incwfin, ngpn1,ngcn1,
      & lxklm,ifidmlx, iqxend,iqxini, timevalues(8) , ret,dest 
       real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), ntot,nocctotg2,tripl !rs,alpha,
-      real(8) :: ebmx(2), wgtq0p,quu(3),wex, eftrue,esmref,esmr,ecorem,ef
+      real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ecorem,ef
       character(128) :: ixcc
       logical :: legas, exonly, iprintx, eibz4sig, selectqp=.false.,diagonly=.false.
       logical :: exchange, hermitianW, screen = .false. 
@@ -178,13 +180,10 @@ c        open(if671,file='COH')
       write(6,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
       esmr  = esmr_in !read from GWinput
       esmref= esmr
-      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
-      call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
-      call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
-      if(diagonly) iSigMode=5
-      nbmx(2)=9999999 !unused now
-      ebmx(2)=1d10    !unused now
-      write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx(1),ebmx(1)
+      call ReadGwinputKeys()
+c      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
+      if(diagonly) call SetIsigMode(5)
+c      write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx_sig,ebmx_sig
       call pshprt(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
 
@@ -264,7 +263,6 @@ c$$$      endif
       ecorem = 0d0
       if(ixc==3) then
         ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
-        call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
         if(wex==0d0) then
           exonly=.false.
         else !we need to check wheter exorem trick is really useful or not. jul2020
@@ -285,11 +283,11 @@ c$$$      endif
 !! During iteration, we use NTQXX file, to keep itq set.
 !! If we already have NTQXX (in your prerious gwsc calcution), the NTQXX is read to follow the previous calculation.
       if(MPI__root) then !write NTQXX file
-         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx)
+         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
       endif
       call MPI__barrier()
       if(.not.MPI__root) then !write NTQXX file
-         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx,ebmx,eftrue,nspinmx) !read NTQXX
+         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
       endif
 !! Read eigenvalues given by lmf for writing out files.
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
@@ -350,7 +348,7 @@ c      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
      i   ecorem, 
      i   nq, !wgt0, 
      i   exchange, !screen, 
-     i   nbmx,ebmx,      
+c     i   nbmx_sig,ebmx_sig,      
      i   wklm,lxklm,          
      i   eftrue, 
      i   jobsw = iSigMode, nbandmx = nbandmx(1:nq,is), !nbandmx is input mar2015
