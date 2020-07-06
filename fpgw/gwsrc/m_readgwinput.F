@@ -1,7 +1,7 @@
       module m_readgwinput
       implicit none
 !! Read values from GWinput
-      real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,wex
+      real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
       integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig,nbmx_sig,iSigmode
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
@@ -36,7 +36,8 @@ c      integer:: nband
       call getkeyvalue("GWinput","nband_sigm",nbmx_sig, default=9999999)
       call getkeyvalue("GWinput","emax_sigm", ebmx_sig, default=1d10)
       
-      call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
+c      call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
+      call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
       
 !! this is effective only for chipm mode
       nmbas=natom

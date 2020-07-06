@@ -13,6 +13,11 @@
       intent(in)::         q,iq,NoVcou
 !! === readin diagonalized Coulomb interaction ===
 !! zcousq: E(\nu,I), given in PRB81,125102; vcousq: sqrt(v), as well.
+!! ===Readin diagonalized Coulomb interaction===
+!!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
+!!   A possible choice for paralellization is "Vcoud.ID" files where ID=kx
+!!   Vould file is written in hvccfp0.m.F.
+!! NOTE: vcoud and zcousq are used in module m_zmelt.
       integer:: iq
       logical:: NoVcou
       real(8):: q(3),quu(3)

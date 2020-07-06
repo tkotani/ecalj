@@ -100,8 +100,8 @@ c     &                          !ppbir,miat,tiat,shtvg,
       use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_selectqp,only:Getqpoint,q,nq
       use m_eibzhs,only: Seteibzhs,  eibzsym,irkip_all,nrkip_all,tiii
-      use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,wex,ISigMode
-      
+      use m_readgwinput,only: ReadGwinputKeys,SetIsigMode, ebmx_sig,nbmx_sig,ISigMode
+      use m_readepswklm,only: Readepswklm!,wklm,lxklm
       implicit none
 !! -----------------------------------------------------------------------------------
 !!     real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -125,15 +125,14 @@ c
      & ixc, noccxv, maxocc, noccx, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
      & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
      & nq0ix, incwfin, ngpn1,ngcn1,
-     & lxklm,ifidmlx, iqxend,iqxini, timevalues(8) , ret,dest 
-      real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), ntot,nocctotg2,tripl !rs,alpha,
-      real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ecorem,ef
+     &  iqxend,iqxini, timevalues(8) , ret,dest 
+      real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), nocctotg2,tripl !rs,alpha,ntot,
+      real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
       character(128) :: ixcc
       logical :: legas, exonly, iprintx, eibz4sig, selectqp=.false.,diagonly=.false.
       logical :: exchange, hermitianW, screen = .false. 
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),wklm(:)
       complex(8),allocatable:: zsec(:,:,:)  
 c---------------------------------------
 c      if(cohtest) then          !currently not used (may need fixing if necessary)
@@ -186,7 +185,6 @@ c      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
 c      write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx_sig,ebmx_sig
       call pshprt(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
-
 c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
 c$$$!! HOMOGENIOUS GAS code. Usually not used. Need fixing if necessary.
 c$$$!! Keep this just as a memo.
@@ -224,11 +222,6 @@ c$$$      endif
         call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
       endif
       call setesmr(esmr_in=esmr) !set esmr back in genalloc_v3
-      write(6,'(" --- computational conditions --- ")')
-      write(6,'("    deltaw  =",f13.6)') deltaw
-      write(6,'("    esmr    =",f13.6)') esmr
-      write(6,'("    alat voltot =",2f13.6)') alat, voltot
-
       call Readhbe()        ! Read dimensions in m_readhbe
       call INIT_READEIGEN() ! initialization for readeigen readchpi readgeig.
       call INIT_READEIGEN2()! initialize m_readeigen
@@ -241,34 +234,36 @@ c$$$      endif
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
          call readfreq_r() !Readin WV.d and freq_r 
       endif
-      call READEFERMI() !! efermi by tetrahedron. 
-      ef = ef_read
+c      call READEFERMI() !! efermi by tetrahedron. 
+c      ef = ef_read
 !! Determine Fermi energy ef for given valn (legas=T), or Get charge given by z and konf.==
       legas=.false. ! if legas=T, homogenius electron gas test case.
-      call efsimplef2a(nspin,wibz,qibz,ginv, 
-     i nband,nqibz
-     i ,konf,z,nl,natom,iclass,nclass
-     i ,valn, legas, esmref,    !!! valn is input for legas=T, output otherwise.
-     i qbz,nqbz                 
-     o ,efnew)
-      if(ixc/=3) ef = efnew
-      eftrue = efnew
-!! Check total ele number =====
-      ntot  = nocctotg2(nspin, ef,esmr, qbz,wbz, nband,nqbz)
+      call efsimplef2ax( legas, esmref, 
+     o     valn, ef)
+      eftrue = ef
+      if(ixc==3) then
+         ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
+      endif
+!!      
+      write(6,'(" --- computational conditions --- ")')
+      write(6,'("    deltaw  =",f13.6)') deltaw
+      write(6,'("    esmr    =",f13.6)') esmr
+      write(6,'("    alat voltot =",2f13.6)') alat, voltot
       write(6,*)' ef    =',ef
       write(6,*)' esmr  =',esmr
       write(6,*)' valn  =',valn
-      write(6,*)' ntot  =',ntot
+c      write(6,*)' ntot  =',ntot
+      
 !! Core-exchange case. We set Ef just below the valence eigenvalue (to pick up only cores).==
-      ecorem = 0d0
+! exonly removed
       if(ixc==3) then
-        ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
-        if(wex==0d0) then
-          exonly=.false.
-        else !we need to check wheter exorem trick is really useful or not. jul2020
-           exonly=.true.
-           ecorem = 1000d0 !write(6,*)' exonly=T ecore shift: ecore---> ecore-ecorem'
-        endif
+c        ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
+c        if(wex==0d0) then
+c          exonly=.false.
+c        else !we need to check wheter exorem trick is really useful or not. jul2020
+c           exonly=.true.
+c           ecorem = 1000d0 !write(6,*)' exonly=T ecore shift: ecore---> ecore-ecorem'
+c        endif
         write(6,"(a)")' CoreEx mode: We change ef as ef=LOWESTEVAL-1d-3, slightly below the bottom of valence.'
         write(6,"(a,f13.5,i5,i5)")' CoreEx mode: ef nspin nctot=',ef,nspin,nctot
         do ix=1,nctot
@@ -303,25 +298,7 @@ c$$$      endif
       call Hswriteinit() !internal subroutine.  Write initial part of output files
 !! Offset Gamma point Q0P (slightly shifted from Gamma)
       call Readq0p()
-c      allocate( wgt0(nq0i,ngrp) )
-c      call GETKEYVALUE("GWinput","allq0i",allq0i,default=.false.) !S.F.Jan06
-c      call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, !S.F.Jan06
-c     o wgt0)                    ! added allq0i argument
-c      if (nq0i/=0 ) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)
-c      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
-!! Readin Vcoud and EPSwklm for newaniso()=T ===
-      open(newunit=ifidmlx,file='EPSwklm',form='unformatted')
-      read(ifidmlx) nq0ix,lxklm
-      if(nq0i/=nq0ix) then
-        write(6,*)'nq0i from EPSwklm /= nq0i',nq0i,nq0ix
-        call rx( 'nq0i from EPSwklm /= nq0i')
-      endif
-      allocate( dmlx(nq0i,9))
-      allocate( epinvq0i(nq0i,nq0i) )
-      allocate( wklm((lxklm+1)**2))
-      read(ifidmlx) dmlx, epinvq0i
-      read(ifidmlx) wklm
-      close(ifidmlx)
+      call Readepswklm()
 !! == irkip:  paralellization is contrlloed by irkip ==
 !! We have to distribute non-zero irkip to all ranks (irkip is dependent on rank).
 !! When irkip(nqibz,ngrp,nq,nspinmx)/=0, we expect grain-size 
@@ -332,28 +309,21 @@ c      write(6,"('  sum(wgt0) from Q0P=',d14.6)")sum(wgt0)
       allocate(nrkip(nspinmx,nqibz,ngrp,nq)) ! nrkip is weight correspoinding to irkip for a node.
       call MPI__sxcf_rankdivider(irkip,irkip_all,nspinmx,nqibz,ngrp,nq) ! MIZUHO-IR
       nrkip = nrkip_all         ! we don't need to change this for MPI case. 
-! It just need to distribute non-zero irkip.
-      
-!!-----------------------------------------------------------
-!!    Main loop to calculate the the self-energy SEx(ip) or SEc(ip)
-!!-----------------------------------------------------------
+! ----> We need to distribute non-zero irkip to ranks.
+!! Main loop to calculate the the self-energy SEx(ip) or SEc(ip)
+      if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+      if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       allocate(zsec(ntq,ntq,nq))!, coh(ntq,nq) ) kount(nqibz,nq),
       do 2000 is = 1,nspinmx
         zsec  = 0d0
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
-!!== ip loop to spedify external q ==
-        call sxcf_scz (q,ef,esmr, 
-     i   is,   
-     i   irkip(is,:,:,:),nrkip(is,:,:,:),
-     i   ecorem, 
-     i   nq, !wgt0, 
-     i   exchange, !screen, 
-c     i   nbmx_sig,ebmx_sig,      
-     i   wklm,lxklm,          
-     i   eftrue, 
-     i   jobsw = iSigMode, nbandmx = nbandmx(1:nq,is), !nbandmx is input mar2015
-     i   hermitianW = hermitianW,
-     o   zsec = zsec) 
+!! == ip loop to spedify external q ==
+        call sxcf_scz (qip= q, ef= ef,esmr= esmr, isp= is,   
+     i   irkip= irkip(is,:,:,:),nrkip= nrkip(is,:,:,:),nq= nq,
+     i   exchange= exchange, 
+     i   hermitianW= hermitianW,
+     i   jobsw= iSigMode, nbandmx= nbandmx(1:nq,is), !nbandmx is input mar2015
+     o   zsec= zsec) 
 c$$$!!  electron gas bare exchange (exact)
 c$$$        if (legas.and.exchange) then
 c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.

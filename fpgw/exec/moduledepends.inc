@@ -44,7 +44,6 @@
 ../main/hx0fp0.sc.m.o:../gwsrc/MPI_fpgw2.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/MPI_fpgw2.o
 ../gwsrc/getwemax.o:../gwsrc/genallcf_mod.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/genallcf_mod.o
 ../gwsrc/m_eibz.o:../gwsrc/genallcf_mod.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -74,7 +73,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -185,9 +183,9 @@
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hmagnon.m.o:../gwsrc/m_readgwinput.o
+../main/hsfp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readgwinput.o
-../gwsrc/m_realomegax0.o:../gwsrc/genallcf_mod.o
 ../gwsrc/m_tetwt.o:../gwsrc/genallcf_mod.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -246,7 +244,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_zmel.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_zmel.o
 ../gwsrc/rdpp.o:../gwsrc/genallcf_mod.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/rdpp.o
 ../gwsrc/m_eibz.o:../gwsrc/rdpp.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -300,7 +297,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
@@ -334,7 +330,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/rdpp.o
 ../gwsrc/m_w0w0i.o:../gwsrc/rdpp.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -574,7 +569,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -700,6 +694,7 @@
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hmagnon.m.o:../gwsrc/m_readgwinput.o
+../main/hsfp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../gwsrc/m_tetwt.o:../gwsrc/genallcf_mod.o
@@ -965,7 +960,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -1134,6 +1128,7 @@
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hmagnon.m.o:../gwsrc/m_readgwinput.o
+../main/hsfp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../gwsrc/m_readwan.o:../gwsrc/keyvalue.o
@@ -1244,6 +1239,8 @@
 ../main/hx0fp0.sc.m.o:../gwsrc/m_anf.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_anf.o
 ../main/rdata4gw_v2.m.o:../gwsrc/m_anf.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_readeps.o
+../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
 ../main/htetwt.m.o:../gwsrc/m_readeps.o
 ../gwsrc/m_llw.o:../gwsrc/m_readq0p.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
@@ -1298,7 +1295,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -1345,7 +1341,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_freq.o
-../gwsrc/m_iqloop.o:../gwsrc/m_qbze.o
 ../gwsrc/m_llw.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
@@ -1360,7 +1355,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_qbze.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -1377,8 +1371,9 @@
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.m.o:../gwsrc/m_qbze.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_qbze.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readq0p.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readq0p.o
+../gwsrc/m_readepswklm.o:../gwsrc/m_readq0p.o
+../gwsrc/sxcf_fal2.sc.o:../gwsrc/m_readepswklm.o
+../main/hsfp0.sc.m.o:../gwsrc/sxcf_fal2.sc.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_readq0p.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -2148,7 +2143,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -2195,7 +2189,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_freq.o
-../gwsrc/m_iqloop.o:../gwsrc/m_qbze.o
 ../gwsrc/m_llw.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
@@ -2210,7 +2203,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_qbze.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -2288,10 +2280,10 @@
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hmagnon.m.o:../gwsrc/m_readgwinput.o
+../main/hsfp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.m.o:../gwsrc/m_readgwinput.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readgwinput.o
 ../gwsrc/rdpp.o:../gwsrc/nan.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/rdpp.o
 ../gwsrc/m_eibz.o:../gwsrc/rdpp.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -2345,7 +2337,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
@@ -2379,7 +2370,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/rdpp.o
 ../gwsrc/m_w0w0i.o:../gwsrc/rdpp.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -2464,7 +2454,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
@@ -2498,7 +2487,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/readqg.o
 ../gwsrc/m_rotMPB.o:../gwsrc/readqg.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_rotMPB.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -2531,7 +2519,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_zmel.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
 ../gwsrc/rdpp.o:../gwsrc/readqg.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/rdpp.o
 ../gwsrc/m_eibz.o:../gwsrc/rdpp.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -2575,7 +2562,6 @@
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
@@ -2599,7 +2585,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/rdpp.o
 ../gwsrc/m_w0w0i.o:../gwsrc/rdpp.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -2694,7 +2679,6 @@
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/rppovl.o
 ../gwsrc/getwemax.o:../gwsrc/rwbzdata.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/rwbzdata.o
 ../gwsrc/m_eibz.o:../gwsrc/rwbzdata.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -2724,7 +2708,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -2810,7 +2793,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_freq.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_freq.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -2857,7 +2839,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_freq.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_freq.o
-../gwsrc/m_iqloop.o:../gwsrc/m_qbze.o
 ../gwsrc/m_llw.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
@@ -2872,7 +2853,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_qbze.o
 ../gwsrc/m_w0w0i.o:../gwsrc/m_qbze.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o
@@ -2889,7 +2869,6 @@
 ../main/hx0fp0.sc.m.o:../gwsrc/x0kf_v4h.o
 ../main/hx0fp0.m.o:../gwsrc/m_qbze.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_qbze.o
-../gwsrc/m_realomegax0.o:../gwsrc/rwbzdata.o
 ../gwsrc/m_tetwt.o:../gwsrc/rwbzdata.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -3111,7 +3090,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_w0w0i.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_tetwt.o
@@ -3145,7 +3123,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/readqg.o
 ../gwsrc/m_rotMPB.o:../gwsrc/readqg.o
 ../gwsrc/x0kf_v4h.o:../gwsrc/m_rotMPB.o
 ../main/hx0fp0.m.o:../gwsrc/x0kf_v4h.o
@@ -3178,7 +3155,6 @@
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_zmel.o
 ../gwsrc/ppbafp.fal.o:../gwsrc/readqg.o
 ../gwsrc/rdpp.o:../gwsrc/readqg.o
-../gwsrc/m_Writehsfp0.o:../gwsrc/rdpp.o
 ../gwsrc/m_eibz.o:../gwsrc/rdpp.o
 ../main/hsfp0.sc.m.o:../gwsrc/m_eibz.o
 ../main/hx0fp0.m.o:../gwsrc/m_eibz.o
@@ -3222,7 +3198,6 @@
 ../gwsrc/m_w0w0i.o:../gwsrc/m_llw.o
 ../main/hx0fp0.m.o:../gwsrc/m_llw.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_llw.o
-../gwsrc/m_realomegax0.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_zmel.o:../gwsrc/m_readVcoud.o
 ../gwsrc/m_tetwt.o:../gwsrc/m_zmel.o
 ../gwsrc/sxcf_fal2.o:../gwsrc/m_zmel.o
@@ -3246,7 +3221,6 @@
 ../main/hx0fp0.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.m.o:../gwsrc/m_readVcoud.o
 ../main/hx0fp0.sc.xxx.m.o:../gwsrc/m_readVcoud.o
-../gwsrc/m_realomegax0.o:../gwsrc/rdpp.o
 ../gwsrc/m_w0w0i.o:../gwsrc/rdpp.o
 ../main/hhomogas.m.o:../gwsrc/m_w0w0i.o
 ../main/hmagnon.m.o:../gwsrc/m_w0w0i.o

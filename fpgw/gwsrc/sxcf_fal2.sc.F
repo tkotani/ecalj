@@ -16,22 +16,23 @@ c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,
       use m_readqg,only:  ngpmx,ngcmx
       use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
       use m_readhbe,only: nband,mrecg
+      use m_readepswklm,only: wklm,lxklm
+      use m_readfreq_r,only: mrecl,expa_,npm
       implicit none
 !---------------------------------      
       public sxcf_scz
       contains
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine sxcf_scz(qip,ef,esmr, 
-     i isp, irkip,nrkip,  ecorem, nq,  !wgt0,
+     i isp, irkip,nrkip,  nq,  !wgt0,
      i exchange,!screen, 
-     i wklm,lxklm,         
-     i eftrue, jobsw, hermitianW,
+     i jobsw, hermitianW,
      o zsec,coh,nbandmx)
       intent(in)          qip,ef,esmr, 
-     i isp, irkip,nrkip,  ecorem, nq,  !wgt0,
+     i isp, irkip,nrkip,  nq,  !wgt0,
      i exchange,!screen, 
-     i wklm,lxklm,         
-     i eftrue, jobsw, hermitianW
+c     i wklm,lxklm,         
+     i jobsw, hermitianW
      i          ,nbandmx
       intent(out) :: zsec , coh
 !> \brief
@@ -171,9 +172,9 @@ c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,
       integer :: isp !nband,nq0i,isp!,nsp !,mdim(*) !,nlnmx nlmto,nctot,
       integer :: irkip(nqibz,ngrp,nq),nrkip(nqibz,ngrp,nq)
       integer :: jobsw !kount(nqibz,nq),ngpmx,ngcmx,ifexsp,
-      integer :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
-      real(8) :: ef,esmr,wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy freqx(niw),wx(niw),
-      real(8) :: qip(3,nq),eftrue,ecorem !,ebmx
+c      integer :: lxklm !,invg(ngrp) !nnr(nkpo),nor(nkpo),
+      real(8) :: ef,esmr!,wklm((lxklm+1)**2) !,qrr(3,nkpo),dwdummy freqx(niw),wx(niw),
+      real(8) :: qip(3,nq)!,eftrue!,ecorem !,ebmx
       integer :: nbandmx(nq)
       complex(8),optional :: zsec(ntq,ntq,nq) , coh(ntq,nq)
       real(8):: ebmx
@@ -285,7 +286,7 @@ c      real(8):: wgtq0p
         if(nw_i/=0) npm = 2     ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
       endif 
       tpi         = 8d0*datan(1d0)
-      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)-ecorem ! core
+      if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)!-ecorem ! core
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
 
@@ -311,49 +312,6 @@ c      real(8):: wgtq0p
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
-c          call readqg0('QGcou',qibz_k,  quu,ngc)
-c          ngb = nbloch + ngc
-!! ===Readin diagonalized Coulomb interaction===
-!!  Vcoud file is sequential file Vcoulomb matrix for qibz_k.
-!!  A possible choice for paralellization is "Vcoud.ID" files where ID=kx
-!!  Vould file is written in hvccfp0.m.F.
-!! For correlation, W-v is read instead of Vcoud file (ifrcw,ifrcwi for WVR and WVI)
-!! These can be also separeted into WVR.ID and WVI.ID files.
-!! NOTE: vcoud and zcousq are in module m_zmelt.
-c$$$          qxx = qibz_k
-c$$$          open(newunit=ifvcoud,file="Vcoud."//charnum5(kx),form='unformatted')
-c$$$          do
-c$$$            read(ifvcoud) ngb0
-c$$$            read(ifvcoud) qvv
-c$$$            if(allocated(vcoud)) deallocate(vcoud)
-c$$$            allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
-c$$$            read(ifvcoud) vcoud
-c$$$            read(ifvcoud) zcousq
-c$$$            if(sum(abs(qvv-qxx))<tolq) goto 1133
-c$$$          enddo
-c$$$          if(sum(abs(qvv-qxx))>tolq) then
-c$$$            write(6,*)'qvv =',qvv
-c$$$            write(6,*)'qxx=',qxx,kx
-c$$$            call rx( 'sxcf_fal2: qvv/=qibz(:,kx) hvcc is not consistent')
-c$$$          endif
-c$$$ 1133     continue
-c$$$          if( ngb0/=ngb ) then  !sanity check
-c$$$            write(6,*)' qxx ngb0 ngb=',qxx,ngb0,ngb
-c$$$            call rx( 'hsfp0.m.f:ngb0/=ngb')
-c$$$          endif
-!! ppovlz is used in get_zmel
-!! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
-!! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
-!! ppovlz= O Zcousq
-!! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
-c$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
-c$$$          call readppovl0(qibz_k,ngc,ppovl)
-c$$$          ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
-c$$$          ppovlz(nbloch+1:nbloch+ngc,:)=matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
-c$$$c            write(6,*)'sumcheck ppovlz 00000 =',sum(abs(ppovlz(:,:)))
-c$$$          deallocate(zcousq,ppovl)
-c     call setppovlz_sxcf(qibz_k,ngc,zcousq,ngb)
-          
           call Readvcoud(qibz_k,kx,NoVcou=.false.) ! Readin ngc,ngb,vcousq,zcousq !for the Coulomb matrix
           call Setppovlz(qibz_k,matz=.true.)
           if(debug) write(6,*) ' sxcf_fal2sc: ngb ngc nbloch=',ngb,ngc,nbloch

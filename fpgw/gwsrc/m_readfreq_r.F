@@ -1,13 +1,16 @@
       module m_readfreq_r
       use m_genallcf_v3,only: niw
+      use m_readgwinput,only: ua_
 !     ! Readin WV.d (dimension file)
 !     direct access files WVR and WVI which include W-V.
-      integer,protected::nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw
+      implicit none
+      integer,protected::nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw,npm
       real(8),allocatable,protected:: freq_r(:)
-      real(8),allocatable::freqx(:),freqw(:),wwx(:)
+      real(8),allocatable::freqx(:),freqw(:),wwx(:),expa_(:)
 
       contains
       subroutine readfreq_r()
+      integer:: ififr,ifwd,ix,nwxx,iw
       open(newunit=ifwd,file='WV.d')
       read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
       write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
@@ -36,9 +39,20 @@ c     write(6,'("    niw nw dw   =",2i6,f13.6)') niw,nw,dw
       endif
 !! Generate frequencies x between (0,1) and w=(1-x)/x for Gaussian integral along im axis
       if(niw/=0) then
-        allocate(freqx(niw),freqw(niw),wwx(niw)) !,expa(niw))
-        call freq01x  (niw,     !ua,
-     o   freqx,freqw,wwx)       !,expa)
+        allocate(freqx(niw),freqw(niw),wwx(niw),expa_(niw))
+!    generate gaussian points
+        call gauss   (niw,0d0,1d0,freqx,wwx) !!w = 1/(1+x)
+        write(6,"(' --- readfreq:  ix    x    freqw(a.u.)---')")
+        do ix = 1,niw
+           freqw(ix)= (1.d0 - freqx(ix)) / freqx(ix) 
+           write(6,"('            ',i4,2f9.4)") ix,freqx(ix),freqw(ix)
+           expa_(ix)= dexp(-ua_**2*freqw(ix)*freqw(ix))
+        end do
+c     call freq01x  (niw,     !ua,
+c     o   freqx,freqw,wwx)       !,expa)
       endif
+      npm = 1                   ! npm=1    Timeveversal case
+      if(nw_i/=0) npm = 2       ! npm=2 No TimeReversal case. Need negative energy part of W(omega)
+      
       end subroutine
       end module
