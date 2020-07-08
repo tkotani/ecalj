@@ -230,7 +230,7 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
 
       if(master_mpi()) then
-      ifivsmconst = fopna('vessm',-1,2)
+      ifivsmconst = fopna('vessm',-1,0)
       write(ifivsmconst,"(d23.15)") vconst
       call fclose('vessm')
       endif
