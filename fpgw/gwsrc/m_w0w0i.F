@@ -96,10 +96,11 @@ c-------------------------------------------------
      &     nqbze,nqibze,qbze,qibze
       use m_rdpp,only: nblochpmx,mrecl
       use m_freq,only: niw ,nw,nw_i
-      integer:: ifrcwx,iq,ircw,iw,nini,nend
+      integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx
       real(8)::q(3)
       complex(8),allocatable:: zw(:,:)
       character(5):: charnum5
+      mreclx=mrecl
 !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
 !! Gamma cell) is the micro cell of BZ including Gamma point).
 !! === w0,w0i are stored to zw for q=0 ===
@@ -113,10 +114,10 @@ c-------------------------------------------------
                 nini=nw_i
                 nend=nw
                 open(newunit=ifrcwx,  file='WVR.'//charnum5(iq), form='unformatted',
-     &               status='old',access='direct',recl=mrecl)
+     &               status='old',access='direct',recl=mreclx)
              elseif(ircw==2) then;  nini=1;      nend=niw;
                 open(newunit=ifrcwx,  file='WVI.'//charnum5(iq), form='unformatted',
-     &               status='old',access='direct',recl=mrecl)
+     &               status='old',access='direct',recl=mreclx)
              endif
              do iw=nini,nend
                 read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)

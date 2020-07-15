@@ -39,13 +39,14 @@
       use m_readqg,only: Readqg0
       intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
       integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
-      integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw
+      integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
       real(8):: frr,q(3),vcou1,quu(3),eee
       logical::  localfieldcorrectionllw
       logical,save:: init=.true.
       complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
       character(5):: charnum5
 !     !
+      mreclx=mrecl
       write(6,*)'WVRllwR init zxq dddxxx',nmbas1,nmbas2,nw_i,nq0i,nblochpmx !,zxq(1,1,iw) !, sum(abs(zxq))
       if(init) then !initialization related to w4pmode, zw, tpioa...
          allocate( llw(nw_i:nw,nq0i) )
@@ -71,7 +72,7 @@ c         tpioa=2d0*pi/alat
       write(6, *)" === trace check for W-V === nwmin nwmax=",nwmin,nwmax
       write(6,*) 'qqqqqxx=',iq,q
       if(iq<=nqibz) then        !for mmmw
-         open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
+         open(newunit=ifrcw, file='WVR.'//charnum5(iq),form='unformatted',access='direct',recl=mreclx)
          do 1015 iw  = nwmin,nwmax
             frr= dsign(freq_r(abs(iw)),dble(iw))
 c            imode = 1
@@ -166,7 +167,7 @@ c      deallocate( zw0, epstilde, epstinv)
 !--------------------------------------------------------
       subroutine WVIllwi(q,iq,zxqi,nmbas1,nmbas2)
       intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
-      integer:: nmbas1,nmbas2
+      integer:: nmbas1,nmbas2,mreclx
       integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
       real(8):: frr,q(3),vcou1
       logical::  localfieldcorrectionllw
@@ -183,7 +184,7 @@ c      allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
       write(6,*)'WVRllwI: init'
       if (nspin == 1) zxqi = 2d0*zxqi ! if paramagnetic, multiply x0 by 2
       if( iq<=nqibz ) then
-        open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mrecl)
+        open(newunit=ifrcwi,file='WVI.'//charnum5(iq),form='unformatted',access='direct',recl=mreclx)
         do 1016 iw  = 1,niw
 !!  Eqs.(37),(38) in PRB81 125102
            if(iq==1) then
