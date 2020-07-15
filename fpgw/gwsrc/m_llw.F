@@ -174,6 +174,7 @@ c      deallocate( zw0, epstilde, epstinv)
       logical,save:: init=.true.
       complex(8):: zxqi(nmbas1,nmbas2,niw)
       character(5):: charnum5
+      mreclx=mrecl
       if(init) then
          allocate( llwI(niw,nq0i) )
          init=.false.
