@@ -1,6 +1,7 @@
 subs/atomsr.o:subs/getq.o
 subs/getcor.o:subs/atomsr.o
 subs/freeat.o:subs/getq.o
+fp/bndfp.o:subs/m_ext.o
 subs/asados.o:subs/m_globalvariables.o
 subs/asars.o:subs/m_globalvariables.o
 subs/atomsr.o:subs/m_globalvariables.o

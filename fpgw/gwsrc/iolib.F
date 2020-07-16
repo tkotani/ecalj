@@ -126,9 +126,9 @@ C      integer j,fext,iargc,iarg,n
 C      character*4 extns
 C#endif
 
-      external diolib
+c      external diolib
 
-      call initqu(.false.)
+c      call initqu(.false.)
 
 C --- For Lahey F77L, open standard output as list-directed ---
 C#ifdefC F77LAHEY
@@ -217,113 +217,115 @@ C For io routines ...
       end
 C --- INTERACTIVE MODE ROUTINES ---
       subroutine query(instr,cast,var)
-C- interactive flow control
-C ----------------------------------------------------------------
-Ci Inputs
-Ci   strng: prompt string
-Ci   cast:  <0, if nothing to change, otherwise
-Ci          cast is  0=,logical, 2=int, 3=real 4=double
-Co Outputs
-Co   var:   query will change if requested
-Cr Remarks
-Cr   At the prompt, user enters either nothing, or one of
-Cr     'Snnn', where nnn is number (or T or F for logical variable);
-Cr     'Vnnn', where nnn is the new verbosity;
-Cr     'W' to toggle printing of work array;
-Cr     'I' to turn off interactive prompt;
-Cr     'A' to abort program execution
-C ----------------------------------------------------------------
-C     implicit none
-C Passed parameters
-      character*(*) instr
-      integer cast,var
-      logical lset
-C Local parameters
-      integer lprmpt
-      parameter (lprmpt=62)
-      character*(lprmpt) prmpt, rdstr
-      logical lquery,lsequ,cnvt
-      integer i,imin,ivbs,iprint,j
-      save lquery
-      character*(1) prmpt2(1),rdstr2(2)
-      equivalence (prmpt,prmpt2), (rdstr,rdstr2)
-      external lsequ,cnvt,iprint
-
-      data prmpt
-     ./'(S)et parm   (V)erbos   (W)kp toggle   (I)act toggle   (A)bort'/
-
-C#ifndef CRAY | BATCH
-      if (.not. lquery) return
-
-      print *
-      imin = 1
-c apr9 2008 takao
-c      goto (1,2,1,1,1), cast+1
-      if( cast+1==2 ) then
-        goto 2
-      elseif( cast+1 <= 5) then
-        goto 1
-      endif
-
-C Case nothing to change
-C#ifdefC APOLLO_BUG
-C      print *, 'QUERY:  '
-C#else
-      print *, 'QUERY:  ',instr
-C#endif
-      imin=14
-      goto 10
-Cstop2rx 2013.08.09 kino    2 stop 'QUERY:  cannot change char or real'
-    2 call rx( 'QUERY:  cannot change char or real')
-    1 continue
-      call disply(instr,'=',var,var,var,var,' ',1,cast)
-   10 continue
-      print 333, (prmpt2(i), i=imin, lprmpt)
-  333 format(' ',62a1)
-  334 format(a62)
-      print 335, iprint()
-C#ifdefC SVS
-C  335 format(' V=',i3,' ? '\)
-C#elseifC APOLLO
-C  335 format(' V=',i3,' ? '$)
-C#else
-  335 format(' V=',i3,' ?')
-C#endif
-      rdstr = ' '
-      read(*,334) rdstr
-
-      i = 0
-      if (lsequ(rdstr,'S',1,' ',j) .or. lsequ(rdstr,'s',1,' ',j)) then
-        if (.not. cnvt(rdstr2(2),var,var,var,var,cast,0,' ',i))
-     .    print *, 'conversion error'
-        goto 10
-      else
-     .if (lsequ(rdstr,'V',1,' ',j) .or. lsequ(rdstr,'v',1,' ',j)) then
-        if (.not. cnvt(rdstr2(2),0,ivbs,0,0,2,0,' ',i))  then
-          print *, 'conversion error'
-        else
-          call popprt
-          call pshprt(ivbs)
-        endif
-        goto 10
-      else
-     .if (lsequ(rdstr,'W',1,' ',j) .or. lsequ(rdstr,'w',1,' ',j)) then
-        call wkprnt(2)
-        goto 10
-      else
-     .if (lsequ(rdstr,'I',1,' ',j) .or. lsequ(rdstr,'i',1,' ',j)) then
-        lquery = .false.
-      else
-     .if (lsequ(rdstr,'A',1,' ',j) .or. lsequ(rdstr,'a',1,' ',j)) then
-        call fexit(1,'QUERY')
-      endif
-
-C#endif
-      return
-
-      entry initqu(lset)
-      lquery = lset
-
+      call rx('not support now')
+c$$$      
+c$$$C- interactive flow control
+c$$$C ----------------------------------------------------------------
+c$$$Ci Inputs
+c$$$Ci   strng: prompt string
+c$$$Ci   cast:  <0, if nothing to change, otherwise
+c$$$Ci          cast is  0=,logical, 2=int, 3=real 4=double
+c$$$Co Outputs
+c$$$Co   var:   query will change if requested
+c$$$Cr Remarks
+c$$$Cr   At the prompt, user enters either nothing, or one of
+c$$$Cr     'Snnn', where nnn is number (or T or F for logical variable);
+c$$$Cr     'Vnnn', where nnn is the new verbosity;
+c$$$Cr     'W' to toggle printing of work array;
+c$$$Cr     'I' to turn off interactive prompt;
+c$$$Cr     'A' to abort program execution
+c$$$C ----------------------------------------------------------------
+c$$$C     implicit none
+c$$$C Passed parameters
+c$$$      character*(*) instr
+c$$$      integer cast,var
+c$$$      logical lset
+c$$$C Local parameters
+c$$$      integer lprmpt
+c$$$      parameter (lprmpt=62)
+c$$$      character*(lprmpt) prmpt, rdstr
+c$$$      logical lquery,lsequ,cnvt
+c$$$      integer i,imin,ivbs,iprint,j
+c$$$      save lquery
+c$$$      character*(1) prmpt2(1),rdstr2(2)
+c$$$      equivalence (prmpt,prmpt2), (rdstr,rdstr2)
+c$$$      external lsequ,cnvt,iprint
+c$$$
+c$$$      data prmpt
+c$$$     ./'(S)et parm   (V)erbos   (W)kp toggle   (I)act toggle   (A)bort'/
+c$$$
+c$$$C#ifndef CRAY | BATCH
+c$$$      if (.not. lquery) return
+c$$$
+c$$$      print *
+c$$$      imin = 1
+c$$$c apr9 2008 takao
+c$$$c      goto (1,2,1,1,1), cast+1
+c$$$      if( cast+1==2 ) then
+c$$$        goto 2
+c$$$      elseif( cast+1 <= 5) then
+c$$$        goto 1
+c$$$      endif
+c$$$
+c$$$C Case nothing to change
+c$$$C#ifdefC APOLLO_BUG
+c$$$C      print *, 'QUERY:  '
+c$$$C#else
+c$$$      print *, 'QUERY:  ',instr
+c$$$C#endif
+c$$$      imin=14
+c$$$      goto 10
+c$$$Cstop2rx 2013.08.09 kino    2 stop 'QUERY:  cannot change char or real'
+c$$$    2 call rx( 'QUERY:  cannot change char or real')
+c$$$    1 continue
+c$$$      call disply(instr,'=',var,var,var,var,' ',1,cast)
+c$$$   10 continue
+c$$$      print 333, (prmpt2(i), i=imin, lprmpt)
+c$$$  333 format(' ',62a1)
+c$$$  334 format(a62)
+c$$$      print 335, iprint()
+c$$$C#ifdefC SVS
+c$$$C  335 format(' V=',i3,' ? '\)
+c$$$C#elseifC APOLLO
+c$$$C  335 format(' V=',i3,' ? '$)
+c$$$C#else
+c$$$  335 format(' V=',i3,' ?')
+c$$$C#endif
+c$$$      rdstr = ' '
+c$$$      read(*,334) rdstr
+c$$$
+c$$$      i = 0
+c$$$      if (lsequ(rdstr,'S',1,' ',j) .or. lsequ(rdstr,'s',1,' ',j)) then
+c$$$        if (.not. cnvt(rdstr2(2),var,var,var,var,cast,0,' ',i))
+c$$$     .    print *, 'conversion error'
+c$$$        goto 10
+c$$$      else
+c$$$     .if (lsequ(rdstr,'V',1,' ',j) .or. lsequ(rdstr,'v',1,' ',j)) then
+c$$$        if (.not. cnvt(rdstr2(2),0,ivbs,0,0,2,0,' ',i))  then
+c$$$          print *, 'conversion error'
+c$$$        else
+c$$$          call popprt
+c$$$          call pshprt(ivbs)
+c$$$        endif
+c$$$        goto 10
+c$$$      else
+c$$$     .if (lsequ(rdstr,'W',1,' ',j) .or. lsequ(rdstr,'w',1,' ',j)) then
+c$$$        call wkprnt(2)
+c$$$        goto 10
+c$$$      else
+c$$$     .if (lsequ(rdstr,'I',1,' ',j) .or. lsequ(rdstr,'i',1,' ',j)) then
+c$$$        lquery = .false.
+c$$$      else
+c$$$     .if (lsequ(rdstr,'A',1,' ',j) .or. lsequ(rdstr,'a',1,' ',j)) then
+c$$$        call fexit(1,'QUERY')
+c$$$      endif
+c$$$
+c$$$C#endif
+c$$$      return
+c$$$
+c$$$      entry initqu(lset)
+c$$$      lquery = lset
+c$$$
       end
 C --- FREE-FORMAT INPUT PROCEDURES ---
       subroutine rdfile(unit,recrd,mxrecs,a,reclen,nrecs)

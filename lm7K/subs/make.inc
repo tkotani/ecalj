@@ -252,4 +252,5 @@ subs_list:=\
  	xcfunc.o \
 	xcpbe.o \
 	vxcnls.o \
-	vxc0gc.o
+	vxc0gc.o \
+	m_ext.o

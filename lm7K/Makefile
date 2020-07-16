@@ -228,7 +228,7 @@ lmfgw.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
 #tbe.o: lmv7.F
 #	$(FC) $(FFLAGS) -DTBE -c lmv7.F -o $@
-lmf2gw.o: lmf2gw.F
+lmf2gw.o: lmf2gw.F 
 	$(FC) $(FFLAGS_NONE) -c lmf2gw.F -o $@
 lmfham1.o: lmfham1.F
 	$(FC) $(FFLAGS_NONE) -c lmfham1.F -o $@
@@ -265,8 +265,8 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) show_programinfo.o
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lmf2gw:	lmf2gw.o show_programinfo.o
-	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
+lmf2gw:	lmf2gw.o show_programinfo.o $(LIBSUBS) 
+	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LIBSUBS) $(LKFLAGS2) -o $@
 
 lmfham1: lmfham1.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@

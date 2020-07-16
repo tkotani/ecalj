@@ -79,10 +79,10 @@ c$$$      endif
       call finits(2,0,0,i)
       call poseof(fopn('LOG'))
       i = fextg(ext)
-      call word(ext,1,i,j)
-      if (ext(i:i) .eq. '.') i=i+1
-      if (ext(j:j) .eq. '.') j=j-1
-      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+c      call word(ext,1,i,j)
+c      if (ext(i:i) .eq. '.') i=i+1
+c      if (ext(j:j) .eq. '.') j=j-1
+c      if (j .ge. i) call ptenv('EXT='//ext(i:j))
 C     ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
 c     if (cmdopt('--input',6,0,strn)) then

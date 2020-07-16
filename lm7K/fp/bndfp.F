@@ -1,4 +1,4 @@
-!! = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
+!!      = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
 !!
 !! Memo july2012takao
 !! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
@@ -31,7 +31,7 @@ c      use m_seneinput,only: Seneinterp2 !these are given here.
 #if defined(__INTEL_COMPILER)
       use ifport, only: unlink
 #endif
-
+      use m_ext,only: sname !extention for file
 !! ==== followings are taken from origitanl lm7beta for reference. ====
 Ci   nbas  :size of basis
 Ci   nsp   : number of spins
@@ -437,9 +437,9 @@ c mar2014
       real(8)::  totxdatt, dqsyml(nsymlmax),etolv,etolc
       integer:: ifile_handle, fxsts
 
-      character(512),save::sname,schar
+      character(512),save::schar
       character(512):: aaachar
-      logical:: massline ,initex=.true., writeham=.false.
+      logical:: massline , writeham=.false.
       logical,save:: siginit=.true.     ,laf
       character(10):: i2char
       character(50)::infoq
@@ -475,23 +475,7 @@ c mar2014
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       print *,' mpipid=',procid
-#endif      
-
-!! A trick to get the extension of ctrlfile. It is stored to trim(sname).
-      if(procid==master.and.initex) then 
-        ifi=fopn('temptempxxx') 
-        sss=''
-        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-        call fclose(ifi)
-        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
-        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
-        ifi=ifile_handle()
-        open(ifi, file='temptempxxx.'//trim(sname)) 
-        close(ifi,status='delete')
-        initex=.false.
-      endif
-      if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
-      call mpibcc(sname,512,mlog,'bndfp','ext')
+#endif
 
 !! Write atomic positions
       if(procid==master) then
