@@ -1,8 +1,0 @@
- enter trecur,nn,n,m=          10          10           5
- enter trecur,nn,n,m=           5           5           2
- enter trecur,nn,n,m=           2           2           1
- enter trecur,nn,n,m=           1           1           0
-  exit trecur,nn,n,m=           1           1           0
-  exit trecur,nn,n,m=           2           2           1
-  exit trecur,nn,n,m=           5           5           2
-  exit trecur,nn,n,m=          10          10           5

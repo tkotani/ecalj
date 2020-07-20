@@ -1,5 +1,0 @@
-This gives alternate structure of lstra.
- $ gawk -f cont.awk lstra.F | gawk -f struc2.awk | gawk -f make_def.awk
-An output is m_struc_def.F.
- $ gawk -f make_sub.awk m_struc_def.F  > struc_sub.F
-
