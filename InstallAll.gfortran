@@ -6,23 +6,15 @@ function my_error() {
 
 BINDIR=${HOME}/bin
 MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
+mkdir ${BINDIR}
+echo Going to install required binaries and scripts to ${BINDIR} !
+
 #MATH='/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a'
 #MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
 #MATH='/sw/lib/libfftw3.a /sw/lib/lapack/librefblas.a /sw/lib/lapack/libreflapack.a'
 
-### This is an example for ubuntu
-# For each machine, we have to prepare
-#  lm7k/MAKEINC/Make.inc.gfortran
-#  lm7k/MAKEINC/Make.inc.gfortran_mpik
-#  fpgw/exec/Make.inc.gfortran_mpik
-#  fpgw/Wannier/
-
-mkdir ${BINDIR}
-echo Going to install required binaries and scripts to ${BINDIR} !
-
 # make a link to getsyml
 ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
-
 ### viewvesta
 cd StructureTool/
 ./makelink $BINDIR
@@ -38,11 +30,7 @@ cd ../fpgw/exec/
 make PLATFORM=gfortran LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran BINDIR=$BINDIR  install ||my_error
 make PLATFORM=gfortran BINDIR=$BINDIR install2 ||my_error
-### Use fpgw/Wannier/Makefile
-#cd ../Wannier/
-#make PLATFORM=gfortran LIBMATH="$MATH"
-#make BINDIR=$BINDIR PLATFORM=gfortran install
-
+### Test 
 cd ../../TestInstall/
 make mpi_size=4 all
 

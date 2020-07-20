@@ -60,11 +60,11 @@ libs slatsm-dir subs-dir fp-dir mod-dir slatsm-lib subs-lib fp-lib
 #################################
 
 
-fplotprogs := fplot pldos
+#fplotprogs := fplot pldos
 
 ALL: libs
 	$(MAKE) -f Makefile progs
-	-[ -f slatsm/slatsm.a ] && (cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) LIBLOC='$(LIBLOC)'; cp -f $(fplotprogs) ../)
+	-[ -f slatsm/slatsm.a ]  
 #	(cd slatsm; make -f Makefile SLATSM=$(SLATSM))
 #	(cd subs; make -f Makefile SUBS=$(SUBS))
 #	(cd fp; make -f Makefile FP=$(FP))
@@ -90,7 +90,7 @@ libs: mod-dir slatsm-dir subs-dir fp-dir
 init:	moduledepends.inc
 
 moduledepends.inc:
-	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F FPLOTdir/*.F
+	exec ../TOOLS/checkmodule subs/*.F slatsm/*.F fp/*.F 
 moduledepends.$(PLATFORM).inc: moduledepends.inc
 	sed -e 's/\//\/$(obj_path)\//g' moduledepends.inc >moduledepends.$(PLATFORM).inc
 
@@ -174,7 +174,7 @@ $(fp_obj_path)/%.o: fp/%.F
 ########################################
 
 #include Make.mod.dependency
-include MAKEINC/Make.inc.$(PLATFORM)
+include Make.inc.$(PLATFORM)
 include moduledepends.$(PLATFORM).inc
 #include MAKEINC/Make.inc.$(PLATFORM).patch #this is for less optimization to avoid compilar bugs.
 
@@ -228,7 +228,7 @@ lmfgw.o: lmv7.F
 #	$(FC) $(FFLAGS) -DLMSCELL -c lmv7.F -o $@
 #tbe.o: lmv7.F
 #	$(FC) $(FFLAGS) -DTBE -c lmv7.F -o $@
-lmf2gw.o: lmf2gw.F 
+lmf2gw.o: lmf2gw.F
 	$(FC) $(FFLAGS_NONE) -c lmf2gw.F -o $@
 lmfham1.o: lmfham1.F
 	$(FC) $(FFLAGS_NONE) -c lmfham1.F -o $@
@@ -265,8 +265,8 @@ lmf:	lmf.o  $(LIBSUBS) $(LIBFP) $(LIBSLA) show_programinfo.o
 lmfgw:	lmfgw.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
 
-lmf2gw:	lmf2gw.o show_programinfo.o $(LIBSUBS) 
-	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LIBSUBS) $(LKFLAGS2) -o $@
+lmf2gw:	lmf2gw.o show_programinfo.o
+	$(FC) $(LKFLAGS1) $@.o show_programinfo.o $(LKFLAGS2) -o $@
 
 lmfham1: lmfham1.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo.o
 	$(LK) $(LKFLAGS1) $@.o  show_programinfo.o $(LIBFP) $(LIBSUBS) $(LIBSLA) $(LIBLOC) $(LKFLAGS2) -o $@
@@ -313,17 +313,14 @@ lmfgw-MPIK:     lmfgw-MPIK.o $(LIBSUBS) $(LIBFP)  $(LIBSLA) show_programinfo_mpi
 progs: $(programs)
 
 clean:
-	rm -f $(programs) $(fplotprogs) */*.a *.o 
-	(cd FPLOTdir; rm *.o;$(MAKE) PLATFORM=$(PLATFORM) clean)
+	rm -f $(programs) */*.a *.o 
 
 cleanbin:
-	rm -f $(programs) $(fplotprogs)
-	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) clean)
+	rm -f $(programs) 
 
 
 cleanall:
-	rm -f $(programs) $(fplotprogs) $(LIBSUBS) $(LIBFP) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
-	(cd FPLOTdir; $(MAKE) PLATFORM=$(PLATFORM) cleanobj)
+	rm -f $(programs) $(LIBSUBS) $(LIBFP) $(LIBSLA) */obj.*/*.o  *.o  */*.a 
 	rm -rf MODDIR
 	mkdir MODDIR
  
@@ -353,7 +350,7 @@ checkgw:
 
 
 install: 
-	cp $(programs) $(fplotprogs) ctrlgenM1.py job* run_arg  $(BINDIR)
+	cp $(programs) ctrlgenM1.py job* run_arg  $(BINDIR)
 
 ### this is to avoid compilar bug of ifort bug (Version 14.0.1.106)
 #$(subs_obj_path)/xcpbe.o : subs/xcpbe.F90

@@ -43,20 +43,20 @@ endef
 $(TARGET).exec:
 	$(call test2.exec,$(out2))
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
-	$(call plot.pldos)
+#	$(call plot.pldos)
 
 # check default case for $(TARGET).
 $(TARGET).check:
 	$(call test2.check,$(REFDIR)/$(out2x),$(out2x))
 
-# exec case1 for $(TARGET).
-$(TARGET).case1.exec:
-	@echo "nothing to exec for $@"
+# # exec case1 for $(TARGET).
+# $(TARGET).case1.exec:
+# 	@echo "nothing to exec for $@"
 
-# check case1 for $(TARGET).
-$(TARGET).case1.check:
-	@echo "nothing to check for $@"
+# # check case1 for $(TARGET).
+# $(TARGET).case1.check:
+# 	@echo "nothing to check for $@"
 
-# plot graph on the display
-plot-dos:
-	ghostscript ps.pldos.dat
+# # plot graph on the display
+# plot-dos:
+# 	ghostscript ps.pldos.dat

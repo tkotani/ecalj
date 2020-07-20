@@ -1,1 +1,0 @@
-fplot -tp 2~1,1,2,2 -lbl 1.5,1.5 tx,rot=75 hello '$A_x$' -lbl 1.2,1.0 tx,rot=0 start '\{\Huge\textsl\{\textsf\{end}}}'
