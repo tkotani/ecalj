@@ -157,10 +157,6 @@ C ... Local parameters
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
       logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
-#if MPI|MPIK
-      include 'mpif.h'
-      integer:: ierr
-#endif
       data vec0 /0d0,0d0,0d0/
 C ... MPI setup
       nproc  = mpipid(0)
@@ -787,11 +783,6 @@ C         Case read but skip over this site data
             nr = nr0
           endif
 
-#if KINODEBUG & (MPI|MPIK)
-          call mpi_barrier(mpi_comm_world,ierr)
-          write(*,*)'kino, before Allocate and read arrays for local density and potentia',mode
-#endif
-
 C     --- Allocate and read arrays for local density and potential ---
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
@@ -844,12 +835,6 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
               endif
             endif
 
-#if KINODEBUG & (MPI|MPIK)
-            call mpi_barrier(mpi_comm_world,ierr)
-            write(*,*) 'kino, after allocation',mode,size(sv_p_orhoat( 1 , ib )%v),size(sv_p_orhoat( 2 , ib )%v),
-     .           size(sv_p_orhoat( 3 , ib )%v)
-#endif
-
             if (mode .eq. -2) then
               if (allocated(sv_p_orhoat(1,ib)%v)) deallocate(sv_p_orhoat(1,ib)%v)
               if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
@@ -862,10 +847,6 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
      .         mlog , 'iors' , 'rhoat(3)' )
               call mpibc1 ( ssite(ib)%rv_a_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' )
               call mpibc1 ( ssite(ib)%rv_a_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' )
-#if KINODEBUG & (MPI|MPIK)
-              call mpi_barrier(mpi_comm_world,ierr)
-              write(*,*) 'kino, after mpibc1 orhoat, ov'
-#endif
             endif
 C     ... ASA sphere densities
           else

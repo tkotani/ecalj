@@ -159,10 +159,10 @@ c     integer:: odmatu , ovorbdmat , odmato
 
       real(8):: pnu(20),bz_w
       logical :: llmfgw,nowriteden=.false.
-#if (MPI |MPIK)
-      integer:: ierr
-      include "mpif.h"
-#endif
+c$$$#if (MPI |MPIK)
+c$$$      integer:: ierr
+c$$$      include "mpif.h"
+c$$$#endif
 
       call tcn('lmfp')
       etot(1) = 0
@@ -173,7 +173,7 @@ c     integer:: odmatu , ovorbdmat , odmato
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
 
-!! MPIK is only allowed now... Need to examine MPI again in future.
+c!! MPIK is only allowed now... Need to examine MPI again in future.
 c$$$#if MPI
 c$$$      nbas=sctrl%nbas
 c$$$!!       mpipic() is defined in slatsm
@@ -566,11 +566,11 @@ C     ... Subtract reference energy
 C     The desired tolerances in q,e
         qtol = sctrl%tol(1)
         etol = sctrl%tol(3)
-#if MPI|MPIK
-c     kino   to confirm that nwit() follows the previous messages.
-        flush(6)
-        call mpi_barrier(MPI_COMM_WORLD,ierr)
-#endif
+c$$$#if MPI|MPIK
+c$$$c     kino   to confirm that nwit() follows the previous messages.
+c$$$        flush(6)
+c$$$        call mpi_barrier(MPI_COMM_WORLD,ierr)
+c$$$#endif
 
         if (procid .eq. master) then
           rhosig = sham%eterms(19)

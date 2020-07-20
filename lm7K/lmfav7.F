@@ -37,16 +37,9 @@ c      type(s_str):: v_sstr
       equivalence ( recrd, recrd_ )
       real(8),parameter::    NULLR =-99999
       integer:: ibas
-c$$$#if MPI|MPIK
-c$$$      include 'mpif.h'
-c$$$      integer ierr
-c$$$#endif
       call show_programinfo(6)
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
-c$$$#if MPI|MPIK
-c$$$      call mpi_init(ierr)
-c$$$#endif
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)

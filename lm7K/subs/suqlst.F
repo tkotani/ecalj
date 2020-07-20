@@ -143,7 +143,6 @@ c$$$Cr            going through the gamma-point. Two bands (4,5) are stored.
 c$$$Cu Updates
 c$$$Cu   08 Jul 08 Extend to case where number of bands can be q dependent
 c$$$Cu             modes 1,2: suqlsw writes out number of bands with qp
-c$$$Cu   09 Jul 07 configured to with with MPIK mode
 c$$$Cu   05 Jul 07 Enable onesp to be set as switch in --band:spin1 
 c$$$c                                                          -->forbidden 2014takao
 c$$$Cu   02 Jul 06 Color mode extended to two colors

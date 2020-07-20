@@ -6,11 +6,6 @@
       logical:: nexist
       integer,save:: irem=2001
       character*256::nnn
-c#if MPI | MPIK
-c      include "mpif.h"
-c#endif
-c      integer::mpipid
-c      print *,'ifile_handle:'
       do i=irem,9999
          inquire(unit=i,opened=nexist,name=nnn)
          if(.not.nexist) then

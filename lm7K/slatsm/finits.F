@@ -1,4 +1,3 @@
-#define unix 1
       subroutine finits(job,fcn,fcargs,iarg)
 C- Machine and compiler-dependent inits for standard FORTRAN startup
 C ----------------------------------------------------------------
@@ -24,38 +23,18 @@ C     implicit none
 C Passed parameters      
       integer job,iarg
       double precision fcargs(1)
-      external fcn
-#if unix
       logical lsequ,lext
       integer i,fext,nargf,n,it(5),iv(5),a2vec
       character strn*256
       character*100 extns
-#endif
-
 #if MPI | MPIK
       integer master,procid
-      double precision starttime, endtime
       parameter (master = 0)
       include "mpif.h"
-      common /mpifinits/ starttime, endtime
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, i )
-c      if (procid .eq. master) then
-        starttime = MPI_WTIME()
-c      endif
 #endif
-
       call awrit0('%u',' ',80,0)
       call initqu(.false.)
-
-C --- For Lahey F77L, open standard output as list-directed ---
-#if F77LAHEY
-      open(unit=*,carriage control='LIST')
-#endif
-
-C --- Handle floating point exceptions in the IBM VM environment ---
-#if IBM_VM
-      call errset(208,999,-1)
-#endif
 
 C --- Command line arguments and extension ---
       if (job .eq. 0) return
@@ -123,18 +102,14 @@ c      parameter (scrwid=300)
       logical isopen
       integer master,procid,ierr
       parameter (master = 0)
-
 #if MPI | MPIK
-      double precision starttime, endtime
       include "mpif.h"
-      common /mpifinits/ starttime, endtime
 #endif
       goto 5
       entry fexit3(retval,iopt,strng,args,arg2,arg3)
       entry fexit2(retval,iopt,strng,args,arg2)
     5 continue
       procid = mpipid(1)
-c      if (procid .eq. master) then
       if (procid .eq. master.or. retval/=0) then
         i = getdig(iopt,0,10)
         if (i .ne. 0) then
@@ -146,9 +121,7 @@ c      if (procid .eq. master) then
              call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
            endif
         endif
-
         i = getdig(iopt,1,10)
-c        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
         if (i .ne. 0 .and. cpusec() .ne. 0) then
           timeu = 's'
           tnew = cpusec()
@@ -175,33 +148,8 @@ c        if (i .ne. 0 .and. iprint() .ge. 10 .and. cpusec() .ne. 0) then
           endif
         endif
       endif
-      i = fopnT('TMP' ,-1,0,2)
-      if (i .ge. 0) call dfclos(i)
-      if (fhndl('TMP') .ge. 0) call dfclos(fopn('TMP'))
-
-c      if (procid .eq. master) then
-c        if (getdig(iopt,2,10) .gt. 0 .and. iprint() .gt. 0) call wkinfo
-c      endif
-
-C   11 call tclev(hostnm,i)
-C      if (i .ge. 0) then
-C        call tcx(hostnm)
-C        goto 11
-C      endif
       call tcprt(i1mach(2))
-
 #if MPI | MPIK
-c      if ( procid .eq. master ) then
-      if ( procid .eq. master .or. retval/=0 ) then
-        endtime = MPI_WTIME()
-
-c takao. Why this cause a stop???
-c        write(6,"(a,d13.5)")
-c     &  ' MPI Wall-clock time =',(endtime-starttime)*MPI_WTICKS()
-c---
-c        call awrit2('%N MPI Wall-clock time: %;3ds. Resolution %;9ds%N',
-c     .              ' ',128,i1mach(2),endtime-starttime,MPI_WTICK())
-      endif
       if(retval/=0) then
          print *,'fexit,fexit2,fexit3 error retval=',retval
          print *
@@ -294,70 +242,3 @@ C     implicit none
 
       if (test) call rx(string)
       end
-
-#ifndef unix
-      subroutine ftimex(datim)
-      character*(*) datim
-      datim = ' '
-      end
-#endif
-CC tests finits and fexit
-C      subroutine fmain
-CC      implicit none
-C      integer iarg
-C      double precision arg1(10)
-C      external cmdarg
-C
-C      call finits(3,cmdarg,arg1,iarg)
-CC     call fexit (-1,111,' Test fexit, one argument:%2:2;6d',arg1)
-C      call fexit2(-1,111,' Test fexit, two args:%2:2;6d : %i',arg1,987)
-C      end
-C      subroutine cmdarg(cmargs,iarg)
-CC- Command line arguments special to lmtoft
-CC ----------------------------------------------------------------
-CCi Inputs
-CCi   cmargs(1,2): exi (if -e)
-CCi         (3):   lmxf for getoro (i.e. n in -gn)
-CCo Outputs
-CCi   iarg
-CCr Remarks
-CC ----------------------------------------------------------------
-CC      implicit none
-CC Passed parameters
-C      integer iarg
-C      double precision cmargs(3)
-CC Local variables
-C      logical lsequ,a2bin
-C      character strn*40
-C      integer i,n,nargf
-C
-CC --- Command line arguments and extension ---
-C      iarg = 0
-C   10 iarg = iarg+1
-C      if (nargf() .gt. iarg) then
-C        call getarf(iarg,strn)
-C        i = 2
-C        if (lsequ(strn,'-v',i,' ',n)) call parsyv(strn,40,999,0,i)
-C        if (lsequ(strn,'-e',i,' ',n)) then
-C          iarg = iarg+2
-C          if (nargf() .le. iarg) goto 99
-C          call getarf(iarg-1,strn)
-C          i = 0
-C          if (.not. a2bin(strn,cmargs,4,0,' ',i,-1)) goto 99
-C          call getarf(iarg,strn)
-C          i = 0
-C          if (.not. a2bin(strn,cmargs,4,1,' ',i,-1)) goto 99
-C        endif
-C        if (lsequ(strn,'-g',i,' ',n)) then
-C          if (strn(3:3) .ne. ' ') then
-C            i = 2
-C            if (.not. a2bin(strn,cmargs,4,2,' ',i,-1)) goto 99
-C          endif
-C        endif
-C        if (lsequ(strn,'-',1,' ',n)) goto 10
-C      endif
-C      iarg = iarg-1
-C      return
-C   99 call rx('error parsing switches')
-C      end
-

@@ -107,9 +107,6 @@ C     offz(i) = i if real; offz(i) = 2*i-1 if complex
 C ... ix-th component of connecting vector of pair i
       dx(ix,i) = pos(ix,iax(2,i)) - pos(ix,iax(1,i)) +
      .plat(ix,1)*iax(3,i) + plat(ix,2)*iax(4,i) + plat(ix,3)*iax(5,i)
-c$$$#if MPI | MPIK
-c$$$      integer, dimension(:),allocatable :: igproc
-c$$$#endif
       integer procid, master, mpipid, numprocs,igini,igend
       logical mlog,cmdopt
       character strn*120
@@ -170,28 +167,8 @@ C      if (scplx .eq. 0) call prmx('sr',syms(1,1,ksp,is),nds,nds,nds)
 C      if (scplx .eq. 1) call zprm('sz',2,syms(1,1,ksp,is),nds,nds,nds)
 
 C --- For each symmetry operation, do ---
-c$$$#if MPI | MPIK
-c$$$      allocate (igproc(0:max(numprocs,1)))
-c$$$C      call pshpr(ipr-10)
-c$$$      call dstrbp(ng,numprocs,1,igproc)
-c$$$C     Alternatively, distribute loops over pairs.  Doesn't improve speed.
-c$$$C     Probably need to reverse order of ng, isite
-c$$$C      call dstrbp(is2-is1+1,numprocs,1,igproc)
-c$$$C      do  isite = 0, numprocs
-c$$$C        igproc(isite) = igproc(isite) + is1-1
-c$$$C      enddo
-c$$$C      call poppr
-c$$$#endif
-c$$$
-c$$$#if MPI | MPIK
-c$$$c      do ig = max(igproc(procid),2), igproc(procid+1)-1
-c$$$      igini = max(igproc(procid),2)
-c$$$      igend = igproc(procid+1)-1
-c$$$#else
-c      do  ig = 2, ng
       igini = 2
       igend = ng
-c$$$#endif
 
       do ig=igini,igend
 c         print *,'zzzzzz proc',procid,ig,igini,igend
@@ -200,11 +177,6 @@ C   ... Rotation matrix for this ig
 C       call prmx('rmat',rmat,nlm,nlm,nlm)
 
 C   --- For each site, do ---
-CC#ifdef MPI | MPIK
-C        do isite = igproc(procid), igproc(procid+1)-1
-CC#elseC
-CC        do  isite = is1, is2
-CC#endif
         do  isite = is1, is2
 
           ib = iax(1,isite)
