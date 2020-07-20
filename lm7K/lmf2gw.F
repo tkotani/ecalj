@@ -20,7 +20,6 @@ Cu             Uses CLASS rather than EFCLASSin
 c------------------------------------------------------------------
 C     implicit none
 C     implicit real*8 (a-h,o-z)
-      use m_ext,only: getext,sname
       integer icor1,icorex,nphimx,i,i1,i2,ibas,ibasx,ibx,ic,icore,
      .ifichkv,ifigw0,ifigwa,ifigwb,ifigwx1,ifigwx2,ifigwx3,isp,ispx,
      .ispxx,ix,kkk,kkkdummy,l,ldummy,lmxa,lxx,n1q,n2q,n3q,nclassx,m,n,
@@ -86,7 +85,6 @@ c
       integer:: ifiproc,nqixx,nspxx,numprocxx,ixxx
       integer,allocatable:: iprocq(:,:),iantiferro(:)
       character(8),allocatable:: spid(:)
-      character(5) :: charnum5
 !!
       call show_programinfo(6)
 
@@ -170,8 +168,7 @@ c
         iqq=iqq+1
         do isp = 1, nsp
           ifigwb_= fopnx('gwb'//trim(extp(iprocq(iqq,isp))),2,4,-1)
-c           open(newunit=ifigwb_,file='gwb.'//trim(sname)//'.'//charnum5(procid),form='unformatted')
-           read (ifigwb_) qbze(:,ikp),nband,iq
+          read (ifigwb_) qbze(:,ikp),nband,iq
           write(6,"(a,3i6,3x,3f11.6,$)") 'ikp isp nband q=',ikp,isp,nband, qbze(:,ikp)
           evl =1d20
           cphi=1d20
@@ -185,7 +182,6 @@ c           open(newunit=ifigwb_,file='gwb.'//trim(sname)//'.'//charnum5(procid)
      &    ngvecp(3,ngp) )!takao feb2012 ,ngvecc(3,ngc) )
           geig=1d20
           read(ifigwb_) ngvecp,geig(:,1:nband)
-          close(ifigwb_)
           write(ificg) ngp
           write(ificg) geig(1:ngp,1:nbandmx)
           write(6,'("  geig sumcheck= ",2d13.6)') sum(geig(1:ngp,1:nband))

@@ -1,4 +1,4 @@
-!!      = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
+!! = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
 !!
 !! Memo july2012takao
 !! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
@@ -475,7 +475,23 @@ c mar2014
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       print *,' mpipid=',procid
-#endif
+#endif      
+
+c$$$!! A trick to get the extension of ctrlfile. It is stored to trim(sname).
+c$$$      if(procid==master.and.initex) then 
+c$$$        ifi=fopn('temptempxxx') 
+c$$$        sss=''
+c$$$        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
+c$$$        call fclose(ifi)
+c$$$        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
+c$$$        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
+c$$$        ifi=ifile_handle()
+c$$$        open(ifi, file='temptempxxx.'//trim(sname)) 
+c$$$        close(ifi,status='delete')
+c$$$        initex=.false.
+c$$$      endif
+c$$$      if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
+c$$$      call mpibcc(sname,512,mlog,'bndfp','ext')
 
 !! Write atomic positions
       if(procid==master) then

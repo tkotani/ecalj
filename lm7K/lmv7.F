@@ -6,7 +6,7 @@
      & iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
 c     &  symops,invgx,ag,
 c     &  shtvg,ngrp,miat,tiat,iclasst,
-c     use m_globalvariables
+c      use m_globalvariables
       use m_ext,only: getext,sname
       implicit none
 !! == Main program for lmf and so on. ==
@@ -69,12 +69,14 @@ c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
       integer  nsize, id
+
 !! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
 #endif
+!!
       call show_programinfo(6)
       stdo = lgunit(1)
       i = dglob('stdo',dble(stdo),1)
@@ -84,25 +86,23 @@ c      integer namelen(0:MAX_PROCS-1)
       if(cmdopt('--h',3,0,outs)) then
         call lmhelp(prgnam) !,vn(2),vn2(2),0) 
       endif
-      
 !! Get extension of ctrl file      
       call finits(2,0,0,i)
       call getext(master==procid)
       print *,' trim sname=',trim(sname)
       ext=adjustl(sname)
-      
-!! set log files      
+
+!! set log file for --mlog 
 #if MPI | MPIK
-      if(master==procid) write(6,*) "ctrl extension is +++"//trim(sname)//"+++"
-c      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      shortname(procid)=adjustl(charnum5(nproc))
+      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+      shortname(procid)=trim(name)
       mlog = cmdopt('--mlog',6,0,strn)
       if (procid .eq. master) call headl2(prgnam,0,stdo)
-      call mpibcc(sname,512,mlog,'lmf','ext')
-c      if (procid .eq. master) then
-c        i = fextg(ext)
-c      endif
-c      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+c      call finits(2,0,0,i)
+      if (procid .eq. master) then
+        i = fextg(ext)
+      endif
+      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
       if (procid .eq. master) then
         call gettime(datim)
         if (mlog) i = fopn('MLOG')
@@ -113,9 +113,9 @@ c      call MPI_BCAST(ext,20,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
      .    //trim(shortname(procid)) //' is master'
         endif
       else !for procid !=0
-c        call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
-c        call bin2a(' ',0,0,procid,2,0,20,ext,i)
-        ierr = fext( '.'//trim(sname)//'.'//charnum5(procid) ) !ext(1:i+1))
+        call strcat(ext,20,' ','_',1,' ',i) !mpi file extention
+        call bin2a(' ',0,0,procid,2,0,20,ext,i)
+        ierr = fext(ext(1:i+1))
         if (mlog) ierr = fopn('MLOG')
         ierr = fextg(ext)
         call gettime(datim)
@@ -123,7 +123,7 @@ c        call bin2a(' ',0,0,procid,2,0,20,ext,i)
           write(lgunit(3),"(a)")' lmf '//datim//' Process '
      &    //trim(charnum5(procid))//' of '//trim(charnum5(nproc))//' on '
      .    //trim(shortname(procid))
-c     .    //' file extension is '//ext(2:i+1)
+     .    //' file extension is '//ext(2:i+1)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
@@ -131,14 +131,13 @@ c     .    //' file extension is '//ext(2:i+1)
       call headl2(prgnam,0,stdo)
 c      call finits(2,0,0,i)
       call poseof(fopn('LOG'))
-c      i = fextg(ext)
-c      call word(ext,1,i,j)
-c      if (ext(i:i) .eq. '.') i=i+1
-c      if (ext(j:j) .eq. '.') j=j-1
-c      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-c      call ptenv('EXT='//trim(sname))
+      i = fextg(ext)
+      call word(ext,1,i,j)
+      if (ext(i:i) .eq. '.') i=i+1
+      if (ext(j:j) .eq. '.') j=j-1
+      if (j .ge. i) call ptenv('EXT='//ext(i:j))
 #endif
-      
+
 !! Abort if ctrl file is missing
       if (procid==master) then
         if (.not.cmdopt('--input',6,0,strn)) then
@@ -159,14 +158,11 @@ c      call ptenv('EXT='//trim(sname))
       nrecs  = 0
       if (procid .eq. master) then
         if (.not.cmdopt('--input',7,0,strn)) then
-c          nfilin = fopna('CTRL',-1,1)
-          open(newunit=nfilin,file='ctrl.'//trim(sname))
+          nfilin = fopna('CTRL',-1,1)
           call findctrlstart(nfilin) ! ctrl is read from 'ctrlstart' if it exist.
           alabl = '#{}% ct '
           if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
-          print *,'xxxxxxx got rdfile','ctrl'//trim(sname)
           call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
-c          print *,trim(recrd)
           i = 60
           if (cmdopt('--show',6,0,strn)) then
             i = 1
@@ -182,6 +178,8 @@ c          print *,trim(recrd)
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
 #endif
+
+
 !! --- Read recrd --- We store all readin data to structures v_*.
       call rdctrl2(recrd,recln0,nrecs,prgnam, 
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,

@@ -4,6 +4,7 @@
       use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
       use m_rdctrl,only:lso
+      use m_ext,only: getext,sname
       implicit none
 C     ... Controls for IO
 c      integer lstrn
@@ -77,12 +78,19 @@ c$$$         call cexit(0,1)
 c$$$      endif
       call headl2(prgnam,0,stdo)
       call finits(2,0,0,i)
+!! Get extension of ctrl file      
+      call finits(2,0,0,i)
+c      call getext(master==procid)
+c      print *,' trim sname=',trim(sname)
+c      ext=adjustl(sname)
       call poseof(fopn('LOG'))
       i = fextg(ext)
-c      call word(ext,1,i,j)
-c      if (ext(i:i) .eq. '.') i=i+1
-c      if (ext(j:j) .eq. '.') j=j-1
-c      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+      call word(ext,1,i,j)
+      if (ext(i:i) .eq. '.') i=i+1
+      if (ext(j:j) .eq. '.') j=j-1
+      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+!!
+      
 C     ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
 c     if (cmdopt('--input',6,0,strn)) then
