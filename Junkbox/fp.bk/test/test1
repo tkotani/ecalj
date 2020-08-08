@@ -1,0 +1,5 @@
+         rm -f {atm,ctrl,fs,moms,mixm,rst,save,log,hssn,wkp,bsmv,syml,bnds}.felz
+         cp ./lzsz/ctrl.felz ./lzsz/rsta.felz .
+         lmfa -vrel=1 -vnit=1 -vso=0 felz >xxx
+         lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 >x1
+         lmf -vrel=1 -vnit=1 -vso=2 --rs=2 felz -vpwmode=1 -voveps=1e-10 >x3

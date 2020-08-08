@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#getmolid(){ 
+#echo `echo $1|cut -d'=' -f2|cut -d' ' -f1` 
+#}
+
+#################### O2 #####################
+######## eh dependence
+O2="
+ atom='O'@ atomz=8@ discenter=0.6098*2/.529177@ alat=10.0/0.529177@ \
+ pz=''@ p=''@ eh=-1@ eh2=-2@ xcfunc=103@ \
+ bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@ dis=0@
+"
+jobmoleh  fsmom=2@ rstar=1.0@  $O2
+jobmoleh  fsmom=2@ rstar=0.9@  $O2
+exit
+
+
+############ Ti2 ############### @ as delimiter
+Ti2="
+ atom='Ti'@ atomz=28@ discenter=0.9487*2/.529177@ alat=10.0/0.529177@ \
+ pz='PZ=0,13.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@ \
+ bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@ dis=0@
+"
+jobmolpwe fsmom=2@ rstar=0.8@ $Ti2 &
+jobmolpwe fsmom=2@ rstar=0.9@ $Ti2 &
+jobmolpwe fsmom=2@ rstar=1.0@ $Ti2 &
+jobmolpwe fsmom=4@ rstar=0.8@ $Ti2 &
+jobmolpwe fsmom=4@ rstar=0.9@ $Ti2 &
+jobmolpwe fsmom=4@ rstar=1.0@ $Ti2 &
+exit
+
+
+
+jobmoleh  Ti2 pwe=2 fsmom=2 rstar=1.  dis=0
+jobmoleh  Ti2 pwe=4 fsmom=2 rstar=1.  dis=0
+jobmoleh  Ti2 pwe=2 fsmom=2 rstar=0.9 dis=0
+jobmoleh  Ti2 pwe=4 fsmom=2 rstar=0.9 dis=0
+
+#############
+jobmoldis Ti2 pwe=4 fsmom=0 rstar=.8
+jobmoldis Ti2 pwe=4 fsmom=2 rstar=.8
+
+jobmoldis Ti2 pwe=4 fsmom=0 rstar=.9
+jobmoldis Ti2 pwe=4 fsmom=2 rstar=.9
+
+jobmoldis Ti2 pwe=4 fsmom=0 rstar=1.
+jobmoldis Ti2 pwe=4 fsmom=2 rstar=1.

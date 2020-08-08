@@ -1,0 +1,142 @@
+HEADER    Cr3Si6, hexagonal 
+Notes
+  To test nonspherical moments (ASA), run at least twice through.
+  Each time will generate qpp file closer to self-consistent one.
+  lm cr3si6 -vnsph=1 -vnit=0
+TESTLMF   lmfa cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
+          lmf  cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
+#         mpix -np=9 lmf-MPI --rs=0 cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv
+#         lmf  cr3si6 --pr51 -vnit=2 --time=6 --no-iactiv -vpwmode=11
+CLEAN   rm -f \{atm,mixm,rst,wf_si,ctrl,moms,save,wkp,log,out.lmf,wf_cr,wf_si}.cr3si6
+VERS      LMASA-6 LMF-6 FTB-6 LM:7 FP:7 ASA:7
+% const nsph=0 ccor=t asa=0
+# full-potential-specific
+% const lfrce=1
+% const pwmode=0 pwemin=1 pwemax=3 oveps=0
+IO        VERBOS=30 SHOW=f HELP=f WKP=f IACTIV=t ERRTOL=2 OUTPUT=* ERR=* 
+... Invoking lmsf1 generates this input for SYMGRP (see second line)
+.SYMGRP    r6z(0,0,1.43369176/3) r2(1/2,sqrt(3/4),0)
+SYMGRP    
+... this is Stuttart version:
+SYMGRP    NGEN=2 GENGRP=R6Z:(0,0,.47789725) R2X:(0,0,.47789725) 
+          SPCGRP=P6_222 USESYM=F 
+STRUC     NBAS=9 NCLASS=2 NSPEC=2 ALAT=8.37
+          PLAT=0.86602540 -.50000000 0.00000000 
+               0.00000000 1.00000000 0.00000000 
+               0.00000000 0.00000000 1.43369176 FIXLAT=F 
+          SLAT=0.86602540 -.50000000 0.00000000 
+               0.00000000 1.00000000 0.00000000 
+               0.00000000 0.00000000 1.43369176*4
+CONST     nit=1  nk=5 hf=f nsp=1 nkgw=4
+OPTIONS   NSPIN=nsp REL=T HF=hf ASA[ CCOR={ccor} NSPH={nsph} ]
+          PFLOAT=0
+... For Stuttgart only
+          NITATOM=20 CHARGE=F FATBAND=F AFM=F FS=F CARTESIAN=T WRIBAS=F 
+          NRXC=1 NONLOC=F CORDRD=F 
+SPEC      ATOM=Cr Z=24 R=2.68293751*{asa?1:.97} LMX=2 CONF=4 4 3 4 IDMOD=0 0 0 IDXDN=1 1 1
+          RSMH= 2.9,2.9,1.3 EH= -0.1,-0.1,-0.2 A=0.03
+          BAS: 2,0,1,2.9,-.1,2,2,1.3,-.2 LMXA=3  MMOM=0 0 2
+          ATOM=Si Z=14 R=2.68293752*{asa?1:.98} LMX=2 CONF=3 3 3 4 IDMOD=0 0 0 IDXDN=1 1 {ccor&asa?2:1}
+          RSMH= 1.7,1.7,1.7 EH= -0.20,-0.20,-0.20 A=0.03
+          BAS: 2-1,0,2,1.7,-.2 KMXA={pwmode?4:2}
+SITE      ATOM=Cr POS=0.4330127 0.25000000 -.23894863 
+          ATOM=Cr POS=0.0000000 0.50000000 0.23894863 
+          ATOM=Cr POS=0.4330127 -.25000000 0.71684588 
+          ATOM=Si POS=0.2886751 0.00000000 0.23894863 
+          ATOM=Si POS=-.2886751 0.00000000 0.23894863 
+          ATOM=Si POS=-.1443375 0.25000000 -.23894863 
+          ATOM=Si POS=0.1443375 -.25000000 -.23894863 
+          ATOM=Si POS=0.1443375 0.25000000 0.71684588 
+          ATOM=Si POS=-.1443375 -.25000000 0.71684588 
+SCALE     SCLWSR=T OMMAX1=.4 OMMAX2=.8 
+HAM       ELIND=-1 FORCES={lfrce} FRZ=f GMAX=5.5 NSPIN=nsp REL=T
+          PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
+GW        NKABC=nkgw nkgw nkgw-1 GCUTB=2.7 GCUTX=2.2
+STR       EKAP=0 RMAXS=3.2 NDIMIN=0 NOCALC=F IALPHA=1 
+          DOWATS=F SIGMA=.7 DELTR=.1 LMAXW=-1 
+# for version 7
+ITER      MIX=A2,b=.5,k=4,elind=-.8 XIPMX=f {nsph} NIT=nit # CONVC=.00001 
+MIX       MODE=A2,b=.5,k=4,elind=-.8 XIPMX=f {nsph}
+START     NIT=nit BROY=T WC=-1 NMIX=1 BETA=.5 RDVES=t
+          FREE=F CNVG=.00001 CNVGET=.00001 BEGMOM=nit==0 CNTROL=T 
+          EFERMI=.07510032 VMTZ=-.82711548 
+          ATOM=Cr  P=4.53621497 4.32743928 3.69737769 
+                   Q=0.46519584 -.01659315 0.02855574 
+                     0.77751160 -.00054843 0.04746812 
+                     4.89991794 0.06584607 0.09890618 
+              enu   =-.51570113 -.34412569 -.11437434 
+              c     =-.11302415 0.93991404 0.06236510 
+              sqrdel=-.44977178 0.43394981 0.14918515 
+              p     =0.02815936 0.02292765 0.89608550 
+              gamma =0.43787557 0.12118526 0.00720225 
+          ATOM=Si  P=3.84339904 3.69625510 3.26320019 
+                   Q=1.26441371 -.05114851 0.08073553 
+                     2.09213774 -.02268988 0.10065205 
+                     0.57213586 0.00000000 0.02475526 
+              enu   =-.61564113 -.30744513 -.22561282 
+              c     =-.81357596 0.05336352 1.36196820 
+              sqrdel=0.36669825 -.33757317 0.35449779 
+              p     =0.13302518 0.07681270 0.03240447 
+              gamma =0.39807511 0.09529220 0.05161620 
+
+        ATOM=Cr    P=  4.5383570  4.3285243  3.6984897
+                   Q=  0.4699989  0.0000000  0.0303544
+                       0.7751659  0.0000000  0.0458319
+                       4.9125047  0.0000000  0.1099525
+        ATOM=Si    P=  3.8423370  3.6958434  3.2632692
+                   Q=  1.2622724  0.0000000  0.0698116
+                       2.0864154  0.0000000  0.0938058
+                       0.5724774  0.0000000  0.0247699
+% ifdef ccor==0
+        ATOM=Cr    P=  4.5395945  4.3288883  3.6909052
+                   Q=  0.4822323  0.0000000  0.0297849
+                       0.8079666  0.0000000  0.0463127
+                       4.8569421  0.0000000  0.1043416
+        ATOM=Si    P=  3.8354205  3.6842043  3.2690573
+                   Q=  1.2578624  0.0000000  0.0628102
+                       2.0784730  0.0000000  0.0863179
+                       0.5900942  0.0000000  0.0200111
+% endif
+% ifdef nsph
+        ATOM=Cr    P=  4.5415368  4.3305875  3.7006893
+                   Q=  0.4716236  0.0000000  0.0303457
+                       0.7776010  0.0000000  0.0457925
+                       4.9257788  0.0000000  0.1098371
+                   V=  0.0026478
+        ATOM=Si    P=  3.8417741  3.6943819  3.2625750
+                   Q=  1.2605487  0.0000000  0.0694648
+                       2.0806206  0.0000000  0.0932156
+                       0.5713290  0.0000000  0.0245564
+                   V= -0.0011685
+% endif
+CHARGE    LMTODAT=T ELF=F ADDCOR=F SPINDENS=F CHARWIN=F EMIN=-2 EMAX=2 
+PLOT      ORIGIN=0 0 0 
+              R1=0.86602540 -.50000000 0.00000000 NDELR1=0 
+              R2=0.00000000 1.00000000 0.00000000 NDELR2=0 
+              R3=0.00000000 0.00000000 1.43369176 NDELR3=0 
+          FORMAT=1 
+BZ        NKABC=nk nk nk-1 TETRA=T METAL=0 TOL=.000001
+          N=0 W=.005 RANGE=5 NPTS=1001 
+ INVIT=f
+EWALD     NKDMX=250 AS=2 TOL=.000001 
+RHOFIT    
+SCELL     PLAT=0.86602540 -.50000000 0.00000000 
+               0.00000000 1.00000000 0.00000000 
+               0.00000000 0.00000000 1.43369176 EQUIV=T 
+HARTREE   BEGATOM=T LT1=2 LT2=2 LT3=2 
+DOS       NOPTS=801 EMIN=-2 EMAX=2 
+SYML      NQ=30 Q1=0.000000 0.000000 0.000000 LAB1=g 
+                Q2=0.000000 0.666667 0.000000 LAB2=K 
+          NQ=15 Q1=0.000000 0.666667 0.000000 LAB1=K 
+                Q2=0.288675 0.500000 0.000000 LAB2=M 
+          NQ=25 Q1=0.288675 0.500000 0.000000 LAB1=M 
+                Q2=0.000000 0.000000 0.000000 LAB2=g 
+          NQ=15 Q1=0.000000 0.000000 0.000000 LAB1=g 
+                Q2=0.000000 0.000000 0.348750 LAB2=A 
+          NQ=25 Q1=0.000000 0.000000 0.348750 LAB1=A 
+                Q2=0.288675 0.500000 0.348750 LAB2=L 
+          NQ=15 Q1=0.288675 0.500000 0.348750 LAB1=L 
+                Q2=0.000000 0.666667 0.348750 LAB2=H 
+          NQ=30 Q1=0.000000 0.666667 0.348750 LAB1=H 
+                Q2=0.000000 0.000000 0.348750 LAB2=A 
+FINDES    RMINES=1.25 RMAXES=4.5 NRXYZ=48 48 72 

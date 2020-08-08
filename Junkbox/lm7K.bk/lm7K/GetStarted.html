@@ -1,0 +1,1311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=ISO-8859-1">
+
+	<TITLE> lmv7 getstarted </TITLE>
+
+
+	<STYLE TYPE="text/css">
+	<!--
+	 	body {  font-family: Arial,Helvetica,sans-serif;backgroud-color: #ffffff; }
+	 	.stress { font-family: "Courier New",Courier,monospace; }
+	 	
+		P {margin-left: 3ex; }
+		H1 { border-top: 6px solid #000000; border-bottom: none; border-left: none; border-right: none; padding-top: 0.02in; padding-bottom: 0in; padding-left: 0in; padding-right: 0in }
+		H2 { border-top: 3px solid #ff0000; border-bottom: none; border-left: none; border-right: none; padding-top: 0.02in; padding-bottom: 0in; padding-left: 0in; padding-right: 0in }
+		H3 { font: bold; font-size: 100%; }
+		
+		.indent1 { margin-left: 3ex; }
+		.indent2 { margin-left: 6ex; }
+		.noindent { margin-left: 0ex; }
+		
+		pre.plain { background-color: #ffffff; }
+		pre { background-color: #e8e8e8; }
+
+         	.comment { font-size: 90%; color: green;}
+         	.precomment { font-size: 90%; color: red;}
+         	.command { background-color: #eeeeee; }
+         	.highlight { color: red; font: bold; }
+         	.boxhighlight { border: 1px solid black; margin: 1ex; padding: 1ex; }
+         	.names { font-family: "Courier New",Courier,monospace; font-size: 110% }
+         	.question { color: blue; font: bold; }
+	-->
+	</STYLE>
+</HEAD>
+<BODY>
+<P> 
+NOTE: this document is old, written in 2009 ; it can be a help but need to be renewed...<br>
+   <B>---lm-7.0betaK package, takao kotani and hiori kino ---</B>   </P>
+<H1>    <B>I:
+WHAT is lm-7.0betaK?</B>    
+</H1>
+<P>    lm-7.0betaK is a re-organization of <B>lm-7.0beta compiled by Mark
+van Schilfgaarde</B> 
+(only the full-potential part and the GW driver parts). 
+We added some minor bug fixes, changes, 
+but it essentially reproduces the same results by lm-7.0beta. 
+To get the original lm-7.0beta package, ask to Prof. Mark van Schilfgaarde. 
+Original document in lm-7.0beta is stored in MarksOrginalDoc/ directory.    </P>
+<div class="indent2">
+<div class="comment">                   MTO = Muffitin-Orbital   <br>  
+                 APW = Augmented Plane wave    <br>
+                             (Only the difference of these basis sets is in their envelope functions).    </div></div>
+<H2> 
+  What can we do with lm-7.0betaK?  </H2>
+<P> 
+lm-7.0betaK executes  full-potential LDA calculations (GGA is not implemented) by a linearized APW+MTO (PMT) method; 
+see a paper in preprint server, 
+It is submitted to PRB.
+The PMT method allows you to use the mixture of the APW and the MTO simultaneously. 
+This is an efficient, robust, and accurate method. 
+It is easy to use. </p>
+
+<h3>An advantage over lmv7beta</h3>
+<p>
+Set up a ctrl file (structure and computational conditions) becomes very simplified; 
+it is not necessary to set up MTO parameters by hand. 
+That is, you can use MTO parameters determined by atomic calculations as shown below, and you can check the convergence by enlarging the number of PAW.  </P>
+<h3> What the program can calculate </h3>
+<P>   LDA+U, force calculations, cell distortion, relaxation, MD are so on, are in
+it.  </P>
+<h3> Things to do</h3>
+<P>    To perform calculations for dielectric function, spin susceptibility,
+GW, and QSGW, it is necessary to combine it with a GW program (fpgw033 or so) through the GW driver. 
+However, the driver works only for MTO-only calculations yet (we are now trying the PMT with the GW code, but not yet). 
+fpgw033 is supplied separately.   </P>
+<H2>   For users of older versions  </H2>
+<P>    lm-7.0
+(Ver.7) is essentially the same as lm-6.17(Ver.6). However, Ver.7
+uses a new input system. Preliminary documentation for the new input
+system is given in MarksOriginalDoc/input.pdf. The old input system
+is found in MarksOriginalDoc/input-file-style.txt.    
+</P>
+<H3>   New
+features in lm-7 (and also lm-6.17) are  </H3>
+<h3 class="highlight">   (a) Bug fix for enu</div class="highlight">   </h3>
+<P>   In
+previous versions, enu, at which energy we solve the ratidal
+Schr?dinger eq, did not point at the center of gravity of the occupied
+state, though it had somehow worked. This new bug-fix allows stable
+convergences.   
+</P>
+<P>   NOTE:
+To use this new bug fix, set OPTION_PFLOAT=1 in ctrl file (explained
+later) . We think this option should be used.  </P>
+<h3 class="highlight">(b) APW+MTO (the PMT method)</h3>   
+<P>   &quot;Minimum
+MTO basis&quot; plus &quot;APW(cutoff by \approx 3 to 5)&quot; Ry can
+give a reasonable and better result instead of old lmf.   
+</P>
+<h3>   ### Caution. ###  </h3>
+<P>    Note
+that your ctrl file for old version must be modified a little. To
+do it, you can use &quot;lm67 {extension of ctrl file}&quot; to see
+what is necessary to convert old ctrl file. &quot;lmf --input&quot; show
+what input are used now.   </P>
+<H1>   <B>II. Features of lm-7.0betaK</B>  </H1>
+<P>    <B>The
+package lm-7.0betaK have some difference from lm-7.0beta.</B>   </P>
+<h3>    1. Simplified installation.   </h3><P>
+  You only need
+to write Make.inc in its root directory (usually just need to copy a
+file from MAKEINC/ and edit it), which is used from some of Makefile.
+No configure is required. All are with relative path, so it works
+even when you move whole lm-7.0betaK/ directory to anywhere you like.
+There is a simple shell script to identify Machine-dependence.  </P>
+<H3>    2. No C compiler. Fortran-only.   </H3><P>
+C files in slatsm (fsubs.c and fmain.f) are replaced with  the fortran files. 
+This removed troubles in Fortran-C mixing.  </P>
+<h3>    3. We concentrate on the full-potential part and the GW driver part.    </h3><P>
+  The other packages are not included (but source codes required for asa, nc, tb are included for references). 
+All required files are in the package.
+ slatsm/ (math library) and fplot/ (plotting tools) are included.  </P>
+<h3>    4. cpp instead of ccomp.    </h3><P> 
+                We
+now use -cpp instead of ccomp.  </P>
+<h3>    5.  Other minor changes.   
+              * allow us to write shell script at the beging of ctrl file.  See TEST_samples/Li_lattice/    </h3>
+<p></p>
+<div class="indent1">
+<div class="comment">
+     A few other differences.
+ OVNCUT option is added. 
+To see input, &quot;lmf --input&quot;. 
+I use zhev_tk in slatsm/zhev.f (called from fp/bndfp.f)
+for diagonarization. This option OVNCUT (and also OVEPS) are for test
+purpose, so only for non-MPI versions. The default basis set file
+mtopara.* is generated by lmf (explained in tutorials).  
+  </div> 
+</div>
+<H1>   III. INSTALL  </H1>
+<H2>    Step I. Make.inc   </H2>
+<P>     Choose reasonable Make.inc (e.g. Make.inc.ifort, ifort_mpi, ifort_mpit) in
+MAKEINC/ and copy it to the root directory, lm-7.0betaK001/. Here is some
+details of Make.inc. ( *_mpi is to generat MPI versions, lmf-MPI and
+lmfgw-MPI. *_mpik is for another type of MPI versions lmf-MPIK and
+lmfgw-MPIK; see below). You have to edit Make.inc to fit to your
+machine. Don't change Makefiles in the root directory and sub
+directories.    </P>
+<P>   lmf-MPI:
+mpi in hamiltonian construction (The number of processors can't be
+more than number of atoms).   </P>
+<P>   lmf-MPIK:
+k-parallel.    
+</P>
+<P>   Also see
+MarksOrginalDoc/MPI-instructions-for-lmf.   </P>
+<H3>    *
+Set CPP switch   </H3>
+<P>   You
+can use './CPPCHECK.sh {fortran compilar}', where {fortran compilar}
+is your fortran compiler, e.g. ifort, to get cpp switches (CPP_SW, which isn't category_token, is
+defined in Make.inc).    
+</P>
+<H3>    *
+Set libraries    
+</H3>
+<P>     You
+need to set BLAS LAPACK, and fftw-3 (fftw-2 does not work. See
+<A HREF="http://www.fftw.org/">http://www.fftw.org/</A> ). For MPI,
+you can use blacs and scalacpack [Then you have to set -DBLACS in
+CPP_SW. But we are not sure whether -DBLACS accelerate calculations
+or not).     </P>
+<H3>    *
+compiler options   </H3>
+<P>    We think you can usually use the options as it is in Make.inc.ifort, but
+it might be necessary to change it if something strange. 
+
+<span class="comment">
+For large FTMESH, a parameter to specify the real space mesh for smooth charge
+density, numerical precision in a bessel funciton generator becomes
+problematic (ropbes.f ropyln.f). For example, FTMESH=36 for SrTiO3 is
+too large. Then less optimization like -O0 can give better numerical
+presicision. 
+However, the difference (of optimization switch) appears little     when you use FEMESH=20 (this already give good accuracy) or so. 
+So it is better not to use too large FTMESH, or GMAX.     </span></P>
+<H2>   Step II. Type make  </H2>
+<P> Type  'make'. 
+It compiles source codes, and link them. 
+After it finishes, you will have programs
+=     lmf
+lmfa lmfgw lmdos lmchk lmf2gw lm67 rdcmd fplot plbnds pldos    .
+(Do &quot;grep programs Make.inc&quot; to check it).    </P>
+<P>  <span class="names">  lmfa </span>   :
+an atom program. Needed to set up initial condition for lmf.    </P>
+<P>  <span class="names">  lmf  </span>   :
+a full-potential PAW(MTO+APW) program    </P>
+<P>  <span class="names">  lmfgw </span>   ,
+   <span class="names"> lmf2gw  </span>   :
+for GW calculation. See GW manuals    </P>
+<P>  <span class="names">  lmdos </span>   :
+required to plot partial DOS.    </P>
+<P>  <span class="names">  lmchk </span>   :
+a crystal structure checker. It also generates reasonable MT radius
+with --getwsr switch    </P>
+<P>  <span class="names">  lm67 </span>    :
+an utility to convert an old ctrl file into the one with a new format for ver.7.    </P>
+<P>   <span class="names"> rdcmd  </span>   :
+needed for &quot;make check&quot;    </P>
+<P>  <span class="names">  fplot,plbnds,pldos </span>   :
+Plot utilities.  
+<span class="comment">    It
+can generate postscript files for DOS and BAND. A little difficult to
+use. Not well documented. Look into FPLOTdir directory (This is
+Mark's FPLOT3.28.tar.gz, but is slightly modified.  </span>   </P>
+<P>   We
+assume that you will copy all of them , and a script mergemto.py to your bin/
+directory. (See an install section of Makefile).   </P>
+<P>   ---
+To generate MPI version, copy MAKINC/Make.inc.*_mpi, or
+MAKEINC/Make.inc.*_mpik or so, to Make.inc. Then &quot;make&quot; will
+generate lmf-MPI and lmfgw-MPI (or *-MPIK).   </P>
+<H2>    Step.III.      INSTALLATION TEST for lmf  </H2>
+<P>    You can perform an installation test by 'make check' (a test for lmf). 
+If it does not show &quot;FAIL&quot; anywhere, and show all tests PASSED
+(copt te zrt co cr3si6 fe cu srtio3 felz gasls gdn eras c crn)  
+  at the end of test
+(a few tests requires long time), your installation has been succeeded. 
+Neglect messeges as mv: Command not found. cp:
+`./ctrl.crn' and `./ctrl.crn' are the same file, and so on.     
+</P>
+<P>   You can also peform a check of the slatsm library only by 'make check' in the
+slatsm/ directory.   </P>
+<H1>   IV:
+Samples and Get Started   
+</H1>
+<P>   We have prepared some samples. Other samples will be supplied separately. 
+We have MTO+APW samples in TESTsamples/ directory. 
+Here is a step by step instruction to test them.  
+We assume lmf, lmfa, and so on, are in your PATH.  </P>
+<h3> 
+   Samples 
+</h3>
+<P>   See
+TESTsamples/ directory. We have Cu,Cu,GaAs,Li, and SrTiO3. There are
+job files (csh scripts for test runs). Type ls *<B>/</B>job*  </P>
+<PRE class="indent1">
+Cu/job_lmf   Fe/job_lmf   GaAs/job_lmf   Li/job_lmf   SrTiO3/job_lmf   
+Cu/job_band  Fe/job_band  GaAs/job_band  Li/job_band  SrTiO3/job_band  
+Cu/job_tdos  Fe/job_tdos  GaAs/job_tdos  Li/job_tdos  SrTiO3/job_tdos  
+                                                      SrTiO3/job_pdos   </PRE><P> 
+   These
+job files, together with  ctrl files (e.g,   ctrl.cu, ctrl.cu_dos  ), and symmetry-line file for band plot syml.cu  are needed to start calculations. Next, we explain how to run these job files.  </P>
+<P>   Further
+, there are other samples,   
+</P>
+<P> <span class="names">    Li_lattice/ </span>
+:   Determine Lattice constant of Li     
+</P>
+<P>  <span class="names">  SrTiO3_tutorial/  </span>
+:  How to set up ctrl file from scratch; see Chapter V.    
+</P>
+<P>  <span class="names">   LaGaO_relax/  </span>
+:  Relax atomic position at zero temperature.    </P>
+<H2>   How
+to run a Cu sample.  </H2>
+<P>   Try
+Cu sample first. Move to TESTsamples/Cu directory. 
+We recommend to backup them first, and only keep ctrl.cu, ctrl.cu_dos, and
+syml.cu in your directory.   
+</P>
+<P>   Then you can run ./job_lmf to get lmf results.  
+ctrl.cu is the starting point by hand. 
+What you have to do is shown in job_lmf. Look into it.
+lmf works  even for ~10% overlaps (but in cases it may fail). 
+These shown below should be tested.  </P>
+<PRE class="indent1">
+lmf --help         <span class="precomment">to see command line arguments.</span>
+lmf --input        <span class="precomment">to see what is needed or options in ctrl file.</span>   
+lmf --show cu      <span class="precomment">At its begining, it shows what is read from   ctrl file, and what default is used.   </span>
+                    <span class="precomment">Then it gives normal run.  This is equivalent with &quot;IO_SHOW=t&quot;.</span>
+lmf --showp cu     <span class="precomment">show preprocessed ctrl file  </span> 
+lmchk cu            <span class="precomment">This gives geometrical informations.</span>   
+lmchk --getwsr cu   <span class="precomment">This gives a recommendation of MT radius.  </span> 
+
+lmf --show=2 cu    <span class="precomment">for developer. to see date used in the main part fp/lmfp.f called from lmv7.f</span>    </PRE><P> 
+lmfa generate
+atm files, which is used by lmf. lmf generates a rst.* file. If rst.*
+exists, calculation usually starts from the rst.* file, instead of
+atm.* file. See 'lmf --help' to control it.   
+<span class="comment">
+(You can start without reading *.rst by 'lmf --rs=0 cu'.)
+</span>
+</P>
+<H2>   Minimum
+explanation of a ctrl file.  </H2>
+<P>   A
+ctrl file is like this (How to write  a ctrl file is explained in
+Chap.V. Now utility programs give them semi-automatically, after you supply
+crystal structure.).
+</P>
+<P>   --------------- ctrl.gas for GaAs ------------------   
+</P>
+<PRE class="indent1">
+VERS    LM=7 FP=7    
+SYMGRP  find    
+STRUC   NBAS=2 NSPEC=2    
+         ALAT=10.66 DALAT=0 PLAT= 0 .5 .5  .5 0 .5  .5 .5 0     
+SITE    ATOM=C1  POS=  0   0   0    
+         ATOM=A1  POS= .25 .25 .25     
+ITER    CONV=1e-5 CONVC=1e-6 NIT=20    
+BZ      NKABC=3 3 3 BZJOB=0 METAL=0    
+OPTIONS   PFLOAT=1    
+IO      SHOW=t VERBOS=35    
+HAM     FTMESH=24 XCFUN=2    
+         NSPIN=1 REL=t     
+         PWMODE=11 PWEMAX=3     
+SPEC  #BYmergemto : ctrl and mtopara were merged.    
+        ATOM= Ga Z= 31 R=2.254225     
+        RSMH= 1.503 1.503  EH= -0.325 -0.100 KMXA=7 PZ=0,0,13.9 PZ=0,0,4.2     
+        ATOM= As Z= 33 R=2.361690     
+        RSMH= 1.514 1.524  EH= -0.834 -0.220 KMXA=7     </PRE><P> 
+  This ctrl file
+has grammar. Here  <span class="names">VERS,
+SYMGRP, STRUC, SITE, ITER, BZ, OPTIONS, IO, HAM, </span> and 
+<span class="names"> SPEC </span>
+are tags for <I>category</I>. NBAS and so are tags for <I>token</I>.
+A <I>token</I> is under a <I>category</I>. 
+<span class="highlight">
+A tag of <I>category</I>,
+e.g,  <span class="names">STRUC </span>
+<b>must</b> be at the begining of lines.
+ But the tags of <I>tokens</I>
+<b>must not</b> be.   </span>
+</P>
+<P> 
+</P>
+<P>   In
+this ctrl file, NBAS, NL NSPEC, PLAT PLAT are <I>tokens </I>under the
+<I>category</I> of STRUC. The region of <I>category</I> ends by the
+another tag of <I>category</I>, or the end of the file. After a <I>token</I>
+like NBAS= or so, you have to supply some numbers of input data. Its
+numbers/type are dependent on the <I>token </I>  (the
+number of data itself are counted in cases). </P>
+<P> Notation:<br>In this
+text, NBAS under the STRUC is referred as STRUC_NBAS below (with
+underscore as <I>category_token</I>). For example, OPTIONS_PFLOAT=1
+means that there is a section in ctrl file as in the above ctrl file.  </P>
+<P>   The
+SPEC section and SITE sections allow multiple ATOM tokens. POS=0 0 0
+is taken as a token under ATOM. Thus POS is a <I>subtoken</I>. So it
+is referred as SPEC_ATOM_POS (<I>category_token_subtoken)</I>.  Thus
+the structure of the ctrl file is essentially similar with the tree
+structure of file systems in linux/dos systems;  1st-level
+ is <I>category, </I> 2nd-level
+is <I> token, </I> 3rd-level is <I>
+subtoken.</I>  </P>
+<P>   Each
+level (category, token, subtoken) can have its own value.
+For example,
+'SYMGRP find' means that SYMGRP has a character value 'find'. In our
+example, there are two tokens SPEC_ATOM(Ga) and SPEC_ATOM(As) under
+the category SPEC.  We can say that this example contains
+SPEC_ATOM(Ga)_Z=31.   
+</P>
+<p>
+<div class="indent1">
+<div class="comment"> 
+  Comment: <br>
+What we explained is the grammar for Ver.6. The grammar was not logically
+clear. So Ver7 now allows a new logical grammar as:   
+<pre>
+SITE   
+      ATOM[Ga  POS=0  0 0]    
+      ATOM[As  POS=.25 .25 .25]    
+SPEC   
+      ATOM[Ga Z=31 R=2.254225    
+            RSMH= 1.54 1.54 0.798 EH= -0.343 -0.1 -0.815    
+            PZ=0,0,3.93 KMXA=5 LMXA=5]    
+      ATOM[As Z=33 R=2.361690     
+            RSMH= 1.513 1.516 EH= -0.833 -0.216 KMXA=5 LMXA=5]    </PRE>
+</div>
+</div>
+</p>
+<p>
+   lmf --input   shows what <I>category-tokens-subtoken</I> in lmf. See MarksOriginalDoc/fp.html also.   </p>
+<H2> Li_lattice/: How to
+determine the equilibrium lattice constant automatically</H2>
+<P>   It
+is possible to determine the equilibrium lattice constant automatically just by a command  <br>
+<PRE class="indent1">csh ctrl.li</pre>
+</P>
+<P> 
+  Look into the
+ctrl file. It is based on by two functions in lmf.   
+</P>
+<OL TYPE=I>
+	<LI><P>  <span class="command">   'lmf li -vdalat=0.2' </span>  in the ctrl file means we replace dalat
+	by dalat=0.2. We used STRUC_DALAT ; this is required to change
+	lattice constants where the internal computational conditions are
+	determined by STRUC_ALAT. You have to use similar tags when you need
+	to calculate changes of total-energy due to lattice distrotions.  </P>
+</OL>
+<OL TYPE=I START=2>
+	<LI><P>   A ctrl
+	file is only read from ctrlstart tag at the beginning of line.  </P>
+</OL>
+<P>   After
+you finished the &quot;csh ctrl.li&quot;, look into save.li; &quot;c&quot; at the
+head of lines in save file means the converged results. So, &quot;grep
+'c ' save.li&quot; shows a table of &quot;lattice constant&quot; vs &quot;total
+energy&quot;.  </P>
+<P> 
+</P>
+<H2>   band
+plot   
+</H2>
+<P>   For
+bandplot, do job_band. See the postscript file ps.band.cu.   
+</P>
+<P>   syml.cu
+is necessary for job_band (symmetry line for band plot); this is made by
+hand or taken from some samples.   
+</P>
+<H2>   dos
+plot   
+</H2>
+<P>   For
+total dos plot, do job_tdos. You have ps.dos.cu_ (the pldos program
+called in job_tdos does not allow longer file name, so ps.dos.cu_dos.
+So ---&gt;ps.dos.cu_.   )
+</P>
+<P>   As
+for dos plot, we must use metal mode even for an insulator (METAL=3
+or just tetrahedron integration for band integration) and larger
+number of k points. So we use ctrl.cu_dos, which uses metal mode and more k-points. Check the difference from
+ctrl.cu.   
+</P>
+<H2>   spin-polized
+case   
+</H2>
+<P>   Fe
+is the spin-polized case. Look into its job and ctrl files.   
+</P>
+<H2>   MPI/MPIK
+</H2>
+<P>   In
+SrTiO3, directory, we have output,   </p>
+<PRE class="indent1">
+mpirun -n 4 lmf-MPI  srtio3 &gt; llmf_mpi   <span class="precomment">(See MarksOriginalDoc/MPI-instruction)  </span> 
+mpirun -n 4 lmf-MPIK srtio3 &gt; llmf_mpik  <span class="precomment">(k point pararell). </span>  </PRE> 
+<p>
+  These results are in
+agreement with that of llmf (We did it after lmf is converged. I mean that
+calculations started from the converted rst.srtio3  </P>
+<P>   The number of processors <B>must not</B> be greater than the number of atoms in lmf-MPI. I am not sure wheter there exists such a limitation or not on the number of processors in lmf-MPIK.   
+</P>
+<H2>   partial
+DOS   
+</H2>
+<P>   PDOS
+plots are a little complicated. Look into SrTiO3/job_pdos, and
+ctrl.srtio3_pdos. See explanation of --pdos option as   
+</P>
+<PRE class="indent1">--pdos[:mode=#][nl=#][:sites=site-list] <span class="highlight">, which is in lmto.html.  </span> </PRE><P> 
+  Note that   
+</P>
+<PRE class="indent1">SYMGRP i*i   <span class="precomment">&lt;---we use no symmetry operation   </span></PRE><P> 
+  is required
+for   
+</P>
+<PRE class="indent1">lmf --pdos:mode=2   </PRE><P> 
+  for full
+angular momentum-decomposed PDOS.   
+</P>
+<PRE class="indent1">echo 501,-.5,.5|lmdos --pdos:mode=2  srtio3   </PRE><P> 
+  generate pdos
+weight; 501 division between -.5 to .5 (you also have to wider
+setting in BZ_DOS in ctrl.srtio3_pdos).   
+</P>
+<P> <BR>
+</P>
+<div class="indent1">
+<div class="comment"> 
+  Comment: The data format for dos, pdos and band plots are somehow complicated
+(need to look into code). We will make it readable by gnuplot in future.   
+</div>
+</div>
+
+
+
+<H1> V: SrTiO3 tutorial </H1>
+<P>Thanks to the robustness in the MTO+APW(PMT) method, it is possible to set
+up a ctrl file easily. Here are minimum instructions to
+set up a ctrl file for MTO+APW. (Read also MarksOriginalDoc/fp.html.
+The floating orbitals or orbital optimization are unnecessary for MTO+APW.)   
+</P>
+<P>
+To set up a ctrl file, you first have to write down crystal structure
+in the ctrls.* file, e.g. ctrls.srtio3. Then you can run ctrlgen.py,
+e.g., "ctrlgen.py srtio3". ctrlgen.py convert ctrls.srtio3 into
+ctrl.srtio3, which can be used by the following lmf calculaiton
+(do lmfa in advance). We explain these procedure below.
+</P>
+
+<P>
+We expect "ctrlgen.py" should work well, and we will improve it in
+future. But it is not well tested yet. So let me know something
+strange happens.
+</P>
+
+
+<H2> How to make a ctrl file </H2>
+<H3> 1.Prepare crystal structure file. "ctrls" </H3>
+<P>The crystal structure file ctrls.srtio3 contains 
+only the crystal structure.</P>
+<PRE class="indent1">
+%const da=0 au=0.529177                       <span class="precomment">#&lt;--   These % sections are to define variables.   </span>
+%const d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3) 
+% show vars                               
+HEADER  SrTiO3 cubic                          <span class="precomment">#&lt;--   Any header    </span>				  
+STRUC   ALAT={a1}	      <span class="precomment"># NBAS: number of site, NSPEC: number of atomic species  </span>
+        DALAT={da} PLAT=1 0 0  0 1 0  0 0 1   <span class="precomment"># PLAT: primitive vector in ALAT. ALAT  (in  a.u.)  </span>
+SITE						
+  ATOM=Sr POS=1/2 1/2 1/2	<span class="precomment"># Atom SPEC and position in cartesian coordinate   </span> 		
+  ATOM=Ti POS= 0   0   0+0			
+  ATOM=O  POS=1/2  0   0			                                                                                    
+  ATOM=O  POS= 0  1/2  0		
+  ATOM=O  POS= 0   0  1/2
+SPEC
+  ATOM=Sr Z=38 
+  ATOM=Ti Z=22 
+  ATOM=O  Z=8  
+</PRE>
+<P>
+NOTE.<BR>
+<B>1.</B> &quot;% const&quot; section defines variables, &quot;% show
+vars&quot; requests programs(lmf, lmfa, lmchk) 
+to show defined variables at the begining of console output. 
+As this example shows, defined variables are used as {something},
+e.g, {a1}. 
+<BR>
+By command line arguments when you invoke lmf, 
+it is possible to replace values of variables defined 
+in the % const section by
+"--v<I>{variable}={value}</I>" argument when you run lmf or so.
+For example, <span class="command"> &quot;
+lmchk --va0=2.5 srtio3&quot;</span> uses a0=2.5 instead of a0=2*d0
+defined in the % const section.
+(When you use this, this is recorded in save.* file in the case of
+lmf. See Li_Lattice/ sample and examine it; 
+the lattice constant is reecorded in save.* file.) 
+<!--
+<span class="question">kino1: What happens next? --va0=2.5 unnecessary? 
+if defining --va0=2.6 again in the next run, what happens?</span>).
+--><BR><br>
+<B>2.</B>The lattice constant is given by ALAT+DALAT. 
+The computational cutoffs internally used within lmf 
+is determined by ALAT only. In order to obtain total energy as
+a smooth function of lattice constant, it is necessary to
+to use DALAT when you change lattice constant. Generally speaking,
+there are ways to deform cells with keeping such cutoffs for
+crystal structure without deformation.Do lmf --input<BR>
+</P>
+<P> 
+Remember: The tag for <I>category, </I> e.g, 
+SPEC <B>must</B> start at the beginning of the line. The tags for
+tokens, e.g, ATOM=, Z= <B>must not</B> start at the beginning of the
+line.<br><br>   
+<B>3.</B> STRUC_NBAS= and STRUC_NSPEC= are not necessary.
+Furthermore, you don't need to supply SPEC if you use standard name
+for atoms defined in "standard SPEC", which is
+shown when you run ctrlgen.py without arguments.
+</P>
+
+
+<H3> 2.Run a script ctrlgen.py </H3>
+<P>Then run "ctrlgen.py srtio3". This ctrlgen.py is a python srcipt. 
+It generates ctrl.srtio3 file (ctrls.srtio3 is unchanged).<BR>
+Here we explain how ctrlgen.py works (you can skip this explaination below).
+<BR><BR>
+<BR><BR>
+<B>1.Generate MT radius.</B>  Internally(L733:ctrlgen.py) it calls
+"lmchk --getwsr tmp >llmchk_getwsr". (ctrl.tmp is ctrls.srtio3 + some
+default section). This generates suggested MT radius 
+which are stored in rmax.tmp file.
+See fp.html and lmto.html#section8 for discussion about how to determine R.   
+("lmchk srtio3"  shows geometrical informations of its crystal structure).<BR>
+<BR><BR>
+<B>2.Default setting of RSMH, EH, KMXA, PZ, P</B><BR>
+The ctrlgen.py adds these obtained R to a ctrl file named as
+ctrl.tmp2. Then it does "lmfa srtio3 >llmfa.tmp2" (L782:ctrlgen.py).
+It generates 'mtopara.tmp2', which contains suggested values for RSMH, EH, KMXA, PZ and P as   
+<PRE class="indent1">
+Sr@ RSMH= 2.411 2.411 2.094  EH= -0.100 -0.100 -0.100 KMXA=7   PZ=0,14.9  P=0,5.3   
+Ti@ RSMH= 1.393 1.393 1.055  EH= -0.100 -0.100 -0.100 KMXA=7    
+O@ RSMH= 0.900 0.900  EH= -1.360 -0.512 KMXA=7    </PRE>
+<P>
+This is used as a part of ctrl file.
+</P>
+<P> 
+Note: Console output (llmfa.tmp2) includes &quot;conf: sections&quot;; 
+it shows atomic configurations for each SPEC_ATOM. 
+In the case of srtio3, for Sr, it is 
+</P>
+<PRE class="indent1">
+conf:SPEC_ATOM= Sr : --- Table for atomic configuration ---   
+conf int(P)z = int(P) where P is replaced by PZ if it is semicore   
+conf:  isp  l   int(P) int(P)z    Qval    Qcore   CoreConf   
+conf:    1  0       5     5        2.000    8.000 =&gt; 1,2,3,4,   
+conf:    1  1       5     5        0.000   18.000 =&gt; 2,3,4,   
+conf:    1  2       4     4        0.000   10.000 =&gt; 3,   
+conf:    1  3       4     4        0.000    0.000 =&gt;    
+conf:    1  4       5     5        0.000    0.000 =&gt;    
+conf:-----------------------------------------------------   </PRE><P> 
+(you can see this by &quot;grep conf llmfa.tmp2&quot;.)
+Here int(P) means the principle quantum number for valence orbitals. 
+(P is the continuous principle quantum number; 
+integer part corresponds to the usual principle quantum number. 
+See MarksOriginalDoc/lmto.html.   
+</P>
+<P> 
+A pair of RSMH and EH specify an envelope function (the smooth Hankel function).
+See fp.html. These PZ and P means that local orbital is with P=4.9, and
+the valence orbital is with 5.3 for p channel (first zero means no
+local orbital for s channel). 1 of 10th ditit in PZ means the local
+orbital is the extended local orbital (Logically speaking, it is not
+a local orbital but a MTO because it is extended and augmented).   
+</P>
+<P>    This default setting of mtopara.srtio3 is given in a subroutine writebasis in subs/ioorpb.F.    
+   It uses a default setting setting:   <br>
+<PRE class="indent1">
+ ===Possible semicore is (Takao thinks) =========
+ ----- these are important ---
+  Zn,Ga,Ge    : 3d  PZ=0,0,13.9    P=0,0,4.2       
+  Cd,In,Sn,Te : 4d  PZ=0,0,14.9    P=0,0,5.2       
+  Hg,Tl,Pb,Bi : 5d  PZ=0,0,15.9    P=0,0,6.2       
+  Lu,Hf,Ta,W  : 4f  PZ=0,0,0,14.9  P=0,0,0,5.15       
+ ---- somehow meaningful, but can be negligible ---    
+  Na,Mg   : 2p  PZ=0,12.9      P=0,0,13.2       
+  K,Ca    : 3p  PZ=0,13.9      P=0,0,14.2       
+  Rb,Sr   : 4p  PZ=0,14.9      P=0,0,15.2          
+  Cs,Ba   : 5p  PZ=0,15.9      P=0,0,16.2          
+ --- less important ---    
+    Li : 1s         PZ=11.9    P=2.6   Q=0,1  (this is commented as #PZ.    
+     In this case Q is needed. See explanation shown by lmfa without Q,   
+     and SPEC_ATOM_Q part shown by &quot;lmfa --input&quot;)  
+==================================================
+</PRE>
+<BR>
+<P>Finally, ctrlgen.py add some default categories to ctrl.srtio3.
+Look into it. We have to edit it by hand as follows.
+</P>
+
+
+<H3> 3.Edit ctrl file </H3>
+<P>The ctrl.srtio3 generated by ctrlgen.py from ctrls.srtio3 is given as</P>
+<PRE class="indent1">
+# Do lmf --input to see all effective category and token #
+VERS    LM=7 FP=7
+             # version check. Fixed.
+IO      SHOW=T VERBOS=35
+             # SHOW=T shows readin data (and default setting at the begining of console output)
+	     # It is useful to check ctrl is read in correctly or not (equivalent with --show option).
+	     #
+	     # lerger VERBOSE gives more detailed console output.
+SYMGRP find  # 'find' evaluate space-group symmetry automatically.
+             # Usually 'find is OK', but lmf may use lower symmetry
+	     # because of numerical problem.
+             # Do lmchk to check how it is evaluated.
+%const kmxa=7  # kmxa=7 is good for pwemax=5 or lower.
+               # larger kmxa is better but time-consuming (maybe not the critical part for large systems).
+%const da=0 au=0.529177
+%const d0=1.95/au a0=2*d0 v0=a0^3 vfrac=1 v=v0*vfrac a1=v^(1/3)
+% show vars
+HEADER  SrTiO3 cubic 
+STRUC   ALAT={a1} DALAT={da} 
+        PLAT=1 0 0  0 1 0  0 0 1
+  NBAS= 5  NSPEC=3
+SITE
+  ATOM=Sr POS=1/2 1/2 1/2
+  ATOM=Ti POS= 0   0   0+0
+  ATOM=O  POS=1/2  0   0
+  ATOM=O  POS= 0  1/2  0
+  ATOM=O  POS= 0   0  1/2
+SPEC
+ ATOM= Sr Z= 38 R=3.616323
+      RSMH= 2.411 2.411 2.094  EH= -0.100 -0.100 -0.100  PZ=0 14.9 P=0 5.3
+      KMXA={kmxa} LMXA=4
+     MMOM=0 0 0 0
+
+ ATOM= Ti Z= 22 R=2.089960
+      RSMH= 1.393 1.393 1.055  EH= -0.100 -0.100 -0.100
+      KMXA={kmxa} LMXA=4
+     MMOM=0 0 0 0
+
+ ATOM= O Z= 8 R=1.595007
+      RSMH= 0.900 0.900  EH= -1.360 -0.512
+      KMXA={kmxa} LMXA=4
+      MMOM=0 0 0
+
+
+% const pwemax=3 nk=2
+BZ    NKABC={nk} {nk} {nk}  # division of BZ for q points.
+      METAL=3   # METAL=3 is safe setting. For insulator, METAL=0 is good enough.
+		# When you plot dos, set SAVDOS=T and METAL=3, and with DOS=-1 1 (range) NPTS=2001 (division) even for insulator.
+		#   (SAVDOS, DOS, NPTS gives no side effect for self-consitency calculaiton).
+      BZJOB=0	# BZJOB=0 (including Gamma point) or =1 (not including Gamma point).
+		#  In cases , BZJOB=1 makes calculation efficient.
+
+ITER  CONV=1e-6 CONVC=1e-6 NIT=30
+                # An other choice is
+                # ITER MIX=A2,b=.5,n=3 CONV=1e-6 CONVC=1e-6 NIT=20
+                # Practically results are independent from mixing procedure.
+		
+HAM   NSPIN=1   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (initial guess of magnetic polarization).
+      FORCES=0  # 0: no force calculation, 1: forces calculaiton 
+      GMAX=9    # this is for real space mesh. See GetStarted.
+      REL=T     # T:Scaler relativistic, F:non rela.
+
+      XCFUN=1   # =1 for Vosko-Ceperly-Alder; GGA is not yet.
+                # XCFUN=2 shows a bug for Hydrogen atom. 
+		# (subs/evxc.F works only for XCFUN=1 if rho(up)=0 or rho(down)=0).
+
+      PWMODE=11 # 10: MTO basis only (LMTO) PW basis is not used.
+                # 11: APW+MTO        (PMT)
+                # 12: APW basis only (LAPW) MTO basis is not used.
+
+      PWEMAX={pwemax} # (in Ry). When you use larger pwemax more than 5, be careful
+                      # about overcompleteness. See GetStarted.
+      ELIND=-1  # this is only for accelaration of convergence. Not need to change.
+      
+OPTIONS PFLOAT=1 # Q=band (this is quit switch if you like to add)
+</PRE>
+<P> 
+NOTE 1.(again):
+The <I>categories</I>,e.g.,SPEC <B>must</B> start at the beginning of the line. 
+The <I>tokens</I>,e.g, ATOM=, Z= <B>must not</B> start at the
+beginning of the line. <br>
+NOTE 2. In each line, columns after "#" is neglected (these are comments).
+</P>
+
+<P> 
+You may need to edit this ctrl file. There are other category-token to
+control lmf in detail (do lmf --input to see it). ctrlgen.py only inlcudes
+minimum things.
+</P>
+
+<P>NOTE: To check that lmf reads parameters correctly,
+do <span class="command">lmf --show srtio3</span>.  
+At the beginning of console output, supplied input is shown.
+</P>
+
+<P> 
+  * For metal, we need large NKABC=n1 n2 n3
+</P>
+
+<P> 
+  * KMXA=7 is safe setting up to PWEMAX=5 (PW cutoff by 5Ry), as far as we tested. 
+In cases you can use smaller number to reduce the computational time.
+</P>
+
+<P> 
+  * Mixing parametes ITER_MIX is a little difficult to understand. 
+lmf chooses a mixing scheme automatically. But you can set it by
+yourself, e.g. as "ITER  MIX=A2,b=.5,n=3".
+</P>
+
+<P> 
+  * For the
+magnetic case like Fe, you have to use HAM_NSPIN=2 (this expression
+means NSPIN=1 in HAM category). Further, add initial magnetic momemnt
+specification MMOM=0,0,2 (this means polarized in d channel). We now
+have complete ctrl file. You can run lmfa and lmf (repeat lmfa for
+safe; when PZ is added, need to generate density PZ as valence).   
+</P>
+<P> 
+  * VERBOSE=35
+or 40 might be better to observe all eigenvalues.  </P>
+<P> 
+<!-- kino2: I rewrote this and next paragraph -->
+  * To start calculations, we recommend HAM_PWMODE=11 HAM_PWEMAX=3 
+After it is converged, you may enlarge PWEMAX to 4, 5 or so. 
+Note that larger PWEMAX requires larger KMXA.
+For example, we have to use KMXA.ge.6 for SrTiO3 for PWEMAX=5.
+In this case, you will see only a little difference 
+even when you use KMXA=20 (this is a convergence check about KMXA for 
+PWEMAX=5). When we used KMXA <7, the calculation stoped suddenly
+during iteration cycle; it gives very unstable divergent behevior 
+(out of convergence path; then the Hamiltonan becomes very strange; 
+we will have to improve KMAX-related pat ---> "Gaussian Polynomial" expansion 
+of smooth Hankel function at atomic site).
+</P>
+<P> 
+*FTMESH defines real-space mesh for charge density. See a section below for
+setting. Instead of FTMESH, you can use GMAX to specify the real-space mesh.
+Usually GMAX=9 gives almost converged results. See HAM_FTMESH section below.
+
+
+<H2>   Run lmf  </H2>
+<P>  Now you are ready to run lmf. Do  </P>
+<PRE class="indent1">lmfa srtio3</PRE><P>
+Then you need to remove mix.* (for mixing data in previous itteration),
+moms.*(momentum data in previous itteration), rst.* (this contains
+self-consistent results) if you want to start over. 
+If they exist, they are read by lmf. 
+(This is a defalut setting. To change this beheviror, use
+  --rs{something} options; do "lmf --help" and read MarksOriginalDoc/fp.html).
+<!--kino3: 
+<span class="question">What happens if you run 'lmf --rs=0 --srti3'?</span>
+-->
+ </P>
+<PRE class="indent1">lmf srtio3   </PRE><P>
+
+
+<H2> OPTIONS_PFLOAT </H2>
+<P>  You have to
+use OPTIONS_PFLOAT=1 (bug fix of old versions). Without it, radial
+functions are not calculated at the center of gravity of the occupied
+states. (But the previous version somehow worked well). 
+ OPTIONS_PFLOAT=1 is usually stable and gives more rapid convergence than old versions.   
+</P>
+
+
+<H2> How to determine l-cutoff? (STRUC_NL; SPEC_ATOM_LMXA,LMX,LMXL)</H2>
+<P>
+There are some kinds of l-cutoffs. As "lmf --input" shows, they are
+</P>
+<P class="indent2">
+SPEC_ATOM_LMXA: l-cutoff for augmentation. LMXA=NL+1 for defaults. <BR>
+SPEC_ATOM_LMXL: lmax for which to accumulate rho,V in sphere<BR>
+SPEC_ATOM_LMX : l-cutoff for basis (head part specfied. this
+corresponds to # of parameters in EH= (the same that for RSMH=).<BR><BR>
+
+STRUC_NL      : global default lmax+1 for basis and augmentation<BR>
+Specification by SPEC_ATOM is stronger than the global
+default by STRUC_NL.  This default is not effective if SPEC_ATOM_LMXA are
+spefcified for all the SPECs.<BR>
+<BR>
+</P>
+<P>Usually you neither need to set LMX nor LMXL
+because they are automatically choosen in defaults
+(LMX= is given by the numbers of EH=,RSMH= sections. 
+LMXL is chosed to be LMXA).
+<BR>
+</P>
+<P>
+I(takao) think a possible (automatic) choice of LMXA is 
+to set LMXA= {# of EH channel} + 2  (or +1 ?)
+in MTO+APW mode. This is given by ctrlgen.py.
+Need to be tested.
+</P>
+<P>
+Read MarkOriginalDoc/fp.html to know what they mean.
+</P>
+
+<H2> How to determine real-space mesh (HAM_FTMESH or HAM_GMAX). </H2>
+<P>  The smooth
+part of electron density is represented on a real-space mesh.
+&quot;HAM_FTMESH {3 integers}&quot; is the number of divisions along the
+three lattice vectors. Or you can use HAM_GMAX, which is the maximum
+size of wave vector. (if GMAX exists, FTMESH is neglected). Search
+these words in MarksOriginalDoc/fp.html. FTMESH is useful to set number of 
+real-space mesh explicitly (when you require smoothness of total
+energy when you change lattice constant).   
+</P>
+<P> Too small FTMESH will not give converged total energy. 
+If FTMESH is too
+large, however, current version causes a numerical problem. It will be fixed
+in future. Thus, you may need to observe the change of the total energy
+(and eigenvalues) as function of FTMESH. Look into examples. In
+anyway the convergence as a function of FTMESH is rapid.   
+</P>
+<P> There is
+another experimental observation to choose FTMESH in a reasonable
+manner; when you run lmf (run and stop it within seconds), console
+output near its begining shows that   
+</P>
+<PRE class="indent1">
+sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-05    
+spec      l    rsm    eh     gmax    last term    cutoff    
+ La       0    2.00  -0.10   3.393    1.16E-05    1055     
+ La       1    1.25  -1.14   5.825    1.00E-05    5343     
+ La       2    1.68  -0.10   4.551    1.01E-05    2509     
+ La       3    1.21  -0.10   6.862    1.00E-05    8617     
+ Ga       0    1.90  -0.55   3.574    1.01E-05    1237     
+ Ga       1    1.86  -0.10   3.854    1.00E-05    1511     
+ Ga       2    0.73  -0.10  11.052    1.01E-05   36243     
+ O        0    0.88  -1.32   7.747    1.00E-05   12461     
+ O        1    0.83  -0.38   8.930    1.00E-05   19109     </PRE><P> 
+   look
+into &quot;last term&quot;, you may need to tune GMAX or FTMESH so
+that &quot;last term&quot; is ~1e-05. 
+<!-- kino4: I added an explanation below. <span class="question"> &lt 
+  If it is 1e-5, is the system converged?</span> 
+-->
+(When "last term"is ~1d-5 or below,
+it indicates that the real-space mesh is dense enough, that
+calculations are converged well as for the mesh.)
+</P>
+
+
+<H2>   Overcompleteness  </H2>
+<P>  When you use large PWEMAX (more than ~5Ry or so), be careful! 
+It can cause a
+problem of poor linear-dependency of the basis sets; the overlap
+matrix of a basis set can have very small eigenvalues. The
+eigenfunction of the overlap matrix corresponding to such a small
+eigenvalue can be very strange; it is the linear combination of MTOs
+and APWs where there exist strong cancellations each other. 
+<!-- kino5: 
+<span class="question">&lt;--- what is it?</span> 
+I removed this sentence in paranthesis.
+(If these
+eigenvalues are completely zero, the rank of overlap matrix is
+reduced; it 
+is less than the dimension of the total number of basis).
+-->
+                               
+</P>
+<div class="highlight">    [Don't
+confuse eigenvalues of the overlap matrix with those of the secular
+equation (eigenvalues of the Kohn-Sham equations).]    </div>
+<P>   In
+such a case, it is necessary to reduce the dimension of the
+Hamiltonian (the Hilbert space spanned by MTOs+APWs) by eliminating
+some subspace (or removing some of basis functions). Without such a
+procedure, calculation stops suddenly, or the final results show
+very strange eigenvalues and  total energies.  </P>
+<P> 
+</P>
+<div class="boxhighlight">   There
+are two way  (A) and (B) as explained below to overcome this linear
+dependency problem (OVNCUT is another way, but not explained here).  </div>
+<H3>   (A) HAM_OVEPS  </H3>
+<P>  A  way is
+to set HAM_OVEPS=1d-6 (or so).  [OVEPS=#. If # is a positive number,
+lmf will diagonalize the overlap matrix, and eliminate the subspace
+which has eigenvalues smaller than #.]  </p>
+<div class="indent1">
+<div class="comment">
+<B>Note: </B> In lm-7.0betaK,
+the space of MTO is preserved, and within the space spanned by APWs
+orthogonalized to the space of MTO, we calculate eigenvalues of
+overlap matrix. (See subroutine zhev_tk in slatsm/zhev.F). This
+procedure is a  little different from lm-7.0beta (it does not
+preserve space of MTO). See fp.html.  
+</div>
+</div>
+<P>  In the
+console output of lmf, &quot;zhev_tk: ovlmat=&quot; shows the
+eigenvalues of the overlap matrix. E.g., Li/llmf, which is an output of &quot;lmf li&quot;, shows   
+</P>
+<PRE class="indent1">
+zhev_tk: ovlmat=   
+   1  0.66D-05    2  0.14D-01    3  0.14D-01    4  0.14D-01    5  0.33D+00    
+   6  0.10D+01    7  0.10D+01    8  0.10D+01    9  0.10D+01   10  0.10D+01    
+  11  0.10D+01   12  0.10D+01   13  0.10D+01   14  0.92D+04   15  0.10D+05    
+  16  0.10D+05   17  0.10D+05   18  0.11D+05    </PRE><P>
+  If we set
+HAM_OVEPS=1d-6, an eigenfunction corresponding to the eigenvalue
+0.66D-05 of the overlap matrix is removed from the Hilbert space.
+Some  of eigenvalues are ~1, this means these corresponds to APW
+which are linearly-independent. Other basis with 1D+5 are MTOs (when
+we calculate overlap matrix in zhev_tk, we set normalization
+(diagonal part of overlap matrix) as &lt;APW(q+G)|APW(q+G)&gt;=1, and
+&lt;MTO(q)_i|MTO(q)_i&gt;=1d+5, where {APW(q+G)} denotes the set of
+the APW, and {MTO_i(q)}  denotes that of  the MTO. With this weighted
+procedure, we can easily preserve the Hilbert space of MTO).  </P>
+<H3>   (B) Remove
+MTOs for the channel  </H3>
+<P> 
+Removing some of MTOs explicitly can also reduce the Hilbert space.
+This method is better than (A) in practice since (A) can cause a sudden
+change of total energy when you change lattice constant(s).   
+</P>
+<P>  To remove
+the &quot;Li 2s&quot;, set &quot;RSMH=0 1.6 EH=0 -0.1&quot; instead of original
+setting as &quot;RSMH=1.6 1.6 EH=-0.1 -0.1&quot;.  Then the smallest
+eigenvalue 0.66D-05  disappears. This is because the very small
+eigenvalue 0.66D-05 originates from the fact that the MTO of Li 2s is
+already well represented by the superposition of APWs.   
+</P>
+<div class="indent1">
+<div class="comment">  [To remove
+MTOs of a channel, set zero for RSMH and EH for the channel as we
+explained above.  <br><br>
+ Note: To
+remove all MTO from an atom use many zero (number of LMXA) as  RSMH=
+0 0 0 0 0 EH= 0 0 0 0 0  ; this is a minor bug. ]  </P></div></div>
+<P> <BR>
+</P>
+<!-- kino6. This is not (C). (A) and (B) explain two procedures.
+I slightly changed the first sentence -->
+<H3> ---Checking convergence---    </H3>
+<P>    It
+is better to watch all the Kohn-Sham eigenvalues (shown after
+&quot;eigenvalue=&quot in console output;) 
+at least at the Gamma point or so;  some of
+eigenvalues from the top becomes too high when the linear-dependency
+becomes poorer;  however, the convergence of lmf can be not so bad as
+far as it converges since the self-consistency in LDA is only related
+to the eigenfunctions below the Fermi energy.    </P>
+<P>  Generally
+speaking, PWEMAX=5 with minimum MTOs gives not so bad 
+<!-- kino6:
+<span class="question">&lt;--- ???</span> 
+the accuracy is dependent on materials.
+-->
+result as for total energy (the energy which can be used 
+to determine lattice constant or so; but the numerical convergence 
+for each systems are dependent on sysmtems).
+When you use PWEMAX=10 or more, you must need to use procedure
+(A) or (B).  
+<!-- kino7: I modified sentences here.
+<span class="question">&lt;--- And??? </span> 
+-->
+Don't forget to use large KMXA (KMXA=15 or so is needed
+for PWEMAX=10)
+</P>
+<P>  (note: to start over, remove mix* moms* rst*, and repeat it).   
+</P>
+
+<H2>   How to relax atomic positions   
+</H2>
+<P>  For relaxation of atoms (atomic force is calculated and relaxed), see a
+sample, LaGaO_323. This is a perovskite with twenty atoms per cell.
+What you have to do is to add   
+</P>
+<PRE class="indent1">
+HAM  FORCES=1   
+DYN  MSTAT[MODE=5 HESS=t XTOL=.001 GTOL=0 STEP=.015]  NIT=30   </PRE><P> 
+  &quot;grep ATOM
+log.lagao&quot; ---&gt; it shows how the atomic positions are moved. You
+may need to add HAM_FRZWF=1 to calculate better force.   
+</P>
+
+<H2> Known bug (we will fix)</H2>
+<P> 
+* For ifort11 with mkl on core i7, zheev called from slatsm/zhev.F
+  gave strange values. This should be due to a bug of math library mkl.<br><br>
+  
+* For a Hydrogen  atom in a large cell, METAL=0 did not work for
+  NSPIM=2 though it must be an insulator.(METAL=3 works). I don't
+  know why yet.<br><br>
+
+* For large GMAX (or FTMESH) calculation gets wrong.This is related
+  to the evaluation of potential at MT boundaries(bessel function
+  expansion looks poor).<br><br>
+
+* Only XCFUN=1(Vosko-Ceperley-Alder) works for Hydrogen atom 
+(when one spin channel is empty) in a cell.<br><br>
+
+* Radial schoredinger eq is solved at center of gravity
+  of occupied state. However, if occupation number is too small (atom
+  in a large cell) numerical error may occur. Need to check.
+</P>
+
+<H1> </H1>
+<pre class="plain">=========== Not need to look below. Not well organized ===================   
+
+   APPENDIX.I   
+   ===== Directories. ========   
+   ecal---lm-7.0betaK this is root. Here is some tools and source.   
+        |   |   
+        |   |---MarkOriginalDoc  Mark's Original document in   
+        |   |                   lm-7.0beta. some confusing descriptions   
+        |   |-- slatsm/   Math and utility libraries.   
+        |   |-- fp/       codes for fp   
+        |   |-- gwd/      codes for GW driver.   
+        |   |-- subs/     codes for basic part (asa part).   
+        |   |-- TESTsample/  test samples.   
+        |   |   
+        |   |-- FPLOTdir (fplot, plbnd, pldos)   
+        |   |     this is Mark's plotting tool (generate ps file).   
+        |   |     Not so kind for beginners. We will make some replacement in future.   
+        |   |   
+        |   |-- MODDIR/  (module should be here).   
+        |   |-- MAKEINC/ Make.inc files.   
+        |   \-- TOOLS/   a few tools for developer.   
+        |   
+        |-- fftw-3.1.2/ (if you don't have fftw, you may need to compile   
+                      this and link this in Make.inc.)   
+              Taken from www.fftw.org. You have to generate libfftw.a if you don't have it yet.   
+
+
+
+   (we also still keep tbe and nc, but they are not used)   
+
+   * In this package, we only keep lmf and gw-driver part.    
+     We only need lmv7.f  lm67.f lmf2gw.f, rdcmd.f   
+     See Makefile. (rdcmd is requied for test &quot;make check&quot;).   
+
+   * Make.inc is only at lm-7.0betaK/.   
+     From Makefiles in directories, it is referred to.   
+     tools/ccomp2cpp is a tool to convert ccomp to cpp    
+     (don't use it without understand it).   
+
+   * dependency of module...   
+     All modules are now copied to lm-7.0betaK/MODDIR directory    
+     (-module option in ifort). Dependency is given in lm-7.0betaK/Make.inc   
+
+   * Makefiles in each directories are not machine-dependent.   
+
+
+
+   APPENDIX.II      
+   ====TODO LIST ===============   
+   *. FTMESH problem. Allow denser FTMESH without numerical problem.   
+
+   *. KMXA problem. Why do we need so large KMXA? (local expansion of   
+      smooth Hankel function).   
+      A little confusing problem---Need to do math first.   
+
+   *. MPI versions.   
+      Current version of MPI is somehow limited.   
+
+   *. Detailed description of all I know as for the code. Formalism and program details.   
+
+   *. Plot (e.g. DOS,BAND) procedures should be simplified based on gnuplot.   
+
+   *. Automatic choice of basis set.   
+      For exmple, SPEC_ATOM_BASIS=atm should supply RSMH and EH from atm   
+      file. Maybe SPEC_ATOM_BASIS=atm and SPEC_ATOM_BASIS=atmsemicore   
+      are requied.   
+      So, the format of ctrls should be very simple as:   
+         HEADER  SrTiO3 cubic    
+         VERS    LMF=7S FP=7S   
+         IO      SHOW=F VERBOS=35   
+         SYMGRP  find   
+         STRUC   NBAS=5 NSPEC=3    
+                 ALAT=a1 DALAT=-0.1 PLAT=1 0 0  0 1 0  0 0 1   
+         SITE   
+           ATOM=Sr POS=1/2 1/2 1/2   
+           ATOM=Ti POS= 0   0   0+0   
+           ATOM=O  POS=1/2  0   0   
+           ATOM=O  POS= 0  1/2  0   
+           ATOM=O  POS= 0   0  1/2   
+         SPEC   
+           ATOM=Sr Z=38 BASIS=atmsemicore   
+           ATOM=Ti Z=22 BASIS=atm   
+           ATOM=O  Z=8  BASIS=atm   
+         BZ    NKABC=3 3 3  BZJOB=1 METAL=3   
+         ITER  CONV=1e-5 CONVC=1e-5 NIT=20   
+         HAM   FTMESH=20 REL=t PWMODE=11  PWEMAX=5   
+      ------------------------------------------------------   
+      I think this is possible in the case of MTO+APW    
+      (lmf contains FORCE and dynamics calculations already).   
+      But we have to do some extra research for it.       
+
+   *. simple many samples, and data base... How to share data?   
+
+   *. Analyzer of computer code.   
+
+   *. Rewrite another pack-unpack, which does not require lstra.f   
+
+   *. remove classic memory allocation w(xxx).   
+
+   *. QSGW based on MTO+APW   
+
+   *. Phonon GW, magnon GW, Wannier, anisotropy and so on.   
+
+
+
+
+   ===============================================================   
+   APPENDIX.III   
+   ==== Memo. Added modification on Mark's package ===   
+   *Ude convccomp ccomp2cpp (Be careful).   
+
+   *Do    
+      grep &quot;ifndef |grep '|'&quot;   
+      ALL should be modified as    
+      lmf.f L511 #ifndef LMCTL | LMMC -&gt; if .not. (LMCTL| LMMC)   
+   ------------------------------   
+   grep ifndef *.f */*.f|grep '|'   
+
+   slatsm/gradzr.f:C#ifndefC PROB0 | PROBN --&gt;see belwo   
+   subs/rnatm.f:#ifndef F90 | AUTO_ARRAY   
+   lm67.f:C#ifndef LMCTL | LMMC   
+   lmv7.f:C#ifndef LMCTL | LMMC   
+   tbe.f:C#ifndef LMCTL | LMMC   
+   fp/addrbl.f:C#ifndefC F90 | AUTO-ARRAY   
+   fp/bndfp.f:C#ifndef MPI | MPIK | MPE   
+   fp/dfrce.f:C#ifndef MPI | MPIK   
+   fp/dfrce.f:C#ifndef MPI | MPIK   
+   fp/mixrho.f:C#ifndef MPI | MPIK   
+   fp/ugcomp.f:C#ifndefC F90 | AUTO-ARRAY | SGI-PARALLEL   
+   fp/vcdmel.f:C#ifndefC F90 | AUTO-ARRAY   
+   fp/vxcnsp.f:C#ifndefC F90 | AUTO-ARRAY   
+   gwd/bndfp.f:C#ifndef MPI | MPIK | MPE   
+   ------------------------------------------   
+
+   * lmv7.f L511 #ifndef LMCTL | LMMC -&gt; if .not. (LMCTL| LMMC)   
+     Remove #define LM 1 at top   
+
+   * subs/rnatom.f L57   
+     C#ifndefC F90 | AUTO-ARRAY ---&gt; C#if .not. (F90|AUTO-ARRAY)   
+
+   * subs/bzmesh L120   
+     C#ifdefC QP0     --- use only points centered within dq from q0   
+     comment '--- use ... are not allowed'.    
+
+   * subs/suqlst.f L656   
+     C#endif, corresponding to ifdef MULLIKEN is missing.   
+
+   *  To convert ccomp source, use lmv7/convccomp    
+      which calls comp2cpp (this is used at /fp /gwd /subs)   
+      (Use slatsm/convccomp at /slatsm)   
+
+   * #ifndef MPI| ... ---&gt; bndfp.f L1130 #if .not.(MPI | MPIK | MPE)   
+
+   * #ifndef MPI | MPIK | MPE gw/bndfp L1116 ---&gt; #if .not. (MPI | MPIK | MPE)   
+
+   * slatsm/grazr.f is a little confusing C#if is nested.   
+     So I need to add &quot;#define PROB0 1&quot; at its begining, and ccomp2cpp again.   
+
+   * fp/augmbl.f L229. It is not clear that ALL3C secition is required or   
+     not. But this is only related to the non F90 part.    
+     Check it if you don't use F90---&gt; but meaningless in future.   
+
+   * !!! you have to add #define FP 1 at the begining of supot.f   
+
+   * Change default m_rdctrl   
+         nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgn,nm),lpfloat,   
+        .  def_i4=0,note=   
+        .  'Controls how band CG is determined in floating Pnu.'//   
+        .  '%N%5f0 Band CG found by traditional method'//   
+        .  '%N%5f1 Band CG found from true energy moment of density')   
+         ---&gt; def_i4=1.   
+      When you do test you need OPTIONS_PFLOAT=0.   
+
+
+   * fmain.f #ifdef MPI ---&gt; #if MPI|MPIK   
+   * mpibc.f:#if MPI ---&gt; #if MPI|MPIK   
+
+   *Kino's slatsm   
+
+     1. syscall.f L126   
+     #elif FDATE   
+         call fdate(datim)   
+         datim=datim(1:24) !takao. If this is not, write(6,*) gives CR at the ene of datim*26.   
+     ---&gt;add this line.   
+
+     2. Kino's cwrite ---&gt; ps(i1+1:i2+1)   
+
+     3.  fsubs.f L153: d1mach(2) = (b**-t) ---&gt; b**(-t)   
+
+   * #define ONE_ATOM_UNIT 1 at the begining of aiocls.f   
+
+
+   * bndfp.f LINUX_PGI (dummy call of xxxbfp) is fixed because it does   
+     little side effects.   
+
+   * #if LINUXF --&gt; CRAY at hsibl.f L458 (maybe this is bug)   
+
+
+   * Add '#define f90 1' for all related files. So no -DF90 is required.   
+     -DFFTW is not requied (FFTW is needed), neither.   
+
+
+   *  pade.f L49  real*16 ---&gt;   real(16)   
+
+   * fp/bndfp.f = gwd/bndfp.f    
+     use m_rdctrl,only:ncutovl (OVNCUT)   
+     We use zhev_tk (respect MTO), which refer to ncutovl.   
+     This mofdification gives no changes for cases without PW basis.   
+     Slight changes when you do PWMODE calculations with OVNCUT and/or OVEPS   
+
+   * For fp/test.fp felz, I changed out.lmf.lz.felz and out.lmf.lzsz.felz   
+     to go through make check. This is because OVLEPS have differnt   
+     meanings in my zhev_tk. (In the method, we project out MTO, and then   
+     we remove poorly linear-dependent basis based on the overlap matrix.   
+
+     lmv7.f L91  ext*20 --&gt;ext100   
+         character prgnam*8, vrsion(2)*6, ext*100   
+     finit.f character*7 extns ---&gt;character*100   
+
+   * subs/freeat.f 2/3*RMT rule for BASIS at the end of atm.*    
+         L682: rlim2 = 2*rmt ---&gt; rlim2 = rmt+1d-6   
+         L765:   rmt ---&gt; rmt*2/3   
+
+
+   * lmv7.f MPIBCAST ---&gt; MPI_BCAST   
+
+   * #if MPI &amp; BLACS   
+
+
+   * polint.F:   IF(DD.EQ.0.d0)PAUSE ---&gt; read(5,*)xx   
+
+   * some other minor correction for cpp preprocessor.   
+     size(xxx) was integer(4) in SR11000 ---&gt; modified code to fit it.   
+
+   * modifications in m_rdctrl.F. lmchk enforce NSPIN=1 in it.   
+   * modification of lmf to print out mtopara.* file.   
+   * some routines like mergemto.py   
+   * TESEsample/   
+
+   * integer(4):: ---&gt; integer::   
+
+   * LMXA is not shown lmf --input. Fixed.   
+
+   * rmt.* is generated in sclwsr.F
+   =============================================================   
+</PRE><P> 
+  -----------------------------------end
+of this document----------------------  </P>
+</BODY>
+</HTML>
+

@@ -1,0 +1,54 @@
+#!/bin/bash
+
+Sc2="  \
+atom='Sc'@ atomz=21@ discenter=1.312820*2/0.529177@    alat=10.0/0.529177@ \
+pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@   \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Ti2="  \
+atom='Ti'@ atomz=22@ discenter=0.948721*2/0.529177@    alat=10.0/0.529177@ \
+pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+V2="  \
+atom='V'@ atomz=23@ discenter=0.870123*2/0.529177@    alat=10.0/0.529177@ \
+pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Cr2=" \
+atom='Cr'@ atomz=24@ discenter=0.797734*2/0.529177@   alat=10.0/0.529177@ \
+pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Mn2=" \
+atom='Mn'@ atomz=25@ discenter=0.824049*2/0.529177@   alat=10.0/0.529177@ \
+pz='PZ=3.9,3.9'@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+
+jobmoldist  -0.2,-0.3,-0.4, fsmom=2@ rstar=0.9@ $Ti2 &
+jobmoldist  -0.1,0,0.1,     fsmom=2@ rstar=0.9@ $Ti2 &
+jobmoldist   0.2,0.3,0.4,   fsmom=2@ rstar=0.9@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4, fsmom=4@ rstar=0.9@ $Ti2 &
+jobmoldist  -0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=0.9@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.9@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=1.0@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=2@ rstar=1.0@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=1.0@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.8@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=2@ rstar=0.8@ $Ti2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=0.8@ $Ti2 &
+
+jobmoldist  -0.2,-0.3,-0.4, fsmom=2@ rstar=0.9@ $V2 &
+jobmoldist  -0.1,0,0.1,     fsmom=2@ rstar=0.9@ $V2 &
+jobmoldist   0.2,0.3,0.4,   fsmom=2@ rstar=0.9@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4, fsmom=4@ rstar=0.9@ $V2 &
+jobmoldist  -0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=0.9@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.9@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=1.0@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=2@ rstar=1.0@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=1.0@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.8@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=2@ rstar=0.8@ $V2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,0,0.1,0.2,0.3,0.4,   fsmom=4@ rstar=0.8@ $V2 &
+

@@ -1,0 +1,53 @@
+#!/bin/bash
+echo $0 $@
+#if [ $#  != 3 ] || [ $2 != "-np" ]; then
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo "An example of usage: job_tdos si -np 4 [options for lmf]"
+  echo "   For example, [options for lmf] is ' -vnspin=2 -vso=1 -vnk1=10 -vnk2=10 -vnk3=10'"
+  exit
+else
+  MPI_SIZE=$3
+fi
+MATERIAL=$1
+n=$0
+nfpgw=${n%/*}
+
+source $nfpgw/run_arg #this must be after all input arguments are processed
+#mpirun -np $MPI_SIZE $lmdir/lmf-MPIK $MATERIAL --tdos    |tee llmf_tdos
+
+# --emaxdos: maximum of dos plot in Ry.
+# --ndos: division for plot
+
+run_arg '---' $MPI_SIZE $nfpgw /lmf-MPIK llmf_tdos $MATERIAL --tdos -emax=20.0 -ndos=2000 ${@:4:($#-2)}
+num=`head -2 dos.tot.$MATERIAL |tail -n 1|wc -w`
+
+ufileg=tdos.${MATERIAL}.glt
+echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
+echo set title \"Total DOS\" >> ${ufileg}
+echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
+echo set ylabel \" number of states/\(cell Ry\)\" >> ${ufileg}
+
+if [ $num == '3' ]; then
+    echo 'spin=2'
+    echo set yrange [-50:50] >> ${ufileg}
+    cat <<EOF >>${ufileg}
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l, '' u (\$1*13.605):(-\$3) w l
+EOF
+else
+    echo 'spin=1'
+    echo set yrange [0:50] >> ${ufileg}
+    cat <<EOF >>${ufileg}
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l
+EOF
+fi
+
+if [ ! `echo ${@:4:($#-2)}|grep -o NoGnuplot` ] ; then
+    gnuplot -persist ${ufileg}
+fi
+
+echo To repeat, gnuplot -persist ${ufileg}
+echo Change BZ_DOS to change plotting range of DOS.
+exit
+
+
+

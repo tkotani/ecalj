@@ -1,0 +1,119 @@
+#!/bin/csh -f
+# extract-lines is a shell script to extract lines in a file
+# occuring at the nth occurence of a beginning string
+# including all lines until an ending string is found
+#
+# Invoke with:
+#   extract-lines begstr endstr n filename
+#
+
+set flist
+
+while (`echo $1 | sed -e 's/\(.\).*/\1/' `  ==  "-")
+  set arg1 = $1; shift
+
+  switch ($arg1)
+    case "--quiet":
+      set quiet
+      breaksw
+
+    case "--gzip":
+    case "--gz":
+      set gzip
+      breaksw
+
+    case "--flist=*":
+      set flist=`echo $arg1 | sed s/--flist=//`
+      breaksw
+
+    case "--n=*":
+      set nlines=`echo $arg1 | sed s/--n=//`
+      breaksw
+
+    default:
+      echo unrecognized switch $arg1
+      goto usage
+  endsw
+end
+
+if ($?nlines == 0 && $#argv != 4  || $?nlines == 1 && $#argv != 3) goto usage
+
+set begstr = "$1"
+shift
+if ($?nlines == 0) then
+  set endstr = "$1"
+  shift
+endif
+set nseek = "$1"
+shift
+set fn = "$1"
+
+# Command to send file to stdout
+set catcmd = cat
+if ($?gzip) then
+  set catcmd = zcat
+  $catcmd $fn >&/dev/null
+  if ($status != 0) then
+    echo extract-lines : file $fn is not in gzip format
+    exit 1
+  endif
+endif
+
+# noccur =  number of occurrences of begstr actually available
+@ noccur = `$catcmd $fn | awk -v begstr="$begstr" '{if (index($0,begstr)>0) n+=1;} END {print n}'` 
+
+# nseek < 0 => 
+if ($nseek < 0) then
+#    set k = `grep "$begstr" $fn | wc | awk '{print $1}'`
+#    @ nseek = `grep "$begstr" $fn | wc | awk '{print $1}'` + $nseek + 1
+     @ nseek = $noccur + $nseek + 1
+endif
+
+# exit if nseek does not fall between 1 and the number of occurrences actually available
+if ( "$noccur" < "$nseek" || "$nseek" < 1 ) exit 1
+
+# --- awk command, first form ---
+if ($?nlines == 0) then
+
+# ... count number of variables
+  set astrn = 'BEGIN {n = 0}'
+  set astrn = "$astrn /$begstr/,/$endstr/"
+
+# this expression determines when to print or not:
+# ((n == nseek || nseek == 0) && (! quiet || (index($0,begstr)==0) && (index($0,endstr)==0)))
+
+ $catcmd $fn | awk -v begstr="$begstr" -v endstr="$endstr" -v nseek=$nseek -v quiet=$?quiet -v "flist=$flist" "$astrn"' {if (index($0,begstr)>0) n+=1; if ((n == nseek || nseek == 0) && (! quiet || (index($0,begstr)==0) && (index($0,endstr)==0))) {if (length(flist)>0) print flist; else print}}'
+
+# --- awk command, second form ---
+else
+
+ $catcmd $fn | awk -v begstr="$begstr" -v nseek=$nseek -v quiet=$?quiet -vnlines=$nlines -v "flist=$flist" ' {if (index($0,begstr)>0) n+=1; if ((n == nseek || nseek == 0) && (! quiet || (index($0,begstr)==0) )) {nl += 1 ; if (nl <= nlines || nlines == 0) { if (length(flist)>0) print flist; else print}}}'
+
+endif
+
+
+exit 0
+usage:
+echo "usage:"
+echo "       extract-lines [--switches] begstr endstr n filename"
+echo "       extract-lines [--switches] --n=# begstr n filename"
+echo " "
+echo "       Extracts lines in file 'filename' following a beginning string 'begstr'"
+echo "       and an ending string 'endstr' (first form)"
+echo " "
+echo "       Extracts lines in file 'filename' following a beginning string 'begstr';"
+echo "       '#' lines are printed (second form)"
+echo " "
+echo "       If n is zero all lines sandwiched between 'begstr' and 'endstr'"
+echo "         are printed."
+echo "       If n is positive lines only lines sandwiched between the nth occurence"
+echo "         are printed."
+echo "       If n is negative lines only lines sandwiched between the nth occurence"
+echo "         from the end are printed."
+echo "             "
+echo "       Switches:"
+echo "       --gzip      file is gzipped"
+echo "       --quiet     suppresses printing of the beginning and ending strings"
+echo "             "
+
+exit

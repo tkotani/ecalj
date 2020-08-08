@@ -1,0 +1,40 @@
+#!/bin/bash
+
+Fe2=" \
+atom='Fe'@ atomz=26@ discenter=1.005793*2/0.529177@   alat=10.0/0.529177@ \
+pz=''@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Co2=" \
+atom='Co'@ atomz=27@ discenter=0.992204*2/0.529177@   alat=10.0/0.529177@ \
+pz=''@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Ni2=" \
+atom='Ni'@ atomz=28@ discenter=1.063304*2/0.529177@   alat=10.0/0.529177@ \
+pz=''@ p=''@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Cu2=" \
+atom='Cu'@ atomz=29@ discenter=1.125033*2/0.529177@   alat=10.0/0.529177@ \
+pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+Zn2=" \
+atom='Zn'@ atomz=30@ discenter=1.604071*2/0.529177@   alat=10.0/0.529177@ \
+pz='PZ=0,0,13.9'@ p='P=0,0,4.2'@ eh=-0.1@ eh2=-2@ xcfunc=103@  \
+bzw=0.001@ mmom='MMOM=0 0 0 0'@ path=''@"
+
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=1.0@ $Cu2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=1.0@ $Cu2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=0.9@ $Cu2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.9@ $Cu2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=0.8@ $Cu2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.8@ $Cu2 &
+
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=1.0@ $Zn2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=1.0@ $Zn2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=0.9@ $Zn2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.9@ $Zn2 &
+jobmoldist  -0.2,-0.3,-0.4,-0.1,  fsmom=0@ rstar=0.8@ $Zn2 &
+jobmoldist   0,0.1,0.2,0.3,0.4,   fsmom=0@ rstar=0.8@ $Zn2 &

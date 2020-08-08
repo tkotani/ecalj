@@ -1,0 +1,42 @@
+HEADER  Fe test spin pol, f-orbitals for cls and mull
+TESTLMF lmfa fe
+        lmf --rs=0 fe 
+TESTCLS lmfa fe >/dev/null
+        lmf --rs=0 --cls:1,1,2 --mull:mode=2 -vnk=6 -vnit=1 fe
+        mv dos.fe tdos.fe
+        lmdos --cls --dos:wtfn=cls:npts=1001:window=-.7,.8 -vnk=6 fe
+        mv dos.fe dos-cls.fe
+        lmdos --nosym --mull:mode=2 --dos:npts=1001:window=-.7,.8 -vnk=6 fe
+        mv dos.fe dos-mull.fe
+PLOTCLS echo  5 10 -0.7 .8 |  pldos -fplot -lst="1,3,5" -lst2="2,4,6" dos-cls.fe
+# This one generates total DOS, highlighting e2 in red
+# PLOTMUL echo 40 7 -9 10 | pldos -ef=0 -escl=13.6 -fplot '-lst=13,17' -ref:fn=tdos.fe:chan=1,2:scale dos-mull.fe
+PLOTMUL echo 20 10 -0.7 .8 | pldos -fplot -lst="1:7:2,19:31:2;9,11,15;13,17" -lst2 dos-mull.fe
+CLEAN   rm -f atm.fe ctrl.fe dos-mull.fe moms.fe wkp.fe cls.fe dos-cls.fe log.fe out.lmf-dos.fe
+% const verb=30 so=f
+VERS    LMF-6.10 LMASA-6.10 LM:7 FP:7
+IO      SHOW=F HELP=F VERBOS={verb} WKP=F
+CONST   gmax=13 nit=100 nmix=3 beta=0.5 conv=1d-4 convc=1d-4
+        a=2.87/0.529177 nk=10 Rf=0.99 R=Rf*sqrt(3)*a/4
+STRUC   NBAS=1 NSPEC=1 NL=5
+        ALAT=a PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
+% const nsp=2
+OPTIONS NSPIN={nsp} REL=T XCFUN=2 SO={so} 
+        PFLOAT=0
+#SYMGRP  i*i
+SYMGRP  find
+BZ      NKABC=nk TETRA=1 METAL=3 EF0=0.058 DELEF=0.01 N=1 W=0.02
+        NPTS=1001 BZJOB=1 DOS=-.7 .8 SAVDOS=T EFMAX=5 NEVMX=34
+SPEC    ATOM=Fe Z=26 R=R LMX=3 LMXA=3 KMXA=4 LFOCA=1 A=0.03
+        RSMH=R/2 R/2 R/2 R/2 EH=-0.1 -0.1 -0.1 -0.1
+        RSMH2=R/2 R/2 R/2 EH2=-1.1 -1.1 -1.1
+        Q=2 0 6 MMOM=0 0 -2.2
+SITE    ATOM=Fe POS= 0 0 0
+EWALD   TOL=1D-8 NKDMX=1999 NKRMX=1999
+# for version 7
+ITER    MIX=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc NIT=nit
+MIX     MODE=A6,k=nmix,b=beta,elind=-1 CONV=conv CONVC=convc
+% const pwmode=0 pwemin=1 pwemax=3 oveps=0
+HAM     OPTIONS NSPIN=2 REL=T XCFUN=2 SO={so} GMAX=gmax
+        PWMODE={pwmode} PWEMIN={pwemin} PWEMAX={pwemax} OVEPS={oveps}
+START   NIT=nit

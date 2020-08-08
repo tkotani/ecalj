@@ -1,0 +1,2618 @@
+# Segment of input file containing material- class-dependent properties
+# .. As INPUT, require
+#   nelt=2 for binary or 3 for ternary
+#   strings eltc and elta (and eltb if nelt=3)
+#   OPTIONALLY compound name (see below)
+#
+# .. File GENERATES for each of nelt elements {c,a,b}
+#    Z{c,a,b}  atomic number
+#    (following needed for OFP)
+#      q{c,a,b} number of free atom p el.
+#      tps{c,a,b}, tpp{c,a,b}, tpd{c,a,b} :
+#        tpd=0 => hi d, no 2pan
+#        tpd=1 => lo d, no 2pan
+#        tpd=2 => hi d, pan 1 + lo d pan2
+#        tpd=3 => extended local orbitals
+#        tpd=4 => lo d, pan 1 + hi d pan2
+#
+# .. OPTIONALLY if cmpd is defined, the following may generated:
+#    azb  equil. lattice in zb structure
+#    awz  equil. lattice in wz structure
+#    basis-specifying strings  basc, basa
+#    (following apply only to OFP)
+#      tpan
+#   MAY generate: lmbe[ca] lmae[ca]
+# .. ChangeLog
+# 16 Dec 04  New basis for GdP,GdAs,CaO
+#  6 Dec 04  New basis for C,SiC,MgO
+#  6 Nov 04  New basis for HgTe,CdS,CdTe,ZnS,ZnTe,ZnSe,AlSb,ZnO,GaN,InN,ScN,SrO,AlN
+# 10 Oct 04  New basis for InP,Ge,InAs,GaSb,AlAs
+# 27 Sep 04  New basis for CaO, new basis for Si
+# 11 Sep 04  New basis for CeO2
+#  6 Sep 04  New bigbas for InSb,GaAs with extended local orbitals
+# 10 Jun 04  New NiMnSb,ZnTe
+#  9 May 04  bigbas=6 for GaP
+# 21 Apr 04  adjusted gwbas=f basis for InN. bigbas=6 for AlSb
+# 12 Feb 04  new basis for GdN,GdP,GdAs
+#  6 Feb 04  new basis for SrO,NiAs,ScN; revised basis for MnAs
+#  1 Feb 04  new basis for AlP
+#  4 Jan 04  new basis for ErAs
+#  4 Jan 04  new basis for InP
+#  2 Dec 03  new basis for GaN
+# 28 Nov 03  new basis for AlAs,AlN,GaAs
+#  6 Nov 03  new basis for AlN
+# 25 Sep 03  bigbas=5 for Si,GaSb,InSb,GaAs,AlSb,GaP
+# 19 Sep 03  bigbas=4 w/ 2nd f orbitals for Si,InP,ZnS,ZnSe,GaN,GaAs,CdS,InSb,InN,GaP,AlSb
+# 15 Sep 03  bigbas=3 w/ g orbitals for GaAs,ZnS,ZnSe,InSb,Si,CdS,InP
+# 26 Aug 03  gwbas for Alsb
+# 22 Aug 03  gwbas for InAs
+# 18 Aug 03  gwbas and/or bigbas=2 for CdS,ZnSe,ZnS,InP
+#  8 Aug 03  New bases for ZnS, ZnSe bigbas=2 for HgTe
+#  7 Aug 03  New basis for HgTe
+#  6 Aug 03  Reworked basis for InN; gwbas for Ge
+#  5 Aug 03  gwbas for GaAs; extra basis choices for Si
+#  1 Aug 03  tpada=2 for GaSb
+# 31 Jul 03  gwbas for GaP
+# 30 Jul 03  bigbas and tpdc=4 for CdO
+# 29 Jul 03  gwbas for ZnO
+# 24 Jul 03  bigbas=2 for InN
+# 23 Jul 03  bigbas=2 for GaP, tpda=2 for InSb
+# 22 Jul 03  bigbas=3 for GaN and GaAs
+# 21 Jul 03  bigbas=2 for AlSb and for GaN
+# 19 Jul 03  gwbas for GaN, to avoid interpolation problems in GW bands
+# 18 Jul 03  new larger basis sets for C, to test conv. w.r.t. basis
+# 17 Jul 03  new gwbas for MgO, to avoid interpolation problems in GW bands
+#            new gwbas for SiC, to avoid interpolation problems in GW bands
+# 15 Jul 03  tppc=2 for ZnO
+#  8 Jul 03  new gwbas for diamond, to avoid interpolation problems in GW bands
+#            tpdc=4 basis for CdTe
+#            tpda=2 basis for AlSb
+#
+#---------------- Macro pval(tp,default-p,low-p,high-p) select which P valence ----------------
+#       tp=0    tp=1    tp=2    tp=3    tp=4
+#  P     p0      plo     phi     phi     plo
+#  PZ     0      0       plo  10+plo     phi
+% macro pval(tp,p0,plo,phi) tp==0?p0:((tp==1|tp==4)?plo:((tp==2|tp==3)?phi:0))
+% macro ploc(tp,p0,plo,phi) tp<2?0:(tp==2?plo:(tp==3?10+plo:(tp==4?phi:0)))
+#---------------- Default values for basis constants ----------------
+% ifdef gwbas
+%   const ehmax=-.3
+% else
+%   const ehmax=-.1
+% endif
+% const tpsc=0 tppc=0 tpdc=0 tpfc=0 tpsa=0 tppa=0 tpda=0 lfc=0 lfa=0 lgc=0 lga=0
+#---------------- Compound-dependent constants ----------------
+% ifdef cmpd=='C' | cmpd=='CC'
+%   const tpan=f metal=f azb=6.74
+%   char  strnc          "P={pval(tpsc,2.75,2.75,2.75)},{pval(tppc,2.60,2.60,2.60)},{pval(tpdc,3.25,3.25,3.25)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,2.75,2.75,3.50)},{ploc(tppc,2.60,2.60,3.50)},{ploc(tpdc,0,0,0)} IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.0,0.8,0.8,{lfc?0.8:0},{lgc?0.8:0} EH={-0.5},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.0,{bigbas==11?0:0.8},{bigbas==11?0:0.8} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  base "RSMH=1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd gwbas
+%   char  basc "RSMH=1,0.8,0.8,0.8 EH=-.3,-.3,-.3,-.3"
+%   char  base "RSMH=1.6,1.6,1.6 EH=-.5,-.5,-.5"
+%   ifdef f
+%   elseifd bigbas==3
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.5,-.3,-.3,-.3 RSMH2=0.8,0.8,0.8 EH2=-1.2,-1.2,-1.2"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.5,-.5,-.5,-.5"
+%     char  strnec "LMX=3"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.5,-.3,-.3,-.3 RSMH2=0.8,0.8,0.8 EH2=-1.2,-1.2,-1.2"
+%   elseifd bigbas
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.5,-.3,-.3,-.3 RSMH2=0.8,0.8 EH2=-1.2,-1.2"
+%   endif
+%   char  basa "{basc}"
+%   else
+%   char  basc "RSMH=1,0.8,0.8,0.8 EH=-.1,-.1,-.1,-.1"
+%   char  base "RSMH=1.6,1.6,1.6 EH=-.1,-.1,-.1"
+%   ifdef f
+%   elseifd bigbas==3
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.1,-.1,-.1,-.1 RSMH2=0.8,0.8,0.8 EH2=-1.2,-1.2,-1.2"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%     char  strnec "LMX=3"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.1,-.1,-.1,-.1 RSMH2=0.8,0.8,0.8 EH2=-1.2,-1.2,-1.2"
+%     char  base "RSMH=1.6,1.6,1.6 EH=-.1,-.1,-.1"
+%   elseifd bigbas
+%     char  basc "RSMH=1,0.8,0.8,0.8 EH=-.1,-.1,-.1,-.1 RSMH2=0.8,0.8 EH2=-1.2,-1.2"
+%   endif
+%   char  basa "{basc}"
+%   endif
+% elseifd cmpd=='BeO'
+%   const tpan=t metal=f azb=7.0
+% elseifd cmpd=='MgO'
+%   const tpan=t metal=f azb=7.96 tpsc=2 tppc=2
+%   char  strnc "P={pval(tpsc,0,2.94,3.5)},{pval(tppc,0,2.93,3.5)},3.3,4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.94,3.5)},{ploc(tppc,0,2.93,3.5)},{ploc(tpdc,0,0,4.15)} IDMOD=0,0,1,1,1"
+%   char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   ifdef tpsc==2 | tpsc==3
+%   char  strnc "{strnc} Q=0,0,0"
+%   endif
+%   ifdef tpsc+tppc>0
+%     const ngd=24
+%     char  strnc "{strnc} RS3=.80"
+%   else
+%     const ngd=20
+%   endif
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.6,{tppc==2?.8:{bigbas==11?0:1.6}},1.6 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  basa "RSMH=.85,.85,.85,{lfa?.85:0},{lga?.85:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=.85,.85,.85 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.5,1.5,1.5*0,1.5*0 EH={ehmax-.2},{ehmax-.2},{ehmax-.2},{ehmax-.2}"
+%   elseifd bigbas&(tppc==1|tppc==2|tppc==4)
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.6,0.8,1.6 EH2={ehmax-.8},-1.5,{ehmax-.8}"
+%     char  basa "RSMH=.85,.85,.85,.85 EH=-.5,{ehmax},{ehmax},{ehmax} RSMH2=.85,.85 EH2={-.5-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5*0   EH=-.5,-.5,-.5"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8}"
+%     char  basa "RSMH=.85,.85,.85,.85 EH=-.5,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=.85,.85,.85 EH2={-.5-.8},{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5*0   EH=-.5,-.5,-.5"
+%   elseifd bigbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8}"
+%     char  basa "RSMH=.85,.85,.85,.85 EH=-.5,{ehmax},{ehmax},{ehmax} RSMH2=.85,.85 EH2={-.5-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5*0   EH=-.5,-.5,-.5"
+%   else
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=.85,1.0,1.6,1.6 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=2.2,2.2,2.2*0   EH={ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='CaO'
+%   const tpan=t metal=f azb=9.09 tppc=2 tpsc=2 ngd=21
+%   char  strnc "P={pval(tpsc,0,3.94,4.5)},{pval(tppc,0,3.93,4.5)},{tpdc==4?3.3:3.6},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,4.5)},{ploc(tppc,0,3.93,4.5)},{ploc(tpdc,0,0,4.15)} IDMOD=0,0,1,1,1"
+%   char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   ifdef tpsc==2 | tpsc==3
+%   char  strnc "{strnc} Q=0,0,0"
+%   endif
+%   ifdef tpsc+tppc>0
+%     const ngd=24
+%     char  strnc "{strnc} RS3=.80"
+%   else
+%     const ngd=20
+%   endif
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.3,1.3,1.3,{lfc?1.3:0},{lgc?1.3:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,{tppc==2?.8:{bigbas==11?0:1.3}},1.3 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  basa "RSMH=.85,.85,.85,{lfa?.85:0},{lga?.85:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=.85,.85,.85 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.5,1.5,1.5*0,1.5*0 EH={ehmax-.2},{ehmax-.2},{ehmax-.2},{ehmax-.2}"
+%   elseifd bigbas&(tppc==1|tppc==2|tppc==4)
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,{lgc?1.3:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,0.8,1.3 EH2={ehmax-.8},-1.5,{ehmax-.8}"
+%     char  basa "RSMH=.85,.85,.85,.85 EH=-.5,{ehmax},{ehmax},{ehmax} RSMH2=.85,.85 EH2={-.5-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5*0   EH=-.5,-.5,-.5"
+%   elseifd bigbas
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,{lgc?1.3:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8}"
+%     char  basa "RSMH=.85,.85,.85,.85 EH=-.5,{ehmax},{ehmax},{ehmax} RSMH2=.85,.85 EH2={-.5-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5*0   EH=-.5,-.5,-.5"
+%   else
+%     char  basc "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=.85,1.1,.85,.85 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=2.2,2.2,2.2*0   EH={ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='ZnO'
+#   lattice parameters taken from Usuda's paper
+#%   const tpan=f metal=f awz=3.242/.529 q=1.602 xwz=.024 tppc=0 tpsc=0
+#   a,q taken from LB: H.Schulz, K.H.Theimann, Sol. St. Comm. 32, 783 (1979)
+#   xwz was minimized for this q.  Usual parameter 'u=1-5/8*(1-x/2)'
+%   const tpan=f metal=f awz=3.253/.529 q=1.603 xwz=.0175 tppc=0 tpsc=0 gmax=10
+%   const azb=awz*sqrt(2)*(q/sqrt(8/3))^(1/3)
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=-1
+%     ifdef asa
+%     char  strnea "LMX={nl-1} IDXDN=1,1,1,3 P=0,0,0,4.15"
+%     endif
+%   endif
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,3.91,3.91,4.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,0,3.91,4.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,2.88,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.88,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+# %   ifdef tpdc==4
+# %     char  strnc "PZ=0,0,4.5"
+# %     cchar strnc tppc==2 "PZ=0,3.9,4.5" t "PZ=0,0,4.5"
+# %     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+# %   elseifd tppc==2
+# %     char strnc "PZ=0,3.9,0"
+# %   endif
+# %   char0 strna "P=0,0,3.20 IDMOD=0,0,1"
+%   ifdef f
+#   Patterned after bigbas11 in ZnS
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.5,1.5,0.90,{lfc?1.5:0},{lgc?1.5:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=0.80,0.85,0.85,{lfa?.85:0} EH={tpsa==3?ehmax:-.7},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=0.80,0.85,0.85 EH2={tpsa==3?ehmax-.8:-1.5},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd gwbas&bigbas
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.3,-.3,-.3,-.3     RSMH2=1.4,1.4,.85 EH2=-1,-1,-1"
+%     char  basa "RSMH=0.80,0.85,0.85,0.85 EH=-0.7,-.3,-.3,-.3 RSMH2=0.80,0.85,0 EH2=-1.5,-1.2,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.3,-.3,-.3,-.3"
+%   elseifd gwbas
+%     stop 1 'semi.mater abort : ZnO not set up for this gwbas'
+%   elseifd bigbas==2&tppc==2
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.1,-.1,-.3,-.1     RSMH2=1.4,.80,.85 EH2=-1,-3,-1"
+%     char  basa "RSMH=0.80,0.85,0.85,0.85 EH=-0.7,-.1,-.1,-.1 RSMH2=0.80,0.85,0.85 EH2=-1.5,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.1,-.1,-.3,-.1     RSMH2=1.4,1.4,.85 EH2=-1,-1,-1"
+%     char  basa "RSMH=0.80,0.85,0.85,0.85 EH=-0.7,-.1,-.1,-.1 RSMH2=0.80,0.85,0.85 EH2=-1.5,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.1,-.1,-.3,-.1     RSMH2=1.4,1.4,.85 EH2=-1,-1,-1"
+%     char  basa "RSMH=0.80,0.85,0.85,0.85 EH=-0.7,-.1,-.1,-.1 RSMH2=0.80,0.85,0 EH2=-1.5,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.6,-.1,-.4,-.1"
+%     char  basa "RSMH=0.80,0.85,0.85,0.85 EH=-1.0,-.1,-.1,-.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='CdO'
+%   const tpan=t metal=2 azb=8.92 tpsc=2 tppc=2 ngd=24 gmax=10
+%   char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.94,5.3)},{pval(tpdc,4.91,4.91,5.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.94,6.5)},{ploc(tpdc,0,4.91,5.4)} IDMOD=0,1,0,1,1"
+%   char  strnc "{strnc} RS3=.85"
+%   char  strna "P={pval(tpsa,0,2.88,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.88,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+# %   ifdef tpdc==4
+# %     char  strnc "PZ=0,0,5.4 IDMOD=0,0,1"
+# %     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+# %   endif
+%   ifdef f
+#   Patterned after bigbas11 in ZnO
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.4,1.4,0.85,{lfc?1.4:0},{lgc?1.4:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.4,0,0.85 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.4,1.4,0.85 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=0.88,0.88,0.88,{lfa?.88:0} EH={tpsa==3?ehmax:-.7},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=0.88,0.88,0.88 EH2={tpsa==3?ehmax-.8:-1.5},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.4,1.4,1.4,1.4*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd gwbas&bigbas
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.3,-.3,-.3,-.3     RSMH2=1.4,1.4,.85 EH2=-1,-1,-1"
+%     char  basa "RSMH=0.88,0.88,0.88,0.88 EH=-.5,-.3,-.3,-.3  RSMH2=0.88,0.88,0 EH2=-1.5,-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd gwbas
+%     stop 1 'semi.mater abort : CdO not set up for this gwbas'
+%   elseifd bigbas
+%     char  basc "RSMH=1.4,1.4,0.85,1.4 EH=-.1,-.1,-.3,-.1     RSMH2=1.4,1.4,.85 EH2=-1,-1,-1"
+%     char  basa "RSMH=0.88,0.88,0.88,0.88 EH=-.5,-.3,-.1,-.1  RSMH2=0.88,0.88,0 EH2=-1.5,-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4  EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=2.0,2.0,0.85,2.0 EH=-.1,-.1,-.3,-.1"
+%     char  basa "RSMH=0.88,0.88,0.88,0.88 EH=-.3,-.3,-.1,-.1"
+%     char  base "RSMH=2.0,2.0,2.0     EH=-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='BN'
+%   const tpan=f metal=f azb=3.615/.529
+% elseifd cmpd=='AlN'
+%   const azb=4.38/.529
+%   const tpan=f metal=f tppc=2 awz=3.111/.529 q=1.601 xwz=.021 gmax=10
+#%   char  linkc "0 0 0 -3 -3 -1.2"  linka "0 0 0 -1 -1.3 -1.2"
+#%   char  strnc "P=0,0,3.25 IDMOD=0,0,1"
+#%   char  strna "P=0,0,3.25 IDMOD=0,0,1"
+%   char  strnc          "P={pval(tpsc,0,2.95,3.5)},{pval(tppc,0,2.95,3.5)},{pval(tpdc,3.3,3.3,3.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.95,4.5)},{ploc(tppc,0,2.95,4.5)},{ploc(tpdc,0.0,0.0,4.4)}"
+%   char  strnc "{strnc} IDMOD=0,0,1,1,1"
+%   char  strna "         P={pval(tpsa,0,2.83,2.83)},{pval(tppa,0,2.70,2.70)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   char  strna "{strna} IDMOD=0,0,1,1,1"
+%   const ngd=30
+# %   char  strnc "P=0,0,3.30 IDMOD=0,0,1"
+# %   char  strna "P=0,2.7,3.25 IDMOD=0,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.3,1.3,1.3,{lfc?1.3:0},{lgc?1.3:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,{bigbas==11?0:1.3},{bigbas==11?0:1.3} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  basa "RSMH=1,1,1,{lfa?1:0},{lga?1:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.4,-1.1,-1.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%     char  strna "P=0,0,3.30 PZ=3.5,3.5,0 IDMOD=0,0,1"
+%   elseifd bigbas==5
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1,-1.1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1,1 EH2=-1.4,-1.1,-1.1,-1.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%     char  strna "P=0,0,3.30 PZ=3.5,3.5,0 IDMOD=0,0,1"
+%   elseifd bigbas==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1,-1.1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1,1 EH2=-1.4,-1.1,-1.1,-1.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax} IDMOD=1,1,1"
+%   elseifd bigbas==3
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.4,-1.1,-1.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,{ehmax},{ehmax},{ehmax} RSMH2=0,1 EH2=-1.4,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.3,{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,0,0,0 EH2=-1"
+%     char  basa "RSMH=.9,.9,.9,.9 EH=-.7,{ehmax},{ehmax},{ehmax} RSMH2=0,.9 EH2=-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.5,{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=.9,.9,.9,.9 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='GaN'
+%   const azb=4.52/.529
+%   const metal=f awz=3.190/.529 q=1.627 xwz=.006 gmax=12 elind=-.5
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=1
+%   endif
+%   ifdef ofp
+%     char  strnc "CLINK=0 0 0 -1.5 -1.5 -.8" strna "CLINK=0 0 0 -1 0 -1.2"
+%     const tppc=2 tpsc=0 tpan=f
+%   endif
+%   ifdef bigbas>10
+%     char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.91,5.5)},{pval(tpdc,4.3,3.91,4.4)},4.15,5.12"
+%     char  strnc "{strnc} PZ={ploc(tpsc,0,3.91,5.5)},{ploc(tppc,0,3.91,5.5)},{ploc(tpdc,4.3,3.91,4.4)}"
+%     char  strnc "{strnc} IDMOD=0,0,{tpdc==0?1:0},1,1"
+%     char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%     char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   elseifd tpdc==1
+%     char  strnc "P=0,0,3.9"
+%   elseifd tpdc==2
+%     char  strnc "P=0,0,4.4 PZ=0,0,3.9"
+%     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+%   elseifd tpdc==4
+%     char  strnc "PZ=0,0,4.4 P=0,0,3.9"
+%     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+%   else
+%     char  strnc "P=0,0,4.25 IDMOD=0,0,1"
+%     stop 1 Ga 4d is perilous in GaN!.  Delete this line if you really want it.
+%   endif
+%   char0 strna "P=0,0,3.20 IDMOD=0,0,1"
+%   ifdef tpdc>0
+%     const ngd=40
+%   else
+%     const ngd=16
+%   endif
+%   ifdef bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.3,1.3,1.3,{lfc?1.3:0},{lgc?1.3:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.3,0,{tpdc==3?0:0.75} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.3,1.3,{tpdc==3?1.3:0.75} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     endif
+%     char  basa "RSMH=1,1,1,{lfa?1:0},{lga?1:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd lmf & gwbas
+%   ifdef f
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,0.7 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "P=0,0,3.9 PZ=5.5,0*5.5,4.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,4.5 PZ=5.5,0*5.5,3.9"
+%     endif
+%     char  strna "P=0,0,3.30 PZ=3.5,3.5,0 IDMOD=0,0,1"
+%   elseifd bigbas==5
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,0.7,1.3 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "P=0,0,3.9 PZ=5.5,0*5.5,4.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,4.5 PZ=5.5,0*5.5,3.9"
+%     endif
+%     char  strna "P=0,0,3.30 PZ=3.5,3.5,0 IDMOD=0,0,1"
+%   elseifd bigbas==4 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,0.7,1.3 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==3 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,0.7 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.2,-.3 RSMH2=1.3,1.3,0.7 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas & tpdc==4
+%     char  basc "RSMH=1.3,1.3,0.7,1.3 EH=-.3,-.3,-.5,-.3 RSMH2=1.3,1.3,0 EH2=-1,-1,-2"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas & tpdc==1
+%     char  basc "RSMH=1.3,1.3,.70,1.3 EH=-.3,-.3,-.3,-.3 RSMH2=1.3,1.3,.70 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.3,-.3,-.3,-.3"
+%   elseifd tpdc==1
+%     char  basc "RSMH=1.3,1.3,.70,1.3 EH=-.3,-.3,-.7,-.3"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.3,-.3,-.3,-.3"
+%   else
+%     stop 1 'basis not built for this case'
+%   endif
+%   elseifd lmf
+%   ifdef f
+%   elseifd bigbas==4 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.1,-.1,-.2,-.1,-.1 RSMH2=1.3,1.3,0.7,1.3 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1,1,1,1 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==3 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.01,-.01,-.01,-.01 RSMH2=1.3,1.3,0.7 EH2=-1,-1,-.5"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.7,-.01,-.01,-.01 RSMH2=1,1,1 EH2=-2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.01,-.01,-.01,-.01"
+%   elseifd bigbas==2 & tpdc==4
+%     char  basc "RSMH=1.3,1.3,1.3,1.3 EH=-.01,-.01,-.01,-.01 RSMH2=1.3,1.3,0.7 EH2=-1,-1,-.5"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.01,-.01,-.01 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.01,-.01,-.01,-.01"
+%   elseifd bigbas & tpdc==4
+%     char  basc "RSMH=1.3,1.3,0.7,1.3 EH=-.01,-.01,-.5,-.01 RSMH2=1.3,1.3,0 EH2=-1,-1,-2"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.01,-.01,-.01 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.01,-.01,-.01,-.01"
+%   elseifd bigbas & tpdc==1
+%     char  basc "RSMH=1.3,1.3,.70,1.3 EH=-.01,-.01,-.01,-.01 RSMH2=1.3,1.3,.70 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.01,-.01,-.01 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.01,-.01,-.01,-.01"
+%   elseifd bigbas&tpdc>1
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     stop 1 'basis not built for this case'
+%   elseifd tpdc>1
+%     stop 1 'basis not built for this case'
+%   elseifd tpdc==1
+%     char  basc "RSMH=1.3,1.3,.70,1.3 EH=-.01,-.01,-.7,-.01"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.01,-.01,-.01"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.01,-.01,-.01,-.01"
+%   else
+%     stop 1 'basis not built for this case'
+%   endif
+%   endif
+% elseifd cmpd=='InN'
+%   const azb=4.98/.529
+%   const metal=f awz=3.533/.529 q=1.611 xwz=.018
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=1
+%   endif
+%   ifdef ofp
+%     char  strnc "CLINK=0 0 0 -1.5 -1.8 -.8"  strna "CLINK=0 0 0 -1 -3 -1.2"
+%     const tppc=2 tpsc=0 tpan=f
+%   else
+%   ifdef bigbas>10
+%     char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.93,6.5)},{pval(tpdc,4.93,4.93,5.4)},4.15,5.12"
+%     char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.93,6.5)},{ploc(tpdc,0,4.93,5.4)} IDMOD=0,0,0,1,1"
+%     char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%     char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   elseifd tpdc==1
+%     const elind=-.5
+%     char  strnc "P=0,0,4.9"
+%   elseifd tpdc==2
+%     char  strnc "P=0,0,5.25 PZ=0,0,4.9"
+%     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+%   elseifd tpdc==4
+%     char  strnc "PZ=0,0,5.4 P=0,0,4.9"
+%     char  strna "P=0,0,3.20 PZ=3.5 IDMOD=0,0,1"
+%   else
+%     char  strnc "P=0,0,5.25 IDMOD=0,0,1"
+%     stop 1 In 5d is perilous in InN!.  Delete this line if you really want it.
+%   endif
+%   char0 strna "P=0,0,3.20 IDMOD=0,0,1"
+%   const gmax=10
+%   ifdef tpdc>0
+%     const ngd=40
+%   else
+%     const ngd=16
+%   endif
+%   ifdef f
+#   Patterned after GaN bigbas11
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,1.7,{lfc?1.7:0},{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.3,0,{tpdc==3?0:.85} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.95"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.7,1.7,{tpdc==3?1.7:.85} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     endif
+%     char  basa "RSMH=1,1,1,{lfa?1:0},{lga?1:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4 & tpdc==4 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7,1.7 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.7,1.7,0.8,1.7 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1,1,1,1 EH2=-1,-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas==3 & tpdc==4 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7,1.7 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1,1,1 EH2=-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas==2 & tpdc==4 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.3,-.3,-.3,-.3 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.3,-.3,-.3,-.3 RSMH2=1,1,1 EH2=-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas & tpdc==4 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.3,-.3,-.3,-.3 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.3,-.3,-.3,-.3 RSMH2=1,1 EH2=-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas & tpdc==1 & gwbas
+%     char  basc "RSMH=1.7,1.7,0.8,1.7 EH=-.3,-.3,-.3,-.3 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd tpdc==1 & gwbas
+%     char  basc "RSMH=1.7,1.7,.80,1.7 EH=-.3,-.3,-.7,-.3"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.3,-.3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas==4 & tpdc==4
+%     char  basc "RSMH=1.7,1.7,1.7,1.7,1.7 EH=-.1,-.1,-.3,-.1,-.1 RSMH2=1.7,1.7,0.8,1.7 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.3,-.1,-.1,-.1,-.1 RSMH2=1,1,1,1 EH2=-1,-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==3 & tpdc==4
+%     char  basc "RSMH=1.7,1.7,1.7,1.7,1.7 EH=-.1,-.1,-.3,-.1,-.1 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1,1 EH=-.3,-.1,-.1,-.1,-.1 RSMH2=1,1,1 EH2=-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2 & tpdc==4
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.3,-.1 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.3,-.1,-.1,-.1 RSMH2=1,1,1 EH2=-1,-1,-1"
+%     char strnea "LMX=3"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas & tpdc==4
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.3,-.1 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.3,-.1,-.1,-.1 RSMH2=1,1 EH2=-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas & tpdc==1
+%     char  basc "RSMH=1.7,1.7,0.8,1.7 EH=-.1,-.1,-.3,-.1 RSMH2=1.7,1.7,0.8 EH2=-1,-1,-1"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.1,-.1 RSMH2=0,1 EH2=-1,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc==1
+%     char  basc "RSMH=1.7,1.7,.80,1.7 EH=-.1,-.1,-.7,-.3"
+%     char  basa "RSMH=1,1,1,1 EH=-.7,-.3,-.1,-.1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   else
+%     stop 1 'basis not built for this case'
+%   endif
+%   endif
+% elseifd cmpd=='ScN'
+%   const tpan=t metal=f azb=4.44/.529 gmax=9
+%     char  strnc "P={pval(tpsc,0,3.94,4.3)},{pval(tppc,0,3.93,4.3)},{pval(tpdc,3.3,3.3,4.4)},4.15,5.12"
+%     char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,3.3,3.3,4.4)}"
+%     char  strnc "{strnc} IDMOD=0,0,1,1,1"
+%     ifdef tpsc==2|tpsc==3
+%       char  strnc "{strnc} Q=0,0,3"
+%     endif
+%     char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%     char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=0.9,0.8,1.1,{lfc?1.1:0},{lgc?1.1:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=0.9,{bigbas==11?0:0.8},1.1 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  basa "RSMH=1,1,1,{lfa?1:0},{lga?1:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   g orbitals to Sc, f on N, local orbitals
+%   elseifd bigbas==6
+%     char basc "RSMH=0.9,0.80,1.1,1.1,1.1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=0.9,0.80,1.1 EH2=-1.8,-1.8,{ehmax-.9}"
+%     char strnc "P=4.5 4.3 3.3  PZ=3.9,3.9 IDMOD=0 1 1 1 1 Q=0 0 3"
+%     char basa "RSMH=1.0,1.0,1.0,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 PZ=0,3.9 IDMOD=0 0 1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   f orbitals on Sc, double spd on N
+%   elseifd bigbas==2
+%     char basc "RSMH=0.9,0.80,1.1,1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=0.9,0.80,1.1 EH2={ehmax-.9},-1.5,{ehmax-.9}"
+%     char strnc "P=4.5 4.3 3.3  PZ=0,3.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1.0,1.0,1.0 EH={ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   Double spd on Sc, double sp on N
+%   elseifd bigbas>1
+%     stop 1 "basis not defined"
+%   elseifd bigbas
+%     char basc "RSMH=0.9,0.80,1.1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=0.9,0.80,1.1 EH2={ehmax-.9},-1.5,{ehmax-.9}"
+%     char strnc "P=4.5 4.3 3.3  PZ=0,3.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1.0,1.0,1.0 EH={ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1.0,1.0,0.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char basc "RSMH=0.9,0.80,1.1 EH=-0.7,-1.5,{ehmax},{ehmax}"
+%     char strnc "P=4.5 4.3 3.3  PZ=0,3.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1.2,1.1,1.6 EH=-0.9,{ehmax},{ehmax}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+%     char  base "RSMH=1.2,1.2,1.2*0,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='Si' | cmpd=='SiSi'
+%   const tpan=f metal=f azb=10.26
+#   ifdef ofp
+%   char  linkc "0 0 0 -1.4 -2.0 -1.3" linka "0 0 0 -1.4 -2.0 -1.3"
+#   endif
+%   char  strnc          "P={pval(tpsc,3.75,2.95,3.5)},{pval(tppc,3.55,2.95,3.55)},{pval(tpdc,3.25,0,3.20)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.95,4.5)},{ploc(tppc,0,2.95,4.5)},{ploc(tpdc,0,0,4.2)} IDMOD=0,0,1,1,1"
+%   ifdef tppc==2 | tppc==3 
+%     char  strnc "{strnc} Q=4,0,0 RS3=.90"
+%   endif
+%   ifdef tppc==2
+%     const gmax=11
+%   else
+%     const gmax=8.2
+%   endif
+%   char  base "RSMH=1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax}"
+%   ifdef f
+%   elseifd bigbas>10
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,{lgc?1.4:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}
+%     char  basc "{basc} RSMH2=1.4,{tppc==2?.75:1.4},{bigbas>11?1.4:0},{bigbas>12?1.4:0} EH2=-1.2,-1.2,-1.2,-1.2"
+#   old basis for backward compatibility
+%   elseifd bigbas==5&tppc==2&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2,-1.2"
+%     char  strnc "P=0,3.55 PZ=0,2.95,4.4 IDMOD=0,1,1 Q=4,0"
+%   elseifd bigbas==3&tppc==2&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,0.75,1.7 EH2=-1.2,-3,-1.2"
+%     char  strnc "P=0,3.55 PZ=0,2.95 IDMOD=0,1 Q=4,0"
+%     const gmax=11
+%   elseifd bigbas==2&tppc==2&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2 RSMH2=1.7,0.75,1.7 EH2=-1.2,-3,-1.2"
+%     char  strnc "P=0,3.55 PZ=0,2.95 IDMOD=0,1 Q=4,0"
+%     const gmax=11
+%   elseifd bigbas==2&tppc==2
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,0.75,1.7 EH2=-1.2,-3,-1.2"
+%     char  strnc "P=0,3.55 PZ=0,2.95 IDMOD=0,1 Q=4,0"
+%     const gmax=11
+%   elseifd bigbas==5&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2,-1.2"
+%     char  strnc "P=0,3.55 PZ=4.4,4.4,4.4 IDMOD=1,1,1"
+%   elseifd bigbas==4&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2,-1.2"
+%   elseifd bigbas==3&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2"
+%   elseifd bigbas==2&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2"
+%   elseifd bigbas&tppc==2
+%     const gmax=11
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,0.75 EH2=-1.2,-3"
+%     char  strnc "P=0,3.55 PZ=0,2.95 IDMOD=0,1 Q=4,0"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,1.7 EH2=-1.2,-1.2,-1.2"
+%   elseifd bigbas&gwbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2 RSMH2=1.7,1.7 EH2=-1.2,-1.2"
+%   else
+%     char  basc "RSMH=1.4,1.4,1.4 EH=-.6,{ehmax},{ehmax},{ehmax}
+%   endif
+%   char  basa "{basc}"
+% elseifd cmpd=='Ge' | cmpd=='GeGe'
+%   const tpan=t metal=t azb=10.67
+%   char  strnc          "P={pval(tpsc,0,3.95,5.5)},{pval(tppc,0,3.95,5.5)},{pval(tpdc,4.3,3.93,4.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.95,5.5)},{ploc(tppc,0,3.95,5.5)},{ploc(tpdc,4.3,3.93,4.3)}"
+%   char  strnc "{strnc} IDMOD=0,0,{tpdc==0?1:0},1,1"
+%   ifdef tppc==2 | tppc==3 
+%     char  strnc "{strnc} Q=4,0,0 RS3=.90"
+%   endif
+%   ifdef tpdc==3
+%     char  strnc "{strnc} RS3=.90"
+%   endif
+%   ifdef tpdc>0 | tpcc==2
+%     const ngd=24
+%   elseif tpcc>0
+%     const ngd=20
+%   else
+%     const ngd=15
+%   endif
+%   char strna "{strnc}"
+%   ifdef f
+%   elseifd bigbas>10
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,{lgc?1.4:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}
+%     char  basc "{basc} RSMH2=1.4,{tppc==2?.75:1.4},{(tpdc==2|tpdc==4)?0.9:{bigbas>11?1.4:0}},{bigbas>12?1.4:0}"
+%     char  basc "{basc} EH2={ehmax-.8},{ehmax-.8},{ehmax-((tpdc==2|tpdc==4)?1.5:.8)},{ehmax-.8}"
+#   old basis for backward compatibility
+%   elseifd gwbas&bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,.9,1.4 EH=-.2,-.2,-.5,-.2 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1.2"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,.9,1.4 EH=-.1,-.1,-.5,-.1 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1.2"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,.9,1.4 EH=-.1,-.1,-1.2,-.1
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7 EH2=-1,-1""
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.4,-.1,-.1,-.1"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='Sn' | cmpd=='SnSn'
+%   const tpan=t metal=t azb=12.25
+%   ifdef tpdc==1
+%     char  strnc "P=0,0,4.9"
+%   elseifd tpdc==2
+%     char  strnc "P=0,0,5.30 PZ=0,0,4.9"
+%   elseifd tpdc==4
+%     char  strnc "PZ=0,0,5.30 P=0,0,4.9"
+%   else
+%     char  strnc "P=0,0,5.30 IDMOD=0,0,1"
+%   endif
+%   char  strna "{strnc}"
+%   ifdef ofp
+%   else
+%   ifdef tpdc>0
+%     const ngd=28
+%   else
+%     const ngd=16
+%   endif
+%   ifdef f
+%   elseifd bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.7,.9,1.7 EH=-.3,-.1,-.5,-.1 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1.5"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.7,.9,1.7 EH=-.3,-.1,-1,-.1"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.7,1.7,1.7,-1  EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.4,1.7,1.7,1.7 EH=-.3,-.1,-.1,-.1 RSMH2=1.4,1.7 EH2=-1,-1"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.4,1.4,1.4,-1  EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.4,1.7,1.7,1.7 EH=-.3,-.1,-.1,-.1"
+%     char  basa "{basc}"
+%     char  base "RSMH=1.7,1.7,1.7,-1  EH=-.1,-.1,-.1,-.1"
+%   endif
+%   endif
+% elseifd cmpd=='SiC'
+%   const tpan=f metal=f azb=8.24
+%   const tpan=f metal=f awz=3.086/.529 q=sqrt(8/3)
+%   const ngd=24
+%   char  strnc          "P={pval(tpsc,3.75,2.95,3.5)},{pval(tppc,3.55,2.95,3.55)},{pval(tpdc,3.25,0,3.20)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.95,4.5)},{ploc(tppc,0,2.95,4.5)},{ploc(tpdc,0,0,4.2)} IDMOD=0,0,1,1,1"
+%   char  strna          "P={pval(tpsa,2.75,2.75,2.75)},{pval(tppa,2.60,2.60,2.60)},{pval(tpda,3.25,3.25,3.25)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,2.75,2.75,3.50)},{ploc(tppa,2.60,2.60,3.50)},{ploc(tpda,0,0,0)} IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,{lgc?1.4:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}
+%     char  basc "{basc} RSMH2=1.4,{tppc==2?.75:1.4},{bigbas>11?1.4:0},{bigbas>12?1.4:0} EH2=-1.2,-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.0,0.8,0.8,{lfa?0.8:0},{lga?0.8:0} EH={-0.5},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.0,{bigbas==11?0:0.8},{bigbas==11?0:0.8} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  base "RSMH=1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1
+%     char  basa "RSMH=0.9,0.9,0.9,0.9 EH=-.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.6,1.6,1.6 EH=-.1,-.1,-.1"
+%     ifdef gwbas & bigbas
+%       char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2 RSMH2=1.8,1.8 EH2=-1.2,-1.2"
+%       char  basa "RSMH=0.9,0.9,0.9,0.9 EH=-.2,-.2,-.2,-.2 RSMH2=1.1,1.1 EH2=-1.2,-1.2"
+%       char  base "RSMH=1.6,1.6,1.6 EH=-.2,-.2,-.2"
+%     elseifd bigbas
+%       char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.8,1.8 EH2=-1.2,-1.2"
+%       char  basa "RSMH=0.9,0.9,0.9,0.9 EH=-.1,-.1,-.1,-.1 RSMH2=1.1,1.1 EH2=-1.2,-1.2"
+%     elseifd gwbas
+%       stop 1 "no gwbas without bigbas"
+%   endif
+%   endif
+% elseifd cmpd=='GeC'
+%   const tpan=t metal=f azb=8.6
+% elseifd cmpd=='SiGe'
+%   const tpan=t metal=f azb=10.44
+% elseifd cmpd=='Si2GeC'
+%   const tpan=t metal=f azb=9.28 Zb=32
+% elseifd cmpd=='BP'
+%   const tpan=f metal=f azb=4.538/.529
+% elseifd cmpd=='AlP'
+#   (basis was chosen by taking cation data from AlAs, anion from GaP)
+%   const tpan=f metal=f azb=10.33
+%   ifdef f
+%   elseifd asa
+%   elseifd lmf
+%     char0 strnc "P=0,0,3.30 IDMOD=0,0,1"
+%     char0 strna "P=0,0,3.30 IDMOD=0,0,1"
+%     ifdef gwbas
+%      const ehmax=-.3
+%     else
+%      const ehmax=-.1
+%     endif
+%     ifdef f
+#     bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%     elseifd bigbas==6
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%       char  strna "P=0,0,3.30 PZ=4.4,4.5*0 IDMOD=0,0,1"
+%     elseifd bigbas==5
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%       char  strna "P=0,0,3.50 PZ=4.5,4.5,4.4 IDMOD=0,0,1"
+%     elseifd bigbas==4
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas==3
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas==2
+%       char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,1.6,1.6,0 EH2=-1,-1,-1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas
+%       char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,0,0,0 EH2=-1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3 EH2=-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     else
+%       char  basc "RSMH=1.6,1.6,1.6 EH=-.3,{ehmax},{ehmax},{ehmax}"
+%       char  basa "RSMH=1.3,1.3,1.3 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%       char  base "RSMH=1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     endif
+%   endif
+% elseifd cmpd=='GaP'
+%   const tpan=f metal=f azb=10.29 gmax=10
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,4.3,3.93,4.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.93,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,4.3,3.93,4.3)}"
+%   char  strna "P={pval(tpsa,0,3.85,4.5)},{pval(tppa,0,3.7,4.5)},{pval(tpda,3.3,3.3,4.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.85,4.5)},{ploc(tppa,0,3.7,4.5)},{ploc(tpda,3.3,3.3,4.4)} IDMOD=0,0,1,1,1"
+# %   ifdef tpdc==1
+# %     char  strnc "P=0,0,3.9"
+# %   elseifd tpdc==2
+# %     char  strnc "P=0,0,4.30 IDMOD=0,0,1 PZ=0,0,3.9"
+# %     char  strna "P=0,0,3.25 IDMOD=0,0,1"
+# %   elseifd tpdc==4
+# %     char  strnc "PZ=0,0,4.30 P=0,0,3.9"
+# %     char  strna "P=0,0,3.25 IDMOD=0,0,1"
+# %   else
+# %     char  strnc "P=0,0,4.25 IDMOD=0,0,1"
+# %   endif
+# %   char0 strna "P=0,0,3.25 IDMOD=0,0,1"
+# %   ifdef tpdc>0
+# %     const ngd=25
+# %   else
+# %     const ngd=16
+# %   endif
+# %   ifdef gwbas
+# %     const ehmax=-.3
+# %   else
+# %     const ehmax=-.1
+# %   endif
+%   ifdef f
+#   Patterned after GaAs bigbas11
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.4,1.4,1.4,{lfc?1.4:0},{lgc?1.4:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.4,0,{tpdc==3?0:0.9} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.4,1.4,{tpdc==3?1.4:0.9} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     endif
+%     char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.5 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.3,1.3,1.3,1.3*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.4,1.4,0.9,0 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3,0 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "PZ=0,0,4.30 IDMOD=0,0,1 P=0,0,3.9"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,4.30 IDMOD=0,0,1 PZ=0,0,3.9"
+%     endif
+%     char  strna "P=0,0,3.30 IDMOD=0,0,1 PZ=4.5,4.5,4.4"
+# %   elseifd bigbas==5&(tpdc==1|tpdc==2|tpdc==4)
+# %     char  basc  "RSMH=1.4,1.4,1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+# %     char  basc  "{basc} RSMH2=1.4,1.4,0.9,1.4 EH2=-1,-1,-1,-1"
+# %     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+# %     char  basa  "{basa} RSMH2=1.3,1.3,1.3,1.3 EH2=-1,-1,-1,-1"
+# %     char  base  "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+# %     char  strnc "P=0,0,4.30 IDMOD=0,0,1 PZ=5.5,5.5*0,3.9"
+# %     char  strna "P=0,0,3.50 IDMOD=0,0,1 PZ=4.5,4.5,4.4"
+%   elseifd gwbas&bigbas==5&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,0.9,1.4,1.4 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.4,1.4,0.9,1.4 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.3,1.3,1.3,1.3 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3"
+%     char  strnc "P=0,0,4.30 IDMOD=0,0,1 PZ=5.5,5.5*0,3.9"
+%     char  strna "P=0,0,3.50 IDMOD=0,0,1 PZ=4.5,4.5,4.4"
+%   elseifd gwbas&bigbas==4&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,0.9,1.4,1.4 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.4,1.4,0.9,1.4 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.3,1.3,1.3,1.3 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3"
+%   elseifd bigbas==3&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,1.4,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.4,1.4,0.9,0 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3,0 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd gwbas&bigbas==2&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,0.9,1.4 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.4,1.4,0.9 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3,-.3 RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3"
+%   elseifd gwbas&bigbas&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,0.9,1.4 EH=-.3,-.3,-.3,-.3 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3 RSMH2=1.3,1.3,0,0 EH2=-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.3,-.3,-.3"
+%   elseifd gwbas
+%     stop 1 'basis not built for this case'
+%   elseifd bigbas==2&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.4,1.4,0.9,1.4 EH=-.1,-.1,-.3,-.1 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1 RSMH2=1.3,1.3,1.3,0 EH2=-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2 RSMH2=1.3,1.3,0 EH2=-1.2,-1.2,-1"
+%   elseifd bigbas&(tpdc==1|tpdc==2|tpdc==4)
+%     const ngd=24
+%     char  basc "RSMH=1.4,1.4,0.9,1.4 EH=-.1,-.1,-.3,-.1 RSMH2=1.4,1.4,.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1 RSMH2=1.3,1.3,0,0 EH2=-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0,0 EH2=-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0,0 EH2=-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>1
+%     stop 1 'basis not built for this case'
+%   elseifd tpdc==1
+%     char  basc "RSMH=1.4,1.4,0.8,1.4 EH=-.7,-.1,-.8,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   else
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.7,-.1,-.1,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   endif
+% elseifd cmpd=='InP'
+%   const tpan=f metal=f azb=11.09 elind=-.7
+%   char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.93,6.5)},{pval(tpdc,4.93,4.93,5.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.93,6.5)},{ploc(tpdc,0,4.93,5.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,3.85,4.5)},{pval(tppa,0,3.7,4.5)},{pval(tpda,3.3,3.3,4.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.85,4.5)},{ploc(tppa,0,3.7,4.5)},{ploc(tpda,3.3,3.3,4.4)} IDMOD=0,0,1,1,1"
+%   const ngd=24
+%   ifdef lmf
+%   ifdef f
+#   Patterned after GaAs bigbas11
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.6,0,{tpdc==3?0:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.95"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.6,1.6,{tpdc==3?1.6:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.95"
+%     endif
+%     char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,1 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "PZ=6.5,0*6.5,5.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,5.3 PZ=6.5,0*6.5,4.9"
+%     endif
+%     char  strna "P=0,0,3.30 PZ=4.5,4.5,4.5*0 IDMOD=0,0,1,1,1"
+%   elseifd bigbas==5&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,1,1.6 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3,1.3*0 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "PZ=6.5,0*6.5,5.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,5.3 PZ=6.5,0*6.5,4.9"
+%     endif
+%     char  strna "P=0,0,3.30 PZ=4.5,4.5,4.5*0 IDMOD=0,0,1,1,1"
+%   elseifd bigbas==4&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,1,1.6 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3,1.3*0 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==3&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,1 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,1 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,0,1 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd tpdc==4
+%     char  basc "RSMH=1.6,1.6,1.0,1.6 EH=-.1,-.1,-.6,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc==1
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.7,-.1,-.8,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1 RSMH2=1.3,1.3 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+%   endif
+% elseifd cmpd=='TlP'
+%   const tpan=f metal=t azb=11.09
+%   char  linkc "0 0 0 -1.6 -1.6 -.9"  linka "0 0 0 -1.3 -2 -1.3"
+% elseifd cmpd=='BAs'
+%   const tpan=f metal=f azb=4.777/.529
+% elseifd cmpd=='AlAs'
+%   const tpan=f metal=f azb=10.69
+%   char  strnc          "P={pval(tpsc,0,2.95,3.5)},{pval(tppc,0,2.95,3.55)},{pval(tpdc,3.3,0,3.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.95,4.5)},{ploc(tppc,0,2.95,4.5)},{ploc(tpdc,0,0,4.2)} IDMOD=0,0,1,1,1"
+%   char  strna "P={pval(tpsa,4.88,4.88,4.88)},{pval(tppa,4.7,4.7,4.7)},{pval(tpda,4.3,3.94,4.3)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.95,5.5)},{ploc(tppa,0,3.95,5.5)},{ploc(tpda,0,3.94,4.3)}
+%   char  strna "{strna} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef tppc==2 | tpda==2 | tpda==3
+%   const ngd=20
+%   endif
+%   const ngd=16
+%   ifdef f
+%   elseifd asa
+%   elseifd lmf
+%     ifdef f
+#     Patterned after bigbas11 in InAs, GaAs 
+%     elseifd bigbas==11 | bigbas==12
+%       char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       ifdef bigbas==11&tpdc<>2
+%       char  basc "{basc} RSMH2=1.6,0,0 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3==1"
+%       elseif bigbas==11
+%       char  basc "{basc} RSMH2=1.5,0,0 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%       elseif bigbas==12
+%       char  basc "{basc} RSMH2=1.5,1.5,1.5 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%       endif
+%       char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,{ehmax-.8},{ehmax-.8} RS3=.95"
+%       char  base "RSMH=1.3,1.3,1.3,1.3*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#     bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%     elseifd bigbas==6
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%       char  strna "P=0,0,4.30 PZ=5.5,5.5,0 IDMOD=0,0,1"
+%     elseifd bigbas==5
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  strnc "P=0,0,3.30 PZ=4.5,0,0 IDMOD=0,0,1"
+%       char  strna "P=0,0,4.30 PZ=5.5,5.5,0 IDMOD=0,0,1"
+%     elseifd bigbas==4
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas==3
+%       char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%       char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas==2
+%       char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,1.6,1.6,0 EH2=-1,-1,-1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3,1.3 EH2=-1.1,-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     elseifd bigbas
+%       char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,0,0,0 EH2=-1"
+%       char  basa "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3 EH2=-1.1,-1.1"
+%       char  base "RSMH=1.3,1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     else
+%       char  basc "RSMH=1.6,1.6,1.6 EH=-.3,{ehmax},{ehmax},{ehmax}"
+%       char  basa "RSMH=1.3,1.3,1.3 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%       char  base "RSMH=1.3,1.3,1.3 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     endif
+%   endif
+% elseifd cmpd=='MnAs'
+# for NiAs phase
+%   const tpan=t metal=t azb=sqrt(2)*3.722/.52918 q=5.702/3.722 gmax=9
+# for ZB phase
+#%   const tpan=t metal=t azb=10.66 gmax=8.3
+%   ifdef tpdc==4
+%     char0 strnc "PZ=0,0,4.5 MMOM=0,0,3"
+%     char0 strna "P=0,0,4.25 IDMOD=0,0,1 PZ=5.5"
+%   endif
+%   char0 strnc "MMOM=0,0,3"
+%   char0 strna "P=0,0,4.25 IDMOD=0,0,1"
+%   ifdef gwbas
+%     const ehmax=-.3
+%   else
+%     const ehmax=-.1
+%   endif
+%   ifdef f
+%   elseifd bigbas==3
+%     char  basc "RSMH=2.1,2.1,1.0,1.4,1.4 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,{ehmax},{ehmax},{ehmax} RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  basa "{basa} RSMH2=1.4,1.4,1.4 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.8,1.8,1.8,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=2.1,2.1,1.0,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.4,1.4,1.4 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.8,1.8,1.8,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     char  basc "RSMH=2.1,2.1,1.0,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.4*0,1.4 EH2={ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.8,1.8,1.8,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=2.1,2.1,1.1,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax} MMOM=0,0,3"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=1.8,1.8,1.8,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='NiAs'
+%   const tpan=t metal=t azb=sqrt(2)*3.619/.52918 q=5.034/3.619
+%   const gmax=9
+%   ifdef tpdc==4
+%     char0 strnc "PZ=0,0,4.5 MMOM=0,0,3"
+%     char0 strna "P=0,0,4.25 IDMOD=0,0,1 PZ=5.5"
+%   endif
+%   char0 strnc "MMOM=0,0,3"
+%   char0 strna "P=0,0,4.25 IDMOD=0,0,1"
+%   ifdef f
+%   elseifd bigbas==2
+%     char  basc "RSMH=2.1,2.1,1.0,2.1 EH=-.1,-.1,-.1,-.1 RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,-.1,-.1,-.1 RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  base "RSMH=1.8,1.8,1.8,1.8 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas
+%     char  basc "RSMH=2.1,2.1,1.0,2.1 EH=-.1,-.1,-.1,-.1 RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.7,-.1,-.1,-.1 RSMH2=1.4*0,1.4 EH2=-1,-1"
+%     char  base "RSMH=1.4,1.4   EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=2.1,2.1,0.9 EH={ehmax},{ehmax},{ehmax},{ehmax} MMOM=0,0,3"
+%     char  basa "RSMH=1.4,1.4,1.4 EH=-.7,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=1.4,1.4     EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='GaAs'
+%   const tpan=t metal=f azb=10.66
+%   ifdef tpdc==1
+%     const elind=-.5
+%     char  strnc "P=0,0,3.9"
+%   elseifd tpdc==2
+%     char  strnc "P=0,0,4.30 PZ=0,0,3.9"
+%     char  strna "P=0,0,4.30 PZ=5.5 IDMOD=0,0,1,1,1"
+%   elseifd tpdc==4
+%     char  strnc "PZ=0,0,4.30 P=0,0,3.9"
+%     char  strna "P=0,0,4.30  PZ=5.5 IDMOD=0,0,1,1,1"
+%   else
+%     char  strnc "P=0,0,4.30 IDMOD=0,0,1,1,1"
+%   endif
+%   char0 strna "P=0,0,4.30 IDMOD=0,0,1,1,1"
+# %   ifdef asa
+# %     char  strnc "{strnc} IDXDN=1,1,2"
+# %     char  strna "{strna} IDXDN=1,1,2"
+# %     char  strnec "IDXDN=1,1,2"
+# %     char  strnea "IDXDN=1,1,2"
+# %   endif
+%   ifdef tpdc>0
+%     const ngd=24
+%   else
+%     const ngd=16
+%   endif
+%   ifdef gwbas
+%     const ehmax=-.3
+%   else
+%     const ehmax=-.1
+%   endif
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.3,0,{tpdc==3?0:0.9} EH2={-1.3},{-1.3},{-1.3} RS3=.95"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.3,1.3,{tpdc==3?1.3:0.9} EH2={-1.1},{-1.1},{-1.1} RS3=.95"
+%     endif
+%     char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=0,0,4.30,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsc==4?5.5:0},{tppc==4?5.5:0},{tpdc==3?13.93:0}"
+%     char  strna "P=0,0,4.30,4.15,5.12 IDMOD=0 0 0 1 1
+%     char  strna "{strna} PZ={tpsa==4?5.5:0},{tppa==4?5.5:0},{tpda==2?3.94:{tpda==3?13.94:0}}"
+%     ifdef tppc==2
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.3,1.3,1.3*0 EH2=-1.1,-1.1,-1.1 RS3=.90 FOCA=0"
+%     char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1"
+%     char  strnc "P=0,0,4.30,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsc==4?5.5:0},13.95,{tpdc==3?13.93:0} Q=3,0"
+%     endif
+%     ifdef tpsa|tppa|tpda
+%     char  strna "{strna} RS3=0.95"
+%     endif
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,.9 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "PZ=5.5,0*5.5,4.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,4.5 PZ=5.5,0*5.5,3.9"
+%     endif
+%     char  strna "P=0,0,4.30 PZ=5.5,5.5,5.5*0 IDMOD=0,0,1,1,1"
+%   elseifd bigbas==5&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,.9,1.6 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3,1.3*0 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tpdc==1 | tpdc==4
+%       char  strnc "PZ=5.5,0*5.5,4.5"
+%     elseifd tpdc==2
+%       char  strnc "P=0,0,4.5 PZ=5.5,0*5.5,3.9"
+%     endif
+%     char  strna "P=0,0,4.30 PZ=5.5,5.5,5.5 IDMOD=0,0,1,1,1"
+%   elseifd bigbas==4&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,.9,1.6 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3,1.3*0 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==3&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,.9 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,1.6,.9 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas&(tpdc==1|tpdc==2|tpdc==4)
+%     char  basc  "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc  "{basc} RSMH2=1.6,0,.9 EH2=-1,-1,-1,-2"
+%     char  basa  "RSMH=1.3,1.3,1.3,1.3 EH=-.6,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa  "{basa} RSMH2=1.3,1.3 EH2=-1.3,-1.1,-1.1,-1.1"
+%     char  base  "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+# Mn impurity
+#%     char  basb "RSMH=2.1,2.1,1.0,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+%   elseifd bigbas==2&tpdc==0
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+# Mn impurity
+# %     char  basb "RSMH=2.1,2.1,1.0,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+%   elseifd bigbas&tpdc==0
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,{ehmax},{ehmax},{ehmax} RSMH2=1.3,1.3 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},-.1"
+%   elseifd tpdc==1|tpdc==4
+%     char  basc "RSMH=1.6,1.6,.9,1.6 EH=-.1,-.1,-.8,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc==0
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+# -------- OLD ---------
+# %   ifdef f
+# %   elseifd bigbas==5&(tpdc==1|tpdc==2|tpdc==4)&gwbas
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,.9,1.6 EH2=-1,-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3,1.6 EH=-.6,-.2,-.2,-.2,-.2 RSMH2=1.3,1.3,1.3,1.3 EH2=-1.3,-1,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2 RSMH2=1.5,1.5,0 EH2=-1,-1,-1"
+# %     ifdef tpdc==1 | tpdc==4
+# %       char  strnc "PZ=5.5,0*5.5,4.5"
+# %     elseifd tpdc==2
+# %       char  strnc "P=0,0,4.5 PZ=5.5,0*5.8,3.9"
+# %     endif
+# %     char  strna "P=0,0,4.30 PZ=5.5,5.5,5.5 IDMOD=0,0,1"
+# %   elseifd bigbas==4&(tpdc==1|tpdc==2|tpdc==4)&gwbas
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,.9,1.6 EH2=-1,-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3,1.6 EH=-.6,-.2,-.2,-.2,-.2 RSMH2=1.3,1.3,1.3,1.3 EH2=-1.3,-1,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2 RSMH2=1.5,1.5,0 EH2=-1,-1,-1"
+# %   elseifd bigbas==3&(tpdc==1|tpdc==2|tpdc==4)&gwbas
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,.9 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3,1.6 EH=-.6,-.2,-.2,-.2,-.2 RSMH2=1.3,1.3,1.3 EH2=-1.3,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2 RSMH2=1.5,1.5,0 EH2=-1,-1,-1"
+# %   elseifd bigbas==2&(tpdc==1|tpdc==2|tpdc==4)&gwbas
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,.9 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.2,-.2,-.2 RSMH2=1.3,1.3,1.3 EH2=-1.3,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2"
+# %   elseifd bigbas==4&(tpdc==1|tpdc==2|tpdc==4)
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,.9,1.6 EH2=-1,-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1,-.1 RSMH2=1.3,1.3,1.3,1.3 EH2=-1.3,-1,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5,0 EH2=-1,-1,-1"
+# %   elseifd bigbas==3&(tpdc==1|tpdc==2|tpdc==4)
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,.9 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1,-.1 RSMH2=1.3,1.3,1.3 EH2=-1.3,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5,0 EH2=-1,-1,-1"
+# %   elseifd bigbas==2&(tpdc==1|tpdc==2|tpdc==4)
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,.9 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1 RSMH2=1.3,1.3,1.3 EH2=-1.3,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# # Mn impurity
+# #%     char  basb "RSMH=2.1,2.1,1.0,2.1 EH=-.1,-.1,-.1,-.1 RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+# %   elseifd bigbas==2&tpdc==0
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.1,-.1,-.1 RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# # Mn impurity
+# # %     char  basb "RSMH=2.1,2.1,1.0,2.1 EH=-.1,-.1,-.1,-.1 RSMH2=2.1,2.1,1.0 EH2=-1.0,-1.0,-1.0"
+# %   elseifd bigbas&(tpdc==1|tpdc==2|tpdc==4)
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,0,.9 EH2=-1,-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1 RSMH2=1.3*0,1.3 EH2=-1.3,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# %   elseifd bigbas&tpdc==0
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.3,-.1,-.1,-.1 RSMH2=1.3,1.3 EH2=-1,-1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# %   elseifd tpdc==1|tpdc==4
+# %     char  basc "RSMH=1.6,1.6,.9,1.6 EH=-.1,-.1,-.8,-.1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# %   elseifd tpdc==0
+# %     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+# %     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.6,-.1,-.1,-.1"
+# %     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+# %   endif
+% elseifd cmpd=='InAs'
+%   const tpan=t metal=t azb=11.43
+%   char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.93,6.5)},{pval(tpdc,4.93,4.93,5.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.93,6.5)},{ploc(tpdc,0,4.93,5.4)}"
+%   char  strnc "{strnc} IDMOD=0,0,{tpdc==0?1:0},1,1"
+%   char  strna "P={pval(tpsa,4.88,4.88,4.88)},{pval(tppa,4.7,4.7,4.7)},{pval(tpda,4.3,3.94,4.3)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.95,5.5)},{ploc(tppa,0,3.95,5.5)},{ploc(tpda,0,3.94,4.3)}
+%   char  strna "{strna} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef tpdc>0
+%     const ngd=24
+%   else
+%     const ngd=16
+%   endif
+%   ifdef f
+#   Patterned after bigbas11 in InP, GaAs 
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,1.7,{lfc?1.7:0},{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.7,0,{tpdc==3?0:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,{tpdc==3?1.5:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.4,1.4,1.4,{lfa?1.4:0},{lga?1.4:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.4,1.4,1.4 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4&(tpdc==2|tpdc==4)&gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7,1.7 EH=-.25,-.25,-.25,-.25,-.25 RSMH2=1.7,1.7,1.0,1.7 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4,1.4 EH=-.25,-.25,-.25,-.25,-.25 RSMH2=1.4,1.4,1.4,1.4 EH2=-1,-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.25,-.25,-.25,-.25"
+%     char strna "P=0,0,4.30 IDMOD=0,0,1 PZ=5.5"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4)&gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.25,-.25,-.25,-.25 RSMH2=1.7,1.7,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.25,-.25,-.25,-.25 RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.25,-.25,-.25,-.25"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&tpdc==1
+%     char  basc "RSMH=1.7,1.7,0.9,1.7 EH=-.1,-.1,-.3,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,1.7 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1.4 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&(tpdc==2|tpdc==4)&gwbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.25,-.25,-.25,-.25 RSMH2=1.7,0,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.25,-.25,-.25,-.25 RSMH2=1.4,1.4 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.25,-.25,-.25,-.25"
+%   elseifd bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,0,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,1.0,1.7 EH=-.1,-.1,-.6,-.1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&tpdc==1
+%     char  basc "RSMH=1.7,1.7,0.9,1.7 EH=-.1,-.1,-.3,-.1 RSMH2=1.7,0,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7 EH2=-1,-1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1"
+%     char  basa "RSMH=1.4,1.4,1.4,1.4 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='TlAs'
+%   char  linkc "0 0 0 -1.6 -2.1 -.9"  linka "0 0 0 -1.4 -1.7 5"
+%   const tpan=t metal=t azb=11.43
+% elseifd cmpd=='SrO'
+%   const tpan=t metal=f azb=9.75 gmax=8
+%   char  strnc "P={pval(tpsc,5.5,4.94,5.5)},{pval(tppc,5.3,4.93,5.3)},{pval(tpdc,4.3,4.3,4.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,5.5,4.94,6.5)},{ploc(tppc,5.3,4.93,6.5)},{ploc(tpdc,0,0,5.4)}"
+%   char  strnc "{strnc} IDMOD=0,0,1,1,1"
+%   char  strna "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.70,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.70,3.5)},0 IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.0,1.0,1.6,{lfc?1.1:0},{lgc?1.1:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.0,{bigbas==11?0:1.0},1.0 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.80"
+%     char  basa "RSMH=1,1,1,{lfa?1:0},{lga?1:0} EH={tpsa==3?ehmax:-.6},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   g orbitals to Sr, f on O, local orbitals
+%   elseifd bigbas==6
+%     char basc "RSMH=1.0,1.0,1.6,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strnc "P=5.5 5.3 4.3  PZ=4.9,4.9 IDMOD=0 1 1 1 1 Q=0 0 2"
+%     char basa "RSMH=1,1.1,1,1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1.8,1.0,1.0 EH2=-1.2,-1.2,-1.2"
+%     char basa "{basa} RSMH2=1,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 PZ=0,3.9,4.5 IDMOD=0 0 1"
+#   f orbitals on Sr, double spd on O
+%   elseifd bigbas==2
+%     char basc "RSMH=1.0,1.0,1.6,1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strnc "P=5.5 5.3 4.3  PZ=0,4.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1,1.1,1 EH={ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+#   Double spd on Sr, double sp on O
+%   elseifd bigbas>1
+%     stop 1 "basis not defined"
+%   elseifd bigbas
+%     char basc "RSMH=1.0,1.0,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char basc "{basc} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strnc "P=5.5 5.3 4.3  PZ=0,4.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1,1.1,1 EH={ehmax},{ehmax},{ehmax}"
+%     char basa "{basa} RSMH2=1,1.0,0.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+%   else
+%     char basc "RSMH=1,1,1.6 EH={ehmax},-.8,{ehmax},{ehmax}"
+%     char strnc "P=5.5 5.3 4.3  PZ=0,4.9 IDMOD=0 1 1 1 1"
+%     char basa "RSMH=1,1.1,1 EH=-0.9,{ehmax},{ehmax}"
+%     char strna "P=0,0,3.25 IDMOD=0 0 1"
+%   endif
+% elseifd cmpd=='GdN'
+%   const tpan=t metal=f azb=4.999/.5292 gmax=9 tppc=2 rwc=1.2 rwa=0.83
+%   char  strnc "P={pval(tpsc,6.5,5.95,6.5)},{pval(tppc,0,5.93,6.5)},{pval(tpdc,5.3,4.93,5.4)},{pval(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc},5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,6.5,5.95,0.0)},{ploc(tppc,0,5.93,7.5)},0,{ploc(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc} IDMOD=0,{tppc<2|tppc==3?1:0},1,0,1 MMOM=0,0,0,7 KMXA=4"
+%   char  strna          "P={pval(tpsa,0,2.83,3.5)},{pval(tppa,0,2.74,3.5)},3.25,4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.83,3.5)},{ploc(tppa,0,2.74,3.5)},0 IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.0,{tppc==2?1.0:1.7},1.2,1.10,1.4 EH={ehmax},{ehmax},{ehmax},-0.30,{ehmax}"
+%     char  basc "{basc} RSMH2=1.2,{bigbas==11?0:1.2},1.2,1.2 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8},{ehmax-.8}"
+%     char  basa "RSMH=1,1,1.6,{lfa?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1,1,1 EH2={tpsa==3?ehmax-.8:-1.4},{ehmax-.8},{ehmax-.8} RS3=.9"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+#   g orbitals to Gd, f on N, local orbitals
+%   elseifd bigbas==3&tppc==2 | bigbas==6&tppc==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 1.4 EH= {ehmax} {ehmax} {ehmax} -0.30 {ehmax}"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH=1.0,1.0,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,{tppc==2?-1.5:ehmax-.9},-1,-1"
+%     char  basa "RSMH=1.0,1.0,1.6 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.0,1.0,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   Double spd on Sc, double sp on N
+%   elseifd bigbas>1
+%     stop 1 "basis not defined"
+%   elseifd bigbas
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.2,1.2,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.0,1.0,1.6 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.0,1.0,0.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.5 1.10 EH= -1 -1 {ehmax} -0.50"
+%     char  basa "RSMH=1.0,1.1,1.6 EH=-0.6,{ehmax},{ehmax}"
+%     char  base "RSMH=1.2,1.2,1.2*0,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='GdP'
+%   const tpan=t metal=f azb=5.704/.5292 gmax=8 tppc=2 rwc=1.2 rwa=0.83
+%   char  strnc "P={pval(tpsc,6.5,5.95,6.5)},{pval(tppc,0,5.93,6.5)},{pval(tpdc,5.3,4.93,5.4)},{pval(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc},5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,6.5,5.95,0.0)},{ploc(tppc,0,5.93,7.5)},0,{ploc(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc} IDMOD=0,{tppc<2|tppc==3?1:0},1,0,1 MMOM=0,0,0,7 KMXA=4"
+%   char  strna          "P={pval(tpsa,0,3.85,4.5)},{pval(tppa,0,3.7,4.5)},{pval(tpda,3.3,3.3,4.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,2.95,4.5)},{ploc(tppa,0,2.94,4.5)},{ploc(tpda,0,0,4.4)} IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,1.7,1.1,{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.7,0,{tpdc==3?0:1.0},1.1 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,{tpdc==3?0:1.0},1.1 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.5,1.5,{lfa?1.5:0},{lga?1.5:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+#   g orbitals to Gd, f on P, local orbitals
+%   elseifd bigbas==3&tppc==2 | bigbas==6&tppc==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 1.4 EH= {ehmax} {ehmax} {ehmax} -0.30 {ehmax}"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,{tppc==2?-1.5:ehmax-.9},-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.6 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   Double spd on Gd, double sp on P
+%   elseifd bigbas>1
+%     stop 1 "basis not defined"
+%   elseifd bigbas
+%     char  basc "RSMH=1.1 {tppc==2?1.1:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.2,1.2,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.8 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,0.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.1 {tppc==2?1.1:1.7} 1.5 1.10 EH= -1 -1 {ehmax} -0.50"
+%     char  basa "RSMH=1.5,1.5,1.8 EH=-0.6,{ehmax},{ehmax}"
+%     char  base "RSMH=1.5,1.5,1.5*0,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='GdAs'
+%   const tpan=t metal=f azb=5.803/.5292 gmax=9 tppc=2 rwc=1.2 rwa=0.83
+%   char  strnc "P={pval(tpsc,6.5,5.95,6.5)},{pval(tppc,0,5.93,6.5)},{pval(tpdc,5.3,4.93,5.4)},{pval(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc},5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,6.5,5.95,0.0)},{ploc(tppc,0,5.93,7.5)},0,{ploc(tpfc,4.9,4.9,5.5)}"
+%   char  strnc "{strnc} IDMOD=0,{tppc<2|tppc==3?1:0},1,0,1 MMOM=0,0,0,7 KMXA=4"
+%   char  strna          "P={pval(tpsa,0,0,5.5)},{pval(tppa,0,0,5.5)},{pval(tpda,4.3,3.94,4.3)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.95,5.5)},{ploc(tppa,0,3.94,5.5)},{ploc(tpda,0,3.94,4.3)} IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,1.2,1.1,{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.7,0,1.2,1.1 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.7,1.7,1.2,1.1 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.5,1.5,{lfa?1.5:0},{lga?1.5:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+#   g orbitals to Gd, f on As, local orbitals
+%   elseifd bigbas==3&tppc==2 | bigbas==6&tppc==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 1.4 EH= {ehmax} {ehmax} {ehmax} -0.30 {ehmax}"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.0 {tppc==2?1.0:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,{tppc==2?-1.5:ehmax-.9},-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.6 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   Double spd on Gd, double sp on As
+%   elseifd bigbas>1
+%     stop 1 "basis not defined"
+%   elseifd bigbas
+%     char  basc "RSMH=1.1 {tppc==2?1.1:1.7} 1.2 1.10 EH= {ehmax} {ehmax} {ehmax} -0.30"
+%     char  basc "{basc} RSMH2=1.2,1.2,1.2,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.5,1.6,2.0 EH={ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.6,0.0 EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.1 {tppc==2?1.1:1.7} 1.5 1.10 EH= -1 -1 {ehmax} -0.50"
+%     char  basa "RSMH=1.5,1.6,2.0 EH=-0.6,{ehmax},{ehmax}"
+%     char  base "RSMH=1.5,1.5,1.5*0,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='ErAs'
+%   const tpan=t metal=f azb=10.83 rwc=1.12 rwa=0.92 ngd=24
+%   char  strnc "MMOM=0,0,0,3 P=0,{tppc==2?6.4:6.3},5.3,0,5.12 IDMOD=0,1,1,0,1,1,1"
+%   char  strna "P=0,0,4.30 IDMOD=0,0,1,1,1"
+%   ifdef f
+%   elseifd tppc==2
+%     char  strnc "{strnc} PZ=0,5.9,0,5.5"
+%   endif
+%   ifdef f
+%   elseifd bigbas==6
+%     char  strna "{strna} PZ=5.5,5.5,5.5*0"
+%   endif
+%   ifdef gwbas
+%     const ehmax=-.3
+%   else
+%     const ehmax=-.1
+%   endif
+%   ifdef f
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+#   Add g orbitals to Er
+%   elseifd bigbas==3&tppc==2 | bigbas==6&tppc==2
+%     char  basc "RSMH= 2.0 1.1 1.4 1.2 1.4 EH= {ehmax} -0.3 {ehmax} -0.25 {ehmax}"
+%     char  basc "{basc} RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH= 1.5 1.6 2 1.5 1.4 EH=-0.3 {ehmax} {ehmax} {ehmax} {ehmax} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2&tppc==2
+%     char  basc "RSMH= 2.0 1.1 1.4 1.2 EH= {ehmax} -0.3 {ehmax} -0.25 RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH= 1.5 1.6 2 1.5 EH=-0.3 {ehmax} {ehmax} {ehmax} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH= 2.0 1.2 1.4 1.2 EH= {ehmax} -0.3 {ehmax} -0.25 RSMH2=1.2,1.2,1.2,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH= 1.5 1.6 2 1.5 EH=-0.3 {ehmax} {ehmax} {ehmax} RSMH2=1.3,1.3,1.3 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas&tppc==2
+%     char  basc "RSMH= 2.0 1.1 1.4 1.2 EH= {ehmax} -0.3 {ehmax} -0.25 RSMH2=1.2,1.1,1.2,1.2 EH2=-1,-1.5,-1,-1"
+%     char  basa "RSMH= 1.5 1.6 2 EH=-0.3 {ehmax} {ehmax} RSMH2=1.3,1.3 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     char  basc "RSMH= 2.0 1.2 1.4 1.2 EH= {ehmax} -0.3 {ehmax} -0.25 RSMH2=1.2,1.2,1.2,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH= 1.5 1.6 2 EH=-0.3 {ehmax} {ehmax} RSMH2=1.3,1.3 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH= 2.0 1.2 1.4 1.2 EH= {ehmax} -0.3 {ehmax} -0.25"
+%     char  basa "RSMH= 1.5 1.6 2 EH=-0.65 {ehmax} {ehmax}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+%   char  strnb "MMOM=0,0,0,-3 P=0,6.3,{strnc}"
+%   char  basb  "{basc}"
+% elseifd cmpd=='AlSb'
+%   const tpan=t metal=t azb=11.59
+%   char  strnc "P={pval(tpsc,0,2.94,4.5)},{pval(tppc,0,2.93,4.5)},3.3,4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,2.94,4.5)},{ploc(tppc,0,2.93,4.5)},0
+%   char  strnc "{strnc} IDMOD=0,0,1,1,1"
+%   char  strna "P={pval(tpsa,0,5.88,6.5)},0,{pval(tpda,5.3,4.95,5.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,5.88,6.5)},0,{ploc(tpda,5.3,4.95,5.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef f
+%   elseifd asa
+# %     ifdef sx
+# %       char  strnc "IDMOD=0,0,0,2"
+# %       char  strna "IDMOD=0,0,0,2"
+# %       char  strnec "IDMOD=0,0,0,2"
+# %       char  strnea "IDMOD=0,0,0,2"
+# %     endif
+%   elseifd lmf
+%   ifdef f
+#   Patterned after bigbas11 in GaSb
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11&tpdc<>2
+%     char  basc "{basc} RSMH2=1.6,0,0 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.6,0,0 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.95"
+%     endif
+%     char  basa "RSMH=1.6,1.6,1.6,{lfa?1.6:0},{lga?1.6:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.6,1.6,1.6 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.6,1.6,1.6,1.6*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=6 combines bigbas=3 with local orbitals of bigbas=5
+%   elseifd bigbas==6 & tpda==2
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.6,1.6,1.6 EH2=-1.1,-1.1,-1.1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#     ... Putting local orbitals on p sites caused ehf to diverged from ehk
+%     char  strnc "PZ=4.5,0,0"
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5*0,4.9"
+%   elseifd bigbas==5 & tpda==2 & gwbas
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,1.6,1.6 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+#     ... Putting local orbitals on p sites caused ehf to diverged from ehk
+%     char  strnc "PZ=4.5,0,0"
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5*0,4.9"
+%   elseifd bigbas==4 & tpda==2 & gwbas
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,1.6,1.6 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas==3 & tpda==2 & gwbas
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,1.6,0 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas==2 & tpda==2 & gwbas
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,1.6,0 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.3,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas==2 & tpda==2
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,1.6,0 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.3,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas & tpda==2 & gwbas
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2 RSMH2=1.6,0,0,0 EH2=-1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.3,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas & tpda==2
+%     const gmax=10.5
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,0,0,0 EH2=-1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.3,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1"
+%     char  strna "P=0,0,5.4 PZ=0,0,4.9 IDMOD=0,0,1"
+%   elseifd bigbas
+%     const ngd=16
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,0,0,0 EH2=-1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.3,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.1,-.1,-.1,-.1"
+%   else
+%     const ngd=16
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.3,-.1,-.1,-.1"
+%     char  basa "RSMH=1.5,1.7,1.7,1.7 EH=-.6,-.2,-.2,-.2"
+%     char  base "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.2,-.2,-.2"
+%   endif
+%   endif
+% elseifd cmpd=='GaSb'
+%   const tpan=t metal=f azb=11.50 elind=-.5
+#   New basis patterned after GaAs, Ge
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,4.3,3.93,4.3)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.93,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,4.3,3.93,4.3)}"
+%   char  strnc "{strnc} IDMOD=0,0,{tpdc==0?1:0},1,1"
+%   char  strna "P={pval(tpsa,0,5.88,6.5)},0,{pval(tpda,5.3,4.95,5.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,5.88,6.5)},0,{ploc(tpda,5.3,4.95,5.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef tpdc>0
+%     const gmax=10.5
+%     const ngd=25
+%   else
+%     const gmax=6
+%     const ngd=16
+%   endif
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,1.6,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=1.6,0,{tpdc==3?0:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.6,1.6,{tpdc==3?1.6:1.0} EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=.90"
+%     endif
+%     char  basa "RSMH=1.5,1.5,1.5,{lfa?1.5:0},{lga?1.5:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==5&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.4,1.4,1.0,1.4 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.4,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,0.8,1.2 EH2=-1.1,-1,-1.3,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2"
+%     char  strnc "P=0,0,4.30 IDMOD=0,0,1 PZ=5.5,0*5.5,3.9"
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5,4.9"
+%   elseifd bigbas==4&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.4,1.4,1.0,1.4 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.4,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,0.8,1.2 EH2=-1.1,-1,-1.3,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.4,1.4,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.4,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,0.8 EH2=-1.1,-1,-1.3"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.6,1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.4,-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0.8 EH2=-1.1,-1,-1.3"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2 RSMH2=1.4,1.4,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.4,-.2,-.2,-.2 RSMH2=1.2,1.2,0.8 EH2=-1.1,-1,-1.3"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.4,-.1,-.1,-.1 RSMH2=1.2,1.2,0.8 EH2=-1.1,-1,-1.3"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1 RSMH2=1.2,1.2,1.2,0 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&(tpdc==1)
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.5,-.1 RSMH2=1.5,0,.9 EH2=-1,-1,-1.5"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1 RSMH2=1.5,1.5,1.5,0 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&tpdc==0
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5,1.5 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5,1.5 EH2=-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,0,1 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1 RSMH2=1.2,1.2,0,0 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.7,-.1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&(tpdc==1)
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.5,-.1 RSMH2=1.5,0,.9 EH2=-1,-1,-2"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1 RSMH2=1.5,1.5,0,0 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==1)
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.7,-.1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5 EH2=-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1 RSMH2=1.5,1.5 EH2=-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='InSb'
+%   const tpan=t metal=t azb=12.23
+%   ifdef tpdc==1
+%     char  strnc "P=0,0,4.9"
+%   elseifd tpdc==2
+%     char  strnc "P=0,0,5.30 PZ=0,0,4.9"
+%     ifdef tpda==2
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,0,4.9"
+%     else
+%     char  strna "P=0,0,5.30 IDMOD=0,0,1 PZ=6.5"
+%     endif
+%   elseifd tpdc==4
+%     char  strnc "PZ=0,0,5.30 P=0,0,4.9"
+%     ifdef tpda==2
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,0,4.9"
+%     else
+%     char  strna "P=0,0,5.30 IDMOD=0,0,1 PZ=6.5"
+%     endif
+%   elseif bigbas<=10
+%     char  strnc "P=0,0,5.25 IDMOD=0,0,1"
+%    stop 1 In 5d is perilous in InSb!.  Delete this line if you really want it.
+%   endif
+%   char0 strna "P=0,0,5.30 IDMOD=0,0,1"
+%   ifdef ofp
+%   char  strnc "CLINK=0 0 0 -1.75 -2.3 -.65" strna "CLINK=0 0 0 -1.6 -1.9 1.5"
+%   elseifd asa
+%   else
+%   ifdef tppc==3|tpdc==3|tpda==3
+%     const ngd=20
+%   elseifd tpdc>0
+%     const ngd=27
+%   else
+%     const ngd=16
+%   endif
+%   ifdef f
+%   elseifd bigbas==12
+%     char  basc "RSMH=1.9,1.9,1.9,{lfc?1.9:0},{lgc?1.9:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.1,1.1,1.1 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.6,1.6,1.6,{lfa?1.6:0},{lga?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=0,0,5.30,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsc==4?6.5:0},{tppc==4?6.5:0},{tpdc==3?14.93:0}"
+%     char  strna "P=0,0,5.40,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsa==4?6.5:0},{tppa==4?6.5:0},{tpda==3?14.94:0}"
+%   elseifd bigbas==11
+%     char  basc "RSMH=1.9,1.9,1.9,{lfc?1.9:0},{lgc?1.9:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=1.6,1.6,1.6,{lfa?1.6:0},{lga?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=0,0,5.30,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsc==4?6.5:0},{tppc==4?6.5:0},{tpdc==3?14.93:0}"
+%     char  strna "P=0,0,5.40,4.15,5.12 IDMOD=0 0 0 1 1 PZ={tpsa==4?6.5:0},{tppa==4?6.5:0},{tpda==3?14.94:0}"
+%   elseifd bigbas==5&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,0.9,1.7 EH2=-1,-1,-.8,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2"
+%     char  strnc "P=0,0,5.30 PZ=6.5,6.5,4.9"
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5,4.9"
+%   elseifd bigbas==4&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,0.9,1.7 EH2=-1,-1,-.8,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==5&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9,1.7 EH2=-1,-1,-.8,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%     char  strnc "P=0,0,5.30 PZ=6.5,6.5,4.9"
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5,4.9"
+%   elseifd bigbas==4&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9,1.7 EH2=-1,-1,-.8,-1"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8,1.6 EH2=-1,-1,-1.3,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==3&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.2,-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.2,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.7,1.7,1.8,1.7,1.7 EH=-.1,-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6,1.7 EH=-.3,-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4) & tpda==2 & gwbas
+%     char  basc "RSMH=1.7,1.7,1.8,1.7 EH=-.2,-.2,-.2,-.2 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6 EH=-.3,-.2,-.2,-.2 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2&(tpdc==2|tpdc==4) & tpda==2
+%     char  basc "RSMH=1.7,1.7,1.8,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.6,1.6,1.6,1.6 EH=-.3,-.1,-.1,-.1 RSMH2=1.6,1.6,0.8 EH2=-1,-1,-1.3"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpda==2
+%     stop 1 basis not built for this case
+%   elseifd bigbas==2&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,1.8,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.1,-.1,-.1 RSMH2=1.7,1.7,1.7 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.2,-.1,-.1,-.1 RSMH2=1.6,1.6,1.6 EH2=-1,-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&(tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,1.8,1.7 EH=-.1,-.1,-.1,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-.8"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd (tpdc==2|tpdc==4)
+%     char  basc "RSMH=1.7,1.7,0.9,1.7 EH=-.6,-.1,-.1,-.1"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&tpdc==1
+%     char  basc "RSMH=1.7,1.7,0.9,1.7 EH=-.2,-.1,-.5,-.1 RSMH2=1.7,1.7,0.9 EH2=-1,-1,-1.5"
+%     char  basa "RSMH=1.7,1.6,1.6,1.3*1 EH=-.1,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   elseifd tpdc>0
+%     stop 1 basis not built for this case
+%   elseifd bigbas
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.2,-.1,-.1,-.1 RSMH2=1.7,1.7 EH2=-1,-1"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.2,-.1,-.1,-.1 RSMH2=1.6,1.6 EH2=-1,-1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.7,1.7,1.7,1.7 EH=-.6,-.1,-.1,-.1"
+%     char  basa "RSMH=1.7,1.6,1.6,1.6 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.6,1.6,1.6,1.6 EH=-.1,-.1,-.1,-.1"
+%   endif
+%   endif
+% elseifd cmpd=='TlSb'
+%   const tpan=t metal=t azb=12.23
+%   char  linkc "0 0 0 -1.7 -2.3 -.9"  linka "0 0 0 -1.6 -1.9 1.5"
+% elseifd cmpd=='InTlSb'
+%   const tpan=t metal=t azb=12.23 Zb=81
+% elseifd cmpd=='BeS'
+%   const tpan=0 metal=f azb=4.865/.529
+% elseifd cmpd=='ZnS'
+%   const tpan=f metal=f azb=10.23 gmax=9
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=-1
+%   endif
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,3.91,3.91,4.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,0,3.91,4.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,3.88,4.5)},0,{pval(tpda,3.3,2.95,3.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.88,4.5)},0,{ploc(tpda,3.3,2.95,3.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef tpdc==4&bigbas<10
+%     char strnc "PZ=0,0,4.3"
+%     ifdef bigbas>=3
+%       char strna "PZ=4.5"
+%     endif
+%   endif
+%   ifdef f
+#   Patterned after bigbas11 in CdTe
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.5,1.5,0.90,{lfc?1.5:0},{lgc?1.5:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.2,1.2,1.2,{lfa?1.2:0},{lga?1.2:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.2,1.2,1.2 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.2,1.2,1.2,1.2*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH=-.2,-.2,-.3,-.2,-.2 RSMH2=1.2,1.2,0.9,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2,1.2 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH=-.2,-.2,-.3,-.2,-.2 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.2,-.2,-.3,-.2 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.1,-.1,-.3,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.1,-.1,-.1 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.2,-.2,-.3,-.2 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2 RSMH2=1.2,1.2,0 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.1,-.1,-.3,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.1,-.1,-.1 RSMH2=1.2,1.2,0 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.5,-.1,-.4,-.1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='CdS'
+%   const tpan=f metal=f azb=11.01 awz=4.1369/.529 q=6.7161/4.1369 xwz=0 gmax=9
+%   char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.93,6.5)},{pval(tpdc,4.91,4.91,5.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.93,6.5)},{ploc(tpdc,0,4.91,5.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,3.88,4.5)},0,{pval(tpda,3.3,2.95,3.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,3.88,4.5)},0,{ploc(tpda,3.3,2.95,3.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=-1
+%   endif
+%   ifdef tpdc==4
+%     char strnc "PZ=0,0,5.4"
+%   endif
+%   ifdef f
+#   Patterned after bigbas11 in CdTe
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.6,1.6,0.90,{lfc?1.6:0},{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.3,1.3,1.3,{lfa?1.3:0},{lga?1.3:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.3,1.3,1.3 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.3,1.3,1.3,1.3*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4&gwbas
+%     char  basc "RSMH=1.6,1.6,0.9,1.6,1.6 EH=-.2,-.2,-.5,-.2,-.2 RSMH2=1.2,1.2,0.9,0.9 EH2=-1.2,-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3,1.3 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.3,1.3,1.3 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&gwbas
+%     char  basc "RSMH=1.6,1.6,0.9,1.6,1.6 EH=-.2,-.2,-.5,-.2,-.2 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3,1.3 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.3,1.3 EH2=-1.2,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2&gwbas
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.2,-.2,-.5,-.2 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3 EH=-.5,-.2,-.2,-.2 RSMH2=1.2,1.3,1.3 EH2=-1.2,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3
+%     char  basc "RSMH=1.6,1.6,0.9,1.6,1.6 EH=-.1,-.1,-.5,-.1,-.1 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3,1.3 EH=-.5,-.1,-.1,-.1,-.1 RSMH2=1.2,1.3,1.3 EH2=-1.2,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.5,-.1 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3 EH=-.5,-.1,-.1,-.1 RSMH2=1.2,1.3,1.3 EH2=-1.2,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&gwbas
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.2,-.2,-.5,-.2 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3 EH=-.5,-.2,-.2,-.2 RSMH2=0.0,1.3,0 EH2=-1.,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.1,-.1,-.5,-.1 RSMH2=1.2,1.2,0.9 EH2=-1.2,-1.2,-1.2"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3 EH=-.5,-.1,-.1,-.1 RSMH2=0.0,1.3,0 EH2=-1.,-1.,-1."
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.6,1.6,0.9,1.6 EH=-.5,-.1,-.5,-.1"
+%     char  basa "RSMH=1.2,1.3,1.3,1.3 EH=-.8,-.1,-.1,-.1"
+%     char  base "RSMH=1.3,1.3,1.3,1.3 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='HgS'
+%   const tpan=f metal=t azb=11.06
+% elseifd cmpd=='BeSe'
+#   lattice constant from PRB52, 7058 (1995)
+%   const tpan=0 metal=f azb=5.139/.529
+% elseifd cmpd=='ZnSe'
+%   const tpan=t metal=f azb=10.71 gmax=9
+%   ifdef strx=='WZ' | strx=='wzx'
+%     const lmbec=-1
+%     const ngd=40
+%   endif
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,3.91,3.91,4.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,0,3.91,4.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,4.88,5.5)},0,{pval(tpda,4.3,3.95,4.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,4.88,5.5)},0,{ploc(tpda,4.3,3.95,4.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   const ngd=25
+%   ifdef f
+#   Patterned after bigbas11 in CdTe
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.5,1.5,0.90,{lfc?1.5:0},{lgc?1.5:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.9,1.9,{lfa?1.9:0},{lga?1.9:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.2,1.2,1.2 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH=-.2,-.2,-.3,-.2,-.2 RSMH2=1.2,1.2,0.9,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2,1.2 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH=-.2,-.2,-.3,-.2,-.2 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==2&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.2,-.2,-.3,-.2 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.2,-.2,-.2 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas==3
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH=-.1,-.1,-.3,-.1,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2,1.2 EH=-.5,-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.1,-.1,-.3,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.5,-.1,-.1,-.1 RSMH2=1.2,1.2,1.2 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.2,1.2,1.2,1.2 EH=-.1,-.1,-.1,-.1"
+%   elseifd bigbas&gwbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.3,-.2,-.3,-.2 RSMH2=1.5,0.0,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.6,-.2,-.2,-.2 RSMH2=1.5,1.5 EH2=-1.2,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.2,-.2,-.2,-.2"
+%   elseifd bigbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.3,-.1,-.3,-.1 RSMH2=1.5,0.0,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.2,1.2,1.2,1.2 EH=-.6,-.1,-.1,-.1 RSMH2=1.5,1.5 EH2=-1.2,-1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   else
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.5,-.1,-.4,-.1"
+%     char  basa "RSMH=1.3,1.3,1.3,1.3 EH=-.8,-.1,-.1,-.1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='CdSe'
+%   const tpan=t metal=f azb=11.44
+% elseifd cmpd=='HgSe'
+%   const tpan=t metal=t azb=11.50
+% elseifd cmpd=='BeTe'
+#   lattice constant from PRB52, 7058 (1995)
+%   const tpan=0 metal=f azb=5.627/.529
+%   ifdef bigbas
+%     const ngd=18
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1 RSMH2=1.4,1.4 EH2=-1,-1,-1,-1"
+%     char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.4,1.4,1.4,1.4 EH=-0.7,-.1,-.1,-.1 RSMH2=0,1.4 EH2=-1,-1,-1
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   else
+%     const ngd=18
+%     char  basc "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%     char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.4,1.4,1.4,1.4 EH=-0.7,-.1,-.1,-.1"
+%     char  base "RSMH=1.4,1.4,1.4,1.4 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='ZnTe'
+%   const tpan=t metal=f azb=11.53 gmax=9
+%   char  strnc "P={pval(tpsc,0,3.94,5.5)},{pval(tppc,0,3.93,5.5)},{pval(tpdc,3.91,3.91,4.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,3.94,5.5)},{ploc(tppc,0,3.93,5.5)},{ploc(tpdc,0,3.91,4.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,5.88,6.5)},0,{pval(tpda,5.3,4.95,5.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,5.88,6.5)},0,{ploc(tpda,5.3,4.95,5.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+# %   ifdef tpdc==4
+# %     char strnc "P=0,0,0,4.15 IDMOD=0,0,0,1 PZ=0,0,4.3"
+# %   else
+# %     char strnc "P=0,0,0,4.15 IDMOD=0,0,0,1"
+# %   endif
+# %   char  strna "P=0,0,5.3,4.15 IDMOD=0,0,1,1"
+%   ifdef f
+#   Patterned after bigbas11 in CdTe
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.5,1.5,0.90,{lfc?1.5:0},{lgc?1.5:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.2,1.2,{lfa?1.2:0},{lga?1.2:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.2,1.2,1.2 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==4
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH={ehmax},{ehmax},-.3,{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.2,1.2,0.9,1.2 EH2=-1,-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.5,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5,1.5 EH2=-1.2,-1,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==3
+%     char  basc "RSMH=1.5,1.5,0.9,1.5,1.5 EH={ehmax},{ehmax},-.3,{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=1.5,1.5,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5,1.5 EH=-.5,{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.5,1.5,1.5 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas==2
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.5,1.5,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.5,1.5,1.5 EH2=-1.2,-1,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.5,1.5,0.9 EH2=-1,-1,-1"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax} RSMH2=1.5,1.5 EH2=-1.2,-1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=1.5,1.5,0.9,1.5 EH=-.5,{ehmax},-.4,{ehmax}"
+%     char  basa "RSMH=1.5,1.5,1.5,1.5 EH=-.6,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   endif
+% elseifd cmpd=='CdTe'
+%   const tpan=t metal=f azb=12.25
+%   const ngd=25
+%   char  strnc "P={pval(tpsc,0,4.94,6.5)},{pval(tppc,0,4.93,6.5)},{pval(tpdc,4.91,4.91,5.4)},4.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,4.94,6.5)},{ploc(tppc,0,4.93,6.5)},{ploc(tpdc,0,4.91,5.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,5.88,6.5)},0,{pval(tpda,5.3,4.95,5.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,5.88,6.5)},0,{ploc(tpda,5.3,4.95,5.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef f
+#   Patterned after bigbas11 in InP, InAs, GaAs, except Cd d orbital always 4d
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,0.90,{lfc?1.7:0},{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.90 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.9,1.9,{lfa?1.9:0},{lga?1.9:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.9,1.9,1.9 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     ifdef tpdc==4
+%       char  basc "RSMH=1.2,1.2,0.9,1.2 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1 PZ=0,0,5.4 IDMOD=0,0,1"
+%       char  basa "P=0,0,5.3 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=0.0,1.9,0 EH2=-1,-1,-1"
+%       char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%     else
+%       char  basc "RSMH=1.2,1.2,0.9,1.2 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0.9 EH2=-1,-1,-1"
+%       char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=0.0,1.9,0 EH2=-1,-1,-1"
+%       char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%     endif
+%   else
+%     const ngd=25
+%     char  basc "RSMH=1.2,1.2,0.9,1.2 EH=-.1,-.1,-.1,-.1"
+%     char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='HgTe'
+%   const tpan=t metal=t azb=12.21
+%   const tpan=t metal=f azb=12.25
+%   const gmax=10 ngd=24
+%   char  strnc "P={pval(tpsc,0,5.94,7.5)},{pval(tppc,0,5.93,7.5)},{pval(tpdc,5.91,5.91,6.4)},5.15,5.12"
+%   char  strnc "{strnc} PZ={ploc(tpsc,0,5.94,7.5)},{ploc(tppc,0,5.93,7.5)},{ploc(tpdc,0,5.91,6.4)} IDMOD=0,0,0,1,1"
+%   char  strna "P={pval(tpsa,0,5.88,6.5)},0,{pval(tpda,5.3,4.95,5.4)},4.15,5.12"
+%   char  strna "{strna} PZ={ploc(tpsa,0,5.88,6.5)},0,{ploc(tpda,5.3,4.95,5.4)} IDMOD=0,0,{tpda==0?1:0},1,1"
+%   ifdef f
+#   Patterned after bigbas11 in InP, InAs, GaAs, except Hg d orbital always 5d
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=1.7,1.7,0.95,{lfc?1.7:0},{lgc?1.7:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef f
+%     elseif bigbas==11
+%     char  basc "{basc} RSMH2=1.5,0,0.95 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=1.5,1.5,0.95 EH2={ehmax-.8},{ehmax-.8},{ehmax-.8} RS3=1"
+%     endif
+%     char  basa "RSMH=1.5,1.9,1.9,{lfa?1.9:0},{lga?1.9:0} EH={-.6},{ehmax},{ehmax},{ehmax},{ehmax} RS3=1"
+%     char  basa "{basa} RSMH2=1.9,1.9,1.9 EH2=-1.3,{ehmax-.8},{ehmax-.8}"
+%     char  base "RSMH=1.5,1.5,1.5,1.5*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   elseifd bigbas
+%     ifdef tpdc==4
+%       char  basc "RSMH=1.2,1.2,0.95,1.2 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0.95 EH2=-1,-1,-1 PZ=0,0,6.4 IDMOD=0,0,1"
+%     ifdef bigbas==2
+%       char  basa "P=0,0,5.3 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=1.5,1.9,1.9 EH2=-1.4,-1,-1"
+%     else
+%       char  basa "P=0,0,5.3 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=0.0,1.9,0 EH2=-1,-1,-1"
+%     endif
+%       char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%     else
+%       char  basc "RSMH=1.2,1.2,0.95,1.2 EH=-.1,-.1,-.1,-.1 RSMH2=1.2,1.2,0.95 EH2=-1,-1,-1"
+%     ifdef bigbas==2
+%       char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=1.5,1.9,1.9 EH2=-1.4,-1,-1"
+%     else
+%       char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1 RSMH2=0.0,1.9,0 EH2=-1,-1,-1"
+%     endif
+%       char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%     endif
+%   else
+%     char  basc "RSMH=1.2,1.2,0.95,1.2 EH=-.1,-.1,-.1,-.1"
+%     char  basa "P=0,0,5.25 IDMOD=0,0,1 RSMH=1.5,1.9,1.9,1.9 EH=-.6,-.1,-.1,-.1"
+%     char  base "RSMH=1.5,1.5,1.5,1.5 EH=-.1,-.1,-.1,-.1"
+%   endif
+% elseifd cmpd=='HgCdTe'
+%   const tpan=t metal=f azb=12.25 Zb=81
+% elseifd cmpd=='NiMnSb'
+#   NiMnSb in the C1b structure: Ni plays role of cation, Mn uses info for 'b' atom.
+%   const tpan=t metal=t azb=5.927/.52918 elind=-1
+#   default values for basis: cation p core; no local d orbital ; Sb 4d core
+%   const tppc=0 tpdc=0 tpda=0
+%   const gmax=tpda==0?8.5:10
+%   ifdef tppc==2 | tpdc==4
+%     char0 strnc "PZ=5.5,{?~tppc==2~3.9~0},{?~tpdc==4~4.5~0}"
+%     char0 strnb "{strnc} MMOM=0,0,4"
+%   elseifd tppc | tpdc
+%     stop 1 (semi.mater) tppc(={tppc}) or tpdc(={tpdc}) not implemented for {cmpd}
+%   else
+%     char0 strnb "MMOM=0,0,4"
+%   endif
+%   ifdef tpda==2
+%     char  strna "P=0,0,5.40 IDMOD=0,0,1 PZ=6.5,6.5*0,4.9"
+%   elseifd tpda
+%     stop 1 (semi.mater) tpda(={tpda}) not implemented for {cmpd}
+%   else
+%     char  strna "P=0,0,5.30 IDMOD=0,0,1"
+%   endif
+%   ifdef gwbas
+%     const ehmax=-.3
+%   else
+%     const ehmax=-.1
+%   endif
+%   ifdef f
+#   bigbas=3 g orbitals on Ni,Mn,Sb
+%   elseifd bigbas==3
+%     char  basc "RSMH=2.1,2.1,1.0,1.8,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basb "RSMH=2.1,2.1,1.0,2.1,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basb "{basb} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.7,1.7,1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.7,1.7,{tpda?0.8:0} EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=2 f orbitals on Ni,Mn,Sb
+%   elseifd bigbas==2
+%     char  basc "RSMH=2.1,2.1,1.0,1.8 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basb "RSMH=2.1,2.1,1.0,2.1 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basb "{basb} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.7,1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.7,1.7,{tpda?0.8:0} EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#   bigbas=1 double spd on Ni,Mn; double sp on Sb; spd on ES
+%   elseifd bigbas
+%     char  basc "RSMH=2.1,2.1,1.0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basc "{basc} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basb "RSMH=2.1,2.1,1.0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basb "{basb} RSMH2=2.1,2.1,1.0 EH2={ehmax-.9},{tppc?-2:ehmax-.9},{ehmax-.9}"
+%     char  basa "RSMH=1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=1.7,1.7,{tpda?0.8:0} EH2={ehmax-.9},{ehmax-.9},{ehmax-.9}"
+%     char  base "RSMH=1.7,1.7,1.7 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%   else
+%     char  basc "RSMH=2.1,2.1,1.15 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basb "RSMH=2.1,2.1,1.15 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=1.7,1.7,1.7 EH=-.7,{ehmax<-.4?ehmax:-.4},{ehmax},{ehmax}"
+%     char  base "RSMH=1.7,1.7,1.7*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef tppc | tpdc | tpda
+%       echo (semi.mater) warning! tppc,tpdc,tpda inappropriate for this basis
+%     endif
+%   endif
+% elseifd cmpd=='CaF2'
+#   CaF2 in the Flourite structure
+%   const tpan=t metal=f azb=10.3234 elind=-1
+% elseifd cmpd=='CeO2'
+#   CeO2 in the CaF2 structure
+%   const tpan=t metal=f azb=5.413/.529 elind=-1 gmax=10 lmba=3
+%   ifdef gwbas
+%     const ehmax=-.3
+%   else
+%     const ehmax=-.1
+%   endif
+%   ifdef f
+%   elseifd bigbas==11 | bigbas==12
+%     char  basc "RSMH=3.0,1.2,1.7,1.6,{lgc?1.6:0} EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     ifdef bigbas==11
+%     char  basc "{basc} RSMH2=3.0,1.2*0,1.7,1.6 EH2={ehmax-1},{ehmax-1},{ehmax-1},{ehmax-1},{ehmax-1}
+%     elseif bigbas==12
+%     char  basc "{basc} RSMH2=3.0,1.2,1.7,1.6 EH2={ehmax-1},{ehmax-1},{ehmax-1},{ehmax-1},{ehmax-1}
+%     endif
+%     char  basa "RSMH=0.85,0.75,1.5 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "{basa} RSMH2=0.85,0.80,1.5*0 EH2={ehmax-1},{ehmax-1},{ehmax-1},{ehmax-1}"
+%     char  base "RSMH=1.7,1.7,1.7*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+#     for now use fractional charge when tpsc>0 to get convergence
+%     char  strnc "P=6.5,6.30,5.30,4.15,5.12 IDMOD=0 1 1 1 1 Q={tpsc>=2?0:2},0,{tpsc>=2?1.7:0},2 MMOM=2,0,0,2"
+%     char  strnc "{strnc} PZ={tpsc==2?5.94:{tpsc==3?15.94:0}},{tppc==2?5.93:{tppc==3?15.93:0}} RS3=1"
+%   else
+%     char  basc "RSMH=3.0,1.2,1.7,1.6 EH={ehmax},{ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  basa "RSMH=0.85,0.80,1.5 EH=-1.0,{ehmax},{ehmax},{ehmax}"
+%     char  base "RSMH=1.7,1.7,1.7*0 EH={ehmax},{ehmax},{ehmax},{ehmax}"
+%     char  strnc "P=6.5,6.30,5.30,4.15,5.12 IDMOD=0 1 1 1 1"
+%     char  strnc "{strnc} PZ={tpsc==2?5.93:{tpsc==3?15.93:0}},{tppc==2?5.93:{tppc==3?15.93:0}} RS3=1"
+%   endif
+% endif
+# % show vars
+# % stop
+
+#---------------- Default materials properties  ----------------
+% const q=sqrt(8/3)
+#---------------- Free-atom energies ----------------
+% vec erefbh[82]
+% vec erefbh(1:5) -0.8981-0.0781 0 -14.7106 -28.9148 -48.7408
+% vec erefbh(6:8) -74.9949 -108.3613 -149.1822
+% vec erefbh(9:14) -198.4228 0 -323.3409 -398.9159 -483.5463 -577.69658
+% vec erefbh(15:18) -681.7019 -795.7136 -920.2358 0
+% vec erefbh(19:22) -1201.1108 -1357.3538 -1524.6173 -1703.4890
+% vec erefbh(23:26) -1894.2951 -2097.3033 -2312.6092 -2540.5681
+% vec erefbh(27:30) -2781.6524 -3036.1820 -3304.4345 -3586.5189
+% vec erefbh(31:34) -3882.1256 -4191.6569-0.0522 -4515.4714 -4853.4670
+% vec erefbh(35:40) 0 0 -5955.1147 -6351.4281 -6762.5727 -7189.0263
+% vec erefbh(41:44) -7631.0823 -8088.9209 -8562.5418 -9052.4204
+% vec erefbh(45:48) -9558.7907 -10081.8924 -10621.9685 -11178.8931
+% vec erefbh(49:54) -11752.5630 -12343.4222 -12951.6632 -13577.3544 0 0
+% vec erefbh(55:57) -15561.2527 -16258.1782 -16973.2948
+# Ce:  Q=2,0,0,2 MMOM=2,0,0,2
+% vec erefbh(58:71) -17707.4198 0 0 0 0 0 -22527.181222 0 0 0 -26155.2775 0 0 0
+% vec erefbh(72:75) -30137.6046 -31189.9017 -32265.5134 -33364.4264
+% vec erefbh(76:79) -34487.2370 -35634.0931 -36805.4789 -38001.6756
+% vec erefbh(80:82) -39222.8479 -40468.8134 0
+% vec ereflm[82]
+% vec ereflm(1:8) -0.9894 0 -14.8363 -29.0952 -48.9840
+% vec ereflm(6:8) -75.3053 -108.7417 -149.6055
+% vec ereflm(9:14) -198.9010 0 -323.9536 -399.5824 -484.2945 -578.53355
+% vec ereflm(15:18) -682.6306 -796.7102 -921.3120 0
+% vec ereflm(19:22) -1202.3534 -1358.6611 -1526.0016 -1704.9844
+% vec ereflm(23:26) -1895.8753 -2098.9693 -2314.3248 -2542.3426
+% vec ereflm(27:30) -2783.53 -3038.1050 -3306.4359 -3588.5895
+% vec ereflm(31:34) -3884.2872 -4193.9012-0.0720 -4517.8415 -4855.9134
+% vec ereflm(35:40) 0 0 -5957.8443 -6354.2361 -6765.4799 -7192.0796
+% vec ereflm(41:44) -7634.2494 -8092.2041 -8565.9731 -9055.8738
+% vec ereflm(45:48) -9562.3473 -10085.5577 -10625.7667 -11182.7667
+% vec ereflm(49:54) -11756.5524 -12347.5389 -12955.9104 -13581.7015 0 0
+% vec ereflm(55:57) -15565.9590 -16262.9903 -16978.2357
+% vec ereflm(58:71) 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+% vec ereflm(72:75) -30144.5720 -31197.1092 -32272.8772 -33371.9218
+% vec ereflm(76:79) -34494.8876 -35641.9213 -36813.4896 -38009.8780
+% vec ereflm(80:82) -39231.2340 -40477.3968 0
+% vec erefvo[82]
+% vec erefpw[82]
+% vec erefp6[82]
+
+% vec erefvo(1:5)   -.8918-.0660 0 0 -28.9001 -48.7219
+% vec erefvo(6:8)   -74.88394-0.0883 -108.11284-.2237 -149.1664
+% vec erefvo(9:14)   0 0 0 -398.9207 -483.5517 -577.65247-0.0485
+% vec erefvo(15:18) -681.7055 -795.7303 -920.2604
+% vec erefvo(19:22)         0  -1357.3968          0 -1703.5284
+% vec erefvo(23:26)         0      0               0 -2540.6621
+% vec erefvo(27:30)         0 -3036.2988 -3304.5648
+% vec erefvo(31:34) -3882.2788 -4191.8235-0.0446 -4515.6359 -4853.6510
+% vec erefvo(45:48) 0 -12952.0424 0 0
+% vec erefvo(49:51) -11752.9277 -12343.75667-0.0377 -12952.0426
+% vec erefvo(52:54) -13577.7553 0 0
+% vec erefpw(1:5)   0 0 0 0 -48.9650
+% vec erefpw(6:8)   -75.2826 -108.7171 0 0 0
+% vec erefpw(9:14)  0 0 0 0 -484.2999 -578.5380
+% vec erefpw(15:18) -682.6343 0 0 0
+% vec erefpw(26:28) -2545.8752 0 -3042.0250
+% vec erefpw(31:34) -3884.4404 0 -4518.0060 0
+% vec erefpw(49:51) -11756.9171 0 -12956.2896
+% vec erefp6(1:5)   0 0 0 0 -49.2260
+% vec erefp6(6:8)   -75.6206 -109.135579 0 0 0
+% vec erefp6(9:14)  0 0 0 0 -485.3835 -579.7322
+% vec erefp6(15:18) -683.9418 0 0 0
+% vec erefp6(31:34) -3887.8879 -4197.7197 -4521.7362 0
+% vec erefp6(45:48) 0 -12962.9868 0 0
+# warning: seems to be a problem with PBE functional for Sb
+% vec erefp6(49:54) -11763.2675 0 -12967.6656 0 0 0
+#---------------- Element-dependent constants ----------------
+# ... do for C, A, and optionally B
+% repeat i=1:nelt
+%   udef -f Zz
+%   cchar elt i==1 {eltc} i==2 {elta} i==3 {eltb}
+%   cconst elt=='Be' Zz=4  qq=0
+%   cconst elt=='B'  Zz=5  qq=1
+%   cconst elt=='C'  Zz=6  qq=2
+%   cconst elt=='Mg' Zz=12 qq=0
+%   cconst elt=='Al' Zz=13 qq=1 tpd=0
+%   cconst elt=='Si' Zz=14 qq=2 rc=4.8
+%   cconst elt=='Ca' Zz=20 qq=0 tps=2 tpp=2
+%   cconst elt=='Cr' Zz=24 qq=0 tps=2 tpp=0
+%   cconst elt=='Mn' Zz=25 qq=0 tps=2 tpp=0
+%   cconst elt=='Ni' Zz=28 qq=0 tps=2 tpp=0
+%   cconst elt=='Ge' Zz=32 qq=2 tpd=2
+%   cconst elt=='Sn' Zz=50 qq=2 tpd=2
+%   cconst elt=='Ga' Zz=31 qq=1 tpd=tpan==2?4:1
+%   cconst elt=='In' Zz=49 qq=1 tpd=tpan==2?4:1
+%   cconst elt=='Zn' Zz=30 qq=0 tpd=tpan==2?4:1
+%   cconst elt=='Cd' Zz=48 qq=0 tpd=tpan==2?4:1
+%   cconst elt=='Hg' Zz=80 qq=0 tpd=tpan==2?4:1
+%   cconst elt=='Tl' Zz=81 qq=1 tpd=tpan==2?4:1
+%   cconst elt=='C'  Zz=6  qq=2
+%   cconst elt=='N'  Zz=7  qq=3 rc=2.8
+%   cconst elt=='O'  Zz=8  qq=4
+%   cconst elt=='Si' Zz=14 qq=2 rc=4.8
+%   cconst elt=='P'  Zz=15 qq=3 rc=3.5
+%   cconst elt=='As' Zz=33 qq=3 tpd=2 rc=4.5
+%   cconst elt=='Sb' Zz=51 qq=3 tpd=2 rc=4.6
+%   cconst elt=='S'  Zz=16 qq=4
+%   cconst elt=='Se' Zz=34 qq=4 tpd=2
+%   cconst elt=='Te' Zz=52 qq=4 tpd=2
+%   cconst elt=='Sc' Zz=21 qq=4
+%   cconst elt=='Ti' Zz=22 qq=4
+%   cconst elt=='Sr' Zz=38 qq=4
+%   cconst elt=='Ce' Zz=58 qq=4
+%   cconst elt=='Gd' Zz=64 qq=4
+%   cconst elt=='Er' Zz=68 qq=4
+# --- Sanity check
+% ifdef Zz
+% else
+%   stop 1 (semi.mater) missing Z for element {elt}
+% endif
+# ... default values
+% const tps=0 tpp=0 tpd=0
+% udef -f eref
+% cconst lmh&xcf eref=xcf==2?ereflm(Zz):(xcf==1?erefpw(Zz):0)
+% cconst xcf eref=xcf==2?erefbh(Zz):(xcf==1?erefvo(Zz):(xcf==-2?erefp6(Zz):0))
+% const  eref=0
+# --- copy to c,b,a depending on i
+% cchar strn i==1 c i==2 a i==3 b
+% const Z{strn}=Zz eref{strn}=eref
+% ifdef ofp
+%   const q{strn}=qq tps{strn}=tps tpp{strn}=tpp tpd{strn}=tpd
+% endif
+# ... printout
+% char strn "Z={Zz}"
+% cchar strn ofp "{strn} qc={qq} tps={tps} tpp={tpp} tpd={tpd}"
+% echo {elt} parms : {strn} eref={eref}
+% udef   tps tpp tpd zz qq
+% end
+# % show vars
+# % stop
