@@ -1,4 +1,0 @@
-#!/bin/csh
-foreach xxx(`ls ChiPM*.nolfc.mat`)
-echo $xxx 2 | caljdet 
-end

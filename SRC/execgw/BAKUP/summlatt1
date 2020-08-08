@@ -1,0 +1,149 @@
+#!/bin/csh
+#goto aaa1
+
+set ctrlext = "si"
+set Kroot   = "Si_etotAPR05"
+#set dirnameall = "all_1_222_rmt.800"
+
+set aaa = "`ls ../*_JOB`"
+set dirnameall = "`echo $aaa |sed -e 's/\.\.\///g' -e 's/_JOB//g' `"
+echo $dirnameall
+
+if(-e ETOTeV.dat.all) rm ETOTeV.dat.all
+pushd .
+set ccc = $PWD
+
+#foreach dn ( 3 4 5 6 7 8)
+foreach dn ( 3 4  5 6 7 8)
+cd ~/dob$dn/$Kroot
+echo ---- dob$dn ----------------------------------------
+#echo `pwd` ----------------------------------------------------1
+
+foreach ddd  ( `find  -maxdepth 1 -type d -path './*'`)
+echo dob$dn $ddd ============================
+#if(! -e  $ddd/ETOTeV.dat) continue
+pushd . >& /dev/null
+cd $ddd
+pwd
+#head -100 -v ETOTeV.dat
+#afe
+set mmm = $ddd:t
+#echo $mmm
+#echo $ccc/ETOTeV.dat.all
+awk 'BEGIN{\
+xxx = "'$mmm'" }\
+{printf " %s  %s \n", xxx, $0 \
+}' ETOTeV.dat >> $ccc/ETOTeV.dat.all
+#>ETOTeV.dat.ecut
+#cat ETOTeV.dat >> ~/dob3/Si_ecut/ETOTeV.dat.all
+popd >& /dev/null
+end
+end
+popd
+
+aaa1:
+echo 'copy to eeex'
+cp $ccc/ETOTeV.dat.all eeex
+
+
+############################################################
+# write template for gnuplot
+cat <<EOF > etotplot0 
+#!/usr/bin/gnuplot -persist
+xx(x)= (x-9.8)
+a=0
+b=0
+c=0
+#d=0
+f(x)  = ((((((a*xx(x)+b)*xx(x) + c) * xx(x) + d) *xx(x) +e)*xx(x) +f)*xx(x) +g)*xx(x) + h
+fd(x) =  ((((7*6*a*xx(x)+6*5*b)*xx(x) + 5*4*c) * xx(x) + 4*3*d) *xx(x) +3*2*e)*xx(x) +2*f
+
+#fit f(x) "edat" using 3:5 via  a,b,c,d,e,f,g,h
+#fit f(x) "edat" using 3:5 via e,f,g,h  , d,c
+#fit f(x) "edat" using 2:3 via e,f,g,h , d #,c
+#fit f(x) "edat" using 2:3 via e,f,g,h #, d #,c
+fit f(x)  "edat" using 2:datal via e,f,g,h , d #,c
+
+set mxtics 10  
+set mytics 10 
+set ticscale 3 1
+set grid 
+set title 'edat' 
+set xlabel 'x-axis' 
+set ylabel 'y-axis'
+set xrange [9.4: 11.0]
+
+#set terminal postscript eps 
+#set output "ETOTeV.eps"
+#plot f(x) with lines, "edat" using 2:datal with points pointtype 8 pointsize 2.2 
+
+#set terminal x11
+#plot f(x) with lines, "edat" using 2:datal with points pointtype 8 pointsize 2.2 
+save "ETOTeV.plt"
+x=9.5
+load "looper1"
+EOF
+
+cat <<EOF2 >looper1
+x=x+0.001
+#print x, f(x)
+if(f(x)>f(x+0.001) & x<12.0 ) reread
+if(f(x)<f(x+0.001) ) print "Minimum@= ", x,' ', f(x),' ',fd(x)
+EOF2
+
+
+
+cat <<EOF3 >lclean
+#!/usr/bin/python
+import sys
+import string
+import os
+
+fr = open(sys.argv[1],'rt')
+oxx= fr.read()
+oxx= string.split(oxx,'\n')
+fr.close()
+
+for ix in range(0,len(oxx)-1):
+	iline= oxx[ix]
+	oss  = string.split(iline,' ')
+	w1=string.atof(oss[1])
+	w2=string.atof(oss[2])
+	w3=string.atof(oss[3])
+	if ix==0: aaa=" ! Ex+RPA"
+	if ix==1: aaa=" ! Ex only "
+	if ix==2: aaa=" ! LDA "
+	print " %12.3f   %12.6f %8.3f %s" % (w1,w2,w3,aaa)
+
+EOF3
+chmod +x lclean
+
+############################################################
+foreach con ( $dirnameall )
+
+if(-e latt_$con) rm latt_$con
+#foreach ecut  ( 0.0 0.5 1.0 1.5 2.0 2.5 3.0 4.0 5.0 6.0 7.0 7.5 8.0 8.5 9.0 10.0 11.0 12.0 13.0 14.0)
+#grep  " ${ecut}0 "  eeex | grep  "$con"  >ETOTeV.$con.ecut$ecut
+grep  "$con"   eeex >ETOTeV.$con
+set edat = "ETOTeV.$con"
+
+rm lattx
+foreach datal (3 4 7)
+
+sed -e "s/edat/$edat/g" \
+    -e "s/datal/$datal/g" \
+    etotplot0 > etotplot
+chmod +x etotplot
+./etotplot >& etotplot.$con
+
+grep rms etotplot.$con
+
+tail -1  etotplot.$con >> lattx
+
+end
+./lclean lattx > latt_$con
+head -100 -v latt_$con
+echo ' ----------------------------------'
+end
+rm lattx
+rm eeex

@@ -1,0 +1,53 @@
+#!/usr/bin/python
+import sys
+import string
+import os
+import re
+print
+print "========= plotg  ========="
+try:
+	print "Readin two files (TOTE)=   ", sys.argv[1], sys.argv[2]
+except:	
+	print "usage: dtote TOTEa TOTEb"
+	sys.exit()
+
+#######################################
+# Setting
+ilinit=0 # number of lines skipped at the begining of lines.
+# im is how many dadas as the head of each lines are written as they are.
+
+#######################################	
+
+fr = open(sys.argv[1],'rt')
+oxx=fr.read()
+oxx=string.split(oxx,'\n')
+fr.close()
+
+fr = open(sys.argv[2],'rt')
+oyy=fr.read()
+oyy=string.split(oyy,'\n')
+fr.close()
+
+for ix in range(len(oxx)):
+	ilin1=oxx[ix]
+	ilin2=oyy[ix]
+
+	if(ix<ilinit): continue # skip lines at th begining of files
+	
+	if(ix==0) : 
+		im=0 # Write first im datas as it is for 1st line. 
+	else:
+		im=5 # Write first im datas as it is.
+		
+	try:
+		print "line=%6d: " % ix,
+		for iw in range(0,len(string.split(ilin1)),1):
+			if(iw<im):
+				print '%11s' %  string.split(ilin1)[iw],
+			else:	
+				w1=string.atof(re.sub("D","E",string.split(ilin1)[iw]))
+				w2=string.atof(re.sub("D","E",string.split(ilin2)[iw]))
+				print '%10.3f' % (w1-w2),
+		print	
+	except:
+		print 'error'

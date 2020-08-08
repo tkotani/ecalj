@@ -1,0 +1,25 @@
+FC = mpif90 -mcmodel=medium -g -debug all -par-report -heap-arrays 1 #-openmp 
+
+CPPSWITCH_INTELLINUXIFC  = \
+-DEXPAND_ISWAP  -DEXPAND_VDV   -DCOMMONLL  -UDUMMY_ETIME -DEXPAND_MELPLN2         \
+-DUSE_X0KBLAS   -DX0KBLAS_DIV  -UEXPAND_SUBSTITUTION     -UCOMMENTOUTfor_PARALLEL \
+-DMbytes_X0KBLAS_DIV=2        -DNWORD_RECORDSIZE=1     -DEXPAND_SORTEA \
+-DMPI_COMPLEX16=MPI_DOUBLE_COMPLEX
+
+FFLAGS=-O2 -132  -cpp $(CPPSWITCH_INTELLINUXIFC) 
+
+para_g = .o     # ppbafp.f  psi2bc1.f psi2bc.f See makefile.
+sxcf_g = .o     # sxcf.f
+x0kf_g = .o     # x0kf.f
+hqpe_g = .o     # hqpe.f
+tet5_g = .o
+
+LIBLOC = -lfftw3 -mkl=sequential  
+LIBMATH= $(LIBLOC)
+
+LK = mpif90 -mcmodel=medium -g -debug all #-openmp
+LKFLAGS2 = $(LIBMATH) 
+
+#ECAL   = $(HOME)/ecal
+#BINDIR = $(HOME)/bin
+

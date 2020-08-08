@@ -1,0 +1,49 @@
+#! /bin/csh
+# keep head part -----------------
+foreach ddd ($argv)
+    echo $ddd
+    pushd .
+    cd $ddd
+    foreach  xxx (`find . -name VXCFP.chk`)
+    echo $xxx
+    head -1000 $xxx > $xxx.head
+    rm $xxx
+    end
+    foreach  xxx (`find . -name "normchk.*"|grep -v head`)
+    echo $xxx
+    head -1000 $xxx > $xxx.head
+    rm $xxx
+    end
+    foreach  xxx (v_xc evec VCC PLN WVR WVI EVU EVD PPB BAS fort BAS VXCFPV PPOVL DATA4GW gwa gwb gw1 gw2 gw3 PHI HVCCIN CPHI CphiGeig GEIG mixm mixsigma sigma vxc moms Vcoud EPS0inv Core evec vxc WVI WVR)
+    echo 'cleaning--- ', "$xxx*" '----------------------'
+    find . -name "$xxx*"
+    rm -f `find . -name "$xxx*"`
+    end
+    popd
+end
+
+exit
+
+rm -f VCC*
+rm -f PLN
+rm -f WVR
+rm -f WVI
+rm -f PPB*
+rm -f BAS*
+rm -f fort.*
+rm -f HVCCIN
+rm -f PHI*
+rm -f EV*
+rm -f CPH*
+rm -f VXCFP
+rm -f VXCFPV
+rm -f PPOVL
+rm -f DATA4GW*
+rm -f gwa.*
+rm -f gwb.*
+rm -f gw1.*
+rm -f gw2.*
+rm -f gw3.*
+rm -f vxc.*
+rm -f EPS0inv
+rm -f Vcoud

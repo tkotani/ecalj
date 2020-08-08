@@ -1,0 +1,123 @@
+#! /bin/csh
+
+set qpnts = ( . . . . . . . . . . . )
+set nqpnts = 0
+set fn0 = dat
+set cshft
+
+options:
+switch ($1)
+   case "-qp=*":
+     @ nqpnts = $nqpnts + 1
+     set qpnts[$nqpnts] = `echo $1 | awk '{print substr($1,5)}'`
+     shift; goto options
+
+   case "-lda":
+     set lda; shift; goto options
+
+   case "-lst=*":
+     set qplst = `echo $1 | awk '{print substr($1,6)}'` ; shift; goto options
+
+   case "-fn=*":
+     set fn0 = `echo $1 | awk '{print substr($1,5)}'` ; shift; goto options
+
+   case "-eshft=*":
+     set cshft = "-shft="`echo $1 | awk '{print substr($1,8)}'`; shift; goto options
+
+  case "-*":
+     echo 'xqp : no switch "'$1'"' ... aborting ; goto usage
+endsw
+
+if ($?qplst == 0) goto usage
+if ($#argv == 0) goto usage
+if ($#argv  > 2) then
+  echo xqp : missing or extraneous arguments $argv  ...
+  goto usage
+  exit -1
+endif
+if (! -f $1/$fn0 || ! -r $1/$fn0) then
+  echo file \"$1/$fn0\" not readable ... aborting
+  exit -1
+endif
+if (`mlist $qplst| awk '{print $1}'` == "usage:") then
+  echo xqp : bad or null list of energy levels \"$qplst\"  ... aborting
+  goto usage
+endif
+
+set fn = $fn0
+if ($nqpnts > 0 && $#argv == 1) then
+  set fn = dat~
+  rm -f $argv[1]/$fn
+  set iqpnts = 0
+  while ($iqpnts < $nqpnts)
+    @ iqpnts = $iqpnts + 1
+    set sstrn = `echo $qpnts[$iqpnts] | sed 's/,/ \\*/g'`
+#    echo $iqpnts "$sstrn"
+    echo ' ' >>$argv[1]/$fn
+    egrep -e "$sstrn" $argv[1]/$fn0 >>$argv[1]/$fn
+  end
+else if ($nqpnts > 0 && $#argv == 2) then
+  set fn = dat~
+  rm -f $argv[1]/$fn $argv[2]/$fn
+  set iqpnts = 0
+  while ($iqpnts < $nqpnts)
+    @ iqpnts = $iqpnts + 1
+    set sstrn = `echo $qpnts[$iqpnts] | sed 's/,/ \\*/g'`
+    echo ' ' >>$argv[1]/$fn
+    egrep -e "$sstrn" $argv[1]/$fn0 >>$argv[1]/$fn
+    echo ' ' >>$argv[2]/$fn
+    egrep -e "$sstrn" $argv[2]/$fn0 >>$argv[2]/$fn
+  end
+endif
+
+# ... print out eigenvalues of file dir/$fn0 (or dat~ if nqpts>0)
+if ($#argv == 1) then
+  set tlx0 = `tail -1 $argv[1]/lx0 | awk '{printf "%.1fh\n" ,$4/60}'`
+  set tlsc = `tail -1 $argv[1]/lsc | awk '{printf "%.1fh\n" ,$4/60}'`
+  echo "($tlx0+$tlsc)"
+  foreach i (`mlist $qplst`)
+    if ($?lda == 0) then
+      cat $argv[1]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s ", $1,$3}} END {printf "\n"}' | mc '-f12(1x,2f7.2)' . $cshft | grep -v rows
+    else
+      cat $argv[1]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s %s ", $1,$3,$5}} END {printf "\n"}' | mc '-f12(1x,3f7.2)' . $cshft | grep -v rows
+    endif
+  end
+# ... print out eigenvalue differences in files dir/$fn0, dir2/$fn0 (use dat~ if nqpts>0)
+else
+  rm -f dat.tmp1 dat.tmp2
+  touch dat.tmp1 dat.tmp2
+  set tlx0  = `tail -1 $argv[1]/lx0 | awk '{printf "%.1fh\n" ,$4/60}'`
+  set tlsc  = `tail -1 $argv[1]/lsc | awk '{printf "%.1fh\n" ,$4/60}'`
+  set tlx02 = `tail -1 $argv[2]/lx0 | awk '{printf "%.1fh\n" ,$4/60}'`
+  set tlsc2 = `tail -1 $argv[2]/lsc | awk '{printf "%.1fh\n" ,$4/60}'`
+  echo "($tlx0+$tlsc->$tlx02+$tlsc2)"
+
+  foreach i (`mlist $qplst`)
+    if ($?lda == 0) then
+      cat $argv[1]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s ", $1,$3}} END {printf "\n"}' >>dat.tmp1
+    else
+      cat $argv[1]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s %s ", $1,$3,$5}} END {printf "\n"}' >>dat.tmp1
+    endif
+  end
+  foreach i (`mlist $qplst`)
+    if ($?lda == 0) then
+      cat $argv[2]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s ", $1,$3}} END {printf "\n"}' >>dat.tmp2
+    else
+      cat $argv[2]/$fn | awk -v i=$i '{if ($NF == i) {printf "%s %s %s ", $1,$3,$5}} END {printf "\n"}' >>dat.tmp2
+    endif
+  end
+  if ($?lda == 0) then
+    mc '-f12(2f7.2:1x)' dat.tmp1 $cshft dat.tmp2 $cshft -- | grep -v rows
+  else
+    mc '-f12(1x,3f7.2)' dat.tmp1 $cshft dat.tmp2 $cshft -- | grep -v rows
+  endif
+endif
+
+exit
+usage:
+echo "usage:  xqp [-switches] -lst=qp-list dir        prints qp energies belonging to qp-list in file dir/dat"
+echo "        xqp [-switches] -lst=qp-list dir dir2   prints qp energy differences in files dir/dat and dir2/dat"
+echo "            switches:"
+echo "            -lda      include lda results; output has 3 columns per qp"
+echo "            -fn=name  use file dir/name rather than dir/dat"
+exit -1

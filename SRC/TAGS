@@ -1,0 +1,4198 @@
+
+wanniergw/BAKUP1/e2h.F,103
+      subroutine hermite(66,2037
+      subroutine diag_hm(81,2391
+      subroutine wan2ham(112,3126
+
+wanniergw/BAKUP1/eispack.F,632
+      subroutine diagno(3,33
+      subroutine bchd(43,1645
+      subroutine bred(101,3729
+      subroutine bbak(179,6514
+      subroutine hcinv(396,14440
+      subroutine yhifa(482,17152
+      subroutine yhidi(724,25465
+      integer function iyamax(976,33454
+      double precision function dcabs1(1012,34297
+      double precision function cdabs2(1016,34417
+      subroutine cpy(1020,34538
+      subroutine cdiv(1028,34771
+      subroutine btridi(1054,35433
+      SUBROUTINE IMTQLV(1205,40260
+      SUBROUTINE BINVIT(1354,44871
+      subroutine btribk(1743,59366
+      double precision function pythag(2235,75172
+
+wanniergw/BAKUP1/hband_ent_MPI.m.F,179
+      subroutine readuu6(217,6431
+      subroutine chk_umn(257,7827
+      subroutine chk_uuqk(275,8325
+      subroutine disent_band(300,9062
+      subroutine wband(577,17093
+
+wanniergw/BAKUP1/hband_ent_MPI2.m.F,179
+      subroutine readuu6(218,6442
+      subroutine chk_umn(258,7838
+      subroutine chk_uuqk(276,8336
+      subroutine disent_band(301,9073
+      subroutine wband(578,17104
+
+wanniergw/BAKUP1/hband_ent_single_MPI.m.F,179
+      subroutine readuu5(213,6226
+      subroutine chk_umn(251,7486
+      subroutine chk_uuqk(269,7984
+      subroutine disent_band(294,8721
+      subroutine wband(552,16265
+
+wanniergw/BAKUP1/hdos_ent_MPI.m.F,218
+      subroutine readuu5(205,6071
+      subroutine chk_umn(243,7331
+      subroutine chk_uuqk(261,7829
+      subroutine disent_band(286,8566
+      subroutine disent_dos(539,15972
+      subroutine wband(792,23359
+
+wanniergw/BAKUP1/hibz2fbz0.F,140
+      subroutine checkagree(494,17388
+      subroutine ldanm(503,17696
+      subroutine senm(521,18125
+      subroutine senm2(561,19079
+
+wanniergw/BAKUP1/hibz2fbz0_test.F,140
+      subroutine checkagree(530,18381
+      subroutine ldanm(539,18689
+      subroutine senm(557,19118
+      subroutine senm2(597,20072
+
+wanniergw/BAKUP1/hibz2fbz0wan.F,183
+      subroutine checkagree(495,17984
+      subroutine ldanm(504,18292
+      subroutine senm_wan_r(522,18721
+      subroutine senm_wan(553,19476
+      subroutine senm2(584,20229
+
+wanniergw/BAKUP1/hnocc_mlw.F,149
+      subroutine efsimplef2a_mlw 269,9497
+      subroutine r_dnk(579,19606
+      subroutine r_evalevec(612,20536
+      subroutine wefn(787,25774
+
+wanniergw/BAKUP1/hphig.F,218
+      subroutine checkagree(579,20416
+      subroutine  readbb(588,20724
+      subroutine  getc1c2(630,21927
+      subroutine qggmat(714,24531
+      subroutine aaumat(875,29373
+      subroutine ophiphi(933,31113
+
+wanniergw/BAKUP1/hqpband_ent_MPI.m.F,462
+      subroutine readuu6(299,9967
+      subroutine chk_umn(339,11363
+      subroutine chk_uuqk(357,11861
+      subroutine disent_qpband(382,12598
+      subroutine wband(817,27982
+      subroutine wqpband(832,28314
+      subroutine k2r(847,28662
+      subroutine r2q(869,29277
+      subroutine q2p(889,29832
+      subroutine wan2ham(919,30695
+      subroutine wan2ham_d(936,31140
+      subroutine wan2ks(955,31617
+      subroutine wan2ks_d(972,32059
+
+wanniergw/BAKUP1/hqpband_ent_MPI_test.m.F,462
+      subroutine readuu6(275,9112
+      subroutine chk_umn(315,10508
+      subroutine chk_uuqk(333,11006
+      subroutine disent_qpband(358,11743
+      subroutine wband(753,25630
+      subroutine wqpband(768,25962
+      subroutine k2r(783,26310
+      subroutine r2q(805,26925
+      subroutine q2p(825,27480
+      subroutine wan2ham(855,28343
+      subroutine wan2ham_d(872,28788
+      subroutine wan2ks(891,29265
+      subroutine wan2ks_d(908,29707
+
+wanniergw/BAKUP1/hupdt_ent_MPI.m.F,554
+      subroutine readuu6(315,10647
+      subroutine chk_umn(355,12043
+      subroutine chk_uuqk(373,12541
+      subroutine updt_wf_eig(398,13278
+      subroutine disent_qpband(746,24529
+      subroutine wband(1136,38079
+      subroutine wqpband(1151,38411
+      subroutine k2r(1166,38759
+      subroutine r2q(1188,39374
+      subroutine q2p(1208,39929
+      subroutine wan2ham(1238,40792
+      subroutine wan2ham_d(1255,41237
+      subroutine wan2ks(1274,41714
+      subroutine wan2ks_d(1291,42156
+      subroutine read_q_qgpsi(1310,42626
+
+wanniergw/BAKUP1/hwfch.F,39
+      subroutine checkagree(335,13159
+
+wanniergw/BAKUP1/hwinfo.F,75
+      subroutine checkagree(279,10557
+      subroutine  readbb(288,10865
+
+wanniergw/BAKUP1/hwmat2.F,104
+      subroutine wwmat 903,31846
+      subroutine wvmat 965,34161
+      subroutine chkrot 1008,35611
+
+wanniergw/BAKUP1/hwmatc.F,103
+      subroutine wwmat 890,31482
+      subroutine wvmat 950,33688
+      subroutine chkrot 990,34975
+
+wanniergw/BAKUP1/hwmatc_MPI.F,106
+      subroutine wwmat 1084,39160
+      subroutine wvmat 1143,41317
+      subroutine chkrot 1183,42604
+
+wanniergw/BAKUP1/hx0fp0_MPI.m.F,47
+      subroutine tr_chkwrite_RSMPI(1902,73303
+
+wanniergw/BAKUP1/index.F,1303
+      integer function maxocc2 1,0
+      subroutine idxlmto 23,658
+      subroutine idxlmt1 63,1857
+      subroutine idxlna 105,3133
+      subroutine idxlnp 141,4039
+      subroutine incor 174,5157
+      subroutine indxbas(223,6474
+      subroutine indxk(291,8516
+      subroutine indxlm(343,10044
+      subroutine indxln(365,10515
+      subroutine indxlna(390,11127
+      subroutine indxlnm(432,12429
+      subroutine idxlnma(462,13227
+      subroutine idxlnmc(497,14111
+      subroutine indxmdm 574,16329
+      integer function indxpp 602,17100
+      subroutine indxql 620,17608
+      subroutine indxrk(664,18621
+      subroutine maxdim 712,20168
+      integer function maxocc 742,21119
+      integer function nallow 783,22262
+      integer function nalwln 834,23694
+      integer function nocc 868,24776
+      subroutine ncorex 898,25419
+      subroutine noccmax(922,25991
+      integer function noccx1 949,26660
+      integer function nofblch(979,27377
+      integer function noflmto(995,27784
+      integer function nofln(1012,28226
+      integer function noflnm(1027,28549
+      integer function noflnmx(1042,28868
+      subroutine nofpppp(1058,29250
+      integer function nofyyyy(1100,30261
+      subroutine nolna 1119,30702
+      subroutine nolnma 1140,31368
+
+wanniergw/BAKUP1/mh_hupdt_ent_MPI.m.F,554
+      subroutine readuu6(316,10682
+      subroutine chk_umn(356,12078
+      subroutine chk_uuqk(374,12576
+      subroutine updt_wf_eig(399,13313
+      subroutine disent_qpband(784,25752
+      subroutine wband(1174,39300
+      subroutine wqpband(1189,39632
+      subroutine k2r(1204,39980
+      subroutine r2q(1226,40595
+      subroutine q2p(1246,41150
+      subroutine wan2ham(1276,42013
+      subroutine wan2ham_d(1293,42458
+      subroutine wan2ks(1312,42935
+      subroutine wan2ks_d(1329,43377
+      subroutine read_q_qgpsi(1348,43847
+
+wanniergw/BAKUP1/mkqg_TMBAND.F,82
+      subroutine mkQG2_TMBAND(1,0
+      subroutine genbzdata1_xxxxxxx(572,19630
+
+wanniergw/BAKUP1/qpe1_mlw.F,100
+      subroutine qpe1_mlw 1,0
+      subroutine wan2ks(177,6107
+      subroutine wan2ks2(199,6711
+
+wanniergw/BAKUP1/read_gw0.F,461
+      subroutine q2k(514,19949
+      subroutine q2p(546,20885
+      subroutine q2r(576,21748
+      subroutine r2k(599,22404
+      subroutine wigner_seitz(620,22996
+      subroutine sortr(682,24540
+      subroutine  sortvec2(715,25293
+      subroutine diag_hm(754,26258
+      subroutine wan2ham(785,26993
+      subroutine wan2ham_d(802,27438
+      subroutine inv_mat(826,28020
+      subroutine fine_mesh(843,28526
+      subroutine calc_ef(868,29190
+
+wanniergw/BAKUP1/read_gw02.F,498
+      subroutine q2k(546,21148
+      subroutine q2p(578,22084
+      subroutine q2r(608,22947
+      subroutine r2k(631,23603
+      subroutine wigner_seitz(652,24195
+      subroutine sortr(714,25739
+      subroutine  sortvec2(747,26492
+      subroutine diag_hm(786,27457
+      subroutine wan2ham(817,28192
+      subroutine wan2ham_d(834,28637
+      subroutine inv_mat(858,29219
+      subroutine fine_mesh(875,29725
+      subroutine calc_ef(900,30389
+      subroutine hermite(1026,34689
+
+wanniergw/BAKUP1/rpaq.F,239
+      subroutine calcpv2 1,0
+      subroutine diagno0(96,3129
+      subroutine getwk(118,3973
+      subroutine  ecorq2 155,5382
+      subroutine sqrtmat 292,9474
+      subroutine hermat 415,12823
+      subroutine chhermat 434,13316
+
+wanniergw/BAKUP1/sxcf_fal2_MPI.F,81
+      subroutine sxcf_fal3z_RSMPI(1,0
+      subroutine drvmelp2_wan(2095,76871
+
+wanniergw/BAKUP1/wcf.F,133
+      subroutine wcf(1,0
+      subroutine wcf_maxloc(112,3612
+      subroutine chknbnb(192,6047
+      subroutine anfx0k(236,7547
+
+wanniergw/BAKUP1/wmat.F,137
+      subroutine wmatq(1,0
+      subroutine matzwz2(743,26345
+      subroutine matzwz3(764,27044
+      subroutine drvmelp3(786,27809
+
+wanniergw/BAKUP1/wmat2.F,138
+      subroutine wmatq2(1,0
+      subroutine matzwz2(794,27188
+      subroutine matzwz3(815,27887
+      subroutine drvmelp3(837,28652
+
+wanniergw/BAKUP1/wmat_MPI.F,141
+      subroutine wmatq_MPI(1,0
+      subroutine matzwz2(823,28235
+      subroutine matzwz3(844,28934
+      subroutine drvmelp3(866,29699
+
+wanniergw/BAKUP1/x0kf_v3h.F,214
+      subroutine x0kf_v3hz 1,0
+      subroutine zadd_(765,30016
+      subroutine zaddr_(771,30162
+      subroutine dpsion4 780,30398
+      subroutine hilbertmat 1119,44203
+      subroutine dpsion3 1216,48121
+
+wanniergw/BAKUP1/x0kf_v3h_MPI.F,36
+      subroutine x0kf_v3hz_MPI 1,0
+
+wanniergw/BAKUP1/x0kf_v3h_cfao.F,214
+      subroutine x0kf_v3hz 1,0
+      subroutine zadd_(782,30910
+      subroutine zaddr_(788,31056
+      subroutine dpsion4 797,31292
+      subroutine hilbertmat 1136,45097
+      subroutine dpsion3 1233,49015
+
+wanniergw/BAKUP1/zsvd.F,65
+      subroutine zgesvdmn(1,0
+      subroutine zgesvdnn(14,560
+
+maingw/eout.F,99
+      subroutine getexx(47,1640
+      subroutine readxx3(59,1935
+      subroutine rmvbl(75,2350
+
+maingw/eout2.F,135
+      subroutine getexx2(75,2574
+      subroutine getexx3(86,2849
+      subroutine readxx3(98,3185
+      subroutine rmvbl(114,3600
+
+maingw/hecor.F,118
+      real*8 function eclda_bh(631,22796
+      real*8 function eclda_pz(641,23171
+      subroutine wecqw(651,23532
+
+maingw/hmagnon.m.F,36
+      function matcinvf(1106,43679
+
+maingw/hqpe.sc.m.F,183
+      subroutine testfff(828,35281
+      subroutine onlydiag(840,35569
+      subroutine rwsigma(850,35832
+      subroutine rwsigmaa(871,36784
+      subroutine mixsigma(897,37938
+
+maingw/hqpe_qsgw.m.F,36
+      subroutine readxxx(582,22342
+
+maingw/hsfp0.m.F,148
+      subroutine hswrite1(784,32116
+      subroutine Hswrite2(817,33522
+      subroutine Hswrite3(893,36752
+      subroutine Hswrite4(924,37962
+
+maingw/hsfp0.sc.m.F,118
+      subroutine Hswriteinit(380,19398
+      subroutine HsWriteResult(428,21750
+      subroutine zsecsym(512,26132
+
+maingw/hsigmconv.m.F,114
+      subroutine rwsigma2(56,2349
+      subroutine rwsigmaa2(104,4015
+      logical function qlistchk(136,5259
+
+maingw/hvccfp0.m.F,260
+      subroutine checkagree(838,32486
+      subroutine mkradmatch(848,32785
+      subroutine phimatch(917,35136
+      subroutine pmatorth(940,36024
+      subroutine diagcvh(964,36896
+      subroutine zgesvdnn2(981,37387
+      subroutine mkb0(1019,38849
+
+maingw/hx0fp0.m.F,231
+      real*8 function eclda_bh(956,42629
+      real*8 function eclda_pz(965,43003
+      subroutine wecqw(975,43364
+      subroutine getsqovlp(1006,44468
+      function matcinvf(1074,46514
+      subroutine diagno00(1099,47256
+
+maingw/hx0fp0.sc.xxx.m.F,41
+      subroutine tr_chkwrite(1040,45714
+
+maingw/rdata4gw_v2.m.F,149
+      subroutine xychange(1944,72063
+      subroutine xychangei(1950,72167
+      subroutine rrefine(1956,72275
+      subroutine getab(1967,72597
+
+mainlm/lmf2gw.F,117
+      SUBROUTINE GINTxx(499,17277
+      subroutine gwinput_v2x(1391,51351
+      subroutine rdibasindx2(1586,59695
+
+mainlm/lmfCPWx.F,39
+      subroutine bubblesort(450,16831
+
+mainlm/lmfav7.F,76
+      subroutine lmhelp(134,4794
+      subroutine findctrlstart(329,10865
+
+mainlm/lmfham1.F,161
+      subroutine readqplistsy(9,310
+      subroutine ReadHamPMTInfo(38,1372
+      subroutine HamPMTtoHamRsMTO(94,3713
+      subroutine ReadHamRsMTO(186,7956
+
+mainlm/lmv7.F,77
+      subroutine lmhelp(337,12271
+      subroutine findctrlstart(474,16528
+
+mainlm/lmv7util.F,315
+      subroutine lmhelp(215,7355
+      subroutine findctrlstart(307,10589
+      subroutine clsprm(319,10899
+      entry clsprp(473,17262
+      subroutine ioqpp(501,18539
+      subroutine spinav(547,20150
+      subroutine aiocls(599,22027
+      subroutine pvaioc(920,36702
+      subroutine paioc2(934,37135
+
+srcgw/MPI_fpgw2.F,1963
+      subroutine MPI__Initialize104,2905
+      subroutine MPI__Initialize_magnon(137,4092
+      subroutine MPI__InitializeQSPBM179,5539
+      subroutine MPI__consoleout(441,13903
+      subroutine MPI__consoleout_magnon(460,14616
+      subroutine MPI__Barrier487,15533
+      subroutine MPI__Finalize497,15736
+      subroutine MPI__getRange(511,16040
+      subroutine MPI__Broadcast(542,16841
+      subroutine MPI__send_d(553,17128
+      subroutine MPI__recv_d(562,17418
+      subroutine MPI__send_dv(571,17704
+      subroutine MPI__recv_dv(580,18008
+      subroutine MPI__send_i(589,18308
+      subroutine MPI__recv_i(598,18600
+      subroutine MPI__send_iv(607,18888
+      subroutine MPI__recv_iv(616,19194
+      subroutine MPI__REAL8send(625,19496
+      subroutine MPI__REAL8recv(633,19787
+      subroutine MPI__DbleCOMPLEXsend(641,20074
+      subroutine MPI__DbleCOMPLEXrecv(649,20384
+      subroutine MPI__DbleCOMPLEXsendQ(657,20690
+      subroutine MPI__DbleCOMPLEXrecvQ(665,20992
+      subroutine MPI__AllreduceSum(673,21296
+      subroutine MPI__AllreduceMax(695,21857
+      subroutine MPI__AllreduceSumS(716,22404
+      subroutine MPI__sxcf_rankdivider(737,22962
+      subroutine MPI__hx0fp0_rankdivider(812,25198
+      subroutine MPI__hx0fp0_rankdivider2(857,26422
+      subroutine MPI__hmagnon_rankdivider(884,27428
+      subroutine MPI__hx0fp0_rankdivider2Q(915,28499
+      subroutine MPI__hx0fp0_rankdivider2S(948,29599
+      subroutine MPI__x0kf_rankdivider(1006,31374
+      subroutine MPI__dummy1197,37519
+      subroutine MPI__ZGEMV(1207,37775
+      subroutine MPI__ZGEMM(1228,38543
+      subroutine MPI__ZGERC(1253,39422
+      subroutine MPI__ZAMPM(1274,40202
+      subroutine MPI__AllreduceMatrixB(1293,40791
+      subroutine MPI__AllgatherVectorM(1314,41432
+      subroutine MPI__AllgatherMatrixM(1334,42052
+      subroutine MPI__AllgatherArrayP(1355,42749
+      subroutine MPI__AllMPtoAllMW(1380,43612
+
+srcgw/alloclist.F,79
+      subroutine add_alloclist(11,384
+      subroutine del_alloclist(63,1734
+
+srcgw/amix.F,33
+      integer function amix(1,0
+
+srcgw/basnfp.F,102
+      subroutine basnfp_v2 1,0
+      subroutine bessl2(1051,38321
+      subroutine addd(1216,43072
+
+srcgw/bessl.F,28
+      subroutine bessl(1,0
+
+srcgw/bib1.F,130
+      subroutine catch1 2,70
+      subroutine freq01 19,603
+      subroutine freq01x 51,1402
+      subroutine genfreq(86,2335
+
+srcgw/bndconn.F,33
+      subroutine bndconn_v2(1,0
+
+srcgw/bz.F,460
+      subroutine fbz2(1,0
+      SUBROUTINE TETIRR_notused(31,1025
+      SUBROUTINE FSWGTS(266,9602
+      SUBROUTINE CCUTUP(360,12426
+      SUBROUTINE GTBVEC(419,14445
+      SUBROUTINE MXMYMZ(428,14782
+      SUBROUTINE CSHEAR(448,15265
+      subroutine fermi(519,17529
+      subroutine fermi_kbt(588,19865
+      subroutine fbzws(779,28310
+      subroutine gentran 827,29852
+      subroutine invgrp 910,32391
+      integer function invrot 940,33265
+
+srcgw/bzints2.F,137
+      SUBROUTINE BZINTS2x(2,36
+      SUBROUTINE SLINZ2(146,5383
+      subroutine efrang3(267,8811
+      subroutine getvaln(426,13715
+
+srcgw/bzmesh.F,36
+      SUBROUTINE BZMESH_unused(1,0
+
+srcgw/charext.F,40
+      character*8 function charext(1,0
+
+srcgw/checksymlon.F,39
+      logical function chksyon(28,887
+
+srcgw/cinvrx.F,29
+      subroutine cinvrx(1,0
+
+srcgw/cputid.F,265
+      real*4 function etime(4,123
+      double precision function cpumin(21,442
+      subroutine cputid(54,1340
+      entry cputid2(105,2825
+      entry mpi_cputid2(136,3718
+      subroutine realtimediff(179,5039
+      subroutine print_realtimediff(225,6172
+
+srcgw/cross.F,128
+      subroutine cross_x(1,0
+      subroutine minv33tp(13,390
+      subroutine minv33(26,796
+      subroutine cross(85,3115
+
+srcgw/diagcv2.F,96
+      subroutine diagcvh2(1,0
+      subroutine diagcv(19,451
+      SUBROUTINE ZHEGVX(69,2279
+
+srcgw/diagcv3.F,176
+      subroutine diagcvuh3(3,107
+      subroutine diagcvz(18,511
+      subroutine diagcvuh3_vec(59,1889
+      subroutine diagcvz_r(75,2355
+      SUBROUTINE ZGEEV(119,3868
+
+srcgw/dlmtor.F,29
+      subroutine dlmtor(1,0
+
+srcgw/dmcpy.F,28
+      subroutine dmcpy(1,0
+
+srcgw/dpadd.F,28
+      subroutine dpadd(1,0
+
+srcgw/dpcopy.F,29
+      subroutine dpcopy(1,0
+
+srcgw/dpzero.F,29
+      subroutine dpzero(1,0
+
+srcgw/dsidi.F,28
+      subroutine dsidi(1,0
+
+srcgw/dsifa.F,28
+      subroutine dsifa(1,0
+
+srcgw/dsisl.F,28
+      subroutine dsisl(1,0
+
+srcgw/efsimplef.F,190
+      subroutine efsimplef2ax 1,0
+      subroutine efsimplef2a 228,7791
+      subroutine efsimplef2 456,15655
+      subroutine findemaxmin(728,24684
+      subroutine readomgc(770,26231
+
+srcgw/excore.F,256
+      subroutine excore(1,0
+      subroutine intsigkcc(159,5231
+      subroutine mksxa(229,7926
+      subroutine clebsh(460,15027
+      subroutine convsx(562,18232
+      subroutine intn_smp_g(641,20760
+      double precision function igan(696,22767
+
+srcgw/ext.F,91
+      DOUBLE PRECISION FUNCTION D1MACH(636,22595
+      INTEGER FUNCTION I1MACH(674,23802
+
+srcgw/ext2.F,829
+      integer function ifile_handle(1,0
+      double precision function derfc 230,12229
+      double precision function derf 372,18060
+      subroutine ishell(377,18171
+      SUBROUTINE DMCPY(403,18744
+      logical function bittst(440,20091
+      integer function getdig(452,20523
+      subroutine zhmul(464,20924
+      subroutine zmul0(542,23542
+      subroutine zmul(596,25246
+      subroutine zmult(637,26500
+      SUBROUTINE DVCPY(682,27911
+      subroutine ivshel(715,28972
+      SUBROUTINE DMPY(774,30647
+      double precision function dcsevl 824,32715
+      subroutine errmsg 853,33640
+      function initds 870,34140
+      subroutine zampy(903,35252
+      subroutine zmpy(965,38005
+      function ran1(1040,41045
+      subroutine ran1in(1080,42267
+      double precision function tripl(1292,50417
+
+srcgw/extension.F,374
+      subroutine getngbpomat(2,15
+      subroutine qqsave 51,1652
+      subroutine readd_iSigma_en(68,2183
+      subroutine getnemx(93,3241
+      subroutine getnemx8(128,4452
+      subroutine readin5(150,5409
+      subroutine readin6(160,5720
+      character*8 function xt(171,6054
+      character*20 function xxt(188,6650
+      character*20 function xts(237,8467
+
+srcgw/genallcf_dump.F,105
+      subroutine genallcf_v3_dump(1,0
+      subroutine ddump(116,4271
+      subroutine idump(121,4391
+
+srcgw/genallcf_mod.F,504
+      subroutine setesmr(52,2147
+      subroutine genallcf_v3(58,2274
+      subroutine idxlnmc(324,11166
+      integer function noflmto(394,13577
+      integer function nalwln 407,13949
+      integer function nofln(436,14951
+      integer function noflnm(447,15266
+      integer function nallow 458,15515
+      subroutine incor 500,16904
+      subroutine readhbe(547,18424
+      subroutine readefermi(559,18779
+      subroutine readefermi_kbt(569,19095
+      subroutine Readclasst(587,19741
+
+srcgw/genqbz.F,183
+      subroutine shortn3(1,0
+      subroutine shortn3_initialize(74,2730
+      subroutine ellipsoidxmax(88,3131
+      subroutine genqbz 162,4961
+      subroutine shorbz(224,6845
+
+srcgw/getbzdata1.F,177
+      subroutine xconvv(30,950
+      subroutine getbzdata1(56,2063
+      subroutine nkstar 612,23347
+      subroutine qwider(705,26460
+      subroutine tetdevide(739,27601
+
+srcgw/getgv2.F,61
+      subroutine getgv2(1,0
+      subroutine eprod(71,2894
+
+srcgw/getwemax.F,31
+      subroutine getwemax(1,0
+
+srcgw/gintxx.F,29
+      SUBROUTINE GINTxx(1,0
+
+srcgw/gwinput_v2.F,219
+      subroutine gwinput_v2x(1,0
+      subroutine gwinput0_v2(180,7722
+      subroutine rdibasindx(196,8329
+      subroutine rdibasindx2(251,10145
+      subroutine swapc(312,12071
+      subroutine swapr(322,12269
+
+srcgw/hansr4.F,29
+      subroutine hansr4(1,0
+
+srcgw/hansr5.F,29
+      subroutine hansr5(1,0
+
+srcgw/hsmq.F,97
+      subroutine hsmq(1,0
+      subroutine hsmqe0(286,10615
+      subroutine pvhsmq(572,20660
+
+srcgw/icopy.F,28
+      subroutine icopy(1,0
+
+srcgw/idxk.F,78
+      integer function idxk 4,186
+      integer function idxk_cyclic 22,756
+
+srcgw/index.F,178
+      integer function nocc 1,0
+      subroutine maxdim 26,613
+      integer function noccx1 52,1509
+      subroutine nolnma 85,2693
+      integer function maxocc2 102,3101
+
+srcgw/iolib.F,1349
+      subroutine finits121,5930
+      subroutine fexit(154,6732
+      double precision function cpusec(179,7421
+      integer function recln(206,8278
+      subroutine query(219,8762
+      entry initqu(324,11715
+      subroutine rdfile(329,11810
+      subroutine getcat(359,12702
+      integer function partok(444,15070
+      logical function scat(574,19462
+      subroutine subcat(602,20317
+      logical function parstr(642,21480
+      subroutine chrpos(667,22301
+      subroutine skipbl(688,22963
+      subroutine tokmat(697,23173
+      subroutine msgio(724,24097
+      logical function cnvt(770,25685
+      subroutine disply(858,28675
+      logical function rdstrn(917,30236
+      logical function lsequ(930,30508
+      subroutine strcop(959,31442
+      subroutine strcat(980,32177
+      subroutine strcat2(1009,33108
+      integer function fopna(1034,33809
+      entry fopn(1124,36801
+      entry fopno(1128,36852
+      entry fopnn(1132,36904
+      entry fxst(1136,36956
+      entry fhndl(1140,37008
+      entry fadd(1145,37078
+      entry fext(1158,37456
+      logical function jsopen(1247,39719
+      subroutine fclose(1283,40905
+      entry dfclos(1321,41956
+      integer function lgunit(1325,42029
+      subroutine headl2(1333,42238
+      subroutine poseof(1341,42490
+      block data diolib1484,46171
+
+srcgw/iopen.F,64
+      integer function iopen 2,55
+      entry iclose(138,4072
+
+srcgw/iopenxx.F,36
+      integer function iopenxx 1,0
+
+srcgw/iprint.F,174
+      integer function iprint(8,412
+      subroutine pshprt(18,685
+      subroutine popprt29,958
+      subroutine togprt38,1193
+      block data data_init_iprint54,1567
+
+srcgw/iqindx.F,34
+      subroutine iqindx2(43,1723
+
+srcgw/keyvalue.F,1519
+      integer function unusedfid(87,3597
+      subroutine input_delfirstspc(118,4530
+      subroutine input_toupper(139,4981
+      subroutine input_tolower(154,5412
+      subroutine input_debugstart(170,5843
+      subroutine input_debugend(179,6054
+      subroutine input_registerError(186,6214
+      integer function input_printError(196,6539
+      subroutine input_open(219,7059
+      subroutine input_redirect(249,8051
+      subroutine input_reopen(301,9599
+      subroutine input_close314,10023
+      subroutine input_characterv(321,10211
+      subroutine input_logicalv(418,12983
+      subroutine input_integerv(492,15246
+      subroutine input_real8v(561,17188
+      function input_character(618,18743
+      integer function input_integer(649,19591
+      real*8 function input_real8(689,20657
+      integer function input_character2integer(732,21695
+      logical function input_logical(797,23502
+      logical function input_find(826,24329
+      logical function input_last(872,25526
+      integer function input_existfiles(901,26293
+      subroutine input_septoken(936,27250
+      subroutine input_replacekeys(984,28241
+      subroutine getkeyvalue_err_exit(1080,30810
+      integer function getkeyvalue_endkey(1105,31445
+      subroutine getkeyvalue_i(1148,32475
+      subroutine getkeyvalue_r8(1192,33652
+      subroutine getkeyvalue_l(1237,34848
+      subroutine getkeyvalue_iv(1286,36048
+      subroutine getkeyvalue_rv(1343,37704
+      subroutine getkeyvalue_c(1391,39094
+
+srcgw/lattc.F,95
+      subroutine lattc(1,0
+      subroutine lctoff(78,2805
+      subroutine strain(113,3874
+
+srcgw/lgen.F,127
+      subroutine lgen(1,0
+      subroutine latlim(69,2087
+      subroutine latlm2(92,2775
+      subroutine latlm1(117,3502
+
+srcgw/linpackdummy.F,120
+      subroutine dsisl(1,0
+      subroutine dsifa(6,241
+      subroutine dgedi(11,482
+      subroutine dgefa(16,723
+
+srcgw/m_anf.F,33
+      subroutine anfcond(11,422
+
+srcgw/m_eibz.F,70
+      subroutine Seteibz(27,1126
+      subroutine Seteibzhs(71,3220
+
+srcgw/m_freq.F,103
+      subroutine getfreq3(28,978
+      subroutine getfreq2(49,1997
+      subroutine Getfreq(79,3286
+
+srcgw/m_gaussianfilter.F,84
+      subroutine GaussianFilter(11,269
+      subroutine gaussianfilterhis(36,1111
+
+srcgw/m_hamindex.F,118
+      integer function getikt(22,1036
+      subroutine writehamindex(42,1623
+      subroutine readhamindex(64,2459
+
+srcgw/m_homoelectron.F,75
+      subroutine read_qgband(15,348
+      subroutine efermi_egas(65,1752
+
+srcgw/m_iqindx_qtt.F,109
+      subroutine iqindx2_(16,496
+      subroutine init_iqindx_qtt(61,2046
+      subroutine tabkk(128,4594
+
+srcgw/m_itq.F,149
+      subroutine setitq(13,415
+      subroutine setitq_hsfp0sc(25,723
+      subroutine setitq_hsfp0 101,3443
+      subroutine getqpoint(134,4437
+
+srcgw/m_llw.F,192
+      subroutine WVRllwR(38,1510
+      subroutine WVIllwi(168,7158
+      subroutine MPI__sendllw2(253,10598
+      subroutine MPI__sendllw(278,11723
+      subroutine tr_chkwrite(318,13428
+
+srcgw/m_pbindex.F,33
+      subroutine PBindex(13,476
+
+srcgw/m_pkm4crpa.F,38
+      subroutine Readpkm4crpa(14,354
+
+srcgw/m_q0p.F,69
+      subroutine getallq0p(15,582
+      subroutine getq0p(176,7128
+
+srcgw/m_qbze.F,33
+      subroutine setqbze(11,298
+
+srcgw/m_readQGcou.F,35
+      subroutine readqgcou(13,532
+
+srcgw/m_readVcoud.F,35
+      subroutine Readvcoud(12,492
+
+srcgw/m_readeps.F,112
+      subroutine check_eps(11,293
+      subroutine read_eps(35,1139
+      subroutine deallocate_eps(101,3817
+
+srcgw/m_readepswklm.F,36
+      subroutine readepswklm(8,234
+
+srcgw/m_readfreq_r.F,36
+      subroutine readfreq_r(12,410
+
+srcgw/m_readgwinput.F,78
+      subroutine SetIsigmode(10,316
+      subroutine ReadGWinputKeys(14,408
+
+srcgw/m_readq0p.F,32
+      subroutine readq0p(8,241
+
+srcgw/m_readwan.F,777
+      subroutine readhrotr(29,1050
+      subroutine wan_readeigen(72,2796
+      subroutine wan_readeval(164,6352
+      subroutine wan_readeval2(183,7235
+      subroutine get_hrotkp_ws2(215,8630
+      subroutine diag_hm2(237,9279
+      subroutine write_qdata(261,10070
+      subroutine read_wandata(275,10538
+      subroutine readscr(285,10910
+      subroutine checkorb(393,15036
+      subroutine checkorb2(431,16285
+      subroutine checkorb3(481,18021
+      subroutine writescrw(512,18998
+      subroutine wan_imat(561,20708
+      subroutine diagwan(582,21328
+      subroutine diagwan_tr(604,22019
+      subroutine writehmat(628,22793
+      subroutine writeddmat(653,23630
+      integer function ifile_handle(757,27106
+      subroutine bubble_im(782,27931
+
+srcgw/m_rotMPB.F,33
+      subroutine RotMPB2(22,903
+
+srcgw/m_tetrakbt.F,156
+      subroutine tetrakbt_init(20,554
+      subroutine tetrakbt(34,1082
+      subroutine eaf_triangle(175,5994
+      integer function ndiv_tt(407,14743
+
+srcgw/m_tetwt.F,75
+      subroutine tetdeallocate(40,1946
+      subroutine gettetwt(45,2122
+
+srcgw/m_w0w0i.F,105
+      subroutine finalizew4p(14,443
+      subroutine w0w0i(38,1179
+      subroutine modifyWV0(94,3524
+
+srcgw/m_zmel.F,359
+      subroutine Dconjg_zmel(54,2520
+      subroutine Deallocate_zmel(57,2587
+      subroutine Deallocate_zmeltt(60,2655
+      subroutine setppovlz(64,2781
+      subroutine setppovlz_chipm(98,4163
+      subroutine mptauof_zmel(107,4500
+      subroutine ppbafp_v2_zmel(122,5200
+      subroutine get_zmelt(150,6253
+      subroutine get_zmelt2(203,8603
+
+srcgw/mate.F,2301
+      subroutine acv 5,69
+      subroutine acm 23,437
+      double precision function alagr2 40,794
+      double precision function alagr3 65,1472
+      double precision function alagr4 95,2422
+      double precision function cellvol 130,3640
+      subroutine clagr4 145,4032
+      subroutine cubstar(183,5311
+      subroutine cv 272,7770
+      subroutine cva 288,8064
+      subroutine cvs 304,8375
+      subroutine dbles 321,8691
+      subroutine dmv(339,9073
+      subroutine finter 366,9831
+      subroutine gauss(396,10634
+      integer function ivsum 620,19639
+      integer function lowtri 634,19954
+      subroutine madd 654,20488
+      integer function maxim 675,20990
+      subroutine mfull 690,21339
+      subroutine mfullsd 734,22306
+      double precision function pilrntz(1180,34872
+      subroutine piltzn 1191,35311
+      subroutine pl(1207,35663
+      subroutine plgaus 1228,36197
+      subroutine ppp(1260,36985
+      subroutine rphi4(1300,38231
+      subroutine scudir(1337,39353
+      double precision function sumv 1430,42338
+      subroutine simpson(1448,42698
+      subroutine simpson2(1482,43617
+      subroutine sl1 1517,44621
+      subroutine sngld 1533,44941
+      subroutine specub 1551,45323
+      subroutine specub1(1624,47841
+      subroutine specuba(1692,50206
+      subroutine specwa 1752,52410
+      subroutine sphbes(1817,54591
+      subroutine sylm(1893,56253
+      subroutine sylmnc(1973,58601
+      subroutine vaddv 2015,59682
+      subroutine vaddvs 2032,60022
+      double precision function vdot3(2050,60411
+      double precision function vdv_ 2068,60858
+      double precision function vdv 2080,61128
+      subroutine vdvc 2090,61398
+      subroutine vdvc1(2115,62064
+      subroutine veqvs 2140,62734
+      subroutine vmc 2155,63007
+      subroutine vminv 2191,64063
+      subroutine vminvs2208,64409
+      subroutine vmvc 2225,64781
+      subroutine vmvc1 2257,65788
+      subroutine vv 2289,66797
+      subroutine vva 2308,67155
+      subroutine vvc 2326,67520
+      subroutine vvc1 2347,68022
+      subroutine ylm3(2368,68521
+      subroutine ylm4(2387,69014
+      subroutine ylmsc(2406,69534
+      subroutine yyy 2450,70737
+      subroutine yyyy 2489,71824
+      subroutine y1234 2536,73232
+
+srcgw/mate1.F,575
+      double precision function compvv 5,166
+      subroutine const 27,687
+      subroutine fbes 42,995
+      subroutine fbesa 95,2610
+      subroutine genbes 143,3828
+      integer function icompvv 178,4688
+      subroutine mtrans 200,5206
+      subroutine mvc 216,5600
+      double precision function simpsx 268,6997
+      double precision function simpsr 310,8023
+      double precision function simpsr2(345,8962
+      double precision function vdot4 381,10002
+      double precision function vmax 396,10392
+      double precision function xlorenz 412,10737
+
+srcgw/matm.F,170
+      subroutine matmmsparse(1,0
+      subroutine matmsparse(40,1117
+      subroutine matm(88,2463
+      subroutine matcinv(98,2802
+      subroutine matinv(117,3331
+
+srcgw/maxnn.F,34
+      integer function maxnn 1,0
+
+srcgw/mk_hamiltonian.F,70
+      subroutine mk_hamiltonian(1,0
+      subroutine pvmkhm(66,2120
+
+srcgw/mkjp.F,287
+      subroutine vcoulq_4(1,0
+      subroutine mkjp_4(432,14722
+      subroutine genjh(645,21500
+      subroutine mkjb_4(683,22999
+      subroutine sigint_4(764,25468
+      subroutine intn_smpxxx(784,26225
+      subroutine sigintAn1(824,27764
+      subroutine sigintpp(866,29279
+
+srcgw/mklegw.F,121
+      subroutine mklegw(1,0
+      double precision function plegn(62,1811
+      double precision function pnp(93,2605
+
+srcgw/mkqg.F,28
+      subroutine mkQG2(1,0
+
+srcgw/mopen.F,155
+      subroutine mopen(3,65
+      subroutine strip(25,933
+      subroutine words(50,1412
+      subroutine mfdef(76,1867
+      subroutine word(94,2431
+
+srcgw/mptauof.F,170
+      subroutine getw0(2,81
+      integer function ll(181,7528
+      subroutine eibzgen(187,7691
+      subroutine tabkk(499,19869
+      subroutine mptauof(536,21183
+
+srcgw/nocctotg.F,36
+      subroutine invkibzx(118,3826
+
+srcgw/not_used.F,278
+      subroutine sigint(2,63
+      subroutine mkjp3(24,805
+      subroutine mkjp2(203,6529
+      subroutine mkjp(468,15337
+      subroutine mkjb(730,24052
+      subroutine vcoulq2(809,26348
+      subroutine vcoulq_not_used(1171,38204
+      subroutine sigintA(1469,48041
+
+srcgw/pointops.F,243
+      SUBROUTINE TSYMOP(2,71
+      SUBROUTINE PARSOP(21,499
+      LOGICAL FUNCTION PARSVC(72,1900
+      SUBROUTINE GRPGEN(103,2645
+      SUBROUTINE GRPCOP(194,5505
+      LOGICAL FUNCTION GRPEQL(202,5663
+      subroutine grpprd(220,6115
+
+srcgw/polinta.F,45
+      double precision function polinta(1,0
+
+srcgw/potpsr.F,30
+      subroutine potpsr2(1,0
+
+srcgw/potpus.F,30
+      subroutine potpus2(1,0
+
+srcgw/ppbafp.fal.F,172
+      subroutine ppbafp_v2 1,0
+      subroutine drvmelp(174,7648
+      subroutine q0iwgt(261,11323
+      subroutine melpln304,12630
+      subroutine melpln2t347,14241
+
+srcgw/pplmat.F,178
+      subroutine mkppmt(1,0
+      subroutine mkppovl(426,16357
+      subroutine mkppovl2(530,20224
+      subroutine matgg2(585,22296
+      subroutine mkppovl2test(650,23758
+
+srcgw/psi2b_v2.F,67
+      subroutine psi2b_v2(1,0
+      subroutine psicb_v2 148,5526
+
+srcgw/psi2b_v3.F,67
+      subroutine psi2b_v3(1,0
+      subroutine psicb_v3 141,5243
+
+srcgw/q0irre.F,364
+      subroutine auxfunlm(1,0
+      subroutine auxfunqg(24,886
+      subroutine getwklm(46,1646
+      subroutine diele_invariant(151,6091
+      subroutine q0irre(267,9667
+      subroutine setq0_2(361,12625
+      subroutine getnvaln(888,30291
+      subroutine setq0x_notused(916,31163
+      subroutine zccopy(1030,34947
+      subroutine gsorth(1039,35090
+
+srcgw/qdist.F,59
+      subroutine qdist(1,0
+      subroutine rdist(19,551
+
+srcgw/qpe1.F,27
+      subroutine qpe1 1,0
+
+srcgw/qpe1.qsgw.F,32
+      subroutine qpe1_qsgw 1,0
+
+srcgw/qpe1.sc.F,30
+      subroutine qpe1_sc 1,0
+
+srcgw/rangedq.F,30
+      subroutine rangedq(1,0
+
+srcgw/rdpp.F,254
+      subroutine Rdpp(17,685
+      subroutine rdpp_v3(67,2654
+      subroutine Getsrdpp2(115,4474
+      subroutine getsrdpp(129,4989
+      subroutine rdpp_pln2(147,5599
+      subroutine rdpp_pln_notused(212,8072
+      subroutine rdpp_v2(273,10410
+
+srcgw/readeigen.F,842
+      subroutine onoff_write_pkm4crpa(49,2233
+      subroutine readgeigW(54,2339
+      subroutine readcphiW(72,3019
+      subroutine readeval(88,3594
+      subroutine findemaxmin_r(108,4303
+      subroutine readgeig(124,4711
+      subroutine readcphi(212,8549
+      subroutine readgeig_mlw(367,15471
+      subroutine readcphi_mlw(395,16506
+      subroutine init_readeigen(418,17317
+      subroutine init_readeigen2(515,20752
+      subroutine init_readeigen_mlw(610,24202
+      subroutine init_readeigen_mlw_noeval(974,35686
+      subroutine init_readeigen_phi_noeval(1264,46829
+      subroutine init_readeigen_mlw_diag(1361,49793
+      subroutine iqindx2_wan(1678,60538
+      subroutine wan_getqbz(1726,62283
+      subroutine init_iqindx_wan(1738,62628
+      subroutine conv2int(1807,65280
+      subroutine rx_(1823,65748
+
+srcgw/readpomat.F,34
+      subroutine readpomat(9,209
+
+srcgw/readqg.F,351
+      subroutine readppovl0(1,0
+      subroutine readngmx2(47,1708
+      subroutine readngmx(57,2043
+      subroutine readqg(80,2759
+      subroutine readqg0(117,3889
+      subroutine init_readqg(151,4911
+      subroutine tabkk(281,9298
+      subroutine iqindx2qg(329,10610
+      subroutine sortea(375,11969
+      subroutine iswap(396,12500
+
+srcgw/reindx.F,129
+      subroutine reindx 1,0
+      subroutine phivc 50,1578
+      subroutine rwphia 111,3280
+      subroutine rwphic 187,6010
+
+srcgw/rgwinf_mod.F,287
+      subroutine rgwinf_v3 14,387
+      subroutine rgwinaf 178,5248
+      subroutine bit99to0(388,12034
+      subroutine notbit(395,12169
+      subroutine iclear(407,12443
+      subroutine ibiton(411,12526
+      subroutine ibitand(426,12926
+      subroutine writeemesh(434,13135
+
+srcgw/ropcsm.F,29
+      subroutine ropcsm(1,0
+
+srcgw/ropyln.F,96
+      subroutine ropyln(1,0
+      subroutine ropqln(65,1965
+      subroutine ropynx(119,3297
+
+srcgw/rotcg.F,28
+      subroutine rotcg(1,0
+
+srcgw/rotdlmm.F,78
+      subroutine rotdlmm(1,0
+      double precision function igann(202,7718
+
+srcgw/rotgvec.F,30
+      subroutine rotgvec(1,0
+
+srcgw/rotwave.F,173
+      subroutine rotmto(26,1114
+      subroutine rotmto2(100,3911
+      subroutine rotipw2(173,6679
+      subroutine rotipw(219,8507
+      subroutine rotwvigg(253,9928
+
+srcgw/rpaq.F,236
+      subroutine calcpv2 1,0
+      subroutine diagno0(96,3130
+      subroutine getwk(118,3972
+      subroutine  ecorq2 157,5618
+      subroutine sqrtmat 294,9729
+      subroutine hermat 417,13120
+      subroutine mmulc 457,14283
+
+srcgw/rppovl.F,33
+      subroutine getppx2(22,943
+
+srcgw/rs.F,209
+      subroutine rs(2,51
+      subroutine tql1(65,2075
+      subroutine tql2(202,5866
+      subroutine tred1(374,10756
+      subroutine tred2(513,14437
+        double precision function pythag(686,18697
+
+srcgw/rw.F,124
+      subroutine readx(3,112
+      subroutine rwdd 22,675
+      subroutine rwdd1 54,1377
+      subroutine wkpnt 84,2040
+
+srcgw/rwbzdata.F,111
+      subroutine read_BZDATA(19,678
+      subroutine rwbzdata(119,4632
+      subroutine checkrange(163,6463
+
+srcgw/rxx.F,325
+      subroutine rxx(4,77
+      subroutine rx(13,244
+      subroutine rxs(26,548
+      subroutine rxi(41,944
+      subroutine rxf(53,1244
+      subroutine rx0(66,1566
+      subroutine rx00(74,1770
+      subroutine wg(84,2054
+      subroutine wgs(93,2264
+      subroutine wgi(102,2495
+      subroutine wgf(112,2736
+
+srcgw/scg.F,158
+      subroutine scg(1,0
+      subroutine scg_sizechk(86,2111
+      double precision function f100(175,4362
+      double precision function f102(212,5281
+
+srcgw/sitepot.F,65
+      subroutine sitepot(1,0
+      subroutine getqval(294,8762
+
+srcgw/sortea.F,60
+      subroutine sortea(1,0
+      subroutine iswap(33,692
+
+srcgw/strxq.F,62
+      subroutine strxq(1,0
+      subroutine shortn(179,6377
+
+srcgw/switches.F,907
+      logical function localfieldcorrectionllw(21,696
+      logical function eibz4sig(32,1022
+      logical function mtosigmaonly(36,1099
+      logical function eibz4x0(40,1213
+      logical function addbasnew(60,2046
+      logical function testomitq0(91,3357
+      logical function is_mix0vec(107,3958
+      logical function evaltest(112,4109
+      logical function TimeReversal(133,4600
+      logical function oncew(143,4878
+      logical function onceww(153,5059
+      logical function rmeshrefine(179,5723
+      logical function qbzreg(189,6082
+      logical function smbasis(200,6344
+      logical function qreduce(235,7457
+      logical function matrix_linear(317,10087
+      logical function KeepEigen(349,11231
+      logical function core_orth(367,11765
+      integer function q0pchoice(431,13841
+      logical function tetra_hsfp0(451,14424
+      subroutine wgtscale(562,17955
+
+srcgw/sxcf_fal2.F,33
+      subroutine sxcf_fal3z(1,0
+
+srcgw/sxcf_fal2.sc.F,117
+      subroutine sxcf_scz(26,1211
+      subroutine weightset4intreal(705,31675
+      subroutine get_nwx(775,34434
+
+srcgw/tetrakbt.F,112
+      logical function usetetrakbt(1,0
+      subroutine tetrakbt(6,99
+      subroutine eaf_triangle(116,4272
+
+srcgw/tetwt5.F,563
+      subroutine  tetwt5x_dtet4(2,45
+      subroutine hisrange(706,28248
+      subroutine lindtet6(741,29311
+      subroutine inttetra6(879,34871
+      subroutine inttetrac6(1010,39551
+      subroutine intttvc6(1060,41421
+      subroutine integtetn(1192,45906
+      subroutine mkwcg(1289,49205
+      subroutine wab(1346,51103
+      subroutine addsciss(1356,51274
+      subroutine midk3(1365,51517
+      subroutine chkdgn(1388,52317
+      subroutine midk(1440,53534
+      subroutine rsvwwk00_4(1448,53871
+      SUBROUTINE TETFBZF_notused(1475,54822
+
+srcgw/u_lat_0.F,834
+      subroutine u_lat_0(2,14
+      subroutine p_lat_0(21,577
+      subroutine u_lat_vecs(40,1085
+      subroutine p_lat_vecs(50,1343
+      subroutine u_lat_v0(61,1667
+      subroutine u_lat_dist(70,1877
+      subroutine u_lat_FT(80,2123
+      subroutine u_lat_qmesh(91,2348
+      subroutine u_lat_grp(102,2623
+      subroutine p_lat_grp(111,2891
+      subroutine u_lat_gv(121,3172
+      subroutine p_lat_gv(131,3481
+      subroutine u_lat_rgv(141,3761
+      subroutine p_lat_rgv(151,4071
+      subroutine u_lat_FTb(161,4356
+      subroutine u_lat_sym(175,4643
+      subroutine p_lat_sym(183,4899
+      subroutine u_lat_asym(191,5091
+      subroutine p_lat_asym(201,5421
+      subroutine u_lat_cg(211,5680
+      subroutine p_lat_cg(221,6016
+      integer function i_lat(251,6907
+      subroutine p_lat 266,7334
+
+srcgw/wcf.F,95
+      subroutine wcf(1,0
+      subroutine chknbnb(153,4746
+      subroutine anfx0k(179,5756
+
+srcgw/wintzsg.F,304
+      subroutine matzwz(564,19047
+      subroutine gen_ua(579,19579
+      subroutine gen_uaa(604,20469
+      subroutine gen_expa(620,20941
+      subroutine matzwz2(634,21387
+      subroutine timeshow(748,25683
+      subroutine matzwz_notusedx(758,25877
+      subroutine matzwzs_notused(774,26493
+
+srcgw/wronkj.F,61
+      subroutine wronkj(1,0
+      subroutine radkj(49,1872
+
+srcgw/wse.F,394
+      subroutine checkeq(1,0
+      subroutine wsex2 6,191
+      subroutine rsexx2 107,3215
+      subroutine rsexx 180,5560
+      double precision function egex 246,7704
+      subroutine winfo(273,8319
+      subroutine q0iwgt2(323,10060
+      subroutine readxx(382,11803
+      subroutine winfo2(401,12424
+      subroutine q0iwgt3(422,13242
+      integer*4 function ivsumxxx(466,14758
+
+srcgw/x0kf_v4h.F,250
+      subroutine X0kf_v4hz_init 27,1054
+      subroutine X0kf_v4hz 180,7365
+      subroutine X0kf_v4hz_symmetrize 324,13619
+      subroutine dpsion5(673,28512
+        logical function checkbelong(957,40608
+      subroutine hilbertmat 972,41059
+
+srcgw/zhifa.F,61
+      subroutine zhifa(2,1
+      subroutine zhisl(236,6180
+
+srcgw/zsvd.F,31
+      subroutine zgesvdnn(1,0
+
+srclm/a2bin.F,299
+      logical function a2bin(2,25
+      subroutine doop(201,7981
+      subroutine setans(419,14293
+      double precision function log2d(453,15434
+      logical function a2d(467,15851
+      logical function gettok(619,20680
+      subroutine sstyle(774,26191
+      block data da2bin835,28484
+
+srclm/a2bina.F,83
+      logical function a2bina(1,0
+      double precision function v2dbl(137,4750
+
+srclm/a2rotm.F,130
+      subroutine a2rotm(1,0
+      subroutine eua2rm(140,5016
+      subroutine rm2eua(179,6247
+      subroutine rotma(268,9697
+
+srclm/a2vec.F,34
+      integer function a2vec(1,0
+
+srclm/addbas.F,29
+      subroutine addbas(1,0
+
+srclm/addbkg.F,97
+      subroutine addbkgsm(1,0
+      subroutine adbkql 28,787
+      subroutine addbkgl(83,2187
+
+srclm/addrbl.F,65
+      subroutine addrbl 2,20
+      subroutine addsds(300,11365
+
+srclm/addrwf.F,96
+      subroutine addrwf(3,37
+      subroutine wf2lo(96,3127
+      subroutine ortrwf(203,7122
+
+srclm/aiocor.F,35
+      logical function aiocor(1,0
+
+srclm/aiogen.F,35
+      logical function aiogen(1,0
+
+srclm/aiomom.F,35
+      logical function aiomom(1,0
+
+srclm/aiomp.F,34
+      logical function aiomp(1,0
+
+srclm/aiopar.F,35
+      logical function aiopar(1,0
+
+srclm/aiopot.F,35
+      logical function aiopot(1,0
+
+srclm/aiorme.F,35
+      logical function aiorme(1,0
+
+srclm/aiosop.F,35
+      logical function aiosop(1,0
+
+srclm/aiova.F,34
+      logical function aiova(1,0
+
+srclm/amix.F,33
+      integer function amix(1,0
+
+srclm/arrprt.F,29
+      subroutine arrprt(1,0
+
+srclm/asados.F,29
+      subroutine asados(1,0
+
+srclm/asars.F,62
+      subroutine asars(1,0
+      subroutine asars1(145,4485
+
+srclm/asymop.F,62
+      subroutine asymop(1,0
+      subroutine csymop(63,1813
+
+srclm/atomsr.F,380
+      subroutine rhocor(6,85
+      subroutine atomsc(150,5735
+      subroutine addzbk(546,21277
+      subroutine poiss0(562,21695
+      subroutine fctp0(800,29131
+      subroutine fctp(843,30278
+      subroutine newrho(933,32963
+      subroutine xyrhsr(1155,41395
+      subroutine gintsr(1315,47433
+      subroutine gintsl(1360,48865
+      subroutine asprjq(1402,50115
+
+srclm/atqval.F,29
+      subroutine atqval(1,0
+
+srclm/atwf.F,61
+      subroutine atwf(1,0
+      subroutine atwf2l(179,6862
+
+srclm/augmat.F,29
+      subroutine augmat 1,0
+
+srclm/augmbl.F,204
+      subroutine augmbl 1,0
+      subroutine augq12(293,11726
+      subroutine augq2z(413,16207
+      subroutine augqs3(582,22792
+      subroutine augqp3(642,24723
+      subroutine augq3z(700,26620
+
+srclm/avwsr.F,43
+      double precision function avwsr(1,0
+
+srclm/awrite.F,498
+      integer function awrite(1,0
+      subroutine bin2av(464,16543
+      subroutine awrit8(554,19780
+      entry awrit7(562,20068
+      entry awrit6(563,20127
+      entry awrit5(564,20183
+      entry awrit4(565,20236
+      entry awrit3(566,20286
+      entry awrit2(567,20333
+      entry awrit1(568,20377
+      entry awrit0(569,20418
+      entry awrip(574,20532
+      subroutine vwrt(578,20579
+      integer function ivawrt(605,21599
+      double precision function dvawrt(619,22113
+
+srclm/baslst.F,29
+      subroutine baslst(1,0
+
+srclm/besslr.F,132
+      subroutine besslr(1,0
+      subroutine bessl2(283,9879
+      subroutine besslm(294,10221
+      subroutine bessl(305,10549
+
+srclm/bin2a.F,127
+      subroutine bin2a(1,0
+      entry bin2a0(139,6032
+      subroutine bin2al(385,14187
+      subroutine bin2ai(391,14347
+
+srclm/bitops.F,262
+      integer function bitlow(54,1292
+      logical function bittst(73,1706
+      integer function getdig(86,2158
+      double precision function dtrunc(98,2562
+      double precision function dround(125,3160
+      double precision function xnint(158,3901
+
+srclm/bloch.F,63
+      subroutine bloch(1,0
+      subroutine pblch1(348,13647
+
+srclm/bndconn_v2.F,65
+      subroutine bndconn_v2(1,0
+      subroutine matm(111,3912
+
+srclm/bndfp.F,234
+      subroutine bndfp(15,606
+      subroutine xmpbnd(3224,137496
+      logical function master_mpi(3285,139641
+      entry master_mpiset(3292,139815
+      subroutine writepdos(3298,139945
+      subroutine writeband(3415,144123
+
+srclm/brentm.F,128
+      subroutine brentm(1,0
+      subroutine mnbrk2(45,1851
+      SUBROUTINE MNBRAK(67,2454
+      subroutine brent(314,9577
+
+srclm/brmin.F,28
+      subroutine brmin(1,0
+
+srclm/broyj.F,35
+      integer function broyj(2,17
+
+srclm/bstrux.F,167
+      subroutine prlcb1(7,81
+      subroutine bstrux(94,3214
+      subroutine paugq1(275,9870
+      subroutine paugqp(341,12148
+      subroutine paugq2(540,19121
+
+srclm/bzints.F,29
+      subroutine bzints(1,0
+
+srclm/bzmesh.F,104
+      subroutine bzmesh(1,0
+      subroutine bzmsh0(347,13839
+      integer function mxxyz(419,16416
+
+srclm/bzmio.F,28
+      subroutine bzmio(1,0
+
+srclm/bzwts.F,135
+      subroutine bzwts(1,0
+      subroutine ebcpl(457,16662
+      subroutine mark1(546,19967
+      integer function iget(565,20551
+
+srclm/bzwtsf.F,137
+      subroutine bzwtsf2(8,373
+      subroutine bzwtsf(225,9690
+      subroutine bzwtsf3(400,16737
+      subroutine bzwtsm(580,23722
+
+srclm/ccutup.F,29
+      SUBROUTINE CCUTUP(1,0
+
+srclm/cdiv.F,27
+      subroutine cdiv(1,0
+
+srclm/chcase.F,29
+      subroutine chcase(1,0
+
+srclm/chgmsh.F,97
+      subroutine chgmsh(1,0
+      subroutine pchmsh(108,3924
+      subroutine pchms2(144,5002
+
+srclm/chkdmu.F,29
+      subroutine chkdmu(1,0
+
+srclm/chkhss.F,35
+      integer function chkhss(1,0
+
+srclm/clabel.F,29
+      subroutine clabel(1,0
+
+srclm/clist.F,28
+      subroutine clist(1,0
+
+srclm/clsset.F,103
+      subroutine clsset(1,0
+      logical function pvclst(217,7175
+      subroutine clsctr(272,8765
+
+srclm/cmdopt.F,126
+      logical function cmdopt(1,0
+      subroutine acmdop(48,1519
+      entry ncmdop(126,3976
+      entry gcmdop(130,4028
+
+srclm/cmdstr.F,74
+      logical function cmdstr(1,0
+      integer function nxargc(33,1017
+
+srclm/cmplat.F,35
+      integer function cmplat(1,0
+
+srclm/config.F,29
+      subroutine config(1,0
+
+srclm/contet.F,29
+      subroutine contet(1,0
+
+srclm/corprm.F,29
+      subroutine corprm(1,0
+
+srclm/cplxdm.F,29
+      subroutine cplxdm(1,0
+
+srclm/cpstr.F,60
+      subroutine cpstr(1,0
+      subroutine eostr(83,2687
+
+srclm/cpudel.F,125
+      subroutine cpudel(1,0
+      double precision function cpusec(46,1315
+      double precision function cpusec(68,1853
+
+srclm/cross.F,105
+      subroutine cross(1,0
+      double precision function tripl(8,203
+      subroutine mkqlat(14,435
+
+srclm/cshear.F,29
+      SUBROUTINE CSHEAR(1,0
+
+srclm/d1mach.F,72
+      double precision function d1mach(2,16
+      entry dmach(42,1378
+
+srclm/dbesj.F,209
+      double precision function dbesj(1,0
+      double precision function dbesj0 55,1384
+      double precision function dbesj1 106,3807
+      subroutine d9b0mp 164,6448
+      subroutine d9b1mp 393,20820
+
+srclm/dcabsr.F,72
+      double precision function dcabsr(1,0
+      subroutine cpy(6,156
+
+srclm/defpq.F,63
+      subroutine defpq(1,0
+      subroutine atmoms(255,10611
+
+srclm/defspc.F,29
+      subroutine defspc(1,0
+
+srclm/defwsr.F,29
+      subroutine defwsr(1,0
+
+srclm/delstd.F,29
+      subroutine delstd(1,0
+
+srclm/delstp.F,29
+      subroutine delstp(1,0
+
+srclm/derfc.F,259
+      double precision function derfc 3,43
+      double precision function derfc 213,11608
+      double precision function derf 358,17443
+      function initds 362,17552
+      double precision function dcsevl 395,18662
+      subroutine errmsg 424,19587
+
+srclm/dfaugm.F,29
+      subroutine dfaugm 1,0
+
+srclm/dfdump.F,98
+      subroutine dfdump(1,0
+      subroutine dfsdmp(10,282
+      logical function lfdmp(17,518
+
+srclm/dfphi.F,28
+      subroutine dfphi(1,0
+
+srclm/dfqkkl.F,29
+      subroutine dfqkkl 1,0
+
+srclm/dfratm.F,29
+      subroutine dfratm 1,0
+
+srclm/dfrce.F,164
+      subroutine dfrce 1,0
+      subroutine pvdf1 394,14315
+      subroutine pvdf2(781,27197
+      subroutine pvdf3(931,31967
+      subroutine pvdf4(952,32517
+
+srclm/dgedi.F,28
+      subroutine dgedi(1,0
+
+srclm/dgefa.F,28
+      subroutine dgefa(1,0
+
+srclm/dgesl.F,28
+      subroutine dgesl(1,0
+
+srclm/dinv33.F,29
+      subroutine dinv33(1,0
+
+srclm/discop.F,61
+      subroutine discop(1,0
+      subroutine idscop(25,623
+
+srclm/dlmn.F,27
+      subroutine dlmn(1,0
+
+srclm/dmcpy.F,28
+      subroutine dmcpy(1,0
+
+srclm/dmpy.F,62
+      subroutine dmpy(2,16
+      subroutine dmpytm(134,3888
+
+srclm/dmpy22.F,61
+      subroutine dmpy22(1,0
+      subroutine dinv22(32,893
+
+srclm/dmpyt.F,28
+      subroutine dmpyt(1,0
+
+srclm/dmsadd.F,29
+      subroutine dmsadd(1,0
+
+srclm/dmscop.F,29
+      subroutine dmscop(1,0
+
+srclm/dosio.F,28
+      subroutine dosio(1,0
+
+srclm/dosspl.F,29
+      subroutine dosspl(1,0
+
+srclm/dostet.F,29
+      subroutine dostet(1,0
+
+srclm/dot3.F,42
+      double precision function dot3(1,0
+
+srclm/dpadd.F,28
+      subroutine dpadd(1,0
+
+srclm/dpcopy.F,29
+      subroutine dpcopy(1,0
+
+srclm/dpdbyl.F,29
+      subroutine dpdbyl(1,0
+
+srclm/dpdftr.F,29
+      subroutine dpdftr(1,0
+
+srclm/dpdump.F,98
+      subroutine dpdump(1,0
+      subroutine dpsdmp(7,203
+      logical function lddump(14,440
+
+srclm/dpsadd.F,29
+      subroutine dpsadd(1,0
+
+srclm/dpscop.F,29
+      subroutine dpscop(1,0
+
+srclm/dpzero.F,478
+      subroutine cinit(1,0
+      subroutine zinit(7,160
+      subroutine iinit(13,333
+      subroutine ainit(20,505
+      subroutine dpzero(27,671
+      real function rval(34,862
+      double precision function dval(40,1022
+      integer function ival(46,1218
+      integer function ival2(52,1387
+      logical function logval(58,1572
+      complex function cval(64,1745
+      subroutine dvset(70,1914
+      subroutine ivset(78,2140
+      subroutine lvset(84,2319
+
+srclm/dqinv.F,69
+      recursive subroutine dqinv(5,107
+      entry dqinv0(214,6729
+
+srclm/dqinvb.F,71
+      recursive subroutine dqinvb(5,120
+      entry dqnvb0(299,10357
+
+srclm/drr2.F,42
+      double precision function drr2(1,0
+
+srclm/dsbak.F,28
+      subroutine dsbak(1,0
+
+srclm/dschd.F,28
+      subroutine dschd(1,0
+
+srclm/dsev1.F,28
+      subroutine dsev1(1,0
+
+srclm/dshell.F,29
+      subroutine dshell(1,0
+
+srclm/dsidi.F,28
+      subroutine dsidi(1,0
+
+srclm/dsifa.F,28
+      subroutine dsifa(1,0
+
+srclm/dsisl.F,28
+      subroutine dsisl(1,0
+
+srclm/dsmpy.F,28
+      subroutine dsmpy(1,0
+
+srclm/dspbmm.F,95
+      subroutine dspbmm(1,0
+      subroutine dmspbm(114,4552
+      subroutine fmain233,9166
+
+srclm/dsred.F,28
+      subroutine dsred(1,0
+
+srclm/dsredx.F,29
+      subroutine dsredx(1,0
+
+srclm/dstrbp.F,168
+      subroutine dstrbp(1,0
+      SUBROUTINE single(75,2417
+      SUBROUTINE optimise(124,3696
+      SUBROUTINE multiple(213,6165
+      subroutine pdstlb(289,8280
+
+srclm/dsum.F,42
+      double precision function dsum(1,0
+
+srclm/dsumdf.F,30
+      subroutine dsumdf(2,41
+
+srclm/dtribx.F,29
+      subroutine dtribx(1,0
+
+srclm/dtridx.F,29
+      subroutine dtridx(1,0
+
+srclm/dvdos.F,28
+      subroutine dvdos(1,0
+
+srclm/dvheap.F,62
+      subroutine dvheap(1,0
+      subroutine dvprm(216,5879
+
+srclm/dvshel.F,63
+      subroutine dvshel(1,0
+      subroutine dvperm(107,3266
+
+srclm/efldos.F,29
+      subroutine efldos(1,0
+
+srclm/efrng2.F,35
+      logical function efrng2(1,0
+
+srclm/elocp.F,28
+      subroutine elocp(1,0
+
+srclm/epslon.F,44
+      double precision function epslon 1,0
+
+srclm/esmsmves.F,136
+      subroutine esmsmves(2,46
+      subroutine esmhartp(182,6672
+      subroutine lsfit(636,22545
+      subroutine cubic(669,23375
+
+srclm/f100.F,42
+      double precision function f100(1,0
+
+srclm/f102.F,42
+      double precision function f102(1,0
+
+srclm/fermi.F,28
+      subroutine fermi(1,0
+
+srclm/fftz3.F,60
+      subroutine fftz30(2,41
+      subroutine fftz3(8,131
+
+srclm/fgtcat.F,108
+      integer function fgtcat(1,0
+      subroutine stswt(171,5521
+      integer function quswt(373,13708
+
+srclm/finits.F,399
+      subroutine finits(1,0
+      subroutine fexit(73,2361
+      entry fexit3(109,3653
+      entry fexit2(110,3706
+      subroutine rx(166,5334
+      subroutine rx0(172,5469
+      subroutine rx1(179,5606
+      subroutine rx2(188,5855
+      subroutine rxi(197,6119
+      subroutine rxs(207,6382
+      subroutine rxs2(217,6647
+      subroutine rxs4(227,6932
+      subroutine rxx(237,7253
+
+srclm/fixef0.F,29
+      subroutine fixef0(1,0
+
+srclm/fixpos.F,30
+      subroutine fixpos(2,20
+
+srclm/fklbl.F,29
+      subroutine fklbl(2,20
+
+srclm/flocbl.F,63
+      subroutine flocbl(1,0
+      subroutine flocb2(150,5338
+
+srclm/fopna.F,1310
+      integer function fopna(15,391
+      entry fopng(103,3919
+      entry fadd(108,4053
+      entry fopn(114,4223
+      entry fopno(118,4294
+      entry fopnn(122,4369
+      entry fxst(126,4444
+      entry fhndl(130,4516
+      entry fext(134,4590
+      entry fpath(138,4661
+      entry fextg(142,4734
+      entry fpathg(146,4807
+      subroutine fclr(151,4892
+      entry fshow160,5068
+      subroutine ffnam(163,5126
+      integer function fopng(177,5438
+      integer function fadd(184,5661
+      integer function fopn(193,5934
+      integer function fopno(199,6078
+      integer function fopnn(205,6226
+      integer function fxst(211,6374
+      integer function fhndl(217,6519
+      integer function fext(223,6666
+      integer function fpath(229,6810
+      integer function fextg(235,6956
+      integer function fpathg(241,7102
+      subroutine fclr(247,7250
+      entry fshow256,7427
+      subroutine ffnam(259,7485
+      integer function fopnT(268,7695
+      integer function fopnx(341,10177
+      logical function isopen(669,21428
+      subroutine fclose(704,22589
+      entry dfclos(742,23607
+      entry closea747,23702
+      integer function lgunit(756,23945
+      subroutine namcat(772,24410
+      subroutine ftflsh(798,25098
+      subroutine fmain825,25830
+
+srclm/fovlp.F,28
+      subroutine fovlp(1,0
+
+srclm/fpchk.F,60
+      subroutine fpchk(1,0
+      subroutine chkxpn(29,890
+
+srclm/fpiint.F,29
+      subroutine fpiint(1,0
+
+srclm/fradhd.F,29
+      subroutine fradhd(1,0
+
+srclm/fradpk.F,29
+      subroutine fradpk(1,0
+
+srclm/freeat.F,421
+      subroutine freeat(3,23
+      subroutine freats(222,7074
+      subroutine pratfs(628,23756
+      subroutine ppratf(782,29442
+      subroutine optfab(848,31431
+      subroutine ftfalo(1126,40513
+      subroutine popta1(1356,48224
+      subroutine popta2(1468,52043
+      subroutine popta3(1532,53886
+      subroutine popta4(1617,56568
+      subroutine popta5(1683,58736
+      subroutine fctail(1796,62286
+
+srclm/freeat.bk.F,420
+      subroutine freeat(1,0
+      subroutine freats(194,5959
+      subroutine pratfs(549,18843
+      subroutine ppratf(681,23369
+      subroutine optfab(747,25358
+      subroutine ftfalo(1007,34026
+      subroutine popta1(1237,41785
+      subroutine popta2(1349,45604
+      subroutine popta3(1412,47440
+      subroutine popta4(1497,50109
+      subroutine popta5(1563,52263
+      subroutine fctail(1676,55813
+
+srclm/fsmbl.F,28
+      subroutine fsmbl(1,0
+
+srclm/fsmbpw.F,29
+      subroutine fsmbpw(1,0
+
+srclm/fsubs.F,443
+      subroutine cexit(1,0
+      subroutine fsystm(25,431
+      subroutine cwrite(45,919
+      subroutine flushs(56,1191
+      integer function  bitor(67,1459
+      integer function bitand(71,1547
+      subroutine nlchar(75,1638
+      subroutine locase(96,1970
+      subroutine sectim(110,2315
+      subroutine gtenv(155,3323
+      subroutine ptenv(176,3833
+      subroutine mkdcon(195,4255
+      integer function unlink(231,5021
+
+srclm/fswgts.F,29
+      subroutine fswgts(1,0
+
+srclm/ftlxp.F,62
+      subroutine ftlxp(1,0
+      subroutine ftlxp2(152,4372
+
+srclm/garg.F,70
+      integer function garg(1,0
+      integer function parg(69,2601
+
+srclm/gaugm.F,206
+      subroutine gaugm(2,20
+      subroutine pvagm1(427,17919
+      subroutine pvaglc(851,34063
+      subroutine pvagm2(1284,51741
+      subroutine pvagm3(1412,57020
+      subroutine ppi2z(1594,64229
+
+srclm/gengrp.F,64
+      subroutine gengrp(1,0
+      subroutine gtcsym(687,32429
+
+srclm/gensym.F,29
+      subroutine gensym(1,0
+
+srclm/getbzp.F,29
+      subroutine getbzp(1,0
+
+srclm/getcat.F,317
+      subroutine getcat(1,0
+      logical function scat(98,2766
+      subroutine subcat(128,3775
+      subroutine msgio(164,4826
+      integer function partok(210,6414
+      subroutine partk0(490,16662
+      subroutine stlibv(518,17605
+      integer function recln(550,18415
+      block data drdfil564,18933
+
+srclm/getcor.F,29
+      subroutine getcor(1,0
+
+srclm/getef.F,34
+      integer function getef(1,0
+
+srclm/getq.F,62
+      subroutine getqvc(4,38
+      subroutine getq(102,3331
+
+srclm/getqp.F,28
+      subroutine getqp(1,0
+
+srclm/gettime.F,30
+      subroutine gettime(1,0
+
+srclm/gfigbl.F,30
+      subroutine gfigbl(2,20
+
+srclm/ggugbl.F,29
+      subroutine ggugbl(1,0
+
+srclm/ghibl.F,29
+      subroutine ghibl(2,20
+
+srclm/ghigbl.F,30
+      subroutine ghigbl(2,20
+
+srclm/ghios.F,28
+      subroutine ghios(1,0
+
+srclm/gklbl.F,97
+      subroutine gklbl(2,20
+      subroutine gklbld(109,3375
+      subroutine gklblq(172,5342
+
+srclm/gklft.F,28
+      subroutine gklft(1,0
+
+srclm/gklq.F,27
+      subroutine gklq(1,0
+
+srclm/gradfl.F,30
+      subroutine gradfl(6,93
+
+srclm/gradzr.F,150
+      subroutine gradzr(3,60
+      subroutine drgrzr(676,28292
+      double precision function pgrada(806,33795
+      subroutine pgradz(823,34221
+
+srclm/grfmsh.F,29
+      subroutine grfmsh(1,0
+
+srclm/groupg.F,29
+      subroutine groupg(1,0
+
+srclm/grpfnd.F,29
+      subroutine grpfnd(1,0
+
+srclm/grpgen.F,137
+      subroutine grpgen(1,0
+      subroutine grpcop(116,3702
+      logical function grpeql(125,3883
+      subroutine grpprd(139,4257
+
+srclm/grpop.F,28
+      SUBROUTINE GRPOP(1,0
+
+srclm/gtbsl1.F,29
+      subroutine gtbsl1(1,0
+
+srclm/gtbsl2.F,29
+      subroutine gtbsl2(1,0
+
+srclm/gtbvec.F,29
+      SUBROUTINE GTBVEC(1,0
+
+srclm/gtpcor.F,29
+      subroutine gtpcor(1,0
+
+srclm/gvctof.F,29
+      subroutine gvctof(1,0
+
+srclm/gvgetf.F,93
+      subroutine gvgetf(2,6
+      subroutine gvputf(16,426
+      subroutine gvaddf(31,887
+
+srclm/gvlist.F,217
+      subroutine gvlist_notused(1,0
+      subroutine pvglst(400,15467
+      subroutine gvgetf(495,18506
+      subroutine gvgetf_test(510,18917
+      subroutine gvputf(528,19415
+      subroutine gvaddf(544,19867
+
+srclm/gvlst2.F,100
+      subroutine gvlst2(2,20
+      subroutine gvlstn(267,11226
+      subroutine gvlsts(337,14417
+
+srclm/gvmtch.F,66
+      subroutine pgvmat2 30,959
+      subroutine pgvmat(41,1355
+
+srclm/gvsym.F,28
+      subroutine gvsym(1,0
+
+srclm/gwcphi.F,29
+      subroutine gwcphi(1,0
+
+srclm/hambl.F,62
+      subroutine hambl 1,0
+      subroutine pvhmb1(220,8866
+
+srclm/hambls.F,71
+      subroutine phmbls(7,81
+      subroutine hambls_unused 161,5144
+
+srclm/hamfb3.F,63
+      subroutine hamfb3k(1,0
+      subroutine hamfb3(91,4150
+
+srclm/hanr.F,27
+      subroutine hanr(1,0
+
+srclm/hansmd.F,29
+      subroutine hansmd(1,0
+
+srclm/hansmr.F,29
+      subroutine hansmr(1,0
+
+srclm/hansr.F,98
+      subroutine hansr(2,74
+      subroutine hansr1(217,7495
+      subroutine hansr2(343,11945
+
+srclm/hansr4.F,29
+      subroutine hansr4(1,0
+
+srclm/hansr5.F,29
+      subroutine hansr5(1,0
+
+srclm/hansrz.F,99
+      subroutine hansrz(1,0
+      subroutine hansz1(310,11268
+      subroutine hansz2(438,16003
+
+srclm/hft2rs.F,135
+      subroutine hft2rs(3,37
+      subroutine hft2r1(361,16843
+      subroutine hft2r2(518,23316
+      subroutine hft2r3(738,32052
+
+srclm/hgugbl.F,29
+      subroutine hgugbl(1,0
+
+srclm/hhibl.F,61
+      subroutine hhibl(1,0
+      subroutine phhibl(87,3200
+
+srclm/hhigbl.F,63
+      subroutine hhigbl(1,0
+      subroutine phhigb(103,3575
+
+srclm/hhugbl.F,29
+      subroutine hhugbl(1,0
+
+srclm/hklbl.F,29
+      subroutine hklbl(2,20
+
+srclm/hklft.F,28
+      subroutine hklft(1,0
+
+srclm/hklgbl.F,29
+      subroutine hklgbl(1,0
+
+srclm/hklos.F,28
+      subroutine hklos(1,0
+
+srclm/hnsmft.F,93
+      subroutine hnsmft(1,0
+      subroutine sint(175,5863
+      subroutine fint(191,6395
+
+srclm/hrmint.F,97
+      subroutine hrmint(2,20
+      subroutine hrminx(58,1945
+      subroutine hrmins(129,4154
+
+srclm/hsibl.F,324
+      subroutine hsibl(2,14
+      subroutine hsibl1(485,17890
+      subroutine hsibl2(546,19727
+      subroutine hsibl3(649,22948
+      subroutine hsibl4(720,25303
+      subroutine hsibl5(768,26942
+      subroutine hsibl6(837,28990
+      integer function ifindiv(884,30456
+      integer function ifindiv2(919,31462
+
+srclm/hsmbl.F,96
+      subroutine hsmbl(1,0
+      subroutine hsmblq(107,3435
+      subroutine hsmbld(169,5506
+
+srclm/hsmq.F,97
+      subroutine hsmq(1,0
+      subroutine hsmqe0(323,11895
+      subroutine pvhsmq(595,21575
+
+srclm/htribk.F,29
+      subroutine htribk(1,0
+
+srclm/htridi.F,29
+      subroutine htridi(1,0
+
+srclm/hunti.F,28
+      subroutine hunti(1,0
+
+srclm/huntx.F,28
+      subroutine huntx(1,0
+
+srclm/hxpbl.F,29
+      subroutine hxpbl(2,20
+
+srclm/hxpgbl.F,30
+      subroutine hxpgbl(2,20
+
+srclm/hxpos.F,29
+      subroutine hxpos(2,20
+
+srclm/i1mach.F,67
+      INTEGER FUNCTION I1MACH(9,335
+      ENTRY I1MACS(568,16892
+
+srclm/iax2fd.F,29
+      subroutine iax2fd(1,0
+
+srclm/iclbas.F,73
+      integer function iclbas(1,0
+      integer function iclbsj(23,606
+
+srclm/icopy.F,28
+      subroutine icopy(2,1
+
+srclm/idmxmn.F,29
+      subroutine idmxmn(1,0
+
+srclm/iinear.F,35
+      integer function iinear(1,0
+
+srclm/imtql2.F,29
+      subroutine imtql2(1,0
+
+srclm/imtqlv.F,29
+      subroutine imtqlv(1,0
+
+srclm/imxmn.F,28
+      subroutine imxmn(1,0
+
+srclm/info.F,135
+      subroutine info(1,0
+      entry info0(29,1066
+      entry info2(30,1102
+      entry info5(31,1144
+      entry info8(32,1195
+
+srclm/intnos.F,29
+      subroutine intnos(1,0
+
+srclm/invbl.F,130
+      subroutine invbl(1,0
+      subroutine wrirsh(99,3247
+      subroutine clean0(326,11845
+      subroutine wripp(351,12562
+
+srclm/iobsmv.F,62
+      subroutine iobsmv(1,0
+      subroutine iobsm0(46,1322
+
+srclm/ioeula.F,64
+      subroutine pvioeu(4,59
+      subroutine ioeula(105,3751
+
+srclm/iofa.F,33
+      integer function iofa(1,0
+
+srclm/iomomq.F,29
+      subroutine iomomq(1,0
+
+srclm/iomoms.F,69
+      integer function iomoms(1,0
+      subroutine iomomn(192,8151
+
+srclm/iomomx.F,63
+      subroutine iomomx(1,0
+      subroutine pviomx(160,6173
+
+srclm/ioorbp.F,35
+      logical function ioorbp(1,0
+
+srclm/iopos.F,62
+      subroutine iopos(1,0
+      subroutine ioposs(199,6235
+
+srclm/iorbtm.F,29
+      subroutine iorbtm(1,0
+
+srclm/iors.F,33
+      integer function iors(1,0
+
+srclm/iosave.F,29
+      subroutine iosave(1,0
+
+srclm/iosite.F,35
+      integer function iosite(1,0
+
+srclm/iosits.F,35
+      integer function iosits(1,0
+
+srclm/ipdump.F,98
+      subroutine ipdump(1,0
+      subroutine ipsdmp(7,202
+      logical function lidump(14,438
+
+srclm/iprint.F,372
+      integer function iprint(12,441
+      entry iprt(28,869
+      subroutine pshprt(33,1038
+      entry pshpr(35,1086
+      entry setpr(43,1301
+      entry getpr(47,1363
+      entry popprt51,1425
+      entry poppr52,1444
+      entry sprt(56,1512
+      entry shopr60,1595
+      subroutine togprt66,1734
+      entry togpr74,1926
+      block data iprntb83,2113
+
+srclm/isanrg.F,68
+      logical function isanrg(1,0
+      subroutine fsanrg(58,2119
+
+srclm/ishell.F,29
+      subroutine ishell(1,0
+
+srclm/isum.F,33
+      integer function isum(1,0
+
+srclm/isw.F,32
+      integer function isw(1,0
+
+srclm/ivheap.F,62
+      subroutine ivheap(1,0
+      subroutine ivprm(206,5554
+
+srclm/ivshel.F,62
+      subroutine ivshel(1,0
+      subroutine ivperm(56,1662
+
+srclm/iyamax.F,35
+      integer function iyamax(1,0
+
+srclm/jxpos.F,28
+      subroutine jxpos(1,0
+
+srclm/latlim.F,29
+      subroutine latlim(1,0
+
+srclm/lattc.F,97
+      subroutine lattc(2,20
+      subroutine lctoff(118,4709
+      subroutine dlmtor(160,6073
+
+srclm/lattdf.F,29
+      subroutine lattdf(1,0
+
+srclm/lattic.F,29
+      subroutine lattic(1,0
+
+srclm/latvec.F,35
+      logical function latvec(1,0
+
+srclm/ldau.F,27
+      subroutine ldau(1,0
+
+srclm/lgstar.F,29
+      subroutine lgstar(1,0
+
+srclm/lindsc.F,29
+      subroutine lindsc(1,0
+
+srclm/ll.F,31
+      integer function ll(1,0
+
+srclm/lmaux.F,63
+      subroutine lmaux(1,0
+      subroutine spec2c(455,18156
+
+srclm/lmfp.F,96
+      subroutine lmfp(1,0
+      subroutine cppos(874,33425
+      subroutine grdepl(889,33792
+
+srclm/locpot.F,100
+      subroutine locpot 1,0
+      subroutine locpt2(462,19789
+      subroutine elfigr(1019,41988
+
+srclm/loctsh.F,29
+      subroutine loctsh(1,0
+
+srclm/lx2vec.F,29
+      subroutine lx2vec(1,0
+
+srclm/m_ext.F,31
+      subroutine getext(6,120
+
+srclm/m_gtv.F,671
+      subroutine gtv_setio(65,2955
+      subroutine replacetab2space(75,3236
+      subroutine gtv_setrcd(83,3440
+      subroutine gtv_setst(156,5683
+      subroutine gtv_entrance(170,6079
+      entry gtv_r8(456,20628
+      entry gtv_r8v(465,20927
+      entry gtv_i4(473,21219
+      entry gtv_i4v(481,21479
+      entry gtv_lg(490,21778
+      entry gtv_char(497,21992
+      entry gtv_none(501,22115
+      subroutine getinput_entrance(741,30812
+      entry getinput_r8 801,33114
+      entry getinput_r8v(803,33202
+      entry getinput_i4 805,33290
+      entry getinput_i4v(807,33378
+      entry getinput_char(809,33466
+      entry getinput_none(811,33553
+
+srclm/m_hamindex.F,118
+      integer function getikt(27,1254
+      subroutine writehamindex(45,1760
+      subroutine readhamindex(66,2537
+
+srclm/m_psigd.F,29
+      subroutine psigd(3,36
+
+srclm/m_rdctrl.F,115
+      subroutine readctrl(218,8699
+      subroutine fill3in(2982,127790
+      subroutine toksw_init(2994,128053
+
+srclm/m_sstrnsname.F,36
+      subroutine initialize(21,717
+
+srclm/m_struc_def.F,824
+      integer function uarray_size(1108,49240
+      integer function ubz_size(1137,49940
+      integer function uctrl_size(1166,50619
+      integer function uham_size(1224,52103
+      integer function ulat_size(1253,52790
+      integer function umix_size(1282,53477
+      integer function upot_size(1311,54163
+      integer function usite_size(1340,54849
+      integer function uspec_size(1369,55542
+      subroutine mpibc1_s_bz(1398,56236
+      subroutine mpibc1_s_ctrl(1492,59823
+      subroutine mpibc1_s_ham(1661,66801
+      subroutine mpibc1_s_lat(1806,72696
+      subroutine mpibc1_s_mix(1917,77102
+      subroutine mpibc1_s_pot(2008,80527
+      subroutine mpibc1_s_spec(2068,82687
+      subroutine mpibc1_s_site(2281,91494
+      subroutine ubz_init 2384,95623
+      subroutine umix_init 2409,96160
+
+srclm/m_toksw.F,180
+      subroutine clear_swtok(49,2203
+      subroutine nswadd(72,2838
+      subroutine tkadd(89,3343
+      integer function tksw(133,5139
+      subroutine find_region(209,8093
+
+srclm/macro.F,57
+      subroutine macset(1,0
+      entry macevl(87,2499
+
+srclm/madmat.F,29
+      subroutine madmat(1,0
+
+srclm/makdla.F,29
+      subroutine makdla(1,0
+
+srclm/makdos.F,29
+      subroutine makdos(1,0
+
+srclm/makidx.F,104
+      subroutine makidx(1,0
+      subroutine mkidx2(368,14303
+      integer function idxpr(433,16205
+
+srclm/maknos.F,29
+      subroutine maknos(1,0
+
+srclm/maknrs.F,29
+      subroutine maknrs(1,0
+
+srclm/makrm0.F,29
+      subroutine makrm0(1,0
+
+srclm/makrot.F,29
+      subroutine makrot(1,0
+
+srclm/makrwf.F,29
+      subroutine makrwf(1,0
+
+srclm/makusp.F,63
+      subroutine makusp(1,0
+      subroutine makus2(155,6405
+
+srclm/makusq.F,96
+      subroutine makusq(1,0
+      subroutine pusq1(213,8032
+      subroutine pusq2(428,15736
+
+srclm/matm.F,96
+      subroutine matinv(1,0
+      subroutine matinv2(21,576
+      subroutine matcinv(42,1120
+
+srclm/mchan.F,28
+      subroutine mchan(1,0
+
+srclm/minfit.F,29
+      subroutine minfit(1,0
+
+srclm/mixrho.F,245
+      subroutine mixrho 1,0
+      subroutine pvmix3 1055,40098
+      subroutine pvmix4(1215,45961
+      subroutine pvmix5 1361,51583
+      subroutine pvmix6(1817,68451
+      subroutine pvmix7 1900,71452
+      subroutine pvmix9(2152,80490
+
+srclm/mkcond.F,29
+      subroutine mkcond(1,0
+
+srclm/mkdlst.F,35
+      integer function mkdlst(1,0
+
+srclm/mkdmtu.F,29
+      subroutine mkdmtu(1,0
+
+srclm/mkehkf.F,29
+      subroutine mkehkf(1,0
+
+srclm/mkekin.F,64
+      subroutine mkekin 1,0
+      subroutine pvgtkn(256,10992
+
+srclm/mkewgt.F,29
+      subroutine mkewgt(1,0
+
+srclm/mkilst.F,162
+      subroutine mkilst(1,0
+      subroutine mkilss(62,2024
+      subroutine mkils0(117,3999
+      subroutine ilst2a(154,4962
+      subroutine fmain225,6894
+
+srclm/mklagw.F,124
+      subroutine mklagw(1,0
+      double precision function lagn(80,2622
+      double precision function lnolnp(110,3412
+
+srclm/mklegw.F,155
+      subroutine mklegw(1,0
+      subroutine gausq(59,1717
+      double precision function plegn(122,3698
+      double precision function pnp(153,4492
+
+srclm/mkorbm.F,29
+      subroutine mkorbm(1,0
+
+srclm/mkpdos.F,29
+      subroutine mkpdos(1,0
+
+srclm/mkplat.F,336
+      subroutine mkplat(1,0
+      subroutine bravsy(67,2678
+      subroutine cvplat(161,6060
+      subroutine latpar(487,19238
+      subroutine stplat(526,20663
+      subroutine rotmat(614,24080
+      subroutine nrmliz(735,28835
+      double precision function ddet33(763,29537
+      double precision function cosvec(783,30120
+
+srclm/mkpot.F,28
+      subroutine mkpot 1,0
+
+srclm/mkqp.F,27
+      subroutine mkqp(1,0
+
+srclm/mkrout.F,274
+      subroutine mkrou3(4,57
+      subroutine mkrout 98,3579
+      subroutine mkrou1(471,19612
+      subroutine mkrou2(594,24315
+      subroutine mkrou4(745,29817
+      subroutine mkcfus(844,33727
+      subroutine mkrou5(999,39263
+      subroutine mkrou6(1063,41515
+
+srclm/mkrtab.F,29
+      subroutine mkrtab(1,0
+
+srclm/mksym.F,103
+      subroutine mksym(1,0
+      subroutine pvsym2(265,10761
+      integer function aginv(320,12593
+
+srclm/momusl.F,29
+      subroutine momusl(1,0
+
+srclm/mpibc.F,170
+      subroutine mpibc1(1,0
+      subroutine mpibcc(86,2518
+      subroutine mpibc3(137,3913
+      subroutine mpibc2(219,6273
+      integer function mpipid(315,9425
+
+srclm/mshdot.F,29
+      subroutine mshdot(1,0
+
+srclm/mshint.F,29
+      subroutine mshint(1,0
+
+srclm/mshn3p.F,97
+      subroutine mshn3p 1,0
+      subroutine mshn31(257,8888
+      subroutine mshn32(278,9407
+
+srclm/mshsiz.F,63
+      subroutine mshsiz(1,0
+      subroutine gtpfac(167,6199
+
+srclm/mshvmt.F,64
+      subroutine mshvmt(2,20
+      subroutine symvvl(176,5613
+
+srclm/mtchae.F,97
+      subroutine mtchae(1,0
+      subroutine mtchre(93,3519
+      subroutine mtchr2(411,15251
+
+srclm/mullmf.F,30
+      subroutine mullmf(2,20
+
+srclm/mxint.F,34
+      integer function mxint(1,0
+
+srclm/mxmymz.F,29
+      SUBROUTINE MXMYMZ(1,0
+
+srclm/ncutcorrect.F,34
+      subroutine ncutcorrect(1,0
+
+srclm/nghbor.F,29
+      subroutine nghbor(1,0
+
+srclm/nglob.F,60
+      integer function nglob(1,0
+      entry dglob(31,909
+
+srclm/nintsp.F,29
+      subroutine nintsp(1,0
+
+srclm/nnrl.F,33
+      integer function nnrl(1,0
+
+srclm/nosbzm.F,29
+      subroutine nosbzm(1,0
+
+srclm/nwit.F,61
+      subroutine nwit(1,0
+      subroutine nwitsv(128,4702
+
+srclm/nxtarg.F,105
+      logical function nxtarg(1,0
+      integer function nxargs(23,561
+      block data dnxarg44,1172
+
+srclm/nxtgrp.F,62
+      subroutine nxtgrp(1,0
+      subroutine ngroup(49,1630
+
+srclm/orbl.F,128
+      subroutine orbl(1,0
+      subroutine iprmsb(87,3350
+      subroutine offsHp(181,6606
+      subroutine imxmnx(261,9690
+
+srclm/ovlchk.F,29
+      subroutine ovlchk(1,0
+
+srclm/ovlocr.F,98
+      subroutine ovlocr 1,0
+      subroutine p1ovlc(261,9014
+      subroutine p2ovlc(292,10013
+
+srclm/ovlpfa.F,29
+      subroutine ovlpfa(1,0
+
+srclm/ovmin.F,78
+      subroutine ovmin(3,36
+      double precision function ovcall(252,9059
+
+srclm/pairc.F,448
+      subroutine gennlat(1,0
+      subroutine pairtakao(110,4098
+      subroutine getgv2(206,7916
+      subroutine eprod(271,10194
+      subroutine sortea(283,10582
+      subroutine pairs(313,11263
+      subroutine pairc(418,15914
+      subroutine ppair1(635,24022
+      subroutine ppair2(785,29466
+      subroutine ppair3(857,31820
+      subroutine ppair4(884,32574
+      subroutine ppair5(951,34986
+      subroutine pair3c(993,36345
+
+srclm/parchv.F,29
+      subroutine parchv(1,0
+
+srclm/parmxp.F,134
+      logical function parmxp(1,0
+      subroutine parmx0(357,13773
+      entry parms0(373,14297
+      block data dparmx385,14540
+
+srclm/pars1v.F,35
+      logical function pars1v(1,0
+
+srclm/parsvc.F,35
+      logical function parsvc(1,0
+
+srclm/paug1.F,163
+      subroutine paug1(1,0
+      subroutine paug2(142,5541
+      subroutine paug3(236,9258
+      subroutine paug4(327,12889
+      subroutine paugnl(343,13324
+
+srclm/pertev.F,64
+      subroutine pertev(2,41
+      subroutine pvpert(119,4190
+
+srclm/phidx.F,28
+      subroutine phidx(1,0
+
+srclm/phvsfp.F,29
+      subroutine phvsfp(1,0
+
+srclm/pkl2ro.F,29
+      subroutine pkl2ro(1,0
+
+srclm/pkli.F,293
+      subroutine qmpkl(1,0
+      subroutine spkli(43,1283
+      subroutine tpkli(70,2148
+      subroutine s3pkl(114,3509
+      subroutine s3pkl0(149,4789
+      subroutine s3pklx(179,5832
+      subroutine pkl2r(239,7766
+      subroutine phkl2r(277,8852
+      subroutine p2pkl(312,9856
+
+srclm/platsl.F,63
+      subroutine platsl(1,0
+      subroutine eulerm(177,5503
+
+srclm/pmblk.F,61
+      subroutine pmblk(1,0
+      subroutine fmain248,10633
+
+srclm/pnunew.F,29
+      subroutine pnunew(1,0
+
+srclm/poinsp.F,29
+      subroutine poinsp(1,0
+
+srclm/poldvm.F,32
+      subroutine poldvm(17,516
+
+srclm/polint.F,192
+      subroutine polint(1,0
+      subroutine polinx(36,1277
+      SUBROUTINE RATINT(97,3001
+      subroutine hunty(140,3855
+      subroutine fmain213,5787
+      subroutine fmain260,7025
+
+srclm/polinta.F,45
+      double precision function polinta(1,0
+
+srclm/poseof.F,94
+      subroutine headl3(1,0
+      subroutine headl2(21,602
+      subroutine poseof(35,1079
+
+srclm/potpus.F,64
+      subroutine potpus(1,0
+      subroutine pvpus1(953,36980
+
+srclm/ppfac.F,28
+      subroutine ppfac(1,0
+
+srclm/pptrns.F,78
+      subroutine pptrns(1,0
+      double precision function oalpha(119,4041
+
+srclm/pqmix.F,309
+      subroutine pqmix(1,0
+      subroutine pqsclf(282,10669
+      subroutine pqsclb(367,13942
+      subroutine pqsclc(477,17822
+      subroutine pqmixa(510,18692
+      subroutine pqmixb(725,26234
+      subroutine pqmixc(867,30797
+      subroutine pqmxup(968,33962
+      subroutine pqmxio(1006,35179
+
+srclm/praugm.F,29
+      subroutine praugm(1,0
+
+srclm/praxis.F,178
+      subroutine praxis(1,0
+      subroutine lmin(423,14960
+      subroutine quad(607,21011
+      double precision function flin(665,22878
+      subroutine sortdv(702,24256
+
+srclm/prdmts.F,62
+      subroutine praldm(1,0
+      subroutine prdmts(69,2174
+
+srclm/pretty.F,29
+      subroutine pretty(1,0
+
+srclm/prjpos.F,29
+      subroutine prjpos(1,0
+
+srclm/prmx.F,302
+      subroutine prm(1,0
+      subroutine prmx(23,746
+      entry prmx0(64,1806
+      subroutine prmr(67,1857
+      subroutine yprm(85,2380
+      entry yprm0(115,3286
+      subroutine zprm(118,3337
+      subroutine zprm3(164,4617
+      subroutine prm3(189,5400
+      subroutine rdm3(210,6068
+
+srclm/projql.F,29
+      subroutine projql(1,0
+
+srclm/prrhat.F,62
+      subroutine prrhat 1,0
+      subroutine prlrho(70,1575
+
+srclm/prrmsh.F,29
+      subroutine prrmsh(1,0
+
+srclm/prtev.F,28
+      subroutine prtev(1,0
+
+srclm/psymop.F,62
+      subroutine psymop(1,0
+      subroutine parsop(70,2657
+
+srclm/pvsms2.F,62
+      subroutine pvsms2 1,0
+      subroutine pvsms3(99,2827
+
+srclm/pwmat.F,132
+      subroutine pwmat(1,0
+      subroutine pwmat2(246,8844
+      subroutine ipwovl(411,14498
+      subroutine matgg2(487,17310
+
+srclm/pythag.F,44
+      double precision function pythag(1,0
+
+srclm/qdist.F,124
+      subroutine qdist(1,0
+      subroutine rdist(17,550
+      subroutine rdistn(29,919
+      subroutine qdistn(38,1215
+
+srclm/query.F,85
+      subroutine query(1,0
+      entry initqu(147,4610
+      entry getqu(151,4669
+
+srclm/radgkl.F,29
+      subroutine radgkl(1,0
+
+srclm/radgra.F,29
+      subroutine radgra(1,0
+
+srclm/radmsh.F,159
+      subroutine radmsh(1,0
+      subroutine radwgt(15,384
+      subroutine radmwt(36,990
+      subroutine radsum(83,2485
+      subroutine radext(94,2847
+
+srclm/radpkl.F,29
+      subroutine radpkl(1,0
+
+srclm/ran1.F,58
+      function ran1(1,0
+      subroutine ran1in(41,1227
+
+srclm/rdctrl2.F,32
+      subroutine rdctrl2(6,145
+
+srclm/rdeq.F,169
+      subroutine rdeq(1,0
+      subroutine fdpp(905,28515
+      subroutine mul22(1428,42048
+      subroutine product2(1445,42470
+      subroutine clebsh(1546,45361
+
+srclm/rdfiln.F,257
+      subroutine rdfiln(1,0
+      subroutine rdfile(1315,52046
+      subroutine rdfilx(1339,52791
+      subroutine pvfil1(1442,56357
+      logical function pvfil2(1489,57826
+      subroutine pvfil3(1783,67162
+      logical function rdstrn(1799,67591
+
+srclm/rdm.F,108
+      integer function rdm(1,0
+      logical function pvrdm1(497,18122
+      subroutine dosymm(508,18400
+
+srclm/rdovfa.F,29
+      subroutine rdovfa 1,0
+
+srclm/rdsigm.F,171
+      subroutine sigflg(4,57
+      subroutine iosigh(143,4730
+      subroutine chksgr(259,9698
+      subroutine siged(560,20657
+      subroutine divctakao(1046,35418
+
+srclm/rdsigm2.F,111
+      subroutine seneinterp2(10,300
+      subroutine seneinterp(193,6932
+      subroutine rdsigm2(777,32018
+
+srclm/rdtok.F,74
+      integer function rdtok(1,0
+      integer function rdtk2(367,12507
+
+srclm/relax.F,98
+      subroutine relax(1,0
+      subroutine prelx1(350,12208
+      subroutine grdep2(401,13733
+
+srclm/rfalsi.F,29
+      subroutine rfalsi(1,0
+
+srclm/rhgcmp.F,98
+      subroutine rhgcmp(3,74
+      subroutine rhgcm2(234,8215
+      subroutine rhgcm3(286,9608
+
+srclm/rhogkl.F,97
+      subroutine rhogkl 1,0
+      subroutine pvrgkl(132,4321
+      subroutine prtrkl(293,9960
+
+srclm/rhomom.F,97
+      subroutine rhomom 1,0
+      subroutine pvrhom(131,3784
+      subroutine pvrhm2(247,7494
+
+srclm/rlocbl.F,133
+      subroutine prlcb2(4,56
+      subroutine prlcb3(124,4196
+      subroutine rlocbl 182,6051
+      subroutine rlocb1(604,22224
+
+srclm/rlxstp.F,29
+      subroutine rlxstp(1,0
+
+srclm/rmesh.F,28
+      subroutine rmesh(1,0
+
+srclm/rnatm.F,63
+      subroutine rnatm(2,20
+      subroutine makrvl(145,5026
+
+srclm/ropbes.F,164
+      subroutine ropbes(12,343
+      SUBROUTINE bessjy(35,878
+      SUBROUTINE sphbes(205,5065
+      SUBROUTINE beschb(225,5588
+      FUNCTION chebev(245,6332
+
+srclm/ropbes.old.F,62
+      subroutine ropbes(1,0
+      subroutine ropbs1(35,1098
+
+srclm/ropbes_alternative.F,100
+      subroutine ropbes(12,331
+      subroutine bessel_yl(34,847
+      subroutine bessel(58,1509
+
+srclm/ropcsm.F,29
+      subroutine ropcsm(1,0
+
+srclm/roplat.F,148
+      subroutine roplat(1,0
+      subroutine cpplat(191,7982
+      subroutine prodln(311,12203
+      double precision function danrm2(341,13330
+
+srclm/ropylg.F,30
+      subroutine ropylg(6,89
+
+srclm/ropyln.F,93
+      subroutine ropyln(1,0
+      subroutine fmain137,3957
+      subroutine makr(194,5409
+
+srclm/ropyln1.F,62
+      subroutine ropqln(1,0
+      subroutine ropynx(56,1410
+
+srclm/rotevs.F,63
+      subroutine rotevs(1,0
+      subroutine evcflg(220,9274
+
+srclm/roth.F,251
+      integer function roth(1,0
+      subroutine pvrotd(416,18826
+      subroutine prothl(517,22574
+      subroutine prothr(752,31738
+      integer function protht(960,39912
+      subroutine pvrott(1071,44246
+      subroutine pvrots(1090,44682
+
+srclm/rothrm.F,63
+      subroutine rothrm(1,0
+      subroutine rothph(117,3794
+
+srclm/rotpnt.F,29
+      subroutine rotpnt(1,0
+
+srclm/rotspu.F,29
+      subroutine rotspu(1,0
+
+srclm/rotwv.F,282
+      subroutine interparam(5,195
+      subroutine prodx2d(58,1994
+      subroutine qparam(85,2576
+      subroutine regioncheck(204,6648
+      subroutine rtoint(223,7181
+      subroutine rotsig(237,7465
+      subroutine conv2int(430,15007
+      subroutine rangedq(447,15440
+
+srclm/rotycs.F,29
+      subroutine rotycs(1,0
+
+srclm/rseq.F,126
+      subroutine rseq(1,0
+      subroutine rsq1(178,6525
+      subroutine rsq2(315,10813
+      subroutine setcc(497,16398
+
+srclm/rsibl.F,311
+      subroutine rsibl(2,20
+      subroutine rsibl1(444,16048
+      subroutine rsibl2(584,21418
+      subroutine rsibl4(674,24390
+      subroutine rsibl5(732,26036
+      subroutine rsibl6(831,29188
+      subroutine rsibl7(873,30408
+      subroutine gvgvcomp(896,30986
+      subroutine rsiblp(938,32298
+
+srclm/rsibl_ev.F,32
+      subroutine rsibl_ev(5,95
+
+srclm/rsmsym.F,29
+      subroutine rsmsym(1,0
+
+srclm/rsort.F,28
+      subroutine rsort(1,0
+
+srclm/rstr0.F,62
+      subroutine rstr0(1,0
+      subroutine pvstr0(112,3638
+
+srclm/s2sph.F,28
+      subroutine s2sph(1,0
+
+srclm/scg.F,26
+      subroutine scg(1,0
+
+srclm/scglp1.F,29
+      subroutine scglp1(1,0
+
+srclm/sclwsr.F,63
+      subroutine sclwsr(1,0
+      subroutine sclws2(256,9298
+
+srclm/setcg.F,28
+      subroutine setcg(1,0
+
+srclm/setfac.F,61
+      subroutine setfac(1,0
+      subroutine stdfac(11,211
+
+srclm/setofl.F,29
+      subroutine setofl(1,0
+
+srclm/sgvsym.F,29
+      subroutine sgvsym(1,0
+
+srclm/shear.F,127
+      subroutine shear(1,0
+      subroutine xxxes(84,2759
+      subroutine xxxse(100,3208
+      subroutine xxxadd(111,3455
+
+srclm/shftpp.F,29
+      subroutine shftpp(1,0
+
+srclm/shoist.F,29
+      subroutine shoist(1,0
+
+srclm/shorbz.F,186
+      subroutine shortn3(3,149
+      subroutine shortn3_initialize(71,2655
+      subroutine ellipsoidxmax(85,3056
+      subroutine shorbz(157,4737
+      subroutine shorbzm(250,7648
+
+srclm/shorps.F,93
+      subroutine shorps(1,0
+      subroutine fmain121,4129
+      subroutine fmain203,7122
+
+srclm/shortn.F,29
+      subroutine shortn(1,0
+
+srclm/shoshl.F,202
+      subroutine xxsho(6,58
+      subroutine shoshl(142,4589
+      subroutine shoang(398,12799
+      subroutine pvang1(557,17526
+      subroutine pvang2(604,19097
+      subroutine psho1(718,22894
+
+srclm/show_programinfo.F,39
+      subroutine show_programinfo(1,0
+
+srclm/siteid.F,63
+      subroutine siteid(1,0
+      subroutine nsitsh(120,4486
+
+srclm/slinz.F,28
+      subroutine slinz(1,0
+
+srclm/slist.F,28
+      subroutine slist(1,0
+
+srclm/smcorm.F,29
+      subroutine smcorm(1,0
+
+srclm/smhsbl.F,30
+      subroutine smhsbl(2,20
+
+srclm/smshft.F,63
+      subroutine smshft 1,0
+      subroutine pvsms1 216,7167
+
+srclm/smves.F,28
+      subroutine smves(1,0
+
+srclm/smvxcm.F,134
+      subroutine smvxcm(1,0
+      subroutine smvxc2(317,12947
+      subroutine smvxc3(605,23473
+      subroutine smvxc4(655,25071
+
+srclm/sopert.F,64
+      subroutine sopert2(2,54
+      subroutine sopert(82,2676
+
+srclm/soprm.F,28
+      subroutine soprm(1,0
+
+srclm/spcgrp.F,205
+      subroutine spcgrp(1,0
+      subroutine sgroup(71,2904
+      logical function spgeql(219,8166
+      subroutine spgprd(259,9301
+      subroutine spgcop(286,9878
+      subroutine gpfndx(298,10176
+
+srclm/splcls.F,29
+      subroutine splcls(1,0
+
+srclm/splrho.F,93
+      subroutine splrho(1,0
+      subroutine lcrho(37,1336
+      subroutine swrho(80,2834
+
+srclm/splwts.F,29
+      subroutine splwts(1,0
+
+srclm/stoner.F,128
+      subroutine stoner(1,0
+      subroutine getde(95,3931
+      subroutine intnb(169,6134
+      subroutine getkin(184,6540
+
+srclm/stonerpb.F,31
+      subroutine stonerpb(1,0
+
+srclm/stonerrsa.F,65
+      subroutine stonerrsa(1,0
+      subroutine zevl(430,15232
+
+srclm/strings.F,375
+      logical function lsequ(1,0
+      subroutine strcop(31,954
+      subroutine strcat(53,1709
+      subroutine strncp(83,2660
+      logical function parstr(93,2974
+      subroutine chrpos(128,4242
+      subroutine chrps2(150,4950
+      subroutine skipbl(180,5920
+      subroutine skpblb(191,6189
+      subroutine skp2bl(202,6456
+      subroutine tokmat(212,6709
+
+srclm/strip.F,28
+      subroutine strip(1,0
+
+srclm/struc_strn.F,60
+      subroutine packs(1,0
+      subroutine upacks(29,860
+
+srclm/strx00.F,29
+      subroutine strx00(1,0
+
+srclm/subasi.F,29
+      subroutine subasi(1,0
+
+srclm/subzi.F,70
+      subroutine subzi(5,178
+      integer function iobzwt(200,8688
+
+srclm/suclst.F,29
+      subroutine suclst(1,0
+
+srclm/sudmtu.F,29
+      subroutine sudmtu(1,0
+
+srclm/sugcut.F,29
+      subroutine sugcut(1,0
+
+srclm/sugw.F,175
+      subroutine sugw 4,90
+      subroutine ioaindx(1329,54215
+      subroutine wlattc(1380,55616
+      subroutine mkppovl2(1440,57761
+      subroutine pvsug1(1504,59789
+
+srclm/suham.F,192
+      subroutine gen_hamindex(2,68
+      subroutine suham(450,17383
+      subroutine mptauof(746,27525
+      subroutine rotdlmm(896,32646
+      double precision function igann(1096,40061
+
+srclm/suham2.F,29
+      subroutine suham2(1,0
+
+srclm/suidx.F,62
+      subroutine suidx(1,0
+      subroutine pz2idx(187,7701
+
+srclm/suldau.F,29
+      subroutine suldau(1,0
+
+srclm/sumlst.F,29
+      subroutine sumlst(1,0
+
+srclm/sumsro.F,29
+      subroutine sumsro(1,0
+
+srclm/suphas.F,62
+      subroutine suphas(1,0
+      subroutine suphs0(82,2549
+
+srclm/supot.F,28
+      subroutine supot(1,0
+
+srclm/surho.F,28
+      subroutine surho 1,0
+
+srclm/suylg.F,28
+      subroutine suylg(1,0
+
+srclm/switch.F,392
+      logical function mtosigmaonly(1,0
+      logical function mixrealsmooth(8,190
+      logical function noelind(29,972
+      logical function enforce_positive_smrho(35,1182
+      integer function debugmode(55,1933
+      integer function sigswitch(60,1999
+      logical function fullmesh(73,2440
+      integer function matmul_pwhovl(91,3109
+      logical function oncewrite(98,3350
+
+srclm/sylm.F,27
+      subroutine sylm(1,0
+
+srclm/sylmnc.F,29
+      subroutine sylmnc(1,0
+
+srclm/symcry.F,29
+      subroutine symcry(1,0
+
+srclm/symdmu.F,30
+      subroutine symdmu(2,20
+
+srclm/symfor.F,29
+      subroutine symfor(1,0
+
+srclm/symiax.F,98
+      subroutine symiax(1,0
+      subroutine symia0(109,3989
+      subroutine symia1(314,11868
+
+srclm/symlat.F,29
+      subroutine symlat(1,0
+
+srclm/symprj.F,29
+      subroutine symprj(1,0
+
+srclm/symq.F,164
+      subroutine psymr0(1,0
+      subroutine psymq0(59,2250
+      subroutine symqmp(105,3634
+      subroutine pxsmr1(165,5793
+      subroutine pysmr1(192,6500
+
+srclm/symrho.F,269
+      subroutine symrho 1,0
+      subroutine symrat 65,2296
+      subroutine psymrf(196,7422
+      subroutine psymrq(222,8322
+      subroutine psymr1 269,10047
+      subroutine symsmr(304,11264
+      subroutine rhopos(351,13070
+      subroutine rhoqm(379,13852
+
+srclm/symstr.F,29
+      subroutine symstr(1,0
+
+srclm/symtbl.F,62
+      subroutine symtbl(1,0
+      subroutine istbpm(90,3034
+
+srclm/symvar.F,351
+      subroutine addsyv(2,15
+      entry getsyv(51,1854
+      entry watsyv(66,2118
+      entry chgsyv(75,2292
+      entry chsyv(79,2380
+      entry lodsyv(93,2642
+      entry shosyv(118,3265
+      entry numsyv(130,3649
+      entry clrsyv(134,3706
+      entry togsyv(138,3763
+      subroutine parsyv(149,4036
+      subroutine fmain250,7329
+
+srclm/symvec.F,233
+      subroutine addsvv(3,35
+      entry lodsvv(77,2461
+      entry getsvv(82,2536
+      entry sizsvv(87,2610
+      entry numsvv(93,2703
+      entry watsvv(98,2777
+      entry shosvv(104,2907
+      subroutine parsvv(172,4959
+
+srclm/syscall.F,132
+      subroutine getarf(1,0
+      integer function nargf(49,1891
+      subroutine ftime(112,4102
+      subroutine fmain160,5499
+
+srclm/tailsm.F,29
+      subroutine tailsm(1,0
+
+srclm/tbhsi.F,28
+      subroutine tbhsi(1,0
+
+srclm/tc.F,192
+      subroutine tcinit(1,0
+      entry tcn(46,1682
+      entry tclev(55,1866
+      entry tcx(61,1995
+      entry tcprt(148,4537
+      subroutine tc(200,6053
+      entry tcget(221,6662
+
+srclm/tetirr.F,29
+      subroutine tetirr(1,0
+
+srclm/tinvit.F,29
+      subroutine tinvit(1,0
+
+srclm/totfrc.F,29
+      subroutine totfrc(1,0
+
+srclm/tql2.F,27
+      subroutine tql2(1,0
+
+srclm/tqlrat.F,29
+      subroutine tqlrat(1,0
+
+srclm/tred2.F,28
+      subroutine tred2(1,0
+
+srclm/trysop.F,29
+      subroutine trysop(1,0
+
+srclm/ugcomp.F,29
+      subroutine ugcomp(1,0
+
+srclm/uspecb.F,29
+      subroutine uspecb(1,0
+
+srclm/util.F,86
+      integer function ifile_handle(2,56
+      integer function ichangesign(56,1722
+
+srclm/vcdmel.F,97
+      subroutine vcdmel(1,0
+      subroutine pvcdm1(149,5989
+      subroutine pvcdm2(230,8860
+
+srclm/vecpkl.F,29
+      subroutine vecpkl(1,0
+
+srclm/veecomp.F,134
+      subroutine Veecomp(1,0
+      subroutine t3j_all(73,2316
+      subroutine fctor1(144,4091
+      subroutine tri_rule(158,4422
+
+srclm/vesft.F,28
+      subroutine vesft(1,0
+
+srclm/vesgcm.F,29
+      subroutine vesgcm(1,0
+
+srclm/vldau.F,28
+      subroutine vldau(1,0
+
+srclm/vlm2us.F,29
+      subroutine vlm2us(1,0
+
+srclm/volsph.F,44
+      double precision function volsph(1,0
+
+srclm/vxc0gc.F,29
+      subroutine vxc0gc(1,0
+
+srclm/vxc0sp.F,29
+      subroutine vxc0sp(1,0
+
+srclm/vxcnlm.F,31
+      subroutine vxcnlm(3,124
+
+srclm/vxcnls.F,71
+      subroutine vxcnls(1,0
+            subroutine xxcnls2(733,28068
+
+srclm/vxcnsp.F,168
+      subroutine vxcnsp(1,0
+      subroutine vxcns2(160,5770
+      subroutine vxcns3(526,18400
+      subroutine vxcns4(568,19698
+      subroutine vxcns5(658,23004
+
+srclm/vxnlcc.F,29
+      subroutine vxnlcc(1,0
+
+srclm/vxnloc.F,63
+      subroutine vxnloc(1,0
+      subroutine pbevxc(119,4657
+
+srclm/vxtrap.F,63
+      subroutine vxtrap(1,0
+      subroutine rwftai(193,7956
+
+srclm/w_psir.F,194
+      integer function unusedfid(5,122
+      subroutine psir_minmax(32,610
+      subroutine w_psir_xcrysden(72,2076
+      subroutine w_psir(133,3897
+      subroutine w_psir_cmdopt(278,8722
+
+srclm/wordg.F,93
+      subroutine wrdsg(1,0
+      subroutine wordg(65,1867
+      subroutine nwordg(94,2898
+
+srclm/words.F,90
+      subroutine words(1,0
+      subroutine word(39,842
+      subroutine nword(60,1414
+
+srclm/wrhomt.F,29
+      subroutine wrhomt(1,0
+
+srclm/writebasis.F,33
+      subroutine writebasis(1,0
+
+srclm/xcfunc.F,713
+      logical function testwritexcfun(1,0
+      subroutine evxcv(16,588
+      subroutine evxcv_old(277,9873
+      subroutine evxcp(511,18422
+      subroutine vxcgga(583,21186
+      subroutine vxnloc(708,25673
+      subroutine pbevxc(826,30330
+      subroutine vxnlcc(1007,36096
+      subroutine easypbe(1104,39742
+      SUBROUTINE EXCHPBE(1265,45830
+      SUBROUTINE CORPBE(1350,49614
+      SUBROUTINE GCOR2(1490,55607
+      SUBROUTINE EXCHPW91(1507,56387
+      SUBROUTINE CORLSD(1567,58569
+      SUBROUTINE GCOR(1600,60189
+      SUBROUTINE CORpw91(1618,60860
+      subroutine setuk(1715,64125
+      entry getuk(1721,64267
+      subroutine vxcgr2(1728,64333
+      subroutine radgrx(1828,67784
+
+srclm/xlgen.F,28
+      subroutine xlgen(1,0
+
+srclm/xxxbnd.F,74
+      subroutine xxxbnd(1,0
+      double precision function sclp(23,632
+
+srclm/xxxdif.F,29
+      subroutine xxxdif(1,0
+
+srclm/ylmrtg.F,29
+      subroutine ylmrtg(1,0
+
+srclm/ymsadd.F,61
+      subroutine ymsadd(1,0
+      subroutine fmain110,4241
+
+srclm/ymscop.F,29
+      subroutine ymscop(1,0
+
+srclm/ymtrns.F,61
+      subroutine ymtrns(1,0
+      subroutine fmain118,4505
+
+srclm/yscal.F,29
+      subroutine  yscal(1,0
+
+srclm/ywrm.F,61
+      subroutine ywrm(1,0
+      subroutine prmwid(161,5331
+
+srclm/yyaxpy.F,29
+      subroutine yyaxpy(1,0
+
+srclm/yydot.F,28
+      subroutine yydot(1,0
+
+srclm/yydotc.F,29
+      subroutine yydotc(1,0
+
+srclm/yygefa.F,63
+      subroutine yygefa(1,0
+      subroutine yygedi(120,3292
+
+srclm/yygemm.F,29
+      subroutine yygemm(1,0
+
+srclm/yygesl.F,29
+      subroutine yygesl(1,0
+
+srclm/yyhifa.F,113
+      subroutine yyhifa(1,0
+      subroutine yyhidi(234,7188
+      double precision function cdabs2(477,13982
+
+srclm/yyhmpy.F,63
+      subroutine yyhmpy(2,41
+      subroutine xyhmpy(63,1852
+
+srclm/yyqinv.F,70
+      recursive subroutine yyqinv(5,112
+      entry yqinv0(259,9040
+
+srclm/yyqnvb.F,29
+      subroutine yyqnvb(1,0
+
+srclm/yysbmm.F,63
+      subroutine yysbmm(1,0
+      subroutine yymsbm(136,5385
+
+srclm/yysbnv.F,76
+      recursive subroutine yysbnv(6,155
+      subroutine psybnv(264,10891
+
+srclm/yysp2a.F,29
+      subroutine yysp2a(1,0
+
+srclm/yyxcpy.F,29
+      subroutine yyxcpy(1,0
+
+srclm/z2herm.F,29
+      subroutine z2herm(1,0
+
+srclm/zampy.F,29
+      subroutine zampy(2,16
+
+srclm/zerfc.F,30
+      SUBROUTINE WOFZ 24,636
+
+srclm/zhev.F,303
+      subroutine zhevx(2,20
+      subroutine zhev(218,7355
+      subroutine zhev2_unused(445,14644
+      subroutine zhev3_unused(555,18503
+      subroutine zhevo_unused(676,22500
+      subroutine zhev_tk_unused(807,26662
+      subroutine zhev_tk2(1194,39584
+      subroutine zhev_tk3(1294,43270
+
+srclm/zmcpy.F,28
+      subroutine zmcpy(1,0
+
+srclm/zmsadd.F,29
+      subroutine zmsadd(1,0
+
+srclm/zmscop.F,29
+      subroutine zmscop(1,0
+
+srclm/zpmblk.F,62
+      subroutine zpmblk(1,0
+      subroutine fmain248,10631
+
+srclm/zqinv.F,28
+      subroutine zqinv(1,0
+
+srclm/zqinvb.F,29
+      subroutine zqinvb(1,0
+
+srclm/ztoy.F,59
+      subroutine ztoy(1,0
+      subroutine ztoy1(36,1421
+
+srclm/ztoyy.F,60
+      subroutine ztoyy(1,0
+      subroutine ztoy2(64,2396
+
+wanniergw/RSMPI_mod.F,326
+      subroutine RSMPI_Init(37,1068
+      subroutine RSMPI_Set_ID69,2167
+      subroutine RSMPI_Check(79,2553
+      subroutine RSMPI_Stop(93,3083
+      subroutine RSMPI_Print_WTime(102,3404
+      subroutine RSMPI_Finalize(111,3739
+      logical function Is_IO_Root_RSMPI(125,4242
+      subroutine RSMPI_Write(132,4491
+
+wanniergw/RSMPI_qkgroup_mod.F,281
+      subroutine RSMPI_qkgroup_Init(59,2188
+      integer function get_my_qkgroup(122,3804
+      subroutine set_q_local_qkgroup(145,4523
+      subroutine set_k_local_qkgroup(166,5280
+      subroutine set_group_id_qkgroup(186,6037
+      subroutine print_info_qkgroup(200,6510
+
+wanniergw/RSMPI_rotkindex_mod.F,87
+      subroutine setup_rotkindex(33,1011
+      subroutine set_nrot_nk_local(107,3111
+
+wanniergw/RSMPI_utils.F,130
+      integer function get_non_blank_rsmpi(1,0
+      subroutine set_index_rsmpi(18,329
+      subroutine set_vcoul_rsmpi(53,973
+
+wanniergw/cubeformat.F,108
+      subroutine wrt_cube(4,72
+      subroutine wrt_pos_2(111,3474
+      subroutine wrt_pos_xyz(152,4544
+
+wanniergw/efsimplef_RSMPI.F,40
+      subroutine efsimplef2a_RSMPI(1,0
+
+wanniergw/ent_MPI.F,428
+      subroutine get_nwf_MPI(42,2131
+      subroutine choose_wanband_MPI(58,2665
+      subroutine sortbnd(186,6859
+      subroutine sortr(217,7555
+      subroutine q2q0xx(250,8308
+      subroutine q02q(263,8607
+      subroutine q02q0g0(276,8896
+      subroutine read_syml(295,9314
+      subroutine findk(342,10857
+      subroutine findk4(361,11427
+      subroutine q2qg(496,15910
+      subroutine readuuq0(521,16488
+
+wanniergw/expand_mesh.F,35
+      subroutine expand_mesh(3,43
+
+wanniergw/hpsig.F,183
+      subroutine checkagree(522,18743
+      subroutine  readbb(531,19051
+      subroutine  getc1c2(573,20254
+      subroutine qggmat(658,22942
+      subroutine phigmat(819,27784
+
+wanniergw/hpsig_MPI.F,183
+      subroutine checkagree(593,21352
+      subroutine  readbb(602,21660
+      subroutine  getc1c2(644,22863
+      subroutine qggmat(729,25559
+      subroutine phigmat(890,30401
+
+wanniergw/htbplot.F,160
+      subroutine get_hrotkp_tb_ws2(146,4828
+      subroutine diag_hm(192,6343
+      subroutine diagcv(214,7071
+      integer function ifile_handle(259,8743
+
+wanniergw/huumat.F,147
+      subroutine checkagree(820,29024
+      subroutine  readbb(829,29332
+      subroutine  readbb1D(871,30535
+      subroutine q2q0x(936,32373
+
+wanniergw/huumat_MPI.F,116
+      subroutine checkagree(1110,40197
+      subroutine  readbb(1119,40505
+      subroutine  readbb1D(1161,41708
+
+wanniergw/hwmatK.F,103
+      subroutine wwmat 888,31489
+      subroutine wvmat 947,33635
+      subroutine chkrot 987,34922
+
+wanniergw/hwmatK_MPI.F,106
+      subroutine wwmat 1188,43034
+      subroutine wvmat 1293,46844
+      subroutine chkrot 1358,48836
+
+wanniergw/m_DATA4GW.F,73
+      subroutine read_DATA4GW(26,770
+      subroutine set_mnla(96,3227
+
+wanniergw/m_FFT3D.F,68
+      subroutine fft_init(83,2687
+      subroutine myfft(104,3372
+
+wanniergw/m_QG.F,33
+      subroutine read_QG(13,413
+
+wanniergw/m_read_Worb.F,76
+      subroutine s_read_Worb(25,1039
+      subroutine s_cal_Worb(105,3449
+
+wanniergw/maxloc0.F,660
+      subroutine getrt(64,2916
+      subroutine q2q0(179,5629
+      subroutine  getbb(196,6089
+      subroutine  getglat(546,15789
+      subroutine  sortvec(569,16415
+      subroutine  sortvec2(606,17285
+      subroutine  get3vec(645,18250
+      subroutine  writebb(700,19681
+       subroutine kbbindx(741,20855
+      subroutine ewindow(767,21630
+      subroutine erange(909,25795
+      subroutine chk_ewindow(963,27270
+      subroutine readuu(1023,28879
+      subroutine chkuu(1090,31185
+      subroutine readuu0(1132,32355
+      subroutine readpsig(1173,33387
+      subroutine wigner_seitz(1210,34615
+      subroutine super_cell(1272,36159
+
+wanniergw/maxloc1.F,606
+      subroutine init_unkg(1,0
+      subroutine pick_nwf(42,1259
+      subroutine read_cnq0(85,2263
+      subroutine get_amnk(152,4094
+      subroutine amnk2unk(238,6320
+      subroutine init_iew(273,7627
+      subroutine   getupu(353,9723
+      subroutine dimz(443,12174
+      subroutine getzmn(467,12774
+      subroutine chk_hm(521,14110
+      subroutine chk_um(553,15126
+      subroutine chk_on(575,15650
+      subroutine diag_hm(594,16100
+      subroutine chk_eval(624,16745
+       subroutine new_cnk(653,17389
+      subroutine  get_omgik(714,18971
+      subroutine zgesvdmn(748,19779
+
+wanniergw/maxloc2.F,636
+      subroutine diag_unk(1,0
+      subroutine chk_eunk(68,1650
+      subroutine chk_cnk(101,2448
+      subroutine init_mmn(140,3523
+      subroutine init_Umnk(191,4899
+      subroutine updt_mmn(238,6350
+       subroutine get_rn(293,7670
+      subroutine getrmn(327,8616
+      subroutine getamn(347,9035
+      subroutine getsmn(366,9450
+       subroutine gettmn(386,9895
+      subroutine updt_uk(424,10730
+      subroutine getOmg(482,12132
+      subroutine writeOmg(547,13775
+      subroutine writermn(674,16912
+      subroutine writemmn(757,19194
+      subroutine wmaxloc(802,20347
+      subroutine chk_dnk(880,23025
+
+wanniergw/maxloc3.F,489
+      subroutine get_nqbze(1,0
+      subroutine get_nqbze2(20,436
+      subroutine get_qbze(39,875
+      subroutine get_qbze2(77,1898
+      subroutine rot_hmnk(117,3058
+      subroutine get_hrotr_ws(144,3683
+      subroutine get_hrotkp_ws(181,4631
+      subroutine get_hrotkp_tb_ws(214,5463
+      subroutine wmaxloc_diag(269,6970
+      subroutine chk_diag(292,7644
+      subroutine chk_umnk(336,8762
+      subroutine cmp_umn_evec(387,10020
+      subroutine writeham(419,10763
+
+wanniergw/maxloc4.F,202
+      subroutine write_hrotr(4,35
+      subroutine read_hrotr(48,1168
+      subroutine make_hrotrcut(110,2784
+      subroutine cart_to_fract 150,3993
+      subroutine write_hopping_output(164,4288
+
+wanniergw/myYlm.F,136
+      subroutine calc_D(7,161
+      subroutine calc_DJbeta(34,954
+      subroutine calc_Ylm(69,1991
+      subroutine calc_B(96,2799
+
+wanniergw/mymath.F,369
+      integer function myfact(6,87
+      integer function myperm(18,335
+      integer function mycomb(30,599
+      double precision function mydif(46,984
+      subroutine mycross(65,1373
+      subroutine mymatvec(74,1682
+      subroutine mymatmat(90,2051
+      subroutine mydet3(111,2524
+      subroutine mytranspose(121,2842
+      subroutine myinv3(139,3186
+
+wanniergw/wansub.F,185
+      subroutine calc_npw(2,55
+      double precision function calc_gxr(41,1325
+      subroutine b2w(64,2083
+      subroutine chkinv33(95,3251
+      subroutine calc_rho_2(117,3778
+
+wanniergw/wfn2dx_2.F,273
+      subroutine wfn2dx_2(1,0
+      subroutine crystal2dx_2(74,2821
+      subroutine dump_ucell(101,3655
+      subroutine dump_apos_2(137,4819
+      subroutine dump_apos_xyz(180,6329
+      subroutine dump_box_2(236,8077
+      character*2 function z2element(288,9630
+
+wanniergw/wfn2dx_abc.F,33
+      subroutine wfn2dx_abc(1,0
+
+wanniergw/wfnrho_abc.F,213
+      subroutine calc_phiall_abc2(3,43
+      subroutine calc_augregion_abc(100,4179
+      subroutine calc_eikreikT_abc(161,6130
+      subroutine calc_phi_abc2(219,7951
+      subroutine calc_rho_abc(354,13160
+
+wanniergw/wmatK.F,142
+      logical function newansisoW(1,0
+      subroutine wmatqk(5,71
+      subroutine matzwz3(935,34784
+      subroutine drvmelp3(958,35551
+
+wanniergw/wmatK_mpi.F,33
+      subroutine wmatqk_mpi(1,0
+
+wanniergw/write_mesh2d.F,35
+      subroutine write_mesh2d(1,0
+
+wanniergw/xsfformat2.F,70
+      subroutine wrt_xsf(4,70
+      subroutine wrt_pos_xyz(107,4130
+
+wanniergw/wanplot.F,0
+
+wanniergw/sp2cls.F,0
+
+wanniergw/m_MLWF.F,0
+
+wanniergw/hmaxloc.F,0
+
+wanniergw/Worbwrite.F,0
+
+srclm/suqlst.F,0
+
+srclm/spackv_array_copy.F,0
+
+srclm/s8tor8.F,0
+
+srclm/rsedit.F,0
+
+srclm/m_globalvariables.F,0
+
+srclm/m_events.F,0
+
+srclm/ioden.F,0
+
+srclm/chimedit.F,0
+
+srclm/cdasin.F,0
+
+srcgw/wfacx.F,0
+
+srcgw/rydberg.F,0
+
+srcgw/readvmem.F,0
+
+srcgw/nword.F,0
+
+srcgw/nan.F,0
+
+srcgw/m_efsimple.F,0
+
+srcgw/llnew.F,0
+
+srcgw/kino_input_test.F,0
+
+srcgw/iqagree.F,0
+
+srcgw/icompvv2.F,0
+
+srcgw/convgwin.F,0
+
+srcgw/conv2gwinput.F,0
+
+maingw/qg4gw.m.F,0
+
+maingw/kino_input_test.F,0
+
+maingw/hx0fp0.sc.m.F,0
+
+maingw/htetwt.m.F,0
+
+maingw/hqpe.m.F,0
+
+maingw/hparainfo.m.F,0
+
+maingw/hmergewv.m.F,0
+
+maingw/hhomogas.m.F,0
+
+maingw/heftet.m.F,0
+
+maingw/hef.m.F,0
+
+maingw/hbndout.m.F,0
+
+maingw/hbasfp0.m.F,0
+
+maingw/h_uumatrix.m.F,0
+
+maingw/gwinit.m.F,0
+
+maingw/convgwin.F,0
+
+wanniergw/BAKUP1/read_rmn.F,0
+
+wanniergw/BAKUP1/read_mmn.F,0
+
+wanniergw/BAKUP1/read_hmlwf.F,0
+
+wanniergw/BAKUP1/qpwf.F,0
+
+wanniergw/BAKUP1/qg4gw_TMBAND.m.F,0
+
+wanniergw/BAKUP1/nocctot.F,0
+
+wanniergw/BAKUP1/hsfp0_MPI.m.F,0
+
+wanniergw/BAKUP1/hqpe_mlw.m.F,0

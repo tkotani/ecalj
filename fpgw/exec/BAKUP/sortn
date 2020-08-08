@@ -1,6 +1,0 @@
-#!/bin/csh
-foreach xxx (`ls ETOTeV.*`)
-echo $xxx
-sort -n -k 2 $xxx >aaa
-cp aaa $xxx
-end

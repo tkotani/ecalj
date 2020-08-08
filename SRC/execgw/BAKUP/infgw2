@@ -1,0 +1,64 @@
+#! /bin/csh
+
+set zero = 0
+set mode = 1
+set fn = QPU
+if (-e QP) set fn = QP
+
+while (`echo $1 | sed -e 's/\(.\).*/\1/' `  ==  "-")
+  set arg1 = $1; shift
+
+  switch ($arg1)
+    case "--zero=*":
+      set zero = `echo $arg1 | awk '{print substr($arg1,8)}'` ;
+      breaksw
+
+#     case "--strict=no":
+#       set strict
+#       unset strict
+#       breaksw
+
+    default:
+      echo unrecognized switch $arg1
+      goto usage
+  endsw
+end
+
+set eshtlda = `cat $fn | awk '{if ($1 == "E_shift") print $3}'`
+
+# col                        4    5     6       7      8      9      10    11      12   13       14   15   16            17
+#          q               state  SEx   SExcore SEc    vxc    dSE    dSE   eLDA    eQP  eQPnoZ   eHF  Z    FWHM=2Z*Simg  ReS(elda)
+set cstate =    4
+set cSEx =      5
+set cSExcore =  6
+set cSEc =      7
+set cvxc =      8
+set cdSE =      9
+set cdSE =      10
+set ceLDA =     11
+set ceQP =      12
+set ceQPnoZ =   13
+set ceHF =      14
+set cZ =        15
+set cFWHM =     16
+set cReS =      17
+
+# A zero has been defined.  Get reference energies
+if ($zero > 0) then
+  set eHF0 = `awk '{if(NF>15) print}' $fn | mc . -coll $cstate,$ceHF -inc x1==$zero -e1 x2 | grep -v rows | head -1`
+else
+ set eHF0 = 0
+endif
+
+
+echo "# use eHF0 = $eHF0 "
+
+# show that ehf = elda + sex + sexcore - vxc
+# awk '{if(NF>15) print}' $fn | mc . -coll $ceLDA,$cSEx,$cSExcore,$cvxc,$ceHF -e2 x1+x2+x3-x4+$eshtlda x5
+
+# mode 1 (default)
+if ($mode == 1) then
+  echo '#   state   eQP   eQP(noZ)  eHF    eLDA'
+  awk '{if(NF>15) print}' $fn | mc -ff8.0,8f8.2 . -coll $cstate,$ceQP,$ceQPnoZ,$ceHF,$ceLDA -e5 x1 x2 x3 x4-$eHF0 x5
+else
+endif

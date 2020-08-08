@@ -1,0 +1,184 @@
+#!/bin/bash
+# -------------------------------------------------------------------------
+# generate MLWF.
+# NOTE: Wannier is generated before wanplot (wanplot is only to make *.xsf file for plot).
+#       After wanplot, we goto calculate <wan wan |W |wan wan>
+# For cray, set machine="cray"
+#--------------------------------------------------------------------------
+### all input arguments are processed ###
+#nfpgw=`dirname $0`
+nfpgw=~/bin 
+source $nfpgw/run_argloc
+flex=$nfpgw/FLEX_interaction.py
+crpaint=./Interaction_cRPA.dat
+if [ $# -gt 10 ] ; then
+    echo "too many variables!(>10)"
+fi
+MPI_SIZE=1
+MPI_NODE=1
+MATERIAL=$1
+lmf="on"
+gwpre="on"
+gwmpb="on"
+maxloc1="on"
+maxloc2="on"
+wanplot="off"
+ppvW="on"
+vW="on"
+crpa="on"
+
+for i in $9 $8 $7 $6 $5 $4 $3 $2 $1
+do
+    if [ "$i" = "-pref" ] ; then	
+	MATERIAL=$dum	
+    elif [ "$i" = "-np" ] ; then
+	MPI_SIZE=$dum
+    elif [ "$i" = "-ppn" ] ; then
+        MPI_NODE=$dum
+    elif [ "$i" = "-wan" ] ; then
+        wan=$dum
+	echo "wan = "$wan
+    elif [ "$i" = "-bin" ] ; then
+        nfpgw=$dum
+    fi
+    dum=$i
+done
+intornot $MPI_SIZE
+intornot $MPI_NODE
+echo "inputs: -pref="$MATERIAL" -np="$MPI_SIZE" -ppn="$MPI_NODE
+source $nfpgw/run_argloc
+#nfpgw=`dirname $0` #only for original version intended to be executed in ~/bin
+NO_MPI=0
+MNODEZERO=0
+
+### end of processing input arguments ###
+if [ ! -e bnds.$MATERIAL ];then 
+    $echo_run echo "!!! Perform job_band in advance!" 
+    exit 101
+fi
+
+######## start here ##########
+$echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
+rm -f SYML BNDS
+ln -s syml.${MATERIAL} SYML
+ln -s bnds.${MATERIAL} BNDS
+## Make softlink from sigm --> simg.$MATERIAL.
+## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
+if [ -e sigm ]; then 
+    if [ -e sigm.$MATERIAL ]; then
+	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
+  	ln -s -f sigm sigm.$MATERIAL 
+  	$echo_run echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
+    fi
+else
+    $echo_run echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
+fi 
+######## lmf part #########################################
+if [ "$lmf" = "on" ] ; then
+    run_arg '---' $NO_MPI   $MNODEZERO $nfpgw /lmfa  llmfa $MATERIAL # if lmfa is not yet.
+    run_arg '---' $MPI_SIZE $MPI_NODE $nfpgw /lmf-MPIK llmf_start $MATERIAL
+    rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove temporaly files.
+fi
+
+##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
+if [ "$gwpre" = "on" ] ; then
+    argin=0; run_arg $argin $NO_MPI   $MNODEZERO $nfpgw /lmfgw      llmfgw00 $MATERIAL 
+    argin=1; run_arg $argin $NO_MPI   $MNODEZERO $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
+    argin=1; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /lmfgw-MPIK llmfgw01 $MATERIAL
+    run_arg  '---' $NO_MPI  $MNODEZERO $nfpgw /lmf2gw     llmf2gw  #reform data for gw
+fi
+
+##### GW related part (up to preparation of MPB) ###########
+if [ "$gwmpb" = "on" ] ; then
+    argin=0; run_arg $argin $NO_MPI  $MNODEZERO  $nfpgw /rdata4gw_v2 lrdata4gw_v2
+    if [ -e ANFcond ];then # This is for ANFcond. Unused recently
+    #  cp EVU EVD  
+	$echo_run echo "Not maintained recently" 
+	exit 10
+    fi
+    argin=1; run_arg $argin $NO_MPI $MNODEZERO $nfpgw /heftet leftet # A file EFERMI for hx0fp0
+#argin=1; run_arg $argin $NO_MPI $nfpgw /hchknw lchknw # A file NW, containing nw for given QPNT (probably only for one-shot GW).
+    argin=0; run_arg $argin $NO_MPI $MNODEZERO $nfpgw /hbasfp0 lbas  # Product basis generation 
+fi
+
+##### maxloc start here #########################
+if [ "$maxloc1" = "on" ] ; then
+    argin=1 ;run_arg $argin $NO_MPI $MNODEZERO $nfpgw   /hmaxloc lmaxloc1     # b-vector BBVEC
+    argin=1 ;run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
+# Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
+    cat PSIGU.* >PSIGU
+    rm -f PSIGU.*
+    if [ -e PSIGD.0000 ]; then 
+	cat PSIGD.* >PSIGD
+	rm -f PSIGD.*
+    fi
+
+    argin=2 ;run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+# Gather all UU*.* into a file UUU/UUD.
+    cat UUU.* >UUU
+    rm -f UUU.*
+    if [ -e UUD.0000 ]; then 
+	cat UUD.* >UUD
+	rm -f UUD.*
+    fi
+fi
+
+# -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
+if [ "$maxloc2" = "on" ] ; then 
+    argin=2; run_arg $argin $NO_MPI $MNODEZERO $nfpgw /hmaxloc lmaxloc2  #(band plot data are generated.)
+    $echo_run echo "Hopping integrals are generated!"
+fi
+
+############## Wannier function plot. *.xsf for Xcrysden. ############
+if [ "$wanplot" = "on" ] ; then 
+    run_arg '---' $NO_MPI $MNODEZERO $nfpgw  /wanplot lwanplot 
+fi
+
+### Here on, we calculate W (v and W-v) for Wannier.###########
+# -- UUmatrix for Q0P (offset Gamma point) are required calculation v and W at the limit of q \to 0.
+if [ "$ppvW" = "on" ] ; then 
+    argin=3; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /huumat_MPI luumat3
+# Gather all UU*.* into a file UU*, PSIG* as well. (U meand UP isp=1, D means Down spin isp=2)
+    if [ -e UUq0U.0000 ]; then 
+	cat UUq0U.* > UUq0U
+	rm -f UUq0U.*
+    fi
+    if [ -e UUq0D.0000 ]; then 
+	cat UUq0D.* > UUq0D
+	rm -f UUq0D.*
+    fi
+### pkm4crpa file mode for crpa ###
+    argin=10011; run_arg $argin 1 $MNODEZERO $nfpgw /hwmatK_MPI lpkm4crpa 
+fi
+
+### Main part of v, W-v for Wanniers. ##########################
+if [ "$vW" = "on" ] ; then 
+    argin=0;  run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hvccfp0 lvcc        # Coulomb matrix v
+    argin=1;  run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hwmatK_MPI lwmatK1  # Matrix elements of v for Wannier
+    argin=111; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hx0fp0 lx0_111     # Screened Coulomb W minus v, W-v
+    argin=2;  run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hwmatK_MPI lwmatK2  # Matrix element of W-v
+    if [ -e $flex ] ; then
+	$flex
+	if [ -e W0.mat.mRPA ] ; then
+	    echo "mRPA inputs prepared!"
+	fi
+    fi
+    $echo_run echo "effective W calculated!"
+fi
+
+#### crpa
+if [ "$crpa" = "on" ] ; then 
+    argin=10011; run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hx0fp0 lx0_10011    # cRPA Screened Coulomb W minus v, W-v
+    argin=100;  run_arg $argin $MPI_SIZE $MPI_NODE $nfpgw /hwmatK_MPI lwmatK2crpa # Matrix element of W-v
+    if [ -e $flex ] ; then
+        $flex
+	if [ -e $crpaint ] ; then
+	    echo "cRPA interaction is generated!"
+	fi
+    fi
+fi
+
+echo "OK! finised well."
+exit 0
+
+

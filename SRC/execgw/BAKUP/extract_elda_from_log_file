@@ -1,0 +1,39 @@
+#!/bin/csh
+# Shell script to extract total energy parameters from log file
+
+if ($#argv != 1) goto usage
+set ext = $1
+
+if (! -e log.$argv[1]) then
+  echo "missing file log.$argv[1]"
+  shift
+  goto usage
+endif
+
+rm -f ETOTLDA RoVxcLDA
+grep 'fp KS:' log.$ext | tail -1 | awk '{while (i++ < NF) if ($i == "EKS") printf "%18.7f %s\n", $(i+1), " ! EKS  (Ry)"}' > ETOTLDA
+grep 'fp KS:' log.$ext | tail -1 | awk '{while (i++ < NF) if ($i == "Exc") printf "%18.7f %s\n", $(i+1), " ! int rho exc (Ry)"}' >>ETOTLDA
+grep 'fp KS:' log.$ext | tail -1 | awk '{while (i++ < NF) if ($i == "U")   printf "%18.7f %s\n", $(i+1), " ! U (Ry)"}' >>ETOTLDA
+grep 'fp KS:' log.$ext | tail -1 | awk '{while (i++ < NF) if ($i == "T")   printf "%18.7f %s\n", $(i+1), " ! T (Ry)"}' >>ETOTLDA
+
+grep 'fp pot ' log.$ext | tail -4 | awk '{i=0; while (i++ < NF) if ($i == "rexc")  printf "%18.7f %s\n", $(i+1), " ! int rho exc (Ry)"}' > RoVxcLDA
+grep 'fp pot ' log.$ext | tail -4 | awk '{i=0; while (i++ < NF) if ($i == "rex") printf "%18.7f %s\n", $(i+1), " ! int rho ex (Ry)"}' >> RoVxcLDA
+grep 'fp pot ' log.$ext | tail -4 | awk '{i=0; while (i++ < NF) if ($i == "rec")   printf "%18.7f %s\n", $(i+1), " ! int rho ec (Ry)"}' >> RoVxcLDA
+grep 'fp pot ' log.$ext | tail -4 | awk '{i=0; while (i++ < NF) if ($i == "rvxc")  printf "%18.7f %s\n", $(i+1), " ! int rho vxc (Ry)"}' >> RoVxcLDA
+
+echo " $0 : created files ETOTLDA and RoVxcLDA"
+if (`wc ETOTLDA | awk '{print $1}'` != 4) then
+  echo " log_to_elda (fatal): file ETOTLDA has wrong line count"
+  exit -1
+endif
+if (`wc RoVxcLDA | awk '{print $1}'` != 4) then
+  echo " log_to_elda (fatal): file RoVxcLDA has wrong line count"
+  exit -1
+endif
+
+
+exit
+usage:
+echo "usage : $0 ext"
+echo '        Generates files ETOTLDA and RoVxcLDA by extracting data from file log.ext'
+

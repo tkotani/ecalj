@@ -1,0 +1,31 @@
+#! /bin/csh
+echo $argv[1]
+
+foreach  xxx (VCC PLN WVR WVI EV PPB BAS fort BAS VXCFP VXCFPV PPOVL DATA4GW gwa gwb gw1 gw2 gw3 PHI HVCCIN CPHI CphiGeig GEIG QGpsi QGcou )
+echo 'cleaning--- ', "$xxx*" '----------------------'
+find $argv[1] -name "$xxx*"
+rm `find $argv[1] -name "$xxx*"`
+end
+exit
+
+rm -f VCC*
+rm -f PLN
+rm -f WVR
+rm -f WVI
+rm -f PPB*
+rm -f BAS*
+rm -f fort.*
+rm -f HVCCIN
+rm -f PHI*
+rm -f EV*
+rm -f CPH*
+rm -f VXCFP
+rm -f VXCFPV
+rm -f PPOVL
+rm -f DATA4GW*
+rm -f gwa.*
+rm -f gwb.*
+rm -f gw1.*
+rm -f gw2.*
+rm -f gw3.*
+

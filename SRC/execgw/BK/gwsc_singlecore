@@ -1,0 +1,166 @@
+#!/bin/tcsh
+# --------------------------------
+# self-consistent GW itteration .
+#---------------------------------
+if(-e NoCore) then
+  rm -f NoCore 
+endif
+if(-e QPU) then
+ rm -f QP[UD]
+endif
+
+if(! -e SEBK) then
+ mkdir SEBK
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+echo $argv[1]
+
+## mv sigm or simg.$argv[1] to sigm. And make softlink to simg.$argv[1].
+## sigm is prior to simg.$argv[1].
+if(-e sigm) then
+  if(-e sigm.$argv[1]) mv sigm.$argv[1] sigm.$argv[1].bakup 
+  ln -s -f sigm sigm.$argv[1] 
+  echo '--- sigm is used. sigm.$argv[1] is softlink to it  ---'
+else
+  if(-e sigm.$argv[1]) then
+    mv sigm.$argv[1] sigm
+    ln -s -f sigm sigm.$argv[1] 
+    echo '--- sigm.$argv[1] is moved to sigm. sigm.$argv[1] is softlink now.  ---'
+  else
+    echo '--- No sigm nor sigm.$argv[1] files for starting ---'
+  endif
+endif 
+
+
+##########################################################################
+foreach i2x (0 1 2 3 4 5 6 7 8 9 )
+foreach i1x (0 1 2 3 4 5 6 7 8 9 )
+@ ix = $i2x * 10 + $i1x
+### itteration loop start #################################################
+
+#### self-consistent calculation with given sigma ###
+echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
+if($ix == 0 ) then
+  if(-e sigm.$argv[1]) continue
+  echo "No sigm ---> LDA caculation for eigenfunctions "
+#  $nfpgw/lmf -vsig=0 $argv[1] > llmf_lda
+  $nfpgw/lmf $argv[1] > llmf_lda
+  cp rst.$argv[1] rst.$argv[1].lda
+else
+  $nfpgw/lmf $argv[1] > llmf
+endif
+
+
+######## preparatoy gw stage ################
+echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+echo 1 |$nfpgw/qg4gw           > lqg4gw
+
+
+#eigenvalues for micro-tetrahedron method.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+  echo 5 |$nfpgw/lmfgw  $argv[1] > llmfgw_eigval
+  mv eigval eigmtet
+endif
+
+echo 1 |$nfpgw/lmfgw  $argv[1] > llmfgw01
+set exinfo = $?
+
+
+ln -s -f vxc.$argv[1]  v_xc
+ln -s -f evec.$argv[1] evec
+#cp sigm.$argv[1] sigm_in
+#@ exinfo = `tail -3 llmfgw01 |grep Exit |head -1 |awk '{print $2}'`
+#echo $exinfo
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $argv[1]
+  echo `tail -3 llmfgw01 `
+  exit
+endif
+
+echo $argv[1]|$nfpgw/lmf2gw    > llmf2gw
+
+
+############## main gw stage ################
+echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+
+if($ix == 0) then
+  cp evec.$argv[1] evec0  # this is used in hqpe_sc for isigma_en==5
+endif
+
+if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond
+
+
+# -- get EFERMI for hx0fp0
+echo 1|$nfpgw/heftet      >leftet
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+echo 1|$nfpgw/hchknw         >lchknw
+
+
+### Core1 exchange self-energy 
+# -- product basis for core
+echo 3|$nfpgw/hbasfp0 >lbasC
+# -- Coulobm matrix
+echo 0|$nfpgw/hvccfp0        >lvccC
+
+###################################################
+#mkdir core
+#cp BASFP* PPBR* VCCFP core
+###################################################
+
+
+# -- the self energy from core1
+echo 3|$nfpgw/hsfp0_sc   >lsxC
+
+
+###################################################
+#echo ' --- end of test gw_lmf2 --- '
+#exit 
+###################################################
+
+
+### Valence part of the self-energy
+echo 0|$nfpgw/hbasfp0  >lbas
+# -- Coulobm matrix
+echo 0|$nfpgw/hvccfp0  >lvcc	
+
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+echo 1|$nfpgw/hsfp0_sc   >lsx
+
+# -- Sergey.F the screened coulom interaction 
+if(-e WVI) then
+  rm -f WVI 
+endif
+if(-e WVR) then
+  rm -f WVR 
+endif
+echo 11|$nfpgw/hx0fp0_sc  >lx0
+
+#########################################################
+#mkdir val
+#cp BASFP* PPBR* VCCFP NW WV* val
+##########################################################
+
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+echo 2|$nfpgw/hsfp0_sc   >lsc
+
+# -- Make summary 
+echo 0|$nfpgw/hqpe_sc    >lqpe
+
+### end of itteration loop #########################################################
+cp evec.$argv[1] evec_prev_iter
+ln -s -f sigm sigm.$argv[1]
+mv SEX* SEC* XC* SEBK
+foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
+  if(-e $file) cp $file $file.${ix}run
+end
+echo $ix 'iteration over'
+end
+end
+exit

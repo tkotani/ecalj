@@ -1,0 +1,28 @@
+#!/bin/csh
+# --------------------------------
+# GW run. Sergey's mode
+# Required inputs are 
+#   ctrl.si rst.si GWinput (ANFcond)
+#---------------------------------------------
+set n = $0
+set nfpgw = ${n:h}
+
+echo 11|$nfpgw/hx0fp0  >lx0_sf
+echo 12|$nfpgw/hsfp0   >lsc_sf
+
+# -- Make summary 
+echo 0|$nfpgw/hqpe    >lqpe
+
+
+exit
+
+
+##############################################################################
+usage:
+echo '   --- One-shot GW calculation to get QP energies ---'
+echo '             generate imaginary weights in hx0fp0 and'
+echo '             real weights from Hilbert transform (S. Faleev).'
+echo '      usage : gw_lmfh extension'
+echo '         e.g. gw_lmfh si   '
+echo '              for ctrl.si rst.si and GWinput (or GWIN0 GWIN_V2)'
+exit -1

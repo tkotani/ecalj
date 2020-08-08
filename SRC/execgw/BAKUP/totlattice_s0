@@ -1,0 +1,59 @@
+#!/bin/csh
+# --------------------------------
+# Total energy for LatticeConstant
+# Required inputs is ctrl.na.lattice and GWinput
+
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+
+if(-e ctrl.$argv[1]) cp ctrl.$argv[1] ctrl.$argv[1].backup
+if(-e rst.$argv[1])  mv rst.$argv[1]  rst.$argv[1].bakup
+rm -f mixm* moms* 
+
+#foreach latt (9.5 9.8 10.0 10.2 10.4 10.7 )
+set rmt = $argv[3]
+set latt = $argv[2]
+#  echo ' '
+#  echo '##### START ##### LatticeConstant = ' $latt ' #####################'
+  @ ix = 0
+#foreach ecut (0.0 0.4 0.8 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7.0 8.0 9.0 11.0)
+  @ ix = $ix + 1
+  echo  --- $argv[1] $latt $rmt ---------
+
+#sed -e "s/ecut_pol/ecut_pol $ecut 0.2/g" GWinput.init > GWinput
+set aaa = Lattice$latt
+#echo '##### START ##### ctrl a rmt ecut = ' $argv[1] $latt $rmt $ecut  ' #####################'
+echo 'Goto lmfa and lmf ' $aaa
+
+#if($ix == 1 ) then
+  sed -e "s/(LatticeConstant)/$latt/g" \
+      -e "s/(rmt)/$rmt/g" \
+   ctrl.$argv[1].lattice > ctrl.$argv[1]
+  #------------ set up externalB file 
+  $nfpgw/lmfa $argv[1] >& $aaa.lmfa
+  rm rst.*
+  $nfpgw/lmf  $argv[1] >& $aaa.lmf
+  tail -7 $aaa.lmf |head -2
+  $nfpgw/tote_lmfh2_s0  $argv[1] |& tee $aaa.out_tote 
+#else
+#  echo 'Goto lmfa and lmf ' $aaa
+#  $nfpgw/tote_lmf_corr  $argv[1] |& tee $aaa.out_tote.ecut$ecut 
+#endif
+#mkdir $aaa
+#mv ETOTeV.dat DOSACC* norm* VXC*  l*  $aaa.* $aaa
+#cp ETOT* Ro* rst.* ctrl.$argv[1] GWinput TEE* EFERMI* $aaa
+#end
+
+echo '##### END  of totlatt_EctLattRmt #### ' $argv[1] $latt $rmt ' #####################'
+#end
+
+
+
+
+
+
+
+
+
+

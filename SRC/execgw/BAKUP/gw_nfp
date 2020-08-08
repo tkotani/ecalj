@@ -1,0 +1,49 @@
+#!/bin/csh
+# --------------------------------
+# GW run.
+#
+# Required inputs are 
+#  GWIN0 *.mas *.rst CLASS 
+#  GWIN  QPNT   !whose templetes are given as 
+#               !GWIN.tmp QPNT.tmp by mkGWIN_nfp
+#---------------------------------------------
+set n = $0
+set nfpgw = ${n:h}
+echo $nfpgw
+
+echo $argv[1]
+setenv LMJOB $argv[1]
+
+rm -f NoCore QPU*
+echo 0 | $nfpgw/ng0  >lng00
+echo 1 | $nfpgw/qg4gw >lqg4gw
+echo 1 | $nfpgw/ng0  >lng01
+echo 2 | $nfpgw/ng0  >lng02
+$nfpgw/nfp4gw        >lnfp4gw
+$nfpgw/rdata4gw      >lrdata4gw
+
+# get EFERMI
+echo 1|$nfpgw/heftet      >leftet
+
+#----hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+echo 0|$nfpgw/hchknw         >lchknw
+
+#- Core exchange-----------------
+echo 3|$nfpgw/hbasfp0 >lbasC
+echo 0|$nfpgw/hvccfp0        >lvccC
+echo 3|$nfpgw/hsfp0   >lsxC
+#--------------------------------
+
+echo 0|$nfpgw/hbasfp0 >lbas
+echo 0|$nfpgw/hvccfp0        >lvcc	
+
+echo 1|$nfpgw/hsfp0   >lsx
+echo 1|$nfpgw/hx0fp0  >lx0
+echo 2|$nfpgw/hsfp0   >lsc
+
+echo 0|$nfpgw/hqpe    >lqpe
+
+
+
+
+ 

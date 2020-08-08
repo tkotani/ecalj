@@ -22,17 +22,17 @@ TL_DIR   = $(ecalroot)/TOOLS
 TL_PROG  = diffnum diffnum2 diffnum0.py comp compall comp.eval
 
 # programs under lm7k dir, required in the tests
-LM_DIR   = $(ecalroot)/lm7K
+LM_DIR   = $(ecalroot)/SRC/execlm
 LM_PROG  = lmfa lmf lmfgw lmf2gw lmdos lmf-MPIK lmfgw-MPIK run_arg job_pdos job_tdos
 
 # programs under fpgw dir, required in the tests
-GW_DIR   = $(ecalroot)/fpgw/exec
-GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc 
+GW_DIR   = $(ecalroot)/SRC/execgw
+GW_PROG  = gwsc qg4gw hvccfp0 hsfp0_sc hx0fp0_sc hqpe_sc hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI 
 GW_PROG += rdata4gw_v2 heftet hbasfp0 dqpu
-GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm
+GW_PROG += gw_lmfh hx0fp0 hsfp0 hqpe eps_lmfh epsPP_lmfh epsPP_lmfh_chipm 
 
-MLWF_DIR = $(ecalroot)/fpgw/exec
-MLWF_PROG  = genMLWFx hmaxloc hpsig_MPI huumat_MPI hwmatK_MPI 
+MLWF_DIR = $(ecalroot)/SRC/execgw
+MLWF_PROG  = genMLWFx 
 ###########################################################
 # Do not edit lines below.
 

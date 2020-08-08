@@ -1,0 +1,167 @@
+#!/bin/tcsh
+# --------------------------------
+# self-consistent GW itteration using MPI.
+#---------------------------------
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh ##for tatara in kyushu-u This is neglected in other cases.
+%HEADER
+if($# != 4 ) then
+  echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
+  exit
+endif
+if($argv[2] != "-np" ) then
+  echo "An example of usage: gwsc 5 -np 4 si, where 5 means 5+1 iterations"
+  exit
+endif
+
+set n = $0
+set nfpgw = ${n:h}
+set TARGET=$argv[4]
+set MPI_SIZE=$argv[3]
+set ITER=$argv[1]
+echo "### START gwsc: ITER= "$ITER, "MPI size= " $MPI_SIZE, "TARGET= "$TARGET
+
+if(-e NoCore) then #backword compatibility not so meaningful now.
+  rm -f NoCore 
+endif
+
+if(-e QPU) then
+ rm -f QP[UD]
+endif
+if(! -e SEBK) then
+ mkdir SEBK
+endif
+
+## mv sigm or simg.$TARGET to sigm. And make softlink to simg.$TARGET.
+## sigm is prior to simg.$TARGET.
+if(-e sigm) then
+  if(-e sigm.$TARGET) mv sigm.$TARGET sigm.$TARGET.bakup 
+  ln -s -f sigm sigm.$TARGET 
+  echo '--- sigm is used. sigm.$TARGET is softlink to it  ---'
+else
+  if(-e sigm.$TARGET) then
+    mv sigm.$TARGET sigm
+    ln -s -f sigm sigm.$TARGET 
+    echo '--- sigm.$TARGET is moved to sigm. sigm.$TARGET is softlink now.  ---'
+  else
+    echo '--- No sigm nor sigm.$TARGET files for starting ---'
+  endif
+endif 
+
+
+##### itteration loop start #############################################
+foreach ixx (`seq 0 ${ITER}`)
+@ ix = $ixx
+
+### self-consistent calculation with given sigma ###
+echo " ---- goto sc calculation with given sigma-vxc --- ix=",$ix
+if($ix == 0 ) then
+  if(-e sigm.$TARGET) then
+    echo "we have sigm already, skip iter=0"
+    continue
+  endif   
+  echo "No sigm ---> LDA caculation for eigenfunctions "
+#  $nfpgw/lmf -vsig=0 $TARGET > llmf_lda
+###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_lda
+%CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_lda 
+  cp rst.$TARGET rst.$TARGET.lda
+else
+###make_ref.awk   mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf
+%CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf 
+endif
+
+######## preparatoy gw stage ################
+###make_ref.awk echo 0 |$nfpgw/lmfgw  $TARGET > llmfgw00
+%CMD program=lmfgw echoinput=0  target=$TARGET output=llmfgw00 
+###make_ref.awk echo 1 |$nfpgw/qg4gw           > lqg4gw
+%CMD program=qg4gw echoinput=1  output=lqg4gw 
+
+### eigenvalues for micro-tetrahedron method. little used now.
+if(-e Qmtet) then
+  mv Qmtet Qeigval 
+###make_ref.awk   echo 5 |$nfpgw/lmfgw  $TARGET > llmfgw_eigval
+%CMD program=lmfgw echoinput=5  target=$TARGET output=llmfgw_eigval 
+  mv eigval eigmtet
+endif
+
+#echo 1 |$nfpgw/lmfgw $TARGET > llmfgw01
+###make_ref.awk echo 1 |mpirun -np $MPI_SIZE $nfpgw/lmfgw-MPIK $TARGET > llmfgw01
+%CMD mpi=1 program=lmfgw-MPIK echoinput=1  target=$TARGET output=llmfgw01 
+set exinfo = $?
+if($exinfo == 0 ) then
+  echo " OK! lmfgw mode=1 "
+else
+  echo Error in echo 1\|lmfgw $TARGET
+  echo `tail -3 llmfgw01 `
+  exit
+endif
+
+#echo $TARGET|$nfpgw/lmf2gw    > llmf2gw
+$nfpgw/lmf2gw    > llmf2gw
+
+############## main gw stage fpgw/exec ################
+###make_ref.awk echo 0|$nfpgw/rdata4gw_v2      >lrdata4gw_v2
+%CMD program=rdata4gw_v2 echoinput=0 output=lrdata4gw_v2 
+
+if($ix == 0) then
+  cp evec.$TARGET evec0  # this is used in hqpe_sc for isigma_en==5
+endif
+
+if(-e ANFcond) cp EVU EVD  ########### This is for ANFcond. Unused recently
+
+# -- get EFERMI for hx0fp0
+###make_ref.awk echo 1|$nfpgw/heftet      >leftet
+%CMD program=heftet echoinput=1 output=leftet 
+
+# -- hchknw only calculate NW, which contains the number of nw corresponding to QPNT -----
+###make_ref.awk echo 1|$nfpgw/hchknw         >lchknw
+%CMD program=hchknw echoinput=1 output=lchknw 
+
+### Core1 exchange self-energy 
+# -- product basis for core
+###make_ref.awk echo 3|$nfpgw/hbasfp0 >lbasC
+%CMD program=hbasfp0 echoinput=3 output=lbasC 
+# -- Coulobm matrix
+###make_ref.awk echo 3|mpirun -np $MPI_SIZE $nfpgw/hvccfp0        >lvccC
+%CMD mpi=1 program=hvccfp0 echoinput=3 output=lvccC 
+# -- the self energy from core1
+###make_ref.awk echo 3| mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsxC
+%CMD mpi=1 program=hsfp0_sc echoinput=3 output=lsxC 
+
+### Valence part of the self-energy
+###make_ref.awk echo 0|$nfpgw/hbasfp0  >lbas
+%CMD program=hbasfp0 echoinput=0 output=lbas 
+# -- Coulobm matrix
+###make_ref.awk echo 0|mpirun -np $MPI_SIZE $nfpgw/hvccfp0  >lvcc	
+%CMD mpi=1 program=hvccfp0 echoinput=0 output=lvcc	 
+# -- Sergey.F the exchange self energy from valence core2+valence elctrons 
+###make_ref.awk echo 1|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsx
+%CMD mpi=1 program=hsfp0_sc echoinput=1 output=lsx 
+# -- Sergey.F the screened coulom interaction 
+if(-e WV.d) then
+  rm -f WV* 
+endif
+###make_ref.awk echo 11|mpirun -np $MPI_SIZE $nfpgw/hx0fp0_sc  >lx0
+%CMD mpi=1 program=hx0fp0_sc echoinput=11 output=lx0 
+
+# -- Sergey. F the correlation self-energy from valence core2+valence elctrons 
+###make_ref.awk echo 2|mpirun -np $MPI_SIZE $nfpgw/hsfp0_sc   >lsc
+%CMD mpi=1 program=hsfp0_sc echoinput=2 output=lsc 
+
+# -- Make summary 
+###make_ref.awk echo 0|$nfpgw/hqpe_sc    >lqpe
+%CMD program=hqpe_sc echoinput=0 output=lqpe 
+
+### end of iteration loop ###########
+cp evec.$TARGET evec_prev_iter
+ln -s -f sigm sigm.$TARGET
+mv SEX* SEC* XC* SEBK
+foreach file (sigm QPU QPD TOTE.UP TOTE.DN lqpe lsc lsx lx0 llmfgw01 evecfix.chk llmf) 
+  if(-e $file) cp $file $file.${ix}run
+end
+echo $ix 'iteration over'
+end
+
+#### exit only for a loop
+###make_ref.awk mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $TARGET > llmf_gwscend.${ITER}
+%CMD mpi=1 program=lmf-MPIK target=$TARGET output=llmf_gwscend.${ITER} 
+exit

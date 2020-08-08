@@ -4,33 +4,44 @@ function my_error() {
     exit 1
 }
 
-BINDIR=${HOME}/bin
 MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
-mkdir ${BINDIR}
-echo Going to install required binaries and scripts to ${BINDIR} !
-
 #MATH='/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a'
 #MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
 #MATH='/sw/lib/libfftw3.a /sw/lib/lapack/librefblas.a /sw/lib/lapack/libreflapack.a'
 
+# make directory for commands
+BINDIR=${HOME}/bin
+mkdir ${BINDIR}
+echo Going to install required binaries and scripts to ${BINDIR} !
+
 # make a link to getsyml
 ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+
 ### viewvesta
+pushd .
 cd StructureTool/
 ./makelink $BINDIR
+popd
 
 ### Use lm7K/Makefile
-cd ../lm7K/
+pushd .
+cd SRC/execlm
 make PLATFORM=gfortran       LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran      BINDIR=$BINDIR install ||my_error
 make PLATFORM=gfortran_mpik LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran_mpik BINDIR=$BINDIR install ||my_error
+popd
+
 ### Use fpgw/exec/makefile
-cd ../fpgw/exec/
+pushd .
+cd SRC/execgw
 make PLATFORM=gfortran LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran BINDIR=$BINDIR  install ||my_error
 make PLATFORM=gfortran BINDIR=$BINDIR install2 ||my_error
+popd
+
+echo '=== goto test ==='
 ### Test 
-cd ../../TestInstall/
+cd ./TestInstall/
 make mpi_size=4 all
 
