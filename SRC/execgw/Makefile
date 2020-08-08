@@ -28,7 +28,9 @@ script = cleargw* dqpu eps* gw* mkG* chipm_mat $(scriptw)
 
 #### You can choose these options. all is default.
 
-all : $(progs2) 
+all : mkmoddir $(progs2) 
+
+mkmoddir:
 	[ -d $(moddir) ] || mkdir  $(moddir) 
 
 clean:  
