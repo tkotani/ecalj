@@ -1,12 +1,12 @@
 #!/bin/bash -v
-
-cd lm7K/
+pushd .
+cd SRC/execlm/
 make PLATFORM=gfortran_mpik cleanall
 make PLATFORM=gfortran cleanall
-cd ../fpgw/exec/
+popd
+pushd .
+cd SRC/execgw/
 make PLATFORM=gfortran cleanall
-#cd ../Wannier/
-#make PLATFORM=gfortran cleanall
-
+popd 
 
 
