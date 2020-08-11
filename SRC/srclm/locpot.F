@@ -686,8 +686,10 @@ C       sum1 = sum1 + rwgt(i)*rhonsm(i)
 C --- rhol1 = full electron density = rho1 + rhoc ---
       if(debug) print *,'locpt2: 1111'
       do  isp = 1, nsp
-        call dpcopy(rho1(1,1,isp),rhol1(1,1,isp),1,nrml,1d0)
-        call dpadd (rhol1(1,1,isp),rhoc(1,isp),1,nr,y0)
+c        call dpcopy(rho1(1,1,isp),rhol1(1,1,isp),1,nrml,1d0)
+c        call dpadd (rhol1(1,1,isp),rhoc(1,isp),1,nr,y0)
+        rhol1(:,:,isp)= rho1(1,1,isp)
+        rhol1(:,1,isp)= rhol1(:,1,isp)+ y0*rhoc(:,isp)
       enddo
 
 C --- rhol2 = full smooth compensated density rho2+gval+gcor+gnuc ---
@@ -893,12 +895,14 @@ C     Otherwise v2 += vxc(rho2 + sm core), directly or perturbatively:
       else if (lfoc .eq. 1) then
         if (ipr .gt. 40) print *, 'exchange for smooth density, foca=1:'
         do  isp = 1, nsp
-          call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
+c          call dpadd(rho2(1,1,isp),rhochs,1,nr,y0/nsp)
+          rho2(1:nr,1,isp)=rho2(1:nr,1,isp) + y0/nsp*rhochs(1:nr)
         enddo
         call vxcnsp(isw+isw2,a,rofi,nr,rwgt,nlml,nsp,rho2,lxcfun,
      .  0,0,0,0,0,rep2,rep2x,rep2c,rmu2,v2,fl,qs)
         do  isp = 1, nsp
-          call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
+c          call dpadd(rho2(1,1,isp),rhochs,1,nr,-y0/nsp)
+          rho2(1:nr,1,isp)=rho2(1:nr,1,isp)- y0/nsp*rhochs(1:nr)
         enddo
 C$$$C     v2 += vxc(rho2) + dv; focvxc= int (rho2*dv); dv=dvxc/drho * rhochs
 C$$$      else if (lfoc .eq. 2) then

@@ -1802,24 +1802,7 @@ c         write(6,"(' 111111111a ik1,ik2,ik3,iqkkk=',4i8,3f18.12)") ik1,ik2,ik3,
       end subroutine init_iqindx_wan      
       end module m_iqindx_wan
 
-c-----------------------------------------
-c     taken from lm7k/subs/rotwv.F
-      subroutine conv2int(a,ii,n)
-      implicit none
-      real(8), intent(in) :: a(n)
-      integer, intent(in) :: n
-      integer, intent(out) :: ii(n)
-      integer::i
-      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
-      do i=1,n
-        ii(i)=nint(a(i))
-        if(abs(ii(i)-a(i))>eps)then
-           write(6,*)' ii a eps=',ii(i),a(i),eps
-           call rx( 'conv2int: a is not close to integer')
-        endif   
-      enddo
-      end subroutine conv2int
-
+      
       subroutine rx_(string) !error exit routine
       character*(*) string
       write(6,892) string

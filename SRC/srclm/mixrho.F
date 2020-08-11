@@ -452,14 +452,12 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
    12     continue
         enddo
         rmsuns = dsqrt(rmsuns/(n1*n2*n3))
-
 C ... 2. cn <- (smrnew - smrho)(G)
         allocate(w_ocn(2*ng),w_owk(kkk))
         call dcopy(kkk*2,smrnew,1,w_owk,1)
-        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
+c        call dpadd(w_owk,smrho,1,kkk*2,-1d0)
+        call daxpy(kkk*2,-1d0,smrho,1,w_owk,1)
         call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , w_owk ,
-ckino Dec.28.2011:         call gvgetf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , w_owk ,
         call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , w_owk , 
      . w_ocn )
         deallocate(w_owk)
@@ -496,14 +494,9 @@ ckino Dec.28.2011:         call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 ,
      . w_owk )
 
         call fftz3(w_owk,n1,n2,n3,k1,k2,k3,1,0,1)
-C     call zprm3('unscreened smrnew',0,smrnew,k1,k2,k3)
-        call dpadd(smrnew,w_owk,1,kkk*2,1d0)
-c      call rlse(owk)
+c        call dpadd(smrnew,w_owk,1,kkk*2,1d0)
+        call daxpy(kkk*2,1d0,w_owk,1,smrnew,1)
         deallocate(w_owk)
-C     call zprm3('screened smrnw, charge',0,smrnew,k1,k2,k3)
-C     call zprm3('screened smrnw, moment',0,smrnew(1,1,1,2),k1,k2,k3)
-
-
 C ... 6. Restore smrho+, smrho-
         if (nsp .eq. 2) then
           call dsumdf(kkk*2,.5d0,smrho,0,1,smrho(1,1,1,2),0,1)

@@ -1,5 +1,5 @@
       subroutine hsmq(nxi,lmxa,lxi,exi,rsm,job,q,p,nrx,nlmx,wk,yl,
-     .awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
+     .  awald,alat,qlv,nG,dlv,nD,vol,hsm,hsmp)
 C- Bloch-sum of smooth Hankel functions and energy derivatives at p
 C  by Ewald summation, for nxi groups of parameters (lxi,exi,rsm).
 C ---------------------------------------------------------------
@@ -52,8 +52,8 @@ C ---------------------------------------------------------------
 C     implicit none
       integer nxi,lmxa,lmax,nG,nD,nlmx,nrx,lxi(nxi),job
       double precision alat,awald,vol,exi(nxi),rsm(nxi),p(3),q(3),
-     .wk(nrx,*),yl(nrx,1),qlv(3,1),dlv(3,1),
-     .hsm(2,nlmx,1),hsmp(2,nlmx,1)
+     .  wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), !kino
+     .  hsm(2,nlmx,*),hsmp(2,nlmx,*)           !kino
 C Local variables
       integer ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,
      .lx(20),ndx
@@ -371,11 +371,12 @@ C ---------------------------------------------------------------
 C     implicit none
       integer lmax,nG,nD,nlmx,nrx,job
       double precision alat,awald,vol,rsm,p(3),q(3),
-     .wk(nrx,*),yl(nrx,1),qlv(3,1),dlv(3,1),hsm(2,nlmx)
+     .  wk(nrx,*),yl(nrx,*),qlv(3,*),dlv(3,*), !kino
+     .  hsm(2,nlmx)
 C Local variables
       integer ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,nDx,
      .lx1(1)
-      parameter (nlmxx=(16+1)**2)
+      parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
       double precision qdotr,y0,a2,pi,sp,gam,tpiba,tpi,p1(3),ex1(1),
      .x1,x2,xx,xx1(nlmxx),xx2(nlmxx),r,h0,q0(3),a,faca,cosp,sinp
       parameter (faca=1d0)
@@ -602,10 +603,10 @@ C     implicit none
       integer n,nx,lmxa,lxi(nx),nlmx,job,nyl
       double precision cof,e,gam,pi,vol
       double precision cs(n),sn(n),cs2(n),sn2(n),cs3(n),sn3(n),
-     .a,exi(1),qsq(n),yl(nyl,1),hl(2,nlmx,1),hlp(2,nlmx,1)
+     .  a,exi(1),qsq(n),yl(nyl,*),hl(2,nlmx,*),hlp(2,nlmx,*) !kino
 C Local variables
       integer i,i1,ie,ilm,l,lx,m,je,lm,nlmxx
-      parameter (nlmxx=(16+1)**2)
+      parameter (nlmxx=(200+1)**2)! (nlmxx=(16+1)**2)
       double precision c,s,xx,x1,x2
       double precision c2(nlmxx),s2(nlmxx),c3(nlmxx),s3(nlmxx)
       logical dcmpre
@@ -625,8 +626,10 @@ C   ... Copy existing hl,hlp if already calculated for this exi
           if (dabs(exi(je)-exi(ie)) .gt. 1d-8) goto 30
           if (lxi(ie) .gt. lxi(je)) goto 30
 C     ... We have a match:
-          call dpadd(hl(1,1,ie), hl(1,1,je), 1,2*(lxi(ie)+1)**2,1d0)
-          call dpadd(hlp(1,1,ie),hlp(1,1,je),1,2*(lxi(ie)+1)**2,1d0)
+          hl (1:2,1:(lxi(ie)+1)**2,ie)= hl (1:2,1:(lxi(ie)+1)**2,je)
+          hlp(1:2,1:(lxi(ie)+1)**2,ie)= hlp(1:2,1:(lxi(ie)+1)**2,je)
+c          call dpadd(hl(1,1,ie), hl(1,1,je), 1,2*(lxi(ie)+1)**2,1d0)
+c          call dpadd(hlp(1,1,ie),hlp(1,1,je),1,2*(lxi(ie)+1)**2,1d0)
           goto 20
    30   continue
 

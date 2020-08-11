@@ -136,15 +136,19 @@ c         deallocate(rll)
           call evxcv ( rp , rp , nr , nsp , lxcf, 
      .    exc , excx_rv , excc_rv , 
      .    vxc , vxcx_rv , vxcc_rv )
-        else
-          call dpadd(rp(1,2),rp,1,nr,1d0)
+       else
+          rp(1:nr,2)= rp(1:nr,1)+rp(1:nr,2)
+c          call dpadd(rp(1,2),rp,1,nr,1d0)
           call evxcv ( rp ( 1 , 2 ) , rp , nr , 2 , lxcf, exc , excx_rv 
-     .    , excc_rv , vxc , vxcx_rv , vxcc_rv )
-          call dpadd(rp(1,2),rp,1,nr,-1d0)
-          call dpadd(rp,rp(1,2),1,nr,1d0)
+     .         , excc_rv , vxc , vxcx_rv , vxcc_rv )
+          rp(1:nr,2) = rp(1:nr,2) - rp(1:nr,1)
+          rp(1:nr,1) = rp(1:nr,1) + rp(1:nr,2)
+c          call dpadd(rp(1,2),rp,1,nr,-1d0)
+c          call dpadd(rp,rp(1,2),1,nr,1d0)
           call evxcv ( rp , rp ( 1 , 2 ) , nr , 2 , lxcf, exc , excx_rv 
-     .    , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
-          call dpadd(rp,rp(1,2),1,nr,-1d0)
+     .         , excc_rv , vxc ( 1 , 2 ) , vxcx_rv , vxcc_rv )
+          rp(1:nr,1) = rp(1:nr,1) - rp(1:nr,2)
+c          call dpadd(rp,rp(1,2),1,nr,-1d0)
         endif
         deallocate(vxcc_rv,vxcx_rv,excc_rv,excx_rv)
 !! === Integrals ===
@@ -205,8 +209,9 @@ c      stop 'xxxxxxxxxxxx vxc0sp xxxxxxxxxxxxxxx'
 ccccccccccccccccccccccccccccccccccc
 
 !! --- Add to V ---
-      call dpadd(v,vxc,1,nr,1d0)
-      if (nsp .eq. 2) call dpadd(v(1,2),vxc(1,2),1,nr,1d0)
+c      call dpadd(v,vxc,1,nr,1d0)
+c      if (nsp .eq. 2) call dpadd(v(1,2),vxc(1,2),1,nr,1d0)
+      v(:,1:nsp)=v(:,1:nsp)+vxc(:,1:nsp)
       exrmx = exc(nr)
 
 !! --- Undo background rho for purposes of calculating vxc ---

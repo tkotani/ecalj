@@ -330,7 +330,8 @@ C       call zprm3('smrho before poke',smrho,k1,k2,k3)
      .     1 , 1 , isp ) , cv_zv )
           call gvsym ( ng , slat%rv_a_ogv , slat%iv_a_oips0 , slat%zv_a_obgv , cv_zv , 
      .       csym_zv )
-          call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
+c          call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
+           csym_zv=csym_zv - cv_zv
           call gvaddf ( ng , slat%iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) )
         enddo

@@ -16,7 +16,7 @@ C Local parameters
       double precision ex(4),w1(4),w2(4),ec(4),
      .a14,a21,a24,a31,a32,a34,a41,a42,df,e1,e2,e3,e4,v1,v2,v3,vw4,xxx
 
-      vw4 = volwgt/4
+      vw4 = volwgt/4d0
       do  22  i = 1, 4
         w(i,1) = 0d0
         w(i,2) = 0d0

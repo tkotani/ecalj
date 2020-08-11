@@ -353,7 +353,8 @@ C ... Heap
 C --- Make hab,vab,sab and potential parameters pp ---
       do  i = 1, nsp
         call dpcopy(v1(1,1,i),vdif(1+nr*(i-1)),1,nr,y0)
-        call dpadd(vdif(1+nr*(i-1)),v0(1,i),1,nr,-1d0)
+c        call dpadd(vdif(1+nr*(i-1)),v0(1,i),1,nr,-1d0)
+        vdif(1+nr*(i-1):1+nr*i)=vdif(1+nr*(i-1):1+nr*i)-v0(1:nr,i)
       enddo
 C     NB:rofi MUST be dimensioned rofi(1..nrx) if V is to be extrapol.
       call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,rofi,pnu,pnz,ehl,rsml,

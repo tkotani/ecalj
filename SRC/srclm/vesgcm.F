@@ -145,8 +145,8 @@ C     and make integrals g*phi0, h*phi0
           cg1(i) = cg1(i) + cofh*gkl(0,1)/vol
           hpot0(ib) = hpot0(ib) + dconjg(cv(i))*gkl(0,1)
         enddo
-        call dpadd(cgsum,cg1,1,2*ng,1d0)
-
+c        call dpadd(cgsum,cg1,1,2*ng,1d0)
+        cgsum= cgsum+cg1
 C   ... Multiply factors into gpot0
         do  ilm = 1, nlm
           l = ll(ilm)

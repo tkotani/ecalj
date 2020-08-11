@@ -1,316 +1,4 @@
 
-wanniergw/BAKUP1/e2h.F,103
-      subroutine hermite(66,2037
-      subroutine diag_hm(81,2391
-      subroutine wan2ham(112,3126
-
-wanniergw/BAKUP1/eispack.F,632
-      subroutine diagno(3,33
-      subroutine bchd(43,1645
-      subroutine bred(101,3729
-      subroutine bbak(179,6514
-      subroutine hcinv(396,14440
-      subroutine yhifa(482,17152
-      subroutine yhidi(724,25465
-      integer function iyamax(976,33454
-      double precision function dcabs1(1012,34297
-      double precision function cdabs2(1016,34417
-      subroutine cpy(1020,34538
-      subroutine cdiv(1028,34771
-      subroutine btridi(1054,35433
-      SUBROUTINE IMTQLV(1205,40260
-      SUBROUTINE BINVIT(1354,44871
-      subroutine btribk(1743,59366
-      double precision function pythag(2235,75172
-
-wanniergw/BAKUP1/hband_ent_MPI.m.F,179
-      subroutine readuu6(217,6431
-      subroutine chk_umn(257,7827
-      subroutine chk_uuqk(275,8325
-      subroutine disent_band(300,9062
-      subroutine wband(577,17093
-
-wanniergw/BAKUP1/hband_ent_MPI2.m.F,179
-      subroutine readuu6(218,6442
-      subroutine chk_umn(258,7838
-      subroutine chk_uuqk(276,8336
-      subroutine disent_band(301,9073
-      subroutine wband(578,17104
-
-wanniergw/BAKUP1/hband_ent_single_MPI.m.F,179
-      subroutine readuu5(213,6226
-      subroutine chk_umn(251,7486
-      subroutine chk_uuqk(269,7984
-      subroutine disent_band(294,8721
-      subroutine wband(552,16265
-
-wanniergw/BAKUP1/hdos_ent_MPI.m.F,218
-      subroutine readuu5(205,6071
-      subroutine chk_umn(243,7331
-      subroutine chk_uuqk(261,7829
-      subroutine disent_band(286,8566
-      subroutine disent_dos(539,15972
-      subroutine wband(792,23359
-
-wanniergw/BAKUP1/hibz2fbz0.F,140
-      subroutine checkagree(494,17388
-      subroutine ldanm(503,17696
-      subroutine senm(521,18125
-      subroutine senm2(561,19079
-
-wanniergw/BAKUP1/hibz2fbz0_test.F,140
-      subroutine checkagree(530,18381
-      subroutine ldanm(539,18689
-      subroutine senm(557,19118
-      subroutine senm2(597,20072
-
-wanniergw/BAKUP1/hibz2fbz0wan.F,183
-      subroutine checkagree(495,17984
-      subroutine ldanm(504,18292
-      subroutine senm_wan_r(522,18721
-      subroutine senm_wan(553,19476
-      subroutine senm2(584,20229
-
-wanniergw/BAKUP1/hnocc_mlw.F,149
-      subroutine efsimplef2a_mlw 269,9497
-      subroutine r_dnk(579,19606
-      subroutine r_evalevec(612,20536
-      subroutine wefn(787,25774
-
-wanniergw/BAKUP1/hphig.F,218
-      subroutine checkagree(579,20416
-      subroutine  readbb(588,20724
-      subroutine  getc1c2(630,21927
-      subroutine qggmat(714,24531
-      subroutine aaumat(875,29373
-      subroutine ophiphi(933,31113
-
-wanniergw/BAKUP1/hqpband_ent_MPI.m.F,462
-      subroutine readuu6(299,9967
-      subroutine chk_umn(339,11363
-      subroutine chk_uuqk(357,11861
-      subroutine disent_qpband(382,12598
-      subroutine wband(817,27982
-      subroutine wqpband(832,28314
-      subroutine k2r(847,28662
-      subroutine r2q(869,29277
-      subroutine q2p(889,29832
-      subroutine wan2ham(919,30695
-      subroutine wan2ham_d(936,31140
-      subroutine wan2ks(955,31617
-      subroutine wan2ks_d(972,32059
-
-wanniergw/BAKUP1/hqpband_ent_MPI_test.m.F,462
-      subroutine readuu6(275,9112
-      subroutine chk_umn(315,10508
-      subroutine chk_uuqk(333,11006
-      subroutine disent_qpband(358,11743
-      subroutine wband(753,25630
-      subroutine wqpband(768,25962
-      subroutine k2r(783,26310
-      subroutine r2q(805,26925
-      subroutine q2p(825,27480
-      subroutine wan2ham(855,28343
-      subroutine wan2ham_d(872,28788
-      subroutine wan2ks(891,29265
-      subroutine wan2ks_d(908,29707
-
-wanniergw/BAKUP1/hupdt_ent_MPI.m.F,554
-      subroutine readuu6(315,10647
-      subroutine chk_umn(355,12043
-      subroutine chk_uuqk(373,12541
-      subroutine updt_wf_eig(398,13278
-      subroutine disent_qpband(746,24529
-      subroutine wband(1136,38079
-      subroutine wqpband(1151,38411
-      subroutine k2r(1166,38759
-      subroutine r2q(1188,39374
-      subroutine q2p(1208,39929
-      subroutine wan2ham(1238,40792
-      subroutine wan2ham_d(1255,41237
-      subroutine wan2ks(1274,41714
-      subroutine wan2ks_d(1291,42156
-      subroutine read_q_qgpsi(1310,42626
-
-wanniergw/BAKUP1/hwfch.F,39
-      subroutine checkagree(335,13159
-
-wanniergw/BAKUP1/hwinfo.F,75
-      subroutine checkagree(279,10557
-      subroutine  readbb(288,10865
-
-wanniergw/BAKUP1/hwmat2.F,104
-      subroutine wwmat 903,31846
-      subroutine wvmat 965,34161
-      subroutine chkrot 1008,35611
-
-wanniergw/BAKUP1/hwmatc.F,103
-      subroutine wwmat 890,31482
-      subroutine wvmat 950,33688
-      subroutine chkrot 990,34975
-
-wanniergw/BAKUP1/hwmatc_MPI.F,106
-      subroutine wwmat 1084,39160
-      subroutine wvmat 1143,41317
-      subroutine chkrot 1183,42604
-
-wanniergw/BAKUP1/hx0fp0_MPI.m.F,47
-      subroutine tr_chkwrite_RSMPI(1902,73303
-
-wanniergw/BAKUP1/index.F,1303
-      integer function maxocc2 1,0
-      subroutine idxlmto 23,658
-      subroutine idxlmt1 63,1857
-      subroutine idxlna 105,3133
-      subroutine idxlnp 141,4039
-      subroutine incor 174,5157
-      subroutine indxbas(223,6474
-      subroutine indxk(291,8516
-      subroutine indxlm(343,10044
-      subroutine indxln(365,10515
-      subroutine indxlna(390,11127
-      subroutine indxlnm(432,12429
-      subroutine idxlnma(462,13227
-      subroutine idxlnmc(497,14111
-      subroutine indxmdm 574,16329
-      integer function indxpp 602,17100
-      subroutine indxql 620,17608
-      subroutine indxrk(664,18621
-      subroutine maxdim 712,20168
-      integer function maxocc 742,21119
-      integer function nallow 783,22262
-      integer function nalwln 834,23694
-      integer function nocc 868,24776
-      subroutine ncorex 898,25419
-      subroutine noccmax(922,25991
-      integer function noccx1 949,26660
-      integer function nofblch(979,27377
-      integer function noflmto(995,27784
-      integer function nofln(1012,28226
-      integer function noflnm(1027,28549
-      integer function noflnmx(1042,28868
-      subroutine nofpppp(1058,29250
-      integer function nofyyyy(1100,30261
-      subroutine nolna 1119,30702
-      subroutine nolnma 1140,31368
-
-wanniergw/BAKUP1/mh_hupdt_ent_MPI.m.F,554
-      subroutine readuu6(316,10682
-      subroutine chk_umn(356,12078
-      subroutine chk_uuqk(374,12576
-      subroutine updt_wf_eig(399,13313
-      subroutine disent_qpband(784,25752
-      subroutine wband(1174,39300
-      subroutine wqpband(1189,39632
-      subroutine k2r(1204,39980
-      subroutine r2q(1226,40595
-      subroutine q2p(1246,41150
-      subroutine wan2ham(1276,42013
-      subroutine wan2ham_d(1293,42458
-      subroutine wan2ks(1312,42935
-      subroutine wan2ks_d(1329,43377
-      subroutine read_q_qgpsi(1348,43847
-
-wanniergw/BAKUP1/mkqg_TMBAND.F,82
-      subroutine mkQG2_TMBAND(1,0
-      subroutine genbzdata1_xxxxxxx(572,19630
-
-wanniergw/BAKUP1/qpe1_mlw.F,100
-      subroutine qpe1_mlw 1,0
-      subroutine wan2ks(177,6107
-      subroutine wan2ks2(199,6711
-
-wanniergw/BAKUP1/read_gw0.F,461
-      subroutine q2k(514,19949
-      subroutine q2p(546,20885
-      subroutine q2r(576,21748
-      subroutine r2k(599,22404
-      subroutine wigner_seitz(620,22996
-      subroutine sortr(682,24540
-      subroutine  sortvec2(715,25293
-      subroutine diag_hm(754,26258
-      subroutine wan2ham(785,26993
-      subroutine wan2ham_d(802,27438
-      subroutine inv_mat(826,28020
-      subroutine fine_mesh(843,28526
-      subroutine calc_ef(868,29190
-
-wanniergw/BAKUP1/read_gw02.F,498
-      subroutine q2k(546,21148
-      subroutine q2p(578,22084
-      subroutine q2r(608,22947
-      subroutine r2k(631,23603
-      subroutine wigner_seitz(652,24195
-      subroutine sortr(714,25739
-      subroutine  sortvec2(747,26492
-      subroutine diag_hm(786,27457
-      subroutine wan2ham(817,28192
-      subroutine wan2ham_d(834,28637
-      subroutine inv_mat(858,29219
-      subroutine fine_mesh(875,29725
-      subroutine calc_ef(900,30389
-      subroutine hermite(1026,34689
-
-wanniergw/BAKUP1/rpaq.F,239
-      subroutine calcpv2 1,0
-      subroutine diagno0(96,3129
-      subroutine getwk(118,3973
-      subroutine  ecorq2 155,5382
-      subroutine sqrtmat 292,9474
-      subroutine hermat 415,12823
-      subroutine chhermat 434,13316
-
-wanniergw/BAKUP1/sxcf_fal2_MPI.F,81
-      subroutine sxcf_fal3z_RSMPI(1,0
-      subroutine drvmelp2_wan(2095,76871
-
-wanniergw/BAKUP1/wcf.F,133
-      subroutine wcf(1,0
-      subroutine wcf_maxloc(112,3612
-      subroutine chknbnb(192,6047
-      subroutine anfx0k(236,7547
-
-wanniergw/BAKUP1/wmat.F,137
-      subroutine wmatq(1,0
-      subroutine matzwz2(743,26345
-      subroutine matzwz3(764,27044
-      subroutine drvmelp3(786,27809
-
-wanniergw/BAKUP1/wmat2.F,138
-      subroutine wmatq2(1,0
-      subroutine matzwz2(794,27188
-      subroutine matzwz3(815,27887
-      subroutine drvmelp3(837,28652
-
-wanniergw/BAKUP1/wmat_MPI.F,141
-      subroutine wmatq_MPI(1,0
-      subroutine matzwz2(823,28235
-      subroutine matzwz3(844,28934
-      subroutine drvmelp3(866,29699
-
-wanniergw/BAKUP1/x0kf_v3h.F,214
-      subroutine x0kf_v3hz 1,0
-      subroutine zadd_(765,30016
-      subroutine zaddr_(771,30162
-      subroutine dpsion4 780,30398
-      subroutine hilbertmat 1119,44203
-      subroutine dpsion3 1216,48121
-
-wanniergw/BAKUP1/x0kf_v3h_MPI.F,36
-      subroutine x0kf_v3hz_MPI 1,0
-
-wanniergw/BAKUP1/x0kf_v3h_cfao.F,214
-      subroutine x0kf_v3hz 1,0
-      subroutine zadd_(782,30910
-      subroutine zaddr_(788,31056
-      subroutine dpsion4 797,31292
-      subroutine hilbertmat 1136,45097
-      subroutine dpsion3 1233,49015
-
-wanniergw/BAKUP1/zsvd.F,65
-      subroutine zgesvdmn(1,0
-      subroutine zgesvdnn(14,560
-
 maingw/eout.F,99
       subroutine getexx(47,1640
       subroutine readxx3(59,1935
@@ -4180,19 +3868,3 @@ maingw/h_uumatrix.m.F,0
 maingw/gwinit.m.F,0
 
 maingw/convgwin.F,0
-
-wanniergw/BAKUP1/read_rmn.F,0
-
-wanniergw/BAKUP1/read_mmn.F,0
-
-wanniergw/BAKUP1/read_hmlwf.F,0
-
-wanniergw/BAKUP1/qpwf.F,0
-
-wanniergw/BAKUP1/qg4gw_TMBAND.m.F,0
-
-wanniergw/BAKUP1/nocctot.F,0
-
-wanniergw/BAKUP1/hsfp0_MPI.m.F,0
-
-wanniergw/BAKUP1/hqpe_mlw.m.F,0

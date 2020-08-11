@@ -62,100 +62,69 @@ Changenglob      nspec = nglob('nspec')
 Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       eloc = .false.
-      call dpzero(vsel,4*n0*nbas)
+      vsel=0d0
+c      call dpzero(vsel,4*n0*nbas)
 
 C --- Find val, slo, K.E. for all sites ---
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-ckino Dec.9.2011:           rv_p_ov0 => ssite(ib)%rv_p_ov0
-
-
-
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         spid = sspec(is)%name
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-
         z=sspec(is)%z
         lmxa=sspec(is)%lmxa
         lmxb=sspec(is)%lmxb
-
         if (lmxa .eq. -1) goto 10
         if (pnz(idamax(lmxb+1,pnz,1),1) .lt. 10) goto 10
         eloc = .true.
-
         call radmsh(rmt,a,nr,rofi)
         call loctsh ( 1101 , spid , z , a , nr , nr , nsp , lmxa , rofi
-ckino Dec.9.2011:       .   , rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib )
-ckino Dec.28.2011:       .   , ssite(ib)%rv_p_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
-     .   , ssite(ib)%rv_a_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
-     .   , rsml , ehl )
-
+     .       , ssite(ib)%rv_a_ov0 , pnu , pnz , xx , xx , vmtz , vsel ( 1 , 1 , ib ) 
+     .       , rsml , ehl )
    10   continue
       enddo
-
       if (.not. eloc) goto 999
       if (ipr .ge. 30) write(stdo,199)
   199 format(/' elocp:')
-
 C --- Determine shape of smooth Hankel tails for local orbitals ---
       allocate(ips_iv(nbas))
-
       i_copy_size=1;
       do i_spackv=1,nbas
-c        call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-c     .  , i_copy_size , i_spackv + 1 - 1 , ips_iv )
         ips_iv(i_spackv)=ssite(i_spackv)%spec
       enddo
-
 C ... Loop over species containing extended local orbitals
       do  is = 1, nspec
 c        do i_spacks=is,is
 c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
 c        enddo
         spid=sspec(is)%name
-
         z=sspec(is)%z
         lmxa=sspec(is)%lmxa
         lmxb=sspec(is)%lmxb
-
         if (lmxa .eq. -1) goto 20
         nrspec = iabs ( iclbsj ( is , ips_iv , - nbas , nbas ) )
-
         if (nrspec .eq. 0) goto 20
         ib = iclbsj ( is , ips_iv , nbas , 1 )
-
-
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnui,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnzi,1)
-
         if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 20
 
 C   ... Average over sites within this species
-        call dpzero(vseli,4*n0)
+        vseli=0d0 !call dpzero(vseli,4*n0)
         do  ibs = 1, nrspec
           ib = iclbsj ( is , ips_iv , nbas , ibs )
-
-
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-
           if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 22
-          call dpadd(vseli,vsel(1,1,ib),1,4*n0,1/dble(nrspec))
-
+c          call dpadd(vseli,vsel(1,1,ib),1,4*n0,1/dble(nrspec))
+          vseli = vseli + vsel(:,:,ib)/dble(nrspec)
    22     continue
         enddo
 

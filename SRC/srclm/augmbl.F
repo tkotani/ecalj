@@ -484,7 +484,7 @@ C ... Local parameters
       complex(8),allocatable:: tso(:,:,:,:)
       if (mode1 .eq. 1) then
         allocate (tso(ndimh,ndimh,2,2))
-        call dpzero(tso,ndimh*ndimh*4*2)
+        tso=0d0 !call dpzero(tso,ndimh*ndimh*4*2)
       endif
 
 C     call zprm('strux',2,b,(kmax+1)*nlma,(kmax+1)*nlma,ndimh)
@@ -572,7 +572,8 @@ C     ... One-center terms
       enddo
 
       if (mode1 .eq. 1) then
-        call dpadd(hso(1,1),tso(1,1,1,2),1,2*ndimh*ndimh,1d0)
+c        call dpadd(hso(1,1),tso(1,1,1,2),1,2*ndimh*ndimh,1d0)
+        hso = hso + tso(:,:,1,2)
         deallocate (tso)
       endif
 

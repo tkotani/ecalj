@@ -196,7 +196,7 @@ ccc You can change these values for tests. ccccccccccccc
      &    tpiba * (qibz(1:3,iqx)+ matmul(qlat, ngvecci(1:3,ig1,iqx)))
           absqg2  = sum(qg(1:3)**2)
           do ir =1,nrx
-            call bessl(absqg2*rofit(ir)**2,lxx,phi,psi)
+            call besslggg(absqg2*rofit(ir)**2,lxx,phi,psi)
             do ibas=1,nbas
               do l = 0, lx(ibas)
                 rprodx(ir,n,l,ibas) = phi(l)* rofit(ir) **(l +1 )
@@ -280,9 +280,9 @@ c default values ok?
       as   = awald0
       alat1= alat
       tpiba=8.d0*datan(1.d0)/alat
-      call cross_x(plat(1,2),plat(1,3),qb0)
-      call cross_x(plat(1,3),plat(1,1),qb0(1,2))
-      call cross_x(plat(1,1),plat(1,2),qb0(1,3))
+      call cross(plat(1,2),plat(1,3),qb0)
+      call cross(plat(1,3),plat(1,1),qb0(1,2))
+      call cross(plat(1,1),plat(1,2),qb0(1,3))
       qb0(1:3,1:3) = qb0(1:3,1:3)/vol0
 
       rdist0=vol0**(1.d0/3.d0)
@@ -1067,7 +1067,7 @@ c
         rofi(1)    = 0d0
         do ir      = 1, nr
           rofi(ir) = b*( exp(a*(ir-1)) - 1d0)
-          call bessl(absqg**2*rofi(ir)**2,lx(ibas),phi,psi)
+          call besslggg(absqg**2*rofi(ir)**2,lx(ibas),phi,psi)
           do l  = 0,lx(ibas)
 c ... bessel function
             ajr(ir,l) = phi(l)* rofi(ir) **(l +1 )

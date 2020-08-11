@@ -403,7 +403,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
             ipx(lx, nxx(lx)) = iprad
             absqg2 = absqg2x(n1)
             do ir =1,nrofi
-              call bessl2(absqg2*r(ir)**2,max(2,lx),phij,psij) !second argument must be larger than 1.
+              call bessl2x(absqg2*r(ir)**2,max(2,lx),phij,psij) !second argument must be larger than 1.
               rprod(ir,iprad) = phij(lx)* r(ir) **(lx +1)
             enddo
             print *,' sumchk rprod=',lx,n1,sum(abs(rprod(1:nrofi,iprad)))
@@ -670,7 +670,7 @@ cccccccccccccc test2 ccccccccccccccccccccccccccccccccccccccccccc
 c       if(n==2) absqg2 = 2.598177**2
           if(n==2) absqg2 =  .612396**2
           do ir =1,nrofi
-            call bessl2(absqg2*r(ir)**2, lxx, phij, psij)
+            call bessl2x(absqg2*r(ir)**2, lxx, phij, psij)
             do l = 0, lxx
               rprodx2(ir,n,l) = phij(l)* r(ir) **(l +1 )
             enddo
@@ -1048,7 +1048,7 @@ C
 
 
 C ----------------------------------------------------------------
-      subroutine bessl2(y,lmax,phi,psi)
+      subroutine bessl2x(y,lmax,phi,psi)
 cnote --- what the difference from nfpsrc/bessl? : I think essentially the same.
 C- Radial part of Bessel functions
 C ----------------------------------------------------------------

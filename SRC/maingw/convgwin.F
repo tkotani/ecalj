@@ -3,11 +3,11 @@ C- convert GWIN to GWIN_V2
 Cr takao kotani Apr 2002
 C ----------------------------------------------------------------------
       character(len=100)::record
-      integer:: ifile_hanlde
-      ifigwin  = ifile_handle()
-      ifigwino = ifile_handle()
-      open (ifigwino,file='GWIN')
-      open (ifigwin, file='GWIN_V2')
+c      integer:: ifile_hanlde
+c      ifigwin  = ifile_handle()
+c      ifigwino = ifile_handle()
+      open (newunit=ifigwino,file='GWIN')
+      open (newunit=ifigwin, file='GWIN_V2')
 
       do i=1,20
         read(ifigwino,"(a)") record

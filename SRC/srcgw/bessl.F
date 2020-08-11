@@ -1,4 +1,5 @@
-      subroutine bessl(y,lmax,phi,psi)
+      subroutine besslggg(y,lmax,phi,psi)
+!! we will need to merge this with bessl in besslr.F.
 c  patched to take care of case lmax=1
 c  07.06.91  df floated, to make subroutine work for large lmax's
       implicit real*8 (a-h,p-z), integer(o)

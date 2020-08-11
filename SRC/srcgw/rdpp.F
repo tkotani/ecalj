@@ -102,7 +102,6 @@ c      enddo;  enddo;
 c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
-c     call icopy(nclass, nblocha,w(imdim))
 c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
 c --- rotated CG setup
       write(6,*)' rdpp mdimx=',mdimx
@@ -328,7 +327,6 @@ c      enddo;  enddo;
 c Belows overide the values given by genallc.
       mdimx  = maxval(nblocha)
       nbloch = sum(nblocha)
-c     call icopy(nclass, nblocha,w(imdim))
 c     write(6,*)' imdim',w(imdim),w(imdim+1),w(imdim+2),w(imdim+3)
 c --- rotated CG setup
       write(6,*)' rdpp mdimx=',mdimx

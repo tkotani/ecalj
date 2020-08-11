@@ -82,7 +82,8 @@ c     an error can occur if two xa's are identical
           if(abs(den) .lt. small) then
             write(6,1000)
  1000       format('   ***wrn in polint...data error')
-            stop
+Cstop2rx 2013.08.09 kino            stop
+            call rx( '')
           endif
 c
           den=w/den
@@ -101,4 +102,3 @@ c takao
       polinta=polint
       return
       end
-

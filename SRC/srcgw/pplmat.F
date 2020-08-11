@@ -525,99 +525,6 @@ cccccccccccc
       if (allocated(cy)) deallocate(cy)
       if (allocated(yl)) deallocate(yl)
       end
-
-c--------------------------------------------------------------
-      subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
-     i         nbas, rmax, bas, 
-     o         ppovl)
-c < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
-c
-      implicit none
-      integer(4) ::  nbas, ng1,ng2,nx(3),
-     &        ig1,ig2,ibas, ngvec1(3,ng1),ngvec2(3,ng2),
-     &         n1x,n2x,n3x,n1m,n2m,n3m,verbose
-      real(8) :: absqg1,absqg2,tripl,rmax(nbas),pi
-      real(8) :: plat(3,3),qlat(3,3),
-     &  alat,tpiba,tpibaqlat(3,3),voltot, bas(3,nbas)
-      complex(8) :: img =(0d0,1d0)
-      complex(8) :: ppovl(ng1,ng2)
-      complex(8),allocatable :: ppox(:,:,:)
-      logical :: debug=.false.
-c-----------------------------------------------------
-      if(verbose()>50) debug=.true.
-      if(debug) print *,' mkppovl2:'
-      pi        = 4d0*datan(1d0)
-      voltot    = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      tpibaqlat =  2*pi/alat *qlat
-c < G1 | G2 >
-      n1x = maxval( ngvec2(1,:)) - minval( ngvec1(1,:))
-      n1m = minval( ngvec2(1,:)) - maxval( ngvec1(1,:))
-      n2x = maxval( ngvec2(2,:)) - minval( ngvec1(2,:))
-      n2m = minval( ngvec2(2,:)) - maxval( ngvec1(2,:))
-      n3x = maxval( ngvec2(3,:)) - minval( ngvec1(3,:))
-      n3m = minval( ngvec2(3,:)) - maxval( ngvec1(3,:))
-c
-      if(debug) print *,' mkppovl2: 1 ',n1x,n1m,n2x,n2m,n3x,n3m
-      allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
-      ppox = 1d99
-      do ig1  = 1, ng1
-        do ig2  = 1, ng2
-          nx(1:3) = ngvec2(1:3,ig2) - ngvec1(1:3,ig1) ! G2-G1
-          if( ppox(nx(1),nx(2),nx(3))==1d99 ) then
-            call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
-     i    nx(1:3), ! G2 -G1
-     o    ppox( nx(1),nx(2),nx(3)))
-          endif
-        enddo
-      enddo
-      if(debug) print *,' mkppovl2: 2 ',n1x,n1m,n2x,n2m,n3x,n3m
-      do ig1 = 1,ng1
-        do ig2 = 1,ng2
-          nx(1:3) = ngvec2(1:3,ig2) -ngvec1(1:3,ig1) ! G2-G1
-          ppovl(ig1,ig2) = ppox( nx(1),nx(2),nx(3) )
-        enddo
-      enddo
-      deallocate(ppox)
-c      print *,' mkppovl2: 3 ',n1x,n1m,n2x,n2m,n3x,n3m
-      end
-
-c---------------------
-      subroutine matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
-     i   ngvec,
-     o   ppovl)
-c ppovl = \int_{cell} IPW(G) d^3r
-c G = ggvec = g2 -g1 <g1|g2>
-c
-      implicit none
-      integer(4) :: nbas,ibas,ngvec(3)
-      real(8) :: ggvec(3), alat,bas(3,nbas),rmax(nbas),voltot,absg,grmx
-     &           ,tpibaqlat(3,3)
-      complex(8) :: ppovl
-      real(8)    :: pi4 =4d0*3.1415926535897932D0
-      complex(8) :: img =(0d0,1d0)
-      ggvec(1:3) =  matmul(tpibaqlat, ngvec(1:3))
-      absg       =  sqrt(sum(ggvec(1:3)**2))
-      ppovl = 0d0
-      if(absg==0d0) ppovl =  voltot
-      do ibas = 1,nbas
-        if(absg==0d0) then
-          ppovl = ppovl - pi4*rmax(ibas)**3/3d0
-        else
-
-ccccccccccccccccccccccccccc
-ctest
-c          ppovl = 0d0
-c         cycle
-ccccccccccccccccccccccccccc
-
-          grmx  = absg* rmax(ibas)
-          ppovl = ppovl
-     &      - exp( img* sum(ggvec*bas(1:3,ibas))*alat )  
-     &        * pi4/absg**3 * ( -grmx * cos(grmx) + sin(grmx) )
-        endif
-      enddo
-      end
-
 c---------------------
       real(8) function facl(a,l)
       integer l
@@ -628,24 +535,6 @@ c---------------------
         facl=a**l
       endif
       end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-c--------------------------------------------------------------
-c--------------------------------------------------------------
-c--------------------------------------------------------------
 c--------------------------------------------------------------
       subroutine mkppovl2test(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
      i         nbas, rmax, bas, 

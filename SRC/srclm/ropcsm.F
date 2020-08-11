@@ -1,6 +1,6 @@
       subroutine ropcsm(m,n,x,y,w,cm,sm)
 C- Makes cm and sm. Must be called in sequence m=0,1,2...
-C     implicit none
+      implicit none
       integer m,n,i
       double precision x(n),y(n),w(n),cm(n),sm(n)
 

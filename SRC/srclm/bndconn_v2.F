@@ -108,21 +108,3 @@ c      print *, ' band mode xxx8'
 c      print *, ' end of bndconn',cpusec()
       end
 
-      subroutine matm(a,b,c,n1,n2,n3)
-c-- interface for matrix multiplication  c=a*b -------------------------
-c a and b are destroied (zgemm)
-c assumed size-array
-c
-c!!! takao 2000 Sep.  If you use this routine with cxml of zgemm(GOTO),
-c you might have to allocate a(n1,n2+1) to avoid the stack segmanation fault due to the complilar bug.
-c
-      integer::  n1,n2,n3
-      complex(8) :: a(n1,n2),b(n2,n3), c(n1,n3)
-c
-c      print *,"sumcheck=",sum(a),sum(b),n1,n2,n3
-      call ZGEMM ( "N", "N", n1, n3, n2, (1d0,0d0), 
-     &a, n1, 
-     &b, n2,
-     &(0d0,0d0), c, n1 )
-      end
-

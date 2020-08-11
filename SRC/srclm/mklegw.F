@@ -20,14 +20,15 @@ C Local parameters
       double precision root,delta,machep,d1mach,pi
 
       pi = 4 * datan(1d0)
-      machep = 10*d1mach(3)
+c|    machep = 10*d1mach(3)
+      machep=1d-14
 
 C --- Find all the roots of P_n ---
       do  200  iroot = 1, n
         z(iroot) = dcos(pi*(2*iroot-.5d0)/(2*n+1))
         root = z(iroot)
         if (ipr .ge. 110)
-     .  print *, 'genleg: ',iroot,' starting guess is ',root
+     .    print *, 'mklegw: ',iroot,' starting guess is ',root
   100   continue
         delta = -plegn(n,root)/pnp(n,root)
         if (ipr .ge. 110) write(*,*) 'delta is ',delta
@@ -36,10 +37,11 @@ C --- Find all the roots of P_n ---
         z(iroot) = root
   200 continue
 
-C --- Debugging:  check for identical roots ---
+c --- debugging:  check for identical roots ---
       do  300  in = 1, n-1
         if (dabs(z(in)-z(in+1)) .lt. machep)
-     .  stop 'genleg: identical roots'
+Cstop2rx 2013.08.09 kino     .    stop 'mklegw: identical roots'
+     .    call rx( 'mklegw: identical roots')
   300 continue
 
 C --- Make the weights ---
@@ -50,7 +52,7 @@ C --- Make the weights ---
 C --- Printout ---
       if (ipr .lt. 80) return
       print *
-      print *, 'Genleg: roots and weighting factors'
+      print *, 'mklegw: roots and weighting factors'
       do  400  in = 1, n
         write(*,410) z(in),w(in)
   410   format(1x,2(1pe26.15))

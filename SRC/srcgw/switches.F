@@ -33,10 +33,6 @@ c
       eibz4sig=.true. !.false.
       end
 c
-      logical function mtosigmaonly() !this is also in lm7k/subs/switches.F
-      mtosigmaonly=.true.
-      end
-c
       logical function eibz4x0() 
 !! T: EIBZ symmetrization in hx0fp0->x0kf_v4h
 !! F: no EIBZ symmetrization

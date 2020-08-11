@@ -3,7 +3,6 @@ C- Returns l, given lm index
 C     implicit none
 C Passed parameters
       integer ilm
-C Local parameters
       integer lmaxx
       parameter (lmaxx=17)
       integer lla(lmaxx**2)

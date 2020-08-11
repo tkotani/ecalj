@@ -166,7 +166,7 @@ Cstop2rx 2013.08.09 kino      if (lmax .gt. lmaxim) stop 'genbes: increase lmaxi
       xk         = dabs(xk)
       do       i = 1,n
         rk         = xk*r(i)
-        call sphbes (rk,lmax,spb)
+        call sphbes_t (rk,lmax,spb)
         do       l = 0,lmax
           bes(i,l)   = spb(l)
         end do

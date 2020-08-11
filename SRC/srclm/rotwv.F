@@ -432,15 +432,11 @@ c apw part ------------
       integer::ii(n),i,n
       real(8):: a(n),eps=1d-8,aa
       do i=1,n
-c$$$        if(a(i)>0) then
-c$$$          aa = a(i)
-c$$$          ii(i)=  int(aa+eps)
-c$$$        else
-c$$$          aa=-a(i)
-c$$$          ii(i)= -int(aa+eps)
-c$$$        endif
         ii(i)= nint(a(i))
-        if(abs(ii(i)-a(i))>eps) call rx('conv2int: a is not close to integer')
+        if(abs(ii(i)-a(i))>eps)then
+           write(6,*)' ii a eps=',ii(i),a(i),eps
+           call rx( 'conv2int: a is not close to integer')
+        endif   
       enddo
       end
 

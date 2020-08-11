@@ -295,7 +295,6 @@ dmpyt.o \
 dmsadd.o \
 dmscop.o \
 dot3.o \
-dpadd.o \
 dpcopy.o \
 dpdump.o \
 dpsadd.o \
@@ -561,3 +560,142 @@ smvxcm.o \
 vxcnsp.o \
 vxcnlm.o \
 w_psir.o
+
+##################################
+gwsrcx:=
+
+MPI_list:=  $(gwsrcx)MPI_fpgw2.o
+GWLIB_list:=  \
+ $(gwsrcx)m_homoelectron.o \
+ $(gwsrcx)m_readwan.o \
+ $(gwsrcx)diagcv3.o \
+ $(gwsrcx)m_w0w0i.o \
+ $(gwsrcx)getwemax.o \
+ $(gwsrcx)genallcf_dump.o \
+ $(gwsrcx)wse.o \
+ $(gwsrcx)bzints2.o \
+ $(gwsrcx)wintzsg.o \
+ $(gwsrcx)gintxx.o \
+ $(gwsrcx)gwinput_v2.o \
+ $(gwsrcx)pplmat.o \
+ $(gwsrcx)rs.o \
+ $(gwsrcx)conv2gwinput.o \
+ $(gwsrcx)getbzdata1.o \
+ $(gwsrcx)wcf.o \
+ $(gwsrcx)tetwt5.o \
+ $(gwsrcx)m_tetrakbt.o \
+ $(gwsrcx)m_tetwt.o \
+ $(gwsrcx)x0kf_v4h.o \
+ $(gwsrcx)cinvrx.o \
+ $(gwsrcx)zsvd.o \
+ $(gwsrcx)m_zmel.o \
+ $(gwsrcx)m_freq.o \
+ $(gwsrcx)readpomat.o \
+ $(gwsrcx)keyvalue.o \
+ $(gwsrcx)rppovl.o \
+ $(gwsrcx)nocctotg.o \
+ $(gwsrcx)ppbafp.fal.o \
+ $(gwsrcx)psi2b_v2.o \
+ $(gwsrcx)psi2b_v3.o \
+ $(gwsrcx)wfacx.o \
+ $(gwsrcx)rydberg.o \
+ $(gwsrcx)efsimplef.o \
+ $(gwsrcx)extension.o \
+ $(gwsrcx)rdpp.o \
+ $(gwsrcx)genallcf_mod.o \
+ $(gwsrcx)rgwinf_mod.o \
+ $(gwsrcx)iopen.o \
+ $(gwsrcx)cputid.o \
+ $(gwsrcx)rw.o \
+ $(gwsrcx)ext2.o \
+ $(gwsrcx)mate.o \
+ $(gwsrcx)mate1.o \
+ $(gwsrcx)bib1.o \
+ $(gwsrcx)index.o \
+ $(gwsrcx)idxk.o \
+ $(gwsrcx)maxnn.o \
+ $(gwsrcx)reindx.o \
+ $(gwsrcx)bz.o \
+ $(gwsrcx)genqbz.o \
+ $(gwsrcx)switches.o \
+ $(gwsrcx)rwbzdata.o \
+ $(gwsrcx)llnew.o  \
+ $(gwsrcx)readeigen.o \
+ $(gwsrcx)readqg.o \
+ $(gwsrcx)iqindx.o  \
+ $(gwsrcx)alloclist.o \
+ $(gwsrcx)m_pkm4crpa.o \
+ $(gwsrcx)m_anf.o \
+ $(gwsrcx)qpe1.sc.o \
+ $(gwsrcx)icompvv2.o \
+ $(gwsrcx)iopenxx.o \
+ $(gwsrcx)qpe1.o \
+ $(gwsrcx)mopen.o \
+ $(gwsrcx)checksymlon.o \
+ $(gwsrcx)mkqg.o \
+ $(gwsrcx)m_q0p.o \
+ $(gwsrcx)q0irre.o \
+ $(gwsrcx)basnfp.o \
+ $(gwsrcx)excore.o \
+ $(gwsrcx)mkjp.o \
+ $(gwsrcx)strxq.o \
+ $(gwsrcx)sxcf_fal2.sc.o \
+ $(gwsrcx)sxcf_fal2.o \
+$(gwsrcx)diagcv2.o \
+$(gwsrcx)wronkj.o \
+$(gwsrcx)u_lat_0.o \
+$(gwsrcx)bessl.o \
+$(gwsrcx)lgen.o \
+$(gwsrcx)rpaq.o \
+$(gwsrcx)m_readeps.o \
+$(gwsrcx)m_readq0p.o \
+$(gwsrcx)m_readQGcou.o\
+$(gwsrcx)m_pbindex.o \
+$(gwsrcx)m_rotMPB.o \
+$(gwsrcx)m_iqindx_qtt.o \
+$(gwsrcx)rotwave.o \
+$(gwsrcx)rotcg.o \
+$(gwsrcx)rotgvec.o\
+$(gwsrcx)m_readVcoud.o\
+$(gwsrcx)m_itq.o\
+$(gwsrcx)nan.o\
+$(gwsrcx)m_readgwinput.o\
+$(gwsrcx)m_qbze.o\
+$(gwsrcx)m_eibz.o\
+$(gwsrcx)m_gaussianfilter.o\
+$(gwsrcx)m_llw.o\
+$(gwsrcx)m_readfreq_r.o\
+$(gwsrcx)m_readepswklm.o\
+$(gwsrcx)qpe1.qsgw.o\
+$(gwsrcx)mptauof.o
+
+maxlocx:=
+MLOC_list:= \
+$(maxlocx)maxloc0.o \
+$(maxlocx)maxloc1.o \
+$(maxlocx)maxloc2.o \
+$(maxlocx)maxloc3.o \
+$(maxlocx)maxloc4.o \
+$(maxlocx)m_read_Worb.o\
+$(maxlocx)m_DATA4GW.o\
+$(maxlocx)m_QG.o\
+$(maxlocx)m_FFT3D.o\
+$(maxlocx)mymath.o\
+$(maxlocx)myYlm.o\
+$(maxlocx)wfn2dx_2.o\
+$(maxlocx)m_MLWF.o\
+$(maxlocx)wmatK.o \
+$(maxlocx)wansub.o \
+$(maxlocx)cubeformat.o\
+$(maxlocx)xsfformat2.o\
+$(maxlocx)expand_mesh.o\
+$(maxlocx)wfn2dx_abc.o\
+$(maxlocx)wfnrho_abc.o\
+$(maxlocx)write_mesh2d.o\
+ $(maxlocx)RSMPI_mod.o \
+ $(maxlocx)efsimplef_RSMPI.o\
+ $(maxlocx)RSMPI_qkgroup_mod.o \
+ $(maxlocx)RSMPI_rotkindex_mod.o \
+ $(maxlocx)RSMPI_utils.o\
+ $(maxlocx)ent_MPI.o\
+ $(maxlocx)wmatK_mpi.o

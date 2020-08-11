@@ -869,7 +869,7 @@ C --- radial integral  ppbrd = <phi phi j_l>
 c        write(6,"(' nindx=',10i3)") nindx(1:nl,ic)
 c        write(6,*)' radial integral ibas=',ibas
         do ir =1,nrofi(ic)
-          call bessl(absqg2*rr(ir,ibas)**2,lxx,phij,psij)
+          call besslggg(absqg2*rr(ir,ibas)**2,lxx,phij,psij)
 c  phij(lx) \approx 1/(2l+1)!! for small absqg*rr(ir,ibas).
           do lx = 0, lxx
             if(rr(ir,ibas)==0d0) then

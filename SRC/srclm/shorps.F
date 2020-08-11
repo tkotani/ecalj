@@ -100,7 +100,8 @@ C         Patched 10 Apr 02
 
 C   --- pout <- pout - pin, units of plat ---
         if (nbas .lt. 0) then
-          call dpadd(p0,pout(1,ib),1,3,-1d0)
+c           call dpadd(p0,pout(1,ib),1,3,-1d0)
+          p0=p0-pout(:,ib)
           do  20  i = 1, 3
             xx = -p0(1)*qlat(1,i) - p0(2)*qlat(2,i) - p0(3)*qlat(3,i)
             if (dabs(xx-nint(xx)) .gt. 1d-10) call rx('bug in shorps')
@@ -108,128 +109,121 @@ C   --- pout <- pout - pin, units of plat ---
    20     continue
         endif
    10 continue
-
-C     call prmx('plat',plat,3,3,3)
-C     call prmx('qlat',qlat,3,3,3)
-C     call prmx('shortened pos',pout,3,3,nbas1)
-C     mc out.dat -t qlat -x gives pos as multiples of plat
-
-C     call tcx('shorps')
       end
 
-#if TEST
-      subroutine fmain
-C to see that the change in position vectors are multiples of
-C the lattice vector, copy input,output pos to 'pos','posf'; invoke
-C mc posf pos -- -t plat -t -i -x
-      implicit none
-      integer ix(3),i
-      double precision pos(3,48),pos2(3,48),plat(3,3),qlat(9),xx
-
-      call wkinit(10000)
-
-      data plat /
-     .0.5d0,          .5d0, 0d0,
-     .0.0d0,          0.d0, 1d0,
-     .2.570990255d0, -2.570990255d0, 0d0/
-      data pos /
-     .-0.697107d0,  1.197107d0,  0.250000d0,
-     .-0.697107d0,  1.197107d0,  0.750000d0,
-     .-0.770330d0,  0.770330d0,  0.000000d0,
-     .-0.770330d0,  0.770330d0,  0.500000d0,
-     .-0.343553d0,  0.843553d0,  0.250000d0,
-     .-0.343553d0,  0.843553d0,  0.750000d0,
-     .-0.416777d0,  0.416777d0,  0.000000d0,
-     .-0.416777d0,  0.416777d0,  0.500000d0,
-     .0.010000d0,  0.490000d0,  0.250000d0,
-     .0.010000d0,  0.490000d0,  0.750000d0,
-     .0.250000d0,  0.250000d0,  0.500000d0,
-     .0.500000d0,  0.500000d0,  0.750000d0,
-     .0.750000d0,  0.750000d0,  1.000000d0,
-     .1.000000d0,  1.000000d0,  1.250000d0,
-     .0.250000d0, -0.250000d0,  0.000000d0,
-     .0.500000d0,  0.000000d0,  0.250000d0,
-     .0.750000d0,  0.250000d0,  0.500000d0,
-     .1.000000d0,  0.500000d0,  0.750000d0,
-     .0.750000d0, -0.250000d0,  0.500000d0,
-     .1.000000d0,  0.000000d0,  0.750000d0,
-     .1.250000d0,  0.250000d0,  1.000000d0,
-     .1.500000d0,  0.500000d0,  1.250000d0,
-     .0.740000d0, -0.740000d0,  0.000000d0,
-     .0.740000d0, -0.740000d0,  0.500000d0,
-     .1.166777d0, -0.666777d0,  0.250000d0,
-     .1.166777d0, -0.666777d0,  0.750000d0,
-     .1.093553d0, -1.093553d0,  0.000000d0,
-     .1.093553d0, -1.093553d0,  0.500000d0,
-     .1.520330d0, -1.020330d0,  0.250000d0,
-     .1.520330d0, -1.020330d0,  0.750000d0,
-     .1.447107d0, -1.447107d0,  0.000000d0,
-     .1.447107d0, -1.447107d0,  0.500000d0,
-     .-1.050660d0,  1.550660d0,  0.250000d0,
-     .-1.050660d0,  1.550660d0,  0.750000d0,
-     .-1.123883d0,  1.123883d0,  0.000000d0,
-     .-1.123883d0,  1.123883d0,  0.500000d0,
-     .1.873883d0, -1.373883d0,  0.250000d0,
-     .1.873883d0, -1.373883d0,  0.750000d0,
-     .1.800660d0, -1.800660d0,  0.000000d0,
-     .1.800660d0, -1.800660d0,  0.500000d0,
-     .-1.404214d0,  1.904214d0,  0.250000d0,
-     .-1.404214d0,  1.904214d0,  0.750000d0,
-     .-1.477437d0,  1.477437d0,  0.000000d0,
-     .-1.477437d0,  1.477437d0,  0.500000d0,
-     .2.227437d0, -1.727437d0,  0.250000d0,
-     .2.227437d0, -1.727437d0,  0.750000d0,
-     .2.154214d0, -2.154214d0,  0.000000d0,
-     .2.154214d0, -2.154214d0,  0.500000d0/
-
-
-      call prmx('plat',plat,3,3,3)
-      call prmx('starting pos',pos,3,3,48)
-      ix(1) = 2
-      ix(2) = 2
-      ix(3) = 2
-      call shorps(48,plat,ix,pos,pos2)
-      call prmx('final pos',pos2,3,3,48)
-
-      call mkqlat(plat,qlat,xx)
-      do  10  i = 1, 48
-        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
-   10 continue
-
-      call prmx('from shorbz',pos2,3,3,48)
-      end
-#endif
-#if TEST2
-      subroutine fmain
-C Check special case in which a bug fix, mixed boundary conditions
-      implicit none
-      integer ix(3),i
-      double precision pos(3,1),pos2(3,1),plat(3,3),qlat(9),xx
-      double precision dd1,dd2
-
-      call wkinit(10000)
-
-      data plat /-0.5d0,0.5d0,0.0d0,
-     .0.0d0,0.0d0,1.0d0,
-     .7.0d0,7.0d0,4.0d0/
-      data ix /2,2,0/
-
-      pos(1,1) = 2.5d0
-      pos(2,1) = 3.0d0
-      pos(3,1) = 0.0d0
-
-      dd1 = dsqrt(pos(1,1)**2 + pos(2,1)**2 + pos(3,1)**2)
-      call shorps(1,plat,ix,pos,pos2)
-      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
-      print *, dd1, dd2
-
-      call mkqlat(plat,qlat,xx)
-      do  10  i = 1, 1
-        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
-   10 continue
-      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
-      print *, dd1, dd2
-
-      end
-#endif
-
+c$$$#if TEST
+c$$$      subroutine fmain
+c$$$C to see that the change in position vectors are multiples of
+c$$$C the lattice vector, copy input,output pos to 'pos','posf'; invoke
+c$$$C mc posf pos -- -t plat -t -i -x
+c$$$      implicit none
+c$$$      integer ix(3),i
+c$$$      double precision pos(3,48),pos2(3,48),plat(3,3),qlat(9),xx
+c$$$
+c$$$      call wkinit(10000)
+c$$$
+c$$$      data plat /
+c$$$     .0.5d0,          .5d0, 0d0,
+c$$$     .0.0d0,          0.d0, 1d0,
+c$$$     .2.570990255d0, -2.570990255d0, 0d0/
+c$$$      data pos /
+c$$$     .-0.697107d0,  1.197107d0,  0.250000d0,
+c$$$     .-0.697107d0,  1.197107d0,  0.750000d0,
+c$$$     .-0.770330d0,  0.770330d0,  0.000000d0,
+c$$$     .-0.770330d0,  0.770330d0,  0.500000d0,
+c$$$     .-0.343553d0,  0.843553d0,  0.250000d0,
+c$$$     .-0.343553d0,  0.843553d0,  0.750000d0,
+c$$$     .-0.416777d0,  0.416777d0,  0.000000d0,
+c$$$     .-0.416777d0,  0.416777d0,  0.500000d0,
+c$$$     .0.010000d0,  0.490000d0,  0.250000d0,
+c$$$     .0.010000d0,  0.490000d0,  0.750000d0,
+c$$$     .0.250000d0,  0.250000d0,  0.500000d0,
+c$$$     .0.500000d0,  0.500000d0,  0.750000d0,
+c$$$     .0.750000d0,  0.750000d0,  1.000000d0,
+c$$$     .1.000000d0,  1.000000d0,  1.250000d0,
+c$$$     .0.250000d0, -0.250000d0,  0.000000d0,
+c$$$     .0.500000d0,  0.000000d0,  0.250000d0,
+c$$$     .0.750000d0,  0.250000d0,  0.500000d0,
+c$$$     .1.000000d0,  0.500000d0,  0.750000d0,
+c$$$     .0.750000d0, -0.250000d0,  0.500000d0,
+c$$$     .1.000000d0,  0.000000d0,  0.750000d0,
+c$$$     .1.250000d0,  0.250000d0,  1.000000d0,
+c$$$     .1.500000d0,  0.500000d0,  1.250000d0,
+c$$$     .0.740000d0, -0.740000d0,  0.000000d0,
+c$$$     .0.740000d0, -0.740000d0,  0.500000d0,
+c$$$     .1.166777d0, -0.666777d0,  0.250000d0,
+c$$$     .1.166777d0, -0.666777d0,  0.750000d0,
+c$$$     .1.093553d0, -1.093553d0,  0.000000d0,
+c$$$     .1.093553d0, -1.093553d0,  0.500000d0,
+c$$$     .1.520330d0, -1.020330d0,  0.250000d0,
+c$$$     .1.520330d0, -1.020330d0,  0.750000d0,
+c$$$     .1.447107d0, -1.447107d0,  0.000000d0,
+c$$$     .1.447107d0, -1.447107d0,  0.500000d0,
+c$$$     .-1.050660d0,  1.550660d0,  0.250000d0,
+c$$$     .-1.050660d0,  1.550660d0,  0.750000d0,
+c$$$     .-1.123883d0,  1.123883d0,  0.000000d0,
+c$$$     .-1.123883d0,  1.123883d0,  0.500000d0,
+c$$$     .1.873883d0, -1.373883d0,  0.250000d0,
+c$$$     .1.873883d0, -1.373883d0,  0.750000d0,
+c$$$     .1.800660d0, -1.800660d0,  0.000000d0,
+c$$$     .1.800660d0, -1.800660d0,  0.500000d0,
+c$$$     .-1.404214d0,  1.904214d0,  0.250000d0,
+c$$$     .-1.404214d0,  1.904214d0,  0.750000d0,
+c$$$     .-1.477437d0,  1.477437d0,  0.000000d0,
+c$$$     .-1.477437d0,  1.477437d0,  0.500000d0,
+c$$$     .2.227437d0, -1.727437d0,  0.250000d0,
+c$$$     .2.227437d0, -1.727437d0,  0.750000d0,
+c$$$     .2.154214d0, -2.154214d0,  0.000000d0,
+c$$$     .2.154214d0, -2.154214d0,  0.500000d0/
+c$$$
+c$$$
+c$$$      call prmx('plat',plat,3,3,3)
+c$$$      call prmx('starting pos',pos,3,3,48)
+c$$$      ix(1) = 2
+c$$$      ix(2) = 2
+c$$$      ix(3) = 2
+c$$$      call shorps(48,plat,ix,pos,pos2)
+c$$$      call prmx('final pos',pos2,3,3,48)
+c$$$
+c$$$      call mkqlat(plat,qlat,xx)
+c$$$      do  10  i = 1, 48
+c$$$        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+c$$$   10 continue
+c$$$
+c$$$      call prmx('from shorbz',pos2,3,3,48)
+c$$$      end
+c$$$#endif
+c$$$#if TEST2
+c$$$      subroutine fmain
+c$$$C Check special case in which a bug fix, mixed boundary conditions
+c$$$      implicit none
+c$$$      integer ix(3),i
+c$$$      double precision pos(3,1),pos2(3,1),plat(3,3),qlat(9),xx
+c$$$      double precision dd1,dd2
+c$$$
+c$$$      call wkinit(10000)
+c$$$
+c$$$      data plat /-0.5d0,0.5d0,0.0d0,
+c$$$     .0.0d0,0.0d0,1.0d0,
+c$$$     .7.0d0,7.0d0,4.0d0/
+c$$$      data ix /2,2,0/
+c$$$
+c$$$      pos(1,1) = 2.5d0
+c$$$      pos(2,1) = 3.0d0
+c$$$      pos(3,1) = 0.0d0
+c$$$
+c$$$      dd1 = dsqrt(pos(1,1)**2 + pos(2,1)**2 + pos(3,1)**2)
+c$$$      call shorps(1,plat,ix,pos,pos2)
+c$$$      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
+c$$$      print *, dd1, dd2
+c$$$
+c$$$      call mkqlat(plat,qlat,xx)
+c$$$      do  10  i = 1, 1
+c$$$        call shorbz(pos(1,i),pos2(1,i),plat,qlat)
+c$$$   10 continue
+c$$$      dd2 = dsqrt(pos2(1,1)**2 + pos2(2,1)**2 + pos2(3,1)**2)
+c$$$      print *, dd1, dd2
+c$$$
+c$$$      end
+c$$$#endif
+c$$$

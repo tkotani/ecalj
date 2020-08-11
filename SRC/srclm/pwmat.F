@@ -485,7 +485,6 @@ C ... For each G2*G1, poke integral into ppovl
 
 
       subroutine matgg2(alat,bas,rmax,nbas,vol,tpibaqlat,igv,ppovl)
-
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   alat  :length scale of lattice and basis vectors, a.u.

@@ -65,30 +65,6 @@ Cstop2rx 2013.08.09 kino      if(3*nv.gt.nvmax) stop
       nv=3*nv
       return
       end
-c# latlim fortran *
-      subroutine latlim(bas,vmax,i1,i2,i3)
-c limits in x y z direction, also initialize matrix
-      implicit real*8 (a-h,p-z), integer(o)
-      dimension bas(3,3),a(3,3)
-      common /clatlm/ a11,a22,a33,a12,a13,a23
-      do 6 i=1,3
-      do 6 j=i,3
-        a(i,j)=bas(1,i)*bas(1,j)+bas(2,i)*bas(2,j)+bas(3,i)*bas(3,j)
-    6 continue
-      a11=a(1,1)
-      a12=a(1,2)
-      a13=a(1,3)
-      a22=a(2,2)
-      a23=a(2,3)
-      a33=a(3,3)
-      det=a11*a22*a33+a12*a23*a13
-     .   +a12*a23*a13-a13*a22*a13
-     .   -a23*a23*a11-a12*a12*a33
-      i1=vmax*dsqrt((a22*a33-a23**2)/det)
-      i2=vmax*dsqrt((a11*a33-a13**2)/det)
-      i3=vmax*dsqrt((a11*a22-a12**2)/det)
-      return
-      end
       subroutine latlm2(vmax,i1,i2,j1,j2,k)
 c  input: height in z-direction=k.  output: limits in xy-plane
       implicit real*8 (a-h,p-z), integer(o)

@@ -55,6 +55,30 @@ C     ... Program-dependent name and help
       integer::ic,ibas
       real(8):: bz_w,dval       !test
 
+#if MPI | MPIK
+      include "mpif.h"
+      integer fext
+      integer numprocs, ierr, status(MPI_STATUS_SIZE)
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+c      integer namelen(0:MAX_PROCS-1)
+      double precision starttime, endtime
+      logical mlog
+      integer  nsize, id
+
+!! =================================================================
+      call mpi_init(ierr)
+      call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
+      call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
+      if(id==0) write(*,*) 'mpi size=',nsize
+#endif
+!!
+      if(nsize/=1) call rx('lmv7util.F allows only -np 1!')
+
 C     --- Version ---
       call show_programinfo(6)
 c$$$      vrsion(1) = 'LM'

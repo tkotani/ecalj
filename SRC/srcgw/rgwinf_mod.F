@@ -138,18 +138,18 @@ c----
 c      cutbase = tolbas
       inquire(file='NoCore',exist=nocore)
       if(nocore) then
-        occc=0    ! call iclear(nl*nnc*nclass, w(ioccc))
-        unoccc=0    ! call iclear(nl*nnc*nclass, w(iunoccc))
-        ncfw  =0    ! call iclear(nl*nnc*nclass, w(incwf))
+        occc=0    
+        unoccc=0  
+        ncfw  =0  
       elseif( incwfx==-1 ) then
         write(6,*)' ### incwf=-1 Use ForSxc for core'
-        ncwf = ncwf2  !call icopy(nl*nnc*nclass,w(incwf2),w(incwf))
+        ncwf = ncwf2  
       elseif( incwfx==-2 ) then
         write(6,*)' ### incwf=-2 Use NOT(ForSxc) for core and Pro-basis '
         call notbit(nl*nnc*nclass, ncwf2)
-        ncwf  = ncwf2 ! call icopy (nl*nnc*nclass, w(incwf2),w(incwf))
-        occc= ncwf  ! call icopy (nl*nnc*nclass, w(incwf),w(ioccc))
-        unoccc= 0     ! call iclear(nl*nnc*nclass, w(iunoccc))
+        ncwf  = ncwf2 
+        occc= ncwf  
+        unoccc= 0     
 cccccccccccccccccccccccccccccccccc
 c 31May2006
         ooo=0

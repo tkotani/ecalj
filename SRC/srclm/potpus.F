@@ -990,3 +990,4 @@ C     .       ' Tgf now',f12.6,'  change=',f12.6)
       Tgf = (avg-diff)/2
       end
 
+

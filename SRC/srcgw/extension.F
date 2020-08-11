@@ -208,52 +208,20 @@ Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
       if(num>999999) call rx( ' xxt:can not produce')
       end
 c
-      character(5) function charnum5(num)
-      integer(4) ::num
-      charnum5 = char(48+mod(num/10000,10))//
-     &           char(48+mod(num/1000,10))//
-     &           char(48+mod(num/100,10))//
-     &           char(48+mod(num/10,10))//
-     &           char(48+mod(num,10))
-      end
+c$$$      character(5) function charnum5(num)
+c$$$      integer(4) ::num
+c$$$      charnum5 = char(48+mod(num/10000,10))//
+c$$$     &           char(48+mod(num/1000,10))//
+c$$$     &           char(48+mod(num/100,10))//
+c$$$     &           char(48+mod(num/10,10))//
+c$$$     &           char(48+mod(num,10))
+c$$$      end
+c$$$c
+c$$$      character(3) function charnum3(num)
+c$$$      integer(4) ::num
+c$$$      charnum3 = 
+c$$$     &           char(48+mod(num/100,10))//
+c$$$     &           char(48+mod(num/10,10))//
+c$$$     &           char(48+mod(num,10))
+c$$$      end
 c
-      character(3) function charnum3(num)
-      integer(4) ::num
-      charnum3 = 
-     &           char(48+mod(num/100,10))//
-     &           char(48+mod(num/10,10))//
-     &           char(48+mod(num,10))
-      end
-c
-      character(4) function charnum4(num)
-      integer(4) ::num
-      charnum4 = 
-     &           char(48+mod(num/1000,10))//
-     &           char(48+mod(num/100,10))//
-     &           char(48+mod(num/10,10))//
-     &           char(48+mod(num,10))
-      end
-c
-      character*20 function xts(num1,num2)
-      integer(4) :: num,num1,num2
-c      character*(*) add
-      num = num2
-      xts = char(48+mod(num,10))
-      if(num>9)     xts = char(48+mod(num/10,10))//xts
-      if(num>99)    xts = char(48+mod(num/100,10))//xts
-      if(num>999)   xts = char(48+mod(num/1000,10))//xts
-      if(num>9999)  xts = char(48+mod(num/10000,10))//xts
-      if(num>99999) xts = char(48+mod(num/100000,10))//xts
-Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xts:can not produce'
-      if(num>999999) call rx( ' xts:can not produce')
-      xts ='.L'//xts
-      num = num1
-      xts = char(48+mod(num,10))//xts
-      if(num>9)     xts = char(48+mod(num/10,10))//xts
-      if(num>99)    xts = char(48+mod(num/100,10))//xts
-      if(num>999)   xts = char(48+mod(num/1000,10))//xts
-      if(num>9999)  xts = char(48+mod(num/10000,10))//xts
-      if(num>99999) xts = char(48+mod(num/100000,10))//xts
-Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xts:can not produce'
-      if(num>999999) call rx( ' xts:can not produce')
-      end

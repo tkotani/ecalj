@@ -35,7 +35,7 @@ Cr   (Usually x_j corresponds to x at the jth previous iteration.)
 Cr   We take a linear combination x* of x_0, x_1, x_2, ... x_n that
 Cr   minimizes <(x* - f(x*))^2>.  We then seek t_1, t_2, ... t_n in
 Cr     x* = x_0 - \sum_j t_j (x_0 - x_j).                        (1)
-Cr   To evaluate f(x*) we linearize d(x) = f(x)-x as 
+Cr   To evaluate f(x*) we linearize d(x) = f(x)-x as
 Cr     f(x*)-x*  =  d*  =  d_0  -  \sum_j t_j (d_0 - d_j)         (2)
 Cr   Then \partial <(d*)^2> / \partial t_k = 0 =>
 Cr     < (d_0 - \sum_j t_j (d_0 - d_j)) (d_0 - d_k) >  =  0      (3)
@@ -46,7 +46,7 @@ Cr   instablities, a linear combination of (1) and (2) is taken as
 Cr       beta f(x*)  +  (1-beta) x*  = beta d*  +  x*           (4)
 Cr   beta is an input parameter, which can usually be taken to be 1.
 Cr   If you want to be really timid, and constrain the program
-Cr   to take a small step, you can mix  x_0 + beta d*, which as 
+Cr   to take a small step, you can mix  x_0 + beta d*, which as
 Cr   beta -> 0 moves only a small amount away from x_0.  This feature
 Cr   is set by making npmix < 0.
 C ----------------------------------------------------------------
@@ -54,7 +54,7 @@ C     implicit none
 C Passed parameters
       integer nelts,mmix,npmix,kpvt(1),ipr
       double precision norm(mmix,mmix),wk(nelts,0:mmix+1,2),t(mmix),
-     .beta,tm,rmsdel
+     .  beta,tm,rmsdel
 C Local parameters
       integer i,j,nwk,inert(3),nmix,kelt,nmake,ido,iprint,i1mach
       double precision ddot,det(2),sumsqr,sing,sinmax
@@ -83,7 +83,8 @@ C --- Obtain the tj ---
 C --  Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  --
       if (ido .eq. 2) goto 40
    10 continue
-      if (nmix .lt. 0) call rx('amix: bad nmix')
+      if (nmix .lt. 0) call rx( 'amix: bad nmix')
+
 
 C -- Regular Anderson mixing branch --
       if (ido/10 .eq. 0) then
@@ -103,10 +104,10 @@ C -- Silly branch --
       elseif (ido/10 .eq. 1) then
         do  120  i = 1, nmix
           t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
-          do  120  j = 1, nmix
-            norm(i,j) =  
-     .      wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
-     .      - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
+        do  120  j = 1, nmix
+          norm(i,j) =  
+     .          wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
+     .        - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
   120   continue
       endif
 
@@ -126,7 +127,7 @@ C --  Handle singular normal matrix --
         nmix = nmix-1
         if (ipr .ge. 20) print 337, sinmax, nmix
   337   format(' AMIX: condition of normal eqns >',f7.0,
-     .  ' Reducing nmix to',2i2)
+     .         ' Reducing nmix to',2i2)
         goto 10
       endif
 
@@ -170,7 +171,8 @@ C -- Do next element for silly case --
 
 C --  Copy arrays to new positions --
       do  50  i = mmix, 1, -1
-   50 call dmcpy(wk(1,i-1,1),nwk,1,wk(1,i,1),nwk,1,nelts,2)
+        call dmcpy(wk(1,i-1,1),nwk,1,wk(1,i,1),nwk,1,nelts,2)
+   50 continue
 
 C --  x* + beta d*  (or x + beta d* if npmix<0) --
       call daxpy(nelts,beta,wk(1,mmix+1,1),1,wk(1,mmix+1,2),1)
@@ -180,12 +182,12 @@ C --  Calculate rms change --
 
 C --- Printout ---
       if (ipr .lt. 30) goto 60
-      call awrit6(' AMIX: nmix=%i mmix=%i  nelts=%i  beta=%1;6d  tm='//
-     .'%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
-     .nmix,mmix,nelts,beta,tm,rmsdel)
-C      write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
-C  133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,
-C     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
+c      call awrit6(' AMIX: nmix=%i mmix=%i  nelts=%i  beta=%1;6d  tm='//
+c     .  '%1;6d  rmsdel=%1;3e',' ',80,i1mach(2),
+c     .  nmix,mmix,nelts,beta,tm,rmsdel)
+      write(*,133) nmix,mmix,nelts,beta,tm,rmsdel
+  133 format(' AMIX: nmix=',i1,' mmix=',i1,'  nelts=',i6,
+     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
       if (nmix .gt. 0) write(*,134) (t(j), j=1,nmix)
   134 format(3x,'tj:',7(f8.5,2x))
 
@@ -194,7 +196,7 @@ C     .       '  beta=',f7.5,'  tm=',f8.5,'  rmsdel=',1pd8.2)
       do  12  i = 1, nelts
         if (dabs(wk(i,0,1)) + dabs(wk(i,mmix+1,2)-wk(i,0,2)) .ge. 5d-7)
      .  write(*,111) i,wk(i,0,2),wk(i,0,2)+wk(i,0,1),
-     .  wk(i,0,1),wk(i,mmix+1,2)
+     .                 wk(i,0,1),wk(i,mmix+1,2)
    12 continue
 
 C --- Restore d* and x* + beta d* from end of wk --

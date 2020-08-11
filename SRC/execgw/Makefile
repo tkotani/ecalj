@@ -137,7 +137,6 @@ GWLIB =  \
  $(gwsrc)cross.o \
  $(gwsrc)mate.o \
  $(gwsrc)mate1.o \
- $(gwsrc)icopy.o \
  $(gwsrc)bib1.o \
  $(gwsrc)index.o \
  $(gwsrc)idxk.o \

@@ -58,9 +58,10 @@ C --- Determine which linear combination of plat is shortest ---
         do  12  ic = -1, 1
         do  12  jc = -1, 1
         do  12  kc = -1, 1
-          call dpcopy(plat(1,m1),dd,1,3,dble(ic))
-          call dpadd(dd,plat(1,m2),1,3,dble(jc))
-          call dpadd(dd,plat(1,m3),1,3,dble(kc))
+          dd=plat(:,m1)*dble(ic)+plat(:,m2)*dble(jc)+plat(:,m3)*dble(kc)
+c          call dpcopy(plat(1,m1),dd,1,3,dble(ic))
+c          call dpadd(dd,plat(1,m2),1,3,dble(jc))
+c          call dpadd(dd,plat(1,m3),1,3,dble(kc))
           dd2 = ddot(3,dd,1,dd,1)
           if (dd1 .gt. dd2 .and. dd2 .gt. 1d-6) then
             call dpcopy(dd,dlat,1,3,1d0)

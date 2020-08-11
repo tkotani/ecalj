@@ -186,8 +186,10 @@ C ... Set up for vectorized Y_lm and gaussians
 C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
       allocate(cs_(ng), sn_(ng))
-      call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
-      if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 2 ) , 1 , 2 * nn , 1d0 )
+c      call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
+c     if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 2 ) , 1 , 2 * nn , 1d0 )
+      call dcopy(2*nn, smrho,1,smro_zv,1)
+      if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
       call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
@@ -216,8 +218,10 @@ C --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
 C     Use total n0_out-n0_in but keep vxc spin polarized
       call dpzero ( smro_zv , 2 * nn )
       do  i = 1, nsp
-        call dpadd ( smro_zv , smrout ( 1 , 1 , 1 , i ) , 1 , 2*nn , 1d0 )
-        call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2*nn , - 1d0 )
+c        call dpadd ( smro_zv , smrout ( 1 , 1 , 1 , i ) , 1 , 2*nn , 1d0 )
+c        call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2*nn , - 1d0 )
+        call daxpy (2*nn,  1d0, smrout( 1 , 1 , 1 , i ), 1, smro_zv,1)
+        call daxpy (2*nn, -1d0, smrho ( 1 , 1 , 1 , i ), 1, smro_zv,1)
       enddo
 C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , dvxc_zv )
@@ -242,7 +246,8 @@ C --- Multipole moments of the output density ---
       call pshpr(0)
       call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , vsum )
       call poppr
-      call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
+c      call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
+      qmout_rv = qmout_rv- qmom(1:nvl)
 C --- Lindhard dielectric function ---
       if (job .gt. 10) then
         pi = 4d0*datan(1d0)
@@ -685,7 +690,7 @@ C     fesdn(k)  = fesdn(k)*vol
    37 continue
 
 C --- Integral of grad g (output-input local charge) ves~ ---
-      call dpzero(fesgg,3)
+      fesgg=0d0 !call dpzero(fesgg,3)
       do  39  k = 1, 3
       do  39  ilm = 1, nlm
         l = ll(ilm)
@@ -746,12 +751,9 @@ C ... This is the vectorized version
               gpot0(ilm,3) = gpot0(ilm,3)+dble(gc0)*yl(ig,ilm)*gv(ig,3)
    56       continue
    55     continue
-
 C          print 357, ig, cxx, dconjg(cxx)*gkl(0,1)
 C  357     format(i4,1p,4e18.8)
-
    50   continue
-
 C   ... Multiply factors into gpot0, accumulate force
         ilm = 0
         do  60  l = 0, lmxl
@@ -759,22 +761,18 @@ C   ... Multiply factors into gpot0, accumulate force
             ilm = ilm+1
             do  64  k = 1, 3
               gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
-
               feso(k) = feso(k) + qmom(jv0+ilm)*gpot0(ilm,k)
               fes2(k) = fes2(k) + qmout(jv0+ilm)*gpot0(ilm,k)
    64       continue
    62     continue
    60   continue
-
         jv0 = jv0+nlm
    40 continue
-
 C      print 339, 'qmom(in) dv         ',feso
 C      print 339, 'qmom(out-in) dv     ',fes2
-
-      call dpadd(fes2,fesgg,1,3,-1d0)
+c      call dpadd(fes2,fesgg,1,3,-1d0)
+      fes2=fes2-fesgg
       call tcx('pvdf1')
-
       end subroutine pvdf1
 
 

@@ -133,36 +133,28 @@ c      i_copy_size=size(slat%nabc)
 c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
       ngabc = slat%nabc
       ng    = slat%ng
-ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv
-ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
       vol  = slat%vol
       alat = slat%alat
       vol  = slat%vol
-ckino Dec.12.2011:        rv_p_ocy => slat%rv_p_ocy
-c      if (excsan(lxcfun,0) .lt. 0) x1 = excsan(lxcfun,stdo)
-
 C ... Sum of foca hankel heads; break into direct and pert. parts
 c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-ckino Dec.12.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , rv_p_ogv , cgh1_zv
-ckino Dec.27.2011:         call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_p_ogv , cgh1_zv
       call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 )
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if(lfoc1 .eq. 1) then
-ckino Dec.12.2011:          call gvputf ( ng , 1 , iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
-ckino Dec.28.2011:          call gvputf ( ng , 1 , slat%iv_p_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
         call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
           call dpscop(smrho_w,smrho_w,k123,1,1+k123,1d0)
         endif
-        call dpadd(smrho_w,smrho,1,k123*nsp,1d0)
+c        call dpadd(smrho_w,smrho,1,k123*nsp,1d0)
+        call daxpy(k123*nsp,1d0, smrho,1,smrho_w,1)
       else
         call dpcopy(smrho,smrho_w,1,k123*nsp,1d0)
       endif
@@ -209,7 +201,8 @@ C --- Direct branch (lfoc2 .eq. 0) ---
      .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  !, iwdummy 
      .   , repsm , repsmx , repsmc , rmusm , vxcavg )
 
-        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
+c        call dpadd(smpot,smvxc,1,2*k1*k2*k3*nsp,1d0)
+        smpot(:,:,:,1:nsp) = smpot(:,:,:,1:nsp)+smvxc(:,:,:,1:nsp)
         do  i = 1, nsp
           call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smvxc(1,1,1,i),
      .    smrho(1,1,1,i),rvmusm(i),x2)

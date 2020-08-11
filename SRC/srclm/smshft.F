@@ -187,16 +187,10 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       do  i = 1, nsp
         call dvset ( cgs_zv , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
      .  1 ) , 0d0 )
-
       enddo
-      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
-
-ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho
-ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgr_zv , smrho
-      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho 
-     . )
-
-
+c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
+      cgr_zv = cgr_zv + cgs_zv 
+      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 
 C --- Symmetrize the shifted density ---

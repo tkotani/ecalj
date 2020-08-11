@@ -4,18 +4,8 @@ C     implicit none
       integer n1,n2,i
       double precision afrom(1),ato(1),fac
       if (fac .ne. 1d0) goto 100
-#if CRAY
-      call scopy(n2-n1+1,afrom(n1),1,ato(n1),1)
-#elif APOLLO | HP
-      call vec_$dcopy(afrom(n1),ato(n1),n2-n1+1)
-#elif BLAS
       call dcopy(n2-n1+1,afrom(n1),1,ato(n1),1)
-#else
-      do  10 i = n1, n2
-   10 ato(i) = afrom(i)
-#endif
       return
-
 C --- fac not unity ---
   100 continue
       do  110  i = n1, n2

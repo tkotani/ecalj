@@ -176,7 +176,7 @@ C ... Passed parameters
       type(s_rv1) :: sv_p_otau(nbas)
       type(s_rv1) :: sv_p_osig(nbas)
 
-      real(8):: qmom(1) , fes(3,1) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
+      real(8):: qmom(1) , fes(3,nbas) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
      ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -192,7 +192,7 @@ C ... Local parameters
       integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
      .stdl,lxcfun,isw,nsp,isum
 c lso,
-      real(8) ,allocatable :: fxc_rv(:)
+      real(8) ,allocatable :: fxc_rv(:,:)
       real(8) ,allocatable :: hpot0_rv(:)
       complex(8) ,allocatable :: smvxc_zv(:)
       complex(8) ,allocatable :: smvx_zv(:)
@@ -391,20 +391,20 @@ ccccccccccccccccc
       if (allocated(hpot0_rv)) deallocate(hpot0_rv)
 
 C --- Add smooth exchange-correlation potential ---
-      call dpzero(rveps,2)
-      call dpzero(rvvxc,2)
-      call dpzero(rvepsv,2)
-      call dpzero(rvexv,2)
-      call dpzero(rvecv,2)
-      call dpzero(rvvxcv,2)
+      rveps=0d0
+      rvvxc=0d0 
+      rvepsv=0d0
+      rvexv=0d0
+      rvecv=0d0
+      rvvxcv=0d0
       if (mod(job,1000) .lt. 100) then
         allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp),
-     &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3*nbas))
+     &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3,nbas))
         smvxc_zv(:)=0d0
         smvx_zv(:) =0d0
         smvc_zv(:) =0d0
         smexc_zv(:)=0d0
-        fxc_rv(:)  =0d0
+        fxc_rv(:,:)  =0d0
 C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
 
 Ctakao2012feb --- comment out
@@ -426,7 +426,8 @@ c        call dpzero ( smexc_zv , k1 * k2 * k3 )
      .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
      .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
      .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
-        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas, 1d0 )
+c        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas, 1d0 )
+        if ( lfrce .ne. 0 ) fes = fes+fxc_rv
         if (allocated(fxc_rv)) deallocate(fxc_rv)
         if (allocated(smexc_zv)) deallocate(smexc_zv)
         if (allocated(smvc_zv)) deallocate(smvc_zv)

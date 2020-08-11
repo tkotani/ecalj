@@ -408,7 +408,7 @@ cccccccccccccccccccccccccccccccccccccccccccc
         do itt = 1, 10
           call bzints2x(volwgt,eband,dum111,nkp,ldim,nbmax,
      &          nsp,e1,e2,dos,nptdos,efermi,1,nteti,idteti)
-          call fermi(
+          call fermi2(
      i         zval,dos,nptdos,e1,e2,
      o         efermi,e1,e2,dosef)
           !! write(*,"(i3,7x,5(d13.6,1x))")itt, efermi, e1, e2, e2-e1, dosef

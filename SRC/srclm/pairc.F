@@ -204,7 +204,7 @@ c          enddo
       end
 c--- takao's getgv2. This is in fpgw/gwsrc/.
       subroutine getgv2(alat,plat,qlat,q, QpGcut,job,
-     ong, ngvec)
+     o     ng, ngvec)
 C-  Set up a list of recip vectors within cutoff |Q+G| < QpGcut a.u.
 c takao
 c job==1 -> return ng (number of G ) only
@@ -267,7 +267,7 @@ c     &      tpiba*sqrt(sum(qpg(1:3)**2)),ngvec(1:3,ig) ! check write
       enddo
       ng = ig
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!-------------------------------------------------------------     
       subroutine eprod(a,b, c)
 c- c gives normalized normal vector for a and b.
       real(8) :: a(3),b(3),c(3),cnorm !anorm,bnorm,
@@ -288,13 +288,10 @@ ckino delete integer(4) def.      integer(4):: ieaord(n)
       integer:: ieaord(n)
 c sorting of ea
       isig = 1
-*poption noparallel
       do i = 1,n
         ieaord(i) = i
       enddo
-*poption noparallel
       do ix= 2,n
-*poption noparallel
         do i=ix,2,-1
           if( ea(ieaord(i-1)) >ea(ieaord(i) ) ) then
             itmp = ieaord(i-1)
@@ -307,7 +304,9 @@ c sorting of ea
         enddo
       enddo
       end
+!!-----------------------------------------
 
+      
       module m_pairs
       contains
       subroutine pairs(nbas,nbasp,alat,plat,rmax,baspp,ipsp,nd,iltab,

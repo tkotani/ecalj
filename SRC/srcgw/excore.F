@@ -259,7 +259,7 @@ c      double precision cg( (2*nl-1)**2,(2*nl-1)**2, 4*(nl-1) )
      &  , cgau(0:2*(nl-1),nl**2, nl**2 ) ,dum
 c      integer iprint
 
-      external clebsh ,mscmul
+c      external clebsh ,mscmul
       double complex msc(0:1,2,2),mcs(0:1,2,2),Img
      &          ,ap,am,mscmul
 c
@@ -285,7 +285,7 @@ c  msc, conversion matrix generation 1->m 2->-m for m>0
 
 c- CG coeff. generation
       jmax=  2*(nl-1)
-      call clebsh( cg,jmax )
+      call clebsh_t( cg,jmax )
       print *,' end of clebsh'
 c- check write
 c      if(iprint().ge.120) then
@@ -457,7 +457,7 @@ c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      subroutine clebsh()
-      subroutine clebsh(cg,j1mx)
+      subroutine clebsh_t(cg,j1mx)
 c- generate crebsh gordon coefficient
 c  takao 1993 8/17
 c     eq.3.18 Rose's book , 'elementary theory of the angular momentum

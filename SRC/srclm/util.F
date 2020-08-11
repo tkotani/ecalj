@@ -39,7 +39,15 @@ c         print *,'mpipid i=',mpipid(1),i,trim(nnn)
 c      print *,'num ',num,' i2char= ',i2char,' xxx',48+mod(num,10)
 c      print *,'i2char ',char(48+mod(num,10)) , 'xxx',iii//char(48+mod(num,10)) 
       end
-c$$$      character(3) function charnum3(num) !3digit.
+      character(3) function charnum3(num)
+      integer(4) ::num
+      charnum3 = 
+     &           char(48+mod(num/100,10))//
+     &           char(48+mod(num/10,10))//
+     &           char(48+mod(num,10))
+      end
+
+c$$$  character(3) function charnum3(num) !3digit.
 c$$$      integer(4) ::num
 c$$$      charnum3 = 
 c$$$     &           char(48+mod(num/100,10))//

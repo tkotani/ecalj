@@ -735,10 +735,10 @@ CC  333   format(i5,6f12.6,2x,f12.6)
 C      enddo
 C      end
 
-      character(3) function charnum3(num)
-      integer(4) ::num
-      charnum3 = 
-     &           char(48+mod(num/100,10))//
-     &           char(48+mod(num/10,10))//
-     &           char(48+mod(num,10))
-      end
+c$$$      character(3) function charnum3(num)
+c$$$      integer(4) ::num
+c$$$      charnum3 = 
+c$$$     &           char(48+mod(num/100,10))//
+c$$$     &           char(48+mod(num/10,10))//
+c$$$     &           char(48+mod(num,10))
+c$$$      end

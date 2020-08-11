@@ -21,23 +21,15 @@ C ... Passed parameters
       integer nlml,nrclas,ngrp,nbas,istab(nbas,ngrp)
       double precision sym(nlml,nlml,nrclas),plat(3,3),qlat(3,3),
      .g(3,3,ngrp),ag(3,ngrp),pos(3,nrclas),d(3)
-C ... Local parameters
-      integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm 
-     ., jlm1 , jlm2
-      real(8) ,allocatable :: rmat_rv(:)
-
+      integer:: lmxl , ll , ig , ja , m , ia , iprint , ilm , l , jlm,  jlm1 , jlm2
+      real(8),allocatable :: rmat_rv(:,:)
       double precision wgt
-C ... Heap
-
       lmxl = ll(nlml)
-      allocate(rmat_rv(nlml*nlml))
-
+      allocate(rmat_rv(nlml,nlml))
       wgt = 1d0/ngrp
-      call dpzero(sym, nlml*nlml*nrclas)
-
+      sym = 0d0
 C --- For each group operation, do ---
       do  10  ig = 1, ngrp
-
 C ...   Find site mapped into first site under this operation
         do  12  ja = 1, nrclas
           do  14  m = 1, 3
@@ -51,26 +43,14 @@ c          if (d(1)*d(1)+d(2)*d(2)+d(3)*d(3) .lt. 1d-9) goto 80
    12   continue
         call rxi('symprj: no site mapped into first under op',ig)
    80   continue
-
-C       print *, ig,ia,ja,istab(ja,ig),istab(ia,ig)
-
 C ...   Make and add transformation matrix
         call ylmrtg ( nlml , g ( 1 , 1 , ig ) , rmat_rv )
-
-
-        call dpadd ( sym ( 1 , 1 , ia ) , rmat_rv , 1 , nlml * nlml 
-     .  , wgt )
-
+        sym(:,:,ia)= sym(:,:,ia) + wgt*rmat_rv 
+c        call dpadd ( sym ( 1 , 1 , ia ) , rmat_rv , 1 , nlml * nlml 
+c     .  , wgt )
    10 continue
-
-C ... Printout
-Cki#error, have return with len(w_varlist)>0 at line 61
-      if ( iprint ( ) .lt. 60 ) then
-        if (allocated(rmat_rv)) deallocate(rmat_rv)
-        return
-      endif
-
-      do  20  ja = 1, nrclas
+      if( iprint >= 60 ) then
+      do 20  ja = 1, nrclas
         write(6,727) ja
   727   format(/' projection matrices for ja=',i3)
         ilm = 0
@@ -83,9 +63,8 @@ Cki#error, have return with len(w_varlist)>0 at line 61
   210       format(1x,9f12.6)
    24     continue
    22   continue
-   20 continue
-
-      if (allocated(rmat_rv)) deallocate(rmat_rv)
-
+ 20   continue
+      endif
+      deallocate(rmat_rv)
       end
 

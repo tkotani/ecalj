@@ -86,6 +86,30 @@ c
       integer,allocatable:: iprocq(:,:),iantiferro(:)
       character(8),allocatable:: spid(:)
 !!
+#if MPI | MPIK
+      include "mpif.h"
+c      integer fext
+      integer numprocs, ierr, status(MPI_STATUS_SIZE)
+      integer MAX_PROCS
+      parameter (MAX_PROCS = 100)
+      integer resultlen
+      character*(MPI_MAX_PROCESSOR_NAME) name
+      character*10 shortname(0:MAX_PROCS-1)
+      character*26 datim
+c      integer namelen(0:MAX_PROCS-1)
+      double precision starttime, endtime
+      logical mlog
+      integer  id,nsizex
+c      integer  nsize, id
+
+!! =================================================================
+      call mpi_init(ierr)
+      call mpi_comm_size(MPI_COMM_WORLD, nsizex,ierr)
+      call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
+      if(id==0) write(*,*) 'mpi size=',nsizex
+#endif
+!!
+      if(nsizex/=1) call rx('lmf2gw.F allows only -np 1!')
       call show_programinfo(6)
 
 !! === readin lmfgw_kdivider, and get extensions === apr2013
