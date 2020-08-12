@@ -322,10 +322,11 @@ c because the class in the generated GW file is dummy.(iclass(ibas)=ibas should 
       enddo
       close(if102)
 
-c Get space-group transformation information. See header of mptaouof.
+c     Get space-group transformation information. See header of mptaouof.
+      print *,'goto mptauof'
       call mptauof(symgg,ngrp,plat,natom,pos,iclasst
      o              ,miat,tiat,invgx,shtvg )
-c        write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
+        write (*,*)  'tiat=', tiat(1:3,1:natom,invr),invr
       
 c----------------------------------------------
       call pshprt(60)
@@ -702,7 +703,7 @@ ctm, 060923 !!!
            write(ifwand,*)nqbz,nwf,iko_ixs(is),iko_fxs(is)
          enddo
          isx = iclose('wan.d')
-         call rx0('hmaxloc: ixc=1 ok')
+         call rx0s('hmaxloc: ixc=1 ok')
       endif
 
 !! loop over spin -----------------------
@@ -1315,7 +1316,7 @@ c     end of loop over spin
  950  format(a14,3f23.16)
  990  format(3f12.6)
       call cputid(0)
-      call rx0('hmaxloc: ixc=2 ok')
+      call rx0s('hmaxloc: ixc=2 ok')
       end
 
 c$$$c-----------------------------------------------------------------------

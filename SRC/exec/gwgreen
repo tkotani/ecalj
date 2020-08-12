@@ -1,0 +1,78 @@
+#!/bin/bash
+# --------------------------------
+# GW run. Sergey's mode
+# Required inputs are 
+#   ctrl.si rst.si GWinput (ANFcond)
+#---------------------------------------------
+#for tatara in kyushu-u This is neglected in other cases.
+###make_ref.awk if(-e /home/etc/intelMPI.csh) source /home/etc/intelMPI.csh
+###ref2cmd.awk %HEADER
+
+if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
+    $echo_run echo '   --- One-shot GW calculation to get QP energies ---'
+    $echo_run echo "   An example of usage: gw_lmfh -np 4 si"
+    $echo_run echo '   for ctrl.si rst.si and GWinput'
+    exit -1
+fi
+n=$0
+nfpgw=`dirname $0`
+TARGET=$3
+MPI_SIZE=$2
+NO_MPI=0
+
+source $nfpgw/run_arg
+
+##### rm and mkdir ##############
+if [ -e NoCore ]; then #backword compatibility not so meaningful now.
+  rm -f NoCore 
+fi
+if [ -e QPU ]; then
+ mv QPU QPU.backup.by_gw_lmfh
+fi
+if [ -e QPD ]; then
+ mv QPD QPD.backup.by_gw_lmfh
+fi
+
+############## preparatoy gw stage ################
+###make_ref.awk echo 0 |$nfpgw/lmfgw  $argv[1] > llmfgw00
+###ref2cmd.awk %CMD program=lmfgw echoinput=0  target=$argv[1] output=llmfgw00 
+#>>>
+
+argin=0; run_arg $argin $NO_MPI  $nfpgw  /lmfgw-MPIK  llmfgw00 $TARGET 
+argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
+
+### eigenvalues for micro-tetrahedron method. Rarely used.
+if [ -e Qmtet ]; then
+  mv Qmtet Qeigval 
+  argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
+  mv eigval eigmtet
+fi
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
+run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
+
+##### main stage of gw ################
+argin=0; run_arg $argin $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
+argin=1; run_arg $argin $NO_MPI $nfpgw   /heftet leftet # A file EFERMI for hx0fp0
+argin=1; run_arg $argin $NO_MPI $nfpgw   /hchknw lchknw # A file NW, containing nw 
+### Core part of the self-energy (exchange only) ###
+argin=3; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbasC  # Product basis generation 
+argin=3; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvccC # Coulomb matrix for lbasC 
+argin=3; run_arg $argin $MPI_SIZE $nfpgw /hsfp0   lsxC # Sigma from core1
+
+### Valence part of the self-energy Sigma ###
+argin=0; run_arg $argin $NO_MPI $nfpgw   /hbasfp0 lbas # Product basis generation 
+argin=0; run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc # Coulomb matrix for lbas 
+argin=11; run_arg $argin $MPI_SIZE $nfpgw /hsfp0  lsx_sf # Exchange Sigma
+if [ -e WV.d ]; then
+    rm -f WV* 
+fi
+ # following two runs are most expensive #
+argin=11; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_sf $lx0_para_option #x0 part
+argin=12; run_arg $argin $MPI_SIZE $nfpgw /hsfp0 lsc_sf #correlation Sigma
+argin=4;  run_arg $argin $MPI_SIZE $nfpgw /hsfp0 lscsp #argin=4 for the frequency dependent correlation Sigma
+$nfpgw/seperate_SEComg.py
+argin=0;  run_arg $argin $NO_MPI $nfpgw   /hqpe lqpe #all Sigma are combined.
+$nfpgw/seperate_SEComg_int.py
+
+$echo_run echo OK! ==== All calclation finished for gw_lmfh $argv ====
+exit

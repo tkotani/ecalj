@@ -69,7 +69,7 @@ c      use m_wfrho_abc
       integer::nqbzx
 !-----------------------------------------------------
       call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. ) 
-      if(vis_skip) call rx0('wanplot: we found vis_skip on. Do nothing and Quit!')
+      if(vis_skip) call rx0s('wanplot: we found vis_skip on. Do nothing and Quit!')
 !! Readin all data
       call read_qg()
       call read_BZDATA()
@@ -345,6 +345,6 @@ c$$$      endif
 !      if (lrho) call calc_rho(nq_wfn,nband_wfn,npw,phipw,phiaug,phitot)
 !      if (lrho) call calc_rho(1,nband_wfn,npw,wanpw,wanaug,wantot)
 c      call cputid(0)
-      call rx0('wanplot: ok')
+      call rx0s('wanplot: ok')
       end program wanplot
 

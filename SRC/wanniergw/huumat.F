@@ -814,7 +814,7 @@ c end of iqbz-loop
  990  format(3i6)
 
       write(6,*) ' ====== end ========================================'
-      call rx0(' ok! end of huumat ')
+      call rx0s(' ok! end of huumat ')
       end
 
       subroutine checkagree(a,b,char)

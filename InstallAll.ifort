@@ -32,7 +32,6 @@ pushd .
 cd SRC/execgw
 make PLATFORM=ifort LIBMATH="$MATH" ||my_error
 make PLATFORM=ifort BINDIR=$BINDIR  install ||my_error
-make PLATFORM=ifort BINDIR=$BINDIR install2 ||my_error
 popd
 
 echo '=== goto test ==='

@@ -295,7 +295,7 @@ ctm
       integer:: ifidmlx,lxklm,nq0ix
       complex(8)::w3p
 
-      integer:: mrecl,nprecx,nword,il
+      integer:: mrecl,nprecx,nwordr,il
 
 c--------------------------------------------------------------------
       debug=.false.
@@ -829,7 +829,7 @@ c {x} are gaussian points between (0,1)
 c------------------------------------------------
         nx  = niw
         nprecx=8
-        mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+        mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
         ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
         do ix = 1,nx     ! imaginary frequency w'-loop
 ccccccccccccccccccccccccccccccccc
@@ -868,7 +868,7 @@ c Wc(qt,w) along the real axis
 c====================================================================
         if(debug) write(6,*)' go to poles'
         nprecx=8
-        mrecl  = nprecx*2*nblochpmx*nblochpmx/nword()
+        mrecl  = nprecx*2*nblochpmx*nblochpmx/nwordr()
         ifrcw = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
         do      ix = 0,nrw                    ! real frequency w'-loop
 ccccccccccccccccccccccccccc

@@ -1,0 +1,6 @@
+ -----------------------  START LMF      -----------------------
+ HEADER CoPt (l12)
+ special:  forces
+bz  nq 4 ( 2 2 2 )  shift  T T T
+dm  L 45 ( 36 9 )  I 0 ( 0 0 )  H 101 ( 37 64 )  N 54
+ CPU time:    0.047s     Wed Jan  9 19:45:36 2019   on  

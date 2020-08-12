@@ -11,11 +11,11 @@ MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack
 
 # make directory for commands
 BINDIR=${HOME}/bin
-mkdir ${BINDIR}
+[ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 
 # make a link to getsyml
-ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+ln -s ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
 
 ### viewvesta
 pushd .
@@ -23,25 +23,15 @@ cd StructureTool/
 ./makelink $BINDIR
 popd
 
-### Use lm7K/Makefile
+### Use SRC/exec/Makefile
 pushd .
-cd SRC/execlm
-make PLATFORM=gfortran       LIBMATH="$MATH" ||my_error
-make PLATFORM=gfortran      BINDIR=$BINDIR install ||my_error
-make PLATFORM=gfortran_mpik LIBMATH="$MATH" ||my_error
-make PLATFORM=gfortran_mpik BINDIR=$BINDIR install ||my_error
-popd
-
-### Use fpgw/exec/makefile
-pushd .
-cd SRC/execgw
+cd SRC/exec
 make PLATFORM=gfortran LIBMATH="$MATH" ||my_error
-make PLATFORM=gfortran BINDIR=$BINDIR  install ||my_error
-make PLATFORM=gfortran BINDIR=$BINDIR install2 ||my_error
+make PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
 popd
 
 echo '=== goto test ==='
 ### Test 
-cd ./TestInstall/
+cd SRC/TestInstall/
 make mpi_size=4 all
 
