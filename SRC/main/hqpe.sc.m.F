@@ -913,7 +913,7 @@ C             Add mixnit as parameter
       integer nda,nmix,mmix
       integer(4),parameter:: mxsav=3
       double precision rms2,tj(mxsav),beta
-      integer im,imix,jmix,iprint,amix,onorm,okpvt,oa
+      integer im,imix,jmix,amix,onorm,okpvt,oa
       integer iprintxx,ifi,nitr,ndaf
       real(8)::sss(nda),sigin(nda)
       real(8):: tjmax
