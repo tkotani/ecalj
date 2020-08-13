@@ -761,7 +761,8 @@ ctakao/Feb/2002 ----------------------------------------------------------------
       logical:: chkwrt=.false.
 c      real(8):: fermi_ds(3,3)
 
-#ifdef EXPAND_SORTEA
+!! this block is equivalent to sortea(ea,ieaord,n,isig) which gives ieaord (ordering index of ea)      
+c#ifdef EXPAND_SORTEA
       n=4
 c      isig = 1
 *poption noparallel
@@ -783,9 +784,9 @@ c            isig= -isig
         enddo
       enddo
       ieaord(1:4) = ieaord(4:1:-1)
-#else
-      call sortea( ea,ieaord, 4 ,isig); ieaord(1:4) = ieaord(4:1:-1)
-#endif
+c#else
+c      call sortea( ea,ieaord, 4 ,isig); ieaord(1:4) = ieaord(4:1:-1)
+c#endif
       ! the order E_4,E_3,E_2,E_1 This suits for Rath&Freeman.
       kk(1:3,1:4) = kvec(1:3,ieaord(1:4))
       ! 4 corners  denoted by kvec(:,1:4), ee(1:4), and xx(1:4)

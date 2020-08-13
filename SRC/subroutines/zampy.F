@@ -1,4 +1,3 @@
-#define BLAS3 1
       subroutine zampy(a,nca,nra,nia,b,ncb,nrb,nib,c,ncc,nrc,nic,n,m,l)
 C- complex matrix multiplication: matrix incremented, not overwritten 
 C ----------------------------------------------------------------
@@ -36,12 +35,8 @@ C     implicit none
       double precision a(0:*), b(0:*), c(0:*)
       integer i,j,k,nrci,nccj,ncbj,nrcicj
       double precision ar,ai,xx
-#if BLAS3
       integer lda,ldb
       character*1 ta,tb
-#endif
-
-#if BLAS3
 C --- Test for real and imaginary parts separated ---
       if (nra .eq. 1) then
         lda = nca
@@ -62,53 +57,23 @@ C --- Test for real and imaginary parts separated ---
         ldb = -1
       endif
       if (min(lda,ldb) .lt. 0 .or. nrc .ne. 1) goto 10
-#if TIMING
-      call dmpytm(0)
-#endif
       xx = 1
-#if PARALLEL
-      call pp_$dgemm(ta,tb,n,m,l,xx,a,lda,b,ldb,xx,c,ncc)
-      call pp_$dgemm(ta,tb,n,m,l,-xx,a(nia),lda,b(nib),ldb,xx,c,ncc)
-      call pp_$dgemm(ta,tb,n,m,l,xx,a,lda,b(nib),ldb,xx,c(nic),ncc)
-      call pp_$dgemm(ta,tb,n,m,l,xx,a(nia),lda,b,ldb,xx,c(nic),ncc)
-#else
       call dgemm(ta,tb,n,m,l,xx,a,lda,b,ldb,xx,c,ncc)
       call dgemm(ta,tb,n,m,l,-xx,a(nia),lda,b(nib),ldb,xx,c,ncc)
       call dgemm(ta,tb,n,m,l,xx,a,lda,b(nib),ldb,xx,c(nic),ncc)
       call dgemm(ta,tb,n,m,l,xx,a(nia),lda,b,ldb,xx,c(nic),ncc)
-#endif
-#if TIMING
-      call dmpytm(1)
-#endif
       return
-
 C --- Test for complex*16 matrices ---
    10 continue
       call rx('zampy not set for c*16 yet')
       goto 15
    15 continue
-#endif
-
 C --- Do multiplication ---
       do  20  k = l-1, 0, -1
         do  20  i = n-1, 0, -1
           nrci = nrc*i
-#if BLAS
           call yyaxpy(m,a(nra*i+nca*k),a(nia+nra*i+nca*k),
      .    b(nrb*k),b(nib+nrb*k),ncb,c(nrci),c(nic+nrci),ncc,.true.)
-#else
-          ar = a(      nra*i + nca*k)
-          ai = a(nia + nra*i + nca*k)
-          nccj = -ncc
-          ncbj = -ncb + nrb*k
-          do  22  j = m-1, 0, -1 
-            nccj = nccj + ncc
-            ncbj = ncbj + ncb
-            nrcicj = nrci + nccj
-            c(nrcicj)     = c(nrcicj)     + ar*b(ncbj) - ai*b(nib+ncbj)
-            c(nic+nrcicj) = c(nic+nrcicj) + ar*b(nib+ncbj) + ai*b(ncbj)
-   22     continue
-#endif
    20 continue
       end
 

@@ -97,23 +97,6 @@ c     .......... form next diagonal element of matrix t ..........
         si = tau(2,i)
         ar(i,l) = g
   170   f = 0.0d0
-#if CRAY
-C ... use e(1:l) and tau(2,1:l) as work array ...
-c         do  180  j = 1, l
-        e(j) = 0
-        tau(2,j) = 0
-c  180    continue
-        do  220  k = 1, l
-          do  200  j = 1, k-1
-            e(j)     = e(j)     + ar(k,j) * ar(i,k) - ai(k,j) * ai(i,k)
-            tau(2,j) = tau(2,j) - ar(k,j) * ai(i,k) - ai(k,j) * ar(i,k)
-  200     continue
-          do  210  j = k, l
-            e(j)     = e(j)     + ar(j,k) * ar(i,k) + ai(j,k) * ai(i,k)
-            tau(2,j) = tau(2,j) - ar(j,k) * ai(i,k) + ai(j,k) * ar(i,k)
-  210     continue
-  220   continue
-#elif BLAS
         g = tau(1,l)
 C ... use tau1,1:l) and tau(2,1:l) as work array ...
         do  180  j = 1, l
@@ -128,41 +111,11 @@ C ... use tau1,1:l) and tau(2,1:l) as work array ...
   220   continue
         call dcopy(l,tau,2,e,1)
         tau(1,l) = g
-#endif
-#if CRAY | BLAS
         do  240  j = 1, l
           e(j) = e(j)/h
           tau(2,j) = tau(2,j)/h
           f = f + e(j) * ar(i,j) - tau(2,j) * ai(i,j)         
   240   continue
-#else
-        do  240  j = 1, l
-c     .......... form element of a*u ..........
-#if YDOT
-          call yydotc(j,ar(i,1),ai(i,1),nm,ar(j,1),ai(j,1),nm,g,gi)
-          call yydot(l-j,ar(i,j+1),ai(i,j+1),nm,
-     .    ar(j+1,j),ai(j+1,j),1,e(j),tau(2,j))
-          g = g + e(j)
-          gi = gi - tau(2,j)
-#else
-          g = 0.d0
-          gi = 0.d0
-          do  180  k = 1, j
-            g = g + ar(j,k) * ar(i,k) + ai(j,k) * ai(i,k)
-            gi = gi - ar(j,k) * ai(i,k) + ai(j,k) * ar(i,k)
-  180     continue
-          do  200  k = j+1, l
-            g = g + ar(k,j) * ar(i,k) - ai(k,j) * ai(i,k)
-            gi = gi - ar(k,j) * ai(i,k) - ai(k,j) * ar(i,k)
-  200     continue
-#endif
-c     .......... form element of p ..........
-  220     e(j) = g / h
-          tau(2,j) = gi / h
-          f = f + e(j) * ar(i,j) - tau(2,j) * ai(i,j)
-  240   continue
-#endif
-c
         hh = f / (h + h)
 c     .......... form reduced a ..........
         do  260  j = 1, l

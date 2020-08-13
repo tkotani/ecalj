@@ -106,98 +106,37 @@ c        intel ifort accepts both
       enddo
       end subroutine locase
 
-
       subroutine sectim(tsec, tusec)
-#ifdef __INTEL_COMPILER
-      use ifport
-#endif
       integer tsec,tusec
       integer:: ierr
-c for system_clock 
       logical,save:: firsttime=.true.
       real :: diff
       integer,save:: i1
       integer:: i2,irate,imax
-#if HASGETTIMEOFDAY
-c ------ intel fortran
-      integer(4):: v(2)
-c            ---- not integer:: v(2) 
-      call gettimeofday(v,ierr)
-      tsec= v(1)
-      tusec=v(2)
-#elif HASCPUTIME
-c ------- gfortran
       real:: x
       call cpu_time( x)
       tsec = int(x)
       tusec = int((x-tsec)*1000000.0)
-#else
-c#error "needs subroutine to get cpu time"
-C fortran2003std
-      if (firsttime) then 
-         call system_clock(i1)
-         firsttime=.false.
-         tsec=0
-         tusec=0
-      else
-         call system_clock(i2,irate,imax)
-         diff=i2-i1
-         if (diff<0) diff=imax-i1+i2
-         diff=diff/dble(irate)
-         tsec=int(diff)
-         tusec= int((diff-tsec)*1000000.0)
-      endif
-
-#endif
-
       end subroutine sectim
 
       subroutine gtenv(pnam,pval)
-#ifdef __INTEL_COMPILER
-      use ifport
-#endif
       character(*) pnam, pval
       integer:: ret
-#ifdef HASGETENVQQ
-c      ----- intel fortran
-      ret = getenvqq(pnam,pval)
-C#elif HASGETENVIRONMENTVARIABLE
-Cc     ----- fortran2003std
-C      call get_environment_variable(pnam,pval) 
-#elif HASGETENV
-      call getenv(pnam,pval) 
-#else
       call get_environment_variable(pnam,pval)
-C#error "needs subroutine to get environment variable"
-#endif
       end subroutine gtenv
 
-
       subroutine ptenv(pnam)
-#ifdef __INTEL_COMPILER
-      use ifport
-#endif
       character(*) pnam
       integer ret
-#ifdef HASSETENVQQ
-c --- intel fortran
-      ret=  setenvqq(pnam)
-      write(*,*) 'ptenv() is called with ',pnam
-      write(*,*) 'ptenv() is supported.'
-#else
       write(*,*) 'ptenv() is called with ',pnam
       write(*,*) 'ptenv() not supported, but continue.'
-#endif
       end subroutine ptenv 
-
-
 
       subroutine mkdcon(dmach,d1mach)
       implicit none
       real(8) :: dmach(0:2), d1mach(0:4)
       real(8) eps,ubt,bubt
       real(8):: t,b,l,u
-
       real(8):: dlamch
 c machine constant from lapack routine
 c base
@@ -212,11 +151,9 @@ c        write(*,*) b,eps,l,u
 
       t = int(1.0-(log(eps)/log(b)))
 c         write(*,*) 't=',t
-
       dmach(0) = b**(1.-t)
       dmach(1) = 100.*b**(l+t)
       dmach(2) = (b**(u-t))/100.0
-
       d1mach(0) = (b**(l-1.))
       ubt = u*(1.0-(b**(-t)))
       bubt = b*b**(ubt-1.0)
@@ -225,27 +162,27 @@ c         write(*,*) 't=',t
       d1mach(3) = (b**(1.0-t))
       d1mach(4) = log(b)/log(10.0)
       end subroutine mkdcon
-
-
-#if 0
-      integer function unlink(filename)
-      implicit none
-       character(*):: filename
-       integer:: istart,iend,unusedfid,i
-       logical:: L      
-       unlink=1
-       istart=100; iend=999
-      do i=istart,iend
-        inquire(i,opened=L)
-        if (.not.L) then
-          unusedfid=i
-          return
-        endif
-      enddo
-      unusedfid=0
-      if (unusedfid==0) return
-      open(unusedfid,file=filename)
-      close(unusedfid,status='delete')
-      unlink=0
-      end function unlink
-#endif
+c$$$
+c$$$
+c$$$#if 0
+c$$$      integer function unlink(filename)
+c$$$      implicit none
+c$$$       character(*):: filename
+c$$$       integer:: istart,iend,unusedfid,i
+c$$$       logical:: L      
+c$$$       unlink=1
+c$$$       istart=100; iend=999
+c$$$      do i=istart,iend
+c$$$        inquire(i,opened=L)
+c$$$        if (.not.L) then
+c$$$          unusedfid=i
+c$$$          return
+c$$$        endif
+c$$$      enddo
+c$$$      unusedfid=0
+c$$$      if (unusedfid==0) return
+c$$$      open(unusedfid,file=filename)
+c$$$      close(unusedfid,status='delete')
+c$$$      unlink=0
+c$$$      end function unlink
+c$$$#endif

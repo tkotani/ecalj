@@ -60,7 +60,6 @@ c                tridiagonal matrix. ..........
 
       if (n .eq. 1) return
 C     .......... recover and apply the householder matrices ..........
-#if CRAY | BLAS
       do  140  i = 2, n
         l = i - 1
         h = ai(i,i)
@@ -69,63 +68,19 @@ C     .......... recover and apply the householder matrices ..........
           tau(1,j) = 0.0d0
           tau(2,j) = 0.0d0
   100   continue
-#if CRAY
-        do  110  k = 1, l
-          do  110  j = 1, m
-            tau(1,j) = tau(1,j) + ar(i,k) * zr(k,j) - ai(i,k) * zi(k,j)
-            tau(2,j) = tau(2,j) + ar(i,k) * zi(k,j) + ai(i,k) * zr(k,j)
-  110   continue
-#elif BLAS
         do  110  k = 1, l
           call yyaxpy(m,ar(i,k),ai(i,k),zr(k,1),zi(k,1),nm,
      .    tau,tau(2,1),2,.true.)
   110   continue
-#endif  (110 loop)
 C ... double divisions avoid possible underflow ...
         call dscal(m,1/h,tau,2)
         call dscal(m,1/h,tau,2)
         call dscal(m,1/h,tau(2,1),2)
         call dscal(m,1/h,tau(2,1),2)
-#if CRAY
-        do  120  j = 1, m
-          do  120  k = 1, l
-            zr(k,j) = zr(k,j) - tau(1,j) * ar(i,k) - tau(2,j) * ai(i,k)
-            zi(k,j) = zi(k,j) - tau(2,j) * ar(i,k) + tau(1,j) * ai(i,k)
-  120   continue
-#elif BLAS
         do  120  j = 1, m
           call yyxcpy(l,-tau(1,j),-tau(2,j),ar(i,1),ai(i,1),nm,
      .    zr(1,j),zi(1,j),1,.true.)
   120   continue
-#endif  (120 loop)
   140 continue
-#else
-      do 140 i = 2, n
-        l = i - 1
-        h = ai(i,i)
-        if (h .eq. 0.0d0) go to 140
-c
-        do 130 j = 1, m
-          s = 0.0d0
-          si = 0.0d0
-c
-          do 110 k = 1, l
-            s = s + ar(i,k) * zr(k,j) - ai(i,k) * zi(k,j)
-            si = si + ar(i,k) * zi(k,j) + ai(i,k) * zr(k,j)
-  110     continue
-c     .......... double divisions avoid possible underflow ..........
-          s = (s / h) / h
-          si = (si / h) / h
-c
-          do 120 k = 1, l
-            zr(k,j) = zr(k,j) - s * ar(i,k) - si * ai(i,k)
-            zi(k,j) = zi(k,j) - si * ar(i,k) + s * ai(i,k)
-  120     continue
-c
-  130   continue
-c
-  140 continue
-c
-#endif
       end
 

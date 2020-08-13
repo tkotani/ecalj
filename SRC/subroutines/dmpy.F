@@ -1,4 +1,3 @@
-#define BLAS3 1
       subroutine dmpy(a,nca,nra,b,ncb,nrb,c,ncc,nrc,n,m,l)
 C- matrix multiplication
 C ----------------------------------------------------------------
@@ -34,18 +33,9 @@ C Passed parameters
 C Local parameters
       double precision ar
       integer i,j,k,nccj,nrci,nrcicj,ncbj
-#if APOLLO | HP
-      double precision vec_$ddot_i
-#endif
-#if BLAS3
       integer lda,ldb
       character*1 transa,transb
-#endif
 
-#if TIMING
-      call dmpytm(0)
-#endif
-#if BLAS3
       if (nra .eq. 1) then
         lda = nca
         transa = 'n'
@@ -65,37 +55,14 @@ C Local parameters
         ldb = -1
       endif
       if (min(lda,ldb) .lt. 0 .or. nrc .ne. 1) goto 11
-#if PARALLEL
-      call pp_$dgemm(transa,transb,n,m,l,1d0,a,lda,b,ldb,0d0,c,ncc)
-#else
+c#if PARALLEL
+c      call pp_$dgemm(transa,transb,n,m,l,1d0,a,lda,b,ldb,0d0,c,ncc)
+c#else
       call dgemm(transa,transb,n,m,l,1d0,a,lda,b,ldb,0d0,c,ncc)
-#endif
-#if TIMING
-      call dmpytm(1)
-#endif
+c#endif
       return
    11 continue
-#endif
-
-#if CRAY
-      call mxma(a,nra,nca,b,nrb,ncb,c,nrc,ncc,n,l,m)
-#elif APOLLO | HP
-      do  200  i = n-1, 0, -1
-        do  200  j = m-1, 0, -1
-          c(i*nrc+j*ncc) = vec_$ddot_i(a(nra*i),nca,b(ncb*j),nrb,l)
-C The equivalent in-line code ...
-c        double precision sum
-c        sum = 0
-c        nakpi = nra*i
-c        nbjpk = ncb*j
-c        do  210  k = l-1, 0, -1
-c          sum = sum + a(nakpi)*b(nbjpk)
-c          nakpi = nakpi + nca
-c          nbjpk = nbjpk + nrb
-c  210   continue
-  200 continue
-#else
-
+c#endif
 C --- Initialize array to zero ---
       do  10  i = n-1, 0, -1
         nrci = nrc*i
@@ -111,48 +78,6 @@ C --- Do multiplication ---
         do  20  i = n-1, 0, -1
           ar = a(nra*i + nca*k)
           if (ar .eq. 0) goto 20
-#if BLAS
           call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
-#else
-          nrci = nrc*i
-          nccj = -ncc
-          ncbj = -ncb + nrb*k
-          do  15  j = m-1, 0, -1
-            nccj = nccj + ncc
-            ncbj = ncbj + ncb
-            nrcicj = nrci + nccj
-            c(nrcicj) = c(nrcicj) + ar*b(ncbj)
-   15     continue
-#endif
    20 continue
-#endif
-#if TIMING
-      call dmpytm(1)
-#endif
       end
-#if TIMING
-      subroutine dmpytm(i)
-      implicit none
-      integer i
-      integer i1mach,iprint
-      double precision xx,nettim
-      save nettim
-      data nettim /0d0/
-
-      if (iprint() .lt. 52) return
-#if DEBUG
-      if (i .eq. 0) then
-        call cpudel(6,'Enter dmpytm',xx)
-      else
-        call cpudel(-1,'Enter dmpytm',xx)
-      endif
-#else
-      call cpudel(-1,' ',xx)
-#endif
-      if (i .eq. 0) return
-      nettim = nettim+xx
-      print 333, xx, nettim
-  333 format(22x,'Done dmpy:  time:',g10.3,' dmpy t:',g10.3)
-      end
-#endif
-

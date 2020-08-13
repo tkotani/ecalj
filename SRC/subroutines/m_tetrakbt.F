@@ -62,7 +62,8 @@ c     &    (i, v(i), eafin(i), ebfin(i),i=4,1,-1)
 c      endif
  ! sorted so that ww(1)<ww(2)<ww(3)<ww(4)
 
-#ifdef EXPAND_SORTEA
+!! this block is equivalent to sortea(ea,ieaord,n,isig) which gives ieaord (ordering index of ea)      
+c#ifdef EXPAND_SORTEA
       n=4
       do i = 1,n
         ieaord(i) = i
@@ -79,9 +80,9 @@ c            isig= -isig
           exit
         enddo
       enddo
-#else
-      call sortea( -v,ieaord,4,isig)
-#endif
+c#else
+c      call sortea( -v,ieaord,4,isig)
+c#endif
       WW(1:4) = -v( ieaord(1:4) )
       ebft = ebfin( ieaord(1:4) )
       eaft = eafin( ieaord(1:4) )

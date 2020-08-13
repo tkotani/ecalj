@@ -1,8 +1,3 @@
-C#define VANILLA 1
-C#define NOQUAD 1
-CSFCPP#define F90 1
-C#define FFTW 1
-C#define IN_PLACE 1
       subroutine gradfl(lmax,nd,nr,np,ir0,ir1,lgg,lx,nn,ri,yl,gyl,fl,
      .  gp,ggp)
 C- Gradient, Laplacian of function point-wise through sphere from YL expansion

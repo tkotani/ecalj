@@ -1,8 +1,3 @@
-#define VANILLA 1
-#define NOQUAD 1
-CSFCPP#define F90 1
-#define FFTW 1
-#define IN_PLACE 1
       subroutine ropylg(lp,lmax,ndim,nrx,nr,x,y,z,r2,yl,gyl)
 C- Gradients of YL's (polynomials) for a set of points, with YL as input
 C ----------------------------------------------------------------------

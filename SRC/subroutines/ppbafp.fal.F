@@ -198,15 +198,12 @@ c-----------------------------------------------------
       integer(4)::verbose
       logical:: debug=.false.
       if(verbose()>=90) debug=.true.
-!TIME0_1001
       if(verbose()>50) write(*,*) ' drvmelp: start'
       call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
       if(debug) write(6,*)'drvmelp: goto readgeig'
       call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
       call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-!TIME1_1001 "drvmelp:QG"
-!TIME0_1201
       if(debug) write(6,*)'drvmelp2: endof readgeig'
       if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
       if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
@@ -235,8 +232,6 @@ c-----------------------------------------------------
      i   qt,                    !qt oct2013 means q1
      o   zmelpl)
       endif
-!TIME1_1201 "drvmelp:drv_melpln2t"
-!TIME0_1301
       if(debug) write(6,*)'end of melpln2t'
       rmelt=0d0
       cmelt=0d0
@@ -253,7 +248,6 @@ c-----------------------------------------------------
         deallocate(zmelpl)
       endif
       if(debug) write(6,*)'end of drvmelp2'
-!TIME1_1301 "drvmelp:end"
       end
 
 
@@ -385,7 +379,6 @@ c      use m_mpi, only:mpi__rank
 !! getppx allocate and return ngc2, ppx(1:ngc,1:ngc2), ngvecc2(1:3,1:ngc2).
 !!      call getppx(qbas,  ngcx,qi,symope) ! rppovl.f
 
-!TIME0_2001 
 !! allocate and return foobar decleared in use m_read_ppovl,only: foobar
       if(debug) write(6,*)' melpln2t: nadd=',nadd
       call getppx2(qbas,qi) ! rppovl.f
@@ -430,7 +423,6 @@ c      use m_mpi, only:mpi__rank
       if(verbose()>=100) write(6,*)' melpln2t: goto rotation of ngvecc xxxx'
       call rotgvec(symope, 1, ngc, ngcs, qbas, ngvecc, 
      o    ngveccR) 
-!TIME1_2001 "melpln2t:rotgvec"
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! simple case commented out. This worked (but slow) nov2013takao.
 c$$$!!      write(6,*)'--- goto simple case for debug---'
@@ -455,7 +447,6 @@ c$$$      enddo
 c$$$      call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
 c$$$      return
 ccccccccccccccccccccccccccccccccccccccccccccccccc
-!TIME0_2101
       if(verbose()>=100) write(6,*)' melpln2t: godo igp1 loop'
       allocate(ggitp(ntp0,ngcgp2))
       ggitp = 0d0
@@ -479,8 +470,6 @@ c         write(6,*)'iggg=',iggg,nggg
       enddo
       enddo
 !$OMP end parallel 
-!TIME1_2101 "melpln2t:ggitploop"
-!TIME0_2201
       if(verbose()>=100) write(6,*)' melpln2t: 11111111'
       deallocate(igggi)
       ggitp = dconjg(ggitp)
@@ -506,10 +495,9 @@ c         write(6,*)'iggg=',iggg,nggg
       allocate(zmelp0(ngc,nt0,ntp0))
       zmelp0=0d0
       if(verbose()>=100) write(6,*)' melpln2t: 33333333'
-!TIME1_2201 "melpln2t:igcloop"
-!TIME0_2301
 !! If range of nvgcgp2 is not large enough, igcgp2 can be -100000.
-#ifdef USE_GEMM_FOR_SUM
+
+c#ifdef USE_GEMM_FOR_SUM
       if(verbose()>39) write(*,*)'info: USE GEMM FOR SUM (zmelp0=geigq2*ggitp_) in ppbafp.fal.F'
 !$OMP parallel private(z2,ggitp_,igcgp2,nn)
 !$OMP master
@@ -531,26 +519,25 @@ c         write(6,*)'iggg=',iggg,nggg
          zmelp0(:,:,itp)= z2
       enddo
       deallocate(z2,ggitp_)
-!$OMP end parallel 
-#else
-      do igc=1,ngc
-      do itp= 1,ntp0
-         do igp2=1,ngp2
-            nn = ngveccR(:,igc) + ngvecp2(:,igp2) 
-            igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
-            ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
-         enddo
-         if(verbose()>=100) write(6,*)' melpln2t: 33333333 22222222222'
-!     ! This do block is time-consuming when we use large QpGcut_psi _cou.
-!     ! But this version (nov2013) is not so bad, maybe.
-         do it=1,nt0
-            zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*ggitp_(:,igc) )
-         enddo
-      enddo
-      enddo
-#endif
-!TIME1_2301 "melpln2t:zmelp0_loop"
-!TIME0_2401
+c$$$!$OMP end parallel 
+c$$$#else
+c$$$      do igc=1,ngc
+c$$$      do itp= 1,ntp0
+c$$$         do igp2=1,ngp2
+c$$$            nn = ngveccR(:,igc) + ngvecp2(:,igp2) 
+c$$$            igcgp2 = igcgp2i(nn(1),nn(2),nn(3))
+c$$$            ggitp_(igp2,igc) = phase(igc)*ggitp(itp,igcgp2)
+c$$$         enddo
+c$$$         if(verbose()>=100) write(6,*)' melpln2t: 33333333 22222222222'
+c$$$!     ! This do block is time-consuming when we use large QpGcut_psi _cou.
+c$$$!     ! But this version (nov2013) is not so bad, maybe.
+c$$$         do it=1,nt0
+c$$$            zmelp0(igc,it,itp) = zmelp0(igc,it,itp) + sum( geigq2(:,it)*ggitp_(:,igc) )
+c$$$         enddo
+c$$$      enddo
+c$$$      enddo
+c$$$#endif
+c      
 c$$$      do itp=1,ntp0
 c$$$         do igc =1,ngc
 c$$$            do igp2=1,ngp2
@@ -569,21 +556,10 @@ c$$$            enddo
 c$$$         enddo
 c$$$      enddo
       if(verbose()>=100) write(6,*)' melpln2t: 4444444444'
-!kino 2014-08-20      deallocate(ngveccR,phase,ggitp_)
       deallocate(ngveccR,phase)
-c      write(6,*)'pppppppp',shape(ppovlinv),sum(abs(ppovlinv))
-c      write(6,*)'pppppppp',shape(zmelp0),sum(abs(zmelp0))
-c      write(6,*)'pppppppp',ngc,ntp0*nt0
-c      write(6,*)'pppppppp',shape(zmelp)
-c      do ix=1,nt0
-c         write(6,*)'ix=',ix, sum(abs(matmul(dconjg(ppovlinv),zmelp0(:,:,ix))))
-c         zmelp(:,:,ix)=matmul(dconjg(ppovlinv),zmelp0(:,:,ix))
-c      enddo
       call matm(dconjg(ppovlinv),zmelp0,zmelp,ngc,ngc,ntp0*nt0)
-c      write(6,*)'pppppppp end of matm' 
       deallocate(igcgp2i,ggitp,gp2phas2,zmelp0)
       if(verbose()>=100) write(6,*)' melpln2t: end'
-!TIME1_2401 "melpln2t:end"
       end subroutine melpln2t 
 
 
