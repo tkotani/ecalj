@@ -7,7 +7,7 @@ def compareqpu(qpu1,qpu2,printsw):
 	pr = (printsw==1)
 	oxx= qpu1.split('\n') 
 	oyy= qpu2.split('\n')
-	errsum=0.0
+	errmax=0.0
 	for ix in range( max(len(oxx),len(oyy))):
 		iline=oxx[ix]
 		ilin2=oyy[ix]
@@ -21,11 +21,12 @@ def compareqpu(qpu1,qpu2,printsw):
 					w2=float(ilin2.split()[iw])
 					if (iw >=15) & pr : print( '%9.5f' % (w1-w2),end='')
 					if (iw <=14) & pr : print( '%6.2f' % (w1-w2),end='')
-					errsum=errsum + abs(w1-w2)
+					if( abs(w1-w2)>errmax ): errmax=abs(w1-w2)
+					#errmax=errmax + abs(w1-w2)
 				if pr: print()
 			except:
 				if pr: print(iline)
-	return errsum
+	return errmax
 
 ############### main ###################################
 try:
@@ -43,18 +44,18 @@ if '--print' in sys.argv :
 else:
 	printsw=0
 #print 'printsw=', printsw
-errsum = compareqpu(qpu1,qpu2, printsw)
-#errsum = compareqpu(qpu1,qpu2, printsw=0)
+errmax = compareqpu(qpu1,qpu2, printsw)
+#errmax = compareqpu(qpu1,qpu2, printsw=0)
 	
 	
-if(errsum<4e-2):
-	print ('   Comparison OK!  Difference sum=',errsum,' <4e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2])
+if(errmax<1.1e-2):
+	print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2])
 	sys.exit()
 else:
-	errsum = compareqpu(qpu1,qpu2, printsw=1)
+	errmax = compareqpu(qpu1,qpu2, printsw=1)
 	print() 
 	print ("   Readin two files =  ", sys.argv[1], '  ',sys.argv[2])
-	print( '   Error! Difference>2e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  sum(abs(QPU-QPU))=',errsum)
+	print( '   Error! Difference>1.1e-2 between:   ' + sys.argv[1]+ '   and   ' + sys.argv[2], ' :  max(abs(QPU-QPU))=',errmax)
 	print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
 	sys.exit(-1)
 	
