@@ -9,6 +9,9 @@
  
 This is README.org (easy to read in org-mode in emacs) at https://github.com/tkotani/ecalj. 
 Email to takaokotani@gmail.com.
+
+At middle of aug2020, we reorganazed ecalj package. All source codes, make system and Tests are
+in ecalj/SRC/.
 ------
 * What can we do in ecalj package?
 1. All electron full-potential PMT method, where the PMT method means 
@@ -45,7 +48,7 @@ Email to takaokotani@gmail.com.
 3. The Wannier function generators and effective model generators
    (Maxloc Wannier and effective interaction between Wannier funcitons). 
    This is adopted from codes by Dr.Miyake,Dr.Sakuma, and Dr.Kino.
-   See fpgw/Wannier/README. cRPA is implemented, mRPA will be implemented.
+   See SRC/wanniergw/README. cRPA is implemented, mRPA will be implemented.
 
 4. Utilitys are included, to write crystal structures. 
    For example, a converter between POSCAR(VASP) and our crystal strucrue file 'ctrls.*' are included.
@@ -258,7 +261,7 @@ T.Kotani thinks epsPP\_lmfh\_chipm branch may/(or may not) have a bug
             symmetrize=.true.
             call x0kf_v4hz(npm,ncc,... 
 #+end_src
-in fpgw/main/hx0fp0.m.F
+in SRC/main/hx0fp0.m.F
 (This bug may be from a few years ago, after I implemented EIBZ mode).
 I think  "if (is==nspinmx.or.chipm) then" may be necessary
 especially for cases with more than two atoms in the cell

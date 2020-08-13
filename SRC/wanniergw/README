@@ -72,7 +72,7 @@ To plot U, J parameters.
 
 1) Run genMLWF
    Please look into this script.
-   (originally at fpgw/Wannier/genMLWF and copied to your $BINDIR when you
+   (originally at wanniergw/genMLWF and copied to your $BINDIR when you
    did InstallAll.ifort).
    This is made from two stages. 
    >argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2
