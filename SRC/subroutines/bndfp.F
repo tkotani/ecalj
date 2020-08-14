@@ -3317,8 +3317,9 @@ c      character*100::filenm(2)
 #endif
 
 cfopna('Pdosdata',-1,4)
-      ifip= ifile_handle()
-      open(ifip,form='unformatted',file='pdosdata.'//trim(ext))
+c      ifip= ifile_handle()
+      print *,' pdosdata file=','pdosdata.'//trim(ext)
+      open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))
       read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
       allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
       allocate(evlall(ndhamx,nspx,nkp))             

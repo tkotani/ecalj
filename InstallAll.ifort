@@ -15,26 +15,19 @@ echo Going to install required binaries and scripts to ${BINDIR} !
 ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
 
 ### viewvesta
+pushd .
 cd StructureTool/
 ./makelink $BINDIR
-
-### 
-pushd .
-cd SRC/execlm
-make PLATFORM=ifort LIBMATH="$MATH" ||my_error
-make PLATFORM=ifort      BINDIR=$BINDIR install ||my_error
-make PLATFORM=ifort_mpik LIBMATH="$MATH" ||my_error
-make PLATFORM=ifort_mpik BINDIR=$BINDIR install ||my_error
 popd
 
 ### 
 pushd .
-cd SRC/execgw
+cd SRC/exec
 make PLATFORM=ifort LIBMATH="$MATH" ||my_error
-make PLATFORM=ifort BINDIR=$BINDIR  install ||my_error
+make PLATFORM=ifort BINDIR=$BINDIR install ||my_error
 popd
 
 echo '=== goto test ==='
-cd ../../TestInstall/
+cd SRC/TestInstall/
 make mpi_size=4 all
 

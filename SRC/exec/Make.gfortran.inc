@@ -7,6 +7,8 @@ LK = mpif90
 LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
  /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3
 
+module = -J$(moddir) -I$(moddir)
+
 ##############################
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
 FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)

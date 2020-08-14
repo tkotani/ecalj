@@ -1,4 +1,5 @@
 ELIB_list=\
+lmhelp.o\
 show_programinfo.o\
 util.o\
 m_rdctrl.o \

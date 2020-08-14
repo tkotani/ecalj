@@ -7,7 +7,7 @@
 # 3. Type like
 #    > make PLATFORM=gfort
 ####################################################
-PLATFORM = gfortran
+PLATFORM = ifort
 BINDIR   = $(HOME)/bin
 
 #-------------------------------------------------------
@@ -16,7 +16,6 @@ main  = ../main/
 subr  = ../subroutines/
 maxloc= ../wanniergw/
 moddir = $(obj_path)
-module = -J$(moddir) -I$(moddir)
 tags = .
 
 progslm = lmf-MPIK lmfgw-MPIK lmfa lmdos lmchk lmf2gw  lmfham1

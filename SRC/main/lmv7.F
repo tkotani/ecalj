@@ -55,7 +55,7 @@ c      type(s_str):: v_sstr
       character(lstrn):: sstrnmix,sstrnsymg
       integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
       character(5) :: charnum5
-#if MPI | MPIK
+c#if MPI | MPIK
       include "mpif.h"
       integer fext
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -75,7 +75,7 @@ c      integer namelen(0:MAX_PROCS-1)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
-#endif
+c#endif
 !!
       call show_programinfo(6)
       stdo = lgunit(1)
@@ -88,12 +88,15 @@ c      integer namelen(0:MAX_PROCS-1)
       endif
 !! Get extension of ctrl file      
       call finits(2,0,0,i)
-      call getext(master==procid)
-      print *,' trim sname=',trim(sname)
-      ext=adjustl(sname)
+      if (procid .eq. master) then
+         call getext(master==procid)
+         print *,' trim sname=',trim(sname)
+         ext=adjustl(sname)
+      endif
+      call MPI_BCAST(sname,512,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
 
 !! set log file for --mlog 
-#if MPI | MPIK
+c#if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       shortname(procid)=trim(name)
       mlog = cmdopt('--mlog',6,0,strn)
@@ -127,16 +130,16 @@ c      call finits(2,0,0,i)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-#else
-      call headl2(prgnam,0,stdo)
-c      call finits(2,0,0,i)
-      call poseof(fopn('LOG'))
-      i = fextg(ext)
-      call word(ext,1,i,j)
-      if (ext(i:i) .eq. '.') i=i+1
-      if (ext(j:j) .eq. '.') j=j-1
-      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-#endif
+c$$$#else
+c$$$      call headl2(prgnam,0,stdo)
+c$$$c      call finits(2,0,0,i)
+c$$$      call poseof(fopn('LOG'))
+c$$$      i = fextg(ext)
+c$$$      call word(ext,1,i,j)
+c$$$      if (ext(i:i) .eq. '.') i=i+1
+c$$$      if (ext(j:j) .eq. '.') j=j-1
+c$$$      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+c$$$#endif
 
 !! Abort if ctrl file is missing
       if (procid==master) then
@@ -173,20 +176,19 @@ c      call finits(2,0,0,i)
           if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
         endif
       endif
-#if MPI | MPIK
+c#if MPI | MPIK
       call mpibc1(nrecs,1,2,mlog,'main','nrecs')
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
-#endif
-
+c#endif
 
 !! --- Read recrd --- We store all readin data to structures v_*.
       call rdctrl2(recrd,recln0,nrecs,prgnam, 
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      . v_sarry,sstrnmix,sstrnsymg)  
-#if MPI | MPIK
+c#if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-#endif
+c#endif
 
 !! --- Lattice setup:deformation ---
 c      call setcg(v_slat,8,12) --> moved to rdctl2
@@ -194,6 +196,7 @@ c      call setcg(v_slat,8,12) --> moved to rdctl2
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
+
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
@@ -210,7 +213,6 @@ c      if( v_sctrl%lqp1==0 ) lc = lc+2 !no inversion
 #endif
 !! --sfill is not allowed.
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
-
 !! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
@@ -309,178 +311,25 @@ c$$$      enddo
         call rx0(prgnam)
       endif
 
-!! main part of lmf ------------------------------------
 #if LMF
+!! main part of lmf ------------------------------------
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #endif
 
-#if MPI | MPIK
+c#if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if ( procid .eq. master ) then
         call rx0(prgnam//' on '//trim(shortname(procid)))
       else
         call fexit(0,0,' ',0)
       endif
-#else
-      call rx0(prgnam)
-#endif
-#if MPI|MPIK
+c#else
+c      call rx0(prgnam)
+c#endif
+c#if MPI|MPIK
       call mpi_finalize(ierr)
-#endif
+c#endif
       end program lmf
-
-
-
-      subroutine lmhelp(prgnam) !,vn,vn2,wksize)
-C- Help printout
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   prgnam:name of main program
-Ci   vn    :program main version
-Ci   vn2   :program minor version
-Ci   wksize:worksize
-Co Outputs
-Co   message written to stdout
-Cr Remarks
-Cu Updates
-Cu   11 Apr 03
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-      character prgnam*8
-c      double precision vn,vn2
-      integer wksize
-C ... Local parameters
-      integer i1,i2
-      character ch*1,outs*1000
-
-      call locase(prgnam)
-      call info0(0,0,0,' usage:  '//prgnam//
-     .'%a [--OPTION] [-var-assign] [ext]')
-
-      print 343
-      print 344
-  343 format(/' --h'/' --help',t17,'Print this message, and quit'
-     ./' --input',t17,
-     .'List categories, tokens, and data program expects, and quit'
-     ./' --show',t17,
-     .'Print control file after parsing by preprocessor,'/t17,
-     .'and echo input data as read from the control file'
-     ./' --showp',t17,
-     .'Same as --show, but quit after input parsed'
-     ./' --iactiv',t17,'(--no-iactiv) ',
-     .'Turn on (off) interactive mode'/
-     .t17,'This switch overrides input file setting',
-     ./' --pr#1[,#2...]',t17,
-     .'Set the verbosity (stack) to values #1,#2, ...'
-     ./' --time=#1[,#2]',t17,
-     .'Print timing info to # levels (#1=summary; #2=on-the-fly)'/
-     ./' -vnam=expr',t17,
-     .'Define numerical variable "nam"; set to result of ''expr'''
-     ./' -cnam=strn',t17,
-     .'Define character variable "nam"; set to ''strn'''
-     .)
-
-
-  344 format(
-     ./' --rpos=filnam',t17,
-     .'After reading input file, read site positions from "filnam"'/
-     .' --fixpos[:tol=#]',
-     .' Adjust positions slightly, rendering them as'/
-     .t17,'exactly as possible consistent with the symmetry group')
-
-      if (.true.) then
-        outs = '%N '//prgnam//'%a-specific options:'
-        call strip(outs,i1,i2)
-        call info0(0,0,0,outs(1:i2))
-
-        if (prgnam .eq. 'lmfgwd') then
-          call info0(0,0,0,
-     .    '%N%1f ')
-        endif
-
-        if (prgnam .eq. 'lmf') then
-          call info0(0,0,0,
-     .    '%N%1f--rs=#1,#2,#3,#4,#5'//
-     .    '%N%6f#1=0 start from atm file; 1 from rst file;'//
-     .    ' 2 from rsta file'//
-     .    '%N%11fadd 10 to shift sm-rho 1st iter'//
-     .    '%N%11fadd 100 to rotate local rho 1st iter'//
-     .    '%N%6f#2=1 save rst file'//
-     .    '%N%6f(#3,#4,#5)=0 read (pos,E_f,pnu) from rst file'//
-     .    '%N%N --band --wden --rdbasp --optbas --etot'//
-     .    ' (see documentation)')
-        endif
-
-      endif
-
-c      if (nint(vn2) .ne. 0) then
-c        ch = char(nint(vn2)+ichar('a')-1)
-c      else
-c        ch = ' '
-c      endif
-c      call info2(0,0,0,'%N version %,2d'//ch//'   worksize %i K',
-c     .vn-vn2/1d5,wksize/1000)
-      call fexit(0,0,' ',0)
-      end subroutine lmhelp
-
-
-c$$$      subroutine sttmpd
-c$$$C- Creates special tmpdir for saving temporary files
-c$$$C  User may wish to customize this routine.
-c$$$      character tmpdir*100
-c$$$      integer fopnT,ifi
-c$$$C ... for henry, lm-MPIK
-c$$$C      integer i1,i2,nw
-c$$$C      character*40 strn
-c$$$
-c$$$C     return
-c$$$C ... Set customization of temporary directory here, if desired
-c$$$C     This is usual default (current working directory)
-c$$$      tmpdir = ' '
-c$$$C     call gtenv('HOME',tmpdir)
-c$$$C     call gtenv('TMPDIR',tmpdir)
-c$$$C     call getenv('HOME',tmpdir)
-c$$$C     call getenv('TMPDIR',tmpdir)
-c$$$C     tmpdir = '/home/tmp/'
-c$$$
-c$$$C ... for henry, lm-MPIK specific
-c$$$C      call getenv('HOME',strn)
-c$$$C      call strip(strn,i1,i2)
-c$$$C      call wrdsg(strn(i1:i2),0,'/',nw)
-c$$$C      call wordg(strn,0,'/',nw,i1,i2)
-c$$$C      strn = strn(i1:)
-c$$$C      if (strn .eq. 'markv') strn = 'svan2'
-c$$$C      call word(strn,1,i1,i2)
-c$$$C      tmpdir = '/home/' // strn(i1:i2) // '/tmp'
-c$$$
-c$$$C ... Set the directory
-c$$$      ifi = fopnT(tmpdir,0,0,11)
-c$$$
-c$$$C     debugging check
-c$$$C      ifi = fopnT('tmp' ,-1,0,0)
-c$$$C      call fshow
-c$$$C      print *, ifi
-c$$$C      write(ifi,*) 'test'
-c$$$C      call rx('done')
-c$$$Cgetarg       end
-c$$$      end subroutine sttmpd
-
-
-
-      subroutine findctrlstart(nfilin)
-! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
-! this is useful if you like to use script, GWinput, ctrl in a file.
-      character(len=9):: strn, ccc
-      do
-        read(nfilin,"(a)",err=1010,end=1010) strn
-        if(strn == 'ctrlstart') return
-      enddo
- 1010 continue
-      rewind(nfilin)
-      end subroutine findctrlstart
-
-
