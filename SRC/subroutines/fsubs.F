@@ -125,12 +125,12 @@ c        intel ifort accepts both
       call get_environment_variable(pnam,pval)
       end subroutine gtenv
 
-      subroutine ptenv(pnam)
-      character(*) pnam
-      integer ret
-      write(*,*) 'ptenv() is called with ',pnam
-      write(*,*) 'ptenv() not supported, but continue.'
-      end subroutine ptenv 
+c$$$      subroutine ptenv(pnam)
+c$$$      character(*) pnam
+c$$$      integer ret
+c$$$      write(*,*) 'ptenv() is called with ',pnam
+c$$$      write(*,*) 'ptenv() not supported, but continue.'
+c$$$      end subroutine ptenv 
 
       subroutine mkdcon(dmach,d1mach)
       implicit none

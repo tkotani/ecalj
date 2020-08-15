@@ -62,22 +62,27 @@ c      integer namelen(0:MAX_PROCS-1)
       if(nsize/=1) call rx('lmfav7.F allows only -np 1!')
       call show_programinfo(6)
       stdo = lgunit(1)
-      i = dglob('stdo',dble(stdo),1)
+c     i = dglob('stdo',dble(stdo),1)
+      globalvariables%stdo = dble(stdo)
+     
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
-C --- Help ---
-      swtmp = .false.
-      if (swtmp .or. cmdopt('--h',3,0,outs)) call lmhelp(prgnam)!,vn(2),vn2(2),0)
+
+      if (cmdopt('--h',3,0,outs)) call lmhelp(prgnam)!,vn(2),vn2(2),0)
+
       call headl2(prgnam,0,stdo)
+      i = dble(stdo)
       call finits(2,0,0,i)
+
       call poseof(fopn('LOG'))
-      i = fextg(ext)
-      call word(ext,1,i,j)
-      if (ext(i:i) .eq. '.') i=i+1
-      if (ext(j:j) .eq. '.') j=j-1
-      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-C ... Abort with error message if ctrl file is missing (swtmp = .true.)
+c$$$      i = fextg(ext)
+c$$$      call word(ext,1,i,j)
+c$$$      if (ext(i:i) .eq. '.') i=i+1
+c$$$      if (ext(j:j) .eq. '.') j=j-1
+c$$$      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+
+C     ... Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
       if (cmdopt('--input',6,0,strn)) then
         if (nproc .gt. 0) call rx('--input not allowed with MPI')

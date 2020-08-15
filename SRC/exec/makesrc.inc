@@ -362,7 +362,6 @@ mklagw.o \
 mklegw.o \
 mpibc.o \
 mxint.o \
-nglob.o \
 nintsp.o \
 nxtarg.o \
 nxtgrp.o \
@@ -561,6 +560,44 @@ smvxcm.o \
 vxcnsp.o \
 vxcnlm.o \
 w_psir.o \
+gwinput_v2.o \
+gintxx.o 
+
+
+MPI_list= MPI_fpgw2.o
+
+
+MLOC_list= \
+maxloc0.o \
+maxloc1.o \
+maxloc2.o \
+maxloc3.o \
+maxloc4.o \
+m_read_Worb.o\
+m_DATA4GW.o\
+m_QG.o\
+m_FFT3D.o\
+mymath.o\
+myYlm.o\
+wfn2dx_2.o\
+m_MLWF.o\
+wmatK.o \
+wansub.o \
+cubeformat.o\
+xsfformat2.o\
+expand_mesh.o\
+wfn2dx_abc.o\
+wfnrho_abc.o\
+write_mesh2d.o\
+RSMPI_mod.o \
+efsimplef_RSMPI.o\
+RSMPI_qkgroup_mod.o \
+RSMPI_rotkindex_mod.o \
+RSMPI_utils.o\
+ent_MPI.o\
+wmatK_mpi.o
+
+GWLIB_list=\
 nwordr.o\
 m_homoelectron.o \
 m_readwan.o \
@@ -571,8 +608,6 @@ genallcf_dump.o \
 wse.o \
 bzints2.o \
 wintzsg.o \
-gintxx.o \
-gwinput_v2.o \
 pplmat.o \
 rs.o \
 getbzdata1.o \
@@ -663,35 +698,3 @@ m_readfreq_r.o\
 m_readepswklm.o\
 qpe1.qsgw.o\
 mptauof.o
-
-MPI_list= MPI_fpgw2.o
-
-MLOC_list:= \
-maxloc0.o \
-maxloc1.o \
-maxloc2.o \
-maxloc3.o \
-maxloc4.o \
-m_read_Worb.o\
-m_DATA4GW.o\
-m_QG.o\
-m_FFT3D.o\
-mymath.o\
-myYlm.o\
-wfn2dx_2.o\
-m_MLWF.o\
-wmatK.o \
-wansub.o \
-cubeformat.o\
-xsfformat2.o\
-expand_mesh.o\
-wfn2dx_abc.o\
-wfnrho_abc.o\
-write_mesh2d.o\
-RSMPI_mod.o \
-efsimplef_RSMPI.o\
-RSMPI_qkgroup_mod.o \
-RSMPI_rotkindex_mod.o \
-RSMPI_utils.o\
-ent_MPI.o\
-wmatK_mpi.o

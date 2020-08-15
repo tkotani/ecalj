@@ -9,15 +9,15 @@ MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack
 #MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'
 #MATH='/sw/lib/libfftw3.a /sw/lib/lapack/librefblas.a /sw/lib/lapack/libreflapack.a'
 
-# make directory for commands
+# Make directory for ecalj binaries and scripts.
 BINDIR=${HOME}/bin
 [ -d ${BINDIR} ] || mkdir ${BINDIR} 
 echo Going to install required binaries and scripts to ${BINDIR} !
 
-# make a link to getsyml
+# Make a link to getsyml to get syml.*
 ln -s ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
 
-### viewvesta
+### viewvesta command to invoke VESTA
 pushd .
 cd StructureTool/
 ./makelink $BINDIR

@@ -57,7 +57,8 @@ C     ... v encountered ... parse variables
           if (lsequ(strn,'-v',2,' ',n)) then
             i = 2
             call parsyv(strn,len(strn),999,0,i)
-C           call shosyv(0,0,0,i1mach(2))
+c            call shosyv(0,0,0,i1mach(2))
+c            stop
           endif
         endif
         if (lsequ(strn,'-',1,' ',n)) goto 10
@@ -115,7 +116,7 @@ c      parameter (scrwid=300)
         if (i .ne. 0) then
            if (i .eq. 9) then
               strn = ' Exit %i '//strng
-              call strip(strn,i,i2)
+c              call strip(strn,i,i2)
               call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
            else
              call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)

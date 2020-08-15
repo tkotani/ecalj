@@ -1,4 +1,4 @@
-#define unix 1
+c#define unix 1
       subroutine addsyv(nam,val,ival)
 C- Add a symbolic variable to list
 C ----------------------------------------------------------------
@@ -41,9 +41,9 @@ C Local parameters
       nnam = nnam+1
       if (nnam .gt. mxnam) stop 'addsyv: too many names'
       symnam(nnam) = nam
-#if unix
+c#if unix
       call locase(symnam(nnam))
-#endif
+c#endif
       symval(nnam) = val
       ival = nnam
       return
@@ -51,9 +51,9 @@ C Local parameters
       entry getsyv(nam,val,ival)
 
       tmpnam = nam
-#if unix
+c#if unix
       call locase(tmpnam)
-#endif
+c#endif
       do  10  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 10
         val = symval(i)
@@ -78,9 +78,9 @@ C Local parameters
 
       entry chsyv(nam,val,ival)
       tmpnam = nam
-#if unix
+c#if unix
       call locase(tmpnam)
-#endif
+c#endif
       do  15  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 15
         symval(i) = val
@@ -92,9 +92,9 @@ C Local parameters
 
       entry lodsyv(nam,iopt,val,ival)
       tmpnam = nam
-#if unix
+c#if unix
       call locase(tmpnam)
-#endif
+c#endif
 C ... Find the name, set value it it exists
       do  16  i = 1, nnam
         if (tmpnam .ne. symnam(i)) goto 16
@@ -187,7 +187,7 @@ C      if (j .ge. size .or. nextop .eq. 7) return
       endif
       j = j-i
       if (j .gt. 15) call fexit(-1,9,'parsyv: var def too long',0)
-#if unix
+c#if unix
       call skipbl(recrd,size,i0)
 C ... This branch writes echo `...` to file tmpdir, reads file contents
 C     and parses result
@@ -214,9 +214,9 @@ C     and parses result
       else
         lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
       endif
-#else
-      lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
-#endif
+c#else
+c      lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
+c#endif
       if (lrd) then
         ndecl = ndecl+1
         call strcop(a,recrd(i),j,'=',i)
@@ -246,45 +246,45 @@ C     Error handling
      .(recrd(i), i=i0-1,min(i0+15,size)),' ...'
       call fexit(-1,9,'parsyv aborting',0)
       end
-#if TEST
-      subroutine fmain
-      implicit none
-      double precision res,rev(10)
-      integer ival,i1mach,a2vec,ip,nvec,nsep,iterm
-      character*1 sep(2), strn*16
-      data sep/':',' '/, strn /'abc=1+1:2+2:3 4 '/
-
-      ip = 4
-      nvec = 4
-      nsep = 2
-      iterm = 2
-C      ival = a2vec(strn,16-1,ip,4,sep,nsep,iterm,nvec,rev)
-      ival = a2vec(strn,len(strn),ip,4,sep,nsep,iterm,nvec,rev)
-      print *, ival,ip,': ',strn(1:ip)
-      print *, (rev(ip), ip=1,ival)
-      call rx('done')
-
-
-      call lodsyv('abc',0,1d0,ival)
-      print *,ival
-      call shosyv(0,0,0,i1mach(2))
-
-      call lodsyv('xyz',0,12d0,ival)
-      print *,ival
-      call shosyv(0,0,0,i1mach(2))
-
-      call lodsyv('pqr',0,12d0,ival)
-      print *,ival
-      call shosyv(0,0,0,i1mach(2))
-
-
-      call lodsyv('xyz',0,2d0,ival)
-      print *,ival
-      call shosyv(0,0,0,i1mach(2))
-
-      call lodsyv('xyz',1,3d0,ival)
-      print *,ival
-      call shosyv(0,0,0,i1mach(2))
-      end
-#endif
-
+c$$$#if TEST
+c$$$      subroutine fmain
+c$$$      implicit none
+c$$$      double precision res,rev(10)
+c$$$      integer ival,i1mach,a2vec,ip,nvec,nsep,iterm
+c$$$      character*1 sep(2), strn*16
+c$$$      data sep/':',' '/, strn /'abc=1+1:2+2:3 4 '/
+c$$$
+c$$$      ip = 4
+c$$$      nvec = 4
+c$$$      nsep = 2
+c$$$      iterm = 2
+c$$$C      ival = a2vec(strn,16-1,ip,4,sep,nsep,iterm,nvec,rev)
+c$$$      ival = a2vec(strn,len(strn),ip,4,sep,nsep,iterm,nvec,rev)
+c$$$      print *, ival,ip,': ',strn(1:ip)
+c$$$      print *, (rev(ip), ip=1,ival)
+c$$$      call rx('done')
+c$$$
+c$$$
+c$$$      call lodsyv('abc',0,1d0,ival)
+c$$$      print *,ival
+c$$$      call shosyv(0,0,0,i1mach(2))
+c$$$
+c$$$      call lodsyv('xyz',0,12d0,ival)
+c$$$      print *,ival
+c$$$      call shosyv(0,0,0,i1mach(2))
+c$$$
+c$$$      call lodsyv('pqr',0,12d0,ival)
+c$$$      print *,ival
+c$$$      call shosyv(0,0,0,i1mach(2))
+c$$$
+c$$$
+c$$$      call lodsyv('xyz',0,2d0,ival)
+c$$$      print *,ival
+c$$$      call shosyv(0,0,0,i1mach(2))
+c$$$
+c$$$      call lodsyv('xyz',1,3d0,ival)
+c$$$      print *,ival
+c$$$      call shosyv(0,0,0,i1mach(2))
+c$$$      end
+c$$$#endif
+c$$$

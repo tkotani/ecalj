@@ -36,7 +36,7 @@ C     ... miscellaneous local variables
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      .     igets,a2vec,NULLI
-      double precision dglob !vn(2),vn2(2),
+c      double precision dglob !vn(2),vn2(2),
       logical T,F,swtmp,cmdopt,ltet
       parameter (T=.true., F=.false., NULLI=-99999)
 C     ... Program-dependent name and help
@@ -69,7 +69,6 @@ c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
       integer  nsize, id
-
 !! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
@@ -78,41 +77,30 @@ c      integer namelen(0:MAX_PROCS-1)
 #endif
 !!
       if(nsize/=1) call rx('lmv7util.F allows only -np 1!')
-
 C     --- Version ---
       call show_programinfo(6)
-c$$$      vrsion(1) = 'LM'
-c$$$      vrsion(2) = ' '
-c$$$      vn(1) = 7.00d0
-c$$$      vn2(1) = 0
-c$$$      vn(2) = 0.00d0
-c$$$      vn2(2) = 0
-c$$$      vn(1) = vn(1) + vn2(1)/1d5
-c$$$      vn(2) = vn(2) + vn2(2)/1d5
       stdo = lgunit(1)
       globalvariables%stdo = dble(stdo)
       globalvariables%l_stdo = globalvariables%l_stdo +1
-      i = dble(stdo)
-C     --- Help ---
-      swtmp = .false.
-      if (swtmp .or. cmdopt('--h',3,0,outs)) call lmhelp(prgnam)!,vn(2),vn2(2),0)
-c$$$      if (cmdopt('--version',9,0,outs)) then
-c$$$         write(*,'(f4.2)') vn(2)
-c$$$         call cexit(0,1)
-c$$$      endif
+      if (cmdopt('--h',3,0,outs)) call lmhelp(prgnam)
       call headl2(prgnam,0,stdo)
+      i = dble(stdo)
       call finits(2,0,0,i)
+
+c      call getext()
+c      ext=adjustl(sname)
+      
+      call poseof(fopn('LOG'))
 !! Get extension of ctrl file      
-      call finits(2,0,0,i)
+c      call finits(2,0,0,i)
 c      call getext(master==procid)
 c      print *,' trim sname=',trim(sname)
 c      ext=adjustl(sname)
-      call poseof(fopn('LOG'))
-      i = fextg(ext)
-      call word(ext,1,i,j)
-      if (ext(i:i) .eq. '.') i=i+1
-      if (ext(j:j) .eq. '.') j=j-1
-      if (j .ge. i) call ptenv('EXT='//ext(i:j))
+c      i = fextg(ext)
+c      call word(ext,1,i,j)
+c      if (ext(i:i) .eq. '.') i=i+1
+c      if (ext(j:j) .eq. '.') j=j-1
+c      if (j .ge. i) call ptenv('EXT='//ext(i:j))
 !!
       
 C     ... Abort with error message if ctrl file is missing (swtmp = .true.)

@@ -194,9 +194,6 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       character*26 datim
       integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
-c#if MPI
-c      integer dims(2)
-c#endif
 #endif
 c#if MPIK
       integer obuf,oqptr

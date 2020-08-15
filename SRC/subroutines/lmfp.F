@@ -159,10 +159,10 @@ c     integer:: odmatu , ovorbdmat , odmato
 
       real(8):: pnu(20),bz_w
       logical :: llmfgw,nowriteden=.false.
-c$$$#if (MPI |MPIK)
-c$$$      integer:: ierr
-c$$$      include "mpif.h"
-c$$$#endif
+#if (MPI |MPIK)
+      integer:: ierr
+      include "mpif.h"
+#endif
 
       call tcn('lmfp')
       etot(1) = 0
@@ -566,11 +566,10 @@ C     ... Subtract reference energy
 C     The desired tolerances in q,e
         qtol = sctrl%tol(1)
         etol = sctrl%tol(3)
-c$$$#if MPI|MPIK
-c$$$c     kino   to confirm that nwit() follows the previous messages.
-c$$$        flush(6)
-c$$$        call mpi_barrier(MPI_COMM_WORLD,ierr)
-c$$$#endif
+#if MPI|MPIK
+        flush(6)
+        call mpi_barrier(MPI_COMM_WORLD,ierr)
+#endif
 
         if (procid .eq. master) then
           rhosig = sham%eterms(19)

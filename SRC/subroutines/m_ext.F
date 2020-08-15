@@ -1,25 +1,34 @@
       module m_ext
       implicit none
-      character(512)::sname
-      logical,private:: initex=.true.
+      character(512),public::sname
+      public:: getext
+c      logical,private:: initex=.true.
       contains
-      subroutine getext(master)
+      subroutine getext()
       logical master
-      integer:: ifi,ipos,fopn
-      character*256:: sss,s222
-!! A trick to get the extension of ctrlfile. It is stored to trim(sname).
-      if(initex) then
-        ifi=fopn('temptempxxx') 
-        sss=''
-        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-        print *,'sss=',sss
-        call fclose(ifi)
-        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
-        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
-        open(newunit=ifi, file='temptempxxx.'//trim(sname)) 
-        close(ifi,status='delete')
-        initex=.false.
-      endif
+      integer:: ifi,ipos,fopn,i,na
+      character*256:: sss,s222,argv
+!! Get the extension of ctrlfile. It is stored to trim(sname).
+c      if(initex) then
+      na= iargc()
+      do i = 0, na
+         call getarg( i, argv )
+c         write( 6, '( i5, x, a )' ) i, trim(argv)
+         if(argv(1:1)/='-') sname=trim(argv)
+      enddo
+c      print *,'ext=',trim(sname)
+c      stop 'xxxxxxxxxxxxxxxx'
+c        ifi=fopn('temptempxxx') 
+c        sss=''
+c        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
+c        print *,'sss=',sss
+c        call fclose(ifi)
+c        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
+c        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
+c        open(newunit=ifi, file='temptempxxx.'//trim(sname)) 
+c        close(ifi,status='delete')
+c        initex=.false.
+c      endif
       end subroutine
       end module
 

@@ -8,6 +8,7 @@ c     &  symops,invgx,ag,
 c     &  shtvg,ngrp,miat,tiat,iclasst,
 c      use m_globalvariables
       use m_ext,only: getext,sname
+      use m_globalvariables,only: globalvariables
       implicit none
 !! == Main program for lmf and so on. ==
 !! For lmf, lmfgw. Single core, MPI, and MPIK modes.
@@ -37,10 +38,10 @@ c      type(s_str):: v_sstr
       parameter (T=.true., F=.false., NULLI=-99999)
 #if LMFGWD
       data prgnam /'LMFGWD'/
-#elif LMF
+#else
       data prgnam /'LMF'/
-#elif  LMDOS
-      data prgnam /'LMDOS'/
+c#elif  LMDOS
+c      data prgnam /'LMDOS'/
 #endif
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
       parameter (mxrecs=10000,recln0=511)
@@ -55,7 +56,7 @@ c      type(s_str):: v_sstr
       character(lstrn):: sstrnmix,sstrnsymg
       integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
       character(5) :: charnum5
-c#if MPI | MPIK
+#if MPI | MPIK
       include "mpif.h"
       integer fext
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -69,34 +70,27 @@ c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
       integer  nsize, id
-
-!! =================================================================
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
-c#endif
-!!
+#endif
       call show_programinfo(6)
       stdo = lgunit(1)
-      i = dglob('stdo',dble(stdo),1)
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
       if(cmdopt('--h',3,0,outs)) then
-        call lmhelp(prgnam) !,vn(2),vn2(2),0) 
+        call lmhelp(prgnam) 
       endif
-!! Get extension of ctrl file      
+      globalvariables%stdo = dble(stdo) !    i = dglob('stdo',dble(stdo),1)
+      i = dble(stdo)
       call finits(2,0,0,i)
-      if (procid .eq. master) then
-         call getext(master==procid)
-         print *,' trim sname=',trim(sname)
-         ext=adjustl(sname)
-      endif
-      call MPI_BCAST(sname,512,MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
-
+!! Get extension of ctrl file to sname \in m_ext 
+      call getext()
+      ext = adjustl(sname)
 !! set log file for --mlog 
-c#if MPI | MPIK
+#if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       shortname(procid)=trim(name)
       mlog = cmdopt('--mlog',6,0,strn)
@@ -130,17 +124,7 @@ c      call finits(2,0,0,i)
         endif
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-c$$$#else
-c$$$      call headl2(prgnam,0,stdo)
-c$$$c      call finits(2,0,0,i)
-c$$$      call poseof(fopn('LOG'))
-c$$$      i = fextg(ext)
-c$$$      call word(ext,1,i,j)
-c$$$      if (ext(i:i) .eq. '.') i=i+1
-c$$$      if (ext(j:j) .eq. '.') j=j-1
-c$$$      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-c$$$#endif
-
+#endif
 !! Abort if ctrl file is missing
       if (procid==master) then
         if (.not.cmdopt('--input',6,0,strn)) then
@@ -176,19 +160,19 @@ c$$$#endif
           if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
         endif
       endif
-c#if MPI | MPIK
+#if MPI | MPIK
       call mpibc1(nrecs,1,2,mlog,'main','nrecs')
       call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
      .master,MPI_COMM_WORLD,ierr)
-c#endif
-
+#endif
+      
 !! --- Read recrd --- We store all readin data to structures v_*.
       call rdctrl2(recrd,recln0,nrecs,prgnam, 
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      . v_sarry,sstrnmix,sstrnsymg)  
-c#if MPI | MPIK
+#if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-c#endif
+#endif
 
 !! --- Lattice setup:deformation ---
 c      call setcg(v_slat,8,12) --> moved to rdctl2
@@ -196,7 +180,6 @@ c      call setcg(v_slat,8,12) --> moved to rdctl2
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
-
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
@@ -296,13 +279,11 @@ c$$$      enddo
 
 !!  Set default values for species data
       call defspc(v_sspec)
-#if LMF
 #ifndef LMFGWD
       ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
 !! iand(2**n,i) means 2**n ditit of i.
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
-#endif
 #endif
 
 !! show and quit
@@ -310,26 +291,20 @@ c$$$      enddo
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
         call rx0(prgnam)
       endif
-
-#if LMF
 !! main part of lmf ------------------------------------
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
      .v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
-#endif
-
-c#if MPI | MPIK
+#if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
       if ( procid .eq. master ) then
         call rx0(prgnam//' on '//trim(shortname(procid)))
       else
         call fexit(0,0,' ',0)
       endif
-c#else
-c      call rx0(prgnam)
-c#endif
-c#if MPI|MPIK
       call mpi_finalize(ierr)
-c#endif
+#else
+      call rx0s(prgnam)
+#endif
       end program lmf
