@@ -1,21 +1,6 @@
 #!/bin/bash
-#@$-q ha-oc130033
-#@$-N 1
-#@$-J T24
-#@$-lE 88:00:00
-#@$-lm 30gb
-MAT=srvo3
-EXE=~/binb2f0
-
-cd $QSUB_WORKDIR
-h_mpdboot
-
-echo '+gwsc started :' `date` $PBS_O_WORKDIR '+'
-ulimit -s unlimited
-${EXE}/genMLWF -np 24 $MAT >& out
-
-echo '-gwsc finished :' `date` $PBS_O_WORKDIR '-'
-mpdallexit
-
-
-# -- Sergey.F the screened coulom interaction 
+echo 'See SRC/wanniergw/README!'
+echo ' In advance to run this script, you have to run lmfa, lmf-MPIK, and job_band'
+echo '   started :' `date` $PBS_O_WORKDIR '+'
+genMLWF srvo3 -np 4 
+echo '   finished :' `date` $PBS_O_WORKDIR '-'
