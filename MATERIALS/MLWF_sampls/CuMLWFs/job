@@ -1,0 +1,6 @@
+#!/bin/bash
+echo 'See SRC/wanniergw/README!'
+echo ' In advance to run this script, you have to run lmfa, lmf-MPIK, and job_band'
+echo '   started :' `date` $PBS_O_WORKDIR '+'
+genMLWF cu -np 4 
+echo '   finished :' `date` $PBS_O_WORKDIR '-'
