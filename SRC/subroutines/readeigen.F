@@ -466,9 +466,10 @@ c      enddo
       ifev= iopen('EValue',0,-1,0)    !feb2012takao
       read(ifev) nband_ev, nqi_, nsp_ev
       write(6,*)'read EValue: nband_ev,nqi,nsp_ev', nband_ev, nqi_, nsp_ev
+      write(6,*)'             nband,   nqi,nsp   ', nband, nqi, nsp
       if(nband_ev/=nband) call rx( 'init_readeigen:nband_ev/=nband')
       if(nsp_ev  /=  nsp) call rx( 'init_readeigen:nsp_ev/=nsp')
-      if(nqi  /=  nqi_) call rx( 'init_readeigen:nqi/=nqi_')
+      if(nqi  /=  nqi_)   call rx( 'init_readeigen:nqi/=nqi_')
       nqixx=nqi
       allocate(evud(nband,nqi_,nsp),qtti_(3,nqi_))
       read(ifev) qtti_(1:3,1:nqi_) !qtti

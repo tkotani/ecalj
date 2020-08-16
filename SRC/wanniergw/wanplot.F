@@ -36,6 +36,7 @@ c      use m_wfrho_abc
       use m_xsfformat 
       use m_expand_mesh 
       use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
+      use m_genallcf_v3,only: genallcf_v3
 
       implicit none
       integer :: nwf,iko_ix,iko_fx,nband_wfn
@@ -66,7 +67,12 @@ c      use m_wfrho_abc
       complex(8),allocatable :: cphi(:,:,:,:),geig(:,:,:,:),geig2(:,:),cphi2(:,:)
       character*4::fname
       logical:: debug=.false.,vis_skip
-      integer::nqbzx
+      integer::nqbzx,incwfin
+
+!! MPI dummy
+      include 'mpif.h'
+      integer:: ierr
+      call mpi_init(ierr)
 !-----------------------------------------------------
       call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. ) 
       if(vis_skip) call rx0s('wanplot: we found vis_skip on. Do nothing and Quit!')
@@ -94,8 +100,8 @@ c      use m_wfrho_abc
       enddo                     ! isp
       write(6,*)'read end of MLWU/D ...'
 !!
-c      ifhbed     = iopen('hbe.d',1,0,0)
-c     read (ifhbed,*) nprecb,mrecb,mrece,nlmtot,nqbzt, nband,mrecg
+      incwfin= -1  !use 7th colmn for core at the end section of GWIN
+      call genallcf_v3(incwfin) !in module m_genallcf_v3
       call Readhbe()
       call init_readeigen()!nband,mrece) !initialization of readEigen
       call init_readeigen2()!mrecb,ldim2,mrecg) !initialize m_readeigen

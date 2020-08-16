@@ -1,26 +1,30 @@
-=============================================================
+========================================================
 Maximally localized Wannier function generator, 
 RPA and cRPA;
-Apr2015
-=============================================================
+========================================================
+History:
+Started from Apr2015, T.kotani take developments of MaxLoc Wannier,
+which is implemented in the ecalj by T.Miyake R.Sakakma and H.Kino.
+2009; maxloc090910 (T.Miyake)
+2009; Its documentation and Visualizer at Kino's https://github.com/nim-hrkn/visualize
+2014Aug; T.Kotani modified it so as to fit to latest ecalj.
+2015jan: Sengwoo Jang's modification.
+2015apr: Sengwoo's RPAWannierTable.py.
+2020aug: reorganize and checked.
+==============================
 
-INSTALL: 
-(This is a part of automatic installer such as ecalj/Install.ifort) 
-After you do make at fpge/exec/, 
->make 
->make install
-This copys binaries to your bin. 
-In advance, look at Makefile first (set compilar, library and your bin).
+SRC/wanniergw/ contains the Wannier function generator
+on top of ecalj resouces.
 
 --------------
 >genMLWF 
-is the script to generate Wanneir function.
+is the script to generate the Wanneir functions.
 Required setting is written in the GWinput file.
 --------
 We have several samples for genMLWF
 Samples are:
- ecalj/MATERIALS/CuMLWFs    n1n2n3 4 4 4, rough but small within ~five minutes.
- ecalj/MATERIALS/CuMLWF     n1n2n3 10 10 10  
+ ecalj/MATERIALS/CuMLWFs  n1n2n3 4 4 4, rough but small sample to test it at firts. Within ~five minutes.
+ ecalj/MATERIALS/CuMLWF   n1n2n3 10 10 10  
  ecalj/MATERIALS/SrVO3MLF
  ecalj/MATERIALS/FeMLWF
  ecalj/MATERIALS/NiOMLWF
@@ -30,18 +34,20 @@ Samples are:
 -----------------------------
 How to run samples?
 -----------------------------
-At first, run job_band for reference
-(need syml.*)
->job_band cu -np 12
-, where 12 means number of cores.
+Run self-consistent calculation as
+>lmfa cu
+>mpirun -np 4 lmf-MPIK cu
+Then we make band plot by
+>job_band cu -np 4
+, where 4 means number of cores.
 This gives correct Fermi energy, and stored into bnds.* file
-It is read by hmaxloc, called from genMLWF.
-Then run
+Then we run main script of maxloc wannier including effective interaction W calculation as
 >genMLWF -np 12 cu
-where 12 is cores.
+bnds.* is read by hmaxloc called from genMLWF below.
 
 (1) Then look into ecalj/MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF
     This is for interpolated band.
+    
 (2) Plot psi.xsf file. 
     This contains MaxLoc Wannier function. (not necessary; you can
     comment out "wanplot" line if you don't need to plot Wannier.)
@@ -49,23 +55,20 @@ where 12 is cores.
     This gives the matrix element of the Coulomb interaction and W-v.
     (off-diagonal elments are also calculated. Sorry, I have not yet
     document how to read this...)
+    
+(4) We have to specify inner window (<worb> section in GWinput)
+    and so on related to wannier in GWinput.
+    The template is given by mkGWIN_lmf2 from ctrl file.
 
 ==============================
-Known bugs:
+Known problems:
  * Range of plot looks not good;
    Especially, vis_wan_ubound, vis_wan_lbound should be not integer.
    Probably, need to improve/(bug fix) wanplot.F.
- * xsf is special for Xcrysden, thus it is sometimes inconvenient. 
-   You need to use GUI of Xcrysden. 
-   But I have not tested no other format.
+ * xsf files (phi.xsf, wan.xsf) are special for Xcrysden,
+   thus it might be inconvenient. 
+   You need to use GUI of Xcrysden. But I have not tested no other format.
 
-==============================
-History:
-2009; maxloc090910 (T.Miyake)
-2009; Its documentation and Visualizer at Kino's https://github.com/nim-hrkn/visualize
-2014Aug; T.Kotani modified it so as to fit to latest ecalj.
-2015jan: Sengwoo Jang's modification.
-2015apr: Sengwoo's RPAWannierTable.py.
 
 =====================================================================
 To plot U, J parameters.
@@ -73,14 +76,13 @@ To plot U, J parameters.
 1) Run genMLWF
    Please look into this script.
    (originally at wanniergw/genMLWF and copied to your $BINDIR when you
-   did InstallAll.ifort).
+   did InstallAll.foobar).
    This is made from two stages. 
    >argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2
-   (equilavent to echo 2| hmaxloc >lmaxloc2)
-   is the end of Wannier function generation.
+   (equilavent to echo 2| hmaxloc >lmaxloc2) is the end of Wannier function generation.
 
-   At this point, you can make plot to check wether your setting for
-   Wannier clearly truncate the model-Hilbert space by band plot.
+   At this point, you can make band plot to check whether your setting for
+   Wannier work well or not; the model-Hilbert space by band plot.
    (we need syml.* file and run job_band to get original energy band
    Then plot wannier band on top of it. See
    MATERIALS/CuMLWFs/bnds.gnu.cu.figMLWF as an example.
