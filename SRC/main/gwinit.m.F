@@ -367,20 +367,18 @@ c       write(6,"(a100)")recordnla
         endif
       enddo
  1039 continue
-      write(6,*)' --- end of readin NLAindx--- nla mnla=',izzn,mnla
+      write(6,*)' --- end of readin NLAindx--- nla mnla=',izzn,mnla,mnla_
       if(mnla /=mnla_) call rx( ' gwinit_v2:mnla/= mnla_ ')
       goto 1041
  1040 continue
       call rx( 'gwinit: can not readin recordnla')
  1041 continue
+      write(6,*)'gwinit: 1041'
 !! Write GWIN_V2.tmp
-      ifigwinv2 = ifile_handle()
-      open(ifigwinv2,file='GWIN_V2.tmp')
+      open(newunit=ifigwinv2,file='GWIN_V2.tmp')
 !! PRODUCT BASIS section
 c      write(ifigwinv2,"(a)") "PRODUCT BASIS--------------------------------------------------"
       write(ifigwinv2,"(a)") " tolerance to remove products due to poor linear-independency"
-c      tolopt =1d-2
-c      tolopt =1d-3
       write(ifigwinv2,"(a)") 
      & " 1d-3 ! =tolopt; larger gives smaller num. of product basis."//
      & " See lbas and lbasC, which are output of hbasfp0."
@@ -517,6 +515,7 @@ c 555  read(ifigw0,*,err=556,end=556) nband_sigm, emax_sigm
 c 556  continue
 c      close(ifigw0)
 
+      
 !! Write GWinput.tmp
       ifigwinp= ifile_handle()
       open(ifigwinp,file='GWinput.tmp')
@@ -654,7 +653,6 @@ c      else
       enddo
       write(ifi,"(a)")'</Worb> '
       write(ifi,"(a)")
-
       write(ifi,"(a)")'!wan_out_ewin off'
       write(ifi,"(a)")'!wan_out_bmin 16  !band index for outer window'
       write(ifi,"(a)")'!wan_out_bmax 18  !band index for outer window'
@@ -683,5 +681,5 @@ c      else
       write(ifi,"(a)")'!vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit'
       write(ifi,"(a)")'!vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf'
       write(ifi,"(a)" ) '! ################################################# '
-      call rx0( ' OK! We have generated GWinput.tmp! ')
+      call rx0s( ' OK! We have generated GWinput.tmp! ')
       end
