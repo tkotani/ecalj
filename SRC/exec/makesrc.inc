@@ -1,3 +1,5 @@
+#NOTE: when you add your foobar.F, choose one of *_list.
+
 ELIB_list=\
 lmhelp.o\
 show_programinfo.o\
@@ -598,6 +600,8 @@ ent_MPI.o\
 wmatK_mpi.o
 
 GWLIB_list=\
+hilbertmat.o\
+dpsion5.o\
 nwordr.o\
 m_homoelectron.o \
 m_readwan.o \

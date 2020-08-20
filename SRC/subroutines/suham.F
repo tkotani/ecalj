@@ -518,7 +518,6 @@ C ... Passed parameters
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-c      type(s_array)::sarray
       type(s_ham)::sham
       type(s_pot)::spot
       type(s_bz)::sbz

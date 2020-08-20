@@ -273,8 +273,9 @@ c$$$      endif
         endif 
 !! === ImagOmega end ===
  1001 continue ! =end of loop over q point =================================
+
       
-!! == W(0) divergent part and W(0) non-analytic constant part.==. This can be in another fortran program.
+!! == W(0) divergent part and W(0) non-analytic constant part.==. Hereafter can be in another fortran program.
       call MPI__barrier()
       call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
       if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node
@@ -301,9 +302,9 @@ c$$$        endif
       endif
       write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
       call cputid(0)
-      call flush(6)
+c      call flush(6)
 c      call MPI__Finalize
-      if(ixc==11  ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
+      if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
       if(ixc==10011  ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
 c$$$      if(ixc==1011) call rx0( ' OK! hx0fp0_sc ixc=1011 W0W0Ionly mode')
       end program hx0fp0_sc 
