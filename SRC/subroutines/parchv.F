@@ -80,14 +80,7 @@ C --- Copy variable contents into the table ---
 
       call pvfil1(jr,ctlen,j,recrd,cex,nchr,mxchr,ctbl,j0,ctbl(i,2),0)
       if (ctmp .eq. '"') j=j+1
-      if (opt2 .eq. 1) call gtenv(ctbl(i,2),ctbl(i,2))
-
-C     debugging
-C     if (nchr .gt. 0) print *, '---- character variables:'
-C     do    k = 1, nchr
-C       print '(i4,2x,a,2x,a)', k, ctbl(k,1)(1:20),ctbl(k,2)
-C     enddo
-
+      if (opt2 .eq. 1) call get_environment_variable(ctbl(i,2),ctbl(i,2))
       goto 2
 
       end

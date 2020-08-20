@@ -119,11 +119,11 @@ c        intel ifort accepts both
       tusec = int((x-tsec)*1000000.0)
       end subroutine sectim
 
-      subroutine gtenv(pnam,pval)
-      character(*) pnam, pval
-      integer:: ret
-      call get_environment_variable(pnam,pval)
-      end subroutine gtenv
+c      subroutine gtenv(pnam,pval)
+c      character(*) pnam, pval
+c      integer:: ret
+c      call get_environment_variable(pnam,pval)
+c      end subroutine gtenv
 
 c$$$      subroutine ptenv(pnam)
 c$$$      character(*) pnam

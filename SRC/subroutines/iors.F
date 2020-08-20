@@ -1067,8 +1067,8 @@ C ...   Write header and general information
         call ftime(datimp)
         hostnm = ' '
         usernm = ' '
-        call gtenv('HOST',hostnm)
-        call gtenv('USER',usernm)
+        call get_environment_variable('HOST',hostnm)
+        call get_environment_variable('USER',usernm)
         call strip(datimp,i,i2)
         call strip(usernm,i,i3)
         call strip(hostnm,i,i4)

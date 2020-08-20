@@ -307,7 +307,7 @@ C ... Local parameters
       data tmpdir /' '/
 
       if (mode .eq. 12) then
-        call gtenv('TMPDIR',tmpdir)
+        call get_environment_variable('TMPDIR',tmpdir)
       elseif (mode .eq. 11) then
         tmpdir = fnam
       endif

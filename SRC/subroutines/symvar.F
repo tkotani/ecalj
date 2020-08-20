@@ -197,7 +197,7 @@ C     and parses result
         call strcop(a(7:),recrd(i0+1),min(size-i0,len(a)),'`',k)
         if (a(k+6:k+6) .ne. '`') goto 999
         tmpdir = ' '
-        call gtenv('TMPDIR',tmpdir)
+        call get_environment_variable('TMPDIR',tmpdir)
         if (tmpdir .eq. ' ') tmpdir = '.'
         call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
         a(k+7:) = ' > '

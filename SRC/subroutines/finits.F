@@ -138,7 +138,7 @@ c              call strip(strn,i,i2)
           datim = ' '
           call ftime(datim)
           hostnm = ' '
-          call gtenv('HOST',hostnm)
+          call get_environment_variable('HOST',hostnm)
 c          call word(hostnm,1,i,i2)
 c          i2 = max(i,i2)
           write(i1mach(2),10) tnew,timeu,datim,trim(adjustl(hostnm))
