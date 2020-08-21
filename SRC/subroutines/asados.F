@@ -97,8 +97,8 @@ C ... Local variables
      .lcond,lrange,lidos,lfp
       real(8),allocatable :: rv_a_oqp(:)
       real(8) ,allocatable :: dos_rv(:,:,:)
-      real(8) ,allocatable :: doswt_rv(:)
-      real(8) ,allocatable :: eband_rv(:)
+      real(8) ,allocatable :: doswt_rv(:,:,:)
+      real(8) ,allocatable :: eband_rv(:,:,:)
       real(8) ,allocatable :: ew_rv(:)
       integer ,allocatable :: nq_iv(:)
       integer ,allocatable :: nw_iv(:)
@@ -412,7 +412,7 @@ C     Empirical TB stores stuff a little differently
       endif
       nspx = nsp / nspc
       nbandx = nband*nspc
-      allocate(eband_rv(nband*nsp*nkp))
+      allocate(eband_rv(nband,nsp,nkp))
 
 C ... Determine number of DOS channels (nchan=0 -> total dos only)
       read (nfilem) nchan,ndum
@@ -458,8 +458,8 @@ c
 
 C ... Allocate arrays for dos and moms if tetrahedron
       if (ltet) then
-        allocate(doswt_rv(abs(-nchds*nbandx*nsp*(nkp+1))))
-        if (-nchds*nbandx*nsp*(nkp+1)<0) doswt_rv(:)=0.0d0
+        allocate(doswt_rv(nchds*nbandx,nsp,(nkp+1)))
+        doswt_rv=0.0d0
 
         nfstg = 11
         if (nspc .eq. 2) nfstg = 21
@@ -471,7 +471,7 @@ C       Suppress projection of unity into parts for total dos
 
         endif
       else
-        allocate(doswt_rv(nchds*nbandx*nspc))
+        allocate(doswt_rv(nchds*nbandx,nspc,1))
 
         nfstg = 1
       endif
@@ -590,7 +590,24 @@ C   ... Remake qp with reduced symmetry; assume no grp ops for now
         del = 0d0
 C --- make DOS or NOS ---
       else
-        if (ltet) then
+c         doswt_rv=1d0
+         if (ltet) then
+c          print *,'bbbx', nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1
+c     .           ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , npts , emin , emax , lidos
+c          do ib=1,nbandx
+c             do isp=1,nsp
+c                do ikp=1,nkp
+c                   write(6,"('bbb ',3i5,f12.5)")ib,isp,ikp,eband_rv(ib,isp,ikp)
+c                enddo
+c             enddo
+c          enddo
+c          do ikp=1,nkp
+c             do isp=1,nsp
+c                do ichib=1,nchds*nevmx
+c                   write(6,"('bbb ',3i5,f12.5)")ichib,isp,ikp,doswt_rv(ichib,isp,ikp)
+c                enddo
+c             enddo
+c          enddo
           call dostet ( nbandx , nsp , nspx , nevmx , nchds , nkxyz ( 1
      .     ) , nkxyz ( 2 ) , nkxyz ( 3 ) , ntet , sbz%iv_a_oidtet, eband_rv 
      .     , doswt_rv , npts , emin , emax , lidos , wk_rv , dos_rv )

@@ -1159,36 +1159,36 @@ c$$$ 128  continue
       endif
       nl = int(sctrl%nl)
 
-!! Mullikan mode
-      mullwrite = .false.
-      if(cmdopt('--mull',6,0,strn).and.procid==master) then
-#if MPIK
-         call rx('MULL not k-parallel yet... Need to fix this if necessary')
-#endif
-         nfilem = fopna('moms',-1,4)
-         mullwrite = .true.
-         rewind nfilem
-         i = 1
-C   ... If switch '--mull'; get sites, number of channels
-         if (cmdopt('--mull',6,0,strn)) then
-            mulopt = strn(7:)
-            ng=slat%nsgrp
-            efmax = 1d3
-            nevmx = ndhamx
-            nchmx = min(1024,nbas*nl**2)
-            allocate(chan0_iv(nchmx))
-            call sumlst ( 1 , nchmx , nbas , ng , ssite , sspec , mulopt 
-     .        , moddos , nsites , lsites , lmxch , nchan , chan0_iv, 0 )
-            if(allocated(chan_iv)) deallocate(chan_iv)
-            allocate(chan_iv(nchan))
-            chan_iv=chan0_iv(1:nchan)
-            deallocate(chan0_iv)
-            call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-         endif
-         if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
-     .     ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
-      endif
-      if(debug) print *,'vvvvv 22222222qqq '
+c$$$!! Mullikan mode
+c$$$      mullwrite = .false.
+c$$$      if(cmdopt('--mull',6,0,strn).and.procid==master) then
+c$$$#if MPIK
+c$$$         call rx('MULL not k-parallel yet... Need to fix this if necessary')
+c$$$#endif
+c$$$         nfilem = fopna('moms',-1,4)
+c$$$         mullwrite = .true.
+c$$$         rewind nfilem
+c$$$         i = 1
+c$$$C   ... If switch '--mull'; get sites, number of channels
+c$$$         if (cmdopt('--mull',6,0,strn)) then
+c$$$            mulopt = strn(7:)
+c$$$            ng=slat%nsgrp
+c$$$            efmax = 1d3
+c$$$            nevmx = ndhamx
+c$$$            nchmx = min(1024,nbas*nl**2)
+c$$$            allocate(chan0_iv(nchmx))
+c$$$            call sumlst ( 1 , nchmx , nbas , ng , ssite , sspec , mulopt 
+c$$$     .        , moddos , nsites , lsites , lmxch , nchan , chan0_iv, 0 )
+c$$$            if(allocated(chan_iv)) deallocate(chan_iv)
+c$$$            allocate(chan_iv(nchan))
+c$$$            chan_iv=chan0_iv(1:nchan)
+c$$$            deallocate(chan0_iv)
+c$$$            call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+c$$$         endif
+c$$$         if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
+c$$$     .     ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
+c$$$      endif
+c$$$      if(debug) print *,'vvvvv 22222222qqq '
 
 C ... Case only generate bands at supplied qp: setup
       if (plbnd .ne. 0) then
@@ -2067,23 +2067,23 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                   deallocate(auso_zv)
                endif
 
-!! Mulliken analysis
-               if (lwtkb .ne. -1) then
-                  if (mullwrite) then
-                        call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
-                        call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
-                        allocate(doswt_rv(nchan*nevmx*nspc))
-                        doswt_rv(:)=0.0d0
-                        call mullmf(nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
-     .                    , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
-     .                    , chan_iv , lmdim , ndham , doswt_rv )
-                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-                        i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
-     .                    nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
-     .                    , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-                        if (allocated(doswt_rv)) deallocate(doswt_rv)
-                  endif
-               endif   
+c$$$!! Mulliken analysis
+c$$$               if (lwtkb .ne. -1) then
+c$$$                  if (mullwrite) then
+c$$$                        call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
+c$$$                        call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
+c$$$                        allocate(doswt_rv(nchan*nevmx*nspc))
+c$$$                        doswt_rv(:)=0.0d0
+c$$$                        call mullmf(nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
+c$$$     .                    , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
+c$$$     .                    , chan_iv , lmdim , ndham , doswt_rv )
+c$$$                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
+c$$$                        i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
+c$$$     .                    nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
+c$$$     .                    , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
+c$$$                        if (allocated(doswt_rv)) deallocate(doswt_rv)
+c$$$                  endif
+c$$$               endif   
 
 !! Make new density matrix dmatu for LDA+U (implementation of LDA+U is a little complicated).
                if (lwtkb .ne. -1) then
@@ -2842,15 +2842,15 @@ c     .        stdo,evtop,ecbot,ef0)
          endif
       endif
 
-!! ... Cleanup asa-style moments file, print table of DOS channels
-!! now only for --mull mullikan analysis mode.
-      if (mullwrite) then
-         i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
-     .     ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
-         call fclose(nfilem)
-         call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
-     .     0 , 0 , 0 , 0 , chan_iv )
-      endif
+c$$$!! ... Cleanup asa-style moments file, print table of DOS channels
+c$$$!! now only for --mull mullikan analysis mode.
+c$$$      if (mullwrite) then
+c$$$         i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
+c$$$     .     ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
+c$$$         call fclose(nfilem)
+c$$$         call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
+c$$$     .     0 , 0 , 0 , 0 , chan_iv )
+c$$$      endif
 
 !! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
@@ -2963,7 +2963,7 @@ c            call fclose(ifi)
             eferm=sbz%ef
             call vcdmel ( sctrl%nl , ssite , sspec , slat , nlmax , ndham , 
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
-     .        nsites , isite , iclsl , iclsn )
+     .        nsites , isite , iclsl , iclsn ,sbz,dosw)
             call rx0('done generating core level spectra')
          else
             call fexit(0,0,' ',0)

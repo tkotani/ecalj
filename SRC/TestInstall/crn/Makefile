@@ -3,7 +3,7 @@ include ../Makefile.define
 TARGET=crn
 
 out2=out.lmf-dos.$(TARGET)
-out2x=dos-cls.$(TARGET)
+out2x=dos-vcdmel.$(TARGET)
 
 all: help
 
@@ -23,15 +23,15 @@ define test2.exec
 	$(bindir)/lmfa $(TARGET) > $1 2>&1
 	$(LMFP) $(TARGET) >> $1 2>&1
 	$(LMF) --rs=1,0 --cls:5,0,1 -vnit=1 -vmetal=2 $(TARGET) >> $1 2>&1
-	$(bindir)/lmdos --dos:cls:window=0,1:npts=101 --cls $(TARGET) >> $1 2>&1
-	mv dos.$(TARGET) dos-cls.$(TARGET)
+	#$(bindir)/lmdos --dos:cls:window=0,1:npts=101 --cls $(TARGET) >> $1 2>&1
+	#mv dos.$(TARGET) dos-cls.$(TARGET)
 endef
 
 ###########################################################
 #----- subroutine plot.pldos
 define plot.pldos
 	echo .25 10 0 1 | $(bindir)/pldos -fplot -lst="1;3;5" -lst2="2;4;6" \
-		dos-cls.$(TARGET) > plot.log 2>&1
+		dos-vcmdel.$(TARGET) > plot.log 2>&1
 	$(bindir)/fplot -pr10 -f plot.dos >> plot.log 2>&1
 	mv ps.dat ps.pldos.dat
 	@echo "[note] run 'make plot-dos' to plot dos"

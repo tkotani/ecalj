@@ -1,6 +1,7 @@
       subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
-     .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn)
+     .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,sbz,dosw)
       use m_struc_def
+      use m_ext,only: sname !extention for file
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -35,6 +36,7 @@ Cu   20 Mar 01 (ATP) extended to handle multiple core levels
 Cu   20 Feb 01 Written by ATP
 C ----------------------------------------------------------------------
       implicit none
+      type(s_bz)  ::  sbz
 C Passed Parameters
       integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
@@ -58,11 +60,15 @@ C Local Variables
       real(8) ,allocatable :: rus_rv(:)
       real(8) ,allocatable :: rss_rv(:)
       real(8) ,allocatable :: g_rv(:)
-      real(8) ,allocatable :: s_rv(:)
+      real(8) ,allocatable :: s_rv(:,:,:)
       double precision pnu(n0,2),pnz(n0,2),a,rmt,z,xx,rsml(n0),ehl(n0)
       double precision ume(0:lmxax,nsp,nsite),sme(0:lmxax,nsp,nsite)
       character clabl*8
 
+      integer:: nbandx,nspx,npts,ifid,fopnn,ikp,ichib
+      logical:: lidos
+      real(8),allocatable:: wk_rv(:),dos_rv(:,:,:)
+      real(8):: emin,dosw(2),emax,del
       call tcn ('vcdmel')
       rsml=0d0 !call dpzero(rsml,n0)
       ehl=0d0  !call dpzero(ehl,n0)
@@ -105,44 +111,81 @@ C   --- Matrix elements of u,s with core
         deallocate(g_rv,rss_rv,rus_rv,ruu_rv,gz_rv,sl_rv,ul_rv,rofi_rv)
       enddo
 C --- Open CLS weights file and write first line
-      allocate(s_rv(3*ndimh*nsite*2))
-      if (3*ndimh*nsite*2<0) s_rv(:)=0.0d0
-c      nl = sctrl%nl
+      allocate( s_rv(3*nsite*2*ndimh,nsp,nq) )
       nfstg = 11
-      nchan = 3*nsite
+      nchan = 3*nsite !this means only half of 3*nsite*2. S
       ifi = fopna('cls',-1,4)
       j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,0,1,0,0,0,0,0,
      .0d0,0d0,0d0,0d0,0d0,0d0)
 C --- For each qp, make <nk|x,y,z|core> at each site and save to disk in
 C     iomoms-compatible format ---
+      s_rv=0d0
       do   iq = 1, nq
         do  isp = 1, nsp
-          call dpzero ( s_rv , 3 * ndimh * nsite * 2 )
-
+c          call dpzero ( s_rv , 3 * ndimh * nsite * 2 )
           do  i = 1, nsite
             lcls = iclsl(i)
-            ib = isite(i)
-            is = ssite(ib)%spec
-            lmxa=sspec(is)%lmxa
+            ib   = isite(i)
+            is   = ssite(ib)%spec
+            lmxa = sspec(is)%lmxa
             nlma = (lmxa+1)**2
             if (lmxa .gt. -1) then
               call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
      .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0
-     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv)
+     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv(1,isp,iq))
             endif
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..
-          call dscal ( 3 * ndimh * nsite * 2 , 1d2 , s_rv , 1 )
-          j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
-     .     , 1 , 1 , ndimh , ndimh , nchan , nchan , ndimh , evl ( 1 , isp 
-     .     , iq ) , 0d0 , s_rv , 0d0 , 0d0 , 0d0 )
+          call dscal ( 3 * ndimh * nsite * 2, 1d2 , s_rv(1,isp,iq) , 1 )
+c          j = iomoms ( - ifi , nl , nsp , nspc , nq , ndimh , nfstg , 1 
+c     .     , 1 , 1 , ndimh , ndimh , nchan , nchan , ndimh , evl ( 1 , isp 
+c     .     , iq ) , 0d0 , s_rv(1,isp,iq) , 0d0 , 0d0 , 0d0 )   !only save s_rv(1:nchan,ndimh)
         enddo
       enddo
-      iq = nq*nsp + 1
-      j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
-     .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
-      if (allocated(s_rv)) deallocate(s_rv)
+c      iq = nq*nsp + 1
+c      j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
+c     .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
       call fclose(ifi)
+c$$$ccccccccccccccccccccccccc
+          nbandx = ndimh*nspc !q-dependent only for no PW case.
+          nspx = nsp / nspc
+          lidos=.false.
+          npts=sbz%ndos
+          allocate(wk_rv(npts))
+c          print *,'ewindow'//trim(sname)//'xxxx'
+c          open(newunit=ifid,file='ewindow.'//trim(sname) )
+c          read(ifid,*) emin
+c     close(ifid)
+          emin = dosw(1)
+          emax = sbz%dosmax + ef
+!! cf. aaax in asados.F at aug2020
+c          print *,'aaax', ndham , nsp , nspx , nbandx , nchan ,
+c     &         sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet, npts, emin, emax, lidos
+c          do ib=1,nbandx
+c             do isp=1,nsp
+c                do ikp=1,nq
+c                   write(6,"('aaa ',3i5,f12.5)")ib,isp,ikp,evl(ib,isp,ikp)
+c                enddo
+c             enddo
+c          enddo
+c          do iq=1,nq
+c             do isp=1,nsp
+c                do ichib=1,3*ndimh*nsite
+c                   write(6,"('aaa ',3i5,f12.5)")ichib,isp,iq,s_rv(ichib,isp,iq)
+c                enddo
+c             enddo
+c          enddo
+          
+          allocate(dos_rv(npts,nsp,nchan))
+          call dostet ( ndham , nsp , nspx , nbandx , nchan ,
+     &      sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , sbz%iv_a_oidtet, evl
+     .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
+c          print *,'end of dostet xxxxx', npts,nsp,nchan
+          del = 0d0
+          call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
+     .  , nchan , emin , emax , i , ef , del , 1 , - fopnn ('DOS-VCDMEL') )
+c$$$ccccccccccccccccccccccccc
+      if (allocated(s_rv)) deallocate(s_rv)
       call tcx ('vcdmel')
       end subroutine vcdmel
 
