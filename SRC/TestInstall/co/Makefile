@@ -50,13 +50,6 @@ define test2.exec
 		--pr31 --no-iactiv > $1 2>&1
         $(bindir)/job_pdos $(TARGET)  -np $(mpi_size) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
 		--pr31 --no-iactiv ---NoGnuplot > $1 2>&1
-
-#	$(LMF)   $(TARGET) -vmet=4 -vlmf=1 -vnk=8 -vnit=1 \
-#		--pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
-#	mv dos.$(TARGET) tdos.$(TARGET)
-#	echo 501 -.8 .7 | $(bindir)/lmdos $(TARGET) -vmet=4 -vlmf=1 -vnk=8 \
-#		-vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2 >> $1 2>&1
-#	mv dos.$(TARGET) pdos.$(TARGET)
 endef
 
 #----- subroutine plot.plbnds

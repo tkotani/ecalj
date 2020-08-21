@@ -17,7 +17,7 @@ maxloc= ../wanniergw/
 moddir= $(obj_path)
 tags  = ..
 
-progslm = lmf-MPIK lmfgw-MPIK lmfa lmdos lmchk lmf2gw  lmfham1
+progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk lmf2gw  lmfham1
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
 progsw  = huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
 script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py
@@ -95,10 +95,8 @@ VERSIONFLAGS = -D___UNAME_A___="\"$(result_uname_a)\""   \
 ########################################
 $(obj_path)/lmfa.o: $(main)lmfav7.F 
 	$(FC) $(FFLAGS_NONE) -DLMFA -c $< -o $@
-$(obj_path)/lmchk.o: $(main)lmv7util.F 
-	$(FC) $(FFLAGS_NONE) -DLMCHK -DFP -c $< -o $@
-$(obj_path)/lmdos.o: $(main)lmv7util.F 
-	$(FC) $(FFLAGS_NONE) -DLMDOS -c $< -o $@
+$(obj_path)/lmchk.o: $(main)lmchk.F 
+	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmf2gw.o: $(main)lmf2gw.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmfham1.o: $(main)lmfham1.F
@@ -109,13 +107,15 @@ $(obj_path)/lmfgw-MPIK.o: $(main)lmv7.F
 	$(FC) $(FFLAGS_NONE) -DLMFGWD -c $(main)lmv7.F -o $@
 $(obj_path)/show_programinfo.o: $(subr)show_programinfo.F  $(main)*.F $(subr)*.F 
 	$(FC) $(FFLAGS) $(VERSIONFLAGS) $(CPP_SW) -c $< -o $@
-
 $(obj_path)/lmf.o: $(main)lmv7.F $(ELIB)
 	$(FC) $(FFLAGS_NONE) -DLMF -c $< -o $@
 $(obj_path)/lmfgw.o: $(main)lmv7.F 
 	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c $< -o $@
+
 #$(obj_path)/show_programinfo_mpik.o:  $(subr)show_programinfo.F $(main)*.F $(subr)*.F 
 #	$(FC) $(FFLAGS)  $(VERSIONFLAGS) $(CPP_SW) -c $< -o $@
+#$(obj_path)/lmdos.o: $(main)lmv7util.F 
+#	$(FC) $(FFLAGS_NONE) -DLMDOS -c $< -o $@
 
 ########################################
 # progslm
@@ -124,9 +124,6 @@ lmfa:	$(obj_path)/lmfa.o $(ELIB)  $(MPI)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
 lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI) 
-	@echo $(LK) $@.o 'link with *.o'
-	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmdos:	$(obj_path)/lmdos.o $(ELIB)  $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
 lmf2gw:	$(obj_path)/lmf2gw.o 
@@ -141,14 +138,12 @@ lmf-MPIK: $(obj_path)/lmf-MPIK.o $(ELIB) $(MPI)
 lmfgw-MPIK: $(obj_path)/lmfgw-MPIK.o $(ELIB)  $(MPI) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(MPI)  $(LIBLOC) $(LKFLAGS2) -o $@
-
 lmf:	$(obj_path)/lmf.o $(ELIB) 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(LIBLOC) $(LKFLAGS2) -o $@
 lmfgw:	$(obj_path)/lmfgw.o $(ELIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB) $(LIBLOC) $(LKFLAGS2) -o $@
-
 ###################################################
 progs: $(progslm) $(progsgw) $(progsw)
 
