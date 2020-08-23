@@ -182,7 +182,11 @@ C     implicit none
 C- Normal exit
 C     implicit none
       character*(*) string
+#if MPI | MPIK
       call fexit(0,119,string,0d0)
+#else
+      call rx0s(string)         !for single core exit
+#endif
       end
 
       subroutine rx1(string,arg)

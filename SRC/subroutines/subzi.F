@@ -1,10 +1,6 @@
       module m_subzi
       contains
-c      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-c     .  lwtkb,efermi,oevl,owtkb,numq,lswtk,oswtk,ef0,def,mpsord,esmear)
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-ckino Dec.28.2011:       .lwtkb,efermi,rv_p_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,esmear)
-ckino Dec.28.2011:       .lwtkb,efermi,rv_a_owtkb,numq,lswtk,rv_p_oswtk,ef0,def,mpsord,esmear)
      .lwtkb,efermi,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,esmear)
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------

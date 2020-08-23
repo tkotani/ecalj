@@ -295,13 +295,13 @@ c-------
 C --- Show neighbors by shell ---
         outs = ' '
         j = 8
-        if (cmdopt('--shell',j-1,0,outs)) then
-          allocate(eula(nbas,3))
-          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
-     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
-     .         eula  , nclass )
-          deallocate(eula)
-        endif
+c$$$        if (cmdopt('--shell',j-1,0,outs)) then
+c$$$          allocate(eula(nbas,3))
+c$$$          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
+c$$$     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
+c$$$     .         eula  , nclass )
+c$$$          deallocate(eula)
+c$$$        endif
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
@@ -368,8 +368,15 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
      .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
      .     slat%rv_a_opos , j )
 C ... Write positions to file
-        if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0
-     .   , outs ( 8: ) , nbasp , slat%rv_a_opos )
+c        if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0
+c     .       , outs ( 8: ) , nbasp , slat%rv_a_opos )
+c         if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) then
+c            allocate(bas(3,nbas))
+c            call dcopy(nbas*3, slat%rv_a_opos,1,bas,1)
+c            do i=1,nbas
+c               write(6,*)'ibas pos=',i,bas(:,i)
+c            enddo
+c         endif
       endif
 C --- Interpolate core to another mesh ---
       if (getdig(mode,4,2) .ne. 0) then

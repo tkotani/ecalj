@@ -49,7 +49,7 @@ C Passed Parameters
 C Local Variables
       integer n0,lmxax
       parameter (n0=10,lmxax=10)
-      integer ifi,fopna,isp,ib,is,lcls,ncls,nl,i,j,iomoms,
+      integer ifi,fopna,isp,ib,is,lcls,ncls,nl,i,j, 
      .nr,lmxa,iq,nlma,igets,igetss,i1mach,nfstg,nchan
       integer lh(10)
       real(8) ,allocatable :: rofi_rv(:)
@@ -101,9 +101,10 @@ C   --- Augmented wave functions u,s
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv )
 C   --- Matrix elements of u,s with core
-        call skpblb(clabl,8,j)
-        call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
-     .  ' ',120,i1mach(2),ib,ncls,lcls)
+c        call skpblb(clabl,8,j)
+c        call awrit3('%N CLS atom %i ('//clabl(1:j+1)//') n=%i l=%i',
+c     .       ' ',120,i1mach(2),ib,ncls,lcls)
+        write(6,"('CLS atom: ib name n l=',i5,' ',a,2i5)") ib, trim(clabl),ncls,lcls
         allocate(g_rv(nr*2))
         call pvcdm1 ( ncls , lcls , g_rv , z , lmxa , ssite(ib)%rv_a_ov0 , a 
      .   , nr , rofi_rv , ul_rv , sl_rv , nsp , lmxax , ume ( 
@@ -114,9 +115,9 @@ C --- Open CLS weights file and write first line
       allocate( s_rv(3*nsite*2*ndimh,nsp,nq) )
       nfstg = 11
       nchan = 3*nsite !this means only half of 3*nsite*2. S
-      ifi = fopna('cls',-1,4)
-      j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,0,1,0,0,0,0,0,
-     .0d0,0d0,0d0,0d0,0d0,0d0)
+c      ifi = fopna('cls',-1,4)
+c      j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,0,1,0,0,0,0,0,
+c     .0d0,0d0,0d0,0d0,0d0,0d0)
 C --- For each qp, make <nk|x,y,z|core> at each site and save to disk in
 C     iomoms-compatible format ---
       s_rv=0d0
@@ -145,50 +146,50 @@ c     .     , iq ) , 0d0 , s_rv(1,isp,iq) , 0d0 , 0d0 , 0d0 )   !only save s_rv(
 c      iq = nq*nsp + 1
 c      j = iomoms(-ifi,nl,nsp,nspc,nq,ndimh,nfstg,1,iq,1,ndimh,ndimh,
 c     .nchan,nchan,ndimh,0d0,0d0,0d0,0d0,ef,0d0)
-      call fclose(ifi)
+c      call fclose(ifi)
 c$$$ccccccccccccccccccccccccc
-          nbandx = ndimh*nspc !q-dependent only for no PW case.
-          nspx = nsp / nspc
-          lidos=.false.
-          npts=sbz%ndos
-          allocate(wk_rv(npts))
-c          print *,'ewindow'//trim(sname)//'xxxx'
-c          open(newunit=ifid,file='ewindow.'//trim(sname) )
-c          read(ifid,*) emin
+      nbandx = ndimh*nspc       !q-dependent only for no PW case.
+      nspx = nsp / nspc
+      lidos=.false.
+      npts=sbz%ndos
+      allocate(wk_rv(npts))
+c     print *,'ewindow'//trim(sname)//'xxxx'
+c     open(newunit=ifid,file='ewindow.'//trim(sname) )
+c     read(ifid,*) emin
 c     close(ifid)
-          emin = dosw(1)
-          emax = sbz%dosmax + ef
-!! cf. aaax in asados.F at aug2020
-c          print *,'aaax', ndham , nsp , nspx , nbandx , nchan ,
+      emin = dosw(1)
+      emax = sbz%dosmax + ef
+!     ! cf. aaax in asados.F at aug2020
+c     print *,'aaax', ndham , nsp , nspx , nbandx , nchan ,
 c     &         sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet, npts, emin, emax, lidos
-c          do ib=1,nbandx
-c             do isp=1,nsp
-c                do ikp=1,nq
-c                   write(6,"('aaa ',3i5,f12.5)")ib,isp,ikp,evl(ib,isp,ikp)
-c                enddo
-c             enddo
-c          enddo
-c          do iq=1,nq
-c             do isp=1,nsp
-c                do ichib=1,3*ndimh*nsite
-c                   write(6,"('aaa ',3i5,f12.5)")ichib,isp,iq,s_rv(ichib,isp,iq)
-c                enddo
-c             enddo
-c          enddo
-          
-          allocate(dos_rv(npts,nsp,nchan))
-          call dostet ( ndham , nsp , nspx , nbandx , nchan ,
-     &      sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , sbz%iv_a_oidtet, evl
+c     do ib=1,nbandx
+c     do isp=1,nsp
+c     do ikp=1,nq
+c     write(6,"('aaa ',3i5,f12.5)")ib,isp,ikp,evl(ib,isp,ikp)
+c     enddo
+c     enddo
+c     enddo
+c     do iq=1,nq
+c     do isp=1,nsp
+c     do ichib=1,3*ndimh*nsite
+c     write(6,"('aaa ',3i5,f12.5)")ichib,isp,iq,s_rv(ichib,isp,iq)
+c     enddo
+c     enddo
+c     enddo
+      allocate(dos_rv(npts,nsp,nchan))
+      call dostet ( ndham , nsp , nspx , nbandx , nchan ,
+     &     sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , sbz%iv_a_oidtet, evl
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
-c          print *,'end of dostet xxxxx', npts,nsp,nchan
-          del = 0d0
-          call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
-     .  , nchan , emin , emax , i , ef , del , 1 , - fopnn ('DOS-VCDMEL') )
+c     print *,'end of dostet xxxxx', npts,nsp,nchan
+      del = 0d0
+      call dosio ( dos_rv , npts * ( 1 + nsp - i ) , nchan , npts 
+     .     , nchan , emin , emax , i , ef , del , 1 , - fopnn ('DOS-VCDMEL') )
 c$$$ccccccccccccccccccccccccc
       if (allocated(s_rv)) deallocate(s_rv)
       call tcx ('vcdmel')
       end subroutine vcdmel
 
+      
       subroutine pvcdm1(ncls,lcls,gcore,z,lmxa,v,a,nr,rofi,ul,sl,nsp,
      .lmxax,ume,sme)
 C- Radial matrix elements < (u,s) | r | core >
@@ -231,9 +232,11 @@ C   ... Correct core energy by using hankel bc's
           call rseq(e1,e2,ecore,tol,z,l,nodes,val,slo1,v(1,isp),gcore,
      .    sum,a,b,rofi,nr,nre)
         endif
-        call awrit2(' vcdmel: ecor0=%,8d ecore=%,8d%N'
-     .  //' (not including electrostatic potential shift)',
-     .  ' ',120,i1mach(2),ecor0,ecore)
+c        call awrit2(' vcdmel: ecor0=%,8d ecore=%,8d%N'
+c     .  //' (not including electrostatic potential shift)',
+c     .  ' ',120,i1mach(2),ecor0,ecore)
+        write(6,"('vcdmel: ecor0=',f15.8,' ecore=',f15.8)")ecor0,ecore
+        write(6,"('(not including electrostatic potential shift)')")
 C --- Matrix elements < (u,s) | r | core > ---
         print 332
   332   format( '   l',3x,'<u|core>',5x,'<s|core>',4x,

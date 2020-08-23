@@ -472,24 +472,24 @@ C     ... Write positions after file read, and repack
         enddo
       endif
 
-C     --- Optionally re-shorten basis vectors ---
-      if (cmdopt('--shorps',8,0,strn)) then
-        allocate(pos2_rv(3,nbas))
-        do i_spackv=1,nbas
-          pos2_rv(:,i_spackv ) = ssite(i_spackv)%pos 
-        enddo
-        ix(1) = 2
-        ix(2) = 2
-        ix(3) = 2
-        call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos )
-        call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
-        call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos )
-        call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
-        do i_spackv=1,nbaspp
-          ssite(i_spackv)%pos= slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
-        enddo
-        if (allocated(pos2_rv)) deallocate(pos2_rv)
-      endif
+c$$$C     --- Optionally re-shorten basis vectors ---
+c$$$      if (cmdopt('--shorps',8,0,strn)) then
+c$$$        allocate(pos2_rv(3,nbas))
+c$$$        do i_spackv=1,nbas
+c$$$          pos2_rv(:,i_spackv ) = ssite(i_spackv)%pos 
+c$$$        enddo
+c$$$        ix(1) = 2
+c$$$        ix(2) = 2
+c$$$        ix(3) = 2
+c$$$        call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos )
+c$$$        call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
+c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos )
+c$$$        call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
+c$$$        do i_spackv=1,nbaspp
+c$$$          ssite(i_spackv)%pos= slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$        enddo
+c$$$        if (allocated(pos2_rv)) deallocate(pos2_rv)
+c$$$      endif
 C     Hang on to previous site density matrix for this iteration
       if (nlibu .gt. 0) then
         dmato=dmatu
@@ -736,15 +736,15 @@ C     Repack updated positions in site structure
      .              , - ifi )
             call fclose(ifi)
           endif
-!! Write positions to file
-          if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
-            gam=slat%gam
-            allocate(wk_rv(3*nbas))
-            call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-     .              ) , gam ( 3 ) , 1 / gam1 )
-            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
-            if (allocated(wk_rv)) deallocate(wk_rv)
-          endif
+c$$$!! Write positions to file
+c$$$          if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
+c$$$            gam=slat%gam
+c$$$            allocate(wk_rv(3*nbas))
+c$$$            call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+c$$$     .              ) , gam ( 3 ) , 1 / gam1 )
+c$$$            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
+c$$$            if (allocated(wk_rv)) deallocate(wk_rv)
+c$$$          endif
 !! Remove mixing file
           if (procid .eq. master) then
             call info0(20,0,0,' Delete mixing and band weights files ...')
@@ -789,11 +789,11 @@ C     reset mixing block
          allocate(wk_rv(3*nbas))
          call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
      .        ) , gam ( 3 ) , 1 / gam1 )
-         if (cmdopt('--wpos:mode1:',13,0,strn)) then
-            call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
-         else
-            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
-         endif
+c         if (cmdopt('--wpos:mode1:',13,0,strn)) then
+c            call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
+c         else
+c            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
+c         endif
          if (allocated(wk_rv)) deallocate(wk_rv)
          if (allocated(rv_a_opos)) deallocate(rv_a_opos)
       endif 

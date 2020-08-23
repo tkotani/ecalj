@@ -318,9 +318,9 @@ C        call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
 C     .    alato,w_ormax,w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
         call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
      .  w_oips,modeo,plato,fovp,xx)
-        if (cmdopt('--wpos=',7,0,outs))
-     .  call iopos(.true.,0,outs(8:),nbaso,w_opos)
-        call rx('ovmin: no spheres overlap')
+c        if (cmdopt('--wpos=',7,0,outs))
+c     .  call iopos(.true.,0,outs(8:),nbaso,w_opos)
+c        call rx('ovmin: no spheres overlap')
       endif
 
 C ... Gradient of fovl wrt pos

@@ -25,7 +25,6 @@ aiorme.o \
 aiosop.o \
 aiova.o \
 asars.o \
-asados.o \
 asymop.o \
 atomsr.o \
 atwf.o \
@@ -56,7 +55,6 @@ delstp.o \
 dfphi.o \
 dlmn.o \
 dosio.o \
-dosspl.o \
 dostet.o \
 drr2.o \
 dstrbp.o \
@@ -73,7 +71,6 @@ fswgts.o \
 gengrp.o \
 gensym.o \
 getbzp.o \
-getef.o \
 getq.o \
 getqp.o \
 groupg.o \
@@ -105,11 +102,7 @@ invbl.o \
 iobsmv.o \
 ioeula.o \
 iofa.o \
-iomomq.o \
-iomoms.o \
-iomomx.o \
 ioorbp.o \
-iopos.o \
 iorbtm.o \
 iors.o \
 iosave.o \
@@ -142,7 +135,6 @@ mtchae.o \
 mxmymz.o \
 nghbor.o \
 nnrl.o \
-nosbzm.o \
 nwit.o \
 orbl.o \
 ovlchk.o \
@@ -523,7 +515,6 @@ rhgcmp.o \
 rhogkl.o \
 rhomom.o \
 rlocbl.o \
-rsedit.o \
 rsibl.o \
 rsibl_ev.o \
 setofl.o \

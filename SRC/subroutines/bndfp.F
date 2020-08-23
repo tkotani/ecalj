@@ -9,31 +9,20 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-
-c#define KINODEBUG
-#define USEOPTIONAL 1
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrnmix,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
-
-c     &  ngrp, norbmto, napwmx, ltab,ktab,offl,ispec,iclasst,invgx,miat,offlrev,ibastab,
-c     &  igv2,napwk,igv2rev
       use m_rdctrl, only: ncutovl,lso
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
-c      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh, Seneinterp2 !these are given here.
-c      use m_seneinput,only: Seneinterp2 !these are given here.
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_w_psir, only: w_psir_cmdopt
       use m_struc_def
-#if defined(__INTEL_COMPILER)
-      use ifport, only: unlink
-#endif
-      use m_ext,only: sname !extention for file
-!! ==== followings are taken from origitanl lm7beta for reference. ====
-Ci   nbas  :size of basis
+      use m_ext,only: sname !file extension. Open a file like file='ctrl.'//trim(sname)
+!! ==== followings are just notations in this code (in cases wrong).
+Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
 Ci   lmaxu : lmax for U used to dimension vorb and dmatu
@@ -41,51 +30,14 @@ Ci   lldau :lldau(ib)=0 => no U on this site otherwise
 Ci         :U on site ib with dmat in dmats(*,lldau(ib))
 Ci
 Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Sored:    *
-Ci     Passed to: dfaugm mkpot dfqkkl suclst surho sumlst hambl mullmf
-Ci                makusq mkpdos addrbl mshn3p mchan vcdmel dfratm
-Ci                mkrout symrho pnunew dfrce mkekin totfrc mixrho
-Ci
 Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: dfaugm mkpot dfqkkl suclst surho sumlst hambl mullmf
-Ci                makusq mkpdos addrbl mshn3p mchan vcdmel dfratm
-Ci                mkrout symrho pnunew dfrce mkekin mixrho
-Ci
 Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: plat qlat nabc vol nsgrp
-Ci     Stored:    *
-Ci     Passed to: mkpot hambl makusq addrbl vcdmel mkrout symrho dfrce
-Ci                mkekin totfrc mixrho
-Ci
 Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: ldos,1 zbak nl
-Ci     Stored:    *
-Ci     Passed to: vcdmel dfrce
-Ci
 Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: elind oindxo
-Ci     Stored:    eterms ehf ehk
-Ci     Passed to: mkpot hambl makusq addrbl mkrout mkehkf mkekin
-Ci
 Ci   spot  :struct for information about the potential; see routine upot
-Ci     Elts read: oorhat osmrho osmpot osoptc nlml nlma
-Co     Stored:    oorhat osmrho osmpot
-Ci     Passed to: mkpot
-Ci
 Ci   sbz   :struct for the Brillouin Zone; see routine ubz
-Ci     Elts read: nkabc nkp ntet oidtet lmet n w nevmx efmax fsmom ndos
-Ci                dosw ef def oqp owtkp
-Ci     Stored:    ndos dosw ef def
-Ci     Passed to: *
-Ci
-Ci   sstrn :struct for global strings
-Ci     Elts read: mix
-Ci     Stored:    *
-Ci     Passed to: *
-Ci
+Ci   sstrnmix:mixing
+c      
 Ci   ndham :dimensioning parameter, at least as large as largest
 Ci         :hamiltonian dimension
 Ci   leks  :>0 make the Hohnberg-Kohn-Sham energy
@@ -224,7 +176,6 @@ c      type(s_sstrn):: sstrn
       type(s_bz)  ::  sbz
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb ,  ldos , lmet , nspc  
@@ -454,83 +405,45 @@ c mar2014
       character*4:: cccx
 
       real(8):: pnu(n0,2),pnz(n0,2),pmean
-      integer:: i_copy_size
+      integer:: i_copy_size, ndummy1,ndummy2,ndummy3
       logical:: lpz,phispinsym
+      
 !! ----------------------------
       call tcn ('bndfp')
       stdo = lgunit(1)
       stdl = lgunit(2)
-      debug=cmdopt('--debugbndfp',6,0,strn)
+      debug= cmdopt('--debugbndfp',6,0,strn)
       procid = mpipid(1) !zero for no mpi
       master = 0         !mpi master
       mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       tdos = cmdopt('--tdos',6,0,strn)
-      if(cmdopt('--band~col',10,0,strn)) then
-        call rx(' no color mode is supported. Use PROCAR mode (--mkprocar) instead!')
-      endif
-
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       print *,' mpipid=',procid
 #endif      
-
-c$$$!! A trick to get the extension of ctrlfile. It is stored to trim(sname).
-c$$$      if(procid==master.and.initex) then 
-c$$$        ifi=fopn('temptempxxx') 
-c$$$        sss=''
-c$$$        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-c$$$        call fclose(ifi)
-c$$$        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
-c$$$        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
-c$$$        ifi=ifile_handle()
-c$$$        open(ifi, file='temptempxxx.'//trim(sname)) 
-c$$$        close(ifi,status='delete')
-c$$$        initex=.false.
-c$$$      endif
-c$$$      if(procid==master) write(6,*) "bndfp: ctrl extension is +++"//trim(sname)//"+++"
-c$$$      call mpibcc(sname,512,mlog,'bndfp','ext')
-
 !! Write atomic positions
-      if(procid==master) then
-         write(stdo,"(a)")' --- bndfp: Used Atomic Positions from rst (or ctrl) ----'
+      if(procid == master) then
+         write(stdo,"(a)")' --- bndfp: Atomic Positions. (from rst/ctrl or changing when dynamics) ----'
          do ib=1,nbas
-            is=ssite(ib)%spec
-c            call r8tos8(ssite(is)%clabel,spid)
-            spid=ssite(is)%clabel
+            is  = ssite(ib)%spec !species index
+            spid= ssite(is)%clabel !atom label
             write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
-
-
-!     ! Write atomic positions
-      print *,' procid=',procid,master
-      if(procid==master) then
-        write(stdo,"(a)")'== bndfp: Atomic Positions (from rst/ctrl or changing when dynamics ==)'
-        do ib=1,nbas
-          is=ssite(ib)%spec
-          spid=ssite(is)%clabel
-c          call r8tos8(ssite(is)%clabel,spid)
-          write(stdo,"('  ib clabl pos =',i5,x,a6,3(x,f12.6))") ib, trim(spid),ssite(ib)%pos
-        enddo
-      endif
-
 !! === New pdos mode (use --mkprocar and --fullmesh together). ===
 !! We use all k points (--fullmesh), instead of using crystal symmetry.
-!! pdos=cmdopt('--pdos',6,0,strn)  ! old pdos mode switch.
-      PROCARon= cmdopt('--mkprocar',10,0,strn)
+      PROCARon= cmdopt('--mkprocar',10,0,strn) !write PROCAR(vasp format).
       fullmesh= cmdopt('--fullmesh',10,0,strn) !full mesh stop just after do 2010 iq loop.
       if(fullmesh.and.(.not.procaron)) then
-         call rx(' --fullmesh is meaningful only with --mkprocar')
+        call rx(' --fullmesh is meaningful only with --mkprocar')
       endif
       if( cmdopt('--writepdos',11,0,strn) ) then
          write(6,*) '... Doing writepdos mode. Wait a while ...'
          write(6,*) '... Need "pdosinput" which is generated by --mkprocar & --fullmesh'
-c         write(6,*) '... If necessary, we may make a subrouine writepdos() pararellized...'
          call writepdos(trim(sname))
          call rx0('done: end of --writepdos mode.')
       endif
-   
-!! === Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
+!! Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       fsmode=cmdopt('--fermisurface',14,0,strn)
       allband=cmdopt('--allband',9,0,strn)
       if(fsmode) fullmesh=.true.
@@ -539,14 +452,13 @@ c         write(6,*) '... If necessary, we may make a subrouine writepdos() para
          nkk2=sbz%nkabc(2)
          nkk3=sbz%nkabc(3)
       endif   
-
+!! Calculate VBM and CBM relative to vaccum (but in a simple approximaiton. need fixing.).
       if(cmdopt('--vbmonly',9,0,strn)) then
          print *,'--vbmonly mode'
          vol = slat%vol
          goto 8888
       endif 
-  
-!! getq mode  Current version is not for spin dependent nor many restrictions.
+!! getq mode.  Current version is not for spin dependent nor many restrictions.
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
       if(cmdopt('--getq',6,0,strn).and.procid==master) then
          print *,'get Q from ql given by lmf'
@@ -555,9 +467,7 @@ c         write(6,*) '... If necessary, we may make a subrouine writepdos() para
          lmxa = maxval(sspec(1:nspec)%lmxa)
          allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
          qrmt= -1d-10
-c         ifiwv  = fopna('veswavatm',-1,1)
-         ifiwv= ifile_handle()
-         open(ifiwv,file='veswavatm.'//trim(sname))
+         open(newunit=ifiwv,file='veswavatm.'//trim(sname))
          do is=1,nspec
             read(ifiwv,*) qatot(is)
             print *,'qatom tot=',qatot(is)
@@ -580,11 +490,7 @@ c         ifiwv  = fopna('veswavatm',-1,1)
          enddo  
          close(ifiwv)
 !! WARN. not averaged yet for given specs...
-c         ifiqb  = fopna('qbyl',-1,1)
-         ifiqb= ifile_handle()
-         open(ifiqb,file='qbyl.'//trim(sname))
-         ifiwv= ifile_handle()
-         open(ifiwv,file='veswavatm.'//trim(sname))
+         open(newunit=ifiqb,file='qbyl.'//trim(sname))
          read(ifiqb,*)
          allocate(ql(0:lmxa,nspec))
          do ib=1,nbas
@@ -611,8 +517,6 @@ c         ifiqb  = fopna('qbyl',-1,1)
          close(ifiqb)
          call rx0('--getq mode done')
       endif
-
-
 !! === MPI Setup continue===
       numprocs=1                !when no MPI
 #if MPI | MPIK
@@ -638,12 +542,10 @@ c     &  + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 )
 c     &  + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
 !! lso is read by m_rdctrl.F 
 !! lso  =0 (no so): =1(L.S): =2(LzSz).
-
       lcplxp = 0
       lekkl = int(sctrl%pfloat)
       if (lso .ne. 0) lcplxp = 1
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
-
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! spinoffdiag=T case, the spin loop is too complicated --> we need to fix this.
       if(nspc==2.and.nsp==2) then !nspc==2
@@ -661,11 +563,9 @@ c     &  + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
       else
          call rx('bndfp: nspc==2 but nsp=1')
       endif   
-
 !! related to the error in rseq. clean up RSEQ_ERROR at first because
 !! this error is only fatal when it is finaly converged. takaoNov28_2010
       idummy=unlink('RSEQ_ERROR')
-
 ctakao sep2010 !complicated.
 c      nspc=2 for non-colinear case. 
 c      allocate(evl(ndham,2))
@@ -735,7 +635,6 @@ c      nfbn(2) = 0
       k1 = n1
       k2 = n2
       k3 = n3
-
 !! ... for BZ integration
       nkabc= sbz%nkabc
       nkp=   sbz%nkp
@@ -759,24 +658,18 @@ c      nfbn(2) = 0
       ltet = ntet .gt. 0
       lwndow = cmdopt('--window=',9,0,strn)
       if (lwndow) then
-         if (lmet .eq. 0) then
-            call rx(' bndfp: restart with METAL=2 for --window')
-         endif
-         if (.not. ltet) then
-            call rx(' bndfp: restart with TETRA=T for --window')
-         endif
+         if (lmet==0)    call rx(' bndfp: restart with METAL=2 for --window')
+         if (.not. ltet) call rx(' bndfp: restart with TETRA=T for --window')
+         if(lrout==0)    call rx('--window incompatible with no output density')
          iq = 0
          i = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
-         call info2(20,0,0,' BNDFP: generating density in energy window %2:1d',dosw,0)
+         write(6,"(' BNDFP: generating density in energy window= ',3f13.4)") dosw(1:2)
          lfrce = 0
          lpnu = 0
          efmax = 1d2
          nevmx = ndham
-         if (lrout .eq. 0)
-     .     call rx('--window incompatible with no output density')
-         call info0(20,0,0,' Delete band weights file ...')
-         ifi = fopna('wkp',-1,4)
-         call dfclos(ifi)
+         write(6,*)' Delete band weights file wkp.'//trim(sname)
+         ierr=unlink('wkp.'//trim(sname))
       endif
 C     Always need DOS if just sampling
       if (lmet .ne. 0 .and. .not. ltet) ldos=1
@@ -799,9 +692,7 @@ c         plbopt = strn(7:)
       if (lmet .eq. 1) call rx('bndfp: lmet=1 not implemented')
 !! isanrg is logical function,       call isanrg(lmet,0,4,'bndfp:','lmet', .true.)
       l_dummy_isanrg=isanrg(lmet,0,4,'bndfp:','lmet', .true.)
-
 !! == PROCAR file 
-c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
       if(PROCARon) then
          iprocar1=ifile_handle()
          open(iprocar1,file='PROCAR.UP.'//trim(strprocid))
@@ -810,7 +701,6 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
             open(iprocar2,file='PROCAR.DN.'//trim(strprocid))
          endif
       endif
-
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       phispinsym= cmdopt('--phispinsym',12,0,strn)
       if(phispinsym) then
@@ -841,15 +731,10 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
             call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1)
          enddo   
       endif
-      
-      
-
-!! jan2018kaist
+!! Write out Hamiltonian stated at jan2018kaist
       writeham= cmdopt('--writeham',10,0,strn)
       if(writeham) then
-        ifih=ifile_handle()
-        open(ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-!!      
+        open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
         if(procid == master) then ! pair-table and weight generator.  nlat,qgt are not used yet...
           nkk1=sbz%nkabc(1)
           nkk2=sbz%nkabc(2)
@@ -870,7 +755,6 @@ c      PROCARon= .not.cmdopt('--noprocar',10,0,strn)
           do ip=1,nkp
             write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
           enddo
-
 c          do ix=1,3
 c            write(ififft,"(3f25.15,' ! plat' )") plat(:,ix)
 c          enddo
@@ -881,7 +765,6 @@ c            write(ififft,"(3f25.15,' ! bas' )") pos(:,ibas)
 c          enddo
           allocate(npair(nbas,nbas),pos(3,nbas))
           call dcopy(nbas*3 , slat%rv_a_opos , 1 , pos , 1 )
-
           npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
           do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
             npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
@@ -894,7 +777,7 @@ c          enddo
           do ib1=1,nbas
           do ib2=1,nbas
               write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
-c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt sum is not unity')
+c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt sum is not unity')
               do ni = 1,npair(ib1,ib2) 
                 posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
                 rrrr = sqrt(sum(posp**2))
@@ -902,15 +785,12 @@ c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bu
               enddo
           enddo
           enddo
-
-          ififft=ifile_handle()
-          open(ififft,file='HamiltonianPMTInfo',form='unformatted')
+          open(newunit=ififft,file='HamiltonianPMTInfo',form='unformatted')
           write(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
           write(ififft) pos,alat
           write(ififft) qplist
           write(ififft) npair,npairmx
           write(ififft) nlat,nqwgt
-!! ---------------
 !! delta fun check: k --> T --> k 
 !!     \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
           ikpd=1
@@ -929,11 +809,8 @@ c              if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bu
           enddo
           enddo
           deallocate(pos,npair)
-c          stop 'xxxxxxxxxxx test end xxxxxxxxx2222'
         endif
-
       endif
-
 !! --- Define local arrays used in the generation of the potential ---
       lnoxc = 0
       if (jobgw .eq. 2) lnoxc = 1
@@ -945,11 +822,9 @@ c          stop 'xxxxxxxxxxx test end xxxxxxxxx2222'
       allocate(sab_rv(nab*n0*nsp*nbas))
       allocate(ppnl_rv(nppn,n0,nsp,nbas))
       allocate(fes1_rv(3*nbas))
-
 !! dfaugm alllocates and initializes variables
       call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
      .  , sv_p_otau , sv_p_oppi )
-
 !! --- Make the potential sans XC part ---
       if(llmfgw) then ! only for lmfgw program
          if(jobgw .eq. 1 .or. jobgw .eq. -999) then
@@ -986,7 +861,6 @@ c          stop 'xxxxxxxxxxx test end xxxxxxxxx2222'
 #endif        
          call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
       endif
-
 C --- Make the potential and total energy terms ---
       i = 1 + 10*lfrzw + 100*lnoxc
       if (cmdopt('--wrhomt',8,0,strn)) then
@@ -995,14 +869,6 @@ C --- Make the potential and total energy terms ---
          i = i + 20000
       endif
       if(llmfgw) i = i + 10000
-ccccccccccccccccccccccccc
-ctakao test mkekin repeat
-c          print *,'vvv takao mkekin repeat init 01 ---'
-c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
-c          stop 'xxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccc
-
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
       call togpr()
@@ -1012,21 +878,11 @@ ccccccccccccccccccccccccc
      .  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .  , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
       call togpr()
-ccccccccccccccccccccccccc
-ctakao test mkekin repeat
-c       print *,'vvv takao mkekin repeat init 02 ---'
-c       call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
-c          stop 'xxxxxxxxxxxxxxxx  111'
-ccccccccccccccccccccccccc
-
       elind = sham%elind
       if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
-c      allocate( evlall(ndham,nsp,nkp))
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0 
-
 !! --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
@@ -1046,9 +902,7 @@ c      allocate( evlall(ndham,nsp,nkp))
          icls = 0
       endif
 
-!! this section is moved from addrbl.F !nov2015
-!! we have to examine lswtk mechanism. !nov2015 this is temporary fix
-      if (.not.(tdos .or. PROCARon)) then  !if(ndimh*nspc /= nevl) then 
+      if (.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
          call info0(30,0,0,' bndfp: eigenvector matrix not square ... spin weights not evaluated')
          lswtk = -2
       endif
@@ -1066,7 +920,6 @@ c      allocate( evlall(ndham,nsp,nkp))
          allocate(fes2_rv(3*nbas))
       endif
       call suham2(slat,sspec,ssite,sham,spot) !,sstrn,sctrl
-c      print *,'end of suham2'
 
 !! --- Options for core level specta (CLS) ---
 !!    Allocate aus for all qp
@@ -1104,29 +957,6 @@ c     .     nlmax,ndham,nsites,nsp,nkp)
       else
          icls = 0
       endif
-
-ctakaox june2009
-c      ifiogw=9038
-c      inquire(unit=ifiogw,opened=nexist)
-c      if(nexist)
-c     &stop 'bndfp: I assumed ifio=9038 is not used(too sloppy)'
-c      open(ifiogw,file='NBANDGW')
-Cki  ifiese default value is not set.  set it to 0
-
-c$$$!! We need ESEAVR file. This is a dummy file when we use huge HAM_SIGP_EMAX such as EMAX=9999.
-c$$$!! ESEAVR is called from rdsigm2-psigd.
-c$$$      ifiese=0
-c$$$      if(lrsig/=0) then
-c$$$         ifiese=ifile_handle()
-c$$$         open(ifiese,file='ESEAVR',status='old',err=127)
-c$$$         goto 128
-c$$$ 127     continue
-c$$$         open(ifiese,file='ESEAVR')
-c$$$         write(ifiese,*)"0d0 1 !dummy when no ESEAVR"
-c$$$         close(ifiese)
-c$$$         open(ifiese,file='ESEAVR',status='old',err=127)
-c$$$      endif
-c$$$ 128  continue
 
 
 !! == Start loop over k points; also, re-entry for second band pass ==
@@ -1192,14 +1022,22 @@ c$$$      if(debug) print *,'vvvvv 22222222qqq '
 
 C ... Case only generate bands at supplied qp: setup
       if (plbnd .ne. 0) then
-C       Try and read Fermi level from file
-         if (procid .eq. master) then
-            ifi = fopna('wkp',-1,4)
-ckino getef is integer          call getef(ifi,0,ef0)
-            i_dummy_getef= getef(ifi,0,ef0) !Is this necessar???
-            call fclr('wkp',ifi)
-         endif
-         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+         if (procid .eq. master) then !Try and read Fermi level from file
+            inquire(file='wkp.'//trim(sname),opened=nexist)
+            if(nexist) call rx('we assume wkp do not exit here')
+c$$$              
+c$$$c     ifi = fopna('wkp',-1,4)
+c$$$c            i_dummy_getef= getef(ifi,0,ef0) !Is this necessar???
+c$$$c     call fclr('wkp',ifi)
+c$$$            inquire(file='wkp.'//trim(sname),opened=nexist)
+c$$$            if(nexist) then
+c$$$               open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
+c$$$               read(ifi) ndummy1,ndummy2,ndummy3,ef0
+c$$$               close(ifi)
+c$$$            endif
+c$$$         endif
+c$$$  call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+         endif   
       endif   
 
 !! ... For insulator, valence band top and conduction band bottom
@@ -1433,11 +1271,7 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             do iorb = 1, norbmto !Total number of MTO's
               ib   = ibastab(iorb)
               is   = ssite(ib)%spec
-c              call r8tos8(sspec(is)%name,spid)
               spid=sspec(is)%name
-c              write(6,"(3i3,2x,2i5,3x,a)") ib,ltab(iorb),ktab(iorb), 
-c     &          offl(iorb)+1, offl(iorb)+2*ltab(iorb)+1, trim(spid)
-!!
               ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
               l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
               k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
@@ -1653,10 +1487,6 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
          if (iq .eq. kpproc(procid)) then
             if (mlog) then
                call gettime(datim)
-c               call awrit4(' bndfp '//datim//' Process %i of %i on '
-c     .           //shortname(procid)(1:namelen(procid))//
-c     .           ' starting k-points %i to %i',' ',256,lgunit(3),
-c     .           procid,numprocs,kpproc(procid),kpproc(procid+1)-1)
                aaachar=' bndfp '//datim//' Process '//
      &           trim(i2char(procid))//' of '//
      &           trim(i2char(numprocs))//' on '//
@@ -1881,8 +1711,6 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                deallocate(senex)
             endif
 
-
-
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
@@ -1954,19 +1782,10 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                if(initiqisp) then
 #if (MPI|MPIK)
 !!  for parallel write, and eigze is temporaly used only in this subroutine. 
-!!     (gfortran v4.7 add _{procid} at the end of the filename
-!!      then how can I share the same file among the different processes? )
-                  !ifig = fopna('eigze_'//trim(strprocid),-1,4)
-                  !call fclose(ifig)
-                  !ifig = fopna('eigze_'//trim(strprocid),-1,4)
                   inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
                   if(nexist) close(ifig)
-                  ifig = ifile_handle()
-                  open(ifig,file='eigze_'//trim(strprocid),form='unformatted')
+                  open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
 #else
-                  !ifig = fopna('eigze',-1,4)
-                  !call fclose(ifig)
-                  !ifig = fopna('eigze',-1,4)
                   inquire(file='eigze',opened=nexist,number=ifig)
                   if(nexist) close(ifig)
                   ifig = ifile_handle()
@@ -2703,9 +2522,10 @@ c     .        'repeat band pass',' ',80,stdo)
       call mpi_barrier(MPI_comm_world,ierr)
 #endif
       if (procid .eq. master) then
-         ifimag=ifile_handle()
-         open(ifimag,file='MagField',status='unknown')
-         close(ifimag,status='delete')
+         ierr=unlink('MagField')
+c         ifimag=ifile_handle()
+c         open(ifimag,file='MagField',status='unknown')
+c         close(ifimag,status='delete')
       endif  
 
 !! --- BZ integration for fermi level, band sum and qp weights ---
