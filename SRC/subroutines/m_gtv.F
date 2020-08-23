@@ -80,91 +80,41 @@ C- Set io_show and io_help for m_gtv
       enddo
       end subroutine
 
-      subroutine gtv_setrcd(recrd,nrecs,recln)
-C- Copy contents of fixed-length input file to local rcd
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   recrd
-Ci   nrecs :number of records
-Ci   recln :size of record
-Co Outputs
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr   contents of record are copied, with markers for EOL
-Cu Updates
-Cu   13 Oct 07
-C ----------------------------------------------------------------------
+      subroutine gtv_setrcd(recrd,nrecs,recln,stdo_in,stdl_in,stde_in)
+!! Copy recrd to rcd
       implicit none
+      intent(in)::          recrd,nrecs,recln,stdo_in,stdl_in,stde_in
+      integer:: stdo_in,stdl_in,stde_in
 C ... Passed parameters
       integer nrecs,recln
-      character*(*) recrd
+      character*(recln):: recrd(nrecs),rrr
 C ... Local parameters
       integer i,ioff,ioff2,j,l
-C     real(8) cpusec
-
-C     print *, cpusec()
-      rcd = ' '
-      ioff2 = 1
-      do  i = 1, nrecs
-        ioff = (i-1)*recln + 1
-
-Ctakao replace tab to space. 7thJune2010.
-        call replacetab2space(recrd(ioff:i*recln),recln)
-
-C       Blank line; skip
-        if (recrd(ioff:ioff)=='#' .or. recrd(ioff:ioff)=='!') then
-C       No character in 1st column
-        elseif (recrd(ioff:ioff)==' ') then
-C         The next two lines work, but they are too slow
-C         rcd(ioff2+1:) = adjustl(recrd(ioff:ioff+recln-1))
-C         ioff2 = len_trim(rcd)+1
-C         Replace preceding 2 lines with the following loop
-          do  j = ioff,ioff+recln-1
-            if (recrd(j:j) .ne. ' ') then
-              l = len_trim(recrd(j:ioff+recln-1))
-              rcd(ioff2+1:) = recrd(j:j+l-1)
-              ioff2 = ioff2 + l+1
-              exit
-            endif
-          enddo
-C       Character in 1st col: add @CAT@ to mark category delimiter
-        else
-C         Replace CLASS with SPEC
-          if (recrd(ioff:ioff+4) .eq. 'CLASS') then
-            recrd(ioff:ioff+4) = 'SPEC'
-          endif
-          write(rcd(ioff2:ioff2+recln-1+6),"(1x,a,a)")
-     .    '@CAT@',recrd(ioff:ioff+recln-1)
-          ioff2 = len_trim(rcd)+1
-        endif
-C       write(*,"(i4,a)") ioff, rcd(1:ioff2)
-      enddo
-      rcd(ioff2:) = ' @CAT@EOF'
-ccccccccccccccccccccccccc
-c      print *,'rrrrrrrrrrrrrrrrrrrrrrrrcd=',trim(rcd)
-cccccccccccccccccccccccccc
-
-C     print *, cpusec()
-C     print *, ioff2; stop
-      ioff2 = ioff2+9
-      if (ioff2 > nrcd)
-     .call rxi('m_gtv: increase size of rcd; need at least',ioff2)
-
-      end subroutine
-
-      subroutine gtv_setst(stdo_in,stdl_in,stde_in)
-C- Set stdo,stdl,stde in m_gtv
-      implicit none
-      integer:: stdo_in,stdl_in,stde_in
-C     character*(*):: rcd_in
-C     if(len(trim(rcd_in))>nrcd) stop 'm_gtv: enlarge size of rcd'
       stdo = stdo_in
       stdl = stdl_in
       stde = stde_in
-C     rcd = trim(rcd_in)
-c     write(stdo,*) 'tokse_setst:', trim(rcd)
-
+      rcd = ' '
+      ioff2 = 1
+      do  i = 1, nrecs
+        call replacetab2space(recrd(i),recln) !takao replace tab to space. 7thJune2010.
+        if(recrd(i)(1:1)=='#' .or. recrd(i)(1:1)=='!') then
+           continue
+        elseif (recrd(i)(1:1)==' ') then !C       No character in 1st column
+           rcd(ioff2:) = ' '//trim(adjustl(recrd(i)))
+           ioff2 = ioff2 + len_trim(adjustl(recrd(i))) + 1
+        else
+          rrr=recrd(i) 
+          if (rrr(1:5)=='CLASS') then
+            rrr(1:5) = 'SPEC '
+          endif
+          rcd(ioff2:) = ' @CAT@'//trim(adjustl(rrr))//' '
+          ioff2 = len_trim(rcd)+1
+        endif
+      enddo
+      rcd(ioff2:) = ' @CAT@EOF'
+      write(6,*) 'xxxxxxxxxx rcd=',trim(rcd)
+      ioff2 = ioff2+9
+      if (ioff2 > nrcd) call rxi('m_gtv: increase size of rcd; need at least',ioff2)
       end subroutine
 
       subroutine gtv_entrance()

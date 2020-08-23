@@ -32,9 +32,9 @@ c      type(s_str):: v_sstr
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
       parameter (mxrecs=10000,recln0=511)
       character*8 alabl
-      character:: recrd_(0:mxrecs*recln0-1)
-      character*(mxrecs*recln0):: recrd
-      equivalence ( recrd, recrd_ )
+c      character:: recrd_(0:mxrecs*recln0-1)
+      character*(recln0):: recrd(mxrecs)
+c      equivalence ( recrd, recrd_ )
       real(8),parameter::    NULLR =-99999
       integer:: ibas
 

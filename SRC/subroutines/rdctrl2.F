@@ -8,7 +8,7 @@
      . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
      . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
 
-      use m_gtv,only: gtv_setst,gtv_setrcd
+      use m_gtv,only: gtv_setrcd
       use m_struc_func
       use m_globalvariables
 
@@ -199,7 +199,7 @@ Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
       implicit none
       integer,intent(in):: recln,nrecs
-      character*(*),intent(in):: recrd
+      character*(recln),intent(in):: recrd(nrecs)
       character,intent(in)::  prgnam*(*) 
 
       character slabl_(1)*8
@@ -259,25 +259,18 @@ C ... basis
       stdo = lgunit(1)
       stdl = lgunit(2)
       stde = stdo
-
-!! --- Initialize gtv; copy recrd to rcd ---
-      call gtv_setst(stdo,stdl,stde)
-      call gtv_setrcd(recrd,nrecs,recln)
-!! --- Read input parameters from contents of rcd ---
+!! --- Copy recrd to rcd in m_gtv 
+      call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde)
+!! --- Read input parameters from rcd in m_gtv ---
       call readctrl(prgnam) 
-      if (io_help > 0) then
-c        call readctrlpq(prgnam,nclasp,nl,nsp,pnuc,qnuc,pp,zc,
-c    .  ves,initc,ics,clabl)
-        call cexit(0,1)
-      endif
-
+      if (io_help > 0) call cexit(0,1)
 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
       lbas = 3 
 
-!! Optionally read positions from pos file
-      if (cmdopt('--rpos=',7,0,fileid)) then
-        call iopos(.false.,-1,fileid(8:),nbasp,pos)
-      endif
+c!! Optionally read positions from pos file
+c      if (cmdopt('--rpos=',7,0,fileid)) then
+c        call iopos(.false.,-1,fileid(8:),nbasp,pos)
+c      endif
 
 !! --- Allocate and copy input to sbz ---
       call ubz_init(v_sbz)

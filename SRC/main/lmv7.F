@@ -46,15 +46,15 @@ c      data prgnam /'LMDOS'/
       integer:: nfilin,mxrecs,recln0,nrecs,fopna
       parameter (mxrecs=10000,recln0=511)
       character*8 alabl
-      character*(mxrecs*recln0):: recrd
+      character*(recln0):: recrd(mxrecs)
       real(8),parameter::    NULLR =-99999
       real(8)::pwmode,pwemin,pwemax
       integer::ic
       real(8):: bz_w,dval!test
-      logical:: fileexist,ipr10
+      logical:: fileexist,ipr10,lshow,lshowp
       integer,parameter:: lstrn=10000
       character(lstrn):: sstrnmix,sstrnsymg
-      integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas
+      integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff
       character(5) :: charnum5
 #if MPI | MPIK
       include "mpif.h"
@@ -76,20 +76,20 @@ c      integer namelen(0:MAX_PROCS-1)
       if(id==0) write(*,*) 'mpi size=',nsize
 #endif
       call show_programinfo(6)
-      stdo = lgunit(1)
-      master = 0
-      procid = mpipid(1)
-      nproc  = mpipid(0)
       if(cmdopt('--h',3,0,outs)) then
         call lmhelp(prgnam) 
       endif
+      stdo   = lgunit(1)
+      master = 0
+      procid = mpipid(1)
+      nproc  = mpipid(0)
       globalvariables%stdo = dble(stdo) !    i = dglob('stdo',dble(stdo),1)
       i = dble(stdo)
       call finits(2,0,0,i)
 !! Get extension of ctrl file to sname \in m_ext 
       call getext()
       ext = adjustl(sname)
-!! set log file for --mlog 
+!! set log file for --mlog (not maintained well)
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       shortname(procid)=trim(name)
@@ -125,57 +125,56 @@ c      call finits(2,0,0,i)
       endif
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-!! Abort if ctrl file is missing
-      if (procid==master) then
-        if (.not.cmdopt('--input',6,0,strn)) then
-          if (fxst('CTRL') .ne. 1) call rx("No ctrl file found!") 
-        endif
-      endif
-
-!! Set the top-level verbosity if specified from cmd line ---
+!! Set iprint(); the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
         i = 4
         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k) ! --pr=xxx is read as k=xxx
         if (i .eq. 1) call setpr(k)
       endif
       if(procid/=master) call setpr(-100) !iprint() is negative except master
-
-!! Input from ctrl file, --input, --show, --showp, options
-!! recrd, nrecs are obtained.
-      nrecs  = 0
-      if (procid .eq. master) then
-        if (.not.cmdopt('--input',7,0,strn)) then
-          nfilin = fopna('CTRL',-1,1)
-          call findctrlstart(nfilin) ! ctrl is read from 'ctrlstart' if it exist.
-          alabl = '#{}% ct '
-          if (cmdopt('--show',6,0,strn)) alabl = '#{}% ctp'
-          call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs)
-          i = 60
-          if (cmdopt('--show',6,0,strn)) then
-            i = 1
-            call info0(i,0,0,' ------------------------ End of input file ----------------------')
-          endif
-          call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
-     .    ' input file',nrecs,0)
-          if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
-        endif
+!! Abort if ctrl file is missing
+      if (cmdopt('--input',6,0,strn)) goto 1111
+      if (procid==master) then
+         inquire(file='ctrl.'//trim(sname),exist=fileexist)
+         if(.not.fileexist) call rx("No ctrl file found!") 
+      endif
+!! Read ctrl file into recrd
+!   rdfile is too complicated to maintain. We will use simple reader.
+!   We will give up mathematical operation in ctrl.   
+      nrecs = 0
+      if(procid == master) then
+         open(newunit=nfilin,file='ctrl.'//trim(sname)) ! = fopna('CTRL',-1,1)
+         call findctrlstart(nfilin) ! ctrl is read from 'ctrlstart' if it exist.
+         alabl = '#{}% ct '
+         call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs) 
+         close(nfilin)
       endif
 #if MPI | MPIK
       call mpibc1(nrecs,1,2,mlog,'main','nrecs')
-      call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,
-     .master,MPI_COMM_WORLD,ierr)
+      call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
 #endif
-      
+      lshowp = cmdopt('--showp',7,0,strn)
+      lshow  = cmdopt('--show',6,0,strn)
+      if(procid==master.and.(lshow.or.lshowp) ) then
+         write(stdo,"('---- preprocessed ctrl file -------')")
+         do i = 1, nrecs
+            if(trim(recrd(i))=='') cycle
+            write(stdo,"(a)")'%% '//trim(recrd(i))//' %%'
+         enddo
+      endif
+      write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)") trim(prgnam),nrecs
+      if(lshowp) call cexit(0,1)
 !! --- Read recrd --- We store all readin data to structures v_*.
+ 1111 continue
       call rdctrl2(recrd,recln0,nrecs,prgnam, 
      . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
      . v_sarry,sstrnmix,sstrnsymg)  
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-
-!! --- Lattice setup:deformation ---
-c      call setcg(v_slat,8,12) --> moved to rdctl2
+!! --------- end of readin ctrl file. All info is stored in v_* ---------------
+      
+!!--- Lattice setup:deformation ---
       call lattic(v_slat,v_sctrl%nbas)
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
@@ -185,15 +184,14 @@ c      call setcg(v_slat,8,12) --> moved to rdctl2
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
 !! mar2013 --pdos Also in rdctrl2.F
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
+      
+!! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
       lc = 10
-!! when lmfgw, 1st digit of lc is nonzero--> no inversion added in mksym.
 #ifndef LMFGWD 
 !! iand(2**n,i) means 2**n ditit of i.
-c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
-c      if ( iand(1,int(v_sctrl%lqp))==0  ) lc = lc+2
-c      if( v_sctrl%lqp1==0 ) lc = lc+2 !no inversion
-      if( v_sctrl%noinv==0 ) lc = lc+2 !no inversion
+      if( v_sctrl%noinv==0 ) lc = lc+2 ! inversion for lmf
 #endif
+      
 !! --sfill is not allowed.
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
@@ -253,7 +251,8 @@ c$$$          enddo
 c$$$        enddo
           if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
           if(ipr10) write(6,"(a)")       
-      endif
+       endif
+       
 !! ---------------------------
       if(procid==master) call pshpr(60)
       call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
@@ -285,7 +284,6 @@ c$$$      enddo
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
-
 !! show and quit
       if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
@@ -293,7 +291,7 @@ c$$$      enddo
       endif
 !! main part of lmf ------------------------------------
       call lmfp(prgnam,v_sbz,v_sctrl,v_sham,v_spot,v_slat,
-     .v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry
+     .  v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
 #if MPI | MPIK
@@ -305,6 +303,6 @@ c$$$      enddo
       endif
       call mpi_finalize(ierr)
 #else
-      call rx0s(prgnam)
+      call rx0s(prgnam) !for single core exit
 #endif
       end program lmf

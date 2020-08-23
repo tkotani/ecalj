@@ -247,7 +247,7 @@ C ----------------------------------------------------------------------
       integer:: lp1,lpzi,nlmax,nrmx=1501
       integer,parameter:: mxspec=256
       real(8):: xx
-      type (s_mix) :: vamix
+c      type (s_mix) :: vamix
       real(8)::  avwsr
       integer::izerv(n0)=(/(0,i=1,n0)/)
       real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
@@ -2307,9 +2307,9 @@ c        call s8tor8(' ',vmix%r) ! expression for rmscst
         vmix%wc = -1             ! wc
         smalit = NULLI
 c      call dcopy(37,smix,1,samix,1)
-        vamix = vmix
+c        vamix = vmix
 c        call s8tor8('mixa',vamix%fn) ! file name
-        vamix%fn='mixa'
+c        vamix%fn='mixa'
         nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
      .   def_i4=30,
      .   note='maximum number of iterations in self-consistency cycle')
