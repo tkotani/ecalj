@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+toksw_init.o\
 writeband.o\
 writepdos.o\
 m_lmdata.o\

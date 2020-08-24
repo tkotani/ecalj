@@ -2,7 +2,7 @@
       use m_struc_def
 c      use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
-      use m_rdctrl2_func, only: rdctrl2,
+      use m_rdctrl, only: !rdctrl2,
      &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg
       implicit none

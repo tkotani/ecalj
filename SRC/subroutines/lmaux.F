@@ -1,6 +1,6 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
      .sarray,sbz,slabl,mode,wksize) !,sstrn
-      use m_rdctrl2_func,only: irs11,str_mxnbr,str_rmax
+      use m_rdctrl,only: irs11,str_mxnbr,str_rmax
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin

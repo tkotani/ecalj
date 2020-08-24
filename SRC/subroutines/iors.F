@@ -1,6 +1,6 @@
       integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-      use m_rdctrl2_func,only: irs3,irs4,irs5
+      use m_rdctrl,only: irs3,irs4,irs5
       use m_struc_def 
       use m_struc_func
       use m_globalvariables

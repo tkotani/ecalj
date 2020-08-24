@@ -1,7 +1,7 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
       use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site !,s_move,s_str,
-      use m_rdctrl2_func, only: rdctrl2,
+      use m_rdctrl, only: 
      &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg
       use m_rdctrl,only: symgaf !read in call rdctrl2

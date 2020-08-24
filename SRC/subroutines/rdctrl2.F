@@ -1,37 +1,16 @@
-      module m_rdctrl2_func
-      use m_struc_def,only: s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site
-      
-      integer,parameter :: mxspec=256,lstrn=10000
-      character(8):: slabl_(mxspec) 
-      character(lstrn):: sstrnmix,sstrnsymg
-
-      type(s_bz):: v_sbz
-      type(s_ctrl):: v_sctrl,v_sctrl2
-      type(s_ham):: v_sham
-      type(s_pot):: v_spot
-      type(s_lat):: v_slat,v_slat2
-      type(s_mix):: v_smix
-      type(s_array):: v_sarry,v_sarry2
-      type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
-
-      
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11
-      real(8),protected::str_mxnbr,str_rmax
-
-      contains
-      subroutine rdctrl2(
-     i  recrd,recln,nrecs, prgnam)
+      subroutine rdctrl2( recrd,recln,nrecs, prgnam)
 c     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
 c     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
-
       use m_gtv,only: gtv_setrcd
       use m_struc_func
       use m_globalvariables
 
       use m_rdctrl,only:
+     &     v_sbz, v_sctrl,v_sctrl2, v_sham, v_spot, v_slat,v_slat2,
+     &     v_smix,v_sarry,v_sarry2, v_sspec, v_ssite,v_ssite2,
+     &     irs1,irs2,irs3,irs4,irs5,irs11,sstrnmix,sstrnsymg,slabl_,
      &  readctrl,!readctrlpq,
-     &  NULLR,n0,nkap0,s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site, !s_tb,,s_move,s_str
+     &  NULLR,n0,nkap0,!s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site, !s_tb,,s_move,s_str
 !!
      &  io_show,io_help,nvario,header,symg,
      &  frzwf,ham_ewald,ctrl_lfrce,ham_lxcf,gga,ftmesh,lrsig, !nmto,
@@ -837,4 +816,3 @@ c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
             call rx0('done show')
           endif
           end subroutine rdctrl2
-          end module m_rdctrl2_func

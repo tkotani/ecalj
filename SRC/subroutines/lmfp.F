@@ -4,7 +4,7 @@
       use m_rdctrl,only: lhf          
       use m_struc_func, only: mpibc1_s_lat
       use m_globalvariables
-      use m_rdctrl2_func,only: irs1,irs2,irs3,irs4,irs5,irs11
+      use m_rdctrl,only: irs1,irs2,irs3,irs4,irs5,irs11
 C     - LM-FP self-consistency loop
 C     ----------------------------------------------------------------------
 C     i Inputs
