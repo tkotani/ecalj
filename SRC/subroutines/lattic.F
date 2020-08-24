@@ -1,6 +1,7 @@
-      subroutine lattic(slat,nbas)
+      subroutine lattic() !slat,nbas)
       use m_struc_def  !Cgetarg
-C- Sets up the real and reciprocal space lattice vectors
+      use m_rdctrl2_func,only: slat=>v_slat,v_sctrl
+C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
 Cio  slat  :struct for lattice information; see routine ulat
@@ -31,7 +32,7 @@ Cu  19 Apr 00 Fixed rotations; new argument list
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ctrl)::sctrl
 c      type(s_site)::ssite(*)
 c      type(s_array)::sarray
@@ -56,7 +57,7 @@ C ... Local parameters
 c      i_copy_size=size(slat%plat)
 c      call dcopy(i_copy_size,slat%plat,1,plat0,1)
       plat0=slat%plat
-c      nbas=sctrl%nbas
+      nbas=v_sctrl%nbas
       nbaspp = nbas 
 
 C ... Apply specified linear transformation of lattice and basis vectors

@@ -1,24 +1,18 @@
+!! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site  !,s_move,s_str,
+      use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site !,s_move,s_str,
       use m_rdctrl2_func, only: rdctrl2,
      &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg
       use m_rdctrl,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
-     & iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
+     &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
 c     &  symops,invgx,ag,
 c     &  shtvg,ngrp,miat,tiat,iclasst,
-c      use m_globalvariables
+c     use m_globalvariables
       use m_ext,only: getext,sname
       use m_globalvariables,only: globalvariables
       implicit none
-!! == Main program for lmf and so on. ==
-!! For lmf, lmfgw. Single core, MPI, and MPIK modes.
-!! ============================
-      integer procid, master, mpipid, nproc
-      character prgnam*8, ext*100 
-      logical lgors
-      integer mxspec
 c      type(s_bz):: v_sbz
 c      type(s_ctrl):: v_sctrl,v_sctrl2
 c      type(s_lat):: v_slat,v_slat2
@@ -30,32 +24,26 @@ c      type(s_move):: v_smove
 c      type(s_str):: v_sstr
 c      type(s_spec),allocatable:: v_sspec(:)
 c      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
-      character strn*1000,outs*20,strn2*1000
-      integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
-     . igets,a2vec,NULLI
-      double precision dglob !vn(2),vn2(2),
-      logical T,F,swtmp,cmdopt,ltet
-      parameter (T=.true., F=.false., NULLI=-99999)
+c      integer,parameter:: lstrn=10000
+c      character(lstrn):: sstrnmix,sstrnsymg
+      integer:: procid, master, mpipid, nproc,
+     &     i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg, igets,a2vec,
+     &     nfilin,nrecs,fopna,ic,ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff
+      logical,parameter:: T=.true., F=.false.
+      integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
+      real(8),parameter::  NULLR =-99999
+      real(8)::pwmode,pwemin,pwemax, bz_w,dval
+      character*(recln0):: recrd(mxrecs)
+      character(8) :: alabl
+      character(5) :: charnum5
+      character prgnam*8, ext*100 
+      character:: strn*1000,outs*20,strn2*1000
+      logical:: fileexist,ipr10,lshow,lshowp,swtmp,cmdopt,ltet
 #if LMFGWD
       data prgnam /'LMFGWD'/
 #else
       data prgnam /'LMF'/
-c#elif  LMDOS
-c      data prgnam /'LMDOS'/
 #endif
-      integer:: nfilin,mxrecs,recln0,nrecs,fopna
-      parameter (mxrecs=10000,recln0=511)
-      character*8 alabl
-      character*(recln0):: recrd(mxrecs)
-      real(8),parameter::    NULLR =-99999
-      real(8)::pwmode,pwemin,pwemax
-      integer::ic
-      real(8):: bz_w,dval!test
-      logical:: fileexist,ipr10,lshow,lshowp
-c      integer,parameter:: lstrn=10000
-c      character(lstrn):: sstrnmix,sstrnsymg
-      integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff
-      character(5) :: charnum5
 #if MPI | MPIK
       include "mpif.h"
       integer fext
@@ -83,12 +71,13 @@ c      integer namelen(0:MAX_PROCS-1)
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
-      globalvariables%stdo = dble(stdo) !    i = dglob('stdo',dble(stdo),1)
+      globalvariables%stdo = dble(stdo) 
       i = dble(stdo)
       call finits(2,0,0,i)
 !! Get extension of ctrl file to sname \in m_ext 
       call getext()
       ext = adjustl(sname)
+      if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! set log file for --mlog (not maintained well)
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
@@ -174,18 +163,17 @@ c      call finits(2,0,0,i)
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-!! ------ End of readin ctrl file. 
+!! ------ End of readin ctrl file. -----------------------------------
      
       
 !!--- Lattice setup:deformation ---
-      call lattic(v_slat,v_sctrl%nbas)
+      call lattic() !this gives v_slat
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-!! mar2013 --pdos Also in rdctrl2.F
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
       
 !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
@@ -195,8 +183,6 @@ c      call finits(2,0,0,i)
       if( v_sctrl%noinv==0 ) lc = lc+2 ! inversion for lmf
 #endif
       
-!! --sfill is not allowed.
-      if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then

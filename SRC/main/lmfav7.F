@@ -1,27 +1,28 @@
       program lmfa
       use m_struc_def
-      use m_rdctrl2_func, only: rdctrl2
+c      use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
+      use m_rdctrl2_func, only: rdctrl2,
+     &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
+     &     v_ssite2,sstrnmix,sstrnsymg
       implicit none
       integer procid, master, mpipid, nproc
-      integer,parameter:: lstrn=10000
-      character(lstrn):: sstrnmix,sstrnsymg='' !,jobid !header,
+c      integer,parameter:: lstrn=10000
+c      character(lstrn):: sstrnmix,sstrnsymg='' !,jobid !header,
       character prgnam*8, vrsion(2)*6, ext*100
-      logical lgors
-      integer mxspec
-      type(s_bz):: v_sbz
-      type(s_ctrl):: v_sctrl
-      type(s_lat):: v_slat
-      type(s_ham):: v_sham
-      type(s_pot):: v_spot
-      type(s_mix):: v_smix
-      type(s_array):: v_sarry
-c      type(s_move):: v_smove
-c      type(s_str):: v_sstr
-      type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:)
-      parameter (mxspec=256)
-      character*8 slabl(mxspec)
+c      logical lgors
+c      integer mxspec
+c      type(s_bz):: v_sbz
+c      type(s_ctrl):: v_sctrl
+c      type(s_lat):: v_slat
+c      type(s_ham):: v_sham
+c      type(s_pot):: v_spot
+c      type(s_mix):: v_smix
+c      type(s_array):: v_sarry
+c      type(s_spec),allocatable:: v_sspec(:)
+c      type(s_site),allocatable:: v_ssite(:)
+c      parameter (mxspec=256)
+c      character*8 slabl(mxspec)
       character strn*1000,outs*20
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      *igets,a2vec,NULLI
@@ -123,14 +124,14 @@ C     recrd, nrecs are obtained.
         endif
       endif
 C --- Read recrd ---
-      call rdctrl2(recrd,recln0,nrecs,prgnam,
-     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-     *v_sarry,sstrnmix,sstrnsymg) 
+      call rdctrl2(recrd,recln0,nrecs,prgnam)
+c     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
+c     *v_sarry,sstrnmix,sstrnsymg) 
 
       print *,'end of rdctrl2 in imfav7'
 c      call setcg(v_slat,8,12)
 c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-      call lattic(v_slat,v_sctrl%nbas)
+      call lattic()!v_slat,v_sctrl%nbas)
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
 c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
@@ -144,7 +145,7 @@ C --- Generate symmetry operations; split species into classes  ---
 c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
       if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
       print *,'goto mksym:',trim(strn)
-      call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       print *,'end of mksym x'
 C ... Set default values for species data
       print *,'goto defspc'

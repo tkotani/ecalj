@@ -15,6 +15,7 @@
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
 
+      
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11
       real(8),protected::str_mxnbr,str_rmax
 
