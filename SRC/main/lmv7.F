@@ -1,6 +1,8 @@
       program lmf
       use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site  !,s_move,s_str,
-      use m_rdctrl2_func, only: rdctrl2
+      use m_rdctrl2_func, only: rdctrl2,
+     &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
+     &     v_ssite2,sstrnmix,sstrnsymg
       use m_rdctrl,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
      & iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
@@ -17,19 +19,17 @@ c      use m_globalvariables
       character prgnam*8, ext*100 
       logical lgors
       integer mxspec
-      type(s_bz):: v_sbz
-      type(s_ctrl):: v_sctrl,v_sctrl2
-      type(s_lat):: v_slat,v_slat2
-      type(s_ham):: v_sham
-      type(s_pot):: v_spot
-      type(s_mix):: v_smix
-      type(s_array):: v_sarry,v_sarry2
+c      type(s_bz):: v_sbz
+c      type(s_ctrl):: v_sctrl,v_sctrl2
+c      type(s_lat):: v_slat,v_slat2
+c      type(s_ham):: v_sham
+c      type(s_pot):: v_spot
+c      type(s_mix):: v_smix
+c      type(s_array):: v_sarry,v_sarry2
 c      type(s_move):: v_smove
 c      type(s_str):: v_sstr
-      type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
-      parameter (mxspec=256)
-      character*8 slabl(mxspec) 
+c      type(s_spec),allocatable:: v_sspec(:)
+c      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
       character strn*1000,outs*20,strn2*1000
       integer i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg,
      . igets,a2vec,NULLI
@@ -52,8 +52,8 @@ c      data prgnam /'LMDOS'/
       integer::ic
       real(8):: bz_w,dval!test
       logical:: fileexist,ipr10,lshow,lshowp
-      integer,parameter:: lstrn=10000
-      character(lstrn):: sstrnmix,sstrnsymg
+c      integer,parameter:: lstrn=10000
+c      character(lstrn):: sstrnmix,sstrnsymg
       integer:: ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff
       character(5) :: charnum5
 #if MPI | MPIK
@@ -164,15 +164,18 @@ c      call finits(2,0,0,i)
       endif
       write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)") trim(prgnam),nrecs
       if(lshowp) call cexit(0,1)
-!! --- Read recrd --- We store all readin data to structures v_*.
+
+      
+!! --- Read recrd --- We store all readin data to module varables in m_rdctrl2_func 
  1111 continue
-      call rdctrl2(recrd,recln0,nrecs,prgnam, 
-     . slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-     . v_sarry,sstrnmix,sstrnsymg)  
+      call rdctrl2(recrd,recln0,nrecs,prgnam) 
+!!     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
+!!     . v_sarry,sstrnmix,sstrnsymg  
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-!! --------- end of readin ctrl file. All info is stored in v_* ---------------
+!! ------ End of readin ctrl file. 
+     
       
 !!--- Lattice setup:deformation ---
       call lattic(v_slat,v_sctrl%nbas)
@@ -226,7 +229,7 @@ c      call finits(2,0,0,i)
         v_slat2=v_slat
         strn2=trim(strn)//' '//trim(symgaf)
         if(procid==master) call pshpr(60)
-        call mksym(lc,slabl,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
+        call mksym(lc,slabl_,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
         if(procid==master) call poppr()
         if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
         ngrpaf=v_slat2%nsgrp
@@ -255,7 +258,7 @@ c$$$        enddo
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite,v_sarry)
       if(procid==master) call poppr
 c$$$!! test1 ------------------
 c$$$      ngrp=v_slat%nsgrp

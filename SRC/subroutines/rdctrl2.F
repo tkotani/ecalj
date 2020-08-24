@@ -1,12 +1,28 @@
       module m_rdctrl2_func
+      use m_struc_def,only: s_bz,s_ctrl,s_ham,s_pot,s_lat,s_mix,s_array,s_spec,s_site
+      
+      integer,parameter :: mxspec=256,lstrn=10000
+      character(8):: slabl_(mxspec) 
+      character(lstrn):: sstrnmix,sstrnsymg
+
+      type(s_bz):: v_sbz
+      type(s_ctrl):: v_sctrl,v_sctrl2
+      type(s_ham):: v_sham
+      type(s_pot):: v_spot
+      type(s_lat):: v_slat,v_slat2
+      type(s_mix):: v_smix
+      type(s_array):: v_sarry,v_sarry2
+      type(s_spec),allocatable:: v_sspec(:)
+      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
+
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11
       real(8),protected::str_mxnbr,str_rmax
 
       contains
       subroutine rdctrl2(
-     i  recrd,recln,nrecs, prgnam, 
-     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
-     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
+     i  recrd,recln,nrecs, prgnam)
+c     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
+c     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
 
       use m_gtv,only: gtv_setrcd
       use m_struc_func
@@ -202,23 +218,20 @@ C ----------------------------------------------------------------------
       character*(recln),intent(in):: recrd(nrecs)
       character,intent(in)::  prgnam*(*) 
 
-      character slabl_(1)*8
       character strn*(recln)
-      type(s_bz):: v_sbz
-      type(s_ctrl):: v_sctrl
-      type(s_ham):: v_sham
-      type(s_pot):: v_spot
-      type(s_lat):: v_slat
-      type(s_mix):: v_smix
-c      type(s_str):: v_sstr
-      type(s_array):: v_sarry
-c      type(s_move):: v_smove
-c      type(s_tb):: v_stb
-      type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:)
+
+c$$$      type(s_bz):: v_sbz
+c$$$      type(s_ctrl):: v_sctrl
+c$$$      type(s_ham):: v_sham
+c$$$      type(s_pot):: v_spot
+c$$$      type(s_lat):: v_slat
+c$$$      type(s_mix):: v_smix
+c$$$      type(s_array):: v_sarry
+c$$$      type(s_spec),allocatable:: v_sspec(:)
+c$$$      type(s_site),allocatable:: v_ssite(:)
+c$$$      character*(*)::sstrnmix,sstrnsymg
 
       integer:: i_spec
-      character*(*)::sstrnmix,sstrnsymg
 c      character(6):: vrsion(2)
 c      double precision vn(2),vn2(2)
 C ... Local parameters
