@@ -1,7 +1,7 @@
       subroutine supot(mode,sctrl,slat,spot)
       use m_work,only: rv_a_omad,rv_a_opos,rv_a_ogv,iv_a_okv,zv_a_osmrho,sv_a_oorhat,zv_a_osmpot
      & ,rv_a_odlv,rv_a_oqlv,zv_a_obgv,iv_a_oips0,rv_a_osymgr,rv_a_oag 
-      use m_rdctrl,only :lcd4
+      use m_lmfinit,only :lcd4
       use m_struc_def  
 C- Initialization for potential
 C ----------------------------------------------------------------------

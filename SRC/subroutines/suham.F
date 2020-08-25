@@ -452,7 +452,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_rdctrl,only:lso
+      use m_lmfinit,only:lso
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs

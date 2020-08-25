@@ -3,7 +3,7 @@
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
-      use m_rdctrl,only:lso
+      use m_lmfinit,only:lso
       use m_struc_def  !Cgetarg
       use m_globalvariables
 !! documents below are under construction.

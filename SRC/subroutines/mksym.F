@@ -1,4 +1,4 @@
-      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
+      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite)!,sarray)
 c     & ,nbas,iv_a_oips,nspec,
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -76,7 +76,7 @@ C ----------------------------------------------------------------------
       type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_site)::ssite(*)
-      type(s_array)::sarray
+c      type(s_array)::sarray
       integer ::iwdummy 
       logical T,F,cmdopt,a2bin,ltmp
       integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
@@ -260,7 +260,7 @@ C --- Create nrc and class labels ---
       endif
 C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass
-      sarray%nclasp=nclasp
+c      sarray%nclasp=nclasp
   100 continue
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp

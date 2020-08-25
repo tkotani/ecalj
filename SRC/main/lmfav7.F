@@ -2,8 +2,8 @@
       use m_struc_def
 c      use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
-      use m_rdctrl, only: !rdctrl2,
-     &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
+      use m_lmfinit, only: !rdctrl2,
+     &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sspec,v_ssite,  !v_sarry2
      &     v_ssite2,sstrnmix,sstrnsymg
       use m_work,only: rv_a_opos
       implicit none
@@ -146,7 +146,7 @@ C --- Generate symmetry operations; split species into classes  ---
 c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
       if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
       print *,'goto mksym:',trim(strn)
-      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite)!,v_sarry)
       print *,'end of mksym x'
 C ... Set default values for species data
       print *,'goto defspc'

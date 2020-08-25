@@ -3,7 +3,7 @@
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_rdctrl,only:lso
+      use m_lmfinit,only:lso
       use m_work,only: iv_a_oindxo
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------

@@ -1,10 +1,10 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
       use m_struc_def,only: s_bz,s_ctrl,s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site !,s_move,s_str,
-      use m_rdctrl, only: 
+      use m_lmfinit, only: 
      &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg
-      use m_rdctrl,only: symgaf !read in call rdctrl2
+      use m_lmfinit,only: symgaf !read in call rdctrl2
       use m_hamindex,only: 
      &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
 c     &  symops,invgx,ag,
@@ -246,7 +246,7 @@ c$$$       endif
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite,v_sarry)
+      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite)!,v_sarry)
       if(procid==master) call poppr
 c$$$!! test1 ------------------
 c$$$      ngrp=v_slat%nsgrp

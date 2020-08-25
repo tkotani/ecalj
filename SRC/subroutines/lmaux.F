@@ -1,7 +1,7 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
      .sarray,sbz,slabl,mode,wksize) !,sstrn
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
-      use m_rdctrl,only: irs11,str_mxnbr,str_rmax
+      use m_lmfinit,only: irs11,str_mxnbr,str_rmax
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin

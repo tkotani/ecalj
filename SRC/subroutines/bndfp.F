@@ -16,7 +16,7 @@
      &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,
      &     iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
-      use m_rdctrl, only: ncutovl,lso
+      use m_lmfinit, only: ncutovl,lso
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
       use m_subzi, only: subzi

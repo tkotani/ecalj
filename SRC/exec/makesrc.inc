@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_lmfinit.o\
 m_work.o\
 toksw_init.o\
 writeband.o\
@@ -9,7 +10,6 @@ m_lmdata.o\
 lmhelp.o\
 show_programinfo.o\
 util.o\
-m_rdctrl.o \
 m_toksw.o \
 m_psigd.o \
 m_hamindex.o \
