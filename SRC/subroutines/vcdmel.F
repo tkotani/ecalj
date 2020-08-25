@@ -1,5 +1,6 @@
       subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,sbz,dosw)
+      use m_work,only: iv_a_oidtet !sbz
       use m_struc_def
       use m_ext,only: sname !extention for file
 C- Valence-core dipole matrix elements
@@ -178,7 +179,7 @@ c     enddo
 c     enddo
       allocate(dos_rv(npts,nsp,nchan))
       call dostet ( ndham , nsp , nspx , nbandx , nchan ,
-     &     sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , sbz%iv_a_oidtet, evl
+     &     sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , iv_a_oidtet, evl
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
 c     print *,'end of dostet xxxxx', npts,nsp,nchan
       del = 0d0

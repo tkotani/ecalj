@@ -2,6 +2,7 @@
 !!  m_rdctrl is used in rdctrl2.F
       module m_rdctrl
       use m_struc_def
+      use m_ext,only :sname
       implicit none
 !! Fixed parameters
       integer,parameter :: NULLI =-99999
@@ -289,7 +290,7 @@ c      type (s_mix) :: vamix
       logical:: isanrg, l_dummy_isanrg
       integer:: lx
 
-      character(512)::sname
+c      character(512)::sname
       character*256:: sss
       logical:: sexist
       integer:: ipos,ifi,fopn,ifile_handle,lxx
@@ -1346,12 +1347,9 @@ C       rsmv(j) = rmt(j)*.5d0   !Not input
         pnu(1,1,j) = NULLI      !If sought, default will be set below
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec ddd222 mxcst j-loop j nspec nlaj=',j,nspec,nlaj
-ccccccccccccccccccccccccccc
 
         if (nlaj .ne. 0) then
-
           nm='SPEC_ATOM_LMXL'; call gtv(trim(nm),tksw(prgn,nm),lmxl(j),
      .    cindx=jj,def_i4=lmxaj,note=
      .    'lmax for which to accumulate rho,V in sphere')
@@ -1597,32 +1595,17 @@ ccccccccccccccc
           nm='SPEC_ATOM_MIX'; call gtv(trim(nm),tksw(prgn,nm),mxcst1(j),
      .    def_lg=F,cindx=jj,note='Set to suppress '//
      .    'self-consistency of classes in this spec')
-ccccccccccccccccccccccccc
           if(debug) print *,' mxcst nspec 111 =',nspec,j,jj,mxcst1(j)
-c        stop 'xxxxxxxxxxxx'
-ccccccccccccccccccccccccc
           nm='SPEC_ATOM_CSTRMX'; call gtv(trim(nm),tksw(prgn,nm),
      .    mxcst2(j),cindx=jj,def_lg=F,note='Set to exclude this'//
      .    ' species when automatically resizing sphere radii'//
      .    ' (SCLWSR>0)')
           if (sclwsr .eq. 0) mxcst2(j) = F
-
           nm='SPEC_ATOM_FRZWF'; call gtv(trim(nm),tksw(prgn,nm),
      .    mxcst4(j),cindx=jj,def_lg=F,note=
      .    'Set to freeze augmentation wave functions for this species')
-
         endif    ! end of input dependent on presence of aug sphere.
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec eee222 mxcst j-loop j nspec',j,nspec
-
-        nm='SPEC_ATOM_RHAM'; call gtv(trim(nm),tksw(prgn,nm),rham(j),
-     .  cindx=jj,note='Radius delimiting range of r.s. hamiltonian')
-
-        nm='SPEC_ATOM_GROUP'; call gtv(trim(nm),tksw(prgn,nm),
-     .  grp(j),def_i4=0,cindx=jj)
-        nm='SPEC_ATOM_GRP2'; call gtv(trim(nm),tksw(prgn,nm),
-     .  grp2(j),def_i4=0,cindx=jj)
-
 !!
         sw = tksw(prgn,'SPEC_ATOM_IDU')
         if (io_help .gt. 0 .and. sw .lt. 2) then
@@ -1637,24 +1620,18 @@ cccccccccccccccccccccctakao
      .  def_r8v=zerov,note='Exchange parameter J for LDA+U')
 
 !! 2019 auto off lda+u uh jh if sigm exist
-!
-!!    A trick to get the extension of ctrlfile. It is stored to trim(sname).!followings are take from bndfp.F
-!! check sigm.* exist or not
-c        write(*,*) 'xxxxxxxxxxxxxxxxxxxxxxxxxxx22222222222'
-
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
 !! get sexist if sigm.* exist.
-          ifi=fopn('tempyyy') 
-          sss=''
-          INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-          call fclose(ifi)
-          ipos = scan(sss,'.',back=.true.) !backward search of '.' from the last.
-          sname= sss(ipos+1:256) !sname contains extention such as 'copt'.
-          ifi=ifile_handle()
-          open(ifi, file='tempyyy.'//trim(sname)) 
-          close(ifi,status='delete')
+c          ifi=fopn('tempyyy') 
+c          sss=''
+c          INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
+c          call fclose(ifi)
+c          ipos = scan(sss,'.',back=.true.) !backward search of '.' from the last.
+c          sname= sss(ipos+1:256) !sname contains extention such as 'copt'.
+c          ifi=ifile_handle()
+c          open(ifi, file='tempyyy.'//trim(sname)) 
+c          close(ifi,status='delete')
           inquire(file='sigm.'//trim(sname),exist=sexist)
-          
           if(sexist) then
             write(6,*)'We find sigm file --> noLDA+U-> set UH=JH=0'
             do lxx=0+1,3+1
@@ -1683,83 +1660,15 @@ c        write(6,"('j jh =',i5,256f10.5)")j, jh(:,j)
      .  def_i4=4,cindx=jj,note='l-cutoff for product basis')
 c        if (nout==0) spec_lmxpb(j)='        '
 
-C   ... tbe specific
-        nm='SPEC_ATOM_QPOL'; call gtv(trim(nm),tksw(prgn,nm),
-     .  qpol(:,j),def_r8v=zerov,cindx=jj,note=
-     .  'up to ten polarisability parameters')
-        nm='SPEC_ATOM_I'; call gtv(trim(nm),tksw(prgn,nm),stni(j),
-     .  def_r8=0d0,cindx=jj,note='TB Stoner I (l=2)')
-        nm='SPEC_ATOM_FRZQ1'; call gtv(trim(nm),tksw(prgn,nm),
-     .  iq1(1:nlbj*nsp,j),nmin=nlbji*nsp,def_i4v=izerv,
-     .  note='Switches to freeze site energies')
-        nm='SPEC_ATOM_FRZVSO'; call gtv(trim(nm),tksw(prgn,nm),
-     .  ivso(2:nlbj,j),nmin=max(nlbji-1,NULLI),def_i4v=izerv,
-     .  note='Switches to freeze TB spin-orbit parameters')
-
-c        if (lncol4 .and. lmxaj .ge. 1 .or. io_help .ne. 0) then
-        if (lso==1 .and. lmxaj .ge. 1 .or. io_help .ne. 0) then
-c          call dpzero(tmp,n0)
-c          if (optio .eq. 1) call pack2('spec alpha',sspec,j,tmp)
-c          i0 = partks(recrd(catbeg),'VSO=','=','spec alpha:2',sspec,j,
-c     .      'TB spin-orbit parameters',-lmxb,4,i1,TF(30))
-c          tmp=0
-          tbvso(:,j)=0
-          nm='SPEC_ATOM_VSO'
-          call gtv(trim(nm),tksw(prgn,nm),tbvso(2:nlbj,j),
-     .    def_r8v=zerov,cindx=jj,note='TB spin-orbit parameters')
-        endif
-
-C   ... molecules-specific.  lmxb will change, so use TF(34) for now
-c        i0 = partks(recrd(catbeg),'LMXB=','=','spec lmxpb',sspec,j,
-c     .    'compound l-cutoffs for basis (molecules)',-1,2,i1,TF(34))
-c        i0 = partks(recrd(catbeg),'LXI=','=','spec lxi',sspec,j,
-c     .    'l-cutoffs for interstitial product basis',-1,2,i1,TF(34))
-c        i = igetss('spec lxi',j,sspec)
-c        call lx2vec(i,0,ii,ivec)
-c        i0 = partks(recrd(catbeg),'EXI=','=','spec exi',sspec,j,
-c     .    'Hankel energies for interstitial product basis',-ii,4,i1,
-c     .    TF(34))
-c        i0 = partks(recrd(catbeg),'RINT=','=','spec rint',sspec,j,
-c     .    'range of interstitial product basis',-1,4,i1,TF(35))
-c        i0 = partks(recrd(catbeg),'RCUT=','=','spec rcut',sspec,j,
-c     .    'radius over which true,smooth Hankels differ',-1,4,i1,TF(36))
-
-        nm='SPEC_ATOM_LMXB'; call gtv(trim(nm),tksw(prgn,nm),lmxpb(j),
-     .  cindx=jj,note='compound l-cutoffs for basis (molecules)')
-        nm='SPEC_ATOM_LXI'; call gtv(trim(nm),tksw(prgn,nm),lxi(j),
-     .  cindx=jj,note='l-cutoffs for interstitial product basis')
-        nm='SPEC_ATOM_EXI'; call gtv(trim(nm),tksw(prgn,nm),exi(:,j),
-     .  cindx=jj,note='Hankel energies for interstitial product basis'
-     .  ,nout=nout)
-        if (nout .ge. 0) nxi(j) = nout
-        nm='SPEC_ATOM_RINT'; call gtv(trim(nm),tksw(prgn,nm),rint(j),
-     .  cindx=jj,note='range of interstitial product basis')
-        nm='SPEC_ATOM_RCUT'; call gtv(trim(nm),tksw(prgn,nm),rcut(j),
-     .  cindx=jj,note='radius over which true,smooth Hankels differ')
-
 C       Some sanity checks
         if (io_help == 0 .and. lmxaj .ge. 0) then
           if (tksw(prgn,'SPEC_ATOM_LFOCA') /= 2)
-Ckino isanrg is logical function,      .    call isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
      .    l_dummy_isanrg=isanrg(lfoca(j),0,2,'rdctrl','lfoca',T)
-ckino isanrg is logical function          if (tksw(prgn,'SPEC_ATOM_LMXL') /= 2) call
           if (tksw(prgn,'SPEC_ATOM_LMXL') /= 2) l_dummy_isanrg=
      .    isanrg(lmxl(j),min(0,lmxaj),max(0,lmxaj),'rdctrl','lmxl',T)
           if (tksw(prgn,'SPEC_ATOM_KMXA') /= 2)
-Ckino isanrg is logical function,      .    call isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
      .    l_dummy_isanrg=isanrg(kmxt(j),2,25,' rdctrl (warning):','kmxa',F)
         endif
-
-c        i0 = partks(recrd(catbeg),'C-HOLE ',' ','spec coreh',sspec,j,
-c     .    'channel for core hole',1,1,i1,TF(19))
-c        i0 = partks(recrd(catbeg),'C-HQ=','= ,','spec coreq',sspec,j,
-c     .    'Charge in core hole.  '//
-c     .    'Optional 2nd entry is moment of core hole:'//
-c     .    '%N%12fQ(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2'//
-c     .    '%N%12fQ(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2',2,4,i1,TF(19))
-c        i0 = partks(recrd(catbeg),'EREF=','=','spec eref',sspec,j,
-c     .    'Reference energy subtracted from total energy',1,4,i1,TF(4))
-
         coreh(j) = ' '
         nm='SPEC_ATOM_C-HOLE'; call gtv(trim(nm),tksw(prgn,nm),coreh(j),
      .  nmin=10,cindx=jj,note='Channel for core hole')
@@ -1769,98 +1678,39 @@ c     .    'Reference energy subtracted from total energy',1,4,i1,TF(4))
      .  'Optional 2nd entry is moment of core hole:'//
      .  '%N%5fQ(spin1) = full + C-HQ(1)/2 + C-HQ(2)/2'//
      .  '%N%5fQ(spin2) = full + C-HQ(1)/2 - C-HQ(2)/2')
-
         nm='SPEC_ATOM_EREF'; call gtv(trim(nm),tksw(prgn,nm),eref(j),
      .  def_r8=0d0,cindx=jj,note=
      .  'Reference energy subtracted from total energy')
-
-c        nchoos = 2
-c        call upack('spec mass',sspec,j,xx,0,0,0) !I think mass==0 here
-c        noerr = .false.
-c        if (xx .eq. 0) then
-c          i0 = partok(recrd(catbeg),'ISOTOPE=','=',xx,
-c     .      'relative atomic mass (for dynamics)',-1,4,i1,
-c     .      TF(17))
-c          if (i0 .eq. 1) then
-c            ncor = 0
-c            i0 = partok(recrd(catbeg),'NCOR=','=',ncor,' ',-1,2,i1,F)
-cC       ... Work out atomic mass from neutron, proton and electron masses
-c            nmass = 1836.153d0/2d0
-c            pmass = 1838.684d0/2d0
-c            emass = 0.5d0
-c            xx = z*pmass + (xx-z)*nmass + ncor*emass
-c            call pack5('spec mass',sspec,j,xx,0,0,0)
-c            noerr = .true.
-c          endif
-
         nm='SPEC_ATOM_AMASS'; call gtv(trim(nm),tksw(prgn,nm),mass(j),
      .  cindx=jj,note='Nuclear mass in a.u. (for dynamics)')
-
-C        Needs to be cleaned up
-C        sw = tksw(prgn,'SPEC_ATOM_ISOTOPE')
-C        if (sw/=2 .or. io_help) then
-C          sw=0
-C          nm='SPEC_ATOM_ISOTOPE'; call gtv(trim(nm),sw,
-C     .      xx,cindx=jj, nmin=0,note=
-C     .      'Relative atomic mass (for dynamics)',nout=nout, or=.true.)  !,-1,4,i1, TF(17))
-C          if (nout>0) then
-C            ncor = 0  !??? default???
-C            nm='SPEC_ATOM_NCOR'; call gtv(trim(nm),sw,
-C     .      ncor,cindx=jj ) !' ',-1,2,i1,F)
-CC       ... Work out atomic mass from neutron, proton and electron masses
-C            nmass = 1836.153d0/2d0
-C            pmass = 1838.684d0/2d0
-C            emass = 0.5d0
-Cc            xx = z*pmass + (xx-z)*nmass + ncor*emass
-Cc            call pack5('spec mass',sspec,j,xx,0,0,0)
-C            mass(j)=z(j)*pmass + (xx-z(j))*nmass + ncor*emass
-Cc            noerr = .true.
-C          else
-C          endif
-C        endif
-
-        nm='SPEC_ATOM_COLOUR'; call gtv(trim(nm),tksw(prgn,nm),
-     .  colxbs(:,j),def_r8v=zerov,cindx=jj,note=
-     .  'Colour for xbs') !,-3,4,i1,TF(37))
-        xx = rmt(j); if (io_help .eq. 1) xx = NULLI
-        nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgn,nm),
-     .  radxbs(j),def_r8=xx,cindx=jj,note='Radius for xbs')
+c        nm='SPEC_ATOM_COLOUR'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  colxbs(:,j),def_r8v=zerov,cindx=jj,note=
+c     .  'Colour for xbs') !,-3,4,i1,TF(37))
+c        xx = rmt(j); if (io_help .eq. 1) xx = NULLI
+c        nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgn,nm),
+c     .  radxbs(j),def_r8=xx,cindx=jj,note='Radius for xbs')
       enddo                     ! Loop over species
 C ... Cleanup after looping over species data
       if (io_help==0) then
 C       Maximum L-cutoff
         call imxmn(nspec,lmxa,1,i0,lmxax)
         nlmax = (lmxax+1)**2
-C       Set global variables nkaph and mxorb
         nkaph = nkaph+lpzi-1
-C       print *, nkaph,nlmax,nkaph*nlmax
-Changenglob        xx = dglob('nkaph',dble(nkaph),1)
-        globalvariables%nkaph = dble(nkaph); globalvariables%l_nkaph = globalvariables%l_nkaph +1; xx = dble(nkaph)
-Changenglob        xx = dglob('nlmax',dble(nlmax),1)
-        globalvariables%nlmax = dble(nlmax); globalvariables%l_nlmax = globalvariables%l_nlmax +1; xx = dble(nlmax)
-Changenglob        xx = dglob('mxorb',dble(nkaph)*nlmax,1)
-        globalvariables%mxorb = dble(nkaph)*nlmax; globalvariables%l_mxorb = globalvariables%l_mxorb +1; xx = dble(nkaph)*nlmax
+        globalvariables%nkaph = dble(nkaph); globalvariables%l_nkaph = globalvariables%l_nkaph +1
+        globalvariables%nlmax = dble(nlmax); globalvariables%l_nlmax = globalvariables%l_nlmax +1
+        globalvariables%mxorb = dble(nkaph)*nlmax; globalvariables%l_mxorb = globalvariables%l_mxorb +1
       endif
    79 continue
 
-C --- Site ---
-      if (io_show+io_help/=0 .and. tksw(prgn,'SITE')/=2) call info0(1,1,
-     .0,' --- Parameters for site data ---')
-
-c      print *, 'goto Site in m_rdctrl'
-
-C     SITE call is only helpful for printout
-C      nm='SITE'; sw = tksw    (prgn,nm); if (sw == 2) goto 89
-C      if (io_help /= 0 .or. io_show>0) write(stdo,'(1x)')
-C      call gtv(trim(nm),sw,Texist=ltmp,note='Site-specific parameters')
-
+!! --- Site ---
+      if (io_show+io_help/=0 .and. tksw(prgn,'SITE')/=2) call info0(1,1,0,' --- Parameters for site data ---')
       if (io_help .eq. 1) then
         nbas = 1
         nsite =2
       endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
      .ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
-     .mpole(nsite),dpole(3,nsite), iantiferro(nsite))
+     . iantiferro(nsite)) !mpole(nsite),dpole(3,nsite),
 c      if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
 C     Default values
@@ -1873,40 +1723,39 @@ C     Default values
 C     Should always be set, if used
       ips  = NULLI
       pos  = NULLR
-      mpole = 0d0
-      dpole = 0d0
+c      mpole = 0d0
+c      dpole = 0d0
 
-      nm='SITE_FILE'; call gtv(trim(nm),tksw(prgn,nm),outs,nmin=10,
-     .nout=nout, note=
-     .'Name of site file containing basis and lattice information.'//
-     .'%N%3fIf this token is specified, read POS from site file,'//
-     .'%N%3fand VEC, EULA, VSHFT, PL, RLX, if they are present.'
-     .//'%N%3fIn this case no attempt is made to read the SITE '
-     .//'tokens below.')
-
-      if (nout == 1) then
-C       Get FILE lio to see what it contains
-        if (procid .eq. master) then
-          j = iosite(16000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
-     .    nspec,xx,xx,xx,xx,xx,xx,xx)
-          ii = 8000 + 140
-C         File contains vel,eula,PL,rlx,vshft
-          if (mod(j/32,2) .eq. 1) then
-            ii = ii + 32000
-          endif
-c          if (ltbe) ii = ii + 64000
-          j = iosite(ii,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
-     .    nspec,pos,vel,eula,vshft,ips,ipl,irlx)
-        endif
-        call mpibc1(pos,3*nsite,4,mlog,'readctrl','pos')
-        call mpibc1(vel,3*nsite,4,mlog,'readctrl','vel')
-        call mpibc1(eula,3*nsite,4,mlog,'readctrl','eula')
-        call mpibc1(vshft,nsite,4,mlog,'readctrl','vshft')
-        call mpibc1(ips,nsite,2,mlog,'readctrl','ips')
-        call mpibc1(ipl,nsite,2,mlog,'readctrl','ipl')
-        call mpibc1(irlx,3*nsite,2,mlog,'readctrl','irlx')
-        goto 89
-      endif
+c$$$      nm='SITE_FILE'; call gtv(trim(nm),tksw(prgn,nm),outs,nmin=10,
+c$$$     .nout=nout, note=
+c$$$     .'Name of site file containing basis and lattice information.'//
+c$$$     .'%N%3fIf this token is specified, read POS from site file,'//
+c$$$     .'%N%3fand VEC, EULA, VSHFT, PL, RLX, if they are present.'
+c$$$     .//'%N%3fIn this case no attempt is made to read the SITE '
+c$$$     .//'tokens below.')
+c$$$      if (nout == 1) then
+c$$$C       Get FILE lio to see what it contains
+c$$$        if (procid .eq. master) then
+c$$$          j = iosite(16000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
+c$$$     .    nspec,xx,xx,xx,xx,xx,xx,xx)
+c$$$          ii = 8000 + 140
+c$$$C         File contains vel,eula,PL,rlx,vshft
+c$$$          if (mod(j/32,2) .eq. 1) then
+c$$$            ii = ii + 32000
+c$$$          endif
+c$$$c          if (ltbe) ii = ii + 64000
+c$$$          j = iosite(ii,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
+c$$$     .    nspec,pos,vel,eula,vshft,ips,ipl,irlx)
+c$$$        endif
+c$$$        call mpibc1(pos,3*nsite,4,mlog,'readctrl','pos')
+c$$$        call mpibc1(vel,3*nsite,4,mlog,'readctrl','vel')
+c$$$        call mpibc1(eula,3*nsite,4,mlog,'readctrl','eula')
+c$$$        call mpibc1(vshft,nsite,4,mlog,'readctrl','vshft')
+c$$$        call mpibc1(ips,nsite,2,mlog,'readctrl','ips')
+c$$$        call mpibc1(ipl,nsite,2,mlog,'readctrl','ipl')
+c$$$        call mpibc1(irlx,3*nsite,2,mlog,'readctrl','irlx')
+c$$$        goto 89
+c$$$      endif
 
       if (io_help .eq. 1) then
         if (iprint() .gt. 0) write(*,383)
@@ -1919,9 +1768,8 @@ c          if (ltbe) ii = ii + 64000
         nsite = 2
       endif
 
-C ... Site data, one pass for each atom
+!! ... Site data, one pass for each atom
       do  j = 1, nbas
-
         if (io_help /= 0) then
           write(stdo,'(1x)')
         elseif (io_help == 0 .and. io_show>0) then
@@ -1944,10 +1792,7 @@ c              print *, alabl,' xxx ', i,ips(j)
      .    ' nonexistent species: ',alabl)
         endif
   881   continue
-
-C       call snit
-C
-C   ... Site positions
+!!  ... Site positions
         sw = tksw(prgn,'SITE_ATOM_XPOS')
         nm='SITE_ATOM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
      .  nout=nout,cindx=jj,note='Atom coordinates, in units of alat',
@@ -2001,65 +1846,15 @@ C   ... Site positions
         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgn,nm),plv(j),
      .  def_i4=0,cindx=jj,
      .  note='Assign PL potential index to this site')
-
 !! takao
         nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgn,nm),iantiferro(j),
      .  cindx=jj,def_i4=0,
      .  note='antiferro ID:=i and -i should be af-pair, we look for space-group operation with spin-flip')
-
-C$$$        nm='SITE_ATOM_DELTA'; sw = tksw(prgn,nm)
-C$$$        if (sw /= 2 .and. ltbe) then
-C$$$          if (io_help .eq. 1) then
-C$$$            nlbji = NULLI
-C$$$            nlbj = 1
-C$$$          elseif (lmxb(i) == NULLI) then
-C$$$            nlbji = NULLI
-C$$$            nlbj = 0
-C$$$          else
-C$$$            i = ips(j)
-C$$$            nlbj = 1+lmxb(i)
-C$$$            nlbji = nlbj
-C$$$          endif
-C$$$          ndelta(j)=nlbj*nsp
-C$$$          call gtv(trim(nm),sw,delta(1:nlbj*nsp,j),nmin=nlbji*nsp,
-C$$$     .      cindx=jj,def_r8v=zerov,
-C$$$     .      note='Vector of on-site energy shifts')
-C$$$        endif
-
-C        nm='SITE_ATOM_SID'; call gtv(trim(nm),tksw(prgn,nm),sid(j),
-C     .    def_i4=0,cindx=jj,note=
-C     .    'Site ID, used in the merging of coincident clusters')
-C
       enddo
-
-C ... Input for point multipoles
-      sw = tksw(prgn,'SITE_PM')
-      if (sw .lt. 2) then
-        if (io_help == 1) nbasp=nbas+1
-        if (nbasp .gt. nbas) then
-          if (io_show>0) write
-     .    (stdo,'(/'' The following input is for point multipoles:'')')
-          do j = nbas+1, nbasp
-
-            jj=(/1,j-nbas/)
-C          nm='SITE_PM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
-C     .      nout=nout,cindx=jj,note='PM coordinates, in units of alat')
-
-            nm='SITE_PM_POS'; call gtv(trim(nm),tksw(prgn,nm),pos(:,j),
-     .      cindx=jj,note='PM coordinates, in units of alat')
-
-            nm='SITE_PM_Q'; call gtv(trim(nm),tksw(prgn,nm),mpole(j),
-     .      def_r8=0d0,cindx=jj,note='Point monopole moment')
-
-            nm='SITE_PM_P'; call gtv(trim(nm),tksw(prgn,nm),dpole(:,j),
-     .      def_r8v=zerov,cindx=jj,note='Point dipole moment')
-          enddo
-        endif
-      endif
-
+      
    89 continue
 
-C --- Structure constants ---
+!! --- Structure constants ---
       if (io_show+io_help/=0 .and. tksw(prgn,'STR')/=2) call info0(1,1,
      .0,' --- Parameters for structure constants ---')
       nm='STR_RMAXS'; call gtv(trim(nm),tksw(prgn,nm),str_rmax,
@@ -2069,89 +1864,12 @@ C --- Structure constants ---
      .  def_r8=0d0,note='Radial cutoff for strux, in units of avw')
         str_rmax = str_rmax*avw
       endif
-
-C     Energies for NMTO structure constants
-c      nm='STR_ENV_MODE'; call gtv(trim(nm),tksw(prgn,nm),str_mode,
-c     .  def_i4=0,note='Type of envelope functions:'//
-c     .  '%N%3f0 2nd generation'//
-c     .  '%N%3f1 SSSW (3rd generation)'//
-c     .  '%N%3f2 NMTO'//
-c     .  '%N%3f3 SSSW and val-lap basis')
-
-c      nkapsi = 1
-c      if (str_mode == 2) nkapsi=2
-c      if (io_help .eq. 1) nkapsi = NULLI
-c      if (str_mode .eq. 0) then
-c        str_nkaps = 1
-c      else
-c        nm='STR_ENV_NEL'; call gtv(trim(nm),tksw(prgn,nm),str_nkaps,
-c     .    def_i4=nkapsi,note='Number of SSSW or NMTO energies')
-c        if (str_mode .eq. 2)
-Ckino isanrg is logical function, c     .    call isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
-c     .    l_dummy_isanrg=isanrg(str_nkaps,2,5,'rdctrl','NEL',.true.)
-c        nkapsi = str_nkaps
-c        if (io_help .eq. 1) then
-c          str_nkaps = 1
-c          nkapsi = NULLI
-c        endif
-c        nm='STR_ENV_EL';call gtv(trim(nm),tksw(prgn,nm),
-c     .    str_kaps(1:str_nkaps),nmin=nkapsi,def_r8v=(/0d0,-1d0,2.3d0/),
-c     .    note='SSSW or NMTO energies, atomic units')
-c      endif
-
       nm='STR_MXNBR'; call gtv(trim(nm),tksw(prgn,nm),str_mxnbr,
      .def_i4=0,note='Max number of nbrs (for dimensioning arrays)')
-c      nm='STR_SHOW'; call gtv(trim(nm),tksw(prgn,nm),str_lshow1,
-c     .  def_lg=F,note='Show strux after generating them')
-c      nm='STR_EQUIV'; call gtv(trim(nm),tksw(prgn,nm),str_lequiv1,
-c     .  def_lg=F,note='Look for equivalent strux')
 
-c      nm='STR_LMAXW'; call gtv(trim(nm),tksw(prgn,nm),str_lmaxw,
-c     .  def_i4=-1,note=
-c     .  'l-cutoff for Watson sphere, used to help localize strux')
-c      nm='STR_DELRW'; call gtv(trim(nm),tksw(prgn,nm),str_drwats,
-c     .  def_r8=0.1d0,note='Padding beyond cluster for Watson sphere')
-
-c      if (io_help /= 0 .and. tksw(prgn,'STR_IINV_NIT')/=2)
-c     .  call info0(1,1,0,' * IINV parameters '//
-c     .  'govern iterative solutions to screened strux')
-c      nm='STR_IINV_NIT'; call gtv(trim(nm),tksw(prgn,nm),iinv_nit,
-c     .  def_i4=0,note='Number of iterations')
-c      nm='STR_IINV_NCUT'; call gtv(trim(nm),tksw(prgn,nm),iinv_ncut,
-c     .  def_i4=0,note='Number of sites for inner block')
-c      nm='STR_IINV_TOL'; call gtv(trim(nm),tksw(prgn,nm),iinv_tol,
-c     .  def_r8=0d0,note='Tolerance in errors')
-
-c      nm='STR_RVL/R'; call gtv(trim(nm),tksw(prgn,nm),str_rmaxg,
-c     .  def_r8=0.7d0,note='Radial cutoff for val-lap, in units of RMAX')
-
-c      nm='STR_VLFUN'; call gtv(trim(nm),tksw(prgn,nm),str_ivl,
-c     .  def_i4=0,note='Functions for val-lap basis'//
-c     .  '%N%10f0 G0 + G1'//
-c     .  '%N%10f1 G0 + Hsm'//
-c     .  '%N%10f2 G0 + Hsm-dot')
-
-C$$$C --- Two-center fit ---
-C$$$      if (io_help .eq. 1 .and. tksw(prgn,'TCF')/=2) call info(1,1,0,
-C$$$     .  ' * The following tokens are used for the 2-center fit',0,0)
-C$$$      nm='TCF_NBISI'; call gtv(trim(nm),tksw(prgn,nm),tcf_nbisi,
-C$$$     .  note='Mesh parameters for TCF ')
-C$$$      nm='TCF_NALF'; call gtv(trim(nm),tksw(prgn,nm),tcf_nalf,
-C$$$     .  note=
-C$$$     .  'Polynomial order for d-dependence of TCF fit coffs ')
-C$$$      nm='TCF_NCUPL'; call gtv(trim(nm),tksw(prgn,nm),tcf_ncupl,
-C$$$     .  def_i4=8,note='Reduced polynomial order in TCF ')
-C$$$      nm='TCF_NDUST'; call gtv(trim(nm),tksw(prgn,nm),tcf_ndust,
-C$$$     .  def_i4=2,note='No. iterations to improve on TCF ')
-C$$$      nm='TCF_ADEC'; call gtv(trim(nm),tksw(prgn,nm),tcf_adec,
-C$$$     .  def_r8=1d0,note='Log spacing in distance for TCF ')
-C$$$      nm='TCF_WZTCF'; call gtv(trim(nm),tksw(prgn,nm),tcf_wztcf,
-C$$$     .  def_r8=0d0,note='Weighting of z-points in TCF ')
-
-C --- Brillouin Zone ---
+!! --- Brillouin Zone ---
       if (io_show+io_help/=0 .and. tksw(prgn,'BZ')/=2) call info0(1,1,
      .0,' --- Parameters for Brillouin zone integration ---')
-
       nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgn,nm),bz_lio1,
      .def_lg=F,note='Read qp from disk',or=T)
       nm='BZ_NKABC'; sw=tksw(prgn,nm); if (bz_lio1) sw = 2
@@ -2160,17 +1878,14 @@ C --- Brillouin Zone ---
      .'%N%3fSupply one number for all vectors or a separate '//
      .'number for each vector.')
       call fill3in(nout,bz_nabc)
-
       nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgn,nm),bz_lio2,
      .def_lg=F,note='Write qp to disk')
-
       nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgn,nm),bz_lshft,nout=nout,
      .def_i4v=izerv(1:1),note=
      .'0 centers BZ mesh at origin, 1 centers off origin'//
      .'%N%3fSupply one number for all vectors or a separate '//
      .'number for each vector.')
       call fill3in(nout,bz_lshft)
-
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgn,nm),bz_lmet,
      .def_i4=1,note=
      .'0 assume insulator; 1 save evecs on disk; '//
@@ -2183,7 +1898,6 @@ C --- Brillouin Zone ---
          bz_lmet=3
          ctrl_lmet2=.true.
       endif
-
       nm='BZ_N'; call gtv(trim(nm),tksw(prgn,nm),bz_n,
      .def_i4=0,note=
      .'N>0: Polynomial order for Methfessel-Paxton sampling%N%3f'//
@@ -2215,63 +1929,24 @@ C --- Brillouin Zone ---
 !! mar2013
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgn,nm),bz_dosmax,def_r8=1.5d0,
      & note='Maximum energy to which DOS accumulated, relative to Efermi')
-
       xx = 5d0
-c      if (ltbe) xx = 5d0
       nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgn,nm),bz_efmax,
      .def_r8=xx,note='Find evecs up to efmax')
       nm='BZ_NEVMX'; call gtv(trim(nm),tksw(prgn,nm),bz_nevmx,
      .def_i4=0,note='Find at most nevmx eigenvectors'//
      .'%N%3fIf NEVMX=0, program uses internal default'//
      .'%N%3fIf NEVMX<0, no eigenvectors are generated')
-c      nm='BZ_ZVAL'; call gtv(trim(nm),tksw(prgn,nm),bz_zval,def_r8=0d0,
-c     .note='Number of electrons to accumulate in BZ integration')
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_noinv,
      .def_lg=F,note=
      .'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgn,nm),bz_fsmom,
      .def_r8=NULLR,note='Fixed-spin moment (fixed-spin moment method)')
-
       nm='BZ_FSMOMMETHOD';call gtv(trim(nm),tksw(prgn,nm),bz_fsmommethod,
      .def_i4=0,note='Method of Fixed-spin moment 0:original 1:discrete')
-
-c      nm='BZ_DMAT'; call gtv(trim(nm),tksw(prgn,nm),bz_lio8,
-c     .  def_lg=F,note='Calculate density matrix')
-c      nm='BZ_INVIT'; call gtv(trim(nm),tksw(prgn,nm),ctrl_lqp2,
-c     .def_lg=T,note='Use inverse iteration for diagonalization')
-      i0 = 0
-c      if (ltbe) i0 = -1
-      nm='BZ_MULL'; call gtv(trim(nm),tksw(prgn,nm),bz_lmull,
-     .def_i4=i0,note='Mulliken population analysis ')
-      nm='BZ_EMESH'; call gtv(trim(nm),tksw(prgn,nm),bz_semsh,nmin=10,
-     .def_r8v=(/10d0,0d0,-1d0,0d0,0.01d0,0d0,0d0,0d0,1d-10,0d0/),
-     .note='Mesh for energy contour integration'
-     .//'%N%3fentry 1   2    3    4    5   6    7    8    9    10'
-     .//'%N%9fnz mode ebot etop  ----  depend on mode ---- '
-     .//'(see documentation)')
-
-      nm='BZ_COND_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,nout=nout,
-     .def_i4=0,note='Mode for type conductivity calculation'//
-     .'%N%3f0: Calculate DOS D(E) instead of conductivity'//
-     .'%N%3f1: ballistic conductivity <v.DIR> (must also supply DIR)'
-     .//
-     .'%N%3f2: <v_i . v_j> (diffusive conductivity)'//
-     .'%N%6fIn this mode one or two elts of DIR should be 1, '//
-     .'marking i or i,j')
-      bz_lcond(1) = i0
-      nm='BZ_COND_DIR'
-      if (io_help /= 0 .or. i0 .gt. 0) then
-        sw = tksw(prgn,nm)
-      else
-        sw = 2
-      endif
-      call gtv(trim(nm),sw,bz_lcond(2:),
-     .note='Conductivity direction vector DIR, used for MODE>0')
 
 C --- Ewald sums ---
       if (io_show+io_help/=0 .and. tksw(prgn,'EWALD')/=2)
      .call info0(1,1,0,' --- Parameters for Ewald sums ---')
-
       nm='EWALD_AS'; call gtv(trim(nm),tksw(prgn,nm),lat_as,
      .def_r8=2d0,note='Ewald smoothing parameter')
       nm='EWALD_TOL'; call gtv(trim(nm),tksw(prgn,nm),lat_tol,
@@ -2280,9 +1955,9 @@ C --- Ewald sums ---
      .def_i4=800,note='Ewald tolerance')
       nm='EWALD_RPAD'; call gtv(trim(nm),tksw(prgn,nm),lat_rpad,
      .def_r8=0d0,note='Scale rcutoff by rpad when lattice vectors'//
-     .' padded in oblong geometries')
-
-C --- Iterations (formerly MIX) ---
+     .     ' padded in oblong geometries')
+      
+!! --- Iterations (formerly MIX) ---
       vmix%b = NULLI           ! Not set
       if (tksw(prgn,'ITER')/=2) then
         if (io_show+io_help/=0)
@@ -2291,19 +1966,12 @@ C     Default values for smix (array has same same structure as lstra smix)
         call umix_init(vmix)
         vmix%b = 1               ! beta
         vmix%bv = 1               ! bv
-C     vmix%elind =  0              ! elind
-c        call s8tor8('mixm',vmix%fn) ! file name
         vmix%fn='mixm'
         vmix%kill =  0              ! nkill
         vmix%lxpot =  0              ! lxpot
         vmix%mmix = -1              ! mmix
         vmix%mode = 0              ! mode (0=Anderson)
-C     vmix%model = 0              ! model = previous mixing mode
-C     vmix%n = 0              ! n     = Number of iterations for this species
-C     vmix%nitu = 1              ! nitu  = max number of LDA+U iterations
-C     vmix%nmix = 1              ! nmix  = actual number mixed
         vmix%nsave = 8              ! nsave = # iter to save on disk
-c        call s8tor8(' ',vmix%r) ! expression for rmscst
         vmix%r=' '
         vmix%tolu = 0              ! tolu
         vmix%umix = 1              ! umix (mixing parm for LDA+U)
@@ -2311,10 +1979,6 @@ c        call s8tor8(' ',vmix%r) ! expression for rmscst
         vmix%w(2) = 1              ! w(2)
         vmix%wc = -1             ! wc
         smalit = NULLI
-c      call dcopy(37,smix,1,samix,1)
-c        vamix = vmix
-c        call s8tor8('mixa',vamix%fn) ! file name
-c        vamix%fn='mixa'
         nm='ITER_NIT';call gtv(trim(nm),tksw(prgn,nm),iter_maxit,
      .   def_i4=30,
      .   note='maximum number of iterations in self-consistency cycle')
@@ -2329,14 +1993,11 @@ c        vamix%fn='mixa'
      .  '[;...] or'/
      .  3x,'B[nmix][,b=beta][,bv=betv][,wc=wc][,n=#][,w=w1,w2][,nam=fn]',
      .  '[,k=nkill]')
-C ... Sanity check and printout
-
 cc takao
 c        mmm=adjustl(iter_mix)
 c        if(mmm(1:1)=='B')
 c     &      call rx(" Broyden mixing is problematic."//
 c     &              " If necessary, you have to fix it (mixrho.F)")
-
         if (nout==1 .and. io_help==0 .and. sw/=2) then
 c          call r8tos8(vmix%fn,alabl)
           alabl=vmix%fn
@@ -2350,46 +2011,13 @@ c          call r8tos8(vmix%fn,alabl)
           if (io_show==0) call poppr
         endif
 
-c$$$        nm='ITER_AMIX'; sw=tksw(prgn,nm); call gtv(trim(nm),sw,iter_amix,
-c$$$     .  nmin=10,nout=nout,note=
-c$$$     .  'Mixing rules for Euler angles.  Syntax as in MIX')
-c$$$C ... Sanity check and printout
-c$$$        if (nout==1 .and. io_help==0 .and. sw/=2) then
-c$$$          call r8tos8(vamix%fn,alabl)
-c$$$          if (io_show==0) call pshpr(0)
-c$$$          if (.not. parmxp(-1,iter_amix,len_trim(iter_amix),
-c$$$     .    int(vamix%mode),int(vamix%nmix),vamix%w(1),vamix%b,vamix%elind,
-c$$$     .    alabl,vamix%wc,vamix%kill,vamix%bv,xx)) then
-c$$$            if (io_show==0) call poppr
-c$$$            call rx('READCTRL: parse in parmxp failed 2')
-c$$$          endif
-c$$$          if (io_show==0) call poppr
-c$$$        endif
-
-c      if (prgn /= 'LMMC') then
         nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
      .  def_r8=1d-4,note='Tolerance in energy change from prior'//
      .  ' iteration for self-consistency')
         nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
      .  def_r8=1d-4,note='Tolerance in output-input charge for'//
      .  ' self-consistency')
-c      else
-cC ... CONV and CONVC are stored in the opposite order in LMMC
-c        nm='ITER_CONV'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(1),
-c     .    def_r8=1d-4,note='Tolerance in energy change from prior'//
-c     .    ' iteration for self-consistency')
-c        nm='ITER_CONVC'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
-c     .    def_r8=1d-4,note='Tolerance in output-input charge for'//
-c     .    ' self-consistency')
-c        ctrl_tol(2) = ctrl_tol(3)
-c       nm='ITER_QTOLSP'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(2),
-c    .    def_r8=1d-4,note='Tolerance in sphere charge'//
-c    .    ' for self-consistency')
-c       nm='ITER_QTOLI'; call gtv(trim(nm),tksw(prgn,nm),ctrl_tol(3),
-c    .    def_r8=1d-4,note='Tolerance in interstitial charge'//
-c    .    ' for self-consistency')
-c      endif
-
+!!
         i0 = 0
         nm='ITER_XIPMX'; call gtv(trim(nm),tksw(prgn,nm),i0,def_i4=0,
      .  nout=nout,note='Mix potential independently of charge:'//
@@ -2408,161 +2036,16 @@ c      endif
         nm='ITER_NITU'; call gtv(trim(nm),tksw(prgn,nm),i0,
      .  def_i4=0,note='Max number of LDA+U iterations of densmat')
         vmix%nitu = i0
-
       endif                     ! iterations category
 
-C$$$C --- TB ---
-C$$$      if (tksw(prgn,'TB') /= 2) then
-C$$$      if (io_show+io_help/=0)
-C$$$     .  call info0(1,1,0,' --- Tight binding parameters ---')
-C$$$      nm='TB_OVLP'; call gtv(trim(nm),tksw(prgn,nm),ltb1,
-C$$$     .  def_lg=F,note='Non orthogonal tight-binding ')
-C$$$      nm='TB_CRYSF'; call gtv(trim(nm),tksw(prgn,nm),ltb2,
-C$$$     .  def_lg=F,note='Crystal field terms in hamiltonian ')
-C$$$      nm='TB_OVCF'; call gtv(trim(nm),tksw(prgn,nm),ltb4,
-C$$$     .  def_lg=F,note='Crystal field terms in overlap ')
-C$$$      nm='TB_ADDES'; call gtv(trim(nm),tksw(prgn,nm),ltb8,
-C$$$     .  def_lg=F,note='Add ebarLL'' * sLL'' to hLL''')
-C$$$      nm='TB_RMAXH'; call gtv(trim(nm),tksw(prgn,nm),str_rmax,
-C$$$     .  def_r8=0d0,note='Hamiltonian cut-off length in units of a')
-C$$$      nm='TB_FORCES'; call gtv(trim(nm),tksw(prgn,nm),ltb16,
-C$$$     .  def_lg=T,note='Calculate forces ')
-C$$$      nm='TB_FIJ'; call gtv(trim(nm),tksw(prgn,nm),ltb32,
-C$$$     .  def_lg=F,note='To get forces by atom pair, e.g., for stresses ')
-C$$$      nm='TB_3PV'; call gtv(trim(nm),tksw(prgn,nm),ltb128,
-C$$$     .  def_lg=F,note='Calculate pressure')
-C$$$      nm='TB_EVDISC'; call gtv(trim(nm),tksw(prgn,nm),ltb256,
-C$$$     .  def_lg=T,note='Can be F '//
-C$$$     .  'for insulators or to save space for metals ')
-C$$$      nm='TB_PAIR'; call gtv(trim(nm),tksw(prgn,nm),ltb512,
-C$$$     .  def_lg=F,note='Pair potential only')
-C$$$      nm='TB_TRH'; call gtv(trim(nm),tksw(prgn,nm),ltb1024,
-C$$$     .  def_lg=F,note='Calculate local projection of band energies')
-C$$$      nm='TB_RHO'; call gtv(trim(nm),tksw(prgn,nm),ltb2048,
-C$$$     .  def_lg=F,note='Calculate local projection of charges')
-C$$$      nm='TB_U1'; call gtv(trim(nm),tksw(prgn,nm),ltb4096,
-C$$$     .  def_lg=F,note='For electrostatics with L>=0 (first model)')
-C$$$      nm='TB_UL'; call gtv(trim(nm),tksw(prgn,nm),ltb215,
-C$$$     .  def_lg=F,note='For electrostatics with L>=0')
-C$$$      nm='TB_TBU'; call gtv(trim(nm),tksw(prgn,nm),ltb213,
-C$$$     .  def_lg=F,note='Tight-binding+U')
-C$$$      nm='TB_GAMMA'; call gtv(trim(nm),tksw(prgn,nm),ltb217,
-C$$$     .  def_lg=F,note='Do gamma-point only')
-C$$$      nm='TB_MOL'; call gtv(trim(nm),tksw(prgn,nm),ltb218,
-C$$$     .  def_lg=F,note='molecule: no PBCs')
-C$$$      if (io_help .eq. 1) call info0(1,1,0,
-C$$$     .  ' * if U1=T, UL=T or TBU=T, the next two tokens are used:')
-C$$$      nm='TB_NOUAVG'; call gtv(trim(nm),tksw(prgn,nm),ltb214,
-C$$$     .  def_lg=F,note='Use individual U_l from Q=; don''t average them')
-C$$$      nm='TB_IODEL'; call gtv(trim(nm),tksw(prgn,nm),ltb216,
-C$$$     .  def_lg=F,note='Attempt to read increments from disk')
-
-C$$$      sw = tksw(prgn,'TB_FIT')
-C$$$      if (sw /= 2) then
-C$$$        if (io_help .eq. 1) call info0(1,1,0,
-C$$$     .  ' * The FIT tokens are used for tight-binding fitting')
-C$$$      nm='TB_FIT_MODE'; call gtv(trim(nm),tksw(prgn,nm),tb_fmode,
-C$$$     .  note='Fit mode: 0 fit params, 1 fit in range of RFIT')
-Ckino isanrg is logical function, C$$$      if (tb_fmode>=0) call isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
-C$$$      if (tb_fmode>=0) l_dummy_isanrg=isanrg(tb_fmode,0,1,'rdctrl','FIT_MODE',T)
-C$$$      if (tb_fmode>=0 .or. io_help .eq. 1) then
-C$$$      nm='TB_FIT_NBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_nbfit,
-C$$$     .    nmin=2,note='Min and max band number to fit')
-C$$$      nm='TB_FIT_EBFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_ebfit,
-C$$$     .  nmin=2,note='Energy range to fit eigenvalues')
-C$$$      if (io_help .eq. 1 .or. tb_fmode .eq. 1) then
-C$$$      nm='TB_FIT_RFIT'; call gtv(trim(nm),tksw(prgn,nm),tb_rmfit,
-C$$$     .  nmin=2,note=
-C$$$     .    '(MODE=1) range for fitting Slater-Koster parameters')
-C$$$      endif
-C$$$      nm='TB_FIT_LAM'; call gtv(trim(nm),tksw(prgn,nm),tb_alam,
-C$$$     .  def_r8=0.001d0,note=
-C$$$     .  'Initial value of Levenberg-Marquardt lambda variable')
-C$$$      nm='TB_FIT_SCL'; call gtv(trim(nm),tksw(prgn,nm),tb_alsc,
-C$$$     .  def_r8=10d0,note=
-C$$$     .  'Scale factor for Levenberg-Marquardt lambda variable')
-C$$$      endif
-C$$$      endif
-
-C$$$      endif                     !TB parameters
-
-C --- Map (do not maintain for now) ---
-
-C$$$C --- Optics ---
-C$$$      if (tksw(prgn,'OPTICS') == 2) goto 279
-C$$$      if (io_show+io_help/=0)
-C$$$     .  call info0(1,1,0,' --- Parameters for optics ---')
-
-C$$$      nm='OPTICS_MODE'; call gtv(trim(nm),tksw(prgn,nm),ctrl_loptc,
-C$$$     .  def_i4=0,note=
-C$$$     .  '0: do nothing;'//
-C$$$     .   '%N%2f-1: generate joint DOS'//
-C$$$     .   '%N%3f1: generate linear eps_2'//
-C$$$     .   '%N%3f2: generate linear eps_2 with on-the-fly sampling'//
-C$$$     .   '%N%3f2: Add 10 for SHG')
-C$$$      if (ctrl_loptc == 0) goto 279 ! doesn't skip help mode: value is NULLI
-C$$$      nm='OPTICS_NPTS'; call gtv(trim(nm),tksw(prgn,nm),optic_ne,
-C$$$     .  def_i4=501,note='Number of energy points')
-C$$$      nm='OPTICS_WINDOW'; call gtv(trim(nm),tksw(prgn,nm),optic_window,
-C$$$     . def_r8v=(/0d0,1d0/),note='Energy window over which to calc. eps')
-C$$$      nm='OPTICS_FILBND'; call gtv(trim(nm),tksw(prgn,nm),optic_ocrng,
-C$$$     .  def_i4v=izerv,note='Occ. energy bands from which to calc. eps')
-C$$$      nm='OPTICS_EMPBND'; call gtv(trim(nm),tksw(prgn,nm),optic_unrng,
-C$$$     .  def_i4v=izerv,note='Unocc energy bands from which to calc. eps')
-C$$$      nm='OPTICS_PART'; call gtv(trim(nm),tksw(prgn,nm),optic_mode1,
-C$$$     .  def_lg=F,note='Band-to-band decomposition of epsilon')
-
-C$$$      optic_axes = NULLI
-C$$$      nm='OPTICS_CHI2'; call gtv(trim(nm),tksw(prgn,nm),nono,
-C$$$     .  Texist=ltmp,note='Parameters second harmonic generation.'//
-C$$$     .    '  If present then:')
-C$$$      if (ltmp) then   ! Only read if OPTICS_CHI2 present or help
-C$$$        nm='OPTICS_CHI2_NCHI2'; call gtv(trim(nm),tksw(prgn,nm),
-C$$$     .    optic_nchi2,def_i4=0,note=
-C$$$     .    'number of direction vectors for which to calc. chi2')
-C$$$        nm = 'OPTICS_CHI2_AXES'
-C$$$        nn = 3*optic_nchi2
-C$$$        if (io_help == 1 .and. sw /= 2) nn = NULLI
-C$$$        call gtv(trim(nm),tksw(prgn,nm),optic_axes(1:nn),nmin=nn,
-C$$$     .    note='a,b,c direction vectors for each of the nchi2 sets')
-C$$$      endif
-C$$$      nm='OPTICS_ESCISS'; call gtv(trim(nm),tksw(prgn,nm),optic_esciss,
-C$$$     .  def_r8=0d0,note=
-C$$$     .  'Scissors operator (energy added to unoccupied bands)')
-C$$$  279 continue                  ! end of optics
-
-C --- Dynamics ---
+!! --- Dynamics ---
       if (io_show+io_help/=0 .and. tksw(prgn,'DYN')/=2) call info0(1,1,
      .0,' --- Parameters for dynamics and statics ---')
 
       nm='DYN_NIT'; call gtv(trim(nm),tksw(prgn,nm),nitmv,def_i4=1,
      .note='maximum number of relaxation steps (statics)'//
      .' or time steps (dynamics)')
-
-c$$$      nm='DYN_SSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
-c$$$     .note='Parameters for spin statics:')
-c$$$      if (io_help .ne. 0 .or. ltmp) then
-c$$$        nm='DYN_SSTAT_MODE'; call gtv(trim(nm),tksw(prgn,nm),sdmod,
-c$$$     .  def_i4=-1,note=
-c$$$     .  '%b<0:  No spin statics or dynamics'//
-c$$$     .  '%N%3f0:  output Euler angles generated from density matrix'//
-c$$$     .  '%N%3f1:  relax along force'//
-c$$$     .  '%N%3fAdd 10   to mix angles independently of P,Q'//
-c$$$     .  '%N%3fAdd 1000 to suppress self-const in P,Q')
-c$$$        nm='DYN_SSTAT_SCALE'; call gtv(trim(nm),tksw(prgn,nm),sdprm(1),
-c$$$     .  def_r8=1d0,note='Scale factor amplifying magnetic forces')
-c$$$        if (io_help .ne. 0 .or. mod(sdmod,10) .eq. 2) then
-c$$$          nm='DYN_SSTAT_TAU'; call gtv(trim(nm),tksw(prgn,nm),sdprm(2),
-c$$$     .    note=
-c$$$     .    'Time step (only read if Landau-Gilbert dynamics specified)')
-c$$$        endif
-c$$$        nm='DYN_SSTAT_MAXT'; call gtv(trim(nm),tksw(prgn,nm),sdprm(4),
-c$$$     .  def_r8=0d0,note='Maximum allowed change in angle')
-c$$$        nm='DYN_SSTAT_ETOL'; call gtv(trim(nm),tksw(prgn,nm),sdprm(5),
-c$$$     .  def_r8=0d0,note='Set tau=0 this iter if etot-ehf>ETOL')
-c$$$      endif
-c      lncol16 = sdmod .ge. 0
-
+!!
       nm='DYN_MSTAT'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
      .note='Parameters for molecular statics')
       mdprm(1) = 0
@@ -2594,392 +2077,6 @@ c      lncol16 = sdmod .ge. 0
         nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgn,nm),lat_defm,
      .  def_r8v=zerov,note='Lattice deformation modes')
       endif
-
-c$$$C --- if DYN_MSTAT_MODE < 4 then attempt to read MD ---
-c$$$      if (mdprm(1) .lt. 4) then
-c$$$        nm='DYN_MD'; sw=tksw(prgn,nm)
-c$$$        call gtv(trim(nm),sw,nono,Texist=ltmp,
-c$$$     .  note='Parameters for molecular dynamics')
-c$$$        if (io_help .ne. 0 .or. ltmp) then
-c$$$          nm='DYN_MD_MODE'; call gtv(trim(nm),tksw(prgn,nm),i0,
-c$$$     .    def_i4=0,note=
-c$$$     .    '0: no MD '//
-c$$$     .    '1: NVE '//
-c$$$     .    '2: NVT '//
-c$$$     .    '3: NPT')
-c$$$          mdprm(1) = i0
-c$$$          nm='DYN_MD_TSTEP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(2),
-c$$$     .    def_r8=fs,note='Time step (a.u.)')
-c$$$          nm='DYN_MD_TEMP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(3),
-c$$$     .    def_r8=300d0*degK,note='Temperature (a.u.)')
-c$$$          nm='DYN_MD_TAUP'; call gtv(trim(nm),tksw(prgn,nm),mdprm(4),
-c$$$     .    def_r8=10d0*fs,note='Thermostat relaxation time (a.u.)')
-c$$$          nm='DYN_MD_TIME'; call gtv(trim(nm),tksw(prgn,nm),mdprm(5),
-c$$$     .    def_r8=1d6*fs,note='Total MD time (a.u.)')
-c$$$          nm='DYN_MD_TAUB'; call gtv(trim(nm),tksw(prgn,nm),mdprm(6),
-c$$$     .    def_r8=100d0*fs,note='Barostat relaxation time (a.u.)')
-c$$$          if (tksw(prgn,'DYN_MD') .ne. 2) call info2(10,0,0,
-c$$$     .    ' NB: 1 deg.K = %e a.u.; 1 fs = %d a.u.',degK,fs)
-c$$$        endif
-c$$$        if (sw .ne. 2 .and. mdprm(1) .gt. 3)
-c$$$     .  call rx('M_RDCTRL: illegal "MODE" parameter in token "DYN_MD"')
-c$$$      endif
-c$$$
-c$$$C Content of mdprm(i)
-c$$$C   i = 1: statics/dynamics switch
-c$$$C          0 do neither
-c$$$C          1-3 MD (1: NVE, 2: NVT; 3: NPT)
-c$$$C          >3 statics (4: conjugate gradients, 5: Fletcher-Powell, 6: Broyden)
-c$$$C          >100 statics with lattice deformation
-c$$$C   i = 2: (stat) 1 read hessian matrix
-c$$$C          (dyn)  MD timestep
-c$$$C   i = 3: (stat) relaxation x-tolerance
-c$$$C          (dyn)  temperature
-c$$$C   i = 4: (stat) relaxation g-tolerance
-c$$$C          (dyn)  thermostat relaxation time
-c$$$C   i = 5: (stat) step length
-c$$$C          (dyn)  total MD time
-c$$$C   i = 6: (stat) Remove hessian after this many steps
-c$$$C          (dyn)  barostat relaxation time
-c$$$
-c$$$      nm='DYN_SDYN'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=lsdyn,
-c$$$     .note='Parameters for spin dynamics')
-c$$$C     if (io_help .ne. 0 .or. ltmp) then
-c$$$      nm='DYN_SDYN_KT'; call gtv(trim(nm),tksw(prgn,nm),move_kt,
-c$$$     .note='Temperature, in a.u.')
-c$$$      nm='DYN_SDYN_TS'; call gtv(trim(nm),tksw(prgn,nm),move_ts,
-c$$$     .note='Time step in a.u.')
-c$$$      nm='DYN_SDYN_TEQU'; call gtv(trim(nm),tksw(prgn,nm),move_tsequ,
-c$$$     .def_r8=0d0,note='Equilibration time, a.u.')
-c$$$      nm='DYN_SDYN_TTOT'; call gtv(trim(nm),tksw(prgn,nm),move_tstot,
-c$$$     .note='Duration of total simulation, in a.u.')
-c$$$C     endif
-c$$$
-c$$$      nm='DYN_MMHAM'; call gtv(trim(nm),tksw(prgn,nm),mmham,
-c$$$     .note='Rules for micromagnetics hamiltonian')
-c$$$
-c$$$C ... Global daemons
-c$$$      nm='DYN_GD'; call gtv(trim(nm),tksw(prgn,nm),nono,Texist=ltmp,
-c$$$     .note='Parameters for Global daemons in theromstats')
-c$$$C    if (io_help .ne. 0 .or. ltmp) then
-c$$$      nm='DYN_GD_NTHERM'; call gtv(trim(nm),tksw(prgn,nm),gd_nmodt,
-c$$$     .def_i4=1,note='Number of GD thermostats')
-c$$$      nn = gd_nmodt
-c$$$      if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
-c$$$        nn = NULLI
-c$$$      else
-c$$$        l_dummy_isanrg=isanrg(nn,1,3,'rdctrl','GD_NTHERM',T)
-c$$$      endif
-c$$$      nm='DYN_GD_MODET'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .gd_modt(1:max(1,nn)),
-c$$$     .nmin=nn,def_i4v=(/31,32,33/),note='Thermostat mode(s)')
-c$$$      nm='DYN_GD_CT'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .gd_ct(1:max(1,nn)),
-c$$$     .nmin=nn,def_r8v=(/1d0,1d0,1d0/),note=
-c$$$     .'Corresponding thermostat coefficient(s)')
-c$$$C     endif
-c$$$
-c$$$C ... Bulirsch-Stoer integration parmaters
-c$$$      nm='DYN_BSINT'; call gtv(trim(nm),tksw(prgn,nm),nono,
-c$$$     .Texist=lbsprm,note='Parameters for Bulirsch-Stoer integration')
-c$$$      if (io_help .ne. 0 .or. lbsprm) then
-c$$$        nm='DYN_BSINT_NEW'; call gtv(trim(nm),tksw(prgn,nm),prmint_new,
-c$$$     .  def_lg=T,note='Start new SD run, Bulirsch-Stoer integration')
-c$$$        nm='DYN_BSINT_TOL'; call gtv(trim(nm),tksw(prgn,nm),prmint_tol,
-c$$$     .  note='Tolerance in numerical integration')
-c$$$        nm='DYN_BSINT_TS0'; call gtv(trim(nm),tksw(prgn,nm),prmint_ts0,
-c$$$     .  def_r8=0d0,note='Minimum time step in units of TS')
-c$$$        nm='DYN_BSINT_MX'; call gtv(trim(nm),tksw(prgn,nm),prmint_mx,
-c$$$     .  def_i4=7,note='Maximum order of rational function extrapolation')
-c$$$        nm='DYN_BSINT_MI'; call gtv(trim(nm),tksw(prgn,nm),prmint_mi,
-c$$$     .  def_i4=11,note='Maximum number of midpoint rules to invoke')
-c$$$        nn = prmint_mi
-c$$$        if (io_help .ne. 0 .or. tksw(prgn,nm) == 2) then
-c$$$          nn = NULLI
-c$$$        else
-c$$$          l_dummy_isanrg=isanrg(nn,2,11,'rdctrl','BSINT_MI',T)
-c$$$        endif
-c$$$        if (nout .gt. 0) nn = nout
-c$$$        nm='DYN_BSINT_NSEQ'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .  prmint_nseq(1:max(1,nn)),
-c$$$     .  nmin=nn,def_i4v=(/2,4,6,8,12,16,24,32,48,64,96/),
-c$$$     .  note='Sequence of number of midpoint divisions')
-c$$$      endif
-
-C$$$C --- GW --- (from GWinput, not from ctrl)
-C$$$      if (io_show+io_help/=0 .and. tksw(prgn,'GW')/=2) call info0(1,1,
-C$$$     .  0,' --- Parameters for GW input (job=-1) ---')
-C$$$      nm='GW_MKSIG'; call gtv(trim(nm),tksw(prgn,nm),gw_mksig,
-C$$$     .  def_i4=0,note=
-C$$$     .  'Make full sigma(k) for self-consistent calculations:'//
-C$$$     .  '%N%3f0 do not create self-energy matrix sigma'//
-C$$$     .  '%N%3f1 Make sigma_nn''(E_f)'//
-C$$$     .  '%N%3f2 Make sigma_nn''(E_n/2+E_n''/2)'//
-C$$$     .  '%N%3f3 Make sigma_nn''(E_n)/2 + sigma_nn''(E_n'')/2')
-
-C$$$      nm='GW_NKABC'; call gtv(trim(nm),tksw(prgn,nm),gw_nabc,nout=nout,
-C$$$     .  note='No. qp along each of 3 lattice vectors.'//
-C$$$     .  '%N%3fSupply one number for all vectors or a separate '//
-C$$$     .  'number for each vector.')
-C$$$      call fill3in(nout,gw_nabc)
-C$$$      if (gw_nabc(1) == NULLI .or. gw_nabc(1) == 0) gw_nabc = bz_nabc
-
-C$$$      nm='GW_GCUTB'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutb,
-C$$$     .  def_r8=2.7d0,note='G-vector cutoff for basis functions')
-C$$$      nm='GW_GCUTX'; call gtv(trim(nm),tksw(prgn,nm),gw_gcutx,
-C$$$     .  def_r8=2.2d0,note='G-vector cutoff for response function')
-C$$$      nm='GW_ECUTS'; call gtv(trim(nm),tksw(prgn,nm),gw_ecuts,
-C$$$     .  def_r8=2.5d0,note=
-C$$$     .  '(self-consistency) max energy for which to calc. sigma')
-C$$$      nm='GW_NBAND'; call gtv(trim(nm),tksw(prgn,nm),gw_nband,
-C$$$     .  def_i4=-NULLI,note=
-C$$$     .  'No. bands to include in calc. response function')
-C$$$      nm='GW_NIME'; call gtv(trim(nm),tksw(prgn,nm),gw_nime,
-C$$$     .  def_i4=6,note='Number of imaginary energy points')
-C$$$      nm='GW_DELRE'; call gtv(trim(nm),tksw(prgn,nm),gw_delre,
-C$$$     .  def_r8v=(/.01d0,.04d0/),note=
-C$$$     .  'Energy mesh spacing on real axis.'//
-C$$$     .  '%N%3fSecond term is coff for nonlinear part')
-C$$$      nm='GW_DELTA'; call gtv(trim(nm),tksw(prgn,nm),gw_deltax,
-C$$$     .  def_r8=-1d-4,note=
-C$$$     .  'Imaginary energy added to denominator in generation of Pi.'//
-C$$$     .  '%N%3fNot used in Faleev''s fast integration.'//
-C$$$     .  '%N%3fDelta should be negative.')
-C$$$      nm='GW_DELTAW'; call gtv(trim(nm),tksw(prgn,nm),gw_deltaw,
-C$$$     .  def_r8=0.02d0,note=
-C$$$     .  'Width for finite difference in diff. of sigma for Z factor')
-C$$$      nm='GW_GSMEAR'; call gtv(trim(nm),tksw(prgn,nm),gw_gsmear,
-C$$$     .  def_r8=3d-3,note=
-C$$$     .  'Broadening in pole of GF for computation of sigma')
-C$$$      nm='GW_PBTOL'; call gtv(trim(nm),tksw(prgn,nm),gw_pbtol,
-C$$$     .  def_r8=1d-3,note=
-C$$$     .  'retain prod-basis with overlap eigenvalues>PBTOL')
-C$$$      nm='GW_QOFFP'; call gtv(trim(nm),tksw(prgn,nm),gw_qoffp,
-C$$$     .  def_r8=1d0,note=
-C$$$     .  'k-point offset parameter for special BZ integration for xi')
-cC --- Plane ---
-c      if (io_show+io_help/=0 .and. tksw(prgn,'PLANE')/=2)
-c     .  call info0(1,1,0,' --- Parameters defining a plane ---')
-c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
-c     .  slat_plat2(7:9),def_r8v=zerov,note='Plane normal')
-c      nm='PLANE_X'; call gtv(trim(nm),tksw(prgn,nm),
-c     .  slat_plat2(1:3),def_r8v=zerov,note='Plane X-axis')
-c      nm='PLANE_NORMAL'; call gtv(trim(nm),tksw(prgn,nm),
-c     .  slat_plat2(4:6),def_r8v=zerov,note='Plane Y-axis')
       end subroutine readctrl
-
-
-c$$$      subroutine readctrlpq(prgn,nclasp,nl,nsp,pnu,qnu,pp,z,ves,
-c$$$     .initc,ics,clabl)
-c$$$C- Read class data from ctrl file
-c$$$C ----------------------------------------------------------------------
-c$$$Ci Inputs
-c$$$Ci   prgn
-c$$$Ci   nclasp
-c$$$Ci   clabl :class name
-c$$$Co Outputs
-c$$$Cl Local variables
-c$$$Cl         :
-c$$$Cr Remarks
-c$$$Cr
-c$$$Cu Updates
-c$$$Cu   17 Oct 07
-c$$$C ----------------------------------------------------------------------
-c$$$      use m_toksw
-c$$$      use m_gtv
-c$$$C     implicit none
-c$$$C ... Passed parameters
-c$$$      character*(*):: prgn
-c$$$      integer:: nclasp,nl,nsp
-c$$$C ... Class-related arrays
-c$$$      integer:: initc(nclasp),ics(nclasp)
-c$$$      real(8):: pnu(nl,nsp,nclasp),qnu(3,nl,nsp,nclasp),
-c$$$     .pp(6,nl,nsp,nclasp),ves(nclasp),z(nclasp)
-c$$$      character*8 clabl(nclasp)
-c$$$C ... Local parameters
-c$$$      character(128) :: nm
-c$$$      character(256) :: outs
-c$$$      logical:: ltmp,rdves,cmdopt
-c$$$      integer:: stdo,lgunit,i,j,ic,lp1,jj(2),nout,nlaj,nlaji,
-c$$$     .iv(100),ii,n,js
-c$$$      real(8):: xv(100),xx,pi
-c$$$C ... Heap
-c$$$
-c$$$      stdo = lgunit(1)
-c$$$      pi = 4d0*datan(1d0)
-c$$$
-c$$$C --- Start ---
-c$$$      if (tksw(prgn,'START') == 2) goto 159
-c$$$
-c$$$C$$$      if (io_show+io_help/=0) call
-c$$$C$$$     .  info0(1,1,0,' --- Read potential data (ASA) ---')
-c$$$
-c$$$C$$$      nm='START_BEGMOM'; call gtv(trim(nm),tksw(prgn,nm),lasa3,
-c$$$C$$$     .  def_i4=1,note=
-c$$$C$$$     .  '0 Start from potential parameters (on file)'//
-c$$$C$$$     .  '%N%3f1 Create potential and pot pars from P,Q'//
-c$$$C$$$     .  '%N%3f2 Create pot pars from file potential'//
-c$$$C$$$     .  '%N%3f3 Create potential from restart file')
-c$$$
-c$$$C$$$      nm='START_FREE'; call gtv(trim(nm),tksw(prgn,nm),lasa8,
-c$$$C$$$     .  def_lg=F,note=
-c$$$C$$$     .  '(Free atom mode): make self-consistent density for free atoms')
-c$$$
-c$$$      nm='START_CNTROL'; call gtv(trim(nm),tksw(prgn,nm),ltmp,def_lg=F,
-c$$$     .note='if F, the remainder of this category is ignored')
-c$$$      if (io_help==0 .and. .not. ltmp) goto 159
-c$$$
-c$$$      nm='START_RDVES'; call gtv(trim(nm),tksw(prgn,nm),rdves,
-c$$$     .def_lg=F,note='Read Ves(RMT) from this category')
-c$$$C     Subtract current ves from pp now; add updated ves later
-c$$$      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,T,F)
-c$$$
-c$$$C ... Read data for each occurence of ATOM=
-c$$$C     j = index to jth occurence; ic = class index
-c$$$      outs = ' '
-c$$$      j = 1
-c$$$      do  while (j .gt. 0)
-c$$$        if (io_help /= 0) then
-c$$$          write(stdo,"(/' For each class, read the following:')")
-c$$$        elseif (io_show>0) then
-c$$$          write(stdo,"(1x)")
-c$$$C         call info(1,0,0,' ... Site %i',j,0)
-c$$$        endif
-c$$$
-c$$$        jj=(/1,j/)
-c$$$        nm='START_ATOM'; call gtv(trim(nm),tksw(prgn,nm),alabl,nmin=10,
-c$$$     .  cindx=jj,nout=nout,note='Class label')
-c$$$        if (nout == 0 .and. io_help == 0) then
-c$$$          j = 0
-c$$$          cycle
-c$$$        endif
-c$$$
-c$$$        if (io_help == 0) then
-c$$$          ic = 0
-c$$$          do  i = 1, nclasp
-c$$$            if (alabl == clabl(i)) then
-c$$$              ic = i
-c$$$              call awrit0('%a'//alabl//'%a,',outs,len(outs),0)
-c$$$              goto 881
-c$$$            endif
-c$$$          enddo
-c$$$          call info0(10,0,0,' rdctrl: (warning) class "'
-c$$$     .    //alabl//'%a" not in class table')
-c$$$          j = j+1; cycle
-c$$$  881     continue
-c$$$          nlaj = 1+lmxa(ic)
-c$$$          nlaji = nlaj
-c$$$        else                    !help mode; cycle only once
-c$$$          nlaj = 1
-c$$$          nlaji = NULLI
-c$$$          ic = 1
-c$$$          j = -1
-c$$$        endif
-c$$$
-c$$$        nm='START_ATOM_P'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
-c$$$     .  'Methfessel''s Potential functions')
-c$$$C       Copy to pnu, spins separately in case nlja<nl
-c$$$        if (nout .gt. 0) then
-c$$$          initc(ic) = 2*(initc(ic)/2) + 1
-c$$$          call dpzero(pnu(1,1,ic),nl*nsp)
-c$$$          call dcopy(nlaj,xv,1,pnu(1,1,ic),1)
-c$$$          if (nsp .eq. 2)
-c$$$     .    call dcopy(nlaj,xv(1+nlaj),1,pnu(1,2,ic),1)
-c$$$C         Fill in values for l>lmxa
-c$$$          if (.not. cmdopt('--keepnu',8,0,nm)) then
-c$$$            call config(pnu(1,1,ic),-1,z(ic),iv,n)
-c$$$            do  i = 1, nsp
-c$$$              do  lp1 = 1, nl
-c$$$                ii = iv(lp1)
-c$$$                xx = pnu(lp1,i,ic)
-c$$$C           If P=0, use free-electron value
-c$$$                if (xx .eq. 0) then
-c$$$                  xx = ii + 0.5d0 - datan(dble(lp1-1))/pi
-c$$$C           If fractional part only, add integer part
-c$$$                elseif (xx .lt. 1) then
-c$$$                  xx = xx + ii
-c$$$                endif
-c$$$                pnu(lp1,i,ic) = xx
-c$$$              enddo
-c$$$            enddo
-c$$$          endif
-c$$$        endif
-c$$$
-c$$$        nm='START_ATOM_Q'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .  xv(1:3*nlaj*nsp),nmin=3*nlaji*nsp,nout=nout,cindx=jj,
-c$$$     .  note='Energy moments of the spherical density')
-c$$$C       Copy to qnu, spins separately in case nlja<nl
-c$$$        if (nout .gt. 0) then
-c$$$          call dpzero(qnu(1,1,1,ic),3*nl*nsp)
-c$$$          call dcopy(3*nlaj,xv,1,qnu(1,1,1,ic),1)
-c$$$          if (nsp .eq. 2)
-c$$$     .    call dcopy(3*nlaj,xv(1+3*nlaj),1,qnu(1,1,2,ic),1)
-c$$$        endif
-c$$$
-c$$$        nm='START_ATOM_ENU'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .  xv(1:nlaj*nsp),nmin=nlaji*nsp,nout=nout,cindx=jj,note=
-c$$$     .  'Linearization energies')
-c$$$        if (nout .gt. 0) then
-c$$$          call dcopy(nlaj,xv,1,pp(1,1,1,ic),6)
-c$$$          if (nsp .eq. 2)
-c$$$     .    call dcopy(nlaj,xv(1+nlaj),1,pp(1,1,2,ic),6)
-c$$$        endif
-c$$$
-c$$$        if (rdves) then
-c$$$          nm='START_ATOM_V'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .    xx,nmin=1,nout=nout,cindx=jj,note=
-c$$$     .    'ASA potential at MT boundary')
-c$$$          if (nout .gt. 0) ves(ic) = xx
-c$$$          nm='START_ATOM_DV'; call gtv(trim(nm),tksw(prgn,nm),
-c$$$     .    xx,nmin=1,nout=nout,cindx=jj,note=
-c$$$     .    'Add to ASA potential at MT boundary')
-c$$$          if (nout .gt. 0) ves(ic) = ves(ic) + xx
-c$$$        endif
-c$$$
-c$$$        j = j+1
-c$$$      enddo
-c$$$      if (rdves) call shftpp(nclasp,nl*nsp,pp,ves,ves,F,T)
-c$$$
-c$$$C ... Printout
-c$$$      if (io_show /= 0 .and. io_help == 0) then
-c$$$        call awrit0('%23o%0p%N rdctrl: read P,Q for %a%b%N P,Q,ppars:',
-c$$$     .  outs,80,-stdo)
-c$$$        do   j = 1, nclasp
-c$$$          js = ics(j)
-c$$$          nlaj = 1+lmxa(j)
-c$$$          if (mod(initc(j),2) .eq. 1) then
-c$$$            print 335, 'class ', clabl(j), (pnu(lp1,1,j),lp1=1,nlaj)
-c$$$            if (nsp .eq. 2)
-c$$$     .      print 335,' spin ', '2       ',(pnu(lp1,2,j),lp1=1,nlaj)
-c$$$            print 335,'      ', 'Q       ',(qnu(1,lp1,1,j),lp1=1,nlaj)
-c$$$            if (nsp .eq. 2)
-c$$$     .      print 335,' spin ', '2       ',(qnu(1,lp1,2,j),lp1=1,nlaj)
-c$$$  335       format(4x,a,a,7f8.4)
-c$$$          else
-c$$$            print 335, 'class ', clabl(j) // '  missing pnu'
-c$$$          endif
-c$$$          if (mod(initc(j)/2,2) .eq. 1) then
-c$$$            print 336,'  enu       ',      (pp(1,lp1,1,j), lp1=1,nlaj)
-c$$$            if (nsp .eq. 2)
-c$$$     .      print 335, ' spin ', '2       ',(pp(1,lp1,2,j),lp1=1,nlaj)
-c$$$            print 336,'    c       ',      (pp(2,lp1,1,j), lp1=1,nlaj)
-c$$$            if (nsp .eq. 2)
-c$$$     .      print 335, ' spin ', '2       ',(pp(2,lp1,2,j),lp1=1,nlaj)
-c$$$            print 336,'srdel       ',      (pp(3,lp1,1,j), lp1=1,nlaj)
-c$$$            if (nsp .eq. 2)
-c$$$     .      print 335, ' spin ', '2       ',(pp(3,lp1,2,j),lp1=1,nlaj)
-c$$$  336       format(6x,a,7f8.4)
-c$$$          else
-c$$$            print 335, 'class ', clabl(j) // '  missing ppars'
-c$$$          endif
-c$$$          print *, ' '
-c$$$        enddo
-c$$$      endif
-c$$$
-c$$$  159 continue                  ! End of START
-c$$$
-c$$$      end subroutine readctrlpq
-
       end module
 

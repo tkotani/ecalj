@@ -43,7 +43,7 @@ c     &    lncol1,lncol2,lncol4,lncol8,lncol16,lncol32,lncol64,
      .    exi,rint,rcut,rmt,pz,
      .    amom,spec_a,z,eref,rsmv,pb1,pb2, coreh,nmcore,
 !! ... SITE
-     .  alabl, pos,vel,eula,vshft, ips,ipl,plv,irlx,ndelta,delta,mpole,dpole,   iantiferro,
+     .  alabl, pos,vel,eula,vshft, ips,ipl,plv,irlx,ndelta,delta,  iantiferro,
 !! ... Iterations,MIX
      . ctrl_tol,vmix,iter_maxit,iter_mix, !iter_amix,
 !! ... BZ
@@ -624,8 +624,6 @@ C --- Allocate and copy input to sspec ---
         do  j = 1, nsite
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
-          v_ssite(j)%dpole=dpole(:,j)
-          v_ssite(j)%mpole=mpole(j)
           v_ssite(j)%clabel=slabl(ips(j))
           v_ssite(j)%pl=ipl(j)
           v_ssite(j)%plv=plv(j)
@@ -741,7 +739,7 @@ C     Free arrays used to read input
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
      .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
-     .     pos,vel,eula,vshft,ips,ipl,plv,irlx,mpole,dpole)
+     .     pos,vel,eula,vshft,ips,ipl,plv,irlx)
 
 !! --- Printout ---
           if (iprint() .ge. 20 .and. procid .eq. master) then

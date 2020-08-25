@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_work.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\
@@ -27,7 +28,6 @@ aiopot.o \
 aiorme.o \
 aiosop.o \
 aiova.o \
-asars.o \
 asymop.o \
 atomsr.o \
 atwf.o \

@@ -62,11 +62,11 @@ c      integer   ::   lopt
       integer   ::   nkabc(3)
       integer   ::   nkp
       integer   ::   ntet
-      integer , allocatable ::  iv_a_oidtet (:)
-      integer , allocatable ::  iv_a_oipq (:)
-      real(8) , pointer ::  rv_p_oqp (:) =>NULL()
-      integer , allocatable ::  iv_a_ostar (:)
-      real(8) , allocatable ::  rv_a_owtkp (:)
+c      integer , allocatable ::  iv_a_oidtet (:)
+c      integer , allocatable ::  iv_a_oipq (:)
+c      real(8) , pointer ::  rv_p_oqp (:) =>NULL()
+c      integer , allocatable ::  iv_a_ostar (:)
+c      real(8) , allocatable ::  rv_a_owtkp (:)
       real(8)   ::   range
       real(8)   ::   w
       end type s_bz

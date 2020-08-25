@@ -162,16 +162,16 @@ c      mxnbr=str_mxnbr !sstr%mxnbr
         call shorps ( nbasp , plat , modep , slat%rv_a_opos , slat%rv_a_opos )
       endif
 
-C ... Read from restart file
-      if (cmdopt('--rs=',5,0,outs)) then
-        irs ( 1 ) = irs11 !iand(7,int(sctrl%lrs))
-        if (irs(1) .gt. 0) then
-          ifi = fopna('rsta',-1,0)
-          call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz ,
-     .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi )
-          call fclr('rsta',ifi)
-        endif
-      endif
+c$$$C ... Read from restart file
+c$$$      if (cmdopt('--rs=',5,0,outs)) then
+c$$$        irs ( 1 ) = irs11 !iand(7,int(sctrl%lrs))
+c$$$        if (irs(1) .gt. 0) then
+c$$$          ifi = fopna('rsta',-1,0)
+c$$$          call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz ,
+c$$$     .      spot%rv_a_opnu , spot%rv_a_oqnu , .false. , ifi )
+c$$$          call fclr('rsta',ifi)
+c$$$        endif
+c$$$      endif
 
 C --- Neighbor tables and sphere overlaps ---
       if (getdig(mode,0,2) .ne. 0) then

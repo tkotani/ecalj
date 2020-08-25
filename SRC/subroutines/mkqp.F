@@ -1,6 +1,7 @@
       subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -66,21 +67,21 @@ c      if ( iand(1,int(sbz%lio)) .ne.0 ) call rx('not support reading QPTS')
 C ... Make the qp list from bzmesh
       mxkp = nkxyz(1)*nkxyz(2)*nkxyz(3)
       if (lgstar .eq. 0) then
-        allocate(sbz%iv_a_ostar(1))
-        sbz%iv_a_ostar(:)=0
+        allocate(iv_a_ostar(1))
+        iv_a_ostar(:)=0
       else
-        allocate(sbz%iv_a_ostar(mxkp+1))
-        sbz%iv_a_ostar(:)=0
+        allocate(iv_a_ostar(mxkp+1))
+        iv_a_ostar(:)=0
       endif
-      allocate(sbz%rv_a_owtkp(abs(-mxkp)))
-      sbz%rv_a_owtkp(:)=0.0d0
+      allocate(rv_a_owtkp(abs(-mxkp)))
+      rv_a_owtkp(:)=0.0d0
 #if TRSYMM
-      call dvset ( sbz%rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
+      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
-      if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-      allocate(sbz%rv_p_oqp(3*mxkp))
-      if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-      allocate(sbz%iv_a_oipq(6*mxkp))
+      if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+      allocate(rv_p_oqp(3*mxkp))
+      if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+      allocate(iv_a_oipq(6*mxkp))
       call dinv33(plat,1,qlat,vol)
 C   ... Restrict BZ to two dimensions
       if (lpbc .eq. 1) then
@@ -97,72 +98,72 @@ C   ... Restrict BZ to two dimensions
       do  10  i = 1, 3
         llshft(i) = lshft(i) .ne. 0
  10   continue
-      call ivset ( sbz%iv_a_ostar , 1 , 1 , lgstar )
+      call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call info0(20,0,0,' ')
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp ,
-     . sbz%rv_a_owtkp , nkp , mxkp , sbz%iv_a_ostar , lpbc )
+     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp ,
+     . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
 C   ... Sanity check
 c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
 c     .    rx('MKQP:  shifted BZ mesh not allowed with SX')
 C   ... Remake, with exactly allocated arrays, ipq on top
-      if (allocated(sbz%rv_a_owtkp)) deallocate(sbz%rv_a_owtkp)
-      allocate(sbz%rv_a_owtkp(abs(-nkp)))
-      if (-nkp<0) sbz%rv_a_owtkp(:)=0.0d0
+      if (allocated(rv_a_owtkp)) deallocate(rv_a_owtkp)
+      allocate(rv_a_owtkp(abs(-nkp)))
+      if (-nkp<0) rv_a_owtkp(:)=0.0d0
 #if TRSYMM
-      call dvset ( sbz%rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
+      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
-      if (associated(sbz%rv_p_oqp)) deallocate(sbz%rv_p_oqp)
-      allocate(sbz%rv_p_oqp(abs(3*nkp)))
-      if (3*nkp<0) sbz%rv_p_oqp(:)=0.0d0
-      if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-      allocate(sbz%iv_a_oipq(abs(6*mxkp)))
-      if (6*mxkp<0) sbz%iv_a_oipq(:)=0
+      if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+      allocate(rv_p_oqp(abs(3*nkp)))
+      if (3*nkp<0) rv_p_oqp(:)=0.0d0
+      if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+      allocate(iv_a_oipq(abs(6*mxkp)))
+      if (6*mxkp<0) iv_a_oipq(:)=0
       call pshpr(0)
-      call ivset ( sbz%iv_a_ostar , 1 , 1 , lgstar )
+      call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , sbz%iv_a_oipq , sbz%rv_p_oqp ,
-     . sbz%rv_a_owtkp , nkp , mxkp , sbz%iv_a_ostar , lpbc )
+     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp ,
+     . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
       call poppr
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq
       if (.not. ((ltet .and. .not. lnoirr) .or. lipq)) then
-        if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-        if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-        if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
+        if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+        if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+        if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       endif
 C   ... Generate inequivalent tetrahedra
       if (ltet .and. .not. lnoirr) then
-        allocate(sbz%iv_a_oidtet(abs(mxkp*30)))
-        if (mxkp*30<0) sbz%iv_a_oidtet(:)=0
+        allocate(iv_a_oidtet(abs(mxkp*30)))
+        if (mxkp*30<0) iv_a_oidtet(:)=0
 C     ... Save a copy of ipq since tetirr destroys this array
         if (lipq) then
-          allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=sbz%iv_a_oipq(:)
-          sbz%iv_a_oipq(:)=0
-          call icopy ( 6 * mxkp , iv_a_owk , 1 , sbz%iv_a_oipq , 1 )
+          allocate(iv_a_owk(abs(6*mxkp))); iv_a_owk(:)=iv_a_oipq(:)
+          iv_a_oipq(:)=0
+          call icopy ( 6 * mxkp , iv_a_owk , 1 , iv_a_oipq , 1 )
         endif
         call tetirr ( qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz ( 3 )
-     .   , sbz%iv_a_oipq , ntet , sbz%iv_a_oidtet )
+     .   , iv_a_oipq , ntet , iv_a_oidtet )
 
-        i_data_size=size(sbz%iv_a_oidtet); allocate(iv_a_tmp(i_data_size))
-        iv_a_tmp=sbz%iv_a_oidtet; deallocate(sbz%iv_a_oidtet)
-        i_data_size=min(i_data_size,ntet*5); allocate(sbz%iv_a_oidtet(ntet*5))
-        sbz%iv_a_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+        i_data_size=size(iv_a_oidtet); allocate(iv_a_tmp(i_data_size))
+        iv_a_tmp=iv_a_oidtet; deallocate(iv_a_oidtet)
+        i_data_size=min(i_data_size,ntet*5); allocate(iv_a_oidtet(ntet*5))
+        iv_a_oidtet(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 C     ... Unless ipq still needed, throw it away
         if (lipq) then
-          sbz%iv_a_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk)
+          iv_a_oipq(:)=iv_a_owk(:); deallocate(iv_a_owk)
         else
-          if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-          if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
-          if (allocated(sbz%iv_a_oipq)) deallocate(sbz%iv_a_oipq)
+          if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+          if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
+          if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
         endif
       endif
 C --- Pack new info into structures ---
-      sbz%nkp=nkp
+      sbz%nkp   = nkp
       sbz%nkabc = nkxyz
       sbz%ntet  = ntet
-      if (.not.allocated(sbz%iv_a_oidtet))then
-        write(*,*)'warnig in mkqp: sbz%iv_a_oidtet is not allocated. but continue.'
+      if (.not.allocated(iv_a_oidtet))then
+        write(*,*)'warnig in mkqp: iv_a_oidtet is not allocated. but continue.'
       endif
 c$$$C --- Write q-points to disc ---
 c$$$      if ( iand(2,int(sbz%lio)) .ne.0 ) then

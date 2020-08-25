@@ -153,9 +153,7 @@ c      call finits(2,0,0,i)
       endif
       write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)") trim(prgnam),nrecs
       if(lshowp) call cexit(0,1)
-
       
-!! --- Read recrd --- We store all readin data to module varables in m_rdctrl2_func 
  1111 continue
       call rdctrl2(recrd,recln0,nrecs,prgnam) 
 !!     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
@@ -163,19 +161,22 @@ c      call finits(2,0,0,i)
 #if MPI | MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-!! ------ End of readin ctrl file. -----------------------------------
-     
-      
-!!--- Lattice setup:deformation ---
+      print *,'end of rdctrl2'
+!!  -- End of readin ctrl file. ----------------------------
+!!--- Lattice setup:deformation --- 
       call lattic() !this gives v_slat
       do ibas=1,v_sctrl%nbas
         v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
+!! --- We store all settings in module variables of m_rdctrl.
+      print *,'end of lattic'
+     
+      
+      
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
-      
 !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
       lc = 10
 #ifndef LMFGWD 
@@ -273,6 +274,8 @@ c$$$      enddo
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
       call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 #endif
+
+      
 !! show and quit
       if ( int(v_sctrl%quit) == 1 ) then
         call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')

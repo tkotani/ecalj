@@ -21,6 +21,7 @@
       use m_w_psir, only: w_psir_cmdopt
       use m_struc_def
       use m_ext,only: sname !file extension. Open a file like file='ctrl.'//trim(sname)
+      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -1052,17 +1053,17 @@ C ... Case only generate bands at supplied qp: setup
       if(allocated(qplist)) deallocate(qplist)
       if( procid==master .and. plbnd==0) then
          allocate(qplist(3,nkp))
-         call dcopy(3*nkp, sbz%rv_p_oqp,1,qplist,1)
+         call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
 c-----------------
          ifqplist=ifile_handle()
          open(ifqplist,file='QPLIST.IBZ')
          do iq=1,nkp
-            write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), sbz%rv_a_owtkp(iq)/2d0
+            write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
          enddo
          close(ifqplist)
          if( jobgw/=0.and.jobgw/=1 )then
-            write(6,*)'qplist.ibz sumcheck=',nkp,sum(sbz%rv_a_owtkp(1:nkp))
-            if(abs(sum(sbz%rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
+            write(6,*)'qplist.ibz sumcheck=',nkp,sum(rv_a_owtkp(1:nkp))
+            if(abs(sum(rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
          endif   
 c-----------------
          !I think sbz%rv_p_oqp is not used in the following.
@@ -1967,7 +1968,7 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
                   if(debug) print *,'goto addrbl nevl=',nevl
                   call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
-     .              , qp , sbz%rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
+     .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
      .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
      .              , lekkl , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
      .              , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev
@@ -2535,11 +2536,11 @@ c$$$         endif
             eferm = min(dosw(1),dosw(2))
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .        , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
-     .        , 2 , ntet , sbz%iv_a_oidtet , sev , dum )
+     .        , 2 , ntet , iv_a_oidtet , sev , dum )
             eferm = max(dosw(1),dosw(2))
             call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .        , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-     .        eferm , 2 , ntet , sbz%iv_a_oidtet , sev , dum )
+     .        eferm , 2 , ntet , iv_a_oidtet , sev , dum )
             call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb, 1 )
             if (allocated(ww_rv)) deallocate(ww_rv)
          else
@@ -2550,9 +2551,9 @@ c$$$         endif
 !! vnow june22013 !vnow !(in Ry) contains magnetic field
 !! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
+     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .           ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
             else
 ckino       maybe a switch for these is lmet.ne.0
@@ -2567,15 +2568,15 @@ ckino       maybe a switch for these is lmet.ne.0
                   l_temp_rv_a_owtkb=.true.
                endif
                l_temp_iv_a_oidtet=.false.
-               if (.not.allocated(sbz%iv_a_oidtet))then
-                  allocate(sbz%iv_a_oidtet(1))
+               if (.not.allocated(iv_a_oidtet))then
+                  allocate(iv_a_oidtet(1))
                   l_temp_iv_a_oidtet=.true.
                endif
 !! vnow june22013
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , sbz%iv_a_oidtet , qval - qbg , 
+     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .           ) , dosrng , sbz%rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
             endif
 !! june2013 magfield is added
@@ -2595,7 +2596,7 @@ ckino       maybe a switch for these is lmet.ne.0
                l_temp_rv_a_owtkb=.false.
             endif
             if (l_temp_iv_a_oidtet) then
-               deallocate(sbz%iv_a_oidtet);
+               deallocate(iv_a_oidtet);
                l_temp_iv_a_oidtet=.false.
             endif
 !!         Store val charge & magnetic moment in sumqv(1..2)
@@ -2713,12 +2714,12 @@ c            endif
 !! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )
+     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
                if(tdos) dosw(2) = dosmax + eferm !.or.pdos
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , sbz%iv_a_oidtet , dum , dum )!job=1 integrated dos
+     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
                if ( ndos0 > 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
                del = 0d0
@@ -2726,10 +2727,10 @@ c            endif
                if(tdos) dosw(2) = dosmax + eferm  !.or.pdos
                if ( mpsord .ge. 100) mpsord = mod(mpsord,100)
                if ( ndos0 > 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
-     .           , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .           , rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
                if ( ndos0 < 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
-     .           , sbz%rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .           , rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
                del = mpsord+dabs(esmear-mpsord)
             endif

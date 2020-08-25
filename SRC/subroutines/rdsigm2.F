@@ -195,6 +195,8 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       use m_hft2rs
       use m_globalvariables
       use m_sigflg
+c      use m_work,only:  rv_p_oqp
+c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig
@@ -213,8 +215,9 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       integer:: ohrss
-      real(8),pointer :: rv_p_oqp(:) =>NULL()
-      real(8),allocatable,target :: rv_a_oqp(:)
+c      real(8),pointer :: rv_p_oqp(:) =>NULL()
+c      real(8),allocatable,target :: rv_a_oqp(:)
+      real(8),allocatable :: rv_p_oqp(:)
       integer ,allocatable :: gstar_iv(:)
       integer ,allocatable :: ipq_iv(:)
       real(8) ,allocatable :: wgt_rv(:)
@@ -425,11 +428,11 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
       if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
       allocate(sham%rv_p_oqsig(abs(3*mxkp)))
-      if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
-      allocate(rv_a_oqp(abs(3*mxkp)))
-      rv_p_oqp=>rv_a_oqp
+      allocate(rv_p_oqp(abs(3*mxkp)))
+c      allocate(rv_a_oqp(abs(3*mxkp)))
+c      rv_p_oqp=>rv_a_oqp
 ckino end
-      if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+      rv_p_oqp(:)=0.0d0
       allocate(gstar_iv(abs(-mxkp-1)))
       if (-mxkp-1<0) gstar_iv(:)=0
       gstar_iv = - 2
@@ -514,8 +517,9 @@ c        endif
       endif
       if(debug) print *,' a8 end of chksgr 3333333333'
       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( '-wsig' , 5 , 0 , outs ) ) ) then
-        if (associated(rv_p_oqp)) nullify(rv_p_oqp)
-        if (allocated(rv_a_oqp)) deallocate(rv_a_oqp)
+c        if (associated(rv_p_oqp)) nullify(rv_p_oqp)
+c        if (allocated(rv_a_oqp)) deallocate(rv_a_oqp)
+        if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       endif
       if(debug) print *,' a8 3333333333'
 C ... Broadcast R.S. sigma before symmetrization
@@ -714,12 +718,10 @@ C ... Transformations done by caller: write qp list to disk
       if (lwsig .ne. 0) then
         call info0(30,0,0,' ')
         if (lnwmsh) then
-          i_copy_size=size(sbz%nkabc)
-          call icopy(i_copy_size,sbz%nkabc,1,nkxyz,1)
-          i_copy_size=size(sbz%lshft)
-          call icopy(i_copy_size,sbz%lshft,1,lshft,1)
-          nqp=sbz%nkp
-          rv_p_oqp => sbz%rv_p_oqp
+           nkxyz=sbz%nkabc !sbz
+           lshft=sbz%lshft
+           nqp=sbz%nkp
+c           rv_p_oqp => sbz%rv_p_oqp
           call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
      .    'nk=%3:1i  shft=%3:1l',nkxyz,lshft)
@@ -727,9 +729,9 @@ C ... Transformations done by caller: write qp list to disk
         if (lfbzout) then
           mxkp = nk1*nk2*nk3
           call info(20,0,0,' rdsigm: use full BZ (%i q-points)...',mxkp,0)
-          allocate(rv_a_oqp(abs(3*mxkp)))
-          rv_p_oqp=>rv_a_oqp
-          if (3*mxkp<0) rv_p_oqp(:)=0.0d0
+          allocate(rv_p_oqp(abs(3*mxkp)))
+c          allocate(rv_a_oqp(abs(3*mxkp)))
+c          rv_p_oqp=>rv_a_oqp
           allocate(ipq_iv(mxkp))
           allocate(wgt_rv(abs(-mxkp)))
           if (-mxkp<0) wgt_rv(:)=0.0d0

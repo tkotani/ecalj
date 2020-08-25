@@ -1,6 +1,6 @@
       subroutine lattic() !slat,nbas)
       use m_struc_def  !Cgetarg
-      use m_rdctrl2_func,only: slat=>v_slat,v_sctrl
+      use m_rdctrl,only: slat=>v_slat,v_sctrl
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
