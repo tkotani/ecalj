@@ -32,7 +32,7 @@ Cu   05 Jul 08 (T. Kotani)
 Cu             Option to accumulate energy-weighted output density
 Cu   27 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,numq,iprmb(1)
 #ifdef USEOPTIONAL
@@ -143,7 +143,7 @@ Cu Updates
 Cu   05 Jul 08 (T. Kotani)
 Cu             Option to accumulate energy-weighted output density
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer job,kmax,nlma,isp,numq
       double complex cPkL(0:kmax,nlma)
@@ -186,6 +186,7 @@ CSFCPP#define F90 1
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_prlcb
+      use m_work,only: iv_a_oidxcg, iv_a_ojcg , rv_a_ocy,rv_a_ocg
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -456,8 +457,8 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
 #define OSIGHP sv_p_osig(2,ia)%v
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-        call bstrux ( 1 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
-     .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+        call bstrux ( 1 , slat , ssite , sspec ,rv_a_ocg , iv_a_oidxcg
+     .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
 
 C   --- Loop over eigenstates ---
@@ -616,7 +617,7 @@ Co Outputs
 Co   cPkL  :coefficients to PkL expansion of evec
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,ndimh,nlma
       double complex b(ndimh,nlma,0:kmax),cPkL(0:kmax,nlma),evec(ndimh)

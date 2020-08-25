@@ -1,6 +1,7 @@
 CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,slat,vavg,q,ndimh,iprmb,
      .napw,igapw,h,s)
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
@@ -159,14 +160,6 @@ C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
       integer nbas,nglob,nlmto
-ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
       integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
@@ -208,30 +201,15 @@ c      integer obuff
       procid = 0
       master = 0
 #endif
-
 C --- Setup ---
       nlmto = ndimh-napw
-Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
-
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-
 C ... Setup below needed for PWs
       if (napw .gt. 0) then
-
         alat=slat%alat
         i_copy_size=size(slat%plat)
         call dcopy(i_copy_size,slat%plat,1,plat,1)
         vol=slat%vol
-
         pi = 4d0*datan(1d0)
         tpiba = 2d0*pi/alat
         srvol = dsqrt(vol)
@@ -241,16 +219,11 @@ C ... Setup below needed for PWs
 C       Find largest lmxa ... should be made elsewhere
         lmxax = -1
         do  ib1 = 1, nbas
-
           is1=ssite(ib1)%spec
-
-
           lmxa=sspec(is1)%lmxa
-
           lmxax = max(lmxax,lmxa)
         enddo
         nlmax=(lmxax+1)**2
-CSFCPP#if F90
         allocate(ylv(napw,nlmax),yl(nlmax),qpgv(3,napw),qpg2v(napw))
 C       Note: rearrange order
         do  ig = 1, napw
@@ -350,27 +323,8 @@ C     ... M.E. <1> and <T> between all envelopes connecting ib1 and ib2
      .          call rx('smhsbl: increase nlms')
                 call hhibl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .              i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
-ckino Dec.12.2011:       .              , nlms , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy , slat
-ckino Dec.12.2011:       .              , nlms , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , slat
-ckino Dec.12.2011:       .              , nlms , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy , slat
-ckino Dec.12.2011:       .              , nlms , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat
-ckino Dec.27.2011:       .              , nlms , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat
-ckino Dec.27.2011:       .              , nlms , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat
-ckino Dec.27.2011:       .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy , slat
-ckino Dec.28.2011:       .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy , slat 
-     .              , nlms , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy , slat 
+     .              , nlms , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , slat 
      .              , s0 ( 1 , 1 , 0 , i1 , i2 ) )
-
-
-
-
-
-C              print *, '!!'; k0=1
-C              call hhigbl(11,p1,p2,q,rsm1(1,i1),rsm2(1,i2),e1(1,i1),
-C     .          e2(1,i2),nlm1,nlm2,1,nlms,nlms,k0,w(ocg),w(oidxcg),
-C     .          w(ojcg),w(ocy),slat,s0(1,1,0,i1,i2),ds(1,1,0))
-C              s0(:,:,0,i1,i2) = ds(:,:,0)
-
               enddo
             enddo
 

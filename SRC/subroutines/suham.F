@@ -1,6 +1,7 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
       subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
-c      subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
+c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
+      use m_work,only: rv_a_osymgr,rv_a_oag,rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
@@ -148,14 +149,14 @@ c ... reverse maping of offset-index for hamiltonian
 
 !!--- symmetry operation ---
       allocate(symops(3,3,ngrp),ag(3,ngrp))
-      call dcopy ( ngrp * 9 , slat%rv_a_osymgr , 1 , symops , 1 )
-      call dcopy ( ngrp * 3 , slat%rv_a_oag , 1 , ag , 1 )
+      call dcopy ( ngrp * 9 , rv_a_osymgr , 1 , symops , 1 )
+      call dcopy ( ngrp * 3 , rv_a_oag , 1 , ag , 1 )
       allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
       do ib=1,nbas
         iclasst(ib)=ssite(ib)%class
       enddo
 !!---- get space group information ---- translation informations also in miat tiat invgx, shtvg
-      call mptauof ( symops , ngrp , plat , nbas , slat%rv_a_opos , iclasst 
+      call mptauof ( symops , ngrp , plat , nbas , rv_a_opos , iclasst 
      . , miat , tiat , invgx , shtvg )
 !!---- write SYMOPS ---- mar2012takao
 #if (MPI|MPIK)
@@ -428,7 +429,7 @@ c       if(iprx)  write(6,*) ' add igaf=',igaf
         allocate(symops(3,3,ngrp))
         symops = symtmp
         allocate(invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp))
-        call mptauof ( symops , ngrp, plat , nbas , slat%rv_a_opos , iclasstaf
+        call mptauof ( symops , ngrp, plat , nbas , rv_a_opos , iclasstaf
      .   , miat , tiat , invgx , shtvg )
         if(iprx) then
           write(6,*)
@@ -448,6 +449,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
       subroutine suham(sctrl,slat,sspec,ssite,sham,spot,sbz)
+      use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_rdctrl,only:lso
@@ -541,7 +543,7 @@ c lncol,
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
       integer:: oalph , oiax , ontab , os , ng
-      real(8),allocatable :: rv_a_ogv(:)
+      real(8),allocatable :: rv_a_ogvx(:)
 
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
@@ -571,10 +573,10 @@ c      if (lncol .ne. 0) then
         nspx = 1
       endif
       ndim = nbasp * nl**2 * nkaph
-      if (allocated(sham%iv_a_ooffH)) deallocate(sham%iv_a_ooffH)
-      allocate(sham%iv_a_ooffH(n0h*nkap0*(nbasp+1)))
-      sham%iv_a_ooffH(:)=0
-      allocate(sham%iv_a_oindxo(abs(ndim+3)))
+      if (allocated(iv_a_ooffH)) deallocate(iv_a_ooffH)
+      allocate(iv_a_ooffH(n0h*nkap0*(nbasp+1)))
+      iv_a_ooffH(:)=0
+      allocate(iv_a_oindxo(abs(ndim+3)))
       stdo = lgunit(1)
 
 C --- Hamiltonian offsets, orbital permutation table ---
@@ -587,7 +589,7 @@ C --- Hamiltonian offsets, orbital permutation table ---
           ips(ib) = ssite(ib)%spec
         enddo  
         call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , ips !sarray%iv_a_oips
-     .     , sham%iv_a_ooffH , sham%iv_a_oindxo , ldham )
+     .     , iv_a_ooffH , iv_a_oindxo , ldham )
         deallocate(ips)
       endif
 C     Default value for hamiltonian dimension
@@ -645,7 +647,7 @@ C         Find largest lmxa
       ng=slat%ng
       alat=slat%alat
       tolgv=slat%tolft
-      call sugcut ( 1 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv  )
+      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
@@ -723,15 +725,15 @@ C    ...  Printout
           call info0(40,1,-1,' G vectors at the Gamma point:')
           allocate(igv2_iv(3*npw))
           allocate(kv_iv(3*npw))
-          allocate(rv_a_ogv(abs(3*npw))); rv_a_ogv(:)=0.0d0
+          allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
           call pshpr(iprint())
           if (iprint() .ge. 50) call setpr(100)
           call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
-     .     8 + 2 , npw , npw , kv_iv , rv_a_ogv , xx , igv2_iv )
+     .     8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
           call poppr
           if (allocated(kv_iv)) deallocate(kv_iv)
           if (allocated(igv2_iv)) deallocate(igv2_iv)
-          deallocate(rv_a_ogv)
+          deallocate(rv_a_ogvx)
         endif
       endif
       end subroutine suham

@@ -2,6 +2,7 @@
 !!*Kotani's version newmode with xcpbe.F in abinit Aug2010
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
+      use m_work,only: iv_a_okv,rv_a_ogv!,rv_a_ocy
       use m_struc_def, only:s_lat
       use m_xcpbe,  only: xcpbe
 !! ----------------------------------------------------------------------
@@ -87,16 +88,11 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
       n3= ngabc(3)
       if(abs(n1-k1)+abs(n2-k2)+abs(n3-k3)/=0) call rx('vxcnlm: ni/=ki')
       ng    = slat%ng
-ckino Dec.12.2011:        rv_p_ogv => slat%rv_p_ogv
       allocate(gv(ng,3))
-ckino Dec.12.2011:        call dcopy(3*ng,rv_p_ogv,1,gv,1)
-ckino Dec.27.2011:        call dcopy(3*ng,slat%rv_p_ogv,1,gv,1)
-      call dcopy(3*ng,slat%rv_a_ogv,1,gv,1)
-ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
+      call dcopy(3*ng,rv_a_ogv,1,gv,1)
       alat  =slat%alat
       vol   =slat%vol
       np = n1*n2*n3 !k1*k2*k3
-
       if(debug) print *,'vxcnlm: sum check smrho=',sum(abs(smrho))
 !!== New mode start here ==
 !!== Obtain grho= \nabla smrho (on real mesh) ==
@@ -104,18 +100,13 @@ ckino Dec.12.2011:        iv_p_okv => slat%iv_p_okv
         if(debug) print * ,'goto newmode 111',smrho(1,1,1,1)
         allocate(zgrho(np,3,nsp))
         do  i = 1, nsp
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
-          call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
+          call grfmsh ( 201 , alat , ng , rv_a_ogv , iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , dummy ) !dummy = zzgrho is  not touched for grfmsh(isw=201,...
         enddo
         allocate(grho(k1,k2,k3,3,nsp))
         call dcopy(3*np*nsp,zgrho,2,grho,1) ! grho contains $\nabla$smrho in real space
         deallocate(zgrho)
-
 !! == grho2_updn = (\nabla smrho) **2 ==
         if(debug) print * ,'newmode 222 nsp=',nsp
         allocate(grho2_updn(n1,n2,n3,2*nsp-1) )
@@ -133,11 +124,6 @@ ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , sl
           enddo
         enddo
         if(debug) print * ,'newmode 222aaa2',k1,k2,k3,n1,n2,n3,nsp
-
-ccccccccccccccccccccccccccccc
-c      grho2_updn=0d0
-cccccccccccccccccccccccccccccc
-
 !!== call xcpbe in abinit ==
         if(debug) print * ,'newmode 333 a',k1,k2,k3,nsp
         allocate( vnl(k1,k2,k3,nsp) )
@@ -201,9 +187,7 @@ c          print *,'sumcheck fn j =',sum(abs(fn))
               enddo
             enddo
             call fftz3(fn,n1,n2,n3,k1,k2,k3,1,0,-1)  ! fn (complex) is converted from real space to reciprocal space
-ckino Dec.12.2011:            call gvgetf(ng,1,iv_p_okv,k1,k2,k3,fn,fg(1,j))
-ckino Dec.28.2011:            call gvgetf(ng,1,slat%iv_p_okv,k1,k2,k3,fn,fg(1,j))
-            call gvgetf(ng,1,slat%iv_a_okv,k1,k2,k3,fn,fg(1,j))
+            call gvgetf(ng,1,iv_a_okv,k1,k2,k3,fn,fg(1,j))
 c          print *,'sumcheck fg j =',sum(abs(fg(:,j)))
           enddo
 !!== make i G fg ---> FFT back ==
@@ -217,9 +201,7 @@ c         print *, 'check xxx fg(1,1:3) sum =',sum(abs(gv(1,1:3) *fg(1,1:3)))
 c           print *, ig,abs(fgg(ig)),sum(gv(ig,1:3)**2),sum(fg(ig,1:3)**2)
           enddo
 c         print *, 'check xxx fgg sum =',sum(abs(fgg)),ng,sum(abs(gv)),sum(abs(fg))
-ckino Dec.12.2011:           call gvputf(ng,1,iv_p_okv,k1,k2,k3,fgg,fgrd)
-ckino Dec.28.2011:           call gvputf(ng,1,slat%iv_p_okv,k1,k2,k3,fgg,fgrd)
-          call gvputf(ng,1,slat%iv_a_okv,k1,k2,k3,fgg,fgrd)
+          call gvputf(ng,1,iv_a_okv,k1,k2,k3,fgg,fgrd)
           call fftz3(fgrd,n1,n2,n3,k1,k2,k3,1,0,1)
           vxcnl(:,:,:,isp) = vnl(:,:,:,isp) - dreal(fgrd)
         enddo
@@ -280,31 +262,15 @@ c        stop ' test end of plot 8006'
 !!* This is the end of newmode.
 !!--------------------------------------------------------------
 
-
-
-
-
 !! == From here on, orinal mode by Mark ==
       allocate(agr(np,3*nsp-2),gagr(np,2*nsp-1),ggr(np,nsp))
       allocate(zgrho(np,3,nsp),gzgrho(np,3,2*nsp-1),zggrho(np,nsp))
 C --- Grad rho_i and Laplacian rho_i (complex) ---
-c      print *,'vxcnlm xxx 000000',slat%nabc
-c      print *,'vxcnlm xxx 000111',n1,n2,n3,k1,k2,k3
       do  i = 1, nsp
-C       call zprm3('smrho(isp=%i)',i,smrho(1,1,1,i),n1,n2,n3)
-ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
-ckino Dec.12.2011:            call grfmsh ( 601 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.27.2011:            call grfmsh ( 601 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.28.2011:            call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
-        call grfmsh ( 601 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
+        call grfmsh ( 601 , alat , ng , rv_a_ogv , iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , smrho ( 1 , 1 , 1 , i ) , zgrho ( 1 , 1
      .    , i ) , zggrho ( 1 , i ) )
-C       call zprm3('gradx smrho(isp=%i)',i,zgrho(1,1,i),n1,n2,n3)
-C       call zprm3('grady smrho(isp=%i)',i,zgrho(1,2,i),n1,n2,n3)
-C       call zprm3('gradz smrho(isp=%i)',i,zgrho(1,3,i),n1,n2,n3)
-C       call zprm3('lap smrho(isp=%i)',i,zggrho(1,i),n1,n2,n3)
       enddo
-
 
 C --- agr_i : |grad rho_i|, i=1,2 and agr_i(3) : |grad rho| ---
 C     and ggr_i = lap rho_i.  Also agr(4) : grad rho+ . grad rho-
@@ -336,18 +302,8 @@ C     Use zggrho as complex work array
         call dpzero(zggrho,np*2)
         call dcopy(np,agr(1,i),1,zggrho,2)
 C       call zprm3('|grad rho_i|',0,zggrho(1,i),n1,n2,n3)
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , iv_p_okv , k1 , k2
-ckino Dec.12.2011:            call grfmsh ( 201 , alat , ng , rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.27.2011:            call grfmsh ( 201 , alat , ng , slat%rv_p_ogv , slat%iv_p_okv , k1 , k2
-ckino Dec.28.2011:            call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_p_okv , k1 , k2
-        call grfmsh ( 201 , alat , ng , slat%rv_a_ogv , slat%iv_a_okv , k1 , k2 
+        call grfmsh ( 201 , alat , ng , rv_a_ogv , iv_a_okv , k1 , k2 
      .    , k3 , n1 , n2 , n3 , zggrho , gzgrho ( 1 , 1 , i ) , xx )
-
-
-
-C        call zprm3('gradx |grad rho_%i|',i,gzgrho(1,1,i),n1,n2,n3)
-C        call zprm3('grady |grad rho_%i|',i,gzgrho(1,2,i),n1,n2,n3)
-C        call zprm3('gradz |grad rho_%i|',i,gzgrho(1,3,i),n1,n2,n3)
       enddo
 
       deallocate(zggrho)

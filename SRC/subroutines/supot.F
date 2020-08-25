@@ -1,4 +1,7 @@
       subroutine supot(mode,sctrl,slat,spot)
+      use m_work,only: rv_a_omad,rv_a_opos,rv_a_ogv,iv_a_okv,zv_a_osmrho,sv_a_oorhat,zv_a_osmpot
+     & ,rv_a_odlv,rv_a_oqlv,zv_a_obgv,iv_a_oips0,rv_a_osymgr,rv_a_oag 
+      use m_rdctrl,only :lcd4
       use m_struc_def  
 C- Initialization for potential
 C ----------------------------------------------------------------------
@@ -18,8 +21,7 @@ Cr   Permanent arrays are created to handle the potential, depending
 Cr   on the mode
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
-      use m_rdctrl,only :lcd4
+      implicit none
 C ... Passed parameters
       integer mode
       type(s_ctrl)::sctrl
@@ -45,10 +47,10 @@ C ... Local parameters
 
 C --- Monopole Madelung matrix ---
       if (mod(mode,10) .eq. 1) then
-        allocate(spot%rv_a_omad(nbaspp**2))
-        spot%rv_a_omad(:)=0.0d0
-        call madmat ( nbaspp , slat%rv_a_opos , awald , alat , vol , slat%rv_a_odlv
-     .      , nkd , slat%rv_a_oqlv , nkq , spot%rv_a_omad )
+        allocate(rv_a_omad(nbaspp**2))
+        rv_a_omad(:)=0.0d0
+        call madmat ( nbaspp , rv_a_opos , awald , alat , vol , rv_a_odlv
+     .      , nkd , rv_a_oqlv , nkq , rv_a_omad )
       endif
 C --- Setup for FT charge density, potential representation ---
 c      if ( iand(4,int(sctrl%lcd)) .ne. 0 ) then
@@ -63,11 +65,11 @@ c        call pshpr(iprint()-0)
 c       print *,' xxxx mshsiz=',ngmx
         call fftz30(n1,n2,n3,k1,k2,k3)
 C   ... Make list of lattice vectors within cutoff
-        allocate(slat%rv_a_ogv(abs(ngmx*3)))
-        if (allocated(slat%iv_a_okv)) deallocate(slat%iv_a_okv)
-        allocate(slat%iv_a_okv(abs(ngmx*3)))
+        allocate(rv_a_ogv(abs(ngmx*3)))
+        if (allocated(iv_a_okv)) deallocate(iv_a_okv)
+        allocate(iv_a_okv(abs(ngmx*3)))
 c        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8, ngmx , ng , slat%iv_a_okv , slat%rv_a_ogv , xx , xx )
-        call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, slat%iv_a_okv, slat%rv_a_ogv, xx, xx)
+        call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx, xx)
         if (ng .ne. ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx
           call rx('supot: bug in gvlst2')
@@ -75,23 +77,23 @@ c        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8, ngmx , n
         slat%ng = ng
         slat%gmax = gmax
         slat%nabc = ngabc !it was call ii8copy(i_copy_size=3,ngabc,1,slat%nabc,1)
-        if (allocated(spot%zv_a_osmrho)) deallocate(spot%zv_a_osmrho)
-        allocate(spot%zv_a_osmrho(k1*k2*k3*nsp))
-        spot%zv_a_osmrho(:)=0d0
-        if (allocated(spot%zv_a_osmpot)) deallocate(spot%zv_a_osmpot)
-        allocate(spot%zv_a_osmpot(k1*k2*k3*nsp))
-        spot%zv_a_osmpot(:)=0.0d0
-        if (allocated(spot%sv_a_oorhat)) deallocate(spot%sv_a_oorhat)
-        allocate(spot%sv_a_oorhat(3*nbaspp))
+        if (allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
+        allocate(zv_a_osmrho(k1*k2*k3*nsp))
+        zv_a_osmrho(:)=0d0
+        if (allocated(zv_a_osmpot)) deallocate(zv_a_osmpot)
+        allocate(zv_a_osmpot(k1*k2*k3*nsp))
+        zv_a_osmpot(:)=0.0d0
+        if (allocated(sv_a_oorhat)) deallocate(sv_a_oorhat)
+        allocate(sv_a_oorhat(3*nbaspp))
 c        do i=1,3*nbaspp
 c        enddo
 C   ... Setup for symmetrization
-        allocate(slat%iv_a_oips0(ng))
-        slat%iv_a_oips0(:)=0.0d0
-        allocate(slat%zv_a_obgv(ng))
-        slat%zv_a_obgv(:)=0.0d0
+        allocate(iv_a_oips0(ng))
+        iv_a_oips0(:)=0.0d0
+        allocate(zv_a_obgv(ng))
+        zv_a_obgv(:)=0.0d0
         ngrp=slat%nsgrp
-        call sgvsym ( ngrp , slat%rv_a_osymgr , slat%rv_a_oag , ng , slat%rv_a_ogv , slat%iv_a_oips0
-     .       , slat%zv_a_obgv )
+        call sgvsym ( ngrp , rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0
+     .       , zv_a_obgv )
       endif
       end subroutine supot

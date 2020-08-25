@@ -1,5 +1,6 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
      .sarray,sbz,slabl,mode,wksize) !,sstrn
+      use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
       use m_rdctrl,only: irs11,str_mxnbr,str_rmax
       use m_struc_def  !Cgetarg
       use m_pairs
@@ -149,8 +150,8 @@ c      mxnbr=str_mxnbr !sstr%mxnbr
       rmaxs=str_rmax !sstr%rmax
 
       allocate(lmxa(nclasp),z(nclasp))
-      lmxa(1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%lmxa
-      z   (1:nclasp) = sspec(sarray%iv_a_oics(1:nclasp))%z
+      lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
+      z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
       print *,' lmxa=',lmxa
       print *,' z   =',z
 
@@ -159,7 +160,7 @@ c      mxnbr=str_mxnbr !sstr%mxnbr
       stdo = lgunit(1)
       j = 10
       if (cmdopt('--shorten',j-1,0,outs)) then
-        call shorps ( nbasp , plat , modep , slat%rv_a_opos , slat%rv_a_opos )
+        call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
       endif
 
 c$$$C ... Read from restart file
@@ -195,7 +196,7 @@ C ... Get neighbor table iax for each atom in the cluster
         mxcsiz = str_mxnbr !int(sstr%mxnbr)
 
         call pshpr(iprint()-20)
-        call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , slat%rv_a_opos
+        call pairs ( nbas , nbasp , alat , plat ,(/ rmaxs / 2/) , rv_a_opos
      .   , (/- 1/) , i , j , w_dummy , nttab , iv_a_ontab , iv_a_oiax , mxcsiz )
         call poppr
 
@@ -257,16 +258,16 @@ c          enddo
           else
             call rx('LMAUX: not implemented for lpbc>1')
           endif
-          call makrm0 ( 101 , nspec , nbas , alat , plat , slat%rv_a_opos ,
-     .      slabl , sarray%iv_a_oips , modep , lock_iv , zz_rv , rmt_rv )
+          call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos ,
+     .      slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) !sarray%
 C   ... Scale sphere radii satisfying constraints
           i_copy_size=size(sctrl%omax1)
           call dcopy(i_copy_size,sctrl%omax1,1,omax1,1)
           i_copy_size=size(sctrl%omax2)
           call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
           wsrmax=sctrl%wsrmax
-          call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , slat%rv_a_opos
-     .      , sarray%iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
+          call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos
+     .      , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv )
           i_copy_size=1;
           do i_spackv=1,nspec
@@ -277,19 +278,18 @@ c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
           nclspp = max(2*nclasp-nclass,nspec)
           allocate(rmax(nclspp))
           print *,' zzzz nclspp=',nclspp
-          if(allocated(sarray%rv_a_ormax)) deallocate(sarray%rv_a_ormax) !is this correct???
+          if(allocated(rv_a_ormax)) deallocate(rv_a_ormax) !is this correct???
           do i=1,nclspp
-            rmax(i) =sspec(sarray%iv_a_oics(i))%rmt
+            rmax(i) =sspec(iv_a_oics(i))%rmt
           enddo
-          allocate(sarray%rv_a_ormax(abs(nclspp)))
-          if (nclspp<0) sarray%rv_a_ormax(:)=0.0d0
-          call dcopy ( nclspp , rmax , 1 , sarray%rv_a_ormax , 1 )
+          allocate(rv_a_ormax(abs(nclspp)))
+          call dcopy ( nclspp , rmax , 1 , rv_a_ormax , 1 )
           ifx=1
         endif
 c-------
         if(ifx==0) then
           allocate(rmax(nclasp))
-          call dcopy ( nclasp , sarray%rv_a_ormax , 1 , rmax , 1 )
+          call dcopy ( nclasp , rv_a_ormax , 1 , rmax , 1 )
         endif
 
 C --- Show neighbors by shell ---
@@ -297,7 +297,7 @@ C --- Show neighbors by shell ---
         j = 8
 c$$$        if (cmdopt('--shell',j-1,0,outs)) then
 c$$$          allocate(eula(nbas,3))
-c$$$          call shoshl ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
+c$$$          call shoshl ( outs ( j: ) , nbas , rv_a_opos , plat , str_mxnbr ,
 c$$$     .         z , slabl , sarray%rv_a_oclabl , sarray%iv_a_oips , sarray%iv_a_oipc , spot%rv_a_oves , 
 c$$$     .         eula  , nclass )
 c$$$          deallocate(eula)
@@ -305,8 +305,8 @@ c$$$        endif
 C --- Show angles between neighbors ---
         j = 9
         if (cmdopt('--angles',j-1,0,outs)) then
-          call shoang ( outs ( j: ) , nbas , slat%rv_a_opos , plat , str_mxnbr ,
-     .      slabl , sarray%iv_a_oips )
+          call shoang ( outs ( j: ) , nbas , rv_a_opos , plat , str_mxnbr ,
+     .      slabl , iv_a_oips )
         endif
 C --- Check whether basis w(opos) differs from site file by translation ---
         j = 9
@@ -333,8 +333,8 @@ c          enddo
           enddo
           allocate(rv_a_og(9*ngmx))
           call symlat( plat , ngrp , rv_a_og , j )
-          j = cmplat( nbas , plat , plat , ngrp , rv_a_og , sarray%iv_a_oips
-     .       , slat%rv_a_opos , ips2_iv , pos2_rv )
+          j = cmplat( nbas , plat , plat , ngrp , rv_a_og , iv_a_oips
+     .       , rv_a_opos , ips2_iv , pos2_rv )
           call fexit(j,1,' Exit %i lmchk --basis= ...',j)
         endif
 
@@ -346,10 +346,10 @@ C ... Write positions in Cartesian coordinates and as multiples plat
 C     qlat = (plat+)^-1
           call dinv33(plat,1,qlat,xx)
           do  i = 1, nbas
-            call dpscop ( slat%rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
+            call dpscop ( rv_a_opos , xv , 3 , 3 * i - 2 , 1 , 1d0 )
 C       posp+ = (plat)^-1 pos+
             call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-            ip = ival ( sarray%iv_a_oips , i )
+            ip = ival ( iv_a_oips , i )
 
             print 345, i, slabl(ip), (xv(j),j=1,3), (xv(3+j),j=1,3)
   345       format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
@@ -365,14 +365,14 @@ C --- Print overlaps, optionally minimize wrt spec'd sites ---
         j = 1
         if (iprint() .lt. 30) j = 0
         call ovmin ( outs ( i: ) , nbas , nbasp , alat , plat , rmax
-     .     , rmax , sarray%rv_a_oclabl , sarray%iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
-     .     slat%rv_a_opos , j )
+     .     , rmax , rv_a_oclabl , iv_a_oipc , modep , z , iv_a_ontab , iv_a_oiax ,
+     .     rv_a_opos , j )
 C ... Write positions to file
 c        if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) call iopos ( t , 0
-c     .       , outs ( 8: ) , nbasp , slat%rv_a_opos )
+c     .       , outs ( 8: ) , nbasp , rv_a_opos )
 c         if ( cmdopt ( '--wpos=' , 7 , 0 , outs ) ) then
 c            allocate(bas(3,nbas))
-c            call dcopy(nbas*3, slat%rv_a_opos,1,bas,1)
+c            call dcopy(nbas*3, rv_a_opos,1,bas,1)
 c            do i=1,nbas
 c               write(6,*)'ibas pos=',i,bas(:,i)
 c            enddo

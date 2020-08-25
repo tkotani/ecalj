@@ -23,7 +23,7 @@ Cb   This routine copies su_gvsym.f conventions, which use inv(g)
 Cu Updates
 Cu    7 Sep 98 Adapted from nfp su_gvsym.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ngrp,ng,ips0(ng)
       double precision g(3,3,1),ag(3,1),gv(ng,3)

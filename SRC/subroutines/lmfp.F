@@ -1,5 +1,6 @@
       subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
      .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
+      use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
       use m_struc_def
       use m_rdctrl,only: lhf          
       use m_struc_func, only: mpibc1_s_lat
@@ -238,9 +239,9 @@ C     Shorten site positions
           ix(2) = 2
           ix(3) = 2
           call info0(50,1,0,' lmfp : shortening basis vectors ... ')
-          call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
+          call shorps ( nbas , plat , ix , pos2_rv , slat_rv_a_opos )
           do i_spackv=1,nbaspp
-            ssite(i_spackv)%pos = slat%rv_a_opos( 3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+            ssite(i_spackv)%pos = slat_rv_a_opos( 3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -308,7 +309,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
           allocate(pos2_rv(3,nbas))
           j = 1
           call ivset(ix,1,3,j)
-          call shorps ( nbas , plat , ix , slat%rv_a_opos , pos2_rv )
+          call shorps ( nbas , plat , ix , slat_rv_a_opos , pos2_rv )
           call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv, ifi )
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -390,7 +391,7 @@ C     need group info to symmetrize site density matrix
         tolu=smix%tolu
         if (umix .eq. 0) umix = 1
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab , dmatu , vorbdmat)
+     .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
         if ( int(sctrl%quit) .eq. 16 ) call rx0('quit = dmat')
       endif
 C     end LDA+U  initialization section
@@ -409,7 +410,7 @@ C     3              read nothing (data already input)
  10   continue
 !! Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
-        call rdovfa ( nbas, nspec, ssite, sspec, slat , spot , qbg, spot%sv_a_oorhat )
+        call rdovfa ( nbas, nspec, ssite, sspec, slat , spot , qbg, sv_a_oorhat )
         nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
         lbin = .not. bittst(irs(1),2)
@@ -421,7 +422,7 @@ C     3              read nothing (data already input)
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
         bz_w=sbz%w
         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
-     .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , nit1 , lbin , 
+     .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi )
         sbz%w=bz_w
 
@@ -432,7 +433,7 @@ C     3              read nothing (data already input)
 
 !! ... Write positions array from site structure
         do i_spackv=1,nbaspp
-          slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+          slat_rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
         enddo
         call mpibc1_s_lat(slat,.false.,'lmfp','slat')
         if (k .lt. 0) then
@@ -443,8 +444,8 @@ C     3              read nothing (data already input)
 C     If no force switch set, use default
           k = int(sctrl%lfrce)
           if (k .eq. 0 ) sctrl%lfrce=1
-          call smshft(ssite , sspec , slat , sctrl , sham , spot%sv_a_oorhat
-     .           , spot%zv_a_osmrho )
+          call smshft(ssite , sspec , slat , sctrl , sham , sv_a_oorhat
+     .           , zv_a_osmrho )
 C     Restore force switch
           if ( k .eq. 0 ) sctrl%lfrce=k
         endif
@@ -481,12 +482,12 @@ c$$$        enddo
 c$$$        ix(1) = 2
 c$$$        ix(2) = 2
 c$$$        ix(3) = 2
-c$$$        call shorps ( - nbas , plat , ix , pos2_rv , slat%rv_a_opos )
+c$$$        call shorps ( - nbas , plat , ix , pos2_rv , slat_rv_a_opos )
 c$$$        call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
-c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , slat%rv_a_opos )
-c$$$        call shorps ( nbas , plat , ix , pos2_rv , slat%rv_a_opos )
+c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , slat_rv_a_opos )
+c$$$        call shorps ( nbas , plat , ix , pos2_rv , slat_rv_a_opos )
 c$$$        do i_spackv=1,nbaspp
-c$$$          ssite(i_spackv)%pos= slat%rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$          ssite(i_spackv)%pos= slat_rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
 c$$$        enddo
 c$$$        if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$      endif
@@ -509,7 +510,7 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
         call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
      .        , 0 , dmatu , dmato, vorbdmat, tolu , umix
-     .        , lldau_iv , ng , slat%rv_a_osymgr , slat%iv_a_oistab )
+     .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab )
       endif
 
 c     takao optbas mode here was removed
@@ -543,7 +544,7 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
 c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
-     .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , lbin , 
+     .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
 c     takao save rst file option
@@ -647,8 +648,8 @@ C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
             endif
             if (strn(9:9) .ne. ':' .or.
      .              .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-            call fixpos ( rv_a_opos , nbas , fptol , ng , plat , slat%rv_a_osymgr
-     .              , slat%rv_a_oag , slat%iv_a_oistab )
+            call fixpos ( rv_a_opos , nbas , fptol , ng , plat , rv_a_osymgr
+     .              , rv_a_oag , iv_a_oistab )
           endif
 
 C     Write updated positions to bsmv file
@@ -725,14 +726,14 @@ C     Repack updated positions in site structure
 !! Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
-            call smshft(ssite,sspec,slat,sctrl,sham,spot%sv_a_oorhat,spot%zv_a_osmrho)
+            call smshft(ssite,sspec,slat,sctrl,sham,sv_a_oorhat,zv_a_osmrho)
           endif
 !! Write restart file (to include new positions)
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
-     .              , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
+     .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
           endif
@@ -823,7 +824,7 @@ c         endif
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_a_opos 
      .     , 3 , 0d0 , pos2_rv , 3 )
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
-     .     , 3 , 0d0 , slat%rv_a_opos , 3 )
+     .     , 3 , 0d0 , slat_rv_a_opos , 3 )
       do i_spackv=1,nbas
         ssite(i_spackv)%pos  = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
       enddo
@@ -850,7 +851,7 @@ c         endif
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
         k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
-     .        , nbas , nat , nspec , spot%sv_a_oorhat , iwdummy , iter , .true. 
+     .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
         call fclose(ifi)
       endif

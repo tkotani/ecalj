@@ -1,7 +1,8 @@
       subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
+      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
+     &    rv_a_osymgr
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -78,7 +79,7 @@ C ... Make the qp list from bzmesh
 #if TRSYMM
       call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
-      if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+      if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       allocate(rv_p_oqp(3*mxkp))
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       allocate(iv_a_oipq(6*mxkp))
@@ -101,7 +102,7 @@ C   ... Restrict BZ to two dimensions
       call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call info0(20,0,0,' ')
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp ,
+     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !slat%rv_a_osymgr
      . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
 C   ... Sanity check
 c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
@@ -113,7 +114,7 @@ C   ... Remake, with exactly allocated arrays, ipq on top
 #if TRSYMM
       call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
-      if (associated(rv_p_oqp)) deallocate(rv_p_oqp)
+      if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       allocate(rv_p_oqp(abs(3*nkp)))
       if (3*nkp<0) rv_p_oqp(:)=0.0d0
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
@@ -122,7 +123,7 @@ C   ... Remake, with exactly allocated arrays, ipq on top
       call pshpr(0)
       call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , slat%rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp ,
+     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !slat%
      . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
       call poppr
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq

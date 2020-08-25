@@ -1,9 +1,6 @@
-CSFCPP#define F90 1
       subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
-     .kv,cv,k1,k2,k3,smpot,vval)
-
+     .     kv,cv,k1,k2,k3,smpot,vval)
       use m_struc_def  !Cgetarg
-
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -41,9 +38,9 @@ Cu Updates
 Cu   01 Jul 05 handle sites with lmxl=-1
 Cu   22 Aug 01 Newly created.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer k1,k2,k3,nbas,ng,kv(ng,3)
+      integer k1,k2,k3,nbas,ng,kv(ng,3),i_copy_size
       real(8):: gv(ng,3) , vval(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -174,9 +171,8 @@ CSFCPP#endif
 
 
       subroutine symvvl(nbas,ssite,sspec,slat,vval,vrmt)
-
+      use m_work,only: rv_a_osymgr,rv_a_oag
       use m_struc_def  !Cgetarg
-
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -204,64 +200,33 @@ Cu Updates
 Cu   01 Jul 05 handle sites with lmxl=-1
 Cu   23 Aug 01 Newly created.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas
+      integer nbas,i_spackv
       real(8):: vval(1) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-
 C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
       double precision pos(3,nbas),posc(3,nbas),plat(3,3),pi,y0
       integer:: igetss , nlml , lgunit , ipr , jpr , ngrp , nn , iclbas
-ckino Dec.12.2011:          real(8),pointer :: rv_p_og(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_oag(:) =>NULL()
-
       real(8) ,allocatable :: qwk_rv(:)
       real(8) ,allocatable :: sym_rv(:)
-
-C ... Heap
-
       stdo = lgunit(1)
       call getpr(ipr)
-
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
+      plat=slat%plat
       ngrp=slat%nsgrp
-ckino Dec.12.2011:         rv_p_og => slat%rv_p_osymgr
-
-ckino Dec.12.2011:         rv_p_oag => slat%rv_p_oag
-
-
-c      i_copy_size=1;
-c      do i_spackv=1,nbas
-c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%spec,i_copy_size,i_spackv+1-1,ips)
       do i_spackv=1,nbas
         ipc(i_spackv)  = ssite(i_spackv)%class
         ips(i_spackv)  = ssite(i_spackv)%spec
         pos(:,i_spackv)= ssite(i_spackv)%pos
       enddo
-
-c     i_copy_size=1;
-c      do i_spackv=1,nbas
-c        call spackv_array_copy_i8_i('u',ssite(i_spackv)%class,i_copy_size,i_spackv+1-1,ipc)
-c        ipc(i_spackv)=ssite(i_spackv)%class
-c      enddo
-
-c      i_copy_size=size(ssite(1)%pos)
-c      do i_spackv=1,nbas
-c        call spackv_array_copy_r8_r8('u',ssite(i_spackv)%pos,i_copy_size,i_spackv+1-1,pos)
-c      enddo
-
       nclass = mxint(nbas,ipc)
       do  ib = 1, nbas
         lmxl ( ib ) = int(sspec(ips(ib))%lmxl)
       enddo
-
       do  ic = 1, nclass
 C   ... Make nrclas,ipa,posc
         call psymr0(lmxl,ic,nbas,ipc,pos,posc,ipa,nrclas)
@@ -271,27 +236,15 @@ C   ... Make nrclas,ipa,posc
             nlml = (lmxl(ib)+1)**2
             if (ipr .ge. 50) write(stdo,800) ic,nrclas,nlml
   800       format(' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
-
             allocate(qwk_rv(nlml))
-
             allocate(sym_rv(nlml*nlml*nrclas))
-
-ckino Dec.12.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_p_og
-ckino Dec.28.2011:                call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_p_osymgr
-            call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , slat%rv_a_osymgr
-ckino Dec.12.2011:       .        , rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn )
-ckino Dec.27.2011:       .        , slat%rv_p_oag , qwk_rv , ipa , sym_rv , vval , nn ) 
-     .        , slat%rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn )
-
-
-
+            call symqmp ( nrclas , nlml , nlml , plat , posc , ngrp , rv_a_osymgr
+     .        , rv_a_oag , qwk_rv , ipa , sym_rv , vval , nn )
             if (allocated(sym_rv)) deallocate(sym_rv)
             if (allocated(qwk_rv)) deallocate(qwk_rv)
-
           endif
         endif
       enddo
-
 C ... Extract vrmt = l=0 term for each site, and printout
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
@@ -300,10 +253,8 @@ C ... Extract vrmt = l=0 term for each site, and printout
       iv0 = 0
       do  ib = 1, nbas
         if (lmxl(ib) .eq. -1) goto 10
-
         nlml = (lmxl(ib)+1)**2
         vrmt(ib) = vval(1+iv0)*y0
-
 C   ... Printout
         ic = ipc(ib)
         jpr = 0
@@ -323,12 +274,9 @@ C   ... Printout
   651       format(10x,i6,f12.6)
           enddo
         endif
-
         iv0 = iv0 + nlml
    10   continue
       enddo
-
-
       end subroutine symvvl
 
 

@@ -1,4 +1,5 @@
       subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
+      use m_work,only:  rv_a_osymgr , iv_a_oistab 
       use m_struc_def  !Cgetarg
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
@@ -110,7 +111,7 @@ C     Symmetrize forces to machine precision
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
         allocate(wk_rv(3*nbas))
-        call symfor ( nbas , 1 , slat%rv_a_osymgr , ng , slat%iv_a_oistab , wk_rv , 
+        call symfor ( nbas , 1 , rv_a_osymgr , ng , iv_a_oistab , wk_rv , 
      .    f )
         if (allocated(wk_rv)) deallocate(wk_rv)
       endif

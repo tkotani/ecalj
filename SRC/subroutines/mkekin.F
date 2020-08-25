@@ -4,6 +4,7 @@
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_rdctrl,only:lso
+      use m_work,only: iv_a_oindxo
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -139,9 +140,9 @@ Cu   27 Aug 01 Extended to local orbitals.
 Cu   18 Jun 00 spin polarized
 Cu   20 Jun 00 adapted from nfp get_ekin
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer k1,k2,k3,nbas,ndimh,lcplxp
+      integer k1,k2,k3,nbas,ndimh,lcplxp,i_copy_size
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
@@ -172,6 +173,7 @@ c2012Sep02 kino, add for
        include 'mpif.h'
        integer:: procid=0,ier=0
        integer,parameter::master=0
+       logical:: iprx
        call mpi_comm_rank(mpi_comm_world,procid,ier)
        iprx=.false.
        if(procid==master) iprx=.true.
@@ -198,18 +200,8 @@ C --- Integral n0(out) (Ves0~ + Vxc0), contribution from mesh ---
 C     Note that it does not include the term (n0~-n0) Ves0~
 c      print *,' mkekin: procid sumsmpot sumsmrho sum1 sum2=',procid,sum(abs(smpot)),sum(abs(smrho)),sum1,sum2
       call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smpot,smrho,sum1,sum2)
-
       call mshint(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,qum1,qum2)
       srmesh = sum1 + vconst*qum1
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      write(6,"('vvv: mkekin :sum1 vconst*qum1 ',10d13.6)")
-c     &  sum1,vconst*qum1
-c      write(6,"(a,12d13.5)")'rrrrs: smchk smrho 1'
-c     &  , sum(smrho(:,:,:,1)), sum(abs(smrho(:,:,:,1)))
-c      write(6,"(a,12d13.5)")'rrrrs: smchk smrho 2'
-c     &  , sum(smrho(:,:,:,2)), sum(abs(smrho(:,:,:,2)))
-cccccccccccccccccccccccccccccccccccccccccccccccccccc
-
 C --- Integral rhout*veff, part from augmentation ---
       sraugm = 0d0
       do  ib = 1, nbas
@@ -218,7 +210,7 @@ C --- Integral rhout*veff, part from augmentation ---
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
-        call orbl ( ib , 0 , ndimh , sham%iv_a_oindxo , norb , ltab , ktab 
+        call orbl ( ib , 0 , ndimh , iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
@@ -296,7 +288,7 @@ Cu Updates
 Cu    1 Sep 04 Adapted to handle complex ppi
 Cu   28 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,lmxa,nlma,lmxh,nlmh,nsp,nspc,lcplxp,lso
       integer nkaph,norb,ltab(norb),ktab(norb),blks(norb)
@@ -463,70 +455,9 @@ C       k1,l1 = k and starting l index for this block
           endif
         enddo
       enddo
-
       if (lso .ne. 0) then
-C       io1 = nkaph*nkaph*nlmh*nlmh
-C       call zprm('ppiz+so',2,ppihhz,io1,io1,nsp*nspc)
         call ppi2z(5,nsp,nspc,nkaph,nkaph,nlmh,nlmh,xx,ppihhz,ppihhz)
         call ppi2z(5,nsp,nspc,nkaph,1+kmax,nlmh,nlma,xx,ppihpz,ppihpz)
         call ppi2z(5,nsp,nspc,1+kmax,1+kmax,nlma,nlma,xx,ppippz,ppippz)
       endif
-
-
-C     call info2(0,0,0,' pvgtkn sumh= %,6;6d sumt= %,6;6d ',sumh,sumt)
-
       end subroutine pvgtkn
-
-
-C      subroutine pvgtk1(nkaph,nlmh,k1,k2,nlm11,nlm12,nlm21,nlm22,qhh,
-C     .  ppihhz,sumh)
-CC- Contribution to double-counting from off-diagonal spin blocks
-CC ----------------------------------------------------------------------
-CCi Inputs
-CCi   nkaph :number of types of one l-quantum number in the basis
-CCi   nkaph :number of NMTO energies
-CCi   nlmh  :dimensions qhh and ppihhz
-CCi   k1    :left orbital channel (block) for H*H
-CCi   k2    :right orbital channel (block) for H*H
-CCi   nlm11 :starting L for left channel
-CCi   nlm12 :ending L for left channel
-CCi   nlm21 :starting L for right channel
-CCi   nlm22 :ending L for right channel
-CCi   qhh   :qhh(..,2) head-head density matrix for this site, 12 block
-CCi   ppihhz:ppihh(..,3..4) head-head matrix elements of LxSx+LySy
-CCo Outputs
-CCo   sumh
-CCl Local variables
-CCl         :
-CCr Remarks
-CCr
-CCu Updates
-CCu   17 Jun 05  First created
-CC ----------------------------------------------------------------------
-C      implicit none
-CC ... Passed parameters
-C      integer k1,k2,nkaph,nlmh,nlm11,nlm12,nlm21,nlm22
-C      double complex qhh(nkaph,nkaph,nlmh,nlmh,2)
-C      double complex ppihhz(nkaph,nkaph,nlmh,nlmh,3)
-C      double precision sumh
-CC ... Local parameters
-C      integer ilm1,ilm2,l1,ll
-C      double complex sumz
-C
-C      call zprm('qhh',2,qhh(1,1,1,1,2),nlmh,nlmh,nlmh)
-C      call zprm('ppihh',2,ppihhz(1,1,1,1,3),nlmh,nlmh,nlmh)
-C
-C      sumz = 0
-C      do  ilm1 = nlm11, nlm12
-C      do  ilm2 = nlm21, nlm22
-C        sumz = sumz +
-C     .         qhh(k1,k2,ilm1,ilm2,2)*ppihhz(k1,k2,ilm1,ilm2,3)
-C        enddo
-C      enddo
-C
-C      print *, 'sumz=',sumz
-C
-CC      sumh = sumh + sumz
-C
-C      end
-

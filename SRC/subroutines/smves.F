@@ -1,7 +1,7 @@
       subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
-
+      use m_work,only: rv_a_ogv , iv_a_okv, rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Electrostatic potential of the smooth density.
@@ -137,9 +137,9 @@ Cu   20 Apr 01 Generates vrmt
 Cu   21 Jun 00 spin polarized
 Cu   22 Apr 00 Adapted from nfp ves_smooth.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer k1,k2,k3,nbas,mode
+      integer k1,k2,k3,nbas,mode,i_copy_size
       double precision qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
       real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
      ., vrmt(nbas)
@@ -187,25 +187,25 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-      call vesft ( slat , ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , k1 , k2 
+      call vesft ( slat , ng , rv_a_ogv , iv_a_okv , cv_zv , k1 , k2 
      .  , k3 , smrho , smpot , u00 )
 
 C ... Add estatic potential of compensating gaussians to smpot
       allocate(cg1_zv(ng))
       allocate(cgsum_zv(ng))
-      call vesgcm ( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom ,
-     .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+      call vesgcm ( nbas , ssite , sspec , slat , rv_a_ocy , qmom ,
+     .   ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C --- M. OBATA check
-      call esmsmves( nbas , ssite , sspec , slat , slat%rv_a_ocy , qmom ,
-     .   ng , slat%rv_a_ogv , slat%iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
+      call esmsmves( nbas , ssite , sspec , slat , rv_a_ocy , qmom ,
+     .   ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smrho, qbg, smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
 
 C ... Compute e.s. potential at MT boundary
-      call mshvmt ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , slat%iv_a_okv 
+      call mshvmt ( nbas , ssite , sspec , slat , ng , rv_a_ogv , iv_a_okv 
      .  , cv_zv , k1 , k2 , k3 , smpot , vval )
       call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
       if (allocated(cgsum_zv)) deallocate(cgsum_zv)

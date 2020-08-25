@@ -1,7 +1,6 @@
       subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
-
+      use m_work,only: rv_a_oqlv,rv_a_odlv
       use m_struc_def  !Cgetarg
-
 C- Bloch-sum of smooth Hankel functions and energy derivatives
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,65 +31,32 @@ C ... Passed parameters
       double complex hsm(1),hsmp(1)
 C ... Local parameters
       integer:: nkd , nkq , ilm , l , m
-ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
-
-ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
-
-      double precision alat,p1(3),plat(9),qlat(9),sp,pi,rwald,awald,asm,
+      double precision alat,p1(3),plat(3,3),qlat(3,3),sp,pi,rwald,awald,asm,
      .tol,vol
       double complex cfac,phase
-C ... Heap
-
-C ... Shorten p, multiply by corresponding phase later
-
       alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
+      plat=slat%plat
+      qlat=slat%qlat
       call shorbz(p,p1,plat,qlat)
-C      print *, '!!'
-C      p1 = p
       pi = 4d0*datan(1d0)
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
       phase = dcmplx(dcos(sp),dsin(sp))
-
-
       awald=slat%awald
       tol=slat%tol
       vol=slat%vol
-
-
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
-
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
-
-
       rwald = 1d0/awald
       asm = 1d0/rsm
-
       if (rsm .lt. rwald) then
-ckino Dec.9.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , rv_p_oqlv ,
-ckino Dec.28.2011:           call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_p_oqlv ,
-        call hsmblq ( p1 , e , q , awald , lmax , alat , slat%rv_a_oqlv , 
+        call hsmblq ( p1 , e , q , awald , lmax , alat , rv_a_oqlv , 
      .   nkq , vol , hsm , hsmp )
-
-ckino Dec.9.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_p_odlv
-ckino Dec.27.2011:           call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_p_odlv
-        call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , slat%rv_a_odlv 
+        call hsmbld ( p1 , rsm , e , q , awald , lmax , alat , rv_a_odlv 
      .   , nkd , hsm , hsmp )
-
       else
-ckino Dec.9.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , rv_p_oqlv , nkq
-ckino Dec.28.2011:           call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_p_oqlv , nkq
-        call hsmblq ( p1 , e , q , asm , lmax , alat , slat%rv_a_oqlv , nkq 
+        call hsmblq ( p1 , e , q , asm , lmax , alat , rv_a_oqlv , nkq 
      .   , vol , hsm , hsmp )
-
       endif
-
 C ... Multiply by phase to undo shortening
       cfac = dcmplx(0d0,1d0)*phase
       ilm = 0
@@ -105,7 +71,6 @@ C ... Multiply by phase to undo shortening
 
 
       subroutine hsmblq(p,e,q,a,lmax,alat,qlv,nkq,vol,dl,dlp)
-
 C- k-space part of smooth hankel bloch sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -167,7 +132,6 @@ C ... Local parameters
 
 
       subroutine hsmbld(p,rsm,e,q,a,lmax,alat,dlv,nkd,dl,dlp)
-
 C- Adds real space part of reduced structure constants (ewald).
 Cu Updates
 Cu   10 May 07 New protections to handle error functions underflow

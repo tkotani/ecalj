@@ -1,5 +1,6 @@
       subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
-     .numq,nevec,evl,evec,ewgt,f)
+     .     numq,nevec,evl,evec,ewgt,f)
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Force from smoothed hamiltonian (constant potential) and overlap
@@ -69,14 +70,6 @@ C ... Local parameters
       integer:: i1 , i2 , ib1 , ib2 , ilm1 , ilm2 , io1 , io2 , iq 
      .    , is1 , is2 , l1 , l2 , ik1 , ik2 , ivec , m , nglob , nlm1 , 
      .    nlm2
-ckino Dec.9.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.9.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.9.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.9.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2,nlm21,nlm22,nlm11,nlm12
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
      .blks1(n0*nkap0),ntab1(n0*nkap0)
@@ -118,20 +111,7 @@ C --- Setup ---
         enddo
       endif
 #endif
-
-Changenglob      nbas  = nglob('nbas')
       nbas  = globalvariables%nbas
-
-ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-
 C --- Loop over first and second site indices ---
 #if MPI
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
@@ -186,21 +166,8 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
      .        call rx('fsmbl: increase nlms')
               call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy ,
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy ,
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy ,
-ckino Dec.9.2011:       .            , nlms , k0 , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
-ckino Dec.27.2011:       .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy ,
-ckino Dec.28.2011:       .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy , 
-     .            , nlms , k0 , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy , 
-     .            slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 , 
-     .            i2 ) )
-
-
-
-
+     .            , nlms , k0 , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , 
+     .            slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 ,  i2 ) )
             enddo
           enddo
 

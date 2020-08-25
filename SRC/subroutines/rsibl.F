@@ -1,6 +1,5 @@
-CSFCPP#define F90 1
       subroutine rsibl(ssite,sspec,slat,lfrce,nbas,isp,q,iq,ndimh,nspc,
-     .napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
+     .     napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Add smooth part of output density into smrho and forces.
@@ -62,7 +61,7 @@ Cu    6 Jul 00 attempt to vectorize by grouping eigenvectors in blocks
 Cu   17 Jun 00 Spin polarized
 Cu   23 May 00 Adapted from nfp rsif_q.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI
       include "mpif.h"
@@ -106,8 +105,8 @@ ckino Dec.8.2011:         real(8),allocatable :: rv_p_ogv(:)
       real(8),allocatable :: rv_a_ogv(:)
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx)
-      double precision alat,qlat(3,3),plat(3,3),q0(3),gmax,xx
+      integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),i_copy_size
+      double precision alat,qlat(3,3),plat(3,3),q0(3),gmax,xx,w
 C     Shared variables (openmp)
       double precision vol
       double precision etab(nermx),rtab(nermx)
@@ -488,14 +487,14 @@ Co   f     :term added to forces (mode=1)
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
       integer mode,nbas,ng,ndimh,nlmto,nspc,numq,ivec,nvec,iv(ng,3),
-     .n1,n2,n3,n0,nkap0,iprmb(*)
+     .n1,n2,n3,n0,nkap0,iprmb(*),i_copy_size
       parameter (n0=10,nkap0=3)
       integer iprt(n0,nkap0,*),ipet(n0,nkap0,*)
       double precision vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*),
@@ -605,7 +604,7 @@ Co   smrho :ewgt (f+)f added to smooth density
 Co   vpsi  :FT (smpot * r.s. wave function) if lfrce is nonzero
 Cr Remarks
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k1,k2,k3,n1,n2,n3,ng,nspc,nev,numq,kv(ng,3),lfrce
       double precision ewgt(numq,nev)
@@ -689,7 +688,7 @@ Cr   gradient operator is i*G
 Cu Updates
 Cu   23 Dec 04 Extended to noncollinear case
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng,nspc
       double precision vol,gq(ng,3),f0(3)
@@ -760,7 +759,7 @@ Cr Remarks
 Cu Updates
 Cu   23 Dec 04 Extended to noncollinear case
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ie,ioff,ir,ncut,ng,nlm1,nlm2,ndimh,nspc,nvec
       double precision e,rsm,vol,yl(ng,*),ylw(ng,*),he(ng,*),hr(ng,*),
@@ -846,7 +845,7 @@ Cr Remarks
 Cu Updates
 Cu   23 Dec 04 Extended to noncollinear case
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng,nspc,nvec
       double precision cosgp(ng),singp(ng)
@@ -873,7 +872,7 @@ Ckino phase factor exp(i G R_spc)
       subroutine rsibl7(xsmrho,k1,k2,k3,numq,smrho)
 
 C- Combine rho from separate parallel threads
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k1,k2,k3,numq
       double complex smrho(k1,k2,k3,numq),xsmrho(k1,k2,k3,numq)
@@ -910,7 +909,7 @@ Cr  used by rest of program in place of igapw
 Cu Updates
 Cu   05 Jul 08 (T. Kotani) first created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng,igv(ng,3),napw,igapw(3,napw),ivp(napw)
 C ... Local parameters
@@ -951,7 +950,7 @@ Cr Remarks
 Cu Updates
 Cu   05 Jul 08 (T. Kotani) first created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng,ndimh,nlmto,nspc,nvec
       integer napw,ivp(napw)

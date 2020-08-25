@@ -1,4 +1,5 @@
       subroutine suham2(slat,sspec,ssite,sham,spot) !,sstrn) removed june2015
+      use m_work,only:rv_a_ogv
       use m_struc_def
       use m_globalvariables
 C- Further hamiltonian setup after potential generated
@@ -53,7 +54,7 @@ c      if (lfp .ne. 0) then
           ng=slat%ng
           alat=slat%alat
           tolgv=slat%tolft
-          call sugcut ( 2 , nspec , sspec , alat , ng , slat%rv_a_ogv , tolgv )
+          call sugcut ( 2 , nspec , sspec , alat , ng , rv_a_ogv , tolgv )
         endif
 c      endif
       end subroutine suham2

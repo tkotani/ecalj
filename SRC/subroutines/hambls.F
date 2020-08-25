@@ -162,6 +162,7 @@ C       call zprm('z+ h z',2,zhz,ndimh,ndimh,ndimh)
      .     , isp , ispc , q , k1 , k2 , k3 , qsig , nqsig , smpot , vconst 
      .     , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , lso , alfa , ndimh 
      .     , napw , igvapw , h , s ,isize_h, ismidb  ,ndimsig)
+      use m_work,only: iv_a_ontabs,iv_a_oindxo,iv_a_oiaxs,rv_a_ohrs
       use m_struc_def           !Cgetarg
       use m_globalvariables
       use m_psigd
@@ -514,12 +515,12 @@ C     hreal=1 -> sig(T) is real
       if (lrsig .ge. 4) hreal = 1
       nl = globalvariables%nl
       mxorb = globalvariables%mxorb
-      nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
+      nttabs = ival ( iv_a_ontabs , nbas + 1 )
       nsp  = globalvariables%nsp
       l_dummy_isanrg=isanrg(isp,1,nsp,'hambl:','isp',T)
       plat=slat%plat
       call dinv33(plat,1,qlat,swt)
-      if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',sham%iv_a_ontabs
+      if(debug) print *,' hambles:eee 111222 sham%iv_a_ontabs=',iv_a_ontabs
       sigp=sham%sigp
 
 !! === sigmat = Sigma-Vxc  is generated in a basis of ndimsig (usually MTOs only) ===
@@ -529,8 +530,8 @@ C     ... Bloch transform from sham%rv_a_ohrs=sigm(RealSpace) to sigm(k).
 C     Call to bloch : 104110=perm orb, transpose, no add, c*16
       i = 100000 + 4000 + 40*(1-hreal) + 000 + 10
       print *,'AAAAAhambles goto bloch sigmat------i q nl plat mxorb ',lrsig,i,q,ndimsig,nttabs
-      call bloch ( i , q , nl , plat , mxorb , sham%iv_a_oindxo , 1 , nttabs
-     .     , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
+      call bloch ( i , q , nl , plat , mxorb , iv_a_oindxo , 1 , nttabs
+     .     , iv_a_oiaxs , rv_a_ohrs , ndhrs , isp , nsp , ndimsig , ndimsig 
      .     , 0 , ndimsig, 0 , ndimsig , 0 , sigmat ( 1 , 1 ) , iwdummy , iwdummy )
       allocate(ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
       ovlmtoi = s(1:ndimsig,1:ndimsig,ispc)

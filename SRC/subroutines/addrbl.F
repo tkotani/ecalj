@@ -6,6 +6,7 @@ CSFCPP#define F90 1
      .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def , esmear 
      .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
      .     , sv_p_oeqkkl , f )
+      use m_work,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Adds to the smooth and local output density and to eigval sum
@@ -95,7 +96,7 @@ Cu   23 Jan 01 Added lrout switch
 Cu   17 Jun 00 spin polarized
 Cu   22 May 00 Adapted from nfp add_densw.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer isp,nsp,nspc,iq,k1,k2,k3,ldos,lmet,lrout,lwtkb,lswtk,
      .lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
@@ -119,20 +120,10 @@ C ... Local parameters
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-CSFCPP#if F90
-      integer ipiv(ndimh*2)
+      integer ipiv(ndimh*2),i_copy_size
       complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
-CSFCPP#else
-CSFCPP      double precision qpgv,qpg2v,ylv
-CSFCPP#endif
-CSFCPP#if F90 | AUTO_ARRAY
       double precision ewgt(ndimh*nspc*numq),epsnevec
-CSFCPP#else
-CSFCPP      integer ndimx
-CSFCPP      parameter(ndimx=1000)
-CSFCPP      double precision ewgt(3,ndimx)
-CSFCPP#endif
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
@@ -141,10 +132,6 @@ CSFCPP#endif
       ndimhx = ndimh*nspc
       i_copy_size=size(slat%nabc)
       call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-
-CSFCPP#if ! (F90 | AUTO_ARRAY)
-CSFCPP      if (ndimhx.gt.ndimx) call rxi('addrbl: increase ndimx to',ndimh)
-CSFCPP#endif
 
 C     Setup for PW part of basis
       alat=slat%alat
@@ -210,7 +197,7 @@ C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
           call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh ,
-     .     nlmto , sham%iv_a_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
+     .     nlmto , iv_a_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f )
         endif
 C        print *, 'after fsmbl'
@@ -221,7 +208,7 @@ C        enddo
 
         if (napw .gt. 0) then
           vol=slat%vol
-          call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , sham%iv_a_oindxo 
+          call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_a_oindxo 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
 C        print *, 'after fsmblpw'
@@ -234,7 +221,7 @@ C        enddo
 C ... Add to smooth density
       if (lrout .gt. 0) then
         call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
-     .   iq , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
+     .   iq , ndimh , nspc , napw , igapw , iv_a_oindxo , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       endif
@@ -246,7 +233,7 @@ C      enddo
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
         call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
-     .        ndham , ndimh , nspc , napw , igapw , sham%iv_a_oindxo , numq , nevec 
+     .        ndham , ndimh , nspc , napw , igapw , iv_a_oindxo , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
 C       call zprm3('smrho after rlocbl',0,smrho,k1,k2,k3)
@@ -324,7 +311,7 @@ Cr
 Cu Updates
 Cu   17 Jan 05 Extension of esmear to Fermi distribution
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ndimh,ndos
       double precision evl(1),dos(ndos,2),wgt,emin,emax,esmear

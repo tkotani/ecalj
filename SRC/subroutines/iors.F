@@ -4,6 +4,7 @@
       use m_struc_def 
       use m_struc_func
       use m_globalvariables
+      use m_work,only: zv_a_osmrho, rv_a_oves
 C- I/O for charge density
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -140,7 +141,7 @@ C ... Local parameters
      .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
       integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw
-      complex(8),allocatable :: zv_a_osmrho(:)
+      complex(8),allocatable :: zv_a_osmrhox(:)
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -371,17 +372,17 @@ C   ... FP mesh density
 c              call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
               slat%nabc=ngabc
               call fftz30(n1,n2,n3,k1,k2,k3)
-              allocate(zv_a_osmrho(abs(-k1*k2*k3*nsp)))
-              if (-k1*k2*k3*nsp<0) zv_a_osmrho(:)=0.0d0
-              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho, lbin , jfi )
-              deallocate(zv_a_osmrho)
+              allocate(zv_a_osmrhox(k1*k2*k3*nsp))
+              zv_a_osmrhox(:)=0.0d0
+              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrhox, lbin , jfi )
+              deallocate(zv_a_osmrhox)
             elseif (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
-              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , spot%zv_a_osmrho 
+              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho !spot%zv_a_osmrho 
      .         , lbin , jfi )
               if (nsp .gt. nsp0) then
                 i = k1*k2*k3*2
-                call dscal ( i , 0.5d0 , spot%zv_a_osmrho , 1 )
-                call dpscop ( spot%zv_a_osmrho , spot%zv_a_osmrho , i , 1 , 1 + i , 1d0 )
+                call dscal ( i , 0.5d0 , zv_a_osmrho , 1 )
+                call dpscop ( zv_a_osmrho , zv_a_osmrho , i , 1 , 1 + i , 1d0 )
               endif
 c   ... or read and remesh
             else
@@ -402,7 +403,7 @@ c   ... or read and remesh
               i = 0
               if (n1 .eq. 2*n11 .and. n2 .eq. 2*n21 .and. n3 .eq. 2*n31) i=3
               call chgmsh ( i , plat , nsp , n11 , n21 , n31 , k11 , k21 ,
-     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho )
+     .         k31 , h_zv , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho )
               call poppr
               if (allocated(h_zv)) deallocate(h_zv)
             endif
@@ -413,12 +414,12 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
   460         format(9x,'volume changed from',f8.2,
      .        ' :  scale smooth density by',f8.4)
-              call dpcopy ( spot%zv_a_osmrho , spot%zv_a_osmrho , 1 , 2 * k1 * k2 * k3 
+              call dpcopy ( zv_a_osmrho , zv_a_osmrho , 1 , 2 * k1 * k2 * k3 
      .         * nsp , vfac )
 
             endif
           endif
-          call mpibc1 ( spot%zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog, 'iors' , 'smrho' )
+          call mpibc1 ( zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog, 'iors' , 'smrho' )
   115     continue
         endif
 C   --- Read information related to dynamics ---
@@ -859,7 +860,7 @@ C           call dpdbyl(w(ov0),nr0,1,1,nsp0,nsp,lbin,jfi)
               if (vs1 .lt. -1.041d0) then
                 read(jfi,43) vrmax(1)
    43           format(12x,f11.7)
-                call dvset ( spot%rv_a_oves , ic , ic , vrmax )
+                call dvset ( rv_a_oves , ic , ic , vrmax ) !spot%rv_a_oves
               endif
               if ( lrs ( 3 ) .eq.0 ) then
                 i_copy_size=size(ssite(ib)%pnu)
@@ -1115,7 +1116,7 @@ C   --- Write smooth charge density ---
           write(jfi,721) 'smooth density'
           write(jfi,ifmt) n1,n2,n3
         endif
-        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , spot%zv_a_osmrho, lbin , - jfi )
+        call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , zv_a_osmrho, lbin , - jfi )
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
@@ -1246,7 +1247,7 @@ C             call dpdbyl(w(ov0),nr,1,1,nsp,nsp,lbin,-jfi)
               vrmax(1) = 0
               vrmax(2) = 0
               l_dummy_aiomom=aiomom(spid,pnu,qnu(1,1,1+(ib-1)*nsp),idmod,n0,lmxa,nsp,rh,vrmax,-jfi)
-              vrmax ( 1 ) = dval ( spot%rv_a_oves , ic )
+              vrmax ( 1 ) = dval ( rv_a_oves , ic )
               write(jfi,143) vrmax(1)
   143         format('  Ves(rmax)=',f11.7)
             endif

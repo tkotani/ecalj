@@ -1,7 +1,6 @@
       subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
      . , smrho )
-
-
+      use m_work,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Estimate the smooth density for a shift in atomic positions.
@@ -99,44 +98,26 @@ C     call zprm3('input smrho',0,smrho,k1,k2,k3)
 
 C ... Hold on to original smrho (cgr)
       allocate(cgr_zv(ng*nsp))
-
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:         call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv
-ckino Dec.28.2011:         call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smrho , cgr_zv
-      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv 
-     . )
-
-
+      call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , smrho , cgr_zv  )
 
 C --- Shift in unscreened density at the two positions ---
       allocate(cgs_zv(ng*nsp))
-
       allocate(cwk_zv(ng))
-
       kmax = 0
       call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng ,
-ckino Dec.12.2011:       .  rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
-ckino Dec.27.2011:       .  slat%rv_p_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job ) 
-     .  slat%rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
-
-
-
+     .  rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
       if (allocated(cwk_zv)) deallocate(cwk_zv)
-
-
 C ... Debugging: print unscreened shift in pseudo core density
 C      call gvputf(ng,nsp,w(okv),k1,k2,k3,w(ocgs),smrho)
 C      call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C      call zprm3('unscreened local density',0,smrho,k1,k2,k3)
-
 C --- Screened shift ---
       if (job .gt. 10) then
 C       Compute elind if not given
         qval = 0d0
         do  12  ib = 1, nbas
           is = int(ssite(ib)%spec)
-
-
           z=sspec(is)%z
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
@@ -152,37 +133,16 @@ C       Compute elind if not given
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
         elind = sham%elind
-
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , cgs_zv , 0 , 
      .  1 , cgs_zv , ng * 2 , 1 )
-
-C        call lindxx(122,n1,n2,n3,k1,k2,k3,ng,w(okv),w(ocgs),w(ogv),
-C     .    tpiba,elind,w,w,w,w)
-ckino Dec.12.2011:           call lindsc ( 2 , ng , rv_p_ogv , tpiba , elind , cgs_zv )
-ckino Dec.27.2011:           call lindsc ( 2 , ng , slat%rv_p_ogv , tpiba , elind , cgs_zv )
-        call lindsc ( 2 , ng , slat%rv_a_ogv , tpiba , elind , cgs_zv )
-
-
-C        call dscal(2*ng,.001d0,w(ocgs),1)
-
+        call lindsc ( 2 , ng , rv_a_ogv , tpiba , elind , cgs_zv )
         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , .5d0 , cgs_zv , 0 , 
      .  1 , cgs_zv , ng * 2 , 1 )
-
       endif
-
 C ... Debugging: show delta smrho
-ckino Dec.12.2011:         call gvputf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho
-ckino Dec.28.2011:         call gvputf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , cgs_zv , smrho
-      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho 
-     . )
-
-
+      call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgs_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
-C      call zprm3('screened delta smrho',0,smrho,k1,k2,k3)
-C      print *, 'returning with delta smrho'
-C      return
-
 C --- Add shift to smrho, ensuring no shift in <rho> ---
       do  i = 1, nsp
         call dvset ( cgs_zv , 1 + ng * ( i - 1 ) , 1 + ng * ( i - 
@@ -190,29 +150,19 @@ C --- Add shift to smrho, ensuring no shift in <rho> ---
       enddo
 c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
       cgr_zv = cgr_zv + cgs_zv 
-      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
+      call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
-
 C --- Symmetrize the shifted density ---
       call symsmr(slat,nsp,k1,k2,k3,smrho)
-
-      if (iprint() .gt. 100)
-     .call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
-
+      if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)
-
       call tcx('smshft')
-
       end subroutine smshft
-
-
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
      . , ng , gv , sv_p_orhoat , cwk , cg , job )
-
-
       use m_struc_def  !Cgetarg
-
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs

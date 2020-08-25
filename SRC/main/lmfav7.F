@@ -5,6 +5,7 @@ c      use m_rdctrl2_func, only: rdctrl2
       use m_rdctrl, only: !rdctrl2,
      &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg
+      use m_work,only: rv_a_opos
       implicit none
       integer procid, master, mpipid, nproc
 c      integer,parameter:: lstrn=10000
@@ -133,7 +134,7 @@ c      call setcg(v_slat,8,12)
 c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
       call lattic()!v_slat,v_sctrl%nbas)
       do ibas=1,v_sctrl%nbas
-        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
+        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
 c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
 c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
       enddo

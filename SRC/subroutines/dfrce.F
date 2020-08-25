@@ -1,6 +1,7 @@
       subroutine dfrce (job, ssite , sspec , slat , k1 , k2 , k3 !sctrl , 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
-     .  , dfh )
+     .     , dfh )
+      use m_work,only: rv_a_ogv,iv_a_okv
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C-Correction to force theorem, Harris functional
@@ -178,10 +179,10 @@ C ... Set up for vectorized Y_lm and gaussians
       allocate(yl_rv(ng*nlmtop))
       allocate(g2_rv(ng))
       allocate(g_rv(ng*3))
-      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv)
+      call suylg ( ltop , alat , ng , rv_a_ogv , g_rv , g2_rv , yl_rv)
       if (allocated(g_rv)) deallocate(g_rv)
       allocate(iv_iv(ng*3))
-      call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv )
+      call suphs0 ( plat , ng , rv_a_ogv , iv_iv )
 
 C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
@@ -191,7 +192,7 @@ c     if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 2 ) , 1 , 2 * n
       call dcopy(2*nn, smrho,1,smro_zv,1)
       if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
-      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
+      call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cvin_zv )
       call pvdf4 ( ssite , sspec , slat , qmom , ng , g2_rv , yl_rv , cs_ , sn_ , iv_iv , qlat , cvin_zv )
       if (allocated(smro_zv)) deallocate(smro_zv)
       deallocate(cs_,sn_)
@@ -226,12 +227,12 @@ c        call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2*nn , - 1d0 )
 C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , dvxc_zv )
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 0 , - 1 )
-      call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , dvxc_zv , cdvx_zv )
+      call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , dvxc_zv , cdvx_zv )
 
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
 c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
-      call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv  )
+      call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv  )
       if (allocated(smro_zv)) deallocate(smro_zv)
       if (allocated(dvxc_zv)) deallocate(dvxc_zv)
 C ... Debugging slot smrho(out) for out-in
@@ -252,7 +253,7 @@ C --- Lindhard dielectric function ---
       if (job .gt. 10) then
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
-        call lindsc ( 3 , ng , slat%rv_a_ogv , tpiba , elind , ceps_zv )
+        call lindsc ( 3 , ng , rv_a_ogv , tpiba , elind , ceps_zv )
       endif
 C --- For each site, get correction to force ---
 #if ! (MPI | MPIK)
@@ -316,7 +317,7 @@ C$&        MP_SCHEDTYPE=RUNTIME
         if (lmxl .eq. -1) goto 20
         nlm = (lmxl+1)**2
         call pvdf1 ( job , ssite , sspec , slat , nsp , ib , iv0 , qmom
-     .    , qmout_rv , ng , slat%rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
+     .    , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
      .    ib ) , fes1 , fes2 , fxc )
         do  i = 1, 3
@@ -430,9 +431,9 @@ Co           by a gaussian of the equivalent multipole moment.
 Co   cdv:    shift in the electrostatic potential
 Co   fes1,fes2,fxc
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3)
+      integer:: ng , nsp , iv0 , kmax , ib , job , iv(ng,3),i_copy_size
       type(s_rv1) :: sv_p_orhoat(3)
 
       real(8):: qmom(*) , qmout(*) , gv(ng,3) , tau(3) , fes1(3) , 
@@ -928,7 +929,7 @@ C     call zprm3('d vxc / dn',0,dvxc,k1,k2,k3*nsp)
 
       subroutine pvdf3(n1,n2,n3,k1,k2,k3,nsp,deln0,dvxc)
 C- Overwrites dvxc with (nout-nin)*dvxc
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer n1,n2,n3,k1,k2,k3,nsp
       double complex deln0(k1,k2,k3),dvxc(k1,k2,k3,nsp)
@@ -948,7 +949,6 @@ C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
 
 
       subroutine pvdf4(ssite,sspec,slat,qmom,ng,g2,yl,cs,sn,iv,qlat,cv)
-
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
@@ -987,9 +987,9 @@ Cr   Adapted from vesgcm to make strictly FT ves(nloc)
 Cu Updates
 Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer ng,iv(ng,3)
+      integer ng,iv(ng,3),i_copy_size
       real(8):: qmom(1) , g2(ng) , yl(ng,1) , cs(ng) , sn(ng) , qlat(3,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)

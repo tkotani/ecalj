@@ -8,6 +8,7 @@
       use m_struc_def,only:  s_rv1, s_lat, s_ham, s_spec, s_site
       use m_globalvariables,only: globalvariables
       use m_phmbls,only: phmbls
+      use m_work,only: iv_a_oindxo,iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -354,7 +355,7 @@ C     for now
         do  ib = 1, nbas
           lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
           if (lmxa(ib) .gt. -1) then
-            call orbl ( ib , 0 , ldim , sham%iv_a_oindxo , norb , ltab , ktab , xx , offl , i1 )
+            call orbl ( ib , 0 , ldim , iv_a_oindxo , norb , ltab , ktab , xx , offl , i1 )
             write(ifildima,"(3i10)") i1
           endif
         enddo
@@ -846,11 +847,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              hreal = 0
              if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
              mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-             if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( sham%iv_a_ontabs , nbas + 1 )
+             if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( iv_a_ontabs , nbas + 1 )
 
-             call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
-     &            , ival ( sham%iv_a_ontabs , nbas + 1 )
-     &            , sham%iv_a_oiaxs , sham%rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+             call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,iv_a_oindxo,1
+     &            , ival ( iv_a_ontabs , nbas + 1 )
+     &            , iv_a_oiaxs , rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
      &            , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
 !!     case2 not work well yet. We need think about pair tables as in bloch.
 c            allocate(sene(ndimsig,ndimsig))
@@ -1117,7 +1118,7 @@ c          if (mod(loldpw,2) .eq. 0) then
               inn=0
               if(debug) print *,'goto pwmat'
               call pwmat ( slat , ssite , sspec , nbas , ndimh , napw,
-     .          igv2, sham%iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
+     .          igv2, iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
      .          ppovl, phovl )
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
               if(debug) print *,'sss: phovl=',sum(abs(phovl))

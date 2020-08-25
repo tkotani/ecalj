@@ -97,7 +97,9 @@ C     call tcx('mkrou3')
 
       subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
-     .   , sab , qbyl , hbyl , lrout )
+     .     , sab , qbyl , hbyl , lrout )
+      use m_work,only: iv_a_oindxo
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_mkrou3
@@ -244,7 +246,7 @@ C --- Start loop over atoms ---
 
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-        call orbl ( ib , 0 , nlmto , sham%iv_a_oindxo , norb , ltab , ktab 
+        call orbl ( ib , 0 , nlmto , iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
 
@@ -307,8 +309,8 @@ ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
 c #define OQHH sv_p_oqkkl(3,ib)%v
 c #define OQHP sv_p_oqkkl(2,ib)%v
 c #define OQPP sv_p_oqkkl(1,ib)%v
-          call mkrou1(nsp, nlmh , nlma , nlml , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
-     .     , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks  
+          call mkrou1(nsp, nlmh , nlma , nlml , kmax , rv_a_ocg , iv_a_ojcg
+     .     , iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks  
 c     &     , OQHH, OQHP , OQPP , 
      &     , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v 
      &     , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
@@ -353,20 +355,20 @@ c #define OQHH sv_p_oeqkkl(3,ib)%v,  #define OQHP sv_p_oeqkkl(2,ib)%v,  #define 
             call dpzero(chh_rv , k )
             call dpzero(chp_rv , k )
             call dpzero(cpp_rv , k )
-            call mkrou1(nsp, nlmh, nlma, nlml1 , kmax , slat%rv_a_ocg , slat%iv_a_ojcg
-     .            , slat%iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks 
+            call mkrou1(nsp, nlmh, nlma, nlml1 , kmax , rv_a_ocg , iv_a_ojcg
+     .            , iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks 
 c     &            , OQHH , OQHP , OQPP, 
      &            , sv_p_oeqkkl(3,ib)%v, sv_p_oeqkkl(2,ib)%v,sv_p_oeqkkl(1,ib)%v 
      &            , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .            , chp_rv , cpp_rv , dmatl_rv )!dmatl_rv is energy weighted. c.f. previous call to mkrou1.
-#ifdef USEOPTIONAL
+c#ifdef USEOPTIONAL
             call mkrou3 ( mode=1 , lmxa=lmxa , nlml=nlml1 , nsp=nsp 
      .       , pnz= pnz , dmatl=dmatl_rv 
      .       , sab=sab ( 1 , 1 , 1 , ib ) , qsum=hbyl ( 1 , 1 , ib )  )
-#else
-            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , iwdummy 
-     .       , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , iwdummy )
-#endif
+c#else
+c            call mkrou3 ( 1 , lmxa , nlml1 , nsp , pnz , dmatl_rv , iwdummy 
+c     .       , sab ( 1 , 1 , 1 , ib ) , hbyl ( 1 , 1 , ib ) , iwdummy )
+c#endif
           endif
 
 C   --- Print charges for information ---

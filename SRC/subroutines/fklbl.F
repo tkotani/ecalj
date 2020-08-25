@@ -2,7 +2,7 @@ CSFCPP#define F90 1
       subroutine fklbl(p,rsm,kmax,nlm,k0,cy,slat,fkl)
 
       use m_struc_def  !Cgetarg
-
+      use m_work,only:rv_a_odlv,rv_a_oqlv
 C- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -55,70 +55,30 @@ C ... Heap
       q(2) = 0d0
       q(3) = 0d0
 
-C ... Use standard routines
-C     call gklbl(p,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
-C     call fsmbl(p,rsm,lmax,cy,slat, fsm)
-
-C ... Alternatively, use vectorized equivalents (about 2x faster)
-
       alat=slat%alat
       i_copy_size=size(slat%plat)
       call dcopy(i_copy_size,slat%plat,1,plat,1)
       i_copy_size=size(slat%qlat)
       call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
-
       awald=slat%awald
       tol=slat%tol
       vol=slat%vol
-
-
       nkd=slat%nkd
       nkq=slat%nkq
-ckino Dec.9.2011:         rv_p_odlv => slat%rv_p_odlv
-
-ckino Dec.9.2011:         rv_p_oqlv => slat%rv_p_oqlv
-
-
       call shorbz(p,p1,plat,qlat)
       nrx = max(nkd,nkq)
-CSFCPP#if F90
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
       call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl ,
-ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , rv_p_odlv , nkd , vol , fsm
-ckino Dec.9.2011:       .  awald , alat , rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm
-ckino Dec.27.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_p_odlv , nkd , vol , fsm
-ckino Dec.28.2011:       .  awald , alat , slat%rv_p_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
-     .  awald , alat , slat%rv_a_oqlv , nkq , slat%rv_a_odlv , nkd , vol , fsm 
-     .  )
-
-
+     .  awald , alat , rv_a_oqlv , nkq , rv_a_odlv , nkd , vol , fsm  )
       if (rsm .gt. faca/awald) then
         call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
       else
         job = 2
         call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat ,
-ckino Dec.9.2011:       .   rv_p_odlv , nkd , nrx , yl , wk , job , fkl )
-ckino Dec.27.2011:       .   slat%rv_p_odlv , nkd , nrx , yl , wk , job , fkl ) 
-     .   slat%rv_a_odlv , nkd , nrx , yl , wk , job , fkl )
+     .   rv_a_odlv , nkd , nrx , yl , wk , job , fkl )
 
       endif
       deallocate(wk,yl)
-CSFCPP#else
-CSFCPP      call defrr(owk, nrx*(2*lmax+10))
-CSFCPP      call defrr(oyl, nrx*(lmax+1)**2)
-CSFCPP      call hsmqe0(lmax,rsm,0,q,p1,nrx,nlm,w(owk),w(oyl),
-CSFCPP     .awald,alat,w(oqlv),nkq,w(odlv),nkd,vol,fsm)
-CSFCPP      if (rsm .gt. faca/awald) then
-CSFCPP        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
-CSFCPP      else
-CSFCPP        job = 2
-CSFCPP        call gklq(lmax,rsm,q,p1,e,kmax-1,k0,alat,w(odlv),nkd,nrx,
-CSFCPP     .  w(oyl),w(owk),job,fkl)
-CSFCPP      endif
-CSFCPP      call rlse(owk)
-CSFCPP#endif
-
 C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
       do  2  ilm = 1, nlm
         gklsav = fkl(0,ilm)
@@ -128,10 +88,8 @@ C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
         fkl(k,ilm) = -fpi*gklsav
         gklsav = gklnew
   2   continue
-
 C ... Add extra term to F(k=1,l=0)
       fkl(1,1) = fkl(1,1) + fpi*y0/vol
-
       end subroutine fklbl
 
 

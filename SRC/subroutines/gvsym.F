@@ -11,7 +11,7 @@ Co   csym    symmetrized function
 Cr Remarks:
 Cu    7 Sep 98 Adapted from nfp gvsym.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer ng,ips0(ng)
       double precision gv(ng,3)
       double complex bgv(ng),c(ng),csym(ng)

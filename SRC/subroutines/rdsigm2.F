@@ -190,7 +190,9 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 
 !! -----------------------------------------------------------------------------------
-      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz) 
+      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz)
+      use m_work,only: iv_a_oindxo,rv_a_osymgr,iv_a_ontabs,rv_a_osymgr , rv_a_oag,rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
+     & rv_p_oqsig , iv_a_ooffH, iv_a_oistab
       use m_struc_def  
       use m_hft2rs
       use m_globalvariables
@@ -381,7 +383,7 @@ c      print *,'nscnts111=',nscnts
       if(debug) print *,'seneinterp: debug EEEEEEEEEE'
       plat = slat%plat
       nsgrp= slat%nsgrp
-      call offshp ( sham%iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
+      call offshp ( iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
       k1=nk1
       k2=nk2
       k3=nk3
@@ -408,26 +410,26 @@ C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (ltrans) i = i + 10000
       if(debug) print *,' rrrrrrrrrr go to hft2rs i=',i
       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
-     .    nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrp , rsrnge , sham%iv_a_ooffH
-     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , slat%rv_a_opos , sham%iv_a_ontabs ,
-     .    sham%iv_a_oiaxs , ndhrs , rv_dummy )
-      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(sham%iv_a_ontabs),ndhrs
-      nttabs = ival ( sham%iv_a_ontabs , nbas + 1 )
+     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , iv_a_ooffH
+     .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_a_opos ,  iv_a_ontabs ,
+     .    iv_a_oiaxs , ndhrs , rv_dummy )
+      if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs
+      nttabs = ival ( iv_a_ontabs , nbas + 1 )
       if(debug) print *,'nttabs=',nttabs
       if(hreal .eq. 1) then
-        if (allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
-        allocate(sham%rv_a_ohrs(ndhrs**2*nttabs*nsp))
-        sham%rv_a_ohrs(:)=0d0
+        if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
+        allocate(rv_a_ohrs(ndhrs**2*nttabs*nsp))
+        rv_a_ohrs(:)=0d0
       else
-        if (allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
-        allocate(sham%rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
-        sham%rv_a_ohrs(:)=0d0
+        if (allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
+        allocate(rv_a_ohrs(2*ndhrs**2*nttabs*nsp))
+        rv_a_ohrs(:)=0d0
       endif
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
-      if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
-      allocate(sham%rv_p_oqsig(abs(3*mxkp)))
+      if (allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
+      allocate(rv_p_oqsig(abs(3*mxkp)))
       allocate(rv_p_oqp(abs(3*mxkp)))
 c      allocate(rv_a_oqp(abs(3*mxkp)))
 c      rv_p_oqp=>rv_a_oqp
@@ -441,11 +443,11 @@ ckino end
       if (-mxkp<0) wgt_rv(:)=0.0d0
 c      print *,'seneinterp: debug HHHHH'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, sham%rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
+      call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
       sham%nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
+      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      .  , nsgrps , ipq_iv , rv_p_oqp , wgt_rv , nqps , mxkp , gstar_iv, 0 )
 
 Ckino isanrg is logical function,       call isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
@@ -484,9 +486,9 @@ C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
-     .         , nsp , nbas , slat%rv_a_osymgr , slat%rv_a_oag , nsgrps , rsrnge , sham%iv_a_ooffH      
+     .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , iv_a_ooffH      
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
-     .         , plat , slat%rv_a_opos ,sham%iv_a_ontabs , sham%iv_a_oiaxs , ndhrs , sham%rv_a_ohrs )
+     .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )
           print *,' seneinterp:do 1201 end i ndimh ndhrs=',i,ndimh,ndhrs
  1201   continue
       if(debug) print *,' exit 1201 loop 111111111111111'
@@ -511,7 +513,7 @@ c        if (procid .eq. master) then
           if(debug) print *,'a8 22222222222 goto chksgr'
 !! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
           call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .      , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
+     .      , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
 c        endif
       endif
@@ -548,23 +550,23 @@ c     .     w ( ohrss ) , 1 )
 c        endif
 ckino Dec.22.2011:          nhrss= size(rv_p_ohrs)
 ckino Dec.28.2011:          nhrss= size(sham%rv_p_ohrs)
-        nhrss= size(sham%rv_a_ohrs)
+        nhrss= size(rv_a_ohrs)
         allocate(hrss(nhrss))
 ckino Dec.22.2011:          hrss = rv_p_ohrs
 ckino Dec.28.2011:          hrss = sham%rv_p_ohrs
-        hrss = sham%rv_a_ohrs
+        hrss = rv_a_ohrs
 Changenglob        mxorb = nglob('mxorb')
         mxorb = globalvariables%mxorb
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
         allocate(istb2_iv(nsgrp*nbas))
-        call istbpm ( slat%iv_a_oistab , nbas , nsgrp , istb2_iv )
+        call istbpm ( iv_a_oistab , nbas , nsgrp , istb2_iv )
         nl = globalvariables%nl
        if(debug) print *,' a8 44444444444444'
-        call rsmsym ( i , plat , mxorb , sham%iv_a_oindxo , ndimh , nbas ,
-     .        slat%rv_a_opos , nl , nsp , 1 , nttabs , sham%iv_a_ontabs , sham%iv_a_oiaxs
-     .        , slat%rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , sham%rv_a_ohrs )
+        call rsmsym ( i , plat , mxorb , iv_a_oindxo , ndimh , nbas ,
+     .          rv_a_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs
+     .        , rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_a_ohrs )
         if (allocated(istb2_iv)) deallocate(istb2_iv)
         deallocate(hrss)
 C        Debugging
@@ -583,7 +585,7 @@ c        if (procid .eq. master) then
      .      ' (sigma scaled) ')
           else
             call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
+     .          , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
 c          endif
         endif
@@ -777,7 +779,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 !!--------------------------------------------------------------------------------------------
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
       subroutine rdsigm2(nbas_dummy,nsp,slat,sham,sbz,ifis,  !ndimh is removed (read from sigm file) sep2102
-     & nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
+     &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
+      use m_work,only: rv_a_osymgr, rv_p_oqsig 
       use m_struc_def,only:      s_lat,s_ham,s_bz  
       use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
@@ -1109,23 +1112,22 @@ c      call poppr
 
 C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       mxkp = nk1*nk2*nk3
-      if (associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
-      allocate(sham%rv_p_oqsig(abs(3*mxkp)))
-      if (3*mxkp<0) sham%rv_p_oqsig(:)=0.0d0
+      if (allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
+      allocate(rv_p_oqsig(abs(3*mxkp)))
       allocate(qp_rv(3,mxkp))
-      allocate(gstar_iv(abs(-mxkp-1)))
-      if (-mxkp-1<0) gstar_iv(:)=0
+      allocate(gstar_iv(mxkp+1))
+      gstar_iv(:)=0
       gstar_iv = - 2
       allocate(ipq(nk1,nk2,nk3))
       allocate(wgt_rv(abs(-mxkp)))
       if (-mxkp<0) wgt_rv(:)=0.0d0
       if(debug) print *,'rdsigm2: debug2222'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
-      call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,sham%rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
+      call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
       sham%nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
-      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
+      call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
      . , nsgrps , ipq, qp_rv , wgt_rv , nqps , mxkp , gstar_iv , 0 )
       l_dummy_isanrg=isanrg(nqp,nqps,nqps,'rdsigm','file sigm nqp',.true.)
 

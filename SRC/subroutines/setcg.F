@@ -1,4 +1,5 @@
       subroutine setcg(slat,lmxcg,lmxcy)
+      use m_work,only: rv_a_ocy, rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
       use m_struc_def  
 C- Allocate space for, and make Clebsch-Gordan coeffs
 C     implicit none
@@ -20,12 +21,12 @@ C ... Choose dimensions for arrays
       endif
 C ... Allocate and occupy the arrays
       nlm=(lmxcy+1)**2
-      allocate(slat%rv_a_ocy(abs(nlm)))
-      allocate(slat%rv_a_ocg(abs(lnjcg)))
-      allocate(slat%iv_a_ojcg(abs(lnjcg)))
-      allocate(slat%iv_a_oidxcg(abs(lnxcg)))
-      call sylmnc ( slat%rv_a_ocy , lmxcy )
-      call scg ( lmxcg , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg )
+      allocate(rv_a_ocy(abs(nlm)))
+      allocate(rv_a_ocg(abs(lnjcg)))
+      allocate(iv_a_ojcg(abs(lnjcg)))
+      allocate(iv_a_oidxcg(abs(lnxcg)))
+      call sylmnc ( rv_a_ocy , lmxcy )
+      call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
       end subroutine setcg
 
 

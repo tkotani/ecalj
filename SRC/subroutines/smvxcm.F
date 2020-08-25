@@ -1,7 +1,7 @@
       subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
      .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .rvepsm,focexc,focex,focec,focvxc,f)
-
+      use m_work,only: iv_a_okv,rv_a_ogv,rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- XC potential for smooth mesh density
@@ -141,13 +141,13 @@ c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-      call smcorm ( nbas , ssite , sspec , slat , ng , slat%rv_a_ogv , cgh1_zv 
+      call smcorm ( nbas , ssite , sspec , slat , ng , rv_a_ogv , cgh1_zv 
      . , cgh2_zv , lfoc1 , lfoc2 )
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
       k123 = 2*k1*k2*k3
       if(lfoc1 .eq. 1) then
-        call gvputf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
+        call gvputf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , cgh1_zv , smrho_w )
         call fftz3(smrho_w,n1,n2,n3,k1,k2,k3,1,0,1)
         if (nsp .eq. 2) then
           call dscal(k123,.5d0,smrho_w,1)
@@ -282,28 +282,12 @@ C --- Force from foca sm-head; cgh1 is workspace ---
         call dpzero(f,3*nbas)
         if (lfoc1.gt.0 .or. lfoc2.gt.0) then
           call fftz3(smvxc,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-ckino Dec.12.2011:             call gvgetf ( ng , nsp , iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv
-ckino Dec.28.2011:             call gvgetf ( ng , nsp , slat%iv_p_okv , k1 , k2 , k3 , smvxc , cgh1_zv
-          call gvgetf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv 
-     .     )
-
-
-ckino Dec.12.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_p_ocy
-ckino Dec.27.2011:              call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_p_ocy
-          call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , slat%rv_a_ocy
-ckino Dec.12.2011:       .      , ng , rv_p_ogv , cgh1_zv , f )
-ckino Dec.27.2011:       .      , ng , slat%rv_p_ogv , cgh1_zv , f ) 
-     .      , ng , slat%rv_a_ogv , cgh1_zv , f )
-
-
-
+          call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , smvxc , cgh1_zv  )
+          call smvxc4 ( nbas , nsp , ssite , sspec , alat , vol , rv_a_ocy, ng , rv_a_ogv , cgh1_zv , f )
         endif
         if (allocated(cgh1_zv)) deallocate(cgh1_zv)
-
       endif
-
       call tcx('smvxc')
-
       end subroutine smvxcm
 
 

@@ -12,6 +12,9 @@
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrnmix,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
+      use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
+     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,
+     &     iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_rdctrl, only: ncutovl,lso
       use m_globalvariables, only: globalvariables
@@ -21,7 +24,6 @@
       use m_w_psir, only: w_psir_cmdopt
       use m_struc_def
       use m_ext,only: sname !file extension. Open a file like file='ctrl.'//trim(sname)
-      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -278,7 +280,7 @@ C For self-energy
       data T /.true./ F /.false./
       integer,allocatable:: nevls(:,:)
 ctakao
-      integer :: ifiogw,ifiese,oag,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
+      integer :: ifiogw,ifiese,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
       logical :: nexist,sigmamode,ok !, newsigmasw
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
@@ -765,7 +767,7 @@ c          do ibas=1,nbas
 c            write(ififft,"(3f25.15,' ! bas' )") pos(:,ibas)
 c          enddo
           allocate(npair(nbas,nbas),pos(3,nbas))
-          call dcopy(nbas*3 , slat%rv_a_opos , 1 , pos , 1 )
+          call dcopy(nbas*3 , rv_a_opos , 1 , pos , 1 )
           npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
           do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
             npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
@@ -840,7 +842,7 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
             call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 ,
-     .        lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spotx 
+     .        lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
      .        , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
@@ -874,7 +876,7 @@ C --- Make the potential and total energy terms ---
 !! augmat calculates sig,tau,ppi.
       call togpr()
       call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
-     .  , lcplxp , k1 , k2 , k3 , spot%zv_a_osmrho , spot%sv_a_oorhat , qbg , spot%zv_a_osmpot 
+     .  , lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , zv_a_osmpot 
      .  , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .  , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
@@ -1255,7 +1257,7 @@ c            massline=.false.
          nbasp = sctrl%nbasp
          nl    = sctrl%nl
          call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
-     .     nbasp , sham%iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
+     .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
 c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
          if(procid==master) then
             write(6,*)
@@ -1359,7 +1361,7 @@ c$$$            endif
 
 !! mesh generator.  Unused yet...->in future, we will use this.
             allocate(npair(nbas,nbas),pos(3,nbas))
-            call dcopy ( nbas * 3 , slat%rv_a_opos , 1 , pos , 1 )
+            call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
 
             if (allocated(nlat)) deallocate(nlat)
@@ -1392,10 +1394,10 @@ c            endif
 #ifdef MPIK
 !! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
          if(procid==master) then
-            nsizeohrs  = size( sham%rv_a_ohrs )
-            nsizeoiaxs = size( sham%iv_a_oiaxs )
-            nsizeontabs= size(sham%iv_a_ontabs)
-            noqsig = size(sham%rv_p_oqsig)
+            nsizeohrs  = size( rv_a_ohrs )
+            nsizeoiaxs = size( iv_a_oiaxs )
+            nsizeontabs= size( iv_a_ontabs)
+            noqsig = size(     rv_p_oqsig)
          endif
          call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
          call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
@@ -1405,19 +1407,19 @@ c            endif
          call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
 !! allocate and broadcast
          if(procid/=master) then
-            if(allocated(sham%rv_a_ohrs)) deallocate(sham%rv_a_ohrs)
-            allocate( sham%rv_a_ohrs(nsizeohrs) )
-            if(allocated(sham%iv_a_oiaxs)) deallocate(sham%iv_a_oiaxs)
-            allocate( sham%iv_a_oiaxs(nsizeoiaxs))       
-            if(allocated(sham%iv_a_ontabs)) deallocate(sham%iv_a_ontabs)
-            allocate( sham%iv_a_ontabs(nsizeontabs))       
-            if(associated(sham%rv_p_oqsig)) deallocate(sham%rv_p_oqsig)
-            allocate(sham%rv_p_oqsig(noqsig))
+            if(allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
+            allocate( rv_a_ohrs(nsizeohrs) )
+            if(allocated(iv_a_oiaxs)) deallocate(iv_a_oiaxs)
+            allocate( iv_a_oiaxs(nsizeoiaxs))       
+            if(allocated(iv_a_ontabs)) deallocate(iv_a_ontabs)
+            allocate( iv_a_ontabs(nsizeontabs))       
+            if(allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
+            allocate(rv_p_oqsig(noqsig))
          endif   
-         call mpibc1(sham%iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
-         call mpibc1(sham%iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
-         call mpibc1(sham%rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
-         call mpibc1(sham%rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
+         call mpibc1(iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
+         call mpibc1(iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
+         call mpibc1(rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
+         call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
          siginit=.false. !this is equivalent to broad casting.
@@ -1428,7 +1430,7 @@ c            endif
 !! == GW driver ==
       if(llmfgw) then
          nchan=spot%nlma
-         call sugw(ssite , sspec , slat , sham , nbas , ndham , spot%zv_a_osmpot 
+         call sugw(ssite , sspec , slat , sham , nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .     ,nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
@@ -1600,16 +1602,16 @@ C C       Transform sigm to LDA basis: hambls returns sigm(LDA) in h
                hreal = 0
                if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
                mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-               if(debug) print *,'bndfp: goto bloch i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival (sham%iv_a_ontabs, nbas + 1)
+               if(debug) print *,'bndfp: goto bloch i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
                if(isp>nspsigm) then
                   ispsigm = nspsigm
                else
                   ispsigm=isp
                endif
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-               call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,sham%iv_a_oindxo,1
-     &           , ival ( sham%iv_a_ontabs , nbas + 1 )
-     &           , sham%iv_a_oiaxs , sham%rv_a_ohrs, sham%ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
+               call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,iv_a_oindxo,1
+     &           , ival ( iv_a_ontabs , nbas + 1 )
+     &           , iv_a_oiaxs , rv_a_ohrs, sham%ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
                if(debug) print *,'end of bloch sene'
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
@@ -1689,7 +1691,7 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
             jx = 0
             if (lso == 1) jx = 10
             call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
-     .        qp , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
+     .        qp , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .        , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
             if(sigmamode) then
@@ -1970,10 +1972,10 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                   call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
      .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
      .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
-     .              , lekkl , k1 , k2 , k3 , spot%zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
+     .              , lekkl , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
      .              , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev
      .              , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
-     .              , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
+     .                 , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
                endif
 
             endif
@@ -2788,15 +2790,14 @@ c            call fclose(ifi)
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
-
 !!     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
          call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim
-     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , spot%sv_a_oorhat , hab_rv , sab_rv 
+     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_a_oorhat , hab_rv , sab_rv 
      .     , qbyl_rv , hbyl_rv , lrout )
-         call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , spot%zv_a_osmrho 
+         call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_a_osmrho 
      .     , 1 )
-         call symrho(ssite , sspec , slat , lfrce , spot%zv_a_osmrho , spot%sv_a_oorhat 
+         call symrho(ssite , sspec , slat , lfrce , zv_a_osmrho , sv_a_oorhat 
      .     , qbyl_rv , hbyl_rv , frc )
          goto 999
       endif
@@ -2819,7 +2820,6 @@ C       call pshpr(iprint()-12)
          endif
 C       call poppr
       endif
-
 !! --- print out qbyl ---
       if(procid==master) then
          ifqbyl = ifile_handle() !fopna('qbyl',-1,2)
@@ -2840,7 +2840,7 @@ C       call poppr
         job=int(sctrl%lfrce)
         if(job>0 ) then
           call dfrce (job, ssite , sspec , slat , k1 , k2 , k3 , nvl !sctrl , 
-     .     , spot%sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , spot%zv_a_osmrho , 
+     .     , sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_a_osmrho , 
      .     srout_zv , fh_rv )
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
@@ -2849,8 +2849,7 @@ C       call poppr
             call togpr()
             call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
      .        , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
-     .        , vconst , spot%zv_a_osmpot , srout_zv , sev , sumtv )
-
+     .        , vconst , zv_a_osmpot , srout_zv , sev , sumtv )
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat
 c         print *,'vvv takao mkekin repeat 000 --- oldpot x oldrho'
@@ -2869,7 +2868,7 @@ c          call pshpr(ipr-4)
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
             call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
-     .        , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , spot%zv_a_osmpot 
+     .        , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
@@ -2924,8 +2923,8 @@ ccccccccccccccccccccccc
 c         call upacks('strn mix',i1,i2)
          call mixrho ( ssite , sspec , slat , nsp , iter , sstrnmix
 c         call mixrho ( ssite , sspec , slat , nsp , iter , sstrn ( i1:i2)
-     .     , qval - qbg , elind , sv_p_orhat1 , spot%sv_a_oorhat , k1 , k2
-     .     , k3 , dmxp , srout_zv , spot%zv_a_osmrho )
+     .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
+     .     , k3 , dmxp , srout_zv , zv_a_osmrho )
 
 ccccccccccccccccccccccccc
 ctakao test mkekin repeat

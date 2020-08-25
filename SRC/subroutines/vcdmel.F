@@ -1,6 +1,6 @@
       subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,sbz,dosw)
-      use m_work,only: iv_a_oidtet !sbz
+      use m_work,only: iv_a_oidtet, rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
       use m_struc_def
       use m_ext,only: sname !extention for file
 C- Valence-core dipole matrix elements
@@ -133,8 +133,8 @@ c          call dpzero ( s_rv , 3 * ndimh * nsite * 2 )
             nlma = (lmxa+1)**2
             if (lmxa .gt. -1) then
               call pvcdm2 ( i , nsite , ndham , ndimh , nlma , nlmax , aus 
-     .            ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0
-     .            , isp , i ) , lcls , slat%rv_a_ocg , slat%iv_a_ojcg , slat%iv_a_oidxcg , s_rv(1,isp,iq))
+     .              ( 1 , 1 , 1 , isp , i , iq ) , ume ( 0 , isp , i ) , sme ( 0 , isp , i ) , lcls ,
+     &         rv_a_ocg , iv_a_ojcg , iv_a_oidxcg, s_rv(1,isp,iq))
             endif
           enddo
 C --- Scale weights arbitrarily by 100 for plotting etc ..

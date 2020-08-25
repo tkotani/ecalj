@@ -1,6 +1,5 @@
-
-c      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,orhat,kmax,ng,cg)
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
+      use m_work,only: rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Adds density of compensating gaussians to FT list
@@ -117,85 +116,40 @@ C ... Heap
       nsp   = globalvariables%nsp
       modgkl = mode
       if (mode .ge. 200) modgkl = mod(mode,100)
-
-C      if (mode .eq. 0) then
-C        modgkl = 131
-C      elseif (mode .eq. 1 .or. mode .eq. 3) then
-C        modgkl = 31
-C      elseif (mode .eq. 2) then
-C        modgkl = 1
-C      endif
-Ckino isanrg is logical function, C      call isanrg(mode,0,3,'rhgcmp:','mode', .true.)
-C      l_dummy_isanrg=isanrg(mode,0,3,'rhgcmp:','mode', .true.)
-
 C --- Set up help arrays ---
       ltop = 0
       do  is = 1, nspec
         lmxl = int(sspec(is)%lmxl)
-
         ltop = max0(ltop,lmxl)
       enddo
       nlmtop = (ltop+1)**2
       allocate(yl_rv(ng*nlmtop))
-
       allocate(g2_rv(ng))
-
       allocate(g_rv(ng*3))
-
-Ckino Set up vectors g, g2, yl from list of vectors gv
-ckino Dec.12.2011:         call suylg ( ltop , alat , ng , rv_p_ogv , g_rv , g2_rv , yl_rv
-ckino Dec.27.2011:         call suylg ( ltop , alat , ng , slat%rv_p_ogv , g_rv , g2_rv , yl_rv
-      call suylg ( ltop , alat , ng , slat%rv_a_ogv , g_rv , g2_rv , yl_rv 
-     . )
-
-
+      call suylg ( ltop , alat , ng , rv_a_ogv , g_rv , g2_rv , yl_rv  )
       if (allocated(g_rv)) deallocate(g_rv)
-
-
       allocate(iv_iv(ng*3))
-
-Ckino Setup for suphas: write each gv as linear combination of qlat.
-ckino Dec.12.2011:         call suphs0 ( plat , ng , rv_p_ogv , iv_iv )
-ckino Dec.27.2011:         call suphs0 ( plat , ng , slat%rv_p_ogv , iv_iv )
-      call suphs0 ( plat , ng , slat%rv_a_ogv , iv_iv )
-
-
+      call suphs0 ( plat , ng , rv_a_ogv , iv_iv )
       allocate(cs_rv(ng))
-
       allocate(sn_rv(ng))
-
-
 C --- Loop over sites ---
       iv0 = 0
       do  ib = ib1, ib2
-
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
-
         lmxl=sspec(is)%lmxl
         rg=sspec(is)%rg
-
-Ckino label 10 is at the end of the 'ib' loop
         if (lmxl .eq. -1) goto 10
-Ckino corprm() returns parameters for smooth core+nucleus representation
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (mode .eq. 2) cofh = 0
         nlm = (lmxl+1)**2
-Ckino Makes exp(-i p* (q+G)) for a list of reciprocal lattice vectors
-        call suphas ( q0 , tau , ng , iv_iv , n1 , n2 , n3 , qlat 
-     .  , cs_rv , sn_rv )
-
-
+        call suphas ( q0 , tau , ng , iv_iv , n1 , n2 , n3 , qlat  , cs_rv , sn_rv )
         allocate(qkl_rv(nlm*(kmax+1)))
-
         call pshpr(0)
-c        call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , orhat
 Ckino G_kL expansion of valence sphere densities
         call rhogkl ( ib , ib , nsp , modgkl , ssite , sspec , sv_p_orhoat
      .  , kmax , qkl_rv )
-
         call poppr
 Ckino Convert G_kL expansion of function centered at a site to PW's
 Ckino for Gaussian(G)
@@ -209,31 +163,23 @@ Ckino   cofh: cg(i)=cg(i)+cofh*aa*phase
         call rhgcm2 ( vol , rg , rfoc , ceh , cofh , kmax , mod ( mode 
      .  / 10 , 10 ) .ge.2 , qkl_rv , nlm , ng , g2_rv , yl_rv 
      .  , cs_rv , sn_rv , cg )
-
 Ckino PW expansion of Z * delta(r)
         if ( mode .ge. 200 ) call rhgcm3 ( - z , vol , ng , cs_rv 
      .  , sn_rv , cg )
-
         if (allocated(qkl_rv)) deallocate(qkl_rv)
-
-
         iv0 = iv0+nlm
    10   continue
       enddo
-
       if (allocated(sn_rv)) deallocate(sn_rv)
       if (allocated(cs_rv)) deallocate(cs_rv)
       if (allocated(iv_iv)) deallocate(iv_iv)
       if (allocated(g2_rv)) deallocate(g2_rv)
       if (allocated(yl_rv)) deallocate(yl_rv)
-
       call tcx('rhgcmp')
       end subroutine rhgcmp
 
-
       subroutine rhgcm2(vol,rg,rfoc,ceh,cofh,kmax,lcor,qkl,nlm,ng,g2,yl,
      .cs,sn,cg)
-
 C- Convert G_kL expansion of function centered at a site to PW's
 C     implicit none
 C ... Passed parameters

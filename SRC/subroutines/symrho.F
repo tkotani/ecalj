@@ -1,5 +1,6 @@
       subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
-     . , qbyl , hbyl , f )
+     .     , qbyl , hbyl , f )
+      use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag, rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Symmetrize charge density and related quantities
@@ -34,7 +35,7 @@ Cu Updates
 Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer:: lf
       type(s_rv1) :: sv_p_orhoat(3,*)
 
@@ -43,7 +44,7 @@ C     implicit none
       type(s_spec)::sspec(*)
       type(s_lat)::slat
       double complex smrho(*)
-      integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint
+      integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 
       call tcn('symrho')
@@ -65,6 +66,7 @@ C     implicit none
       subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
+      use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
 C- Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -96,7 +98,7 @@ Cr Remarks
 Cu Updates
 Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer:: nbas , nsp , n0 , lf
       type(s_rv1) :: sv_p_orhoat(3,nbas)
@@ -107,7 +109,7 @@ C ... Passed parameters
       type(s_lat)::slat
       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
-     .       mxint , ival
+     .       mxint , ival,i_copy_size,i_spackv
       integer ,allocatable :: ipa_iv(:)
       integer ,allocatable :: ipc_iv(:)
       integer ,allocatable :: ips_iv(:)
@@ -166,8 +168,8 @@ C --- Start loop over classes ---
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
           allocate(sym_rv(nlmx*nlmx*nrclas))
-          call symprj ( nrclas , nlmx , ngrp , nbas , slat%iv_a_oistab , slat%rv_a_osymgr
-     .       , slat%rv_a_oag , plat , qlat , pos_rv , sym_rv )
+          call symprj ( nrclas , nlmx , ngrp , nbas , iv_a_oistab , rv_a_osymgr
+     .       , rv_a_oag , plat , qlat , pos_rv , sym_rv )
 C   ... Apply the projectors to rhoat
           if (lmxl .gt. -1) then
             allocate(rho_rv(nr*nlml*nsp))
@@ -195,7 +197,7 @@ C   ... Symmetrize the forces
 
       subroutine psymrf(nrclas,ipa,nlmx,s,f)
 C- Symmetrize forces
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nrclas,nlmx,ipa(nrclas)
       double precision s(nlmx,nlmx,nrclas),f(3,1)
@@ -221,13 +223,13 @@ C ... Local parameters
 
       subroutine psymrq(nrclas,nsp,ipa,lmxa,qbyl,hbyl)
 C- Symmetrize l-decomposed site charges and eval sums
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nrclas,nsp,lmxa,ipa(nrclas),n0
       parameter (n0=10)
       double precision qbyl(n0,nsp,1),hbyl(n0,nsp,1)
 C ... Local parameters
-      integer stdo,ia,ib,iprint,l,lgunit,isp
+      integer stdo,ia,ib,iprint,l,lgunit,isp,icopy_size
       double precision qsum(n0,2),hsum(n0,2),fac
       stdo = lgunit(1)
       call dpzero(qsum,2*n0)
@@ -270,7 +272,7 @@ c  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3
      . , rho , sv_p_orhoat , icmp )
       use m_struc_def, only: s_rv1
 C- Symmetrize density for one class of atoms
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nrclas,nsp
       integer:: ipa(nrclas) , nlmx , nr , nlml , icmp
@@ -302,9 +304,10 @@ C ... Copy to all sites in class
 
 
       subroutine symsmr(slat,nsp,k1,k2,k3,smrho)
+      use m_work,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
       use m_struc_def  !Cgetarg
 C- Symmetrize the smooth charge density
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nsp,k1,k2,k3
       type(s_lat)::slat
@@ -315,8 +318,9 @@ C ... Local parameters
       complex(8) ,allocatable :: cv_zv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symsmr')
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(slat%nabc)
+c      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      ngabc=slat%nabc
       ng=slat%ng
       ngrp=slat%nsgrp
       if (ngrp .gt. 1) then
@@ -325,16 +329,28 @@ C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         allocate(csym_zv(ng))
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
 C       call zprm3('smrho before poke',smrho,k1,k2,k3)
+ccccccccccccccccccccc
+      write(6,*)" aaa222xxx",sum(abs(smrho(:,:,:,1)))
+ccccccccccccccccccccc
         do  isp = 1, nsp
-          call gvgetf ( ng , 1 , slat%iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
+          call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
      .     1 , 1 , isp ) , cv_zv )
-          call gvsym ( ng , slat%rv_a_ogv , slat%iv_a_oips0 , slat%zv_a_obgv , cv_zv , 
+ccccccccccccccccccccc
+      write(6,*)" aaa333xxx",sum(abs(smrho(:,:,:,1)))
+ccccccccccccccccccccc
+          call gvsym ( ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv , cv_zv , 
      .       csym_zv )
 c          call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
+ccccccccccccccccccccc
+      write(6,*)" aaa444xxx",ng,k1,k2,k3,sum(abs(cv_zv)),sum(abs(csym_zv))
+ccccccccccccccccccccc
            csym_zv=csym_zv - cv_zv
-          call gvaddf ( ng , slat%iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
+          call gvaddf ( ng , iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) )
         enddo
+ccccccccccccccccccccc
+      write(6,*)" aaa555xxx",sum(abs(smrho(:,:,:,1)))
+ccccccccccccccccccccc
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
         if (allocated(csym_zv)) deallocate(csym_zv)
         if (allocated(cv_zv)) deallocate(cv_zv)
@@ -351,7 +367,7 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
 
       subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)
 C- Make smrho real and positive
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k1,k2,k3,n1,n2,n3
       double complex smrho(k1,k2,k3)
@@ -397,7 +413,7 @@ Cr   If instead smrho=(rho1+rho2,rho1-rho2) => qsum(1,2) = q+amom, q-amom
 Cu Updates
 Cu   13 Dec 08 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k1,k2,k3,n1,n2,n3,nsp
       double complex smrho(k1,k2,k3,nsp)

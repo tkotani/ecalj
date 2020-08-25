@@ -1,7 +1,8 @@
       subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
-      use m_struc_def  !Cgetarg
+      use m_work,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
+      use m_struc_def           !Cgetarg
       use m_globalvariables
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
@@ -190,8 +191,8 @@ C --- Loop over augmentation sites --- ---
         if (lmxa .eq. -1) goto 10
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-        call bstrux ( 0 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
-     .      , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+        call bstrux ( 0 , slat , ssite , sspec , rv_a_ocg , iv_a_oidxcg
+     .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx )
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---

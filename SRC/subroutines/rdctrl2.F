@@ -1,6 +1,7 @@
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
 c     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
 c     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
+      use m_work,only: iv_a_oips,rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,rv_a_ocy,rv_a_opos
       use m_gtv,only: gtv_setrcd
       use m_struc_func
       use m_globalvariables
@@ -475,12 +476,12 @@ C --- Allocate and copy input to slat ---
       endif
 C ... Allocate and occupy the arrays
       nlm=(lmxcy+1)**2
-      allocate(v_slat%rv_a_ocy(abs(nlm)))
-      allocate(v_slat%rv_a_ocg(abs(lnjcg)))
-      allocate(v_slat%iv_a_ojcg(abs(lnjcg)))
-      allocate(v_slat%iv_a_oidxcg(abs(lnxcg)))
-      call sylmnc ( v_slat%rv_a_ocy , lmxcy )
-      call scg ( lmxcg , v_slat%rv_a_ocg , v_slat%iv_a_oidxcg , v_slat%iv_a_ojcg )
+      allocate(rv_a_ocy(abs(nlm)))
+      allocate(rv_a_ocg(abs(lnjcg)))
+      allocate(iv_a_ojcg(abs(lnjcg)))
+      allocate(iv_a_oidxcg(abs(lnxcg)))
+      call sylmnc ( rv_a_ocy , lmxcy )
+      call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
 !!
 
 C --- Allocate and copy input to sham ---
@@ -785,12 +786,12 @@ c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
             seref = seref +     v_sspec(ispec)%eref
           enddo
           v_sham%seref=seref
-          allocate(v_slat%rv_a_opos(abs(3*nsite)))
-          if (allocated(v_sarry%iv_a_oips)) deallocate(v_sarry%iv_a_oips)
-          allocate(v_sarry%iv_a_oips(abs(nsite)))
+          allocate(rv_a_opos(abs(3*nsite)))
+          if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
+          allocate(iv_a_oips(abs(nsite)))
           do i_spackv=1,nsite
-            v_slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
-            v_sarry%iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
+            rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
+            iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
           enddo
           if (procid .eq. master) then
             if (iprint() .ge. 20) then

@@ -1,6 +1,7 @@
       subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
-     .aus)
+     .     aus)
+      use m_work,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
@@ -130,65 +131,37 @@ C --- Start loop over atoms ---
           ib = isite(i)
         endif
         is = int(ssite(ib)%spec)
-
-
-ckino Dec.12.2011:           iv_p_oiprmb => sham%iv_p_oindxo
-
-
-
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
         kmax=sspec(is)%kmxt
-
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-
         lmxh=sspec(is)%lmxb
-
         if (lmxa .eq. -1) goto 10
-
 C   --- Set up all radial head and tail functions, and their BC's
         allocate(rofi_rv(nr))
-
         call radmsh ( rmt , a , nr , rofi_rv )
-
         allocate(fh_rv(nr*(lmxh+1)*nkapi))
-
         allocate(xh_rv(nr*(lmxh+1)*nkapi))
-
         allocate(vh_rv((lmxh+1)*nkapi))
-
         allocate(dh_rv((lmxh+1)*nkapi))
-
         call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rofi_rv 
      .  , fh_rv , xh_rv , vh_rv , dh_rv )
-
         allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
-
         allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
-
         allocate(vp_rv((lmxa+1)*(kmax+1)))
-
         allocate(dp_rv((lmxa+1)*(kmax+1)))
-
         call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
      .  , xp_rv , vp_rv , dp_rv )
-
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-ckino Dec.12.2011:           call pusq1 ( mode , ib , isp , nspc , iv_p_oiprmb , nlmax , lmxh
-ckino Dec.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oindxo , nlmax , lmxh
-        call pusq1 ( mode , ib , isp , nspc , sham%iv_a_oindxo , nlmax , lmxh 
+        call pusq1 ( mode , ib , isp , nspc , iv_a_oindxo , nlmax , lmxh 
      .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
      .   1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) )
-
-
         if (allocated(dp_rv)) deallocate(dp_rv)
         if (allocated(vp_rv)) deallocate(vp_rv)
         if (allocated(xp_rv)) deallocate(xp_rv)
@@ -198,24 +171,16 @@ ckino Dec.27.2011:           call pusq1 ( mode , ib , isp , nspc , sham%iv_p_oin
         if (allocated(xh_rv)) deallocate(xh_rv)
         if (allocated(fh_rv)) deallocate(fh_rv)
         if (allocated(rofi_rv)) deallocate(rofi_rv)
-
-C   --- print
-C        print *, 'isp,ib,nev,iq=',isp,ib,nev,iq
-C        call zprm('val',2,aus(1,1,1,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
-C        call zprm('slo',2,aus(1,1,2,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
-C        call zprm('loc',2,aus(1,1,3,isp,ib,iq),nlmax,(lmxa+1)**2,nev)
    10   continue
       enddo
       call tcx('makusq')
       end subroutine makusq
-
-
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
-     .au,as,az)
-
+     .     au,as,az)
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -290,81 +255,32 @@ C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
       integer lh(nkap0)
-ckino Dec.12.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.12.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)
-
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
      .ilm,k,ll,nkape,ksp,ispc,nlmto
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
-C ... Heap
       integer ::iwdummy
-
-
       call tcn ('pusq1')
-
-ckino Dec.12.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.12.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.12.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
-
       isa=ssite(ia)%spec
       i_copy_size=size(ssite(ia)%pos)
       call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
-
-
       lmxa=sspec(isa)%lmxa
       lmxha=sspec(isa)%lmxb
       kmax=sspec(isa)%kmxt
       rsma=sspec(isa)%rsma
-
-
       rmt=sspec(isa)%rmt
-
       if (lmxa .eq. -1) return
       nlmto = ndimh-napw
-
-C     nlmha = (lmxha+1)**2
       nlma  = (lmxa+1)**2
-C     if (nlma .gt. nlmax) call rxi('makusq: need nlmax',nlma)
-C     Count no. envelope functions connecting (phi,phidot) at site ia
       call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
-
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
-
-ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , iv_p_oidxcg
-ckino Dec.12.2011:             call bstrux ( 2 , slat , ssite , sspec , rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:             call bstrux ( 2 , slat , ssite , sspec , slat%rv_p_ocg , slat%iv_a_oidxcg
-      call bstrux ( 2 , slat , ssite , sspec , slat%rv_a_ocg , slat%iv_a_oidxcg
-ckino Dec.12.2011:       .     , iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.12.2011:       .     , slat%iv_p_ojcg , rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.27.2011:       .     , slat%iv_p_ojcg , slat%rv_p_ocy , iprmb , nbas , ia , pa , rsma , q ,
-ckino Dec.28.2011:       .     , slat%iv_p_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .     , slat%iv_a_ojcg , slat%rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+      call bstrux ( 2 , slat , ssite , sspec , rv_a_ocg , iv_a_oidxcg
+     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
-
-
-
-
-
-
-
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
 C     ksp is the current spin index in both cases:
 C     ksp = isp  in the collinear case
@@ -372,7 +288,6 @@ C         = ispc in the noncollinear case
 C     whereas ispc=1 for independent spins, and spin index when nspc=2
       do  ispc = 1, nspc
         ksp = max(ispc,isp)
-
         if (mode .eq. 1) then
           if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
           do  ilm = 1, nlma
@@ -390,44 +305,25 @@ C     whereas ispc=1 for independent spins, and spin index when nspc=2
             rotp(ilm,2,2) = phi/det
           enddo
         endif
-
 C --- Loop over eigenstates ---
         allocate(a_zv((kmax+1)*nlma))
-
         do  ivec = 1, nev
-C       call pusq3(ndimh,nlma,kmax,evec(1,ispc,ivec),w(ob),w(oa))
           call rlocb1 ( ndimh , nlma , kmax , evec ( 1 , ispc , ivec ) 
      .    , b_zv , a_zv )
-
-C       call zprm('cPkL',2,w(oa),kmax+1,kmax+1,nlma)
           call pusq2 ( mode , ia , nkape , kmax , lmxa , lmxh , nlmto , 
      .    min ( nlma , nlmax ) , iprmb , a_zv , rotp , evec ( 1 , ispc 
      .    , ivec ) , vh , dh , vp , dp , au ( 1 , ivec , 1 , ksp ) , as 
      .    ( 1 , ivec , 1 , ksp ) , az ( 1 , ivec , 1 , ksp ) )
-
         enddo
         if (allocated(a_zv)) deallocate(a_zv)
-
-
-C  --- Debugging --
-C      print *, 'ksp,ib,nev=',ksp,ib,nev
-C      call zprm('val',2,au(1,1,1,ksp),nlmax,(lmxa+1)**2,nev)
-C      call zprm('slo',2,as(1,1,1,ksp),nlmax,(lmxa+1)**2,nev)
-C      call zprm('loc',2,az(1,1,3,ksp),nlmax,(lmxa+1)**2,nev)
-
 C ... end loop over noncollinear spins
       enddo
-
       if (allocated(b_zv)) deallocate(b_zv)
-
       call tcx('pusq1')
-
       end subroutine pusq1
-
-
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pusq2(mode,ia,nkape,kmax,lmxa,lmxh,nlmto,nlma,iprmb,
      .cPkL,r,evec,vh,dh,vp,dp,au,as,az)
-
 C- Extract projection of eigenstate onto (u,s,z) for sphere at site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -481,16 +377,13 @@ C Local
       integer l,ll
       double precision xx
       double complex wk(nlmxx,2)
-
 C     call tcn('pusq2')
       if (nlmto .eq. 0) return
       if (nlma .gt. nlmxx) call rxi('makusq:  nlmxx.lt.nlma=',nlma)
-
 C --- Loop over all orbitals centered at this site ---
       call orbl(ia,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C     Block into groups of consecutive l
       call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
 C     Contribution from head part
       do  io1 = 1, norb
         l1  = ltab(io1)
@@ -511,7 +404,6 @@ C       i1 = hamiltonian offset for first orbital in block
           enddo
         endif
       enddo
-
 C     Contribution from tail part
       do  ilma = 1, nlma
         l = ll(ilma)
@@ -520,7 +412,6 @@ C     Contribution from tail part
           as(ilma) = as(ilma) + dp(l,k) * cPkL(k,ilma)
         enddo
       enddo
-
 C     Rotate to (phi,phidot)
       if (mode .ne. 0) then
         call dcopy(2*nlma,au,1,wk(1,1),1)
@@ -530,32 +421,5 @@ C     Rotate to (phi,phidot)
           as(ilma) = wk(ilma,1)*r(ilma,1,2) + wk(ilma,2)*r(ilma,2,2)
         enddo
       endif
-
 C     call tcx('pusq2')
       end subroutine pusq2
-
-
-C      subroutine pusq3(ndimh,nlma,kmax,evec,b,a)
-CC- Add together coeffs to expand wavefct at this site
-C see rlocb1
-CCu  Adapted from pvrlakl in nfp, reversing index order in b
-C      implicit none
-CC ... Passed parameters
-C      integer ndimh,nlma,kmax
-CC      double complex b(ndimh,nlma,0:kmax),a(0:kmax,nlma),evec(ndimh)
-C      double complex b(0:kmax,nlma,ndimh),a(0:kmax,nlma),evec(ndimh)
-CC ... Local parameters
-C      integer k,ilma,i
-C      call dpzero(a, 2*(kmax+1)*nlma)
-CC     call tcn('pusq3')
-C      do k = 0, kmax
-C        do ilma = 1 ,nlma
-C          do i = 1, ndimh
-CC            a(k,ilma) = a(k,ilma) + evec(i)*b(i,ilma,k)
-C            a(k,ilma) = a(k,ilma) + evec(i)*b(k,ilma,i)
-C          enddo
-C        enddo
-C      enddo
-CC     call tcx('pusq3')
-C      end
-

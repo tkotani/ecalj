@@ -86,14 +86,6 @@ Cr   size    size of this structure
       type s_array
       real(8)  ::    size
       integer  ::   nclasp
-      character(8), allocatable ::  rv_a_oclabl(:) !string
-      integer , allocatable ::  iv_a_oipq (:)
-      integer , allocatable ::  iv_a_oics (:)
-      integer,  allocatable ::  iv_a_oipc(:)
-      integer , allocatable ::  iv_a_oips (:)
-      integer , allocatable ::  iv_a_onrc (:)
-      integer , allocatable ::  iv_a_onrcp (:)
-      real(8) , allocatable ::  rv_a_ormax (:)
       end type s_array
 
 !! --- explanation of  uctrl ---
@@ -501,12 +493,6 @@ c      integer   ::   nmto
       integer   ::   npwmin
       integer   ::   npwpad
       integer   ::   nqsig
-      real(8) , allocatable ::  rv_a_ohrs (:)
-      integer, allocatable :: iv_a_oiaxs(:)
-      integer , allocatable ::  iv_a_oindxo (:)
-      integer, allocatable :: iv_a_ontabs(:)
-      integer , allocatable ::  iv_a_ooffH (:)
-      real(8) , pointer ::  rv_p_oqsig (:) =>NULL()
       real(8)   ::   oveps,delta_stabilize !takao sep2010
       ! H-> H+ delta_stabilize*O^-1
       real(8)   ::   pmax(10)
@@ -590,20 +576,6 @@ Cr  121   43    vol     cell volume
       integer   ::   nkqmx
       integer   ::   npgrp
       integer   ::   nsgrp
-      real(8) , allocatable ::  rv_a_oag (:)
-      complex(8) , allocatable ::  zv_a_obgv (:)
-      real(8) , allocatable ::  rv_a_ocg (:)
-      real(8) , allocatable ::  rv_a_ocy (:)
-      real(8) , allocatable ::  rv_a_odlv (:)
-      real(8) , allocatable ::  rv_a_ogv (:)
-      integer , allocatable ::  iv_a_oidxcg (:)
-      integer , allocatable ::  iv_a_oips0 (:)
-      integer , allocatable ::  iv_a_oistab (:)
-      integer , allocatable ::  iv_a_ojcg (:)
-      integer , allocatable ::  iv_a_okv (:)
-      real(8), allocatable :: rv_a_opos(:)
-      real(8) , allocatable ::  rv_a_oqlv (:)
-      real(8) , allocatable ::  rv_a_osymgr (:)
       real(8)   ::   plat(3,3)
       real(8)   ::   plat0(3,3)
       real(8)   ::   plat2(3,3)
@@ -843,25 +815,6 @@ Cr   64   58   vmtz0   Input ASA muffin-tin zero
       integer   ::   nlma
       integer   ::   nlml
       integer   ::   nrhos
-      real(8) , allocatable ::  rv_a_obxc (:)
-      real(8) , allocatable ::  rv_a_ogrrme (:)
-      real(8) , allocatable ::  rv_a_omad (:)
-      type(s_rv1), allocatable :: sv_a_oorhat(:)
-      real(8) , allocatable ::  rv_a_opmpol (:)
-      real(8) , allocatable ::  rv_a_opnu (:)
-      real(8) , allocatable ::  rv_a_opp (:)
-      real(8) , allocatable ::  rv_a_opprel (:)
-      real(8) , allocatable ::  rv_a_oqnu (:)
-      real(8) , allocatable ::  rv_a_oqpp (:)
-      real(8) , allocatable ::  rv_a_oqt (:)
-      real(8) , allocatable ::  rv_a_orhrmx (:)
-      complex(8) , allocatable ::  zv_a_osmpot (:)
-      complex(8) , allocatable ::  zv_a_osmrho (:)
-      real(8) , allocatable ::  rv_a_osop (:)
-      real(8) , allocatable ::  rv_a_ovdif (:)
-      real(8) , allocatable ::  rv_a_oves (:)
-      real(8) , allocatable ::  rv_a_ovintr (:)
-      real(8) , allocatable ::  rv_a_ovrmax (:)
       real(8)   ::   vconst(3)
       real(8)   ::   vmtz
       real(8)   ::   vmtz0
@@ -958,6 +911,7 @@ Cr   55    72  vmtz   Asymptotic potential for fitting functions at rmt
 Cr  341    73  vso    (tbe) spin-orbit parameters
 Cr    2    74  z      atomic number
       type s_spec
+      real(8), allocatable :: rv_a_orhoc(:)
       real(8)  ::   size
       real(8)   ::   z
       real(8)   ::   mass
@@ -985,7 +939,6 @@ Cr    2    74  z      atomic number
       real(8)   ::   ctail
       real(8)   ::   etail
       character(8)   ::   name !string
-      real(8), allocatable :: rv_a_orhoc(:)
       real(8)   ::   stc
       integer   ::   lmxb
       integer   ::   lmxf

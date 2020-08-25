@@ -1,9 +1,7 @@
       subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
      .  )
-
-
-
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Makes the site densities for overlapped free atoms.
@@ -84,25 +82,9 @@ Changenglob      nsp  = nglob('nsp')
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
 #endif
-ckino Dec.12.2011:        rv_p_ocg    => slat%rv_p_ocg
-ckino Dec.12.2011:        iv_p_ojcg   => slat%iv_p_ojcg
-ckino Dec.12.2011:        iv_p_oidxcg => slat%iv_p_oidxcg
-ckino Dec.12.2011:        rv_p_ocy    => slat%rv_p_ocy
-
-
 C --- Loop over sites where density is made ---
       sqloc = 0
       slmom = 0
-#if SGI_PARALLEL
-C$DOACROSS LOCAL(ib,is,p1,lmxl,kmxv,rsmv,z,
-C$&        a,nr,rmt,qcorg,qcorh,qsc,cofg,cofh,ceh,rfoca,
-C$&        lfoca,qcsm,nlml,
-C$&        jb,js,p2,je,rsmh,eh,nlmh,
-C$&        acof,b,b0,rofi,rwgt,rhohd,qloc)
-C$&        SHARED (nxi0)
-C$&        REDUCTION(sqloc,slmom)
-C$&        MP_SCHEDTYPE=RUNTIME
-#endif
 #if MPI | MPIK
       call info0(31,1,0,' ovlocr: make sphere densities from '//
      .'overlapping FA densities (parallel)')
@@ -112,7 +94,6 @@ C$&        MP_SCHEDTYPE=RUNTIME
       call poppr
       ipr = 0
       call pshpr(10)
-c      do ib = ibproc(procid), ibproc(procid+1)-1
       ibini= ibproc(procid)
       ibend= ibproc(procid+1)-1
 #else
@@ -120,64 +101,38 @@ c      do ib = ibproc(procid), ibproc(procid+1)-1
   300 format(/' Free atom and overlapped crystal site charges:'
      ./'   ib    true(FA)    smooth(FA)  true(OV)',
      .'    smooth(OV)    local')
-c      do  ib = 1, nbas
       ibini= 1
       ibend= nbas
 #endif
       do  ib = ibini,ibend
-
         is=ssite(ib)%spec
-c        i_copy_size=size(ssite(ib)%pos)
-c        call dcopy(i_copy_size,ssite(ib)%pos,1,p1,1)
         p1(:)=ssite(ib)%pos(:)
-
         lmxl=sspec(is)%lmxl
         kmxv=sspec(is)%kmxv
         rsmv=sspec(is)%rsmv
-
         nlml = (lmxl+1)**2
         allocate(acof(0:kmxv,nlml,nsp),b(0:kmxv,nlml))
         acof=0d0
         b=0d0
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-        call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca,
-     .  z)
+        call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoca,rfoca, z)
         qcsm = qcorg+qcorh
-C       if (z .eq. 0 .and. rmt .eq. 0) goto 10
         if (lmxl .eq. -1) goto 10
         allocate(rofi(nr),rwgt(nr))
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
-c        if (nr .gt. nrmx) call rxi('ovlocr: increase nrmx, need',nr)
-c        if (kmxv .gt.ktop0) call rxi('ovlocr: increase ktop0 need',kmxv)
-c        if (nlml .gt. nlmx) call rxi('ovlocr: increase nlmx need',nlml)
-
 C   ... Loop over other sites, add up tail expansion
         do  jb = 1, nbas
-
           js=ssite(jb)%spec
-c          i_copy_size=size(ssite(jb)%pos)
-c          call dcopy(i_copy_size,ssite(jb)%pos,1,p2,1)
           p2(:)=ssite(jb)%pos(:)
-
           do  je = 1, nxi(js)
             rsmh = rsmfa(js)
             eh   = exi(je,js)
             nlmh = 1
             call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , iv_p_ojcg , rv_p_ocy
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , rv_p_ocy
-ckino Dec.12.2011:       .          , kmxv , nlml , rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_p_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_p_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
-ckino Dec.27.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_p_ocy
-ckino Dec.28.2011:       .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_p_ojcg , slat%rv_a_ocy 
-     .          , kmxv , nlml , slat%rv_a_ocg , slat%iv_a_oidxcg , slat%iv_a_ojcg , slat%rv_a_ocy 
+     .          , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy 
      .          , slat , b )
 
             allocate(b0(0:kmxv,nlmh))
@@ -190,19 +145,13 @@ c            call dpzero(b0,(kmxv+1)*nlmh)
             deallocate(b0)
           enddo
         enddo
-
         call p2ovlc ( ib , nsp , rsmv , kmxv , nr , nlml , acof , rofi
-c     .    , rwgt , rhohd , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , rwgt , nxi0 , nxi ( is ) , exi ( 1 , is ) , hfc ( 1 
      .    , 1 , is ) , rsmfa ( is ) , rv_a_orhofa ( is ) %v , sv_p_orhoat( 3 , ib )%v 
      .    , lfoca , qcsm , qloc , amom , sv_p_orhoat( 1 , ib )%v , sv_p_orhoat( 2 , ib )%v 
      .    )
-
-
-
         sqloc = sqloc + qloc
         slmom = slmom + amom
-
         deallocate(rofi,rwgt)
    10   continue
         deallocate(acof,b)

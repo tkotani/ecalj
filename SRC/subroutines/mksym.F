@@ -1,6 +1,10 @@
       subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite,sarray)
+c     & ,nbas,iv_a_oips,nspec,
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
+     &     rv_a_oag,rv_a_osymgr,
+     &     iv_a_oistab, rv_a_opos !slat
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -66,7 +70,7 @@ Cu   03 Nov 01 Adapted to altered gensym
 Cu   26 Jan 01 Added new '2' option to 1s digit of mode
 Cu   31 May 00 revised meaning of mode
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       character*8 slabl(1),ssymgr*(*)
       integer mode,nsgrp,npgrp
       type(s_ctrl)::sctrl
@@ -86,7 +90,7 @@ C     implicit none
       parameter (T=.true., F=.false., ngnmx=10)
       character*120 gens,strn*72
       double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,fptol
-
+      integer:: i_copy_size,i_data_size,i_spackv
       nbas =sctrl%nbas
       nspec=sctrl%nspec
       nsite=sctrl%nsite
@@ -100,13 +104,13 @@ C     implicit none
 C ... Re-entry when ngmx was increased
     5 continue
 C ... For memory allocation of class data, assume initially nclass=nbas
-      if(allocated(slat%rv_a_oag)) then
-        deallocate(slat%rv_a_oag,slat%rv_a_osymgr,sarray%iv_a_oipc,sarray%iv_a_oics)
+      if(allocated(rv_a_oag)) then
+        deallocate(rv_a_oag,rv_a_osymgr,iv_a_oipc,iv_a_oics)
       endif  
-      allocate( slat%rv_a_oag(3*ngmx)    )
-      allocate( slat%rv_a_osymgr(9*ngmx) )
-      allocate( sarray%iv_a_oipc(nsite)  )
-      allocate( sarray%iv_a_oics(nsite)  )
+      allocate( rv_a_oag(3*ngmx)    )
+      allocate( rv_a_osymgr(9*ngmx) )
+      allocate( iv_a_oipc(nsite)  )
+      allocate( iv_a_oics(nsite)  )
       allocate( nrspc_iv(nbas) )
       call words(ssymgr,ngen)
       j1 = 1
@@ -143,16 +147,17 @@ C --- Generate space group ---
       endif
 
 C ... When generating the group the basis may become enlarged ...
-      if(allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
-      allocate(slat%iv_a_oistab(abs((ngmx+1)*nbas)))
+      if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !slat%iv_a_oistab
+      allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
       allocate(ips2_iv(ngmx*nbas))
       allocate(pos2_rv(3,ngmx*nbas))
-      call icopy ( nbas , sarray%iv_a_oips , 1 , ips2_iv , 1 ) 
-      call dcopy ( 3 * nbas , slat%rv_a_opos , 1 , pos2_rv , 1 ) 
+      call icopy ( nbas , iv_a_oips , 1 , ips2_iv , 1 ) 
+      call dcopy ( 3 * nbas , rv_a_opos , 1 , pos2_rv , 1 )
+c      print *,' mmmmmm',nspec
       call gensym ( slabl , gens , usegen , t , f , fptol , f , nbas 
      .   , nspec , ngmx , plat , plat , ldist , dist , pos2_rv , ips2_iv 
-     .   , nrspc_iv , nsgrp , slat%rv_a_osymgr , slat%rv_a_oag , ngen , gen , ssymgr 
-     .   , nggen , isym , slat%iv_a_oistab ) 
+     .   , nrspc_iv , nsgrp , rv_a_osymgr , rv_a_oag , ngen , gen , ssymgr 
+     .   , nggen , isym , iv_a_oistab ) 
 
       if (nbas .gt. nbas0) call rxs('gensym: the basis was enlarged.',
      .' Check group operations.')
@@ -163,13 +168,13 @@ C ... When generating the group the basis may become enlarged ...
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-        if (allocated(slat%rv_a_oag)) deallocate(slat%rv_a_oag)
+        if (allocated(rv_a_oag)) deallocate(rv_a_oag)
         goto 5
       endif
       if (fptol .ne. 0) then
         do i_spackv=1,nbas
            ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
-          slat%rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
+          rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
         enddo
       endif
 C --- Add inversion to point group ---
@@ -182,7 +187,7 @@ C --- Add inversion to point group ---
         gen(5,ngen) = -1
         gen(9,ngen) = -1
         call pshpr(iprint()-40)
-        call grpgen ( gen ( 1 , ngen ) , 1 , slat%rv_a_osymgr , npgrp , ngmx  ) 
+        call grpgen ( gen ( 1 , ngen ) , 1 , rv_a_osymgr , npgrp , ngmx  ) 
         call poppr
         incli = npgrp-nsgrp
       endif
@@ -197,12 +202,12 @@ C --- Printout of symmetry operations ---
       if (mod(mode/10,10) .eq. 0) goto 100
 
 C --- Split species into classes ---
-      if(allocated(sarray%iv_a_onrc)) deallocate(sarray%iv_a_onrc)
-       allocate(sarray%iv_a_onrc(abs(nspec)))
-       call icopy ( nsite , sarray%iv_a_oips , 1 , sarray%iv_a_oipc , 1 ) 
-       call splcls ( mod ( mode / 10 , 10 ) .eq.4 , slat%rv_a_opos , nbas 
-     .     , nsgrp , slat%iv_a_oistab , nspec , slabl , nclass , sarray%iv_a_oipc , 
-     .     sarray%iv_a_oics , sarray%iv_a_onrc ) 
+      if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
+       allocate(iv_a_onrc(abs(nspec)))
+       call icopy ( nsite , iv_a_oips , 1 , iv_a_oipc , 1 ) 
+       call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_a_opos , nbas 
+     .     , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , 
+     .     iv_a_oics , iv_a_onrc ) 
 
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr
@@ -212,46 +217,46 @@ c       npadr=sarray%npadr
       nbasp  = nbas !+ npadl + npadr
 
 C   ... Reallocate arrays as permanent arrays
-       i_data_size=size(sarray%iv_a_oics); allocate(iv_a_tmp(i_data_size))
-       iv_a_tmp=sarray%iv_a_oics; deallocate(sarray%iv_a_oics)
-       i_data_size=min(i_data_size,nclspp); allocate(sarray%iv_a_oics(nclspp))
-       sarray%iv_a_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
+       i_data_size=size(iv_a_oics); allocate(iv_a_tmp(i_data_size))
+       iv_a_tmp=iv_a_oics; deallocate(iv_a_oics)
+       i_data_size=min(i_data_size,nclspp); allocate(iv_a_oics(nclspp))
+       iv_a_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 C ... Remake istab
       if (mod(mode,10) .eq. 2) then
-         if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
-         allocate(slat%iv_a_oistab(abs(npgrp*nbas)))
-         if (npgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
+         if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
+         allocate(iv_a_oistab(abs(npgrp*nbas)))
+         if (npgrp*nbas<0) iv_a_oistab(:)=0.0d0
       else
-         if (allocated(slat%iv_a_oistab)) deallocate(slat%iv_a_oistab)
-         allocate(slat%iv_a_oistab(abs(nsgrp*nbas)))
-         if (nsgrp*nbas<0) slat%iv_a_oistab(:)=0.0d0
+         if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
+         allocate(iv_a_oistab(abs(nsgrp*nbas)))
+         if (nsgrp*nbas<0) iv_a_oistab(:)=0.0d0
       endif
       call dinv33(plat,1,qlat,xx)
-           call symtbl ( 1 , fptol , nbas , iwdummy , slat%rv_a_opos , slat%rv_a_osymgr 
-     .     , slat%rv_a_oag , nsgrp , qlat , slat%iv_a_oistab ) 
+           call symtbl ( 1 , fptol , nbas , iwdummy , rv_a_opos , rv_a_osymgr 
+     .     , rv_a_oag , nsgrp , qlat , iv_a_oistab ) 
 C   ... For each i*grpop fix translation ag to be that of grpop
       if (mod(mode,10) .eq. 2) then
-           if ( aginv ( slat%rv_a_osymgr , nsgrp , npgrp , nbas , slat%rv_a_oag , 
-     .     slat%iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
+           if ( aginv ( rv_a_osymgr , nsgrp , npgrp , nbas , rv_a_oag , 
+     .     iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
       endif
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
-         ssite ( i_spackv )%class = sarray%iv_a_oipc(i_spackv)
+         ssite ( i_spackv )%class = iv_a_oipc(i_spackv)
       enddo
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
-        allocate(sarray%rv_a_oclabl(nclspp))
-        allocate(sarray%iv_a_onrcp(nclspp))
-        sarray%rv_a_oclabl(:)='' !0.0d0
-        sarray%iv_a_onrcp(:)=0
-        call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , sarray%iv_a_oics , sarray%iv_a_oipc 
-     .   , nspec , slabl , ssite , sarray%rv_a_oclabl , sarray%iv_a_onrcp ) 
-        deallocate(sarray%iv_a_onrc)
-        call move_alloc(from=sarray%iv_a_onrcp, to=sarray%iv_a_onrc)
+        allocate(rv_a_oclabl(nclspp))
+        allocate(iv_a_onrcp(nclspp))
+        rv_a_oclabl(:)='' !0.0d0
+        iv_a_onrcp(:)=0
+        call pvsym2 ( 3 , 2 * nbasp - nbas , nclspp , iv_a_oics , iv_a_oipc 
+     .   , nspec , slabl , ssite , rv_a_oclabl , iv_a_onrcp ) 
+        deallocate(iv_a_onrc)
+        call move_alloc(from=iv_a_onrcp, to=iv_a_onrc)
       else
-        if (allocated(sarray%rv_a_oclabl)) deallocate(sarray%rv_a_oclabl)
+        if (allocated(rv_a_oclabl)) deallocate(rv_a_oclabl)
       endif
 C --- Cleanup: poke class and symmetry info into structures ---
       sctrl%nclass=nclass

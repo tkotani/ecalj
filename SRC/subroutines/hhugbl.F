@@ -1,8 +1,7 @@
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
      .ndim2,slat,wk,dwk,s,ds)
-
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-
 C- Estatic energy integrals between Bloch Hankels, and gradients.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -33,74 +32,25 @@ C ... Passed parameters
       real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , 
      .p2(3)
       type(s_lat)::slat
-
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
-C ... Local parameters
       integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll
-ckino Dec.9.2011:            integer,pointer :: iv_p_ojcg(:) =>NULL()
-
-ckino Dec.9.2011:           integer,pointer :: iv_p_oidxcg(:) =>NULL()
-
-ckino Dec.9.2011:          real(8),pointer :: rv_p_ocy(:) =>NULL()
-
-ckino Dec.9.2011:         real(8),pointer :: rv_p_ocg(:) =>NULL()
-
       parameter (lmxx=6,nlmx=(lmxx+1)**2)
       double precision add,pi,q(3),fpi,vol,gam1,gam2,xx1,xx2
       double precision zer(0:lmxx),bet1(nlmx),fac(nlmx)
-C ... Heap
       data q /0d0,0d0,0d0/
       data zer /lmxx*0d0,0d0/
-
       pi = 4d0*datan(1d0)
-
-ckino Dec.9.2011:         rv_p_ocg => slat%rv_p_ocg
-
-ckino Dec.9.2011:         iv_p_ojcg => slat%iv_p_ojcg
-
-ckino Dec.9.2011:         iv_p_oidxcg => slat%iv_p_oidxcg
-
-ckino Dec.9.2011:         rv_p_ocy => slat%rv_p_ocy
-
       vol=slat%vol
-
       kmax = 0
       kdim = 0
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
-
       call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg
-ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , s , ds )
-ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , s , ds )
-ckino Dec.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , s , ds )
-ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , s , ds ) 
-     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , s , ds )
-
-
-
-
-
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg
+     .    , iv_a_ojcg , rv_a_ocy , slat , s , ds )
       call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , iv_p_oidxcg
-ckino Dec.9.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_p_oidxcg
-ckino Dec.27.2011:       .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_p_ocg , slat%iv_a_oidxcg 
-     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , slat%rv_a_ocg , slat%iv_a_oidxcg
-ckino Dec.9.2011:       .    , iv_p_ojcg , rv_p_ocy , slat , wk , dwk )
-ckino Dec.9.2011:       .    , slat%iv_p_ojcg , rv_p_ocy , slat , wk , dwk )
-ckino Dec.27.2011:       .    , slat%iv_p_ojcg , slat%rv_p_ocy , slat , wk , dwk )
-ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , wk , dwk ) 
-     .    , slat%iv_a_ojcg , slat%rv_a_ocy , slat , wk , dwk )
-
-
-
-
-
+     .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg
+     .    , iv_a_ojcg , rv_a_ocy , slat , wk , dwk )
       do  i2 = 1, nlm2
         if (mode .eq. 0) then
           l = 0
@@ -118,7 +68,6 @@ ckino Dec.28.2011:       .    , slat%iv_p_ojcg , slat%rv_a_ocy , slat , wk , dwk
           ds(i1,i2,3) = fac(i2)*(ds(i1,i2,3) - bet1(i2)*dwk(i1,i2,3))
         enddo
       enddo
-
 C ... Extra term for l1=l2=0
       fpi = 4d0*pi
       gam1 = 0.25d0*rsm1(0)*rsm1(0)
@@ -127,7 +76,6 @@ C ... Extra term for l1=l2=0
       xx2 = fpi*dexp(gam2*e2(0))/(vol*e2(0))
       add = -2*xx1*xx2*vol/e2(0)
       s(1,1) = s(1,1) + add
-
       end subroutine hhugbl
 
 

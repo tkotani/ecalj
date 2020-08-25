@@ -1,7 +1,6 @@
       subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
      . , qbg , sv_p_orhoat )
-
-
+      use m_work,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
       use m_globalvariables
@@ -273,17 +272,17 @@ C --- Overlap smooth hankels to get smooth interstitial density ---
       ng=slat%ng
       allocate(cv_zv(ng*nsp))
       call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa
-     . , ng , ng , slat%rv_a_ogv , cv_zv )
-      call gvputf ( ng , nsp , slat%iv_a_okv , k1 , k2 , k3 , cv_zv , spot%zv_a_osmrho )
+     . , ng , ng , rv_a_ogv , cv_zv )
+      call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
       if (allocated(cv_zv)) deallocate(cv_zv)
 C ... FFT to real-space mesh
-      call fftz3 ( spot%zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )
+      call fftz3 ( zv_a_osmrho , n1 , n2 , n3 , k1 , k2 , k3 , nsp, 0 , 1 )
 C ... Add compensating uniform electron density to compensate background
-      call addbkgsm ( spot%zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol, - 1d0 )
+      call addbkgsm ( zv_a_osmrho , k1 , k2 , k3 , nsp , qbg , vol, - 1d0 )
 C ... integrate
-      call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho, sum1 , sum2 )
+      call mshint ( vol , nsp , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, sum1 , sum2 )
       if (nsp .eq. 2) then
-        call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , spot%zv_a_osmrho, smom , sum2 )
+        call mshint ( vol , 1 , n1 , n2 , n3 , k1 , k2 , k3 , zv_a_osmrho, smom , sum2 )
         smom = 2*smom - sum1
       endif
 C --- Set up local densities using rmt from atm file ---

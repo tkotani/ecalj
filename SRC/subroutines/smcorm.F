@@ -1,8 +1,7 @@
       subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
      .cgh1,cgh2,lfoc1,lfoc2)
-
+      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-
 C- For foca, add together density of smoothed part of core
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,44 +36,29 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-
       double complex cgh1(ng),cgh2(ng)
 C ... Local parameters
       integer:: k0 , nlmx , kmax , ib , is , lfoc , i
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
-
       double precision tau(3),v(3),alat,vol,qcorg,qcorh,qsc,cofg,cofh,
      .ceh,rfoc,z
-C     integer stdo,iprint,lgunit
       parameter (k0=3, nlmx=25)
       double complex gkl(0:k0,nlmx)
-C ... Heap
-
-C     stdo = lgunit(1)
-
       alat=slat%alat
       vol=slat%vol
-ckino Dec.12.2011:         rv_p_ocy => slat%rv_p_ocy
-
-
       kmax = 0
-
 C --- Accumulate FT of smooth-Hankel foca heads ---
       call dpzero(cgh1,  2*ng)
       call dpzero(cgh2,  2*ng)
       lfoc1 = 0
       lfoc2 = 0
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pos)
         call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 C       qc = qcorg+qcorh
 C        if (iprint() .ge. 50) write(stdo,351) qc,lfoc,qcorg,qcorh
 C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
-
         if (cofh .ne. 0) then
           if (lfoc .eq. 1) then
             lfoc1 = 1
@@ -82,38 +66,22 @@ C  351   format(' qc=',f12.6,'   lfoc',i2,'   qcorg,qcorh',2f12.6)
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy
-ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy
-              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
-     .         , gkl )
-
+              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_a_ocy , gkl )
               cgh1(i) = cgh1(i) + cofh*gkl(0,1)/vol
             enddo
           else if (lfoc .eq. 2) then
-ccccccccccccccccccccccccccccccccc
-ctakao
             call rx('smcorm: we do not allow now lfoc=2 anymore takao') !Aug2010
-ccccccccccccccccccccccccccccccccc
-
             lfoc2 = 1
             do  i = 1, ng
               v(1) = gv(i,1)
               v(2) = gv(i,2)
               v(3) = gv(i,3)
-ckino Dec.12.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_p_ocy
-ckino Dec.27.2011:                 call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_p_ocy
-              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , slat%rv_a_ocy 
-     .         , gkl )
-
+              call hklft ( v , rfoc , ceh , tau , alat , kmax , 1 , k0 , rv_a_ocy , gkl )
               cgh2(i) = cgh2(i) + cofh*gkl(0,1)/vol
             enddo
           endif
         endif
       enddo
-
-C      write(stdo,846) cgh1(1)*vol,cgh2(1)*vol
-C  846 format(' cgh(1) times vol',4f12.6)
-
       end subroutine smcorm
 
 

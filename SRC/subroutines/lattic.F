@@ -1,6 +1,7 @@
       subroutine lattic() !slat,nbas)
       use m_struc_def  !Cgetarg
       use m_rdctrl,only: slat=>v_slat,v_sctrl
+      use m_work,only: rv_a_opos,rv_a_oqlv,rv_a_odlv
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -67,9 +68,9 @@ C ... Apply specified linear transformation of lattice and basis vectors
       dist(1:3,3)= slat%dist(7:9)
 
       if (abs(gt-1) .gt. 1d-10) then
-        call rdistn ( slat%rv_a_opos , slat%rv_a_opos , nbaspp , gx , gy , gz , gt )
+        call rdistn ( rv_a_opos , rv_a_opos , nbaspp , gx , gy , gz , gt )
       elseif (ldist .ne. 0) then
-        call lattdf ( ldist , dist , plat0 , nbaspp , slat%rv_a_opos , 0 ,  0d0 )
+        call lattdf ( ldist , dist , plat0 , nbaspp , rv_a_opos , 0 ,  0d0 )
       else
         dist=0d0 
         dist(1,1) = 1
@@ -77,12 +78,12 @@ C ... Apply specified linear transformation of lattice and basis vectors
         dist(3,3) = 1
       endif
 
-      allocate(slat%rv_a_odlv(abs(3*nkdmx)))
-      allocate(slat%rv_a_oqlv(abs(3*nkqmx)))
+      allocate(rv_a_odlv(abs(3*nkdmx)))
+      allocate(rv_a_oqlv(abs(3*nkqmx)))
       lmxst = 6
       call lattc ( awald0 , tol , rpad , alat , alat , plat0 , gx ,
-     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , slat%rv_a_odlv
-     .  , nkd , slat%rv_a_oqlv , nkq , nkdmx , nkqmx )
+     .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_a_odlv
+     .  , nkd , rv_a_oqlv , nkq , nkdmx , nkqmx )
 
       slat%vol  =vol
       slat%plat0=plat0
@@ -90,23 +91,23 @@ C ... Apply specified linear transformation of lattice and basis vectors
       slat%qlat =qlat
 
 !! reduce size. necessary?
-      i_data_size=size(slat%rv_a_oqlv)
+      i_data_size=size(rv_a_oqlv)
       allocate(rv_a_tmp(i_data_size))
-      rv_a_tmp=slat%rv_a_oqlv
-      deallocate(slat%rv_a_oqlv)
+      rv_a_tmp=rv_a_oqlv
+      deallocate(rv_a_oqlv)
       i_data_size=min(i_data_size,3*nkq)
-      allocate(slat%rv_a_oqlv(3*nkq))
-      slat%rv_a_oqlv(:i_data_size)=rv_a_tmp(:i_data_size)
+      allocate(rv_a_oqlv(3*nkq))
+      rv_a_oqlv(:i_data_size)=rv_a_tmp(:i_data_size)
       deallocate(rv_a_tmp)
 
 !! reduce size. necessary?
-      i_data_size=size(slat%rv_a_odlv)
+      i_data_size=size(rv_a_odlv)
       allocate(rv_a_tmp(i_data_size))
-      rv_a_tmp=slat%rv_a_odlv
-      deallocate(slat%rv_a_odlv)
+      rv_a_tmp=rv_a_odlv
+      deallocate(rv_a_odlv)
       i_data_size=min(i_data_size,3*nkd)
-      allocate(slat%rv_a_odlv(3*nkd))
-      slat%rv_a_odlv(:i_data_size)=rv_a_tmp(:i_data_size)
+      allocate(rv_a_odlv(3*nkd))
+      rv_a_odlv(:i_data_size)=rv_a_tmp(:i_data_size)
       deallocate(rv_a_tmp)
 
       slat%awald=awald

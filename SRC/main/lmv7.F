@@ -12,6 +12,7 @@ c     &  shtvg,ngrp,miat,tiat,iclasst,
 c     use m_globalvariables
       use m_ext,only: getext,sname
       use m_globalvariables,only: globalvariables
+      use m_work,only: rv_a_opos
       implicit none
 c      type(s_bz):: v_sbz
 c      type(s_ctrl):: v_sctrl,v_sctrl2
@@ -166,7 +167,7 @@ c      call finits(2,0,0,i)
 !!--- Lattice setup:deformation --- 
       call lattic() !this gives v_slat
       do ibas=1,v_sctrl%nbas
-        v_ssite(ibas)%pos = v_slat%rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
+        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
 !! --- We store all settings in module variables of m_rdctrl.
       print *,'end of lattic'
@@ -184,64 +185,64 @@ c      call finits(2,0,0,i)
       if( v_sctrl%noinv==0 ) lc = lc+2 ! inversion for lmf
 #endif
       
-!! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
-      ipr10= iprint()>10 !this is only for master
-      if(len_trim(symgaf)>0) then
-        nbas = v_sctrl%nbas
-        if(ipr10) then
-          write(6,*)
-          write(6,"(a)")       ' AF: ======================================== '
-          write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
-          write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
-          write(6,"(a)")       ' AF:  Caution: I use v_sarry2=v_arry. Is this allowed in fortran?'
-          do j=1,nbas
-            write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
-          enddo
-        endif
-        v_sarry2=v_sarry
-        allocate(v_ssite2(nbas))
-        v_ssite2=v_ssite
-        inumaf=0
-        do j=1,nbas
-          do k=j,nbas
-            if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
-              v_sarry2%iv_a_oips(k) =v_sarry2%iv_a_oips(j)
-              inumaf=inumaf+1
-              exit
-            endif
-          enddo
-        enddo
-        v_sctrl2=v_sctrl
-        v_sctrl2%nspec= v_sctrl%nspec-inumaf
-        v_slat2=v_slat
-        strn2=trim(strn)//' '//trim(symgaf)
-        if(procid==master) call pshpr(60)
-        call mksym(lc,slabl_,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
-        if(procid==master) call poppr()
-        if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
-        ngrpaf=v_slat2%nsgrp
-        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-        call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
-        call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
-        if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
-        do ib=1,nbas
-          iclasstaf(ib)=v_ssite2(ib)%class
-        enddo
-!! We use  symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
-!!   It is passed through m_hamindex
-!!   The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
-!!
-c$$$        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-c$$$     .   , miat , tiat , invgx , shtvg )
-c$$$        do ig = 1,ngrpaf
-c$$$          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$          do i=1,3
-c$$$            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c$$$!! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
+c$$$      ipr10= iprint()>10 !this is only for master
+c$$$      if(len_trim(symgaf)>0) then
+c$$$        nbas = v_sctrl%nbas
+c$$$        if(ipr10) then
+c$$$          write(6,*)
+c$$$          write(6,"(a)")       ' AF: ======================================== '
+c$$$          write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
+c$$$          write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
+c$$$          write(6,"(a)")       ' AF:  Caution: I use v_sarry2=v_arry. Is this allowed in fortran?'
+c$$$          do j=1,nbas
+c$$$            write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+c$$$          enddo
+c$$$        endif
+c$$$c        v_sarry2=v_sarry
+c$$$        allocate(v_ssite2(nbas))
+c$$$        v_ssite2=v_ssite
+c$$$        inumaf=0
+c$$$        do j=1,nbas
+c$$$          do k=j,nbas
+c$$$            if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
+c$$$              v_sarry2%iv_a_oips(k) =v_sarry2%iv_a_oips(j)
+c$$$              inumaf=inumaf+1
+c$$$              exit
+c$$$            endif
 c$$$          enddo
 c$$$        enddo
-          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
-          if(ipr10) write(6,"(a)")       
-       endif
+c$$$        v_sctrl2 = v_sctrl
+c$$$        v_sctrl2%nspec= v_sctrl%nspec - inumaf
+c$$$        v_slat2=v_slat
+c$$$        strn2=trim(strn)//' '//trim(symgaf)
+c$$$        if(procid==master) call pshpr(60)
+c$$$        call mksym(lc,slabl_,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
+c$$$        if(procid==master) call poppr()
+c$$$        if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
+c$$$        ngrpaf=v_slat2%nsgrp
+c$$$        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
+c$$$        call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
+c$$$        call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
+c$$$        if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
+c$$$        do ib=1,nbas
+c$$$          iclasstaf(ib)=v_ssite2(ib)%class
+c$$$        enddo
+c$$$!! We use  symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
+c$$$!!   It is passed through m_hamindex
+c$$$!!   The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
+c$$$!!
+c$$$c$$$        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+c$$$c$$$     .   , miat , tiat , invgx , shtvg )
+c$$$c$$$        do ig = 1,ngrpaf
+c$$$c$$$          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$c$$$          do i=1,3
+c$$$c$$$            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c$$$c$$$          enddo
+c$$$c$$$        enddo
+c$$$          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
+c$$$          if(ipr10) write(6,"(a)")       
+c$$$       endif
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
