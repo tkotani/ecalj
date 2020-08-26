@@ -403,7 +403,7 @@ C     Extra site positions for e.g. point multipoles
       nm='STRUC_DALAT'; call gtv(trim(nm),tksw(prgnam,nm),
      .     dalat, def_r8=0d0, note='added to alat after input is read')
       nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
-     .     note='global default lmax+1 for basis and augmentation')
+     .     note='global default LMXA+1 for basis and augmentation.')
 C     ... Lattice distortion or rotation
       sw = tksw(prgnam,'STRUC_SHEAR')
       lat_gam(1) = NULLR
@@ -512,7 +512,6 @@ c     endif
 C     Flags representing how cd is represented: default values
       lcd4=F 
       if (prgnam == 'LMF' .or. prgnam == 'LMFGWD') lcd4=T
-c     if (prgnam == 'LMMC') lcd8=T
       nm='HAM_REL'; call gtv(trim(nm),tksw(prgnam,nm),lrel,def_i4=1,
      .     note='0 for nonrelativistic Schrodinger equation'//
      .     '%N%3f1 for scalar relativistic Schrodinger equation'//
@@ -586,20 +585,8 @@ c     if (lrel==2) lncol4 = T
      .     note=
      .     'Controls how self-energy is added to '//
      .     'local exchange correlation functional:'//
-     .     '%N%3f 1s digit:'//
      .     '%N%3f   0 do not read Sigma'//
-     .     '%N%3f   1 add sigma to potential'//
-     .     '%N%3f   Add 2 to symmetrize Sigma(T)'//
-     .     '%N%3f   Add 4 to include Re(Sigma(T)) only'//
-     .     '%N%3f 10s digit:'//
-     .     '%N%3f   0 simple interpolation'//
-     .     '%N%3f   1 approx high and low sigma by diagonal (see sigp)'//
-     .     '%N%3f   3 interpolate sigma by LDA evecs'//
-     .     '%N%3f     (In this mode use 100s digit for'//
-     .     ' # interpolation points)'//
-     .     '%N%3f Add 10000 to indicate sigma has no symops'//
-     .     '%N%3f Add 20000 to use minimum neighbor table'//
-     .     '%N%3f Add 40000 to allow file qp mismatch')
+     .     '%N%3f  12 read ESEAVR as Sigma-Vxc')
       nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
      .     def_r8=5d0, note='Maximum range in connecting vectors for '//
      .     'r.s. sigma (units of alat)')
@@ -655,38 +642,9 @@ C     ... APW basis
       nm='HAM_NPWPAD'; call gtv(trim(nm),tksw(prgnam,nm),
      .     npwpad, def_i4=-1, note=
      .     'Overrides default padding of variable basis dimension')
-      sw = tksw(prgnam,'HAM_SIGP')
-      if(sw .ne. 2) then
-         nm='HAM_SIGP'; call gtv(trim(nm),sw,nono,Texist=ltmp,
-     .        note= 'Parameters for replacing high (and possibly low) '//
-     .        'subblocks of sigma'//
-     .        '%N%3fwith a linear function of LDA eigenvalues (diagonal)')
-         nm='HAM_SIGP_MODE'; call gtv(trim(nm),sw,sigp_mode,def_i4=3,
-     .        nout=nout,
-     .        note= 'Specifies linear fitting function'//
-     .        '%N%3f 0 sigii > a + b*e'//
-     .        '%N%3f 1 sigii = a + b*e'//
-     .        '%N%3f 2 sigii > a  and  sigii < b'//
-     .        '%N%3f 3 sigii = a + b*e')
-         nm='HAM_SIGP_A'; call gtv(trim(nm),sw,sigp_a,def_r8=0.02d0,
-     .        note='a parameter in fit. Not used now -->ESEAVR)')
-         nm='HAM_SIGP_B'; call gtv(trim(nm),sw,sigp_b,def_r8=0.06d0,
-     .        note='b parameter in fit. Not used now -->ESEAVR')
-         nm='HAM_SIGP_NMIN'; call gtv(trim(nm),sw,sigp_nmin,def_i4=0,
-     .        note='Replace subblock 1..nmin with fit. For test purpose.')
-         nm='HAM_SIGP_EMIN'; call gtv(trim(nm),sw,sigp_emin,def_r8=0d0,
-     .        note='Replace subblock elda<emin with fit (not used if nmin>=0). For test purpose')
-         nm='HAM_SIGP_NMAX'; call gtv(trim(nm),sw,sigp_nmax,def_i4=0,
-     .        note='Replace subblock nmax+1.. with fit. For test purpose.')
-         nm='HAM_SIGP_EMAX'; call gtv(trim(nm),sw,sigp_emax,def_r8=9999d0,
-     .        note='Replace subblock elda>emax with fit (not used if nmax>0)')
-         nm='HAM_SIGP_EFIT'; call gtv(trim(nm),sw,sigp_efit,def_r8=0d0,
-     .        note='Energy cutoff for fitting sigii '//
-     .        '(not used in any calculation')
-      endif
       nm='HAM_UDIAG'; call gtv(trim(nm),tksw(prgnam,nm),ham_udiag,
      .     def_i4=0,note='nonzero => diagonal-only LDA+U')
-      
+     
 C     --- Symmetry group ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'SYMGRP')/=2)
      .     call info0(1,1,0,' --- Symmetry group operations ---')
@@ -845,16 +803,8 @@ C     Determine default NR
 C     Running account of maximum lmxb
         lmxbj = NULLI
         if (io_help .ne. 1) then
-           if (prgnam .eq. 'LMMC') then
-              call lx2vec(lmxb(j),0,nn,ivec)
-              do  i = 1, nn
-                 lmxbx = max(lmxbx,ivec(i))
-                 lmxbj = max(lmxbj,ivec(i))
-              enddo
-           else
-              lmxbx = max(lmxbx,lmxb(j))
-              lmxbj = lmxb(j)
-           endif
+           lmxbx = max(lmxbx,lmxb(j))
+           lmxbj = lmxb(j)
         endif
 C     nlbj = number of elements associated with lmxb
 C     0 => no elements
@@ -917,16 +867,7 @@ C     ... Determine lmxa: floating orbitals have no lmxa
         if (rmt(j) == 0.and.io_help/=1) then !takao iohelp/=1 added.
            lmxa(j) = -1
         elseif (sw == 2) then   !lmxa not read: look for subsitute
-c     if (lfp > 0) then     !Possibly replace with a formula
-!that depends on rmt
            lmxa(j) = 4
-c     elseif (tksw(prgnam,'SPEC_ATOM_LMX') /= 2) then
-c     lmxa(j) = lmxb(j)
-c     elseif (tksw(prgnam,'STRUC_NL') /= 2) then
-c     lmxa(j) = nl-1
-c     else
-c     lmxa(j) = 0
-c     endif
         else
 C     Possibly replace with a formula that depends on rmt
            call gtv(trim(nm),sw,lmxa(j),
@@ -954,7 +895,6 @@ C     nlaji: ditto, but used to specify number of default values
         endif
 C     if (lmxaj == NULLI) nlaj = NULLI
 C     if (lmxaj == NULLI) nlaji = NULLI
-
 
 
 C     ... Parameters that depend on the existence of an augmentation sphere
@@ -1652,27 +1592,26 @@ c      if (cmdopt('--rpos=',7,0,fileid)) then
 c        call iopos(.false.,-1,fileid(8:),nbasp,pos)
 c      endif
 
-!! --- Allocate and copy input to sbz ---
-      call ubz_init(v_sbz)
-      v_sbz%size=ubz_size()
-      v_sbz%def=bz_def
-      v_sbz%dosw=bz_dosw(:)
-      v_sbz%dosmax=bz_dosmax
-      v_sbz%ef=bz_ef
-      v_sbz%efmax=bz_efmax
-      v_sbz%fsmom=bz_fsmom
-      v_sbz%fsmommethod=bz_fsmommethod
-      v_sbz%lcond=bz_lcond(:)
-      v_sbz%lmet=bz_lmet
-      v_sbz%lmull=bz_lmull
-      v_sbz%lshft = bz_lshft
-      v_sbz%n     = bz_n
-      v_sbz%ndos  = bz_ndos
-      v_sbz%nevmx = bz_nevmx
-      v_sbz%nkabc = bz_nabc
-      v_sbz%range=bz_range
-      v_sbz%w=bz_w
-
+c$$$!! --- Allocate and copy input to sbz ---
+c$$$      call ubz_init(v_sbz)
+c$$$      v_sbz%size=ubz_size()
+c$$$      v_sbz%def=bz_def
+c$$$      v_sbz%dosw=bz_dosw(:)
+c$$$      v_sbz%dosmax=bz_dosmax
+c$$$      v_sbz%ef=bz_ef
+c$$$      v_sbz%efmax=bz_efmax
+c$$$      v_sbz%fsmom=bz_fsmom
+c$$$      v_sbz%fsmommethod=bz_fsmommethod
+c$$$      v_sbz%lcond=bz_lcond(:)
+c$$$      v_sbz%lmet=bz_lmet
+c$$$      v_sbz%lmull=bz_lmull
+c$$$      v_sbz%lshft = bz_lshft
+c$$$      v_sbz%n     = bz_n
+c$$$      v_sbz%ndos  = bz_ndos
+c$$$      v_sbz%nevmx = bz_nevmx
+c$$$      v_sbz%nkabc = bz_nabc
+c$$$      v_sbz%range=bz_range
+c$$$      v_sbz%w=bz_w
 !! Allocate and copy input to sctrl ---
       v_sctrl%size=uctrl_size()
 !! lbas: 1 Hamiltonian has no screening transformation
@@ -1866,9 +1805,9 @@ C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
 c      v_sham%lncol=(int(v_sctrl%lncol))
 
 C     Mop up integer parts of sigp
-      sigp(1) = sigp_mode
-      sigp(2) = sigp_nmin
-      sigp(4) = sigp_nmax
+c      sigp(1) = sigp_mode
+c      sigp(2) = sigp_nmin
+c      sigp(4) = sigp_nmax
 
       v_sham%nkaph=nkaph
       i_copy_size=size(v_sham%pmax)
@@ -1876,8 +1815,8 @@ C     Mop up integer parts of sigp
       i_copy_size=size(v_sham%pmin)
       call dcopy(i_copy_size,pmin,1,v_sham%pmin,1)
       v_sham%lsig=lrsig
-      i_copy_size=size(v_sham%sigp)
-      call dcopy(i_copy_size,sigp,1,v_sham%sigp,1)
+c      i_copy_size=size(v_sham%sigp)
+c      call dcopy(i_copy_size,sigp,1,v_sham%sigp,1)
       i_copy_size=size(v_sham%qss)
       call dcopy(i_copy_size,ham_qss,1,v_sham%qss,1)
 
@@ -2003,42 +1942,19 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
         enddo
-
-        j = len_trim(iter_mix)  ! density mixing mix
-        if (j .gt. 0) then
-          sstrnmix=trim(iter_mix)
-        else
-          sstrnmix=''
-        endif
+        sstrnmix=trim(iter_mix)
 
 !! ... Suppress symmetry operations for special circumstances
+!     !     Switches that automatically turn of all symops
+!     ! --pdos mar2003 added. Also in lmv7.F
           lstsym = 0
-!!     Switches that automatically turn of all symops
           if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
-!! --pdos mar2003 added. Also in lmv7.F
-     .     cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
-          symg = 'e'
-          lstsym = 2            !lstsym=2: turn off symops
-        endif
-!!     Switches that turn off automatic finder, incl. inversion
-        if (lstsym .ne. 0) then
-          i = 1
-          do while (i .ne. 0)
-            i = index(symg,'find')
-            if (i .ne. 0) then
-              symg(i:i+3) = ' '
-            endif
-          enddo
-          if (symg .eq. ' ') symg = 'e' ! suppress ops if none explicit
-!!          lqp = lqp-bitand(lqp,1)+1 ! noinv=1 -->do nothing, noinv=0 --> noinv=1
-          noinv=1
-        endif
-        j = len_trim(symg)               ! Symmetry group symg
-        if (j .gt. 0) then
+     .         cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
+             symg = 'e'
+             lstsym = 2         !lstsym=2: turn off symops
+             noinv=1
+          endif
           sstrnsymg=trim(symg)
-        else
-          sstrnsymg=''
-        endif
 !!
         if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
@@ -2048,35 +1964,29 @@ c          v_sspec(j)%alpha=alpha(:,j)
 
 !! Dirac equation requires spin polarization
         if( nsp==1 .and. int(v_sctrl%lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
-
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
-          if(lso.ne. 0) noinv=1 !lqp = lqp-bitand(lqp,1)+1
-          v_sctrl%noinv=noinv
-!! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-          j= 2
-C     No screening => no downfolding; also lmxb<l<=lmxa => 'high'
-C     Probably ought to have lmxb<l<=lmxa => 'high' always
-
-c          if ( iand(1,int(v_sctrl%lbas)) .ne.0 ) j = 3
-          j=3
+        if(lso.ne. 0) noinv=1   !lqp = lqp-bitand(lqp,1)+1
+        v_sctrl%noinv=noinv
+!     ! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
+C     No screening => no downfolding; j=3
+        j=3
 C     nfp-style basis:
-c          if ( iand(2,int(v_sctrl%lbas)) .ne.0 ) j = j+10
-          j=j+10
-          call suidx(globalvariables%nkaph,j,nspec,v_sspec)
+        j=j+10
+        call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 
 !! ... Set some global variables
-          globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1; xx(1) = dble(nspec)
-          globalvariables%nbas = dble(nbas);   globalvariables%l_nbas = globalvariables%l_nbas +1; xx(1) = dble(nbas)
-          globalvariables%nbasp= dble(nbasp);  globalvariables%l_nbasp = globalvariables%l_nbasp +1; xx(1) = dble(nbasp)
-          globalvariables%nsp =  dble(nsp);    globalvariables%l_nsp = globalvariables%l_nsp +1; xx(1) = dble(nsp)
-          globalvariables%nl =   dble(nl);     globalvariables%l_nl = globalvariables%l_nl +1; xx(1) = dble(nl)
-          globalvariables%lrel = dble(avw);    globalvariables%l_avw = globalvariables%l_avw +1; xx(1) = dble(avw)
-          globalvariables%lrel = dble(lrel);   globalvariables%l_lrel = globalvariables%l_lrel +1; xx(1) = dble(lrel)
+          globalvariables%nspec = dble(nspec); globalvariables%l_nspec = globalvariables%l_nspec +1
+          globalvariables%nbas = dble(nbas);   globalvariables%l_nbas = globalvariables%l_nbas +1
+          globalvariables%nbasp= dble(nbasp);  globalvariables%l_nbasp = globalvariables%l_nbasp +1
+          globalvariables%nsp =  dble(nsp);    globalvariables%l_nsp = globalvariables%l_nsp +1
+          globalvariables%nl =   dble(nl);     globalvariables%l_nl = globalvariables%l_nl +1
+          globalvariables%lrel = dble(avw);    globalvariables%l_avw = globalvariables%l_avw +1
+          globalvariables%lrel = dble(lrel);   globalvariables%l_lrel = globalvariables%l_lrel +1
           lxcf = int(v_sctrl%lxcf)
-          globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1; xx(1) = dble(lxcf)
-          globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1; xx(1) = dble(stdo)
-          globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1; xx(1) = dble(stdl)
-          globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1; xx(1) = dble(stde)
+          globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1
+          globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1
+          globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1
+          globalvariables%stde = dble(stde); globalvariables%l_stde = globalvariables%l_stde +1
           nspc = 1
           if( lso==1 ) nspc = 2
 c          if (iand(lncol,4) .ne. 0) nspc = 2
@@ -2101,9 +2011,7 @@ C ... Count LDA+U blocks (printout only)
           call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
           v_sham%nlibu=nlibu
           call poppr
-          deallocate(wowk)
-C     Free arrays used to read input
-          deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+          deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv, !alpha,
@@ -2145,53 +2053,58 @@ c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
    90       continue
           endif
 
-!! --- takao embed contents in susite here. This is only for lmf and lmfgw.
+!     ! --- takao embed contents in susite here. This is only for lmf and lmfgw.
           seref = 0d0
           do ib = 1, nsite
-            ispec = v_ssite(ib)%spec
-            if (ispec <= 0) cycle
-            v_ssite(ispec)%clabel = v_sspec(ispec)%name
-            seref = seref +     v_sspec(ispec)%eref
+             ispec = v_ssite(ib)%spec
+             if (ispec <= 0) cycle
+             v_ssite(ispec)%clabel = v_sspec(ispec)%name
+             seref = seref +     v_sspec(ispec)%eref
           enddo
           v_sham%seref=seref
           allocate(rv_a_opos(abs(3*nsite)))
           if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
           allocate(iv_a_oips(abs(nsite)))
           do i_spackv=1,nsite
-            rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
-            iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
+             rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
+             iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
           enddo
           if (procid .eq. master) then
-            if (iprint() .ge. 20) then
-              if (lstsym .eq. 1) then
-                write(stdo,357) trim(sstrnsymg) !sstrn(i:j)
-  357           format(/' Automatic symmetry finder turned off.  Use: ',a)
-              elseif (lstsym .eq. 2) then
-                write(stdo,358)
-  358           format(/' Symmetry operations suppressed')
-              endif
-            endif
+             if (iprint() .ge. 20) then
+                if (lstsym .eq. 1) then
+                   write(stdo,357) trim(sstrnsymg) !sstrn(i:j)
+ 357               format(/' Automatic symmetry finder turned off.  Use: ',a)
+                elseif (lstsym .eq. 2) then
+                   write(stdo,358)
+ 358               format(/' Symmetry operations suppressed')
+                endif
+             endif
           endif
           do i_spec=1,nspec
-            call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
+             call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
           enddo
-!! Debugging printout ---
+!     ! Debugging printout ---
           if (io_help == 0 .and. io_show > 1) then
-            print *, '---------- contents of sstrn ------------'
-            print *, 'mix: ', trim(sstrnmix)
-            print *, 'symg:', trim(sstrnsymg)
-            call rx0('done show')
-           endif
-!!     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-!!     . v_sarry,sstrnmix,sstrnsymg  
+             print *, '---------- contents of sstrn ------------'
+             print *, 'mix: ', trim(sstrnmix)
+             print *, 'symg:', trim(sstrnsymg)
+             call rx0('done show')
+          endif
+!     !     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
+!     !     . v_sarry,sstrnmix,sstrnsymg
+          write(6,*) '--- End of readin ctrl file. ---'
+          print *,'end of rdctrl2'
+!!  -- End of readin ctrl file. -----------
+
+
+
+
+           
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       print *,' mpipid=',procid
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-      write(6,*) '--- End of readin ctrl file. ---'
-      print *,'end of rdctrl2'
-!!  -- End of readin ctrl file. -----------
 
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hereafter is originally in lmv7.F
@@ -2317,7 +2230,7 @@ c      if(.not.prgnam == 'LMFGWD') then
          ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
 !! iand(2**n,i) means 2**n ditit of i.
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
-         call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
+         call mkqp(v_sctrl,v_slat,ltet,F,1,-2)
       endif
 !!    show and quit
       if( int(v_sctrl%quit) == 1 ) then

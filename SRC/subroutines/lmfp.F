@@ -1,10 +1,10 @@
-      subroutine lmfp(prgnam,sbz,sctrl,sham,spot,slat,smix,
+      subroutine lmfp(prgnam,sctrl,sham,spot,slat,smix, !sbz,
      .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
       use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
       use m_struc_def
       use m_struc_func, only: mpibc1_s_lat
       use m_globalvariables
-      use m_lmfinit,only: irs1,irs2,irs3,irs4,irs5,irs11,lhf
+      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w !,irs3,irs4,irs5,irs11,
 C     - LM-FP self-consistency loop
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -84,13 +84,13 @@ C     u   08 Jun 01 Revised call to nwit
 C     u   15 Feb 01 added density I/O; arguments to bndfp changed.
 C     u   17 Jun 00 alpha version.  No relaxations yet.
 C     ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C     ... Passed parameters:
       character  prgnam*8 !sstrn*(*),
 c      type(s_sstrn)::sstrn
       character*(*)::sstrnmix !,sstrnjobid
 c      type(s_array)::sarray
-      type(s_bz)::sbz
+c      type(s_bz)::sbz
       type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_mix)::smix
@@ -105,7 +105,7 @@ c      type(s_move)::smove
       integer procid,master,mpipid,nproc
       logical mlog
       logical lgors,cmdopt,bittst
-      integer fopna,fopng,i,ifi,igets,iors,ipr,irs(5),isw,ix(5),j, !,iscr
+      integer fopna,fopng,i,ifi,igets,iors,ipr,irs(2),isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
@@ -157,8 +157,9 @@ c     integer:: odmatu , ovorbdmat , odmato
       data irlxsh /0/ dist0 /9*0d0/
       logical:: l_dummy_isanrg,isanrg
 
-      real(8):: pnu(20),bz_w
+      real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false.
+      integer:: i_spackv,isize_iv_tmp
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -215,14 +216,14 @@ c$$$#endif
       nbaspp = nbas      
       stdo   = lgunit(1)
       call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
-      irs ( 1 ) = irs1
-      irs ( 2 ) = irs2
+      irs( 1 ) = irs1
+      irs( 2 ) = irs2
       if(nowriteden) irs(2)=0
-      irs ( 3 ) = irs3
-      irs ( 4 ) = irs4
-      irs ( 5 ) = irs5
+c      irs( 3 ) = irs3
+c      irs( 4 ) = irs4
+c      irs( 5 ) = irs5
 !! ... --rs=3 => always read from atom file
-      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs ( 1 ) = 0
+      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs( 1 ) = 0
 C     ... Printout properties of species
       if (ipr .ge. 30) call praugm(sspec,0)
 C     ... Setup for no screening transformation
@@ -259,7 +260,7 @@ C     ... Allocate memory for forces
       lfrce = int(sctrl%lfrce)
       if (lfrce .ne. 0) then
         numq = 1
-        if ( int(sbz%lmet) .eq. 4 ) numq = 3
+        if ( int(bz_lmet) .eq. 4 ) numq = 3
         allocate(frc_rv(3*nbas*numq))
       endif
 C     ... Relaxation setup
@@ -326,7 +327,7 @@ C     ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
       call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sham,spot,sbz) !sstrn removed june2015 ,sarray 2016
+      call suham(sctrl,slat,sspec,ssite,sham,spot)!,sbz) !sstrn removed june2015 ,sarray 2016
 C     ... Quit if --quit=ham given
       if ( int(sctrl%quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
@@ -335,7 +336,7 @@ C     ... Quit if --quit=ham given
 C     Whether forces, and how to calculate non Helman-Feynman corr.
       lfrce = int(sctrl%lfrce)
 C     Maximum number of eigenvalues
-      nevmx = int(sbz%nevmx)
+      nevmx = int(bz_nevmx)
 C     Whether to evaluate output density and/or KS energy
       lrout = 1
       leks = 1
@@ -347,7 +348,7 @@ C     Whether to evaluate output density and/or KS energy
       if (nevmx .eq. -1) then
         lrout = 0
         leks = 0
-        sbz%nevmx=nevmx
+        bz_nevmx=nevmx
       endif
 C     Whether to float pnu's
       lpnu = 1
@@ -419,12 +420,11 @@ C     3              read nothing (data already input)
           if (.not. lbin) ifi = fopna('rsta',-1,0)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-        bz_w=sbz%w
-        k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+        bz_wx = bz_w
+        k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi )
-        sbz%w=bz_w
-
+        bz_w = bz_wx
         if (procid .eq. master) then
           call fclose(ifi)
         endif
@@ -501,7 +501,7 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
       llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec , slat , sctrl , sham , spot , sbz , sstrnmix , ndham , 
+     .     , sspec , slat , sctrl , sham , spot ,  sstrnmix , ndham , !sbz ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 
@@ -542,7 +542,7 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
             endif
 c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+            k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
@@ -581,9 +581,10 @@ C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
 C     kino         :1 if not self-consistent, but encountered max. no. iter.
 C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 C     kino         :3 otherwise
-          call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs ( 1 
-     .           ) .eq.0.and.iter.eq.1 , leks+i , etol , qtol , qdiff , 'cxhi' 
-     .           , amom , etot , lsc )
+          call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs(1)==0.and.iter==1,
+     &         leks+i , etol , qtol , qdiff , 'cxhi' , amom , etot , lsc )
+c          print *,'lmfp xxxxxxxxx',lhf,irs(1),iter,  lhf.or.irs (1).eq.0.and.iter.eq.1
+c          print *,'lmfp xxxxxxxxx lsc=',lsc,maxit,leks+1,etol,qtol,qdiff
         endif
         call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
         if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
@@ -678,7 +679,7 @@ C     ... Exit when relaxation converged or maximum number of iterations
               flg = 'C67'
               call nwitsv(1+2,k,flg,nsp,amom,etot)
             endif
-            if ( procid==maser) then
+            if ( procid==master) then
               call tcx('lmfp')
               call fexit(0,111,
      .         ' LMFP: relaxation converged after %i iteration(s)',itrlx)
@@ -731,7 +732,7 @@ C     Repack updated positions in site structure
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+            k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
@@ -844,12 +845,12 @@ c         endif
       plat=slat%plat
 !! Remake qp
       ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0
-      call mkqp(sctrl,sbz,slat,ltmp,.false.,1,-2)
+      call mkqp(sctrl,slat,ltmp,.false.,1,-2) !sbz,
 !! Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-        k = iors ( 1 , sctrl , ssite , sspec , slat , spot , sbz , fileid
+        k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
         call fclose(ifi)

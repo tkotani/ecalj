@@ -9,14 +9,15 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sbz,sstrnmix,
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sstrnmix,!,sbz
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
      &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,
      &     iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
-      use m_lmfinit, only: ncutovl,lso
+      use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
+     &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
       use m_subzi, only: subzi
@@ -176,7 +177,7 @@ c      type(s_sstrn):: sstrn
       type(s_ctrl):: sctrl
       type(s_lat)::  slat
       type(s_pot)::  spot
-      type(s_bz)  ::  sbz
+c      type(s_bz)  ::  sbz
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
 ckino lswtk must be 0 initially.
@@ -451,9 +452,9 @@ c mar2014
       allband=cmdopt('--allband',9,0,strn)
       if(fsmode) fullmesh=.true.
       if(fullmesh) then
-         nkk1=sbz%nkabc(1)
-         nkk2=sbz%nkabc(2)
-         nkk3=sbz%nkabc(3)
+         nkk1=bz_nabc(1)
+         nkk2=bz_nabc(2)
+         nkk3=bz_nabc(3)
       endif   
 !! Calculate VBM and CBM relative to vaccum (but in a simple approximaiton. need fixing.).
       if(cmdopt('--vbmonly',9,0,strn)) then
@@ -639,24 +640,24 @@ c      nfbn(2) = 0
       k2 = n2
       k3 = n3
 !! ... for BZ integration
-      nkabc= sbz%nkabc
-      nkp=   sbz%nkp
-      ntet=  sbz%ntet
-      lmet=  sbz%lmet
-      mpsord=sbz%n
-      esmear=sbz%w
-      nevmx= sbz%nevmx
-      efmax= sbz%efmax
-      fsmom= sbz%fsmom
+      nkabc= bz_nabc
+      nkp=   bz_nkp
+      ntet=  bz_ntet
+      lmet=  bz_lmet
+      mpsord=bz_n
+      esmear=bz_w
+      nevmx= bz_nevmx
+      efmax= bz_efmax
+      fsmom= bz_fsmom
       if(debug) print *,'ttt nevmx w=',nevmx,esmear
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
-      ndos=sbz%ndos
-      dosw= sbz%dosw
-      ef0 = sbz%ef
-      def = sbz%def
+      ndos= bz_ndos
+      dosw= bz_dosw
+      ef0 = bz_ef
+      def = bz_def
 !!
       ltet = ntet .gt. 0
       lwndow = cmdopt('--window=',9,0,strn)
@@ -739,9 +740,9 @@ c         plbopt = strn(7:)
       if(writeham) then
         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
         if(procid == master) then ! pair-table and weight generator.  nlat,qgt are not used yet...
-          nkk1=sbz%nkabc(1)
-          nkk2=sbz%nkabc(2)
-          nkk3=sbz%nkabc(3)
+          nkk1=bz_nabc(1)
+          nkk2=bz_nabc(2)
+          nkk3=bz_nabc(3)
           nkp = nkk1*nkk2*nkk3
           allocate(qplist(3,nkp))
           iq=0
@@ -1256,7 +1257,8 @@ c            massline=.false.
          onlyonce=.false.
          nbasp = sctrl%nbasp
          nl    = sctrl%nl
-         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
+c         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
+         call gen_hamindex ( sham , ssite , sspec , slat , nl ,
      .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
 c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
          if(procid==master) then
@@ -1329,7 +1331,7 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             endif
 !! sfz is the self-energy roteted in the full BZ.
 !!   ndham is removed sep2012 (read from sigma file )
-            call rdsigm2(nbas,nspsigm,slat,sham,sbz,ifi, 
+            call rdsigm2(nbas,nspsigm,slat,sham,ifi,  !sbz,
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
             call fclose(ifi)
 c$$$!! --- write sig_fbz for SYMGRP e
@@ -1385,7 +1387,7 @@ c               ifi = fopna('sigm_fbz',-1,4)
 c            else
             ifi = fopna('sigm',-1,4)
 c            endif   
-            call seneinterp(nbas,nspsigm,ndimsig,slat,sham,sbz,ifi,rsrnge, !aug2012takao
+            call seneinterp(nbas,nspsigm,ndimsig,slat,sham,ifi,rsrnge, !aug2012takao sbz,
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in sham%rv_a_ohrs
             call fclose(ifi)
             deallocate(sfz)
@@ -2497,10 +2499,10 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .     ' use:   sev=',f12.6,'   ef=',f12.6)
          if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
  733     format('nf EF:',3f9.5,'    EB:',3f12.5)
-         sbz%ndos=ndos
-         call dcopy(size(sbz%dosw),dosw,1,sbz%dosw,1)
-         sbz%ef=ef0
-         sbz%def=def
+         bz_ndos=ndos
+         bz_dosw = dosw
+         bz_ef=ef0
+         bz_def=def
          if (lrep .eq. 1) then
             ef0 = -1
 c            call awrit0('Input Fermi energy was too far off, '//
@@ -2549,7 +2551,7 @@ c$$$         endif
             dosrng = 8
             if (mpsord .lt. 0) dosrng = 16
             if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-            if(sbz%fsmommethod == 1) then !takao dec2010
+            if(bz_fsmommethod == 1) then !takao dec2010
 !! vnow june22013 !vnow !(in Ry) contains magnetic field
 !! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
                call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
@@ -2610,7 +2612,7 @@ ckino       maybe a switch for these is lmet.ne.0
 !!
          if (lmet .ne. 4) then
             ef0 = eferm
-            sbz%ef=ef0
+            bz_ef=ef0
          endif
          if (lmet .gt. 0) then
             if (procid .eq. master) then
@@ -2686,7 +2688,7 @@ c$$$      endif
 
 !! === Generate DOS on disk ===
       if(.not. lwndow .and. procid==master) then
-         ndos0 = sbz%ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
+         ndos0 = bz_ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
          if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
 c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
             if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
@@ -2694,7 +2696,7 @@ c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS
 
 !! Default and external option. 
             if(tdos) then
-              dosmax = sbz%dosmax
+              dosmax = bz_dosmax
 c            if (cmdopt('--emint=',7,strn)) then    !not yer for dosw(1)
 c              j=10
 c              if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_
@@ -2776,10 +2778,10 @@ c            call fclose(ifi)
 !! --- Core-level spectroscopy ---
       if (icls .ne. 0) then
          if (procid .eq. master) then
-            eferm=sbz%ef
+            eferm=bz_ef
             call vcdmel ( sctrl%nl , ssite , sspec , slat , nlmax , ndham , 
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
-     .        nsites , isite , iclsl , iclsn ,sbz,dosw)
+     .        nsites , isite , iclsl , iclsn ,dosw) !sbz,
             call rx0('done generating core level spectra')
          else
             call fexit(0,0,' ',0)

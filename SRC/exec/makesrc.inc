@@ -6,7 +6,6 @@ m_work.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\
-m_lmdata.o\
 lmhelp.o\
 show_programinfo.o\
 util.o\

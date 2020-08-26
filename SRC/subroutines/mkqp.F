@@ -1,8 +1,10 @@
-      subroutine mkqp(sctrl,sbz,slat,gettet,lnoirr,lreduc,lgstar)
+      subroutine mkqp(sctrl,slat,gettet,lnoirr,lreduc,lgstar)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
-     &    rv_a_osymgr
+     &     rv_a_osymgr
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet
+
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -32,7 +34,10 @@ Cio    Stored:    nkp nkabc oqp owtkp ostar ntet oidtet oipq
       logical gettet
       integer lgstar,lreduc,i_copy_size,i_data_size
       type(s_ctrl)::sctrl
-      type(s_bz)::sbz
+      
+c      integer :: sbz
+c      type(s_bz)::sbz
+
       type(s_lat)::slat
 C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
@@ -47,8 +52,8 @@ C ... Local parameters
 C ... Setup
       ntet = 0
       stdo = globalvariables%stdo
-      nkxyz=sbz%nkabc
-      lshft=sbz%lshft
+      nkxyz=bz_nabc
+      lshft=bz_lshft
       plat =slat%plat
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
@@ -160,9 +165,9 @@ C     ... Unless ipq still needed, throw it away
         endif
       endif
 C --- Pack new info into structures ---
-      sbz%nkp   = nkp
-      sbz%nkabc = nkxyz
-      sbz%ntet  = ntet
+      bz_nkp   = nkp
+      bz_nabc = nkxyz
+      bz_ntet  = ntet
       if (.not.allocated(iv_a_oidtet))then
         write(*,*)'warnig in mkqp: iv_a_oidtet is not allocated. but continue.'
       endif

@@ -1,5 +1,5 @@
       subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
-     .sarray,sbz,slabl,mode,wksize) !,sstrn
+     .sarray,slabl,mode,wksize) !,sstrn,sbz
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
       use m_lmfinit,only: irs11,str_mxnbr,str_rmax
       use m_struc_def  !Cgetarg
@@ -82,7 +82,7 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_str)::sstr
-      type(s_bz)::sbz
+c      type(s_bz)::sbz
       type(s_site),allocatable::ssite2(:)
 
 C ... Local parameters

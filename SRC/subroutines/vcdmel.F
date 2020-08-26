@@ -1,8 +1,9 @@
       subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
-     .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,sbz,dosw)
+     .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)!sbz,
       use m_work,only: iv_a_oidtet, rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
       use m_struc_def
-      use m_ext,only: sname !extention for file
+      use m_ext,only: sname     !extention for file
+      use m_lmfinit,only: bz_ndos,bz_dosmax,bz_nabc,bz_ntet
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -37,7 +38,7 @@ Cu   20 Mar 01 (ATP) extended to handle multiple core levels
 Cu   20 Feb 01 Written by ATP
 C ----------------------------------------------------------------------
       implicit none
-      type(s_bz)  ::  sbz
+c      type(s_bz)  ::  sbz
 C Passed Parameters
       integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
@@ -152,14 +153,14 @@ c$$$ccccccccccccccccccccccccc
       nbandx = ndimh*nspc       !q-dependent only for no PW case.
       nspx = nsp / nspc
       lidos=.false.
-      npts=sbz%ndos
+      npts= bz_ndos
       allocate(wk_rv(npts))
 c     print *,'ewindow'//trim(sname)//'xxxx'
 c     open(newunit=ifid,file='ewindow.'//trim(sname) )
 c     read(ifid,*) emin
 c     close(ifid)
       emin = dosw(1)
-      emax = sbz%dosmax + ef
+      emax = bz_dosmax + ef
 !     ! cf. aaax in asados.F at aug2020
 c     print *,'aaax', ndham , nsp , nspx , nbandx , nchan ,
 c     &         sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet, npts, emin, emax, lidos
@@ -179,7 +180,7 @@ c     enddo
 c     enddo
       allocate(dos_rv(npts,nsp,nchan))
       call dostet ( ndham , nsp , nspx , nbandx , nchan ,
-     &     sbz%nkabc(1),sbz%nkabc(2),sbz%nkabc(3), sbz%ntet , iv_a_oidtet, evl
+     &     bz_nabc(1),bz_nabc(2),bz_nabc(3), bz_ntet , iv_a_oidtet, evl
      .     , s_rv(1:nchan*nbandx,1:nsp,1:nq), npts, emin, emax, lidos , wk_rv , dos_rv )
 c     print *,'end of dostet xxxxx', npts,nsp,nchan
       del = 0d0

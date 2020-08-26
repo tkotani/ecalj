@@ -1,6 +1,6 @@
-      integer function iors(mode,sctrl,ssite,sspec,slat,spot,sbz,
+      integer function iors(mode,sctrl,ssite,sspec,slat,spot,!sbz,
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-      use m_lmfinit,only: irs3,irs4,irs5
+      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def
       use m_struc_def 
       use m_struc_func
       use m_globalvariables
@@ -130,7 +130,7 @@ C ... Passed parameters
       type(s_spec)::sspec(nspec)
       type(s_lat)::slat
       type(s_pot)::spot
-      type(s_bz)::sbz
+c      type(s_bz)::sbz
       double precision qnu(3,n0,*)
       character fid*(*)
 C ... Local parameters
@@ -437,9 +437,12 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-          sbz%ef=wk(1)
-          sbz%def=wk(2)
-          sbz%w=wk(3)
+c          sbz%ef=wk(1)
+c          sbz%def=wk(2)
+c          sbz%w=wk(3)
+          bz_ef=wk(1)
+          bz_def=wk(2)
+          bz_w=wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -1047,7 +1050,7 @@ c   ... Copy or rescale cores, in case foca was switched on or off
         call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
         call mpibc1_s_lat(slat,mlog,'iors','slat')
         call mpibc1_s_pot(spot,mlog,'iors','spot')
-        call mpibc1_s_bz(sbz,mlog,'iors','sbz')
+c        call mpibc1_s_bz(sbz,mlog,'iors','sbz')
         if (mode .eq. 1) then
         elseif (mode .eq. 0) then
           call mpibc1(qnu,3*n0*nsp*nbas,4,mlog,'iors','qnu')
@@ -1120,9 +1123,9 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
-        wk(1)=sbz%ef
-        wk(2)=sbz%def
-        wk(3)=sbz%w
+        wk(1)=bz_ef !sbz%ef
+        wk(2)=bz_def !sbz%def
+        wk(3)=bz_w !sbz%w
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else

@@ -190,13 +190,15 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 
 !! -----------------------------------------------------------------------------------
-      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz)
+c      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz)
+      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,ifis,rsrnge, nk1,nk2,nk3,sfz)
       use m_work,only: iv_a_oindxo,rv_a_osymgr,iv_a_ontabs,rv_a_osymgr , rv_a_oag,rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
      & rv_p_oqsig , iv_a_ooffH, iv_a_oistab
       use m_struc_def  
       use m_hft2rs
       use m_globalvariables
       use m_sigflg
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
@@ -204,7 +206,6 @@ c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       integer mode,nbas,ifis,ndimh,lwsig
       type(s_lat)::slat
       type(s_ham)::sham
-      type(s_bz)::sbz
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
@@ -720,9 +721,9 @@ C ... Transformations done by caller: write qp list to disk
       if (lwsig .ne. 0) then
         call info0(30,0,0,' ')
         if (lnwmsh) then
-           nkxyz=sbz%nkabc !sbz
-           lshft=sbz%lshft
-           nqp=sbz%nkp
+           nkxyz=bz_nabc !sbz
+           lshft=bz_lshft
+           nqp=bz_nkp
 c           rv_p_oqp => sbz%rv_p_oqp
           call info2(20,0,0,
      .    ' Transform sigma on new k-mesh:  '//
@@ -778,10 +779,10 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
 !!--------------------------------------------------------------------------------------------
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
-      subroutine rdsigm2(nbas_dummy,nsp,slat,sham,sbz,ifis,  !ndimh is removed (read from sigm file) sep2102
+      subroutine rdsigm2(nbas_dummy,nsp,slat,sham,ifis,  !sbz,ndimh is removed (read from sigm file) sep2102
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_work,only: rv_a_osymgr, rv_p_oqsig 
-      use m_struc_def,only:      s_lat,s_ham,s_bz  
+      use m_struc_def,only:      s_lat,s_ham!,s_bz  
       use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
@@ -970,7 +971,7 @@ C ------------------------------------------------------------
       integer mode,ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
       type(s_lat)::slat
       type(s_ham)::sham
-      type(s_bz)::sbz
+c      type(s_bz)::sbz
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
