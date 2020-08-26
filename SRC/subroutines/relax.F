@@ -80,7 +80,7 @@ C Local Variables
 C --- Setup ---
 
       nbas=ctrl_nbas
-      nit=ctrl_nitmv
+      nit =ctrl_nitmv
       mdprm=ctrl_mdprm
 c       i_copy_size=size(ctrl_mdprm)
 c       call dcopy(i_copy_size,ctrl_mdprm,1,mdprm,1)
