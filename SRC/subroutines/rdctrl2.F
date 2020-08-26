@@ -1989,9 +1989,6 @@ c          call r8tos8(vmix%fn,alabl)
       if (io_help > 0) call cexit(0,1)
 cccc end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
       
-!!   For now, LMF => fp; no screening; nfp-style hamiltonian
-      lbas = 3 
-
 c!! Optionally read positions from pos file
 c      if (cmdopt('--rpos=',7,0,fileid)) then
 c        call iopos(.false.,-1,fileid(8:),nbasp,pos)
@@ -2025,6 +2022,7 @@ c      endif
 !!          16 freeze phi,phidot for all species
 !! lbas = 3 = 1+2 in lmf
 !! frzwf: freeze basis or not. j= 1+2+16 if frzwf=T
+      lbas = 3 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
       j = lbas + 16*isw(frzwf)
       v_sctrl%lbas=j
       v_sctrl%defm=lat_defm(:)
@@ -2060,7 +2058,6 @@ c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
       v_sctrl%lmet=lmet
 c      v_sctrl%lncol=lncol
 C     lrs  switches concerning restart mode.
-
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -2068,10 +2065,8 @@ C     lrs  switches concerning restart mode.
         i = 5
         j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
       endif
-      irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)
-     . + 8*getdig(irs(1),1,100)
-      lrs = 1*mod(irs(1),8)+8*irs(2)+32*irs(3)+64*irs(4)+128*irs(5)
-     . + 256*mod(irs(1)/8,2)
+      irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)   + 8*getdig(irs(1),1,100)
+      lrs = 1*mod(irs(1),8) + 8*irs(2)+32*irs(3) + 64*irs(4) + 128*irs(5) + 256*mod(irs(1)/8,2)
 !!
 !!     irs(1) tells what to read and whether to invoke smshft.
 !!     4s' bit of irs(1) -> invoke smshft after file read.
@@ -2115,37 +2110,22 @@ C            Add 1 to combine mode 1 with another mode
 C            Add 10*k to compute intra-site contribution to
 C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
-
       v_sctrl%noinv=noinv
       v_sctrl%lrel=lrel
       v_sctrl%lrs=lrs
-
-!!  lves    1 take ves as input
-      v_sctrl%lves=lves
-
+      v_sctrl%lves=lves !!!  lves    1 take ves as input
 !!  lxcf   parameter defining XC functional
 !!      1s digit:
 !!      1 for Ceperly-Alder (VWN)
 !!      2 for Barth-Hedin (ASW fit)
 !!      103 for PBE-GGA
       v_sctrl%lxcf= ham_lxcf
-
-!! ==  Set modep ===
-c      ix(1:3) = 2
-c      if (prgnam == 'LMPG') ix(3) = 0
-c      if (prgnam == 'LMMC') ix(1:3) = 0
-
       v_sctrl%maxit=iter_maxit
       v_sctrl%mdprm=mdprm
       v_sctrl%modep=2
       v_sctrl%nbas=nbas
 
-C      Reset nl
-      if (nl .ne. max(lmxbx,lmxax)+1 .and. io_help == 0) then
-        call info2(20,1,0,' rdctrl: reset global max nl from %i to %i',
-     .  nl,max(lmxbx,lmxax)+1)
-        nl = max(lmxbx,lmxax)+1
-      endif
+      nl = max(lmxbx,lmxax)+1
 
       v_sctrl%nbasp=nbasp
       v_sctrl%nesabc=nesabc
@@ -2170,7 +2150,6 @@ C      Reset nl
       v_sctrl%zbak  = zbak
       v_sctrl%pfloat= lpfloat
 
-C --- Allocate and copy input to slat ---
       v_slat%size=ulat_size()
       if (dalat == NULLR) dalat=0
       v_slat%alat=alat+dalat
