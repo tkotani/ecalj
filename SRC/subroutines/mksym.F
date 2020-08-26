@@ -1,10 +1,8 @@
-      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite)!,sarray)
-c     & ,nbas,iv_a_oips,nspec,
+      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite)
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
-     &     rv_a_oag,rv_a_osymgr,
-     &     iv_a_oistab, rv_a_opos !slat
+     &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos 
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -132,7 +130,6 @@ C ... For memory allocation of class data, assume initially nclass=nbas
       if (ltmp) then
         call strncp(gens,'point',idest,1,5)
       endif
-
 C --- Generate space group ---
       nbas0 = nbas
       if (cmdopt('--fixpos',8,0,strn)) then
@@ -177,6 +174,7 @@ c      print *,' mmmmmm',nspec
           rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
         enddo
       endif
+      
 C --- Add inversion to point group ---
       incli = -1
       npgrp = nsgrp
@@ -204,18 +202,17 @@ C --- Printout of symmetry operations ---
 C --- Split species into classes ---
       if(allocated(iv_a_onrc)) deallocate(iv_a_onrc)
        allocate(iv_a_onrc(abs(nspec)))
-       call icopy ( nsite , iv_a_oips , 1 , iv_a_oipc , 1 ) 
+       call icopy ( nsite , iv_a_oips , 1 , iv_a_oipc , 1 )
+c       print *,'goto splcls'
        call splcls ( mod ( mode / 10 , 10 ) .eq.4 , rv_a_opos , nbas 
      .     , nsgrp , iv_a_oistab , nspec , slabl , nclass , iv_a_oipc , 
      .     iv_a_oics , iv_a_onrc ) 
-
+c       print *,'end of splcls'
 c       npadl=sarray%npadl
 c       npadr=sarray%npadr
-
       nclasp = nclass
       nclspp = nclass
       nbasp  = nbas !+ npadl + npadr
-
 C   ... Reallocate arrays as permanent arrays
        i_data_size=size(iv_a_oics); allocate(iv_a_tmp(i_data_size))
        iv_a_tmp=iv_a_oics; deallocate(iv_a_oics)
@@ -223,30 +220,20 @@ C   ... Reallocate arrays as permanent arrays
        iv_a_oics(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
 
 C ... Remake istab
-      if (mod(mode,10) .eq. 2) then
-         if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
-         allocate(iv_a_oistab(abs(npgrp*nbas)))
-         if (npgrp*nbas<0) iv_a_oistab(:)=0.0d0
-      else
-         if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
-         allocate(iv_a_oistab(abs(nsgrp*nbas)))
-         if (nsgrp*nbas<0) iv_a_oistab(:)=0.0d0
-      endif
-      call dinv33(plat,1,qlat,xx)
+       if (allocated(iv_a_oistab)) deallocate(iv_a_oistab)
+       allocate(iv_a_oistab(abs(nsgrp*nbas)))
+       call dinv33(plat,1,qlat,xx)
            call symtbl ( 1 , fptol , nbas , iwdummy , rv_a_opos , rv_a_osymgr 
      .     , rv_a_oag , nsgrp , qlat , iv_a_oistab ) 
-C   ... For each i*grpop fix translation ag to be that of grpop
-      if (mod(mode,10) .eq. 2) then
-           if ( aginv ( rv_a_osymgr , nsgrp , npgrp , nbas , rv_a_oag , 
-     .     iv_a_oistab ) .ne. 0 ) call rx ( 'bug in mksym' ) 
-      endif
 C ... poke ipc into ssite
       i_copy_size=1;
       do i_spackv=1,nbasp
          ssite ( i_spackv )%class = iv_a_oipc(i_spackv)
       enddo
+c       print *,'end of ssite'
 C --- Create nrc and class labels ---
       if (mod(mode/10,10) .eq. 2 .or. mod(mode/10,10) .eq. 4) then
+c         print *,'goto pvsym2'
         allocate(rv_a_oclabl(nclspp))
         allocate(iv_a_onrcp(nclspp))
         rv_a_oclabl(:)='' !0.0d0
@@ -264,6 +251,7 @@ c      sarray%nclasp=nclasp
   100 continue
       slat%npgrp=npgrp
       slat%nsgrp=nsgrp
+      print *,'end of mksym'
       end subroutine mksym
 
 !! -----------------------------------
@@ -288,7 +276,7 @@ Co      nrc: number of sites in each class
 Cu Updates
 Cu   18 Dec 01 Packs class label into ssite->clabel
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer mode,nbas,nclass,nspec,ics(1),ipc(nbas),nrc(1)
       type(s_site)::ssite(*)
       character*8 slabl(nspec)
@@ -320,68 +308,4 @@ C --- Create nrc ---
    30   continue
       endif
       end subroutine pvsym2
-
-
-      integer function aginv(g,npg,nsg,nbas,ag,istab)
-C- Finds translation part for extra inversion-generated group ops
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   g     :point group operations
-Ci   npg   :number of point group operations
-Ci   nsg   :number of space group operations
-ci   nbas  :dimensions istab.  If zero, istab is not altered.
-Co Outputs
-Co   ag    :for each group op ig in range nsg+1..npg,
-Co         :the corresponding group op jg is found such that
-Co         :g(jg) = -g(ig), and ag(jg) is copied to ag(ig); see Remarks
-Co   istab :istab(jg) is copied into istab(ig) just in the same way as
-Co         :ag(jg) is copied into ag(ig).
-Co         :The sign of istab(1) is set negative to indicate that this
-Co         :operation is derived from a true space group operation.
-Cr Remarks
-Cr   In certain cases the inversion operation may be added to the space
-Cr   group, for purposes of k integration.  This is permissible when the
-Cr   hamiltonian has the form h(-k) = h*(k).  In that case, the
-Cr   eigenvectors z(k) of h(k) are related to z(-k) as z(-k) = z*(k).
-Cr
-Cr   Also, the Green's functions are related G(-k) = Gtranspose(k).
-Cr   Thus if g is a space group operation rotating G0(g^-1 k) into G(k),
-Cr   then G(-k) = Gtranspose(k), and the same (g,ag) information is
-Cr   needed for either rotation.  Let g~ = -g:
-Cr     G0(g~^-1 -k) into G(k),
-Cr
-Cr
-Cr   Routine aborts with aginv=ig if for group ig it cannot find
-Cr   corresponding jg such that g(jg) = -g(ig)
-C ----------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      integer npg,nsg,nbas,istab(nbas,1)
-c      double precision g(3,3,npg),ag(3,npg)
-      double precision g(3,3,*),ag(3,*)
-C ... Local parameters
-      integer ig,jg
-      double precision ginv(3,3)
-      logical grpeql
-
-      do  ig = npg+1, nsg
-        call dpcopy(g(1,1,ig),ginv,1,9,-1d0)
-        do  jg = 1, nsg
-          if (grpeql(g(1,1,jg),ginv)) then
-            call dcopy(3,ag(1,jg),1,ag(1,ig),1)
-            if (nbas .gt. 0) then
-              call icopy(nbas,istab(1,jg),1,istab(1,ig),1)
-              istab(1,ig) = -istab(1,jg)
-            endif
-C           call awrit2(' aginv mapping %,2i ->%,2i',' ',80,6,ig,jg)
-            goto 10
-          endif
-        enddo
-        aginv = ig
-        return
-   10   continue
-      enddo
-      aginv = 0
-      end function aginv
-
 

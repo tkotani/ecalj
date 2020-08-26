@@ -72,7 +72,6 @@ ctakao
       stdo  = lgunit(1)
       hfct=0d0
       pzsum=0d0
-
       ifives = fopna('vesintatm',-1,0)
       ifiwv  = fopna('veswavatm',-1,0)
       do  is = 1, nspec
@@ -149,7 +148,7 @@ c        enddo
         vmtz=sspec(is)%vmtz
         i_copy_size=size(sspec(is)%rcfa)
         call dcopy(i_copy_size,sspec(is)%rcfa,1,rcfa,1)
-
+        print *,'goto freats'
         call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .  nrmix,1,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
@@ -175,6 +174,7 @@ C       call upack2('spec orbp lmxb',sspec,is,orbp)
 
         i_copy_size=size(sspec(is)%orbp)
         call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
+
 
 
 C   --- File write ---
@@ -207,14 +207,11 @@ ctakao
       else
         print *,' Not write mtopara.* when there is PZ.'
       endif
-
       if (iprint() .gt. 30)  then
         seref = sham%seref
-
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .  seref)
       endif
-
       call fclose('vesintatm')
       end subroutine freeat
 
@@ -488,7 +485,6 @@ C     call pshpr(min(iprint(),40))
       print *,'end of atomsc xxxxx'
       print *,'vsum=',vsum,is
 
-
       if(ifives>0) then
       print *,'ifives=',ifives
       write(ifives,"(f23.15,i5,a)") vsum,is, ' !spatical integral of electrostatic potential' 
@@ -556,6 +552,10 @@ C --- Optimise smooth-Hankel basis ---
         if (.not. cmdopt('--noopt',7,0,strn)) then
           if (cmdopt('--norscnst',10,0,strn)) i = 0
           if (z .gt. 0) then
+cc     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
+c             write(6,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
+c             write(6,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
+cccccccccccccccccccccccccccc
             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,
      .      rofi,spid,itab,rtab,etab)
 C   ... Fit value and slope of local orbitals
@@ -564,6 +564,7 @@ C   ... Fit value and slope of local orbitals
           endif
         endif
       endif
+
 C --- Print charges within/outside MT sphere ---
       if (z .gt. 0) then
         qvt = 0d0
@@ -918,7 +919,6 @@ Changenglob      lrel = nglob('lrel')
 
         allocate(gp_rv(2*nr*4))
 
-
 C --- Parameters for minimisation ---
         drsm0 = 0.1d0
 c takao makes "safer setting"
@@ -976,7 +976,6 @@ C     ... Get center energy
      .      , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip , dphip 
      .      , e2 , qrmt )
 c            print *,' ttt center e=',irep,eh,e2
-
 C     ... Vary rsm
 c            drsm = drsm0
 c            call popta1 ( rsm + drsm , eh , l , z , rmt , nr , nrmt , rofi
@@ -996,17 +995,13 @@ c         if (eh+deh.gt.-0.01d0) deh=-eh-0.01d0
             call popta1 ( rsm , eh + deh , l , z , rmt , nr , nrmt , rofi 
      .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .      , dphip , e3 , qrmt )
-
             call popta1 ( rsm , eh - deh , l , z , rmt , nr , nrmt , rofi 
      .      , h_rv , v ( 1 , isp ) , a , b , enu , p , phi , dphi , phip 
      .      , dphip , e1 , qrmt )
-
             call popta2(l,eh,rsm,deh,e1,e2,e3,elim1,elim2,eaddx,enew,
      .      stife,jpr)
-
 c            radd = rnew-rsm
             radd=0d0
-
             eadd = enew-eh
 c            rsm = rnew
             eh = enew
@@ -1083,8 +1078,8 @@ C   ... End of iteration loop
           itab(l+1,isp) = 1
           rtab(l+1,isp) = rsm
           etab(l+1,isp) = eh
-
    10   continue
+
 
         if (ipr .ge. 20) write (stdo,320) sume1,sume2,sume2-sume1
   320   format(' eigenvalue sum:  exact',f10.5,'    opt basis',f10.5,

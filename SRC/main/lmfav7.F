@@ -126,37 +126,36 @@ C     recrd, nrecs are obtained.
       endif
 C --- Read recrd ---
       call rdctrl2(recrd,recln0,nrecs,prgnam)
-c     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-c     *v_sarry,sstrnmix,sstrnsymg) 
-
-      print *,'end of rdctrl2 in imfav7'
-c      call setcg(v_slat,8,12)
-c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-      call lattic()!v_slat,v_sctrl%nbas)
-      do ibas=1,v_sctrl%nbas
-        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
-c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
-      enddo
-C --- Generate symmetry operations; split species into classes  ---
-      strn = 'find'
-      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-      if (cmdopt('--nosym',7,0,outs)) strn = ' '
-      lc = 20
-c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
-      if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
-      print *,'goto mksym:',trim(strn)
-      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite)!,v_sarry)
-      print *,'end of mksym x'
-C ... Set default values for species data
-      print *,'goto defspc'
-      call defspc(v_sspec)
-      print *,'end of defspc'
-      if ( int(v_sctrl%quit) .eq. 1 ) then
-        call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
-        call rx0(prgnam)
-      endif
-      print *,'goto freeat'
+c$$$c     *slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
+c$$$c     *v_sarry,sstrnmix,sstrnsymg) 
+c$$$      print *,'end of rdctrl2 in imfav7'
+c$$$c      call setcg(v_slat,8,12)
+c$$$c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
+c$$$      call lattic()!v_slat,v_sctrl%nbas)
+c$$$      do ibas=1,v_sctrl%nbas
+c$$$        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
+c$$$c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
+c$$$c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
+c$$$      enddo
+c$$$C --- Generate symmetry operations; split species into classes  ---
+c$$$      strn = 'find'
+c$$$      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
+c$$$      if (cmdopt('--nosym',7,0,outs)) strn = ' '
+c$$$      lc = 20
+c$$$c      if ( .not. iand(1,int(v_sctrl%lqp)) .ne.0 ) lc = lc+2
+c$$$      if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
+c$$$      print *,'goto mksym:',trim(strn)
+c$$$      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite)!,v_sarry)
+c$$$      print *,'end of mksym x'
+c$$$C ... Set default values for species data
+c$$$      print *,'goto defspc'
+c$$$      call defspc(v_sspec)
+c$$$      print *,'end of defspc'
+c$$$      if ( int(v_sctrl%quit) .eq. 1 ) then
+c$$$        call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
+c$$$        call rx0(prgnam)
+c$$$      endif
+      print *,'goto freeat uuuuuuuuu'
       call freeat(v_sctrl,v_sspec,v_sham,v_spot)
       call rx0(prgnam)
       end

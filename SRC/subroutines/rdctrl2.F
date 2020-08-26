@@ -1,14 +1,12 @@
 !! note. all initial data is pushed into m_lmfinit
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
-c     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, 
-c     . v_sarry,sstrnmix,sstrnsymg)  !v_sstr,
-      use m_work,only: iv_a_oips,rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg,rv_a_ocy,rv_a_opos
-c      use m_gtv,only: gtv_setrcd
-      use m_globalvariables
-      use m_lmfinit !contains all initial data
+      use m_work,only: iv_a_oips,rv_a_opos
+      use m_work,only: rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg !CG coefficients
+      use m_globalvariables !global variables
+      use m_lmfinit !contains main initial data
       use m_struc_func
-      use m_toksw
-      use m_gtv
+      use m_toksw,only:tksw
+      use m_gtv 
 !! followings are old document ------
 !!
 c      use m_susite_func, only: susite
@@ -135,27 +133,14 @@ Cu   24 Aug 01 Extended to handle local orbitals.
 Cu   28 Apr 98 code for new category 'OPTICS'
 C ----------------------------------------------------------------------
       implicit none
+#if MPI | MPIK
+      include "mpif.h"
+#endif
       integer,intent(in):: recln,nrecs
       character*(recln),intent(in):: recrd(nrecs)
       character,intent(in)::  prgnam*(*)
-
       character strn*(recln)
-
-c$$$      type(s_bz):: v_sbz
-c$$$      type(s_ctrl):: v_sctrl
-c$$$      type(s_ham):: v_sham
-c$$$      type(s_pot):: v_spot
-c$$$      type(s_lat):: v_slat
-c$$$      type(s_mix):: v_smix
-c$$$      type(s_array):: v_sarry
-c$$$      type(s_spec),allocatable:: v_sspec(:)
-c$$$      type(s_site),allocatable:: v_ssite(:)
-c$$$      character*(*)::sstrnmix,sstrnsymg
-
       integer:: i_spec
-c      character(6):: vrsion(2)
-c      double precision vn(2),vn2(2)
-C ... Local parameters
       character fileid*64
       integer:: procid,nproc,master=0
       logical lgors,cmdopt,bittst,ltmp,ioorbp!,asa
@@ -171,12 +156,9 @@ c lncol,lham
       real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
      .pp(:,:,:,:),ves(:),zc(:)
       integer:: dvec1(3)=1, dvec2(3)=0
-
 C ... basis
       double precision orbp(n0,2,nkap0)
-      integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,
-     .oves,owk !osordn,
-
+      integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
       real(8):: pnux(20)
       integer:: nnn
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
@@ -207,7 +189,7 @@ c      type (s_mix) :: vamix
       integer::izerv(n0)=(/(0,i=1,n0)/)
       real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
 
-      real(8):: tbalph(5,5)
+c      real(8):: tbalph(5,5)
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
@@ -215,18 +197,19 @@ c      type (s_mix) :: vamix
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
 
-      data tbalph/.214286D0,.000001D0,.000001D0,.000001D0,.001D-3,
-     ..287234D0,.025822D0,.000001D0,.000001D0,.001D-3,
-     ..348485D0,.053030D0,.010714D0,.000001D0,.001D-3,
-     ..385057D0,.073209D0,.022481D0,.006069D0,.001D-3,
-     ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
+c$$$      data tbalph/.214286D0,.000001D0,.000001D0,.000001D0,.001D-3,
+c$$$     ..287234D0,.025822D0,.000001D0,.000001D0,.001D-3,
+c$$$     ..348485D0,.053030D0,.010714D0,.000001D0,.001D-3,
+c$$$     ..385057D0,.073209D0,.022481D0,.006069D0,.001D-3,
+c$$$     ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
 
       integer:: levelinit=0
       integer:: lx,lxx
-c      character(512)::sname
       character*256:: sss
       logical:: sexist
-c      integer:: ipos,ifi,fopn,ifile_handle,lxx
+      integer:: ibas,ierr,lc
+      logical:: ltet
+      
       procid = mpipid(1)
       nproc  = mpipid(0)
       scrwid = 80
@@ -235,7 +218,6 @@ c      integer:: ipos,ifi,fopn,ifile_handle,lxx
       stde = stdo
 !! --- Copy recrd to rcd in m_gtv 
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccxxxxxxxxxxxxxxxxxx
 !! --- Read input parameters from rcd in m_gtv ---
 c      call readctrl(prgnam) 
 C ... For MPI
@@ -1024,7 +1006,7 @@ C     endif
      .coreh(nspec),coreq(2,nspec),
      .colxbs(3,nspec),radxbs(nspec),
      .idxdn(n0,nspec),
-     .hcr(n0,nspec),alpha(n0,nspec),
+     .hcr(n0,nspec),!alpha(n0,nspec),
      .idu(4,nspec),uh(4,nspec),jh(4,nspec),
      .dv(nspec),grp(nspec),grp2(nspec),
      .mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
@@ -1062,9 +1044,7 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxxxx'
       idmod = NULLI
       ehvl = NULLR
       do  j = 1, nspec
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
-ccccccccccccccccccccccc
         colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
         rham(j) = NULLR; rsma(j) = 0d0; rsmfa(j) = 0d0
@@ -1165,7 +1145,6 @@ C       nlbji: ditto, but used to specify number of default values
           nlbji = NULLI
           nlbj = 0
         endif
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec ccc mxcst j-loop j nspec',j,nspec
 
 C   ... Basis set for lmf
@@ -1204,18 +1183,14 @@ C         Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
      .    eh2(1:nlbj,j),nmin=nn,cindx=jj,
      .    note='Basis kinetic energies, second group')
         endif
-cccccccccccccccccccccctakao
         if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
-
         nm='SPEC_ATOM_EHVL'; call gtv(trim(nm),tksw(prgnam,nm),
      .  ehvl(1:nlbj,j),cindx=jj,def_r8v=(/(-0.5d0,i=1,n0)/),
      .  nout=nout,nmin=nlbj, note='val-lap fit energies')
 
 C   ... Determine lmxa: floating orbitals have no lmxa
         nm='SPEC_ATOM_LMXA'; sw = tksw(prgnam,nm)
-ccccccccccccccccccc takao ccccc
         if(debug) print *,'nspec ddd000 mxcst j rmt io_help lmxa=',j,rmt(j),io_help,lmxa(j)
-cccccccccccccccccccccccccccccc
         if (rmt(j) == 0.and.io_help/=1) then !takao iohelp/=1 added.
           lmxa(j) = -1
         elseif (sw == 2) then   !lmxa not read: look for subsitute
@@ -1245,9 +1220,7 @@ C       nlaj = number of elements associated with lmxa
 C              0 => no elements
 C       nlaji: ditto, but used to specify number of default values
         nlaj = 1+lmxaj
-ccccccccccccccccccc takao ccccc
         if(debug) print *,'nspec ddd111 mxcst j-loop j nspec nlaj lmxaj=',j,nspec,nlaj,lmxaj
-cccccccccccccccccccccccccccccc
         nlaji = nlaj
         if (io_help .eq. 1) then
           nlaji = NULLI
@@ -1491,36 +1464,35 @@ C       'Hard Core' radius entering into strux
      .      'Hard sphere radii for structure constants, units of R')
             call dscal(nout,rmt(j),hcr(1,j),1)
           endif
-cccccccccccccccccccccctakao
           if(debug) print *,'nspec eee mxcst j-loop j nspec',j,nspec
 
-C       ASA tight-binding alpha parameters
-          call dpzero(xv,n0)
-          lp1 = nlbj
-          nm='SPEC_ATOM_ALPHA'; sw=tksw(prgnam,nm)
-C       Set default values; poke into xv
-          if (sw /= 2) then
-C       Help mode, default -> unknown
-            if (io_help == 1) then
-              xv(1) = NULLI
-            else
-C         Determine effective 1+lmxb: neglected orbitals => reduce lmxb
-              if (tksw(prgnam,'SPEC_ATOM_IDXDN') /= 2) then
-   75           if (lp1 .gt. 1 .and. idxdn(lp1,j) .ge. 4) then
-                  lp1 = lp1-1
-                  goto 75
-                endif
-              endif
-              call dcopy(5,tbalph(1,lp1),1,xv,1)
-            endif
-          endif
+c$$$C       ASA tight-binding alpha parameters
+c$$$          call dpzero(xv,n0)
+c$$$          lp1 = nlbj
+c$$$          nm='SPEC_ATOM_ALPHA'; sw=tksw(prgnam,nm)
+c$$$C       Set default values; poke into xv
+c$$$          if (sw /= 2) then
+c$$$C       Help mode, default -> unknown
+c$$$            if (io_help == 1) then
+c$$$              xv(1) = NULLI
+c$$$            else
+c$$$C         Determine effective 1+lmxb: neglected orbitals => reduce lmxb
+c$$$              if (tksw(prgnam,'SPEC_ATOM_IDXDN') /= 2) then
+c$$$   75           if (lp1 .gt. 1 .and. idxdn(lp1,j) .ge. 4) then
+c$$$                  lp1 = lp1-1
+c$$$                  goto 75
+c$$$                endif
+c$$$              endif
+c$$$              call dcopy(5,tbalph(1,lp1),1,xv,1)
+c$$$            endif
+c$$$          endif
 
-          i0 = lp1
-          if (lmxbj == NULLI) i0 = NULLI
-C       Copy all 5 screening parameters, to avoid division zero
-          call dcopy(5,tbalph(1,lp1),1,alpha(1,j),1)
-          call gtv(trim(nm),sw,alpha(1:lp1,j),cindx=jj,nmin=i0,
-     .    def_r8v=xv,note='Screening parameters for structure constants')
+c$$$          i0 = lp1
+c$$$          if (lmxbj == NULLI) i0 = NULLI
+c$$$C       Copy all 5 screening parameters, to avoid division zero
+c$$$          call dcopy(5,tbalph(1,lp1),1,alpha(1,j),1)
+c$$$          call gtv(trim(nm),sw,alpha(1:lp1,j),cindx=jj,nmin=i0,
+c$$$     .    def_r8v=xv,note='Screening parameters for structure constants')
 
           nm='SPEC_ATOM_IDMOD'; call gtv(trim(nm),tksw(prgnam,nm),
      .    idmod(1:nlaj,j),nmin=nlaji,def_i4v=(/(0,i=1,n0)/),
@@ -1566,8 +1538,7 @@ c          INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg
 c          call fclose(ifi)
 c          ipos = scan(sss,'.',back=.true.) !backward search of '.' from the last.
 c          sname= sss(ipos+1:256) !sname contains extention such as 'copt'.
-c          ifi=ifile_handle()
-c          open(ifi, file='tempyyy.'//trim(sname)) 
+c          open(newunit=ifi, file='tempyyy.'//trim(sname)) 
 c          close(ifi,status='delete')
           inquire(file='sigm.'//trim(sname),exist=sexist)
           if(sexist) then
@@ -2017,7 +1988,6 @@ c          call r8tos8(vmix%fn,alabl)
       endif
       if (io_help > 0) call cexit(0,1)
 cccc end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
       
 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
       lbas = 3 
@@ -2322,7 +2292,7 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
           v_sspec(j)%nr=nr(j)
-          v_sspec(j)%alpha=alpha(:,j)
+c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%coreq=coreq(:,j)
           v_sspec(j)%lxi=lxi(j)
           v_sspec(j)%nxi=nxi(j)
@@ -2574,5 +2544,145 @@ c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
             print *, 'mix: ', trim(sstrnmix)
             print *, 'symg:', trim(sstrnsymg)
             call rx0('done show')
-          endif
-          end subroutine rdctrl2
+           endif
+!!     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
+!!     . v_sarry,sstrnmix,sstrnsymg  
+#if MPI | MPIK
+      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+      print *,' mpipid=',procid
+      call MPI_BARRIER( MPI_COMM_WORLD, ierr )
+#endif
+      write(6,*) '--- End of readin ctrl file. ---'
+      print *,'end of rdctrl2'
+!!  -- End of readin ctrl file. -----------
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hereafter is originally in lmv7.F
+!!--- Lattice setup:deformation --- 
+      call lattic() !this gives v_slat
+      do ibas=1,v_sctrl%nbas
+        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
+      enddo
+!! --- We store all settings in module variables of m_rdctrl.
+      print *,'end of lattic'
+!!--- Generate symmetry operations; split species into classes  ---
+      strn = 'find'
+      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
+      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
+!! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
+      lc = 10
+      if (.not. prgnam == 'LMFGWD') lc = lc+2 ! inversion for lmf
+      if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
+         lc=20
+         if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
+      endif   
+c#ifndef LMFGWD 
+!! iand(2**n,i) means 2**n ditit of i.
+c      if( v_sctrl%noinv==0 ) lc = lc+2 ! inversion for lmf
+c#endif
+c      
+c$$$!! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
+c$$$      ipr10= iprint()>10 !this is only for master
+c$$$      if(len_trim(symgaf)>0) then
+c$$$        nbas = v_sctrl%nbas
+c$$$        if(ipr10) then
+c$$$          write(6,*)
+c$$$          write(6,"(a)")       ' AF: ======================================== '
+c$$$          write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
+c$$$          write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
+c$$$          write(6,"(a)")       ' AF:  Caution: I use v_sarry2=v_arry. Is this allowed in fortran?'
+c$$$          do j=1,nbas
+c$$$            write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+c$$$          enddo
+c$$$        endif
+c$$$c        v_sarry2=v_sarry
+c$$$        allocate(v_ssite2(nbas))
+c$$$        v_ssite2=v_ssite
+c$$$        inumaf=0
+c$$$        do j=1,nbas
+c$$$          do k=j,nbas
+c$$$            if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
+c$$$              v_sarry2%iv_a_oips(k) =v_sarry2%iv_a_oips(j)
+c$$$              inumaf=inumaf+1
+c$$$              exit
+c$$$            endif
+c$$$          enddo
+c$$$        enddo
+c$$$        v_sctrl2 = v_sctrl
+c$$$        v_sctrl2%nspec= v_sctrl%nspec - inumaf
+c$$$        v_slat2=v_slat
+c$$$        strn2=trim(strn)//' '//trim(symgaf)
+c$$$        if(procid==master) call pshpr(60)
+c$$$        call mksym(lc,slabl_,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
+c$$$        if(procid==master) call poppr()
+c$$$        if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
+c$$$        ngrpaf=v_slat2%nsgrp
+c$$$        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
+c$$$        call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
+c$$$        call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
+c$$$        if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
+c$$$        do ib=1,nbas
+c$$$          iclasstaf(ib)=v_ssite2(ib)%class
+c$$$        enddo
+c$$$!! We use  symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
+c$$$!!   It is passed through m_hamindex
+c$$$!!   The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
+c$$$!!
+c$$$c$$$        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+c$$$c$$$     .   , miat , tiat , invgx , shtvg )
+c$$$c$$$        do ig = 1,ngrpaf
+c$$$c$$$          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$c$$$          do i=1,3
+c$$$c$$$            write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c$$$c$$$          enddo
+c$$$c$$$        enddo
+c$$$          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
+c$$$          if(ipr10) write(6,"(a)")       
+c$$$       endif
+       
+!! ---------------------------
+      if(procid==master) call pshpr(60)
+      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite) !,v_sarry)
+      if(procid==master) call poppr
+c      print *,'eeeeeeeeeeeeeeevvvvvvvvvvvvvvvvv1111qqqqqqqqqqqq'
+c      call rx0(prgnam)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+c$$$!! test1 ------------------
+c$$$      ngrp=v_slat%nsgrp
+c$$$      nbas=v_sctrl%nbas
+c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
+c$$$      call dcopy ( ngrp * 9 , v_slat%rv_a_osymgr , 1 , symops , 1 )
+c$$$      call dcopy ( ngrp * 3 , v_slat%rv_a_oag , 1 , ag , 1 )
+c$$$      write(*,*) 'ngrp=',ngrp
+c$$$      do ib=1,nbas
+c$$$        iclasst(ib)=v_ssite(ib)%class
+c$$$      enddo
+c$$$      call mptauof ( symops , ngrp , v_slat%plat , nbas , v_slat%rv_a_opos , iclasst 
+c$$$     . , miat , tiat , invgx , shtvg )
+c$$$      do ig = 1,ngrp
+c$$$        write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$        do i=1,3
+c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
+c$$$        enddo
+c$$$      enddo
+c
+!!  Set default values for species data
+      call defspc(v_sspec)
+c#ifndef LMFGWD
+c      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+c!! iand(2**n,i) means 2**n ditit of i.
+c!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
+c      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
+c#endif
+c      if(.not.prgnam == 'LMFGWD') then
+      if(prgnam == 'LMF') then
+         ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+!! iand(2**n,i) means 2**n ditit of i.
+!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
+         call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
+      endif
+!!    show and quit
+      if( int(v_sctrl%quit) == 1 ) then
+        write(6,"(a)") prgnam//"Q=SHOW encountered"
+        call rx0(prgnam)
+      endif
+      end subroutine rdctrl2

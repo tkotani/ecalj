@@ -152,7 +152,7 @@ c      mxnbr=str_mxnbr !sstr%mxnbr
       allocate(lmxa(nclasp),z(nclasp))
       lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
       z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
-      print *,' lmxa=',lmxa
+      print *,' nclasp,lmxa=',nclasp,lmxa
       print *,' z   =',z
 
       nbasp = nbas !+ npadl + npadr

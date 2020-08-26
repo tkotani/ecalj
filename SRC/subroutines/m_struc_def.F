@@ -967,7 +967,7 @@ Cr    2    74  z      atomic number
       real(8)   ::   rcfa(2)
       real(8)   ::   p(20)
       real(8)   ::   q(20)
-      real(8)   ::   alpha(10)
+c      real(8)   ::   alpha(10)
       integer   ::   idmod(10)
       integer   ::   idxdn(30)
       real(8)   ::   hcr(10)
@@ -2162,9 +2162,9 @@ cki     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%q) ! q(20)
       call mpi_bcast(struc%q, i_data_size,MPI_REAL8
      , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%alpha) ! alpha(10)
-      call mpi_bcast(struc%alpha, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
+c      i_data_size=size(struc%alpha) ! alpha(10)
+c      call mpi_bcast(struc%alpha, i_data_size,MPI_REAL8
+c     , , master, MPI_COMM_WORLD,ierr)
       i_data_size=size(struc%idmod) ! idmod(10)
       call mpi_bcast(struc%idmod, i_data_size,MPI_INTEGER
      , , master, MPI_COMM_WORLD,ierr)
