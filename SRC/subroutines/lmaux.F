@@ -1,7 +1,8 @@
-      subroutine lmaux(prgnam,sctrl,sham,spot,slat,sspec,ssite, !sstr,
+      subroutine lmaux(prgnam,sham,spot,slat,sspec,ssite, !sstr,sctrl,
      .sarray,slabl,mode,wksize) !,sstrn,sbz
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
-      use m_lmfinit,only: irs11,str_mxnbr,str_rmax
+      use m_lmfinit,only: irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
+     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
@@ -75,7 +76,7 @@ C ... Passed parameters
       character*(*)  prgnam*8 !sstrn,
       character*8 slabl(*)
       type(s_array)::sarray
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_ham)::sham
       type(s_pot)::spot
       type(s_lat)::slat
@@ -128,15 +129,15 @@ c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       real(8),allocatable:: z(:),rmax(:)
 
       print *,' lmaux:'
-      nbas=sctrl%nbas
-      nclass=sctrl%nclass
-      nl=sctrl%nl
-      nspec=sctrl%nspec
-      nsp=sctrl%nspin
+      nbas=ctrl_nbas
+      nclass=ctrl_nclass
+      nl=ctrl_nl
+      nspec=ctrl_nspec
+      nsp=ctrl_nspin
 
-c      i_copy_size=size(sctrl%modep)
-c      call i8icopy(i_copy_size,sctrl%modep,1,modep,1)
-      modep = sctrl%modep
+c      i_copy_size=size(ctrl_modep)
+c      call i8icopy(i_copy_size,ctrl_modep,1,modep,1)
+      modep = ctrl_modep
       lpbc = 0
       nclasp=sarray%nclasp
       avw=slat%avw
@@ -165,7 +166,7 @@ c      mxnbr=str_mxnbr !sstr%mxnbr
 
 c$$$C ... Read from restart file
 c$$$      if (cmdopt('--rs=',5,0,outs)) then
-c$$$        irs ( 1 ) = irs11 !iand(7,int(sctrl%lrs))
+c$$$        irs ( 1 ) = irs11 !iand(7,int(ctrl_lrs))
 c$$$        if (irs(1) .gt. 0) then
 c$$$          ifi = fopna('rsta',-1,0)
 c$$$          call asars ( 0 , sctrl , ssite , sspec , slat , spot , sbz ,
@@ -261,11 +262,11 @@ c          enddo
           call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos ,
      .      slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) !sarray%
 C   ... Scale sphere radii satisfying constraints
-          i_copy_size=size(sctrl%omax1)
-          call dcopy(i_copy_size,sctrl%omax1,1,omax1,1)
-          i_copy_size=size(sctrl%omax2)
-          call dcopy(i_copy_size,sctrl%omax2,1,omax2,1)
-          wsrmax=sctrl%wsrmax
+          i_copy_size=size(ctrl_omax1)
+          call dcopy(i_copy_size,ctrl_omax1,1,omax1,1)
+          i_copy_size=size(ctrl_omax2)
+          call dcopy(i_copy_size,ctrl_omax2,1,omax2,1)
+          wsrmax=ctrl_wsrmax
           call sclwsr ( 20 , nbas , nbasp , nspec , alat , plat , rv_a_opos
      .      , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv )

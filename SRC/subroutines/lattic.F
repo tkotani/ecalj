@@ -1,6 +1,6 @@
       subroutine lattic() !slat,nbas)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: slat=>v_slat,v_sctrl
+      use m_lmfinit,only: slat=>v_slat,ctrl_nbas !,v_sctrl
       use m_work,only: rv_a_opos,rv_a_oqlv,rv_a_odlv
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
@@ -58,7 +58,7 @@ C ... Local parameters
 c      i_copy_size=size(slat%plat)
 c      call dcopy(i_copy_size,slat%plat,1,plat0,1)
       plat0=slat%plat
-      nbas=v_sctrl%nbas
+      nbas=ctrl_nbas
       nbaspp = nbas 
 
 C ... Apply specified linear transformation of lattice and basis vectors

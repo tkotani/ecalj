@@ -1,7 +1,7 @@
-      subroutine supot(mode,sctrl,slat,spot)
+      subroutine supot(mode,slat,spot) !,sctrl
       use m_work,only: rv_a_omad,rv_a_opos,rv_a_ogv,iv_a_okv,zv_a_osmrho,sv_a_oorhat,zv_a_osmpot
      & ,rv_a_odlv,rv_a_oqlv,zv_a_obgv,iv_a_oips0,rv_a_osymgr,rv_a_oag 
-      use m_lmfinit,only :lcd4
+      use m_lmfinit,only :lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
       use m_struc_def  
 C- Initialization for potential
 C ----------------------------------------------------------------------
@@ -24,7 +24,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer mode
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_pot)::spot
 C ... Local parameters
@@ -35,9 +35,9 @@ C ... Local parameters
       integer ::iwdummy
       real(8):: wdummy(3)=0d0
       call info0(50,1,0,' supot : potential setup ... ')
-      nbas=sctrl%nbas
-      nbasp=sctrl%nbasp
-      nsp=sctrl%nspin
+      nbas=ctrl_nbas
+      nbasp=ctrl_nbasp
+      nsp=ctrl_nspin
       alat=slat%alat
       vol=slat%vol
       awald=slat%awald
@@ -53,7 +53,7 @@ C --- Monopole Madelung matrix ---
      .      , nkd , rv_a_oqlv , nkq , rv_a_omad )
       endif
 C --- Setup for FT charge density, potential representation ---
-c      if ( iand(4,int(sctrl%lcd)) .ne. 0 ) then
+c      if ( iand(4,int(ctrl_lcd)) .ne. 0 ) then
       if (lcd4) then
         alat = slat%alat
         plat = slat%plat

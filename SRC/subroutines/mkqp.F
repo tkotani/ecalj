@@ -1,9 +1,9 @@
-      subroutine mkqp(sctrl,slat,gettet,lnoirr,lreduc,lgstar)
+      subroutine mkqp(slat,gettet,lnoirr,lreduc,lgstar)!sctrl,
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
      &     rv_a_osymgr
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet
 
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
@@ -33,7 +33,7 @@ Cio    Stored:    nkp nkabc oqp owtkp ostar ntet oidtet oipq
       implicit none
       logical gettet
       integer lgstar,lreduc,i_copy_size,i_data_size
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       
 c      integer :: sbz
 c      type(s_bz)::sbz
@@ -58,11 +58,11 @@ C ... Setup
       nsgrp=slat%nsgrp
       npgrp=slat%npgrp
       lpbc = 0
-      ltet = gettet .and. iand(2,int(sctrl%lmet)) .ne.0
+      ltet = gettet .and. iand(2,int(ctrl_lmet)) .ne.0
       if(ltet) then
-        sctrl%lmet = ior(int(sctrl%lmet),2)               !ltet=T --> lmet2=on (i think)
+        ctrl_lmet = ior(int(ctrl_lmet),2)               !ltet=T --> lmet2=on (i think)
       else
-        sctrl%lmet = sctrl%lmet - iand(int(sctrl%lmet),2) !ltet=F --> lmet2=off (i think)
+        ctrl_lmet = ctrl_lmet - iand(int(ctrl_lmet),2) !ltet=F --> lmet2=off (i think)
       endif  
 
       lipq = lreduc .eq. 1

@@ -1,10 +1,13 @@
-      subroutine lmfp(prgnam,sctrl,sham,spot,slat,smix, !sbz,
+      subroutine lmfp(prgnam,sham,spot,slat,smix, !sbz,sctrl,
      .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
       use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
       use m_struc_def
       use m_struc_func, only: mpibc1_s_lat
       use m_globalvariables
-      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w !,irs3,irs4,irs5,irs11,
+      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, !,irs3,irs4,irs5,irs11,
+     &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
+     &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_lrs,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     ctrl_lmet      
 C     - LM-FP self-consistency loop
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -91,7 +94,7 @@ c      type(s_sstrn)::sstrn
       character*(*)::sstrnmix !,sstrnjobid
 c      type(s_array)::sarray
 c      type(s_bz)::sbz
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_mix)::smix
       type(s_spec)::sspec(*)
@@ -176,7 +179,7 @@ c     integer:: odmatu , ovorbdmat , odmato
 
 c!! MPIK is only allowed now... Need to examine MPI again in future.
 c$$$#if MPI
-c$$$      nbas=sctrl%nbas
+c$$$      nbas=ctrl_nbas
 c$$$!!       mpipic() is defined in slatsm
 c$$$      if ( nbas < nproc ) then
 c$$$        if (procid == master ) then
@@ -197,21 +200,21 @@ c$$$#endif
       if (cmdopt('--etot',6,0,strn)) then
 !!  No forces or dynamics
         mdprm=0
-        sctrl%lfrce=0
-        sctrl%mdprm=0
+        ctrl_lfrce=0
+        ctrl_mdprm=0
         nowriteden=.true.
-        sctrl%maxit=1
+        ctrl_maxit=1
       endif
 !!  initialization -------------------
       call getpr(ipr)
-      nbas=sctrl%nbas
-      nl=sctrl%nl
-      nspec=sctrl%nspec
-      nsp=sctrl%nspin
+      nbas=ctrl_nbas
+      nl=ctrl_nl
+      nspec=ctrl_nspec
+      nsp=ctrl_nspin
       nat = globalvariables%nat
-      qbg = sctrl%zbak(1)
-      maxit = int(sctrl%maxit)
-      lrel = isw ( int(sctrl%lrel) .ne.0 )
+      qbg = ctrl_zbak(1)
+      maxit = int(ctrl_maxit)
+      lrel = isw ( int(ctrl_lrel) .ne.0 )
       if (lhf) maxit = 1
       nbaspp = nbas      
       stdo   = lgunit(1)
@@ -223,11 +226,11 @@ c      irs( 3 ) = irs3
 c      irs( 4 ) = irs4
 c      irs( 5 ) = irs5
 !! ... --rs=3 => always read from atom file
-      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) irs( 1 ) = 0
+      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs( 1 ) = 0
 C     ... Printout properties of species
       if (ipr .ge. 30) call praugm(sspec,0)
 C     ... Setup for no screening transformation
-      if ( iand(1,int(sctrl%lbas)) .ne. 0 ) then
+      if ( iand(1,int(ctrl_lbas)) .ne. 0 ) then
 C     Shorten site positions
         plat=slat%plat
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
@@ -257,7 +260,7 @@ C     Shorten site positions
       dmxp ( 7 ) = int(smix%mmix)
       call parms0(0,0,0d0,0)
 C     ... Allocate memory for forces
-      lfrce = int(sctrl%lfrce)
+      lfrce = int(ctrl_lfrce)
       if (lfrce .ne. 0) then
         numq = 1
         if ( int(bz_lmet) .eq. 4 ) numq = 3
@@ -271,15 +274,15 @@ C     Initial shear was already folded into plat
       gam(4) = 1
       slat%gam=gam
       slat%ldist=0
-      nitrlx=sctrl%nitmv
-      mdprm=sctrl%mdprm
+      nitrlx=ctrl_nitmv
+      mdprm=ctrl_mdprm
       lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
       if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
         call rx('lmf not set up for MD yet')
       endif
       if (nitrlx .gt. 0) then
-        sctrl%mdprm=mdprm
+        ctrl_mdprm=mdprm
         allocate(indrx_iv(6*nbas))
 C     Next lines in case lattice relaxation
         if (lshr) then
@@ -287,7 +290,7 @@ C     Next lines in case lattice relaxation
      .           'use of SHEAR= incompatible w/ lattice relaxation')
           plat0=slat%plat0
         endif
-        call rlxstp ( sctrl , ssite , natrlx , nvrelx , indrx_iv , 
+        call rlxstp (  ssite , natrlx , nvrelx , indrx_iv , !sctrl ,
      .        xyzfrz , pdim )
         icom = 0
         if (nvrelx .ne. 0) then
@@ -319,22 +322,22 @@ C     ... Re-entry for shear distortion
     4 continue
 C     ... Potential setup
       call info0(50,0,0,' lmfp : potential setup ... ')
-      call supot(0,sctrl,slat,spot)
+      call supot(0,slat,spot) !,sctrl
 C     ... Setup of hamiltonian, augmentation
       if (ipr .ge. 50) then
         call info0(50,0,0,' lmfp : basis setup ... ')
       else
         call info0(30,0,0,' ')
       endif
-      call subasi(sctrl,sspec,sham)
-      call suham(sctrl,slat,sspec,ssite,sham,spot)!,sbz) !sstrn removed june2015 ,sarray 2016
+c      call subasi(sspec,sham) !sctrl,
+      call suham(slat,sspec,ssite,sham,spot)!,sbz)sctrl, !sstrn removed june2015 ,sarray 2016
 C     ... Quit if --quit=ham given
-      if ( int(sctrl%quit) .eq. 8 ) call rx0('quit = ham')
+      if ( int(ctrl_quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
       ndham=sham%ndham
 
 C     Whether forces, and how to calculate non Helman-Feynman corr.
-      lfrce = int(sctrl%lfrce)
+      lfrce = int(ctrl_lfrce)
 C     Maximum number of eigenvalues
       nevmx = int(bz_nevmx)
 C     Whether to evaluate output density and/or KS energy
@@ -392,7 +395,7 @@ C     need group info to symmetrize site density matrix
         if (umix .eq. 0) umix = 1
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
-        if ( int(sctrl%quit) .eq. 16 ) call rx0('quit = dmat')
+        if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
 C     end LDA+U  initialization section
 !! === Re-entry point for a new iteration ===
@@ -421,7 +424,7 @@ C     3              read nothing (data already input)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
         bz_wx = bz_w
-        k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
+        k = iors ( 1 ,  ssite , sspec , slat , spot ,  fileid !sbz ,sctrl ,
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi )
         bz_w = bz_wx
@@ -441,18 +444,18 @@ C     3              read nothing (data already input)
         endif
         if (mod(irs(1),8) .ge. 4) then
 C     If no force switch set, use default
-          k = int(sctrl%lfrce)
-          if (k .eq. 0 ) sctrl%lfrce=1
-          call smshft(ssite , sspec , slat , sctrl , sham , sv_a_oorhat
+          k = int(ctrl_lfrce)
+          if (k .eq. 0 ) ctrl_lfrce=1
+          call smshft(ssite , sspec , slat  , sham , sv_a_oorhat !, sctrl
      .           , zv_a_osmrho )
 C     Restore force switch
-          if ( k .eq. 0 ) sctrl%lfrce=k
+          if ( k .eq. 0 ) ctrl_lfrce=k
         endif
         if (mod(irs(1),16) .ge. 8) then
           irs(1) = irs(1)-8
-          i = int(sctrl%lrs)
+          i = int(ctrl_lrs)
           i = i-256
-          sctrl%lrs=i
+          ctrl_lrs=i
         endif
       endif
 
@@ -501,7 +504,7 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
       llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec , slat , sctrl , sham , spot ,  sstrnmix , ndham , !sbz ,
+     .     , sspec , slat ,  sham , spot ,  sstrnmix , ndham , !sbz ,sctrl ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 
@@ -519,7 +522,7 @@ C     --- Write smoothed charge density for contour plotting ---
 !! --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 
 C     --- Write restart file (skip if --quit=band) ---
-        if ( int(sctrl%quit) .ne. 4 ) then
+        if ( int(ctrl_quit) .ne. 4 ) then
 
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
           if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
@@ -542,7 +545,7 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
             endif
 c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
+            k = iors ( 1  , ssite , sspec , slat , spot ,  fileid !sbz ,, sctrl
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
@@ -564,8 +567,8 @@ C     ... Subtract reference energy
         if (etot(2) .ne. 0) etot(2) = etot(2) - seref
         amom = sham%eterms(15)
 C     The desired tolerances in q,e
-        qtol = sctrl%tol(1)
-        etol = sctrl%tol(3)
+        qtol = ctrl_tol(1)
+        etol = ctrl_tol(3)
 #if MPI|MPIK
         flush(6)
         call mpi_barrier(MPI_COMM_WORLD,ierr)
@@ -581,7 +584,7 @@ C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
 C     kino         :1 if not self-consistent, but encountered max. no. iter.
 C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 C     kino         :3 otherwise
-          call nwit ( int(sctrl%nvario) , iter , maxit , lhf.or.irs(1)==0.and.iter==1,
+          call nwit ( int(ctrl_nvario) , iter , maxit , lhf.or.irs(1)==0.and.iter==1,
      &         leks+i , etol , qtol , qdiff , 'cxhi' , amom , etot , lsc )
 c          print *,'lmfp xxxxxxxxx',lhf,irs(1),iter,  lhf.or.irs (1).eq.0.and.iter.eq.1
 c          print *,'lmfp xxxxxxxxx lsc=',lsc,maxit,leks+1,etol,qtol,qdiff
@@ -593,7 +596,7 @@ c          print *,'lmfp xxxxxxxxx lsc=',lsc,maxit,leks+1,etol,qtol,qdiff
           if (iter .ge. maxit) lsc = 1
           if (iter .lt. maxit) lsc = 3
         endif
-        if ( int(sctrl%quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' )
+        if ( int(ctrl_quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' )
         iter = iter+1
 C     Continue iterations toward self-consistency
         if (lsc .gt. 2) then
@@ -618,7 +621,7 @@ C     --- Molecular statics ---
           do i_spackv=1,nbas
             rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
           enddo
-          mdprm=sctrl%mdprm
+          mdprm=ctrl_mdprm
           if (lshr) then
             call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
      .              pletot , dist )
@@ -626,7 +629,7 @@ C     --- Molecular statics ---
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
               goto 98
             else
-              call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv 
+              call relax ( prgnam ,  ssite , sspec , itrlx , indrx_iv !sctrl ,
      .                 , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
      .                 , icom )
               call dpzero(dist,6)
@@ -634,7 +637,7 @@ C     --- Molecular statics ---
               dist(7) = 1
             endif
           else
-            call relax ( prgnam , sctrl , ssite , sspec , itrlx , indrx_iv
+            call relax ( prgnam ,  ssite , sspec , itrlx , indrx_iv !sctrl ,
      .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
      .              , icom )
           endif
@@ -675,7 +678,7 @@ C     repack updated positions in site structure
 C     ... Exit when relaxation converged or maximum number of iterations
           if (icom .eq. 1) then
             if (procid .eq. master) then
-              k = int(sctrl%nvario)
+              k = int(ctrl_nvario)
               flg = 'C67'
               call nwitsv(1+2,k,flg,nsp,amom,etot)
             endif
@@ -721,18 +724,18 @@ C     Repack updated positions in site structure
 
 !! New density after atom shifts
 !! If explicitly told to read from atom files after atom movmment
-          if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
+          if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
             irs(1) = 0
 !! Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
-            call smshft(ssite,sspec,slat,sctrl,sham,sv_a_oorhat,zv_a_osmrho)
+            call smshft(ssite,sspec,slat,sham,sv_a_oorhat,zv_a_osmrho)!sctrl,
           endif
 !! Write restart file (to include new positions)
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
+            k = iors ( 1 , ssite , sspec , slat , spot ,  fileid !sbz ,, sctrl 
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
@@ -844,22 +847,22 @@ c         endif
       allocate(shr_rv(1))
       plat=slat%plat
 !! Remake qp
-      ltmp = iand(1,int(sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(sctrl%ldos)) .ne.0
-      call mkqp(sctrl,slat,ltmp,.false.,1,-2) !sbz,
+      ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
+      call mkqp(slat,ltmp,.false.,1,-2) !sbz,sctrl,
 !! Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-        k = iors ( 1 , sctrl , ssite , sspec , slat , spot ,  fileid !sbz ,
+        k = iors ( 1  , ssite , sspec , slat , spot ,  fileid !sbz ,, sctrl
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
         call fclose(ifi)
       endif
 !! Decide on what density to use
-      if ( iand(3,int(sctrl%lrs)) .eq. 3 ) then
+      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
         irs(1) = 0
       else !  Else, use file density
-        irs ( 1 ) = iand(7,int(sctrl%lrs))
+        irs ( 1 ) = iand(7,int(ctrl_lrs))
       endif
       goto 4
       if (allocated(shr_rv)) deallocate(shr_rv)

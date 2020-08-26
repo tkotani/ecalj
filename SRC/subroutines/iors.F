@@ -1,6 +1,6 @@
-      integer function iors(mode,sctrl,ssite,sspec,slat,spot,!sbz,
+      integer function iors(mode,ssite,sspec,slat,spot,!sbz,,sctrl
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def
+      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
       use m_struc_def 
       use m_struc_func
       use m_globalvariables
@@ -125,7 +125,7 @@ C ... Passed parameters
       integer:: mode , nbas , nat , nspec , nit , ifi , n0
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       parameter (n0=10)
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
       type(s_lat)::slat
@@ -885,7 +885,7 @@ C     ... store data in strucs
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
 
-        if ( lshear .and. iand(256,int(sctrl%lrs)) .ne.0 ) then
+        if ( lshear .and. iand(256,int(ctrl_lrs)) .ne.0 ) then
           i_copy_size=size(slat%dist)
           call dcopy(i_copy_size,slat%dist,1,wk,1)
 C         call prmx('wk',wk,3,3,3)
@@ -1047,7 +1047,7 @@ c   ... Copy or rescale cores, in case foca was switched on or off
         do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
         enddo
-        call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
+c        call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
         call mpibc1_s_lat(slat,mlog,'iors','slat')
         call mpibc1_s_pot(spot,mlog,'iors','spot')
 c        call mpibc1_s_bz(sbz,mlog,'iors','sbz')

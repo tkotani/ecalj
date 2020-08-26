@@ -1,7 +1,8 @@
-      subroutine relax(prgnam,sctrl,ssite,sspec,it,indrlx,natrlx,nvar,f,
+      subroutine relax(prgnam,ssite,sspec,it,indrlx,natrlx,nvar,f, !,sctrl
      .p,w,nelts,delta,bas,icom)
 
       use m_struc_def  !Cgetarg
+      use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
 
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
@@ -53,7 +54,7 @@ C Passed Parameters
       integer indrlx(2,natrlx)
       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 
      ., bas(3,*)
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -78,12 +79,13 @@ C Local Variables
 
 C --- Setup ---
 
-      nbas=sctrl%nbas
-      nit=sctrl%nitmv
-c       i_copy_size=size(sctrl%mdprm)
-c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
-      call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1)
-c       ltb=sctrl%ltb
+      nbas=ctrl_nbas
+      nit=ctrl_nitmv
+      mdprm=ctrl_mdprm
+c       i_copy_size=size(ctrl_mdprm)
+c       call dcopy(i_copy_size,ctrl_mdprm,1,mdprm,1)
+c      call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)
+c       ltb=ctrl_ltb
 
       nkill  = nint(mdprm(6))
       lrlx   = nint(mdprm(1))

@@ -1,5 +1,8 @@
-      subroutine rlxstp(sctrl,ssite,natrlx,nvar,indrlx,xyzfrz,pdim)
-      use m_struc_def  !Cgetarg
+      subroutine rlxstp(ssite,natrlx,nvar,indrlx,xyzfrz,pdim)!sctrl,
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce
+c       ltb=ctrl_ltb
+
 C- Set up variables for relaxation
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -27,7 +30,7 @@ C ----------------------------------------------------------------------
 C Passed Parameters
       logical xyzfrz(3)
       integer indrlx(2,1),nvar,natrlx,nitrlx,pdim
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
 
 C Local variables
@@ -41,19 +44,19 @@ C     data autime/0.048377d0/
 C     data autmp/0.6333328d-5/
 
 
-      nbas=sctrl%nbas
-      nitrlx=sctrl%nitmv
-c       i_copy_size=size(sctrl%mdprm)
-c       call dcopy(i_copy_size,sctrl%mdprm,1,mdprm,1)
-c       i_copy_size=size(sctrl%defm)
-c       call dcopy(i_copy_size,sctrl%defm,1,defm,1)
-      call dcopy(size(sctrl%mdprm),sctrl%mdprm,1,mdprm,1)
-      call dcopy(size(sctrl%defm),sctrl%defm,1,defm,1)
-c       ltb=sctrl%ltb
+      nbas=ctrl_nbas
+      nitrlx=ctrl_nitmv
+c       i_copy_size=size(ctrl_mdprm)
+c       call dcopy(i_copy_size,ctrl_mdprm,1,mdprm,1)
+c       i_copy_size=size(ctrl_defm)
+c       call dcopy(i_copy_size,ctrl_defm,1,defm,1)
+      call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)
+      call dcopy(size(ctrl_defm),ctrl_defm,1,defm,1)
+c       ltb=ctrl_ltb
 
       nvar = 0
-c       force = bittst ( ltb , 16 ) .or. int(sctrl%lfrce) .gt. 0
-      force = int(sctrl%lfrce) .gt. 0
+c       force = bittst ( ltb , 16 ) .or. int(ctrl_lfrce) .gt. 0
+      force = int(ctrl_lfrce) .gt. 0
 
       if (.not. force .or. nint(mdprm(1)) .eq. 0) return
       md = nint(mdprm(1)) .le. 3

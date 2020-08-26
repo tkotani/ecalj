@@ -1,8 +1,9 @@
-      subroutine mksym(mode,slabl,ssymgr,sctrl,slat,ssite)
+      subroutine mksym(mode,slabl,ssymgr,slat,ssite) !,sctrl
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
-     &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos 
+     &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -71,7 +72,7 @@ C ----------------------------------------------------------------------
       implicit none
       character*8 slabl(1),ssymgr*(*)
       integer mode,nsgrp,npgrp
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_site)::ssite(*)
 c      type(s_array)::sarray
@@ -89,9 +90,9 @@ c      type(s_array)::sarray
       character*120 gens,strn*72
       double precision gen(9,ngnmx),plat(3,3),dist(3,3),qlat(3,3),xx,fptol
       integer:: i_copy_size,i_data_size,i_spackv
-      nbas =sctrl%nbas
-      nspec=sctrl%nspec
-      nsite=sctrl%nsite
+      nbas =ctrl_nbas
+      nspec=ctrl_nspec
+      nsite=ctrl_nsite
       plat =slat%plat
       ldist=slat%ldist
       i_copy_size=size(slat%dist)
@@ -246,7 +247,7 @@ c         print *,'goto pvsym2'
         if (allocated(rv_a_oclabl)) deallocate(rv_a_oclabl)
       endif
 C --- Cleanup: poke class and symmetry info into structures ---
-      sctrl%nclass=nclass
+      ctrl_nclass=nclass
 c      sarray%nclasp=nclasp
   100 continue
       slat%npgrp=npgrp

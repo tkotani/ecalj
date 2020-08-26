@@ -143,10 +143,10 @@ C ----------------------------------------------------------------------
       integer:: i_spec
       character fileid*64
       integer:: procid,nproc,master=0
-      logical lgors,cmdopt,bittst,ltmp,ioorbp!,asa
+      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas,noinv, !noinv was iand(lqp,1)
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
 c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
@@ -479,18 +479,18 @@ C     --- Options ---
      .     'Controls how band CG is determined in floating Pnu.'//
      .     '%N%5f0 Band CG found by traditional method'//
      .     '%N%5f1 Band CG found from true energy moment of density')
-      nm='OPTIONS_SCR'; call gtv(trim(nm),tksw(prgnam,nm),lscr,
-     .     def_i4=0,note='Use scr to accelerate convergence:'//
-     .     '%N%3f0 do nothing'//
-     .     '%N%3f1 Make ASA static response function (see documentation)'//
-     .     '%N%3f2 Use response to screen output q and ves'//
-     .     '%N%3f4 Use model response to screen output q'//
-     .     '%N%3f6 Use response to screen output ves only'//
-     .     '%N%5fAdd 1 to combine mode 1 with another mode'//
-     .     '%N%5fAdd 10*k to compute intra-site contribution to vbare'//
-     .     ' each kth iteration'//
-     .     '%N%5fAdd 100*k to compute response function'//
-     .     ' on every kth iteration')
+c$$$      nm='OPTIONS_SCR'; call gtv(trim(nm),tksw(prgnam,nm),lscr,
+c$$$     .     def_i4=0,note='Use scr to accelerate convergence:'//
+c$$$     .     '%N%3f0 do nothing'//
+c$$$     .     '%N%3f1 Make ASA static response function (see documentation)'//
+c$$$     .     '%N%3f2 Use response to screen output q and ves'//
+c$$$     .     '%N%3f4 Use model response to screen output q'//
+c$$$     .     '%N%3f6 Use response to screen output ves only'//
+c$$$     .     '%N%5fAdd 1 to combine mode 1 with another mode'//
+c$$$     .     '%N%5fAdd 10*k to compute intra-site contribution to vbare'//
+c$$$     .     ' each kth iteration'//
+c$$$     .     '%N%5fAdd 100*k to compute response function'//
+c$$$     .     ' on every kth iteration')
    69 continue                  ! end of OPTIONS
 
 C     --- Hamiltonian parameters ---
@@ -1447,7 +1447,7 @@ c     print *, alabl,' xxx ', i,ips(j)
      .     def_i4=0,note='Find at most nevmx eigenvectors'//
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
-      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_noinv,
+      nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
      .     def_lg=F,note=
      .     'Suppress automatic inclusion of inversion symmetry for BZ')
       nm='BZ_FSMOM'; call gtv(trim(nm),tksw(prgnam,nm),bz_fsmom,
@@ -1613,7 +1613,7 @@ c$$$      v_sbz%nkabc = bz_nabc
 c$$$      v_sbz%range=bz_range
 c$$$      v_sbz%w=bz_w
 !! Allocate and copy input to sctrl ---
-      v_sctrl%size=uctrl_size()
+c      ctrl_size=uctrl_size()
 !! lbas: 1 Hamiltonian has no screening transformation
 !!           2 Hamiltonian is nfp style
 !!          16 freeze phi,phidot for all species
@@ -1621,11 +1621,11 @@ c$$$      v_sbz%w=bz_w
 !! frzwf: freeze basis or not. j= 1+2+16 if frzwf=T
       lbas = 3 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
       j = lbas + 16*isw(frzwf)
-      v_sctrl%lbas=j
-      v_sctrl%defm=lat_defm(:)
-      v_sctrl%ldos=ctrl_ldos
-      v_sctrl%lfp=lfp
-      v_sctrl%lfrce=ctrl_lfrce
+      ctrl_lbas=j
+      ctrl_defm=lat_defm(:)
+c      ctrl_ldos=ctrl_ldos
+      ctrl_lfp=lfp
+c      ctrl%lfrce=ctrl_lfrce
 !! takao. we may need to remove lmet4 or lmet8... but a little complicated...
 !! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
 !!     ctrl_lmet    1 metal  2 tetrahedron
@@ -1652,8 +1652,8 @@ c     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
 c takao lncol is used only in limited routines.
 c One of lncol4,lncol32, or lncor64 is true, others are false.
 c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
-      v_sctrl%lmet=lmet
-c      v_sctrl%lncol=lncol
+      ctrl_lmet=lmet
+c      ctrl_lncol=lncol
 C     lrs  switches concerning restart mode.
       irs=0
       irs(1) = 1
@@ -1692,7 +1692,6 @@ C     lrs  switches concerning restart mode.
 
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
-      noinv = isw (ctrl_noinv)  ! T->1 F->0
 c      lpq2 = isw (ctrl_lqp2)  ! T->1 F->0
 C     lscr 0 do nothing
 C          1 Make P0(0)
@@ -1707,45 +1706,45 @@ C            Add 1 to combine mode 1 with another mode
 C            Add 10*k to compute intra-site contribution to
 C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
-      v_sctrl%noinv=noinv
-      v_sctrl%lrel=lrel
-      v_sctrl%lrs=lrs
-      v_sctrl%lves=lves !!!  lves    1 take ves as input
+      ctrl_noinv = isw(noinv)  ! T->1 F->0
+      ctrl_lrel=lrel
+      ctrl_lrs=lrs
+      ctrl_lves=lves !!!  lves    1 take ves as input
 !!  lxcf   parameter defining XC functional
 !!      1s digit:
 !!      1 for Ceperly-Alder (VWN)
 !!      2 for Barth-Hedin (ASW fit)
 !!      103 for PBE-GGA
-      v_sctrl%lxcf= ham_lxcf
-      v_sctrl%maxit=iter_maxit
-      v_sctrl%mdprm=mdprm
-      v_sctrl%modep=2
-      v_sctrl%nbas=nbas
+      ctrl_lxcf= ham_lxcf
+      ctrl_maxit=iter_maxit
+      ctrl_mdprm=mdprm
+      ctrl_modep=2
+      ctrl_nbas=nbas
 
       nl = max(lmxbx,lmxax)+1
+      
+      ctrl_nbasp=nbasp
+      ctrl_nesabc=nesabc
+      ctrl_nitmv=nitmv
+      ctrl_nl=nl
+      ctrl_nsite=nsite
+      ctrl_nspec=nspec
 
-      v_sctrl%nbasp=nbasp
-      v_sctrl%nesabc=nesabc
-      v_sctrl%nitmv=nitmv
-      v_sctrl%nl=nl
-      v_sctrl%nsite=nsite
-      v_sctrl%nspec=nspec
-
-      v_sctrl%nspin=nsp
-      v_sctrl%nvario=nvario
-      v_sctrl%omax1 = omax1
-      v_sctrl%omax2 = omax2
-      v_sctrl%quit  = quit
-      v_sctrl%rmaxes= rmaxes
-      v_sctrl%rmines= rmines
-      v_sctrl%sclwsr= sclwsr
-      v_sctrl%sdmod = sdmod
-      v_sctrl%sdprm = sdprm
-      v_sctrl%smalit= smalit
-      v_sctrl%tol   = ctrl_tol
-      v_sctrl%wsrmax= wsrmax
-      v_sctrl%zbak  = zbak
-      v_sctrl%pfloat= lpfloat
+      ctrl_nspin=nsp
+      ctrl_nvario=nvario
+      ctrl_omax1 = omax1
+      ctrl_omax2 = omax2
+      ctrl_quit  = quit
+      ctrl_rmaxes= rmaxes
+      ctrl_rmines= rmines
+      ctrl_sclwsr= sclwsr
+      ctrl_sdmod = sdmod
+      ctrl_sdprm = sdprm
+      ctrl_smalit= smalit
+      ctrl_tol   = ctrl_tol
+      ctrl_wsrmax= wsrmax
+      ctrl_zbak  = zbak
+      ctrl_pfloat= lpfloat
 
       v_slat%size=ulat_size()
       if (dalat == NULLR) dalat=0
@@ -1802,7 +1801,7 @@ c      i_copy_size=size(v_sham%kmto)
 c      call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
 
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-c      v_sham%lncol=(int(v_sctrl%lncol))
+c      v_sham%lncol=(int(ctrl_lncol))
 
 C     Mop up integer parts of sigp
 c      sigp(1) = sigp_mode
@@ -1952,7 +1951,7 @@ c          v_sspec(j)%alpha=alpha(:,j)
      .         cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
              symg = 'e'
              lstsym = 2         !lstsym=2: turn off symops
-             noinv=1
+             ctrl_noinv=1
           endif
           sstrnsymg=trim(symg)
 !!
@@ -1963,10 +1962,9 @@ c          v_sspec(j)%alpha=alpha(:,j)
 !!  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 !! Dirac equation requires spin polarization
-        if( nsp==1 .and. int(v_sctrl%lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
+        if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
-        if(lso.ne. 0) noinv=1   !lqp = lqp-bitand(lqp,1)+1
-        v_sctrl%noinv=noinv
+        if(lso.ne. 0) ctrl_noinv=1   !lqp = lqp-bitand(lqp,1)+1
 !     ! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 C     No screening => no downfolding; j=3
         j=3
@@ -1982,7 +1980,7 @@ C     nfp-style basis:
           globalvariables%nl =   dble(nl);     globalvariables%l_nl = globalvariables%l_nl +1
           globalvariables%lrel = dble(avw);    globalvariables%l_avw = globalvariables%l_avw +1
           globalvariables%lrel = dble(lrel);   globalvariables%l_lrel = globalvariables%l_lrel +1
-          lxcf = int(v_sctrl%lxcf)
+          lxcf = int(ctrl_lxcf)
           globalvariables%lxcf = dble(lxcf); globalvariables%l_lxcf = globalvariables%l_lxcf +1
           globalvariables%stdo = dble(stdo); globalvariables%l_stdo = globalvariables%l_stdo +1
           globalvariables%stdl = dble(stdl); globalvariables%l_stdl = globalvariables%l_stdl +1
@@ -2003,7 +2001,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
           call mpibc1(nat,1,2,0,'rdctrl','nat')
           globalvariables%nat = dble(nat); globalvariables%l_nat = globalvariables%l_nat +1; xx(1) = dble(nat)
 C ... Set modep
-          v_sctrl%modep=2
+          ctrl_modep=2
 C ... Count LDA+U blocks (printout only)
           allocate(wowk(nbas))
           wowk=0
@@ -2022,8 +2020,8 @@ C ... Count LDA+U blocks (printout only)
           if (iprint() .ge. 20 .and. procid .eq. master) then
             do  90  k = 1, 2
               strn = '  '//prgnam
-              lxcf=v_sctrl%lxcf
-c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
+              lxcf=ctrl_lxcf
+c              lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
               lfrzw = isw(frzwf)
               call awrit8(' special:%10p'//
      .         '%?;n; forces,;;'//
@@ -2038,7 +2036,8 @@ c              lfrzw = isw ( iand(16,int(v_sctrl%lbas)) .ne.0 )
      .         '%?;n; APW basis,;;'//
      .         '%?;n; oveps,;;'//
      .         '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
-     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
+c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
+     .         0,0,pwmode,isw(oveps.ne.0))
               if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
               if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
                 if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
@@ -2111,7 +2110,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hereafter is originally 
 !     !--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
       call lattic() !this gives v_slat
-      do ibas=1,v_sctrl%nbas
+      do ibas=1,ctrl_nbas
         v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
 !! --- We store all settings in module variables of m_rdctrl.
@@ -2125,17 +2124,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hereafter is originally 
       if (.not. prgnam == 'LMFGWD') lc = lc+2 ! inversion for lmf
       if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
          lc=20
-         if ( .not. iand(1,int(v_sctrl%noinv)) .ne.0 ) lc = lc+2
+         if ( .not. iand(1,int(ctrl_noinv)) .ne.0 ) lc = lc+2
       endif   
 c#ifndef LMFGWD 
 !! iand(2**n,i) means 2**n ditit of i.
-c      if( v_sctrl%noinv==0 ) lc = lc+2 ! inversion for lmf
+c      if( ctrl_noinv==0 ) lc = lc+2 ! inversion for lmf
 c#endif
 c      
 c$$$!! Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
 c$$$      ipr10= iprint()>10 !this is only for master
 c$$$      if(len_trim(symgaf)>0) then
-c$$$        nbas = v_sctrl%nbas
+c$$$        nbas = ctrl_nbas
 c$$$        if(ipr10) then
 c$$$          write(6,*)
 c$$$          write(6,"(a)")       ' AF: ======================================== '
@@ -2160,7 +2159,7 @@ c$$$            endif
 c$$$          enddo
 c$$$        enddo
 c$$$        v_sctrl2 = v_sctrl
-c$$$        v_sctrl2%nspec= v_sctrl%nspec - inumaf
+c$$$        v_sctrl2%nspec= ctrl_nspec - inumaf
 c$$$        v_slat2=v_slat
 c$$$        strn2=trim(strn)//' '//trim(symgaf)
 c$$$        if(procid==master) call pshpr(60)
@@ -2193,14 +2192,14 @@ c$$$       endif
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite) !,v_sarry)
+      call mksym(lc,slabl_,strn,v_slat,v_ssite) !,v_sarry)v_sctrl,
       if(procid==master) call poppr
 c      print *,'eeeeeeeeeeeeeeevvvvvvvvvvvvvvvvv1111qqqqqqqqqqqq'
 c      call rx0(prgnam)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c$$$!! test1 ------------------
 c$$$      ngrp=v_slat%nsgrp
-c$$$      nbas=v_sctrl%nbas
+c$$$      nbas=ctrl_nbas
 c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
 c$$$      call dcopy ( ngrp * 9 , v_slat%rv_a_osymgr , 1 , symops , 1 )
 c$$$      call dcopy ( ngrp * 3 , v_slat%rv_a_oag , 1 , ag , 1 )
@@ -2220,20 +2219,20 @@ c
 !!  Set default values for species data
       call defspc(v_sspec)
 c#ifndef LMFGWD
-c      ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+c      ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
 c!! iand(2**n,i) means 2**n ditit of i.
 c!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
 c      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
 c#endif
 c      if(.not.prgnam == 'LMFGWD') then
       if(prgnam == 'LMF') then
-         ltet = iand(1,int(v_sctrl%lmet)) .ne.0 .or. iand(4+2+1,int(v_sctrl%ldos)) .ne.0
+         ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
 !! iand(2**n,i) means 2**n ditit of i.
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
-         call mkqp(v_sctrl,v_slat,ltet,F,1,-2)
+         call mkqp(v_slat,ltet,F,1,-2)!v_sctrl,
       endif
 !!    show and quit
-      if( int(v_sctrl%quit) == 1 ) then
+      if( int(ctrl_quit) == 1 ) then
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)
       endif

@@ -1,8 +1,9 @@
-      subroutine smshft ( ssite , sspec , slat , sctrl , sham , sv_p_orhoat 
+      subroutine smshft ( ssite , sspec , slat ,  sham , sv_p_orhoat !sctrl ,
      . , smrho )
       use m_work,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: ctrl_lfrce
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -50,7 +51,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_ham)::sham
 
       double complex smrho(*)
@@ -73,7 +74,7 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
 C ... Heap
 
 C     stdo = lgunit(1)
-      job = int(sctrl%lfrce)
+      job = int(ctrl_lfrce)
 
       if (job .le. 0) return
 

@@ -197,7 +197,6 @@ splcls.o \
 splwts.o \
 stoner.o \
 strx00.o \
-subasi.o \
 subzi.o \
 suclst.o \
 sudmtu.o \

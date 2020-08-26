@@ -43,7 +43,7 @@ C Passed Parameters
       integer nlmax,ndham,ndimh,nq,nsp,nspc,nsite
       integer isite(nsite),iclsl(nsite),iclsn(nsite)
       real(8):: ef , evl(ndham,nsp,nq)
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_site)::ssite(nsite)
       type(s_spec)::sspec(*)
       type(s_lat)::slat

@@ -2,8 +2,8 @@
       use m_struc_def
 c      use m_rdctrl2_func, only: rdctrl2
       use m_globalvariables
-      use m_lmfinit, only: !rdctrl2,
-     &     slabl_,v_sbz,v_sctrl,v_sctrl2,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sspec,v_ssite,  !v_sarry2
+      use m_lmfinit, only: !rdctrl2,,v_sctrl,v_sctrl2
+     &     slabl_,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sspec,v_ssite,  !v_sarry2,v_sbz
      &     v_ssite2,sstrnmix,sstrnsymg
       use m_work,only: rv_a_opos
       implicit none
@@ -156,7 +156,7 @@ c$$$        call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
 c$$$        call rx0(prgnam)
 c$$$      endif
       print *,'goto freeat uuuuuuuuu'
-      call freeat(v_sctrl,v_sspec,v_sham,v_spot)
+      call freeat(v_sspec,v_sham,v_spot)!v_sctrl,
       call rx0(prgnam)
       end
 

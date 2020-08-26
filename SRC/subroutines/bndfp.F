@@ -9,7 +9,7 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sctrl,sham,spot,sstrnmix,!,sbz
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sham,spot,sstrnmix,!,sbz,sctrl
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
@@ -17,7 +17,8 @@
      &     iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
-     &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n
+     &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
+     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
       use m_subzi, only: subzi
@@ -174,7 +175,7 @@ c      type(s_sstrn):: sstrn
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_ham):: sham
-      type(s_ctrl):: sctrl
+c      type(s_ctrl):: sctrl
       type(s_lat)::  slat
       type(s_pot)::  spot
 c      type(s_bz)  ::  sbz
@@ -467,7 +468,7 @@ c mar2014
       if(cmdopt('--getq',6,0,strn).and.procid==master) then
          print *,'get Q from ql given by lmf'
          print *,'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
-         nspec=sctrl%nspec
+         nspec=ctrl_nspec
          lmxa = maxval(sspec(1:nspec)%lmxa)
          allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
          qrmt= -1d-10
@@ -541,13 +542,13 @@ c      siginit=.true. !commented out on mar2015. this makes reading sigma at eve
       ipl  = ipr
       nsp  = globalvariables%nsp
       nspc = globalvariables%nspc
-c      lso =   isw ( iand(4,int(sctrl%lncol))  .ne.0 ) 
-c     &  + 2 * isw ( iand(32,int(sctrl%lncol)) .ne.0 )
-c     &  + 3 * isw ( iand(64,int(sctrl%lncol)) .ne.0 )
+c      lso =   isw ( iand(4,int(ctrl_lncol))  .ne.0 ) 
+c     &  + 2 * isw ( iand(32,int(ctrl_lncol)) .ne.0 )
+c     &  + 3 * isw ( iand(64,int(ctrl_lncol)) .ne.0 )
 !! lso is read by m_rdctrl.F 
 !! lso  =0 (no so): =1(L.S): =2(LzSz).
       lcplxp = 0
-      lekkl = int(sctrl%pfloat)
+      lekkl = int(ctrl_pfloat)
       if (lso .ne. 0) lcplxp = 1
       if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
@@ -590,12 +591,12 @@ c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
       onesp = 0
 c      nfbn(1) = 0
 c      nfbn(2) = 0
-      ldos = iand(1,int(sctrl%ldos))
+      ldos = iand(1,int(ctrl_ldos))
       lrsig = int(sham%lsig)
-      lfrzw = isw ( iand(16,int(sctrl%lbas)) .ne.0 )
-      nspec= sctrl%nspec
-      if(ldos - mod(sctrl%ldos/1, 2)/=0) call rx('ldos - mod(sctrl%ldos/1, 2)/=0')
-      if(lfrzw- mod(sctrl%lbas/16,2)/=0) call rx('lfrzw- mod(sctrl%lbas/16,2)/=0')
+      lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
+      nspec= ctrl_nspec
+      if(ldos - mod(ctrl_ldos/1, 2)/=0) call rx('ldos - mod(ctrl_ldos/1, 2)/=0')
+      if(lfrzw- mod(ctrl_lbas/16,2)/=0) call rx('lfrzw- mod(ctrl_lbas/16,2)/=0')
       if(lrsig- sham%lsig/=0) call rx('lrsig- sham%lsig/=0')
 
       if (procid .eq. master) then
@@ -677,7 +678,7 @@ c      nfbn(2) = 0
       endif
 C     Always need DOS if just sampling
       if (lmet .ne. 0 .and. .not. ltet) ldos=1
-      qbg = sctrl%zbak(1)
+      qbg = ctrl_zbak(1)
       alfa = 0
 
 C     Switch to plot bands at specified qp
@@ -991,7 +992,7 @@ c     .     nlmax,ndham,nsites,nsp,nkp)
          nevmx = ndhamx
          call dpzero ( rv_a_oswtk , ndhamx * nkp )
       endif
-      nl = int(sctrl%nl)
+      nl = int(ctrl_nl)
 
 c$$$!! Mullikan mode
 c$$$      mullwrite = .false.
@@ -1255,8 +1256,8 @@ c            massline=.false.
 !! SYMOPS
       if(onlyonce) then 
          onlyonce=.false.
-         nbasp = sctrl%nbasp
-         nl    = sctrl%nl
+         nbasp = ctrl_nbasp
+         nl    = ctrl_nl
 c         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
          call gen_hamindex ( sham , ssite , sspec , slat , nl ,
      .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
@@ -1907,7 +1908,7 @@ c$$$               endif
                   if (nlibu .gt. 0 .and. nev .gt. 0) then
                      if (lwtkb .eq. 0)
      .                 call rx('metal weights required for LDA+U calculation')
-                     nl = int(sctrl%nl)
+                     nl = int(ctrl_nl)
                      nlmax = nl*nl
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
                      if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
@@ -2689,7 +2690,7 @@ c$$$      endif
 !! === Generate DOS on disk ===
       if(.not. lwndow .and. procid==master) then
          ndos0 = bz_ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
-         if ( iand(1,int(sctrl%ldos)) .ne.0 ) then
+         if ( iand(1,int(ctrl_ldos)) .ne.0 ) then
 c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
             if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
             if(ndos0>0) write(6,"(a)")'... Generating total DOS'      !  ndos0=,ndos0
@@ -2779,7 +2780,7 @@ c            call fclose(ifi)
       if (icls .ne. 0) then
          if (procid .eq. master) then
             eferm=bz_ef
-            call vcdmel ( sctrl%nl , ssite , sspec , slat , nlmax , ndham , 
+            call vcdmel ( ctrl_nl , ssite , sspec , slat , nlmax , ndham , 
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
      .        nsites , isite , iclsl , iclsn ,dosw) !sbz,
             call rx0('done generating core level spectra')
@@ -2839,7 +2840,7 @@ C       call poppr
 !! --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
 !!   ... Correction to harris force
-        job=int(sctrl%lfrce)
+        job=int(ctrl_lfrce)
         if(job>0 ) then
           call dfrce (job, ssite , sspec , slat , k1 , k2 , k3 , nvl !sctrl , 
      .     , sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_a_osmrho , 
@@ -2952,8 +2953,8 @@ ccccccccccccccccccccccccc
       if (procid .eq. master) then
          ifvesintatm=fopna('vesintatm',-1,0) !generated by lmfa. electrostatic potential integrals.
          rewind ifvesintatm
-         allocate(vesatm(sctrl%nspec))
-         do ispec=1,sctrl%nspec
+         allocate(vesatm(ctrl_nspec))
+         do ispec=1,ctrl_nspec
             if(sspec(ispec)%z==0d0 .and. sspec(ispec)%rmt==0d0 ) cycle
             read(ifvesintatm,*,end=9898) vesatm(ispec)
          enddo

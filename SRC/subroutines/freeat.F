@@ -1,7 +1,6 @@
-#define USEOPTIONAL 1
-
-      subroutine freeat(sctrl,sspec,sham,spot)
-
+c#define USEOPTIONAL 1
+      subroutine freeat(sspec,sham,spot) !sctrl,
+      use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- For each species, makes free atom self-consistent
@@ -37,7 +36,7 @@ Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_ham)::sham
       type(s_pot)::spot
       type(s_spec)::sspec(*)
@@ -97,10 +96,10 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
 
 C       Unpack sctrl data
 
-        i_copy_size=size(sctrl%smalit)
-        call icopy(i_copy_size,sctrl%smalit,1,nrmix,1)
+        i_copy_size=size(ctrl_smalit)
+        call icopy(i_copy_size,ctrl_smalit,1,nrmix,1)
 
-        lxcfun = int(sctrl%lxcf)
+        lxcfun = int(ctrl_lxcf)
 
 
 C       Unpack species data
@@ -440,14 +439,8 @@ cNov 2010 QvalCheck
         endif
       enddo
       enddo
-c      call getqvc(nsp,n0,lmxa,z,pl,ql,0,0,kcor,lcor,qcor,
-c     .            qc,qtot,amgm,w,w)
-
-#ifdef USEOPTIONAL
+      
       call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm )
-#else
-      call getqvc(nsp, n0, lmxa, z, pl, ql, 0, 0, kcor, lcor, qcor, qc, qtot, amgm, iwdummy , iwdummy )
-#endif
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
       if (ipr .ge. 20) then
@@ -650,7 +643,7 @@ Co   psi   :normalized wave functions for each l
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer n0,nr,lmaxa,nsp,nrmt,lplawv
       parameter (n0=10)
@@ -801,7 +794,7 @@ Co   ctp   :classical turning point
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nre
       double precision a,b,ctp,e,pmax,pzero,z,rofi(nr),v(nr),g(nr)
@@ -1154,7 +1147,7 @@ Cr Remarks
 Cu Updates
 Cu   16 Jun 04 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lmxa,nr,nrmt,nsp,n0,icst
       double precision a,rmax,rmt,z,rs3,eh3,vmtz
@@ -1380,7 +1373,7 @@ Cu Updates
 Cu   24 Sep 04 return qrmt
 Cu   16 Jun 04 Adapted to new hansmd, mtchae
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer l,nr,nrmt
       double precision a,b,dphi,dphip,eh,enu,eval,p,phi,phip,rmt,rsm,z,
@@ -1482,7 +1475,7 @@ Co   xnew  :new estimate for the minimum
 Co   stiff :estimated curvature
 Cr Remarks
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer jpr,l
       double precision dx,e1,e2,e3,stiff,x0,xmax,xmin,xnew,xshx,y0
@@ -1550,7 +1543,7 @@ Co   g     :normalized wave function times r
 Co   evl   :eigenvalue
 Cr Remarks
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,l,nn,nr,nrmt
       double precision a,b,evl,pnu,rmt,z,rofi(nr),v(nr),g(nr*2)
@@ -1636,7 +1629,7 @@ Co   dphip :radial derivative of dphi
 Co   p     :<gp**2> (potential parameter)
 Cr Remarks
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer l,nrmt
       double precision a,b,dphi,dphip,enu,p,phi,phip,pnu,rmt,z
@@ -1706,7 +1699,7 @@ Cl         :
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer itab(0:*),lmax,nr,nrmt,n0
       parameter (n0=10)
@@ -1811,7 +1804,7 @@ Cb   Should this be fit to smoothed function??
 Cu Updates
 Cu   19 Apr 02 Make rmt a local variable.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nrmt
       double precision a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2)

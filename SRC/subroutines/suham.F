@@ -448,11 +448,12 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
 
-      subroutine suham(sctrl,slat,sspec,ssite,sham,spot)!,sbz)
+      subroutine suham(slat,sspec,ssite,sham,spot)!,sbz)sctrl,
       use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_lmfinit,only:lso
+      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
+
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -514,9 +515,9 @@ Cu             Make sham->lmxax = largest lmax in basis
 Cu   18 Apr 05 Force small parameter p -> 0 in 2-center turned on (ASA)
 Cu   14 Feb 03 Makes and packs magnetic field B.sigma
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      type(s_ctrl)::sctrl
+c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -547,17 +548,17 @@ C ... Needed for iostr
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
 
-      integer:: obas , oo , opp , oeula , opti , obs , omagf
+      integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
       double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
       integer,allocatable:: ips(:)
 
-      nbasp=sctrl%nbasp
-      nspec=sctrl%nspec
-      nl=sctrl%nl
-c      lncol=sctrl%lncol
-      nsp=sctrl%nspin
+      nbasp=ctrl_nbasp
+      nspec=ctrl_nspec
+      nl=ctrl_nl
+c      lncol=ctrl_lncol
+      nsp=ctrl_nspin
       nkaph = globalvariables%nkaph
       pwmode=sham%pwmode
       pwemin=sham%pwemin
