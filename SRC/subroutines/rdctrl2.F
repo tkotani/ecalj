@@ -2469,7 +2469,7 @@ C     Free arrays used to read input
           deallocate(pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .     rmt,alpha,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
+     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv, !alpha,
      .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
      .     pos,vel,eula,vshft,ips,ipl,plv,irlx)
 
