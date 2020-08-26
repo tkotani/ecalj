@@ -1,14 +1,17 @@
 #define USEOPTIONAL 1
 !! ------------------------------
 !! ------------------------------
-      subroutine sugw ( ssite , sspec , slat , sham , nbas , ndham 
+      subroutine sugw ( ssite , sspec , slat ,  nbas , ndham !sham ,
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)
-      use m_struc_def,only:  s_rv1, s_lat, s_ham, s_spec, s_site
+      use m_struc_def,only:  s_rv1, s_lat, s_spec, s_site !s_ham, 
       use m_globalvariables,only: globalvariables
       use m_phmbls,only: phmbls
       use m_work,only: iv_a_oindxo,iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
+      use m_lmfinit, only: 
+     &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,
+     &     ham_ndhrs,ham_scaledsigma,ham_nqsig
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -136,7 +139,7 @@ Cu   23 Apr 01 First created
       type(s_site):: ssite(nbas)
       type(s_spec):: sspec(*)
       type(s_lat):: slat
-      type(s_ham):: sham
+c      type(s_ham):: sham
       real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas) !, coreq(2)
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
@@ -274,9 +277,9 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       lchk = 1
       nsp  = globalvariables%nsp
       nspc = globalvariables%nspc
-      lrsig = int(sham%lsig)
+      lrsig = int(ham_lsig)
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
-      nqsig = sham%nqsig
+      nqsig = ham_nqsig
 
 C     for now
       nphimx = 3
@@ -320,12 +323,12 @@ C     for now
       lsig = 1
       if (bandmode) lsig=0
       napw = 0
-      i_copy_size=size(sham%ldham)
-      call icopy(i_copy_size,sham%ldham,1,ldham,1)
+      i_copy_size=size(ham_ldham)
+      call icopy(i_copy_size,ham_ldham,1,ldham,1)
       ldim=ldham(1,1)
-      pwmode= sham%pwmode
-      pwemin= sham%pwemin
-      pwemax= sham%pwemax
+      pwmode= ham_pwmode
+      pwemin= ham_pwemin
+      pwemax= ham_pwemax
       allocate(evl(ndham,nsp))
 !! ndima
       ndima = 0
@@ -669,8 +672,8 @@ C   ... Read SYML file
          if (job .eq. 1 .and. .not. bandmode) call info2(20,1,1,
      .        ' ... Make LDA w.f. and matrix elements, %i qp: file(s) gwb'//
      .        '%?#n#, vxc, evec##',nqtot,lsig)
-         if(sham%scaledsigma/=1d0.and.sigmamode) then
-           write(6,*)' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+         if(ham_scaledsigma/=1d0.and.sigmamode) then
+           write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
          endif   
       endif
       iqibz=0
@@ -679,7 +682,7 @@ C   ... Read SYML file
       nbalance = nqi*nsp/numproc 
       if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
       if(iprint()>10) print *,'nbalance=',nbalance
-      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") sham%oveps
+      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") ham_oveps
       iproc = numproc-1         !from bottom
       allocate(iprocq(nqi,nsp))
       iqq  = 0
@@ -819,12 +822,12 @@ c$$$        endif
           if(iprocq(iqq,isp)/=procid) cycle
 !!   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
-          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+          call hambl ( 0 , nbas , ssite , sspec , slat  , isp , qp !, sham
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w )
           if(debug) print *,' goto hambl vxc '
 !!  --- LDA Hamiltonian and overlap matrices for this qp ---
-          call hambl ( 0 , nbas , ssite , sspec , slat , sham , isp , qp 
+          call hambl ( 0 , nbas , ssite , sspec , slat  , isp , qp !, sham
      .       , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w )
           if(debug) print *,' goto hambl lda o '
@@ -851,7 +854,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
              call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,iv_a_oindxo,1
      &            , ival ( iv_a_ontabs , nbas + 1 )
-     &            , iv_a_oiaxs , rv_a_ohrs , sham%ndhrs , isp , nsp , ndimsig , ndimsig 
+     &            , iv_a_oiaxs , rv_a_ohrs , ham_ndhrs , isp , nsp , ndimsig , ndimsig 
      &            , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
 !!     case2 not work well yet. We need think about pair tables as in bloch.
 c            allocate(sene(ndimsig,ndimsig))
@@ -862,7 +865,7 @@ c     o        sene)
           endif
 
           jx = 0
-          call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
+          call hambl ( jx , nbas , ssite , sspec , slat  , isp , !, sham
      .         qp , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .         , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2, ham, ovl, ham)
 
@@ -875,7 +878,7 @@ c     o        sene)
              allocate(senex(ndimh,ndimh))
              senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
              deallocate(ovliovl,sene)
-             ham(:,:) = ham(:,:) + sham%scaledsigma * senex
+             ham(:,:) = ham(:,:) + ham_scaledsigma * senex
              deallocate(senex)
           endif
 c$$$          if(sigmamode.and.newsigmasw()) then
@@ -889,7 +892,7 @@ c$$$          else
 c$$$            ispc = min(isp,nspc)
 c$$$            isize_ham=(/size(ham,dim=1),size(ham,dim=2),1/)
 c$$$            call hambls ( i , nbas , ssite , sspec , slat , sham , isp ,
-c$$$     .        ispc , qp , k1 , k2 , k3 , sham%rv_p_oqsig , nqsig , smpot , vconst 
+c$$$     .        ispc , qp , k1 , k2 , k3 , ham_rv_p_oqsig , nqsig , smpot , vconst 
 c$$$     .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndimh 
 c$$$     .        , napw , igv2 , ham , ovl , isize_ham, i2, ndimsig )
 c$$$          endif
@@ -911,7 +914,7 @@ c            if (lpdiag .eq. 0) then
             if (nspc .eq. 2) then
               call rx('diagonalization not ready for nspc=2')
             endif
-            epsovl = sham%oveps
+            epsovl = ham_oveps
 c$$$              allocate(ww_rv(11*ndimh))
 c$$$              if (epsovl .le. 0) then
 c$$$                call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
@@ -1062,7 +1065,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
             if(debug) write(6,"(' ppppppp goto makusq')")
-            call makusq ( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+            call makusq ( 1 , ssite , sspec , slat ,  nbas , nbas , !sham ,
      .      0 , nlmax , ndham , ndimh , napw , igv2 , nev , nsp , 
      .      nspc , isp , 1 , qp , evec , ppn , aus_zv )
             call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 

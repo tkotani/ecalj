@@ -9,7 +9,7 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,sham,spot,sstrnmix,!,sbz,sctrl
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,slat,spot,sstrnmix,!,sbz,sctrl,sham
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
@@ -18,7 +18,9 @@
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp
+     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp,
+     &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk
       use m_globalvariables, only: globalvariables
       use m_phmbls,only :phmbls
       use m_subzi, only: subzi
@@ -174,7 +176,7 @@ c      type(s_sstrn):: sstrn
       character*(*):: sstrnmix
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_ham):: sham
+c      type(s_ham):: sham
 c      type(s_ctrl):: sctrl
       type(s_lat)::  slat
       type(s_pot)::  spot
@@ -574,43 +576,43 @@ c     &  + 3 * isw ( iand(64,int(ctrl_lncol)) .ne.0 )
 ctakao sep2010 !complicated.
 c      nspc=2 for non-colinear case. 
 c      allocate(evl(ndham,2))
-c      call i8icopy(size(sham%ldham),sham%ldham,1,ldham,1)
+c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       allocate(evl(ndhamx,nspx))
-      ldham = sham%ldham
+      ldham = ham_ldham
       ldim = ldham(1)
-      if(size(sham%ldham)/=size(ldham))call rx("bndfp:size(sham%ldham)/=size(ldham)")
-      pwmode = sham%pwmode
+      if(size(ham_ldham)/=size(ldham))call rx("bndfp:size(ham_ldham)/=size(ldham)")
+      pwmode = ham_pwmode
       if (procid .eq. master) then
          ifiese=ifile_handle()
          open(ifiese,file='PWMODE')
          write(ifiese,*)pwmode
          close(ifiese)
       endif 
-      pwemin =sham%pwemin
-      pwemax =sham%pwemax
+      pwemin =ham_pwemin
+      pwemax =ham_pwemax
       onesp = 0
 c      nfbn(1) = 0
 c      nfbn(2) = 0
       ldos = iand(1,int(ctrl_ldos))
-      lrsig = int(sham%lsig)
+      lrsig = int(ham_lsig)
       lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
       nspec= ctrl_nspec
       if(ldos - mod(ctrl_ldos/1, 2)/=0) call rx('ldos - mod(ctrl_ldos/1, 2)/=0')
       if(lfrzw- mod(ctrl_lbas/16,2)/=0) call rx('lfrzw- mod(ctrl_lbas/16,2)/=0')
-      if(lrsig- sham%lsig/=0) call rx('lrsig- sham%lsig/=0')
+      if(lrsig- ham_lsig/=0) call rx('lrsig- ham_lsig/=0')
 
       if (procid .eq. master) then
          fxsts= fxst('sigm')
          if (lrsig .ne. 0 .and. fxsts/=1) then
             write(6,*)' bndfp (warning): no sigm file found ... LDA calculation only'
-            sham%lsig=0
+            ham_lsig=0
             lrsig = 0
          endif
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
-      call mpibc1(sham%lsig,1,2,mlog,'bndfp','sham%lsig') 
+      call mpibc1(ham_lsig,1,2,mlog,'bndfp','ham_lsig') 
       jobgw= -999
-      epsovl = sham%oveps
+      epsovl = ham_oveps
 
       if(llmfgw) then
          i = 7
@@ -628,7 +630,7 @@ c      nfbn(2) = 0
 !!
       eterms=-99d0
       eterms(19) = 0d0
-      sham%eterms=eterms
+      ham_eterms=eterms
       nvl  =spot%nlml
       nchan=spot%nlma
       eks = 0
@@ -843,7 +845,7 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
             spotx=0d0
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
-            call mkpot ( nbas , ssite , sspec , slat , sham , spot , 0 ,
+            call mkpot ( nbas , ssite , sspec , slat ,  spot , 0 ,!sham ,
      .        lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
      .        , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
@@ -877,13 +879,13 @@ C --- Make the potential and total energy terms ---
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
       call togpr()
-      call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
+      call mkpot ( nbas , ssite , sspec , slat ,  spot , lfrce!sham ,
      .  , lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , zv_a_osmpot 
      .  , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .  , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
       call togpr()
-      elind = sham%elind
+      elind = ham_elind
       if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
       allocate( evlall(ndhamx,nspx,nkp))
@@ -924,7 +926,7 @@ C --- Make the potential and total energy terms ---
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
-      call suham2(slat,sspec,ssite,sham,spot) !,sstrn,sctrl
+      call suham2(slat,sspec,ssite,spot) !,sstrn,sctrl,sham
 
 !! --- Options for core level specta (CLS) ---
 !!    Allocate aus for all qp
@@ -1259,9 +1261,9 @@ c            massline=.false.
          nbasp = ctrl_nbasp
          nl    = ctrl_nl
 c         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
-         call gen_hamindex ( sham , ssite , sspec , slat , nl ,
+         call gen_hamindex (  ssite , sspec , slat , nl ,!sham ,
      .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
-c    .     nbasp , sham%iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
+c    .     nbasp , ham_iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
          if(procid==master) then
             write(6,*)
             write(6,*) ' --- Hamiltonian index ---'
@@ -1292,13 +1294,13 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
          endif
       endif
 
-!! === \Sigma-Vxc to sham%rv_a_ohrs. Neighbor table sham%iv_a_oiaxs ====
+!! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
 !! --- New sigma inerpolation mode. Simplified.
 !! OUTPUT in this block is used in
 !!   call bloch 
-!!  where we use sham%iv_a_oiaxs , sham%rv_a_ohrs, sham%ndhrs and so on.
+!!  where we use ham_iv_a_oiaxs , ham_rv_a_ohrs, ham_ndhrs and so on.
 !!  In future, we should make this block to a subroutine which shows clear i/o.
       sigmamode = mod(lrsig,10) .ne. 0
       if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
@@ -1306,7 +1308,7 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
          ndimsig= ldim  !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
          if(procid==master) then
             write(6,*)' --- goto rdsigm2 initialization section ---'
-            rsrnge = sham%rsrnge
+            rsrnge = ham_rsrnge
             write(6,*)'rsrnge procid=',rsrnge,procid
             ifi = fopna('sigm',-1,4)
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
@@ -1332,7 +1334,7 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             endif
 !! sfz is the self-energy roteted in the full BZ.
 !!   ndham is removed sep2012 (read from sigma file )
-            call rdsigm2(nbas,nspsigm,slat,sham,ifi,  !sbz,
+            call rdsigm2(nbas,nspsigm,slat,ifi,  !sbz,,sham
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
             call fclose(ifi)
 c$$$!! --- write sig_fbz for SYMGRP e
@@ -1380,7 +1382,7 @@ c$$$            endif
 
 !! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
 !!    The main input of the subroutine seneinterp is sfz. 
-!!    The seneinterp stores real-space sigma to sham%rv_a_ohrs (real space representation), 
+!!    The seneinterp stores real-space sigma to ham_rv_a_ohrs (real space representation), 
 !!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
 !! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
 c            if(pdos) then
@@ -1388,8 +1390,8 @@ c               ifi = fopna('sigm_fbz',-1,4)
 c            else
             ifi = fopna('sigm',-1,4)
 c            endif   
-            call seneinterp(nbas,nspsigm,ndimsig,slat,sham,ifi,rsrnge, !aug2012takao sbz,
-     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in sham%rv_a_ohrs
+            call seneinterp(nbas,nspsigm,ndimsig,slat,ifi,rsrnge, !aug2012takao sbz,,sham
+     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in ham_rv_a_ohrs
             call fclose(ifi)
             deallocate(sfz)
             deallocate(qsmesh2,nlat,nqwgt)
@@ -1403,7 +1405,7 @@ c            endif
             noqsig = size(     rv_p_oqsig)
          endif
          call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
-         call mpibc1(sham%ndhrs,1,2,mlog,'bndfp','ndhrs')
+         call mpibc1(ham_ndhrs,1,2,mlog,'bndfp','ndhrs')
          call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
          call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
          call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
@@ -1433,11 +1435,11 @@ c            endif
 !! == GW driver ==
       if(llmfgw) then
          nchan=spot%nlma
-         call sugw(ssite , sspec , slat , sham , nbas , ndham , zv_a_osmpot 
+         call sugw(ssite , sspec , slat ,  nbas , ndham , zv_a_osmpot !sham ,
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .     ,nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
-! NOTE: Sigma-Vxc in real space is give by sham%rv_a_ohrs.
+! NOTE: Sigma-Vxc in real space is give by ham_rv_a_ohrs.
          deallocate(spotx)
          call tcx('bndfp')
 #if MPIK
@@ -1475,8 +1477,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       nev_   =0
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
-      if(sham%scaledsigma/=1d0.and.sigmamode) then
-        write(6,*)' Scaled Sigma method: ScaledSigma=',sham%scaledsigma
+      if(ham_scaledsigma/=1d0.and.sigmamode) then
+        write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif   
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp=qplist(:,iq)
@@ -1565,7 +1567,7 @@ c            endif
             ndimhx = ndimh*nspc !this is iq-dependent.
 
 !!   ... Make Hamiltonian and overlap matrices
-            nqsig=sham%nqsig
+            nqsig=ham_nqsig
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
             if(isp==1) then
                if(allocated(hamm)) deallocate(hamm)
@@ -1598,7 +1600,7 @@ C C       Transform sigm to LDA basis: hambls returns sigm(LDA) in h
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
 !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
-!! Main input  => sham%iv_a_oiaxs,sham%rv_a_ohrs
+!! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output => sene
             if(sigmamode) then
                allocate(sene(ndimsig,ndimsig))
@@ -1614,7 +1616,7 @@ C C       Transform sigm to LDA basis: hambls returns sigm(LDA) in h
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
                call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,iv_a_oindxo,1
      &           , ival ( iv_a_ontabs , nbas + 1 )
-     &           , iv_a_oiaxs , rv_a_ohrs, sham%ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
+     &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
                if(debug) print *,'end of bloch sene'
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
@@ -1693,7 +1695,7 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
 !! ==========================================
             jx = 0
             if (lso == 1) jx = 10
-            call hambl ( jx , nbas , ssite , sspec , slat , sham , isp ,
+            call hambl ( jx , nbas , ssite , sspec , slat ,  isp ,!sham ,
      .        qp , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .        , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
@@ -1706,7 +1708,7 @@ Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the ot
                allocate(senex(ndimh,ndimh))
                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
                deallocate(ovliovl,sene)
-               hamm(:,:,ispc) = hamm(:,:,ispc) + sham%scaledsigma * senex
+               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex
                deallocate(senex)
             endif
 
@@ -1876,7 +1878,7 @@ c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
                   if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
                   auso_zv(:)=0.0d0
-                  call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
+                  call makusq ( 0 , ssite , sspec , slat ,  nbas , nbas , !sham ,
      .              0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .              nspc , jsp , 1 , qp , t_zv , ppnl_rv , auso_zv )
                   call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
@@ -1892,7 +1894,7 @@ c$$$                        call rxx(nev.ne.ndimhx,'Mulliken requires all eigenv
 c$$$                        call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
 c$$$                        allocate(doswt_rv(nchan*nevmx*nspc))
 c$$$                        doswt_rv(:)=0.0d0
-c$$$                        call mullmf(nbas , ssite , sspec , sham%iv_a_oindxo , t_zv , ndimh 
+c$$$                        call mullmf(nbas , ssite , sspec , ham_iv_a_oindxo , t_zv , ndimh 
 c$$$     .                    , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
 c$$$     .                    , chan_iv , lmdim , ndham , doswt_rv )
 c$$$                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
@@ -1913,7 +1915,7 @@ c$$$               endif
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
                      if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
                      ausu_rv(:)=0.0d0
-                     call makusq ( 0 , ssite , sspec , slat , sham , nbas , nbas , 
+                     call makusq ( 0 , ssite , sspec , slat ,  nbas , nbas , !sham ,
      .                 0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .                 nspc , jsp , 1 , qp , t_zv , ppnl_rv , ausu_rv )
                      call mkdmtu ( ssite , sspec , rv_a_owtkb , jsp , iq , nsp , nspc 
@@ -1929,7 +1931,7 @@ c$$$               endif
 #if MPI
                   call rx('CLS only k-parallel')
 #endif
-                  call makusq ( 0 , ssite , sspec , slat , sham , nbas , nsites 
+                  call makusq ( 0 , ssite , sspec , slat ,  nbas , nsites !sham ,
      .              , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
      .              nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   )
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
@@ -1972,7 +1974,7 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
                   if(debug) print *,'goto addrbl nevl=',nevl
-                  call addrbl ( ssite , sspec , slat , sham , jsp , nsp , nspc
+                  call addrbl ( ssite , sspec , slat ,  jsp , nsp , nspc !sham ,
      .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
      .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
      .              , lekkl , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
@@ -1990,7 +1992,7 @@ c$$$#ifndef MPIK
 c$$$               if(debug) write(*,*)  'plbnd/=0 (noMPI)', ndham,jsp 
 c$$$               if (nfbn(1)>0 .and. n_listwf>0) then
 c$$$                  call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
-c$$$     .              ,  napw,igv2x,sham%iv_a_oindxo,nev,t_zv,k1,k2,k3
+c$$$     .              ,  napw,igv2x,ham_iv_a_oindxo,nev,t_zv,k1,k2,k3
 c$$$     .              ,  n_listwf,listwf    )
 c$$$               endif
 c$$$               if(debug) print *,'dddddd111'
@@ -2036,7 +2038,7 @@ c            endif
                initbd=.false.
                qold=qp
                auspp = 0d0
-               call makusq( 1 , ssite , sspec , slat , sham , nbas , nbas , 
+               call makusq( 1 , ssite , sspec , slat ,  nbas , nbas , !sham ,
      .           0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .           nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
                if(spinoffdiag) then
@@ -2254,9 +2256,9 @@ C     Allreduce qkkl
      .     , nl * nsp * nbas , 4 , mlog , 'bndfp' , 'orbtm' )
       endif
 !! eterms are alwasy broadcasted. comment out if conditions jan2012
-      eterms=sham%eterms ! call dcopy(size(sham%eterms),sham%eterms,1,eterms,1)
+      eterms=ham_eterms ! call dcopy(size(ham_eterms),ham_eterms,1,eterms,1)
       call mpibc2(eterms(19),1,4,mlog,'bndfp','rhosig')
-      sham%eterms=eterms ! call dcopy(size(sham%eterms),eterms,1,sham%eterms,1)
+      ham_eterms=eterms ! call dcopy(size(ham_eterms),eterms,1,ham_eterms,1)
 #ifdef MPIK      
       entime = MPI_WTIME()
       call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
@@ -2795,7 +2797,7 @@ c            call fclose(ifi)
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
 !!     --window: Put output density into orhat and smrho, and exit
       if (lwndow) then
-         call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim
+         call mkrout ( ssite , sspec , slat , nbas , nsp , ldim  !sham , 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_a_oorhat , hab_rv , sab_rv 
      .     , qbyl_rv , hbyl_rv , lrout )
          call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_a_osmrho 
@@ -2805,7 +2807,7 @@ c            call fclose(ifi)
          goto 999
       endif
 
-      call mkrout ( ssite , sspec , slat , sham , nbas , nsp , ldim 
+      call mkrout ( ssite , sspec , slat ,  nbas , nsp , ldim  !sham ,
      .  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      .  , qbyl_rv , hbyl_rv , lrout )
 C
@@ -2816,8 +2818,8 @@ C   ... Symmetrize output density and forces
 C   ... New boundary conditions pnu for phi and phidot
 C       call pshpr(iprint()-12)
          if (lpnu .gt. 0) then
-            call dcopy(size(sham%pmin),sham%pmin,1,xv,1)
-            call dcopy(size(sham%pmax),sham%pmax,1,xv(11),1)
+            call dcopy(size(ham_pmin),ham_pmin,1,xv,1)
+            call dcopy(size(ham_pmax),ham_pmax,1,xv(11),1)
             call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
      .        , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
          endif
@@ -2836,7 +2838,7 @@ C       call poppr
       endif
 
 !! --- Evaluate Harris energy ---
-      call mkehkf(1,sham,sev,sumqv(2,1),sumtv,ehar)
+      call mkehkf(1,sev,sumqv(2,1),sumtv,ehar) !sham,
 !! --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
 !!   ... Correction to harris force
@@ -2850,7 +2852,7 @@ C       call poppr
          eks = 0d0
          if (leks .ge. 1) then
             call togpr()
-            call mkekin ( nbas , ldim , ssite , sspec , slat , sham , sv_p_osig 
+            call mkekin ( nbas , ldim , ssite , sspec , slat ,  sv_p_osig  !sham ,
      .        , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
      .        , vconst , zv_a_osmpot , srout_zv , sev , sumtv )
 ccccccccccccccccccccccccc
@@ -2870,7 +2872,7 @@ c          call pshpr(ipr-4)
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
-            call mkpot ( nbas , ssite , sspec , slat , sham , spot , lfrce
+            call mkpot ( nbas , ssite , sspec , slat ,  spot , lfrce  !sham ,
      .        , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
@@ -2897,7 +2899,7 @@ c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpotbk),w(osmrho),sev,sumtvxxx)
 c          call rlse(osmpotbk)
 c          stop 'xxxxxxxxxxxxxxxx'
 cccccccccccccccccccccccccccccccc
-            call mkehkf(2,sham,sev,sumqv(2,1),sumtv,eks)
+            call mkehkf(2,sev,sumqv(2,1),sumtv,eks) !sham,
             call togpr()
          endif
          if(debug) print *, 'tttttttttt 9999999999999999999 9'
@@ -2944,8 +2946,8 @@ ccccccccccccccccccccccccc
       else
          eks = 0d0
       endif
-      sham%ehf=ehar
-      sham%ehk=eks
+      ham_ehf=ehar
+      ham_ehk=eks
  999  continue
 
 !! === VBM CBM section. Mar2013takao === just output

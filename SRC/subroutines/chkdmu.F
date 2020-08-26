@@ -1,8 +1,9 @@
-      subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,sham,idvsh,
+      subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: ham_ehk,ham_eterms
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -46,13 +47,13 @@ Cu   29 Oct 05 doesn't update vorb in tot. E eval; restores dmatu if conv.
 Cu    2 Jun 05 Evaluates total energy contribution from output dmatu
 Cu   27 Apr 05 Lambrecht first created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,nsp,nlibu,lmaxu,ng,idvsh
+      integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
       integer lldau(nbas),istab(nbas,ng)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_ham)::sham
+c      type(s_ham)::sham
 
       double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -155,14 +156,14 @@ C     This block requires dmatu to be in spherical harmonics
 
 C --- LDA total energy terms ---
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+      i_copy_size=size(ham_eterms)
+      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
 
       eks = eks + eorb
 
-      sham%ehk=eks
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+      ham_ehk=eks
+      i_copy_size=size(ham_eterms)
+      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
       call info5(20,0,0,'%9peks = %,6;6d  '//
      .'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks-eorb,eorb,eks,0,0)

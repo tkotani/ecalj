@@ -191,21 +191,22 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 !! -----------------------------------------------------------------------------------
 c      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz)
-      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,ifis,rsrnge, nk1,nk2,nk3,sfz)
+      subroutine seneinterp(nbas,nsp,ndimh,slat,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
       use m_work,only: iv_a_oindxo,rv_a_osymgr,iv_a_ontabs,rv_a_osymgr , rv_a_oag,rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
      & rv_p_oqsig , iv_a_ooffH, iv_a_oistab
       use m_struc_def  
       use m_hft2rs
       use m_globalvariables
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs
+
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
-!! seneinterp is used in hambls.F case (store real-space sigma to sham%rv_a_ohrs)
+!! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
      .latvec,lfbzin,lfbzout
@@ -308,9 +309,9 @@ c
       endif
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
-      ldham =sham%ldham
-      sigp  =sham%sigp
-      rsstol=sham%rsstol
+      ldham =ham_ldham
+      sigp  =ham_sigp
+      rsstol=ham_rsstol
       modsgp = nint(sigp(1))
       nmin   = nint(sigp(2))
       nmax   = nint(sigp(4))
@@ -445,7 +446,7 @@ ckino end
 c      print *,'seneinterp: debug HHHHH'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh(plat, qb, nk1, nk2, nk3, llshft, iwdummy, 0 , ipq_iv, rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0 )
-      sham%nqsig=nqsig
+      ham_nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 
@@ -498,7 +499,7 @@ C ... titus
       if (allocated(wgt_rv)) deallocate(wgt_rv)
       if (allocated(ipq_iv)) deallocate(ipq_iv)
       if (allocated(gstar_iv)) deallocate(gstar_iv)
-      sham%ndhrs=ndhrs
+      ham_ndhrs=ndhrs
 C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
 C     rsstol = 1d-6
 C     print *, '!!'
@@ -527,9 +528,9 @@ c        if (allocated(rv_a_oqp)) deallocate(rv_a_oqp)
       if(debug) print *,' a8 3333333333'
 C ... Broadcast R.S. sigma before symmetrization
 c      if (hreal .eq. 1) then
-c        call mpibc1( sham%rv_a_ohrs , ndhrs * * 2 * nttabs * nsp, 4 , mlog, 'rdsigm' , 'hrs' )
+c        call mpibc1( ham_rv_a_ohrs , ndhrs * * 2 * nttabs * nsp, 4 , mlog, 'rdsigm' , 'hrs' )
 c      else
-c        call mpibc1( sham%rv_a_ohrs , 2 * ndhrs * * 2 * nttabs * nsp ,4, mlog , 'rdsigm' , 'hrs' )
+c        call mpibc1( ham_rv_a_ohrs , 2 * ndhrs * * 2 * nttabs * nsp ,4, mlog , 'rdsigm' , 'hrs' )
 c      endif
 
 C --- Symmetrize hrs ---
@@ -550,11 +551,11 @@ c           call dcopy ( ndhrs * * 2 * nttabs * nsp * 2 , rv_p_ohrs , 1 ,
 c     .     w ( ohrss ) , 1 )
 c        endif
 ckino Dec.22.2011:          nhrss= size(rv_p_ohrs)
-ckino Dec.28.2011:          nhrss= size(sham%rv_p_ohrs)
+ckino Dec.28.2011:          nhrss= size(ham_rv_p_ohrs)
         nhrss= size(rv_a_ohrs)
         allocate(hrss(nhrss))
 ckino Dec.22.2011:          hrss = rv_p_ohrs
-ckino Dec.28.2011:          hrss = sham%rv_p_ohrs
+ckino Dec.28.2011:          hrss = ham_rv_p_ohrs
         hrss = rv_a_ohrs
 Changenglob        mxorb = nglob('mxorb')
         mxorb = globalvariables%mxorb
@@ -610,11 +611,11 @@ c$$$            if (lonesp .eq. 1) then
 c$$$              if (nsp .eq. 1) call rx(
 c$$$     .        'onesp option nonsensical unless sigma file is spin pol')
 c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
-c$$$     .           , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
+c$$$     .           , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$            if (ledit .eq. 1) then
 c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
-c$$$     .             , sham%iv_a_oindxo , hreal , sham%iv_a_ontabs , sham%iv_a_oiaxs , sham%rv_a_ohrs )
+c$$$     .             , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$
 c$$$C       Handle case q-mesh for file output differs from file input
@@ -658,7 +659,7 @@ c$$$     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_
 c$$$     .            , 0 )
 c$$$              endif
 c$$$            elseif (lfbzout) then
-c$$$              rv_p_oqp => sham%rv_p_oqsig
+c$$$              rv_p_oqp => ham_rv_p_oqsig
 c$$$              nqp = nqsig
 c$$$              call info2(20,1,0,
 c$$$     .        ' Creating sigma for full BZ, %i qp (file sigm2) ...',nqp,0)
@@ -698,7 +699,7 @@ c$$$              enddo
 c$$$C         call prmx('qp',w(oqp),3,3,nqp)
 c$$$            endif
 c$$$            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
-c$$$     .          , hreal , sham%iv_a_oindxo , nttabs , sham%iv_a_oiaxs , sham%rv_a_ohrs , ndhrs 
+c$$$     .          , hreal , ham_iv_a_oindxo , nttabs , ham_iv_a_oiaxs , ham_rv_a_ohrs , ndhrs 
 c$$$     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
 c$$$            call fclose(ifis2)
 c$$$            call rx0('done writing sigma, file sigm2')
@@ -779,12 +780,13 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
 !!--------------------------------------------------------------------------------------------
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
-      subroutine rdsigm2(nbas_dummy,nsp,slat,sham,ifis,  !sbz,ndimh is removed (read from sigm file) sep2102
+      subroutine rdsigm2(nbas_dummy,nsp,slat,ifis,  !sbz,ndimh,sham 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_work,only: rv_a_osymgr, rv_p_oqsig 
-      use m_struc_def,only:      s_lat,s_ham!,s_bz  
+      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
+      use m_lmfinit,only: ham_nqsig
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -970,7 +972,7 @@ C ------------------------------------------------------------
       implicit none
       integer mode,ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
 c      type(s_bz)::sbz
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
@@ -1125,7 +1127,7 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
       if(debug) print *,'rdsigm2: debug2222'
       call info(20,1,0,' q-points in full BZ where sigma calculable ...',0,0)
       call bzmesh ( plat, qb, nk1,nk2,nk3, llshft,iwdummy,0, ipq,rv_p_oqsig, wgt_rv, nqsig, mxkp, 0, 0)
-      sham%nqsig=nqsig
+      ham_nqsig=nqsig
       call dpzero ( wgt_rv , mxkp )
       call info2(20,0,0,' Irr. qp for which sigma is calculated ...',0,0)
       call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , rv_a_osymgr 

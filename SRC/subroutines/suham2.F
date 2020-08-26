@@ -1,4 +1,4 @@
-      subroutine suham2(slat,sspec,ssite,sham,spot) !,sstrn) removed june2015
+      subroutine suham2(slat,sspec,ssite,spot) !,sstrn) removed june2015,sham
       use m_work,only:rv_a_ogv
       use m_struc_def
       use m_globalvariables
@@ -36,7 +36,7 @@ c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
 c      character*(*) sstrn
 C ... Local parameters

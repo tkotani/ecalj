@@ -1,4 +1,4 @@
-      subroutine lmfp(prgnam,sham,spot,slat,smix, !sbz,sctrl,
+      subroutine lmfp(prgnam,spot,slat,smix, !sbz,sctrl,,sham
      .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
       use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
       use m_struc_def
@@ -7,7 +7,8 @@
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, !,irs3,irs4,irs5,irs11,
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_lrs,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
-     &     ctrl_lmet      
+     &     ctrl_lmet,
+     &     ham_ndham,ham_ehf,ham_ehk,ham_seref,ham_eterms
 C     - LM-FP self-consistency loop
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -99,7 +100,7 @@ c      type(s_ctrl)::sctrl
       type(s_mix)::smix
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
 c      type(s_str)::sstr
 c      type(s_move)::smove
@@ -330,11 +331,11 @@ C     ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
 c      call subasi(sspec,sham) !sctrl,
-      call suham(slat,sspec,ssite,sham,spot)!,sbz)sctrl, !sstrn removed june2015 ,sarray 2016
+      call suham(slat,sspec,ssite,spot)!,sham,sbz)sctrl, !sstrn removed june2015 ,sarray 2016
 C     ... Quit if --quit=ham given
       if ( int(ctrl_quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
-      ndham=sham%ndham
+      ndham=ham_ndham
 
 C     Whether forces, and how to calculate non Helman-Feynman corr.
       lfrce = int(ctrl_lfrce)
@@ -446,7 +447,7 @@ C     3              read nothing (data already input)
 C     If no force switch set, use default
           k = int(ctrl_lfrce)
           if (k .eq. 0 ) ctrl_lfrce=1
-          call smshft(ssite , sspec , slat  , sham , sv_a_oorhat !, sctrl
+          call smshft(ssite , sspec , slat  ,  sv_a_oorhat !, sctrl sham ,
      .           , zv_a_osmrho )
 C     Restore force switch
           if ( k .eq. 0 ) ctrl_lfrce=k
@@ -504,13 +505,13 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
       llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec , slat ,  sham , spot ,  sstrnmix , ndham , !sbz ,sctrl ,
+     .     , sspec , slat ,  spot ,  sstrnmix , ndham , !sbz ,sctrl ,sham , 
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 
 C     ... check convergence of dmatu and update it and vorbdmat if necessary
       if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
-        call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , sham 
+        call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec !, sham 
      .        , 0 , dmatu , dmato, vorbdmat, tolu , umix
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab )
       endif
@@ -559,13 +560,13 @@ c     call fsystm('cp "//rst)
 
 C     --- Add to save file; decide on next iteration ---
       if (maxit .gt. 0) then
-        etot(1)=sham%ehf
-        etot(2)=sham%ehk
+        etot(1)=ham_ehf
+        etot(2)=ham_ehk
 C     ... Subtract reference energy
-        seref = sham%seref
+        seref = ham_seref
         etot(1) = etot(1) - seref
         if (etot(2) .ne. 0) etot(2) = etot(2) - seref
-        amom = sham%eterms(15)
+        amom = ham_eterms(15)
 C     The desired tolerances in q,e
         qtol = ctrl_tol(1)
         etol = ctrl_tol(3)
@@ -575,7 +576,7 @@ C     The desired tolerances in q,e
 #endif
 
         if (procid .eq. master) then
-          rhosig = sham%eterms(19)
+          rhosig = ham_eterms(19)
           i = 0
           if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
 
@@ -729,7 +730,7 @@ C     Repack updated positions in site structure
 !! Else, use self-consistent
           else if (.not. lshr) then
             irs(1) = 3
-            call smshft(ssite,sspec,slat,sham,sv_a_oorhat,zv_a_osmrho)!sctrl,
+            call smshft(ssite,sspec,slat,sv_a_oorhat,zv_a_osmrho)!sctrl,sham,
           endif
 !! Write restart file (to include new positions)
           if (procid .eq. master .and. .not. lshr) then

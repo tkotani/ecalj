@@ -1,9 +1,9 @@
-      subroutine mkpot ( nbas , ssite , sspec , slat , sham , spot 
+      subroutine mkpot ( nbas , ssite , sspec , slat ,  spot !sham ,
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
-      use m_lmfinit,only:lso
+      use m_lmfinit,only:lso,ham_eterms
       use m_struc_def  !Cgetarg
       use m_globalvariables
 !! documents below are under construction.
@@ -181,7 +181,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
 
       complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
@@ -299,8 +299,8 @@ c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       i_copy_size=size(slat%nabc)
       call icopy(i_copy_size,slat%nabc,1,ngabc,1)
       vol=slat%vol
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+      i_copy_size=size(ham_eterms)
+      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
 
 C$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
 C$$$      if(enforce_positive_smrho()) then
@@ -605,8 +605,8 @@ c------------------
       if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
      .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+      i_copy_size=size(ham_eterms)
+      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
 
       call tcx('mkpot')

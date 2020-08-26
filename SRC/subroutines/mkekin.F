@@ -1,4 +1,4 @@
-      subroutine mkekin ( nbas , ndimh , ssite , sspec , slat , sham 
+      subroutine mkekin ( nbas , ndimh , ssite , sspec , slat !, sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  !Cgetarg
@@ -151,7 +151,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
 
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters

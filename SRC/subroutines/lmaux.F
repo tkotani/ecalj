@@ -1,4 +1,4 @@
-      subroutine lmaux(prgnam,sham,spot,slat,sspec,ssite, !sstr,sctrl,
+      subroutine lmaux(prgnam,spot,slat,sspec,ssite, !sstr,sctrl,,sham
      .sarray,slabl,mode,wksize) !,sstrn,sbz
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
       use m_lmfinit,only: irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
@@ -77,7 +77,7 @@ C ... Passed parameters
       character*8 slabl(*)
       type(s_array)::sarray
 c      type(s_ctrl)::sctrl
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
       type(s_lat)::slat
       type(s_spec)::sspec(*)

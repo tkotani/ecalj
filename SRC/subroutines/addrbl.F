@@ -1,5 +1,5 @@
 CSFCPP#define F90 1
-      subroutine addrbl ( ssite , sspec , slat , sham , isp , nsp , 
+      subroutine addrbl ( ssite , sspec , slat  , isp , nsp , !, sham
      .     nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
      .     , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
      .     , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
@@ -107,7 +107,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)

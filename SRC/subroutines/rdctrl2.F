@@ -1791,46 +1791,46 @@ C ... Allocate and occupy the arrays
 !!
 
 C --- Allocate and copy input to sham ---
-      v_sham%size=uham_size()
-      v_sham%alfsi=alfsi
-      i_copy_size=size(v_sham%dabc)
-      call dcopy(i_copy_size,dabc,1,v_sham%dabc,1)
-      v_sham%elind=elind
-c      v_sham%nmto=nmto
-c      i_copy_size=size(v_sham%kmto)
-c      call dcopy(i_copy_size,kmto,1,v_sham%kmto,1)
+c      ham_size=uham_size()
+      ham_alfsi=alfsi
+      i_copy_size=size(ham_dabc)
+      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
+      ham_elind=elind
+c      ham_nmto=nmto
+c      i_copy_size=size(ham_kmto)
+c      call dcopy(i_copy_size,kmto,1,ham_kmto,1)
 
 C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-c      v_sham%lncol=(int(ctrl_lncol))
+c      ham_lncol=(int(ctrl_lncol))
 
 C     Mop up integer parts of sigp
 c      sigp(1) = sigp_mode
 c      sigp(2) = sigp_nmin
 c      sigp(4) = sigp_nmax
 
-      v_sham%nkaph=nkaph
-      i_copy_size=size(v_sham%pmax)
-      call dcopy(i_copy_size,pmax,1,v_sham%pmax,1)
-      i_copy_size=size(v_sham%pmin)
-      call dcopy(i_copy_size,pmin,1,v_sham%pmin,1)
-      v_sham%lsig=lrsig
-c      i_copy_size=size(v_sham%sigp)
-c      call dcopy(i_copy_size,sigp,1,v_sham%sigp,1)
-      i_copy_size=size(v_sham%qss)
-      call dcopy(i_copy_size,ham_qss,1,v_sham%qss,1)
+      ham_nkaph=nkaph
+      i_copy_size=size(ham_pmax)
+      call dcopy(i_copy_size,pmax,1,ham_pmax,1)
+      i_copy_size=size(ham_pmin)
+      call dcopy(i_copy_size,pmin,1,ham_pmin,1)
+      ham_lsig=lrsig
+c      i_copy_size=size(ham_sigp)
+c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
+      i_copy_size=size(ham_qss)
+      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
 
-      v_sham%rsrnge=rsrnge
-      v_sham%rsstol=rsstol
-      v_sham%udiag=ham_udiag
-      v_sham%scaledsigma=scaledsigma
+      ham_rsrnge=rsrnge
+      ham_rsstol=rsstol
+      ham_udiag=ham_udiag
+      ham_scaledsigma=scaledsigma
 
 !!  Parameters for APW
-      v_sham%pwmode=pwmode
-      v_sham%npwpad=npwpad
-      v_sham%pwemin=pwemin
-      v_sham%pwemax=pwemax
-      v_sham%oveps=oveps
-      v_sham%delta_stabilize=delta_stabilize !takao sep2010
+      ham_pwmode=pwmode
+      ham_npwpad=npwpad
+      ham_pwemin=pwemin
+      ham_pwemax=pwemax
+      ham_oveps=oveps
+      ham_delta_stabilize=delta_stabilize !takao sep2010
 
 !!... Allocate and initialize sarray
       v_sarry%size=uarray_size()
@@ -2007,7 +2007,7 @@ C ... Count LDA+U blocks (printout only)
           wowk=0
           call pshpr(0)
           call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
-          v_sham%nlibu=nlibu
+          ham_nlibu=nlibu
           call poppr
           deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
@@ -2060,7 +2060,7 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
              v_ssite(ispec)%clabel = v_sspec(ispec)%name
              seref = seref +     v_sspec(ispec)%eref
           enddo
-          v_sham%seref=seref
+          ham_seref=seref
           allocate(rv_a_opos(abs(3*nsite)))
           if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
           allocate(iv_a_oips(abs(nsite)))

@@ -1,4 +1,4 @@
-      subroutine makusq(mode,ssite,sspec,slat,sham,nbas,nsites,isite,
+      subroutine makusq(mode,ssite,sspec,slat,nbas,nsites,isite,!,sham
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .     aus)
       use m_work,only: iv_a_oindxo
@@ -93,7 +93,7 @@ C ... Passed parameters
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       type(s_lat)::slat
-      type(s_ham)::sham
+c      type(s_ham)::sham
 
       double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),

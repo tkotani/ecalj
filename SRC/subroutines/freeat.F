@@ -1,8 +1,9 @@
 c#define USEOPTIONAL 1
-      subroutine freeat(sspec,sham,spot) !sctrl,
+      subroutine freeat(sspec,spot) !sctrl,sham,
       use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:ham_seref
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +38,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
 c      type(s_ctrl)::sctrl
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
       type(s_spec)::sspec(*)
 
@@ -207,7 +208,7 @@ ctakao
         print *,' Not write mtopara.* when there is PZ.'
       endif
       if (iprint() .gt. 30)  then
-        seref = sham%seref
+        seref = ham_seref
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .  seref)
       endif

@@ -1,9 +1,9 @@
-      subroutine smshft ( ssite , sspec , slat ,  sham , sv_p_orhoat !sctrl ,
+      subroutine smshft ( ssite , sspec , slat ,  sv_p_orhoat !sctrl , sham ,
      . , smrho )
       use m_work,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_lmfinit,only: ctrl_lfrce
+      use m_lmfinit,only: ctrl_lfrce,ham_elind
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -52,7 +52,7 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_lat)::slat
 c      type(s_ctrl)::sctrl
-      type(s_ham)::sham
+c      type(s_ham)::sham
 
       double complex smrho(*)
 C ... Local parameters
@@ -133,7 +133,7 @@ C       Compute elind if not given
    12   continue
         pi = 4d0*datan(1d0)
         tpiba = 2*pi/alat
-        elind = sham%elind
+        elind = ham_elind
         if (elind .lt. 0d0) elind = -(3*pi**2*qval/vol)**.66666d0*elind
         if ( nsp.eq.2 ) call dsumdf ( ng * 2 , 1d0 , cgs_zv , 0 , 
      .  1 , cgs_zv , ng * 2 , 1 )

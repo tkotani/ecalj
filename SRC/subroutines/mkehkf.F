@@ -1,7 +1,8 @@
-      subroutine mkehkf(mode,sham,sev,valmom,sumtv,etot)
+      subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
 
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: ham_eterms
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -48,7 +49,7 @@ C     implicit none
 C ... Passed parameters
       integer mode
       real(8):: sev , etot , sumtv , valmom
-      type(s_ham)::sham
+c      type(s_ham)::sham
 
 C ... Local parameters
       integer stdo,stdl,ipr,ipl,nsp,nglob
@@ -84,9 +85,9 @@ Changenglob      stdl = nglob('stdl')
       call getpr(ipr)
       ipl = 1
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
-
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
+      eterms=ham_eterms
       sumev = sev
 
       if (mode .eq. 1) then
@@ -112,8 +113,8 @@ c      print *,'vvv ekin=',ekin,sumtv,sumtc
 ccccccccccccccc
       endif
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+      i_copy_size=size(ham_eterms)
+      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
       if (mode .eq. 0) return
 

@@ -1,5 +1,5 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
-      subroutine gen_hamindex(sham,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
+      subroutine gen_hamindex(ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_work,only: rv_a_osymgr,rv_a_oag,rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
@@ -7,10 +7,10 @@ c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qp
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
      &  ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
      &     napwk,napwmx,igv2,igv2rev, !for APW part of rotation (for rdsigm2.F)
-     &    imx 
-!!
-!june2015
+     &     imx
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
+      use m_lmfinit,only:
+     &     ham_pwmode,ham_pwemax
 c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -37,7 +37,7 @@ c      enddo
       type(s_site)::ssite(*)
       type(s_lat)::slat
 c     type(s_bz)::sbz
-      type(s_ham)::sham
+c      type(s_ham)::sham
       integer iprmb(*),nl
       integer:: nkap0 , n0 , ibas , k 
       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
@@ -307,9 +307,9 @@ c              if(debug)print *
 
 !! === rotation of APW. (not the IPW part for GW).===
 c$$$ 1012 continue
-      pwmode=sham%pwmode
-      pwemax=sham%pwemax
-c     pwemin=sham%pwemin
+      pwmode=ham_pwmode
+      pwemax=ham_pwemax
+c     pwemin=ham_pwemin
       if(pwmode==0.or.pwemax<1d-8) then
         if(allocated(napwk)) deallocate(napwk)
         allocate(napwk(nkt))
@@ -448,11 +448,13 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
 
-      subroutine suham(slat,sspec,ssite,sham,spot)!,sbz)sctrl,
+      subroutine suham(slat,sspec,ssite,spot)!,sbz)sctrl,,sham
       use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
+      use m_lmfinit,only:
+     &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax
 
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
@@ -521,7 +523,7 @@ c      type(s_ctrl)::sctrl
       type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_pot)::spot
 c      type(s_bz)::sbz
 c      character*(*) sstrn
@@ -560,10 +562,10 @@ C ... Needed for iostr
 c      lncol=ctrl_lncol
       nsp=ctrl_nspin
       nkaph = globalvariables%nkaph
-      pwmode=sham%pwmode
-      pwemin=sham%pwemin
-      pwemax=sham%pwemax
-      npwpad=sham%npwpad
+      pwmode=ham_pwmode
+      pwemin=ham_pwemin
+      pwemax=ham_pwemax
+      npwpad=ham_npwpad
 
       nspc  = 1
       nspx  = nsp
@@ -593,14 +595,14 @@ C --- Hamiltonian offsets, orbital permutation table ---
         deallocate(ips)
       endif
 C     Default value for hamiltonian dimension
-      sham%ndham=ldham(1)
+      ham_ndham=ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
       ldham(6) = ldham(2) * nspc
       ldham(7) = ldham(3) * nspc
       ldham(8) = nspx
-      sham%ldham=ldham
+      ham_ldham=ldham
 
 C ------- Potential- and implementation- specific setup -------
       alat=slat%alat
@@ -638,7 +640,7 @@ cc        ssite(ib)%pz=pz
 C         Find largest lmxa
         lmxax = max(lmxax,lmxa)
    20 continue
-      sham%lmxax=lmxax
+      ham_lmxax=lmxax
       spot%nlma=nvi
       spot%nlml=nvl
 
@@ -651,8 +653,8 @@ C         Find largest lmxa
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
-      pwmode = sham%pwmode
-      pwemax = sham%pwemax
+      pwmode = ham_pwmode
+      pwemax = ham_pwemax
       if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
@@ -699,9 +701,9 @@ c             call shorbz(q,q,qlat,plat)
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
 
-        sham%npwmin=npwmin
-        sham%npwpad=npwpad
-        sham%ndham=ndham
+        ham_npwmin=npwmin
+        ham_npwpad=npwpad
+        ham_ndham=ndham
 
         if (mod(pwmode/10,10) .eq. 1) then
           call info2(20,1,0,' suham:  q-dependent PW basis with'//

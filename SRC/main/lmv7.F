@@ -1,11 +1,11 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_struc_def,only: s_lat,s_ham,s_pot,s_mix,s_array,s_spec,s_site !,s_move,s_str,s_bz,s_ctrl
+      use m_struc_def,only: s_lat,s_pot,s_mix,s_array,s_spec,s_site !,s_move,s_str,s_bz,s_ctrl ,s_ham
       use m_lmfinit, only:
      &     NULLI,NULLR,T,F,mxrecs,recln0,
-     &     slabl_,v_sham,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
+     &     slabl_,v_spot,v_slat,v_slat2,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg,
-     &     symgaf !v_sbz,v_sctrl,v_sctrl2,
+     &     symgaf !v_sbz,v_sctrl,v_sctrl2,v_sham,
       use m_hamindex,only: 
      &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
       use m_ext,only: getext,sname
@@ -143,7 +143,7 @@ c      integer namelen(0:MAX_PROCS-1)
 !! rdctrl2 sets all initial condition to m_lmfinit module.
       call rdctrl2(recrd,recln0,nrecs,prgnam)
 !! main part of lmf ------------------------------------
-      call lmfp(prgnam,v_sham,v_spot,v_slat, !v_sctrl,
+      call lmfp(prgnam,v_spot,v_slat, !v_sctrl,,v_sham
      .  v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry v_sbz,
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')

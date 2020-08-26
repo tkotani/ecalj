@@ -95,7 +95,7 @@ C     call tcx('mkrou3')
       end module m_mkrou3
 
 
-      subroutine mkrout ( ssite , sspec , slat , sham , nbas , nsp 
+      subroutine mkrout ( ssite , sspec , slat , nbas , nsp !sham , 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .     , sab , qbyl , hbyl , lrout )
       use m_work,only: iv_a_oindxo
@@ -103,6 +103,7 @@ C     call tcx('mkrou3')
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_mkrou3
+      use m_lmfinit,only:ham_eterms
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -163,7 +164,7 @@ C ----------------------------------------------------------------------
      ., hab(nab,n0,nsp,nbas)
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nbas)
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_lat)::slat
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
@@ -213,9 +214,9 @@ Changenglob      nkaph = nglob('nkaph')
       nkaph = globalvariables%nkaph
       sums1 = 0
       call tcn('mkrout')
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
-
+c      i_copy_size=size(sham%eterms)
+c      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
+      eterms=ham_eterms
 C --- Start loop over atoms ---
       sumtc = 0d0
       sumec = 0d0
@@ -462,9 +463,9 @@ ckino Dec.28.2011:              call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat
 
 C --- Put sumec,sumtc into etot struct ---
 
-      i_copy_size=size(sham%eterms)
-      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
-
+c      i_copy_size=size(sham%eterms)
+c      call dcopy(i_copy_size,eterms,1,sham%eterms,1)
+      ham_eterms=eterms
 
       call tcx('mkrout')
       end subroutine mkrout

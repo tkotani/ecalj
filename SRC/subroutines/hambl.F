@@ -1,9 +1,9 @@
-      subroutine hambl ( mode , nbas , ssite , sspec , slat , sham 
+      subroutine hambl ( mode , nbas , ssite , sspec , slat !, sham 
      .   , isp , qin , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .   , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapwin , h , s , 
      .     hso )
       use m_work,only: iv_a_oindxo
-      use m_struc_def,only: s_rv1, s_site, s_spec, s_ham, s_lat
+      use m_struc_def,only: s_rv1, s_site, s_spec,  s_lat !s_ham,
       implicit none
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------
@@ -69,7 +69,7 @@ C ----------------------------------------------------------------------
       real(8):: q(3) , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_ham)::sham
+c      type(s_ham)::sham
       type(s_lat)::slat
       double complex smpot(k1,k2,k3),h(ndimh,ndimh),s(ndimh,ndimh)
       double complex hso(ndimh,ndimh)
