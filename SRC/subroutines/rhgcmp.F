@@ -1,7 +1,8 @@
-      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,slat,sv_p_orhoat,kmax,ng,cg)
+      subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
       use m_work,only: rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,25 +61,19 @@ Cu             Recovers old rhgcmp for kmax=0.  New argument list.
 Cu   09 Feb 01 Added mode
 Cu   30 May 00 Adapted from nfp rho_gcomp.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,ib1,ib2,ng,kmax
+      integer mode,ib1,ib2,ng,kmax,i_copy_size
 c      integer orhat
-
       type(s_rv1) :: sv_p_orhoat(3,1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
-
+c      type(s_lat)::slat
       double complex cg(ng)
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
      .nlmtop,nspec,ngabc(3),lfoc,modgkl
       integer:: nsp
-ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
-
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)
       real(8) ,allocatable :: g_rv(:)
@@ -86,32 +81,25 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
       integer ,allocatable :: iv_iv(:)
       real(8) ,allocatable :: sn_rv(:)
       real(8) ,allocatable :: yl_rv(:)
-
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,ceh,cofg,cofh,qcorg,qcorh,qsc,rfoc,rg,
      .vol,z,q0(3),df(0:20),plat(3,3),qlat(3,3),tau(3)
-C ... External calls
-ckino      external corprm,defi,defrr,poppr,pshpr,rhgcm2,rhogkl,rlse,stdfac,
-ckino     .suphas,suphs0,suylg,tcn,tcx,upack
-ckino del defi defrr,upack,rlse
-      external corprm,poppr,pshpr,rhgcm2,rhogkl,stdfac,
-     .suphas,suphs0,suylg,tcn,tcx
-C ... Heap
+      external corprm,poppr,pshpr,rhgcm2,rhogkl,stdfac,suphas,suphs0,suylg,tcn,tcx
       data q0 /0d0,0d0,0d0/
-
       call tcn('rhgcmp')
       call stdfac(20,df)
-
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ng1=slat%ng
-      vol=slat%vol
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+c      i_copy_size=size(lat_nabc)
+c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
+      ngabc=lat_nabc
+      ng1=lat_ng
+      vol=lat_vol
       nspec = globalvariables%nspec
       nsp   = globalvariables%nsp
       modgkl = mode
@@ -136,8 +124,9 @@ C --- Loop over sites ---
       iv0 = 0
       do  ib = ib1, ib2
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+c        i_copy_size=size(ssite(ib)%pos)
+c     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+        tau=ssite(ib)%pos
         lmxl=sspec(is)%lmxl
         rg=sspec(is)%rg
         if (lmxl .eq. -1) goto 10

@@ -1,17 +1,18 @@
 #define USEOPTIONAL 1
 !! ------------------------------
 !! ------------------------------
-      subroutine sugw ( ssite , sspec , slat ,  nbas , ndham !sham ,
+      subroutine sugw ( ssite , sspec ,  nbas , ndham !sham ,slat , 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)
-      use m_struc_def,only:  s_rv1, s_lat, s_spec, s_site !s_ham, 
+      use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
       use m_globalvariables,only: globalvariables
-      use m_phmbls,only: phmbls
+c      use m_phmbls,only: phmbls
       use m_work,only: iv_a_oindxo,iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,
-     &     ham_ndhrs,ham_scaledsigma,ham_nqsig
+     &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
+     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax,lat_npgrp,lat_nsgrp
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -138,7 +139,7 @@ Cu   23 Apr 01 First created
       type(s_rv1) :: sv_p_osigx(3,nbas)
       type(s_site):: ssite(nbas)
       type(s_spec):: sspec(*)
-      type(s_lat):: slat
+c      type(s_lat):: slat
 c      type(s_ham):: sham
       real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas) !, coreq(2)
       logical :: bandmode=.false.,endofline=.false.,lwvxc
@@ -263,15 +264,15 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       rank0=.false.
       if(procid==master) rank0=.true.
       call getpr(ipr)
-      alat=slat%alat
-      n1 = slat%nabc(1)
-      n2 = slat%nabc(2)
-      n3 = slat%nabc(3)
-      plat =slat%plat
-      qlat =slat%qlat
-      gmax =slat%gmax
-      npgrp =slat%npgrp
-      nsgrp =slat%nsgrp
+      alat=lat_alat
+      n1 = lat_nabc(1)
+      n2 = lat_nabc(2)
+      n3 = lat_nabc(3)
+      plat =lat_plat
+      qlat =lat_qlat
+      gmax =lat_gmax
+      npgrp =lat_npgrp
+      nsgrp =lat_nsgrp
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
       lchk = 1
@@ -822,12 +823,12 @@ c$$$        endif
           if(iprocq(iqq,isp)/=procid) cycle
 !!   --- vxc <- LDA Hamiltonian without vxc for this qp ---
           alfa = 0
-          call hambl ( 0 , nbas , ssite , sspec , slat  , isp , qp !, sham
+          call hambl ( 0 , nbas , ssite , sspec ,  isp , qp !, sham slat  ,
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .       , lcplxp , alfa , ndimh , napw , igv2 , vxc , ovl , w )
           if(debug) print *,' goto hambl vxc '
 !!  --- LDA Hamiltonian and overlap matrices for this qp ---
-          call hambl ( 0 , nbas , ssite , sspec , slat  , isp , qp !, sham
+          call hambl ( 0 , nbas , ssite , sspec ,  isp , qp !, sham slat  ,
      .       , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
      .       , lcplxp , alfa , ndimh , napw , igv2 , ham , ovl , w )
           if(debug) print *,' goto hambl lda o '
@@ -865,7 +866,7 @@ c     o        sene)
           endif
 
           jx = 0
-          call hambl ( jx , nbas , ssite , sspec , slat  , isp , !, sham
+          call hambl ( jx , nbas , ssite , sspec ,  isp , !, sham slat  ,
      .         qp , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .         , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2, ham, ovl, ham)
 
@@ -1065,7 +1066,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
             if(debug) write(6,"(' ppppppp goto makusq')")
-            call makusq ( 1 , ssite , sspec , slat ,  nbas , nbas , !sham ,
+            call makusq ( 1 , ssite , sspec , nbas , nbas , !sham ,slat ,  
      .      0 , nlmax , ndham , ndimh , napw , igv2 , nev , nsp , 
      .      nspc , isp , 1 , qp , evec , ppn , aus_zv )
             call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
@@ -1120,7 +1121,7 @@ c          if (mod(loldpw,2) .eq. 0) then
               if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
               inn=0
               if(debug) print *,'goto pwmat'
-              call pwmat ( slat , ssite , sspec , nbas , ndimh , napw,
+              call pwmat (  ssite , sspec , nbas , ndimh , napw, !slat ,
      .          igv2, iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
      .          ppovl, phovl )
               if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
@@ -1347,7 +1348,7 @@ Cr Remarks
 Cr
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer npqn,lmxax,nbas,ndima,ifi,nlindx(npqn,0:lmxax,nbas)
 C ... Local parameters
@@ -1405,7 +1406,7 @@ Cr
 Cu Updates
 Cu   05 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,nat,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
       integer ipb(nbas)
@@ -1444,7 +1445,7 @@ c--------------------------------------------------------------------
      inbas, rmax, bas,
      oppovl)
 C- < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
-C     implicit none
+      implicit none
       integer ::  nbas, ng1,ng2,nx(3),
      .ig1,ig2, ngvec1(3,ng1),ngvec2(3,ng2),
      .n1x,n2x,n3x,n1m,n2m,n3m
@@ -1524,7 +1525,7 @@ Cr
 Cu Updates
 Cu   27 Mar 07
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,lmxa(nbas),ipc(nbas),ipcx(nbas)
 C ... Local parameters

@@ -1,8 +1,9 @@
 #define SGI 1
-      subroutine hsibl(ssite,sspec,slat,k1,k2,k3,vsm,isp,q,ndimh,iprmb,
+      subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb, !slat,
      .napw,igapw,h)
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -76,7 +77,7 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
 C ... Local parameters
@@ -157,18 +158,20 @@ Changenglob      nspec = nglob('nspec')
       nlmto = ndimh - napw
       if (nspec .gt. nermx) call rx('hsibl: increase nermx')
 
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      gmax=slat%gmax
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c     call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      plat=lat_plat
+      qlat=lat_qlat
+      gmax=lat_gmax
 
-
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ng=slat%ng
-      vol=slat%vol
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
+      ng=lat_ng
+      vol=lat_vol
 
 
 C --- <MTO | V | MTO and < MTO | V PW> parts of h ---

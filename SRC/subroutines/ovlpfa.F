@@ -1,6 +1,6 @@
-      subroutine ovlpfa(ssite,slat,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx,
+      subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx, !slat,
      .gv,cv)
-
+      use m_lmfinit,only:lat_alat,lat_vol
       use m_struc_def  !Cgetarg
       use m_globalvariables
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.
@@ -32,11 +32,11 @@ Cu   01 Jul 05 Zero-radius empty spheres skip as having no local part
 Cu   13 Jun 00 spin polarized
 Cu   24 Apr 00 Adapted from nfp ovlpfa.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,nxi(1),nxi0,ng,ngmx
       real(8):: gv(ngmx,3) , rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_site)::ssite(*)
 
       double complex cv(ng,*)
@@ -64,8 +64,8 @@ Changenglob      nsp  = nglob('nsp')
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4*pi)
 
-      alat=slat%alat
-      vol=slat%vol
+      alat=lat_alat
+      vol=lat_vol
 
       tpiba = 2*pi/alat
       call dpzero(cv,2*ng*nsp)
@@ -96,13 +96,11 @@ c      do  ib = 1, nbas
 #endif
 
       do ib=ibini,ibend
-
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,pos,1)
+        pos=ssite(ib)%pos
         nx = nxi(is)
-
 C   ... Loop over Hankels at this site
         sam(1) = 0
         sam(2) = 0

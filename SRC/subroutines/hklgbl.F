@@ -1,4 +1,4 @@
-      subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,slat,hkl,ghkl)
+      subroutine hklgbl(p,rsm,e,q,kmax,nlm,k0,nlm0,cy,hkl,ghkl)!slat,
 C- Bloch-sums of k,L-dependent smooth hankel functions and gradients
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,10 +21,10 @@ Cr   H_kL are made to kmax+1, lmax+1 in order to assemble grads.
 Cu Updates
 Cu   25 May 00 Adapted from nfp hklg_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k0,kmax,nlm,nlm0
-      double precision slat(1),q(3),p(3),cy(1),e,rsm
+      double precision q(3),p(3),cy(1),e,rsm!slat(1),
       double complex hkl(0:k0,nlm0),ghkl(0:k0,nlm0,3)
 C ... Local parameters
       integer ilm,k,kx1,kx2,ky1,ky2,kz,ll,lmax,m,nlm1
@@ -44,7 +44,7 @@ C ... Local parameters
       enddo
 
 C ... Make Hkl's up to one higher in l and k
-      call hklbl(p,rsm,e,q,kmax+1,nlm1,k0,cy,slat,hkl)
+      call hklbl(p,rsm,e,q,kmax+1,nlm1,k0,cy,hkl)!,slat
 
 C ... Assemble gradients using Clebsh-Gordans for p functions
       do  ilm = 1, nlm

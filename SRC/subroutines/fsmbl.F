@@ -1,4 +1,4 @@
-      subroutine fsmbl(nbas,ssite,sspec,slat,vavg,q,ndimh,nlmto,iprmb,
+      subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, !,slat
      .     numq,nevec,evl,evec,ewgt,f)
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
@@ -60,7 +60,7 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
       double complex evec(ndimh,ndimh)
@@ -167,7 +167,7 @@ C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
               call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 
      .            i2 ) , e1 ( 1 , i1 ) , e2 ( 1 , i2 ) , nlm1 , nlm2 , 1 , nlms
      .            , nlms , k0 , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy , 
-     .            slat , s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 ,  i2 ) )
+     .            s ( 1 , 1 , 0 , i1 , i2 ) , ds ( 1 , 1 , 0 , 1 , i1 ,  i2 ) ) !slat , 
             enddo
           enddo
 

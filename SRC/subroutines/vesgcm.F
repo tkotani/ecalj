@@ -1,8 +1,7 @@
-      subroutine vesgcm(nbas,ssite,sspec,slat,cy,qmom,ng,gv,
+      subroutine vesgcm(nbas,ssite,sspec,cy,qmom,ng,gv,!slat,
      .kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
-
       use m_struc_def  !Cgetarg
-
+      use m_lmfinit,only:lat_alat,lat_vol
 C- Adds contribution from compensating gaussians to smooth estat pot.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,7 +59,7 @@ Cu   01 Jul 05 handle sites with lmxl=-1 -> no augmentation
 Cu   20 Apr 01 Generates vrmt
 Cu   23 Apr 00 Adapted from nfp ves_gcomp.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k1,k2,k3,nbas,ng,kv(ng,3)
       double precision qsmc,zsum
@@ -68,7 +67,7 @@ C ... Passed parameters
      .hpot0(nbas) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3),cv(ng),cg1(ng),cgsum(ng)
 C ... Local parameters
@@ -88,8 +87,8 @@ C ... Local parameters
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
 
-      alat=slat%alat
-      vol=slat%vol
+      alat=lat_alat
+      vol=lat_vol
 
       tpiba = 2*pi/alat
 
@@ -103,12 +102,10 @@ C     and make integrals g*phi0, h*phi0
       qsmc = 0d0
       zsum = 0d0
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+        tau=ssite(ib)%pos
         lmxl=sspec(is)%lmxl
         rg=sspec(is)%rg
 
@@ -196,9 +193,9 @@ C --- Electrostatic potential at rmt ---
       do  ib = 1, nbas
 
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+        tau=ssite(ib)%pos
         call dscal(3,alat,tau,1)
 
         rmt=sspec(is)%rmt

@@ -1,10 +1,11 @@
 !!= Gradient correction to smoothed rho(q) tabulated on a mesh =
 !!*Kotani's version newmode with xcpbe.F in abinit Aug2010
-      subroutine vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
+      subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho, !slat,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
       use m_work,only: iv_a_okv,rv_a_ogv!,rv_a_ocy
-      use m_struc_def, only:s_lat
+c      use m_struc_def, only:s_lat
       use m_xcpbe,  only: xcpbe
+      use m_lmfinit,only:  lat_nabc, lat_ng, lat_alat,lat_vol
 !! ----------------------------------------------------------------------
 !!i Inputs
 !!i   lxcg  : dummy now.  (need to set option in xcpbe)
@@ -56,11 +57,8 @@ C ----------------------------------------------------------------------
       complex(8):: smrho(k1,k2,k3,nsp),vxcnl(k1,k2,k3,nsp)
       complex(8):: vxnl(k1,k2,k3,nsp), vcnl(k1,k2,k3,nsp),tpibai
 
-      type(s_lat)::  slat
+c      type(s_lat)::  slat
       integer ip,i,i1,i2,i3,lcut,ng,np,ipr,n1,n2,n3,ngabc(3),nnn
-ckino Dec.12.2011:        integer,pointer :: iv_p_okv(:) =>NULL()
-ckino Dec.12.2011:        real(8),pointer :: rv_p_ogv(:) =>NULL()
-
       real(8),allocatable :: ggr(:,:),agr(:,:),gagr(:,:),rho(:,:)
       real(8),allocatable :: enl(:,:,:),vnl(:,:,:,:),enlbk(:,:,:)
       real(8),allocatable:: dvxcdgr(:,:,:,:),grho2_updn(:,:,:,:),grho(:,:,:,:,:),gv(:,:)
@@ -82,16 +80,16 @@ c      logical:: newmode=.true. , debug=.false., plottest=.true.
       call tcn('vxcnlm')
       if(debug) print *,'smvxcm:calling vxcnlm sum=',sum(abs(smrho))
       call getpr(ipr)
-      ngabc =slat%nabc
+      ngabc =lat_nabc
       n1= ngabc(1)
       n2= ngabc(2)
       n3= ngabc(3)
       if(abs(n1-k1)+abs(n2-k2)+abs(n3-k3)/=0) call rx('vxcnlm: ni/=ki')
-      ng    = slat%ng
+      ng    = lat_ng
       allocate(gv(ng,3))
       call dcopy(3*ng,rv_a_ogv,1,gv,1)
-      alat  =slat%alat
-      vol   =slat%vol
+      alat  =lat_alat
+      vol   =lat_vol
       np = n1*n2*n3 !k1*k2*k3
       if(debug) print *,'vxcnlm: sum check smrho=',sum(abs(smrho))
 !!== New mode start here ==

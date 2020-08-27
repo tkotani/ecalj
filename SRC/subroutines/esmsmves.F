@@ -1,10 +1,10 @@
 !! this file is from M.Obata (Kanazawa univ).
-      subroutine esmsmves( nbas , ssite , sspec , slat , cy , qmom ,
+      subroutine esmsmves( nbas , ssite , sspec , cy , qmom ,!slat , 
      .   ng , gv , kv , cv , cg1 , cgsum , k1 , k2 ,  k3 , smrho, qbg, smpot ,
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       use m_struc_def
       use m_globalvariables
-
+      use m_lmfinit,only: lat_alat,lat_vol,lat_plat
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,7 +24,7 @@ C ... Passed parameters
       real(8), intent(out) :: zsum, qsmc
       complex(kind(0d0)), intent(in) :: smrho(k1, k2, k3, 2), cgsum(ng)
       complex(kind(0d0)), intent(out) :: smpot(k1, k2, k3), cv(ng), cg1(ng)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -57,12 +57,12 @@ C ... Local parameters
       pi  = 4d0*datan(1d0)
       epi = 8d0*pi
 
-      alat = slat%alat
-      vol = slat%vol
+      alat = lat_alat
+      vol = lat_vol
       tpiba = 2*pi/alat
       tpiba2 = tpiba*tpiba
       stdo = lgunit(1)
-      plat = slat%plat
+      plat = lat_plat
 
       if( esm_init ) then
 
@@ -167,7 +167,7 @@ C ... Local parameters
 
       smpot(1:k1,1:k2,1:k3) = smpot(1:k1,1:k2,1:k3) - vtmp(1:k1,1:k2,1:k3)
 
-      call vesgcm ( nbas , ssite , sspec , slat , cy , qmom ,
+      call vesgcm ( nbas , ssite , sspec , cy , qmom , !slat , 
      .   ng , gv , kv , cv , cg1 , cwork, k1 , k2,  k3 , smpot, f , gpot0 , hpot0 , qsmc , zsum , vrmt)
 
       if ( procid == master ) then

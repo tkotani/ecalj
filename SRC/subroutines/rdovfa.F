@@ -1,9 +1,10 @@
-      subroutine rdovfa ( nbas , nspec , ssite , sspec , slat , spot 
+      subroutine rdovfa ( nbas , nspec , ssite , sspec  , spot !, slat
      . , qbg , sv_p_orhoat )
       use m_work,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
       use m_globalvariables
+      use m_lmfinit,only:lat_alat,lat_plat,lat_nabc,lat_vol,lat_ng
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------
@@ -32,7 +33,7 @@ Cu   15 Feb 02 (ATP) Added MPI parallelization
 Cu   13 Jun 00 spin polarized
 Cu   21 Apr 00 Adapted from nfp rdovfa.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer procid, master, mpipid
       integer:: nbas , nspec
@@ -40,7 +41,7 @@ C ... Passed parameters
       real(8):: qbg
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_pot)::spot
 
 C ... Local parameters
@@ -66,7 +67,7 @@ C ... Local parameters
       character msg*23, strn*120
       logical mlog,cmdopt,lfail
       logical:: l_dummy_isanrg,isanrg
-
+      integer:: i_copy_size,i_spec
       call tcn('rdovfa')
       ipr   = iprint()
       stdo  = lgunit(1)
@@ -78,12 +79,14 @@ C ... Local parameters
       mlog = cmdopt('--mlog',6,0,strn)
       if (ipr .ge. 10) write(stdo,700)
   700 format(/' rdovfa: read and overlap free-atom densities',' (mesh density) ...')
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      vol=slat%vol
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      plat=lat_plat
+      ngabc=lat_nabc
+      vol=lat_vol
       call fftz30(n1,n2,n3,k1,k2,k3)
       call dpzero(hfc,n0*2*nspec)
       call dpzero(pnu,n0*2)
@@ -96,14 +99,13 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
       endif
       do  10  is = 1, nspec
         allocate(rv_a_orhofa(is)%v(abs(-nrmx*nsp)))
-        if (-nrmx*nsp<0) rv_a_orhofa(is)%v(:)=0.0d0
+        rv_a_orhofa(is)%v(:)=0.0d0
         if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
         allocate(sspec(is)%rv_a_orhoc(   nrmx*nsp) )
         sspec(is)%rv_a_orhoc=0.0d0
-        allocate(rv_a_ov0a(is)%v(abs(-nrmx*nsp)))
-        if (-nrmx*nsp<0) rv_a_ov0a(is)%v(:)=0.0d0
+        allocate(rv_a_ov0a(is)%v(nrmx*nsp))
+        rv_a_ov0a(is)%v(:)=0.0d0
         spid(is)=sspec(is)%name
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
@@ -269,9 +271,9 @@ C     end loop over sites
    20 continue
 
 C --- Overlap smooth hankels to get smooth interstitial density ---
-      ng=slat%ng
+      ng=lat_ng
       allocate(cv_zv(ng*nsp))
-      call ovlpfa ( ssite , slat , nbas , nxi , n0 , exi , hfc , rsmfa
+      call ovlpfa ( ssite , nbas , nxi , n0 , exi , hfc , rsmfa !slat , 
      . , ng , ng , rv_a_ogv , cv_zv )
       call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cv_zv , zv_a_osmrho )
       if (allocated(cv_zv)) deallocate(cv_zv)
@@ -286,7 +288,7 @@ C ... integrate
         smom = 2*smom - sum1
       endif
 C --- Set up local densities using rmt from atm file ---
-      call ovlocr ( nbas , ssite , sspec , slat , n0 , nxi , exi , 
+      call ovlocr ( nbas , ssite , sspec ,  n0 , nxi , exi , !slat ,
      .  hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom )
 C --- Add compensating uniform electron density to compensate background
       call adbkql ( sv_p_orhoat , nbas , nsp , qbg , vol , - 1d0 , sspec , ssite )

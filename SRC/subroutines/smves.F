@@ -1,9 +1,11 @@
-      subroutine smves(mode,nbas,ssite,sspec,slat,k1,k2,k3,qmom,gpot0,
+      subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, !slat,
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
       use m_work,only: rv_a_ogv , iv_a_okv, rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: lat_nabc,lat_ng,lat_vol
+      use m_ext,only: sname
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -143,7 +145,7 @@ C ... Passed parameters
       double precision qsmc,smq,rhvsm,sgp0,vconst,zsum,zvnsm,qbg
       real(8):: qmom(1) , f(3,nbas) , gpot0(1) , vval(1) , hpot0(nbas) 
      ., vrmt(nbas)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -157,7 +159,7 @@ C ... Passed parameters
 
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ceh,cofg,cofh,dgetss,hsum,pi,qcorg,qcorh,qsc,
-     .rfoc,rmt,s1,s2,sbar,srfpi,sum,sum1,sum2,u00,u0g,ugg,usm,vbar,
+     .rfoc,rmt,s1,s2,sbar,srfpi,sumx,sum1,sum2,u00,u0g,ugg,usm,vbar,
      .vcnsto,vol,y0,z,R,eint
       integer ::iwdummy, ifivsmconst,fopna
       logical master_mpi
@@ -169,10 +171,11 @@ C ... Setup
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ng=slat%ng
-      vol=slat%vol
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
+      ng=lat_ng
+      vol=lat_vol
 
 C     Electrostatics depend only on total spin density
       if (nsp .eq. 2) then
@@ -187,27 +190,27 @@ C     debugging ... one-center expansion of smrho
 C     call msh21c(1,ssite,sspec,slat,ng,w(ogv),w(okv),k1,k2,k3,smrho)
 
 C --- Estatic potential of smooth density without gaussians ---
-      call vesft ( slat , ng , rv_a_ogv , iv_a_okv , cv_zv , k1 , k2 
+      call vesft ( ng , rv_a_ogv , iv_a_okv , cv_zv , k1 , k2 !slat , 
      .  , k3 , smrho , smpot , u00 )
 
 C ... Add estatic potential of compensating gaussians to smpot
       allocate(cg1_zv(ng))
       allocate(cgsum_zv(ng))
-      call vesgcm ( nbas , ssite , sspec , slat , rv_a_ocy , qmom ,
+      call vesgcm ( nbas , ssite , sspec ,  rv_a_ocy , qmom ,!slat ,
      .   ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       if (ipr .ge. 40) write (stdo,230) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   230 format(/' after vesgcomp: forces are:'/(i4,3f12.6))
 
 C --- M. OBATA check
-      call esmsmves( nbas , ssite , sspec , slat , rv_a_ocy , qmom ,
+      call esmsmves( nbas , ssite , sspec ,  rv_a_ocy , qmom , !slat ,
      .   ng , rv_a_ogv , iv_a_okv , cv_zv , cg1_zv , cgsum_zv , k1 , k2 
      .   , k3 , smrho, qbg, smpot , f , gpot0 , hpot0 , qsmc , zsum , vrmt )
 
 C ... Compute e.s. potential at MT boundary
-      call mshvmt ( nbas , ssite , sspec , slat , ng , rv_a_ogv , iv_a_okv 
+      call mshvmt ( nbas , ssite , sspec ,  ng , rv_a_ogv , iv_a_okv !slat ,
      .  , cv_zv , k1 , k2 , k3 , smpot , vval )
-      call symvvl(nbas,ssite,sspec,slat,vval,vrmt)
+      call symvvl(nbas,ssite,sspec,vval,vrmt) !slat,
       if (allocated(cgsum_zv)) deallocate(cgsum_zv)
       if (allocated(cg1_zv)) deallocate(cg1_zv)
 C     call zprm3('smpot',0,smpot,n1,n2,n3)
@@ -230,9 +233,9 @@ C --- Make vbar = avg v(RMT) and optionally assign to vconst ---
       if(mode==0) call rx('takao: vsmconst is not vconst due to estatic. need to implement something!')
 
       if(master_mpi()) then
-      ifivsmconst = fopna('vessm',-1,0)
-      write(ifivsmconst,"(d23.15)") vconst
-      call fclose('vessm')
+         open(newunit=ifivsmconst,file='vessm.'//trim(sname))
+         write(ifivsmconst,"(d23.15)") vconst
+         close(ifivsmconst)
       endif
 
 C ... Adjust vbar, vval, gpot0 by vconst
@@ -256,7 +259,6 @@ C ... Adjust vbar, vval, gpot0 by vconst
      .   , 0 , 4 , 0 , '  | ' , iwdummy , vrmt , iwdummy , iwdummy , iwdummy 
      .   , iwdummy , iwdummy , iwdummy )
       endif
-
 C ... Back transform of density and potential to real-space mesh
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,1,0,1)
       call fftz3(smpot,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -285,7 +287,8 @@ C     Integral n0 phi0~
       call mshdot(vol,1,n1,n2,n3,k1,k2,k3,smrho,smpot,s1,s2)
       u0g = s1 - u00
 
-      call ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
+      call ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f) !slat,
+c      write(6,*)'sumcheck=',sum(smrho(:,:,:,1)),sum(smpot(:,:,:,1))
 
       if (ipr .ge. 50) write (stdo,231) (ib,(f(m,ib),m=1,3),ib=1,nbas)
   231 format(/' after ugcomp: forces are'/(i4,3f12.6))
@@ -295,7 +298,7 @@ C     Integral n0 phi0~
 C --- Collect energy terms; make zvnuc for smooth problem ---
       zvnsm = 0d0
       rhvsm = u00 + u0g + vconst*smq
-      sum = 0d0
+      sumx = 0d0
       iv0 = 0
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
@@ -311,12 +314,12 @@ C       hsum = integral of charge in sm. Hankel
           zvnsm = zvnsm + (qcorg-z)*y0*gpot0(iv0+1) + cofh*hpot0(ib)
           do  ilm = 1, nlm
             rhvsm = rhvsm + qmom(iv0+ilm)*gpot0(iv0+ilm)
-            sum = sum + qmom(iv0+ilm)*gpot0(iv0+ilm)
+            sumx = sumx + qmom(iv0+ilm)*gpot0(iv0+ilm)
           enddo
           iv0 = iv0+nlm
         endif
       enddo
-      sgp0 = sum
+      sgp0 = sumx
 
 c|      write(stdo,991) zvnsm,rhvsm,sum
 c|  991 format(' zvnsm=',f12.6,'   rhvsm=',f12.6,

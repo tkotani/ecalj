@@ -560,37 +560,37 @@ Cr  121   43    vol     cell volume
       integer  ::   nclasp
       end type s_array
 
-      type s_lat
-      real(8)  ::   size
-      real(8)   ::   alat
-      real(8)   ::   as
-      real(8)   ::   avw
-      real(8)   ::   awald
-      real(8)   ::   dist(9)
-      real(8)   ::   gam(4)
-      real(8)   ::   gmax
-      integer   ::   ldist
-      integer   ::   nabc(3)
-      integer   ::   ng
-      integer   ::   nkd
-      integer   ::   nkdmx
-      integer   ::   nkq
-      integer   ::   nkqmx
-      integer   ::   npgrp
-      integer   ::   nsgrp
-      real(8)   ::   plat(3,3)
-      real(8)   ::   plat0(3,3)
-      real(8)   ::   plat2(3,3)
-      real(8)   ::   plate(3,3)
-      real(8)   ::   platl(3,3)
-      real(8)   ::   platr(3,3)
-      real(8)   ::   qlat(3,3)
-      real(8)   ::   rpad
-      real(8)   ::   slat(3,3)
-      real(8)   ::   tol
-      real(8)   ::   tolft
-      real(8)   ::   vol
-      end type s_lat
+c$$$      type s_lat
+c$$$      real(8)  ::   size
+c$$$      real(8)   ::   alat
+c$$$      real(8)   ::   as
+c$$$      real(8)   ::   avw
+c$$$      real(8)   ::   awald
+c$$$      real(8)   ::   dist(9)
+c$$$      real(8)   ::   gam(4)
+c$$$      real(8)   ::   gmax
+c$$$      integer   ::   ldist
+c$$$      integer   ::   nabc(3)
+c$$$      integer   ::   ng
+c$$$      integer   ::   nkd
+c$$$      integer   ::   nkdmx
+c$$$      integer   ::   nkq
+c$$$      integer   ::   nkqmx
+c$$$      integer   ::   npgrp
+c$$$      integer   ::   nsgrp
+c$$$      real(8)   ::   plat(3,3)
+c$$$      real(8)   ::   plat0(3,3)
+c$$$      real(8)   ::   plat2(3,3)
+c$$$      real(8)   ::   plate(3,3)
+c$$$      real(8)   ::   platl(3,3)
+c$$$      real(8)   ::   platr(3,3)
+c$$$      real(8)   ::   qlat(3,3)
+c$$$      real(8)   ::   rpad
+c$$$      real(8)   ::   slat(3,3)
+c$$$      real(8)   ::   tol
+c$$$      real(8)   ::   tolft
+c$$$      real(8)   ::   vol
+c$$$      end type s_lat
 
 Cr --- explanation of  umix ---
 Cr   off offe  name    purpose
@@ -1205,34 +1205,34 @@ c$$$      uham_size=n
 c$$$#endif  /* MPIADDRESS*/
 c$$$      end function uham_size
 
-      integer function ulat_size()
-#if MPI|MPIK|MPIADDRESS
-      use m_struc_def, only: s_lat
-      implicit none
-      type(s_lat):: v(2)
-      integer:: iadd(2), ierr,imod,n
-      call mpi_get_address(v(1),iadd(1),ierr)
-      call mpi_get_address(v(2),iadd(2),ierr)
-      n=iadd(2)-iadd(1)
-      imod=mod(n,8)
-      n=n/8
-      if (imod.ne.0) n=n+1
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      ulat_size=n
-C        write(*,*) 'ulat_size=',n
-#else  /* MPIADDRESS*/
-      integer:: n
-      n=-9999 !n= 120
-C  +2 is margin
-C         n=n+2
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      ulat_size=n
-#endif  /* MPIADDRESS*/
-      end function ulat_size
+c$$$      integer function ulat_size()
+c$$$#if MPI|MPIK|MPIADDRESS
+c$$$      use m_struc_def, only: s_lat
+c$$$      implicit none
+c$$$      type(s_lat):: v(2)
+c$$$      integer:: iadd(2), ierr,imod,n
+c$$$      call mpi_get_address(v(1),iadd(1),ierr)
+c$$$      call mpi_get_address(v(2),iadd(2),ierr)
+c$$$      n=iadd(2)-iadd(1)
+c$$$      imod=mod(n,8)
+c$$$      n=n/8
+c$$$      if (imod.ne.0) n=n+1
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      ulat_size=n
+c$$$C        write(*,*) 'ulat_size=',n
+c$$$#else  /* MPIADDRESS*/
+c$$$      integer:: n
+c$$$      n=-9999 !n= 120
+c$$$C  +2 is margin
+c$$$C         n=n+2
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      ulat_size=n
+c$$$#endif  /* MPIADDRESS*/
+c$$$      end function ulat_size
 
       integer function umix_size()
 #if MPI|MPIK|MPIADDRESS
@@ -1759,116 +1759,116 @@ c$$$      endif
 c$$$#endif
 c$$$      end subroutine mpibc1_s_ham
 
-      subroutine mpibc1_s_lat(struc,mlog,funnam,label)
-      use m_struc_def, only: s_lat
-      implicit none
-#if MPI|MPIK
-      include 'mpif.h'
-      integer numprocs, ierr
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      character*256 strn
-      logical lgunit
-      integer procid,master,i_data_size
-      integer:: n=0, cast=4
-C use i_data_size in order to cast an address to integer
-#endif
-C ... Passed parameters
-      logical mlog
-      type(s_lat):: struc
-      character funnam*(*), label*(*)
-#if MPI|MPIK
-      master=0
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call mpi_bcast(struc%size, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%alat, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%as, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%avw, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%awald, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%dist) ! dist(9)
-      call mpi_bcast(struc%dist, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%gam) ! gam(4)
-      call mpi_bcast(struc%gam, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%gmax, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ldist, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%nabc) ! nabc(3)
-      call mpi_bcast(struc%nabc, i_data_size,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%ng, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkd, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkdmx, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkq, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nkqmx, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%npgrp, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nsgrp, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%plat) ! plat(9)
-      call mpi_bcast(struc%plat, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%plat0) ! plat0(9)
-      call mpi_bcast(struc%plat0, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%plat2) ! plat2(9)
-      call mpi_bcast(struc%plat2, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%plate) ! plate(9)
-      call mpi_bcast(struc%plate, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%platl) ! platl(9)
-      call mpi_bcast(struc%platl, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%platr) ! platr(9)
-      call mpi_bcast(struc%platr, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%qlat) ! qlat(9)
-      call mpi_bcast(struc%qlat, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%rpad, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%slat) ! slat(9)
-      call mpi_bcast(struc%slat, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%tol, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%tolft, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%vol, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-
-      if (mlog) then
-        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-        call strcop(shortname(procid),name,10,'.',ierr)
-        namelen(procid) = ierr-1
-        call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
-      endif
-#endif
-      end subroutine mpibc1_s_lat
+c$$$      subroutine mpibc1_s_lat(struc,mlog,funnam,label)
+c$$$      use m_struc_def, only: s_lat
+c$$$      implicit none
+c$$$#if MPI|MPIK
+c$$$      include 'mpif.h'
+c$$$      integer numprocs, ierr
+c$$$      integer MAX_PROCS
+c$$$      parameter (MAX_PROCS = 100)
+c$$$      integer resultlen
+c$$$      character*(MPI_MAX_PROCESSOR_NAME) name
+c$$$      character*10 shortname(0:MAX_PROCS-1)
+c$$$      character*26 datim
+c$$$      integer namelen(0:MAX_PROCS-1)
+c$$$      character*256 strn
+c$$$      logical lgunit
+c$$$      integer procid,master,i_data_size
+c$$$      integer:: n=0, cast=4
+c$$$C use i_data_size in order to cast an address to integer
+c$$$#endif
+c$$$C ... Passed parameters
+c$$$      logical mlog
+c$$$      type(s_lat):: struc
+c$$$      character funnam*(*), label*(*)
+c$$$#if MPI|MPIK
+c$$$      master=0
+c$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+c$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+c$$$      call mpi_bcast(struc%size, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%alat, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%as, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%avw, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%awald, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%dist) ! dist(9)
+c$$$      call mpi_bcast(struc%dist, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%gam) ! gam(4)
+c$$$      call mpi_bcast(struc%gam, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%gmax, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%ldist, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%nabc) ! nabc(3)
+c$$$      call mpi_bcast(struc%nabc, i_data_size,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%ng, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nkd, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nkdmx, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nkq, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nkqmx, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%npgrp, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nsgrp, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%plat) ! plat(9)
+c$$$      call mpi_bcast(struc%plat, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%plat0) ! plat0(9)
+c$$$      call mpi_bcast(struc%plat0, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%plat2) ! plat2(9)
+c$$$      call mpi_bcast(struc%plat2, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%plate) ! plate(9)
+c$$$      call mpi_bcast(struc%plate, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%platl) ! platl(9)
+c$$$      call mpi_bcast(struc%platl, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%platr) ! platr(9)
+c$$$      call mpi_bcast(struc%platr, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%qlat) ! qlat(9)
+c$$$      call mpi_bcast(struc%qlat, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%rpad, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%slat) ! slat(9)
+c$$$      call mpi_bcast(struc%slat, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%tol, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%tolft, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%vol, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$
+c$$$      if (mlog) then
+c$$$        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+c$$$        call strcop(shortname(procid),name,10,'.',ierr)
+c$$$        namelen(procid) = ierr-1
+c$$$        call gettime(datim)
+c$$$        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+c$$$     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+c$$$     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+c$$$        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+c$$$     .  cast)
+c$$$      endif
+c$$$#endif
+c$$$      end subroutine mpibc1_s_lat
 
       subroutine mpibc1_s_mix(struc,mlog,funnam,label)
       use m_struc_def, only: s_mix

@@ -1,6 +1,7 @@
-      subroutine hsmbl(p,rsm,e,q,lmax,cy,slat,hsm,hsmp)
+      subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
       use m_work,only: rv_a_oqlv,rv_a_odlv
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd,lat_nkq
 C- Bloch-sum of smooth Hankel functions and energy derivatives
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,11 +23,11 @@ Cu Updates
 Cu   26 Jan 07 Works with positive energies e
 Cu   1 May 00 Adapted from nfp hsmbl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lmax
       real(8):: rsm , e , q(3) , p(3) , cy(1)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex hsm(1),hsmp(1)
 C ... Local parameters
@@ -34,18 +35,18 @@ C ... Local parameters
       double precision alat,p1(3),plat(3,3),qlat(3,3),sp,pi,rwald,awald,asm,
      .tol,vol
       double complex cfac,phase
-      alat=slat%alat
-      plat=slat%plat
-      qlat=slat%qlat
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
       call shorbz(p,p1,plat,qlat)
       pi = 4d0*datan(1d0)
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))
       phase = dcmplx(dcos(sp),dsin(sp))
-      awald=slat%awald
-      tol=slat%tol
-      vol=slat%vol
-      nkd=slat%nkd
-      nkq=slat%nkq
+      awald=lat_awald
+      tol=lat_tol
+      vol=lat_vol
+      nkd=lat_nkd
+      nkq=lat_nkq
       rwald = 1d0/awald
       asm = 1d0/rsm
       if (rsm .lt. rwald) then
@@ -88,7 +89,7 @@ Ci   dl    :k-summed smoothed Bloch hankels
 Ci   dlp   :energy derivative of dl
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nkq,lmax
       double precision a,alat,e,vol

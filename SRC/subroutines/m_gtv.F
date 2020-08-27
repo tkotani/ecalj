@@ -112,7 +112,7 @@ C ... Local parameters
         endif
       enddo
       rcd(ioff2:) = ' @CAT@EOF'
-      write(6,*) 'xxxxxxxxxx rcd=',trim(rcd)
+c      write(6,*) 'xxxxxxxxxx rcd=',trim(rcd)
       ioff2 = ioff2+9
       if (ioff2 > nrcd) call rxi('m_gtv: increase size of rcd; need at least',ioff2)
       end subroutine

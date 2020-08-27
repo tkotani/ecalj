@@ -179,7 +179,7 @@ C ... Local parameters
 
 
 CSFCPP#define F90 1
-      subroutine rlocbl ( ssite , sspec , slat , lfrce , nbas , isp 
+      subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  ! slat ,
      .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
@@ -187,6 +187,7 @@ CSFCPP#define F90 1
       use m_globalvariables
       use m_prlcb
       use m_work,only: iv_a_oidxcg, iv_a_ojcg , rv_a_ocy,rv_a_ocg
+      use m_lmfinit,only:lat_alat,lat_qlat
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -298,7 +299,7 @@ C ... Passed parameters
       real(8):: q(3) , ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex evec(ndimh,nspc,nevec)
 C ... Local parameters or process-shared variables
@@ -375,10 +376,10 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       enddo
       nlmto = ndimh-napw
 C     Needed for PW part
-      alat=slat%alat
-c      i_copy_size=size(slat%qlat)
-c      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      qlat=slat%qlat
+      alat=lat_alat
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      qlat=lat_qlat
       pi = 4d0*datan(1d0)
       tpiba = 2d0*pi/alat
 
@@ -457,7 +458,7 @@ c      do  ia = bproc(procid), bproc(procid+1)-1
 #define OSIGHP sv_p_osig(2,ia)%v
 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-        call bstrux ( 1 , slat , ssite , sspec ,rv_a_ocg , iv_a_oidxcg
+        call bstrux ( 1 ,  ssite , sspec ,rv_a_ocg , iv_a_oidxcg !slat ,
      .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
 
@@ -601,9 +602,7 @@ c      call rlse(o)
       call tcx('rlocbl')
       end subroutine rlocbl
 
-
       subroutine rlocb1(ndimh,nlma,kmax,evec,b,cPkL)
-
 C- Pkl expansion of wave function at one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -623,8 +622,6 @@ C ... Passed parameters
       double complex b(ndimh,nlma,0:kmax),cPkL(0:kmax,nlma),evec(ndimh)
 C ... Local parameters
       integer i,k,ilma
-
-
       call tcn('rlocb1')
 C     call zprm('b',2,b,ndimh,ndimh,nlma*(kmax+1))
       call dpzero(cPkL, 2*(kmax+1)*nlma)
@@ -640,142 +637,4 @@ C     call zprm('cPkL',2,cPkL,kmax+1,kmax+1,nlma)
       end subroutine rlocb1
 
 
-
-
-C  ... needed for off-diagonal density matrix ... comment out now
-C      subroutine prlc22(ia,nkaph,iprmb,nlmha,kmax,nlma,ioff,cPkL,ndimh,
-C     .  evec1,evec2,ewgt,numq,qhh,qhp)
-CC- Add one and two-center terms to density coeffs
-CC ----------------------------------------------------------------------
-CCi Inputs
-CCi   ia    :site of augmentation
-CCi   nkaph :dimensions qhh,qhp
-CCi   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-CCi   nlmha :dimensions qhh,qhp
-CCi   kmax  :polynomial cutoff
-CCi   nlma  :augmentation L-cutoff
-CCi   ioff  :spin channel
-CCi   cPkL  :PkL expansion eigenvector at site ia.
-CCi   ndimh :dimension of hamiltonian
-CCi   evec1 :left eigenvector
-CCi   evec2 :right eigenvector
-CCi   numq  :number of trial fermi levels
-CCi   ewgt  :eigenvector weight
-CCo Outputs
-CCo   qhh   :one-center density-matrix, spin 12 block
-CCo   qhp   :two-center density-matrix, spin 12 block
-CCr Remarks
-CCu Updates
-CCu   27 Aug 01 Extended to local orbitals.
-CC ----------------------------------------------------------------------
-C      implicit none
-CC ... Passed parameters
-C      integer ia,kmax,nkaph,ioff,ndimh,nlma,nlmha,numq,iprmb(1)
-C      double precision ewgt(numq)
-C      double complex qhh(nkaph,nkaph,nlmha,nlmha,numq,ioff),
-C     .  qhp(nkaph,0:kmax,nlmha,nlma,numq,ioff)
-C      double complex evec1(ndimh),evec2(ndimh),cPkL(0:kmax,nlma)
-CC ... Local parameters
-C      integer i1,i2,ilm1,ilm2,ilma,io1,io2,iq,k,ik1,ik2,
-C     .  l1,l2,n0,nkap0,nlm11,nlm12,nlm21,nlm22
-C      parameter (n0=10,nkap0=3)
-C      integer norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
-C     .  blks(n0*nkap0),ntab(n0*nkap0)
-C      double precision xx
-C
-C      call tcn('prlc22')
-C
-CC --- Loop over all orbitals centered at site ia, incl. local orbs ---
-C      call orbl(ia,0,ndimh,iprmb,norb,ltab,ktab,xx,offl,xx)
-CC     Block into groups of consecutive l
-C      call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-C
-C      do  io1 = 1, norb
-C
-C        l1  = ltab(io1)
-C        ik1 = ktab(io1)
-C        nlm11 = l1**2+1
-C        nlm12 = nlm11 + blks(io1)-1
-CC       i1 = hamiltonian offset for first orbital in block
-C        i1 = offl(io1)
-C        do  ilm1 = nlm11, nlm12
-C          i1 = i1+1
-CC     ... Accumulate products H*Pkl
-C          do  iq = 1, numq
-C            do  k = 0, kmax
-C              do  ilma = 1, nlma
-C                qhp(ik1,k,ilm1,ilma,iq,ioff) =
-C     .          qhp(ik1,k,ilm1,ilma,iq,ioff)
-C     .            + 2d0*dconjg(evec1(i1))*cPkL(k,ilma)*ewgt(iq)
-C              enddo
-C            enddo
-C          enddo
-C
-CC     ... Accumulate products H*H
-C          do  io2 = 1, norb
-C
-C            l2  = ltab(io2)
-C            ik2 = ktab(io2)
-C            nlm21 = l2**2+1
-C            nlm22 = nlm21 + blks(io2)-1
-CC           i2 = orbital index in iprmb order
-C            i2 = offl(io2)
-C            do  ilm2 = nlm21, nlm22
-C              i2 = i2+1
-C              do  iq = 1, numq
-C                qhh(ik1,ik2,ilm1,ilm2,iq,ioff) =
-C     .          qhh(ik1,ik2,ilm1,ilm2,iq,ioff) +
-C     .          dconjg(evec1(i1))*evec2(i2)*ewgt(iq)
-C              enddo
-C            enddo
-C          enddo
-C
-C        enddo
-C      enddo
-C
-C      call tcx('prlc22')
-C
-C      end
-C      subroutine prlc23(kmax,nlma,ioff,cPkL1,cPkL2,numq,ewgt,qpp)
-CC- Add to local density coefficients for one state, off-diagonal spin block
-CC ----------------------------------------------------------------------
-CCi Inputs
-CCi   kmax  :polynomial cutoff in PkL expansion
-CCi   nlma  :L cutoff in PkL expansion
-CCi   ioff  :offset in qpp array
-CCi   cPkL1 :coefficients to PkL expansion of left evec
-CCi   cPkL2 :coefficients to PkL expansion of right evec
-CCi   numq  :number of trial fermi levels
-CCi   ewgt  :eigenvector weights
-CCo Outputs
-CCo   qpp   :local density matrix for PkL expansion, spin 12 block
-CCr Remarks
-CCu Updates
-CCu   16 Jun 05 Adapted from prlcb3
-CC ----------------------------------------------------------------------
-C      implicit none
-CC ... Passed parameters
-C      integer kmax,nlma,ioff,numq
-C      double complex cPkL1(0:kmax,nlma),cPkL2(0:kmax,nlma)
-C      double precision ewgt(numq)
-C      double complex qpp(0:kmax,0:kmax,nlma,nlma,numq,ioff)
-CC ... Local parameters
-C      integer iq,ilm2,ilm1,k1,k2
-C
-C      call tcn('prlc23')
-C      do  iq = 1, numq
-C        do  ilm2 = 1, nlma
-C          do  ilm1 = 1, nlma
-C            do  k1 = 0, kmax
-C              do  k2 = 0, kmax
-C                qpp(k1,k2,ilm1,ilm2,iq,ioff) =
-C     .          qpp(k1,k2,ilm1,ilm2,iq,ioff)
-C     .            + ewgt(iq)*dconjg(cPkL1(k1,ilm1))*cPkL2(k2,ilm2)
-C              enddo
-C            enddo
-C          enddo
-C        enddo
-C      enddo
-C      call tcx('prlc23')
-C      end
 

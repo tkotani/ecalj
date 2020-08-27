@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
       subroutine gfigbl(pg,ph,rsmg,rsmh,nlmg,nlmh,kmax,ndim1,ndim2,kdim,
-     .cg,indxcg,jcg,cy,slat,s,ds)
+     .cg,indxcg,jcg,cy,s,ds)!,slat
 C- Integrals between smooth hankels(eh=0,q=0) and gaussians
 C  with some power of the laplace operator, and their gradients.
 C ----------------------------------------------------------------------
@@ -32,10 +32,10 @@ Cu Updates
 Cu   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
 Cu   22 Apr 00 Adapted from nfp hhig_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer jcg(*),indxcg(*),nlmg,nlmh,kmax,ndim1,ndim2,kdim
-      double precision ph(3),pg(3),cg(1),cy(1),slat(1),rsmg,rsmh
+      double precision ph(3),pg(3),cg(1),cy(1),rsmg,rsmh !,slat(1)
       double complex s(ndim1,ndim2,0:kdim),ds(ndim1,ndim2,0:kdim,3)
 C ... Local parameters
       integer nlm0,ktop0,m,lmaxh,ll,lmaxg,lmaxx,nlmx,nlmxp1,ktop,ktopp1,
@@ -74,7 +74,7 @@ CSFCPP#endif
       if (ktopp1 .gt. ktop0) call rxi('gfigbl: need ktop0 ge',ktopp1)
 
 C ... Make functions for connecting vector
-      call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,slat, hkl)
+      call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy, hkl) !,slat
 
 C ... Make gradients using CGs for p functions
       call dpzero(ghkl, 2*(ktop0+1)*nlm0*3)

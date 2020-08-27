@@ -1,5 +1,5 @@
       subroutine hhigbl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,
-     .ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
+     .ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds) !,slat
       use m_struc_def
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------
@@ -40,12 +40,12 @@ Cu   23 May 00 Made rsm1,e1,rsm2,e2 l-dependent
 Cu   22 Apr 00 Adapted from nfp hhig_bl.f
 Cu   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0
       real(8):: p1(3) , p2(3) , q(3) , cg(1) , cy(1) , rsm1(0:*) , 
      .rsm2(0:*) , e1(0:*) , e2(0:*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
@@ -95,16 +95,15 @@ C         l2t = l2
           lm22 = (l2t+1)**2
           if (mode/10.eq.1 .and. rsm1(l1)*rsm2(l2) .eq. 0) goto 22
           call phhigb(dr,q,rsm1(l1),rsm2(l2),e1(l1),e2(l2),lm11,lm12,
-     .    lm21,lm22,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
+     .    lm21,lm22,kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds) !slat,
    22   continue
    20 continue
       end subroutine hhigbl
 
       subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,
-     .kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
-
+     .kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds)!slat,
+      use m_lmfinit,only:lat_vol
       use m_struc_def  !Cgetarg
-
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -137,11 +136,11 @@ Cu Updates
 Cu   22 Apr 00 Adapted from nfp hhig_bl.f
 Cu   28 Apr 97 adapted to handle case q=0 and e1 or e2 zero.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2,k0,mlm1,mlm2
       real(8):: q(3) , cg(1) , cy(1) , dr(3) , rsm1 , rsm2 , e1 , e2
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
@@ -154,7 +153,7 @@ C ... Local parameters
       double complex hkl1(0:ktop0,nlm0),hkl2(0:ktop0,nlm0),
      .ghkl(0:ktop0,nlm0,3),hsm(nlm0),hsmp(nlm0)
 
-      vol = slat%vol
+      vol = lat_vol
 
       fpi = 16d0*datan(1.d0)
       gam1 = 0.25d0*rsm1*rsm1
@@ -177,16 +176,16 @@ C --- Set up functions for connecting vector p2-p1 ---
         fac1 = dexp(gam2*(e2-e1))/(e1-e2)
         fac2 = dexp(gam1*(e1-e2))/(e2-e1)
         if (dabs(e1) .gt. 1d-6) then
-          call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,cy,slat,hkl1)
+          call hklbl(dr,rsmx,e1,q,ktopp1,nlmxp1,ktop0,cy,hkl1) !slat,
         else
           if (qq .gt. 1d-6) call rx('hhigbl: e1=0 only allowed if q=0')
-          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,slat,hkl1)
+          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl1) !slat,
         endif
         if (dabs(e2) .gt. 1d-6) then
-          call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,cy,slat,hkl2)
+          call hklbl(dr,rsmx,e2,q,ktopp1,nlmxp1,ktop0,cy,hkl2) !slat,
         else
           if (qq .gt. 1d-6) call rx('hhigbl: e2=0 only allowed if q=0')
-          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,slat,hkl2)
+          call fklbl(dr,rsmx,ktopp1,nlmxp1,ktop0,cy,hkl2) !slat,
         endif
         do  4  ilm = 1, nlmxp1
           do  5  k = 0, ktopp1
@@ -197,8 +196,8 @@ C --- Set up functions for connecting vector p2-p1 ---
         e = .5d0*(e1+e2)
         if (qq.lt.1d-6 .and. dabs(e) .lt. 1d-6)
      .  call rx('hhigbl: case q=0 and e1=e2=0 not available')
-        call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,cy,slat,hkl2)
-        call hsmbl(dr,rsmx,e,q,lmaxx+1,cy,slat,hsm,hsmp)
+        call hklbl(dr,rsmx,e,q,ktopp1,nlmxp1,ktop0,cy,hkl2) !slat,
+        call hsmbl(dr,rsmx,e,q,lmaxx+1,cy,hsm,hsmp) !slat,
         do  6  ilm = 1, nlmxp1
           hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
           do  7  k = 1, ktopp1

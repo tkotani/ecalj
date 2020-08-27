@@ -1,9 +1,10 @@
-      subroutine mixrho ( ssite , sspec , slat , nsp , iter , mixmod 
+      subroutine mixrho ( ssite , sspec ,  nsp , iter , mixmod  !slat ,
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho )
       use m_struc_def
       use m_globalvariables
       use m_work,only: iv_a_okv,rv_a_ogv
+      use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -190,7 +191,7 @@ C ... Passed parameters
       character*(*) mixmod
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double precision qval,elind,dmxp(25)
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
@@ -308,10 +309,10 @@ ccccccccccccccccccccccccccccccccccccc
       srfpi = dsqrt(4d0*pi)
       locmix = 3 !original lmv7 by mark.
       qmix(2) = 0
-      ngabc=slat%nabc
-      ng=slat%ng
-      vol=slat%vol
-      alat = slat%alat
+      ngabc=lat_nabc
+      ng=lat_ng
+      vol=lat_vol
+      alat = lat_alat
       elinl = elind
       kmxs = 3
       kmxr = 8
@@ -446,9 +447,9 @@ C ... 3. Sum of local densities on Fourier mesh (up+down)
         allocate(cg2_zv(ng))
         cg1_zv=0d0
         cg2_zv=0d0
-        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhold 
+        call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhold  !slat ,
      . , kmxs , ng , cg1_zv )
-        call rhgcmp ( 131 , 1 , nbas , ssite , sspec , slat , sv_p_orhnew 
+        call rhgcmp ( 131 , 1 , nbas , ssite , sspec ,  sv_p_orhnew !slat ,
      . , kmxs , ng , cg2_zv )
 C     call gvputf(ng,1,w(okv),k1,k2,k3,w(ocg1),smrnew)
 C     call fftz3(smrnew,n1,n2,n3,k1,k2,k3,1,0,1)
@@ -570,8 +571,6 @@ cccccccccccccccccccccccc
 C ... 8. FFT smooth densities -> rho(G) for mixing
 C ... Find and include number of smooth mesh points.
         allocate(ips0_iv(ng))
-ckino Dec.12.2011:         call lgstar ( 0 , ng , 1 , rv_p_ogv , ng0 , ips0_iv , iwdummy )
-ckino Dec.27.2011:         call lgstar ( 0 , ng , 1 , slat%rv_p_ogv , ng0 , ips0_iv , iwdummy )
         call lgstar ( 0 , ng , 1 , rv_a_ogv , ng0 , ips0_iv , iwdummy )
         ng02= ng0*2
         ng2=ng*2

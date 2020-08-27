@@ -1,7 +1,8 @@
-      subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,slat,
+      subroutine hgugbl(p1,p2,rsm1,rsm2,e1,nlm1,nlm2,ndim1,ndim2,!slat,
      .s,ds)
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_vol
 C- Estatic energy integrals between Bloch Hankels and gaussians, and grad
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,22 +25,22 @@ Cr   Gradient is wrt p1; use -ds for grad wrt p2.
 Cu Updates
 Cu   22 Apr 00 Adapted from nfp hgug_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nlm1,nlm2,ndim1,ndim2
       real(8):: rsm1 , rsm2 , p1(3) , p2(3) , e1
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3)
       integer:: kmax , kdim , ilm2 , ilm1
       double precision q(3),e2,vol
       q=[0d0,0d0,0d0]
-      vol=slat%vol
+      vol=lat_vol
       kmax = 0
       kdim = 0
       e2 = 0d0
       call hhigbl ( 0 , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1
      .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg
-     .    , iv_a_ojcg , rv_a_ocy , slat , s , ds )
+     .    , iv_a_ojcg , rv_a_ocy ,  s , ds )!slat ,
       do  ilm2 = 1, nlm2
         do  ilm1 = 1, nlm1
           s(ilm1,ilm2) = 2d0*s(ilm1,ilm2)

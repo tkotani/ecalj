@@ -1,8 +1,9 @@
-      subroutine symrho ( ssite , sspec , slat , lf , smrho , sv_p_orhoat 
+      subroutine symrho ( ssite , sspec ,  lf , smrho , sv_p_orhoat !slat ,
      .     , qbyl , hbyl , f )
       use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag, rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:lat_nabc
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -38,35 +39,34 @@ C ----------------------------------------------------------------------
       implicit none
       integer:: lf
       type(s_rv1) :: sv_p_orhoat(3,*)
-
       real(8):: f(*) , qbyl(*) , hbyl(*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex smrho(*)
       integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-
       call tcn('symrho')
       call info(30,1,0,' Symmetrize density..',0,0)
       nbas = globalvariables%nbas
       nsp = globalvariables%nsp
-
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
       call fftz30(n1,n2,n3,k1,k2,k3)
-      call symrat ( ssite , sspec , slat , nbas , nsp , lf , sv_p_orhoat 
+      call symrat ( ssite , sspec , nbas , nsp , lf , sv_p_orhoat !slat , 
      . , qbyl , hbyl , f )
       if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
      . , sv_p_orhoat )
-      call symsmr(slat,nsp,k1,k2,k3,smrho)
+      call symsmr(nsp,k1,k2,k3,smrho) !slat,
       call tcx('symrho')
       end subroutine symrho
 
-      subroutine symrat ( ssite , sspec , slat , nbas , nsp , lf , 
+      subroutine symrat ( ssite , sspec , nbas , nsp , lf , !slat , 
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
       use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
+      use m_lmfinit,only: lat_plat,lat_qlat,lat_nsgrp
 C- Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -106,7 +106,7 @@ C ... Passed parameters
       real(8):: f(3,nbas) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       integer:: stdo , ib0 , ic , ipr , iprint , is , lgunit , lmxa 
      .       , lmxl , nclass , ngrp , nlml , nlmx , nr , nrclas , igetss , 
      .       mxint , ival,i_copy_size,i_spackv
@@ -117,16 +117,18 @@ C ... Passed parameters
       real(8) ,allocatable :: pos0_rv(:,:)
       real(8) ,allocatable :: rho_rv(:)
       real(8) ,allocatable :: sym_rv(:)
-      double precision plat(9),qlat(9)
+      double precision plat(3,3),qlat(3,3)
 
       call tcn('symrat')
       stdo = lgunit(1)
       ipr = iprint()
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      ngrp=slat%nsgrp
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c     call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      plat=lat_plat
+      qlat=lat_qlat
+      ngrp=lat_nsgrp
       allocate(ips_iv(nbas))
       allocate(ipc_iv(nbas))
       allocate(pos0_rv(3,nbas))
@@ -303,14 +305,15 @@ C ... Copy to all sites in class
       end subroutine psymr1
 
 
-      subroutine symsmr(slat,nsp,k1,k2,k3,smrho)
+      subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
       use m_work,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_nabc,lat_ng,lat_nsgrp
 C- Symmetrize the smooth charge density
       implicit none
 C ... Passed parameters
       integer nsp,k1,k2,k3
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp
@@ -318,11 +321,11 @@ C ... Local parameters
       complex(8) ,allocatable :: cv_zv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symsmr')
-c      i_copy_size=size(slat%nabc)
-c      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ngabc=slat%nabc
-      ng=slat%ng
-      ngrp=slat%nsgrp
+c      i_copy_size=size(lat_nabc)
+c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
+      ng=lat_ng
+      ngrp=lat_nsgrp
       if (ngrp .gt. 1) then
 C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         allocate(cv_zv(ng))

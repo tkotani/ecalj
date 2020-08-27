@@ -1,5 +1,5 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
-      subroutine gen_hamindex(ssite,sspec,slat,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
+      subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_work,only: rv_a_osymgr,rv_a_oag,rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
@@ -10,7 +10,8 @@ c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qp
      &     imx
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
-     &     ham_pwmode,ham_pwemax
+     &     ham_pwmode,ham_pwemax,
+     &     lat_nsgrp ,lat_plat,lat_qlat,lat_alat
 c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -35,7 +36,7 @@ c      enddo
       implicit none
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c     type(s_bz)::sbz
 c      type(s_ham)::sham
       integer iprmb(*),nl
@@ -82,10 +83,10 @@ c2012Sep02 kino, add for
 !!--- setup ---
       if(.not.siginit) return
       nbas=nbas_in
-      ngrp=slat%nsgrp !note nsgrp given in mksym.F is without inversion.
-      plat=slat%plat
-      qlat=slat%qlat
-      alat=slat%alat
+      ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
+      plat=lat_plat
+      qlat=lat_qlat
+      alat=lat_alat
       allocate( ltabx(n0nkap0,nbas),ktabx(n0nkap0,nbas),offlx(n0nkap0,nbas)) !,ispec(nbas))
 c      if(iprx) write(6,*) ' gen_hamindex: --- Hamiltonian index ---'
 c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
@@ -448,14 +449,14 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
 
-      subroutine suham(slat,sspec,ssite,spot)!,sbz)sctrl,,sham
+      subroutine suham(sspec,ssite,spot)!,sbz)sctrl,,sham slat,
       use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
       use m_lmfinit,only:
-     &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax
-
+     &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -520,7 +521,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
 c      type(s_ctrl)::sctrl
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_ham)::sham
@@ -605,9 +606,9 @@ C ... Make rest of ldham
       ham_ldham=ldham
 
 C ------- Potential- and implementation- specific setup -------
-      alat=slat%alat
-      plat=slat%plat
-      qlat=slat%qlat
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
       nvi = 0
       nvl = 0
       lmxax = -1
@@ -646,9 +647,9 @@ C         Find largest lmxa
 
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
-      ng=slat%ng
-      alat=slat%alat
-      tolgv=slat%tolft
+      ng=lat_ng
+      alat=lat_alat
+      tolgv=lat_tolft
       call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
 
 C   ... PW setup : estimate upper bound to number of G vectors

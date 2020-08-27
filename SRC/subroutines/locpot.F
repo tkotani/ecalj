@@ -1,5 +1,5 @@
       subroutine locpot ( nbas , nsp , lso , lcplxp , ssite , sspec 
-     .    , slat , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau 
+     .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau  !slat , 
      .    , sv_p_oppi , ppnl , hab , vab , sab , vvesat , cpnvsa , rhoexc 
      .    , rhoex , rhoec , rhovxc , rvepsv , rvexv , rvecv , rvvxcv , 
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
@@ -120,9 +120,9 @@ Cu   13 Jun 00 spin polarized
 Cu    1 May 00 Adapted from nfp locpot.f
 Cu   17 Jun 98 Adapted from DLN to run parallel on SGI
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp
+      integer:: nbas , nsp , job , n0 , nppn , nab , lso , lcplxp,i_copy_size,ibx,ir,isp,l,lm
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
@@ -134,7 +134,7 @@ C ... Passed parameters
 cki      type(s_site)::ssite(*)
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double precision cpnvsa,rhoexc(2),rhoex(2),rhoec(2),rhovxc(2),
      .focexc(2),focex(2),focec(2),focvxc(2),qval,sqloc,sqlocc,saloc,
@@ -235,8 +235,8 @@ C$&  MP_SCHEDTYPE=RUNTIME
 
       ifivesint=-999
       if(master_mpi()) then
-         ifivesint = ifile_handle()
-         open(ifivesint,file='vesintloc',form='formatted',status='unknown')
+c         ifivesint = ifile_handle()
+         open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
       endif
       
       do  ib = 1, nbas
@@ -586,7 +586,7 @@ Cu    8 Feb 02 rhoex and rhoec (T. Miyake)
 Cu   14 Jan 02 rvexv and rvecv (T. Miyake)
 Cu   15 Aug 01 Generates rvepsv and rvvxcv
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nsp,lfoc,nlml,job
       double precision z,rmt,rg,a,cofg,cofh,ceh,rfoc,xcore,qloc,qlocc,
@@ -1022,7 +1022,6 @@ C --- Charges, printout ---
 
 
       subroutine elfigr(nc,stdo,z,efg1)
-
 C- Computation of electric field gradient
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1039,7 +1038,7 @@ Cr
 Cu Updates
 Cu   30 Sep 08 Adapted from old FP (A Svane)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nc,stdo
       double precision z(nc),efg1(5,1)

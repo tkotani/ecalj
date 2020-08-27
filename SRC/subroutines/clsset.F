@@ -1,5 +1,5 @@
-      subroutine clsset(mode,slat,nbas,pos,ncl,clssl,cllst,clord,clp)
-
+      subroutine clsset(mode,nbas,pos,ncl,clssl,cllst,clord,clp) !,slat
+      use m_lmfinit,only: lat_plat
       use m_struc_def  !Cgetarg
 
 C- Groups all sites in a crystal into clusters
@@ -34,7 +34,7 @@ C     implicit none
       parameter (nclp=9)
       integer mode,nbas,clssl(nbas),cllst(nbas),clord(nbas),clp(nclp,1)
       real(8):: pos(3,nbas)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
 C Local variables
       logical lrat,pvclst
@@ -58,9 +58,9 @@ C heap:
 
 C ... Setup
 
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+      plat=lat_plat
       lrat = mod(mode/10,10) .ne. 0
       call getpr(ipr)
 
@@ -68,9 +68,9 @@ C --- Divide total cell into microcells ---
       if (mod(mode,10) .eq. 0) then
       elseif (mod(mode,10) .eq. 1) then
 
-        i_copy_size=size(slat%plate)
-        call dcopy(i_copy_size,slat%plate,1,plate,1)
-
+c        i_copy_size=size(lat_plate)
+c        call dcopy(i_copy_size,lat_plate,1,plate,1)
+         plate=lat_plate
 
 C   ... Determine supercell size
         call dinv33(plat,1,qlat,vol)

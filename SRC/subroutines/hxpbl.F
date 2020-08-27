@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
       subroutine hxpbl(ph,pg,q,rsmh,rsmg,eh,kmax,nlmh,nlmg,k0,ndim,
-     .cg,indxcg,jcg,cy,slat,c)
+     .cg,indxcg,jcg,cy,c) !,slat
 C- Coefficients to expand smooth bloch hankels centered at ph
 C  into a sum of polynomials P_kL centered at pg.
 C ----------------------------------------------------------------------
@@ -43,8 +43,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer k0,kmax,ndim,nlmg,nlmh,jcg(1),indxcg(1)
-      double precision eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3),
-     .slat(1)
+      double precision eh(1),rsmg,rsmh(1),ph(3),pg(3),cg(1),cy(1),q(3)
+c     .slat(1)
       double complex c(0:k0,ndim,1)
 C ... Local parameters
       integer ndim1,ndim2,ktop0,ilmg,ilmh,k,l,ll,lmaxg,m,nm
@@ -74,7 +74,7 @@ CSFCPP#endif
 C ... Integrals of gaussians and smoothed Hankels
       eg = 0d0
       call ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,ndim1,ndim2,cg,
-     .indxcg,jcg,cy,slat,s)
+     .indxcg,jcg,cy,s)!,slat
 
 C ... Scale to get coefficients of the P_kL
       a = 1d0/rsmg

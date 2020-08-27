@@ -1,6 +1,7 @@
-      subroutine mshvmt(nbas,ssite,sspec,slat,ng,gv,
+      subroutine mshvmt(nbas,ssite,sspec,ng,gv, !slat,
      .     kv,cv,k1,k2,k3,smpot,vval)
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_plat,lat_nabc,lat_alat
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,7 +45,7 @@ C ... Passed parameters
       real(8):: gv(ng,3) , vval(1)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex smpot(k1,k2,k3),cv(ng)
 C ... Local parameters
@@ -55,30 +56,20 @@ C     double precision q(3),qlat(3,3)
       double complex vvali,fprli
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (lmxx=6, nlmx=(lmxx+1)**2)
-Cki#error have #if F90 directive
-CSFCPP#if F90
       double precision,allocatable:: phil(:,:),yl(:,:)
       double precision,allocatable:: gv2(:,:),agv(:),cgp(:),sgp(:)
-CSFCPP#else
-CSFCPP      double precision phil(ng,0:lmxx),yl(ng,nlmx)
-CSFCPP      double precision gv2(ng,3),agv(ng),cgp(ng),sgp(ng)
-CSFCPP#endif
-
       call tcn('mshvmt')
-Cki#error have #if F90 directive
-CSFCPP#if F90
       allocate(phil(ng,0:lmxx),yl(ng,nlmx))
       allocate(gv2(ng,3),agv(ng),cgp(ng),sgp(ng))
-CSFCPP#endif
       call getpr(ipr)
       pi = 4d0*datan(1d0)
-
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      plat =lat_plat
+      ngabc=lat_nabc
       tpiba = 2*pi/alat
       call gvgetf(ng,1,kv,k1,k2,k3,smpot,cv)
 
@@ -170,9 +161,10 @@ CSFCPP#endif
       end subroutine mshvmt
 
 
-      subroutine symvvl(nbas,ssite,sspec,slat,vval,vrmt)
+      subroutine symvvl(nbas,ssite,sspec,vval,vrmt) !slat,
       use m_work,only: rv_a_osymgr,rv_a_oag
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_plat,lat_nsgrp
 C- Symmetrizes the potential at the MT boundary.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -206,7 +198,7 @@ C ... Passed parameters
       real(8):: vval(1) , vrmt(nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 C ... Local parameters
       integer ic,ib,ilm,mxint,nclass,ipa(nbas),nrclas,stdo,iv0
       integer ipc(nbas),ips(nbas),lmxl(nbas)
@@ -216,8 +208,8 @@ C ... Local parameters
       real(8) ,allocatable :: sym_rv(:)
       stdo = lgunit(1)
       call getpr(ipr)
-      plat=slat%plat
-      ngrp=slat%nsgrp
+      plat=lat_plat
+      ngrp=lat_nsgrp
       do i_spackv=1,nbas
         ipc(i_spackv)  = ssite(i_spackv)%class
         ips(i_spackv)  = ssite(i_spackv)%spec

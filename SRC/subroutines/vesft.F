@@ -1,7 +1,6 @@
-      subroutine vesft(slat,ng,gv,kv,cv,k1,k2,k3,smrho,smpot,sum)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine vesft(ng,gv,kv,cv,k1,k2,k3,smrho,smpot,sum) !slat,
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_alat,lat_vol
 C- Make electrostatic potential of density given in recip space
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,19 +23,15 @@ C ... Passed parameters
       integer ng
       integer kv(ng,3),k1,k2,k3
       real(8):: gv(ng,3) , sum
-      type(s_lat)::slat
-
+c      type(s_lat)::slat
       double complex smrho(k1,k2,k3),smpot(k1,k2,k3),cv(ng)
 C ... Local parameters
       integer i
       double precision pi,pi8,alat,vol,tpiba,g2
       double complex ccc
-
       call tcn('vesft')
-
-      alat=slat%alat
-      vol=slat%vol
-
+      alat=lat_alat
+      vol=lat_vol
       pi   = 4d0*datan(1d0)
       pi8  = 8*pi
       tpiba=2*pi/alat

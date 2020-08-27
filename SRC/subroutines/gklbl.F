@@ -1,6 +1,7 @@
-      subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,slat,gkl)
+      subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
       use m_work,only: rv_a_oqlv,rv_a_odlv
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_vol,lat_awald,lat_nkd,lat_alat,lat_plat,lat_qlat,lat_nkq
 C- Bloch-sums of k,L-dependent gaussians
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -18,28 +19,30 @@ Co   gkl   :Bloch-summed Gaussians
 Cu Updates
 Cu   24 Apr 00 Adapted from nfp gkl_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer k0,kmax,nlm
       real(8):: e , rsm , q(3) , p(3) , cy(1)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex gkl(0:k0,nlm)
 C ... Local parameters
       double complex cfac,phase
       integer:: ilm , k , ll , lmax , nkd , nkq , owk , l , m
-      double precision alat,awald,pi,sp,vol,plat(9),qlat(9),p1(3),rwald
+      double precision alat,awald,pi,sp,vol,plat(3,3),qlat(3,3),p1(3),rwald
       real(8),allocatable:: wk(:)
       if (nlm .eq. 0) return
       pi = 4d0*datan(1d0)
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      awald=slat%awald
-      vol=slat%vol
-      nkd=slat%nkd
-      nkq=slat%nkq
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c     call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      plat=lat_plat
+      qlat=lat_qlat
+      awald=lat_awald
+      vol=lat_vol
+      nkd=lat_nkd
+      nkq=lat_nkq
 C ... Shorten p, multiply by corresponding phase later
       call shorbz(p,p1,plat,qlat)
       sp = 2*pi*(q(1)*(p(1)-p1(1))+q(2)*(p(2)-p1(2))+q(3)*(p(3)-p1(3)))

@@ -1,7 +1,8 @@
-      subroutine suham2(slat,sspec,ssite,spot) !,sstrn) removed june2015,sham
+      subroutine suham2(sspec,ssite,spot) !,sstrn) removed june2015,sham slat,
       use m_work,only:rv_a_ogv
       use m_struc_def
       use m_globalvariables
+      use m_lmfinit,only: lat_alat,lat_ng,lat_tolft
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -30,10 +31,10 @@ Cr   The basis, e.g. local orbitals, depend on the potential
 Cu Updates
 Cu   16 Aug 04 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 c      type(s_ctrl)::sctrl
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_ham)::sham
@@ -51,9 +52,9 @@ C --- FP setup ---
 c      if (lfp .ne. 0) then
         call uspecb(0,0,sspec,1,nspec,dum,dum,dum,i)
         if (i .ge. 100) then
-          ng=slat%ng
-          alat=slat%alat
-          tolgv=slat%tolft
+          ng=lat_ng
+          alat=lat_alat
+          tolgv=lat_tolft
           call sugcut ( 2 , nspec , sspec , alat , ng , rv_a_ogv , tolgv )
         endif
 c      endif

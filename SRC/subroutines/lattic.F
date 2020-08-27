@@ -1,7 +1,10 @@
       subroutine lattic() !slat,nbas)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: slat=>v_slat,ctrl_nbas !,v_sctrl
+      use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
+     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,
+     &     lat_plat0,lat_plat,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol
       use m_work,only: rv_a_opos,rv_a_oqlv,rv_a_odlv
+    
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -31,14 +34,14 @@ Cu   2 Mar 04 Pass rpad to lattc
 Cu   5 Jun 01 (ATP) Now calls lattc after lattice transformation
 Cu  19 Apr 00 Fixed rotations; new argument list
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 c      type(s_lat)::slat
 c      type(s_ctrl)::sctrl
 c      type(s_site)::ssite(*)
 c      type(s_array)::sarray
 C ... Local parameters
-      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas
+      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size
       real(8),allocatable:: rv_a_tmp(:)
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
@@ -47,25 +50,25 @@ C ... Local parameters
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
       external daxpy,dcopy,lattc,lattdf,rdistn
 
-      alat=slat%alat
-      awald0=slat%as
-      tol=slat%tol
-      rpad=slat%rpad
-      nkdmx=slat%nkdmx
-      nkqmx=slat%nkqmx
-      gam(:)=slat%gam(:)
-      alat=slat%alat
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat0,1)
-      plat0=slat%plat
+      alat=lat_alat
+      awald0=lat_as
+      tol=lat_tol
+      rpad=lat_rpad
+      nkdmx=lat_nkdmx
+      nkqmx=lat_nkqmx
+      gam = lat_gam
+      alat = lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat0,1)
+      plat0=lat_plat
       nbas=ctrl_nbas
       nbaspp = nbas 
 
 C ... Apply specified linear transformation of lattice and basis vectors
-      ldist = slat%ldist
-      dist(1:3,1)= slat%dist(1:3)
-      dist(1:3,2)= slat%dist(4:6)
-      dist(1:3,3)= slat%dist(7:9)
+      ldist = lat_ldist
+      dist(1:3,1)= lat_dist(1:3)
+      dist(1:3,2)= lat_dist(4:6)
+      dist(1:3,3)= lat_dist(7:9)
 
       if (abs(gt-1) .gt. 1d-10) then
         call rdistn ( rv_a_opos , rv_a_opos , nbaspp , gx , gy , gz , gt )
@@ -85,10 +88,10 @@ C ... Apply specified linear transformation of lattice and basis vectors
      .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_a_odlv
      .  , nkd , rv_a_oqlv , nkq , nkdmx , nkqmx )
 
-      slat%vol  =vol
-      slat%plat0=plat0
-      slat%plat =plat
-      slat%qlat =qlat
+      lat_vol  =vol
+      lat_plat0=plat0
+      lat_plat =plat
+      lat_qlat =qlat
 
 !! reduce size. necessary?
       i_data_size=size(rv_a_oqlv)
@@ -110,12 +113,12 @@ C ... Apply specified linear transformation of lattice and basis vectors
       rv_a_odlv(:i_data_size)=rv_a_tmp(:i_data_size)
       deallocate(rv_a_tmp)
 
-      slat%awald=awald
-      slat%nkd=nkd
-      slat%nkq=nkq
-      slat%dist(1:3)=dist(1:3,1)
-      slat%dist(4:6)=dist(1:3,2)
-      slat%dist(7:9)=dist(1:3,3)
+      lat_awald=awald
+      lat_nkd=nkd
+      lat_nkq=nkq
+      lat_dist(1:3)=dist(1:3,1)
+      lat_dist(4:6)=dist(1:3,2)
+      lat_dist(7:9)=dist(1:3,3)
       end subroutine lattic
 
 

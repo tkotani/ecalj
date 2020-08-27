@@ -1,10 +1,11 @@
-      subroutine mkekin ( nbas , ndimh , ssite , sspec , slat !, sham 
+      subroutine mkekin ( nbas , ndimh , ssite , sspec !, slat !, sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_lmfinit,only:lso
       use m_work,only: iv_a_oindxo
+      use m_lmfinit,only: lat_nabc,lat_vol
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -150,7 +151,7 @@ C ... Passed parameters
       real(8):: sumev , sumtv , vconst
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
 
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
@@ -183,9 +184,10 @@ c2012Sep02 kino, add for
       nspc = globalvariables%nspc
       nkaph = globalvariables%nkaph
       call getpr(ipr)
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      vol=slat%vol
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
+      vol=lat_vol
 c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
 c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
 

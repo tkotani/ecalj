@@ -1,4 +1,4 @@
-      subroutine vcdmel(nl,ssite,sspec,slat,nlmax,ndham,ndimh,
+      subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,!,slat
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)!sbz,
       use m_work,only: iv_a_oidtet, rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
       use m_struc_def
@@ -46,7 +46,7 @@ C Passed Parameters
 c      type(s_ctrl)::sctrl
       type(s_site)::ssite(nsite)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex aus(nlmax,ndham,3,nsp,nsite,nq)
 C Local Variables
       integer n0,lmxax

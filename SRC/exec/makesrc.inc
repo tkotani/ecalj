@@ -669,7 +669,6 @@ sxcf_fal2.sc.o \
 sxcf_fal2.o \
 diagcv2.o \
 wronkj.o \
-u_lat_0.o \
 bessl.o \
 lgen.o \
 rpaq.o \

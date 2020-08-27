@@ -1,9 +1,10 @@
-      subroutine mkqp(slat,gettet,lnoirr,lreduc,lgstar)!sctrl,
+      subroutine mkqp(gettet,lnoirr,lreduc,lgstar)!sctrl,slat,
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
      &     rv_a_osymgr
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,
+     & lat_plat,lat_nsgrp,lat_npgrp
 
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
@@ -34,11 +35,9 @@ Cio    Stored:    nkp nkabc oqp owtkp ostar ntet oidtet oipq
       logical gettet
       integer lgstar,lreduc,i_copy_size,i_data_size
 c      type(s_ctrl)::sctrl
-      
 c      integer :: sbz
 c      type(s_bz)::sbz
-
-      type(s_lat)::slat
+c      type(s_lat)::slat
 C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
       integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
@@ -54,9 +53,9 @@ C ... Setup
       stdo = globalvariables%stdo
       nkxyz=bz_nabc
       lshft=bz_lshft
-      plat =slat%plat
-      nsgrp=slat%nsgrp
-      npgrp=slat%npgrp
+      plat =lat_plat
+      nsgrp=lat_nsgrp
+      npgrp=lat_npgrp
       lpbc = 0
       ltet = gettet .and. iand(2,int(ctrl_lmet)) .ne.0
       if(ltet) then
@@ -107,7 +106,7 @@ C   ... Restrict BZ to two dimensions
       call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call info0(20,0,0,' ')
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !slat%rv_a_osymgr
+     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !lat_rv_a_osymgr
      . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
 C   ... Sanity check
 c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
@@ -128,7 +127,7 @@ C   ... Remake, with exactly allocated arrays, ipq on top
       call pshpr(0)
       call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
-     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !slat%
+     . ( 3 ) , llshft , rv_a_osymgr, npgrp , iv_a_oipq , rv_p_oqp , !lat_
      . rv_a_owtkp , nkp , mxkp , iv_a_ostar , lpbc )
       call poppr
 C   ... Hang on to ipq if (a) call tetirr below or (b) lipq

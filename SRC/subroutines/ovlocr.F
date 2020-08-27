@@ -1,4 +1,4 @@
-      subroutine ovlocr ( nbas , ssite , sspec , slat , nxi0 , nxi 
+      subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi !slat ,
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
      .  )
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
@@ -36,7 +36,7 @@ C ... Passed parameters
       type(s_rv1) :: rv_a_orhofa(nbas)
 
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -133,7 +133,7 @@ C   ... Loop over other sites, add up tail expansion
             nlmh = 1
             call hxpbl ( p2 , p1 , q , rsmh , rsmv , eh , kmxv , nlmh , nlml
      .          , kmxv , nlml , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy 
-     .          , slat , b )
+     .          ,  b ) !slat ,
 
             allocate(b0(0:kmxv,nlmh))
             b0=0d0

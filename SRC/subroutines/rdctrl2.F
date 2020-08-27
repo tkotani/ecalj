@@ -1,4 +1,3 @@
-!! note. all initial data is pushed into m_lmfinit
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
       use m_work,only: iv_a_oips,rv_a_opos
       use m_work,only: rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg !CG coefficients
@@ -7,74 +6,28 @@
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv 
-!! followings are old document ------
-!!
-c      use m_susite_func, only: susite
-C- Main input for LMTO programs
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   recrd (recln*nrecs) : preprocessed input
-Ci   prgnam:name of main program
-Ci   vrsion:string specifying expected program version
-Ci   vn,vn2:major and minor versions
-Co Outputs
-Co   Input file is read and data is packed into these structures:
-Co   slabl :vector of species labels
-Co   sbz   :struct for the Brillouin Zone; see routine ubz
-Co     Elts read: lmet lio,18 lmull fsmom
-Co     Stored:    n w efmax lmet semsh zval ndos ef def range lio dosw
-Co     Passed to: ubz dval rdccat
-Co   sctrl :struct for program flow parameters; see routine uctrl
-Co     Elts read: nbas nclass nspec nspin nl lncol lsx lscr lmet lrel
-Co                lordn loptc lpgf mdprm lham,4 lxcf lfrce sdmod
-Co                lasa lcd ltb lqp,2
-Co     Stored:    lasa lfp lbas lcd lmet lqp lrel nspin nitmv lrs lxcf
-Co                nl lpgf maxit smalit tol ltb zbak lncol sclwsr omax1
-Co                omax2 nvario nsite nbas nspec modep
-Co     Passed to: uctrl dval rdccat lgors lsets susite
-Co   sham  :struct for parameters defining hamiltonian; see routine uham
-Co     Elts read: lsig
-Co     Stored:    rsrnge sigp rsstol lncol lxcf lham
-Co     Passed to: uham dval susite
-Co   spot  :struct for information about the potential; see routine upot
-Co     Elts read: opnu oqnu oves opp osoptc
-Co     Stored:    osoptc osgw
-Co     Passed to: upot dval rdccat susite
-Co   slat  :struct for lattice information; see routine ulat
-Co     Elts read: alat avw
-Co     Stored:    as nkdmx nkqmx tol gam tolft
-Co     Passed to: ulat dval rdccat susite
-Co   smix  :struct for charge mixing parameters; see routine umix
-Co     Elts read: lxpot,3
-Co     Stored:    fn r b bv wc w mmix nsave
-Co     Passed to: umix dval spacks rdccat
-Co   sspec :struct for species-specific information; see routine uspec
-Co     Elts read: rmt
-Co     Stored:    norp lmxa lmxpb hcr lmxf coreq pb1 pb2 coreh etf idxdn
-Co     Passed to: uspec dval spackv spacks ioorbp scalss suidx
-Co   ssite :struct for site-specific information; see routine usite
-Co     Elts read:
-Co     Stored:    relax
-Co     Passed to: rdccat usite dval spackv
-Co   sstr  :struct for parameters for screened strux; see routine ustr
-Co     Elts read: skmsh n symg rmax
-Co     Stored:    nkaps rmax rfit kaps lmaxw loka drwats
-Co     Passed to: ustr dval rdccat
+!! Set initial adata to m_lmfinit. 
+!! All the initial data is pushed into m_lmfinit
+!! ----------------------------------------------------------------------
+!! Inputs
+!!   recrd (recln*nrecs) : preprocessed input
+!!   prgnam: name of main program
+!! Outputs are give in m_lmfinit
+Co   bz_*  : Brillouin Zone related
+Co   ctrl_* : struct for program flow parameters; see routine uctrl
+Co   ham_*  :  Hamiltonian related
+Co   pot_*   : information about the potential; see routine upot
+Co   lat_*   : lattice information; see routine ulat
+Co   smix_*  : charge mixing parameters; see routine umix
+Co   sspec : species-specific information; see routine uspec
+Co   ssite : site-specific information; see routine usite
 Co   sarry
-Co     Elts read:
-Co     Stored:
-Co     Passed to: uarray dval susite
-Co   smove :struct for dynamics information; see routine umove
-Co     Elts read:
-Co     Stored:    gyro prmint
-Co     Passed to: umove dval rdccat
 Co   sstrn :struct for global strings
-Co     Elts read: symg
-Co     Stored:
-Co     Passed to: len rdccat parstr
+C---- note. Followings are just hints about what variables means
 Cg Global variables
-Cg   The following global variables are set by rdctrl and may be accessed by
-Cg   any routine via function call 'dglob' (for double) or 'nglob' (for int)
+Cg   The following global variables are set by rdctrl
+Cg      
+Cn   slabl :vector of species labels
 Cg   avw   :global length scale, usu. the average Wigner-Seitz radius,
 Cg         :used in various places to set a length scale for a range,
 Cg         :sometimes in generating structure constants, etc.
@@ -109,10 +62,9 @@ Cg   stdl  :standard log file
 Cg   stdo  :standard output file
 Cr Remarks
 Cr rdctrl does:
-Cr  1. allocate the following structure arrays
-Cr     v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite,v_sstr,v_sarry
-Cr  2. read input data specified by tokens
-Cu Updates
+Cr  Read input data specified by tokens (see token_init.F)
+co------------------      
+Cu Aug 2020. All data is pushed into m_lmfinit
 Cu   19 Sep 07 (TK+MvS) Adapted from rdctrl, 1st cut at new input
 Cu   20 Oct 06 Broadcast species so floating sites work properly in MPI
 Cu   06 Aug 06 Remove defaults for STR RMAX and HCR
@@ -1586,34 +1538,6 @@ c     &              " If necessary, you have to fix it (mixrho.F)")
       endif
       if (io_help > 0) call cexit(0,1)
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
-      
-c!! Optionally read positions from pos file
-c      if (cmdopt('--rpos=',7,0,fileid)) then
-c        call iopos(.false.,-1,fileid(8:),nbasp,pos)
-c      endif
-
-c$$$!! --- Allocate and copy input to sbz ---
-c$$$      call ubz_init(v_sbz)
-c$$$      v_sbz%size=ubz_size()
-c$$$      v_sbz%def=bz_def
-c$$$      v_sbz%dosw=bz_dosw(:)
-c$$$      v_sbz%dosmax=bz_dosmax
-c$$$      v_sbz%ef=bz_ef
-c$$$      v_sbz%efmax=bz_efmax
-c$$$      v_sbz%fsmom=bz_fsmom
-c$$$      v_sbz%fsmommethod=bz_fsmommethod
-c$$$      v_sbz%lcond=bz_lcond(:)
-c$$$      v_sbz%lmet=bz_lmet
-c$$$      v_sbz%lmull=bz_lmull
-c$$$      v_sbz%lshft = bz_lshft
-c$$$      v_sbz%n     = bz_n
-c$$$      v_sbz%ndos  = bz_ndos
-c$$$      v_sbz%nevmx = bz_nevmx
-c$$$      v_sbz%nkabc = bz_nabc
-c$$$      v_sbz%range=bz_range
-c$$$      v_sbz%w=bz_w
-!! Allocate and copy input to sctrl ---
-c      ctrl_size=uctrl_size()
 !! lbas: 1 Hamiltonian has no screening transformation
 !!           2 Hamiltonian is nfp style
 !!          16 freeze phi,phidot for all species
@@ -1623,9 +1547,7 @@ c      ctrl_size=uctrl_size()
       j = lbas + 16*isw(frzwf)
       ctrl_lbas=j
       ctrl_defm=lat_defm(:)
-c      ctrl_ldos=ctrl_ldos
       ctrl_lfp=lfp
-c      ctrl%lfrce=ctrl_lfrce
 !! takao. we may need to remove lmet4 or lmet8... but a little complicated...
 !! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
 !!     ctrl_lmet    1 metal  2 tetrahedron
@@ -1746,24 +1668,15 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
 
-      v_slat%size=ulat_size()
       if (dalat == NULLR) dalat=0
-      v_slat%alat=alat+dalat
-      v_slat%as=lat_as
-      v_slat%avw=avw
-      v_slat%nkdmx=lat_nkdmx
-      v_slat%nkqmx=lat_nkdmx
-      v_slat%gam =lat_gam
-      v_slat%gmax=lat_gmax
-      v_slat%nabc=ftmesh
-      v_slat%ldist= lat_ldist
-      v_slat%dist = lat_dist
-      v_slat%plat=plat
-      v_slat%rpad=lat_rpad
-      v_slat%slat=lat_slat
-      v_slat%tol=lat_tol
-      v_slat%tolft=tolft
-      v_slat%vol=vol
+      lat_alat=alat+dalat
+      lat_avw=avw
+      lat_nkqmx=lat_nkdmx
+      lat_nabc=ftmesh
+      lat_plat=plat
+      lat_vol=vol
+      lat_tolft=tolft
+      
 !! setcg
 !!... Choose dimensions for arrays
       lmxcg=8
@@ -1958,7 +1871,7 @@ c          v_sspec(j)%alpha=alpha(:,j)
         if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
 !!     Add dalat to alat
-!!  v_slat%alat=(v_slat%alat)+dalat !this is a bug; this should be commented out. This
+!!  lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This
 !!  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 !! Dirac equation requires spin polarization
@@ -2106,7 +2019,8 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
 #endif
 
       
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc Hereafter is originally in lmv7.F
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!!      Hereafter is originally in lmv7.F
 !     !--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
       call lattic() !this gives v_slat
@@ -2192,22 +2106,20 @@ c$$$       endif
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl_,strn,v_slat,v_ssite) !,v_sarry)v_sctrl,
+      call mksym(lc,slabl_,strn,v_ssite) !,v_sarry)v_sctrl,,v_slat
       if(procid==master) call poppr
-c      print *,'eeeeeeeeeeeeeeevvvvvvvvvvvvvvvvv1111qqqqqqqqqqqq'
-c      call rx0(prgnam)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c$$$!! test1 ------------------
-c$$$      ngrp=v_slat%nsgrp
+c$$$      ngrp=lat_nsgrp
 c$$$      nbas=ctrl_nbas
 c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
-c$$$      call dcopy ( ngrp * 9 , v_slat%rv_a_osymgr , 1 , symops , 1 )
-c$$$      call dcopy ( ngrp * 3 , v_slat%rv_a_oag , 1 , ag , 1 )
+c$$$      call dcopy ( ngrp * 9 , lat_rv_a_osymgr , 1 , symops , 1 )
+c$$$      call dcopy ( ngrp * 3 , lat_rv_a_oag , 1 , ag , 1 )
 c$$$      write(*,*) 'ngrp=',ngrp
 c$$$      do ib=1,nbas
 c$$$        iclasst(ib)=v_ssite(ib)%class
 c$$$      enddo
-c$$$      call mptauof ( symops , ngrp , v_slat%plat , nbas , v_slat%rv_a_opos , iclasst 
+c$$$      call mptauof ( symops , ngrp , lat_plat , nbas , lat_rv_a_opos , iclasst 
 c$$$     . , miat , tiat , invgx , shtvg )
 c$$$      do ig = 1,ngrp
 c$$$        write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
@@ -2218,18 +2130,11 @@ c$$$      enddo
 c
 !!  Set default values for species data
       call defspc(v_sspec)
-c#ifndef LMFGWD
-c      ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
-c!! iand(2**n,i) means 2**n ditit of i.
-c!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
-c      call mkqp(v_sctrl,v_sbz,v_slat,ltet,F,1,-2)
-c#endif
-c      if(.not.prgnam == 'LMFGWD') then
       if(prgnam == 'LMF') then
          ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
 !! iand(2**n,i) means 2**n ditit of i.
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
-         call mkqp(v_slat,ltet,F,1,-2)!v_sctrl,
+         call mkqp(ltet,F,1,-2)!v_sctrl,v_slat,
       endif
 !!    show and quit
       if( int(ctrl_quit) == 1 ) then

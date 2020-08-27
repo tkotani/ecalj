@@ -1,4 +1,4 @@
-      subroutine mkpot ( nbas , ssite , sspec , slat ,  spot !sham ,
+      subroutine mkpot ( nbas , ssite , sspec , spot !sham ,slat ,  
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
@@ -6,6 +6,7 @@
       use m_lmfinit,only:lso,ham_eterms
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:lat_nabc,lat_plat,lat_qlat,lat_vol
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -180,7 +181,7 @@ C ... Passed parameters
      ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
       type(s_pot)::spot
 
@@ -242,8 +243,8 @@ C      job = job + 30000
 !! new density mode
       if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
         ifi=ifile_handle()
-        plat =slat%plat
-        alat =slat%alat
+        plat =lat_plat
+        alat =lat_alat
         open(ifi,file='smrho.xsf')
         do isp = 1, nsp
           write(ifi,'("CRYSTAL")')
@@ -296,9 +297,10 @@ c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       stdl = lgunit(2)
       lxcfun = globalvariables%lxcf
       pi   = 4d0*datan(1d0)
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      vol=slat%vol
+c      i_copy_size=size(lat_nabc)
+c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      ngabc=lat_nabc
+      vol=lat_vol
       i_copy_size=size(ham_eterms)
       call dcopy(i_copy_size,ham_eterms,1,eterms,1)
 
@@ -356,7 +358,7 @@ C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
 
       i = 1
       if (cmdopt('--oldvc',7,0,outs)) i = 0
-      call smves ( i , nbas , ssite , sspec , slat , k1 , k2 , k3 , 
+      call smves ( i , nbas , ssite , sspec ,  k1 , k2 , k3 ,  !slat ,
      .qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
      ., smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
 
@@ -422,7 +424,7 @@ c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
 c        call dpzero ( smexc_zv , k1 * k2 * k3 )
         smvxc_zv=0d0
         smexc_zv=0d0
-        call smvxcm ( ssite , sspec , slat , nbas , lfrce , k1 , k2 , 
+        call smvxcm ( ssite , sspec , nbas , lfrce , k1 , k2 , !slat , 
      .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
      .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
      .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
@@ -450,7 +452,7 @@ C --- Make parameters for extended local orbitals ---
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
-      call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec , slat 
+      call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec !, slat 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
      .    sv_p_oppi , ppn , hab , vab , sab , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 

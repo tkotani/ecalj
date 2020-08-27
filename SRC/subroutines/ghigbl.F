@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
       subroutine ghigbl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,
-     .ndim1,ndim2,k0,cg,indxcg,jcg,cy,slat,s,ds)
+     .ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds)!,slat
 C- Block of integrals between smooth hankels and gaussians with some
 c  power of the laplace operator, and gradients.
 C ----------------------------------------------------------------------
@@ -39,7 +39,7 @@ C     implicit none
 C ... Passed parameters
       integer k0,kmax,ndim1,ndim2,nlmg,nlmh,jcg(1),indxcg(1)
       double precision rsmg,rsmh(1),eg,eh(1)
-      double precision ph(3),pg(3),cg(1),cy(1),q(3),slat(1)
+      double precision ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
       double complex s(ndim1,ndim2,0:k0),ds(ndim1,ndim2,0:k0,3)
 C ... Local parameters
       integer icg,icg1,icg2,ii,ilg,ilh,ilm,ilm1,ilm2,indx,ip,jlm,k,ktop,
@@ -98,7 +98,7 @@ C --- Loop over sequences of l with a common rsm,e ---
         gamg = 0.25d0*rsmg*rsmg
         rsmx = 2d0*dsqrt(gamg+gamh)
         ktop = max0(lmaxg,l2)+kmax
-        call hklgbl(dr,rsmx,e,q,ktop,nlmx,ktop0,nlm0,cy,slat,hkl,dhkl)
+        call hklgbl(dr,rsmx,e,q,ktop,nlmx,ktop0,nlm0,cy,hkl,dhkl)!,slat
 
 C   ... Combine with Clebsch-Gordan coefficients
         ee = dexp(gamg*(eg-e))

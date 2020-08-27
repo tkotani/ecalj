@@ -95,7 +95,7 @@ C     call tcx('mkrou3')
       end module m_mkrou3
 
 
-      subroutine mkrout ( ssite , sspec , slat , nbas , nsp !sham , 
+      subroutine mkrout ( ssite , sspec , nbas , nsp !sham , slat , 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .     , sab , qbyl , hbyl , lrout )
       use m_work,only: iv_a_oindxo
@@ -165,7 +165,7 @@ C ----------------------------------------------------------------------
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nbas)
 c      type(s_ham)::sham
-      type(s_lat)::slat
+c      type(s_lat)::slat
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
      .           nr , ncore , stdo , igetss

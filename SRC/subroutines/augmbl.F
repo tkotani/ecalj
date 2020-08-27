@@ -1,9 +1,10 @@
-      subroutine augmbl ( mode , ssite , sspec , slat , isp , lcplxp 
+      subroutine augmbl ( mode , ssite , sspec ,  isp , lcplxp  !slat ,
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
       use m_work,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_struc_def           !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -79,7 +80,7 @@ Cu   17 Jun 00 spin polarized
 Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI
       include "mpif.h"
@@ -97,14 +98,14 @@ C ... Passed parameters
       integer i,lgunit
       character*120 strn
 #endif
-      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh)
+      integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters
@@ -142,10 +143,11 @@ C --- Setup ---
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
-      alat=slat%alat
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      vol=slat%vol
+      alat=lat_alat
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      qlat=lat_qlat
+      vol=lat_vol
       allocate (b(lofb*ndimh))
 C --- Loop over augmentation sites --- ---
 #if MPI
@@ -191,7 +193,7 @@ C --- Loop over augmentation sites --- ---
         if (lmxa .eq. -1) goto 10
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-        call bstrux ( 0 , slat , ssite , sspec , rv_a_ocg , iv_a_oidxcg
+        call bstrux ( 0 ,  ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat ,
      .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igapw , b , xx )
         if(debug) print *,'end of bstrux'

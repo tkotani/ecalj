@@ -1,4 +1,4 @@
-      subroutine makusq(mode,ssite,sspec,slat,nbas,nsites,isite,!,sham
+      subroutine makusq(mode,ssite,sspec,nbas,nsites,isite,!,sham,slat
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .     aus)
       use m_work,only: iv_a_oindxo
@@ -92,7 +92,7 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
 
       double precision ppnl(nppn,n0,nsp,nbas)
@@ -158,7 +158,7 @@ C   --- Set up all radial head and tail functions, and their BC's
      .  , xp_rv , vp_rv , dp_rv )
 C   --- Add to the coefficient for the projection onto (u,s) for this site
         call pusq1 ( mode , ib , isp , nspc , iv_a_oindxo , nlmax , lmxh 
-     .   , nbas , ssite , sspec , slat , q , ndham , ndimh , napw , igvapw 
+     .   , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw !slat ,
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 
      .   1 , i , iq ) , aus ( 1 , 1 , 3 , 1 , i , iq ) )
@@ -177,7 +177,7 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
       end subroutine makusq
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
-     .sspec,slat,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl,
+     .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
@@ -245,7 +245,7 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex evec(ndimh,nspc,ndimh),
      .au(nlmax,ndham*nspc,3,2),
@@ -278,7 +278,7 @@ C ... Local parameters
       call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
-      call bstrux ( 2 , slat , ssite , sspec , rv_a_ocg , iv_a_oidxcg
+      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 
      .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
 C     In noncollinear case, isp=1 always => need internal ispc=1..2

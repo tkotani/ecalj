@@ -1,7 +1,8 @@
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
-     .ndim2,slat,wk,dwk,s,ds)
+     .ndim2,wk,dwk,s,ds) !slat,
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_vol
 C- Estatic energy integrals between Bloch Hankels, and gradients.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -26,12 +27,12 @@ Cu Updates
 Cu   23 May 00 Made rsm1,e1,rsm2,e2 l-dependent
 Cu   22 Apr 00 Adapted from nfp hhug_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,nlm1,nlm2,ndim1,ndim2
       real(8):: rsm1(0:*) , rsm2(0:*) , e1(0:*) , e2(0:*) , p1(3) , 
      .p2(3)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex s(ndim1,ndim2),ds(ndim1,ndim2,3),
      .wk(ndim1,ndim2),dwk(ndim1,ndim2,3)
       integer:: kmax , kdim , i2 , i1 , lmxx , nlmx , l , ll
@@ -41,16 +42,16 @@ C ... Passed parameters
       data q /0d0,0d0,0d0/
       data zer /lmxx*0d0,0d0/
       pi = 4d0*datan(1d0)
-      vol=slat%vol
+      vol=lat_vol
       kmax = 0
       kdim = 0
       if (nlm1 .gt. nlmx) call rx('hhugbl: increase lmxx')
       call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , e2 , nlm1
      .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg
-     .    , iv_a_ojcg , rv_a_ocy , slat , s , ds )
+     .    , iv_a_ojcg , rv_a_ocy ,  s , ds ) !slat ,
       call hhigbl ( mode , p1 , p2 , q , rsm1 , rsm2 , e1 , zer , nlm1
      .    , nlm2 , kmax , ndim1 , ndim2 , kdim , rv_a_ocg , iv_a_oidxcg
-     .    , iv_a_ojcg , rv_a_ocy , slat , wk , dwk )
+     .    , iv_a_ojcg , rv_a_ocy , wk , dwk ) !slat , 
       do  i2 = 1, nlm2
         if (mode .eq. 0) then
           l = 0

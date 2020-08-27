@@ -1,6 +1,7 @@
-      subroutine totfrc(nbas,ssite,slat,leks,fes1,fes2,dfhf,f)
+      subroutine totfrc(nbas,ssite,leks,fes1,fes2,dfhf,f)!slat,
       use m_work,only:  rv_a_osymgr , iv_a_oistab 
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_nsgrp
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,12 +22,12 @@ Cu Updates
 Cu   12 Apr 03 Prints out max correction to Harris force
 Cu   30 May 00 Adapted from nfp totforce.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,leks
+      integer nbas,leks,i_copy_size
       real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
       type(s_site)::ssite(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
 C ... Local parameters
       integer:: stdo , stdl , lgunit , ipr , ipl , ib , m , ng , ibmx 
@@ -107,7 +108,7 @@ C ... Heap
      .c*fmax,ibmx,isw(dfmax.gt.0),c*dfmax,0)
 
 C     Symmetrize forces to machine precision
-      ng=slat%nsgrp
+      ng=lat_nsgrp
       if (ng .gt. 1) then
         call info(30,1,0,' Symmetrize forces ...',0,0)
         allocate(wk_rv(3*nbas))

@@ -191,21 +191,21 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 !! -----------------------------------------------------------------------------------
 c      subroutine seneinterp(nbas,nsp,ndimh,slat,sham,sbz,ifis,rsrnge, nk1,nk2,nk3,sfz)
-      subroutine seneinterp(nbas,nsp,ndimh,slat,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
+      subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
       use m_work,only: iv_a_oindxo,rv_a_osymgr,iv_a_ontabs,rv_a_osymgr , rv_a_oag,rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
      & rv_p_oqsig , iv_a_ooffH, iv_a_oistab
-      use m_struc_def  
+c      use m_struc_def  
       use m_hft2rs
       use m_globalvariables
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs
-
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs,
+     & lat_plat,lat_nsgrp
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
       double precision rsrnge
       logical llshft(3),cmdopt,ltrans,lphase,lsplts,lnwmsh,
@@ -383,8 +383,8 @@ c      print *,'nscnts111=',nscnts
       if (lsplts) call info0(30,0,0,
      &   '%9f(warning) sigm file not spin pol .. splitting spins') !sanity check
       if(debug) print *,'seneinterp: debug EEEEEEEEEE'
-      plat = slat%plat
-      nsgrp= slat%nsgrp
+      plat = lat_plat
+      nsgrp= lat_nsgrp
       call offshp ( iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
       k1=nk1
       k2=nk2
@@ -610,11 +610,11 @@ c$$$
 c$$$            if (lonesp .eq. 1) then
 c$$$              if (nsp .eq. 1) call rx(
 c$$$     .        'onesp option nonsensical unless sigma file is spin pol')
-c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
+c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
 c$$$     .           , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$            if (ledit .eq. 1) then
-c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , slat%rv_a_opos , ndimh
+c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
 c$$$     .             , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$
@@ -654,7 +654,7 @@ c$$$     .            , 0 , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , 0 , 0 )
 c$$$              else
 c$$$                call info0(20,1,0,
 c$$$     .          ' Creating sigma for new mesh (file sigm2) ...')
-c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , slat%rv_a_osymgr 
+c$$$                call bzmesh ( plat , qb , nk1 , nk2 , nk3 , llshft , lat_rv_a_osymgr 
 c$$$     .            , nsgrp , ipq_iv , rv_p_oqp , wgt_rv , nqp , mxkp , gstar_iv 
 c$$$     .            , 0 )
 c$$$              endif
@@ -739,8 +739,8 @@ c          rv_p_oqp=>rv_a_oqp
           allocate(ipq_iv(mxkp))
           allocate(wgt_rv(abs(-mxkp)))
           if (-mxkp<0) wgt_rv(:)=0.0d0
-          i_copy_size=size(slat%plat)
-          call dcopy(i_copy_size,slat%plat,1,plat,1)
+          i_copy_size=size(lat_plat)
+          call dcopy(i_copy_size,lat_plat,1,plat,1)
 C   ... Make is,ifac,qb,qlat
           do   i = 1, 3
             llshft(i) = lshft(i) .ne. 0
@@ -780,13 +780,13 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 
 !!--------------------------------------------------------------------------------------------
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
-      subroutine rdsigm2(nbas_dummy,nsp,slat,ifis,  !sbz,ndimh,sham 
+      subroutine rdsigm2(nbas_dummy,nsp,ifis,  !sbz,ndimh,sham 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_work,only: rv_a_osymgr, rv_p_oqsig 
-      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
+c      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
-      use m_lmfinit,only: ham_nqsig
+      use m_lmfinit,only: ham_nqsig,lat_nsgrp
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -971,7 +971,7 @@ Cu   27 Jul 02 first created
 C ------------------------------------------------------------
       implicit none
       integer mode,ifis,ndimsig_r,lwsig, nbas_dummy!nbas,
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
 c      type(s_bz)::sbz
       double precision rsrnge
@@ -1097,13 +1097,13 @@ c      call mpibc1(nqp,1,2,mlog,'rdsigm','nqp')
 c      call mpibc1(lshft,3,2,mlog,'rdsigm','lshft')
       call info5(30,0,0,'%9fsigm file has %i irreducible QP: nk ='//
      .' ( %i %i %i )  shift=%3:1l',nqp,nk1,nk2,nk3,lshft)
-      nsgrp=slat%nsgrp
+      nsgrp=lat_nsgrp
       k1=nk1
       k2=nk2
       k3=nk3
       nsgrps = nsgrp
 
-      print *,' slat%nsgrp=',slat%nsgrp
+      print *,' lat_nsgrp=',lat_nsgrp
 C ... Make is,ifac,qb,qlat,qoff
       do i = 1, 3
         llshft(i) = lshft(i) .ne. 0

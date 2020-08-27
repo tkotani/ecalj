@@ -4,8 +4,6 @@
      .   eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu , vorb , 
      .   lldau , iblu , idu , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl 
      .   , hab , vab , sab )
-
-
       use m_struc_def, only: s_rv1
 C- Make augmentation matrices sig,tau,pi for one site
 C ----------------------------------------------------------------------

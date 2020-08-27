@@ -1,10 +1,10 @@
-      subroutine setcg(slat,lmxcg,lmxcy)
+      subroutine setcg(lmxcg,lmxcy) !slat,
       use m_work,only: rv_a_ocy, rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
       use m_struc_def  
 C- Allocate space for, and make Clebsch-Gordan coeffs
 C     implicit none
       integer lmxcg,lmxcy
-      type(s_lat)::slat
+c      type(s_lat)::slat
       integer:: lnjcg , lnxcg , nlm
 C ... Choose dimensions for arrays
       if (lmxcg .le. 6) then

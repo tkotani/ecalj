@@ -11,13 +11,14 @@ module = -J$(moddir) -I$(moddir)
 
 ##############################
 FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS = -O2  -fomit-frame-pointer -funroll-loops  -ffast-math  $(FFLAGS_COMMON)
+FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
+#-fomit-frame-pointer -funroll-loops  -ffast-math
 # safer option (debug)
 #  -pg for profiling??? how to use gprof
 #FFLAGS =      -g  -fbacktrace $(FFLAGS_COMMON)

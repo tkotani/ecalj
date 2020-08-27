@@ -1,9 +1,10 @@
-      subroutine smvxcm(ssite,sspec,slat,nbas,lfrce,k1,k2,k3,smrho,
+      subroutine smvxcm(ssite,sspec,nbas,lfrce,k1,k2,k3,smrho,!slat,
      .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .rvepsm,focexc,focex,focec,focvxc,f)
       use m_work,only: iv_a_okv,rv_a_ogv,rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only: lat_nabc, lat_ng, lat_vol, lat_alat, lat_vol
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -84,35 +85,23 @@ C ... Passed parameters
      ., rvmusm(2) , rvepsm(2) , focexc(2) , focex(2) , focec(2) , focvxc(2)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
-
+c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,*),smpot(k1,k2,k3,*),
      .smvxc(k1,k2,k3,*),smvx(k1,k2,k3,*),smvc(k1,k2,k3,*),
      .smexc(k1,k2,k3)
-C ... Local parameters
       integer:: stdo , i , k123 , n1 , n2 , n3 , lgunit , ng , lfoc1 
      .   , lfoc2 , iprint , excsan , lxcfun , nglob , nsp
-ckino Dec.12.2011:           integer,pointer :: iv_p_okv(:) =>NULL()
-
-ckino Dec.12.2011:          real(8),pointer :: rv_p_ogv(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ocy(:) =>NULL()
-
       complex(8) ,allocatable :: cgh1_zv(:)
       complex(8) ,allocatable :: cgh2_zv(:)
       complex(8) ,allocatable :: dxcv_zv(:)
-
       double precision vol,sum1,sum2,vxcavg(2),x1,x2,alat
       character*180 outs
-C ... Heap
       integer ::iwdummy
-
       complex(8),allocatable ::smrho_w(:), smcor_w(:)
       integer:: nnn,isp
       real(8):: sss ,srshift,swmin
       real(8),parameter:: minimumrho=1d-14
       logical::enforce_positive_smrho
-
       logical:: iprx=.true.
 #if (MPI|MPIK)
        include 'mpif.h'
@@ -129,19 +118,17 @@ Changenglob      nsp  = nglob('nsp')
 Changenglob      lxcfun = nglob('lxcf')
       lxcfun = globalvariables%lxcf
       call tcn('smvxc')
-c      i_copy_size=size(slat%nabc)
-c      call i8icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ngabc = slat%nabc
-      ng    = slat%ng
-      vol  = slat%vol
-      alat = slat%alat
-      vol  = slat%vol
+      ngabc = lat_nabc
+      ng    = lat_ng
+      vol  = lat_vol
+      alat = lat_alat
+      vol  = lat_vol
 C ... Sum of foca hankel heads; break into direct and pert. parts
 c      call defcc (osmrho,-k1*k2*k3*nsp)
       allocate(smrho_w(k1*k2*k3*nsp))
       smrho_w=0d0
       allocate(cgh1_zv(ng), cgh2_zv(ng))
-      call smcorm ( nbas , ssite , sspec , slat , ng , rv_a_ogv , cgh1_zv 
+      call smcorm ( nbas , ssite , sspec , ng , rv_a_ogv , cgh1_zv !slat , 
      . , cgh2_zv , lfoc1 , lfoc2 )
 
 C ... smrho_w = smrho + smoothed core from foca hankel heads
@@ -197,7 +184,7 @@ C      call smrpos(w(osmrho),k1,k2,k3,n1,n2,n3)
 C --- Direct branch (lfoc2 .eq. 0) ---
       if (lfoc2 .eq. 0) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho_w,sum1,sum2)
-        call smvxc2 ( 0 , slat , nsp , lxcfun , vol , n1 , n2 , n3 , 
+        call smvxc2 ( 0 ,  nsp , lxcfun , vol , n1 , n2 , n3 , !slat ,
      .   k1 , k2 , k3 , smrho_w , smvxc , smvx , smvc , smexc  !, iwdummy 
      .   , repsm , repsmx , repsmc , rmusm , vxcavg )
 
@@ -291,10 +278,10 @@ C --- Force from foca sm-head; cgh1 is workspace ---
       end subroutine smvxcm
 
 
-      subroutine smvxc2(mode,slat,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,
+      subroutine smvxc2(mode,nsp,lxcfun,vol,n1,n2,n3,k1,k2,k3,smrho,!slat,
 c     .smvxc,smvx,smvc,smexc,dsmvxc,rhoeps,rhoex,rhoec,rhomu,vxcavg)
      .smvxc,smvx,smvc,smexc,       rhoeps,rhoex,rhoec,rhomu,vxcavg)
-      use m_struc_def, only: s_lat
+c      use m_struc_def, only: s_lat
 !! Not documented well yet.
 !!= Makes smooth part of xc potential smvxc and optionally dsmvxc/drho =
 c no perturbation branch (dsmvxc)
@@ -351,7 +338,7 @@ Cu    8 Feb 02 smvx and smvc (T. Miyake)
 Cu   12 Jun 00 spin polarized
 Cu    1 May 00 Adapted from nfp vxcd_smooth.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,nsp,k1,k2,k3,n1,n2,n3,lxcfun
       double precision rhoeps(2),rhoex(2),rhoec(2),rhomu(2),
@@ -374,7 +361,7 @@ C ... Local parameters
 ckino delete integer(4) def.      integer(4):: ixxx
       integer:: ixxx
       real(8):: rhomin
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       logical :: newmode
       integer:: nnn,isp
@@ -502,7 +489,7 @@ c      print *,' goto vxcnlm lxcg=',lxcg,sum(abs(smrho)),sum(smrho)
 C ... Gradient corrections to potential, energy
       if (lxcg .ne. 0) then
 c        print *,'smvxcm:calling vxcnlm sum smrho=',sum(abs(smrho))
-        call vxcnlm(lxcg,nsp,k1,k2,k3,slat,smrho,
+        call vxcnlm(lxcg,nsp,k1,k2,k3,smrho,!slat,
      &    repnl,rmunl,vavgnl,smvx,smvc,smvxc)
 c       newmode=.false.
         newmode=.true.
@@ -598,7 +585,7 @@ Co   rmuxcc:integral smrho * (dvxc/drho * smcor)
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nsp,k1,k2,k3,n1,n2,n3
       double precision rmuxcc(nsp),vol
@@ -657,7 +644,7 @@ Cu Updates
 Cu   02 Jul 05  skip sites for which cofh=0
 Cu    1 May 00  Adapted from nfp smc_force.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nbas,nsp,ng
       real(8):: gv(ng,3) , alat , vol , cy(1) , f(3,nbas)
@@ -680,11 +667,10 @@ C ... Local parameters
 C --- Loop over sites ---
       if (iprint() .ge. 50) write(stdo,400)
       do  ib = 1, nbas
-
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+        tau=ssite(ib)%pos
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
         if (lfoc .gt. 0 .and. cofh .ne. 0) then
           sum1 = 0d0

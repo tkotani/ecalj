@@ -1,8 +1,7 @@
-CSFCPP#define F90 1
-      subroutine fklbl(p,rsm,kmax,nlm,k0,cy,slat,fkl)
-
-      use m_struc_def  !Cgetarg
-      use m_work,only:rv_a_odlv,rv_a_oqlv
+      subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl) !slat,
+c      use m_struc_def  !Cgetarg
+      use m_work,only: rv_a_odlv,rv_a_oqlv
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd ,lat_nkq
 C- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,30 +20,22 @@ Cr   For all other cases f is the limit of hklbl as e goes to zero.
 Cu Updates
 Cu   24 Apr 00 Adapted from nfp fkl_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,nlm,k0
       real(8):: p(3) , cy(*) , rsm
-      type(s_lat)::slat
-
+c      type(s_lat)::slat
       double complex fkl(0:k0,nlm)
 C ... Local parameters
       integer:: nlm0 , lmax , ll , nkd , nkq , nrx , owk , oyl , job 
      .  , ilm , k
-ckino Dec.9.2011:          real(8),pointer :: rv_p_odlv(:) =>NULL()
-
-ckino Dec.9.2011:         real(8),pointer :: rv_p_oqlv(:) =>NULL()
-
       parameter ( nlm0=196 )
-      double precision q(3),alat,plat(9),qlat(9),p1(3)
+      double precision q(3),alat,plat(3,3),qlat(3,3),p1(3)
       double precision faca,fpi,y0,e,vol,awald,tol
       double complex fsm(nlm0),gklsav,gklnew
       parameter (faca=1d0)
-CSFCPP#if F90
       real(8),allocatable:: wk(:),yl(:)
-CSFCPP#endif
-C ... Heap
-
+      
       if (nlm .eq. 0) return
       fpi = 16d0*datan(1d0)
       y0 = 1d0/dsqrt(fpi)
@@ -55,23 +46,25 @@ C ... Heap
       q(2) = 0d0
       q(3) = 0d0
 
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      awald=slat%awald
-      tol=slat%tol
-      vol=slat%vol
-      nkd=slat%nkd
-      nkq=slat%nkq
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+      plat=lat_plat
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      qlat=lat_qlat
+      awald=lat_awald
+      tol=lat_tol
+      vol=lat_vol
+      nkd=lat_nkd
+      nkq=lat_nkq
       call shorbz(p,p1,plat,qlat)
       nrx = max(nkd,nkq)
       allocate(wk(nrx*(2*lmax+10)),yl(nrx*(lmax+1)**2))
       call hsmqe0 ( lmax , rsm , 0 , q , p1 , nrx , nlm , wk , yl ,
      .  awald , alat , rv_a_oqlv , nkq , rv_a_odlv , nkd , vol , fsm  )
       if (rsm .gt. faca/awald) then
-        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy,slat, fkl)
+        call gklbl(p1,rsm,e,q,kmax-1,nlm,k0,cy, fkl) !slat,
       else
         job = 2
         call gklq ( lmax , rsm , q , p1 , e , kmax - 1 , k0 , alat ,

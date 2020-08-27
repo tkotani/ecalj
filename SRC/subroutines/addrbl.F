@@ -1,5 +1,5 @@
 CSFCPP#define F90 1
-      subroutine addrbl ( ssite , sspec , slat  , isp , nsp , !, sham
+      subroutine addrbl ( ssite , sspec ,  isp , nsp , !, sham slat  ,
      .     nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
      .     , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
      .     , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
@@ -9,25 +9,12 @@ CSFCPP#define F90 1
       use m_work,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
       use m_globalvariables
+      use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: fsmbl rsibl rlocbl
 Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: fsmbl rsibl rlocbl
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: nabc
-Ci     Stored:    *
-Ci     Passed to: fsmbl rsibl rlocbl
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     Elts read: oindxo
-Ci     Stored:    *
-Ci     Passed to: *
 Ci   isp   :current spin channel
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   nspc  :2 for coupled spins; otherwise 1
@@ -106,7 +93,7 @@ C ... Passed parameters
      ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ham)::sham
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
@@ -130,13 +117,13 @@ C ... Local parameters
       nbas = globalvariables%nbas
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
+      i_copy_size=size(lat_nabc)
+      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
 
 C     Setup for PW part of basis
-      alat=slat%alat
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
+      alat=lat_alat
+      i_copy_size=size(lat_qlat)
+      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
 
 C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
@@ -196,7 +183,7 @@ C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
 
         if (nlmto .gt. 0) then
-          call fsmbl ( nbas , ssite , sspec , slat , vavg , q , ndimh ,
+          call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh , !slat ,
      .     nlmto , iv_a_oindxo , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f )
         endif
@@ -207,7 +194,7 @@ C  543     format(1p3e15.7)
 C        enddo
 
         if (napw .gt. 0) then
-          vol=slat%vol
+          vol=lat_vol
           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iv_a_oindxo 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
@@ -220,7 +207,7 @@ C        enddo
 
 C ... Add to smooth density
       if (lrout .gt. 0) then
-        call rsibl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
+        call rsibl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .   iq , ndimh , nspc , napw , igapw , iv_a_oindxo , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
@@ -232,7 +219,7 @@ C      enddo
 
 C ... Add to local density coefficients
       if (lrout .gt. 0) then
-        call rlocbl ( ssite , sspec , slat , lfrce , nbas , isp , q ,
+        call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .        ndham , ndimh , nspc , napw , igapw , iv_a_oindxo , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )

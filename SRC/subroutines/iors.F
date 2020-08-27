@@ -1,10 +1,11 @@
-      integer function iors(mode,ssite,sspec,slat,spot,!sbz,,sctrl
+      integer function iors(mode,ssite,sspec,spot,!sbz,,sctrl,slat
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
       use m_struc_def 
       use m_struc_func
       use m_globalvariables
       use m_work,only: zv_a_osmrho, rv_a_oves
+      use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
 C- I/O for charge density
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -119,16 +120,16 @@ Cu   27 Apr 01 Added lbin switch
 Cu   25 Jun 00 spin polarized
 Cu   21 Apr 00 Adapted from nfp rw_rs
 C  ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       logical lbin
-      integer:: mode , nbas , nat , nspec , nit , ifi , n0
+      integer:: mode , nbas , nat , nspec , nit , ifi , n0,i_site,i_spec,i_copy_size
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       parameter (n0=10)
 c      type(s_ctrl)::sctrl
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_pot)::spot
 c      type(s_bz)::sbz
       double precision qnu(3,n0,*)
@@ -151,7 +152,7 @@ C ... Local parameters
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
      .vol0,vs,vs1,z,z0
       double precision pnu(n0,2),pnz(n0,2),ql(n0,2*n0),pos(3),
-     .pos0(3),force(3),vel(3),plat(9),plat0(9),qlat(9),qlat0(9),
+     .pos0(3),force(3),vel(3),plat(3,3),plat0(3,3),qlat(3,3),qlat0(3,3),
      .exi(n0),hfc(n0,2),vec0(3),wk(100),rh,vrmax(2),pnus(n0,2),
      .pnzs(n0,2),dval
       character spid*8,spid0*8,fid0*68,line*20,msg*23,use*80,ignore*80,
@@ -164,12 +165,13 @@ C ... MPI setup
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,ignore)
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_nabc)
+c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
+      plat=lat_plat
+      ngabc=lat_nabc
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
       ipr    = iprint()
@@ -300,10 +302,10 @@ C       Abort with error message if file is missing (lfail = .true.)
           endif
           if (mode .eq. -2) then
 
-            slat%alat=alat0
-            i_copy_size=size(slat%plat)
-            call dcopy(i_copy_size,plat0,1,slat%plat,1)
-
+            lat_alat=alat0
+c            i_copy_size=size(lat_plat)
+c            call dcopy(i_copy_size,plat0,1,lat_plat,1)
+            lat_plat=plat0
             alat = alat0
             vol = vol0
             call dcopy(9,plat0,1,plat,1)
@@ -368,9 +370,9 @@ C   ... FP mesh density
               n1 = n11
               n2 = n21
               n3 = n31
-              i_copy_size=size(slat%nabc)
-c              call ii8copy(i_copy_size,ngabc,1,slat%nabc,1)
-              slat%nabc=ngabc
+              i_copy_size=size(lat_nabc)
+c              call ii8copy(i_copy_size,ngabc,1,lat_nabc,1)
+              lat_nabc=ngabc
               call fftz30(n1,n2,n3,k1,k2,k3)
               allocate(zv_a_osmrhox(k1*k2*k3*nsp))
               zv_a_osmrhox(:)=0.0d0
@@ -886,9 +888,11 @@ C     ... store data in strucs
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
 
         if ( lshear .and. iand(256,int(ctrl_lrs)) .ne.0 ) then
-          i_copy_size=size(slat%dist)
-          call dcopy(i_copy_size,slat%dist,1,wk,1)
-C         call prmx('wk',wk,3,3,3)
+
+c         i_copy_size=size(lat_dist)
+c          call dcopy(i_copy_size,lat_dist,1,wk,1)
+C     call prmx('wk',wk,3,3,3)
+          wk(1:9)=lat_dist
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
 C         call prmx('wk',wk,3,3,3)
           call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )
@@ -1048,7 +1052,7 @@ c   ... Copy or rescale cores, in case foca was switched on or off
           call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
         enddo
 c        call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
-        call mpibc1_s_lat(slat,mlog,'iors','slat')
+c        call mpibc1_s_lat(slat,mlog,'iors','slat')
         call mpibc1_s_pot(spot,mlog,'iors','spot')
 c        call mpibc1_s_bz(sbz,mlog,'iors','sbz')
         if (mode .eq. 1) then

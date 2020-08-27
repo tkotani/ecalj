@@ -1,5 +1,5 @@
       subroutine hhibl(mode,p1,p2,q,rsm1,rsm2,e1,e2,nlm1,nlm2,kmax,
-     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,s) !,slat
 C- Integrals between smooth Hankels with k-th power of Laplace operator.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -39,10 +39,10 @@ Cu   19 May 00 Made rsm1,e1,rsm2,e2 l-dependent.  Elements for which
 Cu             rsm1 =0 or rsm2 = 0 are not computed.
 Cu   18 May 00 Adapted from nfp hhi_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,jcg(1),indxcg(1),nlm1,nlm2,kmax,ndim1,ndim2
-      double precision p1(3),p2(3),q(3),cg(1),cy(1),slat(1),
+      double precision p1(3),p2(3),q(3),cg(1),cy(1),!slat(1),
      .rsm1(0:*),rsm2(0:*),e1(0:*),e2(0:*)
       double complex s(ndim1,ndim2,0:kmax)
 C ... Local parameters
@@ -80,12 +80,12 @@ C         l2t = l2
           lm22 = (l2t+1)**2
           if (mode/10.eq.1 .and. rsm1(l1)*rsm2(l2) .eq. 0) goto 22
           call phhibl(dr,q,rsm1(l1),rsm2(l2),e1(l1),e2(l2),lm11,lm12,
-     .    lm21,lm22,kmax,ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .    lm21,lm22,kmax,ndim1,ndim2,cg,indxcg,jcg,cy,s) !,slat
    22   continue
    20 continue
       end
       subroutine phhibl(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,kmax,
-     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,s) !,slat
 C- Integrals between smooth Hankels with k-th power of Laplace operator.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -112,10 +112,10 @@ Cr   s(L,M) contains integral of H_L^*(r-p1) (laplace)^k H_M(r-p2)
 Cu Updates
 Cu   18 May 00 Adapted from nfp hhi_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer jcg(1),indxcg(1),mlm1,nlm1,mlm2,nlm2,kmax,ndim1,ndim2
-      double precision dr(3),q(3),cg(1),cy(1),slat(1),rsm1,
+      double precision dr(3),q(3),cg(1),cy(1),rsm1, !slat(1),
      .rsm2,e1,e2
       double complex s(ndim1,ndim2,0:kmax)
 C ... Local parameters
@@ -143,8 +143,8 @@ C ... Set up functions for connecting vector p1-p2
       if (dabs(e1-e2) .gt. 1d-5) then
         fac1 = dexp(gam2*(e2-e1))/(e1-e2)
         fac2 = dexp(gam1*(e1-e2))/(e2-e1)
-        call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0,cy,slat, hkl1)
-        call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0,cy,slat, hkl2)
+        call hklbl(dr,rsmx,e1,q,ktop,nlmx,ktop0,cy, hkl1) !slat,
+        call hklbl(dr,rsmx,e2,q,ktop,nlmx,ktop0,cy, hkl2) !slat,
         do  4  ilm = 1, nlmx
           do  5  k = 0, ktop
             hkl1(k,ilm) = fac1*hkl1(k,ilm) + fac2*hkl2(k,ilm)
@@ -152,8 +152,8 @@ C ... Set up functions for connecting vector p1-p2
     4   continue
       else
         e = .5d0*(e1+e2)
-        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,slat, hkl2)
-        call hsmbl(dr,rsmx,e,q,lmaxx,cy,slat, hsm,hsmp)
+        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy, hkl2) !slat,
+        call hsmbl(dr,rsmx,e,q,lmaxx,cy, hsm,hsmp) !slat,
         do  6  ilm = 1, nlmx
           hkl1(0,ilm) = hsmp(ilm) - gamx*hsm(ilm)
           do  7  k = 1, ktop

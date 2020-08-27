@@ -1,9 +1,10 @@
-      subroutine mksym(mode,slabl,ssymgr,slat,ssite) !,sctrl
+      subroutine mksym(mode,slabl,ssymgr,ssite) !,sctrl,slat
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
      &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
+     & lat_dist,lat_ldist,lat_npgrp,lat_nsgrp,lat_plat
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -73,7 +74,7 @@ C ----------------------------------------------------------------------
       character*8 slabl(1),ssymgr*(*)
       integer mode,nsgrp,npgrp
 c      type(s_ctrl)::sctrl
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_site)::ssite(*)
 c      type(s_array)::sarray
       integer ::iwdummy 
@@ -93,10 +94,10 @@ c      type(s_array)::sarray
       nbas =ctrl_nbas
       nspec=ctrl_nspec
       nsite=ctrl_nsite
-      plat =slat%plat
-      ldist=slat%ldist
-      i_copy_size=size(slat%dist)
-      call dcopy(i_copy_size,slat%dist,1,dist,1)
+      plat =lat_plat
+      ldist=lat_ldist
+      i_copy_size=size(lat_dist)
+      call dcopy(i_copy_size,lat_dist,1,dist,1)
       ngmx = 48
       stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
@@ -145,7 +146,7 @@ C --- Generate space group ---
       endif
 
 C ... When generating the group the basis may become enlarged ...
-      if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !slat%iv_a_oistab
+      if(allocated(iv_a_oistab)) deallocate(iv_a_oistab) !lat_iv_a_oistab
       allocate(iv_a_oistab(abs((ngmx+1)*nbas)))
       allocate(ips2_iv(ngmx*nbas))
       allocate(pos2_rv(3,ngmx*nbas))
@@ -250,8 +251,8 @@ C --- Cleanup: poke class and symmetry info into structures ---
       ctrl_nclass=nclass
 c      sarray%nclasp=nclasp
   100 continue
-      slat%npgrp=npgrp
-      slat%nsgrp=nsgrp
+      lat_npgrp=npgrp
+      lat_nsgrp=nsgrp
       print *,'end of mksym'
       end subroutine mksym
 

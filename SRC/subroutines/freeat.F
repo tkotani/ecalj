@@ -4,6 +4,7 @@ c#define USEOPTIONAL 1
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_lmfinit,only:ham_seref
+      use m_ext,only:sname
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -72,7 +73,7 @@ ctakao
       stdo  = lgunit(1)
       hfct=0d0
       pzsum=0d0
-      ifives = fopna('vesintatm',-1,0)
+      open(newunit=ifives,file='vesintatm.'//trim(sname))
       ifiwv  = fopna('veswavatm',-1,0)
       do  is = 1, nspec
 c takao. I found tht Li requires -0.5 to have positive smooth rho.
@@ -155,28 +156,19 @@ c        enddo
      .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
 C       Repack mesh parms, in case a mesh was selected by freats
-
         sspec(is)%z=z
         sspec(is)%rmt=rmt
         sspec(is)%a=a
         sspec(is)%nr=nrmt
-
-
 C   ... Pack the basis into sspec
         call dpzero(orbp,n0*2*nkap0)
 C       call upack2('spec orbp lmxb',sspec,is,orbp)
         call dcopy(n0,rtab,1,orbp(1,1,1),1)
         call dcopy(n0,etab,1,orbp(1,2,1),1)
-
         sspec(is)%norp=2
         sspec(is)%ntorb=n0
-
-
         i_copy_size=size(sspec(is)%orbp)
         call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
-
-
-
 C   --- File write ---
         if (iprint() .gt. 40) write(stdo,230) spid
   230   format(/' write free atom data for species  ',a)
@@ -193,10 +185,8 @@ ckino iofa is integer        call iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
         pzsum= pzsum+sum(pz(1:lmxa+1,1))
    10   continue
       enddo
-
       ixx= ioorbp(1,2,1,nspec,sspec,0,-ifi)
       call fclose(ifi)
-
 ctakao
       print *
       if(pzsum<1d-10) then
@@ -212,7 +202,8 @@ ctakao
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .  seref)
       endif
-      call fclose('vesintatm')
+c     call fclose('vesintatm')
+      close(ifives)
       end subroutine freeat
 
 

@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
 
-#define USEOPTIONAL 1
+c#define USEOPTIONAL 1
 
       module m_prlcb1
       contains
@@ -32,20 +32,20 @@ Cr     array indices to b are ordered differently
 Cu Updates
 Cu   25 Aug 04 Adapted to extended local orbitals
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,kmax,ndimh,ik,nlma,nlmbx
       integer n0,nkap0
       parameter (n0=10,nkap0=3)
       integer norb,ltab(norb),ktab(norb),offl(norb)
       double precision rsmh(n0,nkap0)
-#ifdef USEOPTIONAL
+c#ifdef USEOPTIONAL
       double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax)
       complex(8),optional::db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-#else
-      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
-     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
-#endif
+c#else
+c      double complex b0(0:kmax,nlma,nlmbx),b(ndimh,nlma,0:kmax),
+c     .db0(0:kmax,nlma,nlmbx,3),db(ndimh,nlma,0:kmax,3)
+c#endif
 C ... Local parameters
       integer i1,ik1,k,ilma,ilmb,iorb,l1,nlm1,nlm2
       integer blks(norb),ntab(norb)
@@ -91,11 +91,11 @@ C     .      ' start=',i4,' stop=',i4)
 
       end module m_prlcb1
 
-      subroutine bstrux(mode,slat,ssite,sspec,cg,indxcg,jcg,cy,iprmb,
+      subroutine bstrux(mode,ssite,sspec,cg,indxcg,jcg,cy,iprmb, !,slat
      .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
-
       use m_struc_def  !Cgetarg
       use m_prlcb1
+      use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -147,12 +147,12 @@ Cu Updates
 Cu   14 Jan 09 Bug fix, mode=2
 Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       real(8):: pa(3) , q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double precision cg(1),cy(1),rsma
       integer kmax,nbas,ndimh,mode,ia,nlma,napw
@@ -172,10 +172,9 @@ CSFCPP#if F90
 
 C --- Setup ---
 
-      alat=slat%alat
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      vol=slat%vol
+      alat=lat_alat
+      qlat=lat_qlat
+      vol=lat_vol
 
       srvol = dsqrt(vol)
       nlmto = ndimh-napw
@@ -195,11 +194,8 @@ C --- b for MTO  (Written as C_kl in LMTO book) ---
           allocate(db0((kmax+1)*nlma*nlmbx*3))
         endif
         do  ib = 1, nbas
-
           is=ssite(ib)%spec
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,ssite(ib)%pos,1,p,1)
-
+          p=ssite(ib)%pos
 C       This line augments no local orbitals
 C       ik = 1
 C       This line augments onsite extended local orbitals only
@@ -217,10 +213,10 @@ C       Loop over blocks of envelope functions
      .      call rx('augmbl: nlmh.gt.nlma')
             if (mode .eq. 0.or.mode .eq. 2) then
               call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .        nlma,kmax,nlma,cg,indxcg,jcg,cy,slat,b0)
+     .        nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)!,slat
             elseif (mode .eq. 1) then
               call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .        nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,slat,b0,
+     .        nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,b0, !slat,
      .        db0)
             else
               call rxi('bfactor: bad mode',mode)
@@ -241,14 +237,14 @@ C         Note: indices of b are ordered differently by mode (see Outputs)
               call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .        nlma,kmax,b0,db0,b,db)
             elseif (mode .eq. 2) then
-#ifdef USEOPTIONAL
+c#ifdef USEOPTIONAL
               call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab,
      .        ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx,
      .        nlma=nlma,kmax=kmax,b0=b0,b=b)
-#else
-              call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-     .        nlma,kmax,b0,xx,b,xx)
-#endif
+c#else
+c              call prlcb1(0,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+c     .        nlma,kmax,b0,xx,b,xx)
+c#endif
             endif
           enddo
         enddo
@@ -297,7 +293,7 @@ Cr     array indices to b are ordered differently
 Cu Updates
 Cu   25 Aug 04 Adapted to extended local orbitals
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,nlma,k0,norb,ltab(norb),ktab(norb),offl(norb),ik
       integer n0,nkap0
@@ -365,7 +361,7 @@ Cr Remarks
 Cu Updates
 Cu   05 Jul 08 (T. Kotani) first created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode,kmax,nlma,k0,napw,igapw(3,napw),ndimh
       double precision rsma,alat,qlat(3,3),q(3),srvol,pa(3)
@@ -374,7 +370,7 @@ C ... Passed parameters
 C ... Local parameters
       integer k,lmxa,ll,l,ig,ilm,m,nlmto
       double precision gamma,qpg(3),pi,tpiba,qpg2,ddot,facexp,
-     .rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac !,qk
+     .rsmal,pgint,dfac(0:kmax),fac2l(0:nlma),yl(nlma),fpi,fac ,qk
 C     complex(8),allocatable:: bpw(:,:)
       double complex srm1,srm1l,gfourier,phase,facilm,b
       parameter (srm1=(0d0,1d0))
@@ -538,7 +534,6 @@ CSFCPP#endif
 
 
       subroutine paugq2(kmax,nlmh,nlma,bos,b0)
-
 C- Subtract on-site strux for ib=ia, leaving tail expansion
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -552,14 +547,13 @@ Cr Remarks
 Cr   b0 has normal L ordering in both row and column dimensions.
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer kmax,nlmh,nlma
       double precision bos(0:kmax,nlmh)
       double complex b0(0:kmax,nlma,1)
 C ... Local parameters
       integer ilm,k
-
       do  ilm = 1, nlmh
         do  k = 0, kmax
           b0(k,ilm,ilm) = b0(k,ilm,ilm)-bos(k,ilm)

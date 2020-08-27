@@ -1,4 +1,4 @@
-      subroutine lmaux(prgnam,spot,slat,sspec,ssite, !sstr,sctrl,,sham
+      subroutine lmaux(prgnam,spot,sspec,ssite, !sstr,sctrl,,sham,slat
      .sarray,slabl,mode,wksize) !,sstrn,sbz
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
       use m_lmfinit,only: irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
@@ -6,6 +6,7 @@
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
+      use m_lmfinit,only:  lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -79,7 +80,7 @@ C ... Passed parameters
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
       type(s_pot)::spot
-      type(s_lat)::slat
+c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_str)::sstr
@@ -140,13 +141,13 @@ c      call i8icopy(i_copy_size,ctrl_modep,1,modep,1)
       modep = ctrl_modep
       lpbc = 0
       nclasp=sarray%nclasp
-      avw=slat%avw
-      alat=slat%alat
-c      i_copy_size=size(slat%plat)
-c      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      plat=slat%plat
-      nkd=slat%nkd
-      nkq=slat%nkq
+      avw=lat_avw
+      alat=lat_alat
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+      plat=lat_plat
+      nkd=lat_nkd
+      nkq=lat_nkq
 c      mxnbr=str_mxnbr !sstr%mxnbr
       rmaxs=str_rmax !sstr%rmax
 

@@ -1,7 +1,8 @@
-      subroutine smcorm(nbas,ssite,sspec,slat,ng,gv,
+      subroutine smcorm(nbas,ssite,sspec,ng,gv,!,slat
      .cgh1,cgh2,lfoc1,lfoc2)
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_alat,lat_vol
 C- For foca, add together density of smoothed part of core
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,13 +30,13 @@ Cu Updates
 Cu   02 Jul 05  skip sites for which cofh=0
 Cu    1 May 00  Adapted from nfp smc_mesh.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer ng,nbas,lfoc1,lfoc2
       real(8):: gv(ng,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
       double complex cgh1(ng),cgh2(ng)
 C ... Local parameters
       integer:: k0 , nlmx , kmax , ib , is , lfoc , i
@@ -43,8 +44,8 @@ C ... Local parameters
      .ceh,rfoc,z
       parameter (k0=3, nlmx=25)
       double complex gkl(0:k0,nlmx)
-      alat=slat%alat
-      vol=slat%vol
+      alat=lat_alat
+      vol=lat_vol
       kmax = 0
 C --- Accumulate FT of smooth-Hankel foca heads ---
       call dpzero(cgh1,  2*ng)
@@ -53,8 +54,9 @@ C --- Accumulate FT of smooth-Hankel foca heads ---
       lfoc2 = 0
       do  ib = 1, nbas
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+c        i_copy_size=size(ssite(ib)%pos)
+c     call dcopy(i_copy_size,ssite(ib)%pos,1,tau,1)
+        tau=ssite(ib)%pos
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 C       qc = qcorg+qcorh
 C        if (iprint() .ge. 50) write(stdo,351) qc,lfoc,qcorg,qcorh

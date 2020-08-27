@@ -1,6 +1,7 @@
-      subroutine pwmat(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
+      subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
       implicit none
 !! inn:  takao added 27 Apr2009
 !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
@@ -66,7 +67,7 @@ C ----------------------------------------------------------------------
       real(8):: q(3) , GcutH
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex ppovl(ngp,ngp), pwhovl(ngp,ndimh)
 C ... Local parameters
@@ -92,12 +93,14 @@ C ... Local parameters
       integer:: i_copy_size, i_spackv, i_spacks
 C --- Setup ---
 
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      vol=slat%vol
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c     call dcopy(i_copy_size,lat_qlat,1,qlat,1) 
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
+      vol=lat_vol
 
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
@@ -225,29 +228,17 @@ c takao find acml4.2.0 for gfortran gives wrong results.
       else
         stop 'pwmat: matmul_pwovl is wrong'
       endif
-
-
 C     call zprm('pwhovl',2,pwhovl,ngp,ngp,ndimh)
       if(debug) print *,'sss:  pwmat pwhovl=',sum(abs(pwhovl))
-
 C --- Cleanup ---
       deallocate(yl,igvx,pwh,kv,ppovlx)
-
       end subroutine pwmat
 
-
-
-
-
-
-
-
-
-      subroutine pwmat2(slat,ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,
+!!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,ovlp,pwh)
-
-      use m_struc_def  !Cgetarg
-
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -294,7 +285,7 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
       double complex ovlp(ngp,ngp), pwh(ngp,ndimh)
 C ... Local parameters
@@ -313,13 +304,14 @@ C ... Local parameters
 
 C --- Setup ---
 
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-      vol=slat%vol
-
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+      alat=lat_alat
+      vol=lat_vol
+      plat=lat_plat
+      qlat=lat_qlat
       pi  = 4d0*datan(1d0)
       pi4 = 4d0*pi
       tpiba = 2*pi/alat

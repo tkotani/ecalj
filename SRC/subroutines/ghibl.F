@@ -1,6 +1,6 @@
 CSFCPP#define F90 1
       subroutine ghibl(pg,ph,q,rsmg,rsmh,eg,eh,nlmg,nlmh,kmax,
-     .ndim1,ndim2,cg,indxcg,jcg,cy,slat,s)
+     .ndim1,ndim2,cg,indxcg,jcg,cy,s)!,slat
 C- Block of integrals between smooth hankels and gaussians with some power
 C  of the laplace operator.
 C ----------------------------------------------------------------------
@@ -33,11 +33,11 @@ Cu Updates
 Cu   18 May 00 Made rsmh,eh l-dependent
 Cu   24 Apr 00 Adapted from nfp ghi_bl.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nlmg,nlmh,kmax,ndim1,ndim2,jcg(1),indxcg(1)
       double precision rsmg,rsmh(1),eg,eh(1)
-      double precision ph(3),pg(3),cg(1),cy(1),q(3),slat(1)
+      double precision ph(3),pg(3),cg(1),cy(1),q(3)!,slat(1)
       double complex s(ndim1,ndim2,0:*)
 C ... Local parameters
       integer nlm0,ktop0,icg,icg1,icg2,ii,ilg,ilh,ilm,indx,ip,jlm,k,
@@ -92,7 +92,7 @@ C --- Loop over sequences of l with a common rsm,e ---
         gamg = 0.25d0*rsmg*rsmg
         rsmx = 2d0*dsqrt(gamg+gamh)
         ktop = max0(lmaxg,l2)+kmax
-        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,slat,hkl)
+        call hklbl(dr,rsmx,e,q,ktop,nlmx,ktop0,cy,hkl)!,slat
 
 C   ... Combine with Clebsch-Gordan coefficients
         ee = dexp(gamg*(eg-e))

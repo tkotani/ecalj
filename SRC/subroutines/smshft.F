@@ -1,9 +1,10 @@
-      subroutine smshft ( ssite , sspec , slat ,  sv_p_orhoat !sctrl , sham ,
+      subroutine smshft ( ssite , sspec ,  sv_p_orhoat !sctrl , sham ,slat , 
      . , smrho )
       use m_work,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
-      use m_lmfinit,only: ctrl_lfrce,ham_elind
+      use m_lmfinit,only: ctrl_lfrce,ham_elind,
+     &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,55 +45,45 @@ Cu Updates
 Cu   17 Sep 01 Adapted for local orbitals.  Altered argument list
 Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       type(s_rv1) :: sv_p_orhoat(3,1)
-
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
-
       double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
-     .n2,n3,nbas,ng,ngabc(3),nglob,nsp
-ckino Dec.12.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
-
-ckino Dec.12.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
-
+     .n2,n3,nbas,ng,ngabc(3),nglob,nsp,i_copy_size
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
       complex(8) ,allocatable :: cwk_zv(:)
-
       integer kmax,job
       parameter (n0=10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
-     .qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
-C ... Heap
-
-C     stdo = lgunit(1)
+     .     qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
+      
       job = int(ctrl_lfrce)
-
       if (job .le. 0) return
-
       call tcn('smshft')
-
 C --- Setup and printout ---
+c      i_copy_size=size(lat_plat)
+c      call dcopy(i_copy_size,lat_plat,1,plat,1)
+c      i_copy_size=size(lat_qlat)
+c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
+c      i_copy_size=size(lat_nabc)
+c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       nsp  = globalvariables%nsp
       nbas = globalvariables%nbas
-      alat=slat%alat
-      i_copy_size=size(slat%plat)
-      call dcopy(i_copy_size,slat%plat,1,plat,1)
-      i_copy_size=size(slat%qlat)
-      call dcopy(i_copy_size,slat%qlat,1,qlat,1)
-
-      i_copy_size=size(slat%nabc)
-      call icopy(i_copy_size,slat%nabc,1,ngabc,1)
-      ng=slat%ng
-      vol=slat%vol
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
+      ngabc=lat_nabc
+      ng=lat_ng
+      vol=lat_vol
 
       call fftz30(n1,n2,n3,k1,k2,k3)
 C     call zprm3('input smrho',0,smrho,k1,k2,k3)
@@ -106,7 +97,7 @@ C --- Shift in unscreened density at the two positions ---
       allocate(cgs_zv(ng*nsp))
       allocate(cwk_zv(ng))
       kmax = 0
-      call pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax , ng ,
+      call pvsms1 ( ssite , sspec ,  nbas , nsp , kmax , ng ,!slat ,
      .  rv_a_ogv , sv_p_orhoat , cwk_zv , cgs_zv , job )
       if (allocated(cwk_zv)) deallocate(cwk_zv)
 C ... Debugging: print unscreened shift in pseudo core density
@@ -154,16 +145,17 @@ c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
       call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C --- Symmetrize the shifted density ---
-      call symsmr(slat,nsp,k1,k2,k3,smrho)
+      call symsmr(nsp,k1,k2,k3,smrho) !slat,
       if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)
       call tcx('smshft')
       end subroutine smshft
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine pvsms1 ( ssite , sspec , slat , nbas , nsp , kmax 
+      subroutine pvsms1 ( ssite , sspec ,  nbas , nsp , kmax !slat ,
      . , ng , gv , sv_p_orhoat , cwk , cg , job )
-      use m_struc_def  !Cgetarg
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:lat_alat,lat_vol
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -238,18 +230,15 @@ Cr
 Cu Updates
 Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer:: nbas , nsp , ng , job
+      integer:: nbas , nsp , ng , job,i_copy_size
       type(s_rv1) :: sv_p_orhoat(3,1)
-
       real(8):: gv(ng,3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
-
+c      type(s_lat)::slat
       double complex cg(ng,nsp),cwk(ng)
-C Local variables
       integer ib,i,is,iv0,kmax,lmxl,igetss,lmxa,nr,nrmx,n0,
      .nlml,nxi,ie,ixi,ig,ipr,iprint,kcor,lcor,stdo,lgunit
       parameter (nrmx=1501, n0=10)
@@ -259,22 +248,17 @@ C Local variables
      .rsmfa,rwgt(nrmx),scalp,sum,tpiba,v(3),v2,vol,volsp,y0,z
       character*35 strn,spid*8
       double complex phase
-C ... Heap
-
-C ... Setup
+ 
       call tcn('pvsms1')
       call stdfac(20,df)
-
-      alat=slat%alat
-      vol=slat%vol
-
+      alat=lat_alat
+      vol=lat_vol
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
       tpiba = 2*pi/alat
       ipr = iprint()
       stdo = lgunit(1)
       volsp = vol*nsp
-
 C --- For each site, accumulate shift in density ---
       call dpzero(cg,2*ng*nsp)
       iv0 = 0
@@ -284,66 +268,52 @@ C --- For each site, accumulate shift in density ---
       if (ipr .ge. 30) write(stdo,339) strn
   339 format(/' smshft:  add shifted ',a/'   site',16x,'old pos',22x,
      .'new pos',14x,'shift')
-
       do  10  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
 c        do i_spacks=is,is
 c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
 c        enddo
-
         spid=sspec(is)%name
         lmxl = int(sspec(is)%lmxl)
-
         nlml = (lmxl+1)**2
         if (lmxl .eq. -1) goto 10
-
-
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,pnew,1)
-        i_copy_size=size(ssite(ib)%pos0)
-        call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1)
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,pnew,1)
+c        i_copy_size=size(ssite(ib)%pos0)
+c     call dcopy(i_copy_size,ssite(ib)%pos0,1,pold,1)
+        pnew=ssite(ib)%pos
+        pold=ssite(ib)%pos0
         pp = alat*dsqrt((pnew(1)-pold(1))**2 + (pnew(2)-pold(2))**2
      .  + (pnew(3)-pold(3))**2)
         if (ipr .ge. 30) write(stdo,340) ib,spid,pold,pnew,pp/alat
   340   format(i4,':',a,f8.5,2f9.5,2x,3f9.5,2x,f9.6)
 C       Skip this site if shift is negligible
         if (pp .le. 1d-6) goto 18
-
 C   --- Shift in mesh density, job 1 ---
         if (mod(job,10) .eq. 1) then
-
           z=sspec(is)%z
           i_copy_size=size(sspec(is)%p)
           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
           lmxa=sspec(is)%lmxa
-
-
           a=sspec(is)%a
           nr=sspec(is)%nr
           rmt=sspec(is)%rmt
-
-
           nxi=sspec(is)%nxi
           i_copy_size=size(sspec(is)%exi)
           call dcopy(i_copy_size,sspec(is)%exi,1,exi,1)
           i_copy_size=size(sspec(is)%chfa)
           call dcopy(i_copy_size,sspec(is)%chfa,1,hfc,1)
           rsmfa=sspec(is)%rsmfa
-
           call gtpcor(sspec,is,kcor,lcor,qcor)
           if (nr .gt. nrmx) call rx('dfrce: nr gt nrmx')
           call radwgt(rmt,a,nr,rwgt)
           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 1 , ib )%v 
      .     , qloc )
-
           call radsum ( nr , nr , nlml , nsp , rwgt , sv_p_orhoat( 2 , ib )%v 
      .     , sum )
-
           qloc = (qloc-sum)/y0
           qfat = 0d0
           do  12  i  = 1, nsp
@@ -355,7 +325,6 @@ C   --- Shift in mesh density, job 1 ---
           call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
 C         Excess sphere charge.  See Remarks above.
           qg = qval+qsc-qfat-qloc
-
 C     ... Shift in smoothed free atom density
           do  14    i = 1, nsp
           do  14  ixi = 1, nxi
@@ -373,7 +342,6 @@ C     ... Shift in smoothed free atom density
               cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
    15       continue
    14     continue
-
 C     ... Add gaussian to conserve local charge; see Remarks
           do  16   i = 1, nsp
           do  16  ig = 1, ng
@@ -387,34 +355,26 @@ C     ... Add gaussian to conserve local charge; see Remarks
             phase = phase - dcmplx(dcos(scalp),dsin(scalp))
             cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
    16     continue
-
 C   --- Shift in mesh density, job 12 ---
         elseif (job .eq. 12) then
-
 C     ... Core + valence at old position
           call dpzero(cwk,ng*2)
-
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
-
-          call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+c          i_copy_size=size(ssite(ib)%pos)
+c          call dcopy(i_copy_size,pold,1,ssite(ib)%pos,1)
+          ssite(ib)%pos=pold
+          call rhgcmp ( 131 , ib , ib , ssite , sspec ,  sv_p_orhoat !slat ,
      .     , kmax , ng , cwk )
-
           call dscal(ng*2,-1d0,cwk,1)
 C     ... Core + valence at new position
-
-          i_copy_size=size(ssite(ib)%pos)
-          call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
-
-          call rhgcmp ( 131 , ib , ib , ssite , sspec , slat , sv_p_orhoat 
+c          i_copy_size=size(ssite(ib)%pos)
+c          call dcopy(i_copy_size,pnew,1,ssite(ib)%pos,1)
+          ssite(ib)%pos=pnew
+          call rhgcmp ( 131 , ib , ib , ssite , sspec ,  sv_p_orhoat !slat ,
      .     , kmax , ng , cwk )
-
-
 C     ... Add to cg
           do  i = 1, nsp
             call daxpy(ng*2,1d0/nsp,cwk,1,cg(1,i),1)
           enddo
-
         else
           call rxi('smshft: bad job:',job)
         endif

@@ -1,4 +1,4 @@
-      subroutine ugcomp(nbas,ssite,sspec,slat,qmom,gpot0,hpot0,ugg,f)
+      subroutine ugcomp(nbas,ssite,sspec,qmom,gpot0,hpot0,ugg,f)!slat,
       use m_struc_def  !Cgetarg
 C- Part of the smooth estatic energy from compensating G's alone.
 C ----------------------------------------------------------------------
@@ -29,7 +29,7 @@ Cu   01 Jul 05 handle sites with lmxl=-1 -> no augmentation
 Cu   15 Feb 02 (ATP) Added MPI parallelization
 Cu   22 Apr 00 Adapted from nfp ugcomp
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
 #if MPI | MPIK
       include "mpif.h"
@@ -50,7 +50,7 @@ C ... Passed parameters
       real(8):: qmom(*) , gpot0(*) , f(3,nbas) , hpot0(nbas) , ugg
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      type(s_lat)::slat
+c      type(s_lat)::slat
 
 C ... Local parameters
       integer ndim,ndim0,i,ib,ilm1,ilm2,is,iv0,jb,js,jv0,nvl,l1,l2,
@@ -157,10 +157,9 @@ c      do  ib = 1, nbas
 #endif
 
         is=ssite(ib)%spec
-        i_copy_size=size(ssite(ib)%pos)
-        call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1)
-
-
+c        i_copy_size=size(ssite(ib)%pos)
+c        call dcopy(i_copy_size,ssite(ib)%pos,1,tau1,1)
+        tau1=ssite(ib)%pos
         lmax1=sspec(is)%lmxl
         rg1=sspec(is)%rg
 
@@ -172,12 +171,10 @@ C   ... Loop over sites where charge lump sees the potential
         if (lmax1 .gt. -1) then
           jv0 = 0
           do  jb = 1, nbas
-
             js=ssite(jb)%spec
-            i_copy_size=size(ssite(jb)%pos)
-            call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1)
-
-
+c            i_copy_size=size(ssite(jb)%pos)
+c            call dcopy(i_copy_size,ssite(jb)%pos,1,tau2,1)
+            tau2=ssite(jb)%pos
             lmax2=sspec(js)%lmxl
             rg2=sspec(js)%rg
 
@@ -190,7 +187,7 @@ C   ... Loop over sites where charge lump sees the potential
 #endif
               if (nlm1 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm1=',nlm1)
               if (nlm2 .gt. ndim) call rxi('ugcomp: ndim.lt.nlm2=',nlm2)
-              call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,slat,s,ds)
+              call ggugbl(tau1,tau2,rg1,rg2,nlm1,nlm2,ndim,ndim,s,ds) !,slat
 
               ff(1) = 0d0
               ff(2) = 0d0
@@ -218,7 +215,7 @@ C         ... Forces
 C     --- Additional h*h, h*g, g*h terms for foca ---
               if (lfoc1.gt.0 .or. lfoc2.gt.0) then
                 call hhugbl(0,tau1,tau2,rh1,rh2,ceh1,ceh2,1,1,ndim0,ndim0,
-     .          slat,wk,dwk,s0,ds0)
+     .          wk,dwk,s0,ds0) !slat,
                 xugg(ip) = xugg(ip) + cofh1*s0(1,1)*cofh2
                 xhpot0(jb,ip) = xhpot0(jb,ip) + cofh1*s0(1,1)
                 ff(1) = ff(1) + 0.5d0*cofh1*cofh2*ds0(1,1,1)
@@ -226,7 +223,7 @@ C     --- Additional h*h, h*g, g*h terms for foca ---
                 ff(3) = ff(3) + 0.5d0*cofh1*cofh2*ds0(1,1,3)
 
                 call hgugbl(tau1,tau2,rh1,rg2,ceh1,1,nlm2,ndim,ndim,
-     .          slat,s,ds)
+     .          s,ds) !slat,
                 do  ilm2 = 1, nlm2
                   l2 = ll(ilm2)
                   qm2 = qmom(jv0+ilm2)
@@ -241,7 +238,7 @@ C     --- Additional h*h, h*g, g*h terms for foca ---
                 enddo
 
                 call hgugbl(tau2,tau1,rh2,rg1,ceh2,1,nlm1,ndim,ndim,
-     .          slat,s,ds)
+     .          s,ds) !slat,
                 do  ilm1 = 1, nlm1
                   l1 = ll(ilm1)
                   qm1 = qmom(iv0+ilm1)
