@@ -9,7 +9,7 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,spot,sstrnmix,!,sbz,sctrl,sham,slat
+      subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,sstrnmix,!,sbz,sctrl,sham,slat spot,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
@@ -21,7 +21,8 @@
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
-     &   lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc
+     &   lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma
+
       use m_globalvariables, only: globalvariables
 c      use m_phmbls,only :phmbls
       use m_subzi, only: subzi
@@ -180,7 +181,7 @@ c      type(s_sstrn):: sstrn
 c      type(s_ham):: sham
 c      type(s_ctrl):: sctrl
 c      type(s_lat)::  slat
-      type(s_pot)::  spot
+c      type(s_pot)::  spot
 c      type(s_bz)  ::  sbz
       logical lgors,ltet,cmdopt,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
@@ -632,8 +633,8 @@ c      nfbn(2) = 0
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
-      nvl  =spot%nlml
-      nchan=spot%nlma
+      nvl  =pot_nlml
+      nchan=pot_nlma
       eks = 0
       alat =lat_alat
       plat =lat_plat
@@ -846,7 +847,7 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
             spotx=0d0
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
-            call mkpot ( nbas , ssite , sspec ,  spot , 0 ,!sham ,slat , 
+            call mkpot ( nbas , ssite , sspec ,   0 ,!sham ,slat , spot ,
      .        lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
      .        , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
@@ -880,7 +881,7 @@ C --- Make the potential and total energy terms ---
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
       call togpr()
-      call mkpot ( nbas , ssite , sspec ,   spot , lfrce!sham ,slat ,
+      call mkpot ( nbas , ssite , sspec ,   lfrce!sham ,slat ,spot , 
      .  , lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , zv_a_osmpot 
      .  , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
@@ -927,7 +928,7 @@ C --- Make the potential and total energy terms ---
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
-      call suham2(sspec,ssite,spot) !,sstrn,sctrl,sham slat,
+      call suham2(sspec,ssite)!,spot) !,sstrn,sctrl,sham slat,
 
 !! --- Options for core level specta (CLS) ---
 !!    Allocate aus for all qp
@@ -1435,7 +1436,7 @@ c            endif
 
 !! == GW driver ==
       if(llmfgw) then
-         nchan=spot%nlma
+         nchan=pot_nlma
          call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot !sham ,slat ,
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
@@ -2874,7 +2875,7 @@ c          call pshpr(ipr-4)
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
-            call mkpot ( nbas , ssite , sspec ,   spot , lfrce  !sham ,slat ,
+            call mkpot ( nbas , ssite , sspec ,   lfrce  !sham ,slat ,spot , 
      .        , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 

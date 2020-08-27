@@ -449,14 +449,15 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
 
 
-      subroutine suham(sspec,ssite,spot)!,sbz)sctrl,,sham slat,
+      subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
       use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
       use m_lmfinit,only:
      &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft,
+     &     pot_nlma, pot_nlml
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -525,7 +526,7 @@ c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_ham)::sham
-      type(s_pot)::spot
+c      type(s_pot)::spot
 c      type(s_bz)::sbz
 c      character*(*) sstrn
 C ... Local parameters
@@ -642,8 +643,8 @@ C         Find largest lmxa
         lmxax = max(lmxax,lmxa)
    20 continue
       ham_lmxax=lmxax
-      spot%nlma=nvi
-      spot%nlml=nvl
+      pot_nlma=nvi
+      pot_nlml=nvl
 
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)

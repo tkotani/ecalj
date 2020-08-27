@@ -1,4 +1,4 @@
-      subroutine mkpot ( nbas , ssite , sspec , spot !sham ,slat ,  
+      subroutine mkpot ( nbas , ssite , sspec !, spot !sham ,slat ,  
      .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
@@ -183,7 +183,7 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ham)::sham
-      type(s_pot)::spot
+c      type(s_pot)::spot
 
       complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)

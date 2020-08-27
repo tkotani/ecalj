@@ -1,5 +1,5 @@
 c#define USEOPTIONAL 1
-      subroutine freeat(sspec,spot) !sctrl,sham,
+      subroutine freeat(sspec)!,spot) !sctrl,sham,
       use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
       use m_struc_def  !Cgetarg
       use m_globalvariables
@@ -40,7 +40,7 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
-      type(s_pot)::spot
+c      type(s_pot)::spot
       type(s_spec)::sspec(*)
 
 C ... Local parameters

@@ -13,6 +13,7 @@
 !!   recrd (recln*nrecs) : preprocessed input
 !!   prgnam: name of main program
 !! Outputs are give in m_lmfinit
+!! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
 Co   bz_*  : Brillouin Zone related
 Co   ctrl_* : struct for program flow parameters; see routine uctrl
 Co   ham_*  :  Hamiltonian related
@@ -100,7 +101,6 @@ C ----------------------------------------------------------------------
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
-c lncol,lham
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
      .nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
@@ -120,7 +120,6 @@ C ... basis
       logical:: isanrg,l_dummy_isanrg
       integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
       
-ccccccccccccccccccccccccccccccccccccccccccccccccc
       integer::nout,nn,i0,ivec(10),iosite
       integer:: io_iactive,io_tim(2),verbos(5)
       character(256)::  a,outs
@@ -141,19 +140,12 @@ c      type (s_mix) :: vamix
       integer::izerv(n0)=(/(0,i=1,n0)/)
       real(8)::   zerov(n0)=(/(0d0,i=1,n0)/)
 
-c      real(8):: tbalph(5,5)
       integer:: ii,sw
       real(8):: dasum!,dglob
       character(128) :: nm
       real(8):: nullrv(256)
       integer:: nulliv(256),jj(2) !,nkapsi
       logical:: noelind
-
-c$$$      data tbalph/.214286D0,.000001D0,.000001D0,.000001D0,.001D-3,
-c$$$     ..287234D0,.025822D0,.000001D0,.000001D0,.001D-3,
-c$$$     ..348485D0,.053030D0,.010714D0,.000001D0,.001D-3,
-c$$$     ..385057D0,.073209D0,.022481D0,.006069D0,.001D-3,
-c$$$     ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
 
       integer:: levelinit=0
       integer:: lx,lxx
@@ -162,6 +154,7 @@ c$$$     ..404761D0,.087927D0,.032886D0,.012257D0,4.2735D-3/
       integer:: ibas,ierr,lc
       logical:: ltet
       
+!! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
       scrwid = 80
@@ -469,7 +462,6 @@ C     Flags representing how cd is represented: default values
      .     '%N%3f1 for scalar relativistic Schrodinger equation'//
      .     '%N%3f2 for Dirac equation')
 C     Fully relativistic => spin-orbit coupling
-c     if (lrel==2) lncol4 = T
       if (lrel==2) lso=1
       if (nsp==2 .or. io_help/=0) then
          if (io_help /= 0) call info0(1,0,0,' * To read the magnetic '//
@@ -1538,9 +1530,11 @@ c     &              " If necessary, you have to fix it (mixrho.F)")
       endif
       if (io_help > 0) call cexit(0,1)
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
+!! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
+c      
 !! lbas: 1 Hamiltonian has no screening transformation
-!!           2 Hamiltonian is nfp style
-!!          16 freeze phi,phidot for all species
+!!       2 Hamiltonian is nfp style
+!!       16 freeze phi,phidot for all species
 !! lbas = 3 = 1+2 in lmf
 !! frzwf: freeze basis or not. j= 1+2+16 if frzwf=T
       lbas = 3 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
@@ -1555,7 +1549,6 @@ cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
 !!                 8 (PGF) V-shift2 is zero
       lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
      .+4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
-
 C takao in lmf only lncol4, lncol32, lncol64 are used.
 C     lncol 1 noncollinear magnetism                      !=F in lmf
 C           2 spin spirals                                !=F in lmf
@@ -1565,18 +1558,17 @@ C          16 mag. forces                                 !=F in lmf
 C          32 spin-orbit coupling, LzSz only              !Used in lmf
 C          64 spin-orbit coupling, LzSz + (L.S-LzSz) pert !Used in lmf
 C     If spin-orbit or SS, also turn on noncollinear
-
+c
 c      k = 2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+16*isw(lncol16)
 c      if (k .ne. 0) lncol1=T
 c      lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
 c     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
-
+c
 c takao lncol is used only in limited routines.
 c One of lncol4,lncol32, or lncor64 is true, others are false.
 c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
       ctrl_lmet=lmet
-c      ctrl_lncol=lncol
-C     lrs  switches concerning restart mode.
+C lrs  switches concerning restart mode.
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -1749,8 +1741,8 @@ c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
       v_sarry%size=uarray_size()
 
 !! ... Allocate and initialize spot
-      v_spot%size=upot_size()
-      v_spot%vmtz0=vmtz
+c      v_spot%size=upot_size()
+      pot_vmtz0=vmtz
 
 C --- Allocate and copy input to smix ---
       v_smix%size=umix_size()
@@ -2020,7 +2012,8 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
 
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!!      Hereafter is originally in lmv7.F
+!! Stage 3  ---------------------    
+!!   originally in lmv7.F
 !     !--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
       call lattic() !this gives v_slat

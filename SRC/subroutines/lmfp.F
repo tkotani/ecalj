@@ -1,4 +1,4 @@
-      subroutine lmfp(prgnam,spot,smix, !sbz,sctrl,,sham,slat
+      subroutine lmfp(prgnam,smix, !sbz,sctrl,,sham,slat spot,
      .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
       use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
       use m_struc_def
@@ -102,7 +102,7 @@ c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 c      type(s_ham)::sham
-      type(s_pot)::spot
+c      type(s_pot)::spot
 c      type(s_str)::sstr
 c      type(s_move)::smove
 
@@ -324,7 +324,7 @@ C     ... Re-entry for shear distortion
     4 continue
 C     ... Potential setup
       call info0(50,0,0,' lmfp : potential setup ... ')
-      call supot(0,spot) !,sctrl slat,
+      call supot(0) !,spot) !,sctrl slat,
 C     ... Setup of hamiltonian, augmentation
       if (ipr .ge. 50) then
         call info0(50,0,0,' lmfp : basis setup ... ')
@@ -332,7 +332,7 @@ C     ... Setup of hamiltonian, augmentation
         call info0(30,0,0,' ')
       endif
 c      call subasi(sspec,sham) !sctrl,
-      call suham(sspec,ssite,spot)!,sham,sbz)sctrl,slat, !sstrn removed june2015 ,sarray 2016 
+      call suham(sspec,ssite)!,spot)!,sham,sbz)sctrl,slat, !sstrn removed june2015 ,sarray 2016 
 C     ... Quit if --quit=ham given
       if ( int(ctrl_quit) .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
@@ -415,7 +415,7 @@ C     3              read nothing (data already input)
  10   continue
 !! Harris-Foulkes -> always overlap free-atom densities
       if (irs(1) .eq. 0) then
-        call rdovfa ( nbas, nspec, ssite, sspec, spot , qbg, sv_a_oorhat ) !slat , 
+        call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !slat ,  spot , 
         nit1 = 0
       elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
         lbin = .not. bittst(irs(1),2)
@@ -426,7 +426,7 @@ C     3              read nothing (data already input)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
         bz_wx = bz_w
-        k = iors ( 1 ,  ssite , sspec ,  spot ,  fileid !sbz ,sctrl ,slat ,
+        k = iors ( 1 ,  ssite , sspec ,  fileid !sbz ,sctrl ,slat , spot , 
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi )
         bz_w = bz_wx
@@ -506,7 +506,7 @@ C     --- Make and diagonalize hamiltonian, make new charge density ---
       llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
       if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec ,  spot ,  sstrnmix , ndham , !sbz ,sctrl ,sham , slat , 
+     .     , sspec ,    sstrnmix , ndham , !sbz ,sctrl ,sham , slat , spot ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 
@@ -547,7 +547,7 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
             endif
 c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1  , ssite , sspec , spot ,  fileid !sbz ,, sctrl slat , 
+            k = iors ( 1  , ssite , sspec ,   fileid !sbz ,, sctrl slat , spot ,
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
@@ -737,7 +737,7 @@ C     Repack updated positions in site structure
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , ssite , sspec , spot ,  fileid !sbz ,, sctrl slat , 
+            k = iors ( 1 , ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
@@ -855,7 +855,7 @@ c         endif
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-        k = iors ( 1  , ssite , sspec ,  spot ,  fileid !sbz ,, sctrl slat ,
+        k = iors ( 1  , ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot , 
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
         call fclose(ifi)

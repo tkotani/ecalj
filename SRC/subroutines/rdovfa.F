@@ -1,4 +1,4 @@
-      subroutine rdovfa ( nbas , nspec , ssite , sspec  , spot !, slat
+      subroutine rdovfa ( nbas , nspec , ssite , sspec  !, spot !, slat
      . , qbg , sv_p_orhoat )
       use m_work,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
       use m_struc_def  !Cgetarg
@@ -42,7 +42,7 @@ C ... Passed parameters
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
 c      type(s_lat)::slat
-      type(s_pot)::spot
+c      type(s_pot)::spot
 
 C ... Local parameters
       integer nrmx, n0

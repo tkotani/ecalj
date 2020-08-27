@@ -1,4 +1,4 @@
-      subroutine supot(mode,spot) !,sctrl,slat
+      subroutine supot(mode)!,spot) !,sctrl,slat
       use m_work,only: rv_a_omad,rv_a_opos,rv_a_ogv,iv_a_okv,zv_a_osmrho,sv_a_oorhat,zv_a_osmpot
      & ,rv_a_odlv,rv_a_oqlv,zv_a_obgv,iv_a_oips0,rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only :lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
@@ -24,7 +24,7 @@ C ... Passed parameters
       integer mode
 c      type(s_ctrl)::sctrl
 c      type(s_lat)::slat
-      type(s_pot)::spot
+c      type(s_pot)::spot
 C ... Local parameters
       integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
      .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint

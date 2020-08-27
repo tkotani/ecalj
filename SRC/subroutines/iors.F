@@ -1,4 +1,4 @@
-      integer function iors(mode,ssite,sspec,spot,!sbz,,sctrl,slat
+      integer function iors(mode,ssite,sspec,!spot,!sbz,,sctrl,slat
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
       use m_struc_def 
@@ -130,7 +130,7 @@ c      type(s_ctrl)::sctrl
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
 c      type(s_lat)::slat
-      type(s_pot)::spot
+c      type(s_pot)::spot
 c      type(s_bz)::sbz
       double precision qnu(3,n0,*)
       character fid*(*)
@@ -1053,7 +1053,7 @@ c   ... Copy or rescale cores, in case foca was switched on or off
         enddo
 c        call mpibc1_s_ctrl(sctrl,mlog,'iors','sctrl')
 c        call mpibc1_s_lat(slat,mlog,'iors','slat')
-        call mpibc1_s_pot(spot,mlog,'iors','spot')
+c        call mpibc1_s_pot(spot,mlog,'iors','spot')
 c        call mpibc1_s_bz(sbz,mlog,'iors','sbz')
         if (mode .eq. 1) then
         elseif (mode .eq. 0) then

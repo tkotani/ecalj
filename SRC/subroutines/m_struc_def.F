@@ -555,11 +555,6 @@ Cr  110   40    slat    superlattice vectors
 Cr  119   41    tol     Ewald tolerance
 Cr  120   42    tolft   FT mesh tolerance
 Cr  121   43    vol     cell volume
-      type s_array
-      real(8)  ::    size
-      integer  ::   nclasp
-      end type s_array
-
 c$$$      type s_lat
 c$$$      real(8)  ::   size
 c$$$      real(8)   ::   alat
@@ -619,6 +614,11 @@ Cr   32   20   tolu    tolerance for LDA+U
 Cr   33   21   umix    mixing parameter for LDA+U
 Cr   34   22   w..     Linear mixing weights
 Cr   37   23   wc      Broyden weight
+      type s_array
+      real(8)  ::    size
+      integer  ::   nclasp
+      end type s_array
+
       type s_mix
       real(8)  ::   size
       real(8)   ::   b
@@ -811,16 +811,16 @@ Cr   64   58   vmtz0   Input ASA muffin-tin zero
       real(8),allocatable:: v(:)
       end type s_rv1
 
-      type s_pot
-      real(8)  ::   size
-      real(8)   ::   bfield(4)
-      integer   ::   nlma
-      integer   ::   nlml
-      integer   ::   nrhos
-      real(8)   ::   vconst(3)
-      real(8)   ::   vmtz
-      real(8)   ::   vmtz0
-      end type s_pot
+c$$$      type s_pot
+c$$$      real(8)  ::   size
+c$$$      real(8)   ::   bfield(4)
+c$$$      integer   ::   nlma
+c$$$      integer   ::   nlml
+c$$$      integer   ::   nrhos
+c$$$      real(8)   ::   vconst(3)
+c$$$      real(8)   ::   vmtz
+c$$$      real(8)   ::   vmtz0
+c$$$      end type s_pot
 
 Cr --- explanation of  uspec ---
 Cr   off offe  name    purpose
@@ -1263,34 +1263,34 @@ C         n=n+2
 #endif  /* MPIADDRESS*/
       end function umix_size
 
-      integer function upot_size()
-#if MPI|MPIK|MPIADDRESS
-      use m_struc_def, only: s_pot
-      implicit none
-      type(s_pot):: v(2)
-      integer:: iadd(2), ierr,imod,n
-      call mpi_get_address(v(1),iadd(1),ierr)
-      call mpi_get_address(v(2),iadd(2),ierr)
-      n=iadd(2)-iadd(1)
-      imod=mod(n,8)
-      n=n/8
-      if (imod.ne.0) n=n+1
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      upot_size=n
-C        write(*,*) 'upot_size=',n
-#else  /* MPIADDRESS*/
-      integer:: n
-      n=-9999 !n= 63
-C  +2 is margin
-C         n=n+2
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      upot_size=n
-#endif  /* MPIADDRESS*/
-      end function upot_size
+c$$$      integer function upot_size()
+c$$$#if MPI|MPIK|MPIADDRESS
+c$$$      use m_struc_def, only: s_pot
+c$$$      implicit none
+c$$$      type(s_pot):: v(2)
+c$$$      integer:: iadd(2), ierr,imod,n
+c$$$      call mpi_get_address(v(1),iadd(1),ierr)
+c$$$      call mpi_get_address(v(2),iadd(2),ierr)
+c$$$      n=iadd(2)-iadd(1)
+c$$$      imod=mod(n,8)
+c$$$      n=n/8
+c$$$      if (imod.ne.0) n=n+1
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      upot_size=n
+c$$$C        write(*,*) 'upot_size=',n
+c$$$#else  /* MPIADDRESS*/
+c$$$      integer:: n
+c$$$      n=-9999 !n= 63
+c$$$C  +2 is margin
+c$$$C         n=n+2
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      upot_size=n
+c$$$#endif  /* MPIADDRESS*/
+c$$$      end function upot_size
 
       integer function usite_size()
 #if MPI|MPIK|MPIADDRESS
@@ -1961,65 +1961,65 @@ C ... Passed parameters
 #endif
       end subroutine mpibc1_s_mix
 
-      subroutine mpibc1_s_pot(struc,mlog,funnam,label)
-      use m_struc_def, only: s_pot
-      implicit none
-#if MPI|MPIK
-      include 'mpif.h'
-      integer numprocs, ierr
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      character*256 strn
-      logical lgunit
-      integer procid,master,i_data_size
-      integer:: n=0, cast=4
-C use i_data_size in order to cast an address to integer
-#endif
-C ... Passed parameters
-      logical mlog
-      type(s_pot):: struc
-      character funnam*(*), label*(*)
-#if MPI|MPIK
-      master=0
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call mpi_bcast(struc%size, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%bfield) ! bfield(4)
-      call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nlma, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nlml, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%nrhos, 1,MPI_INTEGER
-     , , master, MPI_COMM_WORLD,ierr)
-      i_data_size=size(struc%vconst) ! vconst(3)
-      call mpi_bcast(struc%vconst, i_data_size,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%vmtz, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-      call mpi_bcast(struc%vmtz0, 1,MPI_REAL8
-     , , master, MPI_COMM_WORLD,ierr)
-
-      if (mlog) then
-        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-        call strcop(shortname(procid),name,10,'.',ierr)
-        namelen(procid) = ierr-1
-        call gettime(datim)
-        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
-     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-     .  cast)
-      endif
-#endif
-      end subroutine mpibc1_s_pot
+c$$$      subroutine mpibc1_s_pot(struc,mlog,funnam,label)
+c$$$      use m_struc_def, only: s_pot
+c$$$      implicit none
+c$$$#if MPI|MPIK
+c$$$      include 'mpif.h'
+c$$$      integer numprocs, ierr
+c$$$      integer MAX_PROCS
+c$$$      parameter (MAX_PROCS = 100)
+c$$$      integer resultlen
+c$$$      character*(MPI_MAX_PROCESSOR_NAME) name
+c$$$      character*10 shortname(0:MAX_PROCS-1)
+c$$$      character*26 datim
+c$$$      integer namelen(0:MAX_PROCS-1)
+c$$$      character*256 strn
+c$$$      logical lgunit
+c$$$      integer procid,master,i_data_size
+c$$$      integer:: n=0, cast=4
+c$$$C use i_data_size in order to cast an address to integer
+c$$$#endif
+c$$$C ... Passed parameters
+c$$$      logical mlog
+c$$$      type(s_pot):: struc
+c$$$      character funnam*(*), label*(*)
+c$$$#if MPI|MPIK
+c$$$      master=0
+c$$$      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+c$$$      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+c$$$      call mpi_bcast(struc%size, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%bfield) ! bfield(4)
+c$$$      call mpi_bcast(struc%bfield, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nlma, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nlml, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%nrhos, 1,MPI_INTEGER
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      i_data_size=size(struc%vconst) ! vconst(3)
+c$$$      call mpi_bcast(struc%vconst, i_data_size,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%vmtz, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$      call mpi_bcast(struc%vmtz0, 1,MPI_REAL8
+c$$$     , , master, MPI_COMM_WORLD,ierr)
+c$$$
+c$$$      if (mlog) then
+c$$$        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
+c$$$        call strcop(shortname(procid),name,10,'.',ierr)
+c$$$        namelen(procid) = ierr-1
+c$$$        call gettime(datim)
+c$$$        strn = ' '//funnam//' '//datim//' Process %i of %i on '
+c$$$     .  //shortname(procid)(1:namelen(procid))//' bcast '//label//
+c$$$     .  ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
+c$$$        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
+c$$$     .  cast)
+c$$$      endif
+c$$$#endif
+c$$$      end subroutine mpibc1_s_pot
 
       subroutine mpibc1_s_spec(struc,mlog,funnam,label)
       use m_struc_def, only: s_spec
