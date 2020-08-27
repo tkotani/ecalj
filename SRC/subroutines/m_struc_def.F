@@ -614,10 +614,10 @@ Cr   32   20   tolu    tolerance for LDA+U
 Cr   33   21   umix    mixing parameter for LDA+U
 Cr   34   22   w..     Linear mixing weights
 Cr   37   23   wc      Broyden weight
-      type s_array
-      real(8)  ::    size
-      integer  ::   nclasp
-      end type s_array
+c$$$      type s_array
+c$$$      real(8)  ::    size
+c$$$      integer  ::   nclasp
+c$$$      end type s_array
 
       type s_mix
       real(8)  ::   size
@@ -1060,34 +1060,34 @@ c     .     , struc_eval_io_r8v, struc_eval_io_i8v
 c      end interface struc_eval_io
       contains
 
-      integer function uarray_size()
-#if MPI|MPIK|MPIADDRESS
-      use m_struc_def, only: s_array
-      implicit none
-      type(s_array):: v(2)
-      integer:: iadd(2), ierr,imod,n
-      call mpi_get_address(v(1),iadd(1),ierr)
-      call mpi_get_address(v(2),iadd(2),ierr)
-      n=iadd(2)-iadd(1)
-      imod=mod(n,8)
-      n=n/8
-      if (imod.ne.0) n=n+1
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      uarray_size=n
-C        write(*,*) 'uarray_size=',n
-#else  /* MPIADDRESS*/
-      integer:: n
-      n=-9999 !n= 32
-C  +2 is margin
-C         n=n+2
-#ifdef ALIGNMENT128
-      if (mod(n,2).eq.1) n=n+1
-#endif
-      uarray_size=n
-#endif  /* MPIADDRESS*/
-      end function uarray_size
+c$$$      integer function uarray_size()
+c$$$#if MPI|MPIK|MPIADDRESS
+c$$$      use m_struc_def, only: s_array
+c$$$      implicit none
+c$$$      type(s_array):: v(2)
+c$$$      integer:: iadd(2), ierr,imod,n
+c$$$      call mpi_get_address(v(1),iadd(1),ierr)
+c$$$      call mpi_get_address(v(2),iadd(2),ierr)
+c$$$      n=iadd(2)-iadd(1)
+c$$$      imod=mod(n,8)
+c$$$      n=n/8
+c$$$      if (imod.ne.0) n=n+1
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      uarray_size=n
+c$$$C        write(*,*) 'uarray_size=',n
+c$$$#else  /* MPIADDRESS*/
+c$$$      integer:: n
+c$$$      n=-9999 !n= 32
+c$$$C  +2 is margin
+c$$$C         n=n+2
+c$$$#ifdef ALIGNMENT128
+c$$$      if (mod(n,2).eq.1) n=n+1
+c$$$#endif
+c$$$      uarray_size=n
+c$$$#endif  /* MPIADDRESS*/
+c$$$      end function uarray_size
 
 c$$$      integer function ubz_size()
 c$$$#if MPI|MPIK|MPIADDRESS

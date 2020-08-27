@@ -1738,11 +1738,11 @@ c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
       ham_delta_stabilize=delta_stabilize !takao sep2010
 
 !!... Allocate and initialize sarray
-      v_sarry%size=uarray_size()
+c      v_sarry%size=uarray_size()
 
 !! ... Allocate and initialize spot
 c      v_spot%size=upot_size()
-      pot_vmtz0=vmtz
+c      pot_vmtz0=vmtz
 
 C --- Allocate and copy input to smix ---
       v_smix%size=umix_size()

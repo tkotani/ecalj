@@ -1,12 +1,12 @@
       subroutine lmaux(prgnam,sspec,ssite, !sstr,sctrl,,sham,slat spot,
-     .sarray,slabl,mode,wksize) !,sstrn,sbz
+     .slabl,mode,wksize) !,sstrn,sbz sarray,
       use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
       use m_lmfinit,only: irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
      &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
-      use m_lmfinit,only:  lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq
+      use m_lmfinit,only:  lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq,ctrl_nclass
 C- Auxilliary programs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -76,7 +76,7 @@ C ... Passed parameters
       integer mode,wksize
       character*(*)  prgnam*8 !sstrn,
       character*8 slabl(*)
-      type(s_array)::sarray
+c      type(s_array)::sarray
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
 c      type(s_pot)::spot
@@ -140,7 +140,7 @@ c      i_copy_size=size(ctrl_modep)
 c      call i8icopy(i_copy_size,ctrl_modep,1,modep,1)
       modep = ctrl_modep
       lpbc = 0
-      nclasp=sarray%nclasp
+      nclasp=ctrl_nclass !sarray%nclasp
       avw=lat_avw
       alat=lat_alat
 c      i_copy_size=size(lat_plat)

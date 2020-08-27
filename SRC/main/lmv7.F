@@ -1,11 +1,11 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_struc_def,only: s_mix,s_array,s_spec,s_site !,s_move,s_str,s_bz,s_ctrl ,s_ham s_lat,s_pot,
+      use m_struc_def,only: s_mix,s_spec,s_site !,s_move,s_str,s_bz,s_ctrl ,s_ham s_lat,s_pot,s_array,
       use m_lmfinit, only:
      &     NULLI,NULLR,T,F,mxrecs,recln0,
-     &     slabl_,v_smix,v_sarry,v_sarry2,v_sspec,v_ssite,
+     &     slabl_,v_smix,v_sspec,v_ssite,
      &     v_ssite2,sstrnmix,sstrnsymg,
-     &     symgaf !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,
+     &     symgaf !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
       use m_hamindex,only: 
      &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
       use m_ext,only: getext,sname
