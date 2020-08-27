@@ -101,7 +101,8 @@ C     call tcx('mkrou3')
       use m_work,only: iv_a_oindxo
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_mkrou3
       use m_lmfinit,only:ham_eterms
 C- Assembles local output densities out of the qkkl, and core states

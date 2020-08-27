@@ -1,11 +1,7 @@
       subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
      .   , sv_p_otau , sv_p_oppi )
-
-
-
-
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs

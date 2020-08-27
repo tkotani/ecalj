@@ -1,7 +1,7 @@
       subroutine suham2(sspec,ssite)!,spot) !,sstrn) removed june2015,sham slat,
       use m_work,only:rv_a_ogv
       use m_struc_def
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only: lat_alat,lat_ng,lat_tolft
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------

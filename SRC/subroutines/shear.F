@@ -1,5 +1,5 @@
       subroutine shear(nbas,plat,tau,alpha,eps,s)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Apply a pure strain to lattice and basis vectors
 C ----------------------------------------------------------------------
 Ci Inputs

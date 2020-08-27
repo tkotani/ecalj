@@ -1,6 +1,6 @@
       subroutine dfratm ( nbas , ssite , sspec , sv_p_orhoat )
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Allocate arrays for local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs

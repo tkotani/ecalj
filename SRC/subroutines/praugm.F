@@ -1,7 +1,8 @@
       subroutine praugm(sspec,is)
 
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C-  Print species information
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -7,7 +7,8 @@
      .     lmaxu , vorb , lldau )
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -465,7 +466,8 @@ C     Electric field gradient
      .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
 Ci Inputs

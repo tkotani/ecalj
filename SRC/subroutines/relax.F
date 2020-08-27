@@ -1,4 +1,4 @@
-      subroutine relax(prgnam,ssite,sspec,it,indrlx,natrlx,nvar,f, !,sctrl
+      subroutine relax(ssite,sspec,it,indrlx,natrlx,nvar,f, !,sctrl prgnam,
      .p,w,nelts,delta,bas,icom)
 
       use m_struc_def  !Cgetarg
@@ -49,7 +49,7 @@ Cu   15 Feb 02 (ATP) Added MPI parallelization
 C ----------------------------------------------------------------------
       implicit none
 C Passed Parameters
-      character prgnam*8
+c      character prgnam*8
       integer it,nit,natrlx,nvar,nelts,icom,procid,master,mpipid
       integer indrlx(2,natrlx)
       real(8):: f(3,*) , w(nvar,nvar) , p(nvar,6) , delta(nelts,*) 

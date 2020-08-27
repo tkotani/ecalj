@@ -1,18 +1,8 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_struc_def,only: s_mix,s_spec,s_site !,s_move,s_str,s_bz,s_ctrl ,s_ham s_lat,s_pot,s_array,
-      use m_lmfinit, only:
-     &     NULLI,NULLR,T,F,mxrecs,recln0,
-     &     slabl_,v_smix,v_sspec,v_ssite,
-     &     v_ssite2,sstrnmix,sstrnsymg,
-     &     symgaf !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
-      use m_hamindex,only: 
-     &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
+      use m_lmfinit, only:  mxrecs,recln0,rdctrl2
       use m_ext,only: getext,sname
-      use m_globalvariables,only: globalvariables
-      use m_work,only: rv_a_opos
       implicit none
-
       integer:: procid, master, mpipid, nproc,
      &     i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg, igets,a2vec,
      &     nfilin,nrecs,fopna,ic,ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff
@@ -20,7 +10,7 @@
       character*(recln0):: recrd(mxrecs)
       character(8) :: alabl
       character(5) :: charnum5
-      logical:: fileexist,ipr10,lshow,lshowp,swtmp,cmdopt,ltet
+      logical:: fileexist,ipr10,lshow,lshowp,swtmp,cmdopt,ltet,llmfgw
       character:: strn*1000,outs*20,strn2*1000
       character prgnam*8, ext*100 
 #if LMFGWD
@@ -55,7 +45,6 @@ c      integer namelen(0:MAX_PROCS-1)
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
-      globalvariables%stdo = dble(stdo) 
       i = dble(stdo)
       call finits(2,0,0,i)
 !! Get extension of ctrl file to sname \in m_ext 
@@ -142,9 +131,12 @@ c      integer namelen(0:MAX_PROCS-1)
       
 !! rdctrl2 sets all initial condition to m_lmfinit module.
       call rdctrl2(recrd,recln0,nrecs,prgnam)
-!! main part of lmf ------------------------------------
-      call lmfp(prgnam,!v_spot,!v_slat, !v_sctrl,,v_sham
-     .  v_smix,v_sspec,v_ssite,trim(sstrnmix)) !,v_smove,v_sstr,,v_sarry v_sbz,
+!! Main part of lmf ------------------------------------
+!!  lmfp uses data set in m_lmfinit and m_work 
+!!  We have to clean up data flow better. Data in m_lmfinit should be protected in future.
+!!  Data in m_work should be moved to modules where data are generated.
+      if(prgnam =='LMFGWD') llmfgw=.true.
+      call lmfp(llmfgw)
       inquire(file='RSEQ_ERROR',exist=fileexist)
       if(fileexist) call rx('RSEQ_ERROR: maybe in phidx.F See takao comment in it.')
       

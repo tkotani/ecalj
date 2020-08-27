@@ -1,6 +1,8 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_struc_func.o\
+pqmix.o\
 m_lmfinit.o\
 m_work.o\
 toksw_init.o\
@@ -14,7 +16,6 @@ m_psigd.o \
 m_hamindex.o \
 m_sstrnsname.o \
 m_struc_def.o \
-m_globalvariables.o \
 m_gtv.o \
 addbas.o \
 addrwf.o \
@@ -109,7 +110,6 @@ iorbtm.o \
 iors.o \
 iosave.o \
 iosite.o \
-iosits.o \
 latlim.o \
 lattc.o \
 lattdf.o \
@@ -232,7 +232,6 @@ xlgen.o \
 xxxbnd.o \
 xxxdif.o \
 ylmrtg.o \
-rdctrl2.o\
 writebasis.o \
 spackv_array_copy.o \
 struc_strn.o \
@@ -244,7 +243,6 @@ dpdbyl.o \
 dpdftr.o \
 pvsms2.o \
 getcor.o \
-pqmix.o \
 radgra.o \
 xcfunc.o \
 xcpbe.o \

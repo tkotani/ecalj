@@ -1,6 +1,6 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
      .qdiff,svflg,amom,etot,lsc)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs

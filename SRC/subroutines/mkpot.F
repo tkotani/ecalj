@@ -5,7 +5,8 @@
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
       use m_lmfinit,only:lso,ham_eterms
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only:lat_nabc,lat_plat,lat_qlat,lat_vol
 !! documents below are under construction.
 C- Make the potential from the density.

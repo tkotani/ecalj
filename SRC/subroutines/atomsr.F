@@ -151,7 +151,7 @@ C     --- Add to rho, make integral v*rho ---
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
-      use  m_globalvariables
+      use  m_lmfinit,only: globalvariables
       use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------

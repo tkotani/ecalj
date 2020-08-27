@@ -1727,7 +1727,7 @@ C     implicit none
 
       subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
      . exc,vxc)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 c      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
 c     .grh,ggrh,agrh,grgagr,exc,vxc)
 ctakao automatic array version

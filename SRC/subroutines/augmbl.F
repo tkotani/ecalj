@@ -3,7 +3,7 @@
      .   , igapw , h , hso , s )
       use m_work,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_struc_def           !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------

@@ -8,7 +8,7 @@ CSFCPP#define F90 1
      .     , sv_p_oeqkkl , f )
       use m_work,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------

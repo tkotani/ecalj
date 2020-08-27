@@ -3,7 +3,8 @@
      .rvepsm,focexc,focex,focec,focvxc,f)
       use m_work,only: iv_a_okv,rv_a_ogv,rv_a_ocy
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only: lat_nabc, lat_ng, lat_vol, lat_alat, lat_vol
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------

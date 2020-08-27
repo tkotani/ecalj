@@ -3,7 +3,7 @@
      .     , dfh )
       use m_work,only: rv_a_ogv,iv_a_okv
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,lat_plat
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
@@ -402,7 +402,7 @@ c     .orhoat,fes1,fes2,fxc)
      . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
      . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat
 c need to modify texts.
 C- Estimate shift in local density for one site
@@ -952,7 +952,7 @@ C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
 
       subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
 C ----------------------------------------------------------------------

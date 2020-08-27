@@ -1,11 +1,10 @@
       subroutine mkqp(gettet,lnoirr,lreduc,lgstar)!sctrl,slat,
       use m_struc_def  !Cgetarg
-      use m_globalvariables
       use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
      &     rv_a_osymgr
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,
      & lat_plat,lat_nsgrp,lat_npgrp
-
+      use m_lmfinit,only: globalvariables
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs

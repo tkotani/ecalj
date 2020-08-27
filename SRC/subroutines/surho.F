@@ -5,7 +5,8 @@
 
 
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Initialize output density coeffs, dos, and eigenvalue sum
 C ----------------------------------------------------------------------
 Ci Inputs

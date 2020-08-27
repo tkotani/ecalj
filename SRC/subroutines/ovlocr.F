@@ -3,7 +3,8 @@
      .  )
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
 Ci Inputs

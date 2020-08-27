@@ -1,5 +1,7 @@
       module m_work
-!     from bz
+!! These are used to pass data set.
+!! It is not clear where they are generated and where cited.
+!!     bz
       use m_struc_def,only: s_rv1
       integer , allocatable ::  iv_a_oidtet (:)
       integer , allocatable ::  iv_a_oipq (:)

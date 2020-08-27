@@ -3,7 +3,8 @@ CSFCPP#define F90 1
      .napw,igapw,h,s)
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only:lat_alat,lat_plat,lat_vol
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------

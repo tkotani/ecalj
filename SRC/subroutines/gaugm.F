@@ -195,7 +195,8 @@ Cu   17 May 00 Adapted from nfp gaugm.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       integer nr,nsp,lmxa,lmxl,nlml,lmux,lso,lcplxp,
      .nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1),n0,nab,
      .nf2,nf2s,lmx2,nlx2,lx2(nf2)

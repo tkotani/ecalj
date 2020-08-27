@@ -1,9 +1,6 @@
-      subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat 
-     . )
-
-
+      subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat )
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Rotate local densities by specified rotation
 C ----------------------------------------------------------------------
 Ci Inputs

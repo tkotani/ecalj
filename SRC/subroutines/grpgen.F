@@ -1,5 +1,5 @@
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Generate all point symmetry operations from the generation group
 C ----------------------------------------------------------------
 Ci Inputs

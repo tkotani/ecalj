@@ -1,6 +1,6 @@
       subroutine invbl(lasa,lov,nbas,nl,nsp,ldim,plat,nsite,iax,
      .indxsh,ik,nk,bk,strxk,hk,sk,strx,hrs,srs)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Inverse Bloch transform to extract real space hamiltonian and overlap
 C ----------------------------------------------------------------------
 Ci Inputs:  lasa: T for lmasa, F for TBE which tranposes the strux.

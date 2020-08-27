@@ -1,5 +1,5 @@
       integer function nnrl(mode,ib1,ib2,iprmb,ndim)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Returns number of RL channels between sites ib1, ib2
 C ----------------------------------------------------------------------
 Ci Inputs

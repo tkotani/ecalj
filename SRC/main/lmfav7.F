@@ -1,10 +1,11 @@
       program lmfa
       use m_struc_def
 c      use m_rdctrl2_func, only: rdctrl2
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit, only: !rdctrl2,,v_sctrl,v_sctrl2 v_sham,
-     &     slabl_,v_smix,v_sspec,v_ssite,  !v_sarry2,v_sbz ,v_slat,v_slat2 ,v_spot
-     &     v_ssite2,sstrnmix,sstrnsymg
+     &     v_sspec,!,v_ssite,  !v_sarry2,v_sbz ,v_slat,v_slat2 ,v_spot slabl_,v_smix,
+     &     rdctrl2 !v_ssite2,sstrnmix,sstrnsymg,
       use m_work,only: rv_a_opos
       implicit none
       integer procid, master, mpipid, nproc

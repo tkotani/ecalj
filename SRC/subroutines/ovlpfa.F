@@ -2,7 +2,8 @@
      .gv,cv)
       use m_lmfinit,only:lat_alat,lat_vol
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.
 C ----------------------------------------------------------------------
 Ci Inputs

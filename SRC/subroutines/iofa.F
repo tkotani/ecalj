@@ -1,6 +1,6 @@
       integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
      .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- I/O for free-atom data, one species
 C ----------------------------------------------------------------------
 Ci Inputs

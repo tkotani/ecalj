@@ -1,9 +1,8 @@
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
-
-      use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_struc_def,only: s_site,s_spec  !Cgetarg
       use m_lmfinit,only: ham_ehk,ham_eterms
+      use m_lmfinit,only: globalvariables
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
 Ci Inputs

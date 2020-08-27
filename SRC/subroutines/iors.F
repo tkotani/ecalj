@@ -3,7 +3,7 @@
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
       use m_struc_def 
       use m_struc_func
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_work,only: zv_a_osmrho, rv_a_oves
       use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
 C- I/O for charge density

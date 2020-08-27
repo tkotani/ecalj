@@ -2,10 +2,11 @@
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+c      use m_globalvariables
       use m_lmfinit,only:lso
       use m_work,only: iv_a_oindxo
       use m_lmfinit,only: lat_nabc,lat_vol
+      use m_lmfinit,only: globalvariables
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs

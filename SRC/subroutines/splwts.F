@@ -1,6 +1,6 @@
       subroutine splwts(nqp,nband,nbmx,nsp,wgts,evl,n,w,efermi,
      .metal,sumev,bndwts,wtot,entrpy,dosef,cv)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- make sampling weights for integrals under the Fermi surface
 C-----------------------------------------------------------------------
 Ci  Input

@@ -1,9 +1,7 @@
       subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
      . )
-
-
+      use m_lmfinit,only: globalvariables
       use m_struc_def  !Cgetarg
-      use m_globalvariables
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
 Ci Inputs

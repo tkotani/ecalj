@@ -1,5 +1,5 @@
       subroutine groupg(mode,ng,g,ag,plat,ngen,gen,agen,gens,ngout)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Finds a set of generators for the symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs:

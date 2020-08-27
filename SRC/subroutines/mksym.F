@@ -1,10 +1,10 @@
       subroutine mksym(mode,slabl,ssymgr,ssite) !,sctrl,slat
       use m_struc_def  !Cgetarg
-      use m_globalvariables
       use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
      &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos
       use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
      & lat_dist,lat_ldist,lat_npgrp,lat_nsgrp,lat_plat
+      use m_lmfinit,only: globalvariables
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs

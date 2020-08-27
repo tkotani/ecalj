@@ -1,7 +1,8 @@
       subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
 
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only: ham_eterms
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------

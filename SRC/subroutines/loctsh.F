@@ -63,7 +63,8 @@ Cu   27 Jun 04 First created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       integer lmxb,nr,nrmt,nsp,n0,mode
       double precision a,z,rs3,eh3,vmtz
       parameter (n0=10)

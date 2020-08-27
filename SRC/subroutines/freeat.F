@@ -2,7 +2,7 @@ c#define USEOPTIONAL 1
       subroutine freeat(sspec)!,spot) !sctrl,sham,
       use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
       use m_lmfinit,only:ham_seref
       use m_ext,only:sname
 C- For each species, makes free atom self-consistent
@@ -211,7 +211,7 @@ c     call fclose('vesintatm')
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -613,7 +613,7 @@ C --- Fit analytical expression to tail of core density ---
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -833,7 +833,7 @@ C ... Find the outermost maximum
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .spid,itab,rtab,etab)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1774,7 +1774,7 @@ C ... Write the plot file
 
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs

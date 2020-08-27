@@ -2,7 +2,8 @@
      . , smrho )
       use m_work,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
      &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
 C- Estimate the smooth density for a shift in atomic positions.

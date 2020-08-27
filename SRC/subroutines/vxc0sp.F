@@ -1,5 +1,5 @@
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 !!- Adds xc part to spherical potential, makes integrals rmu and rep
 !! ----------------------------------------------------------------------
 !!i Inputs

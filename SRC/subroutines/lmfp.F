@@ -1,71 +1,39 @@
-      subroutine lmfp(prgnam,smix, !sbz,sctrl,,sham,slat spot,
-     .     sspec,ssite,sstrnmix) !,sstrnjobid) smove,sstr,
-      use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
-      use m_struc_def
-c      use m_struc_func, only: mpibc1_s_lat
-      use m_globalvariables
+      subroutine lmfp(llmfgw) 
+      use m_struc_def,only: s_spec,s_site
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, !,irs3,irs4,irs5,irs11,
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_lrs,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ctrl_lmet,
      &     ham_ndham,ham_ehf,ham_ehk,ham_seref,ham_eterms,
-     &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,lat_nsgrp
-C     - LM-FP self-consistency loop
-C     ----------------------------------------------------------------------
-C     i Inputs
-C     i   prgnam:nam of calling program
-C     i   sbz   :struct for the Brillouin Zone; see routine ubz
-C     i     Elts read: nevmx lmet
-C     i     Stored:    nevmx
-C     i     Passed to: iors bndfp
-C     i   sctrl :struct for program flow parameters; see routine uctrl
-C     i     Elts read: nbas nl nspec nspin lpgf lcgf lscr lsx zbak
-C     i                maxit lrs,78+163 lbas,1 lfrce nitmv mdprm ltb tol:33
-C     i     Stored:    mdprm ltb
-C     i     Passed to: supot subasi suham rlxstp iors smshft bndfp nwit relax
-C     i   sham  :struct for parameters defining hamiltonian; see routine uham
-C     i     Elts read: ldham ehf ehk seref eterms
-C     i     Passed to: subasi suham smshft bndfp
-C     i   spot  :struct for information about the potential; see routine upot
-C     i     Elts read: oorhat osmrho osmpot
-C     i     Passed to: supot suham rdovfa iors bndfp
-C     i   slat  :struct for lattice information; see routine ulat
-C     i     Elts read: plat opos gam nsgrp oistab oag osymgr
-C     i     Stored:    gam
-C     i     Passed to: supot suham rdovfa iors smshft bndfp ioden
-C     i   smix  :struct for charge mixing parameters; see routine umix
-C     i     Elts read: b bv w wc nsave mmix
-C     i     Stored:    *
-C     i     Passed to: *
+     &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,lat_nsgrp,
+     &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
+     &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
+     &     sstrnmix,sstrnsymg, !ssite2=>v_ssite2,
+     &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
+     &     globalvariables
+      use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
+!! main routine of lmf
+!!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
+C     i Inputs. 
+C     i   bz_*   :related to the Brillouin Zone
+C     i   ctrl_* :               program flow
+C     i   ham_*  :               hamiltonian
+C     i   pot_*  :               potential
+C     i   lat_*  :               lattice
+C     i   mix  :                 mixing parameters; see routine umix
 C     i   sspec :struct for species-specific information; see routine uspec
-C     i     Passed to: praugm subasi suham rdovfa iors smshft bndfp ioden
-C     i                relax
 C     i   ssite :struct for site-specific information; see routine usite
-C     i     Elts read: spec pos
-C     i     Stored:    pos pos0
-C     i     Passed to: spackv suham rlxstp rdovfa iors smshft bndfp ioden
-C     i                cppos relax
-C     i   sstr  :struct for parameters for screened strux; see routine ustr
-C     i         :(not used for now)
-C     i   smove :struct for dynamics information; see routine umove
-cC     i   sarray:structure containing offsets to various arrays
-cC     i     Elts read: npadl npadr
-cC     i     Stored:    *
-cC     i     Passed to: suham
-cC     i   sstrn :struct for global strings
-cC     i     Elts read: jobid
-cC     i     Stored:    *
-C     o Outputs
-C     o   See Remarks
 C     l Local variables
-C     l   lmaxu :max l for a U (used for dimensioning)
-C     i w(olldau):lldau(ib)=0 => no U on this site otherwise
-C     i         :U on site ib with dmat beginning at dmats(*,lldau(ib))
-C     l   nlibu :total number of U blocks
-C     l   irlxsh:counter for shear relaxations.  irlxsh=0 => new step
+C     l   lmaxu : max l for a U (used for dimensioning)
+C     i   w(olldau): lldau(ib)=0 => no U on this site otherwise
+C     i         : U on site ib with dmat beginning at dmats(*,lldau(ib))
+C     l   nlibu : total number of U blocks
+C     l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
 C     r Remarks
 C     r  This is the entry point for the self-consistent FP band program
 C     u Updates
+!!  aug2020. T.Kotani remove s_* except s_spec and s_pot. Data are in m_lmfinit.
+!!           In future, we need clear protection after data are generated.
 C     u   05 Jul 08 Setup for new PW addition to basis
 C     u   04 Jul 08 New restart file editor
 C     u   20 Jun 06 Repackaged MPI
@@ -89,22 +57,21 @@ C     u   08 Jun 01 Revised call to nwit
 C     u   15 Feb 01 added density I/O; arguments to bndfp changed.
 C     u   17 Jun 00 alpha version.  No relaxations yet.
 C     ----------------------------------------------------------------------
-      implicit none
-C     ... Passed parameters:
-      character  prgnam*8 !sstrn*(*),
 c      type(s_sstrn)::sstrn
-      character*(*)::sstrnmix !,sstrnjobid
 c      type(s_array)::sarray
 c      type(s_bz)::sbz
 c      type(s_ctrl)::sctrl
 c      type(s_lat)::slat
-      type(s_mix)::smix
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
+c      type(s_mix)::smix
 c      type(s_ham)::sham
 c      type(s_pot)::spot
 c      type(s_str)::sstr
 c      type(s_move)::smove
+      implicit none
+c      character  prgnam*8 !sstrn*(*),
+c      character*(*)::sstrnmix !,sstrnjobid
+c      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
 
       integer ::iwdummy ,idummy
       integer procid,master,mpipid,nproc
@@ -254,12 +221,12 @@ C     Shorten site positions
 
 !! ... Setup for charge mixing
       dmxp=0d0
-      dmxp(2)=smix%b
-      dmxp(9)=smix%bv
-      dmxp(4:5)= smix%w(1:2)
-      dmxp(3)= smix%wc
-      dmxp ( 6 ) = int(smix%nsave)
-      dmxp ( 7 ) = int(smix%mmix)
+      dmxp(2)=mix_b
+      dmxp(9)=mix_bv
+      dmxp(4:5)= mix_w(1:2)
+      dmxp(3)= mix_wc
+      dmxp ( 6 ) = int(mix_nsave)
+      dmxp ( 7 ) = int(mix_mmix)
       call parms0(0,0,0d0,0)
 C     ... Allocate memory for forces
       lfrce = int(ctrl_lfrce)
@@ -392,8 +359,8 @@ C     Check for LDA+U ... return nlibu > 0 if any U blocks
       if (nlibu > 0) then
 C     need group info to symmetrize site density matrix
         ng=lat_nsgrp
-        umix=smix%umix
-        tolu=smix%tolu
+        umix=mix_umix
+        tolu=mix_tolu
         if (umix .eq. 0) umix = 1
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
@@ -503,8 +470,6 @@ C     Hang on to previous site density matrix for this iteration
 
 C     --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
-      llmfgw=.false.            !taao now just lmfgw mode by lmfgw switch.
-      if(trim(prgnam)=='LMFGWD') llmfgw=.true.
       call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
      .     , sspec ,    sstrnmix , ndham , !sbz ,sctrl ,sham , slat , spot ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
@@ -631,7 +596,7 @@ C     --- Molecular statics ---
               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
               goto 98
             else
-              call relax ( prgnam ,  ssite , sspec , itrlx , indrx_iv !sctrl ,
+              call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
      .                 , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
      .                 , icom )
               call dpzero(dist,6)
@@ -639,7 +604,7 @@ C     --- Molecular statics ---
               dist(7) = 1
             endif
           else
-            call relax ( prgnam ,  ssite , sspec , itrlx , indrx_iv !sctrl ,
+            call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
      .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
      .              , icom )
           endif

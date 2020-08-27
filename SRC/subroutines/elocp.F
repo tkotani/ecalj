@@ -1,7 +1,6 @@
       subroutine elocp(nbas,nsp,ssite,sspec,job)
-
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs

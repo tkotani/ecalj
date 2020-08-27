@@ -310,35 +310,35 @@ C --- Show angles between neighbors ---
           call shoang ( outs ( j: ) , nbas , rv_a_opos , plat , str_mxnbr ,
      .      slabl , iv_a_oips )
         endif
-C --- Check whether basis w(opos) differs from site file by translation ---
-        j = 9
-        if (cmdopt('--basis=',j-1,0,outs)) then
-C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
-          fnam = outs(j:)
-          call info(20,1,0,' checking whether basis equivalent to file '
-     .    //fnam//'...',0,0)
-          j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
-     .    sspec,ssite)
-          allocate(pos2_rv(3,nbas))
-          allocate(ips2_iv(nbas))
-c          do i_spackv=1,nbas
-c          i_copy_size=size(ssite(1)%pos)
-c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
-c     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
-c          i_copy_size=1;
-c            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-c     .      , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
-c          enddo
-          do i_spackv=1,nbas
-            pos2_rv(:,i_spackv) = ssite(i_spackv)%pos 
-            ips2_iv(i_spackv)   = ssite(i_spackv)%spec 
-          enddo
-          allocate(rv_a_og(9*ngmx))
-          call symlat( plat , ngrp , rv_a_og , j )
-          j = cmplat( nbas , plat , plat , ngrp , rv_a_og , iv_a_oips
-     .       , rv_a_opos , ips2_iv , pos2_rv )
-          call fexit(j,1,' Exit %i lmchk --basis= ...',j)
-        endif
+c$$$C --- Check whether basis w(opos) differs from site file by translation ---
+c$$$        j = 9
+c$$$        if (cmdopt('--basis=',j-1,0,outs)) then
+c$$$C       call upack('lat nsgrp osymgr',slat,ngrp,og,0,0,0)
+c$$$          fnam = outs(j:)
+c$$$          call info(20,1,0,' checking whether basis equivalent to file '
+c$$$     .    //fnam//'...',0,0)
+c$$$          j = iosits(8070,3d0,0,fnam,ifi,slabl,alat,plat,nbas,nspec,
+c$$$     .    sspec,ssite)
+c$$$          allocate(pos2_rv(3,nbas))
+c$$$          allocate(ips2_iv(nbas))
+c$$$c          do i_spackv=1,nbas
+c$$$c          i_copy_size=size(ssite(1)%pos)
+c$$$c            call spackv_array_copy_r8_r8 ( 'u' , ssite ( i_spackv ) %pos 
+c$$$c     .      , i_copy_size , i_spackv + 1 - 1 , pos2_rv )
+c$$$c          i_copy_size=1;
+c$$$c            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
+c$$$c     .      , i_copy_size , i_spackv + 1 - 1 , ips2_iv )
+c$$$c          enddo
+c$$$          do i_spackv=1,nbas
+c$$$            pos2_rv(:,i_spackv) = ssite(i_spackv)%pos 
+c$$$            ips2_iv(i_spackv)   = ssite(i_spackv)%spec 
+c$$$          enddo
+c$$$          allocate(rv_a_og(9*ngmx))
+c$$$          call symlat( plat , ngrp , rv_a_og , j )
+c$$$          j = cmplat( nbas , plat , plat , ngrp , rv_a_og , iv_a_oips
+c$$$     .       , rv_a_opos , ips2_iv , pos2_rv )
+c$$$          call fexit(j,1,' Exit %i lmchk --basis= ...',j)
+c$$$        endif
 
 C ... Write positions in Cartesian coordinates and as multiples plat
         if (iprint() .ge. 50) then

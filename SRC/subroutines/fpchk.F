@@ -27,9 +27,8 @@ C ... Passed parameters
 
 
       subroutine chkxpn(ssite,sspec)
-
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters

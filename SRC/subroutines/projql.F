@@ -1,5 +1,5 @@
       subroutine projql(qlat)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Project 3D reciprocal lattice vecs on surface (2D recip lattice vecs)
 C ----------------------------------------------------------------------
 Ci Input qlat(3,3)  3D reciprocal lattice vectors
@@ -11,10 +11,7 @@ C ----------------------------------------------------------------------
 C     implicit none
       double precision qlat(3,3),b3b3,bib3
       integer i,j,stdo,nglob,iprint
-
-
       b3b3 = qlat(1,3)**2 + qlat(2,3)**2 + qlat(3,3)**2
-
       do  20  i = 1, 2
         bib3 = qlat(1,i)*qlat(1,3) + qlat(2,i)*qlat(2,3)
      .  + qlat(3,i)*qlat(3,3)

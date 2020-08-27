@@ -184,7 +184,8 @@ CSFCPP#define F90 1
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_prlcb
       use m_work,only: iv_a_oidxcg, iv_a_ojcg , rv_a_ocy,rv_a_ocg
       use m_lmfinit,only:lat_alat,lat_qlat

@@ -4,7 +4,8 @@
 
 
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------
 Ci Inputs

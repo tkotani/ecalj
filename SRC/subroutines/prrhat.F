@@ -2,7 +2,8 @@
 
 
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Print info about the atomic charge densities
 C     implicit none
 C ... Passed parameters

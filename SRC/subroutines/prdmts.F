@@ -68,8 +68,7 @@ C ... Local parameters
 
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .nsp,nspc)
-
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs

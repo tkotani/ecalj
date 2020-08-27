@@ -6,7 +6,8 @@
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
-      use m_globalvariables,only: globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables,only: globalvariables
 c      use m_phmbls,only: phmbls
       use m_work,only: iv_a_oindxo,iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 

@@ -69,7 +69,7 @@ C --- Make the space group ---
       call sgroup(0,gen,trans,ngen,g,ag,ng,ngmx,qb)
       end
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs

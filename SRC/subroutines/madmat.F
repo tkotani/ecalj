@@ -1,5 +1,5 @@
       subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Coefficients to Madelung matrix
 C ----------------------------------------------------------------
 Ci Inputs

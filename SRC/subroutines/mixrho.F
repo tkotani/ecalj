@@ -2,7 +2,8 @@
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho )
       use m_struc_def
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_work,only: iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat
 !!= Mix old and new charge densities =

@@ -2,7 +2,8 @@
      .     , qbyl , hbyl , f )
       use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag, rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only:lat_nabc
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------

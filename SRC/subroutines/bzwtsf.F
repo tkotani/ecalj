@@ -8,7 +8,7 @@
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -225,7 +225,7 @@ c
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -400,7 +400,7 @@ c
       subroutine bzwtsf3(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 !!t.kotani from bzwtsf. now fs
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------

@@ -2,7 +2,8 @@
       subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb, !slat,
      .napw,igapw,h)
       use m_struc_def  !Cgetarg
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_lmfinit,only:lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------

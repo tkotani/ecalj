@@ -1,6 +1,6 @@
       subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
      .sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- Generate the core density for one site
 C ----------------------------------------------------------------------
 Ci Inputs

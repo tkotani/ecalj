@@ -4,7 +4,8 @@ Ckino from rsibl write eigenvectors
       subroutine rsibl_ev(ssite,sspec,nbas,isp,q,iq,ndimh,nspc, !,slat
      .napw,igapw,iprmb,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
       use m_struc_def 
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
       use m_work,only: rv_a_opos
       use m_w_psir
       use m_lmfinit,only:

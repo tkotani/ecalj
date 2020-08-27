@@ -1,6 +1,7 @@
       subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq,
      .x0et)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
 C- Transverse susceptibility matrix <~e| X |e~> from X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------
 Ci Inputs

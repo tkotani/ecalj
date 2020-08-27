@@ -1,5 +1,5 @@
       subroutine getqp(mode,nfilqp,nqp,nkabc,lshft,ntet,q,wts,idtet)
-      use m_globalvariables
+      use m_lmfinit,only: globalvariables
 C- I/O for q-points on disc
 C-----------------------------------------------------------------------
 Ci Input
