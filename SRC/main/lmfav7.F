@@ -66,7 +66,7 @@ c      integer namelen(0:MAX_PROCS-1)
       call show_programinfo(6)
       stdo = lgunit(1)
 c     i = dglob('stdo',dble(stdo),1)
-      globalvariables%stdo = dble(stdo)
+c      globalvariables%stdo = dble(stdo)
      
       master = 0
       procid = mpipid(1)
