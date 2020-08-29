@@ -54,10 +54,10 @@ Cu   23 Jan 01 Added lrout switch
 Cu   17 Jun 00 spin polarized
 Cu   22 May 00 Adapted from nfp ip_density.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer:: n1 , n2 , n3 , k1 , k2 , k3 , lmet , lfrce , lrout 
-     . , lrep , nbas
+     . , lrep , nbas,i_copy_size
       type(s_rv1) :: sv_p_oqkkl(3,1)
 
       double precision def,ef0,qval

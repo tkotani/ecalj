@@ -978,7 +978,8 @@ c--------------------------------------------------------------------
 
       implicit double precision (a-h,o-z)
       dimension   wibz(nqibz),wqt(nq0i),wx(niw),
-     .            freqx(niw),ecqw(nqitot,niw)
+     .     freqx(niw),ecqw(nqitot,niw)
+      integer:: ifcor,nqibz,nqbz,nq0i,nqitot,ip,ix,niw
       real(8):: rydberg
       write(ifcor,*)'### ecqw(q,w) ###'
       write(ifcor,*)'nqibz =',nqibz

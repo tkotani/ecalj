@@ -18,7 +18,7 @@ ctm 01.07.01
 c 00.07.03
 c---------------------------------------------------------
       implicit double precision (a-h,o-z)
-
+      implicit integer(i-n)
       dimension   rv(nbloch,nbloch),cv(nbloch,nbloch),
      w            rpv(nbloch,nbloch),cpv(nbloch,nbloch),
      w            rw(nbloch,nbloch),cw(nbloch,nbloch)
@@ -172,6 +172,7 @@ c Erpa is negative
 c
 c nbloch  = ngb total number of Bloch basis functions
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       real(8)::  ecqw
       real(8),allocatable :: rpv(:,:),cpv(:,:),
      &                       rw(:,:),cw(:,:),rv(:,:),cv(:,:),
@@ -298,6 +299,7 @@ c---------------------------------------------------------------------
      o rmat2,cmat2)
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
 
       dimension   rmat(ldim,ldim),cmat(ldim,ldim),
      .            wmat(ldim,ldim,2),ovlp(ldim,ldim,2),
@@ -415,8 +417,8 @@ c      endif
       end
 c---------------------------------------------------------------------
       subroutine hermat  (rmat,cmat,ldim)
-
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
       real(8)   rmat(ldim,ldim),cmat(ldim,ldim)
 
       do      i = 1,ldim
@@ -471,6 +473,7 @@ c nmul  = no. contractions
 c rc,cc = real and imaginary parts of c
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
 
       dimension ra(lda,1),ca(lda,1),
      i          rb(ldb,1),cb(ldb,1)

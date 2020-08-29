@@ -10,6 +10,7 @@ c 92.01.17
 c add a constant to a vector w(i)= c + v(i)
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
       dimension w(n)
 
@@ -28,6 +29,7 @@ c add a constant to the diagonal elements of a matrix
 c v(i,i)= c + v(i,i)
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v(n,n)
 
       do       i = 1,n
@@ -52,6 +54,7 @@ c xi(2) = points where the function is given
 c fi(2) = the function at xi
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension xi(2),fi(2)
 
       xx1        = x-xi(1)
@@ -77,6 +80,7 @@ c xi(3) = points where the function is given
 c fi(3) = the function at xi
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension xi(3),fi(3)
 
       xx1        = x-xi(1)
@@ -105,6 +109,7 @@ c      + [ {(x-x1)(x-x2)(x-x4)} / {(x3-x1)(x3-x2)(x3-x4)} ] f3
 c      + [ {(x-x1)(x-x2)(x-x3)} / {(x4-x1)(x4-x2)(x4-x3)} ] f3
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension xi(4),f(4)
 
       xx1        = x-xi(1)
@@ -133,6 +138,7 @@ c calculates the volume of a parallelepiped formed by bas
 c vol = |b1 . (b2 x b3)|
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension bas(3,3)
       dimension w1(3)
 
@@ -158,6 +164,7 @@ c      + [ {(x-x1)(x-x2)(x-x4)} / {(x3-x1)(x3-x2)(x3-x4)} ] f3
 c      + [ {(x-x1)(x-x2)(x-x3)} / {(x4-x1)(x4-x2)(x4-x3)} ] f3
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension xi(4),c(4)
 
       xx1        = x-xi(1)
@@ -189,6 +196,7 @@ c xst,yst,zst = the stars
 c nstar       = number of stars
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension xst(48),yst(48),zst(48),xyz(3)
 c this equivalence is used to avoid problems with the compiler
       equivalence (x,xyz(1)),(y,xyz(2)),(z,xyz(3))
@@ -275,6 +283,7 @@ c--------------------------------------------------------------------
 c forms w(i) = c * v(i)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
       dimension w(n)
 
@@ -291,6 +300,7 @@ c-----------------------------------------------------------------
 c forms w(i) = w(i) + c * v(i)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
       dimension w(n)
 
@@ -308,6 +318,7 @@ c forms w(i) = c * v(i)
 c single precision
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       real*4    v(n),c
       real*4    w(n)
 
@@ -326,6 +337,7 @@ c 92.02.07
 c convert a double precision array dv to single sv
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       real*8 dv(n)
       real*4 sv(n)
 
@@ -338,6 +350,7 @@ c convert a double precision array dv to single sv
 c---------------------------------------------------------------------
       subroutine dmv(nr,nc,a,ndim,v,av)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c matrix * vector
 c av(m) = sum(n=1,nc) a(m,n)*v(n) ,m=1,nr
@@ -378,6 +391,7 @@ c nrg    = no. gaussian points
 c fint   = interpolated function
 
       implicit double precision(a-h,o-z)
+      implicit integer(i-n)
       dimension f(nr),clagr(4,nrg),istart(nrg)
       dimension fint(nrg)
 
@@ -401,6 +415,7 @@ c over i from 1 to n of w(i)*f(x(i)).
 c maximum n is 48
 c
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension x(n),w(n),e06(3),w06(3),e10(5),w10(5),e12(6),w12(6),
      d          e16(8),w16(8),e20(10),w20(10),e24(12),w24(12),
      d          e32(16),w32(16),e40(20),w40(20),e48(24),w48(24)
@@ -621,6 +636,7 @@ c------------------------------------------------------------------
 
 c sum the elements of an integer array
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension iv(n)
 
       ivsum      = 0
@@ -643,6 +659,7 @@ c e.g. ldim=5 irow=4 icol=3  ==> lowtri=11
 c irow must be .ge. icol
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 Cstop2rx 2013.08.09 kino      if(irow .lt. icol)stop 'lowtri: irow < icol'
       if(irow .lt. icol)call rx( 'lowtri: irow < icol')
@@ -660,6 +677,7 @@ c lda,ldb,ldc = leading dimension of a,b and c
 c nrow,ncol   = dimension of row and column of c
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
       dimension a(lda,1),b(ldb,1)
       dimension c(ldc,1)
 
@@ -677,6 +695,7 @@ c---------------------------------------------------------------------
 c find the maximum value of a set of integers
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension num(ldim)
 
       maxim      = num(1)
@@ -701,6 +720,7 @@ c                 .false.  ==> anti-symmetric
 c full = full matrix
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
 
       logical   sym
       dimension tri( (n*(n+1))/2 )
@@ -746,6 +766,7 @@ c                 .false.  ==> anti-symmetric
 c full = full matrix in double precision
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
 
       logical   sym
       real*4    tri( (n*(n+1))/2 )
@@ -1181,6 +1202,7 @@ c----------------------------------------------------------------------
 
 c calculates pi*lorentzian
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       data tolmax/1.d10/
       pilrntz    = delta/(x*x + delta*delta)
 Cstop2rx 2013.08.09 kino      if (dabs(pilrntz) .gt. tolmax) stop 'fn. pilrntz: .gt. tolmax'
@@ -1195,6 +1217,7 @@ c 92.04.19
 c calculates pi*lorentzian n times
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension x(n),piltz(n)
 
       do       i = 1,n
@@ -1206,6 +1229,7 @@ c calculates pi*lorentzian n times
 c---------------------------------------------------------------------
       subroutine pl(x,p,lmax)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension p(lmax+1)
       p(1) = 1.
 Cstop2rx 2013.08.09 kino      if(lmax.le.0) stop 'lmax l.t. 0'
@@ -1238,6 +1262,7 @@ c w   = gaussian weights
 c plg = P(x,l)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension x(ng),w(ng),plg(ng,0:lmx)
 
 c local array
@@ -1259,6 +1284,7 @@ Cstop2rx 2013.08.09 kino      if(lmx .gt. lmax) stop 'plgaus: increase lmax'
 c-------------------------------------------------------------------
       subroutine ppp(nr,a,bpr,p1,p2,p3,result)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c Integrate dr r*r*R1*R2*R3, with nr points including end points,
 c where r = b(exp(x)-1) with x on equal mesh of size a.
@@ -1299,6 +1325,7 @@ c With Simpson's rule, nr need not be odd.
 c-------------------------------------------------------------------
       subroutine rphi4(nr,a,r2,p1,p2,p3,p4,result)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c integrate dr r*r*R1*R2*R3*R4 with r(i) = b*( exp((i-1)*a) - 1 )
 c with Simpson's rule.
@@ -1349,6 +1376,7 @@ c xsd,ysd,zsd, = x,y,z components of special cubic directions
 c xsd^2 + ysd^2 + zsd^2 = 1
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension xsd(nsd),ysd(nsd),zsd(nsd),wsd(nsd)
       dimension w(10),x(10),y(10),z(10),
      .          xst(48),yst(48),zst(48)
@@ -1435,6 +1463,7 @@ c sum the elements of a vector
 c v = vector with dimension n
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
 
       sumv       = 0.d0
@@ -1447,6 +1476,7 @@ c v = vector with dimension n
 c---------------------------------------------------------------------
       subroutine simpson(nr,a,br,f,result)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c integrate dr f(r) with r(i) = b*( exp((i-1)*a) - 1 )
 c br = b + r
@@ -1481,6 +1511,7 @@ c with Simpson's rule.
 c--------------------------------------------------------------------
       subroutine simpson2(nr,a,br,f,g,result)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c integrate dr f(r)*g(r) with r(i) = b*( exp((i-1)*a) - 1 )
 c and br = b+r
@@ -1520,6 +1551,7 @@ c-------------------------------------------------------------------
 c calculates 1/s^(l+1)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension s(ns)
       dimension osl1(ns)
 
@@ -1538,6 +1570,7 @@ c 92.02.07
 c convert a single precision array sv to double dv
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       real*4 sv(n)
       real*8 dv(n)
 
@@ -1589,6 +1622,7 @@ c       = wsd*wr
 c the weight is ordered according to radial-angular
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
       dimension rgaus(nrg),wr(nrg),
      o          xsd(nsd),ysd(nsd),zsd(nsd),wsd(nsd),
@@ -1660,6 +1694,7 @@ c the weight is ordered according to radial-angular
 c it already contains the (b+r) factor
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
       dimension xsd(nsd),ysd(nsd),zsd(nsd),wsd(nsd)
       dimension xgaus(nrg),rgaus(nrg),wr(nrg),
@@ -1731,6 +1766,7 @@ c the weight is ordered according to radial-angular
 c it already contains the (b+r) factor
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
       dimension xsd(nsd),ysd(nsd),zsd(nsd),wsd(nsd),
      i          b(nclass),xmt(nclass)
@@ -1785,6 +1821,7 @@ c the weight is ordered according to radial-angular
 c it already contains the (b+r) factor
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
       dimension b(nclass),xmt(nclass),wsd(nsd)
       dimension xgaus(nrg,nclass),rgaus(nrg,nclass),wr(nrg,nclass),
@@ -1820,6 +1857,7 @@ c this subroutine computes the regular spherical bessel functions j(l,x)
 c for l = 0,..,lmax and returns the answer in a(i), i=1,..,lmax+1
 c
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension a(lmax+1)
       ax = dabs(x)
       lp = lmax + 1
@@ -1897,6 +1935,7 @@ c------------------------------------------------------------------
 c add two vectors vadd = v1 + v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       dimension vadd(n)
 
@@ -1915,6 +1954,7 @@ c 92.02.07
 c add two vectors vadd = v1 + v2, single precision
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       real*4    v1(n),v2(n)
       real*4    vadd(n)
 
@@ -1931,6 +1971,7 @@ c calculates
 c S[i=1,nsp] wsp(i) f(i) g(i)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension f(nsp),g(nsp),wsp(nsp)
 
       vdot3      = 0.d0
@@ -1947,6 +1988,7 @@ ctakao
 c dot product v1.v2
 c n = no. elements
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       vdv_       = 0.d0
       do       i = 1,n
@@ -1959,6 +2001,7 @@ c
 c dot product v1.v2
 c n = no. elements
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       vdv=sum(v1(1:n)*v2(1:n))
       return
@@ -1978,6 +2021,7 @@ c n = size of vectors
 c r,c = real and imaginary part of dot product
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n),cv1(n),rv2(n),cv2(n)
 
       r          = 0.d0
@@ -2003,6 +2047,7 @@ c n = size of vectors
 c r,c = real and imaginary part of dot product
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n),cv1(n),rv2(n),cv2(n)
 
       r          = 0.d0
@@ -2021,6 +2066,7 @@ c 92.04.03
 c equate v to w
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       real*4 v(n),w(n)
 
       do       i = 1,n
@@ -2047,6 +2093,7 @@ c lva   = dimension of resulting vector
 c rva,cva = real and imaginary parts of resulting vector
 
       implicit double precision (a-h,o-z)
+      implicit integer(i-n)
       dimension rv(n),cv(n),ra(lda,lva),ca(lda,lva)
       dimension rva(lva),cva(lva)
 
@@ -2073,6 +2120,7 @@ c---------------------------------------------------------------------
 c substract two vectors vmin = v1 - v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       dimension vmin(n)
 
@@ -2090,6 +2138,7 @@ c---------------------------------------------------------------------
 c single precision subtract a vector from another vmin = v1 - v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       real*4    v1(n),v2(n)
       real*4    vmin(n)
 
@@ -2115,6 +2164,7 @@ c n1,n2   = dimensions of v1 and v2
 c ldim    = leading dimension of m
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n1),cv1(n1),rm(ldim,n2),cm(ldim,n2),rv2(n2),cv2(n2)
 
 Cstop2rx 2013.08.09 kino      if (n1 .gt. ldim) stop 'vmvc: n1 .gt. ldim'
@@ -2147,6 +2197,7 @@ c n1,n2   = dimensions of v1 and v2
 c ldim    = leading dimension of m
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n1),cv1(n1),rm(ldim,n2),cm(ldim,n2),rv2(n2),cv2(n2)
 
 Cstop2rx 2013.08.09 kino      if (n1 .gt. ldim) stop 'vmvc1: n1 .gt. ldim'
@@ -2173,6 +2224,7 @@ c v1,v2 = vectors of size n
 c v     = v1 v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       dimension v(n)
 
@@ -2191,6 +2243,7 @@ c forms v(i) = v(i) + a v1(i) v2(i)
 c v1,v2 = vectors of size n
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       dimension v(n)
 
@@ -2211,6 +2264,7 @@ c v1,v2 = vectors of size n
 c v     = v1 v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n),cv1(n),rv2(n),cv2(n)
       dimension rv(n),cv(n)
 
@@ -2232,6 +2286,7 @@ c v1,v2 = vectors of size n
 c v     = v1 v2
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension rv1(n),cv1(n),rv2(n),cv2(n)
       dimension rv(n),cv(n)
 
@@ -2252,6 +2307,7 @@ c nsd    = number of directions
 c wsd    = weight
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension y1(nsd),y2(nsd),y3(nsd),wsd(nsd)
 
       result     = 0.d0
@@ -2271,6 +2327,7 @@ c ndir   = number of directions
 c wtp    = weight
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension y1(ndir),y2(ndir),y3(ndir),y4(ndir),wtp(ndir)
 
       result     = 0.d0
@@ -2295,6 +2352,7 @@ c lmax   = max. l
 c ylm    = real ylm(direction,l*l + l+1+m)
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension xgaus(nsd),ygaus(nsd),zgaus(nsd),
      w          c((lmax+1)*(lmax+1)),yl((lmax+1)*(lmax+1))
       dimension ylm(nsd,(lmax+1)*(lmax+1))
@@ -2341,6 +2399,7 @@ c nsd      = number of special directions
 c ny3      = no. integrals
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension ylm(nsd,nl*nl),wsd(nsd)
       dimension y3((2*nl-1)**2,nl*nl,nl*nl)
 
@@ -2378,6 +2437,7 @@ c wsd      = weight of special directions, see scudir.f
 c nsd      = number of special directions
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension ylm(nsd,nl*nl),wsd(nsd)
       dimension yy(nyyyy),iyy(nl*nl,nl*nl,nl*nl,nl*nl)
 
@@ -2425,6 +2485,7 @@ c nsd      = number of special directions
 
 c yyyy     = s.o.
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension y1(nsd,nl*nl),y2(nsd,nl*nl),
      i          y3(nsd,nl*nl),y4(nsd,nl*nl),wsd(nsd)
       dimension yyyy(nl*nl,nl*nl,nl*nl,nl*nl)

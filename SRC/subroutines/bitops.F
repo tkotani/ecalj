@@ -91,13 +91,13 @@ Ci   n,i,base
 Co Outputs
 Co   getdig = ith digit from n, base "base"; eg 4=getdig(12345,1,10)
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
       integer n,i,base
       getdig = mod(n/base**i,base)
       end
       double precision function dtrunc(x,n)
 C- Truncates double precision x after n digits
-      integer n,is
+      integer n,is,i
       double precision x,s
 
 #if QUAD

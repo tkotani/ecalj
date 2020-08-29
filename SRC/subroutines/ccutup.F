@@ -1,7 +1,7 @@
       SUBROUTINE CCUTUP(B0,B,IBTR,KCUT)
       IMPLICIT double precision (A-H,O-Z)
-      DIMENSION B(3,3),IBTR(3,3),B0(3,3),KCUT0(3,4,6),KCUT(3,4,6),
-     .SHIFT(3),P(3,4)
+      integer:: ibtr,i,ic,itet,j,lx,ly,lz,iprint,lxx,lyy,KCUT0(3,4,6),KCUT(3,4,6)
+      DIMENSION B(3,3),IBTR(3,3),B0(3,3),SHIFT(3),P(3,4)
       DATA KCUT0/
      .0,0,0, 0,1,0, 1,1,0, 1,1,1,  0,0,0, 1,0,0, 1,1,0, 1,1,1,
      .0,0,0, 1,0,0, 1,0,1, 1,1,1,  0,0,0, 0,1,0, 0,1,1, 1,1,1,

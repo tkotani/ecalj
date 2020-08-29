@@ -1,5 +1,6 @@
 c takao modified this based on delw_2.2.
       subroutine fftz30(n1,n2,n3,k1,k2,k3)
+      integer:: n1,n2,n3,k1,k2,k3
       k1=n1
       k2=n2
       k3=n3

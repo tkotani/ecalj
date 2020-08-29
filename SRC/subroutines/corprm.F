@@ -53,9 +53,9 @@ Cu Updates
 Cu   15 Sep 01 Generates qsc.  Argument list changed.
 Cu   24 Apr 00 Adapted from nfp corpars.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer is
+      integer is,i_copy_size
       real(8):: qcorg , qcorh , qsc , cofg , cofh , ceh , rfoc , z
 cki      type(s_spec)::sspec(*)
       type(s_spec)::sspec(is)

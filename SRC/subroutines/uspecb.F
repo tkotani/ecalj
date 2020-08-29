@@ -73,9 +73,9 @@ Cu   19 Feb 02 mode 0 implemented.  Convention for npqni changed.
 Cu   12 Feb 02 npqn,nkape are returned for range is1..is2
 Cu   25 Aug 01 Extended to return npqn,lh for local orbitals
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nkap0,n0,nkape
+      integer nkap0,n0,nkape,i_copy_size
       parameter (nkap0=3,n0=10)
       integer lpack,mode,is1,is2,lh(nkap0,is1:is2)
       real(8):: rsmh(n0,nkap0,is1:is2) , eh(n0,nkap0,is1:is2)

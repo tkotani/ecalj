@@ -137,11 +137,11 @@ Cu    8 Jun 00 Extended to multiple-kappa case.  New argument list.
 Cu   19 Oct 99 Routine completely rewritten
 Cu    4 May 98 Bug fix.  Now requires priorities to be numbered 1..3
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       type(s_spec)::sspec(*)
 
-      integer nl,nkaph,ib1,ib2,nkap0,n0,n0H,ips(ib2),iprma(ib2)
+      integer nl,nkaph,ib1,ib2,nkap0,n0,n0H,ips(ib2),iprma(ib2),i_copy_size
       parameter (nkap0=3,n0=10,n0H=5)
       integer offh(n0H,nkap0,ib2+1),iprmb(*),ldham(4) !offh(n0H,nkap0,4) bugfix sep2010
       ! offh(n0H,nkap0,5) : bug fix sep2010

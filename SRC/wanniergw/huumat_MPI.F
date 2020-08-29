@@ -1120,7 +1120,7 @@ c-----------------------------------------------------------------------
      o                   bbv,
      o                   ikbidx,
      o                   iko_ixs,iko_fxs,noxs)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-4)
 
@@ -1163,7 +1163,7 @@ c-----------------------------------------------------------------------
      o                   bbv,
      o                   ibidx,ibidxs,ibidx0,
      o                   iko_ixs,iko_fxs,noxs)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-4)
 

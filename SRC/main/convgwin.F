@@ -2,6 +2,7 @@
 C- convert GWIN to GWIN_V2
 Cr takao kotani Apr 2002
 C ----------------------------------------------------------------------
+      implicit integer (i-n)
       character(len=100)::record
 c      integer:: ifile_hanlde
 c      ifigwin  = ifile_handle()

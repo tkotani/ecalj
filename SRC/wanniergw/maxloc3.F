@@ -1,6 +1,6 @@
       subroutine get_nqbze(nqbz,nqbze)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       logical :: lq0p
 
       inquire(file='Q0P',exist=lq0p)
@@ -19,7 +19,7 @@
 c-----------------------------------------------------------------------
       subroutine get_nqbze2(nqbz,nqbze)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       logical :: lq0p
 
       inquire(file='Q0P',exist=lq0p)
@@ -39,7 +39,7 @@ c-----------------------------------------------------------------------
       subroutine get_qbze(qbz,nqbz,
      o                    qbze,nqbze)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       logical :: lq0p
       real(8), allocatable :: wqt(:),q0i(:,:)
       real(8) :: qbz(3,nqbz),qbze(3,nqbze)
@@ -77,7 +77,7 @@ c-----------------------------------------------------------------------
       subroutine get_qbze2(qbz,qbzs,nqbz,
      o                    qbze,nqbze)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       logical :: lq0p
       real(8), allocatable :: wqt(:),q0i(:,:)
       real(8) :: qbz(3,nqbz),qbzs(3,nqbz),qbze(3,nqbze)
@@ -119,7 +119,7 @@ c-----------------------------------------------------------------------
      o                    hrotk)
 
 c see Ref.[2] eq.24
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: umnk(nwf,nwf,nqbz),hrotk(nwf,nwf,nqbz),ctmp
@@ -147,7 +147,7 @@ c-----------------------------------------------------------------------
      o                  hrotr)
 
 c see Ref.[2] eq.25
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: hrotk(nwf,nwf,nqbz),hrotr(nwf,nwf,nrws),
@@ -183,7 +183,7 @@ c-----------------------------------------------------------------------
      o                     hrotkp)
 
 c see Ref.[2] eq.26
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: hrotr(nwf,nwf,nrws),hrotkp(nwf,nwf),
@@ -219,7 +219,7 @@ c-----------------------------------------------------------------------
 c truncate long-range part of hrotr
 c from get_hrotkp_ws
 c see Ref.[2] eq.26
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (delta = 1d-3)
@@ -270,7 +270,7 @@ c-----------------------------------------------------------------------
      i                 iq,q,umnk,cnk,eunk,evecc,eval,
      i                 iko_ix,iko_fx,iko_i,iko_f,
      d                 nwf,nqbz)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: dnk(:,:)
@@ -291,7 +291,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine chk_diag(q,ham,nwf,eval,evec)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf)
       real(8) :: eval(nwf),q(3)
 
@@ -335,7 +335,7 @@ c output
 c-----------------------------------------------------------------------
       subroutine chk_umnk(q,ham,nwf,eval,umn)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8) :: ham(nwf,nwf),evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf),
      &              umn(nwf,nwf)
       real(8) :: eval(nwf),q(3)
@@ -386,7 +386,7 @@ c output
 c-----------------------------------------------------------------------
       subroutine cmp_umn_evec(q,umn,evec,eval,nwf)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8) :: evec(nwf,nwf),zm1(nwf,nwf),zm2(nwf,nwf),
      &              umn(nwf,nwf)
       real(8) :: eval(nwf),q(3)
@@ -419,7 +419,6 @@ c-----------------------------------------------------------------------
       subroutine writeham(ifi,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,
      &              nspin,natom,nwf,nqbz,nrws)
       implicit none
-
       integer(4) :: nspin,nwf,natom,nqbz,nrws,is,irws(nrws)
       double precision :: ef,alat,plat(3,3),pos(3,natom),qbz(3,nqbz),
      &             wbz(nqbz),rws(3,nrws)

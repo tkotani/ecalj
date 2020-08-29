@@ -631,6 +631,7 @@ c-----------------------------
       real(8) function fac2m(i)
 cC A table of (2l-1)!!
 c     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+      integer:: i,l
       logical,save::  init=.true.
       real(8),save:: fac2mm(0:100)
       if(init) then

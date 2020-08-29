@@ -1,7 +1,5 @@
       subroutine rotycs(mode,a,nbas,nsp,lmaxu,sspec,ssite,lldau)
-
       use m_struc_def  !Cgetarg
-
 C- Rotate matrix a from real to spherical harmonics
 C for LDA+U objects densmat and vorb
 C-------------------------------------
@@ -27,9 +25,9 @@ Cu             the code (Hund's rules satisfied as indicated by orb. moment)
 Cu   09 Nov 05 (wrl) Convert dmat to complex form
 Cu   30 Apr 05 Lambrecht first created
 C----------------------------------------------------------------
-C     implicit none
+      implicit none
 C passed variables
-      integer nbas,lldau(nbas),mode,lmaxu,nsp
+      integer nbas,lldau(nbas),mode,lmaxu,nsp,i_copy_size
       double complex a(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)

@@ -263,6 +263,7 @@ C ... Local parameters
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
       integer ::iwdummy
+      integer:: i_copy_size
       call tcn ('pusq1')
       isa=ssite(ia)%spec
       i_copy_size=size(ssite(ia)%pos)

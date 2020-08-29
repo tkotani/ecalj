@@ -143,7 +143,7 @@ C     Local for parallel threads
       real(8),allocatable:: ewgt(:,:)
       complex(8),allocatable:: smrho(:,:,:,:,:), smpot(:,:,:,:)
       logical:: cmdopt
-
+      real(8):: w(1)!dummy
       nproc  = mpipid(0)
       procid = mpipid(1)
 #if MPI

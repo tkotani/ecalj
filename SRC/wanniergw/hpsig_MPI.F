@@ -603,7 +603,7 @@ c-----------------------------------------------------------------------
      o                   bbv,
      o                   ikbidx,
      o                   iko_ixs,iko_fxs,noxs)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-4)
 
@@ -646,7 +646,7 @@ c-----------------------------------------------------------------------
      i             rr,nrofi,rmax,nphi,nc_max,
      d             nwf,nlmto,nrx,nl,nn,nbas,nspin,nphix,
      o             c1,c2)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       real(8) :: phitotr(nrx,0:nl-1,nn,nbas,nspin),r0g(nphix,nwf),
      .           rr(nrx,nbas),rmax(nbas),
@@ -736,7 +736,7 @@ c--------------------------------------------------------------
 c < q+G | g> where q+G denotes IPW, zero within MT sphere
 c g(r) = Ag exp(-(r/r0)**2)
       implicit real*8 (a-h,o-z)
-
+      implicit integer (i-n)
       parameter (nmt = 4)
       parameter (eps = 1d-5)
 
@@ -895,7 +895,7 @@ c--------------------------------------------------------------
 c < phi | g>
 c g = c1*phi + c2*phidot, which is conneted to the gaussian tail
 c     at r=rmt
-
+      implicit integer (i-n)
       implicit real*8 (a-h,o-z)
 
       real(8) :: phig(nlmto,nphix,nwf,nspin),

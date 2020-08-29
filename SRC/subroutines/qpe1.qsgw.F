@@ -34,6 +34,7 @@ c eqp   = E(k,t) in eV
 c wqp   = quasiparticle width
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension elda(ntq,nq),vxc(ntq,nq),sex(ntq,nq),sexcore(ntq,nq),
      i          rsec(3,ntq,nq),csec(3,ntq,nq),
      i          zfac(ntq,nq),itq(ntq),q(3,ntq,nq)

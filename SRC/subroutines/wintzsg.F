@@ -380,6 +380,7 @@ c we      = w - e
 c nx      = no. x points
 
       implicit real*8 (a-h,o-z)
+      integer:: nx,i,npm
       real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum,img=(0d0,1d0),wintz
       real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
@@ -470,6 +471,7 @@ c we      = w - e
 c nx      = no. x points
 
       implicit real*8 (a-h,o-z)
+      integer:: nx,i
       real(8):: x(nx),wt(nx),expa(nx)
       complex(8) ::v(nx),v0,sum
       real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
@@ -522,7 +524,8 @@ c--------------------------------------------------------------------
 c evne function version of alagr3z
 c return the interpolated value on x for fi(xi).
 c We assume even function.
-c Imag part is corrected to be >0
+c     Imag part is corrected to be >0
+      integer:: i
       real(8)::  xi(3)
       complex(8) :: fi(3) ,alagr3z
       real(8) :: amatinv(3,3),amat(3,3),ratio

@@ -72,7 +72,8 @@ C we are looking for shortest vectors
 !!== Set translation vactors rlat(:,i),i=1,3 ==
 !!i rlat
 !!o rlatp,xmx2: these are passed to shortn3
-!!=============================================
+!     !=============================================
+      integer:: i,j
       real(8):: rlatp(3,3),xmx2(3),rlat(3,3)
       do i=1,3
         do j=1,3

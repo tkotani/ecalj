@@ -43,6 +43,7 @@ Cm  No large internal storage; heap not accessed.
 C ----------------------------------------------------------------------
 
       IMPLICIT double precision (A-H,O-Z)
+      implicit integer(i-n)
       DIMENSION QB(3,3),IPQ(N1,N2,N3),QB1(3,3),
      .          IBTR(3,3),KCUT(3,4,6),IMC(0:1,0:1,0:1),
      .          idtet(0:4,*),iq(4)
@@ -119,7 +120,7 @@ Co   dosef:  density of states at fermi level
 Cr Remarks
 Cr   emin and e1 (and emax and e2) may point to the same address.
 C ----------------------------------------------------------------------
-
+      implicit none
 C Passed parameters
       integer:: ndos
       real(8):: qval,dos,emin,emax,eferm,e1,e2,dosef
@@ -183,10 +184,10 @@ Co   dosef_kbt:  density of states at fermi level
 Cr Remarks
 Cr   emin and e1 (and emax and e2) may point to the same address.
 C ----------------------------------------------------------------------
-
+      implicit none
 C Passed parameters
       integer ndos
-      real(8):: qval,dos,emin,emax
+      real(8):: qval,dos,emin,emax,ddos,eferm_old,efermi_init
       real(8):: eferm_init,eferm_kbt,e0,e1,e2,dosef_kbt
       real(8):: kbt, ec
 C Local parameters
@@ -370,6 +371,7 @@ c output:
 c q  = is now inside the 1st BZ
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension gu(3,3),g(3,3),q(3)
 
  1111 g1         = q(1)*gu(1,1)+q(2)*gu(2,1)+q(3)*gu(3,1)
@@ -423,9 +425,11 @@ c                i.e. of the same length, no necessarily
 c                related by symmetry operations
 
       implicit real*8(a-h,o-z)
+      integer::nshell,nt,i,ishell,its,j,k,it
 
       dimension plat(3,3),xt(*)
-      dimension t(3,1),ntsh(*)
+      dimension t(3,1)
+      integer:: ntsh(*)
 
 c generate neighbouring clusters
       tmax2      = tmax*tmax
@@ -499,6 +503,7 @@ c invg = given ig, invg gives the index corresponding to
 c        the inverse of g
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension g(3*3,ng)
       dimension invg(ng)
       dimension ginv(3*3),w1(9)
@@ -526,12 +531,9 @@ c the inverse of the rotation
 c irot = label for R
 c invg(R) = R^(-1)
 c ngrp = no. rotation matrices
-
       implicit real*8 (a-h,o-z)
-      dimension invg(ngrp)
-
+      integer:: irot,ngrp, invg(ngrp)
       invrot     = invg(irot)
-
       return
       end
 c------------------------------------------------------------------

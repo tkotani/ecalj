@@ -42,7 +42,7 @@ Cu   21 Apr 09 Calls evxcp for lxcf=3,4
 Cu    8 Feb 02 vx and vc (T. Miyake)
 Cu   14 Jan 02 ex and ec (T. Miyake)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer n,nsp,lxcf
       double precision rho(n),rhosp(n),exc(n),ex(n),ec(n),
@@ -300,7 +300,7 @@ Cu   25 Jul 08 Fixed bug in CA functional when rho>0 and rhosp=0
 Cu    8 Feb 02 vxcx and vxcc (T. Miyake)
 Cu   14 Jan 02 excx and excc (T. Miyake)
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer n,nsp,lxcf
       double precision rho(n),rhosp(n),exc(n),excx(n),excc(n),
@@ -535,7 +535,7 @@ Cr         longer than six characters.
 Cu Updates
 Cu   21 Apr 09 Returns exchange and correlation parts separately
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed Parameters
       integer nsp,n,lxcf
       double precision r1(n),r2(n),ex(n),ec(n),exc(n)
@@ -608,7 +608,7 @@ Cb Bugs
 Cr Remarks
 Cu Updates
 C-----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       integer nsp,n,lxcg
       double precision rhop(1),rhom(1),grhop(1),grhom(1),grho(1),
@@ -617,7 +617,7 @@ C Passed parameters
 C Local Variables
       integer i,isw
       double precision up,dn,agrup,delgrup,uplap,agrdn,delgrdn,dnlap,
-     .agr,delgr
+     .agr,delgr,aaa,bbb
       double precision exlsd,vxuplsd,vxdnlsd,eclsd,
      .vcuplsd,vcdnlsd,expw91,vxuppw91,vxdnpw91,
      .ecpw91,vcuppw91,vcdnpw91,expbe,vxuppbe,
@@ -732,7 +732,7 @@ Cr   for numerical convenience.  Should be no significant change if 0.
 Cr   Langreth-Mehl form does not use grggrp,grggrm
 Cr   Should be used together with Barth-Hedin functional.
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       integer nsp,n,i
       double precision rhop(1),rhom(1),grhop(1),grhom(1),grho(1),
@@ -855,7 +855,7 @@ Cr   agrh -
 Cr   grgagrh -
 Cr   References:
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
 
 c - Input variables
       integer nr,nsp,nrx,mode,isp
@@ -1007,7 +1007,7 @@ c- PBE correction
       subroutine vxnlcc(n,nsp,rhop,rhom,grhop,grhom,ggrhop,ggrhom,
      .grho,grpgrm,grggr,grggrp,grggrm,vxc1,vxc2,exc)
 C- Same as vxnloc but exc also cut off to avoid blowup in exc
-C     implicit none
+      implicit none
 C Passed parameters
       integer nsp,n,i
       double precision rhop(1),rhom(1),grhop(1),grhom(1),grho(1),
@@ -1137,6 +1137,7 @@ c needed constants:
 c pi32=3 pi**2
 c alpha=(9pi/4)**thrd
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       parameter(thrd=1.d0/3.d0,thrd2=2.d0*thrd)
       parameter(pi32=29.608813203268075856503472999628d0)
       parameter(pi=3.1415926535897932384626433832795d0)
@@ -1294,6 +1295,7 @@ c uk, ul defined after [a](13)
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
+      implicit integer(i-n)
       parameter(thrd=1.d0/3.d0,thrd4=4.d0/3.d0)
       parameter(pi=3.14159265358979323846264338327950d0)
       parameter(ax=-0.738558766382022405884230032680836d0)
@@ -1379,6 +1381,7 @@ c [c] J. P. Perdew and Y. Wang, Phys. Rev. B {\bf 45}, 13244 (1992).
 c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
+      implicit integer(i-n)
 c thrd*=various multiples of 1/3
 c numbers for use in LSD energy spin-interpolation formula, [c](9).
 c      GAM= 2^(4/3)-2
@@ -1513,6 +1516,7 @@ C  INPUT U:  (GRAD D)*GRAD(ABS(GRAD D))/(D**2 * (2*KF)**3)
 C  INPUT V: (LAPLACIAN D)/(D*(2*KF)**2)
 C  OUTPUT:  EXCHANGE ENERGY PER ELECTRON (EX) AND POTENTIAL (VX)
       IMPLICIT REAL*8 (A-H,O-Z)
+      implicit integer(i-n)
 C Burke had
 C      parameter(a1=0.19645D0,a2=0.27430D0,a3=0.15084D0,a4=100.d0)
 C      parameter(a=7.7956D0,b1=0.004d0)
@@ -1713,7 +1717,7 @@ C     DVCDN = 0.0D0
       END
 
       subroutine setuk(uk)
-C     implicit none
+      implicit none
       double precision uk,uk_value
       common/ukstor/uk_value
       uk_value=uk
@@ -1753,7 +1757,7 @@ Cr
 Cu Updates
 Cu   18 Jun 04 Bug fix
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nsp,nrx
       double precision rp(nrx,nsp),grh(nrx,2),ggrh(nrx,2),
@@ -1826,7 +1830,7 @@ Changenglob        lxcf = mod(nglob('lxcf'),100)
 
       end
       subroutine radgrx(nr,nrx,nsp,ri,f,gf)
-C     implicit none
+      implicit none
       integer nr,nrx,nsp,nn,i,iprint,jx
       double precision ri(nr),f(nrx,nsp),gf(nrx,nsp),tol,egf0
       logical lerr

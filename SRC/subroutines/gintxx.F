@@ -2,9 +2,10 @@
 C- Integrate product of two wave functions, Simpson rule
 C ----------------------------------------------------------------
 c takao \sum_i g(i)*g(i) drdi
-C      implicit none
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      double precision G1(NR),G2(NR),a,b
+      implicit none
+c      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer:: ir,nr
+      real(8):: G1(NR),G2(NR),a,b,sum,dedi,ea2,ea4,rmpb,drdi
       EA2 = DEXP(A + A)
       EA4 = EA2*EA2
       SUM = 0D0

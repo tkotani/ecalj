@@ -36,9 +36,9 @@ Cu   19 Jun 00 spin polarized
 Cu   26 May 00 adapted from nfp getcor.f
 C ----------------------------------------------------------------------
       use m_rhocor
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nr,nrmx,n0,kcor,lcor,lmax,ncore
+      integer mode,nr,nrmx,n0,kcor,lcor,lmax,ncore,nmcore
       parameter (nrmx=1501,n0=10)
       double precision a,qcor(2),sumec,sumtc,z,ecore(*),gcore(nr,2,*)
       double precision v0(nr),rhoc(nr),rofi(nr),pnu(n0,2),pnz(n0,2)

@@ -1,4 +1,5 @@
       subroutine checkeq(i,j)
+      integer::i,j
       if(i/=j) call rx( " checkeq in hsfp0: dim of WVR and WVI not compatible")
       end
 
@@ -16,6 +17,7 @@ c sexq  = SEx(q,t)
 c ntq   = no. states t
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension q(3),itq(ntq),eq(ntq),sexq(ntq)
       data itwo/2/
 
@@ -107,6 +109,7 @@ c--------------------------------------------------------------------
       subroutine rsexx2 (nspin, itq, q, ntq,nq,ginv, symgg,ng, !crystal symmetry operation. july2012takao
      o                 vxco)
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
       real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
       logical ::nocore,lfind
@@ -180,6 +183,7 @@ c------------------------------------------------------------------------
       subroutine rsexx (nspin, itq, q, ntq,nq,ginv, 
      o                 vxco)
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       dimension vxco(ntq,nq,nspin),q(3,nq),itq(ntq) !itq is not dependent on q, right?
       real(8),allocatable :: qqq(:,:),vxcfpx(:,:,:)
       logical ::nocore,lfind
@@ -256,6 +260,7 @@ c ef     = fermi energy in Rydberg
 c egex   = exchange energy in Hartree
 
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
 
       pi         = 4.d0*datan(1.d0)
       qf         = dsqrt(ef)
@@ -308,6 +313,7 @@ c------------------------------------------------------------------
       real(8) function lowesteb(ifev,ispin, nband,nqbz)
 c lowest eband -----------------------------------------
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       integer(4)::   ifev(2)
       real(8):: ekt(nband,nqbz,ispin)
       do is = 1,ispin
@@ -381,7 +387,7 @@ c This is taken from Ferdi's rw.f
 c-----------------------------------------------------------------
       subroutine readxx(ifil)
       character*72 rchar
-      integer(4):: n=1000
+      integer(4):: n=1000,ifil,i
       do 10 i = 1,n
         read(ifil,'(a72)')rchar
 c      write(6,*) rchar
@@ -464,7 +470,7 @@ c      if (abs(sum(wqt)-1d0) .gt. 1d-8)  stop 'q0iwgt3: wrong wqt'
 
 
       integer*4 function ivsumxxx(ia,n)
-      integer(4) ::ia(n)
+      integer(4) ::ia(n),n,i
       ivsumxxx=0
       do i=1,n
         if(ia(i)/=0) ivsumxxx=ivsumxxx+1

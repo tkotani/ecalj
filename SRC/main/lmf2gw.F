@@ -79,6 +79,7 @@ c
       integer,allocatable:: nindx(:),lindx(:),ibasindx(:)
       integer:: ificg
       integer:: procid,nrank,ifigwb_,ifigwx1_,ifigwx2_
+      integer:: iq,iqq,iqqx,nbandmx,nqirr
       character*256:: extn,aaa
       character*256,allocatable:: extp(:)
       integer,parameter :: nsize= 1 000 000
@@ -99,7 +100,7 @@ c      integer fext
 c      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
       logical mlog
-      integer  id,nsizex
+      integer  id,nsizex,iqqxx
 c      integer  nsize, id
 
 !! =================================================================
@@ -1440,7 +1441,7 @@ cr     n l ibas for each line --- Repeat this line for the number of ldim2.
 cr                            --- nphimx=maximum value of n.
 cr
 c----------------------------------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer :: ifi, !File handle. Write for ifi<0. Read for ifi>0.
      &nsp,      ! =1 or 2, corresponding to para or ferro.
      &nbas,     ! Number of atom in the primitive cell

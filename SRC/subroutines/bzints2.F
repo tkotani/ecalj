@@ -24,6 +24,7 @@ c      implicit none
 C Passed parameters
 C Local parameters
       IMPLICIT double precision (A-H,O-Z)
+      implicit integer (i-n)
       integer fopn
       DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq),
      .   idtet(0:4,*)
@@ -158,6 +159,7 @@ C      implicit none
 C Passed parameters
 C Local parameters
       IMPLICIT double precision (A-H,O-Z)
+      implicit integer (i-n)
       DIMENSION EC(4),DOSI(NR)
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -1,7 +1,5 @@
       subroutine ftlxp(nbas,ssite,sspec,alat,ng,gv,cv,k0,nlm0,fkl)
-
       use m_struc_def  !Cgetarg
-
 C- Pkl expansion around all sites of a function given as Fourier series.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -27,7 +25,8 @@ Cu Updates
 Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   31 May 00 Adapted from nfp ftlxp.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
+      integer:: i_copy_size
 C ... Passed parameters
       integer k0,nbas,ng,nlm0
       real(8):: gv(ng,3) , alat

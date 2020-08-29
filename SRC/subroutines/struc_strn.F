@@ -2,8 +2,9 @@
 C- Pack words=packingw into sstrn. Use upacks to take out the words below.
 Ci snamein: sname defined in sstrn_sname.
 Ci sstrn: long string. sstrings.
-Ci packingw
+Ci packingw]
       use m_sstrnsname
+      implicit none
       character*(*):: snamein,sstrn,packingw
       integer:: i,lll
       if(initialized==0) then
@@ -32,7 +33,8 @@ Ci snamein
 Co init_
 Co iend_
       use m_sstrnsname
-      integer::init_,iend_
+      implicit none
+      integer::init_,iend_,i
       character*(*):: snamein
       if(initialized==0) then
         call initialize()

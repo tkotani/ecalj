@@ -292,9 +292,9 @@ C ... Local parameters
       integer ips(nbas),ib,is,igetss,ig,lmxax,ll,nlmto,iga,ifindiv2
       double precision alat,plat(3,3),qlat(3,3),vol,pi,pi4,tpiba,xx,
      .tripl,dgetss,bas(3,nbas),rmax(nbas),qpg(3),qpg2,denom,gam,srvol
-      integer n0,nkap0
+      integer n0,nkap0,i_spackv
       parameter (n0=10, nkap0=3)
-      integer lh(nkap0),nkapi
+      integer lh(nkap0),nkapi,i_copy_size
       integer norb,io,l,ik,offh,ilm,ltab(n0*nkap0),ktab(n0*nkap0),
      .offl(n0*nkap0),blks(n0*nkap0),ntab(n0*nkap0)
 

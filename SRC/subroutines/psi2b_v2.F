@@ -35,6 +35,8 @@ c ntp        = maximum number of unoccupied states
 c
 c zpsi2b     =  the matrix elements
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
+      integer::nt0,ntp0,natom,nlmto,nclass,nlnmc,mdim,nctot
       complex(8):: cphik(nlmto,noccxv),cphikq(nlmto,ntp0)
      &            ,zpsi2b(nbloch,nt,ntp),phase
       dimension 
@@ -187,6 +189,7 @@ c
 c zpsi2b     =  the matrix elements
 c
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       complex(8):: cphikq(nlmto,ntp0),zpsi2b(nbloch,nt,ntp),phase
       dimension
 c                rbkq(nlmto,ntp0),cbkq(nlmto,ntp0),

@@ -8,6 +8,7 @@ c 92.04.18
 c compare two vectors v1,v2
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v1(n),v2(n)
       character*72 comment
 
@@ -30,6 +31,7 @@ c 92.03.24
 c initialise a vector v of dimension n with a constant c
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
 
       do       i = 1,n
@@ -60,6 +62,7 @@ c for small z i.e. large (2n+1)/z, use the small z expansion of j(n,z)
 c DO NOT USE THIS ROUTINE
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension fs(0:lmax),fc(0:lmax)
       data tol /1.d-75/
 
@@ -110,6 +113,7 @@ c fs,fc = expansion coefficents
 c NOTE: the coefficients are set to zero if xk*r < tol
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       parameter (lmaxim=100)
       dimension r(n)
       dimension fs(n,0:lmax),fc(n,0:lmax)
@@ -155,6 +159,7 @@ c n    = no. r-points
 c bes(r,l) = spherical bessel functions
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       parameter (lmaxim=100)
       dimension r(n)
       dimension bes(n,0:lmax)
@@ -181,6 +186,7 @@ c 92.04.18
 c compare two integer vectors iv1,iv2
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension iv1(n),iv2(n)
       character*72 comment
 
@@ -202,6 +208,7 @@ c--------------------------------------------------------------------
 c 93.04.12 transpose a matrix at(i,j) = a(j,i)
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension a(ldim1,ldim2),
      o          at(ldim2,ldim1)
 
@@ -233,6 +240,7 @@ c nsum  = s. above
 c rmv,cmv = Re and Im mv
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       character*1 code
       dimension rm(ldm,nsum),cm(ldm,nsum),
      i          rv(nsum),cv(nsum),
@@ -267,6 +275,7 @@ c rmv,cmv = Re and Im mv
 c--------------------------------------------------------------------
       double precision function simpsx (f,a,nr)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
 
 c integrate dr f(r) with equal mesh a, nr points including end points,
 c with Simpson's rule.
@@ -315,6 +324,7 @@ c br = b + r
 c with Simpson's rule.
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension f(nr),br(nr)
       data third/0.3333333333333333d0/
 
@@ -350,6 +360,7 @@ c and br = b+r
 c with Simpson's rule.
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension f(nr),g(nr),br(nr)
       data third/0.3333333333333333d0/
 
@@ -383,6 +394,7 @@ c---------------------------------------------------------------------
 c calculates vdot4 = S[i=1,n] f1(i)*f2(i)*f3(i)*f4(i)
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension f1(n),f2(n),f3(n),f4(n)
 
       vdot4      = 0.d0
@@ -399,6 +411,7 @@ c 92.05.18
 c finds the maximum element in a vector v
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension v(n)
 
       vmax       = v(1)
@@ -415,6 +428,7 @@ c 93.05.19 lorentzian = (1/pi) delta/[ w^2 + delta^2 ]
 c normalized to one
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       data pi /3.1415926535897932/
       xlorenz    = delta/(pi*(w*w+delta*delta))
       return

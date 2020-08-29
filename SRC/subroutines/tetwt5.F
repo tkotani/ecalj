@@ -1355,6 +1355,7 @@ c-------------------------------------
 
 c---
       subroutine addsciss(delta, ef, nnn, eig)
+      integer::nnn,i
       real(8):: eig(nnn),ef,delta
       write(6,*)' asssciss delta=', delta
       do i=1,nnn
@@ -1439,8 +1440,9 @@ c-check write
       end
 
       subroutine midk(kk,ee,xx,i,j,   kout,xout)
-C- Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
-      real(8) ::  kk(3,1:4),xx(1:4),ee(1:4), kout(3),xout
+C     - Calculate x and k(3) at the Fermi energy on the like k(i)---k(j).
+      integer:: i,j
+      real(8) :: ratio, kk(3,1:4),xx(1:4),ee(1:4), kout(3),xout
       ratio     = ee(i)/(ee(i)-ee(j))
       xout      = xx(i)     + ratio * (xx(j)-xx(i))
       kout(1:3) = kk(1:3,i) + ratio * (kk(1:3,j)-kk(1:3,i))

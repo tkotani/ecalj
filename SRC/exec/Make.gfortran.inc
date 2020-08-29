@@ -10,7 +10,7 @@ LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
 module = -J$(moddir) -I$(moddir)
 
 ##############################
-FFLAGS_COMMON= -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS_COMMON= -fimplicit-none -ffixed-line-length-132 $(CPP_SW) $(module)
 FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)

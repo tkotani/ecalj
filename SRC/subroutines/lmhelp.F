@@ -160,7 +160,9 @@ c$$$      end subroutine sttmpd
 
       subroutine findctrlstart(nfilin)
 ! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
-! this is useful if you like to use script, GWinput, ctrl in a file.
+!     this is useful if you like to use script, GWinput, ctrl in a file.
+      implicit none
+      integer:: nfilin
       character(len=9):: strn, ccc
       do
         read(nfilin,"(a)",err=1010,end=1010) strn

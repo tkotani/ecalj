@@ -7,6 +7,7 @@ C have so far only been included for machines this program has been
 C tested on.
 C 
       INTEGER FUNCTION I1MACH(I)
+      integer:: i,i1macs
 C
 C  I/O UNIT NUMBERS.
 C

@@ -10,6 +10,7 @@ Cr    matrix with rather small size regardint the first index.
 Cr    coded by H.Akai., Feb. 4, 1992, Osaka
 C----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+      integer:: i,j,n,k,l,mx,m
       complex*16 a(mx,n,n),b(mx,n,n)
       do 40 k=1,m
         do 10 i=1,n-1

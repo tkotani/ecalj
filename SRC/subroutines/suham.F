@@ -905,6 +905,7 @@ Co dlmm(2*nl-1,2*nl-1,0:nl-1,ng,2); D^l_{m,m'}. Indexes are for Real harmonics.
 Cr   dlmmc is used as work area about 200kbyte used for  s,p,d,f -> nl=4
 c-----------------------------------------------------------------
       implicit double precision (a-h,o-z)
+      integer:: is,i,ig,ikap,j,l,m,m1,m2,m3,md,mx,ix
       integer ng,nl
       double precision SYMOPS(9,ng),
      .am(3,3) ,fac1,fac2
@@ -1097,7 +1098,7 @@ cccccccccccccccccccccc
 
 c--------------------------------------------
       double precision function igann(i)
-
+      integer:: i,ix
       igann  = 1d0
       do ix =1,i
         igann=igann*dble(ix)

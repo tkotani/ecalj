@@ -63,6 +63,7 @@ c$$$      end
 c-----------------------------------------------------------------------
       subroutine getrt(qbz,qbas,plat,n1,n2,n3,nqbz,
      o                 rt,rt8,qbz0)
+      implicit integer (i-n)
 
       implicit real*8(a-h,o-z)
 
@@ -177,6 +178,7 @@ c calc qbz0
       end
 c-----------------------------------------------------------------------
       subroutine q2q0(q,plat,q0)
+      implicit integer (i-n)
 
       implicit real*8(a-h,o-z)
       parameter (eps=1d-4)
@@ -201,7 +203,7 @@ c finite difference method for k-space grids
 c
 c Ref. 
 c Appendix B, Marzari and Vanderbilt, PRB56, 12847 (1997) 
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-4)
       real(8),allocatable :: glat(:,:)
@@ -545,7 +547,7 @@ c check if S[i] wbb(i)*bb(j,i)*bb(k,i) = delta(j,k)
 c-----------------------------------------------------------------------
       subroutine  getglat(n1,n2,n3,nshell,ng,qlat,
      o                    glat)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       real (8) :: qlat(3,3),glat(3,ng)
 
@@ -567,7 +569,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine  sortvec(ndat,vec)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       real (8) :: vec(3,ndat),vtmp(3,ndat),dist(ndat)
       integer (4) :: idat(ndat)
@@ -604,7 +606,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine  sortvec2(ndat,vec,dist,idat)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       real (8) :: vec(3,ndat),vtmp(3,ndat),dist(ndat)
       integer (4) :: idat(ndat)
@@ -643,7 +645,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine  get3vec(nv,vec,vv)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps1 = 0.001d0, eps2 = 0.25d0, eps3 = 0.7d0)
       real(8) :: vec(3,nv),vv(3,3),vtmp(3),vtmp2(3)
@@ -701,7 +703,7 @@ c-----------------------------------------------------------------------
      i                    ikbidx,ku,kbu,
      i                    iko_ixs,iko_fxs,noxs,
      d                    nspin,nqbz,nbb)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-4)
       integer (4) :: iopen,
@@ -741,7 +743,7 @@ c-----------------------------------------------------------------------
        subroutine kbbindx(qbz,ginv,bb,
      d                    nqbz,nbb,
      o                    ikbidx,ku,kbu)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       real(8) :: qbz(3,nqbz),ginv(3,3),bb(3,nbb),
@@ -774,7 +776,7 @@ c-----------------------------------------------------------------------
      o                   leout,lein)
 
       use m_readeigen,only:readeval
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       real (8),allocatable :: eqt(:)
@@ -910,7 +912,7 @@ c-----------------------------------------------------------------------
      o                  iti,itf)
 c iflg = 1: for outer energy window 
 c iflg = 2: for inner energy window
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       real (8) :: eqt(nband),eev(nband)
@@ -961,7 +963,7 @@ c
       end
 c-----------------------------------------------------------------------
       subroutine chk_ewindow(ifbb,ispin,nspin,nqbz,nbb,iko_ix,iko_fx)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       logical :: lbb,luu
@@ -1023,7 +1025,7 @@ c-----------------------------------------------------------------------
       subroutine readuu(is,iti,itf,ikbidx,
      d                  nqbz,nbb,
      o                  uum)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       integer(4) :: ikbidx(nbb,nqbz)
       complex(8) :: uum(iti:itf,iti:itf,nbb,nqbz)
@@ -1089,7 +1091,7 @@ c     &         ((uum(j1,j2,ibb,iqbz),j1=iti,itf),j2=iti,itf)
 c-----------------------------------------------------------------------
       subroutine chkuu(is,iti,itf,ikbidx,uum,
      d                 nqbz,nbb)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-6)
       integer(4) :: ikbidx(nbb,nqbz)
@@ -1132,7 +1134,7 @@ c-----------------------------------------------------------------------
       subroutine readuu0(is,iti,itf,
      d                   nqbz,
      o                   uum0)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       complex(8) :: uum0(iti:itf,iti:itf,1,nqbz)
 
@@ -1173,7 +1175,7 @@ c-----------------------------------------------------------------------
       subroutine readpsig(is,iti,itf,
      d                    nqbz,nwf,
      o                    psig)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       complex(8) :: psig(iti:itf,nwf,nqbz)
       complex(8),allocatable:: psigread(:,:,:)
@@ -1209,7 +1211,7 @@ ccccccccccccccc
 c-----------------------------------------------------------------------
       subroutine wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4):: n1,n2,n3,nrws
       real(8):: alat,plat(3,3)
       integer(4) :: irws(n1*n2*n3*8)
@@ -1271,7 +1273,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine super_cell(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4):: n1,n2,n3,nrws
       real(8):: alat,plat(3,3)
       integer(4) :: irws(n1*n2*n3)

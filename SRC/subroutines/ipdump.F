@@ -1,6 +1,6 @@
       subroutine ipdump(array,length,ifile)
 C- Binary I/O of an integer array
-      integer array(length)
+      integer length,array(length),ifile
       if (ifile .gt. 0) read(ifile) array
       if (ifile .lt. 0) write(-ifile) array
       end

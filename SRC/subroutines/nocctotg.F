@@ -46,7 +46,7 @@ c nband   = no. states
 c nqbz    = no. k-points
       implicit real*8 (a-h,o-z)
       real(8):: wbz(nqbz)
-      integer(4)::   ifev(2)
+      integer(4)::   ifev(2),ispin,is,k,nqbz,nband,it
       real(8):: ekt(nband,nqbz)
       nocctotg  = 0d0
       wgt      = 0d0
@@ -85,7 +85,7 @@ c nband   = no. states
 c nqbz    = no. k-points
       implicit real*8 (a-h,o-z)
       real(8):: wbz(nqbz)
-      integer(4)::   ifev(2)
+      integer(4)::   ifev(2),ispin,nqbz,nband,is,it,k
       real(8):: ekt(nband,nqbz)
       nocctotf  = 0d0
       wgt      = 0d0
@@ -118,7 +118,7 @@ c inverse of
       subroutine invkibzx(irk,nqibz,ngrp,nqbz,
      o  ibzx)
 c find k in IBZ for given k in FBZ.
-      integer(4) :: irk(nqibz,ngrp),ibzx(nqbz)
+      integer(4) :: irk(nqibz,ngrp),ibzx(nqbz),nqbz,ngrp,iqx,iqi,ig,nqibz
       do iqx  = 1,nqbz
         do iqi= 1,nqibz
           do ig = 1,ngrp

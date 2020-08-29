@@ -7,7 +7,7 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
-      use m_lmfinit,only:lat_nabc,lat_plat,lat_qlat,lat_vol
+      use m_lmfinit,only:lat_nabc,lat_plat,lat_qlat,lat_vol,lat_alat
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -167,9 +167,10 @@ C 5. change locpot so that rvvxcv etc is make only if appropriate
 C    1000s job bit set.
 C 6. Make <vxc_nn> and compare to integrals made here.
 C    If problems, Maybe even look at sm part only, or local part only.
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,job,lfrce,lcplxp,k1,k2,k3,n0,nppn,nab,i1,i2,i3
+      integer:: i_copy_size
+      integer nbas,job,lfrce,lcplxp,k1,k2,k3,n0,nppn,nab,i1,i2,i3,ispec
       integer nlibu,lmaxu,lldau(nbas)
       parameter (n0=10,nppn=12,nab=9)
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
@@ -243,10 +244,9 @@ C      job = job + 30000
 
 !! new density mode
       if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
-        ifi=ifile_handle()
         plat =lat_plat
         alat =lat_alat
-        open(ifi,file='smrho.xsf')
+        open(newunit=ifi,file='smrho.xsf')
         do isp = 1, nsp
           write(ifi,'("CRYSTAL")')
           write(ifi,'("PRIMVEC")')
@@ -268,7 +268,7 @@ C      job = job + 30000
           write(ifi,'("END_DATAGRID_3D_isp_",i1)') isp
           write(ifi,'("END_BLOCK_DATAGRID_3D")')
         enddo
-        call fclose(ifi)
+        close(ifi)
       else
         secondcall=.true.
       endif

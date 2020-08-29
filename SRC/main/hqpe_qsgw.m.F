@@ -12,7 +12,7 @@ c SEx and xcLDA are in file SEX
 c SEc is in file SEC
       use m_keyvalue,only:getkeyvalue
       implicit real*8 (a-h,o-z)
-
+      implicit integer(i-n)
 c local data
       logical laf
       dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2)
@@ -581,7 +581,7 @@ Cstop2rx 2013.08.09 kino      stop ' OK! hqpe '
 
       subroutine readxxx(ifil)
       character*72 rchar
-      integer(4):: n=1000
+      integer(4):: n=1000,ifil,i
       do 10 i = 1,n
         read(ifil,'(a72)')rchar
         rchar=trim(adjustl(rchar))

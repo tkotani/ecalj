@@ -53,7 +53,7 @@ Cu   24 Oct 02 Patch for weird cases when idos doesn't encompass
 Cu             zval, where emin, emax found by efrang.
 Cu   22 Sep 01 Returns dosef now.  Altered argument list.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       logical metal,tetra
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
@@ -78,9 +78,7 @@ C Local variables
       real(8) ,allocatable :: tlst_rv(:)
 
       parameter (nulli=-99999)
-C Dynamic memory
-c      integer w(1)
-c      common /w/ w
+      integer w(1)
 
 C --- Locate band limits: lfill => insulator ---
       procid = mpipid(1)

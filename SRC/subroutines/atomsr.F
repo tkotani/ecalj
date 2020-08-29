@@ -61,7 +61,7 @@ C ... Passed parameters
 #endif
 C ... Local parameters
       character*1 pqn(9),ang(6)
-      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit,iprint
+      integer icore,isp,konf,l,ll,nodes,nre,stdo,lgunit,iprint,ir
       double precision deg,dlml,e1,e2,ecor0,ecore,qcore,rhorim,rmax,
      .rorim,slo,sumx,tcore,val,vrho,kappa2
 C ... Heap
@@ -1002,11 +1002,11 @@ Cr   same integrated charge).  Then
 Cr     rho= q_0 phi*phi + 2 q_1 phi*phidot +
 Cr          q_2 (phidot*phidot + phi*phidotdot)
 C  ---------------------------------------------------
-C     implicit none
       use m_rhocor,only:rhocor
+      implicit none
 C Passed parameters
       logical lgdd,lfrz
-      integer nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr
+      integer nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr,iz
       double precision z,a,b,tol,sumev(nsp),sumec(nsp),sumtc(nsp),ec(*),
      .ev(*),qcor(2),v(nr,nsp),rofi(nr),rho(nr,nlr,nsp),rhoc(nr,nsp),
      .qnu(3,nl,nsp),pnu(nl,nsp)

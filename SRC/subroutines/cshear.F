@@ -12,6 +12,7 @@ C      implicit none
 C Passed parameters
 C Local parameters
       IMPLICIT double precision (A-H,O-Z)
+      integer:: ibtr,i,j
       DIMENSION B(3,3),IBTR(3,3),B0(3,3)
 c     logical print
       DO  8  I = 1, 3

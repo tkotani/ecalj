@@ -38,8 +38,10 @@ c        call zaxpy(n,zz(i)*cc(iy,i),aa(1,i),1,zout(1,iy),1)
 
 
       subroutine matmsparse(a,b,c,n,isparse,etol)
-! not test yet.
-      integer::  n,nmax,i1x,i2x,iele,i
+!     not test yet.
+      implicit none
+      integer::  n,nmax,i1x,i2x,iele,i,isparse
+      real(8):: etol
       complex(8) :: a(n,n),b(n,n), c(n,n)
       complex(8),allocatable:: zz(:)
       integer,allocatable:: i1(:),i2(:)

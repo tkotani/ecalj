@@ -191,6 +191,7 @@ c         endif
 !-------------------------------------------------------------------------
       subroutine diag_hm(zmat,ndim,eval,evecc)
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       complex(8),allocatable :: zmat2(:,:),ovlpc(:,:)
       complex(8):: zmat(ndim,ndim),evecc(ndim,ndim)
       real(8):: eval(ndim),wk(ndim,11)

@@ -38,7 +38,8 @@ Cr Remarks
 Cu Updates
 Cu   04 Jul 08 (T. Kotani) first created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
+      integer:: i_copy_size,iloop
 C ... Passed parameters
 #if MPI
       include "mpif.h"

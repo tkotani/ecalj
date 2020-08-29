@@ -42,9 +42,9 @@ Cu   31 Jan 06 Setup and printouts in spherical harmonics
 Cu   09 Nov 05 (wrl) Convert dmat to complex form
 Cu   27 Apr 05 Lambrecht first created
 C-------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,nsp,nlibu,lmaxu,ng,idvsh
+      integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
       integer lldau(nbas),istab(nbas,ng)
       real(8):: g(9,ng)
       type(s_site)::ssite(*)

@@ -1,7 +1,5 @@
       subroutine gtpcor(sspec,is,kcore,lcore,qcore)
-
       use m_struc_def  !Cgetarg
-
 C- Unpacks parameters related to partial core occpation
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -14,15 +12,13 @@ Co   qcore  :core charge and magnetic moment
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer is,kcore,lcore
+      integer is,kcore,lcore,i_copy_size
       real(8):: qcore(2)
       type(s_spec)::sspec(*)
-
 C ... Local parameters
       character*8 ch
-
       kcore = 0
       lcore = -1
       qcore(1) = 0
@@ -31,12 +27,9 @@ c      do i_spacks=is,is
 c        call spacks_copy('u',sspec(i_spacks)%coreh,is,is,ch,i_spacks)
 c      enddo
       ch=sspec(is)%coreh
-
       if (ch .eq. ' ') return
-
       i_copy_size=size(sspec(is)%coreq)
       call dcopy(i_copy_size,sspec(is)%coreq,1,qcore,1)
-
       read (ch,'(i1)') kcore
       if (ch(2:2).eq.'s' .or. ch(2:2).eq.'S') lcore = 0
       if (ch(2:2).eq.'p' .or. ch(2:2).eq.'P') lcore = 1

@@ -1,6 +1,7 @@
       subroutine lgen(bas,bmax,nv,nvmax,vecs,work)
 c  generates lattice vectors.
       implicit real*8 (a-h,p-z), integer(o)
+      implicit integer(i-n)
       dimension bas(3,3),v(3),vecs(3,*),work(*) ! MIZUHO-IR
       call latlim(bas,bmax,imax,jmax,kmax)
       bmax2=bmax*bmax
@@ -68,6 +69,7 @@ Cstop2rx 2013.08.09 kino      if(3*nv.gt.nvmax) stop
       subroutine latlm2(vmax,i1,i2,j1,j2,k)
 c  input: height in z-direction=k.  output: limits in xy-plane
       implicit real*8 (a-h,p-z), integer(o)
+      implicit integer(i-n)
       common /clatlm/ a11,a22,a33,a12,a13,a23
       det2=a11*a22-a12**2
       b11=a22/det2
@@ -93,6 +95,7 @@ c  input: height in z-direction=k.  output: limits in xy-plane
       subroutine latlm1(vmax,i1,i2,j,k)
 c  input: j,k.  output: limits for i.
       implicit real*8 (a-h,p-z), integer(o)
+      implicit integer(i-n)
       common /clatlm/ a11,a22,a33,a12,a13,a23
       b=a12*j+a13*k
       c=j*j*a22+k*k*a33+2*j*k*a23-vmax*vmax

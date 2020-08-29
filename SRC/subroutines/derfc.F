@@ -18,8 +18,9 @@ Cr   Los Alamos Scientific Lab.
 Cr   For real*8 double precision see below
 C ----------------------------------------------------------------
       double precision x, erfcs(21), erfccs(59), erc2cs(49), sqeps,
-     .sqrtpi, xmax, xsml, y,  d1mach, dcsevl, dexp, dlog, dsqrt
-      external d1mach, dcsevl, initds
+     .     sqrtpi, xmax, xsml, y,  d1mach, dcsevl, dexp, dlog, dsqrt
+      integer:: initds,nterc2,nterf,nterfc,nos
+c      external d1mach, dcsevl, initds
       save
       data erf cs(  1) / -.4904612123 4691808039 9845440333 76 d-1 /
       data erf cs(  2) / -.1422612051 0371364237 8247418996 31 d+0 /
@@ -166,6 +167,7 @@ c
       data erfccs( 59) / +.1525877264 1103575676 3200828211 d-30/
 c
       data sqrtpi / 1.772453850 9055160272 9816748334 115d0 /
+      integer::nterf,nterfc,nterc2
       data nterf, nterfc, nterc2, xsml, xmax, sqeps / 3*0, 3*0.d0 /
 c
       if (nterf .ne. 0) goto 10
@@ -240,8 +242,8 @@ C ----------------------------------------------------------------
       implicit double precision (a-h,o-z)
       dimension erfcs(13), erfccs(24), erc2cs(23)
       real eta
-      integer iprint
-      external dcsevl, initds, d1mach,  iprint
+      integer iprint,initds
+c      external dcsevl, initds, d1mach,  iprint
 
       save
 
@@ -309,6 +311,8 @@ c
       data erfccs(24) /   -.0000000000 00000048d0 /
 c
       data sqrtpi /1.772453850 9055160d0/
+      integer:: nterc2,nterf,nterfc
+      real(8):: err
       data nterf, nterfc, nterc2, xsml, xmax, sqeps /3*0, 3*0.d0/
 C
 C
@@ -359,7 +363,7 @@ c
       double precision derfc, x
       derf = 1 - derfc(x)
       end
-      function initds (dos, nos, eta)
+      integer function initds (dos, nos, eta)
 C- Initialize things for Chebychev series
 C ----------------------------------------------------------------
 Ci Inputs
@@ -375,8 +379,9 @@ Cr   larger than eta.  ordinarily eta will be chosen to be one-tenth
 Cr   machine precision. 
 Cr   Adapted from June 1977 edition W. Fullerton,
 Cr   c3, los alamos scientific lab.   
-C ----------------------------------------------------------------
-      double precision dos(nos)
+C     ----------------------------------------------------------------
+      integer:: nos,i,ii
+      real(8):: dos(nos),err
       real eta
 c
       err = 0.
@@ -404,7 +409,8 @@ Co Outputs
 Co   dcsevl
 Cr Remarks
 Cr   Adapted from R. Broucke, algorithm 446, c.a.c.m., 16, 254 (1973).
-C ----------------------------------------------------------------
+C     ----------------------------------------------------------------
+      integer:: n,ni,i
       double precision a(n), x, twox, b0, b1, b2
 c
       if (dabs(x) .gt. 1.1d0) call errmsg('DCSEVL:  x outside (-1,1)',2)
@@ -432,7 +438,8 @@ Co Outputs
 Co   
 Cr Remarks
 Cr   
-C ----------------------------------------------------------------
+C     ----------------------------------------------------------------
+      integer:: iopt,iprint,i1mach
       character*(*) messg
 
 c      if (iopt .ne. 0) write(i1mach(4),*) messg

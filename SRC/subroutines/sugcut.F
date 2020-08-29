@@ -27,9 +27,9 @@ Cu             Changed argument list
 Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu    9 May 00 Adapted from nfp su_gvcut.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nspec,ng
+      integer mode,nspec,ng,i_copy_size
       real(8):: alat , gv(ng,3) , tol
       type(s_spec)::sspec(*)
 

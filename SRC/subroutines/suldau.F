@@ -1,7 +1,5 @@
       subroutine suldau(nbas,sspec,ssite,nlibu,lmaxu,lldau)
-
       use m_struc_def  !Cgetarg
-
 C- Finds lda+U sites and counts number of blocks
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -21,9 +19,9 @@ Cr
 Cu Updates
 Cu   27 Apr 05 (Lambrecht) first created
 C------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4)
+      integer nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4),i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 

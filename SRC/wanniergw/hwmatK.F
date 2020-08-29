@@ -892,7 +892,7 @@ c-----------------------------------------------------------------------
      i                  rw_w,cw_w)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4) :: irws1(nrws1),irws2(nrws2)
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rydberg,hartree 
@@ -949,7 +949,7 @@ c-----------------------------------------------------------------------
      i            alat,rcut1,rcut2,rw_w,cw_w)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4) :: irws1(nrws1),irws2(nrws2)
       real(8) :: rydberg,hartree 
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
@@ -987,7 +987,7 @@ c-----------------------------------------------------------------------
       subroutine chkrot (ngrp)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       parameter (eps = 1d-6)
       real(8) :: symope(3,3,ngrp)
 

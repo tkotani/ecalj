@@ -42,9 +42,9 @@ Cu             Unsuccessful attmempt to include spinor rotations
 Cu   09 Nov 05 (wrl) Convert dmat to complex form
 Cu   30 Apr 05 Lambrecht first created
 C--------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng)
+      integer nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       double complex dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,*)
       type(s_spec)::sspec(*)

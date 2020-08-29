@@ -3,7 +3,7 @@
 #if MPI|MPIK
       include 'mpif.h'
 #endif
-      integer:: pv,ps
+      integer:: pv,ps,i
       integer:: status,ierr
       if (ps.ne.0) then
 #if MPI|MPIK
@@ -44,7 +44,7 @@ C     call  execute_command_line (ps,exitstat=res)
 
       subroutine cwrite(ps,i1,i2,newln)
       character(*) ps
-      integer:: i1,i2,newln
+      integer:: i1,i2,newln,i
       integer,save:: iii
       if (newln.ne.0) then
         write(*,'(a,$)') ps(i1+1:i2+1)
@@ -54,7 +54,7 @@ C     call  execute_command_line (ps,exitstat=res)
       end subroutine cwrite
 
       subroutine flushs(iout)
-      integer iout
+      integer iout,i
       if (i>=0) then
         call flush(6)
       else
@@ -65,10 +65,12 @@ c       another option is  comitqq()
       end subroutine flushs
 
       integer function  bitor(i1,i2)
+      integer::i1,i2
       bitor= ior(i1,i2)
       end function  bitor
 
       integer function bitand(i1,i2)
+      integer:: i1,i2
       bitand= iand(i1,i2)
       end function bitand 
 

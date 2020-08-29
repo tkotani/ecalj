@@ -17,7 +17,7 @@ c wbz  = sampling weight for qbz
       real(8):: qbas(3,3)
       real(8):: qbz(3,*),wbz(*) !wbz(n1*n2*n3)
       real(8):: qmic(3,3),w1(3),w2(3),w3(3),half(3)
-      integer:: nstbz(*),nadd
+      integer:: nstbz(*),nadd,n1,n2,n3,i1,i2,i3,kount,nnn
 !! icase=1
 !! vectors forming microcells
       qmic(:,1)= qbas(:,1)/dble(n1)

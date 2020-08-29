@@ -27,9 +27,10 @@ c n    = no. states
      o nprodx,nlnx,nlnmx,nlnax)
 c largest number of product basis, (l,n) and (l,n,m)
       implicit real*8(a-h,o-z)
-      dimension nocc(nl*nn,nclass),
+      integer:: nocc(nl*nn,nclass),
      i          nunocc(nl*nn,nclass),
-     i          nindx(0:nl-1,nclass)
+     i     nindx(0:nl-1,nclass),ic,nclass,nn,nl,nln,nlnm,nlna,
+     i     nprodx,nlnmx,nlnx,nlnax,nprod,nallow,noflnm,nalwln,nofln
       nprodx     = 0
       nlnx       = 0
       nlnmx      = 0
@@ -60,6 +61,7 @@ c noccx1= highest number of occupied states
       implicit real*8(a-h,o-z)
       dimension ekt(nt,nk)
       logical:: allocc
+      integer:: noccx,k,it,nk,nt
 !! Find the highest number of occupied states ---
 !! mar2016. (Seungwoo)
 !!   Previous version works,But this is necessary when all bands occuied (for model calculaitons). -->I had bug -->see 
@@ -87,8 +89,8 @@ c noccx1= highest number of occupied states
 c 92.jan.07
 c number of l,n,m for all classes
       implicit real*8(a-h,o-z)
-      dimension nindx(0:nl-1,nclass)
-      dimension nlnm(nclass)
+      integer:: ic,nclass,noflnm,l,nl,
+     &     nindx(0:nl-1,nclass), nlnm(nclass)
       do     ic = 1,nclass
         noflnm    = 0
         do 1    l = 0,nl-1

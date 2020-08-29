@@ -47,7 +47,7 @@ ckino Dec.9.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
      .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
      .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
 C ... Heap
-      integer ::iwdummy
+      integer ::iwdummy,i_copy_size,i_spackv
 
 
 C --- Setup ---

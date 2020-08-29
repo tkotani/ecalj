@@ -14,7 +14,7 @@ C- get last integer off print priority stack
 Cu Updates
 Cu   28 Aug 04 Increase stack size to 7
 C     implicit none
-      integer nstack,istk,iprt
+      integer nstack,istk,iprt,mpipid
       parameter (nstack=7)
       integer vstack(0:nstack-1),stackp
       common /iprnt/ vstack,stackp

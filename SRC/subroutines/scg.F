@@ -8,7 +8,7 @@ Co   c,cindx,js
 Cr Remarks
 Cr   (FORMERLY S104 IN ASW)
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       integer lmax
       integer cindx(1),js(1)
@@ -103,7 +103,8 @@ c  computes clebsch-gordan coefficients (formerly s104 in asw)
 c  but here all is doubleprecision
       implicit real*8 (a-h,p-z)
       implicit integer(o)
-      integer s1,s2,s3,t1,t2,t3
+      integer s1,s2,s3,t1,t2,t3,lmax,lnjcg,lnxcg,i1,i2,i3,i31,i32,j1,j1s,j2,k1,l1,l2,j2s,l3
+     & ,lmindx,m1,m2,m3,mb,ic,k2,n2,n3,nl,nm3,n1
 c ,cindx(1),js(1)
 c      doubleprecision fac(50),c(1)
 c      print *,' scg_sizechk:'

@@ -38,8 +38,9 @@ Cu   15 Feb 02 (ATP) Added MPI parallelization
 Cu   10 Sep 01 Extended to local orbitals.
 Cu   23 May 00 Adapted from nfp fsm_q.f
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
+C     ... Passed parameters
+      integer:: i_copy_size,iloop
 #if MPI
       include "mpif.h"
       integer pid, procid, master, numprocs, ierr,

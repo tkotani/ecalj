@@ -1187,7 +1187,7 @@ c-----------------------------------------------------------------------
      i                  lcrpa, lomega0)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4) :: irws1(nrws1),irws2(nrws2)
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
       real(8) :: rydberg,hartree 
@@ -1290,7 +1290,7 @@ c-----------------------------------------------------------------------
      i            lcrpa, lomega0)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       integer(4) :: irws1(nrws1),irws2(nrws2)
       real(8) :: rydberg,hartree 
       real(8) :: rws1(3,nrws1),rws2(3,nrws2)
@@ -1350,7 +1350,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine chkrot (ngrp)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       integer:: ifile_handle
       parameter (eps = 1d-6)

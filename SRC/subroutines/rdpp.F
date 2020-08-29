@@ -4,7 +4,7 @@
       use m_genallcf_v3,only: nl,nn,nclass,nspin !,qbas=>pos
       use m_readqg,only: ngcmx
       
-      public:: Rdpp,Rdpp_v3
+      public:: Rdpp
       integer,protected,public:: mdimx=NaN,nbloch=NaN,nxx=NaN,nblochpmx=NaN, nprecx=NaN, mrecl=NaN
       integer,allocatable,protected,public:: nblocha(:) ,lx(:), nx(:,:)
       real(8),allocatable,protected,public:: ppbrd (:,:,:,:,:,:,:), cgr(:,:,:,:)
@@ -63,6 +63,7 @@ c --- rotated CG setup
       write(6,*)' rdpp:end '
       end subroutine rdpp
       end module m_rdpp
+      
 
       subroutine rdpp_v3(nxx, nl,ngrp, nn, nclass, nspin,symope,!qbas,
      o      nblocha, lx, nx,  ppbrd , mdimx,nbloch, cgr)
@@ -114,7 +115,7 @@ c      lmxax = nl-1
       subroutine Getsrdpp2(nclass,nl,nxx) 
 !     ! Get dimension for PLN and PPBRD_V2_/atom
       integer(4),intent(in):: nclass,nl
-      integer(4)  :: nx(0:2*(nl-1),nclass),nxx,ifppb
+      integer(4)  :: nx(0:2*(nl-1),nclass),nxx,ifppb,ic,lxx,nblocha
       character*11 :: filename
       do ic = 1,nclass
         filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))
@@ -127,7 +128,8 @@ c      lmxax = nl-1
 
       subroutine getsrdpp(nclass,nl, ngpmx,ngcmx,nxx)
 c get dimensiton for PLN and PPBRD_V2_/atom
-      integer(4)  :: nx(0:2*(nl-1),nclass)
+      integer(4)  :: ic,is,ifplane,nxx,nl,nclass,ngpmx,nx(0:2*(nl-1),nclass),
+     & ifppb,iopen,iclose,lx,ngcmx,nblocha
       character*11 :: filename
       do ic = 1,nclass
         filename = 'PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))

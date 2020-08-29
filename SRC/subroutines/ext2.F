@@ -330,6 +330,7 @@ C#endif
       integer(4),parameter :: lmx=50
       integer(4),save:: lla((lmx+1)**2)
       logical:: init=.true.
+      integer:: ilm,l,lend,lini
       if(ilm>(lmx+1)**2) call rx( 'll: ilm too large')
       if(init) then
          do l=0,lmx

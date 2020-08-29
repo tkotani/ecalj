@@ -21,6 +21,7 @@ c-----------------------------------------------------------------------
      & laf
 
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
 c     local data
       logical sigma_mixing,lsi, lsigin
       dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2)
@@ -827,6 +828,7 @@ C     ... Write sigma ASCII format ---------------------------------------
 
 c------------------------------------------------------
       subroutine testfff(a,b,nnn)
+      implicit integer (i-n)
       real(8):: a(nnn),b(nnn)
       do i=1,nnn
         if(i/=nnn) then
@@ -839,6 +841,7 @@ c------------------------------------------------------
 
 c------------------------------------------------------
       subroutine onlydiag(sigm,ndimh)
+      implicit integer (i-n)
       complex(8):: sigm(ndimh,ndimh)
       do ix=1,ndimh
         do iy=1,ndimh
@@ -849,6 +852,7 @@ c------------------------------------------------------
 
 C----------------------------------------------------------------------
       subroutine rwsigma(ifs,sigma_m,qqqx_m,nspin,ntq,n1,n2,n3,nq ) !,eseavr)
+      implicit integer (i-n)
       complex(8)::sigma_m(ntq,ntq,nq,nspin)
       real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
       ntm1=0;ntm2=0;ntm3=0
@@ -870,6 +874,7 @@ C----------------------------------------------------------------------
       end
 c
       subroutine rwsigmaa(ifs,sigma_m,qqqx_m, nspin,ntq,n1,n2,n3,nq) !,eseavr)
+      implicit integer (i-n)
       complex(8)::sigma_m(ntq,ntq,nq,nspin)
       real(8)::qqqx_m(3,nq,nspin) !,eseavr(nq,nspin)
       ntm1=0;ntm2=0;ntm3=0

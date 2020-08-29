@@ -34,23 +34,16 @@ Cr
 Cu Updates
 Cu   01 Feb 06 Adapted from mol/rnatm.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nr,nsp,n0,lmax,irchan(1+lmax)
-      double precision z,a,b,rc(2),pl(n0,2),ql(n0,2)
+      double precision z,a,b,rc(2),pl(n0,2),ql(n0,2),qqq
       double precision rho(nr,nsp),v(nr,nsp),rofi(nr),ev(25)
 C ... Local parameters
       logical pot
       integer l,isp,lp1,konfig,ir,iprint,stdo,nglob,ltop
       double precision sum1(10,2),sum2(10,2),tol,r,fac,sum,rmax,rcw
-CSFCPP#if F90 | AUTO_ARRAY
       double precision rh1(nr),rh2(nr),rwgt(nr),ddot
-CSFCPP#else
-CSFCPP      integer nrmax
-CSFCPP      parameter (nrmax=1501)
-CSFCPP      double precision rh1(nrmax),rh2(nrmax),rwgt(nrmax)
-CSFCPP#endif
-C ... External calls
       external dpcopy,info2,makrvl,radwgt,rseq,rx
       integer:: iz
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)

@@ -310,6 +310,7 @@ C --- File read ---
 
 c--------------------
       subroutine swapc(a,b,n)
+      integer:: n
       complex(8),allocatable:: c(:)
       complex(8):: a(n),b(n)
       allocate(c(n))
@@ -320,6 +321,7 @@ c--------------------
       end
 c--------------------
       subroutine swapr(a,b,n)
+      integer:: n
       real(8),allocatable:: c(:)
       real(8):: a(n),b(n)
       allocate(c(n))

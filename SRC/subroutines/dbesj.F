@@ -56,8 +56,9 @@ C --- Bessel functions for larger n ---
 c july 1977 edition.  w. fullerton, c3, los alamos scientific lab.
 C NB: a bug for x<=4 !!! (errors ~10-3)
       double precision x, bj0cs(19), ampl, theta, xsml, y,
-     1d1mach, dcsevl, dcos, dsqrt
-      external d1mach,  dcsevl, initds
+     1     d1mach, dcsevl, dcos, dsqrt,eta
+      integer:: initds,ntj0
+c      external d1mach,  dcsevl, initds
 c
 c series for bj0        on the interval  0.          to  1.60000e+01
 c                                        with weighted error   4.39e-32
@@ -107,8 +108,9 @@ c
 c sept 1983 edition.  w. fullerton, c3, los alamos scientific lab.
 c apr 1991  bug fix by boisvert@cam.nist.gov
       double precision x, bj1cs(19), ampl, theta, xsml, xmin, y,
-     1d1mach, dcsevl, dcos, dsqrt
-      external d1mach, dcsevl, initds
+     1     d1mach, dcsevl, dcos, dsqrt
+      integer:: initds
+c      external d1mach, dcsevl, initds
 c
 c series for bj1        on the interval  0.          to  1.60000e+01
 c                                        with weighted error   1.16e-33
@@ -136,6 +138,7 @@ c
       data bj1 cs( 18) / -.3952012212 6513493333 3333333333 333 d-30   /
       data bj1 cs( 19) / +.1161678082 2664533333 3333333333 333 d-32   /
 c
+      integer::ntj1
       data ntj1, xsml, xmin / 0, 2*0.d0 /
 c
       if (ntj1.ne.0) go to 10
@@ -168,8 +171,9 @@ c evaluate the modulus and phase for the bessel j0 and y0 functions.
 c
       double precision x, ampl, theta, bm0cs(37), bt02cs(39),
      1bm02cs(40), bth0cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2dsqrt
-      external d1mach, dcsevl, initds
+     2     dsqrt,eta
+      integer:: initds,nbm0,nbt02,nbm02,nbth0
+c      external d1mach, dcsevl, initds
 c
 c series for bm0        on the interval  1.56250e-02 to  6.25000e-02
 c                                        with weighted error   4.40e-32
@@ -397,8 +401,9 @@ c evaluate the modulus and phase for the bessel j1 and y1 functions.
 c
       double precision x, ampl, theta, bm1cs(37), bt12cs(39),
      1bm12cs(40), bth1cs(44), xmax, pi4, z, d1mach, dcsevl,
-     2dsqrt
-      external d1mach, dcsevl, initds
+     2     dsqrt,eta
+      integer:: initds,nbm1,nbm12,nbt12,nbth1
+c      external d1mach, dcsevl, initds
 c
 c series for bm1        on the interval  1.56250e-02 to  6.25000e-02
 c                                        with weighted error   4.91e-32

@@ -161,6 +161,7 @@ c      enddo
       end
 !!
       subroutine checkrange(intq,n1,n2)
+      integer:: intq,n1,n2
       if(intq<n1 .or. intq>n2) then
         print *,'checkrange: intq n1 n2= ',intq,n1,n2
         call rx( 'checkrange: stop ')

@@ -737,6 +737,7 @@ c
       end
 !!--------------------
       subroutine tetdevide(qc, qcm, wtet, mt1,mt2,mt3)   !qc ---> qcm
+      real(8):: tolq=1d-6
       integer(4):: mt1,mt2,mt3
       real(8):: qc(3,0:3), qcm(3,0:3,mt1*mt2*mt3),qq(3,0:9),wt(0:3,0:9)
      &         ,wtet(0:3,mt1*mt2*mt3)

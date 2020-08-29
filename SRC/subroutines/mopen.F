@@ -1,6 +1,7 @@
 C= Taken from NFP code =============================
 c --- mopen
       subroutine mopen(ifi,ext,type)
+      integer:: ifi,jpr,nid
       character*120 id,fname
       character*(*) ext
       character*1 type
@@ -28,6 +29,7 @@ c  Sets file identifier from env-variable LMJOBID.
 c  ipr controls verbosity for subsequent opens and closes.
       character*120 id,id1
       common /fdefs/ jpr,nid,id
+      integer:: ipr,jpr,nw,nid,i1,i2
       jpr=ipr
       call getenv('LMJOB',id1)
       call words(id1,nw)

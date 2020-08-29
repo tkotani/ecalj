@@ -210,7 +210,7 @@ Cr Remarks
 Cu Updates
 Cu   10 Dec 08 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer nda,npq,nx,mxsav
       double precision a(nda,0:mxsav+1,2)
       integer is,ia
@@ -233,7 +233,7 @@ Cio nmix: nmix > 0: number of iter to try and mix
 Ci        nmix < 0: use mmix instead of nmix.
 Co  nmix: (abs)  number of iter actually mixed.
 Co        (sign) <0, intended that caller update nmix for next call.
-C     implicit none
+      implicit none
       integer nda,nmix,mmix,mxsav
       double precision rms2,tj(1),a(nda,0:mxsav+1,2),beta
       integer:: im , imix , jmix , iprint , i1mach , amix
@@ -455,7 +455,7 @@ Cr  Notations:
 Cr  x^(m): input vector for iteration m
 Cr  F^(m): difference between output and input vector in iteration m
 C ------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer nda,nmix,mmix,mxsav
       double precision beta,rms2,wctrue,a(nda,0:mxsav+1,2)
       double precision ddot,dval,wc
@@ -599,26 +599,18 @@ Cr  Notations:
 Cr  x^(m): input vector for iteration m
 Cr  F^(m): difference between output and input vector in iteration m
 C ------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer nda,nmix,mmix,mxsav
       double precision beta,rms2,xn,a(nda,0:mxsav+1,2)
-C Local variables
       double precision ddot,dval,dxmx,xtoll,grfac,wk(0:26)
       save wk
       real(8) ,allocatable :: p_rv(:)
       real(8) ,allocatable :: dx_rv(:)
-
       integer ir,imix,jmix,km,iprint,i1mach,i,idx,idamax
-c heap
-c      integer w(1)
-c      common /w/ w
-
+      integer w(1) !dummy
 C --- Allocate some arrays ---
       allocate(p_rv(nda*6))
-
       allocate(dx_rv(nda))
-
-
 C ... imix is a local copy of nmix
       imix = nmix
       if (imix .lt. 0) imix = mmix
@@ -687,7 +679,7 @@ C --- Save x^(m+2) into a(*,0,2) and exit ---
       subroutine pqmxup(na,mxsav,nclass,nl,nsp,nx,lmx,
      .pnu,qnu,xnew,pold,qold,xold,cnst,nda,a,rms2)
 C- Copy from holding array into P,Q
-C     implicit none
+      implicit none
       integer nda,mxsav,nclass,nl,nsp,nx,lmx(nclass),cnst(0:*)
       double precision a(nda,0:mxsav+1,2),rms2,
      .pnu(nl,nsp,nclass), qnu(3,nl,nsp,nclass), xnew(nx),
@@ -755,7 +747,7 @@ Cio  na   :number of values included into mix
 Co Outputs
 Ci  rms2  :rms change in parameters to be mixed.
 C -----------------------------------------------------------------
-C     implicit none
+      implicit none
       logical lbin
       integer nda,nmix,mxsav,ifi,nclass,nl,nsp,lmx(nclass),nx,cnst(0:*)
       double precision a(nda,0:mxsav+1,2),rms2,

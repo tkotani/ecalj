@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+xcfunc.o\
 m_struc_func.o\
 pqmix.o\
 m_lmfinit.o\
@@ -244,7 +245,6 @@ dpdftr.o \
 pvsms2.o \
 getcor.o \
 radgra.o \
-xcfunc.o \
 xcpbe.o \
 vxcnls.o \
 vxc0gc.o \

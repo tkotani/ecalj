@@ -89,7 +89,7 @@ Cu   07 Feb 01 changed gmax tolerance to be consistent with gvlst2
 Cu   10 Jun 00 added extra argument to gvgetf and gvputf
 Cu    2 Sep 98 Adapted from nfp gvlist.f
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer job,n1,n2,n3,ng,ngmx,kv(ngmx,3),igv(ngmx,3),igv2(3,*)
       double precision alat,gmax,gv(ngmx,3),plat(3,3),tau(3)
@@ -106,7 +106,7 @@ C ... Local parameters
       integer,parameter :: m_gslist=10
       integer:: n_gslist,i_gslist,if1,if2,if3
       double precision:: gslist(3,m_gslist)
-      integer:: gsflags(3)
+      integer:: gsflags(3),nout,noutmx
       logical:: fullmesh
       real(8) ,allocatable :: gg_rv(:)
       real(8) ,allocatable :: kk_rv(:)

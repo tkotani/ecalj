@@ -32,9 +32,9 @@ Cu             Miscellaneous other additions to read mode
 Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 Cu   24 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nkapi,is1,is2,ifi,nkmax
+      integer mode,nkapi,is1,is2,ifi,nkmax,i_copy_size
       type(s_spec)::sspec(*)
 
 C ... Local parameters

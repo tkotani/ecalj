@@ -147,9 +147,9 @@ Cu   30 Mar 03 New switch for copying h(T) to transpose hrs
 Cu    3 Oct 02 redesigned
 Cu   23 Jun 02 First written
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,idim,jdim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nsgrp
+      integer mode,idim,jdim,nbas,n1,n2,n3,k1,k2,k3,isp,nsp,ndhrs,nsgrp,i_data_size
       integer ia1,ia2
       integer nkap0,n0H,niax
       parameter (nkap0=3,n0H=5,niax=10)

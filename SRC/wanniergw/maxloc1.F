@@ -3,7 +3,7 @@
      i                     iki_i,iki_f,
      d                     nwf,nband,nqbz,
      o                     amnk,cnk)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       logical :: lein
 c      complex(8),allocatable :: psig(:,:,:)
@@ -42,7 +42,7 @@ c-----------------------------------------------------------------------
       subroutine pick_nwf(ovlp,iti,itf,nwf,isort)
 
       implicit real*8(a-h,o-z)
-      
+      implicit integer (i-n)      
       real(8) :: ovlp(iti:itf),otmp(iti:itf)
       integer(4) :: isort(nwf),istate(iti:itf)
 
@@ -88,7 +88,7 @@ c-----------------------------------------------------------------------
      o                    cnq0)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8),allocatable :: cks(:,:),hks(:,:),oks(:,:)
       complex(8) :: cnq0(nband,nwf)
       real(8),allocatable :: eval(:)
@@ -154,7 +154,7 @@ c-----------------------------------------------------------------------
      i                    iko_ix,iko_fx,iko_i,iko_f,
      d                    nwf,nband,nqbz,
      o                    amnk)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: cks(:,:),hks(:,:),oks(:,:),
@@ -240,6 +240,7 @@ c-----------------------------------------------------------------------
      d                    nwf,nqbz,
      o                    cnk0)
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       parameter (eps = 1d-3)
 !      complex(8),allocatable :: evecc(:,:),smat(:,:),wmat(:,:),
 !     &                          wmat2(:,:),wmat3(:,:)
@@ -274,7 +275,7 @@ c-----------------------------------------------------------------------
      i                    iki_i,iki_f,
      d                    nwf,nband,nqbz,
      u                    cnk)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
 
@@ -360,7 +361,7 @@ c-----------------------------------------------------------------------
      i                    ikbi_i,ikbi_f,
      d                    nwf,nbb,nqbz,
      u                    upu)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: wmat(:,:),wmat2(:,:)
@@ -442,7 +443,7 @@ c upu = upu + uumat * wmat2 * alpha
 c-----------------------------------------------------------------------
       subroutine dimz(lein,iko_i,iko_f,iki_i,iki_f,
      o                ndz,nin)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       logical :: lein
@@ -470,7 +471,7 @@ c-----------------------------------------------------------------------
      i                  iki_i,iki_f,
      d                  nwf,nbb,nqbz,ndz,
      o                  zmn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb), 
@@ -519,7 +520,7 @@ c inner energy window
       end
 c-----------------------------------------------------------------------
       subroutine chk_hm(zmat,ndim)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)
@@ -551,7 +552,7 @@ c         endif
       end
 c-----------------------------------------------------------------------
       subroutine chk_um(zmat,ndim)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)
@@ -573,7 +574,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine chk_on(zmat,n1,n2)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)
@@ -592,7 +593,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine diag_hm(zmat,ndim,eval,evecc)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: zmat2(:,:),ovlpc(:,:)
@@ -622,7 +623,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine chk_eval(wbb,evz,nbb,ndz)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)
@@ -656,7 +657,7 @@ c-----------------------------------------------------------------------
      i                    iki_i,iki_f,
      d                    nwf,ndz,
      o                    cnk2)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: cnk(iko_ix:iko_fx,nwf),
@@ -716,7 +717,7 @@ c-----------------------------------------------------------------------
      i                      iki_i,iki_f,
      d                      nbb,nwf,ndz,
      o                      omgik)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)

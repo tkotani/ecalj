@@ -886,7 +886,7 @@ c-------------------------------------------------------------------------------
       end
 c
       subroutine getnvaln(konfig,z,natom,nl,iclass,nclass,valn)
-      real(8):: valn(natom)
+      real(8):: valn(natom),z(natom)
       integer(4):: ia,ic,l,nl,nclass,natom, konfig(0:nl-1,nclass),iclass(natom)
       valn  = 0d0
       do ia = 1,natom
@@ -1028,6 +1028,7 @@ c      if(q0pchoice()==6) ixtest=2
 c      end
 
       subroutine zccopy(n,nb,zzz)
+      integer::n,nb,i
       real(8)::rrr(n)
       complex(8)::zzz(n)
       do i=1,n

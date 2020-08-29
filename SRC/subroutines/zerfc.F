@@ -8,7 +8,7 @@ Co   zerfc :complement of error function
 Cr Remarks
 Cr   zerfc is a front end for TOMS 680 below
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       double complex z
       logical flag
       double precision xi,yi,u,v
@@ -80,6 +80,7 @@ C
 *
       IMPLICIT DOUBLE PRECISION (A-H, O-Z)
 *
+      integer:: i,j,kapn,n,np1,nu
       LOGICAL A, B, FLAG
       PARAMETER (FACTOR   = 1.12837916709551257388D0,
      *RXREAL = 0.5D+154,

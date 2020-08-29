@@ -46,9 +46,10 @@ Cu Updates
 Cu   02 Jan 06 stores or prints magnetic moments
 Cu   11 Jan 05 double-counting term rho*sig subtracted from ehks.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer mode
+      integer:: i_copy_size
       real(8):: sev , etot , sumtv , valmom
 c      type(s_ham)::sham
 

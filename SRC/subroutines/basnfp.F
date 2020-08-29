@@ -1159,6 +1159,7 @@ Cstop2rx 2013.08.09 kino      stop
       real(8) function fac2l(i)
 cC A table of (2l-1)!!
 c     data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
+      integer:: i,l
       logical,save::  init=.true.
       real(8),save:: fac2lx(101)
       if(init) then
@@ -1203,7 +1204,8 @@ c      stop 'xxxxxxxxxxxxxxxxxxxxxx'
       end
 
       real(8) function derie2 (x,y,n)
-c return derivative at n
+c     return derivative at n
+      integer:: n,i
       real(8):: x(n), y(n), dxdi(n),dydi(n),polinta,ii(n),dydx(n)
       do i=1,n-1
         dydx(i) = (y(i+1)-y(i))/(x(i+1)-x(i))

@@ -114,11 +114,13 @@ c     o                   incwf,iecore,ikonf,iicore,incore,
       end
 
       subroutine ddump(ifi,ifi2,a,n)
+      integer:: ifi,ifi2,n
       real(8)::  a(*)
       write(ifi) a(1:n)
       write(ifi2,*) a(1:n)
       end
       subroutine idump(ifi,ifi2,a,n)
+      integer:: ifi,ifi2,n
       integer(4)::a(*)
       write(ifi) a(1:n)
       write(ifi2,*) a(1:n)

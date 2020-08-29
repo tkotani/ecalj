@@ -32,9 +32,9 @@ Cu   02 May 07 (MvS) prints entropy to stdout
 Cu   21 Jun 06 (ATP) generates entrpy as output
 Cu   17 Jan 05 Output wtot
 C-----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nqp,nband,nbmx,nsp,n,ix
+      integer nqp,nband,nbmx,nsp,n,ix,isplwts,i_copy_size
       logical metal
       double precision wgts(nqp),evl(nbmx,nsp,nqp),w,efermi,sumev,
      .bndwts(nband,nsp,nqp),wtot,entrpy,dosef,cv

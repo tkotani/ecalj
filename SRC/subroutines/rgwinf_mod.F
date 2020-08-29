@@ -13,6 +13,7 @@
 
       subroutine rgwinf_v3 (iflmto,ifinin,incwfx) 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       intent(in)::          iflmto,ifinin,incwfx
 C- readin GWIN_V2 and LMTO(crystal) data.
 C all the output are given in the declear section
@@ -22,7 +23,7 @@ Cr nwin,efin,incwfx, are used as switches.
 C--------------------------------------------------------
 c      character(120):: symgrp
 c      character(120):: symgrpt
-      integer(4):: infwfx,nwin
+      integer(4):: infwfx,nwin,iflmto,ifiniin,incwfx
       logical :: nocore
       integer(4),allocatable::ncwf2(:,:,:),nrofi(:)
       real(8)::efin
@@ -189,6 +190,7 @@ c> core
 
 c read the rest of GW input data
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension 
      o          nindxv(0:nl-1,nclass),
      o          nindxc(0:nl-1,nclass),
@@ -386,14 +388,14 @@ c      write(6,*)' goto prod 4'
 c
 
       subroutine bit99to0(n,idat)
-      integer(4) :: idat(n)
+      integer(4) :: idat(n),i,n
       do i=1,n
         if(idat(i)==99) idat(i)=0
       enddo
       end
 c
       subroutine notbit(n,idat)
-      integer(4) :: idat(n)
+      integer(4) :: idat(n),i,n,ix
       do i=1,n
         ix =  idat(i)
         if(idat(i)==0) then
@@ -405,12 +407,12 @@ c       write(6,*)'notbit=',i,ix,idat(i)
       enddo
       end
       subroutine iclear(n,idat)
-      integer(4) :: idat(n)
+      integer(4) :: idat(n),n
       idat=0
       end
       subroutine ibiton(nclass,nl,nnc,nindxc, noccc,ncwf)
-      integer(4) ::noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
-      integer(4) ::ncwf(0:nl-1,nnc,nclass)
+      integer(4) ::nclass,nl,nnc,noccc(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass)
+      integer(4) ::ncwf(0:nl-1,nnc,nclass),ic,l,n
       noccc=0
       ncwf=0
       do      ic = 1,nclass

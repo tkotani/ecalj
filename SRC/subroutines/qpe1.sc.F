@@ -40,7 +40,8 @@ c wqp   = quasiparticle width
 
       dimension eqp(ntq,nq),eqp2(ntq,nq),wqp(ntq,nq)
       logical legas
-      integer:: ifile_handle
+      integer:: ifqpe,iftote,iftote2,itq,ntq,jin,nq,is,if1111,ifelda,ifepq,iq,it,
+     &     ifeflda,ifefqp,ifefqp1,iopenxx
 c
 
       zfac=1d0 !sf..13may2002 zfac=1 to not change to much the rest of this code
@@ -156,8 +157,8 @@ c------------------------------------------------------------------------
         hartreeinv=.5d0/rydberg()
         print *," EGAS mode eshift?"
         read(5,*) eshift0
-        if1111=ifile_handle()
-        open(if1111,file='egas.rlt')
+c        if1111=ifile_handle()
+        open(newunit=if1111,file='egas.rlt')
         eshift0 = eshift0/rydberginv
         print *,' deltaw=',deltaw
         print *,' alat  =',alat

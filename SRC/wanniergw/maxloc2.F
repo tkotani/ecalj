@@ -5,7 +5,7 @@
      o                    eunk)
 
       use m_readeigen,only:readeval
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-3)
@@ -69,7 +69,7 @@ c-----------------------------------------------------------------------
      d                    nqbz,nband,nwf)
 
       use m_readeigen,only:readeval
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       real(8) :: qbz(3,nqbz),eunk(nwf,nqbz)
@@ -101,7 +101,7 @@ c-----------------------------------------------------------------------
       subroutine chk_cnk(cnk,
      i                   iko_ix,iko_fx,iko_i,iko_f,
      d                   nband,nwf,nqbz)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-4)
@@ -141,7 +141,7 @@ c-----------------------------------------------------------------------
      i             iko_ix,iko_fx,iko_i,iko_f,ikbo_i,ikbo_f,
      d             nwf,nqbz,nbb,
      o             mmn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: wmat(:,:)
@@ -192,7 +192,7 @@ c-----------------------------------------------------------------------
      i                     iko_ix,iko_fx,iko_i,iko_f,
      d                     nwf,nqbz,
      o                     umnk)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps = 1d-3)
 !      complex(8),allocatable :: amn(:,:),
@@ -238,7 +238,7 @@ c-----------------------------------------------------------------------
       subroutine updt_mmn(umnk,mmn0,ikbidx,
      d                    nwf,nqbz,nbb,
      u                    mmn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps = 1d-3)
@@ -293,7 +293,7 @@ c-----------------------------------------------------------------------
        subroutine get_rn(mmn,bb,wbb,wbz,
      d                   nwf,nqbz,nbb,
      o                   rn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz)
@@ -330,7 +330,7 @@ c-----------------------------------------------------------------------
 
 c [1] eq.(45)
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8) :: mmn(nwf,nwf),rmn(nwf,nwf)
 
       rmn = (0d0,0d0)
@@ -347,7 +347,7 @@ c-----------------------------------------------------------------------
       subroutine getamn(bmn,
      d                  nwf,
      o                  amn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: bmn(nwf,nwf),amn(nwf,nwf)
@@ -366,7 +366,7 @@ c-----------------------------------------------------------------------
       subroutine getsmn(bmn,
      d                  nwf,
      o                  smn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: bmn(nwf,nwf),smn(nwf,nwf),ci
@@ -388,7 +388,7 @@ c-----------------------------------------------------------------------
      o                  qn,tmn)
 
       implicit real*8(a-h,o-z)
-
+      implicit integer (i-n)
       complex(8),allocatable :: rtmn(:,:)
       complex(8) :: mmn(nwf,nwf),tmn(nwf,nwf)
 c      real(8),allocatable :: qn(:)
@@ -424,7 +424,7 @@ c-----------------------------------------------------------------------
       subroutine updt_uk(wmn,
      d                   nwf,
      u                   umn)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: iwmn(:,:),ewmn(:,:),evecc(:,:),
@@ -482,7 +482,7 @@ c-----------------------------------------------------------------------
       subroutine getOmg(mmn,rn,bb,wbb,wbz,
      d                  nwf,nqbz,nbb,
      o                  omgi,omgd,omgod,omgdod,omgidod)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz)
@@ -546,7 +546,7 @@ c sum up
 c-----------------------------------------------------------------------
       subroutine writeOmg(is,mmn,rn,bb,wbb,wbz,tpia,
      d                   nwf,nqbz,nbb)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz)
@@ -673,7 +673,7 @@ c      write(ifbnd,"(2x,a3,2f16.8)")'all',omgall,omgall*0.5292d0**2
 c-----------------------------------------------------------------------
       subroutine writermn(is,mmn,bb,wbb,qbz,qbz0,wbz,rt,
      d                   nwf,nqbz,nbb,n1,n2,n3)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz),ci,czero,cikr,ceikr
@@ -756,7 +756,7 @@ c output
 c-----------------------------------------------------------------------
       subroutine writemmn(is,mmn,bb,wbb,qbz,wbz,rt,
      d                   nwf,nqbz,nbb,n1,n2,n3)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8) :: mmn(nwf,nwf,nbb,nqbz),ci,czero,cikr,ceikr
@@ -803,7 +803,7 @@ c-----------------------------------------------------------------------
      i                   qbz,umnk,cnk,eunk,
      i                   iko_ix,iko_fx,iko_i,iko_f,
      d                   nwf,nqbz,nband,nlmto,isp)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       complex(8),allocatable :: dnk(:,:,:)
@@ -883,7 +883,7 @@ c-----------------------------------------------------------------------
      d                   nband,nwf,nqbz)
 
       use m_readeigen,only:readeval
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
 
       parameter (eps=1d-3)

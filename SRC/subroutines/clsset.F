@@ -1,5 +1,5 @@
       subroutine clsset(mode,nbas,pos,ncl,clssl,cllst,clord,clp) !,slat
-      use m_lmfinit,only: lat_plat
+      use m_lmfinit,only: lat_plat,lat_plate
       use m_struc_def  !Cgetarg
 
 C- Groups all sites in a crystal into clusters
@@ -29,7 +29,7 @@ Co          6: not used now
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer nclp
       parameter (nclp=9)
       integer mode,nbas,clssl(nbas),cllst(nbas),clord(nbas),clp(nclp,1)
@@ -105,11 +105,9 @@ c       call prmx('plate',plate,3,3,3)
 C   ... w(opos) = positions as multiples of plat
         call prjpos ( 2 , ix , iwdummy , plat , nbas , pos , pos_rv )
 
-
 C       call prmx('pos, units of plat',w(opos),3,3,nbas)
 C   ... Positions as multiples of plate
-        call prjpos ( 63 , ix , plat , plate , nbas , pos_rv , pos_rve 
-     .  )
+c        call prjpos ( 63 , ix , plat , plate , nbas , pos_rv , pos_rve )
 
 C       call prmx('pos, units of plate',w(opose),3,3,nbas)
 C   ... index as ifac**2*pose(1) + ifac*pose(2) + pose(3), integer parts

@@ -77,9 +77,9 @@ Cr
 Cu Updates
 Cu   19 May 03 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,ndimh,n123(4)
+      integer mode,ndimh,n123(4),iii,imax,imin
       double precision eval(ndimh),sigp(10),sigd(ndimh)
       double complex sig(ndimh,ndimh)
 C ... Local parameters

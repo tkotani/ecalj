@@ -38,8 +38,9 @@ Cu   28 Jun 05 bug fix for nspc=2
 Cu   09 Jun 05 (MvS) extended to local orbitals
 Cu   30 Apr 05 (WRL) first created
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
+C     ... Passed parameters
+      integer:: i_copy_size
       integer isp,iq,nsp,nspc,ndham,nlmax,nbas,nev,nlibu,lmaxu,
      .lldau(nbas)
       real(8):: wtkb(ndham,nsp,iq)

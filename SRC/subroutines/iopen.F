@@ -18,6 +18,7 @@ c         if = 0 ==> sequential access
 c iopen = file number, starting from unit 10
 
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       parameter     (mxfil=1000) !ifi=10 to 10+mxfil-1
 
       character*(*) nam

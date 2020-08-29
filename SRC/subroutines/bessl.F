@@ -3,9 +3,10 @@
 c  patched to take care of case lmax=1
 c  07.06.91  df floated, to make subroutine work for large lmax's
       implicit real*8 (a-h,p-z), integer(o)
+      implicit integer (i-n)
       dimension phi(*),psi(*),dum(420)
       doubleprecision t,dt,t1,tol,my,dt1,dt2
-      integer tlp1,tmp1,tmp2
+      integer tlp1,tmp1,tmp2,lmax,l
       lmux=max0(lmax,2)
       if(lmux.gt.16) goto 8
       tol=1.d-8

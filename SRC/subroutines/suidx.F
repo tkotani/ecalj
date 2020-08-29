@@ -83,9 +83,9 @@ Cu   24 Jun 04 Extended definition of local orbitals.  New arg list.
 Cu   10 Apr 02 Redimensioned eh,rsmh to accomodate larger lmax
 Cu   24 Aug 01 Extended to local orbitals.  Altered argument list.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nkaph,nspec
+      integer mode,nkaph,nspec,i_copy_size
       type(s_spec)::sspec(*)
 
 C ... Local parameters

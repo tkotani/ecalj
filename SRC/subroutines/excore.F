@@ -694,6 +694,7 @@ c
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double precision function igan(i)
+      integer:: i,ix
       igan  = 1d0
       do ix =1,i
         igan=igan*ix

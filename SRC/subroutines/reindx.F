@@ -7,6 +7,7 @@ c 92.03.14
 c incorporates core states into nocc,nunocc,nindx
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension noccv(0:nl-1,nnv,nclass),nunoccv(0:nl-1,nnv,nclass),
      i          noccc(0:nl-1,nnc,nclass),nunoccc(0:nl-1,nnc,nclass),
      i          nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass),
@@ -40,6 +41,7 @@ Cstop2rx 2013.08.09 kino          if (ncore+nval .gt. nn) stop 'reindx: ncore+nv
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c taken from basn.f
       integer(4) function nodnum(f,n)
+      integer::i,n
       real(8):: f(n)
       nodnum=0
       do i=2,n-1
@@ -67,6 +69,7 @@ c phi,phidot = phi and phidot including core
 c phidot core  = 0
 
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension phiv (nrx,0:nl-1,nnv,nclass),
      i          phivd(nrx,0:nl-1,nnv,nclass),
      i          phic (nrx,0:nl-1,nnc,nclass),
@@ -129,6 +132,7 @@ c r(i)   = b(exp(i-1)a -1)
 c phi    = rR
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindx(0:nl-1,nclass),
      i          z(nclass),
      i          nrofi(nclass)
@@ -206,6 +210,7 @@ c r(i)   = b(exp(i-1)a -1)
 c phi    = rR
 
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindx(0:nl-1,nclass),
      i          z(nclass),
      i          nrofi(nclass)

@@ -8,6 +8,7 @@ c     See Numerical Recipes
 c     coded by H.Akai
 c----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+      implicit integer (i-n)
       parameter (ndgmx=4, nmx=ndgmx+1)
       dimension xa(n),ya(n),c(nmx),d(nmx)
       logical ascnd

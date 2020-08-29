@@ -13,8 +13,8 @@ Cu Updates
 Cu   30 Jun 06 ltrace <0 => running workspace printout
 Cu   15 Feb 02 tcprt now writes to a logical unit, rather than stdout
 C ----------------------------------------------------------------------
-C     implicit none
-      integer ltrace,lprof
+      implicit none
+      integer ltrace,lprof,levelinit,iwnow
       integer i,ii,init,it,jcb,jlev,job,jt0,l,level,levx,lok,lpr,ltop,
      .ltr,mfree,mmax,mnow,nn,nx
       parameter (nx = 200)

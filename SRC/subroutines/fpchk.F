@@ -14,7 +14,7 @@ Ci     Passed to: chkxpn
 Cu Updates
 Cu   23 Apr 02 Added option (mode=0) to find MT radii
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
@@ -50,6 +50,7 @@ C ... Local parameters
      .cj(0:k0,0:n0),phi(0:n0),psi(0:n0),difj(0:n0),sumj(0:n0),
      .rsmh(n0,nkap0),eh(n0,nkap0),
      .a,rmt,rsma,e,rsm,aa,r,rl,fith,fitj,fcth,fctj,wgt
+      integer:: i_copy_size,i_spackv
       character*8 spid
       character lch(0:4)
 C ... Heap

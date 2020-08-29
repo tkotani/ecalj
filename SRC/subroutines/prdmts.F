@@ -34,9 +34,9 @@ Cr
 Cu Updates
 Cu   27 Jan 06 First created
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm
+      integer nbas,nsp,lldau(nbas),ifi,lmaxu,ipr1,ipr2,sharm,i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
 

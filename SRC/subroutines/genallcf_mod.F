@@ -336,6 +336,7 @@ c lm = l*l + l + m + 1
 c NOTE: the indexing starts with core first and then valence on top
 c       of core (not the same as index generated from nindx)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindxv(0:nl-1,nclass),nindxc(0:nl-1,nclass)
       dimension ilnm(nn,nl*nl,nclass),
      o          ilnmv(nnv,nl*nl,nclass),
@@ -394,6 +395,7 @@ c valence
       integer function noflmto(nindx,iclass,nl,nclass,natom)
 c total number of LMTO basis functions
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindx(0:nl-1,nclass),iclass(natom)
       noflmto   = 0
       do 1    i = 1,natom
@@ -410,6 +412,7 @@ c nocc(l,n)   = 0,1 ==> unoccupied, occupied
 c nunocc(l,n) = 1,0 ==> unoccupied,occupied
 c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       parameter (lmax=6,nnx=10)
       dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
      i          nindx(0:nl-1)
@@ -436,6 +439,7 @@ c nalwln    = number of allowed phi(l1,n1) phi(l2,n2)
       integer function nofln(nindx,nl)
 c count the number of l,n
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindx(0:nl-1)
       nofln      = 0
       do       l = 0,nl-1
@@ -447,6 +451,7 @@ c------------------------------------------------------------------
       integer function noflnm(nindx,nl)
 c number of l,n,m
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       dimension nindx(0:nl-1)
       noflnm    = 0
       do 1    l = 0,nl-1
@@ -460,6 +465,7 @@ c gives the number of allowed product basis
 c nocc(n,l) = 0,1 ==> unoccupied, occupied
 c nallow    = number of allowed product basis
       implicit real*8(a-h,o-z)
+      implicit integer(i-n)
       parameter (lmax=6,nnx=10)
       dimension nocc(0:nl-1,nn),nunocc(0:nl-1,nn),
      i          nindx(0:nl-1)
@@ -509,6 +515,7 @@ c icore(i,cl) = index for allowed core states
 c ncore(cl)   = no. allowed core states
 c nctot       = total no. allowed core states
       implicit real*8 (a-h,o-z)
+      implicit integer(i-n)
       dimension ncwf(0:nl-1,nnc,nclass),nindxc(0:nl-1,nclass),
      i          iclass(natom)
       dimension icore(nl*nl*nnc,nclass),ncore(nclass)
@@ -545,6 +552,7 @@ c total no. allowed core states
 c      integer:: nband !not yet protected!
       contains
       subroutine readhbe()
+      integer:: ifhbe
       open(newunit=ifhbe, file='hbe.d', action='read')
       read (ifhbe,*) nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       close(ifhbe)
@@ -585,6 +593,7 @@ c----------------------------------------------------------
       integer,allocatable,protected :: iclasst(:)!, invgx(:)
       contains
       subroutine Readclasst()
+      integer:: ibas,ibasx,ificlass
       allocate(iclasst(natom))
       write(6,*)'  --- Read true CLASS (crystalographyically equivalent sites) ---'
       open(newunit=ificlass, file='CLASS', action='read')

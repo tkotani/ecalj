@@ -52,7 +52,8 @@ c$$$      end
 C---accumulate q into qsave imx
 c        if(allocated(qsave)) deallocate(qsave)
 c        allocate( qsave(3,nmax))
-c        imx=0
+c     imx=0
+      integer:: nmax,i,imx
       real(8):: qi(3),qsave(3,nmax),qx(3),ginv(3,3)
       real(8):: tolq=1d-8
       do i = 1,imx
@@ -67,7 +68,7 @@ c        imx=0
 
       subroutine readd_iSigma_en(ifinin,iSigma_en)
       use m_keyvalue,only:getkeyvalue
-      integer(4):: iSigma_en
+      integer(4):: iSigma_en,ifinin
 c      logical :: readgwinput
 c      if(readgwinput()) then
       call getkeyvalue("GWinput","iSigMode",iSigma_en )
@@ -94,10 +95,9 @@ c--------------------------
 C- Readin nbmx ebmx for hxofp0 hscfp0
       use m_keyvalue,only: getkeyvalue
       real(8)::ebmx
-      integer (4)::nbmx,ret
+      integer (4)::nbmx,ret,im!,ifinin
       character(len=100):: recxxx=' '
       logical :: ipr !,readgwinput
-      ifinin = 8087
 c      if(readgwinput()) then
       if    (im==8) then
         call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
@@ -108,20 +108,6 @@ c      if(readgwinput()) then
       endif
       if(ipr) write(6,"('  nbmx ebmx from GWinput=',i10,d13.6)") nbmx,ebmx
       return
-c      else
-c        nbmx=999999
-c        ebmx=1d10
-c        open(ifinin,file='GWIN0')
-c        do i=1,im; read(ifinin,*); enddo
-c        read (ifinin,"(a100)",err=1001,end=1001) recxxx
-c 1001   continue
-c        read(recxxx,*,err=1012,end=1012) nbmx
-c 1012   continue
-c        read(recxxx,*,err=1013,end=1013) nbmx,ebmx
-c 1013   continue
-c        if(ipr) write(6,"('  nbmx ebmx from GWIN0=',i10,d13.6)") nbmx,ebmx
-c        close(ifinin)
-c      endif
       end
 
 c--------------------------
@@ -136,19 +122,13 @@ c      character(len=100):: recxxx=' '
       write(6,*)' status 1=',ret
       call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
       write(6,*)' status 2=',ret
-c$$$      call getkeyvalue("GWinput","nband_sigm",nbmx,2, default=(/9999999,999999/),status=ret)
-c$$$      if(ret<0) call getkeyvalue("GWinput","nband_sigm",nbmx(1), default=9999999)
-c$$$      write(6,*)' status 1=',ret
-c$$$      call getkeyvalue("GWinput","emax_sigm", ebmx,2, default=(/1d10,1d10/),status=ret)
-c$$$      write(6,*)' status 2=',ret
-c$$$      if(ret<0) call getkeyvalue("GWinput","emax_sigm",ebmx(1), default=1d10)
-c$$$      write(6,*)' status 3=',ret
       return
       end
 
 c---------
       subroutine readin5(i0,i1,i2)
-c! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
+c     ! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
+      integer:: i0,i1,i2
       character(len=100):: recxxx
       character(len=106):: recxxx2
       read (5,"(a100)",end=1100) recxxx
@@ -156,9 +136,10 @@ c! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
       recxxx2 = recxxx//' 0 0 0'
       read(recxxx2,*) i0, i1, i2
       end
-
+!sssssssssssssssssssssssssssssssssssssss
       subroutine readin6(i0,i1,i2,i3)
-c! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
+c     ! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
+      integer:: i0,i1,i2,i3
       character(len=100):: recxxx
       character(len=106):: recxxx2
       read (5,"(a100)",end=1100) recxxx
@@ -166,7 +147,6 @@ c! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.
       recxxx2 = recxxx//' 0 0 0 0'
       read(recxxx2,*) i0, i1, i2,i3
       end
-
 c-------------
       character*8 function xt(num)
       integer(4) :: num
@@ -180,7 +160,6 @@ c-------------
       if(num>999)   xt = char(48+mod(num/1000,10))//xt
       if(num>9999)  xt = char(48+mod(num/10000,10))//xt
       if(num>99999) xt = char(48+mod(num/100000,10))//xt
-Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xt:can not produce'
       if(num>999999) call rx( ' xt:can not produce')
       xt='.'//xt
       end
@@ -194,7 +173,6 @@ c-------------
       if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
       if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
       if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
-Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
       if(num>999999) call rx( ' xxt:can not produce')
       xxt ='to'//xxt
       num = num1
@@ -204,24 +182,5 @@ Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
       if(num>999)   xxt = char(48+mod(num/1000,10))//xxt
       if(num>9999)  xxt = char(48+mod(num/10000,10))//xxt
       if(num>99999) xxt = char(48+mod(num/100000,10))//xxt
-Cstop2rx 2013.08.09 kino      if(num>999999) stop ' xxt:can not produce'
       if(num>999999) call rx( ' xxt:can not produce')
       end
-c
-c$$$      character(5) function charnum5(num)
-c$$$      integer(4) ::num
-c$$$      charnum5 = char(48+mod(num/10000,10))//
-c$$$     &           char(48+mod(num/1000,10))//
-c$$$     &           char(48+mod(num/100,10))//
-c$$$     &           char(48+mod(num/10,10))//
-c$$$     &           char(48+mod(num,10))
-c$$$      end
-c$$$c
-c$$$      character(3) function charnum3(num)
-c$$$      integer(4) ::num
-c$$$      charnum3 = 
-c$$$     &           char(48+mod(num/100,10))//
-c$$$     &           char(48+mod(num/10,10))//
-c$$$     &           char(48+mod(num,10))
-c$$$      end
-c

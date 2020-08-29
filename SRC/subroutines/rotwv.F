@@ -222,7 +222,7 @@ c
 
       subroutine rtoint(a,k,n)
       real(8):: a(n),eps=1d-12
-      integer:: k(n),ix
+      integer:: k(n),ix,n,i
       do i=1,n
         if(abs(a(i))<eps) then
           k(i)=0
@@ -441,6 +441,7 @@ c apw part ------------
       end
 
       subroutine rangedq(qin, qout) !renewed jun2015
+      integer :: ix
       real(8):: qin(3),qout(3),tol=1d-12 
       qout= qin-nint(qin)
       do ix=1,3

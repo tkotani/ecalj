@@ -1,5 +1,6 @@
       subroutine dpdump(array,length,ifile)
-C- Binary I/O of an array
+C     - Binary I/O of an array
+      integer:: length,ifile
       double precision array(length)
       if (ifile .gt. 0) read(ifile) array
       if (ifile .lt. 0) write(-ifile) array

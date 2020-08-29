@@ -1,8 +1,6 @@
       subroutine gwcphi(ssite,sspec,isp,nsp,nlmax,ndham,nev,nbas,
      .ipb,lmxax,nlindx,ndima,ppnl,aus,cphi,cphin)
-
       use m_struc_def  !Cgetarg
-
 C- Project (phi,phidot) onto MT sphere, Kotani's GW conventions
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -116,10 +114,10 @@ Cu             Altered argument list.
 Cu   19 Feb 02 Extended to local orbitals.
 Cu   28 Mar 01 written by MvS.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer isp,nsp,nlmax,ndham,nbas,nev,lmxax,ndima,ipb(nbas),
-     .nlindx(3,0:lmxax,nbas)
+     .nlindx(3,0:lmxax,nbas),i_copy_size
       integer n0,nppn
       parameter (n0=10,nppn=12)
       type(s_site)::ssite(*)

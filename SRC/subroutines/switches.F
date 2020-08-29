@@ -147,6 +147,7 @@ c      end
       end
 
       logical function onceww(i)
+      integer:: i
       logical,save::init(100)=.true.
       if(init(i)) then
         onceww=.true.

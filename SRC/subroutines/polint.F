@@ -96,6 +96,7 @@ C ---   Decide which whether to accumulate correction C or D to y ---
       end
       SUBROUTINE RATINT(XA,YA,N,X,Y,DY)
       implicit double precision (a-h,p-z)
+      integer:: nmax,i,m,ns,n
       PARAMETER (NMAX=50,TINY=1.d-25)
       double precision XA(N),YA(N),C(NMAX),D(NMAX),xx
       NS=1

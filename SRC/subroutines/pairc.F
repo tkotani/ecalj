@@ -288,7 +288,7 @@ c mini-sort routine.
       implicit real*8(a-h,o-z)
       real(8)::        ea(n)
 ckino delete integer(4) def.      integer(4):: ieaord(n)
-      integer:: ieaord(n)
+      integer:: ieaord(n),n,isig,itmp,i,ix
 c sorting of ea
       isig = 1
       do i = 1,n
@@ -346,45 +346,28 @@ Co   w(ontab):ntab array; see pairc below where it is generated
 Co   w(oiax) :iax array; see pairc, below where it is generated
 Co   mxcsiz  :size of the largest cluster encountered
 C ----------------------------------------------------------------------
-C     implicit none
-      integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab
-ckino Dec.14.2011:          integer,pointer :: iv_p_ontab(:)
+      implicit none
+      integer:: nbas , nbasp , ipsp(1) , pltab(1) , nttab , nd , iltab,i_data_size
       integer,allocatable :: iv_a_ontab(:)
-
-ckino Dec.14.2011:         integer,pointer :: iv_p_oiax(:)
       integer,allocatable :: iv_a_oiax(:)
-
       double precision alat,plat(9),rmax(1),baspp(3,1)
-C Local variables
       double precision avw,avwsr,vol
       integer:: modep(3) , nbaspp , mxcsiz , mxnbr , i , niax , isw
       real(8) ,allocatable :: wk_rv(:)
       integer,allocatable:: iv_a_tmp(:)
-
       parameter (niax=10)
-C heap:
-
 C ... Set up input for call to pairc
       nbaspp = 2*nbasp - nbas
 C ... Estimate an upper bound to the size of the neighbor table
       avw = avwsr(plat,alat,vol,nbas)
       mxnbr = 3*(2*rmax(1)/avw)**3*nbasp
       if (mxcsiz .gt. 0) mxnbr = mxcsiz
-ckino Dec.14.2011:         allocate(iv_p_ontab(abs(nbasp+1)))
-ckino Dec.27.2011:
       if (allocated(iv_a_ontab)) deallocate(iv_a_ontab)
       allocate(iv_a_ontab(abs(nbasp+1)))
-ckino Dec.14.2011:         if (nbasp+1<0) iv_p_ontab(:)=0
-      if (nbasp+1<0) iv_a_ontab(:)=0
-
-ckino Dec.14.2011:         allocate(iv_p_oiax(abs(-niax*mxnbr)))
       if (allocated(iv_a_oiax)) deallocate(iv_a_oiax)
-      allocate(iv_a_oiax(abs(-niax*mxnbr)))
-ckino Dec.14.2011:         if (-niax*mxnbr<0) iv_p_oiax(:)=0
-      if (-niax*mxnbr<0) iv_a_oiax(:)=0
-
+      allocate(iv_a_oiax(niax*mxnbr))
+      iv_a_oiax(:)=0
       allocate(wk_rv(3*mxnbr))
-
       do  10  i = 1, 3
         modep(i) = 2
         if (i .gt. nd) modep(i) = 0
@@ -394,26 +377,14 @@ C ... This makes the neighbor table
       nttab = mxnbr
       isw = 0
       call pairc ( 1 , nbasp , nbaspp , modep , isw , ipsp , alat ,
-ckino Dec.14.2011:       .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_p_ontab 
      .  plat , baspp , baspp , rmax , iltab , pltab , nttab , iv_a_ontab
-ckino Dec.14.2011:       .  , iv_p_oiax , wk_rv , mxcsiz ) 
      .  , iv_a_oiax , wk_rv , mxcsiz )
-
-
-
-
 C ... Allocate iax to proper size
-ckino Dec.14.2011:         i_data_size=size(iv_p_oiax); allocate(iv_a_tmp(i_data_size))
       i_data_size=size(iv_a_oiax); allocate(iv_a_tmp(i_data_size))
-ckino Dec.14.2011:         iv_a_tmp=iv_p_oiax; deallocate(iv_p_oiax)
       iv_a_tmp=iv_a_oiax; deallocate(iv_a_oiax)
-ckino Dec.14.2011:         i_data_size=min(i_data_size,niax*nttab); allocate(iv_p_oiax(niax*nttab))
       i_data_size=min(i_data_size,niax*nttab); allocate(iv_a_oiax(niax*nttab))
-ckino Dec.14.2011:         iv_p_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
       iv_a_oiax(:i_data_size)=iv_a_tmp(:i_data_size); deallocate(iv_a_tmp)
-
       if (allocated(wk_rv)) deallocate(wk_rv)
-
       end subroutine pairs
       end module m_pairs
 
@@ -486,11 +457,11 @@ Cr   The range can be defined in various ways, depending on isw.
 Cu Updates
 Cu   23 Apr 02 added option to make only iax(1..5) (isw=20)
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
       integer ib1,ib2,nbasp,mode(3),isw,nttab,niax,ips(nbasp),
      .ntab(ib1:ib2+1),iltab,pltabp(nbasp),mxcsiz
       parameter (niax=10)
-      integer iax(niax,1)
+      integer iax(niax,1),n,itmp,ixo
       double precision alat,plat(3,3),pos(3,nbasp),ctr(3,ib2),
      .range(1),rtab(3,1)
 C Local variables
@@ -596,20 +567,13 @@ C --- Find all sites in range of ctr ---
 
 
 C --- Sort table by increasing length ---
-        allocate(wk1_rv((nttab-mtab)*niax))
-
-        allocate(wk2_rv((nttab-mtab)))
-
-        allocate(wk3_rv((nttab-mtab)*3))
-
-        call ppair3 ( nttab - mtab , iax ( 1 , mtab ) , rtab ( 1 , mtab 
-     .  ) , wk1_rv , wk2_rv , wk3_rv )
-
-        if (allocated(wk3_rv)) deallocate(wk3_rv)
-        if (allocated(wk2_rv)) deallocate(wk2_rv)
-        if (allocated(wk1_rv)) deallocate(wk1_rv)
-
-
+c        allocate(wk1_rv((nttab-mtab)*niax))
+c        allocate(wk2_rv((nttab-mtab)))
+c        allocate(wk3_rv((nttab-mtab)*3))
+        call ppair3 ( nttab - mtab , iax(1, mtab ), rtab(1 , mtab))! , wk1_rv , wk2_rv , wk3_rv )
+c        if (allocated(wk3_rv)) deallocate(wk3_rv)
+c        if (allocated(wk2_rv)) deallocate(wk2_rv)
+c        if (allocated(wk1_rv)) deallocate(wk1_rv)
 C --- Cleanup for this ib ---
         mtab = nttab
         ntab(ib+1) = nttab-1
@@ -670,7 +634,7 @@ Co   iax(7)   :permutation index ordering cluster by increasing
 Co             effective site index; see ppair4.f
 Co   iax(10)  :effective site index; see siteid.f
 C ----------------------------------------------------------------
-C     implicit none
+      implicit none
       integer isw,ib1,ib2,nbasp,nttab,niax,ips(nbasp),ntab(ib1:ib2)
       parameter (niax=10)
       integer iax(niax,1),mxcsiz
@@ -728,12 +692,9 @@ C         endif
 
 C ... Assign a unique id for every different site in the cluster table
       allocate(iwk_iv(nttab))
-
       allocate(pos_rv(3*nttab))
-
       call siteid ( iax , nsite , ntab , plat , pos , pos_rv , iwk_iv 
      ., i )
-
       if (allocated(pos_rv)) deallocate(pos_rv)
       if (allocated(iwk_iv)) deallocate(iwk_iv)
 
@@ -787,7 +748,7 @@ C     call tcx('ppair1')
       subroutine ppair2(nbas,iltab,pltabp,moder,alat,qlat,pos,ctr,range,
      .ips,rtab,ib,r1,nlat,lat,trupos,mxntab,nttab,iax)
 C- Kernel of pairc to find all sites in range of ctr
-C     implicit none
+      implicit none
       integer nbas,ib,iltab,ips(nbas),pltabp(nbas),niax,nlat,moder,
      .mxntab,nttab
       parameter (niax=10)
@@ -856,9 +817,9 @@ C     ... iax table for this pair
    30   continue
    20 continue
       end
-      subroutine ppair3(nttab,iax,rtab,iwk,iwk2,rwk)
+      subroutine ppair3(nttab,iax,rtab) !,iwk,iwk2,rwk)
 C- Sort neighbor table by distance
-C     implicit none
+      implicit none
       integer nttab,niax,iwk2(nttab),i,j,k
       parameter (niax=10)
       integer iax(niax,nttab),iwk(niax,nttab)
@@ -965,7 +926,7 @@ Co   iax   :iax(7) is set to order cluster; see ppair4.
 Cr Remarks
 Cu Updates
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer niax,ib1,ib2
       parameter (niax=10)
@@ -981,12 +942,9 @@ C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2
         nttab = ntab(ib+1)-ntab(ib)
         allocate(wk1_rv(nttab))
-
         allocate(wk2_rv(nttab*3))
-
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
      .  , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
-
         if (allocated(wk2_rv)) deallocate(wk2_rv)
         if (allocated(wk1_rv)) deallocate(wk1_rv)
 
@@ -1035,17 +993,13 @@ Cr   manner, so that connecting vectors common to different clusters are
 Cr   ordered in the same way in those two clusters; this is done in
 Cr   in ppair4, called with tol<0.
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+      implicit none
       integer offi,nvec,niax,ntabh(8),ipiaxh(nvec,nvec)
       parameter (niax=10)
       integer iaxc(niax,1),iaxh(niax,9)
-C ... Local parameters
       integer ii,iii,jj,jjj,ip,jp,ib,nc,ich,icp,ic0
       integer iiax(5)
-
       call iinit(ipiaxh,nvec*nvec)
-
 C --- Loop over 3C pairs i,j in permuted order ---
       ii = 0
       do  30  iii = 1, nvec

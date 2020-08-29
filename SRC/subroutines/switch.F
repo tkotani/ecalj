@@ -7,6 +7,7 @@
 
       logical function mixrealsmooth()
       logical,save :: init=.true.
+      integer:: iprint
 ! Takao think mixrho should give a correct guess from informations
 ! of |rho_in - f(rho_in)|**2
 ! In our procedure now, takao think the weight from smooth part is rather small.
@@ -96,6 +97,7 @@ c  matmul_pwhovl=2 and matmul_pwhovl=3 uses BLAS. In cases, it fails in centos(g
       end
 
       logical function oncewrite(id)
+      integer:: id
       integer,save:: idx(1:100)=1
       if(id<1. or. id >100 ) call rx("oncewrite index out of range")
       oncewrite=.false.

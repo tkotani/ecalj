@@ -34,13 +34,13 @@ Co   broyj
 Cr Remarks
 Cr   Adapted from Duane Johnson
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
       integer isw,ir,n,ipr,ndw
       double precision beta,dxmx,wc,xin(n),gin(n),xnew(n),xtol,gtol,
      .wk(ndw,2,0:ir)
 C Local variables
       integer i,ip,j,k,irm1,irm2,lm,ln,nn,i1mach,isw1,isw2,isw3 !dinv
-C     integer ierr
+      integer ierr
       double precision aij,cmj,dfnorm,fac1,fac2,gmi,one,zero,ddot,w0
       parameter (zero=0d0,one=1d0,nn=20)
       double precision a(nn,nn),cm(nn),w(nn),d(nn,nn)

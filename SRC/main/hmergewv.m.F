@@ -1,4 +1,5 @@
       program mergewv
+      implicit integer (i-n)
       character(16) filename
       complex(8),allocatable:: zw(:,:)
 c

@@ -13,7 +13,7 @@ c SEc is in file SEC
       use m_keyvalue,only: getkeyvalue
 
       implicit real*8 (a-h,o-z)
-
+      implicit integer(i-n)
 c local data
       logical laf
       dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2)

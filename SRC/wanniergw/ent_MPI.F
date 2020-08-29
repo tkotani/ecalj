@@ -216,6 +216,7 @@ C===================================================================
 C===================================================================
       subroutine sortr(a,n,isort)
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       real(8) :: eps=1.0d-6
       real (8) :: a(n),b(n)
       integer (4) :: isort(n)
@@ -248,7 +249,7 @@ C===================================================================
       end
 c-----------------------------------------------------------------------
       subroutine q2q0xx(q,plat,q0)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       parameter (eps=1d-4)
       real(8) :: q(3),q0(3),plat(3,3)
@@ -261,7 +262,7 @@ c-----------------------------------------------------------------------
       end
 c-----------------------------------------------------------------------
       subroutine q02q(q0,qbas,q)
-
+      implicit integer (i-n)
       implicit real*8(a-h,o-z)
       real(8) :: q(3),q0(3),qbas(3,3)
 
@@ -275,7 +276,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine q02q0g0(qin,qout,ng)
       implicit real*8(a-h,o-z)
-c
+      implicit integer (i-n)
 c qin = qout + ng
 
       parameter (eps=1d-6)
@@ -294,6 +295,7 @@ c         g = anint(q)
 c-----------------------------------------------------------------------
       subroutine read_syml(qbandx,nqbandx,nqband)
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       integer(4) :: nqbandx,nqband,ifsyml,nline,nlinemax
       integer(4),allocatable :: nqq(:)
       real(8) :: qbandx(3,nqbandx),qqx(3)
@@ -341,6 +343,7 @@ c          endif
 c-----------------------------------------------------------------------
       subroutine findk(q1,qbz,plat,qbas,nqbz,iq2)
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       real(8) :: q1(3),qbz(3,nqbz),plat(3,3),qbas(3,3),
      &       dqx(3),dqx0(3),dq0(3),dq(3),ddq(nqbz)
       integer(4) :: ndg(3),isort(nqbz)
@@ -360,6 +363,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine findk4(qband,qbz,plat,qbas,nqband,nqbz,wqk4,iqk4)
       implicit real*8(a-h,o-z)
+            implicit integer (i-n)
       real(8) :: qband(3,nqband),qbz(3,nqbz),plat(3,3),qbas(3,3),q1(3),
      &       wqk4(4,nqband),dqx(3),dqx0(3),dq0(3),dq(3),ddq(nqbz),
      &        amat(4,4),amat2(4,4),bvec(4),vol(3,3),qtmp(3,4),ipiv(4)
@@ -521,6 +525,7 @@ c-----------------------------------------------------------------------
       subroutine readuuq0(is,iko_ix,iko_fx,nqbz,nq0i,uuq0)
       use rsmpi !RS
       implicit real*8(a-h,o-z)
+      implicit integer (i-n)
       complex(8) :: uuq0(iko_ix:iko_fx,iko_ix:iko_fx,nqbz,nq0i)
 
       if (is.eq.1) then

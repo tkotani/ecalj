@@ -3,6 +3,7 @@ c
 c     scales a complex vector by a constant, using real arithmetic
 c     jack dongarra, 3/11/78.
 c
+      integer:: n,incx,i,ix
       double precision zar,zai,zxr(1),zxi(1),tmp
       if( n.le.0 .or. incx.le.0 )return
       if(incx.eq.1)go to 20

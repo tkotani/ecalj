@@ -20,7 +20,7 @@ c----------------------------------------------------------------------------
 c----------------------------------------------------------------------
       double precision function cpumin(ifile,cpu0)
       implicit real*8(a-h,o-z)
-
+      integer:: ifile
 c cpu time in minutes for RISC: mclock()/600.d0
 c cpusek is the total cputime - cpu0
 

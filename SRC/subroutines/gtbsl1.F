@@ -34,7 +34,7 @@ Cu Updates
 Cu   14 Aug 04 Added mode=8,16
 Cu   10 Apr 02 Redimensionsed eh,rsmh to accomodate larger lmax
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nkap0,n0,mode,norb
       integer ltab(norb),ktab(norb),ntab(norb),blks(norb)
@@ -44,7 +44,7 @@ C ... Local parameters
       integer iorb,jorb,ki,kj,li,lj,lk,kk
       double precision x1,x2
       logical deq,lreqe,lreqr,lreql,lreqz,lnever,bittst,match
-      logical:: l_dumy_isanrg,isanrg
+      logical:: l_dummy_isanrg,isanrg
       deq(x1,x2) = dabs(x1-x2) .lt. 1d-8
 
 Ckino isanrg is logical function,       call isanrg(mode,1,31,'gtbsl1:','mode',.true.)
