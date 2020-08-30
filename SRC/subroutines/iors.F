@@ -1,4 +1,4 @@
-      integer function iors(mode,ssite,sspec,!spot,!sbz,,sctrl,slat
+      integer function iors(ssite,sspec,!spot,!sbz,,sctrl,slat,mode
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
       use m_struc_def 
@@ -6,7 +6,7 @@
       use m_lmfinit,only: globalvariables
       use m_work,only: zv_a_osmrho, rv_a_oves
       use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
-C- I/O for charge density
+C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
 Ci   mode  :0 ASA I/O
@@ -123,7 +123,7 @@ C  ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       logical lbin
-      integer:: mode , nbas , nat , nspec , nit , ifi , n0,i_site,i_spec,i_copy_size
+      integer:: mode=1 , nbas , nat , nspec , nit , ifi , n0,i_site,i_spec,i_copy_size
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       parameter (n0=10)
 c      type(s_ctrl)::sctrl

@@ -12,9 +12,10 @@
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
      &     globalvariables
       use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
-!! main routine of lmf
+!! Main routine of lmf
 !!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
-C     i Inputs. 
+!!  plan to future: We will relocate all sets of data to modules where they are generated.
+C     i Inputs. (because we rewrite old code mechanically, some data are duplicated).
 C     i   bz_*   :related to the Brillouin Zone
 C     i   ctrl_* :               program flow
 C     i   ham_*  :               hamiltonian
@@ -67,12 +68,11 @@ c      type(s_ham)::sham
 c      type(s_pot)::spot
 c      type(s_str)::sstr
 c      type(s_move)::smove
-      implicit none
 c      character  prgnam*8 !sstrn*(*),
 c      character*(*)::sstrnmix !,sstrnjobid
 c      type(s_spec)::sspec(*)
 c      type(s_site)::ssite(*)
-
+      implicit none
       integer ::iwdummy ,idummy
       integer procid,master,mpipid,nproc
       logical mlog
@@ -393,7 +393,7 @@ C     3              read nothing (data already input)
         endif
         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
         bz_wx = bz_w
-        k = iors ( 1 ,  ssite , sspec ,  fileid !sbz ,sctrl ,slat , spot , 
+        k = iors ( ssite , sspec ,  fileid !sbz ,sctrl ,slat , spot , !1 ,  
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , 
      .        ifi )
         bz_w = bz_wx
@@ -510,9 +510,8 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
               if (lbin) ifi = fopna(fileid,-1,4)
               if (.not. lbin) ifi = fopna(fileid,-1,0)
             endif
-c            call upacks('strn jobid',i,j)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1  , ssite , sspec ,   fileid !sbz ,, sctrl slat , spot ,
+            k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
@@ -702,7 +701,7 @@ C     Repack updated positions in site structure
           if (procid .eq. master .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( 1 , ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 
+            k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .              , - ifi )
             call fclose(ifi)
@@ -809,8 +808,7 @@ c         endif
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(shr_rv)) deallocate(shr_rv)
       deallocate(vorbdmat,dmato,dmatu)
-
-      call lattic(nbas) !slat,
+      call lattic() !nbas) !slat,
       allocate(shr_rv(1))
       plat=lat_plat
 !! Remake qp
@@ -820,7 +818,7 @@ c         endif
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)
         fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-        k = iors ( 1  , ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot , 
+        k = iors (ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot ,  1  , 
      .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .        , - ifi )
         call fclose(ifi)
