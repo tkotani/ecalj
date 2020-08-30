@@ -11,12 +11,15 @@ c      logical,private:: initex=.true.
 !! Get the extension of ctrlfile. It is stored to trim(sname).
 c      if(initex) then
       na= iargc()
-      do i = 0, na
+      do i = 1, na
          call getarg( i, argv )
 c         write( 6, '( i5, x, a )' ) i, trim(argv)
-         if(argv(1:1)/='-') sname=trim(argv)
+         if(argv(1:1)/='-') then
+            sname=trim(argv)
+            exit
+         endif
       enddo
-c      print *,'ext=',trim(sname)
+c      print *,'file ext=',trim(sname)
 c      stop 'xxxxxxxxxxxxxxxx'
 c        ifi=fopn('temptempxxx') 
 c        sss=''

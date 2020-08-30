@@ -47,7 +47,10 @@ c      integer namelen(0:MAX_PROCS-1)
       nproc  = mpipid(0)
       i = dble(stdo)
       call finits(2,0,0,i)
-!! Get extension of ctrl file to sname \in m_ext 
+!! Get extension of ctrl file to sname \in m_ext
+!! first arguments of lmf without '-' at top is identified as the extension foobar of ctrl.foobar.
+!! fopen will be removed in future.
+      
       call getext()
       ext = adjustl(sname)
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
@@ -88,10 +91,12 @@ c      integer namelen(0:MAX_PROCS-1)
 #endif
 !! Set iprint(); the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
+        print *,'outs',outs
         i = 4
         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k) ! --pr=xxx is read as k=xxx
         if (i .eq. 1) call setpr(k)
       endif
+      
       if(procid/=master) call setpr(-100) !iprint() is negative except master
 !! Abort if ctrl file is missing
       if (cmdopt('--input',6,0,strn)) goto 1111
