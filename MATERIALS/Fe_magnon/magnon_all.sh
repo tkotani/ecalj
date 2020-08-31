@@ -2,8 +2,8 @@
 
 MATERIAL=fe
 NSLOTS=4
-#lmfa fe >& llmfa
-#mpirun -np $NSLOTS lmf-MPIK fe >&llmf
+lmfa fe >& llmfa
+mpirun -np $NSLOTS lmf-MPIK fe >&llmf
 # ### 1. band calculation and create MLWFs
 cp GWinput_for_MLWF GWinput
 job_band $MATERIAL -np $NSLOTS NoGnuplot # &> job_band.log

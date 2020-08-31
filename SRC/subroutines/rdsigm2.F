@@ -191,8 +191,9 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 !! -----------------------------------------------------------------------------------
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_work,only: iv_a_oindxo,rv_a_osymgr,iv_a_ontabs,rv_a_osymgr , rv_a_oag,rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
-     & rv_p_oqsig , iv_a_ooffH, iv_a_oistab
+      use m_work,only: iv_a_oindxo, rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
+     &     rv_p_oqsig , iv_a_ooffH ,iv_a_ontabs
+      use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag
       use m_hft2rs
       use m_lmfinit,only: globalvariables
       use m_sigflg
@@ -780,7 +781,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
       subroutine rdsigm2(nbas_dummy,nsp,ifis,  !sbz,ndimh,sham 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
-      use m_work,only: rv_a_osymgr, rv_p_oqsig 
+      use m_work,only: rv_p_oqsig
+      use m_mksym,only: rv_a_osymgr
 c      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables,only: globalvariables

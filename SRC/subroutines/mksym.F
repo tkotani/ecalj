@@ -1,9 +1,20 @@
+      module m_mksym
+c      iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp
+c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
+      real(8) , allocatable ::  rv_a_oag (:)
+      character(8), allocatable,protected ::  rv_a_oclabl(:) !string
+      integer , allocatable,protected ::  iv_a_oics (:)
+      integer,  allocatable,protected ::  iv_a_oipc(:)
+      integer , allocatable,protected ::  iv_a_onrc (:)
+      integer , allocatable,protected ::  iv_a_onrcp (:)
+      real(8) , allocatable,protected ::  rv_a_osymgr (:)
+      integer , allocatable,protected ::  iv_a_oistab (:)
+      contains
       subroutine mksym(mode,slabl,ssymgr,ssite) !,sctrl,slat
       use m_struc_def  !Cgetarg
-      use m_work,only: iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp,iv_a_oips,
-     &     rv_a_oag,rv_a_osymgr, iv_a_oistab, rv_a_opos
+      use m_work,only: rv_a_opos
       use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
-     & lat_dist,lat_ldist,lat_npgrp,lat_nsgrp,lat_plat
+     & lat_dist,lat_ldist,lat_npgrp,lat_nsgrp,lat_plat,iv_a_oips
       use m_lmfinit,only: globalvariables
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
@@ -310,4 +321,15 @@ C --- Create nrc ---
    30   continue
       endif
       end subroutine pvsym2
-
+      end module m_mksym
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine mksymx(mode,slabl,ssymgr,ssite) !this is to avoid cycle dependency of *.o
+      use m_struc_def,only: s_site   
+      use m_mksym,only: mksym
+      character*8 slabl(1),ssymgr*(*)
+      integer mode
+      type(s_site)::ssite(*)
+      call mksym(mode,slabl,ssymgr,ssite)
+      end
+      
+      

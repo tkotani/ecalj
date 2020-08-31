@@ -1,7 +1,14 @@
-      subroutine mkqp(gettet,lnoirr,lreduc,lgstar)!sctrl,slat,
+      module m_mkqp
+      integer , allocatable,protected ::  iv_a_oidtet (:)
+      integer , allocatable,protected ::  iv_a_oipq (:)
+      real(8) , allocatable,protected ::  rv_p_oqp (:) 
+      integer , allocatable,protected ::  iv_a_ostar (:)
+      real(8) , allocatable,protected ::  rv_a_owtkp (:)
+      contains
+
+      subroutine mkqp(gettet,lnoirr,lreduc,lgstar) !sctrl,slat,
       use m_struc_def  !Cgetarg
-      use m_work,only:iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet, !sbz
-     &     rv_a_osymgr
+      use m_mksym,only:    rv_a_osymgr
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,
      & lat_plat,lat_nsgrp,lat_npgrp
       use m_lmfinit,only: globalvariables
@@ -77,7 +84,7 @@ C ... Make the qp list from bzmesh
         allocate(iv_a_ostar(mxkp+1))
         iv_a_ostar(:)=0
       endif
-      allocate(rv_a_owtkp(abs(-mxkp)))
+      allocate(rv_a_owtkp(mxkp))
       rv_a_owtkp(:)=0.0d0
 #if TRSYMM
       call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
@@ -112,17 +119,15 @@ c        if (lsx .and. lshft(1)+lshft(2)+lshft(3) .gt. 0) call
 c     .    rx('MKQP:  shifted BZ mesh not allowed with SX')
 C   ... Remake, with exactly allocated arrays, ipq on top
       if (allocated(rv_a_owtkp)) deallocate(rv_a_owtkp)
-      allocate(rv_a_owtkp(abs(-nkp)))
-      if (-nkp<0) rv_a_owtkp(:)=0.0d0
+      allocate(rv_a_owtkp(nkp))
+      rv_a_owtkp(:)=0.0d0
 #if TRSYMM
       call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 #endif
       if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       allocate(rv_p_oqp(abs(3*nkp)))
-      if (3*nkp<0) rv_p_oqp(:)=0.0d0
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       allocate(iv_a_oipq(abs(6*mxkp)))
-      if (6*mxkp<0) iv_a_oipq(:)=0
       call pshpr(0)
       call ivset ( iv_a_ostar , 1 , 1 , lgstar )
       call bzmesh ( plat , qlat , nkxyz ( 1 ) , nkxyz ( 2 ) , nkxyz
@@ -177,5 +182,13 @@ c$$$     .     , sbz%rv_a_owtkp , sbz%iv_a_oidtet )
 c$$$        call fclose(nfilqp)
 c$$$      endif
       end subroutine mkqp
+      end module m_mkqp
 
-
+      subroutine mkqpx(gettet,lnoirr,lreduc,lgstar) !this is to avoid cycle dependency of *.o
+      use m_mkqp,only: mkqp
+      logical gettet
+      logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
+      integer lgstar,lreduc,i_copy_size,i_data_size
+      call mkqp (gettet,lnoirr,lreduc,lgstar)
+      end
+      

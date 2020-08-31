@@ -1,7 +1,9 @@
       subroutine lmaux(prgnam,sspec,ssite, !sstr,sctrl,,sham,slat spot,
      .slabl,mode,wksize) !,sstrn,sbz sarray,
-      use m_work,only: iv_a_oips,iv_a_oics,rv_a_ormax,rv_a_oclabl,iv_a_oipc,rv_a_opos
-      use m_lmfinit,only: irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
+      use m_work,only: rv_a_opos
+      use m_clsprm,only: rv_a_ormax
+      use m_mksym,only: rv_a_oclabl,iv_a_oics,iv_a_oipc
+      use m_lmfinit,only: iv_a_oips,irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
      &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax
       use m_struc_def  !Cgetarg
       use m_pairs
@@ -284,7 +286,7 @@ c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
           do i=1,nclspp
             rmax(i) =sspec(iv_a_oics(i))%rmt
           enddo
-          allocate(rv_a_ormax(abs(nclspp)))
+          allocate(rv_a_ormax(nclspp))
           call dcopy ( nclspp , rmax , 1 , rv_a_ormax , 1 )
           ifx=1
         endif
@@ -438,5 +440,660 @@ C 310 format(1x,'class ',I3,T15,'rmt = ',f10.7)
 
       end subroutine spec2c
 
+
+
+!!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      module m_clsprm
+      integer , allocatable ::  iv_a_oipqx(:) !for lmchk only
+      real(8) , allocatable ::  rv_a_ormax(:)
+      contains
+      subroutine clsprm(mode,sspec)!,slat)!,sbz)!,sstr) !,sstrn)sctrl,sham,spot,,sarray
+c      use m_work,only: iv_a_oipqx
+      use m_struc_def           !Cgetarg
+      use m_work,only: rv_a_opos,rv_a_opnu,
+     & rv_a_obxc , rv_a_ogrrme , rv_a_omad , rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
+     & rv_a_oqnu , rv_a_oqpp , rv_a_oqt , rv_a_orhrmx ,
+     & rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
+      use m_mksym,only: iv_a_oics
+      use m_lmfinit,only: lso,  ctrl_nl,ctrl_nspin,ctrl_nclass,ctrl_nl,ctrl_nspec,ctrl_nbas,
+     &    ham_neula,ham_nbf,ham_nlibu,ctrl_nclass
+C     - Allocate memory for, and try to read, class-related data
+C     ----------------------------------------------------------------------
+C     i    mode :1s digit
+C     i         : 1 allocates ASA arrays (see spot,sham,sarray)
+C     i         : 2 allocates TBE arrays:  oifrlx
+C     i   sctrl :struct for program flow parameters; see routine uctrl
+C     i     Elts read: nbas nclass nl nspin nspec loptc nmap
+C     i     Stored:    *
+C     i     Passed to: lgors ioqpp aiocls clsprp
+C     i   sarray:structure containing offsets to various arrays
+C     i     Elts read: nclasp oics oipc oclabl opos
+C     i     Stored:    ogroup ormax ohave oifrlx ozos
+C     i     Passed to: aiocls clsprp
+C     i   sham  :struct for parameters defining hamiltonian; see routine uham
+C     i     Elts read: *
+C     i     Stored:    osop oivso
+C     i     Passed to: aiocls clsprp
+C     i   spot  :struct for information about the potential; see routine upot
+C     i     Elts read: ovrmax orhrmx opnu oqnu opp oves
+C     i     Stored:    opnu oqnu oqc oqt oves ovdif ovrmax orhrmx opp orhos
+C     i                osop ogrrme ovintr opmpol oqpp
+C     i     Passed to: ioqpp aiocls clsprp
+C     i   sspec :struct for species-specific information; see routine uspec
+C     i     Elts read: rmt idmod z lmxa
+C     i     Stored:    *
+C     i     Passed to: aiocls clsprp
+C     i   slat  :struct for lattice information; see routine ulat
+C     i     Elts read: plat
+C     i     Stored:    *
+C     i     Passed to: aiocls clsprp
+C     i   sbz   :struct for the Brillouin Zone; see routine ubz
+C     i     Elts read: ndos
+C     i     Stored:    *
+C     i     Passed to: clsprp
+C     i
+C     i   sstr  :struct for parameters for screened strux; see routine ustr
+C     i     Elts read: n map
+C     i     Stored:    *
+C     i     Passed to: *
+C     i   sstrn :struct for global strings
+C     i     Elts read: map
+C     i     Stored:    *
+C     i     Passed to: clsprp
+C     u Updates
+C     u   08 Nov 07 (J. Xu) LDA+U implementation; qpp is complex
+C     u   30 Sep 04 Reads/writes relativistic ppar's
+C     u   02 Apr 04 SO array redimensioned; make and pack pot->nrhos
+C     u   18 Mar 03 Allocate space for relativistic potential parameters
+C     u   07 Feb 03 SO array redimensioned
+C     u   19 Feb 02 entry clsprp copies class data to doubly padded layers
+C     u   28 Apr 98 allocate space for radial matrix elements of grad
+C     ----------------------------------------------------------------------
+      implicit none
+      integer mode
+      type(s_spec)::sspec(*)
+c      character*(*) sstrn
+c      type(s_ctrl)::sctrl
+c      type(s_array)::sarray
+c      type(s_ham)::sham
+c      type(s_pot)::spot
+c      type(s_lat)::slat
+c      type(s_bz)::sbz
+c      type(s_str)::sstr
+C     Local variables
+      logical lgors,cmdopt
+      character*80 strn,clabl*8
+      integer:: ogroup , oifrlx , oivso , oipc , opos , ozos , n0 
+      parameter (n0=10)
+      integer nbas,nclass,nspec,nl,nsp,nlspc,igets,nclasp,i1,i2,nmap,ic,
+     .     is,ib,iclbsj,idmod(n0),iprint,lmx,nclspp,nqpp,lnsph,isw,neula,
+     .     nbf,nrhos,nlibu
+      double precision plat(9),z,xx,dval
+      integer,allocatable:: ics(:)
+
+      nbas=ctrl_nbas
+      nclass=ctrl_nclass
+      nl=ctrl_nl
+      nsp=ctrl_nspin
+      nspec=ctrl_nspec
+      nlibu=ham_nlibu
+      nclasp=ctrl_nclass !sarray%nclasp
+      nclspp = max(2*nclasp-nclass,nspec)
+      nlspc = nl*nsp*max(nclspp,nspec)
+
+C     ... Allocate ASA arrays
+      if (mod(mode,10) .eq. 1) then
+         allocate(rv_a_opnu(nlspc))
+         rv_a_opnu(:)=0.0d0
+         allocate(rv_a_oqnu(3*nlspc))
+         rv_a_oqnu(:)=0.0d0
+         allocate(rv_a_opp(6*nlspc))
+         rv_a_opp(:)=0.0d0
+         allocate(rv_a_opprel(32*nl*nl*max(nclspp,nspec)))
+         rv_a_opprel(:)=0.0d0
+         allocate(rv_a_oqt(nclasp))
+         rv_a_oqt(:)=0.0d0
+         allocate(iv_a_oipqx(nclasp))
+         iv_a_oipqx(:)=0
+         allocate(rv_a_oves(nclspp))
+         rv_a_oves(:)=0.0d0
+         allocate(rv_a_ovdif(nclspp))
+         rv_a_ovdif(:)=0.0d0
+         allocate(rv_a_orhrmx(nclspp))
+         rv_a_orhrmx(:)=0.0d0
+         allocate(rv_a_ovrmax(2*nclspp))
+         rv_a_ovrmax(:)=0.0d0
+         allocate( ics(nclspp) )
+         call icopy ( nclspp , iv_a_oics , 1 , ics , 1 ) 
+         allocate(rv_a_ormax(nclspp))
+         call dcopy ( nclspp , sspec ( ics ( 1:nclspp ) ) %rmt , 1 , rv_a_ormax, 1 ) 
+C     Even in collinear case, bxc might be written to
+         allocate(rv_a_obxc(abs(-3*nclasp)))
+         rv_a_obxc(:)=0.0d0
+         nrhos=0 
+         if ( lso /=0 ) then 
+            neula=ham_neula
+            nbf=ham_nbf
+            nrhos = max(nl,neula,nbf)
+            if (allocated(rv_a_obxc)) deallocate(rv_a_obxc)
+            allocate(rv_a_osop(nlspc*nsp*9))
+            rv_a_osop(:)=0.0d0
+            allocate(rv_a_obxc(3*nclasp))
+            rv_a_obxc(:)=0.0d0
+            nrhos=nrhos 
+         endif
+         if (allocated(rv_a_ogrrme)) deallocate(rv_a_ogrrme)
+c         if ( iand(3,int(ctrl_lsx)) .ne.0 .or. iand(-1,int(ctrl_lscr)) .ne.0 ) then 
+c            allocate(rv_a_ovintr(abs(-nclasp*(nl*nsp)**2)))
+c            rv_a_ovintr(:)= 0d0
+c         endif
+         lnsph = isw ( .false.)
+C     ... Allocate memory for, attempt to read qpp from file
+         if (lnsph .ne. 0 .or. nlibu .ne. 0) then
+            allocate(rv_a_opmpol(abs(-(2*nl-1)*nl**2*3*nsp*nclasp)))
+            rv_a_opmpol(:)= 0d0
+            i1 = nl**2
+            nqpp = (i1*(i1+1))/2
+            allocate(rv_a_oqpp(2*nqpp*4*nsp*nbas))
+            call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
+            call ioqpp(.false.)!,spot)!,sctrl
+         endif
+      endif
+      return
+
+      entry clsprp(mode,sspec)!,slat)!,sbz),sctrl sham,,spot,sarray
+c     .     sstr) !,sstrn)
+C     - Copy class data to doubly padded case
+      nclass=ctrl_nclass
+      nl=ctrl_nl
+      nsp=ctrl_nspin
+      nspec=ctrl_nspec
+      nclasp=ctrl_nclass !sarray%nclasp
+
+      if (nclasp .eq. nclass) return
+      nclspp = max(2*nclasp-nclass,nspec)
+C     ... Allocate ASA arrays
+      if (mod(mode,10) .eq. 1) then
+         i1 = nclasp-nclass
+         call dpscop ( rv_a_opnu , rv_a_opnu , nl * nsp * i1 , nl * nsp 
+     .        * nclass + 1 , nl * nsp * nclasp + 1 , 1d0 ) 
+         call dpscop ( rv_a_oqnu , rv_a_oqnu , 3 * nl * nsp * i1 , 3 * 
+     .        nl * nsp * nclass + 1 , 3 * nl * nsp * nclasp + 1 , 1d0 ) 
+         call dpscop ( rv_a_oves , rv_a_oves , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( rv_a_ovdif , rv_a_ovdif , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( rv_a_ovrmax , rv_a_ovrmax , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+         call dpscop ( rv_a_orhrmx , rv_a_orhrmx , i1 , nclass + 1 , nclasp + 1 , 1d0 ) 
+      else
+         call rxi('clsprp: bad mode',mode)
+      endif
+      end subroutine clsprm 
+      end module m_clsprm
+C================================================================
+      subroutine ioqpp(lio)     !,spot)!,sctrl
+      use m_work,only:rv_a_oqpp
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass,ctrl_nbas
+C     - File i/o for phi-phi, phi-dot, dot-dot products
+C     ----------------------------------------------------------------------
+C     i Inputs:
+C     i   lio: true for write, false for read
+C     i          <0 write
+C     u Updates
+C     u   08 Nov 07 (J. Xu) qpp is complex
+C     ----------------------------------------------------------------------
+      implicit none
+C     ... Passed parameters
+      logical lio
+C     getarg       double precision sctrl(1),spot(1)
+c      type(s_ctrl)::sctrl
+c      type(s_pot)::spot
+C     ... Local parameters
+      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
+     .     , ipr 
+      call getpr(ipr)
+      nbas=ctrl_nbas
+      nl=ctrl_nl
+      nsp=ctrl_nspin
+      i1 = nl**2*(nl**2+1)
+      i2 = 4*nsp*nbas
+      ifi = fopna('qpp',-1,4+8)
+      if (lio) then
+         call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_a_oqpp , 1 , i1 
+     .        , i1 , i2 ) 
+         if (ipr .ge. 30) print *, 'IOQPP:  wrote qpp to disk'
+      else
+         if (ipr .ge. 30) print *, 'IOQPP:  reading qpp from disk ...'
+         call pshpr(0)
+         if ( rdm ( ifi , 2 , i1 * i2 , ' ' , rv_a_oqpp , i1 , i2 ) .lt. 
+     .        0 ) then 
+            if (ipr .ge. 0) print *,'IOQPP:  (warning) failed to qpp file'
+            call dvset ( rv_a_oqpp , 1 , 1 , - 1d0 ) 
+         endif
+         call poppr
+      endif
+      call fclose(ifi)
+      end subroutine ioqpp 
+
+
+      
+
+
+C================================================================
+c     take subs/spinav.F here
+      subroutine spinav(mode,nclass,nl,nsp,pnu,qnu)
+C     - Averages up+down spin moments + pp's for all classes
+C     ----------------------------------------------------------------------
+C     i Inputs
+C     i   mode  :0 average spins
+C     i         :1 do not average, but exchange spins
+C     i   nclass:number of inequivalent classes
+C     i   nl    :(global maximum l) + 1
+C     i   nsp   :2 for spin-polarized case, otherwise 1
+C     i   pnu   :boundary conditions.  If Dl = log. deriv. at rmax,
+C     i          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
+C     i   qnu   :energy-weighted moments of the sphere charges
+C     o Outputs :moments are spin-averaged
+C     i   pnu   :spin-averaged (mode=0) or spin-flipped (mode=1)
+C     i   qnu   :spin-averaged (mode=0) or spin-flipped (mode=1)
+C     o   nsp   :set to 1 on output (mode=0)
+C     l Local variables
+C     l         :
+C     r Remarks
+C     r   
+C     u Updates
+C     u   10 Jan 06 Added mode
+C     ----------------------------------------------------------------------
+      implicit none
+      integer mode,nclass,nl,nsp,ic
+      double precision pnu(nl,nsp,nclass),qnu(3,nl,nsp,nclass)
+
+      if (nsp .eq. 1) return
+
+      if (mode .gt. 1) then
+         call rx('spinav: bad mode')
+      elseif (mode .eq. 1) then
+         do  ic = 1, nclass
+            call dswap(nl,pnu(1,2,ic),1,pnu(1,1,ic),1)
+            call dswap(3*nl,qnu(1,1,2,ic),1,qnu(1,1,1,ic),1)
+         enddo
+         return
+      endif
+
+      do  ic = 1, nclass
+         call daxpy(nl,1d0,pnu(1,2,ic),1,pnu(1,1,ic),1)
+         call dscal(nl,.5d0,pnu(1,1,ic),1)
+         call daxpy(3*nl,1d0,qnu(1,1,2,ic),1,qnu(1,1,1,ic),1)
+      enddo
+
+      do  ic = 2, nclass
+         call dcopy(nl,pnu(1,1,ic),1,pnu(1,ic,1),1)
+         call dcopy(3*nl,qnu(1,1,1,ic),1,qnu(1,1,ic,1),1)
+      enddo
+      nsp = 1
+      end
+c     #define ONE_ATOM_UNIT 1
+      subroutine aiocls(lio,mode,sspec,ic1,ic2) !sctrl,sham,,slat spot,sarray,
+      use m_clsprm,only: iv_a_oipqx
+      use m_mksym,only: rv_a_oclabl,iv_a_oics
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: globalvariables
+c      use m_globalvariables
+      use m_work,only: rv_a_opos,rv_a_opnu,
+     &     rv_a_obxc , rv_a_ogrrme , rv_a_omad , rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
+     &     rv_a_oqnu , rv_a_oqpp , rv_a_oqt , rv_a_orhrmx ,
+     &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
+      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass
+C     - File I/O atomic data for classes ic1..ic2
+C     ----------------------------------------------------------------------
+C     i Inputs
+C     i   lio    F for read, T for write
+C     i   mode   ones digit
+C     i          1 use data from first class corresponding to same species,
+C     i            if data from own class is missing
+C     i          2 like 1, but attempt to read data from disk anyway
+C     i          3 make no attempt to read from disk but copy info from
+C     i            first class corresponding to same species, if data missing
+C     i          4 Add 4 if to use default P,Q when not otherwise supplied
+C     i          10s digit
+C     i          1 assemble background rho
+C     i   sarray:structure containing offsets to various arrays
+C     i     Elts read: nclasp oclabl ohave oics onrc
+C     i     Stored:
+C     i     Passed to:
+C     i   sctrl :struct for program flow parameters; see routine uctrl
+C     i     Elts read: nl nspin zbak nbas nclass
+C     i     Stored:    zbak
+C     i     Passed to: lgors
+C     i   sham  :struct for parameters defining hamiltonian; see routine uham
+C     i          (not used now)
+C     i   spot  :struct for information about the potential; see routine upot
+C     i     Elts read: opp osop ogrrme opnu oqnu orhrmx ovrmax ovintr opmpol
+C     i                oves
+C     i     Stored:
+C     i     Passed to:
+C     i   sspec :struct for species-specific information; see routine uspec
+C     i     Elts read: lmxa idmod p q
+C     i     Stored:
+C     i     Passed to:
+C     i   slat  :struct for lattice information; see routine ulat
+C     i     Elts read: vol
+C     i     Stored:
+C     i     Passed to:
+C     i   ic1,ic2: range of classes to read data
+C     r Remarks
+C     r   Right now, read always takes data from file if available
+C     u Updates
+C     u   09 Nov 07 Corrected sign of default moment (paioc2)
+C     u   29 Sep 04 Reads/writes relativistic ppar's
+C     u   26 Apr 03 Added MPI calls
+C     u   07 Feb 03 adjusted for redimensioned sop
+C     u   30 May 02 Assign better default P
+C     u   28 Apr 98 I/O of radial matrix elements of grad
+C     u   28 Sep 00 Added setting default P,Q
+C     ----------------------------------------------------------------------
+      implicit none
+C     Passed parameters
+      logical lio
+      integer mode,ic1,ic2
+c      type(s_array)::sarray
+c      type(s_ctrl)::sctrl
+      type(s_spec)::sspec(*)
+c      type(s_lat)::slat
+c      type(s_ham)::sham
+c      type(s_pot)::spot
+C     Local variables
+      character*8 clabl,alabel, outs1*20, outs2*20, outs3*20, outs*80
+      logical sw,aiomom,aiopar,aiopot,aiova,lpot,lcor,scat,lgors,
+     .     aiogen,aiosop,aiorme,aiocor,aiomp,lrell,lgen
+      logical havepq,havepp,haveso,haveop,haveva,havemp,
+     .     readpq,readpp,readso,readop,readva,readmp
+      integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
+      parameter(n0=10)
+      integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
+     .     idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
+     .     nclspp,iprint,lgunit,mode0,mode00,lrel,i_copy_size
+c     integer mpipid,procid
+      double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
+     .     sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
+     .     zbak(2),dgets,pdf(n0,2),qdf(n0,2),pnuloc(100),qnuloc(100)
+      real(8):: olpp(100),olppr(3000),olsop(500),olgrme(500),olva(100),olmp(3000),opot(3000),ocor(3000)
+      
+      nl=ctrl_nl
+      nsp=ctrl_nspin
+      nclass=ctrl_nclass
+      nclasp=ctrl_nclass !sarray%nclasp
+      lrel = globalvariables%lrel
+      mode0 = mod(mode,10)
+      mode00 = mod(mode0,4)
+      i2 = ic2
+      if (i2 .eq. 0) i2 = nclasp
+      do  10  ic = ic1, i2
+         is=iv_a_oics(ic)
+         icmap = iclbsj ( is , iv_a_oics , - nclasp , 1 ) 
+         if (icmap .eq. ic .or. mode00 .eq. 0) icmap = 0
+         lmx=sspec(is)%lmxa
+         i_copy_size=size(sspec(is)%idmod) 
+         call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1) 
+         i_copy_size=size(sspec(is)%p) 
+         call dcopy(i_copy_size,sspec(is)%p,1,pdf,1) 
+         i_copy_size=size(sspec(is)%q) 
+         call dcopy(i_copy_size,sspec(is)%q,1,qdf,1) 
+         call dpzero(pnuloc,100)
+         call dpzero(qnuloc,100)
+
+C     --- Open the atom file ---
+         outs1 = ' '
+         outs2 = ' '
+         outs3 = ' '
+c         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
+         clabl = rv_a_oclabl(ic)
+         if (mode00 .ne. 3) then
+            ifi = fopn(clabl)
+         endif
+
+C     --- Copy what is passed through to holding arrays ---
+         k = nl*nsp
+         call pvaioc ( iv_a_oipqx , 1 , ic , icmap , havepq , jc ) 
+         readpq = .not. havepq .or. mode00 .eq. 2 .and. jc .ne. ic
+         readpq = readpq .and. mode00 .lt. 3
+         if (havepq) then
+            call dpscop ( rv_a_opnu , pnuloc , k , 1 + ( jc - 1 ) * k , 1  , 1d0 ) 
+            call dpscop ( rv_a_oqnu , qnuloc , 3 * k , 1 + ( jc - 1 ) * 3 
+     .           * k , 1 , 1d0 ) 
+            call dpscop ( rv_a_orhrmx , rhrmx , 1 , jc , 1 , 1d0 ) 
+            call dpscop ( rv_a_ovrmax , vrmax , 2 , 2 * jc - 1 , 1 , 1d0 ) 
+            if (ic.ne.jc) call awrit0('%a pq,',outs1,len(outs1),0)
+         endif
+         k = 6*nl*nsp
+         call pvaioc ( iv_a_oipqx , 2 , ic , icmap , havepp , jc ) 
+         readpp = .not. havepp .or. mode00 .eq. 2 .and. jc .ne. ic
+         readpp = readpp .and. mode00 .lt. 3
+         if (havepp) then
+            call dpscop ( rv_a_opp , olpp , k , 1 + ( jc - 1 ) * k  , 1 , 1d0 ) 
+            if (lrel .eq. 2) then
+               k = 4*nl*2*nl*2*2
+               call dpscop ( rv_a_opprel , olppr , k , 1 + ( jc - 1 ) 
+     .              * k , 1 , 1d0 ) 
+            endif
+            call dpscop ( rv_a_oves , ves , 1 , jc , 1 , 1d0 ) 
+
+            if (ic.ne.jc) call awrit0('%a pp,',outs1,len(outs1),0)
+         endif
+         k = (nl*nsp)**2
+         call pvaioc ( iv_a_oipqx , 8 , ic , icmap , haveva , jc ) 
+         haveva = haveva .and. allocated(rv_a_ovintr)
+         readva = .not. haveva .or. mode00 .eq. 2 .and. jc .ne. ic
+         readva = readva .and. allocated(rv_a_ovintr) .and. mode00 .lt. 3
+         if (haveva) then
+            call dpscop ( rv_a_ovintr , olva , k , 1 + ( jc - 1 ) * k , 1 , 1d0 ) 
+            if (ic.ne.jc) call awrit0('%a va,',outs1,len(outs1),0)
+         endif
+         k = nl**2*(2*nl-1)*3*nsp
+         call pvaioc ( iv_a_oipqx , 16 , ic , icmap , havemp , jc ) 
+         havemp = havemp .and. allocated(rv_a_opmpol)
+         readmp = .not. havemp .or. mode00 .eq. 2 .and. jc .ne. ic
+         readmp = readmp .and. allocated(rv_a_opmpol) .and. mode00 .lt. 3
+         if (havemp) then
+            call dpscop ( rv_a_opmpol , olmp , k , 1 + ( jc - 1 ) * k 
+     .           , 1 , 1d0 ) 
+            if (ic.ne.jc) call awrit0('%a mp,',outs1,len(outs1),0)
+         endif
+         k = nl*nsp*nsp*9
+         call pvaioc ( iv_a_oipqx , 4 , ic , icmap , haveso , jc ) 
+         haveso = haveso .and. allocated(rv_a_osop)
+         readso = .not. haveso .or. mode00 .eq. 2 .and. jc .ne. ic
+         readso = readso .and. allocated(rv_a_osop) .and. mode00 .lt. 3
+         if (haveso) then
+            call dpscop ( rv_a_osop , olsop , k , 1 + ( jc - 1 ) * 
+     .           k , 1 , 1d0 ) 
+
+            if (ic.ne.jc) call awrit0('%a sop,',outs1,len(outs1),0)
+         endif
+         k = 16*nl*nsp
+         call pvaioc ( iv_a_oipqx , 32 , ic , icmap , haveop , jc ) 
+         haveop = haveop .and. allocated(rv_a_ogrrme)
+         readop = .not. haveop .or. mode00 .eq. 2 .and. jc .ne. ic
+         readop = readop .and. allocated(rv_a_ogrrme) .and. mode00 .lt. 3
+         if (haveop) then
+            call dpscop ( rv_a_ogrrme , olgrme , k , 1 + ( jc - 1 )* k , 1 , 1d0 ) 
+            if (ic.ne.jc) call awrit0('%a opp,',outs1,len(outs1),0)
+         endif
+
+C     --- File WRITE ---
+         if (lio) then
+            lgen = .false.
+            lpot = .false.
+            lcor = .false.
+C     ... Pick up GEN and POT, if available, to save again
+            if (scat(iabs(ifi),'GEN:',':',.true.)) then
+               lgen = aiogen(alabel,z,rmxx,lmxx,nspx,lrell,nrx,ax,qc,dq,
+     .              vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,ifi)
+            endif
+            if (scat(iabs(ifi),'POT:',':',.true.)) then
+               read(ifi,102) nr,nsp,a,rmax
+ 102           format(2i5,2f12.5)
+               lpot = aiopot(nr,nsp,a,rmax,-99d0,opot,ifi)
+            endif
+            lcor = aiocor(nr,nsp,a,rmxx,ocor,sumec,sumtc,ifi)
+
+            rewind ifi
+            jfi = -ifi
+            if (lgen) sw = aiogen(clabl,z,rmxx,lmxx,nspx,lrell,nrx,ax,qc,
+     .           dq,vrmxx,sumec,sumev,thrpv,ekin,utot,rhoeps,etot,jfi)
+            if (havepq) sw = aiomom(clabl,pnuloc,qnuloc,idmod,
+     .           nl,lmx,nsp,rhrmx,vrmax,jfi)
+            if (havepp) sw = aiopar(clabl,lrel,olpp,olppr,ves,nl,
+     .           lmx,nsp,jfi)
+            if (haveva) sw = aiova(clabl,olva,nl,lmx,nsp,jfi)
+            if (havemp) sw = aiomp(clabl,olmp,nl,2*nl-2,nsp,jfi)
+            if (haveso) sw = aiosop(clabl,olsop,nl,lmx,nsp,jfi)
+            if (haveop) sw = aiorme(clabl,olgrme,nl,nsp,jfi)
+            if (lpot)   sw = aiopot(nr,nsp,a,rmax,-99d0,opot,jfi)
+            if (lcor) lcor = aiocor(nr,nsp,a,rmxx,ocor,sumec,sumtc,jfi)
+
+C     --- File READ ---
+         else
+
+C     ... Copy whatever is available on disk to holding arrays
+            if (readpq .or. mode0 .ge. 4) then
+               if (readpq) rewind ifi
+               if (readpq) readpq = aiomom(clabl,pnuloc,qnuloc,idmod,
+     .              nl,lmx,nsp,rhrmx,vrmax,ifi)
+C     Couldn't read from atom file ; take default values
+               if (readpq) call awrit0('%a pq,',outs2,len(outs2),0)
+               if (mode0 .ge. 4 .and. .not. (readpq .or. havepq)) then
+C     call dmcpy(pdf,n0,1,pnuloc,nl,1,nl,nsp)
+                  call paioc2(nsp,nl,n0,pdf,qdf,pnuloc,qnuloc)
+                  call awrit0('%a pq,',outs3,len(outs2),0)
+                  call dvset(vrmax,1,2,-.7d0)
+                  rhrmx = .1d0
+                  readpq = .true.
+               endif
+            endif
+            if (readpp) then
+               readpp = aiopar(clabl,lrel,olpp,olppr,ves,nl,lmx,nsp,
+     .              ifi)
+               if (readpp) call awrit0('%a pp,',outs2,len(outs2),0)
+            endif
+            if (readso .and. allocated(rv_a_osop) ) then
+               readso = aiosop(clabl,olsop,nl,lmx,nsp,ifi)
+               if (readso) call awrit0('%a so,',outs2,len(outs2),0)
+            endif
+            if (readop .and. allocated(rv_a_ogrrme)) then
+               readop = aiorme(clabl,olgrme,nl,nsp,ifi)
+               if (readop) call awrit0('%a op,',outs2,len(outs2),0)
+            endif
+            if (readva .and. allocated(rv_a_ovintr) ) then
+               readva = aiova(clabl,olva,nl,lmx,nsp,ifi)
+               if (readva) call awrit0('%a va,',outs2,len(outs2),0)
+            endif
+            if (readmp .and. allocated(rv_a_opmpol) ) then
+               readmp = aiomp(clabl,olmp,nl,2*nl-2,nsp,ifi)
+               if (readmp) call awrit0('%a mp,',outs2,len(outs2),0)
+            endif
+
+C     ... Update what parameters are available
+            iv_a_oipqx(ic) = isw(haveop.or.readop)*32+
+     .           isw(havemp.or.readmp)*16+
+     .           isw(haveva.or.readva)*8 +
+     .           isw(haveso.or.readso)*4 +
+     .           isw(havepp.or.readpp)*2 +
+     .           isw(havepq.or.readpq)*1 +
+     .           iv_a_oipqx(ic) - bitand(iv_a_oipqx(ic),63)
+            k = nl*nsp
+            if (havepq .or. readpq) then
+               call dpscop ( pnuloc , rv_a_opnu , k , 1 , 1 + ( ic - 1 ) * k, 1d0 ) 
+               call dpscop ( qnuloc , rv_a_oqnu , 3 * k , 1 , 1 + ( ic - 1 ) 
+     .              * 3 * k , 1d0 ) 
+               call dpscop ( rhrmx , rv_a_orhrmx , 1 , 1 , ic , 1d0 ) 
+               call dpscop ( vrmax , rv_a_ovrmax , 2 , 1 , 2 * ic - 1 , 1d0 ) 
+            endif
+            k = 6*nl*nsp
+            if (havepp .or. readpp) then
+               call dpscop ( olpp , rv_a_opp , k , 1 , 1 + ( ic - 1 ) * k , 1d0 ) 
+               if (lrel .eq. 2) then
+                  k = 4*nl*2*nl*2*2
+                  call dpscop ( olppr , rv_a_opprel , k , 1 , 1 + ( ic - 
+     .                 1 ) * k , 1d0 ) 
+               endif
+               call dpscop ( ves , rv_a_oves , 1 , 1 , ic , 1d0 ) 
+            endif
+            k = (nl*nsp)**2
+            if ( ( haveva .or. readva ) .and. allocated(rv_a_ovintr ) ) call 
+     .           dpscop ( olva  , rv_a_ovintr , k , 1 , 1 + ( ic - 1 ) * k , 1d0 ) 
+
+            k = nl**2*(2*nl-1)*3*nsp
+            if ( ( havemp .or. readmp ) .and. allocated(rv_a_opmpol ) ) call 
+     .           dpscop ( olmp  , rv_a_opmpol , k , 1 , 1 + ( ic - 1 ) * k , 1d0 ) 
+            k = nl*nsp*nsp*9
+            if ( ( haveso .or. readso ) .and. allocated(rv_a_osop ) ) 
+     .           call dpscop ( olsop  , rv_a_osop , k , 1 , 1 + ( ic - 1) * k , 1d0 ) 
+
+            k = 16*nl*nsp
+            if ( ( haveop .or. readop ) .and. allocated(rv_a_ogrrme ) ) 
+     .           call dpscop ( olgrme  , rv_a_ogrrme , k , 1 , 1 + ( ic - 1 ) * k , 1d0 ) 
+         endif
+
+         if (mode00 .lt. 3) call fclr(clabl,ifi)
+         if (iprint() .gt. 40) then
+            outs = ' '
+            if (outs1 .ne. ' ') then
+               call awrit1('%x '//clabl//'%a: copied '//outs1//'%a%b from '//
+     .              'class %i',outs,len(outs),0,jc)
+            endif
+            if (outs2 .ne. ' ') then
+               call awrit0('%x '//clabl//'%a: read '//outs2//'%a%b from '//
+     .              'disk',outs,len(outs),0)
+            endif
+            if (outs3 .ne. ' ') then
+               if (outs2 .eq.  ' ') then
+                  call awrit0('%x '//clabl//'%a: use defaults for: '//outs3//
+     .                 '%a%b',outs,len(outs),0)
+               else
+                  call awrit0('%a; use defaults for: '//outs3//'%a%b',
+     .                 outs,len(outs),0)
+               endif
+            endif
+            if (outs .eq. ' ')
+     .           call awrit0(' '//clabl//'%a: nothing read',outs,len(outs),0)
+            call awrit0(' aiocls class'//outs,' ',-len(outs),lgunit(1))
+         endif
+ 10   continue
+      end subroutine aiocls 
+
+      subroutine pvaioc(initc,mask,ic0,icmap,lhave,ic)
+C     - Find whether data avaiable either in class or mapped class
+      implicit none
+      logical lhave
+      integer initc(1),mask,ic0,icmap
+      integer ic
+      ic = ic0
+      lhave = mod(initc(ic)/mask,2) .eq. 1
+      if (.not. lhave .and. icmap .ne. 0) then
+         lhave = mod(initc(icmap)/mask,2) .eq. 1
+         ic = icmap
+      endif
+      end subroutine pvaioc 
+
+      subroutine paioc2(nsp,nl,n0,pat,qat,pnu,qnu)
+C     - Widget to copy pat,qat to pnu,qnu
+      implicit none
+      integer n0,nl,nsp
+      double precision pat(n0,2),qat(n0,2),pnu(nl,nsp),qnu(3,nl,nsp)
+      integer i,il
+      do  i = 1, nsp
+         do  il = 1, nl
+C     pnu(il,i) = int(pat(il,i)) + .5d0
+            pnu(il,i) = pat(il,i)
+            qnu(1,il,i) = qat(il,1)/nsp
+            if (nsp .eq. 2) then
+               if (pat(il,i) .eq. 0) pnu(il,i) = pnu(il,1)
+               qnu(1,il,i) = qat(il,1)/nsp + qat(il,2)/2*dble(3-2*i)
+            endif
+            qnu(2,il,i) = 0d0
+            qnu(3,il,i) = 0d0
+         enddo
+      enddo
+      end subroutine paioc2 
 
 

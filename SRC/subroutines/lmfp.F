@@ -11,7 +11,9 @@
      &     sstrnmix,sstrnsymg, !ssite2=>v_ssite2,
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
      &     globalvariables
-      use m_work,only: slat_rv_a_opos =>rv_a_opos,rv_a_osymgr,iv_a_oistab,sv_a_oorhat,rv_a_oag,zv_a_osmrho
+      use m_work,only: slat_rv_a_opos =>rv_a_opos,sv_a_oorhat,zv_a_osmrho
+      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab
+      use m_mkqp,only: mkqp
 !! Main routine of lmf
 !!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
 !!  plan to future: We will relocate all sets of data to modules where they are generated.
@@ -811,9 +813,9 @@ c         endif
       call lattic() !nbas) !slat,
       allocate(shr_rv(1))
       plat=lat_plat
-!! Remake qp
+!! Remake qp (t.kotani wonders this mkqp is needed or not?
       ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
-      call mkqp(ltmp,.false.,1,-2) !sbz,sctrl,slat,
+      call mkqp(ltmp,.false.,1,-2) 
 !! Write restart file (to include new positions)
       if (procid .eq. master .and. irlxsh .eq. 0) then
         ifi = fopna('rst',-1,4)

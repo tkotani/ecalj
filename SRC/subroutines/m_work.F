@@ -3,20 +3,13 @@
 !! It is not clear where they are generated and where cited.
 !!     bz
       use m_struc_def,only: s_rv1
-      integer , allocatable ::  iv_a_oidtet (:)
-      integer , allocatable ::  iv_a_oipq (:)
-      real(8) , allocatable ::  rv_p_oqp (:) 
-      integer , allocatable ::  iv_a_ostar (:)
-      real(8) , allocatable ::  rv_a_owtkp (:)
-!! s_array      
-      character(8), allocatable ::  rv_a_oclabl(:) !string
+c      integer , allocatable ::  iv_a_oidtet (:) !moved to m_mkqp
 c      integer , allocatable ::  iv_a_oipq (:)
-      integer , allocatable ::  iv_a_oics (:)
-      integer,  allocatable ::  iv_a_oipc(:)
+c      real(8) , allocatable ::  rv_p_oqp (:) 
+c      integer , allocatable ::  iv_a_ostar (:)
+c      real(8) , allocatable ::  rv_a_owtkp (:)
+!! s_array      
       integer , allocatable ::  iv_a_oips (:)
-      integer , allocatable ::  iv_a_onrc (:)
-      integer , allocatable ::  iv_a_onrcp (:)
-      real(8) , allocatable ::  rv_a_ormax (:)
 !! ham
       real(8) , allocatable ::  rv_a_ohrs (:)
       integer, allocatable :: iv_a_oiaxs(:)
@@ -25,7 +18,6 @@ c      integer , allocatable ::  iv_a_oipq (:)
       integer , allocatable ::  iv_a_ooffH (:)
       real(8) , allocatable ::  rv_p_oqsig (:) 
 !! lat
-      real(8) , allocatable ::  rv_a_oag (:)
       complex(8) , allocatable ::  zv_a_obgv (:)
       real(8) , allocatable ::  rv_a_ocg (:)
       real(8) , allocatable ::  rv_a_ocy (:)
@@ -33,12 +25,10 @@ c      integer , allocatable ::  iv_a_oipq (:)
       real(8) , allocatable ::  rv_a_ogv (:)
       integer , allocatable ::  iv_a_oidxcg (:)
       integer , allocatable ::  iv_a_oips0 (:)
-      integer , allocatable ::  iv_a_oistab (:)
       integer , allocatable ::  iv_a_ojcg (:)
       integer , allocatable ::  iv_a_okv (:)
       real(8), allocatable :: rv_a_opos(:)
       real(8) , allocatable ::  rv_a_oqlv (:)
-      real(8) , allocatable ::  rv_a_osymgr (:)
 !! spot
       real(8) , allocatable ::  rv_a_obxc (:)
       real(8) , allocatable ::  rv_a_ogrrme (:)

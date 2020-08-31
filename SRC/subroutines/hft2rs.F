@@ -207,8 +207,6 @@ C   ... pair table for rs hamiltonian
         call pshpr(min(ipr-10,30))
         mxcsiz = 0
         call pairs ( nbas , nbas , 1d0 , plat , ( / range / 2 / ) , pos
-ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_p_oiax
-ckino Dec.14.2011:       .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_p_ontab , iv_a_oiax 
      .   , ( / - 1 / ) , 3 , - 1 , (/iwdummy/) , nttab , iv_a_ontab , iv_a_oiax 
      .   , mxcsiz )
 
@@ -222,8 +220,6 @@ C     ... Mark all members in iax table with vector in sfz (for FFT)
           nvtot = 0
           call hft2r1 ( mode , n1 , n2 , n3 , k1 , k2 , k3 , isp , nsp 
      .      , ia1 , ia2 , 1 , nbas , offh , idim , jdim , hq , plat , pos
-ckino Dec.14.2011:       .      , iv_p_ontab , iv_p_oiax , qoff , ndhrs , hrs , nviax , nvtot
-ckino Dec.14.2011:       .      , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .      , iv_a_ontab , iv_a_oiax , qoff , ndhrs , hrs , nviax , nvtot 
      .      , dmx )
           call info(30,0,0,' hft2rs: found %i connecting vectors out'//
@@ -231,8 +227,6 @@ ckino Dec.14.2011:       .      , iv_p_ontab , iv_a_oiax , qoff , ndhrs , hrs , 
 C     ... Reduce iax table to elements on mesh in common with pairc
           allocate(iwk_iv((niax+1)*mxcsiz))
 C         nttabs = nttab
-ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_p_oiax , nttab
-ckino Dec.14.2011:              call hft2r3 ( 1 , nbas , iwk_iv , iv_p_ontab , iv_a_oiax , nttab
           call hft2r3 ( 1 , nbas , iwk_iv , iv_a_ontab , iv_a_oiax , nttab 
      .      , mxcsiz )
 C         call hft2r3(1,nbas,w(oiwk),w(ontab),w(oiax),nttab,mxcsiz)

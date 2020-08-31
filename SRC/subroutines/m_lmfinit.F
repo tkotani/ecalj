@@ -204,11 +204,13 @@ C  arg  18:        offset to bs workspace
 !! ... APW
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
       real(8)::    pwemax,pwemin,oveps,delta_stabilize
+      integer , allocatable ::  iv_a_oips (:)
+!!      
 c      character(1)::mmm
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains !rdctrl2 set initial values of m_lmfinit (in future all variables should be protected).
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
-      use m_work,only: iv_a_oips,rv_a_opos
+      use m_work,only: rv_a_opos
       use m_work,only: rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg !CG coefficients
 c      use m_lmfinit !contains main initial data
       use m_struc_func
@@ -2161,7 +2163,7 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
           enddo
           ham_seref=seref
           allocate(rv_a_opos(abs(3*nsite)))
-          if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
+c          if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
           allocate(iv_a_oips(abs(nsite)))
           do i_spackv=1,nsite
              rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
@@ -2291,7 +2293,7 @@ c$$$       endif
        
 !! ---------------------------
       if(procid==master) call pshpr(60)
-      call mksym(lc,slabl_,strn,v_ssite) !,v_sarry)v_sctrl,,v_slat
+      call mksymx(lc,slabl_,strn,v_ssite) !,v_sarry)v_sctrl,,v_slat
       if(procid==master) call poppr
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c$$$!! test1 ------------------
@@ -2319,7 +2321,7 @@ c
          ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
 !! iand(2**n,i) means 2**n ditit of i.
 !! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
-         call mkqp(ltet,F,1,-2)!v_sctrl,v_slat,
+         call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
       endif
 !!    show and quit
       if( int(ctrl_quit) == 1 ) then

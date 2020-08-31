@@ -1,6 +1,7 @@
       subroutine symrho ( ssite , sspec ,  lf , smrho , sv_p_orhoat !slat ,
      .     , qbyl , hbyl , f )
-      use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag, rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
+      use m_work,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
+      use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
@@ -66,7 +67,7 @@ c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       subroutine symrat ( ssite , sspec , nbas , nsp , lf , !slat , 
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
-      use m_work,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
+      use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_lmfinit,only: lat_plat,lat_qlat,lat_nsgrp
 C- Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
@@ -322,39 +323,22 @@ C ... Local parameters
       complex(8) ,allocatable :: cv_zv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symsmr')
-c      i_copy_size=size(lat_nabc)
-c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       ngabc=lat_nabc
       ng=lat_ng
       ngrp=lat_nsgrp
       if (ngrp .gt. 1) then
-C       call rhopos(smrho,k1,k2,k3,n1,n2,n3)
         allocate(cv_zv(ng))
         allocate(csym_zv(ng))
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,-1)
-C       call zprm3('smrho before poke',smrho,k1,k2,k3)
-ccccccccccccccccccccc
-      write(6,*)" aaa222xxx",sum(abs(smrho(:,:,:,1)))
-ccccccccccccccccccccc
         do  isp = 1, nsp
           call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smrho ( 1 , 
      .     1 , 1 , isp ) , cv_zv )
-ccccccccccccccccccccc
-      write(6,*)" aaa333xxx",sum(abs(smrho(:,:,:,1)))
-ccccccccccccccccccccc
           call gvsym ( ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv , cv_zv , 
      .       csym_zv )
-c          call dpadd ( csym_zv , cv_zv , 1 , ng * 2 , - 1d0 )
-ccccccccccccccccccccc
-      write(6,*)" aaa444xxx",ng,k1,k2,k3,sum(abs(cv_zv)),sum(abs(csym_zv))
-ccccccccccccccccccccc
            csym_zv=csym_zv - cv_zv
           call gvaddf ( ng , iv_a_okv , k1 , k2 , k3 , csym_zv , smrho 
      .     ( 1 , 1 , 1 , isp ) )
         enddo
-ccccccccccccccccccccc
-      write(6,*)" aaa555xxx",sum(abs(smrho(:,:,:,1)))
-ccccccccccccccccccccc
         call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
         if (allocated(csym_zv)) deallocate(csym_zv)
         if (allocated(cv_zv)) deallocate(cv_zv)

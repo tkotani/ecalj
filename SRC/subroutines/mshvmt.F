@@ -162,7 +162,7 @@ CSFCPP#endif
 
 
       subroutine symvvl(nbas,ssite,sspec,vval,vrmt) !slat,
-      use m_work,only: rv_a_osymgr,rv_a_oag
+      use m_mksym,only: rv_a_osymgr,rv_a_oag
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:lat_plat,lat_nsgrp
 C- Symmetrizes the potential at the MT boundary.

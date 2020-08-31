@@ -1,7 +1,8 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
       subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
-      use m_work,only: rv_a_osymgr,rv_a_oag,rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
+      use m_work,only: rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
+      use m_mksym,only: rv_a_osymgr,rv_a_oag
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,

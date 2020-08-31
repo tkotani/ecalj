@@ -12,9 +12,9 @@
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,sstrnmix,!,sbz,sctrl,sham,slat spot,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
-      use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos,iv_a_oiaxs,rv_a_ohrs, rv_p_oqsig,
-     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,
-     &     iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet !sbz
+      use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos, rv_p_oqsig,
+     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,rv_a_ohrs,iv_a_oiaxs
+c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
@@ -27,7 +27,8 @@
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_w_psir, only: w_psir_cmdopt
       use m_struc_def
-      use m_ext,only: sname !file extension. Open a file like file='ctrl.'//trim(sname)
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
+      use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -231,8 +232,8 @@ c      equivalence (ldim,ldham(1,1))
       type(s_rv1) :: sv_p_oppix(3,nbx)
       type(s_rv1) :: sv_p_otaux(3,nbx)
       type(s_rv1) :: sv_p_osigx(3,nbx)
-      logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.,
-     &  l_temp_iv_a_oidtet=.false.
+c      logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.
+c     &  l_temp_iv_a_oidtet=.false.
       double precision sigp(10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
@@ -1368,7 +1369,6 @@ c$$$            endif
             allocate(npair(nbas,nbas),pos(3,nbas))
             call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
             npairmx=nk1*nk2*nk3*2
-
             if (allocated(nlat)) deallocate(nlat)
             if (allocated(nqwgt)) deallocate(nqwgt)
             do !this loop is just to determined npairmx
@@ -1389,12 +1389,12 @@ c            if(pdos) then
 c               ifi = fopna('sigm_fbz',-1,4)
 c            else
             ifi = fopna('sigm',-1,4)
+c            open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
 c            endif   
             call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, !aug2012takao sbz,,sham slat,
      &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in ham_rv_a_ohrs
-            call fclose(ifi)
-            deallocate(sfz)
-            deallocate(qsmesh2,nlat,nqwgt)
+            call fclose(ifi) !close(ifi) !
+            deallocate(sfz,qsmesh2,nlat,nqwgt)
          endif             !procid==master
 #ifdef MPIK
 !! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
@@ -1412,14 +1412,10 @@ c            endif
          call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
 !! allocate and broadcast
          if(procid/=master) then
-            if(allocated(rv_a_ohrs)) deallocate(rv_a_ohrs)
             allocate( rv_a_ohrs(nsizeohrs) )
-            if(allocated(iv_a_oiaxs)) deallocate(iv_a_oiaxs)
             allocate( iv_a_oiaxs(nsizeoiaxs))       
-            if(allocated(iv_a_ontabs)) deallocate(iv_a_ontabs)
             allocate( iv_a_ontabs(nsizeontabs))       
-            if(allocated(rv_p_oqsig)) deallocate(rv_p_oqsig)
-            allocate(rv_p_oqsig(noqsig))
+            allocate( rv_p_oqsig(noqsig))
          endif   
          call mpibc1(iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
          call mpibc1(iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
@@ -2565,21 +2561,21 @@ c$$$         endif
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
             else
 ckino       maybe a switch for these is lmet.ne.0
-               l_temp_rv_a_oswtk=.false.
-               if (.not.allocated(rv_a_oswtk)) then
-                  allocate(rv_a_oswtk(1))
-                  l_temp_rv_a_oswtk=.true.
-               endif
-               l_temp_rv_a_owtkb=.false.
-               if (.not.allocated(rv_a_owtkb))then
-                  allocate(rv_a_owtkb(1,1,1))
-                  l_temp_rv_a_owtkb=.true.
-               endif
-               l_temp_iv_a_oidtet=.false.
-               if (.not.allocated(iv_a_oidtet))then
-                  allocate(iv_a_oidtet(1))
-                  l_temp_iv_a_oidtet=.true.
-               endif
+c$$$               l_temp_rv_a_oswtk=.false.
+c$$$               if (.not.allocated(rv_a_oswtk)) then
+c$$$                  allocate(rv_a_oswtk(1))
+c$$$                  l_temp_rv_a_oswtk=.true.
+c$$$               endif
+c$$$               l_temp_rv_a_owtkb=.false.
+c$$$               if (.not.allocated(rv_a_owtkb))then
+c$$$                  allocate(rv_a_owtkb(1,1,1))
+c$$$                  l_temp_rv_a_owtkb=.true.
+c$$$               endif
+c$$$               l_temp_iv_a_oidtet=.false.
+c$$$               if (.not.allocated(iv_a_oidtet))then
+c$$$                  allocate(iv_a_oidtet(1))
+c$$$                  l_temp_iv_a_oidtet=.true.
+c$$$               endif
 !! vnow june22013
                call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
@@ -2595,18 +2591,18 @@ ckino       maybe a switch for these is lmet.ne.0
                close(ifimag)
             endif
 
-            if (l_temp_rv_a_oswtk) then
-               deallocate(rv_a_oswtk)
-               l_temp_rv_a_oswtk=.false.
-            endif
-            if (l_temp_rv_a_owtkb) then
-               deallocate(rv_a_owtkb)
-               l_temp_rv_a_owtkb=.false.
-            endif
-            if (l_temp_iv_a_oidtet) then
-               deallocate(iv_a_oidtet);
-               l_temp_iv_a_oidtet=.false.
-            endif
+c$$$            if (l_temp_rv_a_oswtk) then
+c$$$               deallocate(rv_a_oswtk)
+c$$$               l_temp_rv_a_oswtk=.false.
+c$$$            endif
+c$$$            if (l_temp_rv_a_owtkb) then
+c$$$               deallocate(rv_a_owtkb)
+c$$$               l_temp_rv_a_owtkb=.false.
+c$$$            endif
+c$$$            if (l_temp_iv_a_oidtet) then
+c$$$               deallocate(iv_a_oidtet);
+c$$$               l_temp_iv_a_oidtet=.false.
+c$$$            endif
 !!         Store val charge & magnetic moment in sumqv(1..2)
             if (lmet .ne. 4) then
                sumqv(1,1) = sumqv(1,2)
