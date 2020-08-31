@@ -8,19 +8,15 @@ c      integer , allocatable ::  iv_a_oipq (:)
 c      real(8) , allocatable ::  rv_p_oqp (:) 
 c      integer , allocatable ::  iv_a_ostar (:)
 c      real(8) , allocatable ::  rv_a_owtkp (:)
+      real(8) , allocatable ::  rv_a_ocg (:)
+      real(8) , allocatable ::  rv_a_ocy (:)
 !! s_array      
       integer , allocatable ::  iv_a_oips (:)
 !! ham
-      real(8) , allocatable ::  rv_a_ohrs (:)
-      integer, allocatable :: iv_a_oiaxs(:)
       integer , allocatable ::  iv_a_oindxo (:)
-      integer, allocatable :: iv_a_ontabs(:)
       integer , allocatable ::  iv_a_ooffH (:)
-      real(8) , allocatable ::  rv_p_oqsig (:) 
 !! lat
       complex(8) , allocatable ::  zv_a_obgv (:)
-      real(8) , allocatable ::  rv_a_ocg (:)
-      real(8) , allocatable ::  rv_a_ocy (:)
       real(8) , allocatable ::  rv_a_odlv (:)
       real(8) , allocatable ::  rv_a_ogv (:)
       integer , allocatable ::  iv_a_oidxcg (:)
@@ -49,5 +45,4 @@ c      real(8) , allocatable ::  rv_a_owtkp (:)
       real(8) , allocatable ::  rv_a_oves (:)
       real(8) , allocatable ::  rv_a_ovintr (:)
       real(8) , allocatable ::  rv_a_ovrmax (:)
-      
       end module

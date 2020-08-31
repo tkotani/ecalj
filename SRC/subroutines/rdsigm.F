@@ -190,7 +190,7 @@ Cr    5.  sigm(LDA) (mode 1) or evec(LDA) (mode 3)
 Cu Updates
 Cu   27 Jun 08 Revised mode, and input checking.  Old optio=1 -> optio=3
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer nsp,ndimh,nk1,nk2,nk3,nqp,lshft1,lshft2,lshft3,ifi,optio, mode
 C ... Local parameters

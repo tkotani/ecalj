@@ -190,9 +190,16 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
 
 
 !! -----------------------------------------------------------------------------------
+      module m_seneinterp
+      real(8) , allocatable,protected ::  rv_a_ohrs (:)
+      integer, allocatable,protected :: iv_a_oiaxs(:)
+      integer, allocatable,protected :: iv_a_ontabs(:)
+      real(8) , allocatable ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
+      integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
+      contains
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_work,only: iv_a_oindxo, rv_a_opos,iv_a_oiaxs,rv_a_ohrs,
-     &     rv_p_oqsig , iv_a_ooffH ,iv_a_ontabs
+      use m_work,only: iv_a_oindxo, rv_a_opos,iv_a_ooffH 
+!     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag
       use m_hft2rs
       use m_lmfinit,only: globalvariables
@@ -770,10 +777,35 @@ C       call prmx('qp',w(oqp),3,3,nqp)
           if (allocated(ipq_iv)) deallocate(ipq_iv)
         endif
       endif
+      nsizeohrs  = size( rv_a_ohrs )
+      nsizeoiaxs = size( iv_a_oiaxs )
+      nsizeontabs= size( iv_a_ontabs)
+      noqsig = size(     rv_p_oqsig)
       call tcx('seneinterp')
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       end subroutine seneinterp
-
+      
+      subroutine senebroadcast(procid,master,mlog)
+      integer:: procid,master
+      logical:: mlog
+      call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
+      call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
+      call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
+      call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
+      print *,'nnnnnn=',nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
+      if(procid/=master) then
+         allocate( rv_a_ohrs(nsizeohrs) )
+         allocate( iv_a_oiaxs(nsizeoiaxs))       
+         allocate( iv_a_ontabs(nsizeontabs))       
+         allocate( rv_p_oqsig(noqsig))
+      endif   
+      call mpibc1(iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
+      call mpibc1(iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
+      call mpibc1(rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
+      call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
+      end subroutine senebroadcast
+      
+      end module m_seneinterp
 
 
 
@@ -781,7 +813,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
       subroutine rdsigm2(nbas_dummy,nsp,ifis,  !sbz,ndimh,sham 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
-      use m_work,only: rv_p_oqsig
+      use m_seneinterp,only: rv_p_oqsig
       use m_mksym,only: rv_a_osymgr
 c      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_lmfinit,only: globalvariables
@@ -1063,7 +1095,8 @@ c      mlog = cmdopt('--mlog',6,0,outs)
       lfbzin = .false.
 
 c      if (procid .eq. master) then !   Require file contains sigm(orbital basis)
-        call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2), lshft(3),ifis)
+      call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2), lshft(3),ifis)
+      print *,'iiiiiiiiiiii',i
 C         if (nscnts .ne. 0 .and. nscnts .ne. 5) then
 C         call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
 C      .    lshft(3),ifis)
@@ -1077,6 +1110,7 @@ c      call mpibc1(lshft,3,2,mlog,'rdsigm','lshft')
       if (i == nsp) then
         lsplts = .false.
       elseif (i > nsp) then
+         print *,'i,nsp=',i,nsp
         call rx('rdsigm: sigm file spin polarized but ctrl is not')
       else
         lsplts = .true.

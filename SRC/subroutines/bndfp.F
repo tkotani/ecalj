@@ -12,8 +12,8 @@
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,sstrnmix,!,sbz,sctrl,sham,slat spot,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
-      use m_work,only: iv_a_oindxo,iv_a_ontabs, rv_a_opos, rv_p_oqsig,
-     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat,rv_a_ohrs,iv_a_oiaxs
+      use m_work,only: iv_a_oindxo, rv_a_opos, 
+     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
@@ -21,7 +21,7 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
-     &   lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma
+     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma
       use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
@@ -29,6 +29,7 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
       use m_struc_def
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+      use m_seneinterp,only:seneinterp,rv_p_oqsig,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,senebroadcast
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -1311,13 +1312,16 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             write(6,*)' --- goto rdsigm2 initialization section ---'
             rsrnge = ham_rsrnge
             write(6,*)'rsrnge procid=',rsrnge,procid
-            ifi = fopna('sigm',-1,4)
+c     ifi = fopna('sigm',-1,4)
+c            print *,'####'//trim(sname)//'####'
+c newunit can give negative number!            
+            ifi=ifile_handle()
+            open(ifi,file='sigm.'//trim(sname),form='unformatted')!
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
 !! takao !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         laf=allocated(symops_af) !jun2015takao
         if(laf) nspsigm=2
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
             allocate( qsmesh2(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
                allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
@@ -1334,10 +1338,10 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
                write(6,"(a,2i5)")" --- ndham (>=max of ham dimension) =",ndham
             endif
 !! sfz is the self-energy roteted in the full BZ.
-!!   ndham is removed sep2012 (read from sigma file )
+!     !   ndham is removed sep2012 (read from sigma file )
             call rdsigm2(nbas,nspsigm,ifi,  !sbz,,sham slat,
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
-            call fclose(ifi)
+            close(ifi) !call fclose(ifi)
 c$$$!! --- write sig_fbz for SYMGRP e
 c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
 c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
@@ -1364,7 +1368,7 @@ c$$$                  enddo
 c$$$               enddo
 c$$$               call fclose(ifis2)
 c$$$            endif
-
+c
 !! mesh generator.  Unused yet...->in future, we will use this.
             allocate(npair(nbas,nbas),pos(3,nbas))
             call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
@@ -1379,54 +1383,27 @@ c$$$            endif
               deallocate( nlat, nqwgt )
             enddo
             deallocate(pos,npair)
-
 !! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
 !!    The main input of the subroutine seneinterp is sfz. 
 !!    The seneinterp stores real-space sigma to ham_rv_a_ohrs (real space representation), 
 !!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
 !! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
-c            if(pdos) then
-c               ifi = fopna('sigm_fbz',-1,4)
-c            else
-            ifi = fopna('sigm',-1,4)
-c            open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
-c            endif   
-            call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, !aug2012takao sbz,,sham slat,
-     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in ham_rv_a_ohrs
-            call fclose(ifi) !close(ifi) !
+            ifi = ifile_handle()
+            open(ifi,file='sigm.'//trim(sname),form='unformatted')
+            call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, 
+     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in rv_a_ohrs in m_seneinterp
+            close(ifi) 
             deallocate(sfz,qsmesh2,nlat,nqwgt)
          endif             !procid==master
 #ifdef MPIK
-!! Broadcast date stored in call seneinterp: probably we need to make it simplified... nov2012takao 
-         if(procid==master) then
-            nsizeohrs  = size( rv_a_ohrs )
-            nsizeoiaxs = size( iv_a_oiaxs )
-            nsizeontabs= size( iv_a_ontabs)
-            noqsig = size(     rv_p_oqsig)
-         endif
-         call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
+         call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
          call mpibc1(ham_ndhrs,1,2,mlog,'bndfp','ndhrs')
-         call mpibc1(nsizeohrs,1,2,mlog,'bndfp','nsizeohrs')
-         call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
-         call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
-         call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
-!! allocate and broadcast
-         if(procid/=master) then
-            allocate( rv_a_ohrs(nsizeohrs) )
-            allocate( iv_a_oiaxs(nsizeoiaxs))       
-            allocate( iv_a_ontabs(nsizeontabs))       
-            allocate( rv_p_oqsig(noqsig))
-         endif   
-         call mpibc1(iv_a_ontabs,nsizeontabs,2,mlog,'bndfp','ontabs')
-         call mpibc1(iv_a_oiaxs ,nsizeoiaxs,2,mlog,'bndfp','oiaxs')
-         call mpibc1(rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
-         call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
+         call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
          siginit=.false. !this is equivalent to broad casting.
          if(procid==master) write(6,*)' --- end of rdsigm2 initialization section ---'
       endif    ! end of sigmamode
-
 
 !! == GW driver ==
       if(llmfgw) then
@@ -1435,7 +1412,7 @@ c            endif
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .     ,nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
-! NOTE: Sigma-Vxc in real space is give by ham_rv_a_ohrs.
+! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          deallocate(spotx)
          call tcx('bndfp')
 #if MPIK
@@ -1443,7 +1420,6 @@ c            endif
 #endif
          call rx0('sugw mode')  !exit program here normally.
       endif
-
 
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
