@@ -1,7 +1,7 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
       subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
-      use m_work,only: rv_a_opos,iv_a_ooffh,iv_a_oindxo,rv_a_ogv
+      use m_work,only: rv_a_opos,iv_a_ooffh,rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
@@ -448,10 +448,11 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       endif
       end subroutine gen_hamindex
 
-
-
+      module m_suham
+      integer , allocatable,protected ::  iv_a_oindxo (:)
+      contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
-      use m_work,only: iv_a_ooffH,iv_a_oindxo,rv_a_ogv
+      use m_work,only: iv_a_ooffH,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
@@ -742,6 +743,7 @@ C    ...  Printout
         endif
       endif
       end subroutine suham
+      end module m_suham
 
 
 

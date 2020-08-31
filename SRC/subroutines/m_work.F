@@ -11,9 +11,8 @@ c      real(8) , allocatable ::  rv_a_owtkp (:)
       real(8) , allocatable ::  rv_a_ocg (:)
       real(8) , allocatable ::  rv_a_ocy (:)
 !! s_array      
-      integer , allocatable ::  iv_a_oips (:)
+c      integer , allocatable ::  iv_a_oips (:)
 !! ham
-      integer , allocatable ::  iv_a_oindxo (:)
       integer , allocatable ::  iv_a_ooffH (:)
 !! lat
       complex(8) , allocatable ::  zv_a_obgv (:)

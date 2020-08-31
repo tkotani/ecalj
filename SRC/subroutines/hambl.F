@@ -2,7 +2,7 @@
      .   , isp , qin , k1 , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau 
      .   , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapwin , h , s , 
      .     hso )
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_struc_def,only: s_rv1, s_site, s_spec!,  s_lat !s_ham,
       use m_lmfinit,only:lat_plat,lat_qlat
       implicit none

@@ -98,7 +98,7 @@ C     call tcx('mkrou3')
       subroutine mkrout ( ssite , sspec , nbas , nsp !sham , slat , 
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .     , sab , qbyl , hbyl , lrout )
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables

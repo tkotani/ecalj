@@ -4,7 +4,7 @@
       use m_struc_def  !Cgetarg
 c      use m_globalvariables
       use m_lmfinit,only:lso
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: lat_nabc,lat_vol
       use m_lmfinit,only: globalvariables
 C- Evaluate the valence kinetic energy

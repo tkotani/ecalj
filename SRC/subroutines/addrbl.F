@@ -6,7 +6,7 @@ CSFCPP#define F90 1
      .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def , esmear 
      .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
      .     , sv_p_oeqkkl , f )
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol

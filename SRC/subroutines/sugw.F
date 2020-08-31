@@ -9,7 +9,7 @@
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables,only: globalvariables
 c      use m_phmbls,only: phmbls
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,

@@ -14,6 +14,7 @@
       use m_work,only: slat_rv_a_opos =>rv_a_opos,sv_a_oorhat,zv_a_osmrho
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab
       use m_mkqp,only: mkqp
+      use m_suham,only:suham
 !! Main routine of lmf
 !!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
 !!  plan to future: We will relocate all sets of data to modules where they are generated.

@@ -1,7 +1,7 @@
       subroutine makusq(mode,ssite,sspec,nbas,nsites,isite,!,sham,slat
      .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
      .     aus)
-      use m_work,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
