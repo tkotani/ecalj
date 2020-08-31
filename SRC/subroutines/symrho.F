@@ -1,6 +1,6 @@
       subroutine symrho ( ssite , sspec ,  lf , smrho , sv_p_orhoat !slat ,
      .     , qbyl , hbyl , f )
-      use m_work,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
+      use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
@@ -308,7 +308,7 @@ C ... Copy to all sites in class
 
 
       subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
-      use m_work,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
+      use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
       use m_struc_def           !Cgetarg
       use m_lmfinit,only: lat_nabc,lat_ng,lat_nsgrp
 C- Symmetrize the smooth charge density

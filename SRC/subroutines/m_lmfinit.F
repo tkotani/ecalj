@@ -201,18 +201,20 @@ C  arg  18:        offset to bs workspace
      .gd_modt(3),gd_nmodt=1
       character(1024):: mmham=' '
       real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
-!! ... APW
       integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
       real(8)::    pwemax,pwemin,oveps,delta_stabilize
       integer , allocatable ::  iv_a_oips (:)
-!!      
+!! CG coefficient      
+      real(8) , allocatable,protected  ::  rv_a_ocg (:)
+      real(8) , allocatable,protected  ::  rv_a_ocy (:)
+      integer , allocatable,protected  ::  iv_a_oidxcg (:)
+      integer , allocatable,protected  ::  iv_a_ojcg (:)
+!!
+      real(8), allocatable :: rv_a_opos(:)
 c      character(1)::mmm
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains !rdctrl2 set initial values of m_lmfinit (in future all variables should be protected).
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
-      use m_work,only: rv_a_opos
-      use m_work,only: rv_a_ocy,rv_a_ocg,iv_a_ojcg,iv_a_oidxcg !CG coefficients
-c      use m_lmfinit !contains main initial data
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv 
@@ -2163,7 +2165,6 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
           enddo
           ham_seref=seref
           allocate(rv_a_opos(abs(3*nsite)))
-c          if (allocated(iv_a_oips)) deallocate(iv_a_oips) !v_sarry%
           allocate(iv_a_oips(abs(nsite)))
           do i_spackv=1,nsite
              rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
@@ -2208,7 +2209,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!   originally in lmv7.F
 !     !--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
-      call lattic() !this gives v_slat
+      call latticx() ! =lattic. to avoid cyclic dependensy of modules.
       do ibas=1,ctrl_nbas
         v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo

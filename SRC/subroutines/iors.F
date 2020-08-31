@@ -4,7 +4,7 @@
       use m_struc_def 
       use m_struc_func
       use m_lmfinit,only: globalvariables
-      use m_work,only: zv_a_osmrho, rv_a_oves
+      use m_supot,only: zv_a_osmrho
       use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
 C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------
@@ -39,8 +39,6 @@ Ci     Elts read: alat plat nabc dist
 Ci     Stored:    *
 Ci     Passed to: iors mpibc1
 Ci   spot  :struct for information about the potential; see routine upot
-Ci     Elts read: osmrho (FP) oves (ASA)
-Ci     Stored:    oves (ASA)
 Ci     Passed to: iors mpibc1
 Ci   sbz   :struct for the Brillouin Zone; see routine ubz
 Ci     Elts read: ef def w

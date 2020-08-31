@@ -1,7 +1,7 @@
       subroutine dfrce (job, ssite , sspec , k1 , k2 , k3 !sctrl , slat , 
      .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
      .     , dfh )
-      use m_work,only: rv_a_ogv,iv_a_okv
+      use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,lat_plat

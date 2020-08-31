@@ -1,6 +1,6 @@
       subroutine rdovfa ( nbas , nspec , ssite , sspec  !, spot !, slat
      . , qbg , sv_p_orhoat )
-      use m_work,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
+      use m_supot,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
       use m_struc_def  !Cgetarg
       use m_struc_func , only: mpibc1_s_spec
       use m_lmfinit,only: globalvariables

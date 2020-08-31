@@ -1,7 +1,8 @@
       subroutine smvxcm(ssite,sspec,nbas,lfrce,k1,k2,k3,smrho,!slat,
      .smpot,smvxc,smvx,smvc,smexc,repsm,repsmx,repsmc,rmusm,rvmusm,
      .rvepsm,focexc,focex,focec,focvxc,f)
-      use m_work,only: iv_a_okv,rv_a_ogv,rv_a_ocy
+      use m_supot,only: rv_a_ogv,iv_a_okv
+      use m_lmfinit,only: rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables

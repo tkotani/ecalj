@@ -179,7 +179,7 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
-      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------

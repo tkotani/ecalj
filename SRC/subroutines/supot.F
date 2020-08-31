@@ -1,10 +1,20 @@
-      subroutine supot(mode)!,spot) !,sctrl,slat
-      use m_work,only: rv_a_omad,rv_a_opos,rv_a_ogv,iv_a_okv,zv_a_osmrho,sv_a_oorhat,zv_a_osmpot
-     &     ,rv_a_odlv,rv_a_oqlv,zv_a_obgv,iv_a_oips0
-      use m_mksym,only: rv_a_osymgr,rv_a_oag 
-      use m_lmfinit,only :lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
-      use m_struc_def
-      use m_lmfinit,only: lat_nsgrp,lat_alat,lat_vol,lat_awald,lat_nkd,lat_gmax,lat_ng,lat_plat,lat_nabc,lat_nkq
+      module m_supot
+      use m_struc_def,only: s_rv1
+      type(s_rv1), allocatable :: sv_a_oorhat(:)
+      complex(8) , allocatable,protected ::  zv_a_obgv (:)
+      integer , allocatable,protected ::  iv_a_oips0 (:)
+      real(8) , allocatable,protected ::  rv_a_ogv (:)
+      integer , allocatable,protected ::  iv_a_okv (:)
+      complex(8) , allocatable ::  zv_a_osmrho (:)
+      complex(8) , allocatable ::  zv_a_osmpot (:)
+      real(8) , allocatable ::  rv_a_omad (:)
+      contains
+      subroutine supot(mode)    !,spot) !,sctrl,slat
+      use m_lattic,only: rv_a_odlv,rv_a_oqlv
+      use m_mksym,only:    rv_a_osymgr,rv_a_oag 
+      use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
+      use m_lmfinit,only: lat_nsgrp,lat_alat,lat_vol,lat_awald,lat_nkd,lat_gmax,lat_ng,lat_plat,
+     &     lat_nabc,lat_nkq,rv_a_opos
 C- Initialization for potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -96,3 +106,4 @@ C   ... Setup for symmetrization
      .       , zv_a_obgv )
       endif
       end subroutine supot
+      end module m_supot

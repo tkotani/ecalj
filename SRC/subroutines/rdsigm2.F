@@ -198,15 +198,14 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       contains
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_work,only:  rv_a_opos,iv_a_ooffH
-      use m_suham,only:iv_a_oindxo
+      use m_suham,only:iv_a_oindxo,iv_a_ooffH
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag
       use m_hft2rs
       use m_lmfinit,only: globalvariables
       use m_sigflg
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs,
-     & lat_plat,lat_nsgrp
+     & lat_plat,lat_nsgrp,rv_a_opos
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none

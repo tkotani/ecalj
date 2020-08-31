@@ -1,5 +1,5 @@
       subroutine hsmbl(p,rsm,e,q,lmax,cy,hsm,hsmp) !,slat
-      use m_work,only: rv_a_oqlv,rv_a_odlv
+      use m_lattic,only: rv_a_oqlv,rv_a_odlv
       use m_struc_def           !Cgetarg
       use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd,lat_nkq
 C- Bloch-sum of smooth Hankel functions and energy derivatives

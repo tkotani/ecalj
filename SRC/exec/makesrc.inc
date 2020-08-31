@@ -1,11 +1,11 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_clsprm.o\
 xcfunc.o\
 m_struc_func.o\
 pqmix.o\
 m_lmfinit.o\
-m_work.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\
@@ -181,7 +181,6 @@ rstr0.o \
 s2sph.o \
 scg.o \
 sclwsr.o \
-setcg.o \
 shear.o \
 shftpp.o \
 shoist.o \

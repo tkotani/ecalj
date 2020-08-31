@@ -1,5 +1,5 @@
       subroutine gklbl(p,rsm,e,q,kmax,nlm,k0,cy,gkl) !,slat
-      use m_work,only: rv_a_oqlv,rv_a_odlv
+      use m_lattic,only: rv_a_oqlv,rv_a_odlv
       use m_struc_def           !Cgetarg
       use m_lmfinit,only: lat_vol,lat_awald,lat_nkd,lat_alat,lat_plat,lat_qlat,lat_nkq
 C- Bloch-sums of k,L-dependent gaussians

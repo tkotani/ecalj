@@ -2,7 +2,7 @@
 !!*Kotani's version newmode with xcpbe.F in abinit Aug2010
       subroutine vxcnlm(lxcg,nsp,k1,k2,k3,smrho, !slat,
      .repnl,rmunl,vavgnl,vxnl,vcnl,vxcnl)
-      use m_work,only: iv_a_okv,rv_a_ogv!,rv_a_ocy
+      use m_supot,only: iv_a_okv,rv_a_ogv
 c      use m_struc_def, only:s_lat
       use m_xcpbe,  only: xcpbe
       use m_lmfinit,only:  lat_nabc, lat_ng, lat_alat,lat_vol

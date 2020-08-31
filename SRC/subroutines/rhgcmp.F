@@ -1,5 +1,5 @@
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
-      use m_work,only: rv_a_ogv
+      use m_supot,only: rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables

@@ -187,7 +187,7 @@ CSFCPP#define F90 1
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
       use m_prlcb
-      use m_work,only: iv_a_oidxcg, iv_a_ojcg , rv_a_ocy,rv_a_ocg
+      use m_lmfinit,only: iv_a_oidxcg, iv_a_ojcg , rv_a_ocy,rv_a_ocg
       use m_lmfinit,only:lat_alat,lat_qlat
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------

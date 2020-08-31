@@ -1,7 +1,8 @@
       subroutine smves(mode,nbas,ssite,sspec,k1,k2,k3,qmom,gpot0, !slat,
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
-      use m_work,only: rv_a_ogv , iv_a_okv, rv_a_ocy
+      use m_supot,only: iv_a_okv, rv_a_ogv
+      use m_lmfinit,only:  rv_a_ocy
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables

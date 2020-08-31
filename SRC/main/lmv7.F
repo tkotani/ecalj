@@ -137,7 +137,7 @@ c      integer namelen(0:MAX_PROCS-1)
 !! rdctrl2 sets all initial condition to m_lmfinit module.
       call rdctrl2(recrd,recln0,nrecs,prgnam)
 !! Main part of lmf ------------------------------------
-!!  lmfp uses data set in m_lmfinit and m_work 
+!!  lmfp uses data set in m_lmfinit 
 !!  We have to clean up data flow better. Data in m_lmfinit should be protected in future.
 !!  Data in m_work should be moved to modules where data are generated.
       if(prgnam =='LMFGWD') llmfgw=.true.

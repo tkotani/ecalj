@@ -1,5 +1,4 @@
       subroutine lmfp(llmfgw) 
-      use m_struc_def,only: s_spec,s_site
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, !,irs3,irs4,irs5,irs11,
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_lrs,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
@@ -10,11 +9,12 @@
      &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
      &     sstrnmix,sstrnsymg, !ssite2=>v_ssite2,
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
-     &     globalvariables
-      use m_work,only: slat_rv_a_opos =>rv_a_opos,sv_a_oorhat,zv_a_osmrho
+     &     globalvariables, rv_a_opos 
+      use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab
       use m_mkqp,only: mkqp
       use m_suham,only:suham
+      use m_lattic,only:lattic
 !! Main routine of lmf
 !!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
 !!  plan to future: We will relocate all sets of data to modules where they are generated.
@@ -85,7 +85,7 @@ c      type(s_site)::ssite(*)
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
       integer:: o
-      real(8),allocatable:: rv_a_opos(:)
+      real(8),allocatable:: pos_move(:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
@@ -214,9 +214,9 @@ C     Shorten site positions
           ix(2) = 2
           ix(3) = 2
           call info0(50,1,0,' lmfp : shortening basis vectors ... ')
-          call shorps ( nbas , plat , ix , pos2_rv , slat_rv_a_opos )
+          call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
           do i_spackv=1,nbaspp
-            ssite(i_spackv)%pos = slat_rv_a_opos( 3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+            ssite(i_spackv)%pos = rv_a_opos( 3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -284,7 +284,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
           allocate(pos2_rv(3,nbas))
           j = 1
           call ivset(ix,1,3,j)
-          call shorps ( nbas , plat , ix , slat_rv_a_opos , pos2_rv )
+          call shorps ( nbas , plat , ix , rv_a_opos , pos2_rv )
           call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv, ifi )
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -407,7 +407,7 @@ C     3              read nothing (data already input)
 
 !! ... Write positions array from site structure
         do i_spackv=1,nbaspp
-          slat_rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+          rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
         enddo
 c        call mpibc1_s_lat(slat,.false.,'lmfp','slat')
         if (k .lt. 0) then
@@ -456,12 +456,12 @@ c$$$        enddo
 c$$$        ix(1) = 2
 c$$$        ix(2) = 2
 c$$$        ix(3) = 2
-c$$$        call shorps ( - nbas , plat , ix , pos2_rv , slat_rv_a_opos )
+c$$$        call shorps ( - nbas , plat , ix , pos2_rv , rv_a_opos )
 c$$$        call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
-c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , slat_rv_a_opos )
-c$$$        call shorps ( nbas , plat , ix , pos2_rv , slat_rv_a_opos )
+c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , rv_a_opos )
+c$$$        call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
 c$$$        do i_spackv=1,nbaspp
-c$$$          ssite(i_spackv)%pos= slat_rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$          ssite(i_spackv)%pos= rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
 c$$$        enddo
 c$$$        if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$      endif
@@ -585,10 +585,10 @@ C     ... Reset quantities for iterations towards self-consistency
 C     --- Molecular statics ---
         if (nitrlx .gt. 0 .and. lsc .le. 2) then
           call cppos(1,nbas,ssite)
-          if (allocated(rv_a_opos)) deallocate(rv_a_opos)
-          allocate(rv_a_opos(abs(3*nbas)))
+          if (allocated(pos_move)) deallocate(pos_move)
+          allocate(pos_move(abs(3*nbas)))
           do i_spackv=1,nbas
-            rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+            pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
           enddo
           mdprm=ctrl_mdprm
           if (lshr) then
@@ -607,7 +607,7 @@ C     --- Molecular statics ---
             endif
           else
             call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
-     .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , rv_a_opos 
+     .              , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move 
      .              , icom )
           endif
 C     Restore lattice symmetry to machine precision
@@ -620,7 +620,7 @@ C     call shoist(w(oistab),nbas,w(oag),w(og),ng)
             endif
             if (strn(9:9) .ne. ':' .or.
      .              .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-            call fixpos ( rv_a_opos , nbas , fptol , ng , plat , rv_a_osymgr
+            call fixpos ( pos_move , nbas , fptol , ng , plat , rv_a_osymgr
      .              , rv_a_oag , iv_a_oistab )
           endif
 
@@ -633,15 +633,16 @@ C     Write updated positions to bsmv file
 
             j = 1
             call ivset(ix,1,3,j)
-            call shorps ( nbas , plat , ix , rv_a_opos , pos2_rv )
+            call shorps ( nbas , plat , ix , pos_move , pos2_rv )
             call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
      .              , - ifi )
             if (allocated(pos2_rv)) deallocate(pos2_rv)
             call fclose(ifi)
           endif
-C     repack updated positions in site structure
+!!  Updated positions in site structure !WARN! t.kotani think this is confusing because
+!!     position written in ctrl and positions written in rst becomes different.
           do i_spackv=1,nbas
-            ssite(i_spackv)%pos = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+            ssite(i_spackv)%pos = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
           enddo
 
 C     ... Exit when relaxation converged or maximum number of iterations
@@ -670,7 +671,7 @@ C     if (itrlx .eq. nitrlx .and. icom .eq. -1) then
               call info0(20,1,0,' lmfp: restore positions for minimum g')
 C     call prmx('initial positions',w(opos),3,3,nbas)
               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , p_rv
-     .                 , rv_a_opos )
+     .                 , pos_move )
 C     call prmx('minimum-g positions',w(opos),3,3,nbas)
             else
               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
@@ -687,7 +688,7 @@ C     call prmx('minimum-g positions',w(opos),3,3,nbas)
 
 C     Repack updated positions in site structure
             do i_spackv=1,nbas
-              ssite(i_spackv)%pos = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+              ssite(i_spackv)%pos = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
             enddo
           endif
 
@@ -713,7 +714,7 @@ c$$$!! Write positions to file
 c$$$          if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
 c$$$            gam=lat_gam
 c$$$            allocate(wk_rv(3*nbas))
-c$$$            call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+c$$$            call rdistn ( pos_move , wk_rv , nbas , gam ( 1 ) , gam ( 2 
 c$$$     .              ) , gam ( 3 ) , 1 / gam1 )
 c$$$            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 c$$$            if (allocated(wk_rv)) deallocate(wk_rv)
@@ -752,15 +753,15 @@ C     reset mixing block
 !! Write positions to file
       if (cmdopt('--wpos=',7,0,strn) .or.
      .     cmdopt('--wpos:mode1:',13,0,strn)) then
-         if (allocated(rv_a_opos)) deallocate(rv_a_opos)
-         allocate(rv_a_opos(abs(3*nbas)))
-         if (3*nbas<0) rv_a_opos(:)=0.0d0
+         if (allocated(pos_move)) deallocate(pos_move)
+         allocate(pos_move(abs(3*nbas)))
+         if (3*nbas<0) pos_move(:)=0.0d0
          do i_spackv=1,nbas
-              rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+              pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
          enddo
          gam=lat_gam
          allocate(wk_rv(3*nbas))
-         call rdistn ( rv_a_opos , wk_rv , nbas , gam ( 1 ) , gam ( 2 
+         call rdistn ( pos_move , wk_rv , nbas , gam ( 1 ) , gam ( 2 
      .        ) , gam ( 3 ) , 1 / gam1 )
 c         if (cmdopt('--wpos:mode1:',13,0,strn)) then
 c            call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
@@ -768,7 +769,7 @@ c         else
 c            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
 c         endif
          if (allocated(wk_rv)) deallocate(wk_rv)
-         if (allocated(rv_a_opos)) deallocate(rv_a_opos)
+         if (allocated(pos_move)) deallocate(pos_move)
       endif 
       call tcx('lmfp')
       if (allocated(lldau_iv)) deallocate(lldau_iv)
@@ -793,12 +794,12 @@ c         endif
 !!  undo original transformation = P P_0^-1
       allocate(pos2_rv(3,nbas))
       call dinv33(plat,0,xv,xv(10))
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , rv_a_opos 
+      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , pos_move 
      .     , 3 , 0d0 , pos2_rv , 3 )
       call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
-     .     , 3 , 0d0 , slat_rv_a_opos , 3 )
+     .     , 3 , 0d0 , rv_a_opos, 3 )
       do i_spackv=1,nbas
-        ssite(i_spackv)%pos  = rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+        ssite(i_spackv)%pos  = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
       enddo
       call cppos(1,nbas,ssite)
 !! New shear

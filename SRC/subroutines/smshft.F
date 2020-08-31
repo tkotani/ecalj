@@ -1,6 +1,6 @@
       subroutine smshft ( ssite , sspec ,  sv_p_orhoat !sctrl , sham ,slat , 
      . , smrho )
-      use m_work,only: iv_a_okv,rv_a_ogv
+      use m_supot,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables

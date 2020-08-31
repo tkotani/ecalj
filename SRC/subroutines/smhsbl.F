@@ -1,7 +1,7 @@
 CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,vavg,q,ndimh,iprmb, !,slat
      .napw,igapw,h,s)
-      use m_work,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables

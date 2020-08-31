@@ -7,6 +7,8 @@
       type s_rv1
       real(8),allocatable:: v(:)
       end type s_rv1
+
+      
 !! --- explanation of s_spec --- (some are obsolate)
 Cr  name    purpose
 Cr  a      a for mesh
@@ -174,6 +176,8 @@ c      real(8)   ::   alpha(10)
       real(8)   ::   vso(4)
       integer :: nmcore !jun2012takao
       end type s_spec
+
+      
 !! --- explanation of s_site --- (some are obsolate)
 Cr   bfield  site magnetic field (not used)
 Cr   clabel  string labelling class

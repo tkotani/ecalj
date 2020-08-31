@@ -1,7 +1,7 @@
 !! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
       subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
-      use m_work,only: rv_a_opos,iv_a_ooffh,rv_a_ogv
+      use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
@@ -12,7 +12,7 @@ c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qp
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_nsgrp ,lat_plat,lat_qlat,lat_alat
+     &     lat_nsgrp ,lat_plat,lat_qlat,lat_alat,rv_a_opos
 c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -450,9 +450,10 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
 
       module m_suham
       integer , allocatable,protected ::  iv_a_oindxo (:)
+      integer , allocatable,protected ::  iv_a_ooffH (:)
       contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
-      use m_work,only: iv_a_ooffH,rv_a_ogv
+      use m_supot,only: rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin

@@ -12,8 +12,7 @@
       subroutine bndfp(nbas,nsp,nlibu,lmaxu,lldau, ssite,sspec,sstrnmix,!,sbz,sctrl,sham,slat spot,
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
-      use m_work,only:  rv_a_opos, 
-     &     zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
+      use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
       use m_suham,only:iv_a_oindxo
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
@@ -22,7 +21,7 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_nl,ctrl_lfrce,ctrl_nbasp,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
-     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma
+     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma,rv_a_opos 
       use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode

@@ -6,7 +6,7 @@ c      use m_globalvariables
       use m_lmfinit, only: !rdctrl2,,v_sctrl,v_sctrl2 v_sham,
      &     v_sspec,!,v_ssite,  !v_sarry2,v_sbz ,v_slat,v_slat2 ,v_spot slabl_,v_smix,
      &     rdctrl2 !v_ssite2,sstrnmix,sstrnsymg,
-      use m_work,only: rv_a_opos
+c      use m_work,only: rv_a_opos
       implicit none
       integer procid, master, mpipid, nproc
 c      integer,parameter:: lstrn=10000
