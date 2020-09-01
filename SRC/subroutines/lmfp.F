@@ -15,26 +15,34 @@
       use m_mkqp,only: mkqp
       use m_suham,only:suham
       use m_lattic,only:lattic
-!! Main routine of lmf
-!!  All data set is in m_lmfinit and m_work. Data in these module are not yet protected well.
-!!  plan to future: We will relocate all sets of data to modules where they are generated.
-C     i Inputs. (because we rewrite old code mechanically, some data are duplicated).
+      use m_ext,only: sname
+!! = Main routine of lmf = (following document is roughly checked at aug2020)
+!   lmfp contains two loops
+!!    1, big loop '4 continue' is for molecular dynamics (relaxiation).
+!     2. innner loop '5 continue' is for electronic structure self-consistency.
+!!       core of inner loop is bndfp. because of historical reason, Umatrix for LDA+U is managed in lmfp.
+!!  All data set to invoke lmfp is stored in m_lmfinit by rdctrl.
+!! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
+!!      we don't maintain the mode. Probably, we need to re-design it (maybe outside of molecular relaxiation).
+!! original classifications are      
 C     i   bz_*   :related to the Brillouin Zone
 C     i   ctrl_* :               program flow
 C     i   ham_*  :               hamiltonian
 C     i   pot_*  :               potential
 C     i   lat_*  :               lattice
 C     i   mix  :                 mixing parameters; see routine umix
-C     i   sspec :struct for species-specific information; see routine uspec
-C     i   ssite :struct for site-specific information; see routine usite
+!! however, these classification is not so consistent. Some data in m_lmfinit are redundant because
+!!      we rewrite old code somehow mechanically.
+!!  These are still meaningful, defined in m_struct_def, and set in m_lmfinit
+!     i   sspec :struct for species-specific information; see routine uspec
+!     i   ssite :struct for site-specific information; see routine usite
+!! followings are memo for LDA+U
 C     l Local variables
 C     l   lmaxu : max l for a U (used for dimensioning)
-C     i   w(olldau): lldau(ib)=0 => no U on this site otherwise
+C     i   lldau(ib)
 C     i         : U on site ib with dmat beginning at dmats(*,lldau(ib))
 C     l   nlibu : total number of U blocks
-C     l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
-C     r Remarks
-C     r  This is the entry point for the self-consistent FP band program
+Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
 C     u Updates
 !!  aug2020. T.Kotani remove s_* except s_spec and s_pot. Data are in m_lmfinit.
 !!           In future, we need clear protection after data are generated.
@@ -80,12 +88,12 @@ c      type(s_site)::ssite(*)
       integer procid,master,mpipid,nproc
       logical mlog
       logical lgors,cmdopt,bittst
-      integer fopna,fopng,i,ifi,igets,iors,ipr,irs(2),isw,ix(5),j, !,iscr
+      integer fopna,fopng,i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
       integer:: o
-      real(8),allocatable:: pos_move(:)
+      real(8),allocatable:: pos_move(:,:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
@@ -117,7 +125,6 @@ C     ... for relaxation
 
 c     ki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
-c      real(8) ,allocatable :: shr_rv(:)
 
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
      .     plat0(3,3),dist0(9),dist(9)
@@ -134,7 +141,7 @@ c     integer:: odmatu , ovorbdmat , odmato
 
       real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false.
-      integer:: i_spackv,isize_iv_tmp
+      integer:: isize_iv_tmp,ibas
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -142,33 +149,12 @@ c     integer:: odmatu , ovorbdmat , odmato
 
       call tcn('lmfp')
       etot(1) = 0
-
 !! MPI-specific
       nproc  = mpipid(0)
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
-
-c!! MPIK is only allowed now... Need to examine MPI again in future.
-c$$$#if MPI
-c$$$      nbas=ctrl_nbas
-c$$$!!       mpipic() is defined in slatsm
-c$$$      if ( nbas < nproc ) then
-c$$$        if (procid == master ) then
-c$$$          write(6,*)
-c$$$          write(6,"(a,/,a,/,a,/,a)")
-c$$$     &           '# For lmf-MPI, process>NBAS is not allowed.',
-c$$$     &           '# If you remove this sanity check, it will fail',
-c$$$     &           '# at hsibl.F and smhsbl.F.',
-c$$$     &           '# You may need a better MPI version for efficent use of CPUs.'
-c$$$        endif
-c$$$        call mpi_finalize(ierr)
-c$$$        call exit(-1) ! '-1'  is the return code of the program
-c$$$        stop ! ---------- may be stop is unnecessary.
-c$$$      endif
-c$$$#endif
-
-!!  -------------------------- Total energy mode -------------------
+!!  -------------------------- Total energy mode -->moved to m_lmfinit ---
 c$$$      if (cmdopt('--etot',6,0,strn)) then
 c$$$!!  No forces or dynamics
 c$$$        mdprm=0
@@ -191,32 +177,26 @@ c$$$      endif
       nbaspp = nbas      
       stdo   = lgunit(1)
       call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
-      irs( 1 ) = irs1
-      irs( 2 ) = irs2
-c      if(nowriteden) irs(2)=0
-c      irs( 3 ) = irs3
-c      irs( 4 ) = irs4
-c      irs( 5 ) = irs5
+      irs1x = irs1
 !! ... --rs=3 => always read from atom file
-      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs( 1 ) = 0
-C     ... Printout properties of species
-      if (ipr .ge. 30) call praugm(sspec,0)
+      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs1x = 0
+      if (ipr .ge. 30) call praugm(sspec,0) !Printout properties of species
 C     ... Setup for no screening transformation
       if ( iand(1,int(ctrl_lbas)) .ne. 0 ) then
 C     Shorten site positions
         plat=lat_plat
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
           allocate(pos2_rv(3,nbas))
-          do i_spackv=1,nbas
-            pos2_rv(:,i_spackv) = ssite(i_spackv)%pos
+          do ibas=1,nbas
+            pos2_rv(:,ibas) = ssite(ibas)%pos
           enddo
           ix(1) = 2
           ix(2) = 2
           ix(3) = 2
           call info0(50,1,0,' lmfp : shortening basis vectors ... ')
           call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
-          do i_spackv=1,nbaspp
-            ssite(i_spackv)%pos = rv_a_opos(:,i_spackv)
+          do ibas=1,nbaspp
+            ssite(ibas)%pos = rv_a_opos(:,ibas)
           enddo
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
@@ -262,8 +242,7 @@ c$$$          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
 c$$$     .           'use of SHEAR= incompatible w/ lattice relaxation')
 c$$$          plat0=lat_plat0
 c$$$        endif
-        call rlxstp (  ssite , natrlx , nvrelx , indrx_iv , !sctrl ,
-     .        xyzfrz , pdim )
+        call rlxstp (  ssite , natrlx , nvrelx , indrx_iv ,  xyzfrz , pdim )
         icom = 0
         if (nvrelx .ne. 0) then
 C     ki The new indrx_iv uses the content of the old indrx_iv.
@@ -289,44 +268,33 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
       endif
-C     ... Re-entry for shear distortion
-c      allocate(shr_rv(1))
+!!=== Re-entry for molecular statistics ============================
     4 continue
-C     ... Potential setup
       call info0(50,0,0,' lmfp : potential setup ... ')
       call supot(0) !,spot) !,sctrl slat,
-C     ... Setup of hamiltonian, augmentation
       if (ipr .ge. 50) then
         call info0(50,0,0,' lmfp : basis setup ... ')
       else
         call info0(30,0,0,' ')
       endif
-c      call subasi(sspec,sham) !sctrl,
       call suham(sspec,ssite)!,spot)!,sham,sbz)sctrl,slat, !sstrn removed june2015 ,sarray 2016 
-C     ... Quit if --quit=ham given
-      if ( int(ctrl_quit) .eq. 8 ) call rx0('quit = ham')
+      if ( ctrl_quit .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
       ndham=ham_ndham
-
-C     Whether forces, and how to calculate non Helman-Feynman corr.
-      lfrce = int(ctrl_lfrce)
-C     Maximum number of eigenvalues
-      nevmx = int(bz_nevmx)
-C     Whether to evaluate output density and/or KS energy
-      lrout = 1
+      lfrce = ctrl_lfrce !Whether forces, and how to calculate non Helman-Feynman corr.
+      nevmx = bz_nevmx !Maximum number of eigenvalues
+      lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
       j = 6
       if (cmdopt('-leks=',j,0,strn)) then
-        if (.not. a2bin(strn,leks,2,0,' ',j,72))
-     .        call rxs('failed to parse',strn)
+        if (.not. a2bin(strn,leks,2,0,' ',j,72))   call rxs('failed to parse',strn)
       endif
       if (nevmx .eq. -1) then
         lrout = 0
         leks = 0
         bz_nevmx=nevmx
       endif
-C     Whether to float pnu's
-      lpnu = 1
+      lpnu = 1 !Whether to float pnu's
 C     Sanity checks
       if (lrout .eq. 0 .and. lfrce .ne. 0) then
         write(stdo,333) 'when forces sought'
@@ -344,8 +312,7 @@ C     Sanity checks
      .        ' output rho ... do 1 iteration',' ',80,stdo,maxit)
         maxit = 1
       endif
-
-C...  LDA+U initialization
+!!...  LDA+U initialization
       allocate(lldau_iv(nbas))
       lldau_iv(:)=0
 C     Check for LDA+U ... return nlibu > 0 if any U blocks
@@ -369,7 +336,7 @@ C     need group info to symmetrize site density matrix
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
-C     end LDA+U  initialization section
+      
 !! === Re-entry point for a new iteration ===
       iter = 1
     5 continue
@@ -383,12 +350,11 @@ C     1              read from binary rst file
 C     2              read from ascii rsta file
 C     3              read nothing (data already input)
  10   continue
-!! Harris-Foulkes -> always overlap free-atom densities
-      if (irs(1) .eq. 0) then
-        call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !slat ,  spot , 
+      if (irs1x .eq. 0) then !read overlap free-atom densities
+        call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) 
         nit1 = 0
-      elseif (mod(irs(1),4) .ge. 1 .and. mod(irs(1),4) .le. 2) then
-        lbin = .not. bittst(irs(1),2)
+      elseif (mod(irs1x,4) .ge. 1 .and. mod(irs1x,4) .le. 2) then
+        lbin = .not. bittst(irs1x,2)
         k = -1
         if (procid .eq. master) then
           if (lbin) ifi = fopna('rst',-1,4)
@@ -406,15 +372,15 @@ C     3              read nothing (data already input)
         call mpibc1(k,1,2,mlog,'lmfp','k')
 
 !! ... Write positions array from site structure
-        do i_spackv=1,nbaspp
-          rv_a_opos(:,i_spackv) = ssite(i_spackv)%pos
+        do ibas=1,nbaspp
+          rv_a_opos(:,ibas) = ssite(ibas)%pos
         enddo
 c        call mpibc1_s_lat(slat,.false.,'lmfp','slat')
         if (k .lt. 0) then
-          irs(1) = 0
+          irs1x = 0
           goto 10
         endif
-        if (mod(irs(1),8) .ge. 4) then
+        if (mod(irs1x,8) .ge. 4) then
 C     If no force switch set, use default
           k = int(ctrl_lfrce)
           if (k .eq. 0 ) ctrl_lfrce=1
@@ -423,8 +389,8 @@ C     If no force switch set, use default
 C     Restore force switch
           if ( k .eq. 0 ) ctrl_lfrce=k
         endif
-        if (mod(irs(1),16) .ge. 8) then
-          irs(1) = irs(1)-8
+        if (mod(irs1x,16) .ge. 8) then
+          irs1x = irs1x - 8
           i = int(ctrl_lrs)
           i = i-256
           ctrl_lrs=i
@@ -446,12 +412,11 @@ C     ... Write positions after file read, and repack
  345      format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
         enddo
       endif
-
 c$$$C     --- Optionally re-shorten basis vectors ---
 c$$$      if (cmdopt('--shorps',8,0,strn)) then
 c$$$        allocate(pos2_rv(3,nbas))
-c$$$        do i_spackv=1,nbas
-c$$$          pos2_rv(:,i_spackv ) = ssite(i_spackv)%pos 
+c$$$        do ibas=1,nbas
+c$$$          pos2_rv(:,ibas ) = ssite(ibas)%pos 
 c$$$        enddo
 c$$$        ix(1) = 2
 c$$$        ix(2) = 2
@@ -460,8 +425,8 @@ c$$$        call shorps ( - nbas , plat , ix , pos2_rv , rv_a_opos )
 c$$$        call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
 c$$$        call iopos ( .true. , 1 , 'shorps' , nbas , rv_a_opos )
 c$$$        call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
-c$$$        do i_spackv=1,nbaspp
-c$$$          ssite(i_spackv)%pos= rv_a_opos(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$        do ibas=1,nbaspp
+c$$$          ssite(ibas)%pos= rv_a_opos(3*(ibas-1)+1: 3*(ibas-1)+3)
 c$$$        enddo
 c$$$        if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$      endif
@@ -482,24 +447,19 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
      .        , 0 , dmatu , dmato, vorbdmat, tolu , umix
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab )
       endif
-c     takao optbas mode here was removed
-
+!     takao optbas mode here was removed
       
 C     --- Write smoothed charge density for contour plotting ---
       if (procid .eq. master) then
 !! --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
-
 C     --- Write restart file (skip if --quit=band) ---
-        if ( int(ctrl_quit) .ne. 4 ) then
-
+        if ( ctrl_quit .ne. 4 ) then
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
-          if (irs(2).gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and.
-     .           irlxsh .eq. 0) then
-C     call p_dyn_ef(s_dyn, ef0,def,esmear)
-            lbin = irs(2) .ne. 2
+          if (irs2.gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and. irlxsh .eq. 0) then
+            lbin = irs2 .ne. 2
             if (lbin) fileid = 'rst'
             if (.not. lbin) fileid = 'rsta'
-            if (irs(2) .eq. 3) then
+            if (irs2 .eq. 3) then
               call word(fileid,1,i,j)
               j = j+1
               fileid(j:j) = '.'
@@ -511,19 +471,15 @@ C     call p_dyn_ef(s_dyn, ef0,def,esmear)
               if (lbin) ifi = fopna(fileid,-1,4)
               if (.not. lbin) ifi = fopna(fileid,-1,0)
             endif
-            fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
+            fileid = 'lmfp:  ' 
             k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .              - ifi )
             call fclose(ifi)
-c     takao save rst file option
-c     if(cmdopt('--saveallrst',12,0,strn) then
-c     call fsystm('cp "//rst)
           endif
         endif
       endif
       if (cmdopt('--window=',9,0,strn)) call rx0('lmf : early exit (--window option)')
-
 C     --- Add to save file; decide on next iteration ---
       if (maxit <= 0) goto 9998
       etot(1)=ham_ehf
@@ -548,7 +504,7 @@ C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
 C     kino         :1 if not self-consistent, but encountered max. no. iter.
 C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 C     kino         :3 otherwise
-         call nwit ( int(ctrl_nvario) , iter , maxit , lhf.or.irs(1)==0.and.iter==1,
+         call nwit ( int(ctrl_nvario) , iter , maxit , lhf.or.irs1x==0.and.iter==1,
      &        leks+i , etol , qtol , qdiff , 'cxhi' , amom , etot , lsc )
       endif
       call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
@@ -562,22 +518,24 @@ C     kino         :3 otherwise
       iter = iter+1
 C     Continue iterations toward self-consistency
       if (lsc .gt. 2) then
-         irs(1) = 3
+         irs1x = 3
          goto 5
       endif
 Ckino      ---------------- SCF (iteration) loop end ---------------------
 
-!! --- Molecular statics ---
+!! --- Molecular dynamics ---
       if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then ! Reset quantities for iterations towards self-consistency
           iter = 1
           dmxp(11) = 0
       endif
       if (nitrlx .gt. 0 .and. lsc .le. 2) then
-         call cppos(1,nbas,ssite)
+         do ibas=1,nbas
+            ssite(ibas)%pos0 = ssite(ibas)%pos
+         enddo   
          if (allocated(pos_move)) deallocate(pos_move)
-         allocate(pos_move(abs(3*nbas)))
-         do i_spackv=1,nbas
-            pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+         allocate(pos_move(3,nbas))
+         do ibas=1,nbas
+            pos_move(:,ibas) = ssite(ibas)%pos
          enddo
          mdprm=ctrl_mdprm
 c$$$         if (lshr) then !shear mode
@@ -629,8 +587,8 @@ C     Write updated positions to bsmv file
          endif
 !     !  Updated positions in site structure !WARN! t.kotani think this is confusing because
 !     !     position written in ctrl and positions written in rst becomes different.
-         do i_spackv=1,nbas
-            ssite(i_spackv)%pos = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+         do ibas=1,nbas
+            ssite(ibas)%pos = pos_move(:,ibas)
          enddo
 
 C     ... Exit when relaxation converged or maximum number of iterations
@@ -675,18 +633,17 @@ c$$$     .              dist0,dist)
 c$$$            endif
 
 C     Repack updated positions in site structure
-            do i_spackv=1,nbas
-               ssite(i_spackv)%pos = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+            do ibas=1,nbas
+               ssite(ibas)%pos = pos_move(:,ibas)
             enddo
          endif
-
 !     ! New density after atom shifts
 !     ! If explicitly told to read from atom files after atom movmment
          if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
-            irs(1) = 0
+            irs1x = 0
 !     ! Else, use self-consistent
          else !if (.not. lshr) then
-            irs(1) = 3
+            irs1x = 3
             call smshft(ssite,sspec,sv_a_oorhat,zv_a_osmrho) !sctrl,sham,slat,
          endif
 !     ! Write restart file (to include new positions)
@@ -698,32 +655,17 @@ C     Repack updated positions in site structure
      .           , - ifi )
             call fclose(ifi)
          endif
-c$$$  !! Write positions to file
-c$$$  if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
-c$$$  gam=lat_gam
-c$$$  allocate(wk_rv(3*nbas))
-c$$$  call rdistn ( pos_move , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-c$$$  .              ) , gam ( 3 ) , 1 / gam1 )
-c$$$  call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
-c$$$  if (allocated(wk_rv)) deallocate(wk_rv)
-c$$$  endif
-!     ! Remove mixing file
          if (procid .eq. master) then
-            call info0(20,0,0,' Delete mixing and band weights files ...')
-            ifi = fopna('mixm',-1,4)
-            call dfclos(ifi)
-            ifi = fopna('wkp',-1,4)
-            call dfclos(ifi)
+            write(stdo,*)' Delete mixing and band weights files ...'
+            ifi = unlink('mixm.'//trim(sname))
+            ifi = unlink('wkp.'//trim(sname))
          endif
-C     reset mixing block
-         call parms0(0,0,0d0,0)
-
+         call parms0(0,0,0d0,0)!   reset mixing block
 !     ! Exit when maximum number of iterations encountered
          if (itrlx .eq. nitrlx) then
             if (procid .eq. master) then
                call tcx('lmfp')
-               call fexit(1,111,
-     .              ' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
+               call fexit(1,111,' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
             else
                call tcx('lmfp')
                call fexit(1,111,' ',0)
@@ -745,44 +687,28 @@ c         endif
       endif                     ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
 !! Write positions to file
  9998 continue
-      if (cmdopt('--wpos=',7,0,strn) .or.
-     .     cmdopt('--wpos:mode1:',13,0,strn)) then
-         if (allocated(pos_move)) deallocate(pos_move)
-         allocate(pos_move(abs(3*nbas)))
-         if (3*nbas<0) pos_move(:)=0.0d0
-         do i_spackv=1,nbas
-              pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
+      if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
+         allocate(pos_move(3,nbas))
+         do ibas=1,nbas
+            pos_move(:,ibas) = ssite(ibas)%pos
          enddo
          gam=lat_gam
          allocate(wk_rv(3*nbas))
-         call rdistn ( pos_move , wk_rv , nbas , gam ( 1 ) , gam ( 2 
-     .        ) , gam ( 3 ) , 1 / gam1 )
-c         if (cmdopt('--wpos:mode1:',13,0,strn)) then
-c            call iopos ( .true. , 1 , strn ( 14: ) , nbas , wk_rv )
-c         else
-c            call iopos ( .true. , 0 , strn ( 8: ) , nbas , wk_rv )
-c         endif
+         call rdistn (pos_move , wk_rv , nbas , gam (1) , gam(2) , gam ( 3 ) , 1 / gam1 )
          if (allocated(wk_rv)) deallocate(wk_rv)
          if (allocated(pos_move)) deallocate(pos_move)
       endif 
       call tcx('lmfp')
       if (allocated(lldau_iv)) deallocate(lldau_iv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
-c      if (allocated(shr_rv)) deallocate(shr_rv)
       if (allocated(p_rv)) deallocate(p_rv)
       if (allocated(w_rv)) deallocate(w_rv)
       if (allocated(indrx_iv)) deallocate(indrx_iv)
       if (allocated(frc_rv)) deallocate(frc_rv)
       return
+      end subroutine lmfp
 
-c      if (allocated(shr_rv)) deallocate(shr_rv)
-c      if (allocated(p_rv)) deallocate(p_rv)
-c      if (allocated(w_rv)) deallocate(w_rv)
-c      if (allocated(indrx_iv)) deallocate(indrx_iv)
-c     if (allocated(frc_rv)) deallocate(frc_rv)
-!     ! Setup to start calculation at new shear ---
-      contains
-      
+c$$$      contains
 c$$$      subroutine newshear()
 c$$$! Store lat_plat,lat_ldist,lat_dist, lattic, mkqp
 c$$$! not tested well yet.      
@@ -801,8 +727,8 @@ c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , pos_move
 c$$$     .     , 3 , 0d0 , pos2_rv , 3 )
 c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
 c$$$     .     , 3 , 0d0 , rv_a_opos, 3 )
-c$$$      do i_spackv=1,nbas
-c$$$        ssite(i_spackv)%pos  = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$      do ibas=1,nbas
+c$$$        ssite(ibas)%pos  = pos_move(3*(ibas-1)+1: 3*(ibas-1)+3)
 c$$$      enddo
 c$$$      call cppos(1,nbas,ssite)
 c$$$!! New shear
@@ -813,10 +739,8 @@ c$$$!! A little memory leakage rel to 1st pass, but not so serious
 c$$$      if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$      if (allocated(lldau_iv)) deallocate(lldau_iv)
 c$$$      if (allocated(ftot_rv)) deallocate(ftot_rv)
-c$$$c      if (allocated(shr_rv)) deallocate(shr_rv)
 c$$$      deallocate(vorbdmat,dmato,dmatu)
 c$$$      call lattic() !nbas) !slat,
-c$$$c      allocate(shr_rv(1))
 c$$$      plat=lat_plat
 c$$$!! Remake qp (t.kotani wonders this mkqp is needed or not?
 c$$$      ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
@@ -831,66 +755,66 @@ c$$$     .        , - ifi )
 c$$$        call fclose(ifi)
 c$$$      endif
 c$$$      end subroutine newshear
-      end subroutine lmfp
+c$$$      end subroutine lmfp
 
 
 
-      subroutine cppos(ib1,ib2,ssite)
-      use m_struc_def           !Cgetarg
-C     - Copy site positions to p0 for a range of sites
-C     implicit none
-      integer ib1,ib2
-      real(8):: pos(3)
-      type(s_site)::ssite(*)
-      integer ib
-      do  ib = ib1, ib2
-          pos=ssite(ib)%pos
-          ssite(ib)%pos0=pos
-      enddo
-      end subroutine cppos
+c$$$      subroutine cppos(ib1,ib2,ssite)
+c$$$      use m_struc_def           !Cgetarg
+c$$$C     - Copy site positions to p0 for a range of sites
+c$$$C     implicit none
+c$$$      integer ib1,ib2
+c$$$      real(8):: pos(3)
+c$$$      type(s_site)::ssite(*)
+c$$$      integer ib
+c$$$      do  ib = ib1, ib2
+c$$$          pos=ssite(ib)%pos
+c$$$          ssite(ib)%pos0=pos
+c$$$      enddo
+c$$$      end subroutine cppos
 
 
-      subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
-C     implicit none
-      integer irlxsh,nvrelx,indrlx(nvrelx)
-      double precision pletot(6,2),etot,dist(9),alpha
-      double precision grad,vec1(6)
-      integer iv,ipm,ipv
-      call info5(30,1,0,' GRDEPL: point %i of %i for grad shear: '//
-     .     'etot=%d',irlxsh,2*nvrelx,etot,0,0)
-C     Get index for current shear and store energy for that shear
-      if (irlxsh .gt. 0) then
-        iv = (irlxsh-1)/2 + 1
-        ipv = iv
-C     ipv = indrlx(iv)
-        ipm = mod((irlxsh-1),2) + 1
-        pletot(ipv,ipm) = etot
-      endif
-C     If this is last point, form gradient and exit
-      if (irlxsh .eq. 2*nvrelx) then
-        do  iv = 1, nvrelx
-C     ipv = indrlx(iv)
-          ipv = iv
-          grad = (pletot(ipv,1) - pletot(ipv,2))/(2*alpha)
-          pletot(ipv,1) = grad
-        enddo
-        irlxsh = 0
-        return
-      endif
-C     Get shear index for next shear and whether + or -
-      irlxsh = irlxsh+1
-      iv = (irlxsh-1)/2 + 1
-      ipv = indrlx(iv)
-      ipm = mod((irlxsh-1),2) + 1
-      if (ipv .lt. 1 .or. ipv .gt. 6)
-     .     call rx('grdepl: something wrong with indrlx')
-C     Make new shear
-      call dvset(vec1,1,6,alpha)
-      if (ipm .eq. 2) call dvset(vec1,1,6,-alpha)
-      call dpzero(dist,6)
-      call grdep2(iv,iv,indrlx,vec1,dist)
-      dist(7) = 1
-      end subroutine grdepl
+c$$$      subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
+c$$$C     implicit none
+c$$$      integer irlxsh,nvrelx,indrlx(nvrelx)
+c$$$      double precision pletot(6,2),etot,dist(9),alpha
+c$$$      double precision grad,vec1(6)
+c$$$      integer iv,ipm,ipv
+c$$$      call info5(30,1,0,' GRDEPL: point %i of %i for grad shear: '//
+c$$$     .     'etot=%d',irlxsh,2*nvrelx,etot,0,0)
+c$$$C     Get index for current shear and store energy for that shear
+c$$$      if (irlxsh .gt. 0) then
+c$$$        iv = (irlxsh-1)/2 + 1
+c$$$        ipv = iv
+c$$$C     ipv = indrlx(iv)
+c$$$        ipm = mod((irlxsh-1),2) + 1
+c$$$        pletot(ipv,ipm) = etot
+c$$$      endif
+c$$$C     If this is last point, form gradient and exit
+c$$$      if (irlxsh .eq. 2*nvrelx) then
+c$$$        do  iv = 1, nvrelx
+c$$$C     ipv = indrlx(iv)
+c$$$          ipv = iv
+c$$$          grad = (pletot(ipv,1) - pletot(ipv,2))/(2*alpha)
+c$$$          pletot(ipv,1) = grad
+c$$$        enddo
+c$$$        irlxsh = 0
+c$$$        return
+c$$$      endif
+c$$$C     Get shear index for next shear and whether + or -
+c$$$      irlxsh = irlxsh+1
+c$$$      iv = (irlxsh-1)/2 + 1
+c$$$      ipv = indrlx(iv)
+c$$$      ipm = mod((irlxsh-1),2) + 1
+c$$$      if (ipv .lt. 1 .or. ipv .gt. 6)
+c$$$     .     call rx('grdepl: something wrong with indrlx')
+c$$$C     Make new shear
+c$$$      call dvset(vec1,1,6,alpha)
+c$$$      if (ipm .eq. 2) call dvset(vec1,1,6,-alpha)
+c$$$      call dpzero(dist,6)
+c$$$      call grdep2(iv,iv,indrlx,vec1,dist)
+c$$$      dist(7) = 1
+c$$$      end subroutine grdepl
 
 
 

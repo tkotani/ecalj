@@ -1,14 +1,20 @@
       module m_lmfinit
-!! All data set to run lmfp. rdctrl2 read ctrl file and set these data
+!! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
 !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
-!! We can not believe the old document, however, it may be a help to read the code.
-!!      
-!! I think data in globalvariabls can be simply moved to m_lmfinit.
+!! We can believe the old document not completely, however, it may be a help to read the code.
+!!
+!   ! We will have to reorganize redundant data. In addition, we need to protect all variables given in this module.
+!      
+! memo for iand (this will be removed)
+!      i=53           ! i=00110101 binary (lowest order byte)
+!      j=45           ! j=00101101 binary (lowest order byte)
+!      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
+      
       use m_struc_def,only: s_spec,s_site
-      use m_ext,only :sname
+      use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
       implicit none
       
-      private t_globalvariables
+      private t_globalvariables ! this should be desolved
       type t_globalvariables 
       integer:: lrel=-999999
       integer:: lxcf=-999999
@@ -26,10 +32,11 @@
       integer:: stdl=-999999
       integer:: stdo=-999999
       end type t_globalvariables
-
+      
       type(t_globalvariables),protected :: globalvariables
       type(s_spec),allocatable:: v_sspec(:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
+      
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
       real(8),parameter::  NULLR =-99999
@@ -46,7 +53,7 @@
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
      &     lat_tolft,lat_vol
       character(256):: header,symg=' '
-      character(256):: symgaf=' '    !june2015 for antiferro
+      character(256):: symgaf=' '    !june2015 for antiferro (reserved).
       logical :: frzwf,ham_ewald
       integer:: ctrl_lxcf,ctrl_lrs,ctrl_nbas,ctrl_lmet,ctrl_lbas,ctrl_lfp,ctrl_lrel,ctrl_lves,
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
@@ -59,14 +66,6 @@
       real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,kmto(10)
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
       real(8):: pmin(n0),pmax(n0)
-c      real(8):: sigp(10)=0,sigp_emin,sigp_emax,sigp_a,sigp_b,sigp_efit
-c      integer:: sigp_mode=3,sigp_nmin=0,sigp_nmax=0
-c      equivalence (sigp_emin,sigp(3)),(sigp_emax,sigp(5)),
-c     .(sigp_a,sigp(6)),(sigp_b,sigp(7)),(sigp_efit,sigp(8))
-
-C      real(8):: sigp_mode,sigp_nmin,sigp_nmax
-C      equivalence (sigp_mode,sigp(1)),(sigp_nmin,sigp(2)),
-C     .  (sigp_nmax,sigp(4))
 
       real(8)::ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_delta_stabilize,
      &     ham_elind,ham_oveps,ham_pmax(10),ham_pmin(10),ham_rsrnge,ham_rsstol,ham_scaledsigma,
@@ -81,29 +80,13 @@ C     .  (sigp_nmax,sigp(4))
      .lstonr(3)=0,quit,nl,lpfloat
       real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,,lham3=0
       logical :: lhf,lcd4
-c      logical ::
-c     .lcd2,lcd4=F !,lcd64, lasa32=F,lcd1,lcd8=Flasa32 is dummy not used but wor awrit8 in rdctrl2
-C$$$    &  ,lasa4=T,lasa8=F,,lasa64=F,
-C$$$     .  lasa512
-c     &  ,lham1,lham4=F,lham8=F,lham16=F,lham32=F,lham64,lham128=F,
-c     .  lham256 !,lves takao2010apr lves is integer
-C     Initialize, since read is only executed when NSPIN=2
-c      logical:: lncol1=F,lncol2=F,lncol8=F,lncol16=F
-c     .  lncol32=F,lncol64=F
-c      logical:: lncol4=F, lncol32=F,lncol64=F
-
-c      character(256):: sxopt=' '
-
 !! ... STRUC 
-!!     Initializing nbas and alat flags no nbas or alat has been input
       real(8):: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),lat_gam(4),dalat,temp33(9)
       real(8):: vol,avw,lat_dist(9)
       integer:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec,nclass
       integer:: lat_ldist=0
-
-!! ... SPEC (currently these are in v_sspec. We will use following data in future instead of v_sspec.
+!! ... SPEC
       real(8):: omax1(3),omax2(3),wsrmax,sclwsr
-c      integer,parameter ::mxspec=256
       character*8 slabl(mxspec)
       integer:: lmxbx=-1,lmxax,nkaph
       logical,allocatable:: mxcst1(:),mxcst2(:),mxcst4(:)
@@ -121,22 +104,19 @@ c      integer,parameter ::mxspec=256
      .exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
      .amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
       character*(8),allocatable::pb1(:),pb2(:), coreh(:)
-
 !! ... SITE
       character(8):: alabl
       real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
       integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
       real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
-      integer,allocatable::iantiferro(:)
-
+      integer,allocatable::iantiferro(:) !reserved
 !! ... Iteration, MIX
-      character(128) :: iter_mix=' ' !,iter_amix=' '
+      character(128) :: iter_mix=' ' 
       real(8):: ctrl_tol(3)=1d-4
       integer:: iter_maxit=1
       integer:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
       real(8):: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
       character(8):: mix_fn
-
 !! ... BZ
       integer:: bz_nabc(3)=NULLI,bz_lshft(3)=0,
      .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,bz_nkp,bz_ntet
@@ -144,15 +124,12 @@ c      integer,parameter ::mxspec=256
      .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0,bz_dosmax
       logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
      .ctrl_lmet4=.true.,ctrl_lmet8=.true. !,ctrl_lqp2
-
 !! ... Ewald
       real(8):: lat_as,lat_tol,lat_rpad
       integer:: lat_nkdmx
-
 !! ... STR
       real(8):: str_rmax=nullr 
       integer:: str_mxnbr 
-
 !! ... DYN
 C   structure of mdprm:
 C   arg 1: 0 no relaxation or dynamics
@@ -211,10 +188,11 @@ C  arg  18:        offset to bs workspace
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 !!
       real(8), allocatable :: rv_a_opos(:,:)
-c      character(1)::mmm
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
-      contains !rdctrl2 set initial values of m_lmfinit (in future all variables should be protected).
+      contains 
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
+!! rdctrl2 sets all data in m_lmfinit      
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv 
@@ -227,29 +205,25 @@ c      character(1)::mmm
 !!   recrd (recln*nrecs) : preprocessed input
 !!   prgnam: name of main program
 !! Outputs are give in m_lmfinit
-!! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
+!     ! We have three stages (stage 1, stage 2 , stage 3) in this routine. Search 'stage'.
+!! folloings are memo --- but not so clear. some variables are reduntant (because of historical reason).
 Co   bz_*  : Brillouin Zone related
 Co   ctrl_* : struct for program flow parameters; see routine uctrl
 Co   ham_*  :  Hamiltonian related
 Co   pot_*   : information about the potential; see routine upot
 Co   lat_*   : lattice information; see routine ulat
 Co   smix_*  : charge mixing parameters; see routine umix
-Co   sspec : species-specific information; see routine uspec
-Co   ssite : site-specific information; see routine usite
-Co   sarry
-Co   sstrn :struct for global strings
+Co  sspec : species-specific information; see routine uspec
+Co  ssite : site-specific information; see routine usite
+!!      
 C---- note. Followings are just hints about what variables means
 Cg Global variables
-Cg   The following global variables are set by rdctrl
-Cg      
 Cn   slabl :vector of species labels
-Cg   avw   :global length scale, usu. the average Wigner-Seitz radius,
-Cg         :used in various places to set a length scale for a range,
-Cg         :sometimes in generating structure constants, etc.
+Cg   avw   : the average Wigner-Seitz radius,
 Cg   lrel  :specifies type of Schrodinger equation
 Cg         :0 nonrelativistic Schrodinger equation
 Cg         :1 scalar relativistic Schrodinger equation
-Cg         :2 Dirac equation
+Cg         :2 Dirac equation (reserved)
 Cg   lxcf  :specifies type of XC potential.  1s digit specifies local XC:
 Cg         :1 for Ceperly-Alder
 Cg         :2 for Barth-Hedin (ASW fit)
@@ -258,11 +232,7 @@ Cg   mxorb :nkaph * (maximum number of lm channels in any sphere)
 Cg         :Used for dimensioning the indexing arrays involved in
 Cg         :assembling the hamiltonian;
 Cg   nbas  :number of atoms in the basis
-Cg   nbasp :number of atoms in the padded basis
-Cg         :(when extensions are needed, e.g. in layer GF code)
-Cg   nkape :NOT USED The maximum number of envelope functions centered at
-Cg         :particular R and l channel
-Cg         :NB: nkape is not used now.
+Cg      nbasp : probably the same as nbas (redundant)
 Cg   nkaph :The maximum number of radial functions centered at
 Cg         :particular R and l channel used in the lmto basis.
 Cg   nl    :1+Maximum l-cutoff for augmentation
@@ -1507,7 +1477,6 @@ c     print *, alabl,' xxx ', i,ips(j)
      .           '%15pROT= : Euler alpha = %1;6d  beta = %1;6d'//
      .           '  gamma = %1;6d',eula(1,j),eula(2,j),eula(3,j),0,0)
          endif
-
          nm='SITE_ATOM_PL'; call gtv(trim(nm),tksw(prgnam,nm),ipl(j),
      .        def_i4=0,cindx=jj,
      .        note='Assign principal layer number to this site')
@@ -1779,7 +1748,7 @@ C lrs  switches concerning restart mode.
         i = 5
         j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
       endif
-      irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)   + 8*getdig(irs(1),1,100)
+      irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)   !+ 8*getdig(irs(1),1,100)
       lrs = 1*mod(irs(1),8) + 8*irs(2)+32*irs(3) + 64*irs(4) + 128*irs(5) + 256*mod(irs(1)/8,2)
 !!
 !!     irs(1) tells what to read and whether to invoke smshft.
@@ -1939,35 +1908,17 @@ c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
       ham_pwemax=pwemax
       ham_oveps=oveps
       ham_delta_stabilize=delta_stabilize !takao sep2010
-
-!!... Allocate and initialize sarray
-c      v_sarry%size=uarray_size()
-
-!! ... Allocate and initialize spot
-c      v_spot%size=upot_size()
-c      pot_vmtz0=vmtz
-
-C --- Allocate and copy input to smix ---
-c      v_smix%size=umix_size()
-c      v_smix=vmix
-
-cC --- Allocate and copy input to sstr ---
-c      v_sstr%size=ustr_size()
-c      v_sstr%mxnbr=str_mxnbr
-c      v_sstr%rmax=str_rmax
+      
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
-        do i_spackv=1,nspec
-          v_sspec(i_spackv)%size=uspec_size()
-          v_sspec(i_spackv)%eh3=-0.5d0
-          v_sspec(i_spackv)%etf=-1d0
-          v_sspec(i_spackv)%lmxf= 2*nl-2
-          v_sspec(i_spackv)%norp=2
-          v_sspec(i_spackv)%vmtz=-0.5d0
-        enddo
-
-        do  j = 1, nspec
+        do j=1,nspec
           slabl_(j) = slabl(j)
+          v_sspec(j)%size=uspec_size()
+          v_sspec(j)%eh3=-0.5d0
+          v_sspec(j)%etf=-1d0
+          v_sspec(j)%lmxf= 2*nl-2
+          v_sspec(j)%norp=2
+          v_sspec(j)%vmtz=-0.5d0
           v_sspec(j)%pb1=pb1(j)
           v_sspec(j)%pb2=pb2(j)
           v_sspec(j)%coreh=coreh(j)
@@ -1999,7 +1950,6 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
           v_sspec(j)%lmxpb=lmxpb(j)
-
           i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
           orbp=0d0 !call dpzero(orbp,n0*2*nkap0)
           call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
@@ -2031,10 +1981,8 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%rint=rint(j)
         enddo
         allocate(v_ssite(nsite))
-        do i=1,nsite
-          v_ssite(i)%size=usite_size()
-        enddo
-        do  j = 1, nsite
+        do j=1,nsite
+          v_ssite(j)%size=usite_size()
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%clabel=slabl(ips(j))
@@ -2191,8 +2139,6 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
              print *, 'symg:', trim(sstrnsymg)
              call rx0('done show')
           endif
-!     !     . slabl_,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-!     !     . v_sarry,sstrnmix,sstrnsymg
           write(6,*) '--- End of readin ctrl file. ---'
           print *,'end of rdctrl2'
 !!  -- End of readin ctrl file. -----------
@@ -2203,7 +2149,7 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
 
-      
+     
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! Stage 3  ---------------------    
 !!   originally in lmv7.F
@@ -2211,7 +2157,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !!v_* is going to be overwritten 
       call latticx() ! =lattic. to avoid cyclic dependensy of modules.
       do ibas=1,ctrl_nbas
-        v_ssite(ibas)%pos = rv_a_opos(:,ibas)!3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
+        v_ssite(ibas)%pos = rv_a_opos(:,ibas)
       enddo
 !! --- We store all settings in module variables of m_rdctrl.
       print *,'end of lattic'
@@ -2230,7 +2176,8 @@ c#ifndef LMFGWD
 !! iand(2**n,i) means 2**n ditit of i.
 c      if( ctrl_noinv==0 ) lc = lc+2 ! inversion for lmf
 c#endif
-      
+
+!! aug2020 this section need to be recoverd ----      
 !! --- Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
 !! --- This should be recovered to handle antiferro materials. ------------
 !! To obtain self-consistency, it may be useful to keep AF condition during iteration.
@@ -2320,8 +2267,6 @@ c
       call defspc(v_sspec)
       if(prgnam == 'LMF') then
          ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
-!! iand(2**n,i) means 2**n ditit of i.
-!! iand(4+1,i) = 1,0,0,4,5,4,5,0, 1,0,0,4,5,4,5,0, ... for i=1,2,3,4,5,6 (I think).
          call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
       endif
 !!    show and quit
@@ -2329,8 +2274,7 @@ c
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)
       endif
-!!
-!!  -------------------------- Total energy mode -------------------
+!!  -------------------------- Total energy mode. moved from lmfp-------------------
       if (cmdopt('--etot',6,0,strn)) then
 !!  No forces or dynamics
         mdprm=0
@@ -2639,26 +2583,20 @@ Cr  neula  number of channels for euler angles
 Cr         0 -> No euler angles defined
 Cr  nkaph  number of repetitions of one l-quant.n. in basis
 Cr  nlibu  Number of LDA+U blocks
-Cr  nmto   Polynomial order to NMTO
-Cr  npwmin Estimate for minimum number of PWs to be calculated
-Cr         (PW basis is q-dependent; max size not known a priori)
-Cr  npwpad Padding to be added to estimated max basis dimension
+c      
+Cr  npwmin Estimate for minimum number of PWs to be calculated     <-Removable(probably)
+Cr         (PW basis is q-dependent; max size not known a priori)  
+Cr  npwpad Padding to be added to estimated max basis dimension    <-Removable(probably)
 Cr         and subtracted from min basis dimension
 Cr         (PW basis is q-dependent; max size not known a priori)
-Cr  nqsig  Number of k-points for which self-energy known
+Cr  nqsig  Number of k-points for which self-energy known          <-Removable(probably)
 Cr         (Used for interpolating between qpoints)
-Cr  obdots mag. field in local coordinates, dotted with
-Cr         Paulie matrices (pointer in w array)
-Cr  oeula  Euler angles (pointer in w array)
-Cr  ohrs   r.s. h or sigma (pointer in w array)
-Cr  oiaxs  neighbor table (pointer in w array)
-Cr  oindxo orbital permutation table (pointer in w array)
-Cr  olmxa  vector of augmentation l-cutoffs (pointer in w array)
-Cr  omagf  magnetic field (pointer in w array)
+Cr  eula  Euler angles
+Cr  hrs   r.s. h or sigma 
+Cr  iaxs  neighbor table 
+Cr  indxo orbital permutation table (pointer in w array)
+Cr  lmxa  vector of augmentation l-cutoffs (pointer in w array)
 Cr  ontabs table of number-of-pairs per site (pointer in w array)
-Cr  ooffH  table of offsets to hamiltonian matrix (pointer in w array)
-Cr         (pointer in w array)
-Cr         (Used for interpolating between qpoints)
 Cr  oqsig  list of qp at which sigma can be computed
 Cr  oveps  When diagonalizing hamiltonian, discard part of hibert space
 Cr         corresponding to evals of overlap < oveps
@@ -2675,39 +2613,9 @@ Cr  qss    spin spiral
 Cr  rsrnge cutoff in connecting vector length for r.s. sigma
 Cr  rsstol tolerance in Bloch sum error for r.s. sigma
 Cr  seref  Sum of reference energies
-Cr  sigp   parameters for approximating self-energy sigma
-Cr         arg 1: mode : specifies how to set its diagonal part
-Cr                for states above the high-energy cutoff
-Cr                0 constrain sigii to be > asig+bsig*e
-Cr                1 constrain sigii to be = asig+bsig*e
-Cr                2 constrain sigii to be > asig and < bsig
-Cr                3 constraint same as mode 1.
-Cr                  Mode 3 differs in that the least-squares fit to
-Cr                  sigii (for informational purposes only, to help
-Cr                  estimate asig and bsig) is done for states between
-Cr                  efit and nmax or emax
-Cr         arg 2: nmin : sigma for states 1..nmin are approximated by sigii
-Cr         arg 3: emin : (used only if nmin<0)
-Cr                     : sigma for levels e<emin are approximated by sigii
-Cr         arg 4: nmax : sigma for levels i>nmax are approximated by
-Cr                       sigii AND constrained according to mode
-Cr         arg 5: emax : (used only if nmax<=0)
-Cr                     : sigma for levels e<emax are approximated by
-Cr                       sigii AND constrained according to mode
-Cr         arg 6: asig : constraint used to approximate
-Cr                       sigii = asig + E * bsig  or
-Cr                       asig < sigii < bsig
-Cr         arg 7: bsig : constraint used to approximate
-Cr                       sigii = asig + E * bsig  or
-Cr                       asig < sigii < bsig
-Cr         arg 8: efit : (mode 3) energy minimium (not used?)
-Cr                       for fitting asig and bsig
-Cr         arg 9: ? lwrite:T, write sigii to file (not used?)
-Cr         10 not used now
-Cr  size   size of this structure
 Cr  thrpv  3 PV for cell
 Cr  udiag  diagonal-only LDA+U
-
+c------------------------------------------------------------------------------
       
 !! --- explanation of  lat_* ---
 Cr name    purpose
