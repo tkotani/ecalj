@@ -109,7 +109,7 @@ C     ... for iterations
       double precision seref,etot(2),amom,qdiff,qtol,etol,alat
       equivalence (qdiff,dmxp(11))
 C     ... for relaxation
-      logical xyzfrz(3),lshr,ltmp
+      logical ::xyzfrz(3),ltmp !,lshr=.false.
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
      .     , nitrlx , bitor , ng
       integer ,allocatable :: indrx_iv(:)
@@ -248,7 +248,7 @@ C     Initial shear was already folded into plat
       lat_ldist=0
       nitrlx=ctrl_nitmv
       mdprm=ctrl_mdprm
-      lshr = nint(mdprm(1)) .gt. 100
+c      lshr = nint(mdprm(1)) .gt. 100
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
       if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
         call rx('lmf not set up for MD yet')
@@ -257,11 +257,11 @@ C     Initial shear was already folded into plat
         ctrl_mdprm=mdprm
         allocate(indrx_iv(6*nbas))
 C     Next lines in case lattice relaxation
-        if (lshr) then
-          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
-     .           'use of SHEAR= incompatible w/ lattice relaxation')
-          plat0=lat_plat0
-        endif
+c$$$        if (lshr) then
+c$$$          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
+c$$$     .           'use of SHEAR= incompatible w/ lattice relaxation')
+c$$$          plat0=lat_plat0
+c$$$        endif
         call rlxstp (  ssite , natrlx , nvrelx , indrx_iv , !sctrl ,
      .        xyzfrz , pdim )
         icom = 0
@@ -580,31 +580,31 @@ Ckino      ---------------- SCF (iteration) loop end ---------------------
             pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3) = ssite(i_spackv)%pos
          enddo
          mdprm=ctrl_mdprm
-         if (lshr) then !shear mode
-            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
-     .           pletot , dist )
-            if (irlxsh .ne. 0) then
-               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-               call newshear(plat)
-               if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then !!! Decide on what density to use
-                  irs(1) = 0
-               else             !  Else, use file density
-                  irs(1) = iand(7,int(ctrl_lrs))
-               endif
-               goto 4
-            else
-               call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
-     .              , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
-     .              , icom )
-               call dpzero(dist,6)
-               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-               dist(7) = 1
-            endif
-         else !without shear
+c$$$         if (lshr) then !shear mode
+c$$$            call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
+c$$$     .           pletot , dist )
+c$$$            if (irlxsh .ne. 0) then
+c$$$               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+c$$$               call newshear()
+c$$$               if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then !!! Decide on what density to use
+c$$$                  irs(1) = 0
+c$$$               else             !  Else, use file density
+c$$$                  irs(1) = iand(7,int(ctrl_lrs))
+c$$$               endif
+c$$$               goto 4
+c$$$            else
+c$$$               call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
+c$$$     .              , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
+c$$$     .              , icom )
+c$$$               call dpzero(dist,6)
+c$$$               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+c$$$               dist(7) = 1
+c$$$            endif
+c$$$         else !without shear
             call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
      .           , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move 
      .           , icom )
-         endif
+c$$$         endif
 C     Restore lattice symmetry to machine precision
          if (cmdopt('--fixpos',8,0,strn)) then
             ng=lat_nsgrp
@@ -614,7 +614,7 @@ C     Restore lattice symmetry to machine precision
             call fixpos ( pos_move , nbas , fptol , ng , plat , rv_a_osymgr, rv_a_oag , iv_a_oistab )
          endif
 C     Write updated positions to bsmv file
-         if (procid .eq. master .and. .not. lshr) then
+         if (procid .eq. master) then ! .and. .not. lshr) then
             ifi = fopna('bsmv',-1,0)
             call poseof(ifi)
             bstim = bstim+1
@@ -655,24 +655,24 @@ C     ... Exit when relaxation converged or maximum number of iterations
 C     ... Restore minimum gradient positions if this is last step
 C     if (itrlx .eq. nitrlx .and. icom .eq. -1) then
          if (itrlx .eq. nitrlx) then
-            if (.not. lshr) then
+c            if (.not. lshr) then
                call info0(20,1,0,' lmfp: restore positions for minimum g')
 C     call prmx('initial positions',w(opos),3,3,nbas)
-               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , p_rv
+               call prelx1 ( 1 , nm , .false. , natrlx , nvrelx , indrx_iv , p_rv !lshr=F
      .              , pos_move )
 C     call prmx('minimum-g positions',w(opos),3,3,nbas)
-            else
-               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
-     .              p_rv , dist0 )
-               call dpzero(dist,6)
-               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-
-               call info2(20,0,0,
-     .              ' lmfp : strain of minimum gradient:'//
-     .              '%N   PDEF=%6;8,4D'//
-     .              '%N STRAIN=%6;8,4D',
-     .              dist0,dist)
-            endif
+c$$$            else
+c$$$               call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
+c$$$     .              p_rv , dist0 )
+c$$$               call dpzero(dist,6)
+c$$$               call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
+c$$$
+c$$$               call info2(20,0,0,
+c$$$     .              ' lmfp : strain of minimum gradient:'//
+c$$$     .              '%N   PDEF=%6;8,4D'//
+c$$$     .              '%N STRAIN=%6;8,4D',
+c$$$     .              dist0,dist)
+c$$$            endif
 
 C     Repack updated positions in site structure
             do i_spackv=1,nbas
@@ -685,12 +685,12 @@ C     Repack updated positions in site structure
          if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
             irs(1) = 0
 !     ! Else, use self-consistent
-         else if (.not. lshr) then
+         else !if (.not. lshr) then
             irs(1) = 3
             call smshft(ssite,sspec,sv_a_oorhat,zv_a_osmrho) !sctrl,sham,slat,
          endif
 !     ! Write restart file (to include new positions)
-         if (procid .eq. master .and. .not. lshr) then
+         if (procid .eq. master) then ! .and. .not. lshr) then
             ifi = fopna('rst',-1,4)
             fileid = 'lmfp:  '  !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
@@ -730,18 +730,18 @@ C     reset mixing block
             endif
          endif
          itrlx = itrlx+1
-         if (lshr) then
-            call newshear(plat)
-!! Decide on what density to use
-            if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
-               irs(1) = 0
-            else                !  Else, use file density
-               irs(1) = iand(7,int(ctrl_lrs))
-            endif
-            goto 4
-         else
+c$$$         if (lshr) then
+c$$$            call newshear()
+c$$$!! Decide on what density to use
+c$$$            if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
+c$$$               irs(1) = 0
+c$$$            else                !  Else, use file density
+c$$$               irs(1) = iand(7,int(ctrl_lrs))
+c$$$            endif
+c$$$            goto 4
+c$$$         else
             goto 5
-         endif
+c         endif
       endif                     ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
 !! Write positions to file
  9998 continue
@@ -783,55 +783,54 @@ c     if (allocated(frc_rv)) deallocate(frc_rv)
 !     ! Setup to start calculation at new shear ---
       contains
       
-      subroutine newshear(plat)
-! Store lat_plat,lat_ldist,lat_dist, lattic, mkqp
-! not tested well yet.      
-      real(8):: plat(3,3)
-      if (procid .eq. master) then
-        call info0(20,0,0,' Delete mixing and band weights files ...')
-        ifi = fopna('mixm',-1,4)
-        call dfclos(ifi)
-        ifi = fopna('wkp',-1,4)
-        call dfclos(ifi)
-      endif
-!!  Restore plat, pos to their undistorted state:
-!!  undo original transformation = P P_0^-1
-      allocate(pos2_rv(3,nbas))
-      call dinv33(plat,0,xv,xv(10))
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , pos_move 
-     .     , 3 , 0d0 , pos2_rv , 3 )
-      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
-     .     , 3 , 0d0 , rv_a_opos, 3 )
-      do i_spackv=1,nbas
-        ssite(i_spackv)%pos  = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
-      enddo
-      call cppos(1,nbas,ssite)
-!! New shear
-      lat_plat=plat0
-      lat_ldist=3
-      lat_dist=dist
-!! A little memory leakage rel to 1st pass, but not so serious
-      if (allocated(pos2_rv)) deallocate(pos2_rv)
-      if (allocated(lldau_iv)) deallocate(lldau_iv)
-      if (allocated(ftot_rv)) deallocate(ftot_rv)
-c      if (allocated(shr_rv)) deallocate(shr_rv)
-      deallocate(vorbdmat,dmato,dmatu)
-      call lattic() !nbas) !slat,
-c      allocate(shr_rv(1))
-      plat=lat_plat
-!! Remake qp (t.kotani wonders this mkqp is needed or not?
-      ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
-      call mkqp(ltmp,.false.,1,-2) 
-!! Write restart file (to include new positions)
-      if (procid .eq. master .and. irlxsh .eq. 0) then
-        ifi = fopna('rst',-1,4)
-        fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-        k = iors (ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot ,  1  , 
-     .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
-     .        , - ifi )
-        call fclose(ifi)
-      endif
-      end subroutine newshear
+c$$$      subroutine newshear()
+c$$$! Store lat_plat,lat_ldist,lat_dist, lattic, mkqp
+c$$$! not tested well yet.      
+c$$$      if (procid .eq. master) then
+c$$$        call info0(20,0,0,' Delete mixing and band weights files ...')
+c$$$        ifi = fopna('mixm',-1,4)
+c$$$        call dfclos(ifi)
+c$$$        ifi = fopna('wkp',-1,4)
+c$$$        call dfclos(ifi)
+c$$$      endif
+c$$$!!  Restore plat, pos to their undistorted state:
+c$$$!!  undo original transformation = P P_0^-1
+c$$$      allocate(pos2_rv(3,nbas))
+c$$$      call dinv33(plat,0,xv,xv(10))
+c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , pos_move 
+c$$$     .     , 3 , 0d0 , pos2_rv , 3 )
+c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
+c$$$     .     , 3 , 0d0 , rv_a_opos, 3 )
+c$$$      do i_spackv=1,nbas
+c$$$        ssite(i_spackv)%pos  = pos_move(3*(i_spackv-1)+1: 3*(i_spackv-1)+3)
+c$$$      enddo
+c$$$      call cppos(1,nbas,ssite)
+c$$$!! New shear
+c$$$      lat_plat=plat0
+c$$$      lat_ldist=3
+c$$$      lat_dist=dist
+c$$$!! A little memory leakage rel to 1st pass, but not so serious
+c$$$      if (allocated(pos2_rv)) deallocate(pos2_rv)
+c$$$      if (allocated(lldau_iv)) deallocate(lldau_iv)
+c$$$      if (allocated(ftot_rv)) deallocate(ftot_rv)
+c$$$c      if (allocated(shr_rv)) deallocate(shr_rv)
+c$$$      deallocate(vorbdmat,dmato,dmatu)
+c$$$      call lattic() !nbas) !slat,
+c$$$c      allocate(shr_rv(1))
+c$$$      plat=lat_plat
+c$$$!! Remake qp (t.kotani wonders this mkqp is needed or not?
+c$$$      ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
+c$$$      call mkqp(ltmp,.false.,1,-2) 
+c$$$!! Write restart file (to include new positions)
+c$$$      if (procid .eq. master .and. irlxsh .eq. 0) then
+c$$$        ifi = fopna('rst',-1,4)
+c$$$        fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
+c$$$        k = iors (ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot ,  1  , 
+c$$$     .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
+c$$$     .        , - ifi )
+c$$$        call fclose(ifi)
+c$$$      endif
+c$$$      end subroutine newshear
       end subroutine lmfp
 
 
