@@ -210,7 +210,7 @@ C  arg  18:        offset to bs workspace
       integer , allocatable,protected  ::  iv_a_oidxcg (:)
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 !!
-      real(8), allocatable :: rv_a_opos(:)
+      real(8), allocatable :: rv_a_opos(:,:)
 c      character(1)::mmm
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains !rdctrl2 set initial values of m_lmfinit (in future all variables should be protected).
@@ -2164,11 +2164,11 @@ c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
              seref = seref +     v_sspec(ispec)%eref
           enddo
           ham_seref=seref
-          allocate(rv_a_opos(abs(3*nsite)))
-          allocate(iv_a_oips(abs(nsite)))
+          allocate(rv_a_opos(3,nsite))
+          allocate(iv_a_oips(nsite))
           do i_spackv=1,nsite
-             rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)= v_ssite( i_spackv )%pos
-             iv_a_oips(i_spackv) =                        v_ssite( i_spackv )%spec
+             rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+             iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
           enddo
           if (procid .eq. master) then
              if (iprint() .ge. 20) then
@@ -2211,7 +2211,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       !!v_* is going to be overwritten 
       call latticx() ! =lattic. to avoid cyclic dependensy of modules.
       do ibas=1,ctrl_nbas
-        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
+        v_ssite(ibas)%pos = rv_a_opos(:,ibas)!3*(ibas-1)+1:3*(ibas-1)+3) !atom positions in the primitive cell
       enddo
 !! --- We store all settings in module variables of m_rdctrl.
       print *,'end of lattic'
@@ -2329,9 +2329,26 @@ c
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)
       endif
+!!
+!!  -------------------------- Total energy mode -------------------
+      if (cmdopt('--etot',6,0,strn)) then
+!!  No forces or dynamics
+        mdprm=0
+        ctrl_lfrce=0
+        ctrl_mdprm=0
+        irs2=0
+        ctrl_maxit=1
+      endif
       end subroutine rdctrl2
       end module m_lmfinit
 
+
+
+
+
+
+
+      
 !! Hereafter are implication of variables. Some part are Obsolate, but it maybe a help.
 !!mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
 !! --- explanation of  bz_* ---

@@ -183,7 +183,7 @@ c      print *,' mmmmmm',nspec
       if (fptol .ne. 0) then
         do i_spackv=1,nbas
            ssite( i_spackv )%pos = pos2_rv(:,i_spackv)
-          rv_a_opos(3*(i_spackv-1)+1:3*(i_spackv-1)+3)=ssite(i_spackv)%pos
+          rv_a_opos(:,i_spackv)=ssite(i_spackv)%pos
         enddo
       endif
       
