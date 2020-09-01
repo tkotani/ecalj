@@ -192,7 +192,8 @@ C  arg  18:        offset to bs workspace
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 !!
       real(8), allocatable :: rv_a_opos(:,:)
-      
+      integer:: stdo,stdl,nspc,nlmax,mxorb
+      integer:: procid,nproc,master=0
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
@@ -283,14 +284,13 @@ C ----------------------------------------------------------------------
       character strn*(recln)
       integer:: i_spec
       character fileid*64
-      integer:: procid,nproc,master=0
       logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
-     .nglob,nspc,nlmax,scrwid,stdo,stdl,stde,k1,k2,mpipid !nkap,lsx1,
+     .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
       real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
@@ -1371,9 +1371,10 @@ C     Maximum L-cutoff
          call imxmn(nspec,lmxa,1,i0,lmxax)
          nlmax = (lmxax+1)**2
          nkaph = nkaph+lpzi-1
+         mxorb= nkaph*nlmax
          globalvariables%nkaph = nkaph
          globalvariables%nlmax = nlmax
-         globalvariables%mxorb = nkaph*nlmax
+         globalvariables%mxorb = mxorb
       endif
  79   continue
 

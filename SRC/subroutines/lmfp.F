@@ -437,7 +437,7 @@ C     Hang on to previous site density matrix for this iteration
       endif
 C     --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
-      call bndfp ( nbas , nsp , nlibu , lmaxu , lldau_iv , ssite 
+      call bndfp ( nlibu , lmaxu , lldau_iv , ssite 
      .     , sspec ,    sstrnmix , ndham , !sbz ,sctrl ,sham , slat , spot ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
