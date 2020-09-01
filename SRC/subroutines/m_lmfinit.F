@@ -2,7 +2,7 @@
 !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
 !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
 !! We can believe the old document not completely, however, it may be a help to read the code.
-!!
+!! We have to move data to the modules where data is generated.
 !   ! We will have to reorganize redundant data. In addition, we need to protect all variables given in this module.
 !      
 ! memo for iand (this will be removed)
@@ -34,39 +34,43 @@
       end type t_globalvariables
       
       type(t_globalvariables),protected :: globalvariables
-      type(s_spec),allocatable:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:)
+      type(s_spec),allocatable,protected:: v_sspec(:)
+      type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
       
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
       real(8),parameter::  NULLR =-99999
       integer,parameter :: n0=10
       integer,parameter :: nkap0=3
-      integer(2),protected:: nono
       integer,parameter :: mxspec=256,lstrn=10000
+
+      integer:: io_show=0,io_help=0,nvario=0
+      
+      integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer:: pot_nlma, pot_nlml, irs1,irs2,irs3,irs4,irs5,irs11
-      integer:: lat_nabc(3),lat_ng,lat_nkd,lat_nkqmx,lat_ngrp,lat_nsgrp,lat_npgrp,lat_nkq
-      integer:: io_show=0,io_help=0,nvario=0
+
+      integer:: pot_nlma, pot_nlml,lat_npgrp,lat_nsgrp,lat_nkd,lat_nkq,lat_ng,lat_nabc(3)
+      
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,lat_ngrp
       real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
      &     lat_tolft,lat_vol
+
       character(256):: header,symg=' '
       character(256):: symgaf=' '    !june2015 for antiferro (reserved).
-      logical :: frzwf,ham_ewald
+      logical,protected :: frzwf,ham_ewald
       integer:: ctrl_lxcf,ctrl_lrs,ctrl_nbas,ctrl_lmet,ctrl_lbas,ctrl_lfp,ctrl_lrel,ctrl_lves,
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit,ctrl_sdmod,ctrl_nclass,ctrl_noinv
       real(8):: ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
      &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),ctrl_mdprm(6)
       integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
-     .nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
+     &     nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
       integer lfp  ! set to T if FP program (used for defaults)
-      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,kmto(10)
+      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  
       real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
       real(8):: pmin(n0),pmax(n0)
-
       real(8)::ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_delta_stabilize,
      &     ham_elind,ham_oveps,ham_pmax(10),ham_pmin(10),ham_rsrnge,ham_rsstol,ham_scaledsigma,
      &     ham_sigp(10),ham_ehf

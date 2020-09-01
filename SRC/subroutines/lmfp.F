@@ -286,9 +286,9 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
       j = 6
-      if (cmdopt('-leks=',j,0,strn)) then
-        if (.not. a2bin(strn,leks,2,0,' ',j,72))   call rxs('failed to parse',strn)
-      endif
+c      if (cmdopt('-leks=',j,0,strn)) then
+c        if (.not. a2bin(strn,leks,2,0,' ',j,72))   call rxs('failed to parse',strn)
+c      endif
       if (nevmx .eq. -1) then
         lrout = 0
         leks = 0
