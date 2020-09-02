@@ -1,6 +1,6 @@
       integer function iors(ssite,sspec,!spot,!sbz,,sctrl,slat,mode
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,ctrl_lrs
+      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,irsrot !,ctrl_lrs
       use m_struc_def 
       use m_struc_func
       use m_lmfinit,only: globalvariables
@@ -688,7 +688,7 @@ C     ... store data in strucs
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
-        if ( lshear .and. iand(256,int(ctrl_lrs)) .ne.0 ) then
+        if ( lshear.and.irsrot) then ! .and. iand(256,int(ctrl_lrs)) .ne.0 ) then
           wk(1:9)=lat_dist
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
           call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )

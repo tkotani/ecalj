@@ -2,7 +2,7 @@
      .slabl,mode,wksize) !,sstrn,sbz sarray,
       use m_clsprm,only: rv_a_ormax
       use m_mksym,only: rv_a_oclabl,iv_a_oics,iv_a_oipc
-      use m_lmfinit,only: iv_a_oips,irs11,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
+      use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin, !irs11,
      &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos
       use m_struc_def  !Cgetarg
       use m_pairs

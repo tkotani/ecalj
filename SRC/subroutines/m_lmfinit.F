@@ -48,7 +48,7 @@
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp ,irs11
       character(256),protected:: header,symg=' '
       character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
       logical,protected :: frzwf,ham_ewald
@@ -138,11 +138,12 @@
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 
       integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu
+      logical,protected:: irs1x10,irsrot !(irsrot is not tested)
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
       integer::
-     &     ctrl_nclass,ctrl_noinv,ctrl_lmet,ctrl_lrs,lat_nkd,lat_nkq,lat_ng,lat_nabc(3),
+     &     ctrl_nclass,ctrl_noinv,ctrl_lmet,lat_nkd,lat_nkq,lat_ng,lat_nabc(3), !,ctrl_lrs
      &     ctrl_lfrce,nlmax,mxorb,
      &     ham_npwmin,ham_npwpad, ham_ndham,ham_ldham(16),ham_lmxax,  ham_lsig,
      &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf, lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos,
@@ -1724,14 +1725,11 @@ c
       j = lbas + 16*isw(frzwf)
       ctrl_lbas=j
       ctrl_defm=lat_defm(:)
-c      ctrl_lfp=lfp
 !! takao. we may need to remove lmet4 or lmet8... but a little complicated...
 !! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
 !!     ctrl_lmet    1 metal  2 tetrahedron
 !!                 4 (PGF) V-shift1 is zero
 !!                 8 (PGF) V-shift2 is zero
-      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-     .+4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
 C takao in lmf only lncol4, lncol32, lncol64 are used.
 C     lncol 1 noncollinear magnetism                      !=F in lmf
 C           2 spin spirals                                !=F in lmf
@@ -1741,17 +1739,9 @@ C          16 mag. forces                                 !=F in lmf
 C          32 spin-orbit coupling, LzSz only              !Used in lmf
 C          64 spin-orbit coupling, LzSz + (L.S-LzSz) pert !Used in lmf
 C     If spin-orbit or SS, also turn on noncollinear
-c
-c      k = 2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+16*isw(lncol16)
-c      if (k .ne. 0) lncol1=T
-c      lncol = 1*isw(lncol1)+2*isw(lncol2)+4*isw(lncol4)+8*isw(lncol8)+
-c     .  16*isw(lncol16)+32*isw(lncol32)+64*isw(lncol64)
-c
-c takao lncol is used only in limited routines.
-c One of lncol4,lncol32, or lncor64 is true, others are false.
-c      lncol= 4*isw(lncol4)+32*isw(lncol32)+64*isw(lncol64)
+      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
+     . +4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
       ctrl_lmet=lmet
-C lrs  switches concerning restart mode.
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -1759,34 +1749,14 @@ C lrs  switches concerning restart mode.
         i = 5
         j = a2vec(strn,len(strn),i,2,', ',2,2,5,ix,irs)
       endif
-      irs(1) = mod(mod(irs(1),10),4) + 4*getdig(irs(1),1,10)   !+ 8*getdig(irs(1),1,100)
-      lrs = 1*mod(irs(1),8) + 8*irs(2)+32*irs(3) + 64*irs(4) + 128*irs(5) + 256*mod(irs(1)/8,2)
-!!
-!!     irs(1) tells what to read and whether to invoke smshft.
-!!     4s' bit of irs(1) -> invoke smshft after file read.
-!!     8s' bit of irs(1) -> rotate local density after file read
-!!     0+1's bits irs(1)     action
-!!    0              read from atom file
-!!    1              read from binary rst file
-!!    2              read from ascii rsta file
-!!    3              read nothing (data already input)
-
-!!         1 Read from restart file
-!!         2 Read from restart file, ascii mode
-!!         4 Read from restart file, invoke smshft
-!!       256 rotate local density after reading
-      irs1 = 1*mod(irs(1),8) + 256*mod(irs(1)/8,2) !  iand(1+2+4,int(lrs)) + 8*isw( iand(256,int(lrs)) .ne.0 )
-!!         8 Write new density to restart file
-!!        16 Write new density to restart file, ascii format
-      irs2 = irs(2) !iand( 8+16,int(lrs)) /8
-!!        32 read site positions from input file
-      irs3 = irs(3) ! isw ( iand(32,int(lrs)) .ne.0 )
-!!        64 read starting fermi level from input file
-      irs4 = irs(4) !isw ( iand(64,int(lrs)) .ne.0 )
-!!       128 read starting pnu level from input file
-      irs5 = irs(5) !isw ( iand(128,int(lrs)) .ne.0 )
-      irs11 = 1*mod(irs(1),8) !iand(1+2+4,int(lrs))
-
+      irs1    = mod(irs(1),10)  !   0:read atom file, 1:read rst, 2:read rsta, 
+      irs1x10 = (irs(1)/10==1)  ! +10:  smshft after rst/rsta read (see lmfp.F) 
+      irsrot  = (irs(1)/100==1) ! +100: rotate local density after file read for shear mode (iors.F)
+                                !       (originally it was 8s' bit of irs(1))
+      irs2 = irs(2) ! 1:write rst  2:write rsta
+      irs3 = irs(3) ! read site positions from ctrl
+      irs4 = irs(4) ! read starting fermi level from ctrl
+      irs5 = irs(5) ! read starting pnu level from ctrl
 C     lqp 1 do not add inversion 2 inverse iteration
 c      lqp = 1*isw(ctrl_noinv)+2*isw(ctrl_lqp2)  !lqp= ctrl_noinv + 2*ctrl_lqp2
 c      lpq2 = isw (ctrl_lqp2)  ! T->1 F->0
@@ -1805,7 +1775,7 @@ C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
       ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
-      ctrl_lrs=lrs
+c      ctrl_lrs=lrs
       ctrl_lves=lves !!!  lves    1 take ves as input
 !!  lxcf   parameter defining XC functional
 !!      1s digit:
@@ -1884,18 +1854,6 @@ c      ham_size=uham_size()
       i_copy_size=size(ham_dabc)
       call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_elind=elind
-c      ham_nmto=nmto
-c      i_copy_size=size(ham_kmto)
-c      call dcopy(i_copy_size,kmto,1,ham_kmto,1)
-
-C     Replicate ctrl->lncol in ham->lncol, ditto for lham,lgen3
-c      ham_lncol=(int(ctrl_lncol))
-
-C     Mop up integer parts of sigp
-c      sigp(1) = sigp_mode
-c      sigp(2) = sigp_nmin
-c      sigp(4) = sigp_nmax
-
       ham_nkaph=nkaph
       i_copy_size=size(ham_pmax)
       call dcopy(i_copy_size,pmax,1,ham_pmax,1)
