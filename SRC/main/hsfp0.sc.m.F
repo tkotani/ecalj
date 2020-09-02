@@ -125,7 +125,7 @@ c
      & ixc, noccxv, maxocc, noccx, iaf, ip, is, nspinmx, i, ifoutsex, ix, ifoutsec,
      & ifsec(2), ifxc(2),ifsex(2), ifsex2(2),ifsec2(2),  ifsecomg(2),
      & nq0ix, incwfin, ngpn1,ngcn1,
-     &  iqxend,iqxini, timevalues(8) , ret,dest 
+     &  iqxend,iqxini, timevalues(8) , ret,dest ,irank
       real(8) :: voltot,valn,efnew, rydberg,hartree,qreal(3), nocctotg2,tripl !rs,alpha,ntot,
       real(8) ::  wgtq0p,quu(3), eftrue,esmref,esmr,ef !,ecorem
       character(128) :: ixcc
@@ -273,17 +273,17 @@ c        endif
       call Getqpoint(selectqp,nqibz,qibz) !Get q(3,nq) from <QPNT> or qibz
       call anfcond()
       nspinmx = nspin
-      if(laf) nspinmx=1 !!! Antiferro case. Only calculate up spin
-!! itq.  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
-!! During iteration, we use NTQXX file, to keep itq set.
-!! If we already have NTQXX (in your prerious gwsc calcution), the NTQXX is read to follow the previous calculation.
-      if(MPI__root) then !write NTQXX file
-         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx)
-      endif
-      call MPI__barrier()
-      if(.not.MPI__root) then !write NTQXX file
-         call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
-      endif
+      if(laf) nspinmx=1         !!! Antiferro case. Only calculate up spin
+      
+!! itq.
+!!  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
+!!  During iteration, we use NTQXX file, to keep itq set.
+!!  If we already have NTQXX (in your pre gwsc calculion), the NTQXX is read.
+      if( mpi__root .and. mpi__rank/=0) call rx('mpi__root .and. mpi__rank/=0')
+      do irank = 0,mpi__size-1  ! irank=0 may write NTQXX if it exists. irank>0 is reading mode.
+        if(mpi__rank==irank) call Setitq_hsfp0sc(qibz,nqibz,nq,nspin,nbmx_sig,ebmx_sig,eftrue,nspinmx) !read NTQXX
+        call MPI__barrier() !mpi barrier is only for root ?
+      enddo
 !! Read eigenvalues given by lmf for writing out files.
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do is = 1,nspin
