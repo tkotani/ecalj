@@ -1,7 +1,6 @@
-      subroutine totfrc(nbas,ssite,leks,fes1,fes2,dfhf,f)!slat,
-      use m_mksym,only:  rv_a_osymgr , iv_a_oistab 
-      use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_nsgrp
+      subroutine totfrc(nbas,ssite,leks,fes1,fes2,dfhf,f)
+      use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
+      use m_struc_def           
 C- Add together and print contributions to force
 C ----------------------------------------------------------------------
 Ci Inputs

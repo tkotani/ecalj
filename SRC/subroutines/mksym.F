@@ -9,11 +9,12 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       integer , allocatable,protected ::  iv_a_onrcp (:)
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
+      integer,protected:: lat_npgrp,lat_nsgrp
       contains
       subroutine mksym(mode,slabl,ssymgr,ssite) !,sctrl,slat
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
-     & lat_dist,lat_ldist,lat_npgrp,lat_nsgrp,lat_plat,iv_a_oips
+     & lat_dist,lat_ldist,lat_plat,iv_a_oips
       use m_lmfinit,only: globalvariables,rv_a_opos
 C- Setup for symmetry group
 C ----------------------------------------------------------------------

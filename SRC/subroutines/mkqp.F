@@ -8,9 +8,9 @@
 
       subroutine mkqp(gettet,lnoirr,lreduc,lgstar) !sctrl,slat,
       use m_struc_def  !Cgetarg
-      use m_mksym,only:    rv_a_osymgr
+      use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,
-     & lat_plat,lat_nsgrp,lat_npgrp
+     & lat_plat
       use m_lmfinit,only: globalvariables
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------

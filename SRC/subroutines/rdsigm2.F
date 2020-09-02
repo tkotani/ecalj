@@ -200,12 +200,12 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
       use m_suham,only:iv_a_oindxo,iv_a_ooffH
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
-      use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag
+      use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
       use m_lmfinit,only: globalvariables
       use m_sigflg
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs,
-     & lat_plat,lat_nsgrp,rv_a_opos
+     & lat_plat,rv_a_opos
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
@@ -814,12 +814,12 @@ c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis,
       subroutine rdsigm2(nbas_dummy,nsp,ifis,  !sbz,ndimh,sham 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
       use m_seneinterp,only: rv_p_oqsig
-      use m_mksym,only: rv_a_osymgr
+      use m_mksym,only: rv_a_osymgr,lat_nsgrp
 c      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
-      use m_lmfinit,only: ham_nqsig,lat_nsgrp
+      use m_lmfinit,only: ham_nqsig
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input

@@ -13,8 +13,9 @@
       use m_lattic,only: rv_a_odlv,rv_a_oqlv
       use m_mksym,only:    rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
-      use m_lmfinit,only: lat_nsgrp,lat_alat,lat_vol,lat_awald,lat_nkd,lat_gmax,lat_ng,lat_plat,
+      use m_lmfinit,only: lat_alat,lat_vol,lat_awald,lat_nkd,lat_gmax,lat_ng,lat_plat,
      &     lat_nabc,lat_nkq,rv_a_opos
+      use m_mksym,only:  lat_nsgrp
 C- Initialization for potential
 C ----------------------------------------------------------------------
 Ci Inputs

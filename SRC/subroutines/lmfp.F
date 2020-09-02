@@ -4,14 +4,14 @@
      &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_lrs,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ctrl_lmet,
      &     ham_ndham,ham_ehf,ham_ehk,ham_seref,ham_eterms,
-     &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,lat_nsgrp,
+     &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
      &     sstrnmix,sstrnsymg, !ssite2=>v_ssite2,
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
      &     globalvariables, rv_a_opos 
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
-      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab
+      use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_mkqp,only: mkqp
       use m_suham,only:suham
       use m_lattic,only:lattic

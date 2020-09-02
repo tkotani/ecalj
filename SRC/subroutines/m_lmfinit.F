@@ -14,7 +14,7 @@
       use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
       implicit none
       
-      private t_globalvariables ! this should be desolved
+      private t_globalvariables ! not use globalbariables. Instead, use module variables directly.
       type t_globalvariables 
       integer:: lrel=-999999
       integer:: lxcf=-999999
@@ -44,15 +44,14 @@
       integer,parameter :: nkap0=3
       integer,parameter :: mxspec=256,lstrn=10000
 
-      integer:: io_show=0,io_help=0,nvario=0
-      
+      integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
 
-      integer:: pot_nlma, pot_nlml,lat_npgrp,lat_nsgrp,lat_nkd,lat_nkq,lat_ng,lat_nabc(3)
+      integer:: lat_nkd,lat_nkq,lat_ng,lat_nabc(3)
       
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,lat_ngrp
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp
       real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
      &     lat_tolft,lat_vol

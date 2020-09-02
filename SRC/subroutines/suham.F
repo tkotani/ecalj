@@ -2,7 +2,7 @@
       subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
 c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
       use m_supot,only: rv_a_ogv
-      use m_mksym,only: rv_a_osymgr,rv_a_oag
+      use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp 
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
      &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
@@ -12,7 +12,7 @@ c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qp
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_nsgrp ,lat_plat,lat_qlat,lat_alat,rv_a_opos
+     &     lat_plat,lat_qlat,lat_alat,rv_a_opos
 c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -451,6 +451,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       module m_suham
       integer , allocatable,protected ::  iv_a_oindxo (:)
       integer , allocatable,protected ::  iv_a_ooffH (:)
+      integer, protected::     pot_nlma, pot_nlml
       contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
       use m_supot,only: rv_a_ogv
@@ -459,8 +460,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
       use m_lmfinit,only:
      &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft,
-     &     pot_nlma, pot_nlml
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs

@@ -7,14 +7,13 @@
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
       use m_lmfinit,only: globalvariables
-c      use m_globalvariables,only: globalvariables
-c      use m_phmbls,only: phmbls
       use m_suham,only: iv_a_oindxo
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
-     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax,lat_npgrp,lat_nsgrp
+     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax
+      use m_mksym,only: lat_npgrp,lat_nsgrp
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.

@@ -13,7 +13,7 @@
      .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
      .  dmatu,vorb,llmfgw)
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      use m_suham,only:iv_a_oindxo
+      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
@@ -21,7 +21,7 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
-     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,pot_nlml,pot_nlma,rv_a_opos ,stdo,stdl,procid,master,
+     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
      &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp
 c      use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
