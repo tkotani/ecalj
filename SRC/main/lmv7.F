@@ -47,13 +47,10 @@ c      integer namelen(0:MAX_PROCS-1)
       nproc  = mpipid(0)
       i = dble(stdo)
       call finits(2,0,0,i)
-!! Get extension of ctrl file to sname \in m_ext
+      call getext()
+      ext = adjustl(sname) ! Get extension of ctrl file to sname \in m_ext
 !! first arguments of lmf without '-' at top is identified as the extension foobar of ctrl.foobar.
 !! fopen will be removed in future.
-      
-      call getext()
-      ext = adjustl(sname)
-      if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
 !! set log file for --mlog (not maintained well)
 #if MPI | MPIK
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)

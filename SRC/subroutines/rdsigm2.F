@@ -197,6 +197,7 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       real(8) , allocatable ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       contains
+      
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
       use m_suham,only:iv_a_oindxo,iv_a_ooffH
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
@@ -204,7 +205,7 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
       use m_hft2rs
       use m_lmfinit,only: globalvariables
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_sigp,ham_rsstol,ham_nqsig,ham_ndhrs,
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_rsstol,ham_nqsig,ham_ndhrs,
      & lat_plat,rv_a_opos
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
@@ -220,7 +221,7 @@ c      type(s_ham)::sham
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig,modsgp,nmin,nmax,
+     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig,!modsgp,nmin,nmax,
      .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
@@ -248,10 +249,10 @@ c      integer procid,mpipid,master
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
       double precision alf(2)
 C     integer os
-      double precision plat(3,3),qp(3),tolq,rsstol,sigp(10)  ,qlat(3,3)
-      double precision emin,emax,asig,bsig,efit,qoff(3),rotm(3,3),ddot
-      equivalence (emin,sigp(3)),(emax,sigp(5))
-      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
+      double precision plat(3,3),qp(3),tolq,rsstol,qlat(3,3),rotm(3,3),qoff(3),ddot
+c      double precision emin,emax,asig,bsig,efit,sigp(10)
+c      equivalence (emin,sigp(3)),(emax,sigp(5))
+c      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
       double precision qk
       integer jj1,jj2,jj3,k
@@ -316,11 +317,11 @@ c
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
       ldham =ham_ldham
-      sigp  =ham_sigp
       rsstol=ham_rsstol
-      modsgp = nint(sigp(1))
-      nmin   = nint(sigp(2))
-      nmax   = nint(sigp(4))
+c      sigp  =ham_sigp
+c      modsgp = nint(sigp(1))
+c      nmin   = nint(sigp(2))
+c      nmax   = nint(sigp(4))
 
       call info2(30,0,0,
      .'%9fSigm will be approximated by:  '//
@@ -330,32 +331,32 @@ c
      .'%?#(n==3)#Interpolation from known points##%-1j'//
      .' ',moditp,0)
 
-      if (moditp .eq. 1 .or. moditp .eq. 2) then
-        if( sigswitch()==0 ) then
-        call info5(30,0,0,
-     .  '%9fApproximate sigma '//
-     .  '%?#(n<0)#for energies E(lda)<%d; and %-2j#%-1j#'//
-     .  '%?#(n>0)#for states up to %-1jn=%i; and ##%j'//
-     .  '%?#(n<=0)#for energies E(lda)>%d%-2j#%-1j#'//
-     .  '%?#(n>0)#for states above %-1jn=%i##%j',
-     .  nmin,emin,nmax,emax,0)
-        call info5(30,0,0,'%9fFor high states '//
-     .  '%?#(n==0)#Sigii > %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-     .  '%?#(n==1)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-     .  '%?#(n==3)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
-     .  '%?#(n==2)#%,3;4d < Sigii < %,3;4d%-2j##%-1j'//
-     .  ' ',modsgp,asig,bsig,0,0)
-        if (nmax .gt. 0) call info5(30,0,0,
-     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
-     .  '%?#(n==3)# and n<%i'//
-     .  ' ',efit,modsgp,nmax,0,0)
-        if (nmax .eq. 0) call info5(30,0,0,
-     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
-     .  '%?#(n==3)# and E(lda)<%d'//
-     .  ' ',efit,modsgp,emax,0,0)
-        endif
-        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
-      endif
+c$$$      if (moditp .eq. 1 .or. moditp .eq. 2) then
+c$$$        if( sigswitch()==0 ) then
+c$$$        call info5(30,0,0,
+c$$$     .  '%9fApproximate sigma '//
+c$$$     .  '%?#(n<0)#for energies E(lda)<%d; and %-2j#%-1j#'//
+c$$$     .  '%?#(n>0)#for states up to %-1jn=%i; and ##%j'//
+c$$$     .  '%?#(n<=0)#for energies E(lda)>%d%-2j#%-1j#'//
+c$$$     .  '%?#(n>0)#for states above %-1jn=%i##%j',
+c$$$     .  nmin,emin,nmax,emax,0)
+c$$$        call info5(30,0,0,'%9fFor high states '//
+c$$$     .  '%?#(n==0)#Sigii > %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
+c$$$     .  '%?#(n==1)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
+c$$$     .  '%?#(n==3)#Sigii = %,3;4d + %,3;4d * E(lda)%-2j##%-1j'//
+c$$$     .  '%?#(n==2)#%,3;4d < Sigii < %,3;4d%-2j##%-1j'//
+c$$$     .  ' ',modsgp,asig,bsig,0,0)
+c$$$        if (nmax .gt. 0) call info5(30,0,0,
+c$$$     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
+c$$$     .  '%?#(n==3)# and n<%i'//
+c$$$     .  ' ',efit,modsgp,nmax,0,0)
+c$$$        if (nmax .eq. 0) call info5(30,0,0,
+c$$$     .  '%9fLinear fit to diagonal sigma for E(lda)>%d'//
+c$$$     .  '%?#(n==3)# and E(lda)<%d'//
+c$$$     .  ' ',efit,modsgp,emax,0,0)
+c$$$        endif
+c$$$        l_dummy_isanrg=isanrg(modsgp,0,3,'rdsigm:','sig fit mode',.true.)
+c$$$      endif
       if (lfbzin .or. ddot(3,qoffi,1,qoffi,1).ne.0) then
         call info5(30,0,0,'%?#(n==1)#%9fFile sigm in saved in FBZ: '//
      .  'symmetrization suppressed##'//
@@ -1014,7 +1015,7 @@ c      type(s_bz)::sbz
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig,modsgp,nmin,nmax,
+     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
      .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
@@ -1038,10 +1039,10 @@ c      integer procid,mpipid,master
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
       double precision alf(2)
 C     integer os
-      double precision qp(3),tolq,rsstol,sigp(10)  !plat(3,3),qlat(3,3)
-      double precision emin,emax,asig,bsig,efit,rotm(3,3),ddot !,qoff(3)
-      equivalence (emin,sigp(3)),(emax,sigp(5))
-      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
+      double precision qp(3),tolq,rsstol,rotm(3,3),ddot  !plat(3,3),qlat(3,3)
+c      double precision emin,emax,asig,bsig,efit !,qoff(3)
+c      equivalence (emin,sigp(3)),(emax,sigp(5)),sigp(10)
+c      equivalence (asig,sigp(6)),(bsig,sigp(7)),(efit,sigp(8))
 C Given (j1,j2,j3) of ipq, q_k(j1,j2,j3) =  sum_i (j_i*ifac(i)-1)*qb(k,i)
 c      double precision qk
       integer jj1,jj2,jj3,k

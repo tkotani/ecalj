@@ -35,7 +35,6 @@
       
       type(t_globalvariables),protected :: globalvariables
       type(s_spec),allocatable,protected:: v_sspec(:)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
       
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
@@ -43,97 +42,120 @@
       integer,parameter :: n0=10
       integer,parameter :: nkap0=3
       integer,parameter :: mxspec=256,lstrn=10000
+      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
 
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-
-      integer:: lat_nkd,lat_nkq,lat_ng,lat_nabc(3)
-      
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp
+      character(256),protected:: header,symg=' '
+      character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
+      logical,protected :: frzwf,ham_ewald
+      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0
+
+      integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lbas,ctrl_lfp,ctrl_lrel,ctrl_lves,
+     &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
+     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
+     &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0
+     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
+      real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
+     &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
+     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),
+     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  
+     &     ,alfsi=nullr,dabc(3)=nullr,rsstol     
+     &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
+     &     ,ham_delta_stabilize 
+!! ... OPTIONS
+      integer,protected ::lves
+      integer,protected:: ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,quit,nl,lpfloat
+      real(8),protected:: rmines,rmaxes
+      logical,protected :: lhf,lcd4
+!! ... STRUC 
+      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,temp33(9)
+      real(8),protected:: vol,avw
+      integer,protected:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec 
+!! ... SPEC
+      real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
+      character*8,protected:: slabl(mxspec)
+      integer,protected:: lmxbx=-1,lmxax,nkaph
+      logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
+      integer,allocatable,protected:: idxdn(:,:), grp(:),grp2(:),
+     .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
+     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
+      real(8),allocatable,protected:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
+     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
+     .     dv(:), uh(:,:),jh(:,:),
+     .     qpol(:,:),stni(:),tbvso(:,:),
+     .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
+     .     coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
+     .     rg(:),rsma(:),rfoca(:),
+     .     rsmfa(:),rcfa(:,:),
+     .     exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
+     .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
+      character*(8),allocatable,protected::pb1(:),pb2(:), coreh(:)
+!! ... SITE
+      character(8),protected:: alabl
+      real(8),allocatable,protected :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
+      integer,allocatable,protected :: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
+      real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
+      integer,allocatable,protected ::iantiferro(:) !reserved
+!! ... BZ
+      integer,protected:: bz_lshft(3)=0,
+     .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
+      real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
+     .     bz_semsh(10),zbak(2),bz_lcond(4),bz_range=5d0,bz_dosmax
+      logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
+     .     ctrl_lmet4=.true.,ctrl_lmet8=.true. !,ctrl_lqp2
+!! ... Ewald
+      real(8),protected:: lat_as,lat_tol,lat_rpad
+      integer,protected:: lat_nkdmx
+!! ... STR
+      real(8),protected:: str_rmax=nullr 
+      integer,protected:: str_mxnbr 
+!! ... Iteration, MIX
+      character(128),protected :: iter_mix=' ' 
+      real(8),protected:: ctrl_tol(3)=1d-4
+      integer,protected:: iter_maxit=1
+      integer,protected:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
+      real(8),protected:: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
+      character(8),protected:: mix_fn
+!! DYN
+      real(8),protected:: mdprm(6),lat_defm(6),sdprm(5)
+      real(8),protected:: prmint(20)=(/1d0,1d0,0d0,2d-4,7d0,11d0,2d0,4d0,6d0,8d0,
+     .     12d0,16d0,24d0,32d0,48d0,64d0,96d0,0d0,0d0,0d0/),
+     .     prmint_ts0,prmint_tol,gd_ct(3),
+     .     move_kt,move_ts,move_tsequ,move_tstot
+      logical,protected:: prmint_new,lbsprm=F,lsdyn=F
+      integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
+      integer,protected:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
+      real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
+      integer , allocatable,protected ::  iv_a_oips (:)
+!! CG coefficient      
+      real(8) , allocatable,protected  ::  rv_a_ocg (:)
+      real(8) , allocatable,protected  ::  rv_a_ocy (:)
+      integer , allocatable,protected  ::  iv_a_oidxcg (:)
+      integer , allocatable,protected  ::  iv_a_ojcg (:)
+
+      integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu
+c-----------------------
+!! These are (probably) rewritten in other subroutines.
+!!      So, we need to look for modules for these variables.      
+      integer::
+     &     ctrl_nclass,ctrl_noinv,ctrl_lmet,ctrl_lrs,lat_nkd,lat_nkq,lat_ng,lat_nabc(3),
+     &     ctrl_lfrce,nlmax,mxorb,
+     &     ham_npwmin,ham_npwpad, ham_ndham,ham_ldham(16),ham_lmxax,  ham_lsig,
+     &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf, lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos,
+     &     bz_nevmx
       real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
-     &     lat_tolft,lat_vol
-
-      character(256):: header,symg=' '
-      character(256):: symgaf=' '    !june2015 for antiferro (reserved).
-      logical,protected :: frzwf,ham_ewald
-      integer:: ctrl_lxcf,ctrl_lrs,ctrl_nbas,ctrl_lmet,ctrl_lbas,ctrl_lfp,ctrl_lrel,ctrl_lves,
-     &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
-     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit,ctrl_sdmod,ctrl_nclass,ctrl_noinv
-      real(8):: ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
-     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),ctrl_mdprm(6)
-      integer:: ctrl_lfrce,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0,
-     &     nsp=1,lrel=1,lso=0,ham_udiag=0,ggax !,ham_qasa
-      integer lfp  ! set to T if FP program (used for defaults)
-      real(8):: lat_gmax,tolft,elind,dqval,rsrnge,vmtz, scaledsigma  
-      real(8):: alfsi=nullr,dabc(3)=nullr,rsstol
-      real(8):: pmin(n0),pmax(n0)
-      real(8)::ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_delta_stabilize,
-     &     ham_elind,ham_oveps,ham_pmax(10),ham_pmin(10),ham_rsrnge,ham_rsstol,ham_scaledsigma,
-     &     ham_sigp(10),ham_ehf
-      integer::
-     &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham(16),ham_lmxax,
-     &     ham_lsig,ham_nkaph,ham_nlibu,
-     &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf
-!! ... OPTIONS
-      integer ::lves
-      integer:: ctrl_smalit(2),smalit(2),nesabc(3), !lasa3=1,lsx,lscr,
-     .lstonr(3)=0,quit,nl,lpfloat
-      real(8):: rmines,rmaxes,ham_qss(4) !asa_elin,,lham3=0
-      logical :: lhf,lcd4
-!! ... STRUC 
-      real(8):: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),lat_gam(4),dalat,temp33(9)
-      real(8):: vol,avw,lat_dist(9)
-      integer:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec,nclass
-      integer:: lat_ldist=0
-!! ... SPEC
-      real(8):: omax1(3),omax2(3),wsrmax,sclwsr
-      character*8 slabl(mxspec)
-      integer:: lmxbx=-1,lmxax,nkaph
-      logical,allocatable:: mxcst1(:),mxcst2(:),mxcst4(:)
-      integer,allocatable:: idxdn(:,:), grp(:),grp2(:),
-     .idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
-     .kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
-      real(8),allocatable:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
-     .hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
-     .dv(:), uh(:,:),jh(:,:),
-     .qpol(:,:),stni(:),tbvso(:,:),
-     .pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
-     .coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
-     .rg(:),rsma(:),rfoca(:),
-     .rsmfa(:),rcfa(:,:),
-     .exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
-     .amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
-      character*(8),allocatable::pb1(:),pb2(:), coreh(:)
-!! ... SITE
-      character(8):: alabl
-      real(8),allocatable   :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
-      integer,allocatable:: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
-      real(8),allocatable   :: delta(:,:),mpole(:),dpole(:,:)
-      integer,allocatable::iantiferro(:) !reserved
-!! ... Iteration, MIX
-      character(128) :: iter_mix=' ' 
-      real(8):: ctrl_tol(3)=1d-4
-      integer:: iter_maxit=1
-      integer:: mix_kill,mix_lxpot,mix_mmix,mix_mode,mix_nmix,mix_nsave !mix_nitu,
-      real(8):: mix_b,mix_bv,mix_elind,mix_tolu,mix_umix,mix_w(3),mix_wc
-      character(8):: mix_fn
-!! ... BZ
-      integer:: bz_nabc(3)=NULLI,bz_lshft(3)=0,
-     .bz_lmet,bz_n,bz_nevmx,bz_lmull,ctrl_ldos,bz_ndos,bz_fsmommethod,bz_nkp,bz_ntet
-      real(8):: bz_w,bz_ef,bz_def,bz_efmax,bz_zval,bz_fsmom,
-     .bz_semsh(10),zbak(2),bz_dosw(2),bz_lcond(4),bz_range=5d0,bz_dosmax
-      logical:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
-     .ctrl_lmet4=.true.,ctrl_lmet8=.true. !,ctrl_lqp2
-!! ... Ewald
-      real(8):: lat_as,lat_tol,lat_rpad
-      integer:: lat_nkdmx
-!! ... STR
-      real(8):: str_rmax=nullr 
-      integer:: str_mxnbr 
-!! ... DYN
+     &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
+     &     lat_dist(9),lat_gam(4),
+     &     ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_ehf,bz_w,bz_ef,bz_def,bz_dosw(2)
+      real(8), allocatable :: rv_a_opos(:,:)
+      type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
+      
+!! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
 C   arg 1: 0 no relaxation or dynamics
 C          1 new dynamics 2  restart dynamics
@@ -169,30 +191,9 @@ C  arg  4:   tol:  tolerance in integration errors
 C  arg  5:   mx:   order of rational function extrapolation
 C  arg  6:   mi:   number of midpoint rules
 C  arg  7-17 nseq: sequence of no. midpoint divisions
-C  arg  18:        offset to bs workspace
-      integer:: sdmod=-1
-      real(8):: mdprm(6),lat_defm(6),sdprm(5)
-      real(8):: prmint(20)=(/1d0,1d0,0d0,2d-4,7d0,11d0,2d0,4d0,6d0,8d0,
-     .12d0,16d0,24d0,32d0,48d0,64d0,96d0,0d0,0d0,0d0/),
-     .prmint_ts0,prmint_tol,gd_ct(3),
-     .move_kt,move_ts,move_tsequ,move_tstot
-      logical:: prmint_new,lbsprm=F,lsdyn=F
-      integer:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),
-     .gd_modt(3),gd_nmodt=1
-      character(1024):: mmham=' '
-      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
-      integer:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
-      real(8)::    pwemax,pwemin,oveps,delta_stabilize
-      integer , allocatable ::  iv_a_oips (:)
-!! CG coefficient      
-      real(8) , allocatable,protected  ::  rv_a_ocg (:)
-      real(8) , allocatable,protected  ::  rv_a_ocy (:)
-      integer , allocatable,protected  ::  iv_a_oidxcg (:)
-      integer , allocatable,protected  ::  iv_a_ojcg (:)
-!!
-      real(8), allocatable :: rv_a_opos(:,:)
-      integer:: stdo,stdl,nspc,nlmax,mxorb
-      integer:: procid,nproc,master=0
+C     arg  18:        offset to bs workspace
+!!------------------------------------------------
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
       subroutine rdctrl2( recrd,recln,nrecs, prgnam)
@@ -202,7 +203,7 @@ C  arg  18:        offset to bs workspace
       use m_gtv 
       use m_hamindex,only: 
      &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
-!! Set initial adata to m_lmfinit. 
+!! Set initial data to m_lmfinit. 
 !! All the initial data is pushed into m_lmfinit
 !! ----------------------------------------------------------------------
 !! Inputs
@@ -347,7 +348,7 @@ c      integer,parameter:: mxspec=256
       stdo = lgunit(1)
       stdl = lgunit(2)
       stde = stdo
-      lfp = 1
+c      lfp = 1
       nullrv = nullr
       nulliv  =nulli
       debug = cmdopt('--debug',6,0,a)
@@ -1600,9 +1601,9 @@ c     print *, alabl,' xxx ', i,ips(j)
      .     def_r8=1d-8,note='Ewald tolerance')
       nm='EWALD_NKDMX'; call gtv(trim(nm),tksw(prgnam,nm),lat_nkdmx,
      .     def_i4=800,note='Ewald tolerance')
-      nm='EWALD_RPAD'; call gtv(trim(nm),tksw(prgnam,nm),lat_rpad,
-     .     def_r8=0d0,note='Scale rcutoff by rpad when lattice vectors'//
-     .     ' padded in oblong geometries')
+c      nm='EWALD_RPAD'; call gtv(trim(nm),tksw(prgnam,nm),lat_rpad,
+c     .     def_r8=0d0,note='Scale rcutoff by rpad when lattice vectors'//
+c     .     ' padded in oblong geometries')
       
 !! --- Iterations (formerly MIX) ---
       mix_b = NULLI            ! Not set
@@ -1723,7 +1724,7 @@ c
       j = lbas + 16*isw(frzwf)
       ctrl_lbas=j
       ctrl_defm=lat_defm(:)
-      ctrl_lfp=lfp
+c      ctrl_lfp=lfp
 !! takao. we may need to remove lmet4 or lmet8... but a little complicated...
 !! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
 !!     ctrl_lmet    1 metal  2 tetrahedron
@@ -1834,7 +1835,7 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_rmaxes= rmaxes
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
-      ctrl_sdmod = sdmod
+c      ctrl_sdmod = sdmod
       ctrl_sdprm = sdprm
       ctrl_smalit= smalit
       ctrl_tol   = ctrl_tol
@@ -1903,8 +1904,8 @@ c      sigp(4) = sigp_nmax
       ham_lsig=lrsig
 c      i_copy_size=size(ham_sigp)
 c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
-      i_copy_size=size(ham_qss)
-      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
+c      i_copy_size=size(ham_qss)
+c      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
 
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
