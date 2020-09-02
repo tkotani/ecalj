@@ -137,7 +137,7 @@ c     integer:: odmatu , ovorbdmat , odmato
       logical:: l_dummy_isanrg,isanrg
       real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false.
-      integer:: isize_iv_tmp,ibas
+      integer:: isize_iv_tmp,ibas,unlink
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"

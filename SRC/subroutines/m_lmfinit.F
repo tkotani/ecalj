@@ -9,7 +9,7 @@
 !      i=53           ! i=00110101 binary (lowest order byte)
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
-      
+      use m_struc_func,only:usite_size, uspec_size, mpibc1_s_spec, mpibc1_s_site
       use m_struc_def,only: s_spec,s_site
       use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
       implicit none

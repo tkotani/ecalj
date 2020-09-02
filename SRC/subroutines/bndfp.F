@@ -320,10 +320,7 @@ c      integer:: n_listwf
       integer:: nqps,ii1,ii2,ii4,iq1 !, fxsts
       logical:: lfx
 
-c#if                             !defined(__INTEL_COMPILER)
-c      integer:: unlink !fortran standard 
-c#endif
-
+      integer:: unlink
 !! for mpi and mpik, parallel write
       character(10):: strprocid 
       integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
