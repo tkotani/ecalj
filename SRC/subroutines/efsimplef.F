@@ -41,7 +41,9 @@ c      real(8) :: efp,efm,wwgo,wfacef
 
       integer(4):: ifile_handle,if8301,if8302 !nqbz,
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
-c      real(8)   :: qbz(3,nqbz)
+c     real(8)   :: qbz(3,nqbz)
+      integer:: ifzbak
+      real(8)::zbak
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear) then
@@ -65,10 +67,13 @@ c total valence charge
           end do
         end do
       endif
-ccccccccccccccccccccccccccccccccccccccccccc
-c      valn=29d0
-cccccccccccccccccccccccccccccccccccccccccc
-        write(6,*)' valn=',valn
+!! read ZBAK file      
+      open(newunit=ifizbak,file='ZBAK')
+      read(ifizbak,*)zbak
+      valn=valn-zbak
+      close(ifizbak)
+      valn = vanl+zbak
+      write(6,*)' valn=vanl+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz
@@ -269,6 +274,8 @@ c      real(8) :: efp,efm,wwgo,wfacef
       integer(4):: nqbz,ifile_handle,if8301,if8302
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
+      integer:: ifzbak
+      real(8)::zbak
 C--------------------------------------------------------------------
       autoew =.false.
       if(GaussSmear) then
@@ -295,7 +302,14 @@ c total valence charge
 ccccccccccccccccccccccccccccccccccccccccccc
 c      valn=29d0
 cccccccccccccccccccccccccccccccccccccccccc
-        write(6,*)' valn=',valn
+      write(6,*)' valn=',valn
+!! read ZBAK file      
+      open(newunit=ifizbak,file='ZBAK')
+      read(ifizbak,*)zbak
+      valn=valn-zbak
+      close(ifizbak)
+      valn = vanl+zbak
+      write(6,*)' valn=vanl+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz

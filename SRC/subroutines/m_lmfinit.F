@@ -1556,6 +1556,12 @@ c     print *, alabl,' xxx ', i,ips(j)
      .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak(1),
      .     def_r8=0d0,note='Homogeneous background charge')
+!! write zbak. sep2020
+      if(procid==master) then
+      open(newunit=ifzbak,file='ZBAK',form='unformatted')
+      write(6,"(d23.5, '! zbak')") zbak(1)
+      close(ifzbak)
+      endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose some combination of the following:'
      .     //'%N%3f1 Write DOS to directly disk (NPTS and DOS also needed)'
@@ -2502,8 +2508,8 @@ Cr   wsrmax  constraint on size of largest WS sphere
 Cr   zbak    background charge and MT correction parameters
 Cr                     zbak(1) = uniform background charge included
 Cr                               in electrostatics but not in xc pot.
-Cr                     zbak(2) = charge used to make MT correction
-Cr                               (ASA only)
+Cr                     zbak(2) = charge used to make MT correction     
+Cr                               (ASA only) ==> unused!
 C ----------------------------------------------------------------
 !! ---------- ham_* -------------------
 Cr  name    purpose
