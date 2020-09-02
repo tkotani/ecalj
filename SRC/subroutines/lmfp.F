@@ -93,7 +93,7 @@ c      type(s_site)::ssite(*)
      .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
       integer:: o
-      real(8),allocatable:: pos_move(:,:)
+      real(8),allocatable  :: pos_move(:,:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
@@ -122,10 +122,8 @@ C     ... for relaxation
      .     , nitrlx , bitor , ng
       integer ,allocatable :: indrx_iv(:)
       real(8) ,allocatable :: w_rv(:)
-
 c     ki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
-
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
      .     plat0(3,3),dist0(9),dist(9)
       parameter (nm=3)
@@ -134,11 +132,9 @@ C     ... for LDA+U
 c     integer:: odmatu , ovorbdmat , odmato
       complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:)
       integer ,allocatable :: lldau_iv(:)
-
       double precision tolu
       data irlxsh /0/ dist0 /9*0d0/
       logical:: l_dummy_isanrg,isanrg
-
       real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false.
       integer:: isize_iv_tmp,ibas
@@ -146,7 +142,6 @@ c     integer:: odmatu , ovorbdmat , odmato
       integer:: ierr
       include "mpif.h"
 #endif
-
       call tcn('lmfp')
       etot(1) = 0
 !! MPI-specific
@@ -337,24 +332,24 @@ C     need group info to symmetrize site density matrix
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
       
-!! === Re-entry point for a new iteration ===
+!! === Re-entry point for a new iteration for electronic structure ===
       iter = 1
     5 continue
 C     --- Read restart file or overlap free atom densities ---
 C     irs(1) tells what to read and whether to invoke smshft.
+C     0+1's bits irs(1)     action
+C        0           read from atom file
+C        1             read from binary rst file
+C        2             read from ascii rsta file
+Cxxxx    3              read nothing (data already input)
 C     4s' bit of irs(1) -> invoke smshft after file read.
 C     8s' bit of irs(1) -> rotate local density after file read
-C     0+1's bits irs(1)     action
-C     0              read from atom file
-C     1              read from binary rst file
-C     2              read from ascii rsta file
-C     3              read nothing (data already input)
  10   continue
-      if (irs1x .eq. 0) then !read overlap free-atom densities
-        call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) 
+      if (irs1x == 0) then !read overlap free-atom densities
+        call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !initial potential
         nit1 = 0
-      elseif (mod(irs1x,4) .ge. 1 .and. mod(irs1x,4) .le. 2) then
-        lbin = .not. bittst(irs1x,2)
+      elseif ( 1<= mod(irs1x,4) .and. mod(irs1x,4)<=2 ) then
+        lbin = .not. bittst(irs1x,2) !lbin=T:rst --rs=1, or lbin=F:rsta --rx=2,
         k = -1
         if (procid .eq. master) then
           if (lbin) ifi = fopna('rst',-1,4)

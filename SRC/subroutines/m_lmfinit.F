@@ -340,7 +340,7 @@ c      integer,parameter:: mxspec=256
       logical:: sexist
       integer:: ibas,ierr,lc, iqnu
       logical:: ltet
-      
+      integer:: ifzbak
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1558,8 +1558,8 @@ c     print *, alabl,' xxx ', i,ips(j)
      .     def_r8=0d0,note='Homogeneous background charge')
 !! write zbak. sep2020
       if(procid==master) then
-      open(newunit=ifzbak,file='ZBAK',form='unformatted')
-      write(6,"(d23.5, '! zbak')") zbak(1)
+      open(newunit=ifzbak,file='ZBAK')
+      write(ifzbak,"(d23.5, ' ! zbak')") zbak(1)
       close(ifzbak)
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,

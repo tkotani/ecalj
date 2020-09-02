@@ -1944,13 +1944,14 @@ c      call anfcond()
 
 !! #######################################################################3
       subroutine xychange(x,y,n)
+      integer::n
       real(8):: x(n),y(n),z(n)
       z=x
       x=y
       y=z
       end
       subroutine xychangei(x,y,n)
-      integer(4):: x(n),y(n),z(n)
+      integer(4):: n,x(n),y(n),z(n)
       z=x
       x=y
       y=z

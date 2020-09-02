@@ -68,12 +68,12 @@ c total valence charge
         end do
       endif
 !! read ZBAK file      
-      open(newunit=ifizbak,file='ZBAK')
-      read(ifizbak,*)zbak
+      open(newunit=ifzbak,file='ZBAK')
+      read(ifzbak,*)zbak
       valn=valn-zbak
-      close(ifizbak)
-      valn = vanl+zbak
-      write(6,*)' valn=vanl+zbak =',valn
+      close(ifzbak)
+      valn = valn+zbak
+      write(6,*)' valn=valn+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz
@@ -304,11 +304,11 @@ c      valn=29d0
 cccccccccccccccccccccccccccccccccccccccccc
       write(6,*)' valn=',valn
 !! read ZBAK file      
-      open(newunit=ifizbak,file='ZBAK')
-      read(ifizbak,*)zbak
+      open(newunit=ifzbak,file='ZBAK')
+      read(ifzbak,*)zbak
       valn=valn-zbak
-      close(ifizbak)
-      valn = vanl+zbak
+      close(ifzbak)
+      valn = valn+zbak
       write(6,*)' valn=vanl+zbak =',valn
 c
       do is = 1,nspin
