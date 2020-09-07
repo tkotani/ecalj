@@ -57,7 +57,7 @@ C     implicit none
 C Local variables
       integer ie,ir,ilm,l,m,ir1,lc,ls,job0,job1,job2,job3,lm,nlmxx,
      .lx(20),ndx
-      parameter (nlmxx=(16+1)**2)
+      parameter (nlmxx=(200+1)**2) !(nlmxx=(16+1)**2)
       double precision qdotr,y0,a2,pi,sp,gam,tpiba,tpi,rsmi,
      .x1,x2,xx,xx0,xx1(nlmxx),xx2(nlmxx),xx3(nlmxx),xx4(nlmxx),
      .r,akap,kappa,h0,h0d,a,faca,p1(3),cosp,sinp

@@ -427,18 +427,33 @@ c apw part ------------
 
 
 !!------------------------------------------------------
+c$$$      subroutine conv2int(a,ii,n)
+c$$$      implicit none
+c$$$      integer::ii(n),i,n
+c$$$      real(8):: a(n),eps=1d-8,aa
+c$$$      do i=1,n
+c$$$        ii(i)= nint(a(i))
+c$$$        if(abs(ii(i)-a(i))>eps)then
+c$$$           write(6,*)' ii a eps=',ii(i),a(i),eps
+c$$$           call rx( 'conv2int: a is not close to integer')
+c$$$        endif   
+c$$$      enddo
+c$$$      end
       subroutine conv2int(a,ii,n)
       implicit none
-      integer::ii(n),i,n
-      real(8):: a(n),eps=1d-8,aa
+      real(8), intent(in) :: a(n)
+      integer, intent(in) :: n
+      integer, intent(out) :: ii(n)
+      integer::i
+      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
       do i=1,n
-        ii(i)= nint(a(i))
+        ii(i)=nint(a(i))
         if(abs(ii(i)-a(i))>eps)then
            write(6,*)' ii a eps=',ii(i),a(i),eps
            call rx( 'conv2int: a is not close to integer')
         endif   
       enddo
-      end
+      end subroutine conv2int
 
       subroutine rangedq(qin, qout) !renewed jun2015
       integer :: ix
