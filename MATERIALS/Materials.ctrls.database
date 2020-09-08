@@ -121,7 +121,7 @@ SPEC
     ATOM=@2 Z=@12 MMOM=0 0 -@101 0
     ATOM=@3 Z=@13 MMOM=0 0 0 0
 ---------------------------------
-EUSAF:
+EUSAF2:
 # NOTE set MMOM. (it will be included in this...)
 %const bohr=0.529177
 STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
