@@ -84,8 +84,9 @@ c------------------------------------
       end
 c------------------------------------
       subroutine getexx3(ifx,exx,ecut,ecuts,ierr)
-c      character*(*) tefil
-      integer(4):: ifx
+c     character*(*) tefil
+      implicit none
+      integer(4):: ifx,ierr
       real(8):: exx,a2,a3,ecut,ecuts
       call readxx3(ifx,ierr)
       if(ierr==1) return
@@ -96,8 +97,9 @@ c      close(ifx)
 c This is taken from Ferdi's rw.f
 c----------------------------------------
       subroutine readxx3(ifil,ierr)
+      implicit none
       character*72 rchar
-      integer(4):: n=1000
+      integer(4):: n=1000,i,j,ierr,ifil
       ierr=0
       do 10 i = 1,n
         read(ifil,'(a)',end=1011,err=1011) rchar

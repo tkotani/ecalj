@@ -651,8 +651,8 @@ c--------------------------------------------------------------------
       subroutine wecqw(ifcor,
      d                 nqibz,nqbz,nq0i,nqitot,niw,
      o                 wibz,wqt,wx,freqx,ecqw)
-
       implicit double precision (a-h,o-z)
+      integer:: ifcor,nqbz,nq0i,nqitot,niw,ip,ix,nqibz
 
       dimension   wibz(nqibz),wqt(nq0i),wx(niw),
      .            freqx(niw),ecqw(nqitot,niw)

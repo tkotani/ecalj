@@ -45,6 +45,8 @@ Cstop2rx 2013.08.09 kino      stop ' OK!: eout. Add data to ETOTeV.dat'
 
 c------------------------------------
       subroutine getexx(tefil,exx,ierr)
+      implicit none
+      integer:: ierr,ifx,ifile_handle
       character*(*) tefil
       real(8)::exx
       ifx = ifile_handle()
@@ -57,8 +59,9 @@ c------------------------------------
 c This is taken from Ferdi's rw.f
 c----------------------------------------
       subroutine readxx3(ifil,ierr)
+      implicit none
       character*72 rchar
-      integer(4):: n=1000
+      integer(4):: n=1000,ifil,ierr,i,j
       ierr=0
       do 10 i = 1,n
         read(ifil,'(a)',end=1011,err=1011) rchar
