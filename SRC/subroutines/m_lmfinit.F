@@ -1,5 +1,6 @@
       module m_lmfinit
 !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
+!! rdctrls made from three stages. Search the word 'stage'.
 !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
 !! We can believe the old document not completely, however, it may be a help to read the code.
 !! We have to move data to the modules where data is generated.
@@ -9,7 +10,7 @@
 !      i=53           ! i=00110101 binary (lowest order byte)
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
-      use m_struc_func,only:usite_size, uspec_size, mpibc1_s_spec, mpibc1_s_site
+c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       use m_struc_def,only: s_spec,s_site
       use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
       implicit none
@@ -51,10 +52,10 @@
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp ,irs11
       character(256),protected:: header,symg=' '
       character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
-      logical,protected :: frzwf,ham_ewald
+      logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0
 
-      integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lbas,ctrl_lfp,ctrl_lrel,ctrl_lves,
+      integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, !ctrl_lbas,
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0
@@ -97,7 +98,7 @@
 !! ... SITE
       character(8),protected:: alabl
       real(8),allocatable,protected :: pos(:,:),vel(:,:),eula(:,:),vshft(:)
-      integer,allocatable,protected :: ips(:),ipl(:),plv(:),irlx(:,:),ndelta(:)
+      integer,allocatable,protected :: ips(:),irlx(:,:),ndelta(:) !,ipl(:),plv(:)
       real(8),allocatable,protected :: delta(:,:),mpole(:),dpole(:,:)
       integer,allocatable,protected ::iantiferro(:) !reserved
 !! ... BZ
@@ -105,8 +106,7 @@
      .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
       real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
      .     bz_semsh(10),zbak(2),bz_lcond(4),bz_range=5d0,bz_dosmax
-      logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2, !,bz_lio8
-     .     ctrl_lmet4=.true.,ctrl_lmet8=.true. !,ctrl_lqp2
+      logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2 
 !! ... Ewald
       real(8),protected:: lat_as,lat_tol,lat_rpad
       integer,protected:: lat_nkdmx
@@ -288,7 +288,7 @@ C ----------------------------------------------------------------------
       logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv!,asa
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,fopna,getdig,i,is,igets,iprint,
-     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,lbas, !noinv was iand(lqp,1)
+     .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
      .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
@@ -659,8 +659,8 @@ C     Fully relativistic => spin-orbit coupling
      .        'Spin-orbit coupling (for REL=1)'//
      .        '%N%3f0 : no SO coupling'//
      .        '%N%3f1 : Add L.S to hamiltonian'//
-     .        '%N%3f2 : Add Lz.Sz only to hamiltonian'//
-     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
+     .        '%N%3f2 : Add Lz.Sz only to hamiltonian') !//
+c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
          if (io_help==0) l_dummy_isanrg=isanrg(lso,0,3,' rdctrl:','SO',T)
       endif
       sw = tksw(prgnam,'HAM_GMAX')
@@ -681,7 +681,7 @@ C     Fully relativistic => spin-orbit coupling
       endif
       nm='HAM_TOL'; call gtv(trim(nm),tksw(prgnam,nm),tolft,
      .     def_r8=1d-6, note='w.f. tolerance for FT mesh')
-      nm='HAM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),frzwf,def_lg=F,
+      nm='HAM_FRZWF'; call gtv(trim(nm),tksw(prgnam,nm),ham_frzwf,def_lg=F,
      .     note='Set to freeze augmentation wave functions for all species')
       nm='HAM_FORCES'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_lfrce,
      .     def_i4=0,note=
@@ -1296,17 +1296,8 @@ C     'Hard Core' radius entering into strux
         nm='SPEC_ATOM_JH'; call gtv(trim(nm),sw,jh(:,j),cindx=jj,
      .       def_r8v=zerov,note='Exchange parameter J for LDA+U')
 
-!     ! 2019 auto off lda+u uh jh if sigm exist
+!! 2019 automatic turn off lda+u mode; enforce uh=jh=0 when sigm exist !!
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
-!     ! get sexist if sigm.* exist.
-c     ifi=fopn('tempyyy') 
-c     sss=''
-c     INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-c     call fclose(ifi)
-c     ipos = scan(sss,'.',back=.true.) !backward search of '.' from the last.
-c     sname= sss(ipos+1:256) !sname contains extention such as 'copt'.
-c     open(newunit=ifi, file='tempyyy.'//trim(sname)) 
-c     close(ifi,status='delete')
            inquire(file='sigm.'//trim(sname),exist=sexist)
            if(sexist) then
               write(6,*)'We find sigm file --> noLDA+U-> set UH=JH=0'
@@ -1324,9 +1315,6 @@ c     close(ifi,status='delete')
         call mpibc1(idu(:,j),4,2,mlog,'readctrl','idu')
         call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
         call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
-c     write(6,"('j idu=',i5,256i5)")j, idu(:,j)
-c     write(6,"('j uh =',i5,256f10.5)")j, uh(:,j)
-c     write(6,"('j jh =',i5,256f10.5)")j, jh(:,j)
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
      .       nmin=10,cindx=jj,note='product basis for GW')
@@ -1386,7 +1374,7 @@ C     Maximum L-cutoff
          nsite =2
       endif
       allocate(pos(3,nsite),vel(3,nsite),eula(3,nsite),vshft(nsite),
-     .     ips(nsite),ipl(nsite),plv(nsite),irlx(3,nsite),
+     .     ips(nsite),irlx(3,nsite), !,ipl(nsite),plv(nsite)
      .     iantiferro(nsite))   !mpole(nsite),dpole(3,nsite),
 c     if (ltbe) allocate(delta(n0,nsite),ndelta(nsite))
 
@@ -1394,8 +1382,8 @@ C     Default values
       vel  = 0d0
       eula = 0d0
       vshft = 0d0
-      ipl  = 0
-      plv  = 0
+c      ipl  = 0
+c      plv  = 0
       irlx = 0
 C     Should always be set, if used
       ips  = NULLI
@@ -1483,13 +1471,13 @@ c     print *, alabl,' xxx ', i,ips(j)
      .           '%15pROT= : Euler alpha = %1;6d  beta = %1;6d'//
      .           '  gamma = %1;6d',eula(1,j),eula(2,j),eula(3,j),0,0)
          endif
-         nm='SITE_ATOM_PL'; call gtv(trim(nm),tksw(prgnam,nm),ipl(j),
-     .        def_i4=0,cindx=jj,
-     .        note='Assign principal layer number to this site')
-
-         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgnam,nm),plv(j),
-     .        def_i4=0,cindx=jj,
-     .        note='Assign PL potential index to this site')
+c         nm='SITE_ATOM_PL'; call gtv(trim(nm),tksw(prgnam,nm),ipl(j),
+c     .        def_i4=0,cindx=jj,
+c     .        note='Assign principal layer number to this site')
+c
+c         nm='SITE_ATOM_PLV'; call gtv(trim(nm),tksw(prgnam,nm),plv(j),
+c     .        def_i4=0,cindx=jj,
+c     .        note='Assign PL potential index to this site')
 !     ! takao
          nm='SITE_ATOM_AF'; call gtv(trim(nm),tksw(prgnam,nm),iantiferro(j),
      .        cindx=jj,def_i4=0,
@@ -1559,25 +1547,18 @@ c     print *, alabl,' xxx ', i,ips(j)
      .     def_r8=0d0,note='Homogeneous background charge')
 !! write zbak. sep2020
       if(procid==master) then
-      open(newunit=ifzbak,file='ZBAK')
-      write(ifzbak,"(d23.5, ' ! zbak')") zbak(1)
-      close(ifzbak)
+         open(newunit=ifzbak,file='ZBAK')
+         write(ifzbak,"(d23.5, ' ! zbak')") zbak(1)
+         close(ifzbak)
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
-     .     def_i4=0,note='Choose some combination of the following:'
-     .     //'%N%3f1 Write DOS to directly disk (NPTS and DOS also needed)'
-     .     //'%N%3f2 Write weights for partial DOS'
-     .     //'%N%3f4 Same as (2), but weights m-resolved')
-!     ! -- Sanity checks and other initialization ---
-      if( iand(8,ctrl_ldos) /=0 .and. iand(4+2,ctrl_ldos) /=0 ) 
-     &     call rx ( 'inconsistent BZ_SAVDOS options' )
+     .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
       nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosw,def_r8v=
      .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
-     .     note='No. DOS points (sampling integration, and lmdos)')
-!     ! mar2013
+     .     note='No. DOS points (sampling integration)')
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
-     &     note='Maximum energy to which DOS accumulated, relative to Efermi')
+     &     note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
       xxx = 5d0
       nm='BZ_EFMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_efmax,
      .     def_r8=xxx,note='Find evecs up to efmax')
@@ -1715,32 +1696,8 @@ c         mix_nitu = i0
       if (io_help > 0) call cexit(0,1)
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
-c      
-!! lbas: 1 Hamiltonian has no screening transformation
-!!       2 Hamiltonian is nfp style
-!!       16 freeze phi,phidot for all species
-!! lbas = 3 = 1+2 in lmf
-!! frzwf: freeze basis or not. j= 1+2+16 if frzwf=T
-      lbas = 3 !!   For now, LMF => fp; no screening; nfp-style hamiltonian
-      j = lbas + 16*isw(frzwf)
-      ctrl_lbas=j
-      ctrl_defm=lat_defm(:)
-!! takao. we may need to remove lmet4 or lmet8... but a little complicated...
-!! Now ctrl_lmet4 and ctrl_lmet8 are fixed as .true.in m_rdctl.F
-!!     ctrl_lmet    1 metal  2 tetrahedron
-!!                 4 (PGF) V-shift1 is zero
-!!                 8 (PGF) V-shift2 is zero
-C takao in lmf only lncol4, lncol32, lncol64 are used.
-C     lncol 1 noncollinear magnetism                      !=F in lmf
-C           2 spin spirals                                !=F in lmf
-C           4 spin-orbit coupling                         !Used in lmf.
-C           8 External magnetic field                     !=F in lmf
-C          16 mag. forces                                 !=F in lmf
-C          32 spin-orbit coupling, LzSz only              !Used in lmf
-C          64 spin-orbit coupling, LzSz + (L.S-LzSz) pert !Used in lmf
-C     If spin-orbit or SS, also turn on noncollinear
+      ctrl_defm = lat_defm(:)
       lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-     . +4*isw(ctrl_lmet4) + 8*isw(ctrl_lmet8)
       ctrl_lmet=lmet
       irs=0
       irs(1) = 1
@@ -1775,7 +1732,6 @@ C            vbare each kth iteration
 C            Add 100*k to compute response function only each kth iteration
       ctrl_noinv = isw(noinv)  ! T->1 F->0
       ctrl_lrel=lrel
-c      ctrl_lrs=lrs
       ctrl_lves=lves !!!  lves    1 take ves as input
 !!  lxcf   parameter defining XC functional
 !!      1s digit:
@@ -1805,7 +1761,6 @@ c      ctrl_lrs=lrs
       ctrl_rmaxes= rmaxes
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
-c      ctrl_sdmod = sdmod
       ctrl_sdprm = sdprm
       ctrl_smalit= smalit
       ctrl_tol   = ctrl_tol
@@ -1880,9 +1835,9 @@ c      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
       
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
-        do j=1,nspec
+      do j=1,nspec
           slabl_(j) = slabl(j)
-          v_sspec(j)%size=uspec_size()
+c          v_sspec(j)%size=uspec_size()
           v_sspec(j)%eh3=-0.5d0
           v_sspec(j)%etf=-1d0
           v_sspec(j)%lmxf= 2*nl-2
@@ -1919,7 +1874,6 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
           v_sspec(j)%lmxpb=lmxpb(j)
-          i = 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
           orbp=0d0 !call dpzero(orbp,n0*2*nkap0)
           call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
           call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
@@ -1927,8 +1881,8 @@ c          v_sspec(j)%alpha=alpha(:,j)
           call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
           i_copy_size=size(v_sspec(j)%orbp)
           call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
-          v_sspec(j)%mass=mass(j)
-          v_sspec(j)%mxcst=i
+          v_sspec(j)%mass = mass(j)
+          v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 !!     Pack P,Q,PZ for both spins
           v_sspec(j)%p = pnu(1:n0*nsp,1,j) 
           v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
@@ -1948,203 +1902,190 @@ c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%eref=eref(j)
           v_sspec(j)%rham=rham(j)
           v_sspec(j)%rint=rint(j)
-        enddo
-        allocate(v_ssite(nsite))
-        do j=1,nsite
-          v_ssite(j)%size=usite_size()
+      enddo
+      allocate(v_ssite(nsite))
+      do j=1,nsite
+c          v_ssite(j)%size=usite_size()
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%clabel=slabl(ips(j))
-          v_ssite(j)%pl=ipl(j)
-          v_ssite(j)%plv=plv(j)
+c          v_ssite(j)%pl=ipl(j)
+c          v_ssite(j)%plv=plv(j)
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
           v_ssite(j)%relax=irlx(:,j)
           v_ssite(j)%eula=eula(:,j)
           v_ssite(j)%iantiferro=iantiferro(j)
-        enddo
-        sstrnmix=trim(iter_mix)
+      enddo
+      sstrnmix=trim(iter_mix)
 
 !! ... Suppress symmetry operations for special circumstances
 !     !     Switches that automatically turn of all symops
 !     ! --pdos mar2003 added. Also in lmv7.F
-          lstsym = 0
-          if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
-     .         cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
-             symg = 'e'
-             lstsym = 2         !lstsym=2: turn off symops
-             ctrl_noinv=1
-          endif
-          sstrnsymg=trim(symg)
-!!
-        if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
+      lstsym = 0
+      if ((mdprm(1) .ge. 1 .and. mdprm(1) .le. 3) .or.   
+     .     cmdopt('--cls',5,0,strn) .or. cmdopt('--nosym',7,0,strn).or.cmdopt('--pdos',6,0,strn)) then
+         symg = 'e'
+         lstsym = 2             !lstsym=2: turn off symops
+         ctrl_noinv=1
+      endif
+      sstrnsymg=trim(symg)
+!     !
+      if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
-!!     Add dalat to alat
-!!  lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This
-!!  is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
+!!  Add dalat to alat
+!!   lat_alat=(lat_alat)+dalat !this is a bug; this should be commented out. This
+!!   is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 !! Dirac equation requires spin polarization
         if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
-        if(lso.ne. 0) ctrl_noinv=1   !lqp = lqp-bitand(lqp,1)+1
+      if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
 !     ! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
 C     No screening => no downfolding; j=3
-        j=3
+      j=3
 C     nfp-style basis:
-        j=j+10
-        call suidx(globalvariables%nkaph,j,nspec,v_sspec)
+      j=j+10
+      call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 !! ... Set some global variables
-          lxcf = ctrl_lxcf
-          globalvariables%nspec = nspec
-          globalvariables%nbas = nbas
-          globalvariables%nbasp= nbasp
-          globalvariables%nsp =  nsp
-          globalvariables%nl =   nl
-          globalvariables%lrel = lrel
-          globalvariables%lxcf = lxcf
-          globalvariables%stdo = stdo
-          globalvariables%stdl = stdl
-          globalvariables%stde = stde
-          nspc = 1
-          if( lso==1 ) nspc = 2
-          globalvariables%nspc = nspc
+      lxcf = ctrl_lxcf
+      globalvariables%nspec = nspec
+      globalvariables%nbas = nbas
+      globalvariables%nbasp= nbasp
+      globalvariables%nsp =  nsp
+      globalvariables%nl =   nl
+      globalvariables%lrel = lrel
+      globalvariables%lxcf = lxcf
+      globalvariables%stdo = stdo
+      globalvariables%stdl = stdl
+      globalvariables%stde = stde
+      nspc = 1
+      if( lso==1 ) nspc = 2
+      globalvariables%nspc = nspc
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
-          if (procid .eq. master) then
-            nat = nbas
-            do  i = 1, nbas
-              j=v_ssite(i)%spec
-              l=v_sspec(j)%lmxa
-              if (l .eq. -1) nat = nat-1
-            enddo
-          endif
-          call mpibc1(nat,1,2,0,'rdctrl','nat')
-          globalvariables%nat = nat
-C ... Set modep
-          ctrl_modep=2
-C ... Count LDA+U blocks (printout only)
-          allocate(wowk(nbas))
-          wowk=0
-          call pshpr(0)
-          call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
-          ham_nlibu=nlibu
-          call poppr
-          deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+      if (procid .eq. master) then
+         nat = nbas
+         do  i = 1, nbas
+            j=v_ssite(i)%spec
+            l=v_sspec(j)%lmxa
+            if (l .eq. -1) nat = nat-1
+         enddo
+      endif
+      call mpibc1(nat,1,2,0,'rdctrl','nat')
+      globalvariables%nat = nat
+C     ... Set modep
+      ctrl_modep=2
+C     ... Count LDA+U blocks (printout only)
+      allocate(wowk(nbas))
+      wowk=0
+      call pshpr(0)
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
+      ham_nlibu=nlibu
+      call poppr
+      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv, !alpha,
      .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
-     .     pos,vel,eula,vshft,ips,ipl,plv,irlx)
+     .     pos,vel,eula,vshft,ips,irlx) !,ipl,plv
 
-!! --- Printout ---
-          if (iprint() .ge. 20 .and. procid .eq. master) then
-            do  90  k = 1, 2
-              strn = '  '//prgnam
-              lxcf=ctrl_lxcf
-c              lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
-              lfrzw = isw(frzwf)
-              call awrit8(' special:%10p'//
-     .         '%?;n; forces,;;'//
-     .         '%?;n==2; Dirac equation,;;'//
-     .         '%?;n; spherical-harmonics,;;'//
-     .         '%?;n>0; Im(eps(w)),;;%-1j%?;n<0; JDOS,;;'//
-     .         '%?;n==1; eps^-1,;;%-1j%?;(n>=2); scr-rho-out,;;'//
-     .         '%-1j%?;(n>=4);%b(model eps),;;'//
-     .         '%?;n; Order-N:?,;;%-1j'//
-     .         '%?;n==1;%2bEmbedded-Cluster,;;%-1j'//
-     .         '%?;n==2;%2bVanderbuilt,;;'//
-     .         '%?;n; APW basis,;;'//
-     .         '%?;n; oveps,;;'//
-     .         '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
-c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
-     .         0,0,pwmode,isw(oveps.ne.0))
-              if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-              if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
-                if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
-                  call rx('only XCFUN=1,2,103 are allowed now')
-                endif
-              endif
-              if (prgnam(1:3) .eq. 'LMF') then
-                call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
-     .      // '%b %b' , strn , scrwid , 0 , 0 )
-                if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
-              endif
-   90       continue
-          endif
+c$$$!! --- Printout ---
+c$$$          if (iprint() .ge. 20 .and. procid .eq. master) then
+c$$$            do  90  k = 1, 2
+c$$$              strn = '  '//prgnam
+c$$$              lxcf=ctrl_lxcf
+c$$$c              lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
+c$$$              lfrzw = isw(frzwf)
+c$$$              call awrit8(' special:%10p'//
+c$$$     .         '%?;n; forces,;;'//
+c$$$     .         '%?;n==2; Dirac equation,;;'//
+c$$$     .         '%?;n; spherical-harmonics,;;'//
+c$$$     .         '%?;n>0; Im(eps(w)),;;%-1j%?;n<0; JDOS,;;'//
+c$$$     .         '%?;n==1; eps^-1,;;%-1j%?;(n>=2); scr-rho-out,;;'//
+c$$$     .         '%-1j%?;(n>=4);%b(model eps),;;'//
+c$$$     .         '%?;n; Order-N:?,;;%-1j'//
+c$$$     .         '%?;n==1;%2bEmbedded-Cluster,;;%-1j'//
+c$$$     .         '%?;n==2;%2bVanderbuilt,;;'//
+c$$$     .         '%?;n; APW basis,;;'//
+c$$$     .         '%?;n; oveps,;;'//
+c$$$     .         '%b %b',strn,scrwid,0,ctrl_lfrce,lrel,0,0, !ctrl_loptc,
+c$$$c     .         mod(lscr,10),0,pwmode,isw(oveps.ne.0))
+c$$$     .         0,0,pwmode,isw(oveps.ne.0))
+c$$$              if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
+c$$$              if (prgnam .eq. 'LMF' .or. prgnam .eq. 'LMFA') then
+c$$$                if(lxcf/=1.and.lxcf/=2.and.lxcf/=103) then
+c$$$                  call rx('only XCFUN=1,2,103 are allowed now')
+c$$$                endif
+c$$$              endif
+c$$$              if (prgnam(1:3) .eq. 'LMF') then
+c$$$                call awrit1 ( ' special:%10p' // '%?;n==1; core-level-optics,;;' 
+c$$$     .      // '%b %b' , strn , scrwid , 0 , 0 )
+c$$$                if (strn .ne. ' special:') call awrit0(strn,' ',-80,lgunit(k))
+c$$$              endif
+c$$$   90       continue
+c$$$          endif
 
 !     ! --- takao embed contents in susite here. This is only for lmf and lmfgw.
-          seref = 0d0
-          do ib = 1, nsite
-             ispec = v_ssite(ib)%spec
-             if (ispec <= 0) cycle
-             v_ssite(ispec)%clabel = v_sspec(ispec)%name
-             seref = seref +     v_sspec(ispec)%eref
-          enddo
-          ham_seref=seref
-          allocate(rv_a_opos(3,nsite))
-          allocate(iv_a_oips(nsite))
-          do i_spackv=1,nsite
-             rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
-             iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
-          enddo
-          if (procid .eq. master) then
-             if (iprint() .ge. 20) then
-                if (lstsym .eq. 1) then
-                   write(stdo,357) trim(sstrnsymg) !sstrn(i:j)
- 357               format(/' Automatic symmetry finder turned off.  Use: ',a)
-                elseif (lstsym .eq. 2) then
-                   write(stdo,358)
- 358               format(/' Symmetry operations suppressed')
-                endif
-             endif
-          endif
-          do i_spec=1,nspec
-             call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
-          enddo
-!     ! Debugging printout ---
-          if (io_help == 0 .and. io_show > 1) then
-             print *, '---------- contents of sstrn ------------'
-             print *, 'mix: ', trim(sstrnmix)
-             print *, 'symg:', trim(sstrnsymg)
-             call rx0('done show')
-          endif
-          write(6,*) '--- End of readin ctrl file. ---'
-          print *,'end of rdctrl2'
-!!  -- End of readin ctrl file. -----------
-           
+      seref = 0d0
+      do ib = 1, nsite
+         ispec = v_ssite(ib)%spec
+         if (ispec <= 0) cycle
+         v_ssite(ispec)%clabel = v_sspec(ispec)%name
+         seref = seref +     v_sspec(ispec)%eref
+      enddo
+      ham_seref=seref
+      allocate(rv_a_opos(3,nsite))
+      allocate(iv_a_oips(nsite))
+      do i_spackv=1,nsite
+         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+         iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
+      enddo
+      if (procid .eq. master) then
+         if (iprint() .ge. 20) then
+            if (lstsym .eq. 1) then
+               write(stdo,357) trim(sstrnsymg) !sstrn(i:j)
+ 357           format(/' Automatic symmetry finder turned off.  Use: ',a)
+            elseif (lstsym .eq. 2) then
+               write(stdo,358)
+ 358           format(/' Symmetry operations suppressed')
+            endif
+         endif
+      endif
+c      do i_spec=1,nspec
+c         call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
+c      enddo
+!! Debugging printout ---
+      if (io_help == 0 .and. io_show > 1) then
+         print *, '---------- contents of sstrn ------------'
+         print *, 'mix: ', trim(sstrnmix)
+         print *, 'symg:', trim(sstrnsymg)
+         call rx0('done show')
+      endif
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
       print *,' mpipid=',procid
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-
      
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! Stage 3  ---------------------    
-!!   originally in lmv7.F
-!     !--- Lattice setup:deformation ---
+!! Stage 3  ========================================================
+!!--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
-      call latticx() ! =lattic. to avoid cyclic dependensy of modules.
+      call latticx() ! =lattic (renamed to avoid cyclic dependency)
       do ibas=1,ctrl_nbas
         v_ssite(ibas)%pos = rv_a_opos(:,ibas)
       enddo
-!! --- We store all settings in module variables of m_rdctrl.
-      print *,'end of lattic'
 !!--- Generate symmetry operations; split species into classes  ---
       strn = 'find'
       if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
 !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
       lc = 10
-      if (.not. prgnam == 'LMFGWD') lc = lc+2 ! inversion for lmf
+      if (.not. prgnam == 'LMFGWD') lc = lc+2 ! add inversion for (not lmfgw)
       if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
          lc=20
-         if ( .not. iand(1,int(ctrl_noinv)) .ne.0 ) lc = lc+2
+         if( .not.noinv ) lc = lc+1  !+1 means add inversion 
       endif   
-c#ifndef LMFGWD 
-!! iand(2**n,i) means 2**n ditit of i.
-c      if( ctrl_noinv==0 ) lc = lc+2 ! inversion for lmf
-c#endif
 
 !! aug2020 this section need to be recoverd ----      
 !! --- Read AF case 2015, SPGGRAF category and SITE_ATOM_AF
@@ -2212,7 +2153,6 @@ c$$$       endif
       if(procid==master) call pshpr(60)
       call mksymx(lc,slabl_,strn,v_ssite) !,v_sarry)v_sctrl,,v_slat
       if(procid==master) call poppr
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c$$$!! test1 ------------------
 c$$$      ngrp=lat_nsgrp
 c$$$      nbas=ctrl_nbas
@@ -2231,15 +2171,15 @@ c$$$        do i=1,3
 c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
 c$$$        enddo
 c$$$      enddo
-c
+
 !!  Set default values for species data
       call defspc(v_sspec)
       if(prgnam == 'LMF') then
-         ltet = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
+         ltet = bz_lmet/=0 .or. ctrl_ldos/=0
          call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
       endif
-!!    show and quit
-      if( int(ctrl_quit) == 1 ) then
+!!  show and quit
+      if( quit == 1 ) then
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)
       endif
@@ -2254,10 +2194,6 @@ c
       endif
       end subroutine rdctrl2
       end module m_lmfinit
-
-
-
-
 
 
 
@@ -2320,12 +2256,10 @@ Cr           8 represent full potential density via TCF
 Cr          16 unused
 Cr          32 unused
 Cr          64 (molecules) XC potential by FFT
-Cr   lcgf    Green's function
-Cr          >0 Green's function calculation
 Cr   ldos    1 make dos
-Cr           2 generate weights for partial dos
-Cr           4 generate weights for m-decompos'n of pdos
-Cr           8 BZ map
+cCr           2 generate weights for partial dos
+cCr           4 generate weights for m-decompos'n of pdos
+cCr           8 BZ map
 Cr   lfp     switches for full-potential
 Cr           1 program uses full potential
 Cr   lfrce   How forces are calculated
@@ -2333,23 +2267,7 @@ Cr           0 do not calculate forces
 Cr           1 shift in FA density
 Cr           2 shift in core+nucleus
 Cr          10 added for shift to be screened
-Cr   lgen3   switches for third generation LMTO
-Cr           1 3rd generation LMTO
-Cr           2 make structure constants by Ewald summation
-Cr   lham    1 (ASA) 2-center
-Cr           1 (molecules) two-panel
-Cr           2 (ASA) 2-c + pert. corr
-Cr           4 (ASA) auto-down-fold
-Cr           8 (ASA) change rep interactively
-Cr          16 (ASA) suppress d hybridization
-Cr          32 (ASA) preserve ortho. evecs
-Cr          64 (ASA) save evecs to disk
-Cr         128 (ASA) gamma-rep
-Cr         256       use true spherical harmonics
-Cr         512       not used
-Cr        1024       not used
 Cr   lmet    1 metal     2 tetrahedron
-Cr           4 (GF) V-shift1 is zero  8 (GF) V-shift2 is zero
 Cr   lncol   1 noncollinear magnetism
 Cr           2 spin spirals
 Cr           4 spin-orbit coupling
@@ -2514,20 +2432,6 @@ Cr         6: lidimc = lidim * nspc
 Cr         7: lihdimc = lihdim * nspc
 Cr         8: nspx   = number of separate spin channels
 Cr                   = nsp if nspc is not 2; else 1
-Cr  lgen3   shouldn't be used; just a copy of ctrl->lgen3
-Cr  lham    1 (ASA) 2-center
-Cr          1 (molecules) two-panel
-Cr          2 (ASA) 2-c + pert. corr
-Cr          4 (ASA) auto-down-fold
-Cr          8 (ASA) change rep interactively
-Cr         16 (ASA) suppress d hybridization
-Cr         32 (ASA) preserve ortho. evecs
-Cr         64 (ASA) save evecs to disk
-Cr        128 (ASA) gamma-rep
-Cr        256       use true spherical harmonics
-Cr        512       not used
-Cr       1024       not used
-Cr            NB: ham->lham and ctrl->lham should be duplicates
 Cr  lmaxu   dimensioning parameter for LDA+U potential
 Cr  lmxax   largest augmentation lmax in basis
 Cr  lncol   1 noncollinear magnetism

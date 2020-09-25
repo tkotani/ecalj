@@ -1,8 +1,8 @@
       subroutine lmfp(llmfgw) 
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, irs1x10, !,irs3,irs4,irs5,irs11,
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
-     &     ctrl_zbak,ctrl_lrel,ctrl_lbas,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
-     &     ctrl_lmet, !,ctrl_lrs
+     &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     ctrl_lmet, !,ctrl_lrs,ctrl_lbas
      &     ham_ndham,ham_ehf,ham_ehk,ham_seref,ham_eterms,
      &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
@@ -178,7 +178,7 @@ c$$$      endif
 c      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs1x = 0 
       if (ipr .ge. 30) call praugm(sspec,0) !Printout properties of species
 C     ... Setup for no screening transformation
-      if ( iand(1,int(ctrl_lbas)) .ne. 0 ) then
+c      if ( ctrl_lbas/=0 ) then
 C     Shorten site positions
         plat=lat_plat
         if (.not. cmdopt('--shorten=no',12,0,strn)) then
@@ -196,7 +196,7 @@ C     Shorten site positions
           enddo
           if (allocated(pos2_rv)) deallocate(pos2_rv)
         endif
-      endif
+c      endif
 
 !! ... Setup for charge mixing
       dmxp=0d0

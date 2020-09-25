@@ -9,20 +9,21 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec,sstrnmix,!,sbz,sctrl,sham,slat spot,
-     .  ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
-     .  dmatu,vorb,llmfgw)
+      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec,sstrnmix, !,sbz,sctrl,sham,slat spot,
+     .     ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
+     .     dmatu,vorb,llmfgw)
+      
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
       use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_lbas,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
+     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
      &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
-     &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp
+     &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp, ham_frzwf
 c      use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
@@ -97,7 +98,7 @@ Cr   (3) if lrout, assemble the output density by BZ integration
 Cr   (4) evaluate hf (and KS, if leks) energy by BZ integration
 Cr   (5) mix the output density to make a new input density.
 
-Cu Updates before 2009.
+Cu Updates before 2009.----- just for record. See history github after 2009.
 Cu   05 Jul 08 (T. Kotani) new PW basis
 Cu             Option to accumulate energy-weighted output density
 Cu   27 Jun 08 Redesigned transformation of sigma to new basis
@@ -188,7 +189,7 @@ ckino lswtk must be 0 initially.
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw  !stdo , stdl 
      .  , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
-     .  , nfilem , iobzwt , lrsig ,  jobgw , nll !, lpdiag lwsig ,lnoxc , 
+     .  , nfilem , iobzwt , lrsig ,  jobgw , nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
      .  , lekkl
@@ -278,7 +279,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 
 C For self-energy
       integer nqsig
-      integer:: nbasp
+c      integer:: nbasp
       data T /.true./ F /.false./
       integer,allocatable:: nevls(:,:)
 ctakao
@@ -410,22 +411,23 @@ c mar2014
       
 !! ----------------------------
       call tcn ('bndfp')
-      debug  = cmdopt('--debugbndfp',6,0,strn)
-      mlog   = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
-      tdos   = cmdopt('--tdos',6,0,strn)
+      debug    = cmdopt('--debugbndfp',6,0,strn)
+      mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
+      tdos     = cmdopt('--tdos',6,0,strn)
       PROCARon = cmdopt('--mkprocar',10,0,strn) !write PROCAR(vasp format).
       fullmesh = cmdopt('--fullmesh',10,0,strn) !full mesh stop just after do 2010 iq loop.
-      fsmode = cmdopt('--fermisurface',14,0,strn)
-      allband= cmdopt('--allband',9,0,strn)
+      fsmode   = cmdopt('--fermisurface',14,0,strn)
+      allband  = cmdopt('--allband',9,0,strn)
       if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
 #endif      
 !! Write atomic positions
       if(procid == master) then
-         write(stdo,"(a)")' --- bndfp: Atomic Positions. (from rst/ctrl or changing when dynamics) ----'
+         write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
+         write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
          do ib=1,nbas
-            is  = ssite(ib)%spec !species index
+            is  = ssite(ib)%spec   !species index
             spid= ssite(is)%clabel !atom label
             write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
@@ -493,9 +495,9 @@ c      siginit=.true. !commented out on mar2015. this makes reading sigma at eve
       else
          call rx('bndfp: nspc==2 but nsp=1')
       endif   
-!! related to the error in rseq. clean up RSEQ_ERROR at first because
+!! related to the error in rseq. Remove RSEQ_ERROR at first because
 !! this error is only fatal when it is finaly converged. takaoNov28_2010
-      idummy=unlink('RSEQ_ERROR')
+      idummy = unlink('RSEQ_ERROR') 
 ctakao sep2010 !complicated.
 c      nspc=2 for non-colinear case. 
 c      allocate(evl(ndham,2))
@@ -514,12 +516,10 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       pwemin = ham_pwemin
       pwemax = ham_pwemax
       onesp = 0
-      ldos  = iand(1,int(ctrl_ldos))
-      lrsig = int(ham_lsig)
-      lfrzw = isw ( iand(16,int(ctrl_lbas)) .ne.0 )
+      ldos  = ctrl_ldos !0 or 1
+      lrsig = ham_lsig  !12 for read sigma mode
+      lfrzw = ham_frzwf !freeze all augmentation wave
       nspec = ctrl_nspec
-      if(ldos - mod(ctrl_ldos/1, 2)/=0) call rx('ldos - mod(ctrl_ldos/1, 2)/=0')
-      if(lfrzw- mod(ctrl_lbas/16,2)/=0) call rx('lfrzw- mod(ctrl_lbas/16,2)/=0')
       if(lrsig- ham_lsig/=0) call rx('lrsig- ham_lsig/=0')
       if (procid .eq. master) then
          fxsts= fxst('sigm')
@@ -568,28 +568,12 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
       ndos= bz_ndos
-      dosw= bz_dosw
-      ef0 = bz_ef
-      def = bz_def
-!!
+      dosw = bz_dosw
+      ef0  = bz_ef
+      def  = bz_def
       ltet = ntet .gt. 0
-c$$$      lwndow = .false. !cmdopt('--window=',9,0,strn)
-c$$$      if (lwndow) then
-c$$$         if (lmet==0)    call rx(' bndfp: restart with METAL=2 for --window')
-c$$$         if (.not. ltet) call rx(' bndfp: restart with TETRA=T for --window')
-c$$$         if(lrout==0)    call rx('--window incompatible with no output density')
-c$$$         iq = 0
-c$$$         i = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
-c$$$         write(6,"(' BNDFP: generating density in energy window= ',3f13.4)") dosw(1:2)
-c$$$         lfrce = 0
-c$$$         lpnu = 0
-c$$$         efmax = 1d2
-c$$$         nevmx = ndham
-c$$$         write(6,*)' Delete band weights file wkp.'//trim(sname)
-c$$$         ierr=unlink('wkp.'//trim(sname))
-c$$$      endif
-C     Always need DOS if just sampling
-      if (lmet .ne. 0 .and. .not. ltet) ldos=1
+      if (lmet /= 0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F
+                                             ! We need DOS if just sampling
       qbg = ctrl_zbak(1)
       alfa = 0
 C     Switch to plot bands at specified qp
@@ -742,10 +726,13 @@ c            write(stdo,*) '   5 : eigenvalue-only mode '
             read (5,*) jobgw
             if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
          endif
-!! --- generate potential without XC.
+!! --- generate potential without XC. This mkep to obtain
          if(jobgw/=0) then
             write(stdo,"(a)")' Make potential without XC part ...'
-            i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
+            lnoxc=1
+            i = 1 + 10*lfrzw + 100*lnoxc ! Adding 100 means excluding XC(LDA) part. nolxc=T
+                           ! We obtain sv_p_osigx , sv_p_otaux , sv_p_oppix smpotx without XC by the 'call mkpot'.
+                           ! Other output are overwritten by the 2nd call of mkpot 
             call dfaugm(nbas, lcplxp , lso, ssite, sspec, sv_p_osigx, sv_p_otaux, sv_p_oppix)
             allocate(spotx(k1,k2,k3,nsp))
             spotx=0d0
@@ -761,15 +748,14 @@ c            write(stdo,*) '   5 : eigenvalue-only mode '
 #endif        
       endif
 C --- Make the potential and total energy terms ---
-      i = 1 + 10*lfrzw !+ 100*lnoxc
+      i = 1 + 10*lfrzw !+ 100*(lnoxc=0)
       if (cmdopt('--wrhomt',8,0,strn)) then
-         i = i + 10000
+         i = i + 10000 !write rhomt mode
       else if (cmdopt('--wpotmt',8,0,strn)) then
-         i = i + 20000
+         i = i + 20000 !write potmt mode
       endif
       if(llmfgw) i = i + 10000
-!! mkpot calls locpot. and locpot calls augmat.
-!! augmat calculates sig,tau,ppi.
+!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
       call togpr()
       call mkpot ( nbas , ssite , sspec ,   lfrce!sham ,slat ,spot , 
      .  , lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , zv_a_osmpot 
@@ -838,10 +824,6 @@ c         nlmax = mxorb/nkaph !globalvariables%mxorb / globalvariables%nkaph
          if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid
      .     .eq. master) then
 !! this path is go through by crn test.
-c     .     call awrit6(' CLS: %iMb memory for aus: nlmax=%i ndham=%i '//
-c     .     'nsistes=%i nsp=%i nkp=%i',' ',120,
-c     .     i1mach(2),16*3*nlmax*ndham*nsites*nsp*nkp/1000000,
-c     .     nlmax,ndham,nsites,nsp,nkp)
             aaachar=
      &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
      &        ' Mb memory for aus: nlmax='//trim(i2char( nlmax))//
@@ -856,7 +838,6 @@ c     .     nlmax,ndham,nsites,nsp,nkp)
       else
          icls = 0
       endif
-
 
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -1149,17 +1130,7 @@ c            massline=.false.
       if(onlyonce) then 
          onlyonce=.false.
          if(procid==master) then
-            nbasp = ctrl_nbasp
-c            ljobgw=.false.
-c            if( (.not.(llmfgw.or.lrsig/=0)).or.((llmfgw.or.lrsig/=0).and.jobgw==0)) then
-c              ljobgw=.true.
-c            endif
-c            ljobgw= (jobgw==0)
-            call gen_hamindex(ssite, sspec , nl , nbasp , iv_a_oindxo , ldim , .true. , jobgw==0) !ljobgw)
-c         call gen_hamindex (  ssite , sspec , nl ,!sham ,slat , 
-c     .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
-            write(6,*)
-            write(6,*) ' --- Hamiltonian index ---'
+            call gen_hamindex(ssite, sspec, nl, ctrl_nbasp, iv_a_oindxo, ldim, .true., jobgw==0)
 c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
             do iorb = 1, norbmto !Total number of MTO's
@@ -1298,8 +1269,8 @@ c
          nchan = pot_nlma
          call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
-     .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
-     .     ,nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
+     .     , vrmt , spotx    , sv_p_osigx, sv_p_otaux, sv_p_oppix, jobgw 
+     .     , nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
 ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          deallocate(spotx)
          call tcx('bndfp')
@@ -2210,9 +2181,6 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
                      if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
                   endif
                   if(i .eq. 2) then
-c                     call awrit3('%N evl(nev=%i)=%;3d but '//
-c     .                 'ef0=%;3d ... restart with larger efmax or nevmx',
-c     .                 ' ',80,stdo,nev_iq,evl(max(nev_iq,1),jsp),ef0)
                      write(6,"(a,f13.5,f13.5)")
      &                 'evl(nev='//trim(i2char(nev_iq))//')=',
      &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
@@ -2276,9 +2244,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
          bz_def=def
          if (lrep .eq. 1) then
             ef0 = -1
-c            call awrit0('Input Fermi energy was too far off, '//
-c     .        'repeat band pass',' ',80,stdo)
-           write(6,*)'Input Fermi energy was too far off, repeat band pass'
+           write(stdo,*)'Input Fermi energy was too far off, repeat band pass'
 #ifdef MPIK
             call mpi_barrier(MPI_comm_world,ierr)  
 #endif
@@ -2376,9 +2342,6 @@ c$$$         call poppr
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
          if (lmet .eq. 0) then
             ef0 = (evtop+ecbot)/2
-c            if (ipr .ge. 20) call awrit3(' Highest occ. level = %,5;5d '//
-c     .        ' Lowest unocc. = %,5;5d  average = %,5;5d',' ',80,
-c     .        stdo,evtop,ecbot,ef0)
             write(6,"(' Highest occ. level = ',f13.5,
      &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif

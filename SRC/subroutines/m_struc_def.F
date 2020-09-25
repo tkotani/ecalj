@@ -1,13 +1,10 @@
-!! explanations are old documents.
-!! A problem in these structures are 'environmental data and iteration data are mixed up'!
-!! Check I/O for bndfp.F
+!! explanations are old, some are obsolate 
       module m_struc_def
       public s_rv1, s_spec, s_site
       private
       type s_rv1
       real(8),allocatable:: v(:)
       end type s_rv1
-
       
 !! --- explanation of s_spec --- (some are obsolate)
 Cr  name    purpose
@@ -40,8 +37,6 @@ Cr         2 freeze to spec'd linearization energy
 Cr         3 float to natural center of band (C parameter)
 Cr  idu    identifies l-channels with Hubbard U (LDA+U)
 Cr  idxdn  idxdn
-Cr  iq1    (tbfit) switches to freeze TB site energies
-Cr  ivso   (tbfit) switches to freeze TB spin-orbit params
 Cr  jh     LDA+U J parameters for each l-channel
 Cr  kmxh   k cutoffs for head augmentation expansion
 Cr  kmxt   k cutoffs for tail augmentation expansion
@@ -101,7 +96,7 @@ Cr  vso    (tbe) spin-orbit parameters
 Cr  z      atomic number
       type s_spec
       real(8), allocatable :: rv_a_orhoc(:)
-      real(8)  ::   size
+c      real(8)  ::   size
       real(8)   ::   z
       real(8)   ::   mass
       real(8)   ::   rmt
@@ -156,13 +151,11 @@ Cr  z      atomic number
       real(8)   ::   rcfa(2)
       real(8)   ::   p(20)
       real(8)   ::   q(20)
-c      real(8)   ::   alpha(10)
       integer   ::   idmod(10)
       integer   ::   idxdn(30)
       real(8)   ::   hcr(10)
       real(8)   ::   exi(10)
       integer   ::   ngcut(30)
-      real(8)   ::   qpol(10)
       real(8)   ::   chfa(20)
       real(8)   ::   orbp(60)
       real(8)   ::   enu(10)
@@ -170,10 +163,7 @@ c      real(8)   ::   alpha(10)
       integer   ::   idu(4)
       real(8)   ::   uh(4)
       real(8)   ::   jh(4)
-      integer   ::   iq1(4)
-      integer   ::   ivso(4)
       real(8)   ::   ehvl(10)
-      real(8)   ::   vso(4)
       integer :: nmcore !jun2012takao
       end type s_spec
 
@@ -182,54 +172,38 @@ c      real(8)   ::   alpha(10)
 Cr   bfield  site magnetic field (not used)
 Cr   clabel  string labelling class
 Cr   class   class index
-Cr   cli     (RGF) cluster index
-Cr   delta   (tbe) vector of on-site energy shifts
-Cr   dpole   point charge dipole (molecules)
 Cr   eula    Euler angles (noncollinear magnetism)
 Cr   force   force (dynamics)
-Cr   mpole   point charge monopole (molecules)
-Cr   ndelta  size of delta
 Cr   norb    dimension contributed by this site to hamilt.
 Cr   offh    hamiltonian offset
 Cr   orho    pointer to MT density
 Cr   ov0     pointer to potential that defines wave functions
 Cr   ov1     pointer to spherical part of MT potential
-Cr   pl      (PGF) principal layer index
-Cr   plv     (PGF) principal layer potential index
 Cr   pnu     log derivative parameter
 Cr   pos     true coordinates of atom
 Cr   pos0    coordinates of atom before distortion
 Cr   pz      log derivative parameter, semicore states
 Cr   relax   (dynamics) flags which coordinates to relax
-Cr   sid     (RGF) Site id, used to merge coincident clusters
 Cr   size    size of this structure
 Cr   spec    species index
 Cr   vel     velocity
 Cr   vshft   constant potential shift for this site
       type s_site
       integer  :: iantiferro !may2015
-      real(8)  ::   size
+c      real(8)  ::   size
       real(8)   ::   bfield(3)
       character(8)   ::   clabel !string
       integer   ::   class
-      integer   ::   cli
-      real(8)   ::   delta(6)
-      real(8)   ::   dpole(3)
       real(8)   ::   eula(3)
       real(8)   ::   force(3)
-      real(8)   ::   mpole
-      integer   ::   ndelta
       integer   ::   norb
       real(8) , allocatable ::  rv_a_ov0 (:)
       real(8) , allocatable ::  rv_a_ov1 (:)
-      integer   ::   pl
-      integer   ::   plv
       real(8)   ::   pnu(20)
       real(8)   ::   pos(3)
       real(8)   ::   pos0(3)
       real(8)   ::   pz(20)
       integer   ::   relax(3)
-      integer   ::   sid
       integer   ::   spec
       real(8)   ::   vel(3)
       real(8)   ::   vshft
