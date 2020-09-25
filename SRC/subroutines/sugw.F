@@ -1,6 +1,3 @@
-#define USEOPTIONAL 1
-!! ------------------------------
-!! ------------------------------
       subroutine sugw ( ssite , sspec ,  nbas , ndham !sham ,slat , 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
@@ -736,8 +733,13 @@ C   ... Read SYML file
           goto 1021
         endif
         if(allocated(ngvecp)) deallocate(ngvecp)
-        allocate(ngvecp(3,max(ngp,1))) 
-        read (ifiqg)  ngvecp
+        allocate(ngvecp(3,max(ngp,1)))
+        if(ngp==0) then !dummy 
+           read (ifiqg)
+           ngvecp=-99999
+        else
+           read (ifiqg)  ngvecp
+        endif
         if (job .ne. 1) deallocate(ngvecp) 
 !! calculate only for irr=1 case
         if(irr==0) then
@@ -901,84 +903,42 @@ c$$$          endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-
 c$$$          if (i .eq. -1) lpdiag = 2
           if(debug) print *,' end of generation of Hamiltonian'
 
+ccccccccccccccccccccccccccccccc
+c            print *,'cccccccccccccc cycle xxxxxxxxxxxxxx'
+c            cycle
+ccccccccccccccccccccccccccccccc
 !!   --- Branch job = 1 : make cphi, matrix elements ---
           if(job .eq. 1) then   !   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-c            write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
-c     &      ' irank=',i4, ' lwvxc=',l)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc !,lpdiag
-
-c            if(oncewrite(5)) print *,'vvvvv lpdiag=',lpdiag
-c            if (lpdiag .eq. 0) then
-            if (nspc .eq. 2) then
-              call rx('diagonalization not ready for nspc=2')
-            endif
+            if (nspc .eq. 2) call rx('diagonalization not ready for nspc=2')
             epsovl = ham_oveps
-c$$$              allocate(ww_rv(11*ndimh))
-c$$$              if (epsovl .le. 0) then
-c$$$                call zhev ( ndimh , ham , ovl , .true. , .true. , ndimh , 1d60 
-c$$$     .          , nev , ww_rv , .false. , - 1 , evl ( 1 , isp ) , evec )
-c$$$              else
-c$$$                nevl = -1
-c$$$                call dvset ( ww_rv , 1 , 1 , 99999d0 )
-c$$$                call zhevo ( ndimh , ndimh , ham , ovl , .true. , ndimh , 1d60 
-c$$$     .          , epsovl , nevl , nev , evl ( 1 , isp ) , ww_rv , ndimh , 
-c$$$     .          evec )
-c$$$                eomin = dval ( ww_rv , 1 )
-c$$$                call info5(30,0,0, ' Overlap''s smallest eigenvalue: %;3g.  '//
-c$$$     .          '%?#(n>0)#H dim reduced from %i to %i#H dim not reduced#',
-c$$$     .          eomin,ndimh-nevl,ndimh,nevl,0)
-c$$$              endif
-
 !! we fined evl(i), z(:,i), i=1,nev !nov2015
             evec=-1d99
             evl(:,isp)=1d99
             call zhev_tk3(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,iprint(),
      &       .false.,.false.,-9999, epsovl)
-c              deallocate(ww_rv)
             write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
-     &' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev !,lpdiag
-
+     &       ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
             call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
-c$$$            elseif (lpdiag .eq. 2) then
-c$$$              evec = ovl
-c$$$#ifdef USEOPTIONAL
-c$$$              call phmbls(mode=2,ndimh=ndimh,eval=evl(1,isp),zhz=ham)
-c$$$#else
-c$$$              call phmbls(2,ndimh,evl(1,isp),w,w,w,w,w,ham)
-c$$$#endif
-c$$$              nev = ndimh
-c$$$              call prtev(evec,ndimh,evl(1,isp),ndimh,9d9,nev)
-c$$$            else
-c$$$              call rxi('sugw not ready for lpdiag=',lpdiag)
-c$$$            endif
-C       Pad evals between ndimh and ndham with a large positive number
-C       to avoid mixing up integration routines
-
-!! we introduce nev nov2015
             if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
-                                        !call dvset(evl(1,isp),1+nev,ndham,99999d0)
             if (bandmode .and. jobb .eq. 5) then
               write(ifeigen) evl(1:ndham,isp)
               if (mod(iq,10) .ne. 1) call poppr
               cycle
             endif
-            if (mod(iq,10) .ne. 1) call poppr
+            if(mod(iq,10) .ne. 1) call poppr
             if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
             if (lwvxc) then
               ifievec = fopna('evec',-1,4)
               write(ifievec) q, evec(1:ndimh,1:ndimh),nev
             endif
-
             if(magexist) then
                if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
                if(isp==2) evl(1:ndimh,isp)=evl(1:ndimh,isp) + vnow/2d0
-            endif   
-
-c            write(6,"(' ppppppp 111111111')")
+            endif
             
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$!! wave function rotation test for si 5x5x5.
@@ -1150,12 +1110,21 @@ C   --- File output, job=1 ---
             write (ifigwb) q, ndimh, iq
             if(debug) write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
             write (ifigwb) evl(1:ndimh,isp),cphi(:,:,isp)
-            write (ifigwb) ngp !takao feb2012 ,ngc
-            write (ifigwb) ngvecp, pwz !takao feb2012
+cccccccccccccccccccccccc            
+c            print *,'cccccccc cycle 2222'
+c            cycle
+ccccccccccccccccccccccc
+            write (ifigwb) ngp 
+            if(ngp >0 ) write (ifigwb) ngvecp, pwz 
+            if(ngp ==0) write (ifigwb) ngvecp
+cccccccccccccccccccccccc            
+c            print *,'cccccccc cycle 3333'
+c            cycle
+ccccccccccccccccccccccc
             ifigw1 = fopna('gw1',-1,4)
             write(ifigw1) q, (evl(i,isp),i=1,ndimh)
 C       call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
-
+            
 C   ... Overlap checking.   Define:
 C       Interstitial part of eigenfunction overlap:
 C         <psi_n||psi_n'>
@@ -1164,15 +1133,10 @@ C         = sum_G1,G2 (pwz_G1,n)+ ppovl_G1,G2 (PWZ_G2,n')
 C         = (PWZ)+ O (PWZ) = (PZOVL)+ (PWZ)  (old style)
             if (lchk .ge. 1 .and. ngp .gt. 0) then
               allocate(testc(ndimh,ndimh),testcd(ndimh))
-c$$$          if (mod(loldpw,2) .eq. 1) then
-c$$$            allocate(pzovl(ngp,ndimh))
-c$$$            call zgemm('N','N',ngp,ndimh,ngp,dcmplx(1d0,0d0),
-c$$$     .        ppovl,ngp,pwz,ngp,dcmplx(0d0,0d0),pzovl,ngp)
-c$$$          endif
               call zgemm('C','N',ndimh,ndimh,ngp,(1d0,0d0),
      .        pzovl,ngp,pwz,ngp,(0d0,0d0),testc,ndimh)
               deallocate(pzovl)
-C          call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh, ndimh)
+             !! call zprm('(PWZ)+^-1 O_i^-1 (PWZ)',2,testc,ndimh,ndimh, ndimh)
               do  i = 1, ndimh
                 testcd(i) = sum(dconjg(pwz(:,i))*ppovld*pwz(:,i))
               enddo

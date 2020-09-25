@@ -71,11 +71,11 @@ do
  argin=1; run_arg $argin $NO_MPI  $nfpgw  /qg4gw lqg4gw   #Generate requied q+G v
 
  ### eigenvalues for micro-tetrahedron method. Rarely used.
- if [ -e Qmtet ]; then
-  mv Qmtet Qeigval 
-  argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
-  mv eigval eigmtet
- fi
+ # if [ -e Qmtet ]; then
+ #  mv Qmtet Qeigval 
+ #  argin=5; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw_eigval $TARGET
+ #  mv eigval eigmtet
+ # fi
  argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmfgw-MPIK llmfgw01 $TARGET
  run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 

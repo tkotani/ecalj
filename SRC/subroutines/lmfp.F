@@ -12,7 +12,7 @@
      &     globalvariables, rv_a_opos 
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
-      use m_mkqp,only: mkqp
+c      use m_mkqp,only: mkqp
       use m_suham,only:suham
       use m_lattic,only:lattic
       use m_ext,only: sname

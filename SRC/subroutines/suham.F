@@ -1,6 +1,5 @@
-!! we have to keep these( m_hamiltoninan ) with those in fpgw/gwsrc
-      subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) !,no_qpgpsi) !from showbs
-c     subroutine gen_hamindex(sham,sbz,ssite,sspec,slat,nl,nbas_in,iprmb,ldim,qplist,nkp,siginit) !,no_qpgpsi) !from showbs
+c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) 
+      subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,ljobgw) 
       use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp 
       use m_struc_def  !Cgetarg
@@ -55,7 +54,8 @@ c      type(s_ham)::sham
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
       integer:: i_copy_size,i_spacks,i_spackv,ifi,nbas_in,ifisym,
-     &  i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
+     &     i,ifiqibz,igg,iqq,iqi,irr,iqi_,jobgw
+      logical:: ljobgw
 
       character(8),allocatable::  spid(:)
       logical:: llmfgw
@@ -183,8 +183,8 @@ c ... reverse maping of offset-index for hamiltonian
       call rotdlmm(symops,ngrp, nl, dlmm)
 
 !! No GW-related part
-c      if(.not.llmfgw) then !.or.(llmfgw.and.jobgw==0)) then
-      if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
+      if(ljobgw) then
+c      if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         if(iprx) print *,'gen_hamindex: not readin QGpsi.'
         return
       endif

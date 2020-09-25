@@ -73,7 +73,7 @@ Cl   k1,k2,k3: dimensions smrho,smpot
 Cl   lpdiag:0 use standard diagonalization (zhev)
 Cl         :1 use parallel diagonalization (pzhev)
 Cl         :2 diagonalization done internally
-Cl   lwndow:T if to make density in a specified energy window
+ccCl   lwndow:T if to make density in a specified energy window
 Cl   lcplxp:0 if ppi is real; 1 if ppi is complex
 Cl   jsp   :current spin index.
 Cl         :In the collinear case, jsp and isp are equivalent
@@ -179,7 +179,7 @@ c      type(s_sstrn):: sstrn
       character*(*):: sstrnmix
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      logical lgors,ltet,cmdopt,lwndow
+      logical lgors,ltet,cmdopt!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
@@ -188,7 +188,7 @@ ckino lswtk must be 0 initially.
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw  !stdo , stdl 
      .  , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
-     .  , nfilem , iobzwt , lnoxc , lrsig ,  jobgw , nll !, lpdiag lwsig ,
+     .  , nfilem , iobzwt , lrsig ,  jobgw , nll !, lpdiag lwsig ,lnoxc , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
      .  , lekkl
@@ -328,8 +328,6 @@ c      integer:: n_listwf
       real(8):: eee
       logical :: tdos !,pdos
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
-      real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
-      real(8),allocatable::vesatm(:),qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
 
       real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold, vnow
       logical:: lfill=.false.,ixx,master_mpi,master_mpiset
@@ -408,7 +406,7 @@ c mar2014
 
       real(8):: pnu(n0,2),pnz(n0,2),pmean
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3
-      logical:: lpz,phispinsym
+      logical:: lpz,phispinsym,ljobgw
       
 !! ----------------------------
       call tcn ('bndfp')
@@ -533,14 +531,7 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
       call mpibc1(ham_lsig,1,2,mlog,'bndfp','ham_lsig') 
-      jobgw= -999
       epsovl = ham_oveps
-      if(llmfgw) then
-         i = 7
-         if (cmdopt('-jobgw=',i,0,strn)) then
-            if (.not. a2bin(strn,jobgw,2,0,' ',i,-1)) call rxs2('BNDFP: failed to parse "',strn(1:30),'%a"')
-         endif
-      endif
       if (procid .eq. master) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
@@ -582,21 +573,21 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       def = bz_def
 !!
       ltet = ntet .gt. 0
-      lwndow = cmdopt('--window=',9,0,strn)
-      if (lwndow) then
-         if (lmet==0)    call rx(' bndfp: restart with METAL=2 for --window')
-         if (.not. ltet) call rx(' bndfp: restart with TETRA=T for --window')
-         if(lrout==0)    call rx('--window incompatible with no output density')
-         iq = 0
-         i = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
-         write(6,"(' BNDFP: generating density in energy window= ',3f13.4)") dosw(1:2)
-         lfrce = 0
-         lpnu = 0
-         efmax = 1d2
-         nevmx = ndham
-         write(6,*)' Delete band weights file wkp.'//trim(sname)
-         ierr=unlink('wkp.'//trim(sname))
-      endif
+c$$$      lwndow = .false. !cmdopt('--window=',9,0,strn)
+c$$$      if (lwndow) then
+c$$$         if (lmet==0)    call rx(' bndfp: restart with METAL=2 for --window')
+c$$$         if (.not. ltet) call rx(' bndfp: restart with TETRA=T for --window')
+c$$$         if(lrout==0)    call rx('--window incompatible with no output density')
+c$$$         iq = 0
+c$$$         i = parg('window=',4,strn,iq,len(strn),', ',2,2,iv,dosw)
+c$$$         write(6,"(' BNDFP: generating density in energy window= ',3f13.4)") dosw(1:2)
+c$$$         lfrce = 0
+c$$$         lpnu = 0
+c$$$         efmax = 1d2
+c$$$         nevmx = ndham
+c$$$         write(6,*)' Delete band weights file wkp.'//trim(sname)
+c$$$         ierr=unlink('wkp.'//trim(sname))
+c$$$      endif
 C     Always need DOS if just sampling
       if (lmet .ne. 0 .and. .not. ltet) ldos=1
       qbg = ctrl_zbak(1)
@@ -727,8 +718,6 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
         endif
       endif
 !! --- Define local arrays used in the generation of the potential ---
-      lnoxc = 0
-      if (jobgw .eq. 2) lnoxc = 1
       allocate(qmom_rv(nvl))
       allocate(gpot0_rv(nvl))
       allocate(vval_rv(nchan))
@@ -740,43 +729,39 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
 !! dfaugm alllocates and initializes variables
       call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig, sv_p_otau , sv_p_oppi )
 !! --- Make the potential sans XC part ---
+      jobgw=-999
       if(llmfgw) then ! only for lmfgw program
-         if(jobgw .eq. 1 .or. jobgw .eq. -999) then
-            call info(20,1,0,' Make potential without XC part ...',0,0)
-            call togpr()
-            i = 1 + 10*lfrzw + 100
-!! dfaugm alllocates and initializes variables
-            call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osigx 
-     .        , sv_p_otaux , sv_p_oppix )
-            allocate(spotx(k1,k2,k3,nsp))
-            spotx=0d0
-!! mkpot calls locpot. and locpot calls augmat.
-!! augmat calculates sig,tau,ppi.
-            call mkpot ( nbas , ssite , sspec ,   0 ,!sham ,slat , spot ,
-     .        lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
-     .        , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .        , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
-            call togpr()
-         endif
-!! --- readin job switch
-         if (jobgw .eq. -999 .and. procid==master) then
+         if(procid==master) then
             write(stdo,*) ' lmfgw: input one of the following jobs:'
             write(stdo,*) '   0 : init mode; creates files',
      .        ' SYMOPS, LATTC, CLASS, NLAindx, ldima'
             write(stdo,*) '   1 : GW setup mode'
-            write(stdo,*) '   4 : band mode '
-            write(stdo,*) '   5 : eigenvalue-only mode '
+c            write(stdo,*) '   4 : band mode '
+c            write(stdo,*) '   5 : eigenvalue-only mode '
             write(stdo,*) ' job?'
             read (5,*) jobgw
+            if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
+         endif
+!! --- generate potential without XC.
+         if(jobgw/=0) then
+            write(stdo,"(a)")' Make potential without XC part ...'
+            i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
+            call dfaugm(nbas, lcplxp , lso, ssite, sspec, sv_p_osigx, sv_p_otaux, sv_p_oppix)
+            allocate(spotx(k1,k2,k3,nsp))
+            spotx=0d0
+            call mkpot ( nbas , ssite , sspec ,   0 , 
+     .           lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
+     .           , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
+     .           , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     .           , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
          endif
 #if MPI|MPIK
          call mpi_barrier(MPI_comm_world,ierr)
-#endif        
          call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
+#endif        
       endif
 C --- Make the potential and total energy terms ---
-      i = 1 + 10*lfrzw + 100*lnoxc
+      i = 1 + 10*lfrzw !+ 100*lnoxc
       if (cmdopt('--wrhomt',8,0,strn)) then
          i = i + 10000
       else if (cmdopt('--wpotmt',8,0,strn)) then
@@ -900,7 +885,7 @@ c     .     nlmax,ndham,nsites,nsp,nkp)
          nevmx = ndhamx
          call dpzero ( rv_a_oswtk , ndhamx * nkp )
       endif
-c      nl = int(ctrl_nl)
+      
 c$$$!! Mullikan mode
 c$$$      mullwrite = .false.
 c$$$      if(cmdopt('--mull',6,0,strn).and.procid==master) then
@@ -972,10 +957,10 @@ c-----------------
             write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
          enddo
          close(ifqplist)
-         if( jobgw/=0.and.jobgw/=1 )then
-            write(6,*)'qplist.ibz sumcheck=',nkp,sum(rv_a_owtkp(1:nkp))
-            if(abs(sum(rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
-         endif   
+c         if( jobgw/=0.and.jobgw/=1 )then
+c            write(6,*)'qplist.ibz sumcheck=',nkp,sum(rv_a_owtkp(1:nkp))
+c            if(abs(sum(rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
+c         endif   
 c-----------------
          !I think sbz%rv_p_oqp is not used in the following.
       elseif(procid==master) then
@@ -1138,17 +1123,17 @@ c            massline=.false.
         allocate(xdatt(nkp))
         xdatt=0d0
       endif
-      if(PROCARon) then !if(plbnd/=0) then ! march2015
+
+      if(PROCARon) then         !if(plbnd/=0) then ! march2015
         if(procid/=master) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif  
-
 #if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
       if (allocated(evlall)) deallocate(evlall)
       allocate(evlall(ndhamx,nspx,nkp)) ; evlall=0d0
-      nchanp=25
+      nchanp=25 !total of s,p,d,f
       if(procaron.and.fullmesh) then
          allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
          dwgtall=0d0
@@ -1163,39 +1148,40 @@ c            massline=.false.
 !! SYMOPS
       if(onlyonce) then 
          onlyonce=.false.
-         nbasp = ctrl_nbasp
-c         nl    = ctrl_nl
-c         call gen_hamindex ( sham , sbz , ssite , sspec , slat , nl ,
-         call gen_hamindex (  ssite , sspec , nl ,!sham ,slat , 
-     .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
-c    .     nbasp , ham_iv_a_oindxo , ldim , siginit, llmfgw.or.lrsig/=0,jobgw)  !aug2012
          if(procid==master) then
+            nbasp = ctrl_nbasp
+c            ljobgw=.false.
+c            if( (.not.(llmfgw.or.lrsig/=0)).or.((llmfgw.or.lrsig/=0).and.jobgw==0)) then
+c              ljobgw=.true.
+c            endif
+c            ljobgw= (jobgw==0)
+            call gen_hamindex(ssite, sspec , nl , nbasp , iv_a_oindxo , ldim , .true. , jobgw==0) !ljobgw)
+c         call gen_hamindex (  ssite , sspec , nl ,!sham ,slat , 
+c     .     nbasp , iv_a_oindxo , ldim , .true. , llmfgw.or.lrsig/=0,jobgw)  !mar2015
             write(6,*)
             write(6,*) ' --- Hamiltonian index ---'
-c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
             do iorb = 1, norbmto !Total number of MTO's
-              ib   = ibastab(iorb)
-              is   = ssite(ib)%spec
-              spid=sspec(is)%name
-              ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
-              l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
-              k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
+               ib   = ibastab(iorb)
+               is   = ssite(ib)%spec
+               spid=sspec(is)%name
+               ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+               l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+               k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
             enddo
-
             write(6,*) ' i  ib l  k trim(spec)'
             do i= 1, ldim
-              ib   = ib_table(i)
-              is   = ssite(ib)%spec
-              spid = sspec(is)%name
-              write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+               ib   = ib_table(i)
+               is   = ssite(ib)%spec
+               spid = sspec(is)%name
+               write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
             enddo
             if(writeham) then
-              write(ififft)ldim,lso,nsp
-              write(ififft)ib_table,l_table,k_table
-              close(ififft)
+               write(ififft)ldim,lso,nsp
+               write(ififft)ib_table,l_table,k_table
+               close(ififft)
             endif  
-!!
          endif
       endif
 
@@ -1209,21 +1195,20 @@ c            write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!  In future, we should make this block to a subroutine which shows clear i/o.
       sigmamode = mod(lrsig,10) .ne. 0
       if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
-      if(sigmamode.and.siginit .and. (.not.(llmfgw.and.jobgw==0)) ) then
+      if( llmfgw.and.jobgw==0 ) then
+         continue
+      elseif( sigmamode.and.siginit ) then
          ndimsig= ldim  !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
          if(procid==master) then
             write(6,*)' --- goto rdsigm2 initialization section ---'
             rsrnge = ham_rsrnge
             write(6,*)'rsrnge procid=',rsrnge,procid
-c     ifi = fopna('sigm',-1,4)
-c            print *,'####'//trim(sname)//'####'
-c newunit can give negative number!            
             ifi=ifile_handle()
             open(ifi,file='sigm.'//trim(sname),form='unformatted')!
             read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
 !! takao !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        laf=allocated(symops_af) !jun2015takao
-        if(laf) nspsigm=2
+          laf=allocated(symops_af) !jun2015takao
+          if(laf) nspsigm=2
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             allocate( qsmesh2(3,nk1,nk2,nk3) )
             if(mtosigmaonly()) then
@@ -1244,7 +1229,7 @@ c newunit can give negative number!
 !     !   ndham is removed sep2012 (read from sigma file )
             call rdsigm2(nbas,nspsigm,ifi,  !sbz,,sham slat,
      &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
-            close(ifi) !call fclose(ifi)
+            close(ifi) 
 c$$$!! --- write sig_fbz for SYMGRP e
 c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
 c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
@@ -1310,8 +1295,8 @@ c
 
 !! == GW driver ==
       if(llmfgw) then
-         nchan=pot_nlma
-         call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot !sham ,slat ,
+         nchan = pot_nlma
+         call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , jobgw 
      .     ,nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master) 
@@ -1459,17 +1444,6 @@ c            endif
             i = lrsig*10
             if(debug) print *,' i lrsig=',i,lrsig
 
-C Commented by takao lwsig is not used now.. If ncessary, need to implement it again.
-C C       lwsig=-1: sigm LDA -> orbital basis
-C C       lwsig= 1: sigm orbital -> LDA basis
-C C       lwsig= 2: sigm orbital -> LDA basis, high energy parts replaced
-C C       lwsig= 3: Write evecs of LDA hamiltonian to file
-C C       lwsig= 4: Write evecs of hamiltonian to file
-C C       lwsig= 5: sigm orbital -> orbital, high energy parts replaced
-C C       hambls returns with evecs,evals of the LDA hamiltonian in s,h
-C C       Transform sigm to LDA basis: hambls returns sigm(LDA) in h
-
-
 !! === Sigma-Vxc ===
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
@@ -1478,6 +1452,7 @@ C C       Transform sigm to LDA basis: hambls returns sigm(LDA) in h
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output => sene
             if(sigmamode) then
+               if(debug) print *,'ndimsig=',ndimsig
                allocate(sene(ndimsig,ndimsig))
                hreal = 0
                if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
@@ -1616,7 +1591,6 @@ c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
 
 !! == lpdiag=0 only. ===
             if(nspc .eq. 2) then
-
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c              hamm(:,:,2) = hamm(:,:,1)
 c$$$c              ovlm(:,:,2) = ovlm(:,:,1)
@@ -1637,8 +1611,6 @@ c$$$                  endif
 c$$$                enddo
 c$$$              enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
-
-c     call sopert ( 0 , ndimh , nspc , ww_rv , hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
             endif
@@ -2083,7 +2055,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
       if (icls .ne. 0 .and. lwtkb .ne. -1) then
          call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_zv )
+c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_zv )
       endif
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
 #endif
@@ -2210,7 +2182,7 @@ c         nkaph = globalvariables%nkaph
                if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
      .           write (stdl,712) (evl(i,jsp),i=1,nev_iq)
  712           format('fp evl',8f8.4)
-               if (lwtkb .ne. -1 .and. .not. lwndow) then
+               if (lwtkb .ne. -1) then ! .and. .not. lwndow) then
                   if (iq .eq. 1 .and. jsp .eq. nsp ) then !
 !! comment out mar2013takao!     .and.  .not. cmdopt('--no-fixef0',11,0,strn)) then
 !! Energy-Window reset. dosw=(emin,emax)
@@ -2321,51 +2293,51 @@ c     .        'repeat band pass',' ',80,stdo)
       endif  
 !! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
-         if (lwndow) then
-            allocate(ww_rv(ndham*nsp*nkp))
-            eferm = min(dosw(1),dosw(2))
-            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .        , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
-     .        , 2 , ntet , iv_a_oidtet , sev , dum )
-            eferm = max(dosw(1),dosw(2))
-            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .        , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-     .        eferm , 2 , ntet , iv_a_oidtet , sev , dum )
-            call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb, 1 )
-            if (allocated(ww_rv)) deallocate(ww_rv)
-         else
-            dosrng = 8
-            if (mpsord .lt. 0) dosrng = 16
-            if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-            if(bz_fsmommethod == 1) then !takao dec2010
-!! vnow june22013 !vnow !(in Ry) contains magnetic field
-!! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
-               call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+c$$$         if (lwndow) then
+c$$$            allocate(ww_rv(ndham*nsp*nkp))
+c$$$            eferm = min(dosw(1),dosw(2))
+c$$$            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+c$$$     .        , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
+c$$$     .        , 2 , ntet , iv_a_oidtet , sev , dum )
+c$$$            eferm = max(dosw(1),dosw(2))
+c$$$            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+c$$$     .        , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
+c$$$     .        eferm , 2 , ntet , iv_a_oidtet , sev , dum )
+c$$$            call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb, 1 )
+c$$$            if (allocated(ww_rv)) deallocate(ww_rv)
+c$$$         else
+         dosrng = 8
+         if (mpsord .lt. 0) dosrng = 16
+         if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
+         if(bz_fsmommethod == 1) then !takao dec2010
+!     ! vnow june22013 !vnow !(in Ry) contains magnetic field
+!     ! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
+            call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
-            else
-!! vnow june22013
-               call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+         else
+!     ! vnow june22013
+            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
      .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
-            endif
-!! june2013 magfield is added
-            if(fsmom/=NULLR.and.procid .eq. master) then
-               ifimag=ifile_handle()
-               open(ifimag,file='MagField',status='unknown')
-               write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
-               close(ifimag)
-            endif
-!!         Store val charge & magnetic moment in sumqv(1..2)
-            if (lmet .ne. 4) then
-               sumqv(1,1) = sumqv(1,2)
-               sumqv(2,1) = sumqv(2,2)
-            endif
          endif
+!     ! june2013 magfield is added
+         if(fsmom/=NULLR.and.procid .eq. master) then
+            ifimag=ifile_handle()
+            open(ifimag,file='MagField',status='unknown')
+            write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
+            close(ifimag)
+         endif
+!     !         Store val charge & magnetic moment in sumqv(1..2)
+         if (lmet .ne. 4) then
+            sumqv(1,1) = sumqv(1,2)
+            sumqv(2,1) = sumqv(2,2)
+         endif
+c$$$         endif
 !!
          if (lmet .ne. 4) then
             ef0 = eferm
@@ -2442,42 +2414,25 @@ c$$$      endif
          enddo
       endif
 
-
 !! === Generate DOS on disk ===
-      if(.not. lwndow .and. procid==master) then
+c      if(.not. lwndow .and. procid==master) then
+      if( procid==master) then
          ndos0 = bz_ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
-         if ( iand(1,int(ctrl_ldos)) .ne.0 ) then
-c  if(iprint()>10) call awrit1('%x%N ... Generating %?#n<0#integrated#total# DOS',' ',80,lgunit(1),ndos0)
+         if ( ldos/=0 ) then
             if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
             if(ndos0>0) write(6,"(a)")'... Generating total DOS'      !  ndos0=,ndos0
-
 !! Default and external option. 
             if(tdos) then
               dosmax = bz_dosmax
-c            if (cmdopt('--emint=',7,strn)) then    !not yer for dosw(1)
-c              j=10
-c              if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_
-c            endif
-              if (cmdopt('-emax=',6,0,strn)) then
-                j = 6
-                if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) dosmax=emaxp_/rydberg
-              endif
-              if(cmdopt('-ndos=',6,0,strn))  then
-                j = 6
-                if (a2bin(strn,ndos_,2,0,' ',j,len(strn))) ndos=ndos_
-                deallocate(dos_rv)
-                allocate(dos_rv(ndos,2*nsp))
-              endif
             endif
             if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
-
             if (ltet) then
 !! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
-               if(tdos) dosw(2) = dosmax + eferm !.or.pdos
+               if(tdos) dosw(2) = dosmax + eferm !.or.pdos (dos between dosw(1) and dosw(2)
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
@@ -2496,20 +2451,12 @@ c            endif
                del = mpsord+dabs(esmear-mpsord)
             endif
             if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
-!! ... dos file io
-            call dosio ( dos_rv , ndos , nspx , ndos , 1 , dosw(1) 
-     .        , dosw(2) , nspx , eferm , del , 1 , - fopn ( 'dos' ) )
-            call fclose(fopn('dos'))
-!! ... write total dos file. mar2013
-c            ifi=fopn('dos.tot')
             ifi= ifile_handle()     
             open(unit=ifi,file='dos.tot.'//trim(sname))
-c            write(ifi,"('#lm ordering. See the end of lmdos. relative to efermi=',d14.5)") eferm
             do ipts=1,ndos
                eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
             enddo
-c            call fclose(ifi)
             close(ifi)
             if (allocated(orbtm_rv)) deallocate(orbtm_rv)
             if (allocated(dos_rv)) deallocate(dos_rv)
@@ -2549,17 +2496,17 @@ c            call fclose(ifi)
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
-!!     --window: Put output density into orhat and smrho, and exit
-      if (lwndow) then
-         call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham , slat ,
-     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_a_oorhat , hab_rv , sab_rv 
-     .     , qbyl_rv , hbyl_rv , lrout )
-         call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_a_osmrho 
-     .     , 1 )
-         call symrho(ssite , sspec ,  lfrce , zv_a_osmrho , sv_a_oorhat !slat ,
-     .     , qbyl_rv , hbyl_rv , frc )
-         goto 999
-      endif
+c$$$!!     --window: Put output density into orhat and smrho, and exit
+c$$$      if (lwndow) then
+c$$$         call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham , slat ,
+c$$$     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_a_oorhat , hab_rv , sab_rv 
+c$$$     .     , qbyl_rv , hbyl_rv , lrout )
+c$$$         call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_a_osmrho 
+c$$$     .     , 1 )
+c$$$         call symrho(ssite , sspec ,  lfrce , zv_a_osmrho , sv_a_oorhat !slat ,
+c$$$     .     , qbyl_rv , hbyl_rv , frc )
+c$$$         goto 999
+c$$$      endif
 
       call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham ,slat , 
      .  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
@@ -2711,7 +2658,11 @@ ccccccccccccccccccccccccc
       
 !sssssssssssssssssssssssssssssssssssssssssssss
       contains
-      subroutine vbmmode() 
+      subroutine vbmmode()!no output
+      implicit none
+      integer:: ifvesatm,ispec,ifves,ifvesintloc
+      real(8):: vol,vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
+      real(8),allocatable::vesatm(:)
 !     ! === VBM CBM section. Mar2013takao === just output
       print *,'--vbmonly mode'
       vol = lat_vol
@@ -2772,7 +2723,9 @@ c     print *,'vessm=',vessm
       print *,' if vesintatm.'//trim(sname)//' ---> VBM: is not shown. Need to repeat new lmfa for VBM:'
       end subroutine vbmmode
 !sssssssssssssssssssssssssssssssssssssssssssss
-      subroutine writefs() !fermi surface mode (eigenvalues in full BZ). just output.
+      subroutine writefs()      !fermi surface mode (eigenvalues in full BZ). Not return variables.
+      implicit none
+      integer:: i,isp,ififm,ifile_handle,nbxx
       i=nsp
       if(nspc==2) i=1
       do isp=1,i
@@ -2833,7 +2786,10 @@ c     print *,'vessm=',vessm
       close(ififm)
       end subroutine writefs
 !ssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine getqmode() !getq mode just output
+      subroutine getqmode()     !getq mode just output. Not return variables.
+      implicit none
+      integer:: lmxa,nspec,is,ifiwv
+      real(8),allocatable::qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
          print *,'get Q from ql given by lmf'
          print *,'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
          nspec=ctrl_nspec

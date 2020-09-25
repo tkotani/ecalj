@@ -86,26 +86,26 @@ C ... Make the qp list from bzmesh
       endif
       allocate(rv_a_owtkp(mxkp))
       rv_a_owtkp(:)=0.0d0
-#if TRSYMM
-      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
-#endif
+c#if TRSYMM
+c      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
+c#endif
       if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       allocate(rv_p_oqp(3*mxkp))
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       allocate(iv_a_oipq(6*mxkp))
       call dinv33(plat,1,qlat,vol)
-C   ... Restrict BZ to two dimensions
-      if (lpbc .eq. 1) then
-        outs = ' ' // prgnam
-        if (nkxyz(3) .gt. 1 .and. iprint() .ge. 10) then
-          write(stdo,*) ' '
-          call awrit2('%a (warning): nk3=%i, shft3=%i; reset to 1,0',
-     .     outs,80,-stdo,nkxyz(3),lshft)
-        endif
-        lshft(3)=0
-        nkxyz(3) = 1
-        call projql(qlat)
-      endif
+c$$$C   ... Restrict BZ to two dimensions
+c$$$      if (lpbc .eq. 1) then
+c$$$        outs = ' ' // prgnam
+c$$$        if (nkxyz(3) .gt. 1 .and. iprint() .ge. 10) then
+c$$$          write(stdo,*) ' '
+c$$$          call awrit2('%a (warning): nk3=%i, shft3=%i; reset to 1,0',
+c$$$     .     outs,80,-stdo,nkxyz(3),lshft)
+c$$$        endif
+c$$$        lshft(3)=0
+c$$$        nkxyz(3) = 1
+c$$$        call projql(qlat)
+c$$$      endif
       do  10  i = 1, 3
         llshft(i) = lshft(i) .ne. 0
  10   continue
@@ -121,9 +121,9 @@ C   ... Remake, with exactly allocated arrays, ipq on top
       if (allocated(rv_a_owtkp)) deallocate(rv_a_owtkp)
       allocate(rv_a_owtkp(nkp))
       rv_a_owtkp(:)=0.0d0
-#if TRSYMM
-      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
-#endif
+c#if TRSYMM
+c      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
+c#endif
       if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
       allocate(rv_p_oqp(abs(3*nkp)))
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)

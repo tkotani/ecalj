@@ -1,5 +1,5 @@
-#define unix 1
-#define PATH 1
+c#define unix 1
+c#define PATH 1
 c #define FEXTENS 1
 
 ctakao's new file opener and closer for f90. This can be consistent with fopna
@@ -95,7 +95,7 @@ C Local parameters
       integer fext,fextg,fopn,fopno,fopnn,fhndl,
      .fadd,fxst,fpath,fpathg,fopng,fopnx
       integer mode
-#ifndef AIX
+c#ifndef AIX
       mode = 100 + 70*mod(ista/8,2)
       fopna = fopnx(fnam,mode,mod(ista,8),lunit)
       return
@@ -167,104 +167,7 @@ C     implicit none
       integer i,fopnx
       filnam = fnam
       i = fopnx(filnam,160,0,-1)
-#else
-      mode = 100 + 70*mod(ista/8,2)
-      fopna = fopnx(fnam,mode,mod(ista,8),lunit)
-#endif
       end
-
-#ifdef AIX
-      integer function fopng(fnam,lunit,ista)
-C      implicit none
-      character*(*) fnam
-      integer mode,lunit,fopnx,ista
-      mode =   2 + 70*mod(ista/8,2)
-      fopng = fopnx(fnam,mode,mod(ista,8),lunit)
-      end
-      integer function fadd(fnam,lunit,ista)
-C      implicit none
-      character*(*) fnam
-      integer ista,lunit
-      integer fopnx,mode
-      mode = 114 + 70*mod(ista/8,2)
-      if (lunit .lt. 0) mode = mode-4
-      fadd = fopnx(fnam,mode,mod(ista,8),lunit)
-      end
-      integer function fopn(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fopn = fopnx(fnam,100,0,-1)
-      end
-      integer function fopno(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fopno = fopnx(fnam,100,8+1,-1)
-      end
-      integer function fopnn(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fopnn = fopnx(fnam,100,8+2,-1)
-      end
-      integer function fxst(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fxst = fopnx(fnam,170,-1,-1)
-      end
-      integer function fhndl(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fhndl = fopnx(fnam,184,-1,-1)
-      end
-      integer function fext(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fext = fopnx(fnam,120,0,-1)
-      end
-      integer function fpath(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fpath = fopnx(fnam,140,0,-1)
-      end
-      integer function fextg(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fextg = fopnx(fnam,130,0,-1)
-      end
-      integer function fpathg(fnam)
-C      implicit none
-      character*(*) fnam
-      integer fopnx
-      fpathg = fopnx(fnam,150,0,-1)
-      end
-      subroutine fclr(fnam,lunit)
-C      implicit none
-C Passed parameters
-      character*(*) fnam
-      integer lunit,fopnx,i
-
-      i = fopnx(fnam,111,0,lunit)
-      return
-
-      entry fshow
-      i = fopnx(' ',190,0,-1)
-      end
-      subroutine ffnam(fnam,filnam)
-C- Appends extension to fnam
-C      implicit none
-      character*(*) fnam,filnam
-      integer i,fopnx
-      filnam = fnam
-      i = fopnx(filnam,160,0,-1)
-      end
-#endif
       integer function fopnT(fnam,lunit,ista,mode)
 C- File opening, using a separate directory
 C ----------------------------------------------------------------------
@@ -589,23 +492,23 @@ C --- Remove a file entry from the internal table ---
         return
       endif
 
-#if DEBUG
-      if (iprint() .ge. IDBG) then
-        call pshpr(0)
-        call awrit3(' FOPEN: file '//pfnam//'%a unit %i  status %i'//
-     .  ' open=%l',' ',80,lgunit(1),locuni,ista,isopen(locuni,.false.))
-        call poppr
-      endif
-#endif
+c#if DEBUG
+c      if (iprint() .ge. IDBG) then
+c        call pshpr(0)
+c        call awrit3(' FOPEN: file '//pfnam//'%a unit %i  status %i'//
+c     .  ' open=%l',' ',80,lgunit(1),locuni,ista,isopen(locuni,.false.))
+c        call poppr
+c      endif
+c#endif
 
 C --- Cases ista=-2,-1 ---
       if (ista .eq. -2 .or. mode10 .ne. 0 .and. mode10 .ne. 7) return
       if (ista .eq. -1) then
-#if PRECONNECTED_UNITS | IBM_VM
-        INQUIRE(UNIT=lunit,EXIST=ldum)
-#else
+c#if PRECONNECTED_UNITS | IBM_VM
+c        INQUIRE(UNIT=lunit,EXIST=ldum)
+c#else
         INQUIRE(FILE=pfnam,EXIST=ldum)
-#endif
+c#endif
         fopnx = 0
         if (ldum) fopnx = 1
         return
@@ -634,11 +537,11 @@ C ... Handle fortran status (slow, but apparently stable)
       if (mod(lsta,4) .eq. 2) then
         ftnsta = 'NEW'
         call fclose(locuni)
-#if PRECONNECTED_UNITS | IBM_VM
-        open(locuni,FORM=ftnfmt,STATUS='UNKNOWN')
-#else
+c#if PRECONNECTED_UNITS | IBM_VM
+c        open(locuni,FORM=ftnfmt,STATUS='UNKNOWN')
+c#else
         open(locuni,FILE=pfnam,FORM=ftnfmt,STATUS='UNKNOWN')
-#endif
+c#endif
         close(unit=locuni,status='DELETE')
       endif
 
@@ -653,16 +556,16 @@ C    .    ' file ''',pfnam(1:i2),''', status=',ftnsta,', unit=',locuni
      .  ' FOPEN: opening ',ftnfmt,' file ''',pfnam(1:i2),
      .  ''', status=',ftnsta,', unit=',locuni
 
-#if PRECONNECTED_UNITS | IBM_VM
-        open(locuni,FORM=ftnfmt,STATUS=ftnsta)
-#elif SUN_ULTRA
-        spfnam = pfnam(i1:i2)
-        open(locuni,FILE=spfnam,FORM=ftnfmt,STATUS=ftnsta)
-        rewind locuni
-#else
+c#if PRECONNECTED_UNITS | IBM_VM
+c        open(locuni,FORM=ftnfmt,STATUS=ftnsta)
+c#elif SUN_ULTRA
+c        spfnam = pfnam(i1:i2)
+c        open(locuni,FILE=spfnam,FORM=ftnfmt,STATUS=ftnsta)
+c        rewind locuni
+c#else
         open(locuni,FILE=pfnam(i1:i2),FORM=ftnfmt,STATUS=ftnsta)
         rewind locuni
-#endif
+c#endif
       endif
 
       end
@@ -789,12 +692,9 @@ C     implicit none
         print *, 'namcat: string "',fnam1(i1:i2),fnam2(j1:j2),
      .  '" was truncated to "',dest,'"'
       endif
-
-#if unix
       if (lcase) call locase(dest)
-#endif
-
       end
+      
       subroutine ftflsh(ifi)
 C- Flushes output buffer for file ifi
 C  NB: this routine is nonstandard, and machine-dependent.
@@ -808,191 +708,6 @@ C     implicit none
         call flushs(1)
       elseif (ifi .lt. 0) then
         call flushs(-1)
-#if AIX
-      else
-        inquire (UNIT=ifi,OPENED=open,NAME=fname,FORM=fmt)
-        call word(fname,1,j1,j2)
-C        write (6,220) ifi,open,fname(j1:j2),fmt
-C  220   format(' unit',i3,' open=',l1,'  name=',a,'  fmt=',a)
-        if (open) then
-          close(ifi)
-          open(ifi, file=fname, form=fmt, status='old')
-        endif
-#endif
       endif
       end
-#if TEST
-      subroutine fmain
-C      implicit none
-      integer fopna,fext,fextg,fopn,fopno,fopnn,fhndl,fadd,fxst,fpath,
-     .fopng,fopnx,fopnT
-      integer ifi,jfi,kfi,lgunit,i
-      double precision s(2,4)
-      character fnam*20
-*      call pshpr(110)
-
-C     Check fopnT
-C      i = fopnT(' ' ,-1,0,12)
-C      i = fopnT('tmp' ,-1,0,0)
-C      ifi = fopn('tmp')      
-C      call fshow
-C      i = fhndl('tmp')
-C      print *, i
-C      call dfclos(fopn('TMP'))
-C      i = fopnT('tmp' ,-1,0,2)
-C      print *, i
-C      call fshow
-C      i = fhndl('tmp')
-C      print *, i
-C      call rx('done')
-
-      s(1,1) = 11
-      s(1,2) = 12
-      s(2,1) = 21
-      s(2,2) = 22
-
-      fnam = 'xyz.123'
-      ifi = -1
-      print *, 'test fopng(fnam=xyz.123,-1,4)'
-      ifi = fopng(fnam,-1,4)
-      call ywrm(1,'testing fopng',1,ifi,' ',s,2,2,2,2)
-      call fshow
-      call awrit0('%N test fclose:',' ',80,lgunit(1))
-      call fclose(ifi)
-*     print *, 'test close(fnam=xyz.123,-1,4)'
-      call fshow
-
-      call awrit0('%N test fopna(fnam=pqr,ifi,0)',' ',80,lgunit(1))
-      ifi = 10
-      ifi = fopna('pqr' ,ifi,0)
-      call fshow
-      call dscal(4,2d0,s,1)
-      call ywrm(0,' testing fopng',1,ifi,'(5f12.2)',s,2,2,2,2)
-
-      call awrit0('%N test fhndl(xyz),fhndl(pqr)',' ',80,lgunit(1))
-      ifi = fhndl('xyz')
-      jfi = fhndl('pqr')
-      print '(2i4)', ifi,jfi
-
-      call awrit0('%N retest fopng(fnam=xyz.123,-1,4)',' ',80,lgunit(1))
-      ifi = fopng(fnam,-1,4)
-      call fshow
-
-      call rdm(ifi,0002,8,' ',s,2,2)
-      call ywrm(0,' testing fopng',1,lgunit(1),'(5f12.2)',s,2,2,2,2)
-
-      call awrit0('%N retest fopng, file already open',' ',80,lgunit(1))
-      ifi = fopng(fnam,-1,4)
-      call fshow
-
-      call awrit0('%N test fopng, file already open',' ',80,lgunit(1))
-      ifi = fopng(fnam,-1,4)
-      call fshow
-
-      call awrit0('%N test fadd, file=abc',' ',80,lgunit(1))
-      ifi = 14
-      ifi = fadd('abc',ifi,0)
-      call fshow
-
-      call awrit0('%N call fext ext=dat2',' ',80,lgunit(1))
-      ifi = fext('.dat2')
-      call fshow
-
-      call awrit0('%N test fadd, file=abc with diff ext',' ',80,
-     .lgunit(1))
-      ifi = fadd('abc',-1,0)
-      call fshow
-
-      call awrit0('%N test fopn (abc)',' ',80,lgunit(1))
-      ifi = fopn('abc')
-      call ywrm(0,' testing fopn',1,ifi,'(5f12.2)',s,2,2,2,2)
-      ifi = fopn('abc')
-      call ywrm(0,' testing fopn',1,ifi,'(5f12.2)',s,2,2,2,2)
-      call fshow
-      jfi = fopna('abc',-1,0)
-      if (ifi .ne. jfi) stop 'bug in fopna'
-
-      call awrit0('%N test ftflsh (stdout, abc.dat2)',' ',80,lgunit(1))
-      call cwrite(' ... testing ftflsh(6) ... ',0,25,0)
-      call ftflsh(6)
-      write(*,*) 'after ftflsh(6)'
-      write(*,*) '... calling ftflsh(-1)'
-      write(ifi,*) '... before ftflsh(-1)'
-      call ftflsh(-1)
-      write(*,*) '... calling ftflsh(ifi)'
-      write(ifi,*) '... before ftflsh(ifi)'
-      call ftflsh(ifi)
-      write(ifi,*) '... after ftflsh(ifi)'
-
-      print *, '... invoking system  call ''cat abc.dat2'' ...'
-      call ftflsh(6)
-      call fsystm('cat abc.dat2',i)
-      call awrit1('%N ... system  call ''cat abc.dat2'' returned... %i',
-     .' ',80,lgunit(1),i)
-
-      call awrit0('%N restore ext to dat',' ',80,lgunit(1))
-      ifi = fext('.dat')
-      call awrit0('%N test fclr (abc) by name',' ',80,lgunit(1))
-      call fclr('abc',-1)
-      call fshow
-
-      call awrit0('%N test fclr (pqr) by number',' ',80,lgunit(1))
-      call fclr(' ',10)
-      call fshow
-
-      call awrit0('%N test fopna (xyz) to show suppression of list',
-     .' ',80,lgunit(1))
-      ifi = fopna('xyz',-1,8)
-      write (ifi,*) 'test'
-      call fclose(ifi)
-      call fshow
-      ifi = fopna('xyz',-1,0)
-      read(ifi,'(a10)') fnam
-      print *, 'after opening, read from xyz: ',fnam
-
-      call awrit0('%N ... test fxst (xyz) to show suppression of list',
-     .' ',80,lgunit(1))
-      ifi = fxst('xyz')
-      jfi = fxst('zzz')
-      kfi = fopnx('xyz.123',172,-1,-1)
-      call awrit3(' ifi for xyz is %i, for zzz is %i, for xyz.123 %i',
-     .' ',80,lgunit(1),ifi,jfi,kfi)
-      call fshow
-
-      call awrit0('%N ... show fopn works without fadd',
-     .' ',80,lgunit(1))
-      ifi = fopn('TMP')
-      call fshow
-
-      call awrit0('%N ... call fopnx to test locase, "NEW","OLD"',
-     .' ',80,lgunit(1))
-      ifi = fopnx('TMP',2,2,-1)
-      call fclose(ifi)
-      call fshow
-      ifi = fopnx('TMP',2,8+1,-1)
-      call fshow
-
-      call awrit0('%N ... use path as pre-extension',' ',80,lgunit(1))
-      ifi = fext(' ')
-      ifi = fpath('dat.')
-
-      ifi = fopn('tmp')
-      call fshow
-      call fclr('TMP',-1)
-      call fshow
-
-      call awrit0('%N ... check opening as NEW',' ',80,lgunit(1))
-      ifi = fopnx('STR',100,16+8+4+2,-1)
-      call fshow
-      call fclose(ifi)
-
-      call awrit0('%N ... check fopn, UNFORMATTED',' ',80,lgunit(1))
-      ifi = fopn('STR')
-      call fshow
-
-      call closea
-      call fshow
-
-      end
-#endif
-
+      
