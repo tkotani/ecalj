@@ -1,5 +1,5 @@
       subroutine smshft ( ssite , sspec ,  sv_p_orhoat !sctrl , sham ,slat , 
-     . , smrho )
+     . , smrho,job )
       use m_supot,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
@@ -41,7 +41,6 @@ Cr     <=0  do not calculate correction to force
 Cr       1  shift in free-atom density
 Cr       2  shift in core+nuclear density
 Cr     +10  to screen the rigid shift by the Lindhard function
-Cr   (job taken from ctrl->lfrce)
 Cu Updates
 Cu   17 Sep 01 Adapted for local orbitals.  Altered argument list
 Cu    3 Jul 00 Adapted from nfp smshft.f
@@ -67,7 +66,6 @@ C ... Local parameters
       double precision alat,dgets,elind,pi,qc,qsc,qcor(2),plat(3,3),
      .     qlat(3,3),qv,qval,tpiba,vol,z,pnu(n0,2),pnz(n0,2)
       
-      job = int(ctrl_lfrce)
       if (job .le. 0) return
       call tcn('smshft')
 C --- Setup and printout ---

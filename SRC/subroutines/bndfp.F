@@ -1,4 +1,4 @@
-!! = Maine part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
+!! = Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
 !!
 !! Memo july2012takao
 !! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
