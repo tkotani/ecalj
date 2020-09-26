@@ -1,4 +1,3 @@
-!! ----------------------------------
       subroutine writepdos(ext)
 !! == readin pdosinput, and print out pdos files. ==
       implicit none
@@ -19,9 +18,6 @@ c      character*100::filenm(2)
 #if MPIK
       include "mpif.h"
 #endif
-
-cfopna('Pdosdata',-1,4)
-c      ifip= ifile_handle()
       print *,' pdosdata file=','pdosdata.'//trim(ext)
       open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))
       read(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
@@ -33,8 +29,6 @@ c      ifip= ifile_handle()
       read(ifip) dwgtall        
       read(ifip) ef0 !may2015
       close(ifip)
-c      call fclose(ifip)
-
 #if MPIK
       mlog = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
@@ -48,23 +42,35 @@ c      print *,'ppppp',numprocs,procid,iteti,itete
       iteti = 1
       itete = ntete
 #endif
-
 !! Default and external option.
-      eminp=-25.0/rydberg
-      emaxp=30.0/rydberg
-      ndos=5500
+      eminp =-25.0/rydberg
+      emaxp = 30.0/rydberg
+      ndos  = 5500
       if (cmdopt('-emin=',6,0,strn)) then
-        j=6
-        if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_/rydberg
+         read(strn(7:),*) eminp_
+         eminp = eminp_/rydberg
       endif
       if (cmdopt('-emax=',6,0,strn)) then
-        j =6
-        if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) emaxp=emaxp_/rydberg
+        read(strn(7:),*) emaxp_
+        emaxp = emaxp_/rydberg
       endif
       if(cmdopt('-ndos=',6,0,strn))  then
-        j = 6
-        if (a2bin(strn,ndos_,2,0,' ',j,len(strn))) ndos=ndos_
+        read(strn(7:),*) ndos_
+        ndos = ndos_
       endif
+
+c$$$      if (cmdopt('-emin=',6,0,strn)) then
+c$$$         j=6
+c$$$        if (a2bin(strn,eminp_,4,0,' ',j,len(strn))) eminp=eminp_/rydberg
+c$$$      endif
+c$$$      if (cmdopt('-emax=',6,0,strn)) then
+c$$$        j =6
+c$$$        if (a2bin(strn,emaxp_,4,0,' ',j,len(strn))) emaxp=emaxp_/rydberg
+c$$$      endif
+c$$$      if(cmdopt('-ndos=',6,0,strn))  then
+c$$$        j = 6
+c$$$        if (a2bin(strn,ndos_,2,0,' ',j,len(strn))) ndos=ndos_
+c$$$      endif
       
 !! dostet ---
 c      call dostet(ndhamx,nsp,nspx,nevmin,nchanp*nbas,nkk1,nkk2,nkk3,ntete,idtete,evlall,

@@ -1,7 +1,5 @@
       subroutine suidx(nkaph,mode,nspec,sspec)
-
       use m_struc_def  !Cgetarg
-
 C- Setup for idxdn
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -87,57 +85,43 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer mode,nkaph,nspec,i_copy_size
       type(s_spec)::sspec(*)
-
 C ... Local parameters
       logical lmf
       integer is,n0,nkap0,lmxb,lmxa,iloc
       parameter (n0=10,nkap0=3)
       integer idxdn(n0,nkap0),lp1,mode0,ik
       double precision orbp(n0,2,nkap0),pz(n0,2),dum
-
       logical:: l_dummy_isanrg, isanrg
-
       mode0 = mod(mode,10)
       lmf = mod(mode/10,10) .eq. 1
-Ckino isanrg is logical function,       call isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
       l_dummy_isanrg=isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
-Ckino isanrg is logical function,       call isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
       l_dummy_isanrg=isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
 C     Determine whether basis has any local orbitals
       call uspecb(0,0,sspec,1,nspec,dum,dum,dum,iloc)
       if (iloc/10 .ne. 0) then
         iloc = 1
       endif
-
       do  is = 1, nspec
-
         lmxb=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idxdn)
         call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-
-
         do  ik = 1, nkap0
-
 C         Map all orbitals above max(lmxb,lmxa) into `neglected'
           call ivset(idxdn(1,ik),max(lmxb,lmxa)+2,n0,4)
-
 C         mode0=0: Map any orbital above lmxb into `neglected'
           if (mod(mode0,2) .eq. 0) then
             call ivset(idxdn(1,ik),lmxb+2,n0,4)
-
 C         Map any orbital between lmxb and lmxa into `high'
           else
             call ivset(idxdn(1,ik),lmxb+2,lmxa+1,3)
           endif
-
 C         Mapping for local orbitals
           if (ik .eq. nkaph .and. iloc .eq. 1) then
             call ivset(idxdn(1,ik),1,n0,4)
             do  lp1  = 1, lmxb+1
-
               if (pz(lp1,1) .ne.  0) then
                 call pz2idx(1,pz(lp1,1),idxdn(lp1,ik))
 C              if (pz(lp1,1) .ne.  0) idxdn(lp1,ik) = 10
@@ -150,37 +134,28 @@ C     .          call rx1('suidx: bad value for pz',pz(lp1,1)+20)
               endif
             enddo
           endif
-
 C         Map all orbitals for ik>nkaph into `neglected'
           if (ik .gt. nkaph) call ivset(idxdn(1,ik),1,n0,4)
-
 C     ... Automatic downfolding turned off ... set idxdn=0 to idxdn=1
           if (mode0 .ge. 2) then
             do  lp1  = 1, n0
               if (idxdn(lp1,ik) .eq. 0) idxdn(lp1,ik) = 1
             enddo
           endif
-
 C     ... lmf-specific
           if (lmf .and. ik .le. nkaph-iloc) then
-
             i_copy_size=size(sspec(is)%orbp)
             call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
-
             do  lp1 = 1, lmxb+1
               if (orbp(lp1,1,ik) .lt. 0) idxdn(lp1,ik) = 3
 C             if (orbp(lp1,1,ik) .eq. 0) idxdn(lp1,ik) = max(idxdn(lp1,ik),2)
               if (orbp(lp1,1,ik) .eq. 0) idxdn(lp1,ik) = 3
             enddo
           endif
-
         enddo
-
         i_copy_size=size(sspec(is)%idxdn)
         call icopy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
-cc        sspec(is)%idxdn = idxdn
       enddo
-
       end subroutine suidx
 
 

@@ -464,7 +464,7 @@ C
   341   format(/'  iter     qint',9x,'drho',10x,'vh0',10x,'rho0',
      .  10x,'vsum',5x,'beta')
         last = (drho .lt. tolch .or. iter .eq. niter-1)
-        if (iprint() .gt. 100)  call query(' ',-1,0)
+c        if (iprint() .gt. 100)  call query(' ',-1,0)
         jmix = jmix+1
 C       Beta for next iteration
         beta1 = min(max((1-drho/dold)/beta1,beta1-.2d0,beta),

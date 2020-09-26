@@ -50,7 +50,7 @@ C Local variables:
 C     integer info
 C     character*72 gens1(4)
 C ... External calls
-      external chcase,gtcsym,query,rx,rxs,words
+      external chcase,gtcsym,rx,rxs,words
 C Data statements:
       data isym1/0,2*1,13*2,59*3,68*4,3*6,1*5,1*6,1*5,6*6,1*5,4*6,2*5,
      .4*6,2*5,27*6,36*7/
@@ -608,8 +608,8 @@ C         Group found if integer ID or string ID matches
 
 C           For some groups, there is an alternate origin
               if (corig .eq. '1') then
-                call query('choose origin for this space group (1 or 2):',
-     .          2,iorig)
+c                call query('choose origin for this space group (1 or 2):',
+c     .          2,iorig)
                 if (iorig .eq. 1) then
                   continue
                 elseif (iorig .eq. 2) then

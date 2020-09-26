@@ -374,7 +374,7 @@ ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , 
           write(lgunit(2),140) pos
   140     format(3f12.6)
    30   continue
-        call query('continue',-1,0)
+c        call query('continue',-1,0)
       endif
 
 C      call prmx('grad fovl',p(1+n),n,n,1)

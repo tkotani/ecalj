@@ -1,74 +1,45 @@
-      subroutine finits(job,fcn,fcargs,iarg)
+      subroutine finits() !job,fcn,fcargs,iarg)
 C- Machine and compiler-dependent inits for standard FORTRAN startup
 C ----------------------------------------------------------------
-Ci Inputs
-Ci   job:  0, no command-line arguments; 
-Ci         1, no switches (extens only);
-Ci         2, [-vnam=val ...] [-pr#] [switches] extens;
-Ci         3, call fcn for switches first
-Ci   fcn,fcargs:  see Remarks
-Co Outputs
-Co   iarg: argument to extens, if found (0 if not)
-Cr Remarks
-Cr   finits parses command line arguments, ignoring args that
-Cr   begin with "-", to find file extension.  When job=1,
-Cr   switches -vnum are taken to be variable defs.
-Cr   Calling prog can set own switches through external
-Cr   fcn(iarg,fcargs).  fcn should return iarg as last arg parsed.
-Cu Updates
-Cu   16 Jun 06 Added MPI Wall clock time printout
-Cu    3 Aug 04 Changed call to nargc with call to nargf
-C ----------------------------------------------------------------
-C     implicit none
-C Passed parameters      
-      integer job,iarg
+!!
+!! finits set the numbr of iprint(), extension, and -vnam=val
+!! imput arguments are      
+!!   [-vnam=val ...] [-pr# .or. --pr#] [switches] extens;
+!!--------------------------------      
+      integer iarg
       double precision fcargs(1)
       logical lsequ,lext
-      integer i,fext,nargf,n,it(5),iv(5),a2vec
+      integer i,fext,nargf,n,it(5),iv(5),a2vec,k
+      logical:: cmdopt
       character strn*256
       character*100 extns
-#if MPI | MPIK
-      integer master,procid
-      parameter (master = 0)
-      include "mpif.h"
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, i )
-#endif
       call awrit0('%u',' ',80,0)
-      call initqu(.false.)
-
-C --- Command line arguments and extension ---
-      if (job .eq. 0) return
-      iarg = 0
-      if (job .eq. 3) call fcn(fcargs,iarg)
+!! Command line arguments and extension ---
       lext = .false.
-   10 iarg = iarg+1
-      if (nargf() .gt. iarg) then
+      do iarg = 1,nargf()-1
         call getarf(iarg,strn)
         extns = strn
-        if (job .ge. 2) then
-C     ... -pr encountered ... set verbosity
-          if (lsequ(strn,'-pr',2,' ',n)) then
-            i = 3
-            n = a2vec(strn,len(strn),i,2,', ',2,2,5,it,iv)
-            do  12  i = 1, n
-   12       call sprt(i-1,iv(i))
-          endif
-C     ... v encountered ... parse variables
-          if (lsequ(strn,'-v',2,' ',n)) then
-            i = 2
-            call parsyv(strn,len(strn),999,0,i)
-c            call shosyv(0,0,0,i1mach(2))
-c            stop
-          endif
+!  ... v encountered ... parse variables
+        if (lsequ(strn,'-v',2,' ',n)) then
+           i = 2
+           call parsyv(strn,len(strn),999,0,i)
         endif
-        if (lsequ(strn,'-',1,' ',n)) goto 10
+        if (lsequ(strn,'-',1,' ',n)) cycle 
         if (.not. lext) then
           i = fext('.'//extns)
           lext = .true.
-          goto 10
+          cycle 
         endif
+      enddo
+!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
+      if (cmdopt('-pr',3,0,strn)) then
+         read(strn(4:),*) k
+         call setpr(k)
       endif
-      iarg = iarg-1
+      if (cmdopt('--pr',4,0,strn)) then
+         read(strn(5:),*) k
+         call setpr(k)
+      endif
       end
 
       subroutine fexit(retval,iopt,strng,args)

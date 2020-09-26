@@ -485,7 +485,7 @@ C     kino         :3 otherwise
       call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
       if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
       if (lsc .eq. 1 .and. lrout .gt. 0  .or. lsc .eq. 3) then
-         call query('max it=',2,maxit)
+c         call query('max it=',2,maxit)
          if (iter .ge. maxit) lsc = 1
          if (iter .lt. maxit) lsc = 3
       endif
@@ -581,8 +581,8 @@ C     ... Exit when relaxation converged or maximum number of iterations
                call tcx('lmfp')
                call fexit(0,111,' ',0)
             endif
-         else
-            call query('proceed with next relaxation step',-1,0)
+c         else
+c            call query('proceed with next relaxation step',-1,0)
          endif
 
 C     ... Restore minimum gradient positions if this is last step

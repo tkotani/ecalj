@@ -352,8 +352,8 @@ C      call rx('done')
 C ... Interactively reset mix-parms block
       i1 = 0
       i2 = 0
-      call query('mix-parms-block',2,i1)
-      call query('block-iter',2,i2)
+c      call query('mix-parms-block',2,i1)
+c      call query('block-iter',2,i2)
       if (i1 .gt. 0 .or. i2 .gt. 0) then
         if (i2 .le. 0) i2 = 1
         call parmx0(i1,i2,0d0)
@@ -1788,7 +1788,7 @@ C ... amix needs f-x for prior iterations
         do  30  j = 1, nmix
           call daxpy(nda,-1d0,a(1,j,2),1,a(1,j,1),1)
    30   continue
-        call query('beta',4,beta)
+c        call query('beta',4,beta)
         nmix = amix(nda,nmix,mxsav,0,beta,iprint(),tjmax,norm,kpvt,a,tj,
      .  rms2)
 C      if (iprint() .ge. 20) write(stdo,101) strn,rms2,(tj(j), j=1,nmix)

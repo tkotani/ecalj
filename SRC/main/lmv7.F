@@ -43,10 +43,19 @@
       master = 0
       procid = mpipid(1)
       nproc  = mpipid(0)
-      i = dble(stdo)
-      call finits(2,0,0,i)
-      call getext()
-      ext = adjustl(sname) ! Get extension of ctrl file to sname \in m_ext
+      call finits()!2,0,0,i)
+      call getext() !return sname, e.g. trim(sname)=si of ctrl.si
+      ext = adjustl(sname)      ! Get extension of ctrl file to sname \in m_ext
+!!
+!! === New pdos mode (use --mkprocar and --fullmesh together). ===
+!! We use all k points (--fullmesh), instead of using crystal symmetry.
+      if( cmdopt('--writepdos',11,0,strn) ) then
+         write(6,*) '... Doing writepdos mode. Wait a while ...'
+         write(6,*) '... See job_pdos about how to call --writepdos mode'
+         call writepdos(trim(sname))
+         call rx0('done: end of --writepdos mode.')
+      endif
+!!      
       if (cmdopt('--input',6,0,strn)) goto 1111
       nrecs = 0
       if (procid==master) then

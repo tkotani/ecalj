@@ -61,8 +61,8 @@ c      globalvariables%stdo = dble(stdo)
 c      globalvariables%l_stdo = globalvariables%l_stdo +1
       if (cmdopt('--h',3,0,outs)) call lmhelp(prgnam)
       call headl2(prgnam,0,stdo)
-      i = dble(stdo)
-      call finits(2,0,0,i)
+c      i = dble(stdo)
+      call finits() !2,0,0,i)
 c      call getext()
 c      ext=adjustl(sname)
      

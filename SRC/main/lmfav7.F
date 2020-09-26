@@ -75,9 +75,7 @@ c      globalvariables%stdo = dble(stdo)
       if (cmdopt('--h',3,0,outs)) call lmhelp(prgnam)!,vn(2),vn2(2),0)
 
       call headl2(prgnam,0,stdo)
-      i = dble(stdo)
-      call finits(2,0,0,i)
-
+      call finits()
       call poseof(fopn('LOG'))
 c$$$      i = fextg(ext)
 c$$$      call word(ext,1,i,j)
@@ -100,9 +98,9 @@ C     ... Abort with error message if ctrl file is missing (swtmp = .true.)
       if (swtmp) call cexit(-1,1)
 C --- Set the top-level verbosity if spec'd from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
-        i = 4
-        i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
-        if (i .eq. 1) call setpr(k)
+         i = 4
+         i = a2vec(outs,len(outs),i,2,', ',2,2,1,j,k)
+         if (i .eq. 1) call setpr(k)
       endif
 C --- Input from ctrl file ---
 C     recrd, nrecs are obtained.

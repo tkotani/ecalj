@@ -1,6 +1,6 @@
       module m_lmfinit
 !! All data set to run lmfp.F rdctrl2 read ctrl file and set these data
-!! rdctrls made from three stages. Search the word 'stage'.
+!! rdctrls made from three stages. Search the word 'Stage' in the followings.
 !! At the bottom of this code, I put old document for variables such as ctrl_*, ham_* and so on (search 'old doc')
 !! We can believe the old document not completely, however, it may be a help to read the code.
 !! We have to move data to the modules where data is generated.
@@ -310,7 +310,7 @@ C ... basis
       integer:: lmxcg,lmxcy,lnjcg,lnxcg,nlm
       
       integer::nout,nn,i0,ivec(10),iosite
-      integer:: io_iactive,io_tim(2),verbos(5)
+      integer:: io_tim(2),verbos(5)!io_iactive,
       character(256)::  a,outs
       logical::  mlog=.false.
       integer:: lmxbj,lmxaj,nlbj,nlbji,nlaj,nlaji
@@ -442,16 +442,16 @@ C     Copy verbosities to print stack
             call sprt(i,0)
          enddo
       endif
-      nm='IO_IACTIV'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     io_iactive, note='Turn on interactive mode'//
-     .     '%N   May also be controlled from the command-line:'//
-     .     '  --iactiv  or  --iactiv=no',
-     .     def_i4=0)
-      if( cmdopt('--no-iactiv ',7,0,a)) io_iactive = 0
-      if( cmdopt('--iactiv',7,0,a))     io_iactive = 1
-      if( cmdopt('--iactiv=no',11,0,a)) io_iactive = 0
-      if (io_iactive .gt. 1) io_iactive = 1
-      call initqu(io_iactive)
+c      nm='IO_IACTIV'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     io_iactive, note='Turn on interactive mode'//
+c     .     '%N   May also be controlled from the command-line:'//
+c     .     '  --iactiv  or  --iactiv=no',
+c     .     def_i4=0)
+c      if( cmdopt('--no-iactiv ',7,0,a)) io_iactive = 0
+c      if( cmdopt('--iactiv',7,0,a))     io_iactive = 1
+c      if( cmdopt('--iactiv=no',11,0,a)) io_iactive = 0
+c      if (io_iactive .gt. 1) io_iactive = 1
+c      call initqu(io_iactive)
       nm='IO_TIM'; call gtv(trim(nm),tksw(prgnam,nm),io_tim,
      .     note='Turns CPU timing log.  Value sets tree depth.'//
      .     '%N   Optional 2nd arg prints CPU times as routines execute.'//
@@ -1942,11 +1942,8 @@ c          v_ssite(j)%plv=plv(j)
         if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
       if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
-!     ! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-C     No screening => no downfolding; j=3
-      j=3
-C     nfp-style basis:
-      j=j+10
+!! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
+      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
       call suidx(globalvariables%nkaph,j,nspec,v_sspec)
 !! ... Set some global variables
       lxcf = ctrl_lxcf
@@ -2149,9 +2146,9 @@ c$$$          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section======
 c$$$          if(ipr10) write(6,"(a)")       
 c$$$       endif
        
-!! ---------------------------
+!! space-group symmetry generator mksym ----
       if(procid==master) call pshpr(60)
-      call mksymx(lc,slabl_,strn,v_ssite) !,v_sarry)v_sctrl,,v_slat
+      call mksymx(lc,slabl_,strn,v_ssite) 
       if(procid==master) call poppr
 c$$$!! test1 ------------------
 c$$$      ngrp=lat_nsgrp
@@ -2178,7 +2175,7 @@ c$$$      enddo
          ltet = bz_lmet/=0 .or. ctrl_ldos/=0
          call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
       endif
-!!  show and quit
+!!  Show and quit
       if( quit == 1 ) then
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)

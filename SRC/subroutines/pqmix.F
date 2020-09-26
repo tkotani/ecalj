@@ -270,13 +270,13 @@ C ... for iterations 1,2,... amix needs F-x
         call daxpy(nda,-1d0,a(1,jmix,2),1,a(1,jmix,1),1)
    10 continue
 
-      call query('beta',4,beta)
+c      call query('beta',4,beta)
       jmix = min(mmix,iabs(imix))
       imix = amix ( nda , jmix , mxsav , 0 , dabs ( beta ) , iprint 
      .( ) , tjmax , norm_rv , kpvt_iv , a , tj , rms2 )
 
       im = imix
-      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
+c      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. im)
      .call awrit1(' (warning) only %i iter available',
      .' ',80,i1mach(2),mmix)
@@ -535,7 +535,7 @@ C ---   Determine wc_true if wc < 0 ---
 C --- Check for interactive change of nmix ---
 C NB negative sign signals request for permanent change in nmix
       im = imix
-      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
+c      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. im)
      .call awrit1(' (warning) only %i iter available',
      .' ',80,i1mach(2),mmix)
@@ -649,7 +649,7 @@ C --- Starting from iteration mmix, build the Jacobian matrix ---
 C --- Check for interactive change of nmix ---
 C NB negative sign signals request for permanent change in nmix
       km = imix
-      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
+c      if (iprint() .gt. 30) call query('redo, nmix=',2,imix)
       if (iabs(imix) .gt. mmix .and. imix .ne. km)
      .call awrit1(' (warning) only %i iter available',
      .' ',80,i1mach(2),mmix)

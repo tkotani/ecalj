@@ -248,7 +248,6 @@ xcpbe.o \
 vxcnls.o \
 vxc0gc.o \
 m_ext.o\
-query.o \
 fsubs.o \
 a2bin.o \
 a2bina.o \
