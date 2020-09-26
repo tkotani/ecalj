@@ -115,7 +115,7 @@ C     ... for iterations
       logical lbin,a2bin !lhf,
       integer maxit,iter
       double precision seref,etot(2),amom,qdiff,qtol,etol,alat
-      equivalence (qdiff,dmxp(11))
+c      equivalence (qdiff,dmxp(11))
 C     ... for relaxation
       logical ::xyzfrz(3),ltmp !,lshr=.false.
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
@@ -137,7 +137,7 @@ c     integer:: odmatu , ovorbdmat , odmato
       logical:: l_dummy_isanrg,isanrg
       real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false.
-      integer:: isize_iv_tmp,ibas,unlink,ifipos
+      integer:: isize_iv_tmp,ibas,unlink,ifipos,ifile_handle
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -269,7 +269,9 @@ c$$$          call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv, ifi )
 c$$$          if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$        endif
       endif
-!!=== Re-entry for lshr (share mode); currently commented out. Probably move to outside of  lmfp =======
+      
+!!=== Re-entry for lshr (share mode); share mode is currently commented out.
+!!      Probably share mode is going to be moved to outside of lmfp =======
 c    4 continue !
       write(stdo,*)' lmfp : potential and basis setup ... '
       call supot(0) 
@@ -286,19 +288,19 @@ c    4 continue !
         bz_nevmx=nevmx
       endif
       lpnu = 1 !Whether to float pnu's
-      if (lrout .eq. 0 .and. ctrl_lfrce .ne. 0) then
-        write(stdo,333) 'when forces sought'
- 333    format('lmfp (fatal): output density required ',a/
-     .        '      To make output density turn off HF=t and/or NEVMX<0')
-        call rx('incompatible input')
+      if (lrout == 0 .and. ctrl_lfrce /= 0) then
+        write(stdo,"(a)") 'lmfp (fatal): output density required when forces sought.\n'//
+     &              '      To make output density turn off HF=t and/or NEVMX<0'
+        call rx('incompatible input. see the end of console output')
       endif
-      if (lrout .eq. 0 .and. cmdopt('--etot',6,0,strn)) then
-        write(stdo,333) 'with --etot switch.'
-        call rx('incompatible input')
+      if (lrout == 0 .and. cmdopt('--etot',6,0,strn)) then
+        write(stdo,"(a)") 'lmfp (fatal): output density required with --etot switch.\n'//
+     &              '      To make output density turn off HF=t and/or NEVMX<0'
+        call rx('incompatible input. see the end of console output')
       endif
-      if (lrout.eq.0 .and. maxit.gt.1 .and. ipr.ge.20) then
-        call awrit1('%N lmfp (warning): %i iterations sought but no'//
-     .        ' output rho ... do 1 iteration',' ',80,stdo,maxit)
+      if (lrout == 0 .and. maxit > 1) then
+         write(stdo,"(a,i5,a)") 'lmfp (warning): ',maxit,
+     &    ' iterations sought but no output rho ... do 1 iteration'
         maxit = 1
       endif
 !!... LDA+U initialization
@@ -324,9 +326,10 @@ c    4 continue !
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
      
-!! === do for molecular dynamics =======
+!! === do loop for molecular dynamics =======
+      if(nitrlx>=1) allocate(pos_move(3,nbas))
       do 2000 itrlx   = 1,max(1,nitrlx)
-!! ===   do for electronic structure ===
+!! ===   do loop for electronic structure ===
          do 1000 iter = 1,max(1,maxit)
 c     5 continue
 C     --- Read restart file or overlap free atom densities ---
@@ -338,7 +341,7 @@ C     2             read from ascii rsta file
 C     3             read nothing (data already input)
 C     4s' bit of irs(1) -> invoke smshft after file read.
 C     8s' bit of irs(1) -> rotate local density after file read
- 10         continue
+c 10         continue
             if (irs1x == 0) then !read overlap free-atom densities
                call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !initial potential
                nit1 = 0
@@ -362,9 +365,10 @@ C     8s' bit of irs(1) -> rotate local density after file read
                enddo
                if (k .lt. 0) then
                   irs1x = 0
-                  goto 10
-               endif
-               if (irs1x10) then  
+                  call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !initial potential
+                  nit1 = 0
+c                  goto 10
+               elseif (irs1x10) then  
                   call smshft(ssite, sspec, sv_a_oorhat, zv_a_osmrho, 1)
                endif
             endif               !!if not, read nothing because of previous iteration
@@ -426,25 +430,29 @@ C     --- Write restart file (skip if --quit=band) ---
 C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
                   if (irs2.gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and. irlxsh .eq. 0) then
                      lbin = irs2 .ne. 2
-                     if (lbin) fileid = 'rst'
-                     if (.not. lbin) fileid = 'rsta'
-                     if (irs2 .eq. 3) then
-                        call word(fileid,1,i,j)
-                        j = j+1
-                        fileid(j:j) = '.'
-                        call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
-                        if (lbin) ifi = fopng(fileid,-1,8+4)
-                        if (.not. lbin) ifi = fopng(fileid,-1,8)
-                        call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
-                     else
-                        if (lbin) ifi = fopna(fileid,-1,4)
-                        if (.not. lbin) ifi = fopna(fileid,-1,0)
-                     endif
-                     fileid = 'lmfp:  ' 
-                     k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
+c$$$                     if (lbin) fileid = 'rst'
+c$$$                     if (.not. lbin) fileid = 'rsta'
+c$$$                     if (irs2 .eq. 3) then
+c$$$                        call word(fileid,1,i,j)
+c$$$                        j = j+1
+c$$$                        fileid(j:j) = '.'
+c$$$                        call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
+c$$$                        if (lbin) ifi = fopng(fileid,-1,8+4)
+c$$$                        if (.not. lbin) ifi = fopng(fileid,-1,8)
+c$$$                        call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
+c$$$                     else
+c$$$                        if (lbin) ifi = fopna(fileid,-1,4)
+c$$$                        if (.not. lbin) ifi = fopna(fileid,-1,0)
+c$$$                     endif
+                  ifi=ifile_handle() 
+                  if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
+                  if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
+
+                  fileid = 'lmfp:  ' 
+                  k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
      .                    , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
      .                    - ifi )
-                     call fclose(ifi)
+                  close(ifi) !call fclose(ifi)
                   endif
                endif
             endif
@@ -469,12 +477,12 @@ C     The desired tolerances in q,e
                i = 0
                if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
 C     kino nwit() Outputs
-C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff<=qtol)
+C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
 C     kino         :1 if not self-consistent, but encountered max. no. iter.
 C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 C     kino         :3 otherwise
                call nwit ( int(ctrl_nvario) , iter , maxit , lhf.or.irs1x==0.and.iter==1,
-     &              leks+i , etol , qtol , qdiff , 'cxhi' , amom , etot , lsc )
+     &              leks+i , etol , qtol , dmxp(11) , 'cxhi' , amom , etot , lsc ) !dmxp(11)=qdiff 
             endif
             call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
             if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
@@ -492,14 +500,9 @@ C     Continue iterations toward self-consistency
  1000    continue ! ---------------- SCF (iteration) loop end ----
          if (nitrlx==0) exit
 !! --- Molecular dynamics -----------------------------
-         if (nvrelx .gt. 0 .and. nitrlx .gt. 0) then ! Reset quantities for iterations towards self-consistency
-            dmxp(11) = 0
-         endif
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
          enddo   
-         if (allocated(pos_move)) deallocate(pos_move)
-         allocate(pos_move(3,nbas))
          do ibas=1,nbas
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
@@ -529,14 +532,17 @@ c$$$  else !without shear
      .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move 
      .        , icom )
 c$$$  endif
-C     Restore lattice symmetry to machine precision
-         if (cmdopt('--fixpos',8,0,strn)) then
-            ng=lat_nsgrp
-            j = 8+1
-            if (strn(9:13) .eq. ':tol=') j = 13
-            if (strn(9:9) .ne. ':' .or. .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-            call fixpos ( pos_move , nbas , fptol , ng , plat , rv_a_osymgr, rv_a_oag , iv_a_oistab )
-         endif
+
+!! we comment our next procedure at sep2020  for simplification
+c$$$C     Restore lattice symmetry to machine precision
+c$$$         if (cmdopt('--fixpos',8,0,strn)) then
+c$$$            ng=lat_nsgrp
+c$$$            j = 8+1
+c$$$            if (strn(9:13) .eq. ':tol=') j = 13
+c$$$            if (strn(9:9) .ne. ':' .or. .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
+c$$$            call fixpos ( pos_move , nbas , fptol , ng , plat , rv_a_osymgr, rv_a_oag , iv_a_oistab )
+c$$$         endif
+         
 c$$$  C     Write updated positions to bsmv file
 c$$$  if (procid .eq. master) then ! .and. .not. lshr) then
 c$$$  ifi = fopna('bsmv',-1,0)
@@ -551,13 +557,12 @@ c$$$  .           , - ifi )
 c$$$  if (allocated(pos2_rv)) deallocate(pos2_rv)
 c$$$  call fclose(ifi)
 c$$$  endif
-!     !  Updated positions in site structure !WARN! t.kotani think this is confusing because
-!     !     position written in ctrl and positions written in rst becomes different.
+!!  Updated positions in site structure !WARN! t.kotani think this is confusing because
+!!  CAUTION: 'positions written in ctrl' and 'positions written in rst' can be different.
          if(procid==master) write(ifipos) itrlx,pos_move
          do ibas=1,nbas
             ssite(ibas)%pos = pos_move(:,ibas)
          enddo
-
 C     ... Exit when relaxation converged or maximum number of iterations
          if (icom .eq. 1) then
             if (procid .eq. master) then
@@ -615,12 +620,13 @@ c     else !if (.not. lshr) then
 c     endif
 !     ! Write restart file (to include new positions)
          if (procid .eq. master) then ! .and. .not. lshr) then
-            ifi = fopna('rst',-1,4)
+            ifi = ifile_handle()
+            open(ifi,file='rst.'//trim(sname),form='unformatted') !fopna('rst',-1,4)
             fileid = 'lmfp:  '  !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
      .           , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
      .           , - ifi )
-            call fclose(ifi)
+            close(ifi) !call fclose(ifi)
          endif
          if (procid .eq. master) then
             write(stdo,*)' Delete mixing and band weights files ...'
