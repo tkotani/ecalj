@@ -9,8 +9,8 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
-      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec,sstrnmix, !,sbz,sctrl,sham,slat spot,
-     .     ndham,leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc,
+      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, !sstrnmix, !,sbz,sctrl,sham,slat spot,
+     .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, !ndham,
      .     dmatu,vorb,llmfgw)
       
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
@@ -23,7 +23,10 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
      &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
-     &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp, ham_frzwf
+     &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
+     &     sstrnmix, ndham=>ham_ndham
+      
+      
 c      use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
@@ -170,14 +173,14 @@ c#if MPIK
 c#endif
       logical mlog
 c      integer procid,master
-      integer nbx,n0,nab,nppn,iter,maxit,ndham !nbas
+      integer nbx,n0,nab,nppn,iter,maxit!,ndham !nbas
 c      character*(*) sstrn
       parameter ( nbx=512, n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
 c      type(s_sstrn):: sstrn
-      character*(*):: sstrnmix
+c      character*(*):: sstrnmix
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       logical lgors,ltet,cmdopt!,lwndow

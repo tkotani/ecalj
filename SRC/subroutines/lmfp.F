@@ -3,11 +3,11 @@
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ctrl_lmet, !,ctrl_lrs,ctrl_lbas
-     &     ham_ndham,ham_ehf,ham_ehk,ham_seref,ham_eterms,
+     &     ham_ehf,ham_ehk,ham_seref,ham_eterms,
      &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
-     &     sstrnmix,sstrnsymg, !ssite2=>v_ssite2,
+     &     sstrnsymg, !ssite2=>v_ssite2,sstrnmix,
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
      &     globalvariables, rv_a_opos 
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
@@ -90,7 +90,7 @@ c      type(s_site)::ssite(*)
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lfrce,lgunit,lpnu,lrel,lrout,nbas,nat,
-     .     nbaspp,ndham,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
+     .     nbaspp,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
       integer:: o
       real(8),allocatable  :: pos_move(:,:)
@@ -271,7 +271,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
       call suham(sspec,ssite)
       if ( ctrl_quit .eq. 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
-      ndham = ham_ndham
+c      ndham = ham_ndham
       lfrce = ctrl_lfrce !Whether forces, and how to calculate non Helman-Feynman corr.
       nevmx = bz_nevmx !Maximum number of eigenvalues
       lrout = 1  ! Whether to evaluate output density and/or KS energy
@@ -413,7 +413,7 @@ C     Hang on to previous site density matrix for this iteration
 C     --- Make and diagonalize hamiltonian, make new charge density ---
       if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
       call bndfp ( nlibu , lmaxu , lldau_iv , ssite 
-     .     , sspec ,    sstrnmix , ndham , !sbz ,sctrl ,sham , slat , spot ,
+     .     , sspec ,    !sstrnmix , ndham , !sbz ,sctrl ,sham , slat , spot ,
      .     leks , lrout , lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .     frc_rv , dmatu, vorbdmat, llmfgw )
 C     ... check convergence of dmatu and update it and vorbdmat if necessary
