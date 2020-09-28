@@ -161,7 +161,7 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       end subroutine cart_to_fract
 
 
-      subroutine write_hopping_output(is, ifh, hrotr,
+      subroutine write_hopping_output(is, hrotr,
      &                  rws,irws,alat,plat,qlat,pos,natom,
      &                  ibasiwf, nwf,nrws, spid, m_indx, l_indx,
      7                   nphix, iphi, ldim2)
@@ -171,34 +171,41 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       real(8),allocatable :: cart_coord(:,:), fract_coord(:,:)
       integer:: i,j,k, ldim2
       complex(8),intent(in) :: hrotr(nwf,nwf,nrws)
-      integer,intent(in):: ifh, nwf,nrws
+      integer,intent(in):: nwf,nrws
       real(8),intent(in) :: rws(3,nrws)
       integer,intent(in) :: irws(nrws)
 
       integer(4) :: ibasiwf(nwf), nphix, iphi(nphix,nwf)
       integer :: quantum_l, quantum_sym
       character(4) :: quantum_n, spin
-      character(4), dimension(0:2,-5:5) :: orbital_sym
+      character(9), dimension(0:3,-5:5) :: orbital_sym
       character(8) :: spid(natom)
       integer(4) ::  m_indx(ldim2), l_indx(ldim2)
-      integer:: ir, iwf, iwf1, iwf2
+      integer:: ir, iwf, iwf1, iwf2, ifh1,ifh
 
-
-      open(ifh,file='Hopping.dat')
+      open(newunit=ifh, file='Hopping.dat')
+      if(is==1)open(newunit=ifh1,file='Hopping.up')
+      if(is==2)open(newunit=ifh1,file='Hopping.dn')      
 
       write(ifh,"('Name : Need to be modified')")
+      write(ifh1,"('Name : Need to be modified')")
       allocate (cart_coord(3,3))
       do i=1,3
         cart_coord(1:3,i) = alat*plat(1:3,i)*0.529177249
         write(ifh,"(3F16.9)") cart_coord(1:3,i)
+        write(ifh1,"(3F16.9)") cart_coord(1:3,i)
       enddo
       write(ifh,"(2I6,I12)") nwf,nrws,nwf*nwf*nrws
       write(ifh,"(1A,I5)") "spin",is
+      write(ifh1,"(2I6,I12)") nwf,nrws,nwf*nwf*nrws
+      write(ifh1,"(1A,I5)") "spin",is
       deallocate (cart_coord)
-
 
       write(ifh,"(9(1A,7X))")
      &    "leg","atom","n","l","sym","spin","x","y","z"
+      write(ifh1,"(9(1A,7X))")
+     &    "leg","atom","n","l","sym","  spin","x  ","y  ","z  "
+
 
       orbital_sym(0,0)="s"
       orbital_sym(1,-1)="y"
@@ -209,7 +216,13 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
       orbital_sym(2,0)="z2"
       orbital_sym(2,1)="xz"
       orbital_sym(2,2)="x2y2"
-
+      orbital_sym(3,-3)="y(3x2-y2)" !see wikipedia!
+      orbital_sym(3,-2)="xyz"
+      orbital_sym(3,-1)="y(5z2-1)"
+      orbital_sym(3,0)="z(5z2-1)"
+      orbital_sym(3,1)="x(5z2-1)"
+      orbital_sym(3,2)="z(x2-y2)"
+      orbital_sym(3,3)="x(x2-3y2)"
 
       quantum_n = "--"
 
@@ -221,10 +234,16 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
         call cart_to_fract(pos(1:3,ibasiwf(iwf)), fract_coord(1:3,iwf),
      &           qlat)
 
-        write(ifh,"(I3,1A16,A6,I6,2A10,3F16.9)")
+        write(ifh,"(I3,1A16,A6,I6,2A12,3F10.5)")
      &    iwf, spid(ibasiwf(iwf)), quantum_n, l_indx(iphi(1,iwf)),
      &    orbital_sym(l_indx(iphi(1,iwf)),m_indx(iphi(1,iwf))),
      &    spin, fract_coord(1:3,iwf)
+
+        write(ifh1,"(I3,1A16,A6,I6,2A12,3F10.5)")
+     &    iwf, spid(ibasiwf(iwf)), quantum_n, l_indx(iphi(1,iwf)),
+     &    orbital_sym(l_indx(iphi(1,iwf)),m_indx(iphi(1,iwf))),
+     &    spin, fract_coord(1:3,iwf)
+
       end do
       deallocate (fract_coord)
 
@@ -236,8 +255,12 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
         do iwf1=1,nwf
           do iwf2=1,nwf
             write(ifh,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") 
-     &             int(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2,
+     &             nint(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2,
      &               hrotr(iwf1,iwf2,ir)*13.605698066
+            write(ifh1,"(1x, 3i6, 3f12.6, 2x,2i4,3f12.6)") 
+     &             nint(fract_coord(:,ir)), rws(:,ir), iwf1, iwf2,
+     &               hrotr(iwf1,iwf2,ir)*13.605698066
+
           enddo
         enddo
 !        do iwf1=1,nwf
@@ -248,8 +271,8 @@ c          read(ifh,*)   hrotr(i,j,1:nrws)
 !        enddo
       enddo
       deallocate (fract_coord)
-
-
+      close(ifh1)
+      close(ifh)
       end subroutine write_hopping_output
 
 

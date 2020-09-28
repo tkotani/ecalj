@@ -1189,14 +1189,12 @@ c --- Readin nlam index
       write(ifh) irws,rws,drws,hrotr, ibasiwf !drws added by okumura Aug28,2017
       close(ifh)
 
-      ifh = ifile_handle()
-
-      call write_hopping_output(is, ifh, hrotr,
+c      ifh = ifile_handle()
+      call write_hopping_output(is, hrotr,
      &                  rws,irws,alat,plat,qlat,pos,natom,
      &                  ibasiwf, nwf,nrws,spid , m_indx, l_indx,
      &                  nphix, iphi, ldim2)
-
-      close(ifh)
+c      close(ifh)
 
 !! TEST okumura: iq=1,nq, q->qbz?   (2017/06/10)
       !!! qtt -> q, nqtt -> nqbz     
