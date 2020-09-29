@@ -1088,10 +1088,10 @@ c            massline=.false.
 #endif
          call rx0('sugw mode')  !exit program here normally.
       endif
-!!
-      if(allocated(nevls)) deallocate(nevls)
-      allocate(nevls(nkp,nspx))
-      nevls=0
+      if(ham_scaledsigma/=1d0.and.sigmamode) then
+        write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
+      endif
+      
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
@@ -1107,18 +1107,9 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       iqini=1
       iqend=nkp
 #endif
-      initiqisp=.true.
-      if(allocated(ndimhx_)) deallocate(ndimhx_)
-      if(allocated(nev_)) deallocate(nev_)
-      allocate(ndimhx_(nkp),nev_(nkp))
-      ndimhx_=0
-      nev_   =0
-      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
 
-      if(ham_scaledsigma/=1d0.and.sigmamode) then
-        write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-      endif
       
+!!
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
@@ -1151,6 +1142,18 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       evtop = -99999
       ecbot = -evtop
       orbtm_rv=0d0
+      
+      if(allocated(nevls)) deallocate(nevls)
+      allocate(nevls(nkp,nspx))
+      nevls=0
+      if(allocated(ndimhx_)) deallocate(ndimhx_)
+      if(allocated(nev_)) deallocate(nev_)
+      allocate(ndimhx_(nkp),nev_(nkp))
+      ndimhx_=0
+      nev_   =0
+      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
+      initiqisp=.true.
+
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       do 2010 iq = iqini, iqend !This is a big iq loop
@@ -2028,7 +2031,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
 #ifdef MPIK
-      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
+c      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
       call mpi_barrier(MPI_comm_world,ierr)  !!! takao added I think it must be safer to add this barrier. jan2015
 #endif
       print *,'goto99=',goto99
