@@ -1091,7 +1091,6 @@ c            massline=.false.
       if(ham_scaledsigma/=1d0.and.sigmamode) then
         write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif
-      
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
@@ -1107,9 +1106,11 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       iqini=1
       iqend=nkp
 #endif
-
+      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
+cccccccccccccccccccccccccccccccccccccccc      
+c      nev_   =0
+cccccccccccccccccccccccccccccccccccccccc
       
-!!
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
@@ -1142,17 +1143,18 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       evtop = -99999
       ecbot = -evtop
       orbtm_rv=0d0
-      
+      initiqisp=.true.
+
       if(allocated(nevls)) deallocate(nevls)
       allocate(nevls(nkp,nspx))
       nevls=0
       if(allocated(ndimhx_)) deallocate(ndimhx_)
-      if(allocated(nev_)) deallocate(nev_)
-      allocate(ndimhx_(nkp),nev_(nkp))
+      allocate(ndimhx_(nkp))
       ndimhx_=0
-      nev_   =0
-      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
-      initiqisp=.true.
+      if(allocated(nev_)) deallocate(nev_)
+      allocate(nev_(nkp))
+      nev_   =0                
+!!
 
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
@@ -2262,8 +2264,8 @@ c      if(.not. lwndow .and. procid==master) then
                write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
             enddo
             close(ifi)
-            if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-            if (allocated(dos_rv)) deallocate(dos_rv)
+c            if (allocated(orbtm_rv)) deallocate(orbtm_rv)
+c            if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
       if(tdos) call rx0('Done tdos mode:')
