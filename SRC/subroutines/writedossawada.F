@@ -30,6 +30,7 @@ c      character*100::filenm(2)
       real(8):: rydberg=13.6058d0, eigen(4),wt,tot,bin,bin2
       logical:: mlog
       integer, dimension(:),allocatable :: kpproc
+      complex(8),allocatable:: ham(:,:,:)
       integer::numprocs,procid,ierr,itete,iteti,mpipid,ifile_handle,ikp
 #if MPIK
       include "mpif.h"
@@ -47,11 +48,18 @@ c      character*100::filenm(2)
       nbas=nevmin
       do ikp=1,nkp
          read(ifip,*) evlall(1:nevmin,ikp)
-         do ibas=1,nbas
-            read(ifip,*) dwgtall(ibas,1:nevmin,ikp)
-         enddo   
+c         read(ifip,*) dwgtall(ibas,1:nevmin,ikp)
+c         enddo   
 c         write(6,"(i5,1000f10.3)") ikp,evlall(1:nevmin,ikp)
       enddo
+      close(ifip)
+!!      
+      open(newunit=ifip,form='formatted',file='hamiltonian.dat')
+      read(ifip,*)
+      allocate(ham(nevmin,nevmin,nkp))
+      read(ifip,*)ham(1:nevmin,1:nevmin,1:nkp)
+      close(ifip)
+
       eminp =  minval(evlall)-0.5
       emaxp  = maxval(evlall)+0.5
       write(6,*) 'read eigenvalue data from eigenf.dat nkp=',nkp

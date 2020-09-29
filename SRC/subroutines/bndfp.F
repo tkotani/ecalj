@@ -552,7 +552,7 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       nkabc= bz_nabc
       nkp=   bz_nkp
       ntet=  bz_ntet
-      lmet=  bz_lmet
+      lmet=  bz_lmet 
       mpsord=bz_n
       esmear=bz_w
       nevmx= bz_nevmx
@@ -584,8 +584,6 @@ C     Switch to plot bands at specified qp
       else
          plbnd = 0
       endif
-      if (lmet .eq. 1) call rx('bndfp: lmet=1 not implemented')
-      l_dummy_isanrg = isanrg(lmet,0,4,'bndfp:','lmet', .true.)
 !! == PROCAR file 
       if(PROCARon) then
          iprocar1=ifile_handle()
@@ -598,7 +596,7 @@ C     Switch to plot bands at specified qp
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       phispinsym = cmdopt('--phispinsym',12,0,strn)
       if(phispinsym) then
-         if(master_mpi()) write(6,*) 'bndfp: --phispinsym use spin-averaged potential for phi and phidot' 
+         if(master_mpi())write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
          do ib = 1,nbas
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
@@ -713,12 +711,9 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
       if(llmfgw) then ! only for lmfgw program
          if(procid==master) then
             write(stdo,*) ' lmfgw: input one of the following jobs:'
-            write(stdo,*) '   0 : init mode; creates files',
-     .        ' SYMOPS, LATTC, CLASS, NLAindx, ldima'
+            write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
             write(stdo,*) '   1 : GW setup mode'
-c            write(stdo,*) '   4 : band mode '
-c            write(stdo,*) '   5 : eigenvalue-only mode '
-            write(stdo,*) ' job?'
+            write(stdo,*) ' job 0 or 1?'
             read (5,*) jobgw
             if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
          endif
@@ -727,8 +722,8 @@ c            write(stdo,*) '   5 : eigenvalue-only mode '
             write(stdo,"(a)")' Make potential without XC part ...'
             lnoxc=1
             i = 1 + 10*lfrzw + 100*lnoxc ! Adding 100 means excluding XC(LDA) part. nolxc=T
-                           ! We obtain sv_p_osigx , sv_p_otaux , sv_p_oppix smpotx without XC by the 'call mkpot'.
-                           ! Other output are overwritten by the 2nd call of mkpot 
+              ! We obtain sv_p_osigx , sv_p_otaux , sv_p_oppix smpotx without XC by the 'call mkpot'.
+              ! Other output are overwritten by the 2nd call of mkpot 
             call dfaugm(nbas, lcplxp , lso, ssite, sspec, sv_p_osigx, sv_p_otaux, sv_p_oppix)
             allocate(spotx(k1,k2,k3,nsp))
             spotx=0d0
@@ -764,49 +759,40 @@ C --- Make the potential and total energy terms ---
       dmxp(33) = elind
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0 
+
 !! --- Setup for BZ integration ---
       if (plbnd .eq. 0) then
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
      .     nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .     dabs(esmear-mpsord))
-         if (lwtkb .eq. -1)
-     .     call info(20,0,0,' Start first of two band passes ...',0,0)
-         if (lwtkb .eq. 1) then
-            if (ef0 .ne. eferm)
-     .        call info(20,0,1,'%8pReplace ef0 with file ef=%;6d',eferm,0)
-            ef0 = eferm
-         endif
+         write(stdo,*)' Start first of two band passes ...'
       else
          nkp = 0
          ldos = 0
          lwtkb = -1
          icls = 0
       endif
-
-      if (.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
-         call info0(30,0,0,' bndfp: eigenvector matrix not square ... spin weights not evaluated')
+c      if(lwtkb /= -1) call rx('bndfp: we need lwtkb=-1')
+c      if(numq/=1)     call rx('bndfp: we need numq=1')
+      if(.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
+         write(stdo,*)' bndfp: eigenvector matrix not square ... spin weights not evaluated'
          lswtk = -2
       endif
-
 !! --- More k-point independent local arrays ---
       if (ldos .eq. 0 .and. lmet .eq. 0) ndos = 1
       if (ndos .lt. 0) ndos = -ndos
       allocate(dos_rv(ndos,2*nsp))
       if (lrout .ne. 0) then
          call dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
-         if ( lekkl .eq. 1 ) call dfqkkl ( nbas , ssite , sspec , numq 
-     .     , sv_p_oeqkkl )
+         if ( lekkl .eq. 1 ) call dfqkkl ( nbas , ssite , sspec , numq , sv_p_oeqkkl )
          allocate(srout_zv(k1*k2*k3*numq*nsp))
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
-      call suham2(sspec,ssite)!,spot) !,sstrn,sctrl,sham slat,
-
+      call suham2(sspec,ssite)
 !! --- Options for core level specta (CLS) ---
-!!    Allocate aus for all qp
       if (cmdopt('--cls',5,0,strn)) then
-         if (lmet .gt. 0 .and. (lmet .ne. 2 .and. lmet .ne. 3))
-     .     call rx('For CLS restart with METAL=2 or 3')
+         if (lmet /=2) call rx('For CLS restart with METAL=2')
          icls = 1
          clsopt = strn(6:)
          efmax = 1d3
@@ -816,9 +802,7 @@ C --- Make the potential and total energy terms ---
      .     isite,iclsl,iclsn,nsites)
          efmax = 1d3
          nevmx = ndhamx
-c         nlmax = mxorb/nkaph !globalvariables%mxorb / globalvariables%nkaph
-         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid
-     .     .eq. master) then
+         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid.eq. master) then
 !! this path is go through by crn test.
             aaachar=
      &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
@@ -888,42 +872,7 @@ C ... Case only generate bands at supplied qp: setup
          if(allocated(orbtm_rv)) deallocate(orbtm_rv)
          allocate(orbtm_rv(nl*nsp*nbas))
       endif
-      
-!! == Start loop over k points; also, re-entry for second band pass ==
-!! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
-!!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
-!!     2nd for re-read eigze_* and accumulate density.                           
-!!    It will be better to remove this double path mechanism in future.
-      gotosecondpass =.false.
-      if(plbnd==0) then
-         gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
-!this judges going through second pass or not.
-      endif 
-      ix99=0
-      xdat=0d0
- 99   continue
-      ix99=ix99+1               !ix99=2 for second pass
-      ebot = 1000d0
-      call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
-     .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
-     .  ndos , dos_rv , sumev , sumqv )
-      if (lfrce .gt. 0) then
-         call dpzero(frc, 3*nbas*numq)
-         fh_rv=0d0              ! 3 * nbas 
-      endif
-      if (lswtk .eq. 1) then
-         efmax = 1d3
-         nevmx = ndhamx
-         call dpzero ( rv_a_oswtk , ndhamx * nkp )
-      endif
-      
-c$$$!! Mullikan mode was here
-
-!! ... For insulator, valence band top and conduction band bottom
-      evtop = -99999
-      ecbot = -evtop
-      orbtm_rv=0d0
-
+!     !
 !! === Get nkp and qplist =========== feb2015
 !! fatband mode ---> --mkprocar
 !! plbnd/=0 ---> band plot mode.
@@ -933,26 +882,14 @@ c$$$!! Mullikan mode was here
          allocate(qplist(3,nkp))
          call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
 c-----------------
-         ifqplist=ifile_handle()
-         open(ifqplist,file='QPLIST.IBZ')
+         open(newunit=ifqplist,file='QPLIST.IBZ')
          do iq=1,nkp
             write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
-         enddo
+         enddo !!I think sbz%rv_p_oqp is not used in the following.
          close(ifqplist)
-c         if( jobgw/=0.and.jobgw/=1 )then
-c            write(6,*)'qplist.ibz sumcheck=',nkp,sum(rv_a_owtkp(1:nkp))
-c            if(abs(sum(rv_a_owtkp(1:nkp))-2d0) > 1d-12) call rx('bndfp.F: need check! wtkp sum')
-c         endif   
-c-----------------
-         !I think sbz%rv_p_oqp is not used in the following.
       elseif(procid==master) then
          if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
          if(debug) print *,'vvvvv nkp=',nkp
-ckino plotting wavefunction
-c         write(*,*)'allocate listwf , size=',ndham
-c         if (allocated(listwf))  deallocate(listwf)
-c         allocate(listwf(ndham))
-c         n_listwf=ndham; listwf=0
          if(fullmesh) then
             nkp = nkk1*nkk2*nkk3
             allocate(qplist(3,nkp))
@@ -1081,7 +1018,7 @@ c            massline=.false.
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (procid.eq.master.and.ix99==1.and.oncewrite(11)) then
+      if (procid.eq.master .and.oncewrite(11)) then
          ifqplist=ifile_handle()
          open(ifqplist,file='QPLIST')
          print *,'-------- qplist --------'
@@ -1099,7 +1036,6 @@ c            massline=.false.
          enddo
          close(ifqplist)
       endif 
-
       if(procaron.and.nsyml==0.and.procid==master) then !xdatt is dummy
         if(allocated(xdatt)) deallocate(xdatt)
         allocate(xdatt(nkp))
@@ -1120,8 +1056,7 @@ c            massline=.false.
          allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
          dwgtall=0d0
       endif
-
-
+      
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
@@ -1137,8 +1072,7 @@ c            massline=.false.
       elseif( sigmamode.and.siginit ) then
          call sigmainit(ldim,procid,master)
          siginit=.false. !this is equivalent to broad casting.
-      endif    ! end of sigmamode
-
+      endif                     ! end of sigmamode
 !! == GW driver ==
       if(llmfgw) then
          nchan = pot_nlma
@@ -1154,7 +1088,39 @@ c            massline=.false.
 #endif
          call rx0('sugw mode')  !exit program here normally.
       endif
-
+     
+!! == Start loop over k points; also, re-entry for second band pass ==
+!! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
+!!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
+!!     2nd for re-read eigze_* and accumulate density.                           
+!!    It will be better to remove this double path mechanism in future.
+      gotosecondpass =.false.
+      if(plbnd==0) then
+        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
+!this judges going through second pass or not.
+      endif 
+      ix99=0
+      xdat=0d0
+ 99   continue
+      ix99=ix99+1               !ix99=2 for second pass
+      ebot = 1000d0
+      call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
+     .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
+     .  ndos , dos_rv , sumev , sumqv )
+      if (lfrce .gt. 0) then
+         call dpzero(frc, 3*nbas*numq)
+         fh_rv=0d0              ! 3 * nbas 
+      endif
+      if (lswtk .eq. 1) then
+         efmax = 1d3
+         nevmx = ndhamx
+         call dpzero ( rv_a_oswtk , ndhamx * nkp )
+      endif
+!! --> Mullikan mode was here
+!! ... For insulator, valence band top and conduction band bottom
+      evtop = -99999
+      ecbot = -evtop
+      orbtm_rv=0d0
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       if(allocated(nevls)) deallocate(nevls)
@@ -1185,7 +1151,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 
       if(ham_scaledsigma/=1d0.and.sigmamode) then
         write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
-      endif   
+      endif
+      
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp=qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid
@@ -1321,7 +1288,6 @@ c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig,
 c     o        sene) 
             endif
 
-
 c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
 c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
 c$$$c          allocate(senex(ndimh,ndimh))
@@ -1408,7 +1374,6 @@ c            print *,'hamble sumcheck =',sum(abs(ovlm)),sum(abs(hamm))
                hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex
                deallocate(senex)
             endif
-
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
@@ -1544,7 +1509,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
               endif
 #endif
             endif
-
 !! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
             nevl=nev            !ndimhx    this OK? why nevl and nev???
@@ -1561,8 +1525,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 !! save to evall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
-
-
 !!   ... Save data for this qp to moments file
             if (plbnd .eq. 0) then
 !!   --- Orbital magnetic moment (requires lso) ---
@@ -1618,7 +1580,6 @@ c                     nl = int(ctrl_nl)
                      if (allocated(ausu_rv)) deallocate(ausu_rv)
                   endif
                endif
-
 !! Core-level spectroscopy
                if (icls .ne. 0 .and. lwtkb .ne. -1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
@@ -1629,7 +1590,6 @@ c                     nl = int(ctrl_nl)
      .              , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
      .              nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   )
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
-
 !! Density mode. wtkb is the weight for iq,ib. With this setting, 
 !! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
 !! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
@@ -1664,7 +1624,6 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                      enddo
                    endif
                  endif   
-
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
                   if(debug) print *,'goto addrbl nevl=',nevl
@@ -1799,7 +1758,7 @@ c            endif
          ndimhx_(iq)=ndimhx
          nev_(iq)   =nev
  2010 continue
-         if(debug) print *, ' ---- end of do 2010 ---- ',procid
+      if(debug) print *, ' ---- end of do 2010 ---- ',procid
 #if MPIK
       call mpibc2(ndimhx_,nkp,2,mlog,'bndfp','ndimhx_') !all reduce is not necessary.
       call mpibc2(nev_,  nkp,2,mlog,'bndfp','nev_')
@@ -1917,7 +1876,6 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
       endif
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
 #endif
-
 !!  Allreduce density-related quantities
       if(debug) print *,'goto all reduce'
       if (lrout .ne. 0) then
@@ -1986,7 +1944,6 @@ c         nkaph = globalvariables%nkaph
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
-
 !! ===   Repeat loop for printout and goto 99 ===
 !!   jsp=isp in the collinear case; jsp=1 in the noncollinear
 !!     Thus jsp should be used in place of isp
@@ -2081,6 +2038,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
       if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
       call mpi_barrier(MPI_comm_world,ierr)  !!! takao added I think it must be safer to add this barrier. jan2015
 #endif
+      print *,'goto99=',goto99
       if(goto99) goto 99
 
 
@@ -2098,7 +2056,7 @@ c     .        , 1 , i_spackv + 1 - 1 , ips_iv )
       endif
       if (ipl.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
  715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  smr',f8.4)
-
+      
 !! --- Interpolate density to Fermi energy ---
       sev = sumev(1,1)
       if (lmet .eq. 4) then
@@ -2218,7 +2176,7 @@ c            if (nspc .eq. 2) lswtk = 1 !commnet out nov2015  right?
          call mpi_barrier(MPI_comm_world,ierr)  
 #endif
 c$$$c jan2015 did not work for Testinstall/te
-c$$$         call poppr
+c$$$  call poppr
          if(goto99) goto 99
       endif
 c      if(allocated(sfz)) deallocate(sfz)

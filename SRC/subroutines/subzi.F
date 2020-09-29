@@ -77,41 +77,23 @@ C     implicit none
 C ... Passed parameters
       logical ltet,lwt
       integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
-ckino Dec.28.2011:  c        real(8),pointer :: rv_p_owtkb(:)
-c        real(8),pointer :: rv_a_owtkb(:)
-ckino Dec.28.2011:  ckino change rv_p_owtkb allocatable        real(8),pointer :: rv_p_owtkb(:,:,:)
-ckino change rv_a_owtkb allocatable        real(8),pointer :: rv_a_owtkb(:,:,:)
-ckino Dec.28.2011:          real(8),allocatable :: rv_p_owtkb(:,:,:)
       real(8),allocatable :: rv_a_owtkb(:,:,:)
-
-ckino Dec.28.2011:  ckino change rv_p_oswtk allocatable       real(8),pointer :: rv_p_oswtk(:)
-ckino change rv_a_oswtk allocatable       real(8),pointer :: rv_a_oswtk(:)
-ckino Dec.28.2011:         real(8),allocatable :: rv_p_oswtk(:)
       real(8),allocatable :: rv_a_oswtk(:)
-
       double precision zval,ef0,def,esmear,efermi
-C ... Local parameters
       integer ifi,fopna,lerr,iobzwt,iprint,stdo,lgunit,isw,n
       character*11 strni(2)
       integer procid,master,mpipid
-C ... Heap
       data strni /'sampling','tetrahedron'/
-
       procid = mpipid(1)
       master = 0
-
       n = isign(1,mpsord) * mod(iabs(mpsord),100)
       efermi = -99
       numq = 1
       if (lmet .eq. 4) numq = 3
       lwtkb = 0
       if ( lmet .gt. 0 .and. ( lmet .ne. 4 .or. ltet ) ) then
-ckino Dec.28.2011:         allocate(rv_p_owtkb(ndham,nsp,nkp))
         allocate(rv_a_owtkb(ndham,nsp,nkp))
-ckino Dec.28.2011:  c       allocate(rv_p_owtkb(ndham*nsp*nkp))
-c       allocate(rv_a_owtkb(ndham*nsp*nkp))
       endif
-
       if (nevmx .ge. 0) then
         if (lmet .eq. 2 .or. lmet .eq. 3) then
           lwtkb = -1
@@ -119,14 +101,8 @@ C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
               ifi = fopna('wkp',-1,4)
-              if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi
-ckino Dec.28.2011:       .         , rv_p_owtkb , ifi ) 
-     .         , rv_a_owtkb , ifi )
-
-              if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2 , nkp , 1 ,
-ckino Dec.28.2011:       .         efermi , rv_p_owtkb , ifi ) 
-     .         efermi , rv_a_owtkb , ifi )
-
+              if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi, rv_a_owtkb , ifi )
+              if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2, nkp , 1, efermi, rv_a_owtkb , ifi )
               call fclose(ifi)
               if (lerr .eq. 0) lwtkb = 1
               if (lerr .ne. 0) efermi = -99
@@ -135,29 +111,17 @@ C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')
             if (lwtkb .eq. 1) then
               call mpibc1(efermi,1,4,.false.,'subzi','efermi')
-ckino Dec.28.2011:                call mpibc1 ( rv_p_owtkb , ndham * nsp * nkp , 4 , .false. ,
-              call mpibc1 ( rv_a_owtkb , ndham * nsp * nkp , 4 , .false. , 
-     .         'subzi' , 'wtkb' )
-
+              call mpibc1 ( rv_a_owtkb , ndham * nsp * nkp , 4 , .false. , 'subzi' , 'wtkb' )
             endif
           endif
         endif
       endif
       lswtk = -2
-cki      oswtk = 1
-ckino Dec.28.2011:  ckino change rv_p_oswtk allocatable      nullify(rv_p_oswtk)
-ckino change rv_a_oswtk allocatable      nullify(rv_a_oswtk)
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
-ckino Dec.28.2011:           if (allocated(rv_p_oswtk)) deallocate( rv_p_oswtk )
         if (allocated(rv_a_oswtk)) deallocate( rv_a_oswtk )
-ckino Dec.28.2011:           allocate(rv_p_oswtk(abs(ndham*nsp*nkp)))
         allocate(rv_a_oswtk(abs(ndham*nsp*nkp)))
-ckino Dec.28.2011:           if (ndham*nsp*nkp<0) rv_p_oswtk(:)=0.0d0
-        if (ndham*nsp*nkp<0) rv_a_oswtk(:)=0.0d0
-
       endif
-
       if (nevmx .eq. 0) then
         nevmx = (int(zval) + 1)/2
         if (lmet .ne. 0) nevmx = max(nevmx+nevmx/2,9)
@@ -168,7 +132,6 @@ c     print *,'nevmx=',nevmx,lmet,zval,ndham,nspc
 c     gives nevmx=   9   0   18.000000000000000   90      1
         nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
       endif
-
 C ... Printout
       if (nevmx .ge. 0 .and. iprint() .gt. 30) then
         stdo = lgunit(1)
@@ -189,7 +152,6 @@ C ... Printout
         endif
         write(stdo,'(1x)')
       endif
-
       end subroutine subzi
       end module m_subzi
 
