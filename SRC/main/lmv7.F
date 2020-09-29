@@ -10,7 +10,7 @@
       character*(recln0):: recrd(mxrecs)
       character(8) :: alabl
       character(5) :: charnum5
-      logical:: fileexist,ipr10,lshow,lshowp,swtmp,cmdopt,ltet,llmfgw
+      logical:: fileexist,ipr10,lshow,lshowp,swtmp,cmdopt,ltet,llmfgw=.false.
       character:: strn*1000,outs*20
       character prgnam*8, ext*100 
 #if LMFGWD
