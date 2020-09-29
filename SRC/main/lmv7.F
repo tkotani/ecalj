@@ -55,6 +55,13 @@
          call writepdos(trim(sname))
          call rx0('done: end of --writepdos mode.')
       endif
+!! sawada's simple mode      
+      if( cmdopt('--wdsawada',10,0,strn) ) then
+         write(6,*) '... write Dos from tetraf.dat and eigenf.dat. '
+         write(6,*) '...  eigenf.dat is for qplistf.dat '
+         call writedossawada()
+         call rx0('done: end of --wdsawada mode.')
+       endif
 !!      
       if (cmdopt('--input',6,0,strn)) goto 1111
       nrecs = 0

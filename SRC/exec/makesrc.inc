@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+writedossawada.o\
 m_clsprm.o\
 xcfunc.o\
 m_struc_func.o\

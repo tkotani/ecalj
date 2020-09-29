@@ -34,7 +34,7 @@ c      use m_lmfinit,only: globalvariables
       use m_struc_def
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-      use m_seneinterp,only:seneinterp,rv_p_oqsig,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,senebroadcast
+      use m_seneinterp,only:rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,senebroadcast,rdsigm2,ndimsig,nspsigm,sigmainit
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -291,7 +291,6 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer:: isize_hamm(3)
       real(8):: rrr(3),rrrr
@@ -313,14 +312,14 @@ ctakao
       real(8):: epsnevec
       logical:: onlyonce=.true.
       logical:: isanrg, l_dummy_isanrg,oncewrite, savez,getz,gotosecondpass,initiqisp
-      integer:: getef, i_dummy_getef,ifig, ndimsig
+      integer:: getef, i_dummy_getef,ifig!, ndimsig
 c      integer:: n_listwf
       integer, allocatable:: listwf(:)
       integer:: ntqxx,ispx,ix99 !,nevec unused.
       real(8)::eseavrmean
-      logical:: mtosigmaonly
+c      logical:: mtosigmaonly
       real(8)::scaledsigma
-      real(8):: qsfz(3,100)
+c      real(8):: qsfz(3,100)
       integer:: nqps,ii1,ii2,ii4,iq1 !, fxsts
       logical:: lfx
 
@@ -364,7 +363,7 @@ c mar2014
       character*1000::ccc
       logical:: initbd=.true.
 
-      integer:: nspsigm,ispsigm !nov2014
+      integer:: ispsigm !nov2014
       logical:: spinoffdiag,    goto99!jan2015
       real(8),allocatable:: xdatt(:)
       logical:: fullmesh
@@ -392,7 +391,7 @@ c mar2014
       character(512),save::schar
       character(512):: aaachar
       logical:: massline , writeham=.false.
-      logical,save:: siginit=.true.     ,laf
+      logical,save:: siginit=.true.     !,laf
       character(10):: i2char
       character(50)::infoq
       integer::ipos,ndos_,j,ififft
@@ -402,7 +401,6 @@ c mar2014
 
       integer,allocatable:: npair(:,:), nlat(:,:,:,:),ib_table(:),k_table(:),l_table(:)
       integer::npairmx,ikpd,ifqplist
-      real(8),allocatable:: qsmesh2(:,:,:,:)
       integer,allocatable:: nqwgt(:,:,:)
       real(8):: tpioa,pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
@@ -837,6 +835,60 @@ c         nlmax = mxorb/nkaph !globalvariables%mxorb / globalvariables%nkaph
          icls = 0
       endif
 
+!! --- get index for hamiltonian for m_hamindex takao june2009
+!! these are used in sigm mode(QSGW).
+!! memo:
+!!  ib = atom index
+!!  ltab= L (angular momentum index)
+!!  ktab=  =1 for EH, =2 for EH2, =3 for lo
+!! SYMOPS
+      if(onlyonce) then 
+         onlyonce=.false.
+         if(procid==master) then
+            call gen_hamindex(ssite, sspec, nl, ctrl_nbasp, iv_a_oindxo, ldim, .true., jobgw==0)
+c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+            allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
+            do iorb = 1, norbmto !Total number of MTO's
+               ib   = ibastab(iorb)
+               is   = ssite(ib)%spec
+               spid=sspec(is)%name
+               ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+               l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+               k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
+            enddo
+            write(6,*) ' i  ib l  k trim(spec)'
+            do i= 1, ldim
+               ib   = ib_table(i)
+               is   = ssite(ib)%spec
+               spid = sspec(is)%name
+               write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+            enddo
+            if(writeham) then
+               write(ififft)ldim,lso,nsp
+               write(ififft)ib_table,l_table,k_table
+               close(ififft)
+            endif  
+         endif
+      endif
+!!
+C ... Case only generate bands at supplied qp: setup
+      if (plbnd .ne. 0) then
+         if (procid .eq. master) then !Try and read Fermi level from file
+            inquire(file='wkp.'//trim(sname),exist=nexist)
+            if(nexist) then
+               open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
+               read(ifi) ndummy1,ndummy2,ndummy3,ef0
+               close(ifi)
+            endif
+         endif   
+         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+      endif   
+!! ... Setup for spin-orbit coupling
+      if (lso .ne. 0) then
+         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
+         allocate(orbtm_rv(nl*nsp*nbas))
+      endif
+      
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
@@ -865,61 +917,12 @@ c         nlmax = mxorb/nkaph !globalvariables%mxorb / globalvariables%nkaph
          call dpzero ( rv_a_oswtk , ndhamx * nkp )
       endif
       
-c$$$!! Mullikan mode
-c$$$      mullwrite = .false.
-c$$$      if(cmdopt('--mull',6,0,strn).and.procid==master) then
-c$$$#if MPIK
-c$$$         call rx('MULL not k-parallel yet... Need to fix this if necessary')
-c$$$#endif
-c$$$         nfilem = fopna('moms',-1,4)
-c$$$         mullwrite = .true.
-c$$$         rewind nfilem
-c$$$         i = 1
-c$$$C   ... If switch '--mull'; get sites, number of channels
-c$$$         if (cmdopt('--mull',6,0,strn)) then
-c$$$            mulopt = strn(7:)
-c$$$            ng=lat_nsgrp
-c$$$            efmax = 1d3
-c$$$            nevmx = ndhamx
-c$$$            nchmx = min(1024,nbas*nl**2)
-c$$$            allocate(chan0_iv(nchmx))
-c$$$            call sumlst ( 1 , nchmx , nbas , ng , ssite , sspec , mulopt 
-c$$$     .        , moddos , nsites , lsites , lmxch , nchan , chan0_iv, 0 )
-c$$$            if(allocated(chan_iv)) deallocate(chan_iv)
-c$$$            allocate(chan_iv(nchan))
-c$$$            chan_iv=chan0_iv(1:nchan)
-c$$$            deallocate(chan0_iv)
-c$$$            call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-c$$$         endif
-c$$$         if (procid .eq. master) i = iomoms(-nfilem,nl,nsp,nspc,nkp,
-c$$$     .     ndham,i,1,0,1,0,0,0,0,0,0d0,0d0,0d0,0d0,0d0,0d0)
-c$$$      endif
-c$$$      if(debug) print *,'vvvvv 22222222qqq '
-
-C ... Case only generate bands at supplied qp: setup
-      if (plbnd .ne. 0) then
-         if (procid .eq. master) then !Try and read Fermi level from file
-            inquire(file='wkp.'//trim(sname),exist=nexist)
-            if(nexist) then
-               open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-               read(ifi) ndummy1,ndummy2,ndummy3,ef0
-               close(ifi)
-            endif
-         endif   
-         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
-      endif   
+c$$$!! Mullikan mode was here
 
 !! ... For insulator, valence band top and conduction band bottom
       evtop = -99999
       ecbot = -evtop
-
-!! ... Setup for spin-orbit coupling
-      if (lso .ne. 0) then
-c         nlmax = globalvariables%nlmax
-         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
-         allocate(orbtm_rv(nl*nsp*nbas))
-         orbtm_rv(:)=0.0d0
-      endif
+      orbtm_rv=0d0
 
 !! === Get nkp and qplist =========== feb2015
 !! fatband mode ---> --mkprocar
@@ -1118,41 +1121,6 @@ c            massline=.false.
          dwgtall=0d0
       endif
 
-!! --- get index for hamiltonian for m_hamindex takao june2009
-!! these are used in sigm mode(QSGW).
-!! memo:
-!!  ib = atom index
-!!  ltab= L (angular momentum index)
-!!  ktab=  =1 for EH, =2 for EH2, =3 for lo
-!! SYMOPS
-      if(onlyonce) then 
-         onlyonce=.false.
-         if(procid==master) then
-            call gen_hamindex(ssite, sspec, nl, ctrl_nbasp, iv_a_oindxo, ldim, .true., jobgw==0)
-c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
-            allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
-            do iorb = 1, norbmto !Total number of MTO's
-               ib   = ibastab(iorb)
-               is   = ssite(ib)%spec
-               spid=sspec(is)%name
-               ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
-               l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
-               k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
-            enddo
-            write(6,*) ' i  ib l  k trim(spec)'
-            do i= 1, ldim
-               ib   = ib_table(i)
-               is   = ssite(ib)%spec
-               spid = sspec(is)%name
-               write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
-            enddo
-            if(writeham) then
-               write(ififft)ldim,lso,nsp
-               write(ififft)ib_table,l_table,k_table
-               close(ififft)
-            endif  
-         endif
-      endif
 
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
@@ -1167,99 +1135,8 @@ c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       if( llmfgw.and.jobgw==0 ) then
          continue
       elseif( sigmamode.and.siginit ) then
-         ndimsig= ldim  !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
-         if(procid==master) then
-            write(6,*)' --- goto rdsigm2 initialization section ---'
-            rsrnge = ham_rsrnge
-            write(6,*)'rsrnge procid=',rsrnge,procid
-            ifi=ifile_handle()
-            open(ifi,file='sigm.'//trim(sname),form='unformatted')!
-            read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
-!! takao !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          laf=allocated(symops_af) !jun2015takao
-          if(laf) nspsigm=2
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            allocate( qsmesh2(3,nk1,nk2,nk3) )
-            if(mtosigmaonly()) then
-               allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
-            else
-               stop 'mtosigmaonly()=T is needed in the current version sep2012'
-            endif
-            rewind ifi
-            if (mod(pwmode,10) ==0) then
-               write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
-            elseif(napwmx>0) then !if undefined skip this (null in m_hamble).
-               write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
-            endif   
-            if (ldim .ne. ndham) then !june2009 takao
-               write(6,"(a,2i5)")" --- ndham (>=max of ham dimension) =",ndham
-            endif
-!! sfz is the self-energy roteted in the full BZ.
-!     !   ndham is removed sep2012 (read from sigma file )
-            call rdsigm2(nbas,nspsigm,ifi,  !sbz,,sham slat,
-     &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  qsfz,nqps, mtosigmaonly(),ndimsig) 
-            close(ifi) 
-c$$$!! --- write sig_fbz for SYMGRP e
-c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
-c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
-c$$$               ifis2 = fopna('sigm_fbz',-1,4)
-c$$$c$$$               if(pdos) then
-c$$$c$$$                  read(ifis2) nspsigm,ndimsig,nk1,nk2,nk3
-c$$$c$$$               else  
-c$$$               write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
-c$$$c$$$               endif  
-c$$$               do is=1,nspsigm
-c$$$                  do ik1=1,nk1
-c$$$                     do ik2=1,nk2
-c$$$                        do ik3=1,nk3
-c$$$c$$$                           if(pdos) then
-c$$$c$$$                              read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
-c$$$c$$$                              read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-c$$$c$$$                           else
-c$$$                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
-c$$$                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
-c$$$c$$$                           endif
-c$$$                        enddo
-c$$$                     enddo
-c$$$                  enddo
-c$$$               enddo
-c$$$               call fclose(ifis2)
-c$$$            endif
-c
-!! mesh generator.  Unused yet...->in future, we will use this.
-            allocate(npair(nbas,nbas),pos(3,nbas))
-            call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
-            npairmx=nk1*nk2*nk3*2
-            if (allocated(nlat)) deallocate(nlat)
-            if (allocated(nqwgt)) deallocate(nqwgt)
-            do !this loop is just to determined npairmx
-              npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
-              allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
-              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,nqwgt)
-              if(ok) exit
-              deallocate( nlat, nqwgt )
-            enddo
-            deallocate(pos,npair)
-!! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
-!!    The main input of the subroutine seneinterp is sfz. 
-!!    The seneinterp stores real-space sigma to ham_rv_a_ohrs (real space representation), 
-!!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
-!! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
-            ifi = ifile_handle()
-            open(ifi,file='sigm.'//trim(sname),form='unformatted')
-            call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, 
-     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in rv_a_ohrs in m_seneinterp
-            close(ifi) 
-            deallocate(sfz,qsmesh2,nlat,nqwgt)
-         endif             !procid==master
-#ifdef MPIK
-         call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
-         call mpibc1(ham_ndhrs,1,2,mlog,'bndfp','ndhrs')
-         call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
-         call mpi_barrier(MPI_COMM_WORLD,ierr) 
-#endif
+         call sigmainit(ldim,procid,master)
          siginit=.false. !this is equivalent to broad casting.
-         if(procid==master) write(6,*)' --- end of rdsigm2 initialization section ---'
       endif    ! end of sigmamode
 
 !! == GW driver ==
@@ -2344,7 +2221,7 @@ c$$$c jan2015 did not work for Testinstall/te
 c$$$         call poppr
          if(goto99) goto 99
       endif
-      if(allocated(sfz)) deallocate(sfz)
+c      if(allocated(sfz)) deallocate(sfz)
 !! == ix99 loop over =============================
 
 

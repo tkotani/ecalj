@@ -1,201 +1,12 @@
-      module m_seneinput
-      implicit none
-      integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
-      integer(4)::npairmx
-      real(8),allocatable:: qsmesh(:,:,:,:)
-      real(8),allocatable:: qwgt(:,:,:)
-
-      contains
-!! == Give \Sigma-Vxc for given qp from sfz (this does not work well)==
-      subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-     i  sfz,ldim,ndimx, 
-     o  sene)
-      use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
-c      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
-      implicit none
-      integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimx,
-     &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
-     &  j1x,j2x,ix1,ix2,ix3,ikt,ig,nkk(3),igvecc0(3),iktm,igvecc(3),j1,j2
-c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
-      complex(8):: sfz(nk1,nk2,nk3,ndimx,ndimx), 
-     &  pi2i,sene(ndimx,ndimx),sss
-      complex(8),allocatable:: wgtq(:,:,:,:,:)
-      real(8)::rrr(3),plat(3,3) !,qsmesh(3,nk1,nk2,nk3)
-      logical:: oncewrite,debug=.false.
-      integer(4),allocatable::igx(:,:,:,:)
-      real(8):: wgc(0:1,0:1,0:1),qpara(3),qmm(3),qqq(3),www,qp(3) !,qwgt(npairmx,nbas,nbas)
-      call tcn('seneinterp2')
-      if(debug) print *,' seneinterp2: qp=',qp,nk1,nk2,nk3
-      sene=0d0
-! --- Generate interpolation weight wgtq.
-      allocate( wgtq(nbas,nbas,nk1,nk2,nk3) )
-      pi2i = 2d0*4d0*datan(1d0)*(0d0,1d0)
-      wgtq = 0d0
-      do ib1=1,nbas
-        do ib2=1,nbas
-          do ii = 1,npair(ib1,ib2)
-            rrr = matmul(plat, nlat(:,ii,ib1,ib2))
-! wgtq is interpolation weight for MTO.
-            do ik1=1,nk1
-              do ik2=1,nk2
-                do ik3=1,nk3
-                  wgtq(ib1,ib2,ik1,ik2,ik3) = wgtq(ib1,ib2,ik1,ik2,ik3) 
-     &      + qwgt(ii,ib1,ib2)*exp( -pi2i*sum( (qp-qsmesh(:,ik1,ik2,ik3))*rrr ) )
-                enddo
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-! ---  MTO part of interpolated sigm(i,j)
-      do j1=1,ldim
-        do j2=1,ldim
-          ib1= ibasindex(j1)
-          ib2= ibasindex(j2)
-          do ik1=1,nk1
-            do ik2=1,nk2
-              do ik3=1,nk3
-                sene(j1,j2)= sene(j1,j2) + wgtq(ib1,ib2,ik1,ik2,ik3)*sfz(ik1,ik2,ik3,j1,j2) !,isp)
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-      deallocate(wgtq)
-
-!!--- return when no APW part of self-energy.
-      if(ldim==ndimx) then
-        return
-      endif
-
-c      ikt=getikt(qp) ! index for qp
-c      if(napwk(ikt)==0) then
-c      if(oncewrite(4)) print *,' napw=0 skip napw part '
-c        return
-c      endif
-
-
-cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-c follwings are not so meaningful, although it returns correct Sigma on regular mesh points.
-cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-!!--- APW part of interpolarion sigm(i,j)
-!!... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
-      print *,' --- goto qparam--- '
-      call qparam(qp,qsmesh,nk1,nk2,nk3,plat, ikc,qpara,igshift)
-      ! eight corners of a cube -->
-      !  do ix1=0,1
-      !  do ix2=0,1
-      !  do ix3=0,1
-      !    qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-      !  enddo
-      !  enddo
-      !  enddo
-!!... interpolation weight at eight corners of a cube
-      call interparam(qpara, wgc)
-      print *,' --- end of interparam ---'
-!!... obtain G index for eight corners of a cube. qp is in the cube.
-      allocate( igx(napwmx,0:1,0:1,0:1) )
-
-c      ikt=getikt(qp) ! index for qp
-c      print *,'ikt qp=',ikt,qp
-      ix1=0
-      ix2=0
-      ix3=0
-      qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-      ikt=getikt(qmm) ! index for qp
-      print *, 'test xxxxxxxxx333333333333 qp  ',qp
-      print *, 'test xxxxxxxxx333333333333 qmm ',qmm
-      print *, 'test xxxxxxxxx333333333333 qp-qmm ',qp-qmm
-      print *, sum(plat(:,1)*(qp-qmm))
-      print *, sum(plat(:,2)*(qp-qmm))
-      print *, sum(plat(:,3)*(qp-qmm))
-!!    
-      nkk= (/nk1,nk2,nk3/)
-      do ig=1,napwk(ikt) !qp+G
-        do ix1=0,1
-          do ix2=0,1
-            do ix3=0,1
-              igvecc0 = igv2(:,ig,ikt) + igshift(:,ix1,ix2,ix3)
-              qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-              iktm = getikt(qmm) !index for qmm
-              qqq = matmul(qp-qmm,plat)
-              if(ig==1) then
-                write(6,"('qmm qqq=', 13f13.4)")qmm,qqq
-              endif  
-              igvecc = igvecc0 + qqq + 10000 + 1d-8 ! +10000 is to make igvecc+qqq positve. and then subtract -10000
-              igvecc = igvecc - 10000              !
-              igx(ig,ix1,ix2,ix3) = igv2rev(igvecc(1),igvecc(2),igvecc(3),iktm)
-              !igx at eight corners. If missing, 9999999 !see suham.F
-              ! if(ix1==0.and.ix2==0.and.ix3==0) then
-              !   write(6,"(a,3f8.3)")'=', igvecc0 + qqq- igvecc
-              !   print *,'iktm qmm=',iktm,qmm
-              !   write(6,"(a,20i8)")'ix1 ix2 ix3 igvecc=', igvecc,igshift(:,ix1,ix2,ix3),igv2(:,ig,ikt)
-              !   write(6,"(a,10i8)")'ix1 ix2 ix3 ig igx=', ix1,ix2,ix3, ig, igx(ig,ix1,ix2,ix3)
-              ! endif
-            enddo
-          enddo
-        enddo
-      enddo
-
-!!... fill APW part
-      print *,'goto sss section'
-      do ix1=0,1
-      do ix2=0,1
-      do ix3=0,1
-        print *, 'ix1,ix2,ix3 wgc =',ix1,ix2,ix3, wgc(ix1,ix2,ix3)
-      enddo
-      enddo
-      enddo
-
-      do j1=1,ndimx
-        do j2=1,ndimx
-          if(j1<=ldim.and.j2<=ldim) cycle
-          sss=0d0
-          www=0d0
-          do ix1=0,1
-          do ix2=0,1
-          do ix3=0,1
-            !if(wgc(ix1,ix2,ix3)==0d0) cycle
-               if(j1<=ldim) then
-                  j1x= j1
-                else
-                  j1x= igx(j1-ldim,ix1,ix2,ix3)+ldim  !G1
-                endif
-                if(j2<=ldim) then
-                  j2x= j2
-                else
-                  j2x= igx(j2-ldim,ix1,ix2,ix3)+ldim  !G2
-                endif
-                if(j1x == 999999+ldim) goto 888
-                if(j2x == 999999+ldim) goto 888
-                ik1= ikc(1,ix1,ix2,ix3)
-                ik2= ikc(2,ix1,ix2,ix3)
-                ik3= ikc(3,ix1,ix2,ix3)
-                sss = sss+ wgc(ix1,ix2,ix3)* sfz(ik1,ik2,ik3,j1x,j2x) !,isp)
-                www = www+ wgc(ix1,ix2,ix3)
- 888        continue
-          enddo                                         ! sigma at eight corners
-          enddo
-          enddo
-          sene(j1,j2)= sene(j1,j2) + sss/www
-c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
-        enddo
-      enddo
-      deallocate(igx)
- 1019 continue
-      call tcx('seneinterp2')
-      end subroutine seneinterp2
-      end module
-
-
 !! -----------------------------------------------------------------------------------
       module m_seneinterp
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
-      real(8) , allocatable ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
+      integer,protected:: ndimsig,nspsigm
+
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
+      real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
       
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
@@ -805,20 +616,123 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       call mpibc1(rv_a_ohrs,  nsizeohrs, 4,mlog,'bndfp','ohrs')
       call mpibc1(rv_p_oqsig, noqsig,4,mlog,'bndfp','noqsig')
       end subroutine senebroadcast
+
       
-      end module m_seneinterp
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine sigmainit(ldim,procid,master)
+      use m_lmfinit,only : rsrnge=>ham_rsrnge,ham_ndhrs,nbas,pwmode=>ham_pwmode
+      use m_hamindex,only: symops_af,napwmx
+      use m_ext,only:sname
+#if MPI | MPIK
+      include "mpif.h"
+#endif
+      complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
+      integer:: procid,master,ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
+      logical:: laf,mlog,cmdopt, mtosigmaonly
+      character strn*120
+      real(8),allocatable:: qsmesh2(:,:,:,:)
+c      real(8):: qsfz(3,100)
+      ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
+      if(procid==master) then
+c         rsrnge = ham_rsrnge
+         write(6,*)' --- goto sigmainit: rdsigm2 initialization section ---',rsrnge
+         ifi=ifile_handle()
+         open(ifi,file='sigm.'//trim(sname),form='unformatted') !
+         read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3
+         laf=allocated(symops_af) !jun2015takao !reserved for future
+         if(laf) nspsigm=2      ! we need recover laf mode
+         allocate( qsmesh2(3,nk1,nk2,nk3) )
+         if(mtosigmaonly()) then
+            allocate(sfz(nk1,nk2,nk3,ndimsig,ndimsig,nspsigm))
+         else
+            call rx('mtosigmaonly()=T is needed in the current version sep2012')
+         endif
+         rewind ifi
+         if (mod(pwmode,10) ==0) then
+            write(6,"(a,2i5)")" --- ldim(=dim of lmto)= ",ldim
+         elseif(napwmx>0) then 
+            write(6,"(a,2i5)")" --- ldim(=dim of lmto), napwmx= ",ldim,napwmx
+         endif   
+!     ! sfz is the self-energy roteted in the full BZ.
+         call rdsigm2(nbas,nspsigm,ifi,
+     &        nk1,nk2,nk3,ldim,qsmesh2,sfz,  nqps, mtosigmaonly(),ndimsig) 
+         close(ifi) 
+c$$$!! --- write sig_fbz for SYMGRP e
+c$$$            if(.not.cmdopt('--wsig_fbz',10,0,strn).and.oncewrite(10)) then
+c$$$               write(6,"(a)")' ---> writing sigm_fbz.* which is in full bz'
+c$$$               ifis2 = fopna('sigm_fbz',-1,4)
+c$$$c$$$               if(pdos) then
+c$$$c$$$                  read(ifis2) nspsigm,ndimsig,nk1,nk2,nk3
+c$$$c$$$               else  
+c$$$               write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
+c$$$c$$$               endif  
+c$$$               do is=1,nspsigm
+c$$$                  do ik1=1,nk1
+c$$$                     do ik2=1,nk2
+c$$$                        do ik3=1,nk3
+c$$$c$$$                           if(pdos) then
+c$$$c$$$                              read(ifis2) qsmesh(1:3,ik1,ik2,ik3)
+c$$$c$$$                              read(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+c$$$c$$$                           else
+c$$$                           write(ifis2) qsmesh(1:3,ik1,ik2,ik3),is
+c$$$                           write(ifis2) sfz(ik1,ik2,ik3,1:ndimsig,1:ndimsig,is)
+c$$$c$$$                           endif
+c$$$                        enddo
+c$$$                     enddo
+c$$$                  enddo
+c$$$               enddo
+c$$$               call fclose(ifis2)
+c$$$            endif
+c
+          
+!! mesh generator.  Unused yet...->in future, we will use this.
+c$$$            allocate(npair(nbas,nbas),pos(3,nbas))
+c$$$            call dcopy ( nbas * 3 , rv_a_opos , 1 , pos , 1 )
+c$$$            npairmx=nk1*nk2*nk3*2
+c$$$            if (allocated(nlat)) deallocate(nlat)
+c$$$            if (allocated(nqwgt)) deallocate(nqwgt)
+c$$$            do !this loop is just to determined npairmx
+c$$$              npairmx= npairmx + (nk1*nk2*nk3+1)*.5 !+1 added Feb2014 for 1x1x1
+c$$$              allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
+c$$$              call gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,nlat,nqwgt)
+c$$$              if(ok) exit
+c$$$              deallocate( nlat, nqwgt )
+c$$$            enddo
+c$$$            deallocate(pos,npair)
 
+!! -- We use ndimsig=ldim. This means sigm is projected on MTOs.
+!!    The main input of the subroutine seneinterp is sfz. 
+!!    The seneinterp stores real-space sigma to ham_rv_a_ohrs (real space representation), 
+!!    which is used in the following 'call bloch' to obtain Sigm-Vxc for any q point by interpolation.
+!! NOTE: sigm file is read again within seneinterp-chksgr, and compared with FFT-sfz.
+            ifi = ifile_handle()
+            open(ifi,file='sigm.'//trim(sname),form='unformatted')
+            call seneinterp(nbas,nspsigm,ndimsig,ifi,rsrnge, 
+     &        nk1,nk2,nk3,sfz)  !NOTE: output is stored in rv_a_ohrs in m_seneinterp
+            close(ifi) 
+            deallocate(sfz,qsmesh2) !,nlat,nqwgt)
+      endif                  !procid==master
+#ifdef MPIK
+      mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
+      call senebroadcast(procid,master,mlog) !broadcast self-energy to all procid
+      call mpibc1(ham_ndhrs,1,2,mlog,'bndfp','ndhrs')
+      call mpibc1(nspsigm,1,2,mlog,'bndfp','nspsigm')
+      call mpi_barrier(MPI_COMM_WORLD,ierr) 
+#endif
+      if(procid==master) write(6,*)' --- end of sigmainit: rdsigm2 initialization section ---'
+      return
 
+ 9995 continue
+      call rx('sigmainit: readin error of sigm file')
+      end subroutine sigmainit
 
+      
 !!--------------------------------------------------------------------------------------------
-c      subroutine rdsigm2(nbas_dummy,nsp,ndimh,slat,sham,sbz,ifis, 
-      subroutine rdsigm2(nbas_dummy,nsp,ifis,  !sbz,ndimh,sham 
-     &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,qsfz,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
-      use m_seneinterp,only: rv_p_oqsig
+      subroutine rdsigm2(nbas_dummy,nsp,ifis, 
+     &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
+!      use m_seneinterp,only: rv_p_oqsig
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
-c      use m_struc_def,only:      s_lat!,s_ham!,s_bz  
       use m_lmfinit,only: globalvariables
-c      use m_globalvariables,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
       use m_lmfinit,only: ham_nqsig
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
@@ -1060,7 +974,7 @@ C.....titus
       integer:: i_copy_size,ix
       logical:: isanrg, l_dummy_isanrg,debug=.false.,mtosigmaonly,laf
 
-      real(8):: qsfz(3,*),qir(3),diffq(3),platt(3,3)
+      real(8):: qir(3),diffq(3),platt(3,3)
       integer:: ii1,ii2,ii4,ispr,iaf,ig
       character(300)::aaa
       integer,allocatable,target:: ipqaf(:,:,:)
@@ -1071,7 +985,7 @@ C     --- Read sigma(orbital basis) from file ---
       print *,'rdsigm2:'
       sfz=1d99
       laf=allocated(symops_af) !jun2015takao
-
+      
       mode=12
       lwsig=0
 c      procid = mpipid(1)
@@ -1314,7 +1228,200 @@ c      endif ! exit of MPI master loop
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       print *,'xxxxxxx end rdsigm2 xxxx'
       end subroutine rdsigm2
+      
+      end module m_seneinterp
 
 
 
 
+
+
+
+      module m_seneinput_notusedyet
+      implicit none
+      integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
+      integer(4)::npairmx
+      real(8),allocatable:: qsmesh(:,:,:,:)
+      real(8),allocatable:: qwgt(:,:,:)
+      contains
+!! == Give \Sigma-Vxc for given qp from sfz (this does not work well)==
+      subroutine seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+     i  sfz,ldim,ndimx, 
+     o  sene)
+      use m_hamindex,only: napwmx, igv2,napwk,igv2rev,ibasindex,getikt
+c      use m_seneinput,only: npair,nlat,qwgt,npairmx,qsmesh !they are read only
+      implicit none
+      integer(4):: nbas,nk1,nk2,nk3,ib1,ib2,ii,ik1,ik2,ik3,ldim,ndimx,
+     &  ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
+     &  j1x,j2x,ix1,ix2,ix3,ikt,ig,nkk(3),igvecc0(3),iktm,igvecc(3),j1,j2
+c     &  npair(nbas,nbas),nlat(3,npairmx,nbas,nbas),
+      complex(8):: sfz(nk1,nk2,nk3,ndimx,ndimx), 
+     &  pi2i,sene(ndimx,ndimx),sss
+      complex(8),allocatable:: wgtq(:,:,:,:,:)
+      real(8)::rrr(3),plat(3,3) !,qsmesh(3,nk1,nk2,nk3)
+      logical:: oncewrite,debug=.false.
+      integer(4),allocatable::igx(:,:,:,:)
+      real(8):: wgc(0:1,0:1,0:1),qpara(3),qmm(3),qqq(3),www,qp(3) !,qwgt(npairmx,nbas,nbas)
+      call tcn('seneinterp2')
+      if(debug) print *,' seneinterp2: qp=',qp,nk1,nk2,nk3
+      sene=0d0
+! --- Generate interpolation weight wgtq.
+      allocate( wgtq(nbas,nbas,nk1,nk2,nk3) )
+      pi2i = 2d0*4d0*datan(1d0)*(0d0,1d0)
+      wgtq = 0d0
+      do ib1=1,nbas
+        do ib2=1,nbas
+          do ii = 1,npair(ib1,ib2)
+            rrr = matmul(plat, nlat(:,ii,ib1,ib2))
+! wgtq is interpolation weight for MTO.
+            do ik1=1,nk1
+              do ik2=1,nk2
+                do ik3=1,nk3
+                  wgtq(ib1,ib2,ik1,ik2,ik3) = wgtq(ib1,ib2,ik1,ik2,ik3) 
+     &      + qwgt(ii,ib1,ib2)*exp( -pi2i*sum( (qp-qsmesh(:,ik1,ik2,ik3))*rrr ) )
+                enddo
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+! ---  MTO part of interpolated sigm(i,j)
+      do j1=1,ldim
+        do j2=1,ldim
+          ib1= ibasindex(j1)
+          ib2= ibasindex(j2)
+          do ik1=1,nk1
+            do ik2=1,nk2
+              do ik3=1,nk3
+                sene(j1,j2)= sene(j1,j2) + wgtq(ib1,ib2,ik1,ik2,ik3)*sfz(ik1,ik2,ik3,j1,j2) !,isp)
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+      deallocate(wgtq)
+
+!!--- return when no APW part of self-energy.
+      if(ldim==ndimx) then
+        return
+      endif
+
+c      ikt=getikt(qp) ! index for qp
+c      if(napwk(ikt)==0) then
+c      if(oncewrite(4)) print *,' napw=0 skip napw part '
+c        return
+c      endif
+
+
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+c follwings are not so meaningful, although it returns correct Sigma on regular mesh points.
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+!!--- APW part of interpolarion sigm(i,j)
+!!... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
+      print *,' --- goto qparam--- '
+      call qparam(qp,qsmesh,nk1,nk2,nk3,plat, ikc,qpara,igshift)
+      ! eight corners of a cube -->
+      !  do ix1=0,1
+      !  do ix2=0,1
+      !  do ix3=0,1
+      !    qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
+      !  enddo
+      !  enddo
+      !  enddo
+!!... interpolation weight at eight corners of a cube
+      call interparam(qpara, wgc)
+      print *,' --- end of interparam ---'
+!!... obtain G index for eight corners of a cube. qp is in the cube.
+      allocate( igx(napwmx,0:1,0:1,0:1) )
+
+c      ikt=getikt(qp) ! index for qp
+c      print *,'ikt qp=',ikt,qp
+      ix1=0
+      ix2=0
+      ix3=0
+      qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
+      ikt=getikt(qmm) ! index for qp
+      print *, 'test xxxxxxxxx333333333333 qp  ',qp
+      print *, 'test xxxxxxxxx333333333333 qmm ',qmm
+      print *, 'test xxxxxxxxx333333333333 qp-qmm ',qp-qmm
+      print *, sum(plat(:,1)*(qp-qmm))
+      print *, sum(plat(:,2)*(qp-qmm))
+      print *, sum(plat(:,3)*(qp-qmm))
+!!    
+      nkk= (/nk1,nk2,nk3/)
+      do ig=1,napwk(ikt) !qp+G
+        do ix1=0,1
+          do ix2=0,1
+            do ix3=0,1
+              igvecc0 = igv2(:,ig,ikt) + igshift(:,ix1,ix2,ix3)
+              qmm = qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
+              iktm = getikt(qmm) !index for qmm
+              qqq = matmul(qp-qmm,plat)
+              if(ig==1) then
+                write(6,"('qmm qqq=', 13f13.4)")qmm,qqq
+              endif  
+              igvecc = igvecc0 + qqq + 10000 + 1d-8 ! +10000 is to make igvecc+qqq positve. and then subtract -10000
+              igvecc = igvecc - 10000              !
+              igx(ig,ix1,ix2,ix3) = igv2rev(igvecc(1),igvecc(2),igvecc(3),iktm)
+              !igx at eight corners. If missing, 9999999 !see suham.F
+              ! if(ix1==0.and.ix2==0.and.ix3==0) then
+              !   write(6,"(a,3f8.3)")'=', igvecc0 + qqq- igvecc
+              !   print *,'iktm qmm=',iktm,qmm
+              !   write(6,"(a,20i8)")'ix1 ix2 ix3 igvecc=', igvecc,igshift(:,ix1,ix2,ix3),igv2(:,ig,ikt)
+              !   write(6,"(a,10i8)")'ix1 ix2 ix3 ig igx=', ix1,ix2,ix3, ig, igx(ig,ix1,ix2,ix3)
+              ! endif
+            enddo
+          enddo
+        enddo
+      enddo
+
+!!... fill APW part
+      print *,'goto sss section'
+      do ix1=0,1
+      do ix2=0,1
+      do ix3=0,1
+        print *, 'ix1,ix2,ix3 wgc =',ix1,ix2,ix3, wgc(ix1,ix2,ix3)
+      enddo
+      enddo
+      enddo
+
+      do j1=1,ndimx
+        do j2=1,ndimx
+          if(j1<=ldim.and.j2<=ldim) cycle
+          sss=0d0
+          www=0d0
+          do ix1=0,1
+          do ix2=0,1
+          do ix3=0,1
+            !if(wgc(ix1,ix2,ix3)==0d0) cycle
+               if(j1<=ldim) then
+                  j1x= j1
+                else
+                  j1x= igx(j1-ldim,ix1,ix2,ix3)+ldim  !G1
+                endif
+                if(j2<=ldim) then
+                  j2x= j2
+                else
+                  j2x= igx(j2-ldim,ix1,ix2,ix3)+ldim  !G2
+                endif
+                if(j1x == 999999+ldim) goto 888
+                if(j2x == 999999+ldim) goto 888
+                ik1= ikc(1,ix1,ix2,ix3)
+                ik2= ikc(2,ix1,ix2,ix3)
+                ik3= ikc(3,ix1,ix2,ix3)
+                sss = sss+ wgc(ix1,ix2,ix3)* sfz(ik1,ik2,ik3,j1x,j2x) !,isp)
+                www = www+ wgc(ix1,ix2,ix3)
+ 888        continue
+          enddo                                         ! sigma at eight corners
+          enddo
+          enddo
+          sene(j1,j2)= sene(j1,j2) + sss/www
+c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
+        enddo
+      enddo
+      deallocate(igx)
+ 1019 continue
+      call tcx('seneinterp2')
+      end subroutine seneinterp2
+      end module
