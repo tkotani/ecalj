@@ -1,6 +1,5 @@
-      subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl 
-     . )
-      use m_lmfinit,only: globalvariables
+      subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
+      use m_lmfinit,only: nkaph,nspc,nsp
       use m_struc_def  !Cgetarg
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
@@ -37,48 +36,28 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nglob,nlma,nlmh,nsp,
-     .nspc,nelt3,nelt2,nkaph
-
-Changenglob      nsp = nglob('nsp')
-      nsp = globalvariables%nsp
-Changenglob      nspc = nglob('nspc')
-      nspc = globalvariables%nspc
-Changenglob      nkaph = nglob('nkaph')
-      nkaph = globalvariables%nkaph
-
+      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nlma,nlmh,nelt3,nelt2
+c      nsp = globalvariables%nsp
+c      nspc = globalvariables%nspc
+c      nkaph = globalvariables%nkaph
 C --- Loop over sites, allocating qkkl for each site ---
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
-
         lmxa=sspec(is)%lmxa
         lmxh=sspec(is)%lmxb
         kmax=sspec(is)%kmxt
-
         if (lmxa .eq. -1) goto 10
-
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
-
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
         allocate(sv_p_oqkkl(1,ib)%v(abs(nelt1*numq*nsp*nspc)))
-        if (nelt1*numq*nsp*nspc<0) sv_p_oqkkl(1,ib)%v(:)=0.0d0
-
-
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
         allocate(sv_p_oqkkl(2,ib)%v(abs(nelt2*numq*nsp*nspc)))
-        if (nelt2*numq*nsp*nspc<0) sv_p_oqkkl(2,ib)%v(:)=0.0d0
-
-
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
         allocate(sv_p_oqkkl(3,ib)%v(abs(nelt3*numq*nsp*nspc)))
-        if (nelt3*numq*nsp*nspc<0) sv_p_oqkkl(3,ib)%v(:)=0.0d0
-
-
 c|        write(6,836) nelt1,nelt3,nelt2
 c|  836   format('   nelt=',3i6)
    10   continue

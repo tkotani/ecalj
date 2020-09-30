@@ -14,17 +14,17 @@
      .     dmatu,vorb,llmfgw)
       
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml
+      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
-     &     ham_ndhrs,ham_scaledsigma,ham_nqsig,ham_pmin,ham_pmax,ham_ehf,ham_ehk,
+     &     ham_ndhrs,ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !ham_nqsig,
      &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
-     &     nsp,nspc,mxorb,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
-     &     sstrnmix, ndham=>ham_ndham
+     &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
+     &     sstrnmix
       
       
 c      use m_lmfinit,only: globalvariables
@@ -34,7 +34,7 @@ c      use m_lmfinit,only: globalvariables
       use m_struc_def
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-      use m_seneinterp,only:rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,senebroadcast,rdsigm2,ndimsig,nspsigm,sigmainit
+      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas,natom  :size of basis
 Ci   nsp   : number of spins
@@ -133,7 +133,7 @@ Cu   12 Aug 04 First implementation of extended local orbitals
 Cu   29 Jun 04 (A Chantis) First implementation of spin-orbit coupling
 Cu             (Lz.Sz only)
 Cu   19 Sep 03 (ATP) Modifications of CLS spectroscopy
-Cu   24 May 03 New --window switch for accumulating density
+Cuxxx   24 May 03 New --window switch for accumulating density
 Cu             in a specific energy window
 Cu   24 May 03 New interpolation mode for sigma
 Cu   14 Aug 02 Added file input of self-energy addition to LDA
@@ -281,7 +281,7 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 !because fp/test/test.fp assumes 'something not inserted in console output'.
 
 C For self-energy
-      integer nqsig
+c      integer nqsig
 c      integer:: nbasp
       data T /.true./ F /.false./
       integer,allocatable:: nevls(:,:)
@@ -291,7 +291,7 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),sene(:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer:: isize_hamm(3)
       real(8):: rrr(3),rrrr
       complex(8):: pi2i
@@ -775,7 +775,7 @@ C --- Make the potential and total energy terms ---
 c      if(lwtkb /= -1) call rx('bndfp: we need lwtkb=-1')
 c      if(numq/=1)     call rx('bndfp: we need numq=1')
       if(.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
-         write(stdo,*)' bndfp: eigenvector matrix not square ... spin weights not evaluated'
+         write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
          lswtk = -2
       endif
 !! --- More k-point independent local arrays ---
@@ -789,6 +789,7 @@ c      if(numq/=1)     call rx('bndfp: we need numq=1')
          allocate(fh_rv(3*nbas))
          allocate(fes2_rv(3*nbas))
       endif
+c      if(allocated(frc)) deallocate(frc)
       call suham2(sspec,ssite)
 !! --- Options for core level specta (CLS) ---
       if (cmdopt('--cls',5,0,strn)) then
@@ -829,7 +830,7 @@ c      if(numq/=1)     call rx('bndfp: we need numq=1')
       if(onlyonce) then 
          onlyonce=.false.
          if(procid==master) then
-            call gen_hamindex(ssite, sspec, nl, ctrl_nbasp, iv_a_oindxo, ldim, .true., jobgw==0)
+            call gen_hamindex(ssite, sspec, ldim, .true., jobgw==0)
 c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
             do iorb = 1, norbmto !Total number of MTO's
@@ -1091,10 +1092,7 @@ c            massline=.false.
       if(ham_scaledsigma/=1d0.and.sigmamode) then
         write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif
-C Start k and isp loop (first loop in parallel mode)
-C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
-C     evl is dimensioned evl(ndham,2)
-C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
+      
 #if MPIK
       call info0(30,1,0, ' ... Start MPI k-loop')
       sttime = MPI_WTIME()
@@ -1110,8 +1108,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       allocate(ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
       ndimhx_=0
       nev_   =0                
-      nevls=0
-
+      nevls  =0
       
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -1122,7 +1119,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       if(plbnd==0) then
         gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
 !this judges going through second pass or not.
-      endif 
+      endif
       ix99 = 0
       xdat = 0d0
  99   continue
@@ -1132,8 +1129,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
      .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
      .  ndos , dos_rv , sumev , sumqv )
       if (lfrce .gt. 0) then
-         call dpzero(frc, 3*nbas*numq)
-         fh_rv=0d0              ! 3 * nbas 
+         frc(1:3,1:nbas*numq) = 0d0
+         fh_rv= 0d0              ! 3 * nbas 
       endif
       if (lswtk .eq. 1) then
          efmax = 1d3
@@ -1146,6 +1143,10 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       ecbot = -evtop
       if(lso/=0) orbtm_rv=0d0
       initiqisp=.true.
+C Start k and isp loop (first loop in parallel mode)
+C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
+C     evl is dimensioned evl(ndham,2)
+C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       do 2010 iq = iqini, iqend !This is a big iq loop
@@ -1154,14 +1155,12 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 #if MPIK
          if(debug) write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
          if (iq .eq. kpproc(procid)) then
-            if (mlog) then
+            if(mlog) then
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
-     &           trim(i2char(procid))//' of '//
-     &           trim(i2char(numprocs))//' on '//
-     &           shortname(procid)(1:namelen(procid))//' starting k-points '//
-     &           trim(i2char( kpproc( procid)))//' to '//
-     &           trim(i2char( kpproc(procid+1)-1))
+     &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
+     &              shortname(procid)(1:namelen(procid))//' starting k-points '//
+     &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
                write(6,"(a)")aaachar
             endif
          endif
@@ -1177,6 +1176,34 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
                enddo
             endif
          endif
+         if(allocated(igv2x)) deallocate(igv2x)
+         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
+            pwgmin = dsqrt(pwemin)
+            pwgmax = dsqrt(pwemax)
+            qqq = 0d0 
+            if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
+            call pshpr(1)
+            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napw,napw,dum,dum,dum,dum) !get napw
+            allocate(igv2x(3,napw), kv_iv(3*napw))
+            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
+            call poppr
+            if (pwmode<10) then
+               do iapw=1,napw
+                  igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
+               enddo
+            endif
+            deallocate(kv_iv)   !we only keep 
+            ndimh = ldim + napw !ndimh is iq-dependent for pwmode >=10
+            if (mod(pwmode,10) .eq. 2) ndimh = napw !APW-only mode
+            if (ndimh .gt. ndham) then
+               call rx('bndfp:something wrong ndimh>ndham')
+            endif
+         else
+            ndimh = ldim
+            allocate(igv2x(1,1)) !dummy
+         endif
+         ndimhx = ndimh*nspc    !this is iq-dependent.
+         nmx    = min(nevmx,ndimhx) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -1194,48 +1221,17 @@ c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
          do 2005 isp = 1, nsp
             if(.not.(onesp==0.or.isp==onesp)) cycle
             if(debug) print *,' bndfp: do 2005 isp loop isp pwemax pwmode=',isp,pwemax,pwmode
-!! takao. Do we need to do shorbz? 
-!! -->furthermore, shorbz is probably wrong.--> see new algolism of shortn3 .
-c            if(.not.noshorbz()) then
-c              if (isp .eq. 1 .or. isp .eq. onesp) call shorbz(qp,qp,qlat,plat)
-c            endif
-            if(allocated(igv2x)) deallocate(igv2x)
+!! takao removed shorbz(shortest qp) here. !I think not necessary
 !! === For this qp, G vectors for PW basis and hamiltonian dimension ===
-            if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
-               pwgmin = dsqrt(pwemin)
-               pwgmax = dsqrt(pwemax)
-               call pshpr(1)
-               qqq=0d0          !call dpzero(xv,3)
-               if (mod(pwmode/10,10) == 1) qqq=qp !call dpcopy(qp,xv,1,3,1d0)
-               call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napw,napw,dum,dum,dum,dum)
-               call poppr
-               allocate(igv2x(3,napw))
-               allocate(kv_iv(3*napw))
-               call pshpr(iprint()-10)
-               call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
-               if (pwmode<10) then
-                  do iapw=1,napw
-                     igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
-                  enddo
-               endif
-               deallocate(kv_iv)
-               call poppr
-               ndimh = ldim + napw !ndimh is iq-dependent.
-               if (mod(pwmode,10) .eq. 2) ndimh = napw
-               if (ndimh .gt. ndham) then
-                  call fexit2(-1,111,'%N Exit -1 : BNDFP: '//
-     .              'ndimh=%i exceeds ndham=%i.  Set '//
-     .              'HAM_NPWPAD=(ndimh-ndham) or larger.',ndimh,ndham)
-               endif
-            else
-               ndimh = ldim
-               allocate(igv2x(1,1)) !dummy
-            endif
-            ndimhx = ndimh*nspc !this is iq-dependent.
-
-!!   ... Make Hamiltonian and overlap matrices
-            nqsig=ham_nqsig
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
+            jsp = isp
+            if (ispc .eq. 2) jsp = 1
+ccccccccccccccccccccccccccccccc
+            if(ix99==2.and.(nspc==2.and.isp==1)) cycle
+            if(ix99==2) goto 1919
+ccccccccccccccccccccccccccccccc            
+!!   ... Make Hamiltonian and overlap matrices
+c            nqsig=ham_nqsig
             if(isp==1) then
                if(allocated(hamm)) deallocate(hamm)
                if(allocated(ovlm)) deallocate(ovlm)
@@ -1247,10 +1243,6 @@ c            endif
                hamm=0d0
                ovlm=0d0
             endif
-
-            i = lrsig*10
-            if(debug) print *,' i lrsig=',i,lrsig
-
 !! === Sigma-Vxc ===
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
@@ -1259,90 +1251,12 @@ c            endif
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output => sene
             if(sigmamode) then
-               if(debug) print *,'ndimsig=',ndimsig
-               allocate(sene(ndimsig,ndimsig))
-               hreal = 0
-               if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
-               mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-               if(debug) print *,'bndfp: goto bloch i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
-               if(isp>nspsigm) then
-                  ispsigm = nspsigm
-               else
-                  ispsigm=isp
-               endif
-!! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-               call bloch (mode,qp,nl,plat,mxorb,iv_a_oindxo,1
-     &           , ival ( iv_a_ontabs , nbas + 1 )
-     &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
-     &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
-               if(debug) print *,'end of bloch sene'
-! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
-c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
-c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
-c     o        sene) 
+               call getsene(lrsig,qp,isp) !Get sene = Sigma-Vxc 
             endif
-
-c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
-c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-c$$$c          allocate(senex(ndimh,ndimh))
-c$$$          allocate(sene(ndimh,ndimh))
-c$$$c          senex=0d0
-c$$$          write(6,"(a,3f13.5)")'    qp=',qp
-c$$$          do ik1=1,nk1
-c$$$          do ik2=1,nk2
-c$$$          do ik3=1,nk3
-c$$$             write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
-c$$$             if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
-c$$$          enddo
-c$$$          enddo
-c$$$          enddo
-c$$$          stop 'xxxxx not qp=qsmesh xxxx'
-c$$$ 1013    continue
-c$$$          do j1=1,ndimh !ldim+napw
-c$$$          do j2=1,ndimh !ldim+napw
-c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
-c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$          enddo
-c$$$          enddo
-c$$$c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
-c$$$c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
-c$$$c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
-c$$$c     &      ,sum(abs(sene-senex))
-c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
-c$$$c          deallocate(senex)
-c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
-c
-c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
-c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
-c$$$c          allocate(senex(ndimh,ndimh))
-c$$$          allocate(sene(ndimh,ndimh))
-c$$$c          senex=0d0
-c$$$          write(6,"(a,3f13.5)")'    qp=',qp
-c$$$          do ik1=1,nqps
-c$$$             write(6,"(a,i3,3f13.5)")' ik1 qsfz=',ik1,qsfz(1:3,ik1)
-c$$$             iq1=ik1
-c$$$            ii1=mod(iq1,2)+1
-c$$$            ii2=mod(iq1/2,2)+1
-c$$$            ii4=mod(iq1/4,2)+1
-c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
-c$$$             print *,' xxxxxxxxxxx this shows shorbz problem... xxxxxxxxx'
-c$$$             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
-c$$$          enddo
-c$$$          stop 'xxxxx not qp=qsmesh xxxx'
-c$$$ 1013    continue
-c$$$          do j1=1,ndimh !ldim+napw
-c$$$          do j2=1,ndimh !ldim+napw
-c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
-c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
-c$$$            sene(j1,j2)= sfz(ii4,ii2,ii1,j1,j2,isp)
-c$$$          enddo
-c$$$          enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-Ckino hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
-Ckino finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
-Ckino Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
+!!note kino
+!! hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
+!! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
+!! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
 
 !! == Set up Hamiltonian. ==============
 !!    Hamiltonian: hamm(1:ndimh,1:ndimh,ispc). ispc=3 means off-diagonal section when SO=1.
@@ -1364,7 +1278,8 @@ c            print *,'hamble sumcheck =',sum(abs(ovlm)),sum(abs(hamm))
                deallocate(ovlmtoi)
                allocate(senex(ndimh,ndimh))
                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
-               deallocate(ovliovl,sene)
+               call dsene()
+               deallocate(ovliovl)!,sene)
                hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex
                deallocate(senex)
             endif
@@ -1374,59 +1289,38 @@ C       For the rest of the isp loop,
 C       jsp=isp in the collinear case; jsp=1 in the noncollinear
 C       Thus jsp should be used in place of isp
 C       isp serves as a flag for the noncollinear case
-            if (ispc .ne. nspc) goto 30
-            jsp = isp
-            if (ispc .eq. 2) jsp = 1
-
+            if (ispc .ne. nspc) cycle !do2005 goto 30
+c            jsp = isp
+c            if (ispc .eq. 2) jsp = 1
+            
 !! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
      &        write(*,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &        iq,nkp,qp,ndimh,ndimh-napw,napw
-c     &   iq,nkp,qp,trim(i2char(ndimh))//' '//trim(i2char(napw))//' '//trim(i2char(ndimh-napw)),xdatt(iq)
-            nmx = min(nevmx,ndimhx) !I think nmx should be given in a better manner.
+            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be given in a better manner.
 !!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
-c            if (nfbn(1) .gt. 0 .or.tdos) then ! or.pdos
             if (tdos) then 
                nmx = ndimhx
                efmax = 99999
             endif
-            if (allocated(t_zv)) deallocate(t_zv)
-            allocate(t_zv(ndimhx,nmx))
             if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx
-
 !! == lpdiag=0 only. ===
             if(nspc .eq. 2) then
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$c              hamm(:,:,2) = hamm(:,:,1)
-c$$$c              ovlm(:,:,2) = ovlm(:,:,1)
-c$$$              write(6,*)'iiix'
-c$$$              do i=1,ndimh
-c$$$                do j=1,ndimh
-c$$$                  if(abs(ovlm(i,j,2)-ovlm(i,j,1))>1d-8) then
-c$$$                  write(*,"('iiiiix2',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,ovlm(i,j,1),ovlm(i,j,2), ovlm(i,j,2)-ovlm(i,j,1)
-c$$$                  endif
-c$$$                enddo
-c$$$              enddo
-c$$$              write(6,*)'iiixh'
-c$$$              do i=1,ndimh
-c$$$                do j=1,ndimh
-c$$$                  if(abs(hamm(i,j,2)-hamm(i,j,1))>1d-8) then
-c$$$                  write(*,"('iiiiix2h',3f8.3,2i5,2d10.2,x,2d10.2,x,2d10.2)")qp,i,j,hamm(i,j,1),hamm(i,j,2), hamm(i,j,2)-hamm(i,j,1)
-c$$$                  endif
-c$$$                enddo
-c$$$              enddo
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
             endif
             if(debug) write(*,*) 'allocate ww_rv', 11*ndimhx
-
+            
 !! === diagonalization ===
 !! It is better to clean up lwtkb-algolism in this routine. !!!!
-!! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
+!     ! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
+ccccccccccccccccccccccccccccccc            
+ 1919       continue
+ccccccccccccccccccccccccccccccc            
+            if (allocated(t_zv)) deallocate(t_zv)
+            allocate(t_zv(ndimhx,nmx))
             savez=.false.
-            getz=.false.
-
+            getz =.false.
             if(gotosecondpass) then
                if(ix99==1) then
                   savez=.true.  ;  getz=.false.
@@ -1435,7 +1329,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
                endif
                if(initiqisp) then
 #if (MPI|MPIK)
-!!  for parallel write, and eigze is temporaly used only in this subroutine. 
+           !!  for parallel write, and eigze is temporaly used only in this subroutine. 
                   inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
                   if(nexist) close(ifig)
                   open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
@@ -1471,7 +1365,6 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
               read(ifig) evl(1:nev,jsp)
               read(ifig) t_zv(1:ndimhx,1:nmx)
             else            ! 1st pass
-
 !! save hammovlm jan2018kaist
               if(writeham) then
                 write(6,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
@@ -1484,11 +1377,10 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
                   write(ifih) hamm(1:ndimhx,1:ndimhx,1)
                 endif
               endif
-!!
               if(epsovl<1.000001d-14) then
                 call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
-              else              !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
+              else    !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
                 call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
               endif
@@ -1512,23 +1404,23 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
 #ifndef MPIK            
             call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required?
 #else
-            if (procid.eq.master.and. epsovl>=1.000001d-14.and.plbnd/=0) then
+            if( procid.eq.master.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(6,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
             endif  
 #endif
-!! save to evall
+!  ! save to evall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
+            
 !!   ... Save data for this qp to moments file
-            if (plbnd .eq. 0) then
+            if( plbnd .eq. 0) then
 !!   --- Orbital magnetic moment (requires lso) ---
                if (lso .ne. 0 .and. lwtkb .ne. -1) then
-                  if (lwtkb .eq. 0) call
-     .              rx('metal weights required for orb. moment calculation')
+                  if (lwtkb .eq. 0) call rx('metal weights required for orb. moment calculation')
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
                   if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
                   auso_zv(:)=0.0d0
-                  call makusq ( 0 , ssite , sspec ,  nbas , nbas , !sham ,slat , 
+                  call makusq ( 0 , ssite , sspec ,  nbas , nbas , 
      .              0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
      .              nspc , jsp , 1 , qp , t_zv , ppnl_rv , auso_zv )
                   call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
@@ -1537,7 +1429,7 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccc
                   deallocate(auso_zv)
                endif
 
-c$$$!! Mulliken analysis
+c$$$!! Mulliken analysis was here
 c$$$               if (lwtkb .ne. -1) then
 c$$$                  if (mullwrite) then
 c$$$                        call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
@@ -1575,7 +1467,7 @@ c                     nl = int(ctrl_nl)
                   endif
                endif
 !! Core-level spectroscopy
-               if (icls .ne. 0 .and. lwtkb .ne. -1) then
+               if(icls .ne. 0 .and. lwtkb .ne. -1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
 #if MPI
                   call rx('CLS only k-parallel')
@@ -1620,18 +1512,19 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                  endif   
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
-                  if(debug) print *,'goto addrbl nevl=',nevl
-                  call addrbl ( ssite , sspec ,  jsp , nsp , nspc !sham ,slat , 
+                 if(debug) print *,'goto addrbl nevl=',nevl
+                 if(lwtkb>=0) then
+                   call addrbl ( ssite , sspec ,  jsp , nsp , nspc !sham ,slat , 
      .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
      .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
      .              , lekkl , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
      .              , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev
      .              , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
-     .                 , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
+     .              , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
+                 endif     
                endif
-
             endif
-
+            
 
 !!   === Save evals for this qp ===
 c            elseif (plbnd .ne. 0) then
@@ -1745,17 +1638,17 @@ c            endif
             if(allocated(t_zv)) deallocate(t_zv)
 !! == end loop over isp (main loop in parallel mode)==
             if(debug) print *,'bbbbbbbb before 30'
- 30         continue
-            deallocate(igv2x)
+c 30         continue
+c            deallocate(igv2x)
  2005    continue
-         deallocate(hamm,ovlm)
+         if(allocated(hamm)) deallocate(hamm,ovlm)
          ndimhx_(iq)=ndimhx
          nev_(iq)   =nev
  2010 continue
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
 !!----------------------
 !! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
-      if(numprocs/=1) then
+      if(numprocs/=1.and.ix99==1) then
          do iq = 1, nkp
             pidorigin=-999
             do idx=0,numprocs-1
@@ -1980,18 +1873,7 @@ c         nkaph = globalvariables%nkaph
                   endif
                enddo   
             endif
-c            if (procid==pidorigin) then
-c               work_mpi(1) =  ndimhx_(iq)
-c               work_mpi(2) =  nev_(iq)
-c            endif
-cc            call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq') !broadcast
-c        call MPI_BCAST(work_mpi,2,MPI_INTEGER,
-c     .           pidorigin,MPI_COMM_WORLD,ierr)
-            ndimhx_iq = ndimhx_(iq)
-            nev_iq = nev_(iq) 
-ccccccccccccccccccc            
-c            print *,'xxxdddddddddd', ix99,iq,pidorigin,procid,isp,nev_iq,ndimhx_iq !dimhx_(iq),nev_(iq)
-ccccccccccccccccccc            
+            nev_iq    = nev_(iq) 
             if (mod(iq,10) .ne. 1) call poppr
             ebot = dmin1(ebot,evl(1,jsp))
             i = max(1,nint(qval-qbg)/(3-nspc))
@@ -2006,7 +1888,6 @@ ccccccccccccccccccc
  712           format('fp evl',8f8.4)
                if (lwtkb .ne. -1) then ! .and. .not. lwndow) then
                   if (iq .eq. 1 .and. jsp .eq. nsp ) then !
-!! comment out mar2013takao!     .and.  .not. cmdopt('--no-fixef0',11,0,strn)) then
 !! Energy-Window reset. dosw=(emin,emax)
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
@@ -2042,19 +1923,6 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
             endif
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
-cccccccccccccccccccc
-c      print *,'ix99=',ix99,procid
-c      do iq=1,nkp
-c         write(6,"('qqqqqq',4i5)")procid,iq,nev_(iq),ndimhx_(iq)
-c      enddo
-c      if(ix99==2) call rx0('xxxxxxxxxxxxxxxxxxxxxxxx00qqqq')
-ccccccccccccccccccccc
-     
-cccccccccccccccccccc
-c      print *,'ix99=',ix99,procid
-c      if(ix99==2) call rx0('xxxxxxxxxxxxxxxxxxxxxxxx11aaaqqqqqqqqqqq')
-ccccccccccccccccccccc
-
 
 #ifdef MPIK
 c      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
@@ -2217,16 +2085,7 @@ c      if(allocated(sfz)) deallocate(sfz)
             call fclr('wkp',ifi)
          endif
       endif
-
-c$$$!! ... Cleanup asa-style moments file, print table of DOS channels
-c$$$!! now only for --mull mullikan analysis mode.
-c$$$      if (mullwrite) then
-c$$$         i = iomoms(-nfilem,nl,nsp,nspc,nkp,ndimh,11,1,nkp*nsp+1,1,
-c$$$     .     ndham,ndimh,nchan,nchan,ndimh,0d0,0d0,0d0,0d0,eferm,0d0)
-c$$$         call fclose(nfilem)
-c$$$         call mchan ( lmdim , ssite , sspec , nsp , nsites , lsites , 
-c$$$     .     0 , 0 , 0 , 0 , chan_iv )
-c$$$      endif
+c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
 
 !! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then

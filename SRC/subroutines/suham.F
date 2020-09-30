@@ -1,5 +1,6 @@
 c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) 
-      subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,ljobgw) 
+      subroutine gen_hamindex(ssite,sspec,ldim,siginit,ljobgw)
+      use m_suham,only: iprmb=>iv_a_oindxo
       use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp 
       use m_struc_def  !Cgetarg
@@ -11,7 +12,7 @@ c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,j
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_plat,lat_qlat,lat_alat,rv_a_opos
+     &     lat_plat,lat_qlat,lat_alat,rv_a_opos,nl,ctrl_nbasp
 c     &   invgxaf,miataf,tiataf,shtvgaf
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -39,7 +40,7 @@ c      enddo
 c      type(s_lat)::slat
 c     type(s_bz)::sbz
 c      type(s_ham)::sham
-      integer iprmb(*),nl
+c      integer iprmb(*),nl
       integer:: nkap0 , n0 , ibas , k 
       integer:: l , ndim , ipr , nglob ,  ldim , off , offs , 
      . specw , fieldw , iorb , offsi , ib , is , norb
@@ -83,7 +84,7 @@ c2012Sep02 kino, add for
 #endif
 !!--- setup ---
       if(.not.siginit) return
-      nbas=nbas_in
+      nbas=ctrl_nbasp !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat
@@ -451,7 +452,7 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       module m_suham
       integer , allocatable,protected ::  iv_a_oindxo (:)
       integer , allocatable,protected ::  iv_a_ooffH (:)
-      integer, protected::     pot_nlma, pot_nlml
+      integer, protected::     ham_ndham,pot_nlma, pot_nlml
       contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
       use m_supot,only: rv_a_ogv
@@ -459,8 +460,8 @@ c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       use m_lmfinit,only: globalvariables
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
       use m_lmfinit,only:
-     &     ham_npwmin,ham_npwpad, ham_ndham,ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft
+     &     ham_npwmin, ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft !,ham_npwpad
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -505,8 +506,8 @@ Cl   npwmax:upper limit to number of PWs, estimated by sweeping
 Cl         :over a fine mesh of qp.
 Cl   nqdiv: loop over mesh of q-points to estimate npwmax
 Cl        : nqdiv is fineness of q-mesh.
-Cl  npwpad: a 'safety' padding to npwmax in case npwmax
-Cl        : underestimates actual upper limit
+Clxxx  npwpad: a 'safety' padding to npwmax in case npwmax
+Clxxx        : underestimates actual upper limit
 Cr Remarks
 Cr   This routine generates energy-independent hamiltonian setup.
 Cr  *It generates and packs a table of hamiltonian offsets offH,
@@ -570,7 +571,7 @@ c      lncol=ctrl_lncol
       pwmode=ham_pwmode
       pwemin=ham_pwemin
       pwemax=ham_pwemax
-      npwpad=ham_npwpad
+c      npwpad=ham_npwpad
 
       nspc  = 1
       nspx  = nsp
@@ -690,9 +691,9 @@ c             call shorbz(q,q,qlat,plat)
               enddo
             enddo
           enddo
-          if (npwpad .lt. 0) then
+c          if (npwpad .lt. 0) then
             npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
-          endif
+c          endif
         else
           call dpzero(q,3)
           call pshpr(iprint()-40)
@@ -707,15 +708,15 @@ c             call shorbz(q,q,qlat,plat)
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
 
         ham_npwmin=npwmin
-        ham_npwpad=npwpad
+c        ham_npwpad=npwpad
         ham_ndham=ndham
 
         if (mod(pwmode/10,10) .eq. 1) then
           call info2(20,1,0,' suham:  q-dependent PW basis with'//
      .    '  Emin = %d < E < %d.',pwemin,pwemax)
-          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
-     .    '  Use npwpad = %i => ndham = %i',
-     .    npwmin,npwmax,npwpad,ndham,0)
+c          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
+c     .    '  Use npwpad = %i => ndham = %i',
+c     .    npwmin,npwmax,npwpad,ndham,0)
         else
           call info5(20,0,0,' suham:  PW basis with  %d < E < '//
      .    '%d  =>  npw = %i,  ndham = %i',

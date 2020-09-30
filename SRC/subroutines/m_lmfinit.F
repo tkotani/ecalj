@@ -128,7 +128,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
      .     move_kt,move_ts,move_tsequ,move_tstot
       logical,protected:: prmint_new,lbsprm=F,lsdyn=F
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
-      integer,protected:: pwmode,npwpad,ncutovl !ncutovl is by takao. not in lm-7.0beta.
+      integer,protected:: pwmode,ncutovl !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
       integer , allocatable,protected ::  iv_a_oips (:)
 !! CG coefficient      
@@ -145,7 +145,7 @@ c-----------------------
       integer::
      &     ctrl_nclass,ctrl_noinv,ctrl_lmet,lat_nkd,lat_nkq,lat_ng,lat_nabc(3), !,ctrl_lrs
      &     ctrl_lfrce,nlmax,mxorb,
-     &     ham_npwmin,ham_npwpad, ham_ndham,ham_ldham(16),ham_lmxax,  ham_lsig,
+     &     ham_npwmin, ham_ldham(16),ham_lmxax,  ham_lsig, !ham_ndham,ham_npwpad,
      &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf, lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos,
      &     bz_nevmx
       real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
@@ -771,9 +771,9 @@ C     ... APW basis
       nm='HAM_PWEMAX'; call gtv(trim(nm),tksw(prgnam,nm),
      .     pwemax, def_r8=0d0, nout=nout, note=
      .     'Include APWs with energy E < PWEMAX (Ry)')
-      nm='HAM_NPWPAD'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     npwpad, def_i4=-1, note=
-     .     'Overrides default padding of variable basis dimension')
+c      nm='HAM_NPWPAD'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     npwpad, def_i4=-1, note=
+c     .     'Overrides default padding of variable basis dimension')
       nm='HAM_UDIAG'; call gtv(trim(nm),tksw(prgnam,nm),ham_udiag,
      .     def_i4=0,note='nonzero => diagonal-only LDA+U')
      
@@ -1827,7 +1827,7 @@ c      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
 
 !!  Parameters for APW
       ham_pwmode=pwmode
-      ham_npwpad=npwpad
+c      ham_npwpad=npwpad
       ham_pwemin=pwemin
       ham_pwemax=pwemax
       ham_oveps=oveps
@@ -2446,7 +2446,7 @@ Cr  ltb    not used; see ctrl->ltb
 Cr  lxcf   parameter defining local XC functional.
 Cr         Not used: see ctrl->lxcf
 Cr  nbf    number of channels for magnetic field
-Cr  ndham  Largest dimension of lmto+PW basis
+Crxxxx  ndham  Largest dimension of lmto+PW basis
 Cr  ndhrs  dimension of site block for r.s. h or sigma
 Cr  ndofH  leading dimension to ooffH
 Cr  neula  number of channels for euler angles
@@ -2456,9 +2456,9 @@ Cr  nlibu  Number of LDA+U blocks
 c      
 Cr  npwmin Estimate for minimum number of PWs to be calculated     <-Removable(probably)
 Cr         (PW basis is q-dependent; max size not known a priori)  
-Cr  npwpad Padding to be added to estimated max basis dimension    <-Removable(probably)
-Cr         and subtracted from min basis dimension
-Cr         (PW basis is q-dependent; max size not known a priori)
+Crxxx  npwpad Padding to be added to estimated max basis dimension    <-Removable(probably)
+Crxxx         and subtracted from min basis dimension
+Crxxx         (PW basis is q-dependent; max size not known a priori)
 Cr  nqsig  Number of k-points for which self-energy known          <-Removable(probably)
 Cr         (Used for interpolating between qpoints)
 Cr  eula  Euler angles

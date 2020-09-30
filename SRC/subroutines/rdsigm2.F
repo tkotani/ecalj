@@ -1,5 +1,6 @@
 !! -----------------------------------------------------------------------------------
       module m_seneinterp
+      complex(8),allocatable,protected:: sene(:,:)
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
@@ -8,6 +9,99 @@
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
+      
+!     !ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine dsene()
+      deallocate(sene)
+      end subroutine
+      subroutine getsene(lrsig,qp,isp) !call after sigmainit
+      use m_lmfinit,only: plat,mxorb,ham_ndhrs,nbas,nl
+      use m_suham,only:  iv_a_oindxo
+      integer:: i, mode, isp, ispsigm,lrsig,iwdummy,ival
+      real(8):: hreal,qp(3)
+      logical:: debug=.false.
+      if(debug) print *,'ndimsig=',ndimsig
+      allocate(sene(ndimsig,ndimsig))
+      i = lrsig*10
+c      if(debug) print *,' i lrsig=',i,lrsig
+      hreal = 0
+      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+      mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
+c     if(debug) print *,'getsene:goto bloch i q nl plat mxorb=',
+c      lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
+      if(isp>nspsigm) then
+         ispsigm = nspsigm
+      else
+         ispsigm=isp
+      endif
+!! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
+      call bloch (mode,qp,nl,plat,mxorb,iv_a_oindxo,1
+     &           , ival ( iv_a_ontabs , nbas + 1 )
+     &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
+     &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
+               if(debug) print *,'end of bloch sene'
+      end subroutine getsene         
+! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
+c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
+c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
+c     o        sene) 
+c$$$C--- This works OK for lmf mode when noshrbz=.true. because no interpolation is needed.
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nk1
+c$$$          do ik2=1,nk2
+c$$$          do ik3=1,nk3
+c$$$             write(6,"(a,3f13.5)")' qsmesh=',qsmesh(1:3,ik1,ik2,ik3)
+c$$$             if(sum(abs(qp-qsmesh(1:3,ik1,ik2,ik3)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          enddo
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
+c$$$c          print *,'ldim:abs and diff sene-senex=',sum(abs(sene(1:ldim,1:ldim)))
+c$$$c     &      ,sum(abs(sene(1:ldim,1:ldim)-senex(1:ldim,1g:ldim)))
+c$$$c          print *,'ndimh:abs and diff sene-senex=',sum(abs(sene))
+c$$$c     &      ,sum(abs(sene-senex))
+c$$$c          print *, 'end of test mode of sene newsigmasw=',newsigmasw()
+c$$$c          deallocate(senex)
+c$$$c          stop 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz'
+c
+c$$$C--- This works OK for lmf mode when noshrbz=.true. for PMT
+c$$$C    Check comment out "sene=0" and "if(j1<=ldim.and.j2<=ldim) cycle" or not ---it depends on what you want to test.
+c$$$c          allocate(senex(ndimh,ndimh))
+c$$$          allocate(sene(ndimh,ndimh))
+c$$$c          senex=0d0
+c$$$          write(6,"(a,3f13.5)")'    qp=',qp
+c$$$          do ik1=1,nqps
+c$$$             write(6,"(a,i3,3f13.5)")' ik1 qsfz=',ik1,qsfz(1:3,ik1)
+c$$$             iq1=ik1
+c$$$            ii1=mod(iq1,2)+1
+c$$$            ii2=mod(iq1/2,2)+1
+c$$$            ii4=mod(iq1/4,2)+1
+c$$$            print *,' iq1 ii4,ii2,ii1 =',iq1,ii4,ii2,ii1
+c$$$             print *,' xxxxxxxxxxx this shows shorbz problem... xxxxxxxxx'
+c$$$             if(sum(abs(qp-qsfz(1:3,ik1)))<1d-6) goto 1013
+c$$$          enddo
+c$$$          stop 'xxxxx not qp=qsmesh xxxx'
+c$$$ 1013    continue
+c$$$          do j1=1,ndimh !ldim+napw
+c$$$          do j2=1,ndimh !ldim+napw
+c$$$c            if(j1<=ldim.and.j2<=ldim) cycle
+c$$$c            senex(j1,j2)= sfz(ik1,ik2,ik3,j1,j2,isp)
+c$$$            sene(j1,j2)= sfz(ii4,ii2,ii1,j1,j2,isp)
+c$$$          enddo
+c$$$          enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
       use m_suham,only:iv_a_oindxo,iv_a_ooffH
@@ -618,6 +712,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       end subroutine senebroadcast
 
       
+      
+      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sigmainit(ldim,procid,master)
       use m_lmfinit,only : rsrnge=>ham_rsrnge,ham_ndhrs,nbas,pwmode=>ham_pwmode
@@ -725,7 +821,6 @@ c$$$            deallocate(pos,npair)
  9995 continue
       call rx('sigmainit: readin error of sigm file')
       end subroutine sigmainit
-
       
 !!--------------------------------------------------------------------------------------------
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
