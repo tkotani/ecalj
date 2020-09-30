@@ -868,8 +868,8 @@ C ... Case only generate bands at supplied qp: setup
          call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
       endif   
 !! ... Setup for spin-orbit coupling
-      if (lso .ne. 0) then
-         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
+      if (lso /= 0) then
+c         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
          allocate(orbtm_rv(nl*nsp*nbas))
       endif
 !     !
@@ -1107,9 +1107,11 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       iqend=nkp
 #endif
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
-cccccccccccccccccccccccccccccccccccccccc      
-c      nev_   =0
-cccccccccccccccccccccccccccccccccccccccc
+      allocate(ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
+      ndimhx_=0
+      nev_   =0                
+      nevls=0
+
       
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -1121,10 +1123,10 @@ cccccccccccccccccccccccccccccccccccccccc
         gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
 !this judges going through second pass or not.
       endif 
-      ix99=0
-      xdat=0d0
+      ix99 = 0
+      xdat = 0d0
  99   continue
-      ix99=ix99+1               !ix99=2 for second pass
+      ix99 = ix99+1               !ix99=2 for second pass
       ebot = 1000d0
       call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
      .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
@@ -1142,20 +1144,8 @@ cccccccccccccccccccccccccccccccccccccccc
 !! ... For insulator, valence band top and conduction band bottom
       evtop = -99999
       ecbot = -evtop
-      orbtm_rv=0d0
+      if(lso/=0) orbtm_rv=0d0
       initiqisp=.true.
-
-      if(allocated(nevls)) deallocate(nevls)
-      allocate(nevls(nkp,nspx))
-      nevls=0
-      if(allocated(ndimhx_)) deallocate(ndimhx_)
-      allocate(ndimhx_(nkp))
-      ndimhx_=0
-      if(allocated(nev_)) deallocate(nev_)
-      allocate(nev_(nkp))
-      nev_   =0                
-!!
-
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       do 2010 iq = iqini, iqend !This is a big iq loop
@@ -1762,45 +1752,28 @@ c            endif
          ndimhx_(iq)=ndimhx
          nev_(iq)   =nev
  2010 continue
-      if(debug) print *, ' ---- end of do 2010 ---- ',procid
-#if MPIK
-      call mpibc2(ndimhx_,nkp,2,mlog,'bndfp','ndimhx_') !all reduce is not necessary.
-      call mpibc2(nev_,  nkp,2,mlog,'bndfp','nev_')
-#endif
+      if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
+!!----------------------
+!! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
+      if(numprocs/=1) then
+         do iq = 1, nkp
+            pidorigin=-999
+            do idx=0,numprocs-1
+               if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
+                  pidorigin=idx
+                  exit
+               endif
+            enddo   
+            call MPI_BCAST(ndimhx_(iq),1,MPI_INTEGER, pidorigin,MPI_COMM_WORLD,ierr)
+            call MPI_BCAST(nev_(iq),1,MPI_INTEGER,    pidorigin,MPI_COMM_WORLD,ierr)
+         enddo   
+      endif
       nevmin=minval(nev_(1:nkp))
 !! ========== end of iq loop ====================================================
-      if(debug) print *, 'tttttttttt 9999999999999999999 3',procid
-      if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
 
-!! boltztrap data 
-      if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
-        ifi=ifile_handle()
-        open(unit=ifi,file='boltztrap.dat')
-        write(ifi,"(3d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
-        write(ifi,"(d16.8, ' # alat (a.u.)')") alat
-        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)
-        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)
-        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)
-        write(ifi,"(3d16.8, ' # qlat1  ')") qlat(:,1)
-        write(ifi,"(3d16.8, ' # qlat2  ')") qlat(:,2)
-        write(ifi,"(3d16.8, ' # qlat3  ')") qlat(:,3)
-        do iq=1,nkp
-        do jsp=1,nspx         !=isp.  nspx=1 for so=1
-!! true q= 2pi/alat *qplist(:,iq) in cartesian
-        do iband=1,ndhamx
-          if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
-            write(ifi,"('eee=',3i5,3f9.4,d13.5)") iq,jsp,iband,qplist(:,iq),evlall(iband,jsp,iq)
-        enddo
-        enddo
-        enddo
-        close(ifi)
-c        call rx0(' --bolttrap mode: boltztrap.dat is generated')
-      endif
-      if( cmdopt('--boltztrap',11,0,strn)) then
-         call rx0(' --bolttrap mode: boltztrap.dat is generated')
-      endif
       
 !! === pdos mode (--mkprocar and --fullmesh). ===
+      if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
       if(PROCARon.and.fullmesh) then
 #ifdef MPIK
          call mpi_barrier(MPI_comm_world,ierr)  
@@ -1874,6 +1847,35 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
       endif
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
 #endif
+!!
+!! boltztrap data 
+      if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
+        ifi=ifile_handle()
+        open(unit=ifi,file='boltztrap.dat')
+        write(ifi,"(3d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
+        write(ifi,"(d16.8, ' # alat (a.u.)')") alat
+        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)
+        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)
+        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)
+        write(ifi,"(3d16.8, ' # qlat1  ')") qlat(:,1)
+        write(ifi,"(3d16.8, ' # qlat2  ')") qlat(:,2)
+        write(ifi,"(3d16.8, ' # qlat3  ')") qlat(:,3)
+        do iq=1,nkp
+        do jsp=1,nspx         !=isp.  nspx=1 for so=1
+!! true q= 2pi/alat *qplist(:,iq) in cartesian
+        do iband=1,ndhamx
+          if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
+            write(ifi,"('eee=',3i5,3f9.4,d13.5)") iq,jsp,iband,qplist(:,iq),evlall(iband,jsp,iq)
+        enddo
+        enddo
+        enddo
+        close(ifi)
+      endif
+      if( cmdopt('--boltztrap',11,0,strn)) then
+         call rx0(' --bolttrap mode: boltztrap.dat is generated')
+      endif
+      
+      
 !!  Allreduce density-related quantities
       if(debug) print *,'goto all reduce'
       if (lrout .ne. 0) then
@@ -1920,6 +1922,7 @@ c         nkaph = globalvariables%nkaph
       call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
 #endif
 
+
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
       if(plbnd .ne. 0) then
          if (procid .eq. master) then
@@ -1942,6 +1945,7 @@ c         nkaph = globalvariables%nkaph
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
+      
 !! ===   Repeat loop for printout and goto 99 ===
 !!   jsp=isp in the collinear case; jsp=1 in the noncollinear
 !!     Thus jsp should be used in place of isp
@@ -1976,13 +1980,18 @@ c         nkaph = globalvariables%nkaph
                   endif
                enddo   
             endif
-            if (procid==pidorigin) then
-               work_mpi(1) =  ndimhx_(iq)
-               work_mpi(2) =  nev_(iq)
-            endif
-            call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq') !broadcast
-            ndimhx_iq = work_mpi(1)
-            nev_iq = work_mpi(2) !1nov2012
+c            if (procid==pidorigin) then
+c               work_mpi(1) =  ndimhx_(iq)
+c               work_mpi(2) =  nev_(iq)
+c            endif
+cc            call mpibc3(work_mpi,2,2,pidorigin,mlog,'bndfp','ndimhx_iq') !broadcast
+c        call MPI_BCAST(work_mpi,2,MPI_INTEGER,
+c     .           pidorigin,MPI_COMM_WORLD,ierr)
+            ndimhx_iq = ndimhx_(iq)
+            nev_iq = nev_(iq) 
+ccccccccccccccccccc            
+c            print *,'xxxdddddddddd', ix99,iq,pidorigin,procid,isp,nev_iq,ndimhx_iq !dimhx_(iq),nev_(iq)
+ccccccccccccccccccc            
             if (mod(iq,10) .ne. 1) call poppr
             ebot = dmin1(ebot,evl(1,jsp))
             i = max(1,nint(qval-qbg)/(3-nspc))
@@ -1990,7 +1999,7 @@ c         nkaph = globalvariables%nkaph
             ecbot = min(ecbot,evl(i+1,jsp))
             if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
             if(debug) print *,'eeeee44444444444 plbnd=',plbnd
-
+            
             if (plbnd .eq. 0) then
                if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
      .           write (stdl,712) (evl(i,jsp),i=1,nev_iq)
@@ -2002,19 +2011,20 @@ c         nkaph = globalvariables%nkaph
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
                      if(procid==master) then
-                     ifid= fopn ( 'ewindow' )
-                     write(ifid,"(3d23.15)") dosw(1:2),ef0
-                     call fclose(ifid)
+                        ifid= fopn ( 'ewindow' )
+                        write(ifid,"(3d23.15)") dosw(1:2),ef0
+                        call fclose(ifid)
                      endif
                      if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
-     .                 lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
+     .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
                         if (procid .eq. master) call info0(10,1,1,
-     .                    ' ... Fermi level reset in second spin'//
-     .                    ' channel ... restart band pass')
+     .                       ' ... Fermi level reset in second spin'//
+     .                       ' channel ... restart band pass')
                         goto99=.true.
                         exit    !this is the case of make co test at ecalj/TestInstall/
                      endif
                   endif
+
 C     Check for cases when nevmx is too small : i=2 => fatal error
                   i = 0
                   if (nevmx.ge.0 .and. lmet .ne. 0) then
@@ -2032,6 +2042,20 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
             endif
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
+cccccccccccccccccccc
+c      print *,'ix99=',ix99,procid
+c      do iq=1,nkp
+c         write(6,"('qqqqqq',4i5)")procid,iq,nev_(iq),ndimhx_(iq)
+c      enddo
+c      if(ix99==2) call rx0('xxxxxxxxxxxxxxxxxxxxxxxx00qqqq')
+ccccccccccccccccccccc
+     
+cccccccccccccccccccc
+c      print *,'ix99=',ix99,procid
+c      if(ix99==2) call rx0('xxxxxxxxxxxxxxxxxxxxxxxx11aaaqqqqqqqqqqq')
+ccccccccccccccccccccc
+
+
 #ifdef MPIK
 c      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
       call mpi_barrier(MPI_comm_world,ierr)  !!! takao added I think it must be safer to add this barrier. jan2015
@@ -2179,7 +2203,6 @@ c$$$  call poppr
       endif
 c      if(allocated(sfz)) deallocate(sfz)
 !! == ix99 loop over =============================
-
 
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
