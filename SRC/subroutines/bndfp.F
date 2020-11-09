@@ -25,8 +25,6 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
-      
-      
 c      use m_lmfinit,only: globalvariables
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
@@ -36,21 +34,20 @@ c      use m_lmfinit,only: globalvariables
       use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
 !! ==== followings are just notations in this code (in cases wrong).
-Ci   nbas,natom  :size of basis
+Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
-Ci   lmaxu : lmax for U used to dimension vorb and dmatu
-Ci   lldau :lldau(ib)=0 => no U on this site otherwise
+Ci   lmaxu : lmax for U used to dimension vorb and dmatu. lmaxu=2 if d is, but lmaxu=3 if f is included.
+Ci   lldau :lldau(ib)=0 => no U on this site otherwise 
 Ci         :U on site ib with dmat in dmats(*,lldau(ib))
-Ci
-Ci   ssite :struct for site-specific information; see routine usite
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci   slat  :struct for lattice information; see routine ulat
-Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci   sham  :struct for parameters defining hamiltonian; see routine uham
-Ci   spot  :struct for information about the potential; see routine upot
-Ci   sbz   :struct for the Brillouin Zone; see routine ubz
-Ci   sstrnmix:mixing
+Ci   Following are old. Moved to lmfinit
+Ci     ssite :struct for site-specific information; see routine usite
+Ci     sspec :struct for species-specific information; see routine uspec
+Ci     slat  :struct for lattice information; see routine ulat
+Ci     sctrl :struct for program flow parameters; see routine uctrl
+Ci     sham  :struct for parameters defining hamiltonian; see routine uham
+Ci     spot  :struct for information about the potential; see routine upot
+Ci     sbz   :struct for the Brillouin Zone; see routine ubz
 c      
 Ci   ndham :dimensioning parameter, at least as large as largest
 Ci         :hamiltonian dimension
@@ -59,6 +56,7 @@ Ci         :>1 use the HKS forces
 Ci   lrout :>0 generate output density and attendant quantities
 Ci   lfrce : 0 suppress generation of forces
 Ci   lpnu  : 1 make new pnu's
+Ci   sstrnmix:mixing
 Ci   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
 Ci         :Additionally:
 Ci         :dmxp(33)  is the Lindhard parameter
@@ -75,8 +73,6 @@ Co         :If leks>1, forces are HKS forces
 Cl Local variables
 Cl   k1,k2,k3: dimensions smrho,smpot
 Cl   lpdiag:0 use standard diagonalization (zhev)
-Cl         :1 use parallel diagonalization (pzhev)
-Cl         :2 diagonalization done internally
 ccCl   lwndow:T if to make density in a specified energy window
 Cl   lcplxp:0 if ppi is real; 1 if ppi is complex
 Cl   jsp   :current spin index.
@@ -93,7 +89,8 @@ Cl         :also used when usual loop order (iq=1..nq, isp=1..2)
 Cl         :needs to be reversed, as it does, e.g. when transforming
 Cl         :sigma matrix.  Then onesp plays the role of spin index
 Cl   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
-Cr Remarks
+      
+Cr Remarks ---- now improving...
 Cr   Band pass consists of:
 Cr   (1) make the effective potential,
 Cr   (2) generate eigenvalues (and eigenvectors if lrout)
@@ -101,7 +98,8 @@ Cr   (3) if lrout, assemble the output density by BZ integration
 Cr   (4) evaluate hf (and KS, if leks) energy by BZ integration
 Cr   (5) mix the output density to make a new input density.
 
-Cu Updates before 2009.----- just for record. See history github after 2009.
+      
+Cu Updates before github 2009. See history github ecalj after 2009.
 Cu   05 Jul 08 (T. Kotani) new PW basis
 Cu             Option to accumulate energy-weighted output density
 Cu   27 Jun 08 Redesigned transformation of sigma to new basis
@@ -2411,7 +2409,7 @@ c     print *,'vessm=',vessm
       print *,' if vesintatm.'//trim(sname)//' ---> VBM: is not shown. Need to repeat new lmfa for VBM:'
       end subroutine vbmmode
 !sssssssssssssssssssssssssssssssssssssssssssss
-      subroutine writefs()      !fermi surface mode (eigenvalues in full BZ). Not return variables.
+      subroutine writefs() !no output fermi surface mode (eigenvalues in full BZ). Not return variables.
       implicit none
       integer:: i,isp,ififm,ifile_handle,nbxx
       i=nsp
@@ -2474,7 +2472,7 @@ c     print *,'vessm=',vessm
       close(ififm)
       end subroutine writefs
 !ssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine getqmode()     !getq mode just output. Not return variables.
+      subroutine getqmode()  !no output. getq mode just output. Not return variables.
       implicit none
       integer:: lmxa,nspec,is,ifiwv
       real(8),allocatable::qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
@@ -2535,8 +2533,7 @@ c     print *,'vessm=',vessm
 c      endif
       end subroutine getqmode
       end subroutine bndfp
-
-      
+     
 
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)

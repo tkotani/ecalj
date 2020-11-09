@@ -1,3 +1,301 @@
+      module m_suham
+      integer , allocatable,protected ::  iv_a_oindxo (:)
+      integer , allocatable,protected ::  iv_a_ooffH (:)
+      integer, protected::     ham_ndham,pot_nlma, pot_nlml
+      contains
+      subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
+      use m_supot,only: rv_a_ogv
+      use m_struc_def  !Cgetarg
+      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
+      use m_lmfinit,only:
+     &     ham_npwmin, ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft !,ham_npwpad
+C- Hamiltonian setup
+C ----------------------------------------------------------------------
+Cio Inputs/Outputs
+Cio  sctrl :struct for program flow parameters; see routine uctrl
+Cio    Elts read: nbasp nspec nl lham lcgf lgen3 lfp lncol nspin lpgf
+Cio    Stored:    *
+Cio    Passed to: *
+Cio  slat  :struct for lattice information; see routine ulat
+Cio    Elts read: ng ogv alat tolft plat qlat
+Cio    Stored:    *
+Cio    Passed to: *
+Cio  sspec :struct for species-specific information; see routine uspec
+Cio    Elts read: lmxa lmxl p pz
+Cio    Stored:    *
+Cio    Passed to: atfold makidx showbs sugcut
+Cio  ssite :struct for site-specific information; see routine usite
+Cio    Elts read: spec
+Cio    Stored:    pnu pz
+Cio    Passed to: showbs pvioeu
+ccCio  sarray:structure containing offsets to various arrays
+ccCio    Elts read: oips oipc nclasp opos
+ccCio    Stored:    *
+ccCio    Passed to: *
+Cio  sham  :struct for parameters defining hamiltonian; see routine uham
+Cio    Elts read: pwmode pwemax lncol oeula neula qss omagf nbf
+Cio    Stored:    ndham ndofH ooffH oindxo ldham lmxax hord obdots
+Cio    Passed to: *
+Cio  spot  :struct for information about the potential; see routine upot
+Cio    Elts read: opp vmtz
+Cio    Stored:    nlma nlml opti
+Cio    Passed to: *
+Cio  sstrn :struct for global strings
+Cio    Elts read: gfopt
+Cio    Stored:    *
+Cio    Passed to: *
+Ci   gfopts:string containing switches for GF program
+Cl Local variables
+Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
+Cl   npwmin:lower limit to number of PWs, estimated by sweeping
+Cl         :over a fine mesh of qp.
+Cl   npwmax:upper limit to number of PWs, estimated by sweeping
+Cl         :over a fine mesh of qp.
+Cl   nqdiv: loop over mesh of q-points to estimate npwmax
+Cl        : nqdiv is fineness of q-mesh.
+Clxxx  npwpad: a 'safety' padding to npwmax in case npwmax
+Clxxx        : underestimates actual upper limit
+Cr Remarks
+Cr   This routine generates energy-independent hamiltonian setup.
+Cr  *It generates and packs a table of hamiltonian offsets offH,
+Cr   orbital permutation indices oindxo.
+Cr
+Cr  *For the ASA 2nd generation LMTO:
+Cr   Extract order of potential function from gfopts
+Cr   Transform pp's to alpha representation
+Cu Updates
+Cu   07 Jul 08 Make sham->ndham = estimate for upper dimension of
+Cu             hamiltonian, including possible PW part
+Cu             Make sham->lmxax = largest lmax in basis
+Cu   18 Apr 05 Force small parameter p -> 0 in 2-center turned on (ASA)
+Cu   14 Feb 03 Makes and packs magnetic field B.sigma
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+c      type(s_ctrl)::sctrl
+c      type(s_lat)::slat
+      type(s_spec)::sspec(*)
+      type(s_site)::ssite(*)
+c      type(s_ham)::sham
+c      type(s_pot)::spot
+c      type(s_bz)::sbz
+c      character*(*) sstrn
+C ... Local parameters
+      integer nkap0,n0H
+      parameter (nkap0=3,n0H=5)
+      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
+     .lgunit,lidim,lihdim,nbasp,nclasp,ndim,neul,nl,
+c lncol,
+     .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
+     .ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
+     .j1,j2,j3,m,npw,npwmin,npwmax,ndham
+      double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
+     .xx
+      integer n0,nqdiv,npwpad
+      parameter (n0=10,nqdiv=12)
+      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
+
+C ... Needed for iostr
+      double precision ckbas,cksumf,kap2(10)
+      integer:: oalph , oiax , ontab , os , ng
+      real(8),allocatable :: rv_a_ogvx(:)
+
+      integer ,allocatable :: kv_iv(:)
+      integer ,allocatable :: igv2_iv(:)
+
+      integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
+      logical ltmp,iostr,bittst,adnf
+      character*80 outs,gfopts
+      double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
+      integer,allocatable:: ips(:)
+
+      nbasp=ctrl_nbasp
+      nspec=ctrl_nspec
+      nl=ctrl_nl
+c      lncol=ctrl_lncol
+      nsp=ctrl_nspin
+      nkaph = globalvariables%nkaph
+      pwmode=ham_pwmode
+      pwemin=ham_pwemin
+      pwemax=ham_pwemax
+c      npwpad=ham_npwpad
+
+      nspc  = 1
+      nspx  = nsp
+c      if (lncol .ne. 0) then
+      if (lso .ne. 0) then
+        nspc = 2
+        nspx = 1
+      endif
+      ndim = nbasp * nl**2 * nkaph
+      if (allocated(iv_a_ooffH)) deallocate(iv_a_ooffH)
+      allocate(iv_a_ooffH(n0h*nkap0*(nbasp+1)))
+      iv_a_ooffH(:)=0
+      allocate(iv_a_oindxo(abs(ndim+3)))
+      stdo = lgunit(1)
+
+C --- Hamiltonian offsets, orbital permutation table ---
+      call iinit(ldham,16)
+      if (mod(pwmode,10) .eq. 2) then
+        call info0(20,0,0,' suham: LMTO basis will be excluded')
+      else
+        allocate(ips(nbasp))
+        do  ib = 1, nbasp
+          ips(ib) = ssite(ib)%spec
+        enddo  
+        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , ips !sarray%iv_a_oips
+     .     , iv_a_ooffH , iv_a_oindxo , ldham )
+        deallocate(ips)
+      endif
+C     Default value for hamiltonian dimension
+      ham_ndham=ldham(1)
+C ... Make rest of ldham
+      ldham(4) = nspc
+      ldham(5) = ldham(1) * nspc
+      ldham(6) = ldham(2) * nspc
+      ldham(7) = ldham(3) * nspc
+      ldham(8) = nspx
+      ham_ldham=ldham
+
+C ------- Potential- and implementation- specific setup -------
+      alat=lat_alat
+      plat=lat_plat
+      qlat=lat_qlat
+      nvi = 0
+      nvl = 0
+      lmxax = -1
+      do  20  ib = 1, nbasp
+
+        is=ssite(ib)%spec
+        lmxa=sspec(is)%lmxa
+        lmxl=sspec(is)%lmxl
+        i_copy_size=size(sspec(is)%p)
+        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+        i_copy_size=size(sspec(is)%pz)
+        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
+c        pnu(:)= sspec(is)%p(:)
+c        pz(:) = sspec(is)%pz(:)
+cccccccccccccc
+c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
+cccccccccccccc
+        call dcopy(n0,pz,1,pz(1,2),1)
+cc        pz(:,2)=pz
+C         Augmentation dimensioning parameters
+        nvi = nvi + (lmxa+1)**2
+        nvl = nvl + (lmxl+1)**2
+C         Poke spec starting pnu to site
+        i_copy_size=size(ssite(ib)%pnu)
+        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
+        i_copy_size=size(ssite(ib)%pz)
+        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
+cc        ssite(ib)%pnu=pnu
+cc        ssite(ib)%pz=pz
+C         Find largest lmxa
+        lmxax = max(lmxax,lmxa)
+   20 continue
+      ham_lmxax=lmxax
+      pot_nlma=nvi
+      pot_nlml=nvl
+
+      call info5(30,0,0,' suham :  %i augmentation'//
+     .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
+      ng=lat_ng
+      alat=lat_alat
+      tolgv=lat_tolft
+      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
+
+C   ... PW setup : estimate upper bound to number of G vectors
+C       to set up upper bound to hamiltonian dimension
+      pwmode = ham_pwmode
+      pwemax = ham_pwemax
+      if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
+        Gmin = dsqrt(pwemin)
+        Gmax = dsqrt(pwemax)
+        if (mod(pwmode/10,10) .eq. 1) then
+          call info0(70,1,0,' Estimate max size of PW basis from'//
+     .    'combinations of recip. lattice vectors ...')
+          npwmax = -1
+          npwmin = 99999
+          do  j1 = 0, nqdiv
+            do  j2 = 0, nqdiv
+              do  j3 = 0, nqdiv
+                do   m = 1, 3
+                  q(m) = (qlat(m,1)/nqdiv)*j1 +
+     .            (qlat(m,2)/nqdiv)*j2 +
+     .            (qlat(m,3)/nqdiv)*j3
+                enddo
+                call pshpr(iprint()-40)
+ctakao nqdiv is large but fixed... So this is safer?
+c              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+c     .          xx,xx,xx)
+c             write(6,"('GVLST2:goto q=',3f13.5)")q
+c             call shorbz(q,q,qlat,plat)
+                call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+     &          xx,xx,xx)
+                call poppr
+                npwmin = min(npwmin,npw)
+                npwmax = max(npwmax,npw)
+              enddo
+            enddo
+          enddo
+c          if (npwpad .lt. 0) then
+            npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
+c          endif
+        else
+          call dpzero(q,3)
+          call pshpr(iprint()-40)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+     .    xx,xx,xx)
+          call poppr
+          npwmin = npw
+          npwmax = npw
+          npwpad = 0
+        endif
+        ndham = npwmax + npwpad
+        if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
+
+        ham_npwmin=npwmin
+c        ham_npwpad=npwpad
+        ham_ndham=ndham
+
+        if (mod(pwmode/10,10) .eq. 1) then
+          call info2(20,1,0,' suham:  q-dependent PW basis with'//
+     .    '  Emin = %d < E < %d.',pwemin,pwemax)
+c          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
+c     .    '  Use npwpad = %i => ndham = %i',
+c     .    npwmin,npwmax,npwpad,ndham,0)
+        else
+          call info5(20,0,0,' suham:  PW basis with  %d < E < '//
+     .    '%d  =>  npw = %i,  ndham = %i',
+     .    pwemin,pwemax,npw,ndham,0)
+        endif
+
+C    ...  Printout
+        if (iprint() .ge. 40) then
+          call pshpr(0)
+          call dpzero(q,3)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
+     .    xx,xx,xx)
+          call poppr
+          call info0(40,1,-1,' G vectors at the Gamma point:')
+          allocate(igv2_iv(3*npw))
+          allocate(kv_iv(3*npw))
+          allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
+          call pshpr(iprint())
+          if (iprint() .ge. 50) call setpr(100)
+          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
+     .     8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
+          call poppr
+          if (allocated(kv_iv)) deallocate(kv_iv)
+          if (allocated(igv2_iv)) deallocate(igv2_iv)
+          deallocate(rv_a_ogvx)
+        endif
+      endif
+      end subroutine suham
+      end module m_suham
+cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) 
       subroutine gen_hamindex(ssite,sspec,ldim,siginit,ljobgw)
       use m_suham,only: iprmb=>iv_a_oindxo
@@ -448,310 +746,7 @@ c       if(iprx)  write(6,*) ' add igaf=',igaf
 c        call rx0('xxxxxxxxxxxx test end af mode for suham xxxxxxxxxxxxx')
       endif
       end subroutine gen_hamindex
-
-      module m_suham
-      integer , allocatable,protected ::  iv_a_oindxo (:)
-      integer , allocatable,protected ::  iv_a_ooffH (:)
-      integer, protected::     ham_ndham,pot_nlma, pot_nlml
-      contains
-      subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
-      use m_supot,only: rv_a_ogv
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
-      use m_lmfinit,only:
-     &     ham_npwmin, ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft !,ham_npwpad
-C- Hamiltonian setup
-C ----------------------------------------------------------------------
-Cio Inputs/Outputs
-Cio  sctrl :struct for program flow parameters; see routine uctrl
-Cio    Elts read: nbasp nspec nl lham lcgf lgen3 lfp lncol nspin lpgf
-Cio    Stored:    *
-Cio    Passed to: *
-Cio  slat  :struct for lattice information; see routine ulat
-Cio    Elts read: ng ogv alat tolft plat qlat
-Cio    Stored:    *
-Cio    Passed to: *
-Cio  sspec :struct for species-specific information; see routine uspec
-Cio    Elts read: lmxa lmxl p pz
-Cio    Stored:    *
-Cio    Passed to: atfold makidx showbs sugcut
-Cio  ssite :struct for site-specific information; see routine usite
-Cio    Elts read: spec
-Cio    Stored:    pnu pz
-Cio    Passed to: showbs pvioeu
-ccCio  sarray:structure containing offsets to various arrays
-ccCio    Elts read: oips oipc nclasp opos
-ccCio    Stored:    *
-ccCio    Passed to: *
-Cio  sham  :struct for parameters defining hamiltonian; see routine uham
-Cio    Elts read: pwmode pwemax lncol oeula neula qss omagf nbf
-Cio    Stored:    ndham ndofH ooffH oindxo ldham lmxax hord obdots
-Cio    Passed to: *
-Cio  spot  :struct for information about the potential; see routine upot
-Cio    Elts read: opp vmtz
-Cio    Stored:    nlma nlml opti
-Cio    Passed to: *
-Cio  sstrn :struct for global strings
-Cio    Elts read: gfopt
-Cio    Stored:    *
-Cio    Passed to: *
-Ci   gfopts:string containing switches for GF program
-Cl Local variables
-Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
-Cl   npwmin:lower limit to number of PWs, estimated by sweeping
-Cl         :over a fine mesh of qp.
-Cl   npwmax:upper limit to number of PWs, estimated by sweeping
-Cl         :over a fine mesh of qp.
-Cl   nqdiv: loop over mesh of q-points to estimate npwmax
-Cl        : nqdiv is fineness of q-mesh.
-Clxxx  npwpad: a 'safety' padding to npwmax in case npwmax
-Clxxx        : underestimates actual upper limit
-Cr Remarks
-Cr   This routine generates energy-independent hamiltonian setup.
-Cr  *It generates and packs a table of hamiltonian offsets offH,
-Cr   orbital permutation indices oindxo.
-Cr
-Cr  *For the ASA 2nd generation LMTO:
-Cr   Extract order of potential function from gfopts
-Cr   Transform pp's to alpha representation
-Cu Updates
-Cu   07 Jul 08 Make sham->ndham = estimate for upper dimension of
-Cu             hamiltonian, including possible PW part
-Cu             Make sham->lmxax = largest lmax in basis
-Cu   18 Apr 05 Force small parameter p -> 0 in 2-center turned on (ASA)
-Cu   14 Feb 03 Makes and packs magnetic field B.sigma
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-c      type(s_ctrl)::sctrl
-c      type(s_lat)::slat
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-c      type(s_bz)::sbz
-c      character*(*) sstrn
-C ... Local parameters
-      integer nkap0,n0H
-      parameter (nkap0=3,n0H=5)
-      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
-     .lgunit,lidim,lihdim,nbasp,nclasp,ndim,neul,nl,
-c lncol,
-     .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
-     .ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
-     .j1,j2,j3,m,npw,npwmin,npwmax,ndham
-      double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
-     .xx
-      integer n0,nqdiv,npwpad
-      parameter (n0=10,nqdiv=12)
-      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
-
-C ... Needed for iostr
-      double precision ckbas,cksumf,kap2(10)
-      integer:: oalph , oiax , ontab , os , ng
-      real(8),allocatable :: rv_a_ogvx(:)
-
-      integer ,allocatable :: kv_iv(:)
-      integer ,allocatable :: igv2_iv(:)
-
-      integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
-      logical ltmp,iostr,bittst,adnf
-      character*80 outs,gfopts
-      double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
-      integer,allocatable:: ips(:)
-
-      nbasp=ctrl_nbasp
-      nspec=ctrl_nspec
-      nl=ctrl_nl
-c      lncol=ctrl_lncol
-      nsp=ctrl_nspin
-      nkaph = globalvariables%nkaph
-      pwmode=ham_pwmode
-      pwemin=ham_pwemin
-      pwemax=ham_pwemax
-c      npwpad=ham_npwpad
-
-      nspc  = 1
-      nspx  = nsp
-c      if (lncol .ne. 0) then
-      if (lso .ne. 0) then
-        nspc = 2
-        nspx = 1
-      endif
-      ndim = nbasp * nl**2 * nkaph
-      if (allocated(iv_a_ooffH)) deallocate(iv_a_ooffH)
-      allocate(iv_a_ooffH(n0h*nkap0*(nbasp+1)))
-      iv_a_ooffH(:)=0
-      allocate(iv_a_oindxo(abs(ndim+3)))
-      stdo = lgunit(1)
-
-C --- Hamiltonian offsets, orbital permutation table ---
-      call iinit(ldham,16)
-      if (mod(pwmode,10) .eq. 2) then
-        call info0(20,0,0,' suham: LMTO basis will be excluded')
-      else
-        allocate(ips(nbasp))
-        do  ib = 1, nbasp
-          ips(ib) = ssite(ib)%spec
-        enddo  
-        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , ips !sarray%iv_a_oips
-     .     , iv_a_ooffH , iv_a_oindxo , ldham )
-        deallocate(ips)
-      endif
-C     Default value for hamiltonian dimension
-      ham_ndham=ldham(1)
-C ... Make rest of ldham
-      ldham(4) = nspc
-      ldham(5) = ldham(1) * nspc
-      ldham(6) = ldham(2) * nspc
-      ldham(7) = ldham(3) * nspc
-      ldham(8) = nspx
-      ham_ldham=ldham
-
-C ------- Potential- and implementation- specific setup -------
-      alat=lat_alat
-      plat=lat_plat
-      qlat=lat_qlat
-      nvi = 0
-      nvl = 0
-      lmxax = -1
-      do  20  ib = 1, nbasp
-
-        is=ssite(ib)%spec
-        lmxa=sspec(is)%lmxa
-        lmxl=sspec(is)%lmxl
-        i_copy_size=size(sspec(is)%p)
-        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-c        pnu(:)= sspec(is)%p(:)
-c        pz(:) = sspec(is)%pz(:)
-cccccccccccccc
-c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
-cccccccccccccc
-        call dcopy(n0,pz,1,pz(1,2),1)
-cc        pz(:,2)=pz
-C         Augmentation dimensioning parameters
-        nvi = nvi + (lmxa+1)**2
-        nvl = nvl + (lmxl+1)**2
-C         Poke spec starting pnu to site
-        i_copy_size=size(ssite(ib)%pnu)
-        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
-        i_copy_size=size(ssite(ib)%pz)
-        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
-cc        ssite(ib)%pnu=pnu
-cc        ssite(ib)%pz=pz
-C         Find largest lmxa
-        lmxax = max(lmxax,lmxa)
-   20 continue
-      ham_lmxax=lmxax
-      pot_nlma=nvi
-      pot_nlml=nvl
-
-      call info5(30,0,0,' suham :  %i augmentation'//
-     .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
-      ng=lat_ng
-      alat=lat_alat
-      tolgv=lat_tolft
-      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
-
-C   ... PW setup : estimate upper bound to number of G vectors
-C       to set up upper bound to hamiltonian dimension
-      pwmode = ham_pwmode
-      pwemax = ham_pwemax
-      if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
-        Gmin = dsqrt(pwemin)
-        Gmax = dsqrt(pwemax)
-        if (mod(pwmode/10,10) .eq. 1) then
-          call info0(70,1,0,' Estimate max size of PW basis from'//
-     .    'combinations of recip. lattice vectors ...')
-          npwmax = -1
-          npwmin = 99999
-          do  j1 = 0, nqdiv
-            do  j2 = 0, nqdiv
-              do  j3 = 0, nqdiv
-                do   m = 1, 3
-                  q(m) = (qlat(m,1)/nqdiv)*j1 +
-     .            (qlat(m,2)/nqdiv)*j2 +
-     .            (qlat(m,3)/nqdiv)*j3
-                enddo
-                call pshpr(iprint()-40)
-ctakao nqdiv is large but fixed... So this is safer?
-c              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-c     .          xx,xx,xx)
-c             write(6,"('GVLST2:goto q=',3f13.5)")q
-c             call shorbz(q,q,qlat,plat)
-                call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     &          xx,xx,xx)
-                call poppr
-                npwmin = min(npwmin,npw)
-                npwmax = max(npwmax,npw)
-              enddo
-            enddo
-          enddo
-c          if (npwpad .lt. 0) then
-            npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
-c          endif
-        else
-          call dpzero(q,3)
-          call pshpr(iprint()-40)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     .    xx,xx,xx)
-          call poppr
-          npwmin = npw
-          npwmax = npw
-          npwpad = 0
-        endif
-        ndham = npwmax + npwpad
-        if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-
-        ham_npwmin=npwmin
-c        ham_npwpad=npwpad
-        ham_ndham=ndham
-
-        if (mod(pwmode/10,10) .eq. 1) then
-          call info2(20,1,0,' suham:  q-dependent PW basis with'//
-     .    '  Emin = %d < E < %d.',pwemin,pwemax)
-c          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
-c     .    '  Use npwpad = %i => ndham = %i',
-c     .    npwmin,npwmax,npwpad,ndham,0)
-        else
-          call info5(20,0,0,' suham:  PW basis with  %d < E < '//
-     .    '%d  =>  npw = %i,  ndham = %i',
-     .    pwemin,pwemax,npw,ndham,0)
-        endif
-
-C    ...  Printout
-        if (iprint() .ge. 40) then
-          call pshpr(0)
-          call dpzero(q,3)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     .    xx,xx,xx)
-          call poppr
-          call info0(40,1,-1,' G vectors at the Gamma point:')
-          allocate(igv2_iv(3*npw))
-          allocate(kv_iv(3*npw))
-          allocate(rv_a_ogvx(abs(3*npw))); rv_a_ogvx(:)=0.0d0
-          call pshpr(iprint())
-          if (iprint() .ge. 50) call setpr(100)
-          call gvlst2 ( alat , plat , q , 0 , 0 , 0 , gmin , gmax , 0 ,
-     .     8 + 2 , npw , npw , kv_iv , rv_a_ogvx , xx , igv2_iv )
-          call poppr
-          if (allocated(kv_iv)) deallocate(kv_iv)
-          if (allocated(igv2_iv)) deallocate(igv2_iv)
-          deallocate(rv_a_ogvx)
-        endif
-      endif
-      end subroutine suham
-      end module m_suham
-
-
-
-
-
-
+csssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine mptauof(symops,ng,plat,nbas,bas,
      &iclass,miat,tiat,invg,delta)
 
