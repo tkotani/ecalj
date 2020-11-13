@@ -72,8 +72,8 @@ c total valence charge
       read(ifzbak,*)zbak
       valn=valn-zbak
       close(ifzbak)
-      valn = valn+zbak
-      write(6,*)' valn=valn+zbak =',valn
+c      valn = valn+zbak
+c      write(6,*)' valn=valn+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz
@@ -308,8 +308,8 @@ cccccccccccccccccccccccccccccccccccccccccc
       read(ifzbak,*)zbak
       valn=valn-zbak
       close(ifzbak)
-      valn = valn+zbak
-      write(6,*)' valn=vanl+zbak =',valn
+c      valn = valn+zbak
+c      write(6,*)' valn=vanl+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz

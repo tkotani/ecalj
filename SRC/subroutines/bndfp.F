@@ -1709,7 +1709,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
             close(ifip)
             if(nkp/=nkk1*nkk2*nkk3) call rx('pdosmode but nkp/=nkk1*nkk2*nkk3')
             if( cmdopt('--tetraw',8,0,strn)) then
-               open(newunit=ifip,file='tatradata.dat',form='unformatted')
+               open(newunit=ifip,file='tetradata.dat',form='unformatted')
                write(ifip) ndhamx,nkp,ntete !ndos,nkp mar2015
                write(ifip) idtete
                close(ifip)
