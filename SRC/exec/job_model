@@ -1,5 +1,5 @@
 #!/bin/bash
-topdir=ecaljmto
+BINDIR=${HOME}/bin
 fname=model
 mcfile=mtoctrl
 vpw=1
@@ -53,19 +53,19 @@ rm all.log
 
 if [ ${flg[0]} = "y" ]; then
     echo "lmfa $1"
-    ~/$topdir/lm7K/lmfa $1 -vpwmode=$vpw 2>&1 | tee llmfa
+    ${BINDIR}/lmfa $1 -vpwmode=$vpw 2>&1 | tee llmfa
     cat llmfa >> all.log
     echo "lmf $1 -np $3"
-    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 -vpwmode=$vpw 2>&1 | tee llmf
+    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 -vpwmode=$vpw 2>&1 | tee llmf
     cat llmf >> all.log
 fi
 
 if [ ${flg[1]} = "y" ]; then
     echo "[band plotting]"
     echo "llmf_ef...."
-    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --quit=band > llmf_ef
+    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --quit=band > llmf_ef
     echo "llmf_band...."
-    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --band > llmf_band
+    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --band > llmf_band
 fi
 
 
@@ -73,13 +73,13 @@ if [ ${flg[2]} = "y" ]; then
     echo "Get efermi.lmf"
     echo 'runnnig efermi determination for pwmode=1'
     rm HamiltonianPMT*
-    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --quit=band -vpwmode=$vpw > lmf_efermi
-    #mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --quit=band -vpwmode=0 > lmf_efermi
+    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --quit=band -vpwmode=$vpw > lmf_efermi
+    #mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --quit=band -vpwmode=0 > lmf_efermi
     
     echo 'runnnig hamiltonian generation for pwmode=1'
-#    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=$vpw 2>&1 | tee lwriteham
-    mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh --phispinsym -vpwmode=$vpw 2>&1 | tee lwriteham
-    #mpirun -np $3 ~/$topdir/lm7K/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0
+#    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=$vpw 2>&1 | tee lwriteham
+    mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --writeham --mkprocar --fullmesh --phispinsym -vpwmode=$vpw 2>&1 | tee lwriteham
+    #mpirun -np $3 ${BINDIR}/lmf-MPIK $1 --writeham --mkprocar --fullmesh -vpwmode=0
     cat lwriteham >> all.log
     
     echo "Get Hamiltonian file, namded as HamiltonianPMT"
@@ -88,15 +88,15 @@ if [ ${flg[2]} = "y" ]; then
     cat HamiltonianPMT > ${hamorg}.K
     cat HamiltonianPMTInfo > ${hamorg}.Info
 
-    echo "~/bin/$topdir/mkinput"
-    ~/$topdir/lm7K/mkinput
+    echo "${BINDIR}/mkinput"
+    ${BINDIR}/mkinput
 fi
 
 
 if [ ${flg[3]} = "y" ] ; then    
     echo "${hamorg} ${hamr}" > input_initmlo
-    echo "~/bin/$topdir/initmlo"
-    ~/$topdir/lm7K/initmlo 2>&1  | tee linitmlo
+    echo "${BINDIR}/initmlo"
+    ${BINDIR}/initmlo 2>&1  | tee linitmlo
     cat linitmlo >> all.log
 fi
 
@@ -108,18 +108,18 @@ if [ ${flg[4]} = "y" ] ; then
     fi
     
     echo "${hamr}" > input_mkhamloc
-    echo "~/bin/$topdir/mkhamloc(EH cutting)"    
+    echo "~/bin/mkhamloc(EH cutting)"    
     wc QPLIST.IBZ | awk '{print $1}' > LEN.IBZ
-    ~/$topdir/lm7K/mkhamloc 2>&1  | tee lmkhamloc
+    ${BINDIR}/mkhamloc 2>&1  | tee lmkhamloc
     cat lmkhamloc >> all.log    
     cat status-model >> lmkhamloc    
 fi
 
  
 if [ ${flg[5]} = "y" ] ; then 
-    echo "~/bin/$topdir/lmfham"
+    echo "~/bin/lmfham"
     echo "${hamr} ${hamm} ${hams} ${hamc}" > input_lmfham 
-    ~/$topdir/lm7K/lmfham 2>&1 | tee llmfham
+    ${BINDIR}/lmfham 2>&1 | tee llmfham
     cat llmfham >> all.log
 fi
 
@@ -154,8 +154,8 @@ if [ ${flg[6]} = "y" ] ; then
     echo "input_plotmodel!(nspin=${nspin})"
     cat input_plotmodel
 
-    echo "~/bin/$topdir/plotmodel (input_band)"
-    ~/$topdir/lm7K/plotmodel 2>&1 | tee lplotmodel
+    echo "${BINDIR}/plotmodel (input_band)"
+    ${BINDIR}/plotmodel 2>&1 | tee lplotmodel
     cat lplotmodel >> all.log
     
     for jsp in `seq 1 $nspin`

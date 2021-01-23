@@ -138,19 +138,19 @@ lmchk:	$(obj_path)/lmchk.o $(ELIB) $(MPI)
 lmf2gw:	$(obj_path)/lmf2gw.o 
 	@echo $(LK) $@.o 'link with *.o'
 	@$(FC) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) -o $@
-lmfham: $(obj_path)/lmfham.o $(ELIB)  $(MPI) 
+lmfham: $(obj_path)/lmfham.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) 
+mkhamloc: $(obj_path)/mkhamloc.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-plotmodel: $(obj_path)/plotmodel.o $(ELIB)  $(MPI) 
+plotmodel: $(obj_path)/plotmodel.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-initmlo: $(obj_path)/initmlo.o $(ELIB)  $(MPI) 
+initmlo: $(obj_path)/initmlo.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
-mkinput: $(obj_path)/mkinput.o $(ELIB)  $(MPI) 
+mkinput: $(obj_path)/mkinput.o $(ELIB)  $(MPI) $(MLO)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $(obj_path)/$@.o $(ELIB)  $(MPI) $(LIBLOC) $(LKFLAGS2) $(MLO) -o $@
 lmf-MPIK: $(obj_path)/lmf-MPIK.o $(ELIB) $(MPI) 
