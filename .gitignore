@@ -85,3 +85,11 @@ mkLO
 mkinput
 mkmodel
 readinput
+SRC/TestInstall/bin
+SRC/TestInstall/work
+*duledepend*
+*/*duledepend*
+*/*/*duledepend*
+*/*/*/*duledepend*
+SRC/exec/*
+SRC/TAGS
