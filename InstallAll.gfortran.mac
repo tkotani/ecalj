@@ -26,8 +26,8 @@ popd
 ### Use SRC/exec/Makefile
 pushd .
 cd SRC/exec
-cp Makefile Makefile.org
-cp Makefile.mac Makefile
+#cp Makefile Makefile.org
+#cp Makefile.mac Makefile
 make PLATFORM=gfortran LIBMATH="$MATH" ||my_error
 make PLATFORM=gfortran BINDIR=$BINDIR install ||my_error
 popd

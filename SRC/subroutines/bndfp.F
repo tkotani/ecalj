@@ -407,6 +407,7 @@ c mar2014
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: lpz,phispinsym,ljobgw
+      integer:: ifspec
       
 !! ----------------------------
       call tcn ('bndfp')
@@ -839,12 +840,16 @@ c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
                l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
                k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
             enddo
+
+            open(newunit=ifspec,file="atmspc")
+            write(ifspec,*) ldim,nsp
             write(6,*) ' i  ib l  k trim(spec)'
             do i= 1, ldim
                ib   = ib_table(i)
                is   = ssite(ib)%spec
                spid = sspec(is)%name
                write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+               write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i)
             enddo
             if(writeham) then
                write(ififft)ldim,lso,nsp
