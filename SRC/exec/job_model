@@ -171,6 +171,8 @@ if [ ${flg[6]} = "y" ] ; then
 	sed -i -e "s/lt 1 pt/lt 1 lw 4 pt/g" $fname$jsp.glt
 	sed -i -e '$s/lp/lp,\\/g' $fname$jsp.glt
 	sed -i -e "s/w lp/w l title 'pmt'/g" $fname$jsp.glt
+	sed -i -e "s/ -18.0/ -10.0/g" $fname$jsp.glt
+	sed -i -e "s/ 16.0/ 10.0/g" $fname$jsp.glt
 	sed -i -e 's/Gamma/\{\/Symbol G\}/g' $fname$jsp.glt
 	sed -i -e "s/#set/set/g" $fname$jsp.glt   
     
