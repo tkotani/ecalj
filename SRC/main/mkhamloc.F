@@ -1,15 +1,59 @@
-      subroutine mktrwdiff(j,S,L,vec,ir,Omat,Hmat,etr,dth,dbg)
+      subroutine mkdiff(j,S,M,L,vec,ir,Omat,Hmat,dth)
       implicit none
-      intent(in)  :: j,S,L,vec,ir,Omat,Hmat,dbg
-      intent(out) :: etr,dth
+      intent(in)  :: j,S,M,L,vec,ir,Omat,Hmat
+      intent(out) :: dth
+      logical     :: dbg,debug=.false.
+      integer     :: j,j1,j2,M,S,nr,L,i,i1,i2,ir(M-S,2),jj
+      real(8)     :: diff,vec(M-S),dth
+      complex(8)  :: Omat(L,L),Hmat(L,L),Omats(M,M),Hmats(M,M)
+     .     ,Ot(S,S),Ht(S,S),Oinv(S,S),rmat(M,S),OdH(S,M),OHOd(S,M),tmat(S,M),OL(S,M),HL(S,M)
+
+      NR=M-S      
+      Omats(1:M,1:M)=Omat(1:M,1:M)
+      Hmats(1:M,1:M)=Hmat(1:M,1:M)
+      
+      rmat=0d0
+      do i=1,S
+         rmat(i,i)=1d0
+      end do
+      
+      do i=1,NR
+         i1=ir(i,1)
+         i2=ir(i,2)
+         rmat(i1,i1) =  dcos(vec(i))
+         rmat(i2,i1) =  dsin(vec(i))         
+      end do
+      
+      OL=matmul(transpose(rmat),Omats)
+      HL=matmul(transpose(rmat),Hmats)                 
+      
+      Ot=matmul(OL,rmat)
+      Ht=matmul(HL,rmat)
+      
+      call invs(S,Ot,Oinv) !Oinv is matrix inversion of Ot      
+                  
+      OdH=matmul(Oinv,HL)               
+      OHOd=matmul(matmul(Oinv,Ht),matmul(Oinv,OL))
+      
+      tmat(:,:)=OdH(:,:)-OHOd(:,:)
+
+      j1=ir(j,1)
+      j2=ir(j,2)                  
+      dth=tmat(j1,j1)*(-dsin(vec(j)))+tmat(j1,j2)*(dcos(vec(j)))
+      
+      return
+      end subroutine mkdiff
+
+      subroutine mktr(j,S,L,vec,ir,Omat,Hmat,etr)
+      implicit none
+      intent(in)  :: j,S,L,vec,ir,Omat,Hmat
+      intent(out) :: etr
       logical     :: dbg,debug=.false.
       integer     :: j,j1,j2,S,L,i,i1,i2,ir(S,2),jj
-      real(8)     :: etr,diff,vec(S),dth
+      real(8)     :: etr,diff,vec(S)
       complex(8)  :: Omat(L,L),Hmat(L,L)
      .     ,Ot(S,S),Ht(S,S),Oinv(S,S),emat(S,S),Omats(S*2,S*2),Hmats(S*2,S*2)
      .     ,rmat(S*2,S),OdH(S,S*2),OHOd(S,S*2),tmat(S,S*2),OL(S,S*2),HL(S,S*2)
-c     .   ,Ot(L-S,L-S),Ht(L-S,L-S),Oinv(L-S,L-S),emat(L-S,L-S)
-c     .   ,OdH(L-S,L),OHOd(L-S,L),tmat(L-S,L),rmat(L,L-S),OL(L-S,L),HL(L-S,L)
 
       Omats(1:S*2,1:S*2)=Omat(1:S*2,1:S*2)
       Hmats(1:S*2,1:S*2)=Hmat(1:S*2,1:S*2)
@@ -22,48 +66,26 @@ c     .   ,OdH(L-S,L),OHOd(L-S,L),tmat(L-S,L),rmat(L,L-S),OL(L-S,L),HL(L-S,L)
          rmat(i1,i1) =  dcos(vec(i))
          rmat(i2,i1) =  dsin(vec(i))         
       end do
-
-      if(debug)then
-         do i=1,L-S
-            rmat(L+1-i,L-S+1-i)=1.0d0
-         end do
+      
+      do i=1,L-S
+         rmat(L+1-i,L-S+1-i)=1.0d0
+      end do
          
-         do jj=1,S
-            do i=1,S*2
-               write(*,*) i,jj,rmat(i,jj)
-            end do
+      do jj=1,S
+         do i=1,S*2
+            write(*,*) i,jj,rmat(i,jj)
          end do
-      end if
+      end do
 
-c      OL=matmul(transpose(rmat),Omat)
-c      HL=matmul(transpose(rmat),Hmat)
-      OL=matmul(transpose(rmat),Omats)
-      HL=matmul(transpose(rmat),Hmats)                 
-      
-      Ot=matmul(OL,rmat)
-      Ht=matmul(HL,rmat)
-      
-      call invs(S,Ot,Oinv) !Oinv is matrix inversion of Ot
-      
-      if(dbg)then
-         emat=matmul(Oinv,Ht)
-         etr=0d0
-         do i=1,S
-            etr=etr+emat(i,i)
-         end do
-      end if
-                  
-      OdH=matmul(Oinv,HL)               
-      OHOd=matmul(matmul(Oinv,Ht),matmul(Oinv,OL))
-      
-      tmat(:,:)=OdH(:,:)-OHOd(:,:)
+      emat=matmul(Oinv,Ht)
+      etr=0d0
+      do i=1,S
+         etr=etr+emat(i,i)
+      end do
 
-      j1=ir(j,1)
-      j2=ir(j,2)                  
-      dth=tmat(j1,j1)*(-dsin(vec(j)))+tmat(j1,j2)*(dcos(vec(j)))
-      
       return
-      end subroutine mktrwdiff
+      end subroutine mktr
+
       
       subroutine updatermat(totvec,LL,nr,ir,nsp,rmat)
       implicit none
@@ -110,25 +132,6 @@ c      HL=matmul(transpose(rmat),Hmat)
       return
       end subroutine output
 
-      subroutine readlmat(L,nsp,lmat1,lmat2)
-      implicit none
-      intent(in)  :: L,nsp
-      intent(out) :: lmat1,lmat2
-      integer :: L,iflo,nsp
-      complex(8) :: lmat1(L,L),lmat2(L,L)
-      
-      open(newunit=iflo,file="LOmatbin1",form='unformatted')
-      read(iflo)  lmat1(1:L,1:L)
-      close(iflo)
-
-      if(nsp==2)then
-         open(newunit=iflo,file="LOmatbin2",form='unformatted')
-         read(iflo)  lmat2(1:L,1:L)
-         close(iflo)
-      end if
-      return
-      end subroutine readlmat
-
       subroutine invs(len,mat,inv)
       implicit none
       intent(in)  :: len,mat
@@ -151,11 +154,11 @@ c      HL=matmul(transpose(rmat),Hmat)
       integer(4):: ifmto,ifqpl,ifinput,ifout,i,j,jj,n,m,t,l,k,access,loop,nq,Lmax,i1,i2,NF,LD,imax,itr
      &     ,ikpd,ikp,ifih,it,iq,rq,lold,kold,ibold,ifig=-999,ii,ifile_handle,id,jd,fflg,LLdum,idum
      &     ,jsp,nn,LL,LE,lso1,flg_osym,flg_ssym,lenMTO,ncut,nevd,j1,j2,ioncut,jorb,lcut,rcut,nbsec,maxitr
-     &     ,ifir,NR
+     &     ,ifir,NR,NS,NM
       integer(4),allocatable:: nev(:),jspl(:),isptab(:),llist(:),ir(:,:)
 
       real(8)::qp(3),convc,h,ral,rimg,ryd,emax,emin,pi,epsdum,iden,fac,prdN,prdF,prdM,norm1,norm2
-     &  ,dum,r,ecut,etr,etr0,etrtmp,dthtmp,tmp,adum,fD,dth,dthL,dthR,thmin
+     &  ,dum,r,ecut,etr,etr0,et,dtmp,tmp,adum,fD,dth,dthL,dthR,thmin
      &  , etrL,etrR,thL,thR,thM,thmax,cbsec
       real(8),allocatable,dimension(:)  :: epsovl,convi,evl_D,vM,vL,vR
       real(8),allocatable,dimension(:,:):: totvec,oldvec
@@ -184,7 +187,10 @@ c      HL=matmul(transpose(rmat),Hmat)
       LL=NMTO
       
       open(newunit=ifir,file="ir_list")
-      read(ifir,*) nr
+      read(ifir,*) NM,NS
+      nr=NM-NS
+      write(*,*) "NR,NM,NS=",nr,nm,ns
+      if(nr.le.0) stop "error! wrong size of nr in ir_list!"
       allocate(ir(nr,2),orbsym(nr))
       do i=1,nr
          read(ifir,*) ir(i,1),ir(i,2),orbsym(i)
@@ -287,7 +293,8 @@ c      totvec=-0.8d0
             if(l_table(j1)==lold.and.ib_table(j1)==ibold)then
                goto 2020
             end if
-            
+
+            write(*,*) "lcut"
             do loop=0,lcut
                if(dbg)etr=0.0d0
                dth=0.0d0
@@ -298,10 +305,10 @@ c      totvec=-0.8d0
                   jsp=jspl(rq)                  
                   
                   vM(:)=totvec(:,jsp)
-                  vM(jorb)=thmin               
-                  call mktrwdiff(jorb,NR,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),etrtmp,dthtmp,dbg)
-                  if(dbg)etr=etr+etrtmp/dble(nqs) 
-                  dth=dth+dthtmp
+                  vM(jorb)=thmin
+                  call mkdiff(jorb,NS,NM,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),dtmp)
+c                  if(dbg)etr=etr+et/dble(nqs) 
+                  dth=dth+dtmp
                end do
                dth=dth/dble(nqs)               
 
@@ -314,6 +321,7 @@ c      totvec=-0.8d0
             if(dbg)write(*,*) "================================"
             if(dbg)write(idum,*) "================================"
 
+            write(*,*) "rcut"
             do loop=1,rcut
                if(dbg)etr=0.0d0
                dth=0.0d0
@@ -324,10 +332,11 @@ c      totvec=-0.8d0
 
                   vM(:)=totvec(:,jsp)
                   vM(jorb)=thmax               
-                  call mktrwdiff(jorb,NR,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),etrtmp,dthtmp,dbg)
-                  if(dbg)etr=etr+etrtmp/dble(nqs) !*weight(iq)
-                  dth=dth+dthtmp/dble(nqs) !*weight(iq)
+                  call mkdiff(jorb,NS,NM,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),dtmp)
+c                  if(dbg)etr=etr+et/dble(nqs) !*weight(iq)
+                  dth=dth+dtmp
                end do
+               dth=dth/dble(nqs)
                
                r=dsin(thmax)
                if(dbg)write(*,"(i4,3(f11.6,2x),a12,i4,a,i4)") loop,etr,dth,r,orbsym(j1),jsp,"(spin)",j1
@@ -340,7 +349,8 @@ c      totvec=-0.8d0
                         
             thR=thmax
             thL=thmin
-            
+
+            write(*,*) "bisec"
             do loop=1,nbsec
                etr=0.0d0
                etrL=0.0d0
@@ -357,21 +367,21 @@ c      totvec=-0.8d0
 
                   vM(:)=totvec(:,jsp)
                   vM(jorb)=thM               
-                  call mktrwdiff(jorb,NR,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),etrtmp,dthtmp,dbg)
-                  if(dbg)etr=etr+etrtmp/dble(nqs) 
-                  dth=dth+dthtmp
+                  call mkdiff(jorb,NS,NM,LD,vM,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),dtmp)
+c                  if(dbg)etr=etr+et/dble(nqs) 
+                  dth=dth+dtmp
 
                   vL(:)=totvec(:,jsp)
                   vL(jorb)=thL
-                  call mktrwdiff(jorb,NR,LD,vL,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),etrtmp,dthtmp,dbg)
-                  if(dbg)etrL=etrL+etrtmp/dble(nqs) 
-                  dthL=dthL+dthtmp
+                  call mkdiff(jorb,NS,NM,LD,vL,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),dtmp)
+c                  if(dbg)etrL=etrL+et/dble(nqs) 
+                  dthL=dthL+dtmp
                   
                   vR(:)=totvec(:,jsp)
                   vR(jorb)=thR
-                  call mktrwdiff(jorb,NR,LD,vR,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),etrtmp,dthtmp,dbg)
-                  if(dbg)etrR=etrR+etrtmp/dble(nqs) 
-                  dthR=dthR+dthtmp
+                  call mkdiff(jorb,NS,NM,LD,vR,ir,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),dtmp)
+c                  if(dbg)etrR=etrR+et/dble(nqs) 
+                  dthR=dthR+dtmp
                end do
 
                dth=dth/dble(nqs)

@@ -231,7 +231,7 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       implicit none
       integer::lold,i,j,n,if1,idum,access,ifi,ii,jj,iflg,ib1,l1,k1,m1,ib2,l2,k2,m2,ip
      . ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel
-      integer(4) ,allocatable :: ib_new(:),l_new(:),k_new(:),m_new(:),irold(:,:),pair(:),irl(:)
+      integer(4) ,allocatable :: ib_new(:),l_new(:),k_new(:),m_new(:),irold(:,:),iro(:,:),p1(:),irl(:)
       character(2) add,a(23)
       character(20) ,allocatable :: orbold(:)
       character(200) cdum
@@ -280,10 +280,10 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
  999  close(ifi)
       close(ifo)
       nmodel=i
-      
-      nr=0
-      allocate(pair(1:nmodel))
-      pair=0
+
+      allocate(p1(nmodel))
+      nr=0      
+      p1=0
       do i=1,nmodel !search EH2 out of the model
          ip=ipivot(i)
          do j=1,NMTO
@@ -298,10 +298,10 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
             if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1.ne.k2.and.k1.le.2.and.k2.le.2)then
                nr=nr+1
                ipivot(nmodel+nr)=j
-               pair(i)=1
+               p1(i)=1
             end if
          end do
-      end do
+      end do      
       
       jj=0
       do j=1,NMTO
@@ -314,40 +314,41 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
             ipivot(nmodel+nr+jj)=j
          end if
       end do                     
-
       
       open(newunit=if1,file="IPVT") !just a record
       do i=1,NMTO
          write(if1,*) ipivot(i)
       end do
                
-      allocate(ir(nr,2),orbsym(nr),irl(nr))
+      allocate(ir(nr,2),orbsym(nr),iro(nr,2),irl(nr))
       
       ii=0
       do i=1,nmodel            
-         if(pair(i)==1)then
+         if(p1(i)==1)then
             ii=ii+1
             ir(ii,1)=i
+            iro(ii,1)=ipivot(i)
             irl(ii)=l_table(ipivot(i))
             orbsym(ii)=orbch(l_table(ipivot(i)),m_table(ipivot(i)))
          end if
-      end do         
+      end do
       do i=1,nr
          ir(i,2)=i+nmodel
+         iro(i,2)=ipivot(i+nmodel)
       end do                           
 c     else                  
       open(newunit=ioir,file="ir_list.org") !preparation for mkhamloc.F
-      write(ioir,*) nr
+      write(ioir,"(2i6,a)") nmodel+nr,nmodel,"   size of matrix in mkhamloc and model space"
       write(*,*) "===========ir_list(original)==========="
       write(*,*) "i,ir(i,1),ir(i,2)"
       do i=1,nr
-         write(*,"(2i4,3x,a10)") ir(i,1),ir(i,2),orbsym(i)
-         write(ioir,"(2i4,3x,a10)") ir(i,1),ir(i,2),orbsym(i)
+         write(*,"(2i4,3x,a10,2i4)") ir(i,1),ir(i,2),orbsym(i),iro(i,1),iro(i,2)
+         write(ioir,"(2i4,3x,a10,2i4)") ir(i,1),ir(i,2),orbsym(i),iro(i,1),iro(i,2)
       end do
       write(*,*) "===========ir_list(original)==========="
       close(ioir)
          
-      allocate(irold(nr,2),orbold(nr))         
+      allocate(irold(nr,2),orbold(nr)) 
       irold=ir
       orbold=orbsym
       
@@ -365,7 +366,7 @@ c     else
       
       open(newunit=ioir,file="ir_list") !preparation for mkhamloc.F
       write(*,*) "===========ir_list(practical)==========="
-      write(ioir,*) nr
+      write(ioir,"(2i6,a)") nmodel+nr,nmodel,"   size of matrix in mkhamloc and model space"
       write(*,*) "i,ir(i,1),ir(i,2)"
       do i=1,nr
          write(*,"(2i4,3x,a10)") ir(i,1),ir(i,2),orbsym(i)
@@ -501,7 +502,7 @@ c               write(*,*) i,ib(i),j,ib(j),npair(ib(i),ib(j)),npairmx
       else if(inp==1)then
          chr="mkhamloc"         
       else if(inp==2)then
-         chr="replaceorb"
+         chr="initmlo"
       else if(inp==3)then
          chr="plotmodel"
       else if(inp==4)then
