@@ -1,6 +1,6 @@
       program initmlo
       use m_hamMTO,only:ReadHamMTOInfo,qplist,ib_table,l_table,k_table,m_table,nsp,nkp,NMTO,orbch,ipivot,
-     .     nqs,qprs,itor,niqs,mkilo,nlo,nlo2,ilo,mkpivot,startprint,WriteHamMTOInfo
+     .     nqs,qprs,itor,niqs,nlo,nlo2,ilo,mkpivot,startprint,WriteHamMTOInfo
       implicit none
       integer(4) :: ideb,ifiin,ifiout,ifind,ifrot,ifoutmat,ifinput,ifovl,ifham,iflo
       integer(4) :: i,j,n,m,s,t,l,k,access,nq,LL,NS,jold,LL2

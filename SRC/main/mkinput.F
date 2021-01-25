@@ -1,18 +1,19 @@
       program mkinput
       implicit none
-      logical :: flg,kai
-      character(2) :: atmspec, atmold,atmname(100)
-      integer :: i,j,k,ifspc,l,ifinp,ib,il,ik,lold,ind,m,NMTO,nsp,anum
-     . ,cnum,onum,d,ii,kold,klist(100),iblist(100),ibold,ifim,ifix
+      logical :: flg,newline
+      character(2) :: atmspec, atmold,atmname(1000)
+      integer :: access,i,j,k,ifspc,l,ifinp,ib,il,ik,lold,ind,m,NMTO,nsp,anum
+     . ,cnum,onum,d,ii,kold,klist(1000),iblist(1000),ibold,ifim,ifix
       integer,allocatable :: num(:),cl(:)
-      
-      open(newunit=ifspc,file="atmspc")
+
+      if(access("atmspc","").ne.0) stop "error! file atmspc is needed as the input!!"
+      open(newunit=ifspc,file="atmspc") !main input. check the existence!!
       open(newunit=ifinp,file="mtoprm")
       open(newunit=ifim,file="meta_mto")
       open(newunit=ifix,file="index_f")
-      write(ifinp,"(es9.2,f6.1,2i4, 2i6,  es9.2,2i6,a,a)")
-     .     1d-5, 10d0, 1,0, 30,30,1d-7,20,10
-     .     ," !convergence, en-cut, orb_sym(1=on), spin_sym(0=off), max-iter, "
+      write(ifinp,"(es9.2,2f6.1,2i4, 2i6,  es9.2,2i6,a,a)")
+     .     1d-5, -10d0,10d0, 1,0, 30,30,1d-7,20,10
+     .     ," !convergence, en-min, en-max, orb_sym(1=on), spin_sym(0=off), max-iter, "
      .     ,"max iter(bisection), conv. of bisection,lcut, rcut"
       atmold="PP"
       lold=0
@@ -24,7 +25,7 @@
       allocate(num(NMTO),cl(NMTO))
       
       do j=1,NMTO
-         read(ifspc,*,end=999) ind,atmspec,ib,l,k
+         read(ifspc,*,end=999) ind,atmspec,ib,l,k !main input!
          if(l==3)then
             call rareearth(atmspec,flg)
             if(.NOT.flg) write(ifix,"(i4)") j
@@ -67,29 +68,35 @@
       iblist(anum)=ib
 
       do i=1,anum
-         kai=.false.
+         newline=.false.
          if(i==1)   j=1
          if(i.ne.1) j=cl(i-1)+1
-         k=cl(i)         
-         if(klist(i).ne.2.or.nsp==2)then
-            write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no")
-     .      atmname(i)," : ",iblist(i)," : ",klist(i)," : "
-            kai=.true.
+         k=cl(i)
+         if(nsp==1)then
+            if(klist(i)==1.or.nsp==2)then
+               write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
+               newline=.true.
+            end if
+         else if(nsp==2)then
+            write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
+            newline=.true.
          end if
          
          do ii=j,k
             if(num(ii).le.4)then
-               if(klist(i)/=2)write(ifinp,"(i4)",advance="no") num(ii)
+               if(klist(i)==1)write(ifinp,"(i4)",advance="no") num(ii)
             else if(num(ii).le.9)then
+               call typicalanion(atmname(i),flg)
+               if(flg)cycle
                if(nsp==2)write(ifinp,"(i4)",advance="no") num(ii)
-               if(nsp==1.and.klist(i)/=2)
-     .           write(ifinp,"(i4)",advance="no") num(ii)
-            else
+               if(nsp==1.and.klist(i)==1) write(ifinp,"(i4)",advance="no") num(ii)
+            else !f-orbital: num=10--16
                call rareearth(atmname(i),flg)
-               if(flg) write(ifinp,"(i4)",advance="no") num(ii)
+               if(flg.and.nsp==2) write(ifinp,"(i4)",advance="no") num(ii)
+               if(flg.and.nsp==1.and.klist(i)==1) write(ifinp,"(i4)",advance="no") num(ii)
             end if
          end do
-         if(kai)write(ifinp,*) " "
+         if(newline)write(ifinp,*) " "
       end do
       stop "return 0(mkinput)"
       end program mkinput
@@ -101,6 +108,7 @@
       logical(4) ::flg
 
       flg=.false.
+c      write(*,*) "4f orbital check for [",name,"]"
       if(name=="La".or.name=="Ce".or.name=="Pr".or.name=="Nd")then
          flg=.true.
       else if(name=="Pm".or.name=="Sm".or.name=="Eu".or.name=="Gd")then
@@ -110,7 +118,39 @@
       else if(name=="Tm".or.name=="Yb".or.name=="Lu")then
          flg=.true.
       end if
-      
-      return 
+      if(flg)then
+         write(*,*) "[Lathanoid] 4f-orbitals are considered explicitly for [",name,"]"
+         return
+      end if
+         
+c      write(*,*) "5f orbital check for [",name,"]"
+      if(name=="Ac".or.name=="Th".or.name=="Pa".or.name=="U")then
+         flg=.true.
+      else if(name=="Np".or.name=="Pu".or.name=="Am".or.name=="Cm")then
+         flg=.true.
+      else if(name=="Bk".or.name=="Cf".or.name=="Es".or.name=="Fm")then
+         flg=.true.
+      else if(name=="Md".or.name=="No".or.name=="Lr")then
+         flg=.true.
+      end if
+      if(flg)then
+         write(*,*) "[Actinoid] 5f-orbitals are considered explicitly for [",name,"]"
+      else
+c         write(*,*) "[Non-f atms] NO f-orbitals are considered explicitly for [",name,"]"        
+      end if      
+      return
       end subroutine rareearth
-      
+
+      subroutine typicalanion(name,flg)
+      intent(in)  :: name
+      intent(out) :: flg
+      character(2) name
+      logical(4) ::flg
+
+      flg=.false.
+      if(name=="N".or.name=="O".or.name=="F".or.name=="Cl".or.name=="S")then
+         flg=.true.
+      end if
+      return
+      end subroutine typicalanion
+
