@@ -270,7 +270,7 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
          end do
       end do
       ii=0
-      do i=1,nmodel             !search EH3(LO) out of the model
+      do i=1,nmodel           
          if(p1(i).ge.1)then
             ii=ii+1
             ipivot(nmodel+nk2+ii)=p1(i)
@@ -295,75 +295,74 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
          write(if1,*) ipivot(i)
       end do
 
-      allocate(ir(nr,2),orbsym(nr),iro(nr,2),irl(nr))
+      allocate(ir(nk2,3),orbsym(nk2),iro(nk2,3),irl(nk2))
       ir=0
       iro=0      
       ii=0
+      jj=0
       irl=-1
       do i=1,nmodel            
-         if(p1(i).ne.0)then !without LO, k1 and k2
+         if(p1(i).ne.0)then     !without LO, k1 and k2            
             ii=ii+1
             ir(ii,1)=i
             iro(ii,1)=ipivot(i)
             irl(ii)=l_table(ipivot(i))
             orbsym(ii)=orbch(l_table(ipivot(i)),m_table(ipivot(i)))
+            if(p1(i).ge.1)then
+               jj=jj+1
+               ir(ii,3)=jj+nmodel+nk2
+               iro(ii,3)=ipivot(jj+nmodel+nk2)
+            end if
          end if
       end do
-      do i=1,nmodel             !search EH3(LO) out of the model
-         if(p1(i).ge.1)then
-            ii=ii+1
-             ir(ii,1)=i
-            iro(ii,1)=ipivot(i)
-             ir(ii,2)=ii+nmodel
-             iro(ii,2)=p1(i)
-             orbsym(ii)=orbch(l_table(ipivot(i)),m_table(ipivot(i)))
-         end if
-      end do
-      if(ii.ne.nr) stop "something wrong!(2)"
+c      if(ii.ne.nk2) stop "something wrong!(1)"
       
-      do i=1,nr
-         ii=ii+1
+      do i=1,nk2
+c         ii=ii+1
          ir(i,2)=i+nmodel
          iro(i,2)=ipivot(i+nmodel)
       end do
-
+      
       open(newunit=ioir,file="ir_list.org") !preparation for mkhamloc.F
       write(ioir,"(3i6,a)") nmodel,nk2,nlo,"   size of matrix in mkhamloc and model space"
       write(*,*) "===========ir_list(original)==========="
       write(*,*) "i,ir(i,1),ir(i,2)"
-      do i=1,nr
-         write(*,"(2i6,3x,a10,2i4)") ir(i,1),ir(i,2),orbsym(i),iro(i,1),iro(i,2)
+      do i=1,nk2
+         write(*,"(3i6,3x,a10,3i4)") ir(i,1),ir(i,2),ir(i,3),orbsym(i),iro(i,1),iro(i,2),iro(i,3)
          if(k_table(ipivot(ir(i,2))).ne.3)then
-            write(ioir,"(2i6,3x,a10,a4,2i6)")
-     .           ir(i,1),ir(i,2),trim(adjustl(orbsym(i))),"    ",iro(i,1),iro(i,2)
+            write(ioir,"(3i6,3x,a10,a4,3i6)")
+     .           ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"    ",iro(i,1),iro(i,2),iro(i,3)
          else
-            write(ioir,"(2i6,3x,a10,a4,2i6)")
-     .           ir(i,1),ir(i,2),trim(adjustl(orbsym(i))),"(LO)",iro(i,1),iro(i,2)
+            write(ioir,"(3i6,3x,a10,a4,3i6)")
+     .           ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)",iro(i,1),iro(i,2),iro(i,3)
          end if
       end do
       write(*,*) "===========ir_list(original)==========="
       close(ioir)
          
-      allocate(irold(nr,2),orbold(nr)) 
+      allocate(irold(nk2,3),orbold(nk2)) 
       irold=ir
       orbold=orbsym
 
+c      ii=0
+c      do j=1,nr
+c         if(k_table(iro(j,2))==3)then
+c            ii=ii+1
+c            ir(ii,1)=irold(j,1)
+c            ir(ii,2)=irold(j,2)
+c            orbsym(ii)=orbold(j)
+c         end if
+c      end do
+
+      ir=0d0
       ii=0
-      do j=1,nr
-         if(k_table(iro(j,2))==3)then
-            ii=ii+1
-            ir(ii,1)=irold(j,1)
-            ir(ii,2)=irold(j,2)
-            orbsym(ii)=orbold(j)
-         end if
-      end do
-         
       do i=3,0,-1
-         do j=1,nr
+         do j=1,nk2
             if(irl(j)==i)then
                ii=ii+1
                ir(ii,1)=irold(j,1)
                ir(ii,2)=irold(j,2)
+               if(irold(j,3).ne.0) ir(ii,3)=irold(j,3)
 c               ir(ii,3)=irold(j,3)
                orbsym(ii)=orbold(j)
             end if
@@ -373,15 +372,15 @@ c               ir(ii,3)=irold(j,3)
       open(newunit=ioir,file="ir_list") !preparation for mkhamloc.F
       write(*,*) "===========ir_list(practical)==========="
       write(ioir,"(3i6,a)") nmodel,nk2,nlo,"   size of matrix in mkhamloc, model space, lo"
-      write(*,*) "i,ir(i,1),ir(i,2)"
-      do i=1,nr
-         write(*,"(2i6,3x,a10)") ir(i,1),ir(i,2),orbsym(i)
+      write(*,*) "i,ir(i,1),ir(i,2),ir(i,3)"
+      do i=1,nk2
+         write(*,"(3i6,3x,a10)") ir(i,1),ir(i,2),ir(i,3),orbsym(i)
          if(k_table(ipivot(ir(i,2))).ne.3)then
-            write(ioir,"(2i6,3x,a10,a4)") ir(i,1),ir(i,2),trim(adjustl(orbsym(i))),"    "
+            write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"    "
          else
-            write(ioir,"(2i6,3x,a10,a4)") ir(i,1),ir(i,2),trim(adjustl(orbsym(i))),"(LO)"
+            write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)"
          end if
-      end do
+      end do      
       write(*,*) "===========ir_list(practical)==========="
       close(ioir)
       
