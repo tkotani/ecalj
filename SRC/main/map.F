@@ -15,7 +15,7 @@ c      close(ifjorb)
 
       open(newunit=ifmax,file="emax")
       
-      lcut=200
+      lcut=100
       allocate(elist(0:lcut),dlist(0:lcut),thlist(0:lcut))
       do n=1,njorb
          if(allocated(jlist)) deallocate(jlist)
@@ -45,7 +45,7 @@ c              write(*,*) i,vec(i,1),vec(i,2)
             close(iffix)       
                         
 c            theta=(dble(loop)/dble(lcut)*2d0-1d0)*pi*0.5 ![-pi/2,pi/2]
-            theta=dble(loop)/dble(lcut)*pi*2d0 ![0,pi]
+            theta=dble(loop)/dble(lcut)*pi*2d0-pi ![0,pi]
 c     theta=dble(loop)/dble(lcut)*pi*0.5-pi*0.5d0
             do i=1,llen(n)
                vec(jlist(i,1),jlist(i,2))=theta

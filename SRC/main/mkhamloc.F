@@ -120,10 +120,10 @@ c     .    +OdL(j1,j3)*(-dcos(vec(jp,2))) !<--(-cos)?
 
       pi=4d0*atan(1d0)
       ryd=13.605693d0
-      thLB(1)=-pi*0.45d0
-      thUB(1)=0d0 !pi*0.45d0
+      thLB(1)=-pi*0.5d0
+      thUB(1)=pi*0.5d0
       thLB(2)=0d0       !lo
-      thUB(2)=pi*0.45d0 !lo
+      thUB(2)=pi !lo
       
       open(newunit=ifinput,file="input_mkhamloc")
       read(ifinput,*) iname 
@@ -290,7 +290,7 @@ c         call mkmap(neh2,nlo,NM,llist,NMTO,nqs,ir,ovlM,damM)
 c               thmin=(dble(loop)/dble(lcut)*2d0-1d0)*pi*0.5+thLB
 c     !thmin=dble(loop)/dble(lcut)*pi*0.5-pi*0.5d0
 c     thmin=(thUB(ilo)-thLB(ilo))*dble(loop)/dble(lcut)+thLB(ilo)
-               thmax=(thUB(ilo)-thLB(ilo))*dble(rcut-loop)/dble(rcut)+thUB(ilo)
+               thmax=(thUB(ilo)-thLB(ilo))*dble(rcut-loop)/dble(rcut)+thLB(ilo)
                
                do rq=1,nqs      ! q-vector
                   LD=llist(rq)
@@ -416,8 +416,10 @@ c               if(totvec(i,2,2).ne.0d0) stop "error! LO constrain was brocken!(
 c            end do
 c            stop
             
+c            write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
+c     .           jorb,"orb, [",dsin(thmin),",",dsin(thmax),"] ",dsin(thM)," diff=",thR-thL
             write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
-     .           jorb,"orb, [",dsin(thmin),",",dsin(thmax),"] ",dsin(thM)," diff=",thR-thL
+     .           jorb,"orb, [",thmin,",",thmax,"] ",thM," diff=",thR-thL
             
             if(dbg)write(*,*) "================================"
             if(dbg)write(idum,*) "================================"         
