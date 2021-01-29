@@ -190,12 +190,12 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       subroutine mkpivot   !for replaceorb(0) and mkhamloc(1)
       implicit none
       integer::lold,i,j,n,if1,idum,access,ifi,ii,jj,iflg,ib1,l1,k1,m1,ib2,l2,k2,m2,ip
-     . ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel,nlo,nk2
+     . ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel,nlo,nk2,nlosub=0
       integer(4) ,allocatable :: ib_new(:),l_new(:),k_new(:),m_new(:)
      . ,irold(:,:),iro(:,:),p1(:),irl(:),ilo(:)
       character(2) add,a(23)
       character(20) ,allocatable :: orbold(:)
-      character(200) cdum
+      character(200) cdum      
       
       open(newunit=ifim,file="meta_mto") !generated in mkinput.F
       look=0
@@ -235,12 +235,17 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
                lk2=look(ib1,1,m1) !sanity
                if(k1==2.and.lk2==0) stop "error! EH2 need corresponding EH1!" !sanity
                write(ifo,fmt="(i4)") ipivot(i)               
-            end if            
+            end if
+            if(a(n)=="vo".and.k1==3)then
+               nlosub=nlosub+(n-7)
+               exit
+            end if
          end do
       end do
  999  close(ifi)
       close(ifo)
       nmodel=i
+
 
       allocate(p1(nmodel))
       nk2=0      
@@ -277,7 +282,12 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
          end if
       end do
 
-      nr=nk2+nlo            
+      if(nlosub.ne.0)then
+         write(*,*) "nlo is subtracted from",nlo,"to",nlo-nlosub
+         nlo=nlo-nlosub
+      end if
+      nr=nk2+nlo
+      write(*,*) nr,nk2,nlo,nlosub
       jj=0 !the other orbitals(out of model, just trunctated)
       do j=1,NMTO
          iflg=0
@@ -289,12 +299,14 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
             ipivot(nmodel+nr+jj)=j
          end if
       end do                     
+
       
       open(newunit=if1,file="IPVT") !just a record
       do i=1,NMTO
          write(if1,*) ipivot(i)
       end do
 
+      
       allocate(ir(nk2,3),orbsym(nk2),iro(nk2,3),irl(nk2))
       ir=0
       iro=0      

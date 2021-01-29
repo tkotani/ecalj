@@ -18,6 +18,7 @@
       open(newunit=ideb,file="initmlo.deb")
       
       call ReadHamMTOinfo(inname)
+
       call mkpivot
       
 c      write(6,*) "j,atom,EH,l,magne"

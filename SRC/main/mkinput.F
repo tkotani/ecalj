@@ -12,7 +12,7 @@
       open(newunit=ifim,file="meta_mto")
       open(newunit=ifix,file="index_f")
       write(ifinp,"(es9.2,2f6.1,2i4, 2i6,  es9.2,2i6,a,a)")
-     .     1d-5, -10d0,10d0, 1,0, 30,30,1d-7,20,10
+     .     1d-5, -10d0,10d0, 1,0, 30,30,1d-7,40,40
      .     ," !convergence, en-min, en-max, orb_sym(1=on), spin_sym(0=off), max-iter, "
      .     ,"max iter(bisection), conv. of bisection,lcut, rcut"
       atmold="PP"
