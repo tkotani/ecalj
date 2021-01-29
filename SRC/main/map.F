@@ -15,7 +15,7 @@ c      close(ifjorb)
 
       open(newunit=ifmax,file="emax")
       
-      lcut=100
+      lcut=200
       allocate(elist(0:lcut),dlist(0:lcut),thlist(0:lcut))
       do n=1,njorb
          if(allocated(jlist)) deallocate(jlist)
@@ -45,7 +45,7 @@ c              write(*,*) i,vec(i,1),vec(i,2)
             close(iffix)       
                         
 c            theta=(dble(loop)/dble(lcut)*2d0-1d0)*pi*0.5 ![-pi/2,pi/2]
-            theta=dble(loop)/dble(lcut)*pi*2d0-pi ![0,pi]
+            theta=dble(loop)/dble(lcut)*pi ![0,pi]
 c     theta=dble(loop)/dble(lcut)*pi*0.5-pi*0.5d0
             do i=1,llen(n)
                vec(jlist(i,1),jlist(i,2))=theta
@@ -66,9 +66,9 @@ c               write(*,"(f6.2)",advance="no") vec(jlist(i,1),jlist(i,2))
             do rq=1,nqs         !begin rq loop
                LD=llist(rq)
                jsp=jspl(rq)            
-               call mkdiff(jp,ilo,neh2,nlo,ir,vec,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dtmp)
+               call mkdiff(jp,-ilo,neh2,nlo,ir,vec,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
                etr=etr+et/dble(nqs)               
-               dth=dth+dtmp/dble(nqs)
+               dth=dth+dt(1,1)/dble(nqs)
             end do !end rq loop
 c     write(*,"(2f6.2)") vec(jorb,1),vec(jorb,2)
             if(etr.gt.emax)then
