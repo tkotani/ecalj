@@ -6,8 +6,8 @@ c     include "mkhamloc_inc.F"
       intent(out) :: dth,etr
       logical     :: dbg,debug=.false.
       integer     :: jp,ilo,neh2,nlo,ir(neh2,3),M,L,j1,j2,j3,jj,i,i1,i2,i3,ME
-      real(8)     :: vec(neh2,2),dth(1:7,1:2),etr
-      complex(8)  :: Omat(L,L),Hmat(L,L)
+      real(8)     :: vec(neh2,2),etr
+      complex(8)  :: Omat(L,L),Hmat(L,L),dth(1:7,1:2)
       complex(8),allocatable,dimension(:,:) ::Ot,Ht,Oinv,rmat,OdL,OL,HL,emat
       ME=M
       allocate(Ot(ME,ME),Ht(ME,ME),Oinv(ME,ME),rmat(L,ME),OdL(ME,L),OL(ME,L),HL(ME,L),emat(ME,ME))       
@@ -24,7 +24,7 @@ c         write(*,*) jp,i,i1,i2,i3
 c         write(*,*) dcos(vec(i,1)),dcos(vec(i,2))
 c         if(i3==0) write(*,*)  dsin(vec(i,2))         
          if(i3==0)then
-            if(dcos(vec(i,2)).ne.1d0) stop "error! csn"            
+            if(dcos(vec(i,2)).ne.1d0) stop "error! csn"
          end if
          rmat(i1,i1)=dcos(vec(i,1))*dcos(vec(i,2))
          rmat(i2,i1)=dsin(vec(i,1))*dcos(vec(i,2))
@@ -105,24 +105,27 @@ c         write(*,*) jp,ilo
       integer(4),allocatable:: nev(:),jspl(:),isptab(:),llist(:),ir(:,:),ilorb(:),jlist(:,:),llen(:)
 
       real(8)::qp(3),convc,h,ral,rimg,ryd,emax,emin,pi,epsdum,iden,fac,prdN,prdF,prdM,norm1,norm2
-     &  ,dum,r,r2,etr,etr0,et,dt(1:7,1:2),tmp,adum,fD,dth,dthL,dthR,thmin
-     &  , etrL,etrR,thL,thR,thM,thmax,cbsec,absd,theta,thLB(2),thUB(2)
+     &  ,dum,r,r2,etr,etr0,et,tmp,adum,fD,dth,dthL,dthR,thmin
+     &  , etrL,etrR,thL,thR,thM,thmax,cbsec,absd,theta,thLB(2),thUB(2),LB,UB
       real(8),allocatable,dimension(:)    :: epsovl,convi,evl_D,elist,dlist,thlist
       real(8),allocatable,dimension(:,:)  :: vM,vL,vR,vec,diff
       real(8),allocatable,dimension(:,:,:):: totvec,oldvec
       
       complex(8),allocatable,dimension(:,:)   :: hamF,ovlF,hamD,ovlD,c_D,lmat1,lmat2,dmat,bdb
       complex(8),allocatable,dimension(:,:,:) :: ovlM,hamM,hamE,ovlE,damM,damE,rmatout
+      complex(8) :: dt(1:7,1:2)
       
       character(40),allocatable:: orbsym(:)
       character*200 iname,indexname,ifc
 
       pi=4d0*atan(1d0)
       ryd=13.605693d0
-      thLB(1)=-pi*0.5d0
-      thUB(1)=pi*0.5d0
-      thLB(2)=0d0       !lo
-      thUB(2)=pi !lo
+c      thLB(1)=-pi*0.5d0
+c      thUB(1)=pi*0.5d0
+c      thLB(2)=0d0       !lo
+c     thUB(2)=pi !lo
+      LB=-pi*0.5d0
+      UB=pi*0.5d0
       
       open(newunit=ifinput,file="input_mkhamloc")
       read(ifinput,*) iname 
@@ -285,6 +288,8 @@ c     j2=ir(jp,2)
             j3=ir(jp,3)            
             
             if(j3.ne.0)then
+               thmax=-99d0
+               thmin=100d0
                include "Steepest.F"
             end if
             
@@ -300,7 +305,8 @@ c               if(nlo.ne.0.and.jorb.ne.nlo+1)goto 2020
 c               thmin=(dble(loop)/dble(lcut)*2d0-1d0)*pi*0.5+thLB
 c     !thmin=dble(loop)/dble(lcut)*pi*0.5-pi*0.5d0
 c     thmin=(thUB(ilo)-thLB(ilo))*dble(loop)/dble(lcut)+thLB(ilo)
-               thmax=(thUB(ilo)-thLB(ilo))*dble(rcut-loop)/dble(rcut)+thLB(ilo)
+c               thmax=(thUB(ilo)-thLB(ilo))*dble(rcut-loop)/dble(rcut)+thLB(ilo)
+                thmax=(UB-LB)*dble(rcut-loop)/dble(rcut)+LB             
 c               write(*,*) thmax
 c               stop
                
@@ -311,7 +317,7 @@ c               stop
                   vM(:,:)=totvec(:,:,jsp)
                   vM(jp,ilo)=thmax
                call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
-                  dth=dth+dt(1,1)
+                  dth=dth+dble(dt(1,1))
                end do
                dth=dth/dble(nqs)
                
@@ -337,7 +343,8 @@ c             thmax=dble(loop)/dble(rcut)*(pi*0.5d0+thmin)-thmin
 c     thmax=dble(loop)/dble(rcut)*pi*0.5d0+thmin
 c               thmax=(thUB(ilo)-thmin)*dble(loop)/dble(rcut)+thmin
 c     write(*,*) loop,thmax,1,thUB,thmin,rcut
-               thmin=thmax-(thmax-thLB(ilo))*dble(loop)/dble(lcut)
+c               thmin=thmax-(thmax-thLB(ilo))*dble(loop)/dble(lcut)
+               thmin=thmax-(thmax-LB)*dble(loop)/dble(lcut)
                do rq=1,nqs      ! q-vector
                   jsp=jspl(rq)                  
                   
@@ -345,7 +352,7 @@ c     write(*,*) loop,thmax,1,thUB,thmin,rcut
                   vM(jp,ilo)=thmin                 
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)                  
 c                  if(dbg)etr=etr+et/dble(nqs) !*weight(iq)
-                  dth=dth+dt(1,1)
+                  dth=dth+dble(dt(1,1))
                end do
                dth=dth/dble(nqs)
                
@@ -382,17 +389,17 @@ c            stop
                   vM(:,:)=totvec(:,:,jsp)
                   vM(jp,ilo)=thM
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
-                  dth=dth+dt(1,1)
+                  dth=dth+dble(dt(1,1))
 
                   vL(:,:)=totvec(:,:,jsp)
                   vL(jp,ilo)=thL
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vL,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
-                  dthL=dthL+dt(1,1)
+                  dthL=dthL+dble(dt(1,1))
 
                   vR(:,:)=totvec(:,:,jsp)
                   vR(jp,ilo)=thR
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vR,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
-                  dthR=dthR+dt(1,1)
+                  dthR=dthR+dble(dt(1,1))
                end do
 
                dth=dth/dble(nqs)
@@ -415,22 +422,14 @@ c               write(*,*) dthL,dth,dthR
                if(thR-thL.le.cbsec) exit               
             end do
             
- 2020       totvec(jp,ilo,jsp)=thM
- 2021       lold=l_table(j1)
-            ibold=ib_table(j1)
+ 2020       totvec(jp,ilo,1)=thM
 c     write(*,*) jorb,lold
-            
-c            do i=nlo+1,neh2
-c               write(*,*) i,totvec(i,2,1),totvec(i,2,2)
-c               if(totvec(i,2,1).ne.0d0) stop "error! LO constrain was brocken!(jsp==1)"
-c               if(totvec(i,2,2).ne.0d0) stop "error! LO constrain was brocken!(jsp==2)"
-c            end do
-c            stop
-            
-c            write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
-c     .           jorb,"orb, [",dsin(thmin),",",dsin(thmax),"] ",dsin(thM)," diff=",thR-thL
+                        
             write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
      .           jp,"orb, [",thmin,",",thmax,"] ",thM," diff=",thR-thL
+
+ 2021       lold=l_table(j1)
+            ibold=ib_table(j1)
             
             if(dbg)write(*,*) "================================"
             if(dbg)write(idum,*) "================================"         
@@ -438,21 +437,22 @@ c     .           jorb,"orb, [",dsin(thmin),",",dsin(thmax),"] ",dsin(thM)," dif
          
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
 
-         if(flg_osym==1)call orbavg(totvec,jsp)
+c         if(flg_osym==1)call orbavg(totvec,jsp)
 
          write(*,*) "----------------------------------------------"
-         do jsp=1,nsp            
-            do i=1,nr
-               if(i.le.nlo)then
-                  ilo=2
-                  j=i
-               else
-                  ilo=1
-                  j=i-nlo
-               end if
+         do jsp=1,nsp
+            do j=1,nlo
+               ilo=2
                r=dsin(totvec(j,ilo,jsp))
                absd=abs(totvec(j,ilo,jsp)-oldvec(j,ilo,jsp))
-         write(*,"(2i4,f12.5,2x,es10.1,3x,a20,i4,a)") i,j,r,absd,orbsym(j),jsp,"spin"
+               write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),jsp,"spin"
+            end do
+
+            do j=1,neh2
+               ilo=1
+               r=dsin(totvec(j,ilo,jsp))
+               absd=abs(totvec(j,ilo,jsp)-oldvec(j,ilo,jsp))
+               write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),jsp,"spin"
             end do
          end do
          if(maxval(abs(totvec(:,:,:)-oldvec(:,:,:))).le.convc)then
