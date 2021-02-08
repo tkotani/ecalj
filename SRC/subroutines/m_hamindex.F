@@ -7,7 +7,6 @@
       integer,allocatable:: iclasstaf(:)
       real(8),allocatable:: symops_af(:,:,:), ag_af(:,:)
       integer:: ngrpaf,ngrp_original
-
       integer,allocatable:: !,protected::
      &     ltab(:),ktab(:),offl(:),ispec(:), iclasst(:),offlrev(:,:,:),ibastab(:),
      &     iqimap(:),iqmap(:),igmap(:),invgx(:),miat(:,:),ibasindex(:), !,ngvecp(:,:,:),ngvecprev(:,:,:,:)
@@ -15,13 +14,12 @@
       real(8):: plat(3,3)=NaN,qlat(3,3)=NaN !,protected
       real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
      &     qtt(:,:),qtti(:,:) !,protected
-
       integer::  nqi=NaN, nqnum=NaN,  
      &     ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &      nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, norbtx=NaN
       integer:: imx=NaN,nbas=NaN !,protected
-
       logical,private:: debug=.false.
+      
       contains
 !> get index ikt such that for qin(:)=qq(:,ikt)
       integer function getikt(qin) !return
