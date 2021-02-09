@@ -178,7 +178,7 @@ c      print *,' mmmmmm',nspec
         if (allocated(pos2_rv)) deallocate(pos2_rv)
         if (allocated(ips2_iv)) deallocate(ips2_iv)
         if (allocated(nrspc_iv)) deallocate(nrspc_iv)
-        if (allocated(rv_a_oag)) deallocate(rv_a_oag)
+c        if (allocated(rv_a_oag)) deallocate(rv_a_oag)
         goto 5
       endif
       if (fptol .ne. 0) then
