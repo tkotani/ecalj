@@ -13,8 +13,6 @@
 c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       use m_struc_def,only: s_spec,s_site
       use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
-      use m_hamindex,only: 
-     &     iclasstaf,symops_af,ag_af,ngrpaf !we give them in this routine and used in sugw.F.
       implicit none
       
       private t_globalvariables ! not use globalbariables. Instead, use module variables directly.
@@ -204,7 +202,6 @@ C     arg  18:        offset to bs workspace
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv
-      use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp
 !! Set initial data to m_lmfinit. 
 !! All the initial data is pushed into m_lmfinit
 !! ----------------------------------------------------------------------
@@ -2118,42 +2115,8 @@ c      enddo
             write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
           enddo
         endif
-        allocate(v_ssite2(nbas))
-        v_ssite2=v_ssite
-        inumaf=0
-        allocate(iv_a_oips_bakup(nsite))
-        iv_a_oips_bakup=iv_a_oips
-        do j=1,nbas
-          do k=j,nbas
-            if( v_ssite2(j)%iantiferro+v_ssite2(k)%iantiferro==0) then
-              iv_a_oips(k) = iv_a_oips(j) !to drive mksymx
-              inumaf=inumaf+1
-              exit
-            endif
-          enddo
-        enddo
-c        v_sctrl2 = v_sctrl
-        ctrl_nspec_bakup = ctrl_nspec 
-c        v_slat2=v_slat
         strn2=trim(strn)//' '//trim(symgaf)
-        if(procid==master) call pshpr(60)
-c        call mksym(lc,slabl_,strn2 ,v_sctrl2,v_slat2,v_ssite2,v_sarry2)
-        call mksymx(lc,slabl_,strn2,v_ssite2) 
-        if(procid==master) call poppr()
-        if(ipr10) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
-        ngrpaf     = lat_nsgrp !v_slat2%nsgrp
-        ctrl_nspec = ctrl_nspec_bakup
-        iv_a_oips  = iv_a_oips_bakup
-        allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-c        call dcopy ( ngrpaf * 9 , v_slat2%rv_a_osymgr , 1 , symops_af , 1 )
-c       call dcopy ( ngrpaf * 3 , v_slat2%rv_a_oag ,    1 , ag_af , 1 )
-        call dcopy ( ngrpaf * 9 , rv_a_osymgr , 1 , symops_af , 1 )
-        call dcopy ( ngrpaf * 3 , rv_a_oag ,    1 , ag_af , 1 )
-        if(ipr10) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
-        do ib=1,nbas
-          iclasstaf(ib)=v_ssite2(ib)%class
-        enddo
-        deallocate(v_ssite2)
+        call mksymafx(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl_,mxspec,nsite)
 !     note ---> rv_a_osymgr, rv_a_oag,lat_nsgrp are overwritten by next 
 !!! We use symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
 !!    These are passed through m_hamindex
