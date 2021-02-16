@@ -27,11 +27,11 @@ mkobj:
 	@echo './$(obj_path)/ for .o and .mod '
 	@[ -d $(obj_path) ] || mkdir  $(obj_path) 
 moduledepends.$(PLATFORM).inc: 
-	@echo 'Generate module-dependency file, moduledepends.$(PLATFORM).inc'
+	@echo 'start: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.F $(main)*.F $(main)*.F $(maxloc)*.F
 	sed -e "s/\.\.\/\w*\//$(obj_path)\//g" moduledepends.inc |uniq >moduledepends.$(PLATFORM).inc
 init:
-	@echo 'Generate module-dependency file, moduledepends.$(PLATFORM).inc'
+	@echo 'init: Generate module-dependency file, moduledepends.$(PLATFORM).inc'
 	@[ -d moduledepends.inc ] || exec ../../TOOLS/checkmodule $(subr)*.F $(main)*.F $(main)*.F $(maxloc)*.F
 	sed -e "s/\.\.\/\w*\//$(obj_path)\//g" moduledepends.inc |uniq >moduledepends.$(PLATFORM).inc
 
