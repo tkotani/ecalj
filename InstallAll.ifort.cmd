@@ -12,7 +12,8 @@ mkdir ${BINDIR}
 echo Going to install required binaries and scripts to ${BINDIR} !
 
 ### make a link to getsyml
-ln -s  ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+rm -f ${BINDIR}/getsyml
+ln -s ${PWD}/GetSyml/getsyml.py ${BINDIR}/getsyml
 
 ### viewvesta
 pushd .

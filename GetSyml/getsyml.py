@@ -201,6 +201,7 @@ sfile.write('0 !terminator\n')
 print()
 sfile.close()
 print ('OK! Check ',symlfile,' file!----------')
+print ('    For better plot, improve ecalj/Getsyml/brillouinzone/brillouinzone_takao.py')
 print ()
 from brillouinzone import brillouinzone_takao
 brillouinzone_takao.plotws(qlat[0],qlat[1],qlat[2])

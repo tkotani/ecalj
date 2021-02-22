@@ -17,7 +17,8 @@ BINDIR=${HOME}/bin
 echo Going to install required binaries and scripts to ${BINDIR} !
 
 # Make a link to getsyml to get syml.*
-ln -s ${PWD}/GetSyml/getsyml ${BINDIR}/getsyml
+rm -f ${BINDIR}/getsyml
+ln -s ${PWD}/GetSyml/getsyml.py ${BINDIR}/getsyml
 
 ### viewvesta command to invoke VESTA
 pushd .

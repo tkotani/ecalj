@@ -318,7 +318,7 @@ def plotws(b1,b2,b3):
 
     fig = figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.add_collection3d(Poly3DCollection(faces_coords,linewidth=1, alpha=0.9, edgecolor="k", facecolor="#ccccff"))
+    ax.add_collection3d(Poly3DCollection(faces_coords,linewidth=1, alpha=0.3, edgecolor="k", facecolor="#ccccff"))
 
     #draw origin
     ax.scatter([0],[0],[0],color="g",s=100)
@@ -399,7 +399,10 @@ def plotws(b1,b2,b3):
     ax.axis('off')
 #    ax.view_init(elev=0, azim=60)
     ax.view_init(elev=0, azim=0)
-    ax.set_aspect('equal') 
+    try:
+        ax.set_aspect('equal')
+    except NotImplementedError:
+        ax.set_box_aspect((1, 1, 1))
     ax.autoscale(True,axis='both')
     show()
 
@@ -413,7 +416,6 @@ if __name__ == "__main__":
 #    cell=np.array([[8.885765876316732, 5.1301993206474545, 1.813799364234218], \
 #          [-8.885765876316732, 5.1301993206474545, 1.813799364234218], \
 #          [0.0, -10.260398641294914, 1.813799364234218]])/10.0
-
     qlat=[]
     vol=np.dot(cell[0],np.cross(cell[1],cell[2]))
     qlat.append(np.cross(cell[1],cell[2])/vol)
