@@ -405,7 +405,7 @@ c mar2014
       character*4:: cccx
 
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3)
-      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount
+      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx
       logical:: lpz,phispinsym,ljobgw
       
 !! ----------------------------
@@ -1741,6 +1741,14 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
 !!
 !! boltztrap data 
       if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
+         iqread=0
+         iqindex = index(strn(12:),'nb=')+2
+         print *,'qqq',iqindex
+         nbandx = ndhamx
+         if(iqindex/=2) then 
+            read(strn(12+iqindex:),*) nbandx
+            nbandx=min(nbandx,ndhamx)
+         endif
          open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
          read(ifi,*)  eferm
          close(ifi)
@@ -1777,12 +1785,12 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
 !     ! true q= 2pi/alat *qplist(:,iq) in cartesian
            qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
            ncount=0
-           do iband=1,ndhamx
+           do iband=1,nbandx
               if(evlall(iband,jsp,iq)>1d98) cycle
               ncount=ncount+1
            enddo
            write(ifi,"(3f15.8,i10)") qvec,ncount
-           do iband=1,ndhamx
+           do iband=1,nbandx
               if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
               write(ifi,"(d23.16)") evlall(iband,jsp,iq)
            enddo   
