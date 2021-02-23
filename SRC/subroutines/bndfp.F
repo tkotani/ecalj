@@ -16,7 +16,7 @@
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
       use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
-      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af
+      use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
@@ -404,8 +404,8 @@ c mar2014
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
 
-      real(8):: pnu(n0,2),pnz(n0,2),pmean
-      integer:: i_copy_size, ndummy1,ndummy2,ndummy3
+      real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3)
+      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount
       logical:: lpz,phispinsym,ljobgw
       
 !! ----------------------------
@@ -1741,29 +1741,57 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
 !!
 !! boltztrap data 
       if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
-        ifi=ifile_handle()
-        open(unit=ifi,file='boltztrap.dat')
-        write(ifi,"(3d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
-        write(ifi,"(d16.8, ' # alat (a.u.)')") alat
-        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)
-        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)
-        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)
-        write(ifi,"(3d16.8, ' # qlat1  ')") qlat(:,1)
-        write(ifi,"(3d16.8, ' # qlat2  ')") qlat(:,2)
-        write(ifi,"(3d16.8, ' # qlat3  ')") qlat(:,3)
-        do iq=1,nkp
-        do jsp=1,nspx         !=isp.  nspx=1 for so=1
-!! true q= 2pi/alat *qplist(:,iq) in cartesian
-        do iband=1,ndhamx
-          if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
-            write(ifi,"('eee=',3i5,3f9.4,d13.5)") iq,jsp,iband,qplist(:,iq),evlall(iband,jsp,iq)
-        enddo
-        enddo
-        enddo
+         open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
+         read(ifi,*)  eferm
+         close(ifi)
+        open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
+        write(ifi,"(a)") 'GENE    #format '
+        write(ifi,"(a)") '0 0 1 0 # iskip (not presently used) idebug setgap shiftgap'
+        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 1e-5 0.4 ', qval-qbg,
+     &  ' # efermi.lmf (Ry), energygrid, energy span around Fermilevel, number of electrons'
+        write(ifi,"(a)")'CALC          # CALC (calculate expansion coeff), NOCALC read from file'
+        write(ifi,"(a)")'5             # lpfac, number of latt-points per k-point'
+        write(ifi,"(a)")'BOLTZ         # run mode (only BOLTZ is supported)'
+        write(ifi,"(a)")'0.15          # (efcut) energy range of chemical potential'
+        write(ifi,"(a)")'2000.0 100.0  # Tmax, temperature grid'
+        write(ifi,"(a)")'-1.0  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)'
+        write(ifi,"(a)")'TETRA'
         close(ifi)
+        open(newunit=ifi,file=trim(sname)//'.struct.boltztrap')
+        write(ifi,"(a)") trim(sname)
+        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)*alat
+        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)*alat
+        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)*alat
+        write(ifi,*) ngrp
+        do ig=1,ngrp
+           symxx = matmul(transpose(qlat), matmul(symops(:,:,ig),plat))
+           if(abs(sum( nint(symxx(:,:))-symxx(:,:) )) >1d-6) call rx('bndfp: sym not integers --- probably strange')
+           write(ifi,"(9i3)") ((nint(symxx(i,j)),j=1,3),i=1,3)
+        enddo
+        close(ifi)   
+        do jsp=1,nspx         !=isp.  nspx=1 for so=1
+           open(newunit=ifi,file=trim(sname)//'.energy.isp'//trim(i2char(jsp))//'.boltztrap')
+           write(ifi,"(a)") trim(sname)
+           write(ifi,"(i10)") nkp
+        do iq=1,nkp
+!     ! true q= 2pi/alat *qplist(:,iq) in cartesian
+           qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
+           ncount=0
+           do iband=1,ndhamx
+              if(evlall(iband,jsp,iq)>1d98) cycle
+              ncount=ncount+1
+           enddo
+           write(ifi,"(3f15.8,i10)") qvec,ncount
+           do iband=1,ndhamx
+              if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
+              write(ifi,"(d23.16)") evlall(iband,jsp,iq)
+           enddo   
+        enddo
+           close(ifi)
+        enddo
       endif
       if( cmdopt('--boltztrap',11,0,strn)) then
-         call rx0(' --bolttrap mode: boltztrap.dat is generated')
+         call rx0(' end of --boltztrap mode: boltztrap.* are generated')
       endif
       
       

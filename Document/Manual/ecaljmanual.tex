@@ -428,7 +428,7 @@ The lmv7 and ecalj are branched at year 2009.
 After branched, we added new features: simple install and test;
 all codes are in f90 (no C compiler);
 new methods, especially PMT-QSGW; MPI parallelization for QSGW;
-simple usage with automatic setting of default files by python ver2;
+simple usage with automatic setting of default files by python 3;
 a small tool to convert VASP POSCASR to ecalj, and so on.
 PMT-QSGW shows more stable convergence than the previous version, FP-LMTO-GW
 \footnote{In cases to treat magnetic
@@ -1350,7 +1350,7 @@ To run programs of lm7K (lmfa, lmf, lmchk) in ecalj,
 we need an input file \verb+ctrl.*+, which contains not only structures
 but also other settings.
 To generate \verb+ctrl.*+ from \verb+ctrls.*+, we have a command "ctrlgenM1.py" (written
-in python 2.x and call fortran programs(lmfa,lmchk) internally).
+in python 3 and call fortran programs(lmfa,lmchk) internally).
 Two steps required to complete ctrl file:
 (i) we give reasonable options when we run ctrlgenM1.py. 
 Then (ii) we may edit the ctrl file afterward.
