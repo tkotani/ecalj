@@ -1743,7 +1743,6 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
       if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
          iqread=0
          iqindex = index(strn(12:),'nb=')+2
-         print *,'qqq',iqindex
          nbandx = ndhamx
          if(iqindex/=2) then 
             read(strn(12+iqindex:),*) nbandx
@@ -1753,15 +1752,15 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
          read(ifi,*)  eferm
          close(ifi)
         open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
-        write(ifi,"(a)") 'GENE    #format '
-        write(ifi,"(a)") '0 0 1 0 # iskip (not presently used) idebug setgap shiftgap'
-        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 1e-5 0.4 ', qval-qbg,
-     &  ' # efermi.lmf (Ry), energygrid, energy span around Fermilevel, number of electrons'
+        write(ifi,"(a)")'GENE          # format '
+        write(ifi,"(a)")'0 0 0 0       # iskip (not presently used) idebug setgap shiftgap'
+        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 0.0005 0.4 ', qval-qbg,
+     &  '       # efermi.lmf (Ry), energygrid, energy span around Fermilevel, number of electrons'
         write(ifi,"(a)")'CALC          # CALC (calculate expansion coeff), NOCALC read from file'
         write(ifi,"(a)")'5             # lpfac, number of latt-points per k-point'
         write(ifi,"(a)")'BOLTZ         # run mode (only BOLTZ is supported)'
         write(ifi,"(a)")'0.15          # (efcut) energy range of chemical potential'
-        write(ifi,"(a)")'2000.0 100.0  # Tmax, temperature grid'
+        write(ifi,"(a)")'800.0 50.0  # Tmax, temperature grid'
         write(ifi,"(a)")'-1.0  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)'
         write(ifi,"(a)")'TETRA'
         close(ifi)
@@ -1782,7 +1781,7 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
            write(ifi,"(a)") trim(sname)
            write(ifi,"(i10)") nkp
         do iq=1,nkp
-!     ! true q= 2pi/alat *qplist(:,iq) in cartesian
+!! true q= 2pi/alat *qplist(:,iq) in cartesian
            qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
            ncount=0
            do iband=1,nbandx
