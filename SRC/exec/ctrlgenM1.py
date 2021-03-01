@@ -135,10 +135,10 @@ Os  =" atomz=76@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@"
 Ir  =" atomz=77@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Pt  =" atomz=78@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 Au  =" atomz=79@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Hg  =" atomz=80@ pz='#PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Tl  =" atomz=81@ pz='#PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Pb  =" atomz=82@ pz='#PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
-Bi  =" atomz=83@ pz='#PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Hg  =" atomz=80@ pz='PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Tl  =" atomz=81@ pz='PZ=0,0,5.9'@ p='#P=0,0,6.9'@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Pb  =" atomz=82@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
+Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 #Bi  =" atomz=83@ pz='PZ=0,0,5.9'@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
 
 Po  =" atomz=84@ pz=''@ p=''@ eh=-1*4@ eh2=-2*3@ R=?@" 
@@ -922,10 +922,10 @@ HAM   NSPIN={nspin}   # Set NSPIN=2 for spin-polarize case; then set SPEC_MMOM (
 tail = tail + "      XCFUN={xcfun}"+ """
           # =1 for VWN.
                 # =2 Birth-Hedin (if this variable is not set).
-        #    (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
+          #   (subs/evxc.F had a problem when =2 if rho(up)=0 or rho(down)=0).
                 # =103 PBE-GGA
 
-      PWMODE=11 # 0:  MTO basis only (LMTO)
+      PWMODE=1  # 0:  MTO basis only (LMTO) !2021feb. I think PWMODE=1 is usually better because of the smoothness.
                 # 11: APW+MTO        (PMT)
                 # 12: APW basis only (LAPW)
                 #
