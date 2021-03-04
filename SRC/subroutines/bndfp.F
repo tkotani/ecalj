@@ -1296,12 +1296,12 @@ c            if (ispc .eq. 2) jsp = 1
      &        write(*,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &        iq,nkp,qp,ndimh,ndimh-napw,napw
             nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be given in a better manner.
-!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
-            if (tdos) then 
-               nmx = ndimhx
-               efmax = 99999
-            endif
-            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx
+c!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
+c            if (tdos) then 
+c               nmx = ndimhx
+c               efmax = 99999
+c            endif
+            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx,ix99
 !! == lpdiag=0 only. ===
             if(nspc .eq. 2) then
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
@@ -1315,6 +1315,11 @@ c            if (ispc .eq. 2) jsp = 1
 ccccccccccccccccccccccccccccccc            
  1919       continue
 ccccccccccccccccccccccccccccccc            
+!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
+            if (tdos) then 
+               nmx = ndimhx
+               efmax = 99999
+            endif
             if (allocated(t_zv)) deallocate(t_zv)
             allocate(t_zv(ndimhx,nmx))
             savez=.false.
@@ -1510,7 +1515,7 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                  endif   
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
-                 if(debug) print *,'goto addrbl nevl=',nevl
+                 if(debug) print *,'goto addrbl nevl=',nevl,lwtkb
                  if(lwtkb>=0) then
                    call addrbl ( ssite , sspec ,  jsp , nsp , nspc !sham ,slat , 
      .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
