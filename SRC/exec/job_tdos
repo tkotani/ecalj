@@ -25,19 +25,21 @@ ufileg=tdos.${MATERIAL}.glt
 echo '#!/usr/bin/gnuplot -persist' > ${ufileg}
 echo set title \"Total DOS\" >> ${ufileg}
 echo set xlabel \" eV \(zero at the Fermi energy or top of valence\)\" >> ${ufileg}
-echo set ylabel \" number of states/\(cell Ry\)\" >> ${ufileg}
+echo set ylabel \" number of states/\(cell Ry\) : red \" >> ${ufileg}
+echo set y2tics >> ${ufileg}
+echo set y2label \" number of electrons : green \" >> ${ufileg}
 
 if [ $num == '3' ]; then
     echo 'spin=2'
     echo set yrange [-50:50] >> ${ufileg}
     cat <<EOF >>${ufileg}
-plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l, '' u (\$1*13.605):(-\$3) w l
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l  lc rgb 'red', '' u (\$1*13.605):(-\$3) w l lc rgb 'red', 'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green', '' u (\$1*13.605):(-\$3) w l lc rgb 'green' 
 EOF
 else
     echo 'spin=1'
     echo set yrange [0:50] >> ${ufileg}
     cat <<EOF >>${ufileg}
-plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l
+plot 'dos.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'red', 'dosi.tot.${MATERIAL}' u (\$1*13.605):2 w l lc rgb 'green'
 EOF
 fi
 

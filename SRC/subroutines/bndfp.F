@@ -404,8 +404,8 @@ c mar2014
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
 
-      real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3)
-      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx
+      real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
+      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: lpz,phispinsym,ljobgw
       
 !! ----------------------------
@@ -2177,13 +2177,17 @@ c      if(.not. lwndow .and. procid==master) then
                del = mpsord+dabs(esmear-mpsord)
             endif
             if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
-            ifi= ifile_handle()     
-            open(unit=ifi,file='dos.tot.'//trim(sname))
+            open(newunit=ifi,file='dos.tot.'//trim(sname))
+            open(newunit=ifii,file='dosi.tot.'//trim(sname))
+            dee=(dosw(2)-dosw(1))/(ndos-1d0)
             do ipts=1,ndos
                eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
-               write(ifi,"(255(f13.5,x))")eee,(dos_rv(ipts,isp),isp=1,nsp)
+               dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,isp)*dee
+               write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nsp)
+               write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nsp)
             enddo
             close(ifi)
+            close(ifii)
 c            if (allocated(orbtm_rv)) deallocate(orbtm_rv)
 c            if (allocated(dos_rv)) deallocate(dos_rv)
          endif
