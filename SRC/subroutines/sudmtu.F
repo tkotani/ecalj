@@ -293,14 +293,15 @@ C ... Make Vorb (ldau requires spherical harmonics)
              enddo
  1112        continue
              close(ifx)
+          else
+             ib = 1
+             is = int(ssite(ib)%spec)
+             i_copy_size=size(sspec(is)%uh)
+             call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
+             l=2
+             uhx= uh(l+1)
           endif
           open(newunit=ifx,file='uhval.mm')
-          ib = 1
-          is = int(ssite(ib)%spec)
-          i_copy_size=size(sspec(is)%uh)
-          call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-          l=2
-          uhx= uh(l+1)
           write(ifx,"(d23.15,i5)",advance='no') uhx,1111
           close(ifx)
        endif
