@@ -99,7 +99,7 @@ C     call tcx('mkrou3')
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .     , sab , qbyl , hbyl , lrout )
       use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
@@ -204,7 +204,7 @@ C     this ordering must match sham->eterms; see uham
       equivalence (eterms(8),sumec)
       equivalence (eterms(9),sumtc)
       equivalence (eterms(12),sumt0)
-      integer ::iwdummy,i_copy_size
+      integer ::iwdummy,i_copy_size,ifx
 
 C ... Setup
       stdo = lgunit(1)
@@ -393,7 +393,21 @@ ccccccccccccccccccccc
           if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
           if (ipr.ge.30 .and. nsp .eq. 2)
      .      write(stdo,200) ib,sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2
-  200     format(i4,3f12.6,2x,3f12.6)
+ 200      format(i4,3f12.6,2x,3f12.6)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! experimental block to keep magnetic moment for AF.       
+          if( nsp==2.and.procid==master) then
+             if(ib==1) then
+                open(newunit=ifx,file='uhval.mm',position='append')
+                write(ifx,"('          ',f23.15)",advance='no') -sums1
+             else
+                write(ifx,"(2x,f23.15)",advance='no') -sums1
+             endif   
+             if(ib==nbas) write(ifx,*)
+             if(ib==nbas) close(ifx)
+          endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
         endif
 
 C       Contribution to mag outsite rmt: extrapolate tail to infinity

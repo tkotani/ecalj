@@ -2099,41 +2099,39 @@ c      enddo
 !        ATOM=Nidn POS= 1.0  1.0  1.0   AF=-1   <---
 !        ATOM=O POS=  .5   .5   .5
 !        ATOM=O POS= 1.5  1.5  1.5
-
-      
-!! --- This should be recovered to handle antiferro materials. ------------
+!
       if (.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = ctrl_nbas
         if(ipr10) then
-          write(6,*)
-          write(6,"(a)")       ' AF: ======================================== '
-          write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
-          write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
-          do j=1,nbas
-            write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
-          enddo
+           write(6,*)
+           write(6,"(a)")       ' AF: ======================================== '
+           write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
+           write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
+           do j=1,nbas
+              write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
+           enddo
         endif
         strn2=trim(strn)//' '//trim(symgaf)
         call mksymafx(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl_,mxspec,nsite)
 !     note ---> rv_a_osymgr, rv_a_oag,lat_nsgrp are overwritten by next 
-!!! We use symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
-!!    These are passed through m_hamindex
-!!    The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
-!!
-c$$$        call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-c$$$     .   , miat , tiat , invgx , shtvg )
-c$$$        do ig = 1,ngrpaf
-c$$$          write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$          do i=1,3
-c$$$            write(*,"(3e24.16)") symops_af(i,1:3,ig)
-c$$$          enddo
-c$$$        enddo
-          if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
-          if(ipr10) write(6,"(a)")       
-       endif
-       endif
+!!!   We use symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
+!     !    These are passed through m_hamindex
+!     !    The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
+!     !
+c$$$  call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
+c$$$  .   , miat , tiat , invgx , shtvg )
+c$$$  do ig = 1,ngrpaf
+c$$$  write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
+c$$$  do i=1,3
+c$$$  write(*,"(3e24.16)") symops_af(i,1:3,ig)
+c$$$  enddo
+c$$$  enddo
+        if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
+        if(ipr10) write(6,"(a)")       
+      endif
+      endif
        
 !! space-group symmetry generator mksym ----
       if(procid==master) call pshpr(60)

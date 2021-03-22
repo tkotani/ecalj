@@ -1,7 +1,7 @@
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
       use m_struc_def,only: s_site,s_spec  !Cgetarg
-      use m_lmfinit,only: ham_ehk,ham_eterms
+      use m_lmfinit,only: ham_ehk,ham_eterms!,procid,master
       use m_lmfinit,only: globalvariables
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
@@ -47,6 +47,8 @@ Cu    2 Jun 05 Evaluates total energy contribution from output dmatu
 Cu   27 Apr 05 Lambrecht first created
 C ----------------------------------------------------------------------
       implicit none
+c      integer:: ierr
+      include "mpif.h"
 C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
       integer lldau(nbas),istab(nbas,ng)
@@ -65,9 +67,14 @@ C ... Local parameters
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
-
+      logical:: newaftest=.true.
+      real(8),allocatable:: uhall(:,:)
+      real(8):: mmsite(nbas),uhx,uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
+      integer:: nn,ibas,ifx,key,i,nit
 C ... MPI
-      integer procid,master,mpipid
+      integer:: procid,master,mpipid,mlog=-999,ierr
+      complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
+      real(8):: fac
 C     logical mlog,cmdopt
 C ... Heap
 c      integer w(1)
@@ -131,7 +138,6 @@ C     This block requires dmatu to be in spherical harmonics
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
-
 
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
@@ -200,13 +206,61 @@ C       This block requires dmatu to be in spherical harmonics
         if (havesh .ne. 1) then
           call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
           havesh = 1
-        endif
+       endif
+
+       
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! experimental block to keep magnetic moment for AF.       
+       allocate(uhall(0:3,nbas))
+       do ib = 1, nbas
+          is = int(ssite(ib)%spec)
+          nn = size(sspec(is)%uh)
+          if(nn>4) call rx('chkdmu:nn>4')
+          uhall(0:nn-1,ib) = sspec(is)%uh(1:nn)
+       enddo
+       mmhist=0d0
+       nit=0
+       open(newunit=ifx,file='uhval.mm')
+       do
+          read(ifx,*,end=1112,err=1112) uhx,key
+          if(key/=0) call rx('chkdmu:key/=0')
+          read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
+          nit=nit+1
+          mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
+          uhhist(nit)=uhx
+          if(procid==master) write(6,"('uuu uhval: ',i5,f10.6,2x,12f10.6)") nit,uhx, (mmsite(ibas),ibas=1,nbas)
+       enddo
+ 1112  continue
+       close(ifx)
+!! Generate new uhx based on the history of uhx mmsites for given mm
+       if(procid==master) then
+          mmtarget=0.7
+          do i=1,nit
+             write(6,*)'mmhist: ',i,uhhist(i),mmhist(i)
+          enddo
+          if(nit>3) then
+             uhdiff = 0.5d0* (mmhist(nit)-mmhist(nit-1))/(uhhist(nit)-uhhist(nit-1)+1d-8)
+     &               + 0.5d0*(mmhist(nit-1)-mmhist(nit-2))/(uhhist(nit-1)-uhhist(nit-2)+1d-6)
+             if(uhdiff>=0) uhdiff = max( 1d0,uhdiff) !limiter
+             if(uhdiff<0)  uhdiff = min(-1d0,uhdiff)
+             uhx = uhhist(nit) - (mmhist(nit)-mmtarget)/uhdiff
+          endif   
+       endif
+!! broadcast uhx       
+       call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
+       do iblu =1,2
+         fac=1d0
+         if(iblu==2) fac=-1d0
+         dmatuav(:,:) =  .5d0*dmatu(:,:,1,iblu) +.5d0*dmatu(:,:,2,iblu)
+         dmatu(:,:,1,iblu) =  fac*uhx*dmatuav(:,:)
+         dmatu(:,:,2,iblu) = -fac*uhx*dmatuav(:,:)
+       enddo  
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       
         iblu = 0
         do  ib = 1, nbas
           if (lldau(ib) .ne. 0) then
             is = int(ssite(ib)%spec)
-
-
             lmxa=sspec(is)%lmxa
             i_copy_size=size(sspec(is)%idu)
             call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
@@ -214,12 +268,11 @@ C       This block requires dmatu to be in spherical harmonics
             call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
             i_copy_size=size(sspec(is)%jh)
             call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
-
             do  l = 0, min(lmxa,3)
               if (idu(l+1) .ne. 0) then
                 iblu = iblu+1
                 call pshpr(iprint()-20)
-                call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
+                call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp, !uhxx,jh(l+1),dmatu,nsp, !
      .          lmaxu,vorb,eorb)
                 call poppr
               endif
@@ -228,6 +281,19 @@ C       This block requires dmatu to be in spherical harmonics
         enddo
 C       At this point, dmatu and vorb are in spherical harmonics
 
+        
+!!-------------------------------------------------------
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!! experimental block to keep magnetic moment for AF.       
+       if(procid==master.and.newaftest) then
+       open(newunit=ifx,file='uhval.mm',position='append')
+       write(ifx,"(d23.15,i5)",advance='no') uhx,0
+       close(ifx)
+       endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+       
+       
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
         allocate(dmwk_zv(abs(-ivsiz)))
         if (-ivsiz<0) dmwk_zv(:)=0.0d0
