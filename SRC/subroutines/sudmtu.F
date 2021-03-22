@@ -288,7 +288,7 @@ C ... Make Vorb (ldau requires spherical harmonics)
           if(eee) then
              do
                 read(ifx,*,end=1112,err=1112) uhx,key
-                if(key/=0) call rx('uhx key not read')
+                if(key/=1111) call rx('uhx key is not 1111')
                 read(ifx,*,end=1112,err=1112)
              enddo
  1112        continue
@@ -301,7 +301,7 @@ C ... Make Vorb (ldau requires spherical harmonics)
           call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
           l=2
           uhx= uh(l+1)
-          write(ifx,"(d23.15,i5)",advance='no') uhx,0
+          write(ifx,"(d23.15,i5)",advance='no') uhx,1111
           close(ifx)
        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -223,7 +223,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        open(newunit=ifx,file='uhval.mm')
        do
           read(ifx,*,end=1112,err=1112) uhx,key
-          if(key/=0) call rx('chkdmu:key/=0')
+          if(key/=1111) call rx('chkdmu:key/=1111')
           read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
           nit=nit+1
           mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
@@ -232,9 +232,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        enddo
  1112  continue
        close(ifx)
-!! Generate new uhx based on the history of uhx mmsites for given mm
+!! Generate new uhx based on the  history of uhx mmsites for given mm
        if(procid==master) then
-          mmtarget=0.7
+          open(newunit=ifx,file='mmtarget.mm')
+          read(ifx,*)mmtarget
+          close(ifx)
           do i=1,nit
              write(6,*)'mmhist: ',i,uhhist(i),mmhist(i)
           enddo
@@ -280,18 +282,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           endif
         enddo
 C       At this point, dmatu and vorb are in spherical harmonics
-
         
 !!-------------------------------------------------------
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.       
        if(procid==master.and.newaftest) then
        open(newunit=ifx,file='uhval.mm',position='append')
-       write(ifx,"(d23.15,i5)",advance='no') uhx,0
+       write(ifx,"(d23.15,2x,i5)",advance='no') uhx,1111
        close(ifx)
        endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
        
        
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
