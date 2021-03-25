@@ -9,11 +9,11 @@
       character*20,protected,allocatable:: orbch(:,:),orbsym(:),orbsymlo(:)
       contains      
       
-      subroutine ReadHamMTOInfo(infoname)
+      subroutine ReadHamMTOInfo(iflg)!(infoname)
 !!  read information for crystal strucre, k points, neighbor pairs.
       implicit none
-      character*200 ,intent(in) :: infoname
-      integer:: ififft,i,lold,kold,m,aold,access,ifnm,ifqpl
+c      character*200 ,intent(in) :: infoname
+      integer:: ififft,i,lold,kold,m,aold,access,ifnm,ifqpl,iflg
       character*4:: cccx
 
       open(newunit=ifqpl,file='qplist.dat')
@@ -21,7 +21,9 @@
       read(ifqpl,*) eferm
       close(ifqpl)
       
-      open(newunit=ififft,file=trim(adjustl(infoname))//".Info",form='unformatted')
+c     open(newunit=ififft,file=trim(adjustl(infoname))//".Info",form='unformatted')
+      if(iflg==0)open(newunit=ififft,file="HamiltonianPMTInfo",form='unformatted')
+      if(iflg==1)open(newunit=ififft,file="initmlo.Info",form='unformatted')
       
       allocate(plat(3,3),qlat(3,3)) !plat primitive vectors, qlat:primitive in reciprocal space
       read(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
@@ -87,13 +89,12 @@
       return
       end subroutine
       
-      subroutine WriteHamMTOInfo(infoname) !need ReadHamMTOInfo in advance!
+      subroutine geninitmloinfo !need ReadHamMTOInfo in advance!
       implicit none
-      character(200),intent(in):: infoname
       integer:: ififft,i,access,if2,ifind,lold,kold,aold,m,ifis
       character*4:: cccx      
             
-      open(newunit=if2,file=trim(adjustl(infoname))//".Info",form='unformatted')      
+      open(newunit=if2,file="initmlo.Info",form='unformatted')      
       write(if2) plat,nkk1,nkk2,nkk3,nbas,qlat
       nkp = nkk1*nkk2*nkk3
       write(if2) pos,alat  !atomic positions, unit of the scale. 
@@ -120,7 +121,7 @@
       enddo
       write(6,*) " "
       return
-      end subroutine WriteHamMTOInfo
+      end subroutine geninitmloinfo
       
       
       subroutine ibzweight() !need ReadHamMTOInfo in advance!

@@ -1,6 +1,6 @@
       program initmlo
       use m_hamMTO,only:ReadHamMTOInfo,qplist,ib_table,l_table,k_table,m_table,nsp,nkp,NMTO,orbch,ipivot,
-     .     nqs,qprs,itor,niqs,nlo,nlo2,ilo,mkpivot,startprint,WriteHamMTOInfo
+     .     nqs,qprs,itor,niqs,nlo,nlo2,ilo,mkpivot,startprint,geninitmloInfo
       implicit none
       integer(4) :: ideb,ifiin,ifiout,ifind,ifrot,ifoutmat,ifinput,ifovl,ifham,iflo
       integer(4) :: i,j,n,m,s,t,l,k,access,nq,LL,NS,jold,LL2
@@ -13,11 +13,13 @@
       call startprint(2)
       
       open(newunit=ifinput,file="input_initmlo")
-      read(ifinput,*) inname,outname!,indexname
+c      read(ifinput,*) inname,outname !,indexname
+      read(ifinput,*) outname !,indexname
       close(ifinput)
       open(newunit=ideb,file="initmlo.deb")
       
-      call ReadHamMTOinfo(inname)
+c      call ReadHamMTOinfo(inname)
+      call ReadHamMTOinfo(0) !HamiltonianPMTInfo
 
       call mkpivot
       
@@ -33,9 +35,10 @@ c      end do
       allocate(rmat1(1:LL,1:LL),rmat2(1:LL,1:LL))
       allocate(lmat1(1:LL,1:LL),lmat2(1:LL,1:LL))
                       
-      call WriteHamMTOInfo(outname)
+      call geninitmloInfo!(outname)
                                              
-      open(newunit=ifiin,file=trim(adjustl(inname))//".K",form="unformatted")
+c     open(newunit=ifiin,file=trim(adjustl(inname))//".K",form="unformatted")
+      open(newunit=ifiin,file="HamiltonianPMT",form="unformatted")
       open(newunit=ifiout,file=trim(adjustl(outname))//".K",form="unformatted")
       open(newunit=ifoutmat,file="Umat",form="unformatted")
       open(newunit=ifovl,file="ovlR",form="unformatted")
@@ -83,12 +86,15 @@ c     hamR=matmul(uni,matmul(hamP,transpose(uni)))
          deallocate(ovlP,hamP,ovlR,hamR,uni,unip,unir)
       end do
  2019 continue
-      if(nq.ne.nkp) stop "inconsistent nq!"
-
-      write(6,*) "We should use"
-      write(6,"(a10,a)") "Input: ",trim(adjustl(inname))//".Info(.K)"
-      write(6,*) "instead of "
-      write(6,"(a10,a)") "Output: ",trim(adjustl(outname))//".Info(.K)"
+      if(nq.ne.nkp)then
+         write(*,*) "nq,nkp=",nq,nkp
+         stop "inconsistent nq!"
+      end if
+         
+c      write(6,*) "We should use"
+c      write(6,"(a10,a)") "Input: ",trim(adjustl(inname))//".Info(.K)"
+c      write(6,*) "instead of "
+c      write(6,"(a10,a)") "Output: ",trim(adjustl(outname))//".Info(.K)"
       stop "return 0"
  2020 stop "error! faild during reading Overwrap files!"
  2021 stop "error! faild during reading Hamiltonian files!"

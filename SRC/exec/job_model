@@ -6,7 +6,6 @@ vpw=1
 flg=("n" "n" "n" "n" "n" "n" "n" )
 nflg=("0:lmf(lmfa)" "1:job_band" "2:writeham" "3:initmlo" "4:mkhamloc" "5:lmfham" "6:plotmodel" )
 
-hamorg=Ham #original Hamiltonian
 hamr=HamR #order of basis is changed
 hamm=HamM #MTO only
 hams=HamS #trucated by Rmj
@@ -85,8 +84,6 @@ if [ ${flg[2]} = "y" ]; then
     echo "Get Hamiltonian file, namded as HamiltonianPMT"
     cat HamiltonianPMT.* > HamiltonianPMT
     rm HamiltonianPMT.*
-    cat HamiltonianPMT > ${hamorg}.K
-    cat HamiltonianPMTInfo > ${hamorg}.Info
 
     echo "${BINDIR}/mkinput"
     ${BINDIR}/mkinput
@@ -94,10 +91,10 @@ fi
 
 
 if [ ${flg[3]} = "y" ] ; then    
-    echo "${hamorg} ${hamr}" > input_initmlo
+    echo "${hamr}" > input_initmlo
     echo "${BINDIR}/initmlo"
     ${BINDIR}/initmlo 2>&1  | tee linitmlo
-    cat linitmlo >> all.log
+    cat linitmlo >> all.log    
 fi
 
 

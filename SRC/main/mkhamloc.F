@@ -138,7 +138,8 @@ c     thUB(2)=pi !lo
       emax=emax/ryd+eferm
       
       call startprint(1)
-      call ReadHamMTOInfo(iname)      
+c      call ReadHamMTOInfo(iname)
+      call ReadHamMTOInfo(1) !initmlo.Info      
       allocate(convi(nsp),lmat1(NMTO,NMTO),lmat2(NMTO,NMTO))
       LL=NMTO
       
@@ -151,9 +152,13 @@ c     thUB(2)=pi !lo
       
       if(nr.le.0) stop "error! wrong size of nr in ir_list!"
       allocate(ir(neh2,3),orbsym(nr))
+      write(*,*) "=========ir list==========="
       do i=1,neh2
          read(ifir,*) ir(i,1),ir(i,2),ir(i,3),orbsym(i)
+         write(*,*) ir(i,1),ir(i,2),ir(i,3),orbsym(i)
       end do
+      write(*,*) "=========ir list==========="
+      stop
       close(ifir)
 
 c      do i=1,neh2

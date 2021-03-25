@@ -42,7 +42,7 @@ c         end do
 !!-------------------------------------------------------------
       program lmfham
 !! Read HamiltonianMTO and generates MTO-only Hamiltonian
-      use m_hamMTO,only: ReadHamMTOInfo,WriteHamMTOInfo,plat,pos,nlat,npair,ib_table,nqwgt,lso
+      use m_hamMTO,only: ReadHamMTOInfo,plat,pos,nlat,npair,ib_table,nqwgt,lso
      &   ,nsp,nkp,npairmx,NMTO,startprint
       implicit none
       character(200) inname,oname1,oname2,mtoname
@@ -64,17 +64,13 @@ c         end do
       open(newunit=idum,file='qplist.dat')
       read(idum,*) eferm
       close(idum)
-
       
-      call ReadHamMTOInfo(inname)
+c      call ReadHamMTOInfo(inname)
+      call ReadHamMTOInfo(1)    !initmlo.Info      
       NM=NMTO
       open(newunit=idum,file="ir_list")
       read(idum,*) NS
-      close(idum)
-      call WriteHamMTOInfo(oname1)
-      call WriteHamMTOInfo(oname2)
-      call WriteHamMTOInfo(mtoname)
-      
+      close(idum)     
 
       nspx=nsp  !nspx=1: non-mag, nspx=2: mag
       if(lso==1) nspx=1 !lso==0: without SO
@@ -106,26 +102,25 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
          read(ifih,end=2019) qp,NP,lsodum,epsovl,jsp         
          if(lsodum.ne.lso) stop "inconsistent lso"
          write(ilog,*) "size of Hamiltonian (Large,Small)=",NS,NM,NP
-         allocate(ovl(1:NP,1:NP),ham(1:NP,1:NP))
 !     jsp=isp in the collinear case; jsp=1 in the noncollinear
          if(jsp==1)then
             iq=iq+1
             write(6,"(i4)",advance="no") iq
             if(mod(iq,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(iq)/dble(nkp)*1d2))," %"
          end if
-!     making Ham_MTO                  
-         allocate(rext(1:NP,1:NP),dmat(1:NP,1:NP))
+!     making Ham_MTO
+         allocate(ovl(1:NP,1:NP),ham(1:NP,1:NP),rext(1:NP,1:NP),dmat(1:NP,1:NP))
          rext=0d0
          do i=1,NP
             rext(i,i)=1d0
          end do
          rext(1:NM,1:NM)=rdmat(1:NM,1:NM)                           
-         read(ifih) dmat(1:NP,1:NP) !ovl(1:NP,1:NP) !<-- NP respects the size of the original file                 
-         ovl=matmul(transpose(rext),matmul(dmat,rext))
-         ovlS(1:NS,1:NS)=ovl(1:NS,1:NS)
-         read(ifih) dmat(1:NP,1:NP) !ham(1:NP,1:NP)
-         ham=matmul(transpose(rext),matmul(dmat,rext))
-         hamS(1:NS,1:NS)=ham(1:NS,1:NS)
+         read(ifih) ovl(1:NP,1:NP) !ovl(1:NP,1:NP) !<-- NP respects the size of the original file                 
+         dmat=matmul(transpose(rext),matmul(ovl,rext))         
+         ovlS(1:NS,1:NS)=dmat(1:NS,1:NS)
+         read(ifih) ham(1:NP,1:NP) !ham(1:NP,1:NP)
+         dmat=matmul(transpose(rext),matmul(ham,rext))
+         hamS(1:NS,1:NS)=dmat(1:NS,1:NS)         
          deallocate(rext,dmat)         
 !     Diagonalize
          allocate(evl(1:NP),c(1:NP,1:NP))

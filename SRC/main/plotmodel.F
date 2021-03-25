@@ -45,13 +45,15 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
 !     ! Read infomation for Hamiltonian (lattice structures and index of basis).
       call readqplistsy()
       open(newunit=ifi,file="input_plotmodel")
+      call resetMTOInfo
+      call ReadHamMTOInfo(1)
       do
          read(ifi,*,end=1919) fname,jsp !jsp=1(up) =2(down)
          write(*,"(a23,a20)") "Hamiltonian's name is ",trim(adjustl(fname))
          if(jsp==1)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin1")
          if(jsp==2)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin2")
-         call resetMTOInfo
-         call ReadHamMTOInfo(fname)
+c         call resetMTOInfo
+c         call ReadHamMTOInfo(fname)
          call mkRsMTO(fname,jsp)
          
          if(allocated(ovl))  deallocate(ovl)
