@@ -75,6 +75,9 @@
          if(nsp==1)then
             if(klist(i)==1.or.nsp==2)then
                write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
+               newline=.true.            
+            else if(klist(i)==3.or.nsp==2)then
+               write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
                newline=.true.
             end if
          else if(nsp==2)then
@@ -89,7 +92,7 @@
                call typicalanion(atmname(i),flg)
                if(flg)cycle
                if(nsp==2)write(ifinp,"(i4)",advance="no") num(ii)
-               if(nsp==1.and.klist(i)==1) write(ifinp,"(i4)",advance="no") num(ii)
+               if(nsp==1.and.klist(i)==1.or.klist(i)==3) write(ifinp,"(i4)",advance="no") num(ii)
             else !f-orbital: num=10--16
                call rareearth(atmname(i),flg)
                if(flg.and.nsp==2) write(ifinp,"(i4)",advance="no") num(ii)

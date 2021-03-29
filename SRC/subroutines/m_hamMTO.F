@@ -247,7 +247,6 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       close(ifo)
       nmodel=i
 
-
       allocate(p1(nmodel))
       nk2=0      
       p1=0
