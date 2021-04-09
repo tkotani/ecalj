@@ -67,13 +67,16 @@ C ... Local parameters
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
-      logical:: newaftest=.true.
+      logical:: newaftest=.true.,fexist
       real(8),allocatable:: uhall(:,:)
-      real(8):: mmsite(nbas),uhx,uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
+      real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
+      real(8),save::uhxnew,uhx,alpha
       integer:: nn,ibas,ifx,key,i,nit
+      integer,save::ncount=0
 C ... MPI
       integer:: procid,master,mpipid,mlog=-999,ierr
       complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
+      real(8):: sss(1),sigin
       real(8):: fac
 C     logical mlog,cmdopt
 C ... Heap
@@ -235,18 +238,50 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! Generate new uhx based on the  history of uhx mmsites for given mm
        if(procid==master) then
           open(newunit=ifx,file='mmtarget.mm')
-          read(ifx,*)mmtarget
+          read(ifx,*)mmtarget,alpha
           close(ifx)
-          do i=1,nit
-             write(6,*)'mmhist: ',i,uhhist(i),mmhist(i)
-          enddo
-          if(nit>3) then
-             uhdiff = 0.5d0* (mmhist(nit)-mmhist(nit-1))/(uhhist(nit)-uhhist(nit-1)+1d-8)
-     &               + 0.5d0*(mmhist(nit-1)-mmhist(nit-2))/(uhhist(nit-1)-uhhist(nit-2)+1d-6)
-             if(uhdiff>=0) uhdiff = max( 1d0,uhdiff) !limiter
-             if(uhdiff<0)  uhdiff = min(-1d0,uhdiff)
-             uhx = uhhist(nit) - (mmhist(nit)-mmtarget)/uhdiff
-          endif   
+c          do i=1,nit
+c             write(6,*)'mmhist: ',i,uhhist(i),mmhist(i)
+c          enddo
+c          alpha=3d0
+c          uhx= uhx* abs(mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2
+c          fac=0d0
+c          if(mmhist(nit)<0) fac=exp(-10d0*mmhist(nit))
+c        uhx = abs(uhx) * exp( -alpha*(mmhist(nit)-mmtarget) )
+c
+c          uhx= abs(uhx*mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+c          uhx= (uhx*mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+c
+c         uhx= uhx - 2d0*alpha*( mmhist(nit) - mmtarget )
+          uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+          call mixuh(uhx)
+          if(mmhist(nit)<0.or.ncount==0) then
+             open(newunit=ifx,file="mixuh")
+             close(ifx,status='delete')
+             ncount=1
+             uhx = uhx 
+          endif
+          write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
+
+c          if(abs(mmhist(nit)-mmtarget)<0.2.and.ncount<4) then
+c             uhx=uhx
+c             ncount=ncount+1
+c          elseif(mod(nit,2)==1) then
+c             uhdiff = (mmhist(nit)-mmhist(nit-1))/(uhhist(nit)-uhhist(nit-1)+1d-8)
+c             uhx    = uhhist(nit) - (mmhist(nit)-mmtarget)/uhdiff
+c             uhxnew = uhx
+c             call mixuh(uhx)
+c             ncount=0
+c          else 
+c             uhx = uhx + 0.05d0
+c             ncount=0
+c          endif
+
+c     if(uhdiff>=0) uhdiff = max( 1d0,uhdiff) !limiter
+c             if(uhdiff<0)  uhdiff = min(-1d0,uhdiff)
+c
+c             uhx= 0.7*uhx+0.3*uhxnew !linear mixing
+c          endif   
        endif
 !! broadcast uhx       
        call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
@@ -288,7 +323,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.       
        if(procid==master.and.newaftest) then
        open(newunit=ifx,file='uhval.mm',position='append')
-       write(ifx,"(d23.15,2x,i5)",advance='no') uhx,1111
+       write(ifx,"(d23.15,2x,i5,d23.15)",advance='no') uhx,1111 !, uhxnew
        close(ifx)
        endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -341,3 +376,102 @@ C   ... Exit with dmatu, vorb in real harmonics, depending on idvsh
       end subroutine chkdmu
 
 
+
+C----------------------------------------------------------------------
+      subroutine mixuh(sss)
+c  subroutine pqmixa(nda,nmix,mmix,mxsav,beta,rms2,a,tj)
+C- Mixing routine for sigma. Modified from pqmixa in subs/pqmix.f
+C- Anderson mixing of a vector
+Ci  mmix: number of iterates available to mix
+Cio nmix: nmix > 0: number of iter to try and mix
+Ci        nmix < 0: use mmix instead of nmix.
+Co  nmix: (abs)  number of iter actually mixed.
+Co        (sign) <0, intended that caller update nmix for next call.
+C  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
+C             Add mixnit as parameter
+      implicit none
+      logical lsigin
+      integer,parameter:: nda=1
+      integer:: nmix,mmix
+      integer(4),parameter:: mxsav=10
+      double precision rms2,tj(mxsav),beta
+      integer im,imix,jmix,amix,onorm,okpvt,oa
+      integer iprintxx,ifi,nitr,ndaf
+      real(8)::sss(nda),sigin(nda)
+      real(8):: tjmax
+      real(8),allocatable::norm(:),a(:,:,:)
+      integer(4),allocatable:: kpvt(:)
+      integer(4)::ret
+      character*8 fff
+      logical fexist
+      real(8):: acc
+      integer(4):: ido,ifile_handle
+      iprintxx = 30
+      beta=.3d0
+      allocate ( a(nda,0:mxsav+1,2) )
+      fff="mixuh"
+      INQUIRE (FILE =fff, EXIST = fexist)
+      if(fexist)      write(6,*)'... reading file mixsigma'
+      if(.not.fexist) write(6,*)'... No file mixsigma'
+      ifi=ifile_handle()
+      open(ifi,file=fff,form='unformatted')
+      if(fexist) then
+        read(ifi,err=903,end=903) nitr,ndaf
+        if (ndaf .ne. nda) goto 903
+        read(ifi,err=903,end=903) a
+        goto 902
+      endif
+      goto 901
+  903 continue
+      print 368
+  368 format(5x,'(warning) file mismatch ... mixing file not read')
+  901 continue
+      nitr = 0
+ 902  continue
+      a(:,0,1) = sss      !output
+C     if input sigma available, use it instead of file a(:,0,2)
+      if (lsigin) then
+        write(6,*)'... using input sigma read from sigm file'
+        a(:,0,2) = sigin  !input
+      endif
+      write(6,*)'sum sss=',sum(abs(sss))
+      imix=9
+      mmix = min(max(nitr-1,0),imix)
+      if (mmix > mxsav) mmix = mxsav
+C     this information already printed out by amix
+C     write(6,*)'mixing parameters for amix are fixed in mixsigma'
+C     write(6,*)'   beta       =', beta
+C     write(6,*)'   tjmax      =', tjmax
+C     write(6,*)'   mmix mxsav =', mmix,mxsav
+c     call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+      acc=0d0
+      if(acc/=0d0) then
+        write(6,*)' readin mixtj from GWinput: mixtj=',acc
+        tjmax=abs(acc)+1d-3
+        if(mmix==1) then
+          tj(1)=1d0
+        else
+          tj(1)= acc
+          tj(2)= 1-acc
+          mmix=2
+        endif
+        ido=2
+      else
+        tjmax=5d0
+        ido=0
+      endif
+      allocate(norm(mxsav**2),kpvt(mxsav))
+      imix = amix(nda,mmix,mxsav,ido,dabs(beta),iprintxx,tjmax,
+     .  norm,kpvt,a,tj,rms2)
+      deallocate(norm, kpvt)
+C ... Restore PQ array, updating new x
+c      call dpscop(a,w(oa),nda,1+nda*(mxsav+2),1+nda*(mxsav+2),1d0)
+c      call dcopy(nda*(mxsav+2)*2,w(oa),1,a,1)
+c ...
+      sss = a(:,0,2)
+      rewind(ifi)
+      write(ifi) nitr+1,nda
+      write(ifi) a
+      close(ifi)
+      end
+      

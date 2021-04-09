@@ -2080,7 +2080,7 @@ c      enddo
       if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
 !! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
       lc = 10
-      if (.not. prgnam == 'LMFGWD') lc = lc+2 ! add inversion for (not lmfgw)
+      if (.not. prgnam == 'LMFGWD') lc = 12 ! add inversion for (not lmfgw)
       if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
          lc=20
          if( .not.noinv ) lc = lc+1  !+1 means add inversion 
@@ -2100,6 +2100,7 @@ c      enddo
 !        ATOM=O POS=  .5   .5   .5
 !        ATOM=O POS= 1.5  1.5  1.5
 !
+      if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
       if (.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
       ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
@@ -2128,14 +2129,14 @@ c$$$  do i=1,3
 c$$$  write(*,"(3e24.16)") symops_af(i,1:3,ig)
 c$$$  enddo
 c$$$  enddo
-        if(ipr10) write(6,"(a)")       ' AF: ===== end of AF section================= '
+        if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
         if(ipr10) write(6,"(a)")       
       endif
       endif
-       
+
 !! space-group symmetry generator mksym ----
       if(procid==master) call pshpr(60)
-      call mksymx(lc,slabl_,strn,v_ssite) 
+      call mksymx(lc,slabl_,strn,v_ssite,iv_a_oips) 
       if(procid==master) call poppr
 c$$$!! test1 ------------------
 c$$$      ngrp=lat_nsgrp

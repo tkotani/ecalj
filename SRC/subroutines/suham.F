@@ -659,11 +659,11 @@ cnnn
         if(pwmode<10) then
         ppin=matmul(transpose(plat),qq(:,ikt))
         call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
-        do iout=1,nout
-           write(*,"(a,3i5,f10.4,3f8.4)")'suham.gen_hamindex.F:rrrrn1 =',nlatout(:,iout),
-     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
-     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
-        enddo
+c        do iout=1,nout
+c           write(*,"(a,3i5,f10.4,3f8.4)")'suham.gen_hamindex.F:rrrrn1 =',nlatout(:,iout),
+c     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
+c     &         matmul(qlat(:,:),ppin+nlatout(:,iout))
+c        enddo
         endif
 cnnn
         if (pwmode<10) then

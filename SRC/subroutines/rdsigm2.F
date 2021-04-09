@@ -1199,10 +1199,13 @@ C --- Get list of irreducible k-points, and ipq and gstar arrays ---
         do i1=1,nk1
         do i2=1,nk2
         do i3=1,nk3
+c          print *,'qmesh=',qsmesh(:,i1,i2,i3)
           do 1111 iq1=1,nqps
             qir = qp_rv(:,iq1)
+c            print *,'qir=',qir
             do ig= ngrp_original+1,ngrp !only AF symmetry (equivalent with symops_af)
               call rangedq( matmul(platt,(qsmesh(:,i1,i2,i3) - matmul(symops(:,:,ig),qir))), diffq)
+c              print *,'symops(:,:,ig) diffq',symops(:,:,ig),diffq
               if(sum(abs(diffq))<1d-6) then
                ipqaf(i1,i2,i3) = iq1    !iq1 is pointer to the irreducible q point = qp_rv(:,iq1)
                goto 1122
