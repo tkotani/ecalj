@@ -5,7 +5,7 @@
       integer,protected:: nbcut,nbcut2,nbmx,nbcutlow_sig,nbmx_sig,iSigmode
       integer,protected:: mtet(3),nmbas
       integer,protected,allocatable:: imbas(:)
-
+      logical,protected:: keeppositivecou
       contains
       subroutine SetIsigmode(ism)
       integer ism
@@ -38,6 +38,10 @@ c      integer:: nband
       
 c      call GETKEYVALUE("GWinput","EXonly",wex,default=0d0)
       call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+
+!     !! If keeppositevecou=F, it can cause negative eigenvalue for Coulomb matrix ===> this probably means
+      !! problem in strxq
+      call getkeyvalue("GWinput","KeepPositiveCou",KeepPositiveCou,default=.true.)
       
 !! this is effective only for chipm mode
       nmbas=natom

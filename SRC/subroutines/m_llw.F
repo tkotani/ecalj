@@ -90,6 +90,12 @@ c            imode = 1
                   if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
                enddo
             enddo
+cccccccccccccccccccccccccc
+c            do igb1=ix+1,ngb
+c               print *,'vvvvcou', vcousq(igb1)
+c            enddo
+c            print *,'111ssssve',ngb, sum(vcousq(1+ix:ngb)),sum(zxq(ix+1:ngb,ix+1:ngb,iw))
+cccccccccccccccccccccccccccc
             epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
 !     ! w4p writing eps

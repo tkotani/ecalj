@@ -13,6 +13,8 @@ c
       use m_mpi,only: MPI__hx0fp0_rankdivider2,mpi__task,MPI__Initialize,MPI__Finalize,mpi__root,
      &   MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,mpi__rank,mpi__size,
      &   mpi__ranktab,MPI__consoleout,mpi__iend,mpi__iini,mpi__getrange
+      use m_readgwinput,only: ReadGwinputKeys,
+     &                                   keeppositivecou
 
       implicit none
       integer(4) :: ifvcfpout,ifhvccfp,is,  lmxcg,if1011,if3011, !nqbz,nbas,iopen,
@@ -268,6 +270,8 @@ c      call lattc(awald0,tol,alat,alat,plat0,gx,gy,gz,gam,plat,qlat,
 c     .   lmxst,vol,awald,w(odlv),nkd,w(oqlv),nkq,nkdmx,nkqmx,w(owork))
 c- taken from lattc.f
 
+!! Apr2021 gomi. we still have a problem of posititve definiteness of the
+!!      Coulomb matrix. Probably because of this routine
 c default values ok?
       awald0 = 2d0   ! See p_lat_0
       tol    = 1d-14 ! It was 1d-9 before aug2019. Sakakibara had a problem when he treat slab model of KF
@@ -731,6 +735,15 @@ c          nmx = 15
           enddo
           write(6,"(' nev ngv q=',2i5,3f10.6)")nev,ngb,q
 
+!! -eb should be positive definite. However, we have one (or a few?) negative ones.
+!! I(kotani) think no problem to set eb=0 when -eb is negative.
+!! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
+          do i=1,nev
+             if(eb(i)>0.and.keeppositivecou) then
+                write(6,"(a)")'KeepPositiveCou enforce : -eb<0 --> eb=0'
+                eb(i)=0d0
+             endif   
+          enddo
           write(ifvcoud) ngb
           write(ifvcoud) q
           write(ifvcoud) -eb
