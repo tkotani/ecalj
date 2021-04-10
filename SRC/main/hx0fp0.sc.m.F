@@ -262,6 +262,7 @@ c$$$      endif
      i   chipm, schi,is,  ecut,ecuts)
         if(allocated(rcxq) ) deallocate(rcxq)
 !! ===  RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR, LLWI
+        if(debug) print *,'sumchk zxq=',sum(zxq),sum(zxqi),sum(abs(zxq)),sum(abs(zxqi))
         if (realomega) then
            call WVRllwR(q,iq,zxq,nmbas1,nmbas2)
            deallocate(zxq)
