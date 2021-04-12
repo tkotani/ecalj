@@ -113,6 +113,7 @@ c      integer(4),allocatable:: iqok(:)
       allocate(ngvecc(3,ngcmx))
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
       write(6,*)' voltot=',voltot
+      call ReadGWinputKeys() !Readin dataset in GWinput
 
 !! Readin BASFP//atom. The product basis functions.
       if(allochk) write(*,*)'allocte(lx,kmx,nblocha,nr,aa,bb,filename,ificrb'
@@ -740,7 +741,8 @@ c          nmx = 15
 !! But this is a temporaly fix or better manner to calcuate coulomb matrix. strxq may be needed to be replaced
           do i=1,nev
              if(eb(i)>0.and.keeppositivecou) then
-                write(6,"(a)")'KeepPositiveCou enforce : -eb<0 --> eb=0'
+                write(6,"(a,d13.5)")
+     &           'KeepPositiveCou enforce : -eb<0 --> eb=0',eb(i)
                 eb(i)=0d0
              endif   
           enddo
