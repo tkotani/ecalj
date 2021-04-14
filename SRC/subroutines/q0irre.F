@@ -164,7 +164,8 @@ C========== version 1 ==============
 
       integer,parameter:: nxxx=9
       real(8):: zzz(nxxx,nxxx),UU(nxxx,nxxx),VT(nxxx,nxxx)
-      real(8):: ss(nxxx),sij,tolq=1d-8
+      real(8):: ss(nxxx),sij
+      real(8):: tolq!=1d-6
 
 !! Generate invariant tensor for each q0x
       write(*,*) ' diele_invariant: nq0x=',nq0x
@@ -232,7 +233,7 @@ c$$$      nq0i = ixx
 !! clean zero
       do ik = 1,nq0i
         do i=1,3
-          if(abs(q0i(i,ik))<tolq) then 
+          if(abs(q0i(i,ik))<tolq()) then 
             q0i(i,ik)=0d0
           endif
         enddo
@@ -275,7 +276,8 @@ c inequivalent points
      &   qt(3) ,wt0(nx06), wt(nx06),qx(3),qibz(3,nqibz)
       logical:: ltrans
       real(8):: plat(3,3)
-      real(8):: platt(3,3),tolq=1d-8
+      real(8):: platt(3,3)
+      real(8):: tolq 
 c      print *,'presense trans=',present(ltrans)
 ccccccccc
 c        print *, ' --- rotation ---'
@@ -296,7 +298,9 @@ ccccccccc
       do i = 1,nx06
         qt = q0(:,i)
         do ib = 1,nqibz
-          if(sum(abs(qibz(:,ib)-qt))<tolq) then
+          write(6,"('xxxx nqibz qt qibz=',i5,i5,3f9.4)") i,ib
+          if(sum(abs(qibz(:,ib)-qt))<tolq()) then
+             write(6,"('xxxxyyy nqibz qt qibz=',i5,i5,3f9.4,x,3f9.4)") i,ib,qt,qibz(:,ib)
 c            write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
 c            wt(ix) = wt(ix)+wt0(i)
             ixx = ixx+1
@@ -321,7 +325,7 @@ cccccccccccccccccccccc
 c         if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-10) then
             if(ltrans) then
               call rangedq(matmul(platt,(qt-matmul(sym,q0i(:,ix)))), qx)
-              if(sum(abs(qx))<1d-8) then
+              if(sum(abs(qx))<tolq()) then
 c             write(6,"(a,3i3,3f10.5,' --> ',3f10.5)") ' q0=sym(ig)*q0i(:,ix) q0 ig q0i= ',i, ig, ix, q0i(:,ix), qt
 c             write(6,"(a,2i3,3f10.5)") ' q0(i)=sym(ig)*q0i(ix): ix ig q0= ',ix,ig, qt
 c              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
@@ -329,7 +333,7 @@ c              write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
                 goto 990
               endif
             else
-              if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<1d-6) then !2000 Nov.
+              if(sum(abs(q0i(:,ix)-matmul(sym,qt)))<tolq()) then !2000 Nov.
                 wt(ix) = wt(ix)+wt0(i)
                 goto 990
               endif

@@ -367,6 +367,7 @@ c      integer,allocatable:: ltab(:),ktab(:),offl(:), iclasst(:),offlrev(:,:,:),
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw ,iprint,ngadd,igadd,igaf
       real(8)::ppin(3)
+      real(8):: tolq
       real(8):: rlatp(3,3),xmx2(3)
       real(8):: qqq(3),diffs,ddf
       real(8),allocatable:: symtmp(:,:,:)
@@ -574,13 +575,13 @@ c       print *, 'ddd=',matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))
 c            qx=matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) )
 c            if(sum(abs(qx-anint(qx)))<1d-8) then
             call rangedq( matmul(platt,(qtarget-matmul(symops(:,:,ig),q)) ), qx)
-            if(sum(abs(qx))<1d-8) then
+            if(sum(abs(qx))<tolq()) then
               igg=ig
 c              if(debug)print *,' q qtarget     =',q,qtarget,ig
 c              if(debug)print *,' matmul q =',matmul(symops(:,:,ig),q)
 c              if(debug)print *
               ddf=sum(abs(matmul(platt,(qtarget-matmul(symops(:,:,ig),q)))))
-              if(ddf-nint(ddf) >1d-10) then
+              if(ddf-nint(ddf) > 1d-8) then
               write(6,"('qqqqqxq ',3d16.8,2x,3d16.8,2x,3d16.8)") q, qtarget,qtarget-matmul(symops(:,:,ig),q)
               endif
               goto 2012
