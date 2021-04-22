@@ -188,12 +188,12 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       if(abs(wdum/dble(nsp)-1.0d0).gt.1d-10) stop "error! sum of weight is NOT 1"                  
       end subroutine ibzweight
       
-      subroutine mkpivot   !for replaceorb(0) and mkhamloc(1)
+      subroutine mkpivot   !for initmlo.F
       implicit none
-      integer::lold,i,j,n,if1,idum,access,ifi,ii,jj,iflg,ib1,l1,k1,m1,ib2,l2,k2,m2,ip
-     . ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel,nlo,nk2,nlosub=0
+      integer::lold,i,j,n,if1,idum,access,ifi,ii,jj,iflg,ib1,l1,k1,m1,ib2,l2,k2,m2,ip,jp,jpf
+     . ,di,dib,dk,dm,look(1000,3,16),ifim,len,ifo,lk,lk2,ioir,nmodel,outmodel,nlo,nk2,nlosub=0
       integer(4) ,allocatable :: ib_new(:),l_new(:),k_new(:),m_new(:)
-     . ,irold(:,:),iro(:,:),p1(:),irl(:),ilo(:)
+     . ,ipnk2(:),irold(:,:),iro(:,:),ipLO(:),irl(:)!,ilo(:)
       character(2) add,a(23)
       character(20) ,allocatable :: orbold(:)
       character(200) cdum      
@@ -211,10 +211,12 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       if(len.ne.NMTO) stop "error! inconsistent length of meta_mto read in m_hamMTO.F!"
 
       
-      if(access("mtoprm","").ne.0) stop "error! no mtoprm"
-      open(newunit=ifi,file="mtoprm")
-      read(ifi,*)               !dummy line: skip
-      open(newunit=ifo,file="status-model") !new version
+      if(access("mtoctrl","").ne.0) stop "error! no mtoctrl"
+      open(newunit=ifi,file="mtoctrl")
+      do i=1,10
+         read(ifi,*)            !dummy line: skip
+      end do
+      open(newunit=ifo,file="status-model") !new version        
       
       allocate(ipivot(1:NMTO))
       i=0
@@ -246,108 +248,126 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
  999  close(ifi)
       close(ifo)
       nmodel=i
+      write(*,*) "number of model orbital", nmodel
+c     stop "aaaaa"
 
-      allocate(p1(nmodel))
-      nk2=0      
-      p1=0
-      nlo=0
-      do i=1,nmodel !search EH2 out of the model
+!temproary ipivot
+      outmodel=0
+      do i=1,NMTO
+         jpf=0
+         do j=1,nmodel
+            if(ipivot(j)==i) jpf=j
+         end do
+         if(jpf==0)then
+            outmodel=outmodel+1
+            ipivot(nmodel+outmodel)=i
+         end if        
+      end do
+      write(*,*) outmodel,NMTO-nmodel
+      if(outmodel.ne.NMTO-nmodel) stop "error! wrong count for outmodel"
+
+
+      allocate(ipnk2(outmodel))
+      nk2=0  !the number of EH2 basis, out of the model      
+      do i=nmodel+1,NMTO  !search nk2
          ip=ipivot(i)
-         do j=1,NMTO
-            ib1=ib_table(ip)
-            l1=l_table(ip)
-            k1=k_table(ip)
-            m1=m_table(ip)
-            ib2=ib_table(j)
-            l2=l_table(j)
-            k2=k_table(j)
-            m2=m_table(j)            
-            if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1.ne.k2.and.k1.le.2.and.k2.le.2)then
+         ib1=ib_table(ip)
+         k1=k_table(ip)
+         l1=l_table(ip)
+         m1=m_table(ip)         
+         do j=1,nmodel            
+            jp=ipivot(j)
+            ib2=ib_table(jp)    !in the model
+            k2=k_table(jp)      !model
+            l2=l_table(jp)   !model
+            m2=m_table(jp)   !model
+            if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1.ne.k2.and.k1.ne.3.and.k2.ne.3)then
+c               write(*,*) "unk",i,ip,j,jp
                nk2=nk2+1
-               ipivot(nmodel+nk2)=j
-               p1(i)=-1 !without LO, k1 and k2
-            end if
-            if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1.ne.k2.and.k2==3)then
-               nlo=nlo+1
-               p1(i)=j
-               if(p1(i)==0) nk2=nk2+1 !only LO(NO k2)
+               ipnk2(nk2)=ip
             end if
          end do
+      end do      
+      do i=1,nk2
+         ipivot(nmodel+i)=ipnk2(i)
       end do
-      ii=0
-      do i=1,nmodel           
-         if(p1(i).ge.1)then
-            ii=ii+1
-            ipivot(nmodel+nk2+ii)=p1(i)
-         end if
-      end do
-
-      if(nlosub.ne.0)then
-         write(*,*) "nlo is subtracted from",nlo,"to",nlo-nlosub
-         nlo=nlo-nlosub
-      end if
-      nr=nk2+nlo
-      write(*,*) nr,nk2,nlo,nlosub
+      deallocate(ipnk2)
+      
       jj=0 !the other orbitals(out of model, just trunctated)
       do j=1,NMTO
          iflg=0
-         do i=1,nmodel+nr
+         do i=1,nmodel+nk2!nr
             if(ipivot(i)==j) iflg=1
          end do
          if(iflg==0)then
             jj=jj+1
-            ipivot(nmodel+nr+jj)=j
+c            ipivot(nmodel+nr+jj)=j
+            ipivot(nmodel+nk2+jj)=j
          end if
-      end do                     
-
+      end do      
       
       open(newunit=if1,file="IPVT") !just a record
       do i=1,NMTO
          write(if1,*) ipivot(i)
       end do
 
+      allocate(ib_new(1:NMTO),l_new(1:NMTO),k_new(1:NMTO),m_new(1:NMTO))      
+      do i=1,NMTO
+         ib_new(i)= ib_table(ipivot(i))
+         l_new(i) =  l_table(ipivot(i))
+         k_new(i) =  k_table(ipivot(i))
+         m_new(i) =  m_table(ipivot(i))
+      end do
       
-      allocate(ir(nk2,3),orbsym(nk2),iro(nk2,3),irl(nk2))
-      ir=0
-      iro=0      
+      ib_table(:)=ib_new(:)
+      l_table(:)=l_new(:)
+      k_table(:)=k_new(:)
+      m_table(:)=m_new(:)
+      deallocate(ib_new,l_new,k_new,m_new)
+
+cccccccccccccccc after the pivot turn ccccccccccccccccccccccc     
+
+      allocate(orbsym(nk2),ir(nk2,3),irl(nk2))
+      nlo=0
       ii=0
-      jj=0
-      irl=-1
-      do i=1,nmodel            
-         if(p1(i).ne.0)then     !without LO, k1 and k2            
-            ii=ii+1
-            ir(ii,1)=i
-            iro(ii,1)=ipivot(i)
-            irl(ii)=l_table(ipivot(i))
-            orbsym(ii)=orbch(l_table(ipivot(i)),m_table(ipivot(i)))
-            if(p1(i).ge.1)then
-               jj=jj+1
-               ir(ii,3)=jj+nmodel+nk2
-               iro(ii,3)=ipivot(jj+nmodel+nk2)
+      ir=0
+      do i=1,nmodel  !in the model space
+         ib1=ib_table(i)
+         k1=k_table(i)
+         l1=l_table(i)
+         m1=m_table(i)         
+         do j=nmodel+1,NMTO !out of the model space
+            ib2=ib_table(j)    
+            k2=k_table(j)      
+            l2=l_table(j)   
+            m2=m_table(j)   
+            if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1==1.and.k2==2)then
+               ii=ii+1
+c               write(*,*) "b",ib2,k2,l2,m2,ib1,k1,l1,m1
+               ir(ii,1)=i
+               ir(ii,2)=j
+               irl(ii)=l1
+               orbsym(ii)=orbch(l2,m2)
             end if
-         end if
+c            if(ib1==ib2.and.l1==l2.and.m1==m2.and.k1.ne.k2.and.k1.eq.3.and.k2.ne.3)then
+c               nlo=nlo+1
+c               ir(nlo,3)=i
+c            end if !under construction!
+         end do
       end do
-c      if(ii.ne.nk2) stop "something wrong!(1)"
-      
-      do i=1,nk2
-c         ii=ii+1
-         ir(i,2)=i+nmodel
-         iro(i,2)=ipivot(i+nmodel)
-      end do
+      if(ii.ne.nk2) stop "error! pivoting failed!" !sanity check
       
       open(newunit=ioir,file="ir_list.org") !preparation for mkhamloc.F
       write(ioir,"(3i6,a)") nmodel,nk2,nlo,"   size of matrix in mkhamloc and model space"
       write(*,*) "===========ir_list(original)==========="
       write(*,*) "i,ir(i,1),ir(i,2)"
       do i=1,nk2
-         write(*,"(3i6,3x,a10,3i4)") ir(i,1),ir(i,2),ir(i,3),orbsym(i),iro(i,1),iro(i,2),iro(i,3)
-         if(k_table(ipivot(ir(i,2))).ne.3)then
-            write(ioir,"(3i6,3x,a10,a4,3i6)")
-     .           ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"    ",iro(i,1),iro(i,2),iro(i,3)
-         else
-            write(ioir,"(3i6,3x,a10,a4,3i6)")
-     .           ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)",iro(i,1),iro(i,2),iro(i,3)
-         end if
+         write(*,"(3i6,3x,a10,3i4)") ir(i,1),ir(i,2),ir(i,3),orbsym(i)
+c         if(k_table(ipivot(ir(i,2))).ne.3)then
+            write(ioir,"(3i6,3x,a10)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i)))
+c         else !under construction
+c            write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)"
+c         end if
       end do
       write(*,*) "===========ir_list(original)==========="
       close(ioir)
@@ -381,34 +401,21 @@ c               ir(ii,3)=irold(j,3)
          end do
       end do
       
+      
       open(newunit=ioir,file="ir_list") !preparation for mkhamloc.F
       write(*,*) "===========ir_list(practical)==========="
       write(ioir,"(3i6,a)") nmodel,nk2,nlo,"   size of matrix in mkhamloc, model space, lo"
       write(*,*) "i,ir(i,1),ir(i,2),ir(i,3)"
       do i=1,nk2
          write(*,"(3i6,3x,a10)") ir(i,1),ir(i,2),ir(i,3),orbsym(i)
-         if(k_table(ipivot(ir(i,2))).ne.3)then
+c         if(k_table(ipivot(ir(i,2))).ne.3)then
             write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"    "
-         else
-            write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)"
-         end if
+c         else
+c            write(ioir,"(3i6,3x,a10,a4)") ir(i,1),ir(i,2),ir(i,3),trim(adjustl(orbsym(i))),"(LO)"
+c         end if
       end do      
       write(*,*) "===========ir_list(practical)==========="
-      close(ioir)
-      
-      allocate(ib_new(1:NMTO),l_new(1:NMTO),k_new(1:NMTO),m_new(1:NMTO))      
-      do i=1,NMTO
-         ib_new(i)= ib_table(ipivot(i))
-         l_new(i) =  l_table(ipivot(i))
-         k_new(i) =  k_table(ipivot(i))
-         m_new(i) =  m_table(ipivot(i))
-      end do
-      
-      ib_table(:)=ib_new(:)
-      l_table(:)=l_new(:)
-      k_table(:)=k_new(:)
-      m_table(:)=m_new(:)
-      deallocate(ib_new,l_new,k_new,m_new)
+      close(ioir)      
       
       return
       end subroutine mkpivot

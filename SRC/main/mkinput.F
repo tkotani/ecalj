@@ -8,11 +8,11 @@
 
       if(access("atmspc","").ne.0) stop "error! file atmspc is needed as the input!!"
       open(newunit=ifspc,file="atmspc") !main input. check the existence!!
-      open(newunit=ifinp,file="mtoprm")
+      open(newunit=ifinp,file="mtoctrl",position="append")
       open(newunit=ifim,file="meta_mto")
       open(newunit=ifix,file="index_f")
       write(ifinp,"(es9.2,2f6.1,2i4, 2i6,  es9.2,2i6,a,a)")
-     .     1d-5, -10d0,10d0, 1,0, 30,30,1d-7,40,40
+     .     1d-5, -50d0,20d0, 1,0, 30,30,1d-7,40,40
      .     ," !convergence, en-min, en-max, orb_sym(1=on), spin_sym(0=off), max-iter, "
      .     ,"max iter(bisection), conv. of bisection,lcut, rcut"
       atmold="PP"
@@ -72,31 +72,29 @@
          if(i==1)   j=1
          if(i.ne.1) j=cl(i-1)+1
          k=cl(i)
-         if(nsp==1)then
-            if(klist(i)==1.or.nsp==2)then
-               write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
-               newline=.true.            
-            else if(klist(i)==3.or.nsp==2)then
-               write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
-               newline=.true.
-            end if
-         else if(nsp==2)then
+
+         if(klist(i)==1.or.nsp==2)then
+            write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
+            newline=.true.            
+         else if(klist(i)==3.or.nsp==2)then
             write(ifinp,"(a2,a3,i4,a3,i3,a3)",advance="no") atmname(i)," : ",iblist(i)," : ",klist(i)," : "
             newline=.true.
-         end if
+         end if         
          
          do ii=j,k
+            if(klist(i)==3)  write(ifinp,"(i4)",advance="no") num(ii) !to be changed, but compromize in current version
+            
             if(num(ii).le.4)then
                if(klist(i)==1)write(ifinp,"(i4)",advance="no") num(ii)
             else if(num(ii).le.9)then
                call typicalanion(atmname(i),flg)
                if(flg)cycle
-               if(nsp==2)write(ifinp,"(i4)",advance="no") num(ii)
-               if(nsp==1.and.klist(i)==1.or.klist(i)==3) write(ifinp,"(i4)",advance="no") num(ii)
+               if(nsp==1.and.klist(i)==1) write(ifinp,"(i4)",advance="no") num(ii)
+               if(nsp==2)                 write(ifinp,"(i4)",advance="no") num(ii)
             else !f-orbital: num=10--16
                call rareearth(atmname(i),flg)
-               if(flg.and.nsp==2) write(ifinp,"(i4)",advance="no") num(ii)
                if(flg.and.nsp==1.and.klist(i)==1) write(ifinp,"(i4)",advance="no") num(ii)
+               if(flg.and.nsp==2)                 write(ifinp,"(i4)",advance="no") num(ii)
             end if
          end do
          if(newline)write(ifinp,*) " "

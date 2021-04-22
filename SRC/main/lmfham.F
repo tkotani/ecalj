@@ -58,9 +58,9 @@ c         end do
 
       call startprint(0)
 
-      open(newunit=idum,file="input_lmfham")
-      read(idum,*) inname,mtoname,oname1,oname2
-      close(idum)
+c      open(newunit=idum,file="input_lmfham")
+c      read(idum,*) inname,mtoname,oname1,oname2
+c      close(idum)
       open(newunit=idum,file='qplist.dat')
       read(idum,*) eferm
       close(idum)
@@ -75,10 +75,14 @@ c      call ReadHamMTOInfo(inname)
       nspx=nsp  !nspx=1: non-mag, nspx=2: mag
       if(lso==1) nspx=1 !lso==0: without SO
 c      if(lso==1) NS=NS*2 !L.S mode      
-      open(newunit=ifih,file =trim(adjustl(inname))//".K",form='unformatted')
-      open(newunit=ifomto,file =trim(adjustl(mtoname))//".K",form='unformatted')      
-      open(newunit=ifoh1,file=trim(adjustl(oname1))//".K",form='unformatted')
-      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
+c      open(newunit=ifih,file =trim(adjustl(inname))//".K",form='unformatted')
+c      open(newunit=ifomto,file =trim(adjustl(mtoname))//".K",form='unformatted')      
+c      open(newunit=ifoh1,file=trim(adjustl(oname1))//".K",form='unformatted')
+c      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
+      open(newunit=ifih,file ="HamR.K",form='unformatted')
+      open(newunit=ifomto,file ="HamM.K",form='unformatted')      
+      open(newunit=ifoh1,file="HamS.K",form='unformatted')
+      open(newunit=ifoh2,file="HamC.K",form='unformatted')
       open(newunit=ilog,file="sizelog")
       
       allocate(hamS(1:NS,1:NS),ovlS(1:NS,1:NS),hamC(1:NS,1:NS),c_S(1:NS,1:NS),evl_S(1:NS),ovlC(1:NS,1:NS),rdmat(1:NM,1:NM))

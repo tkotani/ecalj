@@ -12,15 +12,18 @@
 
       call startprint(2)
       
-      open(newunit=ifinput,file="input_initmlo")
+C      open(newunit=ifinput,file="input_initmlo")
 c      read(ifinput,*) inname,outname !,indexname
-      read(ifinput,*) outname !,indexname
+c     read(ifinput,*) outname !,indexname
+      
       close(ifinput)
       open(newunit=ideb,file="initmlo.deb")
       
 c      call ReadHamMTOinfo(inname)
       call ReadHamMTOinfo(0) !HamiltonianPMTInfo
 
+c      stop "aaa"
+      
       call mkpivot
       
 c      write(6,*) "j,atom,EH,l,magne"
@@ -39,7 +42,8 @@ c      end do
                                              
 c     open(newunit=ifiin,file=trim(adjustl(inname))//".K",form="unformatted")
       open(newunit=ifiin,file="HamiltonianPMT",form="unformatted")
-      open(newunit=ifiout,file=trim(adjustl(outname))//".K",form="unformatted")
+c      open(newunit=ifiout,file=trim(adjustl(outname))//".K",form="unformatted")
+      open(newunit=ifiout,file="HamR.K",form="unformatted")
       open(newunit=ifoutmat,file="Umat",form="unformatted")
       open(newunit=ifovl,file="ovlR",form="unformatted")
       open(newunit=ifham,file="hamR",form="unformatted")

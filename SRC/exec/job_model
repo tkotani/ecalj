@@ -6,17 +6,14 @@ vpw=1
 flg=("n" "n" "n" "n" "n" "n" "n" )
 nflg=("0:lmf(lmfa)" "1:job_band" "2:writeham" "3:initmlo" "4:mkhamloc" "5:lmfham" "6:plotmodel" )
 
-hamr=HamR #order of basis is changed
-hamm=HamM #MTO only
-hams=HamS #trucated by Rmj
-hamc=HamC #final result
-bndname=("$hamm" "$hams" "$hamc")
+bndname=("HamR" "HamS" "HamC")
 
 if [ ! -e $mcfile ]; then
     echo 'When you restart program, please edit "mtoctrl" to handle starting points.'
     echo -e " y   :lmfa and lmf(0)\n y   :job_band(1)\n y   :writeham(2)  \n y   :initmlo(3) \n y   :mkhamloc(4)  \n y   :lmfham(5) \n" \
 	 "y   :plotmodel(6)" > mtoctrl
-    echo '#### "y" means "do", the others mean "do NOT"' >> mtoctrl
+    echo '#### "y" means "DO", the others mean "do NOT" ##############' >> mtoctrl
+    echo ' ' >> mtoctrl 
     echo " "
     echo "please restart with modified mtoctrl"
 fi
@@ -84,14 +81,14 @@ if [ ${flg[2]} = "y" ]; then
     echo "Get Hamiltonian file, namded as HamiltonianPMT"
     cat HamiltonianPMT.* > HamiltonianPMT
     rm HamiltonianPMT.*
-
+    
     echo "${BINDIR}/mkinput"
     ${BINDIR}/mkinput
 fi
 
 
-if [ ${flg[3]} = "y" ] ; then    
-    echo "${hamr}" > input_initmlo
+if [ ${flg[3]} = "y" ] ; then
+#    echo "HamR" > input_initmlo
     echo "${BINDIR}/initmlo"
     ${BINDIR}/initmlo 2>&1  | tee linitmlo
     cat linitmlo >> all.log    
@@ -104,7 +101,7 @@ if [ ${flg[4]} = "y" ] ; then
 	rm rotmat
     fi
     
-    echo "${hamr}" > input_mkhamloc
+#    echo "HamR" > input_mkhamloc
     echo "~/bin/mkhamloc(EH cutting)"    
     wc QPLIST.IBZ | awk '{print $1}' > LEN.IBZ
     ${BINDIR}/mkhamloc 2>&1  | tee lmkhamloc
@@ -115,7 +112,7 @@ fi
  
 if [ ${flg[5]} = "y" ] ; then 
     echo "~/bin/lmfham"
-    echo "${hamr} ${hamm} ${hams} ${hamc}" > input_lmfham 
+#    echo "HamR HamM HamS HamC" > input_lmfham 
     ${BINDIR}/lmfham 2>&1 | tee llmfham
     cat llmfham >> all.log
 fi
