@@ -126,14 +126,15 @@ c      thLB(2)=0d0       !lo
 c     thUB(2)=pi !lo
       LB=-pi*0.5d0
       UB=pi*0.5d0
-      
-      open(newunit=ifinput,file="input_mkhamloc")
-      read(ifinput,*) iname 
-      close(ifinput)            
 
-      open(newunit=ifmto,file="mtoprm")      
+
+      open(newunit=ifmto,file="mtoctrl")
+      do i=1,9
+         read(ifmto,*)          !karayomi
+      end do
       read(ifmto,*) convc,emin,emax,flg_osym,flg_ssym,maxitr,nbsec,cbsec,lcut,rcut
       close(ifmto)
+
       emin=emin/ryd+eferm
       emax=emax/ryd+eferm
       
@@ -158,7 +159,6 @@ c      call ReadHamMTOInfo(iname)
          write(*,*) ir(i,1),ir(i,2),ir(i,3),orbsym(i)
       end do
       write(*,*) "=========ir list==========="
-      stop
       close(ifir)
 
 c      do i=1,neh2
@@ -170,7 +170,7 @@ c      end do
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(6,*) "====================open .K file! ===================="
       allocate(jspl(nqs),llist(nqs))
-      open(newunit=ifih,file=trim(adjustl(iname))//".K",form='unformatted')      
+      open(newunit=ifih,file="HamR.K",form='unformatted')      
       i=0 ; j=0; rq=0           !sanity check
       do          
          read(ifih,end=2019) qp,LD,lso1,epsdum,jsp         
@@ -194,7 +194,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       write(6,*)'Read: total # of q for Ham=',nkp,i,"(from .Info and .K)"
       write(6,*) "====================close .K file! ===================="      
-      open(newunit=ifih,file=trim(adjustl(iname))//".K",form='unformatted')
+      open(newunit=ifih,file="HamR.K",form='unformatted')
 
       Lmax=maxval(llist)
       if(LLmode)then
