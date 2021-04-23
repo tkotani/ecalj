@@ -312,10 +312,9 @@ c     !thmin=dble(loop)/dble(lcut)*pi*0.5-pi*0.5d0
 c     thmin=(thUB(ilo)-thLB(ilo))*dble(loop)/dble(lcut)+thLB(ilo)
 c               thmax=(thUB(ilo)-thLB(ilo))*dble(rcut-loop)/dble(rcut)+thLB(ilo)
                 thmax=(UB-LB)*dble(rcut-loop)/dble(rcut)+LB             
-c               write(*,*) thmax
 c               stop
                
-               do rq=1,nqs      ! q-vector
+               do rq=1,nqs      ! q-vector * spin
                   LD=llist(rq)
                   jsp=jspl(rq)                  
                   
@@ -332,9 +331,11 @@ c               stop
 
 c               write(*,*) loop,thmax,sin(thmax),dth
 c               write(*,*) loop,thmin,dth
-c               if(dth.gt.0d0) exit
+c     if(dth.gt.0d0) exit
+               if(dbg)write(*,*) "thmax",loop,thmax,dth
                if(dth.le.0d0) exit
-            end do
+            end do            
+            if(loop==rcut) stop "error! thmax was not determined appropriately! Denser rcut is needed!"
             if(dbg)write(*,*) "================================"
             if(dbg)write(idum,*) "================================"
 
@@ -350,7 +351,7 @@ c               thmax=(thUB(ilo)-thmin)*dble(loop)/dble(rcut)+thmin
 c     write(*,*) loop,thmax,1,thUB,thmin,rcut
 c               thmin=thmax-(thmax-thLB(ilo))*dble(loop)/dble(lcut)
                thmin=thmax-(thmax-LB)*dble(loop)/dble(lcut)
-               do rq=1,nqs      ! q-vector
+               do rq=1,nqs      ! q-vector * spin
                   jsp=jspl(rq)                  
                   
                   vM(:,:)=totvec(:,:,jsp)
@@ -366,8 +367,10 @@ c                  if(dbg)etr=etr+et/dble(nqs) !*weight(iq)
                if(dbg)write(idum,"(i4,3(f11.6,2x),a20,i4,a,i4)") loop,etr,dth,r,orbsym(j1),jsp,"(spin)",j1
 
 c     if(dth.le.0d0) exit
+               if(dbg)write(*,*) "min",loop,thmin,dth
                if(dth.ge.0d0) exit
             end do
+            if(loop==lcut) stop "error! thmin was not determined appropriately! Denser lcut is needed!"
             if(dbg)write(*,*) "================================"
             if(dbg)write(idum,*) "================================"
                         
@@ -388,7 +391,7 @@ c            stop
                
                thM=(thR+thL)/2d0
                
-               do rq=1,nqs      ! q-vector
+               do rq=1,nqs      ! q-vector * spin
                   jsp=jspl(rq)
                   
                   vM(:,:)=totvec(:,:,jsp)
@@ -427,7 +430,9 @@ c               write(*,*) dthL,dth,dthR
                if(thR-thL.le.cbsec) exit               
             end do
             
- 2020       totvec(jp,ilo,1)=thM
+ 2020       do jsp=1,nsp
+               totvec(jp,ilo,jsp)=thM
+            end do
 c     write(*,*) jorb,lold
                         
             write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
