@@ -20,7 +20,7 @@ C ... Local parameters
       integer i,ipr,j,stdo,lgunit
       stdo = lgunit(1)
       call getpr(ipr)
-C     ipr = 100
+      ipr = 30 !100
       if (ipr .ge. 30 .and. ipr .lt. 100) then
         j = min(9,nmx)
         if (ipr .ge. 35) j = nev

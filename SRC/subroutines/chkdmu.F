@@ -254,6 +254,7 @@ c          uhx= (uhx*mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2 - 2
 c
 c         uhx= uhx - 2d0*alpha*( mmhist(nit) - mmtarget )
           uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+          write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
           call mixuh(uhx)
           if(mmhist(nit)<0.or.ncount==0) then
              open(newunit=ifx,file="mixuh")
