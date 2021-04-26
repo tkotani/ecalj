@@ -371,8 +371,7 @@ c
 !     nphi is the number of different augmentation functions= nRla
 !     ldim2 ->nRlma
 
-      ificg=421
-      open(ificg,file='CphiGeig',form='unformatted')
+      open(newunit=ificg,file='CphiGeig',form='unformatted')
 
 !! --- readin ---
       call gwinput_v2x(ifi,

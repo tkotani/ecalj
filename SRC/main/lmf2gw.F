@@ -172,8 +172,7 @@ c      integer  nsize, id
      &  ncore_d(nclass), konf_d(0:lmxamx,nclass), zz(nclass),
      &  aa(nclass), bb(nclass) )
 !!
-      ificg=421
-      open(ificg,file='CphiGeig',form='unformatted')
+      open(newunit=ificg,file='CphiGeig',form='unformatted')
       rewind ifefclass
       do ibas=1,nbas
         read(ifefclass,*) ix,iclass(ibas)

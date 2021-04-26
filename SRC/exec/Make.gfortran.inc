@@ -1,20 +1,21 @@
 ### NOTE. we use mpi compilar, but lmfa, lmdos lmchk lmf2gw lmfham1 are only for -np 1
 FC = mpif90 
 LK = mpif90 
+LIBMATH = -lmkl_rt
+
 #FC = gfortran
 #LK = gfortran
-
-LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
- /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3
+# LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
+# /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3
 
 module = -J$(moddir) -I$(moddir)
 
 ##############################
-FFLAGS_COMMON= -fimplicit-none -ffixed-line-length-132 $(CPP_SW) $(module)
+FFLAGS_COMMON= -g -fimplicit-none -ffixed-line-length-132 $(CPP_SW) $(module)
 FFLAGS = -O2  $(FFLAGS_COMMON)
-FFLAGS_LESS = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS2 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
-FFLAGS_LESS3 = -O0 -fomit-frame-pointer  $(FFLAGS_COMMON)
+FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
+FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
+FFLAGS_LESS3 = -O0  $(FFLAGS_COMMON)
 FFLAGS_NONE = -O0   $(FFLAGS_COMMON)
 FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 
@@ -30,7 +31,6 @@ FLAGS_LESS67 = -O0  $(FFLAGS_COMMON)
 CPP_SW = -DMPIK 
 LIBLOC = ${LIBMATH}
 LKFLAGS2 = $(LIBMATH) 
-
 
 ##### Patch section #############
 $(obj_path)/huntx.o: $(subr)/huntx.F
