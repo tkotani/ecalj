@@ -291,7 +291,7 @@ c      real(8):: wgtq0p
       nstatetot   = nctot + nband
 
 !!== ip loop to spedify external q ==
-      do 1001 ip = 1,nq         
+      do 1001 ip = 1,1!nq         
         if(sum(irkip(:,:,ip))==0) cycle ! next ip
         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
         q(1:3)= qip(1:3,ip)
