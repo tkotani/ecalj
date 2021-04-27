@@ -107,12 +107,12 @@ c         write(*,*) jp,ilo
       real(8)::qp(3),convc,h,ral,rimg,ryd,emax,emin,pi,epsdum,iden,fac,prdN,prdF,prdM,norm1,norm2
      &  ,dum,r,r2,etr,etr0,et,tmp,adum,fD,dth,dthL,dthR,thmin
      &  , etrL,etrR,thL,thR,thM,thmax,cbsec,absd,theta,thLB(2),thUB(2),LB,UB
-      real(8),allocatable,dimension(:)    :: epsovl,convi,evl_D,elist,dlist,thlist
+      real(8),allocatable,dimension(:)    :: epsovl,evl_D,elist,dlist,thlist
       real(8),allocatable,dimension(:,:)  :: vM,vL,vR,vec,diff
-      real(8),allocatable,dimension(:,:,:):: totvec,oldvec
+      real(8),allocatable,dimension(:,:):: totvec,oldvec
       
-      complex(8),allocatable,dimension(:,:)   :: hamF,ovlF,hamD,ovlD,c_D,lmat1,lmat2,dmat,bdb
-      complex(8),allocatable,dimension(:,:,:) :: ovlM,hamM,hamE,ovlE,damM,damE,rmatout
+      complex(8),allocatable,dimension(:,:)   :: hamF,ovlF,hamD,ovlD,c_D,lmat1,lmat2,dmat,bdb,rmatout
+      complex(8),allocatable,dimension(:,:,:) :: ovlM,hamM,hamE,ovlE,damM,damE
       complex(8) :: dt(1:7,1:2)
       
       character(40),allocatable:: orbsym(:)
@@ -141,11 +141,26 @@ c     thUB(2)=pi !lo
       call startprint(1)
 c      call ReadHamMTOInfo(iname)
       call ReadHamMTOInfo(1) !initmlo.Info      
-      allocate(convi(nsp),lmat1(NMTO,NMTO),lmat2(NMTO,NMTO))
+      allocate(lmat1(NMTO,NMTO),lmat2(NMTO,NMTO))
       LL=NMTO
       
       open(newunit=ifir,file="ir_list")
       read(ifir,*) NM,neh2,nlo
+
+      if(neh2==0.and.nlo==0)then
+         open(newunit=ifout,file="rotmat1")
+         do i=1,NMTO
+            do j=1,NMTO            
+               if(i==j.and.i.le.NM)then
+                  write(ifout,"(2i4,2x,2(f12.5,x))") i,j,1d0,0d0
+               else
+                  write(ifout,"(2i4,2x,2(f12.5,x))") i,j,0d0,0d0
+               end if
+            end do
+         end do         
+         close(ifout)         
+         stop "return 0(no trunctation)"
+      end if      
       NR=neh2+nlo
       NL=NR+NM
       write(*,*) "N(model),NL(model+EH2+lo)=",NM,NL
@@ -253,14 +268,14 @@ c         damM(1:LD,1:LD,rq)=-hamM(1:LD,1:LD,rq)
       write(6,*) "====================end diagonalization!================"
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
-      allocate(vM(neh2,2),vR(neh2,2),vL(neh2,2),totvec(neh2,2,nsp),oldvec(neh2,2,nsp))
+      allocate(vM(neh2,2),vR(neh2,2),vL(neh2,2),totvec(neh2,2),oldvec(neh2,2))
       write(6,*) "====================start main loop of mkhamloc!================"
       open(newunit=idum,file="mkhamloc.log")
 c      totvec=-asin(1.0d0)
 c      totvec=-0.8d0
       totvec=0d0
       
-      totvec(nlo+1:neh2,2,:)=0d0  !reset for local orbital
+      totvec(nlo+1:neh2,2)=0d0  !reset for local orbital
       oldvec=totvec
       if(access("jorblist","")==0)then
          open(newunit=ifjorb,file="jorblist")
@@ -292,11 +307,11 @@ c     j2=ir(jp,2)
             j2=ir(jp,2)
             j3=ir(jp,3)            
             
-            if(j3.ne.0)then
-               thmax=-99d0
-               thmin=100d0
-               include "Steepest.F"
-            end if
+c            if(j3.ne.0)then
+c               thmax=-99d0
+c               thmin=100d0
+c               include "Steepest.F"
+c            end if
             
             if(l_table(j1)==lold.and.ib_table(j1)==ibold)then
                if(nlo==0)goto 2020
@@ -318,7 +333,7 @@ c               stop
                   LD=llist(rq)
                   jsp=jspl(rq)                  
                   
-                  vM(:,:)=totvec(:,:,jsp)
+                  vM(:,:)=totvec(:,:)
                   vM(jp,ilo)=thmax
                call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
                   dth=dth+dble(dt(1,1))
@@ -354,7 +369,7 @@ c               thmin=thmax-(thmax-thLB(ilo))*dble(loop)/dble(lcut)
                do rq=1,nqs      ! q-vector * spin
                   jsp=jspl(rq)                  
                   
-                  vM(:,:)=totvec(:,:,jsp)
+                  vM(:,:)=totvec(:,:)
                   vM(jp,ilo)=thmin                 
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)                  
 c                  if(dbg)etr=etr+et/dble(nqs) !*weight(iq)
@@ -394,17 +409,17 @@ c            stop
                do rq=1,nqs      ! q-vector * spin
                   jsp=jspl(rq)
                   
-                  vM(:,:)=totvec(:,:,jsp)
+                  vM(:,:)=totvec(:,:)
                   vM(jp,ilo)=thM
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vM,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
                   dth=dth+dble(dt(1,1))
 
-                  vL(:,:)=totvec(:,:,jsp)
+                  vL(:,:)=totvec(:,:)
                   vL(jp,ilo)=thL
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vL,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
                   dthL=dthL+dble(dt(1,1))
 
-                  vR(:,:)=totvec(:,:,jsp)
+                  vR(:,:)=totvec(:,:)
                   vR(jp,ilo)=thR
                   call mkdiff(jp,-ilo,neh2,nlo,ir,vR,NM,LD,ovlM(1:LD,1:LD,rq),damM(1:LD,1:LD,rq),et,dt)
                   dthR=dthR+dble(dt(1,1))
@@ -430,9 +445,10 @@ c               write(*,*) dthL,dth,dthR
                if(thR-thL.le.cbsec) exit               
             end do
             
- 2020       do jsp=1,nsp
-               totvec(jp,ilo,jsp)=thM
-            end do
+ 2020       totvec(jp,ilo)=thM
+!     do jsp=1,nsp
+!            totvec(jp,ilo)=thM     
+            !end do
 c     write(*,*) jorb,lold
                         
             write(*,"(i6,a,es10.2,a,es10.2,a,es10.2,a,es10.2)")
@@ -450,22 +466,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c         if(flg_osym==1)call orbavg(totvec,jsp)
 
          write(*,*) "----------------------------------------------"
-         do jsp=1,nsp
+c         do jsp=1,nsp
             do j=1,nlo
                ilo=2
-               r=dsin(totvec(j,ilo,jsp))
-               absd=abs(totvec(j,ilo,jsp)-oldvec(j,ilo,jsp))
+               r=dsin(totvec(j,ilo))
+               absd=abs(totvec(j,ilo)-oldvec(j,ilo))
                write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),jsp,"spin"
             end do
 
             do j=1,neh2
                ilo=1
-               r=dsin(totvec(j,ilo,jsp))
-               absd=abs(totvec(j,ilo,jsp)-oldvec(j,ilo,jsp))
-               write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),jsp,"spin"
+               r=dsin(totvec(j,ilo))
+               absd=abs(totvec(j,ilo)-oldvec(j,ilo))
+               write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),"spin"
             end do
-         end do
-         if(maxval(abs(totvec(:,:,:)-oldvec(:,:,:))).le.convc)then
+c         end do
+         if(maxval(abs(totvec(:,:)-oldvec(:,:))).le.convc)then
             write(*,*) "converged at ",itr,"th iteration"
             exit
          end if
@@ -474,18 +490,20 @@ c         if(flg_osym==1)call orbavg(totvec,jsp)
          write(*,*) "**********************",itr,"th iteration *******************"         
       end do
 
-      allocate(rmatout(1:LL,1:LL,1:nsp))
+      allocate(rmatout(1:LL,1:LL))
       rmatout=0d0
-      do jsp=1,nsp
-         do i=1,NM
-            rmatout(i,i,jsp)=1d0
+c      do jsp=1,nsp
+         do i=1,LL
+            rmatout(i,i)=1d0
          end do
          
          do i=1+nlo,neh2
             i1=ir(i,1)
             i2=ir(i,2)
-            rmatout(i1,i1,jsp)=dcos(totvec(i,1,jsp))
-            rmatout(i2,i1,jsp)=dsin(totvec(i,1,jsp))
+            rmatout(i1,i1)= dcos(totvec(i,1))
+            rmatout(i2,i1)= dsin(totvec(i,1))
+            rmatout(i1,i2)=-dsin(totvec(i,1))
+            rmatout(i2,i2)= dcos(totvec(i,1))
          end do
          
          if(nlo.ne.0)then
@@ -494,38 +512,38 @@ c         if(flg_osym==1)call orbavg(totvec,jsp)
                i2=ir(i,2)
                i3=ir(i,3)
                if(i3.le.0) stop "error(nlo)"
-               rmatout(i1,i1,jsp)=dcos(totvec(i,1,jsp))*dcos(totvec(i,2,jsp))
-               rmatout(i2,i1,jsp)=dsin(totvec(i,1,jsp))*dcos(totvec(i,2,jsp))
-               rmatout(i3,i1,jsp)=                      dsin(totvec(i,2,jsp))
+               rmatout(i1,i1)=dcos(totvec(i,1))*dcos(totvec(i,2))
+               rmatout(i2,i1)=dsin(totvec(i,1))*dcos(totvec(i,2))
+               rmatout(i3,i1)=                  dsin(totvec(i,2))
             end do
          end if      
-      end do
+c      end do
       
-      do jsp=1,nsp
-         if(jsp==1)open(newunit=ifout,file="rotmat1")
-         if(jsp==2)open(newunit=ifout,file="rotmat2")              
+c      do jsp=1,nsp
+         open(newunit=ifout,file="rotmat")
+c         if(jsp==2)open(newunit=ifout,file="rotmat2")              
          do i=1,NMTO
             do j=1,NMTO            
-               write(ifout,"(2i4,2x,2(f12.5,x))") i,j,rmatout(i,j,jsp)
+               write(ifout,"(2i4,2x,2(f12.5,x))") i,j,rmatout(i,j)
             end do
          end do         
          close(ifout)
-      end do
+c      end do
 
-      do jsp=1,nsp
-         if(jsp==1)open(newunit=ifout,file="totvec1")
-         if(jsp==2)open(newunit=ifout,file="totvec2")
-         if(jsp==1)open(newunit=ifo2,file="totvec1-sin")
-         if(jsp==2)open(newunit=ifo2,file="totvec2-sin")
+c      do jsp=1,nsp
+         open(newunit=ifout,file="totvec1")
+c         if(jsp==2)open(newunit=ifout,file="totvec2")
+         open(newunit=ifo2,file="totvec1-sin")
+!         if(jsp==2)open(newunit=ifo2,file="totvec2-sin")
          do i=1,neh2
-            r=dsin(totvec(i,1,jsp))
-            r2=dsin(totvec(i,2,jsp))
-            write(ifout,*) totvec(i,1,jsp),totvec(i,2,jsp)
+            r=dsin(totvec(i,1))
+            r2=dsin(totvec(i,2))
+            write(ifout,*) totvec(i,1),totvec(i,2)
             write(ifo2,*) r,r2
          end do
          close(ifout)
          close(ifo2)
-      end do
+!      end do
       
       stop
       end program mkhamloc
