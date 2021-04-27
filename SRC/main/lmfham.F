@@ -70,7 +70,7 @@ c      call ReadHamMTOInfo(inname)
       NM=NMTO
       open(newunit=idum,file="ir_list")
       read(idum,*) NS
-      close(idum)     
+      close(idum)
 
       nspx=nsp  !nspx=1: non-mag, nspx=2: mag
       if(lso==1) nspx=1 !lso==0: without SO
@@ -85,10 +85,11 @@ c      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
       open(newunit=ifoh2,file="HamC.K",form='unformatted')
       open(newunit=ilog,file="sizelog")
       
-      allocate(hamS(1:NS,1:NS),ovlS(1:NS,1:NS),hamC(1:NS,1:NS),c_S(1:NS,1:NS),evl_S(1:NS),ovlC(1:NS,1:NS),rdmat(1:NM,1:NM))
+      allocate(hamS(1:NS,1:NS),ovlS(1:NS,1:NS),hamC(1:NS,1:NS),c_S(1:NS,1:NS))
+      allocate(evl_S(1:NS),ovlC(1:NS,1:NS),rdmat(1:NM,1:NM))
 c     open(newunit=ifrmat,file="rotmatbin1",form='unformatted')
-      open(newunit=ifrmat,file="rotmat1")
-      do i=1,NM         
+      open(newunit=ifrmat,file="rotmat")
+      do i=1,NM
          do j=1,NM
             read(ifrmat,*) di1,di2,el1,el2
             rdmat(di1,di2)=dcmplx(el1,el2)
@@ -105,7 +106,6 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
       do 
          read(ifih,end=2019) qp,NP,lsodum,epsovl,jsp         
          if(lsodum.ne.lso) stop "inconsistent lso"
-         write(ilog,*) "size of Hamiltonian (Large,Small)=",NS,NM,NP
 !     jsp=isp in the collinear case; jsp=1 in the noncollinear
          if(jsp==1)then
             iq=iq+1
@@ -136,6 +136,8 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
             call zhev_tk3(NP,ham,ovl,NP,nev,evl,c,lprint,savez,getz,ifig,epsovl)
             call zhev_tk3(NS,hamS,ovlS,NS,nevS,evl_S,c_S,lprint,savez,getz,ifig,epsovl)
          endif
+         if(nevS.ne.NS) stop "error! nevS"
+         write(ilog,*) "NS,nevS,NM,NP,nev",NS,nevS,NM,NP,nev
          
 !!!!!!!making modified-Hamiltonian taking APW effect into account
          allocate(prj(1:nevS,1:nev),inpro(1:nevS,1:nev))
@@ -143,13 +145,13 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
          
          do j=1,nevS
             do s=1,nev
-               prj(j,s)=inpro(j,s) *abs(inpro(j,s))**4.0d0
+               prj(j,s)=inpro(j,s) *abs(inpro(j,s))**2.0d0
             end do
          end do        
          
          call gsortho(prj,nev,nevS) !Gram-Schmid orthogonalization         
 !!!!!!!!!!!!!!!!!!!!
-         allocate(emat(1:nev,1:nev),lft(1:NS,1:NS),rgt(1:NS,1:NS),aea(1:NS,1:NS))
+         allocate(emat(1:nev,1:nev),lft(1:NS,1:nevS),rgt(1:nevS,1:NS),aea(1:NS,1:NS))
          emat=0d0
          do n=1,nev
             emat(n,n)=evl(n)
