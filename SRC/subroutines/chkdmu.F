@@ -241,8 +241,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
              sss(1)=uhx
              call mixuh(sss)
+             uhx=sss(1)
              write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
-             if(mmhist(nit)<0.or.ncount==0) then
+             if(ncount==0) then
                 open(newunit=ifx,file="mixuh.aftest")
                 close(ifx,status='delete')
                 ncount=1
