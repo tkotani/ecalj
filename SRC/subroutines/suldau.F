@@ -24,11 +24,6 @@ C ... Passed parameters
       integer nbas,nlibu,lmaxu,lldau(nbas),igetss,is,ib,l,lmxa,idu(4),i_copy_size
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-
-C ... Local parameters
-C     integer stdo,nglob
-C     stdo = nglob('stdo')
-
       nlibu = 0
       lmaxu = 0
       do  ib = 1, nbas

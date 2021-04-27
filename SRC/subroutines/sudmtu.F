@@ -65,12 +65,9 @@ C     integer nglob,stdo
 C ... MPI
       integer procid,master,mpipid
       logical mlog
-      logical:: newaftest=.true.,eee
-
 
 !!
-      real(8)::sss,uhx
-      integer:: ifx,key
+      real(8)::sss
       call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
       procid = mpipid(1)
       master = 0
@@ -121,7 +118,7 @@ C --- Read in dmatu if file  dmats.ext  exists ---
               call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
 
               do l = 0, min(lmxa,3)
-              if (idu(l+1) .ne. 0) then
+                if (idu(l+1) .ne. 0) then
                   iblu = iblu+1
                   nlm = 2*l+1
                   nlmu = 2*lmaxu+1
@@ -280,33 +277,6 @@ C ... Make Vorb (ldau requires spherical harmonics)
         call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 1
       endif
-!     !
-!! xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-       if(newaftest) then
-          inquire(file='uhval.mm',exist=eee)
-          open(newunit=ifx,file='uhval.mm')
-          if(eee) then
-             do
-                read(ifx,*,end=1112,err=1112) uhx,key
-                if(key/=1111) call rx('uhx key is not 1111')
-                read(ifx,*,end=1112,err=1112)
-             enddo
- 1112        continue
-             close(ifx)
-          else
-             ib = 1
-             is = int(ssite(ib)%spec)
-             i_copy_size=size(sspec(is)%uh)
-             call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-             l=2
-             uhx= uh(l+1)
-          endif
-          open(newunit=ifx,file='uhval.mm')
-          write(ifx,"(d23.15,i5)",advance='no') uhx,1111
-          close(ifx)
-       endif
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      
       iblu = 0
       do  20  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 20
@@ -331,21 +301,13 @@ c        enddo
      .  '%a: mode=%n:1i    U=%n:1d    J=%n:1d',
      .  i+1,idu,i+1,uh,i+1,jh,0,0)
         do  22  l = 0, i
-cccccccccccccccccccccccccccccccccccccc                 
-          if (idu(l+1) .ne. 0) then
-              uhx = uh(l+1)
-              if (uhx <1d10-1 .and. newaftest) then !only for NiS, NiO assuming Ni at ib=1,2
-                 if(ib==1) uhx=  uhx
-                 if(ib==2) uhx= -uhx
-              endif
-          endif
-cccccccccccccccccccccccccccccccccccccc
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
-            call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp,!,uh(l+1),jh(l+1),dmatu,nsp,
+            call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
      .      lmaxu,vorb,eorb)
 C            call prdmts(0,30,30,0,' sudmtu:  Vorb in spherical harm',ib,
 C     .        l,lmaxu,iblu,vorb,nsp,1)
+
           endif
    22   continue
    20 continue

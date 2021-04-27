@@ -67,7 +67,7 @@ C ... Local parameters
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
-      logical:: newaftest=.true.,fexist
+      logical:: newaftest=.true.,fexist,mmtargetx
       real(8),allocatable:: uhall(:,:)
       real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
       real(8),save::uhxnew,uhx,alpha
@@ -212,88 +212,61 @@ C       This block requires dmatu to be in spherical harmonics
        endif
 
        
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! experimental block to keep magnetic moment for AF.       
-       allocate(uhall(0:3,nbas))
-       do ib = 1, nbas
-          is = int(ssite(ib)%spec)
-          nn = size(sspec(is)%uh)
-          if(nn>4) call rx('chkdmu:nn>4')
-          uhall(0:nn-1,ib) = sspec(is)%uh(1:nn)
-       enddo
-       mmhist=0d0
-       nit=0
-       open(newunit=ifx,file='uhval.mm')
-       do
-          read(ifx,*,end=1112,err=1112) uhx,key
-          if(key/=1111) call rx('chkdmu:key/=1111')
-          read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
-          nit=nit+1
-          mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
-          uhhist(nit)=uhx
-          if(procid==master) write(6,"('uuu uhval: ',i5,f10.6,2x,12f10.6)") nit,uhx, (mmsite(ibas),ibas=1,nbas)
-       enddo
- 1112  continue
-       close(ifx)
-!! Generate new uhx based on the  history of uhx mmsites for given mm
-       if(procid==master) then
-          open(newunit=ifx,file='mmtarget.mm')
-          read(ifx,*)mmtarget,alpha
-          close(ifx)
-c          do i=1,nit
-c             write(6,*)'mmhist: ',i,uhhist(i),mmhist(i)
-c          enddo
-c          alpha=3d0
-c          uhx= uhx* abs(mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2
-c          fac=0d0
-c          if(mmhist(nit)<0) fac=exp(-10d0*mmhist(nit))
-c        uhx = abs(uhx) * exp( -alpha*(mmhist(nit)-mmtarget) )
-c
-c          uhx= abs(uhx*mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-c          uhx= (uhx*mmtarget/mmhist(nit)) + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-c
-c         uhx= uhx - 2d0*alpha*( mmhist(nit) - mmtarget )
-          uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-          write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
-          call mixuh(uhx)
-          if(mmhist(nit)<0.or.ncount==0) then
-             open(newunit=ifx,file="mixuh")
-             close(ifx,status='delete')
-             ncount=1
-             uhx = uhx 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
+!     ! experimental block to keep magnetic moment for AF.
+       inquire(file='mmtarget.aftest',exist=mmtargetx)
+       if(mmtargetx) then
+          if(procid==master) then
+             open(newunit=ifx,file='mmtarget.aftest')
+             alpha=1.0d0
+             read(ifx,*)mmtarget !,alpha
+             close(ifx)
+             allocate(uhall(0:3,nbas))
+             do ib = 1, nbas
+                is = int(ssite(ib)%spec)
+                nn = size(sspec(is)%uh)
+                if(nn>4) call rx('chkdmu:nn>4')
+                uhall(0:nn-1,ib) = sspec(is)%uh(1:nn)
+             enddo
+             mmhist=0d0
+             nit=0
+             open(newunit=ifx,file='uhval.aftest')
+             do
+                read(ifx,*,end=1112,err=1112) uhx
+                read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
+                nit=nit+1
+                mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
+                uhhist(nit)=uhx
+                write(6,"('uhval: ',i5,f10.6,2x,12f10.6)") nit,uhx, (mmsite(ibas),ibas=1,nbas)
+             enddo
+ 1112        continue
+             close(ifx)
+!     ! Generate new uhx based on the  history of uhx mmsites for given mm
+!     ! test uh          
+             uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
+             write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
+             sss(1)=uhx
+             call mixuh(sss)
+             if(mmhist(nit)<0.or.ncount==0) then
+                open(newunit=ifx,file="mixuh.aftest")
+                close(ifx,status='delete')
+                ncount=1
+                uhx = uhx 
+             endif
+             write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
           endif
-          write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
-
-c          if(abs(mmhist(nit)-mmtarget)<0.2.and.ncount<4) then
-c             uhx=uhx
-c             ncount=ncount+1
-c          elseif(mod(nit,2)==1) then
-c             uhdiff = (mmhist(nit)-mmhist(nit-1))/(uhhist(nit)-uhhist(nit-1)+1d-8)
-c             uhx    = uhhist(nit) - (mmhist(nit)-mmtarget)/uhdiff
-c             uhxnew = uhx
-c             call mixuh(uhx)
-c             ncount=0
-c          else 
-c             uhx = uhx + 0.05d0
-c             ncount=0
-c          endif
-
-c     if(uhdiff>=0) uhdiff = max( 1d0,uhdiff) !limiter
-c             if(uhdiff<0)  uhdiff = min(-1d0,uhdiff)
-c
-c             uhx= 0.7*uhx+0.3*uhxnew !linear mixing
-c          endif   
-       endif
 !! broadcast uhx       
-       call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
-       do iblu =1,2
-         fac=1d0
-         if(iblu==2) fac=-1d0
-         dmatuav(:,:) =  .5d0*dmatu(:,:,1,iblu) +.5d0*dmatu(:,:,2,iblu)
-         dmatu(:,:,1,iblu) =  fac*uhx*dmatuav(:,:)
-         dmatu(:,:,2,iblu) = -fac*uhx*dmatuav(:,:)
-       enddo  
+          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
+          do iblu =1,2
+             fac=1d0
+             if(iblu==2) fac=-1d0
+             dmatuav(:,:) =  .5d0*dmatu(:,:,1,iblu) +.5d0*dmatu(:,:,2,iblu)
+             dmatu(:,:,1,iblu) =  fac*uhx*dmatuav(:,:)
+             dmatu(:,:,2,iblu) = -fac*uhx*dmatuav(:,:)
+          enddo
+       endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
        
         iblu = 0
         do  ib = 1, nbas
@@ -323,8 +296,8 @@ C       At this point, dmatu and vorb are in spherical harmonics
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.       
        if(procid==master.and.newaftest) then
-       open(newunit=ifx,file='uhval.mm',position='append')
-       write(ifx,"(d23.15,2x,i5,d23.15)",advance='no') uhx,1111 !, uhxnew
+       open(newunit=ifx,file='uhval.aftest',position='append')
+       write(ifx,"(d23.15,2x,i5,d23.15)",advance='no') uhx !, uhxnew
        close(ifx)
        endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -410,7 +383,7 @@ C             Add mixnit as parameter
       iprintxx = 30
       beta=.3d0
       allocate ( a(nda,0:mxsav+1,2) )
-      fff="mixuh"
+      fff="mixuh.aftest"
       INQUIRE (FILE =fff, EXIST = fexist)
       if(fexist)      write(6,*)'... reading file mixsigma'
       if(.not.fexist) write(6,*)'... No file mixsigma'

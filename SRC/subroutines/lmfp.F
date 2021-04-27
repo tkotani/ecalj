@@ -12,7 +12,6 @@
      &     globalvariables, rv_a_opos 
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
-c      use m_mkqp,only: mkqp
       use m_suham,only:suham
       use m_lattic,only:lattic
       use m_ext,only: sname
@@ -43,46 +42,9 @@ C     i   lldau(ib)
 C     i         : U on site ib with dmat beginning at dmats(*,lldau(ib))
 C     l   nlibu : total number of U blocks
 Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
-C     u Updates
-!!  aug2020. T.Kotani remove s_* except s_spec and s_pot. Data are in m_lmfinit.
-!!           In future, we need clear protection after data are generated.
-C     u   05 Jul 08 Setup for new PW addition to basis
-C     u   04 Jul 08 New restart file editor
-C     u   20 Jun 06 Repackaged MPI
-C     u   21 Mar 06 First cut at shear relaxations
-C     u   08 Mar 06 Relaxation restores pos at minimum g when not convgd
-C     u   08 Jan 06 can write to restart file rst.#, where # = iter-no.
-C     u   09 Nov 05 (wrl) Convert dmat to complex form
-C     u   07 Jul 05 rst file version 1.04
-C     u   27 Apr 05 LDA+U added (Lambrecht)
-C     u   26 Mar 05 Added switch --shorten=no to suppress pos shortening
-C     u   23 Feb 05 Bug fix: forces correspondence betw/ pos and site->pos
-C     u             after file read of positions.
-C     u   11 Jan 05 energy convergence set to ehk when sigma included
-C     u   21 Dec 04 Add option to rotate local density on file read
-C     u             and to shorten basis vectors after file read
-C     u   06 Sep 03 1st cut at automatic optimization of wave function
-C     u    9 Jan 03 Undoes lattice shear when writing basis vectors
-C     u   21 May 02 Writes restart file after smshft when moving atoms
-C     u   15 Feb 02 (ATP) Added MPI parallelization
-C     u   08 Jun 01 Revised call to nwit
-C     u   15 Feb 01 added density I/O; arguments to bndfp changed.
-C     u   17 Jun 00 alpha version.  No relaxations yet.
-C     ----------------------------------------------------------------------
-c      type(s_sstrn)::sstrn
-c      type(s_array)::sarray
-c      type(s_bz)::sbz
-c      type(s_ctrl)::sctrl
-c      type(s_lat)::slat
-c      type(s_mix)::smix
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-c      type(s_str)::sstr
-c      type(s_move)::smove
-c      character  prgnam*8 !sstrn*(*),
-c      character*(*)::sstrnmix !,sstrnjobid
-c      type(s_spec)::sspec(*)
-c      type(s_site)::ssite(*)
+!!  aug2020. T.Kotani remove types s_* except s_spec and s_pot. Data are in m_lmfinit.
+!       In future, we need clear protection after data are generated.
+!! --> Old comments are removed to avoid confusions. See branches at github 
       implicit none
       integer ::iwdummy ,idummy
       integer procid,master,mpipid,nproc
@@ -101,7 +63,6 @@ c      type(s_site)::ssite(*)
       real(8) ,allocatable :: p_rv(:)
       double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
       character strn*120, fileid*68, alabl*8, flg*3
-
 C     For mixing.  Default parameters dmxp:
 C     1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
 C     8(I) nkill; 9 betv; 10 rmscst.  11-20 are outputs:
@@ -115,21 +76,19 @@ C     ... for iterations
       logical lbin,a2bin !lhf,
       integer maxit,iter
       double precision seref,etot(2),amom,qdiff,qtol,etol,alat
-c      equivalence (qdiff,dmxp(11))
-C     ... for relaxation
+C ... for relaxation
       logical ::xyzfrz(3),ltmp !,lshr=.false.
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
      .     , nitrlx , bitor , ng
       integer ,allocatable :: indrx_iv(:)
       real(8) ,allocatable :: w_rv(:)
-c     ki, for rlse and allocate oindrx
+c ki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
      .     plat0(3,3),dist0(9),dist(9)
       parameter (nm=3)
-C     ... for LDA+U
+C  ... for LDA+U
       integer nlibu,lmaxu
-c     integer:: odmatu , ovorbdmat , odmato
       complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:)
       integer ,allocatable :: lldau_iv(:)
       double precision tolu
@@ -138,7 +97,6 @@ c     integer:: odmatu , ovorbdmat , odmato
       real(8):: pnu(20),bz_wx
       logical :: llmfgw,nowriteden=.false., nexist
       integer:: isize_iv_tmp,ibas,unlink,ifipos,ifile_handle, ifivorbdmat,nsize
-
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -150,16 +108,7 @@ c     integer:: odmatu , ovorbdmat , odmato
       procid = mpipid(1)
       master = 0
       mlog = cmdopt('--mlog',6,0,strn)
-!!  -------------------------- Total energy mode -->moved to m_lmfinit ---
-c$$$      if (cmdopt('--etot',6,0,strn)) then
-c$$$!!  No forces or dynamics
-c$$$        mdprm=0
-c$$$        ctrl_lfrce=0
-c$$$        ctrl_mdprm=0
-c$$$        nowriteden=.true.
-c$$$        ctrl_maxit=1
-c$$$      endif
-!!  initialization -------------------
+!! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
       nbas=ctrl_nbas
       nl=ctrl_nl
@@ -177,28 +126,12 @@ c$$$      endif
       plat = lat_plat
       if (ipr .ge. 30) call praugm(sspec,0) !Printout properties of species
       
-!! ... --rs=3 => always read from atom file !2020aug.
+!!    --rs=3 => always read from atom file !2020aug.
 !! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 c      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs1x = 0 
 C     ... Setup for no screening transformation
-!! sep2020 comment out below      
-c$$$C     Shorten site positions
-c$$$      if (.not. cmdopt('--shorten=no',12,0,strn)) then
-c$$$         allocate(pos2_rv(3,nbas))
-c$$$         do ibas=1,nbas
-c$$$            pos2_rv(:,ibas) = ssite(ibas)%pos
-c$$$         enddo
-c$$$         ix(1) = 2
-c$$$         ix(2) = 2
-c$$$         ix(3) = 2
-c$$$         call info0(50,1,0,' lmfp : shortening basis vectors ... ')
-c$$$         call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
-c$$$         do ibas=1,nbaspp
-c$$$            ssite(ibas)%pos = rv_a_opos(:,ibas)
-c$$$         enddo
-c$$$         if (allocated(pos2_rv)) deallocate(pos2_rv)
-c$$$      endif
-
+!!  Sep2020 comment " Shorten site positions" here removed.
+      
 !! ... Setup for charge mixing
       dmxp=0d0
       dmxp(2)=mix_b
@@ -208,8 +141,7 @@ c$$$      endif
       dmxp ( 6 ) = int(mix_nsave)
       dmxp ( 7 ) = int(mix_mmix)
       call parms0(0,0,0d0,0)
-C     ... Allocate memory for forces
-c      lfrce = int(ctrl_lfrce)
+C     ... Allocate memory for forces ! lfrce = int(ctrl_lfrce)
       if (ctrl_lfrce .ne. 0) then
         numq = 1
         if ( int(bz_lmet) .eq. 4 ) numq = 3
@@ -225,12 +157,12 @@ C     Initial shear was already folded into plat
       lat_ldist=0
       nitrlx=ctrl_nitmv
       mdprm=ctrl_mdprm
-c      lshr = nint(mdprm(1)) .gt. 100
+c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
       if (nint(mdprm(1)) .eq. 0) nitrlx = 0
       if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
         call rx('lmf not set up for MD yet')
       endif
-      if (nitrlx > 0) then
+      if (nitrlx > 0) then !nitrlx >0 is for atomic position relaxiation
         ctrl_mdprm=mdprm
         allocate(indrx_iv(6*nbas))
 C     Next lines in case lattice relaxation
@@ -260,15 +192,6 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
            write(ifipos) nbas
            write(ifipos) itrlx,rv_a_opos
         endif   
-c$$$        if (procid .eq. master) then
-c$$$          ifi = fopna('bsmv',-1,0)
-c$$$          allocate(pos2_rv(3,nbas))
-c$$$          j = 1
-c$$$          call ivset(ix,1,3,j)
-c$$$          call shorps ( nbas , plat , ix , rv_a_opos , pos2_rv )
-c$$$          call iobsm0 ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv, ifi )
-c$$$          if (allocated(pos2_rv)) deallocate(pos2_rv)
-c$$$        endif
       endif
       
 !!=== Re-entry for lshr (share mode); share mode is currently commented out.
@@ -304,6 +227,7 @@ c    4 continue !
      &    ' iterations sought but no output rho ... do 1 iteration'
         maxit = 1
       endif
+      
 !!... LDA+U initialization
       allocate(lldau_iv(nbas))
       lldau_iv(:)=0 
@@ -327,12 +251,10 @@ c    4 continue !
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
      
-!! === do loop for molecular dynamics =======
+!! ============== 
       if(nitrlx>=1) allocate(pos_move(3,nbas))
-      do 2000 itrlx   = 1,max(1,nitrlx)
-!! ===   do loop for electronic structure ===
-         do 1000 iter = 1,max(1,maxit)
-c     5 continue
+      do 2000 itrlx   = 1,max(1,nitrlx) ! do loop for molecular dynamics =======
+         do 1000 iter = 1,max(1,maxit) !do loop for electronic structure ===
 C     --- Read restart file or overlap free atom densities ---
 C     irs(1) tells what to read and whether to invoke smshft.
 C     0+1's bits irs(1)     action
@@ -388,32 +310,14 @@ c                  goto 10
  345              format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
                enddo
             endif
-c$$$  C     --- Optionally re-shorten basis vectors ---
-c$$$  if (cmdopt('--shorps',8,0,strn)) then
-c$$$  allocate(pos2_rv(3,nbas))
-c$$$  do ibas=1,nbas
-c$$$  pos2_rv(:,ibas ) = ssite(ibas)%pos 
-c$$$  enddo
-c$$$  ix(1) = 2
-c$$$  ix(2) = 2
-c$$$  ix(3) = 2
-c$$$  call shorps ( - nbas , plat , ix , pos2_rv , rv_a_opos )
-c$$$  call info0(20,1,-1,' lmfp  : write shortening vectors to file shorps ...')
-c$$$  call iopos ( .true. , 1 , 'shorps' , nbas , rv_a_opos )
-c$$$  call shorps ( nbas , plat , ix , pos2_rv , rv_a_opos )
-c$$$  do ibas=1,nbaspp
-c$$$  ssite(ibas)%pos= rv_a_opos(3*(ibas-1)+1: 3*(ibas-1)+3)
-c$$$  enddo
-c$$$  if (allocated(pos2_rv)) deallocate(pos2_rv)
-c$$$  endif
-
 
 C     Hang on to previous site density matrix for this iteration
             if (nlibu .gt. 0) then
                dmato=dmatu
                dmatu=0d0
             endif
-!!
+            
+!! lda+u to recall previous +U potential stored in vorbdmat
             inquire(file='vorbdmat.dat',exist=nexist,size=nsize)
             if(iter==1.and.nexist.and.nsize>0) then
                open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
@@ -437,29 +341,14 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
                  close(ifivorbdmat)
                endif
             endif
-
 !! Write smoothed charge density for contour plotting ---
 !!   --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 C     --- Write restart file (skip if --quit=band) ---
             if (procid .eq. master) then
                if ( ctrl_quit .ne. 4 ) then
-C     Suppress saving rst file in the middle of a shear (irlxsh > 0)
+!!  Suppress saving rst file in the middle of a shear (irlxsh > 0)
                   if (irs2.gt.0 .and. (lrout.gt.0 .or. maxit .eq. 0) .and. irlxsh .eq. 0) then
                      lbin = irs2 .ne. 2
-c$$$                     if (lbin) fileid = 'rst'
-c$$$                     if (.not. lbin) fileid = 'rsta'
-c$$$                     if (irs2 .eq. 3) then
-c$$$                        call word(fileid,1,i,j)
-c$$$                        j = j+1
-c$$$                        fileid(j:j) = '.'
-c$$$                        call bin2a(' ',0,0,iter,2,0,len(fileid),fileid,j)
-c$$$                        if (lbin) ifi = fopng(fileid,-1,8+4)
-c$$$                        if (.not. lbin) ifi = fopng(fileid,-1,8)
-c$$$                        call info0(10,1,-1,' lmfp:  writing to restart file '//fileid)
-c$$$                     else
-c$$$                        if (lbin) ifi = fopna(fileid,-1,4)
-c$$$                        if (.not. lbin) ifi = fopna(fileid,-1,0)
-c$$$                     endif
                   ifi=ifile_handle() 
                   if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
                   if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
@@ -515,6 +404,7 @@ C     Continue iterations toward self-consistency
             exit
  1000    continue ! ---------------- SCF (iteration) loop end ----
          if (nitrlx==0) exit
+         
 !! --- Molecular dynamics -----------------------------
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
@@ -523,56 +413,11 @@ C     Continue iterations toward self-consistency
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
          mdprm=ctrl_mdprm
-c$$$  if (lshr) then !shear mode
-c$$$  call grdepl ( nvrelx , indrx_iv , 0.01d0 , etot(1) , irlxsh , 
-c$$$  .           pletot , dist )
-c$$$  if (irlxsh .ne. 0) then
-c$$$  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-c$$$  call newshear()
-c$$$  if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then !!! Decide on what density to use
-c$$$  irs(1) = 0
-c$$$  else             !  Else, use file density
-c$$$  irs(1) = iand(7,int(ctrl_lrs))
-c$$$  endif
-c$$$  goto 4
-c$$$  else
-c$$$  call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
-c$$$  .              , natrlx , nvrelx , pletot , p_rv , w_rv , 0 , 0d0 , dist0 
-c$$$  .              , icom )
-c$$$  call dpzero(dist,6)
-c$$$  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-c$$$  dist(7) = 1
-c$$$  endif
 c$$$  else !without shear
          call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
-     .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move 
-     .        , icom )
+     .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
 c$$$  endif
-
-!! we comment our next procedure at sep2020  for simplification
-c$$$C     Restore lattice symmetry to machine precision
-c$$$         if (cmdopt('--fixpos',8,0,strn)) then
-c$$$            ng=lat_nsgrp
-c$$$            j = 8+1
-c$$$            if (strn(9:13) .eq. ':tol=') j = 13
-c$$$            if (strn(9:9) .ne. ':' .or. .not. a2bin(strn,fptol,4,0,' ',j,len(strn))) fptol = 1d-5
-c$$$            call fixpos ( pos_move , nbas , fptol , ng , plat , rv_a_osymgr, rv_a_oag , iv_a_oistab )
-c$$$         endif
-         
-c$$$  C     Write updated positions to bsmv file
-c$$$  if (procid .eq. master) then ! .and. .not. lshr) then
-c$$$  ifi = fopna('bsmv',-1,0)
-c$$$  call poseof(ifi)
-c$$$  bstim = bstim+1
-c$$$  allocate(pos2_rv(3,nbas))
-c$$$  j = 1
-c$$$  call ivset(ix,1,3,j)
-c$$$  call shorps ( nbas , plat , ix , pos_move , pos2_rv )
-c$$$  call iobsmv ( 0 , bstim , 0d0 , 0d0 , nbas , alat , pos2_rv 
-c$$$  .           , - ifi )
-c$$$  if (allocated(pos2_rv)) deallocate(pos2_rv)
-c$$$  call fclose(ifi)
-c$$$  endif
+!!--- we removed a procedure at apr2021 2020
 !!  Updated positions in site structure !WARN! t.kotani think this is confusing because
 !!  CAUTION: 'positions written in ctrl' and 'positions written in rst' can be different.
          if(procid==master) write(ifipos) itrlx,pos_move
@@ -583,58 +428,32 @@ C     ... Exit when relaxation converged or maximum number of iterations
          if (icom .eq. 1) then
             if (procid .eq. master) then
                k = int(ctrl_nvario)
-               flg = 'C67'
+               flg = 'C67' !what? 
                call nwitsv(1+2,k,flg,nsp,amom,etot)
             endif
             if ( procid==master) then
                call tcx('lmfp')
-               call fexit(0,111,
-     .              ' LMFP: relaxation converged after %i iteration(s)',itrlx)
+               call fexit(0,111,' LMFP: relaxation converged after %i iteration(s)',itrlx)
             else
                call tcx('lmfp')
                call fexit(0,111,' ',0)
             endif
-c     else
-c     call query('proceed with next relaxation step',-1,0)
          endif
-
 C     ... Restore minimum gradient positions if this is last step
-C     if (itrlx .eq. nitrlx .and. icom .eq. -1) then
          if (itrlx .eq. nitrlx) then
-c     if (.not. lshr) then
             call info0(20,1,0,' lmfp: restore positions for minimum g')
-C     call prmx('initial positions',w(opos),3,3,nbas)
             call prelx1 ( 1 , nm , .false. , natrlx , nvrelx , indrx_iv , p_rv !lshr=F
      .           , pos_move )
-C     call prmx('minimum-g positions',w(opos),3,3,nbas)
-c$$$  else
-c$$$  call prelx1 ( 1 , nm , lshr , natrlx , nvrelx , indrx_iv , 
-c$$$  .              p_rv , dist0 )
-c$$$  call dpzero(dist,6)
-c$$$  call grdep2 ( 1 , nvrelx , indrx_iv , dist0 , dist )
-c$$$  
-c$$$  call info2(20,0,0,
-c$$$  .              ' lmfp : strain of minimum gradient:'//
-c$$$  .              '%N   PDEF=%6;8,4D'//
-c$$$  .              '%N STRAIN=%6;8,4D',
-c$$$  .              dist0,dist)
-c$$$  endif
-
 C     Repack updated positions in site structure
             do ibas=1,nbas
                ssite(ibas)%pos = pos_move(:,ibas)
             enddo
          endif
-!     ! New density after atom shifts 
-!     ! If explicitly told to read from atom files after atom movmment
-c     if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
-c     irs1x = 0
-c     !     ! Else, use self-consistent
-c     else !if (.not. lshr) then
+!! New density after atom shifts 
+!! If explicitly told to read from atom files after atom movmment
          irs1x=3
          call smshft(ssite,sspec,sv_a_oorhat,zv_a_osmrho,ctrl_lfrce) !sctrl,sham,slat,
-c     endif
-!     ! Write restart file (to include new positions)
+!! Write restart file (to include new positions)
          if (procid .eq. master) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') !fopna('rst',-1,4)
@@ -660,23 +479,7 @@ c     endif
                call fexit(1,111,' ',0)
             endif
          endif
-c     itrlx = itrlx+1
-c$$$  if (lshr) then
-c$$$  call newshear()
-c$$$  !! Decide on what density to use
-c$$$  if ( iand(3,int(ctrl_lrs)) .eq. 3 ) then
-c$$$  irs(1) = 0
-c$$$  else                !  Else, use file density
-c$$$  irs(1) = iand(7,int(ctrl_lrs))
-c$$$  endif
-c$$$  goto 4
-c$$$  else
-c     goto 5
-c     endif
-c     cycle
-c     c      endif                     ! if (nitrlx .gt. 0 .and. lsc .le. 2) then
  2000 continue
-      
 !! Write positions to file
  9998 continue
       if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
@@ -700,114 +503,3 @@ c     c      endif                     ! if (nitrlx .gt. 0 .and. lsc .le. 2) the
       if (allocated(frc_rv)) deallocate(frc_rv)
       return
       end subroutine lmfp
-
-c$$$      contains
-c$$$      subroutine newshear()
-c$$$! Store lat_plat,lat_ldist,lat_dist, lattic, mkqp
-c$$$! not tested well yet.      
-c$$$      if (procid .eq. master) then
-c$$$        call info0(20,0,0,' Delete mixing and band weights files ...')
-c$$$        ifi = fopna('mixm',-1,4)
-c$$$        call dfclos(ifi)
-c$$$        ifi = fopna('wkp',-1,4)
-c$$$        call dfclos(ifi)
-c$$$      endif
-c$$$!!  Restore plat, pos to their undistorted state:
-c$$$!!  undo original transformation = P P_0^-1
-c$$$      allocate(pos2_rv(3,nbas))
-c$$$      call dinv33(plat,0,xv,xv(10))
-c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , xv , 3 , pos_move 
-c$$$     .     , 3 , 0d0 , pos2_rv , 3 )
-c$$$      call dgemm ( 'N' , 'N' , 3 , nbas , 3 , 1d0 , plat0 , 3 , pos2_rv
-c$$$     .     , 3 , 0d0 , rv_a_opos, 3 )
-c$$$      do ibas=1,nbas
-c$$$        ssite(ibas)%pos  = pos_move(3*(ibas-1)+1: 3*(ibas-1)+3)
-c$$$      enddo
-c$$$      call cppos(1,nbas,ssite)
-c$$$!! New shear
-c$$$      lat_plat=plat0
-c$$$      lat_ldist=3
-c$$$      lat_dist=dist
-c$$$!! A little memory leakage rel to 1st pass, but not so serious
-c$$$      if (allocated(pos2_rv)) deallocate(pos2_rv)
-c$$$      if (allocated(lldau_iv)) deallocate(lldau_iv)
-c$$$      if (allocated(ftot_rv)) deallocate(ftot_rv)
-c$$$      deallocate(vorbdmat,dmato,dmatu)
-c$$$      call lattic() !nbas) !slat,
-c$$$      plat=lat_plat
-c$$$!! Remake qp (t.kotani wonders this mkqp is needed or not?
-c$$$      ltmp = iand(1,int(ctrl_lmet)) .ne.0 .or. iand(4+2+1,int(ctrl_ldos)) .ne.0
-c$$$      call mkqp(ltmp,.false.,1,-2) 
-c$$$!! Write restart file (to include new positions)
-c$$$      if (procid .eq. master .and. irlxsh .eq. 0) then
-c$$$        ifi = fopna('rst',-1,4)
-c$$$        fileid = 'lmfp:  ' !// trim(sstrnjobid) !sstrn(i:j)
-c$$$        k = iors (ssite , sspec ,   fileid !sbz ,, sctrl slat ,spot ,  1  , 
-c$$$     .        , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
-c$$$     .        , - ifi )
-c$$$        call fclose(ifi)
-c$$$      endif
-c$$$      end subroutine newshear
-c$$$      end subroutine lmfp
-
-
-
-c$$$      subroutine cppos(ib1,ib2,ssite)
-c$$$      use m_struc_def           !Cgetarg
-c$$$C     - Copy site positions to p0 for a range of sites
-c$$$C     implicit none
-c$$$      integer ib1,ib2
-c$$$      real(8):: pos(3)
-c$$$      type(s_site)::ssite(*)
-c$$$      integer ib
-c$$$      do  ib = ib1, ib2
-c$$$          pos=ssite(ib)%pos
-c$$$          ssite(ib)%pos0=pos
-c$$$      enddo
-c$$$      end subroutine cppos
-
-
-c$$$      subroutine grdepl(nvrelx,indrlx,alpha,etot,irlxsh,pletot,dist)
-c$$$C     implicit none
-c$$$      integer irlxsh,nvrelx,indrlx(nvrelx)
-c$$$      double precision pletot(6,2),etot,dist(9),alpha
-c$$$      double precision grad,vec1(6)
-c$$$      integer iv,ipm,ipv
-c$$$      call info5(30,1,0,' GRDEPL: point %i of %i for grad shear: '//
-c$$$     .     'etot=%d',irlxsh,2*nvrelx,etot,0,0)
-c$$$C     Get index for current shear and store energy for that shear
-c$$$      if (irlxsh .gt. 0) then
-c$$$        iv = (irlxsh-1)/2 + 1
-c$$$        ipv = iv
-c$$$C     ipv = indrlx(iv)
-c$$$        ipm = mod((irlxsh-1),2) + 1
-c$$$        pletot(ipv,ipm) = etot
-c$$$      endif
-c$$$C     If this is last point, form gradient and exit
-c$$$      if (irlxsh .eq. 2*nvrelx) then
-c$$$        do  iv = 1, nvrelx
-c$$$C     ipv = indrlx(iv)
-c$$$          ipv = iv
-c$$$          grad = (pletot(ipv,1) - pletot(ipv,2))/(2*alpha)
-c$$$          pletot(ipv,1) = grad
-c$$$        enddo
-c$$$        irlxsh = 0
-c$$$        return
-c$$$      endif
-c$$$C     Get shear index for next shear and whether + or -
-c$$$      irlxsh = irlxsh+1
-c$$$      iv = (irlxsh-1)/2 + 1
-c$$$      ipv = indrlx(iv)
-c$$$      ipm = mod((irlxsh-1),2) + 1
-c$$$      if (ipv .lt. 1 .or. ipv .gt. 6)
-c$$$     .     call rx('grdepl: something wrong with indrlx')
-c$$$C     Make new shear
-c$$$      call dvset(vec1,1,6,alpha)
-c$$$      if (ipm .eq. 2) call dvset(vec1,1,6,-alpha)
-c$$$      call dpzero(dist,6)
-c$$$      call grdep2(iv,iv,indrlx,vec1,dist)
-c$$$      dist(7) = 1
-c$$$      end subroutine grdepl
-
-
-
