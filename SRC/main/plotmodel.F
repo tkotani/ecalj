@@ -28,7 +28,7 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
 !! -----------------------------MAIN ROUTINES---------------------------------
       program plotmodel
       use m_HamMTO,only: plat,npair,nlat,nqwgt,nkp,qplist,ib_table,alat,ReadHamMTOInfo,npairmx,nsp,
-     . hamr,ovlr,startprint,NM,mkRsMTO,epsovl,NS,ib,resetMTOInfo
+     . hamr,ovlr,startprint,mkRsMTO,epsovl,NS,ib,resetMTOInfo
       use m_readqplist,only: eferm,qplistsy,ndat,xdat, Readqplistsy
       implicit none
       integer:: i,j,n,ikp,ib1,ib2,it,nev,jsp,access,ii,jj
@@ -48,7 +48,7 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
       call resetMTOInfo
       call ReadHamMTOInfo(1)
       do
-         read(ifi,*,end=1919) fname,jsp !jsp=1(up) =2(down)
+         read(ifi,*,end=1919) fname,jsp !jsp=1(up) =2(down)                  
          write(*,"(a23,a20)") "Hamiltonian's name is ",trim(adjustl(fname))
          if(jsp==1)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin1")
          if(jsp==2)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin2")
@@ -74,8 +74,8 @@ c         call ReadHamMTOInfo(fname)
                do j=1,NS
                   do it =1,npair(ib(i),ib(j))
                      phase = 1d0/nqwgt(it,ib(i),ib(j))*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))))
-                     ham(i,j)    = ham(i,j)    + hamr(i,j,it,jsp)*phase
-                     ovl(i,j)    = ovl(i,j)    + ovlr(i,j,it,jsp)*phase
+                     ham(i,j)    = ham(i,j)    + hamr(i,j,it)*phase
+                     ovl(i,j)    = ovl(i,j)    + ovlr(i,j,it)*phase
                   end do
                end do
             end do
