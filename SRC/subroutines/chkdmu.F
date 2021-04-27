@@ -70,8 +70,9 @@ C ... Local parameters
       logical:: fexist,mmtargetx,eee
       real(8),allocatable:: uhall(:,:)
       real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
-      real(8),save::uhxnew,uhx,alpha
+      real(8),save::uhxnew,uhx,alpha,alphax
       integer:: nn,ibas,ifx,key,i,nit
+      integer,save:: nito
       integer,save::ncount=0
 C ... MPI
       integer:: procid,master,mpipid,mlog=-999,ierr
@@ -218,8 +219,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        if(mmtargetx) then
           if(procid==master) then
              open(newunit=ifx,file='mmtarget.aftest')
-             alpha  =1d0
-             read(ifx,*) mmtarget !,alpha
+!             alpha  = 1d0
+             read(ifx,*) mmtarget ,alpha
              close(ifx)
              open(newunit=ifx,file='uhval.aftest')
              nit=0
@@ -229,9 +230,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 nit=nit+1
                 mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
                 uhhist(nit)=uhx
-                write(6,"('uhval: ',i5,f10.6,2x,12f10.6)") nit,uhx, (mmsite(ibas),ibas=1,nbas)
+                if(nit>nito)write(6,"('uhval: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
              enddo
  1112        continue
+             nito=nit
              close(ifx)
 !     ! Generate new uhx based on the  history of uhx mmsites for given mm
 !     ! test uh          
