@@ -53,15 +53,15 @@ C ... Passed parameters
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 C ... Local parameters
-      logical rdstrn,parstr
-      integer i,isp,ib,l,lmxa,m,m2,foccn,fopna,rdm,havesh,ivsiz,ipr
+      logical rdstrn,parstr,mmtargetx,eee
+      integer i,isp,ib,l,lmxa,m,m2,foccn,fopna,rdm,havesh,ivsiz,ipr,ifx
 C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
       character str*80,spid*8
       complex(8) ,allocatable :: dmwk_zv(:)
-
+      real(8):: uhx
 C ... MPI
       integer procid,master,mpipid
       logical mlog
@@ -277,12 +277,28 @@ C ... Make Vorb (ldau requires spherical harmonics)
         call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 1
       endif
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
+!     ! experimental block to keep magnetic moment for AF.
+       inquire(file='mmtarget.aftest',exist=mmtargetx)
+       inquire(file='uhval.aftest',exist=eee)
+       if(mmtargetx.and. (procid==master).and.(.not.eee)) then
+          ib = 1 !setting assumed
+          l  = 2 
+          is = int(ssite(ib)%spec)
+          i_copy_size=size(sspec(is)%uh)
+          call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
+          uhx= uh(l+1)
+          open(newunit=ifx,file='uhval.aftest')
+          write(ifx,"(d23.15)") uhx
+          close(ifx)
+       endif
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
       iblu = 0
       do  20  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 20
         is = int(ssite(ib)%spec)
-
-
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idu)
         call icopy(i_copy_size,sspec(is)%idu,1,idu,1)

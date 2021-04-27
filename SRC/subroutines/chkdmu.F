@@ -67,7 +67,7 @@ C ... Local parameters
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
-      logical:: newaftest=.true.,fexist,mmtargetx
+      logical:: fexist,mmtargetx,eee
       real(8),allocatable:: uhall(:,:)
       real(8):: mmsite(nbas),uhxx,mmhist(10000),uhhist(10000),mmtarget,uhdiff
       real(8),save::uhxnew,uhx,alpha
@@ -218,19 +218,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        if(mmtargetx) then
           if(procid==master) then
              open(newunit=ifx,file='mmtarget.aftest')
-             alpha=1.0d0
-             read(ifx,*)mmtarget !,alpha
+             alpha  =1d0
+             read(ifx,*) mmtarget !,alpha
              close(ifx)
-             allocate(uhall(0:3,nbas))
-             do ib = 1, nbas
-                is = int(ssite(ib)%spec)
-                nn = size(sspec(is)%uh)
-                if(nn>4) call rx('chkdmu:nn>4')
-                uhall(0:nn-1,ib) = sspec(is)%uh(1:nn)
-             enddo
-             mmhist=0d0
-             nit=0
              open(newunit=ifx,file='uhval.aftest')
+             nit=0
              do
                 read(ifx,*,end=1112,err=1112) uhx
                 read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
@@ -247,13 +239,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
              sss(1)=uhx
              call mixuh(sss)
+             write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
              if(mmhist(nit)<0.or.ncount==0) then
                 open(newunit=ifx,file="mixuh.aftest")
                 close(ifx,status='delete')
                 ncount=1
-                uhx = uhx 
              endif
-             write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
+             open(newunit=ifx,file='uhval.aftest',position='append')
+             write(ifx,"(d23.15)") uhx !, uhxnew
+             close(ifx)
           endif
 !! broadcast uhx       
           call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
@@ -292,16 +286,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         enddo
 C       At this point, dmatu and vorb are in spherical harmonics
         
-!!-------------------------------------------------------
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-!! experimental block to keep magnetic moment for AF.       
-       if(procid==master.and.newaftest) then
-       open(newunit=ifx,file='uhval.aftest',position='append')
-       write(ifx,"(d23.15,2x,i5,d23.15)",advance='no') uhx !, uhxnew
-       close(ifx)
-       endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-       
+     
        
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
         allocate(dmwk_zv(abs(-ivsiz)))
