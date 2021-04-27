@@ -5,7 +5,7 @@
      &     ,ib_table(:),l_table(:),k_table(:),m_table(:),nqwgt(:,:,:),itor(:),ir(:,:),ilo(:,:),ib(:)
       integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,NMTO,jsp,lso,nsp,NS,nqs,niq,niqs,nlo,nlo2,nr,NM
       real(8),protected:: epsovl,alat,eferm
-      complex(8),dimension(:,:,:,:),allocatable,protected:: ovlr,hamr
+      complex(8),dimension(:,:,:),allocatable,protected:: ovlr,hamr
       character*20,protected,allocatable:: orbch(:,:),orbsym(:),orbsymlo(:)
       contains      
       
@@ -264,7 +264,7 @@ c     stop "aaaaa"
          end if        
       end do
       write(*,*) outmodel,NMTO-nmodel
-      if(outmodel.ne.NMTO-nmodel) stop "error! wrong count for outmodel"
+      if(outmodel.ne.NMTO-nmodel)stop "error! wrong count for outmodel!(maybe duplicated orbitals in mtoctrl)"
 
 
       allocate(ipnk2(outmodel))
@@ -326,7 +326,20 @@ c            ipivot(nmodel+nr+jj)=j
       deallocate(ib_new,l_new,k_new,m_new)
 
 cccccccccccccccc after the pivot turn ccccccccccccccccccccccc     
-
+      open(newunit=ifim,file="meta_pivot") !k,l,m index after pivoting
+      do i=1,NMTO
+         write(ifim,"(i4,a,3i4)") i,":",ib_table(i),k_table(i),1+(l_table(i))**2+l_table(i)+m_table(i)
+      end do
+      close(ifim)
+         
+      if(nk2==0)then
+         write(*,*) "no orbital is truncated(nk2==0)."
+         open(newunit=ioir,file="ir_list") !preparation for mkhamloc.F
+         write(ioir,*) nmodel,nk2,0
+         close(ioir)
+         return
+      end if
+      
       allocate(orbsym(nk2),ir(nk2,3),irl(nk2))
       nlo=0
       ii=0
@@ -487,32 +500,31 @@ c         end if
       
       ikp=0
       do
-         read(ifih,end=2019) qp,NM,lso,epsovl,jspin !NM and epsovl are module variable
-         NS=min(NM,NMTO)
+         read(ifih,end=2019) qp,NS,lso,epsovl,jspin !NM and epsovl are module variable
          if(.NOT.allocated(ovlr).and..NOT.allocated(hamr))then
-            allocate(ovlr(1:NS,1:NS,1:npairmx,1:nsp),hamr(1:NS,1:NS,1:npairmx,1:nsp))
-c            write(*,*) npairmx,nsp
+            allocate(ovlr(1:NS,1:NS,1:npairmx),hamr(1:NS,1:NS,1:npairmx))
             hamr=0d0 ; ovlr=0d0
          end if         
          
-         allocate(ovlM(1:NM,1:NM),hamM(1:NM,1:NM))
-         read(ifih) ovlM(1:NM,1:NM)
-         read(ifih) hamM(1:NM,1:NM)
+         allocate(ovlM(1:NS,1:NS),hamM(1:NS,1:NS))
+         read(ifih) ovlM(1:NS,1:NS)
+         read(ifih) hamM(1:NS,1:NS)
          if(jspin.ne.jsp)then
-            deallocate(ovlM,hamM)
+            deallocate(ovlM,hamM)    
             cycle
          end if
+         write(*,*) "jspin,jsp=",jspin,jsp
          ikp=ikp+1
-         write(6,"(i4)",advance="no") ikp
-         if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
+c         write(6,"(i4)",advance="no") ikp
+c         if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
          
-         do i=1,NS !<== size down from NM
+         do i=1,NS
             do j=1,NS
 c               write(*,*) i,ib(i),j,ib(j),npair(ib(i),ib(j)),npairmx
                do it =1,npair(ib(i),ib(j)) !hammr_ij (T)= \sum_k hamm(k) exp(ikT).
                   phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))))
-                  hamr(i,j,it,jsp)= hamr(i,j,it,jsp) + hamM(i,j)*phase
-                  ovlr(i,j,it,jsp)= ovlr(i,j,it,jsp) + ovlM(i,j)*phase
+                  hamr(i,j,it)= hamr(i,j,it) + hamM(i,j)*phase
+                  ovlr(i,j,it)= ovlr(i,j,it) + ovlM(i,j)*phase
                enddo
             enddo
          enddo
