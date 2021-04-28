@@ -1,7 +1,7 @@
       subroutine sugw ( ssite , sspec ,  nbas , ndham !sham ,slat , 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master,lso)
+     .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)!,lso)
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
       use m_lmfinit,only: globalvariables
       use m_suham,only: iv_a_oindxo
@@ -829,7 +829,7 @@ c$$$        endif
 
 !! jx SO=2 works (bug fix). Apr2021
           jx = 0
-          if (lso == 1) jx = 10
+c          if (lso == 1) jx = 10
           
           call hambl ( jx , nbas , ssite , sspec ,  isp , qp !, sham slat  ,
      .       , k1 , k2 , k3 , spotx , vconst , sv_p_osigx , sv_p_otaux , sv_p_oppix 

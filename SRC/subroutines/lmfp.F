@@ -246,7 +246,7 @@ c    4 continue !
         umix=mix_umix
         tolu=mix_tolu
         if (umix .eq. 0) umix = 1
-        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0
+        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 !read dmatu from dmatu.ext
      .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
@@ -317,13 +317,13 @@ C     Hang on to previous site density matrix for this iteration
                dmatu=0d0
             endif
             
-!! lda+u to recall previous +U potential stored in vorbdmat
-            inquire(file='vorbdmat.dat',exist=nexist,size=nsize)
-            if(iter==1.and.nexist.and.nsize>0) then
-               open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
-               read(ifivorbdmat) vorbdmat
-               close(ifivorbdmat)
-            endif
+c!! lda+u to recall previous +U potential stored in vorbdmat
+c            inquire(file='vorbdmat.dat',exist=nexist,size=nsize)
+c            if(iter==1.and.nexist.and.nsize>0) then
+c               open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
+c               read(ifivorbdmat) vorbdmat
+c               close(ifivorbdmat)
+c            endif
 
 C     --- Make and diagonalize hamiltonian, make new charge density ---
             if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
@@ -335,11 +335,11 @@ C     ... check convergence of dmatu and update it and vorbdmat if necessary
                call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec !, sham 
      .              , 0 , dmatu , dmato, vorbdmat, tolu , umix
      .              , lldau_iv , ng , rv_a_osymgr , iv_a_oistab )
-               if(procid==master) then
-                 open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
-                 write(ifivorbdmat) vorbdmat
-                 close(ifivorbdmat)
-               endif
+c               if(procid==master) then
+c                 open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
+c                 write(ifivorbdmat) vorbdmat
+c                 close(ifivorbdmat)
+c               endif
             endif
 !! Write smoothed charge density for contour plotting ---
 !!   --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).

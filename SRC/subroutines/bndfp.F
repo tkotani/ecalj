@@ -1078,7 +1078,7 @@ c            massline=.false.
          call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx    , sv_p_osigx, sv_p_otaux, sv_p_oppix, jobgw 
-     .     , nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master,lso) 
+     .     , nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master)!,lso) 
 ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          deallocate(spotx)
          call tcx('bndfp')

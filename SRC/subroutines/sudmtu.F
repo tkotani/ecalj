@@ -57,13 +57,14 @@ C ... Local parameters
       integer i,isp,ib,l,lmxa,m,m2,foccn,fopna,rdm,havesh,ivsiz,ipr,ifx
 C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
-      integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec
+      integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
       character str*80,spid*8
       complex(8) ,allocatable :: dmwk_zv(:)
       real(8):: uhx
 C ... MPI
-      integer procid,master,mpipid
+      include "mpif.h"
+      integer procid,master,mpipid,ierr
       logical mlog
 
 !!
@@ -279,20 +280,31 @@ C ... Make Vorb (ldau requires spherical harmonics)
       endif
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
-!     ! experimental block to keep magnetic moment for AF.
+!! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
        inquire(file='uhval.aftest',exist=eee)
        if(mmtargetx.and. (procid==master).and.(.not.eee)) then
           ib = 1 !setting assumed
           l  = 2 
           is = int(ssite(ib)%spec)
-          i_copy_size=size(sspec(is)%uh)
-          call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
-          uhx= uh(l+1)
+          nn = size(sspec(is)%uh)
+          call dcopy(nn,sspec(is)%uh,1,uh,1)
+          uhx = uh(l+1)
+       elseif(mmtargetx.and. (procid==master)) then
+          do
+             read(ifx,*,end=1112,err=1112) uhx
+             read(ifx,*,end=1112,err=1112) 
+          enddo
+ 1112     continue
+          write(6,"('sudmtu: readin uh from uhval.aftest=',f10.6)")uhx
+          close(ifx)
+       endif   
+       if(mmtargetx.and. (procid==master)) then
           open(newunit=ifx,file='uhval.aftest')
           write(ifx,"(d23.15)") uhx
           close(ifx)
        endif
+       call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       iblu = 0
@@ -319,7 +331,8 @@ c        enddo
         do  22  l = 0, i
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
-            call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp,
+            if(.not.mmtargetx) uhx=uh(l+1)
+            call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp,
      .      lmaxu,vorb,eorb)
 C            call prdmts(0,30,30,0,' sudmtu:  Vorb in spherical harm',ib,
 C     .        l,lmaxu,iblu,vorb,nsp,1)
