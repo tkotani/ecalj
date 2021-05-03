@@ -433,25 +433,25 @@ c       write(6,*)'notbit=',i,ix,idat(i)
       enddo
       end
 
-      subroutine writeemesh(ifi,freqi,niw,freqr,nnw,delta)
-c Write energy mesh along imag axis and real axis. -----------------------
-      implicit none
-      integer(4):: iw,ifi,niw,nnw
-      real(8) :: freqi(niw),freqr(0:nnw-1),delta
-      complex(8):: fff,img =(0d0,1d0)
-      write(6,*)" writeemesh: ifi=",ifi
-      write(ifi,"(' iw   omega(Ry) on Imag-axis  niw=', i8)")niw
-      do iw = 1,niw
-        fff = img * freqi(iw)            ! along img axis
-        write(ifi,"(i3,2d15.6)")iw,fff*2d0
-      enddo
-      write(ifi,"('  0   0.000000D+00   0.000000D+00  ! This line is a dummy not in niw.')")
-      write(ifi,"(' iw   omega(Ry) on Real-axis  nw=', i8)") nnw
-      do iw= 0,nnw-1
-        fff = freqr(iw) + img*delta ! delta is in a.u.  ! along real axis
-        write(ifi,"(i3,2d15.6)")iw,fff*2d0
-      enddo
-      end
+c$$$      subroutine writeemesh(ifi,freqi,niw,freqr,nnw,delta)
+c$$$c Write energy mesh along imag axis and real axis. -----------------------
+c$$$      implicit none
+c$$$      integer(4):: iw,ifi,niw,nnw
+c$$$      real(8) :: freqi(niw),freqr(0:nnw-1),delta
+c$$$      complex(8):: fff,img =(0d0,1d0)
+c$$$      write(6,*)" writeemesh: ifi=",ifi
+c$$$      write(ifi,"(' iw   omega(Ry) on Imag-axis  niw=', i8)")niw
+c$$$      do iw = 1,niw
+c$$$        fff = img * freqi(iw)            ! along img axis
+c$$$        write(ifi,"(i3,2d15.6)")iw,fff*2d0
+c$$$      enddo
+c$$$      write(ifi,"('  0   0.000000D+00   0.000000D+00  ! This line is a dummy not in niw.')")
+c$$$      write(ifi,"(' iw   omega(Ry) on Real-axis  nw=', i8)") nnw
+c$$$      do iw= 0,nnw-1
+c$$$        fff = freqr(iw) + img*delta ! delta is in a.u.  ! along real axis
+c$$$        write(ifi,"(i3,2d15.6)")iw,fff*2d0
+c$$$      enddo
+c$$$      end
 
 
 

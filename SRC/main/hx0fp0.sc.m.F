@@ -26,7 +26,7 @@ c     &     idteti, nstar,irk,nstbz
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn,ngrp,
      &     nlmto,nlnmx, nctot,!niw, !nw_input=>nw,
-     &     alat, deltaw,symgrp,clabl,iclass, !diw,dw,delta,
+     &     alat, symgrp,clabl,iclass, !diw,dw,delta,deltaw,
      &     invg, il, in, im, nlnm, plat, pos, ecore, symgg 
 !! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
       use m_rdpp,only: Rdpp,      !"call rdpp" generate following data.

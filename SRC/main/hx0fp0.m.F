@@ -14,7 +14,7 @@
       use m_genallcf_v3,only: Genallcf_v3,
      &     nclass,natom,nspin,nl,nn, ngrp,
      &     nlmto,nlnmx, nctot, !niw_in=>niw, !nw_input=>nw,
-     &     alat, deltaw,esmr,symgrp,clabl,iclass, !diw,dw,delta,
+     &     alat, esmr,symgrp,clabl,iclass, !diw,dw,delta,deltaw,
      &     invg, il,in,im,nlnm, 
      &     plat, pos,ecore, symgg ,tpioa
 c      use m_keyvalue,only: getkeyvalue

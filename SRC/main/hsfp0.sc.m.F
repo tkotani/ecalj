@@ -69,7 +69,7 @@
       use m_genallcf_v3,only: GENALLCF_V3,Setesmr,
      &     nclass,natom,nspin,nl,nn, ngrp,
      &     nlmto,nlnmx, nctot,niw, !nw_input=>nw,
-     &     alat, delta,deltaw,symgrp,clabl,iclass,esmr_in=>esmr, !diw,dw, 
+     &     alat, deltaw,symgrp,clabl,iclass,esmr_in=>esmr, !diw,dw, delta,
      &     invg, il,in,im,nlnm, 
      &     plat, pos,z,ecore, symgg, konf,nlnx, iantiferro
 c      use m_keyvalue,only: GETKEYVALUE
