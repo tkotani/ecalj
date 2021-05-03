@@ -218,11 +218,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        if(mmtargetx) then
           if(procid==master) then
              open(newunit=ifx,file='mmtarget.aftest')
-             alpha  = 1d0
+             alpha  = .1d0
              read(ifx,*) mmtarget !,alpha
              close(ifx)
              open(newunit=ifx,file='uhval.aftest')
              nit=0
+             mmsite=0d0
+             uhx=0d0
              do
                 read(ifx,*,end=1112,err=1112) uhx
                 read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
@@ -230,24 +232,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
                 uhhist(nit)=uhx
              enddo
-             write(6,"('uhval: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
  1112        continue
              close(ifx)
+             write(6,"('uhval: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
 !     ! Generate new uhx based on the  history of uhx mmsites for given mm
 !     ! test uh          
              uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-             write(6,"('mmhist0: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
+             write(6,"('mmhist0: UH mm',i5, 3d13.4)" ) nit,uhx,mmhist(nit)
              sss(1)=uhx
              call mixuh(sss)
              uhx=sss(1)
-             write(6,"('mmhist: uh mm uhx',i5, 3d13.4)") nit,uhhist(nit),mmhist(nit),uhx
+             write(6,"('mmhist:  UH mm ',i5, 3d13.4)") nit,uhx,mmhist(nit)
              if(ncount==0) then
                 open(newunit=ifx,file="mixuh.aftest")
                 close(ifx,status='delete')
                 ncount=1
              endif
              open(newunit=ifx,file='uhval.aftest',position='append')
-             write(ifx,"(d23.15)") uhx !, uhxnew
+             write(ifx,"(d23.15,' !uhx')") uhx !, uhxnew
              close(ifx)
           endif
 !! broadcast uhx       
@@ -256,9 +258,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              fac=1d0
              if(iblu==2) fac=-1d0
              dmatuav(:,:) =  .5d0*dmatu(:,:,1,iblu) +.5d0*dmatu(:,:,2,iblu)
-             dmatu(:,:,1,iblu) =  fac*uhx*dmatuav(:,:)
-             dmatu(:,:,2,iblu) = -fac*uhx*dmatuav(:,:)
+             dmatu(:,:,1,iblu) =  fac*dmatuav(:,:)
+             dmatu(:,:,2,iblu) = -fac*dmatuav(:,:)
           enddo
+
        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -278,7 +281,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if (idu(l+1) .ne. 0) then
                 iblu = iblu+1
                 call pshpr(iprint()-20)
-                call ldau(idu(l+1),l,iblu,uh(l+1),jh(l+1),dmatu,nsp, !uhxx,jh(l+1),dmatu,nsp, !
+                if(.not.mmtargetx) uhx = uh(l+1)
+                call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp, !uhxx,jh(l+1),dmatu,nsp, !
      .          lmaxu,vorb,eorb)
                 call poppr
               endif

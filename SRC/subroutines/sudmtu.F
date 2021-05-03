@@ -59,9 +59,9 @@ C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
-      character str*80,spid*8
+      character str*80,spid*8,aaa*4
       complex(8) ,allocatable :: dmwk_zv(:)
-      real(8):: uhx
+      real(8):: uhx,uhxx
 C ... MPI
       include "mpif.h"
       integer procid,master,mpipid,ierr
@@ -290,18 +290,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           nn = size(sspec(is)%uh)
           call dcopy(nn,sspec(is)%uh,1,uh,1)
           uhx = uh(l+1)
+          write(6,"('sudmtu: mmtarget mode. Use UH in ctrl at start',f10.6)")uhx
        elseif(mmtargetx.and. (procid==master)) then
+          uhx=0d0
+          open(newunit=ifx,file='uhval.aftest')
           do
-             read(ifx,*,end=1112,err=1112) uhx
-             read(ifx,*,end=1112,err=1112) 
+             read(ifx,*,end=1112,err=1112) uhxx,aaa
+             if(aaa=='!uhx') uhx=uhxx
           enddo
  1112     continue
-          write(6,"('sudmtu: readin uh from uhval.aftest=',f10.6)")uhx
           close(ifx)
+          write(6,"('sudmtu: mmtarget mode. Readin UH from uhval.aftest=',f10.6)")uhx
        endif   
        if(mmtargetx.and. (procid==master)) then
           open(newunit=ifx,file='uhval.aftest')
-          write(ifx,"(d23.15)") uhx
+          write(ifx,"(d23.15,1x,'!uhx :UH read from previous uhval.aftest or ctrl')") uhx
           close(ifx)
        endif
        call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
