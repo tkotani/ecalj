@@ -131,7 +131,7 @@
             write(stdo,"(a)")'%% '//trim(recrd(i))//' %%'
          enddo
       endif
-      write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)") trim(prgnam),nrecs
+      if(procid==master) write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)") trim(prgnam),nrecs
       if(lshowp) call cexit(0,1)
  1111 continue
 !! Set starting data.  rdctrl2 sets all initial condition to m_lmfinit module.

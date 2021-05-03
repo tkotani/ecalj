@@ -698,8 +698,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       call mpibc1(nsizeoiaxs,1,2,mlog,'bndfp','nsizeoiaxs')
       call mpibc1(nsizeontabs,1,2,mlog,'bndfp','nsizeontabs')
       call mpibc1(noqsig,1,2,mlog,'bndfp','noqsig')
-      print *,'nnnnnn=',nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       if(procid/=master) then
+         print *,'nnnnnn=',nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
          allocate( rv_a_ohrs(nsizeohrs) )
          allocate( iv_a_oiaxs(nsizeoiaxs))       
          allocate( iv_a_ontabs(nsizeontabs))       
@@ -1106,7 +1106,7 @@ c      mlog = cmdopt('--mlog',6,0,outs)
 
 c      if (procid .eq. master) then !   Require file contains sigm(orbital basis)
       call iosigh(0,nscnts,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2), lshft(3),ifis)
-      print *,'iiiiiiiiiiii',i
+c      print *,'iiiiiiiiiiii',i
 C         if (nscnts .ne. 0 .and. nscnts .ne. 5) then
 C         call iosigh(2,0,i,j,nk1,nk2,nk3,nqp,lshft(1),lshft(2),
 C      .    lshft(3),ifis)

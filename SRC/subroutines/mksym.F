@@ -305,7 +305,7 @@ c      sarray%nclasp=nclasp
   100 continue
       lat_npgrp=npgrp
       lat_nsgrp=nsgrp
-      print *,'end of mksym'
+c      print *,'end of mksym'
       end subroutine mksym
 
 !! -----------------------------------

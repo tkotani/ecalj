@@ -197,7 +197,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
 !!=== Re-entry for lshr (share mode); share mode is currently commented out.
 !!      Probably share mode is going to be moved to outside of lmfp =======
 c    4 continue !
-      write(stdo,*)' lmfp : potential and basis setup ... '
+      if(procid==master) write(stdo,*)' lmfp : potential and basis setup ... '
       call supot(0) 
       call suham(sspec,ssite)
       if ( ctrl_quit .eq. 8 ) call rx0('quit = ham')

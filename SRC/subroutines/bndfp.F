@@ -763,7 +763,7 @@ C --- Make the potential and total energy terms ---
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
      .     nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .     dabs(esmear-mpsord))
-         write(stdo,*)' Start first of two band passes ...'
+         if(procid==master) write(stdo,*)' Start first of two band passes ...'
       else
          nkp = 0
          ldos = 0
@@ -773,7 +773,7 @@ C --- Make the potential and total energy terms ---
 c      if(lwtkb /= -1) call rx('bndfp: we need lwtkb=-1')
 c      if(numq/=1)     call rx('bndfp: we need numq=1')
       if(.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
-         write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
+         if(procid==master) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
          lswtk = -2
       endif
 !! --- More k-point independent local arrays ---
@@ -1088,7 +1088,7 @@ c            massline=.false.
          call rx0('sugw mode')  !exit program here normally.
       endif
       if(ham_scaledsigma/=1d0.and.sigmamode) then
-        write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
+        if(procid==master) write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif
       
 #if MPIK
