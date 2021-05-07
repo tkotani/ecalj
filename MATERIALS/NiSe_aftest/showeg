@@ -1,0 +1,6 @@
+echo
+echo '--- NOTE: both should be the same (when llmfgw01 was done after lmf) ---'
+echo ==== lmf ==================
+grep -n -A5 bndfp llmf |grep -A4   'k isp=  0.0000  0.0000  0.0000'|tail -10
+echo ==== lmfgw ==================
+grep -n -A5 sugw llmfgw01|grep -A5 'k=   0.00000  0.00000  0.00000'

@@ -1,0 +1,14 @@
+#!/bin/sh
+#$ -N nise800
+#$ -pe smp 32
+#$ -cwd
+#$ -M takaokotani@gmail.com
+#$ -m be
+#$ -V
+#$ -S /bin/bash
+
+# cp rst.nise sigm.nise dmats.nise mmtarget.mm GWinput ctrl.nise job ../RUN200_fixmm00/
+
+export OMP_NUM_THREADS=1
+EXEPATH=/home/takao/bin/
+$EXEPATH/gwsc_sym 180 -np 32 nise 
