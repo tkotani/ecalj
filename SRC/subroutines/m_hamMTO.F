@@ -482,29 +482,30 @@ c         end if
       integer:: ifih,i,j,n,it,lso,ikp,jspin
       real(8)::qp(3),pi=4d0*atan(1d0)
       complex(8) :: phase,img=(0d0,1d0)
-      complex(8),allocatable:: ovlM(:,:),hamM(:,:)      
+      complex(8),allocatable:: ovlM(:,:),hamM(:,:)     
       
-      open(newunit=ifih,file =trim(adjustl(fname))//".K",form='unformatted')
+      open(newunit=ifih,file =trim(adjustl(fname)),form='unformatted')
 
       if(allocated(ovlr)) deallocate(ovlr)
       if(allocated(hamr)) deallocate(hamr)
       if(.NOT.allocated(ib)) allocate(ib(1:NMTO))
       
-      write(*,*) trim(adjustl(fname))//".K"
+      write(*,*) trim(adjustl(fname))
 
       do i=1,NMTO
-         ib(i) = mod(ib_table(i),NMTO) 
+         ib(i) = mod(ib_table(i),NMTO)
       end do
       write(6,*) " "
       write(6,*) "********** Making Real Space Hamiltonian(FT from k-space) ************"
       
       ikp=0
+      
       do
          read(ifih,end=2019) qp,NS,lso,epsovl,jspin !NM and epsovl are module variable
          if(.NOT.allocated(ovlr).and..NOT.allocated(hamr))then
             allocate(ovlr(1:NS,1:NS,1:npairmx),hamr(1:NS,1:NS,1:npairmx))
             hamr=0d0 ; ovlr=0d0
-         end if         
+         end if
          
          allocate(ovlM(1:NS,1:NS),hamM(1:NS,1:NS))
          read(ifih) ovlM(1:NS,1:NS)
@@ -513,18 +514,19 @@ c         end if
             deallocate(ovlM,hamM)    
             cycle
          end if
-         write(*,*) "jspin,jsp=",jspin,jsp
+c         write(*,*) "jspin,jsp=",jspin,jsp
          ikp=ikp+1
-c         write(6,"(i4)",advance="no") ikp
-c         if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
-         
+         write(6,"(i4)",advance="no") ikp
+         if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
+         write(9999,*) "ikp,jsp,NS,file",ikp,jsp,NS,trim(adjustl(fname))
          do i=1,NS
             do j=1,NS
-c               write(*,*) i,ib(i),j,ib(j),npair(ib(i),ib(j)),npairmx
                do it =1,npair(ib(i),ib(j)) !hammr_ij (T)= \sum_k hamm(k) exp(ikT).
+
                   phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))))
                   hamr(i,j,it)= hamr(i,j,it) + hamM(i,j)*phase
                   ovlr(i,j,it)= ovlr(i,j,it) + ovlM(i,j)*phase
+c                  write(*,*) i,ib(i),j,ib(j),it,"b"
                enddo
             enddo
          enddo

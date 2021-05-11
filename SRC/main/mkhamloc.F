@@ -148,7 +148,7 @@ c      call ReadHamMTOInfo(iname)
       read(ifir,*) NM,neh2,nlo
 
       if(neh2==0.and.nlo==0)then
-         open(newunit=ifout,file="rotmat1")
+         open(newunit=ifout,file="rotmat")
          do i=1,NMTO
             do j=1,NMTO            
                if(i==j.and.i.le.NM)then
@@ -185,7 +185,8 @@ c      end do
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(6,*) "====================open .K file! ===================="
       allocate(jspl(nqs),llist(nqs))
-      open(newunit=ifih,file="HamR.K",form='unformatted')      
+c      open(newunit=ifih,file="HamR.K",form='unformatted')
+      open(newunit=ifih,file="HamR",form='unformatted')      
       i=0 ; j=0; rq=0           !sanity check
       do          
          read(ifih,end=2019) qp,LD,lso1,epsdum,jsp         
@@ -209,7 +210,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       write(6,*)'Read: total # of q for Ham=',nkp,i,"(from .Info and .K)"
       write(6,*) "====================close .K file! ===================="      
-      open(newunit=ifih,file="HamR.K",form='unformatted')
+      open(newunit=ifih,file="HamR",form='unformatted')
 
       Lmax=maxval(llist)
       if(LLmode)then
@@ -478,7 +479,7 @@ c         do jsp=1,nsp
                ilo=1
                r=dsin(totvec(j,ilo))
                absd=abs(totvec(j,ilo)-oldvec(j,ilo))
-               write(*,"(i4,f12.5,2x,es10.1,3x,a20,i4,a)") j,r,absd,orbsym(j),"spin"
+               write(*,"(i4,f12.5,2x,es10.1,3x,a20)") j,r,absd,orbsym(j)
             end do
 c         end do
          if(maxval(abs(totvec(:,:)-oldvec(:,:))).le.convc)then

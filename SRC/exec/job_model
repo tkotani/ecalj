@@ -6,7 +6,7 @@ vpw=1
 flg=("n" "n" "n" "n" "n" "n" "n" )
 nflg=("0:lmf(lmfa)" "1:job_band" "2:writeham" "3:initmlo" "4:mkhamloc" "5:lmfham" "6:plotmodel" )
 
-bndname=("HamR" "HamS" "HamC")
+bndname=("HamM" "HamS" "HamC")
 
 if [ ! -e $mcfile ]; then
     echo 'When you restart program, please edit "mtoctrl" to handle starting points.'

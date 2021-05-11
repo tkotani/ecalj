@@ -45,7 +45,7 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
 !     ! Read infomation for Hamiltonian (lattice structures and index of basis).
       call readqplistsy()
       open(newunit=ifi,file="input_plotmodel")
-      call resetMTOInfo
+c      call resetMTOInfo
       call ReadHamMTOInfo(1)
       do
          read(ifi,*,end=1919) fname,jsp !jsp=1(up) =2(down)                  
@@ -72,7 +72,9 @@ c         call ReadHamMTOInfo(fname)
             ovl  = 0d0
             do i=1,NS
                do j=1,NS
+c                  write(5555,*) i,ib(i),j,ib(j),npair(ib(i),ib(j)),npairmx
                   do it =1,npair(ib(i),ib(j))
+c                     write(5555,*) it,ib(i),ib(j),nqwgt(it,ib(i),ib(j))
                      phase = 1d0/nqwgt(it,ib(i),ib(j))*exp(-img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))))
                      ham(i,j)    = ham(i,j)    + hamr(i,j,it)*phase
                      ovl(i,j)    = ovl(i,j)    + ovlr(i,j,it)*phase

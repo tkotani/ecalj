@@ -53,7 +53,7 @@ c         end do
       real(8),parameter ::  ryd=13.6058d0
       real(8),allocatable ::  evl_S(:),evl(:),evl_C(:)
       complex(8),allocatable,dimension(:,:) :: ham,hamS,ovl,ovlS,hamC,ovlC,rdmat,prjdum,aeadum
-     .     ,amat,ovlrect,gsvec,inpro,dmat,c_S,c,aea,lft,rgt,prj,emat,rext
+     .     ,amat,ovlrect,gsvec,inpro,dmat,c_S,c,aea,lft,rgt,prj,emat,rext,c_C
       complex(8),allocatable,dimension(:,:,:) :: rmat
 
       call startprint(0)
@@ -79,25 +79,22 @@ c      open(newunit=ifih,file =trim(adjustl(inname))//".K",form='unformatted')
 c      open(newunit=ifomto,file =trim(adjustl(mtoname))//".K",form='unformatted')      
 c      open(newunit=ifoh1,file=trim(adjustl(oname1))//".K",form='unformatted')
 c      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
-      open(newunit=ifih,file ="HamR.K",form='unformatted')
-      open(newunit=ifomto,file ="HamM.K",form='unformatted')      
-      open(newunit=ifoh1,file="HamS.K",form='unformatted')
-      open(newunit=ifoh2,file="HamC.K",form='unformatted')
+      open(newunit=ifih,file ="HamR",form='unformatted')
+      open(newunit=ifomto,file ="HamM",form='unformatted')      
+      open(newunit=ifoh1,file="HamS",form='unformatted')
+      open(newunit=ifoh2,file="HamC",form='unformatted')
       open(newunit=ilog,file="sizelog")
       
-      allocate(hamS(1:NS,1:NS),ovlS(1:NS,1:NS),hamC(1:NS,1:NS),c_S(1:NS,1:NS))
-      allocate(evl_S(1:NS),ovlC(1:NS,1:NS),rdmat(1:NM,1:NM))
-c     open(newunit=ifrmat,file="rotmatbin1",form='unformatted')
+      allocate(hamS(1:NS,1:NS),ovlS(1:NS,1:NS),hamC(1:NS,1:NS),c_S(1:NS,1:NS),c_C(1:NS,1:NS))
+      allocate(evl_S(1:NS),ovlC(1:NS,1:NS),rdmat(1:NM,1:NM),evl_C(1:NS))
       open(newunit=ifrmat,file="rotmat")
       do i=1,NM
          do j=1,NM
             read(ifrmat,*) di1,di2,el1,el2
             rdmat(di1,di2)=dcmplx(el1,el2)
          end do
-      end do            
-c     read(ifrmat) rmat(1:NM,1:NM,1)
-c     if(nsp==2)open(newunit=ifrmat2,file="rotmatbin2",form='unformatted')
-c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
+      end do
+      close(ifrmat)
          
       iq=0      
       if(nspx==1)write(6,"(a)") "**************** Reading Ham for iq(non-magnetic)***************"
@@ -124,7 +121,7 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
          ovlS(1:NS,1:NS)=dmat(1:NS,1:NS)
          read(ifih) ham(1:NP,1:NP) !ham(1:NP,1:NP)
          dmat=matmul(transpose(rext),matmul(ham,rext))
-         hamS(1:NS,1:NS)=dmat(1:NS,1:NS)         
+         hamS(1:NS,1:NS)=dmat(1:NS,1:NS)
          deallocate(rext,dmat)         
 !     Diagonalize
          allocate(evl(1:NP),c(1:NP,1:NP))
@@ -162,7 +159,19 @@ c     if(nsp==2)read(ifrmat2) rmat(1:NM,1:NM,2)
          rgt   = transpose(dconjg(lft))
          hamC  = matmul( lft,matmul(aea,rgt))
 c     ovlC  = ovlS
-         ovlC  = matmul( lft,rgt)                           
+         ovlC  = matmul( lft,rgt)
+
+         if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis          
+            call zhev_tk2(NS,hamC,ovlC,NS,nevC,evl_C,c_C,lprint,savez,getz,ifig)
+         else
+            call zhev_tk3(NS,hamC,ovlC,NS,nevC,evl_C,c_C,lprint,savez,getz,ifig,epsovl)
+         endif
+
+         do i=1,nevC
+            write(1111,"(2i4,4f13.7)") iq,jsp,evl(i),evl_S(i),evl_C(i),evl(i)-evl_C(i)
+         end do
+         write(1111,*) " "
+         
 !!!!!!!!!!!!!! output hamiltonian data !!!!!!!!!!         
          write(ifoh1) qp,NS,lso,epsovl,jsp 
          write(ifoh1) ovlS(1:NS,1:NS)

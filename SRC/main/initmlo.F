@@ -11,20 +11,14 @@
       character(200) inname,outname!,indexname
 
       call startprint(2)
-      
-C      open(newunit=ifinput,file="input_initmlo")
-c      read(ifinput,*) inname,outname !,indexname
-c     read(ifinput,*) outname !,indexname
-      
+            
       close(ifinput)
       open(newunit=ideb,file="initmlo.deb")
       
-c      call ReadHamMTOinfo(inname)
       call ReadHamMTOinfo(0) !HamiltonianPMTInfo
-
-c      stop "aaa"
       
       call mkpivot
+      call geninitmloInfo
       
 c      write(6,*) "j,atom,EH,l,magne"
 c      do j=1,NMTO
@@ -37,16 +31,12 @@ c      end do
       LL2=LL*LL
       allocate(rmat1(1:LL,1:LL),rmat2(1:LL,1:LL))
       allocate(lmat1(1:LL,1:LL),lmat2(1:LL,1:LL))
-                      
-      call geninitmloInfo!(outname)
-                                             
-c     open(newunit=ifiin,file=trim(adjustl(inname))//".K",form="unformatted")
+                                                                  
       open(newunit=ifiin,file="HamiltonianPMT",form="unformatted")
-c      open(newunit=ifiout,file=trim(adjustl(outname))//".K",form="unformatted")
-      open(newunit=ifiout,file="HamR.K",form="unformatted")
+      open(newunit=ifiout,file="HamR",form="unformatted")
       open(newunit=ifoutmat,file="Umat",form="unformatted")
-      open(newunit=ifovl,file="ovlR",form="unformatted")
-      open(newunit=ifham,file="hamR",form="unformatted")
+c      open(newunit=ifovl,file="ovlR",form="unformatted")
+c      open(newunit=ifham,file="hamR",form="unformatted")
       
       nq=0
       write(ideb,*) "nq,qp(vector),spin"
@@ -85,8 +75,8 @@ c     hamR=matmul(uni,matmul(hamP,transpose(uni)))
          write(ifiout) ovlR(1:NPMT,1:NPMT)
          write(ifiout) hamR(1:NPMT,1:NPMT)
 
-         write(ifovl) ovlR(1:NPMT,1:NPMT)
-         write(ifham) hamR(1:NPMT,1:NPMT)
+c         write(ifovl) ovlR(1:NPMT,1:NPMT)
+c         write(ifham) hamR(1:NPMT,1:NPMT)
          deallocate(ovlP,hamP,ovlR,hamR,uni,unip,unir)
       end do
  2019 continue
