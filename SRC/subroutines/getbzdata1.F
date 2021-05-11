@@ -16,7 +16,7 @@
          else
             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
          endif   
-         write(6,"('BZadiv= ',f6.3)") adiv
+         write(6,"('  BZadiv= ',f6.3)") adiv
          bdiv = (1d0 -adiv)/2d0
          oncew=.false.
       endif
@@ -101,8 +101,8 @@ c      wfac=dble(product(nnn))/product(nnnv)
      & ,indexk (0:nnnv(1)-1,0:nnnv(2)-1,0:nnnv(3)-1)
      & ,indexkw(0:nnn(1),0:nnn(2),0:nnn(3)))
       nstbz(1:nqbz)=0
-      print *,'nnn =',nnn
-      print *,'nnnv=',nnnv
+c      print *,'nnn =',nnn
+c      print *,'nnnv=',nnnv
 
 c      call genqbz (qlat,nnn(1),nnn(2),nnn(3), !icase,
 c     o     qbz,wbz,nstbz, nadd,qbzshift)
@@ -144,7 +144,7 @@ c         write(6,"(' iiiiiiii iq=',i8,' q=',3f17.13)")  kount, qbz(:,kount)
       enddo
       enddo
       enddo
-      write(6,*) 'wsum=',wsum
+c      write(6,*) 'wsum=',wsum
       if( abs(wsum - 1d0) >tolq) call rx( 'getbzdata1: wrong wsum check')
 
 !! Generate qbzw 
@@ -190,7 +190,7 @@ c      nqibz_r=0
       !nqibz instead of nqbz is enough (but nqibz is calculated from now on)
 
 !! 
-      WRITE(6,"(' getbzdata1 : ',5X,'plat',31X,'qlat')")
+      WRITE(6,"('  getbzdata1 :   plat',31X,'qlat')")
       DO K = 1, 3
         WRITE(6,"(3F10.5,5X,3F10.5)") (plat(M,K),M=1,3),(qlat(M,K),M=1,3)
       enddo
@@ -201,9 +201,9 @@ c      nqibz_r=0
       usediqig=.false.
 !! Generate qibz. Gamma point first (by igamma loop).
       do 229 igamma=0,1 !igamma=0 is for gamma point.
-      do 20 i3 = 1,nnnv(3)
-      do 20 i2 = 1,nnnv(2)
-      do 20 i1 = 1,nnnv(1)
+      do 1120 i3 = 1,nnnv(3)
+      do 1121 i2 = 1,nnnv(2)
+      do 1122 i1 = 1,nnnv(1)
 c      do 20 i1 = 1,nnnv(1)
 c      do 20 i2 = 1,nnnv(2)
 c      do 20 i3 = 1,nnnv(3)
@@ -224,8 +224,8 @@ c      do 20 i3 = 1,nnnv(3)
           weight=0d0
         endif
 !!   Check vv can be mapped to q(iq,ig).
-        do 22 iq = 1, nqibz
-        do 22 ig = 1, ngrp
+        do iq = 1, nqibz
+        do ig = 1, ngrp
           if(usediqig(iq,ig)) cycle
           v1  = matmul( symops(:,:,ig), vv) 
           diff= matmul( qibz(:,iq)-v1, plat) ! [0,1] range because plat= transpose of qlat^-1 
@@ -237,8 +237,9 @@ c          print *,'fffffff ssss=',symops(:,:,ig)
             usediqig(iq,ig)=.true.
             iqx=iq
             goto 23
-          endif
- 22     continue
+         endif
+        enddo
+        enddo
 !!   New iqbz added
         nqibz = nqibz+1
         qibz(:,nqibz) = vv
@@ -247,29 +248,30 @@ c          print *,'fffffff ssss=',symops(:,:,ig)
         ipq(i1,i2,i3) = iqx
         iwgt(iqx)     = iwgt(iqx) + 1
         wibz(iqx)     = wibz(iqx) + weight
- 20   continue
+ 1122   continue
+ 1121   continue
+ 1120   continue
  229  continue
       SWGT = sum(wibz(1:nqibz))
 c      if(gammacellctrl/=2) then
-         if (dabs(swgt-2d0)> tolq) call rx( 'getbzdata: error in weights swgt')
+         if (dabs(swgt-2d0)> tolq) call rx( 'getbzdata1: error in weights swgt')
 c        write(6,"(/' getbzdata: sum swgt iwgt=',f12.8)") swgt
-      if (sum(iwgt(1:nqibz))-product(nnnv)/=0) call rx('getbzdata: sum(iwgt(1:nqibz))-product(nnn)/=0')
+      if (sum(iwgt(1:nqibz))-product(nnnv)/=0) call rx('getbzdata1: sum(iwgt(1:nqibz))-product(nnn)/=0')
 c      endif
-      write(6,"(/' getbzdata: nqibz sum.iwgt nqbz =',3i8)") nqibz,product(nnn)
+      write(6,"('  nqibz sum.iwgt nqbz =',3i8)") nqibz,product(nnn)
       write(6,744) nqibz,product(nnnv)
-  744 FORMAT(' getbzdata: ',I4,' irreducible k - points. from ',i5,' (',3i3,' )')
+  744 FORMAT('  Num. of irreducible k - points.= ',i5,' from ',i5)
       write(6,"(13x,'Qx',8x,'Qy',8x,'Qz',6x,'Multiplicity    Weight')")
       do iq = 1, nqibz
         write(6,661) iq,qibz(1:3,iq),iwgt(iq),wibz(iq)
       enddo
   661 format(i5,2x,3f10.4,i10,f16.6)
-      write(6,"(' nqibz= ',i8)")nqibz
-
+c      write(6,"(' nqibz= ',i8)")nqibz
 
 !! Rotation checker
-      do 30 i3 = 1,nnnv(3)
-      do 30 i2 = 1,nnnv(2)
-      do 30 i1 = 1,nnnv(1)
+      do i3 = 1,nnnv(3)
+      do i2 = 1,nnnv(2)
+      do i1 = 1,nnnv(1)
         xvec = (/I1-1,I2-1,I3-1/) / dble(nnn)
         call xconvv(xvec+qbzshift,           xvecc)
         vv = matmul(qlat, xvecc)
@@ -292,13 +294,14 @@ c      endif
         enddo
         call rx( 'getbzdata1: not find irotk; it may require accurate symmetry.')
  1022   continue
- 30   continue
-
+      enddo
+      enddo
+      enddo
 
 c      call bzmesh(plat,qbasmc,nnn(1),nnn(2),nnn(3),symops,ngrp,ipq,qibz !icase,
 c     &    ,wibz,nqibz,nqbz,nadd,qbzshift) !Make q-points in IBZ.
 
-      write(6,"(/' nkstar: ----- nqbz nqibz=',2i8, ' -----')") nqbz,nqibz
+      write(6,"('  nkstar: ----- nqbz nqibz=',2i8, ' -----')") nqbz,nqibz
       call minv33(qlat,ginv)
       allocate(nstar(nqibz), irk(nqibz,ngrp),iw1(nqbz))
       call nkstar  (qibz,qbz,symops,ginv, !ginv=plat
@@ -316,20 +319,17 @@ c            write(6,*) 'iq igrp irk=',iqi,igrp,irk(iqi,igrp)
       enddo
       enddo
       if(nqbz/=iccc) then
-        write(6,*)'getbzdata1: total count=',iccc,nqbz
-        call rx('getbzdata1: iccc check.error')
+        write(6,"(  'total count=',2i5)") iccc,nqbz
+        call rx(' getbzdata1: iccc check.error')
       endif
       ntetf=-1
       nteti=-1
 
 !! Full bz divided into tetrahedron
       if(tetraf) then 
-cccccccccccccccccccccccccc
-c        goto 3331
-cccccccccccccccccccccccccc
         skipgammacell=.false.
         if(gammacellctrl==1) skipgammacell=.true.
-        write(6,"(/' tetfbzf ntetf =',2i8, ' -----')") ntetf
+        write(6,"('  tetfbzf ntetf =',2i8, ' -----')") ntetf
         call getkeyvalue("GWinput","ngcell",ngcell,default=1)
         ntetf = 6*nqbz
         allocate( idtetf(0:3,ntetf))
@@ -367,16 +367,6 @@ c          CALL CCUTUP(QB,QB1,IBTR,KCUT) !This is from LMTO-3. Need to clean up 
           endif 
 !!   set UP IDENTIFIERS AT 8 CORNERS OF MICROCELL ------
           IMC(0:1,0:1,0:1)  = indexkw(I1-1:I1,I2-1:I2,I3-1:I3)
-c$$$          do K1 = 0, 1
-c$$$            J1 = I1 -1 + K1
-c$$$          do K2 = 0, 1
-c$$$            J2 = I2 -1 + K2
-c$$$          do K3 = 0, 1
-c$$$            J3 = I3 -1 + K3
-c$$$            IMC(K1,K2,K3)  = indexkw(J1,J2,J3)
-c$$$          enddo
-c$$$          enddo
-c$$$          enddo
 !!   LOOP OVER TETRAHEDRA 
         do 10 ITET = 1, 6 
           do IC = 1, 4
@@ -393,18 +383,7 @@ c        write(6,"('ntetf=',3i3,2x,i6,2x,4i8)")i1,i2,i3,ntetf,idtetf(0:3,1)
  122   CONTINUE
  121   CONTINUE
  120   CONTINUE 
-       write(6, "(1x,'getbzdata1 TETFBZF: ',2i8 )")  ntetf, 6*nqbz
-c!! apr2016
-c$$$ 3331  continue
-c$$$        skipgammacell=.false.
-c$$$        if(gammacellctrl==1) skipgammacell=.true.
-c$$$        ntetf = 6*nqbz
-c$$$        allocate( idtetf(0:3,ntetf))
-c$$$        write(6,"(/' tetfbzf ntetf =',2i8, ' -----')") ntetf
-c$$$c        call getkeyvalue("GWinput","ngcell",ngcell,default=1)
-c$$$        call TETFBZF(qlat, nnn(1),nnn(2),nnn(3),qbz,nqbz,
-c$$$     i      skipgammacell,qbzshift,nadd,
-c$$$     o      idtetf,qbzw,ib1bz,ntetf)
+       write(6, "('  getbzdata1 TETFBZF: ',2i8 )")  ntetf, 6*nqbz
       else
         ntetf=0
       endif
@@ -416,11 +395,6 @@ c$$$     o      idtetf,qbzw,ib1bz,ntetf)
         qb(:,1) = qlat(:,1)/nnn(1)
         qb(:,2) = qlat(:,2)/nnn(2)
         qb(:,3) = qlat(:,3)/nnn(3)
-ccccccccccccccccccccccccc
-c        call tetirr(qb,nnn(1),nnn(2),nnn(3),ipq,nqibz,
-c     o              nteti,idteti)
-c        goto 3333
-ccccccccccccccccccccccccc
         CALL CCUTUP(qb,QB1,IBTR,KCUT)
         nteti = 0
 !!   START LOOPING OVER MICROCELLS ---------
@@ -471,10 +445,8 @@ c            write(6,"(' nnnnn i1i2i3=',3i5,2x,10i3)") i1,i2,i3,idteti(:,nteti)
  222     CONTINUE
  221     CONTINUE
  220     CONTINUE
-        write(6,"(1x,'getbzdata1 TETIRR: nteti=',i8,'  sum(idteti)= full tetrahedra=',2i8)")
+        write(6,"('  getbzdata1 TETIRR: nteti=',i8,'  sum(idteti)= full tetrahedra=',2i8)")
      &    nteti, sum(idteti(0,1:nteti)),6*nqbz
-c      stop 'xxxxxxxxxxxxxxxx test '
-c 3333   continue
       else
         nteti=0
       endif
@@ -672,7 +644,7 @@ c      print *,'sum nstart=',sum(nstar)
          endif
       enddo
       enddo
-      print *,'cccccc icc sum=',iccc,sum(irotk)
+c      print *,'cccccc icc sum=',iccc,sum(irotk)
 ccccccccccc
 
 !! check that the sum of stars equal to the no. k{FBZ

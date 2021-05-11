@@ -6,7 +6,7 @@
       logical,save:: init=.true.
       if(init) then
         call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
-        write(6,*)'Q0Pchoice=',ttt
+        write(6,"('  Q0Pchoice=',i3)") ttt
         init=.false.
       endif
       if(ttt==1) then

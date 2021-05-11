@@ -114,9 +114,9 @@ c constant part
       iq=1
       call auxfunlm((/0d0,0d0,0d0/), alp,alat, qlat, 
      &             ngc(iq),ngvect(1:3,1:ngc(iq),iq),lx,funac(:),skipg0)
-      do lm=1,(lx+1)**2
-        if(abs(funac(lm))>1d-6) print *,'getwklm: lm funac =',lm,funac(lm)
-      enddo
+c      do lm=1,(lx+1)**2
+c        if(abs(funac(lm))>1d-6) write(6,"('  getwklm: lm funac =',i3,f18.9)") lm,funac(lm)
+c      enddo
 
       do iq = 2,nnn ! omit q=0 point iq=1
          skipg0=.false.
@@ -135,15 +135,15 @@ c         enddo
 c         if(abs(wsumau(lm))>1d-6) write(6,"('  wsum fnua=',i3,8f10.5)") lm,wsumau(lm),funac(lm)
       enddo
 
-      lm=1  
 !! wklm(lm) = f_L in Eq.(28) T.Kotani,JPSJ83,094711,(2014). mar2016takao: 
 !! We rewrite code equivalently, following Eq.(28).
 !! To keep positive definiteness of integral, we only use wklm(1), 
 !! that is, f_L (L=lm=(0,0)) only.
-      wklm(lm)          = wtrue00- wsumau(lm)          - funac(1)/dble(nnn)           
+      lm=1  
+      wklm(lm) = wtrue00- wsumau(lm) - funac(1)/dble(nnn)           
 c      wklm(2:(lx+1)**2) = 0d0    - wsumau(2:(lx+1)**2) - funac(2:(lx+1)**2)/dble(nnn)
       wklm(2:(lx+1)**2) = 0d0 ! 14march12016
-      write(*,"('lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
+      write(*,"('  lm=1 Klm=wtrue00 - wsumau',3f9.4)") wklm(lm),wtrue00-funac(1),wsumau(lm)
       deallocate(funa)
       end
 
@@ -170,7 +170,7 @@ C========== version 1 ==============
 !! Generate invariant tensor for each q0x
       write(*,*) ' diele_invariant: nq0x=',nq0x
       allocate(epinv_(3,3,nq0x))
-      write(*,*)'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ngrp= ===',ngrp
+      write(6,"(a,i5)")'  === epinv_: all invariant tensor generaged from q0i(3,1:nq0x) ngrp= ===',ngrp
       epinv_= 0d0
       do ik=1,nq0x
         do ig = 1,ngrp
@@ -187,14 +187,14 @@ c          write(*,"(i20,3f19.14)")ig,epinv_(3,:,ik)
 c          write(*,*)
         enddo
         epinv_(:,:,ik) = epinv_(:,:,ik)/sqrt(sum(epinv_(:,:,ik)**2))
-        write(*,"(3f19.14)")epinv_(1,:,ik)
-        write(*,"(3f19.14)")epinv_(2,:,ik)
-        write(*,"(3f19.14)")epinv_(3,:,ik)
-        write(*,*)
+c        write(*,"(3f19.14)")epinv_(1,:,ik)
+c        write(*,"(3f19.14)")epinv_(2,:,ik)
+c        write(*,"(3f19.14)")epinv_(3,:,ik)
+c        write(*,*)
       enddo
 
 !! obtain independent epsinv_
-      write(*,*)'  === epinv: invariant tensor ==='
+      write(6,"(a)")'  === epinv: invariant tensor ==='
       epinv=0d0
       ixx=0
       do ik=1,nq0x
@@ -247,10 +247,10 @@ c$$$      nq0i = ixx
       enddo
 !!
       do ik=1,nq0i
-        write(*,"(3d22.14)")epinv(1,:,ik)
-        write(*,"(3d22.14)")epinv(2,:,ik)
-        write(*,"(3d22.14)")epinv(3,:,ik)
-        write(*,*)
+        write(*,"(2x,3d22.14)")epinv(1,:,ik)
+        write(*,"(2x,3d22.14)")epinv(2,:,ik)
+        write(*,"(2x,3d22.14)")epinv(3,:,ik)
+        write(*,"('  ---')")
       enddo
       do ik=1,nq0i
         do jk=1,nq0i
@@ -298,9 +298,9 @@ ccccccccc
       do i = 1,nx06
         qt = q0(:,i)
         do ib = 1,nqibz
-          write(6,"('xxxx nqibz qt qibz=',i5,i5,3f9.4)") i,ib
+c          write(6,"('xxxx nqibz qt qibz=',i5,i5,3f9.4)") i,ib
           if(sum(abs(qibz(:,ib)-qt))<tolq()) then
-             write(6,"('xxxxyyy nqibz qt qibz=',i5,i5,3f9.4,x,3f9.4)") i,ib,qt,qibz(:,ib)
+c             write(6,"('xxxxyyy nqibz qt qibz=',i5,i5,3f9.4,x,3f9.4)") i,ib,qt,qibz(:,ib)
 c            write(ifix) qt,q0i(:,ix),ix,ig !qtarget, q0i(ix),ig
 c            wt(ix) = wt(ix)+wt0(i)
             ixx = ixx+1

@@ -34,8 +34,10 @@ c      use m_w0w0i,only: llmat
       close(ifw4p)
       deallocate(wmu)
       end subroutine
-
+c-------------------------------------------------------------
       subroutine w0w0i(nw_i,nw,nq0i,niw,q0i) !llw,llwI,
+!! Get w0 and w0i (diagonal element at Gamma point) for given llw and llwi
+!! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
       use m_read_bzdata,only:  wbz
       intent(in)::     nw_i,nw,nq0i,niw,q0i !llw,llwI,
 c      complex(8):: llw(nw_i:nw,nq0i), llwI(niw,nq0i)
@@ -69,27 +71,26 @@ c      ifidmlx=ifile_handle()
 !! llmat is added. July2016. llw is calculated at iw=0, when nw_i<=0
       call getw0(llw, nw_i,nw,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0,  llmat)
       call getw0(llwI,1,niw  ,nq0i,dmlx,epinvq0i,wklm,wbz(1), lxklm,  q0i,epinv,w0i, llmat_dummy)
-!! test mode
-      if(ixc/=1011) then
-c      ifw0w0i = ifile_handle()
-      open(newunit=ifw0w0i,file='W0W0I',form='unformatted')
-      write(ifw0w0i) nw_i,nw,niw,nq0i
-      write(ifw0w0i) llw(nw_i:nw,1:nq0i)
-      write(ifw0w0i) llwI(1:niw,1:nq0i)
-      write(ifw0w0i) w0(nw_i:nw)
-      write(ifw0w0i) w0i(1:niw)
-      close(ifw0w0i)
-      endif
+c$$$!! test mode
+c$$$      if(ixc/=1011) then
+c$$$c      ifw0w0i = ifile_handle()
+c$$$      open(newunit=ifw0w0i,file='W0W0I',form='unformatted')
+c$$$      write(ifw0w0i) nw_i,nw,niw,nq0i
+c$$$      write(ifw0w0i) llw(nw_i:nw,1:nq0i)
+c$$$      write(ifw0w0i) llwI(1:niw,1:nq0i)
+c$$$      write(ifw0w0i) w0(nw_i:nw)
+c$$$      write(ifw0w0i) w0i(1:niw)
+c$$$      close(ifw0w0i)
+c$$$      endif
       do i=nw_i,nw
         write(6,"('w0 =',i4,2f13.4)")i,w0(i)
       enddo   
       do i=1,niw
         write(6,"('w0i=',i4,2f13.4)")i,w0i(i)
       enddo   
-!! modivy WVR and WVI
+!! modivy files WVR and WVI
       call ModifyWV0()
       end subroutine w0w0i
-      
 c-------------------------------------------------
       subroutine modifyWV0()
       use m_qbze,only: 
@@ -130,6 +131,5 @@ c-------------------------------------------------
            close(ifrcwx)
         enddo
       end subroutine  
-
       
       end module m_w0w0i

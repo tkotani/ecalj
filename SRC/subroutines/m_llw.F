@@ -90,12 +90,6 @@ c            imode = 1
                   if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
                enddo
             enddo
-cccccccccccccccccccccccccc
-c            do igb1=ix+1,ngb
-c               print *,'vvvvcou', vcousq(igb1)
-c            enddo
-c            print *,'111ssssve',ngb, sum(vcousq(1+ix:ngb)),sum(zxq(ix+1:ngb,ix+1:ngb,iw))
-cccccccccccccccccccccccccccc
             epstinv(ix+1:ngb,ix+1:ngb)=epstilde(ix+1:ngb,ix+1:ngb)
             call matcinv(ngb-ix,epstinv(ix+1:ngb,ix+1:ngb))
 !     ! w4p writing eps
@@ -163,9 +157,9 @@ c            imode = 1
      &           2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))")
      &           iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
  1115    continue               !iw
-         open(newunit=ifllw,file='LLWR.'//charnum5(iq),form='unformatted')
-         write(ifllw) llw
-         close(ifllw)
+c         open(newunit=ifllw,file='LLWR.'//charnum5(iq),form='unformatted')
+c         write(ifllw) llw
+c         close(ifllw)
       endif   
 c      deallocate( zw0, epstilde, epstinv)
       end subroutine WVRllwR
@@ -248,9 +242,9 @@ c      allocate( epstilde(ngb,ngb), epstinv(ngb,ngb))
            if(iq0<=nq0i) write(6,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)")
      &          iq,iw,llwI(iw,iq0),1d0-vcou1*zxqi(1,1,iw)
  1116   continue
-        open(newunit=ifllwi,file='LLWI.'//charnum5(iq),form='unformatted')
-        write(ifllwi) llwi
-        close(ifllwi)
+c        open(newunit=ifllwi,file='LLWI.'//charnum5(iq),form='unformatted')
+c        write(ifllwi) llwi
+c        close(ifllwi)
       endif
       deallocate(epstinv,epstilde,zw0)
       end subroutine WVILLWI

@@ -72,7 +72,6 @@ c ifile = 0 ==> screen (id=6)
       integer:: i2,irate,imax
       real(4)::diff
 #endif
-Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
 #ifdef REALTIME
       if (firsttime) then 
@@ -99,11 +98,10 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       else
         write(ifile,6400)cpusec,cpumin
       end if
- 6400 format(' CPU= ',f12.4,' secs',f7.1,' mins')
+ 6400 format('  CPU: ',f12.4,' secs = ',f7.1,' mins')
       return
 !!
       entry cputid2(message,ifile)
-Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
 #ifdef REALTIME
       if (firsttime) then 
@@ -134,7 +132,6 @@ Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number
       return
 
       entry mpi_cputid2(message,ifile)
-Cstop2rx 2013.08.09 kino      if(ifile .lt. 0)stop 'cputid: negative unit number'
       if(ifile .lt. 0)call rx( 'cputid: negative unit number')
       if (firsttime) then
          call system_clock(i1)
