@@ -2,31 +2,31 @@
       implicit none
       integer(4),intent(in) :: L,S !L=large dim. S=Small dim
       integer(4) i,j,n,m
-      complex(8) ,intent(inout):: vecIO(S,L)
+      complex(8) ,intent(inout):: vecIO(L,S)
       real(8)     norm
-      complex(8) prefc,dum(S,L)
+      complex(8) prefc
       norm=0.0d0                !renormalization of the first vector
       do n=1,L
-         norm = norm + dconjg(vecIO(1,n))*vecIO(1,n)
+         norm = norm + dconjg(vecIO(n,1))*vecIO(n,1)
       end do
       norm=dsqrt(norm)      
       
-      vecIO(1,:)=vecIO(1,:)/norm !normalization!         
+      vecIO(:,1)=vecIO(:,1)/norm !normalization!         
       do m=2,S                  ! m vectors containing nevMTO components
          do i=1,m-1
             prefc=0.0d0
             do n=1,L
-               prefc = prefc + dconjg(vecIO(i,n))*vecIO(m,n)
+               prefc = prefc + dconjg(vecIO(n,i))*vecIO(n,m)
             end do                  
-            vecIO(m,:)=vecIO(m,:)-prefc*vecIO(i,:)
+            vecIO(:,m)=vecIO(:,m)-prefc*vecIO(:,i)
          end do           
 c     !renormalization!
          norm=0.0d0
          do n=1,L
-            norm = norm + dconjg(vecIO(m,n))*vecIO(m,n)
+            norm = norm + dconjg(vecIO(n,m))*vecIO(n,m)
          end do
          norm=dsqrt(norm)
-         vecIO(m,:)=vecIO(m,:)/norm
+         vecIO(:,m)=vecIO(:,m)/norm
 c     !end renorm
       end do
       
@@ -137,11 +137,12 @@ c      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
          write(ilog,*) "NS,nevS,NM,NP,nev",NS,nevS,NM,NP,nev
          
 !!!!!!!making modified-Hamiltonian taking APW effect into account
-         allocate(prj(1:nevS,1:nev),inpro(1:nevS,1:nev))
-         inpro=transpose(matmul(transpose(dconjg(c)),matmul(ovl(1:NP,1:NS),c_S)))
-         
-         do j=1,nevS
-            do s=1,nev
+         allocate(prj(1:nev,1:nevS),inpro(1:nev,1:nevS))
+         inpro=matmul(transpose(dconjg(c)),matmul(ovl(1:NP,1:NS),c_S))
+
+         prj=0d0
+         do j=1,nev
+            do s=1,nevS
                prj(j,s)=inpro(j,s) *abs(inpro(j,s))**2.0d0
             end do
          end do        
@@ -153,7 +154,7 @@ c      open(newunit=ifoh2,file=trim(adjustl(oname2))//".K",form='unformatted')
          do n=1,nev
             emat(n,n)=evl(n)
          end do         
-         aea=matmul(matmul(dconjg(prj),emat),transpose(prj))
+         aea=matmul(matmul(transpose(dconjg(prj)),emat),prj)
 
          lft   = matmul( ovlS(1:NS,1:NS),c_S)
          rgt   = transpose(dconjg(lft))
