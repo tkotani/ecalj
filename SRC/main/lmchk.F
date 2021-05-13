@@ -52,50 +52,27 @@ c      integer namelen(0:MAX_PROCS-1)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
 #endif
-!!
+      
       if(nsize/=1) call rx('lmchk allows only -np 1!')
-C     --- Version ---
       call show_programinfo(6)
       stdo = lgunit(1)
-c      globalvariables%stdo = dble(stdo)
-c      globalvariables%l_stdo = globalvariables%l_stdo +1
       if (cmdopt('--h',3,0,outs)) call lmhelp(prgnam)
       call headl2(prgnam,0,stdo)
-c      i = dble(stdo)
-      call finits() !2,0,0,i)
-c      call getext()
-c      ext=adjustl(sname)
-     
+      call finits() 
       call poseof(fopn('LOG'))
-!! Get extension of ctrl file      
-c      call finits(2,0,0,i)
-c      call getext(master==procid)
-c      print *,' trim sname=',trim(sname)
-c      ext=adjustl(sname)
-c      i = fextg(ext)
-c      call word(ext,1,i,j)
-c      if (ext(i:i) .eq. '.') i=i+1
-c      if (ext(j:j) .eq. '.') j=j-1
-c      if (j .ge. i) call ptenv('EXT='//ext(i:j))
-!!
-      
-C     ... Abort with error message if ctrl file is missing (swtmp = .true.)
+!! Abort with error message if ctrl file is missing (swtmp = .true.)
       swtmp = .false.
-c     if (cmdopt('--input',6,0,strn)) then
-c     if (nproc .gt. 0) call rx('--input not allowed with MPI')
-c     else
-      if (fxst('CTRL') .ne. 1) then
-         call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80,
-     .        i1mach(2))
+      if(fxst('CTRL') .ne. 1) then
+         call awrit0(' '//prgnam//'%a:%9pmissing ctrl file',' ',80, i1mach(2))
          swtmp = .true.
       endif
 C     ... File logical units
       i = fadd('TMP',-1,4)
       i = fadd('BAND',-1,4)
-#if LMDOS
-      i = fadd('MOMS',-1,4)
-      i = fadd('CLS',-1,4)
-#endif
+c#if LMDOS
+c      i = fadd('MOMS',-1,4)
+c      i = fadd('CLS',-1,4)
+c#endif
 C     --- Set the top-level verbosity if specified from cmd line ---
       if (cmdopt('--pr',4,0,outs)) then
          i = 4
@@ -103,10 +80,7 @@ C     --- Set the top-level verbosity if specified from cmd line ---
          if (i .eq. 1) call setpr(k)
       endif
 C     --- Input from ctrl file ---
-C     recrd, nrecs are obtained.
       nrecs  = 0
-C     ki      allocate( recrd( 0:mxrecs*recln0-1 ) )
-c     if (procid .eq. master) then
       if (.not.cmdopt('--input',7,0,strn)) then
          nfilin = fopna('CTRL',-1,1)
 c     takao
@@ -122,8 +96,7 @@ c     call shosyv(0,-1,0,6)
             call info0(i,0,0,' ------------------------ End '//
      .           'of input file ----------------------')
          endif
-         call info2(i,0,1,' '//prgnam//'%a : %i lines read from'//
-     .        ' input file',nrecs,0)
+         call info2(i,0,1,' '//prgnam//'%a : %i lines read from input file',nrecs,0)
          if (cmdopt('--showp',7,0,strn)) call cexit(0,1)
       endif
 C     write(stdo,*)' === TEST out recrd === '
@@ -135,65 +108,27 @@ C     enddo
 C     write(stdo,*)' --- end of rdfile --- '
 C     call rx('done')
       call rdctrl2(recrd,recln0,nrecs,prgnam)
-c$$$c     .     slabl,v_sbz,v_sctrl,v_sham,v_spot,v_slat,v_smix,v_sspec,v_ssite, !v_sstr,
-c$$$c     .     v_sarry,sstrnmix,sstrnsymg) 
-c$$$C     --- Lattice setup ---
-c$$$c      call setcg(v_slat,8,12)
-c$$$c      call lattic(v_slat,v_sctrl,v_ssite,v_sarry)
-c$$$      call lattic()!v_slat,ctrl_nbas)
-c$$$      do ibas=1,ctrl_nbas
-c$$$        v_ssite(ibas)%pos = rv_a_opos(3*(ibas-1)+1:3*(ibas-1)+3)
-c$$$c        call spackv_array_copy_r8_r8 ( 'p' , ssite ( i_spackv ) %pos
-c$$$c     .   , i_copy_size , i_spackv + 1 - 1 , slat%rv_a_opos )
-c$$$      enddo
-c$$$C     --- Generate symmetry operations; split species into classes  ---
-c$$$      strn = 'find'
-c$$$      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg) 
-c$$$      print *,' strn sym=',trim(strn)
-c$$$c      call upacks('strn symg',i,j)
-c$$$c      if (j .ge. i)strn = sstrn(i:j+1)
-c$$$      if (cmdopt('--nosym',7,0,outs)) strn = ' '
-c$$$      lc = 20
-c$$$cccccc
-c$$$c      if (  iand(1,int(ctrl_lqp)) == 0 ) lc = lc+2 !iand(2**n,i) means 2**n ditit of i.
-c$$$c      if ( .not. iand(1,int(ctrl_lqp)) .ne.0 ) lc = lc+2
-c$$$      if( ctrl_noinv==0 ) lc = lc+2 !no inversion
-c$$$ccccccc
-c$$$  call mksym(lc,slabl_,strn,v_sctrl,v_slat,v_ssite,v_sarry)
-      
-c      v_sarry%nclasp=ctrl_nclass
-C     --- Allocate permanent class arrays, maps and other initialization ---
+!! Allocate permanent class arrays, maps and other initialization ---
       call clsprm(1,v_sspec)!, v_slat) !,v_sbz) !,v_sstr)!,sstrn)v_sctrl,v_sham,v_spot,,v_sarry
-C     --- Read available class parameters from file ---
-c#if LMCHK
-      call aiocls(.false.,0,!v_sarry,!v_spot, !v_ctrl v_sham,
-     .     v_sspec,1,0)!v_slat
-      call aiocls(.false.,17,!v_sarry,!v_spot, !v_sham,
-     .     v_sspec,1,0)!,v_slat
-      if (lc .ge. 20) call clsprp(1,v_sspec)!, v_slat)!,v_sbz)! ,v_sstr)!,sstrn)v_sham,v_spot,,v_sarry
-c     #endif
+!! Read available class parameters from file ---
+      call aiocls(.false.,0, v_sspec,1,0)
+      call aiocls(.false.,17,v_sspec,1,0)
+      if(lc>=20) call clsprp(1,v_sspec)
       if (cmdopt('--sfill',7,0,strn)) call rx('no --sfill option in lm7K')
-C     ... Set default values for species data
+!! Set default values for species data
       call defspc(v_sspec)
-C     ... quit after SHOW
       if ( int(ctrl_quit) .eq. 1 ) then 
          call info0(0,0,0,' '//prgnam//'%a:  Q=SHOW encountered')
          call rx0(prgnam)
       endif
-c#if LMCHK & FP
-!! takao did not check --fp mode recently
-      if (cmdopt('--fp',4,0,strn)) then
-         call fpchk(v_sspec,v_ssite)
-         call cexit(0,1)
-      endif
-c#endif
-c#if LMCHK
+c!! takao did not check --fp mode recently
+c      if (cmdopt('--fp',4,0,strn)) then
+c         call fpchk(v_sspec,v_ssite)
+c         call cexit(0,1)
+c      endif
+!! LMCHK
       call lmaux(prgnam,v_sspec, !v_sham,,v_slat v_spot,
      .     v_ssite,slabl_,auxmod,0) !wksize),sstrn, v_sstr,v_sbz,v_sctrl,v_sarry,
-c#endif
-c#if LMDOS
-c      call asados(prgnam,v_sbz,v_sctrl,v_sham,v_slat, v_sspec,v_ssite,v_sarry)
-c#endif
  1000 continue
       call rx0(prgnam)
       end program lmchk

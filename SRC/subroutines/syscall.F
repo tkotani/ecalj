@@ -1,8 +1,8 @@
-      subroutine getarf(iarg,strn)
-      integer iarg
-      character*(*) strn
-      call getarg(iarg,strn)
-      end
+c$$$      subroutine getarf(iarg,strn)
+c$$$      integer iarg
+c$$$      character*(*) strn
+c$$$      call getarg(iarg,strn)
+c$$$      end
 
       integer function nargf()
       integer iargc

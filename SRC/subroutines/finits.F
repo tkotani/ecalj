@@ -1,9 +1,6 @@
       subroutine finits() !job,fcn,fcargs,iarg)
-C- Machine and compiler-dependent inits for standard FORTRAN startup
-C ----------------------------------------------------------------
-!!
-!! finits set the numbr of iprint(), extension, and -vnam=val
-!! imput arguments are      
+!!--- Set the numbr of iprint(), extension, and -vnam=val
+!!note: input arguments are      
 !!   [-vnam=val ...] [-pr# .or. --pr#] [switches] extens;
 !!--------------------------------      
       integer iarg
@@ -17,7 +14,7 @@ C ----------------------------------------------------------------
 !! Command line arguments and extension ---
       lext = .false.
       do iarg = 1,nargf()-1
-        call getarf(iarg,strn)
+        call getarg(iarg,strn)
         extns = strn
 !  ... v encountered ... parse variables
         if (lsequ(strn,'-v',2,' ',n)) then
@@ -31,6 +28,7 @@ C ----------------------------------------------------------------
           cycle 
         endif
       enddo
+c     not here
 !! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
       if (cmdopt('-pr',3,0,strn)) then
          read(strn(4:),*) k
@@ -71,6 +69,8 @@ c      parameter (scrwid=300)
       double precision cpusec,tnew
       character*1 timeu
       character*256 strn, datim*26, hostnm*20
+      character(8):: charext
+      character(9):: ftoa9
       logical isopen
       integer master,procid,ierr
       parameter (master = 0)
@@ -83,17 +83,17 @@ c      parameter (scrwid=300)
     5 continue
       procid = mpipid(1)
       if (procid .eq. master.or. retval/=0) then
-        i = getdig(iopt,0,10) 
+        i = mod(iopt,10) !getdig(iopt,0,10) 
         if (i .ne. 0) then
            if (i .eq. 9) then
-              strn = ' Exit %i '//strng
-c              call strip(strn,i,i2)
-              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
+              write(i1mach(2),"(a)") "Exit "//trim(charext(retval))//' '//trim(strng)
+c              strn = ' Exit %i '//strng
+c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
            else
              call awrit3(strng,strn,-len_trim(strn),i1mach(2),args,arg2,arg3)
            endif
         endif
-        i = getdig(iopt,1,10)
+        i = mod(iopt/10,10) !getdig(iopt,1,10)
         if (i .ne. 0 .and. cpusec() .ne. 0) then
           timeu = 's'
           tnew = cpusec()
@@ -105,13 +105,10 @@ c              call strip(strn,i,i2)
               tnew = tnew/60
             endif
           endif
-
           datim = ' '
           call ftime(datim)
           hostnm = ' '
           call get_environment_variable('HOST',hostnm)
-c          call word(hostnm,1,i,i2)
-c          i2 = max(i,i2)
           write(i1mach(2),10) tnew,timeu,datim,trim(adjustl(hostnm))
           if (fhndl('LOG') .ge. 0)  then
             if (isopen(fhndl('LOG'),.false.))

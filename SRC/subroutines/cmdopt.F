@@ -24,7 +24,7 @@ C Local parameters
    10 iarg = iarg+1
 C ... A usual command-line argument
       if (nargf() .gt. iarg) then
-        call getarf(iarg,strn)
+        call getarg(iarg,strn)
 C ... If not on the command-line, try 'extra' arguments
       else
         call ncmdop(nxarg)
@@ -36,7 +36,7 @@ C ... If not on the command-line, try 'extra' arguments
       cmdopt = .true.
       outstr = ' '
       if (nargf() .gt. iarg+nargs) then
-        call getarf(iarg+nargs,outstr)
+        call getarg(iarg+nargs,outstr)
       elseif (nargf() .gt. iarg+nargs+nxarg) then
         call rx('bug in CMDOPT')
       else

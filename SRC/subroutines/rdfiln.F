@@ -536,7 +536,7 @@ C   ... The following guarantees basic constants loaded:
         lunit = unit
         nchr = 0
         fname = '-cprogname='
-        call getarf(0,fname(12:))
+        call getarg(0,fname(12:))
         i = 2
         call parchv(fname,len(fname),mxchr,cex,'=',0,nchr,ctbl,i)
         i = 2
@@ -577,7 +577,7 @@ C   ... noskip is true unless %if evaluates to F or loop0 is F
 C   ... Look for char variable definitions
         if (len(cch) .ge. 6 .and. cch(6:6) .eq. 'c') then
           do  5  j = 1, nargf()-1
-            call getarf(j,fname)
+            call getarg(j,fname)
             if (lsequ(fname,'-c',2,' ',k)) then
               k = len(fname)
               jr = 0

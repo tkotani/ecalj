@@ -20,7 +20,7 @@ C     implicit none
       cmdstr = .true.
       n1 = nargf()
       if (iarg .lt. n1) then
-        call getarf(iarg,a)
+        call getarg(iarg,a)
       else
         call ncmdop(n2)
         if (iarg .lt. n1+n2) then
