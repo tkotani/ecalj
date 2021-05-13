@@ -787,8 +787,10 @@ C     --- Symmetry group ---
 C     --- Symmetry group for AF --- !june2015
       if (io_show+io_help/=0 .and. tksw(prgnam,'SYMGRPAF')/=2)
      .     call info0(1,1,0,' --- Symmetry group operations ---')
-      nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
-     .     note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+      if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
+        nm='SYMGRPAF'; call gtv(trim(nm),tksw(prgnam,nm),symgaf,
+     .  note='An (or multiple) Extra Generator for adding anti ferro symmetry')
+      endif  
 C     --- Species (old CLASS) ---
       if (io_help == 1) nspec = 1
       if (tksw(prgnam,'SPEC') == 2) goto 79
@@ -2101,8 +2103,8 @@ c      enddo
 !        ATOM=O POS= 1.5  1.5  1.5
 !
       if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
-      if (.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) then
-      ipr10= iprint()>10 !this is only for master
+!!      
+      if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = ctrl_nbas
         if(ipr10) then
@@ -2131,7 +2133,6 @@ c$$$  enddo
 c$$$  enddo
         if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
         if(ipr10) write(6,"(a)")       
-      endif
       endif
 
 !! space-group symmetry generator mksym ----
