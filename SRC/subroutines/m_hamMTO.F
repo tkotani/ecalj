@@ -480,10 +480,16 @@ c         end if
       character*200,intent(in):: fname
       integer*4 ,intent(in)   ::jsp
       integer:: ifih,i,j,n,it,lso,ikp,jspin
+cccccccccc
+      logical:: debug=.true.,lprint=.true.,savez=.false.,getz=.false.
+      integer(4) :: nev,ifig=-999
+      real(8), allocatable:: evl(:)
+      complex(8), allocatable:: c_C(:,:)
+cccccccccccccc      
       real(8)::qp(3),pi=4d0*atan(1d0)
       complex(8) :: phase,img=(0d0,1d0)
       complex(8),allocatable:: ovlM(:,:),hamM(:,:)     
-      
+            
       open(newunit=ifih,file =trim(adjustl(fname)),form='unformatted')
 
       if(allocated(ovlr)) deallocate(ovlr)
@@ -498,8 +504,7 @@ c         end if
       write(6,*) " "
       write(6,*) "********** Making Real Space Hamiltonian(FT from k-space) ************"
       
-      ikp=0
-      
+      ikp=0      
       do
          read(ifih,end=2019) qp,NS,lso,epsovl,jspin !NM and epsovl are module variable
          if(.NOT.allocated(ovlr).and..NOT.allocated(hamr))then
@@ -514,15 +519,29 @@ c         end if
             deallocate(ovlM,hamM)    
             cycle
          end if
-c         write(*,*) "jspin,jsp=",jspin,jsp
          ikp=ikp+1
          write(6,"(i4)",advance="no") ikp
          if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
          write(9999,*) "ikp,jsp,NS,file",ikp,jsp,NS,trim(adjustl(fname))
+         
+         if(debug)then
+            allocate(evl(1:NS),c_C(1:NS,1:NS))
+            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis          
+               call zhev_tk2(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig)
+            else
+               call zhev_tk3(NS,hamM,ovlM,NS,nev,evl,c_C,lprint,savez,getz,ifig,epsovl)
+            endif
+            do i=1,nev
+               write(7777,"(2i4,4f13.7)") ikp,jsp,evl(i)
+            end do
+            write(7777,*) " "
+            deallocate(evl,c_C)
+         end if
+         
+c         write(*,*) "jspin,jsp=",jspin,jsp
          do i=1,NS
             do j=1,NS
                do it =1,npair(ib(i),ib(j)) !hammr_ij (T)= \sum_k hamm(k) exp(ikT).
-
                   phase = 1d0/dble(nkp)* exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,it,ib(i),ib(j)))))
                   hamr(i,j,it)= hamr(i,j,it) + hamM(i,j)*phase
                   ovlr(i,j,it)= ovlr(i,j,it) + ovlM(i,j)*phase

@@ -185,8 +185,7 @@ c      end do
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(6,*) "====================open .K file! ===================="
       allocate(jspl(nqs),llist(nqs))
-c      open(newunit=ifih,file="HamR.K",form='unformatted')
-      open(newunit=ifih,file="HamR",form='unformatted')      
+      open(newunit=ifih,file="HamI",form='unformatted')      
       i=0 ; j=0; rq=0           !sanity check
       do          
          read(ifih,end=2019) qp,LD,lso1,epsdum,jsp         
@@ -210,7 +209,7 @@ c      open(newunit=ifih,file="HamR.K",form='unformatted')
       
       write(6,*)'Read: total # of q for Ham=',nkp,i,"(from .Info and .K)"
       write(6,*) "====================close .K file! ===================="      
-      open(newunit=ifih,file="HamR",form='unformatted')
+      open(newunit=ifih,file="HamI",form='unformatted')
 
       Lmax=maxval(llist)
       if(LLmode)then

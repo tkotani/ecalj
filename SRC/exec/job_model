@@ -88,7 +88,6 @@ fi
 
 
 if [ ${flg[3]} = "y" ] ; then
-#    echo "HamR" > input_initmlo
     echo "${BINDIR}/initmlo"
     ${BINDIR}/initmlo 2>&1  | tee linitmlo
     cat linitmlo >> all.log    
@@ -101,7 +100,6 @@ if [ ${flg[4]} = "y" ] ; then
 	rm rotmat
     fi
     
-#    echo "HamR" > input_mkhamloc
     echo "~/bin/mkhamloc(EH cutting)"    
     wc QPLIST.IBZ | awk '{print $1}' > LEN.IBZ
     ${BINDIR}/mkhamloc 2>&1  | tee lmkhamloc
@@ -112,7 +110,6 @@ fi
  
 if [ ${flg[5]} = "y" ] ; then 
     echo "~/bin/lmfham"
-#    echo "HamR HamM HamS HamC" > input_lmfham 
     ${BINDIR}/lmfham 2>&1 | tee llmfham
     cat llmfham >> all.log
 fi

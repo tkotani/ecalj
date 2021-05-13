@@ -2,6 +2,7 @@
       use m_hamMTO,only:ReadHamMTOInfo,qplist,ib_table,l_table,k_table,m_table,nsp,nkp,NMTO,orbch,ipivot,
      .     nqs,qprs,itor,niqs,nlo,nlo2,ilo,mkpivot,startprint,geninitmloInfo
       implicit none
+      logical(4) :: debug=.false.
       integer(4) :: ideb,ifiin,ifiout,ifind,ifrot,ifoutmat,ifinput,ifovl,ifham,iflo
       integer(4) :: i,j,n,m,s,t,l,k,access,nq,LL,NS,jold,LL2
       integer(4) :: iq,NPMT,jsp,lso,lleg,rleg
@@ -19,13 +20,15 @@
       
       call mkpivot
       call geninitmloInfo
-      
-c      write(6,*) "j,atom,EH,l,magne"
-c      do j=1,NMTO
-c         i=ipivot(j)
-c         write(6,*) j,i,ib_table(i),k_table(i),l_table(i),m_table(i)
-c         write(6,*) j,ib_table(j),k_table(j),l_table(j),m_table(j)
-c      end do      
+
+      if(debug)then
+         write(6,*) "j,atom,EH,l,magne"
+         do j=1,NMTO
+            i=ipivot(j)
+            write(6,*) j,i,ib_table(i),k_table(i),l_table(i),m_table(i)
+            write(6,*) j,ib_table(j),k_table(j),l_table(j),m_table(j)
+         end do
+      end if
       
       LL=NMTO
       LL2=LL*LL
@@ -33,10 +36,8 @@ c      end do
       allocate(lmat1(1:LL,1:LL),lmat2(1:LL,1:LL))
                                                                   
       open(newunit=ifiin,file="HamiltonianPMT",form="unformatted")
-      open(newunit=ifiout,file="HamR",form="unformatted")
+      open(newunit=ifiout,file="HamI",form="unformatted")
       open(newunit=ifoutmat,file="Umat",form="unformatted")
-c      open(newunit=ifovl,file="ovlR",form="unformatted")
-c      open(newunit=ifham,file="hamR",form="unformatted")
       
       nq=0
       write(ideb,*) "nq,qp(vector),spin"
@@ -67,16 +68,12 @@ c      open(newunit=ifham,file="hamR",form="unformatted")
          write(ifoutmat) uni(1:NPMT,1:NPMT)
          
          allocate(ovlR(1:NPMT,1:NPMT),hamR(1:NPMT,1:NPMT))
-c     ovlR=matmul(uni,matmul(ovlP,transpose(uni)))
-c     hamR=matmul(uni,matmul(hamP,transpose(uni)))
          ovlR=matmul(transpose(uni),matmul(ovlP,uni))
          hamR=matmul(transpose(uni),matmul(hamP,uni))
                   
          write(ifiout) ovlR(1:NPMT,1:NPMT)
          write(ifiout) hamR(1:NPMT,1:NPMT)
 
-c         write(ifovl) ovlR(1:NPMT,1:NPMT)
-c         write(ifham) hamR(1:NPMT,1:NPMT)
          deallocate(ovlP,hamP,ovlR,hamR,uni,unip,unir)
       end do
  2019 continue
@@ -85,12 +82,7 @@ c         write(ifham) hamR(1:NPMT,1:NPMT)
          stop "inconsistent nq!"
       end if
          
-c      write(6,*) "We should use"
-c      write(6,"(a10,a)") "Input: ",trim(adjustl(inname))//".Info(.K)"
-c      write(6,*) "instead of "
-c      write(6,"(a10,a)") "Output: ",trim(adjustl(outname))//".Info(.K)"
       stop "return 0"
  2020 stop "error! faild during reading Overwrap files!"
- 2021 stop "error! faild during reading Hamiltonian files!"
-      
+ 2021 stop "error! faild during reading Hamiltonian files!"      
       end program
