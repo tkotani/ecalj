@@ -39,16 +39,22 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
       logical:: debug=.true.,lprint=.true.,savez=.false.,getz=.false.
       integer:: ifig=-999,ifi,ifbnd 
       character(200) fname
+      character(11) tgs
       ryd=13.605693d0
       call startprint(3)      
 !     ! Reading infomation for Hamiltonian (lattice structures and index of basis).
       call readqplistsy()
             
-      open(newunit=ifi,file="input_plotmodel")
+      open(newunit=ifi,file="mtoctrl")
+      do
+         read(ifi,"(a11)") tgs
+         if(tgs=="<plotmodel>") exit
+      end do
+      
       call ReadHamMTOInfo(1)
       do
          read(ifi,*,end=1919) fname,jsp !jsp=1(up) =2(down)                  
-         write(*,"(a23,a20)") "Hamiltonian's name is ",trim(adjustl(fname))
+         write(*,"(a23,a6)") "Hamiltonian's name is ",trim(adjustl(fname))
          if(jsp==1)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin1")
          if(jsp==2)open(newunit=ifbnd,file=trim(adjustl(fname))//".bnd.spin2")
          if(jsp==1.and.debug)open(newunit=idum,file=trim(adjustl(fname))//".debug")

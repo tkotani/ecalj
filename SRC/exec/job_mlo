@@ -3,17 +3,16 @@ BINDIR=${HOME}/bin
 fname=model
 mcfile=mtoctrl
 vpw=1
-flg=("n" "n" "n" "n" "n" "n" "n" )
+flg=("y" "y" "y" "n" "n" "n" "n" )
 nflg=("0:lmf(lmfa)" "1:job_band" "2:writeham" "3:initmlo" "4:mkhamloc" "5:lmfham" "6:plotmodel" )
 
-bndname=("HamM" "HamS" "HamC")
+#bndname=("HamM" "HamS" "HamC")
 
 if [ ! -e $mcfile ]; then
     echo 'When you restart program, please edit "mtoctrl" to handle starting points.'
-    echo -e " y   :lmfa and lmf(0)\n y   :job_band(1)\n y   :writeham(2)  \n y   :initmlo(3) \n y   :mkhamloc(4)  \n y   :lmfham(5) \n" \
-	 "y   :plotmodel(6)" > mtoctrl
+    echo -e " ${flg[0]}    !lmfa and lmf(0)\n ${flg[1]}    !job_band(1)\n ${flg[2]}    !writeham(2)  \n ${flg[3]}\
+    !initmlo(3) \n ${flg[4]}    !mkhamloc(4) \n ${flg[5]}    !lmfham(5) \n ${flg[6]}    !plotmodel(6)" > mtoctrl
     echo '#### "y" means "DO", the others mean "do NOT" ##############' >> mtoctrl
-    echo ' ' >> mtoctrl 
     echo " "
     echo "please restart with modified mtoctrl"
 fi
@@ -132,20 +131,17 @@ if [ ${flg[6]} = "y" ] ; then
     echo "nspin="${bbb[$count]}
     nspin=$((${bbb[$count]}))
     
-    if [ ! -e "input_plotmodel" ]; then
-	for i in "${bndname[@]}"
-	do
-	    for j in `seq 1 $nspin`
-	    do
-		echo "${i} ${j}" >> input_plotmodel
-	    done	
-	done
-    fi
-    
-    echo "input_plotmodel!(nspin=${nspin})"
-    cat input_plotmodel
+#    if [ ! -e "input_plotmodel" ]; then
+#	for i in "${bndname[@]}"
+#	do
+#	    for j in `seq 1 $nspin`
+#	    do
+#		echo "${i} ${j}" >> input_plotmodel
+#	    done	
+#	done
+#    fi    
 
-    echo "${BINDIR}/plotmodel (input_band)"
+    echo "${BINDIR}/plotmodel"
     ${BINDIR}/plotmodel 2>&1 | tee lplotmodel
     cat lplotmodel >> all.log
     
@@ -169,9 +165,12 @@ if [ ${flg[6]} = "y" ] ; then
     
 	sed -i -e "s/bandplot.isp${jsp}.band.eps/${fname}${jsp}.eps/g" $fname$jsp.glt
 	
-	echo '"'${bndname[0]}'.bnd.spin'$jsp'" u ($1):($2) lt 2 ps 0.5 lw 3 w l title "MTO only",\' >> $fname$jsp.glt
-	echo '"'${bndname[1]}'.bnd.spin'$jsp'" u ($1):($2) lt 4 ps 0.5 lw 2 w l title "truncated basis",\' >> $fname$jsp.glt
-	echo '"'${bndname[2]}'.bnd.spin'$jsp'" u ($1):($2) lt 3 ps 0.5 lw 1.5 w lp title "MLO"' >> $fname$jsp.glt	
+#	echo '"'${bndname[0]}'.bnd.spin'$jsp'" u ($1):($2) lt 2 ps 0.5 lw 3 w l title "MTO only",\' >> $fname$jsp.glt
+#	echo '"'${bndname[1]}'.bnd.spin'$jsp'" u ($1):($2) lt 4 ps 0.5 lw 2 w l title "truncated basis",\' >> $fname$jsp.glt
+#	echo '"'${bndname[2]}'.bnd.spin'$jsp'" u ($1):($2) lt 3 ps 0.5 lw 1.5 w lp title "MLO"' >> $fname$jsp.glt	
+	echo '"HamM.bnd.spin'$jsp'" u ($1):($2) lt 2 ps 0.5 lw 3 w l title "MTO only",\' >> $fname$jsp.glt
+	echo '"HamS.bnd.spin'$jsp'" u ($1):($2) lt 4 ps 0.5 lw 2 w l title "truncated basis",\' >> $fname$jsp.glt
+	echo '"HamC.bnd.spin'$jsp'" u ($1):($2) lt 3 ps 0.5 lw 1.5 w lp title "MLO"' >> $fname$jsp.glt	
     done
     
     gnuplot ${fname}*.glt

@@ -95,7 +95,7 @@ c         write(*,*) jp,ilo
       use m_hamMTO,only:ReadHamMTOInfo,qplist,npair,ib_table,l_table,k_table,m_table,nsp,nkp,NMTO,lso,orbch,
      .     ibzweight,nqs,qprs,weight,itor,niqs,eferm,orbavg,startprint
       implicit none
-      logical:: lprint=.true.,savez=.false.,getz=.false.,dbg=.false.,LLmode=.false.
+      logical:: debug=.false.,lprint=.true.,savez=.false.,getz=.false.,dbg=.false.,LLmode=.false.
       logical,allocatable::eflg(:),loflg(:)
 
       integer(4):: ifmto,ifqpl,ifinput,ifout,i,j,jj,n,m,t,l,k,access,loop,nq,Lmax,i1,i2,i3,LD,imax,itr
@@ -115,7 +115,8 @@ c         write(*,*) jp,ilo
       complex(8),allocatable,dimension(:,:,:) :: ovlM,hamM,hamE,ovlE,damM,damE
       complex(8) :: dt(1:7,1:2)
       
-      character(40),allocatable:: orbsym(:)
+      character*40,allocatable:: orbsym(:)
+      character*10:: tgs
       character*200 iname,indexname,ifc
 
       pi=4d0*atan(1d0)
@@ -129,10 +130,18 @@ c     thUB(2)=pi !lo
 
 
       open(newunit=ifmto,file="mtoctrl")
-      do i=1,9
-         read(ifmto,*)          !karayomi
+      do 
+         read(ifmto,"(a10)") tgs
+         if(tgs=="<mkhamloc>") exit
       end do
-      read(ifmto,*) convc,emin,emax,flg_osym,flg_ssym,maxitr,nbsec,cbsec,lcut,rcut
+c      read(ifmto,*) convc,emin,emax,flg_osym,flg_ssym,maxitr,nbsec,cbsec,lcut,rcut
+c     write(*,*) convc,emin,emax,flg_osym,flg_ssym,maxitr,nbsec,cbsec,lcut,rcut
+      read(ifmto,*) convc,cbsec
+      read(ifmto,*) emin,emax
+      read(ifmto,*) flg_osym,flg_ssym
+      read(ifmto,*) maxitr,nbsec
+      read(ifmto,*) lcut,rcut
+      
       close(ifmto)
 
       emin=emin/ryd+eferm
@@ -183,7 +192,7 @@ c      end do
       call ibzweight()
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      write(6,*) "====================open .K file! ===================="
+      write(6,*) "====================open HamI file! ===================="
       allocate(jspl(nqs),llist(nqs))
       open(newunit=ifih,file="HamI",form='unformatted')      
       i=0 ; j=0; rq=0           !sanity check
@@ -201,14 +210,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          deallocate(ovlF,hamF)
       end do
  2019 close(ifih)
-      write(*,*) "**************sanity check is ok************************"
+      if(debug) write(*,*) "**************sanity check is ok************************"
       if(i.ne.nkp.or.rq.ne.nqs)then
          write(*,*) i,nq,rq,nqs
-         stop "inconsistent nq between *.Info and *.K"
+         stop "inconsistent nq between initmlo.Info and HamI"
       end if
       
       write(6,*)'Read: total # of q for Ham=',nkp,i,"(from .Info and .K)"
-      write(6,*) "====================close .K file! ===================="      
+      write(6,*) "====================close HamI file! ===================="      
       open(newunit=ifih,file="HamI",form='unformatted')
 
       Lmax=maxval(llist)
@@ -218,12 +227,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          Lmax=NL
       end if
       allocate(ovlM(1:Lmax,1:Lmax,1:nqs),hamM(1:Lmax,1:Lmax,1:nqs),damM(1:Lmax,1:Lmax,1:nqs))
-c      allocate(eflg(nqs)),epsovl(nqs))    
 cccccccccccccccccccccc diagonalization process! ccccccccccccccccccccccccccc      
       allocate(nev(nqs),isptab(niqs)) 
 
       damM=0d0
-      write(6,*) "====================diagonalization!===================="
       open(newunit=ioncut,file="ncut.kpoint")
       do rq=1,nqs
          read(ifih) qp,LD,lso1,epsdum,jsp
@@ -265,7 +272,6 @@ c         damM(1:LD,1:LD,rq)=-hamM(1:LD,1:LD,rq)
          deallocate(ovlF,hamF,ovlD,hamD,c_D,evl_D,bdb)
       end do
       close(ioncut)
-      write(6,*) "====================end diagonalization!================"
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       allocate(vM(neh2,2),vR(neh2,2),vL(neh2,2),totvec(neh2,2),oldvec(neh2,2))

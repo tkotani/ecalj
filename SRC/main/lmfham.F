@@ -49,10 +49,11 @@ c     !end renorm
      &   ,nsp,nkp,npairmx,NMTO,startprint
       implicit none
       character(200) inname,oname1,oname2,mtoname
+      character(8) tgs
       logical:: debug=.true.,lprint=.true.,savez=.false.,getz=.false.
       integer:: ifqplistsy,i,j,n,m,s,t,l,access,ifoh1,ifoh2,idum,jsp,NM,NS,NP,Ndum,ifomto
       integer:: ifih,iq,nevP,nevS,nevC,ifig=-999,nspx,lsodum,ilog,ifrmat,ifrmat2,di1,di2,iftxt,iftxt2
-      real(8)::qp(3),pi=4d0*atan(1d0),eferm,epsovl,el1,el2
+      real(8)::qp(3),pi=4d0*atan(1d0),eferm,epsovl,el1,el2,expn
       real(8),parameter ::  ryd=13.6058d0
       real(8),allocatable ::  evl_S(:),evl_P(:),evl_C(:)
       complex(8),allocatable,dimension(:,:) :: hamP,hamI,hamS,ovlP,ovlI,ovlS,hamC,ovlC,rdmat
@@ -62,6 +63,14 @@ c     !end renorm
 
       open(newunit=idum,file='qplist.dat')
       read(idum,*) eferm
+      close(idum)
+
+      open(newunit=idum,file="mtoctrl")
+      do 
+         read(idum,"(a8)") tgs
+         if(tgs=="<lmfham>") exit
+      end do
+      read(idum,*) expn
       close(idum)
       
       call ReadHamMTOInfo(1)    !initmlo.Info      
@@ -144,7 +153,7 @@ c     if(lso==1) NS=NS*2 !L.S mode
          prj=0d0
          do j=1,nevP
             do s=1,nevS
-            prj(j,s)=inpro(j,s) *abs(inpro(j,s))**2.0d0
+            prj(j,s)=inpro(j,s) *abs(inpro(j,s))**expn
 c             if(j==s)prj(j,s)=1d0   
             end do
          end do        

@@ -15,6 +15,7 @@
 c      character*200 ,intent(in) :: infoname
       integer:: ififft,i,lold,kold,m,aold,access,ifnm,ifqpl,iflg
       character*4:: cccx
+      logical*4 ::debug=.false.
 
       open(newunit=ifqpl,file='qplist.dat')
       open(ifqpl,file='qplist.dat')
@@ -61,15 +62,15 @@ c     open(newunit=ififft,file=trim(adjustl(infoname))//".Info",form='unformatte
          m_table(i)=m
          if(aold.ne.ib_table(i))then
             aold=ib_table(i)
-            write(6,"(a,i4,a)") "[input info]======",aold,"atom =========="            
+            if(debug)write(6,"(a,i4,a)") "[input info]======",aold,"atom =========="            
          end if
          if(k_table(i)==3)then
-            write(6,"(i4,3x,a12,a,i2,a)") i,orbch(l_table(i),m_table(i)),"of EH=",-k_table(i),"LO"
+            if(debug)write(6,"(i4,3x,a12,a,i2,a)") i,orbch(l_table(i),m_table(i)),"of EH=",-k_table(i),"LO"
          else
-            write(6,"(i4,3x,a12,a,i2)") i,orbch(l_table(i),m_table(i)),"of EH=",-k_table(i)
+            if(debug)write(6,"(i4,3x,a12,a,i2)") i,orbch(l_table(i),m_table(i)),"of EH=",-k_table(i)
          end if
       enddo
-      write(6,*) " "
+      if(debug)write(6,*) " "
       return
       end subroutine ReadHamMTOInfo
 
@@ -195,6 +196,7 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       integer(4) ,allocatable :: ib_new(:),l_new(:),k_new(:),m_new(:)
      . ,ipnk2(:),irold(:,:),iro(:,:),ipLO(:),irl(:)!,ilo(:)
       character(2) add,a(23)
+      character(10) tgs
       character(20) ,allocatable :: orbold(:)
       character(200) cdum      
       
@@ -213,15 +215,23 @@ c            write(*,*) "nq=",j,qplist(1:3,j),lend
       
       if(access("mtoctrl","").ne.0) stop "error! no mtoctrl"
       open(newunit=ifi,file="mtoctrl")
-      do i=1,10
-         read(ifi,*)            !dummy line: skip
+      
+      do 
+         read(ifi,"(a10)") tgs
+c         write(*,*) tgs(1:1)
+         if(tgs=="<mkhamloc>") exit         
       end do
+      do i=1,5
+         read(ifi,*)
+      end do
+      
       open(newunit=ifo,file="status-model") !new version        
       
       allocate(ipivot(1:NMTO))
       i=0
       do
          read(ifi,fmt="(a)",end=999) cdum
+         if(cdum(1:1)==" ".or.cdum(1:1)=="<".or.cdum(1:2)==" <") goto 999
          a="vo" !vo means "void"
          read(cdum,*,end=1919) (a(j),j=1,23)
  1919    continue
@@ -481,7 +491,7 @@ c         end if
       integer*4 ,intent(in)   ::jsp
       integer:: ifih,i,j,n,it,lso,ikp,jspin
 cccccccccc
-      logical:: debug=.true.,lprint=.true.,savez=.false.,getz=.false.
+      logical:: debug=.false.,lprint=.true.,savez=.false.,getz=.false.
       integer(4) :: nev,ifig=-999
       real(8), allocatable:: evl(:)
       complex(8), allocatable:: c_C(:,:)
@@ -494,9 +504,7 @@ cccccccccccccc
 
       if(allocated(ovlr)) deallocate(ovlr)
       if(allocated(hamr)) deallocate(hamr)
-      if(.NOT.allocated(ib)) allocate(ib(1:NMTO))
-      
-      write(*,*) trim(adjustl(fname))
+      if(.NOT.allocated(ib)) allocate(ib(1:NMTO))      
 
       do i=1,NMTO
          ib(i) = mod(ib_table(i),NMTO)
@@ -522,7 +530,6 @@ cccccccccccccc
          ikp=ikp+1
          write(6,"(i4)",advance="no") ikp
          if(mod(ikp,10)==0) write(6,"(a,i4,a)") "  : ",idnint((dble(ikp)/dble(nkp)*1d2))," %"
-         write(9999,*) "ikp,jsp,NS,file",ikp,jsp,NS,trim(adjustl(fname))
          
          if(debug)then
             allocate(evl(1:NS),c_C(1:NS,1:NS))
