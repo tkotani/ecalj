@@ -1,9 +1,9 @@
-      subroutine lmaux(prgnam,sspec,ssite, !sstr,sctrl,,sham,slat spot,
-     .slabl,mode,wksize) !,sstrn,sbz sarray,
-      use m_clsprm,only: rv_a_ormax
+      subroutine lmaux()!,sspec)!,ssite, !sstr,sctrl,,sham,slat spot,
+c     .slabl,mode,wksize) !,sstrn,sbz sarray,
+c      use m_clsprm,only: rv_a_ormax
       use m_mksym,only: rv_a_oclabl,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin, !irs11,
-     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos
+     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos,slabl,sspec=>v_sspec
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
@@ -73,20 +73,22 @@ Cu   05 Oct 01 Adapted mode 2**3 to work with lm v6.11
 Cu   24 Nov 97 changed ovmin to run quickly
 C ----------------------------------------------------------------------
       implicit none
+c      character prgnam*8
+c      data prgnam /'LMCHK'/
 C ... Passed parameters
-      integer mode,wksize
-      character*(*)  prgnam*8 !sstrn,
-      character*8 slabl(*)
+      integer:: mode=1 !,wksize
+c      character*(*)  prgnam*8 !sstrn,
+c      character*8 slabl(*)
 c      type(s_array)::sarray
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
 c      type(s_pot)::spot
 c      type(s_lat)::slat
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
 c      type(s_str)::sstr
 c      type(s_bz)::sbz
-      type(s_site),allocatable::ssite2(:)
+c      type(s_site),allocatable::ssite2(:)
 
 C ... Local parameters
       character*120 outs,fnam*8
@@ -104,7 +106,7 @@ c !lncol,
       real(8),allocatable:: eula(:,:)
       integer,allocatable :: iv_a_ontab(:)
       integer,allocatable :: iv_a_oiax(:)
-      real(8),allocatable :: rv_a_og(:)
+      real(8),allocatable :: rv_a_og(:),rv_a_ormax(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       real(8) ,allocatable :: rmt_rv(:)
       integer ,allocatable :: lock_iv(:)
@@ -131,6 +133,14 @@ c      real(8),allocatable::idmod(:,:), z(:),amsh(:),rmax(:), nrmsh(:)
       real(8),allocatable:: z(:),rmax(:)
 
       print *,' lmaux:'
+ccc!! Allocate permanent class arrays, maps and other initialization ---
+c      call clsprm(1,sspec)!, v_slat) !,v_sbz) !,v_sstr)!,sstrn)v_sctrl,v_sham,v_spot,,v_sarry
+cc!! Read available class parameters from file ---
+c      call aiocls(.false.,0, sspec,1,0)
+c      call aiocls(.false.,17,sspec,1,0)
+c      if(lc>=20) call clsprp(1,sspec)
+c      call defspc(sspec)
+
       nbas=ctrl_nbas
       nclass=ctrl_nclass
       nl=ctrl_nl
@@ -152,6 +162,10 @@ c      call dcopy(i_copy_size,lat_plat,1,plat,1)
 c      mxnbr=str_mxnbr !sstr%mxnbr
       rmaxs=str_rmax !sstr%rmax
 
+      nclspp = max(nclass,nspec)
+      allocate(rv_a_ormax(nclspp))
+      rv_a_ormax = sspec(iv_a_oics(1:nclasp))%rmt
+      
       allocate(lmxa(nclasp),z(nclasp))
       lmxa(1:nclasp) = sspec(iv_a_oics(1:nclasp))%lmxa !sarray%
       z   (1:nclasp) = sspec(iv_a_oics(1:nclasp))%z
@@ -273,17 +287,15 @@ C   ... Scale sphere radii satisfying constraints
      .      , iv_a_oips , modep , slabl , zz_rv , lock_iv , 1d0 , wsrmax 
      .      , omax1 , omax2 , rmt_rv )
           i_copy_size=1;
-          do i_spackv=1,nspec
-c            call spackv_array_copy_r8_r8 ( 'p' , sspec ( i_spackv ) %rmt 
-c     .      , i_copy_size , i_spackv + 1 - 1 , rmt_rv )
-            sspec(i_spackv)%rmt = rmt_rv(i_spackv)
-          enddo
+c          do i_spackv=1,nspec
+c            sspec(i_spackv)%rmt = rmt_rv(i_spackv)
+c          enddo
           nclspp = max(2*nclasp-nclass,nspec)
           allocate(rmax(nclspp))
           print *,' zzzz nclspp=',nclspp
           if(allocated(rv_a_ormax)) deallocate(rv_a_ormax) !is this correct???
           do i=1,nclspp
-            rmax(i) =sspec(iv_a_oics(i))%rmt
+            rmax(i) = rmt_rv(iv_a_oics(i)) !sspec(iv_a_oics(i))%rmt
           enddo
           allocate(rv_a_ormax(nclspp))
           call dcopy ( nclspp , rmax , 1 , rv_a_ormax , 1 )

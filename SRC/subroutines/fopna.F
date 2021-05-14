@@ -656,22 +656,54 @@ C --- Close all open files ---
       nopen = 0
       return
       end
+
       integer function lgunit(i)
+      use m_ext,only: sname
+      character*8 charext
+      character*100 ext
+      integer i, fopn, i1mach, fhndl,ifile_handle,procid
+      integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
 C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
 C     implicit none
-      integer i, fopn, i1mach, fhndl
+#if MPIK
+      include "mpif.h"
+      integer mpipid
+      procid = mpipid(1) 
+#endif
       lgunit = i1mach(2)
       if (i .eq. 1) return
       if (i .eq. 2) then
-        lgunit = -1
-        if (fhndl('LOG') .lt. 0) return
-        lgunit = fopn('LOG')
+         if(lgunit2==0) then
+            lgunit2=ifile_handle()
+            open(lgunit2,file='log.'//trim(sname),position='append')
+         endif
+         lgunit = lgunit2
       elseif (i .eq. 3) then
-        lgunit = -1
-        if (fhndl('MLOG') .lt. 0) return
-        lgunit = fopn('MLOG')
+         if(lgunit3==0) then
+            lgunit3=ifile_handle()
+            open(lgunit3,file='mlog.'//trim(sname)//'_'//trim(charext(procid)))
+         endif
+         lgunit = lgunit3
       endif
       end
+     
+c$$$      integer function lgunit(i)
+c$$$C- Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
+c$$$C     implicit none
+c$$$      integer i, fopn, i1mach, fhndl
+c$$$      lgunit = i1mach(2)
+c$$$      if (i .eq. 1) return
+c$$$      if (i .eq. 2) then
+c$$$        lgunit = -1
+c$$$        if (fhndl('LOG') .lt. 0) return
+c$$$        lgunit = fopn('LOG')
+c$$$      elseif (i .eq. 3) then
+c$$$        lgunit = -1
+c$$$        if (fhndl('MLOG') .lt. 0) return
+c$$$        lgunit = fopn('MLOG')
+c$$$      endif
+c$$$      end
+      
       subroutine namcat(dest,fnam1,fnam2,lcase)
 C- Concatenates two names, optionally lowering the case
 C     implicit none

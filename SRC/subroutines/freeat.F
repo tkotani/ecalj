@@ -1,9 +1,6 @@
-c#define USEOPTIONAL 1
-      subroutine freeat(sspec)!,spot) !sctrl,sham,
-      use m_lmfinit,only:ctrl_smalit,ctrl_lxcf
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:ham_seref
+      subroutine freeat(sspec)
+      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,globalvariables,ham_seref 
+      use m_struc_def,only:s_spec
       use m_ext,only:sname
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
@@ -37,13 +34,7 @@ Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-c      type(s_ctrl)::sctrl
-c      type(s_ham)::sham
-c      type(s_pot)::spot
       type(s_spec)::sspec(*)
-
-C ... Local parameters
       integer fopna,ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
      .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
@@ -56,13 +47,10 @@ C ... Local parameters
       double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
-
       integer:: iofa, i_dummy_iofa
-ctakao
       logical ixx,ioorbp
       real(8):: pzsum
       integer:: i_copy_size,i_spacks,ifives,ifiwv
-
       character strn*120
       logical cmdopt
 
@@ -96,28 +84,15 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
           nxi = 6
         endif
 
-C       Unpack sctrl data
-
         i_copy_size=size(ctrl_smalit)
         call icopy(i_copy_size,ctrl_smalit,1,nrmix,1)
-
         lxcfun = int(ctrl_lxcf)
-
-
-C       Unpack species data
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         spid=sspec(is)%name
 
         rsmfa=sspec(is)%rsmfa
         rfoca=sspec(is)%rfoca
         i_copy_size=size(sspec(is)%coreq)
         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
-
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%coreh,is,is,chole,i_spacks)
-c        enddo
         chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
 
@@ -136,13 +111,9 @@ c        enddo
         i_copy_size=size(sspec(is)%idmod)
         call icopy(i_copy_size,sspec(is)%idmod,1,idmod,1)
         lmxa=sspec(is)%lmxa
-
-
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-
         eref = (sspec(is)%eref)
-
 
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
@@ -155,14 +126,14 @@ c        enddo
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
      .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
-C       Repack mesh parms, in case a mesh was selected by freats
+
+C     Repack mesh parms, in case a mesh was selected by freats
         sspec(is)%z=z
         sspec(is)%rmt=rmt
         sspec(is)%a=a
         sspec(is)%nr=nrmt
 C   ... Pack the basis into sspec
         call dpzero(orbp,n0*2*nkap0)
-C       call upack2('spec orbp lmxb',sspec,is,orbp)
         call dcopy(n0,rtab,1,orbp(1,1,1),1)
         call dcopy(n0,etab,1,orbp(1,2,1),1)
         sspec(is)%norp=2
@@ -178,8 +149,7 @@ C       Copy second spin channel of rho,v
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
         endif
-ckino iofa is integer        call iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
-        i_dummy_iofa= iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
+        i_dummy_iofa = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
      .  a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,-ifi)
 
         pzsum= pzsum+sum(pz(1:lmxa+1,1))
@@ -191,9 +161,7 @@ ctakao
       print *
       if(pzsum<1d-10) then
         print *,' Write mtopara.* ...'
-        ifi = fopna('mtopara',-1,2)
-        call writebasis(nspec,sspec,ifi)
-        call fclose(ifi)
+        call writebasis(nspec,sspec)!,ifi)
       else
         print *,' Not write mtopara.* when there is PZ.'
       endif
@@ -202,7 +170,6 @@ ctakao
         call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
      .  seref)
       endif
-c     call fclose('vesintatm')
       close(ifives)
       end subroutine freeat
 

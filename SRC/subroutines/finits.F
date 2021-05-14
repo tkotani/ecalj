@@ -28,16 +28,17 @@
           cycle 
         endif
       enddo
-c     not here
-!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
-      if (cmdopt('-pr',3,0,strn)) then
-         read(strn(4:),*) k
-         call setpr(k)
-      endif
-      if (cmdopt('--pr',4,0,strn)) then
-         read(strn(5:),*) k
-         call setpr(k)
-      endif
+c$$$c     not here
+c$$$!! Set print verbose ( integer funciton iprint() return # of -pr# in command line arguments).
+c$$$      if (cmdopt('-pr',3,0,strn)) then
+c$$$c         print *,'uuuuuuuu'//trim(strn)//'@@@'
+c$$$         read(strn(4:),*) k
+c$$$         call setpr(k)
+c$$$      endif
+c$$$      if (cmdopt('--pr',4,0,strn)) then
+c$$$         read(strn(5:),*) k
+c$$$         call setpr(k)
+c$$$      endif
       end
 
       subroutine fexit(retval,iopt,strng,args)
@@ -120,8 +121,8 @@ c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
       call tcprt(i1mach(2))
 #if MPI | MPIK
       if(retval/=0) then
-         print *,'fexit,fexit2,fexit3 error retval=',retval
-         print *
+         write(6,"(a,i5)")'ERROR: fexit, error code=',retval
+         write(6,*)
          call MPI_abort(MPI_comm_world,retval,ierr)   
          call MPI_FINALIZE(i)
          stop

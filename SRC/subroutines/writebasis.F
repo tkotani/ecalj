@@ -1,8 +1,6 @@
-      subroutine writebasis(nspec,sspec,ifi)
-
-
-      use m_struc_def  !Cgetarg
-
+      subroutine writebasis(nspec,sspec)!,ifi)
+      use m_struc_def,only: s_spec
+      use m_ext,only: sname
 c takao wrote this based on Mark's ioorbp below.
 c This is to write a basis set file mtopara.* at the end of lmfa.
 c Default setting of basis set is embedded in this.
@@ -20,11 +18,8 @@ C ... Local parameters
       double precision rtab(n0,nkap0),etab(n0,nkap0),orbp(n0,2,nkap0),
      .dasum, zz
       integer:: i_spacks,i_copy_size
-      jfi = ifi
+      open(newunit=jfi,file='mtopara.'//trim(sname))
       do  110  is = 1, nspec
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         spid = sspec(is)%name
 
         i_copy_size=size(sspec(is)%orbp)
@@ -98,6 +93,7 @@ c f channel
           szz='  PZ=0,0,0,14.9 P=0,0,0,5.15'
         endif
         write(jfi,"(a)") trim(szz)
-  110 continue
+ 110  continue
+      close(jfi)
       end subroutine writebasis
 

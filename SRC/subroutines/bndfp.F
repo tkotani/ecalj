@@ -189,7 +189,7 @@ ckino lswtk must be 0 initially.
      .  , lrep , lcplxp , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw  !stdo , stdl 
-     .  , ifi , fxst , fopn , fopna , lfrzw , i1 , i2 , plbnd 
+     .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  jobgw , nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
@@ -367,7 +367,7 @@ c mar2014
       logical:: fullmesh
 
       integer,allocatable:: ipqe(:,:,:),idtete(:,:)
-      integer:: ntete,init,ient,nchanp,fopnn,nevmin,ifip,ifisyml,isyml
+      integer:: ntete,init,ient,nchanp,nevmin,ifip,ifisyml,isyml
       real(8):: qx(3)
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
       character*3::charnum3
@@ -380,7 +380,7 @@ c mar2014
       integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax),nqp2n_syml(nsymlmax)
       logical:: masslineon(nsymlmax)
 
-      integer:: nsyml=0,fopno,ikp,ifbnd,nsymln
+      integer:: nsyml=0,ikp,ifbnd,nsymln
       real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
       character*20 ::labeli(nsymlmax),labele(nsymlmax)
       real(8)::  totxdatt, dqsyml(nsymlmax),etolv,etolc
@@ -1159,7 +1159,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
      &              shortname(procid)(1:namelen(procid))//' starting k-points '//
      &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
-               write(6,"(a)")aaachar
+               write(lgunit(3),"(a)")trim(aaachar)
             endif
          endif
 #endif
@@ -1930,9 +1930,9 @@ c         nkaph = globalvariables%nkaph
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
                      if(procid==master) then
-                        ifid= fopn ( 'ewindow' )
+                        open(newunit=ifid,file='ewindow.'//trim(sname)) !ifid= fopn ( 'ewindow' )
                         write(ifid,"(3d23.15)") dosw(1:2),ef0
-                        call fclose(ifid)
+                        close(ifid) !call fclose(ifid)
                      endif
                      if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
      .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
@@ -2084,9 +2084,10 @@ c$$$         endif
          endif
          if (lmet .gt. 0) then
             if (procid .eq. master) then
-               ifi = fopna('wkp',-1,4)
+               ifi=ifile_handle()
+               open(ifi,file='wkp.'//trim(sname),form='unformatted') !ifi = fopna('wkp',-1,4)
                i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
-               call fclr('wkp',ifi)
+               close(ifi) !call fclr('wkp',ifi)
             endif
          endif
          goto99=.false.
@@ -2118,9 +2119,11 @@ c      if(allocated(sfz)) deallocate(sfz)
      &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif
          if (procid .eq. master) then
-            ifi = fopna('wkp',-1,4)
+            !ifi = fopna('wkp',-1,4)
+            ifi=ifile_handle()
+            open(ifi,file='wkp.'//trim(sname),form='unformatted')
             i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
-            call fclr('wkp',ifi)
+            close(ifi) !call fclr('wkp',ifi)
          endif
       endif
 c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
@@ -2385,6 +2388,8 @@ ccccccccccccccccccccccccc
  9995 continue
       call tcx('bndfp')
       return
+
+
       
 !sssssssssssssssssssssssssssssssssssssssssssss
       contains
@@ -2407,9 +2412,7 @@ ccccccccccccccccccccccccc
       open(newunit=ifves,file='vessm.'//trim(sname),status='old')
       read(ifves,*) vessm       !smooth part of electrostatic pot. given in smves.F. (es on MT average).
       close(ifves)
-c     ifvesintloc=fopna('vesintloc',-1,1) !generated in mkpot-locpot.F electrostatic pot. integral.
       open(newunit=ifvesintloc,file='vesintloc.'//trim(sname),status='old',err=9898)
-c     rewind ifvesintloc
       sumvesloc=0d0
       sumvesatm=0d0
       do ib=1,nbas

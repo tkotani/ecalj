@@ -251,10 +251,10 @@ c    4 continue !
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
      
-!! ============== 
+!! === Main iteration loops ===
       if(nitrlx>=1) allocate(pos_move(3,nbas))
-      do 2000 itrlx   = 1,max(1,nitrlx) ! do loop for molecular dynamics =======
-         do 1000 iter = 1,max(1,maxit) !do loop for electronic structure ===
+      do 2000 itrlx = 1,max(1,nitrlx) ! for atomic position relaxiation (molecular dynamics) ===
+         do 1000 iter = 1,max(1,maxit)! for electronic structure ===
 C     --- Read restart file or overlap free atom densities ---
 C     irs(1) tells what to read and whether to invoke smshft.
 C     0+1's bits irs(1)     action
@@ -266,10 +266,11 @@ C     4s' bit of irs(1) -> invoke smshft after file read.
 C     8s' bit of irs(1) -> rotate local density after file read
 c 10         continue
             if (irs1x == 0) then !read overlap free-atom densities
-               call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !initial potential
+               call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
+!              read initial given by the superposition of spherical atomic densities by lmfa.
                nit1 = 0
             elseif ( 1<= mod(irs1x,4) .and. mod(irs1x,4)<=2 ) then 
-               lbin = irs1x==1 !.not. bittst(irs1x,2) !lbin=T:rst --rs=1, or lbin=F:rsta --rx=2,
+               lbin = (irs1x==1) !.not. bittst(irs1x,2) !lbin=T:rst --rs=1, or lbin=F:rsta --rx=2,
                k = -1
                if (procid .eq. master) then
                   ifi=ifile_handle() 
@@ -278,7 +279,7 @@ c 10         continue
                endif
                call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
                bz_wx = bz_w
-               k = iors ( ssite , sspec ,  fileid 
+               k = iors ( ssite , sspec ,  fileid !read rst file
      .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , ifi )
                bz_w = bz_wx
                if (procid .eq. master) close(ifi) !call fclose(ifi)
@@ -296,7 +297,7 @@ c                  goto 10
                endif
             endif               !!if not, read nothing because of previous iteration
 !! ... Write positions after file read, and repack
-            if (ipr .ge. 50) then
+            if(ipr .ge. 50) then
                write(stdo,357) 'Basis, after reading restart file'
  357           format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
      .              'pos (multiples of plat)')
@@ -325,12 +326,12 @@ c               read(ifivorbdmat) vorbdmat
 c               close(ifivorbdmat)
 c            endif
 
-C     --- Make and diagonalize hamiltonian, make new charge density ---
-            if (maxit .eq. 0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
+!! main part --- Make and diagonalize hamiltonian, make new charge density ---
+            if(maxit==0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
             call bndfp ( nlibu , lmaxu , lldau_iv , ssite , sspec ,    
      .           leks , lrout , ctrl_lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .           frc_rv , dmatu, vorbdmat, llmfgw )
-C     ... check convergence of dmatu and update it and vorbdmat if necessary
+!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
                call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec !, sham 
      .              , 0 , dmatu , dmato, vorbdmat, tolu , umix
@@ -341,9 +342,10 @@ c                 write(ifivorbdmat) vorbdmat
 c                 close(ifivorbdmat)
 c               endif
             endif
-!! Write smoothed charge density for contour plotting ---
-!!   --density is now moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
-C     --- Write restart file (skip if --quit=band) ---
+            
+!! ==> --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+            
+!! Write restart file (skip if --quit=band) ---
             if (procid .eq. master) then
                if ( ctrl_quit .ne. 4 ) then
 !!  Suppress saving rst file in the middle of a shear (irlxsh > 0)
@@ -361,7 +363,8 @@ C     --- Write restart file (skip if --quit=band) ---
                   endif
                endif
             endif
-            if (cmdopt('--window=',9,0,strn)) call rx0('lmf : early exit (--window option)')
+            
+c            if (cmdopt('--window=',9,0,strn)) call rx0('lmf : early exit (--window option)')
 C     --- Add to save file; decide on next iteration ---
             if (maxit <= 0) goto 9998
             etot(1)=ham_ehf
@@ -381,13 +384,13 @@ C     The desired tolerances in q,e
                rhosig = ham_eterms(19)
                i = 0
                if (rhosig .ne. -99 .and. rhosig .ne. 0) i = 10
-C     kino nwit() Outputs
-C     kino   lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
-C     kino         :1 if not self-consistent, but encountered max. no. iter.
-C     kino         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
-C     kino         :3 otherwise
-               call nwit ( int(ctrl_nvario) , iter , maxit , lhf.or.irs1x==0.and.iter==1,
-     &              leks+i , etol , qtol , dmxp(11) , 'cxhi' , amom , etot , lsc ) !dmxp(11)=qdiff 
+! kino's memo for call nwit              
+!   lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
+!         :1 if not self-consistent, but encountered max. no. iter.
+!         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
+!         :3 otherwise
+               call nwit ( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
+     &              leks+i , etol , qtol , dmxp(11) , 'cxhi' , amom , etot , lsc )
             endif
             call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
             if (lsc .eq. 2 .and. .not. lhf .and. maxit .gt. 1) lsc = 3
@@ -396,7 +399,7 @@ C     kino         :3 otherwise
                if (iter .lt. maxit) lsc = 3
             endif
             if ( int(ctrl_quit) .eq. 4 ) call rx0 ( 'lmf : exit (--quit=band)' )
-C     Continue iterations toward self-consistency
+!!     Continue iterations toward self-consistency
             if (lsc .gt. 2) then
                irs1x=3
                cycle            !goto 5
@@ -405,18 +408,18 @@ C     Continue iterations toward self-consistency
  1000    continue ! ---------------- SCF (iteration) loop end ----
          if (nitrlx==0) exit
          
-!! --- Molecular dynamics -----------------------------
+!! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
+!!         (last check is probably around 2015) ----------
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
-         enddo   
-         do ibas=1,nbas
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
-         mdprm=ctrl_mdprm
+         mdprm = ctrl_mdprm
+         
 c$$$  else !without shear
+!! main routine to relax atomic positions.  
          call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
      .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
-c$$$  endif
 !!--- we removed a procedure at apr2021 2020
 !!  Updated positions in site structure !WARN! t.kotani think this is confusing because
 !!  CAUTION: 'positions written in ctrl' and 'positions written in rst' can be different.
@@ -425,7 +428,7 @@ c$$$  endif
             ssite(ibas)%pos = pos_move(:,ibas)
          enddo
 C     ... Exit when relaxation converged or maximum number of iterations
-         if (icom .eq. 1) then
+         if (icom .eq. 1) then !takao 
             if (procid .eq. master) then
                k = int(ctrl_nvario)
                flg = 'C67' !what? 
@@ -480,6 +483,7 @@ C     Repack updated positions in site structure
             endif
          endif
  2000 continue
+      
 !! Write positions to file
  9998 continue
       if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
@@ -494,12 +498,11 @@ C     Repack updated positions in site structure
          if (allocated(pos_move)) deallocate(pos_move)
       endif 
       if(procid==master.and.nitrlx>0) close(ifipos)
-      call tcx('lmfp')
       if (allocated(lldau_iv)) deallocate(lldau_iv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(p_rv)) deallocate(p_rv)
       if (allocated(w_rv)) deallocate(w_rv)
       if (allocated(indrx_iv)) deallocate(indrx_iv)
       if (allocated(frc_rv)) deallocate(frc_rv)
-      return
+      call tcx('lmfp')
       end subroutine lmfp

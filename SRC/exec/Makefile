@@ -19,7 +19,7 @@ tags  = ..
 
 progslm = lmf-MPIK lmfgw-MPIK lmfa lmchk lmf2gw  lmfham1
 progsgw = hbasfp0 hvccfp0 hx0fp0 hsfp0 hef hqpe hqpe_qsgw qg4gw gwinit heftet hmergewv rdata4gw_v2 convgwin hx0fp0_sc hsfp0_sc hqpe_sc kino_input_test hecor eout eout2 hmagnon hhomogas
-progsw  = huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot # hx0fp0_mlw 
+progsw  = huumat hpsig hmaxloc huumat_MPI hpsig_MPI wanplot hwmatK hwmatK_MPI htbplot #hx0fp0_mlw 
 script  = cleargw* dqpu eps* gw_* gwg* gws* gwp*  mkG* chipm_mat genMLWF genMLWF_vw genMLWF2 genMLWFmod run_argloc RPAWannier* FLEX_interaction.py
 
 all: mkobj progs tags
@@ -74,7 +74,6 @@ echotest:
 result_fc_version :=$(shell LANG=us; ${FC} -v 2>&1|tail -1)
 result_uname_a := $(shell uname -a | head -c 120)
 result_linked_at := $(shell LANG=us; date)
-#result_etc_issue := $(shell cat /etc/issue|head -1 -c120)
 result_etc_issue := $(shell grep -v \"^\$\" /etc/issue | head -1 )
 result_git_branch := $(shell cat ../../.git/HEAD| sed 's/^ref: *//')
 result_git_commit := $(shell cat ../../.git/`cat ../../.git/HEAD| sed 's/^ref: *//' `)
@@ -93,10 +92,10 @@ VERSIONFLAGS = -D___UNAME_A___="\"$(result_uname_a)\""   \
 ########################################
 # Generate o of main routines for lmf 
 ########################################
-$(obj_path)/lmfa.o: $(main)lmfav7.F 
+$(obj_path)/lmfa.o: $(main)lmv7.F 
 	$(FC) $(FFLAGS_NONE) -DLMFA -c $< -o $@
-$(obj_path)/lmchk.o: $(main)lmchk.F 
-	$(FC) $(FFLAGS_NONE) -c $< -o $@
+$(obj_path)/lmchk.o: $(main)lmv7.F 
+	$(FC) $(FFLAGS_NONE) -DLMCHK -c $< -o $@
 $(obj_path)/lmf2gw.o: $(main)lmf2gw.F 
 	$(FC) $(FFLAGS_NONE) -c $< -o $@
 $(obj_path)/lmfham1.o: $(main)lmfham1.F
@@ -111,11 +110,6 @@ $(obj_path)/lmf.o: $(main)lmv7.F $(ELIB)
 	$(FC) $(FFLAGS_NONE) -DLMF -c $< -o $@
 $(obj_path)/lmfgw.o: $(main)lmv7.F 
 	$(FC) $(FFLAGS_NONE) -DLMF -DLMFGWD -c $< -o $@
-
-#$(obj_path)/show_programinfo_mpik.o:  $(subr)show_programinfo.F $(main)*.F $(subr)*.F 
-#	$(FC) $(FFLAGS)  $(VERSIONFLAGS) $(CPP_SW) -c $< -o $@
-#$(obj_path)/lmdos.o: $(main)lmv7util.F 
-#	$(FC) $(FFLAGS_NONE) -DLMDOS -c $< -o $@
 
 ########################################
 # progslm
@@ -178,22 +172,22 @@ doxygen:
 	echo 'fpgw/latex/refman.pdf generated'
 
 #---------------------------------------------------
-hecor:  $(main)hecor.o  $(MPI) $(ELIB) $(GWLIB)
+hecor:  $(obj_path)/hecor.o  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
-eout:   $(main)eout.o   $(MPI)  $(ELIB) $(GWLIB)
+eout:   $(obj_path)/eout.o   $(MPI)  $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB)  $(GWLIB) $(LKFLAGS2) -o $@
-eout2: $(main)eout2.o   $(MPI) $(ELIB) $(GWLIB)
+eout2: $(obj_path)/eout2.o   $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB)  $(GWLIB) $(LKFLAGS2) -o $@
-gwinit:	$(main)gwinit.m.o $(MPI)    $(ELIB) $(GWLIB)
+gwinit:	$(obj_path)/gwinit.m.o $(MPI)    $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB)  $(GWLIB) $(LKFLAGS2) -o $@
-qg4gw:	$(main)qg4gw.m.o  $(MPI)   $(ELIB) $(GWLIB)
+qg4gw:	$(obj_path)/qg4gw.m.o  $(MPI)   $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI)  $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
-rdata4gw_v2: $(main)rdata4gw_v2.m.o  $(MPI) $(ELIB) $(GWLIB)
+rdata4gw_v2: $(obj_path)/rdata4gw_v2.m.o  $(MPI) $(ELIB) $(GWLIB)
 	@echo $(LK) $@.o 'link with *.o'
 	@$(LK) $(LKFLAGS1) $<  $(MPI) $(ELIB) $(GWLIB) $(LKFLAGS2) -o $@
 
