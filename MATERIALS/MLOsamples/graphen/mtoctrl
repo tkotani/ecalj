@@ -1,0 +1,12 @@
+ y   :lmfa and lmf(0)
+ y   :job_band(1)
+ y   :writeham(2)  
+ y   :initmlo(3) 
+ y   :mkhamloc(4)  
+ y   :lmfham(5) 
+ y   :plotmodel(6)
+#### "y" means "DO", the others mean "do NOT" ##############
+ 1.0
+ 1.00E-05 -100.0  0.0   1   0    30    30 1.00E-07    100    100 !convergence, en-min, en-max, orb_sym(1=on), spin_sym(0=off), max-iter, max iter(bisection), conv. of bisection,lcut, rcut
+C  :    1 :   1 :    1   2   3   4   
+C  :    2 :   1 :    1   2   3   4   
