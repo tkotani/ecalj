@@ -474,22 +474,22 @@ C     Override with '--time=' commmand-line arg
       if (tksw(prgnam,'STRUC') == 2) goto 59
       if (io_show+io_help/=0) call info0(1,1,
      .     0,' --- Parameters for crystal structure ---')
-      nm='STRUC_FILE'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
-     .     nout=nout, note=
-     .     'Name of site file containing basis and lattice information.'//
-     .     '%N%3fRead NBAS, PLAT, and optionally ALAT from site file, '//
-     .     'if specified.'//
-     .     '%N%3fOtherwise, they are read from the ctrl file.')
-      if (nout == 1) then
-         xxx = nullr
-         if (procid .eq. master) then
-            j = iosite(7000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
-     .           nspec,xxx,xxx,xxx,xxx,xxx,xxx,xxx)
-         endif
-         call mpibc1(nbas,1,2,mlog,'readctrl','nbas')
-         call mpibc1(alat,1,4,mlog,'readctrl','alat')
-         call mpibc1(plat,9,4,mlog,'readctrl','plat')
-      endif
+c$$$      nm='STRUC_FILE'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
+c$$$     .     nout=nout, note=
+c$$$     .     'Name of site file containing basis and lattice information.'//
+c$$$     .     '%N%3fRead NBAS, PLAT, and optionally ALAT from site file, '//
+c$$$     .     'if specified.'//
+c$$$     .     '%N%3fOtherwise, they are read from the ctrl file.')
+c$$$      if (nout == 1) then
+c$$$         xxx = nullr
+c$$$         if (procid .eq. master) then
+c$$$            j = iosite(7000,3d0,0,trim(outs),i,slabl,alat,plat,nbas,
+c$$$     .           nspec,xxx,xxx,xxx,xxx,xxx,xxx,xxx)
+c$$$         endif
+c$$$         call mpibc1(nbas,1,2,mlog,'readctrl','nbas')
+c$$$         call mpibc1(alat,1,4,mlog,'readctrl','alat')
+c$$$         call mpibc1(plat,9,4,mlog,'readctrl','plat')
+c$$$      endif
       if (alat .eq. NULLR) then
          nm='STRUC_ALAT'; call gtv(trim(nm),tksw(prgnam,nm),
      .        alat, note= 'Scaling of lattice vectors, in a.u.')
