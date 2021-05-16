@@ -1680,6 +1680,7 @@ c         mix_nitu = i0
       endif
       if (io_help > 0) call cexit(0,1)
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
+      
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
       ctrl_defm = lat_defm(:)
       lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
@@ -1728,16 +1729,13 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_mdprm=mdprm
       ctrl_modep=2
       ctrl_nbas=nbas
-
       nl = max(lmxbx,lmxax)+1
-      
       ctrl_nbasp=nbasp
       ctrl_nesabc=nesabc
       ctrl_nitmv=nitmv
       ctrl_nl=nl
       ctrl_nsite=nsite
       ctrl_nspec=nspec
-
       ctrl_nspin=nsp
       ctrl_nvario=nvario
       ctrl_omax1 = omax1
@@ -1752,7 +1750,6 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_wsrmax= wsrmax
       ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
-
       if (dalat == NULLR) dalat=0
       lat_alat=alat+dalat
       lat_avw=avw
@@ -1762,8 +1759,7 @@ C            Add 100*k to compute response function only each kth iteration
       lat_vol=vol
       lat_tolft=tolft
       
-!! setcg
-!!... Choose dimensions for arrays
+!! set cg coefficients for lmf --- Choose dimensions for arrays
       lmxcg=8
       lmxcy=12
       if (lmxcg .le. 6) then
@@ -1778,7 +1774,7 @@ C            Add 100*k to compute response function only each kth iteration
       else
         call rxi('setcg: cannot handle lmxcg=',lmxcg)
       endif
-C ... Allocate and occupy the arrays
+!     Allocate and fill data for cg
       nlm=(lmxcy+1)**2
       allocate(rv_a_ocy(abs(nlm)))
       allocate(rv_a_ocg(abs(lnjcg)))
@@ -1786,10 +1782,7 @@ C ... Allocate and occupy the arrays
       allocate(iv_a_oidxcg(abs(lnxcg)))
       call sylmnc ( rv_a_ocy , lmxcy )
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
-!!
-
-C --- Allocate and copy input to sham ---
-c      ham_size=uham_size()
+!! Allocate and copy input to sham ---
       ham_alfsi=alfsi
       i_copy_size=size(ham_dabc)
       call dcopy(i_copy_size,dabc,1,ham_dabc,1)
@@ -1800,19 +1793,11 @@ c      ham_size=uham_size()
       i_copy_size=size(ham_pmin)
       call dcopy(i_copy_size,pmin,1,ham_pmin,1)
       ham_lsig=lrsig
-c      i_copy_size=size(ham_sigp)
-c      call dcopy(i_copy_size,sigp,1,ham_sigp,1)
-c      i_copy_size=size(ham_qss)
-c      call dcopy(i_copy_size,ham_qss,1,ham_qss,1)
-
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
-
-!!  Parameters for APW
       ham_pwmode=pwmode
-c      ham_npwpad=npwpad
       ham_pwemin=pwemin
       ham_pwemax=pwemax
       ham_oveps=oveps
@@ -1822,7 +1807,6 @@ C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))
       do j=1,nspec
           slabl_(j) = slabl(j)
-c          v_sspec(j)%size=uspec_size()
           v_sspec(j)%eh3=-0.5d0
           v_sspec(j)%etf=-1d0
           v_sspec(j)%lmxf= 2*nl-2
@@ -1835,7 +1819,6 @@ c          v_sspec(j)%size=uspec_size()
           v_sspec(j)%nmcore=nmcore(j)
           v_sspec(j)%a=spec_a(j)
           v_sspec(j)%nr=nr(j)
-c          v_sspec(j)%alpha=alpha(:,j)
           v_sspec(j)%coreq=coreq(:,j)
           v_sspec(j)%lxi=lxi(j)
           v_sspec(j)%nxi=nxi(j)
@@ -1890,12 +1873,9 @@ c          v_sspec(j)%alpha=alpha(:,j)
       enddo
       allocate(v_ssite(nsite))
       do j=1,nsite
-c          v_ssite(j)%size=usite_size()
           v_ssite(j)%spec=ips(j)
           v_ssite(j)%class=ips(j)
           v_ssite(j)%clabel=slabl(ips(j))
-c          v_ssite(j)%pl=ipl(j)
-c          v_ssite(j)%plv=plv(j)
           v_ssite(j)%pos=pos(1:3,j)
           v_ssite(j)%vel=vel(1:3,j)
           v_ssite(j)%vshft=vshft(j)
@@ -1916,7 +1896,6 @@ c          v_ssite(j)%plv=plv(j)
          ctrl_noinv=1
       endif
       sstrnsymg=trim(symg)
-!     !
       if (cmdopt('--rdbasp',8,0,strn)) call rx('not support --rdbasp')
 
 !!  Add dalat to alat
@@ -1924,7 +1903,7 @@ c          v_ssite(j)%plv=plv(j)
 !!   is a bug for lm7K when I started lm7K. I had included this bug here. Fixed at 28May2010.
 
 !! Dirac equation requires spin polarization
-        if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
+      if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
       if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
@@ -1932,19 +1911,8 @@ c          v_ssite(j)%plv=plv(j)
       call suidx(nkaph,j,nspec,v_sspec)
 !! ... Set some global variables
       lxcf = ctrl_lxcf
-c      globalvariables%nspec = nspec
-c      globalvariables%nbas = nbas
-c      globalvariables%nbasp= nbasp
-c      globalvariables%nsp =  nsp
-c      globalvariables%nl =   nl
-c      globalvariables%lrel = lrel
-c      globalvariables%lxcf = lxcf
-c      globalvariables%stdo = stdo
-c      globalvariables%stdl = stdl
-c      globalvariables%stde = stde
       nspc = 1
       if( lso==1 ) nspc = 2
-c      globalvariables%nspc = nspc
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
          nat = nbas
@@ -1955,22 +1923,19 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
          enddo
       endif
       call mpibc1(nat,1,2,0,'rdctrl','nat')
-c      globalvariables%nat = nat
-C     ... Set modep
       ctrl_modep=2
-C     ... Count LDA+U blocks (printout only)
       allocate(wowk(nbas))
       wowk=0
       call pshpr(0)
-      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)
+      call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
       deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv, !alpha,
+     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
      .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
-     .     pos,vel,eula,vshft,ips,irlx) !,ipl,plv
+     .     pos,vel,eula,vshft,ips,irlx) 
 
 c$$$!! --- Printout ---
 c$$$          if (iprint() .ge. 20 .and. procid .eq. master) then
@@ -2008,7 +1973,7 @@ c$$$              endif
 c$$$   90       continue
 c$$$          endif
 
-!     ! --- takao embed contents in susite here. This is only for lmf and lmfgw.
+!! --- takao embed contents in susite here. This is only for lmf and lmfgw.
       seref = 0d0
       do ib = 1, nsite
          ispec = v_ssite(ib)%spec
@@ -2068,7 +2033,6 @@ c      enddo
          lc=20
          if( .not.noinv ) lc = lc+1  !+1 means add inversion 
       endif   
-
       
 !! Antiferro symmetric self-energy mode. Feb2021 recovered
 !! To obtain self-consistency, it may be useful to keep AF condition during iteration.
@@ -2084,7 +2048,6 @@ c      enddo
 !        ATOM=O POS= 1.5  1.5  1.5
 !
       if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
-!!      
       if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
       if(len_trim(symgaf)>0) then
         nbas = ctrl_nbas
