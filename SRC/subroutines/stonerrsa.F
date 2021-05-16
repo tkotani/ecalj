@@ -1,7 +1,6 @@
       subroutine stonerrsa(nq,nw,nmbas,qp,momsite,mmnorm,eiqrm,freq,
      .x0et)
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      use m_lmfinit,only: stdo
 C- Transverse susceptibility matrix <~e| X |e~> from X^{-1}=X0^{-1}+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,7 +27,7 @@ C ... Passed parameters
       complex(8) eiqrm(nmbas,nq),x0et(nmbas,nmbas,nq,nw)
 C ... Local parameters
       integer fopna,fopnx,i,ifi,ifi2,imax,imin,iq,iw,iwpola,iwpolf,ipr,
-     .ix,iy,j,jmax,jmin,nglob,nw_intp,nwx,stdo
+     .ix,iy,j,jmax,jmin,nglob,nw_intp,nwx
       complex(8),allocatable :: qxq_intp(:,:),wk(:,:),
      .x0inv(:,:,:,:),xinv(:,:,:,:),x2et(:,:,:,:),
      .xinvh(:,:,:,:),dxidw(:,:,:,:),dxidw_eb(:,:,:,:)
@@ -53,7 +52,7 @@ C     For calculating JMAT:
 
 C --- Setup ---
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       call getpr(ipr)
       nwx = 400
       rymev = rydberg*1d3

@@ -54,8 +54,8 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips) !,sctrl,slat
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
-     & lat_dist,lat_ldist,lat_plat !,iv_a_oips
-      use m_lmfinit,only: globalvariables,rv_a_opos
+     & lat_dist,lat_ldist,lat_plat,stdo !,iv_a_oips
+      use m_lmfinit,only: rv_a_opos
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -130,10 +130,9 @@ c      type(s_lat)::slat
 c      type(s_array)::sarray
       integer ::iwdummy 
       logical T,F,cmdopt,a2bin,ltmp
-      integer idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
+      integer:: idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nbas,
      .nbas0,nbasp,nsite,nclass,nclasp,nclspp,ngen,ngnmx,nspec,usegen,
-     .ldist,nggen,ngmx,stdo,nglob,incli !npadl,npadr,
-                 integer:: oiwk , aginv 
+     .ldist,nggen,ngmx,incli, oiwk , aginv 
       integer ,allocatable :: nrspc_iv(:)
       real(8) ,allocatable :: pos2_rv(:,:)
       integer ,allocatable :: ips2_iv(:)
@@ -151,7 +150,7 @@ c      type(s_array)::sarray
       i_copy_size=size(lat_dist)
       call dcopy(i_copy_size,lat_dist,1,dist,1)
       ngmx = 48
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       if (iprint() .ge. 30) write(stdo,'(1x)')
 C ... Re-entry when ngmx was increased
     5 continue

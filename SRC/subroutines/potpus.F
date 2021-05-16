@@ -1,7 +1,6 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
      .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      use m_lmfinit,only: stdo,lrel_g=>lrel
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -137,7 +136,7 @@ C ... Passed parameters
      .hab(nab,n0,nsp),sab(nab,n0,nsp),vab(nab,n0,nsp),vdif(nr,nsp),
      .sodb(nab,n0,nsp,2),rs3,vmtz
 C ... Local parameters
-      integer stdo,nglob,ipr,ir,i,j,k,l,awrite,lpz,lpzi(0:n0),nrbig,
+      integer ipr,ir,i,j,k,l,awrite,lpz,lpzi(0:n0),nrbig,
      .lorthz,lrel
       integer nrx
       parameter (nrx=1501)
@@ -169,9 +168,9 @@ C     Spin-Orbit related parameters
 
 C ... Setup
 Changenglob      lrel = nglob('lrel')
-      lrel = globalvariables%lrel
+      lrel = lrel_g !globalvariables%lrel
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       call getpr(ipr)
 C     lorthd = 0
       lorthz = 0

@@ -1,5 +1,5 @@
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- Generate all point symmetry operations from the generation group
 C ----------------------------------------------------------------
 Ci Inputs
@@ -16,16 +16,15 @@ C     implicit none
       double precision gen(9,ngen),symops(9,ngmx)
       double precision h(9),hh(9),e(9),sig(9),ae(3)
       integer igen,ig,itry,iord,nnow,j,ip,i,k,n2,m1,m2,n,m
-      integer ipr,stdo,nglob
+      integer ipr
       logical grpeql
       character*80 sout
       data e /1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
-Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+cChangenglob      stdo = nglob('stdo')
+c      stdo = globalvariables%stdo
       call getpr(ipr)
       sout = ' '
-
       call grpcop(e,symops)
       if (ng .lt. 1) ng = 1
       do  80  igen = 1, ngen

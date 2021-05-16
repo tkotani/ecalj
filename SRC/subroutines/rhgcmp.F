@@ -1,7 +1,7 @@
       subroutine rhgcmp(mode,ib1,ib2,ssite,sspec,sv_p_orhoat,kmax,ng,cg)!slat,
       use m_supot,only: rv_a_ogv
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+c      use m_lmfinit,only: globalvariables
 c      use m_globalvariables
       use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol,nspec,nsp
 C- Adds density of compensating gaussians to FT list
@@ -72,7 +72,7 @@ c      integer orhat
 c      type(s_lat)::slat
       double complex cg(ng)
 C ... Local parameters
-      integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
+      integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nlm,
      .nlmtop,ngabc(3),lfoc,modgkl
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)

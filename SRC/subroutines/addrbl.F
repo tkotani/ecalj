@@ -7,8 +7,7 @@ CSFCPP#define F90 1
      .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
      .     , sv_p_oeqkkl , f )
       use m_suham,only: iv_a_oindxo
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_struc_def 
       use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol,nbas
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
@@ -114,17 +113,14 @@ C ... Local parameters
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
-c      nbas = globalvariables%nbas
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
       i_copy_size=size(lat_nabc)
       call icopy(i_copy_size,lat_nabc,1,ngabc,1)
-
 C     Setup for PW part of basis
       alat=lat_alat
       i_copy_size=size(lat_qlat)
       call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-
 C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
       do  i = 1, nbas

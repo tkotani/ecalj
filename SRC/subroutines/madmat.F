@@ -1,5 +1,5 @@
       subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- Coefficients to Madelung matrix
 C ----------------------------------------------------------------
 Ci Inputs
@@ -23,7 +23,7 @@ C Passed parameters
       double precision bas(3,nbas),dlat(3,nkd),glat(3,nkg)
       double precision dmad(nbas,nbas)
 C local variables
-      integer ibas,jbas,iprint,i,stdo,nglob
+      integer ibas,jbas,iprint,i
       double precision tau(3)
 
 C --- Generate Madelung matrix ---
@@ -41,7 +41,7 @@ C --- Generate Madelung matrix ---
 C --- Printout ---
       if (iprint() .lt. 90) return
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       write(stdo,100) nbas
   100 format(/' Madelung matrix: nbas=',i5)
       do  20  ibas = 1, nbas

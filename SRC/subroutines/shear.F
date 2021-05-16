@@ -1,5 +1,5 @@
       subroutine shear(nbas,plat,tau,alpha,eps,s)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- Apply a pure strain to lattice and basis vectors
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,12 +22,12 @@ C ... Passed parameters
       integer nbas
       double precision plat(3,3),tau(3,nbas),eps(6),alpha
 C ... Local parameters
-      integer i,j,ind(2,21),n,iprint,nbmx,nglob,stdo
+      integer i,j,ind(2,21),n,iprint,nbmx
       parameter (nbmx = 256)
       double precision s(3,3),b(3,3),x(21),t(3,nbmx),det,e(6)
 
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       if (dabs(alpha) .lt. 1d-8) return
       if (nbas .gt. nbmx)
      .call fexit(-1,9,'Increase nbmx in SHEAR',0)

@@ -1,7 +1,7 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
      .wtkb,dosef,qval,ent,lfill)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo,stdl
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------
@@ -63,7 +63,7 @@ C Passed parameters
      .wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
 C Local variables
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
-     ., ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
+     ., ikp , ipr , job , nbpw , i1mach , nev
      ., mkdlst , ifi , i , j , lry , procid , mpipid , master 
      ., nulli , isw
       real(8) ,allocatable :: dos_rv(:)
@@ -71,13 +71,11 @@ C Local variables
       real(8) ,allocatable :: top_rv(:)
       integer ,allocatable :: bmap_iv(:)
       real(8) ,allocatable :: wk_rv(:)
-
       double precision emin,emax,e1,e2,dum,tol,e,elo,ehi,sumwt,
      .dmin,dmax,dval,egap,amom,dsum,cv,tRy
       character outs*100
       logical cmdopt,efrng2,lfill
       real(8) ,allocatable :: tlst_rv(:)
-
       parameter (nulli=-99999)
       integer w(1)
 
@@ -91,19 +89,11 @@ C --- Locate band limits: lfill => insulator ---
       ent = 0
       n = isign(1,norder) * mod(iabs(norder),100)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 Changenglob      stdl = nglob('stdl')
-      stdl = globalvariables%stdl
-#ifdef KINODEBUG
-      write(*,*) 'kino nevx,nsp',nevx,nsp
-#endif
+c      stdl = globalvariables%stdl
       allocate(bot_rv(nevx*nsp))
-
       allocate(top_rv(nevx*nsp))
-#ifdef KINODEBUG
-      write(*,*) 'kino allocate top_rv',nevx*nsp
-#endif
-
       nspx  = 1
       nevxx = nevx*nsp
       nbmxx = nbmx*nsp

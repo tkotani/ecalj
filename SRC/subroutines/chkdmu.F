@@ -1,8 +1,7 @@
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
-      use m_struc_def,only: s_site,s_spec  !Cgetarg
-      use m_lmfinit,only: ham_ehk,ham_eterms!,procid,master
-      use m_lmfinit,only: globalvariables
+      use m_struc_def,only: s_site,s_spec
+      use m_lmfinit,only: ham_ehk,ham_eterms,stdl
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
@@ -64,7 +63,7 @@ c      type(s_ham)::sham
       double precision eorb
 C ... Local parameters
       integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
-      integer nglob,stdl,iprint,ipl,havesh
+      integer iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
@@ -92,7 +91,7 @@ C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 C     6 = nglob('stdo')
       havesh = idvsh
 Changenglob      stdl = nglob('stdl')
-      stdl = globalvariables%stdl
+c      stdl = globalvariables%stdl
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call info0(20,1,0,' chkdmu:  '//

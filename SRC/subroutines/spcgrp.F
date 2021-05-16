@@ -69,7 +69,7 @@ C --- Make the space group ---
       call sgroup(0,gen,trans,ngen,g,ag,ng,ngmx,qb)
       end
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -110,14 +110,14 @@ C ... Passed parameters
 C ... Local parameters
       double precision h(9),hh(9),e(9),sig(9),asig(3),ah(3),ahh(3),ae(3)
       integer ipr,igen,ig,itry,iord,nnow,j,ip,i,k,n2,m1,m2,is,nnew,n,m,
-     .stdo,nglob,mode0,mode1
+     .mode0,mode1
       logical spgeql
       character sout*80,sg*35
       data e/1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0/, ae/0d0,0d0,0d0/
 
       call getpr(ipr)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       sout = ' '
       call spgcop(e,ae,g,ag)
       ng = 1

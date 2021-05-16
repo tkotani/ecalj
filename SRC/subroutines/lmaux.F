@@ -564,8 +564,7 @@ c     #define ONE_ATOM_UNIT 1
      &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
       use m_mksym,only: rv_a_oclabl,iv_a_oics
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: globalvariables,rv_a_opos
-      use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass
+      use m_lmfinit,only: rv_a_opos, ctrl_nl,ctrl_nspin,ctrl_nclass,lrel_g=>lrel
       use m_supot,only:rv_a_omad
       use m_ext,only:sname
 C     - File I/O atomic data for classes ic1..ic2
@@ -647,7 +646,7 @@ c     integer mpipid,procid
       nsp=ctrl_nspin
       nclass=ctrl_nclass
       nclasp=ctrl_nclass !sarray%nclasp
-      lrel = globalvariables%lrel
+      lrel = lrel_g !globalvariables%lrel
       mode0 = mod(mode,10)
       mode00 = mod(mode0,4)
       i2 = ic2

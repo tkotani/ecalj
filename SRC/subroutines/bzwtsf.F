@@ -8,7 +8,7 @@
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -62,7 +62,7 @@ C Passed parameters
       double precision zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
      .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
 C Local variables
-      integer ikp,ib,stdo,nglob,ipr,itmax,iter,iprint
+      integer ikp,ib,ipr,itmax,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
       parameter (dvcap=.2d0,itmax=50)
 
@@ -83,7 +83,7 @@ C --- Fermi level without spin constraint ---
 
       call getpr(ipr)
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 C     stdl = nglob('stdl')
 C --- Make and print out magnetic moment ---
       if ((lswtk .eq. 1 .or. nspc .eq. 1) .and. metal) then
@@ -225,7 +225,7 @@ c
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -279,7 +279,7 @@ C Passed parameters
       double precision zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
      .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
 C Local variables
-      integer ikp,ib,stdo,nglob,ipr,itmax,iter,iprint
+      integer ikp,ib,ipr,itmax,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
       parameter (dvcap=.2d0,itmax=50)
 
@@ -297,7 +297,7 @@ C Local variables
       if (nsp .eq. 1) return
 
       call getpr(ipr)
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 
 !!== Make and print out magnetic moment ==
       if ((lswtk .eq. 1 .or. nspc .eq. 1) .and. metal) then
@@ -400,7 +400,7 @@ c
       subroutine bzwtsf3(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
 !!t.kotani from bzwtsf. now fs
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
@@ -455,7 +455,7 @@ C Passed parameters
       double precision zval,fmom,fmomx,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
      .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
 C Local variables
-      integer ikp,ib,stdo,nglob,ipr,iter,iprint
+      integer ikp,ib,nglob,ipr,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
       integer,parameter:: itmax=150
 
@@ -468,7 +468,7 @@ c      integer:: itermx
       integer:: ix
       call tcn('bzwtsf3')
       call getpr(ipr)
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,

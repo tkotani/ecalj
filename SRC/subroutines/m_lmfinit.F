@@ -11,32 +11,10 @@
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
 c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
-      use m_struc_def,only: s_spec,s_site
-      use m_ext,only :sname !sname contains extension. foobar of ctrl.foobar
+      use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
+      use m_struc_def,only: s_spec,s_site ! spec and site structures.
+      
       implicit none
-      
-      private t_globalvariables ! not use globalbariables. Instead, use module variables directly.
-      type t_globalvariables 
-      integer:: lrel=-999999
-c      integer:: lxcf=-999999
-c      integer:: mxorb=-999999
-c      integer:: nat=-999999
-c      integer:: nbas=-999999
-c      integer:: nbasp=-999999
-c      integer:: nkaph=-999999
-c      integer:: nl=-999999
-c      integer:: nlmax=-999999
-c      integer:: nsp=-999999
-c      integer:: nspc=-999999
-c      integer:: nspec=-999999
-      integer:: stde=-999999
-      integer:: stdl=-999999
-      integer:: stdo=-999999
-      end type t_globalvariables
-      
-      type(t_globalvariables),protected :: globalvariables
-      type(s_spec),allocatable,protected:: v_sspec(:)
-
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
       real(8),parameter::  NULLR =-99999
@@ -44,6 +22,9 @@ c      integer:: nspec=-999999
       integer,parameter :: nkap0=3
       integer,parameter :: mxspec=256,lstrn=10000
       real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
+      
+! 'globalvariables' here is removed may2021. It was type(t_globalvariables),protected :: globalvariables
+      type(s_spec),allocatable,protected:: v_sspec(:)
 
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
@@ -1956,11 +1937,11 @@ c      globalvariables%nbas = nbas
 c      globalvariables%nbasp= nbasp
 c      globalvariables%nsp =  nsp
 c      globalvariables%nl =   nl
-      globalvariables%lrel = lrel
+c      globalvariables%lrel = lrel
 c      globalvariables%lxcf = lxcf
-      globalvariables%stdo = stdo
-      globalvariables%stdl = stdl
-      globalvariables%stde = stde
+c      globalvariables%stdo = stdo
+c      globalvariables%stdl = stdl
+c      globalvariables%stde = stde
       nspc = 1
       if( lso==1 ) nspc = 2
 c      globalvariables%nspc = nspc

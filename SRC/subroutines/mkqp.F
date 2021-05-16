@@ -5,13 +5,10 @@
       integer , allocatable,protected ::  iv_a_ostar (:)
       real(8) , allocatable,protected ::  rv_a_owtkp (:)
       contains
-
-      subroutine mkqp(gettet,lnoirr,lreduc,lgstar) !sctrl,slat,
-      use m_struc_def  !Cgetarg
+      subroutine mkqp(gettet,lnoirr,lreduc,lgstar)
+      use m_struc_def 
       use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,
-     & lat_plat
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet, lat_plat
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -47,7 +44,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
       integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
-     .       , lshft(3) , lpbc , ntet , i , iprint , igets , stdo , nglob
+     .       , lshft(3) , lpbc , ntet , i , iprint , igets 
       integer,allocatable :: iv_a_owk(:)
       integer,allocatable :: iv_a_tmp(:)
       double precision plat(3,3),qlat(3,3),vol
@@ -56,7 +53,7 @@ C ... Local parameters
       data prgnam/'mkqp'/
 C ... Setup
       ntet = 0
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       nkxyz=bz_nabc
       lshft=bz_lshft
       plat =lat_plat
