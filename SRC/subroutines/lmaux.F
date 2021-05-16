@@ -1,14 +1,12 @@
-      subroutine lmaux()!,sspec)!,ssite, !sstr,sctrl,,sham,slat spot,
-c     .slabl,mode,wksize) !,sstrn,sbz sarray,
-c      use m_clsprm,only: rv_a_ormax
+      subroutine lmaux()
       use m_mksym,only: rv_a_oclabl,iv_a_oics,iv_a_oipc
-      use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin, !irs11,
-     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos,slabl,sspec=>v_sspec
+      use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nclass,ctrl_nspec,ctrl_nspin,
+     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos,slabl,sspec=>v_sspec,
+     &     lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq,ctrl_nclass
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
-      use m_lmfinit,only:  lat_avw,lat_alat,lat_plat,lat_nkd,lat_nkq,ctrl_nclass
-C- Auxilliary programs
+C- lmchk 
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   prgnam:name of main program
@@ -95,11 +93,11 @@ C ... Local parameters
       integer NULLI
       logical cmdopt,T,F,swtmp
       parameter (T=.true., F=.false., NULLI=-99999)
-      integer fopn,getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
+      integer getdig,i,ip,j,k,m,ifi,iprint,lpbc,lgunit,
 c !lncol,
      .nbas,nclasp,nclass,nl,nlspc,nsp,modep(3),parg,nbasp,
      .nbaspp,nkd,nkq,nspec,neul,nc,mxcsiz,nttab,igets, !npadl,npadr,
-     .iosits,cmplat,ngrp,ival,stdo,irs(5),fopna,nclspp,bitand,igetss,
+     .iosits,cmplat,ngrp,ival,stdo,irs(5),nclspp,bitand,igetss,
      .ngmx,nsgrp
       integer:: oeold  , olmx , opold , owk2 , orham , oamsh 
      .                       , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
@@ -457,6 +455,7 @@ C================================================================
       use m_clsprm,only:rv_a_oqpp
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass,ctrl_nbas
+      use m_ext,only:sname
 C     - File i/o for phi-phi, phi-dot, dot-dot products
 C     ----------------------------------------------------------------------
 C     i Inputs:
@@ -472,15 +471,16 @@ C     getarg       double precision sctrl(1),spot(1)
 c      type(s_ctrl)::sctrl
 c      type(s_pot)::spot
 C     ... Local parameters
-      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , fopna , rdm 
-     .     , ipr 
+      integer:: i1 , i2 , nbas , nl , nsp , igets , ifi , rdm 
+     .     , ipr ,ifile_handle
       call getpr(ipr)
       nbas=ctrl_nbas
       nl=ctrl_nl
       nsp=ctrl_nspin
       i1 = nl**2*(nl**2+1)
       i2 = 4*nsp*nbas
-      ifi = fopna('qpp',-1,4+8)
+      ifi= ifile_handle()
+      open(ifi,file='qpp.'//trim(sname),form='unformatted')
       if (lio) then
          call ywrm ( 1 , 'lmasa' , 1 , ifi , ' ' , rv_a_oqpp , 1 , i1 
      .        , i1 , i2 ) 
@@ -495,7 +495,7 @@ C     ... Local parameters
          endif
          call poppr
       endif
-      call fclose(ifi)
+      close(ifi)
       end subroutine ioqpp 
 
 
@@ -567,6 +567,7 @@ c     #define ONE_ATOM_UNIT 1
       use m_lmfinit,only: globalvariables,rv_a_opos
       use m_lmfinit,only:   ctrl_nl,ctrl_nspin,ctrl_nclass
       use m_supot,only:rv_a_omad
+      use m_ext,only:sname
 C     - File I/O atomic data for classes ic1..ic2
 C     ----------------------------------------------------------------------
 C     i Inputs
@@ -633,9 +634,9 @@ C     Local variables
      .     readpq,readpp,readso,readop,readva,readmp
       integer::  onrc , n0 , nglob !olpp , olppr , olsop , olgrme , olva , olmp , opot  , ocor ,
       parameter(n0=10)
-      integer ic,is,lmx,k,nl,nsp,ifi,jfi,fopn,lmxx,nspx,nrx,nr,
+      integer ic,is,lmx,k,nl,nsp,ifi,jfi,lmxx,nspx,nrx,nr,
      .     idmod(n0),isw,bitand,i2,nclasp,iclbsj,icmap,jc,nbas,nclass,
-     .     nclspp,iprint,lgunit,mode0,mode00,lrel,i_copy_size
+     .     nclspp,iprint,lgunit,mode0,mode00,lrel,i_copy_size,ifile_handle
 c     integer mpipid,procid
       double precision rhrmx,vrmax(2),ves,z,rmxx,ax,qc,dq,vrmxx(2),
      .     sumec,sumtc,sumev,thrpv,ekin,utot,rhoeps,etot,a,rmax,dval,
@@ -672,7 +673,8 @@ C     --- Open the atom file ---
 c         call r8tos8 ( dval ( sarray%rv_a_oclabl , ic ) , clabl ) 
          clabl = rv_a_oclabl(ic)
          if (mode00 .ne. 3) then
-            ifi = fopn(clabl)
+            ifi=ifile_handle()
+            open(ifi,file=trim(clabl)//'.'//trim(sname))
          endif
 
 C     --- Copy what is passed through to holding arrays ---

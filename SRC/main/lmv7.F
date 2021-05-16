@@ -1,13 +1,12 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_clsprm, only: clsprp,clsprm
       use m_lmfinit,only:  mxrecs,recln0,rdctrl2,  v_sspec !,v_ssite,slabl_
       use m_ext,only: getext,sname
       
       implicit none
       integer:: procid, master, mpipid, nproc,ifr,ix,
-     &     i,j,k,fxst,fadd,fopn,lgunit,i1mach,auxmod,lc,stdo,fextg, igets,a2vec,
-     &     nfilin,nrecs,fopna,ic,ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff,irecrd
+     &     i,j,k,lgunit,i1mach,auxmod,lc,stdo, 
+     &     nfilin,nrecs,ic,ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff,irecrd
       real(8)::pwmode,pwemin,pwemax, bz_w,dval
       character*(recln0):: recrd(mxrecs)
       character(8) :: alabl
@@ -16,6 +15,7 @@
       character:: strn*1000,outs*20
       character prgnam*8, ext*100
       character*8 charext
+      integer fext
       
 c#if LMFRCD 
 c      data prgnam /'LMFRCD'/ #preprocessor of ctrl file to recrd
@@ -31,7 +31,6 @@ c      data prgnam /'LMFRCD'/ #preprocessor of ctrl file to recrd
       
 #if MPIK
       include "mpif.h"
-      integer fext
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
       integer resultlen
       character*(MPI_MAX_PROCESSOR_NAME) name
@@ -45,10 +44,9 @@ c      data prgnam /'LMFRCD'/ #preprocessor of ctrl file to recrd
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
       if(id==0) write(*,*) 'mpi size=',nsize
 #endif
-      
       call show_programinfo(6)
       call getext()        ! Return sname, e.g. trim(sname)=si of ctrl.si
-c      ext = adjustl(sname) ! Get extension of ctrl file to sname \in m_ext
+      ext = adjustl(sname) ! Get extension of ctrl file to sname \in m_ext
       stdo   = lgunit(1) !standard output stdo=6 usually
       master = 0
       procid = mpipid(1) !
@@ -85,20 +83,21 @@ c      ext = adjustl(sname) ! Get extension of ctrl file to sname \in m_ext
       
 !! Read ctrl file into recrd
 !!  rdfile is too complicated to maintain. We will use simple reader.
-!!    'math operation and -v substitution' may be convenient, but probably we will separate away them
+!!   'math operation and -v substitution' may be convenient, but probably we will separate away them
       nrecs = 0
       if (procid==master) then
          inquire(file='ctrl.'//trim(sname),exist=fileexist)
          if(.not.fileexist) call rx("No ctrl file found! ctrl."//trim(sname)) 
-         open(newunit=nfilin,file='ctrl.'//trim(sname)) ! = fopna('CTRL',-1,1)
+         open(newunit=nfilin,file='ctrl.'//trim(sname)) 
          call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
          alabl = '#{}% ct '
          call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln0,nrecs) !read ctrl into recrd
          close(nfilin)
       endif
       
-! recrd already replace foobar with foobar2 if -vfoobar=foobar2 option (replacement of %const).
-! Following ctrlrecrd is just for check.
+!  recrd already replace foobar with foobar2 if we have an command-line option
+!    -vfoobar=foobar2 option (replacement of %const defined in ctrl file).
+! Following ctrlrecrd is just for check recrd contains simplified ctrl with -vfoobar replacement.
 c      if(procid==master.and.prgnam=='LMFRCD') then
 c         open(newunit=ifr,file='ctrlrcd.'//trim(sname))
 c         ilen=0
@@ -119,7 +118,6 @@ c 1019   continue
 c        close(ifr)
 c     endif
       
-      
 !! Show or not show readin ctrl file.      
       lshowp = cmdopt0('--showp')
       lshow  = cmdopt0('--show')
@@ -137,7 +135,7 @@ c     endif
 #if MPIK
       allocate(shortname(0:nsize-1))
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      shortname(procid)=trim(name)
+      shortname(procid) = trim(name)
       if(procid == master) then
         write(stdo,"(a)") ' --------------  START '//trim(prgnam)//'  ------------------'
         ext=''
@@ -147,15 +145,12 @@ c     endif
       ierr = fext('.'//trim(sname)//trim(ext)) !set ext for fopen
       call gettime(datim)
       mlog = cmdopt0('--mlog') !! set log for --mlog (not maintained well)
-      if (mlog) then
-       write(lgunit(3),"(a)")' lmf '//datim//' Process '
-     & //trim(charnum5(procid))//' of '//trim(charnum5(nproc-1))//' on '//trim(shortname(procid)) 
-      endif
+      if(mlog) write(lgunit(3),"(a)")' lmf '//datim//' Process '
+     &  //trim(charnum5(procid))//' of '//trim(charnum5(nproc-1))//' on '//trim(shortname(procid)) 
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-      call mpibc1(nrecs,1,2,mlog,'main','nrecs')
-      call MPI_BCAST(recrd,recln0*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+      call mpibc1( nrecs,1,2,mlog,'main','nrecs')
+      call MPI_BCAST( recrd,recln0*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
 #endif
-
       
 !! Read recrd of ctrl file into m_lmfinit
 !!    rdctrl2 sets all initial condition to the module m_lmfinit.

@@ -35,7 +35,7 @@ Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
       type(s_spec)::sspec(*)
-      integer fopna,ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
+      integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
      .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
       parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
@@ -47,22 +47,26 @@ C ----------------------------------------------------------------------
       double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
-      integer:: iofa, i_dummy_iofa
+      integer:: iofa, i_dummy_iofa,ifile_handle
       logical ixx,ioorbp
       real(8):: pzsum
       integer:: i_copy_size,i_spacks,ifives,ifiwv
       character strn*120
       logical cmdopt
 
-      ifi = fopna('atm',-1,0)
+      ifi = ifile_handle()
+      open(ifi,file='atm.'//trim(sname))
       rewind ifi
       nspec = globalvariables%nspec
       nsp   = globalvariables%nsp
       stdo  = lgunit(1)
       hfct=0d0
       pzsum=0d0
+      
       open(newunit=ifives,file='vesintatm.'//trim(sname))
-      ifiwv  = fopna('veswavatm',-1,0)
+      ifiwv = ifile_handle()
+      open(ifiwv,file='veswavatm.'//trim(sname))
+      
       do  is = 1, nspec
 c takao. I found tht Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
@@ -171,6 +175,7 @@ ctakao
      .  seref)
       endif
       close(ifives)
+      close(ifiwv)
       end subroutine freeat
 
 
@@ -179,6 +184,7 @@ ctakao
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
       use m_lmfinit,only: globalvariables
+      use m_ext,only:sname
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -265,7 +271,7 @@ C     integer idmoz(n0)
      .pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2),
      .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
 C     double precision qz(n0,2)
-      integer fopna,i,ifi,ipr,iprint,isp,isw,l,lfrz,
+      integer i,ifi,ipr,iprint,isp,isw,l,lfrz,
      .lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
      .nsp,stdl,stdo,lplawv,irchan(n0)
       real(8) ,allocatable :: g_rv(:)
@@ -560,11 +566,12 @@ C     lplfa = nglob('lplfa')
   344     format(/' write plot file with valence density..')
           if (is .lt. 10) write (str,'(''pl'',i1)') is
           if (is .ge. 10) write (str,'(''pl'',i2)') is
-          ifi = fopna(str,-1,0)
+c          ifi = fopna(str,-1,0)
+          open(newunit=ifi,file=trim(str)//'.'//trim(sname))
           write (ifi,490) spid,rmt,rsmfa,nxi
   490     format('# fit to fa density: ',a/
      .    '# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)
-          call fclose(ifi)
+          close(ifi)
         endif
         call tailsm(0,nr,nrmt,nsp,a,b,rmt,rsmfa,nxi0,nxi,exi,rofi,
      .  rho,rhot,hfc,hfct)
@@ -581,6 +588,7 @@ C --- Fit analytical expression to tail of core density ---
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
       use m_lmfinit,only: globalvariables
+      use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -609,7 +617,7 @@ C ... Passed parameters
       double precision z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr),
      .g(2*nr),psi(nr,0:lmaxa,nsp)
 C ... Local parameters
-      integer fopna,nglob,isp,l,konfig,nn,nre,i,konf,
+      integer nglob,isp,l,konfig,nn,nre,i,konf,
      .konfg(0:8),ifi,stdo,lmaxc
       double precision ev(0:20),pi,b,tol,eb1,eb2,dl,val,slo,sum,pzero,
      .pmax,ctp,ecor,rmt
@@ -708,7 +716,8 @@ C --- Write file with valence wavefunctions
         write (str,'(''wf_'',a)') spid
         write (stdo,344) str
   344   format(/' Write valence wavefunctions to plot file: ',a)
-        ifi = fopna(str,-1,0)
+c        ifi = fopna(str,-1,0)
+        open(newunit=ifi,file=trim(str)//'.'//trim(sname))
         write (ifi,490) spid,rmax,rmt,nr,lmaxa,nr,1+nsp*(lmaxa+1)
   490   format('# Free-atom wavefunctions (divided by r) for species ',
      .  a/'# rmax=',f7.3,'   rmt=',f7.3,'   nr=',i5,'   lmax=',i3/
@@ -716,17 +725,18 @@ C --- Write file with valence wavefunctions
         do  50  i=1,nr
           write (ifi,495) rofi(i),((psi(i,l,isp),l=0,lmaxa),isp=1,nsp)
   495     format(f9.5,1p,16d14.5)
-   50   continue
-        call fclr(str,ifi)
+ 50    continue
+       close(ifi)
+c        call fclr(str,ifi)
       endif
 
 c!! print out qbyl
-c      ifqbyl = fopna('qinrmt',-1,2)
+c      open('qinrmt.'//trim(sname))
 c      do  ib = 1, nbas
 c        ispec=ssite(ib)%spec
 c        write(ifqbyl,"(i3,10f12.6)") sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,lmaxa)
 c      enddo  
-c      call fclose(ifqbyl)
+c      close(ifqbyl)
           
 
       end subroutine pratfs
@@ -1629,7 +1639,7 @@ c|200 format(' PP',i2,'  e',f10.5,'  p',f10.5,'  bc',4f10.5)
 
       subroutine popta5(lmax,rtab,etab,itab,z,pl,rmax,rmt,nr,nrmt,
      .rofi,psi,v,g,a,b,spid)
-
+      use m_ext,only:sname
 C- Write wave functions to plot file
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1666,7 +1676,7 @@ C ... Passed parameters
      .rofi(nr),psi(nr,0:*),g(nr,2),v(nr),pl(0:n0-1)
       character spid*8
 C ... Local parameters
-      integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,fopna,stdo
+      integer i,ifi,konfig,l,lgunit,lp1,m,n,nn,nre,stdo
       integer ltab(n0)
       double precision asm,dfl,drdi,eb1,eb2,eh,evl,fac,fl,flp1,r,rsm,
      .slo,sum1,sum2,tol,val,wt,xi(0:20)
@@ -1725,18 +1735,17 @@ C ... Write the plot file
       write (str,'(''wfa_'',a)') spid
       write (stdo,344) str
   344 format(/' Write fit wavefunctions to plot file: ',a)
-      ifi = fopna(str,-1,0)
+c      ifi = fopna(str,-1,0)
+      open(newunit=ifi,file=trim(str)//'.'//trim(sname))
       write (ifi,490) spid,rmax,rmt,(ltab(i),i=1,n)
   490 format('# Free-atom opt basis (divided by r) for species ',
-     .a/'# rmax=',f7.3,'   rmt=',f7.3,
-     .'   l=',8i2)
+     .a/'# rmax=',f7.3,'   rmt=',f7.3,'   l=',8i2)
       write (ifi,'(''% rows '',i5,'' cols '',i3)') nr,n+1
       do  30  i = 1, nr
         write (ifi,495) rofi(i),(psi(i,m),m=1,n)
   495   format(f9.5,1p,8d14.5)
    30 continue
-      call fclose(ifi)
-
+      close(ifi)
       end subroutine popta5
 
 

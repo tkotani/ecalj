@@ -1,7 +1,8 @@
       module m_subzi
       contains
       subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .lwtkb,efermi,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,esmear)
+     .     lwtkb,efermi,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,esmear)
+      use m_ext,only:sname
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -76,11 +77,11 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       logical ltet,lwt
-      integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord
+      integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord,ifile_handle
       real(8),allocatable :: rv_a_owtkb(:,:,:)
       real(8),allocatable :: rv_a_oswtk(:)
       double precision zval,ef0,def,esmear,efermi
-      integer ifi,fopna,lerr,iobzwt,iprint,stdo,lgunit,isw,n
+      integer ifi,lerr,iobzwt,iprint,stdo,lgunit,isw,n
       character*11 strni(2)
       integer procid,master,mpipid
       data strni /'sampling','tetrahedron'/
@@ -100,10 +101,12 @@ C ... Passed parameters
 C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
-              ifi = fopna('wkp',-1,4)
+              ! ifi = fopna('wkp',-1,4)
+              ifi=ifile_handle()
+              open(ifi,file='wkp.'//trim(sname),form='unformatted')
               if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi, rv_a_owtkb , ifi )
               if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2, nkp , 1, efermi, rv_a_owtkb , ifi )
-              call fclose(ifi)
+              close(ifi)
               if (lerr .eq. 0) lwtkb = 1
               if (lerr .ne. 0) efermi = -99
             endif

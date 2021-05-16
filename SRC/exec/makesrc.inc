@@ -46,7 +46,6 @@ ccutup.o \
 chgmsh.o \
 chkdmu.o \
 clabel.o \
-clist.o \
 clsset.o \
 cmplat.o \
 config.o \
@@ -103,7 +102,6 @@ hsmq.o \
 iax2fd.o \
 iclbas.o \
 intnos.o \
-invbl.o \
 iobsmv.o \
 ioeula.o \
 iofa.o \
@@ -111,7 +109,6 @@ ioorbp.o \
 iorbtm.o \
 iors.o \
 iosave.o \
-iosite.o \
 latlim.o \
 lattc.o \
 lattdf.o \
@@ -230,7 +227,6 @@ vldau.o \
 volsph.o \
 vxc0sp.o \
 xlgen.o \
-xxxbnd.o \
 xxxdif.o \
 ylmrtg.o \
 writebasis.o \
@@ -431,7 +427,6 @@ augmat.o \
 augmbl.o \
 bndfp.o \
 bstrux.o \
-chimedit.o \
 corprm.o \
 dfaugm.o \
 dfqkkl.o \

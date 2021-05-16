@@ -25,7 +25,6 @@ C Passed parameters
 C Local parameters
       IMPLICIT double precision (A-H,O-Z)
       implicit integer (i-n)
-      integer fopn
       DIMENSION EP(nb,nsp,nq),DOS(NR),EC(4),WC(4,2),WP(nband,nsp,nq),
      .   idtet(0:4,*)
 ccccccccccccccccccccccccccccccccccc
@@ -119,23 +118,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           ENDIF
    20   CONTINUE
    40 continue
-ccccccccccccccccccccccccccccc
-c      stop 'takao test'
-ccccccccccccccccccccccccccccc
-
-c$$$      if ( iprint() .ge. 30 ) then
-c$$$        IF (JOB .EQ. 2) THEN
-c$$$          SUMWP = 0.D0
-c$$$          do  56  isp = 1, nsp
-c$$$            DO  56  IB = 1, nband
-c$$$            DO  56  IQ = 1, NQ
-c$$$  56      SUMWP = SUMWP + WP(ib,isp,iq)
-c$$$          if (iprint() .ge. 30) print 922, ef, sumwp, sev1+sev2, sev2
-c$$$c          kkk=fopn('LOG')
-c$$$c          write(kkk,922) ef, sumwp, sev1+sev2, sev2
-c$$$        ENDIF
-c$$$      endif
-
   922 format(1x,'BZINTS2x: Fermi energy:',f10.6,';',F20.16,' electrons'/
      .       9x,'Band energy:',f11.6,
      .       ', including Bloechl correction:',f10.6)

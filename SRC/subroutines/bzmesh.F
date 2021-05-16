@@ -1,5 +1,6 @@
       subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,
      .igstar,lpbc)
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- Divides the reciprocal lattice into microcells
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -119,7 +120,7 @@ C ... External calls
 #endif
 #if QP0
 C     --- use only points centered within dq from q0
-      integer ifi,fopn
+      integer ifi
       double precision q0(3),dq,ddot
 C      data q0 /0.370925d0,-0.401855d0,0.370925d0/,dq/.15d0/
       data q0 /0.339995d0,0.339995d0,0.339995d0/,dq/.15d0/
@@ -316,13 +317,14 @@ C ... Done accumulating inequivalent qp
       endif
 #if  QP0
       call awrit3('          %i points within dq=%1;6d  swgt=%1;6d',
-     .' ',80,stdo,igcnt,dq,swgt)
-      ifi = fopn('QPTS')
+     .     ' ',80,stdo,igcnt,dq,swgt)
+      open(newunit=ifi,file='QPTS.'//trim(sname))
       write(ifi,333) nq, n1,n2,n3,0
   333 format(4i5,i8)
       do  70  iq = 1, nq
         write(ifi,334) iq,(qp(m,iq),m=1,3), wgt(iq)
-   70 continue
+ 70   continue
+      close(ifi)
   334 format(i5,1p,4d18.10)
 #else
       if (lstar .ne. 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3

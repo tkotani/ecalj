@@ -3,6 +3,7 @@
       use m_struc_def,only: s_site,s_spec  !Cgetarg
       use m_lmfinit,only: ham_ehk,ham_eterms!,procid,master
       use m_lmfinit,only: globalvariables
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -62,7 +63,7 @@ c      type(s_ham)::sham
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double precision eorb
 C ... Local parameters
-      integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,fopna,ivsiz
+      integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
       integer nglob,stdl,iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
       equivalence (eterms(2),eks)
@@ -88,7 +89,7 @@ C     call rx0('done')
 C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 
       if (nlibu .eq. 0) return
-C     stdo = nglob('stdo')
+C     6 = nglob('stdo')
       havesh = idvsh
 Changenglob      stdl = nglob('stdl')
       stdl = globalvariables%stdl
@@ -210,10 +211,9 @@ C       This block requires dmatu to be in spherical harmonics
           call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
           havesh = 1
        endif
-
        
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
-!     ! experimental block to keep magnetic moment for AF.
+cccccccccccccccccccccccccccccccccccccccccccccccccccc   
+!! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
        if(mmtargetx) then
           if(procid==master) then
@@ -264,7 +264,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
        
         iblu = 0
         do  ib = 1, nbas
@@ -289,54 +288,39 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             enddo
           endif
         enddo
-C       At this point, dmatu and vorb are in spherical harmonics
-        
-     
        
 C   ... Symmetrize vorb to check (symdmu requires real harmonics)
-        allocate(dmwk_zv(abs(-ivsiz)))
-        if (-ivsiz<0) dmwk_zv(:)=0.0d0
-
+        allocate(dmwk_zv(ivsiz))
+        dmwk_zv(:)=0.0d0
         call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
         call symdmu ( vorb , dmwk_zv , nbas , nsp , lmaxu , sspec 
      .  , ssite , ng , g , istab , lldau , xx )
-
         call rotycs(1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
         if (allocated(dmwk_zv)) deallocate(dmwk_zv)
 
-C       At this point, dmatu and vorb are in spherical harmonics
+!! ==>  At this point, dmatu and vorb are in spherical harmonics
 
-C   ... Printout
-        call info2(20,0,0,'         RMS change in vorb '//
-     .  'from symmetrization = %,6d',xx,0)
-        if (xx .gt. .0001d0) call info0(30,0,0,
-     .  '         (warning) RMS change unexpectely large')
-        call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' Mixed dmats',dmatu)
-        call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .  ' New vorb',vorb)
-
-C   ... Write dmatu to file
+        if(Iprint()>20) write(6,"(a,f9.4)")
+     &    '  RMS change in vorb from symmetrization =',xx
+        if(xx>.0001d0.and.iprint()>30)
+     &   write(6,'(a)')' (warning) RMS change unexpectely large'
+        call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
+        call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
+!! Write dmatu to file
         if (procid .eq. master) then
-          idmat = fopna('dmats',-1,0)
-          rewind idmat
-          call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .    ' mixed dmats',dmatu)
-          call fclose(idmat)
+          idmat = ifile_handle()
+          open(idmat,file='dmats.'//trim(sname))
+          call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' mixed dmats',dmatu)
+          close(idmat)
         endif
-
-C   ... Exit with dmatu, vorb in real harmonics, depending on idvsh
+!! Exit with dmatu, vorb in real harmonics, depending on idvsh
         if (idvsh .eq. 0) then
           call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
           call rotycs(-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
-          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .    ' Mixed dmats',dmatu)
-          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
-     .    ' New vorb',vorb)
+          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' Mixed dmats',dmatu)
+          call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' New vorb',vorb)
         endif
-
       endif
-
       end subroutine chkdmu
 
 

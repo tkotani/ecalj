@@ -2,6 +2,7 @@
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
      .wtkb,dosef,qval,ent,lfill)
       use m_lmfinit,only: globalvariables
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -57,13 +58,13 @@ C ----------------------------------------------------------------------
 C Passed parameters
       logical metal,tetra
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
-     .idtet(5,ntet)
+     .idtet(5,ntet),ifile_handle
       double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
      .wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
 C Local variables
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
      ., ikp , ipr , job , nbpw , i1mach , nev , stdo , stdl , nglob 
-     ., mkdlst , ifi , fopna , i , j , lry , procid , mpipid , master 
+     ., mkdlst , ifi , i , j , lry , procid , mpipid , master 
      ., nulli , isw
       real(8) ,allocatable :: dos_rv(:)
       real(8) ,allocatable :: bot_rv(:)
@@ -284,10 +285,6 @@ C       Widen emin,emax if not
       else
 
 C --- BZ weights, sumev and E_f by Methfessel-Paxton sampling ---
-C       if (ipr .gt. 30) write (*,102) n,width,nint(rnge)
-C       if (ipr .gt. 30) write (fopn('LOG'),102) n,width
-C  102   format(/' BZWTS : --- Brillouin Zone sampling; N =',i2,
-C     .    ', W =',f6.3:'  range =',i2,'*W ---')
         call info2(31,1,0,' BZWTS : --- Brillouin Zone sampling; '//
      .  'N=%i, W=%10z%;4g%0z ---',n,width)
 C   ... Temporarily remove spin degeneracy if spins are coupled
@@ -369,7 +366,8 @@ C   ... (optional) Tabulate specific heat in file for list of T's
               it = mkdlst ( outs ( i: ) , 1d - 8 , itmax + 1 , tlst_rv )
 
               if (it .ne. itmax) call rx('bzwts: bug in mkdlst')
-              ifi = fopna('cv',-1,0)
+              ifi = ifile_handle()
+              open(ifi,file='cv.'//trim(sname)) !fopna('cv',-1,0)
               rewind ifi
               call awrit1('%% rows %i cols 4%N'//
      .        '#    T(K)    T(Ry)   S(k_B)   TdS/dT(k_B)',' ',80,ifi,it)
@@ -386,7 +384,7 @@ C   ... (optional) Tabulate specific heat in file for list of T's
                 call awrit4('%;9,1D%;9,5D  %;9F  %;9F',' ',80,ifi,
      .          0.1579d6*tRy,tRy,ent,cv)
               enddo
-              call fclose(ifi)
+              close(ifi)
             endif
           endif
         endif

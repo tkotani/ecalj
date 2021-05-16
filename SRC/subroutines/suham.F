@@ -464,7 +464,8 @@ c ... reverse maping of offset-index for hamiltonian
 #if (MPI|MPIK)
       if (procid.eq.master) then
 #endif
-      ifisym = fopnx('SYMOPS',2,0,-1) ! open as unknown
+c     ifisym = fopnx('SYMOPS',2,0,-1) ! open as unknown
+      open(newunit=ifisym,file='SYMOPS')
       write(ifisym,*) ngrp
       do ig = 1,ngrp
         write(ifisym,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
@@ -472,7 +473,7 @@ c ... reverse maping of offset-index for hamiltonian
           write(ifisym,"(3e24.16)") symops(i,1:3,ig)
         enddo
       enddo
-      call fclose(ifisym)
+      close(ifisym)
 #if (MPI|MPIK)
       endif
 #endif
@@ -495,7 +496,7 @@ c      if((.not.llmfgw).or.(llmfgw.and.jobgw==0)) then
         goto 2001 !return !jun2015takao
       endif
 !! q on mesh and shortened q.
-      ifiqg  = fopnx('QGpsi',2,4,-1)
+      open(newunit=ifiqg,file='QGpsi',form='unformatted')
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi, nqbz___, nqi !,imx !,nqibz
 c$$$cccccccccccccccccccccccccccccc
 c$$$      nkt = 2*nqbz + 2*nkp
@@ -546,7 +547,7 @@ cc        call shorbz(qq(:,iq),qq(:,iq+nqnum),qlat,plat)
 cc        write(6,"(' qq=',i5,3f10.5,' shortened qq=',3f10.5)") iq,qq(:,iq),qq(:,iq+nqnum)
         if(iprx)write(6,"(' qq=',i5,3f10.5)") iq,qq(:,iq)
       enddo
-      call fclr(' ',ifiqg) !close file
+      close(ifiqg)
 cccccccccccccccccc
 c        do iqi=1,nqi
 c          q=qtti(:,iqi)

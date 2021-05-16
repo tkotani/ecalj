@@ -186,21 +186,22 @@ C     and parses result
         k = 1
         call strcop(a(7:),recrd(i0+1),min(size-i0,len(a)),'`',k)
         if (a(k+6:k+6) .ne. '`') goto 999
-        tmpdir = ' '
-        call get_environment_variable('TMPDIR',tmpdir)
-        if (tmpdir .eq. ' ') tmpdir = '.'
-        call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
-        a(k+7:) = ' > '
-        call strcat(a(k+10:),len(a)-10,' ',tmpdir,len(tmpdir),' ',m)
-        call fsystm(a,m)
-        ifi = fopnx(tmpdir,72,1,-1)
-        rewind ifi
-        aa = ' '
-        read(ifi,'(a)') aa
-        call fclose(ifi)
-        m = 0
-        lrd = a2bin(aa,dum,4,0,' ',m,-1)
-        i0 = i0+k+1
+        call rx('I think no way to go thru here')
+c        tmpdir = ' '
+c        call get_environment_variable('TMPDIR',tmpdir)
+c        if (tmpdir .eq. ' ') tmpdir = '.'
+c        call strcat(tmpdir,len(tmpdir),' ','/parsyv.xxx',11,' ',m)
+c        a(k+7:) = ' > '
+c        call strcat(a(k+10:),len(a)-10,' ',tmpdir,len(tmpdir),' ',m)
+c        call fsystm(a,m)
+c        ifi = fopnx(tmpdir,72,1,-1)
+c        rewind ifi
+c        aa = ' '
+c        read(ifi,'(a)') aa
+c        call fclose(ifi)
+c        m = 0
+c        lrd = a2bin(aa,dum,4,0,' ',m,-1)
+c        i0 = i0+k+1
       else
         lrd = a2bin(recrd,dum,4,0,' ',i0,-1)
       endif

@@ -301,26 +301,25 @@ C     for now
         write(stdo,*) '  -1 : creates files:  GWinput, QPNT, QIBZ, Q0P, QGpsi, QGcou, KPTin1BZ'
         write(stdo,*) '   0 : init mode; creates files: SYMOPS, LATTC, CLASS, NLAindx, ldima'
         write(stdo,*) '   1 : GW setup mode; creates: files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk'
-        write(stdo,*) '   4 : band mode '
-        write(stdo,*) '   5 : eigenvalue-only mode ' !takao Sep 2003
+c        write(stdo,*) '   4 : band mode '
+c        write(stdo,*) '   5 : eigenvalue-only mode ' !takao Sep 2003
         write(stdo,*) ' job?'
         read (5,*) job
       endif
       if(iprint()>10) print '(/a,i2)', ' gw setup, job', job
       l_dummy_isanrg=isanrg(job,0,5,'sugw:','job',.true.)
       if (job .eq. 3) call rxi('sugw: bad job = ',job)
-      bandmode = .false.
       jobb = 0
-      if (job .eq. 4) then
-        job = 1
-        bandmode = .true.
-      elseif (job .eq. 5) then
-        job = 1
-        bandmode = .true.
-        jobb = 5
-      endif
+c$$$      if (job .eq. 4) then
+c$$$        job = 1
+c$$$        bandmode = .true.
+c$$$      elseif (job .eq. 5) then
+c$$$        job = 1
+c$$$        bandmode = .true.
+c$$$        jobb = 5
+c$$$      endif
       lsig = 1
-      if (bandmode) lsig=0
+c      if (bandmode) lsig=0
       napw = 0
       i_copy_size=size(ham_ldham)
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
@@ -352,15 +351,15 @@ C     for now
         call info(30,1,1,' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
         allocate(lmxa(nbas),bas(3,nbas)) 
 !! ldima
-        ifildima = fopnx('ldima',2,2,-1)
-        rewind ifildima
+        open(newunit= ifildima,file='ldima') 
         do  ib = 1, nbas
           lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
           if (lmxa(ib) .gt. -1) then
             call orbl ( ib , 0 , ldim , iv_a_oindxo , norb , ltab , ktab , xx , offl , i1 )
             write(ifildima,"(3i10)") i1
           endif
-        enddo
+       enddo
+       close(ifildima)
 !! LATTC
         lmxax = mxint(nbas,lmxa)
         allocate(konft(0:lmxax,nbas,nsp))
@@ -485,10 +484,10 @@ C     for now
           endif
         enddo
 C   ... For band mode
-        if (bandmode .and. jobb == 0) then
-          allocate(ovvx(ndima,ndima,nsp))
-          ovvx = 0d0
-        endif
+c        if (bandmode .and. jobb == 0) then
+c          allocate(ovvx(ndima,ndima,nsp))
+c          ovvx = 0d0
+c        endif
 
 C   ... Atom data (gwa)
         call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
@@ -525,25 +524,25 @@ c          print *,' ssssssss spid='//spid//'###'
             call radmsh(rmt(ib),a,nr,rofi)
             call radwgt(rmt(ib),a,nr,rwgt)
 c --- for band mode
-            if (bandmode .and. jobb==0)then
-              do  l = 0, lmaxa
-                nmx=2
-                if (konfig(l) >= 10) nmx=3
-                do nn1=1,nmx
-                  do nn2=1,nmx
-                    do isp=1,nsp
-                      call gintsl(gval(1,1,l,nn1,isp),gval(1,1,l,nn2,isp),
-     .                a,b,nr,rofi,ovvpp)
-                      do mx=1, 2*l+1
-                        im1 = nlindx(nn1,l,ipb(ib))+mx
-                        im2 = nlindx(nn2,l,ipb(ib))+mx
-                        ovvx(im1,im2,isp) = ovvpp
-                      enddo
-                    enddo
-                  enddo
-                enddo
-              enddo
-            endif
+c$$$            if (bandmode .and. jobb==0)then
+c$$$              do  l = 0, lmaxa
+c$$$                nmx=2
+c$$$                if (konfig(l) >= 10) nmx=3
+c$$$                do nn1=1,nmx
+c$$$                  do nn2=1,nmx
+c$$$                    do isp=1,nsp
+c$$$                      call gintsl(gval(1,1,l,nn1,isp),gval(1,1,l,nn2,isp),
+c$$$     .                a,b,nr,rofi,ovvpp)
+c$$$                      do mx=1, 2*l+1
+c$$$                        im1 = nlindx(nn1,l,ipb(ib))+mx
+c$$$                        im2 = nlindx(nn2,l,ipb(ib))+mx
+c$$$                        ovvx(im1,im2,isp) = ovvpp
+c$$$                      enddo
+c$$$                    enddo
+c$$$                  enddo
+c$$$                enddo
+c$$$              enddo
+c$$$            endif
             if(rank0)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
 !!            
 c$$$ccccccccccccccccccccccccccc
@@ -600,40 +599,40 @@ c$$$            if(rank0)write(ifigwa) sspec(is)%coreh,coreq
   849   format('#     eval          IPW        IPW(diag)    Onsite(tot)   Onsite(phi)      Total')
       endif
 
-!! --- Band mode --- not tested recently.
-      if (bandmode .and. jobb .eq. 0) then
-        if (pwmode .ne. 0) call rx('band mode not ready for APW')
-        ndimh = ldim + napw
-        allocate(iiyf(ndimh),ibidx(ndimh,nsp),ovv(ndimh,ndimh),
-     .    cphi_p(ndima,ndimh,nsp),evl_p(ndham,nsp))
-C   ... Open LBAND files
-        do  isp = 1, nsp
-          if (isp.eq.1) iflband(isp) = fopnx('LBAND.UP',2,6,-1)
-          if (isp.eq.2) iflband(isp) = fopnx('LBAND.DN',2,6,-1)
-          write(iflband(isp)) ndimh,nqnum
-          write(iflband(isp)) plat,qlat
-        enddo
-C   ... Read SYML file
-        nlinemax = 50
-        allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
-        ifsyml = fopnx('SYML',2,1,-1)
-        nline = 0
-        do
-          nline = nline + 1
-          read(ifsyml,*,err=601,end=601) nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
-        enddo
-  601   continue
-        call fclose(ifsyml)
-        nline = nline - 1
-        qpos  = 0d0
-        iline = 1
-        if (nline .eq. 0) call rx('sugw: no lines in SYML file')
-      elseif (bandmode .and. jobb==5) then
-        ifqeigen = fopnx('Qeigval',2,1,-1)
-        read(ifqeigen,*) nqnum
-        ifeigen = fopnx('eigval',2,4,-1)
-        if(rank0) write(ifeigen) ndham,nqnum,nsp
-      endif
+c$$$!! --- Band mode --- not tested recently.
+c$$$      if (bandmode .and. jobb .eq. 0) then
+c$$$        if (pwmode .ne. 0) call rx('band mode not ready for APW')
+c$$$        ndimh = ldim + napw
+c$$$        allocate(iiyf(ndimh),ibidx(ndimh,nsp),ovv(ndimh,ndimh),
+c$$$     .    cphi_p(ndima,ndimh,nsp),evl_p(ndham,nsp))
+c$$$C   ... Open LBAND files
+c$$$        do  isp = 1, nsp
+c$$$          if (isp.eq.1) iflband(isp) = fopnx('LBAND.UP',2,6,-1)
+c$$$          if (isp.eq.2) iflband(isp) = fopnx('LBAND.DN',2,6,-1)
+c$$$          write(iflband(isp)) ndimh,nqnum
+c$$$          write(iflband(isp)) plat,qlat
+c$$$        enddo
+c$$$C   ... Read SYML file
+c$$$        nlinemax = 50
+c$$$        allocate(nqq(nlinemax),qq1(1:3,nlinemax),qq2(1:3,nlinemax))
+c$$$        ifsyml = fopnx('SYML',2,1,-1)
+c$$$        nline = 0
+c$$$        do
+c$$$          nline = nline + 1
+c$$$          read(ifsyml,*,err=601,end=601) nqq(nline),qq1(1:3,nline),qq2(1:3,nline)
+c$$$        enddo
+c$$$  601   continue
+c$$$        call fclose(ifsyml)
+c$$$        nline = nline - 1
+c$$$        qpos  = 0d0
+c$$$        iline = 1
+c$$$        if (nline .eq. 0) call rx('sugw: no lines in SYML file')
+c$$$      elseif (bandmode .and. jobb==5) then
+c$$$        ifqeigen = fopnx('Qeigval',2,1,-1)
+c$$$        read(ifqeigen,*) nqnum
+c$$$        ifeigen = fopnx('eigval',2,4,-1)
+c$$$        if(rank0) write(ifeigen) ndham,nqnum,nsp
+c$$$      endif
 
 !! Write, or read ngpmx
       if(rank0) then
@@ -666,11 +665,11 @@ C   ... Read SYML file
 
 !! == Main loop for eigenfunction generation ==
       if (ipr .ge. 20) then
-         if (job .eq. 1 .and. bandmode) call info2(20,1,1,
-     .        ' ... Make LDA eigenvalues, %i qp (file eigval)', nqtot,0)
-         if (job .eq. 1 .and. .not. bandmode) call info2(20,1,1,
-     .        ' ... Make LDA w.f. and matrix elements, %i qp: file(s) gwb'//
-     .        '%?#n#, vxc, evec##',nqtot,lsig)
+c         if (job .eq. 1 .and. bandmode) call info2(20,1,1,
+c     .        ' ... Make LDA eigenvalues, %i qp (file eigval)', nqtot,0)
+c         if (job .eq. 1 .and. .not. bandmode) call info2(20,1,1,
+c     .        ' ... Make LDA w.f. and matrix elements, %i qp: file(s) gwb'//
+c     .        '%?#n#, vxc, evec##',nqtot,lsig)
          if(ham_scaledsigma/=1d0.and.sigmamode) then
            write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
          endif   
@@ -817,9 +816,9 @@ c$$$        endif
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
-        if (bandmode .and. jobb .eq. 0) then
-          allocate(geig(max(ngp,1),ndimh,nsp))
-        endif
+c        if (bandmode .and. jobb .eq. 0) then
+c          allocate(geig(max(ngp,1),ndimh,nsp))
+c        endif
         if(debug) print *,' goto hambl loop'
         do 1002 isp = 1, nsp
 !! ==== cycle when isp for iqq is not for procid apr2013takao ===
@@ -929,11 +928,11 @@ ccccccccccccccccccccccccccccccc
      &       ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
             call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
             if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
-            if (bandmode .and. jobb .eq. 5) then
-              write(ifeigen) evl(1:ndham,isp)
-              if (mod(iq,10) .ne. 1) call poppr
-              cycle
-            endif
+c            if (bandmode .and. jobb .eq. 5) then
+c              write(ifeigen) evl(1:ndham,isp)
+c              if (mod(iq,10) .ne. 1) call poppr
+c              cycle
+c            endif
             if(mod(iq,10) .ne. 1) call poppr
             if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
             if (lwvxc) then
@@ -1174,59 +1173,59 @@ C         xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
               deallocate(testc,testcd)
               write(ifinormchk,*)
 
-C   ... Band mode
-              if (bandmode) then
-                geig(:,:,isp)= pwz
-                if (isp .eq. 1) then
-                  if (iq .eq. 1) q_p=q
-                  qpos = qpos + sqrt( sum((q-q_p)**2) )
-                  if (endofline) then
-                    iline = iline + 1
-                    endofline=.false.
-                  endif
-                  if (sum(abs(q-qq2(:,iline)))<1d-6) endofline = .true.
-                endif
-
-                if (iq .eq. 1) then
-                  do  j = 1, ndimh
-                    ibidx(j,isp) = j
-                  enddo
-C           Should not be necessary, but avoids a bug in the DEC alpha compiler
-                  ngp_p = ngp
-                else
-                  call tcn('bndconn')
-                  call bndconn_v2( alat,plat,qlat,
-     i            nbas, rmt, bas, ndimh, ndima,
-     i            evl(1,isp),  ngp, ngp_p, ngvecp,ngvecp_p,
-     i            geig(1,1,isp),   geig_p(1,1,isp),
-     i            cphi(1,1,isp), cphi_p(1,1,isp), ovvx(1,1,isp),
-     o            iiyf,ovv)
-C           Continuous band index:
-                  ibidx(1:ndimh,isp) = iiyf(ibidx(1:ndimh,isp))
-                  write(96+isp,'(" ",    255i4)') iq,(j,      j=1,ndimh)
-                  write(96+isp,'("     ",255i4)') (iiyf(j),j=1,ndimh)
-                  write(96+isp,'("     ",255i4)')
-     .            (int(10*ovv(iiyf(iix),iix)),iix=1,ndimh)
-                  call tcx('bndconn')
-                endif
-                write(995,"(i2,3f9.5,' ',f9.5,' ',255(i3,f10.5))") iline,
-     .          q(1:3), qpos,
-     .          (ibidx(ibr,isp),evl(ibidx(ibr,isp),isp), ibr=1,ndimh)
-                write(iflband(isp)) iline, q(1:3), qpos
-     .          ,(ibidx(ibr,isp),evl(ibidx(ibr,isp),isp),ibr=1,ndimh)
-
-!!     --- Save eigenfunctions of previous loop ---
-                if(iq/=1 .and. isp.eq.nsp) deallocate(geig_p, ngvecp_p)
-                if (isp .eq. nsp) then
-                  allocate(geig_p(ngp,ndimh,nsp), ngvecp_p(3,ngp))
-                  cphi_p = cphi
-                  geig_p = geig
-                  evl_p  = evl
-                  ngvecp_p = ngvecp
-                  ngp_p    = ngp
-                  q_p      = q
-                endif
-              endif                   !------------- end of band mode
+c$$$C   ... Band mode
+c$$$              if (bandmode) then
+c$$$                geig(:,:,isp)= pwz
+c$$$                if (isp .eq. 1) then
+c$$$                  if (iq .eq. 1) q_p=q
+c$$$                  qpos = qpos + sqrt( sum((q-q_p)**2) )
+c$$$                  if (endofline) then
+c$$$                    iline = iline + 1
+c$$$                    endofline=.false.
+c$$$                  endif
+c$$$                  if (sum(abs(q-qq2(:,iline)))<1d-6) endofline = .true.
+c$$$                endif
+c$$$
+c$$$                if (iq .eq. 1) then
+c$$$                  do  j = 1, ndimh
+c$$$                    ibidx(j,isp) = j
+c$$$                  enddo
+c$$$C           Should not be necessary, but avoids a bug in the DEC alpha compiler
+c$$$                  ngp_p = ngp
+c$$$                else
+c$$$                  call tcn('bndconn')
+c$$$                  call bndconn_v2( alat,plat,qlat,
+c$$$     i            nbas, rmt, bas, ndimh, ndima,
+c$$$     i            evl(1,isp),  ngp, ngp_p, ngvecp,ngvecp_p,
+c$$$     i            geig(1,1,isp),   geig_p(1,1,isp),
+c$$$     i            cphi(1,1,isp), cphi_p(1,1,isp), ovvx(1,1,isp),
+c$$$     o            iiyf,ovv)
+c$$$C           Continuous band index:
+c$$$                  ibidx(1:ndimh,isp) = iiyf(ibidx(1:ndimh,isp))
+c$$$                  write(96+isp,'(" ",    255i4)') iq,(j,      j=1,ndimh)
+c$$$                  write(96+isp,'("     ",255i4)') (iiyf(j),j=1,ndimh)
+c$$$                  write(96+isp,'("     ",255i4)')
+c$$$     .            (int(10*ovv(iiyf(iix),iix)),iix=1,ndimh)
+c$$$                  call tcx('bndconn')
+c$$$                endif
+c$$$                write(995,"(i2,3f9.5,' ',f9.5,' ',255(i3,f10.5))") iline,
+c$$$     .          q(1:3), qpos,
+c$$$     .          (ibidx(ibr,isp),evl(ibidx(ibr,isp),isp), ibr=1,ndimh)
+c$$$                write(iflband(isp)) iline, q(1:3), qpos
+c$$$     .          ,(ibidx(ibr,isp),evl(ibidx(ibr,isp),isp),ibr=1,ndimh)
+c$$$
+c$$$!!     --- Save eigenfunctions of previous loop ---
+c$$$                if(iq/=1 .and. isp.eq.nsp) deallocate(geig_p, ngvecp_p)
+c$$$                if (isp .eq. nsp) then
+c$$$                  allocate(geig_p(ngp,ndimh,nsp), ngvecp_p(3,ngp))
+c$$$                  cphi_p = cphi
+c$$$                  geig_p = geig
+c$$$                  evl_p  = evl
+c$$$                  ngvecp_p = ngvecp
+c$$$                  ngp_p    = ngp
+c$$$                  q_p      = q
+c$$$                endif
+c$$$              endif                   !------------- end of band mode
             endif                   !------------- end of lchk=1
             if (ngp .gt. 0) deallocate(ppovl,pwz)
             if (isp .eq. nsp) deallocate(ngvecp)!takao feb2012 ,ngvecc)
@@ -1274,19 +1273,19 @@ c$$$
           endif
  1002  continue             ! Loop over spins
         deallocate(ham,ovl,evec,vxc,cphi,cphin,igv2)
-        if (bandmode .and. jobb .eq. 0) deallocate(geig)
+c        if (bandmode .and. jobb .eq. 0) deallocate(geig)
  1001 continue ! ===== Loop over qp ===============================
 
       if (jobb .ne. 5) call fclr(' ',ifiqg)
-      if (.not. bandmode) then
+c      if (.not. bandmode) then
         ifigwb = fopna('gwb',-1,4)
         call fclose(ifigwb)
-      endif
+c      endif
       deallocate(evl,nlindx)
-      if (bandmode) then
-        if (jobb .eq. 5) call rx0('lmfgw mode=5 (Qeigval--->eigval)')
-        if (job  .eq. 1) call rx0('lmfgw mode=4 (bandmode)')
-      endif
+c      if (bandmode) then
+c        if (jobb .eq. 5) call rx0('lmfgw mode=5 (Qeigval--->eigval)')
+c        if (job  .eq. 1) call rx0('lmfgw mode=4 (bandmode)')
+c      endif
       call fclr('gw1',fopna('gw1',-1,4))
       call fclr('gw2',fopna('gw2',-1,4))
       call fclr('gwb',fopna('gwb',-1,4))
@@ -1383,12 +1382,7 @@ C ... Passed parameters
       real(8) :: plat(3,3),alat
 C ... Local parameters
       integer ifi,ib,isp,fopnx
-C     print *, ' --- writing LATTC ---'
-C     don't use this ... non portable, and can fail on some machines
-C     ifi=6661
-C     open (ifi, file='LATTC')
-      ifi = fopnx('LATTC',2,2,-1)
-
+      open(newunit=ifi,file='LATTC')
       write(ifi,"(e24.16)") alat
       write(ifi,"(3e24.16)") plat(1:3,1)
       write(ifi,"(3e24.16)") plat(1:3,2)
@@ -1408,7 +1402,7 @@ C     open (ifi, file='LATTC')
           endif
         enddo
       enddo
-      call fclr(' ',ifi)
+      close(ifi)
       end subroutine wlattc
 c--------------------------------------------------------------------
       subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,

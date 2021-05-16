@@ -226,13 +226,13 @@ CSFCPP#else
 CSFCPP      double complex hso(nf1,nf2,nlx1,nlx2,2,2)
 CSFCPP      double complex ppiz(nf1,nf2,nlx1,nlx2,2,2)
 CSFCPP#endif
-#if DEBUG
-      integer fopna
-      integer kount
-      save kount
-      data kount /0/
-      kount = kount + 1
-#endif
+c#if DEBUG
+c      integer fopna
+c      integer kount
+c      save kount
+c      data kount /0/
+c      kount = kount + 1
+c#endif
 
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
@@ -344,12 +344,12 @@ C --- Add tau into ppi ---
 C     call pshpr(70)
 C     stdo = 88
 
-#if DEBUG
-        call info2(0,0,0,
-     .  ' GAUGM dumping ppi: %ix%i radial functions',nf1,nf2)
-        i1 = fopna('ppi',-1,4)
-        write(i1) ppi
-#endif
+c#if DEBUG
+c        call info2(0,0,0,
+c     .  ' GAUGM dumping ppi: %ix%i radial functions',nf1,nf2)
+c        i1 = fopna('ppi',-1,4)
+c        write(i1) ppi
+c#endif
 
 C --- Print diagonal augmentation matrices ---
         if (iprint() .ge. 70) then

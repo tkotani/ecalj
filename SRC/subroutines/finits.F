@@ -57,7 +57,6 @@ Ci   100:   0: do not print work array usage, else do
 Co Outputs
 Cr Remarks
 Cu Updates
-Cu   03 Jul 03 Open file tmp with fopnT, for local directories (MPI)
 C ----------------------------------------------------------------------
       implicit none
 C Passed parameters 
@@ -65,7 +64,7 @@ C Passed parameters
       character*(*) strng
       double precision args(1),arg2(1),arg3(1)
 C Local parameters 
-      integer fopn,fhndl,iprint,i,i2,getdig,i1mach,scrwid,fopnT,mpipid
+      integer fhndl,iprint,i,i2,getdig,i1mach,scrwid,mpipid
 c      parameter (scrwid=300)
       double precision cpusec,tnew
       character*1 timeu

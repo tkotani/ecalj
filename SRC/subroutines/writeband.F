@@ -13,14 +13,14 @@
       character*20,intent(in)::labeli(nsyml),labele(nsyml)
       character(*),intent(in)::sname
 
-      integer:: ifbndo,ikp,isyml,jsp,fopnn
+      integer:: ifbndo,ikp,isyml,jsp
       character*300::filenm(2),bchar
       real(8):: rydberg=13.6058d0 !,vadd
       character*3::charnum3
       integer::ifbndsp(2),iprint,iq,i,ifile_handle,ifglt,ifbndsp_nearef(2),ifmass(2),ifmglt,ifmglt2
       character*300::aaa,addx
       real(8):: emin=-18.0,emax=16.0 !eV for default plotting.
-      integer:: ikps,ne,ifi,fopn,ix,nee,ibb,ilt,imin,imax
+      integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
       real(8),allocatable::diffeb(:),diff2eb(:)
       real(8)::polinta,tpiba,eee,eqq,qqq,dEdkatef
       character*100::fname,massfile,fname2
@@ -329,7 +329,7 @@ c    &         isyml,i,jsp,(evlall(i,jsp,ikps)- eferm)*rydberg, (2d0/(2d0*eqq/qq
       enddo
 
 !! bnds.* is only for backward compatibility.
-      ifbndo = fopnn('bnds')
+      open(newunit=ifbndo,file='bnds.'//trim(sname))
       write(ifbndo,"(i5,f10.5,i6)") sum(nqp_syml(1:nsyml)),eferm,0
       do 3111 isyml = 1,nsyml  
         ne = nqp_syml(isyml)
@@ -343,6 +343,6 @@ c    &         isyml,i,jsp,(evlall(i,jsp,ikps)- eferm)*rydberg, (2d0/(2d0*eqq/qq
         enddo
  3111 continue
       write(ifbndo,"(i6)") 0
-      call fclose(ifbndo)
+      close(ifbndo)
       end
 

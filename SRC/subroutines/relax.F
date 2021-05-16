@@ -78,23 +78,15 @@ C Local Variables
       call tcn('relax')
 
 C --- Setup ---
-
-      nbas=ctrl_nbas
-      nit =ctrl_nitmv
-      mdprm=ctrl_mdprm
-c       i_copy_size=size(ctrl_mdprm)
-c       call dcopy(i_copy_size,ctrl_mdprm,1,mdprm,1)
-c      call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)
-c       ltb=ctrl_ltb
-
+      nbas=  ctrl_nbas
+      nit =  ctrl_nitmv
+      mdprm= ctrl_mdprm
       nkill  = nint(mdprm(6))
       lrlx   = nint(mdprm(1))
       lshr   = lrlx .gt. 100
       lrlx   = mod(lrlx,100)
       rdhess = nint(mdprm(2)) .eq. 1
-c      U      = bittst(ltb,2**12) .or. bittst(ltb,2**15)
       call getpr(ipr)
-
 C --- Make vector of positions and gradients ---
       j = 1
       if (.not. lshr) then
@@ -107,7 +99,6 @@ C --- Make vector of positions and gradients ---
         call dcopy(natrlx,bas,1,p,1)
         call dcopy(natrlx,f,1,p(1,2),1)
       endif
-
 C --- Initialization ---
       if (it .eq. 1) then
         ir = 0
@@ -207,7 +198,6 @@ C ... the user sets xtol _and_ gtol.
         endif
       endif
       if (ir .eq. 0) icom = 1
-
 C --- Printout  ---
       if (ipr .ge. 40) then
         call info0(-40,0,0,'        Gradients:')
@@ -218,21 +208,8 @@ C --- Printout  ---
         endif
       endif
   100 format(10f8.3)
-
-C      if (it .eq. nit .and. ir .ne. 0) then
-C        print *, 'hi'
-CC      if (isw5 .eq. 1 .and. ir .ge. 0) then
-CC        call info2(-20,0,0,'restore vector for minimum g, g=%1;3g',
-CC     .    wk(27),0)
-CC        call dcopy(n,p(1,nm),1,p,1)
-CC      endif
-C
-C      endif
-
-
 C --- Update atom positions ---
       call prelx1(1,1,lshr,natrlx,nvar,indrlx,p,bas)
-
 C --- Write Hessian to disc ---
       if (rdhess .and. (icom .eq. 1 .or. it .eq. nit) .or. .true.) then
         if (procid .eq. master) then
@@ -244,10 +221,8 @@ C   ... Hessian written in rdm-compatible format
           call fclose(ifi)
         endif
       endif
-
       if (procid .eq. master) call poppr
       call getpr(ipr)
-
 C --- Periodically remove hessian ---
       if (nkill .gt. 0) then
         if (mod(it,nkill) .eq. 0) then
@@ -259,42 +234,20 @@ C --- Periodically remove hessian ---
           call dcopy(nvar,1d0,0,w,nvar+1)
         endif
       endif
-
 C --- Printout ---
       ifi = lgunit(2)
-      lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.
-     .ipr .ge. 31
+      lpp = (icom .eq. 1 .or. it .eq. nit) .and. ipr .ge. 30 .or.ipr .ge. 31
       if (natrlx .gt. 0 .and. lpp .and. lshr) then
         call dpzero(xv,6)
         call grdep2(1,nvar,indrlx,bas,xv)
-        call info2(-20,0,0,
-     .  ' Update shear'//
-     .  '%N   PDEF=%6;8,4D'//
-     .  '%N STRAIN=%6;8,4D',bas,xv)
-
+        call info2(-20,0,0,' Update shear%N   PDEF=%6;8,4D%N STRAIN=%6;8,4D',bas,xv)
       elseif (natrlx .gt. 0 .and. lpp) then
         print 120
         print *,' Site   Class                      Position(relaxed)'
         do  70  j = 1, nbas
-C          if (prgnam(1:2) .eq. 'TB') then
-C            call r8tos8(dclabl(ipc(j)),clablj)
-C          elseif (prgnam(1:3) .eq. 'LMF') then
-C            call upack('site spec',ssite,j,is,0,0,0)
-C            call spacks(0,'spec name',sspec,clablj,is,is)
-C          endif
-
           is=ssite(j)%spec
-
-c           do i_spacks=is,is
-c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
-c           enddo
-c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
           clablj = sspec(is)%name
-
-c           i_copy_size=size(ssite(j)%relax)
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
           call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
-
           write (stdo,130) j,clablj,(bas(ix,j),ifrlx(ix).eq.1,ix=1,3)
    70   continue
       endif
@@ -303,54 +256,26 @@ C ... Write new atom positions to LOG file, for use in CTRL file
       if (ipr .ge. 20 .and. .not. lshr) then
         dumstr = 'SITE'
         do  80  j = 1, nbas
-
-c           i_copy_size=size(ssite(j)%relax)
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
           call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
-
           if (j .eq. 2) dumstr = ' '
-C        if (prgnam(1:2) .eq. 'TB') then
-C          call r8tos8(dclabl(ipc(j)),clablj)
-C        elseif (prgnam(1:3) .eq. 'LMF') then
-C          call upack('site spec',ssite,j,is,0,0,0)
-C          call spacks(0,'spec name',sspec,clablj,is,is)
-C        endif
-
           is=ssite(j)%spec
-
-c           do i_spacks=is,is
-c           call spacks_copy('u',sspec(i_spacks)%name,is,is,clablj,i_spacks)
-c           enddo
-c          call spacks_copy('u',sspec(is)%name,is,is,clablj,is)
           clablj=sspec(is)%name
-
-c           i_copy_size=size(ssite(j)%relax)
-c           call i8icopy(i_copy_size,ssite(j)%relax,1,ifrlx,1)
           call icopy(size(ssite(j)%relax),ssite(j)%relax,1,ifrlx,1)
-
+          
           call awrit2(dumstr//'ATOM='//clablj//
-     .    ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2),
-     .    bas(1,j),ifrlx)
-c          if (prgnam(1:2) .eq. 'TB') then
-c            if (U) write(ifi,160) (delta(i,j),i=1,nelts)
-c          endif
+     .    ' POS=%3;12,7D  RELAX=%3,2i',' ',80,lgunit(2), bas(1,j),ifrlx)
    80   continue
       endif
-
       if (icom .eq. 0 .and. wkg(28) .lt. 0) icom = -1
-      call ftflsh(stdo)
-      call ftflsh(ifi)
-
+      flush(stdo)
+      flush(ifi)
   120 format(/' Updated atom positions:')
   130 format(i4,6x,a4,3x,3(f14.8,'(',l1,')'))
   160 format(10x,'DELTA=',3(f13.8),:,4(/31x,3(f13.8),:))
-
       call tcx('relax')
-
       end subroutine relax
 
       subroutine prelx1(mode,nm,lshr,natrlx,nvar,indrlx,p,bas)
-
 C- Copy vector of variables to be minimized from/to bas
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -302,10 +302,11 @@ c        call r8tos8(sspec(is)%coreh,chole)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
 
-C   ... Write true density to file rhoMT.ib
+C     ... Write true density to file rhoMT.ib
         if (mod(job/10000,10) .eq. 1 .or. mod(job/10000,10) .eq. 3) then
           call wrhomt ( 'rhoMT.' , 'density' , ib , sv_p_orhoat( 1 , ib )%v , rofi , nr , nlml , nsp )
-        endif
+       endif
+       
 C   --- Make potential and energy terms at this site ---
         call locpt2 (job , z , rmt , rg , a , nr , nsp , cofg , cofh 
      .   , ceh , rfoc , lfoc , nlml , qmom ( j1 ) , vval ( j1 ) , rofi 
@@ -343,7 +344,8 @@ c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
 C   ... Write true potential to file vtrue.ib
         if (mod(job/10000,10) .eq. 2 .or. mod(job/10000,10) .eq. 3) then
           call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)
-        endif
+       endif
+       
 C   ... Update the potential used to define basis set
         if (lfltwf) then
           do  i = 0, nsp-1

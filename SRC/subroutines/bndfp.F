@@ -1930,7 +1930,7 @@ c         nkaph = globalvariables%nkaph
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
                      if(procid==master) then
-                        open(newunit=ifid,file='ewindow.'//trim(sname)) !ifid= fopn ( 'ewindow' )
+                        open(newunit=ifid,file='ewindow.'//trim(sname)) 
                         write(ifid,"(3d23.15)") dosw(1:2),ef0
                         close(ifid) !call fclose(ifid)
                      endif
@@ -2085,7 +2085,7 @@ c$$$         endif
          if (lmet .gt. 0) then
             if (procid .eq. master) then
                ifi=ifile_handle()
-               open(ifi,file='wkp.'//trim(sname),form='unformatted') !ifi = fopna('wkp',-1,4)
+               open(ifi,file='wkp.'//trim(sname),form='unformatted') 
                i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
                close(ifi) !call fclr('wkp',ifi)
             endif
@@ -2119,7 +2119,6 @@ c      if(allocated(sfz)) deallocate(sfz)
      &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif
          if (procid .eq. master) then
-            !ifi = fopna('wkp',-1,4)
             ifi=ifile_handle()
             open(ifi,file='wkp.'//trim(sname),form='unformatted')
             i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
@@ -2261,7 +2260,7 @@ C       call poppr
       endif
 !! --- print out qbyl ---
       if(procid==master) then
-         ifqbyl = ifile_handle() !fopna('qbyl',-1,2)
+         ifqbyl = ifile_handle() 
          open(ifqbyl,file='qbyl.'//trim(sname))
          write(ifqbyl,"(i5)")nbas
          do  ib = 1, nbas
