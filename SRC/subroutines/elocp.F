@@ -1,6 +1,6 @@
       subroutine elocp(nbas,nsp,ssite,sspec,job)
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_struc_def  
+      use m_lmfinit,only: nkaph,stdo,nspec
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,9 +35,9 @@ C ... Local parameters
       character spid*8
       logical eloc
       integer ib,ibs,iclbsj,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,
-     .nr,nrmx,nrspec,nspec,stdo
+     .nr,nrmx,nrspec
       parameter (nrmx=1501, nkap0=3)
-      integer lh(nkap0),nkape,nkaph,idamax
+      integer lh(nkap0),nkape,idamax
 ckino Dec.9.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ,allocatable :: ips_iv(:)
@@ -53,13 +53,7 @@ C ... Heap
 C --- Setup ---
       if (mod(job,10) .eq. 0) return
       call tcn('elocp')
-Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
-Changenglob      nspec = nglob('nspec')
-      nspec = globalvariables%nspec
       ipr = iprint()
-Changenglob      nkaph = nglob('nkaph')
-      nkaph = globalvariables%nkaph
       eloc = .false.
       vsel=0d0
 c      call dpzero(vsel,4*n0*nbas)

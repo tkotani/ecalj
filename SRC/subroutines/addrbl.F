@@ -9,7 +9,7 @@ CSFCPP#define F90 1
       use m_suham,only: iv_a_oindxo
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol
+      use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol,nbas
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -103,7 +103,7 @@ c      type(s_ham)::sham
       double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
      .smpot(k1,k2,k3,isp)
 C ... Local parameters
-      integer:: i , k , nevec , nbas , nglob , ngabc(3) , n1 , n2 , 
+      integer:: i , k , nevec , nglob , ngabc(3) , n1 , n2 , 
      . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
@@ -114,7 +114,7 @@ C ... Local parameters
 
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
-      nbas = globalvariables%nbas
+c      nbas = globalvariables%nbas
       nlmto = ndimh-napw
       ndimhx = ndimh*nspc
       i_copy_size=size(lat_nabc)

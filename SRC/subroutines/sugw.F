@@ -3,13 +3,12 @@
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)!,lso)
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
-      use m_lmfinit,only: globalvariables
       use m_suham,only: iv_a_oindxo
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
-     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax
+     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
       use m_mksym,only: lat_npgrp,lat_nsgrp
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
@@ -149,7 +148,7 @@ c      type(s_ham):: sham
      .lgunit,lmaxa,lmxax,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,ndimh,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
-     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,nsp,nspc,iqibz,imx, stdo,
+     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, stdo,
      & ifigwb,ifigwa,ifinormchk,ifinlaindx,ifigw1,ifildima,ifigwn,
      & ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
       complex(8) ,allocatable :: aus_zv(:)
@@ -274,8 +273,8 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       call fftz30(n1,n2,n3,k1,k2,k3)
       stdo = lgunit(1)
       lchk = 1
-      nsp  = globalvariables%nsp
-      nspc = globalvariables%nspc
+c      nsp  = globalvariables%nsp
+c      nspc = globalvariables%nspc
       lrsig = int(ham_lsig)
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
       nqsig = ham_nqsig
@@ -860,7 +859,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
              if(debug) print *,'AAAAA2 goto bloch: i q nl plat mxorb=',lrsig,mode,qp,ndimsig,ival ( iv_a_ontabs , nbas + 1 )
 
-             call bloch (mode,qp,globalvariables%nl,plat,globalvariables%mxorb,iv_a_oindxo,1
+             call bloch (mode,qp,nl,plat,mxorb,iv_a_oindxo,1
      &            , ival ( iv_a_ontabs , nbas + 1 )
      &            , iv_a_oiaxs , rv_a_ohrs , ham_ndhrs , isp , nsp , ndimsig , ndimsig 
      &            , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
@@ -1027,7 +1026,8 @@ c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 !!   --- Project wf into augmentation spheres, Kotani conventions ---
-            nlmax = globalvariables%mxorb / globalvariables%nkaph
+c            nlmax = globalvariables%mxorb / globalvariables%nkaph
+            nlmax = mxorb / nkaph
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
             if(debug) write(6,"(' ppppppp goto makusq')")

@@ -1,7 +1,7 @@
       subroutine freeat(sspec)
-      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,globalvariables,ham_seref 
       use m_struc_def,only:s_spec
       use m_ext,only:sname
+      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,7 +35,7 @@ Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
       type(s_spec)::sspec(*)
-      integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,nsp,nspec,
+      integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,
      .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
       parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
@@ -57,8 +57,8 @@ C ----------------------------------------------------------------------
       ifi = ifile_handle()
       open(ifi,file='atm.'//trim(sname))
       rewind ifi
-      nspec = globalvariables%nspec
-      nsp   = globalvariables%nsp
+c      nspec = globalvariables%nspec
+c      nsp   = globalvariables%nsp
       stdo  = lgunit(1)
       hfct=0d0
       pzsum=0d0
@@ -183,8 +183,9 @@ ctakao
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp,lrel
       use m_ext,only:sname
+      use m_getqvc
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -249,7 +250,6 @@ Cu   01 Feb 06 Enables renormalized free atom density
 Cu   19 Apr 02 Redesigned input to avoid the use of structures
 Cu   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
 C ----------------------------------------------------------------------
-      use m_getqvc
       implicit none
 C ... Passed parameters
       integer nrmx,nrmt,is,nxi0,nxi,nrmix(2),lwf,lxcfun,n0,kcor,lcor
@@ -272,8 +272,7 @@ C     integer idmoz(n0)
      .rhot(nrmx*2),ql(3,n0,2),pz(n0,2),rcfa(2) ,qatbk(n0,2)
 C     double precision qz(n0,2)
       integer i,ifi,ipr,iprint,isp,isw,l,lfrz,
-     .lgrad,lgunit,lmxa,lplfa,lrel,nglob,nitmax,nmix,nr,
-     .nsp,stdl,stdo,lplawv,irchan(n0)
+     .lgrad,lgunit,lmxa,lplfa,nitmax,nmix,nr,stdl,stdo,lplawv,irchan(n0)
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: psi_rv(:)
 
@@ -292,9 +291,9 @@ c      print *,'0000111 ifives=',ifives
       stdl   = lgunit(2)
       ipr    = iprint()
 Changenglob      lrel   = nglob('lrel')
-      lrel   = globalvariables%lrel
+c      lrel   = globalvariables%lrel
 Changenglob      nsp    = nglob('nsp')
-      nsp    = globalvariables%nsp
+c      nsp    = globalvariables%nsp
       lfrz   = 0
       lgrad  = lxcfun/10
 ctakao
@@ -587,7 +586,7 @@ C --- Fit analytical expression to tail of core density ---
 
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: stdo
       use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -612,13 +611,13 @@ Cu Updates
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer n0,nr,lmaxa,nsp,nrmt,lplawv
+      integer n0,nr,lmaxa,nrmt,lplawv,nsp
       parameter (n0=10)
       double precision z,a,rmax,pl(n0,nsp),v(nr,nsp),rofi(nr),
      .g(2*nr),psi(nr,0:lmaxa,nsp)
 C ... Local parameters
       integer nglob,isp,l,konfig,nn,nre,i,konf,
-     .konfg(0:8),ifi,stdo,lmaxc
+     .konfg(0:8),ifi,lmaxc
       double precision ev(0:20),pi,b,tol,eb1,eb2,dl,val,slo,sum,pzero,
      .pmax,ctp,ecor,rmt
       character*1 lsym(0:n0-1), cc, str*15, spid*8
@@ -630,7 +629,7 @@ C ... Local parameters
       real(8):: plplus(0:lmaxa,nsp),qlplus(0:lmaxa,nsp)
       real(8):: sumr !mar2013
       
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       pi   = 4d0*datan(1d0)
       if (lmaxa.gt.n0-1) call rx('pratfs:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
@@ -810,7 +809,7 @@ C ... Find the outermost maximum
 
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .spid,itab,rtab,etab)
-      use m_lmfinit,only: globalvariables
+c      use m_lmfinit,only: lrel
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -850,7 +849,7 @@ C ... Local parameters
       integer itab(n0,2)
       double precision rtab(n0,2),etab(n0,2)
       integer:: ipr , iprint , irep , isp , istife , istifr , jpr , 
-     .konfig , l , lgunit , lplawv , lrel , nglob , nn , nrep , stdo 
+     .konfig , l , lgunit , lplawv , nn , nrep , stdo 
      ., stdl
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: gp_rv(:)
@@ -866,8 +865,8 @@ C ... Heap
       stdo = lgunit(1)
       stdl = lgunit(2)
 Changenglob      lrel = nglob('lrel')
-      lrel = globalvariables%lrel
-      if (z .lt. 0.99d0) lrel = 0
+c      lrel = globalvariables%lrel
+c      if (z .lt. 0.99d0) lrel = 0 !takao think lrel here was not used may2021
       if (lmxa .gt. 8) call rx('optfab:  lmax too large')
       b = rmax/(dexp(a*nr-a)-1d0)
 
@@ -876,9 +875,7 @@ Changenglob      lrel = nglob('lrel')
      .  ' Optimise free-atom basis for species '//spid//'%a, rmt=%;7g',
      .  ' ',80,stdo,ipr,rmt)
         allocate(h_rv(nr))
-
         allocate(g_rv(2*nr))
-
         allocate(gp_rv(2*nr*4))
 
 C --- Parameters for minimisation ---
@@ -1750,7 +1747,7 @@ c      ifi = fopna(str,-1,0)
 
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1777,14 +1774,14 @@ C ... Passed parameters
       integer nr,nrmt
       double precision a,b,c,eh,rmt,rsm,rofi(nr),rhoc(nr,2)
 C ... Local parameters
-      integer i,nsp,lgunit,stdo,ipr,nglob
+      integer i,lgunit,stdo,ipr
       double precision ak1,akap,fit,q,q0,r,s,v0,wt
       character sout*80
 
       call getpr(ipr)
       stdo = lgunit(1)
 Changenglob      nsp =  nglob('nsp')
-      nsp =  globalvariables%nsp
+c      nsp =  globalvariables%nsp
       rmt = rofi(nrmt)
       q0 = 0d0
       do  10  i = nrmt, nr

@@ -1,6 +1,6 @@
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -77,7 +77,7 @@ C Local variables:
       character*8 spid,strn*80
       integer nrmx,nxi0,n0,niax,mxcsiz,npmx,pass
       parameter (nrmx=1501,nxi0=10,n0=10,niax=10,mxcsiz=400,npmx=mxcsiz)
-      integer nglob,nsp,nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
+      integer nxi,nrmix(2),lxcfun,is,opt0,opt1,opt2,opt3
       integer idmod(n0),lmxa,nrmt,nr,ib,nttab,k,ir,np,ipr,stdo,lgunit,
      .nrspec
       integer ntab(nbas+1),iax(niax,mxcsiz),ipa(nbas)
@@ -126,7 +126,7 @@ Ckino isanrg is logical function,       call isanrg(opt2,0,1,'makrm0:','100s dig
 Ckino isanrg is logical function,       call isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
       l_dummy_isanrg=isanrg(opt3,0,1,'makrm0:','1000s digit opt',.true.)
 Changenglob      nsp = nglob('nsp')
-      nsp = globalvariables%nsp
+c      nsp = globalvariables%nsp
       stdo = lgunit(1)
       call getpr(ipr)
       call dpzero(rpos,3*mxcsiz)

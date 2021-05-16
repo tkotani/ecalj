@@ -3,7 +3,7 @@
      .   , igapw , h , hso , s )
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nbas,nkaph
       use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
@@ -113,8 +113,8 @@ C ... Local parameters
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
       complex(8),allocatable:: b(:)
       double complex g(lofb)
-      integer:: ia , isa , kmax , lmxa , lmxha , nbas , nglob , nlma 
-     .    , nlmha , nkaph , mode1 , nlmto
+      integer:: ia , isa , kmax , lmxa , lmxha ,  nglob , nlma 
+     .    , nlmha ,  mode1 , nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas
       logical:: debug=.false.
@@ -138,8 +138,8 @@ C--------------------------
 #endif
 
 C --- Setup ---
-      nbas  = globalvariables%nbas
-      nkaph = globalvariables%nkaph
+c      nbas  = globalvariables%nbas
+c      nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw

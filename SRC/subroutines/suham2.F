@@ -1,7 +1,7 @@
       subroutine suham2(sspec,ssite)!,spot) !,sstrn) removed june2015,sham slat,
       use m_supot,only:rv_a_ogv
       use m_struc_def
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nspec
       use m_lmfinit,only: lat_alat,lat_ng,lat_tolft
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
@@ -41,13 +41,13 @@ c      type(s_ham)::sham
 c      type(s_pot)::spot
 c      character*(*) sstrn
 C ... Local parameters
-      integer nspec,nglob
+c      integer nglob
 C ... Needed for
       integer:: ng , i
       double precision alat,tolgv,dum
 C --- Setup ---
 c      lfp=sctrl%lfp
-      nspec = globalvariables%nspec
+c      nspec = globalvariables%nspec
 C --- FP setup ---
 c      if (lfp .ne. 0) then
         call uspecb(0,0,sspec,1,nspec,dum,dum,dum,i)

@@ -151,7 +151,7 @@ C     --- Add to rho, make integral v*rho ---
      .nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec,
      .sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax,
      .job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
-      use  m_lmfinit,only: globalvariables
+      use  m_lmfinit,only: lrel
       use  m_getqvc
 C- Makes an atomic sphere self-consistent and get atomic charges
 C ----------------------------------------------------------------
@@ -254,7 +254,7 @@ C     double precision z(nl,2),qz(3,nl,3)
 C     integer idmoz(nl)
 C  Local parameters
       logical last,cmdopt,ltmp
-      integer iprint,ir,isp,iter,jmix,lgunit,lrel,nglob,ipr1,l,ii,stdo
+      integer iprint,ir,isp,iter,jmix,lgunit,nglob,ipr1,l,ii,stdo
       character strn*10
       double precision b,ddot,decay,dl,dold,drdi,drho,dsumec,ea,fac,pi,
      .rho0t,rhomu,rhovh,rmsdel,ro,sum,tolrsq,vhrmax,vnucl,vrhoc,vsum,
@@ -277,7 +277,7 @@ C tolch is tolerance for change in the charge density, tolv for rseq
       integer:: nmcore
       print *,'atomsc nmcore=',nmcore
       if (lmax .ge. nl) call rx('atomsc:  lmax too large')
-      lrel = globalvariables%lrel
+c      lrel = globalvariables%lrel
       stdo = lgunit(1)
       pi = 4d0*datan(1d0)
       b = rmax/(dexp(a*(nr-1)) - 1)

@@ -1,11 +1,9 @@
       subroutine rdovfa ( nbas , nspec , ssite , sspec  !, spot !, slat
      . , qbg , sv_p_orhoat )
       use m_supot,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
-      use m_struc_def  !Cgetarg
+      use m_struc_def 
       use m_struc_func , only: mpibc1_s_spec
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_alat,lat_plat,lat_nabc,lat_vol,lat_ng
+      use m_lmfinit,only:lat_alat,lat_plat,lat_nabc,lat_vol,lat_ng,nsp
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------
@@ -56,7 +54,7 @@ C ... Local parameters
      .hfc(n0,2,nspec),hfct(n0,2,nspec)
       character*8 spid(nspec),spidr
       integer:: ipr , iprint , ngabc(3) , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , nsp , nglob , lgunit , stdo , stdl , i , ifi , fopna , is 
+     .     k3 , lgunit , stdo , stdl , i , ifi , fopna , is 
      .     , nr , lfoc , nr0 , i1 , nch , ib , igetss , lmxl , nlml , ng 
      .     , iofa , kcor , lcor
       real(8) ,allocatable :: rwgt_rv(:)
@@ -73,7 +71,7 @@ C ... Local parameters
       ipr   = iprint()
       stdo  = lgunit(1)
       stdl  = lgunit(2)
-      nsp   = globalvariables%nsp
+c      nsp   = globalvariables%nsp
       msg   = '         File mismatch:'
       procid = mpipid(1)
       master = 0

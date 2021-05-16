@@ -1,12 +1,9 @@
       subroutine mkekin ( nbas , ndimh , ssite , sspec !, slat !, sham 
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
-      use m_struc_def  !Cgetarg
-c      use m_globalvariables
-      use m_lmfinit,only:lso
+      use m_struc_def  
+      use m_lmfinit,only:lso,lat_nabc,lat_vol,nkaph,nsp,nspc,stdo
       use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: lat_nabc,lat_vol
-      use m_lmfinit,only: globalvariables
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -158,11 +155,11 @@ c      type(s_ham)::sham
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
-     .ngabc(3),nglob,nkap0,nlma,nlmh,norb,nsp,nspc,stdo
+     .ngabc(3),nglob,nkap0,nlma,nlmh,norb
 c lso,isw
       logical lgors
       parameter (n0=10,nkap0=3)
-      integer nkaph,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
+      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),
      .ntab(n0*nkap0),blks(n0*nkap0)
       double precision qum1,qum2,sraugm,srhov,srmesh,sum1,sum2,sumh,
      .sumq,sumt,vol,xx
@@ -180,10 +177,10 @@ c2012Sep02 kino, add for
        iprx=.false.
        if(procid==master) iprx=.true.
 #endif
-      stdo = lgunit(1)
-      nsp  = globalvariables%nsp
-      nspc = globalvariables%nspc
-      nkaph = globalvariables%nkaph
+c      stdo = lgunit(1)
+c      nsp  = globalvariables%nsp
+c      nspc = globalvariables%nspc
+c      nkaph = globalvariables%nkaph
       call getpr(ipr)
 c      i_copy_size=size(lat_nabc)
 c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)

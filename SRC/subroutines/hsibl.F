@@ -4,7 +4,7 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
-      use m_lmfinit,only:lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol
+      use m_lmfinit,only:lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec,nbas
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -82,13 +82,13 @@ c      type(s_lat)::slat
 
       double complex h(ndimh,ndimh),vsm(k1,k2,k3,isp)
 C ... Local parameters
-      integer n0,npmx,nkap0,nkape,nermx,nspec,ngabc(3),nhblk,nlmto
+      integer n0,npmx,nkap0,nkape,nermx,ngabc(3),nhblk,nlmto
       parameter (n0=10,nkap0=3,nkape=2,nermx=100)
       parameter (npmx=128,nhblk=60)
       integer oic1(npmx),oic2(npmx),oicos1(npmx),oicos2(npmx),
      .oicf1(npmx),oicf2(npmx),
      .oisin1(npmx),oisin2(npmx),oiwk(npmx),oif(npmx)
-      integer:: ltop , nbas , n1 , n2 , n3 , net , ng , nglob , nlmtop 
+      integer:: ltop , n1 , n2 , n3 , net , ng , nglob , nlmtop 
      ., nrt , ndimx , nnrl , ncuti(nhblk) , iprint
       real(8) ,allocatable :: g_rv(:)
       real(8) ,allocatable :: g2_rv(:)
@@ -153,9 +153,9 @@ c      common /w/ w
 
 C ... First setup
 Changenglob      nbas  = nglob('nbas')
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 Changenglob      nspec = nglob('nspec')
-      nspec = globalvariables%nspec
+c      nspec = globalvariables%nspec
       nlmto = ndimh - napw
       if (nspec .gt. nermx) call rx('hsibl: increase nermx')
 

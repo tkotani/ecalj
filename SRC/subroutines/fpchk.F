@@ -28,7 +28,7 @@ C ... Passed parameters
 
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nbas,nspec,stdo
 C- Check accuracy of Pkl expansions of augmented functions
 C     implicit none
 C ... Passed parameters
@@ -36,10 +36,10 @@ C ... Passed parameters
       type(s_spec)::sspec(*)
 
 C ... Local parameters
-      integer k0,nlm0,nrx,n0,nkap0,stdo,lgunit
+      integer k0,nlm0,nrx,n0,nkap0,lgunit
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
-      integer:: nglob , nbas , nspec , ib1 , is , iclbsj , nr , j1 
+      integer:: ib1 , is , iclbsj , nr , j1 
      ., nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
      .lmax , nlm , k , i , ilm , ipr
       integer ,allocatable :: ips_iv(:)
@@ -57,11 +57,11 @@ C ... Heap
       data lch /'s','p','d','f','g'/
 
 C ... setup
-      stdo = lgunit(1)
+c      stdo = lgunit(1)
 Changenglob      nbas  = nglob('nbas')
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 Changenglob      nspec = nglob('nspec')
-      nspec = globalvariables%nspec
+c      nspec = globalvariables%nspec
       call getpr(ipr)
       write(stdo,400)
   400 format(/' RMS errors in expanded head and tail functions.'

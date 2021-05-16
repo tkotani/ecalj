@@ -1729,9 +1729,8 @@ C     DVCDN = 0.0D0
 
 
 
-      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
-     . exc,vxc)
-      use m_lmfinit,only: globalvariables
+      subroutine vxcgr2(nr,nsp,nrx,rofi,rp, exc,vxc)
+      use m_lmfinit,only: lxcf_g=>lxcf
 c      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
 c     .grh,ggrh,agrh,grgagr,exc,vxc)
 ctakao automatic array version
@@ -1810,7 +1809,7 @@ C --- Extra terms g(n), g(n+).g(n-), g(n).g(abs(g(n))) if spin pol ---
 C --- Gradient term for all points ---
       if (lxcg .ge. 3) then
 Changenglob        lxcf = mod(nglob('lxcf'),100)
-        lxcf = mod(globalvariables%lxcf,100)
+        lxcf = mod(lxcf_g,100) !globalvariables%lxcf,100)
         if (lxcf .ne. 3 .and. lxcf .ne. 4) call
      .  rx('vxcgf2: inconsistent use of local and GGA functionals')
         call vxcgga(lxcg,nr,nsp,rp,rp(1,nsp),agrh,agrh(1,nsp),

@@ -1,10 +1,8 @@
       subroutine mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce 
      . , qval , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
      . k3 , smrho , sv_p_oqkkl , f , lrep )
-
-
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_struc_def  
+      use m_lmfinit,only: nkaph,nsp
 c      use m_globalvariables
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------
@@ -68,7 +66,7 @@ C ... Passed parameters
       double complex smrho(k1,k2,k3,3,2)
 C ... Local parameters
       integer stdo,stdl,ib,ipl,is,kmax,lmxa,lmxh,lmxl,m,nelt1,nelt2,
-     .nelt3,nlma,nlmh,lgunit,ipr,iprint,nsp,nglob,nkaph
+     .nelt3,nlma,nlmh,lgunit,ipr,iprint
       double precision a,b,c,def1,disc,eadd,efold,p(3),px,py,pz,
      .q1,q2,q3,a1,a2,a3,rsm,sen,sev,sqv,sav,w1,w2,w3,x,x1,x2,xlin
       equivalence (px,p(1)),(py,p(2)),(pz,p(3))
@@ -80,9 +78,9 @@ C ... Heap
       ipl = ipr
       lrep = 0
 Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      nsp  = globalvariables%nsp
 Changenglob      nkaph = nglob('nkaph')
-      nkaph = globalvariables%nkaph
+c      nkaph = globalvariables%nkaph
 
 C ... Semiconductors: don't do anything
       if (lmet .eq. 0) then

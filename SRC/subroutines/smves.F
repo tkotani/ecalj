@@ -2,11 +2,8 @@
      .vval,hpot0,sgp0,smrho,smpot,vconst,smq,qsmc,f,rhvsm,zvnsm,zsum,
      .vrmt,qbg)
       use m_supot,only: iv_a_okv, rv_a_ogv
-      use m_lmfinit,only:  rv_a_ocy
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only: lat_nabc,lat_ng,lat_vol
+      use m_lmfinit,only: rv_a_ocy,lat_nabc,lat_ng,lat_vol,nsp,stdo
       use m_ext,only: sname
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------
@@ -154,7 +151,7 @@ c      type(s_lat)::slat
       double complex smrho(k1,k2,k3,2),smpot(k1,k2,k3,2)
       integer:: ib , igetss , ilm , ipr , iprint , is , iv0 , lfoc 
      .   , lgunit , lmxl , m , n1 , n2 , n3 , ng , ngabc(3) , nglob , 
-     .   nlm , nsp , stdo , j1 , j2 , j3
+     .   nlm , j1 , j2 , j3
       complex(8) ,allocatable :: cg1_zv(:)
       complex(8) ,allocatable :: cgsum_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
@@ -168,8 +165,8 @@ c      type(s_lat)::slat
 C ... Setup
       call tcn('smves')
       ipr   = iprint()
-      stdo  = lgunit(1)
-      nsp   = globalvariables%nsp
+c      stdo  = lgunit(1)
+c      nsp   = globalvariables%nsp
       pi    = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0    = 1d0/srfpi

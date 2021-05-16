@@ -1,7 +1,7 @@
       subroutine makidx(nl,nkaph,ib1,ib2,iprma,sspec,ips,offH,iprmb,
      .ldham)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: mxorb
 !! takao think this is too complicated...
 !! I am not sure whether this is OK for PMT mode or not.
 !!
@@ -147,7 +147,7 @@ C Passed parameters
       ! offh(n0H,nkap0,5) : bug fix sep2010
 C Local parameters
       integer indx,iposn,l,m,iprior,j,lgunit,idxdn(n0,nkap0),is,ib,i,
-     .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,mxorb,jb,
+     .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,jb,
      .nglob,stdo,stdl,lmxb,lmxa,ibp1,idxpr
       logical lx,lprmib
       character*80 outs,strn*5
@@ -272,7 +272,7 @@ C --- Make iprmb ---
       indx = 0
 C     For now, require that morb = nl*nkaph
 Changenglob      mxorb = nglob('mxorb')
-      mxorb = globalvariables%mxorb
+c      mxorb = globalvariables%mxorb
       i = nl**2*nkaph
 Ckino isanrg is logical function,       call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
       l_dummy_isanrg=isanrg(mxorb,i,i,'makidx:','mxorb', .true.)

@@ -110,7 +110,7 @@ C --- Setup ---
 #endif
 
 Changenglob      nbas  = nglob('nbas')
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
       pi = 4d0*datan(1d0)
 C     tpiba = 2d0*pi/alat
       fpi = 4*pi

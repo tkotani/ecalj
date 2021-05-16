@@ -1,6 +1,6 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
      .qdiff,svflg,amom,etot,lsc)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp,stdo
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -37,7 +37,7 @@ C ... Passed parameters
       integer iter,maxit,lhk,lsc,nvario
       double precision etol,qtol,qdiff,amom,etot(2)
 C ... Local parameters
-      integer nsp,lgunit,stdo,nglob,lbl
+      integer lgunit,lbl
       logical more,letol,lqtol
       double precision ehf1,ehk1,diffe
       character flg*3
@@ -46,9 +46,9 @@ C ... Local parameters
       character*255:: formatc(903:904),lbll
 
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      nsp  = globalvariables%nsp
 C     Assume not self-consistent
       lsc = 3
       more = .true.

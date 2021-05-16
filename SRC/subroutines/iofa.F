@@ -1,6 +1,6 @@
       integer function iofa(spid,nxi0,nxi,exi,hfc,hfct,rsm,z,rmt,a,nr,
      .qc,ccof,ceh,stc,rho,rhoc,v,ifi)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp,lrel
 C- I/O for free-atom data, one species
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,17 +35,16 @@ C ... Passed parameters
       character spid*8
       double precision a,ccof,ceh,qc,rmt,rsm,stc,z,
      .hfc(nxi0,2),rho(2*nr),v(2*nr),exi(nxi0),rhoc(2*nr),hfct(nxi0,2)
-C ... Local parameters
-      integer i,jfi,lrel,lrel0,nglob,nsp,nsp0,ipr,iprint,stdo,lgunit
+      integer i,jfi,lrel0,nglob,nsp0,ipr,iprint,stdo,lgunit
       logical isanrg
       character msg*23
 
       ipr    = iprint()
       stdo   = lgunit(1)
 Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      nsp  = globalvariables%nsp
 Changenglob      lrel = nglob('lrel')
-      lrel = globalvariables%lrel
+c      lrel = globalvariables%lrel
       msg  = '         File mismatch:'
       iofa   = -1
 

@@ -4,11 +4,9 @@ Ckino from rsibl write eigenvectors
       subroutine rsibl_ev(ssite,sspec,nbas,isp,q,iq,ndimh,nspc, !,slat
      .napw,igapw,iprmb,nevec,evec,k1,k2,k3, n_eiglist,eiglist)
       use m_struc_def 
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
       use m_w_psir
       use m_lmfinit,only:
-     &       lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,rv_a_opos
+     &       lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,rv_a_opos,nspec
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -94,7 +92,7 @@ C Event numbers:
       include "events.ins"
 #endif
       integer procid, master, nproc, mpipid
-      integer nbas,isp,k1,k2,k3,ndimh,nevec,iprmb(*),iq,nspc
+      integer isp,k1,k2,k3,ndimh,nevec,iprmb(*),iq,nspc
       integer,parameter:: numq=1
       integer napw,igapw(3,napw)
       real(8):: q(3) 
@@ -107,7 +105,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer n0,nkap0,nermx,npmx,nblk,nlmto
       parameter (n0=10,nkap0=3,nermx=100,npmx=128)
-        integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
+        integer:: ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint 
        integer,allocatable :: iv_a_okv(:) 
@@ -134,7 +132,7 @@ C     Local for parallel threads
       complex(8),allocatable:: xsmrho(:,:,:,:,:)
       real(8),allocatable:: fr(:,:,:)
 #endif
-      integer:: ivecini,ivecend
+      integer:: ivecini,ivecend,nbas
       integer,allocatable:: w_oiv(:)
       real(8),allocatable:: w_ogq(:),w_oyl(:),w_oylw(:),w_og2(:),w_ohe(:),w_ohr(:)
       complex(8),allocatable:: w_osmbuf(:)
@@ -155,8 +153,8 @@ C     Local for parallel threads
 
       if (nevec .le. 0) return
 ckino      call tcn('rsibl_ev')
-      nbas  = globalvariables%nbas
-      nspec = globalvariables%nspec
+c      nbas  = globalvariables%nbas
+c      nspec = globalvariables%nspec
       nlmto = ndimh-napw
       alat = lat_alat
       plat = lat_plat

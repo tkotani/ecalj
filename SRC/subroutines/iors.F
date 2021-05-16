@@ -3,7 +3,7 @@
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,irsrot !,ctrl_lrs
       use m_struc_def 
       use m_struc_func
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp,lrel,nl
       use m_supot,only: zv_a_osmrho
       use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
 C- I/O for charge density (takao think this it too complicated, but iw roks.
@@ -132,15 +132,15 @@ C ... Local parameters
       integer procid,master,mpipid,nproc
       integer i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3,
      .igetss,jfi,k11,k21,k31,kmax,kmax0,kmxv,l,lfoc,lfoc0,lmxa,
-     .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel,lrel0,n11,n21,
-     .n31,nbas0,nspec0,nglob,nsp,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
+     .lmxa0,lmxb,lmxb0,lmxl,lmxl0,lmxr,lmxv,lmxv0,lrel0,n11,n21,
+     .n31,nbas0,nspec0,nlml,nlml0,npan,npan0,nr,nr0,nsp0,
      .nxi,nat0,ibaug
       integer:: ngabc(3) , n1 , n2 , n3 , lgunit , stdo , isw
       complex(8),allocatable :: zv_a_osmrhox(:)
       complex(8) ,allocatable :: h_zv(:)
       real(8) ,allocatable :: rwgt_rv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      integer idmod(n0),idmoz(n0),nl !,lrs(10)
+      integer idmod(n0),idmoz(n0) !,lrs(10)
       logical isanrg,lgors,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
       double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
@@ -167,8 +167,8 @@ C ... MPI setup
       ipr    = iprint()
       stdo   = lgunit(1)
       vs   =  1.04d0
-      nsp = globalvariables%nsp
-      lrel   = globalvariables%lrel
+c      nsp = globalvariables%nsp
+c      lrel   = globalvariables%lrel
 c      lrs(1) = irs3 !isw ( iand(32,int(sctrl%lrs)) .ne.0 )
 c      lrs(2) = irs4 !isw ( iand(64,int(sctrl%lrs)) .ne.0 )
 c      lrs(3) = irs5 !isw ( iand(128,int(sctrl%lrs)) .ne.0 )
@@ -182,7 +182,7 @@ C     ndyn = igets('move size',smove)
       ifmt = '(20i5)'
 C ... Hardwired for now
       npan = 1
-      nl = globalvariables%nl
+c      nl = globalvariables%nl
 C ... Message
       if (ipr .ge. 10) then
         fid0 = 'read'

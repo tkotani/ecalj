@@ -5,6 +5,7 @@ CSFCPP#define F90 1
      .nf2,nf2s,lmx2,lx2,f2,x2,v2,d2,
      .lmux,sig,tau,nlx1,nlx2,ppi,
      .lmaxu,vumm,lldau,idu)
+      use m_lmfinit,only: nspc
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -195,7 +196,6 @@ Cu   17 May 00 Adapted from nfp gaugm.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      use m_lmfinit,only: globalvariables
 c      use m_globalvariables
       integer nr,nsp,lmxa,lmxl,nlml,lmux,lso,lcplxp,
      .nf1,nf1s,lmx1,nlx1,lx1(nf1),jcg(1),indxcg(1),n0,nab,
@@ -214,7 +214,7 @@ c      use m_globalvariables
 C     Spin-Orbit related
       double precision sodb(nab,n0,nsp,2)
 C ... Local parameters
-      integer ilm1,ilm2,nspc,nglob
+      integer ilm1,ilm2
       integer i1,i2,ilm,l,ll,nlm,nlm1,nlm2,i,iprint,stdo,lgunit
       double precision pi,y0
       double precision vsms(nr),ppi0(nf1*nf2*(lmux+1)),
@@ -238,7 +238,7 @@ c#endif
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
 Changenglob      nspc = nglob('nspc')
-      nspc = globalvariables%nspc
+c      nspc = globalvariables%nspc
 
 CSFCPP#if F90
       allocate(hso(nf1,nf2,nlx1,nlx2,2,2),ppiz(nf1,nf2,nlx1,nlx2,2,2))

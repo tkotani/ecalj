@@ -1,9 +1,6 @@
       subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
-
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only: ham_eterms
+      use m_struc_def
+      use m_lmfinit,only: ham_eterms,nsp,stdo,stdl
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -54,7 +51,7 @@ C ... Passed parameters
 c      type(s_ham)::sham
 
 C ... Local parameters
-      integer stdo,stdl,ipr,ipl,nsp,nglob
+      integer ipr,ipl
       double precision eh,eks,rhoexc,sumec,utot,valvef,xcore,
      .ttcor,sumt0,sumev,sumtc,ekin,rhosig,amom
 C     double precision cpnves,rhovxc,sumtc,valves
@@ -79,11 +76,11 @@ C     equivalence (eterms(7),rhovxc)
 C     stdo = lgunit(1)
 C     stdl = lgunit(2)
 Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      nsp  = globalvariables%nsp
 Changenglob      stdo = nglob('stdo')
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
 Changenglob      stdl = nglob('stdl')
-      stdl = globalvariables%stdl
+c      stdl = globalvariables%stdl
       call getpr(ipr)
       ipl = 1
 

@@ -108,10 +108,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
-      use m_lmfinit,only: globalvariables
       use m_sigflg
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_rsstol,ham_nqsig,ham_ndhrs,
-     & lat_plat,rv_a_opos
+     & lat_plat,rv_a_opos,mxorb,stdo,nl
 c      use m_work,only:  rv_p_oqp
 c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
       implicit none
@@ -126,8 +125,8 @@ c      type(s_ham)::sham
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig,!modsgp,nmin,nmax,
-     .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
+     .ndhrs,j1,k1,k2,k3,iq1,nspc,nqsig,!modsgp,nmin,nmax,
+     .fopna,kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
       integer:: ohrss
@@ -182,7 +181,7 @@ c
       mode=12 !lrsig=12
       lwsig=0
       tolq = 1d-6
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       ledit = 0
       lrsig = mod(mode,10)
       lwsig = 0
@@ -470,13 +469,13 @@ ckino Dec.22.2011:          hrss = rv_p_ohrs
 ckino Dec.28.2011:          hrss = ham_rv_p_ohrs
         hrss = rv_a_ohrs
 Changenglob        mxorb = nglob('mxorb')
-        mxorb = globalvariables%mxorb
+c        mxorb = globalvariables%mxorb
 C       10s digit distributes ri-rj pairs to avg (ri-rj),(rj-ri) pairs
 C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         i = 1-hreal + 10*2 + 100*(1-hreal) + 100000
         allocate(istb2_iv(nsgrp*nbas))
         call istbpm ( iv_a_oistab , nbas , nsgrp , istb2_iv )
-        nl = globalvariables%nl
+c        nl = globalvariables%nl
        if(debug) print *,' a8 44444444444444'
         call rsmsym ( i , plat , mxorb , iv_a_oindxo , ndimh , nbas ,
      .          rv_a_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs
@@ -827,9 +826,8 @@ c$$$            deallocate(pos,npair)
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
 !      use m_seneinterp,only: rv_p_oqsig
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
-      use m_lmfinit,only: globalvariables
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
-      use m_lmfinit,only: ham_nqsig
+      use m_lmfinit,only: ham_nqsig,nl,stdo
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -1024,8 +1022,8 @@ c      type(s_bz)::sbz
       character outs*80,out2*80,dc*1,rots*120
       integer i,j,ifis2,ifiz,isp,nsp,nglob,ival,ldham(16),hreal,lrsig,
      .moditp,nttabs,nkxyz(3),nk1,nk2,nk3,nsgrp,nsgrps,mxkp,nqp,nqps,
-     .ndhrs,j1,k1,k2,k3,iq1,nl,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
-     .fopna,kcplx,lrot,iprint,stdo,lssym,ledit,niax,nscnts,
+     .ndhrs,j1,k1,k2,k3,iq1,nspc,mxorb,nqsig, !modsgp,nmin,nmax,
+     .fopna,kcplx,lrot,iprint,lssym,ledit,niax,nscnts,
      .ndims,ndimz,iq,n123(4),lcore,lhigh
       parameter (niax=10)
 c      equivalence (nk1,nkxyz(1)),(nk2,nkxyz(2)),(nk3,nkxyz(3))
@@ -1087,7 +1085,7 @@ c      procid = mpipid(1)
 c      master = 0
 c      mlog = cmdopt('--mlog',6,0,outs)
       tolq = 1d-6
-      stdo = globalvariables%stdo
+c      stdo = globalvariables%stdo
       ledit = 0
       lrsig = 2  !mod(mode,10)
       lwsig = 0
@@ -1240,7 +1238,7 @@ c            endif
 c          endif
 
           allocate(wk_zv(ndimsig_r**2))
-          nl = globalvariables%nl
+c          nl = globalvariables%nl
           nspc = 1
           allocate(sigm_zv(ndimsig_r,ndimsig_r))
 

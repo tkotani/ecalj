@@ -99,12 +99,9 @@ C     call tcx('mkrou3')
      .   , nlmto , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhoat , hab 
      .     , sab , qbyl , hbyl , lrout )
       use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,ham_eterms,nkaph
+      use m_struc_def 
       use m_mkrou3
-      use m_lmfinit,only:ham_eterms
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -192,7 +189,7 @@ c      type(s_lat)::slat
       real(8) ,allocatable :: cpp_rv(:)
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
      .sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
-      integer nkap0,nkapi,nkape,nkaph,nglob
+      integer nkap0,nkapi,nkape,nglob
       parameter (nkap0=3)
       integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
@@ -212,7 +209,7 @@ C ... Setup
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4d0*pi)
 Changenglob      nkaph = nglob('nkaph')
-      nkaph = globalvariables%nkaph
+c      nkaph = globalvariables%nkaph
       sums1 = 0
       call tcn('mkrout')
 c      i_copy_size=size(sham%eterms)

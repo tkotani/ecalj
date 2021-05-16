@@ -1,5 +1,5 @@
       subroutine vxc0sp(a,b,rofi,rho,nr,v,rho0,rep,rmu,nsp,exrmx)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: lxcf_g=>lxcf, stdo
 !!- Adds xc part to spherical potential, makes integrals rmu and rep
 !! ----------------------------------------------------------------------
 !!i Inputs
@@ -23,14 +23,14 @@
 !! ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nr,nsp,stdo !nrmx,
+      integer nr,nsp
       double precision a,b,rofi(nr),v(nr,nsp),rho(nr,nsp),
      .rep(nsp),rmu(nsp),rho0(2),qs(2),exrmx
 C ... Local parameters
 c      parameter (nrmx=1501)
       double precision pi,rho2,rho3,
      .ub4pi,wgt,exc(nr),vxc(nr,2),rp(nr,2),repl(2),rmul(2) !exc(nrmx)-->exc(nr) automatic array.
-      integer:: lx ,  i , ir , isp , iprint , nglob, lxcfun, lxcf !, lxcg ,
+      integer:: lx ,  i , ir , isp , iprint , nglob, lxcfun,lxcf
       real(8) ,allocatable :: grh_rv(:)
       real(8) ,allocatable :: agrh_rv(:)
       real(8) ,allocatable :: ggrh_rv(:)
@@ -46,23 +46,10 @@ c      parameter (nrmx=1501)
       real(8):: p(3,nnn),wp(nnn),rwgt(nr) ,p2(nnn*3),r2(nnn)
       real(8),allocatable:: gyl(:,:),yl(:),rll(:,:),vxc_(:,:)
       logical:: newv=.true.
-c      logical:: newv=.false.
-c      print *,'newv=',newv
       pi = 4d0*datan(1d0)
       ub4pi = 1d0/(4d0*pi)
-      stdo = globalvariables%stdo
-      lxcfun = globalvariables%lxcf
-
-c old version before lm72
-c      lx    = nglob('lxcf')
-c      lxcf2 = mod(lx,10)
-c      lxcg = lx/10
-clm72
-Changenglob      lxcfun = nglob('lxcf')
+      lxcfun = lxcf_g
       lxcf = mod(lxcfun,100)
-c      lxcg = lxcfun/100
-c      if (nr .gt. nrmx) call rx('vxc0sp: nr > nrmx')
-
 C --- Add background rho to calculate vxc ---
 *      rhobg = 0d0
 *      call getsyv('rhobg',rhobg,i)

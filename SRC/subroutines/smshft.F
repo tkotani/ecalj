@@ -2,10 +2,8 @@
      . , smrho,job )
       use m_supot,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
-     &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
+     &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol,nsp,nbas
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -56,7 +54,7 @@ c      type(s_ham)::sham
       double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
-     .n2,n3,nbas,ng,ngabc(3),nglob,nsp,i_copy_size
+     .n2,n3,ng,ngabc(3),i_copy_size
       complex(8) ,allocatable :: cgr_zv(:)
       complex(8) ,allocatable :: cgs_zv(:)
       complex(8) ,allocatable :: cwk_zv(:)
@@ -75,8 +73,8 @@ c      i_copy_size=size(lat_qlat)
 c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
 c      i_copy_size=size(lat_nabc)
 c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
-      nsp  = globalvariables%nsp
-      nbas = globalvariables%nbas
+c      nsp  = globalvariables%nsp
+c      nbas = globalvariables%nbas
       alat=lat_alat
       plat=lat_plat
       qlat=lat_qlat

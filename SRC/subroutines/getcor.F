@@ -1,6 +1,6 @@
       subroutine getcor(mode,z,a,pnu,pnz,nr,lmax,rofi,v0,kcor,lcor,qcor,
      .sumec,sumtc,rhoc,ncore,ecore,gcore,nmcore)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
 C- Generate the core density for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +43,7 @@ C ... Passed parameters
       double precision a,qcor(2),sumec,sumtc,z,ecore(*),gcore(nr,2,*)
       double precision v0(nr),rhoc(nr),rofi(nr),pnu(n0,2),pnz(n0,2)
 C ... Local parameters
-      integer stdo,nglob,ipr,isp,jpr,k,kkk,l,lgunit,nsp,nsc,
+      integer stdo,nglob,ipr,isp,jpr,k,kkk,l,lgunit,nsc,
      .konf(n0),konfsc(n0),isc(n0)
       double precision deg,qcore,qsc,tol,g(2*nrmx),ec(100),b,smec(2),
      .smtc(2)
@@ -53,7 +53,7 @@ C ... Local parameters
       stdo = lgunit(1)
       call getpr(ipr)
 Changenglob      nsp = nglob('nsp')
-      nsp = globalvariables%nsp
+c      nsp = globalvariables%nsp
       qcore = 0d0
       ncore = 0
       qsc = 0d0

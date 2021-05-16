@@ -4,7 +4,7 @@
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,lat_plat
+      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,lat_plat,nsp,nbas,nspec
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -83,8 +83,8 @@ c      type(s_ctrl)::sctrl
 
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
 C Local variables
-      integer nbas,job,n1,n2,n3,ng,iprint,nsp,nglob,ib,is,lmxl,iv0,nlm,
-     .ip,m,i,ngabc(3),ltop,nspec,nlmtop,igets,igetss,nn,lgunit,stdo
+      integer job,n1,n2,n3,ng,iprint,ib,is,lmxl,iv0,nlm,
+     .ip,m,i,ngabc(3),ltop,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 c        integer:: ocdv , ocdn , ocdn0 , ocs , osn
 ckino Dec.9.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
@@ -159,9 +159,9 @@ C --- Setup ---
       qlat=lat_qlat
       c = 1000
       stdo = lgunit(1)
-      nsp  = globalvariables%nsp
-      nbas = globalvariables%nbas
-      nspec= globalvariables%nspec
+c      nsp  = globalvariables%nsp
+c      nbas = globalvariables%nbas
+c      nspec= globalvariables%nspec
       nn   = k1*k2*k3
 
 C ... Arrays needed for pvdf1
@@ -402,7 +402,7 @@ c     .orhoat,fes1,fes2,fxc)
      . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
      . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nbas
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat
 c need to modify texts.
 C- Estimate shift in local density for one site
@@ -447,7 +447,7 @@ c      type(s_lat)::slat
       double complex cdn0(ng,nsp),cdn(ng),cdv(ng),ceps(ng),
      .cnomin(ng),cdvxc(ng,nsp),cvin(ng)
 C ... Local parameters
-      integer ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,nbas,nglob,js,ll,n0,
+      integer ig,ilm,l,lmxl,m,nlm,nlmx,k,is,jv0,jb,js,ll,n0,
      .nrmx
       parameter (nlmx=64, nrmx=1501, n0=10)
       integer lmxa,nr,nxi,ie,ixi,job0,kcor,lcor,lfoc,i,
@@ -476,7 +476,7 @@ c      call i8icopy(i_copy_size,lat_nabc,1,ngabc,1)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
 Changenglob      nbas = nglob('nbas')
-      nbas = globalvariables%nbas
+c      nbas = globalvariables%nbas
 C     tpiba = 2*pi/alat
       tpia = 2*pi*dcmplx(0d0,-1d0)/alat
       job0 = mod(job,10)
@@ -944,16 +944,11 @@ C ... Local parameters
       do  10  i1 = 1, n1
         dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
    10 continue
-
-C     call zprm3('dvxc/dn * (nout-nin)',0,dvxc,k1,k2,k3*nsp)
-
       end subroutine pvdf3
 
-
       subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-      use m_lmfinit,only:lat_vol,lat_nabc
+      use m_struc_def 
+      use m_lmfinit,only: nbas,lat_vol,lat_nabc
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1000,7 +995,7 @@ c      type(s_lat)::slat
 
       double complex cv(ng)
 C ... Local parameters
-      integer ig,ib,ilm,is,iv0,l,lmxl,m,nbas,nlm,nlmx,nglob,n1,n2,n3,
+      integer ig,ib,ilm,is,iv0,l,lmxl,m,nlm,nlmx,nglob,n1,n2,n3,
      .ngabc(3),lfoc
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       parameter (nlmx=64)
@@ -1017,7 +1012,7 @@ C      double complex gkl(0:k0,nlmx)
       pi = 4d0*datan(1d0)
       y0 = 1d0/dsqrt(4d0*pi)
 Changenglob      nbas = nglob('nbas')
-      nbas = globalvariables%nbas
+c      nbas = globalvariables%nbas
 
 c      i_copy_size=size(lat_nabc)
 c      call i8icopy(i_copy_size,lat_nabc,1,ngabc,1)

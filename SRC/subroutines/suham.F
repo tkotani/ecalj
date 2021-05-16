@@ -5,12 +5,11 @@
       contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
       use m_supot,only: rv_a_ogv
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_struc_def  
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
       use m_lmfinit,only:
      &     ham_npwmin, ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft !,ham_npwpad
+     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft,nkaph !,ham_npwpad
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -89,7 +88,7 @@ C ... Local parameters
      .lgunit,lidim,lihdim,nbasp,nclasp,ndim,neul,nl,
 c lncol,
      .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
-     .ib,is,lmxa,lmxl,stdo,nglob,nkaph,isw,nbf,lmxax,pwmode,
+     .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
      .j1,j2,j3,m,npw,npwmin,npwmax,ndham
       double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
      .xx
@@ -116,7 +115,7 @@ C ... Needed for iostr
       nl=ctrl_nl
 c      lncol=ctrl_lncol
       nsp=ctrl_nspin
-      nkaph = globalvariables%nkaph
+c      nkaph = globalvariables%nkaph
       pwmode=ham_pwmode
       pwemin=ham_pwemin
       pwemax=ham_pwemax

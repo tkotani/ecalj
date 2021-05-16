@@ -1,9 +1,7 @@
       subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc, !slat,
      .     napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -82,8 +80,8 @@ C ... Passed parameters
       character*120 strn
 #endif
       integer procid, master, nproc, mpipid
-      integer lfrce,nbas,isp,k1,k2,k3,ndimh,nevec,numq,iprmb(1),iq,nspc
-      integer napw,igapw(3,napw)
+      integer lfrce,isp,k1,k2,k3,ndimh,nevec,numq,iprmb(1),iq,nspc
+      integer napw,igapw(3,napw),nbas
       real(8):: q(3) , ewgt(numq,nevec) , f(3,nbas,numq)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
@@ -94,7 +92,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer n0,nkap0,nermx,npmx,nblk,nlmto
       parameter (n0=10,nkap0=3,nermx=100,npmx=128)
-      integer:: nspec , ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
+      integer:: ngabc(3) , n1 , n2 , n3 , nrt , net , ng , 
      .  nglob , ltop , nlmtop , ogq , og2 , ohe , ohr , oyl , oylw , 
      .  oiv , iprint
 ckino Dec.28.2011:  ckino 2011.05        integer,pointer :: iv_p_okv(:) =>NULL()
@@ -152,8 +150,8 @@ C     call wkprnt(1)
 #endif
       if (nevec .le. 0) return
       call tcn('rsibl')
-      nbas  = globalvariables%nbas
-      nspec = globalvariables%nspec
+c      nbas  = globalvariables%nbas
+c      nspec = globalvariables%nspec
       nlmto = ndimh-napw
 C ... First setup
       alat=lat_alat

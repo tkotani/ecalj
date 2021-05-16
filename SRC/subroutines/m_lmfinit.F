@@ -18,17 +18,17 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       private t_globalvariables ! not use globalbariables. Instead, use module variables directly.
       type t_globalvariables 
       integer:: lrel=-999999
-      integer:: lxcf=-999999
-      integer:: mxorb=-999999
-      integer:: nat=-999999
-      integer:: nbas=-999999
-      integer:: nbasp=-999999
-      integer:: nkaph=-999999
-      integer:: nl=-999999
-      integer:: nlmax=-999999
-      integer:: nsp=-999999
-      integer:: nspc=-999999
-      integer:: nspec=-999999
+c      integer:: lxcf=-999999
+c      integer:: mxorb=-999999
+c      integer:: nat=-999999
+c      integer:: nbas=-999999
+c      integer:: nbasp=-999999
+c      integer:: nkaph=-999999
+c      integer:: nl=-999999
+c      integer:: nlmax=-999999
+c      integer:: nsp=-999999
+c      integer:: nspc=-999999
+c      integer:: nspec=-999999
       integer:: stde=-999999
       integer:: stdl=-999999
       integer:: stdo=-999999
@@ -36,7 +36,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       
       type(t_globalvariables),protected :: globalvariables
       type(s_spec),allocatable,protected:: v_sspec(:)
-      
+
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
       real(8),parameter::  NULLR =-99999
@@ -49,7 +49,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx !lat_ngrp ,irs11
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf !lat_ngrp ,irs11
       character(256),protected:: header,symg=' '
       character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
       logical,protected :: ham_frzwf,ham_ewald
@@ -288,7 +288,7 @@ C ----------------------------------------------------------------------
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,lmet,
-     .lrs,lstsym,ltb,lxcf,nat,nlibu,nclasp,
+     .lrs,lstsym,ltb,nlibu,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
@@ -1365,9 +1365,9 @@ C     Maximum L-cutoff
          nlmax = (lmxax+1)**2
          nkaph = nkaph+lpzi-1
          mxorb= nkaph*nlmax
-         globalvariables%nkaph = nkaph
-         globalvariables%nlmax = nlmax
-         globalvariables%mxorb = mxorb
+c         globalvariables%nkaph = nkaph
+c         globalvariables%nlmax = nlmax
+c         globalvariables%mxorb = mxorb
       endif
  79   continue
 
@@ -1948,22 +1948,22 @@ c          v_ssite(j)%plv=plv(j)
       if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
       j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
-      call suidx(globalvariables%nkaph,j,nspec,v_sspec)
+      call suidx(nkaph,j,nspec,v_sspec)
 !! ... Set some global variables
       lxcf = ctrl_lxcf
-      globalvariables%nspec = nspec
-      globalvariables%nbas = nbas
-      globalvariables%nbasp= nbasp
-      globalvariables%nsp =  nsp
-      globalvariables%nl =   nl
+c      globalvariables%nspec = nspec
+c      globalvariables%nbas = nbas
+c      globalvariables%nbasp= nbasp
+c      globalvariables%nsp =  nsp
+c      globalvariables%nl =   nl
       globalvariables%lrel = lrel
-      globalvariables%lxcf = lxcf
+c      globalvariables%lxcf = lxcf
       globalvariables%stdo = stdo
       globalvariables%stdl = stdl
       globalvariables%stde = stde
       nspc = 1
       if( lso==1 ) nspc = 2
-      globalvariables%nspc = nspc
+c      globalvariables%nspc = nspc
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
          nat = nbas
@@ -1974,7 +1974,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
          enddo
       endif
       call mpibc1(nat,1,2,0,'rdctrl','nat')
-      globalvariables%nat = nat
+c      globalvariables%nat = nat
 C     ... Set modep
       ctrl_modep=2
 C     ... Count LDA+U blocks (printout only)

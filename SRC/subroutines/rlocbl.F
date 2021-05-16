@@ -157,7 +157,7 @@ C ----------------------------------------------------------------------
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
       use m_struc_def,only: s_site,s_spec,s_rv1
       use m_prlcb,only:   prlcb2,prlcb3
-      use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,lat_qlat,globalvariables
+      use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,lat_qlat,nkaph
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -256,7 +256,7 @@ C ----------------------------------------------------------------------
       parameter (nlmbx=25,  nkap0=3, n0=10) !npmx=32,
       integer kmaxx,nlmax,igetss,nglob,nlmto !mp,
       double precision alat,qlat(3,3)
-      integer ia,isa,ivec,kmax,lmxa,nlma,oxf,lmxha,nlmha,nkaph,ispc,ksp
+      integer ia,isa,ivec,kmax,lmxa,nlma,oxf,lmxha,nlmha,ispc,ksp
       integer:: ob , odb
       double precision pa(3),rsma,pi,tpiba
       complex(8),allocatable:: cPkL(:),da(:),wk(:)
@@ -264,7 +264,7 @@ C ----------------------------------------------------------------------
       complex(8),allocatable::w_ob(:),w_odb(:),w_oxf(:)
       if (nevec .le. 0) return
       call tcn('rlocbl')
-      nkaph = globalvariables%nkaph
+c      nkaph = globalvariables%nkaph
 C ... Find maximum sizes needed to allocate strux; allocate them
       nlmax = 0
       kmaxx = 0

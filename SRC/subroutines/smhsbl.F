@@ -2,10 +2,8 @@ CSFCPP#define F90 1
       subroutine smhsbl(mode,ssite,sspec,vavg,q,ndimh,iprmb, !,slat
      .napw,igapw,h,s)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_alat,lat_plat,lat_vol
+      use m_lmfinit,only: lat_alat,lat_plat,lat_vol,nbas
+      use m_struc_def  
 C- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -161,7 +159,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer nlms,kdim,n0,nkap0
       parameter (nlms=25, kdim=1, n0=10, nkap0=3)
-      integer nbas,nglob,nlmto
+      integer nlmto
       integer i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig
       integer lh1(nkap0),lh2(nkap0),nkap1,nkap2
       integer ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),norb1,ik1,
@@ -205,7 +203,7 @@ c      integer obuff
 #endif
 C --- Setup ---
       nlmto = ndimh-napw
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 C ... Setup below needed for PWs
       if (napw .gt. 0) then
         alat=lat_alat

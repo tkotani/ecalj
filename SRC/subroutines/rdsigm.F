@@ -259,7 +259,7 @@ C       Assign header parameters or check with file correspondence
       subroutine chksgr(opt,ltrans,kcplx,plat,nsp,ndimh,ifis,hreal,
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nl,mxorb
       use m_hamindex,only : symops_af
 C- Compare Bloch summed sigma against file sigma(k)
 C ----------------------------------------------------------------------
@@ -324,7 +324,7 @@ C ... Passed parameters
       logical ltrans
 C ... Local parameters
       logical lsplts
-      integer i,j,isp,nglob,stdo,iq1,nl,mxorb,ipr,lgunit,isw,opt0,opt01,
+      integer i,j,isp,stdo,iq1,ipr,lgunit,isw,opt0,opt01,
      .nscnts
       integer ib,jb,is,norb,ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
 C     these are read by sigma header
@@ -348,8 +348,8 @@ C ... Heap
       call getpr(ipr)
       laf=allocated(symops_af) !jun2015takao
       stdo = lgunit(1)
-      nl = globalvariables%nl
-      mxorb = globalvariables%mxorb
+c      nl = globalvariables%nl
+c      mxorb = globalvariables%mxorb
       opt01 = mod(mod(opt,10),2)
       opt0  = mod(opt,10)
       nscnts = 0

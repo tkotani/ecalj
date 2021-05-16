@@ -1,8 +1,7 @@
       subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, !,slat
      .     numq,nevec,evl,evec,ewgt,f)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_struc_def 
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -112,7 +111,7 @@ C --- Setup ---
         enddo
       endif
 #endif
-      nbas  = globalvariables%nbas
+c      nbas  = globalvariables%nbas
 C --- Loop over first and second site indices ---
 #if MPI
       allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)

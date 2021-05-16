@@ -3,7 +3,7 @@
      .   ng , gv , kv , cv , cg1 , cgsum , k1 , k2 ,  k3 , smrho, qbg, smpot ,
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       use m_struc_def
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nsp
       use m_lmfinit,only: lat_alat,lat_vol,lat_plat
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------
@@ -38,7 +38,7 @@ C ... Local parameters
 
       character(len=120) strn
       integer :: procid, master = 0
-      integer :: stdo, ig, i, j, lgunit, mpipid, ifiese, ierr, ib, is, i_copy_size, ik3, ik2, ik1, nsp
+      integer :: stdo, ig, i, j, lgunit, mpipid, ifiese, ierr, ib, is, i_copy_size, ik3, ik2, ik1!, nsp
 
       real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
       real(8) :: alat, plat(3,3), vol, eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
@@ -50,7 +50,7 @@ C ... Local parameters
       allocate(vtmp(k1, k2, k3), cwork(ng))
 
       call tcn('esmsmves')
-      nsp   = globalvariables%nsp
+c      nsp   = globalvariables%nsp
       mlog = cmdopt('--mlog',6,0,strn)
       procid = mpipid(1)
 

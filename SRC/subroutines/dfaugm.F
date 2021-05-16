@@ -1,7 +1,7 @@
       subroutine dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig 
      .   , sv_p_otau , sv_p_oppi )
       use m_struc_def,only:s_rv1,s_site,s_spec !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nkaph,nsp,nspc
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -53,10 +53,10 @@ C ... Passed parameters
       type(s_rv1) :: sv_p_osig(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nsp,nspc,nkaph,nso
-      nsp   = globalvariables%nsp
-      nspc  = globalvariables%nspc
-      nkaph = globalvariables%nkaph
+      integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nelt2,nglob,nlma,nlmh,nso
+c      nsp   = globalvariables%nsp
+c      nspc  = globalvariables%nspc
+c      nkaph = globalvariables%nkaph
       call rxx(lso.eq.1.and.nspc.ne.2,'dfaugm: inconsistent parameters')
       nso = 1
       if (lso .ne. 0) nso = 2

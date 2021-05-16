@@ -9,7 +9,7 @@
      &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
      &     sstrnsymg, !ssite2=>v_ssite2,sstrnmix,
      &     symgaf, !v_sbz,v_sctrl,v_sctrl2,v_sham,v_slat,v_slat2,v_spot,v_sarry,v_sarry2,
-     &     globalvariables, rv_a_opos 
+     &     rv_a_opos,nat
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_suham,only:suham
@@ -51,7 +51,7 @@ Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
       logical mlog
       logical lgors,cmdopt,bittst
       integer fopna,fopng,i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
-     .     k,lcgf,leks,lgunit,lpnu,lrel,lrout,nbas,nat,
+     .     k,lcgf,leks,lgunit,lpnu,lrel,lrout,nbas,
      .     nbaspp,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
       integer:: o
@@ -114,7 +114,7 @@ C  ... for LDA+U
       nl=ctrl_nl
       nspec=ctrl_nspec
       nsp=ctrl_nspin
-      nat = globalvariables%nat
+c      nat = globalvariables%nat
       qbg = ctrl_zbak(1)
       maxit = int(ctrl_maxit)
       lrel = isw ( int(ctrl_lrel) .ne.0 )

@@ -2,9 +2,8 @@
      .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
      .  , smrnew , smrho )
       use m_struc_def
-      use m_lmfinit,only: globalvariables
       use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat
+      use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat,nbas,stdo,stdl
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.
@@ -196,7 +195,7 @@ c      type(s_lat)::slat
       double precision qval,elind,dmxp(25)
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
-      integer stdo,stdl,lgunit,nbas,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
+      integer lgunit,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
      .lmxl,n1,n2,n3,ng,nglob,nlml,nr,nmixr,nmix,nda,mxsav,ifi,nlm0,
      .kkk,nnnew,nnmix,ngabc(3),igetss,fopna,broy,nx,
      .nkill,isw,naa,kmxr,kmxs,locmix,offx,off2
@@ -298,9 +297,9 @@ ccccccccccccccccccccccccccccccccccccc
       master = 0
 #endif
 
-      nbas = globalvariables%nbas
-      stdo = globalvariables%stdo
-      stdl = globalvariables%stdl
+c      nbas = globalvariables%nbas
+c      stdo = globalvariables%stdo
+c      stdl = globalvariables%stdl
       call getpr(ipr)
       ipl = 1
       nx = 0

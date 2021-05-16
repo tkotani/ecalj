@@ -1,10 +1,7 @@
-      subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi !slat ,
-     .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc , slmom 
-     .  )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi 
+     .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,stdo
+      use m_struc_def
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -30,36 +27,21 @@ Cu   14 Jun 00 spin polarized
 Cu   24 Apr 00 Adapted from nfp ovlocr.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer:: nbas , nxi(1) , nxi0
       type(s_rv1) :: sv_p_orhoat(3,nbas)
-
       type(s_rv1) :: rv_a_orhofa(nbas)
-
       real(8):: rsmfa(1) , exi(nxi0,1) , hfc(nxi0,2,1) , sqloc , slmom
-c      type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-
-C ... Local parameters
-      integer stdo !nrmx,nlmx,ktop0,stdo
 c      parameter(nrmx=1501,nlmx=64,ktop0=25)
       integer:: ib , ipr , iprint , is , jb , je , js , kmxv , lfoca 
-     .    , lgunit , lmxl , nlmh , nlml , nr , nsp , nglob , i
-
-ckino Dec.12.2011:        integer,pointer :: iv_p_ojcg(:), iv_p_oidxcg(:) =>NULL()
-ckino Dec.12.2011:        real(8),pointer :: rv_p_ocy(:),  rv_p_ocg(:) =>NULL()
-
+     .    , lgunit , lmxl , nlmh , nlml , nr , i
       double precision ceh,cofg,cofh,eh,qcorg,qcorh,qsc,qcsm,qloc,rfoca,
      .rmt,rsmh,rsmv,z,amom
       double precision a,p1(3),
      .p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
-c      double complex b((ktop0+1),nlmx)
-
       real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
       complex(8),allocatable:: b(:,:)
-
-
 #if MPI | MPIK
 C      include "mpif.h"
       integer, dimension(:),allocatable :: ibproc
@@ -67,16 +49,14 @@ C      include "mpif.h"
       integer procid, master, mpipid, numprocs
       logical mlog,cmdopt
       character strn*120
-C     double precision dval
 #endif
       data q /0d0,0d0,0d0/
       integer:: ibini,ibend
 
       call tcn('ovlocr')
       ipr  = iprint()
-      stdo = lgunit(1)
-Changenglob      nsp  = nglob('nsp')
-      nsp  = globalvariables%nsp
+c      stdo = lgunit(1)
+c      nsp  = globalvariables%nsp
 #if MPI | MPIK
       procid = mpipid(1)
       numprocs = mpipid(0)

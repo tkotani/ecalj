@@ -1,5 +1,5 @@
       integer function nnrl(mode,ib1,ib2,iprmb,ndim)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nkaph,nl
 C- Returns number of RL channels between sites ib1, ib2
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,17 +23,8 @@ Cu   29 Jun 00 Handles multiple-kappa case; also added 10s digit mode
 C ----------------------------------------------------------------------
 C     implicit none
       integer mode,ib1,ib2,iprmb(1),ndim
-C Local
-      integer nglob,lmri,ib,nnrli,li,nl,nkaph,ik,mode0,nnrlx
+      integer nglob,lmri,ib,nnrli,li,ik,mode0,nnrlx
       logical lmark
-      save nl,nkaph
-      data nl /-1/, nkaph /-1/
-
-C     mxorb = nglob('mxorb')
-Changenglob      if (nl .eq. -1) nl = nglob('nl')
-      if (nl .eq. -1) nl = globalvariables%nl
-Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
-      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
 
       nnrli = 0

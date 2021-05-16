@@ -5,10 +5,8 @@
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .     lmaxu , vorb , lldau )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
+      use m_struc_def  
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -146,7 +144,7 @@ C ... Local parameters
       character spid*8
       integer nrmx,nlmx,nkap0
       parameter (nrmx=1501, nlmx=64, nkap0=3)
-      integer lh(nkap0),nkapi,nkape,nkaph,k
+      integer lh(nkap0),nkapi,nkape,k
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision ehl(n0),rsml(n0)
       double precision pi,srfpi,y0,rofi(nrmx),rwgt(nrmx),pnu(n0,2),
@@ -168,7 +166,7 @@ C ... for core hole
       real(8),allocatable:: wk(:),rhol1(:),rhol2(:),
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
       logical lfltwf
-      integer:: i , stdo , nglob , ipr , iprint , j1 , ib , is , lmxl 
+      integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl 
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
       
       integer,parameter:: nbasmx=1000
@@ -180,13 +178,13 @@ C ... for core hole
       real(8):: ov0mean,pmean
 C --- Setup ---
       call tcn('locpot')
-      stdo = globalvariables%stdo ! stdo = nglob('stdo')
+c      stdo = globalvariables%stdo ! stdo = nglob('stdo')
 c      print *,'locpot stdo',stdo
       ipr = iprint()
       pi = 4d0*datan(1d0)
       srfpi = dsqrt(4d0*pi)
       y0 = 1d0/srfpi
-      nkaph = globalvariables%nkaph
+c      nkaph = globalvariables%nkaph
       k = nrmx*nlmx*2
       allocate(wk(k),rhol1(k),rhol2(k),v1(k),v2(k),v1es(k),v2es(k))
       allocate(efg(5,nbas),zz(nbas))
@@ -468,7 +466,7 @@ C     Electric field gradient
      .v2es,wk,vvesat,cpnves,rhoexc,rhoex,rhoec,rhovxc,rvepsv,
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: lxcf
 c      use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------
@@ -845,8 +843,7 @@ C ... Generate valence-only rvepsv and rvvxcv (uses v1 as work array)
 C     call pshpr(ipr-31)
 
       call pshpr(max(ipr-31,min(ipr,10)))
-Changenglob      lxcfun = nglob('lxcf')
-      lxcfun = globalvariables%lxcf
+      lxcfun = lxcf
 
       if(debug) print *,'locpt2: 55551111 isw2 lxcfun=',isw2,lxcfun
       if(debug) write(6,'(a)')' === rho1 valence true density ==='
@@ -869,7 +866,7 @@ C --- Add xc potentials to v1 and v2 ---
 C     call pshpr(ipr-11)
       call pshpr(max(ipr-11,min(ipr,10)))
 Changenglob      lxcfun = nglob('lxcf')
-      lxcfun = globalvariables%lxcf
+      lxcfun = lxcf !globalvariables%lxcf
       call dpzero(focexc,2)
       call dpzero(focex,2)
       call dpzero(focec,2)

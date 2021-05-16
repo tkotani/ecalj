@@ -3,9 +3,7 @@
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
-c      use m_globalvariables
-      use m_lmfinit,only:lat_nabc
+      use m_lmfinit,only:lat_nabc,nbas,nsp
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -46,12 +44,12 @@ C ----------------------------------------------------------------------
       type(s_spec)::sspec(*)
 c      type(s_lat)::slat
       double complex smrho(*)
-      integer nsp,nbas,ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
+      integer ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symrho')
       call info(30,1,0,' Symmetrize density..',0,0)
-      nbas = globalvariables%nbas
-      nsp = globalvariables%nsp
+c      nbas = globalvariables%nbas
+c      nsp = globalvariables%nsp
 c      i_copy_size=size(lat_nabc)
 c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       ngabc=lat_nabc

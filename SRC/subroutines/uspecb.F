@@ -1,6 +1,6 @@
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: globalvariables
+      use m_lmfinit,only: nkaph
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -80,21 +80,12 @@ C ... Passed parameters
       integer lpack,mode,is1,is2,lh(nkap0,is1:is2)
       real(8):: rsmh(n0,nkap0,is1:is2) , eh(n0,nkap0,is1:is2)
       type(s_spec)::sspec(*)
-
-C ... Local parameters
       character spid*8
-      integer is,lmxb,ikap,kkap,nkaph,nglob,nkapi,i,j,k,l,npzi,lpzi,
+      integer is,lmxb,ikap,kkap,nkapi,i,j,k,l,npzi,lpzi,
      .lpzl,npze,lmxa
       double precision orbp(n0,2,nkap0),dasum,pnz(n0,2)
-      save nkaph
-      data nkaph /-1/
-
-Changenglob      if (nkaph .eq. -1) nkaph = nglob('nkaph')
-      if (nkaph .eq. -1) nkaph = globalvariables%nkaph
-
       if (mode .eq. -1) then
-Changenglob        nkaph = nglob('nkaph')
-        nkaph = globalvariables%nkaph
+c        nkaph = globalvariables%nkaph
         return
       else if (mode .eq. 0) then
         i = 0

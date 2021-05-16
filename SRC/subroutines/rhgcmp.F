@@ -3,7 +3,7 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: globalvariables
 c      use m_globalvariables
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol
+      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol,nspec,nsp
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -73,8 +73,7 @@ c      type(s_lat)::slat
       double complex cg(ng)
 C ... Local parameters
       integer ib,is,iv0,igetss,lmxl,ltop,n1,n2,n3,ng1,nglob,nlm,
-     .nlmtop,nspec,ngabc(3),lfoc,modgkl
-      integer:: nsp
+     .nlmtop,ngabc(3),lfoc,modgkl
       real(8) ,allocatable :: qkl_rv(:)
       real(8) ,allocatable :: cs_rv(:)
       real(8) ,allocatable :: g_rv(:)
@@ -101,8 +100,8 @@ c      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       ngabc=lat_nabc
       ng1=lat_ng
       vol=lat_vol
-      nspec = globalvariables%nspec
-      nsp   = globalvariables%nsp
+c      nspec = globalvariables%nspec
+c      nsp   = globalvariables%nsp
       modgkl = mode
       if (mode .ge. 200) modgkl = mod(mode,100)
 C --- Set up help arrays ---
