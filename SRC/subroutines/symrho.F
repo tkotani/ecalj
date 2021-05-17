@@ -66,8 +66,9 @@ c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
-      use m_lmfinit,only: lat_plat,lat_qlat
-C- Symmetrize the atomic charge densities and the forces.
+      use m_lmfinit,only: lat_qlat
+      use m_lattic,only:lat_plat
+C     - Symmetrize the atomic charge densities and the forces.
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   ssite :struct for site-specific information; see routine usite

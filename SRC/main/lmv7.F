@@ -2,7 +2,6 @@
       program lmf
       use m_lmfinit,only:  mxrecs,recln0,rdctrl2,  v_sspec !,v_ssite,slabl_
       use m_ext,only: getext,sname
-      
       implicit none
       integer:: procid, master, mpipid, nproc,ifr,ix,
      &     i,j,k,lgunit,i1mach,auxmod,lc,stdo, 

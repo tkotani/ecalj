@@ -1,7 +1,8 @@
 c#define SGI 1
       subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
       use m_struc_def 
-      use m_lmfinit,only:lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec,nbas
+      use m_lmfinit,only: lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec,nbas
+      use m_lattic,only:  lat_plat
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs

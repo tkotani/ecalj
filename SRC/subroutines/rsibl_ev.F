@@ -6,7 +6,8 @@ Ckino from rsibl write eigenvectors
       use m_struc_def 
       use m_w_psir
       use m_lmfinit,only:
-     &       lat_alat,lat_plat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,rv_a_opos,nspec
+     &     lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,rv_a_opos,nspec
+      use m_lattic,only: lat_plat
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------
 Ci Inputs

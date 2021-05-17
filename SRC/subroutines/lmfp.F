@@ -2,9 +2,8 @@
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, irs1x10, !,irs3,irs4,irs5,irs11,
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
-     &     ctrl_lmet, !,ctrl_lrs,ctrl_lbas
      &     ham_ehf,ham_ehk,ham_seref,ham_eterms,
-     &     lat_plat,lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,
+     &     lat_gam,lat_ldist,lat_alat,lat_dist,lat_plat0,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, !v_smix,
      &     sstrnsymg, !ssite2=>v_ssite2,sstrnmix,
@@ -13,7 +12,7 @@
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_suham,only:suham
-      use m_lattic,only:lattic
+      use m_lattic,only: lat_plat
       use m_ext,only: sname
 !! = Main routine of lmf = (following document is roughly checked at aug2020)
 !   lmfp contains two loops
@@ -206,10 +205,9 @@ c    4 continue !
       lrout = 1  ! Whether to evaluate output density and/or KS energy
       leks = 1
       j = 6
-      if (nevmx .eq. -1) then
+      if (bz_nevmx .eq. -1) then
         lrout = 0
         leks = 0
-        bz_nevmx=nevmx
       endif
       lpnu = 1 !Whether to float pnu's
       if (lrout == 0 .and. ctrl_lfrce /= 0) then

@@ -5,7 +5,8 @@
       use m_struc_func
       use m_lmfinit,only: nsp,lrel,nl
       use m_supot,only: zv_a_osmrho
-      use m_lmfinit,only:lat_plat,lat_alat,lat_nabc,lat_dist
+      use m_lmfinit,only:lat_alat,lat_nabc,lat_dist
+      use m_lattic,only: lat_plat
 C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs

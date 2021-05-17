@@ -14,18 +14,18 @@
      .     dmatu,vorb,llmfgw)
       
       use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham
+      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
       use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
      &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
-     &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !ham_nqsig,
-     &     lat_vol,lat_alat,lat_plat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
+     &     lat_vol,lat_alat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
-c      use m_lmfinit,only: globalvariables
+      use m_lattic,only: lat_plat
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_w_psir, only: w_psir_cmdopt
@@ -519,12 +519,10 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
          inquire(file='sigm.'//trim(sname),exist=nexist)
          if (lrsig .ne. 0 .and. (.not.nexist)) then
             write(6,*)' bndfp (warning): no sigm file found ... LDA calculation only'
-            ham_lsig=0
             lrsig = 0
          endif
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
-      call mpibc1(ham_lsig,1,2,mlog,'bndfp','ham_lsig') 
       epsovl = ham_oveps
       if (procid .eq. master) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
@@ -1075,7 +1073,7 @@ c            massline=.false.
 !! == GW driver ==
       if(llmfgw) then
          nchan = pot_nlma
-         call sugw(ssite , sspec ,   nbas , ndham , zv_a_osmpot 
+         call sugw(lrsig,ssite , sspec ,   nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx    , sv_p_osigx, sv_p_otaux, sv_p_oppix, jobgw 
      .     , nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master)!,lso) 
@@ -1456,7 +1454,7 @@ c$$$               endif
                      if (lwtkb .eq. 0)
      .                 call rx('metal weights required for LDA+U calculation')
 c                     nl = int(ctrl_nl)
-                     nlmax = nl*nl
+c                     nlmax = nl*nl
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
                      if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
                      ausu_rv(:)=0.0d0
@@ -1576,7 +1574,7 @@ c            endif
 !! Decompose to alm components. PROCAR generation.
 !! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
             if(PROCARon) then
-               nlmax = nl*nl
+c               nlmax = nl*nl
                allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
                initbd=.false.
                qold=qp

@@ -1,15 +1,16 @@
-      subroutine sugw ( ssite , sspec ,  nbas , ndham !sham ,slat , 
+      subroutine sugw ( lrsig,ssite , sspec ,  nbas , ndham !sham ,slat , 
      .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
      .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
      .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)!,lso)
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
-      use m_suham,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo,ham_ldham
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
-     &     ham_ldham,ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,
+     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
-     &     lat_alat,lat_nabc,lat_plat,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
+     &     lat_alat,lat_nabc,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
       use m_mksym,only: lat_npgrp,lat_nsgrp
+      use m_lattic,only:lat_plat      
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -124,7 +125,7 @@ Cu   25 Oct 01 (T. Kotani) split functions into parts, with job
 Cu             Binary files imcompatible with prior versions.
 Cu   23 Apr 01 First created
 !! ----------------------------------------------------------------------
-      integer:: i_copy_size,i_spackv
+      integer:: i_copy_size,ham_lsig
       integer nbas,ndham,n0,nkap0,nppn,lcplxp
       parameter (n0=10, nppn=12, nkap0=3)
       integer:: jobgw , lh(n0)
@@ -275,7 +276,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       lchk = 1
 c      nsp  = globalvariables%nsp
 c      nspc = globalvariables%nspc
-      lrsig = int(ham_lsig)
+c      lrsig = int(ham_lsig)
       lwvxc = .not. cmdopt('--novxc',7,0,strn)
       nqsig = ham_nqsig
 

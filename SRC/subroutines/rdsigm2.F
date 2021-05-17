@@ -109,10 +109,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_ldham,ham_rsstol,ham_nqsig,ham_ndhrs,
-     & lat_plat,rv_a_opos,mxorb,stdo,nl
-c      use m_work,only:  rv_p_oqp
-c      use m_rctrl,only: bz_nabc,bz_lshft,bz_nkp
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,ham_nqsig,ham_ndhrs,
+     &     rv_a_opos,mxorb,stdo,nl
+      use m_suham,only: ham_ldham
+      use m_lattic,only: lat_plat
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig

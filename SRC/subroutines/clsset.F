@@ -1,5 +1,6 @@
       subroutine clsset(mode,nbas,pos,ncl,clssl,cllst,clord,clp) !,slat
-      use m_lmfinit,only: lat_plat,lat_plate
+      use m_lattic,only: lat_plat
+      use m_lmfinit,only: lat_plate
       use m_struc_def  !Cgetarg
 
 C- Groups all sites in a crystal into clusters

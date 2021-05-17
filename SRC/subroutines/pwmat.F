@@ -1,7 +1,8 @@
       subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat,lat_qlat,lat_vol
+      use m_lattic,only:lat_plat
       implicit none
 !! inn:  takao added 27 Apr2009
 !!   We have  q+G(igvx; internal in pwmat) = qp + G(igapw).
@@ -238,7 +239,8 @@ C --- Cleanup ---
       subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,ovlp,pwh)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_plat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat,lat_qlat,lat_vol
+      use m_lattic,only:lat_plat      
 C- Matrix elements (IPW,IPW); expansion coefficients of basis fns in IPWs
 C ----------------------------------------------------------------------
 Ci Inputs

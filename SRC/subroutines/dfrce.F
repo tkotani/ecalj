@@ -3,7 +3,8 @@
      .     , dfh )
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def 
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,lat_plat,nsp,nbas,nspec
+      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,nsp,nbas,nspec
+      use m_lattic,only: lat_plat
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs

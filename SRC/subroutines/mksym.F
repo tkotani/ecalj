@@ -9,7 +9,7 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       integer , allocatable,protected ::  iv_a_onrcp (:)
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
-      integer,protected:: lat_npgrp,lat_nsgrp
+      integer,protected:: lat_npgrp,lat_nsgrp,ctrl_nclass
       contains
 
       subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
@@ -52,10 +52,10 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       end subroutine
       
       subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips) !,sctrl,slat
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,ctrl_nclass,
-     & lat_dist,lat_ldist,lat_plat,stdo !,iv_a_oips
-      use m_lmfinit,only: rv_a_opos
+      use m_struc_def
+      use m_lattic,only: lat_plat
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,
+     & lat_dist,lat_ldist,stdo,rv_a_opos
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs

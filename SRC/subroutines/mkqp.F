@@ -8,7 +8,8 @@
       subroutine mkqp(gettet,lnoirr,lreduc,lgstar)
       use m_struc_def 
       use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet, lat_plat
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet
+      use m_lattic,only: lat_plat
 !! Set up k-points and related quantities for BZ integration
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,11 +62,11 @@ c      stdo = globalvariables%stdo
       npgrp=lat_npgrp
       lpbc = 0
       ltet = gettet .and. iand(2,int(ctrl_lmet)) .ne.0
-      if(ltet) then
-        ctrl_lmet = ior(int(ctrl_lmet),2)               !ltet=T --> lmet2=on (i think)
-      else
-        ctrl_lmet = ctrl_lmet - iand(int(ctrl_lmet),2) !ltet=F --> lmet2=off (i think)
-      endif  
+c      if(ltet) then
+c        ctrl_lmet = ior(int(ctrl_lmet),2)               !ltet=T --> lmet2=on (i think)
+c      else
+c        ctrl_lmet = ctrl_lmet - iand(int(ctrl_lmet),2) !ltet=F --> lmet2=off (i think)
+c      endif  
 
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1

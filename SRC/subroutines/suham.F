@@ -1,15 +1,15 @@
       module m_suham
       integer , allocatable,protected ::  iv_a_oindxo (:)
       integer , allocatable,protected ::  iv_a_ooffH (:)
-      integer, protected::     ham_ndham,pot_nlma, pot_nlml
+      integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16)
       contains
       subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
       use m_supot,only: rv_a_ogv
       use m_struc_def  
-      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin
-      use m_lmfinit,only:
-     &     ham_npwmin, ham_pwmode,ham_pwemax,ham_pwemin,ham_ldham,ham_lmxax,
-     &     lat_alat,lat_plat,lat_qlat, lat_ng,lat_alat,lat_tolft,nkaph !,ham_npwpad
+      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin,
+     &     ham_pwmode,ham_pwemax,ham_pwemin,
+     &     lat_alat,lat_qlat, lat_ng,lat_alat,lat_tolft,nkaph !,ham_npwpad
+      use m_lattic,only: lat_plat
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -309,8 +309,8 @@ c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,j
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_plat,lat_qlat,lat_alat,rv_a_opos,nl,ctrl_nbasp
-c     &   invgxaf,miataf,tiataf,shtvgaf
+     &     lat_qlat,lat_alat,rv_a_opos,nl,ctrl_nbasp
+      use m_lattic,only: lat_plat
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex

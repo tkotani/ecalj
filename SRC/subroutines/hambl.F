@@ -4,7 +4,8 @@
      .     hso )
       use m_suham,only: iv_a_oindxo
       use m_struc_def,only: s_rv1, s_site, s_spec!,  s_lat !s_ham,
-      use m_lmfinit,only:lat_plat,lat_qlat
+      use m_lmfinit,only:lat_qlat
+      use m_lattic,only:lat_plat
       implicit none
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------

@@ -5,7 +5,8 @@
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
       use m_lmfinit,only:lso,ham_eterms
       use m_struc_def  
-      use m_lmfinit,only:lat_nabc,lat_plat,lat_qlat,lat_vol,lat_alat,lxcf
+      use m_lmfinit,only:lat_nabc,lat_qlat,lat_vol,lat_alat,lxcf
+      use m_lattic,only:lat_plat
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------

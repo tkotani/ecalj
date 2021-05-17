@@ -1,11 +1,12 @@
       module m_lattic
       real(8) , allocatable,protected ::  rv_a_odlv (:)
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
+      real(8),protected:: lat_plat(3,3)
       contains
       subroutine lattic() !slat,nbas)
       use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
      &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,
-     &     lat_plat0,lat_plat,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol,rv_a_opos
+     &     lat_plat0,lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -44,6 +45,7 @@ C ----------------------------------------------------------------------
      .plat0(3,3),plat(3,3),qlat(3,3),dist(3,3) !platl(3,3),platr(3,3)
       equivalence (gam(1), gx), (gam(2), gy), (gam(3), gz), (gam(4), gt)
       external daxpy,dcopy,lattc,lattdf,rdistn
+      
       alat=lat_alat
       awald0=lat_as
       tol=lat_tol
@@ -52,7 +54,7 @@ C ----------------------------------------------------------------------
       nkqmx=lat_nkqmx
       gam = lat_gam
       alat = lat_alat
-      plat0=lat_plat
+      plat0=lat_platin
       nbas=ctrl_nbas
       nbaspp = nbas 
 C ... Apply specified linear transformation of lattice and basis vectors

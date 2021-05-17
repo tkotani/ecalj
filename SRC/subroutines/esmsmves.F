@@ -3,8 +3,8 @@
      .   ng , gv , kv , cv , cg1 , cgsum , k1 , k2 ,  k3 , smrho, qbg, smpot ,
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       use m_struc_def
-      use m_lmfinit,only: nsp
-      use m_lmfinit,only: lat_alat,lat_vol,lat_plat
+      use m_lmfinit,only: nsp, lat_alat,lat_vol
+      use m_lattic,only: lat_plat
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------
 Ci Inputs

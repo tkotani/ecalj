@@ -39,7 +39,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, !ctrl_lbas,
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
-     &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsig=0
+     &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
@@ -117,19 +117,19 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       real(8) , allocatable,protected  ::  rv_a_ocy (:)
       integer , allocatable,protected  ::  iv_a_oidxcg (:)
       integer , allocatable,protected  ::  iv_a_ojcg (:)
-
-      integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu
+!!      
+      integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
+     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
+     &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
       integer::
-     &     ctrl_nclass,ctrl_noinv,ctrl_lmet,lat_nkd,lat_nkq,lat_ng,lat_nabc(3), !,ctrl_lrs
-     &     ctrl_lfrce,nlmax,mxorb,
-     &     ham_npwmin, ham_ldham(16),ham_lmxax,  ham_lsig, !ham_ndham,ham_npwpad,
-     &     ham_nqsig,ham_ndhrs,ham_neula,ham_nbf, lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos,
-     &     bz_nevmx
-      real(8):: lat_plat(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
+     &     lat_nkd,lat_nkq,
+     &     lat_ng,lat_nabc(3),                ham_nqsig,ham_ndhrs, !rdsigm2
+     & lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos
+      real(8):: lat_platin(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
      &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
      &     lat_dist(9),lat_gam(4),
@@ -268,7 +268,7 @@ C ----------------------------------------------------------------------
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
-     .lfrzw,lgunit,lmet,
+     .lfrzw,lgunit,
      .lrs,lstsym,ltb,nlibu,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
@@ -696,7 +696,7 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
 !     !    Merge with ?
       nm='HAM_DQVAL'; call gtv(trim(nm),tksw(prgnam,nm),dqval,
      .     note='Total charge')
-      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsig,def_i4=0,
+      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=0,
      .     note=
      .     'Controls how self-energy is added to '//
      .     'local exchange correlation functional:'//
@@ -1341,14 +1341,10 @@ c     .  radxbs(j),def_r8=xxx,cindx=jj,note='Radius for xbs')
       enddo                     ! Loop over species
 C     ... Cleanup after looping over species data
       if (io_help==0) then
-C     Maximum L-cutoff
-         call imxmn(nspec,lmxa,1,i0,lmxax)
+         call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
          nkaph = nkaph+lpzi-1
          mxorb= nkaph*nlmax
-c         globalvariables%nkaph = nkaph
-c         globalvariables%nlmax = nlmax
-c         globalvariables%mxorb = mxorb
       endif
  79   continue
 
@@ -1551,6 +1547,7 @@ c     .        note='Assign PL potential index to this site')
      .     def_i4=0,note='Find at most nevmx eigenvectors'//
      .     '%N%3fIf NEVMX=0, program uses internal default'//
      .     '%N%3fIf NEVMX<0, no eigenvectors are generated')
+      
       nm='BZ_NOINV'; call gtv(trim(nm),tksw(prgnam,nm),noinv,
      .     def_lg=F,note=
      .     'Suppress automatic inclusion of inversion symmetry for BZ')
@@ -1683,8 +1680,7 @@ cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
       
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------
       ctrl_defm = lat_defm(:)
-      lmet = isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
-      ctrl_lmet=lmet
+      ctrl_lmet= isw(bz_lmet.ne.0) + 2*isw(ctrl_lmet2) != 1*lmetal + 2*ltetrahedron
       irs=0
       irs(1) = 1
       irs(2) = 1
@@ -1730,6 +1726,7 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_modep=2
       ctrl_nbas=nbas
       nl = max(lmxbx,lmxax)+1
+      nlmax=nl**2
       ctrl_nbasp=nbasp
       ctrl_nesabc=nesabc
       ctrl_nitmv=nitmv
@@ -1755,7 +1752,7 @@ C            Add 100*k to compute response function only each kth iteration
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
       lat_nabc=ftmesh
-      lat_plat=plat
+      lat_platin=plat
       lat_vol=vol
       lat_tolft=tolft
       
@@ -1792,7 +1789,7 @@ C            Add 100*k to compute response function only each kth iteration
       call dcopy(i_copy_size,pmax,1,ham_pmax,1)
       i_copy_size=size(ham_pmin)
       call dcopy(i_copy_size,pmin,1,ham_pmin,1)
-      ham_lsig=lrsig
+      ham_lsig=lrsigx
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
@@ -1909,7 +1906,6 @@ C --- Allocate and copy input to sspec ---
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
       j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
       call suidx(nkaph,j,nspec,v_sspec)
-!! ... Set some global variables
       lxcf = ctrl_lxcf
       nspc = 1
       if( lso==1 ) nspc = 2

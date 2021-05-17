@@ -3,7 +3,8 @@
       use m_supot,only: iv_a_okv,rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
-     &     lat_alat,lat_plat,lat_qlat,lat_nabc,lat_ng,lat_vol,nsp,nbas
+     &     lat_alat,lat_qlat,lat_nabc,lat_ng,lat_vol,nsp,nbas
+      use m_lattic,only:lat_plat      
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
