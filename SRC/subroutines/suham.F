@@ -309,8 +309,8 @@ c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,j
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_qlat,lat_alat,rv_a_opos,nl,ctrl_nbasp
-      use m_lattic,only: lat_plat
+     &     lat_qlat,lat_alat,nl,ctrl_nbasp
+      use m_lattic,only: lat_plat,rv_a_opos
 
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex

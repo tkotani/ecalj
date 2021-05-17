@@ -110,9 +110,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_hft2rs
       use m_sigflg
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,ham_nqsig,ham_ndhrs,
-     &     rv_a_opos,mxorb,stdo,nl
+     &     mxorb,stdo,nl
       use m_suham,only: ham_ldham
-      use m_lattic,only: lat_plat
+      use m_lattic,only: lat_plat,rv_a_opos
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
       integer mode,nbas,ifis,ndimh,lwsig

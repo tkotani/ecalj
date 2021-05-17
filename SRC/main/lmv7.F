@@ -1,11 +1,13 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_lmfinit,only:  mxrecs,recln0,rdctrl2,  v_sspec !,v_ssite,slabl_
+      use m_lmfinit,only:  mxrecs,recln0,rdctrl2,nbas, v_sspec,v_ssite,bz_lmet,ctrl_ldos
       use m_ext,only: getext,sname
+      use m_lattic,only: Lattic,rv_a_opos
+      use m_mkqp,only: Mkqp
       implicit none
       integer:: procid, master, mpipid, nproc,ifr,ix,
      &     i,j,k,lgunit,i1mach,auxmod,lc,stdo, 
-     &     nfilin,nrecs,ic,ig,ib,ibas,nspec,inumaf,iprint,nbas,ioff,irecrd
+     &     nfilin,nrecs,ic,ig,ib,ibas,nspec,inumaf,iprint,ioff,irecrd
       real(8)::pwmode,pwemin,pwemax, bz_w,dval
       character*(recln0):: recrd(mxrecs)
       character(8) :: alabl
@@ -155,6 +157,19 @@ c     endif
 !!    rdctrl2 sets all initial condition to the module m_lmfinit.
 !!    rdctrl2 allow expression like ALAT=7.88*1.1
       call rdctrl2(recrd,recln0,nrecs,prgnam) !prgnam dependence
+!! Lattice      
+      call lattic() ! =lattic (renamed to avoid cyclic dependency)
+      do ibas=1,nbas
+        v_ssite(ibas)%pos = rv_a_opos(:,ibas)
+      enddo
+!! Symmetry      
+      call latsym(prgnam)
+!! Set default values for species data
+      call defspc(v_sspec)
+      if(trim(prgnam) == 'LMF') then
+         ltet = bz_lmet/=0 .or. ctrl_ldos/=0
+         call mkqp(ltet,.False.,1,-2)
+      endif
 
 !! Main part of lmf ------------------------------------
       if(prgnam=='LMCHK') then

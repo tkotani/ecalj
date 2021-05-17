@@ -1,12 +1,12 @@
       subroutine lmaux() !main part of lmchk
       use m_mksym,only: ctrl_nclass,rv_a_oclabl,iv_a_oics,iv_a_oipc
       use m_lmfinit,only: iv_a_oips,str_mxnbr,str_rmax,ctrl_nbas,ctrl_nspec,ctrl_nspin,
-     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,rv_a_opos,slabl,sspec=>v_sspec,
+     &     ctrl_nl,ctrl_modep,ctrl_omax1,ctrl_omax2,ctrl_wsrmax,slabl,sspec=>v_sspec,
      &     lat_avw,lat_alat,lat_nkd,lat_nkq
       use m_struc_def  !Cgetarg
       use m_pairs
       use m_ovmin , only: ovmin
-      use m_lattic,only:lat_plat
+      use m_lattic,only:lat_plat,rv_a_opos
 C- lmchk 
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -565,9 +565,10 @@ c     #define ONE_ATOM_UNIT 1
      &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax 
       use m_mksym,only: rv_a_oclabl,iv_a_oics,ctrl_nclass
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: rv_a_opos, ctrl_nl,ctrl_nspin,lrel_g=>lrel
+      use m_lmfinit,only:  ctrl_nl,ctrl_nspin,lrel_g=>lrel
       use m_supot,only:rv_a_omad
       use m_ext,only:sname
+      use m_lattic,only: rv_a_opos
 C     - File I/O atomic data for classes ic1..ic2
 C     ----------------------------------------------------------------------
 C     i Inputs

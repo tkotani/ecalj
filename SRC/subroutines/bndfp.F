@@ -22,10 +22,10 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_ndhrs,ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !ham_nqsig,
-     &     lat_vol,lat_alat,lat_qlat,lat_nabc,rv_a_opos ,stdo,stdl,procid,master,
+     &     lat_vol,lat_alat,lat_qlat,lat_nabc ,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
-      use m_lattic,only: lat_plat
+      use m_lattic,only: lat_plat,rv_a_opos
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_w_psir, only: w_psir_cmdopt

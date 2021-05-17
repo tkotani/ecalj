@@ -13,7 +13,6 @@
 c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
-      
       implicit none
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
@@ -24,7 +23,6 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
       
 ! 'globalvariables' here is removed may2021. It was type(t_globalvariables),protected :: globalvariables
-      type(s_spec),allocatable,protected:: v_sspec(:)
 
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
@@ -125,6 +123,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
+      type(s_spec),allocatable,protected:: v_sspec(:)
       integer::
      &     lat_nkd,lat_nkq,
      &     lat_ng,lat_nabc(3),                ham_nqsig,ham_ndhrs, !rdsigm2
@@ -134,7 +133,6 @@ c-----------------------
      &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
      &     lat_dist(9),lat_gam(4),
      &     ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_ehf,bz_w,bz_ef,bz_def,bz_dosw(2)
-      real(8), allocatable :: rv_a_opos(:,:)
       type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
       
 !! ... old memo for molecular dynamics section DYN
@@ -1978,10 +1976,10 @@ c$$$          endif
          seref = seref +     v_sspec(ispec)%eref
       enddo
       ham_seref=seref
-      allocate(rv_a_opos(3,nsite))
+c      allocate(rv_a_opos(3,nsite))
       allocate(iv_a_oips(nsite))
       do i_spackv=1,nsite
-         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+c         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
          iv_a_oips(i_spackv) =  v_ssite( i_spackv )%spec
       enddo
       if (procid .eq. master) then
@@ -2014,96 +2012,6 @@ c      enddo
 !! Stage 3  ========================================================
 !!--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
-      call latticx() ! =lattic (renamed to avoid cyclic dependency)
-      do ibas=1,ctrl_nbas
-        v_ssite(ibas)%pos = rv_a_opos(:,ibas)
-      enddo
-!!--- Generate symmetry operations; split species into classes  ---
-      strn = 'find'
-      if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-      if (cmdopt('--nosym',7,0,outs).or.cmdopt('--pdos',6,0,outs)) strn = ' '
-!! when lmfgw, 1st digit of lc is zero--> no inversion added in mksym.
-      lc = 10
-      if (.not. prgnam == 'LMFGWD') lc = 12 ! add inversion for (not lmfgw)
-      if (prgnam=='LMFA'.or.prgnam=='LMCHK') then
-         lc=20
-         if( .not.noinv ) lc = lc+1  !+1 means add inversion 
-      endif   
-      
-!! Antiferro symmetric self-energy mode. Feb2021 recovered
-!! To obtain self-consistency, it may be useful to keep AF condition during iteration.
-!! We need SYMGRPAF      
-! sample for nio
-!     SYMGRPAF i:(1,1,1) ! translation + inversion makes antiferro symmetry.
-!     SYMGRP r3d   !this keeps spin axis. (probably larger symmetry allowed for SO=0)
-!STRUC   ALAT={a} PLAT= 0.5 0.5 1.0  0.5 1.0 0.5  1.0 0.5 0.5
-!        NBAS= 4  NSPEC=3
-!SITE    ATOM=Niup POS=  .0   .0   .0   AF=1    <--- AF symmetric pair
-!        ATOM=Nidn POS= 1.0  1.0  1.0   AF=-1   <---
-!        ATOM=O POS=  .5   .5   .5
-!        ATOM=O POS= 1.5  1.5  1.5
-!
-      if(len_trim(symgaf)>0) lc=12 ! inversion allowed for AF case. Good?
-      if(.not.(prgnam=='LMFA'.or.prgnam=='LMCHK')) ipr10= iprint()>10 !this is only for master
-      if(len_trim(symgaf)>0) then
-        nbas = ctrl_nbas
-        if(ipr10) then
-           write(6,*)
-           write(6,"(a)")       ' AF: ======================================== '
-           write(6,"(a)")       ' AF: Antiferro mode: SPGGRAF='//trim(symgaf)
-           write(6,"(a)")       ' AF:  (neglct waring in GENSYM) '
-           do j=1,nbas
-              write(6,"(a,2i3)") ' AF:  ibas,AF=',j,v_ssite(j)%iantiferro
-           enddo
-        endif
-        strn2=trim(strn)//' '//trim(symgaf)
-        call mksymafx(v_ssite,iv_a_oips,nbas,procid==master,strn2,lc,slabl_,mxspec,nsite)
-!     note ---> rv_a_osymgr, rv_a_oag,lat_nsgrp are overwritten by next 
-!!!   We use symops_af, ngrpaf and so on in suham.F to make a table in sugw.F-gen_hamindex.F.
-!     !    These are passed through m_hamindex
-!     !    The table is for rotation of the self-energy file sigm.*, used in rdsigm2.F-hamfb3k-rotsig.
-!     !
-c$$$  call mptauof ( symops_af , ngrpaf , v_slat2%plat , nbas , v_slat2%rv_a_opos , iclasstaf
-c$$$  .   , miat , tiat , invgx , shtvg )
-c$$$  do ig = 1,ngrpaf
-c$$$  write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$  do i=1,3
-c$$$  write(*,"(3e24.16)") symops_af(i,1:3,ig)
-c$$$  enddo
-c$$$  enddo
-        if(ipr10) write(6,"(a)") ' AF: ===== end of AF section================= '
-        if(ipr10) write(6,"(a)")       
-      endif
-
-!! space-group symmetry generator mksym ----
-      if(procid==master) call pshpr(60)
-      call mksymx(lc,slabl_,strn,v_ssite,iv_a_oips) 
-      if(procid==master) call poppr
-c$$$!! test1 ------------------
-c$$$      ngrp=lat_nsgrp
-c$$$      nbas=ctrl_nbas
-c$$$      allocate(iclasst(nbas),invgx(ngrp),miat(nbas,ngrp),tiat(3,nbas,ngrp),shtvg(3,ngrp),symops(3,3,ngrp),ag(3,ngrp))
-c$$$      call dcopy ( ngrp * 9 , lat_rv_a_osymgr , 1 , symops , 1 )
-c$$$      call dcopy ( ngrp * 3 , lat_rv_a_oag , 1 , ag , 1 )
-c$$$      write(*,*) 'ngrp=',ngrp
-c$$$      do ib=1,nbas
-c$$$        iclasst(ib)=v_ssite(ib)%class
-c$$$      enddo
-c$$$      call mptauof ( symops , ngrp , lat_plat , nbas , lat_rv_a_opos , iclasst 
-c$$$     . , miat , tiat , invgx , shtvg )
-c$$$      do ig = 1,ngrp
-c$$$        write(*,"(2i4,3e24.16)") ig, invgx(ig), shtvg(1:3,ig)
-c$$$        do i=1,3
-c$$$          write(*,"(3e24.16)") symops(i,1:3,ig)
-c$$$        enddo
-c$$$      enddo
-
-!!  Set default values for species data
-      call defspc(v_sspec)
-      if(prgnam == 'LMF') then
-         ltet = bz_lmet/=0 .or. ctrl_ldos/=0
-         call mkqpx(ltet,F,1,-2)!v_sctrl,v_slat,
-      endif
 !!  Show and quit
       if( quit == 1 ) then
         write(6,"(a)") prgnam//"Q=SHOW encountered"

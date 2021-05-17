@@ -7,6 +7,7 @@ xcfunc.o\
 m_struc_func.o\
 pqmix.o\
 m_lmfinit.o\
+latsym.o\
 toksw_init.o\
 writeband.o\
 writepdos.o\

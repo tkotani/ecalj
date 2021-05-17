@@ -2,11 +2,12 @@
       real(8) , allocatable,protected ::  rv_a_odlv (:)
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
       real(8),protected:: lat_plat(3,3)
+      real(8), allocatable :: rv_a_opos(:,:)
       contains
       subroutine lattic() !slat,nbas)
       use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
-     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,
-     &     lat_plat0,lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol,rv_a_opos
+     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,v_ssite,
+     &     lat_plat0,lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol!,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -37,7 +38,7 @@ Cu   5 Jun 01 (ATP) Now calls lattc after lattice transformation
 Cu  19 Apr 00 Fixed rotations; new argument list
 C ----------------------------------------------------------------------
       implicit none
-      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size
+      integer:: ldist , lmxst , nkd , nkdmx , nkq , nkqmx , nbas,i_data_size,i_spackv
       real(8),allocatable:: rv_a_tmp(:)
       integer nbaspp,npadl,npadr
       double precision alat,awald,awald0,gam(4),gx,gy,gz,gt,tol,vol,
@@ -62,6 +63,10 @@ C ... Apply specified linear transformation of lattice and basis vectors
       dist(1:3,1)= lat_dist(1:3)
       dist(1:3,2)= lat_dist(4:6)
       dist(1:3,3)= lat_dist(7:9)
+      allocate(rv_a_opos(3,nbas))
+      do i_spackv=1,nbas
+         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
+      enddo
       if (abs(gt-1) .gt. 1d-10) then
         call rdistn ( rv_a_opos , rv_a_opos , nbaspp , gx , gy , gz , gt )
       elseif (ldist .ne. 0) then
