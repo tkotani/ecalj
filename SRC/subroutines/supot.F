@@ -86,7 +86,7 @@ c        call gvlist ( alat , plat , iwdummy , n1 , n2 , n3 , gmax , 8, ngmx , n
         endif
         lat_ng = ng
         lat_gmax = gmax
-        lat_nabc = ngabc !it was call ii8copy(i_copy_size=3,ngabc,1,lat_nabc,1)
+        lat_nabc = ngabc 
         if (allocated(zv_a_osmrho)) deallocate(zv_a_osmrho)
         allocate(zv_a_osmrho(k1*k2*k3*nsp))
         zv_a_osmrho(:)=0d0

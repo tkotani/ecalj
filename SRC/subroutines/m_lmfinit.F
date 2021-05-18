@@ -10,31 +10,23 @@
 !      i=53           ! i=00110101 binary (lowest order byte)
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
-c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
+      
       use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
       implicit none
-      logical,parameter::  T=.true., F=.false.
-      integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511
-      real(8),parameter::  NULLR =-99999
-      integer,parameter :: n0=10
-      integer,parameter :: nkap0=3
-      integer,parameter :: mxspec=256,lstrn=10000
-      real(8), parameter:: fs = 20.67098d0, degK = 6.3333d-6   ! defaults for MD
       
-! 'globalvariables' here is removed may2021. It was type(t_globalvariables),protected :: globalvariables
-
+      logical,parameter::  T=.true., F=.false.
+      integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511,n0=10,nkap0=3,mxspec=256,lstrn=10000
+      real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf !lat_ngrp ,irs11
-      character(256),protected:: header,symg=' '
-      character(256),protected:: symgaf=' '    !june2015 for antiferro (reserved).
+      character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
-      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0
-
-      integer,protected:: ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, !ctrl_lbas,
+      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,
+     &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
@@ -42,18 +34,15 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
      &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),
-     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  
-     &     ,alfsi=nullr,dabc(3)=nullr,rsstol     
+     &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,rsstol     
      &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
      &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected ::lves
-      integer,protected:: ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,quit,nl,lpfloat
+      integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,quit,nl,lpfloat
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
-      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,temp33(9)
-      real(8),protected:: vol,avw
+      real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,vol,avw
       integer,protected:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
@@ -64,13 +53,11 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
       real(8),allocatable,protected:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
-     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),
-     .     dv(:), uh(:,:),jh(:,:),
+     .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),dv(:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
      .     coreq(:,:),mass(:),colxbs(:,:),radxbs(:),
-     .     rg(:),rsma(:),rfoca(:),
-     .     rsmfa(:),rcfa(:,:),
+     .     rg(:),rsma(:),rfoca(:), rsmfa(:),rcfa(:,:),
      .     exi(:,:),rint(:),rcut(:),rmt(:),pz(:,:,:),
      .     amom(:,:),spec_a(:),z(:),eref(:),rsmv(:)
       character*(8),allocatable,protected::pb1(:),pb2(:), coreh(:)
@@ -117,23 +104,29 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 !!      
       integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
-     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
+     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx, bz_ndos,
      &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
+      real(8),protected:: bz_dosw(2),ham_seref,
+     &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
-      type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
       integer::
-     &     lat_nkd,lat_nkq,
-     &     lat_ng,lat_nabc(3),                ham_nqsig,ham_ndhrs, !rdsigm2
-     &     lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos
-      real(8):: lat_platin(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
-     &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
-     &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
-     &     lat_dist(9),lat_gam(4),
-     &     ham_eterms(20),ham_ehk,ham_seref,ham_alfsi,ham_dabc(3),ham_ehf,bz_w,bz_ef,bz_def,bz_dosw(2)
-      type(s_site),allocatable:: v_ssite(:),v_ssite2(:) !pos is rewritten in lmfp
+     &     lat_nkd,lat_nkq,      !lattic
+     &     ham_nqsig,ham_ndhrs,  !rdsigm2
+     &     lat_ng, lat_nabc(3),         !supot
+     &     lat_ldist=0, !lmfp,mksym
+     &     bz_nkp,bz_ntet,bz_nabc(3)=NULLI   !mkqp
+      real(8):: bz_w,bz_ef,bz_def,!iors
+     &          lat_gmax, !supot
+     &     lat_awald,lat_vol,lat_dist(9),lat_qlat(3,3), !lattic
+     &     ham_eterms(20),
+     &     ham_ehf,  ! bndfp to lmfp
+     &     ham_ehk,  ! bndfp,chkdmu to lmfp
+     &     lat_gam(4),ctrl_mdprm(6)  !lmfp
+      type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
+      type(s_site),allocatable:: v_ssite(:) 
       
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
@@ -271,13 +264,12 @@ C ----------------------------------------------------------------------
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
-      real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),
-     .pp(:,:,:,:),ves(:),zc(:)
+      real(8),allocatable:: pnuc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:)
       integer:: dvec1(3)=1, dvec2(3)=0
 C ... basis
       double precision orbp(n0,2,nkap0)
       integer o,oclabl,ohave,oics,opnu,opp,oqnu,osgw,osoptc,oves,owk !osordn,
-      real(8):: pnux(20)
+      real(8):: pnux(20) ,temp33(9)
       integer:: nnn
       integer:: i_copy_size,i_spacks,iendx,inix,i_spackv
       real(8):: seref
@@ -683,14 +675,14 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       nm='HAM_GGA'; call gtv(trim(nm),tksw(prgnam,nm),ggax,
      .     nout=nout, def_i4=0, note='UnUsed now. See XCFUN...')
       if(ggax>0) call rx('Use HAM_XCFUN instead of HAM_GGA')
-      nm='HAM_ALFSI'; call gtv(trim(nm),tksw(prgnam,nm),
-     .     alfsi, def_r8=0d0,note=
-     .     'Coefficient to artificial addition of overlap to hamiltonian')
-      nm='HAM_DABC' ; call gtv(trim(nm),tksw(prgnam,nm),
-     .     dabc,nout=nout,
-     .     note='Spacings for real-space interstital mesh')
-      if (nout == 1) dabc(2) = dabc(1)
-      if (nout <  3) dabc(3) = dabc(2)
+c      nm='HAM_ALFSI'; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     alfsi, def_r8=0d0,note=
+c     .     'Coefficient to artificial addition of overlap to hamiltonian')
+c      nm='HAM_DABC' ; call gtv(trim(nm),tksw(prgnam,nm),
+c     .     dabc,nout=nout,
+c     .     note='Spacings for real-space interstital mesh')
+c      if (nout == 1) dabc(2) = dabc(1)
+c      if (nout <  3) dabc(3) = dabc(2)
 !     !    Merge with ?
       nm='HAM_DQVAL'; call gtv(trim(nm),tksw(prgnam,nm),dqval,
      .     note='Total charge')
@@ -1778,9 +1770,9 @@ C            Add 100*k to compute response function only each kth iteration
       call sylmnc ( rv_a_ocy , lmxcy )
       call scg ( lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg )
 !! Allocate and copy input to sham ---
-      ham_alfsi=alfsi
-      i_copy_size=size(ham_dabc)
-      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
+c      ham_alfsi=alfsi
+c      i_copy_size=size(ham_dabc)
+c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_elind=elind
       ham_nkaph=nkaph
       i_copy_size=size(ham_pmax)

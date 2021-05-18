@@ -2009,10 +2009,10 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .     ' use:   sev=',f12.6,'   ef=',f12.6)
          if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
  733     format('nf EF:',3f9.5,'    EB:',3f12.5)
-         bz_ndos=ndos
-         bz_dosw = dosw
-         bz_ef=ef0
-         bz_def=def
+c         bz_ndos=ndos
+c         bz_dosw = dosw
+c         bz_ef=ef0
+c         bz_def=def
          if (lrep .eq. 1) then
             ef0 = -1
            write(stdo,*)'Input Fermi energy was too far off, repeat band pass'
@@ -2078,7 +2078,7 @@ c$$$         endif
 !!
          if (lmet .ne. 4) then
             ef0 = eferm
-            bz_ef=ef0
+c            bz_ef=ef0
          endif
          if (lmet .gt. 0) then
             if (procid .eq. master) then
@@ -2143,7 +2143,7 @@ c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
 !! === Generate DOS on disk ===
 c      if(.not. lwndow .and. procid==master) then
       if( procid==master) then
-         ndos0 = bz_ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
+         ndos0 = ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
          if ( ldos/=0 ) then
             if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
             if(ndos0>0) write(6,"(a)")'... Generating total DOS'      !  ndos0=,ndos0
@@ -2212,7 +2212,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
 !! --- Core-level spectroscopy ---
       if (icls .ne. 0) then
          if (procid .eq. master) then
-            eferm=bz_ef
+            eferm=ef0 !bz_ef
             call vcdmel ( nl , ssite , sspec ,  nlmax , ndham , !slat ,
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
      .        nsites , isite , iclsl , iclsn ,dosw) !sbz,
@@ -2385,7 +2385,7 @@ ccccccccccccccccccccccccc
  9995 continue
       call tcx('bndfp')
       return
-
+!! end of bndfp
 
       
 !sssssssssssssssssssssssssssssssssssssssssssss
@@ -2577,8 +2577,10 @@ c     print *,'vessm=',vessm
 c      endif
       end subroutine getqmode
       end subroutine bndfp
-     
+c      end module m_bndfp
 
+
+      
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
 C- Collect eb from various processors (MPI)

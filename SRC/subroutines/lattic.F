@@ -7,7 +7,7 @@
       subroutine lattic() !slat,nbas)
       use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
      &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,v_ssite,
-     &     lat_plat0,lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol!,rv_a_opos
+     &     lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol!,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -84,7 +84,7 @@ C ... Apply specified linear transformation of lattice and basis vectors
      .  gy , gz , gt , plat , qlat , lmxst , vol , awald , rv_a_odlv
      .  , nkd , rv_a_oqlv , nkq , nkdmx , nkqmx )
       lat_vol  =vol
-      lat_plat0=plat0
+c      lat_plat0=plat0
       lat_plat =plat
       lat_qlat =qlat
 !! reduce size. necessary?
