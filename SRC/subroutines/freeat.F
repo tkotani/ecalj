@@ -1,7 +1,8 @@
       subroutine freeat(sspec)
       use m_struc_def,only:s_spec
       use m_ext,only:sname
-      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec
+      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec !,
+!     &     sspec=>v_sspec
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -1,3 +1,56 @@
+      module m_rdfiln
+      integer,parameter,public:: mxrecs=10000,recln=511
+      integer,public:: nrecs
+      character*(recln),public:: recrd(mxrecs)
+      public readctrl !return -vfoobar replaced simplified contents of ctrl into recrd
+      contains
+      subroutine readctrl()
+      use m_ext,only: sname
+      integer:: nfilin,master=0,ierr,i,procid=0,stdo,mpipid,lgunit
+      character(8) :: alabl
+      character:: strn*1000
+      logical:: fileexist,lshowp,lshow,cmdopt0,mlog
+#if MPIK
+      include "mpif.h"
+      procid = mpipid(1) 
+#endif
+      mlog = cmdopt0('--mlog')  !! set log for --mlog (not maintained well)
+      stdo = lgunit(1)
+      if(procid==master) then
+         inquire(file='ctrl.'//trim(sname),exist=fileexist)
+         if(.not.fileexist) call rx("No ctrl file found! ctrl."//trim(sname)) 
+         open(newunit=nfilin,file='ctrl.'//trim(sname)) 
+         call findctrlstart(nfilin) ! if a tag 'ctrlstart' in ctrl, ctrl is read from the tag.
+         alabl = '#{}% ct '
+         call rdfile(nfilin,alabl,recrd,mxrecs,strn,recln,nrecs) !read ctrl into recrd
+         close(nfilin)
+      endif
+#if MPIK
+      call mpibc1( nrecs,1,2,mlog,'main','nrecs')
+      call MPI_BCAST( recrd,recln*(nrecs+1),MPI_CHARACTER,master,MPI_COMM_WORLD,ierr)
+#endif      
+!! Show or not show readin ctrl file.      
+      lshowp = cmdopt0('--showp')
+      lshow  = cmdopt0('--show')
+      if(procid==master.and.(lshow.or.lshowp) ) then
+         write(stdo,"('---- preprocessed ctrl file -------')")
+         do i = 1, nrecs
+            if(trim(recrd(i))=='') cycle
+            write(stdo,"(a)")'%% '//trim(recrd(i))//' %%'
+         enddo
+         write(stdo,"(a,' preprocesses ctrl file. nrecs=', i5)")trim(sname),nrecs
+      endif
+      if(lshowp) call Rx0('end of --showp')
+!  recrd already replace foobar with foobar2 if we have an command-line option
+!    -vfoobar=foobar2 option (replacement of %const defined in ctrl file).
+! Following ctrlrecrd is just for check recrd contains simplified ctrl with -vfoobar replacement.
+c      do i=1,nrecs
+c         if(len_trim(recrd(i))/=0) write(6,"(a)") trim(recrd(i))
+c      enddo
+      end
+      end module m_rdfiln
+
+      
       subroutine rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
      .ilist,nlist,vnam,ctbl,mxchr,a,recrd,recl,nr)
 C- Read one line of a file, with variables substitution and loop parsing
@@ -1810,4 +1863,3 @@ C- Read one line from logical unit
    20 rdstrn = .false.
       return
       end
-

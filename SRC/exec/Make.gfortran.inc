@@ -12,7 +12,7 @@ module = -J$(moddir) -I$(moddir)
 
 ##############################
 FFLAGS_COMMON= -g -fimplicit-none -ffixed-line-length-132 $(CPP_SW) $(module)
-FFLAGS = -O0  $(FFLAGS_COMMON)
+FFLAGS = -O2  $(FFLAGS_COMMON)
 FFLAGS_LESS = -O0   $(FFLAGS_COMMON)
 FFLAGS_LESS2 = -O0  $(FFLAGS_COMMON)
 FFLAGS_LESS3 = -O0  $(FFLAGS_COMMON)

@@ -16,7 +16,7 @@
       implicit none
       
       logical,parameter::  T=.true., F=.false.
-      integer,parameter::  NULLI=-99999,mxrecs=10000,recln0=511,n0=10,nkap0=3,mxspec=256,lstrn=10000
+      integer,parameter::  NULLI=-99999,n0=10,nkap0=3,mxspec=256,lstrn=10000
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono
@@ -169,8 +169,11 @@ C     arg  18:        offset to bs workspace
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
-      subroutine rdctrl2( recrd,recln,nrecs, prgnam)
-!! rdctrl2 sets all data in m_lmfinit      
+      subroutine rdctrl2(prgnam)! recrd,recln,nrecs, prgnam)
+c      integer,intent(in):: recln,nrecs
+c      character*(recln),intent(in):: recrd(nrecs)
+!     ! rdctrl2 sets all data in m_lmfinit
+      use m_rdfiln,only: recln,nrecs,recrd
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv
@@ -249,8 +252,6 @@ C ----------------------------------------------------------------------
 #if MPI | MPIK
       include "mpif.h"
 #endif
-      integer,intent(in):: recln,nrecs
-      character*(recln),intent(in):: recrd(nrecs)
       character,intent(in)::  prgnam*(*)
       character strn*(recln),strn2*(recln)
       integer:: i_spec
