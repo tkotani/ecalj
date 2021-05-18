@@ -127,7 +127,9 @@ c      call readefermi() !comment out,since ef is passed nov2016
 ccccccccccccccccc
 c      print *,'nqbz,nqbzw,nteti,ntetf,nqibz_mtet=',nqbz,nqbzw,nteti,ntetf,nqibz_mtet
       wan1=.false.
-      if (present(wan) .and. wan) wan1=.true.
+      if (present(wan)) then
+         if(wan) wan1=.true.
+      endif   
       call tetwt5x_dtet4(npm,ncc,  
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,
@@ -244,7 +246,9 @@ C     --- METHOD (tetwt5) for the tetrahedron weight
       allocate(demin(1,1,1,1),demax(1,1,1,1),iwgt(1,1,1,1)) !dummy
 
       wan1=.false.
-      if (present(wan) .and. wan) wan1=.true.
+      if (present(wan)) then
+         if(wan) wan1=.true.
+      endif   
       call tetwt5x_dtet4(  npm,ncc, 
      i q, ekxx1, ekxx2, qbas,ginv,ef, 
      d ntetf,nqbzw, nband,nqbz,

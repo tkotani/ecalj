@@ -154,7 +154,9 @@ c      nw=nw2-1      ! nw+1 is how many points of real omega we use
       npm=1
       nw_i=0
       npm2=.false.
-      if(present(npmtwo).and.npmtwo) npm2=.true.
+      if(present(npmtwo)) then
+         if(npmtwo) npm2=.true.
+      endif
       if(.not.timereversal() .or. npm2)  then
          write(6,"('TimeReversal off mode')")
          npm=2

@@ -127,7 +127,7 @@ c-----------------------
       integer::
      &     lat_nkd,lat_nkq,
      &     lat_ng,lat_nabc(3),                ham_nqsig,ham_ndhrs, !rdsigm2
-     & lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos
+     &     lat_ldist=0,bz_nkp,bz_ntet,bz_nabc(3)=NULLI,bz_ndos
       real(8):: lat_platin(3,3),lat_plate(3,3),lat_alat,lat_avw,lat_awald,
      &     lat_plat0(3,3),lat_plat2(3,3),lat_platl(3,3),lat_platr(3,3),lat_qlat(3,3),rpad,
      &     lat_tolft,lat_vol,ctrl_mdprm(6),lat_gmax,
