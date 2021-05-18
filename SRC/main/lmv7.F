@@ -158,10 +158,6 @@ c     endif
 !!    rdctrl2 allow expression like ALAT=7.88*1.1
       call rdctrl2(recrd,recln0,nrecs,prgnam) !prgnam dependence
 !! Lattice      
-      call lattic() ! =lattic (renamed to avoid cyclic dependency)
-      do ibas=1,nbas
-        v_ssite(ibas)%pos = rv_a_opos(:,ibas)
-      enddo
 !! Symmetry      
       call latsym(prgnam)
 !! Set default values for species data
