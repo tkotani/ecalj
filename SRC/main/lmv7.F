@@ -60,10 +60,10 @@
       call Finits() 
       call Getext()        ! Return sname, e.g. trim(sname)=si of ctrl.si
 #endif
+      stdo = lgunit(1) !standard output stdo=6 usually
       if(procid == master) then
         write(stdo,"(a)") ' --------------  START '//trim(prgnam)//'  ------------------'
       endif
-      stdo = lgunit(1) !standard output stdo=6 usually
       call Show_programinfo(stdo)
       if(cmdopt2('--pr',outs).or.cmdopt2('-pr',outs)) then 
         read(outs(5:),*) k

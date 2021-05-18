@@ -104,10 +104,10 @@
       integer , allocatable,protected  ::  iv_a_ojcg (:)
 !!      
       integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
-     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx, bz_ndos,
+     &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
      &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
-      real(8),protected:: bz_dosw(2),ham_seref,
+      real(8),protected:: ham_seref,
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
@@ -117,8 +117,10 @@ c-----------------------
      &     ham_nqsig,ham_ndhrs,  !rdsigm2
      &     lat_ng, lat_nabc(3),         !supot
      &     lat_ldist=0, !lmfp,mksym
-     &     bz_nkp,bz_ntet,bz_nabc(3)=NULLI   !mkqp
-      real(8):: bz_w,bz_ef,bz_def,!iors
+     &     bz_nkp,bz_ntet,bz_nabc(3)=NULLI !mkqp
+     &  ,bz_ndos !bndfp
+      real(8):: bz_w,bz_ef,bz_def, !iors,bndfp
+     &  bz_dosw(2), !bndfp ???
      &          lat_gmax, !supot
      &     lat_awald,lat_vol,lat_dist(9),lat_qlat(3,3), !lattic
      &     ham_eterms(20),
