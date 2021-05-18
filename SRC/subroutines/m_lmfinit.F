@@ -123,7 +123,7 @@ c      use m_struc_func,only: mpibc1_s_spec, mpibc1_s_site
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
-      type(s_spec),allocatable,protected:: v_sspec(:)
+      type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
       integer::
      &     lat_nkd,lat_nkq,
      &     lat_ng,lat_nabc(3),                ham_nqsig,ham_ndhrs, !rdsigm2
@@ -1904,6 +1904,9 @@ C --- Allocate and copy input to sspec ---
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
       j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
       call suidx(nkaph,j,nspec,v_sspec)
+!! Set default values for species data
+      call defspc(v_sspec)
+      
       lxcf = ctrl_lxcf
       nspc = 1
       if( lso==1 ) nspc = 2
@@ -2009,7 +2012,7 @@ c      enddo
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
      
-!! Stage 3  ========================================================
+!! Stage 3  is moved to latsym and mkqp called from lmv7.F
 !!--- Lattice setup:deformation ---
       !!v_* is going to be overwritten 
 !!  Show and quit

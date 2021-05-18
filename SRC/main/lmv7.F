@@ -160,13 +160,13 @@ c     endif
 !! Lattice      
 !! Symmetry      
       call latsym(prgnam)
-!! Set default values for species data
-      call defspc(v_sspec)
       if(trim(prgnam) == 'LMF') then
          ltet = bz_lmet/=0 .or. ctrl_ldos/=0
          call mkqp(ltet,.False.,1,-2)
       endif
-
+!! We need to protect all contents prepared until now (but not yet completed).
+!! These are in  m_lmfinit, m_lattic, m_mksym, m_mkqp
+      
 !! Main part of lmf ------------------------------------
       if(prgnam=='LMCHK') then
         if(nsize/=1) call rx('Current lmchk is only for single core')
