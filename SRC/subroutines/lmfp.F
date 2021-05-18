@@ -7,9 +7,9 @@
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat
-      use m_supot,only:sv_a_oorhat,zv_a_osmrho,supot
+      use m_supot,only:sv_a_oorhat,zv_a_osmrho,Supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
-      use m_suham,only:suham
+      use m_suham,only: Suham
       use m_lattic,only: lat_plat,rv_a_opos
       use m_ext,only: sname
 !! = Main routine of lmf = (following document is roughly checked at aug2020)
@@ -47,7 +47,7 @@ Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
       integer procid,master,mpipid,nproc
       logical mlog
       logical lgors,cmdopt,bittst
-      integer fopna,fopng,i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
+      integer i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lgunit,lpnu,lrel,lrout,nbas,
      .     nbaspp,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
@@ -107,21 +107,20 @@ C  ... for LDA+U
       mlog = cmdopt('--mlog',6,0,strn)
 !! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
-      nbas=ctrl_nbas
-      nl=ctrl_nl
-      nspec=ctrl_nspec
-      nsp=ctrl_nspin
-c      nat = globalvariables%nat
+      nbas = ctrl_nbas
+      nl   = ctrl_nl
+      nspec= ctrl_nspec
+      nsp  = ctrl_nspin
       qbg = ctrl_zbak(1)
       maxit = int(ctrl_maxit)
-      lrel = isw ( int(ctrl_lrel) .ne.0 )
+      lrel =  ctrl_lrel/=0
       call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
       if (lhf) maxit = 1
       nbaspp = nbas      
       stdo   = lgunit(1)
       irs1x = irs1
       plat = lat_plat
-      if (ipr .ge. 30) call praugm(sspec,0) !Printout properties of species
+      if(ipr>=30) call praugm(sspec,0) !Printout properties of species
       
 !!    --rs=3 => always read from atom file !2020aug.
 !! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
@@ -130,13 +129,13 @@ C     ... Setup for no screening transformation
 !!  Sep2020 comment " Shorten site positions" here removed.
       
 !! ... Setup for charge mixing
-      dmxp=0d0
+      dmxp= 0d0
       dmxp(2)=mix_b
       dmxp(9)=mix_bv
       dmxp(4:5)= mix_w(1:2)
       dmxp(3)= mix_wc
-      dmxp ( 6 ) = int(mix_nsave)
-      dmxp ( 7 ) = int(mix_mmix)
+      dmxp(6 ) = int(mix_nsave)
+      dmxp(7) = int(mix_mmix)
       call parms0(0,0,0d0,0)
 C     ... Allocate memory for forces ! lfrce = int(ctrl_lfrce)
       if (ctrl_lfrce .ne. 0) then
@@ -191,13 +190,13 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
         endif   
       endif
       
-!!=== Re-entry for lshr (share mode); share mode is currently commented out.
+!!=== Re-entry for lshr (share mode); but share mode is currently commented out.
 !!      Probably share mode is going to be moved to outside of lmfp =======
 c    4 continue !
       if(procid==master) write(stdo,*)' lmfp : potential and basis setup ... '
-      call supot(0) 
+      call supot() 
       call suham(sspec,ssite)
-      if ( ctrl_quit .eq. 8 ) call rx0('quit = ham')
+      if ( ctrl_quit == 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
       nevmx = bz_nevmx !Maximum number of eigenvalues
       lrout = 1  ! Whether to evaluate output density and/or KS energy
@@ -266,7 +265,7 @@ c 10         continue
 !              read initial given by the superposition of spherical atomic densities by lmfa.
                nit1 = 0
             elseif ( 1<= mod(irs1x,4) .and. mod(irs1x,4)<=2 ) then 
-               lbin = (irs1x==1) !.not. bittst(irs1x,2) !lbin=T:rst --rs=1, or lbin=F:rsta --rx=2,
+               lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
                k = -1
                if (procid .eq. master) then
                   ifi=ifile_handle() 
@@ -414,7 +413,7 @@ C     The desired tolerances in q,e
          
 c$$$  else !without shear
 !! main routine to relax atomic positions.  
-         call relax ( ssite , sspec , itrlx , indrx_iv !sctrl ,
+         call relax ( ssite , sspec , itrlx , indrx_iv 
      .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
 !!--- we removed a procedure at apr2021 2020
 !!  Updated positions in site structure !WARN! t.kotani think this is confusing because
@@ -455,7 +454,7 @@ C     Repack updated positions in site structure
 !! Write restart file (to include new positions)
          if (procid .eq. master) then ! .and. .not. lshr) then
             ifi = ifile_handle()
-            open(ifi,file='rst.'//trim(sname),form='unformatted') !fopna('rst',-1,4)
+            open(ifi,file='rst.'//trim(sname),form='unformatted') 
             fileid = 'lmfp:  '  !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
      .           , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 

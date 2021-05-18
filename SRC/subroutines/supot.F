@@ -9,7 +9,7 @@
       complex(8) , allocatable ::  zv_a_osmpot (:)
       real(8) , allocatable ::  rv_a_omad (:)
       contains
-      subroutine supot(mode)    !,spot) !,sctrl,slat
+      subroutine supot()    !,spot) !,sctrl,slat
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
       use m_mksym,only:    rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
@@ -33,7 +33,7 @@ Cu Updates
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer mode
+      integer mode=0
 c      type(s_ctrl)::sctrl
 c      type(s_lat)::slat
 c      type(s_pot)::spot

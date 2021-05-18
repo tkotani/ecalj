@@ -3,7 +3,7 @@
       integer , allocatable,protected ::  iv_a_ooffH (:)
       integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16)
       contains
-      subroutine suham(sspec,ssite)!,spot)!,sbz)sctrl,,sham slat,
+      subroutine suham(sspec,ssite)
       use m_supot,only: rv_a_ogv
       use m_struc_def  
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin,
