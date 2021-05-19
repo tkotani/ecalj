@@ -171,7 +171,7 @@ C     arg  18:        offset to bs workspace
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
-      subroutine rdctrl2(prgnam)! recrd,recln,nrecs, prgnam)
+      subroutine m_lmfinit_init(prgnam)! recrd,recln,nrecs, prgnam) !rdctrl2
 c      integer,intent(in):: recln,nrecs
 c      character*(recln),intent(in):: recrd(nrecs)
 !     ! rdctrl2 sets all data in m_lmfinit
@@ -2024,7 +2024,7 @@ c      enddo
         irs2=0
         ctrl_maxit=1
       endif
-      end subroutine rdctrl2
+      end subroutine m_lmfinit_init
       end module m_lmfinit
 
 

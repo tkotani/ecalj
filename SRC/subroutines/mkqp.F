@@ -2,7 +2,7 @@
       integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
       real(8),allocatable,protected :: rv_p_oqp (:), rv_a_owtkp(:)
       contains
-      subroutine mkqp() !lnoirr,lreduc,lgstar)
+      subroutine m_mkqp_init() !lnoirr,lreduc,lgstar)
       use m_struc_def 
       use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,bz_lmet,ctrl_ldos
@@ -157,6 +157,6 @@ c$$$        call getqp ( 2 , - nfilqp , nkp , nkxyz , lshft , ntet , sbz%rv_p_oq
 c$$$     .     , sbz%rv_a_owtkp , sbz%iv_a_oidtet )
 c$$$        call fclose(nfilqp)
 c$$$      endif
-      end subroutine mkqp
+      end subroutine m_mkqp_init
       end module m_mkqp
 

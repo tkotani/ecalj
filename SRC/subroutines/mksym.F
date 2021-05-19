@@ -10,6 +10,7 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
       integer,protected:: lat_npgrp,lat_nsgrp,ctrl_nclass
+      private pvsym2
       contains
 
       subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input

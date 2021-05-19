@@ -2,9 +2,9 @@
       integer,parameter,public:: mxrecs=10000,recln=511
       integer,public:: nrecs
       character*(recln),public:: recrd(mxrecs)
-      public readctrl !return -vfoobar replaced simplified contents of ctrl into recrd
+      public m_rdfiln_init !return -vfoobar replaced simplified contents of ctrl into recrd
       contains
-      subroutine readctrl()
+      subroutine m_rdfiln_init()
       use m_ext,only: sname
       integer:: nfilin,master=0,ierr,i,procid=0,stdo,mpipid,lgunit
       character(8) :: alabl
@@ -47,7 +47,7 @@
 c      do i=1,nrecs
 c         if(len_trim(recrd(i))/=0) write(6,"(a)") trim(recrd(i))
 c      enddo
-      end
+      end subroutine m_rdfiln_init
       end module m_rdfiln
 
       

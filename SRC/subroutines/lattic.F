@@ -4,7 +4,7 @@
       real(8),protected:: lat_plat(3,3)
       real(8), allocatable :: rv_a_opos(:,:)
       contains
-      subroutine lattic() !slat,nbas)
+      subroutine m_lattic_init() !slat,nbas)
       use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
      &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,v_ssite,
      &     lat_platin,lat_qlat,lat_awald,lat_ldist,lat_nkd,lat_nkq,lat_vol!,rv_a_opos
@@ -111,10 +111,6 @@ c      lat_plat0=plat0
       lat_dist(1:3)=dist(1:3,1)
       lat_dist(4:6)=dist(1:3,2)
       lat_dist(7:9)=dist(1:3,3)
-      end subroutine lattic
+      end subroutine m_lattic_init
       end module m_lattic
-!! 
-      subroutine latticx()
-      use m_lattic,only:lattic
-      call lattic()
-      end
+ 

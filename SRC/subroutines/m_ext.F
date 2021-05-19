@@ -1,10 +1,9 @@
       module m_ext
       implicit none
       character(512),public::sname
-      public:: getext
-c      logical,private:: initex=.true.
+      public:: m_ext_init
       contains
-      subroutine getext()
+      subroutine m_ext_init()
       logical master
       integer:: ifi,ipos,fopn,i,na
       character*256:: sss,s222,argv
