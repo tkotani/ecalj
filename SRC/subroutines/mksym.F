@@ -13,7 +13,8 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       contains
 
       subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
-      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf  ! mksymaf sets following data. used in sugw.F.
+      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
+!     mksymaf sets data above used in sugw.F. a little complicated...
       use m_struc_def,only: s_site
       intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
       logical::                         imaster
@@ -37,7 +38,7 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       enddo
       enddo
       if(imaster) call pshpr(60)
-      call mksymx(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
+      call mksym(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
       if(imaster) call poppr()
       if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
       ngrpaf     = lat_nsgrp 
@@ -363,26 +364,3 @@ C --- Create nrc ---
       end subroutine pvsym2
       end module m_mksym
       
-!ssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine mksymx(mode,slabl,ssymgr,ssite,iv_a_oips) !this is to avoid cycle dependency of *.o
-      use m_struc_def,only: s_site   
-      use m_mksym,only: mksym
-      character*8 slabl(1),ssymgr*(*)
-      integer mode
-      type(s_site)::ssite(*)
-      integer:: iv_a_oips(*)
-      call mksym(mode,slabl,ssymgr,ssite,iv_a_oips)
-      end
-
-      subroutine mksymafx(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
-      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf  ! mksymaf sets following data. used in sugw.F.
-      use m_struc_def,only: s_site
-      use m_mksym,only: mksymaf
-      intent(in)::        v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
-      logical::                         imaster
-      character strn2*(*)
-      character(8) :: slabl_(mxspec) 
-      type(s_site):: v_ssite(nsite) !pos is rewritten in lmfp
-      integer:: inumaf,iv_a_oips_in(nsite),j,k,nbas,  lc,       mxspec,nsite,ib
-      call mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)
-      end

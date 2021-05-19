@@ -1,58 +1,42 @@
       module m_mkqp
-      integer , allocatable,protected ::  iv_a_oidtet (:)
-      integer , allocatable,protected ::  iv_a_oipq (:)
-      real(8) , allocatable,protected ::  rv_p_oqp (:) 
-      integer , allocatable,protected ::  iv_a_ostar (:)
-      real(8) , allocatable,protected ::  rv_a_owtkp (:)
+      integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
+      real(8),allocatable,protected :: rv_p_oqp (:), rv_a_owtkp(:)
       contains
-      subroutine mkqp(gettet,lnoirr,lreduc,lgstar)
+      subroutine mkqp() !lnoirr,lreduc,lgstar)
       use m_struc_def 
       use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,bz_lmet,ctrl_ldos
       use m_lattic,only: lat_plat
 !! Set up k-points and related quantities for BZ integration
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: lpgf,lmet,lsx
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: plat npgrp osymgr
-Ci     Stored:    *
-Ci     Passed to: *
-Ci   gettet: T read or generate tetrahedra corners, if
-Ci             tetrahedron integration set
-Ci   lnoirr: T suppress generation of inequivalent tetrahedra
-Ci   lreduc: 0 do not save array ipq
-Ci         : 1 save array ipq
-Ci         :-1 ignore symmetry operations, make qp for full BZ.
-Ci   lgstar: nozero, generate igstar according to bzmesh, which see
-Ci         : 0 igstar is not made
-Ci         : 2 igstar contains inverse mapping of ipq
-Ci         :-2 igstar contains group ops rotating irreducible
-Ci         :   to to full BZ.
-Cio Inputs/Outputs
-Ci   sbz   :struct for the Brillouin Zone; see routine ubz
-Cio    Elts read: nkabc lshft lopt lio
-Cio    Stored:    nkp nkabc oqp owtkp ostar ntet oidtet oipq
-!!taken from lmsuit
+!! ----------------------------------------------------------------------
+!! gettet: = bz_lmet/=0 .or. ctrl_ldos/=0 given at setup
+!!            T read or generate tetrahedra corners, if
+!!             tetrahedron integration set
+!!   lnoirr: =F (T suppress generation of inequivalent tetrahedra)
+!!   lreduc: xxx 0 do not save array ipq
+!!         : =1 save array ipq
+!!         : xxx -1 ignore symmetry operations, make qp for full BZ.
+!!   lgstar: nozero, generate igstar according to bzmesh, which see
+!!         : xxx 0 igstar is not made
+!!         : xxx 2 igstar contains inverse mapping of ipq
+!!         : =-2 igstar contains group ops rotating irreducible
+!!         :    to to full BZ.
+!! Outputs protected
+!! idtet, iqp, qp, star, wtkp : for the Brillouin Zone
       implicit none
       logical gettet
-      integer lgstar,lreduc,i_copy_size,i_data_size
-c      type(s_ctrl)::sctrl
-c      integer :: sbz
-c      type(s_bz)::sbz
-c      type(s_lat)::slat
-C ... Local parameters
-      logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
+      integer::  lgstar=-2,lreduc=1, i_copy_size,i_data_size
+      logical:: lgors,ltet,lnoirr=.false.,llshft(3),lipq !lsx,
       integer:: fopna , mxkp , nfilqp , nkp , nkxyz(3) , nsgrp , npgrp 
      .       , lshft(3) , lpbc , ntet , i , iprint , igets 
       integer,allocatable :: iv_a_owk(:)
       integer,allocatable :: iv_a_tmp(:)
       double precision plat(3,3),qlat(3,3),vol
-      character prgnam*4, outs*80
+      character outs*80
       integer ::iwdummy
-      data prgnam/'mkqp'/
+c      data prgnam/'mkqp'/
 C ... Setup
+      gettet = bz_lmet/=0 .or. ctrl_ldos/=0
       ntet = 0
 c      stdo = globalvariables%stdo
       nkxyz=bz_nabc
@@ -62,12 +46,6 @@ c      stdo = globalvariables%stdo
       npgrp=lat_npgrp
       lpbc = 0
       ltet = gettet .and. iand(2,int(ctrl_lmet)) .ne.0
-c      if(ltet) then
-c        ctrl_lmet = ior(int(ctrl_lmet),2)               !ltet=T --> lmet2=on (i think)
-c      else
-c        ctrl_lmet = ctrl_lmet - iand(int(ctrl_lmet),2) !ltet=F --> lmet2=off (i think)
-c      endif  
-
       lipq = lreduc .eq. 1
       if (lreduc .eq. -1) npgrp = 1
 C not now ... q-points from BZMAP, C ... Read qp from disk
@@ -182,11 +160,3 @@ c$$$      endif
       end subroutine mkqp
       end module m_mkqp
 
-      subroutine mkqpx(gettet,lnoirr,lreduc,lgstar) !this is to avoid cycle dependency of *.o
-      use m_mkqp,only: mkqp
-      logical gettet
-      logical lgors,ltet,lnoirr,llshft(3),lipq !lsx,
-      integer lgstar,lreduc,i_copy_size,i_data_size
-      call mkqp (gettet,lnoirr,lreduc,lgstar)
-      end
-      
