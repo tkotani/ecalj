@@ -9,7 +9,8 @@
       complex(8) , allocatable ::  zv_a_osmpot (:)
       real(8) , allocatable ::  rv_a_omad (:)
       contains
-      subroutine supot()    !,spot) !,sctrl,slat
+      
+      subroutine supot()  
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
       use m_mksym,only:    rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
@@ -32,14 +33,9 @@ Cr   on the mode
 Cu Updates
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-      integer mode=0
-c      type(s_ctrl)::sctrl
-c      type(s_lat)::slat
-c      type(s_pot)::spot
-C ... Local parameters
+      integer,parameter:: mode=0
       integer:: nbas , nbasp , nbaspp , nsp , nkd , nkq , igets , ngabc(3) 
-     .             , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint
+     .        , n1 , n2 , n3 , k1 , k2 , k3 , ngmx , ng , ngrp , iprint
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision awald,alat,vol,plat(3,3),gmax,xx
       integer ::iwdummy
