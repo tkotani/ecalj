@@ -1,6 +1,6 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_lmfinit,only: m_lmfinit_init, v_sspec
+      use m_lmfinit,only: m_lmfinit_init
       use m_ext,only:    m_ext_init,sname
       use m_lattic,only: m_Lattic_init
       use m_mkqp,only:   m_mkqp_init
@@ -34,7 +34,7 @@
       if(procid/=master) call setpr(-100) !iprint() is negative except master
 !! help and quit      
       if (cmdopt0('--input')) then 
-         call m_lmfinit_init(prgnam) !recrd,recln,nrecs,prgnam) !prgnam dependence
+         call m_lmfinit_init(prgnam) ! show help and quit for --input
          call Rx0('end of --input(--help) mode')
       endif   
 !! New pdos mode (use --mkprocar and --fullmesh together). and exit ===
@@ -73,7 +73,7 @@
         call Lmaux()  !check crystal structure
       elseif(prgnam=='LMFA') then
         if(nsize/=1) call rx('Current lmfa is only for single core')
-        call Freeat(v_sspec) !spherical atom calculation
+        call Freeat() !spherical atom calculation
       else              
          if(prgnam =='LMFGWD') llmfgw=.true.
          call Lmfp(llmfgw)   !lmfp: self-consistent calculation. lmfgw for GW driver

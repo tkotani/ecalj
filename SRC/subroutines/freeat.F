@@ -1,8 +1,7 @@
-      subroutine freeat(sspec)
+      subroutine freeat()
       use m_struc_def,only:s_spec
       use m_ext,only:sname
-      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec !,
-!     &     sspec=>v_sspec
+      use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -35,7 +34,7 @@ Cu   22 Mar 01 Added printout of reference energy
 Cu   10 Jun 00 spin polarized
 C ----------------------------------------------------------------------
       implicit none
-      type(s_spec)::sspec(*)
+c      type(s_spec)::sspec(*)
       integer ifi,iprint,is,lgunit,nglob,nr,nrmt,nrmx,
      .n0,nkap0,nxi,nxi0,stdo,nrmix(2),lxcfun,igets,lmxa,kcor,lcor
       character*8 spid,chole*8
@@ -48,28 +47,19 @@ C ----------------------------------------------------------------------
       double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
-      integer:: iofa, i_dummy_iofa,ifile_handle
-      logical ixx,ioorbp
-      real(8):: pzsum
+      integer:: iofa, i_dum,ifile_handle
       integer:: i_copy_size,i_spacks,ifives,ifiwv
       character strn*120
       logical cmdopt
-
       ifi = ifile_handle()
       open(ifi,file='atm.'//trim(sname))
       rewind ifi
-c      nspec = globalvariables%nspec
-c      nsp   = globalvariables%nsp
       stdo  = lgunit(1)
-      hfct=0d0
-      pzsum=0d0
-      
+      hfct = 0d0
       open(newunit=ifives,file='vesintatm.'//trim(sname))
       ifiwv = ifile_handle()
       open(ifiwv,file='veswavatm.'//trim(sname))
-      
-      do  is = 1, nspec
-c takao. I found tht Li requires -0.5 to have positive smooth rho.
+      do  is = 1, nspec ! Takao found that Li requires -0.5 to have positive smooth rho.
         if(sspec(is)%z<3.5) then !At least for Li, fitting is not good (negative smooth rho).
           exi(1) = -0.5
           exi(2) = -1
@@ -79,7 +69,7 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
           exi(6) = -9
           exi(7) = -15
           nxi = 7
-        else           !this is original setting. For CrN. This is necessary (maybe long range cutoff is required).
+        else !this is original setting. For CrN. This is necessary(maybe long range cutoff is required).
           exi(1) = -1
           exi(2) = -2
           exi(3) = -4
@@ -88,27 +78,22 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
           exi(6) = -15
           nxi = 6
         endif
-
         i_copy_size=size(ctrl_smalit)
         call icopy(i_copy_size,ctrl_smalit,1,nrmix,1)
         lxcfun = int(ctrl_lxcf)
-        spid=sspec(is)%name
-
-        rsmfa=sspec(is)%rsmfa
-        rfoca=sspec(is)%rfoca
+        spid = sspec(is)%name
+        rsmfa= sspec(is)%rsmfa
+        rfoca= sspec(is)%rfoca
         i_copy_size=size(sspec(is)%coreq)
         call dcopy(i_copy_size,sspec(is)%coreq,1,qcor,1)
         chole=sspec(is)%coreh
         call gtpcor(sspec,is,kcor,lcor,qcor)
-
         z=sspec(is)%z
         rmt=sspec(is)%rmt
         a=sspec(is)%a
         nrmt=sspec(is)%nr
-
-        if (z .eq. 0 .and. rmt .eq. 0) goto 10 !floating orbital
+        if (z == 0 .and. rmt == 0) cycle !floating orbital
         call dpzero(qat,n0*2)
-
         i_copy_size=size(sspec(is)%p)
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
         i_copy_size=size(sspec(is)%q)
@@ -119,7 +104,6 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
         eref = (sspec(is)%eref)
-
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz
@@ -131,54 +115,23 @@ c takao. I found tht Li requires -0.5 to have positive smooth rho.
      .  idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,
      .  ceh,sumec,sumtc,v,etot,sspec(is)%nmcore,ifives,ifiwv)
         print *,'end of freats: spid nmcore=',spid,sspec(is)%nmcore
-
-C     Repack mesh parms, in case a mesh was selected by freats
-        sspec(is)%z=z
-        sspec(is)%rmt=rmt
-        sspec(is)%a=a
-        sspec(is)%nr=nrmt
-C   ... Pack the basis into sspec
-        call dpzero(orbp,n0*2*nkap0)
-        call dcopy(n0,rtab,1,orbp(1,1,1),1)
-        call dcopy(n0,etab,1,orbp(1,2,1),1)
-        sspec(is)%norp=2
-        sspec(is)%ntorb=n0
-        i_copy_size=size(sspec(is)%orbp)
-        call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
-C   --- File write ---
-        if (iprint() .gt. 40) write(stdo,230) spid
-  230   format(/' write free atom data for species  ',a)
-C       Copy second spin channel of rho,v
-        if (nsp .eq. 2 .and. nr .gt. nrmt) then
+        if (iprint()>40) write(stdo,"(a)")' write free atom data for species  '//trim(spid)
+        if (nsp == 2 .and. nr > nrmt) then
           call dcopy(nrmt,rho(1+nr),1,rho(1+nrmt),1)
           call dcopy(nrmt,rhoc(1+nr),1,rhoc(1+nrmt),1)
           call dcopy(nrmt,v(1+nr),1,v(1+nrmt),1)
         endif
-        i_dummy_iofa = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
+        i_dum = iofa(spid,nxi0,nxi,exi,hfc,hfct,rsmfa,z,rmt,
      .  a,nrmt,qc,ccof,ceh,sumtc,rho,rhoc,v,-ifi)
-
-        pzsum= pzsum+sum(pz(1:lmxa+1,1))
-   10   continue
       enddo
-      ixx= ioorbp(1,2,1,nspec,sspec,0,-ifi)
-      call fclose(ifi)
-ctakao
-      print *
-      if(pzsum<1d-10) then
-        print *,' Write mtopara.* ...'
-        call writebasis(nspec,sspec)!,ifi)
-      else
-        print *,' Not write mtopara.* when there is PZ.'
-      endif
-      if (iprint() .gt. 30)  then
-        seref = ham_seref
-        call awrit1('%x%N Sum of reference energies: %1;6d',' ',80,stdo,
-     .  seref)
+      close(ifi)
+      if(iprint() .gt. 30)  then
+         seref = ham_seref
+         write(stdo,"(a,f35.12)") 'Sum of reference energies: ',seref
       endif
       close(ifives)
       close(ifiwv)
       end subroutine freeat
-
 
       subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor,
      .nrmix,lwf,lxcfun,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz,rcfa,
