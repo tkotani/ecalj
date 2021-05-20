@@ -3,6 +3,8 @@
      . k3 , smrho , sv_p_oqkkl , f , lrep )
       use m_struc_def  
       use m_lmfinit,only: nkaph,nsp
+
+
 c      use m_globalvariables
 C- Interpolate the density on the three-point energy mesh for metals
 C ----------------------------------------------------------------------

@@ -1,5 +1,7 @@
       subroutine grpgen(gen,ngen,symops,ng,ngmx)
       use m_lmfinit,only: stdo
+
+
 C- Generate all point symmetry operations from the generation group
 C ----------------------------------------------------------------
 Ci Inputs

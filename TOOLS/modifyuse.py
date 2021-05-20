@@ -34,13 +34,19 @@ def replacer(modz,lineb):
     val =modz[2]
     zzz=None
     if re.match(r'.*use '+modx,lineb):
-        print('yyy',ixb,lineb)
-        zzz=re.sub(val+'[\s]*?,','',lineb)
-        zzz=zzz+'      use '+mody+',only: '+val
+        print('orginal',ixb)
+        print(lineb)
+        zzz1,n1=re.subn(val+'[\s]*?,','',lineb)
+        zzz,n2=re.subn(',\s*'+val+'[\s]*\n','\n',zzz1)
+        if n1+n2>0:
+             zzz=zzz+ '      '+'use '+mody+',only: '+val #+'\n'
+        print('modified',n1,n2)
+        print(zzz)
+        print('-----------')
     return zzz
 
 modz=['m_lmfinit','m_lattic','lat_nkd']
-
+#modz=['m_lmfinit','m_lattic','lat_nkq']
 
 for ffile in argset:
     print('=========== '+ffile+' start ===========')
@@ -55,19 +61,17 @@ for ffile in argset:
         if len(line)<6 or re.match('\S',line[0]) or \
            (not re.match(r'\S',line[5])):
             zzzr = replacer(modz,lineb)
-            #print(ixb,lineb)
             if(zzzr):
-                print(zzzr)
+                #print(zzzr)
                 zzz=zzz+zzzr+'\n'
-                print('yyy',zzzr)
+                #print('yyy',zzzr)
             else:
                 zzz=zzz+lineb
             lineb=line
             ixb=ix+1
-            if ix==len(lines)-1 : zzz=zzz+line
-        else: #get a block or lines
+            if ix==len(lines)-1 : zzz=zzz+line #flush all lines
+        else: #get continuoud lines
             lineb=lineb+line
-    #print(aaa)        
     fout=open(ffile,mode='w')
     fout.write(zzz)
     fout.close()

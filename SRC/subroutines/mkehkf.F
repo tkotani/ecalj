@@ -1,6 +1,8 @@
       subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
       use m_struc_def
       use m_lmfinit,only: ham_eterms,nsp,stdo,stdl
+
+
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs

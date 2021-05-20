@@ -2,6 +2,8 @@
       use m_struc_def,only:s_spec
       use m_ext,only:sname
       use m_lmfinit,only: ctrl_smalit,ctrl_lxcf,ham_seref,nsp,nspec, sspec=>v_sspec
+
+
 C- For each species, makes free atom self-consistent
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -138,6 +140,8 @@ c      type(s_spec)::sspec(*)
      .idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh,
      .sec,stc,v,etot,nmcore,ifives,ifiwv)
       use m_lmfinit,only: nsp,lrel
+
+
       use m_ext,only:sname
       use m_getqvc
 C- Makes one free atom self-consistent, fits rho tails to smoothed Hankels
@@ -541,6 +545,8 @@ C --- Fit analytical expression to tail of core density ---
       subroutine pratfs(spid,lplawv,z,a,nr,rmax,nrmt,lmaxa,pl,nsp,v,
      .rofi,g,psi,plplus,qlplus,ifiwv)
       use m_lmfinit,only: stdo
+
+
       use m_ext,only:sname
 C- Prints out core and valence energy levels of free-atom
 C ----------------------------------------------------------------------
@@ -764,6 +770,8 @@ C ... Find the outermost maximum
       subroutine optfab(isw,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,rofi,
      .spid,itab,rtab,etab)
 c      use m_lmfinit,only: lrel
+
+
 C- Optimise a minimal smooth-Hankel basis for the free atom.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -1702,6 +1710,8 @@ c      ifi = fopna(str,-1,0)
 
       subroutine fctail(nr,nrmt,a,b,rsm,rofi,rhoc,c,eh)
       use m_lmfinit,only: nsp
+
+
 C- Fit one Hankel to tail of core density.
 C ----------------------------------------------------------------------
 Ci Inputs

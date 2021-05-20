@@ -2,6 +2,8 @@
      .   , sv_p_otau , sv_p_oppi )
       use m_struc_def,only:s_rv1,s_site,s_spec !Cgetarg
       use m_lmfinit,only: nkaph,nsp,nspc
+
+
 C- Allocate augmentation matrices sigma,tau,pi for all atoms
 C ----------------------------------------------------------------------
 Ci Inputs

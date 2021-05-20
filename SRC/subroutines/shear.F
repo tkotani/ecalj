@@ -1,5 +1,7 @@
       subroutine shear(nbas,plat,tau,alpha,eps,s)
       use m_lmfinit,only: stdo
+
+
 C- Apply a pure strain to lattice and basis vectors
 C ----------------------------------------------------------------------
 Ci Inputs

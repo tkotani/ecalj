@@ -4,6 +4,8 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
 
+
+
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:

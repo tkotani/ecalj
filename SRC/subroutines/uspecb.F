@@ -1,6 +1,8 @@
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nkaph
+
+
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs

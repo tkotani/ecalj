@@ -61,6 +61,8 @@ C ----------------------------------------------------------------------
       subroutine prdmts(ifi,ipr1,ipr2,sharm,strn,ib,l,lmaxu,iblu,dmats,
      .nsp,nspc)
       use m_lmfinit,only: stdo
+
+
 C- Writes out a site density-matrix-like object for a single l
 C ----------------------------------------------------------------------
 Ci Inputs

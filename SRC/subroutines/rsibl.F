@@ -2,6 +2,8 @@
      .     napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec
+
+
       use m_lattic,only:lat_plat      
 C- Add smooth part of output density into smrho and forces.
 C ----------------------------------------------------------------------

@@ -2,8 +2,10 @@ CSFCPP#define F90 1
       subroutine hklbl(p,rsm,e,q,kmax,nlm,k0,cy,hkl) !slat,
       use m_lattic,only: rv_a_oqlv,rv_a_odlv,lat_plat
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: lat_awald,lat_tol,lat_vol,lat_nkd, lat_nkq,
+      use m_lmfinit,only: lat_awald,lat_tol,lat_vol, 
      &   lat_alat,lat_qlat
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
 C- Bloch-sums of k,L-dependent smooth Hankel functions.
 C ----------------------------------------------------------------------
 Ci Inputs

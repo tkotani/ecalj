@@ -6,6 +6,8 @@
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .     lmaxu , vorb , lldau )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
+
+
       use m_struc_def  
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
@@ -467,6 +469,8 @@ C     Electric field gradient
      .rvexv,rvecv,rvvxcv,rveps,rvvxc,valvef,xcore,qloc,
      .qlocc,aloc,alocc,gpotb,focexc,focex,focec,focvxc,rhobg,efg,ifivesint)
       use m_lmfinit,only: lxcf
+
+
 c      use m_globalvariables
 C- Makes the potential at one site, and associated energy terms.
 C ----------------------------------------------------------------------

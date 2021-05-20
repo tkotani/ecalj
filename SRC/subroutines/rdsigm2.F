@@ -16,6 +16,8 @@
       end subroutine
       subroutine getsene(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: plat,mxorb,ham_ndhrs,nbas,nl
+
+
       use m_suham,only:  iv_a_oindxo
       integer:: i, mode, isp, ispsigm,lrsig,iwdummy,ival
       real(8):: hreal,qp(3)
@@ -111,6 +113,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_sigflg
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,ham_nqsig,ham_ndhrs,
      &     mxorb,stdo,nl
+
+
       use m_suham,only: ham_ldham
       use m_lattic,only: lat_plat,rv_a_opos
       implicit none
@@ -716,6 +720,8 @@ C       call prmx('qp',w(oqp),3,3,nqp)
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sigmainit(ldim,procid,master)
       use m_lmfinit,only : rsrnge=>ham_rsrnge,ham_ndhrs,nbas,pwmode=>ham_pwmode
+
+
       use m_hamindex,only: symops_af,napwmx
       use m_ext,only:sname
 #if MPI | MPIK
@@ -828,6 +834,8 @@ c$$$            deallocate(pos,npair)
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
       use m_lmfinit,only: ham_nqsig,nl,stdo
+
+
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input

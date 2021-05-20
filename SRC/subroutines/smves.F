@@ -4,6 +4,8 @@
       use m_supot,only: iv_a_okv, rv_a_ogv
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: rv_a_ocy,lat_nabc,lat_ng,lat_vol,nsp,stdo
+
+
       use m_ext,only: sname
 C- Electrostatic potential of the smooth density.
 C ----------------------------------------------------------------------

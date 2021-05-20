@@ -6,6 +6,8 @@ CSFCPP#define F90 1
      .lmux,sig,tau,nlx1,nlx2,ppi,
      .lmaxu,vumm,lldau,idu)
       use m_lmfinit,only: nspc
+
+
 C- Generic routine to make augmentation matrices
 C ----------------------------------------------------------------------
 Ci Inputs

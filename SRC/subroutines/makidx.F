@@ -2,6 +2,8 @@
      .ldham)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: mxorb
+
+
 !! takao think this is too complicated...
 !! I am not sure whether this is OK for PMT mode or not.
 !!

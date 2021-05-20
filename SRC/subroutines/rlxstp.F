@@ -1,6 +1,8 @@
       subroutine rlxstp(ssite,natrlx,nvar,indrlx,xyzfrz,pdim)!sctrl,
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce
+
+
 c       ltb=ctrl_ltb
 
 C- Set up variables for relaxation

@@ -4,6 +4,8 @@
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def 
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,nsp,nbas,nspec
+
+
       use m_lattic,only: lat_plat
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
@@ -403,7 +405,11 @@ c     .orhoat,fes1,fes2,fxc)
      . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nbas
+
+
       use m_lmfinit,only:lat_vol,lat_nabc,lat_alat
+
+
 c need to modify texts.
 C- Estimate shift in local density for one site
 C ----------------------------------------------------------------------
@@ -949,6 +955,8 @@ C ... Local parameters
       subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
       use m_struc_def 
       use m_lmfinit,only: nbas,lat_vol,lat_nabc
+
+
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge
 C ----------------------------------------------------------------------
 Ci Inputs

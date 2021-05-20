@@ -2,6 +2,8 @@
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
       use m_struc_def,only: s_site,s_spec
       use m_lmfinit,only: ham_ehk,ham_eterms,stdl
+
+
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------

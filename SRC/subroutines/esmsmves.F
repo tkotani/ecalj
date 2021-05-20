@@ -4,6 +4,8 @@
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       use m_struc_def
       use m_lmfinit,only: nsp, lat_alat,lat_vol
+
+
       use m_lattic,only: lat_plat
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------

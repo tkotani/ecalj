@@ -6,6 +6,8 @@
 c      use m_struc_def, only:s_lat
       use m_xcpbe,  only: xcpbe
       use m_lmfinit,only:  lat_nabc, lat_ng, lat_alat,lat_vol
+
+
 !! ----------------------------------------------------------------------
 !!i Inputs
 !!i   lxcg  : dummy now.  (need to set option in xcpbe)

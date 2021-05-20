@@ -2,6 +2,8 @@
      . , vsum )
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nsp
+
+
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs

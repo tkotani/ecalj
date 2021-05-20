@@ -1731,6 +1731,8 @@ C     DVCDN = 0.0D0
 
       subroutine vxcgr2(nr,nsp,nrx,rofi,rp, exc,vxc)
       use m_lmfinit,only: lxcf_g=>lxcf
+
+
 c      subroutine vxcgr2(nr,nsp,nrx,rofi,rp,
 c     .grh,ggrh,agrh,grgagr,exc,vxc)
 ctakao automatic array version

@@ -1,5 +1,7 @@
       integer function nnrl(mode,ib1,ib2,iprmb,ndim)
       use m_lmfinit,only: nkaph,nl
+
+
 C- Returns number of RL channels between sites ib1, ib2
 C ----------------------------------------------------------------------
 Ci Inputs

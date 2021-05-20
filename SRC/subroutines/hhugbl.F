@@ -1,8 +1,12 @@
       subroutine hhugbl(mode,p1,p2,rsm1,rsm2,e1,e2,nlm1,nlm2,ndim1,
      .ndim2,wk,dwk,s,ds) !slat,
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+
+
       use m_struc_def           !Cgetarg
       use m_lmfinit,only: lat_vol
+
+
 C- Estatic energy integrals between Bloch Hankels, and gradients.
 C ----------------------------------------------------------------------
 Ci Inputs

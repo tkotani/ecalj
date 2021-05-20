@@ -2,6 +2,8 @@
      .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
      .wtkb,dosef,qval,ent,lfill)
       use m_lmfinit,only: stdo,stdl
+
+
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- BZ integration for fermi level, band sum and qp weights
 C ----------------------------------------------------------------------

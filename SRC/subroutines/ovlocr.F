@@ -1,6 +1,8 @@
       subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,stdo
+
+
       use m_struc_def
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------

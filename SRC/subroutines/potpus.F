@@ -1,6 +1,8 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
      .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
       use m_lmfinit,only: stdo,lrel_g=>lrel
+
+
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs

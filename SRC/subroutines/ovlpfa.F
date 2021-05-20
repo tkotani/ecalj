@@ -1,6 +1,8 @@
       subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx, !slat,
      .gv,cv)
       use m_lmfinit,only:lat_alat,lat_vol,nsp
+
+
       use m_struc_def  
 c      use m_globalvariables
 C- Set up Fourier coeffs to overlap the smooth part of FA densities.

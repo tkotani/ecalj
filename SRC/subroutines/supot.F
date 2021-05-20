@@ -14,8 +14,12 @@
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
       use m_mksym,only:    rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
-      use m_lmfinit,only: lat_alat,lat_vol,lat_awald,lat_nkd,lat_gmax,lat_ng,
-     &     lat_nabc,lat_nkq
+
+
+      use m_lmfinit,only: lat_alat,lat_vol,lat_awald,lat_gmax,lat_ng,
+     &     lat_nabc
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
       use m_mksym,only:  lat_nsgrp
 C- Initialization for potential
 C ----------------------------------------------------------------------

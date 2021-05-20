@@ -158,6 +158,8 @@ C ----------------------------------------------------------------------
       use m_struc_def,only: s_site,s_spec,s_rv1
       use m_prlcb,only:   prlcb2,prlcb3
       use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,lat_qlat,nkaph
+
+
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs

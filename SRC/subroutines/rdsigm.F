@@ -260,6 +260,8 @@ C       Assign header parameters or check with file correspondence
      .iprmb,nttabs,iaxs,hrs,ndhrs,tols,nqp,qplst,nbas,lrot,rotm,
      .delT)
       use m_lmfinit,only: nl,mxorb
+
+
       use m_hamindex,only : symops_af
 C- Compare Bloch summed sigma against file sigma(k)
 C ----------------------------------------------------------------------

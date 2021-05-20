@@ -2,7 +2,11 @@
       use m_supot,only:rv_a_ogv
       use m_struc_def
       use m_lmfinit,only: nspec
+
+
       use m_lmfinit,only: lat_alat,lat_ng,lat_tolft
+
+
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
 Ci Inputs

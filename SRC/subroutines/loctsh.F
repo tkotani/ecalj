@@ -1,6 +1,8 @@
       subroutine loctsh(mode,spid,z,a,nr,nrmt,nsp,lmxb,rofi,v,pnu,pnz,
      .rs3,eh3,vmtz,vsel,rsml,ehl)
       use m_lmfinit,only: stdo
+
+
 C- Fit value and slope of local orbitals to smoothed Hankel
 C ----------------------------------------------------------------------
 Ci Inputs

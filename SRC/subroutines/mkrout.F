@@ -100,6 +100,8 @@ C     call tcx('mkrou3')
      .     , sab , qbyl , hbyl , lrout )
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,ham_eterms,nkaph
+
+
       use m_struc_def 
       use m_mkrou3
 C- Assembles local output densities out of the qkkl, and core states

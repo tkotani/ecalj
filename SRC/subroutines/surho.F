@@ -3,6 +3,8 @@
      .  , ndos , dos , sumev , sumqv )
       use m_struc_def 
       use m_lmfinit,only: nsp,nspc,nkaph !globalvariables
+
+
 c      use m_globalvariables
 C- Initialize output density coeffs, dos, and eigenvalue sum
 C ----------------------------------------------------------------------

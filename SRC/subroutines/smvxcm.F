@@ -4,6 +4,8 @@
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def
       use m_lmfinit,only: rv_a_ocy,lat_nabc, lat_ng, lat_vol, lat_alat, lat_vol,lxcf,nsp,stdo
+
+
 C- XC potential for smooth mesh density
 C ----------------------------------------------------------------------
 Ci Inputs

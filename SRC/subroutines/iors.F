@@ -1,11 +1,17 @@
       integer function iors(ssite,sspec,!spot,!sbz,,sctrl,slat,mode
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,irsrot !,ctrl_lrs
+
+
       use m_struc_def 
       use m_struc_func
       use m_lmfinit,only: nsp,lrel,nl
+
+
       use m_supot,only: zv_a_osmrho
       use m_lmfinit,only:lat_alat,lat_nabc,lat_dist
+
+
       use m_lattic,only: lat_plat
 C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------

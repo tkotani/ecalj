@@ -1,6 +1,8 @@
       subroutine prrhat ( nbas , ssite , sspec , sv_p_orhoat )
       use m_struc_def  
       use m_lmfinit,only: nsp,stdo
+
+
       integer:: nbas
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_site)::ssite(*)

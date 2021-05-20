@@ -1,5 +1,7 @@
       subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
       use m_lmfinit,only: stdo
+
+
 C- Coefficients to Madelung matrix
 C ----------------------------------------------------------------
 Ci Inputs

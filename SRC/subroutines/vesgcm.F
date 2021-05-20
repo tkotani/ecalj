@@ -2,6 +2,8 @@
      .kv,cv,cg1,cgsum,k1,k2,k3,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:lat_alat,lat_vol
+
+
 C- Adds contribution from compensating gaussians to smooth estat pot.
 C ----------------------------------------------------------------------
 Ci Inputs

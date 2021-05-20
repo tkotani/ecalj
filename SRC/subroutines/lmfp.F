@@ -7,6 +7,8 @@
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat
+
+
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,Supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_suham,only: Suham

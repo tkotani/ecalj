@@ -2,6 +2,8 @@ CSFCPP#define F90 1
       subroutine rnatm(pl,ql,n0,irchan,lmax,z,a,b,rofi,ev,
      .nr,rc,nsp,v,rho,plplus,qlplus)
       use m_lmfinit,only: stdo
+
+
 C- Renormalise charge or potential for a free atom
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -137,6 +139,8 @@ C      end
 
       subroutine makrvl(z,l,a,b,nr,rofi,konfig,v,ev,tol,rho)
       use m_lmfinit,only:lrel_g=>lrel
+
+
 C- Makes contribution to charge density from a given spin and l,
 C  for free atom and given spherical potential (Adapted from nwrofp)
 C ----------------------------------------------------------------------

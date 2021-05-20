@@ -1,6 +1,8 @@
       subroutine pvsms2 ( ssite , sspec , rotm , nbas , nsp , sv_p_orhoat )
       use m_struc_def  
       use m_lmfinit,only: stdo
+
+
 C- Rotate local densities by specified rotation
 C ----------------------------------------------------------------------
 Ci Inputs

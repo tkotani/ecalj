@@ -70,6 +70,8 @@ C --- Make the space group ---
       end
       subroutine sgroup(mode,gen,agen,ngen,g,ag,ng,ngmx,qb)
       use m_lmfinit,only: stdo
+
+
 C- Sets up space group given generators (gen,agen).
 C ----------------------------------------------------------------------
 Ci Inputs

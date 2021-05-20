@@ -1,5 +1,7 @@
       subroutine projql(qlat)
       use m_lmfinit,only: stdo
+
+
 C- Project 3D reciprocal lattice vecs on surface (2D recip lattice vecs)
 C ----------------------------------------------------------------------
 Ci Input qlat(3,3)  3D reciprocal lattice vectors

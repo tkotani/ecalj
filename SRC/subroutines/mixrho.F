@@ -4,6 +4,8 @@
       use m_struc_def
       use m_supot,only: iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat,nbas,stdo,stdl
+
+
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
 !!  we may need to fix it so that this is well-defined chi=|rho-f(rho)|**2 minimization mixing.

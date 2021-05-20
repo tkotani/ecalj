@@ -5,6 +5,8 @@
       use m_suham,only: iv_a_oindxo
       use m_struc_def,only: s_rv1, s_site, s_spec!,  s_lat !s_ham,
       use m_lmfinit,only:lat_qlat
+
+
       use m_lattic,only:lat_plat
       implicit none
 C- Make the LDA hamiltonian and overlap for one k-point.
@@ -204,6 +206,8 @@ C     call pvhmb2(ndimh,h,s)
 
       subroutine pvhmb1(mode,k1,k2,k3,smpot,vavg) !slat,
       use m_lmfinit,only:lat_nabc
+
+
       use m_struc_def  !Cgetarg
 C- Add subtract a constant from smooth potential
 C ----------------------------------------------------------------------

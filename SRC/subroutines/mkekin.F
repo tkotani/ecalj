@@ -3,6 +3,8 @@
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  
       use m_lmfinit,only:lso,lat_nabc,lat_vol,nkaph,nsp,nspc,stdo
+
+
       use m_suham,only: iv_a_oindxo
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------

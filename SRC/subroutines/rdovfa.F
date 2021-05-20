@@ -5,6 +5,8 @@
       use m_struc_func , only: mpibc1_s_spec
       use m_lattic,only: lat_plat
       use m_lmfinit,only:lat_alat,lat_nabc,lat_vol,lat_ng,nsp
+
+
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
 C ----------------------------------------------------------------------

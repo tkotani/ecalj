@@ -1,6 +1,8 @@
       subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep,
      .lock,z,rmt)
       use m_lmfinit,only: nsp
+
+
 C- Estimate muffin-tin radii overlapping atomic potentials
 C ----------------------------------------------------------------------
 Ci Inputs

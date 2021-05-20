@@ -6,6 +6,8 @@
       use m_struc_def 
       use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
       use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,bz_lmet,ctrl_ldos
+
+
       use m_lattic,only: lat_plat
 !! Set up k-points and related quantities for BZ integration
 !! ----------------------------------------------------------------------

@@ -1,6 +1,8 @@
       subroutine nwit(nvario,iter,maxit,lhf,lhk,etol,qtol,
      .qdiff,svflg,amom,etot,lsc)
       use m_lmfinit,only: nsp,stdo
+
+
 C- Add to save file, determine whether to continue execution
 C ----------------------------------------------------------------------
 Ci Inputs

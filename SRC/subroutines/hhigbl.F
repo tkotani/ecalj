@@ -103,6 +103,8 @@ C         l2t = l2
       subroutine phhigb(dr,q,rsm1,rsm2,e1,e2,mlm1,nlm1,mlm2,nlm2,
      .kmax,ndim1,ndim2,k0,cg,indxcg,jcg,cy,s,ds)!slat,
       use m_lmfinit,only:lat_vol
+
+
       use m_struc_def  !Cgetarg
 C- Integrals between smooth hankels with k-th power of Laplace operator
 C ----------------------------------------------------------------------

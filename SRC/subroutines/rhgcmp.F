@@ -2,8 +2,12 @@
       use m_supot,only: rv_a_ogv
       use m_struc_def  !Cgetarg
 c      use m_lmfinit,only: globalvariables
+
+
 c      use m_globalvariables
       use m_lmfinit,only: lat_alat,lat_qlat,lat_nabc,lat_ng,lat_vol,nspec,nsp
+
+
       use m_lattic,only:lat_plat
 C- Adds density of compensating gaussians to FT list
 C ----------------------------------------------------------------------

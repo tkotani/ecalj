@@ -1,5 +1,7 @@
       subroutine orbl(ib,ldimp,ldim,iprmb,norb,ltab,ktab,off,offl,ndim)
       use m_lmfinit,only: nl,nkaph
+
+
 C- Extract a list of l's in given hamiltonian block for one site
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -85,6 +87,8 @@ C     .  '  offl=%n:1i',' ',80,6,ib,ndim,norb,ltab,norb,offl)
 
       subroutine iprmsb(mode,ib1,ib2,nbas,offH,indxsh,indxi,offl,norb)
       use m_lmfinit,only: mxorb
+
+
 C- Create a permutation table for a hamiltonian subblock
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -179,6 +183,8 @@ C   ... Lower block
 
       subroutine offsHp(iprmb,ib1,ib2,lfast,ldimp,ldim,off,ld)
       use m_lmfinit,only: mxorb
+
+
 C- Hamiltonian offset and last orbital for a block of sites
 C ----------------------------------------------------------------------
 Ci Inputs

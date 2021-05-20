@@ -113,7 +113,7 @@ c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
       integer::
-     &     lat_nkd,lat_nkq,      !lattic
+c     &     lat_nkd,lat_nkq,      !lattic
      &     ham_nqsig,ham_ndhrs,  !rdsigm2
      &     lat_ng, lat_nabc(3),         !supot
      &     lat_ldist=0, !lmfp,mksym

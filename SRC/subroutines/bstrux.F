@@ -96,6 +96,8 @@ C     .      ' start=',i4,' stop=',i4)
       use m_struc_def  !Cgetarg
       use m_prlcb1
       use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
+
+
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------
 Ci Inputs

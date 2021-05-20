@@ -1,6 +1,8 @@
       subroutine elocp(nbas,nsp,ssite,sspec,job)
       use m_struc_def  
       use m_lmfinit,only: nkaph,stdo,nspec
+
+
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs

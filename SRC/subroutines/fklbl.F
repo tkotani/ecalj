@@ -1,6 +1,8 @@
       subroutine fklbl(p,rsm,kmax,nlm,k0,cy,fkl) 
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_awald,lat_tol,lat_vol,lat_nkd ,lat_nkq
+      use m_lmfinit,only: lat_alat,lat_qlat,lat_awald,lat_tol,lat_vol
+      use m_lattic,only: lat_nkd
+      use m_lattic,only: lat_nkq
 C- Bloch sum of smooth Hankels for e=0 and q=(0,0,0).
 C ----------------------------------------------------------------------
 Ci Inputs

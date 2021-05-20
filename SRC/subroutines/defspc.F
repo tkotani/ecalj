@@ -1,6 +1,8 @@
       subroutine defspc(sspec)
       use m_struc_def,only:s_spec
       use m_lmfinit,only: nspec
+
+
       type(s_spec)::sspec(*)
       double precision dgetss,rg,rsma,rfoca,rsmfa,rmt
       integer is,nglob

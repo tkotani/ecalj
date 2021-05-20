@@ -179,6 +179,8 @@ C --- Core eigenfunctions and eigenvalues ---
       subroutine atwf2l(ifi,jfi,iclass,a,lmxa,nr,nsp,pnz,rmt,
      .nphimx,konfig,ecore,gcore,gval)
       use m_lmfinit,only: stdo
+
+
 C- Translate radial wave functions from shifted to standard log mesh
 C ----------------------------------------------------------------------
 Ci Inputs

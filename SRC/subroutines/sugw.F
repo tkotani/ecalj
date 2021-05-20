@@ -9,6 +9,8 @@
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
      &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
      &     lat_alat,lat_nabc,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
+
+
       use m_mksym,only: lat_npgrp,lat_nsgrp
       use m_lattic,only:lat_plat      
       implicit none

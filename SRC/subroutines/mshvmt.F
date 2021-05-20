@@ -3,6 +3,8 @@
       use m_struc_def
       use m_lattic,only:lat_plat
       use m_lmfinit,only:lat_nabc,lat_alat
+
+
 C- Makes potential at MT surfaces given potential on a uniform mesh
 C ----------------------------------------------------------------------
 Ci Inputs

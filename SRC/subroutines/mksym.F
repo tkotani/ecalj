@@ -58,6 +58,8 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       use m_lattic,only: lat_plat,rv_a_opos
       use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,
      & lat_dist,lat_ldist,stdo
+
+
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -9,6 +9,8 @@
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
+
+
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -226,6 +228,8 @@ c
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
+
+
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -401,6 +405,8 @@ c
      .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
       use m_lmfinit,only: stdo
+
+
 !!t.kotani from bzwtsf. now fs
 C- BZ integration for fermi level, band sum and qp weights, fixed-spin
 C ----------------------------------------------------------------------

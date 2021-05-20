@@ -4,6 +4,8 @@
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
      &     lat_alat,lat_qlat,lat_nabc,lat_ng,lat_vol,nsp,nbas
+
+
       use m_lattic,only:lat_plat      
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
@@ -154,6 +156,8 @@ C --- Symmetrize the shifted density ---
      . , ng , gv , sv_p_orhoat , cwk , cg , job )
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:lat_alat,lat_vol
+
+
 C- Shift in smoothed density according to job.
 C ----------------------------------------------------------------------
 Ci Inputs

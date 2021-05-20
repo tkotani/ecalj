@@ -1,5 +1,7 @@
       subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
       use m_lmfinit,only: nkaph,nspc,nsp
+
+
       use m_struc_def  !Cgetarg
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------

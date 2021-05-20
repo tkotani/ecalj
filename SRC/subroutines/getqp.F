@@ -1,5 +1,7 @@
       subroutine getqp(mode,nfilqp,nqp,nkabc,lshft,ntet,q,wts,idtet)
       use m_lmfinit,only: stdo
+
+
 C- I/O for q-points on disc
 C-----------------------------------------------------------------------
 Ci Input

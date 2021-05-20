@@ -1,6 +1,8 @@
       subroutine latsym(prgnam)
       use m_lmfinit,only: v_ssite,nbas,sstrnsymg,ctrl_noinv,
      &     symgaf,iv_a_oips,slabl_,mxspec,nsite,procid,master
+
+
       use m_lattic,only: rv_a_opos,m_lattic_init
       use m_mksym,only: mksymaf,mksym
 !! Set Symmetry. Driver for calling mksymaf and mksym
