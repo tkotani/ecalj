@@ -61,7 +61,7 @@
 !!    rdctrl2 allow expression like ALAT=7.88*1.1
       call m_lmfinit_init(prgnam) !--> all initianl data go into m_lmfinit
 !! Lattice and Symmetry
-      call Latsym(prgnam) !---> all data go into m_lattic m_mksym
+      call Latsym(prgnam) !---> all data go into m_lattic and m_mksym
 !! q points info     
       if(trim(prgnam) == 'LMF') then
          call m_mkqp_init() !all data of BZ go into m_mkqp

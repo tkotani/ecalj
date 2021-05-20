@@ -19,7 +19,6 @@
       contains
       subroutine clsprm(mode,sspec)!,slat)!,sbz)!,sstr) !,sstrn)sctrl,sham,spot,,sarray
       use m_struc_def           !Cgetarg
-      use m_supot,only: rv_a_omad 
       use m_mksym,only: iv_a_oics,ctrl_nclass
       use m_lmfinit,only: lso,  ctrl_nl,ctrl_nspin,ctrl_nl,ctrl_nspec,ctrl_nbas,
      &     ham_neula,ham_nbf,ham_nlibu

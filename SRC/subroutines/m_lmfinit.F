@@ -27,7 +27,7 @@
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,
      &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
-     &     ctrl_maxit ,ctrl_modep(3),ctrl_nbasp,ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
+     &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
@@ -43,7 +43,7 @@
       logical,protected :: lhf,lcd4
 !! ... STRUC 
       real(8),protected:: lat_slat(3,3),dlat,alat=NULLR,plat(3,3),dalat,vol,avw
-      integer,protected:: nbas=NULLI,nbasp=NULLI,nsite=NULLI,nspec 
+      integer,protected:: nbas=NULLI,nsite=NULLI,nspec 
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
       character*8,protected:: slabl(mxspec)
@@ -112,7 +112,9 @@
       real(8),protected:: ham_seref, bz_w,bz_ef0,bz_def0, !iors,bndfp
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
       real(8),protected::
-     &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0] !no deformation. See lattic
+     &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic
+     &     ctrl_mdprm(6),
+     &     bz_doswin(2) 
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
@@ -123,9 +125,7 @@ c     &     lat_nkd,lat_nkq,      !lattic
 c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
 c     &     lat_ng, lat_nabc(3),         !supot
       real(8):: 
-     &     bz_dosw(2), !bndfp ???
-     &     ham_eterms(20),
-     &     ctrl_mdprm(6)  !lmfp
+     &     ham_eterms(20)
 c     &     ham_ehf,  ! bndfp to lmfp
 c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
 c     &     lat_gmax, !supot
@@ -216,7 +216,6 @@ Cg   mxorb :nkaph * (maximum number of lm channels in any sphere)
 Cg         :Used for dimensioning the indexing arrays involved in
 Cg         :assembling the hamiltonian;
 Cg   nbas  :number of atoms in the basis
-Cg      nbasp : probably the same as nbas (redundant)
 Cg   nkaph :The maximum number of radial functions centered at
 Cg         :particular R and l channel used in the lmto basis.
 Cg   nl    :1+Maximum l-cutoff for augmentation
@@ -502,11 +501,11 @@ c$$$      endif
      .           ' ... found %i species in SPEC category',nspec,0)
          endif
       endif
-C     Extra site positions for e.g. point multipoles
-      nm='STRUC_NBASP'; call gtv(trim(nm),tksw(prgnam,nm),nbasp,
-     .     def_i4=nbas,note='nbas + no. of point multipoles')
-      if (nbasp .eq. NULLI) nbasp = nbas
-      nsite = nbasp
+cC     Extra site positions for e.g. point multipoles
+c      nm='STRUC_NBASP'; call gtv(trim(nm),tksw(prgnam,nm),nbasp,
+c     .     def_i4=nbas,note='nbas + no. of point multipoles')
+c     if (nbasp .eq. NULLI) nbasp = nbas
+      nsite = nbas
       nm='STRUC_SLAT'; call gtv(trim(nm),tksw(prgnam,nm),temp33,
      .     nmin=9,note='Supercell lattice vectors')
       lat_slat(1:3,1)=temp33(1:3)
@@ -1539,7 +1538,7 @@ c     .        note='Assign PL potential index to this site')
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
-      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosw,def_r8v=
+      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
      .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
@@ -1732,7 +1731,6 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_nbas=nbas
       nl = max(lmxbx,lmxax)+1
       nlmax=nl**2
-      ctrl_nbasp=nbasp
       ctrl_nesabc=nesabc
       ctrl_nitmv=nitmv
       ctrl_nl=nl
@@ -2040,17 +2038,18 @@ c      enddo
       end module m_lmfinit
 
 
+! def      Uncertainty in Fermi level
+! dosw     Energy window over which DOS accumulated
+! fsmom    fixed-spin moment (fixed spin moment method)
+! ef       Fermi level
+! ntet     number of tetrahedra
 
       
-!! Hereafter are implication of variables. Some part are Obsolate, but it maybe a help.
+!! Hereafter are list of variables. Old document, but it maybe a help.
 !!mmmmmm old doc mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
 !! --- explanation of  bz_* ---
 Cr name    purpose
-Cr def      Uncertainty in Fermi level
-Cr dosw     Energy window over which DOS accumulated
-Cr ef       Fermi level
 Cr efmax    eigenvalues above efmax are not needed
-Cr fsmom    fixed-spin moment (fixed spin moment method)
 Cr lcond    conductivity, and directions
 cCr lio      1  read qp
 cCr          2  write qp
@@ -2064,7 +2063,6 @@ Cr ndos     No. DOS points (sampling integration, and lmdos)
 Cr nevmx    eigenvectors above nevmx are not needed
 Cr nkabc    number of divisions in qp mesh
 Cr nkp      Number of qp
-Cr ntet     number of tetrahedra
 Cr odos     offset to total dos
 Cr oidtet   offset to tetrahedron corners
 Cr oipq     offset to ipq array made in bzmesh
@@ -2453,8 +2451,6 @@ Cr  ogmar   (gamma-alpha)*P^alpha/P^gamma fully relativistic
 Cr  ogrrme  radial matrix elements of gradient.
 Cr  ohab    not used now
 Cr  oivso   (tbe) spin orbit
-Cr  omad    Madelung matrix
-Cr  oorhat  pointers to atom densities
 Cr  opalp   ASA potential functions, alpha repsn (mkptfp)
 Cr  opapg   p^alpha/p^gamma fully relativistic
 Cr  opdel   ASA Delta, in hamiltonian order (for LDA+U)

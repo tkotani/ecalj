@@ -572,7 +572,6 @@ c     #define ONE_ATOM_UNIT 1
       use m_lmfinit,only:  ctrl_nl,ctrl_nspin,lrel_g=>lrel
 
 
-      use m_supot,only:rv_a_omad
       use m_ext,only:sname
       use m_lattic,only: rv_a_opos
 C     - File I/O atomic data for classes ic1..ic2

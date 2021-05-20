@@ -10,18 +10,18 @@
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !     !
       module m_bndfp
-      real(8),protected:: ham_ehf,ham_ehk
+      real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: bz_ef,bz_def ! revised when called.
 
-      logical,private:: binit=.true.
-      
+      logical,private:: binit=.true.,bbinit=.true.
       contains
       subroutine bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
       real(8):: bz_ef00,bz_def00
       bz_ef = bz_ef00
       bz_def= bz_def00
       binit=.false.
-      end 
+      end
+      
       subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, 
      .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
@@ -29,11 +29,11 @@
       use m_suham,only: iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
       use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
-     &     bz_dosmax,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
+     &     bz_dosmax,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
+     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
-     &     lat_alat,stdo,stdl,procid,master,
+     &     lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -286,9 +286,6 @@ ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
 !for 'make check',
 !because fp/test/test.fp assumes 'something not inserted in console output'.
 
-C For self-energy
-c      integer nqsig
-c      integer:: nbasp
       data T /.true./ F /.false./
       integer,allocatable:: nevls(:,:)
 ctakao
@@ -568,21 +565,16 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
       ndos= bz_ndos
+      if(bbinit) then
+         bz_dosw=bz_doswin
+         bbinit=.false.
+      endif
       dosw = bz_dosw
       if(binit) then
          bz_ef =bz_ef0
          bz_def=bz_def0
          binit=.false.
       endif
-c      if(binit.and.trim(RWiors)=='read') then
-c         bz_ef =bz_ef00
-c         bz_def=bz_def00
-c         binit=.false.
-c      elseif(binit) then
-c         bz_ef =bz_ef0
-c         bz_def=bz_def0
-c         binit=.false.
-c      endif
       ef0  = bz_ef
       def  = bz_def
       ltet = ntet .gt. 0

@@ -6,7 +6,7 @@
       subroutine suham(sspec,ssite)
       use m_supot,only: rv_a_ogv
       use m_struc_def  
-      use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin,
+      use m_lmfinit,only:lso,   ctrl_nbas,ctrl_nspec, ctrl_nl, ctrl_nspin,
      &     ham_pwmode,ham_pwemax,ham_pwemin,
      &     lat_alat, lat_alat,lat_tolft,nkaph !,ham_npwpad
       use m_lattic,only: lat_qlat
@@ -18,7 +18,7 @@ C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
 Cio  sctrl :struct for program flow parameters; see routine uctrl
-Cio    Elts read: nbasp nspec nl lham lcgf lgen3 lfp lncol nspin lpgf
+Cio    Elts read: nbas nspec nl lham lcgf lgen3 lfp lncol nspin lpgf
 Cio    Stored:    *
 Cio    Passed to: *
 Cio  slat  :struct for lattice information; see routine ulat
@@ -89,7 +89,7 @@ C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
-     .lgunit,lidim,lihdim,nbasp,nclasp,ndim,neul,nl,
+     .lgunit,lidim,lihdim,nbas,nclasp,ndim,neul,nl,
 c lncol,
      .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
@@ -114,7 +114,7 @@ C ... Needed for iostr
       double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
       integer,allocatable:: ips(:)
 
-      nbasp=ctrl_nbasp
+      nbas=ctrl_nbas
       nspec=ctrl_nspec
       nl=ctrl_nl
 c      lncol=ctrl_lncol
@@ -132,9 +132,9 @@ c      if (lncol .ne. 0) then
         nspc = 2
         nspx = 1
       endif
-      ndim = nbasp * nl**2 * nkaph
+      ndim = nbas * nl**2 * nkaph
       if (allocated(iv_a_ooffH)) deallocate(iv_a_ooffH)
-      allocate(iv_a_ooffH(n0h*nkap0*(nbasp+1)))
+      allocate(iv_a_ooffH(n0h*nkap0*(nbas+1)))
       iv_a_ooffH(:)=0
       allocate(iv_a_oindxo(abs(ndim+3)))
       stdo = lgunit(1)
@@ -144,11 +144,11 @@ C --- Hamiltonian offsets, orbital permutation table ---
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
-        allocate(ips(nbasp))
-        do  ib = 1, nbasp
+        allocate(ips(nbas))
+        do  ib = 1, nbas
           ips(ib) = ssite(ib)%spec
         enddo  
-        call makidx ( nl , nkaph , 1 , nbasp , 0 , sspec , ips !sarray%iv_a_oips
+        call makidx ( nl , nkaph , 1 , nbas , 0 , sspec , ips !sarray%iv_a_oips
      .     , iv_a_ooffH , iv_a_oindxo , ldham )
         deallocate(ips)
       endif
@@ -169,7 +169,7 @@ C ------- Potential- and implementation- specific setup -------
       nvi = 0
       nvl = 0
       lmxax = -1
-      do  20  ib = 1, nbasp
+      do  20  ib = 1, nbas
 
         is=ssite(ib)%spec
         lmxa=sspec(is)%lmxa
@@ -313,7 +313,7 @@ c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,j
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_alat,nl,ctrl_nbasp
+     &     lat_alat,nl,ctrl_nbas
       use m_lattic,only: lat_qlat
 
 
@@ -389,7 +389,7 @@ c2012Sep02 kino, add for
 #endif
 !!--- setup ---
       if(.not.siginit) return
-      nbas=ctrl_nbasp !nbas_in
+      nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
       qlat=lat_qlat

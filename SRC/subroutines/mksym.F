@@ -1,7 +1,7 @@
       module m_mksym
 c      iv_a_oipc,iv_a_oics,iv_a_onrc,rv_a_oclabl,iv_a_onrcp
 c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
-      real(8) , allocatable ::  rv_a_oag (:)
+      real(8) , allocatable,protected ::  rv_a_oag (:)
       character(8), allocatable,protected ::  rv_a_oclabl(:) !string
       integer , allocatable,protected ::  iv_a_oics (:)
       integer,  allocatable,protected ::  iv_a_oipc(:)

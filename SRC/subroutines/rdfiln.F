@@ -1,7 +1,7 @@
       module m_rdfiln
       integer,parameter,public:: mxrecs=10000,recln=511
-      integer,public:: nrecs
-      character*(recln),public:: recrd(mxrecs)
+      integer,public,protected:: nrecs
+      character*(recln),public,protected:: recrd(mxrecs)
       public m_rdfiln_init !return -vfoobar replaced simplified contents of ctrl into recrd
       contains
       subroutine m_rdfiln_init()
