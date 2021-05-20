@@ -4,7 +4,7 @@
      .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
      .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
       use m_lmfinit,only:lso,ham_eterms
-
+      use m_MPItk,only: master_mpi
 
       use m_struc_def  
       use m_lmfinit,only:lat_alat,lxcf
@@ -242,14 +242,14 @@ C     This ordering must match sham->eterms; see uham
       real(8):: plat(3,3),alat
       integer:: ifi,isp
       character strn*120
-      logical:: master_mpi,secondcall=.false.
+      logical:: secondcall=.false.
 c      logical:: enforce_positive_smrho
 C      print *, '!!'
 C      job = job + 30000
       call tcn('mkpot')
 
 !! new density mode
-      if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
+      if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall) then
         plat =lat_plat
         alat =lat_alat
         open(newunit=ifi,file='smrho.xsf')
@@ -465,7 +465,7 @@ C --- Make local potential at atomic sites and augmentation matrices ---
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .    lmaxu , vorb , lldau )
 !!
-      if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall) then
+      if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall) then
         return
       endif
 

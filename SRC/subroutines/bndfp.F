@@ -466,7 +466,7 @@ c mar2014
 #endif
       write(strprocid,'(i10)') procid
       strprocid = adjustl(strprocid) 
-      ixx = master_mpiset(procid)
+c      ixx = master_mpiset(procid)
       savez=.false.
       getz =.false.
       if (maxit .eq. 0) return
@@ -525,7 +525,7 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
          lfrzw = 0
       endif
       nspec = ctrl_nspec
-      if (procid .eq. master) then
+      if (procid==master) then
          inquire(file='sigm.'//trim(sname),exist=nexist)
          if (lrsig .ne. 0 .and. (.not.nexist)) then
             write(6,*)' bndfp (warning): no sigm file found ... LDA calculation only'
@@ -534,7 +534,7 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
       epsovl = ham_oveps
-      if (procid .eq. master) then
+      if (procid==master) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       endif
@@ -602,7 +602,7 @@ C     Switch to plot bands at specified qp
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       phispinsym = cmdopt('--phispinsym',12,0,strn)
       if(phispinsym) then
-         if(master_mpi())write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
+         if(procid==master)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
          do ib = 1,nbas
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
@@ -612,13 +612,13 @@ C     Switch to plot bands at specified qp
             lmxa = sspec(is)%lmxa
             do l=0,lmxa
               pmean = sum(pnu(l+1,1:nsp))/nsp
-              if(master_mpi().and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
+              if(procid==master.and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
      &             ib,l,pnu(l+1,1:nsp),pmean
               pnu(l+1,1:nsp) = pmean
               lpz = pnz(l+1,1) /= 0
               if (lpz) then
                  pmean = sum(pnz(l+1,1:nsp))/nsp
-                 if(master_mpi().and.nsp==2) write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
+                 if(procid==master.and.nsp==2)write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
      &                ib,l,pnz(l+1,1:nsp),pmean
                  pnz(l+1,1:nsp) = pmean
               endif
@@ -809,7 +809,7 @@ c      if(allocated(frc)) deallocate(frc)
      .     isite,iclsl,iclsn,nsites)
          efmax = 1d3
          nevmx = ndhamx
-         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid.eq. master) then
+         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid==master) then
 !! this path is go through by crn test.
             aaachar=
      &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
@@ -864,7 +864,7 @@ c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!
 C ... Case only generate bands at supplied qp: setup
       if (plbnd .ne. 0) then
-         if (procid .eq. master) then !Try and read Fermi level from file
+         if (procid==master) then !Try and read Fermi level from file
             inquire(file='wkp.'//trim(sname),exist=nexist)
             if(nexist) then
                open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
@@ -1025,7 +1025,7 @@ c            massline=.false.
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (procid.eq.master .and.oncewrite(11)) then
+      if (procid==master .and.oncewrite(11)) then
          ifqplist=ifile_handle()
          open(ifqplist,file='QPLIST')
          print *,'-------- qplist --------'
@@ -1970,9 +1970,9 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
 
-#ifdef MPIK
-c      if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
-      call mpi_barrier(MPI_comm_world,ierr)  !!! takao added I think it must be safer to add this barrier. jan2015
+#ifdef MPIK                     !
+c     if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
+      call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
 #endif
       print *,'goto99=',goto99
       if(goto99) goto 99
@@ -2639,14 +2639,3 @@ C ----------------------------------------------------------------------
       end subroutine xmpbnd
 #endif
 
-      logical function master_mpi()
-      implicit none
-      logical,save:: mm=.true.
-      logical::  master_mpiset
-      integer:: procid
-      master_mpi=mm
-      return
-      entry master_mpiset(procid)
-      mm=.false.
-      if(procid==0) mm=.true.
-      end

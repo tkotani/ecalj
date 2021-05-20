@@ -6,8 +6,7 @@
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .     lmaxu , vorb , lldau )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
-
-
+      use m_MPItk,only: master_mpi
       use m_struc_def  
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
@@ -172,7 +171,6 @@ C ... for core hole
      .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
       
       integer,parameter:: nbasmx=1000
-      logical:: master_mpi,master_mpiset
       logical,save:: secondcall(1:nbasmx)=.false.
       logical :: cmdopt,phispinsym
       character*20::strib
@@ -235,7 +233,7 @@ C$&  MP_SCHEDTYPE=RUNTIME
       iblu = 0
 
       ifivesint=-999
-      if(master_mpi()) then
+      if(master_mpi) then
 c         ifivesint = ifile_handle()
          open(newunit=ifivesint,file='vesintloc',form='formatted',status='unknown')
       endif
@@ -318,7 +316,7 @@ C   --- Make potential and energy terms at this site ---
      .       , rhobg , efg ( 1 , ib ),ifivesint )
 
 !! write density 1st(true) component and counter components.
-        if(cmdopt('--density',9,0,strn).and.master_mpi().and.secondcall(ib)) then
+        if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall(ib)) then
            write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
            write(strib,'(i10)') ib
            ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
@@ -337,7 +335,7 @@ c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
              enddo
            enddo
            call fclose('rho2MT.'//trim(adjustl(strib)))
-        elseif(cmdopt('--density',9,0,strn).and.master_mpi()) then
+        elseif(cmdopt('--density',9,0,strn).and.master_mpi) then
           secondcall(ib)=.true.
         endif
 
@@ -356,7 +354,7 @@ C   ... Update the potential used to define basis set
 !! spin averaged oV0 to generate phi and phidot. takaoAug2019
         phispinsym= cmdopt('--phispinsym',12,0,strn)
         if(phispinsym) then
-           if(master_mpi().and.nsp==2) then
+           if(master_mpi.and.nsp==2) then
              write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'
            endif   
            do ir=1,nr
@@ -369,7 +367,7 @@ C   ... Update the potential used to define basis set
                  ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
               enddo
            enddo
-           if(master_mpi().and.nsp==2)then
+           if(master_mpi.and.nsp==2)then
               do l=0,lmxa
               write(6,"('  ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
               enddo
@@ -453,7 +451,7 @@ C     ... Use effective potentials with modified xc
         j1 = j1+nlml
    10   continue
       enddo
-      if(master_mpi()) close(ifivesint)
+      if(master_mpi) close(ifivesint)
 c      if(master_mpi()) call fclose('vesintloc')
 C     Electric field gradient
       if (ipr .gt. 40) call elfigr(nbas,stdo,zz,efg)

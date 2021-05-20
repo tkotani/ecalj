@@ -156,7 +156,6 @@ C ... Local parameters
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
       logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
-      real(8)::bz_ef_,bz_def_,bz_w_
       data vec0 /0d0,0d0,0d0/
 C ... MPI setup
       nproc  = mpipid(0)
@@ -166,9 +165,9 @@ C ... MPI setup
       alat=lat_alat
       plat=lat_plat
       ngabc=lat_nabc
-      bz_ef_ =bz_ef
-      bz_def_=bz_def
-      bz_w_  =bz_w
+c      bz_ef_ =bz_ef
+c      bz_def_=bz_def
+c     bz_w_  =bz_w
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
       ipr    = iprint()
@@ -392,9 +391,9 @@ C       For compatibility with nfp, read record into wk
 c          sbz%ef=wk(1)
 c          sbz%def=wk(2)
 c          sbz%w=wk(3)
-          bz_ef_=wk(1)
-          bz_def_=wk(2)
-          bz_w_=wk(3)
+          bz_ef=wk(1)
+          bz_def=wk(2)
+          bz_w=wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -887,9 +886,9 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
-        wk(1)=bz_ef_ !sbz%ef
-        wk(2)=bz_def_ !sbz%def
-        wk(3)=bz_w_ !sbz%w
+        wk(1)=bz_ef !sbz%ef
+        wk(2)=bz_def !sbz%def
+        wk(3)=bz_w !sbz%w
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else

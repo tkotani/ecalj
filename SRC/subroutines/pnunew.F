@@ -1,6 +1,6 @@
       subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
      .qbyl,hbyl,eferm)
-
+      use m_MPItk,only: master_mpi
       use m_struc_def  !Cgetarg
 !!= Makes new boundary conditions pnu for phi,phidot =
 !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
@@ -72,7 +72,7 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
 
       integer ::iwdummy ,i_copy_size,nnz,nnv
       real(8):: eferm,eee
-      logical:: lsemicorepz,phispinsym,cmdopt,master_mpi
+      logical:: lsemicorepz,phispinsym,cmdopt
       real(8):: pmean
       character strn*120
      
@@ -347,7 +347,7 @@ C         ... Permit pnu no lower than free electron value
 !! spin averaged pnu takaoAug2019
           phispinsym= cmdopt('--phispinsym',12,0,strn)
           if(phispinsym) then
-             if(master_mpi().and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
+             if(master_mpi.and.m==lmxa+1) write(6,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
              pmean = sum(pnu(m,1:nsp))/nsp
              pnu(m,1:nsp) = pmean
              if (lpz) then
