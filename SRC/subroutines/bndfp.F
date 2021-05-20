@@ -17,14 +17,17 @@
       use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
-      use m_lmfinit, only: ncutovl,lso,bz_nabc,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
-     &     bz_nkp,bz_dosmax,bz_ntet,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
+      use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
+     &     bz_dosmax,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !
      &     lat_alat,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
+      use m_mkqp,only: bz_nabc
+      use m_mkqp,only: bz_ntet
+      use m_mkqp,only: bz_nkp
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc
@@ -2016,7 +2019,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
      .     ' use:   sev=',f12.6,'   ef=',f12.6)
          if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
  733     format('nf EF:',3f9.5,'    EB:',3f12.5)
-         bz_ndos=ndos
+c         bz_ndos=ndos
          bz_dosw = dosw
          bz_ef=ef0
          bz_def=def
@@ -2150,7 +2153,8 @@ c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
 !! === Generate DOS on disk ===
 c      if(.not. lwndow .and. procid==master) then
       if( procid==master) then
-         ndos0 = bz_ndos !ndos0 is only used as a swith wether DOS or integrated-DOS.
+         ndos0 = ndos   !it was bz_ndos. I think this is fine
+                        !ndos0 is only used as a swith wether DOS or integrated-DOS.
          if ( ldos/=0 ) then
             if(ndos0<0) write(6,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
             if(ndos0>0) write(6,"(a)")'... Generating total DOS'      !  ndos0=,ndos0

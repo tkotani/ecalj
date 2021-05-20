@@ -1,14 +1,10 @@
       subroutine vcdmel(nl,ssite,sspec,nlmax,ndham,ndimh,!,slat
      .nq,nsp,nspc,ef,evl,aus,nsite,isite,iclsl,iclsn,dosw)!sbz,
       use m_lmfinit,only: rv_a_ocg , iv_a_ojcg , iv_a_oidxcg
-
-
-      use m_mkqp,only: iv_a_oidtet 
+      use m_mkqp,only: iv_a_oidtet ,bz_nabc, bz_ntet
       use m_struc_def
       use m_ext,only: sname     !extention for file
-      use m_lmfinit,only: bz_ndos,bz_dosmax,bz_nabc,bz_ntet
-
-
+      use m_lmfinit,only: bz_ndos,bz_dosmax
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:

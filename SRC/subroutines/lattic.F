@@ -3,12 +3,13 @@
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
       real(8),protected:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
       real(8), allocatable :: rv_a_opos(:,:)
+      real(8),protected:: lat_dist(9) !unused because no deformation of cell allowed currently.
       integer,protected:: lat_nkd,lat_nkq
       contains
       subroutine m_lattic_init() !slat,nbas)
        use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
-     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,v_ssite,
-     &     lat_platin,lat_ldist!,rv_a_opos
+     &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,v_ssite,
+     &     lat_platin, lat_dist0 ,lat_ldist!,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs
@@ -61,9 +62,9 @@ C ----------------------------------------------------------------------
       nbaspp = nbas 
 C ... Apply specified linear transformation of lattice and basis vectors
       ldist = lat_ldist
-      dist(1:3,1)= lat_dist(1:3)
-      dist(1:3,2)= lat_dist(4:6)
-      dist(1:3,3)= lat_dist(7:9)
+      dist(1:3,1)= lat_dist0(1:3)
+      dist(1:3,2)= lat_dist0(4:6)
+      dist(1:3,3)= lat_dist0(7:9)
       allocate(rv_a_opos(3,nbas))
       do i_spackv=1,nbas
          rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos

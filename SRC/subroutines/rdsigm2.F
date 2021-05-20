@@ -109,8 +109,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,
+      use m_lmfinit,only: bz_lshft,ham_rsstol,
      &     mxorb,stdo,nl
+      use m_mkqp,only: bz_nabc
+      use m_mkqp,only: bz_nkp
       use m_suham,only: ham_ldham
       use m_lattic,only: lat_plat,rv_a_opos
       implicit none

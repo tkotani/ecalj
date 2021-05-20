@@ -3,7 +3,7 @@
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ham_ehf,ham_ehk,ham_seref,ham_eterms,
-     &     lat_gam,lat_ldist,lat_alat,lat_dist, 
+     &     lat_gam,lat_alat, lat_ldist,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat
@@ -12,7 +12,7 @@
       use m_supot,only:sv_a_oorhat,zv_a_osmrho,Supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_suham,only: Suham
-      use m_lattic,only: lat_plat,rv_a_opos
+      use m_lattic,only: lat_dist,lat_plat,rv_a_opos
       use m_ext,only: sname
 !! = Main routine of lmf = (following document is roughly checked at aug2020)
 !   lmfp contains two loops
@@ -147,12 +147,7 @@ C     ... Allocate memory for forces ! lfrce = int(ctrl_lfrce)
       endif
 C     ... Relaxation setup
       itrlx = 1
-C     Initial shear was already folded into plat
-      gam=lat_gam
-      gam1 = gam(4)
-      gam(4) = 1
-      lat_gam=gam
-      lat_ldist=0
+c      lat_ldist=0
       nitrlx=ctrl_nitmv
       mdprm=ctrl_mdprm
 c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 

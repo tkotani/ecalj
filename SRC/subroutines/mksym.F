@@ -55,11 +55,8 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       
       subroutine mksym(mode,slabl,ssymgr,ssite,iv_a_oips) !,sctrl,slat
       use m_struc_def
-      use m_lattic,only: lat_plat,rv_a_opos
-      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,
-     & lat_dist,lat_ldist,stdo
-
-
+      use m_lattic,only: lat_plat,rv_a_opos,lat_dist
+      use m_lmfinit,only: ctrl_nbas,ctrl_nsite,ctrl_nspec,stdo,lat_ldist
 C- Setup for symmetry group
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -150,7 +147,7 @@ c      type(s_array)::sarray
       nspec=ctrl_nspec
       nsite=ctrl_nsite
       plat =lat_plat
-      ldist=lat_ldist
+      ldist=lat_ldist! ldist mode need to be recovered if necessary
       i_copy_size=size(lat_dist)
       call dcopy(i_copy_size,lat_dist,1,dist,1)
       ngmx = 48

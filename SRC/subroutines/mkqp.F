@@ -1,14 +1,12 @@
       module m_mkqp
       integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
       real(8),allocatable,protected :: rv_p_oqp (:), rv_a_owtkp(:)
+      integer,protected:: bz_nabc(3),bz_ntet, bz_nkp
       contains
       subroutine m_mkqp_init() !lnoirr,lreduc,lgstar)
-      use m_struc_def 
-      use m_mksym,only:    rv_a_osymgr,lat_nsgrp,lat_npgrp
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,bz_ntet,ctrl_lmet,bz_lmet,ctrl_ldos
-
-
-      use m_lattic,only: lat_plat
+      use m_lmfinit,only: bz_lshft,ctrl_lmet,bz_lmet,ctrl_ldos,bz_nabcin
+      use m_lattic,only:  lat_plat
+      use m_mksym,only:   rv_a_osymgr,lat_nsgrp,lat_npgrp
 !! Set up k-points and related quantities for BZ integration
 !! ----------------------------------------------------------------------
 !! gettet: = bz_lmet/=0 .or. ctrl_ldos/=0 given at setup
@@ -41,7 +39,7 @@ C ... Setup
       gettet = bz_lmet/=0 .or. ctrl_ldos/=0
       ntet = 0
 c      stdo = globalvariables%stdo
-      nkxyz=bz_nabc
+      nkxyz=bz_nabcin
       lshft=bz_lshft
       plat =lat_plat
       nsgrp=lat_nsgrp

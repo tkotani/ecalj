@@ -105,27 +105,30 @@
 !!      
       integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
-     &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet
+     &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
+     &     bz_ndos,              !bndfp
+     &     lat_ldist=0 
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
       real(8),protected:: ham_seref,
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
+      real(8),protected::
+     &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0] !no deformation. See lattic
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
-      integer::
-     &     lat_ldist=0, !lmfp,mksym
-     &     bz_nkp,bz_ntet,bz_nabc(3)=NULLI !mkqp
-     &  ,bz_ndos !bndfp
+c      integer::
+c     &     lat_ldist=0, !lmfp,mksym
+c     &     bz_nkp,bz_ntet, !mkqp
 c     &     lat_nkd,lat_nkq,      !lattic
 c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
 c     &     lat_ng, lat_nabc(3),         !supot
       real(8):: bz_w,bz_ef,bz_def, !iors,bndfp
      &     bz_dosw(2), !bndfp ???
-     &     lat_dist(9),ham_eterms(20),
+     &     ham_eterms(20),
      &     ham_ehf,  ! bndfp to lmfp
      &     ham_ehk,  ! bndfp,chkdmu to lmfp
-     &     lat_gam(4),ctrl_mdprm(6)  !lmfp
-c     &          lat_gmax, !supot
+     &     ctrl_mdprm(6)  !lmfp
+c     &     lat_gmax, !supot
 c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
       type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:) 
@@ -513,41 +516,50 @@ C     Extra site positions for e.g. point multipoles
      .     dalat, def_r8=0d0, note='added to alat after input is read')
       nm='STRUC_NL'; call gtv(trim(nm),tksw(prgnam,nm),nl,def_i4=3,
      .     note='global default LMXA+1 for basis and augmentation.')
-C     ... Lattice distortion or rotation
-      sw = tksw(prgnam,'STRUC_SHEAR')
-      lat_gam(1) = NULLR
-      if (sw/=2) then
-         j = 0
-         nm='STRUC_SHEAR'; call gtv(trim(nm),0,lat_gam,nmin=4,or=T,
-     .        note='Volume-conserving shear of PLAT (1=ideal)')
-         if (lat_gam(1) /= NULLR .and. io_help == 0) then
-            j = 0
-            goto 880
-         endif
-         nm='STRUC_ROT'; call gtv(trim(nm),0,outs,nmin=10,nout=nout,or=T)
-         if (nout /= 0 .and. io_help == 0) then
-            call a2rotm(outs,.false.,iprint()-10,lat_dist)
-            j = 2
-            goto 880
-         endif
-         nm='STRUC_DEFGRD'; call gtv(trim(nm),0,lat_dist,nmin=9, or=T)
-         if (lat_dist(1) /= NULLR .and. io_help == 0) then
-            j = 2
-            goto 880
-         endif
-         nm='STRUC_STRAIN'; call gtv(trim(nm),sw,lat_dist(1:6),nmin=6,
-     .        note='6 Voigt strain matrix elements')
-         if (lat_dist(1) /= NULLR .or. io_help /= 0) then
-            nm='STRUC_ALPHA'; call gtv(trim(nm),1,lat_dist(7),nout=nout,
-     .           note=
-     .           'Amplitude of (Voigt) strain.  Only read if STRAIN input')
-            if (nout /= 0) j = 3
-         endif
- 880     continue
-         lat_ldist = j
-      endif
-      if (lat_gam(1) == NULLR) lat_gam=(/0d0,0d0,1d0,1d0/)
+      
+C     ... Lattice distortion or rotation. it is better to move main part to lattic
+c$$$      sw = tksw(prgnam,'STRUC_SHEAR')
+c$$$      if(sw/=2) call rx('STRUC_SHEAR is commented out now. Need to recover')
+c$$$      lat_gam(1) = NULLR
+c$$$      if (sw/=2) then
+c$$$         j = 0
+c$$$         nm='STRUC_SHEAR'; call gtv(trim(nm),0,lat_gam,nmin=4,or=T,
+c$$$     .        note='Volume-conserving shear of PLAT (1=ideal)')
+c$$$         if (lat_gam(1) /= NULLR .and. io_help == 0) then
+c$$$            j = 0
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_ROT'; call gtv(trim(nm),0,outs,nmin=10,nout=nout,or=T)
+c$$$         if (nout /= 0 .and. io_help == 0) then
+c$$$            call a2rotm(outs,.false.,iprint()-10,lat_dist)
+c$$$            j = 2
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_DEFGRD'; call gtv(trim(nm),0,lat_dist,nmin=9, or=T)
+c$$$         if (lat_dist(1) /= NULLR .and. io_help == 0) then
+c$$$            j = 2
+c$$$            goto 880
+c$$$         endif
+c$$$         nm='STRUC_STRAIN'; call gtv(trim(nm),sw,lat_dist(1:6),nmin=6,
+c$$$     .        note='6 Voigt strain matrix elements')
+c$$$         if (lat_dist(1) /= NULLR .or. io_help /= 0) then
+c$$$            nm='STRUC_ALPHA'; call gtv(trim(nm),1,lat_dist(7),nout=nout,
+c$$$     .           note=
+c$$$     .           'Amplitude of (Voigt) strain.  Only read if STRAIN input')
+c$$$            if (nout /= 0) j = 3
+c$$$         endif
+c$$$ 880     continuemk
+c$$$         lat_ldist = j
+c$$$      endif
+c$$$      if (lat_gam(1) == NULLR) lat_gam=(/0d0,0d0,1d0,1d0/)
+c      (folloiwg lines were in lmfp)
+cC     Initial shear was already folded into plat 
+c      gam=lat_gam
+c      gam1 = gam(4)
+c      gam(4) = 1
+c      lat_gam=gam
 C     ... End of struc tokens
+      
    59 continue
 
       
@@ -1478,11 +1490,11 @@ c     .        note='Assign PL potential index to this site')
       nm='BZ_GETQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio1,
      .     def_lg=F,note='Read qp from disk',or=T)
       nm='BZ_NKABC'; sw=tksw(prgnam,nm); if (bz_lio1) sw = 2
-      call gtv(trim(nm),sw,bz_nabc,nout=nout,
+      call gtv(trim(nm),sw,bz_nabcin,nout=nout,
      .     note='No. qp along each of 3 lattice vectors.'//
      .     '%N%3fSupply one number for all vectors or a separate '//
      .     'number for each vector.')
-      call fill3in(nout,bz_nabc)
+      call fill3in(nout,bz_nabcin)
       nm='BZ_PUTQP'; call gtv(trim(nm),tksw(prgnam,nm),bz_lio2,
      .     def_lg=F,note='Write qp to disk')
       nm='BZ_BZJOB';call gtv(trim(nm),tksw(prgnam,nm),bz_lshft,nout=nout,

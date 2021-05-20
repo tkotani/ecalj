@@ -1,18 +1,13 @@
       integer function iors(ssite,sspec,!spot,!sbz,,sctrl,slat,mode
      .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
       use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,irsrot !,ctrl_lrs
-
-
+      use m_lmfinit,only:lat_alat
+      use m_lmfinit,only: nsp,lrel,nl
       use m_struc_def 
       use m_struc_func
-      use m_lmfinit,only: nsp,lrel,nl
-
-
       use m_supot,only: zv_a_osmrho
-      use m_lmfinit,only:lat_alat,lat_dist
       use m_supot,only: lat_nabc
-
-
+      use m_lattic,only: lat_dist
       use m_lattic,only: lat_plat
 C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------
@@ -161,6 +156,7 @@ C ... Local parameters
      .msgw*17,datimp*32,usernm*32,hostnm*32,jobid*32,ffmt*32,ifmt*32
       logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
+      real(8)::bz_ef_,bz_def_,bz_w_
       data vec0 /0d0,0d0,0d0/
 C ... MPI setup
       nproc  = mpipid(0)
@@ -170,6 +166,9 @@ C ... MPI setup
       alat=lat_alat
       plat=lat_plat
       ngabc=lat_nabc
+      bz_ef_ =bz_ef
+      bz_def_=bz_def
+      bz_w_  =bz_w
       call dinv33(plat,1,qlat,fac)
       vol = dabs(fac)*alat**3
       ipr    = iprint()
@@ -393,9 +392,9 @@ C       For compatibility with nfp, read record into wk
 c          sbz%ef=wk(1)
 c          sbz%def=wk(2)
 c          sbz%w=wk(3)
-          bz_ef=wk(1)
-          bz_def=wk(2)
-          bz_w=wk(3)
+          bz_ef_=wk(1)
+          bz_def_=wk(2)
+          bz_w_=wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -888,9 +887,9 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
-        wk(1)=bz_ef !sbz%ef
-        wk(2)=bz_def !sbz%def
-        wk(3)=bz_w !sbz%w
+        wk(1)=bz_ef_ !sbz%ef
+        wk(2)=bz_def_ !sbz%def
+        wk(3)=bz_w_ !sbz%w
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else
