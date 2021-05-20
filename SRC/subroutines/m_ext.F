@@ -1,6 +1,5 @@
       module m_ext
-      implicit none
-      character(512),public::sname
+      character(512),public,protected::sname
       public:: m_ext_init
       contains
       subroutine m_ext_init()
@@ -8,7 +7,6 @@
       integer:: ifi,ipos,fopn,i,na
       character*256:: sss,s222,argv
 !! Get the extension of ctrlfile. It is stored to trim(sname).
-c      if(initex) then
       na= iargc()
       do i = 1, na
          call getarg( i, argv )
@@ -18,19 +16,6 @@ c         write( 6, '( i5, x, a )' ) i, trim(argv)
             exit
          endif
       enddo
-c      print *,'file ext=',trim(sname)
-c      stop 'xxxxxxxxxxxxxxxx'
-c        ifi=fopn('temptempxxx') 
-c        sss=''
-c        INQUIRE (ifi, NAME=sss) !second run, 'sss' must contain extention, eg, '.copt'
-c        print *,'sss=',sss
-c        call fclose(ifi)
-c        ipos= scan(sss,'.',back=.true.) !backward search of '.' from the last.
-c        sname=sss(ipos+1:256)  !sname contains extention such as 'copt'.
-c        open(newunit=ifi, file='temptempxxx.'//trim(sname)) 
-c        close(ifi,status='delete')
-c        initex=.false.
-c      endif
       end subroutine
       end module
 

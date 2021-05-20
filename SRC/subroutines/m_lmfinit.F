@@ -109,7 +109,7 @@
      &     bz_ndos,              !bndfp
      &     lat_ldist=0 
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
-      real(8),protected:: ham_seref,
+      real(8),protected:: ham_seref, bz_w,bz_ef0,bz_def0, !iors,bndfp
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
       real(8),protected::
      &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0] !no deformation. See lattic
@@ -122,12 +122,12 @@ c     &     bz_nkp,bz_ntet, !mkqp
 c     &     lat_nkd,lat_nkq,      !lattic
 c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
 c     &     lat_ng, lat_nabc(3),         !supot
-      real(8):: bz_w,bz_ef,bz_def, !iors,bndfp
+      real(8):: 
      &     bz_dosw(2), !bndfp ???
      &     ham_eterms(20),
-     &     ham_ehf,  ! bndfp to lmfp
-     &     ham_ehk,  ! bndfp,chkdmu to lmfp
      &     ctrl_mdprm(6)  !lmfp
+c     &     ham_ehf,  ! bndfp to lmfp
+c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
 c     &     lat_gmax, !supot
 c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
       type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
@@ -1525,9 +1525,9 @@ c     .        note='Assign PL potential index to this site')
      .     def_r8=5d-3,note=
      .     'N>=0: Line broadening for sampling integration%N%3f'//
      .     'N<0 : Temperature for Fermi distribution (Ry)')
-      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef,
+      nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0,
      .     def_r8=0d0,note='Initial guess at Fermi energy')
-      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def,
+      nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
      .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
       nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak(1),
      .     def_r8=0d0,note='Homogeneous background charge')

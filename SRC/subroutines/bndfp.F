@@ -8,41 +8,38 @@
 !!
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
-!!
-      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, !sstrnmix, !,sbz,sctrl,sham,slat spot,
-     .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, !ndham,
-     .     dmatu,vorb,llmfgw)
+!     !
+      module m_bndfp
+      real(8),protected:: bz_ef,bz_def ! revised when called.
+      real(8),protected:: ham_ehf,ham_ehk
+      logical,private:: binit=.true.
       
-      use m_supot,only:  zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      use m_suham,only:iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
-c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
+      contains
+      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, 
+     .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
+     .     dmatu,vorb,llmfgw)
+      use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
+      use m_suham,only: iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
-      use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def,bz_ef,bz_efmax,bz_fsmom,
-     &     bz_dosmax,bz_w,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
+      use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
+     &     bz_dosmax,bz_dosw,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
-     &     ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !
+     &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     lat_alat,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
-      use m_mkqp,only: bz_nabc
-      use m_mkqp,only: bz_ntet
-      use m_mkqp,only: bz_nkp
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
+      use m_iors,only:  bz_ef00,bz_def00,RWiors,Setbz2iors
+      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
+      use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+      use m_lattic,only: lat_qlat, lat_vol, lat_plat,rv_a_opos
       use m_supot,only: lat_nabc
-      use m_seneinterp,only: ham_ndhrs
-      use m_seneinterp,only: ham_nqsig
-
-
-      use m_lattic,only: lat_plat,rv_a_opos
+      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
+      use m_seneinterp,only: ham_ndhrs,ham_nqsig
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
-      use m_w_psir, only: w_psir_cmdopt
       use m_struc_def
-      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-      use m_mkqp,only: iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
+c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
@@ -53,11 +50,6 @@ Ci         :U on site ib with dmat in dmats(*,lldau(ib))
 Ci   Following are old. Moved to lmfinit
 Ci     ssite :struct for site-specific information; see routine usite
 Ci     sspec :struct for species-specific information; see routine uspec
-Ci     slat  :struct for lattice information; see routine ulat
-Ci     sctrl :struct for program flow parameters; see routine uctrl
-Ci     sham  :struct for parameters defining hamiltonian; see routine uham
-Ci     spot  :struct for information about the potential; see routine upot
-Ci     sbz   :struct for the Brillouin Zone; see routine ubz
 c      
 Ci   ndham :dimensioning parameter, at least as large as largest
 Ci         :hamiltonian dimension
@@ -571,6 +563,15 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       if (esmear .lt. 0) mpsord = -mpsord
       ndos= bz_ndos
       dosw = bz_dosw
+      if(binit.and.trim(RWiors)=='read') then
+         bz_ef =bz_ef00
+         bz_def=bz_def00
+         binit=.false.
+      elseif(binit) then
+         bz_ef =bz_ef0
+         bz_def=bz_def0
+         binit=.false.
+      endif
       ef0  = bz_ef
       def  = bz_def
       ltet = ntet .gt. 0
@@ -1970,7 +1971,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
 
-#ifdef MPIK                     !
+#ifdef MPIK
 c     if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
       call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
 #endif
@@ -2117,8 +2118,9 @@ c$$$  call poppr
          if(goto99) goto 99
       endif
 c      if(allocated(sfz)) deallocate(sfz)
-!! == ix99 loop over =============================
-
+!! == goto99 ix99 loop over =============================
+      call Setbz2iors(bz_ef,bz_def)  !is this really necesary?
+      
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
          if (lmet .eq. 0) then
@@ -2398,6 +2400,9 @@ ccccccccccccccccccccccccc
       return
 !! end of bndfp
 
+
+
+      
       
 !sssssssssssssssssssssssssssssssssssssssssssss
       contains
@@ -2588,7 +2593,7 @@ c     print *,'vessm=',vessm
 c      endif
       end subroutine getqmode
       end subroutine bndfp
-c      end module m_bndfp
+      end module m_bndfp
 
 
       

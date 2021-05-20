@@ -1,9 +1,12 @@
+      module m_chkdmu
+      real(8),protected:: eorb=0d0
+
+      contains
       subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
      .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
       use m_struc_def,only: s_site,s_spec
-      use m_lmfinit,only: ham_ehk,ham_eterms,stdl
-
-
+      use m_lmfinit,only: ham_eterms,stdl
+      use m_MPItk,only: master_mpi
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
@@ -49,20 +52,19 @@ Cu    2 Jun 05 Evaluates total energy contribution from output dmatu
 Cu   27 Apr 05 Lambrecht first created
 C ----------------------------------------------------------------------
       implicit none
-c      integer:: ierr
+      integer:: ierr
       include "mpif.h"
 C ... Passed parameters
       integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
       integer lldau(nbas),istab(nbas,ng)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-c      type(s_ham)::sham
-
+      real(8):: eorbxxx
       double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-      double precision eorb
+c      double precision eorb
 C ... Local parameters
       integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
       integer iprint,ipl,havesh
@@ -76,7 +78,7 @@ C ... Local parameters
       integer:: nn,ibas,ifx,key,i,nit
       integer,save::ncount=0
 C ... MPI
-      integer:: procid,master,mpipid,mlog=-999,ierr
+c      integer:: procid,master,mpipid,mlog=-999,ierr
       complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
       real(8):: sss(1),sigin
       real(8):: fac
@@ -99,8 +101,8 @@ c      stdl = globalvariables%stdl
       call info0(20,1,0,' chkdmu:  '//
      .'check LDA+U density-matrix for convergence and update ...')
 C ... MPI
-      procid = mpipid(1)
-      master = 0
+c      procid = mpipid(1)
+c      master = 0
 C     mlog = cmdopt('--mlog',6,0,strn)
 
 C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
@@ -170,14 +172,13 @@ C --- LDA total energy terms ---
       call dcopy(i_copy_size,ham_eterms,1,eterms,1)
 
       eks = eks + eorb
-
-      ham_ehk=eks
+c      ham_ehk=eks
       i_copy_size=size(ham_eterms)
       call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
       call info5(20,0,0,'%9peks = %,6;6d  '//
      .'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks-eorb,eorb,eks,0,0)
-      if (mpipid(1) .eq. 0 .and. ipl.gt.0)
+      if (master_mpi .and. ipl.gt.0)
      .write (stdl,720) eks-eorb,eorb,eks
   720 format('ldau EHK ',f14.6,'  U',f12.6,'  ELDA+U ',f14.6)
 
@@ -217,7 +218,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
        if(mmtargetx) then
-          if(procid==master) then
+          if(master_mpi) then
              open(newunit=ifx,file='mmtarget.aftest')
              alpha  = .1d0
              read(ifx,*) mmtarget !,alpha
@@ -283,7 +284,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 call pshpr(iprint()-20)
                 if(.not.mmtargetx) uhx = uh(l+1)
                 call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp, !uhxx,jh(l+1),dmatu,nsp, !
-     .          lmaxu,vorb,eorb)
+     .          lmaxu,vorb,eorbxxx) !eorbxxx is dummy?
                 call poppr
               endif
             enddo
@@ -308,7 +309,7 @@ C   ... Symmetrize vorb to check (symdmu requires real harmonics)
         call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' Mixed dmats',dmatu)
         call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite, ' New vorb',vorb)
 !! Write dmatu to file
-        if (procid .eq. master) then
+        if (master_mpi) then
           idmat = ifile_handle()
           open(idmat,file='dmats.'//trim(sname))
           call praldm(idmat,0,0,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,' mixed dmats',dmatu)
@@ -424,3 +425,4 @@ c ...
       close(ifi)
       end
       
+      end module

@@ -1,14 +1,19 @@
-      integer function iors(ssite,sspec,!spot,!sbz,,sctrl,slat,mode
-     .fid,nbas,nat,nspec,sv_p_orhoat,qnu,nit,lbin,ifi)
-      use m_lmfinit,only: irs3,irs4,irs5,bz_ef,bz_w,bz_def,irsrot !,ctrl_lrs
-      use m_lmfinit,only:lat_alat
-      use m_lmfinit,only: nsp,lrel,nl
+      module m_iors
+      real(8),protected:: bz_ef00,bz_def00
+      character(20),protected:: RWiors
+      contains
+      subroutine setbz2iors(bz_ef,bz_def)
+      real(8):: bz_ef,bz_def
+      bz_ef00=bz_ef
+      bz_def00=bz_def
+      end
+      integer function iors(ssite,sspec,
+     .fid,nbas,nat,nspec,sv_p_orhoat,nit,lbin,ifi)
       use m_struc_def 
       use m_struc_func
-      use m_supot,only: zv_a_osmrho
-      use m_supot,only: lat_nabc
-      use m_lattic,only: lat_dist
-      use m_lattic,only: lat_plat
+      use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl
+      use m_supot,only: zv_a_osmrho, lat_nabc
+      use m_lattic,only: lat_dist, lat_plat
 C- I/O for charge density (takao think this it too complicated, but iw roks.
 C ----------------------------------------------------------------------
 Ci Inputs/Outputs
@@ -129,7 +134,7 @@ C ... Passed parameters
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_site)::ssite(nbas)
       type(s_spec)::sspec(nspec)
-      double precision qnu(3,n0,*)
+c      double precision qnu(3,n0,*)
       character fid*(*)
 C ... Local parameters
       integer procid,master,mpipid,nproc
@@ -165,10 +170,8 @@ C ... MPI setup
       alat=lat_alat
       plat=lat_plat
       ngabc=lat_nabc
-c      bz_ef_ =bz_ef
-c      bz_def_=bz_def
-c     bz_w_  =bz_w
       call dinv33(plat,1,qlat,fac)
+      RWiors=''
       vol = dabs(fac)*alat**3
       ipr    = iprint()
       stdo   = lgunit(1)
@@ -388,12 +391,9 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-c          sbz%ef=wk(1)
-c          sbz%def=wk(2)
-c          sbz%w=wk(3)
-          bz_ef=wk(1)
-          bz_def=wk(2)
-          bz_w=wk(3)
+          bz_ef00=wk(1)
+          bz_def00=wk(2)
+c          bz_w= -9999 !dummy wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
         line = 'site data'
@@ -818,8 +818,10 @@ c   ... Copy or rescale cores, in case foca was switched on or off
         do i_spec=1,nspec
           call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
         enddo
+        RWiors='read'
 C --- Output ---
       else
+        RWiors='write'
         if (procid .ne. master) then
           iors = 0
           return
@@ -886,9 +888,9 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
-        wk(1)=bz_ef !sbz%ef
-        wk(2)=bz_def !sbz%def
-        wk(3)=bz_w !sbz%w
+        wk(1)=bz_ef00 !sbz%ef
+        wk(2)=bz_def00 !sbz%def
+        wk(3)=-9999 !dummy bz_w !sbz%w
         if (lbin) then
           call dpdump(wk,100,-jfi)
         else
@@ -1056,4 +1058,4 @@ C     ... For now, ASA stores no core data
       if (ipr .gt. 0) write(stdo,'('' iors  : read failed in: '',a)') line
       end function iors
 
-
+      end module m_iors

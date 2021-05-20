@@ -2,7 +2,7 @@
 !! We will need to unify make system and source code in fpgw and lmf.
 !! norbtx is given in gwsrc/readeigen.F init_readeigen2
       module m_hamindex
-      use NaNum,only: NaN
+      use NaNum,only: NaN !not working well
       
       integer,allocatable:: iclasstaf(:)
       real(8),allocatable:: symops_af(:,:,:), ag_af(:,:)
@@ -13,7 +13,8 @@
      &     igv2(:,:,:),napwk(:),igv2rev(:,:,:,:)
       real(8):: plat(3,3)=NaN,qlat(3,3)=NaN !,protected
       real(8),allocatable:: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:), dlmm(:,:,:,:),qq(:,:),
-     &     qtt(:,:),qtti(:,:) !,protected
+     &     qtt(:,:),qtti(:,:)   !,protected
+      
       integer::  nqi=NaN, nqnum=NaN,  
      &     ngrp=NaN, lxx=NaN, kxx=NaN,norbmto=NaN,
      &      nqtt=NaN, ndimham=NaN, napwmx=NaN, lxxa=NaN, ngpmx=NaN, norbtx=NaN

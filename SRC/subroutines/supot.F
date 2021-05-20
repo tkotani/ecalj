@@ -2,12 +2,13 @@
       use m_struc_def,only: s_rv1
       type(s_rv1), allocatable :: sv_a_oorhat(:)
       complex(8) , allocatable,protected ::  zv_a_obgv (:)
-      integer , allocatable,protected ::  iv_a_oips0 (:)
-      real(8) , allocatable,protected ::  rv_a_ogv (:)
-      integer , allocatable,protected ::  iv_a_okv (:)
       complex(8) , allocatable ::  zv_a_osmrho (:)
       complex(8) , allocatable ::  zv_a_osmpot (:)
       real(8) , allocatable ::  rv_a_omad (:)
+
+      integer , allocatable,protected ::  iv_a_oips0 (:)
+      real(8) , allocatable,protected ::  rv_a_ogv (:)
+      integer , allocatable,protected ::  iv_a_okv (:)
       real(8),protected:: lat_gmax
       integer,protected:: lat_ng,lat_nabc(3)
       contains

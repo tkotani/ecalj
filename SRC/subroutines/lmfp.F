@@ -1,19 +1,20 @@
-      subroutine lmfp(llmfgw) 
-      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet,bz_w, irs1x10, 
+      subroutine lmfp(llmfgw)
+      use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
      &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
-     &     ham_ehf,ham_ehk,ham_seref,ham_eterms,
+     &     ham_seref,ham_eterms,
      &     lat_gam,lat_alat, lat_ldist,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat
-
-
-      use m_supot,only:sv_a_oorhat,zv_a_osmrho,Supot
+      use m_supot,only: sv_a_oorhat,zv_a_osmrho,Supot
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_suham,only: Suham
       use m_lattic,only: lat_dist,lat_plat,rv_a_opos
       use m_ext,only: sname
+      use m_iors,only: Iors
+      use m_bndfp,only: Bndfp,ham_ehf,ham_ehk
+      use m_chkdmu,only: Chkdmu,eorb
 !! = Main routine of lmf = (following document is roughly checked at aug2020)
 !   lmfp contains two loops
 !!    1 big loop do 2000 is for molecular dynamics (relaxiation).
@@ -23,13 +24,13 @@
 !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
 !!      we don't maintain the mode. Probably, we need to re-design it (maybe outside of molecular relaxiation).
 !! original classifications are      
-C     i   bz_*   :related to the Brillouin Zone
-C     i   ctrl_* :               program flow
-C     i   ham_*  :               hamiltonian
-C     i   pot_*  :               potential
-C     i   lat_*  :               lattice
-C     i   mix  :                 mixing parameters; see routine umix
-!! however, these classification is not so consistent. Some data in m_lmfinit are redundant because
+!     i   bz_*   :related to the Brillouin Zone
+!     i   ctrl_* :               program flow
+!     i   ham_*  :               hamiltonian
+!     i   pot_*  :               potential
+!     i   lat_*  :               lattice
+!     i   mix  :                 mixing parameters; see routine umix
+!! however, these classification are not so consistent. Some data in m_lmfinit are redundant because
 !!      we rewrite old code somehow mechanically.
 !!  These are still meaningful, defined in m_struct_def, and set in m_lmfinit
 !     i   sspec :struct for species-specific information; see routine uspec
@@ -49,7 +50,7 @@ Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
       integer procid,master,mpipid,nproc
       logical mlog
       logical lgors,cmdopt,bittst
-      integer i,ifi,igets,iors,ipr,irs1x,isw,ix(5),j, !,iscr
+      integer i,ifi,igets,ipr,irs1x,isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lgunit,lpnu,lrel,lrout,nbas,
      .     nbaspp,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
      .     stdo,pdim,lsc
@@ -93,7 +94,7 @@ C  ... for LDA+U
       double precision tolu
       data irlxsh /0/ dist0 /9*0d0/
       logical:: l_dummy_isanrg,isanrg
-      real(8):: pnu(20),bz_wx
+      real(8):: pnu(20) !,bz_wx
       logical :: llmfgw,nowriteden=.false., nexist
       integer:: isize_iv_tmp,ibas,unlink,ifipos,ifile_handle, ifivorbdmat,nsize
 #if (MPI |MPIK)
@@ -115,7 +116,7 @@ C  ... for LDA+U
       nsp  = ctrl_nspin
       qbg = ctrl_zbak(1)
       maxit = int(ctrl_maxit)
-      lrel =  ctrl_lrel/=0
+      lrel =  ctrl_lrel
       call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
       if (lhf) maxit = 1
       nbaspp = nbas      
@@ -270,10 +271,8 @@ c 10         continue
                   if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
                endif
                call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-               bz_wx = bz_w
-               k = iors ( ssite , sspec ,  fileid !read rst file
-     .              , nbas , nat , nspec , sv_a_oorhat , iwdummy , nit1 , lbin , ifi )
-               bz_w = bz_wx
+               k = iors ( ssite , sspec ,  fileid !read rst file.  !bz_w in iros removed
+     .              , nbas , nat , nspec , sv_a_oorhat, nit1 , lbin , ifi ) 
                if (procid .eq. master) close(ifi) !call fclose(ifi)
                call mpibc1(k,1,2,mlog,'lmfp','k')
                do ibas=1,nbaspp 
@@ -349,7 +348,7 @@ c               endif
 
                   fileid = 'lmfp:  ' 
                   k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
-     .                    , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , lbin , 
+     .                    , nbas , nat , nspec , sv_a_oorhat, iter , lbin , 
      .                    - ifi )
                   close(ifi) !call fclose(ifi)
                   endif
@@ -360,7 +359,7 @@ c            if (cmdopt('--window=',9,0,strn)) call rx0('lmf : early exit (--win
 C     --- Add to save file; decide on next iteration ---
             if (maxit <= 0) goto 9998
             etot(1)=ham_ehf
-            etot(2)=ham_ehk
+            etot(2)=ham_ehk+eorb 
             seref = ham_seref   !   ... Subtract reference energy
             etot(1) = etot(1) - seref
             if (etot(2) .ne. 0) etot(2) = etot(2) - seref
@@ -454,7 +453,7 @@ C     Repack updated positions in site structure
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
             fileid = 'lmfp:  '  !// trim(sstrnjobid) !sstrn(i:j)
             k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
-     .           , nbas , nat , nspec , sv_a_oorhat , iwdummy , iter , .true. 
+     .           , nbas , nat , nspec , sv_a_oorhat, iter , .true. 
      .           , - ifi )
             close(ifi) !call fclose(ifi)
          endif
