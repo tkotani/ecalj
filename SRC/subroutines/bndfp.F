@@ -10,11 +10,18 @@
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !     !
       module m_bndfp
-      real(8),protected:: bz_ef,bz_def ! revised when called.
       real(8),protected:: ham_ehf,ham_ehk
+      real(8),protected:: bz_ef,bz_def ! revised when called.
+
       logical,private:: binit=.true.
       
       contains
+      subroutine bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
+      real(8):: bz_ef00,bz_def00
+      bz_ef = bz_ef00
+      bz_def= bz_def00
+      binit=.false.
+      end 
       subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, 
      .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
@@ -29,7 +36,6 @@
      &     lat_alat,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
-      use m_iors,only:  bz_ef00,bz_def00,RWiors,Setbz2iors
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: lat_qlat, lat_vol, lat_plat,rv_a_opos
@@ -563,15 +569,20 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
       if (esmear .lt. 0) mpsord = -mpsord
       ndos= bz_ndos
       dosw = bz_dosw
-      if(binit.and.trim(RWiors)=='read') then
-         bz_ef =bz_ef00
-         bz_def=bz_def00
-         binit=.false.
-      elseif(binit) then
+      if(binit) then
          bz_ef =bz_ef0
          bz_def=bz_def0
          binit=.false.
       endif
+c      if(binit.and.trim(RWiors)=='read') then
+c         bz_ef =bz_ef00
+c         bz_def=bz_def00
+c         binit=.false.
+c      elseif(binit) then
+c         bz_ef =bz_ef0
+c         bz_def=bz_def0
+c         binit=.false.
+c      endif
       ef0  = bz_ef
       def  = bz_def
       ltet = ntet .gt. 0
@@ -2119,7 +2130,6 @@ c$$$  call poppr
       endif
 c      if(allocated(sfz)) deallocate(sfz)
 !! == goto99 ix99 loop over =============================
-      call Setbz2iors(bz_ef,bz_def)  !is this really necesary?
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
