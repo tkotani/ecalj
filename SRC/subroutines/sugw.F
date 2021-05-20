@@ -7,8 +7,10 @@
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
-     &     ham_ndhrs,ham_scaledsigma,ham_nqsig,
+     &     ham_scaledsigma,
      &     lat_alat,lat_nabc,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
+      use m_seneinterp,only: ham_ndhrs
+      use m_seneinterp,only: ham_nqsig
 
 
       use m_mksym,only: lat_npgrp,lat_nsgrp

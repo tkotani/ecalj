@@ -4,7 +4,7 @@
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
-      integer,protected:: ndimsig,nspsigm
+      integer,protected:: ndimsig,nspsigm,ham_ndhrs,ham_nqsig
 
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
@@ -15,9 +15,7 @@
       deallocate(sene)
       end subroutine
       subroutine getsene(lrsig,qp,isp) !call after sigmainit
-      use m_lmfinit,only: plat,mxorb,ham_ndhrs,nbas,nl
-
-
+      use m_lmfinit,only: plat,mxorb,nbas,nl
       use m_suham,only:  iv_a_oindxo
       integer:: i, mode, isp, ispsigm,lrsig,iwdummy,ival
       real(8):: hreal,qp(3)
@@ -111,10 +109,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
       use m_sigflg
-      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,ham_nqsig,ham_ndhrs,
+      use m_lmfinit,only: bz_nabc,bz_lshft,bz_nkp,ham_rsstol,
      &     mxorb,stdo,nl
-
-
       use m_suham,only: ham_ldham
       use m_lattic,only: lat_plat,rv_a_opos
       implicit none
@@ -719,9 +715,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine sigmainit(ldim,procid,master)
-      use m_lmfinit,only : rsrnge=>ham_rsrnge,ham_ndhrs,nbas,pwmode=>ham_pwmode
-
-
+      use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode
       use m_hamindex,only: symops_af,napwmx
       use m_ext,only:sname
 #if MPI | MPIK
@@ -830,12 +824,9 @@ c$$$            deallocate(pos,npair)
 !!--------------------------------------------------------------------------------------------
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
      &     nk1,nk2,nk3,ldim,qsmesh,sfz     ,nqps,mtosigmaonly,ndimsig) !,qsfz,qqps are for test
-!      use m_seneinterp,only: rv_p_oqsig
       use m_mksym,only: rv_a_osymgr,lat_nsgrp
       use m_hamindex,only : getikt,napwk,plat,   symops_af,ngrp_original,ngrpaf,symops,ngrp
-      use m_lmfinit,only: ham_nqsig,nl,stdo
-
-
+      use m_lmfinit,only: nl,stdo
 !! == Expand self-energy (read by ifis) to all the q point on mesh. In developing. ==
 !! nbas is in this structure
 !! input
@@ -1332,15 +1323,11 @@ c      endif ! exit of MPI master loop
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       print *,'xxxxxxx end rdsigm2 xxxx'
       end subroutine rdsigm2
-      
       end module m_seneinterp
 
 
 
-
-
-
-
+!!---------future version... hamfb3k, bloch will be replaced -----------------
       module m_seneinput_notusedyet
       implicit none
       integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
@@ -1528,4 +1515,4 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
  1019 continue
       call tcx('seneinterp2')
       end subroutine seneinterp2
-      end module
+      end module m_seneinput_notusedyet
