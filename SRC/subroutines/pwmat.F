@@ -1,7 +1,9 @@
       subroutine pwmat(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,GcutH,inn,ppovl,pwhovl)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
 
 
       use m_lattic,only:lat_plat
@@ -241,7 +243,9 @@ C --- Cleanup ---
       subroutine pwmat2(ssite,sspec,nbas,ndimh,napw,igapw,iprmb,q,!slat,
      .ngp,nlmax,igv,ovlp,pwh)
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_vol
+      use m_lmfinit,only: lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
 
 
       use m_lattic,only:lat_plat      

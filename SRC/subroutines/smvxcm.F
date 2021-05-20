@@ -3,7 +3,10 @@
      .rvepsm,focexc,focex,focec,focvxc,f)
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def
-      use m_lmfinit,only: rv_a_ocy,lat_nabc, lat_ng, lat_vol, lat_alat, lat_vol,lxcf,nsp,stdo
+      use m_lmfinit,only: rv_a_ocy,   lat_alat, lxcf,nsp,stdo
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
 
 
 C- XC potential for smooth mesh density

@@ -3,11 +3,8 @@
      .   , sv_p_oppi , lcplxp , alfa , ndimh , napw , igvapwin , h , s , 
      .     hso )
       use m_suham,only: iv_a_oindxo
-      use m_struc_def,only: s_rv1, s_site, s_spec!,  s_lat !s_ham,
-      use m_lmfinit,only:lat_qlat
-
-
-      use m_lattic,only:lat_plat
+      use m_struc_def,only: s_rv1, s_site, s_spec
+      use m_lattic,only:lat_plat,lat_qlat
       implicit none
 C- Make the LDA hamiltonian and overlap for one k-point.
 C ----------------------------------------------------------------------
@@ -205,10 +202,7 @@ C     call pvhmb2(ndimh,h,s)
 
 
       subroutine pvhmb1(mode,k1,k2,k3,smpot,vavg) !slat,
-      use m_lmfinit,only:lat_nabc
-
-
-      use m_struc_def  !Cgetarg
+      use m_supot,only:lat_nabc
 C- Add subtract a constant from smooth potential
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -228,7 +222,6 @@ Cu   16 Aug 04 First created
 C ----------------------------------------------------------------------
       implicit none
       integer mode,k1,k2,k3
-c      type(s_lat)::slat
       double complex smpot(k1,k2,k3)
 C ... Local parameters
       double precision vavg

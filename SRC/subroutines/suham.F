@@ -8,7 +8,9 @@
       use m_struc_def  
       use m_lmfinit,only:lso,   ctrl_nbasp,ctrl_nspec, ctrl_nl, ctrl_nspin,
      &     ham_pwmode,ham_pwemax,ham_pwemin,
-     &     lat_alat,lat_qlat, lat_ng,lat_alat,lat_tolft,nkaph !,ham_npwpad
+     &     lat_alat, lat_alat,lat_tolft,nkaph !,ham_npwpad
+      use m_lattic,only: lat_qlat
+      use m_supot,only: lat_ng
 
 
       use m_lattic,only: lat_plat
@@ -311,7 +313,8 @@ c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,j
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_qlat,lat_alat,nl,ctrl_nbasp
+     &     lat_alat,nl,ctrl_nbasp
+      use m_lattic,only: lat_qlat
 
 
       use m_lattic,only: lat_plat,rv_a_opos

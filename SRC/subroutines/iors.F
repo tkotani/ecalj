@@ -9,7 +9,8 @@
 
 
       use m_supot,only: zv_a_osmrho
-      use m_lmfinit,only:lat_alat,lat_nabc,lat_dist
+      use m_lmfinit,only:lat_alat,lat_dist
+      use m_supot,only: lat_nabc
 
 
       use m_lattic,only: lat_plat

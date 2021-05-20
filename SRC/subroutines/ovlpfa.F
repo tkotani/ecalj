@@ -1,6 +1,7 @@
       subroutine ovlpfa(ssite,nbas,nxi,nxi0,exi,hfc,rsmfa,ng,ngmx, !slat,
      .gv,cv)
-      use m_lmfinit,only:lat_alat,lat_vol,nsp
+      use m_lmfinit,only:lat_alat,nsp
+      use m_lattic,only: lat_vol
 
 
       use m_struc_def  

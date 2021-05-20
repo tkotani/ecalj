@@ -8,7 +8,10 @@ CSFCPP#define F90 1
      .     , sv_p_oeqkkl , f )
       use m_suham,only: iv_a_oindxo
       use m_struc_def 
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_qlat,lat_alat,lat_vol,nbas
+      use m_lmfinit,only:lat_alat,nbas
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
 
 
 C- Adds to the smooth and local output density and to eigval sum

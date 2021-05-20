@@ -4,7 +4,8 @@
       use m_lmfinit,only: nspec
 
 
-      use m_lmfinit,only: lat_alat,lat_ng,lat_tolft
+      use m_lmfinit,only: lat_alat,lat_tolft
+      use m_supot,only: lat_ng
 
 
 C- Further hamiltonian setup after potential generated

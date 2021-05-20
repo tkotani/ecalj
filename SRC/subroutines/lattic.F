@@ -1,14 +1,14 @@
       module m_lattic
       real(8) , allocatable,protected ::  rv_a_odlv (:)
       real(8) , allocatable,protected ::  rv_a_oqlv (:)
-      real(8),protected:: lat_plat(3,3)
+      real(8),protected:: lat_plat(3,3),lat_qlat(3,3),lat_awald,lat_vol
       real(8), allocatable :: rv_a_opos(:,:)
       integer,protected:: lat_nkd,lat_nkq
       contains
       subroutine m_lattic_init() !slat,nbas)
        use m_lmfinit,only: ctrl_nbas, !,v_sctrl,slat=>v_slat,
      &     lat_alat, lat_as, lat_tol,lat_rpad,lat_nkdmx,lat_nkqmx,lat_gam,lat_dist,v_ssite,
-     &     lat_platin,lat_qlat,lat_awald,lat_ldist,lat_vol!,rv_a_opos
+     &     lat_platin,lat_ldist!,rv_a_opos
 C     - Sets up the real and reciprocal space lattice vectors
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs

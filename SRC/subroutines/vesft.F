@@ -1,6 +1,7 @@
       subroutine vesft(ng,gv,kv,cv,k1,k2,k3,smrho,smpot,sum) !slat,
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:lat_alat,lat_vol
+      use m_lmfinit,only:lat_alat
+      use m_lattic,only: lat_vol
 
 
 C- Make electrostatic potential of density given in recip space

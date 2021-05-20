@@ -1,7 +1,12 @@
 c#define SGI 1
       subroutine hsibl(ssite,sspec,k1,k2,k3,vsm,isp,q,ndimh,iprmb,napw,igapw,h)
       use m_struc_def 
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec,nbas
+      use m_lmfinit,only: lat_alat,nspec,nbas
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+      use m_supot,only: lat_gmax
 
 
       use m_lattic,only:  lat_plat

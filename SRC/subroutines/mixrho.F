@@ -3,7 +3,10 @@
      .  , smrnew , smrho )
       use m_struc_def
       use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_lmfinit,only:lat_nabc,lat_ng,lat_vol,lat_alat,nbas,stdo,stdl
+      use m_lmfinit,only:lat_alat,nbas,stdo,stdl
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
 
 
 !!= Mix old and new charge densities =

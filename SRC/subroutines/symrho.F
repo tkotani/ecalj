@@ -3,8 +3,8 @@
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only:lat_nabc,nbas,nsp
-
+      use m_lmfinit,only:nbas,nsp
+      use m_supot,only: lat_nabc
 
 C- Symmetrize charge density and related quantities
 C ----------------------------------------------------------------------
@@ -68,7 +68,7 @@ c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
      . sv_p_orhoat , qbyl , hbyl , f )
       use m_struc_def  !Cgetarg
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag,lat_nsgrp
-      use m_lmfinit,only: lat_qlat
+      use m_lattic,only: lat_qlat
 
 
       use m_lattic,only:lat_plat
@@ -313,9 +313,7 @@ C ... Copy to all sites in class
       subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
       use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only: lat_nabc,lat_ng
-
-
+      use m_supot,only: lat_ng,lat_nabc
       use m_mksym,only: lat_nsgrp
 C- Symmetrize the smooth charge density
       implicit none

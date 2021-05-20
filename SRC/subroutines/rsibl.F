@@ -1,7 +1,12 @@
       subroutine rsibl(ssite,sspec,lfrce,nbas,isp,q,iq,ndimh,nspc, !slat,
      .     napw,igapw,iprmb,numq,nevec,evec,ewgt,k1,k2,k3,smpot,smrho,f)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec
+      use m_lmfinit,only: lat_alat,nspec
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+      use m_supot,only: lat_gmax
 
 
       use m_lattic,only:lat_plat      

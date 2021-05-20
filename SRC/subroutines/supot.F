@@ -8,18 +8,17 @@
       complex(8) , allocatable ::  zv_a_osmrho (:)
       complex(8) , allocatable ::  zv_a_osmpot (:)
       real(8) , allocatable ::  rv_a_omad (:)
+      real(8),protected:: lat_gmax
+      integer,protected:: lat_ng,lat_nabc(3)
       contains
       
       subroutine supot()  
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
-      use m_mksym,only:    rv_a_osymgr,rv_a_oag 
-      use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin
-
-
-      use m_lmfinit,only: lat_alat,lat_vol,lat_awald,lat_gmax,lat_ng,
-     &     lat_nabc
-      use m_lattic,only: lat_nkd
-      use m_lattic,only: lat_nkq
+      use m_mksym,only:   rv_a_osymgr,rv_a_oag 
+      use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nbasp,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin
+      use m_lattic,only: lat_vol, lat_awald
+c      use m_supot,only: lat_ng, lat_gmax
+      use m_lattic,only: lat_nkd, lat_nkq
       use m_mksym,only:  lat_nsgrp
 C- Initialization for potential
 C ----------------------------------------------------------------------
@@ -64,11 +63,11 @@ C --- Monopole Madelung matrix ---
       endif
 C --- Setup for FT charge density, potential representation ---
 c      if ( iand(4,int(ctrl_lcd)) .ne. 0 ) then
+      gmax = lat_gmaxin
+      ngabc= ftmesh    
       if (lcd4) then
         alat = lat_alat
         plat = lat_plat
-        ngabc= lat_nabc
-        gmax = lat_gmax
 C   ... Generate energy cutoff gmax or n1..n3
 c        call pshpr(iprint()-0)
        call mshsiz(alat,plat,0,gmax,ngabc,ngmx)

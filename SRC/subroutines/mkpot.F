@@ -7,7 +7,10 @@
 
 
       use m_struc_def  
-      use m_lmfinit,only:lat_nabc,lat_qlat,lat_vol,lat_alat,lxcf
+      use m_lmfinit,only:lat_alat,lxcf
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
 
 
       use m_lattic,only:lat_plat

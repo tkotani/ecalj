@@ -4,7 +4,8 @@
 
 
       use m_struc_def           !Cgetarg
-      use m_lmfinit,only:lat_alat,lat_vol
+      use m_lmfinit,only:lat_alat
+      use m_lattic,only: lat_vol
 
 
 C- For foca, add together density of smoothed part of core

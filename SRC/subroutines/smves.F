@@ -3,7 +3,10 @@
      .vrmt,qbg)
       use m_supot,only: iv_a_okv, rv_a_ogv
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: rv_a_ocy,lat_nabc,lat_ng,lat_vol,nsp,stdo
+      use m_lmfinit,only: rv_a_ocy,nsp,stdo
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
 
 
       use m_ext,only: sname

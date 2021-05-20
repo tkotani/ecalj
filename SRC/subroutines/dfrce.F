@@ -3,7 +3,11 @@
      .     , dfh )
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def 
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat,lat_ng,lat_qlat,nsp,nbas,nspec
+      use m_lmfinit,only:lat_alat,nsp,nbas,nspec
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
 
 
       use m_lattic,only: lat_plat
@@ -407,7 +411,9 @@ c     .orhoat,fes1,fes2,fxc)
       use m_lmfinit,only: nbas
 
 
-      use m_lmfinit,only:lat_vol,lat_nabc,lat_alat
+      use m_lmfinit,only:lat_alat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
 
 
 c need to modify texts.
@@ -954,7 +960,9 @@ C ... Local parameters
 
       subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,
       use m_struc_def 
-      use m_lmfinit,only: nbas,lat_vol,lat_nabc
+      use m_lmfinit,only: nbas
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
 
 
 C- Makes smoothed ves from smoothed density and qmom, incl nuc. charge

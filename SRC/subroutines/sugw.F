@@ -8,7 +8,10 @@
       use m_lmfinit, only: 
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
      &     ham_scaledsigma,
-     &     lat_alat,lat_nabc,lat_qlat,lat_gmax,mxorb,nkaph,nsp,nspc,nl,mxorb
+     &     lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb
+      use m_lattic,only: lat_qlat
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_gmax
       use m_seneinterp,only: ham_ndhrs
       use m_seneinterp,only: ham_nqsig
 

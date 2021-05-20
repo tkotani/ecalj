@@ -6,7 +6,12 @@ Ckino from rsibl write eigenvectors
       use m_struc_def 
       use m_w_psir
       use m_lmfinit,only:
-     &     lat_alat,lat_qlat,lat_gmax,lat_nabc,lat_ng,lat_vol,nspec
+     &     lat_alat,nspec
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
+      use m_supot,only: lat_gmax
 
 
       use m_lattic,only: lat_plat,rv_a_opos

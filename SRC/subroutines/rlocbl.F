@@ -157,7 +157,8 @@ C ----------------------------------------------------------------------
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
       use m_struc_def,only: s_site,s_spec,s_rv1
       use m_prlcb,only:   prlcb2,prlcb3
-      use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,lat_qlat,nkaph
+      use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
+      use m_lattic,only: lat_qlat
 
 
 C- Accumulates the local atomic densities.

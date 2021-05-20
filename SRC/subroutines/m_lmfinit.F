@@ -108,25 +108,25 @@
      &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
       real(8),protected:: ham_seref,
-     &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft
+     &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
       integer::
-c     &     lat_nkd,lat_nkq,      !lattic
-c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
-     &     lat_ng, lat_nabc(3),         !supot
      &     lat_ldist=0, !lmfp,mksym
      &     bz_nkp,bz_ntet,bz_nabc(3)=NULLI !mkqp
      &  ,bz_ndos !bndfp
+c     &     lat_nkd,lat_nkq,      !lattic
+c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
+c     &     lat_ng, lat_nabc(3),         !supot
       real(8):: bz_w,bz_ef,bz_def, !iors,bndfp
-     &  bz_dosw(2), !bndfp ???
-     &          lat_gmax, !supot
-     &     lat_awald,lat_vol,lat_dist(9),lat_qlat(3,3), !lattic
-     &     ham_eterms(20),
+     &     bz_dosw(2), !bndfp ???
+     &     lat_dist(9),ham_eterms(20),
      &     ham_ehf,  ! bndfp to lmfp
      &     ham_ehk,  ! bndfp,chkdmu to lmfp
      &     lat_gam(4),ctrl_mdprm(6)  !lmfp
+c     &          lat_gmax, !supot
+c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
       type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:) 
       
@@ -641,12 +641,12 @@ c     .        '%N%3f3 : Like 2, but also compute <L.S-LzSz> by perturbation')
       endif
       sw = tksw(prgnam,'HAM_GMAX')
       if (sw/=2) then
-         nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmax,nmin=1,nout=nout,
+         nm='HAM_GMAX'; call gtv(trim(nm),sw,lat_gmaxin,nmin=1,nout=nout,
      .        note='Energy cutoff for plane-wave mesh',or=T)
          if (nout .ne. 0) then
             sw = 2
          else
-            lat_gmax = 0
+            lat_gmaxin = 0
          endif
          nm='HAM_FTMESH'; call gtv(trim(nm),sw,ftmesh,nout=nout,
      .        note='No. divisions for plane-wave mesh '//
@@ -1744,9 +1744,9 @@ C            Add 100*k to compute response function only each kth iteration
       lat_alat=alat+dalat
       lat_avw=avw
       lat_nkqmx=lat_nkdmx
-      lat_nabc=ftmesh
+c      lat_nabc=ftmesh
       lat_platin=plat
-      lat_vol=vol
+c      lat_vol=vol
       lat_tolft=tolft
       
 !! set cg coefficients for lmf --- Choose dimensions for arrays

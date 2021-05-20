@@ -22,9 +22,12 @@ c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_o
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,ctrl_nbasp, !ctrl_nl,
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax,ham_ehf,ham_ehk, !
-     &     lat_vol,lat_alat,lat_qlat,lat_nabc ,stdo,stdl,procid,master,
+     &     lat_alat,stdo,stdl,procid,master,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
       use m_seneinterp,only: ham_ndhrs
       use m_seneinterp,only: ham_nqsig
 

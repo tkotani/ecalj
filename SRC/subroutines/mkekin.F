@@ -2,7 +2,9 @@
      .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
      .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
       use m_struc_def  
-      use m_lmfinit,only:lso,lat_nabc,lat_vol,nkaph,nsp,nspc,stdo
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
 
 
       use m_suham,only: iv_a_oindxo

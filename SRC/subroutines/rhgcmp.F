@@ -5,7 +5,11 @@ c      use m_lmfinit,only: globalvariables
 
 
 c      use m_globalvariables
-      use m_lmfinit,only: lat_alat,lat_qlat,lat_nabc,lat_ng,lat_vol,nspec,nsp
+      use m_lmfinit,only: lat_alat,nspec,nsp
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
+      use m_supot,only: lat_nabc
+      use m_supot,only: lat_ng
 
 
       use m_lattic,only:lat_plat

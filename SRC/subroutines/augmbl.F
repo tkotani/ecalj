@@ -8,7 +8,9 @@
       use m_lmfinit,only: nbas,nkaph
 
 
-      use m_lmfinit,only:lat_alat,lat_qlat,lat_vol
+      use m_lmfinit,only:lat_alat
+      use m_lattic,only: lat_qlat
+      use m_lattic,only: lat_vol
 
 
 C- Adds augmentation part of H and S
