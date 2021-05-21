@@ -13,58 +13,48 @@
       use m_ext,only: sname
       use m_MPItk,only: procid,master,mlog
       use m_iors,only: Iors
-      
       use m_supot,only: Supot,k1,k2,k3
-      use m_suham,only: Suham
-      use m_bndfp,only: Bndfp,ham_ehf,ham_ehk
-      use m_chkdmu,only: Chkdmu,eorb
-!! = Main routine of lmf = (following document is roughly checked at aug2020)
-!   lmfp contains two loops
-!!    1 big loop do 2000 is for molecular dynamics (relaxiation).
-!!    2. innner loop do 1000 is for electronic structure self-consistency.
-!!       core of inner loop is bndfp. because of historical reason, Umatrix for LDA+U is managed in lmfp.
-!!  All data set to invoke lmfp is stored in m_lmfinit by rdctrl.
+      use m_suham,only: m_suham_init
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk
+      use m_chkdmu,only: Chkdmu, eorb
+!! = Main routine of lmf = (following document is roughly checked at May2021)
+!! lmfp contains two loops after initialization
+!!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
+!!   2. innner loop do 1000 is for electronic structure self-consistency.
+!!      Main part of band calculaiton is in bndfp. 
+!! (Most of) all data in modules are 'protected'.
+!! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
+!! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.      
 !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
-!!      we don't maintain the mode. Probably, we need to re-design it (maybe outside of molecular relaxiation).
-!! original classifications are      
-!     i   bz_*   :related to the Brillouin Zone
-!     i   ctrl_* :               program flow
-!     i   ham_*  :               hamiltonian
-!     i   pot_*  :               potential
-!     i   lat_*  :               lattice
-!     i   mix  :                 mixing parameters; see routine umix
-!! however, these classification are not so consistent. Some data in m_lmfinit are redundant because
-!!      we rewrite old code somehow mechanically.
-!!  These are still meaningful, defined in m_struct_def, and set in m_lmfinit
-!     i   sspec :struct for species-specific information; see routine uspec
-!     i   ssite :struct for site-specific information; see routine usite
-!! followings are memo for LDA+U
-C     l Local variables
-C     l   lmaxu : max l for a U (used for dimensioning)
-C     i   lldau(ib)
-C     i         : U on site ib with dmat beginning at dmats(*,lldau(ib))
-C     l   nlibu : total number of U blocks
-Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
-!!  aug2020. T.Kotani remove types s_* except s_spec and s_pot. Data are in m_lmfinit.
-!       In future, we need clear protection after data are generated.
-!! --> Old comments are removed to avoid confusions. See branches at github 
+!! We don't maintain the share mode.
+!!      Probably, we need to re-design it (maybe outside of fortran code).
+!     sspec :struct for species-specific information; see routine uspec
+!     ssite :struct for site-specific information; see routine usite
+!   sspec and ssite are not clearly protecetd ---> iors can modify it.
+!   But, these are fixed before going into do 2000/1000 loop (I think).      
+!! Memo for LDA+U
+!     lmaxu : max l for a U (used for dimensioning)
+!     nlibu : total number of U blocks
+!     lldau(ib) : U on site ib with dmat beginning at dmats(*,lldau(ib))
+!! Unused irlxsh: counter for shear relaxations.  irlxsh=0 => new step
+!!      
+!! --> history is removed to avoid confusions. See ecalj@github  
       implicit none
-      logical lgors,cmdopt,bittst
-      integer i,ifi,igets,ipr,irs1x,isw,ix(5),j, !,iscr
-     .     k,lcgf,leks,lgunit,lrout,
-     .     nit1,numq, !npadl,npadr,lsx,
-     .     pdim,lsc
-c      integer:: o
-      real(8),allocatable  :: pos_move(:,:)
-      real(8) ,allocatable :: frc_rv(:,:)
-      real(8) ,allocatable :: ftot_rv(:)
-      real(8) ,allocatable :: pos2_rv(:,:)
-      real(8) ,allocatable :: wk_rv(:)
-      real(8) ,allocatable :: p_rv(:)
-      double precision plat(3,3),qlat(3,3),qbg,xv(10),fptol,umix
-      character strn*120, fileid*68, alabl*8, flg*3
-      
-C     For mixing.  Default parameters dmxp:
+      character strn*120, alabl*8, flg*3
+      logical :: cmdopt,llmfgw,xyzfrz(3),lbin !,lshr=.false.
+      integer :: i,ifi,ipr,irs1x, k, leks,lrout, nit1,numq, pdim,lsc
+      integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
+      integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j
+      real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
+      real(8) :: plat(3,3),qlat(3,3),qbg,xv(10)
+      real(8):: seref,etot(2),amom,qdiff,qtol,etol
+      integer, allocatable :: indrx_iv(:,:) ! for relaxation
+      real(8), allocatable :: pos_move(:,:), frc_rv(:,:), ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
+      real(8), allocatable :: rv_a_omad (:) !   Madelung matrix if necessary
+      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:) !LDA+U
+      integer,parameter:: nm=3
+      real(8):: dmxp(33)
+C     dmxp for mixing.  Default parameters dmxp:
 C     1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
 C     8(I) nkill; 9 betv; 10 rmscst.  11-20 are outputs:
 C     11 rmsdel 12 rms2 13 nmix 14 actual broy 15 actual beta 16-24 tj
@@ -72,114 +62,60 @@ C     25 1 if wt ne 0, 10 if wa ne 0, 11 if all nonzero
 C     27..29: hold parms for static parms block regular mixing
 C     30..32: hold parms for static parms block Euler angle mixing
 C     33 : Lindhard screening parameter
-      double precision dmxp(33)
-C     ... for iterations
-      logical lbin,a2bin !lhf,
-      integer maxit,iter
-      double precision seref,etot(2),amom,qdiff,qtol,etol
-!! for relaxation
-      logical :: xyzfrz(3) !,lshr=.false.
-      integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh=0, nitrlx 
-      integer ,allocatable :: indrx_iv(:)
-      real(8) ,allocatable :: w_rv(:)
-      integer,allocatable:: iv_tmp(:)
-      double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
-c     .     plat0(3,3),dist0(9),dist(9)
-      parameter (nm=3)
-!! LDA+U
-      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:)
-!!      
-      logical:: isanrg
-      real(8):: pnu(20) !,bz_wx
-      logical :: llmfgw,nowriteden=.false., nexist
-      integer:: isize_iv_tmp,ibas,unlink,ifipos,ifile_handle, ifivorbdmat,nsize
-      real(8) , allocatable ::  rv_a_omad (:) !   Madelung matrix if necessary
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
 #endif
+!! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
+!! --rs=3 => always read from atom file !2020aug.
+!! Sep2020 comment " Shorten site positions" removed.
+      
       call tcn('lmfp')
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
       qbg = ctrl_zbak(1)
       maxit = ctrl_maxit
-      if (lhf) maxit = 1
+      if(lhf) maxit = 1
       call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
       irs1x = irs1
       plat = lat_plat
       qlat = lat_qlat
       if(ipr>=30) call praugm(sspec,0) !Printout properties of species
-!!    --rs=3 => always read from atom file !2020aug.
-!! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
-c      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs1x = 0 
-C     ... Setup for no screening transformation
-!! Sep2020 comment " Shorten site positions" here removed.
-      
 !! Setup for charge mixing
       dmxp= 0d0
       dmxp(2)=mix_b
       dmxp(9)=mix_bv
       dmxp(4:5)= mix_w(1:2)
-      dmxp(3)= mix_wc
-      dmxp(6 ) = int(mix_nsave)
+      dmxp(3) = mix_wc
+      dmxp(6) = int(mix_nsave)
       dmxp(7) = int(mix_mmix)
       call parms0(0,0,0d0,0) !reset mixing block
 !! for force      
-      if (ctrl_lfrce .ne. 0) then
+      if(ctrl_lfrce/=0 ) then
         numq = 1
-        if ( bz_lmet == 4 ) numq = 3
+        if( bz_lmet==4 ) numq = 3
         allocate(frc_rv(3,nbas*numq)) !for forces  
       endif
 !! atomic position Relaxation setup (md mode)
       itrlx = 1
       nitrlx=ctrl_nitmv
-      mdprm=ctrl_mdprm
-c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
-      if( nint(mdprm(1)) == 0) nitrlx = 0
-      if( nint(mdprm(1)) > 0 .and. nint(mdprm(1)) < 4) then
-        call rx('lmf not set up for MD yet')
-      endif
-
-      if(nitrlx > 0) then       !nitrlx >0 is for atomic position relaxiation
-!!  Next lines in case lattice relaxation
-c$$$        if (lshr) then
-c$$$          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
-c$$$     .           'use of SHEAR= incompatible w/ lattice relaxation')
-c$$$          plat0=lat_plat0
-c$$$  endif
-        
-c        allocate(indrx_iv(2,nbas))
-c        call rlxstp(natrlx, nvrelx, indrx_iv, xyzfrz, pdim )
-c        icom = 0
-c        if (nvrelx .ne. 0) then !number of relaxiation iteration
-c          allocate(w_rv(nvrelx*nvrelx))
-c          allocate(p_rv(pdim))
-c       endif
-
-        allocate(indrx_iv(6*nbas))
-        call rlxstp (  ssite , natrlx , nvrelx , indrx_iv ,  xyzfrz , pdim )
+      mdprm=ctrl_mdprm    ! c       lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
+      if( nint(mdprm(1))== 0) nitrlx = 0
+      if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
+      if( nitrlx>0 ) then  ! nitrlx >0 is for atomic position relaxiation
+        allocate(indrx_iv(2,3*nbas))
+        call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
         icom = 0
         if (nvrelx .ne. 0) then
-C     ki The new indrx_iv uses the content of the old indrx_iv.
-          isize_iv_tmp=size(indrx_iv)
-          allocate( iv_tmp(isize_iv_tmp) )
-          iv_tmp(:)= indrx_iv(:)
-          deallocate(indrx_iv)
-          allocate(indrx_iv(2*natrlx))
-          isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
-          indrx_iv(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
-          deallocate(iv_tmp)
           allocate(w_rv(nvrelx*nvrelx))
           allocate(p_rv(pdim))
         endif
-       
         if(procid==master) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
            write(ifipos) itrlx,rv_a_opos
         endif   
       endif
-      
 !!=== Re-entry for lshr (share mode); but share mode is currently commented out.
 !!   (probably share mode should be recovered outside of fortran)
       if(procid==master) write(stdo,*)' lmfp : potential and basis setup ... '
@@ -188,14 +124,14 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
         allocate(rv_a_omad(nbas**2))
         call madmat (rv_a_omad )
       endif
-!!      
+!! array allocated in supot rhoat smrho     
       call supot() ! get lattice vectors and array for potential
-      call suham(sspec,ssite)  ! sspec ssite might be modified (i don't know).
+      call m_suham_init(sspec,ssite)  ! sspec ssite are modified.
       if( ctrl_quit==8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
+!!      
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
-      j = 6
       if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
         lrout = 0
         leks = 0
@@ -215,8 +151,7 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
      &    ' iterations sought but no output rho ... do 1 iteration'
         maxit = 1
       endif
-      
-!!... LDA+U initialization
+!! LDA+U initialization
       i = 1
       if( nlibu>0 ) i=nsp*nlibu*(lmaxu*2+1)**2
       allocate(vorbdmat(i),dmatu(i),dmato(i))
@@ -227,7 +162,6 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
         call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext ng , rv_a_osymgr ,
         if( ctrl_quit==16 ) call rx0('quit = dmat')
       endif
-      
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
@@ -265,7 +199,7 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
       endif  
       
 !! === Main iteration loops ===
-      if(nitrlx>=1) allocate(pos_move(3,nbas))
+      if( nitrlx>=1 ) allocate(pos_move(3,nbas))
       do 2000 itrlx = 1,max(1,nitrlx) ! for atomic position relaxiation (molecular dynamics) ===
          do 1000 iter = 1,max(1,maxit)! for electronic structure ===
 !! ... Write positions after file read

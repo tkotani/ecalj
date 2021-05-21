@@ -4,25 +4,16 @@
       integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16)
 
       contains
-      subroutine suham(sspec,ssite)
+      subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
       use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl, ctrl_nspin,
      &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph
       use m_supot,only: lat_ng, rv_a_ogv
-
       use m_lattic,only: lat_qlat,lat_plat
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
-Cio Inputs/Outputs
-Cio  sctrl :struct for program flow parameters; see routine uctrl
-Cio    Elts read: nbas nspec nl lham lcgf lgen3 lfp lncol nspin lpgf
-Cio    Stored:    *
-Cio    Passed to: *
-Cio  slat  :struct for lattice information; see routine ulat
-Cio    Elts read: ng ogv alat tolft plat qlat
-Cio    Stored:    *
-Cio    Passed to: *
-Cio  sspec :struct for species-specific information; see routine uspec
+Cio sspec,ssite can be modified.
+Cio  sspec 
 Cio    Elts read: lmxa lmxl p pz
 Cio    Stored:    *
 Cio    Passed to: atfold makidx showbs sugcut
@@ -30,24 +21,6 @@ Cio  ssite :struct for site-specific information; see routine usite
 Cio    Elts read: spec
 Cio    Stored:    pnu pz
 Cio    Passed to: showbs pvioeu
-ccCio  sarray:structure containing offsets to various arrays
-ccCio    Elts read: oips oipc nclasp opos
-ccCio    Stored:    *
-ccCio    Passed to: *
-Cio  sham  :struct for parameters defining hamiltonian; see routine uham
-Cio    Elts read: pwmode pwemax lncol oeula neula qss omagf nbf
-Cio    Stored:    ndham ndofH ooffH oindxo ldham lmxax hord obdots
-Cio    Passed to: *
-Cio  spot  :struct for information about the potential; see routine upot
-Cio    Elts read: opp vmtz
-Cio    Stored:    nlma nlml opti
-Cio    Passed to: *
-Cio  sstrn :struct for global strings
-Cio    Elts read: gfopt
-Cio    Stored:    *
-Cio    Passed to: *
-Ci   gfopts:string containing switches for GF program
-Cl Local variables
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
 Cl   npwmin:lower limit to number of PWs, estimated by sweeping
 Cl         :over a fine mesh of qp.
@@ -62,9 +35,6 @@ Cr   This routine generates energy-independent hamiltonian setup.
 Cr  *It generates and packs a table of hamiltonian offsets offH,
 Cr   orbital permutation indices oindxo.
 Cr
-Cr  *For the ASA 2nd generation LMTO:
-Cr   Extract order of potential function from gfopts
-Cr   Transform pp's to alpha representation
 Cu Updates
 Cu   07 Jul 08 Make sham->ndham = estimate for upper dimension of
 Cu             hamiltonian, including possible PW part
@@ -293,7 +263,7 @@ C    ...  Printout
           deallocate(rv_a_ogvx)
         endif
       endif
-      end subroutine suham
+      end subroutine m_suham_init
       end module m_suham
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) 

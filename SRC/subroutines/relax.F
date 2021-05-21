@@ -1,11 +1,7 @@
       subroutine relax(ssite,sspec,it,indrlx,natrlx,nvar,f, !,sctrl prgnam,
      .p,w,nelts,delta,bas,icom)
-
       use m_struc_def  !Cgetarg
       use m_lmfinit,only:ctrl_nbas,ctrl_nitmv,ctrl_mdprm
-
-
-
 C- Relax atomic positions and volume using variable metric algorithm
 C ----------------------------------------------------------------------
 Ci Inputs:

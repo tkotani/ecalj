@@ -1,18 +1,17 @@
-      subroutine mkpot ( nbas , ssite , sspec !, spot !sham ,slat ,  
-     .    , lfrce , lcplxp , k1 , k2 , k3 , smrho , sv_p_orhoat , qbg , 
-     .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .    , ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job 
-     .    , vorb , nlibu , lmaxu , lldau , nsp,itest )
-      use m_lmfinit,only:lso,ham_eterms
+      subroutine mkpot ( !nbas , ssite , sspec !, spot !sham ,slat ,  
+     .    lfrce,         !, lcplxp , k1 , k2 , k3 ,
+     &    smrho , sv_p_orhoat , qbg , 
+     .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi,
+     .    ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job, vorb )
+!     , itest )!, nlibu , lmaxu , lldau , nsp,
+      use m_lmfinit,only:lso,ham_eterms,nbas, ssite=>v_ssite, sspec=>v_sspec,!lfrce=>ctrl_lfrce,
+     &    lcplxp,nlibu,lmaxu,lldau,nsp
       use m_MPItk,only: master_mpi
-
       use m_struc_def  
       use m_lmfinit,only:lat_alat,lxcf
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-
-
+      use m_supot,only: k1,k2,k3,lat_nabc
       use m_lattic,only:lat_plat
 !! documents below are under construction.
 C- Make the potential from the density.
@@ -24,14 +23,6 @@ Ci     Passed to: rhomom smves smvxcm locpot
 Ci   sspec :struct containing species-specific information
 Ci     Elts read:
 Ci     Passed to: rhomom smves smvxcm locpot
-Ci   slat  :struct containing information about the lattice
-Ci     Elts read: nabc vol
-Ci     Passed to: smves smvxcm locpot
-Ci   sham  :struct containing information about the hamiltonian
-Ci     Elts read: eterms
-Ci     Stored:    eterms
-Ci   spot  :struct containing information about the potential
-Ci     (not used at present)
 Ci   lfrce :nonzero =>  contribution to forces
 Ci   lcplxp:0 if ppi is real; 1 if ppi is complex
 Ci   k1,k2,k3 dimensions of smrho for smooth crystal density
@@ -176,8 +167,8 @@ C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
 C ... Passed parameters
       integer:: i_copy_size
-      integer nbas,job,lfrce,lcplxp,k1,k2,k3,n0,nppn,nab,i1,i2,i3,ispec
-      integer nlibu,lmaxu,lldau(nbas)
+      integer job,lfrce,n0,nppn,nab,i1,i2,i3,ispec
+c      integer nlibu,lmaxu,lldau(nbas)
       parameter (n0=10,nppn=12,nab=9)
       double precision qbg,qval,qsc,vconst,vesrmt(nbas)
       type(s_rv1) :: sv_p_orhoat(3,nbas)
@@ -187,8 +178,8 @@ C ... Passed parameters
 
       real(8):: qmom(1) , fes(3,nbas) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
      ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ham)::sham
 c      type(s_pot)::spot
@@ -199,7 +190,7 @@ C ... Local parameters
       logical cmdopt,lgors
       character*80 outs
       integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
-     .stdl,lxcfun,isw,nsp,isum
+     .stdl,lxcfun,isw,isum
 c lso,
       real(8) ,allocatable :: fxc_rv(:,:)
       real(8) ,allocatable :: hpot0_rv(:)

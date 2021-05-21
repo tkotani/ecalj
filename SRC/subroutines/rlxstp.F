@@ -1,6 +1,5 @@
-      subroutine rlxstp(ssite,natrlx,nvar,indrlx,xyzfrz,pdim)!sctrl,
-      use m_struc_def           !Cgetarg
-      use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce
+      subroutine rlxstp(natrlx,nvar,indrlx,xyzfrz,pdim)!sctrl,
+      use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce,ssite=>v_ssite
 C- Set up variables for relaxation
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -28,38 +27,18 @@ C ----------------------------------------------------------------------
 C Passed Parameters
       logical xyzfrz(3)
       integer indrlx(2,*),nvar,natrlx,nitrlx,pdim
-c      type(s_ctrl)::sctrl
-      type(s_site)::ssite(*)
-
-C Local variables
       double precision mdprm(6),defm(6)
-C     double precision autime,autmp
       integer nbas,i,j,k,iprint,i1mach,ifrlx(3),igets,lrlx !,ltb
       logical force,md,bittst
-C     character*1 comp(3)
-C     data comp /'x','y','z'/
-C     data autime/0.048377d0/
-C     data autmp/0.6333328d-5/
-
-
       nbas=ctrl_nbas
       nitrlx=ctrl_nitmv
-c       i_copy_size=size(ctrl_mdprm)
-c       call dcopy(i_copy_size,ctrl_mdprm,1,mdprm,1)
-c       i_copy_size=size(ctrl_defm)
-c       call dcopy(i_copy_size,ctrl_defm,1,defm,1)
       call dcopy(size(ctrl_mdprm),ctrl_mdprm,1,mdprm,1)
       call dcopy(size(ctrl_defm),ctrl_defm,1,defm,1)
-c       ltb=ctrl_ltb
-
       nvar = 0
-c       force = bittst ( ltb , 16 ) .or. int(ctrl_lfrce) .gt. 0
       force = int(ctrl_lfrce) .gt. 0
-
       if (.not. force .or. nint(mdprm(1)) .eq. 0) return
       md = nint(mdprm(1)) .le. 3
       lrlx = mod(nint(mdprm(1)),100)
-
 C --- Set relaxation variables ---
       j = 0
       if (md) then
@@ -76,10 +55,7 @@ C --- Set relaxation variables ---
         enddo
       elseif (force) then
         do  i = 1, nbas
-c           i_copy_size=size(ssite(i)%relax)
-c           call i8icopy(i_copy_size,ssite(i)%relax,1,ifrlx,1)
           call icopy(size(ssite(i)%relax),ssite(i)%relax,1,ifrlx,1)
-
           do  k = 1, 3
             if (ifrlx(k) .eq. 1) then
               j = j + 1

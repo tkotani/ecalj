@@ -12,8 +12,8 @@
       module m_bndfp
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: bz_ef,bz_def ! revised when called.
-
       logical,private:: binit=.true.,bbinit=.true.
+      
       contains
       subroutine m_bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
       real(8):: bz_ef00,bz_def00
@@ -41,12 +41,13 @@
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-      use m_lattic,only: lat_qlat, lat_vol, lat_plat,rv_a_opos
+      use m_lattic,only: lat_qlat, lat_vol, lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
+      use m_MPItk,only: mlog,master_mpi !master_mpi= procid==master
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -166,34 +167,20 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       character*10 shortname(0:MAX_PROCS-1)
       character*20 ext
       character*26 datim
-      integer namelen(0:MAX_PROCS-1)
       double precision starttime, endtime
 #endif
-c#if MPIK
       integer obuf,oqptr
       integer igetss,lmxh,nlmh,nelt(3),kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
-c#endif
-c#if MPIK
       integer:: pidorigin, ndimhx_iq, nev_iq,idx
       integer:: work_mpi(10)    ! use only 1 and 2 now
-c#endif
-      logical mlog
-c      integer procid,master
       integer nbx,n0,nab,nppn,iter,maxit!,ndham !nbas
-c      character*(*) sstrn
       parameter ( n0=10, nppn=12, nab=9)
       integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
-c      integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
-c      type(s_sstrn):: sstrn
-c      character*(*):: sstrnmix
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
-      logical lgors,ltet,cmdopt!,lwndow
+      logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb ,  ldos , lmet !, nspc  , nsp
      .  , lrep , nkabc(3) , ndos , ndos0 , nev , nevl 
@@ -237,11 +224,7 @@ ckino lswtk must be 0 initially.
       type(s_rv1) :: sv_p_oppix(3,nbas)
       type(s_rv1) :: sv_p_otaux(3,nbas)
       type(s_rv1) :: sv_p_osigx(3,nbas)
-c      equivalence (ldim,ldham(1,1))
-      logical a2bin
       integer:: ospotx , osgw
-c      logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.
-c     &  l_temp_iv_a_oidtet=.false.
       double precision sigp(10)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
@@ -271,8 +254,6 @@ C     real(8),allocatable :: qpe(:,:)
       integer:: moddos , nsites , lsites(nbas) , nchan , ng , iomoms 
      .  , nchmx , lmdim , lmxch
       logical:: mullwrite=.false.
-
-ckino Dec.8.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
 !!     for pzhev
@@ -299,7 +280,7 @@ ctakao
       integer:: isize_hamm(3)
       real(8):: rrr(3),rrrr
       complex(8):: pi2i
-      real(8),allocatable:: range(:,:),pos(:,:)
+      real(8),allocatable:: range(:,:)!,pos(:,:)
       integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
@@ -337,7 +318,7 @@ c      real(8):: qsfz(3,100)
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
 
       real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold, vnow
-      logical:: lfill=.false.,ixx,master_mpi,master_mpiset
+      logical:: lfill=.false.,ixx
       integer,allocatable:: ndimhx_(:),nev_(:)
       character(120):: vbmlll
       integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag
@@ -417,19 +398,18 @@ c mar2014
       
 !! ----------------------------
       call tcn ('bndfp')
-      debug    = cmdopt('--debugbndfp',6,0,strn)
-      mlog     = cmdopt('--mlog',6,0,strn) !--mlog here is taken by getarg.
-      tdos     = cmdopt('--tdos',6,0,strn)
-      PROCARon = cmdopt('--mkprocar',10,0,strn) !write PROCAR(vasp format).
-      fullmesh = cmdopt('--fullmesh',10,0,strn) !full mesh stop just after do 2010 iq loop.
-      fsmode   = cmdopt('--fermisurface',14,0,strn)
-      allband  = cmdopt('--allband',9,0,strn)
+      debug    = cmdopt0('--debugbndfp')
+      tdos     = cmdopt0('--tdos')
+      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
+      fsmode   = cmdopt0('--fermisurface')
+      allband  = cmdopt0('--allband')
       if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
 #endif      
 !! Write atomic positions
-      if(procid == master) then
+      if(master_mpi) then !procid == master) then
          write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
          do ib=1,nbas
@@ -446,11 +426,11 @@ c mar2014
          nkk3=bz_nabc(3)
       endif   
 !! Calculate VBM and CBM relative to vaccum (but in a simple approximaiton. need fixing.).
-      if(cmdopt('--vbmonly',9,0,strn)) goto 8888
+      if(cmdopt0('--vbmonly')) goto 8888
 !! getq mode.  Current version is not for spin dependent nor many restrictions.
 !! spin symmetic (or nspin=1, not 2 channell binded and so on...
-      if(cmdopt('--getq',6,0,strn)) then
-         if(procid==master) call getqmode()
+      if(cmdopt0('--getq')) then
+         if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
 !! === MPI Setup continue===
@@ -458,51 +438,43 @@ c mar2014
 #if MPI | MPIK
       call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
+      shortname(procid)=trim(name)
 #endif
       write(strprocid,'(i10)') procid
-      strprocid = adjustl(strprocid) 
-c      ixx = master_mpiset(procid)
+      strprocid = adjustl(strprocid) !string procid
       savez=.false.
       getz =.false.
       if (maxit .eq. 0) return
-c      siginit=.true. !commented out on mar2015. this makes reading sigma at every iteration.
+c   siginit=.true. !commented out on mar2015. this makes reading sigma at every iteration.
       napw = 0
       ipr  = iprint() !When procid/=master, iprint=0.
       ipl  = ipr
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! spinoffdiag=T case, the spin loop is too complicated --> we need to fix this.
       if(nspc==2.and.nsp==2) then !nspc==2
-         spinoffdiag=.true.
+         spinoffdiag=.true. !non-colinear case
          nspx=1
          ndhamx = ndham*2
       elseif(nspc==1.and.nsp==2) then
-         spinoffdiag=.false.
+         spinoffdiag=.false. !spin no-offdiagonal
          nspx=2
          ndhamx= ndham
       elseif(nspc==1.and.nsp==1) then
-         spinoffdiag=.false.
+         spinoffdiag=.false. !paramagnetic
          nspx=1
          ndhamx= ndham
       else
          call rx('bndfp: nspc==2 but nsp=1')
-      endif   
-!! related to the error in rseq. Remove RSEQ_ERROR at first because
-!! this error is only fatal when it is finaly converged. takaoNov28_2010
-      idummy = unlink('RSEQ_ERROR') 
-ctakao sep2010 !complicated.
-c      nspc=2 for non-colinear case. 
-c      allocate(evl(ndham,2))
-c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
+      endif
+      idummy = unlink('RSEQ_ERROR') !the error flag in rseq. Remove RSEQ_ERROR here because
+                        ! this error is only fatal when it is finaly converged. takaoNov28_2010
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
       if(size(ham_ldham)/=size(ldham))call rx("bndfp:size(ham_ldham)/=size(ldham)")
       pwmode = ham_pwmode
-      if (procid .eq. master) then
-         ifiese=ifile_handle()
-         open(ifiese,file='PWMODE')
+      if (master_mpi) then
+         open(newunit=ifiese,file='PWMODE')
          write(ifiese,*)pwmode
          close(ifiese)
       endif 
@@ -517,20 +489,19 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
          lfrzw = 0
       endif
       nspec = ctrl_nspec
-      if (procid==master) then
+      if (master_mpi) then
          inquire(file='sigm.'//trim(sname),exist=nexist)
-         if (lrsig .ne. 0 .and. (.not.nexist)) then
+         if (lrsig/=0 .and. (.not.nexist) ) then
             write(6,*)' bndfp (warning): no sigm file found ... LDA calculation only'
             lrsig = 0
          endif
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
       epsovl = ham_oveps
-      if (procid==master) then
+      if (master_mpi) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
-        write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
+        write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       endif
-c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       if (ndham.le.0)  call rx('bndfp: hamiltonian matrix has zero dimension')
       eterms=-99d0
       eterms(19) = 0d0
@@ -546,7 +517,6 @@ c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       k1 = n1
       k2 = n2
       k3 = n3
-!! ... for BZ integration
       nkabc= bz_nabc
       nkp=   bz_nkp
       ntet=  bz_ntet
@@ -580,8 +550,8 @@ c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       qbg = ctrl_zbak(1)
       alfa = 0
       lfrce=ctrl_lfrce
-C     Switch to plot bands at specified qp
-      if (cmdopt('--band',6,0,strn).or.fullmesh) then
+!!  Switch to plot bands at specified qp
+      if (cmdopt0('--band').or.fullmesh) then
          plbnd = 1
          lrout = 0
          lfrce = 0
@@ -602,9 +572,9 @@ C     Switch to plot bands at specified qp
          endif
       endif
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-      phispinsym = cmdopt('--phispinsym',12,0,strn)
+      phispinsym = cmdopt0('--phispinsym')
       if(phispinsym) then
-         if(procid==master)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
+         if(master_mpi)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
          do ib = 1,nbas
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
@@ -614,13 +584,13 @@ C     Switch to plot bands at specified qp
             lmxa = sspec(is)%lmxa
             do l=0,lmxa
               pmean = sum(pnu(l+1,1:nsp))/nsp
-              if(procid==master.and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
+              if(master_mpi.and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
      &             ib,l,pnu(l+1,1:nsp),pmean
               pnu(l+1,1:nsp) = pmean
               lpz = pnz(l+1,1) /= 0
               if (lpz) then
                  pmean = sum(pnz(l+1,1:nsp))/nsp
-                 if(procid==master.and.nsp==2)write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
+                 if(master_mpi.and.nsp==2)write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
      &                ib,l,pnz(l+1,1:nsp),pmean
                  pnz(l+1,1:nsp) = pmean
               endif
@@ -632,10 +602,10 @@ C     Switch to plot bands at specified qp
          enddo   
       endif
 !! Write out Hamiltonian stated at jan2018kaist
-      writeham= cmdopt('--writeham',10,0,strn)
+      writeham= cmdopt0('--writeham')
       if(writeham) then
         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-        if(procid == master) then ! pair-table and weight generator.  nlat,qgt are not used yet...
+        if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are not used yet...
           nkk1=bz_nabc(1)
           nkk2=bz_nabc(2)
           nkk3=bz_nabc(3)
@@ -655,8 +625,8 @@ C     Switch to plot bands at specified qp
           do ip=1,nkp
             write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
           enddo
-          allocate(npair(nbas,nbas),pos(3,nbas))
-          call dcopy(nbas*3 , rv_a_opos , 1 , pos , 1 )
+          allocate(npair(nbas,nbas))!,pos(3,nbas))
+c          pos = rv_a_opos
           npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
           do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
             npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
@@ -700,7 +670,7 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
           enddo
           enddo
           enddo
-          deallocate(pos,npair)
+          deallocate(npair)
         endif
       endif
 !! --- Define local arrays used in the generation of the potential ---
@@ -714,11 +684,10 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
       allocate(fes1_rv(3*nbas))
 !! dfaugm alllocates variables for sig,tau,ppi integrals
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi )
-
-!! --- Make the potential sans XC part ---
+!! Make the potential sans XC part ---
       jobgw=-999
       if(llmfgw) then ! only for lmfgw program
-         if(procid==master) then
+         if(master_mpi) then
             write(stdo,*) ' lmfgw: input one of the following jobs:'
             write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
             write(stdo,*) '   1 : GW setup mode'
@@ -736,11 +705,11 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
             call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix)
             allocate(spotx(k1,k2,k3,nsp))
             spotx=0d0
-            call mkpot ( nbas , ssite , sspec ,   0 , 
-     .           lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , spotx 
+            call mkpot ( 0, !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
+     &           zv_a_osmrho , sv_a_oorhat , qbg , spotx 
      .           , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
      .           , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .           , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .           , vval_rv , fes1_rv , i , vorb ) !, nlibu , lmaxu , lldau , nsp,0 )
          endif
 #if MPI|MPIK
          call mpi_barrier(MPI_comm_world,ierr)
@@ -748,20 +717,19 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
 #endif        
       endif
 C --- Make the potential and total energy terms ---
-      i = 1 + 10*lfrzw !+ 100*(lnoxc=0)
-      if (cmdopt('--wrhomt',8,0,strn)) then
+      i = 1 + 10*lfrzw   
+      if (cmdopt0('--wrhomt')) then
          i = i + 10000 !write rhomt mode
-      else if (cmdopt('--wpotmt',8,0,strn)) then
+      else if (cmdopt0('--wpotmt')) then
          i = i + 20000 !write potmt mode
       endif
       if(llmfgw) i = i + 10000
 !! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
       call togpr()
-      call mkpot ( nbas , ssite , sspec ,   lfrce!sham ,slat ,spot , 
-     .  , lcplxp , k1 , k2 , k3 , zv_a_osmrho , sv_a_oorhat , qbg , zv_a_osmpot 
-     .  , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .  , vval_rv , fes1_rv , i , vorb , nlibu , lmaxu , lldau , nsp,0 )
+      call mkpot (lfrce, zv_a_osmrho, sv_a_oorhat , qbg  
+     o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o  , vval_rv , fes1_rv , i , vorb )
       call togpr()
       elind = ham_elind
       if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
@@ -774,7 +742,7 @@ C --- Make the potential and total energy terms ---
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
      .     nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .     dabs(esmear-mpsord))
-         if(procid==master) write(stdo,*)' Start first of two band passes ...'
+         if(master_mpi) write(stdo,*)' Start first of two band passes ...'
       else
          nkp = 0
          ldos = 0
@@ -784,7 +752,7 @@ C --- Make the potential and total energy terms ---
 c      if(lwtkb /= -1) call rx('bndfp: we need lwtkb=-1')
 c      if(numq/=1)     call rx('bndfp: we need numq=1')
       if(.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
-         if(procid==master) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
+         if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
          lswtk = -2
       endif
 !! --- More k-point independent local arrays ---
@@ -812,7 +780,7 @@ c      if(allocated(frc)) deallocate(frc)
      .     isite,iclsl,iclsn,nsites)
          efmax = 1d3
          nevmx = ndhamx
-         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. procid==master) then
+         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. master_mpi) then
 !! this path is go through by crn test.
             aaachar=
      &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
@@ -838,7 +806,7 @@ c      if(allocated(frc)) deallocate(frc)
 !! SYMOPS
       if(onlyonce) then 
          onlyonce=.false.
-         if(procid==master) then
+         if(master_mpi) then
             call gen_hamindex(ssite, sspec, ldim, .true., jobgw==0)
 c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
             allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
@@ -867,7 +835,7 @@ c           write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
 !!
 C ... Case only generate bands at supplied qp: setup
       if (plbnd .ne. 0) then
-         if (procid==master) then !Try and read Fermi level from file
+         if (master_mpi) then !Try and read Fermi level from file
             inquire(file='wkp.'//trim(sname),exist=nexist)
             if(nexist) then
                open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
@@ -888,7 +856,7 @@ c         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
 !! plbnd/=0 ---> band plot mode.
       if(debug) write(*,*) 'bndfp: uuuuuuu1111111'
       if(allocated(qplist)) deallocate(qplist)
-      if( procid==master .and. plbnd==0) then
+      if( master_mpi .and. plbnd==0) then
          allocate(qplist(3,nkp))
          call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
 c-----------------
@@ -897,7 +865,7 @@ c-----------------
             write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
          enddo !!I think sbz%rv_p_oqp is not used in the following.
          close(ifqplist)
-      elseif(procid==master) then
+      elseif(master_mpi) then
          if (cmdopt('--onesp',7,0,strn) .and. nspc .eq. 1) onesp = 1
          if(debug) print *,'vvvvv nkp=',nkp
          if(fullmesh) then
@@ -1028,7 +996,7 @@ c            massline=.false.
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(procid/=master) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (procid==master .and.oncewrite(11)) then
+      if (master_mpi .and.oncewrite(11)) then
          ifqplist=ifile_handle()
          open(ifqplist,file='QPLIST')
          print *,'-------- qplist --------'
@@ -1046,7 +1014,7 @@ c            massline=.false.
          enddo
          close(ifqplist)
       endif 
-      if(procaron.and.nsyml==0.and.procid==master) then !xdatt is dummy
+      if(procaron.and.nsyml==0.and.master_mpi) then !xdatt is dummy
         if(allocated(xdatt)) deallocate(xdatt)
         allocate(xdatt(nkp))
         xdatt=0d0
@@ -1076,7 +1044,7 @@ c            massline=.false.
 !!  where we use ham_iv_a_oiaxs , ham_rv_a_ohrs, ham_ndhrs and so on.
 !!  In future, we should make this block to a subroutine which shows clear i/o.
       sigmamode = mod(lrsig,10) .ne. 0
-      if(procid==master.and.ix99==1) print *,'sigmamode=',sigmamode
+      if(master_mpi.and.ix99==1) print *,'sigmamode=',sigmamode
       if( llmfgw.and.jobgw==0 ) then
          continue
       elseif( sigmamode.and.siginit ) then
@@ -1099,7 +1067,7 @@ c            massline=.false.
          call rx0('sugw mode')  !exit program here normally.
       endif
       if(ham_scaledsigma/=1d0.and.sigmamode) then
-        if(procid==master) write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
+        if(master_mpi) write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
       endif
       
 #if MPIK
@@ -1168,7 +1136,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
-     &              shortname(procid)(1:namelen(procid))//' starting k-points '//
+     &              trim(shortname(procid))//' starting k-points '//
      &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
                write(lgunit(3),"(a)")trim(aaachar)
             endif
@@ -1404,7 +1372,7 @@ ccccccccccccccccccccccccccccccc
                 write(ifig) t_zv(1:ndimhx,1:nmx)
               endif  
 #ifdef MPIK            
-              if(writeham.and.procid==master) then
+              if(writeham.and.master_mpi) then
                 call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , efmax , nev ) !efmax is required?
               endif
 #endif
@@ -1418,7 +1386,7 @@ ccccccccccccccccccccccccccccccc
 #ifndef MPIK            
             call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required?
 #else
-            if( procid.eq.master.and. epsovl>=1.000001d-14.and.plbnd/=0) then
+            if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(6,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
             endif  
 #endif
@@ -1687,7 +1655,7 @@ c            deallocate(igv2x)
          call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
          call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
 #endif
-         if(procid==master) then  
+         if(master_mpi) then  
             if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
 !! tetrahedron without symmetry
             allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
@@ -1756,7 +1724,7 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
 #endif
 !!
 !! boltztrap data 
-      if( cmdopt('--boltztrap',11,0,strn) .and. procid==master) then
+      if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
          iqread=0
          iqindex = index(strn(12:),'nb=')+2
          nbandx = ndhamx
@@ -1867,7 +1835,7 @@ c         nkaph = globalvariables%nkaph
 
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
       if(plbnd .ne. 0) then
-         if (procid .eq. master) then
+         if (master_mpi) then
             print *,'procid=',procid
 !! fermi surface mode together with band data around Ef (Okumura, 2019/11/14)
             if(fsmode) call writefs()
@@ -1940,14 +1908,14 @@ c         nkaph = globalvariables%nkaph
 !! Energy-Window reset. dosw=(emin,emax)
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
-                     if(procid==master) then
+                     if(master_mpi) then
                         open(newunit=ifid,file='ewindow.'//trim(sname)) 
                         write(ifid,"(3d23.15)") dosw(1:2),ef0
                         close(ifid) !call fclose(ifid)
                      endif
                      if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
      .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-                        if (procid .eq. master) call info0(10,1,1,
+                        if (master_mpi) call info0(10,1,1,
      .                       ' ... Fermi level reset in second spin'//
      .                       ' channel ... restart band pass')
                         goto99=.true.
@@ -2038,7 +2006,7 @@ c         bz_ndos=ndos
 #if MPIK
       call mpi_barrier(MPI_comm_world,ierr)
 #endif
-      if (procid .eq. master) then
+      if (master_mpi) then
          ierr=unlink('MagField') !delete
       endif  
 !! --- BZ integration for fermi level, band sum and qp weights ---
@@ -2076,7 +2044,7 @@ c$$$         else
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
          endif
 !     ! june2013 magfield is added
-         if(fsmom/=NULLR.and.procid .eq. master) then
+         if(fsmom/=NULLR.and.master_mpi) then
             ifimag=ifile_handle()
             open(ifimag,file='MagField',status='unknown')
             write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
@@ -2094,7 +2062,7 @@ c$$$         endif
             bz_ef=ef0
          endif
          if (lmet .gt. 0) then
-            if (procid .eq. master) then
+            if (master_mpi) then
                ifi=ifile_handle()
                open(ifi,file='wkp.'//trim(sname),form='unformatted') 
                i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
@@ -2129,7 +2097,7 @@ c      if(allocated(sfz)) deallocate(sfz)
             write(6,"(' Highest occ. level = ',f13.5,
      &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif
-         if (procid .eq. master) then
+         if (master_mpi) then
             ifi=ifile_handle()
             open(ifi,file='wkp.'//trim(sname),form='unformatted')
             i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
@@ -2154,8 +2122,8 @@ c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
       endif
 
 !! === Generate DOS on disk ===
-c      if(.not. lwndow .and. procid==master) then
-      if( procid==master) then
+c      if(.not. lwndow .and. master_mpi) then
+      if( master_mpi) then
          ndos0 = ndos   !it was bz_ndos. I think this is fine
                         !ndos0 is only used as a swith wether DOS or integrated-DOS.
          if ( ldos/=0 ) then
@@ -2209,7 +2177,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
       if(tdos) call rx0('Done tdos mode:')
 
 !! efermi.lmf 
-      if(procid==master.and.plbnd==0) then
+      if(master_mpi.and.plbnd==0) then
          ifi= ifile_handle()     
          open(unit=ifi,file='efermi.lmf')
          write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
@@ -2225,7 +2193,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
 
 !! --- Core-level spectroscopy ---
       if (icls .ne. 0) then
-         if (procid .eq. master) then
+         if (master_mpi) then
             eferm=bz_ef
             call vcdmel ( nl , ssite , sspec ,  nlmax , ndham , !slat ,
      .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
@@ -2282,7 +2250,7 @@ C       call pshpr(iprint()-12)
 C       call poppr
       endif
 !! --- print out qbyl ---
-      if(procid==master) then
+      if(master_mpi) then
          ifqbyl = ifile_handle() 
          open(ifqbyl,file='qbyl.'//trim(sname))
          write(ifqbyl,"(i5)")nbas
@@ -2327,11 +2295,11 @@ c          call pshpr(ipr-4)
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
-            call mkpot ( nbas , ssite , sspec ,   lfrce  !sham ,slat ,spot , 
-     .        , lcplxp, k1, k2, k3, srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
+            call mkpot (lfrce,
+     &          srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .        , vval_rv , fes2_rv , 0 , vorb , nlibu , lmaxu , lldau , nsp,0 )
+     .        , vval_rv , fes2_rv , 0 , vorb )
 
            if(cmdopt('--density',9,0,strn)) then
 #ifdef MPIK
@@ -2390,7 +2358,7 @@ ccccccccccccccccccccccccc
       ham_ehk=eks
  999  continue
  8888 continue
-      if(procid==master) call vbmmode()
+      if(master_mpi) call vbmmode()
       if(cmdopt('--vbmonly',9,0,strn)) call rx0('end of --vbmonly mode vrefolny')      
       if (allocated(qm2_rv)) deallocate(qm2_rv)
       if (allocated(qm1_rv)) deallocate(qm1_rv)

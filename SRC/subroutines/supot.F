@@ -69,7 +69,10 @@ C   ... Make list of lattice vectors within cutoff
         endif
         lat_ng = ng
         lat_gmax = gmax
-        lat_nabc = ngabc 
+        lat_nabc = ngabc
+        k1=lat_nabc(1)
+        k2=lat_nabc(2)
+        k3=lat_nabc(3)
         allocate(iv_a_oips0(ng))
         allocate(zv_a_obgv(ng))
         iv_a_oips0(:)=0.0d0
