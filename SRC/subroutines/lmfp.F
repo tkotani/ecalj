@@ -231,7 +231,7 @@ C --- Monopole Madelung matrix ---
 !!... LDA+U initialization
       allocate(lldau_iv(nbas))
       lldau_iv(:)=0 
-      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
+c      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
       if (nlibu .gt. 0) then !! ... return nlibu > 0 if any U blocks
         i = nsp*nlibu*(lmaxu*2+1)**2
       else
@@ -325,7 +325,7 @@ c            endif
 
 !! main part --- Make and diagonalize hamiltonian, make new charge density ---
             if(maxit==0) call info0(20,1,0,' lmfp  : zero iterations sought ... no band pass')
-            call bndfp ( nlibu , lmaxu , lldau_iv , ssite , sspec ,    
+            call bndfp (
      .           leks , lrout , ctrl_lfrce , lpnu , dmxp , iter , maxit  , !evl_rv, 
      .           frc_rv , dmatu, vorbdmat, llmfgw )
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)

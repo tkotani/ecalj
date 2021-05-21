@@ -22,7 +22,7 @@
       binit=.false.
       end
       
-      subroutine bndfp(nlibu,lmaxu,lldau, ssite,sspec, 
+      subroutine bndfp(
      .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
@@ -35,7 +35,8 @@
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
-     &     sstrnmix
+     &     sstrnmix,
+     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: lat_qlat, lat_vol, lat_plat,rv_a_opos
@@ -183,25 +184,24 @@ c      integer procid,master
 c      character*(*) sstrn
       parameter ( n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
-      integer nlibu,lmaxu,lldau(nbas)
+c      integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
 c      type(s_sstrn):: sstrn
 c      character*(*):: sstrnmix
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
       logical lgors,ltet,cmdopt!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
 ckino lswtk must be 0 initially.
       integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb ,  ldos , lmet !, nspc  , nsp
-     .  , lrep , lcplxp , nkabc(3) , ndos , ndos0 , nev , nevl 
+     .  , lrep , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
      .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  jobgw , nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
-     .  , lekkl
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
       real(8),allocatable :: rv_a_owtkb(:,:,:)
@@ -470,11 +470,6 @@ c      siginit=.true. !commented out on mar2015. this makes reading sigma at eve
       napw = 0
       ipr  = iprint() !When procid/=master, iprint=0.
       ipl  = ipr
-!! lso  =0 (no so): =1(L.S): =2(LzSz).
-      lcplxp = 0
-      lekkl  = ctrl_pfloat
-      if (lso .ne. 0)  lcplxp = 1
-      if (isum(nbas,lldau,1) .ne. 0) lcplxp = 1
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! spinoffdiag=T case, the spin loop is too complicated --> we need to fix this.
       if(nspc==2.and.nsp==2) then !nspc==2
@@ -566,12 +561,12 @@ c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       mpsord = int(dabs(esmear))
       if (esmear .lt. 0) mpsord = -mpsord
       ndos= bz_ndos
-      if(bbinit) then
+      if(bbinit) then !from m_lmfinit
          bz_dosw=bz_doswin
          bbinit=.false.
       endif
       dosw = bz_dosw
-      if(binit) then
+      if(binit) then !from m_lmfinit when m_bndfp_ef_set in not called.
          bz_ef =bz_ef0
          bz_def=bz_def0
          binit=.false.
@@ -715,57 +710,10 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
       allocate(sab_rv(nab*n0*nsp*nbas))
       allocate(ppnl_rv(nppn,n0,nsp,nbas))
       allocate(fes1_rv(3*nbas))
-!! dfaugm alllocates and initializes variables
-c      call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig, sv_p_otau , sv_p_oppi )
-      call rxx(lso==1.and.nspc/=2,'bndfp: inconsistent parameters')
-      if(lso/=0) then
-         nso = 2
-      else
-         nso= 1
-      endif   
-C --- Loop over sites, allocating sig,tau,pi for each site ---
-      do ib = 1, nbas
-        is = ssite(ib)%spec
-        lmxa=sspec(is)%lmxa
-        lmxh=sspec(is)%lmxb
-        kmax=sspec(is)%kmxt
-        nlma = (lmxa+1)**2
-        nlmh = (lmxh+1)**2
-        if (lmxa .eq. -1) cycle
-C   ... Case Pkl*Pkl
-        nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
-        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc*nso
-        allocate(sv_p_osig(1,ib)%v(nelt1))
-        allocate(sv_p_otau(1,ib)%v(nelt1))
-        if (lcplxp ==0) then
-          allocate(sv_p_oppi(1,ib)%v(nelt2))
-        else
-          allocate(sv_p_oppi(1,ib)%v(nelt2*2))
-        endif
-C   ... Case Hsm*Hsm
-        nelt1 = nkaph*nkaph*(lmxh+1)*nsp
-        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc*nso
-        allocate(sv_p_osig(3,ib)%v(nelt1))
-        allocate(sv_p_otau(3,ib)%v(nelt1))
-        if (lcplxp .eq. 0) then
-          allocate(sv_p_oppi(3,ib)%v(nelt2))
-        else
-          allocate(sv_p_oppi(3,ib)%v(nelt2*2))
-        endif
-C   ... Case Hsm*Pkl
-        if (lmxh>lmxa) call rx('bndfp: lmxh.gt.lmxa unexpected')
-        nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
-        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso
-        allocate(sv_p_osig(2,ib)%v(nelt1))
-        allocate(sv_p_otau(2,ib)%v(nelt1))
-        if (lcplxp==0) then
-          allocate(sv_p_oppi(2,ib)%v(nelt2))
-        else
-          allocate(sv_p_oppi(2,ib)%v(nelt2*2))
-        endif
-      enddo
+!! dfaugm alllocates variables for sig,tau,ppi integrals
+      call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi )
 
-!     ! --- Make the potential sans XC part ---
+!! --- Make the potential sans XC part ---
       jobgw=-999
       if(llmfgw) then ! only for lmfgw program
          if(procid==master) then
@@ -783,7 +731,7 @@ C   ... Case Hsm*Pkl
             i = 1 + 10*lfrzw + 100*lnoxc ! Adding 100 means excluding XC(LDA) part. nolxc=T
               ! We obtain sv_p_osigx , sv_p_otaux , sv_p_oppix smpotx without XC by the 'call mkpot'.
               ! Other output are overwritten by the 2nd call of mkpot 
-            call dfaugm(nbas, lcplxp , lso, ssite, sspec, sv_p_osigx, sv_p_otaux, sv_p_oppix)
+            call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix)
             allocate(spotx(k1,k2,k3,nsp))
             spotx=0d0
             call mkpot ( nbas , ssite , sspec ,   0 , 

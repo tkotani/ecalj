@@ -124,15 +124,16 @@ c     &     bz_nkp,bz_ntet, !mkqp
 c     &     lat_nkd,lat_nkq,      !lattic
 c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
 c     &     lat_ng, lat_nabc(3),         !supot
-      real(8):: 
-     &     ham_eterms(20)
-c     &     ham_ehf,  ! bndfp to lmfp
+c      real(8)::    ham_ehf,  ! bndfp to lmfp
 c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
 c     &     lat_gmax, !supot
 c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
+      real(8):: ham_eterms(20)
       type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:) 
-      
+      integer,protected:: lekkl,lcplxp
+      integer,protected:: lmaxu,nlibu
+      integer,allocatable,protected::lldau(:)
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
 C   arg 1: 0 no relaxation or dynamics
@@ -265,7 +266,7 @@ C ----------------------------------------------------------------------
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
      .lfrzw,lgunit,
-     .lrs,lstsym,ltb,nlibu,nclasp,
+     .lrs,lstsym,ltb,nclasp,
      .nglob,scrwid,stde,k1,k2,mpipid !nkap,lsx1,
       character*(8),allocatable::clabl(:)
       integer,allocatable:: ipc(:),initc(:),ics(:)
@@ -2034,6 +2035,27 @@ c      enddo
         irs2=0
         ctrl_maxit=1
       endif
+!! LDA+U block (it was suldau.F)
+      nlibu = 0
+      lmaxu = 0
+      allocate(lldau(nbas))
+      lldau = 0
+      do  ib = 1, nbas
+        is = v_ssite(ib)%spec
+        do  lx = 0, min(v_sspec(is)%lmxa,3)
+          if (v_sspec(is)%idu(lx+1) .ne. 0) then
+            if (lldau(ib) ==0) lldau(ib) = nlibu+1
+            nlibu = nlibu+1
+            lmaxu = max(lmaxu,lx)
+          endif
+        enddo
+      enddo
+      if (nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
+!! lso  =0 (no so): =1(L.S): =2(LzSz).
+      lcplxp = 0
+      lekkl  = ctrl_pfloat
+      if (lso .ne. 0)     lcplxp = 1
+      if (sum(lldau)/=0) lcplxp = 1
       end subroutine m_lmfinit_init
       end module m_lmfinit
 
