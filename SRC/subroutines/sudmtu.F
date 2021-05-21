@@ -1,8 +1,6 @@
-      subroutine sudmtu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh,lldau,
-     .ng,g,istab,dmatu,vorb)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine sudmtu(dmatu,vorb)
+      use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec
+      use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
 C- Initialize site density matrix and vorb  for LDA+U
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -44,11 +42,11 @@ Cu   27 Apr 05 Lambrecht first created
 C-------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
-      integer lldau(nbas),istab(nbas,ng)
-      real(8):: g(9,ng)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+      integer:: idvsh=0,i_copy_size !nbas,nsp,nlibu,lmaxu,
+c      integer lldau(nbas),istab(nbas,ng)
+c      real(8):: g(9,ng)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex Vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
@@ -126,10 +124,6 @@ C --- Read in dmatu if file  dmats.ext  exists ---
                   do  isp = 1, 2
                     if (rdm(idmat,40,2*nlm**2,' ',tmp,nlm,nlm) .ne. 2)
      .              call rxi('sudmtu failed to read dmats for site',ib)
-C              print *, 'dmat for ib=',ib,' spin',isp
-C              call zprm('sudmtu, dmatu',2,tmp,nlm,nlm,nlm)
-C              call dmscop(dmatu(-l,-l,isp,iblu),
-C     .          nlmu,tmp,nlm,1,nlm,1,nlm,1,1,1d0)
                     call zmscop(0,nlm,nlm,nlm,nlmu,0,0,0,0,tmp,
      .              dmatu(-l,-l,isp,iblu))
                   enddo

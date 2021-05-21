@@ -1,16 +1,13 @@
-      subroutine rdovfa (sv_p_orhoat )
-      use m_supot,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
+      subroutine rdovfa( )
+      use m_supot,only: zv_a_osmrho,sv_p_orhoat=>sv_a_oorhat
       use m_struc_def,only: s_rv1
       use m_struc_func , only: mpibc1_s_spec
       use m_lattic,only: lat_plat
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg2=>ctrl_zbak
       use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-      use m_supot,only: lat_ng
-      
-
+      use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
 C- Read and overlap free atom densities.
-C  Also allocates orhoca with free-atom core density.
+C  allocates orhoca with free-atom core density. 
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
@@ -18,30 +15,19 @@ Ci   nspec :number of species
 Ci   ssite :struct containing site-specific information
 Ci   sspec :struct containing species-specific information
 Ci   slat  :struct containing information about the lattice
-Ci   qbg   :constant background charge
+Ci   qbg=qbg2(1)   :constant background charge
 Co Outputs
-Co   orhoat:vector of offsets containing site density, in standard
-Co          3-component form (true rho, smoothed rho, core rho)
+Co   orhoat: vector of offsets containing site density, in standard
+Co           3-component form (true rho, smoothed rho, core rho)
 Co   smrho :smoothed interstitial density
 Co         :* for smrho = smoothed mesh density, smrho is complex and
 Co         :  smrho = smrho(k1,k2,k3)
-Cl Local variables
-Ci   k1,k2,k3 dimensions of smrho for smoothed mesh density
-Cr Remarks
-Cu Updates
-Cu   12 May 07 package mpi-specific calls
-Cu   02 Jan 06 generates core magnetic moment, checks against spec->qcor
-Cu   01 Jul 05 Zero-radius empty spheres treated as local orbitals
-Cu   12 Apr 03 (WRL) Added constant charge background
-Cu   15 Feb 02 (ATP) Added MPI parallelization
-Cu   13 Jun 00 spin polarized
-Cu   21 Apr 00 Adapted from nfp rdovfa.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer procid, master, mpipid
 c      integer:: nbas , nspec
-      type(s_rv1) :: sv_p_orhoat(3,nbas)
+c      type(s_rv1) :: sv_p_orhoat(3,nbas)
       real(8):: qbg
 c      type(s_site)::ssite(nbas)
 c      type(s_spec)::sspec(nspec)

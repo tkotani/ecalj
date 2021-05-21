@@ -52,7 +52,7 @@ Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
       logical lgors,cmdopt,bittst
       integer i,ifi,igets,ipr,irs1x,isw,ix(5),j, !,iscr
      .     k,lcgf,leks,lgunit,lpnu,lrout,
-     .     nevmx,nglob,nit1,numq, !npadl,npadr,lsx,
+     .     nglob,nit1,numq, !npadl,npadr,lsx,
      .     pdim,lsc
 c      integer:: o
       real(8),allocatable  :: pos_move(:,:)
@@ -75,7 +75,7 @@ C     33 : Lindhard screening parameter
 C     ... for iterations
       logical lbin,a2bin !lhf,
       integer maxit,iter
-      double precision seref,etot(2),amom,qdiff,qtol,etol,alat
+      double precision seref,etot(2),amom,qdiff,qtol,etol
 C ... for relaxation
       logical ::xyzfrz(3),ltmp !,lshr=.false.
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
@@ -126,44 +126,35 @@ C     ... Setup for no screening transformation
       dmxp(6 ) = int(mix_nsave)
       dmxp(7) = int(mix_mmix)
       call parms0(0,0,0d0,0)
+!! for force      
       if (ctrl_lfrce .ne. 0) then
         numq = 1
         if ( bz_lmet == 4 ) numq = 3
         allocate(frc_rv(3*nbas*numq)) !for forces  
       endif
-!! atomic position Relaxation setup
+!! atomic position Relaxation setup (md mode)
       itrlx = 1
       nitrlx=ctrl_nitmv
       mdprm=ctrl_mdprm
 c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
-      if (nint(mdprm(1)) .eq. 0) nitrlx = 0
-      if (nint(mdprm(1)) .gt. 0 .and. nint(mdprm(1)) .lt. 4) then
+      if( nint(mdprm(1)) == 0) nitrlx = 0
+      if( nint(mdprm(1)) > 0 .and. nint(mdprm(1)) < 4) then
         call rx('lmf not set up for MD yet')
       endif
-      if (nitrlx > 0) then !nitrlx >0 is for atomic position relaxiation
-        allocate(indrx_iv(6*nbas))
-C     Next lines in case lattice relaxation
+      if(nitrlx > 0) then !nitrlx >0 is for atomic position relaxiation
+        allocate(indrx_iv(2,nbas))
+!!  Next lines in case lattice relaxation
 c$$$        if (lshr) then
 c$$$          if (abs(gam(4)-1) .gt. 1d-10) call rx('lmfp: '//
 c$$$     .           'use of SHEAR= incompatible w/ lattice relaxation')
 c$$$          plat0=lat_plat0
 c$$$        endif
-        call rlxstp (  ssite , natrlx , nvrelx , indrx_iv ,  xyzfrz , pdim )
+        call rlxstp(natrlx, nvrelx, indrx_iv, xyzfrz, pdim )
         icom = 0
-        if (nvrelx .ne. 0) then
-C     ki The new indrx_iv uses the content of the old indrx_iv.
-          isize_iv_tmp=size(indrx_iv)
-          allocate( iv_tmp(isize_iv_tmp) )
-          iv_tmp(:)= indrx_iv(:)
-          deallocate(indrx_iv)
-          allocate(indrx_iv(2*natrlx))
-          isize_iv_tmp=min(isize_iv_tmp,2*natrlx)
-          indrx_iv(:isize_iv_tmp)=iv_tmp(:isize_iv_tmp)
-          deallocate(iv_tmp)
+        if (nvrelx .ne. 0) then !number of relaxiation iteration
           allocate(w_rv(nvrelx*nvrelx))
           allocate(p_rv(pdim))
         endif
-        alat = lat_alat
         if(procid==master) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
@@ -185,18 +176,18 @@ C --- Monopole Madelung matrix ---
       endif
 !!      
       call supot() ! get lattice vectors and array for potential
-      call suham(sspec,ssite)
+      call suham(sspec,ssite)   !sspec ssite might be modified (i don't know).
       if ( ctrl_quit == 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
-      nevmx = bz_nevmx !Maximum number of eigenvalues
-      lrout = 1  ! Whether to evaluate output density and/or KS energy
+c      nevmx = bz_nevmx ! Maximum number of eigenvalues
+      lrout = 1        ! Whether to evaluate output density and/or KS energy
       leks = 1
+      lpnu = 1 !Whether to float pnu's
       j = 6
       if (bz_nevmx .eq. -1) then
         lrout = 0
         leks = 0
       endif
-      lpnu = 1 !Whether to float pnu's
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'lmfp (fatal): output density required when forces sought.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
@@ -212,11 +203,9 @@ C --- Monopole Madelung matrix ---
      &    ' iterations sought but no output rho ... do 1 iteration'
         maxit = 1
       endif
+      
 !!... LDA+U initialization
-c      allocate(lldau_iv(nbas))
-c      lldau_iv(:)=0 
-c      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
-      if (nlibu .gt. 0) then !! ... return nlibu > 0 if any U blocks
+      if (nlibu > 0) then !! ... return nlibu > 0 if any U blocks
         i = nsp*nlibu*(lmaxu*2+1)**2
       else
         i = 1
@@ -226,27 +215,23 @@ c      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
       dmatu = 0d0
       dmato = 0d0
       if (nlibu > 0) then ! need group info to symmetrize site density matrix
-        ng=lat_nsgrp
-        umix=mix_umix
-        tolu=mix_tolu
+        ng  = lat_nsgrp
+        umix= mix_umix
+        tolu= mix_tolu
         if (umix .eq. 0) umix = 1
-        call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 !read dmatu from dmatu.ext
-     .        , lldau , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
-        if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
+        call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext ng , rv_a_osymgr ,
+        if ( ctrl_quit .eq. 16 ) call rx0('quit = dmat')
       endif
-!! Initial contition. Read atm.* or rst.* 
-C     --- Read restart file or overlap free atom densities ---
-C     irs(1) tells what to read and whether to invoke smshft.
-C     0+1's bits irs(1)     action
-C     0             read from atom file
-C     1             read from binary rst file
-C     2             read from ascii rsta file
-Cxxx   ???  4s' bit of irs(1) -> invoke smshft after file read.
-Cxxx   ???  8s' bit of irs(1) -> rotate local density after file read
+!! Initial contition. Read atm.* or rst.*  
+!!  --- Read restart file or overlap free atom densities ---
+!!    irs1x tells what to read and whether to invoke smshft.
+C     0    read from atom file  atm
+C     1    read from binary     rst 
+C     2    read from ascii      rsta
+Cxxx   ???  +4s' bit of irs(1) -> invoke smshft after file read.
+Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
       if (irs1x == 0) then      !read overlap free-atom densities
-c         call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
-!        read initial given by the superposition of spherical atomic densities by lmfa.
-         call rdovfa (sv_a_oorhat)
+         call rdovfa() ! superposition of spherical atomic densities by lmfa.
          nit1 = 0
       elseif ( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
          lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
@@ -257,8 +242,8 @@ c         call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
          call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-         k = iors ( ssite , sspec ,  fileid ! read rst file.  !bz_w in iros removed
-     .        , nbas , nat , nspec , sv_a_oorhat, nit1 , lbin , ifi ) 
+         k = iors ( fileid, nit1 , lbin , ifi ) ! read rst file. sspec ssite modified
+                                                !bz_w in iros removed
          if (procid .eq. master) close(ifi) 
          call mpibc1(k,1,2,mlog,'lmfp','k')
          do ibas=1,nbas 
@@ -266,7 +251,7 @@ c         call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
          enddo
          if (k .lt. 0) then
             irs1x = 0
-            call rdovfa ( sv_a_oorhat ) !initial potential  nbas, nspec, ssite, sspec,qbg,
+            call rdovfa() !initial potential  nbas, nspec, ssite, sspec,qbg,
             nit1 = 0
          elseif (irs1x10) then  
             call smshft(ssite, sspec, sv_a_oorhat, zv_a_osmrho, 1)
@@ -335,12 +320,9 @@ c               endif
                   ifi=ifile_handle() 
                   if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
                   if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
-
                   fileid = 'lmfp:  ' 
-                  k = iors ( ssite , sspec ,   fileid !sbz ,, sctrl slat , spot , 1  ,
-     .                    , nbas , nat , nspec , sv_a_oorhat, iter , lbin , 
-     .                    - ifi )
-                  close(ifi) !call fclose(ifi)
+                  k = iors ( fileid , iter , lbin , - ifi )
+                  close(ifi) 
                   endif
                endif
             endif
@@ -435,10 +417,8 @@ C     Repack updated positions in site structure
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
             fileid = 'lmfp:  '  !// trim(sstrnjobid) !sstrn(i:j)
-            k = iors ( ssite , sspec ,  fileid !sbz ,, sctrl slat , spot , 1 , 
-     .           , nbas , nat , nspec , sv_a_oorhat, iter , .true. 
-     .           , - ifi )
-            close(ifi) !call fclose(ifi)
+            k = iors (fileid, iter , .true., - ifi )
+            close(ifi)
          endif
          if (procid .eq. master) then
             write(stdo,*)' Delete mixing and band weights files ...'
@@ -446,7 +426,7 @@ C     Repack updated positions in site structure
             ifi = unlink('wkp.'//trim(sname))
          endif
          call parms0(0,0,0d0,0) !   reset mixing block
-!     ! Exit when maximum number of iterations encountered
+!! Exit when maximum number of iterations encountered
          if (itrlx .eq. nitrlx) then
             if (procid .eq. master) then
                call tcx('lmfp')

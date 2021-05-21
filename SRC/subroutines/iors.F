@@ -1,54 +1,25 @@
       module m_iors
-c      real(8),protected:: bz_ef00,bz_def00
-c      character(20),protected:: RWiors
       contains
-      integer function iors(ssite,sspec,
-     .     fid,nbas,nat,nspec,sv_p_orhoat,nit,lbin,ifi)
-      use m_struc_def 
-      use m_struc_func
+      integer function iors(fid,nit,lbin,ifi)
+      use m_supot,only: zv_a_osmrho, sv_p_orhoat=>sv_a_oorhat
+
+      use m_supot,only: lat_nabc
+      use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
       use m_bndfp,only: m_bndfp_ef_SET,bz_def,bz_ef
-      use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl
-      use m_supot,only: zv_a_osmrho, lat_nabc
+      use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
+     &    nbas,nat,nspec 
       use m_lattic,only: lat_dist, lat_plat
-C- I/O for charge density (takao think this it too complicated, but iw roks.
-C ----------------------------------------------------------------------
-Ci Inputs/Outputs
-Ci   mode  :0 ASA I/O
-Ci         :1 FP  I/O, mesh density
-Ci         :-1 (input only) read nbas,nat,nspec from file
-Ci         :-2 (input only) FP species and site data; poke into strux:
-Ci         :    lat->alat plat ngabc
-Ci         :    site->spec clabel pos pos0 force vel lmxa
-Ci         :    spec->name a nr rmt z lmxa lmxl kmxt p pz qc ctail etail
-Ci                    stc orhoc nxi exi chfa rsmfa lfoca rfoca
-Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: *
-Ci     Stored:    *
-Ci     Passed to: iors lgors mpibc1
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: pos class spec force vel pnu pz ov0 ov1
-Ci     Stored:    pos pos0 force vel pnu pz ov0 ov1
-Ci                NB: data only stored on file read (ifi>0)
-Ci     Passed to: iors pvsms2 mpibc1
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: a nr rmt z lmxa lmxl kmxt p pz lfoca qc orhoc idmod
-Ci                rsma lmxb kmxv rsmv rfoca ctail etail stc nxi exi
-Ci                chfa rsmfa
-Ci     Stored:    name a nr rmt z lmxa lmxl kmxt p pz qc ctail etail
-Ci                stc orhoc nxi exi chfa rsmfa
-Ci                NB: data only stored on file read (ifi>0)
-Ci     Passed to: iors spacks pvsms2 mpibc1
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: alat plat nabc dist
-Ci     Stored:    *
-Ci     Passed to: iors mpibc1
-Ci   spot  :struct for information about the potential; see routine upot
-Ci     Passed to: iors mpibc1
-Ci   sbz   :struct for the Brillouin Zone; see routine ubz
-Ci     Elts read: ef def w
-Ci     Stored:    ef def w
-Ci                NB: data only stored on file read (ifi>0)
-Ci     Passed to: *
+!!- I/O for charge density to rst or rsta. ssite sspec are readin 
+!! read write
+!!     smrho, rhoat
+!!     ssite: pos, pos0, force, vel, pnu pz ov0,ov1 
+!      sspec:
+!!           a nr rmt z lmxa lmxl kmxt p pz lfoca qc orhoc idmod
+!!           rsma lmxb kmxv rsmv rfoca ctail etail stc nxi exi
+!!           chfa rsmfa
+!      
+!! ef,def --> goto bndfp via m_bndfp_ef_set      
+!!      
 Ci   fid   :string containing identification
 Ci   nbas  :size of basis
 Ci   nat   :number atoms in basis with augmentation sites
@@ -58,13 +29,7 @@ Ci         :and lmxa=-1 for nbas-nat sites
 Ci   ifi   :file logical unit, but >0 for read, <0 for write
 Ci   lbin  :T file I/O in binary mode
 Ci         :F file I/O in ascii mode
-Cio Inputs/Outputs
-Cio  orhoat:vector of offsets containing site density
-Cio        :(FP only)
-Cio  qnu   :vector of moments (ASA only --- mode=0)
-Cio  spot->smrho:smoothed interstitial density ; see Remarks
-Cio        :(FP only)
-Cio  nit   :iteration number
+!!      
 Cr Remarks
 Cr   The density consists of a smooth part (smrho) plus
 Cr   nbas atom-centered densities inside the MT spheres.
@@ -125,12 +90,11 @@ C  ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       logical lbin
-      integer::  nbas , nat , nspec , nit , ifi , n0,i_site,i_spec,i_copy_size !mode=1 ,
+      integer::  nit , ifi , n0,i_site,i_spec,i_copy_size !mode=1 ,
       parameter (n0=10)
-      type(s_rv1) :: sv_p_orhoat(3,nbas)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(nspec)
-c      double precision qnu(3,n0,*)
+c      type(s_rv1) :: sv_p_orhoat(3,nbas)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(nspec)
       character fid*(*)
 C ... Local parameters
       integer procid,master,mpipid,nproc
@@ -145,7 +109,7 @@ C ... Local parameters
       real(8) ,allocatable :: rwgt_rv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer idmod(n0),idmoz(n0) !,lrs(10)
-      logical isanrg,lgors,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
+      logical isanrg,lfail,ltmp1,ltmp2,latvec,lshear,cmdopt,mlog
       double precision a,a0,alat,alat0,cof,eh,fac,qc,rfoc,rfoc0,rmt,
      .rmt0,rsma,rsma0,rsmfa,rsmr,rsmr0,rsmv,rsmv0,stc,sum,vfac,vol,
      .vol0,vs,vs1,z,z0
@@ -188,7 +152,6 @@ C     ndyn = igets('move size',smove)
       ifmt = '(20i5)'
 C ... Hardwired for now
       npan = 1
-c      nl = globalvariables%nl
 C ... Message
       if (ipr .ge. 10) then
         fid0 = 'read'
@@ -305,16 +268,13 @@ C       Number of real atoms may not increase
      .      nbas,nbas0)
 C       OK to reduce nat (e.g. E.S.); these sites will be skipped
           elseif (nat .lt. nat0) then
-            call info0(20,0,0,
-     .      '%9f(warning) rst mismatch in nat ... skipping sites')
+            call info0(20,0,0,'%9f(warning) rst mismatch in nat ... skipping sites')
           endif
 C       if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .true.)) goto 999
-          if (nsp0 .lt. nsp) call info0(20,0,0,
-     .    '%9f(warning) rst file not spin pol .. splitting spins')
+          if (nsp0 .lt. nsp) call info0(20,0,0,'%9f(warning) rst file not spin pol .. splitting spins')
           if (isanrg(npan0, npan,npan,msg,'npan',.true.)) goto 999
           lfail = isanrg(lrel0, lrel,lrel,msgw,'lrel',.false.)
-          call fsanrg(abs(vs1),1.00d0,abs(vs),0d0,' ','file''s version',
-     .    .true.)
+          call fsanrg(abs(vs1),1.00d0,abs(vs),0d0,' ','file''s version',.true.)
         endif
         call mpibc1(nbas0,1,2,mlog,'iors','nbas0')
         call mpibc1(nat0,1,2,mlog,'iors','nat0')
@@ -330,8 +290,7 @@ C   --- Read smooth charge density ---
               read(jfi,*,err=999,end=999) n11,n21,n31
             endif
             if (n11.eq.n1 .and. n21.eq.n2 .and. n31.eq.n3) then
-              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho !spot%zv_a_osmrho 
-     .         , lbin , jfi )
+              call dpdftr ( n1 , n2 , n3 , k1 , k2 , k3 , nsp0 , zv_a_osmrho, lbin , jfi )
               if (nsp .gt. nsp0) then
                 i = k1*k2*k3*2
                 call dscal ( i , 0.5d0 , zv_a_osmrho , 1 )
@@ -343,10 +302,9 @@ c   ... or read and remesh
   450         format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,
      .        '    to  ',i4,'  *',i4,'  *',i4)
               call fftz30(n11,n21,n31,k11,k21,k31)
-              allocate(h_zv(abs(-k11*k21*k31*nsp)))
-              if (-k11*k21*k31*nsp<0) h_zv(:)=0.0d0
-              call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv 
-     .        , lbin , jfi )
+              allocate(h_zv(k11*k21*k31*nsp))
+              h_zv(:)=0.0d0
+              call dpdftr ( n11 , n21 , n31 , k11 , k21 , k31 , nsp0 , h_zv , lbin , jfi )
               if (nsp .gt. nsp0) then
                 i = k11*k21*k31*2
                 call dscal ( i , 0.5d0 , h_zv , 1 )
@@ -364,11 +322,8 @@ C   ... If cell volume changed, scale smooth density to maintain charge
             vfac = vol0/vol
             if (dabs(vfac-1d0) .gt. 1d-8) then
               if (ipr .ge. 10) write(stdo,460) vol0,vfac
-  460         format(9x,'volume changed from',f8.2,
-     .        ' :  scale smooth density by',f8.4)
-              call dpcopy ( zv_a_osmrho , zv_a_osmrho , 1 , 2 * k1 * k2 * k3 
-     .         * nsp , vfac )
-
+  460         format(9x,'volume changed from',f8.2,' :  scale smooth density by',f8.4)
+              call dpcopy ( zv_a_osmrho, zv_a_osmrho, 1 , 2 * k1 * k2 * k3* nsp , vfac )
             endif
           endif
           call mpibc1 ( zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog, 'iors' , 'smrho' )
@@ -402,8 +357,7 @@ C   --- Read atomic positions,forces,velocities ---
           if (lshear) call awrit0('%a%7b(sheared),',use,len(use),0)
 C         Must be enough sites to read from rst file
           if (nbas0 .lt. nbas) then
-            call info0(1,0,0,'%9f oops ... cannot use '//
-     .      'file site positions (site mismatch)')
+            call info0(1,0,0,'%9f oops ... cannot use file site positions (site mismatch)')
             if (isanrg(nbas0, nbas,nbas,msg,'nbas',.true.)) goto 999
           endif
         endif
@@ -458,10 +412,7 @@ C   --- Read information for local densities ---
           is=ssite(ib)%spec
 C         is = -1 -> spec struc does not have these parameters
 C         lskip = .false.
-          if (is .ne. -1) then
-c            do i_spacks=is,is
-c              call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c            enddo
+          if (is /= -1) then
             spid=sspec(is)%name
             a=sspec(is)%a
             nr=sspec(is)%nr
@@ -470,12 +421,10 @@ c            enddo
             lmxa=sspec(is)%lmxa
             lmxl=sspec(is)%lmxl
             kmax=sspec(is)%kmxt
-            if (lmxa .eq. -1) then
-              goto 20
-            endif
+            if (lmxa .eq. -1) goto 20
           endif
           ibaug = ibaug+1
-          if (procid .eq. master) then
+          if (procid== master) then
             if (lbin) then
               read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
               if (ib .gt. nbas) goto 20
@@ -505,29 +454,30 @@ c     ... read(but don't use) extra info since record is present
           call mpibc1(nr0,1,2,mlog,'iors','nr0')
           call mpibc1(a0,1,4,mlog,'iors','a0')
           call mpibc1(qc,1,4,mlog,'iors','qc')
+          if (is == -1 ) call rx('iors: need check for is==-1')
 C         is = -1 -> pack spec struc with file parameters
-          if (is .eq. -1 ) then 
-            is = is0
-c            do i_spacks=is,is
-c              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
-c            enddo
-            sspec(is)%name=spid0
-            spid = spid0
-            sspec(is)%a=a0
-            sspec(is)%nr=nr0
-            sspec(is)%rmt=rmt0
-            sspec(is)%z=z0
-            sspec(is)%lmxa=lmxa0
-            sspec(is)%lmxl=lmxl0
-            sspec(is)%kmxt=kmax0
-            a=sspec(is)%a
-            nr=sspec(is)%nr
-            rmt=sspec(is)%rmt
-            z=sspec(is)%z
-            lmxa=sspec(is)%lmxa
-            lmxl=sspec(is)%lmxl
-            kmax=sspec(is)%kmxt
-          endif
+c$$$         if(is==-1) then       
+c$$$            is = is0
+c$$$c            do i_spacks=is,is
+c$$$c              call spacks_copy('p',sspec(i_spacks)%name,is,is,spid0,i_spacks)
+c$$$c            enddo
+c$$$            sspec(is)%name=spid0
+c$$$            spid = spid0
+c$$$            sspec(is)%a=a0
+c$$$            sspec(is)%nr=nr0
+c$$$            sspec(is)%rmt=rmt0
+c$$$            sspec(is)%z=z0
+c$$$            sspec(is)%lmxa=lmxa0
+c$$$            sspec(is)%lmxl=lmxl0
+c$$$            sspec(is)%kmxt=kmax0
+c$$$            a=sspec(is)%a
+c$$$            nr=sspec(is)%nr
+c$$$            rmt=sspec(is)%rmt
+c$$$            z=sspec(is)%z
+c$$$            lmxa=sspec(is)%lmxa
+c$$$            lmxl=sspec(is)%lmxl
+c$$$            kmax=sspec(is)%kmxt
+c$$$          endif
 C     ... Read augmentation data
 c          call dpzero(pnu,2*n0)
 c          call dpzero(pnz,2*n0)
@@ -539,8 +489,8 @@ c          call dpzero(ql,2*n0)
           call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-          call iinit(idmod,n0)
-          call iinit(idmoz,n0)
+          idmod=0
+          idmoz=0
           if (procid .eq. master) then
             do  isp = 1, nsp0
               if (lbin) then
@@ -692,8 +642,8 @@ C     ... store data in strucs
    20     continue
         enddo
         if (isanrg(ibaug, nat,nat,  msg,'nat', .false.)) goto 999
-        if ( lshear.and.irsrot) then ! .and. iand(256,int(ctrl_lrs)) .ne.0 ) then
-          wk(1:9)=lat_dist
+        if ( lshear.and.irsrot) then 
+          wk(1:9)=lat_dist !rhoat rotation by lat_dist matrix
           call dgemm('N','T',3,1,3,1d0,plat,3,qlat0,3,0d0,wk,3)
           call pvsms2 ( ssite , sspec , wk , nbas , nsp , sv_p_orhoat )
         endif
@@ -719,10 +669,8 @@ C   --- Read data on free-atom core states and fit to fa density ---
               read(jfi,*,err=999,end=999)
               read(jfi,*,err=999,end=999) stc,rfoc0
             endif
-
             sspec(is)%lfoca=lfoc0
             sspec(is)%rfoca=rfoc0
-
             lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
             call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif

@@ -1,10 +1,6 @@
       subroutine rlxstp(ssite,natrlx,nvar,indrlx,xyzfrz,pdim)!sctrl,
       use m_struc_def           !Cgetarg
       use m_lmfinit,only:  ctrl_nbas,ctrl_nitmv,ctrl_mdprm,ctrl_defm,ctrl_lfrce
-
-
-c       ltb=ctrl_ltb
-
 C- Set up variables for relaxation
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -31,7 +27,7 @@ C ----------------------------------------------------------------------
       implicit none
 C Passed Parameters
       logical xyzfrz(3)
-      integer indrlx(2,1),nvar,natrlx,nitrlx,pdim
+      integer indrlx(2,*),nvar,natrlx,nitrlx,pdim
 c      type(s_ctrl)::sctrl
       type(s_site)::ssite(*)
 
