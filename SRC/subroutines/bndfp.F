@@ -26,8 +26,10 @@
      .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
+      use m_supot,only: lat_nabc
       use m_suham,only: iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
+      
       use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
      &     bz_dosmax,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
@@ -40,12 +42,11 @@
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: lat_qlat, lat_vol, lat_plat,rv_a_opos
-      use m_supot,only: lat_nabc
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
-      use m_struc_def
+      use m_struc_def,only : s_rv1
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis

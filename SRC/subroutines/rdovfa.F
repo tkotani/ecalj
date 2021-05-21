@@ -1,14 +1,13 @@
-      subroutine rdovfa ( nbas , nspec , ssite , sspec  !, spot !, slat
-     . , qbg , sv_p_orhoat )
+      subroutine rdovfa (sv_p_orhoat )
       use m_supot,only: rv_a_ogv,iv_a_okv,rv_a_ogv,zv_a_osmrho
-      use m_struc_def 
+      use m_struc_def,only: s_rv1
       use m_struc_func , only: mpibc1_s_spec
       use m_lattic,only: lat_plat
-      use m_lmfinit,only:lat_alat,nsp
+      use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg2=>ctrl_zbak
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc
       use m_supot,only: lat_ng
-
+      
 
 C- Read and overlap free atom densities.
 C  Also allocates orhoca with free-atom core density.
@@ -41,11 +40,11 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer procid, master, mpipid
-      integer:: nbas , nspec
+c      integer:: nbas , nspec
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       real(8):: qbg
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(nspec)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(nspec)
 c      type(s_lat)::slat
 c      type(s_pot)::spot
 
@@ -74,6 +73,7 @@ C ... Local parameters
       logical:: l_dummy_isanrg,isanrg
       integer:: i_copy_size,i_spec
       call tcn('rdovfa')
+      qbg=qbg2(1)
       ipr   = iprint()
       stdo  = lgunit(1)
       stdl  = lgunit(2)
@@ -135,7 +135,7 @@ C      if (ipr .ge. 30) write(stdo,*) ' '
             ceh=0
             stc=0
             if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
-            deallocate(sspec(is)%rv_a_orhoc)
+c            deallocate(sspec(is)%rv_a_orhoc)
             if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
           else
             nr0=nrmx ! %rv_a_orhoc(nrmx*nsp)

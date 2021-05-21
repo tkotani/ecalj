@@ -1,12 +1,12 @@
       subroutine lmfp(llmfgw)
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
-     &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,ctrl_nbas,ctrl_nl,ctrl_nspec,ctrl_nspin,
-     &     ctrl_zbak,ctrl_lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     ctrl_lfrce,ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
+     &     ctrl_zbak,lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ham_seref,ham_eterms,
      &     lat_gam,lat_alat, lat_ldist,
      &     mix_umix,mix_tolu,mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     sstrnsymg, symgaf, nat
+     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo
       use m_lattic,only: lat_dist,lat_plat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
      &     lat_vol,lat_nkd,lat_awald,lat_nkq
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
@@ -51,10 +51,10 @@ Cxxx unused    l   irlxsh: counter for shear relaxations.  irlxsh=0 => new step
       implicit none
       logical lgors,cmdopt,bittst
       integer i,ifi,igets,ipr,irs1x,isw,ix(5),j, !,iscr
-     .     k,lcgf,leks,lgunit,lpnu,lrel,lrout,nbas,
-     .     nbaspp,nevmx,nglob,nit1,nl,nsp,nspec,numq, !npadl,npadr,lsx,
-     .     stdo,pdim,lsc
-      integer:: o
+     .     k,lcgf,leks,lgunit,lpnu,lrout,
+     .     nevmx,nglob,nit1,numq, !npadl,npadr,lsx,
+     .     pdim,lsc
+c      integer:: o
       real(8),allocatable  :: pos_move(:,:)
       real(8) ,allocatable :: frc_rv(:)
       real(8) ,allocatable :: ftot_rv(:)
@@ -82,15 +82,14 @@ C ... for relaxation
      .     , nitrlx , bitor , ng
       integer ,allocatable :: indrx_iv(:)
       real(8) ,allocatable :: w_rv(:)
-c ki, for rlse and allocate oindrx
       integer,allocatable:: iv_tmp(:)
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
      .     plat0(3,3),dist0(9),dist(9)
       parameter (nm=3)
 C  ... for LDA+U
-      integer nlibu,lmaxu
+c      integer nlibu,lmaxu
       complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:)
-      integer ,allocatable :: lldau_iv(:)
+c      integer ,allocatable :: lldau_iv(:)
       double precision tolu
       data irlxsh /0/ dist0 /9*0d0/
       logical:: isanrg
@@ -103,31 +102,22 @@ C  ... for LDA+U
       include "mpif.h"
 #endif
       call tcn('lmfp')
-      etot(1) = 0
-!! Total energy mode --etot ==>moved to m_lmfinit ---
+      etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
-      nbas = ctrl_nbas
-      nl   = ctrl_nl
-      nspec= ctrl_nspec
-      nsp  = ctrl_nspin
       qbg = ctrl_zbak(1)
-      maxit = int(ctrl_maxit)
-      lrel =  ctrl_lrel
-      call setcc(lrel) !lrel=T means scaler relativistiv c=274.074d0 in a.u.
+      maxit = ctrl_maxit
       if (lhf) maxit = 1
-      nbaspp = nbas      
-      stdo   = lgunit(1)
+      call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
       irs1x = irs1
       plat = lat_plat
       if(ipr>=30) call praugm(sspec,0) !Printout properties of species
-      
 !!    --rs=3 => always read from atom file !2020aug.
 !! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 c      if ( iand(3,int(ctrl_lrs)) .eq. 3 ) irs1x = 0 
 C     ... Setup for no screening transformation
-!!  Sep2020 comment " Shorten site positions" here removed.
+!! Sep2020 comment " Shorten site positions" here removed.
       
-!! ... Setup for charge mixing
+!! Setup for charge mixing
       dmxp= 0d0
       dmxp(2)=mix_b
       dmxp(9)=mix_bv
@@ -136,15 +126,13 @@ C     ... Setup for no screening transformation
       dmxp(6 ) = int(mix_nsave)
       dmxp(7) = int(mix_mmix)
       call parms0(0,0,0d0,0)
-C     ... Allocate memory for forces ! lfrce = int(ctrl_lfrce)
       if (ctrl_lfrce .ne. 0) then
         numq = 1
-        if ( int(bz_lmet) .eq. 4 ) numq = 3
-        allocate(frc_rv(3*nbas*numq))
+        if ( bz_lmet == 4 ) numq = 3
+        allocate(frc_rv(3*nbas*numq)) !for forces  
       endif
-C     ... Relaxation setup
+!! atomic position Relaxation setup
       itrlx = 1
-c      lat_ldist=0
       nitrlx=ctrl_nitmv
       mdprm=ctrl_mdprm
 c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
@@ -153,7 +141,6 @@ c      lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch
         call rx('lmf not set up for MD yet')
       endif
       if (nitrlx > 0) then !nitrlx >0 is for atomic position relaxiation
-c        ctrl_mdprm=mdprm
         allocate(indrx_iv(6*nbas))
 C     Next lines in case lattice relaxation
 c$$$        if (lshr) then
@@ -183,7 +170,6 @@ C     ki The new indrx_iv uses the content of the old indrx_iv.
            write(ifipos) itrlx,rv_a_opos
         endif   
       endif
-      
 !!=== Re-entry for lshr (share mode); but share mode is currently commented out.
 !! (we may need to deallocate things in supot for lshr mode      )
 !!      Probably share mode is going to be moved to outside of lmfp =======
@@ -197,9 +183,8 @@ C --- Monopole Madelung matrix ---
         call madmat ( nbas , rv_a_opos , lat_awald , lat_alat , lat_vol , rv_a_odlv
      .      , lat_nkd , rv_a_oqlv , lat_nkq , rv_a_omad )
       endif
-!! get lattice vectors and array for potential
-      call supot()
 !!      
+      call supot() ! get lattice vectors and array for potential
       call suham(sspec,ssite)
       if ( ctrl_quit == 8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
@@ -227,10 +212,9 @@ C --- Monopole Madelung matrix ---
      &    ' iterations sought but no output rho ... do 1 iteration'
         maxit = 1
       endif
-      
 !!... LDA+U initialization
-      allocate(lldau_iv(nbas))
-      lldau_iv(:)=0 
+c      allocate(lldau_iv(nbas))
+c      lldau_iv(:)=0 
 c      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
       if (nlibu .gt. 0) then !! ... return nlibu > 0 if any U blocks
         i = nsp*nlibu*(lmaxu*2+1)**2
@@ -247,11 +231,10 @@ c      call suldau ( nbas , sspec , ssite , nlibu , lmaxu , lldau_iv )
         tolu=mix_tolu
         if (umix .eq. 0) umix = 1
         call sudmtu ( nbas , nsp , nlibu , lmaxu , ssite , sspec , 0 !read dmatu from dmatu.ext
-     .        , lldau_iv , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
+     .        , lldau , ng , rv_a_osymgr , iv_a_oistab , dmatu , vorbdmat)
         if ( int(ctrl_quit) .eq. 16 ) call rx0('quit = dmat')
       endif
-
-!! initial contition. Read atm.* or rst.* 
+!! Initial contition. Read atm.* or rst.* 
 C     --- Read restart file or overlap free atom densities ---
 C     irs(1) tells what to read and whether to invoke smshft.
 C     0+1's bits irs(1)     action
@@ -261,8 +244,9 @@ C     2             read from ascii rsta file
 Cxxx   ???  4s' bit of irs(1) -> invoke smshft after file read.
 Cxxx   ???  8s' bit of irs(1) -> rotate local density after file read
       if (irs1x == 0) then      !read overlap free-atom densities
-         call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
+c         call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat )
 !        read initial given by the superposition of spherical atomic densities by lmfa.
+         call rdovfa (sv_a_oorhat)
          nit1 = 0
       elseif ( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
          lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
@@ -273,16 +257,16 @@ Cxxx   ???  8s' bit of irs(1) -> rotate local density after file read
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
          call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-         k = iors ( ssite , sspec ,  fileid !read rst file.  !bz_w in iros removed
+         k = iors ( ssite , sspec ,  fileid ! read rst file.  !bz_w in iros removed
      .        , nbas , nat , nspec , sv_a_oorhat, nit1 , lbin , ifi ) 
          if (procid .eq. master) close(ifi) 
          call mpibc1(k,1,2,mlog,'lmfp','k')
-         do ibas=1,nbaspp 
+         do ibas=1,nbas 
             rv_a_opos(:,ibas) = ssite(ibas)%pos
          enddo
          if (k .lt. 0) then
             irs1x = 0
-            call rdovfa ( nbas, nspec, ssite, sspec,qbg, sv_a_oorhat ) !initial potential
+            call rdovfa ( sv_a_oorhat ) !initial potential  nbas, nspec, ssite, sspec,qbg,
             nit1 = 0
          elseif (irs1x10) then  
             call smshft(ssite, sspec, sv_a_oorhat, zv_a_osmrho, 1)
@@ -332,7 +316,7 @@ c            endif
             if (nlibu .gt. 0 .and. maxit .gt. 0 .and. lrout .gt. 0) then
                call chkdmu ( nbas , nsp , nlibu , lmaxu , ssite , sspec !, sham 
      .              , 0 , dmatu , dmato, vorbdmat, tolu , umix
-     .              , lldau_iv , ng , rv_a_osymgr , iv_a_oistab )
+     .              , lldau , ng , rv_a_osymgr , iv_a_oistab )
 c               if(procid==master) then
 c                 open(file='vorbdmat.dat',newunit=ifivorbdmat,form='unformatted')
 c                 write(ifivorbdmat) vorbdmat
@@ -488,7 +472,7 @@ C     Repack updated positions in site structure
          if (allocated(pos_move)) deallocate(pos_move)
       endif 
       if(procid==master.and.nitrlx>0) close(ifipos)
-      if (allocated(lldau_iv)) deallocate(lldau_iv)
+c      if (allocated(lldau_iv)) deallocate(lldau_iv)
       if (allocated(ftot_rv)) deallocate(ftot_rv)
       if (allocated(p_rv)) deallocate(p_rv)
       if (allocated(w_rv)) deallocate(w_rv)

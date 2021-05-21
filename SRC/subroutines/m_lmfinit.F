@@ -129,8 +129,9 @@ c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
 c     &     lat_gmax, !supot
 c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
       real(8):: ham_eterms(20)
-      type(s_spec),allocatable,protected:: v_sspec(:) !no protection of type%foobar. Need improvement
-      type(s_site),allocatable:: v_ssite(:) 
+      type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
+      type(s_site),allocatable:: v_ssite(:)
+      
       integer,protected:: lekkl,lcplxp
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
