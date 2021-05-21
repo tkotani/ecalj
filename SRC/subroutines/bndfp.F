@@ -13,6 +13,7 @@
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: bz_ef,bz_def ! revised when called.
       logical,private:: binit=.true.,bbinit=.true.
+      integer,parameter:: n0=10, nppn=12, nab=9
       
       contains
       subroutine m_bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
@@ -26,22 +27,22 @@
      .     leks,lrout,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      use m_supot,only: lat_nabc
-      use m_suham,only: iv_a_oindxo, pot_nlma, pot_nlml, ndham=>ham_ndham,ham_ldham
+      use m_supot,only: ngabc=>lat_nabc
+      use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
       
       use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
      &     bz_dosmax,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
-     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_lsig,ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
-     &     lat_alat,stdo,stdl,procid,master,bz_doswin,
+     &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
-      use m_lattic,only: lat_qlat, lat_vol, lat_plat,pos=>rv_a_opos
+      use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig
       use m_subzi, only: subzi
@@ -175,8 +176,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       double precision sttime,entime
       integer:: pidorigin, ndimhx_iq, nev_iq,idx
       integer:: work_mpi(10)    ! use only 1 and 2 now
-      integer nbx,n0,nab,nppn,iter,maxit!,ndham !nbas
-      parameter ( n0=10, nppn=12, nab=9)
+      integer nbx,iter,maxit!,ndham !nbas
       integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
       real(8):: dmxp(33),frc(3,*)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
@@ -185,7 +185,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
      .  , i , iq , ismidb ,  ldos , lmet !, nspc  , nsp
      .  , lrep , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
-     .  , lgunit , igets , mpsord , nevmx , nvl , ngabc(3) , isw  !stdo , stdl 
+     .  , lgunit , igets , mpsord , nevmx ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  jobgw , nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
@@ -226,18 +226,18 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       type(s_rv1) :: sv_p_osigx(3,nbas)
       integer:: ospotx , osgw
       double precision sigp(10)
-      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
      .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,def,ef0,ehar,eks,
-     .  dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
-     .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
-     .  ecbot,vrmt(nbas),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
+     .  dosw(2),efmax,dgets,sumev(2,3),
+     .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,del,evtop,
+     .  ecbot,vrmt(nbas),fsmom,rsrnge,xv(20),dosrng,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
       integer,allocatable:: igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
       integer pwmode,napw
-      double precision pwemin,pwemax,pwgmin,pwgmax
+      double precision pwgmin,pwgmax
 C     real(8),allocatable :: qpe(:,:)
       logical T, F
 !!     for spin-orbit
@@ -251,7 +251,7 @@ C     real(8),allocatable :: qpe(:,:)
      .  , iclsn(nsitmx)
       complex(8) ,allocatable :: ausc_zv(:)
 !!     for Mulliken
-      integer:: moddos , nsites , lsites(nbas) , nchan , ng , iomoms 
+      integer:: moddos , nsites , lsites(nbas) , ng , iomoms 
      .  , nchmx , lmdim , lmxch
       logical:: mullwrite=.false.
       real(8) ,allocatable :: doswt_rv(:)
@@ -393,7 +393,7 @@ c mar2014
 
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
-      logical:: lpz,phispinsym,ljobgw
+      logical:: phispinsym,ljobgw
       integer:: nr,lmxl,nlml,nelt1,nelt2,nso
       
 !! ----------------------------
@@ -405,11 +405,8 @@ c mar2014
       fsmode   = cmdopt0('--fermisurface')
       allband  = cmdopt0('--allband')
       if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
-#if MPI | MPIK
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-#endif      
 !! Write atomic positions
-      if(master_mpi) then !procid == master) then
+      if(master_mpi) then 
          write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
          do ib=1,nbas
@@ -478,10 +475,11 @@ c   siginit=.true. !commented out on mar2015. this makes reading sigma at every 
          write(ifiese,*)pwmode
          close(ifiese)
       endif 
-      pwemin = ham_pwemin
-      pwemax = ham_pwemax
-      onesp = 0
+c      pwemin = ham_pwemin
+c      pwemax = ham_pwemax
       ldos  = ctrl_ldos !0 or 1
+c      epsovl = ham_oveps
+      onesp = 0
       lrsig = ham_lsig  !12 for read sigma mode
       if(ham_frzwf)then
          lfrzw = 1  !freeze all augmentation wave
@@ -497,7 +495,6 @@ c   siginit=.true. !commented out on mar2015. this makes reading sigma at every 
          endif
       endif
       call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
-      epsovl = ham_oveps
       if (master_mpi) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
@@ -506,14 +503,10 @@ c   siginit=.true. !commented out on mar2015. this makes reading sigma at every 
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
-      nvl  =pot_nlml
-      nchan=pot_nlma
-      eks = 0
-      alat =lat_alat
-      plat =lat_plat
-      qlat =lat_qlat
-      ngabc=lat_nabc
-      vol = lat_vol
+      eks = 0d0
+      n1=ngabc(1)
+      n2=ngabc(2)
+      n3=ngabc(3)
       k1 = n1
       k2 = n2
       k3 = n3
@@ -545,8 +538,7 @@ c   siginit=.true. !commented out on mar2015. this makes reading sigma at every 
       ef0  = bz_ef
       def  = bz_def
       ltet = ntet .gt. 0
-      if (lmet /= 0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F
-                                             ! We need DOS if just sampling
+      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       qbg = ctrl_zbak(1)
       alfa = 0
       lfrce=ctrl_lfrce
@@ -563,44 +555,10 @@ c   siginit=.true. !commented out on mar2015. this makes reading sigma at every 
          plbnd = 0
       endif
 !! == PROCAR file 
-      if(PROCARon) then
-         iprocar1=ifile_handle()
-         open(iprocar1,file='PROCAR.UP.'//trim(strprocid))
-         if(nsp==2) then
-            iprocar2=ifile_handle()
-            open(iprocar2,file='PROCAR.DN.'//trim(strprocid))
-         endif
-      endif
+      if(PROCARon)            open(newunit=iprocar1,file='PROCAR.UP.'//trim(strprocid))
+      if(PROCARon.and.nsp==2) open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-      phispinsym = cmdopt0('--phispinsym')
-      if(phispinsym) then
-         if(master_mpi)write(6,*)' --phispinsym use spin-averaged potential for phi and phidot' 
-         do ib = 1,nbas
-            i_copy_size=size(ssite(ib)%pnu)
-            call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-            i_copy_size=size(ssite(ib)%pz)
-            call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-            is = int(ssite(ib)%spec)
-            lmxa = sspec(is)%lmxa
-            do l=0,lmxa
-              pmean = sum(pnu(l+1,1:nsp))/nsp
-              if(master_mpi.and.nsp==2)   write(6,"('  ibas l=',2i3,' pnu=',2f10.5,' -->',f10.5)")
-     &             ib,l,pnu(l+1,1:nsp),pmean
-              pnu(l+1,1:nsp) = pmean
-              lpz = pnz(l+1,1) /= 0
-              if (lpz) then
-                 pmean = sum(pnz(l+1,1:nsp))/nsp
-                 if(master_mpi.and.nsp==2)write(6,"('  ibas l=',2i3,' pnz=',2f10.5,' -->',f10.5)")
-     &                ib,l,pnz(l+1,1:nsp),pmean
-                 pnz(l+1,1:nsp) = pmean
-              endif
-            enddo
-            i_copy_size=size(ssite(ib)%pnu)
-            call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
-            i_copy_size=size(ssite(ib)%pz)
-            call dcopy(i_copy_size,pnz,1,ssite(ib)%pz,1)
-         enddo   
-      endif
+      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized
 !! Write out Hamiltonian stated at jan2018kaist
       writeham= cmdopt0('--writeham')
       if(writeham) then
@@ -1053,7 +1011,6 @@ c            massline=.false.
       endif                     ! end of sigmamode
 !! == GW driver ==
       if(llmfgw) then
-         nchan = pot_nlma
          call sugw(lrsig,ssite , sspec ,   nbas , ndham , zv_a_osmpot 
      .     , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi , ppnl_rv 
      .     , vrmt , spotx    , sv_p_osigx, sv_p_otaux, sv_p_oppix, jobgw 
@@ -1155,8 +1112,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
          endif
          if(allocated(igv2x)) deallocate(igv2x)
          if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
-            pwgmin = dsqrt(pwemin)
-            pwgmax = dsqrt(pwemax)
+            pwgmin = pwemin**.5d0
+            pwgmax = pwemax**.5d0
             qqq = 0d0 
             if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
             call pshpr(1)
@@ -2392,7 +2349,7 @@ ccccccccccccccccccccccccc
       real(8),allocatable::vesatm(:)
 !     ! === VBM CBM section. Mar2013takao === just output
       print *,'--vbmonly mode'
-      vol = lat_vol
+c      vol = lat_vol
       open(newunit=ifvesintatm,file='vesintatm.'//trim(sname),status='old',err=9898)
 !! vesintatm is given by lmfa. electrostatic potential integrals.
       allocate(vesatm(ctrl_nspec))

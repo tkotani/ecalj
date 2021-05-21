@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+phispinsym.o\
 m_MPItk.o \
 writedossawada.o\
 m_clsprm.o\
