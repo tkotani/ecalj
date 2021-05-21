@@ -15,7 +15,7 @@
 
       logical,private:: binit=.true.,bbinit=.true.
       contains
-      subroutine bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
+      subroutine m_bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
       real(8):: bz_ef00,bz_def00
       bz_ef = bz_ef00
       bz_def= bz_def00
@@ -181,7 +181,7 @@ c#endif
 c      integer procid,master
       integer nbx,n0,nab,nppn,iter,maxit!,ndham !nbas
 c      character*(*) sstrn
-      parameter ( nbx=512, n0=10, nppn=12, nab=9)
+      parameter ( n0=10, nppn=12, nab=9)
       integer k1,k2,k3,leks,lrout,lfrce,lpnu
       integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
@@ -227,18 +227,18 @@ ckino lswtk must be 0 initially.
       integer ,allocatable :: ips_iv(:)
       real(8) ,allocatable :: orbtm_rv(:)
       integer ,allocatable :: ifbls_iv(:)
-      type(s_rv1) :: sv_p_orhat1(3,nbx)
-      type(s_rv1) :: sv_p_oppi(3,nbx)
-      type(s_rv1) :: sv_p_oeqkkl(3,nbx)
-      type(s_rv1) :: sv_p_oqkkl(3,nbx)
-      type(s_rv1) :: sv_p_otau(3,nbx)
-      type(s_rv1) :: sv_p_osig(3,nbx)
+      type(s_rv1) :: sv_p_orhat1(3,nbas)
+      type(s_rv1) :: sv_p_oppi(3,nbas)
+      type(s_rv1) :: sv_p_oeqkkl(3,nbas)
+      type(s_rv1) :: sv_p_oqkkl(3,nbas)
+      type(s_rv1) :: sv_p_otau(3,nbas)
+      type(s_rv1) :: sv_p_osig(3,nbas)
+      type(s_rv1) :: sv_p_oppix(3,nbas)
+      type(s_rv1) :: sv_p_otaux(3,nbas)
+      type(s_rv1) :: sv_p_osigx(3,nbas)
 c      equivalence (ldim,ldham(1,1))
       logical a2bin
       integer:: ospotx , osgw
-      type(s_rv1) :: sv_p_oppix(3,nbx)
-      type(s_rv1) :: sv_p_otaux(3,nbx)
-      type(s_rv1) :: sv_p_osigx(3,nbx)
 c      logical:: l_temp_rv_a_oswtk=.false., l_temp_rv_a_owtkb=.false.
 c     &  l_temp_iv_a_oidtet=.false.
       double precision sigp(10)
@@ -247,7 +247,7 @@ c     &  l_temp_iv_a_oidtet=.false.
      .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,alat,plat(3,3),qlat(3,3),sumev(2,3),
      .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,vol,dum,del,evtop,
-     .  ecbot,vrmt(nbx),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
+     .  ecbot,vrmt(nbas),fsmom,rsrnge,xv(20),dosrng,epsovl,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
       integer,allocatable:: igv2x(:,:)
@@ -267,7 +267,7 @@ C     real(8),allocatable :: qpe(:,:)
      .  , iclsn(nsitmx)
       complex(8) ,allocatable :: ausc_zv(:)
 !!     for Mulliken
-      integer:: moddos , nsites , lsites(nbx) , nchan , ng , iomoms 
+      integer:: moddos , nsites , lsites(nbas) , nchan , ng , iomoms 
      .  , nchmx , lmdim , lmxch
       logical:: mullwrite=.false.
 
@@ -412,6 +412,7 @@ c mar2014
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: lpz,phispinsym,ljobgw
+      integer:: nr,lmxl,nlml,nelt1,nelt2,nso
       
 !! ----------------------------
       call tcn ('bndfp')
@@ -533,7 +534,7 @@ c      call i8icopy(size(ham_ldham),ham_ldham,1,ldham,1)
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(6,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       endif
-      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
+c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
       if (ndham.le.0)  call rx('bndfp: hamiltonian matrix has zero dimension')
       eterms=-99d0
       eterms(19) = 0d0
@@ -715,8 +716,56 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
       allocate(ppnl_rv(nppn,n0,nsp,nbas))
       allocate(fes1_rv(3*nbas))
 !! dfaugm alllocates and initializes variables
-      call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig, sv_p_otau , sv_p_oppi )
-!! --- Make the potential sans XC part ---
+c      call dfaugm ( nbas , lcplxp , lso , ssite , sspec , sv_p_osig, sv_p_otau , sv_p_oppi )
+      call rxx(lso==1.and.nspc/=2,'bndfp: inconsistent parameters')
+      if(lso/=0) then
+         nso = 2
+      else
+         nso= 1
+      endif   
+C --- Loop over sites, allocating sig,tau,pi for each site ---
+      do ib = 1, nbas
+        is = ssite(ib)%spec
+        lmxa=sspec(is)%lmxa
+        lmxh=sspec(is)%lmxb
+        kmax=sspec(is)%kmxt
+        nlma = (lmxa+1)**2
+        nlmh = (lmxh+1)**2
+        if (lmxa .eq. -1) cycle
+C   ... Case Pkl*Pkl
+        nelt1 = (kmax+1)*(kmax+1)*(lmxa+1)*nsp
+        nelt2 = (kmax+1)*(kmax+1)*nlma*nlma*nsp*nspc*nso
+        allocate(sv_p_osig(1,ib)%v(nelt1))
+        allocate(sv_p_otau(1,ib)%v(nelt1))
+        if (lcplxp ==0) then
+          allocate(sv_p_oppi(1,ib)%v(nelt2))
+        else
+          allocate(sv_p_oppi(1,ib)%v(nelt2*2))
+        endif
+C   ... Case Hsm*Hsm
+        nelt1 = nkaph*nkaph*(lmxh+1)*nsp
+        nelt2 = nkaph*nkaph*nlmh*nlmh*nsp*nspc*nso
+        allocate(sv_p_osig(3,ib)%v(nelt1))
+        allocate(sv_p_otau(3,ib)%v(nelt1))
+        if (lcplxp .eq. 0) then
+          allocate(sv_p_oppi(3,ib)%v(nelt2))
+        else
+          allocate(sv_p_oppi(3,ib)%v(nelt2*2))
+        endif
+C   ... Case Hsm*Pkl
+        if (lmxh>lmxa) call rx('bndfp: lmxh.gt.lmxa unexpected')
+        nelt1 = nkaph*(kmax+1)*(lmxh+1)*nsp
+        nelt2 = nkaph*(kmax+1)*nlmh*nlma*nsp*nspc*nso
+        allocate(sv_p_osig(2,ib)%v(nelt1))
+        allocate(sv_p_otau(2,ib)%v(nelt1))
+        if (lcplxp==0) then
+          allocate(sv_p_oppi(2,ib)%v(nelt2))
+        else
+          allocate(sv_p_oppi(2,ib)%v(nelt2*2))
+        endif
+      enddo
+
+!     ! --- Make the potential sans XC part ---
       jobgw=-999
       if(llmfgw) then ! only for lmfgw program
          if(procid==master) then
@@ -2237,7 +2286,18 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
 !! --- Assemble output density ---
-      call dfratm ( nbas , ssite , sspec , sv_p_orhat1 )
+c     call dfratm ( nbas , ssite , sspec , sv_p_orhat1 )
+      do  ib = 1, nbas
+        is =  ssite(ib)%spec
+        nr =  sspec(is)%nr
+        lmxl= sspec(is)%lmxl
+        nlml = (lmxl+1)**2
+        if (lmxl > -1) then
+          allocate( sv_p_orhat1(1,ib)%v(nr*nlml*nsp))
+          allocate( sv_p_orhat1(2,ib)%v(nr*nlml*nsp))
+          allocate( sv_p_orhat1(3,ib)%v(nr*nsp))
+        endif
+      enddo
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp

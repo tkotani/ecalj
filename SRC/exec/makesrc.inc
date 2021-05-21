@@ -432,7 +432,6 @@ bstrux.o \
 corprm.o \
 dfaugm.o \
 dfqkkl.o \
-dfratm.o \
 dfrce.o \
 efldos.o \
 elocp.o \

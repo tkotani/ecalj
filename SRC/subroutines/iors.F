@@ -4,9 +4,9 @@ c      character(20),protected:: RWiors
       contains
       integer function iors(ssite,sspec,
      .     fid,nbas,nat,nspec,sv_p_orhoat,nit,lbin,ifi)
-      use m_bndfp,only: bndfp_ef_SET,bz_def,bz_ef
       use m_struc_def 
       use m_struc_func
+      use m_bndfp,only: m_bndfp_ef_SET,bz_def,bz_ef
       use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl
       use m_supot,only: zv_a_osmrho, lat_nabc
       use m_lattic,only: lat_dist, lat_plat
@@ -390,7 +390,7 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',use,len(use),0)
           bz_ef00=wk(1)
           bz_def00=wk(2)
-          call bndfp_ef_SET(bz_ef00,bz_def00)
+          call m_bndfp_ef_SET(bz_ef00,bz_def00)
 c          bz_w= -9999 !dummy wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
