@@ -80,7 +80,7 @@ C ... for relaxation
       logical ::xyzfrz(3),ltmp !,lshr=.false.
       integer:: icom , natrlx , nvrelx , ltb , itrlx , nm , irlxsh 
      .     , nitrlx , bitor , ng
-      integer ,allocatable :: indrx_iv(:)
+      integer ,allocatable :: indrx_iv(:,:)
       real(8) ,allocatable :: w_rv(:)
       integer,allocatable:: iv_tmp(:)
       double precision mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2),
