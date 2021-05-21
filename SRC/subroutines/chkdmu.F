@@ -1,12 +1,12 @@
       module m_chkdmu
       real(8),protected:: eorb=0d0
-
       contains
-      subroutine chkdmu(nbas,nsp,nlibu,lmaxu,ssite,sspec,idvsh, !sham,
-     .dmatu,dmatuo,vorb,tolu,umix,lldau,ng,g,istab)
+      subroutine chkdmu( dmatu,dmatuo,vorb) !,tolu,umix)
       use m_struc_def,only: s_site,s_spec
-      use m_lmfinit,only: ham_eterms,stdl
+      use m_lmfinit,only: ham_eterms,stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau,
+     &     tolu=>mix_tolu,umix=>mix_umix
       use m_MPItk,only: master_mpi
+      use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
 C- LDA+U total energy and mixing of lda+U density matrix
 C ----------------------------------------------------------------------
@@ -55,12 +55,12 @@ C ----------------------------------------------------------------------
       integer:: ierr
       include "mpif.h"
 C ... Passed parameters
-      integer nbas,nsp,nlibu,lmaxu,ng,idvsh,i_copy_size
-      integer lldau(nbas),istab(nbas,ng)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+      integer:: idvsh=0,i_copy_size
+c      integer lldau(nbas),istab(nbas,ng)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
       real(8):: eorbxxx
-      double precision tolu,umix,g(9,ng)
+c      double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)

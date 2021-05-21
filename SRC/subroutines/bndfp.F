@@ -23,7 +23,7 @@
       end
       
       subroutine bndfp(
-     .     leks,lrout,lfrce,lpnu,dmxp,iter,maxit, frc, 
+     .     leks,lrout,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
       use m_supot,only: lat_nabc
@@ -65,7 +65,7 @@ Ci   leks  :>0 make the Hohnberg-Kohn-Sham energy
 Ci         :>1 use the HKS forces
 Ci   lrout :>0 generate output density and attendant quantities
 Ci   lfrce : 0 suppress generation of forces
-Ci   lpnu  : 1 make new pnu's
+Ci   lpnu=1  : =1 means new pnu's
 Ci   sstrnmix:mixing
 Ci   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
 Ci         :Additionally:
@@ -184,7 +184,7 @@ c      integer procid,master
       integer nbx,n0,nab,nppn,iter,maxit!,ndham !nbas
 c      character*(*) sstrn
       parameter ( n0=10, nppn=12, nab=9)
-      integer k1,k2,k3,leks,lrout,lfrce,lpnu
+      integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
 c      integer nlibu,lmaxu,lldau(nbas)
       real(8):: dmxp(33),frc(3,*)
 c      type(s_sstrn):: sstrn
@@ -579,6 +579,7 @@ c      if (nbas.gt.nbx) call rxi('bndfp: nbx exceeded, need',nbas)
                                              ! We need DOS if just sampling
       qbg = ctrl_zbak(1)
       alfa = 0
+      lfrce=ctrl_lfrce
 C     Switch to plot bands at specified qp
       if (cmdopt('--band',6,0,strn).or.fullmesh) then
          plbnd = 1
@@ -2297,9 +2298,8 @@ C       call poppr
 !! --- Evaluate KS total energy, correction to Harris force ---
       if (lrout .ne. 0) then
 !!   ... Correction to harris force
-        job=int(ctrl_lfrce)
-        if(job>0 ) then
-          call dfrce (job, ssite , sspec ,  k1 , k2 , k3 , nvl !sctrl , slat ,
+        if(lfrce>0 ) then
+          call dfrce (lfrce, ssite , sspec ,  k1 , k2 , k3 , nvl !sctrl , slat ,
      .     , sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_a_osmrho , 
      .     srout_zv , fh_rv )
         endif

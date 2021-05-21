@@ -1,6 +1,6 @@
       module m_iors
       contains
-      integer function iors(fid,nit,lbin,ifi)
+      integer function iors(nit,lbin,ifi)
       use m_supot,only: zv_a_osmrho, sv_p_orhoat=>sv_a_oorhat
 
       use m_supot,only: lat_nabc
@@ -20,7 +20,7 @@
 !      
 !! ef,def --> goto bndfp via m_bndfp_ef_set      
 !!      
-Ci   fid   :string containing identification
+Cixxx   fid   :string containing identification
 Ci   nbas  :size of basis
 Ci   nat   :number atoms in basis with augmentation sites
 Ci         :Note: if nat<nbas, there is a requirement that
@@ -95,7 +95,7 @@ C ... Passed parameters
 c      type(s_rv1) :: sv_p_orhoat(3,nbas)
 c      type(s_site)::ssite(nbas)
 c      type(s_spec)::sspec(nspec)
-      character fid*(*)
+      character*256:: fid=''
 C ... Local parameters
       integer procid,master,mpipid,nproc
       integer i,i0,i1,i2,i3,i4,ib,ipr,iprint,ic,is,is0,isp,jb,k1,k2,k3,

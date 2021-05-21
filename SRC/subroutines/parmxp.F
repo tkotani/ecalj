@@ -1,6 +1,5 @@
       logical function parmxp(iter,strn,lstrn,broy,nmix,wgt,beta,
      .elind,mixnam,wc,nkill,betv,rmserr)
-
 C- Parse strng to get mixing parameters for current iteration
 C --------------------------------------------------
 Ci Inputs
@@ -355,7 +354,6 @@ C --- Normal exit ---
       end function parmxp
 
       subroutine parmx0(i1,i2,errxx)
-
 C- sets lstblk,lstitj and errmin
 C     implicit none
       integer i1,i2,lstblk,lstitj,mode

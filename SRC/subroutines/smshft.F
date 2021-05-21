@@ -1,16 +1,10 @@
-      subroutine smshft ( ssite , sspec ,  sv_p_orhoat !sctrl , sham ,slat , 
-     . , smrho,job )
-      use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_struc_def  !Cgetarg
+      subroutine smshft (job)
+      use m_supot,only:  sv_p_orhoat=>sv_a_oorhat,smrho=>zv_a_osmrho !output
+      use m_supot,only:  iv_a_okv,rv_a_ogv
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
-     &     lat_alat,nsp,nbas
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-      use m_supot,only: lat_ng
-
-
-      use m_lattic,only:lat_plat      
+     &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
+      use m_lattic,only: lat_qlat, lat_vol,lat_plat
+      use m_supot,only: lat_nabc, lat_ng
 C- Estimate the smooth density for a shift in atomic positions.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -52,13 +46,13 @@ Cu    3 Jul 00 Adapted from nfp smshft.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      type(s_rv1) :: sv_p_orhoat(3,1)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_rv1) :: sv_p_orhoat(3,1)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ctrl)::sctrl
 c      type(s_ham)::sham
-      double complex smrho(*)
+c      double complex smrho(*)
 C ... Local parameters
       integer i,ib,igets,igetss,iprint,is,k1,k2,k3,kcor,lcor,lmxa,n0,n1,
      .n2,n3,ng,ngabc(3),i_copy_size

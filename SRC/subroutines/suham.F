@@ -1,19 +1,16 @@
       module m_suham
-      integer , allocatable,protected ::  iv_a_oindxo (:)
-      integer , allocatable,protected ::  iv_a_ooffH (:)
+      integer, allocatable,protected ::  iv_a_oindxo (:)
+      integer, allocatable,protected ::  iv_a_ooffH (:)
       integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16)
+
       contains
       subroutine suham(sspec,ssite)
-      use m_supot,only: rv_a_ogv
       use m_struc_def  
-      use m_lmfinit,only:lso,   ctrl_nbas,ctrl_nspec, ctrl_nl, ctrl_nspin,
-     &     ham_pwmode,ham_pwemax,ham_pwemin,
-     &     lat_alat, lat_alat,lat_tolft,nkaph !,ham_npwpad
-      use m_lattic,only: lat_qlat
-      use m_supot,only: lat_ng
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl, ctrl_nspin,
+     &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph
+      use m_supot,only: lat_ng, rv_a_ogv
 
-
-      use m_lattic,only: lat_plat
+      use m_lattic,only: lat_qlat,lat_plat
 C- Hamiltonian setup
 C ----------------------------------------------------------------------
 Cio Inputs/Outputs

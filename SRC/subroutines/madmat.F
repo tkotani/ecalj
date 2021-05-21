@@ -1,5 +1,10 @@
-      subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
-      use m_lmfinit,only: stdo
+c      subroutine madmat(nbas,bas,awald,alat,vol,dlat,nkd,glat,nkg,dmad)
+c        call madmat ( nbas , rv_a_opos , lat_awald , lat_alat , lat_vol , rv_a_odlv
+c     .      , lat_nkd , rv_a_oqlv , lat_nkq , rv_a_omad )
+      subroutine madmat(dmad)
+      use m_lmfinit,only: stdo,nbas,alat=>lat_alat
+      use m_lattic,only: awald=>lat_awald,vol=>lat_vol,dlat=>rv_a_odlv
+     &  ,nkd=>lat_nkd,glat=>rv_a_oqlv, nkg=>lat_nkq,bas=>rv_a_opos
 C- Coefficients to Madelung matrix
 C ----------------------------------------------------------------
 Ci Inputs
@@ -18,14 +23,14 @@ Cr   Call lattc to generate inputs awald,vol,dlat,nkd,glat,nkg.
 C ----------------------------------------------------------------
 C     implicit none
 C Passed parameters
-      integer nbas,nkd,nkg
-      double precision awald,alat,vol
-      double precision bas(3,nbas),dlat(3,nkd),glat(3,nkg)
+c      integer nbas,nkd,nkg
+c      double precision awald,alat,vol
+c      double precision bas(3,nbas),dlat(3,nkd),glat(3,nkg)
       double precision dmad(nbas,nbas)
 C local variables
       integer ibas,jbas,iprint,i
       double precision tau(3)
-
+      dmad=0.0d0
 C --- Generate Madelung matrix ---
       do  10  ibas = 1, nbas
       do  10  jbas = ibas, nbas
@@ -37,11 +42,8 @@ C --- Generate Madelung matrix ---
      .    dmad(ibas,jbas))
         dmad(jbas,ibas) = dmad(ibas,jbas)
    10 continue
-
 C --- Printout ---
       if (iprint() .lt. 90) return
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
       write(stdo,100) nbas
   100 format(/' Madelung matrix: nbas=',i5)
       do  20  ibas = 1, nbas
