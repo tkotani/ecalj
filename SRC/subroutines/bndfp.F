@@ -48,7 +48,7 @@
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
-      use m_MPItk,only: mlog,master_mpi !master_mpi= procid==master
+      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize 
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -181,7 +181,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       real(8):: dmxp(33),frc(3,*)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
-      integer:: ipr , iprint , ipl , isp , jsp , ispc , isum , nglob 
+      integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb ,  ldos , lmet !, nspc  , nsp
      .  , lrep , nkabc(3) , ndos , ndos0 , nev , nevl 
      .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
@@ -310,18 +310,15 @@ c      real(8):: qsfz(3,100)
 
       integer:: unlink
 !! for mpi and mpik, parallel write
-      character(10):: strprocid 
       integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       integer:: ifis2,ipts,ifid
       real(8):: eee
       logical :: tdos !,pdos
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
 
-      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,qlx(0:100),esold, vnow
-      logical:: lfill=.false.,ixx
+      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,esold, vnow
       integer,allocatable:: ndimhx_(:),nev_(:)
-      character(120):: vbmlll
-      integer:: npri,ibas,ifiqb,ifiwv,lmxa,numprocs, ifimag
+      integer:: npri,ibas,ifiqb,ifiwv,lmxa, ifimag
       real(8),parameter::    NULLR =-99999
 
       integer,parameter:: noutmx=48
@@ -376,7 +373,7 @@ c mar2014
       character(512),save::schar
       character(512):: aaachar
       logical:: massline , writeham=.false.
-      logical,save:: siginit=.true.     !,laf
+      logical,save:: siginit=.true. 
       character(10):: i2char
       character(50)::infoq
       integer::ipos,ndos_,j,ififft
@@ -395,18 +392,24 @@ c mar2014
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: phispinsym,ljobgw
       integer:: nr,lmxl,nlml,nelt1,nelt2,nso
+      character*8:: charext
+      logical:: lfill=.false.,ixx
       
 !! ----------------------------
       call tcn ('bndfp')
-      debug    = cmdopt0('--debugbndfp')
-      tdos     = cmdopt0('--tdos')
-      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
-      fsmode   = cmdopt0('--fermisurface')
-      allband  = cmdopt0('--allband')
-      if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
-!! Write atomic positions
-      if(master_mpi) then 
+!! vbmmode =Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
+      if(cmdopt0('--vbmonly')) then
+         if(master_mpi) call vbmmode()
+         call rx0('--vbmonly mode done')
+      endif
+!! getq mode. Current version is not for spin dependent nor many restrictions.
+!! spin symmetic (or nspin=1, not 2 channell binded and so on...
+      if(cmdopt0('--getq')) then
+         if(master_mpi) call getqmode()
+         call rx0('--getq mode done')
+      endif
+!! checkwrite     
+      if(master_mpi) then ! check Write atomic positions
          write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
          do ib=1,nbas
@@ -415,39 +418,26 @@ c mar2014
             write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
-!! Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
+!!      
+      debug    = cmdopt0('--debugbndfp')
+      tdos     = cmdopt0('--tdos')
+      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
+      fsmode   = cmdopt0('--fermisurface')
+      allband  = cmdopt0('--allband')
+      if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
+!! fsmode: Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       if(fsmode) fullmesh=.true.
-      if(fullmesh) then
-         nkk1=bz_nabc(1)
-         nkk2=bz_nabc(2)
-         nkk3=bz_nabc(3)
-      endif   
-!! Calculate VBM and CBM relative to vaccum (but in a simple approximaiton. need fixing.).
-      if(cmdopt0('--vbmonly')) goto 8888
-!! getq mode.  Current version is not for spin dependent nor many restrictions.
-!! spin symmetic (or nspin=1, not 2 channell binded and so on...
-      if(cmdopt0('--getq')) then
-         if(master_mpi) call getqmode()
-         call rx0('--getq mode done')
-      endif
-!! === MPI Setup continue===
-      numprocs=1                !when no MPI
-#if MPI | MPIK
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      shortname(procid)=trim(name)
-#endif
-      write(strprocid,'(i10)') procid
-      strprocid = adjustl(strprocid) !string procid
+      nkk1=bz_nabc(1)
+      nkk2=bz_nabc(2)
+      nkk3=bz_nabc(3)
       savez=.false.
       getz =.false.
-      if (maxit .eq. 0) return
-c   siginit=.true. !commented out on mar2015. this makes reading sigma at every iteration.
+      if (maxit==0) return
       napw = 0
-      ipr  = iprint() !When procid/=master, iprint=0.
-      ipl  = ipr
+      ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
-!! spinoffdiag=T case, the spin loop is too complicated --> we need to fix this.
+!! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
       if(nspc==2.and.nsp==2) then !nspc==2
          spinoffdiag=.true. !non-colinear case
          nspx=1
@@ -564,9 +554,6 @@ c      epsovl = ham_oveps
       if(writeham) then
         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
         if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are not used yet...
-          nkk1=bz_nabc(1)
-          nkk2=bz_nabc(2)
-          nkk3=bz_nabc(3)
           nkp = nkk1*nkk2*nkk3
           allocate(qplist(3,nkp))
           iq=0
@@ -1093,7 +1080,7 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
-     &              trim(shortname(procid))//' starting k-points '//
+     &              trim(charext(procid))//' starting k-points '//
      &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
                write(lgunit(3),"(a)")trim(aaachar)
             endif
@@ -1857,7 +1844,7 @@ c         nkaph = globalvariables%nkaph
             if(debug) print *,'eeeee44444444444 plbnd=',plbnd
             
             if (plbnd .eq. 0) then
-               if (ipr.ge.10 .and. iq.eq.1 .and. ipl.gt.0)
+               if (ipr.ge.10 .and. iq.eq.1 .and. ipr.gt.0)
      .           write (stdl,712) (evl(i,jsp),i=1,nev_iq)
  712           format('fp evl',8f8.4)
                if (lwtkb .ne. -1) then ! .and. .not. lwndow) then
@@ -1918,7 +1905,7 @@ c     .        , 1 , i_spackv + 1 - 1 , ips_iv )
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
-      if (ipl.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
+      if (ipr.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
  715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  smr',f8.4)
       
 !! --- Interpolate density to Fermi energy ---
@@ -1945,7 +1932,7 @@ C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
  388     format(' ipol:  sev=',f12.6,'   ef=',f12.6:/
      .     ' dos:   sev=',f12.6,'   ef=',f12.6/
      .     ' use:   sev=',f12.6,'   ef=',f12.6)
-         if (ipl.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
+         if (ipr.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
  733     format('nf EF:',3f9.5,'    EB:',3f12.5)
 c         bz_ndos=ndos
          bz_dosw = dosw
@@ -2314,9 +2301,6 @@ ccccccccccccccccccccccccc
       ham_ehf=ehar
       ham_ehk=eks
  999  continue
- 8888 continue
-      if(master_mpi) call vbmmode()
-      if(cmdopt('--vbmonly',9,0,strn)) call rx0('end of --vbmonly mode vrefolny')      
       if (allocated(qm2_rv)) deallocate(qm2_rv)
       if (allocated(qm1_rv)) deallocate(qm1_rv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
@@ -2342,68 +2326,6 @@ ccccccccccccccccccccccccc
       
 !sssssssssssssssssssssssssssssssssssssssssssss
       contains
-      subroutine vbmmode()!no output
-      implicit none
-      integer:: ifvesatm,ispec,ifves,ifvesintloc
-      real(8):: vol,vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
-      real(8),allocatable::vesatm(:)
-!     ! === VBM CBM section. Mar2013takao === just output
-      print *,'--vbmonly mode'
-c      vol = lat_vol
-      open(newunit=ifvesintatm,file='vesintatm.'//trim(sname),status='old',err=9898)
-!! vesintatm is given by lmfa. electrostatic potential integrals.
-      allocate(vesatm(ctrl_nspec))
-      do ispec=1,ctrl_nspec
-         if(sspec(ispec)%z==0d0 .and. sspec(ispec)%rmt==0d0 ) cycle
-         read(ifvesintatm,*,err=9898,end=9898) vesatm(ispec)
-      enddo
-      close(ifvesintatm)
-      open(newunit=ifves,file='vessm.'//trim(sname),status='old')
-      read(ifves,*) vessm       !smooth part of electrostatic pot. given in smves.F. (es on MT average).
-      close(ifves)
-      open(newunit=ifvesintloc,file='vesintloc.'//trim(sname),status='old',err=9898)
-      sumvesloc=0d0
-      sumvesatm=0d0
-      do ib=1,nbas
-         ispec=ssite(ib)%spec
-         if(sspec(ispec)%z==0d0 .and. sspec(ispec)%rmt==0d0 )  cycle
-         read(ifvesintloc,*) vesloc
-         sumvesloc = sumvesloc + vesloc
-         sumvesatm = sumvesatm + vesatm(ssite(ib)%spec)
-      enddo   
-      close(ifvesintloc)
-      deallocate(vesatm)
-      write(*,*)
-c     print *,'vessm=',vessm
-      vref= sumvesatm/vol - vessm -sumvesloc/vol
-      write(*,"('### VBM: Add vref to eigval to estimate eV relative to vaccum. vref(eV)=',f12.6)") vref*Rydberg
-      write(*,"('### VBM: Mean estatic pot by superposition of atoms(eV)=',f12.6)")sumvesatm/vol*rydberg
-      if(cmdopt('--vbmonly',9,0,strn)) then
-         open(newunit=ifvbm,file='vbmcbm.'//trim(sname))
-         read(ifvbm,"(a)") vbmlll
-         print *,'readin vbmbm--> ',vbmlll
-         read(vbmlll(9:),*)evbm
-         read(vbmlll(30:),*)ecbm
-         read(vbmlll(59:),*)esold
-         write(*,*)evbm,ecbm,esold
-         evbm= evbm +sumvesatm/vol*rydberg-esold
-         ecbm= ecbm +sumvesatm/vol*rydberg-esold
-      elseif(lfill) then
-         evbm=(evtop+vref)*rydberg
-         ecbm=(ecbot+vref)*rydberg
-      else
-         evbm=(eferm+vref)*rydberg
-         ecbm=(eferm+vref)*rydberg
-      endif   
-      open(newunit=ifvbm,file='vbmcbm.'//trim(sname))
-      write(*,    "('### VBM: VBM= ',f12.6,' eV CBM= ',f12.6,' eV estatic_pot=',f12.6,' eV')")  
-     &     evbm, ecbm, sumvesatm/vol*rydberg
-      write(ifvbm,"('### VBM: VBM= ',f12.6,' eV CBM= ',f12.6,' eV estatic_pot=',f12.6,' eV')")  
-     &     evbm, ecbm, sumvesatm/vol*rydberg
-      close(ifvbm)
- 9898 continue
-      print *,' if vesintatm.'//trim(sname)//' ---> VBM: is not shown. Need to repeat new lmfa for VBM:'
-      end subroutine vbmmode
 !sssssssssssssssssssssssssssssssssssssssssssss
       subroutine writefs() !no output fermi surface mode (eigenvalues in full BZ). Not return variables.
       implicit none
@@ -2467,72 +2389,8 @@ c     print *,'vessm=',vessm
       close(ifi)
       close(ififm)
       end subroutine writefs
-!ssssssssssssssssssssssssssssssssssssssssssssssssssss      
-      subroutine getqmode()  !no output. getq mode just output. Not return variables.
-      implicit none
-      integer:: lmxa,nspec,is,ifiwv
-      real(8),allocatable::qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
-         print *,'get Q from ql given by lmf'
-         print *,'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
-         nspec=ctrl_nspec
-         lmxa = maxval(sspec(1:nspec)%lmxa)
-         allocate(qrmt(0:lmxa,nspec),qset(0:lmxa,nspec),qatot(nspec))
-         qrmt= -1d-10
-         open(newunit=ifiwv,file='veswavatm.'//trim(sname))
-         do is=1,nspec
-            read(ifiwv,*) qatot(is)
-            print *,'qatom tot=',qatot(is)
-            read(ifiwv,*)
-            do 
-               read(ifiwv,*)isp,il,npri,evll,qrmtx
-               if(isp==9) exit  !find terminator line for each atom in veswavatm file
-               if( isp > 1) cycle
-               if(evll<0d0) then
-                  if (qrmt(il,is) >1d-2) then
-                     call rx('not yet implemented when two per l (eg. 3d and 4d) are bounded')
-                  else     
-                     qrmt(il,is)=qrmtx
-                  endif
-               endif
-            enddo
-            do il=0,lmxa
-               if(qrmt(il,is)>0d0) print *, is,il,qrmt(il,is)
-            enddo   
-         enddo  
-         close(ifiwv)
-!! WARN. not averaged yet for given specs...
-         open(newunit=ifiqb,file='qbyl.'//trim(sname))
-         read(ifiqb,*)
-         allocate(ql(0:lmxa,nspec))
-         do ib=1,nbas
-            read(ifiqb,*)ibas,isp,idummy,qlx(0:lmxa)
-            is = ssite(ib)%spec
-            ql(0:lmxa,is)=qlx(0:lmxa)
-            write(6,"(' ibas ql=',i3,20f12.6)") ib,ql(0:lmxa,is)
-         enddo
-         do is=1,nspec
-            qsetsum=0d0
-            do il=0,lmxa
-               if(qrmt(il,is)<0d0) then
-                  qset(il,is)=0d0
-               else
-                  qset(il,is)= ql(il,is)/qrmt(il,is)
-                  qsetsum = qsetsum+qset(il,is)
-                  if(debug) print *,'ddddddddd ', is,il ,ql(il,is),qrmt(il,is),qset(il,is)
-               endif
-            enddo  
-            write(*,"('not renormalized ',i3,' Q=',12f12.4)")is, qset(0:lmxa,is)
-            qset = qatot(is)* qset/qsetsum
-            write(*,"('    renormalized     Q=',12f12.4)") qset(0:lmxa,is)
-         enddo
-         close(ifiqb)
-c      endif
-      end subroutine getqmode
       end subroutine bndfp
       end module m_bndfp
-
-
-      
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
 C- Collect eb from various processors (MPI)
