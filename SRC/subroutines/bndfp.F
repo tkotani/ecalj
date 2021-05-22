@@ -43,7 +43,7 @@
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig
-      use m_subzi, only: subzi
+      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize
@@ -186,18 +186,16 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
-     .  , i , iq , ismidb ,  ldos  !lmet !, nspc  , nsp
+     .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
      .  , lrep , ndos , ndos0 , nev , nevl 
-     .  , nkp  , numq , n1 , n2 , n3 , lwtkb , lswtk=0 !, nl 
-     .  , lgunit , igets , mpsord , nevmx ,  isw  !stdo , stdl 
+     .  , nkp  , n1 , n2 , n3 !,  lswtk=0 !, nl lwtkb ,
+     .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
-      real(8),allocatable :: rv_a_owtkb(:,:,:)
-      real(8),allocatable :: rv_a_oswtk(:)
       real(8) ,allocatable :: fh_rv(:)
 c      real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
@@ -227,10 +225,10 @@ c      type(s_rv1) :: sv_p_otau(3,nbas)
 c      type(s_rv1) :: sv_p_osig(3,nbas)
       double precision sigp(10)
 c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      double precision ef00,eferm,emax,emin,esmear,sev,
+      double precision ef00,eferm,emax,emin,esmearm,sev,
      .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,sumev(2,3),
-     .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,del,evtop,
+     .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
@@ -247,7 +245,7 @@ C     real(8),allocatable :: qpe(:,:)
 !!     for CLS
       integer nsitmx
       parameter (nsitmx = 256)
-      integer::  i1mach , icls , isite(nsitmx) , iclsl(nsitmx) 
+      integer::  i1mach , icls=0 , isite(nsitmx) , iclsl(nsitmx) 
      .  , iclsn(nsitmx)
       complex(8) ,allocatable :: ausc_zv(:)
 !!     for Mulliken
@@ -464,7 +462,6 @@ c mar2014
          write(ifiese,*)pwmode
          close(ifiese)
       endif 
-      ldos  = ctrl_ldos !0 or 1
       onesp = 0
       lrsig = ham_lsig  !12 for read sigma mode
       lfrzw = 0
@@ -493,17 +490,9 @@ c mar2014
       k1 = n1
       k2 = n2
       k3 = n3
-      nkp=   bz_nkp
-      mpsord=bz_n
-      esmear=bz_w
-      nevmx= bz_nevmx
+      nkp  = bz_nkp
       efmax= bz_efmax
-      if(debug) print *,'ttt nevmx w=',nevmx,esmear
-      esmear = esmear + iabs(mpsord)
-      if (mpsord .lt. 0) esmear = -esmear
-      mpsord = int(dabs(esmear))
-      if (esmear .lt. 0) mpsord = -mpsord
-      ndos= bz_ndos
+      ndos = bz_ndos
       if(bbinit) then !from m_lmfinit
          bz_dosw=bz_doswin
          bbinit=.false.
@@ -516,8 +505,7 @@ c mar2014
       endif
       ef0  = bz_ef
       def  = bz_def
-      ltet = ntet .gt. 0
-      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
+      ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
       lfrce= ctrl_lfrce
@@ -527,7 +515,7 @@ c mar2014
          lrout = 0
          lfrce = 0
          nkp = 0
-         numq = 1
+c         numq = 1
          allocate(ifbls_iv(ndhamx*2))
          ifbls_iv(:)=0
       else
@@ -556,26 +544,12 @@ c mar2014
 !! elind for accelarating convergence      
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
+!!Setup for BZ integration wtkb
+      if (plbnd==0) call m_subzi_init(lrout>0,nkp,ef0,def,bz_n,bz_w,eferm)
+      
 !! allocation for all eigenvalues 
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0
-!! --- Setup for BZ integration ---
-      if (plbnd==0) then
-         call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
-     .     nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
-     .     dabs(esmear-mpsord))
-         if(master_mpi) write(stdo,*)' Start first of two band passes ...'
-      else
-         nkp = 0
-         ldos = 0
-         lwtkb = -1
-         icls = 0
-      endif
-!!      
-      if(.not.(tdos .or. PROCARon)) then 
-         if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
-         lswtk = -2
-      endif
       
 !! --- More k-point independent local arrays ---
       if (ldos .eq. 0 .and. lmet .eq. 0) ndos = 1
@@ -929,7 +903,7 @@ c            massline=.false.
          frc(1:3,1:nbas*numq) = 0d0
          fh_rv= 0d0              ! 3 * nbas 
       endif
-      if (lswtk .eq. 1) then
+      if (lswtk==1) then
          efmax = 1d3
          nevmx = ndhamx
          call dpzero ( rv_a_oswtk , ndhamx * nkp )
@@ -1321,7 +1295,7 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
      .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
      .              , lekkl , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
      .              , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev
-     .              , ef0 , def , esmear , emin , emax , ndos , dos_rv , srout_zv 
+     .              , ef0 , def ,  emin , emax , ndos , dos_rv , srout_zv  !esmear ,
      .              , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
                  endif     
                endif
@@ -1746,8 +1720,8 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
                   i = 0
                   if (nevmx.ge.0 .and. lmet .ne. 0) then
                      dum = evl(max(nev_iq,1),jsp)
-                     if (.not. ltet .and. ef0+5*dabs(esmear-mpsord) .gt. dum) i=2
-                     if (lmet.eq.4 .and. ef0+def+5*dabs(esmear-mpsord).gt.dum)i=2
+                     if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
+                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
                   endif
                   if(i .eq. 2) then
                      write(6,"(a,f13.5,f13.5)")
@@ -1780,8 +1754,8 @@ c     .        , 1 , i_spackv + 1 - 1 , ips_iv )
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
-      if (ipr.gt.0) write (stdl,715) nkp,ebot,qval,qbg,esmear
- 715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  smr',f8.4)
+      if (ipr.gt.0) write (stdl,715) nkp,ebot,qval,qbg,bz_w
+ 715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)
       
 !! --- Interpolate density to Fermi energy ---
       sev = sumev(1,1)
@@ -1844,22 +1818,22 @@ c$$$            call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb,
 c$$$            if (allocated(ww_rv)) deallocate(ww_rv)
 c$$$         else
          dosrng = 8
-         if (mpsord .lt. 0) dosrng = 16
+         if (bz_n .lt. 0) dosrng = 16
          if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
          if(bz_fsmommethod == 1) then !takao dec2010
 !     ! vnow june22013 !vnow !(in Ry) contains magnetic field
 !     ! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
             call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
-     .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
+     .            , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
          else
 !     ! vnow june22013
             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
-     .           fsmom , lmet.ne.0 , ltet , mpsord , ndos , dabs ( esmear - mpsord 
-     .           ) , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
+     .           , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
          endif
 !     ! june2013 magfield is added
@@ -1959,23 +1933,21 @@ c      if(.not. lwndow .and. master_mpi) then
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
-               if(tdos) dosw(2) = dosmax + eferm !.or.pdos (dos between dosw(1) and dosw(2)
+               if(tdos) dosw(2) = dosmax + eferm 
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
                if ( ndos0 > 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
-               del = 0d0
             else
                if(tdos) dosw(2) = dosmax + eferm  !.or.pdos
-               if ( mpsord .ge. 100) mpsord = mod(mpsord,100)
+c               if ( bz_n .ge. 100) bz_n = mod(bz_n,100)
                if ( ndos0 > 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
-     .           , rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .           , rv_a_owtkp , evlall , bz_n , bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
                if ( ndos0 < 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
-     .           , rv_a_owtkp , evlall , mpsord , dabs ( esmear - mpsord ) 
+     .           , rv_a_owtkp , evlall , bz_n , bz_w 
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-               del = mpsord+dabs(esmear-mpsord)
             endif
             if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
             open(newunit=ifi,file='dos.tot.'//trim(sname))

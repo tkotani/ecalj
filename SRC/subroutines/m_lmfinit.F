@@ -1524,8 +1524,8 @@ c     .        note='Assign PL potential index to this site')
      .     'To be used in conjunction with W= ; see next')
       nm='BZ_W'; call gtv(trim(nm),tksw(prgnam,nm),bz_w,
      .     def_r8=5d-3,note=
-     .     'N>=0: Line broadening for sampling integration%N%3f'//
-     .     'N<0 : Temperature for Fermi distribution (Ry)')
+     .     'If BZ_N>=0, Line broadening for sampling integration%N%3f'//
+     .     'If BZ_N<0,  Temperature for Fermi distribution (Ry)')
       nm='BZ_EF0'; call gtv(trim(nm),tksw(prgnam,nm),bz_ef0,
      .     def_r8=0d0,note='Initial guess at Fermi energy')
       nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,

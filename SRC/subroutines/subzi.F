@@ -1,8 +1,19 @@
       module m_subzi
+      integer:: nevmx,lwtkb=-1
+      real(8),allocatable :: rv_a_owtkb(:,:,:)
+      
+      integer,protected:: numq=1, lswtk=0,ldos=0
+c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
+      real(8),allocatable,protected :: rv_a_oswtk(:)
+
       contains
-      subroutine subzi(lmet,ltet,lwt,ndham,nsp,nspc,nkp,zval,nevmx,
-     .     lwtkb,efermi,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,esmear)
-      use m_ext,only:sname
+      subroutine m_subzi_init(lwt,nkp, ef0,def, mpsord,esmear, efermi)
+      use m_ext,only: sname
+      use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,ctrl_ldos,stdo
+      use m_mkqp,only: ntet=> bz_ntet 
+      use m_suham,only: ndham=>ham_ndham
+      use m_mkpot,only:  qval
+      use m_MPItk,only: master_mpi
 C- Brillouin-integration setup
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -15,7 +26,7 @@ Ci         :4 BZ integration with 3-point scheme
 Ci   ltet  :T allocate space for tetrahedron weights
 Ci   lwt   :F weights are not needed until all bands are obtained
 Ci         :T weights are needed a priori (eg output density generated)
-Ci   ndham :leading dimension of owtkb, oevl, oswtk
+Ci   ndham :leading dimension of owtkb, oswtk
 Ci         :Hamiltonian should not exceed this dimension
 Ci   nsp   :2 for spin-polarized case, otherwise 1
 Ci   nkp   :number of irreducible k-points (bzmesh.f)
@@ -34,7 +45,6 @@ Co         :1 weights are required a priori, and are read from disk
 Co         :-1 weights are required a priori, but were not read
 Co   efermi:(lwtkb=1) Fermi level corresonding weights; otherwise
 Co         :efermi is set to -99.
-Co   oevl  :memory is allocated for energy bands
 Co   owtkb :memory is allocated for integration weights, and they
 Co         :are possibly read from disk.
 Co         :Not allocated if lwtkb=0.
@@ -74,17 +84,28 @@ Cu   11 Oct 02 (ATP) MPI
 Cu   21 Mar 01 Added printout; argument list changed
 Cu   23 Jan 01 set numq=3 for lmet=4 always
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
-      logical ltet,lwt
-      integer lmet,ndham,nsp,nspc,nkp,lwtkb,lswtk,numq,nevmx,mpsord,ifile_handle
-      real(8),allocatable :: rv_a_owtkb(:,:,:)
-      real(8),allocatable :: rv_a_oswtk(:)
+      implicit none
+      logical ltet,lwt,tdos,cmdopt0,PROCARon
+      integer nkp,mpsord,ifile_handle
+c      real(8),allocatable :: rv_a_owtkb(:,:,:)
+c      real(8),allocatable :: rv_a_oswtk(:)
       double precision zval,ef0,def,esmear,efermi
-      integer ifi,lerr,iobzwt,iprint,stdo,lgunit,isw,n
+      integer ifi,lerr,iobzwt,iprint,isw,n
       character*11 strni(2)
       integer procid,master,mpipid
       data strni /'sampling','tetrahedron'/
+      real(8):: qbg
+
+      if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
+      if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
+
+      qbg = ctrl_zbak(1)        !homogenious background charge
+      zval=qval-qbg
+      ltet = ntet>0
+      ldos  = ctrl_ldos !0 or 1
+      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
+      
+      nevmx=nevmxin
       procid = mpipid(1)
       master = 0
       n = isign(1,mpsord) * mod(iabs(mpsord),100)
@@ -137,7 +158,7 @@ c     gives nevmx=   9   0   18.000000000000000   90      1
       endif
 C ... Printout
       if (nevmx .ge. 0 .and. iprint() .gt. 30) then
-        stdo = lgunit(1)
+c        stdo = lgunit(1)
         if (lmet .gt. 0) then
           call awrit0('%N subzi: '//strni(isw(ltet)+1)//
      .    '%a integration of bands; '//
@@ -155,7 +176,15 @@ C ... Printout
         endif
         write(stdo,'(1x)')
       endif
-      end subroutine subzi
+!!      
+      tdos = cmdopt0('--tdos')
+      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+      if(.not.(tdos .or. PROCARon)) then 
+         if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
+         lswtk = -2
+      endif
+      
+      end subroutine m_subzi_init
       end module m_subzi
 
       integer function iobzwt(mode,nevx,nq,nsp,efermi,wtkb,ifi)

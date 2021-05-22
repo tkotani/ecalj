@@ -1,5 +1,6 @@
-      subroutine mkewgt(lmet,wgt,qval,ndimh,evl,ef0,def,esmear,
-     .numq,nevec,ewgt,sumev,sumqv)
+      subroutine mkewgt(lmet,wgt,qval,ndimh,evl,ef0,def,!esmear-->BZ_W and BZ_N instead,
+     .     numq,nevec,ewgt,sumev,sumqv)
+      use m_lmfinit,only: bz_w,bz_n
 C- State-dependent weights for sampling BZ integration.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -15,7 +16,7 @@ Ci   evl   :eigenvalues
 Ci   ef0   :trial Fermi level
 Ci   def   :uncertainty in Fermi level; quantities are accumulated for
 Ci         :ef0-def, ef0, ef0+def
-Ci   esmear:Parameter that describes gaussian broadening.
+Ci   esmear:Parameter that describes gaussian broadening. 
 Ci         :Integer part >0 for for generalized gaussian broadening
 Ci         :and is the the Methfessel-Paxton integration order
 Ci         :Fractional part is the broadening width.
@@ -43,7 +44,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer lmet,ndimh,nevec,numq
-      double precision def,ef0,esmear,qval,wgt
+      double precision def,ef0,qval,wgt !esmear,
       double precision evl(ndimh),ewgt(numq,1),sumev(2,3),sumqv(3)
 C ... Local parameters
       integer stdo,lgunit,i,i1,i2,ie,iprint,iq,k,nord
@@ -73,8 +74,10 @@ C --- Nonmetal case ---
 C --- Metal case: require three fermi levels ---
       else
         if (numq .ne. 3) call rxi('mkewgt: metal but numq=',numq)
-        width = dabs(esmear) - int(dabs(esmear))
-        nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
+c        width = dabs(esmear) - int(dabs(esmear))
+c        nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
+        width= abs(bz_w)
+        nord = bz_n
         nevec = 0
         do  ie = 1, ndimh
           wx = 0d0

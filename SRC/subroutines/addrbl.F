@@ -3,7 +3,7 @@ CSFCPP#define F90 1
      .     nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
      .     , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
      .     , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def , esmear 
+     .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def !, esmear 
      .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
      .     , sv_p_oeqkkl , f )
       use m_suham,only: iv_a_oindxo
@@ -55,8 +55,8 @@ Ci   evl   :eigenvalues
 Ci   nev
 Ci   ef0   :estimate for fermi level
 Ci   def   :When lmet=4, charge also accmulated for ef0+def and ef0-def
-Ci   esmear:(sampling integration) gaussian broadening
-Ci         :sign and integer part are extensions; see mkewgt.f
+Cixx   esmear:(sampling integration) gaussian broadening
+Cixx         :sign and integer part are extensions; see mkewgt.f
 Ci   emin  :energy lower bound when adding to sampling dos
 Ci   emax  :energy upper bound when adding to sampling dos
 Ci   ndos  :number of energy mesh points
@@ -92,7 +92,7 @@ C ... Passed parameters
       integer isp,nsp,nspc,iq,k1,k2,k3,ldos,lmet,lrout,lwtkb,lswtk,
      .lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
       integer nevl
-      double precision def,ef0,emax,emin,esmear,qval,vconst,wtkp(*)
+      double precision def,ef0,emax,emin,qval,vconst,wtkp(*)
       real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
      ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
       type(s_site)::ssite(*)
@@ -157,7 +157,7 @@ C ... Case band weights not passed: make sampling weights
       if (lwtkb .eq. 0) then
         call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
         wgt = abs(wtkp(iq))/nsp
-        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def,esmear,numq,
+        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def,numq, !!esmear
      .  nevec,ewgt,sumev,sumqv(1,isp))
         call dscal(nevec*numq,wgt,ewgt,1)
 C ... Case band weights are passed
@@ -173,7 +173,7 @@ C ... Case band weights are passed
 
 C ... Add to sampling dos
       if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
-     .emin,emax,esmear,ndos,dos(1,1,isp))
+     .emin,emax,ndos,dos(1,1,isp)) !,esmear
 
 C ... Force from smooth analytic hamiltonian and overlap
       if (lfrce .gt. 0 .and. lrout .gt. 0) then
@@ -272,7 +272,8 @@ CSFCPP#endif
       end subroutine addrbl
 
 
-      subroutine addsds(ndimh,evl,wgt,emin,emax,esmear,ndos,dos)
+      subroutine addsds(ndimh,evl,wgt,emin,emax,ndos,dos) !,esmear
+      use m_lmfinit,only: bz_w,bz_n
 C- Add to sampling dos
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -306,8 +307,10 @@ C ... Passed parameters
 C ... Local parameters
       integer nord,ie,i1,i2,i
       double precision width,de,eigval,ei,sn,dn,fn,x
-      width = dabs(esmear) - int(dabs(esmear))
-      nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
+c      width = dabs(esmear) - int(dabs(esmear))
+c     nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
+      width= abs(bz_w)
+      nord = bz_n
       de = (emax-emin)/(ndos-1)
       do  ie = 1, ndimh
         eigval = evl(ie)
