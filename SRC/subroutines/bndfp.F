@@ -25,7 +25,7 @@
       subroutine bndfp(
      .     leks,lrout,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
-      use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
+      use m_supot,only: zv_a_osmrho,sv_a_oorhat
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
@@ -48,6 +48,10 @@
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize
       use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
+     o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o     , vval_rv , fes1_rv 
       
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
@@ -195,39 +199,39 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       real(8),allocatable :: rv_a_owtkb(:,:,:)
       real(8),allocatable :: rv_a_oswtk(:)
       real(8) ,allocatable :: fh_rv(:)
-      real(8) ,allocatable :: fes1_rv(:)
+c      real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
-      real(8) ,allocatable :: gpot0_rv(:)
-      real(8) ,allocatable :: hab_rv(:)
+c      real(8) ,allocatable :: gpot0_rv(:)
+c      real(8) ,allocatable :: hab_rv(:)
       real(8) ,allocatable :: hbyl_rv(:,:,:)
-      real(8) ,allocatable :: ppnl_rv(:,:,:,:)
+c      real(8) ,allocatable :: ppnl_rv(:,:,:,:)
       real(8) ,allocatable :: qbyl_rv(:,:,:)
-      real(8) ,allocatable :: qmom_rv(:)
-      real(8) ,allocatable :: sab_rv(:)
+c      real(8) ,allocatable :: qmom_rv(:)
+c      real(8) ,allocatable :: sab_rv(:)
       complex(8) ,allocatable :: srout_zv(:)
       complex(8) ,allocatable :: t_zv(:,:)
-      real(8) ,allocatable :: vab_rv(:)
+c      real(8) ,allocatable :: vab_rv(:)
       real(8) ,allocatable :: qm1_rv(:)
       real(8) ,allocatable :: qm2_rv(:)
-      real(8) ,allocatable :: vval_rv(:)
+c      real(8) ,allocatable :: vval_rv(:)
       real(8) ,allocatable :: ww_rv(:)
       complex(8) ,allocatable :: ww_zv(:)
       integer ,allocatable :: ips_iv(:)
       real(8) ,allocatable :: orbtm_rv(:)
       integer ,allocatable :: ifbls_iv(:)
       type(s_rv1) :: sv_p_orhat1(3,nbas)
-      type(s_rv1) :: sv_p_oppi(3,nbas)
+c      type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_oeqkkl(3,nbas)
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-      type(s_rv1) :: sv_p_otau(3,nbas)
-      type(s_rv1) :: sv_p_osig(3,nbas)
+c      type(s_rv1) :: sv_p_otau(3,nbas)
+c      type(s_rv1) :: sv_p_osig(3,nbas)
       double precision sigp(10)
 c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
-     .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,def,ef0,ehar,eks,
+      double precision ef00,eferm,emax,emin,esmear,sev,
+     .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,sumev(2,3),
      .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,del,evtop,
-     .  ecbot,vrmt(nbas),rsrnge,xv(20),dosrng,dval !,eomin
+     .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
       integer,allocatable:: igv2x(:,:)
@@ -516,7 +520,7 @@ c mar2014
       if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
-      lfrce=ctrl_lfrce
+      lfrce= ctrl_lfrce
 !!  Switch to plot bands at specified qp
       if(cmdopt0('--band').or.fullmesh) then
          plbnd = 1
@@ -540,48 +544,21 @@ c mar2014
          open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
          if(master_mpi) call writeham_init(ififft) !ififft is file handle returned.
       endif      
-!! Make the potential sans XC part ---
-      if(llmfgw) then        ! GW driver mode
+!! Make one-particle potential without XC part for GWdriver---
+      if(llmfgw) then        
          call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA).
 #if MPIK
          call mpi_barrier(MPI_comm_world,ierr)
 #endif        
       endif
-      
-!! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
-!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
-      i = 1 + 10*lfrzw   
-      if (cmdopt0('--wrhomt')) then
-         i = i + 10000 !write rhomt mode
-      else if (cmdopt0('--wpotmt')) then
-         i = i + 20000 !write potmt mode
-      endif
-      if(llmfgw) i = i + 10000
-      call togpr()
-!! Arrays used in the generation of the potential ---
-      allocate(  qmom_rv(nvl))
-      allocate( gpot0_rv(nvl))
-      allocate( vval_rv(nchan))
-      allocate(  hab_rv(nab*n0*nsp*nbas))
-      allocate(  vab_rv(nab*n0*nsp*nbas))
-      allocate(  sab_rv(nab*n0*nsp*nbas))
-      allocate( ppnl_rv(nppn,n0,nsp,nbas))
-      allocate( fes1_rv(3*nbas))
-      call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
-      call mkpot (lfrce,
-     i    zv_a_osmrho, sv_a_oorhat , qbg  
-     o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o  , vval_rv , fes1_rv , i , vorb )
-      call togpr()
+!! Generate one-body potential and energy-related quantities. See use m_mkpot:
+      call m_mkpot_init(llmfgw,vorb) 
 !! elind for accelarating convergence      
-      elind = ham_elind
-      if(elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
+      if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !! allocation for all eigenvalues 
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0
-      
 !! --- Setup for BZ integration ---
       if (plbnd==0) then
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
@@ -2203,15 +2180,8 @@ ccccccccccccccccccccccccc
       if (allocated(qm1_rv)) deallocate(qm1_rv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
-      if (allocated(fes1_rv)) deallocate(fes1_rv)
-      if (allocated(ppnl_rv)) deallocate(ppnl_rv)
-      if (allocated(sab_rv)) deallocate(sab_rv)
-      if (allocated(vab_rv)) deallocate(vab_rv)
-      if (allocated(hab_rv)) deallocate(hab_rv)
-      if (allocated(vval_rv)) deallocate(vval_rv)
-      if (allocated(gpot0_rv)) deallocate(gpot0_rv)
-      if (allocated(qmom_rv)) deallocate(qmom_rv)
       if (allocated(ifbls_iv)) deallocate(ifbls_iv)
+      call m_mkpot_deallocate()
       deallocate(evlall)
  9995 continue
       call tcx('bndfp')

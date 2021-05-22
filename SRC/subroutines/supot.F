@@ -2,7 +2,7 @@
       use m_struc_def,only: s_rv1
       type(s_rv1), allocatable ::  sv_a_oorhat(:,:) !pointers to atom densities
       complex(8) , allocatable ::  zv_a_osmrho (:)
-      complex(8) , allocatable ::  zv_a_osmpot (:)
+c      complex(8) , allocatable ::  zv_a_osmpot (:)
 
       complex(8) , allocatable,protected ::  zv_a_obgv (:)
       integer , allocatable,protected ::  iv_a_oips0 (:)
@@ -82,10 +82,10 @@ C   ... Make list of lattice vectors within cutoff
 
 !! allocate array for iteration
         allocate(zv_a_osmrho(k1*k2*k3*nsp))
-        allocate(zv_a_osmpot(k1*k2*k3*nsp))
+c        allocate(zv_a_osmpot(k1*k2*k3*nsp))
         allocate(sv_a_oorhat(3,nbas))
         zv_a_osmrho(:)=0d0
-        zv_a_osmpot(:)=0.0d0
+c        zv_a_osmpot(:)=0.0d0
       endif
       end subroutine supot
       end module m_supot
