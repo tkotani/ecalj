@@ -27,10 +27,10 @@
      .     leks,lrout,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
+      
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
-      
       use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
      &     bz_dosmax,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
@@ -77,7 +77,7 @@ Ci   maxit :maximum number of iterations
 Ci   evl   :work array holding band eigenvalues for current spin, qp
 Cio LDA+U inputs and outputs
 Cio  dmatu :density matrix for LDA+U (changed upon output)
-Cio  vorb  :orbital dependent LDA+U potential
+Ci  vorb  :orbital dependent LDA+U potential
 Co Outputs
 Co   frc   :forces.  Only calculated if lfrce>0.
 Co         :If leks<2, forces are HF  forces
@@ -376,22 +376,21 @@ c mar2014
       logical,save:: siginit=.true. 
       character(10):: i2char
       character(50)::infoq
-      integer::ipos,ndos_,j,ififft
+      integer::ipos,ndos_,j
       real(8)::dosmax,emaxp_,posp(3)
       integer:: jspend,jspini,jspp
-      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ifih,ist,ip,ni,ix
+      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ist,ip,ni,ix
 
       integer,allocatable:: npair(:,:), nlat(:,:,:,:),ib_table(:),k_table(:),l_table(:)
       integer::npairmx,ikpd,ifqplist
       integer,allocatable:: nqwgt(:,:,:)
       real(8):: tpioa,pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
-      character*4:: cccx
 
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: phispinsym,ljobgw
-      integer:: nr,lmxl,nlml,nelt1,nelt2,nso
+      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ififft,ifih
       character*8:: charext
       logical:: lfill=.false.,ixx
       
@@ -424,8 +423,8 @@ c mar2014
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
       fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
       fsmode   = cmdopt0('--fermisurface')
-      allband  = cmdopt0('--allband')
       if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
+      if(nlibu>0) dmatu=0d0 !dmat initialization
 !! fsmode: Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       if(fsmode) fullmesh=.true.
       nkk1=bz_nabc(1)
@@ -458,24 +457,18 @@ c mar2014
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
-      if(size(ham_ldham)/=size(ldham))call rx("bndfp:size(ham_ldham)/=size(ldham)")
+      if(size(ham_ldham)/=size(ldham)) call rx("bndfp:size(ham_ldham)/=size(ldham)")
       pwmode = ham_pwmode
       if (master_mpi) then
          open(newunit=ifiese,file='PWMODE')
          write(ifiese,*)pwmode
          close(ifiese)
       endif 
-c      pwemin = ham_pwemin
-c      pwemax = ham_pwemax
       ldos  = ctrl_ldos !0 or 1
-c      epsovl = ham_oveps
       onesp = 0
       lrsig = ham_lsig  !12 for read sigma mode
-      if(ham_frzwf)then
-         lfrzw = 1  !freeze all augmentation wave
-      else
-         lfrzw = 0
-      endif
+      lfrzw = 0
+      if(ham_frzwf) lfrzw = 1  !freeze all augmentation wave
       nspec = ctrl_nspec
       if (master_mpi) then
          inquire(file='sigm.'//trim(sname),exist=nexist)
@@ -529,11 +522,11 @@ c      epsovl = ham_oveps
       def  = bz_def
       ltet = ntet .gt. 0
       if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
-      qbg = ctrl_zbak(1)
+      qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
       lfrce=ctrl_lfrce
 !!  Switch to plot bands at specified qp
-      if (cmdopt0('--band').or.fullmesh) then
+      if(cmdopt0('--band').or.fullmesh) then
          plbnd = 1
          lrout = 0
          lfrce = 0
@@ -552,83 +545,20 @@ c      epsovl = ham_oveps
 !! Write out Hamiltonian stated at jan2018kaist
       writeham= cmdopt0('--writeham')
       if(writeham) then
-        open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-        if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are not used yet...
-          nkp = nkk1*nkk2*nkk3
-          allocate(qplist(3,nkp))
-          iq=0
-          do ik3=1,nkk3
-          do ik2=1,nkk2
-          do ik1=1,nkk1
-             iq=iq+1
-             qplist(:,iq) =  qlat(:,1)*dble(ik1-1)/nkk1
-     &        +   qlat(:,2)*dble(ik2-1)/nkk2
-     &        +   qlat(:,3)*dble(ik3-1)/nkk3
-          enddo
-          enddo
-          enddo
-          do ip=1,nkp
-            write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
-          enddo
-          allocate(npair(nbas,nbas))!,pos(3,nbas))
-c          pos = rv_a_opos
-          npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
-          do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
-            npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1
-            allocate( nlat(3,npairmx,nbas,nbas), nqwgt(npairmx,nbas,nbas) )
-            call gennlat(pos,nbas,plat,nkk1,nkk2,nkk3,npairmx,ok,npair,nlat,nqwgt)
-            if(ok) exit
-            deallocate( nlat, nqwgt )
-          enddo
-          print *,'We got nlat and nqwgt'
-          do ib1=1,nbas
-          do ib2=1,nbas
-              write(6,"(3i8,' !ib1 ib2 npair -------------')") ib1,ib2,npair(ib1,ib2)
-c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('buggg:qwgt sum is not unity')
-              do ni = 1,npair(ib1,ib2) 
-                posp =  pos(:,ib1)-pos(:,ib2) + matmul(plat,nlat(:,ni,ib1,ib2)) ! R_i+T - R_j
-                rrrr = sqrt(sum(posp**2))
-                write(6,"(i6,3x,3i4,i3,x,f8.3)") ni, nlat(1:3,ni,ib1,ib2),nqwgt(ni,ib1,ib2),rrrr
-              enddo
-          enddo
-          enddo
-          open(newunit=ififft,file='HamiltonianPMTInfo',form='unformatted')
-          write(ififft) plat,nkk1,nkk2,nkk3,nbas,qlat
-          write(ififft) pos,alat
-          write(ififft) qplist
-          write(ififft) npair,npairmx
-          write(ififft) nlat,nqwgt
-!! delta fun check: k --> T --> k 
-!!     \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
-          ikpd=1
-          do ikp=1,nkp
-            qp = qplist(:,ikp) - qplist(:,ikpd)
-          do ib1=1,nbas
-          do ib2=1,nbas
-            aaaa=0d0
-            do ni = 1,npair(ib1,ib2) 
-                aaaa =  aaaa + 1d0/(nkp*nqwgt(ni,ib1,ib2))*exp(img*2d0*pi* sum(qp*matmul(plat,nlat(:,ni,ib1,ib2))))
-            enddo
-            cccx=''
-            if(ikp==ikpd) cccx=' <--'
-            write(6,"('\delta-fun test',3f10.4,2i3,2f23.15,a)") qplist(:,ikp),ib1,ib2,aaaa,cccx
-          enddo
-          enddo
-          enddo
-          deallocate(npair)
-        endif
-      endif
-!! --- Define local arrays used in the generation of the potential ---
-      allocate(qmom_rv(nvl))
-      allocate(gpot0_rv(nvl))
-      allocate(vval_rv(nchan))
-      allocate(hab_rv(nab*n0*nsp*nbas))
-      allocate(vab_rv(nab*n0*nsp*nbas))
-      allocate(sab_rv(nab*n0*nsp*nbas))
-      allocate(ppnl_rv(nppn,n0,nsp,nbas))
-      allocate(fes1_rv(3*nbas))
-!! dfaugm alllocates variables for sig,tau,ppi integrals
-      call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi )
+         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
+         if(master_mpi) call writeham_init(ififft) !ififft is file handle returned.
+      endif   
+!! Arrays used in the generation of the potential ---
+      allocate(  qmom_rv(nvl))
+      allocate( gpot0_rv(nvl))
+      allocate( vval_rv(nchan))
+      allocate(  hab_rv(nab*n0*nsp*nbas))
+      allocate(  vab_rv(nab*n0*nsp*nbas))
+      allocate(  sab_rv(nab*n0*nsp*nbas))
+      allocate( ppnl_rv(nppn,n0,nsp,nbas))
+      allocate( fes1_rv(3*nbas))
+      call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
+      
 !! Make the potential sans XC part ---
       jobgw=-999
       if(llmfgw) then ! only for lmfgw program
@@ -640,28 +570,28 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
             read (5,*) jobgw
             if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
          endif
-!! --- generate potential without XC. This mkep to obtain
          if(jobgw/=0) then
-            write(stdo,"(a)")' Make potential without XC part ...'
-            lnoxc=1
-            i = 1 + 10*lfrzw + 100*lnoxc ! Adding 100 means excluding XC(LDA) part. nolxc=T
-              ! We obtain sv_p_osigx , sv_p_otaux , sv_p_oppix smpotx without XC by the 'call mkpot'.
-              ! Other output are overwritten by the 2nd call of mkpot 
-            call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix)
-            allocate(spotx(k1,k2,k3,nsp))
+            write(stdo,"(a)")' Making one-particle potential without XC part ...'
+            call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
+            allocate(spotx(k1,k2,k3,nsp)) !smooth potential without XC
             spotx=0d0
-            call mkpot ( 0, !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
-     &           zv_a_osmrho , sv_a_oorhat , qbg , spotx 
-     .           , qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     .           , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .           , vval_rv , fes1_rv , i , vorb ) !, nlibu , lmaxu , lldau , nsp,0 )
+            i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
+! We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
+! Other output are overwritten by the 2nd call of mkpot 
+            call mkpot (0, !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
+     i           zv_a_osmrho , sv_a_oorhat , qbg  
+     o           , spotx, qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
+     o           , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o           , vval_rv , fes1_rv , i , vorb ) !, nlibu , lmaxu , lldau , nsp,0 )
          endif
 #if MPI|MPIK
          call mpi_barrier(MPI_comm_world,ierr)
          call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
 #endif        
       endif
-C --- Make the potential and total energy terms ---
+      
+!! Make the potential and total energy terms ---
+!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
       i = 1 + 10*lfrzw   
       if (cmdopt0('--wrhomt')) then
          i = i + 10000 !write rhomt mode
@@ -669,21 +599,22 @@ C --- Make the potential and total energy terms ---
          i = i + 20000 !write potmt mode
       endif
       if(llmfgw) i = i + 10000
-!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
       call togpr()
-      call mkpot (lfrce, zv_a_osmrho, sv_a_oorhat , qbg  
+      call mkpot (lfrce,
+     i    zv_a_osmrho, sv_a_oorhat , qbg  
      o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o  , vval_rv , fes1_rv , i , vorb )
       call togpr()
+!! elind for accelarating convergence      
       elind = ham_elind
-      if (elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
+      if(elind .lt. 0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*elind
       dmxp(33) = elind
+!! allocation for all eigenvalues 
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0 
-
 !! --- Setup for BZ integration ---
-      if (plbnd .eq. 0) then
+      if (plbnd==0) then
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
      .     nevmx,lwtkb,eferm,rv_a_owtkb,numq,lswtk,rv_a_oswtk,ef0,def,mpsord,
      .     dabs(esmear-mpsord))
@@ -694,12 +625,12 @@ C --- Make the potential and total energy terms ---
          lwtkb = -1
          icls = 0
       endif
-c      if(lwtkb /= -1) call rx('bndfp: we need lwtkb=-1')
-c      if(numq/=1)     call rx('bndfp: we need numq=1')
-      if(.not.(tdos .or. PROCARon)) then !if(ndimh*nspc /= nevl) then 
+!!      
+      if(.not.(tdos .or. PROCARon)) then 
          if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
          lswtk = -2
       endif
+      
 !! --- More k-point independent local arrays ---
       if (ldos .eq. 0 .and. lmet .eq. 0) ndos = 1
       if (ndos .lt. 0) ndos = -ndos
@@ -800,7 +731,7 @@ c         if(allocated(orbtm_rv)) deallocate(orbtm_rv)
 !! fatband mode ---> --mkprocar
 !! plbnd/=0 ---> band plot mode.
       if(debug) write(*,*) 'bndfp: uuuuuuu1111111'
-      if(allocated(qplist)) deallocate(qplist)
+c      if(allocated(qplist)) deallocate(qplist)
       if( master_mpi .and. plbnd==0) then
          allocate(qplist(3,nkp))
          call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
@@ -1334,7 +1265,7 @@ ccccccccccccccccccccccccccccccc
               write(6,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
             endif  
 #endif
-!  ! save to evall
+!  ! save to evlall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
             
@@ -1718,7 +1649,7 @@ c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_z
            enddo
            write(ifi,"(3f15.8,i10)") qvec,ncount
            do iband=1,nbandx
-              if(evlall(iband,jsp,iq)>1d98) cycle !evall=1d99 is dummy
+              if(evlall(iband,jsp,iq)>1d98) cycle !evlall=1d99 is dummy
               write(ifi,"(d23.16)") evlall(iband,jsp,iq)
            enddo   
         enddo
@@ -1776,13 +1707,12 @@ c         nkaph = globalvariables%nkaph
       call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
 #endif
 
-
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
       if(plbnd .ne. 0) then
          if (master_mpi) then
             print *,'procid=',procid
 !! fermi surface mode together with band data around Ef (Okumura, 2019/11/14)
-            if(fsmode) call writefs()
+            if(fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
 !! write bands directly. All inputs
             write(stdo,*)' Writing bands to bands file ...'
             if(nsyml/=0) then
@@ -2243,7 +2173,7 @@ c          print *,'goto mkpot procid=',procid
      &          srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .        , vval_rv , fes2_rv , 0 , vorb )
+     .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
 
            if(cmdopt('--density',9,0,strn)) then
 #ifdef MPIK
@@ -2319,78 +2249,11 @@ ccccccccccccccccccccccccc
       call tcx('bndfp')
       return
 !! end of bndfp
-
-
-
-      
-      
-!sssssssssssssssssssssssssssssssssssssssssssss
-      contains
-!sssssssssssssssssssssssssssssssssssssssssssss
-      subroutine writefs() !no output fermi surface mode (eigenvalues in full BZ). Not return variables.
-      implicit none
-      integer:: i,isp,ififm,ifile_handle,nbxx
-      i=nsp
-      if(nspc==2) i=1
-      do isp=1,i
-         ifi=ifile_handle()
-         if(isp==1) open(ifi, file='fermiup.bxsf')
-         if(isp==2) open(ifi, file='fermidn.bxsf')
-         ififm=ifile_handle()
-         if(isp==1) open(ififm, file='fermiup.data') 
-         if(isp==2) open(ififm, file='fermidn.data')
-         write(ififm,*) " # Generated by bndfp.F with --fermisurface"
-         write(ififm,*) " # q-point is reduced in 1st BZ"
-         write(ifi,*) "BEGIN_INFO"
-         write(ifi,*) " # usage xcrysden --bxsf fermiup.bxsf"
-         write(ifi,*) " # http://www.xcrysden.org/doc/XSF.html#2l.16"
-         write(ifi,'(a,f9.5)') "  Fermi Energy:",ef0
-         write(ififm,'(a,f9.5)') "  # Fermi Energy [eV]:",ef0
-         write(ififm,*) " # qshort(3) band_energy[eV]"
-         write(ifi,*) "END_INFO"
-         write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
-         write(ifi,*)"  this_is_for_xcrysden"
-         write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
-         nbxx=0
-         do ib=1,ndhamx
-            if(allband.or.(minval(evlall(ib,isp,:))<ef0+0.5.and.
-     &           maxval(evlall(ib,isp,:))>ef0-0.5)) then
-               nbxx=nbxx+1
-            endif  
-         enddo
-         write(ifi,"(4x,i8)") nbxx
-         write(ifi,"(4x,3i8)") nkk1,nkk2,nkk3
-         write(ifi,"(4x,3(f9.5,1x))") 0d0,0d0,0d0
-         write(ifi,"(4x,3(f9.5,1x))") qlat(:,1)
-         write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
-         write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
-         call shortn3_initialize(qlat,rlatp,xmx2)
-         do ib=1,ndhamx 
-            if(allband.or.(minval(evlall(ib,isp,:))<ef0+0.5.and.
-     &           maxval(evlall(ib,isp,:))>ef0-0.5)) then
-               write(ifi,"(a,i8)")"  BAND: ",ib    
-               write(ififm,"(a,i8)")"  # BAND: ",ib    
-               write(ifi,"(3x,10(x,f9.5))")
-     &              (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
-! to reduce q-point to qshort
-               do iq=1,nkk1*nkk2*nkk3
-                  ppin=matmul(transpose(plat),qplist(:,iq))
-                  call shortn3(rlatp,xmx2,qplist(:,iq),noutmx, nout,nlatout)
-                  iout=1
-                  qshort(1:3)=  matmul(qlat(:,:), ppin+nlatout(:,iout))
-                  write(ififm,"(4f13.5)") qshort(:),evlall(ib,isp,iq) !q-point reduced to 1stBZ
-               enddo
-            endif  
-         enddo
-         write(ifi,*)
-         write(ifi,*)"  END_BANDGRID_3D"
-         write(ifi,*)"END_BLOCK_BANDGRID_3D"
-      enddo
-      close(ifi)
-      close(ififm)
-      end subroutine writefs
       end subroutine bndfp
       end module m_bndfp
+
+
+      
 #if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
 C- Collect eb from various processors (MPI)

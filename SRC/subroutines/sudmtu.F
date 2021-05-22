@@ -110,12 +110,9 @@ C --- Read in dmatu if file  dmats.ext  exists ---
           do  ib = 1, nbas
             if (lldau(ib) .ne. 0) then
               is = int(ssite(ib)%spec)
-
-
               lmxa=sspec(is)%lmxa
               i_copy_size=size(sspec(is)%idu)
               call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
-
               do l = 0, min(lmxa,3)
                 if (idu(l+1) .ne. 0) then
                   iblu = iblu+1

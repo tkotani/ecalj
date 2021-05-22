@@ -11,7 +11,7 @@
      &     lat_vol,lat_nkd,lat_awald,lat_nkq
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_ext,only: sname
-      use m_MPItk,only: procid,master,mlog
+      use m_MPItk,only: procid,master,mlog,master_mpi
       use m_iors,only: Iors
       use m_supot,only: Supot,k1,k2,k3
       use m_suham,only: m_suham_init
@@ -81,6 +81,7 @@ C     33 : Lindhard screening parameter
       plat = lat_plat
       qlat = lat_qlat
       if(ipr>=30) call praugm(sspec,0) !Printout properties of species
+
 !! Setup for charge mixing
       dmxp= 0d0
       dmxp(2)=mix_b
@@ -89,7 +90,8 @@ C     33 : Lindhard screening parameter
       dmxp(3) = mix_wc
       dmxp(6) = int(mix_nsave)
       dmxp(7) = int(mix_mmix)
-      call parms0(0,0,0d0,0) !reset mixing block
+      call parms0(0,0,0d0,0)    !reset mixing block
+      
 !! for force      
       if(ctrl_lfrce/=0 ) then
         numq = 1
@@ -110,7 +112,7 @@ C     33 : Lindhard screening parameter
           allocate(w_rv(nvrelx*nvrelx))
           allocate(p_rv(pdim))
         endif
-        if(procid==master) then
+        if(master_mpi) then
            open(newunit=ifipos,file='AtomPos.'//trim(sname),form='unformatted',status='new')
            write(ifipos) nbas
            write(ifipos) itrlx,rv_a_opos
@@ -118,7 +120,7 @@ C     33 : Lindhard screening parameter
       endif
 !!=== Re-entry for lshr (share mode); but share mode is currently commented out.
 !!   (probably share mode should be recovered outside of fortran)
-      if(procid==master) write(stdo,*)' lmfp : potential and basis setup ... '
+      if(master_mpi) write(stdo,*)' lmfp : potential and basis setup ... '
 ! --- Monopole Madelung matrix (kept for something in future).
       if(.false.) then
         allocate(rv_a_omad(nbas**2))
@@ -152,15 +154,13 @@ C     33 : Lindhard screening parameter
         maxit = 1
       endif
 !! LDA+U initialization
-      i = 1
-      if( nlibu>0 ) i=nsp*nlibu*(lmaxu*2+1)**2
-      allocate(vorbdmat(i),dmatu(i),dmato(i))
-      vorbdmat = 0d0
-      dmatu = 0d0
-      dmato = 0d0
-      if(nlibu>0) then ! need group info to symmetrize site density matrix
-        call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext ng , rv_a_osymgr ,
-        if( ctrl_quit==16 ) call rx0('quit = dmat')
+      if( nlibu>0 )then
+         i=nsp*nlibu*(lmaxu*2+1)**2
+         allocate(vorbdmat(i),dmatu(i),dmato(i))
+         call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
+         if( ctrl_quit==16 ) call rx0('quit = dmat')
+      else !dummy   
+         allocate(vorbdmat(1),dmatu(1),dmato(1))
       endif
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
@@ -176,15 +176,14 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
       elseif ( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
          lbin = (irs1x==1) ! lbin=T:rst for --rs=1, or lbin=F:rsta for --rs=2,
          k = -1
-         if(procid==master) then
+         if(master_mpi) then
             ifi=ifile_handle() 
             if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
          call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-         k = iors (nit1 , lbin , ifi ) ! read rst file. sspec ssite modified
-                                       !bz_w in iros removed
-         if (procid==master) close(ifi) 
+         k = iors (nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
+         if (master_mpi) close(ifi) 
          call mpibc1(k,1,2,mlog,'lmfp','k')
          do ibas=1,nbas 
             rv_a_opos(:,ibas) = ssite(ibas)%pos
@@ -197,41 +196,35 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
             call smshft(1)
          endif
       endif  
+!!  tolerances for convergence check. q charge and e energy
+      qtol = ctrl_tol(1)
+      etol = ctrl_tol(3)
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
-      do 2000 itrlx = 1,max(1,nitrlx) ! for atomic position relaxiation (molecular dynamics) ===
-         do 1000 iter = 1,max(1,maxit)! for electronic structure ===
-!! ... Write positions after file read
-            if(ipr .ge. 50) then
-               write(stdo,357) 'Basis, after reading restart file'
- 357           format(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
-     .              'pos (multiples of plat)')
-               do i = 1, nbas
-                  j=ssite(i)%spec
-                  xv(1:3)=ssite(i)%pos
-                  alabl=sspec(j)%name
-                  call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-                  write(stdo,345) i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
- 345              format(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)
-               enddo
-            endif
-!!  Reset density matrix dmatu --> previous dmato
-            if (nlibu> 0) then
-               dmato=dmatu
-               dmatu=0d0
-            endif
+      do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
+         if( ipr>=50 ) then ! Write atom positions 
+            write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
+     &           'pos (multiples of plat)')") 'Basis, after reading restart file'
+            do i = 1, nbas
+               xv(1:3)=ssite(i)%pos
+               alabl=sspec(ssite(i)%spec)%name
+               call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
+               write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
+            enddo
+         endif
+         
+         do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
 !! Make and diagonalize hamiltonian, make new charge density ---
-!!    vorbdmat: (U - couter part) potential of LDA+U
             if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
+            if(nlibu>0) dmato=dmatu !nlibu: size of density matrix for LDA+U
             call bndfp( leks, lrout, dmxp, iter, maxit, frc_rv, dmatu, vorbdmat, llmfgw)
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
-! --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+!   --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
-            if (procid== master.and. ctrl_quit/=4) then
-ccc !!  Suppress saving rst file in the middle of a shear (irlxsh > 0) !irrelevant, kept as memo
-               if (irs2>0 .and. (lrout>0 .or. maxit==0) .and. irlxsh==0) then
+            if(master_mpi .and. ctrl_quit/=4) then
+               if (irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
                   lbin = irs2/=2
                   ifi = ifile_handle() 
                   if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
@@ -244,26 +237,23 @@ ccc !!  Suppress saving rst file in the middle of a shear (irlxsh > 0) !irreleva
             if (maxit<=0) goto 9998
             etot(1) = ham_ehf
             etot(2) = ham_ehk+eorb 
-            seref   = ham_seref   !   ... Subtract reference energy
+            seref   = ham_seref !   ... Subtract reference energy
             etot(1) = etot(1) - seref
             if (etot(2)/=0) etot(2) = etot(2) - seref
             amom = ham_eterms(15)
-!!  The desired tolerances in q,e
-            qtol = ctrl_tol(1)
-            etol = ctrl_tol(3)
 #if MPI|MPIK
             flush(6)
             call mpi_barrier(MPI_COMM_WORLD,ierr)
 #endif
-            if (procid==master) then
+            if (master_mpi) then
                rhosig = ham_eterms(19)
                i = 0
                if (rhosig/=-99 .and. rhosig/=0) i = 10
-! kino's memo for call nwit              
-!   lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
-!         :1 if not self-consistent, but encountered max. no. iter.
-!         :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
-!         :3 otherwise
+!     nwit : kino's memo
+!     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
+!     :1 if not self-consistent, but encountered max. no. iter.
+!     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
+!     :3 otherwise
                call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
      &              leks+i, etol, qtol, dmxp(11), 'cxhi', amom, etot, lsc)
             endif
@@ -274,8 +264,8 @@ ccc !!  Suppress saving rst file in the middle of a shear (irlxsh > 0) !irreleva
                if (iter .lt. maxit) lsc = 3
             endif
             if( ctrl_quit==4 ) call rx0 ( 'lmf : exit (--quit=band)' )
-            if(lsc <= 2) exit !lsc is self-consistency switch
- 1000    continue ! ---------------- SCF (iteration) loop end ----
+            if( lsc <= 2) exit   !self-consistency exit
+ 1000    continue               ! ---------------- SCF (iteration) loop end ----
          if (nitrlx==0) exit
          
 !! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
@@ -284,25 +274,21 @@ ccc !!  Suppress saving rst file in the middle of a shear (irlxsh > 0) !irreleva
             ssite(ibas)%pos0 = ssite(ibas)%pos
             pos_move(:,ibas) = ssite(ibas)%pos
          enddo
-         mdprm = ctrl_mdprm !MD prm
-!! Relax atomic positions.   !shear mode removed. probably outside of fortran code if necessary
-         call relax ( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx , nvrelx , frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
-!!--- we removed a procedure at apr2021 2020
-!!  Updated positions in site structure !WARN! t.kotani think this is confusing because
-!!  CAUTION: 'positions written in ctrl' and 'positions written in rst' can be different.
-         if(procid==master) write(ifipos) itrlx,pos_move
+         mdprm = ctrl_mdprm !MD setting
+!! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
+         call relax( ssite , sspec , itrlx , indrx_iv 
+     .        , natrlx, nvrelx, frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
+!!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
+!!        'positions written in ctrl' and 'positions written in rst' can be different.
+         if(master_mpi) write(ifipos) itrlx,pos_move
          do ibas=1,nbas
-            ssite(ibas)%pos = pos_move(:,ibas)
+            ssite(ibas)%pos = pos_move(:,ibas) !warn
          enddo
 C     ... Exit when relaxation converged or maximum number of iterations
          if (icom==1) then !takao 
-            if (procid .eq. master) then
-               k = int(ctrl_nvario)
+            if (master_mpi) then
                flg = 'C67' !what? 
-               call nwitsv(1+2,k,flg,nsp,amom,etot)
-            endif
-            if ( procid==master) then
+               call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot)
                call tcx('lmfp')
                call fexit(0,111,' LMFP: relaxation converged after %i iteration(s)',itrlx)
             else
@@ -358,11 +344,11 @@ C     ... Restore minimum gradient positions if this is last step
          if (allocated(wk_rv)) deallocate(wk_rv)
          if (allocated(pos_move)) deallocate(pos_move)
       endif 
-      if(procid==master.and.nitrlx>0) close(ifipos)
-      if (allocated(ftot_rv)) deallocate(ftot_rv)
-      if (allocated(p_rv)) deallocate(p_rv)
-      if (allocated(w_rv)) deallocate(w_rv)
-      if (allocated(indrx_iv)) deallocate(indrx_iv)
-      if (allocated(frc_rv)) deallocate(frc_rv)
+      if(master_mpi.and.nitrlx>0) close(ifipos)
+      if(allocated(ftot_rv)) deallocate(ftot_rv)
+      if(allocated(p_rv)) deallocate(p_rv)
+      if(allocated(w_rv)) deallocate(w_rv)
+      if(allocated(indrx_iv)) deallocate(indrx_iv)
+      if(allocated(frc_rv)) deallocate(frc_rv)
       call tcx('lmfp')
       end subroutine lmfp
