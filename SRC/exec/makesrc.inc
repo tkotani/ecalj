@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_lmfgw.o\
 writefs.o\
 writeham.o\
 vbmmode.o\

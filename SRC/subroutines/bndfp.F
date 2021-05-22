@@ -13,7 +13,6 @@
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: bz_ef,bz_def ! revised when called.
       logical,private:: binit=.true.,bbinit=.true.
-      integer,parameter:: n0=10, nppn=12, nab=9
       
       contains
       subroutine m_bndfp_ef_set(bz_ef00,bz_def00) !from iors when rst is read.
@@ -27,12 +26,11 @@
      .     leks,lrout,dmxp,iter,maxit, frc, 
      .     dmatu,vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,zv_a_osmpot,sv_a_oorhat
-      
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
       use m_hamindex, only: napwmx,ngrp,norbmto,ibastab,ltab,ktab,offl, symops_af,symops
-      use m_lmfinit, only: ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,bz_fsmom,
-     &     bz_dosmax,bz_nevmx,bz_lmet,bz_fsmommethod,bz_n,
+      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,fsmom=>bz_fsmom,
+     &     bz_dosmax,bz_nevmx,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
      &     ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
@@ -41,14 +39,16 @@
      &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
-      use m_mkqp,only: bz_nabc, bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+      use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig
       use m_subzi, only: subzi
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
-      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize 
+      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize
+      use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
+      
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -182,12 +182,12 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
-     .  , i , iq , ismidb ,  ldos , lmet !, nspc  , nsp
-     .  , lrep , nkabc(3) , ndos , ndos0 , nev , nevl 
-     .  , nkp  , numq , n1 , n2 , n3 , ntet , lwtkb , lswtk=0 !, nl 
+     .  , i , iq , ismidb ,  ldos  !lmet !, nspc  , nsp
+     .  , lrep , ndos , ndos0 , nev , nevl 
+     .  , nkp  , numq , n1 , n2 , n3 , lwtkb , lswtk=0 !, nl 
      .  , lgunit , igets , mpsord , nevmx ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
-     .  , nfilem , iobzwt , lrsig ,  jobgw , nll, lnoxc !, lpdiag lwsig  , 
+     .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
      .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
       real(8) ,allocatable :: dos_rv(:,:)
@@ -221,17 +221,13 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
-      type(s_rv1) :: sv_p_oppix(3,nbas)
-      type(s_rv1) :: sv_p_otaux(3,nbas)
-      type(s_rv1) :: sv_p_osigx(3,nbas)
-      integer:: ospotx , osgw
       double precision sigp(10)
 c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmear,qval,qsc,sev,
      .  sev00,sev1,sumtv,alfa,vconst,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,sumev(2,3),
      .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,del,evtop,
-     .  ecbot,vrmt(nbas),fsmom,rsrnge,xv(20),dosrng,dval !,eomin
+     .  ecbot,vrmt(nbas),rsrnge,xv(20),dosrng,dval !,eomin
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
       integer,allocatable:: igv2x(:,:)
@@ -291,7 +287,7 @@ ctakao
       real(8):: qpx(3)          !qpo(3),
 
       integer:: iqini,iqend
-      complex(8),allocatable:: spotx(:,:,:,:),smrhobk(:)
+      complex(8),allocatable:: smrhobk(:)
       real(8),allocatable:: evlall(:,:,:),evl(:,:),dwgtall(:,:,:,:,:)
       integer:: idummy
       real(8):: epsnevec
@@ -393,7 +389,6 @@ c mar2014
       integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ififft,ifih
       character*8:: charext
       logical:: lfill=.false.,ixx
-      
 !! ----------------------------
       call tcn ('bndfp')
 !! vbmmode =Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
@@ -427,14 +422,17 @@ c mar2014
       if(nlibu>0) dmatu=0d0 !dmat initialization
 !! fsmode: Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       if(fsmode) fullmesh=.true.
-      nkk1=bz_nabc(1)
-      nkk2=bz_nabc(2)
-      nkk3=bz_nabc(3)
+      nkk1=nkabc(1)
+      nkk2=nkabc(2)
+      nkk3=nkabc(3)
+!!      
       savez=.false.
       getz =.false.
       if (maxit==0) return
       napw = 0
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
+      idummy = unlink('RSEQ_ERROR') !the error flag in rseq. Remove RSEQ_ERROR here because
+                        ! this error is only fatal when it is finaly converged. takaoNov28_2010
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
       if(nspc==2.and.nsp==2) then !nspc==2
@@ -452,8 +450,6 @@ c mar2014
       else
          call rx('bndfp: nspc==2 but nsp=1')
       endif
-      idummy = unlink('RSEQ_ERROR') !the error flag in rseq. Remove RSEQ_ERROR here because
-                        ! this error is only fatal when it is finaly converged. takaoNov28_2010
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
@@ -493,15 +489,11 @@ c mar2014
       k1 = n1
       k2 = n2
       k3 = n3
-      nkabc= bz_nabc
       nkp=   bz_nkp
-      ntet=  bz_ntet
-      lmet=  bz_lmet 
       mpsord=bz_n
       esmear=bz_w
       nevmx= bz_nevmx
       efmax= bz_efmax
-      fsmom= bz_fsmom
       if(debug) print *,'ttt nevmx w=',nevmx,esmear
       esmear = esmear + iabs(mpsord)
       if (mpsord .lt. 0) esmear = -esmear
@@ -537,17 +529,35 @@ c mar2014
       else
          plbnd = 0
       endif
-!! == PROCAR file 
+!! PROCAR files 
       if(PROCARon)            open(newunit=iprocar1,file='PROCAR.UP.'//trim(strprocid))
-      if(PROCARon.and.nsp==2) open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))
+      if(PROCARon.and.nsp==2) open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))     
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized
+      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian stated at jan2018kaist
       writeham= cmdopt0('--writeham')
       if(writeham) then
          open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
          if(master_mpi) call writeham_init(ififft) !ififft is file handle returned.
-      endif   
+      endif      
+!! Make the potential sans XC part ---
+      if(llmfgw) then        ! GW driver mode
+         call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA).
+#if MPIK
+         call mpi_barrier(MPI_comm_world,ierr)
+#endif        
+      endif
+      
+!! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
+!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
+      i = 1 + 10*lfrzw   
+      if (cmdopt0('--wrhomt')) then
+         i = i + 10000 !write rhomt mode
+      else if (cmdopt0('--wpotmt')) then
+         i = i + 20000 !write potmt mode
+      endif
+      if(llmfgw) i = i + 10000
+      call togpr()
 !! Arrays used in the generation of the potential ---
       allocate(  qmom_rv(nvl))
       allocate( gpot0_rv(nvl))
@@ -558,48 +568,6 @@ c mar2014
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
       allocate( fes1_rv(3*nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
-      
-!! Make the potential sans XC part ---
-      jobgw=-999
-      if(llmfgw) then ! only for lmfgw program
-         if(master_mpi) then
-            write(stdo,*) ' lmfgw: input one of the following jobs:'
-            write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
-            write(stdo,*) '   1 : GW setup mode'
-            write(stdo,*) ' job 0 or 1?'
-            read (5,*) jobgw
-            if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
-         endif
-         if(jobgw/=0) then
-            write(stdo,"(a)")' Making one-particle potential without XC part ...'
-            call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
-            allocate(spotx(k1,k2,k3,nsp)) !smooth potential without XC
-            spotx=0d0
-            i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
-! We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
-! Other output are overwritten by the 2nd call of mkpot 
-            call mkpot (0, !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
-     i           zv_a_osmrho , sv_a_oorhat , qbg  
-     o           , spotx, qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     o           , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o           , vval_rv , fes1_rv , i , vorb ) !, nlibu , lmaxu , lldau , nsp,0 )
-         endif
-#if MPI|MPIK
-         call mpi_barrier(MPI_comm_world,ierr)
-         call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
-#endif        
-      endif
-      
-!! Make the potential and total energy terms ---
-!! mkpot calls locpot. and locpot calls augmat. augmat calculates sig,tau,ppi.
-      i = 1 + 10*lfrzw   
-      if (cmdopt0('--wrhomt')) then
-         i = i + 10000 !write rhomt mode
-      else if (cmdopt0('--wpotmt')) then
-         i = i + 20000 !write potmt mode
-      endif
-      if(llmfgw) i = i + 10000
-      call togpr()
       call mkpot (lfrce,
      i    zv_a_osmrho, sv_a_oorhat , qbg  
      o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
@@ -612,7 +580,8 @@ c mar2014
       dmxp(33) = elind
 !! allocation for all eigenvalues 
       allocate( evlall(ndhamx,nspx,nkp))
-      evlall = 0d0 
+      evlall = 0d0
+      
 !! --- Setup for BZ integration ---
       if (plbnd==0) then
          call subzi(lmet,ltet,lrout.gt.0,ndham,nsp,nspc,nkp,qval-qbg,
@@ -646,7 +615,7 @@ c      if(allocated(frc)) deallocate(frc)
       call suham2(sspec,ssite)
 !! --- Options for core level specta (CLS) ---
       if (cmdopt('--cls',5,0,strn)) then
-         if (lmet /=2) call rx('For CLS restart with METAL=2')
+         if (lmet/=2) call rx('For CLS restart with METAL=2')
          icls = 1
          clsopt = strn(6:)
          efmax = 1d3
@@ -934,7 +903,6 @@ c            massline=.false.
      .     , vrmt , spotx    , sv_p_osigx, sv_p_otaux, sv_p_oppix, jobgw 
      .     , nk1,nk2,nk3,sigmamode,ndimsig, numprocs,procid,master)!,lso) 
 ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
-         deallocate(spotx)
          call tcx('bndfp')
 #if MPIK
          call mpi_barrier(MPI_COMM_WORLD,ierr) 
