@@ -1,7 +1,9 @@
-      subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
-
-      use m_struc_def  !Cgetarg
-
+c     subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
+!! sspec%ngcut      
+      subroutine sugcut(mode,sspec)
+      use m_struc_def           !Cgetarg
+      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0
+      use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -29,23 +31,19 @@ Cu    9 May 00 Adapted from nfp su_gvcut.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer mode,nspec,ng,i_copy_size
-      real(8):: alat , gv(ng,3) , tol
+      integer mode,i_copy_size
       type(s_spec)::sspec(*)
-
 C ... Local parameters
-      integer nkap0,n0
-      parameter (nkap0=3,n0=10)
-      integer ncut(n0,nkap0),lh(nkap0)
+c      integer nkap0,n0
+c      parameter (nkap0=3,n0=10)
+      integer ngcut(n0,nkap0),lh(nkap0)
       integer stdo,lgunit,ipr,iprint,is,irep,icut,i,ik,l,lcut,nkapi,
      .nkap1,nkap2
       double precision rsmh(n0,nkap0),eh(n0,nkap0),tpi,tpiba2,gg0,gg,
      .e,rsm,gam,gmax,top
       character*8 spid
       character*1 ccc,ccl
-
       if (ng .eq. 0) return
-
       stdo = lgunit(1)
       ipr = iprint()
       tpi = 8d0*datan(1d0)
@@ -56,31 +54,24 @@ C ... Local parameters
         write(stdo,774)
   887   format(/' sugcut:  make orbital-dependent reciprocal vector',
      .  ' cutoffs for tol=',1p,e9.2)
-  888   format(/' sugcut:  orbital-dependent cutoffs for local',
-     .  ' orbitals, tol=',1p,e9.2)
+  888   format(/' sugcut:  orbital-dependent cutoffs for local',' orbitals, tol=',1p,e9.2)
       endif
-
       gg = -1
       do  is = 1, nspec
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         spid = sspec(is)%name
         nkap1 = 1
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        if (mode .gt. 1) then
+        if (mode>1) then
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
-          if (mode .eq. 2) nkap1 = nkapi+1
+          if(mode==2) nkap1 = nkapi+1
         else
           nkap2 = nkapi
         endif
-        call iinit(ncut,n0*nkap0)
-        if ( mode .eq. 2 ) then
-
+        ngcut=0 !call iinit(ngcut,n0*nkap0)
+        if (mode==2 ) then
           i_copy_size=size(sspec(is)%ngcut)
-          call icopy(i_copy_size,sspec(is)%ngcut,1,ncut,1)
+          call icopy(i_copy_size,sspec(is)%ngcut,1,ngcut,1)
         endif
-
         gg0 = gg
         do  ik = nkap1, nkap2
           lcut = -1
@@ -117,20 +108,15 @@ C     ... Find first longer vector, icut is one less
               if (icut .eq. ng) ccc = '*'
               ccl = ' '
               if (l .lt. lcut) ccl = '*'
-              if (ipr .ge. 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,
-     .        top,icut,ccc
+              if (ipr .ge. 20) write(stdo,773) spid,l,ccl,rsm,e,gmax,top,icut,ccc
   773         format(2x,a,i2,a1,f7.2,f7.2,f8.3,1p,e12.2,0p,i8,a)
-  774         format(' spec      l    rsm',4x,'eh',5x,'gmax',
-     .        4x,'last term',4x,'cutoff')
-              ncut(l+1,ik) = icut
+  774         format(' spec      l    rsm',4x,'eh',5x,'gmax',4x,'last term',4x,'cutoff')
+              ngcut(l+1,ik) = icut
             endif
           enddo
         enddo
-
         i_copy_size=size(sspec(is)%ngcut)
-        call icopy(i_copy_size,ncut,1,sspec(is)%ngcut,1)
-c        sspec(is)%ngcut = ncut
+        call icopy(i_copy_size,ngcut,1,sspec(is)%ngcut,1)
       enddo
       end subroutine sugcut
-
-
+      

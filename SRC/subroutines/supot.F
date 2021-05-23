@@ -6,8 +6,8 @@ c      complex(8) , allocatable ::  zv_a_osmpot (:)
 
       complex(8) , allocatable,protected ::  zv_a_obgv (:)
       integer , allocatable,protected ::  iv_a_oips0 (:)
-      real(8) , allocatable,protected ::  rv_a_ogv (:)
-      integer , allocatable,protected ::  iv_a_okv (:)
+      real(8) , allocatable,protected ::  rv_a_ogv (:,:)
+      integer , allocatable,protected ::  iv_a_okv (:,:)
       real(8),protected:: lat_gmax
       integer,protected:: lat_ng,lat_nabc(3),k1 , k2 , k3 
       contains
@@ -60,8 +60,8 @@ C   ... Generate energy cutoff gmax or n1..n3
         call mshsiz(alat,plat,0,gmax,ngabc,ngmx)
         call fftz30(n1,n2,n3,k1,k2,k3)
 C   ... Make list of lattice vectors within cutoff
-        allocate(rv_a_ogv(abs(ngmx*3)))
-        allocate(iv_a_okv(abs(ngmx*3)))
+        allocate(rv_a_ogv(ngmx,3))
+        allocate(iv_a_okv(ngmx,3))
         call gvlst2(alat, plat, wdummy, n1,n2,n3, 0d0,gmax,0,8, ngmx, ng, iv_a_okv, rv_a_ogv, xx, xx)
         if (ng /= ngmx) then
           print *,' gmax,ng ngmx=',gmax,ng,ngmx

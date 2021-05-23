@@ -168,13 +168,13 @@ C         Find largest lmxa
       ham_lmxax=lmxax
       pot_nlma=nvi
       pot_nlml=nvl
-
+      alat=lat_alat
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
-      ng=lat_ng
-      alat=lat_alat
-      tolgv=lat_tolft
-      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
+c      ng=lat_ng
+c      tolgv=lat_tolft
+c      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
+      call sugcut ( 1 , sspec) !modify sspec%ngcut
 
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension

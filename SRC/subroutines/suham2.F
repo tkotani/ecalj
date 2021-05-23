@@ -1,24 +1,12 @@
-      subroutine suham2(sspec,ssite)!,spot) !,sstrn) removed june2015,sham slat,
+      subroutine suham2(sspec) 
       use m_supot,only:rv_a_ogv
       use m_struc_def
       use m_lmfinit,only: nspec
-
-
       use m_lmfinit,only: lat_alat,lat_tolft
       use m_supot,only: lat_ng
-
-
 C- Further hamiltonian setup after potential generated
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   sctrl :struct for program flow parameters; see routine uctrl
-Ci     Elts read: lfp
-Ci     Stored:
-Ci     Passed to:
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: ng ogv alat tolft
-Ci     Stored:
-Ci     Passed to:
 Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read:
 Ci     Stored:
@@ -37,32 +25,17 @@ Cu Updates
 Cu   16 Aug 04 First created
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-c      type(s_ctrl)::sctrl
-c      type(s_lat)::slat
       type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-c      character*(*) sstrn
-C ... Local parameters
-c      integer nglob
-C ... Needed for
       integer:: ng , i
       double precision alat,tolgv,dum
-C --- Setup ---
-c      lfp=sctrl%lfp
-c      nspec = globalvariables%nspec
-C --- FP setup ---
-c      if (lfp .ne. 0) then
-        call uspecb(0,0,sspec,1,nspec,dum,dum,dum,i)
+        call uspecb(0,0,sspec,1,nspec,dum,dum,dum,i)!if i>=100
+                                     !nkape  :100s  digit 1 if local orbital of 2nd type exists
         if (i .ge. 100) then
           ng=lat_ng
           alat=lat_alat
           tolgv=lat_tolft
-          call sugcut ( 2 , nspec , sspec , alat , ng , rv_a_ogv , tolgv )
+          call sugcut ( 2 , sspec) !nspec , sspec , alat , ng , rv_a_ogv , tolgv )
         endif
-c      endif
       end subroutine suham2
 
 

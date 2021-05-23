@@ -37,7 +37,7 @@
      &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix,
-     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec
+     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,bz_nkp,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -546,24 +546,24 @@ c         numq = 1
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
       if (plbnd==0) call m_subzi_init(lrout>0,nkp,ef0,def,bz_n,bz_w,eferm)
-      
-!! allocation for all eigenvalues 
+!! allocation for all eigenvalues  More k-point independent local arrays ---
       allocate( evlall(ndhamx,nspx,nkp))
       evlall = 0d0
-      
-!! --- More k-point independent local arrays ---
-      if (ldos .eq. 0 .and. lmet .eq. 0) ndos = 1
-      if (ndos .lt. 0) ndos = -ndos
+      if (ldos==0 .and. lmet==0) ndos = 1
+      ndos = abs(ndos)
       allocate(dos_rv(ndos,2*nsp))
-      if (lrout .ne. 0) then
-         call dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
-         if ( lekkl .eq. 1 ) call dfqkkl ( nbas , ssite , sspec , numq , sv_p_oeqkkl )
-         allocate(srout_zv(k1*k2*k3*numq*nsp))
-         allocate(fh_rv(3*nbas))
-         allocate(fes2_rv(3*nbas))
+      if (lrout/=0) then
+         call dfqkkl( sv_p_oqkkl )
+         if(lekkl==1) call dfqkkl( sv_p_oeqkkl )
+         allocate( srout_zv(k1*k2*k3*numq*nsp) )
+         allocate( fh_rv(3*nbas)  )
+         allocate( fes2_rv(3*nbas))
       endif
-c      if(allocated(frc)) deallocate(frc)
-      call suham2(sspec,ssite)
+!   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
+!   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
+c      call suham2(sspec)
+      if(lpztail) call sugcut(2, sspec) !sspec%ngcut
+        
 !! --- Options for core level specta (CLS) ---
       if (cmdopt('--cls',5,0,strn)) then
          if (lmet/=2) call rx('For CLS restart with METAL=2')

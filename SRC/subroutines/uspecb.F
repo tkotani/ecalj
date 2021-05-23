@@ -1,8 +1,6 @@
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nkaph
-
-
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -25,7 +23,7 @@ Ci                   local orbitals
 Ci            mode=2 returns rsmh,eh in last channel corresponding to
 Ci                   loc. orb. (rsmh>0 for extended loc. orbs; else 0)
 Ci                   and sets nkape to nkaph
-Ci            mode=3 intended for local orbitals of the second type
+Ci            xxxmode=3 intended for local orbitals of the second type
 Ci                   NOT IMPLEMENTED
 Ci            mode=4 only returns envelope information about
 Ci                   local orbitals in rsmh(*,1),eh(*,1)
@@ -54,7 +52,7 @@ Cio        :mode=2: 1 added to nkape if local orbitals are included.
 Co         :When called with mode=0, nkape returns the following:
 Co         :1s    digit always zero
 Co         :10s   digit 1 if local orbital of first type exists
-Co         :100s  digit 1 if local orbital of 2nd type exists
+Co         :100s  digit 1 if local orbital of 2nd type exists +10 mode
 Cl Local variables
 Cl   npzi  :1 if there are extended local orbitals AND mode>1
 Cl         :0 otherwise
@@ -83,23 +81,19 @@ C ... Passed parameters
       real(8):: rsmh(n0,nkap0,is1:is2) , eh(n0,nkap0,is1:is2)
       type(s_spec)::sspec(*)
       character spid*8
-      integer is,lmxb,ikap,kkap,nkapi,i,j,k,l,npzi,lpzi,
-     .lpzl,npze,lmxa
+      integer is,lmxb,ikap,kkap,nkapi,i,j,k,l,npzi,lpzi,lpzl,npze,lmxa
       double precision orbp(n0,2,nkap0),dasum,pnz(n0,2)
       if (mode .eq. -1) then
-c        nkaph = globalvariables%nkaph
         return
-      else if (mode .eq. 0) then
+      elseif (mode .eq. 0) then
         i = 0
         j = 0
         l = 0
         do  is = is1, is2
-
           lmxa=sspec(is)%lmxa
           lmxb=sspec(is)%lmxb
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-
           if (lmxa .gt. -1) then
             do  k = 1, lmxb+1
               if (pnz(k,1) .gt.  0) i = 1
@@ -109,39 +103,27 @@ c        nkaph = globalvariables%nkaph
           endif
         enddo
         nkape = 10*i+100*j+1000*l
-
       elseif (mode .le. 4) then
-
-
         if (mode .eq. 3) call rx('uspecb: mode=3 not implemented')
-
         if (lpack .eq. 0) then
           nkape = 0
           npze = 0
         endif
         do  is = is1, is2
-c          do i_spacks=is,is
-c            call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c          enddo
           spid=sspec(is)%name
           call dpzero(orbp,n0*nkap0*2)
-
           i_copy_size=size(sspec(is)%orbp)
           call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
           lmxb=sspec(is)%lmxb
           i_copy_size=size(sspec(is)%pz)
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-
-
 C   --- Unpack ---
           if (lpack .eq. 0) then
-
             do  ikap = 1, nkap0
               kkap = ikap
               if (mode .eq. 4) kkap = 1
               lh(kkap,is) = -1
             enddo
-
 C     ... make nkapi,npzi
             lpzi = 0
             do  k = 1, lmxb+1
@@ -153,7 +135,6 @@ C     ... make nkapi,npzi
             enddo
             npzi = 0
             if (lpzi .gt. 1 .and. (mode.ge.2 .and. mode.le.4)) npzi = 1
-
 C     ... Count number of envelope energy channels nkapi (<=nkaph).
 C         There are the following possibilities:
 C         1. energy channel nkaph is a local orbital
@@ -171,9 +152,6 @@ C         Cases 1b and 2 both handled by checking for rsmh=0 in channel.
               nkapi = nkapi - 1
               if (nkapi .gt. 0) goto 10
             endif
-C          print *, '!!'
-C          call dpzero(orbp(1,1,1),n0*2)
-
 C     ... unpack rsmh,eh; make lh
             if (mode .eq. 4) then
               call dpzero(eh(1,1,is),n0)
@@ -204,7 +182,6 @@ C         If no channel has orbital, eliminate kappa
             do  ikap = nkapi, 1, -1
               if (lh(ikap,is) .eq. -1) nkapi = nkapi-1
             enddo
-
 C     ... lh for local orbital
             kkap = nkaph
             if (mode .eq. 4) kkap = 1
@@ -213,10 +190,8 @@ C     ... lh for local orbital
                 lh(kkap,is) = l
               endif
             enddo
-
             nkape = max(nkape,nkapi)
             npze = max(npze,npzi)
-
 C   --- Pack ---
           else
             if (mode .ge. 2) call rx('mode>1 not allowed for write')
@@ -231,30 +206,17 @@ C   --- Pack ---
                 call dcopy(n0,eh(1,kkap,is),  1,orbp(1,2,ikap),1)
               endif
             enddo
-
-C          do  ikap = 1, nkaph
-C            write(*,'(i3,''  RSMH='',4f9.4,''  EH='',4f9.4)')
-C     .        ikap,(orbp(l,1,ikap),l=1,4),(orbp(l,2,ikap),l=1,4)
-C          enddo
-
-
             i_copy_size=size(sspec(is)%orbp)
             call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
-
-
           endif
-
         enddo
-
         if (lpack .eq. 0) then
           if (npze.ne.0 .and. mode .eq. 2) nkape=nkaph
           if (npze.ne.0 .and. mode .eq. 4) nkape=1
         endif
-
       else
         call rxi('uspecb: mode not implemented, mode',mode)
       endif
-
       end subroutine uspecb
 
 

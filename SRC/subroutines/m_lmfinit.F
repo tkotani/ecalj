@@ -115,6 +115,14 @@
      &     lat_dist0(1:9)=0d0,lat_gam(1:4)=[0d0,0d0,1d0,1d0], !no deformation. See lattic
      &     ctrl_mdprm(6),
      &     bz_doswin(2) 
+      integer,protected:: lekkl,lcplxp
+      integer,protected:: lmaxu,nlibu
+      integer,allocatable,protected::lldau(:)
+      logical,protected:: lpztail=.false.
+      
+      real(8):: ham_eterms(20)
+      type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
+      type(s_site),allocatable:: v_ssite(:)
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      
@@ -128,13 +136,7 @@ c      real(8)::    ham_ehf,  ! bndfp to lmfp
 c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
 c     &     lat_gmax, !supot
 c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
-      real(8):: ham_eterms(20)
-      type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
-      type(s_site),allocatable:: v_ssite(:)
       
-      integer,protected:: lekkl,lcplxp
-      integer,protected:: lmaxu,nlibu
-      integer,allocatable,protected::lldau(:)
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
 C   arg 1: 0 no relaxation or dynamics
@@ -1138,7 +1140,8 @@ C     call snit
            if (nout>0) then
               if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
            endif
-
+           if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10(or +20) mode exist or not.
+           
 !     ! correct qnu jun2012takao  2012july->mod(int(pz...,10)
 !     ! our four cases are
 !     !  P=Pdefault      ! qnu
@@ -1353,7 +1356,8 @@ C     ... Cleanup after looping over species data
          mxorb= nkaph*nlmax
       endif
  79   continue
-
+      
+      
 !     ! --- Site ---
       if (io_show+io_help/=0 .and. tksw(prgnam,'SITE')/=2) call info0(1,1,0,' --- Parameters for site data ---')
       if (io_help .eq. 1) then

@@ -1,7 +1,6 @@
-      subroutine dfqkkl ( nbas , ssite , sspec , numq , sv_p_oqkkl )
-      use m_lmfinit,only: nkaph,nspc,nsp
-
-
+      subroutine dfqkkl( sv_p_oqkkl )
+      use m_lmfinit,only: nkaph,nspc,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
+      use m_subzi, only: numq
       use m_struc_def  !Cgetarg
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
@@ -31,11 +30,10 @@ Cu   22 Apr 00 Adapted from nfp df_qkkl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer:: nbas , numq
+c      integer:: numq
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 
 C ... Local parameters
       integer ib,igetss,is,kmax,lmxa,lmxh,nelt1,nlma,nlmh,nelt3,nelt2
