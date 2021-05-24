@@ -1,6 +1,7 @@
 #NOTE: when you add your foobar.F, choose one of *_list.
 
 ELIB_list=\
+m_clsmode.o\
 m_mkpot.o\
 m_lmfgw.o\
 writefs.o\

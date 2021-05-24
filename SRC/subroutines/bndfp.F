@@ -52,7 +52,7 @@
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv 
-      
+      use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -184,7 +184,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
       real(8):: dmxp(33),frc(3,*)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
-      character strn*120,plbopt*120,mulopt*120,clsopt*120,strn2*120,dc*1
+      character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
      .  , lrep , ndos , ndos0 , nev , nevl 
@@ -197,34 +197,22 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
-c      real(8) ,allocatable :: fes1_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
-c      real(8) ,allocatable :: gpot0_rv(:)
-c      real(8) ,allocatable :: hab_rv(:)
       real(8) ,allocatable :: hbyl_rv(:,:,:)
-c      real(8) ,allocatable :: ppnl_rv(:,:,:,:)
       real(8) ,allocatable :: qbyl_rv(:,:,:)
-c      real(8) ,allocatable :: qmom_rv(:)
-c      real(8) ,allocatable :: sab_rv(:)
       complex(8) ,allocatable :: srout_zv(:)
       complex(8) ,allocatable :: t_zv(:,:)
-c      real(8) ,allocatable :: vab_rv(:)
-      real(8) ,allocatable :: qm1_rv(:)
-      real(8) ,allocatable :: qm2_rv(:)
-c      real(8) ,allocatable :: vval_rv(:)
-      real(8) ,allocatable :: ww_rv(:)
-      complex(8) ,allocatable :: ww_zv(:)
+c      real(8) ,allocatable :: qm1_rv(:)
+c      real(8) ,allocatable :: qm2_rv(:)
+c      real(8) ,allocatable :: ww_rv(:)
+c      complex(8) ,allocatable :: ww_zv(:)
+c      integer ,allocatable :: ifbls_iv(:)
       integer ,allocatable :: ips_iv(:)
       real(8) ,allocatable :: orbtm_rv(:)
-      integer ,allocatable :: ifbls_iv(:)
       type(s_rv1) :: sv_p_orhat1(3,nbas)
-c      type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_oeqkkl(3,nbas)
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-c      type(s_rv1) :: sv_p_otau(3,nbas)
-c      type(s_rv1) :: sv_p_osig(3,nbas)
       double precision sigp(10)
-c      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       double precision ef00,eferm,emax,emin,esmearm,sev,
      .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),efmax,dgets,sumev(2,3),
@@ -242,14 +230,8 @@ C     real(8),allocatable :: qpe(:,:)
       complex(8) ,allocatable :: auso_zv(:)
 !!     for partial dos
       complex(8) ,allocatable :: ausp_zv(:)
-!!     for CLS
-      integer nsitmx
-      parameter (nsitmx = 256)
-      integer::  i1mach , icls=0 , isite(nsitmx) , iclsl(nsitmx) 
-     .  , iclsn(nsitmx)
-      complex(8) ,allocatable :: ausc_zv(:)
 !!     for Mulliken
-      integer:: moddos , nsites , lsites(nbas) , ng , iomoms 
+      integer:: moddos , lsites(nbas) , ng , iomoms 
      .  , nchmx , lmdim , lmxch
       logical:: mullwrite=.false.
       real(8) ,allocatable :: doswt_rv(:)
@@ -514,10 +496,9 @@ c mar2014
          plbnd = 1
          lrout = 0
          lfrce = 0
-         nkp = 0
 c         numq = 1
-         allocate(ifbls_iv(ndhamx*2))
-         ifbls_iv(:)=0
+c         allocate(ifbls_iv(ndhamx*2))
+c         ifbls_iv(:)=0
       else
          plbnd = 0
       endif
@@ -541,14 +522,15 @@ c         numq = 1
       endif
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw,vorb) 
-!! elind for accelarating convergence      
+!! elind for accelarating convergence
+      elind=ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
+      if(cmdopt0('--band').or.fullmesh) nkp = 0 ! dummy for m_subzi_init
       if (plbnd==0) call m_subzi_init(lrout>0,nkp,ef0,def,bz_n,bz_w,eferm)
-!! allocation for all eigenvalues  More k-point independent local arrays ---
-      allocate( evlall(ndhamx,nspx,nkp))
-      evlall = 0d0
+c      allocate( evlall(ndhamx,nspx,nkp))
+c      evlall = 0d0
       if (ldos==0 .and. lmet==0) ndos = 1
       ndos = abs(ndos)
       allocate(dos_rv(ndos,2*nsp))
@@ -563,36 +545,14 @@ c         numq = 1
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
 c      call suham2(sspec)
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut
-        
-!! --- Options for core level specta (CLS) ---
-      if (cmdopt('--cls',5,0,strn)) then
-         if (lmet/=2) call rx('For CLS restart with METAL=2')
-         icls = 1
-         clsopt = strn(6:)
-         efmax = 1d3
-         nevmx = ndhamx
+!! cls mode
+      if(cmdopt0('--cls')) then
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
-         call suclst(nsitmx,nbas,nsp,ssite,sspec,clsopt,
-     .     isite,iclsl,iclsn,nsites)
          efmax = 1d3
          nevmx = ndhamx
-         if (16*3*nlmax*ndham*nbas*nsp*nkp/1000000 .gt. 24 .and. master_mpi) then
-!! this path is go through by crn test.
-            aaachar=
-     &        ' CLS: '//trim(i2char( 16*3*nlmax*ndham*nsites*nsp*nkp/1000000))//
-     &        ' Mb memory for aus: nlmax='//trim(i2char( nlmax))//
-     &        ' ndham='  //trim(i2char( ndham))//
-     &        ' nsistes='//trim(i2char( nsites))//
-     &        ' nsp='    //trim(i2char( nsp))//
-     &        ' nkp='    //trim(i2char( nkp))
-            write(6,"(a)") aaachar
-         endif
-         allocate(ausc_zv(3*nlmax*ndham*nsites*nsp*nkp))
-         ausc_zv(:)=0.0d0
-      else
-         icls = 0
-      endif
-
+         call m_clsmode_init()
+      endif   
+      
 !! --- get index for hamiltonian for m_hamindex takao june2009
 !! these are used in sigm mode(QSGW).
 !! memo:
@@ -823,8 +783,11 @@ c            massline=.false.
 #if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
 #endif
-      if (allocated(evlall)) deallocate(evlall)
-      allocate(evlall(ndhamx,nspx,nkp)) ; evlall=0d0
+      
+!! allocation for all eigenvalues  More k-point independent local arrays ---
+c      if (allocated(evlall)) deallocate(evlall)
+      allocate(evlall(ndhamx,nspx,nkp))
+      evlall=0d0
       nchanp=25 !total of s,p,d,f
       if(procaron.and.fullmesh) then
          allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
@@ -1243,14 +1206,12 @@ c                     nlmax = nl*nl
                   endif
                endif
 !! Core-level spectroscopy
-               if(icls .ne. 0 .and. lwtkb .ne. -1) then
+               if(cmdopt0('--cls') .and. lwtkb .ne. -1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
 #if MPI
                   call rx('CLS only k-parallel')
 #endif
-                  call makusq ( 0 , ssite , sspec ,  nbas , nsites !sham ,slat , 
-     .              , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
-     .              nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   )
+                  call m_clsmode_set1(napw,ndimh,ndimhx,nmx,jsp,iq,qp,nev,igv2x,t_zv) !all inputs
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
 !! Density mode. wtkb is the weight for iq,ib. With this setting, 
 !! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
@@ -1510,9 +1471,8 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       call info0(20,0,-1,' ... Sharing data between processes...')
       sttime = MPI_WTIME()
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
-      if (icls .ne. 0 .and. lwtkb .ne. -1) then
+      if (cmdopt0('--cls') .and. lwtkb .ne. -1) then
          call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-c         call xmpbnd ( kpproc , nlmax * ndhamx * 3 * nsites , nkp , nsp, ausc_zv )
       endif
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
 #endif
@@ -1983,19 +1943,14 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
       endif
 
 !! --- Core-level spectroscopy ---
-      if (icls .ne. 0) then
+      if (cmdopt0('--cls')) then
          if (master_mpi) then
-            eferm=bz_ef
-            call vcdmel ( nl , ssite , sspec ,  nlmax , ndham , !slat ,
-     .        ndimh , nkp , nsp , nspc , eferm , evlall , ausc_zv , 
-     .        nsites , isite , iclsl , iclsn ,dosw) !sbz,
-            call rx0('done generating core level spectra')
+            call m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)
          else
             call fexit(0,0,' ',0)
          endif
       endif
 !! --- Assemble output density ---
-c     call dfratm ( nbas , ssite , sspec , sv_p_orhat1 )
       do  ib = 1, nbas
         is =  ssite(ib)%spec
         nr =  sspec(is)%nr
@@ -2126,8 +2081,8 @@ cccccccccccccccccccccccccccccccc
          if(lfrce .gt. 0) call totfrc( nbas , ssite ,  leks !slat ,
      .     , fes1_rv , fes2_rv , fh_rv , frc )
 !!   --- Mix input and output densities ---
-         allocate(qm1_rv(nvl))
-         allocate(qm2_rv(nvl))
+c         allocate(qm1_rv(nvl))
+c         allocate(qm2_rv(nvl))
          call mixrho ( ssite , sspec ,  nsp , iter , sstrnmix 
      .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
      .     , k3 , dmxp , srout_zv , zv_a_osmrho )
@@ -2148,11 +2103,11 @@ ccccccccccccccccccccccccc
       ham_ehf=ehar
       ham_ehk=eks
  999  continue
-      if (allocated(qm2_rv)) deallocate(qm2_rv)
-      if (allocated(qm1_rv)) deallocate(qm1_rv)
+c      if (allocated(qm2_rv)) deallocate(qm2_rv)
+c      if (allocated(qm1_rv)) deallocate(qm1_rv)
+c      if (allocated(ifbls_iv)) deallocate(ifbls_iv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
-      if (allocated(ifbls_iv)) deallocate(ifbls_iv)
       call m_mkpot_deallocate()
       deallocate(evlall)
  9995 continue
