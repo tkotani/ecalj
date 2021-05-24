@@ -289,14 +289,9 @@ c               write(6,*)ix, ik,i, key(ix,ik), qbzl(ix,ieord(i))
       endif
       deallocate(qbzl)
 !! -----------------------------------------------------------
-ccccccccccccccccccc
-      ifiese=ifile_handle()
-      inquire(unit=ifiese,opened=nexist)
-      if(nexist) stop 'eibzgen: I assumed ifio=9039 is not used(too sloppy) pwmode'
-      open(ifiese,file='PWMODE')
+      open(newunit=ifiese,file='PWMODE')
       read(ifiese,*)pwmode
       close(ifiese)
-cccccccccccccccccc
       if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat)
 
 !! ===  main iq loop ===

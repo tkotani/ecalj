@@ -51,13 +51,19 @@ C --- Loop over sites, allocating qkkl for each site ---
         nlmh = (lmxh+1)**2
 C   ... Case Pkl*Pkl
         nelt1 = (kmax+1)*(kmax+1)*nlma*nlma
-        allocate(sv_p_oqkkl(1,ib)%v(abs(nelt1*numq*nsp*nspc)))
+        if(allocated(sv_p_oqkkl(1,ib)%v)) then
+           deallocate(sv_p_oqkkl(1,ib)%v,sv_p_oqkkl(2,ib)%v,sv_p_oqkkl(3,ib)%v)
+        endif
+        allocate(sv_p_oqkkl(1,ib)%v(nelt1*numq*nsp*nspc))
+        sv_p_oqkkl(1,ib)%v=0d0
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
-        allocate(sv_p_oqkkl(2,ib)%v(abs(nelt2*numq*nsp*nspc)))
+        allocate(sv_p_oqkkl(2,ib)%v(nelt2*numq*nsp*nspc))
+        sv_p_oqkkl(2,ib)%v=0d0
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
-        allocate(sv_p_oqkkl(3,ib)%v(abs(nelt3*numq*nsp*nspc)))
+        allocate(sv_p_oqkkl(3,ib)%v(nelt3*numq*nsp*nspc))
+        sv_p_oqkkl(3,ib)%v=0d0
 c|        write(6,836) nelt1,nelt3,nelt2
 c|  836   format('   nelt=',3i6)
    10   continue

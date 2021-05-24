@@ -1,10 +1,10 @@
 !! == Main program for lmf and lmfgw (single core or -dMPIK works).
       program lmf
-      use m_lmfinit,only: m_lmfinit_init
-      use m_ext,only:    m_ext_init,sname
+      use m_lmfinit,only:m_Lmfinit_init
+      use m_ext,only:    m_Ext_init,sname
       use m_lattic,only: m_Lattic_init
-      use m_mkqp,only:   m_mkqp_init
-      use m_rdfiln,only: m_rdfiln_init
+      use m_mkqp,only:   m_Mkqp_init
+      use m_rdfiln,only: m_Rdfiln_init
       use m_MPItk,only:  m_MPItk_init,m_MPItk_finalize, procid,master,nsize
       implicit none
       integer:: k,lgunit,stdo 

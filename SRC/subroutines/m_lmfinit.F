@@ -1808,6 +1808,11 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_pwemax=pwemax
       ham_oveps=oveps
       ham_delta_stabilize=delta_stabilize !takao sep2010
+      if (procid==master) then
+         open(newunit=ifi,file='PWMODE')
+         write(ifi,"(i5)")pwmode
+         close(ifi)
+      endif 
       
 C --- Allocate and copy input to sspec ---
       allocate(v_sspec(nspec))

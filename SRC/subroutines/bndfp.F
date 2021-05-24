@@ -32,7 +32,7 @@
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,fsmom=>bz_fsmom,
      &     bz_dosmax,bz_nevmx,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
-     &     ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     pwmode=>ham_pwmode,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
@@ -57,6 +57,7 @@
       use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
+      use m_igv2x,only: napw,igv2x,m_Igv2x_set
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -104,10 +105,6 @@ Cl   ispc  :2 when working on (2,2) block of noncollinear hamiltonian;
 Cl         :otherwise 1
 Cl   nspx: number of independent spin channels containing eigenvalues
 Cl         and total DOS; nspx=nsp unless nspc=2, in which case nspx=1
-Cl   onesp :do only one spin branch of isp loop (spec'd by onesp)
-Cl         :also used when usual loop order (iq=1..nq, isp=1..2)
-Cl         :needs to be reversed, as it does, e.g. when transforming
-Cl         :sigma matrix.  Then onesp plays the role of spin index
 Cl   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
       
 Cr Remarks ---- now improving...
@@ -186,7 +183,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       integer:: work_mpi(10)    ! use only 1 and 2 now
       integer nbx,iter,maxit!,ndham !nbas
       integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
-      real(8):: dmxp(33),frc(3,*)
+      real(8):: dmxp(33),frc(3,1:nbas*numq)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
@@ -197,7 +194,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
-     .  , onesp , mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
+     .  ,  mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
@@ -225,9 +222,9 @@ c      integer ,allocatable :: ifbls_iv(:)
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
-      integer,allocatable:: igv2x(:,:)
+c      integer,allocatable:: igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
-      integer pwmode,napw
+c      integer pwmode
       double precision pwgmin,pwgmax
 C     real(8),allocatable :: qpe(:,:)
       logical T, F
@@ -399,7 +396,6 @@ c mar2014
       savez=.false.
       getz =.false.
       if (maxit==0) return
-      napw = 0
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       idummy = unlink('RSEQ_ERROR') !the error flag in rseq. Remove RSEQ_ERROR here because
                         ! this error is only fatal when it is finaly converged. takaoNov28_2010
@@ -407,15 +403,15 @@ c mar2014
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
       if(nspc==2.and.nsp==2) then !nspc==2
          spinoffdiag=.true. !non-colinear case
-         nspx=1
+         nspx=1 !nsp/nspc
          ndhamx = ndham*2
       elseif(nspc==1.and.nsp==2) then
          spinoffdiag=.false. !spin no-offdiagonal
-         nspx=2
+         nspx=2 !nsp/nspc
          ndhamx= ndham
       elseif(nspc==1.and.nsp==1) then
          spinoffdiag=.false. !paramagnetic
-         nspx=1
+         nspx=1 !nsp/nspc
          ndhamx= ndham
       else
          call rx('bndfp: nspc==2 but nsp=1')
@@ -424,14 +420,6 @@ c mar2014
       ldham = ham_ldham
       ldim  = ldham(1)
       if(size(ham_ldham)/=size(ldham)) call rx("bndfp:size(ham_ldham)/=size(ldham)")
-      pwmode = ham_pwmode
-      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat)
-      if (master_mpi) then
-         open(newunit=ifiese,file='PWMODE')
-         write(ifiese,*)pwmode
-         close(ifiese)
-      endif 
-      onesp = 0
       lrsig = ham_lsig  !12 for read sigma mode
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1  !freeze all augmentation wave
@@ -514,13 +502,6 @@ c mar2014
       if (ldos==0 .and. lmet==0) ndos = 1
       ndos = abs(ndos)
       allocate(dos_rv(ndos,2*nsp))
-      if (lrout/=0) then
-         call dfqkkl( sv_p_oqkkl )
-         if(lekkl==1) call dfqkkl( sv_p_oeqkkl )
-         allocate( srout_zv(k1*k2*k3*numq*nsp) )
-         allocate( fh_rv(3*nbas)  )
-         allocate( fes2_rv(3*nbas))
-      endif
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
@@ -604,7 +585,6 @@ c mar2014
       nev_   =0                
       nevls  =0
 
-      
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
@@ -617,27 +597,39 @@ c mar2014
       endif
       ix99 = 0
       xdat = 0d0
+      
+cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
  99   continue
-      ix99 = ix99+1               !ix99=2 for second pass
-      ebot = 1000d0
-      call surho ( nbas , ssite , sspec , lmet , ldos , lrout , lekkl 
-     .  , numq , sv_p_oqkkl , sv_p_oeqkkl , k1 , k2 , k3 , srout_zv , 
-     .  ndos , dos_rv , sumev , sumqv )
-      if (lfrce .gt. 0) then
-         frc(1:3,1:nbas*numq) = 0d0
-         fh_rv= 0d0              ! 3 * nbas 
+      ix99 = ix99+1             !ix99=2 for second pass
+      if(lrout/=0) then
+         call dfqkkl( sv_p_oqkkl ) !zero clear 
+         if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
+         if(allocated(fh_rv)) then
+            deallocate(srout_zv,fh_rv,fes2_rv)
+         endif
+         allocate( srout_zv(k1*k2*k3*numq*nsp) )
+         allocate( fh_rv(3*nbas)  )
+         allocate( fes2_rv(3*nbas))
+         srout_zv = 0d0
+         fh_rv= 0d0  
       endif
+      ebot = 1000d0
+      sumev = 0d0
+      sumqv = 0d0
+      if (ldos==1 .or. lmet>0) dos_rv=0d0
+      if (lfrce>0) frc  = 0d0
       if (lswtk==1) then
          efmax = 1d3
          nevmx = ndhamx
-         call dpzero ( rv_a_oswtk , ndhamx * nkp )
+         rv_a_oswtk=0d0
       endif
-!! --> Mullikan mode was here
-!! ... For insulator, valence band top and conduction band bottom
+!! Mullikan mode was here. removed for simplicity
+!! For insulator, valence band top and conduction band bottom
       evtop = -99999
       ecbot = -evtop
       if(lso/=0) orbtm_rv=0d0
       initiqisp=.true.
+      
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
@@ -645,11 +637,11 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
 !! === do loop 2010 for iq and do 2005 isp ===
       if(debug) print *,' --- goto do loop 2010 ---'
       do 2010 iq = iqini, iqend !This is a big iq loop
-         qp=qplist(:,iq)
+         qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid
 #if MPIK
          if(debug) write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
-         if (iq .eq. kpproc(procid)) then
+         if (iq==kpproc(procid)) then
             if(mlog) then
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
@@ -660,43 +652,9 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
             endif
          endif
 #endif
-         if(pwmode>0.and.pwmode<10) then
-            ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-            call shortn3(ppin,noutmx, nout,nlatout)
-            if(debug) then
-               do iout=1,nout
-                  write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),
-     &              sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),
-     &              matmul(qlat(:,:),ppin+nlatout(:,iout))
-               enddo
-            endif
-         endif
-         if(allocated(igv2x)) deallocate(igv2x)
-         if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
-            pwgmin = pwemin**.5d0
-            pwgmax = pwemax**.5d0
-            qqq = 0d0 
-            if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
-            call pshpr(1)
-            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napw,napw,dum,dum,dum,dum) !get napw
-            allocate(igv2x(3,napw), kv_iv(3*napw))
-            call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
-            call poppr
-            if (pwmode<10) then
-               do iapw=1,napw
-                  igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
-               enddo
-            endif
-            deallocate(kv_iv)   !we only keep 
-            ndimh = ldim + napw !ndimh is iq-dependent for pwmode >=10
-            if (mod(pwmode,10) .eq. 2) ndimh = napw !APW-only mode
-            if (ndimh .gt. ndham) then
-               call rx('bndfp:something wrong ndimh>ndham')
-            endif
-         else
-            ndimh = ldim
-            allocate(igv2x(1,1)) !dummy
-         endif
+         call m_Igv2x_set(qp) ! get napw and igv2x
+         ndimh = ldham(1)+napw ! ldim+napw
+         if (mod(pwmode,10)==2) ndimh = napw !APW-only mode
          ndimhx = ndimh*nspc    !this is iq-dependent.
          nmx    = min(nevmx,ndimhx) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -714,8 +672,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$        qpo=qp !moved here on mar2012 only for band plot
 c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
          do 2005 isp = 1, nsp
-            if(.not.(onesp==0.or.isp==onesp)) cycle
-            if(debug) print *,' bndfp: do 2005 isp loop isp pwemax pwmode=',isp,pwemax,pwmode
 !! takao removed shorbz(shortest qp) here. !I think not necessary
 !! === For this qp, G vectors for PW basis and hamiltonian dimension ===
             ispc = min(isp,nspc) !nspc=2 for non-colinier case
@@ -1377,11 +1333,9 @@ c         nkaph = globalvariables%nkaph
       goto99=.false.
       do  iq = 1, nkp
          qp=qplist(:,iq)
-         do isp = 1, nsp
-            ispc = min(isp,nspc)
-            if( .not. ((onesp.eq.0 .or. isp.eq.onesp) .and. (ispc.eq.nspc)) ) cycle
+         do isp = 1, nspx
             jsp = isp
-            if (ispc .eq. 2) jsp = 1
+c            if (ispc .eq. 2) jsp = 1
             if(iprint()>20.and.ix99==1) then
                write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
      &           iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)

@@ -1,10 +1,10 @@
       module m_subzi
       integer:: nevmx,lwtkb=-1
-      real(8),allocatable :: rv_a_owtkb(:,:,:)
+      real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:)
       
       integer,protected:: numq=1, lswtk=0,ldos=0
 c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
-      real(8),allocatable,protected :: rv_a_oswtk(:)
+c      real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
       subroutine m_subzi_init(lwt,ef0,def, mpsord,esmear, efermi)
