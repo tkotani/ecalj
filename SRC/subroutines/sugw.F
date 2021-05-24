@@ -1,23 +1,21 @@
-      subroutine sugw ( lrsig,ssite , sspec ,  nbas , ndham !sham ,slat , 
-     .      , smpot , vconst , lcplxp , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .      , ppn , vrmt , spotx , sv_p_osigx , sv_p_otaux , sv_p_oppix , 
-     .      jobgw ,nk1,nk2,nk3,sigmamode,ndimsig, numproc,procid,master)!,lso)
+      subroutine sugw ( lrsig, jobgw, sigmamode) !, numproc,procid,master)!,lso) ,nk1,nk2,nk3,
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
-      use m_suham,only: iv_a_oindxo,ham_ldham
+      use m_suham,only: iv_a_oindxo,ham_ldham, ndham=>ham_ndham
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
      &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
-     &     ham_scaledsigma,
-     &     lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb
-      use m_lattic,only: lat_qlat
-      use m_supot,only: lat_nabc
-      use m_supot,only: lat_gmax
-      use m_seneinterp,only: ham_ndhrs
-      use m_seneinterp,only: ham_nqsig
-
-
+     &     ham_scaledsigma, lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb, ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
+      use m_lattic,only: lat_plat, lat_qlat
+      use m_supot,only: lat_nabc, lat_gmax
+      use m_seneinterp,only: ham_ndhrs, ham_nqsig
       use m_mksym,only: lat_npgrp,lat_nsgrp
-      use m_lattic,only:lat_plat      
+      use m_shortn3,only: shortn3_initialize,shortn3
+      use m_mkpot,only: 
+     &     smpot=>zv_a_osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
+     &     ppn=>ppnl_rv
+      use m_lmfgw,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+      use m_MPItk,only: numproc=>nsize,procid,master
+      use m_seneinterp,only: ndimsig
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -133,20 +131,20 @@ Cu             Binary files imcompatible with prior versions.
 Cu   23 Apr 01 First created
 !! ----------------------------------------------------------------------
       integer:: i_copy_size,ham_lsig
-      integer nbas,ndham,n0,nkap0,nppn,lcplxp
-      parameter (n0=10, nppn=12, nkap0=3)
+c      integer n0,nkap0,nppn,lcplxp
+c      parameter (n0=10, nppn=12, nkap0=3)
       integer:: jobgw , lh(n0)
-      type(s_rv1) :: sv_p_oppi(3,nbas)
-      type(s_rv1) :: sv_p_otau(3,nbas)
-      type(s_rv1) :: sv_p_osig(3,nbas)
-      type(s_rv1) :: sv_p_oppix(3,nbas)
-      type(s_rv1) :: sv_p_otaux(3,nbas)
-      type(s_rv1) :: sv_p_osigx(3,nbas)
-      type(s_site):: ssite(nbas)
-      type(s_spec):: sspec(*)
+c      type(s_rv1) :: sv_p_oppi(3,nbas)
+c      type(s_rv1) :: sv_p_otau(3,nbas)
+c      type(s_rv1) :: sv_p_osig(3,nbas)
+c      type(s_rv1) :: sv_p_oppix(3,nbas)
+c      type(s_rv1) :: sv_p_otaux(3,nbas)
+c      type(s_rv1) :: sv_p_osigx(3,nbas)
+c      type(s_site):: ssite(nbas)
+c      type(s_spec):: sspec(*)
 c      type(s_lat):: slat
 c      type(s_ham):: sham
-      real(8):: rsml(n0), ehl(n0), ppn(nppn,n0,nbas), vconst, smpot(*), spotx(*), vrmt(nbas) !, coreq(2)
+      real(8):: rsml(n0), ehl(n0) !,  vrmt(nbas) !, coreq(2) !vconst, smpot(*), spotx(*),
       logical :: bandmode=.false.,endofline=.false.,lwvxc
       logical cmdopt
       integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
@@ -215,12 +213,10 @@ C      complex(8),allocatable:: evec_(:,:),cphi_(:,:,:),pwz_(:,:)
       integer,allocatable:: igv2(:,:)
       logical:: l_dummy_isanrg,isanrg,oncewrite,newsigmasw,sigmamode !,noshorbz
 
-      integer(4):: nk1,nk2,nk3,   irr,nqi, nmcore !feb2012takao
+      integer(4)::   irr,nqi, nmcore !feb2012takao nk1,nk2,nk3, 
 c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
-      integer:: ndimsig
-      
-      integer:: procid,master,nbalance,numproc,iqq,nrr,ifiproc,iproc,iadd,ldw
+      integer:: nbalance,iqq,nrr,ifiproc,iproc,iadd,ldw
       logical:: rank0
       integer,allocatable:: iprocq(:,:)
       character*256:: ext
@@ -724,7 +720,7 @@ c     .        '%?#n#, vxc, evec##',nqtot,lsig)
 !!
       rewind ifiqg
       read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
-      if(pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
+      if(pwmode<10) call shortn3_initialize(qlat)
       if(debug)print *,' goto 1001 procid=',procid
       iqq=0
       do 1001 iq = 1, nqtot
@@ -764,7 +760,7 @@ c     .        '%?#n#, vxc, evec##',nqtot,lsig)
 cnnn
         if(pwmode>0.and.pwmode<10) then
         ppin=matmul(transpose(plat),qp) !basis on the qlat coordinate. qp in Cartesian.
-        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+        call shortn3(ppin,noutmx, nout,nlatout)
         do iout=1,nout
            write(*,"(a,3i5,f10.4,3f8.4)")'sugw:rrrrn1 =',nlatout(:,iout),
      &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),

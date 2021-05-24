@@ -266,26 +266,22 @@ C    ...  Printout
       end subroutine m_suham_init
       end module m_suham
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-c     subroutine gen_hamindex(ssite,sspec,nl,nbas_in,iprmb,ldim,siginit,llmfgw,jobgw) 
-      subroutine gen_hamindex(ssite,sspec,ldim,siginit,ljobgw)
-      use m_suham,only: iprmb=>iv_a_oindxo
+      subroutine gen_hamindex(siginit,ljobgw)
+      use m_suham,only: iprmb=>iv_a_oindxo, ham_ldham
       use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp 
       use m_struc_def  !Cgetarg
       use m_hamindex,only: ibastab,ibasindex,symops,offl,offlrev,ltab,ktab,ag,invgx,nbas,
-     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat,
+     &  shtvg,qq,qtt,qtti,iqmap,igmap,iqimap,dlmm,norbmto,ngrp,nqtt,nqi,plat,qlat,miat,tiat, !a little illegal
      &  ndimham,ngpmx,nqnum,iclasst,kxx,lxx,writehamindex,lxxa,
      &     napwk,napwmx,igv2,igv2rev, !for APW part of rotation (for rdsigm2.F)
      &     imx
      &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
      &     ham_pwmode,ham_pwemax,
-     &     lat_alat,nl,ctrl_nbas
-      use m_lattic,only: lat_qlat
-
-
-      use m_lattic,only: lat_plat,rv_a_opos
-
+     &     lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec
+      use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
+      use m_shortn3,only: shortn3_initialize,shortn3
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
 !!  Generated index are stored into m_hamindex
 !!  Only include q-point information for GW (QGpsi).
@@ -306,8 +302,8 @@ c      enddo
 !!h takao june2009
 !!---
       implicit none
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
 c      type(s_lat)::slat
 c     type(s_bz)::sbz
 c      type(s_ham)::sham
@@ -356,6 +352,7 @@ c2012Sep02 kino, add for
 #endif
 !!--- setup ---
       if(.not.siginit) return
+      ldim  = ham_ldham(1)
       nbas=ctrl_nbas !nbas_in
       ngrp=lat_nsgrp !note nsgrp given in mksym.F is without inversion.
       plat=lat_plat
@@ -619,7 +616,7 @@ C ... Get igv2(3,iapw,ikt). pwmode>=10 only
       call poppr
 cnnn
       if(iprx)print*,' --- gvlst2 generates G for APW part (we show cases for limited q) ---'
-      if(pwmode<5) call shortn3_initialize(qlat,rlatp,xmx2)
+      if(pwmode<5) call shortn3_initialize(qlat)
       allocate( igv2(3,napwmx,nkt), kv(3*napwmx) )
       prpushed=.false.
       do ikt = 1,nkt
@@ -633,7 +630,7 @@ cnnn
 cnnn
         if(pwmode<10) then
         ppin=matmul(transpose(plat),qq(:,ikt))
-        call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+        call shortn3(ppin,noutmx, nout,nlatout)
 c        do iout=1,nout
 c           write(*,"(a,3i5,f10.4,3f8.4)")'suham.gen_hamindex.F:rrrrn1 =',nlatout(:,iout),
 c     &         sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2),

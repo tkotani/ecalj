@@ -343,11 +343,12 @@ C     .              aus(mlm,ib,2),cg(icg),cxx
    14     continue
         endif
    11 continue
-      do  20  k = 1, 3
-      do  20  ib = 1, ndimh
+      do  k = 1, 3
+      do  ib = 1, ndimh
         s(k,isite,ib,1) = s(k,isite,ib,1)*s(k,isite,ib,1)
      .    + s(k,isite,ib,2)*s(k,isite,ib,2)
-   20 continue
+      enddo
+      enddo
       end subroutine pvcdm2
 
 

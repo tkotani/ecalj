@@ -7,10 +7,10 @@ c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
       real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
-      subroutine m_subzi_init(lwt,nkp, ef0,def, mpsord,esmear, efermi)
+      subroutine m_subzi_init(lwt,ef0,def, mpsord,esmear, efermi)
       use m_ext,only: sname
       use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,ctrl_ldos,stdo
-      use m_mkqp,only: ntet=> bz_ntet 
+      use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
       use m_suham,only: ndham=>ham_ndham
       use m_mkpot,only:  qval
       use m_MPItk,only: master_mpi
@@ -96,6 +96,9 @@ c      real(8),allocatable :: rv_a_oswtk(:)
       data strni /'sampling','tetrahedron'/
       real(8):: qbg
 
+      nkp=bz_nkp
+      if(cmdopt0('--band').or.cmdopt0('--fullmesh')) nkp = 0 ! dummy for m_subzi_init
+
       if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
       if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
@@ -117,7 +120,7 @@ c      real(8),allocatable :: rv_a_oswtk(:)
         allocate(rv_a_owtkb(ndham,nsp,nkp))
       endif
       if (nevmx .ge. 0) then
-        if (lmet .eq. 2 .or. lmet .eq. 3) then
+        if (lmet .eq. 2 .or. lmet .eq. 3) then  
           lwtkb = -1
 C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then

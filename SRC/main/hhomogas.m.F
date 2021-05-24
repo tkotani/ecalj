@@ -45,6 +45,7 @@ c     & w0,w0i
 c
 c      use m_lldata,only: ll
       use m_homoelectron,only: read_qgband, efermi_egas !for gsq 
+      use m_shortn3,only: shortn3_initialize,shortn3
       implicit none
 
       integer::nctot=0,nspin=1,niw,ngrp
@@ -341,7 +342,7 @@ c      ginv = transpose(plat)   !ginv is inverse of plat.
          iqbz = iqindx(qibz(:,iq),ginv,qbz,nqbz)
          write(6,"(' iq qibz nstibz=',2i5,3f9.4,i5)")iq,iqbz,qibz(:,iq) !,nstibz(iq)
       enddo
-      call shortn3_initialize(qlat,rlatp,xmx2)
+      call shortn3_initialize(qlat)
 
 
 !! We get 
@@ -429,7 +430,7 @@ c      if(.not.imagomega) niw=1
 !! get q in 1st BZ =shortest q. nout is the number of shortest (the same size of) data.
 !! When q is at the BZ boundary, nout>1 can be.
         ppin = matmul(transpose(plat),q) 
-        call shortn3(rlatp,xmx2,ppin, noutmx, nout,nlatout)
+        call shortn3(ppin, noutmx, nout,nlatout)
         iout=1
         qlength = tpioa * (sum(matmul(qlat(:,:),ppin+nlatout(:,iout))**2))**.5
         do iout=1,nout

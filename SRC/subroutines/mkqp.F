@@ -1,6 +1,6 @@
       module m_mkqp
       integer,allocatable,protected :: iv_a_oidtet(:), iv_a_oipq(:), iv_a_ostar(:)
-      real(8),allocatable,protected :: rv_p_oqp (:), rv_a_owtkp(:)
+      real(8),allocatable,protected :: rv_p_oqp (:,:), rv_a_owtkp(:)
       integer,protected:: bz_nabc(3),bz_ntet, bz_nkp
       contains
       subroutine m_mkqp_init() !lnoirr,lreduc,lgstar)
@@ -66,7 +66,7 @@ c#if TRSYMM
 c      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 c#endif
       if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
-      allocate(rv_p_oqp(3*mxkp))
+      allocate(rv_p_oqp(3,mxkp))
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       allocate(iv_a_oipq(6*mxkp))
       call dinv33(plat,1,qlat,vol)
@@ -101,7 +101,7 @@ c#if TRSYMM
 c      call dvset ( rv_a_owtkp , 1 , 1 , dble ( nsgrp ) )
 c#endif
       if (allocated(rv_p_oqp)) deallocate(rv_p_oqp)
-      allocate(rv_p_oqp(abs(3*nkp)))
+      allocate(rv_p_oqp(3,nkp))
       if (allocated(iv_a_oipq)) deallocate(iv_a_oipq)
       allocate(iv_a_oipq(abs(6*mxkp)))
       call pshpr(0)

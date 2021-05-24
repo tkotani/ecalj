@@ -1,6 +1,11 @@
-!!NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
+      module m_shortn3
+      public:: shortn3,shortn3_initialize
+      
+      real(8),private:: rlatp(3,3),xmx2(3)
+      contains
+!     !NOTE: shortn3 is better than shorbz. we will have to replace shorbz with shortn3.
 !!NOTE: In advance, we will need to check speed and convenience.
-      subroutine shortn3(rlatp,xmx2,pin,noutmx, nout,nlatout)
+      subroutine shortn3(pin,noutmx, nout,nlatout)
 !!== Find shortest vector in modulo of rlat ===
 !! To call shortn3 for given rlat,
 !! we have to call shorn3_initialize in advane to obtain rlatp and xmx2, which are passed to shortn3.
@@ -28,8 +33,9 @@
       real(8),allocatable:: rnorm(:)
       integer:: noutmx
       integer:: nlatout(3,noutmx)
-      real(8):: rlatp(3,3),xmx2(3)
-
+c     real(8):: rlatp(3,3),xmx2(3)
+      
+      
       rmax2 = sum(pin*matmul(rlatp,pin)) + eps  ! eps is to make degeneracy safe.
       nrmax(:) =  sqrt(rmax2*xmx2(:))+abs(pin(:)) ! range of ix
       nmax =  nrmax
@@ -67,14 +73,14 @@ C we are looking for shortest vectors
       deallocate(rnorm,nlat0)
       return
       end
-      
-      subroutine shortn3_initialize(rlat,rlatp,xmx2)
+!------------------------------------      
+      subroutine shortn3_initialize(rlat)
 !!== Set translation vactors rlat(:,i),i=1,3 ==
 !!i rlat
 !!o rlatp,xmx2: these are passed to shortn3
 !     !=============================================
       integer:: i,j
-      real(8):: rlatp(3,3),xmx2(3),rlat(3,3)
+      real(8):: rlat(3,3)
       do i=1,3
         do j=1,3
           rlatp(i,j) = sum(rlat(:,i)*rlat(:,j))
@@ -82,7 +88,6 @@ C we are looking for shortest vectors
       enddo
       call ellipsoidxmax(rlatp,xmx2)
       end
-
       subroutine ellipsoidxmax(nn, xmx2)
 !!== Maximum value for x_i for ellipsoid ==
 !!  Ellipsoid is given as 1d0 = sum x_i nn(i,j) x_j.
@@ -150,11 +155,12 @@ c
       nv2  = (/n31,n32/)
       fac = n33-sum(nv2 *matmul(ainv,nv2))
       xmx2(3) = 1d0/fac
-      end
+      end subroutine
+      end module
+
+
+
 #undef NOTARGET
-
-
-
       subroutine shorbz(p,pout,plat,qlat)
 C- Shortens vector to equivalent in first Brillouin zone.
 C ----------------------------------------------------------------
@@ -190,13 +196,13 @@ C ... pout is x rotated back to Cartesian coordinates
 
 C --- Try shortening by adding +/- basis vectors ---
    15 continue
-      do  10  j1 =  0, 1
+      do  j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-      do  10  j2 = j2min, 1
+      do  j2 = j2min, 1
         j3min = -1
         if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-      do  10  j3 = j3min, 1
+      do  j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
@@ -215,8 +221,9 @@ c
           pout(3) = pout(3) + j*x(3)
           goto 15
         endif
-   10 continue
-
+      enddo
+      enddo
+      enddo
       end
 C      subroutine fmain
 C      implicit none
@@ -289,13 +296,13 @@ C ... pout is x rotated back to Cartesian coordinates
 
 C --- Try shortening by adding +/- basis vectors ---
    15 continue
-      do  10  j1 =  0, 1
+      do   j1 =  0, 1
         j2min = -1
         if (j1 .eq. 0) j2min = 0
-      do  10  j2 = j2min, 1
+      do   j2 = j2min, 1
         j3min = -1
         if (j1 .eq. 0 .and. j2 .eq. 0) j3min = 0
-      do  10  j3 = j3min, 1
+      do   j3 = j3min, 1
 
 C     ... (-1,0,1) (plat(1) + (-1,0,1) plat(2)) + (-1,0,1) plat(3))
 c takao think this alglorism cause problems (=wrong) for very anisotropic cases.
@@ -314,7 +321,8 @@ c
           pout(3) = pout(3) + j*x(3)
           goto 15
         endif
-   10 continue
-
+      enddo
+      enddo
+      enddo
       end
 

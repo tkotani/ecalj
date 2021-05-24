@@ -181,6 +181,7 @@ c$$$      enddo
 
       subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx,
      o nwgt,igx,igxt,eibzsym,timerout)
+      use m_shortn3,only: shortn3_initialize,shortn3
       implicit none
 !! === Obtain info for eibz symmetrization. See PRB81,125102-9 ===
 !! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
@@ -296,7 +297,7 @@ ccccccccccccccccccc
       read(ifiese,*)pwmode
       close(ifiese)
 cccccccccccccccccc
-      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat,rlatp,xmx2)
+      if(pwmode>0.and.pwmode<10) call shortn3_initialize(qlat)
 
 !! ===  main iq loop ===
       eibzsym = 0
@@ -315,7 +316,7 @@ cccccccccccccccccccccccccccccccccccccccccccccc
           if(pwmode>0.and.pwmode<10) then
 c     check wheter q is on 1st BZ boundary or not
              ppin=matmul(transpose(plat),q) 
-             call shortn3(rlatp,xmx2,ppin,noutmx, nout,nlatout)
+             call shortn3(ppin,noutmx, nout,nlatout)
              if(ig/=1.and.nout>1) then
                 do iout=1,nout
                    if(debug) write(*,"(a,3i5,f10.4,3f8.4)")'rrrrn1 =',nlatout(:,iout),

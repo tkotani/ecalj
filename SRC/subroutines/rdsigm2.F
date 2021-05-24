@@ -716,22 +716,23 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine sigmainit(ldim,procid,master)
+      subroutine sigmainit()
       use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode
       use m_hamindex,only: symops_af,napwmx
+      use m_MPItk,only: procid,master
       use m_ext,only:sname
+      use m_suham,only: ham_ldham
 #if MPI | MPIK
       include "mpif.h"
 #endif
       complex(8),allocatable:: sfz(:,:,:,:,:,:),wgtq(:,:,:,:,:),sfzx(:,:,:,:,:,:),sfzmto(:,:,:,:,:,:)
-      integer:: procid,master,ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
+      integer:: ldim,ierr,ifi,ndimh_dummy,nk1,nk2,nk3,nqps,ifile_handle
       logical:: laf,mlog,cmdopt, mtosigmaonly
       character strn*120
       real(8),allocatable:: qsmesh2(:,:,:,:)
-c      real(8):: qsfz(3,100)
+      ldim  = ham_ldham(1)
       ndimsig= ldim             !if(mtosigmaonly()) mode. Dimension of sigm is the size of MTOs.
       if(procid==master) then
-c         rsrnge = ham_rsrnge
          write(6,*)' --- goto sigmainit: rdsigm2 initialization section ---',rsrnge
          ifi=ifile_handle()
          open(ifi,file='sigm.'//trim(sname),form='unformatted') !

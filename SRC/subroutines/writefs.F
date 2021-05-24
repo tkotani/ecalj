@@ -3,6 +3,7 @@
       use m_lmfinit, only: nsp,nspc
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_mkqp,only: bz_nabc
+      use m_shortn3,only: shortn3_initialize,shortn3
       implicit none
       logical:: cmdopt0,allband
       real(8):: evlall(ndhamx,nspx,nkp),ppin(3),qplist(3,nkp),ef0
@@ -46,7 +47,7 @@
          write(ifi,"(4x,3(f9.5,1x))") qlat(:,1)
          write(ifi,"(4x,3(f9.5,1x))") qlat(:,2)
          write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
-         call shortn3_initialize(qlat,rlatp,xmx2)
+         call shortn3_initialize(qlat)
          do ib=1,ndhamx 
             if(allband.or.(minval(evlall(ib,isp,:))<ef0+0.5.and.
      &           maxval(evlall(ib,isp,:))>ef0-0.5)) then
@@ -57,7 +58,7 @@
 ! to reduce q-point to qshort
                do iq=1,nkk1*nkk2*nkk3
                   ppin=matmul(transpose(plat),qplist(:,iq))
-                  call shortn3(rlatp,xmx2,qplist(:,iq),noutmx, nout,nlatout)
+                  call shortn3(qplist(:,iq),noutmx, nout,nlatout)
                   iout=1
                   qshort(1:3)=  matmul(qlat(:,:), ppin+nlatout(:,iout))
                   write(ififm,"(4f13.5)") qshort(:),evlall(ib,isp,iq) !q-point reduced to 1stBZ

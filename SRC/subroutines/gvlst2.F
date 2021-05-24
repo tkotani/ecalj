@@ -1,6 +1,7 @@
 CSFCPP#define F90 1
       subroutine gvlst2(alat,plat,q,n1,n2,n3,gmin,gmax,mshlst,job,ngmx,
      .ng,kv,gv,igv,igv2)
+      use m_shortn3,only: shortn3_initialize,shortn3
 C- Set up a list of recip vectors within cutoff |q+G| < gmax
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -133,7 +134,7 @@ c      print *,' jjjjjjj qlat qlat1=',qlat,qlat1
       gmax2 = (gmax0-tol)**2
       gmin2 = gmin0**2
       noutmx=48
-      call shortn3_initialize(qlat1,rlatp,xmx2) !initialization for shoten3
+      call shortn3_initialize(qlat1) !initialization for shoten3
       allocate(nlatout(3,noutmx))
 c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n1l =',n1l,n1min,n1max
 c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n2l =',n2l,n2min,n2max
@@ -145,7 +146,7 @@ c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  gmax2 =',gmax2
           qpg= (/j1, j2, j3/) + matmul(q,plat(:,:)) 
           qpg= (/ qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3) /)
              !qpg on the supercell corrdinate of qlat1.
-          call shortn3(rlatp,xmx2,qpg, noutmx, nout,nlatout)
+          call shortn3(qpg, noutmx, nout,nlatout)
           gs= matmul(qlat1(:,:), (qpg+nlatout(:,1))) 
           gg = (gs(1)**2+gs(2)**2+gs(3)**2)
 cccccccccccccccccccccccccccccccccccccccc

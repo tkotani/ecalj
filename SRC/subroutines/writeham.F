@@ -1,16 +1,25 @@
-      subroutine writeham_init(ififft)
+      module m_writeham
+      use m_MPItk,only: master_mpi
+      
+      integer,private:: ififft
+      logical,private:: initset1=.true.,writeham=.false.
+      contains
+!!
+      subroutine m_writeham_init()
       use m_mkqp,only: bz_nabc
       use m_MPItk,only: strprocid
       use m_lattic,only: qlat=>lat_qlat,pos=>rv_a_opos,plat=>lat_plat
       use m_lmfinit,only: nbas,
      &     alat=>lat_alat
-      integer:: nkp,iq,ik1,ik2,ik3,npairmx,ikpd,ni,ififft,ib1,ib2,ikp,ip,nkk1,nkk2,nkk3
+      integer:: nkp,iq,ik1,ik2,ik3,npairmx,ikpd,ni,ib1,ib2,ikp,ip,nkk1,nkk2,nkk3
       integer,allocatable:: npair(:,:),nlat(:,:,:,:),nqwgt(:,:,:)
       real(8),allocatable:: qplist(:,:)
       real(8)::rrrr,posp(3),qp(3),pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx
       logical:: ok
+      if(.not.master_mpi) return
+      writeham=.true.
       nkk1=bz_nabc(1)
       nkk2=bz_nabc(2)
       nkk3=bz_nabc(3)
@@ -79,3 +88,46 @@ c             if(abs(sum(qwgt(1:npair(ib1,ib2),ib1,ib2))-1d0)>1d-8) call rx('bug
           deallocate(npair)
 c        endif
       end subroutine
+!--------------------------------------------      
+      subroutine m_writeham_write() 
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
+      use m_suham,only: ham_ldham
+c      use m_hamindex, only: norbmto
+      use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl !, symops_af
+      integer:: ldim,iorb,ib,is,i,jobgw
+      character spid*8
+      integer,allocatable:: ib_table(:),k_table(:),l_table(:)
+!! --- get index for hamiltonian for m_hamindex takao june2009
+!! these are used in sigm mode(QSGW).
+!! memo:
+!!  ib = atom index
+!!  ltab= L (angular momentum index)
+!!  ktab=  =1 for EH, =2 for EH2, =3 for lo
+!! SYMOPS
+      if(.not.master_mpi) return
+      if(.not.initset1  ) return
+      initset1 = .false.
+      ldim=ham_ldham(2)
+c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
+      allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
+      do iorb = 1, norbmto      !Total number of MTO's
+         ib   = ibastab(iorb)
+         is   = ssite(ib)%spec
+         spid=sspec(is)%name
+         ib_table(offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ib
+         l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
+         k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
+      enddo
+      write(6,*) ' i  ib l  k trim(spec)'
+      do i= 1, ldim
+         ib   = ib_table(i)
+         is   = ssite(ib)%spec
+         spid = sspec(is)%name
+         write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+      enddo
+      if(writeham) write(ififft)ldim,lso,nsp
+      if(writeham) write(ififft)ib_table,l_table,k_table
+      if(writeham) close(ififft)
+      deallocate(ib_table,l_table,k_table)
+      end subroutine
+      end module
