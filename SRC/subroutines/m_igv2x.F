@@ -1,14 +1,16 @@
       module m_igv2x
-      public:: m_igv2x_set,napw,igv2x
-      integer,allocatable,protected:: napw,igv2x(:,:)
-
-      private
+c      public:: m_igv2x_set,napw,igv2x
+      integer,allocatable,protected:: igv2x(:,:)
+      integer,protected::napw,ndimh,ndimhx
+      
+c      private
       contains
       subroutine m_igv2x_set(qp) !Set napw and igv2x for given qp
-      use m_lmfinit,only: pwmode=>ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,alat=>lat_alat,stdo
+      use m_lmfinit,only: pwmode=>ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,alat=>lat_alat,stdo,nspc
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only: master_mpi,procid,master
       use m_shortn3,only: shortn3_initialize,shortn3
+      use m_suham,only: ldham=>ham_ldham
       integer:: ifiese
       integer,allocatable ::  kv_iv(:,:) 
       real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
@@ -60,5 +62,8 @@ c         endif
          napw=0 
          allocate(igv2x(1,1))   !dummy
       endif
+      ndimh = ldham(1)+napw     ! ldim+napw
+      if (mod(pwmode,10)==2) ndimh = napw !APW-only mode
+      ndimhx = ndimh*nspc       !this is iq-dependent.
       end
       end module

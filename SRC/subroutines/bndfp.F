@@ -58,7 +58,7 @@
       use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
-      use m_igv2x,only: napw,igv2x,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
@@ -200,7 +200,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
-     .  ,  mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
+     .  ,  mpipid , ldham(16) , ldim !, ndimh , ndimhx !nfbn(2) , 
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
@@ -287,7 +287,7 @@ ctakao
       integer:: getef, i_dummy_getef,ifig!, ndimsig
 c      integer:: n_listwf
       integer, allocatable:: listwf(:)
-      integer:: ntqxx,ispx,ix99 !,nevec unused.
+      integer:: ix99 !,nevec unused.
       real(8)::eseavrmean
 c      logical:: mtosigmaonly
       real(8)::scaledsigma
@@ -356,7 +356,7 @@ c mar2014
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: phispinsym,ljobgw
-      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle
+      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle,ispinit
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
@@ -551,6 +551,7 @@ c mar2014
       ndimhx_=0
       nev_   =0                
       nevls  =0
+
       
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -563,9 +564,6 @@ c mar2014
 !this judges going through second pass or not.
       endif
       ix99 = 0
-c      xdat = 0d0
-      
-cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
  99   continue
       ix99 = ix99+1             !ix99=2 for second pass
       if(lrout/=0) then
@@ -596,7 +594,6 @@ cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       ecbot = -evtop
       if(lso/=0) orbtm_rv=0d0
       initiqisp=.true.
-      
 C Start k and isp loop (first loop in parallel mode)
 C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
 C     evl is dimensioned evl(ndham,2)
@@ -619,9 +616,6 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
          endif
 #endif
          call m_Igv2x_set(qp) ! get napw and igv2x
-         ndimh = ldham(1)+napw ! ldim+napw
-         if (mod(pwmode,10)==2) ndimh = napw !APW-only mode
-         ndimhx = ndimh*nspc    !this is iq-dependent.
          nmx    = min(nevmx,ndimhx) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
@@ -631,69 +625,47 @@ c      ! eight corners -->  qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc
 c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
          if(allocated(hamm)) deallocate(hamm,ovlm)
          nnspc=1
          if(nspc==2) nnspc=4
          allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
-         do 2005 isp = 1,nsp
-!! takao removed shorbz(shortest qp) here. !I think not necessary
-!     ! === For this qp, G vectors for PW basis and hamiltonian dimension ===
-c$$$cccccccccccccccccccccccccc
-c$$$            if(ix99==2.and.(nspc==2.and.isp==1)) cycle
-c$$$            ispc = min(isp,nspc) !nspc=2 for non-colinier case
-c$$$            jsp = isp
-c$$$            if (ispc .eq. 2) jsp = 1
-c$$$            if(ix99==2) goto 1919
-c$$$            if(isp==1) then
-c$$$               if(allocated(hamm)) deallocate(hamm)
-c$$$               if(allocated(ovlm)) deallocate(ovlm)
-c$$$               nnspc=1
-c$$$               if(nspc==2) nnspc=4
-c$$$               allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
-c$$$            endif
-c$$$            if(ispc==1) then
-c$$$               hamm=0d0
-c$$$               ovlm=0d0
-c$$$            endif
-c$$$ccccccccccccccccccccccccccc
-c$$$            
-            if(ix99==2.and. (nspc==2.and.isp==1)) cycle
-            if(isp==2 .and. nspc==2) then
+         ispinit=1
+         if(lso==1) ispinit = 2 !if lso, nsp=2
+         do 2005 isp = ispinit,nsp
+            if(ix99==2.and. (lso==1.and.isp==1)) cycle
+            ispc = 1
+            jsp  = isp
+            if(lso==1) then
                jsp = 1
                ispc= 2
-            else
-               jsp  = isp
-               ispc = 1
-               hamm=0d0
-               ovlm=0d0
-            endif   
+            endif
             if(ix99==2) goto 1919 !skip diagonalization
-!! Generate sene(Sigma-Vxc) for given sfz.
-!! Determine interpolated self-energy sene at qp from sfz. 
-!! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
-!!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
-!! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
-!! Main output sene. See m_seneinterp
-            if(sigmamode) call getsene(lrsig,qp,isp) !Get sene = Sigma-Vxc
-            
-!!note kino
-!! hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
+!!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
+
             
 !! == Set up Hamiltonian by hambl. ==============
 !!    Hamiltonian: hamm(1:ndimh,1:ndimh,3) means off-diagonal section when SO=1.
 !!    Overlap matrix: ovlm 
 !!    senex:  Sigma-Vxc
 !! ==========================================
-            jx = 0
-            if (lso == 1) jx = 10
-            call hambl ( jx , nbas , ssite , sspec ,  isp ,!sham ,slat , 
-     .        qp , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
-     .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
-     .           , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
-            if(sigmamode) then
+            hamm=0d0
+            ovlm=0d0
+            if(lso==1) then !only isp=2 by do 2005
+            call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     &              hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1,3))
+            endif
+            call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     &           hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
+!! Generate sene(Sigma-Vxc) for given sfz.
+!! Determine interpolated self-energy sene at qp from sfz. 
+!! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
+!!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
+!! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
+!! Main output sene. See m_seneinterp
+            if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
+               call getsene(lrsig,qp,isp) 
                allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
                ovlmtoi = ovlm(1:ndimsig,1:ndimsig,ispc)
                call matcinv(ndimsig,ovlmtoi)
@@ -702,44 +674,23 @@ c$$$
                allocate(senex(ndimh,ndimh))
                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
                call dsene()
-               deallocate(ovliovl)!,sene)
-               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex !add senex
+               deallocate(ovliovl)
+               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                deallocate(senex)
             endif
-            
-C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
-C       separate spins.
-C       For the rest of the isp loop,
-C       jsp=isp in the collinear case; jsp=1 in the noncollinear
-C       Thus jsp should be used in place of isp
-C       isp serves as a flag for the noncollinear case
-            if (ispc .ne. nspc) cycle 
-            
 !! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
-     &        write(*,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
-     &        iq,nkp,qp,ndimh,ndimh-napw,napw
-            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be given in a better manner.
-c!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
-c            if (tdos) then 
-c               nmx = ndimhx
-c               efmax = 99999
-c            endif
-            if(debug) write(*,*)'kino, allocate t_zv' ,ndimhx,nmx,ndimhx,ix99
-!! == lpdiag=0 only. ===
-            if(nspc .eq. 2) then
+     &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
+     &      iq,nkp,qp,ndimh,ndimh-napw,napw
+c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be given in a better manner.
+! assemble Hamiltonian for lso=1 
+            if(lso==1) then
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
             endif
-            if(debug) write(*,*) 'allocate ww_rv', 11*ndimhx
             
 !! === diagonalization ===
-!! It is better to clean up lwtkb-algolism in this routine. !!!!
-!     ! savez save eigenfuncitons for second pass.(second-pass procedure should be removed in future).
-ccccccccccccccccccccccccccccccc            
  1919       continue
-ccccccccccccccccccccccccccccccc            
-!!  Calculate all eigenvalues for plotting mode, pdos, tdos modes.
             if (tdos) then 
                nmx = ndimhx
                efmax = 99999
@@ -748,6 +699,7 @@ ccccccccccccccccccccccccccccccc
             allocate(t_zv(ndimhx,nmx))
             savez=.false.
             getz =.false.
+            
             if(gotosecondpass) then
                if(ix99==1) then
                   savez=.true.  ;  getz=.false.
@@ -755,7 +707,7 @@ ccccccccccccccccccccccccccccccc
                   savez=.false. ;  getz=.true.
                endif
                if(initiqisp) then
-#if (MPI|MPIK)
+#if MPIK
            !!  for parallel write, and eigze is temporaly used only in this subroutine. 
                   inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
                   if(nexist) close(ifig)
@@ -832,8 +784,11 @@ ccccccccccccccccccccccccccccccc
 #else
             if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(stdo,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-            endif  
+           endif
 #endif
+
+
+           
 !  ! save to evlall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
@@ -939,7 +894,7 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
          nev_(iq)   = nev
  2010 continue  !end of iq loop
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
-      if(ix99==1.and.writeham)close(ifih)
+      if(ix99==1.and.writeham) close(ifih)
 !!----------------------
 !! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
       if(numprocs/=1.and.ix99==1) then

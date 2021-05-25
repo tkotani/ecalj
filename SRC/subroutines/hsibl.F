@@ -7,8 +7,6 @@ c#define SGI 1
       use m_supot,only: lat_nabc
       use m_supot,only: lat_ng
       use m_supot,only: lat_gmax
-
-
       use m_lattic,only:  lat_plat
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------

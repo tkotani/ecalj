@@ -20,7 +20,7 @@
       real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3),qp(3)
       complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,nspx,ib,
-     & iprocar1,iprocar2,nev,i,m,l,ndimhx,nmx
+     & nev,i,m,l,ndimhx,nmx
       real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
 !! Decompose to alm components. PROCAR generation.
 !     ! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
