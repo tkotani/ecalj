@@ -632,13 +632,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ispinit=1
          if(lso==1) ispinit = 2 !if lso, nsp=2
          do 2005 isp = ispinit,nsp
-            if(ix99==2.and. (lso==1.and.isp==1)) cycle
             ispc = 1
             jsp  = isp
             if(lso==1) then
                jsp = 1
                ispc= 2
             endif
+            
             if(ix99==2) goto 1919 !skip diagonalization
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
@@ -680,17 +680,16 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
                call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
             endif
+ 1919       continue
+
             
 !! === diagonalization ===
- 1919       continue
             if (tdos) then 
                nmx = ndimhx
                efmax = 99999
             endif
             if (allocated(t_zv)) deallocate(t_zv)
             allocate(t_zv(ndimhx,nmx))
-            savez=.false.
-            getz =.false.
             
             if(gotosecondpass) then
                if(ix99==1) then
@@ -699,18 +698,14 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
                   savez=.false. ;  getz=.true.
                endif
                if(initiqisp) then
-#if MPIK
-           !!  for parallel write, and eigze is temporaly used only in this subroutine. 
                   inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
                   if(nexist) close(ifig)
                   open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
-#else
-                  inquire(file='eigze',opened=nexist,number=ifig)
-                  if(nexist) close(ifig)
-                  open(newunit=ifig,file='eigze',form='unformatted')
-#endif
                   initiqisp=.false.
-               endif  
+               endif
+            else   
+               savez=.false.
+               getz =.false.
             endif
             
             if(PROCARon) then   !!2014mar for band weight mode
@@ -1333,8 +1328,6 @@ c            if (nspc .eq. 2) lswtk = 1 !commnet out nov2015  right?
 #ifdef MPIK
          call mpi_barrier(MPI_comm_world,ierr)  
 #endif
-c$$$c jan2015 did not work for Testinstall/te
-c$$$  call poppr
          if(goto99) goto 99
       endif
 c      if(allocated(sfz)) deallocate(sfz)
