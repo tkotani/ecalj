@@ -162,8 +162,8 @@ C --- Loop through g vectors, shorten, count and keep if within gmax ---
         call shortn3_initialize(qlat1) !initialization for shoten3
         allocate(nlatout(3,noutmx))
         do  21  j1 = 0, n1-1
-        do  21  j2 = 0, n2-1
-        do  21  j3 = 0, n3-1
+        do  22  j2 = 0, n2-1
+        do  23  j3 = 0, n3-1
 c              n_gslist=0
 c              do 21 if1=0,1
 c                do 21 if2=0,1
@@ -253,13 +253,15 @@ c#endif
 
             endif
           endif
+   23   continue
+   22   continue
    21   continue
         deallocate(nlatout)
       else
 
-        do  20  j1 = 0, n1-1
-        do  20  j2 = 0, n2-1
-        do  20  j3 = 0, n3-1
+        do  120  j1 = 0, n1-1
+        do  121  j2 = 0, n2-1
+        do  122  j3 = 0, n3-1
           qpg(1) = j1*qlat(1,1) + j2*qlat(1,2) + j3*qlat(1,3) + q(1)
           qpg(2) = j1*qlat(2,1) + j2*qlat(2,2) + j3*qlat(2,3) + q(2)
           qpg(3) = j1*qlat(3,1) + j2*qlat(3,2) + j3*qlat(3,3) + q(3)
@@ -325,7 +327,9 @@ c#endif
 
             endif
           endif
-   20   continue
+ 122   continue
+ 121  continue
+ 120  continue
 
       endif
       ng = ig

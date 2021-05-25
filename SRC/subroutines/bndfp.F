@@ -28,6 +28,7 @@
       use m_supot,only: zv_a_osmrho,sv_a_oorhat
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
+     & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,fsmom=>bz_fsmom,
      &     bz_dosmax,bz_nevmx,lmet=>bz_lmet,bz_fsmommethod,bz_n,
@@ -35,7 +36,7 @@
      &     pwmode=>ham_pwmode,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
-     &     nsp,nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
+     &     nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -58,6 +59,7 @@
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,igv2x,m_Igv2x_set
+      use m_procar,only: m_procar_init,dwgtall,nchanp
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -102,11 +104,15 @@ Cl         :In the noncollinear case, isp loops 1..2 for the
 Cl         :purpose of assembling the hamiltonian.
 Cl         :Once assembled, isp should not be used; and jsp=1
 Cl   ispc  :2 when working on (2,2) block of noncollinear hamiltonian;
-Cl         :otherwise 1
-Cl   nspx: number of independent spin channels containing eigenvalues
-Cl         and total DOS; nspx=nsp unless nspc=2, in which case nspx=1
-Cl   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
+C     l         :otherwise 1
+
       
+!!      nspx: number of independent spin channels
+!!      nspc*nspx = nsp   
+!!      See suham.F. (nspc=2,nsp=2,nspx=1) is the spinoffdiagonal mode SO=1. nspc=nsp is for without SO.
+!!      ndhamx: maximum size of hamiltonian  
+
+C     l   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
 Cr Remarks ---- now improving...
 Cr   Band pass consists of:
 Cr   (1) make the effective potential,
@@ -181,7 +187,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       double precision sttime,entime
       integer:: pidorigin, ndimhx_iq, nev_iq,idx
       integer:: work_mpi(10)    ! use only 1 and 2 now
-      integer nbx,iter,maxit!,ndham !nbas
+      integer nbx,iter,maxit
       integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
       real(8):: dmxp(33),frc(3,1:nbas*numq)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
@@ -193,7 +199,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
-     .  , iv(10) , parg , ndhamx , nspx , nk1 , nk2 , nk3 , lshft(3) 
+     .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
      .  ,  mpipid , ldham(16) , ldim , ndimh , ndimhx !nfbn(2) , 
       real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
@@ -273,7 +279,7 @@ ctakao
 
       integer:: iqini,iqend
       complex(8),allocatable:: smrhobk(:)
-      real(8),allocatable:: evlall(:,:,:),evl(:,:),dwgtall(:,:,:,:,:)
+      real(8),allocatable:: evlall(:,:,:),evl(:,:)
       integer:: idummy
       real(8):: epsnevec
       logical:: onlyonce=.true.
@@ -317,20 +323,16 @@ c      real(8):: qsfz(3,100)
 c mar2014
       integer:: lb1,lb2,onespdummy
       integer:: iprocar,iprocar1,iprocar2,lrsigx
-      complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
-      complex(8):: au,as,az
-      real(8):: s11,s22,s33,s12,s13,s23,dwgt(100),dwgtt(100),xdat,qold(3)
       character*256:: sss,s222
       character*1000::ccc
-      logical:: initbd=.true.
 
       integer:: ispsigm !nov2014
-      logical:: spinoffdiag,    goto99!jan2015
+      logical:: goto99!jan2015
       logical:: fullmesh
 
       integer,allocatable:: ipqe(:,:,:),idtete(:,:)
-      integer:: ntete,init,ient,nchanp,nevmin,ifip,ifisyml
+      integer:: ntete,init,ient,nevmin,ifip,ifisyml
       real(8):: qx(3)
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
       character*3::charnum3
@@ -356,21 +358,18 @@ c mar2014
       logical:: phispinsym,ljobgw
       integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle
       character*8:: charext
-      logical:: lfill=.false.,ixx
+      logical:: lfill=.false.,ixx,do2010init(2)
+      logical:: spinoffdiag
 !! ----------------------------
       call tcn ('bndfp')
-!! vbmmode =Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
-      if(cmdopt0('--vbmonly')) then
+      if(cmdopt0('--vbmonly')) then ! Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
          if(master_mpi) call vbmmode()
          call rx0('--vbmonly mode done')
       endif
-!! getq mode. Current version is not for spin dependent nor many restrictions.
-!! spin symmetic (or nspin=1, not 2 channell binded and so on...
-      if(cmdopt0('--getq')) then
+      if(cmdopt0('--getq')) then !!! Current version is not for spin dependent, with many restrictions.
          if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
-!! checkwrite     
       if(master_mpi) then ! check Write atomic positions
          write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
@@ -380,42 +379,22 @@ c mar2014
             write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
-!!      
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      fsmode   = cmdopt0('--fermisurface')
-      fullmesh = cmdopt0('--fullmesh').or. cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
-      if(fullmesh.and.(.not.procaron)) call rx(' --fullmesh is meaningful only with --mkprocar')
-      if(nlibu>0) dmatu=0d0 !dmat initialization
-!! fsmode: Fermi surfece mode for xcrysden. It's format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
+      fsmode   = cmdopt0('--fermisurface')! Fermi surfece mode for xcrysden. Format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+      if(fullmesh) procaron = .true.
+      if(nlibu>0) dmatu=0d0 !density matrix for U initialization
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)
-!!      
       savez=.false.
       getz =.false.
       if (maxit==0) return
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-      idummy = unlink('RSEQ_ERROR') !the error flag in rseq. Remove RSEQ_ERROR here because
-                        ! this error is only fatal when it is finaly converged. takaoNov28_2010
-!! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
-!! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
-      if(nspc==2.and.nsp==2) then !nspc==2
-         spinoffdiag=.true. !non-colinear case
-         nspx=1 !nsp/nspc
-         ndhamx = ndham*2
-      elseif(nspc==1.and.nsp==2) then
-         spinoffdiag=.false. !spin no-offdiagonal
-         nspx=2 !nsp/nspc
-         ndhamx= ndham
-      elseif(nspc==1.and.nsp==1) then
-         spinoffdiag=.false. !paramagnetic
-         nspx=1 !nsp/nspc
-         ndhamx= ndham
-      else
-         call rx('bndfp: nspc==2 but nsp=1')
-      endif
+      idummy = unlink('RSEQ_ERROR') ! the error flag in rseq. Remove RSEQ_ERROR here because
+                                    ! this error is only fatal when it is finaly converged. takaoNov28_2010
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
@@ -436,7 +415,7 @@ c mar2014
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       endif
-      if (ndham.le.0)  call rx('bndfp: hamiltonian matrix has zero dimension')
+      if (ndham<=0)  call rx('bndfp: hamiltonian matrix has zero dimension')
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
@@ -465,17 +444,13 @@ c mar2014
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
       lfrce= ctrl_lfrce
-!!  Switch to plot bands at specified qp
-      if(cmdopt0('--band').or.fullmesh) then
+      if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
          plbnd = 1
          lrout = 0
          lfrce = 0
       else
          plbnd = 0
       endif
-!! PROCAR files 
-      if(PROCARon)            open(newunit=iprocar1,file='PROCAR.UP.'//trim(strprocid))
-      if(PROCARon.and.nsp==2) open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))     
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian stated at jan2018kaist
@@ -494,7 +469,7 @@ c mar2014
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw,vorb) 
 !! elind for accelarating convergence
-      elind=ham_elind
+      elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
@@ -517,7 +492,6 @@ c mar2014
          onlyonce=.false.
       endif
       if (lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
-      
 !! wkp is used. Confusing logic. need to be dissolved.
       if (plbnd/=0) then
          if (master_mpi) then !Try and read Fermi level from file
@@ -530,7 +504,6 @@ c mar2014
          endif   
          call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
       endif
-      
 !! === Get nkp and qplist. fatband mode ---> --mkprocar. plbnd/=0 ---> band plot mode.
 !! we can move this outside of iteration cycle.
       if(debug) write(stdo,*) 'bndfp: goto m_qplist_init'
@@ -561,14 +534,8 @@ c mar2014
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-      
       allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
       evlall=0d0
-      nchanp=25 !total of s,p,d,f
-      if(procaron.and.fullmesh) then
-         allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
-         dwgtall=0d0
-      endif
 #if MPIK
       if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
       sttime = MPI_WTIME()
@@ -584,7 +551,7 @@ c mar2014
       ndimhx_=0
       nev_   =0                
       nevls  =0
-
+      
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
@@ -596,7 +563,7 @@ c mar2014
 !this judges going through second pass or not.
       endif
       ix99 = 0
-      xdat = 0d0
+c      xdat = 0d0
       
 cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx      
  99   continue
@@ -638,9 +605,8 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
       if(debug) print *,' --- goto do loop 2010 ---'
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
-         if(debug) print *,' do 2010 iq procid=',iq,procid
+         if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
 #if MPIK
-         if(debug) write(*,'(a,i3,5i5)')'debug iq=',procid,iq,iqini,iqend
          if (iq==kpproc(procid)) then
             if(mlog) then
                call gettime(datim)
@@ -666,53 +632,60 @@ c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-!! ... Loop over majority, minority spins
-!!     In the SO case, still a loop isp=1..2
-!!     isp=1 generates just the 11 block
-c$$$        qpo=qp !moved here on mar2012 only for band plot
-c$$$        if(.not.noshorbz()) call shorbz(qp,qp,qlat,plat)
-         do 2005 isp = 1, nsp
+         if(allocated(hamm)) deallocate(hamm,ovlm)
+         nnspc=1
+         if(nspc==2) nnspc=4
+         allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
+         do 2005 isp = 1,nsp
 !! takao removed shorbz(shortest qp) here. !I think not necessary
-!! === For this qp, G vectors for PW basis and hamiltonian dimension ===
-            ispc = min(isp,nspc) !nspc=2 for non-colinier case
-            jsp = isp
-            if (ispc .eq. 2) jsp = 1
-ccccccccccccccccccccccccccccccc
-            if(ix99==2.and.(nspc==2.and.isp==1)) cycle
-            if(ix99==2) goto 1919
-ccccccccccccccccccccccccccccccc            
-!!   ... Make Hamiltonian and overlap matrices
-c            nqsig=ham_nqsig
-            if(isp==1) then
-               if(allocated(hamm)) deallocate(hamm)
-               if(allocated(ovlm)) deallocate(ovlm)
-               nnspc=1
-               if(nspc==2) nnspc=4
-               allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
-            endif
-            if(ispc==1) then
+!     ! === For this qp, G vectors for PW basis and hamiltonian dimension ===
+c$$$cccccccccccccccccccccccccc
+c$$$            if(ix99==2.and.(nspc==2.and.isp==1)) cycle
+c$$$            ispc = min(isp,nspc) !nspc=2 for non-colinier case
+c$$$            jsp = isp
+c$$$            if (ispc .eq. 2) jsp = 1
+c$$$            if(ix99==2) goto 1919
+c$$$            if(isp==1) then
+c$$$               if(allocated(hamm)) deallocate(hamm)
+c$$$               if(allocated(ovlm)) deallocate(ovlm)
+c$$$               nnspc=1
+c$$$               if(nspc==2) nnspc=4
+c$$$               allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
+c$$$            endif
+c$$$            if(ispc==1) then
+c$$$               hamm=0d0
+c$$$               ovlm=0d0
+c$$$            endif
+c$$$ccccccccccccccccccccccccccc
+c$$$            
+            if(ix99==2.and. (nspc==2.and.isp==1)) cycle
+            if(isp==2 .and. nspc==2) then
+               jsp = 1
+               ispc= 2
+            else
+               jsp  = isp
+               ispc = 1
                hamm=0d0
                ovlm=0d0
-            endif
-!! === Sigma-Vxc ===
+            endif   
+            if(ix99==2) goto 1919 !skip diagonalization
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
 !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
-!! Main output => sene
-            if(sigmamode) then
-               call getsene(lrsig,qp,isp) !Get sene = Sigma-Vxc 
-            endif
+!! Main output sene. See m_seneinterp
+            if(sigmamode) call getsene(lrsig,qp,isp) !Get sene = Sigma-Vxc
+            
 !!note kino
 !! hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
-
-!! == Set up Hamiltonian. ==============
-!!    Hamiltonian: hamm(1:ndimh,1:ndimh,ispc). ispc=3 means off-diagonal section when SO=1.
+            
+!! == Set up Hamiltonian by hambl. ==============
+!!    Hamiltonian: hamm(1:ndimh,1:ndimh,3) means off-diagonal section when SO=1.
 !!    Overlap matrix: ovlm 
-!!    senex: Sigma-Vxc
+!!    senex:  Sigma-Vxc
 !! ==========================================
             jx = 0
             if (lso == 1) jx = 10
@@ -720,7 +693,6 @@ c            nqsig=ham_nqsig
      .        qp , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau 
      .        , sv_p_oppi , lcplxp , alfa , ndimh , napw , igv2x , hamm ( 1 
      .           , 1 , ispc ) , ovlm ( 1 , 1 , ispc ) , hamm ( 1 , 1 , 3 ) )
-c            print *,'hamble sumcheck =',sum(abs(ovlm)),sum(abs(hamm))
             if(sigmamode) then
                allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
                ovlmtoi = ovlm(1:ndimsig,1:ndimsig,ispc)
@@ -731,18 +703,17 @@ c            print *,'hamble sumcheck =',sum(abs(ovlm)),sum(abs(hamm))
                senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
                call dsene()
                deallocate(ovliovl)!,sene)
-               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex
+               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma * senex !add senex
                deallocate(senex)
             endif
+            
 C   ... In the noncollinear case (spin-orbit SO=1), this marks the end of looping over
 C       separate spins.
 C       For the rest of the isp loop,
 C       jsp=isp in the collinear case; jsp=1 in the noncollinear
 C       Thus jsp should be used in place of isp
 C       isp serves as a flag for the noncollinear case
-            if (ispc .ne. nspc) cycle !do2005 goto 30
-c            jsp = isp
-c            if (ispc .eq. 2) jsp = 1
+            if (ispc .ne. nspc) cycle 
             
 !! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
@@ -866,9 +837,8 @@ ccccccccccccccccccccccccccccccc
 !  ! save to evlall
             if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
-            
 !!   ... Save data for this qp to moments file
-            if( plbnd .eq. 0) then
+            if(plbnd==0) then
 !!   --- Orbital magnetic moment (requires lso) ---
                if (lso .ne. 0 .and. lwtkb .ne. -1) then
                   if (lwtkb .eq. 0) call rx('metal weights required for orb. moment calculation')
@@ -883,25 +853,7 @@ ccccccccccccccccccccccccccccccc
      .              , orbtm_rv )
                   deallocate(auso_zv)
                endif
-
 c$$$!! Mulliken analysis was here
-c$$$               if (lwtkb .ne. -1) then
-c$$$                  if (mullwrite) then
-c$$$                        call rxx(nev.ne.ndimhx,'Mulliken requires all eigenvectors')
-c$$$                        call rxx(nevmx.ne.ndhamx,'Mulliken requires nevmx=nhdamx')
-c$$$                        allocate(doswt_rv(nchan*nevmx*nspc))
-c$$$                        doswt_rv(:)=0.0d0
-c$$$                        call mullmf(nbas , ssite , sspec , ham_iv_a_oindxo , t_zv , ndimh 
-c$$$     .                    , nspc , iq , jsp , moddos , nsites , lsites , lmxch , nchan 
-c$$$     .                    , chan_iv , lmdim , ndham , doswt_rv )
-c$$$                        call iomomn(.true.,2,.false.,1,nspc,1,1,i)
-c$$$                        i1 = iomoms ( - nfilem , nl , nsp , nspc , nkp , ndimh , i , 
-c$$$     .                    nspc , 1 , 1 , ndhamx , nevmx , nchan , nchan , nev , evl ( 1 
-c$$$     .                    , jsp ) , 0d0 , doswt_rv , 0d0 , 0d0 , 0d0 )
-c$$$                        if (allocated(doswt_rv)) deallocate(doswt_rv)
-c$$$                  endif
-c$$$               endif   
-
 !! Make new density matrix dmatu for LDA+U (implementation of LDA+U is a little complicated).
                if (lwtkb .ne. -1) then
                   if (nlibu .gt. 0 .and. nev .gt. 0) then
@@ -977,127 +929,15 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                  endif     
                endif
             endif
-            
-
-!!   === Save evals for this qp ===
-c            elseif (plbnd .ne. 0) then
-c$$$#ifndef MPIK
-c$$$               if(debug) write(*,*)  'plbnd/=0 (noMPI)', ndham,jsp 
-c$$$               if (nfbn(1)>0 .and. n_listwf>0) then
-c$$$                  call rsibl_ev( ssite,sspec,slat,nbas,isp,qp,iq,ndimh,nspc
-c$$$     .              ,  napw,igv2x,ham_iv_a_oindxo,nev,t_zv,k1,k2,k3
-c$$$     .              ,  n_listwf,listwf    )
-c$$$               endif
-c$$$               if(debug) print *,'dddddd111'
-c$$$               i = nsp
-c$$$               if (onesp .ne. 0 .or. nspc .eq. 2) i = 1
-c$$$c              print *,' eee1',nevl,jsp,i
-c$$$c              print *,' eee2',allocated(evl)
-c$$$c              print *,' eee3',evl(1:2,jsp)
-c$$$c              print *,' eee3',evl(1:nevl,jsp)
-c$$$               call suqlsw2(nevl,jsp,i,evl(1,jsp),qp) !takao
-c$$$               if(debug) print *,'ddddd2222'
-c$$$               if (nfbn(1) .ne. 0) then
-c$$$                  if (ndimhx .ne. nevl)
-c$$$     .              call rx('color weights not implemented when '//
-c$$$     .              'nevl < hamiltonian dimension')
-c$$$                  call suqlse ( ndimhx , jsp , i , ndimhx , 1 , nfbn , ifbls_iv 
-c$$$     .              , ndhamx , t_zv , evl )
-c$$$               endif
-c$$$               if(debug) print *,'ddddd333'
-c$$$               if (nfbn(2) .ne. 0) then
-c$$$                  if (ndimhx .ne. nevl)
-c$$$     .              call rx('color weights not implemented when '//
-c$$$     .              'nevl < hamiltonian dimension')
-c$$$                  call suqlse ( ndimhx , jsp , i , ndimhx , 2 , nfbn , ifbls_iv 
-c$$$     .              , ndhamx , t_zv , evl )
-c$$$               endif
-c$$$               if(debug) print *,'ddddd4444'
-c$$$#else
-c               if (procid.eq.master) then
-c               write(stdo,*)  'case plbnd.ne.0 (MPIK),procid.iq=',procid,iq
-c               if(debug) write(*,*)  'nnn ', ndham,jsp 
-c               endif
-c              evlall(1:ndhamx,jsp,iq)= evl(1:ndhamx,jsp)
-c$$$#endif
-c            endif
-
-
-!! Decompose to alm components. PROCAR generation.
-!! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
             if(PROCARon) then
-c               nlmax = nl*nl
-               allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
-               initbd=.false.
-               qold=qp
-               auspp = 0d0
-               call makusq( 1 , ssite , sspec ,   nbas , nbas , !sham ,slat ,
-     .           0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .           nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
-               if(spinoffdiag) then
-                  jspini=1
-                  jspend=2
-               else
-                  jspini=isp
-                  jspend=isp
-               endif
-               do jspp= jspini, jspend
-                  if(jspp==1) iprocar=iprocar1
-                  if(jspp==2) iprocar=iprocar2
-                  if(debug) print *,'iiiii =',iprocar1,iprocar2,jspp,iprocar,ef0
-                  if(debug) print *,'nnnnn=',nlmax,ndham,nspc,nsp,nbas
-                  ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"//
-     &                 "      f-3      f-2      f-1       f0       f1       f2       f3"//
-     &                 "                                                                                 tot"
-                  write(iprocar,*)
-                  write(iprocar,*)
-                  write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
-                  write(iprocar,*)
-               do iband = 1, nev
-                  write(iprocar,*)
-                  write(iprocar,"('band ',i3,' # energy ',f13.8,' # occ. -----' )")iband,(evl(iband,jsp)-ef0)*rydberg
-                  write(iprocar,*)
-                  dwgtt=0d0
-                  do ib = 1, nbas
-                     is  = ssite(ib)%spec
-                     ilm = 0
-                     dwgt=0d0
-                     do  l = 0, sspec(is)%lmxa
-                        do  m = -l, l
-                           ilm = ilm+1
-                           au = auspp(ilm,iband,1,jspp,ib)
-                           as = auspp(ilm,iband,2,jspp,ib)
-                           az = auspp(ilm,iband,3,jspp,ib)
-                           s11 = dconjg(au)*au*ppnl_rv(2,l+1,jspp,ib)
-                           s22 = dconjg(as)*as*ppnl_rv(7,l+1,jspp,ib)
-                           s33 = dconjg(az)*az*ppnl_rv(8,l+1,jspp,ib)
-                           s12 = 0
-                           s13 = 2*dconjg(au)*az*ppnl_rv(9,l+1,jspp,ib)
-                           s23 = 2*dconjg(as)*az*ppnl_rv(10,l+1,jspp,ib)
-                           dwgt(ilm)= s11+s22+s33 + s12+s13+s23
-                        enddo
-                     enddo
-                     dwgtt = dwgtt + dwgt(1:ilm)
-                     if(ib==1)  write(iprocar,"(a)") trim(ccc)
-                     write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt)
-                     if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt)
-                     if(fullmesh) dwgtall(1:nchanp,ib,iband,jspp,iq) = dwgt(1:nchanp)
-                  enddo
-               enddo
-               enddo
-               if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,jsp,sum(dwgtall),nev
-               deallocate( auspp )
-            endif 
+               call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
+            endif
             if(allocated(t_zv)) deallocate(t_zv)
-!! == end loop over isp (main loop in parallel mode)==
-            if(debug) print *,'bbbbbbbb before 30'
-c 30         continue
-c            deallocate(igv2x)
- 2005    continue
+ 2005    continue !== end loop over isp (main loop in parallel mode)==
          if(allocated(hamm)) deallocate(hamm,ovlm)
-         ndimhx_(iq)=ndimhx
-         nev_(iq)   =nev
- 2010 continue
+         ndimhx_(iq)= ndimhx
+         nev_(iq)   = nev
+ 2010 continue  !end of iq loop
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
       if(ix99==1.and.writeham)close(ifih)
 !!----------------------
@@ -1335,7 +1175,6 @@ c         nkaph = globalvariables%nkaph
          qp=qplist(:,iq)
          do isp = 1, nspx
             jsp = isp
-c            if (ispc .eq. 2) jsp = 1
             if(iprint()>20.and.ix99==1) then
                write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
      &           iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
@@ -1416,13 +1255,10 @@ c     if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
       print *,'goto99=',goto99
       if(goto99) goto 99
 
-
 !!   For now, SO by site, not by class
       if (lwtkb .eq. 1 .and. lso .ne. 0) then
          allocate(ips_iv(nbas))
          do i_spackv=1,nbas
-c            call spackv_array_copy_i8_i ( 'u' , ssite ( i_spackv ) %spec 
-c     .        , 1 , i_spackv + 1 - 1 , ips_iv )
             ips_iv(i_spackv)=ssite ( i_spackv ) %spec 
          enddo
 !! orbital moment

@@ -2066,6 +2066,7 @@ c      enddo
       lekkl  = ctrl_pfloat
       if (lso .ne. 0)     lcplxp = 1
       if (sum(lldau)/=0) lcplxp = 1
+!!
       end subroutine m_lmfinit_init
       end module m_lmfinit
 

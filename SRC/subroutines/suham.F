@@ -1,12 +1,12 @@
       module m_suham
       integer, allocatable,protected ::  iv_a_oindxo (:)
       integer, allocatable,protected ::  iv_a_ooffH (:)
-      integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16)
+      integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16),ham_nspx,ham_ndhamx
 
       contains
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
-      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl, ctrl_nspin,
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,
      &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
@@ -58,9 +58,10 @@ C ... Local parameters
       integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
      .lgunit,lidim,lihdim,nbas,nclasp,ndim,neul,nl,
 c lncol,
-     .nlspcp,nsp,nspc,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
+     .nlspcp,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
-     .j1,j2,j3,m,npw,npwmin,npwmax,ndham
+     .     j1,j2,j3,m,npw,npwmin,npwmax
+      integer:: ndham=0
       double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
      .xx
       integer n0,nqdiv,npwpad
@@ -85,20 +86,14 @@ C ... Needed for iostr
       nspec=ctrl_nspec
       nl=ctrl_nl
 c      lncol=ctrl_lncol
-      nsp=ctrl_nspin
+c      nsp=ctrl_nspin
 c      nkaph = globalvariables%nkaph
       pwmode=ham_pwmode
       pwemin=ham_pwemin
       pwemax=ham_pwemax
 c      npwpad=ham_npwpad
-
-      nspc  = 1
       nspx  = nsp
-c      if (lncol .ne. 0) then
-      if (lso .ne. 0) then
-        nspc = 2
-        nspx = 1
-      endif
+      if(lso/=0) nspx = 1
       ndim = nbas * nl**2 * nkaph
       if (allocated(iv_a_ooffH)) deallocate(iv_a_ooffH)
       allocate(iv_a_ooffH(n0h*nkap0*(nbas+1)))
@@ -128,6 +123,7 @@ C ... Make rest of ldham
       ldham(7) = ldham(3) * nspc
       ldham(8) = nspx
       ham_ldham=ldham
+
 
 C ------- Potential- and implementation- specific setup -------
       alat=lat_alat
@@ -180,7 +176,8 @@ C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
       pwmode = ham_pwmode
       pwemax = ham_pwemax
-      if (pwemax .gt. 0 .and. mod(pwmode,10) .gt. 0) then
+      ndham  = ldham(1)
+      if (pwemax>0 .and. mod(pwmode,10)>0) then
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
         if (mod(pwmode/10,10) .eq. 1) then
@@ -225,11 +222,11 @@ c          endif
         endif
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-
         ham_npwmin=npwmin
-c        ham_npwpad=npwpad
-        ham_ndham=ndham
-
+        ham_ndham = ndham
+!! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
+!! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
+!     nspx*nspc=nsp
         if (mod(pwmode/10,10) .eq. 1) then
           call info2(20,1,0,' suham:  q-dependent PW basis with'//
      .    '  Emin = %d < E < %d.',pwemin,pwemax)
@@ -262,6 +259,21 @@ C    ...  Printout
           if (allocated(igv2_iv)) deallocate(igv2_iv)
           deallocate(rv_a_ogvx)
         endif
+      endif
+      if(nspc==2.and.nsp==2) then 
+c         spinoffdiag=.true. 
+         ham_nspx= 1               
+         ham_ndhamx = ndham*2
+      elseif(nspc==1.and.nsp==2) then
+c         spinoffdiag=.false.    !spin no-offdiagonal
+         ham_nspx= 2 
+         ham_ndhamx= ndham
+      elseif(nspc==1.and.nsp==1) then
+c         spinoffdiag=.false.    !paramagnetic
+         ham_nspx= 1            !nsp/nspc
+         ham_ndhamx= ndham
+      else
+         call rx('suham: nspc==2 but nsp=1')
       endif
       end subroutine m_suham_init
       end module m_suham
