@@ -1,6 +1,6 @@
 !! -----------------------------------------------------------------------------------
       module m_seneinterp
-      complex(8),allocatable,protected:: sene(:,:)
+      complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
@@ -11,8 +11,25 @@
       contains
       
 !     !ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine getsenex(lrsig,qp,isp,ndimh,ovlm)
+      implicit none
+      integer:: lrsig,isp,ndimh
+      real(8):: qp(3)
+      complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8):: ovlm(ndimh,ndimh)
+      call getsene(lrsig,qp,isp) 
+      allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
+      ovlmtoi = ovlm(1:ndimsig,1:ndimsig)!,ispc)
+      call matcinv(ndimsig,ovlmtoi)
+      ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh))
+      deallocate(ovlmtoi)
+      allocate(senex(ndimh,ndimh))
+      senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
+      deallocate(ovliovl,sene)
+      end subroutine
+      
       subroutine dsene()
-      deallocate(sene)
+      deallocate(senex)
       end subroutine
       subroutine getsene(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: plat,mxorb,nbas,nl

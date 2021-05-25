@@ -8,7 +8,7 @@
 !!
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
-!     !
+!!
       module m_bndfp
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: bz_ef,bz_def ! revised when called.
@@ -42,8 +42,8 @@
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsene,sene,Dsene
-      use m_seneinterp,only: ham_ndhrs,ham_nqsig
+      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsenex,sene,Dsene
+      use m_seneinterp,only: ham_ndhrs,ham_nqsig,senex
       use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
@@ -264,7 +264,7 @@ ctakao
       character spid*8
       integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
       integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:) ,senex(:,:),ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer:: isize_hamm(3)
       real(8):: rrr(3),rrrr
       complex(8):: pi2i
@@ -665,19 +665,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output sene. See m_seneinterp
             if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-               call getsene(lrsig,qp,isp) 
-               allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
-               ovlmtoi = ovlm(1:ndimsig,1:ndimsig,ispc)
-               call matcinv(ndimsig,ovlmtoi)
-               ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh,ispc))
-               deallocate(ovlmtoi)
-               allocate(senex(ndimh,ndimh))
-               senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
-               call dsene()
-               deallocate(ovliovl)
+               call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1,ispc))
                hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
-               deallocate(senex)
+               call dsene()
             endif
+            
 !! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
