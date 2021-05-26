@@ -5,6 +5,13 @@
       logical,private:: isp1init=.true.,isp2init=.true.,init=.true.
       integer,private:: iprocar1,iprocar2
       contains
+      subroutine m_procar_closeprocar()
+      logical:: nexist
+      close(iprocar1)
+      inquire(iprocar2,exist=nexist)
+      if(nexist) close(iprocar2)
+      end
+      
       subroutine m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
       use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax
       use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
@@ -21,7 +28,7 @@
       complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,nspx,ib,
      & nev,i,m,l,ndimhx,nmx
-      real(8):: rydberg=13.6058d0,evl(ndhamx,nspx),kkk
+      real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
 !! Decompose to alm components. PROCAR generation.
 !     ! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
       logical:: cmdopt0,fullmesh,debug,procaron
@@ -44,8 +51,7 @@
       
       allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
       auspp = 0d0
-      call makusq( 1 , nbas , !sham ,slat ,
-     .     0 , nev ,  jsp , 1 , qp , t_zv , auspp )
+      call makusq(1, nbas,0, nev,jsp,1,qp,t_zv, auspp )
       if(nspx==1) then !spinoffdiagmode 
          jspini=1
          jspend=2

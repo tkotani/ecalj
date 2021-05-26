@@ -1,7 +1,8 @@
       module m_subzi
-      integer:: nevmx,lwtkb=-1
+      integer:: lwtkb=-1
       real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:)
       
+      integer,protected:: nevmx
       integer,protected:: numq=1, lswtk=0,ldos=0
 c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
 c      real(8),allocatable,protected :: rv_a_oswtk(:)
@@ -11,7 +12,7 @@ c      real(8),allocatable,protected :: rv_a_oswtk(:)
       use m_ext,only: sname
       use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,ctrl_ldos,stdo
       use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
-      use m_suham,only: ndham=>ham_ndham
+      use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
       use m_mkpot,only:  qval
       use m_MPItk,only: master_mpi
 C- Brillouin-integration setup
@@ -186,7 +187,9 @@ c        stdo = lgunit(1)
          if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
          lswtk = -2
       endif
-      
+      if(lswtk==1)          nevmx = ndhamx
+      if(cmdopt0('--cls'))  nevmx = ndhamx
+      if(tdos.or.PROCARon)  nevmx = 99999999
       end subroutine m_subzi_init
       end module m_subzi
 

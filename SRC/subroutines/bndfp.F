@@ -31,7 +31,7 @@
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
-     &     bz_dosmax,bz_nevmx,lmet=>bz_lmet,bz_fsmommethod,bz_n,
+     &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
      &     pwmode=>ham_pwmode,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
@@ -484,7 +484,7 @@ c      efmax= bz_efmax
       if(cmdopt0('--cls')) then !clsmode
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
 c         efmax = 1d3
-         nevmx = ndhamx
+c         nevmx = ndhamx
          call m_clsmode_init()
       endif
       if(onlyonce) then
@@ -586,7 +586,7 @@ c         efmax = 1d3
       if (lfrce>0) frc  = 0d0
       if (lswtk==1) then
 c         efmax = 1d3
-         nevmx = ndhamx
+c         nevmx = ndhamx
          rv_a_oswtk=0d0
       endif
 !! Mullikan mode was here. removed for simplicity
@@ -675,7 +675,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if(iprint()>=30.and.ix99==1) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &      iq,nkp,qp,ndimh,ndimh-napw,napw
-c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be given in a better manner.
 ! assemble Hamiltonian for lso=1 
             if(lso==1) then
                call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
