@@ -100,7 +100,8 @@ C ----------------------------------------------------------------------
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') 
       if(cmdopt0('--band').or.fullmesh) return
       
- !!     
+!!
+      nkp=bz_nkp
       if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
       if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
