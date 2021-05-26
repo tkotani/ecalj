@@ -145,13 +145,14 @@ c         if(ndimPMT/=2*ldim.and.lso==1)           call rx('lmfham: 2*ndimMTO/=l
 !!    we perfermoed lmf-MPIK --writeham mode to generete HamiltonianPMT
             allocate(t_zv(ndimPMT,ndimPMT),evl(ndimPMT))
             nmx = ndimPMT
-            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis
-               call zhev_tk2( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
-     .              evl, t_zv, lprint,savez,getz,ifig) 
-            else                    
-               call zhev_tk3( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
-     .              evl, t_zv, lprint,savez,getz,ifig,epsovl) 
-            endif
+c            if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis
+c               call zhev_tk2( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
+c     .              evl, t_zv, lprint,savez,getz,ifig) 
+c            else                    
+c               call zhev_tk3( ndimPMT , hamm(1:ndimPMT,1:ndimPMT) , ovlm(1:ndimPMT,1:ndimPMT) , nmx , nev,
+c     .              evl, t_zv, lprint,savez,getz,ifig,epsovl) 
+c            endif
+            call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT),nmx,nev,evl,t_zv,epsovl) 
             do i=1,nev
                if(jsp==1) write(6,"('eigenPMT_spin1 ',3i4,f15.5)") iq,jsp,i,evl(i)
                if(jsp==2) write(6,"('eigenPMT_spin2 ',3i4,f15.5)") iq,jsp,i,evl(i)
@@ -281,13 +282,14 @@ c      deallocate(hammr,ovlmr)
 !! Both zhev_tk2,3 works in the same manner except epsovl mechanism (linear dependency trancation of basis).
 !! evl are eigenvalues, t_zv are eigenvuncitons. nmx is how many eigenvalues functions you get.
 !! Usually obtaied # is nev, which is the same as nmx.        
-        if(epsovl<1.000001d-14) then
-          call zhev_tk2( ndimMTO , hamm , ovlm , nmx , nev,
-     .     evl, t_zv, lprint,savez,getz,ifig) 
-        else  
-          call zhev_tk3( ndimMTO , hamm , ovlm , nmx , nev,
-     .     evl, t_zv, lprint,savez,getz,ifig,epsovl) 
-        endif
+c        if(epsovl<1.000001d-14) then
+c          call zhev_tk2( ndimMTO , hamm , ovlm , nmx , nev,
+c     .     evl, t_zv, lprint,savez,getz,ifig) 
+c        else  
+c          call zhev_tk3( ndimMTO , hamm , ovlm , nmx , nev,
+c     .     evl, t_zv, lprint,savez,getz,ifig,epsovl) 
+c        endif
+        call zhev_tk4( ndimMTO , hamm , ovlm , nmx , nev,  evl, t_zv,epsovl) 
 
 c        do i=1,nev
 c          if(jsp==1) write(6,"('Eigen of MTO ham spin1 ',3i4,f15.5)") ikp,jsp,i,evl(i)

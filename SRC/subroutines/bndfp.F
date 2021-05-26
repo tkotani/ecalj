@@ -108,8 +108,7 @@ C     l         :otherwise 1
 
       
 !!      nspx: number of independent spin channels
-!!      nspc*nspx = nsp   
-!!      See suham.F. (nspc=2,nsp=2,nspx=1) is the spinoffdiagonal mode SO=1. nspc=nsp is for without SO.
+!!      nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit
 !!      ndhamx: maximum size of hamiltonian  
 
 C     l   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
@@ -390,8 +389,6 @@ c mar2014
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)
-      savez=.false.
-      getz =.false.
       if (maxit==0) return
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       idummy = unlink('RSEQ_ERROR') ! the error flag in rseq. Remove RSEQ_ERROR here because
@@ -608,7 +605,6 @@ c      efmax= bz_efmax
          endif
          call m_Igv2x_set(qp)   ! Get napw and so on for given qp
          nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
-c         print *,'mmmmmm111',nevmx,ndimhx,nmx,qval,qbg
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -619,7 +615,7 @@ c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          if(allocated(hamm)) deallocate(hamm,ovlm)
          nnspc=1
-         if(nspc==2) nnspc=4
+         if(lso==1) nnspc=4
          allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
          ispinit=1
          if(lso==1) ispinit = 2 !if lso, nsp=2
@@ -685,17 +681,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! nmx: input, number of requested eigenvalues(funcitons). If nmx=0, no eigenfunctions but all eigenvalues.
 !! nev: out number of obtained eigenfvalues(funcitons)
 !     ! ---
-             if(epsovl<1.000001d-14) then
-                call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
-     .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
-             else               !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
-                call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
-     .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
-             endif
-
-             if(writeham.and.master_mpi) then
-                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx ,  nev ) !efmax is required?
-             endif
+             call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
+             if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
              if(gotosecondpass .and. ix99==1) then
                 write(ifig) nev,nmx
@@ -721,7 +708,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
            
 !  ! save to evlall
-            print *,'nnnnnnnnn nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
 !!   ... Save data for this qp to moments file
             if(plbnd==0) then
@@ -785,6 +771,7 @@ c                     nlmax = nl*nl
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
       if(gotosecondpass) close(ifig)
       if(ix99==1.and.writeham) close(ifih)
+      
 !!----------------------
 !! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
       if(numprocs/=1.and.ix99==1) then
@@ -867,17 +854,15 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       endif
 
 !! for MPI, collect data of nodes see xmpbnd.
-#if MPIK
       entime = MPI_WTIME()
       call info2(30,0,0, ' ... Done MPI k-loop: %;1d seconds elapsed',entime-sttime,0)
       call info0(20,0,-1,' ... Sharing data between processes...')
       sttime = MPI_WTIME()
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
       if (cmdopt0('--cls') .and. lwtkb .ne. -1) then
-         call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+         call rxx(lso==1,'CLS not implemented in noncoll case') ! nspc.ne.1
       endif
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
-#endif
 !!
 !! boltztrap data 
       if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then

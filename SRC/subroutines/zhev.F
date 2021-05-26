@@ -805,7 +805,7 @@ CSFCPP#endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C we assume LAPACK and F90
       subroutine zhev_tk_unused(nlmto,n,h,s,nmx, epsovl,ncut,
-     &  nevl,nev,e,eo,lz,z,ipr,delta_stabilize)
+     &  nevl,nev,e,eo,lz,z) !,ipr,delta_stabilize)
 C- Eigenvalues and/or some eigenvectors of a Hermitian matrix (throw away poor linear dependency)
 C ----------------------------------------------------------------
 Ci Inputs:
@@ -844,7 +844,7 @@ C ----------------------------------------------------------------
       implicit none
 C Passed parameters
       integer n,nev,nmx,ltime,ngv,lz,nevl,ncut
-      logical ipr 
+c      logical ipr 
       double precision e(n),wk(1),emx,eee,fac
       complex(8):: h(n,n),s(n,n),z(lz,n)
       complex(8),allocatable:: omat(:,:),imat(:,:),wk11(:),
@@ -893,16 +893,16 @@ c        omat(i,j)=scale(i)*scale(j)*omat(i,j) !this is based on  1d0/scale*|bas
       allocate(wk11(lwork),rwork(max(1,3*n-2)))
       call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
       deallocate(wk11,rwork)
-      if(ipr) then
-        write(6,*)'zhev_tk: ovlmat='
-        do ix=0,n,5
-          if(eo(ix)>0.1d0) then
-           write(6,*) '  ... skip larger eigenvalues ...'
-           exit
-          endif
-        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
-        enddo  
-      endif
+c$$$      if(ipr) then
+c$$$        write(6,*)'zhev_tk: ovlmat='
+c$$$        do ix=0,n,5
+c$$$          if(eo(ix)>0.1d0) then
+c$$$           write(6,*) '  ... skip larger eigenvalues ...'
+c$$$           exit
+c$$$          endif
+c$$$        write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,ix+5)
+c$$$        enddo  
+c$$$      endif
 c      write(6,*)' zheev: diagonalization of overlap matrix info=',ier
 
 
@@ -1026,7 +1026,7 @@ c      enddo
 c      stop 
 ccccccccccccccccccccccc
 
-      if(ipr) write(6,*)'eigenvalue='
+c      if(ipr) write(6,*)'eigenvalue='
 ! We solve  (z* h z -  epsilon z* o z) a =0
       if(ncut==0) then
 c        if(epsovl_mode==1 )then
@@ -1191,7 +1191,7 @@ C$$$! exit
 
 
 !!-----------------------------------
-      subroutine zhev_tk2(n,h,s,nmx,nev, e,z,ipr,  savez,getz,ifig)
+      subroutine zhev_tk2(n,h,s,nmx,nev, e,z)!,ipr,  savez,getz,ifig)
 !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
 !! ----------------------------------------------------------------
 !! Inputs:
@@ -1214,7 +1214,7 @@ C$$$! exit
 !! -----------------------------------------------------------------------
       implicit none
       integer n,nev,nmx,ltime,ngv,ncut
-      logical ipr 
+c      logical ipr 
       complex(8) :: h(n,n),s(n,n),z(n,*)
       complex(8),allocatable:: work(:)
       integer:: i,j,ni,ik,ik2,k
@@ -1223,7 +1223,7 @@ C$$$! exit
       integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0,ifail(n),nevx
       integer,allocatable:: iwork(:)
       character*1:: jobz
-      logical ::savez,getz,nexist
+      logical ::nexist
       integer,save:: lworksave=0
 c$$$!! ---
 c$$$      if(getz) then !temporary fix to acceralate
@@ -1291,7 +1291,7 @@ c$$$      endif
 
 
 !!=====================================================================================
-      subroutine zhev_tk3(n,h,s,nmx,nev, e,z,ipr,  savez,getz,ifig,epsovl)
+      subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)!,ipr,  savez,getz,ifig,epsovl)
 !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
 !! ----------------------------------------------------------------
 !! Inputs:
@@ -1317,7 +1317,7 @@ c$$$      endif
 !! -----------------------------------------------------------------------
       implicit none
       integer n,nev,nmx,ltime,ngv,ncut
-      logical ipr 
+c      logical ipr 
       complex(8) :: h(n,n),s(n,n),z(n,nmx)
       complex(8),allocatable:: work(:)
       integer:: i,j,ni,ik,ik2,k
@@ -1326,7 +1326,7 @@ c$$$      endif
       integer:: ier,lwork,ix,ifi,fopna,ifig,nmx0,ifail(n),nevx
       integer,allocatable:: iwork(:)
       character*1:: jobz
-      logical ::savez,getz,nexist
+      logical ::nexist
       integer,save:: lworksave=0
 
       complex(8),allocatable::ii(:,:)
@@ -1335,17 +1335,12 @@ c$$$      endif
      & zz(:,:),hh(:,:),hhm(:,:),znm(:,:)
       integer:: nevl,nm,nmout,nevout
       logical:: debug=.false.
-c$$$!! ---
-c$$$      if(getz) then !temporary fix to acceralate
-c$$$        read(ifig) nev,nmx
-c$$$        read(ifig) e(1:nev)
-c$$$        read(ifig) z(1:n,1:nmx)
-c$$$c        if(min(nmx,n)>=nev) goto 901
-c$$$        return
-c$$$      endif  
-c$$$ 901  continue
-      call tcn('zhev_tk3')
-
+      
+      if(epsovl< 1d-14) then
+         call zhev_tk2(n,h,s,nmx,nev, e,z) 
+         return
+      endif
+      call tcn('zhev_tk4')
 !! ... eigenvalue of ovarlap matrix
       allocate(omat(n,n))
       omat = s !reserved
@@ -1355,7 +1350,7 @@ c$$$ 901  continue
       call zheev(jobz,'U',n,omat,n,eo,wk11,lwork,rwork,ier)
       deallocate(wk11,rwork)
       if(debug) then
-        write(6,*)'zhev_tk3: ovlmat='
+        write(6,*)'zhev_tk4: ovlmat='
         do ix=0,n,5
           write(6,"(5(i5,d10.2))") (i,eo(i),i=ix+1,min(ix+5,n))
         enddo  
@@ -1390,34 +1385,14 @@ c In anyway, blas will be better.
         jobz = 'V'
         nev = min(nmx,nm) 
       endif
-
-c$$$c$$$c!! all functions.
-c$$$      lwork = nevl*4          ! nevl*nev ---> bug when Hydrogen case with nev=1
-c$$$      allocate(wk11(lwork),rwork(max(1,3*nevl-2)))
-c$$$      call zheev(jobz,'U',nm,hh,nm,e,wk11,lwork,rwork,ier) !get all eigenfunctions. Better ways?
-c$$$      do i=1,nm
-c$$$        write(6,*)' eigen=',i,e(i)
-c$$$      enddo
-c$$$      write(6,*)'matdim reducedim n nm nev=',n,nm,nev
-c$$$      stop 'xxxxxxxxxxxxxxxxx'
-cc$$$
-c$$$      nevout=nev
-c$$$      deallocate(wk11,rwork)
-c$$$      z=1d99
-c$$$      do i=1,min(nmx,nm)
-c$$$        do j=1,n
-c$$$          z(j,i) = sum(zz(j,:)*hh(:,i)) !this is eigenfunction for original problem.
-c$$$        enddo
-c$$$      enddo
-
 !! note nev: number of output eigenvalues (and eigenfunctions when jobz=V).
       abstol= 1d-10 ! OK?
       lwork = max(1,2*nm,lworksave) !OK? efficient?
       allocate(work(lwork),rwork(7*nm),iwork(5*nm),znm(nm,max(1,nev)))
       call zheevx(jobz,'I','U',nm,hh,nm,vldummy,vudummy,1,nev,abstol,nevout,e,znm,nm,work,lwork,rwork,iwork,ifail,ier)
       lworksave= WORK(1)  !this is optimum lwork right?
-      call rxx(nev/=nevout,'zhev_tk3: nev /=nevout something wrong. ')
-      call rxx(ier.ne.0, 'zhev_tk3: zheev for hh cause error.')
+      call rxx(nev/=nevout,'zhev_tk4: nev /=nevout something wrong. ')
+      call rxx(ier.ne.0, 'zhev_tk4: zheev for hh cause error.')
       deallocate(work,iwork,rwork)
       z=1d99
       do i=1,min(nmx,nm)
@@ -1426,16 +1401,7 @@ c$$$      enddo
         enddo
       enddo
       deallocate(znm)
-
-c      if(debug) then
-c        do i=1,nm
-c        do i=1,n 
-c          write(6,*)' eigen=',i,e(i)
-c        enddo
-c        write(6,"('matdim reducedim n nm nev=',3i5,f10.3)") n,nm,nev,nevout,epsovl
-c      endif
       deallocate(zz)
-      
       if(.false.) then !! === diagonalize === (this part is in zhev_tk2), Kept here for debug purpose
         if(nmx==0) then
           jobz='N'
@@ -1449,17 +1415,10 @@ c      endif
         allocate(work(lwork),rwork(7*n),iwork(5*n))
         call zhegvx(1,jobz,'I','U',n,h,n,s,n,vldummy,vudummy,1,nev,abstol,nevx,e,z,n,work,lwork,rwork,iwork,ifail,ier)
         lworksave= WORK(1)      !this is optimum lwork
-        call rxx(nev/=nevx,'zhev_tk3: nev /=nevx something wrong. ')
-        call rxx(ier.ne.0, 'zhev_tk3: zhegvx cannot find all eigen.')
+        call rxx(nev/=nevx,'zhev_tk4: nev /=nevx something wrong. ')
+        call rxx(ier.ne.0, 'zhev_tk4: zhegvx cannot find all eigen.')
         deallocate(work,iwork,rwork) 
-        !   print *,'nev nevx n=',nev,nevx,n
-      endif ! end of zhev_t2 case
-
-c$$$      if(savez) then
-c$$$        write(ifig) nev,nmx
-c$$$        write(ifig) e(1:nev)
-c$$$        write(ifig) z(1:n,1:nmx)
-c$$$      endif  
-      call tcx('zhev_tk3')
+      endif 
+      call tcx('zhev_tk4')
       end
 

@@ -882,8 +882,9 @@ ccccccccccccccccccccccccccccccc
 !! we fined evl(i), z(:,i), i=1,nev !nov2015
             evec=-1d99
             evl(:,isp)=1d99
-            call zhev_tk3(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,iprint(),
-     &       .false.,.false.,-9999, epsovl)
+c            call zhev_tk3(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,iprint(),
+c     &       .false.,.false.,-9999, epsovl)
+            call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
             write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &       ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
             call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
