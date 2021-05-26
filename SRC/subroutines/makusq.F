@@ -1,8 +1,11 @@
-      subroutine makusq(mode,ssite,sspec,nbas,nsites,isite,!,sham,slat
-     .nlmax,ndham,ndimh,napw,igvapw,nev,nsp,nspc,isp,iq,q,evec,ppnl,
+      subroutine makusq(mode,ssite_,sspec_,nbas_,nsites,isite,!,sham,slat
+     .nlmax_,ndham_,ndimh_,napw_,igvapw_,nev,nsp_,nspc_,isp,iq,q,evec,ppnl_,
      .     aus)
       use m_suham,only: iv_a_oindxo
-      use m_struc_def  !Cgetarg
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc
+      use m_suham,only: ndham=>ham_ndham,ham_ldham
+      use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
+      use m_mkpot,only: ppnl=>ppnl_rv       
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -83,19 +86,23 @@ Cu                   Some rearrangement of coefficients.
 Cu   19 Feb 01 (MvS) shortened argument list
 Cu   21 Nov 00 (ATP) Adapted from fp mkrout
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
-      integer mode,nbas,nsp,nspc,isp,iq,
-     .ndham,ndimh,napw,igvapw(3,napw),nev,nlmax,n0,nppn,
+! dummy input
+      real(8):: ssite_,sspec_,nbas_,
+     .nlmax_,ndham_,ndimh_,napw_,igvapw_,nsp_,nspc_,ppnl_ !dummy input
+      
+      integer mode,isp,iq, !,nbas,nsp,nspc
+     .nev,n0,nppn, !nlmax, ndham,ndimh,napw,igvapw(3,napw),
      .nsites,isite(nsites)
       parameter (n0=10,nppn=12)
       real(8):: q(3)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ham)::sham
 
-      double precision ppnl(nppn,n0,nsp,nbas)
+c      double precision ppnl(nppn,n0,nsp,nbas)
       double complex evec(ndimh,nsp,nev),
      .aus(nlmax,ndham*nspc,3,nsp,nsites,iq)
 C ... Local parameters

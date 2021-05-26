@@ -45,11 +45,11 @@
 
       subroutine m_clsmode_set1(napw,ndimh,ndimhx,nmx,jsp,iq,qp,nev,igv2x,t_zv)
       integer:: ndimhx,nmx,jsp,iq,napw,ndimh,igv2x(3,napw),nev
-      real(8)::qp(3)
+      real(8)::qp(3),kkk
       complex(8):: t_zv(1:ndimhx,1:nmx)      
-      call makusq ( 0 , ssite , sspec ,  nbas , nsites 
-     .              , isite , nlmax , ndham , ndimh , napw , igv2x , nev , 
-     .              nsp , nspc , jsp , iq , qp , t_zv , ppnl_rv , ausc_zv   )
+      call makusq ( 0 , kkk,kkk,kkk, nsites 
+     .              , isite , kkk,kkk,kkk,kkk,kkk, nev , 
+     .              kkk,kkk, jsp , iq , qp , t_zv , kkk, ausc_zv   )
       end subroutine
       
       subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)

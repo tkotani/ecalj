@@ -21,7 +21,7 @@
       complex(8),allocatable:: auspp(:,:,:,:,:)
       integer:: iq,isp,jspini,jspend,jspp,iprocar,iband,is,ilm,ndimh,nspc,jsp,nspx,ib,
      & nev,i,m,l,ndimhx,nmx
-      real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
+      real(8):: rydberg=13.6058d0,evl(ndhamx,nspx),kkk
 !! Decompose to alm components. PROCAR generation.
 !     ! ??? no nsites is used? ! Compare following codes with those of mkpdos.F (PDOS).
       logical:: cmdopt0,fullmesh,debug,procaron
@@ -44,9 +44,9 @@
       
       allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
       auspp = 0d0
-      call makusq( 1 , ssite , sspec ,   nbas , nbas , !sham ,slat ,
-     .     0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .     nspc , jsp , 1 , qp , t_zv , ppnl_rv , auspp )
+      call makusq( 1 , kkk,kkk,kkk, nbas , !sham ,slat ,
+     .     0 , kkk,kkk,kkk,kkk,kkk, nev , kkk,
+     .     kkk, jsp , 1 , qp , t_zv , kkk, auspp )
       if(nspx==1) then !spinoffdiagmode 
          jspini=1
          jspend=2
