@@ -886,7 +886,7 @@ ccccccccccccccccccccccccccccccc
      &       .false.,.false.,-9999, epsovl)
             write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &       ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
-            call prtev(evec,ndimh,evl(1,isp),ndimh,1d60,nev)
+            call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
             if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
 c            if (bandmode .and. jobb .eq. 5) then
 c              write(ifeigen) evl(1:ndham,isp)

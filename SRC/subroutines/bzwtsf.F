@@ -6,7 +6,7 @@
 !!
 !!  (Takao think this bzwtsf2 may need to be modified for solids).
       subroutine bzwtsf2(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
+     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
 
@@ -31,9 +31,7 @@ Ci   tetra :T => tetrahedron integration
 Ci   norder,npts,width,rnge: parameters for sampling integr. (maknos)
 Ci   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
 Ci   eb    :energy bands; alias eband
-Ci   efmax :largest eigenvalue for which to find eigenvectors
 Ci   eb    :energy bands
-Ci   efmax :eigenvalue limit for eigenvectors calculated in diagno
 Ci   lswtk :Flags indicating whether 'spin weights' swtk are available
 Ci   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
 Ci         :where z are eigenvectors, sigma is the Pauli spin matrix
@@ -62,7 +60,7 @@ C Passed parameters
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
      .idtet(5,ntet),lswtk,lwtkb
       double precision zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
+     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
 C Local variables
       integer ikp,ib,ipr,itmax,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
@@ -79,7 +77,7 @@ C Local variables
 
 C --- Fermi level without spin constraint ---
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi,
      .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
@@ -149,7 +147,7 @@ c      vnow=0d0
 !! Fermi level with dv shift
         if(.not.quitvnow) call pshpr(ipr-50)
         call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
+     .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi,
      .  sumev,wtkb,dosef,qval,ent,lfill)
         if (iprint()>= 20) then
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
@@ -225,7 +223,7 @@ c
 
 !!== FSMOMMETHOD=0 ogiginal version(modified version. fmom=0 is allowed.)==
       subroutine bzwtsf(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
+     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb,lfill,vnow)
       use m_lmfinit,only: stdo
 
@@ -250,9 +248,7 @@ Ci   tetra :T => tetrahedron integration
 Ci   norder,npts,width,rnge: parameters for sampling integr. (maknos)
 Ci   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
 Ci   eb    :energy bands; alias eband
-Ci   efmax :largest eigenvalue for which to find eigenvectors
 Ci   eb    :energy bands
-Ci   efmax :eigenvalue limit for eigenvectors calculated in diagno
 Ci   lswtk :Flags indicating whether 'spin weights' swtk are available
 Ci   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
 Ci         :where z are eigenvectors, sigma is the Pauli spin matrix
@@ -281,7 +277,7 @@ C Passed parameters
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
      .idtet(5,ntet),lswtk,lwtkb
       double precision zval,fmom,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
+     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
 C Local variables
       integer ikp,ib,ipr,itmax,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
@@ -296,7 +292,7 @@ C Local variables
 
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi,
      .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
@@ -375,7 +371,7 @@ C       A root was found
 !! Fermi level with dv shift
         if(.not.quitvnow) call pshpr(ipr-50)
         call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
+     .  metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi,
      .  sumev,wtkb,dosef,qval,ent,lfill)
         if (iprint()>= 20) then
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,
@@ -402,7 +398,7 @@ c
 
 !!== FSMOMMETHOD unsed now==
       subroutine bzwtsf3(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,lswtk,
+     .fmom,metal,tetra,norder,npts,width,rnge,wtkp,eb,lswtk,
      .swtk,efermi,sumev,wtkb,qval,lwtkb)
       use m_lmfinit,only: stdo
 
@@ -428,9 +424,7 @@ Ci   tetra :T => tetrahedron integration
 Ci   norder,npts,width,rnge: parameters for sampling integr. (maknos)
 Ci   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
 Ci   eb    :energy bands; alias eband
-Ci   efmax :largest eigenvalue for which to find eigenvectors
 Ci   eb    :energy bands
-Ci   efmax :eigenvalue limit for eigenvectors calculated in diagno
 Ci   lswtk :Flags indicating whether 'spin weights' swtk are available
 Ci   swtk  :'spin weights': diagonal part of  (z)^-1 sigmz z
 Ci         :where z are eigenvectors, sigma is the Pauli spin matrix
@@ -459,7 +453,7 @@ C Passed parameters
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
      .idtet(5,ntet),lswtk,lwtkb
       double precision zval,fmom,fmomx,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efmax,efermi,sumev,qval(2)
+     .wtkb(nevx,nsp,nkp),swtk(nevx,nsp,nkp),efermi,sumev,qval(2)
 C Local variables
       integer ikp,ib,nglob,ipr,iter,iprint
       double precision amom,dosef(2),vhold(12),vnow,dvcap,dv,ef0,ent
@@ -478,7 +472,7 @@ c      stdo = globalvariables%stdo
 
 !!== Fermi level without spin constraint ==
       call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi,
      .sumev,wtkb,dosef,qval,ent,lfill)
       if (nsp .eq. 1) return
 
@@ -534,7 +528,7 @@ c      bzwtsf_bisection=.true.
 c        widthx=width
 c        if(.not.quitvnow) widthx=0.01d0
           call bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .   metal,tetra,norder,npts,width,rnge,wtkp,ebs,efmax,efermi,
+     .   metal,tetra,norder,npts,width,rnge,wtkp,ebs,efermi,
      .   sumev,wtkb,dosef,qval,ent,lfill)
           call bzwtsm(lswtk.eq.1.and.nspc.eq.2,nkp,nsp,nevx,wtkb,swtk,amom)
           if(.not.quitvnow) call poppr()

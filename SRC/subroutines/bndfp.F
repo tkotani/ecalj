@@ -30,7 +30,7 @@
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
-      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,bz_efmax,fsmom=>bz_fsmom,
+      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,bz_nevmx,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
      &     pwmode=>ham_pwmode,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
@@ -223,7 +223,7 @@ c      integer ,allocatable :: ifbls_iv(:)
       logical:: readeferm
       double precision ef00,eferm,emax,emin,esmearm,sev,efermr,
      .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
-     .  dosw(2),efmax,dgets,sumev(2,3),
+     .  dosw(2),dgets,sumev(2,3),
      .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
       equivalence (emin,dosw(1)),(emax,dosw(2))
@@ -427,7 +427,7 @@ c mar2014
       k1 = n1
       k2 = n2
       k3 = n3
-      efmax= bz_efmax
+c      efmax= bz_efmax
       ndos = bz_ndos
       if(bbinit) then !from m_lmfinit
          bz_dosw=bz_doswin
@@ -483,7 +483,7 @@ c mar2014
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
       if(cmdopt0('--cls')) then !clsmode
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
-         efmax = 1d3
+c         efmax = 1d3
          nevmx = ndhamx
          call m_clsmode_init()
       endif
@@ -585,7 +585,7 @@ c mar2014
       if (ldos==1 .or. lmet>0) dos_rv=0d0
       if (lfrce>0) frc  = 0d0
       if (lswtk==1) then
-         efmax = 1d3
+c         efmax = 1d3
          nevmx = ndhamx
          rv_a_oswtk=0d0
       endif
@@ -687,7 +687,7 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
 !! === diagonalization ===
             if (tdos) then 
                nmx = ndimhx
-               efmax = 99999
+c               efmax = 99999
             endif
             if (allocated(t_zv)) deallocate(t_zv)
             allocate(t_zv(ndimhx,nmx))
@@ -757,7 +757,7 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
               endif  
 #ifdef MPIK            
               if(writeham.and.master_mpi) then
-                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , efmax , nev ) !efmax is required?
+                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx ,  nev ) !efmax is required?
               endif
 #endif
             endif
@@ -768,7 +768,7 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
             nevls(iq,jsp) = nevl  !nov2014 isp and jsp is confusing...
             if(debug) print *,'iq jsp nevls=',iq,jsp,nevls(iq,jsp) !nov201
 #ifndef MPIK            
-            call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx , efmax , nev ) !efmax is required?
+            call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx ,  nev ) !efmax is required?
 #else
             if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(stdo,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
@@ -790,9 +790,10 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
                   auso_zv(:)=0.0d0
                   call makusq ( 0 , nbas , 
      .              0 ,    nev, jsp,1,qp,t_zv, auso_zv )
-                  call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
-     .              , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
-     .              , orbtm_rv )
+                  call mkorbm( jsp, nev, iq, auso_zv,       orbtm_rv )
+c                  call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
+c     .              , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
+c     .              , orbtm_rv )
                   deallocate(auso_zv)
                endif
 c$$$!! Mulliken analysis was here
@@ -1182,7 +1183,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
                      write(stdo,"(a,f13.5,f13.5)")
      &                 'evl(nev='//trim(i2char(nev_iq))//')=',
      &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
-                     call rx('bndfp:... restart with larger efmax or nevmx: bndfp')
+                     call rx('bndfp:... restart with larger nevmx: bndfp')
                   endif
                endif
             endif
@@ -1278,14 +1279,14 @@ c$$$         else
             call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .            , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .            , dosrng , rv_a_owtkp , evlall ,  lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
          else
 !     ! vnow june22013
             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
      .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .           , dosrng , rv_a_owtkp , evlall , efmax , lswtk , rv_a_oswtk 
+     .           , dosrng , rv_a_owtkp , evlall , lswtk , rv_a_oswtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
          endif
 !     ! june2013 magfield is added

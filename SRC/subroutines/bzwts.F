@@ -1,5 +1,5 @@
       subroutine bzwts(nbmx,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,idtet,zval,
-     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efmax,efermi,sumev,
+     .metal,tetra,norder,npts,width,rnge,wtkp,eb,efermi,sumev,
      .wtkb,dosef,qval,ent,lfill)
       use m_lmfinit,only: stdo,stdl
 
@@ -30,7 +30,6 @@ Ci   rnge  :(sampling) range over which sampling delta function is assumed
 Ci         :to vanish, in units of width
 Ci   wtkp  :weight of k-point, including spin degeneracy (bzmesh.f)
 Ci   eb    :energy bands; alias eband
-Ci   efmax :largest eigenvalue for which eigenvectors are known
 Ci   eb    :energy bands
 Co Outputs
 Co   efermi:Fermi energy
@@ -62,7 +61,7 @@ C Passed parameters
       integer nbmx,norder,npts,nevx,nsp,nspc,n1,n2,n3,nkp,ntet,
      .idtet(5,ntet),ifile_handle
       double precision zval,eb(nbmx,nsp,nkp),width,rnge,wtkp(nkp),
-     .wtkb(nevx,nsp,nkp),efmax,efermi,sumev,dosef(2),qval(2),ent
+     .wtkb(nevx,nsp,nkp),efermi,sumev,dosef(2),qval(2),ent
 C Local variables
       integer:: it , itmax , n , nptdos , nspx , nbmxx , nevxx , ib 
      ., ikp , ipr , job , nbpw , i1mach , nev
@@ -431,15 +430,9 @@ C ... log file
      .  '%?#n# gap %,4;4d eV##',outs,len(outs),-stdl,
      .  qval,int(amom*10000),amom,isw(egap.gt.0),egap*13.6d0)
       endif
-
-C ... Check that efmax is above efermi ...
       e = efermi
       if (.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
-      if (e .gt. efmax) call fexit2(-1,111,' Exit -1 BZWTS: '//
-     .'efmax=%1;6d < %1;6d',efmax,e)
-
       call tcx('bzwts')
-
       end
 
       subroutine ebcpl(mode,nbmx,nevx,nsp,nspc,nq,nbpw,bmap,wk,eb)

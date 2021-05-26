@@ -1,8 +1,10 @@
-      subroutine mkorbm(ssite,sspec,isp,nsp,nspc,nlmax,ndham,nev,
-     .wtkp,iq,nbas,ppnl,aus,nl,nkp,orbtm)
-
-      use m_struc_def  !Cgetarg
-
+      subroutine mkorbm(isp,nev,iq,aus,orbtm)
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
+      use m_suham,only: ndham=>ham_ndham,ham_ldham
+      use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
+      use m_mkpot,only: ppnl=>ppnl_rv 
+      use m_subzi, only: wtkp=>rv_a_owtkb
+      use m_qplist,only: nkp
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -51,14 +53,14 @@ Cu   30 Aug 04 (A. Chantis) first written, adapted from mkpdos
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer isp,nsp,nspc,nlmax,ndham,nbas,nev
-      integer n0,nppn,nl,nkp,nab,iq
-      parameter (n0=10,nppn=12,nab=9)
-      real(8):: wtkp(ndham,nsp,nkp)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+      integer isp,nev
+      integer iq
+c      parameter (n0=10,nppn=12,nab=9)
+c      real(8):: wtkp(ndham,nsp,nkp)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 
-      double precision ppnl(nppn,n0,nsp,*),orbtm(nl,nsp,*)
+      double precision orbtm(nl,nsp,*) !ppnl(nppn,n0,nsp,*),
       double complex aus(nlmax,ndham*nspc,3,nsp,*)
 C ... Local parameters
       integer lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma,

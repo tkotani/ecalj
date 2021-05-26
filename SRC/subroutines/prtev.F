@@ -1,4 +1,4 @@
-      subroutine prtev(t,n,evl,nmx,emx,nev)
+      subroutine prtev(t,n,evl,nmx,nev)
 C- Printout the eigenvalues
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -6,7 +6,6 @@ Ci   evl   :eigenvalues
 Ci   t     :eigenvectors
 Ci   n     :dimension of hamiltonian,overlap
 Ci   nmx:  : number of eigenvectors
-c??? Ci   emx:  :eigenvalue limit for eigenvectors to be found
 Ci   nev   : number of eigenvalues
 Cu Updates
 Cu   28 Aug 04 prints out |evec| at high verbosities
@@ -14,7 +13,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer n,nmx,nev
-      double precision emx,evl(nev)
+      double precision evl(nev)
       double complex t(n,nmx)
 C ... Local parameters
       integer i,ipr,j,stdo,lgunit
