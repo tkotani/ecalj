@@ -194,7 +194,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
-     .  , lrep , ndos , ndos0 , nev , nevl 
+     .  , lrep , ndos , ndos0 , nev  
      .  , n1 , n2 , n3 !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
@@ -245,7 +245,7 @@ C     real(8),allocatable :: qpe(:,:)
       real(8) ,allocatable :: doswt_rv(:)
       integer ,allocatable :: chan_iv(:),chan0_iv(:)
 !!     for pzhev
-      integer nblk,nprow,npcol,nmx
+      integer:: nblk,nprow,npcol,nmx
 !!     for LDA+U
       real(8) ,allocatable :: ausu_rv(:)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),
@@ -474,7 +474,7 @@ c      efmax= bz_efmax
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
-      if (plbnd==0) call m_subzi_init(lrout>0,ef0,def,bz_n,bz_w,eferm)
+      call m_subzi_init(lrout>0,ef0,def,bz_n,bz_w,eferm) !get nevmx, and so on
       if (ldos==0 .and. lmet==0) ndos = 1
       ndos = abs(ndos)
       allocate(dos_rv(ndos,2*nsp))
@@ -483,8 +483,6 @@ c      efmax= bz_efmax
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
       if(cmdopt0('--cls')) then !clsmode
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
-c         efmax = 1d3
-c         nevmx = ndhamx
          call m_clsmode_init()
       endif
       if(onlyonce) then
@@ -585,8 +583,6 @@ c         nevmx = ndhamx
       if (ldos==1 .or. lmet>0) dos_rv=0d0
       if (lfrce>0) frc  = 0d0
       if (lswtk==1) then
-c         efmax = 1d3
-c         nevmx = ndhamx
          rv_a_oswtk=0d0
       endif
 !! Mullikan mode was here. removed for simplicity
@@ -594,17 +590,12 @@ c         nevmx = ndhamx
       evtop = -99999
       ecbot = -evtop
       if(lso/=0) orbtm_rv=0d0
-      initiqisp=.true.
-C Start k and isp loop (first loop in parallel mode)
-C     h,s,evecs are dimensioned ndimh in this loop (may be q dependent)
-C     evl is dimensioned evl(ndham,2)
-C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
-!! === do loop 2010 for iq and do 2005 isp ===
-      if(debug) print *,' --- goto do loop 2010 ---'
+      if(gotosecondpass) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+      
+!! Start k and isp loop 2010 and 2005
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
-#if MPIK
          if (iq==kpproc(procid)) then
             if(mlog) then
                call gettime(datim)
@@ -615,9 +606,9 @@ C     evlall, w(owtkb), w(oswtk) are dimensioned (ndham,nsp,nkp)
                write(lgunit(3),"(a)")trim(aaachar)
             endif
          endif
-#endif
-         call m_Igv2x_set(qp) ! get napw and igv2x
-         nmx    = min(nevmx,ndimhx) 
+         call m_Igv2x_set(qp)   ! Get napw and so on for given qp
+         nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
+c         print *,'mmmmmm111',nevmx,ndimhx,nmx,qval,qbg
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
 c      print *,' --- goto qparam--- '
@@ -639,7 +630,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                jsp = 1
                ispc= 2
             endif
-            
             if(ix99==2) goto 1919 !skip diagonalization
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
@@ -655,10 +645,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ovlm=0d0
             if(lso==1) then !only isp=2 by do 2005
             call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &              hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1,3))
+     &           hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1,3))
             endif
             call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &           hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
+            if(lso==1) call sopert2 ( hamm , hamm ) !SO case
+            if(lso==1) call sopert2 ( ovlm , ovlm )
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
@@ -670,68 +662,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                call dsene()
             endif
-            
-!! === Diagonalize and add to density ===
             if(iprint()>=30.and.ix99==1) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &      iq,nkp,qp,ndimh,ndimh-napw,napw
-! assemble Hamiltonian for lso=1 
-            if(lso==1) then
-               call sopert2 ( 0 , ndimh , nspc, hamm , hamm )
-               call sopert2 ( 0 , ndimh , nspc,  ovlm , ovlm )
-            endif
- 1919       continue
-
-            
-!! === diagonalization ===
-            if (tdos) then 
-               nmx = ndimhx
-c               efmax = 99999
-            endif
-            if (allocated(t_zv)) deallocate(t_zv)
-            allocate(t_zv(ndimhx,nmx))
-            
-            if(gotosecondpass) then
-               if(ix99==1) then
-                  savez=.true.  ;  getz=.false.
-               else
-                  savez=.false. ;  getz=.true.
-               endif
-               if(initiqisp) then
-                  inquire(file='eigze_'//trim(strprocid),opened=nexist,number=ifig)
-                  if(nexist) close(ifig)
-                  open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
-                  initiqisp=.false.
-               endif
-            else   
-               savez=.false.
-               getz =.false.
-            endif
-            
-            if(PROCARon) then   !!2014mar for band weight mode
-               nmx=ndimhx
-               nev=ndimhx
-               savez=.false.
-               getz=.false.
-               nmx = ndimhx
-               if(allocated(t_zv)) deallocate(t_zv)
-               allocate(t_zv(ndimhx,ndimhx))
-            endif
-
-!! == Diagonalize Hamiltonian ==
-!! ndimhx: dimension of Hamitonian
-!! hamm:Hamiltonian, ovlm: overlap matrix
-!! t_zv:eigenfunciton. evl: eigenvalue.
-!! nmx: input, number of requested eigenvalues(funcitons)
-!! nev: out number of obtained eigenfvalues(funcitons)
-!! ---
-            if(getz) then   ! second pass
-              read(ifig) nev,nmx
-              read(ifig) evl(1:nev,jsp)
-              read(ifig) t_zv(1:ndimhx,1:nmx)
-            else            ! 1st pass
-!! save hammovlm jan2018kaist
-              if(writeham) then
+            if(writeham) then
                 write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
                 if(lso==1) then !L.S case nspc=2 spin block
@@ -741,43 +675,53 @@ c               efmax = 99999
                   write(ifih) ovlm(1:ndimhx,1:ndimhx,1)
                   write(ifih) hamm(1:ndimhx,1:ndimhx,1)
                 endif
-              endif
-              if(epsovl<1.000001d-14) then
+             endif
+             
+             allocate(t_zv(ndimhx,nmx))
+!! == Diagonalize Hamiltonian ==
+!! ndimhx: dimension of Hamitonian
+!! hamm:Hamiltonian, ovlm: overlap matrix
+!! t_zv:eigenfunciton. evl: eigenvalue.
+!! nmx: input, number of requested eigenvalues(funcitons). If nmx=0, no eigenfunctions but all eigenvalues.
+!! nev: out number of obtained eigenfvalues(funcitons)
+!     ! ---
+             if(epsovl<1.000001d-14) then
                 call zhev_tk2( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig) !stock eigenfunctions z
-              else    !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
+             else               !nov2015 recover epsovl. Remove space by overlap matrix diagonalization.
                 call zhev_tk3( ndimhx , hamm , ovlm , nmx , nev,
      .           evl(1 , jsp ), t_zv, iq==1,savez,getz,ifig,epsovl) !stock eigenfunctions z
-              endif
-              if(savez) then
+             endif
+
+             if(writeham.and.master_mpi) then
+                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx ,  nev ) !efmax is required?
+             endif
+             
+             if(gotosecondpass .and. ix99==1) then
                 write(ifig) nev,nmx
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
-              endif  
-#ifdef MPIK            
-              if(writeham.and.master_mpi) then
-                call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx ,  nev ) !efmax is required?
-              endif
-#endif
+             endif
+             
+ 1919        continue
+           
+            if(gotosecondpass.and.ix99==2) then   ! second pass
+              if (allocated(t_zv)) deallocate(t_zv)
+              allocate(t_zv(ndimhx,nmx))
+              read(ifig) nev,nmx
+              read(ifig) evl(1:nev,jsp)
+              read(ifig) t_zv(1:ndimhx,1:nmx)
             endif
-!! It is inefficient to calculate all eigenfunctions and eigenvalues for molecule cases.
+           
 !! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
-            nevl=nev            !ndimhx    this OK? why nevl and nev???
-            evl(nevl+1:ndhamx,jsp)=1d99 !to skip these data
-            nevls(iq,jsp) = nevl  !nov2014 isp and jsp is confusing...
-            if(debug) print *,'iq jsp nevls=',iq,jsp,nevls(iq,jsp) !nov201
-#ifndef MPIK            
-            call prtev(t_zv, ndimhx , evl ( 1 , jsp ) , nmx ,  nev ) !efmax is required?
-#else
+            evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
+            nevls(iq,jsp) = nev  !nov2014 isp and jsp is confusing...
             if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
-              write(stdo,"('      : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-           endif
-#endif
-
-
+              write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
+            endif
            
 !  ! save to evlall
-            if(debug) print *,' nmx nev plbnd=',nmx,nev,plbnd
+            print *,'nnnnnnnnn nmx nev plbnd=',nmx,nev,plbnd
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
 !!   ... Save data for this qp to moments file
             if(plbnd==0) then
@@ -787,12 +731,8 @@ c               efmax = 99999
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
                   if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
                   auso_zv(:)=0.0d0
-                  call makusq ( 0 , nbas , 
-     .              0 ,    nev, jsp,1,qp,t_zv, auso_zv )
+                  call makusq( 0 , nbas,0, nev, jsp,1,qp,t_zv, auso_zv )
                   call mkorbm( jsp, nev, iq, auso_zv,       orbtm_rv )
-c                  call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
-c     .              , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
-c     .              , orbtm_rv )
                   deallocate(auso_zv)
                endif
 c$$$!! Mulliken analysis was here
@@ -806,8 +746,7 @@ c                     nlmax = nl*nl
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
                      if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
                      ausu_rv(:)=0.0d0
-                     call makusq(0, nbas,
-     .                 0 , nev ,  jsp , 1 , qp , t_zv , ausu_rv )
+                     call makusq(0, nbas,0 , nev,  jsp, 1, qp, t_zv, ausu_rv )
                      call mkdmtu ( ssite , sspec , rv_a_owtkb , jsp , iq , nsp , nspc 
      .                 , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , dmatu , nlibu 
      .                 , lmaxu , lldau )
@@ -820,45 +759,11 @@ c                     nlmax = nl*nl
 #if MPI
                   call rx('CLS only k-parallel')
 #endif
-                  call m_clsmode_set1(napw,ndimh,ndimhx,nmx,jsp,iq,qp,nev,igv2x,t_zv) !all inputs
+                  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
-!! Density mode. wtkb is the weight for iq,ib. With this setting, 
-!! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
-!! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
-                 if(cmdopt('--density',9,0,strn)) then
-                   iqread=0
-                   iqindex=index(strn(10:),'iq=')+2
-                   if(iqindex==2) then 
-                     iqread=-999
-                   else
-                     read(strn(10+iqindex:),*) iqread
-                   endif
-                   ibindex=index(strn(10:),'ib=')+2
-                   if(ibindex==2) then
-                     ibread=-999
-                   else
-                     do nibread=1,100
-                       read(strn(10+ibindex:),*,err=2019,end=2019) ibread(1:nibread)
-c                       print *,'xxx ibread=',ibread(1:nibread)
-                     enddo
- 2019                continue
-                     nibread=nibread-1
-                   endif  
-                   if(iqread>0) then
-                     if(maxval(ibread(1:nibread))<=0) call rx('--density mode: wrong ib=foobar. Try,e.g. --density,iq=12,ib=5')
-                     write(stdo,"('--density bandmode: psi**2 for iq=',i5,' ib=',255i5)") iqread,ibread(1:nibread)
-                     rv_a_owtkb(:,:,:)=0d0
-                     do ib=1,nibread
-                       rv_a_owtkb(ibread(ib),:,iqread)=1d0
-                     enddo
-                     do ib=1,ndimh
-                       if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i5,2f13.6)") ib,rv_a_owtkb(ib,jsp,iq)
-                     enddo
-                   endif
-                 endif   
+                  call readindensitymodesetting() !dummy
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
-                 if(debug) print *,'goto addrbl nevl=',nevl,lwtkb
                  if(lwtkb>=0) then
                    call addrbl ( ssite , sspec ,  jsp , nsp , nspc !sham ,slat , 
      .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
@@ -870,16 +775,15 @@ c                       print *,'xxx ibread=',ibread(1:nibread)
                  endif     
                endif
             endif
-            if(PROCARon) then
-               call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
-            endif
+            if(PROCARon) call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
             if(allocated(t_zv)) deallocate(t_zv)
  2005    continue !== end loop over isp (main loop in parallel mode)==
          if(allocated(hamm)) deallocate(hamm,ovlm)
          ndimhx_(iq)= ndimhx
          nev_(iq)   = nev
- 2010 continue  !end of iq loop
+ 2010 continue                  !end of iq loop
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
+      if(gotosecondpass) close(ifig)
       if(ix99==1.and.writeham) close(ifih)
 !!----------------------
 !! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
@@ -1653,3 +1557,42 @@ C ----------------------------------------------------------------------
       end subroutine xmpbnd
 #endif
 
+      subroutine readindensitymodesetting()
+!! If necessary, need to recover this but it should be much simpler.
+!! By chaningt wtkb, this will give density for given iq ib.
+!!  We have electron density plot by '--density' mode
+c$$$!! Density mode. wtkb is the weight for iq,ib. With this setting, 
+c$$$!! we can plot |\psi_{iq,ib}(\bfr)|**2 in the manner of electron density
+c$$$!     ! lmf --density,iq=12,ib=3,4,5   (here ib=3,4,5 are superposed).
+c$$$      if(cmdopt('--density',9,0,strn)) then
+c$$$         iqread=0
+c$$$         iqindex=index(strn(10:),'iq=')+2
+c$$$         if(iqindex==2) then 
+c$$$            iqread=-999
+c$$$         else
+c$$$            read(strn(10+iqindex:),*) iqread
+c$$$         endif
+c$$$         ibindex=index(strn(10:),'ib=')+2
+c$$$         if(ibindex==2) then
+c$$$            ibread=-999
+c$$$         else
+c$$$            do nibread=1,100
+c$$$               read(strn(10+ibindex:),*,err=2019,end=2019) ibread(1:nibread)
+c$$$c     print *,'xxx ibread=',ibread(1:nibread)
+c$$$            enddo
+c$$$ 2019       continue
+c$$$            nibread=nibread-1
+c$$$         endif  
+c$$$         if(iqread>0) then
+c$$$            if(maxval(ibread(1:nibread))<=0) call rx('--density mode: wrong ib=foobar. Try,e.g. --density,iq=12,ib=5')
+c$$$            write(stdo,"('--density bandmode: psi**2 for iq=',i5,' ib=',255i5)") iqread,ibread(1:nibread)
+c$$$            rv_a_owtkb(:,:,:)=0d0
+c$$$            do ib=1,nibread
+c$$$               rv_a_owtkb(ibread(ib),:,iqread)=1d0
+c$$$            enddo
+c$$$            do ib=1,ndimh
+c$$$               if(abs(rv_a_owtkb(ib,jsp,iq))>1d-3) write(stdo,"('ib wtkb=',i5,2f13.6)") ib,rv_a_owtkb(ib,jsp,iq)
+c$$$            enddo
+c$$$         endif
+c$$$      endif   
+      end

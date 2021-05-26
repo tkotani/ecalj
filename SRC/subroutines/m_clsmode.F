@@ -43,13 +43,12 @@
       endif
       end subroutine m_clsmode_init
 
-      subroutine m_clsmode_set1(napw,ndimh,ndimhx,nmx,jsp,iq,qp,nev,igv2x,t_zv)
-      integer:: ndimhx,nmx,jsp,iq,napw,ndimh,igv2x(3,napw),nev
-      real(8)::qp(3),kkk
-      complex(8):: t_zv(1:ndimhx,1:nmx)      
-      call makusq ( 0 , nsites 
-     .              , isite , nev , 
-     .              jsp , iq , qp , t_zv , ausc_zv   )
+      subroutine m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv)
+      use m_igv2x,only: ndimhx
+      integer:: nmx,jsp,iq,nev
+      real(8)::qp(3)
+      complex(8):: t_zv(1:ndimhx,1:nmx)
+      call makusq(0, nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
       end subroutine
       
       subroutine m_clsmode_finalize(bz_ef,ndimh,ndhamx,nspx,nkp,dosw,evlall)

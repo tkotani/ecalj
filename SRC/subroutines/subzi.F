@@ -2,7 +2,7 @@
       integer:: lwtkb=-1
       real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:)
       
-      integer,protected:: nevmx
+      integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
       integer,protected:: numq=1, lswtk=0,ldos=0
 c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
 c      real(8),allocatable,protected :: rv_a_oswtk(:)
@@ -86,10 +86,8 @@ Cu   21 Mar 01 Added printout; argument list changed
 Cu   23 Jan 01 set numq=3 for lmet=4 always
 C ----------------------------------------------------------------------
       implicit none
-      logical ltet,lwt,tdos,cmdopt0,PROCARon
+      logical ltet,lwt,tdos,cmdopt0,PROCARon,fullmesh
       integer nkp,mpsord,ifile_handle
-c      real(8),allocatable :: rv_a_owtkb(:,:,:)
-c      real(8),allocatable :: rv_a_oswtk(:)
       double precision zval,ef0,def,esmear,efermi
       integer ifi,lerr,iobzwt,iprint,isw,n
       character*11 strni(2)
@@ -97,9 +95,12 @@ c      real(8),allocatable :: rv_a_oswtk(:)
       data strni /'sampling','tetrahedron'/
       real(8):: qbg
 
-      nkp=bz_nkp
-      if(cmdopt0('--band').or.cmdopt0('--fullmesh')) nkp = 0 ! dummy for m_subzi_init
-
+!! set nevmx for plbnd=1 Note: initial setting nevmx=0 is returned for band mode.
+      if(cmdopt0('--cls').or.cmdopt0('--tdos').or.cmdopt0('--mkprocar'))  nevmx = ndhamx
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') 
+      if(cmdopt0('--band').or.fullmesh) return
+      
+ !!     
       if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
       if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
@@ -109,7 +110,7 @@ c      real(8),allocatable :: rv_a_oswtk(:)
       ldos  = ctrl_ldos !0 or 1
       if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       
-      nevmx=nevmxin
+      nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh 
       procid = mpipid(1)
       master = 0
       n = isign(1,mpsord) * mod(iabs(mpsord),100)
@@ -144,6 +145,7 @@ C           Broadcast lwtkb,efermi,wtkb
           endif
         endif
       endif
+      
       lswtk = -2
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
@@ -156,7 +158,7 @@ C           Broadcast lwtkb,efermi,wtkb
         nevmx = min(nevmx,ndham)
         if (nspc .eq. 2) nevmx = 2*nevmx
 ctakao's correction. In the case of Te, I observed
-c     print *,'nevmx=',nevmx,lmet,zval,ndham,nspc
+c      print *,'qqqqnevmx=',nevmx,lmet,zval,ndham,nspc
 c     gives nevmx=   9   0   18.000000000000000   90      1
         nevmx=nevmx+5 !+5 is for safer setting. At least +1 is required...
       endif
@@ -181,15 +183,6 @@ c        stdo = lgunit(1)
         write(stdo,'(1x)')
       endif
 !!      
-      tdos = cmdopt0('--tdos')
-      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      if(.not.(tdos .or. PROCARon)) then 
-         if(master_mpi) write(stdo,*)' bndfp: lswtk=-2 ... spin weights not evaluated'
-         lswtk = -2
-      endif
-      if(lswtk==1)          nevmx = ndhamx
-      if(cmdopt0('--cls'))  nevmx = ndhamx
-      if(tdos.or.PROCARon)  nevmx = 99999999
       end subroutine m_subzi_init
       end module m_subzi
 
