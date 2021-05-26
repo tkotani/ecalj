@@ -755,13 +755,10 @@ c                     nlmax = nl*nl
 !! Accumulate output density and sampling DOS
 !! Even if no output rho, still call addrbl to make DOS when lmet=4
                  if(lwtkb>=0) then
-                   call addrbl ( ssite , sspec ,  jsp , nsp , nspc !sham ,slat , 
-     .              , qp , rv_a_owtkp , ndham , ndimh , napw , igv2x , lmet , lrout
-     .              , lwtkb , rv_a_owtkb , lswtk , rv_a_oswtk , iq , lfrce , ldos
-     .              , lekkl , k1 , k2 , k3 , zv_a_osmpot , vconst , sv_p_osig , sv_p_otau
-     .              , sv_p_oppi , lcplxp , numq , qval - qbg , t_zv , evl , nev
-     .              , ef0 , def ,  emin , emax , ndos , dos_rv , srout_zv  !esmear ,
-     .              , sumqv , sumev , sv_p_oqkkl , sv_p_oeqkkl , frc )
+                   call addrbl (jsp, qp, lrout
+     .             , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
+     &             , t_zv,evl,nev,  ef0,def,emin,emax,ndos
+     o             , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frc)
                  endif     
                endif
             endif

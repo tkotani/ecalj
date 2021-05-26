@@ -1,19 +1,19 @@
 CSFCPP#define F90 1
-      subroutine addrbl ( ssite , sspec ,  isp , nsp , !, sham slat  ,
-     .     nspc , q , wtkp , ndham , ndimh , napw , igapw , lmet , lrout 
-     .     , lwtkb , wtkb , lswtk , swtk , iq , lfrce , ldos , lekkl , k1 
-     .     , k2 , k3 , smpot , vconst , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .     , lcplxp , numq , qval , evec , evl , nevl , ef0 , def !, esmear 
-     .     , emin , emax , ndos , dos , smrho , sumqv , sumev , sv_p_oqkkl 
-     .     , sv_p_oeqkkl , f )
-      use m_suham,only: iv_a_oindxo
+      subroutine addrbl ( isp,q, lrout,
+     .     iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     .     evec,evl,nevl,  ef0,def,emin,emax,ndos,
+     o     dos, smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
       use m_struc_def 
-      use m_lmfinit,only:lat_alat,nbas
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-
-
+      use m_suham,only: iv_a_oindxo
+      use m_lmfinit,only:lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
+     &     ctrl_zbak!,bz_dosw
+      use m_lattic,only: lat_qlat, lat_vol
+      use m_supot,only: lat_nabc,k1,k2,k3
+      use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
+      use m_suham,only: ndham=>ham_ndham,ham_ldham,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_subzi, only: lwtkb,nevmx,numq,  lswtk,wtkb=>rv_a_owtkb,swtk=>rv_a_oswtk,ldos
+      use m_mkqp,only: wtkp=>rv_a_owtkp
+      use m_mkpot,only: qval_=>qval
 C- Adds to the smooth and local output density and to eigval sum
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -89,14 +89,14 @@ Cu   22 May 00 Adapted from nfp add_densw.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer isp,nsp,nspc,iq,k1,k2,k3,ldos,lmet,lrout,lwtkb,lswtk,
-     .lfrce,ndham,ndimh,ndos,numq,lekkl,lcplxp,napw,igapw(3,napw)
+      integer isp,iq,lrout,
+     .lfrce,ndos !,numq,lekkl !,lcplxp,napw,igapw(3,napw)ndham,ndimh,
       integer nevl
-      double precision def,ef0,emax,emin,qval,vconst,wtkp(*)
-      real(8):: q(3) , wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) , dos(ndos,2,isp) 
+      double precision def,ef0,emax,emin,qval,vconst !,wtkp(*)
+      real(8):: q(3) ,  dos(ndos,2,isp) !wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) ,
      ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 c      type(s_ham)::sham
       type(s_rv1) :: sv_p_oppi(3,1)
@@ -108,7 +108,7 @@ c      type(s_ham)::sham
      .smpot(k1,k2,k3,isp)
 C ... Local parameters
       integer:: i , k , nevec , nglob , ngabc(3) , n1 , n2 , 
-     . n3 , ndimhx , lmxax , lmxa , nlmax , nlmto , ig
+     . n3 ,  lmxax , lmxa , nlmax , nlmto , ig !ndimhx ,
       double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       integer ipiv(ndimh*2),i_copy_size
@@ -116,10 +116,14 @@ C ... Local parameters
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
       double precision ewgt(ndimh*nspc*numq),epsnevec
 
+      qval= qval_- ctrl_zbak(1) 
+c      emin=bz_dosw(1)
+c      emax=bz_dosw(2)
+      
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
       nlmto = ndimh-napw
-      ndimhx = ndimh*nspc
+c      ndimhx = ndimh*nspc
       i_copy_size=size(lat_nabc)
       call icopy(i_copy_size,lat_nabc,1,ngabc,1)
 C     Setup for PW part of basis

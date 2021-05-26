@@ -1,6 +1,6 @@
       module m_subzi
       integer:: lwtkb=-1
-      real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:)
+      real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:,:,:)
       
       integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
       integer,protected:: numq=1, lswtk=0,ldos=0
@@ -151,7 +151,7 @@ C           Broadcast lwtkb,efermi,wtkb
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
         if (allocated(rv_a_oswtk)) deallocate( rv_a_oswtk )
-        allocate(rv_a_oswtk(abs(ndham*nsp*nkp)))
+        allocate(rv_a_oswtk(ndham,nsp,nkp))
       endif
       if (nevmx .eq. 0) then
         nevmx = (int(zval) + 1)/2
