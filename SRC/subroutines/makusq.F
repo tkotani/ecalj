@@ -1,6 +1,5 @@
-      subroutine makusq(mode,ssite_,sspec_,nbas_,nsites,isite,!,sham,slat
-     .nlmax_,ndham_,ndimh_,napw_,igvapw_,nev,nsp_,nspc_,isp,iq,q,evec,ppnl_,
-     .     aus)
+      subroutine makusq(mode,nsites,isite,
+     .     nev,isp,iq,q,evec,  aus)
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc
       use m_suham,only: ndham=>ham_ndham,ham_ldham

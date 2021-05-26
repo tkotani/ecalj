@@ -788,9 +788,8 @@ c            nmx = min(nevmx,ndimhx) !lager is safer, but I think nmx can be giv
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
                   if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
                   auso_zv(:)=0.0d0
-                  call makusq ( 0 , kkk,kkk,kkk, nbas , 
-     .              0 , kkk,kkk,kkk,kkk,kkk,   nev, kkk, 
-     .              kkk, jsp,1,qp,t_zv, kkk, auso_zv )
+                  call makusq ( 0 , nbas , 
+     .              0 ,    nev, jsp,1,qp,t_zv, auso_zv )
                   call mkorbm ( ssite , sspec , jsp , nsp , nspc , nlmax , ndham
      .              , nev , rv_a_owtkb , iq , nbas , ppnl_rv , auso_zv , nl , nkp 
      .              , orbtm_rv )
@@ -807,9 +806,8 @@ c                     nlmax = nl*nl
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
                      if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
                      ausu_rv(:)=0.0d0
-                     call makusq(0, kkk,kkk,kkk, nbas , !sham ,slat ,
-     .                 0 , kkk,kkk,kkk,kkk,kkk, nev , kkk, 
-     .                 kkk, jsp , 1 , qp , t_zv , kkk, ausu_rv )
+                     call makusq(0, nbas,
+     .                 0 , nev ,  jsp , 1 , qp , t_zv , ausu_rv )
                      call mkdmtu ( ssite , sspec , rv_a_owtkb , jsp , iq , nsp , nspc 
      .                 , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , dmatu , nlibu 
      .                 , lmaxu , lldau )

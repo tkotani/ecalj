@@ -992,9 +992,7 @@ c            nlmax = globalvariables%mxorb / globalvariables%nkaph
             allocate(aus_zv(abs(-nlmax*ndham*3*nsp*nbas)))
             if (-nlmax*ndham*3*nsp*nbas<0) aus_zv(:)=0.0d0
             if(debug) write(6,"(' ppppppp goto makusq')")
-            call makusq ( 1 , ssite , sspec , nbas , nbas , !sham ,slat ,  
-     .      0 , nlmax , ndham , ndimh , napw , igv2x , nev , nsp , 
-     .      nspc , isp , 1 , qp , evec , ppn , aus_zv )
+            call makusq ( 1 ,  nbas,0, nev,  isp, 1 , qp , evec , aus_zv )
             call gwcphi ( ssite , sspec , isp , nsp , nlmax , ndham , nev 
      .      , nbas , ipb , lmxax , nlindx , ndima , ppn , aus_zv , cphi 
      .      ( 1 , 1 , isp ) , cphin ( 1 , 1 , isp ) )

@@ -44,9 +44,8 @@
       
       allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
       auspp = 0d0
-      call makusq( 1 , kkk,kkk,kkk, nbas , !sham ,slat ,
-     .     0 , kkk,kkk,kkk,kkk,kkk, nev , kkk,
-     .     kkk, jsp , 1 , qp , t_zv , kkk, auspp )
+      call makusq( 1 , nbas , !sham ,slat ,
+     .     0 , nev ,  jsp , 1 , qp , t_zv , auspp )
       if(nspx==1) then !spinoffdiagmode 
          jspini=1
          jspend=2
