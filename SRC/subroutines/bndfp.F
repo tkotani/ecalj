@@ -630,7 +630,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
-
             
 !! == Set up Hamiltonian by hambl. ==============
 !!    Hamiltonian: hamm(1:ndimh,1:ndimh,3) means off-diagonal section when SO=1.
@@ -639,32 +638,43 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ==========================================
             hamm=0d0
             ovlm=0d0
-            if(lso==1) then !only isp=2 by do 2005
-            call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &           hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1,3))
-            endif
-            call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &           hamm(1,1,ispc),ovlm(1,1,ispc),hamm(1,1,3))
-            if(lso==1) call sopert2 ( hamm , hamm ) !SO case
-            if(lso==1) call sopert2 ( ovlm , ovlm )
+            
+            if(lso==1) then !L.S case
+              call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1,3)) !isp=1
+              call hambl(lso,2,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1,3)) !isp=2 note readme in hambl
+              call sopert2 ( hamm , hamm ) !SO case
+              call sopert2 ( ovlm , ovlm )
+              if(sigmamode) then
+                 call getsenex(lrsig,qp, 1, ndimh,ovlm(1,1, 1))
+                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 call getsenex(lrsig,qp, 2, ndimh,ovlm(1,1, 2))
+                 hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+              endif
+            else !no SO or Lz.Sz case
+              call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+     &           hamm(1,1,1),ovlm(1,1,1),hamm(1,1,3)) !ispc=1 hamm(1,1,3) is dummy
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
 !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output sene. See m_seneinterp
-            if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-               call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1,ispc))
-               hamm(:,:,ispc) = hamm(:,:,ispc) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
-               call dsene()
-            endif
+              if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
+                 call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1,1))
+                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 call dsene()
+              endif
+            endif 
+            
             if(iprint()>=30.and.ix99==1) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &      iq,nkp,qp,ndimh,ndimh-napw,napw
             if(writeham) then
                 write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
-                if(lso==1) then !L.S case nspc=2 spin block
+                if(lso==1) then !L.S case 
                   write(ifih) ovlm(1:ndimhx,1:ndimhx,1:4) 
                   write(ifih) hamm(1:ndimhx,1:ndimhx,1:4)
                 else  !nspc=1 spin diagonal case
@@ -680,7 +690,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! t_zv:eigenfunciton. evl: eigenvalue.
 !! nmx: input, number of requested eigenvalues(funcitons). If nmx=0, no eigenfunctions but all eigenvalues.
 !! nev: out number of obtained eigenfvalues(funcitons)
-!     ! ---
              call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
              if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
@@ -691,7 +700,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              endif
              
  1919        continue
-           
             if(gotosecondpass.and.ix99==2) then   ! second pass
               if (allocated(t_zv)) deallocate(t_zv)
               allocate(t_zv(ndimhx,nmx))
@@ -700,15 +708,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               read(ifig) t_zv(1:ndimhx,1:nmx)
             endif
            
-!! nevl=nev: number of eigenvalues (if nmx=0, nev=n. See description in zhev_tk2.)
+!! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
             nevls(iq,jsp) = nev  !nov2014 isp and jsp is confusing...
             if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
             endif
-           
-!  ! save to evlall
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
+            
 !!   ... Save data for this qp to moments file
             if(plbnd==0) then
 !!   --- Orbital magnetic moment (requires lso) ---
@@ -742,9 +749,6 @@ c                     nlmax = nl*nl
 !! Core-level spectroscopy
                if(cmdopt0('--cls') .and. lwtkb .ne. -1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
-#if MPI
-                  call rx('CLS only k-parallel')
-#endif
                   call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
                   call readindensitymodesetting() !dummy
