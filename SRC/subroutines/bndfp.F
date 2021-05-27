@@ -59,7 +59,7 @@
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
-      use m_procar,only: m_procar_init,dwgtall,nchanp
+      use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -748,7 +748,7 @@ c$$$!! Mulliken analysis was here
          ndimhx_(iq)= ndimhx
          nev_(iq)   = nev
  2010 continue                  !end of iq loop
-c      if(PROCARon) m_procar_closeprocar()
+      if(PROCARon) call m_procar_closeprocar()
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
       if(gotosecondpass) close(ifig)
       if(writeham) close(ifih)
@@ -941,7 +941,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
             write(stdo,"(' Highest occ. level = ',f13.5,
      &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
          endif
-         if (master_mpi) then
+         if (master_mpi) then 
             ifi=ifile_handle()
             open(ifi,file='wkp.'//trim(sname),form='unformatted')
             i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
