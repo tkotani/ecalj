@@ -15,8 +15,8 @@
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
       implicit none
       logical,parameter::  T=.true., F=.false.
-      integer,parameter::  NULLI=-99999,n0=10,nkap0=3,mxspec=256,lstrn=10000
-      integer,parameter::  nppn=12, nab=9 !bndfp
+      integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
+      integer,parameter::  n0=10,nppn=12, nab=9 !bndfp
       real(8),parameter::  NULLR =-99999, fs = 20.67098d0, degK = 6.3333d-6 ! defaults for MD
       integer,protected:: io_show=0,io_help=0,nvario=0
       integer(2),protected:: nono

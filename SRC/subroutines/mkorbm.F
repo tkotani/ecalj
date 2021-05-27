@@ -3,7 +3,7 @@
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv 
-      use m_subzi, only: wtkp=>rv_a_owtkb
+      use m_subzi, only: wtkb=>rv_a_owtkb
       use m_qplist,only: nkp
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
@@ -163,7 +163,7 @@ C           If (au,as) are coefficients to (u,s), use this
                 s23 = dconjg(as)*az*sab(7,l+1,ksp)
 
                 orbtm(l+1,ksp,ib)=orbtm(l+1,ksp,ib)+m*(s11+s12+s22+
-     .          s33+s32+s23+s31+s13)*wtkp(iv,isp,iq)
+     .          s33+s32+s23+s31+s13)*wtkb(iv,isp,iq) !corrected. it should be wtkb
 
               enddo
             enddo

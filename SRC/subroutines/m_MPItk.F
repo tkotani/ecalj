@@ -1,7 +1,7 @@
       module m_MPItk
       use m_ext,only:sname
       public ::
-     &     m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog
+     &     m_MPItk_init, m_MPItk_finalize, procid, strprocid,master,nsize,master_mpi,mlog,mlog_MPIiq
 
       private
       integer:: procid,master=0,nsize
@@ -62,4 +62,24 @@
       call Rx0s(prgnam) !for single core exit
 #endif
       end
+      
+      subroutine mlog_MPIiq(iq,kpproc)
+      integer:: iq,kpproc(0:nsize),numprocs,lgunit
+      character*26 datim
+      character(512):: aaachar
+      character(10):: i2char
+      character*8:: charext
+      numprocs=nsize
+      if(iq==kpproc(procid)) then
+         if(mlog) then
+               call gettime(datim)
+               aaachar=' bndfp '//datim//' Process '//
+     &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
+     &              trim(charext(procid))//' starting k-points '//
+     &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
+               write(lgunit(3),"(a)")trim(aaachar)
+         endif
+      endif   
+      end
+      
       end module

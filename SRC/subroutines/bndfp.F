@@ -47,7 +47,7 @@
       use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
-      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize
+      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
@@ -532,17 +532,19 @@ c      efmax= bz_efmax
       endif
       allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
       evlall=0d0
+      
 #if MPIK
       if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
       sttime = MPI_WTIME()
       allocate (kpproc(0:numprocs), stat=ierr)
-      call dstrbp(nkp,numprocs,1,kpproc(0))
+      call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
       iqini = kpproc(procid)
       iqend = kpproc(procid+1)-1
 #else
       iqini=1
       iqend=nkp
 #endif
+      
       allocate(ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
       ndimhx_=0
       nev_   =0                
@@ -593,16 +595,7 @@ c      efmax= bz_efmax
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
-         if (iq==kpproc(procid)) then
-            if(mlog) then
-               call gettime(datim)
-               aaachar=' bndfp '//datim//' Process '//
-     &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
-     &              trim(charext(procid))//' starting k-points '//
-     &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
-               write(lgunit(3),"(a)")trim(aaachar)
-            endif
-         endif
+         call mlog_MPIiq(iq,kpproc)
          call m_Igv2x_set(qp)   ! Get napw and so on for given qp
          nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -613,19 +606,16 @@ c      ! eight corners -->  qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc
 c      call interparam(qpara, wgc)
 c      cycle
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         if(allocated(hamm)) deallocate(hamm,ovlm)
-         nnspc=1
-         if(lso==1) nnspc=4
-         allocate(hamm(ndimh,ndimh,nnspc),ovlm(ndimh,ndimh,nnspc))
-         ispinit=1
-         if(lso==1) ispinit = 2 !if lso, nsp=2
+         if(lso==1) then
+            allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
+            ispinit = 2         !if lso, nsp=2
+         else   
+            if(lso/=1) allocate(hamm(ndimh,ndimh,1),ovlm(ndimh,ndimh,1)) !only for one spin
+            ispinit=1
+         endif   
          do 2005 isp = ispinit,nsp
-            ispc = 1
-            jsp  = isp
-            if(lso==1) then
-               jsp = 1
-               ispc= 2
-            endif
+            jsp = isp
+            if(lso==1) jsp = 1
             if(ix99==2) goto 1919 !skip diagonalization
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
@@ -638,23 +628,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ==========================================
             hamm=0d0
             ovlm=0d0
-            
             if(lso==1) then !L.S case
               call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1,3)) !isp=1
+     &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
               call hambl(lso,2,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1,3)) !isp=2 note readme in hambl
+     &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
               call sopert2 ( hamm , hamm ) !SO case
               call sopert2 ( ovlm , ovlm )
               if(sigmamode) then
                  call getsenex(lrsig,qp, 1, ndimh,ovlm(1,1, 1))
-                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
                  call getsenex(lrsig,qp, 2, ndimh,ovlm(1,1, 2))
-                 hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
               endif
             else !no SO or Lz.Sz case
               call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &           hamm(1,1,1),ovlm(1,1,1),hamm(1,1,3)) !ispc=1 hamm(1,1,3) is dummy
+     &           hamm(1,1,1),ovlm(1,1,1),hamm(1,1,3)) ! hamm(1,1,3) is dummy
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
@@ -719,35 +708,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !!   ... Save data for this qp to moments file
             if(plbnd==0) then
 !!   --- Orbital magnetic moment (requires lso) ---
-               if (lso .ne. 0 .and. lwtkb .ne. -1) then
+               if (lso/=0.and.lwtkb/=-1) then
                   if (lwtkb .eq. 0) call rx('metal weights required for orb. moment calculation')
                   allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
-                  if(debug)   write(*,*) 'allocate auso_zv',nlmax*ndhamx*3*nsp*nbas
-                  auso_zv(:)=0.0d0
-                  call makusq( 0 , nbas,0, nev, jsp,1,qp,t_zv, auso_zv )
-                  call mkorbm( jsp, nev, iq, auso_zv,       orbtm_rv )
+                  auso_zv=0.0d0
+                  call makusq(0 , nbas,0, nev, jsp,1,qp,t_zv, auso_zv )
+                  call mkorbm(jsp, nev, iq,                   auso_zv, orbtm_rv )
                   deallocate(auso_zv)
                endif
 c$$$!! Mulliken analysis was here
 !! Make new density matrix dmatu for LDA+U (implementation of LDA+U is a little complicated).
                if (lwtkb .ne. -1) then
-                  if (nlibu .gt. 0 .and. nev .gt. 0) then
-                     if (lwtkb .eq. 0)
-     .                 call rx('metal weights required for LDA+U calculation')
-c                     nl = int(ctrl_nl)
-c                     nlmax = nl*nl
+                  if (nlibu>0.and.nev>0) then
+                     if (lwtkb .eq. 0) call rx('metal weights required for LDA+U calculation')
                      allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
-                     if(debug) write(*,*)'allocate ausu_rv',2*nlmax*ndhamx*3*nsp*nbas
-                     ausu_rv(:)=0.0d0
+                     ausu_rv=0.0d0
                      call makusq(0, nbas,0 , nev,  jsp, 1, qp, t_zv, ausu_rv )
-                     call mkdmtu ( ssite , sspec , rv_a_owtkb , jsp , iq , nsp , nspc 
-     .                 , ndham , nlmax , nbas , nev , ppnl_rv , ausu_rv , dmatu , nlibu 
-     .                 , lmaxu , lldau )
+                     call mkdmtu(jsp, iq, nev, ausu_rv , dmatu)
                      if (allocated(ausu_rv)) deallocate(ausu_rv)
                   endif
                endif
 !! Core-level spectroscopy
-               if(cmdopt0('--cls') .and. lwtkb .ne. -1) then
+               if(cmdopt0('--cls').and.lwtkb.ne.-1) then
                   call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
                   call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
                elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
