@@ -353,7 +353,7 @@ c mar2014
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: phispinsym,ljobgw
-      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle,ispinit
+      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle,ispinit,ndimhxx
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
@@ -680,7 +680,7 @@ c            if(ix99==2) goto 1919 !skip diagonalization
              if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
              if(gotosecondpass) then
-                write(ifig) nev,nmx
+                write(ifig) nev,nmx,ndimhx
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
              endif
