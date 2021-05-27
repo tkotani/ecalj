@@ -1,8 +1,10 @@
-      subroutine mkdmtu(isp,iq,nev,aus,dmatu)
+      subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_mkpot,only: ppnl=>ppnl_rv 
       use m_subzi, only: wtkb=>rv_a_owtkb
+      use m_igv2x,only: ndimh
+      use m_suham,only:  ndhamx=>ham_ndhamx 
 C- Calculate density matrix for LDA+U channels
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -43,7 +45,7 @@ C     ... Passed parameters
       integer:: i_copy_size
       integer isp,iq,nev
 c      real(8):: wtkb(ndham,nsp,iq)
-      double complex aus(nlmax,ndham*nspc,3,nsp,nbas)
+c      double complex aus(nlmax,ndham*nspc,3,nsp,nbas)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
 c      double precision ppnl(nppn,n0,nsp,nbas)
 C ... Local parameters
@@ -51,13 +53,18 @@ C ... Local parameters
       double precision dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,
      .phz,dphz
       integer lmxa,ilm1,ilm2,l,iv,m1,m2,ib,is,idu(4),igetss,iblu,ispc,
-     .ksp
+     .     ksp
+      complex(8),allocatable ::aus(:,:,:,:,:)
+      double complex evec(ndimh,nsp,nev)
+      real(8)::qp(3)
+      allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))! aus(2*nlmax*ndhamx*3*nsp*nbas))
+      aus=0d0
+      call makusq(0, nbas,0 , nev,  isp, 1, qp, evec, aus )
 
       iblu = 0
       do  ib = 1, nbas
         if (lldau(ib) .eq. 0) goto 10
         is = int(ssite(ib)%spec)
-
 
         lmxa=sspec(is)%lmxa
         i_copy_size=size(sspec(is)%idu)
@@ -136,6 +143,7 @@ C     .              'l=%i m=%i iq=%i isp=%i add=%d',l,m1,iq,ksp,add)
         enddo
    10   continue
       enddo
+      deallocate(aus)
       end subroutine mkdmtu
 
 

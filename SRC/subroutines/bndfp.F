@@ -655,8 +655,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif 
             
             if(iprint()>=30) 
-     &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
-     &      iq,nkp,qp,ndimh,ndimh-napw,napw
+     &           write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
+     &           iq,nkp,qp,ndimh,ndimh-napw,napw
             if(writeham) then 
                 write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
@@ -694,37 +694,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
             
 !!   ... Save data for this qp to moments file
-            if(plbnd==0) then
+            if(plbnd==0.and.lwtkb/=-1) then
 !!   --- Orbital magnetic moment (requires lso) ---
-               if (lso/=0.and.lwtkb/=-1) then
+               if (lso/=0) then
                   if (lwtkb .eq. 0) call rx('metal weights required for orb. moment calculation')
-                  allocate(auso_zv(nlmax*ndhamx*3*nsp*nbas))
-                  auso_zv=0.0d0
-                  call makusq(0 , nbas,0, nev, jsp,1,qp,t_zv, auso_zv )
-                  call mkorbm(jsp, nev, iq,                   auso_zv, orbtm_rv )
-                  deallocate(auso_zv)
+                  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
                endif
-c$$$!! Mulliken analysis was here
-!! Make new density matrix dmatu for LDA+U (implementation of LDA+U is a little complicated).
-               if (lwtkb .ne. -1) then
-                  if (nlibu>0.and.nev>0) then
-                     if (lwtkb .eq. 0) call rx('metal weights required for LDA+U calculation')
-                     allocate(ausu_rv(2*nlmax*ndhamx*3*nsp*nbas))
-                     ausu_rv=0.0d0
-                     call makusq(0, nbas,0 , nev,  jsp, 1, qp, t_zv, ausu_rv )
-                     call mkdmtu(jsp, iq, nev, ausu_rv , dmatu)
-                     if (allocated(ausu_rv)) deallocate(ausu_rv)
-                  endif
+               if (nlibu>0.and.nev>0) then !density matrix dmatu for LDA+U 
+                  if (lwtkb .eq. 0) call rx('metal weights required for LDA+U calculation')
+                  call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu)
                endif
-!! Core-level spectroscopy
-               if(cmdopt0('--cls').and.lwtkb.ne.-1) then
-                  call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+               if(cmdopt0('--cls')) then !!! Core-level spectroscopy
                   call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
-               elseif (lwtkb.ne.-1 .and. (lrout.ne.0 .or. lmet.eq.4)) then
+               elseif(lrout.ne.0 .or. lmet.eq.4) then
                   call readindensitymodesetting() !dummy
-!! Accumulate output density and sampling DOS
-!! Even if no output rho, still call addrbl to make DOS when lmet=4
-                 if(lwtkb>=0) then
+                 if(lwtkb>=0) then !Accumulate output density and sampling DOS. To make DOS when lmet=4
                    call addrbl (jsp, qp, lrout
      .             , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &             , t_zv,evl,nev,  ef0,def,emin,emax,ndos
@@ -913,17 +897,32 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
-      
+
+!-----------------------------------------------      
       include "block4.F"
-      include "block6.F"
+      do  iq = 1, nkp
+         qp=qplist(:,iq)
+         do isp = 1, nspx
+            jsp = isp
+            if(iprint()>20) write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
+     &           iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
+            if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+         enddo
+      enddo
+      include "block10.F"
+      include "block11.F"
+      include "block12.F"
       goto 199   !not goto99
       
  99   continue   !2nd pass
       ix99=2
+      if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
       write(6,*)'iiiwww111222 lwtkb=',lwtkb
       include 'block0.F'
-      include 'block4.F'
-      include 'block6.F'
+      include 'block4.F' !all reduce dos and so on
+      include "block10.F"
+      include "block11.F"
+      include "block12.F"
  199  continue
 
       

@@ -48,6 +48,7 @@
       integer:: nmx,jsp,iq,nev
       real(8)::qp(3)
       complex(8):: t_zv(1:ndimhx,1:nmx)
+      call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
       call makusq(0, nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
       end subroutine
       

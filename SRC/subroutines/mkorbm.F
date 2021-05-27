@@ -1,10 +1,11 @@
-      subroutine mkorbm(isp,nev,iq,aus,orbtm)
-      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
+      subroutine mkorbm(isp,nev,iq,qp,evec, orbtm)
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nab
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv 
       use m_subzi, only: wtkb=>rv_a_owtkb
       use m_qplist,only: nkp
+      use m_suham,only:  ndhamx=>ham_ndhamx 
 C- Decomposition of norm from projection of w.f into MT sphere
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -61,14 +62,19 @@ c      type(s_site)::ssite(*)
 c      type(s_spec)::sspec(*)
 
       double precision orbtm(nl,nsp,*) !ppnl(nppn,n0,nsp,*),
-      double complex aus(nlmax,ndham*nspc,3,nsp,*)
+c      double complex aus(nlmax,ndham*nspc,3,nsp,*)
 C ... Local parameters
       integer lmxa,lmxax,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma,
      .ll,lc,em,ispc,ksp
       double precision suml(11),s11,s22,s12,s33,s31,s32,s13,s23,
      .suma,rmt,sab(nab,n0,2)
       double complex au,as,az,iot
-
+      complex(8),allocatable ::aus(:,:,:,:,:)
+      double complex evec(ndimh,nsp,nev)
+      real(8):: qp(3)
+      allocate(aus(nlmax,ndham*nspc,3,nsp,nbas))
+      aus=0d0
+      call makusq(0 , nbas,0, nev, isp,1,qp,evec, aus )
       lmxax = ll(nlmax)
       iot = dcmplx(0d0,1d0)
       ichan = 0
@@ -173,6 +179,7 @@ C           If (au,as) are coefficients to (u,s), use this
 C        print*, isp, ib, 'ORB.MOMNT=',orbtm(isp,ib)
    10   continue
       enddo
+      deallocate(aus)
       end subroutine mkorbm
 
 
