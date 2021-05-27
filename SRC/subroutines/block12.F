@@ -1,5 +1,6 @@
+
+      
       goto99=.false.
-      call mpi_barrier(MPI_comm_world,ierr)
       if (master_mpi) ierr=unlink('MagField') !delete
 !! --- BZ integration for fermi level, band sum and qp weights ---
       if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
@@ -53,10 +54,11 @@ c            if (nspc .eq. 2) lswtk = 1 !commnet out nov2015  right?
             goto99=.true.
          endif
          if (lwtkb .eq. 2 .and. lrout .gt. 0) then
+            call rx('takao think no path here vvvvvvveeee')
             call info0(20,0,0,' New pass with constrained weights ...')
             goto99=.true.
          endif
-         call mpi_barrier(MPI_comm_world,ierr)  
-         if(goto99) goto 99
       endif
+
+
 !! == goto99 ix99 loop over =============================

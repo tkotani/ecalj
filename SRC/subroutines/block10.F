@@ -36,7 +36,7 @@ c            endif
             i = max(1,nint(qval-qbg)/(3-nspc))
             evtop = max(evtop,evl(i,jsp))
             ecbot = min(ecbot,evl(i+1,jsp))
-            if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
+            if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
             if(debug) print *,'eeeee44444444444 plbnd=',plbnd
             
             if (plbnd .eq. 0) then
@@ -79,5 +79,3 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
             endif
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
-      call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
-      if(goto99) goto 99

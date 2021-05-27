@@ -769,8 +769,14 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          enddo
       enddo
       include "block10.F"
-      include "block11.F"
-      include "block12.F"
+      call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
+      if(goto99) goto 99
+      sev = sumev(1,1)
+      include "block11.F" !lmet=4
+      call mpi_barrier(MPI_comm_world,ierr)
+      call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99) !      include "block12.F"
+      call mpi_barrier(MPI_comm_world,ierr)  
+      if(goto99) goto 99
       goto 199   !not goto99
       
  99   continue   !2nd pass
@@ -780,10 +786,27 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       include 'block0.F'
       include 'block4.F' !all reduce dos and so on
       include "block10.F"
-      include "block11.F"
-      include "block12.F"
+      call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
+      if(goto99) goto 99
+      sev = sumev(1,1)
+      include "block11.F" !lmet=4
+      call mpi_barrier(MPI_comm_world,ierr)
+      call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99) !      include "block12.F"
+      call mpi_barrier(MPI_comm_world,ierr)  
  199  continue
-
+      
+      
+!!   For now, SO by site, not by class
+      if (lwtkb==1 .and. lso /=0) then
+         allocate(ips_iv(nbas))
+         do i_spackv=1,nbas
+            ips_iv(i_spackv)=ssite(i_spackv)%spec 
+         enddo
+         call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  ) !orbital moment
+         if (allocated(ips_iv)) deallocate(ips_iv)
+      endif
+      if (ipr.gt.0)write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
+     & nkp,ebot,qval,qbg,bz_w
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then

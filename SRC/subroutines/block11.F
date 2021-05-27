@@ -1,17 +1,4 @@
-!!   For now, SO by site, not by class
-      if (lwtkb .eq. 1 .and. lso .ne. 0) then
-         allocate(ips_iv(nbas))
-         do i_spackv=1,nbas
-            ips_iv(i_spackv)=ssite ( i_spackv ) %spec 
-         enddo
-!! orbital moment
-         call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
-         if (allocated(ips_iv)) deallocate(ips_iv)
-      endif
-      if (ipr.gt.0) write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
-     & nkp,ebot,qval,qbg,bz_w
 !! --- Interpolate density to Fermi energy ---
-      sev = sumev(1,1)
       if (lmet .eq. 4) then
          call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
      .     - qbg , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
