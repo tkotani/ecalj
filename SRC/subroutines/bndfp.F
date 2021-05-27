@@ -168,7 +168,6 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 !! -------------------------------------------------------------------------
       implicit none
       logical :: llmfgw
-#if MPI | MPIK
       include "mpif.h"
       integer ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -179,7 +178,6 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       character*20 ext
       character*26 datim
       double precision starttime, endtime
-#endif
       integer obuf,oqptr
       integer igetss,lmxh,nlmh,nelt(3),kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
@@ -460,9 +458,7 @@ c      efmax= bz_efmax
 !! Make one-particle potential without XC part for GWdriver---
       if(llmfgw) then        
          call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA).
-#if MPIK
          call mpi_barrier(MPI_comm_world,ierr)
-#endif        
       endif
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw,vorb) 
@@ -505,9 +501,7 @@ c      efmax= bz_efmax
       if(debug) write(stdo,*) 'bndfp: goto m_qplist_init'
       if(.not.llmfgw) call m_qplist_init(plbnd,readeferm,efermr) 
       if(readeferm) eferm=efermr
-#if MPIK
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
-#endif
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
@@ -533,6 +527,7 @@ c      efmax= bz_efmax
       allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
       evlall=0d0
       
+!! MPIK k point divider      
 #if MPIK
       if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
       sttime = MPI_WTIME()
@@ -549,7 +544,6 @@ c      efmax= bz_efmax
       ndimhx_=0
       nev_   =0                
       nevls  =0
-
       
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -775,13 +769,12 @@ c$$$!! Mulliken analysis was here
 
       
 !! === pdos mode (--mkprocar and --fullmesh). ===
+!block1  ix99=1 only
       if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
       if(PROCARon.and.fullmesh) then
-#ifdef MPIK
          call mpi_barrier(MPI_comm_world,ierr)  
          call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
          call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
-#endif
          if(master_mpi) then  
             if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
 !! tetrahedron without symmetry
@@ -836,17 +829,9 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
       endif
 
-!! for MPI, collect data of nodes see xmpbnd.
-      entime = MPI_WTIME()
-      call info2(30,0,0, ' ... Done MPI k-loop: %;1d seconds elapsed',entime-sttime,0)
-      call info0(20,0,-1,' ... Sharing data between processes...')
-      sttime = MPI_WTIME()
-      call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
-      if (cmdopt0('--cls') .and. lwtkb .ne. -1) then
-         call rxx(lso==1,'CLS not implemented in noncoll case') ! nspc.ne.1
-      endif
-      call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls')
-!!
+      include "block2.F"
+
+!block3 ix99=1 only
 !! boltztrap data 
       if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
          iqread=0
@@ -909,55 +894,11 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0(' end of --boltztrap mode: boltztrap.* are generated')
       endif
       
+      include "block4.F"
       
-!!  Allreduce density-related quantities
-      if(debug) print *,'goto all reduce'
-      if (lrout .ne. 0) then
-         call mpibc2(sumqv,6,4,mlog,'bndfp','sumqv')
-         call mpibc2(sumev,6,4,mlog,'bndfp','sumev')
-         call mpibc2 ( srout_zv , k1 * k2 * k3 * nsp * numq , 6 , mlog, 'bndfp' , 'smrho' )
-         if (lswtk .eq. 1) then
-            call mpibc2 ( rv_a_oswtk , ndhamx * nkp , 4 , mlog , 'bndfp' , 'swtk' )
-         endif
-C     Allreduce qkkl
-c         nkaph = globalvariables%nkaph
-         do  ib = 1, nbas
-            is = int(ssite(ib)%spec)
-            lmxa=sspec(is)%lmxa
-            lmxh=sspec(is)%lmxb
-            kmax=sspec(is)%kmxt
-            nlma = (lmxa+1)**2
-            nlmh = (lmxh+1)**2
-            if (lmxa .gt. -1) then
-               nelt(1) = (kmax+1)*(kmax+1)*nlma*nlma
-               nelt(2) = (kmax+1)*nkaph*nlma*nlmh
-               nelt(3) = nkaph*nkaph*nlmh*nlmh
-               do  i = 1, 3
-                  call mpibc2 ( sv_p_oqkkl( i , ib )%v , nelt ( i ) * numq * nsp 
-     .              * nspc , 4 , mlog , 'bndfp' , 'qkkl' )
-                  if ( lekkl .eq. 1 ) call mpibc2 ( sv_p_oeqkkl( i , ib )%v , nelt 
-     .              ( i ) * numq * nsp * nspc , 4 , mlog , 'bndfp' , 'eqkkl' )
-               enddo
-            endif
-         enddo
-!!    Allreduce DOS, forces, dmatu, orbtm
-         if ( ndos .gt. 0 ) call mpibc2 ( dos_rv , ndos * 2 * nsp , 4 , mlog , 'bndfp' , 'dos' )
-         if (lfrce .ne. 0)  call mpibc2(frc,3*nbas*numq,4,mlog,'bndfp','frc')
-         if (nlibu .gt. 0)  call mpibc2(dmatu,nsp*nlibu*(lmaxu*2+1)**2,6,mlog,'bndfp','dmatu')
-         if ( lso .ne. 0 .and. lwtkb .ne. - 1 ) call mpibc2 ( orbtm_rv 
-     .     , nl * nsp * nbas , 4 , mlog , 'bndfp' , 'orbtm' )
-      endif
-!! eterms are alwasy broadcasted. comment out if conditions jan2012
-      eterms=ham_eterms ! call dcopy(size(ham_eterms),ham_eterms,1,eterms,1)
-      call mpibc2(eterms(19),1,4,mlog,'bndfp','rhosig')
-      ham_eterms=eterms ! call dcopy(size(ham_eterms),eterms,1,ham_eterms,1)
-#ifdef MPIK      
-      entime = MPI_WTIME()
-      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
-#endif
-
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
-      if(plbnd .ne. 0) then
+!!block5 ix99=1 only
+      if(plbnd/=0) then
          if (master_mpi) then
             print *,'procid=',procid
 !! fermi surface mode together with band data around Ef (Okumura, 2019/11/14)
@@ -978,231 +919,9 @@ c         nkaph = globalvariables%nkaph
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
-      
-!! ===   Repeat loop for printout and goto 99 ===
-!!   jsp=isp in the collinear case; jsp=1 in the noncollinear
-!!     Thus jsp should be used in place of isp
-!!     isp serves as a flag for the noncollinear case
-      goto99=.false.
-      do  iq = 1, nkp
-         qp=qplist(:,iq)
-         do isp = 1, nspx
-            jsp = isp
-            if(iprint()>20.and.ix99==1) then
-               write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
-     &           iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
-            endif   
-            if(iprint()>=35.and.ix99==1) then
-               write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
-            endif
-            evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
-            if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
-            if(debug) call info5(30,0,0,' bndfp 299loop:  kpt %i of %i, k=%3:2,5;5d', iq,nkp,qp,0,0)
-            if(debug) print *,'eeeee11111111 ',procid,numprocs
-            if(numprocs==1) then
-               pidorigin = master
-            else
-               pidorigin=-999
-               do idx=0,numprocs-1
-                  if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
-                     pidorigin=idx
-                     exit
-                  endif
-               enddo   
-            endif
-            nev_iq    = nev_(iq) 
-            if (mod(iq,10) .ne. 1) call poppr
-            ebot = dmin1(ebot,evl(1,jsp))
-            i = max(1,nint(qval-qbg)/(3-nspc))
-            evtop = max(evtop,evl(i,jsp))
-            ecbot = min(ecbot,evl(i+1,jsp))
-            if (lmet .eq. 0 .and. iq .eq. 1 .and. jsp .eq. 1) ef0 = evtop
-            if(debug) print *,'eeeee44444444444 plbnd=',plbnd
-            
-            if (plbnd .eq. 0) then
-               if (ipr.ge.10 .and. iq.eq.1 .and. ipr.gt.0)
-     .           write (stdl,712) (evl(i,jsp),i=1,nev_iq)
- 712           format('fp evl',8f8.4)
-               if (lwtkb .ne. -1) then ! .and. .not. lwndow) then
-                  if (iq .eq. 1 .and. jsp .eq. nsp ) then !
-!! Energy-Window reset. dosw=(emin,emax)
-                     ef00 = ef0
-                     call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
-                     if(master_mpi) then
-                        open(newunit=ifid,file='ewindow.'//trim(sname)) 
-                        write(ifid,"(3d23.15)") dosw(1:2),ef0
-                        close(ifid) !call fclose(ifid)
-                     endif
-                     if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
-     .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-                        if (master_mpi) call info0(10,1,1,
-     .                       ' ... Fermi level reset in second spin'//
-     .                       ' channel ... restart band pass')
-                        goto99=.true.
-                        exit    !this is the case of make co test at ecalj/TestInstall/
-                     endif
-                  endif
 
-C     Check for cases when nevmx is too small : i=2 => fatal error
-                  i = 0
-                  if (nevmx.ge.0 .and. lmet .ne. 0) then
-                     dum = evl(max(nev_iq,1),jsp)
-                     if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
-                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
-                  endif
-                  if(i .eq. 2) then
-                     write(stdo,"(a,f13.5,f13.5)")
-     &                 'evl(nev='//trim(i2char(nev_iq))//')=',
-     &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
-                     call rx('bndfp:... restart with larger nevmx: bndfp')
-                  endif
-               endif
-            endif
-         enddo                  ! end second loop over isp
-      enddo                     !end second loop over iq
+      include "block6.F"
 
-#ifdef MPIK
-c     if (allocated(kpproc)) deallocate(kpproc, stat=ierr)
-      call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
-#endif
-      print *,'goto99=',goto99
-      if(goto99) goto 99
-
-!!   For now, SO by site, not by class
-      if (lwtkb .eq. 1 .and. lso .ne. 0) then
-         allocate(ips_iv(nbas))
-         do i_spackv=1,nbas
-            ips_iv(i_spackv)=ssite ( i_spackv ) %spec 
-         enddo
-!! orbital moment
-         call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  )
-         if (allocated(ips_iv)) deallocate(ips_iv)
-      endif
-      if (ipr.gt.0) write (stdl,715) nkp,ebot,qval,qbg,bz_w
- 715  format('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)
-      
-!! --- Interpolate density to Fermi energy ---
-      sev = sumev(1,1)
-      if (lmet .eq. 4) then
-         call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
-     .     - qbg , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , srout_zv , sv_p_oqkkl , frc , lrep )
-C   ... Store val q & magnetic moment in sumqv(1) and sumqv(2)
-         sumqv(2,1) = sumqv(1,1) - sumqv(1,2)
-         sumqv(1,1) = sumqv(1,1) + sumqv(1,2)
-C   ... Eigenvalue sum including entropy term
-         sev = sumev(1,1) + sumev(2,1)
-C   ... Remake sev,ef linearly interpolating tabulated sampling DOS
-         sev00 = sev
-         ef00  = ef0
-         if (ldos .ne. 0) then
-            call efldos ( qval , nsp , emin , emax , ndos , dos_rv , eferm, sev1 )
-            sev   = sev1
-            ef0  = eferm
-         endif
-         if (ipr .gt. 30 .and. ldos .ne. 0)
-     .     write(stdo,388) sev00,ef00,sev1,eferm,sev,ef0
- 388     format(' ipol:  sev=',f12.6,'   ef=',f12.6:/
-     .     ' dos:   sev=',f12.6,'   ef=',f12.6/
-     .     ' use:   sev=',f12.6,'   ef=',f12.6)
-         if (ipr.gt.0) write (stdl,733) ef00,eferm,ef0,sev00,sev1,sev
- 733     format('nf EF:',3f9.5,'    EB:',3f12.5)
-c         bz_ndos=ndos
-         bz_dosw = dosw
-         bz_ef=ef0
-         bz_def=def
-         if (lrep .eq. 1) then
-            ef0 = -1
-           write(stdo,*)'Input Fermi energy was too far off, repeat band pass'
-#ifdef MPIK
-            call mpi_barrier(MPI_comm_world,ierr)  
-#endif
-            goto 99
-         endif
-      endif
-#if MPIK
-      call mpi_barrier(MPI_comm_world,ierr)
-#endif
-      if (master_mpi) then
-         ierr=unlink('MagField') !delete
-      endif  
-!! --- BZ integration for fermi level, band sum and qp weights ---
-      if(lmet .ge. 0 .and. (lmet .ne. 4 .or. ltet)) then
-c$$$         if (lwndow) then
-c$$$            allocate(ww_rv(ndham*nsp*nkp))
-c$$$            eferm = min(dosw(1),dosw(2))
-c$$$            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-c$$$     .        , ww_rv , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , eferm 
-c$$$     .        , 2 , ntet , iv_a_oidtet , sev , dum )
-c$$$            eferm = max(dosw(1),dosw(2))
-c$$$            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-c$$$     .        , rv_a_owtkb , nkp , ndham , ndham , nsp , xv , xv , xv , 1 , 
-c$$$     .        eferm , 2 , ntet , iv_a_oidtet , sev , dum )
-c$$$            call daxpy ( ndham * nsp * nkp , - 1d0 , ww_rv , 1 , rv_a_owtkb, 1 )
-c$$$            if (allocated(ww_rv)) deallocate(ww_rv)
-c$$$         else
-         dosrng = 8
-         if (bz_n .lt. 0) dosrng = 16
-         if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
-         if(bz_fsmommethod == 1) then !takao dec2010
-!     ! vnow june22013 !vnow !(in Ry) contains magnetic field
-!     ! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
-            call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
-     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .            , dosrng , rv_a_owtkp , evlall ,  lswtk , rv_a_oswtk 
-     .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
-         else
-!     ! vnow june22013
-            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
-     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval - qbg , 
-     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .           , dosrng , rv_a_owtkp , evlall , lswtk , rv_a_oswtk 
-     .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
-         endif
-!     ! june2013 magfield is added
-         if(fsmom/=NULLR.and.master_mpi) then
-            open(newunit=ifimag,file='MagField',status='unknown')
-            write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
-            close(ifimag)
-         endif
-!     !         Store val charge & magnetic moment in sumqv(1..2)
-         if (lmet .ne. 4) then
-            sumqv(1,1) = sumqv(1,2)
-            sumqv(2,1) = sumqv(2,2)
-         endif
-c$$$         endif
-!!
-         if (lmet .ne. 4) then
-            ef0 = eferm
-            bz_ef=ef0
-         endif
-         if (lmet .gt. 0) then
-            if (master_mpi) then
-               ifi=ifile_handle()
-               open(ifi,file='wkp.'//trim(sname),form='unformatted') 
-               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
-               close(ifi) !call fclr('wkp',ifi)
-            endif
-         endif
-         goto99=.false.
-         if (lwtkb .eq. -1 .and. lrout .gt. 0) then
-            call info0(20,0,0,' Start second band pass ...')
-            lwtkb = 1
-c            if (nspc .eq. 2) lswtk = 1 !commnet out nov2015  right?
-            goto99=.true.
-         endif
-         if (lwtkb .eq. 2 .and. lrout .gt. 0) then
-            call info0(20,0,0,' New pass with constrained weights ...')
-            goto99=.true.
-         endif
-#ifdef MPIK
-         call mpi_barrier(MPI_comm_world,ierr)  
-#endif
-         if(goto99) goto 99
-      endif
-c      if(allocated(sfz)) deallocate(sfz)
-!! == goto99 ix99 loop over =============================
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -1218,7 +937,6 @@ c      if(allocated(sfz)) deallocate(sfz)
             close(ifi) !call fclr('wkp',ifi)
          endif
       endif
-c$$$ -->!! Here ... Cleanup asa-style moments file, print table of DOS channels
 
 !! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
@@ -1407,9 +1125,7 @@ c          print *,'goto mkpot procid=',procid
      .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
 
            if(cmdopt('--density',9,0,strn)) then
-#ifdef MPIK
              call mpi_barrier(MPI_comm_world,ierr)  
-#endif
              call rx0('end of --density mode')
            endif  
              
