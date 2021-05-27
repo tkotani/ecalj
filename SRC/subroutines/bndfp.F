@@ -360,6 +360,7 @@ c mar2014
       real(8):: kkk !dummy
 !! ----------------------------
       call tcn ('bndfp')
+      write(stdo,"(a)") 'bndfp: start'
       if(cmdopt0('--vbmonly')) then ! Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
          if(master_mpi) call vbmmode()
          call rx0('--vbmonly mode done')
@@ -475,6 +476,7 @@ c      efmax= bz_efmax
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
       if(cmdopt0('--cls')) then !clsmode
+          call rxx(lso==1,'CLS not implemented in noncoll case') 
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
@@ -555,9 +557,10 @@ c      efmax= bz_efmax
         gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
 !this judges going through second pass or not.
       endif
-      ix99 = 0
- 99   continue
-      ix99 = ix99+1             !ix99=2 for second pass
+c      ix99 = 0
+c 99   continue
+c     ix99 = ix99+1             !ix99=2 for second pass
+c      ix99=1
       if(lrout/=0) then
          call dfqkkl( sv_p_oqkkl ) !zero clear 
          if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
@@ -610,7 +613,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          do 2005 isp = ispinit,nsp
             jsp = isp
             if(lso==1) jsp = 1
-            if(ix99==2) goto 1919 !skip diagonalization
+c            if(ix99==2) goto 1919 !skip diagonalization
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
@@ -651,7 +654,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               endif
             endif 
             
-            if(iprint()>=30.and.ix99==1) 
+            if(iprint()>=30) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &      iq,nkp,qp,ndimh,ndimh-napw,napw
             if(writeham) then
@@ -676,20 +679,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
              if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
-             if(gotosecondpass .and. ix99==1) then
+             if(gotosecondpass) then
                 write(ifig) nev,nmx
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
              endif
              
  1919        continue
-            if(gotosecondpass.and.ix99==2) then   ! second pass
-              if (allocated(t_zv)) deallocate(t_zv)
-              allocate(t_zv(ndimhx,nmx))
-              read(ifig) nev,nmx
-              read(ifig) evl(1:nev,jsp)
-              read(ifig) t_zv(1:ndimhx,1:nmx)
-            endif
+c            if(gotosecondpass.and.ix99==2) then   ! second pass
+c              if (allocated(t_zv)) deallocate(t_zv)
+c              allocate(t_zv(ndimhx,nmx))
+c              read(ifig) nev,nmx
+c              read(ifig) evl(1:nev,jsp)
+c              read(ifig) t_zv(1:ndimhx,1:nmx)
+c            endif
            
 !! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
@@ -745,13 +748,11 @@ c$$$!! Mulliken analysis was here
          ndimhx_(iq)= ndimhx
          nev_(iq)   = nev
  2010 continue                  !end of iq loop
-      if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid,ix99
+c      if(PROCARon) m_procar_closeprocar()
+      if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
       if(gotosecondpass) close(ifig)
-      if(ix99==1.and.writeham) close(ifih)
-      
-!!----------------------
-!! fixed at sep2020. nev_ and ndimhx_ are not correctly passed via MPI      
-      if(numprocs/=1.and.ix99==1) then
+      if(writeham) close(ifih)
+      if(numprocs/=1) then
          do iq = 1, nkp
             pidorigin=-999
             do idx=0,numprocs-1
@@ -765,6 +766,12 @@ c$$$!! Mulliken analysis was here
          enddo   
       endif
       nevmin=minval(nev_(1:nkp))
+      entime = MPI_WTIME()
+      call info2(30,0,0, ' ... Done MPI k-loop: %;1d seconds elapsed',entime-sttime,0)
+      call info0(20,0,-1,' ... Sharing data between processes...')
+      sttime = MPI_WTIME()
+      call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
+      call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls') 
 !! ========== end of iq loop ====================================================
 
       
@@ -773,7 +780,7 @@ c$$$!! Mulliken analysis was here
       if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
       if(PROCARon.and.fullmesh) then
          call mpi_barrier(MPI_comm_world,ierr)  
-         call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
+c         call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !ndhamx,nspx nov2014 bugfix
          call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
          if(master_mpi) then  
             if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
@@ -828,8 +835,6 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          if(writeham) call rx0('Done --writeham: --mkprocar --fullmesh are needed now. HamiltonianMTO* genereted')
          call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
       endif
-
-      include "block2.F"
 
 !block3 ix99=1 only
 !! boltztrap data 
@@ -894,8 +899,6 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0(' end of --boltztrap mode: boltztrap.* are generated')
       endif
       
-      include "block4.F"
-      
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
       if(plbnd/=0) then
@@ -906,7 +909,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
 !! write bands directly. All inputs
             write(stdo,*)' Writing bands to bands file ...'
             if(nsyml/=0) then
-              call writeband(stdo,nkp,nsyml,nspx,nsp,ix99,ndhamx, !,fsmom/=NULLR,vnow
+              call writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx, !,fsmom/=NULLR,vnow
      i        xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,
      i        sname,nqps_syml,nqpe_syml,nsyml,dqsyml,
      i        etolv,etolc)
@@ -919,9 +922,17 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
-
+      
+      include "block4.F"
       include "block6.F"
-
+      goto 199   !not goto99
+      
+ 99   continue   !2nd pass
+      ix99=2
+      include 'block0.F'
+      include 'block4.F'
+      include 'block6.F'
+ 199  continue
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then

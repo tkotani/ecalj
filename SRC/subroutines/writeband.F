@@ -1,10 +1,10 @@
-      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ix99,ndhamx,
+      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx,
      & xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,
      & eferm,evtop,ecbot,sname,nqps_syml,nqpe_syml,nsymln,dqsyml,
      & etolv,etolc)
 !! == write band file ==
       implicit none
-      integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),ix99,stdo,nsymln
+      integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),stdo,nsymln
       real(8),intent(in):: evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow, 
       integer,intent(in):: nqp_syml(nsyml),nqp2n_syml(nsyml),nqps_syml(nsyml),nqpe_syml(nsyml)
       real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1 
@@ -97,11 +97,11 @@
         do iq = 1,ne
           ikp = ikpoff(isyml)+iq
           do jsp = 1, nspx
-            if (iprint() > 20.and.ix99==1) then
+            if (iprint() > 20) then
                write(stdo,'(" bndfp: kpt",i5," of",i5, " k jsp=",3f9.5,i2," nev=",i5)')
      &         ikp,nkp,qplist(:,ikp),jsp,nevls(ikp,jsp)
             endif
-            if(iprint() >=35.and.ix99==1) then
+            if(iprint() >=35) then
                write(stdo,"(9f8.4)") (evlall(i,jsp,ikp), i=1,nevls(ikp,jsp))
             endif
           enddo
