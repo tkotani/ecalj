@@ -192,7 +192,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
      .  , lrep , ndos , ndos0 , nev  
-     .  , n1 , n2 , n3 !,  lswtk=0 !, nl lwtkb ,
+     .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
      .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
@@ -588,6 +588,7 @@ c      ix99=1
       if(lso/=0) orbtm_rv=0d0
       if(gotosecondpass) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
       
+      write(6,*)'iiiwww111 lwtkb=',lwtkb
 !! Start k and isp loop 2010 and 2005
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
@@ -613,7 +614,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          do 2005 isp = ispinit,nsp
             jsp = isp
             if(lso==1) jsp = 1
-c            if(ix99==2) goto 1919 !skip diagonalization
 !!note kino. hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
@@ -684,15 +684,6 @@ c            if(ix99==2) goto 1919 !skip diagonalization
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
              endif
-             
- 1919        continue
-c            if(gotosecondpass.and.ix99==2) then   ! second pass
-c              if (allocated(t_zv)) deallocate(t_zv)
-c              allocate(t_zv(ndimhx,nmx))
-c              read(ifig) nev,nmx
-c              read(ifig) evl(1:nev,jsp)
-c              read(ifig) t_zv(1:ndimhx,1:nmx)
-c            endif
            
 !! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
@@ -929,6 +920,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       
  99   continue   !2nd pass
       ix99=2
+      write(6,*)'iiiwww111222 lwtkb=',lwtkb
       include 'block0.F'
       include 'block4.F'
       include 'block6.F'
