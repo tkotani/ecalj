@@ -22,46 +22,25 @@
       if(lso/=0) orbtm_rv=0d0
       if(gotosecondpass) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
       
-!     ! Start k and isp loop 2010 and 2005
+!! Start k and isp loop 2010 and 2005
       do 12010 iq = iqini, iqend !This is a big iq loop
+         if(debug) print *,' do 12010 iq procid=',iq,procid,iq,iqini,iqend
          qp = qplist(:,iq)
-         if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
-         call mlog_MPIiq(iq,kpproc)
          call m_Igv2x_set(qp)   ! Get napw and so on for given qp
-         nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-cC... range check qqq is in [ikc1/nk1, (ikc1+1)/nk1],... qpara is [0,1],[0,1],[0,1]
-c      print *,' --- goto qparam--- '
-c      call qparam(qp,qsmesh,nk1,nk2,nk3,plat, ikc,qpara,igshift)
-c      ! eight corners -->  qsmesh(1:3,ikc(1,ix1,ix2,ix3),ikc(2,ix1,ix2,ix3),ikc(3,ix1,ix2,ix3))
-c      call interparam(qpara, wgc)
-c      cycle
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         if(lso==1) then
-c            allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
-            ispinit = 2         !if lso, nsp=2
-         else   
-c            if(lso/=1) allocate(hamm(ndimh,ndimh,1),ovlm(ndimh,ndimh,1)) !only for one spin
-            ispinit=1
-         endif   
+         if(lso==1) ispinit = 2
+         if(lso/=1) ispinit=1
          do 12005 isp = ispinit,nsp
             jsp = isp
             if(lso==1) jsp = 1
-c            if(gotosecondpass.and.ix99==2) then   ! second pass
-              if (allocated(t_zv)) deallocate(t_zv)
-              allocate(t_zv(ndimhx,nmx))
+            if (allocated(t_zv)) deallocate(t_zv)
               read(ifig) nev,nmx
+              allocate(t_zv(ndimhx,nmx))
               read(ifig) evl(1:nev,jsp)
               read(ifig) t_zv(1:ndimhx,1:nmx)
 c            endif
            
 !! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
-            nevls(iq,jsp) = nev  !nov2014 isp and jsp is confusing...
-            if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
-              write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
-            endif
-            evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
             
 !!   ... Save data for this qp to moments file
             if(plbnd==0) then
@@ -102,7 +81,7 @@ c$$$!! Mulliken analysis was here
                  endif     
                endif
             endif
-            if(PROCARon) call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
+c            if(PROCARon) call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
             if(allocated(t_zv)) deallocate(t_zv)
 12005    continue !== end loop over isp (main loop in parallel mode)==
 c         if(allocated(hamm)) deallocate(hamm,ovlm)

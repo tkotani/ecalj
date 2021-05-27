@@ -344,7 +344,7 @@ c mar2014
       real(8)::dosmax,emaxp_,posp(3)
       integer:: jspend,jspini,jspp
       integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ist,ip,ni,ix
-
+   
       integer::npairmx,ikpd,ifqplist
       integer,allocatable:: nqwgt(:,:,:)
       real(8):: tpioa,pi=4d0*datan(1d0)
@@ -657,7 +657,7 @@ c            if(ix99==2) goto 1919 !skip diagonalization
             if(iprint()>=30) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &      iq,nkp,qp,ndimh,ndimh-napw,napw
-            if(writeham) then
+            if(writeham) then 
                 write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
                 if(lso==1) then !L.S case 
@@ -933,6 +933,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       include 'block4.F'
       include 'block6.F'
  199  continue
+
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -1017,7 +1018,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
       endif
       if(tdos) call rx0('Done tdos mode:')
 
-!! efermi.lmf 
+!! --- efermi.lmf 
       if(master_mpi.and.plbnd==0) then
          open(newunit=ifi,file='efermi.lmf')
          write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
@@ -1030,7 +1031,6 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
          write(ifi,"('# NOTE: Not by band plot mode')")
          close(ifi)             
       endif
-
 !! --- Core-level spectroscopy ---
       if (cmdopt0('--cls')) then
          if (master_mpi) then
@@ -1054,18 +1054,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
-c$$$!!     --window: Put output density into orhat and smrho, and exit
-c$$$      if (lwndow) then
-c$$$         call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham , slat ,
-c$$$     .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_a_oorhat , hab_rv , sab_rv 
-c$$$     .     , qbyl_rv , hbyl_rv , lrout )
-c$$$         call zcopy( k1 * k2 * k3 * nsp , srout_zv , 1 , zv_a_osmrho 
-c$$$     .     , 1 )
-c$$$         call symrho(ssite , sspec ,  lfrce , zv_a_osmrho , sv_a_oorhat !slat ,
-c$$$     .     , qbyl_rv , hbyl_rv , frc )
-c$$$         goto 999
-c$$$      endif
-
+!!      
       call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham ,slat , 
      .  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      .  , qbyl_rv , hbyl_rv , lrout )
@@ -1075,15 +1064,14 @@ C   ... Symmetrize output density and forces
          call symrho ( ssite , sspec ,  lfrce , srout_zv , sv_p_orhat1 !slat ,
      .     , qbyl_rv , hbyl_rv , frc )
 C   ... New boundary conditions pnu for phi and phidot
-C       call pshpr(iprint()-12)
          if (lpnu .gt. 0) then
             call dcopy(size(ham_pmin),ham_pmin,1,xv,1)
             call dcopy(size(ham_pmax),ham_pmax,1,xv(11),1)
             call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
      .        , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
          endif
-C       call poppr
       endif
+      
 !! --- print out qbyl ---
       if(master_mpi) then
          open(newunit=ifqbyl,file='qbyl.'//trim(sname))
@@ -1112,20 +1100,6 @@ C       call poppr
             call mkekin ( nbas , ldim , ssite , sspec ,  sv_p_osig  !sham ,slat , 
      .        , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
      .        , vconst , zv_a_osmpot , srout_zv , sev , sumtv )
-ccccccccccccccccccccccccc
-ctakao test mkekin repeat
-c         print *,'vvv takao mkekin repeat 000 --- oldpot x oldrho'
-c         call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sevxxx,sumtvxxx)
-c       stop 'xxxxxxxxxxxxxxxx  111aaa'
-ccccccccccccccccccccccccc
-ccccccccccccccccccccc
-c          print *,'vvv: takao test osmpotbk 000 '
-c          call defdc(osmpotbk,k1*k2*k3*2)
-c          call dcopy(k1*k2*k3*4,w(osmpot),1,w(osmpotbk),1)
-ccccccccccccccccccccc
-c          call pshpr(ipr-4)
-
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
@@ -1139,25 +1113,9 @@ c          print *,'goto mkpot procid=',procid
              call mpi_barrier(MPI_comm_world,ierr)  
              call rx0('end of --density mode')
            endif  
-             
-ccccccccccccccccccccccccccccccccccc
-ctakao test mkekin repeat
-c          print *,'vvv takao mkekin repeat 001x ---newpot x newrho'
-c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),srout_zv,sev,sumtvxxx)
-c         print *,'vvv takao mkekin repeat 001 --- newpot x oldrho'
-c         call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
-c          print *,'vvv takao mkekin repeat 002 --- oldpot x oldrho'
-c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpotbk),w(osmrho),sev,sumtvxxx)
-c          call rlse(osmpotbk)
-c          stop 'xxxxxxxxxxxxxxxx'
-cccccccccccccccccccccccccccccccc
             call mkehkf(2,sev,sumqv(2,1),sumtv,eks) !sham,
             call togpr()
          endif
-         
 !! --- Add together force terms ---
 !! fes1_rv: contribution to HF forces from estat + xc potential   This is for input  density  !=3rd term in (B.5) in JPSJ.84.034705
 !! fes2_rv: contribution to KS forces from estat + xc potential   This is for output density
@@ -1172,26 +1130,12 @@ c         allocate(qm2_rv(nvl))
          call mixrho ( ssite , sspec ,  nsp , iter , sstrnmix 
      .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
      .     , k3 , dmxp , srout_zv , zv_a_osmrho )
-ccccccccccccccccccccccccc
-ctakao test mkekin repeat
-cc          print *,'vvv takao mkekin copy test xxx2---'
-cc          call dcopy(k1*k2*k3*2,smrhobk,1,w(osmrho),1)
-cc          deallocate(smrhobk)
-c          print *,'vvv takao mkekin repeat 2 ---'
-c          call dcopy(k1*k2*k3*4,w(osmpotbk),1,w(osmpot),1)
-c          call mkekin(nbas,ldim,ssite,sspec,slat,sham,osig,otau,oppi,
-c     .      lcplxp,oqkkl,k1,k2,k3,vconst,w(osmpot),w(osmrho),sev,sumtvxxx)
-c          stop 'xxxxxxxxxxxxxxxx'
-ccccccccccccccccccccccccc
       else
          eks = 0d0
       endif
       ham_ehf=ehar
       ham_ehk=eks
  999  continue
-c      if (allocated(qm2_rv)) deallocate(qm2_rv)
-c      if (allocated(qm1_rv)) deallocate(qm1_rv)
-c      if (allocated(ifbls_iv)) deallocate(ifbls_iv)
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
       call m_mkpot_deallocate()
