@@ -42,8 +42,8 @@ Cio         input nevmx<0 => do not generate eigenvectors
 Cio         input nevmx=0 => choose a default value
 Co Outputs
 Co   lwtkb :0 weights are neither required nor available a priori
-Co         :1 weights are required a priori, and are read from disk
-Co         :-1 weights are required a priori, but were not read
+Co         :1 weights are available
+Co         :-1 weights are not yet
 Co   efermi:(lwtkb=1) Fermi level corresonding weights; otherwise
 Co         :efermi is set to -99.
 Co   owtkb :memory is allocated for integration weights, and they
@@ -128,13 +128,12 @@ C ----------------------------------------------------------------------
 C     ... Attempt to use existing weights
           if (lmet .eq. 2 .and. lwt) then
             if (procid .eq. master) then
-              ! ifi = fopna('wkp',-1,4)
               ifi=ifile_handle()
               open(ifi,file='wkp.'//trim(sname),form='unformatted')
               if ( nspc .eq. 1 ) lerr = iobzwt ( 0 , ndham , nkp , nsp , efermi, rv_a_owtkb , ifi )
               if ( nspc .eq. 2 ) lerr = iobzwt ( 0 , ndham * 2, nkp , 1, efermi, rv_a_owtkb , ifi )
               close(ifi)
-              if (lerr .eq. 0) lwtkb = 1
+              if (lerr .eq. 0) lwtkb = 1 !read wkp (wkpb) (previous iteration) ==> lwtkb=1
               if (lerr .ne. 0) efermi = -99
             endif
 C           Broadcast lwtkb,efermi,wtkb
