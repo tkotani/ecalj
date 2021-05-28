@@ -776,8 +776,6 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
          goto 99
       endif
-      include "block11.F" !lmet=4
-      print *,'lllllllll goto block11 1 lmet=',lmet
       sev = sumev(1,1)
       call m_bzintegration_init(evlall,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef)
       if(lmet>=0 .and. (lmet/=4.or.ltet)) then
@@ -798,8 +796,6 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       include 'block0.F' !band
       include 'block4.F' !all reduce dos and so on
       include "block10.F" !dosw ef set
-      include "block11.F" !lmet=4
-      print *,'lllllllll goto block11 2 lmet=',lmet
  199  continue
       
       

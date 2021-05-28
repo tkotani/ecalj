@@ -1511,8 +1511,9 @@ c     .        note='Assign PL potential index to this site')
       nm='BZ_METAL'; call gtv(trim(nm),tksw(prgnam,nm),bz_lmet,
      .     def_i4=1,note=
      .     '0 assume insulator; 1 save evecs on disk; '//
-     .     '2 use wgt from prior iter%N%3f3 always make two band passes;'//
-     .     ' 4 BZ integration with 3-point scheme')
+     .     '2 use wgt from prior iter%N%3f3 wgt calculated from eigenvalues (two band pass)')
+      if(bz_lmet>3) call rx('BZ_lmet is 0,1,2, or 3: usually 3')
+c     .     ' 4 BZ integration with 3-point scheme')
       nm='BZ_TETRA'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_lmet2,
      .     def_lg=T,note='Tetrahedron integration')
       if( cmdopt('--tdos',6,0,a).or.cmdopt('--pdos',6,0,a)) then

@@ -32,7 +32,7 @@ CONST   nk=2 nk2=2 rr=1/(2*sqrt(2))
         Rcat=2.87 Ran=1.6
 % endif
         Rcat=2.6 Ran=1.8
-        nit=2 ftmesh=24 metal=4 verb=30
+        nit=2 ftmesh=24 metal=3 verb=30
 STR     RMAX=3
 STRUC   NBAS=8 NSPEC=5 NL=4
         ALAT=a PLAT= 1 0 0   0 s 0   0 0 q

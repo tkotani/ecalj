@@ -184,30 +184,30 @@ HEADER  Master file for transition and other elemental metals
 
 %const  afcc=(4*vol)^(1/3) abcc=(2*vol)^(1/3) ahcp=(vol*sqrt(2))^(1/3)
 
-TESTLMF lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv
-        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
+TESTLMF lmfa  co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv
+        lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
         rm mixm.co
-        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv 
+        lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv 
         rm mixm.co
-        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 --pr31 --no-iactiv --time=5
-#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv --time=5 --band:fn=syml
+        lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 --pr31 --no-iactiv --time=5
+#       lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv --time=5 --band:fn=syml
 #       This one assigns weights to majority bands
-#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=1:18~fn=syml
+#       lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=1:18~fn=syml
 #       This one assigns weights to Co d bands
-#       lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18,18+5:18+9,18+14:18+18~fn=syml
+#       lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18,18+5:18+9,18+14:18+18~fn=syml
 #       This one assigns 1st weight to majority Co d band, 2nd weight to minority
-        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml
+        lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~col=5:9,14:18~col2=18+5:18+9,18+14:18+18~fn=syml
 MPIK version
-        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
+        mpix -np=13 lmf-MPIK   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 --no-iactiv --rs=0
         rm mixm.co
-        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv
+        mpix -np=13 lmf-MPIK   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 --no-iactiv
         rm mixm.co
-        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 --pr31 --no-iactiv --time=5
-        mpix -np=13 lmf-MPIK   co -vmet=4 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~fn=syml
-TSTPDOS lmfa  co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv
-        lmf   co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+        mpix -np=13 lmf-MPIK   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=1 --pr31 --no-iactiv --time=5
+        mpix -np=13 lmf-MPIK   co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --no-iactiv -vso=t --band~fn=syml
+TSTPDOS lmfa  co -vmet=3 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv
+        lmf   co -vmet=3 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
         mv dos.co tdos.co
-        echo 501 -.8 .7 | lmdos co -vmet=4 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
+        echo 501 -.8 .7 | lmdos co -vmet=3 -vlmf=1 -vnk=8 -vnit=1  --pr31 --no-iactiv -vpdos=t --pdos:mode=2:sites=2
         mv dos.co pdos.co
 PLOTBND echo -10,5,5,10 | plbnds -fplot -ef=0 -scl=13.6 -lt=1,col=0,0,1,colw=1,0,0,colw2=0,1,0 -lbl=M,G,A,L,G,K bnds.co
 PLOTDOS echo 30 15 -.8 .7 | pldos '-lst=1;3,5,7;9,11,13,15,17' '-lst2=2;4,6,8;10,12,14,16,18' -fplot pdos.co
