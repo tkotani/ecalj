@@ -1,3 +1,25 @@
+      subroutine mpibc2_real(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      real(8):: vec(*) 
+      print *,trim(label),nnn,vec(1)
+      cast=4
+      funnam=''
+      call mpibc2(vec,nnn,cast,mlog,funnam,label)
+      end
+      subroutine mpibc2_complex(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      complex(8):: vec(*) 
+      print *,trim(label),nnn
+      cast=6
+      funnam=''
+      call mpibc2(vec,nnn,cast,mlog,funnam,label)
+      end
+      
+      
       subroutine mpibc1(vec,n,cast,mlog,funnam,label)
 C- Broadcasts a vector from master node to the world (MPI)
 C ----------------------------------------------------------------------
@@ -279,22 +301,12 @@ C ... Local parameters
      .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         call dcopy(n,dbuf,1,vec,1)
         deallocate(dbuf, stat=ierr)
-C        call defrr(obuf,n)
-C        call MPI_ALLREDUCE(vec,w(obuf),n,
-C     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-C        call dcopy(n,w(obuf),1,vec,1)
-C        call rlse(obuf)
       elseif (cast .eq. 6) then
         allocate(dbuf(2*n), stat=ierr)
         call MPI_ALLREDUCE(vec,dbuf,2*n,
      .  MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
         call dcopy(2*n,dbuf,1,vec,1)
         deallocate(dbuf, stat=ierr)
-C        call defrr(obuf,2*n)
-C        call MPI_ALLREDUCE(vec,w(obuf),2*n,
-C     .    MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-C        call dcopy(2*n,w(obuf),1,vec,1)
-C        call rlse(obuf)
       else
         call rxi('mpibc2: cast not implemented',cast)
       endif

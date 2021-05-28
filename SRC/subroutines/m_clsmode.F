@@ -1,6 +1,6 @@
       module m_clsmode
 !! CLS: Core-level spectroscopy !too confusing notation see suclst.
-      use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl
+      use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso
       use m_suham,only:   ndham=>ham_ndham
       use m_mkqp,only: nkp=>bz_nkp
       use m_MPItk,only: master_mpi
@@ -48,7 +48,7 @@
       integer:: nmx,jsp,iq,nev
       real(8)::qp(3)
       complex(8):: t_zv(1:ndimhx,1:nmx)
-      call rxx(nspc.ne.1,'CLS not implemented in noncoll case')
+      call rxx(lso==1,'CLS not implemented in noncoll case')
       call makusq(0, nsites,isite, nev,jsp,iq,qp,t_zv, ausc_zv)
       end subroutine
       

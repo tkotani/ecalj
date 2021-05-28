@@ -354,7 +354,7 @@ c mar2014
       real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
       integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
       logical:: phispinsym,ljobgw
-      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle,ispinit,ndimhxx
+      integer:: nr,lmxl,nlml,nelt1,nelt2,nso,ifih,ifile_handle,ispinit,ndimhxx,nnn
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
@@ -820,7 +820,7 @@ c     call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto9
          if (master_mpi) then 
             ifi=ifile_handle()
             open(ifi,file='wkp.'//trim(sname),form='unformatted')
-            i = iobzwt ( 1 , ndham , nkp , nsp , ef0 , rv_a_owtkb , -ifi )
+            i = iobzwt ( 1 , ndham , nkp, nsp , ef0 , rv_a_owtkb , -ifi )
             close(ifi) !call fclr('wkp',ifi)
          endif
       endif
