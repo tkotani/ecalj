@@ -116,7 +116,7 @@ C ... Local parameters
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
       double precision ewgt(ndimh*nspc*numq),epsnevec
 
-      qval= qval_- ctrl_zbak(1) 
+      qval= qval_(1)- ctrl_zbak(1) 
 c      emin=bz_dosw(1)
 c      emax=bz_dosw(2)
       

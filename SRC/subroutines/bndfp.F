@@ -466,7 +466,7 @@ c      efmax= bz_efmax
       call m_mkpot_init(llmfgw,vorb) 
 !! elind for accelarating convergence
       elind = ham_elind
-      if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
+      if(ham_elind<0d0) elind=-(3*pi**2*(qval(1)-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
       call m_subzi_init(lrout>0,ef0,def,bz_n,bz_w,eferm) !get nevmx, and so on
@@ -686,7 +686,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
         open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
         write(ifi,"(a)")'GENE          # format '
         write(ifi,"(a)")'0 0 0 0       # iskip (not presently used) idebug setgap shiftgap'
-        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 0.0005 0.4 ', qval-qbg,
+        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 0.0005 0.4 ', qval(1)-qbg,
      &  '       # efermi.lmf (Ry), energygrid, energy span around Fermilevel, number of electrons'
         write(ifi,"(a)")'CALC          # CALC (calculate expansion coeff), NOCALC read from file'
         write(ifi,"(a)")'5             # lpfac, number of latt-points per k-point'
@@ -774,7 +774,8 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       sev = sumev(1,1)
       include "block11.F" !lmet=4
       call mpi_barrier(MPI_comm_world,ierr)
-      call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99) !      include "block12.F"
+c      call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99)
+      include "block12.F"
       call mpi_barrier(MPI_comm_world,ierr)  
       if(goto99) goto 99
       goto 199   !not goto99
@@ -791,7 +792,8 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       sev = sumev(1,1)
       include "block11.F" !lmet=4
       call mpi_barrier(MPI_comm_world,ierr)
-      call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99) !      include "block12.F"
+c     call bzintegration(evlall,lrout,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef,goto99)
+      include "block12.F"
       call mpi_barrier(MPI_comm_world,ierr)  
  199  continue
       
@@ -806,7 +808,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
       if (ipr.gt.0)write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
-     & nkp,ebot,qval,qbg,bz_w
+     & nkp,ebot,qval(1),qbg,bz_w
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -897,7 +899,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
          write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d16.8, ' # (Ry) Top of Valence')") evtop
          write(ifi,"(d16.8, ' # (Ry) Bottom of conduction')") ecbot
-         write(ifi,"(d16.8, ' # number of electrons qval-qbg=')") qval-qbg
+         write(ifi,"(d16.8, ' # number of electrons qval-qbg=')") qval(1)-qbg
          write(ifi,"(d16.8, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
          write(ifi,
      &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
@@ -979,7 +981,7 @@ c          print *,'goto mkpot procid=',procid
             call mkpot (lfrce,
      &          srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval(1) , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
 
            if(cmdopt('--density',9,0,strn)) then
@@ -1001,7 +1003,7 @@ c          print *,'goto mkpot procid=',procid
 c         allocate(qm1_rv(nvl))
 c         allocate(qm2_rv(nvl))
          call mixrho ( ssite , sspec ,  nsp , iter , sstrnmix 
-     .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
+     .     , qval(1) - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
      .     , k3 , dmxp , srout_zv , zv_a_osmrho )
       else
          eks = 0d0

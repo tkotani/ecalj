@@ -33,7 +33,7 @@ c            endif
             nev_iq    = nev_(iq) 
             if (mod(iq,10) .ne. 1) call poppr
             ebot = dmin1(ebot,evl(1,jsp))
-            i = max(1,nint(qval-qbg)/(3-nspc))
+            i = max(1,nint(qval(1)-qbg)/(3-nspc))
             evtop = max(evtop,evl(i,jsp))
             ecbot = min(ecbot,evl(i+1,jsp))
             if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
@@ -46,7 +46,7 @@ c            endif
                   if (iq .eq. 1 .and. jsp .eq. nsp ) then !
 !! Energy-Window reset. dosw=(emin,emax)
                      ef00 = ef0
-                     call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
+                     call fixef0(qval(1)-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
                      if(master_mpi) then
                         open(newunit=ifid,file='ewindow.'//trim(sname)) 
                         write(ifid,"(3d23.15)") dosw(1:2),ef0
