@@ -106,7 +106,7 @@ C ----------------------------------------------------------------------
       if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
       qbg = ctrl_zbak(1)        !homogenious background charge
-      zval=qval(1)-qbg
+      zval=qval-qbg
       ltet = ntet>0
       ldos  = ctrl_ldos !0 or 1
       if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling

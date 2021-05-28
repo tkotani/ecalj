@@ -10,7 +10,7 @@
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:)
       
-      real(8):: qval(2)!bzwtsf->bzwts
+      real(8):: qval,protected
       
       complex(8),allocatable,protected   :: zv_a_osmpot(:,:,:,:)
       real(8),allocatable,protected :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
@@ -66,7 +66,7 @@ c      complex(8),allocatable:: vorb(:,:,:,:)
       call mkpot (lfrce,
      i    zv_a_osmrho, sv_a_oorhat , qbg  
      o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval(1) , qsc , gpot0_rv 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o  , vval_rv , fes1_rv , i , vorb )
       call togpr()
       end subroutine

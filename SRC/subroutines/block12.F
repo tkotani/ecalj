@@ -1,5 +1,3 @@
-
-      
       goto99=.false.
       if (master_mpi) ierr=unlink('MagField') !delete
 !! --- BZ integration for fermi level, band sum and qp weights ---
