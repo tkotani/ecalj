@@ -769,10 +769,9 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       enddo
 c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
       goto99=.false.
-      include "block10.F"
+      include "block10.F" !for non metal set ef0 dosw
       if(.not.goto99) then !metal case
-         sev = sumev(1,1)
-         call m_bzintegration_init(evlall,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef)
+         call m_bzintegration_init(evlall,ndos,  eferm,sev,sumqv,vnow,ef0,bz_ef)
          if(lmet>=0.and. lwtkb==-1 .and. lrout .gt. 0) then
             lwtkb = 1
             goto99=.true.  
