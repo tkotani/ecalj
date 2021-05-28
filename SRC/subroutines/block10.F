@@ -2,7 +2,7 @@
 !!   jsp=isp in the collinear case; jsp=1 in the noncollinear
 !!     Thus jsp should be used in place of isp
 !     !     isp serves as a flag for the noncollinear case
-!! block6      
+!! block10      
       do  iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
@@ -37,11 +37,6 @@
 !! Energy-Window reset. dosw=(emin,emax)
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
-c                     if(master_mpi) then
-c                        open(newunit=ifid,file='ewindow.'//trim(sname)) 
-c                        write(ifid,"(3d23.15)") dosw(1:2),ef0
-c                        close(ifid) !call fclose(ifid)
-c                     endif
                      if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
      .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
                         if (master_mpi) call info0(10,1,1,
@@ -51,7 +46,6 @@ c                     endif
                         exit    !this is the case of make co test at ecalj/TestInstall/
                      endif
                   endif
-
 C     Check for cases when nevmx is too small : i=2 => fatal error
                   i = 0
                   if (nevmx.ge.0 .and. lmet .ne. 0) then

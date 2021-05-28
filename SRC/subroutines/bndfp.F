@@ -554,15 +554,11 @@ c      efmax= bz_efmax
 !!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
 !!     2nd for re-read eigze_* and accumulate density.                           
 !!    It will be better to remove this double path mechanism in future.
-      gotosecondpass =.false.
+      gotosecondpass =.false. !we removed 'goto 99 procedure' but this flag is used.
       if(plbnd==0) then
-        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )!this covers limited cases.
-!this judges going through second pass or not.
+        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )
       endif
-c      ix99 = 0
-c 99   continue
-c     ix99 = ix99+1             !ix99=2 for second pass
-c      ix99=1
+      
       if(lrout/=0) then
          call dfqkkl( sv_p_oqkkl ) !zero clear 
          if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
@@ -610,9 +606,9 @@ c      ix99=1
       sttime = MPI_WTIME()
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues
       call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls') 
+
       
 !! === pdos mode (--mkprocar and --fullmesh). ===
-!block1  ix99=1 only
       if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
       if(PROCARon.and.fullmesh) then
          call mpi_barrier(MPI_comm_world,ierr)  
@@ -671,7 +667,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
       endif
 
-!block3 ix99=1 only
+      
 !! boltztrap data 
       if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
          iqread=0
@@ -733,6 +729,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       if( cmdopt('--boltztrap',11,0,strn)) then
          call rx0(' end of --boltztrap mode: boltztrap.* are generated')
       endif
+
       
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
@@ -758,8 +755,9 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0('plot band mode done')
       endif
 
-!-----------------------------------------------      
-      include "block4.F"
+      
+!==================================================================== 
+      include "block4.F" !all reduce
       do  iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
@@ -769,37 +767,28 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
           if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
          enddo
       enddo
+c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
       goto99=.false.
       include "block10.F"
-      if(goto99) then
-         print *,'lll goto10 by block10'
-         call mpi_barrier(MPI_comm_world,ierr) !takao added I think 'safer' by this barrier. jan2015
-         goto 99
-      endif
-      sev = sumev(1,1)
-      call m_bzintegration_init(evlall,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef)
-      if(lmet>=0 .and. (lmet/=4.or.ltet)) then
-         if (lwtkb .eq. -1 .and. lrout .gt. 0) then
-            call info0(20,0,0,' Start second band pass ...')
+      if(.not.goto99) then !metal case
+         sev = sumev(1,1)
+         call m_bzintegration_init(evlall,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef)
+         if(lmet>=0.and. lwtkb==-1 .and. lrout .gt. 0) then
             lwtkb = 1
-            goto 99 !=.true.
+            goto99=.true.  
          endif
-         if(lwtkb .eq. 2 .and. lrout .gt. 0) call rx('takao think no path here vvvvvvveeee')
       endif
-      goto 199                  !not goto99
+      if(goto99) then !goto 99 !2nd pass
+         ix99=2
+         if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
+         write(6,*)'iiiwww111222 lwtkb=',lwtkb
+         call mpi_barrier(MPI_comm_world,ierr)  
+         include 'block0.F'     !band
+         include 'block4.F'     !all reduce dos and so on
+         include "block10.F"    !dosw ef0 set
+      endif
       
- 99   continue   !2nd pass
-      call mpi_barrier(MPI_comm_world,ierr)  
-      ix99=2
-      if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
-      write(6,*)'iiiwww111222 lwtkb=',lwtkb
-      include 'block0.F' !band
-      include 'block4.F' !all reduce dos and so on
-      include "block10.F" !dosw ef set
- 199  continue
-      
-      
-      call mpi_barrier(MPI_comm_world,ierr)
+!===========================================================
 !!   For now, SO by site, not by class
       if (lwtkb==1 .and. lso /=0) then
          allocate(ips_iv(nbas))
