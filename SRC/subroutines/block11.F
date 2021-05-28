@@ -2,7 +2,8 @@
       if (lmet .eq. 4) then
          call mshn3p ( nbas , ssite , sspec , lmet , lrout , lfrce , qval 
      .     - qbg , ef0 , def , sumqv , sumev , n1 , n2 , n3 , k1 , k2 , 
-     .     k3 , srout_zv , sv_p_oqkkl , frc , lrep )
+     .        k3 , srout_zv , sv_p_oqkkl , frc , lrep )
+         print *,'lllllllllrep=',lrep
 C   ... Store val q & magnetic moment in sumqv(1) and sumqv(2)
          sumqv(2,1) = sumqv(1,1) - sumqv(1,2)
          sumqv(1,1) = sumqv(1,1) + sumqv(1,2)

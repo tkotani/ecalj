@@ -1,9 +1,8 @@
-!! ===   Repeat loop for printout and goto 99 ===
+!!  ===   Repeat loop for printout and goto 99 ===
 !!   jsp=isp in the collinear case; jsp=1 in the noncollinear
 !!     Thus jsp should be used in place of isp
 !     !     isp serves as a flag for the noncollinear case
 !! block6      
-      goto99=.false.
       do  iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
