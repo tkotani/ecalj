@@ -109,7 +109,7 @@ C ----------------------------------------------------------------------
       zval=qval-qbg
       ltet = ntet>0
       ldos  = ctrl_ldos !0 or 1
-      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
+c      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       
       nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh 
       procid = mpipid(1)

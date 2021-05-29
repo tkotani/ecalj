@@ -1550,6 +1550,7 @@ c     .     ' 4 BZ integration with 3-point scheme')
      .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
+
       nm='BZ_DOSMAX'; call gtv(trim(nm),tksw(prgnam,nm),bz_dosmax,def_r8=1.5d0,
      &     note='Maximum energy to which DOS accumulated, relative to Efermi') !march 2013
       xxx = 5d0
@@ -2069,6 +2070,11 @@ c      enddo
       else
          plbnd=0
       endif
+!!      
+      if(ctrl_lmet/=0 .and. .not.ltet) ctrl_ldos=1
+!     ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
+      if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
+      bz_ndos = abs(bz_ndos)
       
 !! LDA+U block (it was suldau.F)
       nlibu = 0

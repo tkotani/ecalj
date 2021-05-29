@@ -29,9 +29,9 @@
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
-      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
+      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
+     &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
@@ -43,7 +43,7 @@
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsenex,sene,Dsene
       use m_seneinterp,only: ham_ndhrs,ham_nqsig,senex
-      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
+      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk !,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -59,7 +59,7 @@
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar
-      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,
+      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
@@ -193,7 +193,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
-     .  , lrep , ndos , ndos0 , nev  
+     .  , lrep ,  ndos0 , nev  
      .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,   i1 , i2 !, !plbnd lfrzw ,
@@ -411,7 +411,6 @@ c mar2014
       k2 = n2
       k3 = n3
 c      efmax= bz_efmax
-      ndos = bz_ndos
       if(bbinit) then !from m_lmfinit
          bz_dosw=bz_doswin
          bbinit=.false.
@@ -448,8 +447,6 @@ c      efmax= bz_efmax
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
       call m_subzi_init(lrout>0,ef0,def,bz_n,bz_w,eferm) !get nevmx, and so on
-      if (ldos==0 .and. lmet==0) ndos = 1
-      ndos = abs(ndos)
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
@@ -519,9 +516,8 @@ c      evlall=0d0
       iqend=nkp
 #endif
 !! Set up Hamiltonian and diagonalization.      
-      call m_bandcal_init(iqini, iqend,lrout, ef0,def,emin,emax,ndos,ifih,lwtkb)
+      call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb)
 c  o     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_
-      if(lfrce>0) frc=frcband
       if(numprocs/=1) then
          do iq = 1, nkp
             pidorigin=-999
@@ -690,10 +686,16 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
          call rx0('plot band mode done')
       endif
-
       
 !==================================================================== 
-      include "block4.F" !all reduce
+c     include "block4.F" !all reduce
+      call m_bandcal_allreduce(lrout,lwtkb)
+      eterms=ham_eterms 
+      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+      ham_eterms=eterms 
+c      entime = MPI_WTIME()
+c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
+      
       do iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
@@ -707,7 +709,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       goto99=.false.
       include "block10.F" !for non metal set ef0 dosw
       if(.not.goto99) then !metal case
-         call m_bzintegration_init(evlall,ndos,  eferm,sev,sumqv,vnow,ef0,bz_ef)
+         call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow,ef0,bz_ef)
          if(lmet>=0.and. lwtkb==-1 .and. lrout .gt. 0) then
             lwtkb = 1
             goto99=.true.  
@@ -719,14 +721,18 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call mpi_barrier(MPI_comm_world,ierr)
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
-         call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax,ndos) !accumulate srout_zv and so on.
-         ix99=2
-         include 'block4.F'     !all reduce dos and so on
+         call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax) !accumulate srout_zv and so on.
+c         include 'block4.F'     !all reduce dos and so on
+       call m_bandcal_allreduce(lrout,lwtkb)
+       eterms=ham_eterms 
+       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+       ham_eterms=eterms 
          include "block10.F"    !dosw ef0 set
       endif
 
       
-!===========================================================
+!========================================================
+      if(lfrce>0) frc=frcband !atomic force from band part
 !!   For now, SO by site, not by class
       if (lwtkb==1 .and. lso /=0) then
          allocate(ips_iv(nbas))
@@ -755,20 +761,6 @@ c     & nkp,ebot,qval,qbg,bz_w
       endif
 
       
-!! ... Average forces so net force on system is zero (APW case)
-      if (lfrce .ne. 0 .and. napw .ne. 0) then
-         call dpzero(xv,3)
-         do  i1 = 1, nbas
-            do  i = 1, 3
-               xv(i) = xv(i) + frc(i,i1)/nbas
-            enddo
-         enddo
-         do  i1 = 1, nbas
-            do  i = 1, 3
-               frc(i,i1) = frc(i,i1) - xv(i)
-            enddo
-         enddo
-      endif
 
       
 !! === Generate DOS on disk ===
