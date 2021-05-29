@@ -456,12 +456,11 @@ c      efmax= bz_efmax
          call m_clsmode_init()
       endif
       if(onlyonce) then
-         call gen_hamindex(.true., jobgw==0)
+         call gen_hamindex(.true., jobgw==0) !index for hamiltonian
          if(writeham) call m_writeham_write() 
          onlyonce=.false.
       endif
-!! wkp is used. Confusing logic. need to be dissolved.
-      if (plbnd/=0) then
+      if (plbnd/=0) then !get ef0 just from wkp (weight file wkp.* in your previous calculation).
          if (master_mpi) then !Try and read Fermi level from file
             inquire(file='wkp.'//trim(sname),exist=nexist)
             if(nexist) then
@@ -500,9 +499,6 @@ c      efmax= bz_efmax
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-c      allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
-c      evlall=0d0
-      
 !! MPIK k point divider      
 #if MPIK
       if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
@@ -516,8 +512,9 @@ c      evlall=0d0
       iqend=nkp
 #endif
 !! Set up Hamiltonian and diagonalization.      
+!! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
+!! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array 
       call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb)
-c  o     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_
       if(numprocs/=1) then
          do iq = 1, nkp
             pidorigin=-999
@@ -687,15 +684,13 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
          call rx0('plot band mode done')
       endif
       
-!==================================================================== 
-c     include "block4.F" !all reduce
+!! All reduce band quantities     
       call m_bandcal_allreduce(lrout,lwtkb)
       eterms=ham_eterms 
       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-      ham_eterms=eterms 
+      ham_eterms=eterms
 c      entime = MPI_WTIME()
 c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
-      
       do iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
@@ -707,8 +702,7 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
       enddo
       if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
       
-c      goto99=.false.
-c      include "block10.F" !for non metal set ef0 dosw
+!! Revise ef0 dosw, and goto99
       call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
       if(.not.goto99) then !metal case
          call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow,ef0,bz_ef)
@@ -717,7 +711,7 @@ c      include "block10.F" !for non metal set ef0 dosw
             goto99=.true.  
          endif
       endif
-      
+!! Second pass. We accumulate band quantities after we got weight (lwtkb=1 on).
       if(goto99) then !goto 99 !2nd pass
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          write(6,*)'iiiwww111222 lwtkb=',lwtkb
@@ -725,13 +719,11 @@ c      include "block10.F" !for non metal set ef0 dosw
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
          call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax) !accumulate srout_zv and so on.
-c         include 'block4.F'     !all reduce dos and so on
          call m_bandcal_allreduce(lrout,lwtkb)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
          ham_eterms=eterms
          call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
-c         include "block10.F"    !dosw ef0 set
       endif
 
       
