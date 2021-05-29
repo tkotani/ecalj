@@ -1,9 +1,9 @@
-      subroutine sugw ( lrsig, jobgw, sigmamode) !, numproc,procid,master)!,lso) ,nk1,nk2,nk3,
+      subroutine sugw (jobgw) !, numproc,procid,master)!,lso) ,nk1,nk2,nk3,
       use m_struc_def,only:  s_rv1, s_spec, s_site !s_ham, s_lat, 
       use m_suham,only: iv_a_oindxo,ham_ldham, ndham=>ham_ndham
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
-     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,
+     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,
      &     ham_scaledsigma, lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb, ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -152,7 +152,7 @@ c      type(s_ham):: sham
      .ifiqg,iflband(2),ifqeigen,ifsyml,igets,igetss,iix,iline, 
      .im1,im2,ipb(nbas),ipqn,ipr,iprint,iq,is,isp,ispc,j,job,k1,
      .k2,k3,konf,konfig(0:n0),l,lchk,ldim,loldpw, ldham(8,2),
-     .lgunit,lmaxa,lmxax,lrsig,lsig,mx,mxint,n1,n2,n3,nat,
+     .lgunit,lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
      .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, stdo,
@@ -245,6 +245,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 !! --- Setup ---
       call tcn ('sugw')
       if(iprint()>10) print *,'sugw:'
+      sigmamode = mod(lrsig,10) .ne. 0
 
 !! june2013 magfield is added
       ifimag = ifile_handle()

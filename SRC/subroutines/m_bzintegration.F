@@ -1,0 +1,78 @@
+      module m_bzintegration
+      contains
+      subroutine m_bzintegration_init(evlall,ndos, eferm,sev,sumqv,vnow,ef0,bz_ef)!,goto99)
+      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+      use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,
+     & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,ctrl_zbak,fsmom=>bz_fsmom
+      use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
+      use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
+     & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
+     &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
+     o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o     , vval_rv , fes1_rv 
+      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
+      use m_ext,only: sname
+      implicit none
+      logical:: lfill=.false.,ltet
+      logical:: debug,cmdopt0 !goto99,
+      integer:: ierr,ifimag,i,ifi,ifile_handle,ndos,iobzwt
+      real(8):: dosrng,qbg,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
+      real(8),parameter::    NULLR =-99999
+c     goto99=.false.
+      sev=0d0
+      ltet = ntet>0
+      qbg = ctrl_zbak(1) !homogenious background charge
+      debug    = cmdopt0('--debugbndfp')
+      if (master_mpi) ierr=unlink('MagField') !delete
+!! --- BZ integration for fermi level, band sum and qp weights ---
+      if(lmet>=0 .and. (lmet/=4.or.ltet)) then
+         dosrng = 8
+         if (bz_n .lt. 0) dosrng = 16
+         if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
+         if(bz_fsmommethod == 1) then !takao dec2010
+!     ! vnow june22013 !vnow !(in Ry) contains magnetic field
+!     ! For eigenvalus, add  -vnow/2 for isp=1, and +vnow/2 for isp=2.
+            call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg, !note qval is output
+     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
+     .            , dosrng , rv_a_owtkp , evlall ,  lswtk , rv_a_oswtk 
+     .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
+         else
+!     ! vnow june22013
+            call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
+     .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg , 
+     .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
+     .           , dosrng , rv_a_owtkp , evlall , lswtk , rv_a_oswtk 
+     .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
+         endif
+!     ! june2013 magfield is added
+         if(fsmom/=NULLR .and. master_mpi) then
+            open(newunit=ifimag,file='MagField',status='unknown')
+            write(ifimag,"(d23.16,' !(in Ry) -vnow/2 for isp=1, +vnow/2 for isp=2')")vnow
+            close(ifimag)
+         endif
+!     !         Store val charge & magnetic moment in sumqv(1..2)
+         if (lmet .ne. 4) then
+            sumqv(1,1) = sumqv(1,2)
+            sumqv(2,1) = sumqv(2,2)
+         endif
+         if (lmet .ne. 4) then
+            ef0 = eferm
+            bz_ef=ef0
+         endif
+         if (lmet .gt. 0) then
+            if (master_mpi) then
+               ifi=ifile_handle()
+               open(ifi,file='wkp.'//trim(sname),form='unformatted') 
+               i = iobzwt ( 0 , ndhamx , nkp , nspx , eferm , rv_a_owtkb , -ifi )
+               close(ifi) !call fclr('wkp',ifi)
+            endif
+         endif
+!     !
+         write(6,*) 'ssssssssss sev=',sev
+      endif
+      end subroutine
+      end module

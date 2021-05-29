@@ -6,7 +6,7 @@
      &     lat_gam,lat_alat, lat_ldist,
      &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo
+     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks
       use m_lattic,only: lat_dist,lat_plat,lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
      &     lat_vol,lat_nkd,lat_awald,lat_nkq
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
@@ -17,6 +17,7 @@
       use m_suham,only: m_suham_init
       use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk
       use m_chkdmu,only: Chkdmu, eorb
+      use m_bandcal,only: dmatu_out=>dmatu
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -42,9 +43,9 @@
       implicit none
       character strn*120, alabl*8, flg*3
       logical :: cmdopt,llmfgw,xyzfrz(3),lbin !,lshr=.false.
-      integer :: i,ifi,ipr,irs1x, k, leks,lrout, nit1,numq, pdim,lsc
+      integer :: i,ifi,ipr,irs1x, k, nit1,numq, pdim,lsc
       integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
-      integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j
+      integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
       real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
       real(8) :: plat(3,3),qlat(3,3),qbg,xv(10)
       real(8):: seref,etot(2),amom,qdiff,qtol,etol
@@ -132,12 +133,6 @@ C     33 : Lindhard screening parameter
       if( ctrl_quit==8 ) call rx0('quit = ham')
       allocate(ftot_rv(3*nbas))
 !!      
-      lrout = 1 ! Whether to evaluate output density and/or KS energy
-      leks = 1
-      if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
-        lrout = 0
-        leks = 0
-      endif
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'lmfp (fatal): output density required when forces sought.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
@@ -156,6 +151,7 @@ C     33 : Lindhard screening parameter
 !! LDA+U initialization
       if( nlibu>0 )then
          i=nsp*nlibu*(lmaxu*2+1)**2
+         idmatu=i
          allocate(vorbdmat(i),dmatu(i),dmato(i))
          call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
          if( ctrl_quit==16 ) call rx0('quit = dmat')
@@ -218,7 +214,8 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
 !! Make and diagonalize hamiltonian, make new charge density ---
             if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
             if(nlibu>0) dmato=dmatu !nlibu: size of density matrix for LDA+U
-            call bndfp( leks, lrout, dmxp, iter, maxit, frc_rv, dmatu, vorbdmat, llmfgw)
+            call bndfp( dmxp, iter, maxit, frc_rv, vorbdmat, llmfgw)
+            call zcopy(idmatu,dmatu_out,1,dmatu,1)
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
 !   --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).

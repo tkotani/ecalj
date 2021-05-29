@@ -22,7 +22,7 @@
       integer(2),protected:: nono
       character(8),protected:: slabl_(mxspec) 
       character(lstrn),protected:: sstrnmix,sstrnsymg
-      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf !lat_ngrp ,irs11
+      integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,
@@ -119,6 +119,7 @@
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
+      integer,protected:: leks,lrout,plbnd 
       
       real(8):: ham_eterms(20)
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
@@ -264,7 +265,7 @@ C ----------------------------------------------------------------------
       character strn*(recln),strn2*(recln)
       integer:: i_spec
       character fileid*64
-      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv!,asa
+      logical lgors,cmdopt,bittst,ltmp,ioorbp,noinv,cmdopt0
       double precision dval,dglob,xx(n0*2),dgets !,ekap(6)
       integer a2vec,bitand,getdig,i,is,igets,iprint,
      .iprt,irs(5),isw,ifi,ix(n0*nkap0),j,k,l,!lbas, !noinv was iand(lqp,1)
@@ -323,7 +324,7 @@ c      integer,parameter:: mxspec=256
       
       integer,allocatable :: iv_a_oips_bakup (:)
       integer :: ctrl_nspec_bakup,inumaf
-      logical :: ipr10
+      logical :: ipr10,fullmesh
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1799,7 +1800,15 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       call dcopy(i_copy_size,pmax,1,ham_pmax,1)
       i_copy_size=size(ham_pmin)
       call dcopy(i_copy_size,pmin,1,ham_pmin,1)
+      if (procid==master) then
+         inquire(file='sigm.'//trim(sname),exist=sexist)
+         if (lrsigx/=0 .and. (.not.sexist) ) then
+            write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
+            lrsigx = 0
+         endif
+      endif
       ham_lsig=lrsigx
+      call mpibc1(ham_lsig,1,2,mlog,'bndfp','ham_lsig')
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
@@ -2039,13 +2048,28 @@ c      enddo
       endif
 !!  -------------------------- Total energy mode. moved from lmfp-------------------
       if (cmdopt('--etot',6,0,strn)) then
-!!  No forces or dynamics
-        mdprm=0
+        mdprm=0 !!!  No forces or dynamics
         ctrl_lfrce=0
         ctrl_mdprm=0
         irs2=0
         ctrl_maxit=1
       endif
+!      
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+      lrout = 1 ! Whether to evaluate output density and/or KS energy
+      leks = 1
+      if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
+        lrout = 0
+        leks = 0
+      endif
+      if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
+         ctrl_lfrce = 0
+         plbnd = 1
+         lrout = 0
+      else
+         plbnd=0
+      endif
+      
 !! LDA+U block (it was suldau.F)
       nlibu = 0
       lmaxu = 0

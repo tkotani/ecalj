@@ -22,23 +22,22 @@
       binit=.false.
       end
       
-      subroutine bndfp(
-     .     leks,lrout,dmxp,iter,maxit, frc, 
-     .     dmatu,vorb,llmfgw)
+      subroutine bndfp( dmxp,iter,maxit, frc,  vorb,llmfgw)
       use m_supot,only: zv_a_osmrho,sv_a_oorhat
+      
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,ctrl_lfrce,
-     &     pwmode=>ham_pwmode,ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     ctrl_nspec,ctrl_pfloat,ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
+     &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
      &     nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
      &     sstrnmix,
-     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail
+     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -60,7 +59,8 @@
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar
-      use m_bandcal,only: m_bandcal_init
+      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,
+     o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
@@ -187,7 +187,7 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       integer:: pidorigin, ndimhx_iq, nev_iq,idx
       integer:: work_mpi(10)    ! use only 1 and 2 now
       integer nbx,iter,maxit
-      integer:: k1,k2,k3,leks,lrout,lfrce,lpnu=1
+      integer:: k1,k2,k3,lpnu=1
       real(8):: dmxp(33),frc(3,1:nbas*numq)
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,strn2*120
@@ -196,17 +196,16 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
      .  , lrep , ndos , ndos0 , nev  
      .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
-     .  , ifi , fxst ,  lfrzw , i1 , i2 , plbnd 
-     .  , nfilem , iobzwt , lrsig ,  nll, lnoxc !, lpdiag lwsig  , 
+     .  , ifi , fxst ,   i1 , i2 !, !plbnd lfrzw ,
+     .  , nfilem , iobzwt ,   nll, lnoxc !, lpdiag lwsig  , 
      .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
      .  ,  mpipid , ldham(16) , ldim !, ndimh , ndimhx !nfbn(2) , 
-      real(8) ,allocatable :: dos_rv(:,:)
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
       real(8) ,allocatable :: hbyl_rv(:,:,:)
       real(8) ,allocatable :: qbyl_rv(:,:,:)
-      complex(8) ,allocatable :: srout_zv(:)
+c      complex(8) ,allocatable :: srout_zv(:)
       complex(8) ,allocatable :: t_zv(:,:)
 c      real(8) ,allocatable :: qm1_rv(:)
 c      real(8) ,allocatable :: qm2_rv(:)
@@ -214,16 +213,16 @@ c      real(8) ,allocatable :: ww_rv(:)
 c      complex(8) ,allocatable :: ww_zv(:)
 c      integer ,allocatable :: ifbls_iv(:)
       integer ,allocatable :: ips_iv(:)
-      real(8) ,allocatable :: orbtm_rv(:)
+c      real(8) ,allocatable :: orbtm_rv(:)
       type(s_rv1) :: sv_p_orhat1(3,nbas)
-      type(s_rv1) :: sv_p_oeqkkl(3,nbas)
-      type(s_rv1) :: sv_p_oqkkl(3,nbas)
+c      type(s_rv1) :: sv_p_oeqkkl(3,nbas)
+c      type(s_rv1) :: sv_p_oqkkl(3,nbas)
       double precision sigp(10)
       logical:: readeferm
       double precision ef00,eferm,emax,emin,esmearm,sev,efermr,
      .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
-     .  dosw(2),dgets,sumev(2,3),
-     .  sumqv(3,2),qp(3),shftqp(3),eterms(20),elind,dum,evtop,
+     .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
+     .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
       equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
@@ -247,8 +246,7 @@ C     real(8),allocatable :: qpe(:,:)
       integer:: nblk,nprow,npcol,nmx
 !!     for LDA+U
       real(8) ,allocatable :: ausu_rv(:)
-      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),
-     .  dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       integer:: i_spackv, i_spacks
       integer ::iwdummy
       logical :: debug=.false.  !debug is only for check write. However, it can cause error
@@ -256,7 +254,7 @@ C     real(8),allocatable :: qpe(:,:)
 !because fp/test/test.fp assumes 'something not inserted in console output'.
 
       data T /.true./ F /.false./
-      integer,allocatable:: nevls(:,:)
+c      integer,allocatable:: nevls(:,:)
 ctakao
       integer :: ifiogw,ifiese,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
       logical :: nexist,sigmamode,ok !, newsigmasw
@@ -278,11 +276,11 @@ ctakao
 
       integer:: iqini,iqend
       complex(8),allocatable:: smrhobk(:)
-      real(8),allocatable:: evlall(:,:,:),evl(:,:)
+      real(8),allocatable::evl(:,:) ! evlall(:,:,:),
       integer:: idummy
       real(8):: epsnevec
       logical:: onlyonce=.true.
-      logical:: isanrg, l_dummy_isanrg,oncewrite, savez,getz,gotosecondpass,initiqisp
+      logical:: isanrg, l_dummy_isanrg,oncewrite !, savez,getz,gotosecondpass,initiqisp
       integer:: getef, i_dummy_getef,ifig!, ndimsig
 c      integer:: n_listwf
       integer, allocatable:: listwf(:)
@@ -303,7 +301,7 @@ c      real(8):: qsfz(3,100)
       integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
 
       real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,esold, vnow
-      integer,allocatable:: ndimhx_(:),nev_(:)
+c      integer,allocatable:: ndimhx_(:),nev_(:)
       integer:: npri,ibas,ifiqb,ifiwv,lmxa, ifimag
       real(8),parameter::    NULLR =-99999
 
@@ -386,7 +384,6 @@ c mar2014
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece mode for xcrysden. Format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
       if(fullmesh) procaron = .true.
-      if(nlibu>0) dmatu=0d0 !density matrix for U initialization
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)
@@ -398,18 +395,6 @@ c mar2014
       ldham = ham_ldham
       ldim  = ldham(1)
       if(size(ham_ldham)/=size(ldham)) call rx("bndfp:size(ham_ldham)/=size(ldham)")
-      lrsig = ham_lsig  !12 for read sigma mode
-      lfrzw = 0
-      if(ham_frzwf) lfrzw = 1  !freeze all augmentation wave
-      nspec = ctrl_nspec
-      if (master_mpi) then
-         inquire(file='sigm.'//trim(sname),exist=nexist)
-         if (lrsig/=0 .and. (.not.nexist) ) then
-            write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
-            lrsig = 0
-         endif
-      endif
-      call mpibc1(lrsig,1,2,mlog,'bndfp','lrsig')
       if (master_mpi) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
@@ -442,14 +427,6 @@ c      efmax= bz_efmax
       ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
-      lfrce= ctrl_lfrce
-      if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
-         plbnd = 1
-         lrout = 0
-         lfrce = 0
-      else
-         plbnd = 0
-      endif
 !! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian stated at jan2018kaist
@@ -473,7 +450,6 @@ c      efmax= bz_efmax
       call m_subzi_init(lrout>0,ef0,def,bz_n,bz_w,eferm) !get nevmx, and so on
       if (ldos==0 .and. lmet==0) ndos = 1
       ndos = abs(ndos)
-      allocate(dos_rv(ndos,2*nsp))
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
@@ -487,7 +463,6 @@ c      efmax= bz_efmax
          if(writeham) call m_writeham_write() 
          onlyonce=.false.
       endif
-      if (lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
 !! wkp is used. Confusing logic. need to be dissolved.
       if (plbnd/=0) then
          if (master_mpi) then !Try and read Fermi level from file
@@ -524,12 +499,12 @@ c      efmax= bz_efmax
       if(sigmamode.and.master_mpi)write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
-         call sugw(lrsig,jobgw ,sigmamode) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
+         call sugw(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-      allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
-      evlall=0d0
+c      allocate(evlall(ndhamx,nspx,nkp)) !store all eigenvalues
+c      evlall=0d0
       
 !! MPIK k point divider      
 #if MPIK
@@ -543,49 +518,10 @@ c      efmax= bz_efmax
       iqini=1
       iqend=nkp
 #endif
-      
-      allocate(ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
-      ndimhx_=0
-      nev_   =0                
-      nevls  =0
-      
-!! == Start loop over k points; also, re-entry for second band pass ==
-!! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
-!!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
-!!     2nd for re-read eigze_* and accumulate density.                           
-!!    It will be better to remove this double path mechanism in future.
-      gotosecondpass =.false. !we removed 'goto 99 procedure' but this flag is used.
-      if(plbnd==0) then
-        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )
-      endif
-      
-      if(lrout/=0) then
-         call dfqkkl( sv_p_oqkkl ) !zero clear 
-         if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
-         if(allocated(fh_rv)) then
-            deallocate(srout_zv,fh_rv,fes2_rv)
-         endif
-         allocate( srout_zv(k1*k2*k3*numq*nsp) )
-         allocate( fh_rv(3*nbas)  )
-         allocate( fes2_rv(3*nbas))
-         srout_zv = 0d0
-         fh_rv= 0d0  
-      endif
-      ebot = 1000d0
-      sumev = 0d0
-      sumqv = 0d0
-      if (ldos==1 .or. lmet>0) dos_rv=0d0
-      if (lfrce>0) frc  = 0d0
-      if (lswtk==1)  rv_a_oswtk=0d0
-!! Mullikan mode was here. removed for simplicity
-!! For insulator, valence band top and conduction band bottom
-      evtop = -99999
-      ecbot = -evtop
-      if(lso/=0) orbtm_rv=0d0
 !! Set up Hamiltonian and diagonalization.      
-      call m_bandcal_init( iqini, iqend,sigmamode,lrsig,lfrce,lrout,
-     &     ef0,def,emin,emax,ndos,nevls,ifih,plbnd,lwtkb,kpproc,gotosecondpass, 
-     o     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
+      call m_bandcal_init(iqini, iqend,lrout, ef0,def,emin,emax,ndos,ifih,lwtkb)
+c  o     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_
+      if(lfrce>0) frc=frcband
       if(numprocs/=1) then
          do iq = 1, nkp
             pidorigin=-999
@@ -781,8 +717,11 @@ c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvv
          ix99=2
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          write(6,*)'iiiwww111222 lwtkb=',lwtkb
-         call mpi_barrier(MPI_comm_world,ierr)  
-         include 'block0.F'     !band
+         call mpi_barrier(MPI_comm_world,ierr)
+         if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
+         if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
+         call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax,ndos) !accumulate srout_zv and so on.
+c         include 'block0.F'     !band
          include 'block4.F'     !all reduce dos and so on
          include "block10.F"    !dosw ef0 set
       endif
@@ -797,8 +736,8 @@ c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvv
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  ) !orbital moment
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
-      if (ipr.gt.0)write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
-     & nkp,ebot,qval,qbg,bz_w
+c      if (ipr.gt.0)write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
+c     & nkp,ebot,qval,qbg,bz_w
       
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
@@ -882,7 +821,6 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
          endif
       endif
       if(tdos) call rx0('Done tdos mode:')
-
 !! --- efermi.lmf 
       if(master_mpi.and.plbnd==0) then
          open(newunit=ifi,file='efermi.lmf')
@@ -932,7 +870,7 @@ C   ... New boundary conditions pnu for phi and phidot
          if (lpnu .gt. 0) then
             call dcopy(size(ham_pmin),ham_pmin,1,xv,1)
             call dcopy(size(ham_pmax),ham_pmax,1,xv(11),1)
-            call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , lfrzw 
+            call pnunew ( nbas , nsp , ssite , sspec , xv , xv ( 11 ) , ham_frzwf 
      .        , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
          endif
       endif
@@ -954,6 +892,8 @@ C   ... New boundary conditions pnu for phi and phidot
       if (lrout .ne. 0) then
 !!   ... Correction to harris force
         if(lfrce>0 ) then
+          allocate( fh_rv(3*nbas)  )
+          fh_rv= 0d0  
           call dfrce (lfrce, ssite , sspec ,  k1 , k2 , k3 , nvl !sctrl , slat ,
      .     , sv_a_oorhat , sv_p_orhat1 , elind , qmom_rv , zv_a_osmrho , 
      .     srout_zv , fh_rv )
@@ -968,6 +908,7 @@ C   ... New boundary conditions pnu for phi and phidot
 !! mkpot calls locpot. and locpot calls augmat.
 !! augmat calculates sig,tau,ppi.
 c          print *,'goto mkpot procid=',procid
+            allocate( fes2_rv(3*nbas))
             call mkpot (lfrce,
      &          srout_zv , sv_p_orhat1 , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
@@ -1004,11 +945,8 @@ c         allocate(qm2_rv(nvl))
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
       call m_mkpot_deallocate()
-      deallocate(evlall)
- 9995 continue
+      call m_bandcal_clean()
       call tcx('bndfp')
-      return
-!! end of bndfp
       end subroutine bndfp
       end module m_bndfp
 

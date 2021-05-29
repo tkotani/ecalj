@@ -317,20 +317,21 @@ C   --- Shift in mesh density, job 1 ---
      .     , sum )
           qloc = (qloc-sum)/y0
           qfat = 0d0
-          do  12  i  = 1, nsp
-          do  12  ie = 1, nxi
+          do   i  = 1, nsp
+          do   ie = 1, nxi
             gam  = 0.25d0*rsmfa**2
             qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
             qfat = qfat + hfc(ie,i)*qall
-   12     continue
-          call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
+         enddo
+         enddo
+            call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
 C         Excess sphere charge.  See Remarks above.
           qg = qval+qsc-qfat-qloc
 C     ... Shift in smoothed free atom density
-          do  14    i = 1, nsp
-          do  14  ixi = 1, nxi
+          do    i = 1, nsp
+          do  ixi = 1, nxi
             e = exi(ixi)
-            do  15 ig = 1, ng
+            do ig = 1, ng
               v(1) = gv(ig,1)*tpiba
               v(2) = gv(ig,2)*tpiba
               v(3) = gv(ig,3)*tpiba
@@ -341,11 +342,13 @@ C     ... Shift in smoothed free atom density
               scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
               phase = phase - dcmplx(dcos(scalp),dsin(scalp))
               cg(ig,i) = cg(ig,i) + hfc(ixi,i)*aa*phase*y0/vol
-   15       continue
+          enddo
+          enddo
+          enddo
    14     continue
 C     ... Add gaussian to conserve local charge; see Remarks
-          do  16   i = 1, nsp
-          do  16  ig = 1, ng
+          do    i = 1, nsp
+          do    ig = 1, ng
             v(1) = gv(ig,1)*tpiba
             v(2) = gv(ig,2)*tpiba
             v(3) = gv(ig,3)*tpiba
@@ -355,7 +358,9 @@ C     ... Add gaussian to conserve local charge; see Remarks
             scalp = -alat*(pold(1)*v(1)+pold(2)*v(2)+pold(3)*v(3))
             phase = phase - dcmplx(dcos(scalp),dsin(scalp))
             cg(ig,i) = cg(ig,i) + qg*phase*dexp(-gam*v2)/volsp
-   16     continue
+          enddo
+          enddo
+      
 C   --- Shift in mesh density, job 12 ---
         elseif (job .eq. 12) then
 C     ... Core + valence at old position

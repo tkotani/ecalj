@@ -1,50 +1,109 @@
       module m_bandcal
-      
-      contains
-! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
-      subroutine m_bandcal_init( iqini, iqend,sigmamode,lrsig,lfrce,lrout,
-     &     ef0,def,emin,emax,ndos,nevls,ifih,plbnd,lwtkb,kpproc,gotosecondpass, 
-     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
+      use m_struc_def
+      use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_qplist,only: nkp
+      use m_lmfinit, only: nsp,nlibu,lmaxu,nbas,nl
+      use m_subzi, only: numq
+      use m_mkqp,only: ntet=> bz_ntet
+      use m_qplist,only: qplist
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
+      use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
+     &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_subzi, only: m_subzi_init, nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
-      use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,
-     & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
+      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv
-      use m_struc_def
       use m_seneinterp,only: senex,getsenex,dsene
-      use m_qplist,only: nkp, qplist
-      use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
-     & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
+
+      real(8),protected::  sumqv(3,2),sumev(3,2)
+      integer,allocatable,protected:: ndimhx_(:),nev_(:),nevls(:,:)
+      real(8),allocatable,protected:: evlall(:,:,:),frcband(:,:), dos_rv(:,:),orbtm_rv(:)
+      complex(8),allocatable,protected::  srout_zv(:),dmatu(:,:,:,:)
+      type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
+      
+      logical,private:: debug,sigmamode,fullmesh,gotosecondpass,procaron,writeham
+      logical,private:: dmatuinit=.true.
+      contains
+! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
+      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,def,emin,emax,ndos,ifih,lwtkb) !,kpproc)
+c      ,gotosecondpass, 
+c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
       implicit none
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) 
-      logical:: debug,sigmamode,fullmesh,gotosecondpass,procaron,writeham,cmdopt0
-      integer:: iq,nmx,ispinit,isp,lrsig,jsp,nev,ifih,plbnd,lwtkb,lfrce,ndos,kpproc(*),iqini,iqend,lrout,ifig
-      real(8):: qp(3),ef0,def,emin,emax,sumqv(*),sumev(*)
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
+      integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,ndos,iqini,iqend,lrout,ifig
+      real(8):: qp(3),ef0,def,emin,emax
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: t_zv(:,:)
-      complex(8)::  dmatu(*),srout_zv(*)
-      real(8)::  dos_rv(*),frc(*),orbtm_rv(*)
-      type(s_rv1) :: sv_p_oeqkkl(*)
-      type(s_rv1) :: sv_p_oqkkl(*)
-      real(8):: evlall(ndhamx,nspx,nkp)
-      integer::  ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx),pidorigin,iprint
-
-      allocate(evl(ndhamx,nspx))
+      integer::  pidorigin,iprint
+      logical:: ltet,cmdopt0,dmatuinit=.true.
+      if(master_mpi) write(stdo,*)' mmmmm m_bandcal_init'
+      
+      sigmamode = mod(lrsig,10)/=0
       writeham= cmdopt0('--writeham')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
       debug    = cmdopt0('--debugbndfp')
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+      ltet = ntet>0
+      
+      if(lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
+      if(lso/=0) orbtm_rv=0d0
+      
+      allocate( dos_rv(ndos,2*nsp))
+      if(ldos==1 .or. lmet>0) dos_rv=0d0
+
+      allocate( evlall(ndhamx,nspx,nkp))
+      if(lfrce>0) then
+         allocate( frcband(3,1:nbas*numq))
+         frcband  = 0d0
+      endif   
+
+      allocate( ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
+      ndimhx_=0
+      nev_   =0                
+      nevls  =0
+      
+      if(nlibu>0.and.dmatuinit) then
+        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
+        dmatuinit=.false.
+      endif  
+      if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
+      
+!! == Start loop over k points; also, re-entry for second band pass ==
+!! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
+!!     1st for eigenvalue (and save eigenfunctions to eigze_* files), resulting tetrahedron weight.
+!!     2nd for re-read eigze_* and accumulate density.                           
+!!    It will be better to remove this double path mechanism in future.
+      if(lrout/=0) then
+         allocate( sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas))
+         call dfqkkl( sv_p_oqkkl ) !zero clear 
+         if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
+         allocate( srout_zv(k1*k2*k3*numq*nsp) )
+         srout_zv = 0d0
+      endif
+
+      gotosecondpass =.false. !we removed 'goto 99 procedure' but this flag is used.
+      if(plbnd==0) then
+        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )
+      endif
       if(gotosecondpass) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
-      do 2010 iq = iqini, iqend  !This is a big iq loop
+      allocate( evl(ndhamx,nspx))
+
+      sumev = 0d0
+      sumqv = 0d0
+      if (lswtk==1)  rv_a_oswtk=0d0
+!! Mullikan mode was here. removed for simplicity
+!! For insulator, valence band top and conduction band bottom
+c      evtop = -99999
+c      ecbot = -evtop
+c      ebot = 1000d0
+      do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
-         call mlog_MPIiq(iq,kpproc)
+         if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
          call m_Igv2x_set(qp)   ! Get napw and so on for given qp
          nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -91,7 +150,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               endif
             else !no SO or Lz.Sz case
               call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     &           hamm(1,1,1),ovlm(1,1,1),hamm(1,1,3)) ! hamm(1,1,3) is dummy
+     &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
 !! Generate sene(Sigma-Vxc) for given sfz.
 !! Determine interpolated self-energy sene at qp from sfz. 
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
@@ -99,8 +158,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
 !! Main output sene. See m_seneinterp
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-                 call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1,1))
-                 hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
+                 call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1, 1))
+                 hamm(:,:, 1) = hamm(:,:, 1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
             endif 
@@ -163,7 +222,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                    call addrbl (jsp, qp, lrout
      .             , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &             , t_zv,evl,nev,  ef0,def,emin,emax,ndos
-     o             , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frc)
+     o             , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
                  endif     
                endif
             endif
@@ -178,5 +237,83 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
       if(gotosecondpass) close(ifig)
       if(writeham) close(ifih)
+      deallocate(evl)
       end subroutine
+
+!!
+      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0,def,emin,emax,ndos)
+      implicit none
+      integer:: iq,nmx,ispinit,isp,jsp,nev,ndos,iqini,iqend,lrout,ifig 
+      real(8):: qp(3),ef0,def,emin,emax
+      real(8),allocatable:: evl(:,:)
+      complex(8),allocatable :: t_zv(:,:)
+      logical:: cmdopt0
+      if(master_mpi) write(stdo,*)' mmmmm m_bandcal_2nd'
+      call dfqkkl( sv_p_oqkkl ) !zero clear 
+      if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
+      if(allocated(srout_zv)) deallocate(srout_zv)
+      allocate( srout_zv(k1*k2*k3*numq*nsp) )
+      srout_zv = 0d0
+c         if(allocated(fh_rv)) deallocate(srout_zv,fh_rv,fes2_rv)
+c         allocate( fh_rv(3*nbas)  )
+c         allocate( fes2_rv(3*nbas))
+c         fh_rv= 0d0  
+c      endif
+c      ebot = 1000d0
+c      if (ldos==1 .or. lmet>0) dos_rv=0d0
+      if (lfrce>0)  frcband  = 0d0
+      if (lswtk==1) rv_a_oswtk=0d0
+c      evtop = -99999 !! For insulator, valence band top and conduction band bottom
+c      ecbot = -evtop
+      if(lso/=0) orbtm_rv=0d0
+      open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+      sumev = 0d0 !accumulation
+      sumqv = 0d0
+      allocate(evl(ndhamx,nspx))
+      do 12010 iq = iqini, iqend !This is a big iq loop
+         qp = qplist(:,iq)
+         call m_Igv2x_set(qp)   ! Get napw and so on for given qp
+         if(lso==1) ispinit = 2
+         if(lso/=1) ispinit=1
+c         jspmx = nsp
+c         if(lso==1) jspmx=1
+         do 12005 isp = ispinit,nsp
+            jsp = isp
+            if(lso==1) jsp = 1
+            if (allocated(t_zv)) deallocate(t_zv)
+            read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
+            allocate(t_zv(ndimhx,nmx))
+            read(ifig) evl(1:nev,jsp)
+            read(ifig) t_zv(1:ndimhx,1:nmx)
+            evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
+c            if(plbnd==0) then !.and.lwtkb.ne.-1) then
+            if (lso/=0) call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
+            if (nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, t_zv,  dmatu)
+            if(cmdopt0('--cls')) call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
+c               elseif (lrout.ne.0 .or. lmet.eq.4) then
+            if ((.not.cmdopt0('--cls')) .and. lrout/=0 .or. lmet==4) then
+c              call readindensitymodesetting() !dummy
+               call addrbl (jsp, qp, lrout
+     .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
+     &              , t_zv,evl,nev,  ef0,def,emin,emax,ndos
+     o              , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+            endif     
+            if(allocated(t_zv)) deallocate(t_zv)
+12005    continue 
+12010 continue    
+      close(ifig)
+      deallocate(evl)
+      end subroutine
+
+      subroutine m_bandcal_clean()
+      if (allocated(orbtm_rv)) deallocate(orbtm_rv)
+      if (allocated(dos_rv))   deallocate(dos_rv)
+      if (allocated(srout_zv)) deallocate(srout_zv)
+      if (allocated(frcband))  deallocate(frcband)
+      if (allocated(ndimhx_))  deallocate(ndimhx_,nev_,nevls)
+      if(allocated(sv_p_oqkkl)) deallocate( sv_p_oqkkl)
+      if(allocated(sv_p_oeqkkl))deallocate( sv_p_oeqkkl)
+      deallocate(evlall)
+      end
+      
       end module

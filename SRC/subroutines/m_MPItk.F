@@ -63,23 +63,23 @@
 #endif
       end
       
-      subroutine mlog_MPIiq(iq,kpproc)
-      integer:: iq,kpproc(0:nsize),numprocs,lgunit
+      subroutine mlog_MPIiq(iq,iqini,iqend)
+      integer:: iq,numprocs,lgunit,iqini,iqend
       character*26 datim
       character(512):: aaachar
       character(10):: i2char
       character*8:: charext
       numprocs=nsize
-      if(iq==kpproc(procid)) then
+c      if(iq==iqini) then
          if(mlog) then
                call gettime(datim)
                aaachar=' bndfp '//datim//' Process '//
      &              trim(i2char(procid))//' of '//trim(i2char(numprocs))//' on '//
      &              trim(charext(procid))//' starting k-points '//
-     &              trim(i2char( kpproc( procid)))//' to '//trim(i2char( kpproc(procid+1)-1))
+     &              trim(i2char( iqini))//' to '//trim(i2char(iqend))
                write(lgunit(3),"(a)")trim(aaachar)
          endif
-      endif   
+c      endif   
       end
       
       end module
