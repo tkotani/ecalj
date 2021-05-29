@@ -59,7 +59,7 @@
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar
-      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
+      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_getef0dosw,
      o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
@@ -706,8 +706,10 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
          enddo
       enddo
       if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
-      goto99=.false.
-      include "block10.F" !for non metal set ef0 dosw
+      
+c      goto99=.false.
+c      include "block10.F" !for non metal set ef0 dosw
+      call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
       if(.not.goto99) then !metal case
          call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow,ef0,bz_ef)
          if(lmet>=0.and. lwtkb==-1 .and. lrout .gt. 0) then
@@ -715,6 +717,7 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
             goto99=.true.  
          endif
       endif
+      
       if(goto99) then !goto 99 !2nd pass
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          write(6,*)'iiiwww111222 lwtkb=',lwtkb
@@ -723,11 +726,12 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
          call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax) !accumulate srout_zv and so on.
 c         include 'block4.F'     !all reduce dos and so on
-       call m_bandcal_allreduce(lrout,lwtkb)
-       eterms=ham_eterms 
-       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-       ham_eterms=eterms 
-         include "block10.F"    !dosw ef0 set
+         call m_bandcal_allreduce(lrout,lwtkb)
+         eterms=ham_eterms 
+         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+         ham_eterms=eterms
+         call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+c         include "block10.F"    !dosw ef0 set
       endif
 
       
