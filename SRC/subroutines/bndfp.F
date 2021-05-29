@@ -694,7 +694,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
       
 !==================================================================== 
       include "block4.F" !all reduce
-      do  iq = 1, nkp
+      do iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
           jsp = isp
@@ -703,7 +703,7 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
           if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
          enddo
       enddo
-c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
+      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
       goto99=.false.
       include "block10.F" !for non metal set ef0 dosw
       if(.not.goto99) then !metal case
@@ -714,17 +714,17 @@ c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvv
          endif
       endif
       if(goto99) then !goto 99 !2nd pass
-         ix99=2
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          write(6,*)'iiiwww111222 lwtkb=',lwtkb
          call mpi_barrier(MPI_comm_world,ierr)
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
          call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax,ndos) !accumulate srout_zv and so on.
-c         include 'block0.F'     !band
+         ix99=2
          include 'block4.F'     !all reduce dos and so on
          include "block10.F"    !dosw ef0 set
       endif
+
       
 !===========================================================
 !!   For now, SO by site, not by class
@@ -754,6 +754,7 @@ c     & nkp,ebot,qval,qbg,bz_w
          endif
       endif
 
+      
 !! ... Average forces so net force on system is zero (APW case)
       if (lfrce .ne. 0 .and. napw .ne. 0) then
          call dpzero(xv,3)
@@ -769,6 +770,7 @@ c     & nkp,ebot,qval,qbg,bz_w
          enddo
       endif
 
+      
 !! === Generate DOS on disk ===
 c      if(.not. lwndow .and. master_mpi) then
       if( master_mpi) then
@@ -874,6 +876,7 @@ C   ... New boundary conditions pnu for phi and phidot
      .        , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
          endif
       endif
+
       
 !! --- print out qbyl ---
       if(master_mpi) then
@@ -886,10 +889,12 @@ C   ... New boundary conditions pnu for phi and phidot
          close(ifqbyl)
       endif
 
+      
 !! --- Evaluate Harris energy ---
-      call mkehkf(1,sev,sumqv(2,1),sumtv,ehar) !sham,
+      call mkehkf(1,sev,sumqv(2,1),sumtv,ehar)
+      
 !! --- Evaluate KS total energy, correction to Harris force ---
-      if (lrout .ne. 0) then
+      if(lrout .ne. 0) then
 !!   ... Correction to harris force
         if(lfrce>0 ) then
           allocate( fh_rv(3*nbas)  )
@@ -900,7 +905,7 @@ C   ... New boundary conditions pnu for phi and phidot
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
          eks = 0d0
-         if (leks .ge. 1) then
+         if(leks .ge. 1) then
             call togpr()
             call mkekin ( nbas , ldim , ssite , sspec ,  sv_p_osig  !sham ,slat , 
      .        , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
@@ -928,20 +933,20 @@ c          print *,'goto mkpot procid=',procid
 !! fh_rv      : 1st term  in (B.5)
 !! input frc  : 2nd term in (B.5). Puley term
 !! output frc  : totlal
-         if(lfrce .gt. 0) call totfrc( nbas , ssite ,  leks !slat ,
-     .     , fes1_rv , fes2_rv , fh_rv , frc )
+         if(lfrce> 0) then
+            call totfrc( nbas , ssite ,  leks, fes1_rv , fes2_rv , fh_rv , frc )
+            deallocate(fh_rv)
+         endif
 !!   --- Mix input and output densities ---
-c         allocate(qm1_rv(nvl))
-c         allocate(qm2_rv(nvl))
          call mixrho ( ssite , sspec ,  nsp , iter , sstrnmix 
      .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
      .     , k3 , dmxp , srout_zv , zv_a_osmrho )
       else
          eks = 0d0
       endif
+      
       ham_ehf=ehar
       ham_ehk=eks
- 999  continue
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)
       if (allocated(qbyl_rv)) deallocate(qbyl_rv)
       call m_mkpot_deallocate()

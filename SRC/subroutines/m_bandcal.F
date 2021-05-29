@@ -25,12 +25,11 @@
       complex(8),allocatable,protected::  srout_zv(:),dmatu(:,:,:,:)
       type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
       
-      logical,private:: debug,sigmamode,fullmesh,gotosecondpass,procaron,writeham
+      logical,private:: debug,sigmamode,fullmesh,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
       contains
 ! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
       subroutine m_bandcal_init(iqini,iqend,lrout,ef0,def,emin,emax,ndos,ifih,lwtkb) !,kpproc)
-c      ,gotosecondpass, 
 c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
@@ -70,7 +69,6 @@ c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oe
         allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
         dmatuinit=.false.
       endif  
-      if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
       
 !! == Start loop over k points; also, re-entry for second band pass ==
 !! two pass mechanism, historically. ix99=1 and ix99=2 for tetrahedron method.
@@ -85,13 +83,13 @@ c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oe
          srout_zv = 0d0
       endif
 
-      gotosecondpass =.false. !we removed 'goto 99 procedure' but this flag is used.
-      if(plbnd==0) then
-        gotosecondpass= (lmet>=0 .and. (lmet/=4 .or. ltet) .and. lrout>0 )
-      endif
-      if(gotosecondpass) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
+      call_m_bandcal_2nd =.false. 
+      if(plbnd==0) call_m_bandcal_2nd= (lmet>=0 .and. lrout>0 )
+      if(call_m_bandcal_2nd) open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
       allocate( evl(ndhamx,nspx))
-
+      
+!! These are accumulation varivables 
+      if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
       sumev = 0d0
       sumqv = 0d0
       if (lswtk==1)  rv_a_oswtk=0d0
@@ -189,7 +187,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
              if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
-             if(gotosecondpass) then
+             if(call_m_bandcal_2nd) then
                 write(ifig) nev,nmx,ndimhx
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
@@ -235,7 +233,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  2010 continue                  !end of iq loop
       if(PROCARon) call m_procar_closeprocar()
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
-      if(gotosecondpass) close(ifig)
+      if(call_m_bandcal_2nd) close(ifig)
       if(writeham) close(ifih)
       deallocate(evl)
       end subroutine
