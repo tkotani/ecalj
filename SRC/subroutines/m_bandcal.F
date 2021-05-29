@@ -26,7 +26,7 @@
       complex(8),allocatable,protected::  srout_zv(:),dmatu(:,:,:,:)
       type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
       
-      logical,private:: debug,sigmamode,fullmesh,call_m_bandcal_2nd,procaron,writeham
+      logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
       contains
 ! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
@@ -46,7 +46,8 @@ c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oe
       writeham= cmdopt0('--writeham')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
       debug    = cmdopt0('--debugbndfp')
-      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+!! pdos mode = PROCARon .and. fullmesh (--mkprocar and --fullmesh. See job_pdos).      
       ltet = ntet>0
       
       if(lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
@@ -218,7 +219,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                  endif     
                endif
             endif
-            if(PROCARon) call m_procar_init(fullmesh,iq,isp,nspx,nspc,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
+            if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
             if(allocated(t_zv)) deallocate(t_zv)
  2005    continue !== end loop over isp (main loop in parallel mode)==
          if(allocated(hamm)) deallocate(hamm,ovlm)
@@ -238,7 +239,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if(PROCARon) call m_procar_closeprocar()
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
       if(call_m_bandcal_2nd) close(ifig)
-      if(writeham) close(ifih)
       deallocate(evl)
       end subroutine
 !!

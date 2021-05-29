@@ -28,7 +28,7 @@
       use m_supot,only: ngabc=>lat_nabc
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
-      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
+c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
@@ -58,7 +58,7 @@
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
-      use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar
+      use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_getef0dosw,
      o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
@@ -309,8 +309,7 @@ c      integer,allocatable:: ndimhx_(:),nev_(:)
       integer:: iout,nout,nlatout(3,noutmx),iapw
       real(8)::ppin(3)
 
-      logical:: fsmode,PROCARon,allband !for --fermisurface for xcrysden.
-      integer:: nkk1,nkk2,nkk3  !for fermi surface mode for xcrysden.
+      logical:: fsmode,allband !for --fermisurface for xcrysden.
       integer:: ififm
       real(8):: qshort(3)
 ! add --fermisurface #1 #2 #3
@@ -326,9 +325,8 @@ c mar2014
 
       integer:: ispsigm !nov2014
       logical:: goto99!jan2015
-      logical:: fullmesh
+      logical:: fullmesh,PROCARon
 
-      integer,allocatable:: ipqe(:,:,:),idtete(:,:)
       integer:: ntete,init,ient,nevmin,ifip,ifisyml
       real(8):: qx(3)
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
@@ -380,13 +378,10 @@ c mar2014
       endif
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
-      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      fsmode   = cmdopt0('--fermisurface')! Fermi surfece mode for xcrysden. Format is in  http://www.xcrysden.org/doc/XSF.html#2l.16
-      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
-      if(fullmesh) procaron = .true.
-      nkk1=nkabc(1)
-      nkk2=nkabc(2)
-      nkk3=nkabc(3)
+      fsmode   = cmdopt0('--fermisurface')! Fermi surfece mode for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+c      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
+c      if(fullmesh) procaron = .true.
       if (maxit==0) return
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       idummy = unlink('RSEQ_ERROR') ! the error flag in rseq. Remove RSEQ_ERROR here because
@@ -431,8 +426,8 @@ c      efmax= bz_efmax
 !! Write out Hamiltonian stated at jan2018kaist
       writeham= cmdopt0('--writeham')
       if(writeham) then
-         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
          call m_writeham_init()
+         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
       endif      
 !! Make one-particle potential without XC part for GWdriver---
       if(llmfgw) then        
@@ -499,10 +494,11 @@ c      efmax= bz_efmax
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
+
 !! MPIK k point divider      
 #if MPIK
-      if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
       sttime = MPI_WTIME()
+      if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
       allocate (kpproc(0:numprocs), stat=ierr)
       call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
       iqini = kpproc(procid)
@@ -511,163 +507,52 @@ c      efmax= bz_efmax
       iqini=1
       iqend=nkp
 #endif
-!! Set up Hamiltonian and diagonalization.      
+!! Set up Hamiltonian and diagonalization in m_bandcal_init
 !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
 !! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array 
       call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb)
-      if(numprocs/=1) then
-         do iq = 1, nkp
-            pidorigin=-999
-            do idx=0,numprocs-1
-               if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
-                  pidorigin=idx
-                  exit
-               endif
-            enddo   
-            call MPI_BCAST(ndimhx_(iq),1,MPI_INTEGER, pidorigin,MPI_COMM_WORLD,ierr)
-            call MPI_BCAST(nev_(iq),1,MPI_INTEGER,    pidorigin,MPI_COMM_WORLD,ierr)
-         enddo   
-      endif
-      nevmin=minval(nev_(1:nkp))
       entime = MPI_WTIME()
-      call info2(30,0,0, ' ... Done MPI k-loop: %;1d seconds elapsed',entime-sttime,0)
-      call info0(20,0,-1,' ... Sharing data between processes...')
+      if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
-      call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues
-      call mpibc2(nevls,nkp*nspx,2,mlog,'bndfp','nevls') 
-
+      if(writeham) close(ifih)
+      if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
       
-!! === pdos mode (--mkprocar and --fullmesh). ===
-      if(debug.and.PROCARon) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
-      if(PROCARon.and.fullmesh) then
-         call mpi_barrier(MPI_comm_world,ierr)  
-         call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
-         if(master_mpi) then  
-            if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
-!! tetrahedron without symmetry
-            allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
-            iq=0
-            do ik3 = 1, nkk3 
-               do ik2 = 1, nkk2
-                  do ik1 = 1, nkk1
-                     iq = iq+1
-                     ipqe(ik1,ik2,ik3)=iq
-                     qx = (ik1-1)*qlat(:,1)/nkk1 + (ik2-1)*qlat(:,2)/nkk2+ (ik3-1)*qlat(:,3)/nkk3
-                     if(abs(sum(qx-qplist(:,iq)))>1d-6) then !sanity check
-                        call rx("bndfp: qx/=qplist something strang")
-                     endif  
-                  enddo
-               enddo
-            enddo
-            call tetirr(qlat, nkk1,nkk2,nkk3, ipqe, ntete,idtete) !tetrahedron
-            write(*,*)" ntete 6*nkk1*nkk2*nkk3 nkp=",ntete,6*nkk1*nkk2*nkk3,nkp
-!! doswt(1:nchanp=16,ndhamx,nsp,nkp)
-!! dwgtall(1:16,nbas,ndhamx,nsp,nkp)
-!!   If we will have a memory problem for dwgtall, we may store dwgtall(i,...) for a file.
-!!   and repeat nchanp times.
-c            eminp=-25.0/rydberg
-c            emaxp=30.0/rydberg
-c            ndos=5500
-            write(stdo,"(' pdosmode: ndhamx nsp nspx =',4i7)") ndhamx, nsp, nspx,nevmin !nevmx
-c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
-            write(stdo,"(' pdosmode: nchanp nbas emin emax ef0=',2i7,3f12.5)") nchanp,nbas,emin,emax,ef0 !mar2015
-            open(newunit=ifip,file='pdosdata.'//trim(sname),form='unformatted')
-            write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
-            write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
-            write(ifip) evlall  !  allocate(evlall(ndhamx,nspx,nkp))
-            write(ifip) dwgtall !  allocate(dwgtall(nchanp,nbas,ndhamx,nspx,nkp))
-            write(ifip) ef0 !eminp,emaxp,ef0
-            close(ifip)
-            if(nkp/=nkk1*nkk2*nkk3) call rx('pdosmode but nkp/=nkk1*nkk2*nkk3')
-            if( cmdopt('--tetraw',8,0,strn)) then
-               open(newunit=ifip,file='tetradata.dat',form='unformatted')
-               write(ifip) ndhamx,nkp,ntete !ndos,nkp mar2015
-               write(ifip) idtete
-               close(ifip)
-               open(newunit=ifip,file='qplistf.dat')
-               do iq=1,nkp
-                  write(ifip,"(3f15.8)") qplist(:,iq)
-               enddo   
-               close(ifip)
-            endif               !! we need evlall(ndhamx,nkp) for qplist
-            deallocate(idtete,ipqe) !remove this if you uncomment above lines.
-         endif  
-         if(writeham) call rx0('Done --writeham: --mkprocar --fullmesh are needed now. HamiltonianMTO* genereted')
-         call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
-      endif
-
+!! Simple broadcast. Use allreduce to avoid knowing which node to which node.
+!! Because mpi is f77, ndimhx_ and so on are not protected.
+      nnn = size(ndimhx_)
+      call mpibc2_int(ndimhx_,nnn,'bndfp_ndimhx_') !all reduce 
+      nnn = size(nev_)
+      call mpibc2_int(nev_,nnn,'bndfp_nev_') !all reduce (to avoid which node to which node).
+      nnn = size(nevls)
+      call mpibc2_int(nevls,nnn,'bndfp_nevls') !all reduce (to avoid which node to which node).
+      call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
+c      if(numprocs/=1) then
+c         do iq = 1, nkp
+c            pidorigin=-999
+c            do idx=0,numprocs-1
+c               if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
+c                  pidorigin=idx
+c                  exit
+c               endif
+c            enddo   
+c            call MPI_BCAST(ndimhx_(iq),1,MPI_INTEGER, pidorigin,MPI_COMM_WORLD,ierr)
+c            call MPI_BCAST(nev_(iq),1,MPI_INTEGER,    pidorigin,MPI_COMM_WORLD,ierr)
+c         enddo   
+c      endif
       
+!! pdos mode (--mkprocar and --fullmesh)
+      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
+      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,ef0)
+      if(fullmesh.and.procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
 !! boltztrap data 
-      if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
-         iqread=0
-         iqindex = index(strn(12:),'nb=')+2
-         nbandx = ndhamx
-         if(iqindex/=2) then 
-            read(strn(12+iqindex:),*) nbandx
-            nbandx=min(nbandx,ndhamx)
-         endif
-         open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
-         read(ifi,*)  eferm
-         close(ifi)
-        open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
-        write(ifi,"(a)")'GENE          # format '
-        write(ifi,"(a)")'0 0 0 0       # iskip (not presently used) idebug setgap shiftgap'
-        write(ifi,"(f20.16,a,f9.4,a)") eferm,' 0.0005 0.4 ', qval-qbg,
-     &  '       # efermi.lmf (Ry), energygrid, energy span around Fermilevel, number of electrons'
-        write(ifi,"(a)")'CALC          # CALC (calculate expansion coeff), NOCALC read from file'
-        write(ifi,"(a)")'5             # lpfac, number of latt-points per k-point'
-        write(ifi,"(a)")'BOLTZ         # run mode (only BOLTZ is supported)'
-        write(ifi,"(a)")'0.15          # (efcut) energy range of chemical potential'
-        write(ifi,"(a)")'800.0 50.0  # Tmax, temperature grid'
-        write(ifi,"(a)")'-1.0  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)'
-        write(ifi,"(a)")'TETRA'
-        close(ifi)
-        open(newunit=ifi,file=trim(sname)//'.struct.boltztrap')
-        write(ifi,"(a)") trim(sname)
-        write(ifi,"(3d16.8, ' # plat1  ')") plat(:,1)*alat
-        write(ifi,"(3d16.8, ' # plat2  ')") plat(:,2)*alat
-        write(ifi,"(3d16.8, ' # plat3  ')") plat(:,3)*alat
-        write(ifi,*) ngrp
-        do ig=1,ngrp
-           symxx = matmul(transpose(qlat), matmul(symops(:,:,ig),plat))
-           if(abs(sum( nint(symxx(:,:))-symxx(:,:) )) >1d-6) call rx('bndfp: sym not integers --- probably strange')
-           write(ifi,"(9i3)") ((nint(symxx(i,j)),j=1,3),i=1,3)
-        enddo
-        close(ifi)   
-        do jsp=1,nspx         !=isp.  nspx=1 for so=1
-           open(newunit=ifi,file=trim(sname)//'.energy.isp'//trim(i2char(jsp))//'.boltztrap')
-           write(ifi,"(a)") trim(sname)
-           write(ifi,"(i10)") nkp
-        do iq=1,nkp
-!! true q= 2pi/alat *qplist(:,iq) in cartesian
-           qvec= matmul(transpose(plat),qplist(:,iq)) !qvec in qlat unit
-           ncount=0
-           do iband=1,nbandx
-              if(evlall(iband,jsp,iq)>1d98) cycle
-              ncount=ncount+1
-           enddo
-           write(ifi,"(3f15.8,i10)") qvec,ncount
-           do iband=1,nbandx
-              if(evlall(iband,jsp,iq)>1d98) cycle !evlall=1d99 is dummy
-              write(ifi,"(d23.16)") evlall(iband,jsp,iq)
-           enddo   
-        enddo
-           close(ifi)
-        enddo
-      endif
-      if( cmdopt('--boltztrap',11,0,strn)) then
-         call rx0(' end of --boltztrap mode: boltztrap.* are generated')
-      endif
-
+      if( cmdopt0('--boltztrap')) call writeboltztrap()
+      if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
       
 !! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
-      if(plbnd/=0) then
-         if (master_mpi) then
-            print *,'procid=',procid
-!! fermi surface mode together with band data around Ef (Okumura, 2019/11/14)
-            if(fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
-!! write bands directly. All inputs
+      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
+      if(plbnd/=0.and.master_mpi) then
             write(stdo,*)' Writing bands to bands file ...'
             if(nsyml/=0) then
               call writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx, !,fsmom/=NULLR,vnow
@@ -675,14 +560,13 @@ c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,n
      i        sname,nqps_syml,nqpe_syml,nsyml,dqsyml,
      i        etolv,etolc)
             endif
-         endif
-         if(fsmom/=NULLR) then
-         write(stdo,"(a)")'NOTE: Be carful! fsmom (fixed moment on). In sc cycle, we use additional bias mag. field  '
-         write(stdo,"(a)")'NOTE: Use mag.field is written in MagField. But it is not used for --band mode! mar2015.'
-         endif
-         if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
-         call rx0('plot band mode done')
       endif
+      if(plbnd/=0.and.fsmom/=NULLR) then
+         write(stdo,"(a)")'Caution: fsmom(fixed moment on). In sc cycle, we use additional bias mag. field  '
+         write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
+      endif
+      if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+      if(plbnd/=0)            call rx0('plot band mode done')
       
 !! All reduce band quantities     
       call m_bandcal_allreduce(lrout,lwtkb)
@@ -706,10 +590,12 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
       call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
       if(.not.goto99) then !metal case
          call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow,ef0,bz_ef)
-         if(lmet>=0.and. lwtkb==-1 .and. lrout .gt. 0) then
+         if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
             lwtkb = 1
             goto99=.true.  
          endif
+      else
+         call rx('i now think uuuuuuuuuuuuu')
       endif
 !! Second pass. We accumulate band quantities after we got weight (lwtkb=1 on).
       if(goto99) then !goto 99 !2nd pass

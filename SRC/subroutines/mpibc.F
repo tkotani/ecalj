@@ -1,3 +1,14 @@
+      subroutine mpibc2_int(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      real(8):: vec(*) 
+      print *,trim(label),nnn,vec(1)
+      cast=2
+      funnam=''
+      call mpibc2(vec,nnn,cast,mlog,funnam,label)
+      end
+
       subroutine mpibc2_real(vec,nnn,label)
       use m_MPItk,only: mlog
       character funnam*(1), label*(*)
