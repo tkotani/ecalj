@@ -59,7 +59,7 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
-      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_getef0dosw,
+      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_dosw,
      o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
@@ -193,7 +193,7 @@ c      integer:: work_mpi(10)    ! use only 1 and 2 now
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
-     .  , lrep ,  ndos0 , nev  
+     .  , lrep ,  nev  
      .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,   i1 , i2 !, !plbnd lfrzw ,
@@ -495,15 +495,20 @@ c      efmax= bz_efmax
 #endif
 !! Set up Hamiltonian and diagonalization in m_bandcal_init
 !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
-!! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array 
-      call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb)
+!     ! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
+c     print *,'llllllll111 lwtkb=',lwtkb
+      if(.not.(lwtkb==-1.or.lwtkb==0.or.lwtkb==1)) call rx('bndfp: something wrong lwtkb')
+! lwtkb=1 accumulate weight
+! lwtkb=0 no weight
+! lwtkb=-1      
+      call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb) 
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
       if(writeham) close(ifih)
       if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
       
-!! Simple broadcast. Use allreduce to avoid knowing which node to which node.
+!! Broadcast. Use allreduce to avoid knowing which node to which node.
 !! Because mpi is f77, ndimhx_ and so on are not protected.
       nnn = size(ndimhx_)
       call mpibc2_int(ndimhx_,nnn,'bndfp_ndimhx_') !all reduce 
@@ -521,8 +526,7 @@ c      efmax= bz_efmax
 !! boltztrap data 
       if( cmdopt0('--boltztrap')) call writeboltztrap()
       if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
-      
-!! ===  Write bands in bands-plotting case: loop over qp getting evals from array ===
+!! Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
       if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
       if(plbnd/=0.and.master_mpi) then
@@ -540,14 +544,11 @@ c      efmax= bz_efmax
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
-      
 !! All reduce band quantities     
       call m_bandcal_allreduce(lrout,lwtkb)
       eterms=ham_eterms 
       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
       ham_eterms=eterms
-c      entime = MPI_WTIME()
-c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
       do iq = 1, nkp
          qp=qplist(:,iq)
          do isp = 1, nspx
@@ -557,23 +558,15 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
           if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
          enddo
       enddo
-      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
-      
-!! Revise ef0 dosw, and goto99
-      call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
-      if(.not.goto99) then !metal case
-         call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow)!,ef0,bz_ef)
-         ef0=eferm
-         bz_ef=eferm
-         if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
-            lwtkb = 1
-            goto99=.true.  
-         endif
-      else
-         call rx('i now think uuuuuuuuuuuuu')
-      endif
-!! Second pass. We accumulate band quantities after we got weight (lwtkb=1 on).
-      if(goto99) then !goto 99 !2nd pass
+c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
+cccccccccccccccccccc      
+c      call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+      call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
+      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !,ef0,bz_ef)
+      ef0=eferm
+      bz_ef=eferm
+      if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
+         lwtkb = 1
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          write(6,*)'iiiwww111222 lwtkb=',lwtkb
          call mpi_barrier(MPI_comm_world,ierr)
@@ -584,7 +577,7 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
          ham_eterms=eterms
-         call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+         call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
       endif
 
       

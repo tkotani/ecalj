@@ -347,22 +347,25 @@ c               call readindensitymodesetting() !dummy
          if(lso/=0.and.lwtkb/=-1) call mpibc2_real(orbtm_rv,nnn,'bndfp_orbtm') 
       endif
       end subroutine
-
-      subroutine m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+      
+!!------------------------------
+      subroutine m_bandcal_dosw(lwtkb,lrout,def,  dosw,evtop,ecbot) !goto99)
+      ! lwtkb,lrout,def are used only for
       use m_lmfinit,only:ctrl_zbak,bz_w
-      intent(in)   ::                 lwtkb,lrout,          def             
-      intent(inout)::                       ef0,dosw
-      intent(out)::                                  goto99 
+      intent(in)   ::           lwtkb,lrout,def
+      intent(inout)::                             dosw !input is just initial guess
+      intent(out)  ::                                  evtop,ecbot
+c      intent(out)::                                  goto99 
 !!  ===   Repeat loop for printout and goto 99 ===
 !!   jsp=isp in the collinear case; jsp=1 in the noncollinear
 !!     Thus jsp should be used in place of isp
 !     !     isp serves as a flag for the noncollinear case
 !     ! block10
-      logical:: goto99,ltet
+      logical:: ltet !goto99,
       real(8):: ef00,ef0,dosw(2),qp(3),qbg,def,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
       integer:: iq,ipr,lwtkb,isp,jsp,nev_iq,i,lrout,iprint
       character(10):: i2char
-      goto99=.false.
+c      goto99=.false.
       ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
       ipr=iprint()
@@ -375,30 +378,30 @@ c               call readindensitymodesetting() !dummy
             jsp = isp
             evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
             nev_iq    = nev_(iq) 
+            if(plbnd==0.and.ipr>=10 .and. iq==1) write (stdl,"('fp evl',8f8.4)") (evl(i,jsp),i=1,nev_iq)
             ebot = dmin1(ebot,evl(1,jsp))
             i = max(1,nint(qval-qbg)/(3-nspc))
             evtop = max(evtop,evl(i,jsp))
             ecbot = min(ecbot,evl(i+1,jsp))
             if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
             if(debug) print *,'eeeee44444444444 plbnd=',plbnd
-            if(plbnd .eq. 0) then
-               if (ipr.ge.10 .and. iq.eq.1 .and. ipr.gt.0)
-     .           write (stdl,"('fp evl',8f8.4)") (evl(i,jsp),i=1,nev_iq)
-               if (lwtkb .ne. -1) then ! .and. .not. lwndow) then
+            if(plbnd==0.and.lwtkb/=-1) then
                   if (iq .eq. 1 .and. jsp .eq. nsp ) then !
-!! Energy-Window reset. dosw=(emin,emax)
                      ef00 = ef0
                      call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
+!!        :on output, dosw is revised if ebot<dosw(1) or dosw(2)<ef0
                      if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
      .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-                        if (master_mpi) call info0(10,1,1,
-     .                       ' ... Fermi level reset in second spin'//
-     .                       ' channel ... restart band pass')
-                        goto99=.true.
-                        exit    !this is the case of make co test at ecalj/TestInstall/
+                          if (master_mpi) write(stdo,"(a)") 
+     .                       ' ... Fermi level reset in second spin channel ... restart band pass'
+                          call rx0('tk think ecalj is going though not maintained branch).')
+                         !goto99=.true.
+                        exit    !this was the case of make co test at ecalj/TestInstall/ (did I remove this?)
                      endif
                   endif
-C     Check for cases when nevmx is too small : i=2 => fatal error
+            endif
+!!     Check for cases when nevmx is too small : i=2 => fatal error
+            if(plbnd==0.and.lwtkb/=-1) then
                   i = 0
                   if (nevmx.ge.0 .and. lmet .ne. 0) then
                      dum = evl(max(nev_iq,1),jsp)
@@ -411,7 +414,7 @@ C     Check for cases when nevmx is too small : i=2 => fatal error
      &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
                      call rx('bndfp:... restart with larger nevmx: bndfp')
                   endif
-               endif
+                  
             endif
          enddo                  ! end second loop over isp
       enddo                     !end second loop over iq
