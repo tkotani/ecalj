@@ -1,6 +1,6 @@
       module m_bzintegration
       contains
-      subroutine m_bzintegration_init(evlall, eferm,sev,sumqv,vnow,ef0,bz_ef)!,goto99)
+      subroutine m_bzintegration_init(evlall, eferm,sev,sumqv,vnow)!,goto99)
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,
      & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,ctrl_zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
@@ -14,6 +14,7 @@
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv 
       use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
+
       use m_ext,only: sname
       implicit none
       logical:: lfill=.false.,ltet
@@ -59,10 +60,10 @@ c     goto99=.false.
             sumqv(1,1) = sumqv(1,2)
             sumqv(2,1) = sumqv(2,2)
          endif
-         if (lmet .ne. 4) then
-            ef0 = eferm
-            bz_ef=ef0
-         endif
+c         if (lmet .ne. 4) then
+c            ef0 = eferm
+c            bz_ef=ef0
+c         endif
          if (lmet .gt. 0) then
             if (master_mpi) then
                ifi=ifile_handle()

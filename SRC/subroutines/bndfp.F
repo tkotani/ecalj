@@ -184,8 +184,8 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
       integer igetss,lmxh,nlmh,nelt(3),kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
-      integer:: pidorigin, ndimhx_iq, nev_iq,idx
-      integer:: work_mpi(10)    ! use only 1 and 2 now
+c      integer:: pidorigin, ndimhx_iq, nev_iq,idx
+c      integer:: work_mpi(10)    ! use only 1 and 2 now
       integer nbx,iter,maxit
       integer:: k1,k2,k3,lpnu=1
       real(8):: dmxp(33),frc(3,1:nbas*numq)
@@ -358,43 +358,29 @@ c mar2014
       real(8):: kkk !dummy
 !! ----------------------------
       call tcn ('bndfp')
-      write(stdo,"(a)") 'bndfp: start'
-      if(cmdopt0('--vbmonly')) then ! Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
-         if(master_mpi) call vbmmode()
-         call rx0('--vbmonly mode done')
-      endif
-      if(cmdopt0('--getq')) then !!! Current version is not for spin dependent, with many restrictions.
-         if(master_mpi) call getqmode()
-         call rx0('--getq mode done')
-      endif
+      write(stdo,"(a)") 'bndfp:start'
       if(master_mpi) then ! check Write atomic positions
-         write(stdo,"(a)")' --- bndfp: Atomic Positions from rst/ctrl. '
+         write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
          do ib=1,nbas
             is  = ssite(ib)%spec   !species index
             spid= ssite(is)%clabel !atom label
-            write(stdo,"('ib clabl pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
+            write(stdo,"('ib clabel pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
-      fsmode   = cmdopt0('--fermisurface')! Fermi surfece mode for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
-c      PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
-c      if(fullmesh) procaron = .true.
-      if (maxit==0) return
+      fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-      idummy = unlink('RSEQ_ERROR') ! the error flag in rseq. Remove RSEQ_ERROR here because
-                                    ! this error is only fatal when it is finaly converged. takaoNov28_2010
+      idummy = unlink('RSEQ_ERROR') ! the error flag file caused by rseq. Remove RSEQ_ERROR here because
+                                    ! this error is fatal only when it is converged. takaoNov28_2010
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
-      if(size(ham_ldham)/=size(ldham)) call rx("bndfp:size(ham_ldham)/=size(ldham)")
       if (master_mpi) then
         aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
         write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
       endif
-      if (ndham<=0)  call rx('bndfp: hamiltonian matrix has zero dimension')
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
@@ -589,7 +575,9 @@ c      call info2(20,0,0,' MPI broadcast took %;1d sec', (entime-sttime),0)
 !! Revise ef0 dosw, and goto99
       call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
       if(.not.goto99) then !metal case
-         call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow,ef0,bz_ef)
+         call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow)!,ef0,bz_ef)
+         ef0=eferm
+         bz_ef=eferm
          if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
             lwtkb = 1
             goto99=.true.  

@@ -42,7 +42,7 @@
 !! --> history is removed to avoid confusions. See ecalj@github  
       implicit none
       character strn*120, alabl*8, flg*3
-      logical :: cmdopt,llmfgw,xyzfrz(3),lbin !,lshr=.false.
+      logical :: cmdopt,llmfgw,xyzfrz(3),lbin,cmdopt0 !,lshr=.false.
       integer :: i,ifi,ipr,irs1x, k, nit1,numq, pdim,lsc
       integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
@@ -195,6 +195,15 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
+!!      
+      if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum (a simple approximaiton. Need fixing if necessary.).
+         if(master_mpi) call vbmmode()
+         call rx0('--vbmonly mode done')
+      endif
+      if(cmdopt0('--getq')) then !!! Current version is not for spin dependent, with many restrictions.
+         if(master_mpi) call getqmode()
+         call rx0('--getq mode done')
+      endif
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
@@ -209,12 +218,11 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
                write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
             enddo
          endif
-         
          do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
 !! Make and diagonalize hamiltonian, make new charge density ---
-            if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
             if(nlibu>0) dmato=dmatu !nlibu: size of density matrix for LDA+U
-            call bndfp( dmxp, iter, maxit, frc_rv, vorbdmat, llmfgw)
+            if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
+            if(maxit/=0) call bndfp( dmxp, iter, maxit, frc_rv, vorbdmat, llmfgw)
             call zcopy(idmatu,dmatu_out,1,dmatu,1)
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
