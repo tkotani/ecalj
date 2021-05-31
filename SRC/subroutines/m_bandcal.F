@@ -49,6 +49,7 @@ c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oe
 c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
 !! pdos mode = PROCARon .and. fullmesh (--mkprocar and --fullmesh. See job_pdos).      
       ltet = ntet>0
+      if(plbnd==0.and.lso/=0.and.lwtkb==0) call rx('metal weights required for orb. moment calculation')
       
       if(lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
       if(lso/=0) orbtm_rv=0d0
@@ -184,7 +185,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! ndimhx: dimension of Hamitonian
 !! hamm:Hamiltonian, ovlm: overlap matrix
 !! t_zv:eigenfunciton. evl: eigenvalue.
-!! nmx: input, number of requested eigenvalues(funcitons). If nmx=0, no eigenfunctions but all eigenvalues.
+!! nmx: input, number of requested eigenvalues(functions). If nmx=0, no eigenfunctions but all eigenvalues.
 !! nev: out number of obtained eigenfvalues(funcitons)
              call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
              if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
@@ -198,27 +199,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
             nevls(iq,jsp) = nev  !nov2014 isp and jsp is confusing...
-            if( master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
+            evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
+            if(master_mpi.and. epsovl>=1.000001d-14.and.plbnd/=0) then
               write(stdo,"(' : ndimhx=',i5,' --> nev=',i5' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
             endif
-            evlall(1:ndhamx,jsp,iq) = evl(1:ndhamx,jsp)
             
-            if(plbnd==0.and.lwtkb/=-1) then 
-               if(lso/=0.and.lwtkb==0) call rx('metal weights required for orb. moment calculation')
+            if(plbnd==0.and.lwtkb/=-1) then !lwtkb=-1,0,1
                if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
                if(nlibu>0.and.nev>0.and.lwtkb==0) call rx('metal weights required for LDA+U calculation')
                if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu)
                if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
-               if((.not.cmdopt0('--cls')).and.lrout/=0) then
-                 call readindensitymodesetting() !dummy
-                 if(lwtkb>=0) then !Accumulate output density and sampling DOS. To make DOS when lmet=4
-                   call addrbl (jsp, qp, lrout
-     .             , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &             , t_zv,evl,nev,  ef0,def,emin,emax,ndos
-     o             , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
-                 endif     
-               endif
             endif
+            
+            if(lrout/=0.and.lwtkb>=0) then
+c               call readindensitymodesetting() !dummy
+               !Accumulate output density and sampling DOS. To make DOS when lmet=4
+               call addrbl (jsp, qp, lrout
+     .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
+     &              , t_zv,evl,nev,  ef0,def,emin,emax,ndos
+     o              , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+            endif     
             if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
             if(allocated(t_zv)) deallocate(t_zv)
  2005    continue !== end loop over isp (main loop in parallel mode)==
@@ -277,11 +277,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             read(ifig) evl(1:nev,jsp)
             read(ifig) t_zv(1:ndimhx,1:nmx)
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
-            if (lso/=0)            call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
-            if (nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, t_zv,  dmatu)
-            if(cmdopt0('--cls'))   call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
-            if ((.not.cmdopt0('--cls')) .and. lrout/=0 .or. lmet==4) then
-c              call readindensitymodesetting() !dummy
+            if( lso/=0)            call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
+            if( nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, t_zv,  dmatu)
+            if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
+            if( lrout/=0 ) then
+c               call readindensitymodesetting() !dummy
                call addrbl (jsp, qp, lrout
      .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def,emin,emax,ndos
