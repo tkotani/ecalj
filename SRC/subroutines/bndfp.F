@@ -512,19 +512,6 @@ c      efmax= bz_efmax
       nnn = size(nevls)
       call mpibc2_int(nevls,nnn,'bndfp_nevls') !all reduce (to avoid which node to which node).
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
-c      if(numprocs/=1) then
-c         do iq = 1, nkp
-c            pidorigin=-999
-c            do idx=0,numprocs-1
-c               if (kpproc(idx)<=iq .and. iq<= kpproc(idx+1)-1) then
-c                  pidorigin=idx
-c                  exit
-c               endif
-c            enddo   
-c            call MPI_BCAST(ndimhx_(iq),1,MPI_INTEGER, pidorigin,MPI_COMM_WORLD,ierr)
-c            call MPI_BCAST(nev_(iq),1,MPI_INTEGER,    pidorigin,MPI_COMM_WORLD,ierr)
-c         enddo   
-c      endif
       
 !! pdos mode (--mkprocar and --fullmesh)
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
@@ -633,20 +620,13 @@ c     & nkp,ebot,qval,qbg,bz_w
       
 
       
-!! === Generate DOS on disk ===
-c      if(.not. lwndow .and. master_mpi) then
-      if( master_mpi) then
-         ndos0 = ndos   !it was bz_ndos. I think this is fine
-                        !ndos0 is only used as a swith wether DOS or integrated-DOS.
-         if ( ldos/=0 ) then
-            if(ndos0<0) write(stdo,"(a)")'... Generating integrated DOS' !, ndos0=,ndos0
-            if(ndos0>0) write(stdo,"(a)")'... Generating total DOS'      !  ndos0=,ndos0
+!! === Generate DOS ===
+      if( master_mpi.and.ldos/=0) then
+            write(stdo,"(a)")'... Generating total DOS'      !  ndos=,ndos
 !! Default and external option. 
-            if(tdos) then
-              dosmax = bz_dosmax
-            endif
+            if(tdos) dosmax = bz_dosmax
             if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
-            if (ltet) then
+            if(ltet) then
 !! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
@@ -656,19 +636,15 @@ c      if(.not. lwndow .and. master_mpi) then
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
-               if ( ndos0 > 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
+               if ( ndos > 0 ) call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
             else
-               if(tdos) dosw(2) = dosmax + eferm  !.or.pdos
-c               if ( bz_n .ge. 100) bz_n = mod(bz_n,100)
-               if ( ndos0 > 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
+               if( tdos) dosw(2) = dosmax + eferm  !.or.pdos
+               if( ndos > 0 ) call makdos ( nkp , ndhamx , ndhamx , nspx
      .           , rv_a_owtkp , evlall , bz_n , bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-               if ( ndos0 < 0 ) call maknos ( nkp , ndhamx , ndhamx , nspx
-     .           , rv_a_owtkp , evlall , bz_n , bz_w 
-     .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
             endif
-            if ( nspc .eq. 2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
+            if ( nspc==2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
             open(newunit=ifi,file='dos.tot.'//trim(sname))
             open(newunit=ifii,file='dosi.tot.'//trim(sname))
             dee=(dosw(2)-dosw(1))/(ndos-1d0)
@@ -680,9 +656,6 @@ c               if ( bz_n .ge. 100) bz_n = mod(bz_n,100)
             enddo
             close(ifi)
             close(ifii)
-c            if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-c            if (allocated(dos_rv)) deallocate(dos_rv)
-         endif
       endif
       if(tdos) call rx0('Done tdos mode:')
 !! --- efermi.lmf 
@@ -698,6 +671,7 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
          write(ifi,"('# NOTE: Not by band plot mode')")
          close(ifi)             
       endif
+      
 !! --- Core-level spectroscopy ---
       if (cmdopt0('--cls')) then
          if (master_mpi) then
@@ -721,11 +695,9 @@ c            if (allocated(dos_rv)) deallocate(dos_rv)
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
       if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
-!!      
       call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham ,slat , 
      .  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      .  , qbyl_rv , hbyl_rv , lrout )
-C
       if (lrout .ne. 0) then
 C   ... Symmetrize output density and forces
          call symrho ( ssite , sspec ,  lfrce , srout_zv , sv_p_orhat1 !slat ,
@@ -738,8 +710,6 @@ C   ... New boundary conditions pnu for phi and phidot
      .        , hab_rv , sab_rv , qbyl_rv , hbyl_rv, eferm )
          endif
       endif
-
-      
 !! --- print out qbyl ---
       if(master_mpi) then
          open(newunit=ifqbyl,file='qbyl.'//trim(sname))
@@ -750,13 +720,11 @@ C   ... New boundary conditions pnu for phi and phidot
          enddo  
          close(ifqbyl)
       endif
-
       
 !! --- Evaluate Harris energy ---
       call mkehkf(1,sev,sumqv(2,1),sumtv,ehar)
-      
 !! --- Evaluate KS total energy, correction to Harris force ---
-      if(lrout .ne. 0) then
+      if(lrout/=0) then
 !!   ... Correction to harris force
         if(lfrce>0 ) then
           allocate( fh_rv(3*nbas)  )
