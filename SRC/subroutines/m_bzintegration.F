@@ -64,7 +64,7 @@ c         if (lmet .ne. 4) then
 c            ef0 = eferm
 c            bz_ef=ef0
 c         endif
-         if (lmet .gt. 0) then
+         if (lmet > 0) then
             if (master_mpi) then
                ifi=ifile_handle()
                open(ifi,file='wkp.'//trim(sname),form='unformatted') 
@@ -73,7 +73,7 @@ c         endif
             endif
          endif
 !     !
-         write(6,*) 'ssssssssss sev=',sev
+c         write(6,*) 'ssssssssss sev=',sev
 c      endif
       end subroutine
       end module

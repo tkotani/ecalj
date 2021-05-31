@@ -135,6 +135,7 @@ C     ... Attempt to use existing weights
               close(ifi)
               if (lerr .eq. 0) lwtkb = 1 !read wkp (wkpb) (previous iteration) ==> lwtkb=1
               if (lerr .ne. 0) efermi = -99
+              efermi=-9999 !efermi is dummy See. efermi.lmf
             endif
 C           Broadcast lwtkb,efermi,wtkb
             call mpibc1(lwtkb,1,2,.false.,'subzi','lwtkb')

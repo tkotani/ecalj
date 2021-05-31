@@ -31,12 +31,12 @@
       logical,private:: dmatuinit=.true.
       contains
 ! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
-      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,def,emin,emax,ifih,lwtkb) !,kpproc)
+      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,emin,emax,ifih,lwtkb) !,kpproc)
 c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
       integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig
-      real(8):: qp(3),ef0,def,emin,emax,xv(3)
+      real(8):: qp(3),ef0,def=0d0,emin,emax,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: t_zv(:,:)
       integer::  pidorigin,iprint,i,ibas
@@ -243,10 +243,10 @@ c               call readindensitymodesetting() !dummy
       deallocate(evl)
       end subroutine
 !!
-      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0,def,emin,emax)!,ndos)
+      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0,emin,emax)!,ndos)
       implicit none
       integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas
-      real(8):: qp(3),ef0,def,emin,emax,xv(3)
+      real(8):: qp(3),ef0,def=0d0,emin,emax,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: t_zv(:,:)
       logical:: cmdopt0
