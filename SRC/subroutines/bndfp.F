@@ -220,7 +220,7 @@ c      type(s_rv1) :: sv_p_oqkkl(3,nbas)
       double precision sigp(10)
       logical:: readeferm
       double precision ef00,emax,emin,esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
+     .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ehar,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -399,11 +399,10 @@ c      efmax= bz_efmax
       dosw = bz_dosw
       if(binit) then !from m_lmfinit when m_bndfp_ef_set in not called.
          eferm =bz_ef0
-c         bz_def=bz_def0
          binit=.false.
       endif
-      ef0=eferm
-c      ef0  = bz_ef
+c      eferm=eferm
+c      eferm  = bz_ef
 c      def  = bz_def
       ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
@@ -447,11 +446,11 @@ c      def  = bz_def
             inquire(file='wkp.'//trim(sname),exist=nexist)
             if(nexist) then
                open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-               read(ifi) ndummy1,ndummy2,ndummy3,ef0
+               read(ifi) ndummy1,ndummy2,ndummy3,eferm
                close(ifi)
             endif
          endif   
-         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+         call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
       endif
 !! === Get nkp and qplist. fatband mode ---> --mkprocar. plbnd/=0 ---> band plot mode.
 !! we can move this outside of iteration cycle.
@@ -502,7 +501,7 @@ c     print *,'llllllll111 lwtkb=',lwtkb
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
 ! lwtkb=-1      
-      call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb) 
+      call m_bandcal_init(iqini,iqend,lrout, eferm,def,emin,emax,ifih,lwtkb) 
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
@@ -522,14 +521,14 @@ c     print *,'llllllll111 lwtkb=',lwtkb
 !! pdos mode (--mkprocar and --fullmesh)
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,ef0)
+      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,eferm)
       if(fullmesh.and.procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
 !! boltztrap data 
       if( cmdopt0('--boltztrap')) call writeboltztrap()
       if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
 !! Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
-      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
+      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,eferm)
       if(plbnd/=0.and.master_mpi) then
             write(stdo,*)' Writing bands to bands file ...'
             if(nsyml/=0) then
@@ -561,10 +560,10 @@ c     print *,'llllllll111 lwtkb=',lwtkb
       enddo
 c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
 cccccccccccccccccccc      
-c      call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+c      call m_bandcal_getef0dosw(lwtkb,lrout,eferm,dosw,def,goto99)
       call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
-      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !,ef0,bz_ef)
-      ef0=eferm
+      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !,eferm,bz_ef)
+c      eferm=eferm
 c      bz_ef=eferm
       if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
          lwtkb = 1
@@ -573,7 +572,7 @@ c      bz_ef=eferm
          call mpi_barrier(MPI_comm_world,ierr)
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
-         call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax) !accumulate srout_zv and so on.
+         call m_bandcal_2nd(iqini,iqend,lrout, eferm,def,emin,emax) !accumulate srout_zv and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
@@ -599,14 +598,14 @@ c     & nkp,ebot,qval,qbg,bz_w
 !! ... Save Fermi level, nonmetal or sampling integration
       if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
          if (lmet .eq. 0) then
-            ef0 = (evtop+ecbot)/2
+            eferm = (evtop+ecbot)/2
             write(stdo,"(' Highest occ. level = ',f13.5,
-     &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
+     &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,eferm
          endif
          if (master_mpi) then 
             ifi=ifile_handle()
             open(ifi,file='wkp.'//trim(sname),form='unformatted')
-            i = iobzwt ( 1 , ndham , nkp, nsp , ef0 , rv_a_owtkb , -ifi )
+            i = iobzwt ( 1 , ndham , nkp, nsp , eferm , rv_a_owtkb , -ifi )
             close(ifi) !call fclr('wkp',ifi)
          endif
       endif
