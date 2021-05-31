@@ -71,8 +71,8 @@ Co   smrho :smooth density on uniform mesh
 Co   oqkkl :local part of density matrix
 Co   oeqkkl:local part of energy-weighted density matrix
 Co   f     :eigenvalue contribution to forces
-Ci   swtk  :'spin weights' to determine global magnetic moment, nspc=2
-Ci         : swtk = diagonal part of  (z)^-1 sigmz z
+Co   swtk  :'spin weights' to determine global magnetic moment, nspc=2
+Co         : swtk = diagonal part of  (z)^-1 sigmz z
 Cr Remarks
 Cu Updates
 Cu   05 Jul 08 (T. Kotani) output density for new PW part
