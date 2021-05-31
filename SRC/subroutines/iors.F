@@ -5,7 +5,7 @@
 
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
-      use m_bndfp,only: m_bndfp_ef_SET,bz_def,bz_ef
+      use m_bndfp,only: m_bndfp_ef_SET,eferm!,bz_ef !,bz_def
       use m_lmfinit,only: irs3,irs4,irs5,irsrot,lat_alat,nsp,lrel,nl,ssite=>v_ssite,sspec=>v_sspec,
      &    nbas,nat,nspec 
       use m_lattic,only: lat_dist, lat_plat
@@ -122,7 +122,7 @@ C ... Local parameters
       logical:: l_dummy_aiomom, aiomom
       integer:: fextg, i_dummy_fextg
       data vec0 /0d0,0d0,0d0/
-      real(8):: bz_ef00,bz_def00
+c      real(8):: eferm!,bz_ef00,bz_def00
 C ... MPI setup
       nproc  = mpipid(0)
       procid = mpipid(1)
@@ -343,9 +343,9 @@ C       For compatibility with nfp, read record into wk
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
           call awrit0('%a ef window,',use,len(use),0)
-          bz_ef00=wk(1)
-          bz_def00=wk(2)
-          call m_bndfp_ef_SET(bz_ef00,bz_def00)
+c          bz_ef00=wk(1)
+c          bz_def00=wk(2)
+          call m_bndfp_ef_SET(wk(1)) !bz_ef00) !,bz_def00)
 c          bz_w= -9999 !dummy wk(3)
         endif
 C   --- Read atomic positions,forces,velocities ---
@@ -834,8 +834,8 @@ C   --- Write smooth charge density ---
 
 C   --- Write information related to dynamics ---
         wk=0d0 !call dpzero(wk,100)
-        wk(1)=bz_ef !sbz%ef
-        wk(2)=bz_def !sbz%def
+        wk(1)= eferm !sbz%ef !dummy
+        wk(2)=-9999 !sbz%def !dummy
         wk(3)=-9999 !dummy bz_w !sbz%w
         if (lbin) then
           call dpdump(wk,100,-jfi)

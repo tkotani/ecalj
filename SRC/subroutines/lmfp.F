@@ -47,7 +47,7 @@
       integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
       real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
-      real(8) :: plat(3,3),qlat(3,3),qbg,xv(10)
+      real(8) :: plat(3,3),qlat(3,3),qbg,xvcart(3),xvfrac(3)
       real(8):: seref,etot(2),amom,qdiff,qtol,etol
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:), frc_rv(:,:), ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
@@ -209,31 +209,31 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
          if( ipr>=50 ) then ! Write atom positions 
-            write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
-     &           'pos (multiples of plat)')") 'Basis, after reading restart file'
-            do i = 1, nbas
-               xv(1:3)=ssite(i)%pos
-               alabl=sspec(ssite(i)%spec)%name
-               call dgemm('T','N',3,1,3,1d0,qlat,3,xv,3,0d0,xv(4),3)
-               write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, (xv(j),j=1,3), (xv(3+j),j=1,3)
-            enddo
+           write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
+     &     'pos (multiples of plat)')") 'Basis, after reading restart file'
+           do i = 1, nbas
+           xvcart = ssite(i)%pos
+           xvfrac = matmul(transpose(qlat),xvcart)
+           alabl  = sspec(ssite(i)%spec)%name
+           write(stdo,"(i4,2x,a8,f10.6,2f11.6,1x,3f11.6)") i, alabl, xvcart,xvfrac
+           enddo
          endif
          do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
 !! Make and diagonalize hamiltonian, make new charge density ---
-            if(nlibu>0) dmato=dmatu !nlibu: size of density matrix for LDA+U
+            if(nlibu>0)  dmato=dmatu !nlibu: size of density matrix for LDA+U
             if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
             if(maxit/=0) call bndfp( dmxp, iter, maxit, frc_rv, vorbdmat, llmfgw)
-            call zcopy(idmatu,dmatu_out,1,dmatu,1)
+            if(nlibu>0)  call zcopy(idmatu,dmatu_out,1,dmatu,1)
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
 !   --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
             if(master_mpi .and. ctrl_quit/=4) then
-               if (irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
+               if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
                   lbin = irs2/=2
                   ifi = ifile_handle() 
-                  if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
-                  if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
+                  if(lbin)      open(ifi,file='rst.'//trim(sname),form='unformatted')
+                  if(.not.lbin) open(ifi,file='rsta.'//trim(sname)) 
                   k = iors ( iter , lbin , - ifi )
                   close(ifi) 
                endif
@@ -246,11 +246,9 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
             etot(1) = etot(1) - seref
             if (etot(2)/=0) etot(2) = etot(2) - seref
             amom = ham_eterms(15)
-#if MPI|MPIK
             flush(6)
             call mpi_barrier(MPI_COMM_WORLD,ierr)
-#endif
-            if (master_mpi) then
+            if(master_mpi) then
                rhosig = ham_eterms(19)
                i = 0
                if (rhosig/=-99 .and. rhosig/=0) i = 10
@@ -271,10 +269,8 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
             if( ctrl_quit==4 ) call rx0 ( 'lmf : exit (--quit=band)' )
             if( lsc <= 2) exit   !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
-         if (nitrlx==0) exit
-         
+         if (nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
 !! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
-!!         (last check is probably around 2015) ----------
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
             pos_move(:,ibas) = ssite(ibas)%pos

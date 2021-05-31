@@ -9,10 +9,10 @@
       implicit none
       integer:: k,lgunit,stdo 
       logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
-      character:: outs*20
+      character:: outs*20,aaa*512,sss*128
       character prgnam*8
       character*8 charext
-      integer fext
+      integer:: fext,iarg
 #if LMFGWD
       data prgnam /'LMFGWD'/
 #elif LMFA
@@ -24,8 +24,13 @@
 #endif
       call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
       call m_MPItk_init(prgnam)
-      stdo = lgunit(1) !standard output stdo=6 usually
-      if(procid==master) write(stdo,"(a)") ' ---------  START '//trim(prgnam)//'  -------------'
+      stdo = lgunit(1)          !standard output stdo=6 usually
+      aaa=''
+      do iarg=1,iargc()
+         call getarg(iarg,sss)
+         aaa=aaa//' '//trim(sss)
+      enddo   
+      if(procid==master) write(stdo,"(a)") ' ---------  START '//trim(prgnam)//'  '//trim(aaa)
       call Show_programinfo(stdo)
       if(cmdopt2('--pr',outs).or.cmdopt2('-pr',outs)) then 
         read(outs(5:),*) k

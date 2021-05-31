@@ -29,7 +29,7 @@ c     goto99=.false.
       debug    = cmdopt0('--debugbndfp')
       if (master_mpi) ierr=unlink('MagField') !delete
 !! --- BZ integration for fermi level, band sum and qp weights ---
-      if(lmet>=0 .and. (lmet/=4.or.ltet)) then
+c      if(lmet>=0) then
          dosrng = 8
          if (bz_n .lt. 0) dosrng = 16
          if( debug) print *, 'tttttttttt 99999999 6 call bzwtsf'
@@ -74,6 +74,6 @@ c         endif
          endif
 !     !
          write(6,*) 'ssssssssss sev=',sev
-      endif
+c      endif
       end subroutine
       end module

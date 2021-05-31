@@ -54,7 +54,7 @@ Ci   evec  :eigenvectors
 Ci   evl   :eigenvalues
 Ci   nev
 Ci   ef0   :estimate for fermi level
-Ci   def   :When lmet=4, charge also accmulated for ef0+def and ef0-def
+Cixx   def   :When lmet=4, charge also accmulated for ef0+def and ef0-def
 Cixx   esmear:(sampling integration) gaussian broadening
 Cixx         :sign and integer part are extensions; see mkewgt.f
 Ci   emin  :energy lower bound when adding to sampling dos

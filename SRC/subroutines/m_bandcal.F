@@ -16,6 +16,7 @@
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv
+!! band weight wtkb generated. eferm determined. band energy sum sev calculated.
       use m_seneinterp,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
@@ -349,10 +350,10 @@ c               call readindensitymodesetting() !dummy
       end subroutine
       
 !!------------------------------
-      subroutine m_bandcal_dosw(lwtkb,lrout,def,  dosw,evtop,ecbot) !goto99)
+      subroutine m_bandcal_dosw(lwtkb,lrout,  dosw,evtop,ecbot) !goto99)
       ! lwtkb,lrout,def are used only for
       use m_lmfinit,only:ctrl_zbak,bz_w
-      intent(in)   ::           lwtkb,lrout,def
+      intent(in)   ::           lwtkb,lrout
       intent(inout)::                             dosw !input is just initial guess
       intent(out)  ::                                  evtop,ecbot
 c      intent(out)::                                  goto99 
@@ -362,7 +363,7 @@ c      intent(out)::                                  goto99
 !     !     isp serves as a flag for the noncollinear case
 !     ! block10
       logical:: ltet !goto99,
-      real(8):: ef00,ef0,dosw(2),qp(3),qbg,def,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
+      real(8):: ef00,ef0,dosw(2),qp(3),qbg,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
       integer:: iq,ipr,lwtkb,isp,jsp,nev_iq,i,lrout,iprint
       character(10):: i2char
 c      goto99=.false.
@@ -406,7 +407,7 @@ c      goto99=.false.
                   if (nevmx.ge.0 .and. lmet .ne. 0) then
                      dum = evl(max(nev_iq,1),jsp)
                      if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
-                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
+c                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
                   endif
                   if(i .eq. 2) then
                      write(stdo,"(a,f13.5,a, f13.5)")

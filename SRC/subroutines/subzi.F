@@ -8,7 +8,7 @@ c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
 c      real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
-      subroutine m_subzi_init(lwt,ef0,def, mpsord,esmear, efermi)
+      subroutine m_subzi_init(lwt) !, mpsord) !, efermi)
       use m_ext,only: sname
       use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,ctrl_ldos,stdo
       use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
@@ -44,8 +44,8 @@ Co Outputs
 Co   lwtkb :0 weights are neither required nor available a priori
 Co         :1 weights are available
 Co         :-1 weights are not yet
-Co   efermi:(lwtkb=1) Fermi level corresonding weights; otherwise
-Co         :efermi is set to -99.
+Cxxxo   unused efermi:(lwtkb=1) Fermi level corresonding weights; otherwise
+Cxxxo         :efermi is set to -99.
 Co   owtkb :memory is allocated for integration weights, and they
 Co         :are possibly read from disk.
 Co         :Not allocated if lwtkb=0.
@@ -114,7 +114,7 @@ c      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F 
       nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh 
       procid = mpipid(1)
       master = 0
-      n = isign(1,mpsord) * mod(iabs(mpsord),100)
+c      n = isign(1,mpsord) * mod(iabs(mpsord),100)
       efermi = -99
       numq = 1
       if (lmet .eq. 4) numq = 3
@@ -170,13 +170,6 @@ c        stdo = lgunit(1)
      .    '%a integration of bands; '//
      .    strni(isw(lmet.ne.4.and.ltet)+1)//
      .    '%a integration of density',' ',80,stdo)
-          if (lmet .eq. 4 .or. .not. ltet) then
-            call info8(30,0,0,
-     .      '%7p sampling integration uses:  '//
-     .      '%?#(n<0)#Fermi distribution (T=%;4d)#%-1jN=%i  W=%;4d#'//
-     .      '  ef0=%;6;6d%?#(n==4)#  def=%;6d##',
-     .      n,esmear,ef0,lmet,def,0,0,0)
-          endif
         else
           call info(20,0,0,' subzi : nonmetal',0,0)
         endif

@@ -10,7 +10,7 @@
       character*20,protected ::labeli(nsymlmax),labele(nsymlmax)
       
       contains
-      subroutine m_qplist_init(plbnd,readeferm,eferm)
+      subroutine m_qplist_init(plbnd) !,readeferm,eferm)
       use m_lmfinit,only: nspc,stdo
       use m_mkqp,only: rv_p_oqp,rv_a_owtkp
       use m_MPItk,only: master_mpi,mlog
@@ -18,7 +18,7 @@
       use m_lattic,only: qlat=>lat_qlat
       use m_ext,only: sname
       intent(in)::             plbnd
-      intent(out)::                  readeferm,eferm
+c      intent(out)::                  readeferm,eferm
       integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
       logical:: masslineon(nsymlmax)
       integer:: plbnd,ifqplist,nkk1,nkk2,nkk3,ik1,ik2,ik3,iq,ifi,ifisyml,isyml,i,ierr
@@ -81,16 +81,16 @@
             endif
 !! syml direct read for plbnd mode. See "call writeband" below. feb2015 
          else
-            readeferm=.false.
-            if(master_mpi) write(stdo,*)' --- Readin efermi.lmf --- '
-            open(newunit=ifi,file='efermi.lmf',status='old',err=1012)
-            read(ifi,*,err=1012) eferm
-            readeferm=.true.
-            close(ifi) 
-            goto 1013
- 1012       continue
-            call rx('No efermi.lmf!: Copy it, or run lmf-MPIK (sc mode) to get efermi.lmf.')
- 1013       continue
+c            readeferm=.false.
+c            if(master_mpi) write(stdo,*)' --- Readin efermi.lmf --- '
+c            open(newunit=ifi,file='efermi.lmf',status='old',err=1012)
+c            read(ifi,*,err=1012) eferm
+c            readeferm=.true.
+c            close(ifi) 
+c            goto 1013
+c 1012       continue
+c            call rx('No efermi.lmf!: Copy it, or run lmf-MPIK (sc mode) to get efermi.lmf.')
+c 1013       continue
 
 !! --- example of syml file ---
 ! ndiv qleft(1:3) qright(1:3) llabel rlabel  ndiv2 ninit2 nend2 etolv(Ry) etolc(Ry) 
