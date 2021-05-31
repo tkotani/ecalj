@@ -11,13 +11,13 @@
 !!
       module m_bndfp
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
-      real(8),protected:: eferm !bz_ef !,bz_def ! revised when called.
+      real(8),protected:: eferm !,bz_def ! revised when called.
       logical,private:: binit=.true.,bbinit=.true.
       
       contains
-      subroutine m_bndfp_ef_set(bz_ef00) !,bz_def00) !from iors.F when rst is read.
-      real(8):: bz_ef00 !,bz_def00
-      eferm = bz_ef00
+      subroutine m_bndfp_ef_set(bz_ef00)!,bz_def00) !from iors when rst is read.
+      real(8):: bz_ef00!,bz_def00
+      eferm  = bz_ef00
 c      bz_def= bz_def00
       binit=.false.
       end
@@ -29,7 +29,7 @@ c      bz_def= bz_def00
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
 c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
-      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
+      use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_def0,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
@@ -219,8 +219,8 @@ c      type(s_rv1) :: sv_p_oeqkkl(3,nbas)
 c      type(s_rv1) :: sv_p_oqkkl(3,nbas)
       double precision sigp(10)
       logical:: readeferm
-      double precision emax,emin,esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,qbg,ebot,ehar,eks,
+      double precision ef00,emax,emin,esmearm,sev,efermr,
+     .  sev00,sev1,sumtv,alfa,qbg,ebot,def,ef0,ehar,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -355,19 +355,19 @@ c mar2014
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
-      real(8):: kkk,def !dummy
+      real(8):: kkk!,eferm !dummy
 !! ----------------------------
       call tcn ('bndfp')
       write(stdo,"(a)") 'bndfp:start'
-c      if(master_mpi) then ! check Write atomic positions
-c         write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
-c         write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
-c         do ib=1,nbas
-c            is  = ssite(ib)%spec   !species index
-c            spid= ssite(is)%clabel !atom label
-c            write(stdo,"('ib clabel pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
-c         enddo
-c      endif
+      if(master_mpi) then ! check Write atomic positions
+         write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
+         write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
+         do ib=1,nbas
+            is  = ssite(ib)%spec   !species index
+            spid= ssite(is)%clabel !atom label
+            write(stdo,"('ib clabel pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
+         enddo
+      endif
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
@@ -397,33 +397,14 @@ c      efmax= bz_efmax
          bbinit=.false.
       endif
       dosw = bz_dosw
-      
-      if(binit) then !from m_lmfinit if m_bndfp_ef_set is not called in iors (no rst case).
-         eferm=bz_ef0
+      if(binit) then !from m_lmfinit when m_bndfp_ef_set in not called.
+         eferm =bz_ef0
+c         bz_def=bz_def0
          binit=.false.
       endif
-      
-!! --- Read efermi.lmf
-c      eferm=0d0
-c      if(master_mpi) then
-c         inquire(file='efermi.lmf',exist=nexist)
-c         if(nexist) then
-c           open(newunit=ifi,file='efermi.lmf')
-c           read(ifi,*) eferm
-c           close(ifi)
-c         else
-c           bz_ef =bz_ef0
-c           binit=.false.
-c         endif  
-c      endif
-      call mpibc2_real(eferm,1,'bndfp_eferm') !all reduce
-      if(master_mpi) write(stdo,"(a,f12.4)")'bndfp: initial Efermi=',eferm
-
-!!      
-      def = 0d0 !I think def is irrelevant (thus fixed) because I removed ltet=4 mode
-c      ef0  = bz_ef  ! ef0 is the initil fermi energy.
-c     def  = bz_def ! def gives a range ef0\pm def for which we look for fermi energy.
-      
+      ef0=eferm
+c      ef0  = bz_ef
+c      def  = bz_def
       ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
@@ -447,15 +428,7 @@ c     def  = bz_def ! def gives a range ef0\pm def for which we look for fermi e
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !!Setup for BZ integration wtkb
-      call m_subzi_init(lrout>0) !,bz_n) !,eferm) !get nevmx, and so on
-c      n = isign(1,mpsord) * mod(iabs(mpsord),100)
-c      if(.not.ltet.and.master_mpi) then
-c            write(stdo,' sampling integration: uses(bz_n):  '//
-c     .      '%?#(n<0)#Fermi distribution (T=%;4d)#%-1jN=%i  W=%;4d#'//
-c     .      '  ef0=%;6;6d%?#(n==4)#  def=%;6d##',
-c     .      bz_n,bz_w,ef0,lmet,def ! n,esmear,ef0,lmet,def,0,0,0)
-c      endif
-      
+      call m_subzi_init(lrout>0)!,ef0,def,bz_n,bz_w,eferm) !get nevmx, and so on
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
@@ -469,23 +442,22 @@ c      endif
          if(writeham) call m_writeham_write() 
          onlyonce=.false.
       endif
-c$$$      if (plbnd/=0) then !get ef0 just from wkp (weight file wkp.* in your previous calculation).
-c$$$         if (master_mpi) then !Try and read Fermi level from file
-c$$$            inquire(file='wkp.'//trim(sname),exist=nexist)
-c$$$            if(nexist) then
-c$$$               open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
-c$$$               read(ifi) ndummy1,ndummy2,ndummy3,ef0
-c$$$               close(ifi)
-c$$$            endif
-c$$$         endif   
-c$$$         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
-c$$$  endif
-      
+      if (plbnd/=0) then !get ef0 just from wkp (weight file wkp.* in your previous calculation).
+         if (master_mpi) then !Try and read Fermi level from file
+            inquire(file='wkp.'//trim(sname),exist=nexist)
+            if(nexist) then
+               open(newunit=ifi,file='wkp.'//trim(sname),form='unformatted')
+               read(ifi) ndummy1,ndummy2,ndummy3,ef0
+               close(ifi)
+            endif
+         endif   
+         call mpibc1(ef0,1,4,.false.,'bndfp','ef0')
+      endif
 !! === Get nkp and qplist. fatband mode ---> --mkprocar. plbnd/=0 ---> band plot mode.
 !! we can move this outside of iteration cycle.
       if(debug) write(stdo,*) 'bndfp: goto m_qplist_init'
       if(.not.llmfgw) call m_qplist_init(plbnd)!,readeferm,efermr) 
-c      if(readeferm) eferm=efermr
+      if(readeferm) eferm=efermr
       call mpi_barrier(MPI_COMM_WORLD,ierr) 
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
@@ -530,7 +502,7 @@ c     print *,'llllllll111 lwtkb=',lwtkb
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
 ! lwtkb=-1      
-      call m_bandcal_init(iqini,iqend,lrout, eferm,def,emin,emax,ifih,lwtkb) 
+      call m_bandcal_init(iqini,iqend,lrout, ef0,def,emin,emax,ifih,lwtkb) 
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
@@ -550,14 +522,14 @@ c     print *,'llllllll111 lwtkb=',lwtkb
 !! pdos mode (--mkprocar and --fullmesh)
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,eferm)
+      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,ef0)
       if(fullmesh.and.procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
 !! boltztrap data 
       if( cmdopt0('--boltztrap')) call writeboltztrap()
       if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
 !! Write bands in bands-plotting case: loop over qp getting evals from array ===
 !!block5 ix99=1 only
-      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,eferm)
+      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,ef0)
       if(plbnd/=0.and.master_mpi) then
             write(stdo,*)' Writing bands to bands file ...'
             if(nsyml/=0) then
@@ -573,7 +545,6 @@ c     print *,'llllllll111 lwtkb=',lwtkb
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
-      
 !! All reduce band quantities     
       call m_bandcal_allreduce(lrout,lwtkb)
       eterms=ham_eterms 
@@ -588,45 +559,28 @@ c     print *,'llllllll111 lwtkb=',lwtkb
           if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
          enddo
       enddo
-c     call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
-      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow)  !eferm determined.
+c      if(lmet>0.and.lwtkb==2.and.lrout>0) call rx('takao think no path here vvvvvvveeee')
+cccccccccccccccccccc      
+c      call m_bandcal_getef0dosw(lwtkb,lrout,ef0,dosw,def,goto99)
+      call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
+      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !,ef0,bz_ef)
+      ef0=eferm
+c      bz_ef=eferm
       if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
          lwtkb = 1
-         if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
-         call m_bandcal_2nd(iqini,iqend,lrout, eferm,def,emin,emax) !accumulate srout_zv and so on.
+         if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
+         write(6,*)'iiiwww111222 lwtkb=',lwtkb
          call mpi_barrier(MPI_comm_world,ierr)
+         if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
+         if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
+         call m_bandcal_2nd(iqini,iqend,lrout, ef0,def,emin,emax) !accumulate srout_zv and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
          ham_eterms=eterms
+         call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
       endif
-      call m_bandcal_dosw(lwtkb,lrout,  dosw,evtop,ecbot)
-      
-!! ... Save Fermi level, nonmetal or sampling integration
-      if(lmet==0) then
-         eferm = (evtop+ecbot)/2
-         write(stdo,"(' Highest occ. level = ',f13.5,
-     &      ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,eferm
-         if (master_mpi) then 
-            ifi=ifile_handle()
-            open(ifi,file='wkp.'//trim(sname),form='unformatted')
-            i = iobzwt ( 1 , ndham , nkp, nsp , eferm , rv_a_owtkb , -ifi )
-            close(ifi) 
-         endif
-      endif
-!! --- Write efermi.lmf 
-      if(master_mpi.and.plbnd==0) then
-         open(newunit=ifi,file='efermi.lmf')
-         write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
-         write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
-         write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-         write(ifi,"(d24.16,f9.4 ' # number of electrons qval-qbg, qbg')") qval-qbg,qbg
-         write(ifi,"(d24.16, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
-         write(ifi,"('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
-         write(ifi,"('# NOTE: Not by band plot mode')")
-         close(ifi)             
-      endif
-      call mpi_barrier(MPI_comm_world,ierr)
+
       
 !========================================================
       if(lfrce>0) frc=frcband !atomic force from band part
@@ -639,6 +593,26 @@ c     call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
          call iorbtm ( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  ) !orbital moment
          if (allocated(ips_iv)) deallocate(ips_iv)
       endif
+c      if (ipr.gt.0)write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)")
+c     & nkp,ebot,qval,qbg,bz_w
+      
+!! ... Save Fermi level, nonmetal or sampling integration
+      if (lmet .eq. 0 .or. .not. (lmet .ne. 4 .or. ltet)) then
+         if (lmet .eq. 0) then
+            ef0 = (evtop+ecbot)/2
+            write(stdo,"(' Highest occ. level = ',f13.5,
+     &        ' Lowest unocc. = ',f13.5, ' average =',f13.5)") evtop,ecbot,ef0
+         endif
+         if (master_mpi) then 
+            ifi=ifile_handle()
+            open(ifi,file='wkp.'//trim(sname),form='unformatted')
+            i = iobzwt ( 1 , ndham , nkp, nsp , ef0 , rv_a_owtkb , -ifi )
+            close(ifi) !call fclr('wkp',ifi)
+         endif
+      endif
+
+      
+
       
 !! === Generate DOS ===
       if( master_mpi.and.ldos/=0) then
@@ -647,7 +621,7 @@ c     call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
             if(tdos) dosmax = bz_dosmax
             if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
             if(ltet) then
-!! Get new eferm
+!! determine eferm
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
@@ -678,6 +652,20 @@ c     call m_bandcal_dosw(lwtkb,lrout,def, dosw,evtop,ecbot)
             close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
+!! --- efermi.lmf 
+      if(master_mpi.and.plbnd==0) then
+         open(newunit=ifi,file='efermi.lmf')
+         write(ifi,"(d16.8, ' # (Ry) Fermi energy given by lmf')") eferm
+         write(ifi,"(d16.8, ' # (Ry) Top of Valence')") evtop
+         write(ifi,"(d16.8, ' # (Ry) Bottom of conduction')") ecbot
+         write(ifi,"(d16.8, ' # number of electrons qval-qbg=')") qval-qbg
+         write(ifi,"(d16.8, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
+         write(ifi,
+     &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
+         write(ifi,"('# NOTE: Not by band plot mode')")
+         close(ifi)             
+      endif
+      
 !! --- Core-level spectroscopy ---
       if (cmdopt0('--cls')) then
          if (master_mpi) then
