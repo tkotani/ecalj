@@ -9,9 +9,9 @@
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
-     &      pwmode=>ham_pwmode,pwemax=>ham_pwemax,ndos=>bz_ndos,stdl
+     &      pwmode=>ham_pwmode,pwemax=>ham_pwemax,ndos=>bz_ndos,stdl,ldos=>ctrl_ldos
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk,ldos
+      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 

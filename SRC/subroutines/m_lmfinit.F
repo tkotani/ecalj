@@ -2072,9 +2072,9 @@ c      enddo
       endif
 !!      
       if(ctrl_lmet/=0 .and. .not.ltet) ctrl_ldos=1
-!     ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
+!     ldos=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
-      bz_ndos = abs(bz_ndos)
+c      bz_ndos = abs(bz_ndos)
       
 !! LDA+U block (it was suldau.F)
       nlibu = 0
@@ -2162,10 +2162,10 @@ Cr           8 represent full potential density via TCF
 Cr          16 unused
 Cr          32 unused
 Cr          64 (molecules) XC potential by FFT
-Cr   ldos    1 make dos
-cCr           2 generate weights for partial dos
-cCr           4 generate weights for m-decompos'n of pdos
-cCr           8 BZ map
+C   ldos    1 make dos
+cCxxxr           2 generate weights for partial dos
+cCxxxr           4 generate weights for m-decompos'n of pdos
+cCxxxr           8 BZ map
 Cr   lfp     switches for full-potential
 Cr           1 program uses full potential
 Cr   lfrce   How forces are calculated

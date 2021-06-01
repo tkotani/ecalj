@@ -3,14 +3,14 @@
       real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:,:,:)
       
       integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
-      integer,protected:: numq=1, lswtk=0,ldos=0
+      integer,protected:: numq=1, lswtk=0!,ldos=0
 c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
 c      real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
       subroutine m_subzi_init(lwt) !, mpsord) !, efermi)
       use m_ext,only: sname
-      use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,ctrl_ldos,stdo
+      use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,stdo
       use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
       use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
       use m_mkpot,only:  qval
@@ -108,7 +108,7 @@ C ----------------------------------------------------------------------
       qbg = ctrl_zbak(1)        !homogenious background charge
       zval=qval-qbg
       ltet = ntet>0
-      ldos  = ctrl_ldos !0 or 1
+c      ldos  = ctrl_ldos !0 or 1
 c      if(lmet/=0 .and. .not. ltet) ldos=1 ! ldot=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       
       nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh 
