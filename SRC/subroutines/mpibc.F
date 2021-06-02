@@ -3,7 +3,7 @@
       character funnam*(1), label*(*)
       integer::nnn,cast
       real(8):: vec(*) 
-      print *,trim(label),nnn,vec(1)
+c      print *,trim(label),nnn,vec(1)
       cast=2
       funnam=''
       call mpibc2(vec,nnn,cast,mlog,funnam,label)
@@ -14,7 +14,7 @@
       character funnam*(1), label*(*)
       integer::nnn,cast
       real(8):: vec(*) 
-      print *,trim(label),nnn,vec(1)
+c      print *,trim(label),nnn,vec(1)
       cast=4
       funnam=''
       call mpibc2(vec,nnn,cast,mlog,funnam,label)
@@ -24,7 +24,7 @@
       character funnam*(1), label*(*)
       integer::nnn,cast
       complex(8):: vec(*) 
-      print *,trim(label),nnn
+c      print *,trim(label),nnn
       cast=6
       funnam=''
       call mpibc2(vec,nnn,cast,mlog,funnam,label)

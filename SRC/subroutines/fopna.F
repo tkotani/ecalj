@@ -584,7 +584,7 @@ C     implicit none
       integer mpipid
       procid = mpipid(1) 
 #endif
-      lgunit = i1mach(2)
+      lgunit = 6!i1mach(2)
       if (i .eq. 1) return
       if (i .eq. 2) then
          if(lgunit2==0) then

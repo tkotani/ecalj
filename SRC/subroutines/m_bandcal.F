@@ -350,76 +350,76 @@ c         if( ndos>0 ) call mpibc2_real(dos_rv,nnn,'bndfp_dos')
       end subroutine
       
 !!------------------------------
-      subroutine m_bandcal_dosw(lwtkb,lrout,  dosw,evtop,ecbot) !goto99)
-      ! lwtkb,lrout,def are used only for
-      use m_lmfinit,only:ctrl_zbak,bz_w
-      intent(in)   ::           lwtkb,lrout
-      intent(inout)::                             dosw !input is just initial guess
-      intent(out)  ::                                  evtop,ecbot
-c      intent(out)::                                  goto99 
-!!  ===   Repeat loop for printout and goto 99 ===
-!!   jsp=isp in the collinear case; jsp=1 in the noncollinear
-!!     Thus jsp should be used in place of isp
-!     !     isp serves as a flag for the noncollinear case
-!     ! block10
-      logical:: ltet !goto99,
-      real(8):: ef00,ef0,dosw(2),qp(3),qbg,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
-      integer:: iq,ipr,lwtkb,isp,jsp,nev_iq,i,lrout,iprint
-      character(10):: i2char
-c      goto99=.false.
-      ltet = ntet>0
-      qbg = ctrl_zbak(1) !homogenious background charge
-      ipr=iprint()
-      evtop = -99999
-      ecbot = -evtop
-      ebot = 1000d0
-      do  iq = 1, nkp
-         qp=qplist(:,iq)
-         do isp = 1, nspx
-            jsp = isp
-            evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
-            nev_iq    = nev_(iq) 
-            if(plbnd==0.and.ipr>=10 .and. iq==1) write (stdl,"('fp evl',8f8.4)") (evl(i,jsp),i=1,nev_iq)
-            ebot = dmin1(ebot,evl(1,jsp))
-            i = max(1,nint(qval-qbg)/(3-nspc))
-            evtop = max(evtop,evl(i,jsp))
-            ecbot = min(ecbot,evl(i+1,jsp))
-            if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
-            if(debug) print *,'eeeee44444444444 plbnd=',plbnd
-            if(plbnd==0.and.lwtkb/=-1) then
-                  if (iq .eq. 1 .and. jsp .eq. nsp ) then !
-                     ef00 = ef0
-                     call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
-!!        :on output, dosw is revised if ebot<dosw(1) or dosw(2)<ef0
-                     if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
-     .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
-                          if (master_mpi) write(stdo,"(a)") 
-     .                       ' ... Fermi level reset in second spin channel ... restart band pass'
-                          call rx0('tk think ecalj is going though not maintained branch).')
-                         !goto99=.true.
-                        exit    !this was the case of make co test at ecalj/TestInstall/ (did I remove this?)
-                     endif
-                  endif
-            endif
-!!     Check for cases when nevmx is too small : i=2 => fatal error
-            if(plbnd==0.and.lwtkb/=-1) then
-                  i = 0
-                  if (nevmx.ge.0 .and. lmet .ne. 0) then
-                     dum = evl(max(nev_iq,1),jsp)
-                     if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
-c                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
-                  endif
-                  if(i .eq. 2) then
-                     write(stdo,"(a,f13.5,a, f13.5)")
-     &                 'evl(nev='//trim(i2char(nev_iq))//')=',
-     &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
-                     call rx('bndfp:... restart with larger nevmx: bndfp')
-                  endif
-                  
-            endif
-         enddo                  ! end second loop over isp
-      enddo                     !end second loop over iq
-      end subroutine
+c$$$      subroutine m_bandcal_dosw(lwtkb,lrout,  dosw,evtop,ecbot) !goto99)
+c$$$      ! lwtkb,lrout,def are used only for
+c$$$      use m_lmfinit,only:ctrl_zbak,bz_w
+c$$$      intent(in)   ::           lwtkb,lrout
+c$$$      intent(inout)::                             dosw !input is just initial guess
+c$$$      intent(out)  ::                                  evtop,ecbot
+c$$$c      intent(out)::                                  goto99 
+c$$$!!  ===   Repeat loop for printout and goto 99 ===
+c$$$!!   jsp=isp in the collinear case; jsp=1 in the noncollinear
+c$$$!!     Thus jsp should be used in place of isp
+c$$$!     !     isp serves as a flag for the noncollinear case
+c$$$!     ! block10
+c$$$      logical:: ltet !goto99,
+c$$$      real(8):: ef00,ef0,dosw(2),qp(3),qbg,evl(ndhamx,nspx),dum,ebot,ecbot,evtop
+c$$$      integer:: iq,ipr,lwtkb,isp,jsp,nev_iq,i,lrout,iprint
+c$$$      character(10):: i2char
+c$$$c      goto99=.false.
+c$$$      ltet = ntet>0
+c$$$      qbg = ctrl_zbak(1) !homogenious background charge
+c$$$      ipr=iprint()
+c$$$      evtop = -99999
+c$$$      ecbot = -evtop
+c$$$      ebot = 1000d0
+c$$$      do  iq = 1, nkp
+c$$$         qp=qplist(:,iq)
+c$$$         do isp = 1, nspx
+c$$$            jsp = isp
+c$$$            evl(1:ndhamx,jsp) = evlall(1:ndhamx,jsp,iq)
+c$$$            nev_iq    = nev_(iq) 
+c$$$            if(plbnd==0.and.ipr>=10 .and. iq==1) write (stdl,"('fp evl',8f8.4)") (evl(i,jsp),i=1,nev_iq)
+c$$$            ebot = dmin1(ebot,evl(1,jsp))
+c$$$            i = max(1,nint(qval-qbg)/(3-nspc))
+c$$$            evtop = max(evtop,evl(i,jsp))
+c$$$            ecbot = min(ecbot,evl(i+1,jsp))
+c$$$            if (lmet==0 .and. iq==1 .and. jsp==1) ef0 = evtop
+c$$$            if(debug) print *,'eeeee44444444444 plbnd=',plbnd
+c$$$            if(plbnd==0.and.lwtkb/=-1) then
+c$$$                  if (iq .eq. 1 .and. jsp .eq. nsp ) then !
+c$$$                     ef00 = ef0
+c$$$                     call fixef0(qval-qbg,jsp,1,nev_iq,ndhamx,evl,dosw,ef0)
+c$$$!!        :on output, dosw is revised if ebot<dosw(1) or dosw(2)<ef0
+c$$$                     if (jsp .eq. 2 .and. ef00 .ne. ef0 .and.
+c$$$     .                    lwtkb .eq. 0 .and. lmet .gt. 0 .and. lrout .ne. 0) then
+c$$$                          if (master_mpi) write(stdo,"(a)") 
+c$$$     .                       ' ... Fermi level reset in second spin channel ... restart band pass'
+c$$$                          call rx0('tk think ecalj is going though not maintained branch).')
+c$$$                         !goto99=.true.
+c$$$                        exit    !this was the case of make co test at ecalj/TestInstall/ (did I remove this?)
+c$$$                     endif
+c$$$                  endif
+c$$$            endif
+c$$$!!     Check for cases when nevmx is too small : i=2 => fatal error
+c$$$            if(plbnd==0.and.lwtkb/=-1) then
+c$$$                  i = 0
+c$$$                  if (nevmx.ge.0 .and. lmet .ne. 0) then
+c$$$                     dum = evl(max(nev_iq,1),jsp)
+c$$$                     if (.not. ltet .and. ef0+5*bz_w .gt. dum) i=2
+c$$$c                     if (lmet.eq.4 .and. ef0+def+5*bz_w .gt.dum)i=2
+c$$$                  endif
+c$$$                  if(i .eq. 2) then
+c$$$                     write(stdo,"(a,f13.5,a, f13.5)")
+c$$$     &                 'evl(nev='//trim(i2char(nev_iq))//')=',
+c$$$     &                 evl(max(nev_iq,1),jsp),' but ef0=',ef0
+c$$$                     call rx('bndfp:... restart with larger nevmx: bndfp')
+c$$$                  endif
+c$$$                  
+c$$$            endif
+c$$$         enddo                  ! end second loop over isp
+c$$$      enddo                     !end second loop over iq
+c$$$      end subroutine
       
 !! eterms are alwasy broadcasted. comment out if conditions jan2012
       end module

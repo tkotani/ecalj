@@ -391,10 +391,10 @@ ccccccccccccccccc
 C --- Add smooth exchange-correlation potential ---
       rveps=0d0
       rvvxc=0d0 
-      rvepsv=0d0
-      rvexv=0d0
-      rvecv=0d0
-      rvvxcv=0d0
+c      rvepsv=0d0
+c      rvexv=0d0
+c      rvecv=0d0
+c      rvvxcv=0d0
       if (mod(job,1000) .lt. 100) then
         allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp),
      &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3,nbas))
@@ -481,12 +481,12 @@ C ... Combine spin-up and spin-down integrals
 
 C --- Total energy terms ---
 C ... Integral of valence density times xc potential(valence density)
-      if (mod(job,1000) .lt. 100) then
+c      if (mod(job,1000) .lt. 100) then
 c        rvepsv(1) = rvepsv(1) + rvepva
 c        rvexv(1)  = rvexv(1) + rvexva
 c        rvecv(1)  = rvecv(1) + rvecva
 c        rvvxcv(1) = rvvxcv(1) + rvvxva
-      endif
+c      endif
       if (mod(mod(job/1000,10),2) .eq. 1) then
         rveps(1) = rveps(1) + rvepsa
         rvvxc(1) = rvvxc(1) + rvvxca
@@ -583,10 +583,10 @@ c         print *,'stdl=',stdl
   720   format('fp pot  rvxc',f18.7,'  rexc ',f18.7,'  rves ',f16.7)
         write (stdl,721) rhoex,rhoec
   721   format('fp pot  rex ',f18.7,'  rec ',f19.7)
-        write (stdl,722) rvvxcv(1),rvepsv(1)
-  722   format('fp pot  rvvxcv ',f16.7,'  rvexcv ',f16.7)
-        write (stdl,723) rvexv(1),rvecv(1)
-  723   format('fp pot  rvexv ',f17.7,'  rvecv ',f17.7)
+c        write (stdl,722) rvvxcv(1),rvepsv(1)
+c  722   format('fp pot  rvvxcv ',f16.7,'  rvexcv ',f16.7)
+c        write (stdl,723) rvexv(1),rvecv(1)
+c  723   format('fp pot  rvexv ',f17.7,'  rvecv ',f17.7)
 c
 
 c------------------

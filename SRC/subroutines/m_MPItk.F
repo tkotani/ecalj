@@ -54,11 +54,26 @@
       end
 
       subroutine m_MPItk_finalize()
+      character*256 strn, datim*26, hostnm*20
+      integer:: lgunit,stdl
+      real(8):: cpusec
 #if MPIK
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
-      if( procid == master ) call rx0(prgnam//' on '//trim(shortname(procid)))
+c     if( master_mpi ) call rx0(prgnam//' on '//trim(shortname(procid)))
+      if(master_mpi) then
+         call fdate(datim)
+         datim=datim(1:24)      !takao. If this is not, write(6,*) gives CR at the ene of datim*26.
+         call ftime(datim)
+         hostnm = ' '
+         call get_environment_variable('HOST',hostnm)
+         stdl = lgunit(2)
+         write(stdl,10) cpusec(), trim(datim),trim(adjustl(hostnm))
+ 10      format(' CPU time:', f9.3,' sec  ',a26,' on ',a)
+         close(stdl)
+      endif
       call Mpi_finalize(ierr)
 #else
+      close(stdl)
       call Rx0s(prgnam) !for single core exit
 #endif
       end

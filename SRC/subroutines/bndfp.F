@@ -59,7 +59,7 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
-      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_dosw,
+      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
@@ -382,12 +382,7 @@ c mar2014
       k1 = n1
       k2 = n2
       k3 = n3
-c      if(bbinit) then !from m_lmfinit
-c      bz_dosw=bz_doswin
-c         bbinit=.false.
-c      endif
-c      dosw = bz_dosw
-      if(binit) then ! eferm is from ctrl file via m_lmfinit when m_bndfp_ef_set in not called (binit=T)
+      if(binit) then ! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          eferm =bz_ef0
          binit=.false.
       endif
@@ -404,7 +399,7 @@ c      dosw = bz_dosw
       endif      
 !! Make one-particle potential without XC part for GWdriver---
       if(llmfgw) then        
-         call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA).
+         call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
          call mpi_barrier(MPI_comm_world,ierr)
       endif
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
@@ -510,7 +505,7 @@ c      dosw = bz_dosw
          if(lso/=1) i = max(1,nint(qval-qbg)/2)
          evtop = max(evtop,evlall(i,jsp,iq))
          ecbot = min(ecbot,evlall(i+1,jsp,iq))
-         if(master_mpi.and.(.not.llmfgw).and.plbnd==0.and.iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
+         if(master_mpi.and.iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
       enddo
       enddo
       
@@ -540,7 +535,7 @@ c      dosw = bz_dosw
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
       
-!! All reduce band quantities     
+!! All reduce band quantities  eterms should be cleaned up in future.   
       call m_bandcal_allreduce(lrout,lwtkb)
       eterms=ham_eterms 
       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
@@ -556,22 +551,18 @@ c      dosw = bz_dosw
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo
-c      call m_bandcal_dosw(lwtkb,lrout,   dosw,evtop,ecbot)
       call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !get new eferm
       if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
          lwtkb = 1
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
          call mpi_barrier(MPI_comm_world,ierr)
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
-         if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate srout_zv and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
          ham_eterms=eterms
       endif
-c      call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
-            
 
 !========================================================
       if(lfrce>0) frc=frcband !part of atomic force from band part
@@ -579,10 +570,10 @@ c      call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
 !! Save Fermi level, nonmetal or sampling integration
       if(lmet==0) then          !non metal mode
         eferm = (evtop+ecbot)/2d0
-        if(master_mpi) write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
+        if(master_mpi)write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
 !! NOTE:: weight wtkb(ib,iq,isp) is written to wkp.* in m_bzintegration.F for lmet>0. 
       endif
-!! --- efermi.lmf 
+!! efermi.lmf 
       if(master_mpi.and.plbnd==0) then
          open(newunit=ifi,file='efermi.lmf')
          write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
@@ -597,55 +588,46 @@ c      call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
          close(ifi)             
       endif
 
-!! === DOS mode. Generate DOS ===
+!! === DOS mode. Generate total DOS ===
       if(master_mpi.and.(tdos.or.ldos/=0)) then
-            write(stdo,"(a)")'... Generating total DOS'   
-            dosw(1)= emin-0.5d0 ! lowest energy limit to plot dos
-            dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
-            allocate( dos_rv(ndos,2*nspx))
-!! Default and external option. 
-c            if(tdos) dosmax = bz_dosmax
-            if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
-c            dosw(2) = bz_dosmax + eferm 
-            if(ltet) then !ndos>0 is assumed now
-c!! determine eferm
-c               call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-c     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-c     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
-!! repeat again for given range emax=dosw(2). mar2012
-c               if(tdos) dosw(2) = bz_dosmax + eferm 
-               call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
-               call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
+         write(stdo,"(a)")'... Generating total DOS'   
+         dosw(1)= emin-0.5d0    ! lowest energy limit to plot dos
+         dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
+         write(stdo,"(a,3f9.4)") 'efermi and dos window= ',eferm,dosw
+         allocate( dos_rv(ndos,2*nspx))
+         if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
+         if(ltet) then 
+            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , eferm ,
+     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 integrated dos dos_rv
+            call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
-            else
-c               if(tdos) dosw(2) = bz_dosmax + eferm  !.or.pdos
-               call makdos ( nkp , ndhamx , ndhamx , nspx
+         else
+            call makdos ( nkp , ndhamx , ndhamx , nspx
      .           , rv_a_owtkp , evlall , bz_n , bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
-            endif
-            if ( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
-            open(newunit=ifi,file='dos.tot.'//trim(sname))
-            open(newunit=ifii,file='dosi.tot.'//trim(sname))
-            dee=(dosw(2)-dosw(1))/(ndos-1d0)
-            do ipts=1,ndos
-               eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
-               dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,isp)*dee
-               write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nsp)
-               write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nsp)
-            enddo
-            close(ifi)
-            close(ifii)
+         endif
+         if ( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
+         open(newunit=ifi,file='dos.tot.'//trim(sname))
+         open(newunit=ifii,file='dosi.tot.'//trim(sname))
+         dee=(dosw(2)-dosw(1))/(ndos-1d0)
+         do ipts=1,ndos
+            eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
+            dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,isp)*dee
+            write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nsp)
+            write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nsp)
+         enddo
+         close(ifi)
+         close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
-!! --- Core-level spectroscopy ---
+!! Core-level spectroscopy ---
       if (cmdopt0('--cls')) then
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
       
-!! --- Assemble output density ---
+!! Assemble output density ---
       do  ib = 1, nbas
         is =  ssite(ib)%spec
         nr =  sspec(is)%nr

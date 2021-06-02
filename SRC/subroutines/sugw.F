@@ -3,7 +3,7 @@
       use m_suham,only: iv_a_oindxo,ham_ldham, ndham=>ham_ndham
       use m_seneinterp,only: iv_a_ontabs,iv_a_oiaxs, rv_a_ohrs 
       use m_lmfinit, only: 
-     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,
+     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,stdl,
      &     ham_scaledsigma, lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb, ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -14,7 +14,7 @@
      &     smpot=>zv_a_osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
      &     ppn=>ppnl_rv
       use m_lmfgw,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
-      use m_MPItk,only: numproc=>nsize,procid,master
+      use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_seneinterp,only: ndimsig
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       implicit none
@@ -870,11 +870,6 @@ c$$$     .        , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , 0 , alfa , ndim
 c$$$     .        , napw , igv2 , ham , ovl , isize_ham, i2, ndimsig )
 c$$$          endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-ccccccccccccccccccccccccccccccc
-c            print *,'cccccccccccccc cycle xxxxxxxxxxxxxx'
-c            cycle
-ccccccccccccccccccccccccccccccc
 !!   --- Branch job = 1 : make cphi, matrix elements ---
           if(job .eq. 1) then   !   --- Diagonalize ---
             if (mod(iq,10) .ne. 1) call pshpr(iprint()-6)
@@ -883,9 +878,8 @@ ccccccccccccccccccccccccccccccc
 !! we fined evl(i), z(:,i), i=1,nev !nov2015
             evec=-1d99
             evl(:,isp)=1d99
-c            call zhev_tk3(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,iprint(),
-c     &       .false.,.false.,-9999, epsovl)
             call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
+c            if(iq==1)write(stdl,"('fp evl',8f8.4)")(evl(i,isp),i=1,nev)
             write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
      &       ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
             call prtev(evec,ndimh,evl(1,isp),ndimh,nev)

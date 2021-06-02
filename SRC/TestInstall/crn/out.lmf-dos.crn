@@ -1,14 +1,5 @@
  mpi size=           1
- ---------  START LMFA  -------------
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -g -fimplicit-none -ffixed-line-length-132 -DMPIK -JOBJ.gfortran -IOBJ.gfortran
-HOST_INFORMATION LIBLOC (<=120): -lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3
-HOST_INFORMATION uname -a (<=120): Linux tt480s 5.4.0-72-generic #80-Ubuntu SMP Mon Apr 12 17:35:00 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 20.04.2 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/temp5
-HOST_INFORMATION git commit: a6eb184cabdf08211277e1193f38ea5f31572045
-HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
+ ---------  START LMFA  
  HEADER CrN in orthorhombic setting afm structure (a)
   mpipid=           0
 
@@ -90,14 +81,6 @@ usedQ=     2.000     0.000     4.000     0.000
  >> level: 1  CPUsec=      0.02  enter newrho
  >>      0.02   exit  newrho          0.00
  >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
  >>      0.03   exit  newrho          0.00
  >> level: 1  CPUsec=      0.03  enter newrho
  >>      0.03   exit  newrho          0.00
@@ -122,8 +105,6 @@ usedQ=     2.000     0.000     4.000     0.000
  >> level: 1  CPUsec=      0.03  enter newrho
  >>      0.03   exit  newrho          0.00
  >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.03   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
  >>      0.04   exit  newrho          0.00
  >> level: 1  CPUsec=      0.04  enter newrho
  >>      0.04   exit  newrho          0.00
@@ -151,7 +132,7 @@ usedQ=     2.000     0.000     4.000     0.000
  >>      0.04   exit  newrho          0.00
  >> level: 1  CPUsec=      0.04  enter newrho
  >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
+ >> level: 1  CPUsec=      0.04  enter newrho
  >>      0.04   exit  newrho          0.00
  >> level: 1  CPUsec=      0.05  enter newrho
  >>      0.05   exit  newrho          0.00
@@ -183,8 +164,18 @@ usedQ=     2.000     0.000     4.000     0.000
  >>      0.05   exit  newrho          0.00
  >> level: 1  CPUsec=      0.05  enter newrho
  >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
    51   24.000000   4.217E-05      208.6092    0.1262E+05     -176.8113   0.30
- >> level: 1  CPUsec=      0.05  enter newrho
+ >> level: 1  CPUsec=      0.06  enter newrho
  >>      0.06   exit  newrho          0.00
 
  end of atomsc xxxxx
@@ -262,14 +253,6 @@ usedQ=     2.000     0.000     4.000     0.000
  >>      0.06   exit  newrho          0.00
     1   24.000000   3.003E+03      120.0000    0.1194E+03      -48.2012   0.30
  >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
  >>      0.07   exit  newrho          0.00
  >> level: 1  CPUsec=      0.07  enter newrho
  >>      0.07   exit  newrho          0.00
@@ -350,7 +333,15 @@ usedQ=     2.000     0.000     4.000     0.000
  >> level: 1  CPUsec=      0.09  enter newrho
  >>      0.09   exit  newrho          0.00
  >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.10  enter newrho
+ >>      0.10   exit  newrho          0.00
  >> level: 1  CPUsec=      0.10  enter newrho
  >>      0.10   exit  newrho          0.00
  >> level: 1  CPUsec=      0.10  enter newrho
@@ -436,13 +427,9 @@ usedQ=     2.000     3.000     0.000     0.000
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.11  enter newrho
+ >>      0.11   exit  newrho          0.00
     1    7.000000   4.962E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.10   exit  newrho          0.00
  >> level: 1  CPUsec=      0.11  enter newrho
  >>      0.11   exit  newrho          0.00
  >> level: 1  CPUsec=      0.11  enter newrho
@@ -464,14 +451,6 @@ usedQ=     2.000     3.000     0.000     0.000
  >> level: 1  CPUsec=      0.11  enter newrho
  >>      0.11   exit  newrho          0.00
  >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
  >>      0.12   exit  newrho          0.00
  >> level: 1  CPUsec=      0.12  enter newrho
  >>      0.12   exit  newrho          0.00
@@ -510,6 +489,18 @@ usedQ=     2.000     3.000     0.000     0.000
  >> level: 1  CPUsec=      0.12  enter newrho
  >>      0.12   exit  newrho          0.00
  >> level: 1  CPUsec=      0.12  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
+ >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.13  enter newrho
  >>      0.13   exit  newrho          0.00
  >> level: 1  CPUsec=      0.13  enter newrho
  >>      0.13   exit  newrho          0.00
@@ -599,21 +590,9 @@ usedQ=     2.000     3.000     0.000     0.000
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.13  enter newrho
- >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.14  enter newrho
+ >>      0.14   exit  newrho          0.00
     1    7.000000   4.962E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.13  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.14  enter newrho
- >>      0.14   exit  newrho          0.00
  >> level: 1  CPUsec=      0.14  enter newrho
  >>      0.14   exit  newrho          0.00
  >> level: 1  CPUsec=      0.14  enter newrho
@@ -644,10 +623,6 @@ usedQ=     2.000     3.000     0.000     0.000
  >>      0.14   exit  newrho          0.00
  >> level: 1  CPUsec=      0.15  enter newrho
  >>      0.14   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.15   exit  newrho          0.00
- >> level: 1  CPUsec=      0.15  enter newrho
- >>      0.15   exit  newrho          0.00
  >> level: 1  CPUsec=      0.15  enter newrho
  >>      0.15   exit  newrho          0.00
  >> level: 1  CPUsec=      0.15  enter newrho
@@ -690,9 +665,25 @@ usedQ=     2.000     3.000     0.000     0.000
  >>      0.16   exit  newrho          0.00
  >> level: 1  CPUsec=      0.16  enter newrho
  >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.16  enter newrho
+ >>      0.17   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.17  enter newrho
+ >>      0.17   exit  newrho          0.00
    45    7.000000   3.931E-05       36.4355    0.2077E+03      -55.1429   0.30
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.17  enter newrho
+ >>      0.17   exit  newrho          0.00
 
  end of atomsc xxxxx
  vsum=  -55.142882208205158                4
@@ -763,13 +754,9 @@ usedQ=     2.000     4.000     0.000     0.000
          Add core hole:  kcor=1  lcor=0  qcor=-1  amom=-1
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.17  enter newrho
+ >>      0.17   exit  newrho          0.00
     1    7.000000   5.429E+02       35.0000    0.3482E+02      -14.0707   0.30
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
- >> level: 1  CPUsec=      0.16  enter newrho
- >>      0.16   exit  newrho          0.00
  >> level: 1  CPUsec=      0.17  enter newrho
  >>      0.17   exit  newrho          0.00
  >> level: 1  CPUsec=      0.17  enter newrho
@@ -787,27 +774,7 @@ usedQ=     2.000     4.000     0.000     0.000
  >> level: 1  CPUsec=      0.17  enter newrho
  >>      0.17   exit  newrho          0.00
  >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
- >> level: 1  CPUsec=      0.17  enter newrho
- >>      0.17   exit  newrho          0.00
+ >>      0.18   exit  newrho          0.00
  >> level: 1  CPUsec=      0.18  enter newrho
  >>      0.18   exit  newrho          0.00
  >> level: 1  CPUsec=      0.18  enter newrho
@@ -870,9 +837,33 @@ usedQ=     2.000     4.000     0.000     0.000
  >>      0.19   exit  newrho          0.00
  >> level: 1  CPUsec=      0.19  enter newrho
  >>      0.19   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.19  enter newrho
+ >>      0.19   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.19  enter newrho
+ >>      0.19   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.19  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
    53    7.000000   4.432E-05       27.3856    0.1206E+03      -50.8183   0.30
- >> level: 1  CPUsec=      0.19  enter newrho
- >>      0.19   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.20  enter newrho
+ >>      0.20   exit  newrho          0.00
 
  end of atomsc xxxxx
  vsum=  -50.818345100310616                5
@@ -906,23 +897,14 @@ conf: Core rhoc(rmt)= 0.000000 spillout= 0.000000
 conf:-----------------------------------------------------
  end of freats: spid nmcore=Nh                 0
 Exit 0 LMFA                             on tt480s
- CPU time:    0.198s     Fri May 28 20:17:24 2021   on 
+ CPU time:    0.204s     Wed Jun  2 15:23:27 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
       0      0      0        1       0.20       0.20   main
-      0      0      0      250       0.00       0.13   `--newrho
+      0      0      0      250       0.00       0.15   `--newrho
  mpi size=           2
- ---------  START LMF  -------------
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -g -fimplicit-none -ffixed-line-length-132 -DMPIK -JOBJ.gfortran -IOBJ.gfortran
-HOST_INFORMATION LIBLOC (<=120): -lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3
-HOST_INFORMATION uname -a (<=120): Linux tt480s 5.4.0-72-generic #80-Ubuntu SMP Mon Apr 12 17:35:00 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 20.04.2 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/temp5
-HOST_INFORMATION git commit: a6eb184cabdf08211277e1193f38ea5f31572045
-HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
+ ---------  START LMF  
  HEADER CrN in orthorhombic setting afm structure (a)
   mpipid=           1
   mpipid=           0
@@ -960,7 +942,7 @@ HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
  Nh       5:Nh       5
  
  BZMESH:  4 irreducible QP from 16 ( 2 4 2 )  shift= T T T
- >> level: 1  CPUsec=      0.02  enter lmfp
+ >> level: 1  CPUsec=      0.03  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -1020,7 +1002,7 @@ HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
  rdovfa: expected N1,      read N1       with rmt=  1.8000  mesh   223  0.030
  rdovfa: expected N2,      read N2       with rmt=  1.8000  mesh   223  0.030
  rdovfa: expected Nh,      read Nh       with rmt=  1.8000  mesh   223  0.030
-bndfp: start
+bndfp:start
 
  Smooth charge on mesh:           34.818133    moment    0.136087
  Sum of local charges:            10.181866    moments  -0.136087
@@ -1029,17 +1011,17 @@ bndfp: start
  Sum of nuclear charges:        -124.000000
  Homogeneous background:           0.000000
  Deviation from neutrality:       -0.000001
-bndfp: start
- --- bndfp: Atomic Positions from rst/ctrl. 
+bndfp:start
+   Atomic Positions from rst/ctrl. 
    Note: rst and ctrl may contain different atomic positions when DYN mode
-ib clabl pos =    1   Cr1       0.14598       0.13235       0.18161
-ib clabl pos =    2   Cr1      -0.14598       0.39705      -0.18161
-ib clabl pos =    3   Cr2       0.35402       0.39705       0.54518
-ib clabl pos =    4   Cr2       0.64598       0.13235       0.18196
-ib clabl pos =    5    Nh       0.09939       0.13235       0.54519
-ib clabl pos =    6    N1      -0.09939       0.39705      -0.54519
-ib clabl pos =    7    N2       0.40061       0.39705       0.90876
-ib clabl pos =    8    N2       0.59939       0.13235      -0.18162
+ib clabel pos =    1   Cr1       0.14598       0.13235       0.18161
+ib clabel pos =    2   Cr1      -0.14598       0.39705      -0.18161
+ib clabel pos =    3   Cr2       0.35402       0.39705       0.54518
+ib clabel pos =    4   Cr2       0.64598       0.13235       0.18196
+ib clabel pos =    5    Nh       0.09939       0.13235       0.54519
+ib clabel pos =    6    N1      -0.09939       0.39705      -0.54519
+ib clabel pos =    7    N2       0.40061       0.39705       0.90876
+ib clabel pos =    8    N2       0.59939       0.13235      -0.18162
  --- BNDFP:  begin iteration 1 of 2
 
  esmsmves
@@ -1115,79 +1097,18 @@ effective screening medium method jesm=  0
    rho*vxc               -38.112258      -524.135908      -562.248166
    valence chg            34.818133        10.181866        44.999999
    valence mag             0.136087        -1.136087        -1.000000
-   core charge            79.000000        -0.000000        79.000000
+   core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
  -------- qplist --------           0
  ... Start MPI k-loop ...
+  mmmmm m_bandcal_init
  bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     2 of     4 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     2 of     4 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- ... Done MPI k-loop: 0.8 seconds elapsed
- ... Sharing data between processes...
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0 sec
+ ... Done MPI k-loop: elapsed time=   0.6502
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2361  0.3438 1 ndimh nev=  144  144
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2361  0.3438 2 ndimh nev=  144  144
  bndfp: kpt    2 of    4 k isp=  0.7500  0.2361  0.3438 1 ndimh nev=  144  144
@@ -1198,78 +1119,14 @@ effective screening medium method jesm=  0
  bndfp: kpt    4 of    4 k isp=  0.7500  0.7084  0.3438 2 ndimh nev=  144  144
 
  BZWTS : --- Tetrahedron Integration ---
- ssssssssss sev=  -15.794503166963679     
  BZINTS: Fermi energy:      0.262558;  45.000000 electrons
          Sum occ. bands:  -15.794503, incl. Bloechl correction: -0.003052
          Mag. moment:       0.000000
 
  Saved qp weights ...
- ssssssssss sev=  -15.794503166963679     
- Start second band pass ...
- iiiwww111222 lwtkb=           1
- iiiwww111222 lwtkb=           1
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432   2.9536850665424468     
- bndfp_qkkl       18432   1.7078416494613116     
- bndfp_qkkl        3456  -48.812789265543479     
- bndfp_qkkl        3456  -28.222831055694744     
- bndfp_qkkl         648   202.76077096715571     
- bndfp_qkkl         648   117.74727450540702     
- bndfp_qkkl       18432   2.5363830407452070     
- bndfp_qkkl       18432   1.8022944103038567     
- bndfp_qkkl        3456  -29.974518556361048     
- bndfp_qkkl         648   125.72036264080862     
- bndfp_qkkl       18432   1.9459590367699946     
- bndfp_qkkl        3456  -42.264334388156207     
- bndfp_qkkl         648   177.16172070538829     
- bndfp_qkkl       18432   2.4966659277533552     
- bndfp_qkkl        3456  -31.600129520869796     
- bndfp_qkkl         648   129.31484282693685     
- bndfp_qkkl       18432   1.9122192951887227     
- bndfp_qkkl        3456  -41.200590302248472     
- bndfp_qkkl         648   171.12446858114714     
- bndfp_qkkl       18432   2.5961668281716035     
- bndfp_qkkl        3456  -42.763185034045144     
- bndfp_qkkl         648   177.41807447550258     
- bndfp_qkkl       18432   14.874586149645543     
- bndfp_qkkl        3456  -31.009000708132589     
- bndfp_qkkl         648   126.83078585010492     
- bndfp_qkkl       18432   8.1515781003304024     
- bndfp_qkkl        3456  -190.09214893255685     
- bndfp_qkkl        3456  -102.64426288324920     
- bndfp_qkkl         648   607.91220634926015     
- bndfp_qkkl         648   324.12324467566754     
- bndfp_qkkl       18432   16.592518126547834     
- bndfp_qkkl       18432   9.8563849754147874     
- bndfp_qkkl        3456  -126.95267493437615     
- bndfp_qkkl         648   409.31408789716488     
- bndfp_qkkl       18432   11.188355373998581     
- bndfp_qkkl        3456  -215.40871005955808     
- bndfp_qkkl         648   699.44127560023082     
- bndfp_qkkl       18432   17.902624699248015     
- bndfp_qkkl        3456  -232.74254049727369     
- bndfp_qkkl        3456  -144.69509045902504     
- bndfp_qkkl         648   756.88807483005269     
- bndfp_qkkl         648   468.73668121089202     
- bndfp_qkkl       18432   18.181992146665038     
- bndfp_qkkl       18432   11.045781465090700     
- bndfp_qkkl        3456  -236.64411836163418     
- bndfp_qkkl        3456  -142.60650874594444     
- bndfp_qkkl         648   770.47073190795970     
- bndfp_qkkl         648   461.10025531937691     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   2.1923650786665583E-002
- bndfp_frc          24   7.6145405101042674E-005
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0.4 sec
- DOS window (-1,0) reset to (-1.7097,0.7626)
+  mmmmm m_bandcal_2nd
+... Generating total DOS
+efermi and dos window=    0.2626  -1.7919   1.7626
  mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
@@ -1523,19 +1380,19 @@ effective screening medium method jesm=  0
 
    it  1  of  2    ehf=   -8797.632937   ehk=   -8795.518388
 h mmom=-1 ehf=-8797.632937 ehk=-8795.5183882
-bndfp: start
- --- bndfp: Atomic Positions from rst/ctrl. 
+bndfp:start
+   Atomic Positions from rst/ctrl. 
    Note: rst and ctrl may contain different atomic positions when DYN mode
-ib clabl pos =    1   Cr1       0.14598       0.13235       0.18161
-ib clabl pos =    2   Cr1      -0.14598       0.39705      -0.18161
-ib clabl pos =    3   Cr2       0.35402       0.39705       0.54518
-ib clabl pos =    4   Cr2       0.64598       0.13235       0.18196
-ib clabl pos =    5    Nh       0.09939       0.13235       0.54519
-ib clabl pos =    6    N1      -0.09939       0.39705      -0.54519
-ib clabl pos =    7    N2       0.40061       0.39705       0.90876
-ib clabl pos =    8    N2       0.59939       0.13235      -0.18162
+ib clabel pos =    1   Cr1       0.14598       0.13235       0.18161
+ib clabel pos =    2   Cr1      -0.14598       0.39705      -0.18161
+ib clabel pos =    3   Cr2       0.35402       0.39705       0.54518
+ib clabel pos =    4   Cr2       0.64598       0.13235       0.18196
+ib clabel pos =    5    Nh       0.09939       0.13235       0.54519
+ib clabel pos =    6    N1      -0.09939       0.39705      -0.54519
+ib clabel pos =    7    N2       0.40061       0.39705       0.90876
+ib clabel pos =    8    N2       0.59939       0.13235      -0.18162
  --- BNDFP:  begin iteration 2 of 2
-bndfp: start
+bndfp:start
  jesm=0 return
 
  smves:: avg es pot at rmt= 0.638939  avg sphere pot= 0.551844  vconst=-0.638939
@@ -1585,76 +1442,15 @@ bndfp: start
    core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
-    hom background     0.00000   deviation from neutrality:     -0.00000
+    hom background     0.00000   deviation from neutrality:      0.00000
  -------- qplist --------           0
  ... Start MPI k-loop ...
+  mmmmm m_bandcal_init
  bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     1 of     4 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     2 of     4 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     2 of     4 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- ... Done MPI k-loop: 0.8 seconds elapsed
- ... Sharing data between processes...
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0 sec
+ ... Done MPI k-loop: elapsed time=   0.6545
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2361  0.3438 1 ndimh nev=  144  144
  bndfp: kpt    1 of    4 k isp=  0.2500  0.2361  0.3438 2 ndimh nev=  144  144
  bndfp: kpt    2 of    4 k isp=  0.7500  0.2361  0.3438 1 ndimh nev=  144  144
@@ -1665,78 +1461,14 @@ bndfp: start
  bndfp: kpt    4 of    4 k isp=  0.7500  0.7084  0.3438 2 ndimh nev=  144  144
 
  BZWTS : --- Tetrahedron Integration ---
- ssssssssss sev=  -16.188380251368734     
  BZINTS: Fermi energy:      0.115893;  45.000000 electrons
          Sum occ. bands:  -16.188380, incl. Bloechl correction: -0.002452
          Mag. moment:       0.141608
 
  Saved qp weights ...
- ssssssssss sev=  -16.188380251368734     
- Start second band pass ...
- iiiwww111222 lwtkb=           1
- iiiwww111222 lwtkb=           1
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432  0.91286261411053127     
- bndfp_qkkl       18432   1.4264872046890253     
- bndfp_qkkl        3456  -24.022106793529939     
- bndfp_qkkl         648   103.28266629389854     
- bndfp_qkkl       18432   1.1286432364034775     
- bndfp_qkkl        3456  -15.440973678346191     
- bndfp_qkkl         648   67.266917226380826     
- bndfp_qkkl       18432   1.2553072764255044     
- bndfp_qkkl        3456  -19.365946255931860     
- bndfp_qkkl         648   85.205958202229326     
- bndfp_qkkl       18432   1.3191348385130903     
- bndfp_qkkl        3456  -21.168528583535522     
- bndfp_qkkl         648   91.302505064711340     
- bndfp_qkkl       18432   1.2755054346513557     
- bndfp_qkkl        3456  -22.026413547050023     
- bndfp_qkkl         648   94.187513330587748     
- bndfp_qkkl       18432   1.4036822160612674     
- bndfp_qkkl        3456  -20.866502157246479     
- bndfp_qkkl         648   87.525738976978005     
- bndfp_qkkl       18432   1.1961243045494985     
- bndfp_qkkl        3456  -19.661725975433718     
- bndfp_qkkl         648   83.051216098167885     
- bndfp_qkkl       18432   1.3830536647420832     
- bndfp_qkkl        3456  -23.082359524191080     
- bndfp_qkkl         648   97.444154933753126     
- bndfp_qkkl       18432   2.3707239620498721     
- bndfp_qkkl        3456  -16.756654170874622     
- bndfp_qkkl        3456  -28.507437189439777     
- bndfp_qkkl         648   52.773964840937843     
- bndfp_qkkl         648   86.831614775931911     
- bndfp_qkkl       18432   1.9451978067923976     
- bndfp_qkkl       18432   2.8765965723317106     
- bndfp_qkkl        3456  -36.135107442398791     
- bndfp_qkkl        3456  -24.509331319244563     
- bndfp_qkkl         648   114.05093867253906     
- bndfp_qkkl         648   78.088239697498949     
- bndfp_qkkl       18432   2.1828729138550096     
- bndfp_qkkl       18432   1.0659581440192696     
- bndfp_qkkl        3456  -27.494468637803514     
- bndfp_qkkl        3456  -13.135493872390157     
- bndfp_qkkl         648   87.581741908886670     
- bndfp_qkkl         648   41.619426787836360     
- bndfp_qkkl       18432   2.0198603465206197     
- bndfp_qkkl       18432   1.0210644470534933     
- bndfp_qkkl        3456  -12.442463017326441     
- bndfp_qkkl        3456  -25.114065506561374     
- bndfp_qkkl         648   38.976821244983824     
- bndfp_qkkl         648   78.925671985850101     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   1.5220864636821554E-002
- bndfp_frc          24   2.1461730800954818E-002
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0.4 sec
- DOS window (-1,0) reset to (-1.6636,0.6159)
+  mmmmm m_bandcal_2nd
+... Generating total DOS
+efermi and dos window=    0.1159  -1.7478   1.6159
  mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
@@ -1990,27 +1722,18 @@ bndfp: start
  From last iter    ehf=   -8797.632937   ehk=   -8795.518388
  diffe(q)=  0.249840 (0.022347)    tol= 0.000010 (0.000010)   more=F
 x mmom=-.8583916 ehf=-8797.3830968 ehk=-8796.9091634
- >>      3.39   exit  lmfp            3.38
+ >>      3.08   exit  lmfp            3.05
 Exit 0 LMF                              on tt480s
- CPU time:    3.394s     Fri May 28 20:17:28 2021   on 
+ CPU time:    3.078s     Wed Jun  2 15:23:31 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       3.39       3.39   main
-      0      0      0        1       3.38       3.38   `--lmfp
+      0      0      0        1       3.08       3.08   main
+      0      0      0        1       3.05       3.05   `--lmfp
 
  ---- LMF     
  mpi size=           1
- ---------  START LMF  -------------
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
-HOST_INFORMATION FFLAGS (<=120): -O2 -g -fimplicit-none -ffixed-line-length-132 -DMPIK -JOBJ.gfortran -IOBJ.gfortran
-HOST_INFORMATION LIBLOC (<=120): -lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3
-HOST_INFORMATION uname -a (<=120): Linux tt480s 5.4.0-72-generic #80-Ubuntu SMP Mon Apr 12 17:35:00 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 20.04.2 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/temp5
-HOST_INFORMATION git commit: a6eb184cabdf08211277e1193f38ea5f31572045
-HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
+ ---------  START LMF  
  HEADER CrN in orthorhombic setting afm structure (a)
 
  Symmetry operations suppressed
@@ -2041,7 +1764,7 @@ HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
  Nh       5:Nh       5
  
  BZMESH:  8 irreducible QP from 16 ( 2 4 2 )  shift= T T T
- >> level: 1  CPUsec=      0.02  enter lmfp
+ >> level: 1  CPUsec=      0.03  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -2095,17 +1818,17 @@ HOST_INFORMATION linked at: Fri May 28 19:58:09 JST 2021
  iors  : read restart file (binary, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
-bndfp: start
- --- bndfp: Atomic Positions from rst/ctrl. 
+bndfp:start
+   Atomic Positions from rst/ctrl. 
    Note: rst and ctrl may contain different atomic positions when DYN mode
-ib clabl pos =    1   Cr1       0.14598       0.13235       0.18161
-ib clabl pos =    2   Cr1      -0.14598       0.39705      -0.18161
-ib clabl pos =    3   Cr2       0.35402       0.39705       0.54518
-ib clabl pos =    4   Cr2       0.64598       0.13235       0.18196
-ib clabl pos =    5    Nh       0.09939       0.13235       0.54519
-ib clabl pos =    6    N1      -0.09939       0.39705      -0.54519
-ib clabl pos =    7    N2       0.40061       0.39705       0.90876
-ib clabl pos =    8    N2       0.59939       0.13235      -0.18162
+ib clabel pos =    1   Cr1       0.14598       0.13235       0.18161
+ib clabel pos =    2   Cr1      -0.14598       0.39705      -0.18161
+ib clabel pos =    3   Cr2       0.35402       0.39705       0.54518
+ib clabel pos =    4   Cr2       0.64598       0.13235       0.18196
+ib clabel pos =    5    Nh       0.09939       0.13235       0.54519
+ib clabel pos =    6    N1      -0.09939       0.39705      -0.54519
+ib clabel pos =    7    N2       0.40061       0.39705       0.90876
+ib clabel pos =    8    N2       0.59939       0.13235      -0.18162
  --- BNDFP:  begin iteration 1 of 1
 
  esmsmves
@@ -2163,7 +1886,7 @@ effective screening medium method jesm=  0
    rho*vxc               -33.488095      -527.886417      -561.374512
    valence chg            31.931112        13.068888        45.000000
    valence mag             0.128464        -1.078847        -0.950383
-   core charge            79.000000        -0.000000        79.000000
+   core charge            79.000000         0.000000        79.000000
 
  Charges:  valence    45.00000   cores    79.00000   nucleii  -124.00000
     hom background     0.00000   deviation from neutrality:      0.00000
@@ -2175,6 +1898,7 @@ effective screening medium method jesm=  0
      5     Nh       0  1   1(2),3(4),5(6)
  -------- qplist --------           0
  ... Start MPI k-loop ...
+  mmmmm m_bandcal_init
  bndfp: kpt     1 of     8 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     1 of     8 k=  0.2500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     2 of     8 k=  0.7500  0.2361  0.3438 ndimh = nmto+napw =   144  144    0
@@ -2191,39 +1915,7 @@ effective screening medium method jesm=  0
  bndfp: kpt     7 of     8 k=  0.2500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     8 of     8 k=  0.7500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
  bndfp: kpt     8 of     8 k=  0.7500  1.6528  0.3438 ndimh = nmto+napw =   144  144    0
- ... Done MPI k-loop: 3.2 seconds elapsed
- ... Sharing data between processes...
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0 sec
+ ... Done MPI k-loop: elapsed time=   2.7993
  bndfp: kpt    1 of    8 k isp=  0.2500  0.2361  0.3438 1 ndimh nev=  144  144
  bndfp: kpt    1 of    8 k isp=  0.2500  0.2361  0.3438 2 ndimh nev=  144  144
  bndfp: kpt    2 of    8 k isp=  0.7500  0.2361  0.3438 1 ndimh nev=  144  144
@@ -2247,41 +1939,9 @@ effective screening medium method jesm=  0
          Mag. moment:       0.063497
 
  Saved qp weights ...
- ssssssssss sev=  -15.400754709468792     
- Start second band pass ...
- iiiwww111222 lwtkb=           1
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho       27648
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_qkkl       18432   0.0000000000000000     
- bndfp_qkkl        3456   0.0000000000000000     
- bndfp_qkkl         648   0.0000000000000000     
- bndfp_dos        4004   0.0000000000000000     
- bndfp_frc          24   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- MPI broadcast took 0.1 sec
- DOS window (-1,0) reset to (-1.6741,0.6845)
+  mmmmm m_bandcal_2nd
+... Generating total DOS
+efermi and dos window=    0.1845  -1.7643   1.6845
 CLS atom: ib name n l=    5 Nh    1    0
  Spin 1 ..
 vcdmel: ecor0=   -29.42381179 ecore=   -29.42380713
@@ -2300,9 +1960,9 @@ vcdmel: ecor0=   -32.10209998 ecore=   -32.10209772
    2    0.062810   -0.028346    0.039908   -0.017076
    3    0.023965   -0.008285    0.018892   -0.006171
 Exit 0 done generating core level spectra
- CPU time:    3.551s     Fri May 28 20:17:32 2021   on 
+ CPU time:    4.810s     Wed Jun  2 15:23:36 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       3.55       3.55   main
+      0      0      0        1       4.81       4.81   main
       0      0    -10        0       0.00       0.00   `--lmfp

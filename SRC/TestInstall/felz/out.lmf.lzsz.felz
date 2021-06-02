@@ -1,20 +1,7 @@
-HOST_INFORMATION platform: gfortran
-HOST_INFORMATION compiler version: gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04) 
-HOST_INFORMATION FFLAGS (<=120): -g -fbacktrace -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME -DHASGETENVIRONMENTVARIABLE -DNOQUAD 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.13.0-66-generic #108-Ubuntu SMP Wed Oct 7 15:20:27 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 14.04.3 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 62854476e3e889bec3c0ca8ee33d8a6d50414a87
-HOST_INFORMATION linked at: Tue Nov 17 00:18:40 JST 2015
- -----------------------  START LMFA     -----------------------
- ptenv() is called with EXT=felz
- ptenv() not supported, but continue.
+ mpi size=           1
+ ---------  START LMFA  
  HEADER Fe test spin pol, f-orbitals for cls and mull
-
- rdctrl: reset global max nl from 5 to 4
-  LMFA  vn 7.00(LMFA 7.0)  verb 30
- end of rdctrl2 in imfav7
+  mpipid=           0
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -24,14 +11,11 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:40 JST 2015
 
  LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
          r1=  2.466   nkd= 137      q1=  4.687   nkg= 201
- goto mksym:i*i
 
+ Generator 1 already in group as element 1
  SGROUP: 1 symmetry operations from 1 generators
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
- end of mksym x
- goto defspc
- end of defspc
- goto freeat
+ goto freats
 
 ttt: pnu qat=  1  0     4.660     2.000
 ttt: pnu qat=  1  1     4.410     0.000
@@ -68,23 +52,13 @@ usedQ=     2.000     0.000     6.000     0.000
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.01  enter newrho
- >>      0.02   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.03  enter newrho
+ >>      0.04   exit  newrho          0.00
     1   26.000000   3.315E+03      130.0000    0.1293E+03      -52.2170   0.30
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.02   exit  newrho          0.00
- >> level: 1  CPUsec=      0.02  enter newrho
- >>      0.03   exit  newrho          0.00
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.03   exit  newrho          0.00
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.03   exit  newrho          0.00
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.03   exit  newrho          0.00
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.03   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.04  enter newrho
+ >>      0.04   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.04  enter newrho
+ >>      0.04   exit  newrho          0.00
  >> level: 1  CPUsec=      0.04  enter newrho
  >>      0.04   exit  newrho          0.00
  >> level: 1  CPUsec=      0.04  enter newrho
@@ -104,6 +78,16 @@ usedQ=     2.000     0.000     6.000     0.000
  >> level: 1  CPUsec=      0.05  enter newrho
  >>      0.05   exit  newrho          0.00
  >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
+ >>      0.05   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.05  enter newrho
  >>      0.06   exit  newrho          0.00
  >> level: 1  CPUsec=      0.06  enter newrho
  >>      0.06   exit  newrho          0.00
@@ -114,6 +98,26 @@ usedQ=     2.000     0.000     6.000     0.000
  >> level: 1  CPUsec=      0.06  enter newrho
  >>      0.06   exit  newrho          0.00
  >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.06   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.06  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.07  enter newrho
  >>      0.07   exit  newrho          0.00
  >> level: 1  CPUsec=      0.07  enter newrho
  >>      0.07   exit  newrho          0.00
@@ -126,6 +130,12 @@ usedQ=     2.000     0.000     6.000     0.000
  >> level: 1  CPUsec=      0.07  enter newrho
  >>      0.07   exit  newrho          0.00
  >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.07   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
  >>      0.08   exit  newrho          0.00
  >> level: 1  CPUsec=      0.08  enter newrho
  >>      0.08   exit  newrho          0.00
@@ -133,7 +143,13 @@ usedQ=     2.000     0.000     6.000     0.000
  >>      0.08   exit  newrho          0.00
  >> level: 1  CPUsec=      0.08  enter newrho
  >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
+ >>      0.08   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.08  enter newrho
  >>      0.09   exit  newrho          0.00
  >> level: 1  CPUsec=      0.09  enter newrho
  >>      0.09   exit  newrho          0.00
@@ -141,46 +157,12 @@ usedQ=     2.000     0.000     6.000     0.000
  >>      0.09   exit  newrho          0.00
  >> level: 1  CPUsec=      0.09  enter newrho
  >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.10  enter newrho
- >>      0.10   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.11   exit  newrho          0.00
- >> level: 1  CPUsec=      0.11  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.12   exit  newrho          0.00
    52   26.000000   3.819E-05      234.0125    0.1701E+05     -160.8066   0.30
- >> level: 1  CPUsec=      0.12  enter newrho
- >>      0.13   exit  newrho          0.00
+ >> level: 1  CPUsec=      0.09  enter newrho
+ >>      0.09   exit  newrho          0.00
 
  end of atomsc xxxxx
- vsum=  -160.80658395561565                1
- ifives=          13
-  write end of ifives
+ vsum=  -160.80658393632342                1
 
  sumev=-4.368331  etot=-2540.381937  eref=0.000000
 
@@ -213,37 +195,23 @@ conf: Core rhoc(rmt)= 0.010971 spillout= 0.014702
 conf:-----------------------------------------------------
  Fit with Hankel e=-19.588292 coeff=750.846970
  end of freats: spid nmcore=Fe                 0
-
-  Write mtopara.* ...
- Exit 0 LMFA 
- CPU time:    0.137s     Tue Nov 17 00:21:38 2015   on  
+Exit 0 LMFA                             on tt480s
+ CPU time:    0.095s     Wed Jun  2 11:55:39 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.14       0.14   main
-      0      0      0       53       0.00       0.09   `--newrho
- mpi size=           4
-HOST_INFORMATION platform: gfortran_mpik
-HOST_INFORMATION compiler version: gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04) 
-HOST_INFORMATION FFLAGS (<=120): -O1 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.13.0-66-generic #108-Ubuntu SMP Wed Oct 7 15:20:27 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 14.04.3 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 62854476e3e889bec3c0ca8ee33d8a6d50414a87
-HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
- -----------------------  START LMF      -----------------------
+      0      0      0        1       0.09       0.09   main
+      0      0      0       53       0.00       0.05   `--newrho
+ mpi size=           2
+ ---------  START LMF  
  HEADER Fe test spin pol, f-orbitals for cls and mull
-
- rdctrl: reset global max nl from 5 to 4
-  LMF  vn 7.00(LMF 7.0)  verb 30
- special:  APW basis, oveps
- bz:       metal(3), tetra, invit 
+  mpipid=           0
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
    0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
+  mpipid=           1
   Cell vol= 79.765082
 
  LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
@@ -251,15 +219,15 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
 
  Generator 1 already in group as element 1
  SGROUP: 1 symmetry operations from 1 generators
- MKSYM:  found 1 space group operations
-         no attempt to add inversion symmetry
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
- BZMESH:  64 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.04  enter lmfp
+ BZMESH:  32 irreducible QP from 64 ( 4 4 4 )  shift= T T T
+ >> level: 1  CPUsec=      0.03  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
+  lmfp : potential and basis setup ... 
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -267,7 +235,6 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
- 
 
  Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
  suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
@@ -283,13 +250,27 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
 
  suham:  q-dependent PW basis with  Emin = 0 < E < 3.
-         Est. min,max PW dimension = 4,13.  Use npwpad = 3 => ndham = 41
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
- bndfp: ctrl extension is +++felz+++
+bndfp:start
+bndfp:start
+   Atomic Positions from rst/ctrl. 
+   Note: rst and ctrl may contain different atomic positions when DYN mode
+ib clabel pos =    1    Fe       0.00000       0.00000       0.00000
  --- BNDFP:  begin iteration 1 of 1
+
+ esmsmves
+   16   16   16      2899      2899
+   2.71176   2.71176   2.71176
+   2.71176  -2.71176   2.71176
+   2.71176   2.71176  -2.71176
+effective screening medium method jesm=  0
+ jtresm,tresm=  0     0.000
+ z0esm,z1esm,z2esm=    -1.356     0.000     0.000 sa0=     14.71
+
+ jesm=0 return
 
  smves:: avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
 
@@ -318,250 +299,126 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
 
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- Start first of two band passes ...
- bndfp: eigenvector matrix not square ... spin weights not evaluated
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
- gen_hamindex: not readin QGpsi.
-
-  --- Hamiltonian index ---
-  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
-  1  0  1      1    1   Fe
-  1  1  1      2    4   Fe
-  1  2  1      5    9   Fe
-  1  3  1     10   16   Fe
-  1  0  2     17   17   Fe
-  1  1  2     18   20   Fe
-  1  2  2     21   25   Fe
- sigmamode= F
-
- ... Start MPI k-loop
- bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
- ... Done MPI k-loop: 2 seconds elapsed
- ... Sharing data between processes...
- MPI broadcast took 0 sec
- bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   34   30
- bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   34   30
- bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   35   31
- bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   35   31
- bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   31   29
- bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   31   29
- bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   35   31
- bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   35   31
- bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   32   30
- bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   32   30
- bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   32   30
- bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   32   30
- bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   31   29
- bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   31   29
- bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   31   29
- bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   31   29
- bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   32   30
- bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   32   30
- bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   32   30
- bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   35   31
- bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   35   31
- bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   34   30
- bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   34   30
- bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   32   30
- bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   32   30
- bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   34   30
- bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   34   30
- bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   31   29
- bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   31   29
- bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   31   29
- bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   31   29
- bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   31   30
- bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   31   30
- bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   31   29
- bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   31   29
- bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   31   30
- bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   31   30
- bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   31   30
- bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   31   30
- bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   32   30
- bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   32   30
- bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   35   31
- bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   35   31
- bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   32   30
- bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   32   30
- bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 1 ndimh nev=   32   30
- bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 2 ndimh nev=   32   30
- bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 1 ndimh nev=   35   31
- bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 2 ndimh nev=   35   31
- bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 1 ndimh nev=   32   30
- bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 2 ndimh nev=   32   30
- bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 1 ndimh nev=   31   30
- bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 2 ndimh nev=   31   30
- bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 1 ndimh nev=   31   30
- bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 2 ndimh nev=   31   30
- bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 1 ndimh nev=   31   29
- bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 2 ndimh nev=   31   29
- bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 1 ndimh nev=   31   30
- bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 2 ndimh nev=   31   30
- bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 1 ndimh nev=   31   29
- bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 2 ndimh nev=   31   29
- bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 1 ndimh nev=   31   29
- bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 2 ndimh nev=   31   29
- bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 1 ndimh nev=   32   30
- bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 2 ndimh nev=   32   30
- bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 1 ndimh nev=   34   30
- bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 2 ndimh nev=   34   30
- bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 1 ndimh nev=   32   30
- bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 2 ndimh nev=   32   30
- bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 1 ndimh nev=   34   30
- bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 2 ndimh nev=   34   30
- bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 1 ndimh nev=   35   31
- bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 2 ndimh nev=   35   31
- bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 1 ndimh nev=   32   30
- bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 2 ndimh nev=   32   30
- bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 1 ndimh nev=   31   29
- bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 2 ndimh nev=   31   29
- bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 1 ndimh nev=   31   29
- bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 2 ndimh nev=   31   29
- bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 1 ndimh nev=   32   30
- bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 2 ndimh nev=   32   30
- bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 1 ndimh nev=   32   30
- bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 2 ndimh nev=   32   30
- bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 1 ndimh nev=   35   31
- bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 2 ndimh nev=   35   31
- bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 1 ndimh nev=   31   29
- bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 2 ndimh nev=   31   29
- bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 1 ndimh nev=   35   31
- bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 2 ndimh nev=   35   31
- bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 1 ndimh nev=   34   30
- bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 2 ndimh nev=   34   30
+ -------- qplist --------           0
+ ... Start MPI k-loop ...
+  mmmmm m_bandcal_init
+ bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
+ bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
+ bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
+ bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
+ bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
+ bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
+ bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
+ bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
+ bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
+ ... Done MPI k-loop: elapsed time=   0.2662
+ bndfp_ndimhx_          32   7.4269852700582763E-313
+ bndfp_ndimhx_          32   0.0000000000000000     
+ bndfp_nev_          32   0.0000000000000000     
+ bndfp_nev_          32   6.5781869534745411E-313
+ bndfp_nevls          64   6.5781869534745411E-313
+ bndfp_nevls          64   0.0000000000000000     
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_qkkl       12800   0.0000000000000000     
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_qkkl       12800   0.0000000000000000     
+ bndfp_qkkl        5120   0.0000000000000000     
+ bndfp_qkkl        5120   0.0000000000000000     
+ bndfp_qkkl        2048   0.0000000000000000     
+ bndfp_qkkl        2048   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
+ bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   34   30
+ bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   34   30
+ bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   35   31
+ bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   35   31
+ bndfp: kpt    3 of   32 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   31   29
+ bndfp: kpt    3 of   32 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   31   29
+ bndfp: kpt    4 of   32 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   35   31
+ bndfp: kpt    4 of   32 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   35   31
+ bndfp: kpt    5 of   32 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   32   30
+ bndfp: kpt    5 of   32 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   32   30
+ bndfp: kpt    6 of   32 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   32   30
+ bndfp: kpt    6 of   32 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   32   30
+ bndfp: kpt    7 of   32 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   31   29
+ bndfp: kpt    7 of   32 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   31   29
+ bndfp: kpt    8 of   32 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   31   29
+ bndfp: kpt    8 of   32 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   31   29
+ bndfp: kpt    9 of   32 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   32   30
+ bndfp: kpt    9 of   32 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   32   30
+ bndfp: kpt   10 of   32 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   10 of   32 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   11 of   32 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   32   30
+ bndfp: kpt   11 of   32 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   32   30
+ bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   35   31
+ bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   35   31
+ bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   34   30
+ bndfp_rhosig           1   0.0000000000000000     
+ bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   34   30
+ bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   15 of   32 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   32   30
+ bndfp: kpt   15 of   32 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   32   30
+ bndfp: kpt   16 of   32 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   34   30
+ bndfp: kpt   16 of   32 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   34   30
+ bndfp: kpt   17 of   32 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   17 of   32 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   18 of   32 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   32   30
+ bndfp: kpt   18 of   32 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   32   30
+ bndfp: kpt   19 of   32 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   31   29
+ bndfp: kpt   19 of   32 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   31   29
+ bndfp: kpt   20 of   32 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   31   29
+ bndfp: kpt   20 of   32 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   31   29
+ bndfp: kpt   21 of   32 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   21 of   32 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   22 of   32 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   31   30
+ bndfp: kpt   22 of   32 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   31   30
+ bndfp: kpt   23 of   32 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   23 of   32 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   24 of   32 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   31   29
+ bndfp: kpt   24 of   32 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   31   29
+ bndfp: kpt   25 of   32 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   25 of   32 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   26 of   32 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   31   30
+ bndfp: kpt   26 of   32 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   31   30
+ bndfp: kpt   27 of   32 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   31   30
+ bndfp: kpt   27 of   32 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   31   30
+ bndfp: kpt   28 of   32 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   32   30
+ bndfp: kpt   28 of   32 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   32   30
+ bndfp: kpt   29 of   32 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   35   31
+ bndfp: kpt   29 of   32 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   35   31
+ bndfp: kpt   30 of   32 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   32   30
+ bndfp: kpt   30 of   32 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   32   30
+ bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   32   30
+ bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   32   30
+ bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   32   30
+ bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   32   30
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.008965;   8.000000 electrons
@@ -569,29 +426,34 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
          Mag. moment:      -2.252310
 
  Saved qp weights ...
- Start second band pass ...
-
- ... Start MPI k-loop
- ... Done MPI k-loop: 3.6 seconds elapsed
- ... Sharing data between processes...
- MPI broadcast took 0 sec
- DOS window (0.5,2) reset to (-1.0017,0.5090)
+  mmmmm m_bandcal_2nd
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_qkkl       12800  0.12226231736364040     
+ bndfp_qkkl        5120 -0.13115887186886732     
+ bndfp_qkkl       12800   5.2085327766225049E-002
+ bndfp_qkkl        5120  -2.3782952539010176E-002
+ bndfp_qkkl        2048   4.8584655673432640E-002
+ bndfp_orbtm           8   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
 
  IORBTM:  orbital moments :
- Class  Spec        spin   Moment decomposed by l ...
+ ibas  Spec        spin   Moment decomposed by l ...
     1    Fe           1    0.000000   -0.001592   -0.070705    0.000323
     1    Fe           2    0.000000    0.001882    0.033249    0.000021
- total moment for class   1:   -0.036822
-
- BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.008965;   8.000000 electrons
-         Sum occ. bands:   -1.285643, incl. Bloechl correction: -0.005839
-         Mag. moment:      -2.252310
-
- Saved qp weights ...
+ total orbital moment   1:   -0.036822
+ bndfp_qkkl        2048   1.1283168129527715E-002
+ bndfp_orbtm           8   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
+... Generating total DOS
+ mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
-   1    6.977743    2.539106    4.438636     -2.298723   -0.308680   -1.990042
+   1    6.977743    2.539107    4.438637     -2.298722   -0.308680   -1.990042
 
  Symmetrize density..
 
@@ -611,26 +473,27 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.210034    0.028721    4.584798    4.730449    4.500000    4.730449
  spn 2 0    0.192357   -0.109053    4.550390    4.703772    4.500000    4.703772
- 1     0    0.227620   -0.219984    4.304074    4.328910    4.250000    4.328910
- spn 2 0    0.186271   -0.275371    4.281633    4.328751    4.250000    4.328751
+ 1     0    0.227621   -0.219982    4.304074    4.328910    4.250000    4.328910
+ spn 2 0    0.186271   -0.275368    4.281633    4.328752    4.250000    4.328752
  2     0    1.890660   -0.319372    3.539659    3.462971    3.147584    3.462971
  spn 2 0    4.244057   -0.249529    3.816931    3.759535    3.147584    3.759535
- 3     0    0.011196   -0.565298    4.108266    4.113598    4.102416    4.113598
- spn 2 0    0.015547   -0.737285    4.104490    4.109900    4.102416    4.109900
+ 3     0    0.011196   -0.565300    4.108266    4.113598    4.102416    4.113598
+ spn 2 0    0.015547   -0.737287    4.104490    4.109900    4.102416    4.109900
 
  Harris energy:
  sumev=       -1.285643  val*vef=     -91.717972   sumtv=      90.432329
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
  rhoeps=    -107.251566     utot=   -5008.410996    ehar=   -2541.033297
 
- srhov:     -5.100309    -86.845463    -91.945772 sumev=   -1.285643   sumtv=   90.660130
+ srhov:     -5.100310    -86.845471    -91.945781 sumev=   -1.285643   sumtv=   90.660138
+ jesm=0 return
 
  smves:: avg es pot at rmt= 0.635507  avg sphere pot= 0.636990  vconst=-0.635507
 
- smooth rhoves     11.478312   charge     3.561363
+ smooth rhoves     11.478310   charge     3.561363
  smvxcm: all smrho_w is positive
- smooth rhoeps =   -2.879194 (  -1.342193,  -1.537002)
-         rhomu =   -3.747061 (  -1.718328,  -2.028733)
+ smooth rhoeps =   -2.879195 (  -1.342193,  -1.537002)
+         rhomu =   -3.747062 (  -1.718329,  -2.028733)
        avg vxc =   -0.850619 (  -0.841439,  -0.859799)
 
  locpot:
@@ -639,13 +502,13 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -5.118460       -86.759866       -91.878326
-   rhoval*ves            -30.491208       -45.687085       -76.178293
-   psnuc*ves              53.447832     -9994.502094     -9941.054261
-   utot                   11.478312     -5020.094590     -5008.616277
-   rho*exc                -2.879194      -104.394831      -107.274025
-   rho*vxc                -3.747061      -138.201389      -141.948450
-   valence chg             3.561363         4.438636         7.999999
+   rhoval*vef             -5.118460       -86.759872       -91.878332
+   rhoval*ves            -30.491207       -45.687090       -76.178297
+   psnuc*ves              53.447828     -9994.502098     -9941.054271
+   utot                   11.478310     -5020.094594     -5008.616284
+   rho*exc                -2.879195      -104.394832      -107.274027
+   rho*vxc                -3.747062      -138.201391      -141.948453
+   valence chg             3.561363         4.438637         8.000000
    valence mag            -0.262268        -1.990042        -2.252310
    core charge            18.000000        -0.000000        18.000000
 
@@ -653,55 +516,40 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=       90.660130  sumtc=      2484.196936   ekin=     2574.857066
- rhoep=     -107.274025   utot=     -5008.616277   ehks=    -2541.033237
- mag. mom=    -2.252310  (bands)       -2.252310  (output rho)
+ sumtv=       90.660138  sumtc=      2484.196936   ekin=     2574.857074
+ rhoep=     -107.274027   utot=     -5008.616284   ehks=    -2541.033237
+ mag. mom=     0.000000  (bands)       -2.252310  (output rho)
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
  mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=1.17e-3
- AMIX: nmix=0 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=5.86e-4
- mixrho: add corrections to qcell smrho =  0.32437D-06  0.20333D-08
- unscreened rms difference:  smooth  0.001469   local  0.002282
+ AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=5.86D-04
+ mixrho: add corrections to qcell smrho =  0.90241D-07  0.56567D-09
+ unscreened rms difference:  smooth  0.001470   local  0.002282
    screened rms difference:  smooth  0.001445   local  0.002282   tot  0.001172
  mixrho: all smrho are positive for isp=  1
  mixrho: all smrho are positive for isp=  2
- vessm= -0.63550720919322801     
-### Add vref to eigenvalues to get relative to vaccum=   -0.743507
-### mean estatic pot by superposition of atoms(eV)=  -27.429323
-### VBM=    -9.994039 eV CBM=    -9.994039 eV estatic_pot=  -27.429323 eV
-  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=   -2541.033297   ehk=   -2541.033237
-x rel=1 nit=1 so=2 pwmode=11 mmom=-2.2523105 ehf=-2541.0332967 ehk=-2541.0332366
- >>      7.84   exit  lmfp            7.81
- Exit 0 LMF      on TT4 
- CPU time:    7.844s     Tue Nov 17 00:21:47 2015   on  
+x rel=1 nit=1 so=2 pwmode=11 mmom=-2.2523103 ehf=-2541.0332967 ehk=-2541.0332367
+ >>      0.79   exit  lmfp            0.76
+Exit 0 LMF                              on tt480s
+ CPU time:    0.790s     Wed Jun  2 11:55:41 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       7.84       7.84   main
-      0      0      0        1       7.81       7.81   `--lmfp
- mpi size=           4
-HOST_INFORMATION platform: gfortran_mpik
-HOST_INFORMATION compiler version: gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04) 
-HOST_INFORMATION FFLAGS (<=120): -O1 -fomit-frame-pointer -funroll-loops -ffast-math -ffixed-line-length-132 -DHASIARGC -DHASGETARG -DFDATE -DHASCPUTIME 
-HOST_INFORMATION LIBLOC (<=120): /usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf
-HOST_INFORMATION uname -a (<=120): Linux TT4 3.13.0-66-generic #108-Ubuntu SMP Wed Oct 7 15:20:27 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
-HOST_INFORMATION /etc/issue: Ubuntu 14.04.3 LTS \n \l
-HOST_INFORMATION git branch: refs/heads/master
-HOST_INFORMATION git commit: 62854476e3e889bec3c0ca8ee33d8a6d50414a87
-HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
- -----------------------  START LMF      -----------------------
- HEADER Fe test spin pol, f-orbitals for cls and mull
+      0      0      0        1       0.79       0.79   main
+      0      0      0        1       0.76       0.76   `--lmfp
 
- rdctrl: reset global max nl from 5 to 4
-  LMF  vn 7.00(LMF 7.0)  verb 30
- special:  oveps
- bz:       metal(3), tetra, invit 
+ ---- LMF     
+ mpi size=           2
+ ---------  START LMF  
+ HEADER Fe test spin pol, f-orbitals for cls and mull
+  mpipid=           1
+  mpipid=           0
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -714,15 +562,15 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
 
  Generator 1 already in group as element 1
  SGROUP: 1 symmetry operations from 1 generators
- MKSYM:  found 1 space group operations
-         no attempt to add inversion symmetry
+ MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
- BZMESH:  64 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.04  enter lmfp
+ BZMESH:  32 irreducible QP from 64 ( 4 4 4 )  shift= T T T
+ >> level: 1  CPUsec=      0.03  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
+  lmfp : potential and basis setup ... 
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -730,7 +578,6 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
- 
 
  Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
  suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
@@ -748,8 +595,23 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
- bndfp: ctrl extension is +++felz+++
+bndfp:start
+bndfp:start
+   Atomic Positions from rst/ctrl. 
+   Note: rst and ctrl may contain different atomic positions when DYN mode
+ib clabel pos =    1    Fe       0.00000       0.00000       0.00000
  --- BNDFP:  begin iteration 1 of 1
+
+ esmsmves
+   16   16   16      2899      2899
+   2.71176   2.71176   2.71176
+   2.71176  -2.71176   2.71176
+   2.71176   2.71176  -2.71176
+effective screening medium method jesm=  0
+ jtresm,tresm=  0     0.000
+ z0esm,z1esm,z2esm=    -1.356     0.000     0.000 sa0=     14.71
+
+ jesm=0 return
 
  smves:: avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
 
@@ -778,250 +640,126 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
 
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- Start first of two band passes ...
- bndfp: eigenvector matrix not square ... spin weights not evaluated
- -------- qplist --------
-    1   0.250   0.000   0.000
-    2   0.250   0.250   0.250
-    3   0.250   0.500   0.500
-    4   0.250   0.750   0.750
-    5   0.500  -0.250   0.000
-    6   0.500   0.000   0.250
-    7   0.500   0.250   0.500
-    8   0.500   0.500   0.750
-    9   0.750  -0.500   0.000
-   10   0.750  -0.250   0.250
-   11   0.750   0.000   0.500
-   12   0.750   0.250   0.750
-   13   1.000  -0.750   0.000
-   14   1.000  -0.500   0.250
-   15   1.000  -0.250   0.500
-   16   1.000   0.000   0.750
-   17   0.500   0.000  -0.250
-   18   0.500   0.250   0.000
-   19   0.500   0.500   0.250
-   20   0.500   0.750   0.500
-   21   0.750  -0.250  -0.250
-   22   0.750   0.000   0.000
-   23   0.750   0.250   0.250
-   24   0.750   0.500   0.500
-   25   1.000  -0.500  -0.250
-   26   1.000  -0.250   0.000
-   27   1.000   0.000   0.250
-   28   1.000   0.250   0.500
-   29   1.250  -0.750  -0.250
-   30   1.250  -0.500   0.000
-   31   1.250  -0.250   0.250
-   32   1.250   0.000   0.500
-   33   0.750   0.000  -0.500
-   34   0.750   0.250  -0.250
-   35   0.750   0.500   0.000
-   36   0.750   0.750   0.250
-   37   1.000  -0.250  -0.500
-   38   1.000   0.000  -0.250
-   39   1.000   0.250   0.000
-   40   1.000   0.500   0.250
-   41   1.250  -0.500  -0.500
-   42   1.250  -0.250  -0.250
-   43   1.250   0.000   0.000
-   44   1.250   0.250   0.250
-   45   1.500  -0.750  -0.500
-   46   1.500  -0.500  -0.250
-   47   1.500  -0.250   0.000
-   48   1.500   0.000   0.250
-   49   1.000   0.000  -0.750
-   50   1.000   0.250  -0.500
-   51   1.000   0.500  -0.250
-   52   1.000   0.750   0.000
-   53   1.250  -0.250  -0.750
-   54   1.250   0.000  -0.500
-   55   1.250   0.250  -0.250
-   56   1.250   0.500   0.000
-   57   1.500  -0.500  -0.750
-   58   1.500  -0.250  -0.500
-   59   1.500   0.000  -0.250
-   60   1.500   0.250   0.000
-   61   1.750  -0.750  -0.750
-   62   1.750  -0.500  -0.500
-   63   1.750  -0.250  -0.250
-   64   1.750   0.000   0.000
- gen_hamindex: not readin QGpsi.
-
-  --- Hamiltonian index ---
-  ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)
-  1  0  1      1    1   Fe
-  1  1  1      2    4   Fe
-  1  2  1      5    9   Fe
-  1  3  1     10   16   Fe
-  1  0  2     17   17   Fe
-  1  1  2     18   20   Fe
-  1  2  2     21   25   Fe
- sigmamode= F
-
- ... Start MPI k-loop
- bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     1 of    64 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     2 of    64 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     3 of    64 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     4 of    64 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     5 of    64 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     6 of    64 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     7 of    64 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     8 of    64 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     9 of    64 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    10 of    64 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    11 of    64 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    12 of    64 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    13 of    64 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    14 of    64 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    15 of    64 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    16 of    64 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: 1.6 seconds elapsed
- ... Sharing data between processes...
- MPI broadcast took 0 sec
- bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt    1 of   64 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt    2 of   64 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   25   25
- bndfp: kpt    3 of   64 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   25   25
- bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   25   25
- bndfp: kpt    4 of   64 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   25   25
- bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt    5 of   64 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt    6 of   64 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   25   25
- bndfp: kpt    7 of   64 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   25   25
- bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   25   25
- bndfp: kpt    8 of   64 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   25   25
- bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt    9 of   64 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   10 of   64 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   11 of   64 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   25   25
- bndfp: kpt   12 of   64 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   25   25
- bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   13 of   64 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   14 of   64 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   15 of   64 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   25   25
- bndfp: kpt   16 of   64 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   25   25
- bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   17 of   64 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   18 of   64 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   19 of   64 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   20 of   64 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   21 of   64 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   22 of   64 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   23 of   64 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   24 of   64 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   25 of   64 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   26 of   64 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   27 of   64 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   28 of   64 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   29 of   64 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   30 of   64 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   31 of   64 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
- bndfp: kpt   32 of   64 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
- bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   33 of   64 k isp=  0.7500  0.0000 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   34 of   64 k isp=  0.7500  0.2500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   35 of   64 k isp=  0.7500  0.5000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   36 of   64 k isp=  0.7500  0.7500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   37 of   64 k isp=  1.0000 -0.2500 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   38 of   64 k isp=  1.0000  0.0000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   39 of   64 k isp=  1.0000  0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   40 of   64 k isp=  1.0000  0.5000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   41 of   64 k isp=  1.2500 -0.5000 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   42 of   64 k isp=  1.2500 -0.2500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   43 of   64 k isp=  1.2500  0.0000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   44 of   64 k isp=  1.2500  0.2500  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   45 of   64 k isp=  1.5000 -0.7500 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   46 of   64 k isp=  1.5000 -0.5000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   47 of   64 k isp=  1.5000 -0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 1 ndimh nev=   25   25
- bndfp: kpt   48 of   64 k isp=  1.5000  0.0000  0.2500 2 ndimh nev=   25   25
- bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 1 ndimh nev=   25   25
- bndfp: kpt   49 of   64 k isp=  1.0000  0.0000 -0.7500 2 ndimh nev=   25   25
- bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   50 of   64 k isp=  1.0000  0.2500 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   51 of   64 k isp=  1.0000  0.5000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   52 of   64 k isp=  1.0000  0.7500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 1 ndimh nev=   25   25
- bndfp: kpt   53 of   64 k isp=  1.2500 -0.2500 -0.7500 2 ndimh nev=   25   25
- bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   54 of   64 k isp=  1.2500  0.0000 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   55 of   64 k isp=  1.2500  0.2500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   56 of   64 k isp=  1.2500  0.5000  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 1 ndimh nev=   25   25
- bndfp: kpt   57 of   64 k isp=  1.5000 -0.5000 -0.7500 2 ndimh nev=   25   25
- bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   58 of   64 k isp=  1.5000 -0.2500 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   59 of   64 k isp=  1.5000  0.0000 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   60 of   64 k isp=  1.5000  0.2500  0.0000 2 ndimh nev=   25   25
- bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 1 ndimh nev=   25   25
- bndfp: kpt   61 of   64 k isp=  1.7500 -0.7500 -0.7500 2 ndimh nev=   25   25
- bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 1 ndimh nev=   25   25
- bndfp: kpt   62 of   64 k isp=  1.7500 -0.5000 -0.5000 2 ndimh nev=   25   25
- bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
- bndfp: kpt   63 of   64 k isp=  1.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
- bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 1 ndimh nev=   25   25
- bndfp: kpt   64 of   64 k isp=  1.7500  0.0000  0.0000 2 ndimh nev=   25   25
+ -------- qplist --------           0
+ ... Start MPI k-loop ...
+  mmmmm m_bandcal_init
+ bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     3 of    32 k=  0.2500  0.5000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     4 of    32 k=  0.2500  0.7500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     5 of    32 k=  0.5000 -0.2500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     6 of    32 k=  0.5000  0.0000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
+ ... Done MPI k-loop: elapsed time=   0.2521
+ bndfp_ndimhx_          32   5.3049894786483449E-313
+ bndfp_ndimhx_          32   0.0000000000000000     
+ bndfp_nev_          32   0.0000000000000000     
+ bndfp_nevls          64   0.0000000000000000     
+ bndfp_nev_          32   5.3049894786483449E-313
+ bndfp_nevls          64   5.3049894786483449E-313
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_qkkl       12800   0.0000000000000000     
+ bndfp_qkkl        5120   0.0000000000000000     
+ bndfp_qkkl        2048   0.0000000000000000     
+ bndfp_qkkl       12800   0.0000000000000000     
+ bndfp_qkkl        5120   0.0000000000000000     
+ bndfp_qkkl        2048   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
+ bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    3 of   32 k isp=  0.2500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    3 of   32 k isp=  0.2500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    4 of   32 k isp=  0.2500  0.7500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    4 of   32 k isp=  0.2500  0.7500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    5 of   32 k isp=  0.5000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    5 of   32 k isp=  0.5000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt    6 of   32 k isp=  0.5000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt    6 of   32 k isp=  0.5000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt    7 of   32 k isp=  0.5000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt    7 of   32 k isp=  0.5000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt    8 of   32 k isp=  0.5000  0.5000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt    8 of   32 k isp=  0.5000  0.5000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt    9 of   32 k isp=  0.7500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt    9 of   32 k isp=  0.7500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   10 of   32 k isp=  0.7500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   10 of   32 k isp=  0.7500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   11 of   32 k isp=  0.7500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   11 of   32 k isp=  0.7500  0.0000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   15 of   32 k isp=  1.0000 -0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   15 of   32 k isp=  1.0000 -0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   16 of   32 k isp=  1.0000  0.0000  0.7500 1 ndimh nev=   25   25
+ bndfp: kpt   16 of   32 k isp=  1.0000  0.0000  0.7500 2 ndimh nev=   25   25
+ bndfp: kpt   17 of   32 k isp=  0.5000  0.0000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   17 of   32 k isp=  0.5000  0.0000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   18 of   32 k isp=  0.5000  0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   18 of   32 k isp=  0.5000  0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   19 of   32 k isp=  0.5000  0.5000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   19 of   32 k isp=  0.5000  0.5000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   20 of   32 k isp=  0.5000  0.7500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   20 of   32 k isp=  0.5000  0.7500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   21 of   32 k isp=  0.7500 -0.2500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   21 of   32 k isp=  0.7500 -0.2500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   22 of   32 k isp=  0.7500  0.0000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   22 of   32 k isp=  0.7500  0.0000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   23 of   32 k isp=  0.7500  0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   23 of   32 k isp=  0.7500  0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   24 of   32 k isp=  0.7500  0.5000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   24 of   32 k isp=  0.7500  0.5000  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   25 of   32 k isp=  1.0000 -0.5000 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   25 of   32 k isp=  1.0000 -0.5000 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   26 of   32 k isp=  1.0000 -0.2500  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   26 of   32 k isp=  1.0000 -0.2500  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   27 of   32 k isp=  1.0000  0.0000  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   27 of   32 k isp=  1.0000  0.0000  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   28 of   32 k isp=  1.0000  0.2500  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   28 of   32 k isp=  1.0000  0.2500  0.5000 2 ndimh nev=   25   25
+ bndfp: kpt   29 of   32 k isp=  1.2500 -0.7500 -0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   29 of   32 k isp=  1.2500 -0.7500 -0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   30 of   32 k isp=  1.2500 -0.5000  0.0000 1 ndimh nev=   25   25
+ bndfp: kpt   30 of   32 k isp=  1.2500 -0.5000  0.0000 2 ndimh nev=   25   25
+ bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 1 ndimh nev=   25   25
+ bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
+ bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
+ bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.008910;   8.000000 electrons
@@ -1029,26 +767,31 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
          Mag. moment:      -2.247982
 
  Saved qp weights ...
- Start second band pass ...
-
- ... Start MPI k-loop
- ... Done MPI k-loop: 2.9 seconds elapsed
- ... Sharing data between processes...
- MPI broadcast took 0 sec
- DOS window (0.5,2) reset to (-1.0016,0.5089)
+  mmmmm m_bandcal_2nd
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumqv           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_sumev           6   0.0000000000000000     
+ bndfp_smrho        8192
+ bndfp_smrho        8192
+ bndfp_qkkl       12800   1.7693436206825539E-002
+ bndfp_qkkl        5120   9.4175743062092199E-002
+ bndfp_qkkl       12800   5.5793822890941565E-003
+ bndfp_qkkl        5120   1.4424644959180671E-003
+ bndfp_qkkl        2048  0.91363412525797771     
+ bndfp_orbtm           8   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
+ bndfp_qkkl        2048  0.97483092882164324     
+ bndfp_orbtm           8   0.0000000000000000     
+ bndfp_rhosig           1   0.0000000000000000     
 
  IORBTM:  orbital moments :
- Class  Spec        spin   Moment decomposed by l ...
+ ibas  Spec        spin   Moment decomposed by l ...
     1    Fe           1    0.000000   -0.001589   -0.070033    0.000331
     1    Fe           2    0.000000    0.001881    0.033205    0.000017
- total moment for class   1:   -0.036188
-
- BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.008910;   8.000000 electrons
-         Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
-         Mag. moment:      -2.247982
-
- Saved qp weights ...
+ total orbital moment   1:   -0.036188
+... Generating total DOS
+ mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
    1    6.976506    2.480909    4.495598     -2.294846   -0.298406   -1.996440
@@ -1071,26 +814,27 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
  0     0    0.210076   -0.338850    4.584798    4.584798    4.500000    4.584798
  spn 2 0    0.192292   -0.468990    4.550390    4.550390    4.500000    4.550390
- 1     0    0.227729   -0.315524    4.304074    4.304074    4.250000    4.304074
+ 1     0    0.227729   -0.315525    4.304074    4.304074    4.250000    4.304074
  spn 2 0    0.186129   -0.467989    4.281633    4.281633    4.250000    4.281633
  2     0    1.891699   -0.258120    3.539659    3.539659    3.147584    3.539659
  spn 2 0    4.241537   -0.202177    3.816931    3.816931    3.147584    3.816931
- 3     0    0.011326   -0.784220    4.108266    4.108266    4.102416    4.108266
- spn 2 0    0.015718   -0.978768    4.104490    4.104490    4.102416    4.104490
+ 3     0    0.011326   -0.784221    4.108266    4.108266    4.102416    4.108266
+ spn 2 0    0.015718   -0.978769    4.104490    4.104490    4.102416    4.104490
 
  Harris energy:
  sumev=       -1.283747  val*vef=     -91.717972   sumtv=      90.434225
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    2484.196936
  rhoeps=    -107.251566     utot=   -5008.410996    ehar=   -2541.031401
 
- srhov:     -4.927067    -86.790913    -91.717979 sumev=   -1.283747   sumtv=   90.434232
+ srhov:     -4.927067    -86.790915    -91.717982 sumev=   -1.283747   sumtv=   90.434235
+ jesm=0 return
 
  smves:: avg es pot at rmt= 0.632380  avg sphere pot= 0.642346  vconst=-0.632380
 
  smooth rhoves     11.233980   charge     3.504402
  smvxcm: all smrho_w is positive
- smooth rhoeps =   -2.824101 (  -1.319471,  -1.504630)
-         rhomu =   -3.675132 (  -1.690112,  -1.985020)
+ smooth rhoeps =   -2.824102 (  -1.319471,  -1.504630)
+         rhomu =   -3.675133 (  -1.690112,  -1.985021)
        avg vxc =   -0.847914 (  -0.838949,  -0.856878)
 
  locpot:
@@ -1099,12 +843,12 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.927066       -86.790910       -91.717976
-   rhoval*ves            -30.445246       -45.595673       -76.040919
-   psnuc*ves              52.913206     -9993.694292     -9940.781086
-   utot                   11.233980     -5019.644983     -5008.411003
-   rho*exc                -2.824101      -104.427466      -107.251567
-   rho*vxc                -3.675132      -138.243546      -141.918678
+   rhoval*vef             -4.927067       -86.790911       -91.717978
+   rhoval*ves            -30.445245       -45.595675       -76.040920
+   psnuc*ves              52.913205     -9993.694294     -9940.781089
+   utot                   11.233980     -5019.644984     -5008.411004
+   rho*exc                -2.824102      -104.427466      -107.251568
+   rho*vxc                -3.675133      -138.243546      -141.918679
    valence chg             3.504402         4.495598         8.000000
    valence mag            -0.251542        -1.996440        -2.247982
    core charge            18.000000        -0.000000        18.000000
@@ -1113,35 +857,32 @@ HOST_INFORMATION linked at: Tue Nov 17 00:18:41 JST 2015
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=       90.434232  sumtc=      2484.196936   ekin=     2574.631169
- rhoep=     -107.251567   utot=     -5008.411003   ehks=    -2541.031401
- mag. mom=    -2.247982  (bands)       -2.247982  (output rho)
+ sumtv=       90.434235  sumtc=      2484.196936   ekin=     2574.631171
+ rhoep=     -107.251568   utot=     -5008.411004   ehks=    -2541.031401
+ mag. mom=     0.000000  (bands)       -2.247982  (output rho)
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  mixrealsmooth= T
  wgtsmooth=   1.5625000000000000E-002
- mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=2.97e-8
- AMIX: nmix=0 mmix=8  nelts=10052  beta=0.5  tm=5  rmsdel=1.49e-8
- mixrho: add corrections to qcell smrho =  0.11982D-06  0.75108D-09
- unscreened rms difference:  smooth  0.000000   local  0.000000
-   screened rms difference:  smooth  0.000000   local  0.000000   tot  0.000000
+ mixrho:  sought 6 iter from file mixm; read 0.  RMS DQ=9.51e-6
+ AMIX: nmix=0 mmix=8  nelts= 10052  beta=0.50000  tm= 5.00000  rmsdel=4.76D-06
+ mixrho: add corrections to qcell smrho =  0.88441D-07  0.55439D-09
+ unscreened rms difference:  smooth  0.000054   local  0.000000
+   screened rms difference:  smooth  0.000034   local  0.000000   tot  0.000010
  mixrho: all smrho are positive for isp=  1
  mixrho: all smrho are positive for isp=  2
- vessm= -0.63238034535111698     
-### Add vref to eigenvalues to get relative to vaccum=   -0.741278
-### mean estatic pot by superposition of atoms(eV)=  -27.429323
-### VBM=    -9.964457 eV CBM=    -9.964457 eV estatic_pot=  -27.429323 eV
-  not readin vesintatm.* ---> not show VBM. or you need to repeat new lmfa again.
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=   -2541.031401   ehk=   -2541.031401
-x rel=1 nit=1 so=2 mmom=-2.2479824 ehf=-2541.0314011 ehk=-2541.0314012
- >>      4.98   exit  lmfp            4.94
- Exit 0 LMF      on TT4 
- CPU time:    4.976s     Tue Nov 17 00:21:53 2015   on  
+x rel=1 nit=1 so=2 mmom=-2.2479823 ehf=-2541.0314011 ehk=-2541.0314014
+ >>      0.60   exit  lmfp            0.57
+Exit 0 LMF                              on tt480s
+ CPU time:    0.596s     Wed Jun  2 11:55:41 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       4.97       4.97   main
-      0      0      0        1       4.94       4.94   `--lmfp
+      0      0      0        1       0.60       0.60   main
+      0      0      0        1       0.57       0.57   `--lmfp
+
+ ---- LMF     
