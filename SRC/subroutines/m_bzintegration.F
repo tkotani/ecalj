@@ -1,4 +1,5 @@
       module m_bzintegration
+      use m_subzi,only: rv_a_owtkb,rv_a_oswtk !rewritten! need to protect them somehow
       contains
       subroutine m_bzintegration_init(evlall, eferm,sev,sumqv,vnow)!,goto99)
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -13,7 +14,7 @@
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv 
-      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk!,ldos
+      use m_subzi, only: lwtkb,lswtk
 
       use m_ext,only: sname
       implicit none
@@ -56,10 +57,10 @@ c      if(lmet>=0) then
             close(ifimag)
          endif
 !     !         Store val charge & magnetic moment in sumqv(1..2)
-         if (lmet .ne. 4) then
+c         if (lmet .ne. 4) then
             sumqv(1,1) = sumqv(1,2)
             sumqv(2,1) = sumqv(2,2)
-         endif
+c         endif
 c         if (lmet .ne. 4) then
 c            ef0 = eferm
 c            bz_ef=ef0

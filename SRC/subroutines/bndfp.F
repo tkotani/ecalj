@@ -345,7 +345,7 @@ c mar2014
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
-      real(8):: kkk ,ef0xx      !,eferm !dummy
+      real(8):: kkk ,ef0xx,efermxxx      !,eferm !dummy
       real(8),allocatable:: dos_rv(:,:)
 !! ----------------------------
       call tcn ('bndfp')
@@ -534,47 +534,14 @@ c mar2014
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
+!! end of band plot mode
       
-!! All reduce band quantities  eterms should be cleaned up in future.   
-      call m_bandcal_allreduce(lrout,lwtkb)
-      eterms=ham_eterms 
-      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-      ham_eterms=eterms
-      emin=1d9
-      do iq = 1, nkp
-         qp=qplist(:,iq)
-         do isp = 1, nspx 
-          jsp = isp
-          if(iprint()>20)write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
-     &      iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
-          if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
-          emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
-         enddo
-      enddo
-      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !get new eferm
-      if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
-         lwtkb = 1
-         if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
-         call mpi_barrier(MPI_comm_world,ierr)
-         if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
-         call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate srout_zv and so on.
-         call m_bandcal_allreduce(lrout,lwtkb)
-         eterms=ham_eterms 
-         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-         ham_eterms=eterms
-      endif
-
-!========================================================
-      if(lfrce>0) frc=frcband !part of atomic force from band part
-      if(lwtkb==1 .and. lso /=0) call iorbtm() !write out orbital moment
-!! Save Fermi level, nonmetal or sampling integration
-      if(lmet==0) then          !non metal mode
-        eferm = (evtop+ecbot)/2d0
-        if(master_mpi)write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
-!! NOTE:: weight wtkb(ib,iq,isp) is written to wkp.* in m_bzintegration.F for lmet>0. 
-      endif
-!! efermi.lmf 
-      if(master_mpi.and.plbnd==0) then
+!! New eferm determined from evlall
+      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !Get new eferm, sev, wtkb...
+      if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
+      if(lmet==0.and. master_mpi)
+     &     write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
+      if(master_mpi) then
          open(newunit=ifi,file='efermi.lmf')
          write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
@@ -587,32 +554,29 @@ c mar2014
          write(ifi,"('# NOTE: Not by band plot mode')")
          close(ifi)             
       endif
-
-!! === DOS mode. Generate total DOS ===
+!! Generate total DOS 
+!!    dos window
+      dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos
+      dosw(2)= eferm+bz_dosmax  ! lowest energy limit to plot dos
       if(master_mpi.and.(tdos.or.ldos/=0)) then
-         write(stdo,"(a)")'... Generating total DOS'   
-         dosw(1)= emin-0.5d0    ! lowest energy limit to plot dos
-         dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
-         write(stdo,"(a,3f9.4)") 'efermi and dos window= ',eferm,dosw
+         write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
          allocate( dos_rv(ndos,2*nspx))
          if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
          if(ltet) then 
-            call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , eferm ,
+            call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
+     &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , efermxxx ,
      &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 integrated dos dos_rv
-            call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
-     .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
+            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dos_rv ) !derivative 'integrated dos -> DOS'
          else
-            call makdos ( nkp , ndhamx , ndhamx , nspx
-     .           , rv_a_owtkp , evlall , bz_n , bz_w
+            call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
          endif
-         if ( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
+         if( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
          open(newunit=ifi,file='dos.tot.'//trim(sname))
          open(newunit=ifii,file='dosi.tot.'//trim(sname))
          dee=(dosw(2)-dosw(1))/(ndos-1d0)
          do ipts=1,ndos
-            eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-eferm
+            eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
             dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,isp)*dee
             write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nsp)
             write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nsp)
@@ -621,13 +585,50 @@ c mar2014
          close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
-!! Core-level spectroscopy ---
+      
+!! AllReduce band quantities.  eterms should be cleaned up in future.   
+      call m_bandcal_allreduce(lrout,lwtkb)
+      eterms=ham_eterms 
+      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+      ham_eterms=eterms
+      emin=1d9
+      do iq = 1, nkp
+         qp=qplist(:,iq)
+         do isp = 1, nspx 
+          jsp = isp
+          if(iprint()>20) write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
+     &      iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
+          if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+          emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
+         enddo
+      enddo
+!! Accumurate quantities for determined wtkb. Originally called as second pass.
+      if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
+         lwtkb = 1
+         call mpi_barrier(MPI_comm_world,ierr)
+         call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate srout_zv and so on.
+         call m_bandcal_allreduce(lrout,lwtkb)
+         eterms=ham_eterms 
+         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+         ham_eterms=eterms
+      endif
+      
+!! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
+!!    dos window
+      dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos
+      dosw(2)= eferm+bz_dosmax  ! lowest energy limit to plot dos
       if (cmdopt0('--cls')) then
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
       
-!! Assemble output density ---
+!! contribution to force via band 
+      if(lfrce>0) frc=frcband   !part of atomic force from band part
+!! write orbital moment      
+      if(lwtkb==1 .and. lso /=0) call iorbtm() !write out orbital moment
+
+      
+!! Assemble output density, energies and forces ===============================
       do  ib = 1, nbas
         is =  ssite(ib)%spec
         nr =  sspec(is)%nr
@@ -641,14 +642,12 @@ c mar2014
       enddo
       allocate(qbyl_rv(n0,nsp,nbas))
       allocate(hbyl_rv(n0,nsp,nbas))
-      if(debug) write(*,*) 'kino: allocate hbyl_rv,',n0*nbas*nsp
       call mkrout ( ssite , sspec ,  nbas , nsp , ldim  !sham ,slat , 
      .  , lekkl , sv_p_oqkkl , sv_p_oeqkkl , sv_p_orhat1 , hab_rv , sab_rv 
      .  , qbyl_rv , hbyl_rv , lrout )
       if (lrout .ne. 0) then
 C   ... Symmetrize output density and forces
-         call symrho ( ssite , sspec ,  lfrce , srout_zv , sv_p_orhat1 !slat ,
-     .     , qbyl_rv , hbyl_rv , frc )
+         call symrho ( ssite, sspec,  lfrce, srout_zv, sv_p_orhat1, qbyl_rv, hbyl_rv, frc )
 C   ... New boundary conditions pnu for phi and phidot
          if (lpnu .gt. 0) then
             call dcopy(size(ham_pmin),ham_pmin,1,xv,1)
