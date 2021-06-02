@@ -116,17 +116,18 @@ c      if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,jsp,sum(dwg
       end subroutine
       
 !!--------------------------------------------------------
-      subroutine m_procar_writepdos(kpproc,emin,emax,ef0)
+      subroutine m_procar_writepdos(evlall,nev_,ef0,kpproc)
       use m_mkqp,only: nkabc=> bz_nabc
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_ext,only:sname
-      use m_bandcal,only: evlall,nev_
+      real(8) evlall(:,:,:)
+      integer:: nev_(:)
 c     include "mpif.h"
       logical:: cmdopt0
       integer:: kpproc(*)
       integer,allocatable:: ipqe(:,:,:),idtete(:,:)
       integer:: ik1,ik2,ik3,iq,nkk1,nkk2,nkk3,ntete,ifip,nevmin
-      real(8):: qx(3),ef0,emin,emax
+      real(8):: qx(3),ef0!,emin,emax
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)
@@ -165,7 +166,7 @@ c            emaxp=30.0/rydberg
 c            ndos=5500
             write(stdo,"(' pdosmode: ndhamx nsp nspx =',4i7)") ndhamx, nsp, nspx,nevmin !nevmx
 c            print *,' pdosmode: nchanp nbas ndos emin emax ef0=', nchanp,nbas,ndos, emin,emax,ef0
-            write(stdo,"(' pdosmode: nchanp nbas emin emax ef0=',2i7,3f12.5)") nchanp,nbas,emin,emax,ef0 !mar2015
+            write(stdo,"(' pdosmode: nchanp nbas ef0=',2i7,3f12.5)") nchanp,nbas,ef0 !mar2015
             open(newunit=ifip,file='pdosdata.'//trim(sname),form='unformatted')
             write(ifip) ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,nkp !ndos,nkp mar2015
             write(ifip) idtete,ipqe ! allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))

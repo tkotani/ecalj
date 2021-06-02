@@ -382,8 +382,8 @@ C     --- IO ---
          if (io_show .ne. 0) call shosyv(0,0,0,stdo)
       endif
 
-!     ! begining of log file.
-      if (stdl>0 .and. iprint()>0) call headl2(prgnam,0,stdl)
+c!     ! begining of log file.
+c      if (stdl>0 .and. iprint()>0) call headl2(prgnam,0,stdl)
 
 !     ! --- Header ---
       nm='HEADER'; call gtv(trim(nm),tksw(prgnam,nm),header,note=
@@ -1546,8 +1546,9 @@ c     .     ' 4 BZ integration with 3-point scheme')
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
      .     def_i4=0,note='Choose 0 or 1: %N%3f1 Write dos.tot.* file (settings are NPTS and DOS)')
-      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
-     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
+c      nm='BZ_DOS'; call gtv(trim(nm),tksw(prgnam,nm),bz_doswin,def_r8v=
+c     .     (/-1d0,0d0/),note='Energy window over which DOS accumulated')
+      bz_doswin=-9999
       nm='BZ_NPTS'; call gtv(trim(nm),tksw(prgnam,nm),bz_ndos,def_i4=1001,
      .     note='No. DOS points (sampling integration)')
 

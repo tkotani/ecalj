@@ -9,7 +9,7 @@
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
-     &      pwmode=>ham_pwmode,pwemax=>ham_pwemax,ndos=>bz_ndos,stdl,ldos=>ctrl_ldos
+     &      pwmode=>ham_pwmode,pwemax=>ham_pwemax,stdl
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
@@ -23,7 +23,7 @@
 
       real(8),protected::  sumqv(3,2),sumev(3,2)
       integer,allocatable,protected:: ndimhx_(:),nev_(:),nevls(:,:)
-      real(8),allocatable,protected:: evlall(:,:,:),frcband(:,:), dos_rv(:,:),orbtm_rv(:)
+      real(8),allocatable,protected:: evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
       complex(8),allocatable,protected::  srout_zv(:),dmatu(:,:,:,:)
       type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
       
@@ -31,12 +31,12 @@
       logical,private:: dmatuinit=.true.
       contains
 ! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
-      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,emin,emax,ifih,lwtkb) !,kpproc)
+      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,ifih,lwtkb) !,kpproc)
 c     &     evlall,dos_rv,dmatu,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
       integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig
-      real(8):: qp(3),ef0,def=0d0,emin,emax,xv(3)
+      real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: t_zv(:,:)
       integer::  pidorigin,iprint,i,ibas
@@ -52,11 +52,11 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
       ltet = ntet>0
       if(plbnd==0.and.lso/=0.and.lwtkb==0) call rx('metal weights required for orb. moment calculation')
       
-      if(lso/=0) allocate(orbtm_rv(nl*nsp*nbas)) !for spin-orbit coupling
+      if(lso/=0) allocate(orbtm_rv(nl,nsp,nbas)) !for spin-orbit coupling
       if(lso/=0) orbtm_rv=0d0
       
-      allocate( dos_rv(ndos,2*nsp))
-      if(ldos==1 .or. lmet>0) dos_rv=0d0
+c      allocate( dos_rv(ndos,2*nsp))
+c      if(ldos==1 .or. lmet>0) dos_rv=0d0
 
       allocate( evlall(ndhamx,nspx,nkp))
       if(lfrce>0) then
@@ -217,8 +217,8 @@ c               call readindensitymodesetting() !dummy
                !Accumulate output density and sampling DOS. To make DOS when lmet=4
                call addrbl (jsp, qp, lrout
      .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , t_zv,evl,nev,  ef0,def,emin,emax,ndos
-     o              , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+     &              , t_zv,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
+     o              , srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
             if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
             if(allocated(t_zv)) deallocate(t_zv)
@@ -243,10 +243,10 @@ c               call readindensitymodesetting() !dummy
       deallocate(evl)
       end subroutine
 !!
-      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0,emin,emax)!,ndos)
+      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0) !,emin,emax)!,ndos)
       implicit none
       integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas
-      real(8):: qp(3),ef0,def=0d0,emin,emax,xv(3)
+      real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: t_zv(:,:)
       logical:: cmdopt0
@@ -285,8 +285,8 @@ c               call readindensitymodesetting() !dummy
 c               call readindensitymodesetting() !dummy
                call addrbl (jsp, qp, lrout
      .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , t_zv,evl,nev,  ef0,def,emin,emax,ndos
-     o              , dos_rv, srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
+     &              , t_zv,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
+     o              , srout_zv, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
             if(allocated(t_zv)) deallocate(t_zv)
 12005    continue 
@@ -306,7 +306,7 @@ c               call readindensitymodesetting() !dummy
 
       subroutine m_bandcal_clean()
       if (allocated(orbtm_rv)) deallocate(orbtm_rv)
-      if (allocated(dos_rv))   deallocate(dos_rv)
+c      if (allocated(dos_rv))   deallocate(dos_rv)
       if (allocated(srout_zv)) deallocate(srout_zv)
       if (allocated(frcband))  deallocate(frcband)
       if (allocated(ndimhx_))  deallocate(ndimhx_,nev_,nevls)
@@ -338,8 +338,8 @@ c               call readindensitymodesetting() !dummy
             endif
          enddo
          enddo
-         if( ndos>0 ) nnn=size(dos_rv)
-         if( ndos>0 ) call mpibc2_real(dos_rv,nnn,'bndfp_dos')
+c         if( ndos>0 ) nnn=size(dos_rv)
+c         if( ndos>0 ) call mpibc2_real(dos_rv,nnn,'bndfp_dos')
          if(lfrce/=0) nnn=size(frcband)
          if(lfrce/=0) call mpibc2_real(frcband,nnn,'bndfp_frcband')        
          if(nlibu>0)  nnn=size(dmatu)

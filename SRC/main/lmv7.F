@@ -5,9 +5,9 @@
       use m_lattic,only: m_Lattic_init
       use m_mkqp,only:   m_Mkqp_init
       use m_rdfiln,only: m_Rdfiln_init
-      use m_MPItk,only:  m_MPItk_init,m_MPItk_finalize, procid,master,nsize
+      use m_MPItk,only:  m_MPItk_init,m_MPItk_finalize,nsize,master_mpi
       implicit none
-      integer:: k,lgunit,stdo 
+      integer:: k,lgunit,stdo,stdl
       logical:: fileexist,cmdopt,llmfgw=.false.,cmdopt0,cmdopt2
       character:: outs*20,aaa*512,sss*128
       character prgnam*8
@@ -25,18 +25,19 @@
       call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
       call m_MPItk_init(prgnam)
       stdo = lgunit(1)          !standard output stdo=6 usually
+      stdl = lgunit(2)
       aaa=''
       do iarg=1,iargc()
          call getarg(iarg,sss)
          aaa=aaa//' '//trim(sss)
       enddo   
-      if(procid==master) write(stdo,"(a)") ' ---------  START '//trim(prgnam)//'  '//trim(aaa)
-      call Show_programinfo(stdo)
+      if(master_mpi) write(stdo,"(a)") ' ---------  START '//trim(prgnam)//'  '//trim(aaa)
+      if(master_mpi) write(stdl,"(a)") ' ---------  START '//trim(prgnam)//'  '//trim(aaa)
       if(cmdopt2('--pr',outs).or.cmdopt2('-pr',outs)) then 
         read(outs(5:),*) k
         call Setpr(k) !Set iprint(); the verbosity from cmd line
       endif
-      if(procid/=master) call setpr(-100) !iprint() is negative except master
+      if(master_mpi) call setpr(-100) !iprint() is negative except master
 !! help and quit      
       if (cmdopt0('--input')) then 
          call m_lmfinit_init(prgnam) ! show help and quit for --input

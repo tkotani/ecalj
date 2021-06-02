@@ -1,12 +1,12 @@
 CSFCPP#define F90 1
       subroutine addrbl ( isp,q, lrout,
      .     iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
-     .     evec,evl,nevl,  ef0,def,emin,emax,ndos,
-     o     dos, smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
+     .     evec,evl,nevl,  ef0,def, !emin,emax, !ndos,dos,
+     o      smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
       use m_struc_def 
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only:lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
-     &     ctrl_zbak,ldos=>ctrl_ldos!,bz_dosw
+     &     ctrl_zbak !,ldos=>ctrl_ldos!,bz_dosw
       use m_lattic,only: lat_qlat, lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
@@ -90,11 +90,11 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer isp,iq,lrout,
-     .lfrce,ndos !,numq,lekkl !,lcplxp,napw,igapw(3,napw)ndham,ndimh,
+     .lfrce !,ndos !,numq,lekkl !,lcplxp,napw,igapw(3,napw)ndham,ndimh,
       integer nevl
       double precision def,ef0,emax,emin,qval,vconst !,wtkp(*)
-      real(8):: q(3) ,  dos(ndos,2,isp) !wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) ,
-     ., evl(ndham,nsp) , sumev(2,3) , sumqv(3,2) , f(3,*)
+      real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
+!     !dos(ndos,2,isp) !wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) ,
 c      type(s_site)::ssite(*)
 c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
@@ -176,8 +176,8 @@ C ... Case band weights are passed
       endif
 
 C ... Add to sampling dos
-      if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
-     .emin,emax,ndos,dos(1,1,isp)) !,esmear
+c      if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
+c     .emin,emax,ndos,dos(1,1,isp)) !,esmear
 
 C ... Force from smooth analytic hamiltonian and overlap
       if (lfrce .gt. 0 .and. lrout .gt. 0) then

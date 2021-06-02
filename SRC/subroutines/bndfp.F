@@ -9,6 +9,7 @@
 !! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
 !!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
 !!
+      !! emin=dosw(1) emax=dosw(2) dos range
       module m_bndfp
       real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
       real(8),protected:: eferm !,bz_def ! revised when called.
@@ -33,8 +34,8 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
-     &     alat=>lat_alat,stdo,stdl,procid,master,bz_doswin,
-     &     nspc,nkaph,nlmax,nl,nbas,nsp, ham_frzwf,
+     &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
+     &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
      &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -59,7 +60,7 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,m_bandcal_dosw,
-     o     evlall,dos_rv,orbtm_rv,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
+     o     evlall,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
@@ -109,7 +110,7 @@ C     l         :otherwise 1
 
       
 !!      nspx: number of independent spin channels
-!!      nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit
+!!      nspc is now avoided (memo:nspc=2 for lso==1, nspc=1 for lso/=1 See m_lmfinit)
 !!      ndhamx: maximum size of hamiltonian  
 
 C     l   lekkl :0 do not accumulate oeqkkl; 1 do accumulate oeqkkl
@@ -209,12 +210,11 @@ c      integer:: work_mpi(10)    ! use only 1 and 2 now
       type(s_rv1) :: sv_p_orhat1(3,nbas)
       double precision sigp(10)
       logical:: readeferm
-      double precision emax,emin,esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,qbg,ebot,ehar,eks,
+      double precision esmearm,sev,efermr,
+     .  sev00,sev1,sumtv,alfa,qbg,ehar,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
-      equivalence (emin,dosw(1)),(emax,dosw(2))
 !!    PW basis
 c      integer,allocatable:: igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
@@ -322,14 +322,14 @@ c mar2014
       real(8),allocatable:: wkd(:), pdosall(:,:,:)
       character*3::charnum3
       character*100::filenm(2)
-      real(8):: eminp,emaxp
+      real(8):: emin
 
       character(512):: aaachar
       logical:: massline , writeham=.false.
       logical,save:: siginit=.true. 
       character(10):: i2char
       integer::ipos,ndos_,j
-      real(8)::dosmax,emaxp_,posp(3)
+      real(8)::dosmax,posp(3)
       integer:: jspend,jspini,jspp
       integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ist,ip,ni,ix
    
@@ -345,7 +345,8 @@ c mar2014
       character*8:: charext
       logical:: lfill=.false.,ixx,do2010init(2)
       logical:: spinoffdiag
-      real(8):: kkk ,ef0xx!,eferm !dummy
+      real(8):: kkk ,ef0xx      !,eferm !dummy
+      real(8),allocatable:: dos_rv(:,:)
 !! ----------------------------
       call tcn ('bndfp')
       write(stdo,"(a)") 'bndfp:start'
@@ -381,11 +382,11 @@ c mar2014
       k1 = n1
       k2 = n2
       k3 = n3
-      if(bbinit) then !from m_lmfinit
-         bz_dosw=bz_doswin
-         bbinit=.false.
-      endif
-      dosw = bz_dosw
+c      if(bbinit) then !from m_lmfinit
+c      bz_dosw=bz_doswin
+c         bbinit=.false.
+c      endif
+c      dosw = bz_dosw
       if(binit) then ! eferm is from ctrl file via m_lmfinit when m_bndfp_ef_set in not called (binit=T)
          eferm =bz_ef0
          binit=.false.
@@ -486,7 +487,7 @@ c mar2014
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
 ! lwtkb=-1      
-      call m_bandcal_init(iqini,iqend,lrout, eferm,emin,emax,ifih,lwtkb) 
+      call m_bandcal_init(iqini,iqend,lrout, eferm,ifih,lwtkb) 
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
@@ -501,10 +502,22 @@ c mar2014
       nnn = size(nevls)
       call mpibc2_int(nevls,nnn,'bndfp_nevls') !all reduce (to avoid which node to which node).
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
+      evtop=-9999
+      ecbot=9999
+      do iq=1,nkp
+      do jsp=1,nspx          !nspx=1 for SO=1
+         if(lso==1) i = max(1,nint(qval-qbg))
+         if(lso/=1) i = max(1,nint(qval-qbg)/2)
+         evtop = max(evtop,evlall(i,jsp,iq))
+         ecbot = min(ecbot,evlall(i+1,jsp,iq))
+         if(master_mpi.and.(.not.llmfgw).and.plbnd==0.and.iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
+      enddo
+      enddo
+      
 !! pdos mode (--mkprocar and --fullmesh)
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-      if(fullmesh.and.procaron) call m_procar_writepdos(kpproc,emin,emax,eferm)
+      if(fullmesh.and.procaron) call m_procar_writepdos(evlall,nev_,eferm,kpproc)
       if(fullmesh.and.procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
 !! boltztrap data 
       if( cmdopt0('--boltztrap')) call writeboltztrap()
@@ -532,49 +545,43 @@ c mar2014
       eterms=ham_eterms 
       call mpibc2_real(eterms(19),1,'bndfp_rhosig')
       ham_eterms=eterms
+      emin=1d9
       do iq = 1, nkp
          qp=qplist(:,iq)
-         do isp = 1, nspx
+         do isp = 1, nspx 
           jsp = isp
           if(iprint()>20)write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
      &      iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
           if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+          emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo
-      call m_bandcal_dosw(lwtkb,lrout,   dosw,evtop,ecbot)
+c      call m_bandcal_dosw(lwtkb,lrout,   dosw,evtop,ecbot)
       call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !get new eferm
       if(lmet>=0.and. lwtkb==-1 .and. lrout>0) then
          lwtkb = 1
          if(plbnd/=0) call rx('plbnd mode/=0 can not be here')
-         write(6,*)'iiiwww111222 lwtkb=',lwtkb
          call mpi_barrier(MPI_comm_world,ierr)
          if(lrout<=0) call rx('we expect lrout>0  for bandcal2nd')
          if(lwtkb/=1) call rx('we expect lwtkb==1 for bandcal2nd')
-         call m_bandcal_2nd(iqini,iqend,lrout, eferm,emin,emax) !accumulate srout_zv and so on.
+         call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate srout_zv and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
          eterms=ham_eterms 
          call mpibc2_real(eterms(19),1,'bndfp_rhosig')
          ham_eterms=eterms
-         call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
       endif
-      
+c      call m_bandcal_dosw(lwtkb,lrout, dosw,evtop,ecbot)
+            
+
 !========================================================
       if(lfrce>0) frc=frcband !part of atomic force from band part
-      if (lwtkb==1 .and. lso /=0) then !SO by site, not by class
-         allocate(ips_iv(nbas))
-         do i_spackv=1,nbas
-            ips_iv(i_spackv)=ssite(i_spackv)%spec 
-         enddo
-         call iorbtm( sspec , ips_iv , nl , nl , nbas , nsp , orbtm_rv  ) !orbital moment
-         if (allocated(ips_iv)) deallocate(ips_iv)
-      endif
-c write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear',f8.4)") nkp,ebot,qval,qbg,bz_w
+      if(lwtkb==1 .and. lso /=0) call iorbtm() !write out orbital moment
 !! Save Fermi level, nonmetal or sampling integration
-         if(lmet==0) then !non metal mode
-           eferm = (evtop+ecbot)/2d0
-           write(stdo,"(' Highest occ. level = ',f13.5,' Lowest unocc. = ',f13.5, ' average =',f13.5)")evtop,ecbot,eferm !eferm
+      if(lmet==0) then          !non metal mode
+        eferm = (evtop+ecbot)/2d0
+        if(master_mpi) write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
 !! NOTE:: weight wtkb(ib,iq,isp) is written to wkp.* in m_bzintegration.F for lmet>0. 
-         endif
+      endif
 !! --- efermi.lmf 
       if(master_mpi.and.plbnd==0) then
          open(newunit=ifi,file='efermi.lmf')
@@ -589,33 +596,36 @@ c write (stdl,"('nv nkp',i5,'  ebot',f9.4,'   qval',f10.4,'  qbg',f8.4,'  esmear
          write(ifi,"('# NOTE: Not by band plot mode')")
          close(ifi)             
       endif
-      
 
 !! === DOS mode. Generate DOS ===
       if(master_mpi.and.(tdos.or.ldos/=0)) then
             write(stdo,"(a)")'... Generating total DOS'   
+            dosw(1)= emin-0.5d0 ! lowest energy limit to plot dos
+            dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
+            allocate( dos_rv(ndos,2*nspx))
 !! Default and external option. 
-            if(tdos) dosmax = bz_dosmax
+c            if(tdos) dosmax = bz_dosmax
             if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
+c            dosw(2) = bz_dosmax + eferm 
             if(ltet) then !ndos>0 is assumed now
-!! determine eferm
-               call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
-     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
-     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
+c!! determine eferm
+c               call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
+c     .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
+c     .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )
 !! repeat again for given range emax=dosw(2). mar2012
-               if(tdos) dosw(2) = dosmax + eferm 
+c               if(tdos) dosw(2) = bz_dosmax + eferm 
                call bzints ( nkabc ( 1 ) , nkabc ( 2 ) , nkabc ( 3 ) , evlall 
      .           , dum , nkp , ndhamx , ndhamx , nspx , dosw ( 1 ) , dosw (
      .           2 ) , dos_rv , ndos , eferm , 1 , ntet , iv_a_oidtet , dum , dum )!job=1 integrated dos
                call xxxdif ( dosw ( 1 ) , dosw ( 2 ) , ndos 
      .           , nspx , 0 , dos_rv ) !derivative 'integrated dos -> DOS'
             else
-               if(tdos) dosw(2) = dosmax + eferm  !.or.pdos
+c               if(tdos) dosw(2) = bz_dosmax + eferm  !.or.pdos
                call makdos ( nkp , ndhamx , ndhamx , nspx
      .           , rv_a_owtkp , evlall , bz_n , bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
             endif
-            if ( nspc==2 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
+            if ( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
             open(newunit=ifi,file='dos.tot.'//trim(sname))
             open(newunit=ifii,file='dosi.tot.'//trim(sname))
             dee=(dosw(2)-dosw(1))/(ndos-1d0)
