@@ -1,5 +1,5 @@
       module m_lmfgw
-      use m_supot,only: zv_a_osmrho,sv_a_oorhat
+      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
       use m_supot,only: k1,k2,k3
       use m_struc_def,only: s_rv1

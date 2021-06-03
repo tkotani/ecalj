@@ -1,7 +1,7 @@
       module m_iors
       contains
       integer function iors(nit,lbin,ifi)
-      use m_supot,only: zv_a_osmrho, sv_p_orhoat=>sv_a_oorhat
+      use m_density,only: zv_a_osmrho=>osmrho, sv_p_orhoat=>orhoat
 
       use m_supot,only: lat_nabc
       use m_struc_func,only:mpibc1_s_spec,mpibc1_s_site
@@ -281,7 +281,9 @@ C       if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .true.)) goto 999
         call mpibc1(plat,9,4,mlog,'iors','plat')
         call mpibc1(nit,1,2,mlog,'iors','nit')
 C   --- Read smooth charge density ---
-          line = 'smoothed density'
+        allocate(zv_a_osmrho(k1*k2*k3*nsp))
+        zv_a_osmrho(:)=0d0
+        line = 'smoothed density'
           if (procid .eq. master) then
             if (lbin) then
               read(jfi,err=999,end=999) n11,n21,n31
@@ -406,6 +408,7 @@ C   --- Read information for local densities ---
         if (procid .eq. master) then
           if (.not. lbin) read(jfi,*,err=999,end=999)
         endif
+        allocate(sv_p_orhoat(3,nbas))
         ibaug = 0
         do  ib = 1, nbas
           ic=ssite(ib)%class

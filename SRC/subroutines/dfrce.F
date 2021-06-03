@@ -8,8 +8,6 @@
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc
       use m_supot,only: lat_ng
-
-
       use m_lattic,only: lat_plat
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------

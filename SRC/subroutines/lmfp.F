@@ -1,7 +1,7 @@
       subroutine lmfp(llmfgw)
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
-     &     qbg=>zbak,lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ham_seref,ham_eterms,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
      &     sspec=>v_sspec, ssite=>v_ssite, 
@@ -14,7 +14,8 @@
       use m_iors,only: Iors
       use m_supot,only: Supot,k1,k2,k3
       use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,frc_rv=>frc,qdiff
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff
+      use m_mkrout,only: frc_rv=>frc
       use m_ldau,only: m_ldau_init,m_ldau_vorbset
       use m_chkdmu,only: eorb
       use m_bandcal,only: dmatu
@@ -68,15 +69,11 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       call tcn('lmfp')
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
-c      qbg = ctrl_zbak(1)
       maxit = ctrl_maxit
-      if(lhf) maxit = 1
-      call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
       irs1x = irs1
       plat = lat_plat
       qlat = lat_qlat
       if(ipr>=30) call praugm(sspec,0) !Printout properties of species
-
       
 !! atomic position Relaxation setup (md mode)
       itrlx = 1
@@ -110,7 +107,7 @@ c      qbg = ctrl_zbak(1)
       call supot() ! get lattice vectors and array for potential
       call m_suham_init(sspec,ssite)  ! sspec ssite are modified.
       if( ctrl_quit==8 ) call rx0('quit = ham')
-      allocate(ftot_rv(3*nbas))
+c      allocate(ftot_rv(3*nbas))
 !!      
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'lmfp (fatal): output density required when forces sought.\n'//
@@ -127,15 +124,16 @@ c      qbg = ctrl_zbak(1)
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(nlibu>0.and.ctrl_quit==16 ) call rx0('quit = dmat')
+      
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
 C     0    read from atom file  atm
 C     1    read from binary     rst 
 C     2    read from ascii      rsta
-Cxxx   ???  +4s' bit of irs(1) -> invoke smshft after file read.
-Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
-      if (irs1x == 0) then      !read overlap free-atom densities
+C    +10 -> invoke smshft(1) after file read.
+Cxxx  removing mode =>  +8s' bit of irs(1) -> rotate local density after file read
+      if (irs1x == 0) then  !read overlap free-atom densities
          call rdovfa() ! superposition of spherical atomic densities by lmfa.
          nit1 = 0
       elseif ( mod(irs1x,4)==1 .or. mod(irs1x,4)==2 ) then 
@@ -147,20 +145,21 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
          call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
-         k = iors (nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
+         k = iors(nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
          if (master_mpi) close(ifi) 
          call mpibc1(k,1,2,mlog,'lmfp','k')
          do ibas=1,nbas 
             rv_a_opos(:,ibas) = ssite(ibas)%pos
          enddo
-         if (k .lt. 0) then
+         if(k<0) then !initial potential from atm file if rst can not read
             irs1x = 0
-            call rdovfa() !initial potential  nbas, nspec, ssite, sspec,qbg,
+            call rdovfa() 
             nit1 = 0
          elseif (irs1x10) then  
             call smshft(1)
          endif
-      endif  
+      endif
+      
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
@@ -242,7 +241,7 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
             if( ctrl_quit==4 ) call rx0 ( 'lmf : exit (--quit=band)' )
             if( lsc <= 2) exit  !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
-         if (nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
+         if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
 !! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
          do ibas=1,nbas
             ssite(ibas)%pos0 = ssite(ibas)%pos
@@ -319,10 +318,9 @@ C     ... Restore minimum gradient positions if this is last step
          if (allocated(pos_move)) deallocate(pos_move)
       endif 
       if(master_mpi.and.nitrlx>0) close(ifipos)
-      if(allocated(ftot_rv)) deallocate(ftot_rv)
+c      if(allocated(ftot_rv)) deallocate(ftot_rv)
       if(allocated(p_rv)) deallocate(p_rv)
       if(allocated(w_rv)) deallocate(w_rv)
       if(allocated(indrx_iv)) deallocate(indrx_iv)
-c      if(allocated(frc_rv)) deallocate(frc_rv)
       call tcx('lmfp')
       end subroutine lmfp

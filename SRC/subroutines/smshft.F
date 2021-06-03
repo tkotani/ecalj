@@ -1,5 +1,5 @@
       subroutine smshft (job)
-      use m_supot,only:  sv_p_orhoat=>sv_a_oorhat,smrho=>zv_a_osmrho !output
+      use m_density,only:  sv_p_orhoat=>orhoat,smrho=>osmrho !output
       use m_supot,only:  iv_a_okv,rv_a_ogv
       use m_lmfinit,only: ctrl_lfrce,ham_elind,
      &     lat_alat,nsp,nbas, sspec=>v_sspec, ssite=>v_ssite
@@ -143,7 +143,7 @@ c      call dpadd ( cgr_zv , cgs_zv , 1 , ng * 2 * nsp , 1d0 )
       call gvputf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , cgr_zv , smrho )
       call fftz3(smrho,n1,n2,n3,k1,k2,k3,nsp,0,1)
 C --- Symmetrize the shifted density ---
-      call symsmr(nsp,k1,k2,k3,smrho) !slat,
+      call symsmrho(smrho) !slat,nsp,k1,k2,k3,
       if (iprint() .gt. 100) call zprm3('shifted smrho',0,smrho,k1,k2,k3*nsp)
       if (allocated(cgs_zv)) deallocate(cgs_zv)
       if (allocated(cgr_zv)) deallocate(cgr_zv)

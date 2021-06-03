@@ -1,11 +1,12 @@
-      subroutine rdovfa( )
-      use m_supot,only: zv_a_osmrho,sv_p_orhoat=>sv_a_oorhat
+      subroutine rdovfa()
+      use m_density,only: zv_a_osmrho=>osmrho,sv_p_orhoat=>orhoat 
+!!      
       use m_supot,only: lat_nabc,lat_ng,rv_a_ogv,iv_a_okv,rv_a_ogv
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec,qbg=>zbak
       use m_lattic,only: lat_plat,lat_vol
       use m_struc_def,only: s_rv1
       use m_struc_func, only: mpibc1_s_spec
-C- Read and overlap free atom densities.
+!!- Read and overlap free atom densities.
 C  allocates orhoca with free-atom core density. 
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -13,7 +14,6 @@ Ci   nbas  :size of basis
 Ci   nspec :number of species
 Ci   ssite :struct containing site-specific information
 Ci   sspec :struct containing species-specific information
-Ci   slat  :struct containing information about the lattice
 Ci   qbg  :constant background charge  qcore+qval-qbg = \sum_i Zi
 Co Outputs
 Co   orhoat: vector of offsets containing site density, in standard
@@ -23,17 +23,7 @@ Co         :* for smrho = smoothed mesh density, smrho is complex and
 Co         :  smrho = smrho(k1,k2,k3)
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer procid, master, mpipid
-c      integer:: nbas , nspec
-c      type(s_rv1) :: sv_p_orhoat(3,nbas)
-c      real(8):: qbg
-c      type(s_site)::ssite(nbas)
-c      type(s_spec)::sspec(nspec)
-c      type(s_lat)::slat
-c      type(s_pot)::spot
-
-C ... Local parameters
       integer nrmx, n0
       parameter ( nrmx=1501, n0=10 )
       integer:: nxi(nspec)
@@ -199,6 +189,7 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
       ztot = 0d0
       ctot = 0d0
       corm = 0d0
+      allocate(sv_p_orhoat(3,nbas))
       do  20  ib = 1, nbas
         is = int(ssite(ib)%spec)
         a=sspec(is)%a
@@ -209,19 +200,14 @@ C --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
         qc=sspec(is)%qc
         lfoc=sspec(is)%lfoca
         nlml = (lmxl+1)**2
-
-        allocate(sv_p_orhoat(1,ib)%v(abs(nr*nlml*nsp)))
-        if (nr*nlml*nsp<0) sv_p_orhoat(1,ib)%v(:)=0.0d0
-        allocate(sv_p_orhoat(2,ib)%v(abs(nr*nlml*nsp)))
-        if (nr*nlml*nsp<0) sv_p_orhoat(2,ib)%v(:)=0.0d0
-        allocate(sv_p_orhoat(3,ib)%v(abs(nr*nsp)))
-        if (nr*nsp<0) sv_p_orhoat(3,ib)%v(:)=0.0d0
+!!
+        allocate(sv_p_orhoat(1,ib)%v(nr*nlml*nsp))
+        allocate(sv_p_orhoat(2,ib)%v(nr*nlml*nsp))
+        allocate(sv_p_orhoat(3,ib)%v(nr*nsp))
         if (allocated(ssite(ib)%rv_a_ov0)) deallocate(ssite(ib)%rv_a_ov0)
         allocate(ssite(ib)%rv_a_ov0(abs(nr*nsp)))
-        if (nr*nsp<0) ssite(ib)%rv_a_ov0(:)=0.0d0
         if (allocated(ssite(ib)%rv_a_ov1)) deallocate(ssite(ib)%rv_a_ov1)
         allocate(ssite(ib)%rv_a_ov1(abs(nr*nsp)))
-c        if (nr*nsp<0) ssite(ib)%rv_a_ov1(:)=0.0d0
 
 C       Core magnetic moment (possible if magnetized core hole)
         if (nsp .eq. 2 .and. lmxl .gt. -1) then
@@ -258,7 +244,11 @@ C       Core magnetic moment (possible if magnetized core hole)
         ztot = ztot+z
         ctot = ctot+qc
 C     end loop over sites
-   20 continue
+ 20   continue
+      
+!! allocate array for iteration
+      allocate(zv_a_osmrho(k1*k2*k3*nsp))
+      zv_a_osmrho(:)=0d0
 
 C --- Overlap smooth hankels to get smooth interstitial density ---
       ng=lat_ng

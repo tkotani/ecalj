@@ -2059,6 +2059,9 @@ c      enddo
         irs2=0
         ctrl_maxit=1
       endif
+      if(lhf) ctrl_maxit= 1
+!! scaler rel       
+      call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
 !      
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
       lrout = 1 ! Whether to evaluate output density and/or KS energy

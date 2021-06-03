@@ -1,9 +1,8 @@
-      subroutine symrho ( ssite , sspec ,  lf , smrho , sv_p_orhoat !slat ,
-     .     , qbyl , hbyl , f )
+      subroutine symrhoat ( sv_p_orhoat, qbyl, hbyl, f)
       use m_supot,only:  rv_a_ogv , iv_a_oips0 , zv_a_obgv ,iv_a_okv
       use m_mksym,only: iv_a_oistab , rv_a_osymgr, rv_a_oag
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only:nbas,nsp
+      use m_struc_def  
+      use m_lmfinit,only: nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,lf=>ctrl_lfrce
       use m_supot,only: lat_nabc
 
 C- Symmetrize charge density and related quantities
@@ -23,8 +22,8 @@ Ci     Stored:    *
 Ci     Passed to: *
 Ci   lf    :>0 symmetrize forces
 Ci Inputs/Outputs
-Cio  smrho :smooth density
-Cio        :Symmetrized on output
+Ciox  smrho :smooth density
+Ciox        :Symmetrized on output
 Cio  orhoat:vector of offsets containing site density
 Cio        :Symmetrized on output
 Cio  qbyl  :site- and l-decomposed charges
@@ -39,13 +38,13 @@ Cu   01 Jul 05 handle sites with lmxa=-1 -> no augmentation
 Cu   19 Jun 00 Packaged from nfp symrat.f and symsmr.f
 C ----------------------------------------------------------------------
       implicit none
-      integer:: lf
+c      integer:: lf
       type(s_rv1) :: sv_p_orhoat(3,*)
       real(8):: f(*) , qbyl(*) , hbyl(*)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
-      double complex smrho(*)
+c      double complex smrho(*)
       integer ngabc(3),n1,n2,n3,k1,k2,k3,nglob,iprint,i_copy_size
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
       call tcn('symrho')
@@ -60,9 +59,9 @@ c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
      . , qbyl , hbyl , f )
       if ( iprint ( ) .gt. 50 ) call prrhat ( nbas , ssite , sspec 
      . , sv_p_orhoat )
-      call symsmr(nsp,k1,k2,k3,smrho) !slat,
+c      call symsmr(nsp,k1,k2,k3,smrho) !slat,
       call tcx('symrho')
-      end subroutine symrho
+      end subroutine symrhoat
 
       subroutine symrat ( ssite , sspec , nbas , nsp , lf , !slat , 
      . sv_p_orhoat , qbyl , hbyl , f )
@@ -310,23 +309,21 @@ C ... Copy to all sites in class
       end subroutine psymr1
 
 
-      subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
+      subroutine symsmrho(smrho) !slat,
+c      subroutine symsmr(nsp,k1,k2,k3,smrho) !slat,
       use m_supot,only:  iv_a_oips0, iv_a_okv,rv_a_ogv,zv_a_obgv
-      use m_struc_def           !Cgetarg
-      use m_supot,only: lat_ng,lat_nabc
+      use m_supot,only: lat_ng,lat_nabc,k1,k2,k3
       use m_mksym,only: lat_nsgrp
+      use m_lmfinit,only: nsp
 C- Symmetrize the smooth charge density
       implicit none
-C ... Passed parameters
-      integer nsp,k1,k2,k3
-c      type(s_lat)::slat
+c      integer nsp,k1,k2,k3
       double complex smrho(k1,k2,k3,nsp)
-C ... Local parameters
       integer:: n1 , n2 , n3 , ng , ngrp , ngabc(3) , isp
       complex(8) ,allocatable :: csym_zv(:)
       complex(8) ,allocatable :: cv_zv(:)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-      call tcn('symsmr')
+      call tcn('symsmrho')
       ngabc=lat_nabc
       ng=lat_ng
       ngrp=lat_nsgrp
@@ -354,8 +351,8 @@ C   10   smrho(i1,i23,1) = dble(smrho(i1,i23,1))
       else
         call info(30,1,1,' Smooth density not symmetrized (ngrp=1)',0,0)
       endif
-      call tcx('symsmr')
-      end subroutine symsmr
+      call tcx('symsmrho')
+      end subroutine symsmrho
 
       subroutine rhopos(smrho,k1,k2,k3,n1,n2,n3)
 C- Make smrho real and positive

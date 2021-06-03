@@ -1,11 +1,12 @@
-      subroutine pnunew(nbas,nsp,ssite,sspec,pmin,pmax,lfrzw,hab,sab,
-     .qbyl,hbyl,eferm)
+      subroutine pnunew(eferm)
       use m_MPItk,only: master_mpi
-      use m_struc_def  !Cgetarg
+      use m_mkpot,only: hab=>hab_rv,sab=>sab_rv
+      use m_lmfinit,only:nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,ham_frzwf,
+     &     pmin=>ham_pmin,pmax=>ham_pmax,n0,nab
+      use m_mkrout,only: hbyl=>hbyl_rv,qbyl=>qbyl_rv
+c      use m_struc_def  !Cgetarg
 !!= Makes new boundary conditions pnu for phi,phidot =
 !!* takao sep2010. P is setted to that at efermi if PZ is for semicore.
-
-
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
@@ -45,13 +46,13 @@ Cu   28 Aug 01 Extended to local orbitals.  For now, freeze pnu
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,nsp,lfrzw,n0,nab
-      parameter(n0=10,nab=9)
-      real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
-     ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
+c      integer n0,nab
+c      parameter(n0=10,nab=9)
+c      real(8):: pmin(n0) , pmax(n0) , qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) 
+c     ., sab(nab,n0,nsp,nbas) , hab(nab,n0,nsp,nbas)
 cki      type(s_site)::ssite(*)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(*)
 
 C ... Local parameters
       logical lpz,lfrzv,lfrzz
@@ -125,7 +126,7 @@ c        call r8tos8(sspec(is)%name,spid)
             pznew = 2d10
 C         Initially set lfrzv,lfrzz to external constraints.
             lfrzv = (mod(idmod(m),10).ne.0 .and. mod(idmod(m),10).ne.3)
-     .      .or. lfrzw .ne. 0
+     .      .or. ham_frzwf !lfrzw .ne. 0
             lfrzz = lfrzv
             lpz = pnz(m,1) .ne. 0
 
