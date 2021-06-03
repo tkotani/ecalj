@@ -10,7 +10,7 @@ c      real(8),allocatable,protected :: rv_a_oswtk(:)
       contains
       subroutine m_subzi_init(lwt) !, mpsord) !, efermi)
       use m_ext,only: sname
-      use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, ctrl_zbak,stdo
+      use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,stdo
       use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
       use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
       use m_mkpot,only:  qval
@@ -93,7 +93,7 @@ C ----------------------------------------------------------------------
       character*11 strni(2)
       integer procid,master,mpipid
       data strni /'sampling','tetrahedron'/
-      real(8):: qbg
+c      real(8):: qbg
 
 !! set nevmx for plbnd=1 Note: initial setting nevmx=0 is returned for band mode.
       if(cmdopt0('--cls').or.cmdopt0('--tdos').or.cmdopt0('--mkprocar'))  nevmx = ndhamx
@@ -105,7 +105,7 @@ C ----------------------------------------------------------------------
       if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
       if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
-      qbg = ctrl_zbak(1)        !homogenious background charge
+c      qbg = ctrl_zbak(1)        !homogenious background charge
       zval=qval-qbg
       ltet = ntet>0
 c      ldos  = ctrl_ldos !0 or 1

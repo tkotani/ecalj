@@ -1,5 +1,5 @@
       subroutine writeboltztrap()
-      use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc,ctrl_zbak,alat=>lat_alat
+      use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc,qbg=>zbak,alat=>lat_alat
       use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
 c      use m_igv2x,only: igv2x,napw
 c      use m_mkpot,only: ppnl_rv
@@ -14,10 +14,10 @@ c      use m_mkpot,only: ppnl_rv
       character strn*120,strn2*120
       logical:: cmdopt
       integer:: iqread,iqindex job,ist,ip,ni,ix,ifi,jsp,ncount,iq,iband,i,j,nbandx,ig,iqindex
-      real(8):: eferm,qbg,qvec(3),symxx(3,3)
+      real(8):: eferm,qvec(3),symxx(3,3)
       character(10):: i2char
       
-      qbg = ctrl_zbak(1) !homogenious background charge
+c      qbg = ctrl_zbak(1) !homogenious background charge
       if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
          iqread=0
          iqindex = index(strn(12:),'nb=')+2

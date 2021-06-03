@@ -1,7 +1,7 @@
       subroutine lmfp(llmfgw)
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
-     &     ctrl_zbak,lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     qbg=>zbak,lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ham_seref,ham_eterms,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
      &     sspec=>v_sspec, ssite=>v_ssite, 
@@ -47,7 +47,7 @@
       integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
       real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
-      real(8) :: plat(3,3),qlat(3,3),qbg,xvcart(3),xvfrac(3)
+      real(8) :: plat(3,3),qlat(3,3),xvcart(3),xvfrac(3)
       real(8):: seref,etot(2),amom,qtol,etol
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
@@ -68,7 +68,7 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       call tcn('lmfp')
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       call getpr(ipr)
-      qbg = ctrl_zbak(1)
+c      qbg = ctrl_zbak(1)
       maxit = ctrl_maxit
       if(lhf) maxit = 1
       call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.

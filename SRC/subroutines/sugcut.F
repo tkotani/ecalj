@@ -1,7 +1,5 @@
-c     subroutine sugcut(mode,nspec,sspec,alat,ng,gv,tol)
-!! sspec%ngcut      
       subroutine sugcut(mode,sspec)
-      use m_struc_def           !Cgetarg
+      use m_struc_def       
       use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
 C- Find max recip for each spec and orbital block, store in struct.

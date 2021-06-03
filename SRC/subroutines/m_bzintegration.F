@@ -4,7 +4,7 @@
       subroutine m_bzintegration_init(evlall, eferm,sev,sumqv,vnow)!,goto99)
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfinit, only: lso,nsp,ham_scaledsigma,nlibu,lmaxu,bz_w,
-     & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,ctrl_zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
+     & lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,bz_n,bz_fsmommethod,qbg=>zbak,fsmom=>bz_fsmom,ndos=>bz_ndos
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
@@ -21,12 +21,12 @@
       logical:: lfill=.false.,ltet
       logical:: debug,cmdopt0 !goto99,
       integer:: ierr,ifimag,i,ifi,ifile_handle,iobzwt
-      real(8):: dosrng,qbg,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
+      real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
       real(8),parameter::    NULLR =-99999
 c     goto99=.false.
       sev=0d0
       ltet = ntet>0
-      qbg = ctrl_zbak(1) !homogenious background charge
+c      qbg = ctrl_zbak(1) !homogenious background charge
       debug    = cmdopt0('--debugbndfp')
       if (master_mpi) ierr=unlink('MagField') !delete
 !! --- BZ integration for fermi level, band sum and qp weights ---

@@ -1,24 +1,21 @@
       module m_mkpot
-      use m_supot,only: zv_a_osmrho,sv_a_oorhat
-      use m_lmfinit,only:nbas,stdo,ctrl_zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce
-      use m_supot,only: k1,k2,k3
-      use m_struc_def,only: s_rv1
-      use m_MPItk,only: master_mpi,mlog
-      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_supot,only: zv_a_osmrho,sv_a_oorhat, k1,k2,k3
       use m_ldau,only: vorb
+      use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce
+      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_MPItk,only: master_mpi,mlog
+      use m_struc_def,only: s_rv1
       
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:)
-      
-      real(8):: qval,protected
-      
       complex(8),allocatable,protected   :: zv_a_osmpot(:,:,:,:)
+      real(8):: qval,protected
       real(8),allocatable,protected :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
-      real(8),allocatable,protected :: sab_rv(:), vab_rv(:),vval_rv(:),sav_rv(:)
-      real(8),protected:: qsc,vconst !qval,
+      real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval_rv(:),sav_rv(:)
+      real(8),protected:: qsc,vconst 
       real(8),allocatable,protected :: vrmt(:)
-c      complex(8),allocatable,protected:: vorb(:,:,:,:)
+      
       contains
       subroutine m_mkpot_deallocate()
       if (allocated(vrmt)) then
@@ -27,12 +24,12 @@ c      complex(8),allocatable,protected:: vorb(:,:,:,:)
       endif
       end
       
-      subroutine m_mkpot_init(llmfgw) !,vorb)
+      subroutine m_mkpot_init(llmfgw)
       integer:: i,lfrzw,lfrce
-      real(8) ::qbz,qbg
+      real(8) ::qbz
       
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
-      qbg = ctrl_zbak(1) !homogenious background charge
+c      qbg = ctrl_zbak(1) !homogenious background charge
 !
       lfrce=ctrl_lfrce
       fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
@@ -49,8 +46,8 @@ c      complex(8),allocatable,protected:: vorb(:,:,:,:)
       else if (cmdopt0('--wpotmt')) then
          i = i + 20000 !write potmt mode
       endif
-      if(llmfgw) i = i + 10000
-!     ! Arrays used in the generation of the potential ---
+      if(llmfgw) i = i + 10000 !GW driver mode
+!! Arrays used in the generation of the potential ---
       allocate( vrmt(nbas))
       allocate( zv_a_osmpot(k1,k2,k3,nsp)) !smooth potential without XC
       allocate( qmom_rv(nvl))

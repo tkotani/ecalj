@@ -1,6 +1,6 @@
       module m_lmfgw
       use m_supot,only: zv_a_osmrho,sv_a_oorhat
-      use m_lmfinit,only:nbas,stdo,ctrl_zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
+      use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
       use m_supot,only: k1,k2,k3
       use m_struc_def,only: s_rv1
       use m_MPItk,only: master_mpi,mlog
@@ -19,7 +19,7 @@
       complex(8),allocatable:: vorb(:,:,:,:)
       real(8) ,allocatable :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
       real(8) ,allocatable :: sab_rv(:), vab_rv(:),vval_rv(:),sav_rv(:)
-      qbg = ctrl_zbak(1) !homogenious background charge
+c      qbg = ctrl_zbak(1) !homogenious background charge
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1  !freeze all augmentation wave
       if(master_mpi) then

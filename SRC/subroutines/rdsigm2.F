@@ -1,5 +1,6 @@
-!! -----------------------------------------------------------------------------------
       module m_seneinterp
+      public:: getsene,sigmainit
+      
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
@@ -10,8 +11,9 @@
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
       
-!     !ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine getsenex(lrsig,qp,isp,ndimh,ovlm)
+!! this return self-energy senex, which is      
       implicit none
       integer:: lrsig,isp,ndimh
       real(8):: qp(3)
@@ -31,6 +33,7 @@
       subroutine dsene()
       deallocate(senex)
       end subroutine
+      
       subroutine getsene(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: plat,mxorb,nbas,nl
       use m_suham,only:  iv_a_oindxo
@@ -57,7 +60,8 @@ c      lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
      &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
                if(debug) print *,'end of bloch sene'
-      end subroutine getsene         
+      end subroutine getsene
+      
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
 c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
 c     i        sfz(:,:,:,:,:,isp),ldim,ndimsig, 
@@ -1347,7 +1351,10 @@ c      endif ! exit of MPI master loop
 
 
 
-!!---------future version... hamfb3k, bloch will be replaced -----------------
+      
+
+
+!!--- xxxx -----future version... hamfb3k, bloch will be replaced -----------------
       module m_seneinput_notusedyet
       implicit none
       integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)

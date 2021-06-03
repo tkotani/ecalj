@@ -30,10 +30,9 @@
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
-c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
-     &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,ctrl_zbak,lfrce=>ctrl_lfrce,
+     &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
@@ -44,8 +43,9 @@ c     &     sstrnmix,
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-      use m_seneinterp,only: Senebroadcast,Rdsigm2,ndimsig,nspsigm,Sigmainit,Getsenex,sene,Dsene
-      use m_seneinterp,only: ham_ndhrs,ham_nqsig,senex
+
+      use m_seneinterp,only: Sigmainit
+      
       use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk !,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
@@ -66,6 +66,7 @@ c     &     sstrnmix,
      o     evlall,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
       use m_ldau,only: vorb
+      
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -214,7 +215,7 @@ c     .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
       double precision sigp(10)
       logical:: readeferm
       double precision esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,qbg,ehar,eks,
+     .  sev00,sev1,sumtv,alfa,ehar,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -268,7 +269,7 @@ ctakao
       real(8):: qpx(3)          !qpo(3),
 
       integer:: iqini,iqend
-      complex(8),allocatable:: smrhobk(:)
+c      complex(8),allocatable:: smrhobk(:)
       real(8),allocatable::evl(:,:) ! evlall(:,:,:),
       integer:: idummy
       real(8):: epsnevec
@@ -350,21 +351,6 @@ c mar2014
       real(8),allocatable:: dos_rv(:,:)
 !! ----------------------------
       call tcn ('bndfp')
-!!
-      if(initd) then
-!! Initial setup for charge mixing. This is used in mixrho-parmax. but too complicated to touch it.
-! Probably, it is better to write new mixing routine by yourself
-      dmxp   = 0d0
-      dmxp(2) = mix_b
-      dmxp(3) = mix_wc
-      dmxp(4:5)= mix_w(1:2)
-      dmxp(6) = int(mix_nsave)
-      dmxp(7) = int(mix_mmix)
-      dmxp(9)= mix_bv
-      call parms0(0,0,0d0,0)    !reset mixing block
-      initd=.false.
-      endif
-      
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       if(master_mpi) then ! check Write atomic positions
          write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
@@ -375,6 +361,20 @@ c mar2014
             write(stdo,"('ib clabel pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
          enddo
       endif
+!  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
+!  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
+      if(initd) then
+         dmxp   = 0d0
+         dmxp(2) = mix_b
+         dmxp(3) = mix_wc
+         dmxp(4:5)= mix_w(1:2)
+         dmxp(6) = int(mix_nsave)
+         dmxp(7) = int(mix_mmix)
+         dmxp(9)= mix_bv
+         call parms0(0,0,0d0,0) !reset mixing block
+         initd=.false.
+      endif
+!!      
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
@@ -384,17 +384,19 @@ c mar2014
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
+      
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
       eks = 0d0
+      
       if(binit) then ! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          eferm =bz_ef0
          binit=.false.
       endif
       ltet = ntet>0
-      qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
+      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* and HamiltonianPMTinfo
@@ -406,18 +408,18 @@ c mar2014
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw) !,vorb) 
+      call m_mkpot_init(llmfgw)
 !! elind for accelarating convergence
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !! Setup for BZ integration wtkb
 !! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
-      call m_subzi_init(lrout>0) !,def,bz_n,bz_w,eferm) !get nevmx, and so on
+      call m_subzi_init(lrout>0) 
       
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
-      if(lpztail) call sugcut(2, sspec) !sspec%ngcut it was suham2(sspec)
+      if(lpztail) call sugcut(2, sspec) 
       if(cmdopt0('--cls')) then !clsmode
           call rxx(lso==1,'CLS not implemented in noncoll case') 
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
@@ -428,37 +430,35 @@ c mar2014
          if(writeham) call m_writeham_write() 
          onlyonce=.false.
       endif
-!!      
-      if(plbnd/=0) then
+      
 ! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
 ! different number of k points. For example, you may change NKABC, and run job_pdos.
+      if(plbnd/=0) then
          open(newunit=ifi,file='efermi.lmf')
          read(ifi,*) eferm
          close(ifi)             
          call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
       endif
       
-!! === Get nkp and qplist. fatband mode ---> --mkprocar. plbnd/=0 ---> band plot mode.
+!! Get q point list at which we do band calculations.
 !! we can move this outside of iteration cycle.
-      if(debug) write(stdo,*) 'bndfp: goto m_qplist_init'
       if(.not.llmfgw) call m_qplist_init(plbnd)
-      call mpi_barrier(MPI_COMM_WORLD,ierr) 
+      
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
-!! --- New sigma inerpolation mode. Simplified.
-!! OUTPUT in this sigmainit is used in
-!!   call bloch 
-!!  where we use ham_iv_a_oiaxs , ham_rv_a_ohrs, ham_ndhrs and so on.
-!!  In future, we should make this block to a subroutine which shows clear i/o.
-      sigmamode = mod(lrsig,10) .ne. 0
+!! OUTPUTs by sigmainit are stored in m_seneinterp
+!! In future, we should make this block to a subroutine which shows clear i/o.
+!!      
+      sigmamode = mod(lrsig,10)/=0
       if( llmfgw.and.jobgw==0 ) then
          continue
       elseif( sigmamode.and.siginit ) then
          call sigmainit()
          siginit=.false. !this is equivalent to broad casting.
       endif              
-      if(sigmamode.and.master_mpi)write(stdo,*)' ScaledSigma=',ham_scaledsigma
+      if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
+      
 !! == GW driver and finish ==
       if(llmfgw) then
          call sugw(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.

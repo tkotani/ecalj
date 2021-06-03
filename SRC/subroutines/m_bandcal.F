@@ -20,13 +20,13 @@
       use m_seneinterp,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
-
+!! outputs of bandcal_init
       real(8),protected::  sumqv(3,2),sumev(3,2)
       integer,allocatable,protected:: ndimhx_(:),nev_(:),nevls(:,:)
       real(8),allocatable,protected:: evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
       complex(8),allocatable,protected::  srout_zv(:),dmatu(:,:,:,:)
       type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
-      
+!!      
       logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
       contains

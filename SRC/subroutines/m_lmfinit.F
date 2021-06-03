@@ -33,7 +33,7 @@
      &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
-     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines,ctrl_zbak(2),
+     &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
      &     tolft,elind,dqval,rsrnge,vmtz, scaledsigma  ,rsstol     
      &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
      &     ,ham_delta_stabilize 
@@ -71,7 +71,7 @@
       integer,protected:: bz_lshft(3)=0,
      .     bz_lmet,bz_n,bz_lmull,ctrl_ldos,bz_fsmommethod
       real(8),protected:: bz_efmax,bz_zval,bz_fsmom,
-     .     bz_semsh(10),zbak(2),bz_lcond(4),bz_range=5d0,bz_dosmax
+     .     bz_semsh(10),zbak,bz_lcond(4),bz_range=5d0,bz_dosmax
       logical,protected:: bz_lio1,bz_lio2,ctrl_lmet2 
 !! ... Ewald
       real(8),protected:: lat_as,lat_tol,lat_rpad
@@ -1536,12 +1536,12 @@ c     .     ' 4 BZ integration with 3-point scheme')
      .     def_r8=0d0,note='Initial guess at Fermi energy')
       nm='BZ_DELEF'; call gtv(trim(nm),tksw(prgnam,nm),bz_def0,
      .     def_r8=0.05d0,note='Initial uncertainty in Fermi energy')
-      nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak(1),
+      nm='BZ_ZBAK'; call gtv(trim(nm),tksw(prgnam,nm),zbak,
      .     def_r8=0d0,note='Homogeneous background charge')
 !! write zbak. sep2020
       if(procid==master) then
          open(newunit=ifzbak,file='ZBAK')
-         write(ifzbak,"(d23.5, ' ! zbak')") zbak(1)
+         write(ifzbak,"(d23.5, ' ! zbak')") zbak
          close(ifzbak)
       endif
       nm='BZ_SAVDOS'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_ldos,
@@ -1761,7 +1761,7 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_smalit= smalit
       ctrl_tol   = ctrl_tol
       ctrl_wsrmax= wsrmax
-      ctrl_zbak  = zbak
+c      ctrl_zbak  = zbak
       ctrl_pfloat= lpfloat
       if (dalat == NULLR) dalat=0
       lat_alat=alat+dalat

@@ -6,7 +6,7 @@ CSFCPP#define F90 1
       use m_struc_def 
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only:lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
-     &     ctrl_zbak !,ldos=>ctrl_ldos!,bz_dosw
+     &     zbak !,ldos=>ctrl_ldos!,bz_dosw
       use m_lattic,only: lat_qlat, lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
@@ -116,7 +116,7 @@ C ... Local parameters
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
       double precision ewgt(ndimh*nspc*numq),epsnevec
 
-      qval= qval_- ctrl_zbak(1) 
+      qval= qval_- zbak 
 c      emin=bz_dosw(1)
 c      emax=bz_dosw(2)
       
