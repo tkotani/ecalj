@@ -132,10 +132,11 @@ c              call awrit1(strn,' ',len_trim(strn),i1mach(2),retval)
       end
 
       subroutine rx0s(string)
+      use m_MPItk,only: master_mpi
 c  write extra information before error exit in standard format
       character*(*) string
-      write(6,892) string
-  892 format(/' ---- ',a,a)
+      if(master_mpi) write(6,892) trim(string)//' ======================'
+  892 format(/,a)
       call exit(0)
       end
 

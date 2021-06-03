@@ -22,7 +22,7 @@
       binit=.false.
       end
       
-      subroutine bndfp( dmxp,iter,maxit, frc,  vorb,llmfgw)
+      subroutine bndfp( dmxp,iter,maxit, frc, llmfgw) !vorb
       use m_supot,only: zv_a_osmrho,sv_a_oorhat
       
       use m_supot,only: ngabc=>lat_nabc
@@ -51,7 +51,7 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
      o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o     , vval_rv , fes1_rv 
+     o     , vval_rv , fes1_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
@@ -62,6 +62,7 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,srout_zv,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frcband, ndimhx_,nev_,dmatu,nevls
       use m_bzintegration,only: m_bzintegration_init
+      use m_ldau,only: vorb
 c      use m_seneinterp,only:,seneinterp,rv_a_ohrs,iv_a_oiaxs,iv_a_ontabs,rv_p_oqsig
 !! ==== followings are just notations in this code (in cases wrong).
 Ci   nbas  : size of basis
@@ -89,7 +90,7 @@ Ci   iter  :current iteration number
 Ci   maxit :maximum number of iterations
 Ci   evl   :work array holding band eigenvalues for current spin, qp
 Cio LDA+U inputs and outputs
-Cio  dmatu :density matrix for LDA+U (changed upon output)
+Co  dmatu :density matrix for LDA+U (changed upon output)
 Ci  vorb  :orbital dependent LDA+U potential
 Co Outputs
 Co   frc   :forces.  Only calculated if lfrce>0.
@@ -236,7 +237,7 @@ C     real(8),allocatable :: qpe(:,:)
       integer:: nblk,nprow,npcol,nmx
 !!     for LDA+U
       real(8) ,allocatable :: ausu_rv(:)
-      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+c      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       integer:: i_spackv, i_spacks
       integer ::iwdummy
       logical :: debug=.false.  !debug is only for check write. However, it can cause error
@@ -389,21 +390,18 @@ c mar2014
       ltet = ntet>0
       qbg = ctrl_zbak(1) !homogenious background charge
       alfa = 0
-!! spin-symmetrized pnu. aug2019. See also in pnunew and locpot
+!! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
-!! Write out Hamiltonian stated at jan2018kaist
+!! Write out Hamiltonian HamiltonianPMT.* and HamiltonianPMTinfo
       writeham= cmdopt0('--writeham')
       if(writeham) then
          call m_writeham_init()
          open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
       endif      
-!! Make one-particle potential without XC part for GWdriver---
-      if(llmfgw) then        
-         call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
-         call mpi_barrier(MPI_comm_world,ierr)
-      endif
+!! Make one-particle potential without XC part for GWdriver: lmfgw mode 
+      if(llmfgw) call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw,vorb) 
+      call m_mkpot_init(llmfgw) !,vorb) 
 !! elind for accelarating convergence
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind

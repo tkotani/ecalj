@@ -1022,7 +1022,7 @@ C     Speed of light, or infinity in nonrelativistic case
       real(8):: plplus(0:lmax,nsp),qlplus(0:lmax,nsp)
       integer::nmcore !jun2012
       call setcc(lrel)
-       call tcn('newrho')
+c       call tcn('newrho')
 
       if (nr .gt. nrmx) call rxi(' newrho: increase nrx, need',nr)
       lr = 1
@@ -1147,7 +1147,7 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
-      call tcx('newrho')
+c      call tcx('newrho')
       end subroutine newrho
 
 

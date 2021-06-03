@@ -41,7 +41,6 @@ c        if(master_mpi) then ! pair-table and weight generator.  nlat,qgt are no
             write(6,"(' qplist:',i9,3f10.4)")ip, qplist(:,ip)
           enddo
           allocate(npair(nbas,nbas))!,pos(3,nbas))
-c          pos = rv_a_opos
           npairmx=nkk1*nkk2*nkk3*2 !initial size of npairmx
           do   !this loop is just to get reasonable npairmx satisfying npairmx >npair
             npairmx = npairmx + (nkk1*nkk2*nkk3+1)*.5 !+1 added Feb2014 for 1x1x1

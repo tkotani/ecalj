@@ -1,10 +1,9 @@
+!!    qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3.
       subroutine gennlat(pos,nbas,plat,nk1,nk2,nk3,npairmx,ok,npair,  nlat,nqwgt)
       use m_shortn3,only: shortn3_initialize,shortn3
-!!i   pos,nbas,plot,nk,npairmx,range.
-!!o   npair(rewritten), nlat,qwgt.
-!!    qwgt is the weight for integration. Total number of qwgt is nk =nk1*nk2*nk3.
-c
       implicit none
+      intent(in)::       pos,nbas,plat,nk1,nk2,nk3,npairmx
+      intent(out)::                                        ok,npair,  nlat,nqwgt
       integer:: nbas,nk1,nk2,nk3,nparimx,npair(nbas,nbas),npairmx
       integer:: ib1,ib2,nnn,ik,nmax(3),ix,i,j,ik1,ik2,ik3,nout,ni
       integer:: nlat(3,npairmx,nbas,nbas),nd(3)

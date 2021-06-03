@@ -16,8 +16,9 @@
       use m_supot,only: Supot,k1,k2,k3
       use m_suham,only: m_suham_init
       use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk
-      use m_chkdmu,only: Chkdmu, eorb
-      use m_bandcal,only: dmatu_out=>dmatu
+      use m_ldau,only: m_ldau_init,m_ldau_vorbset
+      use m_chkdmu,only: eorb
+      use m_bandcal,only: dmatu
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).
@@ -33,7 +34,7 @@
 !     ssite :struct for site-specific information; see routine usite
 !   sspec and ssite are not clearly protecetd ---> iors can modify it.
 !   But, these are fixed before going into do 2000/1000 loop (I think).      
-!! Memo for LDA+U
+! Memo for LDA+U
 !     lmaxu : max l for a U (used for dimensioning)
 !     nlibu : total number of U blocks
 !     lldau(ib) : U on site ib with dmat beginning at dmats(*,lldau(ib))
@@ -52,7 +53,7 @@
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:), frc_rv(:,:), ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
       real(8), allocatable :: rv_a_omad (:) !   Madelung matrix if necessary
-      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:) !LDA+U
+c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:) !LDA+U
       integer,parameter:: nm=3
       real(8):: dmxp(33)
 C     dmxp for mixing.  Default parameters dmxp:
@@ -143,21 +144,11 @@ C     33 : Lindhard screening parameter
      &              '      To make output density turn off HF=t and/or NEVMX<0'
         call rx('incompatible input. see the end of console output')
       endif
-      if (lrout == 0 .and. maxit > 1) then
-         write(stdo,"(a,i5,a)") 'lmfp (warning): ',maxit,
-     &    ' iterations sought but no output rho ... do 1 iteration'
-        maxit = 1
-      endif
+      if (lrout == 0 ) maxit = 1
+      
 !! LDA+U initialization
-      if( nlibu>0 )then
-         i=nsp*nlibu*(lmaxu*2+1)**2
-         idmatu=i
-         allocate(vorbdmat(i),dmatu(i),dmato(i))
-         call sudmtu(dmatu, vorbdmat) !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
-         if( ctrl_quit==16 ) call rx0('quit = dmat')
-      else !dummy   
-         allocate(vorbdmat(1),dmatu(1),dmato(1))
-      endif
+      if(nlibu>0) call m_ldau_init()
+      if(nlibu>0.and.ctrl_quit==16 ) call rx0('quit = dmat')
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
@@ -200,7 +191,7 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
          if(master_mpi) call vbmmode()
          call rx0('--vbmonly mode done')
       endif
-      if(cmdopt0('--getq')) then !!! Current version is not for spin dependent, with many restrictions.
+      if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
          if(master_mpi) call getqmode()
          call rx0('--getq mode done')
       endif
@@ -220,12 +211,16 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
          endif
          do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
 !! Make and diagonalize hamiltonian, make new charge density ---
-            if(nlibu>0)  dmato=dmatu !nlibu: size of density matrix for LDA+U
-            if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
-            if(maxit/=0) call bndfp( dmxp, iter, maxit, frc_rv, vorbdmat, llmfgw)
-            if(nlibu>0)  call zcopy(idmatu,dmatu_out,1,dmatu,1)
-!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
-            if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
+c            if(nlibu>0)  dmato=dmatu !nlibu: size of density matrix for LDA+U
+c            if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
+            call bndfp( dmxp, iter, maxit, frc_rv,  llmfgw)
+            if(nlibu>0.and.lrout>0) call m_ldau_vorbset(dmatu) !set new vorb from dmat by bndfp-mkpot
+            
+c            if(nlibu>0)  call zcopy(idmatu,dmatu_out,1, dmatu,1)
+c            if(nlibu>0)  call zcopy(vorbdmat
+c!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
+c     if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
+            
 !   --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
             if(master_mpi .and. ctrl_quit/=4) then

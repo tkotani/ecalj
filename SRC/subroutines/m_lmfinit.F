@@ -2060,10 +2060,12 @@ c      enddo
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
+      
       if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
         lrout = 0
         leks = 0
       endif
+      
       if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
          ctrl_lfrce = 0
          plbnd = 1

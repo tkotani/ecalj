@@ -259,7 +259,7 @@ ctakao
         print *
         do i = 1, nsp
           do l = 0, lmxa
-            write(6,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
+            write(stdo,"(a,2i3,2f10.3)")'ttt: pnu qat=',i,l,pnu(l+1,i),qat(l+1,i)
           enddo
         enddo
       endif
@@ -313,19 +313,23 @@ c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is
         if (nsp .eq. 2.and. pnul .eq. 0) pl(l+1,i) = pl(l+1,1)
         ql(2,l+1,i) = 0d0
         ql(3,l+1,i) = 0d0
+
+        if(iprint()>60) then
         if (pzl/=0.and. int(pnul-1)==int(pzl)) then !pz is deeper than pnul
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,ql(1,l+1,i),qlplus(l,i)
         elseif (pzl/=0) then !pz is higher than pnul
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot Qpz Qv=',l,qvaltot,qlplus(l,i),ql(1,l+1,i)
         else
-          if(nsp==1)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
-          if(nsp==2)write(6,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
-        endif
+          if(nsp==1)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
+          if(nsp==2)write(stdo,"(a,i2,3f8.3)")'=== Charge for l: Qtot=Qv=    ',l,qvaltot,ql(1,l+1,i)
+       endif
+       endif
    10 continue
 !!
       print *
+      write(stdo,"(a)")'conf:------------------------------------------------------'
       write(stdo,"(a,a)")'conf:SPEC_ATOM= '//trim(spid),' : --- Table for atomic configuration ---'
 c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+MTO(P)'
       write(stdo,"(a)")'conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf'
@@ -349,7 +353,7 @@ c      write(stdo,"(a)")'conf When int(P)z .ne. int(P), Qval: Q for MTOcore(PZ)+
       enddo
 c      write(stdo,"(a)")'conf:-----------------------------------------------------'
       Enddo
-      write(6,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
+      write(stdo,"('usedQ=',10f10.3)") (sum(qlplus(l,1:nsp)+ql(1,l+1,1:nsp)),l=0,lmxa)
 
 cNov 2010 QvalCheck
       do i = 1, nsp
@@ -366,7 +370,7 @@ cNov 2010 QvalCheck
       qtot=qtot+sum(qlplus(:,:)) !takao feb2011
       amgm=amgm+sum(qlplus(:,1)-qlplus(:,nsp)) !takao feb2011
       if (ipr .ge. 20) then
-        call awrit6('%N Species '//spid//'%a:  Z=%d'//
+        call awrit6('%Nconf: Species '//spid//'%a:  Z=%d'//
      .  '  Qc=%d  R=%1,6;6d  Q=%1;6d%?#n==2#  mom=%1;5d#%0d#%a',
      .  ' ',80,stdo,z,qc,rmt,qtot,nsp,amgm)
       endif
@@ -382,7 +386,7 @@ C --- Set up radial mesh for free atom ---
       nr = 1d0+dlog(1d0+rmax/b)/a
       if (mod(nr,2).eq.0) nr = nr-1
       rmax = b*(dexp(a*(nr-1))-1d0)
-      call info5(21,0,0,' mesh:   rmt=%,6;6d  rmax=%,6;6d'//
+      call info5(21,0,0,'conf:   rmt=%,6;6d  rmax=%,6;6d'//
      .'  a=%d  nr=%i  nr(rmax)=%i',rmt,rmax,a,nrmt,nr)
 
 C --- Make atom self-consistent ---
@@ -468,8 +472,8 @@ C --- Optimise smooth-Hankel basis ---
           if (cmdopt('--norscnst',10,0,strn)) i = 0
           if (z .gt. 0) then
 cc     stop 'xxxxxxxxxxxxxxx end cccccxxx000'
-c             write(6,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
-c             write(6,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
+c             write(stdo,*) '111 ',i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp
+c             write(stdo,*) '222 ',sum(v(1:nr)),sum(rofi(1:nr)),spid
 cccccccccccccccccccccccccccc
             call optfab(i,z,a,nr,rmax,nrmt,rmt,lmxa,pl,ql,nsp,v,
      .      rofi,spid,itab,rtab,etab)
@@ -1756,7 +1760,7 @@ c      nsp =  globalvariables%nsp
    10 continue
       v0 = (rhoc(nrmt,1)+rhoc(nrmt,nsp))/(3-nsp)/(rmt*rmt)
       write(stdo,"('conf: Core rhoc(rmt)=',f9.6,' spillout=',f9.6)")v0,q0
-      write(stdo,"(a)")'conf:-----------------------------------------------------'
+c      write(stdo,"(a)")'conf:-----------------------------------------------------'
 c      sout = ' '
 c      call awrit3('%?#(n>=30)#%N## coretail: q=%;3g, spill out=%;3g.',
 c     .sout,len(sout),0,ipr,v0,q0)

@@ -29,7 +29,6 @@
       call mpi_init(ierr)
       call mpi_comm_size(MPI_COMM_WORLD, nsize,ierr)
       call mpi_comm_rank(MPI_COMM_WORLD, id,ierr)
-      if(id==0) write(*,*) 'mpi size=',nsize
       allocate(shortname(0:nsize-1))
       call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
       procid = mpipid(1) !

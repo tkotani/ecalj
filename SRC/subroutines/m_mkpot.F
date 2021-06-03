@@ -5,6 +5,7 @@
       use m_struc_def,only: s_rv1
       use m_MPItk,only: master_mpi,mlog
       use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_ldau,only: vorb
       
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
@@ -17,6 +18,7 @@
       real(8),allocatable,protected :: sab_rv(:), vab_rv(:),vval_rv(:),sav_rv(:)
       real(8),protected:: qsc,vconst !qval,
       real(8),allocatable,protected :: vrmt(:)
+c      complex(8),allocatable,protected:: vorb(:,:,:,:)
       contains
       subroutine m_mkpot_deallocate()
       if (allocated(vrmt)) then
@@ -25,11 +27,10 @@
       endif
       end
       
-      subroutine m_mkpot_init(llmfgw,vorb)
+      subroutine m_mkpot_init(llmfgw) !,vorb)
       integer:: i,lfrzw,lfrce
       real(8) ::qbz,qbg
-c      complex(8),allocatable:: vorb(:,:,:,:)
-      complex(8):: vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
+      
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
       qbg = ctrl_zbak(1) !homogenious background charge
 !
@@ -60,6 +61,7 @@ c      complex(8),allocatable:: vorb(:,:,:,:)
       allocate(  sab_rv(nab*n0*nsp*nbas))
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
       allocate( fes1_rv(3*nbas))
+c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
