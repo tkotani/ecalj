@@ -1609,6 +1609,8 @@ C     Default values for smix (array has same same structure as lstra smix)
          nm='ITER_NRMIX'; call gtv(trim(nm),tksw(prgnam,nm),smalit,
      .        def_i4v=(/80,2/),note='Sphere program, (1) max iter; '//
      .        '(2) no. prior iter for Anderson mixing ')
+         
+!! we use mixrho.F ->parmxp.F. But too complicated to touch it.
          nm='ITER_MIX'; sw=tksw(prgnam,nm); call gtv(trim(nm),sw,iter_mix,
      .        nmin=10,nout=nout,note='Mixing rules for charge mixing.  Syntax:')
          if (io_help/=0 .and. tksw(prgnam,nm)/=2) print 345
@@ -1628,6 +1630,7 @@ C     Default values for smix (array has same same structure as lstra smix)
             endif
             if (io_show==0) call poppr
          endif
+         
          nm='ITER_CONV'; call gtv(trim(nm),tksw(prgnam,nm),ctrl_tol(3),
      .        def_r8=1d-4,note='Tolerance in energy change from prior'//
      .        ' iteration for self-consistency')

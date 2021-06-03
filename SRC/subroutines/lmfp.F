@@ -4,7 +4,6 @@
      &     ctrl_zbak,lrel,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
      &     ham_seref,ham_eterms,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
-     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks
       use m_lattic,only: lat_dist,lat_plat,lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
@@ -15,7 +14,7 @@
       use m_iors,only: Iors
       use m_supot,only: Supot,k1,k2,k3
       use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,frc_rv=>frc,qdiff
       use m_ldau,only: m_ldau_init,m_ldau_vorbset
       use m_chkdmu,only: eorb
       use m_bandcal,only: dmatu
@@ -49,21 +48,15 @@
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
       real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
       real(8) :: plat(3,3),qlat(3,3),qbg,xvcart(3),xvfrac(3)
-      real(8):: seref,etot(2),amom,qdiff,qtol,etol
+      real(8):: seref,etot(2),amom,qtol,etol
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
-      real(8), allocatable :: pos_move(:,:), frc_rv(:,:), ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
+      real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
       real(8), allocatable :: rv_a_omad (:) !   Madelung matrix if necessary
-c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmato(:) !LDA+U
+c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer,parameter:: nm=3
-      real(8):: dmxp(33)
-C     dmxp for mixing.  Default parameters dmxp:
-C     1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
-C     8(I) nkill; 9 betv; 10 rmscst.  11-20 are outputs:
-C     11 rmsdel 12 rms2 13 nmix 14 actual broy 15 actual beta 16-24 tj
-C     25 1 if wt ne 0, 10 if wa ne 0, 11 if all nonzero
-C     27..29: hold parms for static parms block regular mixing
-C     30..32: hold parms for static parms block Euler angle mixing
-C     33 : Lindhard screening parameter
+      character(512):: aaachar
+      character(10):: i2char
+      
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -84,22 +77,7 @@ C     33 : Lindhard screening parameter
       qlat = lat_qlat
       if(ipr>=30) call praugm(sspec,0) !Printout properties of species
 
-!! Setup for charge mixing
-      dmxp= 0d0
-      dmxp(2)=mix_b
-      dmxp(9)=mix_bv
-      dmxp(4:5)= mix_w(1:2)
-      dmxp(3) = mix_wc
-      dmxp(6) = int(mix_nsave)
-      dmxp(7) = int(mix_mmix)
-      call parms0(0,0,0d0,0)    !reset mixing block
       
-!! for force      
-      if(ctrl_lfrce/=0 ) then
-        numq = 1
-        if( bz_lmet==4 ) numq = 3
-        allocate(frc_rv(3,nbas*numq)) !for forces  
-      endif
 !! atomic position Relaxation setup (md mode)
       itrlx = 1
       nitrlx=ctrl_nitmv
@@ -210,18 +188,17 @@ Cxxx   ???  +8s' bit of irs(1) -> rotate local density after file read
            enddo
          endif
          do 1000 iter = 1,max(1,maxit) ! for electronic structure ===
-!! Make and diagonalize hamiltonian, make new charge density ---
-c            if(nlibu>0)  dmato=dmatu !nlibu: size of density matrix for LDA+U
-c            if(maxit==0) write(stdo,"(a)")' lmfp : zero iterations sought ... no band pass'
-            call bndfp( dmxp, iter, maxit, frc_rv,  llmfgw)
+!     ! Make and diagonalize hamiltonian, make new charge density ---
+            if(maxit/=0) then
+               if (master_mpi) then
+                  aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
+                  write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
+               endif
+               call bndfp(iter, llmfgw)
+            endif
+!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(dmatu) !set new vorb from dmat by bndfp-mkpot
-            
-c            if(nlibu>0)  call zcopy(idmatu,dmatu_out,1, dmatu,1)
-c            if(nlibu>0)  call zcopy(vorbdmat
-c!! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
-c     if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdmat)
-            
-!   --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+!     --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
             if(master_mpi .and. ctrl_quit/=4) then
                if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
@@ -233,7 +210,7 @@ c     if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdm
                   close(ifi) 
                endif
             endif
-!! Add to save file; decide on next iteration ---
+!     ! Add to save file; decide on next iteration ---
             if (maxit<=0) goto 9998
             etot(1) = ham_ehf
             etot(2) = ham_ehk+eorb 
@@ -253,7 +230,8 @@ c     if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdm
 !     :2 Harris energy from overlap of free atoms (iter=1 and lhf=t)
 !     :3 otherwise
                call nwit( int(ctrl_nvario), iter, maxit, lhf.or.irs1x==0.and.iter==1,
-     &              leks+i, etol, qtol, dmxp(11), 'cxhi', amom, etot, lsc)
+     &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, lsc)
+c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc)
             endif
             call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
             if (lsc==2 .and. (.not. lhf) .and. maxit>1) lsc = 3
@@ -262,7 +240,7 @@ c     if (nlibu>0 .and. maxit>0 .and. lrout>0)  call chkdmu(dmatu, dmato, vorbdm
                if (iter .lt. maxit) lsc = 3
             endif
             if( ctrl_quit==4 ) call rx0 ( 'lmf : exit (--quit=band)' )
-            if( lsc <= 2) exit   !self-consistency exit
+            if( lsc <= 2) exit  !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
          if (nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)
 !! --- Molecular dynamics. not maintained recently but atomic position relaxation was working
@@ -345,6 +323,6 @@ C     ... Restore minimum gradient positions if this is last step
       if(allocated(p_rv)) deallocate(p_rv)
       if(allocated(w_rv)) deallocate(w_rv)
       if(allocated(indrx_iv)) deallocate(indrx_iv)
-      if(allocated(frc_rv)) deallocate(frc_rv)
+c      if(allocated(frc_rv)) deallocate(frc_rv)
       call tcx('lmfp')
       end subroutine lmfp

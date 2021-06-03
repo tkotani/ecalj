@@ -1,13 +1,9 @@
-      subroutine mixrho ( ssite , sspec ,  nsp , iter , mixmod  !slat ,
-     .  , qval , elind , sv_p_orhnew , sv_p_orhold , k1 , k2 , k3 , dmxp 
-     .  , smrnew , smrho )
+      subroutine mixrho(iter, qval, elind, dmxp, sv_p_orhnew, sv_p_orhold, smrnew, smrho )
       use m_struc_def
-      use m_supot,only: iv_a_okv,rv_a_ogv
-      use m_lmfinit,only:lat_alat,nbas,stdo,stdl
+      use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
+      use m_lmfinit,only:lat_alat,nbas,stdo,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
       use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-      use m_supot,only: lat_ng
-
+      use m_supot,only: lat_nabc, lat_ng
 
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
@@ -57,6 +53,15 @@ Cio         :(25)        : (spin polarized case only)
 Cio                      : 1  if weight for n^+ + n^- is nonzero
 Cio                      : 10 if weight for n^+ - n^- is nonzero
 Cio                      : 11 if both nonzero
+C    dmxp for mixing.  Default parameters dmxp:
+C    1(I) mixing scheme; 2 beta; 3 wc; 4,5 wgt; 6(I)nsave 7(I) mmix;
+C    8(I) nkill; 9 betv; 10 rmscst.  11-20 are outputs:
+C    11 rmsdel 12 rms2 13 nmix 14 actual broy 15 actual beta 16-24 tj
+C    25 1 if wt ne 0, 10 if wa ne 0, 11 if all nonzero
+C    27..29: hold parms for static parms block regular mixing
+C    30..32: hold parms for static parms block Euler angle mixing
+C    33 : Lindhard screening parameter
+c
 Cio   orhnew:On input, local parts of the density that generated the ham.
 Cio   orhold:local parts of the density that the hamiltonian generated
 Cio         :On output, the mixed density
@@ -189,12 +194,12 @@ C ... Passed parameters
       character*120 strn
       logical mlog,cmdopt
 #endif
-      integer:: nsp , k1 , k2 , k3 , iter , procid , master
+      integer::  iter , procid , master
       type(s_rv1) :: sv_p_orhold(3,1)
       type(s_rv1) :: sv_p_orhnew(3,1)
-      character*(*) mixmod
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
+c      character*(*) mixmod
+c      type(s_site)::ssite(*)
+c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 
       double precision qval,elind,dmxp(25)
@@ -224,8 +229,6 @@ C ... Local parameters
       double complex xxc
       logical parmxp
       character sout*80,fnam*8
-C ... Heap
-
       integer ::iwdummy ,isp,nnnx,ng02,ng2, iprint
       real(8):: smmin,sss,wgtsmooth
       complex(8),allocatable:: smrnewbk(:,:,:,:),w_owk(:)
@@ -233,23 +236,10 @@ C ... Heap
       real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
       logical::       noelind
       logical:: mixrealsmooth
-
-
-C     print *, '!!' ; call pshpr(40)
+      logical:: init=.true.
       if (mixmod .eq. 'none') return
       call tcn('mixrho')
 
-
-ccccccccccccccccccccccccccccc
-c      sv_p_orhnew=sv_p_orhold
-ccccccccccccccccccccccccccccc
-
-
-
-ccccccccccccccccccccccccccccccccccccc
-c      allocate(smrnewbk(k1,k2,k3,nsp))
-c      smrnewbk= (smrnew+smrho)/2d0
-cccccccccccccccccccccccccccccccccccccc
       nnnew=0
 c      open(1898,file='test2vvv_smrho')
       do  i3 = 1, k3

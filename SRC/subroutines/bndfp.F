@@ -11,10 +11,12 @@
 !!
       !! emin=dosw(1) emax=dosw(2) dos range
       module m_bndfp
-      real(8),protected:: ham_ehf,ham_ehk,bz_dosw(2)
-      real(8),protected:: eferm !,bz_def ! revised when called.
-      logical,private:: binit=.true.,bbinit=.true.
-      
+      real(8),protected:: ham_ehf,ham_ehk
+      real(8),protected:: eferm, qdiff 
+      real(8),allocatable,protected:: frc(:,:)
+
+      logical,private:: binit=.true.,bbinit=.true.,initd=.true.
+      real(8),private:: dmxp(33) 
       contains
       subroutine m_bndfp_ef_set(bz_ef00)
       real(8):: bz_ef00
@@ -22,10 +24,10 @@
       binit=.false.
       end
       
-      subroutine bndfp( dmxp,iter,maxit, frc, llmfgw) !vorb
-      use m_supot,only: zv_a_osmrho,sv_a_oorhat
+      subroutine bndfp(iter, llmfgw) !vorb: input U
+      use m_supot,only: zv_a_osmrho,sv_a_oorhat !input potential
       
-      use m_supot,only: ngabc=>lat_nabc
+      use m_supot,only: ngabc=>lat_nabc,k1,k2,k3
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
 c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
@@ -36,7 +38,8 @@ c      use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symop
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
-     &     sstrnmix,
+     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
+c     &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -188,14 +191,13 @@ Cu   23 Jan 01 bug fixes connected with lrout=0
 c      integer:: pidorigin, ndimhx_iq, nev_iq,idx
 c      integer:: work_mpi(10)    ! use only 1 and 2 now
       integer nbx,iter,maxit
-      integer:: k1,k2,k3,lpnu=1
-      real(8):: dmxp(33),frc(3,1:nbas*numq)
+      integer:: lpnu=1 !k1,k2,k3,
       logical lgors,ltet,cmdopt,cmdopt0,cmdopt2!,lwndow
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb  ! ldos  !lmet !, nspc  , nsp
      .  , lrep ,  nev  
-     .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
+c     .  , n1 , n2 , n3 !lwtkb !,  lswtk=0 !, nl lwtkb ,
      .  , lgunit , igets , mpsord ,  isw  !stdo , stdl 
      .  , ifi , fxst ,   i1 , i2 !, !plbnd lfrzw ,
      .  , nfilem , iobzwt ,   nll, lnoxc !, lpdiag lwsig  , 
@@ -325,10 +327,8 @@ c mar2014
       character*100::filenm(2)
       real(8):: emin
 
-      character(512):: aaachar
       logical:: massline , writeham=.false.
       logical,save:: siginit=.true. 
-      character(10):: i2char
       integer::ipos,ndos_,j
       real(8)::dosmax,posp(3)
       integer:: jspend,jspini,jspp
@@ -350,7 +350,22 @@ c mar2014
       real(8),allocatable:: dos_rv(:,:)
 !! ----------------------------
       call tcn ('bndfp')
-      write(stdo,"(a)") 'bndfp:start'
+!!
+      if(initd) then
+!! Initial setup for charge mixing. This is used in mixrho-parmax. but too complicated to touch it.
+! Probably, it is better to write new mixing routine by yourself
+      dmxp   = 0d0
+      dmxp(2) = mix_b
+      dmxp(3) = mix_wc
+      dmxp(4:5)= mix_w(1:2)
+      dmxp(6) = int(mix_nsave)
+      dmxp(7) = int(mix_mmix)
+      dmxp(9)= mix_bv
+      call parms0(0,0,0d0,0)    !reset mixing block
+      initd=.false.
+      endif
+      
+      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       if(master_mpi) then ! check Write atomic positions
          write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
          write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
@@ -364,25 +379,15 @@ c mar2014
       tdos     = cmdopt0('--tdos')
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-      idummy = unlink('RSEQ_ERROR') ! the error flag file caused by rseq. Remove RSEQ_ERROR here because
-                                    ! this error is fatal only when it is converged. takaoNov28_2010
+      idummy = unlink('RSEQ_ERROR')! Remove RSEQ_ERROR here because
+                                   ! this error is fatal only when it is converged. takaoNov28_2010
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
-      if (master_mpi) then
-        aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
-        write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
-      endif
       eterms=-99d0
       eterms(19) = 0d0
       ham_eterms=eterms
       eks = 0d0
-      n1=ngabc(1)
-      n2=ngabc(2)
-      n3=ngabc(3)
-      k1 = n1
-      k2 = n2
-      k3 = n3
       if(binit) then ! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          eferm =bz_ef0
          binit=.false.
@@ -620,7 +625,14 @@ c     i        etolv,etolc)
       endif
       
 !! contribution to force via band 
-      if(lfrce>0) frc=frcband   !part of atomic force from band part
+!! for force      
+      if(lfrce>0 ) then
+c        numq = 1
+c        if( lmet==4 ) numq = 3
+        if(allocated(frc)) deallocate(frc)
+        allocate(frc(3,nbas*numq)) !for forces
+        frc=frcband         !part of atomic force from band part        
+      endif
 !! write orbital moment      
       if(lwtkb==1 .and. lso /=0) call iorbtm() !write out orbital moment
 
@@ -711,13 +723,11 @@ c          print *,'goto mkpot procid=',procid
             deallocate(fh_rv)
          endif
 !!   --- Mix input and output densities ---
-         call mixrho ( ssite , sspec ,  nsp , iter , sstrnmix 
-     .     , qval - qbg , elind , sv_p_orhat1 , sv_a_oorhat , k1 , k2
-     .     , k3 , dmxp , srout_zv , zv_a_osmrho )
+         call mixrho(iter,qval-qbg,elind,dmxp, sv_p_orhat1,sv_a_oorhat, srout_zv,zv_a_osmrho)
+         qdiff=dmxp(11)
       else
          eks = 0d0
       endif
-      
       ham_ehf=ehar
       ham_ehk=eks
       if (allocated(hbyl_rv)) deallocate(hbyl_rv)

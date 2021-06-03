@@ -36,8 +36,8 @@
          call getarg(iarg,sss)
          aaa=aaa//' '//trim(sss)
       enddo
-      uuu=' ========================================'
-      aaa= 'START '//trim(prgnam)//'  '//trim(aaa)//trim(uuu)
+      uuu=' ====================================='
+      aaa= '===START '//trim(prgnam)//'  '//trim(aaa)//trim(uuu)
       if(master_mpi) write(stdo,"(a)") trim(aaa)
       if(master_mpi) write(stdl,"(a)") trim(aaa)
       if(master_mpi) write(stdo,*) 'mpisize=',nsize
