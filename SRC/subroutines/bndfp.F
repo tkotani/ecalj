@@ -521,12 +521,11 @@ c mar2014
       if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,eferm)
       if(plbnd/=0.and.master_mpi) then
             write(stdo,*)' Writing bands to bands file ...'
-            if(nsyml/=0) then
-              call writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx, !,fsmom/=NULLR,vnow
-     i        xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,
-     i        sname,nqps_syml,nqpe_syml,nsyml,dqsyml,
-     i        etolv,etolc)
-            endif
+            if(nsyml/=0) call writeband(eferm,evtop,ecbot)
+c              call writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx, !,fsmom/=NULLR,vnow
+c     i        xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,
+c     i        sname,nqps_syml,nqpe_syml,nsyml,dqsyml,
+c     i        etolv,etolc)
       endif
       if(plbnd/=0.and.fsmom/=NULLR) then
          write(stdo,"(a)")'Caution: fsmom(fixed moment on). In sc cycle, we use additional bias mag. field  '

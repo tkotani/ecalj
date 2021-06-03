@@ -1,17 +1,24 @@
-      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx,
-     & xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,
-     & eferm,evtop,ecbot,sname,nqps_syml,nqpe_syml,nsymln,dqsyml,
-     & etolv,etolc)
+      subroutine writeband(eferm,evtop,ecbot)!, etolv,etolc)
+c      subroutine writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx,
+c     & xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,
+c     & eferm,evtop,ecbot,sname,nqps_syml,nqpe_syml,nsymln,dqsyml,
+c     &     etolv,etolc)
+      use m_lmfinit,only:stdo,nsp,alat=>lat_alat
+      use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,
+     &     nqps_syml,nqpe_syml,dqsyml,etolv,etolc
+      use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx
+      use m_bandcal,only:nevls,evlall
+      use m_ext,only: sname
 !! == write band file ==
       implicit none
-      integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),stdo,nsymln
-      real(8),intent(in):: evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow, 
-      integer,intent(in):: nqp_syml(nsyml),nqp2n_syml(nsyml),nqps_syml(nsyml),nqpe_syml(nsyml)
+c      integer,intent(in):: nkp,nsyml,nspx,ndhamx,nsp,  nevls(nkp,nspx),stdo,nsymln
+c      real(8),intent(in):: evlall(ndhamx,nspx,nkp),qplist(3,nkp),xdatt(nkp),alat  !vnow, 
+c      integer,intent(in):: nqp_syml(nsyml),nqp2n_syml(nsyml),nqps_syml(nsyml),nqpe_syml(nsyml)
       real(8),intent(in):: eferm,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1 
-                                             ! if evtop <evbot ---> insulator 
-      real(8),intent(in):: dqsyml(nsyml),etolv,etolc
-      character*20,intent(in)::labeli(nsyml),labele(nsyml)
-      character(*),intent(in)::sname
+c                                             ! if evtop <evbot ---> insulator 
+c      real(8),intent(in):: dqsyml(nsyml),etolv,etolc
+c      character*20,intent(in)::labeli(nsyml),labele(nsyml)
+c      character(*),intent(in)::sname
 
       integer:: ifbndo,ikp,isyml,jsp
       character*300::filenm(2),bchar
