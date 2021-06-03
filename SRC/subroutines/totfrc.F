@@ -1,4 +1,5 @@
-      subroutine totfrc(nbas,ssite,leks,fes1,fes2,dfhf,f)
+      subroutine totfrc(leks,fes1,fes2,dfhf,f)
+      use m_lmfinit,only: nbas,ssite=>v_ssite
       use m_mksym,only:  rv_a_osymgr , iv_a_oistab ,lat_nsgrp
       use m_struc_def           
 C- Add together and print contributions to force
@@ -23,9 +24,9 @@ Cu   30 May 00 Adapted from nfp totforce.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer nbas,leks,i_copy_size
+      integer leks,i_copy_size
       real(8):: f(3,nbas) , fes1(3,nbas) , fes2(3,nbas) , dfhf(3,nbas)
-      type(s_site)::ssite(*)
+c      type(s_site)::ssite(*)
 c      type(s_lat)::slat
 
 C ... Local parameters

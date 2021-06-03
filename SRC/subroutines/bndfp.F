@@ -154,7 +154,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       double precision sigp(10)
       logical:: readeferm
       double precision esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,ehar,eks,
+     .  sev00,sev1,sumtv,alfa,eharris,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -198,7 +198,7 @@ ctakao
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
-      integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc,osmpotbk
+      integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc !,osmpotbk
       logical::bzwtsf_bisection !noshorbz,
       real(8):: qpx(3)          !qpo(3),
 
@@ -494,7 +494,7 @@ c     i        etolv,etolc)
       if(master_mpi.and.(tdos.or.ldos/=0)) then
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
          allocate( dos_rv(ndos,2*nspx))
-         if(cmdopt('--tdostetf',10,0,strn)) ltet=.false. !oct2015
+         if(cmdopt0('--tdostetf')) ltet=.false. !oct2015
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
      &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , efermxxx ,
@@ -577,35 +577,29 @@ c$$$         close(ifqbyl)
 c$$$      endif
       
 !! --- Evaluate Harris energy ---
-      call mkehkf(1,sev,sumqv(2,1),sumtv,ehar)
+      call mkehkf(1,sev,sumqv(2,1),sumtv,eharris)
 !! --- Evaluate KS total energy, correction to Harris force ---
       if(lrout/=0) then
 !!   ... Correction to harris force
         if(lfrce>0 ) then
-          allocate( fh_rv(3*nbas)  )
-          fh_rv= 0d0  
-          call dfrce (lfrce, ssite , sspec ,  k1 , k2 , k3 , nvl 
-     .     , orhoat , orhoat_out , elind , qmom_rv , osmrho , 
-     .     smrho_out , fh_rv )
+           allocate( fh_rv(3*nbas)  )
+          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_rv,osmrho,smrho_out, fh_rv )
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
-         eks = 0d0
-         if(leks .ge. 1) then
+        eks = 0d0
+        if(leks>=1) then
             call togpr()
-            call mkekin ( nbas , ldim , ssite , sspec ,  sv_p_osig  !sham ,slat , 
-     .        , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 , k2 , k3
-     .        , vconst , zv_a_osmpot , smrho_out , sev , sumtv )
+            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,zv_a_osmpot,smrho_out,sev,sumtv )
             allocate( fes2_rv(3*nbas))
-            call mkpot (lfrce,
-     &          smrho_out , orhoat_out , qbg , zv_a_osmpot 
+            call mkpot (lfrce, smrho_out , orhoat_out , qbg , zv_a_osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
-           if(cmdopt('--density',9,0,strn)) then
+           if(cmdopt0('--density')) then
              call mpi_barrier(MPI_comm_world,ierr)  
              call rx0('end of --density mode')
            endif  
-            call mkehkf(2,sev,sumqv(2,1),sumtv,eks) !sham,
+            call mkehkf(2,sev,sumqv(2,1),sumtv,eks) 
             call togpr()
            endif
 !! --- Add together force terms ---
@@ -615,7 +609,7 @@ c$$$      endif
 !! input frc  : 2nd term in (B.5). Puley term
 !! output frc  : total
          if(lfrce> 0) then
-            call totfrc( nbas , ssite ,  leks, fes1_rv , fes2_rv , fh_rv , frc )
+            call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
             deallocate(fh_rv)
          endif
 !!   --- Mix input and output densities ---
@@ -624,7 +618,7 @@ c$$$      endif
       else
          eks = 0d0
       endif
-      ham_ehf=ehar
+      ham_ehf=eharris
       ham_ehk=eks
       call m_mkpot_deallocate()
       call m_bandcal_clean()

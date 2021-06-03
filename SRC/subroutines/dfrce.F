@@ -1,14 +1,10 @@
-      subroutine dfrce (job, ssite , sspec , k1 , k2 , k3 !sctrl , slat , 
-     .  , nvl , sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout 
-     .     , dfh )
+      subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout , dfh )
+      use m_suham,only: nvl=>pot_nlml
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def 
-      use m_lmfinit,only:lat_alat,nsp,nbas,nspec
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-      use m_supot,only: lat_ng
-      use m_lattic,only: lat_plat
+      use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec
+      use m_lattic,only: lat_qlat, lat_vol,lat_plat
+      use m_supot,only: lat_nabc,k1,k2,k3,lat_ng
 C-Correction to force theorem, Harris functional
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -62,39 +58,13 @@ Cu   16 Jun 98 MvS parallelized for SGI
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-#if MPI | MPIK
-      include "mpif.h"
-      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*20 ext
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      double precision starttime, endtime
-      logical mlog,cmdopt
-#endif
-      integer:: nvl , k1 , k2 , k3
       type(s_rv1) :: sv_p_orhat1(3,*)
       type(s_rv1) :: sv_p_orhoat(3,*)
-      real(8):: dfh(3,*) , qmom(*)
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      type(s_ctrl)::sctrl
-
+      real(8):: dfh(3,nbas) , qmom(*)
       double complex smrho(k1,k2,k3,*),smrout(k1,k2,k3,*)
-C Local variables
       integer job,n1,n2,n3,ng,iprint,ib,is,lmxl,iv0,nlm,
      .ip,m,i,ngabc(3),ltop,nlmtop,igets,igetss,nn,lgunit,stdo
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
-c        integer:: ocdv , ocdn , ocdn0 , ocs , osn
-ckino Dec.9.2011:          integer,pointer :: iv_p_okv(:) =>NULL()
-
-ckino Dec.9.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
-
       complex(8) ,allocatable :: ceps_zv(:)
       complex(8) ,allocatable :: cnomi_zv(:)
       complex(8) ,allocatable :: smro_zv(:)
@@ -111,50 +81,14 @@ ckino Dec.9.2011:         real(8),pointer :: rv_p_ogv(:) =>NULL()
       complex(8) ,allocatable :: wk1_zv(:)
       complex(8) ,allocatable :: wk2_zv(:)
       complex(8) ,allocatable :: wk3_zv(:)
-
       double precision vol,plat(3,3),qlat(3,3),alat,vsum,pi,tpiba,elind,
      .fes1(3),fes2(3),fxc(3),c,avgdf(3)
-      integer mp
-c      integer npmx,mp
-c      parameter (npmx=32)
-c      integer oicdn(npmx),oicdn0(npmx),oicdv(npmx),oics(npmx),oisn(npmx)
-#if MPI | MPIK
-      integer, dimension(:), allocatable :: bproc, iiv0
-      integer pid,jb
-#endif
-      integer::ibini,ibend
-C ... for SGI parallel
-C$    integer nbmx,mp_my_threadnum,mp_numthreads
-C$     parameter (nbmx=512)
-C$    integer iiv0(nbmx)
-C     double precision dqsmo,dval
+      integer::ibini,ibend,iiv0(nbas)
       character*40 strn
-C ... Heap
       real(8),allocatable:: cs_(:),sn_(:)
-
-c      job = int(sctrl%lfrce)
-c      if (job .le. 0) return
       call tcn('dfrce')
-
-#if MPI | MPIK
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
-      master = 0
-      mlog = cmdopt('--mlog',6,0,strn)
-      if (mlog) then
-        do  pid = 0, numprocs-1
-          call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .    MPI_COMM_WORLD,ierr)
-          call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .    MPI_COMM_WORLD,ierr)
-        enddo
-      endif
-#endif
-
 C --- Setup ---
+      dfh=0d0
       ngabc=lat_nabc
       ng=lat_ng
       vol=lat_vol
@@ -163,9 +97,6 @@ C --- Setup ---
       qlat=lat_qlat
       c = 1000
       stdo = lgunit(1)
-c      nsp  = globalvariables%nsp
-c      nbas = globalvariables%nbas
-c      nspec= globalvariables%nspec
       nn   = k1*k2*k3
 
 C ... Arrays needed for pvdf1
@@ -192,8 +123,6 @@ C ... Set up for vectorized Y_lm and gaussians
 C --- Make ves(rhoin,q) ---
       allocate(smro_zv(nn))
       allocate(cs_(ng), sn_(ng))
-c      call dpcopy ( smrho , smro_zv , 1 , 2 * nn , 1d0 )
-c     if ( nsp.eq.2 ) call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , 2 ) , 1 , 2 * nn , 1d0 )
       call dcopy(2*nn, smrho,1,smro_zv,1)
       if(nsp==2) call daxpy(2*nn, 1d0, smrho (1,1,1,2), 1, smro_zv, 1)
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
@@ -224,19 +153,15 @@ C --- cdvx = FFT ((n0_out-n0_in) dVxc/dn) ---
 C     Use total n0_out-n0_in but keep vxc spin polarized
       call dpzero ( smro_zv , 2 * nn )
       do  i = 1, nsp
-c        call dpadd ( smro_zv , smrout ( 1 , 1 , 1 , i ) , 1 , 2*nn , 1d0 )
-c        call dpadd ( smro_zv , smrho ( 1 , 1 , 1 , i ) , 1 , 2*nn , - 1d0 )
         call daxpy (2*nn,  1d0, smrout( 1 , 1 , 1 , i ), 1, smro_zv,1)
         call daxpy (2*nn, -1d0, smrho ( 1 , 1 , 1 , i ), 1, smro_zv,1)
       enddo
-C     call zprm3('drho',0,w(osmro),k1,k2,k3)
       call pvdf3 ( n1 , n2 , n3 , k1 , k2 , k3 , nsp , smro_zv , dvxc_zv )
       call fftz3 ( dvxc_zv , n1 , n2 , n3 , k1 , k2 , k3 , nsp , 0 , - 1 )
       call gvgetf ( ng , nsp , iv_a_okv , k1 , k2 , k3 , dvxc_zv , cdvx_zv )
 
 C --- Cnomi = (n0_out(q) - n0_in(q)) ---
       call fftz3 ( smro_zv , n1 , n2 , n3 , k1 , k2 , k3 , 1 , 0 , - 1 )
-c     call zprm3('FFT smrout-smrin',w(osmro),k1,k2,k3*nsp)
       call gvgetf ( ng , 1 , iv_a_okv , k1 , k2 , k3 , smro_zv , cnomi_zv  )
       if (allocated(smro_zv)) deallocate(smro_zv)
       if (allocated(dvxc_zv)) deallocate(dvxc_zv)
@@ -252,7 +177,6 @@ C --- Multipole moments of the output density ---
       call pshpr(0)
       call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , vsum )
       call poppr
-c      call dpadd ( qmout_rv , qmom , 1 , nvl , - 1d0 )
       qmout_rv = qmout_rv- qmom(1:nvl)
 C --- Lindhard dielectric function ---
       if (job .gt. 10) then
@@ -261,122 +185,87 @@ C --- Lindhard dielectric function ---
         call lindsc ( 3 , ng , rv_a_ogv , tpiba , elind , ceps_zv )
       endif
 C --- For each site, get correction to force ---
-#if ! (MPI | MPIK)
       if (iprint() .ge. 30) then
         strn = 'shift in free-atom density'
         if (job .eq. 11) strn = 'screened shift in free-atom density'
         if (job .eq. 12) strn = 'screened shift in core+nuclear density'
         write(stdo,201) strn
       endif
-#endif
   201 format(/' Harris correction to forces: ',a/
      .'  ib',9x,'delta-n dVes',13x,'delta-n dVxc',15x,'total')
-C  201   format(/' Harris correction to forces:'/
-C     .    '  ib',11x,'dn0 dVes',15x,'dnloc dVes',15x,
-C     .    'dn0 dVxc',15x,'total')
 
-C ... Setup array iiv0 = (vector of iv0 for parallel); allocate work arrays
-#if MPI | MPIK
+C ... Setup array iv0 offset of qmom to ibas
       iv0 = 0
-      allocate(iiv0(1:nbas), stat=ierr)
-      do  12  ib = 1, nbas
-        is = int(ssite(ib)%spec)
-        lmxl = int(sspec(is)%lmxl)
+      do ib = 1, nbas
+        is = ssite(ib)%spec
+        lmxl = sspec(is)%lmxl
         nlm = (lmxl+1)**2
         iiv0(ib) = iv0
         iv0 = iv0+nlm
-   12 continue
-#endif
-      mp = 1
-
-C ... Estimate shift in density for each site, and corresponding force
-      ip = 1
-      iv0 = 0
-C$DOACROSS LOCAL (ib,is,lmxl,nlm,i,m,iv0,ip,ocdn,ocdn0,ocdv,
-C$&               ocs,osn,fes1,fes2,fxc)
-C$&        SHARED (job,ng,iiv0,ocnomi,ocvin,ocdvx)
-C$&        MP_SCHEDTYPE=RUNTIME
-#if MPI | MPIK
-      allocate (bproc(0:numprocs), stat=ierr)
-      call dstrbp(nbas,numprocs,1,bproc(0))
-      ibini = bproc(procid)
-      ibend = bproc(procid+1)-1
-#else
+      enddo
+!!      
       ibini=1
       ibend=nbas
-#endif
-
-      do  ib = ibini, ibend
-#if MPI | MPIK
-        if (mlog .and. ib .eq. bproc(procid)) then
-          call gettime(datim)
-          call awrit4(' dfrce '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' starting atoms %i to %i',' ',256,lgunit(3),
-     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
-        endif
-        iv0 = iiv0(ib)
-#endif
-        is = int(ssite(ib)%spec)
-        lmxl = int(sspec(is)%lmxl)
+      do ib = ibini, ibend
+        is   = ssite(ib)%spec
+        lmxl = sspec(is)%lmxl
         if (lmxl .eq. -1) goto 20
         nlm = (lmxl+1)**2
-        call pvdf1 ( job , ssite , sspec , nsp , ib , iv0 , qmom  !slat , 
+        call pvdf1 ( job , ssite , sspec , nsp , ib , iiv0(ib), qmom 
      .    , qmout_rv , ng , rv_a_ogv , g2_rv , yl_rv , iv_iv , qlat , 0 
      .    , cnomi_zv , ceps_zv , cdvx_zv , cvin_zv , sv_p_orhoat ( 1 , 
      .    ib ) , fes1 , fes2 , fxc )
         do  i = 1, 3
           dfh(i,ib) = -(fes1(i) + fes2(i) + fxc(i))
         enddo
-#if ! (MPI | MPIK)
+c#if ! (MPI | MPIK)
         if (iprint() .ge. 30)
-     .  write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
-     .  (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
+     .       write(stdo,200) ib,(c*(fes1(m)+fes2(m)),m=1,3),
+     .       (c*fxc(m),m=1,3),(c*dfh(m,ib),m=1,3)
   200   format(i4,3f8.2,1x,3f8.2,1x,3f8.2:1x,3f8.2)
-#endif
-        iv0 = iv0+nlm
+c#endif
    20   continue
       enddo
-#if MPI | MPIK
-      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-      do  pid = 0, numprocs-1
-        ib = bproc(pid)
-        jb = bproc(pid+1) - ib
-        call MPI_BCAST(dfh(1,ib),3*jb,MPI_DOUBLE_PRECISION,pid,
-     .  MPI_COMM_WORLD,ierr)
-        if (mlog) then
-          call gettime(datim)
-          call awrit6(' dfrce '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' bcast dfh(1-3,%i-%i) %i d.p. numbers'//
-     .    ' from process %i on '
-     .    //shortname(pid)(1:namelen(pid)),' ',
-     .    256,lgunit(3),procid,numprocs,bproc(pid),bproc(pid+1)-1,
-     .    3*jb,pid)
-        endif
-      enddo
-      deallocate (bproc, stat=ierr)
-      deallocate (iiv0, stat=ierr)
-#endif
-      call dpzero(avgdf,3)
+c$$$#if MPI | MPIK
+c$$$      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+c$$$      do  pid = 0, numprocs-1
+c$$$        ib = bproc(pid)
+c$$$        jb = bproc(pid+1) - ib
+cxx$$$        call MPI_BCAST(dfh(1,ib),3*jb,MPI_DOUBLE_PRECISION,pid,
+c$$$     .  MPI_COMM_WORLD,ierr)
+c$$$        if (mlog) then
+c$$$          call gettime(datim)
+c$$$          call awrit6(' dfrce '//datim//' Process %i of %i on '
+c$$$     .    //shortname(procid)(1:namelen(procid))//
+c$$$     .    ' bcast dfh(1-3,%i-%i) %i d.p. numbers'//
+c$$$     .    ' from process %i on '
+c$$$     .    //shortname(pid)(1:namelen(pid)),' ',
+c$$$     .    256,lgunit(3),procid,numprocs,bproc(pid),bproc(pid+1)-1,
+c$$$     .    3*jb,pid)
+c$$$        endif
+c$$$      enddo
+c$$$      deallocate (bproc, stat=ierr)
+c$$$      deallocate (iiv0, stat=ierr)
+c$$$#endif
+      avgdf=0d0
       do  23  ib = 1, nbas
       do  23  i = 1, 3
         avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
    23 continue
 
-C ... MPI printout
-#if MPI | MPIK
-      if (iprint() .ge. 30) then
-        strn = 'shift in free-atom density'
-        if (job .eq. 11) strn = 'screened shift in free-atom density'
-        if (job .eq. 12) strn = 'screened shift in core+nuclear density'
-        write(stdo,201) strn
-        do  26  ib = 1, nbas
-          write(stdo,202) ib, (c*dfh(i,ib),i=1,3)
-   26   continue
-  202   format(i4,50x,3f8.2)
-      endif
-#endif
+c$$$C ... MPI printout
+c$$$c#if MPI | MPIK
+c$$$      if (iprint() .ge. 30) then
+c$$$        strn = 'shift in free-atom density'
+c$$$        if (job .eq. 11) strn = 'screened shift in free-atom density'
+c$$$        if (job .eq. 12) strn = 'screened shift in core+nuclear density'
+c$$$        write(stdo,201) strn
+c$$$        do  26  ib = 1, nbas
+c$$$          write(stdo,202) ib, (c*dfh(i,ib),i=1,3)
+c$$$   26   continue
+c$$$  202   format(i4,50x,3f8.2)
+c$$$      endif
+c$$$c#endif
 
 C ... Shift all forces to make avg correction zero
       do  24  ib = 1, nbas
@@ -396,24 +285,14 @@ C ... Shift all forces to make avg correction zero
       call tcx('dfrce')
       end subroutine dfrce
 
-
-
-
-c      subroutine pvdf1(job,ssite,sspec,slat,nsp,ib,iv0,qmom,qmout,ng,gv,
-c     .g2,yl,cs,sn,iv,qlat,kmax,cnomin,ceps,cdn0,cdn,cdv,cdvxc,cvin,
-c     .orhoat,fes1,fes2,fxc)
       subroutine pvdf1 ( job , ssite , sspec ,  nsp , ib , iv0  !slat ,
      . , qmom , qmout , ng , gv , g2 , yl , iv , qlat , kmax , cnomin 
      . , ceps , cdvxc , cvin , sv_p_orhoat , fes1 , fes2 , fxc )
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nbas
-
-
       use m_lmfinit,only:lat_alat
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc
-
-
 c need to modify texts.
 C- Estimate shift in local density for one site
 C ----------------------------------------------------------------------

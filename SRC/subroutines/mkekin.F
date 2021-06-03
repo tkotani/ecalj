@@ -1,18 +1,14 @@
-      subroutine mkekin ( nbas , ndimh , ssite , sspec !, slat !, sham 
-     .    , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp , sv_p_oqkkl , k1 
-     .    , k2 , k3 , vconst , smpot , smrho , sumev , sumtv )
+      subroutine mkekin( sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev,sumtv)
       use m_struc_def  
-      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp
       use m_lattic,only: lat_vol
-      use m_supot,only: lat_nabc
-
-
-      use m_suham,only: iv_a_oindxo
+      use m_supot,only: lat_nabc,k1,k2,k3
+      use m_suham,only: iv_a_oindxo,ham_ldham
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
 Ci   nbas  :size of basis
-Ci   ndimh :dimension of hamiltonian
+Ci   ndimh :dimension of hamiltonian (ham_ldham)
 Ci   ssite :struct for site-specific information; see routine usite
 Ci     Elts read: spec
 Ci     Stored:    *
@@ -145,17 +141,12 @@ Cu   20 Jun 00 adapted from nfp get_ekin
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer k1,k2,k3,nbas,ndimh,lcplxp,i_copy_size
+      integer ndimh,i_copy_size
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
       real(8):: sumev , sumtv , vconst
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      type(s_ham)::sham
-
       double complex smpot(k1,k2,k3,2),smrho(k1,k2,k3,2)
 C ... Local parameters
       integer ib,igetss,ipr,is,kmax,lgunit,lmxa,lmxh,n0,n1,n2,n3,
@@ -172,7 +163,6 @@ c lso,isw
       integer fopna
 #endif
 #if (MPI|MPIK)
-c2012Sep02 kino, add for 
        include 'mpif.h'
        integer:: procid=0,ier=0
        integer,parameter::master=0
@@ -181,19 +171,10 @@ c2012Sep02 kino, add for
        iprx=.false.
        if(procid==master) iprx=.true.
 #endif
-c      stdo = lgunit(1)
-c      nsp  = globalvariables%nsp
-c      nspc = globalvariables%nspc
-c      nkaph = globalvariables%nkaph
+      ndimh=ham_ldham(1) 
       call getpr(ipr)
-c      i_copy_size=size(lat_nabc)
-c     call icopy(i_copy_size,lat_nabc,1,ngabc,1)
       ngabc=lat_nabc
       vol=lat_vol
-c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
-
-C     call zprm3('sm rho-out',0,smrho,k1,k2,k3*nsp)
 #if DEBUG
       call info0(0,0,0,' rewinding pi file ...')
       is = fopna('ppi',-1,4)
