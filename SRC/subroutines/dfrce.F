@@ -248,11 +248,11 @@ c$$$      deallocate (bproc, stat=ierr)
 c$$$      deallocate (iiv0, stat=ierr)
 c$$$#endif
       avgdf=0d0
-      do  23  ib = 1, nbas
-      do  23  i = 1, 3
+      do  ib = 1, nbas
+      do   i = 1, 3
         avgdf(i) = avgdf(i) + dfh(i,ib)/nbas
-   23 continue
-
+      enddo
+      enddo
 c$$$C ... MPI printout
 c$$$c#if MPI | MPIK
 c$$$      if (iprint() .ge. 30) then
@@ -268,10 +268,11 @@ c$$$      endif
 c$$$c#endif
 
 C ... Shift all forces to make avg correction zero
-      do  24  ib = 1, nbas
-      do  24  i = 1, 3
+      do  ib = 1, nbas
+      do  i = 1, 3
         dfh(i,ib) = dfh(i,ib) - avgdf(i)
-   24 continue
+      enddo
+      enddo
       if (iprint() .ge. 30) write(stdo,331) (c*avgdf(m),m=1,3)
   331 format(' shift forces to make zero average correction:',8x,3f8.2)
       if (allocated(qmout_rv)) deallocate(qmout_rv)
@@ -422,17 +423,18 @@ c        call upack('spec z p pz lmxa lmxl',sspec,is,z,pnu,pnz,lmxa)
 
         qloc = (qloc-sum)/y0
         qfat = 0d0
-        do  12  i  = 1, nsp
-        do  12  ie = 1, nxi
+        do  i  = 1, nsp
+        do  ie = 1, nxi
           gam  = 0.25d0*rsmfa**2
           qall = -4d0*pi*y0*dexp(gam*exi(ie))/exi(ie)
           qfat = qfat + hfc(ie,i)*qall
-   12   continue
+        enddo
+        enddo
         call atqval(lmxa,pnu,pnz,z,kcor,lcor,qcor,qc,qval,qsc)
         qg = qval+qsc-qfat-qloc
 C   ... Shift in free atom density
-        do  14    i = 1, nsp
-        do  14  ixi = 1, nxi
+        do  141    i = 1, nsp
+        do  142  ixi = 1, nxi
           e = exi(ixi)
 C       do  14  ig = 1, ng
 C         v(1) = gv(ig,1)*tpiba
@@ -449,7 +451,8 @@ C     ... Vectorized version
             aa = cc*dexp(gam*(e-g2(ig)))/(e-g2(ig))
             cdn0(ig,i) = cdn0(ig,i) + aa*dcmplx(cs(ig),sn(ig))
    15     continue
-   14   continue
+ 142   continue
+ 141   continue
 
 C   ... Add gaussian to conserve local charge
 C     ... Add gaussian to conserve local charge.  If density corresponds
@@ -466,10 +469,11 @@ C         cdn0(ig) = cdn0(ig) + qg*phase*dexp(-gam*v2)/vol
 C  16   continue
 C   ... Vectorized version
         cc = qg/vol/nsp
-        do  16  i = 1, nsp
-        do  16  ig = 1, ng
-          cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
-   16   continue
+        do   i = 1, nsp
+        do   ig = 1, ng
+           cdn0(ig,i)=cdn0(ig,i)+cc*dcmplx(cs(ig),sn(ig))*dexp(-gam*g2(ig))
+        enddo
+        enddo
       endif
 
 C --- Coefficients defining local valence + core density ---
@@ -583,15 +587,14 @@ C     fesdn(k)  = fesdn(k)*vol
 
 C --- Integral of grad g (output-input local charge) ves~ ---
       fesgg=0d0 !call dpzero(fesgg,3)
-      do  39  k = 1, 3
-      do  39  ilm = 1, nlm
+      do  k = 1, 3
+      do  ilm = 1, nlm
         l = ll(ilm)
         gpot0(ilm,k) = gpot0(ilm,k)*4*pi/df(2*l+1)
-
 C       fesgg(k) = fesgg(k) + qmom(iv0+ilm)*gpot0(ilm,k)
         fesgg(k) = fesgg(k) + qmout(iv0+ilm)*gpot0(ilm,k)
-   39 continue
-
+      enddo
+      enddo
 C      print 339, 'n0(out-in) * g dves ',fes1
 C      print 339, 'd(g) qmom(out-in) ves[n0~]',fesgg
 C      print 339, 'n0~(out-in) * dvxc   ',fxc
@@ -827,12 +830,15 @@ C ... Passed parameters
 C ... Local parameters
       integer i1,i2,i3,i
 
-      do  10  i  = 1, nsp
-      do  10  i3 = 1, n3
-      do  10  i2 = 1, n2
-      do  10  i1 = 1, n1
+      do  i  = 1, nsp
+      do  i3 = 1, n3
+      do  i2 = 1, n2
+      do  i1 = 1, n1
         dvxc(i1,i2,i3,i) = dvxc(i1,i2,i3,i)*deln0(i1,i2,i3)
-   10 continue
+      enddo
+      enddo
+      enddo
+      enddo
       end subroutine pvdf3
 
       subroutine pvdf4(ssite,sspec,qmom,ng,g2,yl,cs,sn,iv,qlat,cv) !slat,

@@ -685,8 +685,9 @@ C       call strncp(aa,a,1,1,recl)
 C       Keep track of line number
       iecho = 0
       nrd = nrd+1
-      do  14  j = 0, nlev
-   14 nlin(j) = nlin(j)+1
+      do   j = 0, nlev
+         nlin(j) = nlin(j)+1
+      enddo   
 c       print *, 'nlev=',nlev,' nlin=',(nlin(j),j=1,nlev),
 c     .    '  a=',(a(j),j=1,recl)
       j0 = 0
@@ -850,12 +851,14 @@ C       ... if incomplete a repeat:end sequence or a while-end
      .    nlist(nlev) .eq. -1 .and. loop0(nlev)) then
 *             print *, 'nlev=',nlev,' backspacing by',nlin(nlev)
             k = nlin(nlev)
-            do  11  i = 1, nlin(nlev)
-   11       backspace(lunit)
+            do  i = 1, nlin(nlev)
+               backspace(lunit)
+            enddo   
             nrd = nrd-nlin(nlev)
             call rxx(nrd.lt.0,'rdfiln: attempt to loop across files')
-            do  15  i = 0, nlev
-   15       nlin(i) = nlin(i)-nlin(nlev)
+            do  i = 0, nlev
+               nlin(i) = nlin(i)-nlin(nlev)
+            enddo   
 C         ... Case while-end
             if (nlist(nlev) .eq. -1) then
               nlev = nlev-1
@@ -1198,9 +1201,10 @@ C       ... First try to udef a char variable
           call tokmat(fname,ctbl,nchr,ctlen,' ',i1,k,.false.)
           i1 = i1+1
           if (i1 .gt. 0) then
-            do  44  k = i1+1, nchr
+            do  k = i1+1, nchr
               ctbl(k-1,1) = ctbl(k,1)
-   44       ctbl(k-1,2) = ctbl(k,2)
+              ctbl(k-1,2) = ctbl(k,2)
+            enddo  
             nchr = nchr-1
             goto 43
           endif
@@ -1258,8 +1262,9 @@ C   --- Copy this line into recrd, substituting variable names ---
           ja = 1
           call pvfil1(recl,recl,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,
      .    ltrace)
-          do  47  i = ja, recl
-   47     a(i) = ' '
+          do   i = ja, recl
+             a(i) = ' '
+          enddo   
           if (iecho .ne. 0) then
             if (mod(iecho,2) .ne. 0) then
               j = 1
@@ -1293,8 +1298,9 @@ C               call cwrite(a,j,k,1)
         if (ltrace .gt. 0) call awrit1('#rf closing include file: '
      .  //'%i lines',' ',80,i1mach(2),nrd)
         close(lunit)
-        do  54  j = 0, nlev
-   54   nlin(j) = nlin(j)-nrd
+        do  j = 0, nlev
+           nlin(j) = nlin(j)-nrd
+        enddo   
         lunit = unit0(filstk)
         nrd = nrdstk(filstk)
         filstk = filstk-1
@@ -1327,9 +1333,10 @@ C ... const,var directives
    83 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsyv(j)
-        do  84  i = nsyv+1, j
+        do   i = nsyv+1, j
           call watsyv(fname,val,i)
-   84   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+          call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+        enddo  
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
@@ -1337,8 +1344,9 @@ C ... const,var directives
 C ... char directives
    85 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
-        do  86  i = nchr0+1, nchr
-   86   call awrit1('%a '//ctbl(i,1)//'%a%?#n<0#,##',aa,80,0,i-nchr)
+        do  i = nchr0+1, nchr
+           call awrit1('%a '//ctbl(i,1)//'%a%?#n<0#,##',aa,80,0,i-nchr)
+        enddo   
         if (nchr0 .eq. nchr) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
@@ -1354,9 +1362,10 @@ C ... vec directives
    91 if (ltrace .gt. 1) then
         call awrit1('%x#rf %i: '''//dir(i+1)//'%a'', added',aa,80,0,nrd)
         call numsvv(j)
-        do  92  i = nsyv+1, j
+        do  i = nsyv+1, j
           call watsvv(fname,i)
-   92   call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+          call awrit1('%a '//fname//'%a%?#n<0#,##',aa,80,0,i-j)
+        enddo  
         if (nsyv .eq. j) call awrit0('%a ... no new vars',aa,80,0)
         call awrit0('%a',aa,80,-i1mach(2))
       endif
@@ -1387,8 +1396,8 @@ C- Reads entire disk file into recrd, calling rdfiln.
       endif
       if (nr .eq. mxrecs) return
       goto 10
-
       end
+      
       subroutine rdfilx(a,recl,lif,j,nrd,ctbl,mxchr,nchr,liff0)
 C- Determines whether an 'if' or 'ifdef' expression is true
 C  Inputs
@@ -1427,7 +1436,8 @@ C ----------------------------------------------------------------
       logical lif,liff0
       integer recl,j,nrd,nchr,mxchr,ctlen
       parameter (ctlen=120)
-      character*(*) a,ctbl(mxchr,2)*(ctlen),aa*(ctlen)
+      character*(*) ctbl(mxchr,2)*(ctlen),aa*(ctlen)
+      character*(*):: a
 C Local variables
       logical a2bin,ltmp,liffa
       integer j0,i0,i1,k
@@ -1519,15 +1529,17 @@ C Local variables
       character*512 aa
       integer ia,ja0,jaa
 
-      do  5  ia = ja, recla
-    5 a(ia) = ' '
+      do  ia = ja, recla
+         a(ia) = ' '
+      enddo   
       ja0 = ja
       if (.not. pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a))
      .return
    10 continue
       aa = ' '
-      do  11  ia = ja0, ja
-   11 aa(ia:ia) = a(ia)
+      do   ia = ja0, ja
+         aa(ia:ia) = a(ia)
+      enddo   
       if (t .gt. 2) then
         call skpblb(aa,ja,ja)
         print 333, '#rf subst: "', aa(1:ja+1),'"'
@@ -1588,8 +1600,9 @@ C       lqchr is T if quote character literally
 C   --- Copy string up to substitution ---
       k = min(k,recla-ja,reclr-jr-1)
       if (k .lt. 0) return
-      do  15  i = 0, k
-   15 a(ja+i) = recrd(jr+i)
+      do  i = 0, k
+         a(ja+i) = recrd(jr+i)
+      enddo   
       jr = jr+k+1
       ja = ja+k+1
       if (lqchr) then
@@ -1607,8 +1620,9 @@ C   ... can't find corresponding close of cex
         call pvfil3('missing "',cex(2:2),'" in line:',recrd,1,reclr)
 C   ... cex is nested.  This pass, quote outer cex literally
       elseif (kkk .eq. 1) then
-        do  16  i = 0, k-1
-   16   a(ja+i) = recrd(jr+i)
+        do  i = 0, k-1
+           a(ja+i) = recrd(jr+i)
+        enddo   
         jr = jr+k
         ja = ja+k
 C         print *, 'testing',(a(kkk), kkk=1,ja)
@@ -1788,8 +1802,9 @@ C   ... Substitute a character variable
         m = min(m,i2+1)
         a(ja-1) = ' '
 C         print *, 'before 33',(a(kkk), kkk=1,ja-2+0)
-        do  33  k = i1, m
-   33   a(ja+k-i1-1) = aa2(k:k)
+        do  k = i1, m
+           a(ja+k-i1-1) = aa2(k:k)
+        enddo   
 C         print *, 'after 33',k1,k2,(a(kkk), kkk=1,ja+m-i1-1)
         ja = ja+m-i1
 
@@ -1843,8 +1858,9 @@ C- Error exit
       aa = 'rdfiln '// s1 // s2 // s3 // ' ... '
       call skpblb(aa,len(aa),ii)
       ii = ii+3
-      do  18  i = ii, min(reclr-jr,len(aa))
-   18 aa(i:i) = recrd(i+jr-ii)
+      do  i = ii, min(reclr-jr,len(aa))
+         aa(i:i) = recrd(i+jr-ii)
+      enddo   
       call setpr(20)
       call fexit(-1,009,aa,0d0)
 

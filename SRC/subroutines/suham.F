@@ -807,8 +807,8 @@ c
         end do
 c
 c trial shift vector tran
-        do 20 ib1=1,nbas
-        do 20 ib2=1,nbas
+        do 120 ib1=1,nbas
+        do 121 ib2=1,nbas
           tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
 c
           do 30 ibas=1,nbas
@@ -826,11 +826,10 @@ c     .        +( tr1*plat(2,1)+tr2*plat(2,2)+tr3*plat(2,3) )
 c     .        +( tr1*plat(3,1)+tr2*plat(3,2)+tr3*plat(3,3) )
 c
             do 40 mi=1,nbas
-              if( iclass(mi).ne.iclass(ibas) ) go to 40
-
-              do 50 i1=-3,3
-              do 50 i2=-3,3
-              do 50 i3=-3,3
+              if( iclass(mi).ne.iclass(ibas) ) cycle
+              do  i1=-3,3
+              do  i2=-3,3
+              do  i3=-3,3
                 dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
                 dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
                 dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
@@ -839,11 +838,13 @@ c
                 t2 = b2 - (bas(2,mi)+dd2)
                 t3 = b3 - (bas(3,mi)+dd3)
                 if(abs(t1).le.ep.and.abs(t2).le.ep.and.
-     &                abs(t3).le.ep) go to 60
-   50         continue
+     &               abs(t3).le.ep) go to 60
+             enddo
+             enddo
+             enddo
    40       continue
 c seach failed, Not found mi and dd1. Try next (tr).
-            goto 20
+            goto 121
 
    60       continue
             miat(ibas,ig)  = mi
@@ -857,7 +858,8 @@ c
    30     continue
 c When the do-30 loop has been completed, we get out of do-20 loop
           goto 21
-   20   continue
+  121   continue
+  120   continue
         call rx('mptauof: Can not find miat and tiat')
 c
    21   continue
@@ -904,10 +906,11 @@ c-----------------------------------------------------------------
       real(8):: ep=1d-3 !ep was 1d-8 before feb2013
 c      print *; print *,' ROTDLMM:'
       do 10 ig =1,ng
-        do 20 i=1,3
-        do 20 j=1,3
-          am(i,j) = symops(i+3*(j-1),ig)
-   20   continue
+        do  i=1,3
+        do  j=1,3
+           am(i,j) = symops(i+3*(j-1),ig)
+        enddo
+        enddo
 c calculate determinant(signature)
         det= am(1,1)*am(2,2)*am(3,3)
      &  -am(1,1)*am(3,2)*am(2,3)
@@ -951,13 +954,13 @@ c         print *,' calpha=',calpha
         gamma=dacos(cgamma)
         if(sgamma.lt.0d0) gamma=-gamma
 c         print *,'alpha beta gamma det=',alpha,beta,gamma,det
-        do 30 l =  0, nl-1
-        do 30 md= -l, l
-        do 30 m = -l, l
+        do l =  0, nl-1
+        do md= -l, l
+        do m = -l, l
 c  from 'Ele theo. ang. mom. by M. E. Rose 5th 1967 Wisley and Sons.  p.52 (4.13)
           fac1 = dsqrt( igann(l+m)*igann(l-m)*igann(l+md)*igann(l-md) )
           fac2 = 0d0
-          do 40 ikap=0,2*l
+          do ikap=0,2*l
             if(l-md-ikap.ge.0 .and. l+m-ikap.ge.0
      &          .and.ikap+md-m.ge.0) then
               add= dble((-1)**ikap)/( igann(l-md-ikap)*igann(l+m-ikap)
@@ -965,13 +968,14 @@ c  from 'Ele theo. ang. mom. by M. E. Rose 5th 1967 Wisley and Sons.  p.52 (4.13
               if(2*l+m-md-2*ikap.ne.0) add=add*co2**(2*l+m-md-2*ikap)
               if(md-m+2*ikap.ne.0)     add=add*(-so2)**(md-m+2*ikap)
               fac2 = fac2+add
-            endif
-   40     continue
+           endif
+          enddo
 c l-th rep. is odd or even according to (det)**l
           dlmmc(md,m,l,ig) = fac1*fac2*det**l*
      &        cdexp( -Img*(alpha*md+gamma*m) )
-   30   continue
-
+        enddo
+        enddo
+        enddo
         am(1,1)= cos(beta)*cos(alpha)*cos(gamma)-sin(alpha)*sin(gamma)
         am(1,2)=-cos(beta)*cos(alpha)*sin(gamma)-sin(alpha)*cos(gamma)
         am(1,3)= sin(beta)*cos(alpha)
@@ -1024,8 +1028,8 @@ c  msc mcs conversion matrix generation 2->m 1->-m for m>0
         Mcs(m,2,2)=-osq2*Img
       enddo
 c
-      if(debugmode()>1) print * ,' goto do 23'
-      do 23 is=1,ng
+      if(debugmode()>1) print * ,' goto do 123'
+      do 123 is=1,ng
         if(.false.) then
 c        if(iprint().ge.150) then
           print *; print *,' **** group ops no. ig=', is
@@ -1035,8 +1039,8 @@ c        if(iprint().ge.150) then
         endif
 c convert to cubic rep.
       do 23   l =0,nl-1
-        do 33 m2=-l,l
-        do 33 m1= 1,l
+        do  m2=-l,l
+        do  m1= 1,l
           dum(1)= dlmmc(m2, m1,l,is)
           dum(2)= dlmmc(m2,-m1,l,is)
           mx    = mod(m1,2)
@@ -1045,10 +1049,11 @@ c convert to cubic rep.
      &        +dum(2)*msc(mx,2,1)
           dlmmc(m2, -m1,l,is)=
      &        dum(1)*msc(mx,1,2)
-     &        +dum(2)*msc(mx,2,2)
-   33   continue
-        do 43 m2=  1,l
-        do 43 m1= -l,l
+     &         +dum(2)*msc(mx,2,2)
+        enddo
+        enddo
+        do m2=  1,l
+        do m1= -l,l
           dum(1)=dlmmc( m2, m1,l,is)
           dum(2)=dlmmc(-m2, m1,l,is)
           mx=mod(m2,2)
@@ -1057,14 +1062,16 @@ c convert to cubic rep.
      &        +mcs(mx,1,2)*dum(2)
           dlmmc(-m2, m1,l,is)=
      &        mcs(mx,2,1)*dum(1)
-     &        +mcs(mx,2,2)*dum(2)
-   43   continue
-        do 53 m2=-l,l
-        do 53 m1=-l,l
+     &         +mcs(mx,2,2)*dum(2)
+        enddo
+        enddo
+        do m2=-l,l
+        do m1=-l,l
           dlmm(m2,m1,l,is)=dreal( dlmmc(m2,m1,l,is) )
           if( abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12 ) stop
      &        ' rotdlmm: abs(dimag(dlmmc(m2,m1,l,is))).ge.1.0d-12'
-   53   continue
+        enddo
+        enddo
 ccccccccccccccccccccc
         if(.false.) then
 c        if(.true.) then
@@ -1077,6 +1084,7 @@ c    &    , ( dimag(dlmmc (m2, m1,l,is) ), m1=-l,l),( dlmm(m2, m1,l,is), m1=-l,l
         endif
 cccccccccccccccccccccc
    23 continue
+ 123  continue
       if(debugmode()>1) print *,' end of rotdlmm'
       end subroutine rotdlmm
 
