@@ -15,7 +15,7 @@
       contains
       subroutine m_lmfgw_init()
       integer:: i,lfrzw
-      real(8) ::qbz,vconst,vrmt(nbas),qval,qsc,qbg
+      real(8) ::qbz,vconst,vrmt(nbas),qval,qsc!,qbg
       complex(8),allocatable:: vorb(:,:,:,:)
       real(8) ,allocatable :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
       real(8) ,allocatable :: sab_rv(:), vab_rv(:),vval_rv(:),sav_rv(:)
