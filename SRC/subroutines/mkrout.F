@@ -1,9 +1,11 @@
       module m_mkrout
-      use m_struc_def 
+      use m_struc_def
+      public:: sv_p_orhat1, frc, hbyl_rv, qbyl_rv, m_mkrout_init
+      
       type(s_rv1),protected,allocatable :: sv_p_orhat1(:,:)
       real(8),allocatable,protected::
-     & frc(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:) !If necessary, not deallocate.
-
+     &     frc(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:) !If necessary, not deallocate.
+      private
       contains
       
       subroutine m_mkrout_init()
@@ -45,15 +47,14 @@
          call symrhoat ( sv_p_orhat1, qbyl_rv, hbyl_rv, frc)
       endif
       end
-      end module
-      
+!!-------------------------------
       subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, sv_p_orhoat, hab,sab, qbyl, hbyl)
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,ham_eterms,nkaph
-     & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab
+     & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
       use m_suham,only: ham_ldham
       use m_struc_def 
-      use m_mkrou3
+      use m_mkrou3,only: mkrou3
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -105,20 +106,14 @@ Cu   18 Jun 00 spin polarized
 Cu   20 May 00 adapted from nfp mk_dens2
 C ----------------------------------------------------------------------
       implicit none
-c      integer:: n0 , nab   
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oeqkkl(3,nbas)
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
-c      parameter (n0=10,nab=9)
       real(8):: qbyl(n0,nsp,nbas) , hbyl(n0,nsp,nbas) , sab(nab,n0,nsp,nbas) 
      ., hab(nab,n0,nsp,nbas)
-c      type(s_site)::ssite(nbas)
-c      type(s_spec)::sspec(nbas)
-c      type(s_ham)::sham
-c      type(s_lat)::slat
       integer:: ib , ipr , iprint , is , k , kcor , kmax , lcor , lfoc 
      .           , lgunit , lmxa , lmxh , lmxl , nlma , nlmh , nlml , nlml1 , 
-     .           nr , ncore , stdo , igetss
+     .           nr , ncore , igetss
       real(8) ,allocatable :: dmatl_rv(:)
       real(8) ,allocatable :: dh_rv(:)
       real(8) ,allocatable :: dp_rv(:)
@@ -154,18 +149,13 @@ C     this ordering must match sham->eterms; see uham
       equivalence (eterms(9),sumtc)
       equivalence (eterms(12),sumt0)
       integer ::iwdummy,i_copy_size,ifx,nlmto
-      nlmto=ham_ldham(1)
 C ... Setup
-      stdo = lgunit(1)
+      nlmto=ham_ldham(1)
       ipr  = iprint()
       pi   = 4d0*datan(1d0)
       y0   = 1d0/dsqrt(4d0*pi)
-Changenglob      nkaph = nglob('nkaph')
-c      nkaph = globalvariables%nkaph
       sums1 = 0
       call tcn('mkrout')
-c      i_copy_size=size(sham%eterms)
-c      call dcopy(i_copy_size,sham%eterms,1,eterms,1)
       eterms=ham_eterms
 C --- Start loop over atoms ---
       sumtc = 0d0
@@ -180,47 +170,38 @@ C --- Start loop over atoms ---
       endif
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
-
         rsma=sspec(is)%rsma
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
         kmax=sspec(is)%kmxt
-
         if (lmxa .eq. -1) goto 10
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
         call orbl ( ib , 0 , nlmto , iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
-
         is=ssite(ib)%spec
         i_copy_size=size(ssite(ib)%pnu)
         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-
         call gtpcor(sspec,is,kcor,lcor,qcor)
         nlml = (lmxl+1)**2
         nlma = (lmxa+1)**2
         nlmh = (lmxh+1)**2
         allocate(rofi_rv(nr))
-
         allocate(rwgt_rv(nr))
         call radmsh ( rmt , a , nr , rofi_rv )
         call radwgt ( rmt , a , nr , rwgt_rv )
-
         if (lrout .ne. 0) then
           call dpzero ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp )
           call dpzero ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp )
-
 C   --- Assemble rho1 = products of augmented functions ---
 C   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(fh_rv(nr*(lmxh+1)*nkaph))
@@ -233,7 +214,6 @@ C   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(vp_rv((lmxa+1)*(kmax+1)))
           allocate(dp_rv((lmxa+1)*(kmax+1)))
           call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv, xp_rv , vp_rv , dp_rv )
-
 C   ... Augmented wave functions
           allocate(ul_rv(nr*(lmxa+1)*nsp))
           allocate(sl_rv(nr*(lmxa+1)*nsp))
@@ -245,7 +225,6 @@ C   ... Augmented wave functions
           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv )
-
 C   ... Contracted density matrix as coffs to products of (u,s,gz)
           k = max(nkaph,1+kmax)**2*(lmxa+1)**2*nlml*nsp
           allocate(chh_rv(k))
@@ -256,27 +235,14 @@ C   ... Contracted density matrix as coffs to products of (u,s,gz)
           cpp_rv=0d0
           allocate(dmatl_rv((lmxa+1)**2*nlml*nsp*9))
           dmatl_rv=0d0
-ckino Jan.04.2012:            rv_p_oqhh => sv_p_oqkkl(3,ib)%v
-c #define OQHH sv_p_oqkkl(3,ib)%v
-c #define OQHP sv_p_oqkkl(2,ib)%v
-c #define OQPP sv_p_oqkkl(1,ib)%v
           call mkrou1(nsp, nlmh , nlma , nlml , kmax , rv_a_ocg , iv_a_ojcg
      .     , iv_a_oidxcg , nkaph , nkapi , norb , ltab , ktab , blks  
-c     &     , OQHH, OQHP , OQPP , 
-     &     , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v 
+     &     , sv_p_oqkkl(3,ib)%v, sv_p_oqkkl(2,ib)%v, sv_p_oqkkl(1,ib)%v  !, OQHH, OQHP , OQPP , 
      &     , vh_rv , dh_rv , vp_rv , dp_rv , chh_rv 
      .     , chp_rv , cpp_rv , dmatl_rv )
-C        call prmx('dmatl',w(odmatl),(lmxa+1)**2,(lmxa+1)**2,nlml*nsp*9)
-
 C   ... True local density for this sphere
           call mkrou2 ( nsp , lmxa , nlml , pnz , dmatl_rv , nr , ul_rv 
      .     , sl_rv , gz_rv , ruu_rv , rus_rv , rss_rv , sv_p_orhoat( 1 , ib )%v )
-C       call prrmsh('rout',w(orofi),w(orhoat(1,ib)),nr,nr,nlml*nsp)
-C       call pshpr(40)
-C       call wrhomt('rhoMT.','density',ib,w(orhoat(1,ib)),w(orofi),nr,
-C    .    nlml,nsp)
-C       call poppr
-
 C   --- Assemble rho2 = unaugmented products Pkl*Pk'l' ---
 C       H H product.  Include local orbitals w/ envelopes (nkapi->nkaph)
           call mkrou5( nsp , nr , nlml , nkaph , nkaph , fh_rv , lmxh 
@@ -287,7 +253,6 @@ C       H Pkl product
 C       Pkl Pkl product
           call mkrou5( nsp , nr , nlml , kmax + 1 , kmax + 1 , fp_rv , 
      .     lmxa, kmax+1, kmax + 1 , fp_rv , lmxa , cpp_rv , sv_p_orhoat( 2 , ib )%v   )
-C       call prrmsh('sm rout',w(orofi),w(orhoat(2,ib)),nr,nr,nlml*nsp)
 
 C   ... Site charge and eigenvalue sum decomposed by l
 !! As I describe below, hbyl give here is wrong (bug). maybe because of wrong hab.
@@ -322,12 +287,6 @@ C   --- Print charges for information ---
      .     , sum1 )
           call radsum ( nr , nr , nlml , nsp , rwgt_rv , sv_p_orhoat( 2 , ib )%v 
      .     , sum2 )
-ccccccccccccccccccccc
-c          print *,'ddddd nsp=',nsp
-c          print *,'ddddd sum1 up =',sum1/y0,
-c     &      ddot ( nr, rwgt_rv , 1 , sv_p_orhoat( 1 , ib )%v, 1) / y0
-c          ,sum(abs(sv_p_orhoat( 1 , ib )%v)) ,size(sv_p_orhoat( 1 , ib )%v),nr*nlml*nsp
-ccccccccccccccccccccc
           sum1 = sum1/y0
           sum2 = sum2/y0
           if (nsp .eq. 2) then
@@ -366,20 +325,15 @@ C       Contribution to mag outsite rmt: extrapolate tail to infinity
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
-ckino Dec.13.2011:              call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , rv_p_ov01
-ckino Dec.28.2011:              call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_p_ov1
           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 
      .      , kcor , lcor , qcor , smec , smtc , sv_p_orhoat( 3 , ib )%v 
      .      , ncore , 0d0 , 0d0,   sspec(is)%nmcore)
-
-
           call poppr
 C     ... here if v0 used to make core... then effectively frozen
 C         call p1kden(nr,w(orwgt),w(orhoat(3,ib)),w(ov01),w(ov0),sum)
 C         write(stdo,996) smec,sum,smec+sum
 C 996     format('smec,sum,smec+sum=',3f14.6)
 C         smec = smec+sum
-
           sumtc = sumtc + smtc
           sumec = sumec + smec
         else
@@ -387,14 +341,8 @@ C         smec = smec+sum
   288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
-ckino Dec.13.2011:              call dpcopy ( rv_p_orhoca , sv_p_orhoat( 3 , ib )%v , 1 , nr
-ckino Dec.28.2011:              call dpcopy ( sspec(is)%rv_p_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr
-          call dpcopy ( sspec(is)%rv_a_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr 
-     .      * nsp , 1d0 )
-
-
+          call dpcopy ( sspec(is)%rv_a_orhoc , sv_p_orhoat( 3 , ib )%v , 1 , nr* nsp , 1d0 )
         endif
-
         if (allocated(dmatl_rv)) deallocate(dmatl_rv)
         if (allocated(cpp_rv)) deallocate(cpp_rv)
         if (allocated(chp_rv)) deallocate(chp_rv)
@@ -422,95 +370,9 @@ C --- Put sumec,sumtc into etot struct ---
       call tcx('mkrout')
       end subroutine mkrout
 
+      end module m_mkrout
+      
 
-      module m_mkrou3
-      contains
-      subroutine mkrou3(mode,lmxa,nlml,nsp,pnz,dmatl,hab,sab,qsum,hsum)
-C- l-decomposed charges and eigenvalue sum
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :0 do nothing
-Ci         :1 make qsum only
-Ci         :2 make qsum and hsum both
-Ci   lmxa  :augmentation l-cutoff
-Ci   dmatl :dmatl(l1,l2,mlm,i,j,isp) holds coefficients to a y_lm
-Ci         :expansion of the function products f_i(l1) f_j(l2)
-Ci         :where f_i,f_j form this table.
-Ci         :    (uu  us  uz)
-Ci         :    (su  ss  sz)
-Ci         :    (zu  zs  zz)
-Ci   hab   :<u,s | h | u,s> for each pair uu, us, su, ss; see remarks
-Ci   sab   :<u,s | 1 | u,s>
-Co Outputs
-Co   qsum  :l-decomposed sphere charge
-Co   hsum  :l-decomposed one-electron energy
-Cr Remarks
-Cr   qsum and hsum are used to find the band centers of gravity
-Cr   u and s ae linear combinations radial wave functions defined as:
-Cr   u has val=1, slo=1 at rmax, s has val=0, slo=1
-Cu Updates
-Cu   28 Aug 01 Extended to local orbitals.
-C ----------------------------------------------------------------------
-      implicit none
-      integer mode,lmxa,n0,nab,nlml,nsp
-      parameter (n0=10,nab=9)
-      real(8),optional:: hab(nab,n0,nsp), hsum(n0,nsp)
-      real(8):: qsum(n0,nsp) ,sab(nab,n0,nsp),
-     .dmatl(0:lmxa,0:lmxa,nlml,3,3,nsp),pnz(n0,2)
-      integer l,isp,m
-      double precision pi,srfpi,qz,hz
-      if (mode .eq. 0) return
-C     call tcn('mkrou3')
-      pi = 4d0*datan(1d0)
-      srfpi = dsqrt(4d0*pi)
-      do  isp = 1, nsp
-        do  l = 0, lmxa
-          if (mode .ge. 1) qsum(l+1,isp) = 0d0
-          if (mode .ge. 2) hsum(l+1,isp) = 0d0
-        enddo
-      enddo
-      do  isp = 1, nsp
-        do  l = 0, lmxa
-          m = l+1
-          qsum(m,isp) =
-     .    + dmatl(l,l,1,1,1,isp)*sab(1,m,isp)*srfpi
-     .    + dmatl(l,l,1,1,2,isp)*sab(2,m,isp)*srfpi
-     .    + dmatl(l,l,1,2,1,isp)*sab(3,m,isp)*srfpi
-     .    + dmatl(l,l,1,2,2,isp)*sab(4,m,isp)*srfpi
-          if (mode .ge. 2) then
-            hsum(m,isp) =
-     .      + dmatl(l,l,1,1,1,isp)*hab(1,m,isp)*srfpi
-     .      + dmatl(l,l,1,1,2,isp)*hab(2,m,isp)*srfpi
-     .      + dmatl(l,l,1,2,1,isp)*hab(3,m,isp)*srfpi
-     .      + dmatl(l,l,1,2,2,isp)*hab(4,m,isp)*srfpi
-          endif
-C         ... uz, sz, zu, zs, zz terms
-          if (pnz(m,1) .ne. 0) then
-            qz =
-     .      + dmatl(l,l,1,1,3,isp)*sab(5,m,isp)*srfpi
-     .      + dmatl(l,l,1,2,3,isp)*sab(6,m,isp)*srfpi
-     .      + dmatl(l,l,1,3,1,isp)*sab(5,m,isp)*srfpi
-     .      + dmatl(l,l,1,3,2,isp)*sab(6,m,isp)*srfpi
-     .      + dmatl(l,l,1,3,3,isp)*sab(7,m,isp)*srfpi
-! 13sep2012takao add qz and hz
-            qsum(m,isp) = qsum(m,isp) + qz  !qsum is including local orbital 13sep2012takao
-            if (mode .ge. 2) then
-              hz =
-     .        + dmatl(l,l,1,1,3,isp)*hab(5,m,isp)*srfpi
-     .        + dmatl(l,l,1,2,3,isp)*hab(6,m,isp)*srfpi
-     .        + dmatl(l,l,1,3,1,isp)*hab(5,m,isp)*srfpi
-     .        + dmatl(l,l,1,3,2,isp)*hab(6,m,isp)*srfpi
-     .        + dmatl(l,l,1,3,3,isp)*hab(7,m,isp)*srfpi
-! 13sep2012takao add qz and hz
-              hsum(m,isp)=hsum(m,isp)+hz  !hsum is including local orbital 13sep2012takao     
-            endif
-          endif
-
-        enddo
-      enddo
-C     call tcx('mkrou3')
-      end subroutine mkrou3
-      end module m_mkrou3
 
 
 
