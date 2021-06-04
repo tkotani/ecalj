@@ -4,7 +4,7 @@
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi,
      .    ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job, vorb )
 !     , itest )!, nlibu , lmaxu , lldau , nsp,
-      use m_lmfinit,only:lso,ham_eterms,nbas, ssite=>v_ssite, sspec=>v_sspec,!lfrce=>ctrl_lfrce,
+      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec,!lfrce=>ctrl_lfrce,
      &    lcplxp,nlibu,lmaxu,lldau,nsp
       use m_MPItk,only: master_mpi
       use m_struc_def  
@@ -13,6 +13,9 @@
       use m_lattic,only: lat_vol
       use m_supot,only: k1,k2,k3,lat_nabc
       use m_lattic,only:lat_plat
+      use m_density,only: utot,valves,cpnves,rhoexc,rhovxc,sumec,
+     &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
+      
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -199,11 +202,11 @@ c lso,
       complex(8) ,allocatable :: smvc_zv(:)
       complex(8) ,allocatable :: smexc_zv(:)
 
-      double precision amom,cpnvsa,cpnves,dq,eh,eks,focexc,
-     .focvxc,qsmc,smq,smag,sum2,rhoexc,rhoex,rhoec,rhovxc,rhvsm,sgp0,
-     .sqloc,sqlocc,saloc,sumec,sumtc,uat,usm,utot,valfsm,valftr,
-     .rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat,valvef,
-     .valves,vol,vsum,xcore,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2),
+      double precision dq,focexc,cpnvsa, !amom,cpnves, eh,eks,,rhovxc
+     .focvxc,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0,
+     .sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, !,sumec,sumtc
+     .rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat, !valvef,
+     .vol,vsum,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2), !valves,,xcore
      .rvvxcv(2),fcexc0(2),rveps(2),rvvxc(2),fcex0(2),fcec0(2),
      .fcexca(2),fcexa(2),fceca(2),rvmusm(2),rvepsm(2),rmusm(2),
      .vxcavg(2),fcvxc0(2),fcvxca(2),repat(2),repatx(2),repatc(2),
@@ -211,19 +214,19 @@ c lso,
 C     double precision tmp(2)
       equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
 C     This ordering must match sham->eterms; see uham
-      double precision eterms(20)
-      equivalence (eterms(1),eh)
-      equivalence (eterms(2),eks)
-      equivalence (eterms(3),utot)
-      equivalence (eterms(4),valves)
-      equivalence (eterms(5),cpnves)
-      equivalence (eterms(6),rhoexc)
-      equivalence (eterms(7),rhovxc)
-      equivalence (eterms(8),sumec)
-      equivalence (eterms(9),sumtc)
-      equivalence (eterms(10),xcore)
-      equivalence (eterms(11),valvef)
-      equivalence (eterms(15),amom)
+c$$$      double precision eterms(20)
+c$$$      equivalence (eterms(1),eh)
+c$$$      equivalence (eterms(2),eks)
+c$$$      equivalence (eterms(3),utot)
+c$$$      equivalence (eterms(4),valves)
+c$$$      equivalence (eterms(5),cpnves)
+c$$$      equivalence (eterms(6),rhoexc)
+c$$$      equivalence (eterms(7),rhovxc)
+c$$$      equivalence (eterms(8),sumec)
+c$$$      equivalence (eterms(9),sumtc)
+c$$$      equivalence (eterms(10),xcore)
+c$$$      equivalence (eterms(11),valvef)
+c$$$      equivalence (eterms(15),amom)
 
       integer:: itest,wdummy,nnn
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
@@ -297,8 +300,8 @@ c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       pi   = 4d0*datan(1d0)
       ngabc=lat_nabc
       vol=lat_vol
-      i_copy_size=size(ham_eterms)
-      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
 
 C$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
 C$$$      if(enforce_positive_smrho()) then
@@ -603,8 +606,8 @@ c------------------
       if (dabs(dq) .gt. 1d-3 .and. iprint() .gt. 0) call awrit1(
      .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
 
-      i_copy_size=size(ham_eterms)
-      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
 
       call tcx('mkpot')

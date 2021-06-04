@@ -1,9 +1,11 @@
       module m_chkdmu
+      use m_density,only: eks !unchanged
       real(8),protected:: eorb=0d0
+      
       contains
       subroutine chkdmu( dmatu,dmatuo,vorb) !,tolu,umix)
       use m_struc_def,only: s_site,s_spec
-      use m_lmfinit,only: ham_eterms,stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau,
+      use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau,
      &     tolu=>mix_tolu,umix=>mix_umix
       use m_MPItk,only: master_mpi
       use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
@@ -68,8 +70,8 @@ c      double precision eorb
 C ... Local parameters
       integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
       integer iprint,ipl,havesh
-      double precision ddmat,uh(4),jh(4),eorbi,eterms(20),eks,ddot,xx
-      equivalence (eterms(2),eks)
+      double precision ddmat,uh(4),jh(4),eorbi,eterms(20),ddot,xx
+c      equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
       logical:: fexist,mmtargetx,eee
       real(8),allocatable:: uhall(:,:)
@@ -168,18 +170,16 @@ C     This block requires dmatu to be in spherical harmonics
 
 C --- LDA total energy terms ---
 
-      i_copy_size=size(ham_eterms)
-      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
-
-      eks = eks + eorb
-c      ham_ehk=eks
-      i_copy_size=size(ham_eterms)
-      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
+c      eks = eks + eorb
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
       call info5(20,0,0,'%9peks = %,6;6d  '//
-     .'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks-eorb,eorb,eks,0,0)
+     .'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks,eorb,eks+eorb,0,0)
       if (master_mpi .and. ipl.gt.0)
-     .write (stdl,720) eks-eorb,eorb,eks
+     .write (stdl,720) eks,eorb,eks+eorb
   720 format('ldau EHK ',f14.6,'  U',f12.6,'  ELDA+U ',f14.6)
 
 C --- Restore dmatu, vorb to harmonics specified by idvsh ---

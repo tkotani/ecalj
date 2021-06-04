@@ -50,11 +50,13 @@
 !!-------------------------------
       subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, sv_p_orhoat, hab,sab, qbyl, hbyl)
       use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,ham_eterms,nkaph
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph
      & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
       use m_suham,only: ham_ldham
       use m_struc_def 
       use m_mkrou3,only: mkrou3
+      use m_density,only: sumec,sumtc,sumt0
+
 C- Assembles local output densities out of the qkkl, and core states
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -135,7 +137,7 @@ C ----------------------------------------------------------------------
       real(8) ,allocatable :: chp_rv(:)
       real(8) ,allocatable :: cpp_rv(:)
       double precision a,ceh,pi,qcor(2),rfoc,rmt,rsma,smec,smtc,stc0,
-     .sum1,sum2,sums1,sums2,sumec,sumtc,sumt0,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
+     .sum1,sum2,sums1,sums2,xx,y0,z,ddot,res,rsml(n0),ehl(n0)
       integer nkap0,nkapi,nkape,nglob
       parameter (nkap0=3)
       integer lh(nkap0)
@@ -144,10 +146,10 @@ C ----------------------------------------------------------------------
       integer norb,ntab(n0*nkap0),blks(n0*nkap0)
       double precision pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
 C     this ordering must match sham->eterms; see uham
-      double precision eterms(20)
-      equivalence (eterms(8),sumec)
-      equivalence (eterms(9),sumtc)
-      equivalence (eterms(12),sumt0)
+c      double precision eterms(20)
+c      equivalence (eterms(8),sumec)
+c      equivalence (eterms(9),sumtc)
+c      equivalence (eterms(12),sumt0)
       integer ::iwdummy,i_copy_size,ifx,nlmto
 C ... Setup
       nlmto=ham_ldham(1)
@@ -156,7 +158,7 @@ C ... Setup
       y0   = 1d0/dsqrt(4d0*pi)
       sums1 = 0
       call tcn('mkrout')
-      eterms=ham_eterms
+c      eterms=ham_eterms
 C --- Start loop over atoms ---
       sumtc = 0d0
       sumec = 0d0
@@ -366,7 +368,7 @@ C         smec = smec+sum
    10   continue
       enddo
 C --- Put sumec,sumtc into etot struct ---
-      ham_eterms=eterms
+c      ham_eterms=eterms
       call tcx('mkrout')
       end subroutine mkrout
 

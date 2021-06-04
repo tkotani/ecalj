@@ -13,6 +13,7 @@
       use m_density,only: orhoat,osmrho !i/o
       real(8),protected:: ham_ehf,ham_ehk      !output
       real(8),protected:: eferm, qdiff         !output 
+c      use m_density,only: rhosig !touched
 !----------------------------      
 !io  smrho :smooth density
 !io        :Symmetrized on output
@@ -42,7 +43,7 @@
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
-     &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_eterms,ham_elind,ham_rsrnge,
+     &     pwmode=>ham_pwmode,lrsig=>ham_lsig,epsovl=>ham_oveps,ham_elind,ham_rsrnge,
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
@@ -156,7 +157,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       double precision esmearm,sev,efermr,
      .  sev00,sev1,sumtv,alfa,eharris,eks,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
-     .  ,qp(3),shftqp(3),eterms(20),elind,dum,evtop,
+     .  ,qp(3),shftqp(3),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
 !!    PW basis igv2x(:,:)
       integer ,allocatable :: kv_iv(:)
@@ -317,10 +318,11 @@ c      character*8:: charext
       ldham = ham_ldham
       ldim  = ldham(1)
       
-      eterms=-99d0
-      eterms(19) = 0d0
-      ham_eterms=eterms
-      eks = 0d0
+c      eterms=-99d0
+c      eterms(19) = 0d0
+c     ham_eterms=eterms
+c      rhosig = 0d0
+      eks    = 0d0
       
       if(binit) then 
          eferm =bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
@@ -521,9 +523,10 @@ c     i        etolv,etolc)
       
 !! AllReduce band quantities.  eterms should be cleaned up in future.   
       call m_bandcal_allreduce(lrout,lwtkb)
-      eterms=ham_eterms 
-      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-      ham_eterms=eterms
+c      eterms=ham_eterms 
+c      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+c      ham_eterms=eterms
+c      call mpibc2_real(rhosig,1,'bndfp_rhosig')
       emin=1d9
       do iq = 1, nkp
          qp=qplist(:,iq)
@@ -541,9 +544,10 @@ c     i        etolv,etolc)
          call mpi_barrier(MPI_comm_world,ierr)
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
-         eterms=ham_eterms 
-         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-         ham_eterms=eterms
+c         eterms=ham_eterms 
+c         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
+c         ham_eterms=eterms
+c         call mpibc2_real(rhosig,1,'bndfp_rhosig')
       endif
       
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal

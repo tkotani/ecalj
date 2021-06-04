@@ -1,8 +1,9 @@
       subroutine lmfp(llmfgw)
+      use m_density,only: amom!,rhosig
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
      &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
-     &     ham_seref,ham_eterms,ctrl_lfrce,
+     &     ham_seref,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
      &     sspec=>v_sspec, ssite=>v_ssite, 
      &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks
@@ -47,9 +48,9 @@
       integer :: i,ifi,ipr,irs1x, k, nit1,numq, pdim,lsc
       integer :: icom, natrlx , nvrelx , itrlx, irlxsh=0, nitrlx 
       integer:: ibas,unlink,ifipos,ifile_handle, maxit,iter,j,idmatu
-      real(8) :: mdprm(6),gam(4),gam1,bstim,rhosig,pletot(6,2)
+      real(8) :: mdprm(6),gam(4),gam1,bstim,pletot(6,2)
       real(8) :: plat(3,3),qlat(3,3),xvcart(3),xvfrac(3)
-      real(8):: seref,etot(2),amom,qtol,etol
+      real(8):: seref,etot(2),qtol,etol
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
       real(8), allocatable :: rv_a_omad (:) !   Madelung matrix if necessary
@@ -190,8 +191,8 @@ Cxxx  removing mode =>  +8s' bit of irs(1) -> rotate local density after file re
 !     ! Make and diagonalize hamiltonian, make new charge density ---
             if(maxit/=0) then
                if (master_mpi) then
-                  aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
-                  write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
+               aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
+               write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
                endif
                call bndfp(iter, llmfgw)
             endif
@@ -216,13 +217,13 @@ Cxxx  removing mode =>  +8s' bit of irs(1) -> rotate local density after file re
             seref   = ham_seref !   ... Subtract reference energy
             etot(1) = etot(1) - seref
             if (etot(2)/=0) etot(2) = etot(2) - seref
-            amom = ham_eterms(15)
+c            amom = ham_eterms(15)
             flush(6)
             call mpi_barrier(MPI_COMM_WORLD,ierr)
             if(master_mpi) then
-               rhosig = ham_eterms(19)
+c               rhosig = ham_eterms(19)
                i = 0
-               if (rhosig/=-99 .and. rhosig/=0) i = 10
+c               if (rhosig/=-99 .and. rhosig/=0) i = 10
 !     nwit : kino's memo
 !     lsc   :0 self-consistency achieved (diffe<=etol, qdiff=dmxp(11)<=qtol)
 !     :1 if not self-consistent, but encountered max. no. iter.

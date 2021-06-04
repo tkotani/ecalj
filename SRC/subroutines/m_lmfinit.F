@@ -121,9 +121,9 @@
       logical,protected:: lpztail=.false.
       integer,protected:: leks,lrout,plbnd 
       
-      real(8):: ham_eterms(20)
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:)
+c      real(8):: ham_eterms(20)
 c-----------------------
 !! These are (probably) rewritten in other subroutines.
 !!      So, we need to look for modules for these variables.      

@@ -1,8 +1,8 @@
       subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
       use m_struc_def
-      use m_lmfinit,only: ham_eterms,nsp,stdo,stdl
-
-
+      use m_lmfinit,only: nsp,stdo,stdl
+      use m_density,only: eh,eks,utot,valves,cpnves,rhoexc,rhovxc,sumec,
+     &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -49,31 +49,31 @@ C ----------------------------------------------------------------------
 C ... Passed parameters
       integer mode
       integer:: i_copy_size
-      real(8):: sev , etot , sumtv , valmom
+      real(8):: sev , etot , sumtv , valmom,ekin,ttcor
 c      type(s_ham)::sham
 
 C ... Local parameters
       integer ipr,ipl
-      double precision eh,eks,rhoexc,sumec,utot,valvef,xcore,
-     .ttcor,sumt0,sumev,sumtc,ekin,rhosig,amom
+c      double precision eh,eks,rhoexc,sumec,utot,valvef,xcore,
+c     .ttcor,sumt0,sumev,sumtc,ekin,rhosig,amom
 C     double precision cpnves,rhovxc,sumtc,valves
 C     This ordering must match sham->eterms; see uham
-      double precision eterms(20)
-      equivalence (eterms(1),eh)
-      equivalence (eterms(2),eks)
-      equivalence (eterms(3),utot)
-C     equivalence (eterms(4),valves)
-C     equivalence (eterms(5),cpnves)
-      equivalence (eterms(6),rhoexc)
-C     equivalence (eterms(7),rhovxc)
-      equivalence (eterms(8),sumec)
-      equivalence (eterms(9),sumtc)
-      equivalence (eterms(10),xcore)
-      equivalence (eterms(11),valvef)
-      equivalence (eterms(12),sumt0)
-      equivalence (eterms(13),sumev)
-      equivalence (eterms(15),amom)
-      equivalence (eterms(19),rhosig)
+c$$$      double precision eterms(20)
+c$$$      equivalence (eterms(1),eh)
+c$$$      equivalence (eterms(2),eks)
+c$$$      equivalence (eterms(3),utot)
+c$$$C     equivalence (eterms(4),valves)
+c$$$C     equivalence (eterms(5),cpnves)
+c$$$      equivalence (eterms(6),rhoexc)
+c$$$C     equivalence (eterms(7),rhovxc)
+c$$$      equivalence (eterms(8),sumec)
+c$$$      equivalence (eterms(9),sumtc)
+c$$$      equivalence (eterms(10),xcore)
+c$$$      equivalence (eterms(11),valvef)
+c$$$      equivalence (eterms(12),sumt0)
+c$$$      equivalence (eterms(13),sumev)
+c$$$      equivalence (eterms(15),amom)
+c$$$      equivalence (eterms(19),rhosig)
 
 C     stdo = lgunit(1)
 C     stdl = lgunit(2)
@@ -88,7 +88,7 @@ c      stdl = globalvariables%stdl
 
 c      i_copy_size=size(ham_eterms)
 c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
-      eterms=ham_eterms
+c      eterms=ham_eterms
       sumev = sev
 
       if (mode .eq. 1) then
@@ -103,9 +103,9 @@ c      print *,'vvv ekin=',ekin,sumtv,ttcor
 ccccccccccccccc
       elseif (mode .eq. 2) then
 C   ... double counting from sigma
-        if (rhosig .ne. -99) then
-          sumtv = sumtv - rhosig
-        endif
+c        if (rhosig .ne. -99) then
+c          sumtv = sumtv - rhosig
+c        endif
         ekin = sumtv + sumtc
         etot = ekin + utot + rhoexc
         eks  = etot
@@ -114,8 +114,8 @@ c      print *,'vvv ekin=',ekin,sumtv,sumtc
 ccccccccccccccc
       endif
 
-      i_copy_size=size(ham_eterms)
-      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
+c      i_copy_size=size(ham_eterms)
+c      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
 
       if (mode .eq. 0) return
 
@@ -146,13 +146,13 @@ C    .       /' rhoeps=',f17.8,'     utot=',f17.8,'    etot=',f17.8)
   720   format('fp Har: U',f15.6,'  T',f15.6,'  sev',f14.6,'  EH ',f14.6)
 
       elseif (mode .eq. 2) then
-        if (ipr .ge. 30) then
-          if (rhosig .ne. -99 .and. rhosig .ne. 0) then
-            write (stdo,411) sumtv,sumtc,ekin,rhoexc,utot,rhosig,eks
-  411       format(/' Kohn-Sham energy:'
-     .      /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
-     .      /' rhoep= ',f15.6,'   utot=',f17.6,' rhosig=',f16.6
-     .      /'  ehks=', f16.6)
+         if (ipr .ge. 30) then
+          if (.false.) then !rhosig .ne. -99 .and. rhosig .ne. 0) then
+c            write (stdo,411) sumtv,sumtc,ekin,rhoexc,utot,rhosig,eks
+c  411       format(/' Kohn-Sham energy:'
+c     .      /' sumtv= ',f15.6,'  sumtc=',f17.6,'   ekin=',f16.6
+c     .      /' rhoep= ',f15.6,'   utot=',f17.6,' rhosig=',f16.6
+c     .      /'  ehks=', f16.6)
           else
             write (stdo,410) sumtv,sumtc,ekin,rhoexc,utot,eks
   410       format(/' Kohn-Sham energy:'

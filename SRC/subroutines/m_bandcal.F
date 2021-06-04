@@ -398,9 +398,6 @@ c$$$         enddo                  ! end second loop over isp
 c$$$      enddo                     !end second loop over iq
 c$$$      end subroutine
       
-!     ! eterms are alwasy broadcasted. comment out if conditions jan2012
-
-
       subroutine m_bandcal_symsmrho()
       call symsmrho(smrho_out)
       end
