@@ -28,15 +28,16 @@ C     implicit none
       double precision a(0:*), b(0:*)
       integer i,j,ia,ib
       if (nra .eq. 1 .and. nrb .eq. 1) then
-        do  10  j = 0, m-1
+        do  11  j = 0, m-1
           ia = j*nca
           ib = j*ncb
           do  10  i = 0, n-1
             b(i+ib) = a(i+ia)
    10   continue
+   11   continue
         return
       endif
-      do  20  i = n-1, 0, -1
+      do  21  i = n-1, 0, -1
         ia = i*nra+m*nca
         ib = i*nrb+m*ncb
         do  20  j = m-1, 0, -1 
@@ -44,6 +45,7 @@ C     implicit none
           ib = ib-ncb
           b(ib) = a(ia)
    20 continue
+   21 continue
       end
 C      subroutine dvcpy(a,nca,b,ncb,n)
 CC- General vector copy (obsolete: should use blas dcopy)

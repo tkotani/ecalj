@@ -35,9 +35,11 @@ C --- Case rhs is upper triangular ---
    10 continue
 C --- Copy to upper triangle ---
       if (.not. lherm) return
-      do  12  ir = 1, n
-        do  12  ic = ir+1, n
-   12 cr(ic,ir) =  cr(ir,ic)
+      do    ir = 1, n
+        do    ic = ir+1, n
+           cr(ic,ir) =  cr(ir,ic)
+        enddo
+      enddo
       return
 
 C --- Case lhs is lower triangular ---
@@ -52,8 +54,10 @@ C --- Case lhs is lower triangular ---
 
 C --- Copy to lower triangle ---
       if (.not. lherm) return
-      do  22  ir = 1, n
-        do  22  ic = ir+1, n
-   22 cr(ir,ic) =  cr(ic,ir)
+      do    ir = 1, n
+         do  ic = ir+1, n
+            cr(ir,ic) =  cr(ic,ir)
+         enddo
+      enddo
       end
 

@@ -81,8 +81,9 @@ c
         scale = 0.0d0
         if (i .gt. m) go to 210
 c
-        do 120 k = i, m
-  120   scale = scale + dabs(a(k,i))
+        do k = i, m
+           scale = scale + dabs(a(k,i))
+        enddo   
 c
         if (scale .eq. 0.0d0) go to 210
 c
@@ -97,34 +98,40 @@ c
         a(i,i) = f - g
         if (i .eq. n) go to 160
 c
-        do 150 j = l, n
+        do 151 j = l, n
           s = 0.0d0
 c
-          do 140 k = i, m
-  140     s = s + a(k,i) * a(k,j)
+          do  k = i, m
+             s = s + a(k,i) * a(k,j)
+          enddo
 c
           f = s / h
 c
           do 150 k = i, m
             a(k,j) = a(k,j) + f * a(k,i)
   150   continue
+  151   continue
 c
   160   if (ip .eq. 0) go to 190
 c
-        do 180 j = 1, ip
+        do 181 j = 1, ip
           s = 0.0d0
 c
-          do 170 k = i, m
-  170     s = s + a(k,i) * b(k,j)
+          do  k = i, m
+             s = s + a(k,i) * b(k,j)
+          enddo   
 c
           f = s / h
 c
           do 180 k = i, m
             b(k,j) = b(k,j) + f * a(k,i)
   180   continue
+  181   continue
 c
-  190   do 200 k = i, m
-  200   a(k,i) = scale * a(k,i)
+ 190    continue
+        do k = i, m
+           a(k,i) = scale * a(k,i)
+        enddo
 c
   210   w(i) = scale * g
         g = 0.0d0
@@ -132,8 +139,9 @@ c
         scale = 0.0d0
         if (i .gt. m .or. i .eq. n) go to 290
 c
-        do 220 k = l, n
-  220   scale = scale + dabs(a(i,k))
+        do k = l, n
+           scale = scale + dabs(a(i,k))
+        enddo   
 c
         if (scale .eq. 0.0d0) go to 290
 c
@@ -147,25 +155,30 @@ c
         h = f * g - s
         a(i,l) = f - g
 c
-        do 240 k = l, n
-  240   rv1(k) = a(i,k) / h
+        do  k = l, n
+           rv1(k) = a(i,k) / h
+        enddo
 c
         if (i .eq. m) go to 270
 c
-        do 260 j = l, m
+        do 261 j = l, m
           s = 0.0d0
 c
-          do 250 k = l, n
-  250     s = s + a(j,k) * a(i,k)
+          do k = l, n
+             s = s + a(j,k) * a(i,k)
+          enddo   
 c
           do 260 k = l, n
             a(j,k) = a(j,k) + s * rv1(k)
   260   continue
+  261   continue
 c
-  270   do 280 k = l, n
-  280   a(i,k) = scale * a(i,k)
-c
-  290   x = dmax1(x,dabs(w(i))+dabs(rv1(i)))
+ 270    continue
+        do  k = l, n
+           a(i,k) = scale * a(i,k)
+        enddo
+ 290    continue
+        x = dmax1(x,dabs(w(i))+dabs(rv1(i)))
   300 continue
 c     .......... accumulation of right-hand transformations.
 c                for i=n step -1 until 1 do -- ..........
@@ -174,26 +187,31 @@ c                for i=n step -1 until 1 do -- ..........
         if (i .eq. n) go to 390
         if (g .eq. 0.0d0) go to 360
 c
-        do 320 j = l, n
+        do j = l, n
 c     .......... double division avoids possible underflow ..........
-  320   a(j,i) = (a(i,j) / a(i,l)) / g
+           a(j,i) = (a(i,j) / a(i,l)) / g
+        enddo   
 c
         do 350 j = l, n
           s = 0.0d0
 c
-          do 340 k = l, n
-  340     s = s + a(i,k) * a(k,j)
+          do k = l, n
+             s = s + a(i,k) * a(k,j)
+          enddo   
 c
-          do 350 k = l, n
-            a(k,j) = a(k,j) + s * a(k,i)
+          do k = l, n
+             a(k,j) = a(k,j) + s * a(k,i)
+          enddo   
   350   continue
 c
-  360   do 380 j = l, n
+ 360    continue
+        do j = l, n
           a(i,j) = 0.0d0
           a(j,i) = 0.0d0
-  380   continue
+        enddo  
 c
-  390   a(i,i) = 1.0d0
+ 390    continue
+        a(i,i) = 1.0d0
         g = rv1(i)
         l = i
   400 continue
@@ -201,13 +219,14 @@ c
       if (m .ge. n .or. ip .eq. 0) go to 510
       m1 = m + 1
 c
-      do 500 i = m1, n
-c
-        do 500 j = 1, ip
-          b(i,j) = 0.0d0
-  500 continue
+      do  i = m1, n
+        do j = 1, ip
+           b(i,j) = 0.0d0
+        enddo
+      enddo
 c     .......... diagonalization of the bidiagonal form ..........
-  510 tst1 = x
+ 510  continue
+      tst1 = x
 c     .......... for k=n step -1 until 1 do -- ..........
       do 700 kk = 1, n
         k1 = n - kk
@@ -215,7 +234,8 @@ c     .......... for k=n step -1 until 1 do -- ..........
         its = 0
 c     .......... test for splitting.
 c                for l=k step -1 until 1 do -- ..........
-  520   do 530 ll = 1, k
+ 520    continue
+        do 530 ll = 1, k
           l1 = k - ll
           l = l1 + 1
           tst2 = tst1 + dabs(rv1(l))
@@ -226,7 +246,8 @@ c                through the bottom of the loop ..........
           if (tst2 .eq. tst1) go to 540
   530   continue
 c     .......... cancellation of rv1(l) if l greater than 1 ..........
-  540   c = 0.0d0
+ 540    continue
+        c = 0.0d0
         s = 1.0d0
 c
         do 560 i = l, k
@@ -250,7 +271,8 @@ c
 c
   560   continue
 c     .......... test for convergence ..........
-  565   z = w(k)
+ 565    continue
+        z = w(k)
         if (l .eq. k) go to 650
 c     .......... shift from bottom 2 by 2 minor ..........
         if (its .eq. 30) go to 1000
@@ -294,7 +316,8 @@ c     .......... rotation can be arbitrary if z is zero ..........
           if (z .eq. 0.0d0) go to 580
           c = f / z
           s = h / z
-  580     f = c * g + s * y
+ 580      continue
+          f = c * g + s * y
           x = -s * g + c * y
           if (ip .eq. 0) go to 600
 c
@@ -312,12 +335,14 @@ c
         w(k) = x
         go to 520
 c     .......... convergence ..........
-  650   if (z .ge. 0.0d0) go to 700
+ 650    continue
+        if (z .ge. 0.0d0) go to 700
 c     .......... w(k) is made non-negative ..........
         w(k) = -z
 c
-        do 690 j = 1, n
-  690   a(j,k) = -a(j,k)
+         do j = 1, n
+            a(j,k) = -a(j,k)
+         enddo
 c
   700 continue
 c

@@ -24,8 +24,8 @@ C     implicit none
       pi2 = 8*datan(1d0)
       call mklegw(nx,xtab,wx,0)
       i = 0
-      do  10  ip = 1, np
-        do  10  ix = 1, nx
+      do    ip = 1, np
+        do  ix = 1, nx
           i = i+1
           cost = xtab(ix)
           phi =  (pi2*ip)/np
@@ -34,7 +34,8 @@ C     implicit none
           x(2,i)=dsin(phi)*sint
           x(3,i)=cost
           w(i)  =wx(ix)*(pi2/np)
-   10 continue
+       enddo
+       enddo
       nxp = nx*np
       if (np .gt. 0) return
 

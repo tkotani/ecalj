@@ -333,9 +333,10 @@ C ... Return full file name in pnam
 C --- Match lunit with table.  matchu=-1 unless a match exists ---
       matchu = -1
       if (lunit .gt. 0) then
-        do  110  i = 1, nnam
+        do  i = 1, nnam
           matchu = i
-  110   if (tabuni(i) .eq. lunit) goto 111
+          if (tabuni(i) .eq. lunit) goto 111
+        enddo  
         matchu = -1
   111   continue
       endif
@@ -346,8 +347,9 @@ C --- If no match, get next available unit number => locuni ---
         locuni = 7
    12   locuni = locuni+1
         if (isopen(locuni,.false.)) goto 12
-        do  14  i = 1, nnam
-   14   if (tabuni(i) .eq. locuni) goto 12
+        do   i = 1, nnam
+           if (tabuni(i) .eq. locuni) goto 12
+        enddo   
       endif
 
 C --- Match pfnam with table, unless not needed ---
@@ -355,7 +357,8 @@ C --- Match pfnam with table, unless not needed ---
       if (matchu .le. 0 .or. bittst(mode1,4)) then
         do  30  i = 1, nnam
           matchn = i
-   30   if (tabnam(i) .eq. pfnam) goto 31
+          if (tabnam(i) .eq. pfnam) goto 31
+ 30    continue
         matchn = -1
    31   continue
       endif
@@ -509,8 +512,9 @@ C     implicit none
      .' among open units: ',15i3)
 
       isopen = .true.
-      do  10  i = nopen-1, 0, -1
-   10 if (unitab(i) .eq. unit) return
+      do   i = nopen-1, 0, -1
+         if (unitab(i) .eq. unit) return
+      enddo   
 
       isopen = .false.
       if (.not. sw) return
@@ -544,8 +548,9 @@ C     implicit none
       if (iprint() .ge. 100) print 20, unit
    20 format(' FCLOSE: closing',i3)
 
-      do  30  i = nopen-1, 0, -1
-   30 if (unitab(i) .eq. unit) unitab(i) = 999
+      do   i = nopen-1, 0, -1
+         if (unitab(i) .eq. unit) unitab(i) = 999
+      enddo   
       call ishell(nopen,unitab)
       if (nopen .eq. 0 .or. unitab(max(nopen-1,0)) .ne. 999) then
         if (iprint() .ge. 100)

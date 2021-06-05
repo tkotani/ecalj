@@ -25,8 +25,9 @@ C     implicit none
       integer l,ir,irra,i,j,mm,i1,i2,nn
       logical norm
       integer,allocatable:: wk(:,:)
-      do  2  ir = 1, n
-    2 iprm(ir) = ir
+      do   ir = 1, n
+         iprm(ir) = ir
+      enddo   
       if (n .le. 1) return
       norm = mod(opts/10,10) .ne. 0
       l = n/2+1
@@ -63,9 +64,10 @@ C   ... Increment j if vecs(iprm(j+1)) > vecs(iprm(j))
           if (norm) then
             di = 0
             dl = 0
-            do  24  mm = 1, m
+            do    mm = 1, m
               dl = dl + vecs(mm,iprm(j))**2
-   24       di = di + vecs(mm,iprm(j+1))**2
+              di = di + vecs(mm,iprm(j+1))**2
+            enddo  
             if (di-dl .gt. 0) j = j+1
           else
             do  26  mm = 1, m
@@ -83,7 +85,8 @@ C   ... Demote rra to its level
           dl = 0
           do  34  mm = 1, m
             dl = dl + vecs(mm,irra)**2
-   34     di = di + vecs(mm,iprm(j))**2
+            di = di + vecs(mm,iprm(j))**2
+ 34      continue
           if (di-dl .gt. 0) then
             iprm(i) = iprm(j)
 *           call awrit4('%i,%i: %n:1i',' ',180,6,i,j,n,iprm)
@@ -131,13 +134,15 @@ C ... Find i1,i2 = next range of equal numbers
       if (norm) then
         di = 0
         dl = 0
-        do  124  mm = 1, m
+        do  mm = 1, m
           dl = dl + vecs(mm,iprm(i1))**2
-  124   di = di + vecs(mm,iprm(i2))**2
+          di = di + vecs(mm,iprm(i2))**2
+        enddo  
         if (di-dl .gt. 0) goto 130
       else
-        do  126  mm = 1, m
-  126   if (abs(vecs(mm,iprm(i2))-vecs(mm,iprm(i1))) .gt. 0) goto 130
+        do    mm = 1, m
+           if (abs(vecs(mm,iprm(i2))-vecs(mm,iprm(i1))) .gt. 0) goto 130
+        enddo   
       endif
 C ... vec(i1) = vec(i2) ; imcrement i2 and try again
       goto 120
@@ -220,8 +225,9 @@ C     implicit none
 
       do  10  i = 1, n
         k = iprm(i)
-        do  12  j = 1, m
-   12   wk(j,i) = vecs(j,k)
+        do  j = 1, m
+           wk(j,i) = vecs(j,k)
+        enddo   
    10 continue
       if (lopt) call icopy(n*m,wk,1,vecs,1)
       end

@@ -67,17 +67,19 @@ C --- Initialize array to zero ---
       do  10  i = n-1, 0, -1
         nrci = nrc*i
         nccj = -ncc
-        do  10  j = m-1, 0, -1
+        do   j = m-1, 0, -1
           nccj = nccj + ncc
           nrcicj = nrci + nccj
           c(nrcicj) = 0
+        enddo  
    10 continue
 
 C --- Do multiplication ---
-      do  20  k = l-1, 0, -1
+      do  201  k = l-1, 0, -1
         do  20  i = n-1, 0, -1
           ar = a(nra*i + nca*k)
           if (ar .eq. 0) goto 20
           call daxpy(m,ar,b(nrb*k),ncb,c(nrc*i),ncc)
    20 continue
+ 201  continue
       end

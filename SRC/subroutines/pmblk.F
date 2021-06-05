@@ -146,7 +146,7 @@ C         sizes and offsets to SRC and DST blocks
 
           if (mode4 .eq. 0) then
             do  20  ilm = 1, nlmi
-              do  20  ilma = 1, nlma
+            do  20  ilma = 1, nlma
    20       dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)
           elseif (mode4 .eq. 1) then
             do  25  ilm = 1, nlmi

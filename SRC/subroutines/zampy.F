@@ -69,11 +69,12 @@ C --- Test for complex*16 matrices ---
       goto 15
    15 continue
 C --- Do multiplication ---
-      do  20  k = l-1, 0, -1
-        do  20  i = n-1, 0, -1
+      do    k = l-1, 0, -1
+        do  i = n-1, 0, -1
           nrci = nrc*i
           call yyaxpy(m,a(nra*i+nca*k),a(nia+nra*i+nca*k),
-     .    b(nrb*k),b(nib+nrb*k),ncb,c(nrci),c(nic+nrci),ncc,.true.)
-   20 continue
+     .         b(nrb*k),b(nib+nrb*k),ncb,c(nrci),c(nic+nrci),ncc,.true.)
+       enddo
+      enddo
       end
 

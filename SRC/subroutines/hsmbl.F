@@ -66,13 +66,14 @@ C ... Local parameters
 C ... Multiply by phase to undo shortening
       cfac = dcmplx(0d0,1d0)*phase
       ilm = 0
-      do  28  l = 0, lmax
+      do    l = 0, lmax
         cfac = cfac*dcmplx(0d0,-1d0)
-      do  28  m = 1, 2*l+1
+      do    m = 1, 2*l+1
         ilm = ilm+1
         hsm(ilm)  = cfac*cy(ilm)*hsm(ilm)
         hsmp(ilm) = cfac*cy(ilm)*hsmp(ilm)
-   28 continue
+      enddo
+      enddo
       end subroutine hsmbl
 
 
@@ -126,9 +127,10 @@ C ... Local parameters
         call sylm(r,yl,lmax,r2)
         den0 = dexp(gamma*(e-r2))/(r2-e)
         den1 = den0/(r2-e)
-      do  26  ilm = 1, nlm
+        do  ilm = 1, nlm
         dl(ilm)  = dl(ilm) + yl(ilm)*eiphi*den0
         dlp(ilm) = dlp(ilm) + yl(ilm)*eiphi*den1
+        enddo  
    26 continue
       do  35  ilm = 1, nlm
         dl(ilm)  = fpibv*dl(ilm)

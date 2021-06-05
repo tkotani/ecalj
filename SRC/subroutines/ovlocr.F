@@ -348,26 +348,28 @@ c      if (kmxv .gt. kmx) call rx('ovlocr: increase kmx')
 
 C ... Make the true density in rho1, smooth density in rho2
       call dpcopy(rho2,rho1,1,nr*nlml*nsp,1d0)
-      do  30  isp = 1, nsp
-      do  30  i = 1, nr
+      do   isp = 1, nsp
+      do   i = 1, nr
         rho1(i,1,isp) = rho1(i,1,isp) + y0*rhofa(i,isp)
         rho2(i,1,isp) = rho2(i,1,isp) + y0*rhohd(i,isp)
-   30 continue
-
+      enddo
+      enddo
+      
 C ... Do some integrals
       sumfa = 0d0
       sumsm = 0d0
       sumhd = 0d0
       sumtr = 0d0
       qlc = 0d0
-      do  40  isp = 1, nsp
-      do  40  i = 1, nr
+      do   isp = 1, nsp
+      do   i = 1, nr
         sumfa = sumfa + rwgt(i)*rhofa(i,isp)
         sumhd = sumhd + rwgt(i)*rhohd(i,isp)
         sumtr = sumtr + rwgt(i)*rho1(i,1,isp)
         sumsm = sumsm + rwgt(i)*rho2(i,1,isp)
         qlc = qlc + rwgt(i)*rhoc(i,isp)
-   40 continue
+      enddo
+      enddo
       sumsm = sumsm*srfpi
       sumtr = sumtr*srfpi
       qloc = sumtr-sumsm

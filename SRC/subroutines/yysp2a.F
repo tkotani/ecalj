@@ -58,11 +58,12 @@ C     ofc = 0
 
 C      do  6  j = offs(j1)-ofc+1, offs(j2+1)-ofc
 C      do  6  i = offs(i1)-ofr+1, offs(i2+1)-ofr
-      do  6  j = offs(j1)+1, offs(j2+1)
-        do  6  i = offs(i1)+1, offs(i2+1)
+      do   j = offs(j1)+1, offs(j2+1)
+        do   i = offs(i1)+1, offs(i2+1)
           ar(i,j) = 0
           ai(i,j) = 0
-    6 continue
+       enddo
+       enddo
 
 C ... Fill diagonal elements a(ir,ir). Skip if missing.
       do  10  ir = i1, i2
@@ -78,11 +79,12 @@ C   ... a(ir,ir) <- ap(pa).  Skip if missing.
 C         column offset to a for this subblock
 C         ofcb = offs(ir) - ofc
           ofcb = offs(ir)
-          do  14  j = 1, nra
-            do  14  i = 1, nra
+          do    j = 1, nra
+            do  i = 1, nra
               ar(i+ofrb,j+ofcb) = apr(i,j,pa)
               ai(i+ofrb,j+ofcb) = api(i,j,pa)
-   14     continue
+           enddo
+           enddo
         endif
 
         do  11  k = ija(1,ir), ija(1,ir+1)-1
@@ -98,16 +100,18 @@ C         pointer to subblock in packed matrix
           pa = ija(2,k)
 C         a(ir,ija(k)) <- ap(pa)
           if (mode .lt. 2) then
-            do  15  j = 1, nca
-              do  15  i = 1, nra
-                ar(i+ofrb,j+ofcb) = apr(i,j,pa)
-   15       continue
+            do    j = 1, nca
+              do  i = 1, nra
+                 ar(i+ofrb,j+ofcb) = apr(i,j,pa)
+              enddo
+              enddo
           else
-            do  16  j = 1, nca
-              do  16  i = 1, nra
+            do    j = 1, nca
+              do  i = 1, nra
                 ar(i+ofrb,j+ofcb) = apr(i,j,pa)
                 ai(i+ofrb,j+ofcb) = api(i,j,pa)
-   16       continue
+             enddo
+             enddo
           endif
    11   continue
    10 continue

@@ -52,11 +52,12 @@ c
 c     .......... transform the eigenvectors of the real symmetric
 c                tridiagonal matrix to those of the hermitian
 c                tridiagonal matrix. ..........
-      do 50 k = 1, n
-        do 50 j = 1, m
+      do  k = 1, n
+        do j = 1, m
           zi(k,j) = -zr(k,j) * tau(2,k)
           zr(k,j) = zr(k,j) * tau(1,k)
-   50 continue
+       enddo
+      enddo
 
       if (n .eq. 1) return
 C     .......... recover and apply the householder matrices ..........

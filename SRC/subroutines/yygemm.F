@@ -70,42 +70,52 @@ C ... If beta nonzero, no work space available; do normal way
 C ---   Real part ---
         ls = trnsa .eq. 'C' .eqv. trnsb .eq. 'C'
         if (ls .and. beta .ne. 0) then
-          do  10  in = 1, n
-            do  10  im = 1, m
-   10     cr(im,in) = -cr(im,in)
+          do    in = 1, n
+            do  im = 1, m
+               cr(im,in) = -cr(im,in)
+            enddo
+            enddo
         endif
 
         call dgemm(trnsa,trnsb,m,n,k,s,ai,lda,bi,ldb,beta,cr,ldc)
 
         if (ls) then
-          do  12  in = 1, n
-            do  12  im = 1, m
-   12     cr(im,in) = -cr(im,in)
+          do    in = 1, n
+            do  im = 1, m
+               cr(im,in) = -cr(im,in)
+            enddo
+            enddo
         endif
         call dgemm(trnsa,trnsb,m,n,k,s,ar,lda,br,ldb,1d0,cr,ldc)
 
 C ---   Imaginary part ---
         ls = trnsb .eq. 'C'
         if (ls .and. beta .ne. 0d0) then
-          do  14  in = 1, n
-            do  14  im = 1, m
-   14     ci(im,in) = -ci(im,in)
+          do    in = 1, n
+            do    im = 1, m
+               ci(im,in) = -ci(im,in)
+            enddo
+            enddo
         endif
 
         call dgemm(trnsa,trnsb,m,n,k,s,ar,lda,bi,ldb,beta,ci,ldc)
 
         if (ls .neqv. trnsa .eq. 'C') then
-          do  16  in = 1, n
-            do  16  im = 1, m
-   16     ci(im,in) = -ci(im,in)
+          do    in = 1, n
+            do  im = 1, m
+               ci(im,in) = -ci(im,in)
+            enddo
+            enddo
         endif
 
         call dgemm(trnsa,trnsb,m,n,k,s,ai,lda,br,ldb,1d0,ci,ldc)
 
         if (trnsa .eq. 'C') then
-          do  18  in = 1, n
-            do  18  im = 1, m
-   18     ci(im,in) = -ci(im,in)
+          do    in = 1, n
+            do  im = 1, m
+             ci(im,in) = -ci(im,in)
+            enddo
+            enddo
         endif
 
 C       call tcx('yygemm')
@@ -121,19 +131,21 @@ C ... cr = ar *  br ...
 
 C ... cr <- ar*br - ai*bi,  ci <- -ar*br - ai*bi  ...
       if (trnsa .eq. 'C' .eqv. trnsb .eq. 'C') then
-        do  20  in = 1, n
-          do  20  im = 1, m
+        do    in = 1, n
+          do  im = 1, m
             xx = cr(im,in)
             cr(im,in) =  xx - ci(im,in)
             ci(im,in) = -xx - ci(im,in)
-   20   continue
+         enddo
+         enddo
       else
-        do  120  in = 1, n
-          do  120  im = 1, m
+        do    in = 1, n
+          do  im = 1, m
             xx = cr(im,in)
             cr(im,in) =  xx + ci(im,in)
             ci(im,in) = -xx + ci(im,in)
-  120   continue
+         enddo
+         enddo
       endif
 
 C ... ci += (ar+ai)(br+bi) ...
@@ -144,13 +156,17 @@ C ... ci += (ar+ai)(br+bi) ...
         mm = k
       endif
       if (trnsa .ne. 'C') then
-        do  22  in = 1, kk
-          do  22  im = 1, mm
-   22   ar(im,in) = ar(im,in) + ai(im,in)
+        do   in = 1, kk
+          do  im = 1, mm
+             ar(im,in) = ar(im,in) + ai(im,in)
+          enddo
+          enddo
       else
-        do  122  in = 1, kk
-          do  122  im = 1, mm
-  122   ar(im,in) = ar(im,in) - ai(im,in)
+        do    in = 1, kk
+          do  im = 1, mm
+             ar(im,in) = ar(im,in) - ai(im,in)
+          enddo
+          enddo
       endif
 
       kk = k
@@ -160,13 +176,17 @@ C ... ci += (ar+ai)(br+bi) ...
         nn = k
       endif
       if (trnsb .ne. 'C') then
-        do  24  in = 1, nn
-          do  24  im = 1, kk
-   24   br(im,in) = br(im,in) + bi(im,in)
+        do    in = 1, nn
+          do  im = 1, kk
+             br(im,in) = br(im,in) + bi(im,in)
+          enddo
+          enddo
       else
-        do  124  in = 1, nn
-          do  124  im = 1, kk
-  124   br(im,in) = br(im,in) - bi(im,in)
+        do    in = 1, nn
+          do    im = 1, kk
+             br(im,in) = br(im,in) - bi(im,in)
+          enddo
+          enddo
       endif
       call dgemm(trnsa,trnsb,m,n,k,s,ar,lda,br,ldb,1d0,ci,ldc)
       kk = k
@@ -176,13 +196,17 @@ C ... ci += (ar+ai)(br+bi) ...
         mm = k
       endif
       if (trnsa .ne. 'C') then
-        do  26  in = 1, kk
-          do  26  im = 1, mm
-   26   ar(im,in) = ar(im,in) - ai(im,in)
+        do   in = 1, kk
+          do  im = 1, mm
+           ar(im,in) = ar(im,in) - ai(im,in)
+          enddo
+          enddo
       else
-        do  126  in = 1, kk
-          do  126  im = 1, mm
-  126   ar(im,in) = ar(im,in) + ai(im,in)
+        do   in = 1, kk
+          do  im = 1, mm
+             ar(im,in) = ar(im,in) + ai(im,in)
+          enddo
+       enddo
       endif
       kk = k
       nn = n
@@ -191,13 +215,17 @@ C ... ci += (ar+ai)(br+bi) ...
         nn = k
       endif
       if (trnsb .ne. 'C') then
-        do  28  in = 1, nn
-          do  28  im = 1, kk
-   28   br(im,in) = br(im,in) - bi(im,in)
+        do    in = 1, nn
+          do  im = 1, kk
+           br(im,in) = br(im,in) - bi(im,in)
+          enddo
+          enddo
       else
-        do  128  in = 1, nn
-          do  128  im = 1, kk
-  128   br(im,in) = br(im,in) + bi(im,in)
+        do    in = 1, nn
+          do  im = 1, kk
+             br(im,in) = br(im,in) + bi(im,in)
+          enddo
+          enddo
       endif
 
 C     call tcx('yygemm')

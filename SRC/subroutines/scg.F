@@ -123,17 +123,17 @@ c      do 11 i=1,49
 c  11  fac(i+1)=dfloat(i)*fac(i)
       ic=0
       lmindx=0
-      do 1 i1=1,nl
+      do 1111 i1=1,nl
         l1=i1-1
         j1s=2*l1+1
-      do 1 j1=1,j1s
+      do 111 j1=1,j1s
         m1=j1-i1
         n1=iabs(m1)
         s1=0
         if(m1.lt.0) s1=1
         t1=0
         if(m1.eq.0) t1=1
-      do 1 i2=1,i1
+      do 11 i2=1,i1
         l2=i2-1
         i31=l1-l2+1
         i32=l1+l2+1
@@ -189,6 +189,9 @@ c      js(ic)=l3*(l3+1)+m3+1
         m3=mb
         if(nm3.gt.0) goto 5
   1   continue
+ 11   continue
+ 111  continue
+ 1111 continue
 c      cindx(lmindx+1)=ic+1
       lnxcg=max(lnxcg,lmindx+1)
       return

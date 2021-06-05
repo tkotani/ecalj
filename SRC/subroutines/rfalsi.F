@@ -141,7 +141,8 @@ C     (x1,f1) -> (x2,f2); (x0,f0) -> (x1,f1); (xn,fn) -> (x0,f0)
       do  12  i = 1, 0, -1
         fx(i+1) = fx(i)
         f(i+1) = f(i)
-   12 x(i+1) = x(i)
+        x(i+1) = x(i)
+ 12   continue
       fx(0) = fn
       f(0) = fn
       x(0) = xn

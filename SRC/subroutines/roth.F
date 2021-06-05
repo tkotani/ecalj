@@ -927,19 +927,22 @@ C         When h is in l-diagonal form,  see comment above.
             call dgemm('N','T',nk,nlmi,nlmi,1d0,h0(k1+of0i-ofa,offj+1),
      .      ld0a,rmat(offr+1,offr+1),nl2,0d0,h(k1+ofhi,offi+1),ldha)
           else
-            do  21  i = 1, nlmi
-            do  21  k = k1, k2
+            do    i = 1, nlmi
+            do    k = k1, k2
               h(k,i+offi) = 0
               h(k+ofhi,i+offi) = 0
-   21       continue
-            do  22  i = 1, nlmi
-            do  22  j = 1, nlmi
-            do  22  k = k1, k2
+            enddo
+            enddo
+            do    i = 1, nlmi
+            do    j = 1, nlmi
+            do    k = k1, k2
               h(k,i+offi) = h(k,i+offi) +
      .            h0(k-ofa,j+offj)*rmat(i+offr,j+offr)
               h(k+ofhi,i+offi) = h(k+ofhi,i+offi) +
-     .            h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
-   22       continue
+     .             h0(k+of0i-ofa,j+offj)*rmat(i+offr,j+offr)
+            enddo
+            enddo
+            enddo
           endif
 
 C     --- Multiply columns by phase ---

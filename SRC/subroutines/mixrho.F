@@ -419,12 +419,14 @@ C ... <smrout-smrhoin> and <(smrout-smrhoin)**2>, unscreened smrout
         dquns = 0
         rmsuns = 0
         do isp=1,nsp
-          do 12  i3 = 1, n3
-          do 12  i2 = 1, n2
-          do 12  i1 = 1, n1
+          do   i3 = 1, n3
+          do   i2 = 1, n2
+          do   i1 = 1, n1
             dquns  = dquns  + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))
             rmsuns = rmsuns + dble(smrnew(i1,i2,i3,isp)-smrho(i1,i2,i3,isp))**2
-   12     continue
+          enddo
+          enddo
+          enddo
         enddo
         rmsuns = dsqrt(rmsuns/(n1*n2*n3))
 C ... 2. cn <- (smrnew - smrho)(G)
@@ -812,13 +814,16 @@ C     call rhopos(smrho,k1,k2,k3,n1,n2,n3)
 
 C ... Net interstitial charge and cell charge
       summ = 0
-      do  60  i = 1, nsp
-      do  60  i3 = 1, n3
-      do  60  i2 = 1, n2
-      do  60  i1 = 1, n1
+      do    i = 1, nsp
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
 C       smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + .001
-        summ = summ + dble(smrho(i1,i2,i3,i))
-   60 continue
+         summ = summ + dble(smrho(i1,i2,i3,i))
+      enddo
+      enddo
+      enddo
+      enddo
 C     Net system charge
       qcell  = qval - summ*fac - qmix(1)
 
@@ -831,13 +836,16 @@ cccccccccccccccccccccccccc
 c       print *,'vvv no xx test'
 c       xx=0d0
 ccccccccccccccccccccccccc
-      do  64  i  = 1, nsp
-      do  64  i3 = 1, n3
-      do  64  i2 = 1, n2
-      do  64  i1 = 1, n1
-        smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
+      do    i  = 1, nsp
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
+         smrho(i1,i2,i3,i) = smrho(i1,i2,i3,i) + xx
+      enddo
+      enddo
+      enddo
+      enddo
 C       summ = summ + dble(smrho(i1,i2,i3,i))
-   64 continue
 C     qcell  = qval - summ*fac - qmix(1)
 C     print *, 'qcell after shift',qcell; stop
 

@@ -458,15 +458,19 @@ C --- Cleanup.  If nr is zero, set nr and copy s-transpose to s ---
         if (nelt*2 .gt. mxelt .and. mxelt .gt. 0) goto 99
         ioff = nr*ncx
         call dcopy(nr*nc,s,1,s(1+ioff),1)
-        do  71  ir = 1, nr
-          do  71  ic = 1, nc
-   71   s(ir+nr*(ic-1)) = s(ioff+ic+nc*(ir-1))
+        do    ir = 1, nr
+          do  ic = 1, nc
+             s(ir+nr*(ic-1)) = s(ioff+ic+nc*(ir-1))
+          enddo
+        enddo
         if (ncx .eq. 2*nc) then
           k = nr*nc
           call dcopy(k,s(1+k),1,s(1+ioff),1)
-          do  72  ir = 1, nr
-            do  72  ic = 1, nc
-   72     s(ir+nr*(ic-1)+k) = s(ioff+ic+nc*(ir-1))
+          do    ir = 1, nr
+            do  ic = 1, nc
+               s(ir+nr*(ic-1)+k) = s(ioff+ic+nc*(ir-1))
+            enddo
+          enddo
         endif
       endif
 
@@ -512,20 +516,22 @@ C- Kernel to symmetrize array s
       integer i,j,icast
 
       nn = min(nr,nc)
-      do  10  i = 1, nn
-        do  10  j = 1, i
+      do   i = 1, nn
+        do  j = 1, i
           xx = (s(i,j,1) + s(j,i,1))/2
           s(i,j,1) = xx
           s(j,i,1) = xx
-   10 continue
+      enddo
+      enddo
 
       if (icast .eq. 2) then
-        do  20  i = 1, nn
-          do  20  j = 1, i
+        do    i = 1, nn
+          do  j = 1, i
             xx = (s(i,j,2) - s(j,i,2))/2
             s(i,j,2) = xx
             s(j,i,2) = -xx
-   20   continue
+         enddo
+         enddo
       endif
 
       end

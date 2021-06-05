@@ -359,16 +359,16 @@ C ... Sort the list of vectors
 c      call defrr(ogg,   ng)
 c      call defrr(okk,   ng)
 c      call defrr(oiwk,  ng)
-      allocate(gg_rv(ng))
-      allocate(kk_rv(ng))
-      allocate(iwk_rv(ng))
+c      allocate(gg_rv(ng))
+c      allocate(kk_rv(ng))
+c      allocate(iwk_rv(ng))
       if (lgpq) q=0 !call dpzero(q,3)
 c      call pvglst(w(ogg),w(okk),w(oiwk),q,ngmx,ng,ligv,ligv2,gv,kv,igv,
 c     .  igv2)
-      call pvglst ( gg_rv , kk_rv , iwk_rv , q , ngmx , ng 
+      call pvglst ( q , ngmx , ng 
      ., ligv , ligv2 , gv , kv , igv , igv2 )
 c      call rlse(ogg)
-      deallocate(gg_rv,kk_rv,iwk_rv)
+c      deallocate(gg_rv,kk_rv,iwk_rv)
 
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$c      if(job==509) print *,'509q=',q
@@ -402,7 +402,7 @@ c$$$      deallocate(ixx)
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
-      subroutine pvglst(gg,kk,iwk,p,ngmx,ng,ligv,ligv2,gv,kv,igv,igv2)
+      subroutine pvglst(p,ngmx,ng,ligv,ligv2,gv,kv,igv,igv2)
 C- Kernel called by gvlist to sort gv and kv
 C ----------------------------------------------------------------------
 Ci Inputs

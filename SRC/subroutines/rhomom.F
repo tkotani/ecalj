@@ -136,7 +136,7 @@ C     implicit none
 C ... Passed parameters
       integer nlml,nr,nsp
       double precision ceh,cofg,cofh,rfoc,rg,z
-      double precision rofi(1),rwgt(1),h(1),qmom(nlml),rhoc(nr,nsp),
+      double precision rofi(*),rwgt(*),h(*),qmom(nlml),rhoc(nr,nsp),
      .rho1(nr,nlml,nsp),rho2(nr,nlml,nsp)
 C ... Local parameters
       integer n0,i,ilm,l,m,lmxl,ll,isp
@@ -255,8 +255,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nr,nlml,nsp
-      double precision a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(1),
-     .rwgt(1),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(1),v(nr),qmom(1),
+      double precision a,ceh,cofg,cofh,rfoc,rg,vsum1,vsum2,z,rofi(*),
+     .rwgt(*),rho1(nr,nlml,nsp),rho2(nr,nlml,nsp),h(*),v(nr),qmom(*),
      .rhoc(nr,nsp)
 C ... Local parameters
       integer n0,i

@@ -66,8 +66,9 @@ c
       if (n .eq. 1) go to 1001
       tol = 2*d1mach(3)
 c
-      do 100 i = 2, n
-  100 e(i-1) = e(i)
+      do  i = 2, n
+         e(i-1) = e(i)
+      enddo   
 c
       e(n) = 0.0d0
 c

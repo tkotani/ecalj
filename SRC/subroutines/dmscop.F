@@ -22,13 +22,17 @@ C Local variables
       offr = n1rd-n1rs
       offc = n1cd-n1cs
       if (fac .eq. 1d0) then
-        do  10  j = n1cs, n2cs
-          do  10  i = n1rs, n2rs
-   10   dest(i+offr,j+offc) = src(i,j)
+        do    j = n1cs, n2cs
+          do  i = n1rs, n2rs
+             dest(i+offr,j+offc) = src(i,j)
+          enddo
+       enddo
       else
-        do  20  j = n1cs, n2cs
-          do  20  i = n1rs, n2rs
-   20   dest(i+offr,j+offc) = fac*src(i,j)
+         do    j = n1cs, n2cs
+            do  i = n1rs, n2rs
+               dest(i+offr,j+offc) = fac*src(i,j)
+            enddo
+         enddo
       endif
       end
 C      subroutine fmain

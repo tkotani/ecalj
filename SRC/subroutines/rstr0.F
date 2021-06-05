@@ -34,10 +34,11 @@ C ... Heap
 
 C --- Make ylm for all points, up to lmxy, which find ---
       lmxy = -1
-      do  1  ip = 1, np
-      do  1  ie = 1, nxi
-        lmxy = max(lmxy,lxi(ie,ip))
-    1 continue
+      do   ip = 1, np
+      do   ie = 1, nxi
+         lmxy = max(lmxy,lxi(ie,ip))
+      enddo
+      enddo
       lmxy = lmxy+lmxa
       fac2l(0) = 1
       do  2  l = 1, lmxy

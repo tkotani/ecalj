@@ -380,8 +380,9 @@ C ... Congugate gradients
         if (ir .eq. -10) then
           ir = 0
         else
-          do  10  j = 1, n
-   10     p(j,nd) = p(j,n0) + gam*p(j,nd)
+          do    j = 1, n
+             p(j,nd) = p(j,n0) + gam*p(j,nd)
+          enddo   
         endif
         dxmxl = sign(dxlast/p(idamax(n,p(1,nd),1),nd),dxm)
 C ... Fletcher-Powell
@@ -397,8 +398,9 @@ C       Shift in conjugate dir p(nd) = -hess . grad
         else
           do  6  i = 1, n
             p(i,nd) = 0
-            do  8  j = 1, n
-    8       p(i,nd) = p(i,nd) - hess(i,j)*p(j,ng)
+            do    j = 1, n
+               p(i,nd) = p(i,nd) - hess(i,j)*p(j,ng)
+            enddo   
     6     continue
           dxmxl = 1
         endif
@@ -584,8 +586,9 @@ C     ... Update inverse of Hessian
           gwg = 0
           do  33  i = 1, n
             p(i,n2) = 0
-            do  32  j = 1, n
-   32       p(i,n2) = p(i,n2) + hess(i,j) * (p(j,ng) - p(j,n1))
+            do   j = 1, n
+               p(i,n2) = p(i,n2) + hess(i,j) * (p(j,ng) - p(j,n1))
+            enddo   
             gwg = gwg + (p(i,ng) - p(i,n1)) * p(i,n2)
    33     continue
           q = 1 + gwg/dg
@@ -593,8 +596,9 @@ C     ... Update inverse of Hessian
           do  36  i = 1, n
             r = - alpha*p(i,nd)/dg
             s = (-p(i,n2) + q * alpha*p(i,nd))/dg
-            do  35  j = 1, n
-   35       hess(i,j) = hess(i,j) + r * p(j,n2) + s * alpha*p(j,nd)
+            do   j = 1, n
+               hess(i,j) = hess(i,j) + r * p(j,n2) + s * alpha*p(j,nd)
+            enddo   
    36     continue
 
 C     ... Check that Hessian is positive definite

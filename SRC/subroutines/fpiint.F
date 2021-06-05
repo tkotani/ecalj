@@ -46,56 +46,68 @@ C     implicit none
         if (nx .eq. -32) then
           call platsl(x,12)
           call platsl(x(1,13),20)
-          do  10  i = 1, 12
-   10     w(i) = 5d0*fpi/(14*12)
-          do  12  i = 13, 32
-   12     w(i) = 9d0*fpi/(14*20)
+          do   i = 1, 12
+             w(i) = 5d0*fpi/(14*12)
+          enddo   
+          do    i = 13, 32
+             w(i) = 9d0*fpi/(14*20)
+          enddo   
         elseif (nx .eq. -62) then
           call platsl(x,12)
           call platsl(x(1,13),20)
           call platsl(x(1,33),30)
-          do  110  i = 1, 12
-  110     w(i) = 125d0*fpi/(14*12*33)
-          do  112  i = 13, 32
-  112     w(i) = 81d0*fpi/(14*20*33)
-          do  114  i = 33, 62
-  114     w(i) = 256d0*fpi/(14*30*33)
+          do  i = 1, 12
+             w(i) = 125d0*fpi/(14*12*33)
+          enddo   
+          do   i = 13, 32
+             w(i) = 81d0*fpi/(14*20*33)
+          enddo   
+          do   i = 33, 62
+             w(i) = 256d0*fpi/(14*30*33)
+          enddo   
         elseif (nx .eq. -92) then
           call platsl(x,12)
           call platsl(x(1,13),20)
           call platsl(x(1,33),60)
-          do  210  i = 1, 12
-  210     w(i) = 1/12.34817490904537d0*fpi/12
-          do  212  i = 13, 32
-  212     w(i) = 2.986997567806883d0/12.34817490904537d0*fpi/20
-          do  214  i = 33, 92
-  214     w(i) = 8.361177341238484d0/12.34817490904537d0*fpi/60
+          do    i = 1, 12
+             w(i) = 1/12.34817490904537d0*fpi/12
+          enddo   
+          do   i = 13, 32
+             w(i) = 2.986997567806883d0/12.34817490904537d0*fpi/20
+          enddo   
+          do    i = 33, 92
+             w(i) = 8.361177341238484d0/12.34817490904537d0*fpi/60
+          enddo   
         elseif (nx .eq. -122) then
           call platsl(x,12)
           call platsl(x(1,13),20)
           call platsl(x(1,33),30)
           call platsl(x(1,63),60)
-          do  310  i = 1, 12
-  310     w(i) = (0.0939463041645901d0)*fpi/12
-          do  312  i = 13, 32
-  312     w(i) = (0.2373458837681504d0)*fpi/20
-          do  314  i = 33, 92
-  314     w(i) = (0.0378880378880377d0)*fpi/30
-          do  316  i = 63, 122
-  316     w(i) = (0.6308197741792218d0)*fpi/60
+          do   i = 1, 12
+             w(i) = (0.0939463041645901d0)*fpi/12
+          enddo   
+          do    i = 13, 32
+             w(i) = (0.2373458837681504d0)*fpi/20
+          enddo   
+          do    i = 33, 92
+             w(i) = (0.0378880378880377d0)*fpi/30
+          enddo   
+          do    i = 63, 122
+             w(i) = (0.6308197741792218d0)*fpi/60
+          enddo   
         else
           call platsl(x,nxp)
-          do  20  i = 1, nxp
-   20     w(i) = fpi/nxp
+          do   i = 1, nxp
+             w(i) = fpi/nxp
+          enddo   
         endif
       endif
-
 C --- Printout ---
       if (iprint() .lt. 80) return
       print '(/'' fpiint:'',i5,'' points generated:'')', nxp
-      do  90  i = 1, nxp
-   90 print 333, i, x(1,i), x(2,i), x(3,i), w(i)
+      do  i = 1, nxp
+         print 333, i, x(1,i), x(2,i), x(3,i), w(i)
+      enddo   
   333 format(i3,4f20.15)
-
       end
 

@@ -295,7 +295,7 @@ C       iposn = 0
           i_copy_size=size(sspec(is)%idxdn)
           call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
 
-          do  111 ik = 1, nkaph
+          do  1121 ik = 1, nkaph
           do  111  l = 0, nl-1
             lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
      .        iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.
@@ -309,6 +309,7 @@ C       iposn = 0
               endif
   120       continue
   111     continue
+ 1121     continue
   110   continue
         ldham(iprior) = indx
   112 continue

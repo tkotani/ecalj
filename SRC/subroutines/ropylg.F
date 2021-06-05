@@ -31,30 +31,33 @@ C ... Local parameters
 
 C --- Gradients of yl's ---
       ilm = 0
-      do  10  l = 0, lmax
-      do  10  m = -l, l
+      do    l = 0, lmax
+      do    m = -l, l
       ilm = ilm+1
       call scglp1(ilm,kz,cz,kx1,kx2,cx1,cx2,ky1,ky2,cy1,cy2)
-      do  10  i = 1, nr
+      do    i = 1, nr
       f = (2*l+1)/r2(i)
       gyl(i,ilm,1) = (yl(i,ilm)*x(i) - cx1*yl(i,kx1) - cx2*yl(i,kx2))*f
       gyl(i,ilm,2) = (yl(i,ilm)*y(i) - cy1*yl(i,ky1) - cy2*yl(i,ky2))*f
       gyl(i,ilm,3) = (yl(i,ilm)*z(i) - cz*yl(i,kz))*f
-   10 continue
+      enddo
+      enddo
+      enddo
 
       if (lp .eq. 0) return
 
 C --- Add r**l (grad r**-l) yl ---
       ilm = 0
-      do  20  l = 0, lmax
-      do  20  m = -l, l
+      do    l = 0, lmax
+      do    m = -l, l
       ilm = ilm+1
-      do  20  i = 1, nr
+      do    i = 1, nr
       gyl(i,ilm,1) = gyl(i,ilm,1) - l*x(i)/r2(i)*yl(i,ilm)
       gyl(i,ilm,2) = gyl(i,ilm,2) - l*y(i)/r2(i)*yl(i,ilm)
       gyl(i,ilm,3) = gyl(i,ilm,3) - l*z(i)/r2(i)*yl(i,ilm)
-   20 continue
-
+      enddo
+      enddo
+      enddo
       end
 C$$$#if TEST
 C$$$      subroutine tl(np,ilmx,nlm,rp,grp,ggrp,frl,yl,gyl,wp,xp,yp,zp,r2)

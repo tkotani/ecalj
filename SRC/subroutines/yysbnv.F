@@ -128,10 +128,12 @@ C --- Straight yygefa,di if n2 lt nmin ---
           if (ierr .ne. 0) return
           call yyhidi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,nd,w,xx,i,
      .    w(1,2),w(1,3),1)
-          do  10  i = n1+1, n2
-            do  10  j = n1+1, i
+          do    i = n1+1, n2
+            do  j = n1+1, i
               ar(i,j) =  ar(j,i)
-   10     ai(i,j) = -ai(j,i)
+              ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         endif
 #if DEBUG
         print *, 'exit yysbnv, used standard LU decomposition'
@@ -150,10 +152,12 @@ C --- R1 = a22^-1 in a22 ---
           if (ierr .ne. 0) return
           call yyhidi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,
      .    xx,i,w(1,2),w(1,3),1)
-          do  12  i = m1+1, n2
-            do  12  j = m1+1, i
+          do    i = m1+1, n2
+            do  j = m1+1, i
               ar(i,j) =  ar(j,i)
-   12     ai(i,j) = -ai(j,i)
+              ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         else
           call yygefa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w,ierr)
           if (ierr .ne. 0) return
@@ -208,10 +212,12 @@ C --- c11 = -R6 = -R5^-1 = (a11 - a12 a22^-1 a21)^-1 in a11 ---
           if (ierr .ne. 0) return
           call yyhidi(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,xx,i,
      .    w(1,2),w(1,3),1)
-          do  16  i = 1, n2
-            do  16  j = 1, i
+          do    i = 1, n2
+            do  j = 1, i
               ar(i,j) =  ar(j,i)
-   16     ai(i,j) = -ai(j,i)
+              ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         else
           call yygefa(ar(1+n1,1+n1),ai(1+n1,1+n1),lda,m1-n1,w,ierr)
           if (ierr .ne. 0) return

@@ -38,63 +38,69 @@ C ... Local parameters
       if (beta(1) .eq. 0 .and. beta(2) .eq. 0) then
 C       dest = src
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
-          do  10  ib = 1, nlmb
-            do  10  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = src(ia+ofas,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = src(ia+ofsi,ib+ofbs)
-   10     continue
+           enddo
+           enddo
 C       dest = -src
         elseif (alpha(1) .eq. -1 .and. alpha(2) .eq. 0) then
-          do  11  ib = 1, nlmb
-            do  11  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = -src(ia+ofas,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = -src(ia+ofsi,ib+ofbs)
-   11     continue
+           enddo
+           enddo
 C       dest = alpha * src
         else
-          do  12  ib = 1, nlmb
-            do  12  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = alpha(1)*src(ia+ofas,ib+ofbs) -
      .        alpha(2)*src(ia+ofsi,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = alpha(1)*src(ia+ofsi,ib+ofbs) +
-     .        alpha(2)*src(ia+ofas,ib+ofbs)
-   12     continue
+     .             alpha(2)*src(ia+ofas,ib+ofbs)
+           enddo
+           enddo
         endif
       elseif (beta(1) .eq. 1 .and. beta(2) .eq. 0) then
 C       dest = dest + src
         if (alpha(1) .eq. 1 .and. alpha(2) .eq. 0) then
-          do  20  ib = 1, nlmb
-            do  20  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = dest(ia+ofad,ib+ofbd) +
      .        src(ia+ofas,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = dest(ia+ofdi,ib+ofbd) +
-     .        src(ia+ofsi,ib+ofbs)
-   20     continue
+     .             src(ia+ofsi,ib+ofbs)
+           enddo
+           enddo
 C       dest = dest - src
         elseif (alpha(1) .eq. -1 .and. alpha(2) .eq. 0) then
-          do  21  ib = 1, nlmb
-            do  21  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = dest(ia+ofad,ib+ofbd) -
      .        src(ia+ofas,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = dest(ia+ofdi,ib+ofbd) -
-     .        src(ia+ofsi,ib+ofbs)
-   21     continue
+     .             src(ia+ofsi,ib+ofbs)
+           enddo
+           enddo
 C       dest = dest + alpha * src
         else
-          do  22  ib = 1, nlmb
-            do  22  ia = 1, nlma
+          do    ib = 1, nlmb
+            do  ia = 1, nlma
               dest(ia+ofad,ib+ofbd) = dest(ia+ofad,ib+ofbd) +
      .        alpha(1)*src(ia+ofas,ib+ofbs) -
      .        alpha(2)*src(ia+ofsi,ib+ofbs)
               dest(ia+ofdi,ib+ofbd) = dest(ia+ofdi,ib+ofbd) +
      .        alpha(1)*src(ia+ofsi,ib+ofbs) +
-     .        alpha(2)*src(ia+ofas,ib+ofbs)
-   22     continue
+     .             alpha(2)*src(ia+ofas,ib+ofbs)
+           enddo
+           enddo
         endif
 C     dest = beta * dest + alpha * src
       else
-        do  30  ib = 1, nlmb
-          do  30  ia = 1, nlma
+        do    ib = 1, nlmb
+          do  ia = 1, nlma
             dest(ia+ofad,ib+ofbd) = beta(1)*dest(ia+ofad,ib+ofbd) -
      .      beta(2)*dest(ia+ofdi,ib+ofbd) +
      .      alpha(1)*src(ia+ofas,ib+ofbs) -
@@ -102,8 +108,9 @@ C     dest = beta * dest + alpha * src
             dest(ia+ofdi,ib+ofbd) = beta(1)*dest(ia+ofdi,ib+ofbd) +
      .      beta(2)*dest(ia+ofad,ib+ofbd) +
      .      alpha(1)*src(ia+ofsi,ib+ofbs) +
-     .      alpha(2)*src(ia+ofas,ib+ofbs)
-   30   continue
+     .           alpha(2)*src(ia+ofas,ib+ofbs)
+         enddo
+         enddo
       endif
       end
 #if TEST

@@ -38,22 +38,25 @@ C     implicit none
 C ... loop over all iv
       nlist = 0
       i = 0
-   14 i = i+1
+ 14   continue
+      i = i+1
 C ... Case iv => a single number
       if (it(i) .ne. 2) then
         nlist = nlist+1
         list(nlist) = iv(i)
 C ... Case iv => n1:n2:n3
       elseif (it(i+1) .eq. 2) then
-        do  12  j = iv(i), iv(i+1), iv(i+2)
+        do  j = iv(i), iv(i+1), iv(i+2)
           nlist = nlist+1
-   12   list(nlist) = j
+          list(nlist) = j
+        enddo  
         i = i+2
 C ... Case iv => n1:n2
       else
-        do  17  j = iv(i), iv(i+1)
+        do    j = iv(i), iv(i+1)
           nlist = nlist+1
-   17   list(nlist) = j
+          list(nlist) = j
+        enddo  
         i = i+1
       endif
       if (i .lt. k) goto 14
@@ -133,19 +136,22 @@ C     implicit none
 C ... loop over all iv
       nlist = 0
       i = 0
-   14 i = i+1
+ 14   continue
+      i = i+1
 C ... Case iv => a single number
       if (it(i) .ne. 2) then
         nlist = nlist+1
 C ... Case iv => n1:n2:n3
       elseif (it(i+1) .eq. 2) then
-        do  12  j = iv(i), iv(i+1), iv(i+2)
-   12   nlist = nlist+1
+        do  j = iv(i), iv(i+1), iv(i+2)
+           nlist = nlist+1
+        enddo   
         i = i+2
 C ... Case iv => n1:n2
       else
-        do  17  j = iv(i), iv(i+1)
-   17   nlist = nlist+1
+        do    j = iv(i), iv(i+1)
+           nlist = nlist+1
+        enddo   
         i = i+1
       endif
       if (i .lt. k) goto 14

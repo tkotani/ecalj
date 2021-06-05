@@ -64,11 +64,15 @@ C ... End of include file fftw_f77.i that comes with the fftw package
 C ... Renormalize forward transform
       if (isig .gt. 0 .or. isig .lt. -10) goto 99
       scale = 1/dble(n1*n2*n3)
-      do  20  ifft = 1, nfft
-        do  20  i3 = 1, n3
-          do  20  i2 = 1, n2
-            do  20  i1 = 1, n1
-   20 c(i1,i2,i3,ifft) = scale*c(i1,i2,i3,ifft)
+      do    ifft = 1, nfft
+         do   i3 = 1, n3
+            do  i2 = 1, n2
+               do  i1 = 1, n1
+                  c(i1,i2,i3,ifft) = scale*c(i1,i2,i3,ifft)
+               enddo         
+            enddo         
+         enddo         
+      enddo         
 C     call zprm3('c',0,c,n1,n2,n3)
    99 call tcx('fftz3')
       return

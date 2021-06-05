@@ -14,22 +14,25 @@ C- Initializes complex array to zero
 C- Initializes integer array to zero
       integer leng,i
       integer array(leng)
-      do  10  i=1, leng
-   10 array(i) = 0
+      do   i=1, leng
+         array(i) = 0
+      enddo
       end
       subroutine ainit(array,leng)
 C- Initializes real array to zero
       integer leng,i
       real array(leng)
-      do  10  i=1, leng
-   10 array(i) = 0
+      do   i=1, leng
+         array(i) = 0
+      enddo   
       end
       subroutine dpzero(array,leng)
 C- Initializes double precision array to zero
       integer leng,i
       double precision array(leng)
-      do  10  i=1, leng
-   10 array(i) = 0
+      do   i=1, leng
+         array(i) = 0
+      enddo   
       end
       real function rval(array,index)
       integer index
@@ -72,21 +75,24 @@ C- Sets some elements of double precision array to value
       integer i1,i2
       double precision array(i2),val
       integer i
-      do  10  i = i1, i2
-   10 array(i) = val
+      do   i = i1, i2
+         array(i) = val
+      enddo   
       end
       subroutine ivset(array,i1,i2,val)
 C- Sets some elements of integer array to value
       integer i1,i2,array(1),val,i
-      do  10  i = i1, i2
-   10 array(i) = val
+      do   i = i1, i2
+         array(i) = val
+      enddo   
       end
       subroutine lvset(array,i1,i2,val)
 C- Sets some elements of logical array to value
       integer i1,i2,i
       logical array(1),val
-      do  10  i = i1, i2
-   10 array(i) = val
+      do  i = i1, i2
+         array(i) = val
+      enddo   
       end
 C$$$      subroutine redfrr(oname,leng)
 C$$$C- Release to pointer oname, reallocate double oname of length leng

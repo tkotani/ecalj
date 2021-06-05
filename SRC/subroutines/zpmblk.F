@@ -100,10 +100,6 @@ C ... Local parameters
       mode3 = mod(mode/100,10)
       mode4 = mod(mode/1000,10)
 
-C     if (mode3.ne.0) call awrit2('pm ipm  %n,3i',' ',80,6,nblk,ipm)
-C     call awrit2('pm iofo %n,3i',' ',80,6,nblk+1,ioffo)
-C     call awrit2('pm iofn %n,3i',' ',80,6,nblk+1,ioffn)
-
       offn0 = 0
       offo0 = 0
       if (mod(mode1,2) .eq. 1) offo0 = ioffo(1)
@@ -114,7 +110,6 @@ C     call awrit2('pm iofn %n,3i',' ',80,6,nblk+1,ioffn)
      .call rxi('zpmblk: imcompatible switches, mode=',mode)
       if (mode2.ge.2 .and. mode3.eq.2)
      .call rxi('zpmblk: imcompatible switches, mode=',mode)
-Ckino isanrg is logical function,       call isanrg(mode3,0,2,'zpmblk:','100s digit mode', .true.)
       l_dummy_isanrg=isanrg(mode3,0,2,'zpmblk:','100s digit mode', .true.)
 
       nmax = -1
@@ -145,41 +140,61 @@ C         sizes and offsets to SRC and DST blocks
           endif
 
           if (mode4 .eq. 0) then
-            do  20  ilm = 1, nlmi
-              do  20  ilma = 1, nlma
-   20       dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)
+            do  ilm = 1, nlmi
+              do  ilma = 1, nlma
+                 dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)
+              enddo
+           enddo
+
           elseif (mode4 .eq. 1) then
-            do  25  ilm = 1, nlmi
-              do  25  ilma = 1, nlma
-   25       dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
-     .      + src(ilma,ilm+iofo)
+            do   ilm = 1, nlmi
+              do  ilma = 1, nlma
+                 dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
+     .                + src(ilma,ilm+iofo)
+              enddo
+             enddo
+             
           elseif (mode4 .eq. 2) then
-            do  30  ilm = 1, nlmi
-              do  30  ilma = 1, nlma
-   30       dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)*alfa(ilm+iofn)
+            do    ilm = 1, nlmi
+              do  ilma = 1, nlma
+                 dst(ilma,ilm+iofn) = src(ilma,ilm+iofo)*alfa(ilm+iofn)
+              enddo
+           enddo
+                 
           elseif (mode4 .eq. 3) then
-            do  35  ilm = 1, nlmi
-              do  35  ilma = 1, nlma
-   35       dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
-     .      + src(ilma,ilm+iofo)*alfa(ilm+iofn)
+            do    ilm = 1, nlmi
+              do  ilma = 1, nlma
+                 dst(ilma,ilm+iofn) = dst(ilma,ilm+iofn)
+     .                + src(ilma,ilm+iofo)*alfa(ilm+iofn)
+              enddo
+             enddo
           elseif (mode4 .eq. 4) then
-            do  40  ilma = 1, nlma
-              do  40  ilm = 1, nlmi
-   40       dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)
+            do   ilma = 1, nlma
+              do  ilm = 1, nlmi
+                 dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)
+              enddo
+             enddo
           elseif (mode4 .eq. 5) then
-            do  45  ilma = 1, nlma
-              do  45  ilm = 1, nlmi
-   45       dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
+            do    ilma = 1, nlma
+              do   ilm = 1, nlmi
+                 dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
      .      + src(ilm+iofo,ilma)
+              enddo
+             enddo
           elseif (mode4 .eq. 6) then
-            do  50  ilma = 1, nlma
-              do  50  ilm = 1, nlmi
-   50       dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)*alfa(ilm+iofn)
+            do   ilma = 1, nlma
+            do  ilm = 1, nlmi
+               dst(ilm+iofn,ilma) = src(ilm+iofo,ilma)*alfa(ilm+iofn)
+            enddo
+            enddo
+
           else
-            do  55  ilma = 1, nlma
-              do  55  ilm = 1, nlmi
-   55       dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
-     .      + src(ilm+iofo,ilma)*alfa(ilm+iofn)
+            do   ilma = 1, nlma
+              do  ilm = 1, nlmi
+                 dst(ilm+iofn,ilma) = dst(ilm+iofn,ilma)
+     .                + src(ilm+iofo,ilma)*alfa(ilm+iofn)
+              enddo
+           enddo
           endif
           nmax = max(nn+iofn,nmax)
    10   continue
@@ -230,14 +245,18 @@ C           sizes and offsets to SRC and DST blocks, row index
               nlmj = min(nn,no)
             endif
             if (mode4 .eq. 8) then
-              do  120  jlm = 1, nlmj
-                do  120  ilm = 1, nlmi
-  120         dst(ilm+iofn,jlm+jofn) = src(ilm+iofo,jlm+jofo)
+              do   jlm = 1, nlmj
+                 do   ilm = 1, nlmi
+                    dst(ilm+iofn,jlm+jofn) = src(ilm+iofo,jlm+jofo)
+                 enddo
+              enddo
             else
-              do  125  jlm = 1, nlmj
-                do  125  ilm = 1, nlmi
-  125         dst(ilm+iofn,jlm+jofn) = dst(ilm+iofn,jlm+jofn) +
-     .        src(ilm+iofo,jlm+jofo)
+               do    jlm = 1, nlmj
+                  do  ilm = 1, nlmi
+                     dst(ilm+iofn,jlm+jofn) = dst(ilm+iofn,jlm+jofn) +
+     .                    src(ilm+iofo,jlm+jofo)
+                  enddo
+               enddo
             endif
   110     continue
           nmax = max(nn+iofn,nmax)

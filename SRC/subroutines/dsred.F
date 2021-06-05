@@ -21,20 +21,23 @@ C Local parameters
 
 C --- Make h' ---
       do  10  i = 1, n
-        do  20  k = 1, i-1
-   20   call daxpy(n,-ar(i,k),hr(k,1),nm,hr(i,1),nm)
+        do  k = 1, i-1
+           call daxpy(n,-ar(i,k),hr(k,1),nm,hr(i,1),nm)
+        enddo   
         call dscal(n,1/ar(i,i),hr(i,1),nm)
    10 continue
 
 C --- Make h'' (lower triangle only) ---
       do  30  j = 1, n
-        do  40  k = 1, j-1
-   40   call daxpy(n-j+1,-ar(j,k),hr(j,k),1,hr(j,j),1)
+        do    k = 1, j-1
+           call daxpy(n-j+1,-ar(j,k),hr(j,k),1,hr(j,j),1)
+        enddo   
         call dscal(n-j+1,1/ar(j,j),hr(j,j),1)
 
 C --- Copy lower triangle into upper ---
-        do  50  i = j+1, n
-   50   hr(j,i) =  hr(i,j)
+        do  i = j+1, n
+           hr(j,i) =  hr(i,j)
+        enddo   
    30 continue
 
 c      print 337, hr,hi

@@ -77,14 +77,15 @@ C ... Shorten p, multiply by corresponding phase later
       endif
       deallocate(wk,yl)
 C --- H_kL by recursion ---
-      do  2  ilm = 1, nlm
+      do   ilm = 1, nlm
         gklsav = hkl(0,ilm)
         hkl(0,ilm) = hsm(ilm)
-      do  2  k = 1, kmax
+      do    k = 1, kmax
         gklnew = hkl(k,ilm)
         hkl(k,ilm) = -e*hkl(k-1,ilm) - fpi*gklsav
         gklsav = gklnew
-    2 continue
+      enddo
+      enddo
 C ... Put in phase to undo shortening
       if (sp .ne. 0) then
         do  20  ilm = 1,nlm

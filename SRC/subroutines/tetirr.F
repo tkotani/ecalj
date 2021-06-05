@@ -40,14 +40,16 @@ C --- Start loop over microcells ----
       do  201  i2 = 1, n2
       do  20  i1 = 1, n1
 C   ... Set up identifiers at 8 corners of microcell
-        do  1  k1 = 0, 1
+        do    k1 = 0, 1
           j1 = mod(i1+k1-1,n1) + 1
-        do  1  k2 = 0, 1
+        do    k2 = 0, 1
           j2 = mod(i2+k2-1,n2) + 1
-        do  1  k3 = 0, 1
+        do    k3 = 0, 1
           j3 = mod(i3+k3-1,n3) + 1
           imc(k1,k2,k3) = ipq(j1,j2,j3)
-    1   continue
+        enddo
+        enddo
+        enddo
 C   --- Start loop over tetrahedra ---
         do  10  itet = 1, 6
           do  2  ic = 1, 4
@@ -57,14 +59,15 @@ C   --- Start loop over tetrahedra ---
             iq(ic) = imc(k1,k2,k3)
     2     continue
 C    ... Order the identifiers
-          do  3  j = 1, 3
-          do  3  i = 1, 4-j
+          do    j = 1, 3
+          do    i = 1, 4-j
             if (iq(i) .gt. iq(i+1)) then
               ii = iq(i)
               iq(i) = iq(i+1)
               iq(i+1) = ii
-            endif
-    3     continue
+           endif
+          enddo
+          enddo
           ntet = ntet+1
           idtet(0,ntet) = 1
           do  6  i = 1, 4

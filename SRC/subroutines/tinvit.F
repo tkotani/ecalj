@@ -99,11 +99,13 @@ c     .......... check for isolated root ..........
         if (p .ne. q) go to 490
         rv6(p) = 1.0d0
         go to 870
-  490   norm = dabs(d(p))
+ 490    continue
+        norm = dabs(d(p))
         ip = p + 1
 c
-        do 500 i = ip, q
-  500   norm = dmax1(norm, dabs(d(i))+dabs(e(i)))
+        do  i = ip, q
+           norm = dmax1(norm, dabs(d(i))+dabs(e(i)))
+        enddo
 c     .......... eps2 is the criterion for grouping,
 c                eps3 replaces zero pivots and equal
 c                roots are modified by eps3,
@@ -170,18 +172,20 @@ c
           if (ind(j) .ne. tag) go to 630
           xu = 0.0d0
 c
-          do 640 i = p, q
-  640     xu = xu + rv6(i) * z(i,j)
+          do i = p, q
+             xu = xu + rv6(i) * z(i,j)
+          enddo   
 c
-          do 660 i = p, q
-  660     rv6(i) = rv6(i) - xu * z(i,j)
-c
+          do i = p, q
+             rv6(i) = rv6(i) - xu * z(i,j)
+          enddo   
   680   continue
 c
   700   norm = 0.0d0
 c
-        do 720 i = p, q
-  720   norm = norm + dabs(rv6(i))
+        do i = p, q
+           norm = norm + dabs(rv6(i))
+        enddo   
 c
         if (norm .ge. 1.0d0) go to 840
 c     .......... forward substitution ..........
@@ -191,13 +195,16 @@ c     .......... forward substitution ..........
         s = s + 1
         if (s .gt. q) s = p
         go to 780
-  740   xu = eps4 / norm
+ 740    continue
+        xu = eps4 / norm
 c
-        do 760 i = p, q
-  760   rv6(i) = rv6(i) * xu
+        do i = p, q
+           rv6(i) = rv6(i) * xu
+        enddo
 c     .......... elimination operations on next vector
 c                iterate ..........
-  780   do 820 i = ip, q
+ 780    continue
+        do 820 i = ip, q
           u = rv6(i)
 c     .......... if rv1(i-1) .eq. e(i), a row interchange
 c                was performed earlier in the
@@ -205,29 +212,35 @@ c                triangularization process ..........
           if (rv1(i-1) .ne. e(i)) go to 800
           u = rv6(i-1)
           rv6(i-1) = rv6(i)
-  800     rv6(i) = u - rv4(i) * rv6(i-1)
+ 800      continue
+          rv6(i) = u - rv4(i) * rv6(i-1)
   820   continue
 c
         its = its + 1
         go to 600
 c     .......... set error -- non-converged eigenvector ..........
-  830   ierr = -r
+ 830    continue
+        ierr = -r
         xu = 0.0d0
         go to 870
 c     .......... normalize so that sum of squares is
 c                1 and expand to full order ..........
   840   u = 0.0d0
 c
-        do 860 i = p, q
-  860   u = pythag(u,rv6(i))
+        do i = p, q
+           u = pythag(u,rv6(i))
+        enddo   
 c
         xu = 1.0d0 / u
 c
-  870   do 880 i = 1, n
-  880   z(i,r) = 0.0d0
+ 870    continue
+        do i = 1, n
+           z(i,r) = 0.0d0
+        enddo   
 c
-        do 900 i = p, q
-  900   z(i,r) = rv6(i) * xu
+        do i = p, q
+           z(i,r) = rv6(i) * xu
+        enddo   
 c
         x0 = x1
   920 continue

@@ -67,8 +67,9 @@ C ... Local parameters
       integer i,now,ib,gsize
 
       call ivshel(1,nlst,grpid,iprm,.true.)
-      do  10  i = 1, nlst
-   10 iprm(i) = iprm(i)+1
+      do   i = 1, nlst
+         iprm(i) = iprm(i)+1
+      enddo
       ngrp = 0
       gsize = 0
       mxsiz = 0

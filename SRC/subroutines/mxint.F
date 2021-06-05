@@ -7,8 +7,9 @@ C     implicit none
       mxint = 0
       if (n .le. 0) return
       imax = ivec(1)
-      do  10  i = 1, n
-   10 imax = max(imax,ivec(i))
+      do   i = 1, n
+         imax = max(imax,ivec(i))
+      enddo   
       mxint = imax
       end
 

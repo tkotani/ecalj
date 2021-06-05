@@ -51,11 +51,12 @@ C Local variables
         return
       endif 
 
-      do  12  ir = 1, n
-        do  12  ic = ir+1, n
+      do    ir = 1, n
+        do  ic = ir+1, n
           c(ir,ic)    =  c(ic,ir)
           c(ir+n2,ic) = -c(ic+n2,ir)
-   12 continue
+       enddo
+       enddo
 
       if (allocated(wk_rv)) deallocate(wk_rv)
       end

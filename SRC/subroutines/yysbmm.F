@@ -78,11 +78,12 @@ C     ofb = 0
 C --- Initialize contents of b ---
       if (mode0 .eq. 0) then
 C       do  6  i = offs(i1)-ofb+1, offs(i2+1)-ofb
-        do  6  j = 1, nc
-          do  6  i = offs(i1)+1, offs(i2+1)
+        do    j = 1, nc
+          do  i = offs(i1)+1, offs(i2+1)
             br(i,j) = 0
             bi(i,j) = 0
-    6   continue
+         enddo
+         enddo
       endif
 
 C --- For each row ir, multiply a(ir,ic) x(ic) ---
@@ -213,11 +214,12 @@ C     ofb = 0
 C ... Initialize contents of b
       if (mode0 .eq. 0) then
 C       do  6  j = offs(j1)-ofb+1, offs(j2+1)-ofb
-        do  6  j = offs(j1)+1, offs(j2+1)
-          do  6  i = 1, nr
+        do    j = offs(j1)+1, offs(j2+1)
+          do   i = 1, nr
             br(i,j) = 0
             bi(i,j) = 0
-    6   continue
+         enddo
+         enddo
       endif
 
 C ... Product of diagonal elements x(ir)*a(ir). Skip if missing.

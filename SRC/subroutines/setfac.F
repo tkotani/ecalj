@@ -5,8 +5,9 @@ C     implicit none
       double precision fac(0:n)
 
       fac(0) = 1d0
-      do  10  i = 1, n
-   10 fac(i) = i*fac(i-1)
+      do    i = 1, n
+         fac(i) = i*fac(i-1)
+      enddo   
       end
       subroutine stdfac(n,df)
 C- Set up array of double factorials.
@@ -18,8 +19,9 @@ C     implicit none
 
       df(0) = 1d0
       df(1) = 1d0
-      do  10  i = 2, n
-   10 df(i) = i*df(i-2)
+      do  i = 2, n
+         df(i) = i*df(i-2)
+      enddo   
       end
 
 

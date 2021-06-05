@@ -366,9 +366,9 @@ C ... Local parameters
       stdo = lgunit(1)
       nneg = 0
       rmin = 999
-      do  10  i3 = 1, n3
-      do  10  i2 = 1, n2
-      do  10  i1 = 1, n1
+      do    i3 = 1, n3
+      do    i2 = 1, n2
+      do    i1 = 1, n1
         xx = dble(smrho(i1,i2,i3))
         rmin = min(rmin,xx)
         if (xx .lt. 0) then
@@ -376,7 +376,9 @@ C ... Local parameters
           xx = 1d-8
         endif
         smrho(i1,i2,i3) = xx
-   10 continue
+      enddo
+      enddo
+      enddo
       if (nneg .gt. 0) write(stdo,333) nneg,rmin
   333 format(' rhopos (warning): mesh density negative at',i6,
      .' points.  min=',f13.8)

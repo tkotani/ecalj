@@ -44,8 +44,9 @@ c     ------------------------------------------------------------------
 c
       do 100 i = 1, n
 c
-        do 80 j = i, n
-   80   z(j,i) = a(j,i)
+        do j = i, n
+           z(j,i) = a(j,i)
+        enddo   
 c
         d(i) = a(n,i)
   100 continue
@@ -59,8 +60,9 @@ c     .......... for i=n step -1 until 2 do -- ..........
         scale = 0.0d0
         if (l .lt. 2) go to 130
 c     .......... scale row (algol tol then not needed) ..........
-        do 120 k = 1, l
-  120   scale = scale + dabs(d(k))
+        do k = 1, l
+           scale = scale + dabs(d(k))
+        enddo   
 c
         if (scale .ne. 0.0d0) go to 140
   130   e(i) = d(l)
@@ -84,8 +86,9 @@ c
         h = h - f * g
         d(l) = f - g
 c     .......... form a*u ..........
-        do 170 j = 1, l
-  170   e(j) = 0.0d0
+        do j = 1, l
+           e(j) = 0.0d0
+        enddo   
 c
         do 240 j = 1, l
           f = d(j)
@@ -111,15 +114,17 @@ c
 c
         hh = f / (h + h)
 c     .......... form q ..........
-        do 250 j = 1, l
-  250   e(j) = e(j) - hh * d(j)
+        do  j = 1, l
+           e(j) = e(j) - hh * d(j)
+        enddo   
 c     .......... form reduced a ..........
         do 280 j = 1, l
           f = d(j)
           g = e(j)
 c
-          do 260 k = j, l
-  260     z(k,j) = z(k,j) - f * e(k) - g * d(k)
+          do  k = j, l
+             z(k,j) = z(k,j) - f * e(k) - g * d(k)
+          enddo   
 c
           d(j) = z(l,j)
           z(i,j) = 0.0d0
@@ -135,25 +140,31 @@ c     .......... accumulation of transformation matrices ..........
         h = d(i)
         if (h .eq. 0.0d0) go to 380
 c
-        do 330 k = 1, l
-  330   d(k) = z(k,i) / h
+        do  k = 1, l
+           d(k) = z(k,i) / h
+        enddo   
 c
-        do 360 j = 1, l
+        do 361 j = 1, l
           g = 0.0d0
 c
-          do 340 k = 1, l
-  340     g = g + z(k,i) * z(k,j)
+          do k = 1, l
+             g = g + z(k,i) * z(k,j)
+          enddo   
 c
           do 360 k = 1, l
             z(k,j) = z(k,j) - g * d(k)
   360   continue
+  361   continue
 c
-  380   do 400 k = 1, l
-  400   z(k,i) = 0.0d0
+ 380    continue
+        do k = 1, l
+           z(k,i) = 0.0d0
+        enddo   
 c
   500 continue
 c
-  510 do 520 i = 1, n
+ 510  continue
+      do 520 i = 1, n
         d(i) = z(n,i)
         z(n,i) = 0.0d0
   520 continue

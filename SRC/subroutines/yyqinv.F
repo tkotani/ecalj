@@ -82,10 +82,12 @@ C --- Straight yygefa,di if n lt nmin ---
           call yyhifa(ar,ai,lda,n,w,ierr)
           if (ierr .ne. 0) goto 99
           call yyhidi(ar,ai,lda,n,w,xx,i,w(1,2),w(1,3),1)
-          do  10  i = 1, n
-            do  10  j = 1, i
+          do    i = 1, n
+            do  j = 1, i
               ar(i,j) =  ar(j,i)
-   10     ai(i,j) = -ai(j,i)
+              ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         endif
 #if DEBUG
         print *, 'exit yyqinv, LU decomposition'
@@ -104,10 +106,12 @@ CSFCPP#endif
           call yyhifa(ar,ai,lda,m1,w,ierr)
           if (ierr .ne. 0) goto 99
           call yyhidi(ar,ai,lda,m1,w,xx,i,w(1,2),w(1,3),1)
-          do  12  i = 1, m1
-            do  12  j = 1, i
+          do    i = 1, m1
+            do  j = 1, i
               ar(i,j) =  ar(j,i)
-   12     ai(i,j) = -ai(j,i)
+            ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         else
           call yygefa(ar,ai,lda,m1,w,ierr)
           if (ierr .ne. 0) goto 99
@@ -144,10 +148,12 @@ C --- R4 = a21 R3 = a21 a11^-1 a12 in w2; uses w(1+m1:n,1:2*m2) ---
 *     call yprm(.false.,'R4',2,6,fmt,w(1+m1,1),ldw,m2,m2,m2)
 
 C --- -R5 = a22 - R4 = a22 - a21 a11^-1 a12 in a22 ---
-      do  20  j = 1, m2
-        do  20  i = 1, m2
+      do    j = 1, m2
+        do  i = 1, m2
           ar(i+m1,j+m1) = ar(i+m1,j+m1) - w(i+m1,j)
-   20 ai(i+m1,j+m1) = ai(i+m1,j+m1) - w(i+m1,j+m2)
+        ai(i+m1,j+m1) = ai(i+m1,j+m1) - w(i+m1,j+m2)
+       enddo
+       enddo
 C     R4 = w2 isn't needed beyond this point
 *     call yprm(.false.,'-R5',2,6,fmt,ar(1+m1,1+m1),lda,m2,lda,m2)
 
@@ -160,10 +166,12 @@ CSFCPP#endif
           if (ierr .ne. 0) goto 99
           call yyhidi(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),
      .    xx,i,w(1+m1,2),w(1+m1,3),1)
-          do  16  i = m1+1, n
-            do  16  j = m1+1, i
+          do    i = m1+1, n
+            do  j = m1+1, i
               ar(i,j) =  ar(j,i)
-   16     ai(i,j) = -ai(j,i)
+              ai(i,j) = -ai(j,i)
+           enddo
+           enddo
         else
           call yygefa(ar(1+m1,1+m1),ai(1+m1,1+m1),lda,m2,w(1+m1,1),ierr)
           if (ierr .ne. 0) goto 99
@@ -199,29 +207,35 @@ C --- c12 = R3 * R6 = -a11^-1 a12 c22 in a12 ---
 
 C --- Hermitian case: R2 = R3+ and c21=c12+ ---
       if (cs .eq. 'h') then
-        do  30  j = 1, m1
-          do  30  i = 1, m2
+        do   j = 1, m1
+          do   i = 1, m2
             ar(i+m1,j) =  ar(j,i+m1)
-   30   ai(i+m1,j) = -ai(j,i+m1)
+            ai(i+m1,j) = -ai(j,i+m1)
+         enddo
+         enddo
 
 C NB: do following in two steps to avoid beta=1 in yygemm call
 C   ... R7 = R3 * R6 * R2 = R3 * c21
         call yygemm('N','N',m1,m1,m2,1d0,w,w(1,1+m2),ldw,
      .  ar(1+m1,1),ai(1+m1,1),lda,0d0,w(1+m1,1),w(1+m1,1+m2),ldw)
 C   ... c11 = R1 - R7 = R1 - R3 * R6 * R2 = R1 - R3 * c21
-        do  32  j = 1, m1
-          do  32  i = 1, j
+        do   j = 1, m1
+          do  i = 1, j
             ar(i,j) =  ar(i,j) - (w(i+m1,j)+w(j+m1,i))*.5d0
-   32   ai(i,j) =  ai(i,j) - (w(i+m1,j+m2)-w(j+m1,i+m2))*.5d0
+            ai(i,j) =  ai(i,j) - (w(i+m1,j+m2)-w(j+m1,i+m2))*.5d0
+         enddo
+         enddo
 
 C       call yygemm('N','N',m1,m1,m2,-1d0,w,w(1,1+m2),ldw,
 C    .    ar(1+m1,1),ai(1+m1,1),lda,1d0,ar,ai,lda)
 
 C   ... Force hermitian explicitly
-        do  34  i = 1, m1
-          do  34  j = 1, i
+        do    i = 1, m1
+          do  j = 1, i
             ar(i,j) =  ar(j,i)
-   34   ai(i,j) = -ai(j,i)
+            ai(i,j) = -ai(j,i)
+         enddo
+         enddo
 
 C --- Nonhermitian case ---
       else

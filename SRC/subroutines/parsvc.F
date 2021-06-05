@@ -70,9 +70,10 @@ C         ... 'x' 'y' or 'z'
 C --- Convert vec to t ---
       elseif (mod(iopt,4) .eq. 1 .or. mod(iopt,4) .eq. 2) then
         parsvc = .true.
-        do  10  i = 1, 3
+        do    i = 1, 3
           lveq0(i) = dabs(v(i)) .lt. tiny
-   10   lveq1(i) = dabs(v(i)-1) .lt. tiny
+          lveq1(i) = dabs(v(i)-1) .lt. tiny
+        enddo  
 C   ... Exclude shorthand
         if (mod(iopt,4) .eq. 1) then
           lveq0(3) = .false.

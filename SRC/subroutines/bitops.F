@@ -112,8 +112,9 @@ C- Truncates double precision x after n digits
         is = int(-is) + n
       endif
       s = 1
-      do  10  i = 1, iabs(is)
-   10 s = 10*s
+      do    i = 1, iabs(is)
+         s = 10*s
+      enddo   
 #if QUAD
       if (is .gt. 0) dtrunc = int(s*dble(x))/s
       if (is .lt. 0) dtrunc = int(dble(x)/s)*s
@@ -143,8 +144,9 @@ C     implicit none
         is = int(-is) + n
       endif
       s = 1
-      do  10  i = 1, iabs(is)
-   10 s = 10*s
+      do    i = 1, iabs(is)
+         s = 10*s
+      enddo   
 
 #if QUAD
       if (is .gt. 0) dround = xnint(s*dble(x))/s

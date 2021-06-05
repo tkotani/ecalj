@@ -933,7 +933,7 @@ C ... Passed parameters
       integer iax(niax,1),ntab(ib2)
       double precision plat(3,3),pos(3,*),tol
       integer:: ib , nttab
-      real(8) ,allocatable :: wk1_rv(:)
+      integer ,allocatable :: iwk1_rv(:)
       real(8) ,allocatable :: wk2_rv(:)
 
 C heap:
@@ -941,13 +941,11 @@ C heap:
 C --- Set iax(7) to sort this cluster ---
       do  10  ib = ib1, ib2
         nttab = ntab(ib+1)-ntab(ib)
-        allocate(wk1_rv(nttab))
+        allocate(iwk1_rv(nttab*2))
         allocate(wk2_rv(nttab*3))
         call ppair4 ( ntab ( ib ) + 1 , ntab ( ib + 1 ) , plat , pos 
-     .  , pos ( 1 , ib ) , wk1_rv , wk2_rv , tol , iax )
-        if (allocated(wk2_rv)) deallocate(wk2_rv)
-        if (allocated(wk1_rv)) deallocate(wk1_rv)
-
+     .  , pos ( 1 , ib ) , iwk1_rv , wk2_rv , tol , iax )
+        deallocate(iwk1_rv,wk2_rv)
    10 continue
       end
       subroutine pair3c(offi,nvec,iaxc,iaxh,ntabh,ipiaxh)

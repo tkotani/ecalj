@@ -38,15 +38,17 @@ C  ...  Matrix triangle (i1,i2)
         i2 = ic+mcol-1
 
         if (beta .eq. 0d0) then
-          do  11  j = i1, i2
-            do  11  i = j, i2
-              c(i,j) = 0
-   11     continue
+          do    j = i1, i2
+            do  i = j, i2
+               c(i,j) = 0
+            enddo
+            enddo
         elseif (beta .ne. 1d0) then
-          do  15  j = i1, i2
-            do  15  i = j, i2
-              c(i,j) = beta*c(i,j)
-   15     continue
+          do    j = i1, i2
+            do  i = j, i2
+               c(i,j) = beta*c(i,j)
+            enddo
+            enddo
         endif
 
         do  12  j = i1, i2
@@ -57,18 +59,19 @@ C  ...  Matrix triangle (i1,i2)
    14     continue
    12   continue
 
-        do  22  j = i1, i2
-          do  22  i = j, i2
-            c(j,i) = c(i,j)
-   22   continue
+        do    j = i1, i2
+          do  i = j, i2
+             c(j,i) = c(i,j)
+          enddo
+          enddo
 
    10 continue
 
 C...  Fill in lower half of triangle
-      do  20  j = 1, n
-        do  20  i = 1, j-1
-          c(j,i) = c(i,j)
-   20 continue
-
+      do    j = 1, n
+        do  i = 1, j-1
+           c(j,i) = c(i,j)
+        enddo
+      enddo
       end
 

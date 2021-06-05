@@ -55,7 +55,7 @@ C ... Make A_mk = <z_m dH z_k>
 C ... Make A_mk/(em-ek) and  sum_k |A_mk|/(em-ek)
 c      call dpzero(wk,ld)
       wk=0d0
-      do  40  k = 1, ld
+      do  41  k = 1, ld
         do  40  m = 1, ld
           if (abs(e0(m)-e0(k)) .lt. tol) then
             dh(m,k,1) = 0
@@ -69,6 +69,7 @@ C     .      (dh(m,k,1)**2 + dh(m,k,2)**2) / (e0(m)-e0(k))
             dh(m,k,2) = dh(m,k,2) / (e0(m)-e0(k))
           endif
    40 continue
+   41 continue
 C     call yprm('amk/(em-ek)',2,dh,ld*ld,ld,ld,ld)
 C     call yprm('amk akm /(em-ek)',1,wk,ld*1,ld,ld,1)
 C ... dz_k = z_m A_mk/(em-ek)
@@ -137,10 +138,12 @@ C --- dh - eps ds * z ---
       if (mod(iopt,10) .eq. 1) then
         call yygemm('N','N',ld,ld,ld,1d0,ds,ds(1,1,2),ld,
      .  z,z(1,1,2),ld,0d0,wk,wk(1,1,2),ld)
-        do  12  j = 1, ld
-          do  12  i = 1, ld
+        do    j = 1, ld
+        do  i = 1, ld
             wk(i,j,1) = -wk(i,j,1)*e0(j)
-   12   wk(i,j,2) = -wk(i,j,2)*e0(j)
+            wk(i,j,2) = -wk(i,j,2)*e0(j)
+        enddo
+        enddo
         xx = 1
       endif
       call yygemm('N','N',ld,ld,ld,1d0,dh,dh(1,1,2),ld,
@@ -150,16 +153,19 @@ C     call yprm('dh - e0 ds * z',2,wk,ld*ld,ld,ld,ld)
 C --- First order eigenvalue correction ---
 c      call dpzero(de,ld)
       de=0d0
-      do  10  i = 1, ld
-        do  10  j = 1, ld
-   10 de(i) = de(i) + z0(j,i,1)*wk(j,i,1) + z0(j,i,2)*wk(j,i,2)
+      do    i = 1, ld
+        do  j = 1, ld
+           de(i) = de(i) + z0(j,i,1)*wk(j,i,1) + z0(j,i,2)*wk(j,i,2)
+        enddo
+      enddo
 C     call prmx('pvpert de, 1st order',de,ld,ld,1)
 
 C --- Permute z,hz,de,e0 for any degeneracies that were lifted ---
       low = 0
       high = 0
       i = 0
-   20 i = i+1
+ 20   continue
+      i = i+1
       call huntx(e0,ld,e0(i)+tol,0,high)
       low = i
       high = min(high,ld)
@@ -168,37 +174,38 @@ C   ... Degeneracies between low,high
         ndg = high-low+1
         if (ndg .gt. ndgmx)
      .  call rxi('pertev: increase ndgmx; need',ndg)
-        do  21  k = low, high
-   21   xxv(k-low+1,1) = e0(k) + de(k)
+        do   k = low, high
+           xxv(k-low+1,1) = e0(k) + de(k)
+        enddo   
         call dvheap(1,ndg,xxv,iwk,tol,1)
         do  22  j = 1, ld
           do  23  k = low, high
             xxv(iwk(k-low+1),1) = z(j,k,1)
-   23     xxv(iwk(k-low+1),2) = z(j,k,2)
+            xxv(iwk(k-low+1),2) = z(j,k,2)
+ 23      continue
           do  24  k = low, high
             z(j,k,1) = xxv(k-low+1,1)
-   24     z(j,k,2) = xxv(k-low+1,2)
+            z(j,k,2) = xxv(k-low+1,2)
+ 24       continue
           do  25  k = low, high
             xxv(iwk(k-low+1),1) = wk(j,k,1)
-   25     xxv(iwk(k-low+1),2) = wk(j,k,2)
+            xxv(iwk(k-low+1),2) = wk(j,k,2)
+ 25       continue
           do  26  k = low, high
             wk(j,k,1) = xxv(k-low+1,1)
-   26     wk(j,k,2) = xxv(k-low+1,2)
+            wk(j,k,2) = xxv(k-low+1,2)
+ 26      continue
    22   continue
 C     ... Not necessary to sort e0, but do anyway
         do  28  k = low, high
           xxv(iwk(k-low+1),1) = e0(k)
-   28   xxv(iwk(k-low+1),2) = de(k)
+          xxv(iwk(k-low+1),2) = de(k)
+ 28       continue
         do  29  k = low, high
           e0(k) = xxv(k-low+1,1)
-   29   de(k) = xxv(k-low+1,2)
+          de(k) = xxv(k-low+1,2)
+ 29    continue
       endif
       if (i .lt. ld) goto 20
-C     call prmx('de, sorted 1st order',de,ld,ld,1)
-C     call yprm('z, permuted',2,z,ld*ld,ld,ld,ld)
-C     call yprm('dh z, permuted',2,wk,ld*ld,ld,ld,ld)
-Cdelw1 w_varlist remains: (None)
-Cdelw1 w_varlist (undel), remains: (None)
-Cdelw1 w_varlist (del), remains: (None)
       end
 

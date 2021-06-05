@@ -677,8 +677,9 @@ C --- Print out rmu by angular momentum ---
           if (ipr >= 35) then
             lmax = ll(nlm)
             do  42  i = 1, nsp
-              do  43  l = 0, lmax
-  43            sumnl(l) = 0d0
+              do    l = 0, lmax
+                 sumnl(l) = 0d0
+              enddo   
                 do   ilm = 1, nlm
                   l = ll(ilm)
                 do   ir = 1, nr
@@ -910,8 +911,9 @@ C     call prmr(nr,ri,vxcnl,nlm)
 C --- Estimate rmu in this ir0 ir1 interval by angular momentum ---
                         if(debug) print *,'xxcnls2 88888'
                         do  82  i = 1, nsp
-                          do  83  l = 0, lmax
-   83                       sumnl(l) = 0d0
+                           do  83  l = 0, lmax
+                             sumnl(l) = 0d0
+  83                        continue   
                             do    ilm = 1, nlm
                               l = ll(ilm)
                             do    ir = ir0, ir1

@@ -92,7 +92,8 @@ C --- Find end of mantissa; get exponent (binary in ixp) ---
         if (ss(iex:iex) .eq. '+' .or. ss(iex:iex) .eq. '-') iex = iex+1
         do  10  j = iex, is 
           k = j
-   10   if (ss(j:j) .ne. '0') goto 12
+          if (ss(j:j) .ne. '0') goto 12
+ 10     continue
    12   continue
         if (ss(iex-1:iex-1) .eq. '-') then
           k = k-1
@@ -113,7 +114,8 @@ C ...   If relative precision, k offset from first significant digit
         if (getdig(sw,0,10) .eq. 1) then
           do  14  i = i1, im
             m = i
-   14     if (ss(i:i) .ge. '1' .and. ss(i:i) .le. '9') goto 15
+            if (ss(i:i) .ge. '1' .and. ss(i:i) .le. '9') goto 15
+ 14       continue
    15     continue
           k = m-1+precsn
           if (m .le. ip .and. k .ge. ip) k = k+1
@@ -147,8 +149,9 @@ C ...     Start over
           goto 1
         endif
         if (k .lt. ip) then
-          do  16  j = k+1, ip-1
-   16     ss(j:j) = '0'
+          do   j = k+1, ip-1
+             ss(j:j) = '0'
+          enddo   
         endif
 *        print *, precsn, '(precision):', ss(1:im), '|', k,im
         im = max(min(k,im),ip)
@@ -224,8 +227,9 @@ C ... Case number is zero
       endif
 C ... Append 
       if (nout .lt. id) then
-        do  40  k = nout+1, id
-   40   sout(k:k) = '0'
+        do   k = nout+1, id
+           sout(k:k) = '0'
+        enddo   
         nout = id
       endif
 C ... Strip

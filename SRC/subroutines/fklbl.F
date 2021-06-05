@@ -77,14 +77,15 @@ c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
       endif
       deallocate(wk,yl)
 C ... Upward recursion in k: mainly sets fkl = -4*pi * g(k-1,l)
-      do  2  ilm = 1, nlm
+      do    ilm = 1, nlm
         gklsav = fkl(0,ilm)
         fkl(0,ilm) = fsm(ilm)
-      do  2  k = 1, kmax
+      do    k = 1, kmax
         gklnew = fkl(k,ilm)
         fkl(k,ilm) = -fpi*gklsav
         gklsav = gklnew
-  2   continue
+      enddo
+      enddo
 C ... Add extra term to F(k=1,l=0)
       fkl(1,1) = fkl(1,1) + fpi*y0/vol
       end subroutine fklbl
