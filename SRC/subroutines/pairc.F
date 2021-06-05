@@ -554,11 +554,11 @@ C ... Make pos-ctr(ib)
 C ... Shorten pos-ctr(ib)
         call shorps(nbasp,plat,mode2,pos,pos)
 C ... Undo shift -ctr(ib) to restore shortened pos to absolute pos
-        do  16  jb = 1, nbasp
-        do  16  i = 1, 3
+        do   jb = 1, nbasp
+        do   i = 1, 3
           pos(i,jb) = pos(i,jb) + p0(i)
-   16   continue
-
+        enddo
+        enddo
 C --- Find all sites in range of ctr ---
         call ppair2 ( nbasp , iltab , pltabp , moder , alat , qlat , 
      .  pos , p0 , range , ips , rtab , ib , r1 , nlat , lat_rv , 
@@ -664,7 +664,7 @@ C --- For each pair, find matching pair, store in iax(6) ---
         iax(6,it) = 0
    74 continue
       if (mod(isw1,2) .eq. 0) then
-        do  70  ib = ib1, ib2
+        do 170  ib = ib1, ib2
         do  70  it = ntab(ib)+1, ntab(ib+1)
           if (iax(6,it) .ne. 0) goto 70
           jb = iax(2,it)
@@ -686,6 +686,7 @@ C         endif
      .      ' matching sites (%i,%i), pair %i',ib,jb,it-ntab(ib))
    73     continue
    70   continue
+  170   continue
       endif
       if (isw1 .eq. 4) return
 

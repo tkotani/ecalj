@@ -55,7 +55,7 @@ C     stdl = lgunit(2)
       if (job .lt. 0) volwgt = volwgt/2
       do  40  isp = 1, nsp
 C --- Loop over tetrahedra ---
-        do  20  itet = 1, ntet
+        do  201  itet = 1, ntet
           iq1 = idtet(1,itet)
           iq2 = idtet(2,itet)
           iq3 = idtet(3,itet)
@@ -85,18 +85,21 @@ C --- Set up energies at 4 corners of tetrahedron ---
             endif
           endif
    20   continue
+ 201    continue
    40 continue
       if (jjob .eq. 2) then
         sumev = sev1 + sev2
         sumwp = 0d0
-        do  56  isp = 1, nsp
+        do    isp = 1, nsp
           sumwm = 0d0
-        do  56  ib = 1, nband
-        do  56  iq = 1, nq
+        do    ib = 1, nband
+        do    iq = 1, nq
           sumwm = sumwm + wp(ib,isp,iq)
           sumwp = sumwp + wp(ib,isp,iq)
-   56   continue
-        if ( ipr .ge. 10 ) then
+        enddo
+        enddo
+        enddo
+          if ( ipr .ge. 10 ) then
 C     ... when bands are coupled, moment from bands makes no sense
           if (nsp .eq. 1) then
             write(stdo,922) ef,sumwp,sev1+sev2,sev2

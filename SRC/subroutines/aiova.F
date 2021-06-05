@@ -39,8 +39,8 @@ C   ... read nl and nsp ... abort if missing
         lmx = min(nl,nl2)-1
 C   ... read vintra
         n = min(nsp,nsp2)
-        do  10  i = 1, n
-        do  10  l = 0, lmx
+        do   i = 1, n
+        do   l = 0, lmx
           if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
           ip = 0
           k = a2vec(s,len(s),ip,4,' ',1,-2,-(lmx+1)*n-1,ix2,x2)
@@ -53,7 +53,8 @@ C    ...  Abort if failed to read lmx+2 numbers
             call dcopy(lmx+1,x2(1),1,vintra(l+1,1,1,2),nl)
             call dcopy(lmx+1,x2(1),1,vintra(l+1,1,2,1),nl)
           endif
-   10   continue
+        enddo
+        enddo
         aiova = .true.
         return
    18   continue
@@ -63,11 +64,12 @@ C    ...  Abort if failed to read lmx+2 numbers
 C --- File WRITE ---
       else
         write(-ifi,21) alabl, lmax+1, nsp
-        do  20  i = 1, nsp
-        do  20  l = 0, lmax
+        do  i = 1, nsp
+        do  l = 0, lmax
           write(-ifi,333) l,((vintra(l+1,k,i,i2), k=1,1+lmax), i2=1,nsp)
-  333     format(i4,8f12.6)
-   20   continue
+ 333      format(i4,8f12.6)
+        enddo
+        enddo
         aiova = .true.
       endif
    21 format('VINTRA: ',a4,'  nl=',i1,'  nsp=',i1)

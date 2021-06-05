@@ -603,13 +603,14 @@ c      external isanrg
 
 C --- Make -(connecting vector) = rtab = (pos(ia=field)-pos(ib=src)) ---
 C     NB : Connecting vector is pos(src)-pos(field) = -rtab
-      do  40  is = is1, is2
-      do  40  ix = 1, 3
+      do   is = is1, is2
+      do   ix = 1, 3
         rtab(ix,is-offx) = pos(ix,ia) - pos(ix,ib)
      .    + plat(ix,1)*iax(3,is)
      .    + plat(ix,2)*iax(4,is)
-     .    + plat(ix,3)*iax(5,is)
-   40 continue
+     .        + plat(ix,3)*iax(5,is)
+      enddo
+      enddo
 C     call prmx('rtab',rtab,3,3,is2-is1+1)
 
 C --- Loop through list of R vectors ---
@@ -660,10 +661,11 @@ C            endif
                 else
 
                   TdotK = 0
-                  do  50  j = 1, 3
-                  do  50  k = 1, 3
-                    TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
-   50             continue
+                  do  j = 1, 3
+                  do   k = 1, 3
+                     TdotK = TdotK - twopi*qoff(j)*plat(j,k)*iax(2+k,is)
+                  enddo
+                  enddo
                   phase = cdexp(dcmplx(0d0,TdotK))
 
                   if (mode1 .eq. 0) then

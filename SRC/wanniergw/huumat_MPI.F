@@ -884,20 +884,24 @@ c          write(1100,"(10d13.6)")rr(ir,ibas),rprodx(ir,0:lxx) !,phij(0:lxx)
 ccccccccccccccccccccccc
         enddo
         do 125 isp = 1,nspin
-         do 25 l1 = 0, nl-1      
-         do 25 n1 = 1, nindx(l1+1,ic)
-         do 25 l2 = 0, nl-1      
-         do 25 n2 = 1, nindx(l2+1,ic)
-          rphiphi(1)       = 0d0
-          rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)
-     &                          *phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
-         do 25 lx = 0, 2*(nl-1)
-          if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
-          call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic),
-     &        ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
-c          if(l1==l2.and.n1==n2.and.lx==0) 
-c         write(6,*) ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
-   25    continue
+           do  l1 = 0, nl-1      
+           do  n1 = 1, nindx(l1+1,ic)
+             do  l2 = 0, nl-1      
+             do  n2 = 1, nindx(l2+1,ic)
+                rphiphi(1)       = 0d0
+                rphiphi(2:nrofi(ic)) = phitoto(2:nrofi(ic),l1,n1,ic,isp)
+     &               *phitoto(2:nrofi(ic),l2,n2,ic,isp)/rr(2:,ic) ! phi = u = r \phi
+                do  lx = 0, 2*(nl-1)
+                   if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
+                   call gintxx( rprodx(1,lx), rphiphi,aa(ic),bb(ic),nrofi(ic),
+     &                  ppbrd(l1, n1,l2, n2, lx, isp,ibas) )
+c     if(l1==l2.and.n1==n2.and.lx==0) 
+c     write(6,*) ' ppbrd=',l1,n1,ppbrd(l1, n1,l2, n2, lx, isp,ibas)
+                enddo
+             enddo
+             enddo
+           enddo
+           enddo
  125    continue
  900  continue
 

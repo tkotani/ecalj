@@ -575,7 +575,7 @@ C     implicit none
 C ... Passed parameters
       integer npr,nbas,nshell,nmxshl,niax,ips(1),num(npr,1)
       parameter (niax=10)
-      integer iax(niax,1)
+      integer iax(niax,*)
       double precision plat(3,3),bas(3,1)
 C ... Local parameters
       integer i,is
@@ -586,7 +586,7 @@ C --- Get no. of shells and max no. of atoms in 1 shell and 1 class ---
       nshell = 0
       nmxshl = 0
       d = 0d0
-      do  10  i = 2, npr
+      do  i = 2, npr
         is = ips(iax(2,i))
         call dlmn(nbas,plat,bas,iax(1,i),wk)
 C       distance changed by more than tol ... new shell
@@ -596,8 +596,7 @@ C       distance changed by more than tol ... new shell
         endif
         num(nshell,is) = num(nshell,is) + 1
         nmxshl = max0(nmxshl,num(nshell,is))
-   10 continue
-
+      enddo
       end subroutine pvang1
 
 
@@ -630,7 +629,7 @@ C ... Passed parameters
       integer npr,nbas,nspec,nshell,nmxshl,niax,ips(1),
      .num(nspec,nspec,nshell,nshell),nbonds,blist(nbonds)
       parameter (niax=10)
-      integer iax(niax,1)
+      integer iax(niax,*)
       character*8 slabl(*)
 C ... Local parameters
       double precision plat(3,3),bas(3,1),d(nshell),
@@ -764,7 +763,7 @@ C ... Passed parameters
       double precision pos(3,*),pos2(3,*),rtab(3,*),plat(9)
       character(8):: dclabl(*)
       parameter (niax=10)
-      integer iax(niax,1)
+      integer iax(niax,*)
 C ... Local parameters
       integer iat,low1,low2,i1,i2,ipr,stdo,lgunit,i,oldi1,oldiat,
      .ic,jc

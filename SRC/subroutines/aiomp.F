@@ -40,10 +40,10 @@ C   ... For now, abort
         call dpzero(pmpol,nl*nl*(lmxv+1)*3*nsp)
 C   ... read pmpol
         n = min(nsp,nsp2)
-        do  10  i = 1, n
+        do  100  i = 1, n
         do  10  k = 1, 3
 
-          do  12  l1 = 0, nl-1
+          do  120  l1 = 0, nl-1
           do  12  l2 = 0, nl-1
 
    16       if (.not. rdstrn(ifi,s,len(s),.false.)) goto 18
@@ -54,7 +54,9 @@ C    ...  Abort if fail to read lmxv+1 numbers
             if (ip .ne. lmxv+3) call rxs('AIOMP: failed to parse ',s)
             call dcopy(lmxv+1,x2(3),1,pmpol(l1+1,l2+1,0,k,i),nl**2)
    12     continue
+ 120      continue
    10   continue
+ 100    continue
         aiomp = .true.
         return
    18   continue
@@ -64,10 +66,10 @@ C    ...  Abort if fail to read lmxv+1 numbers
 C --- File WRITE ---
       else
         write(-ifi,21) alabl, nl, nsp
-        do  20  i = 1, nsp
+        do  121  i = 1, nsp
         do  20  k = 1, 3
 
-          do  22  l1 = 0, nl-1
+          do  122  l1 = 0, nl-1
           do  22  l2 = 0, nl-1
 C           x2(1) = damax(lmxv+1,pmpol(l1+1,l2+1,0,k,i),nl*nl)
             ip = idamax(lmxv+1,pmpol(l1+1,l2+1,0,k,i),nl*nl)
@@ -81,10 +83,12 @@ C             call awrit4('%,4i%,4i %n:1g',' ',100,6,l1,l2,lmxv+1,x2)
               write(-ifi,333) l1,l2,(pmpol(l1+1,l2+1,lf,k,i),lf=0,lmxv)
             endif
    22     continue
+  122     continue
   333     format(2i4,10f12.6)
           if (i .ne. nsp .or. k .ne. 3) write(-ifi,333)
 
    20   continue
+  121   continue
         aiomp = .true.
       endif
    21 format('PMPOL: ',a4,'  nl=',i1,'  nsp=',i1)

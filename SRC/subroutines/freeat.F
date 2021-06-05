@@ -272,7 +272,7 @@ C --- Get species data ----
       plplus=0d0
       qlplus=0d0
 c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is deeper than eigen(P).'
-      do  10  i = 1, nsp
+      do  101  i = 1, nsp
       do  10  l = 0, lmxa
         pnul = pnu(l+1,i)
         pzl  = mod(pz(l+1,1),10d0)
@@ -327,6 +327,7 @@ c      print *,'NOTE: when we have two valence: P and PZ, We assume eigen(PZ) is
        endif
        endif
    10 continue
+ 101  continue
 !!
       print *
       write(stdo,"(a)")'conf:------------------------------------------------------'
@@ -490,7 +491,7 @@ C --- Print charges within/outside MT sphere ---
         qct = 0d0
         qvin = 0d0
         qcin = 0d0
-        do  30  isp = 1, nsp
+        do  301  isp = 1, nsp
         do  30  i = 1, nr
           r = rofi(i)
           wt0 = rofi(i+nr)
@@ -504,6 +505,7 @@ C       wt0 = 2*(mod(i+1,2)+1)*a*(r+b)/3d0
           qvt = qvt + wt0*rho(i+(isp-1)*nr)
           qct = qct + wt0*rhoc(i+(isp-1)*nr)
    30   continue
+ 301    continue
         qtt = qvt + qct
         qtin = qvin + qcin
         if (ipr .ge. 40) write (stdo,550) qvin,qvt-qvin,qvt,qcin,qct-qcin,
@@ -611,7 +613,7 @@ C --- Valence states ---
         if (isp .eq. 2) write(stdo,'(/'' spin 2:'')')
         eb1 = -50d0
         eb2 =  50d0
-        do  20  l = 0, lmaxa
+        do  201  l = 0, lmaxa
         do 20 iz= 0,1
           if(iz==1 .and. plplus(l,isp)<= 0d0) cycle !feb2011
           konfig = pl(l+1,isp)
@@ -645,6 +647,7 @@ C   ... Copy valence wavefunction to psi
             psi(i,l,isp) = g(i)
    24     continue
    20   continue
+ 201    continue
 
 C --- Core states ---
         write(stdo,403)
@@ -652,7 +655,7 @@ C --- Core states ---
         eb2 = 50d0
         call config(pl,lmaxa,z,konfg,lmaxc)
 
-        do  40  konf = 1, 8
+        do  4011  konf = 1, 8
         do  40  l = 0, min(konf-1,lmaxc)
           konfig = konfg(l)
           if (konf .ge. konfig) goto 40
@@ -670,6 +673,7 @@ C --- Core states ---
   403     format(/' core:        ecore',7x,'node at',6x,'max at',
      .      7x,'c.t.p.   rho(r>rmt)')
   40    continue
+ 4011   continue
 
   80  continue
       if(ifiwv>0) write(ifiwv,"('9 9 9 9 9 --------! this is terminator for an atom section')")

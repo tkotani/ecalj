@@ -100,7 +100,7 @@ c      print *,'rhocor: nmcore=',nmcore
      .  write(stdo,'('' spin'',i2,'':'')') isp
   757   format(/' state  chg          ecor0',10x,'ecore',10x,'tcore',
      .  4x,'nre',2x,'rho(rmax)')
-        do  10  l = 0, lmax
+        do  101  l = 0, lmax
         do  10  konf = l, konfig(l)-2
           deg = (2*(2*l+1))/nsp
           if (konf+1.eq.kcor .and. l.eq.lcor) then
@@ -140,6 +140,7 @@ C     --- Add to rho, make integral v*rho ---
      .      pqn(konf+1),ang(l+1),deg,ecor0,ecore,tcore,nre,rorim
   758     format(1x,2a1,f8.2,3f15.6,i7,f9.5)
    10   continue
+ 101    continue
         if (ipr.gt.0) write(stdo,230) qcore,sumec(isp),sumtc(isp),rhorim
   230   format(' sum q=',f5.2,'  sum ec=',f12.5,'  sum tc=',f12.5,
      .  '  rho(rmax)',f8.5)
@@ -547,16 +548,17 @@ C --- write out rho if requested ---
 
 C     implicit none
       integer nr,nsp
-      double precision rofi(1),rho(nr,1),rhozbk,scale
+      double precision rofi(*),rho(nr,*),rhozbk,scale
       integer ir,isp
       double precision s
 
       if (rhozbk .eq. 0) return
       s = 16*datan(1d0)*scale*rhozbk
-      do  10  isp = 1, nsp
-      do  10  ir = 2, nr
-        rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
-   10 continue
+      do   isp = 1, nsp
+      do   ir = 2, nr
+         rho(ir,isp) = rho(ir,isp) + s*rofi(ir)*rofi(ir)
+      enddo
+      enddo
       end subroutine addzbk
 
       subroutine poiss0(z,a,b,rofi,rho,nr,vhrmax,v,rhovh,vsum,nsp)
@@ -1061,9 +1063,9 @@ c          ival = ival+1
 c          eval = ev(ival)
 c          endif
       eval=-0.5d0 !initial condition. the same as getqvc
-      do  20  isp = 1, nsp
+      do  202  isp = 1, nsp
         sumev(isp) = 0d0
-      do  20  l = 0, lmax
+      do  201  l = 0, lmax
       do  20  iz=0,1  !takao feb2011
         if (nlr .eq. nl) lr = l+1
         q0 = max(qnu(1,l+1,isp),0d0)
@@ -1147,6 +1149,8 @@ C  ...  Case add -p q2 phi phi into rho
    22     continue
         endif
   20  continue
+ 201  continue
+ 202  continue
 c      call tcx('newrho')
       end subroutine newrho
 
@@ -1184,7 +1188,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer nr,nre,l
-      double precision a,b,z,ecore,g(nr,2),rofi(1),v(nr),rho(nr),rhormx
+      double precision a,b,z,ecore,g(nr,2),rofi(*),v(nr),rho(nr),rhormx
 C ... Local parameters
       integer nrmx,ir
       double precision fpi,fllp1,vrho,r,wgt,tmc,c,gfac,rhoir,deg,rmax
