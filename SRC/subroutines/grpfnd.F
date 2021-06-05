@@ -29,11 +29,12 @@ C Local parameters
       integer ka,nbas,m,k
 
       ka = iabs(ia)
-      do  2  m = 1, 3
+      do    m = 1, 3
         d(m) = ag(m,ig)
-      do  2  k = 1, 3
-        d(m) = d(m) + g(m,k,ig)*pos(k,ka)
-    2 continue
+      do    k = 1, 3
+         d(m) = d(m) + g(m,k,ig)*pos(k,ka)
+      enddo
+      enddo
       if (ia .lt. 0) call dscal(3,-1d0,d,1)
 
       ja = 0

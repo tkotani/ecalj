@@ -228,9 +228,9 @@ c6100 format(1x,8i4)
 
       do 1    i = 1,inv
         do 2    j = 1,iper
-          do 3   ix = nx,-nx,-2
+          do 32   ix = nx,-nx,-2
             xi = ix
-          do 3   iy = ny,-ny,-2
+          do 31   iy = ny,-ny,-2
             yi = iy
           do 3   iz = nz,-nz,-2
             zi = iz
@@ -253,6 +253,8 @@ c     write(iftemp,6200)nstar,ix,iy,iz,
 c    .xst(nstar),yst(nstar),zst(nstar)
 c6200 format(1x,4i4,3d13.6)
     3     continue
+ 31    continue
+ 32   continue
 
           k         = nx
           xt        = x
@@ -2407,17 +2409,18 @@ c angular integrals
       ll         = nl*nl
       ll2        = (2*nl-1)**2
       i          = 0
-      do 30   i1 = 1,ll2
-      do 30   i2 = 1,ll
-      do 30   i3 = 1,ll
+      do   i1 = 1,ll2
+      do   i2 = 1,ll
+      do   i3 = 1,ll
         call ylm3(ylm(1,i1),ylm(1,i2),ylm(1,i3),
      .          wsd,nsd,resa)
         i          = i + 1
         y3(i1,i2,i3) = resa
-   30 continue
+      enddo
+      enddo
+      enddo
       ny3        = i
       if(ny3 .ne. nl*nl*nl*nl*(2*nl-1)**2 )
-Cstop2rx 2013.08.09 kino     . stop 'yyy: wrong no. integrals'
      . call rx( 'yyy: wrong no. integrals')
 
       return
@@ -2455,17 +2458,19 @@ c     stop 'yyyy'
 c angular integrals
       ll         = nl*nl
       i          = 0
-      do 30   i1 = 1,ll
-      do 30   i2 = i1,ll
-      do 30   i3 = i2,ll
-      do 30   i4 = i3,ll
+      do    i1 = 1,ll
+      do    i2 = i1,ll
+      do    i3 = i2,ll
+      do    i4 = i3,ll
         call ylm4(ylm(1,i1),ylm(1,i2),ylm(1,i3),ylm(1,i4),
      .          wsd,nsd,resa)
         i          = i + 1
         yy(i)      = resa
         iyy(i1,i2,i3,i4) = i
-   30 continue
-Cstop2rx 2013.08.09 kino      if(i .ne. nyyyy)stop 'yyyy: wrong no. of integrals'
+      enddo
+      enddo
+      enddo
+      enddo
       if(i .ne. nyyyy)call rx( 'yyyy: wrong no. of integrals')
 
       return
@@ -2492,15 +2497,17 @@ c yyyy     = s.o.
 
 c angular integrals
       ll         = nl*nl
-      do 30   i1 = 1,ll
-      do 30   i2 = 1,ll
-      do 30   i3 = 1,ll
-      do 30   i4 = 1,ll
+      do    i1 = 1,ll
+      do    i2 = 1,ll
+      do    i3 = 1,ll
+      do    i4 = 1,ll
         call ylm4(y1(1,i1),y2(1,i2),y3(1,i3),y4(1,i4),
      .          wsd,nsd,resa)
         yyyy(i1,i2,i3,i4) = resa
-   30 continue
-
+      enddo
+      enddo
+      enddo
+      enddo
       return
       end
 c-------------------------------------------------------------------

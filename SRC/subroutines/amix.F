@@ -89,26 +89,28 @@ C --  Make < (d_0 - d_j) (d_0 - d_k) > and  < d_0 (d_0 - d_j) >  --
 C -- Regular Anderson mixing branch --
       if (ido/10 .eq. 0) then
         sumsqr = 0
-        do  20  i = 1, nmix
+        do    i = 1, nmix
           t(i) = ddot(nelts,wk(1,0,1),1,wk(1,0,1),1) -
      .    ddot(nelts,wk(1,0,1),1,wk(1,i,1),1)
-          do  20  j = 1, nmix
+        do    j = 1, nmix
             norm(i,j) =  ddot(nelts,wk(1,0,1),1,wk(1,0,1),1)
      .      - ddot(nelts,wk(1,0,1),1,wk(1,j,1),1)
      .      - ddot(nelts,wk(1,i,1),1,wk(1,0,1),1)
      .      + ddot(nelts,wk(1,i,1),1,wk(1,j,1),1)
             sumsqr = sumsqr + norm(i,j)**2
-   20   continue
+        enddo
+        enddo
         sumsqr = dsqrt(sumsqr)/(nmix+1)
 C -- Silly branch --
       elseif (ido/10 .eq. 1) then
-        do  120  i = 1, nmix
+        do    i = 1, nmix
           t(i) = wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,i,1)
-        do  120  j = 1, nmix
+        do    j = 1, nmix
           norm(i,j) =  
      .          wk(kelt,0,1)*wk(kelt,0,1) - wk(kelt,0,1)*wk(kelt,j,1)
-     .        - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
-  120   continue
+     .          - wk(kelt,i,1)*wk(kelt,0,1) + wk(kelt,i,1)*wk(kelt,j,1)
+        enddo
+        enddo
       endif
 
 C --  Solve the simultaneous equations for tj --

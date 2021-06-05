@@ -50,7 +50,7 @@ C     implicit none
       if (iprint() .gt. 30) write (*,100) range/w,2*mrange,test
       do  7  iq = 1, nqp
         wt = abs(wgts(iq)) / nsp
-        do  6  iband = 1, nband
+        do  61  iband = 1, nband
         do  6  isp = 1, nsp
           e = evl(iband,isp,iq)
           meshpt = (e - emin) / step
@@ -65,6 +65,7 @@ C     implicit none
             dos(meshpt,isp) = dos(meshpt,isp) + wt * d / w
     4     continue
     6   continue
+ 61     continue
     7 continue
   100 format(/1x,'MAKDOS :  range of gaussians is ',f5.2,
      .'W (',i4,' bins).'

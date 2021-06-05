@@ -193,26 +193,28 @@ C     ... Asymtotic case, r>>rsm
           if(n2 .le. nr)
      .    call hanr(wk(n2,3),lmn,lmax,nrx,nr+1-n2,e,wk(n2,4))
 C     ... Poke into xi(lmn:lmax), with the original ordering of points
-          do  30  l = lmn, lmax
-          do  30  ir = 1, nr
+          do   l = lmn, lmax
+          do    ir = 1, nr
             j = idx(ir,1)
             xi(ir,l,ie) = wk(idx(ir,1),4+l-lmn)
-   30     continue
+          enddo
+          enddo
         endif
    40 continue
 
 C --- Scale by r**l if job nonzero ---
    60 continue
       if (.not. lscal) return
-      do  62  ir = 1, nr
+      do   ir = 1, nr
         rl0 = dsqrt(rsq(ir))
-      do  62  ie = 1, nxi
+      do   ie = 1, nxi
         rl = rl0
-      do  62  l = 1, lxi(ie)
+      do   l = 1, lxi(ie)
         xi(ir,l,ie) = xi(ir,l,ie)*rl
         rl = rl*rl0
-   62 continue
-
+      enddo
+      enddo
+      enddo
       end
       subroutine hansr1(rsq,lmin,lmax,nrx,nr,e,rsm,rmax,xi)
 C- Vector of smoothed hankel functions for l=0...lmax, negative e
@@ -329,10 +331,11 @@ C ---   Polynomial to nmaxl ---
             do  53  ir = 1, nr
               xi(ir,l) = cofl(nmaxl)
    53       continue
-            do  54  m = nmaxl, 1, -1
-            do  54  ir = 1, nr
-              xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
-   54       continue
+            do    m = nmaxl, 1, -1
+            do    ir = 1, nr
+               xi(ir,l) = xi(ir,l)*rsq(ir) + cofl(m-1)
+            enddo
+            enddo
           endif
         endif
 

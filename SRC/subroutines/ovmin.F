@@ -284,80 +284,51 @@ C     character*8 clabl(10)
       parameter (dx=1d-4)
       real(8):: w_opos(*),w_oz(*),w_oips(*)
       real(8),allocatable:: w_oposb(:,:)
-
 C ... Save pos, other initialization
       call getpr(ipr)
-c      call defrr(oposb,3*nbaspo)
       allocate(w_oposb(3,nbaspo))
-cki jul08 2010      call dpcopy(w_opos,w(oposb),1,3*nbaspo,1d0)
       call dpcopy(w_opos,w_oposb,1,3*nbaspo,1d0)
       call pshpr(0)
 
       do  12  i = 1, nlst
         j = ilst(i)
         call dpscop(p,w_opos,3,3*i-2,3*j-2,1d0)
-   12 continue
-
+ 12   continue
+      
       call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
      .w_oips,modeo,plato,fovl,xx)
-ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
-ckino Dec.14.2011:          call fovlp ( 1 , nbaso , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
       call fovlp ( 1 , nbaso , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .  , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .  , xx , fovl , novl )
-
-
-
       if (fovl .eq. 0) then
         print *, 'ovmin: no spheres overlap:'
         call poppr
-C        call fovlp(1,nbaso,w(ontabo),w(oiaxo),plato,w_opos,w_oips,
-C     .    alato,w_ormax,w(oz),6d0,1d0,.75d0,.5d0,xx,fovl,novl)
         call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
      .  w_oips,modeo,plato,fovp,xx)
-c        if (cmdopt('--wpos=',7,0,outs))
-c     .  call iopos(.true.,0,outs(8:),nbaso,w_opos)
-c        call rx('ovmin: no spheres overlap')
       endif
 
 C ... Gradient of fovl wrt pos
-      do  20  i = 1, nlst
+      do  201  i = 1, nlst
         j = ilst(i)
-ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
-ckino Dec.14.2011:            call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
         call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .    , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .    , xx , fov0 , novl0 )
-
-
       do  20  ix = 1, 3
         val = p(3*i-3+ix)
         call dvset(w_opos,3*j-3+ix,3*j-3+ix,val+dx)
-C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
-C     .    w_oips,modeo,plato,fovp,xx)
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
         call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .      , xx , fovp , novlp )
-
-
         call dvset(w_opos,3*j-3+ix,3*j-3+ix,val-dx)
-C        call ovlchk(nbaso,nbaspo,w_opos,alato,w_ormax,0d0,0d0,
-C     .    w_oips,modeo,plato,fovm,xx)
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_p_oiaxo , plato , w_opos
-ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , plato , w_opos
         call fovlp ( j , j , iv_a_ontabo , iv_a_oiaxo , plato , w_opos 
      .      , w_oips , alato , w_ormax , w_oz , 6d0 , 1d0 , .75d0 , .5d0 
      .      , xx , fovm , novlm )
-
-
         call dvset(w_opos,3*j-3+ix,3*j-3+ix,val)
         fovp = fovl + 2*(fovp-fov0)
         fovm = fovl + 2*(fovm-fov0)
         p(n+3*i-3+ix) = dlog(fovp/fovm)/2/dx
-*       print *, '... i,j,ix=',i,j,ix,fovp,fovm,p(n+3*i-3+ix)
    20 continue
+ 201  continue
       ovcall = ddot(n,p(n+1),1,p(2*n+1),1)
       if (ipr .ge. 50) then
         call awrit5('  ovcall: x=%d  f %;4g  lf %;4g  |glf| %;4g  '//
@@ -371,12 +342,7 @@ ckino Dec.14.2011:              call fovlp ( j , j , iv_p_ontabo , iv_a_oiaxo , 
           write(lgunit(2),140) pos
   140     format(3f12.6)
    30   continue
-c        call query('continue',-1,0)
       endif
-
-C      call prmx('grad fovl',p(1+n),n,n,1)
-C      call prmx('pos now',w_opos,3,3,nbaspo)
-
 C ... restore pos
       call dpcopy(w_oposb,w_opos,1,3*nbaspo,1d0)
 c      call rlse(oposb)

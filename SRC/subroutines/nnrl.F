@@ -34,7 +34,7 @@ C     implicit none
       do  3  ib = ib1, ib2
         lmark = .false.
         lmri = nl*nl*nkaph*(ib-1)
-        do  2  ik = 1, nkaph
+        do  21  ik = 1, nkaph
         do  2  li = 0, nl-1
           lmri = lmri + 2*li+1
           if (iprmb(lmri) .gt. ndim) goto 2
@@ -49,6 +49,7 @@ C     implicit none
             endif
           endif
     2   continue
+ 21     continue
         if (mode .ge. 10) then
           nnrlx = max(nnrlx,nnrli)
           nnrli = 0

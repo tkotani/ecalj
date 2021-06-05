@@ -62,10 +62,11 @@ C ... Shear plat, tau
       do  1  i = 1, 6
         call xxxadd(i,i,n,e,ind,x)
     1 continue
-      do  2  i = 1, 5
-      do  2  j = i+1, 6
-        call xxxadd(i,j,n,e,ind,x)
-    2 continue
+      do   i = 1, 5
+      do    j = i+1, 6
+         call xxxadd(i,j,n,e,ind,x)
+      enddo
+      enddo
       if (n .eq. 0 .or. iprint() .lt. 30) return
       write (stdo,50) alpha,det-1
       write (stdo,60) ((ind(i,j),i=1,2),j=1,n)

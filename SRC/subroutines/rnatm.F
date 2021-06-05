@@ -168,7 +168,7 @@ C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
       integer ir,ival,konfig,l,nn,nr,nre,jr
-      double precision v(nr),rofi(nr),rho(1),ev(1)
+      double precision v(nr),rofi(nr),rho(*),ev(*)
       double precision a,b,z,tol
 C ... Local parameters
       integer :: lrel, nrx

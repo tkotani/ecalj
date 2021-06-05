@@ -90,7 +90,7 @@ c- make structure spherical part --- sxadata
 c- core-core exchange =sxadata * radial integral
       print * !; print *,' go into EXEX.CORE part'
       exacc = 0d0
-      do 300 isx=1,nsxatot
+      do 301 isx=1,nsxatot
 c	print *,' do 300 isx isp=',isx, isp
       do 300 isp=1,nspn
         k   = indxsxa (1,isx)
@@ -127,6 +127,7 @@ ccccccccccccccccccccccccccccccccccccc
   350   continue
 c---------------------
   300 continue
+  301 continue
       wgtx=1d0
       if(nspn==1) wgtx=2d0
       exacct = sum(exacc(1:nbas,1:nspn))*wgtx
@@ -190,7 +191,7 @@ c        write(6,"(' rofi ='i3,2x,f13.6)") ir,rofi(ir)
 c      enddo
 c
 c ---------------between core and core->  sigkc
-      do 2215 icr  = 1,ncr; l2 =lcr(icr);  l3=l2
+      do 2216 icr  = 1,ncr; l2 =lcr(icr);  l3=l2
       do 2215 icrd = 1,ncr; l1 =lcr(icrd); l4=l1
         do 2210 k  = abs(l1-l3),l1+l3
           if( k<abs(l2-l4) .or. k>l2+l4 ) cycle
@@ -222,6 +223,7 @@ c        if(iprint().ge.130)
      &    k, icr,icrd ,sigkcc(k,icr,icrd)
  2210   continue
  2215 continue
+ 2216 continue
       end
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -316,12 +318,12 @@ c  3.   j2.ge.abs(j3-j1).and.j2.le.(j3+j1)
 c
       ngaut=0
       ngautx=0
-      do 10 j3=0,nl-1
-      do 10 j1=0,nl-1
+      do  j3=0,nl-1
+      do  j1=0,nl-1
 c takao  max of j2 is 2*lmx, because max of j3 and j1 is lmx. cgau(j2,jm3,jm1)
-      do 10 j2=0,2*(nl-1)
-      do 10 m1=-j1,j1
-      do 10 m3=-j3,j3
+      do  j2=0,2*(nl-1)
+      do  m1=-j1,j1
+      do  m3=-j3,j3
         jm1= j1**2+m1+j1+1
         jm3= j3**2+m3+j3+1
         m2 = m3 - m1
@@ -338,8 +340,12 @@ ccc
           cgau(j2,jm3,jm1)=cg(jm1,jm2,j3)
      &      *cg(j1**2+j1+1,j2**2+j2+1,j3)
      &      *sqrt( (2.0d0*j1+1.0d0)/(2.0d0*j3+1.0d0) )
-        endif
-   10 continue
+       endif
+      enddo
+      enddo
+      enddo
+      enddo
+      enddo
       PRINT *,' * Gaunt coef. end;  num of Gaunt; nl  ='
      & , ngaut ,nl
       print *,' ngautx=',ngautx
@@ -383,14 +389,14 @@ c-- sxa cal. for R=R', see eq.(A11) --------------------------------c
       print *, '  *** Go into SXA cal. for R=Rdash pair '
       nsxatot=0
 c      nsxatot2=0
-      do 107 k=0,2*(nl-1)
-      do 107 j1=0,nl-1
-      do 107 j2=0,nl-1
-      do 107 j3=0,nl-1
+      do 147 k=0,2*(nl-1)
+      do 137 j1=0,nl-1
+      do 127 j2=0,nl-1
+      do 117 j3=0,nl-1
       do 107 j4=0,nl-1
-        do 207 m1=-j1,j1
-        do 207 m2=-j2,j2
-        do 207 m3=-j3,j3
+        do 237 m1=-j1,j1
+        do 227 m2=-j2,j2
+        do 217 m3=-j3,j3
         do 207 m4=-j4,j4
           jm1 =j1**2+j1+1+m1
           jm1m=j1**2+j1+1-m1
@@ -410,13 +416,16 @@ cccccccccccccccccccccccccc
 c            syy(m1,m2,m3,m4)= sxx(m1,m2,m3,m4)
 cccccccccccccccccccccccccc
   207   continue
+  217   continue
+  227   continue
+  237   continue
 
 c convert to real harmonics rep.-------------
         call convsx(sxx,j1,j2,j3,j4,nl,msc,mcs)
 c
-        do 407 m1=-j1,j1
-        do 407 m2=-j2,j2
-        do 407 m3=-j3,j3
+        do 437 m1=-j1,j1
+        do 427 m2=-j2,j2
+        do 417 m3=-j3,j3
         do 407 m4=-j4,j4
           jm1 =j1**2+j1+1+m1
           jm2 =j2**2+j2+1+m2
@@ -449,7 +458,14 @@ c note its oeder! jm1.ge.jm3
           endif
 c
   407   continue
+  417   continue
+  427   continue
+  437   continue
   107 continue
+  117 continue
+  127 continue
+  137 continue
+  147 continue
 c
       sxadata(1:nsxatot)=sxadata(1:nsxatot)/2d0
       end
@@ -589,42 +605,54 @@ c  inversion test
      &    mcs(0:1,2,2)
 
 c      if(nlx.ne.nl) stop 'CONVSX: nlx.ne.nl'
-      do 310 m1=   1, j1
-      do 310 m2= -j2, j2
-      do 310 m3= -j3, j3
-      do 310 m4= -j4, j4
+      do m1=   1, j1
+      do m2= -j2, j2
+      do m3= -j3, j3
+      do m4= -j4, j4
         ap=sxx( m1,m2,m3,m4)
         am=sxx(-m1,m2,m3,m4)
         sxx(  m1,m2,m3,m4) = mscmul(1,m1,msc,ap,am)
         sxx( -m1,m2,m3,m4) = mscmul(2,m1,msc,ap,am)
-  310 continue
-      do 320 m1= -j1, j1
-      do 320 m2=   1, j2
-      do 320 m3= -j3, j3
-      do 320 m4= -j4, j4
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      do m1= -j1, j1
+      do m2=   1, j2
+      do m3= -j3, j3
+      do m4= -j4, j4
         ap=sxx( m1, m2,m3,m4)
         am=sxx( m1,-m2,m3,m4)
         sxx(  m1, m2,m3,m4) = mscmul(1,m2,msc,ap,am)
         sxx(  m1,-m2,m3,m4) = mscmul(2,m2,msc,ap,am)
-  320 continue
-      do 330 m1= -j1, j1
-      do 330 m2= -j2, j2
-      do 330 m3=   1, j3
-      do 330 m4= -j4, j4
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      do  m1= -j1, j1
+      do  m2= -j2, j2
+      do  m3=   1, j3
+      do  m4= -j4, j4
         ap=sxx( m1, m2, m3,m4)
         am=sxx( m1, m2,-m3,m4)
         sxx(  m1, m2, m3,m4) = mscmul(1,m3,msc,ap,am)
         sxx(  m1, m2,-m3,m4) = mscmul(2,m3,msc,ap,am)
-  330 continue
-      do 340 m1= -j1, j1
-      do 340 m2= -j2, j2
-      do 340 m3= -j3, j3
-      do 340 m4=   1, j4
+      enddo  
+      enddo  
+      enddo  
+      enddo  
+      do  m1= -j1, j1
+      do  m2= -j2, j2
+      do  m3= -j3, j3
+      do  m4=   1, j4
         ap=sxx( m1, m2, m3, m4)
         am=sxx( m1, m2, m3,-m4)
         sxx(  m1, m2, m3, m4) = mscmul(1,m4,msc,ap,am)
         sxx(  m1, m2, m3,-m4) = mscmul(2,m4,msc,ap,am)
-  340 continue
+      enddo  
+      enddo  
+      enddo  
+      enddo  
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       double complex function mscmul(i,m,msc,ap,am)

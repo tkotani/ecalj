@@ -715,8 +715,8 @@ C         When h is in l-diagonal form,  see comment above.
             call dgemm('N','N',nlmi,nk,nlmi,1d0,rmat(offr+1,offr+1),nl2,
      .      h(offj+ofhi+1,k1),ldha,0d0,h0(offi+of0i+1,k1-ofb),ld0a)
           else
-            do  22  k = k1, k2
-            do  22  i = 1, nlmi
+            do  222  k = k1, k2
+            do  221  i = 1, nlmi
               h0(i+offi,k-ofb) = 0
               h0(i+offi+of0i,k-ofb) = 0
             do  22  j = 1, nlmi
@@ -725,6 +725,8 @@ C         When h is in l-diagonal form,  see comment above.
               h0(i+of0i+offi,k-ofb) = h0(i+of0i+offi,k-ofb) +
      .            rmat(i+offr,j+offr)*h(j+offj+ofhi,k)
    22       continue
+ 221        continue
+ 222        continue
           endif
 
 C     --- Multiply rows by phase ---

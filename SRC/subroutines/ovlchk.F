@@ -51,12 +51,12 @@ C Local parameters
 C --- Determine which linear combination of plat is shortest ---
       dd1 = 9d9
       call dpzero(dlat,3)
-      do  10  m1 = 1, 3
-      do  10  m2 = 1, 3
+      do  102  m1 = 1, 3
+      do  101  m2 = 1, 3
       do  10  m3 = 1, 3
         if (mode(m1)*mode(m2)*mode(m3) .eq. 0) goto 10
-        do  12  ic = -1, 1
-        do  12  jc = -1, 1
+        do  122  ic = -1, 1
+        do  121  jc = -1, 1
         do  12  kc = -1, 1
           dd=plat(:,m1)*dble(ic)+plat(:,m2)*dble(jc)+plat(:,m3)*dble(kc)
 c          call dpcopy(plat(1,m1),dd,1,3,dble(ic))
@@ -68,7 +68,11 @@ c          call dpadd(dd,plat(1,m3),1,3,dble(kc))
             dd1 = dd2
           endif
    12   continue
+ 121    continue
+ 122    continue
    10 continue
+ 101  continue
+ 102  continue
 
       if (ipr .ge. 10)
      .call awrit1('%N   Site     Spec%12fRmax%?;n;%8fRmt ;;'//
@@ -129,7 +133,7 @@ C --- Check sphere overlaps ---
       lterse = cmdopt('-terse',6,0,a) .or. cmdopt('--terse',7,0,a)
       if (lrmt       .and. ipr .gt. 10) write(stdo,453)
       if (.not. lrmt .and. ipr .gt. 10) write(stdo,463)
-      do  30  ibas = 1, nbasp
+      do  301  ibas = 1, nbasp
         ic = ips(ibas)
         if (ipr .ge. 10) then
 c          call r8tos8(dclabl(ic),clabl)
@@ -197,6 +201,7 @@ C         print *, dd2,dsqrt(dd(1)**2 + dd(2)**2 + dd(3)**2)
   463   format(/' ib jb',2x,'cl1     cl2',8x,'Pos(jb)-Pos(ib)',
      .    6x,'Dist  sumrs   Ovlp    %')
    30 continue
+ 301  continue
 
 C      if (ipr .gt. 0)
 C     .  call awrit1('%N ovlchk: fovl= %;6g',' ',80,i1mach(2),fovl)

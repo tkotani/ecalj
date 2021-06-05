@@ -195,8 +195,8 @@ C     Temporary memory for roth
 
 C --- Copy gf for each qp in star of qp(iq) ---
       iq1 = 0
-      do  12  i3 = 1, nk3
-      do  12  i2 = 1, nk2
+      do  122  i3 = 1, nk3
+      do  121  i2 = 1, nk2
       do  12  i1 = 1, nk1
 
         iq1 = iq1+1
@@ -218,7 +218,7 @@ C   ... Copy hq into hw to preserve gii; use hw
         if (kcplx .ne. 0) offi = lidimx
 
 C   ... Rotate and copy
-        do  14  is = 1, nspc
+        do  141  is = 1, nspc
         do  14  js = 1, nspc
           if (kcplx .eq. 0) then
             if (ig .ne. 1) then
@@ -229,11 +229,12 @@ Ckino roth is integer function,                     call roth ( optrot , nl , nb
 
             endif
 
-            do  16  j  = 1, ldimb
-            do  16  i  = 1, ldima
+            do   j  = 1, ldimb
+            do   i  = 1, ldima
               gfbz(i1,i2,i3,i,is,j,js) =
-     .                dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
-   16       continue
+     .              dcmplx(hw(i,is,j,js),hw(i+offi,is,j,js))
+            enddo
+            enddo
           else
             if (ig .ne. 1) then
 Ckino roth is integer function,                     call roth ( optrot , nl , nbas , pos , 0 , offh , iprmb , istab
@@ -243,18 +244,22 @@ Ckino roth is integer function,                     call roth ( optrot , nl , nb
 
             endif
 
-            do  18  j  = 1, ldimb
-            do  18  i  = 1, ldima
+            do   j  = 1, ldimb
+            do   i  = 1, ldima
               gfbz(i1,i2,i3,i,is,j,js) =
-     .                dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
-   18       continue
+     .              dcmplx(hw2(i,1,is,j,js),hw2(i,2,is,j,js))
+            enddo
+            enddo
           endif
 
 C         print 357,iq,i1,i2,i3,gfbz(i1,i2,i3,2,1,2,1)
 C 357     format(' hamfb3: iq=',i4,' filling i1,i2,i3=',3i4,2f12.5)
 
    14   continue
+ 141    continue
    12 continue
+ 121  continue
+ 122  continue
 
       if (allocated(wk_zv)) deallocate(wk_zv)
 

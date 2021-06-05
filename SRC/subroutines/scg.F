@@ -31,24 +31,24 @@ C Local parameters
    11 continue
       ic = 0
       lmindx = 0
-      do  1  i1 = 1, nl
+      do  104  i1 = 1, nl
         l1 = i1-1
         j1s = 2*l1+1
-      do  1  j1 = 1, j1s
+      do  103  j1 = 1, j1s
         m1 = j1-i1
         n1 = iabs(m1)
         s1 = 0
         if (m1 .lt. 0) s1 = 1
         t1 = 0
         if (m1 .eq. 0) t1 = 1
-      do  1  i2 = 1, i1
+      do  102  i2 = 1, i1
         l2 = i2-1
         i31 = l1 - l2 + 1
         i32 = l1 + l2 + 1
         j2s = 2*l2 + 1
         k2 = j1s*j2s
         if (i2 .eq. i1) j2s = j1
-      do  1  j2 = 1, j2s
+      do  101  j2 = 1, j2s
         lmindx = lmindx + 1
         cindx(lmindx) = ic+1
         m2 = j2-i2
@@ -93,7 +93,10 @@ C Local parameters
         nm3 = nm3-1
         m3 = mb
         if (nm3 .gt. 0) goto 5
-    1 continue
+ 101  continue
+ 102  continue
+ 103  continue
+ 104  continue
       cindx(lmindx+1) = ic+1
       return
       end
@@ -148,18 +151,22 @@ c      cindx(lmindx)=ic+1
         t2=0
         if(m2.eq.0) t2=1
         if(m1*m2) 2,3,4
-  2     m3=-n1-n2
+ 2      continue
+        m3=-n1-n2
         mb=-iabs(n1-n2)
         if(mb.eq.0) goto 21
         nm3=2
         goto 5
-  3     m3=m1+m2
+ 3      continue
+        m3=m1+m2
   21    nm3=1
         goto 5
-  4     m3=n1+n2
+ 4      continue
+        m3=n1+n2
         mb=iabs(n1-n2)
         nm3=2
-  5     n3=iabs(m3)
+ 5      continue
+        n3=iabs(m3)
         s3=0
         if(m3.lt.0) s3=1
         t3=0

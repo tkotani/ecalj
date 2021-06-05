@@ -66,11 +66,12 @@ C --- Add background rho to calculate vxc ---
         rho0(isp) = ub4pi*(rho2*rofi(3)-rho3*rofi(2))/(rofi(3)-rofi(2))
    10 continue
 !! === Make true rho ===
-      do  20  isp = 1, nsp
+      do   isp = 1, nsp
         rp(1,isp) = rho0(isp)
-      do  20  ir = 2, nr
-        rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
-   20 continue
+      do   ir = 2, nr
+         rp(ir,isp) = rho(ir,isp)*ub4pi/rofi(ir)**2
+      enddo
+      enddo
 
 c      print *,'end of do 20'
 !! === Generate vxc,exc on a mesh ===

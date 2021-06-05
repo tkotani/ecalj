@@ -504,13 +504,14 @@ C     implicit none
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
 
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
         c0(ig,i) = c(j1,j2,j3,i)
-   10 continue
+      enddo
+      enddo
       end
       subroutine gvgetf_test(ng,n,kv,k1,k2,k3,c,c0)
 C- Gathers Fourier coefficients from 3D array c into list c0.
@@ -519,15 +520,16 @@ C     implicit none
       double complex c0(ng,n),c(k1,k2,k3,n)
       integer ig,i,j1,j2,j3
 
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
 c        print *,'vvvvvvvvvvv kv=',j1,j2,j3,i
         c0(ig,i) = c(j1,j2,j3,i)
-c        print *,'vvvvvvvvvvv xxx'
-   10 continue
+c     print *,'vvvvvvvvvvv xxx'
+      enddo
+      enddo
       end
 
       subroutine gvputf(ng,n,kv,k1,k2,k3,c0,c)
@@ -538,13 +540,14 @@ C     implicit none
       integer ig,i,j1,j2,j3
 
       call dpzero(c,2*k1*k2*k3*n)
-      do  10  i = 1, n
-      do  10  ig = 1, ng
+      do   i = 1, n
+      do   ig = 1, ng
         j1 = kv(ig,1)
         j2 = kv(ig,2)
         j3 = kv(ig,3)
         c(j1,j2,j3,i) = c0(ig,i)
-   10 continue
+      enddo
+      enddo
       end
       subroutine gvaddf(ng,kv,k1,k2,k3,c0,c)
 c  Adds Fourier coefficients from gathered list c0 into 3D array c.

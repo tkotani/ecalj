@@ -10,7 +10,7 @@ C     implicit none
       do  1  k = 1, 3
         n(k) = rot(k) / rnorm
     1 continue
-      do  2  i = 1, 3
+      do  21  i = 1, 3
       do  2  j = 1, 3
         r(i,j) = (1 - cost)*n(i)*n(j)
         if (i .eq. j) then
@@ -27,6 +27,7 @@ C     implicit none
           r(i,j) = r(i,j) + sint*n(k)*e
         endif
     2 continue
+ 21   continue
       end
 
 

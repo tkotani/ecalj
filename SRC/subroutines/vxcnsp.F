@@ -467,11 +467,11 @@ C              endif
       endif
 
 C --- Scale yl by wp for fast multiplication --- ---
-      do  12  ilm = 1, nlm
-      do  12  ip = 1, np
+      do   ilm = 1, nlm
+      do   ip = 1, np
         ylwp(ip,ilm) = yl(ip,ilm)*wp(ip) ! it was yl=yl*wp
-   12 continue
-
+      enddo
+      enddo
 C --- Add Yl-projection of vxc into vl ---
       do  30  i = 1, nsp
         call dgemm('N','N',nr,nlm,np,1d0,vxc(1,1,i),nr,ylwp,np,1d0,
@@ -544,12 +544,14 @@ C     implicit none
 
 C --- Scale rho by 1/r**2 ---
       if (isgn .eq. 1) then
-        do  10  i = 1, nsp
-        do  10  ilm = 1, nlm
+        do    i = 1, nsp
+        do    ilm = 1, nlm
           rl(1,ilm,i) = 0d0
-        do  10  ir = 2, nr
-          rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
-   10   continue
+        do    ir = 2, nr
+           rl(ir,ilm,i) = rl(ir,ilm,i)/ri(ir)**2
+        enddo
+        enddo
+        enddo
 C  ...  Extrapolate rho to origin
         do  20  i = 1, nsp
           rho2 = rl(2,1,i)
@@ -557,11 +559,13 @@ C  ...  Extrapolate rho to origin
           rl(1,1,i) = (rho2*ri(3)-rho3*ri(2))/(ri(3)-ri(2))
    20   continue
       else
-        do  110  i = 1, nsp
-        do  110  ilm = 1, nlm
-        do  110  ir = 1, nr
-          rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
-  110   continue
+        do   i = 1, nsp
+        do   ilm = 1, nlm
+        do   ir = 1, nr
+           rl(ir,ilm,i) = rl(ir,ilm,i)*ri(ir)**2
+        enddo
+        enddo
+        enddo
       endif
       end
 

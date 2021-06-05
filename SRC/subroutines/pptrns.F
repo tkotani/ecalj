@@ -51,7 +51,7 @@ C     implicit none
 
       do  10  jc = nclass, 1, -1
         jb = iclbas(jc,ipc)
-        do  12  isp = 1, nsp
+        do  121  isp = 1, nsp
         do  12  il = 1, nl
 
 c        goto (1,2,3,4,5,6), mod(iabs(iopt),10)+1
@@ -104,6 +104,7 @@ C     .         oalpha(enu,cnew,srdnew**2,alpnew,gamma)**2
           pp(6,il,isp,jc) = alpnew
           pp(4,il,isp,jc) = pnew
    12   continue
+ 121    continue
    10 continue
 
 C --- If alpha is returned, copy alpha to all ib ---

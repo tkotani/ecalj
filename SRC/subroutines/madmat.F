@@ -32,7 +32,7 @@ C local variables
       double precision tau(3)
       dmad=0.0d0
 C --- Generate Madelung matrix ---
-      do  10  ibas = 1, nbas
+      do  101  ibas = 1, nbas
       do  10  jbas = ibas, nbas
         do  15  i = 1, 3
           tau(i) = bas(i,jbas)-bas(i,ibas)
@@ -42,6 +42,7 @@ C --- Generate Madelung matrix ---
      .    dmad(ibas,jbas))
         dmad(jbas,ibas) = dmad(ibas,jbas)
    10 continue
+ 101  continue
 C --- Printout ---
       if (iprint() .lt. 90) return
       write(stdo,100) nbas

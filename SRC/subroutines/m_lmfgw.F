@@ -28,6 +28,9 @@
       real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
       character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
       integer:: idxdn(n0,nkap0),fopnx
+      data lsym /'s','p','d','f','g','5','6','7','8','9'/
+      data lorb /'p','d','l'/
+      data dig /'1','2','3','4','5','6','7','8','9'/
       
 c      qbg = ctrl_zbak(1) !homogenious background charge
       lfrzw = 0

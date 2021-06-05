@@ -49,7 +49,7 @@ c takao
 c      volwgt = (3.d0 - nsp) / (n1*n2*n3*6.d0)
       do  40  isp = 1, nsp
 C ----- START LOOPING OVER TETRAHEDRA ---------
-        DO  20  ITET = 1, NTET
+        DO  201  ITET = 1, NTET
           iq1=idtet(1,itet)
           iq2=idtet(2,itet)
           iq3=idtet(3,itet)
@@ -117,6 +117,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             endif
           ENDIF
    20   CONTINUE
+ 201    CONTINUE
    40 continue
   922 format(1x,'BZINTS2x: Fermi energy:',f10.6,';',F20.16,' electrons'/
      .       9x,'Band energy:',f11.6,
@@ -150,14 +151,15 @@ c      print *, d1mach(3)
 c      volsum=0.0d0
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      DO  3  I = 1, 3
-      DO  3  J = 1, 4-I
+      DO   I = 1, 3
+      DO   J = 1, 4-I
         IF (EC(J) .GT. EC(J+1)) THEN
           E=EC(J)
           EC(J) = EC(J+1)
           EC(J+1) = E
-        ENDIF
-    3 continue
+       ENDIF
+      enddo
+      enddo
       E1 = EC(1)
       E2 = EC(2)
       E3 = EC(3)
@@ -347,31 +349,35 @@ cxxx
 C --- nsp = 2 ---
     2 continue
       if (zvalisinteger) then
-        do  30  isp = 1, nsp
-        do  30  iba = 1, nband
+        do  isp = 1, nsp
+        do  iba = 1, nband
           ebbot(iba,isp) = eband(iba,isp,1)
           ebtop(iba,isp) = eband(iba,isp,1)
-   30   continue
+        enddo
+        enddo
       else
-        do  31  isp = 1, nsp
-        do  31  iba = 1, nband
+        do   isp = 1, nsp
+        do   iba = 1, nband
           ebbot(iba,isp) = minval(eband(iba,isp,1:nkp))
           ebtop(iba,isp) = maxval(eband(iba,isp,1:nkp))
-   31   continue
+         enddo
+         enddo
       endif
 
-      do  40  ikp = 1, nkp
-      do  40  isp = 1, nsp
-      do  40  iba = 1, nband
+      do   ikp = 1, nkp
+      do   isp = 1, nsp
+      do   iba = 1, nband
         if( eband(1,isp,ikp) .lt. elo ) elo = eband(1,isp,ikp)
         if( eband(nband,isp,ikp) .gt. ehi ) ehi = eband(nband,isp,ikp)
         if( eband(iba,isp,ikp) .lt. ebbot(iba,isp) )
      .                ebbot(iba,isp) =  eband(iba,isp,ikp)
         if( eband(iba,isp,ikp) .gt. ebtop(iba,isp) )
-     .                ebtop(iba,isp) =  eband(iba,isp,ikp)
-   40 continue
-      do  50  i = 1, nband*nsp - 1
-      do  50  j = 1, nband*nsp - i
+     .       ebtop(iba,isp) =  eband(iba,isp,ikp)
+      enddo
+      enddo
+      enddo
+      do  i = 1, nband*nsp - 1
+      do  j = 1, nband*nsp - i
         if( ebbott(j) .gt. ebbott(j+1) ) then
           e = ebbott(j)
           ebbott(j) = ebbott(j+1)
@@ -381,8 +387,9 @@ C --- nsp = 2 ---
           e = ebtopp(j)
           ebtopp(j) = ebtopp(j+1)
           ebtopp(j+1) = e
-        endif
-   50 continue
+       endif
+      enddo
+      enddo
 
       if (zvalisinteger) then
         e1 = ebbott(nval+1)

@@ -140,8 +140,8 @@ c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n1l =',n1l,n1min,n1max
 c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n2l =',n2l,n2min,n2max
 c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  n3l =',n3l,n3min,n3max
 c      print *,'wwwwwwwwwwwwwwwwwwwwwwwww  gmax2 =',gmax2
-      do  21  j1 = 0,nn1-1 !n1min, n1max
-      do  21  j2 = 0,nn2-1 !n2min, n2max
+      do  212  j1 = 0,nn1-1 !n1min, n1max
+      do  211  j2 = 0,nn2-1 !n2min, n2max
       do  21  j3 = 0,nn3-1 !n3min, n3max
           qpg= (/j1, j2, j3/) + matmul(q,plat(:,:)) 
           qpg= (/ qpg(1)/dble(nn1), qpg(2)/dble(nn2), qpg(3)/dble(nn3) /)
@@ -206,6 +206,8 @@ c            print *,' zzz ig=',ig,ngmx
             endif
           endif
  21   continue
+ 211  continue
+ 212  continue
       deallocate(nlatout)
       ng = ig
 c      print *,'xxxx wwwwwwwwwwwwww111111111 ng=',ng

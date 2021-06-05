@@ -40,11 +40,11 @@ C --- Do explicitly for k=0,1 ---
     7 continue
 
 C ---- Recursion for higher k ---
-      do  8  k = 2, kmax
-      do  8  l = 0, lmax
+      do    k = 2, kmax
+      do    l = 0, lmax
         p(k,l) = ((tar2-(4*k+2*l-1))*p(k-1,l)-2*(k-1)*p(k-2,l))
      .    /(2*k+2*l+1)
-    8 continue
-
+      enddo
+      enddo
       end
 

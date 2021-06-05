@@ -6,8 +6,8 @@ c  generates lattice vectors.
       call latlim(bas,bmax,imax,jmax,kmax)
       bmax2=bmax*bmax
       nv=0
-      do 20 i=-imax,imax
-      do 20 j=-jmax,jmax
+      do 202 i=-imax,imax
+      do 201 j=-jmax,jmax
       do 20 k=-kmax,kmax
         do 21 m=1,3
           v(m)=i*bas(m,1)+j*bas(m,2)+k*bas(m,3)
@@ -25,6 +25,8 @@ Cstop2rx 2013.08.09 kino        if(nv.gt.nvmax) stop
         vsm=dabs(v(1))+dabs(v(2))+dabs(v(3))
         work(nv)=v2+vsm/1000.
   20  continue
+ 201  continue
+ 202  continue
 c --- sort by length -----------
       do 30 iv=1,nv
         ilow=iv
@@ -58,11 +60,12 @@ c ---- add neighbor layers if basis vec 3 is not in list ------
 Cstop2rx 2013.08.09 kino      if(3*nv.gt.nvmax) stop
       if(3*nv.gt.nvmax) call rx( '')
   643 format( '--- lgen needs nvmax at least',i7)
-      do 40 iv=1,nv
-      do 40 m=1,3
+      do iv=1,nv
+      do m=1,3
         vecs(m,iv+nv)=vecs(m,iv)+bas(m,3)
         vecs(m,iv+2*nv)=vecs(m,iv)-bas(m,3)
-   40 continue
+      enddo
+      enddo
       nv=3*nv
       return
       end

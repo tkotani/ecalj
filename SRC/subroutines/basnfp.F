@@ -168,9 +168,9 @@ C--- product basis construction
       nxxold = 0
       iprad  = 0
       rprod  = 0d0
-      do 20 l1 = 0, nl-1
-      do 20 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
-      do 20 l2 = 0, nl-1
+      do 203 l1 = 0, nl-1
+      do 202 n1 = 1, nindx(l1)  ; noo = nocc  (l1,n1)
+      do 201 l2 = 0, nl-1
       do 20 n2 = 1, nindx(l2)  ; nuu = nunocc(l2,n2)
 c
 c        write(6,"('l1 n1 l2 n2 noo nuu=',6i4)") l1, n1, l2, n2,noo,nuu
@@ -200,6 +200,9 @@ cccccccccccccccccccccccc
           endif
         endif
    20 continue
+ 201  continue
+ 202  continue
+ 203  continue
 
 cccccccccccccccccccccccccccccc
 c      do l1=0,nl-1
@@ -826,19 +829,24 @@ c --- Calculate radial matrix elements.
           isp1=2
           isp2=1
         endif
-        do 25 lx = 0, 2*(nl-1)
-        do 25 nx = 1, nxx(lx)
-        do 25 l1 = 0, nl-1
-        do 25 n1 = 1, nindx(l1)
-        do 25 l2 = 0, nl-1
-        do 25 n2 = 1, nindx(l2)
+        do  lx = 0, 2*(nl-1)
+        do  nx = 1, nxx(lx)
+        do  l1 = 0, nl-1
+        do  n1 = 1, nindx(l1)
+        do  l2 = 0, nl-1
+        do  n2 = 1, nindx(l2)
           if(lx <abs(l1-l2) .or. l1+l2<lx) cycle
           rphiphi(1)       = 0d0
           rphiphi(2:nrofi) = phitoto(2:nrofi,l1,n1,ic,isp2)
      &                      *phitoto(2:nrofi,l2,n2,ic,isp1)/r(2:) ! phi = u = r \phi
           call gintxx( rprodx(1,nx,lx), rphiphi,aa,bb,nrofi,
-     &        ppbrd(l1, n1,l2, n2, lx,nx) )
-   25   continue
+     &         ppbrd(l1, n1,l2, n2, lx,nx) )
+        enddo  
+        enddo  
+        enddo  
+        enddo  
+        enddo  
+        enddo  
         write(ifppb) ppbrd
       enddo
       deallocate(ppbrd)

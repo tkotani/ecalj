@@ -555,11 +555,12 @@ ccccccccccccccccccccccccccccccccccc
 C --- Potential from spherical part of density (valid for small r) ---
       if(debug) print *,'vxcnls: goto vxcnls 3333 lz=',lz
       if (lz) then
-        do  5  i = 1, nsp
+        do   i = 1, nsp
           call dpcopy(rl(1,1,i),wk(1,i),1,nr,dsqrt(4*pi))
-        do  5  ir = 1, nr
-          wk(ir,i) = wk(ir,i)*ri(ir)**2
-    5   continue
+        do   ir = 1, nr
+           wk(ir,i) = wk(ir,i)*ri(ir)**2
+        enddo
+        enddo
         call dpzero(wk2,nr*nsp)
         call vxc0gc(nr,nsp,ri,rwgt,wk,wk2,excnl,repnl(3),rmunl(3),
      .  100*lxcg)
@@ -579,14 +580,18 @@ C       call prrmsh('wl in vxcnls',ri,rwgt,nr,nr,1)
 
 C --- agrp, agrl = abs grad rho and its Yl-projection ---
       if(debug) print *,'vxcnls: goto vxcnls 55555'
-      do  20  i = 1, nsp
-      do  20  ip = 1, np
-      do  20  ir = 1, nr
-   20   agrp(ir,ip,i) =
-     .dsqrt(grp(ir,ip,1,i)**2+grp(ir,ip,2,i)**2+grp(ir,ip,3,i)**2)
-        do  22  i = 1, nsp
-   22     call dgemm('N','N',nr,nlm,np,1d0,agrp(1,1,i),nr,ylwp,np,0d0,
-     .agrl(1,1,i),nr)
+      do    i = 1, nsp
+      do    ip = 1, np
+      do    ir = 1, nr
+        agrp(ir,ip,i) =
+     .        dsqrt(grp(ir,ip,1,i)**2+grp(ir,ip,2,i)**2+grp(ir,ip,3,i)**2)
+      enddo
+      enddo
+      enddo
+      do   i = 1, nsp
+         call dgemm('N','N',nr,nlm,np,1d0,agrp(1,1,i),nr,ylwp,np,0d0,
+     .        agrl(1,1,i),nr)
+      enddo   
 
 C --- Do gradient in blocks nr-incn..nr, nr-2*incn..nr-incn ... ---
           ir1  = nr
@@ -652,12 +657,13 @@ C     call prrmsh('nlocal v(l=0)',ri,vxcnl,nr*nlm,nr,1)
 
 C --- Nonlocal rho*exc, rho*vxc ---
           do  60  i = 1, nsp
-            do  62  ilm = 1, nlm
-            do  62  ir = 1, nr
+            do   ilm = 1, nlm
+            do   ir = 1, nr
               weight = ri(ir)**2*rwgt(ir)
               rmunl(i) = rmunl(i) + rl(ir,ilm,i)*vxcnl(ir,ilm,i)*weight
               repnl(i) = repnl(i) + rl(ir,ilm,i)*excnl(ir,ilm)*weight
-   62       continue
+            enddo
+            enddo
             if (ipr >-1 .and. i .eq. 1) print 725, rmunl(i),repnl(i)
             if (ipr >-1 .and. i .eq. 2) print 726, rmunl(i),repnl(i),
      .  rmunl(1)+rmunl(2),repnl(1)+repnl(2)
@@ -673,11 +679,12 @@ C --- Print out rmu by angular momentum ---
             do  42  i = 1, nsp
               do  43  l = 0, lmax
   43            sumnl(l) = 0d0
-                do  40  ilm = 1, nlm
+                do   ilm = 1, nlm
                   l = ll(ilm)
-                do  40  ir = 1, nr
-                  sumnl(l) =sumnl(l)+ri(ir)**2*rl(ir,ilm,i)*vxcnl(ir,ilm,i)*rwgt(ir)
-   40           continue
+                do   ir = 1, nr
+                   sumnl(l) =sumnl(l)+ri(ir)**2*rl(ir,ilm,i)*vxcnl(ir,ilm,i)*rwgt(ir)
+                enddo
+                enddo
                 if (i .eq. 1) print 341, (sumnl(l),l=0,lmax)
                 if (i .eq. 2) print 342, (sumnl(l),l=0,lmax)
   341           format(' rvnlc by L: ',f12.6,4f10.6:/(15x,4f10.6))
@@ -757,53 +764,64 @@ C --- gagrp(store in vxcp) = grad rho . grad abs grad rho ---
             if(debug) print *,'xxcnls2 1111'
             do  30  i = 1, nsp
               call gradfl(lmax,nlm,nr,np,ir0,ir1,0,lopgfl,nn,ri,yl,gyl,
-     .  agrl(1,1,i),gagrp(ir0,1,1,i),0d0)
+     .              agrl(1,1,i),gagrp(ir0,1,1,i),0d0)
    30       continue
-            do  32  i  = 1, nsp
-            do  32  ip = 1, np
-            do  32  ir = ir0, ir1
-   32         vxcp(ir,ip,i) =
-     .gagrp(ir,ip,1,i)*grp(ir,ip,1,i) +
-     .gagrp(ir,ip,2,i)*grp(ir,ip,2,i) +
-     .gagrp(ir,ip,3,i)*grp(ir,ip,3,i)
+            do    i  = 1, nsp
+            do    ip = 1, np
+            do    ir = ir0, ir1
+               vxcp(ir,ip,i) =
+     .              gagrp(ir,ip,1,i)*grp(ir,ip,1,i) +
+     .              gagrp(ir,ip,2,i)*grp(ir,ip,2,i) +
+     .              gagrp(ir,ip,3,i)*grp(ir,ip,3,i)
+            enddo
+            enddo
+            enddo
 
 C --- store in agrp:  grad total rho . grad abs grad total rho ---
               if(debug) print *,'xxcnls2 2222'
               if (nsp .eq. 2) then
-                do  34  ip = 1, np
-                do  34  ir = ir0, ir1
-                  agrp(ir,ip,1) =
-     .      (grp(ir,ip,1,1)+grp(ir,ip,1,2))*
-     .      (gagrp(ir,ip,1,1)+gagrp(ir,ip,1,2)) +
-     .      (grp(ir,ip,2,1)+grp(ir,ip,2,2))*
-     .      (gagrp(ir,ip,2,1)+gagrp(ir,ip,2,2)) +
-     .      (grp(ir,ip,3,1)+grp(ir,ip,3,2))*
-     .      (gagrp(ir,ip,3,1)+gagrp(ir,ip,3,2))
-   34           continue
+                do    ip = 1, np
+                do    ir = ir0, ir1
+                   agrp(ir,ip,1) =
+     .                  (grp(ir,ip,1,1)+grp(ir,ip,1,2))*
+     .                  (gagrp(ir,ip,1,1)+gagrp(ir,ip,1,2)) +
+     .                  (grp(ir,ip,2,1)+grp(ir,ip,2,2))*
+     .                  (gagrp(ir,ip,2,1)+gagrp(ir,ip,2,2)) +
+     .                  (grp(ir,ip,3,1)+grp(ir,ip,3,2))*
+     .                  (gagrp(ir,ip,3,1)+gagrp(ir,ip,3,2))
+                enddo
+                enddo
               endif
 
 C --- Copy grad rho . grad abs grad rho into gagrp ---
               if(debug) print *,'xxcnls2 333333'
-              do  36  i  = 1, nsp
-              do  36  ip = 1, np
-              do  36  ir = ir0, ir1
-   36           gagrp(ir,ip,i,1) = vxcp(ir,ip,i)
+              do   i  = 1, nsp
+              do   ip = 1, np
+              do   ir = ir0, ir1
+                 gagrp(ir,ip,i,1) = vxcp(ir,ip,i)
+              enddo
+              enddo
+              enddo
                 if (nsp .eq. 2) then
-                  do  38  ip = 1, np
-                  do  38  ir = ir0, ir1
-   38               gagrp(ir,ip,3,1) = agrp(ir,ip,1)
-                  endif
+                  do   ip = 1, np
+                  do   ir = ir0, ir1
+                     gagrp(ir,ip,3,1) = agrp(ir,ip,1)
+                  enddo
+                  enddo
+                endif
 C     call px('gr.gagr',nri,nlm,1,np,ri(ir0),wp,gagrp(ir0,1,3,1),yl,wkl)
 
 
 C --- Make agrp+,agrp- for ir0 .. ir1 ---
                   if(debug) print *,'xxcnls2 44444'
-                  do  40  i = 1, nsp
-                  do  40  ip = 1, np
-                  do  40  ir = ir0, ir1
-   40               agrp(ir,ip,i) =
-     .dsqrt(grp(ir,ip,1,i)**2+grp(ir,ip,2,i)**2+grp(ir,ip,3,i)**2)
-
+                  do    i = 1, nsp
+                  do    ip = 1, np
+                  do    ir = ir0, ir1
+                     agrp(ir,ip,i) =
+     .                    dsqrt(grp(ir,ip,1,i)**2+grp(ir,ip,2,i)**2+grp(ir,ip,3,i)**2)
+                  enddo
+                  enddo
+                  enddo
 
 C --- Make agrp (total rho) agrp+.agrp-  for ir0 .. ir1 ---
                     if(debug) print *,'xxcnls2 55555'
@@ -812,17 +830,18 @@ C --- Make agrp (total rho) agrp+.agrp-  for ir0 .. ir1 ---
 cccccccccccccccccccccccccccccc
 c      return
 ccccccccccccccccccccccccccccc
-                      do  42  ip = 1, np
-                      do  42  ir = ir0, ir1
+                     do  ip = 1, np
+                     do  ir = ir0, ir1
                         agrp(ir,ip,3) =
-     .      dsqrt((grp(ir,ip,1,1)+grp(ir,ip,1,2))**2 +
-     .      (grp(ir,ip,2,1)+grp(ir,ip,2,2))**2 +
-     .      (grp(ir,ip,3,1)+grp(ir,ip,3,2))**2)
+     .                       dsqrt((grp(ir,ip,1,1)+grp(ir,ip,1,2))**2 +
+     .                       (grp(ir,ip,2,1)+grp(ir,ip,2,2))**2 +
+     .                       (grp(ir,ip,3,1)+grp(ir,ip,3,2))**2)
                         agrp(ir,ip,4) =
-     .      grp(ir,ip,1,1)*grp(ir,ip,1,2) +
-     .      grp(ir,ip,2,1)*grp(ir,ip,2,2) +
-     .      grp(ir,ip,3,1)*grp(ir,ip,3,2)
-   42                 continue
+     .                       grp(ir,ip,1,1)*grp(ir,ip,1,2) +
+     .                       grp(ir,ip,2,1)*grp(ir,ip,2,2) +
+     .                       grp(ir,ip,3,1)*grp(ir,ip,3,2)
+                     enddo
+                     enddo
 cccccccccccccccccccccccccccccc
 c      return
 ccccccccccccccccccccccccccccc
@@ -872,15 +891,19 @@ C --- Yl-projection of vxc,exc into vxcnl,excnl ---
                     mlm = (lmax+1)**2
                     call dgemm('N','N',nri,mlm,np,1d0,excp(ir0,1),nri,ylwp,np,0d0,
      .wkl,nri)
-                    do  60  ilm = 1, mlm
-                    do  60  ir = ir0, ir1
-   60                 excnl(ir,ilm) = wkl(ir,ilm,1)
+                    do    ilm = 1, mlm
+                    do    ir = ir0, ir1
+                       excnl(ir,ilm) = wkl(ir,ilm,1)
+                    enddo
+                    enddo
                       do  62  i = 1, nsp
                         call dgemm('N','N',nri,mlm,np,1d0,vxcp(ir0,1,i),nri,ylwp,np,0d0,
      .  wkl,nri)
-                        do  64  ilm = 1, mlm
-                        do  64  ir = ir0, ir1
-   64                     vxcnl(ir,ilm,i) = wkl(ir,ilm,1)
+                        do    ilm = 1, mlm
+                        do    ir = ir0, ir1
+                           vxcnl(ir,ilm,i) = wkl(ir,ilm,1)
+                        enddo
+                        enddo
    62                   continue
 C     call prmr(nr,ri,vxcnl,nlm)
 
@@ -889,10 +912,12 @@ C --- Estimate rmu in this ir0 ir1 interval by angular momentum ---
                         do  82  i = 1, nsp
                           do  83  l = 0, lmax
    83                       sumnl(l) = 0d0
-                            do  80  ilm = 1, nlm
+                            do    ilm = 1, nlm
                               l = ll(ilm)
-                            do  80  ir = ir0, ir1
-   80                         sumnl(l) =sumnl(l)+rl(ir,ilm,i)*vxcnl(ir,ilm,i)*ri(ir)**2*rwgt(ir)
+                            do    ir = ir0, ir1
+                               sumnl(l) =sumnl(l)+rl(ir,ilm,i)*vxcnl(ir,ilm,i)*ri(ir)**2*rwgt(ir)
+                            enddo
+                            enddo
                               if (iprint() .ge. 80) then
                                 if (i .eq. 1) print 341, ri(ir0),(sumnl(l),l=0,lmax)
                                 if (i .eq. 2) print 342,         (sumnl(l),l=0,lmax)

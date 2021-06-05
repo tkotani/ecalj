@@ -97,8 +97,7 @@
       integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:)
-      real(8),allocatable:: ovv(:,:),evl_p(:,:),
-     .qq1(:,:),qq2(:,:),cphin(:,:,:)
+      real(8),allocatable::  cphin(:,:,:) !!ovv(:,:),evl_p(:,:), qq1(:,:),qq2(:,:),
       complex(8),allocatable:: ham(:,:),ovl(:,:),evec(:,:),vxc(:,:),
      .ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:),
      .testc(:,:),testcd(:),ppovld(:),cphi(:,:,:),cphi_p(:,:,:),
@@ -119,13 +118,13 @@ c      integer ,allocatable :: kv_iv(:)
 C ... for reading self-energy
 c      integer nqsig
 C ... for band plotting
-      real(8),allocatable :: ovvx(:,:,:)
-      real(8) ::ovvpp
-      integer idxdn(n0,nkap0)
-      character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
-      data lsym /'s','p','d','f','g','5','6','7','8','9'/
-      data lorb /'p','d','l'/
-      data dig /'1','2','3','4','5','6','7','8','9'/
+c      real(8),allocatable :: ovvx(:,:,:)
+c      real(8) ::ovvpp
+c      integer idxdn(n0,nkap0)
+c      character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
+c      data lsym /'s','p','d','f','g','5','6','7','8','9'/
+c      data lorb /'p','d','l'/
+c      data dig /'1','2','3','4','5','6','7','8','9'/
       integer:: w(1) !! dummy
       real(8):: dnn(3),qlatinv(3,3),qout(3),qtarget(3),qrr(3),axx,bxx,qxxx(3),qxx1(3),qxx2(3)
       integer:: inn(3),iqzz,nqzz,iiiii

@@ -36,8 +36,8 @@ C Heap:
       call ccutup(qb,qb1,ibtr,kcut)
       ntet = 0
 C --- Start loop over microcells ----
-      do  20  i3 = 1, n3
-      do  20  i2 = 1, n2
+      do  202  i3 = 1, n3
+      do  201  i2 = 1, n2
       do  20  i1 = 1, n1
 C   ... Set up identifiers at 8 corners of microcell
         do  1  k1 = 0, 1
@@ -72,6 +72,8 @@ C    ... Order the identifiers
     6     continue
    10   continue
    20 continue
+ 201  continue
+ 202  continue
 C --- Eliminate duplicate tetrahedra ---
       mtet = ntet
 c      print *,'mmmmmmmmm mtet=',mtet

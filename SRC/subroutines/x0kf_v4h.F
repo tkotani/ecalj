@@ -101,7 +101,7 @@ c     ntp0  = nkqmax(k) - nkqmin(k) +1
 ! NOTE: 
 !  q+rk n2b vec_kq  vec_kq_g geig_kq cphi_kq  ngp_kq ngvecp_kq  isp_kq
 !    rk n1b vec_k   vec_k_g  geig_k  cphi_k   ngp_k  ngvecp_k   isp_k
-        do 125 jpm  = 1, npm ! npm=1 usually (or =2)
+        do 1251 jpm  = 1, npm ! npm=1 usually (or =2)
         do 125 ibib = 1, nbnb(k,jpm) !---  ibib loop, ibib is decomposed to band index pair, it and itp
 !! n1b,n2b --> core after valence.  it,itp --> valence after core
 c          it_(ibib, jpm,k)= -999
@@ -171,6 +171,7 @@ c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,i
              endif
           enddo                 ! iw
  125     continue
+ 1251    continue
  110  continue
       ncount = icount
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz

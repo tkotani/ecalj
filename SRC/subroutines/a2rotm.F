@@ -122,9 +122,11 @@ C --- Pick up another rotation matrix, or quit if done ---
       if (ix(1) .eq. 1) goto 5
       if (linv) then
         call dpcopy(rotm,r2,1,9,1d0)
-        do  20  i = 1, 3
-          do  20  j = 1, 3
-   20   rotm(i,j) = r2(j,i)
+        do    i = 1, 3
+          do   j = 1, 3
+             rotm(i,j) = r2(j,i)
+          enddo
+          enddo
         if (ipr .ge. 50) then
           call rm2eua(rotm,alpha,beta,gamma)
           call awrit3(' a2rotm:  inverse, alpha = %1;6d  '//
