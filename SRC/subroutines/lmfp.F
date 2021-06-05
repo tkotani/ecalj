@@ -1,5 +1,6 @@
       subroutine lmfp(llmfgw)
-      use m_density,only: amom!,rhosig
+      use m_energy,only: amom   !readonly ,rhosig
+      
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
      &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,

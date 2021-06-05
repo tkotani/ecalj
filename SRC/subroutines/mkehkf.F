@@ -1,7 +1,7 @@
       subroutine mkehkf(mode,sev,valmom,sumtv,etot)!sham,
       use m_struc_def
       use m_lmfinit,only: nsp,stdo,stdl
-      use m_density,only: eh,eks,utot,valves,cpnves,rhoexc,rhovxc,sumec,
+      use m_energy,only: eh,eks,utot,valves,cpnves,rhoexc,rhovxc,sumec,
      &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
 C- Make Harris energy or Kohn-Sham energy
 C ----------------------------------------------------------------------

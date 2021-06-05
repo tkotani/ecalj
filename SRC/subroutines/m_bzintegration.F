@@ -10,10 +10,10 @@
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
-     o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o     , vval_rv , fes1_rv 
+      use m_mkpot,only: qval
+c     o      vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+c     o     , vval_rv , fes1_rv 
       use m_subzi, only: lwtkb,lswtk
 
       use m_ext,only: sname

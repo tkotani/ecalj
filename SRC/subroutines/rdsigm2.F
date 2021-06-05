@@ -1,6 +1,7 @@
       module m_seneinterp
-      public:: getsene,sigmainit
+      public:: getsenex,sigmainit,senex,dsene
       
+      private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
       real(8) , allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
@@ -12,14 +13,14 @@
       contains
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine getsenex(lrsig,qp,isp,ndimh,ovlm)
+      subroutine getsenex(qp,isp,ndimh,ovlm)
 !! this return self-energy senex, which is      
       implicit none
-      integer:: lrsig,isp,ndimh
+      integer:: isp,ndimh
       real(8):: qp(3)
       complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:) 
       complex(8):: ovlm(ndimh,ndimh)
-      call getsene(lrsig,qp,isp) 
+      call getsene(qp,isp) 
       allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
       ovlmtoi = ovlm(1:ndimsig,1:ndimsig)!,ispc)
       call matcinv(ndimsig,ovlmtoi)
@@ -34,21 +35,18 @@
       deallocate(senex)
       end subroutine
       
-      subroutine getsene(lrsig,qp,isp) !call after sigmainit
+      subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: plat,mxorb,nbas,nl
       use m_suham,only:  iv_a_oindxo
-      integer:: i, mode, isp, ispsigm,lrsig,iwdummy,ival
+      integer:: i, mode, isp, ispsigm,iwdummy,ival!lrsig
       real(8):: hreal,qp(3)
       logical:: debug=.false.
       if(debug) print *,'ndimsig=',ndimsig
       allocate(sene(ndimsig,ndimsig))
-      i = lrsig*10
-c      if(debug) print *,' i lrsig=',i,lrsig
+c      i = lrsig*10
       hreal = 0
-      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
+c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
       mode = 100000 + 4000 + 40*(1-hreal) + 000 + 10 !hreal=1 -> sig(T) is real
-c     if(debug) print *,'getsene:goto bloch i q nl plat mxorb=',
-c      lrsig,mode,qp,ndimsig,ival(iv_a_ontabs, nbas + 1)
       if(isp>nspsigm) then
          ispsigm = nspsigm
       else
@@ -215,7 +213,7 @@ c      stdo = globalvariables%stdo
       lqoffo = 0
       lfbzout = .false.
       hreal = 0 !real or complex
-      if (lrsig .ge. 4) hreal = 1
+c      if (lrsig .ge. 4) hreal = 1
       if (lrsig .eq. 0) return
       ltrans = mod(mode/1000,10) .eq. 0
       kcplx = 1

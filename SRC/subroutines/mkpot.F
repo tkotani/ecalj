@@ -4,7 +4,10 @@
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi,
      .    ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job, vorb )
 !     , itest )!, nlibu , lmaxu , lldau , nsp,
-      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec,!lfrce=>ctrl_lfrce,
+      use m_energy,only: utot,valves,cpnves,rhoexc,rhovxc,sumec,
+     &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
+
+      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, !lfrce=>ctrl_lfrce,
      &    lcplxp,nlibu,lmaxu,lldau,nsp
       use m_MPItk,only: master_mpi
       use m_struc_def  
@@ -13,8 +16,7 @@
       use m_lattic,only: lat_vol
       use m_supot,only: k1,k2,k3,lat_nabc
       use m_lattic,only:lat_plat
-      use m_density,only: utot,valves,cpnves,rhoexc,rhovxc,sumec,
-     &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
+      
       
 !! documents below are under construction.
 C- Make the potential from the density.

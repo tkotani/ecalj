@@ -705,12 +705,12 @@ c      if (nout <  3) dabc(3) = dabc(2)
 !     !    Merge with ?
       nm='HAM_DQVAL'; call gtv(trim(nm),tksw(prgnam,nm),dqval,
      .     note='Total charge')
-      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=0,
+      nm='HAM_RDSIG'; call gtv(trim(nm),tksw(prgnam,nm),lrsigx,def_i4=1,
      .     note=
      .     'Controls how self-energy is added to '//
      .     'local exchange correlation functional:'//
-     .     '%N%3f   0 do not read Sigma'//
-     .     '%N%3f  12 read ESEAVR as Sigma-Vxc')
+     .     '%N%3f   0: do not read Sigma'//
+     .     '%N%3f   1(or not zero): read sigm=Sigma-Vxc. Default now')
       nm='HAM_RSRNGE'; call gtv(trim(nm),tksw(prgnam,nm),rsrnge,
      .     def_r8=5d0, note='Maximum range in connecting vectors for '//
      .     'r.s. sigma (units of alat)')

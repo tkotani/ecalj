@@ -1,16 +1,16 @@
       module m_mkpot
-      use m_density,only: zv_a_osmrho=>osmrho, sv_a_oorhat=>orhoat
       use m_ldau,only: vorb
       use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce
       use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
+      use m_density,only: osmrho, orhoat
       
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:)
-      complex(8),allocatable,protected   :: zv_a_osmpot(:,:,:,:)
+      complex(8),allocatable,protected   :: osmpot(:,:,:,:)
       real(8):: qval,protected
       real(8),allocatable,protected :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
       real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval_rv(:),sav_rv(:)
@@ -21,7 +21,7 @@
       subroutine m_mkpot_deallocate()
       if (allocated(vrmt)) then
          deallocate(vrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval_rv,gpot0_rv,qmom_rv,
-     &    sv_p_oppi,sv_p_otau,sv_p_osig,zv_a_osmpot)
+     &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot)
       endif
       end
       
@@ -50,7 +50,7 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
       if(llmfgw) i = i + 10000 !GW driver mode
 !! Arrays used in the generation of the potential ---
       allocate( vrmt(nbas))
-      allocate( zv_a_osmpot(k1,k2,k3,nsp)) !smooth potential without XC
+      allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
       allocate( qmom_rv(nvl))
       allocate( gpot0_rv(nvl))
       allocate( vval_rv(nchan))
@@ -64,8 +64,8 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
       call mkpot (lfrce,
-     i    zv_a_osmrho, sv_a_oorhat , qbg  
-     o  , zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     i    osmrho, orhoat , qbg  
+     o  , osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o  , vval_rv , fes1_rv , i , vorb )
       call togpr()

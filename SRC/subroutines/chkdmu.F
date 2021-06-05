@@ -1,5 +1,5 @@
       module m_chkdmu
-      use m_density,only: eks !unchanged
+      use m_energy,only: eks !readonly
       real(8),protected:: eorb=0d0
       
       contains
@@ -56,22 +56,14 @@ C ----------------------------------------------------------------------
       implicit none
       integer:: ierr
       include "mpif.h"
-C ... Passed parameters
       integer:: idvsh=0,i_copy_size
-c      integer lldau(nbas),istab(nbas,ng)
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
       real(8):: eorbxxx
-c      double precision tolu,umix,g(9,ng)
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-c      double precision eorb
-C ... Local parameters
       integer l,idu(4),lmxa,ib,is,iblu,igetss,idmat,ivsiz,ifile_handle
       integer iprint,ipl,havesh
       double precision ddmat,uh(4),jh(4),eorbi,eterms(20),ddot,xx
-c      equivalence (eterms(2),eks)
       complex(8) ,allocatable :: dmwk_zv(:)
       logical:: fexist,mmtargetx,eee
       real(8),allocatable:: uhall(:,:)
@@ -79,34 +71,19 @@ c      equivalence (eterms(2),eks)
       real(8),save::uhxnew,uhx,alpha,alphax
       integer:: nn,ibas,ifx,key,i,nit
       integer,save::ncount=0
-C ... MPI
-c      integer:: procid,master,mpipid,mlog=-999,ierr
       complex(8):: dmatuav(-lmaxu:lmaxu,-lmaxu:lmaxu)
       real(8):: sss(1),sigin
       real(8):: fac
-C     logical mlog,cmdopt
-C ... Heap
-c      integer w(1)
-c      common /w/ w
-
 C     print *, 'dmatu',dmatu(-lmaxu,-lmaxu,1,1)
 C     call rx0('done')
 C     call prmx('dmatu',dmatu,2*lmaxu+1,2*lmaxu+1,2*lmaxu+1)
 
       if (nlibu .eq. 0) return
-C     6 = nglob('stdo')
       havesh = idvsh
-Changenglob      stdl = nglob('stdl')
-c      stdl = globalvariables%stdl
       ipl = 1
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call info0(20,1,0,' chkdmu:  '//
      .'check LDA+U density-matrix for convergence and update ...')
-C ... MPI
-c      procid = mpipid(1)
-c      master = 0
-C     mlog = cmdopt('--mlog',6,0,strn)
-
 C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
       call praldm(0,60,60,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' Unsymmetrized output dmats',dmatu)
@@ -114,14 +91,11 @@ C --- Symmetrize output dmatu (req. real harmonics); compare diff ---
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0
       endif
-      allocate(dmwk_zv(abs(-ivsiz)))
-      if (-ivsiz<0) dmwk_zv(:)=0.0d0
-
+      allocate(dmwk_zv(ivsiz))
+      dmwk_zv(:)=0.0d0
       call symdmu ( dmatu , dmwk_zv , nbas , nsp , lmaxu , sspec 
      ., ssite , ng , g , istab , lldau , xx )
-
-      if (allocated(dmwk_zv)) deallocate(dmwk_zv)
-
+      deallocate(dmwk_zv)
       if (havesh .ne. idvsh) then
         call rotycs(2*idvsh-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = idvsh
@@ -130,11 +104,9 @@ C     RMS change : dmatu-dmatuo; restore dmatuo
       call daxpy(2*ivsiz,-1d0,dmatu,1,dmatuo,1)
       ddmat = dsqrt(ddot(2*ivsiz,dmatuo,1,dmatuo,1)/(2*ivsiz))
       call daxpy(2*ivsiz,1d0,dmatu,1,dmatuo,1)
-
 C --- Printout dmatu in real or spherical harmonics, fixed by idvsh ---
       call info2(30,0,0,' chkdmu:  RMS change in dmat'//
      .' from symmetrization = %,6d',xx,0)
-
 C --- Compute U contribution to total energy; make vorb ---
 C     This block requires dmatu to be in spherical harmonics
       if (havesh .ne. 1) then
@@ -147,7 +119,6 @@ C     This block requires dmatu to be in spherical harmonics
       do  ib = 1, nbas
         if (lldau(ib) .ne. 0) then
           is = int(ssite(ib)%spec)
-
           lmxa=sspec(is)%lmxa
           i_copy_size=size(sspec(is)%idu)
           call icopy(i_copy_size,sspec(is)%idu,1,idu,1)
@@ -155,7 +126,6 @@ C     This block requires dmatu to be in spherical harmonics
           call dcopy(i_copy_size,sspec(is)%uh,1,uh,1)
           i_copy_size=size(sspec(is)%jh)
           call dcopy(i_copy_size,sspec(is)%jh,1,jh,1)
-
           do  l = 0, min(lmxa,3)
             if (idu(l+1) .ne. 0) then
               iblu = iblu+1
@@ -167,15 +137,7 @@ C     This block requires dmatu to be in spherical harmonics
           enddo
         endif
       enddo
-
 C --- LDA total energy terms ---
-
-c      i_copy_size=size(ham_eterms)
-c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
-c      eks = eks + eorb
-c      i_copy_size=size(ham_eterms)
-c      call dcopy(i_copy_size,eterms,1,ham_eterms,1)
-
       call info5(20,0,0,'%9peks = %,6;6d  '//
      .'e[U] = %,6;6d  Etot(LDA+U) = %,6;6d',eks,eorb,eks+eorb,0,0)
       if (master_mpi .and. ipl.gt.0)
@@ -188,7 +150,6 @@ C --- Restore dmatu, vorb to harmonics specified by idvsh ---
         call rotycs(2*idvsh-1,vorb,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = idvsh
       endif
-
 C --- Case self-consistent within tolerance tolu ---
       if (ddmat .lt. tolu) then
         call info5(20,0,0,' LDA+U dmatu converged'//
@@ -196,24 +157,20 @@ C --- Case self-consistent within tolerance tolu ---
 C       Restore dmatuo to dmatu
         call dcopy(2*ivsiz,dmatuo,1,dmatu,1)
         return
-
 C --- Case not self-consistent ---
       else
         call info0(20,0,0,'%9pLDA+U update density matrix ...')
         call info5(20,0,0,'%9fRMS diff in dens mat(%;3g) > tolu (%;3g)'
      .  //' Linear mix with beta=%;3g',ddmat,tolu,umix,0,0)
-
 C   ... Make new dmatu by mixing    new*umix + old*(1-umix)
         call dscal(2*ivsiz,umix,dmatu,1)
         call daxpy(2*ivsiz,1-umix,dmatuo,1,dmatu,1)
-
 C   --- Make Vorb from mixed dmatu ---
 C       This block requires dmatu to be in spherical harmonics
         if (havesh .ne. 1) then
           call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
           havesh = 1
        endif
-       
 cccccccccccccccccccccccccccccccccccccccccccccccccccc   
 !! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)

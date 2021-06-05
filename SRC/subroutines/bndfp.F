@@ -37,7 +37,7 @@ c      use m_density,only: rhosig !touched
       end
       
       subroutine bndfp(iter, llmfgw) 
-      use m_supot,only: ngabc=>lat_nabc,k1,k2,k3
+      use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
@@ -62,7 +62,7 @@ c     &     sstrnmix,
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
-     o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -76,7 +76,7 @@ c     &     sstrnmix,
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
       use m_bzintegration,only: m_bzintegration_init
       use m_ldau,only: vorb
-      use m_mkrout,only: m_mkrout_init,orhoat_out=>sv_p_orhat1,frc,hbyl_rv,qbyl_rv
+      use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -150,7 +150,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
       real(8) ,allocatable :: fes2_rv(:)
-      complex(8) ,allocatable :: t_zv(:,:)
+c      complex(8) ,allocatable :: t_zv(:,:)
       integer ,allocatable :: ips_iv(:)
       double precision sigp(10)
       logical:: readeferm
@@ -199,7 +199,7 @@ ctakao
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
       real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
-      integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc !,osmpotbk
+      integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc 
       logical::bzwtsf_bisection !noshorbz,
       real(8):: qpx(3)          !qpo(3),
 
@@ -207,7 +207,7 @@ ctakao
 c      complex(8),allocatable:: smrhobk(:)
       real(8),allocatable::evl(:,:) ! evlall(:,:,:),
       integer:: idummy
-      real(8):: epsnevec
+c      real(8):: epsnevec
       logical:: onlyonce=.true.
       logical:: isanrg, l_dummy_isanrg,oncewrite !, savez,getz,gotosecondpass,initiqisp
       integer:: getef, i_dummy_getef,ifig!, ndimsig
@@ -340,7 +340,7 @@ c      rhosig = 0d0
          open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
       endif      
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
-      if(llmfgw) call m_lmfgw_init() ! Initializer of m_lmfgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
+      if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) ! mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
 !! elind for accelarating convergence
@@ -384,7 +384,7 @@ c      rhosig = 0d0
 !! OUTPUTs by sigmainit are stored in m_seneinterp
 !! In future, we should make this block to a subroutine which shows clear i/o.
 !!      
-      sigmamode = mod(lrsig,10)/=0
+      sigmamode = (lrsig/=0)
       if( llmfgw.and.jobgw==0 ) then
          continue
       elseif( sigmamode.and.siginit ) then
@@ -523,10 +523,6 @@ c     i        etolv,etolc)
       
 !! AllReduce band quantities.  eterms should be cleaned up in future.   
       call m_bandcal_allreduce(lrout,lwtkb)
-c      eterms=ham_eterms 
-c      call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-c      ham_eterms=eterms
-c      call mpibc2_real(rhosig,1,'bndfp_rhosig')
       emin=1d9
       do iq = 1, nkp
          qp=qplist(:,iq)
@@ -544,16 +540,12 @@ c      call mpibc2_real(rhosig,1,'bndfp_rhosig')
          call mpi_barrier(MPI_comm_world,ierr)
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
-c         eterms=ham_eterms 
-c         call mpibc2_real(eterms(19),1,'bndfp_rhosig')
-c         ham_eterms=eterms
-c         call mpibc2_real(rhosig,1,'bndfp_rhosig')
       endif
       
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
 !!    dos window
-      dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos
-      dosw(2)= eferm+bz_dosmax  ! lowest energy limit to plot dos
+      dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos  
+      dosw(2)= eferm+bz_dosmax  ! highest energy limit to plot dos 
       if (cmdopt0('--cls')) then
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
@@ -593,9 +585,9 @@ c$$$      endif
         eks = 0d0
         if(leks>=1) then
             call togpr()
-            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,zv_a_osmpot,smrho_out,sev,sumtv )
+            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
             allocate( fes2_rv(3*nbas))
-            call mkpot (lfrce, smrho_out , orhoat_out , qbg , zv_a_osmpot 
+            call mkpot (lfrce, smrho_out , orhoat_out , qbg , osmpot 
      .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
      .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only

@@ -13,7 +13,7 @@
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
-     o    zv_a_osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv
       use m_seneinterp,only: senex,getsenex,dsene
@@ -122,23 +122,24 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case
-              call hambl(lso,1,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
-              call hambl(lso,2,qp,   zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
               call sopert2 ( hamm , hamm ) !SO case 
               call sopert2 ( ovlm , ovlm )
               if(sigmamode) then
-                 call getsenex(lrsig,qp, 1, ndimh,ovlm(1,1, 1))
+                 call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
                  hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
-                 call getsenex(lrsig,qp, 2, ndimh,ovlm(1,1, 2))
+                 call getsenex(qp, 2, ndimh,ovlm(1,1, 2))
                  hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
+                 call dsene()
               endif
             else ! No SO or Lz.Sz case
-              call hambl(lso,isp,qp, zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
+              call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-                 call getsenex(lrsig,qp,isp,ndimh,ovlm(1,1, 1))
+                 call getsenex(qp,isp,ndimh,ovlm(1,1, 1))
                  hamm(:,:, 1) = hamm(:,:, 1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
@@ -194,7 +195,7 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
 c               call readindensitymodesetting() !dummy
                !Accumulate output density and sampling DOS. To make DOS when lmet=4
                call addrbl (jsp, qp, lrout
-     .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
+     .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
@@ -261,7 +262,7 @@ c               call readindensitymodesetting() !dummy
             if( lrout/=0 ) then
 c               call readindensitymodesetting() !dummy
                call addrbl (jsp, qp, lrout
-     .              , iq , lfrce,  zv_a_osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
+     .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
