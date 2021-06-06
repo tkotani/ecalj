@@ -16,7 +16,9 @@
       real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval_rv(:),sav_rv(:)
       real(8),protected:: qsc,vconst 
       real(8),allocatable,protected :: vrmt(:)
+      real(8) ,allocatable :: fes2_rv(:)
       
+      integer,private:: lfrce
       contains
       subroutine m_mkpot_deallocate()
       if (allocated(vrmt)) then
@@ -63,6 +65,7 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
+      
       call mkpot (lfrce,
      i    osmrho, orhoat , qbg  
      o  , osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
@@ -70,4 +73,31 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
      o  , vval_rv , fes1_rv , i , vorb )
       call togpr()
       end subroutine
+      
+!!------------------------------------------------------
+      subroutine m_mkpot_energyget(smrho_out,orhoat_out)
+      use m_struc_def
+      type(s_rv1):: orhoat_out(:,:)
+      complex(8) :: smrho_out(:)
+c      lfrzw = 0
+c      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
+!! Arrays used in the generation of the potential ---
+c      allocate( vrmt(nbas))
+c      allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
+c      allocate( qmom_rv(nvl))
+c      allocate( gpot0_rv(nvl))
+c      allocate( vval_rv(nchan))
+c      allocate(  hab_rv(nab*n0*nsp*nbas))
+c      allocate(  vab_rv(nab*n0*nsp*nbas))
+c      allocate(  sab_rv(nab*n0*nsp*nbas))
+c     allocate( ppnl_rv(nppn,n0,nsp,nbas))
+      if(allocated(fes2_rv)) deallocate(fes2_rv)
+      allocate( fes2_rv(3*nbas))
+      call mkpot (lfrce,
+     i    smrho_out, orhoat_out , qbg  
+     o  , osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o  , vval_rv , fes2_rv , 0 , vorb ) !job=0
+      end subroutine
+      
       end module

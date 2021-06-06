@@ -53,10 +53,10 @@
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyget,
      o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o     , vval_rv , fes1_rv
+     o     , vval_rv , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
@@ -140,7 +140,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
      .  ,  mpipid , ldham(16) , ldim
       integer:: os , osoptc
       real(8) ,allocatable :: fh_rv(:)
-      real(8) ,allocatable :: fes2_rv(:)
+c      real(8) ,allocatable :: fes2_rv(:)
 c      complex(8) ,allocatable :: t_zv(:,:)
       integer ,allocatable :: ips_iv(:)
       double precision sigp(10)
@@ -547,33 +547,34 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
-            call togpr()
-            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
-            allocate( fes2_rv(3*nbas))
-            call mkpot (lfrce, smrho_out , orhoat_out , qbg , osmpot 
-     .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
+           call togpr()
+           call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
+c           allocate( fes2_rv(3*nbas))
+           call m_mkpot_energyget(smrho_out, orhoat_out)
+c           call mkpot (lfrce, smrho_out , orhoat_out , qbg , osmpot 
+c     .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
+c     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+c     .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
            if(cmdopt0('--density')) then
-             call mpi_barrier(MPI_comm_world,ierr)  
-             call rx0('end of --density mode')
+              call mpi_barrier(MPI_comm_world,ierr)  
+              call rx0('end of --density mode')
            endif  
-            call mkehkf(2,sev,sumtv,eksham) 
-            call togpr()
-           endif
+           call mkehkf(2,sev,sumtv,eksham) 
+           call togpr()
+        endif
 !! --- Add together force terms ---
 !! fes1_rv: contribution to HF forces from estat + xc potential   This is for input  density  !=3rd term in (B.5) in JPSJ.84.034705
 !! fes2_rv: contribution to KS forces from estat + xc potential   This is for output density
 !! fh_rv      : 1st term  in (B.5)
 !! input frc  : 2nd term in (B.5). Puley term
 !! output frc  : total
-         if(lfrce> 0) then
-            call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
-            deallocate(fh_rv)
-         endif
-!!   --- Mix input and output densities ---
-         call mixrho(iter,qval-qbg,elind,dmxp, orhoat_out,orhoat, smrho_out,osmrho)
-         qdiff=dmxp(11)
+        if(lfrce> 0) then
+           call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
+           deallocate(fh_rv)
+        endif
+!     !   --- Mix input and output densities ---
+        call mixrho(iter,qval-qbg,elind,dmxp, orhoat_out,orhoat, smrho_out,osmrho)
+        qdiff=dmxp(11)
       else
          eksham = 0d0
       endif
