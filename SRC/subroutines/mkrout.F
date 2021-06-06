@@ -1,10 +1,10 @@
       module m_mkrout
       use m_struc_def
-      use m_energy,only: sumec,sumtc,sumt0
-      public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init
+      public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)
       real(8),allocatable,protected::  frc(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
+      real(8),protected:: sumec,sumtc,sumt0
       
       private
       contains

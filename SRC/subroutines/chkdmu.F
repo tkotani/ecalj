@@ -1,9 +1,9 @@
       module m_chkdmu
-      use m_energy,only: eks !readonly
+c      use m_energy,only: eks !readonly
       real(8),protected:: eorb=0d0
       
       contains
-      subroutine chkdmu( dmatu,dmatuo,vorb) !,tolu,umix)
+      subroutine chkdmu(eks, dmatu,dmatuo,vorb) !,tolu,umix)
       use m_struc_def,only: s_site,s_spec
       use m_lmfinit,only: stdl,nbas,nsp,nlibu,lmaxu,ssite=>v_ssite,sspec=>v_sspec,lldau,
      &     tolu=>mix_tolu,umix=>mix_umix
@@ -57,7 +57,7 @@ C ----------------------------------------------------------------------
       integer:: ierr
       include "mpif.h"
       integer:: idvsh=0,i_copy_size
-      real(8):: eorbxxx
+      real(8):: eks, eorbxxx
       double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex dmatuo(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)

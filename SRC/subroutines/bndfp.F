@@ -1,19 +1,12 @@
-!! = Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
-!!
-!! Memo july2012takao
-!! 1)lwtkb algolism (double path method for METAL=3, lwtkb=-1 is too complicated.)
-!!   This makes this code too complicated.
-!!   (second path formalism; 1st path for weight, second path for integration for density)
-!!   "goto 99" mechanism should be avoided.
-!!
-!! 2) nevmx is given correctly ---> we need to examine a mechanism to determine nevmx in call subzi.
-!!   It will be effective to give nevmx to reduce computational time-->nmx; we need to 
-!!
+!     ! = Main part of full-potential LDA/GGA/QSGW(for given sigm). Single iteration =
+!     !
+!     ! From density osmrhod and osmrho, m_mkpot_init gives  osmpot, and sv_p_osig, sv_p_otau, sv_p_oppi (potential)
+!     ! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
+!     ! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
       module m_bndfp
-      use m_density,only: orhoat,osmrho !i/o
-      real(8),protected:: ham_ehf,ham_ehk      !output
-      real(8),protected:: eferm, qdiff         !output 
-c      use m_density,only: rhosig !touched
+      use m_density,only: orhoat,osmrho  !i/o unprotected: input and output
+      real(8),protected:: ham_ehf, ham_ehk      !output
+      real(8),protected:: eferm, qdiff          !output 
 !----------------------------      
 !io  smrho :smooth density
 !io        :Symmetrized on output
@@ -26,17 +19,19 @@ c      use m_density,only: rhosig !touched
 !o   evalall: eigenvalue in m_bandcal
 !o   frc: force in m_mkrout
       
-      logical,private:: binit=.true.,bbinit=.true.,initd=.true.
+      logical,private:: binit=.true.,initd=.true.
       real(8),private:: dmxp(33) 
       contains
       
-      subroutine m_bndfp_ef_set(bz_ef00)
+      subroutine m_bndfp_ef_set(bz_ef00) !called from iors.F. grep 'use m_bndfp'
       real(8):: bz_ef00
       eferm  = bz_ef00
       binit=.false.
       end
       
-      subroutine bndfp(iter, llmfgw) 
+      subroutine bndfp(iter, llmfgw)
+!     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
+!     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
       use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml, ndham=>ham_ndham,ham_ldham
      & ,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
@@ -48,15 +43,12 @@ c      use m_density,only: rhosig !touched
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
      &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
-c     &     sstrnmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-
       use m_seneinterp,only: Sigmainit
-      
-      use m_subzi, only: m_subzi_init, lwtkb,nevmx,numq,lswtk,rv_a_owtkb,rv_a_oswtk !,ldos
+      use m_subzi, only: m_subzi_init, lwtkb,numq,lswtk,rv_a_owtkb,rv_a_oswtk !,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -67,7 +59,7 @@ c     &     sstrnmix,
      o     , vval_rv , fes1_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_qplist,only: m_qplist_init, qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
+      use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
@@ -93,7 +85,6 @@ Ci         :>1 use the HKS forces
 Ci   lrout :>0 generate output density and attendant quantities
 Ci   lfrce : 0 suppress generation of forces
 Ci   lpnu=1  : =1 means new pnu's
-Ci   sstrnmix: specify mixing
 Ci   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
 Ci         :Additionally:
 Ci         :dmxp(33)  is the Lindhard parameter???
@@ -155,7 +146,7 @@ c      complex(8) ,allocatable :: t_zv(:,:)
       double precision sigp(10)
       logical:: readeferm
       double precision esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,eharris,eks,
+     .  sev00,sev1,sumtv,alfa,eharris,eksham,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -244,16 +235,9 @@ c      integer,allocatable:: ndimhx_(:),nev_(:)
 ! add --fermisurface #1 #2 #3
 ! only implemented for lmf-MPIK now.
       integer:: ini,iend,nbxx,ival
-
-c mar2014
-c      integer:: lb1,lb2,onespdummy
-c      integer:: iprocar,iprocar1,iprocar2,lrsigx
       integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
       character*256:: sss,s222
       character*1000::ccc
-
-c      integer:: ispsigm !nov2014
-c      logical:: goto99!jan2015
       logical:: fullmesh,PROCARon
 
       integer:: ntete,init,ient,nevmin,ifip,ifisyml
@@ -265,10 +249,6 @@ c      logical:: goto99!jan2015
 
       logical:: writeham=.false.
       logical,save:: siginit=.true. 
-c      integer::ipos,ndos_,j
-c      real(8)::dosmax,posp(3)
-c      integer:: jspend,jspini,jspp
-c      integer:: iqread,iqindex,ibread(100)=0,ibindex,nibread, job,ist,ip,ni,ix
    
       integer::npairmx,ikpd,ifqplist
       integer,allocatable:: nqwgt(:,:,:)
@@ -285,15 +265,7 @@ c      character*8:: charext
 !! ----------------------------
       call tcn ('bndfp')
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
-      if(master_mpi) then ! check Write atomic positions
-         write(stdo,"(a)")'   Atomic Positions from rst/ctrl. '
-         write(stdo,"(a)")'   Note: rst and ctrl may contain different atomic positions when DYN mode'
-         do ib=1,nbas
-            is  = ssite(ib)%spec   !species index
-            spid= ssite(is)%clabel !atom label
-            write(stdo,"('ib clabel pos =',i5,a6,3(x,f13.5))") ib, trim(spid),ssite(ib)%pos
-         enddo
-      endif
+      
 !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
 !  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
       if(initd) then
@@ -317,13 +289,7 @@ c      character*8:: charext
       allocate(evl(ndhamx,nspx))
       ldham = ham_ldham
       ldim  = ldham(1)
-      
-c      eterms=-99d0
-c      eterms(19) = 0d0
-c     ham_eterms=eterms
-c      rhosig = 0d0
-      eks    = 0d0
-      
+      eksham    = 0d0
       if(binit) then 
          eferm =bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          binit=.false.
@@ -343,14 +309,13 @@ c      rhosig = 0d0
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) ! mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-!! elind for accelarating convergence
+!! elind for accelarating convergence. Not used so often. Need examination.
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
       dmxp(33) = elind
 !! Setup for BZ integration wtkb
 !! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
       call m_subzi_init(lrout>0) 
-      
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) 
@@ -364,7 +329,6 @@ c      rhosig = 0d0
          if(writeham) call m_writeham_write() 
          onlyonce=.false.
       endif
-      
 ! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
 ! different number of k points. For example, you may change NKABC, and run job_pdos.
       if(plbnd/=0) then
@@ -372,11 +336,7 @@ c      rhosig = 0d0
          read(ifi,*) eferm
          close(ifi)             
          call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
-      endif
-      
-!! Get q point list at which we do band calculations.
-!! we can move this outside of iteration cycle.
-      if(.not.llmfgw) call m_qplist_init(plbnd)
+      endif     
       
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
@@ -572,9 +532,12 @@ c$$$         enddo
 c$$$         close(ifqbyl)
 c$$$      endif
       
-!! --- Evaluate Harris energy ---
-      call mkehkf(1,sev,sumqv(2,1),sumtv,eharris)
-!! --- Evaluate KS total energy, correction to Harris force ---
+!! Evaluate Harris energy ---
+      call mkehkf(1,sev,sumtv,eharris)
+c      amom=sumqv(2,1)           !valence only magnetic moment.
+!     If necessary, we need to use core as valence or something else.
+!      (note: we now use NonMagneticCORE mode as default)
+!! Evaluate KS total energy, correction to Harris force ---
       if(lrout/=0) then
 !!   ... Correction to harris force
         if(lfrce>0 ) then
@@ -582,7 +545,7 @@ c$$$      endif
           call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_rv,osmrho,smrho_out, fh_rv )
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
-        eks = 0d0
+        eksham = 0d0
         if(leks>=1) then
             call togpr()
             call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
@@ -595,7 +558,7 @@ c$$$      endif
              call mpi_barrier(MPI_comm_world,ierr)  
              call rx0('end of --density mode')
            endif  
-            call mkehkf(2,sev,sumqv(2,1),sumtv,eks) 
+            call mkehkf(2,sev,sumtv,eksham) 
             call togpr()
            endif
 !! --- Add together force terms ---
@@ -612,14 +575,13 @@ c$$$      endif
          call mixrho(iter,qval-qbg,elind,dmxp, orhoat_out,orhoat, smrho_out,osmrho)
          qdiff=dmxp(11)
       else
-         eks = 0d0
+         eksham = 0d0
       endif
-      ham_ehf=eharris
-      ham_ehk=eks
+      ham_ehf= eharris !Harris total energy
+      ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
       call m_mkpot_deallocate()
       call m_bandcal_clean()
-c      if (allocated(hbyl_rv)) deallocate(hbyl_rv)
-c      if (allocated(qbyl_rv)) deallocate(qbyl_rv)
+c      if (allocated(qbyl_rv)) deallocate(qbyl_rv,hbyl_rv)
       call tcx('bndfp')
       end subroutine bndfp
       end module m_bndfp

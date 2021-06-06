@@ -13,7 +13,7 @@
      &     alat=>lat_alat
       integer:: nkp,iq,ik1,ik2,ik3,npairmx,ikpd,ni,ib1,ib2,ikp,ip,nkk1,nkk2,nkk3
       integer,allocatable:: npair(:,:),nlat(:,:,:,:),nqwgt(:,:,:)
-      real(8),allocatable:: qplist(:,:)
+      real(8),allocatable:: qplist(:,:) !this should be taken from m_qplist in future
       real(8)::rrrr,posp(3),qp(3),pi=4d0*datan(1d0)
       complex(8):: aaaa,img=(0d0,1d0)
       character*4:: cccx

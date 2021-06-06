@@ -1,35 +1,25 @@
       module m_supot
       use m_struc_def,only: s_rv1
 
-      complex(8) , allocatable,protected ::  zv_a_obgv (:)
-      integer , allocatable,protected ::  iv_a_oips0 (:)
-      real(8) , allocatable,protected ::  rv_a_ogv (:,:)
-      integer , allocatable,protected ::  iv_a_okv (:,:)
+      complex(8) ,allocatable,protected ::  zv_a_obgv (:)
+      integer ,   allocatable,protected ::  iv_a_oips0 (:)
+      real(8) ,   allocatable,protected ::  rv_a_ogv (:,:)
+      integer ,   allocatable,protected ::  iv_a_okv (:,:)
       real(8),protected:: lat_gmax
-      integer,protected:: lat_ng,lat_nabc(3),k1 , k2 , k3 
+      integer,protected:: lat_ng,lat_nabc(3), k1 , k2 , k3 
       contains
       
-      subroutine supot()  
+      subroutine m_supot_init()  
       use m_lattic,only: rv_a_odlv,rv_a_oqlv,lat_plat,rv_a_opos
       use m_mksym,only:   rv_a_osymgr,rv_a_oag 
       use m_lmfinit,only : lcd4,ctrl_nbas,ctrl_nspin,lat_alat,ftmesh,lat_gmaxin
       use m_lattic,only: lat_vol, lat_awald
       use m_lattic,only: lat_nkd, lat_nkq
       use m_mksym,only:  lat_nsgrp
-C- Initialization for potential
+C- Initialization for G vectors bgv,ips0,gv,kv !See gvlst2 and sgvsym 
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   mode  :1 make Madelung matrix for monopoles (ASA)
-Ci   sctrl :struct containing parameters governing program flow
-Ci   slat  :struct containing information about the lattice
-Ci     Stored:    ng ogv okv gmax nabc oips0 obgv
-Ci   spot  :struct containing information about the potential
-Ci     Stored:    omad osmrho osmpot oorhat
-Co Outputs
-Cr Remarks
-Cr   Permanent arrays are created to handle the potential, depending
-Cr   on the mode
-Cu Updates
+Ci   mode=0 for FP clculaiton (=1 make Madelung matrix for monopoles (ASA))
 C ----------------------------------------------------------------------
       implicit none
       integer,parameter:: mode=0
@@ -77,5 +67,5 @@ C   ... Make list of lattice vectors within cutoff
         ngrp = lat_nsgrp
         call sgvsym ( ngrp , rv_a_osymgr , rv_a_oag , ng , rv_a_ogv , iv_a_oips0 , zv_a_obgv )
       endif
-      end subroutine supot
+      end subroutine m_supot_init
       end module m_supot

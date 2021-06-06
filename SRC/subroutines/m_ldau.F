@@ -17,11 +17,12 @@
       call sudmtu(dmato, vorb)  !read dmatu from dmatu.ext and generate vorbdmat from dmatu.ext
       end 
 !! vorb LDA+U mixing
-      subroutine m_ldau_vorbset(dmatu)
+      subroutine m_ldau_vorbset(eks,dmatu)
       use m_chkdmu,only: Chkdmu
       use m_lmfinit,only: nlibu,nsp,lmaxu,ctrl_quit,lmaxu,nsp,nlibu
       complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-      call chkdmu(dmatu, dmato, vorb)
+      real(8):: eks
+      call chkdmu(eks,dmatu, dmato, vorb)
       dmato=dmatu
       end
       end module

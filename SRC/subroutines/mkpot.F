@@ -1,12 +1,21 @@
-      subroutine mkpot ( !nbas , ssite , sspec !, spot !sham ,slat ,  
-     .    lfrce,         !, lcplxp , k1 , k2 , k3 ,
-     &    smrho , sv_p_orhoat , qbg , 
+      module m_energy_mkpot
+      real(8):: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc
+      end module
+      
+      subroutine mkpot (  lfrce,  smrho , sv_p_orhoat , qbg , 
      .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi,
      .    ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job, vorb )
 !     , itest )!, nlibu , lmaxu , lldau , nsp,
-      use m_energy,only: utot,valves,cpnves,rhoexc,rhovxc,sumec,
-     &         sumtc,xcore,valvef,amom,sumt0,sumev,amom!,rhosig
-
+      use m_energy_mkpot,only: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc
+Co         utot   = total electrostatic energy
+Co         valves = valence rho * estat potential
+Co         cpnves = core+nuc * estat potential
+Co         rhoexc = rho * exc
+Co         rhovxc = rho * vxc
+Co         xcore  = rhoc * total potential
+Co         valvef = smrhov * vsm + sum_ib valvef_ib
+Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
+Co         amom   = system magnetic moment
       use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, !lfrce=>ctrl_lfrce,
      &    lcplxp,nlibu,lmaxu,lldau,nsp
       use m_MPItk,only: master_mpi
@@ -67,26 +76,6 @@ Co   vval  :coffs to YL expansion of es potential at MT boundary
 Co   gpot0 :integrals of gaussians times electrostatic potential
 Co   fes   :contribution to the force from electrostatic + xc potential
 Co   sham->eterms various integrals for the total energy are stored:
-Co         :(1)  ehar   --- not touched here
-Co         :(2)  eks    --- not touched here
-Co         :(3)  utot   = total electrostatic energy
-Co         :(4)  valves = valence rho * estat potential
-Co         :(5)  cpnves = core+nuc * estat potential
-Co         :(6)  rhoexc = rho * exc
-Co         :(7)  rhovxc = rho * vxc
-Co         :(8)  sumec  --- not touched here
-Co         :(9)  sumtc  --- not touched here
-Co         :(10) xcore  = rhoc * total potential
-Co         :(11) valvef = smrhov * vsm + sum_ib valvef_ib
-Co                        valvef_ib = rhov * vtrue - smrhov * vsm)_ib
-Co         :(12) sumt0  --- not touched here
-Co         :(13) dq1    --- not touched here
-Co         :(14) dq2    --- not touched here
-Co         :(15) amom   = system magnetic moment
-Co         :(16) sumev  = sphere sum-of-eigenvalues --- not touched here
-Co         :(17) rinvxt --- not touched here
-Co         :(18) rouvxt --- not touched here
-Co         :(19) rhosig --- not touched here
 Cl Local variables
 Cl   rvmusm:int rhosm * vxc(rhosm+smcor1) where smcor1 is portion
 Cl         :of smooth core density treated nonperturbatively.

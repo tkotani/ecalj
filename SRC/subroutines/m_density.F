@@ -8,7 +8,3 @@ Co   smrho :smoothed interstitial density
 Co         :* for smrho = smoothed mesh density, smrho is complex and
 Co         :  smrho = smrho(k1,k2,k3), k1,k2,k3 are in smpot
       
-      module m_energy
-      real(8):: eh,eks,utot,valves,cpnves,rhoexc,rhovxc,sumec,
-     &         sumtc,xcore,valvef,amom,sumt0,sumev !rhosig,
-      end

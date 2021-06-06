@@ -2,7 +2,8 @@
       integer, allocatable,protected ::  iv_a_oindxo (:)
       integer, allocatable,protected ::  iv_a_ooffH (:)
       integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16),ham_nspx,ham_ndhamx
-
+!! ssite%pnu ssite%pz sspec%ngcut are given
+      
       contains
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
@@ -11,16 +12,6 @@
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
 C- Hamiltonian setup
-C ----------------------------------------------------------------------
-Cio sspec,ssite can be modified.
-Cio  sspec 
-Cio    Elts read: lmxa lmxl p pz
-Cio    Stored:    *
-Cio    Passed to: atfold makidx showbs sugcut
-Cio  ssite :struct for site-specific information; see routine usite
-Cio    Elts read: spec
-Cio    Stored:    pnu pz
-Cio    Passed to: showbs pvioeu
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
 Cl   npwmin:lower limit to number of PWs, estimated by sweeping
 Cl         :over a fine mesh of qp.
@@ -43,21 +34,12 @@ Cu   18 Apr 05 Force small parameter p -> 0 in 2-center turned on (ASA)
 Cu   14 Feb 03 Makes and packs magnetic field B.sigma
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-c      type(s_ctrl)::sctrl
-c      type(s_lat)::slat
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-c      type(s_bz)::sbz
-c      character*(*) sstrn
-C ... Local parameters
       integer nkap0,n0H
       parameter (nkap0=3,n0H=5)
       integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
      .lgunit,lidim,lihdim,nbas,nclasp,ndim,neul,nl,
-c lncol,
      .nlspcp,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
      .     j1,j2,j3,m,npw,npwmin,npwmax
@@ -85,13 +67,9 @@ C ... Needed for iostr
       nbas=ctrl_nbas
       nspec=ctrl_nspec
       nl=ctrl_nl
-c      lncol=ctrl_lncol
-c      nsp=ctrl_nspin
-c      nkaph = globalvariables%nkaph
       pwmode=ham_pwmode
       pwemin=ham_pwemin
       pwemax=ham_pwemax
-c      npwpad=ham_npwpad
       nspx  = nsp
       if(lso/=0) nspx = 1
       ndim = nbas * nl**2 * nkaph
@@ -110,7 +88,7 @@ C --- Hamiltonian offsets, orbital permutation table ---
         do  ib = 1, nbas
           ips(ib) = ssite(ib)%spec
         enddo  
-        call makidx ( nl , nkaph , 1 , nbas , 0 , sspec , ips !sarray%iv_a_oips
+        call makidx ( nl , nkaph , 1 , nbas , 0 , sspec , ips 
      .     , iv_a_ooffH , iv_a_oindxo , ldham )
         deallocate(ips)
       endif
@@ -124,7 +102,6 @@ C ... Make rest of ldham
       ldham(8) = nspx
       ham_ldham=ldham
 
-
 C ------- Potential- and implementation- specific setup -------
       alat=lat_alat
       plat=lat_plat
@@ -133,7 +110,6 @@ C ------- Potential- and implementation- specific setup -------
       nvl = 0
       lmxax = -1
       do  20  ib = 1, nbas
-
         is=ssite(ib)%spec
         lmxa=sspec(is)%lmxa
         lmxl=sspec(is)%lmxl
@@ -141,13 +117,7 @@ C ------- Potential- and implementation- specific setup -------
         call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
         i_copy_size=size(sspec(is)%pz)
         call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-c        pnu(:)= sspec(is)%p(:)
-c        pz(:) = sspec(is)%pz(:)
-cccccccccccccc
-c        print *,'suham 111 pnu=',i,pnu(1:10,1:2)
-cccccccccccccc
         call dcopy(n0,pz,1,pz(1,2),1)
-cc        pz(:,2)=pz
 C         Augmentation dimensioning parameters
         nvi = nvi + (lmxa+1)**2
         nvl = nvl + (lmxl+1)**2
@@ -156,9 +126,6 @@ C         Poke spec starting pnu to site
         call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
-cc        ssite(ib)%pnu=pnu
-cc        ssite(ib)%pz=pz
-C         Find largest lmxa
         lmxax = max(lmxax,lmxa)
    20 continue
       ham_lmxax=lmxax
@@ -167,11 +134,7 @@ C         Find largest lmxa
       alat=lat_alat
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
-c      ng=lat_ng
-c      tolgv=lat_tolft
-c      call sugcut ( 1 , nspec , sspec , alat , ng , rv_a_ogv , tolgv  )
       call sugcut ( 1 , sspec) !modify sspec%ngcut
-
 C   ... PW setup : estimate upper bound to number of G vectors
 C       to set up upper bound to hamiltonian dimension
       pwmode = ham_pwmode
@@ -230,9 +193,6 @@ c          endif
         if (mod(pwmode/10,10) .eq. 1) then
           call info2(20,1,0,' suham:  q-dependent PW basis with'//
      .    '  Emin = %d < E < %d.',pwemin,pwemax)
-c          call info5(30,0,0,'%9fEst. min,max PW dimension = %i,%i.'//
-c     .    '  Use npwpad = %i => ndham = %i',
-c     .    npwmin,npwmax,npwpad,ndham,0)
         else
           call info5(20,0,0,' suham:  PW basis with  %d < E < '//
      .    '%d  =>  npw = %i,  ndham = %i',
@@ -277,6 +237,8 @@ c         spinoffdiag=.false.    !paramagnetic
       endif
       end subroutine m_suham_init
       end module m_suham
+
+      
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine gen_hamindex(siginit,ljobgw)
       use m_suham,only: iprmb=>iv_a_oindxo, ham_ldham
