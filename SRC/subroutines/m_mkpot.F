@@ -11,28 +11,49 @@
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:)
       complex(8),allocatable,protected   :: osmpot(:,:,:,:)
-      real(8),protected:: qval
-      real(8),allocatable,protected :: fes1_rv(:), gpot0_rv(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom_rv(:)
-      real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval_rv(:),sav_rv(:)
-      real(8),protected:: qsc,vconst 
-      real(8),allocatable,protected :: vrmt(:)
-      real(8),allocatable,protected :: fes2_rv(:)
-      real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
 
       type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected   :: spotx(:,:,:,:)
+
+      real(8),protected:: qval
+      real(8),allocatable,protected :: gpot0(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom(:)
+      real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval(:),sav_rv(:)
+      real(8),protected:: qsc,vconst 
+      real(8),allocatable,protected :: vesrmt(:)
+      real(8),allocatable,protected :: fes1_rv(:), fes2_rv(:) !force terms
+      real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
+
       
       integer,private:: lfrce
       
       contains
-      subroutine m_mkpot_deallocate()
-      if (allocated(vrmt)) then
-         deallocate(vrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval_rv,gpot0_rv,qmom_rv,
-     &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot)
-      endif
-      end
+      subroutine m_mkpot_novxc()
+      integer:: i,lfrzw
+      write(stdo,"(a)")' Making one-particle potential without XC part ...'
+      allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
+      call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
+      allocate( vesrmt(nbas))
+      allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
+      allocate(  qmom(nvl))
+      allocate( ppnl_rv(nppn,n0,nsp,nbas))
+      allocate(  hab_rv(nab*n0*nsp*nbas))
+      allocate(  vab_rv(nab*n0*nsp*nbas))
+      allocate(  sab_rv(nab*n0*nsp*nbas))
+      allocate(  gpot0(nvl))
+      allocate(  vval(nchan))
+      allocate(  fes1_rv(3*nbas))
+      spotx=0d0
+      lfrzw = 0
+      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
+      i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
+!     We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
+!     Other output are overwritten by the 2nd call of mkpot 
+         call mkpot (i, 0, osmrho , orhoat , qbg ,
+     o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv)
+         deallocate(vesrmt,qmom,gpot0,vval,hab_rv,vab_rv,sab_rv,ppnl_rv,fes1_rv)
+      end subroutine 
       
       subroutine m_mkpot_init(llmfgw)
       integer:: i,lfrzw,lfrce
@@ -55,11 +76,11 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
       endif
       if(llmfgw) i = i + 10000 !GW driver mode
 !! Arrays used in the generation of the potential ---
-      allocate( vrmt(nbas))
+      allocate( vesrmt(nbas))
       allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
-      allocate( qmom_rv(nvl))
-      allocate( gpot0_rv(nvl))
-      allocate( vval_rv(nchan))
+      allocate( qmom(nvl))
+      allocate( gpot0(nvl))
+      allocate( vval(nchan))
       allocate(  hab_rv(nab*n0*nsp*nbas))
       allocate(  vab_rv(nab*n0*nsp*nbas))
       allocate(  sab_rv(nab*n0*nsp*nbas))
@@ -70,78 +91,60 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
       
-      call mkpot (lfrce,
-     i    osmrho, orhoat , qbg  
-     o  , osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o  , vval_rv , fes1_rv , i , vorb )
+c      call mkpot (lfrce,
+c     i    osmrho, orhoat , qbg  
+c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi,   qmom, vconst, vesrmt
+c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
+c     o  , vval , fes1_rv , i , vorb )
+         call mkpot (i, lfrce, osmrho , orhoat, qbg ,
+     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv)
       call togpr()
       end subroutine
 
 !!------------------------------------------------------
       subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
       use m_struc_def
-c      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
       type(s_rv1):: orhoat_out(:,:)
-c      integer:: lfrzw
       complex(8) :: smrho_out(:)
+c      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
+c      integer:: lfrzw
 c      lfrzw = 0
 c      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
 !! Arrays used in the generation of the potential ---
-c      allocate( vrmt(nbas))
+c      allocate( vesrmt(nbas))
 c      allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
-c      allocate( qmom_rv(nvl))
-c      allocate( gpot0_rv(nvl))
-c      allocate( vval_rv(nchan))
+c      allocate( qmom(nvl))
+c      allocate( gpot0(nvl))
+c      allocate( vval(nchan))
 c      allocate(  hab_rv(nab*n0*nsp*nbas))
 c      allocate(  vab_rv(nab*n0*nsp*nbas))
 c      allocate(  sab_rv(nab*n0*nsp*nbas))
 c     allocate( ppnl_rv(nppn,n0,nsp,nbas))
       if(allocated(fes2_rv)) deallocate(fes2_rv)
       allocate( fes2_rv(3*nbas))
-      call mkpot (lfrce,
-     i    smrho_out, orhoat_out , qbg  
-     o  , osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o  , vval_rv , fes2_rv , 0 , vorb ) !job=0
+c      call mkpot (lfrce,
+c     i    smrho_out, orhoat_out , qbg  
+c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi ,   qmom, vconst, vesrmt
+c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
+c     o  , vval , fes2_rv , 0 , vorb ) !job=0
+         call mkpot (0, lfrce, smrho_out , orhoat_out , qbg ,
+     o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv)
       end subroutine
 
-      subroutine m_mkpot_novxc()
-      integer:: i,lfrzw
-      real(8):: vrmt(nbas)
-         write(stdo,"(a)")' Making one-particle potential without XC part ...'
-         allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
-         call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
-         allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
-c         allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
-         allocate(  qmom_rv(nvl))
-         allocate( gpot0_rv(nvl))
-         allocate( vval_rv(nchan))
-         allocate(  hab_rv(nab*n0*nsp*nbas))
-         allocate(  vab_rv(nab*n0*nsp*nbas))
-         allocate(  sab_rv(nab*n0*nsp*nbas))
-         allocate( ppnl_rv(nppn,n0,nsp,nbas))
-         allocate( fes1_rv(3*nbas))
-         spotx=0d0
-         lfrzw = 0
-         if(ham_frzwf) lfrzw = 1 !freeze all augmentation wave
-         i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
-!     We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
-!     Other output are overwritten by the 2nd call of mkpot 
-         call mkpot (0,         !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
-     i        osmrho , orhoat , qbg  
-     o        , spotx, qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
-     o        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o        , vval_rv , fes1_rv , i , vorb ) 
-         deallocate(qmom_rv,gpot0_rv,vval_rv,hab_rv,vab_rv,sab_rv,ppnl_rv,fes1_rv)
-      end subroutine 
+!!------------------------------------------------------
+      subroutine m_mkpot_deallocate()
+      if (allocated(vesrmt)) then
+         deallocate(vesrmt,fes1_rv,ppnl_rv,sab_rv,vab_rv,hab_rv,vval,gpot0,qmom,
+     &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot)
+      endif
+      end
       
 !!------------------------------------------------------
-      subroutine mkpot (  lfrce,  smrho , sv_p_orhoat , qbg , 
-     .    smpot , qmom , vconst , vesrmt , sv_p_osig , sv_p_otau , sv_p_oppi,
-     .    ppn , hab , vab , sab , qval , qsc , gpot0 , vval , fes , job, vorb )
-!     , itest )!, nlibu , lmaxu , lldau , nsp,
-c      use m_energy_mkpot,only: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc
+      subroutine mkpot (
+     i     job, lfrce,  smrho, sv_p_orhoat, qbg, 
+     o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes ) 
+!Note other output in module area
+c for job=0      
 Co         utot   = total electrostatic energy
 Co         valves = valence rho * estat potential
 Co         cpnves = core+nuc * estat potential
@@ -151,15 +154,11 @@ Co         xcore  = rhoc * total potential
 Co         valvef = smrhov * vsm + sum_ib valvef_ib
 Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
 Co         amom   = system magnetic moment
-      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, !lfrce=>ctrl_lfrce,
-     &    lcplxp,nlibu,lmaxu,lldau,nsp
+      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, lcplxp,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf
+      use m_lattic,only: lat_plat,lat_qlat, lat_vol
+      use m_supot,only: k1,k2,k3,lat_nabc
       use m_MPItk,only: master_mpi
       use m_struc_def  
-      use m_lmfinit,only:lat_alat,lxcf
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
-      use m_supot,only: k1,k2,k3,lat_nabc
-      use m_lattic,only:lat_plat
 !! documents below are under construction.
 C- Make the potential from the density.
 C ----------------------------------------------------------------------
@@ -294,17 +293,17 @@ C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
 C ... Passed parameters
       integer:: i_copy_size
-      integer job,lfrce,n0,nppn,nab,i1,i2,i3,ispec
+      integer job,lfrce,i1,i2,i3,ispec
 c      integer nlibu,lmaxu,lldau(nbas)
-      parameter (n0=10,nppn=12,nab=9)
-      double precision qbg,qval,qsc,vconst,vesrmt(nbas)
+c      parameter (n0=10,nppn=12,nab=9)
+      double precision qbg !,vesrmt(nbas)
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(nbas)
       type(s_rv1) :: sv_p_otau(nbas)
       type(s_rv1) :: sv_p_osig(nbas)
 
-      real(8):: qmom(1) , fes(3,nbas) , gpot0(1) , vval(1) , ppn(nppn,n0,nbas) 
-     ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
+      real(8)::  fes(3,nbas) 
+c     ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
 c      type(s_site)::ssite(*)
 c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
@@ -312,7 +311,7 @@ c      type(s_ham)::sham
 c      type(s_pot)::spot
 
       complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
-      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
+c      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
 C ... Local parameters
       logical cmdopt,lgors
       character*80 outs
@@ -561,7 +560,7 @@ C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol
       call locpot ( nbas , nsp , lso , lcplxp , ssite , sspec !, slat 
      .    , sv_p_orhoat , qmom , vval , gpot0 , sv_p_osig , sv_p_otau , 
-     .    sv_p_oppi , ppn , hab , vab , sab , vvesat , cpnvsa , repat , 
+     .    sv_p_oppi , ppnl_rv , hab_rv , vab_rv , sab_rv , vvesat , cpnvsa , repat , 
      .    repatx , repatc , rmuat , rvepva , rvexva , rvecva , rvvxva , 
      .    rvepsa , rvvxca , valvfa , xcore , fcexca , fcexa , fceca , fcvxca 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 

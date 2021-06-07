@@ -10,7 +10,7 @@
       use m_mksym,only: lat_npgrp,lat_nsgrp
       use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
-     &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
+     &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
      &     ppn=>ppnl_rv
       use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
@@ -27,7 +27,7 @@
 !!i   vconst:constant to be added to potential
 !!i   lcplxp:0 if ppi is real; 1 if ppi is complex
 !!i   ppn   :potential parameters, nmto style
-!!i   vrmt  :electrostatic potential at MT boundaries
+!!i   vesrmt  :electrostatic potential at MT boundaries
 !!i   jobgw :-999 prompt for and read jobgw from stdin
 !!i         :0 create files SYMOPS,LATTC,CLASS,NLAindx
 !!i         :1 create files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk
@@ -434,7 +434,7 @@ c          print *,' ssssssss spid='//spid//'###'
             enddo
 !!         Core wave functions for this atom
             icore = 0
-            vshft = vrmt(ib)
+            vshft = vesrmt(ib)
 !!        As of v6.11, shift is included in v0, passed in vval to
 !!         locpot, in routine mkpot.f
             vshft = 0

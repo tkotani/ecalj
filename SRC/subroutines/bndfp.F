@@ -54,9 +54,8 @@
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
-     o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-     o     , vval_rv , fes1_rv , fes2_rv
+     o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
+     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
@@ -542,7 +541,7 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
 !!   ... Correction to harris force
         if(lfrce>0 ) then
            allocate( fh_rv(3*nbas)  )
-          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_rv,osmrho,smrho_out,  fh_rv )
+          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,  fh_rv )
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0

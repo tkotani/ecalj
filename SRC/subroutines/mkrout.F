@@ -11,7 +11,8 @@
       
       subroutine m_mkrout_init()
       use m_lmfinit,only: sspec=>v_sspec,ssite=>v_ssite,nsp,n0,ctrl_lfrce,lrout,nbas
-      use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband,hab_rv,sab_rv
+      use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
+      use m_mkpot,only: hab_rv,sab_rv
       use m_suham,only: ham_ndham
       use m_subzi,only: numq
       integer:: ib,is,nr,lmxl,nlml
