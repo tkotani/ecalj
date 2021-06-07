@@ -53,7 +53,7 @@
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
       use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
-      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyget,
+      use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
      o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o     , vval_rv , fes1_rv , fes2_rv
@@ -550,7 +550,7 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
            call togpr()
            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
 c           allocate( fes2_rv(3*nbas))
-           call m_mkpot_energyget(smrho_out, orhoat_out)
+           call m_mkpot_energyterms(smrho_out, orhoat_out)
 c           call mkpot (lfrce, smrho_out , orhoat_out , qbg , osmpot 
 c     .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
 c     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 

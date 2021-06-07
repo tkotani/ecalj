@@ -75,8 +75,10 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       end subroutine
       
 !!------------------------------------------------------
-      subroutine m_mkpot_energyget(smrho_out,orhoat_out)
+      subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
       use m_struc_def
+c      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
+      
       type(s_rv1):: orhoat_out(:,:)
       complex(8) :: smrho_out(:)
 c      lfrzw = 0
