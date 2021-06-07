@@ -1,7 +1,7 @@
       module m_mkpot
       use m_ldau,only: vorb
       use m_supot,only: k1,k2,k3
-      use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce
+      use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce,stdl
       use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
@@ -31,7 +31,7 @@
       contains
       subroutine m_mkpot_novxc()
       integer:: i,lfrzw
-      write(stdo,"(a)")' Making one-particle potential without XC part ...'
+      write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
       allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
       call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
       allocate( vesrmt(nbas))
@@ -48,9 +48,8 @@
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
       i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
-!     We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
-!     Other output are overwritten by the 2nd call of mkpot 
-         call mkpot (i, 0, osmrho , orhoat , qbg ,
+!     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
+         call mkpot (i, 0, osmrho , orhoat , 
      o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv)
          deallocate(vesrmt,qmom,gpot0,vval,hab_rv,vab_rv,sab_rv,ppnl_rv,fes1_rv)
       end subroutine 
@@ -59,7 +58,6 @@
       integer:: i,lfrzw,lfrce
       real(8) ::qbz
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
-c      qbg = ctrl_zbak(1) !homogenious background charge
       lfrce=ctrl_lfrce
       fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
       if(fsmode) fullmesh=.true.
@@ -96,7 +94,7 @@ c     i    osmrho, orhoat , qbg
 c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi,   qmom, vconst, vesrmt
 c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
 c     o  , vval , fes1_rv , i , vorb )
-         call mkpot (i, lfrce, osmrho , orhoat, qbg ,
+         call mkpot (i, lfrce, osmrho , orhoat, 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv)
       call togpr()
       end subroutine
@@ -106,7 +104,6 @@ c     o  , vval , fes1_rv , i , vorb )
       use m_struc_def
       type(s_rv1):: orhoat_out(:,:)
       complex(8) :: smrho_out(:)
-c      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
 c      integer:: lfrzw
 c      lfrzw = 0
 c      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
@@ -127,7 +124,7 @@ c     i    smrho_out, orhoat_out , qbg
 c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi ,   qmom, vconst, vesrmt
 c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
 c     o  , vval , fes2_rv , 0 , vorb ) !job=0
-         call mkpot (0, lfrce, smrho_out , orhoat_out , qbg ,
+         call mkpot (0, lfrce, smrho_out , orhoat_out , 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv)
       end subroutine
 
@@ -141,7 +138,7 @@ c     o  , vval , fes2_rv , 0 , vorb ) !job=0
       
 !!------------------------------------------------------
       subroutine mkpot (
-     i     job, lfrce,  smrho, sv_p_orhoat, qbg, 
+     i     job, lfrce,  smrho, sv_p_orhoat,  
      o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes ) 
 !Note other output in module area
 c for job=0      
@@ -182,8 +179,8 @@ Ci         :10s digit
 Ci         :1 suppress updating potential used to make potpars
 Ci         :100s digit
 Ci         :1 exclude exchange-correlation potential
-Ci         :1000s digit
-Ci         :1 Make rveps and rvvxc
+Cixxx         :1000s digit
+Cixxx         :1 Make rveps and rvvxc
 Ci         :10000s digit
 Ci         :1 write sphere density for each site ib to file rhoMT.ib
 Ci ... The following are LDA+U inputs
@@ -211,8 +208,8 @@ Co   sham->eterms various integrals for the total energy are stored:
 Cl Local variables
 Cl   rvmusm:int rhosm * vxc(rhosm+smcor1) where smcor1 is portion
 Cl         :of smooth core density treated nonperturbatively.
-Cl   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
-Cl         :of smooth core density treated nonperturbatively.
+Clxxx   rvepsm:int rhosm * exc(rhosm+smcor1) where smcor1 is portion
+Clxxx         :of smooth core density treated nonperturbatively.
 ccCl   rvepsv:integral of valence density times exc(valence density) !removed now
 ccCl   rvvxcv:integral of valence density times vxc(valence density) !removed now
 Cl   rhvsm :integral n0~ phi0~
@@ -291,45 +288,27 @@ C    1000s job bit set.
 C 6. Make <vxc_nn> and compare to integrals made here.
 C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
-C ... Passed parameters
-      integer:: i_copy_size
       integer job,lfrce,i1,i2,i3,ispec
-c      integer nlibu,lmaxu,lldau(nbas)
-c      parameter (n0=10,nppn=12,nab=9)
-      double precision qbg !,vesrmt(nbas)
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(nbas)
       type(s_rv1) :: sv_p_otau(nbas)
       type(s_rv1) :: sv_p_osig(nbas)
-
       real(8)::  fes(3,nbas) 
-c     ., hab(nab,n0,nbas) , sab(nab,n0,nbas) , vab(nab,n0,nbas)
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      type(s_ham)::sham
-c      type(s_pot)::spot
-
       complex(8):: smrho(k1,k2,k3,nsp),smpot(k1,k2,k3,nsp)
-c      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,2,nlibu)
-C ... Local parameters
-      logical cmdopt,lgors
+      logical cmdopt0
       character*80 outs
-      integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),stdo,
-     .stdl,lxcfun,isw,isum
-c lso,
+      integer i,lgunit,nglob,ipl,ipr,iprint,n1,n2,n3,ngabc(3),lxcfun,isw,isum
       real(8) ,allocatable :: fxc_rv(:,:)
       real(8) ,allocatable :: hpot0_rv(:)
       complex(8) ,allocatable :: smvxc_zv(:)
       complex(8) ,allocatable :: smvx_zv(:)
       complex(8) ,allocatable :: smvc_zv(:)
       complex(8) ,allocatable :: smexc_zv(:)
-
-      double precision dq,focexc,cpnvsa, !amom,cpnves, eh,eks,,rhovxc
+      double precision dq,focexc,cpnvsa, 
      .focvxc,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm,sgp0,
-     .sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, !,sumec,sumtc
-     .rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat, !valvef,
-     .vol,vsum,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2), !valves,,xcore
+     .sqloc,sqlocc,saloc,uat,usm,valfsm,valftr, 
+     .rvepva,rvexva,rvecva,rvvxva,rvepsa,rvvxca,valvfa,vvesat, 
+     .vol,vsum,zsum,zvnsm,rvepsv(2),rvexv(2),rvecv(2), 
      .rvvxcv(2),fcexc0(2),rveps(2),rvvxc(2),fcex0(2),fcec0(2),
      .fcexca(2),fcexa(2),fceca(2),rvmusm(2),rvepsm(2),rmusm(2),
      .vxcavg(2),fcvxc0(2),fcvxca(2),repat(2),repatx(2),repatc(2),
@@ -339,18 +318,14 @@ c lso,
       complex(8),allocatable:: smpotbk(:,:,:),smpotbkx(:,:,:)
       real(8),parameter:: minimumrho=1d-14
       real(8)::sss,smmin(2),srshift
-
       real(8):: plat(3,3),alat
       integer:: ifi,isp
       character strn*120
       logical:: secondcall=.false.
-c      logical:: enforce_positive_smrho
-C      print *, '!!'
-C      job = job + 30000
+      
       call tcn('mkpot')
-
 !! new density mode
-      if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall) then
+      if(cmdopt0('--density').and.master_mpi.and.secondcall) then
         plat =lat_plat
         alat =lat_alat
         open(newunit=ifi,file='smrho.xsf')
@@ -380,29 +355,10 @@ C      job = job + 30000
         secondcall=.true.
       endif
 
-c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1)))
-c      open(1898,file='test1vvv')
-c      nnnew=0
-c      do  i3 = 1, k3
-c      do  i2 = 1, k2
-c      do  i1 = 1, k1
-c        if (dreal(smrho(i1,i2,i3,1)) .lt. 0) nnnew = nnnew+1
-cc        write(1898,"(3i5,2d13.6)")i1,i2,i3,dreal(smrho(i1,i2,i3,1))
-c      enddo
-c      enddo
-c      enddo
-cc      close(1898)
-c      print *,'vvv mkpot sum smrho=',sum(smrho(:,:,:,1)),sum(abs(smrho(:,:,:,1))),nnnew
-cc      stop 'xxxxxxxxxx 1111'
-ccccccccccccccccccccccccccccccccc
       ipr = iprint()
       ipl = ipr
-c      lso = isw ( iand(4,int(sham%lncol)) .ne.0 ) + 2 * isw ( iand(32,int(sham%lncol)) .ne.0 
-c     .) + 3 * isw ( iand(64,int(sham%lncol)) .ne.0 )
       if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
       if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
-      stdo = lgunit(1)
-      stdl = lgunit(2)
       lxcfun = lxcf !globalvariables%lxcf
       pi   = 4d0*datan(1d0)
       ngabc=lat_nabc
@@ -463,7 +419,7 @@ C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
       allocate(hpot0_rv(nbas))
 
       i = 1
-      if (cmdopt('--oldvc',7,0,outs)) i = 0
+      if (cmdopt0('--oldvc')) i = 0
       call smves ( i , nbas , ssite , sspec ,  k1 , k2 , k3 ,  !slat ,
      .qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
      ., smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
@@ -499,8 +455,8 @@ ccccccccccccccccc
       if (allocated(hpot0_rv)) deallocate(hpot0_rv)
 
 C --- Add smooth exchange-correlation potential ---
-      rveps=0d0
-      rvvxc=0d0 
+c      rveps=0d0
+c      rvvxc=0d0 
 c      rvepsv=0d0
 c      rvexv=0d0
 c      rvecv=0d0
@@ -566,7 +522,7 @@ C --- Make local potential at atomic sites and augmentation matrices ---
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .    lmaxu , vorb , lldau )
 !!
-      if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall) then
+      if(cmdopt0('--density').and.master_mpi.and.secondcall) then
         return
       endif
 
@@ -597,10 +553,10 @@ c        rvexv(1)  = rvexv(1) + rvexva
 c        rvecv(1)  = rvecv(1) + rvecva
 c        rvvxcv(1) = rvvxcv(1) + rvvxva
 c      endif
-      if (mod(mod(job/1000,10),2) .eq. 1) then
-        rveps(1) = rveps(1) + rvepsa
-        rvvxc(1) = rvvxc(1) + rvvxca
-      endif
+c      if (mod(mod(job/1000,10),2) .eq. 1) then
+c        rveps(1) = rveps(1) + rvepsa
+c        rvvxc(1) = rvvxc(1) + rvvxca
+c      endif
 
 C ... Integral of valence density times estatic potential
       valves = rhvsm + vvesat
