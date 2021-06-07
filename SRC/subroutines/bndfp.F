@@ -549,12 +549,7 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
         if(leks>=1) then
            call togpr()
            call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
-c           allocate( fes2_rv(3*nbas))
            call m_mkpot_energyterms(smrho_out, orhoat_out)
-c           call mkpot (lfrce, smrho_out , orhoat_out , qbg , osmpot 
-c     .        , qmom_rv , vconst , vrmt , sv_p_osig , sv_p_otau , sv_p_oppi 
-c     .        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
-c     .        , vval_rv , fes2_rv , 0 , vorb ) !job=0 means energy term only
            if(cmdopt0('--density')) then
               call mpi_barrier(MPI_comm_world,ierr)  
               call rx0('end of --density mode')

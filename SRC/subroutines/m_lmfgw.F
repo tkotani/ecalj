@@ -16,7 +16,7 @@
       use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml,ham_ldham
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
       use m_suham,only: iv_a_oindxo,ham_ldham, ndham=>ham_ndham
-      
+      use m_mkpot,only: mkpot
       integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,ldim,lmaxa,ifilnlaindx,
      & lmxax,ifinlaindx,ndima,npqn,mxint
       integer:: ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb,nat,ipb(nbas)

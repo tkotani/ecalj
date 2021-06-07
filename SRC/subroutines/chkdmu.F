@@ -1,5 +1,4 @@
       module m_chkdmu
-c      use m_energy,only: eks !readonly
       real(8),protected:: eorb=0d0
       
       contains
