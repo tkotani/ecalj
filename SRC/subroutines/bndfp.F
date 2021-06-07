@@ -67,7 +67,7 @@
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
       use m_bzintegration,only: m_bzintegration_init
-      use m_ldau,only: vorb
+c      use m_ldau,only: vorb
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
@@ -308,7 +308,7 @@ c      character*8:: charext
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw) ! mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      call m_mkpot_init(llmfgw) ! from (smrho,rhoat), give potential.  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
 !! elind for accelarating convergence. Not used so often. Need examination.
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
@@ -542,13 +542,13 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
 !!   ... Correction to harris force
         if(lfrce>0 ) then
            allocate( fh_rv(3*nbas)  )
-          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_rv,osmrho,smrho_out, fh_rv )
+          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_rv,osmrho,smrho_out,  fh_rv )
         endif
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
            call togpr()
-           call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,sumtv )
+           call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
            call m_mkpot_energyterms(smrho_out, orhoat_out)
            if(cmdopt0('--density')) then
               call mpi_barrier(MPI_comm_world,ierr)  

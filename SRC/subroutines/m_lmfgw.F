@@ -38,19 +38,15 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
       endif
       call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
       if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
-      
 !!=====================================================================
 !! jobgw=1      
       if(jobgw/=0) then
         call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA))
         return
       endif
-      
 !!=====================================================================
 !! jobgw=0      
 !!  Count number of atoms : exclude floating orbitals
-c      alat=lat_alat
-c      plat =lat_plat
       if(.not.master_mpi) return
       nat = 0
       do  i = 1, nbas
