@@ -21,14 +21,15 @@ oxx = oxx.split('\n')
 Rule={}
 for iline in oxx:
         if len(iline)==0 : continue
+        #print(iline.split())
         modulef = iline.split()[0].replace(':','')
-        #if string.split(iline)[2].lower()=="procedure": continue
         if iline.split()[2].lower()=="procedure": continue
         #print( ' === Module', iline.split()[2],' is defined in ', modulef)
-        zzz= 'grep -i ' + iline.split()[2] + ' ' + src +'|grep -i use'
+        zzz= 'grep -i ' + iline.split()[2] + ' ' + src +'|grep -E -i ":\s*(use)"'
+        #print('|grep -E -i "^\s.*use"')
         os.system( zzz +' > ' + tmp)
         oww = open(tmp,'rt').read().split('\n')
-#        print(oww)
+        #print(oww)
         for ilinex in oww:        
                 if(len(ilinex)==0): continue
                 usef = ilinex.replace(':',' ').split()[0]
