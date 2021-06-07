@@ -18,8 +18,14 @@
       real(8),allocatable,protected :: vrmt(:)
       real(8),allocatable,protected :: fes2_rv(:)
       real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
+
+      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:)
+      type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:)
+      type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
+      complex(8),allocatable,protected   :: spotx(:,:,:,:)
       
       integer,private:: lfrce
+      
       contains
       subroutine m_mkpot_deallocate()
       if (allocated(vrmt)) then
@@ -77,6 +83,7 @@ c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       use m_struc_def
 c      use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
       type(s_rv1):: orhoat_out(:,:)
+c      integer:: lfrzw
       complex(8) :: smrho_out(:)
 c      lfrzw = 0
 c      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
@@ -98,6 +105,36 @@ c     allocate( ppnl_rv(nppn,n0,nsp,nbas))
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
      o  , vval_rv , fes2_rv , 0 , vorb ) !job=0
       end subroutine
+
+      subroutine m_mkpot_novxc()
+      integer:: i,lfrzw
+      real(8):: vrmt(nbas)
+         write(stdo,"(a)")' Making one-particle potential without XC part ...'
+         allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
+         call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
+         allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
+c         allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
+         allocate(  qmom_rv(nvl))
+         allocate( gpot0_rv(nvl))
+         allocate( vval_rv(nchan))
+         allocate(  hab_rv(nab*n0*nsp*nbas))
+         allocate(  vab_rv(nab*n0*nsp*nbas))
+         allocate(  sab_rv(nab*n0*nsp*nbas))
+         allocate( ppnl_rv(nppn,n0,nsp,nbas))
+         allocate( fes1_rv(3*nbas))
+         spotx=0d0
+         lfrzw = 0
+         if(ham_frzwf) lfrzw = 1 !freeze all augmentation wave
+         i = 1 + 10*lfrzw + 100 ! Adding 100 means excluding XC(LDA) part. nolxc=T
+!     We obtain  sv_p_osigx , sv_p_otaux , sv_p_oppix, smpotx  without XC by the 'call mkpot'.
+!     Other output are overwritten by the 2nd call of mkpot 
+         call mkpot (0,         !nbas , ssite , sspec ,   0 , lcplxp , k1 , k2 , k3 ,
+     i        osmrho , orhoat , qbg  
+     o        , spotx, qmom_rv , vconst , vrmt , sv_p_osigx , sv_p_otaux , sv_p_oppix 
+     o        , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 
+     o        , vval_rv , fes1_rv , i , vorb ) 
+         deallocate(qmom_rv,gpot0_rv,vval_rv,hab_rv,vab_rv,sab_rv,ppnl_rv,fes1_rv)
+      end subroutine 
       
 !!------------------------------------------------------
       subroutine mkpot (  lfrce,  smrho , sv_p_orhoat , qbg , 
@@ -648,7 +685,5 @@ C --- Printout ---
      .' (warning) system not neutral, dq=%d',' ',80,lgunit(1),dq)
       call tcx('mkpot')
       end subroutine mkpot
-
-
-      
-      end module
+     
+      end module m_mkpot

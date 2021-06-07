@@ -501,7 +501,6 @@ mkekin.o \
 mkewgt.o \
 mkorbm.o \
 mkpdos.o \
-mkpot.o \
 mkrout.o \
 momusl.o \
 mshdot.o \

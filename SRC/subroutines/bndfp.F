@@ -52,7 +52,7 @@
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_lmfgw,only: m_lmfgw_init,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx,jobgw
+      use m_lmfgw,only: m_lmfgw_init,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
      o    osmpot, qmom_rv, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0_rv 

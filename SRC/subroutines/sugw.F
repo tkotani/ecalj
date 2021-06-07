@@ -12,7 +12,7 @@
       use m_mkpot,only: 
      &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
      &     ppn=>ppnl_rv
-      use m_lmfgw,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+      use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       implicit none
