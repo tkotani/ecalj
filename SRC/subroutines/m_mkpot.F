@@ -1,18 +1,19 @@
       module m_mkpot
+!! http://dx.doi.org/10.7566/JPSJ.84.034702
       use m_ldau,only: vorb
       use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce,stdl
       use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
-      use m_density,only: osmrho, orhoat
+      use m_density,only: osmrho, orhoat !main input density
       
-      type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:)
-      type(s_rv1),allocatable,protected  :: sv_p_otau(:,:)
-      type(s_rv1),allocatable,protected  :: sv_p_osig(:,:)
-      complex(8),allocatable,protected   :: osmpot(:,:,:,:)
+      type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral (C.6)
+      type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau         (C.5)
+      type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma       (C.4)
+      complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of (34)
 
-      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:)
+      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:) !without xc term
       type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected   :: spotx(:,:,:,:)

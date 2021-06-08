@@ -34,7 +34,6 @@ util.o\
 m_toksw.o \
 m_psigd.o \
 m_hamindex.o \
-m_sstrnsname.o \
 m_struc_def.o \
 m_gtv.o \
 addbas.o \
@@ -82,8 +81,6 @@ drr2.o \
 dstrbp.o \
 dvdos.o \
 efrng2.o \
-f100.o \
-f102.o \
 fermi.o \
 fixef0.o \
 fixpos.o \
@@ -217,7 +214,6 @@ subzi.o \
 suclst.o \
 sudmtu.o \
 sugcut.o \
-suham2.o \
 suham.o \
 suidx.o \
 suldau.o \
@@ -248,8 +244,6 @@ xlgen.o \
 xxxdif.o \
 ylmrtg.o \
 writebasis.o \
-spackv_array_copy.o \
-struc_strn.o \
 switch.o \
 rdsigm.o\
 rdsigm2.o\
@@ -360,7 +354,6 @@ ivheap.o \
 ivshel.o \
 iyamax.o \
 ll.o \
-macro.o \
 matm.o \
 minfit.o \
 mkdlst.o \
@@ -551,7 +544,6 @@ stonerpb.o \
 stonerrsa.o \
 polinta.o \
 lmaux.o \
-bndconn_v2.o \
 gwcphi.o \
 pwmat.o \
 sugw.o \
