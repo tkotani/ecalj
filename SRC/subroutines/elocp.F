@@ -1,25 +1,18 @@
-      subroutine elocp(nbas,nsp,ssite,sspec,job)
+      module m_elocp
+      use m_lmfinit,only: nspec,n0
+      real(8),allocatable,protected:: ehl(:,:),rsml(:,:)
+      
+      contains
+      subroutine elocp() 
       use m_struc_def  
-      use m_lmfinit,only: nkaph,stdo,nspec
-
-
+      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
-Ci   nbas  :size of basis
-Ci   nsp   :number of spin channels
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pnu ov0 pz
-Ci     Passed to: *
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: a nr rmt z lmxa lmxb rs3 eh3 vmtz
-Ci     Stored:    orbp
-Ci     Passed to: uspecb
-Ci   job   :1s  digit
 Ci         : 0 do nothing ; just return
 Ci         : 1 make core and augmentation matrices
 Co Outputs
-Co   sspec->orbp:
+Co   ehl,rsml
 Co         : smoothing radius and energy set for extended local orbitals
 Cr Remarks
 Cu Updates
@@ -27,11 +20,11 @@ Cu   06 Jul 05 first created
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer nbas,nsp,job,n0
-      parameter (n0=10)
+c      integer n0
+c      parameter (n0=10)
 cki      type(s_site)::ssite(*)
-      type(s_site)::ssite(nbas)
-      type(s_spec)::sspec(*)
+c      type(s_site)::ssite(nbas)
+c      type(s_spec)::sspec(*)
 
 C ... Local parameters
       character spid*8
@@ -40,26 +33,21 @@ C ... Local parameters
      .nr,nrmx,nrspec
       parameter (nrmx=1501, nkap0=3)
       integer lh(nkap0),nkape,idamax
-ckino Dec.9.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
-
       integer ,allocatable :: ips_iv(:)
-
       double precision z,a,rmt,rs3,eh3,vmtz,xx
       double precision rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas),
      .pnu(n0,2),pnz(n0,2),eh(n0,nkap0),rsmh(n0,nkap0),
-     .pnui(n0,2),pnzi(n0,2),ehl(n0,nkap0),rsml(n0,nkap0)
+     .     pnui(n0,2),pnzi(n0,2)
+      real(8):: ehls(n0*2),rsmls(n0*2)
 C ... Heap
       integer ::iwdummy,i_copy_size,i_spackv
-
-
 C --- Setup ---
-      if (mod(job,10) .eq. 0) return
       call tcn('elocp')
+      if(allocated(ehl)) deallocate(ehl,rsml)
+      allocate( ehl(n0,nspec),rsml(n0,nspec))
       ipr = iprint()
       eloc = .false.
       vsel=0d0
-c      call dpzero(vsel,4*n0*nbas)
-
 C --- Find val, slo, K.E. for all sites ---
       do  ib = 1, nbas
         is=ssite(ib)%spec
@@ -148,23 +136,21 @@ C   ... Make parameters for this species
         call dpzero(rsmh,n0*nkap0)
         call dpzero(eh,n0*nkap0)
         call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
-
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz
-
-
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-
-        call dpzero(rsml,n0*2)
-        call dpzero(ehl,n0*2)
+        rsmls=0d0 !call dpzero(rsmls,n0*2)
+        ehls=0d0  !call dpzero(ehls,n0*2)
         call radmsh(rmt,a,nr,rofi)
-        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
-     .   , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsml , ehl 
-     .   )
-
+        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi !1102 means spin-averaged ehl,rsml
+     .       , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsmls , ehls )
+!!        
+        rsml(1:n0,is) = rsmls(1:n0)
+        ehl(1:n0,is) = ehls(1:n0)
+!!
         call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
         call dcopy(n0,ehl, 1,eh(1,nkaph),1)
         call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)
@@ -174,10 +160,6 @@ C   ... Make parameters for this species
 
   999 continue
       call tcx('elocp')
-
       if (allocated(ips_iv)) deallocate(ips_iv)
-
       end subroutine elocp
-
-
-
+      end module m_elocp

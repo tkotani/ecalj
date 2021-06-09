@@ -56,7 +56,8 @@
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph
      & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
       use m_suham,only: ham_ldham
-      use m_struc_def 
+      use m_struc_def
+      use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
 c      use m_mkrou3,only: mkrou3
 
 C- Assembles local output densities out of the qkkl, and core states
@@ -225,7 +226,9 @@ C   ... Augmented wave functions
           allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
           allocate(rus_rv(nr*(lmxa+1)*2*nsp))
           allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-          call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
+c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,k)
+          rsml= rsmlss(:,is)
+           ehl=  ehlss(:,is)
           call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .     xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv , ruu_rv 
      .     , rus_rv , rss_rv )

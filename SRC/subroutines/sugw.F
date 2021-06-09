@@ -15,6 +15,7 @@
       use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
+      use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -411,8 +412,10 @@ c          print *,' ssssssss spid='//spid//'###'
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
-!!         Create augmented wave functions for this atom
-            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
+!     !         Create augmented wave functions for this atom
+c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
+            rsml=rsmlss(:,is)
+            ehl= ehlss(:,is)
             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
      .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
      .       , gcore , gval ,nmcore)

@@ -7,6 +7,7 @@
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
       use m_density,only: osmrho, orhoat !main input density
+      use m_elocp,only: elocp
       
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral (C.6)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau         (C.5)
@@ -25,7 +26,6 @@
       real(8),allocatable,protected :: vesrmt(:)
       real(8),allocatable,protected :: fes1_rv(:), fes2_rv(:) !force terms
       real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
-
       
       integer,private:: lfrce
       
@@ -511,7 +511,7 @@ c        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas, 1d0 )
       endif
 
 C --- Make parameters for extended local orbitals ---
-      call elocp(nbas,nsp,ssite,sspec,job)
+      call elocp() !nbas,nsp,ssite,sspec,job) !set ehl and rsml for local orbitals
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol

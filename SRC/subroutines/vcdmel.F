@@ -5,6 +5,8 @@
       use m_struc_def
       use m_ext,only: sname     !extention for file
       use m_lmfinit,only: bz_ndos,bz_dosmax
+      use m_elocp,only: rsmlss=>rsml,ehlss=>ehl
+      
 C- Valence-core dipole matrix elements
 C ----------------------------------------------------------------------
 Ci Inputs:
@@ -99,7 +101,9 @@ C   --- Augmented wave functions u,s
         allocate(ruu_rv(nr*(lmxa+1)*2*nsp))
         allocate(rus_rv(nr*(lmxa+1)*2*nsp))
         allocate(rss_rv(nr*(lmxa+1)*2*nsp))
-        call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
+c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,j)
+        rsml= rsmlss(:,is)
+        ehl = ehlss(:,is)
         call makusp ( n0 , z , nsp , rmt , lmxa , ssite(ib)%rv_a_ov0 , a , nr , 
      .   xx , xx , pnu , pnz , rsml , ehl , ul_rv , sl_rv , gz_rv 
      .   , ruu_rv , rus_rv , rss_rv )
