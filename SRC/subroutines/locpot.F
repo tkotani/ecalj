@@ -8,6 +8,7 @@
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
       use m_MPItk,only: master_mpi
       use m_struc_def  
+      use m_uspecb,only:uspecb
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -98,7 +98,7 @@ C     .      ' start=',i4,' stop=',i4)
       use m_lmfinit,only:lat_alat
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
-
+      use m_uspecb,only:uspecb
 
 C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
 C ----------------------------------------------------------------------

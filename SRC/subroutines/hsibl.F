@@ -8,6 +8,7 @@ c#define SGI 1
       use m_supot,only: lat_ng
       use m_supot,only: lat_gmax
       use m_lattic,only:  lat_plat
+      use m_uspecb,only:uspecb
 C- Interstitial ME of smooth Bloch Hankels, smooth potential.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -116,6 +117,7 @@ C     Shared variables
       double precision eh1(n0,nkap0),rsmh1(n0,nkap0)
       double precision eh2(n0,nkap0),rsmh2(n0,nkap0)
       double precision xx(n0),p1(3),p2(3)
+      integer:: xxxx(nkap0)
       integer ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1
 C$    integer mp_numthreads,mp_my_threadnum
 c$$$#if MPI
@@ -296,7 +298,7 @@ C         List of orbitals, their l- and k- indices, and ham offsets
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             ofh2 = offl2(1)
 C         Block into groups with consecutive l and common (e,rsm)
-            call uspecb(0,2,sspec,is2,is2,xx,rsmh2,eh2,nkap2)
+            call uspecb(0,2,sspec,is2,is2,xxxx,rsmh2,eh2,nkap2)
             call gtbsl1(7+16,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
             do  iorb2 = 1, norb2
               if (blks2(iorb2) .ne. 0) then

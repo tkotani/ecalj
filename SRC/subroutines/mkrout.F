@@ -1,5 +1,6 @@
       module m_mkrout
       use m_struc_def
+      use m_uspecb,only:uspecb
       public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)

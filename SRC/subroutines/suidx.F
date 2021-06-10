@@ -1,5 +1,7 @@
       subroutine suidx(nkaph,mode,nspec,sspec)
       use m_struc_def  !Cgetarg
+      use m_uspecb,only:uspecb
+      use m_lmfinit,only: lpz
 C- Setup for idxdn
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -89,18 +91,20 @@ C ... Local parameters
       logical lmf
       integer is,n0,nkap0,lmxb,lmxa,iloc
       parameter (n0=10,nkap0=3)
-      integer idxdn(n0,nkap0),lp1,mode0,ik
-      double precision orbp(n0,2,nkap0),pz(n0,2),dum
+      integer idxdn(n0,nkap0),lp1,mode0,ik,idum(nkap0),iidum
+      double precision orbp(n0,2,nkap0),pz(n0,2),dum(n0*nkap0*nspec)
       logical:: l_dummy_isanrg, isanrg
       mode0 = mod(mode,10)
       lmf = mod(mode/10,10) .eq. 1
       l_dummy_isanrg=isanrg(mode0,0,3,'suidx:','1s digit mode',.true.)
       l_dummy_isanrg=isanrg(mod(mode/10,10),0,1,'suidx:','10s digit mode',.true.)
-C     Determine whether basis has any local orbitals
-      call uspecb(0,0,sspec,1,nspec,dum,dum,dum,iloc)
-      if (iloc/10 .ne. 0) then
-        iloc = 1
-      endif
+c      Determine whether basis has any local orbitals
+c      call uspecb(0,0,sspec,1,nspec,idum,dum,dum,iloc)
+c      if (iloc/10 .ne. 0) then
+c        iloc = 1
+c      endif
+      iloc=0
+      if(sum(lpz)>0) iloc=1 
       do  is = 1, nspec
         lmxb=sspec(is)%lmxb
         lmxa=sspec(is)%lmxa

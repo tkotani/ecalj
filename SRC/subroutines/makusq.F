@@ -5,6 +5,7 @@
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv       
+      use m_uspecb,only:uspecb
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -186,6 +187,7 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
      .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_uspecb,only:uspecb
 
 
       use m_struc_def  !Cgetarg

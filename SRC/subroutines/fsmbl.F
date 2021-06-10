@@ -1,6 +1,7 @@
       subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, !,slat
      .     numq,nevec,evl,evec,ewgt,f)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_uspecb,only:uspecb
 
 
       use m_struc_def 

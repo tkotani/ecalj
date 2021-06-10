@@ -2,6 +2,7 @@
       use m_struc_def       
       use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
+      use m_uspecb,only:uspecb
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs

@@ -6,6 +6,7 @@ CSFCPP#define F90 1
 
       use m_lmfinit,only: lat_alat,nbas
       use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
 
 
       use m_struc_def

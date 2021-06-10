@@ -21,6 +21,7 @@
       use m_bandcal,only: dmatu
       use m_qplist,only: m_qplist_init
       use m_mkpot,only: amom 
+      use m_uspecb,only:uspecb
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
 !!   1  outer  loop do 2000 is for molecular dynamics (relaxiation).

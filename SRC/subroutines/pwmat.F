@@ -4,6 +4,7 @@
       use m_lmfinit,only: lat_alat
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
 
 
       use m_lattic,only:lat_plat
@@ -246,6 +247,7 @@ C --- Cleanup ---
       use m_lmfinit,only: lat_alat
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
+      use m_uspecb,only:uspecb
 
 
       use m_lattic,only:lat_plat      

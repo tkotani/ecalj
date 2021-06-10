@@ -6,6 +6,7 @@
       subroutine elocp() 
       use m_struc_def  
       use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0
+      use m_uspecb,only:uspecb
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs

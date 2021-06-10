@@ -1,4 +1,6 @@
       subroutine tbhsi(sspec,nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
+      use m_uspecb,only:uspecb
+      use m_struc_def,only:s_spec
 C- Table of orbital envelope energies and smoothing radii
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -23,12 +25,13 @@ Cu   12 Aug 04 First implementation of extended local orbitals
 Cu   10 Apr 02 Redimensionsed ipet,iprt to accomodate larger lmax
 Cu   18 May 00 Adapted from nfp tb_hsi.f
 C ----------------------------------------------------------------------
-C     implicit none
-C ... Passed parameters
+c      implicit none
+C     ... Passed parameters
+      type(s_spec):: sspec(*) 
       integer nspec,nermx,net,nrt,ltop,n0,nkap0
       parameter (n0=10,nkap0=3)
       integer ipet(n0,nkap0,nspec),iprt(n0,nkap0,nspec)
-      double precision sspec(1),et(nermx),rt(nermx)
+      double precision et(nermx),rt(nermx)
 C ... Local parameters
       integer is,j,k
       integer lh(nkap0),nkape,ik,l

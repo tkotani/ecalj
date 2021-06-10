@@ -7,6 +7,7 @@
       use m_supot,only: lat_nabc
       use m_supot,only: lat_ng
       use m_supot,only: lat_gmax
+      use m_uspecb,only:uspecb
 
 
       use m_lattic,only:lat_plat      
@@ -451,6 +452,7 @@ C     call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
       subroutine rsibl1(mode,ssite,sspec,q,nbas,iprmb,ng,gq,iv,n1,n2,n3,
      .qlat,cosgp,singp,yl,ylw,he,hr,psi0,wk2,vol,iprt,ipet,etab,rtab,
      .ndimh,nlmto,nspc,numq,ewgt,ivec,nvec,evec,vpsi,psi,f)
+      use m_uspecb,only:uspecb
 
       use m_struc_def  !Cgetarg
 

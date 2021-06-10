@@ -94,14 +94,14 @@
      .     move_kt,move_ts,move_tsequ,move_tstot
       logical,protected:: prmint_new,lbsprm=F,lsdyn=F
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
-      integer,protected:: pwmode,ncutovl !ncutovl is by takao. not in lm-7.0beta.npwpad,
+      integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
-      integer , allocatable,protected ::  iv_a_oips (:)
+      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:)
 !! CG coefficient      
       real(8) , allocatable,protected  ::  rv_a_ocg (:)
       real(8) , allocatable,protected  ::  rv_a_ocy (:)
       integer , allocatable,protected  ::  iv_a_oidxcg (:)
-      integer , allocatable,protected  ::  iv_a_ojcg (:)
+      integer , allocatable,protected  ::  iv_a_ojcg (:) 
 !!      
       integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
@@ -835,13 +835,15 @@ C     --- Species (old CLASS) ---
      .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
      .     lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
-
+      allocate(lpz(nspec))
+      lpz=0
       mxcst1=F
       mxcst2=F
       mxcst4=F
 
       nkaph = 1
       lpzi = 1
+      
       qpol = NULLR
       rsmh = 0d0
       rsmh2 = 0d0
@@ -1139,7 +1141,10 @@ C     call snit
      .          '%N%10fAdd 10 to attach Hankel tail'//
      .          '%N%10fAdd 20 to include perturbatively',nout=nout)
            if (nout>0) then
-              if (dasum(nlaj,pz(1,1,j),1) /= 0) lpzi = max(lpzi,2)
+              if (dasum(nlaj,pz(1,1,j),1) /= 0) then
+                 lpzi = max(lpzi,2)
+                 lpz(j)=1
+              endif   
            endif
            if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10(or +20) mode exist or not.
            

@@ -29,6 +29,7 @@ C ... Passed parameters
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nbas,nspec,stdo
+      use m_uspecb,only:uspecb
 
 
 C- Check accuracy of Pkl expansions of augmented functions
