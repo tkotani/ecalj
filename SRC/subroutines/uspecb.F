@@ -91,28 +91,28 @@ C ... Passed parameters
          allocate(nkapii(nspec))
          init=.false.
       endif
-      if (mode .eq. -1) then
-        return
-      elseif (mode .eq. 0) then
-        i = 0
-        j = 0
-        l = 0
-        do  is = is1, is2
-          lmxa=sspec(is)%lmxa
-          lmxb=sspec(is)%lmxb
-          i_copy_size=size(sspec(is)%pz)
-          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-          if (lmxa .gt. -1) then
-            do  k = 1, lmxb+1
-              if (pnz(k,1) .gt.  0) i = 1
-              if (pnz(k,1) .ge. 10) j = 1
-              if (pnz(k,1) .ge. 20) l = 1
-            enddo
-          endif
-        enddo
-        nkape = 10*i+100*j+1000*l
-      elseif (mode .le. 4) then
-        if (mode .eq. 3) call rx('uspecb: mode=3 not implemented')
+c      if (mode .eq. -1) then
+c        return
+c      elseif (mode .eq. 0) then
+c$$$        i = 0
+c$$$        j = 0
+c$$$        l = 0
+c$$$        do  is = is1, is2
+c$$$          lmxa=sspec(is)%lmxa
+c$$$          lmxb=sspec(is)%lmxb
+c$$$          i_copy_size=size(sspec(is)%pz)
+c$$$          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
+c$$$          if (lmxa .gt. -1) then
+c$$$            do  k = 1, lmxb+1
+c$$$              if (pnz(k,1) .gt.  0) i = 1
+c$$$              if (pnz(k,1) .ge. 10) j = 1
+c$$$              if (pnz(k,1) .ge. 20) l = 1
+c$$$            enddo
+c$$$          endif
+c$$$        enddo
+c$$$        nkape = 10*i+100*j+1000*l
+c$$$c      elseif (mode .le. 4) then
+c        if (mode .eq. 3) call rx('uspecb: mode=3 not implemented')
         if (lpack .eq. 0) then
           nkape = 0
           npze = 0
@@ -165,30 +165,17 @@ C     ... unpack rsmh,eh; make lh
               call dpzero(rsmh(1,1,is),n0*nkap0)
            endif
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
-            do  ikap = 1, nkap0
-              kkap = ikap
-              lh(kkap,is) = -1
-            enddo
-            do  ikap = 1, nkapi
-c              if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
-                kkap = ikap
-c                if (mode .eq. 4) kkap = 1
-                call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,kkap,is),1)
-c                call dcopy(n0,orbp(1,2,ikap),1,eh(1,kkap,is),1)
-                do  l = lmxb, 0, -1
-                  if (rsmh(l+1,kkap,is) .gt. 0) then
-                    lh(kkap,is) = l
-c                    if (eh(l+1,kkap,is) .ge. 0) call rxi('species '//spid//
-c     .              '%a has positive Hankel energy for l=',l)
-c     goto 116
-                    exit
+            lh(:,is) = -1
+            nkapii(is) = nkapi
+            do ikap = 1, nkapi
+c               call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,ikap,is),1)
+               do  l = lmxb, 0, -1
+                  if (orbp(l+1,1,ikap)>0) then !rsmh(l+1,ikap,is) .gt. 0) then
+                     lh(ikap,is) = l !max l for ikap
+                     exit
                   endif
-                enddo
-c  116           continue
-c              endif
+               enddo
             enddo
-C     If no channel has orbital, eliminate kappa
-            nkapii(is)=nkapi
             do  ikap = nkapi, 1, -1
               if (lh(ikap,is) .eq. -1) nkapii(is) = nkapii(is)-1
             enddo
@@ -196,13 +183,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc            
             do  ikap = 1, nkap0
               kkap = ikap
-              if (mode .eq. 4) kkap = 1
+c              if (mode .eq. 4) kkap = 1
               lh(kkap,is) = -1
             enddo
             do  ikap = 1, nkaph
               if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
                 kkap = ikap
-                if (mode .eq. 4) kkap = 1
+c                if (mode .eq. 4) kkap = 1
                 call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,kkap,is),1)
                 call dcopy(n0,orbp(1,2,ikap),1,eh(1,kkap,is),1)
                 do  l = lmxb, 0, -1
@@ -223,7 +210,7 @@ C         If no channel has orbital, eliminate kappa
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
 C     ... lh for local orbital
             kkap = nkaph
-            if (mode .eq. 4) kkap = 1
+c            if (mode .eq. 4) kkap = 1
             do  l = 0, lmxb
               if (pnz(l+1,1) .ne. 0) then
                 lh(kkap,is) = l
@@ -233,7 +220,7 @@ C     ... lh for local orbital
             npze = max(npze,npzi)
 C   --- Pack ---
           else
-            if (mode .ge. 2) call rx('mode>1 not allowed for write')
+c            if (mode .ge. 2) call rx('mode>1 not allowed for write')
             nkapi = mod(nkape,10)
             npzi = 0
             if (nkape .gt. 10) npzi = 1
@@ -251,11 +238,11 @@ C   --- Pack ---
         enddo
         if (lpack .eq. 0) then
           if (npze.ne.0 .and. mode .eq. 2) nkape=nkaph
-          if (npze.ne.0 .and. mode .eq. 4) nkape=1
+c          if (npze.ne.0 .and. mode .eq. 4) nkape=1
         endif
-      else
-        call rxi('uspecb: mode not implemented, mode',mode)
-      endif
+c      else
+c        call rxi('uspecb: mode not implemented, mode',mode)
+c      endif
       end subroutine uspecb
 
 
