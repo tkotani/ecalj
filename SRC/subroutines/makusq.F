@@ -5,7 +5,7 @@
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv       
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -145,7 +145,9 @@ C --- Start loop over atoms ---
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        nkapi=nkapii(is)
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
 C   --- Set up all radial head and tail functions, and their BC's
@@ -187,7 +189,7 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
      .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 
 
       use m_struc_def  !Cgetarg
@@ -286,7 +288,9 @@ C ... Local parameters
       if (lmxa .eq. -1) return
       nlmto = ndimh-napw
       nlma  = (lmxa+1)**2
-      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
+c      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
+      call uspecb(0,2,sspec,isa,isa,lh,rsmh,eh,nkape)
+      nkape=nkapii(isa)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
       call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 

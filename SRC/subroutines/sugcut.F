@@ -2,7 +2,7 @@
       use m_struc_def       
       use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -59,9 +59,12 @@ c      parameter (nkap0=3,n0=10)
       do  is = 1, nspec
         spid = sspec(is)%name
         nkap1 = 1
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
+        nkapi = nkapii(is)
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode>1) then
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
+c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
           if(mode==2) nkap1 = nkapi+1
         else
           nkap2 = nkapi

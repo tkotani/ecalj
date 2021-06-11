@@ -1,6 +1,6 @@
       module m_mkrout
       use m_struc_def
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
       public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)
@@ -187,8 +187,9 @@ C --- Start loop over atoms ---
         lmxh=sspec(is)%lmxb
         stc0=sspec(is)%stc
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+        nkapi=nkapii(is)
         call orbl ( ib , 0 , nlmto , iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)

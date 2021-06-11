@@ -8,7 +8,7 @@
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
       use m_MPItk,only: master_mpi
       use m_struc_def  
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -427,8 +427,10 @@ C   --- Make augmentation matrices sig, tau, ppi ---
 C     ... Smooth Hankel tails for local orbitals
           call dpzero(rsmh,n0*nkap0)
           call dpzero(eh,n0*nkap0)
-          call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c      call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+          nkapi=nkapii(is)
           if (nkape .gt. nkapi) then
             call dcopy(n0,rsmh(1,nkaph),1,rsml,1)
             call dcopy(n0,eh(1,nkaph),  1,ehl, 1)

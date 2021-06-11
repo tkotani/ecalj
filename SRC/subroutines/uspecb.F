@@ -1,9 +1,9 @@
       module m_uspecb
-      integer:: nkapii
+      integer,allocatable,protected:: nkapii(:)
       contains
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: nkaph
+      use m_lmfinit,only: nkaph,nspec
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -86,6 +86,11 @@ C ... Passed parameters
       character spid*8
       integer is,lmxb,ikap,kkap,nkapi,i,j,k,l,npzi,lpzi,lpzl,npze,lmxa
       double precision orbp(n0,2,nkap0),dasum,pnz(n0,2)
+      logical:: init=.true.
+      if(init) then
+         allocate(nkapii(nspec))
+         init=.false.
+      endif
       if (mode .eq. -1) then
         return
       elseif (mode .eq. 0) then
@@ -122,11 +127,6 @@ C ... Passed parameters
           call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
 C   --- Unpack ---
           if (lpack .eq. 0) then
-            do  ikap = 1, nkap0
-              kkap = ikap
-              if (mode .eq. 4) kkap = 1
-              lh(kkap,is) = -1
-            enddo
 C     ... make nkapi,npzi
             lpzi = 0
             do  k = 1, lmxb+1
@@ -163,7 +163,42 @@ C     ... unpack rsmh,eh; make lh
             else
               call dpzero(eh(1,1,is),n0*nkap0)
               call dpzero(rsmh(1,1,is),n0*nkap0)
-            endif
+           endif
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
+            do  ikap = 1, nkap0
+              kkap = ikap
+              lh(kkap,is) = -1
+            enddo
+            do  ikap = 1, nkapi
+c              if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
+                kkap = ikap
+c                if (mode .eq. 4) kkap = 1
+                call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,kkap,is),1)
+c                call dcopy(n0,orbp(1,2,ikap),1,eh(1,kkap,is),1)
+                do  l = lmxb, 0, -1
+                  if (rsmh(l+1,kkap,is) .gt. 0) then
+                    lh(kkap,is) = l
+c                    if (eh(l+1,kkap,is) .ge. 0) call rxi('species '//spid//
+c     .              '%a has positive Hankel energy for l=',l)
+c     goto 116
+                    exit
+                  endif
+                enddo
+c  116           continue
+c              endif
+            enddo
+C     If no channel has orbital, eliminate kappa
+            nkapii(is)=nkapi
+            do  ikap = nkapi, 1, -1
+              if (lh(ikap,is) .eq. -1) nkapii(is) = nkapii(is)-1
+            enddo
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc            
+            do  ikap = 1, nkap0
+              kkap = ikap
+              if (mode .eq. 4) kkap = 1
+              lh(kkap,is) = -1
+            enddo
             do  ikap = 1, nkaph
               if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
                 kkap = ikap
@@ -185,6 +220,7 @@ C         If no channel has orbital, eliminate kappa
             do  ikap = nkapi, 1, -1
               if (lh(ikap,is) .eq. -1) nkapi = nkapi-1
             enddo
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
 C     ... lh for local orbital
             kkap = nkaph
             if (mode .eq. 4) kkap = 1

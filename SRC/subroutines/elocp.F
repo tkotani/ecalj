@@ -6,7 +6,7 @@
       subroutine elocp() 
       use m_struc_def  
       use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -136,7 +136,11 @@ C   ... Printout of input for parameters
 C   ... Make parameters for this species
         call dpzero(rsmh,n0*nkap0)
         call dpzero(eh,n0*nkap0)
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
+        
+        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+        nkape=nkapii(is)
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
+        
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz

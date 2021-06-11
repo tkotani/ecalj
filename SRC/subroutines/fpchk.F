@@ -29,7 +29,7 @@ C ... Passed parameters
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nbas,nspec,stdo
-      use m_uspecb,only:uspecb
+      use m_uspecb,only:uspecb,nkapii
 
 
 C- Check accuracy of Pkl expansions of augmented functions
@@ -113,8 +113,9 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         if (nr .gt. nrx) call rxi('chkxpn: need nrx ge',nr)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
-        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-
+c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        nkapi=nkapii(is)
 C  ...  Loop over orbitals for this species
         write(stdo,948)
         do  ik = 1, nkapi
