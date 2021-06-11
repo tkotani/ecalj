@@ -13,6 +13,7 @@
       
       use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
+      use m_MPItk,only: master_mpi
       implicit none
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
@@ -30,7 +31,7 @@
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
-     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax 
+     &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
      &     ctrl_defm(6), ctrl_wsrmax,ctrl_sdprm(5),ctrl_rmaxes,
      &     ctrl_omax1(3),ctrl_omax2(3),ctrl_sclwsr,ctrl_rmines, !ctrl_zbak,
@@ -51,7 +52,8 @@
       logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
       integer,allocatable,protected:: idxdn(:,:), grp(:),grp2(:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
-     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:)
+     .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:),
+     &  nkapii(:),nkaphh(:) 
       real(8),allocatable,protected:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
      .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),dv(:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
@@ -96,7 +98,7 @@
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
       integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
-      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:)
+      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
 !! CG coefficient      
       real(8) , allocatable,protected  ::  rv_a_ocg (:)
       real(8) , allocatable,protected  ::  rv_a_ocy (:)
@@ -120,7 +122,9 @@
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
       integer,protected:: leks,lrout,plbnd 
-      
+ccccccccccccccccccc
+      real(8),allocatable:: rsml(:,:),ehl(:,:)
+cccccccccccccccccc      
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:)
 c      real(8):: ham_eterms(20)
@@ -323,7 +327,7 @@ c      integer,parameter:: mxspec=256
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout
       logical :: ipr10,fullmesh
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
@@ -835,24 +839,26 @@ C     --- Species (old CLASS) ---
      .     mxcst1(nspec),mxcst2(nspec),mxcst4(nspec),
      .     kmxt(nspec),kmxv(nspec),
      .     lfoca(nspec),lmxl(nspec),lxi(nspec),lmxa(nspec),lmxb(nspec),nmcore(nspec))
-      allocate(lpz(nspec))
+      allocate(lpz(nspec),lpzex(nspec))
+      allocate(nkapii(nspec),nkaphh(nspec))
       lpz=0
+      lpzex=0
       mxcst1=F
       mxcst2=F
       mxcst4=F
-
+      nkapii=1
       nkaph = 1
-      lpzi = 1
+      lpzi = 0 !1
       
       qpol = NULLR
       rsmh = 0d0
       rsmh2 = 0d0
-      eh = NULLR
-      eh2 = NULLR
+      eh  = 0d0
+      eh2 = 0d0
       hcr = NULLR
       idmod = NULLI
       ehvl = NULLR
-      do  j = 1, nspec
+      do 1111 j = 1, nspec
         if(debug) print *,'nspec mxcst j-loop j nspec',j,nspec
         colxbs(:,j) = NULLR; radxbs(j) = NULLR
         rcfa(:,j) = NULLR; rfoca(j) = 0d0; rg(j) = 0d0
@@ -960,7 +966,7 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
            nn = i
         enddo
         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       eh(1:nlbj,j),nmin=nn,cindx=jj,
+     .       eh(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
      .       note='Kinetic energies for basis')
         nn = NULLI
         if (nout>0) nn = nout
@@ -972,6 +978,7 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
            sw = tksw(prgnam,nm)
            if (nout>0) then
               nkaph=2
+              nkapii(j)=2
               nn = nout
               sw = 1
 C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
@@ -981,7 +988,7 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
               enddo
            endif
            nm='SPEC_ATOM_EH2'; call gtv(trim(nm),sw,
-     .          eh2(1:nlbj,j),nmin=nn,cindx=jj,
+     .          eh2(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
      .          note='Basis kinetic energies, second group')
         endif
         if(debug) print *,'nspec ddd mxcst j-loop j nspec',j,nspec
@@ -1142,8 +1149,11 @@ C     call snit
      .          '%N%10fAdd 20 to include perturbatively',nout=nout)
            if (nout>0) then
               if (dasum(nlaj,pz(1,1,j),1) /= 0) then
-                 lpzi = max(lpzi,2)
+                 lpzi = max(lpzi,1) !,2
                  lpz(j)=1
+                 if ( sum(int(pz(1:nlaj,1,j)/10))>0 ) then
+                    lpzex(j)=1
+                 endif   
               endif   
            endif
            if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10(or +20) mode exist or not.
@@ -1353,12 +1363,17 @@ c     .  'Colour for xbs') !,-3,4,i1,TF(37))
 c     xxx = rmt(j); if (io_help .eq. 1) xxx = NULLI
 c     nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgnam,nm),
 c     .  radxbs(j),def_r8=xxx,cindx=jj,note='Radius for xbs')
-      enddo                     ! Loop over species
+
+         nkaphh(j) = nkapii(j) + lpzex(j)
+         print *,'nkaphh(j) = nkapii(j) + lpzex(j)',nkaphh(j),nkapii(j), lpzex(j)
+ 1111 continue  ! Loop over species
+
+      
 C     ... Cleanup after looping over species data
       if (io_help==0) then
          call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
-         nkaph = nkaph+lpzi-1
+         nkaph = nkaph + lpzi     !-1
          mxorb= nkaph*nlmax
       endif
  79   continue
@@ -1963,11 +1978,13 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       call suldau(nbas,v_sspec,v_ssite,nlibu,k,wowk)!Count LDA+U blocks (printout only)
       ham_nlibu=nlibu
       call poppr
-      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+c      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
+      deallocate(wowk,pnu,qnu    ,amom,idmod,                  pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
      .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
-     .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
+     .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
+c    .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
      .     pos,vel,eula,vshft,ips,irlx) 
 
 c$$$!! --- Printout ---
@@ -2048,15 +2065,13 @@ c      enddo
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
      
-!! Stage 3  is moved to latsym and mkqp called from lmv7.F
-!!--- Lattice setup:deformation ---
-      !!v_* is going to be overwritten 
+!! Stage 3: initial setting.===================================
 !!  Show and quit
       if( quit == 1 ) then
         write(6,"(a)") prgnam//"Q=SHOW encountered"
         call rx0(prgnam)
       endif
-!!  -------------------------- Total energy mode. moved from lmfp-------------------
+!!  Total energy mode setting
       if (cmdopt('--etot',6,0,strn)) then
         mdprm=0 !!!  No forces or dynamics
         ctrl_lfrce=0
@@ -2067,16 +2082,13 @@ c      enddo
       if(lhf) ctrl_maxit= 1
 !! scaler rel       
       call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
-!      
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
-      
       if (bz_nevmx .eq. -1) then !bz_nevmx ! Maximum number of eigenvalues
         lrout = 0
         leks = 0
       endif
-      
       if(cmdopt0('--band').or.fullmesh) then !Switch to plot bands at specified qp
          ctrl_lfrce = 0
          plbnd = 1
@@ -2084,11 +2096,8 @@ c      enddo
       else
          plbnd=0
       endif
-!!      
       if(ctrl_lmet/=0 .and. .not.ltet) ctrl_ldos=1
-!     ldos=1(T) when Metal=T and Tetra=F ! We need DOS if just sampling
       if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
-c      bz_ndos = abs(bz_ndos)
       
 !! LDA+U block (it was suldau.F)
       nlibu = 0
@@ -2106,13 +2115,60 @@ c      bz_ndos = abs(bz_ndos)
         enddo
       enddo
       if (nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
+      
 !! lso  =0 (no so): =1(L.S): =2(LzSz).
       lcplxp = 0
       lekkl  = ctrl_pfloat
-      if (lso .ne. 0)     lcplxp = 1
+      if (lso .ne. 0)    lcplxp = 1
       if (sum(lldau)/=0) lcplxp = 1
-!!
+      
+! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
+      allocate(lhh(nkap0,nspec))
+      lhh=-1
+      do i=1,nspec
+         lmxbj = lmxb(i)
+         call getiout(rsmh, lmxbj+1,lhh(1,i))
+         if(nkapii(i)==2) call getiout(rsmh2,lmxbj+1,lhh(2,i))
+         if(lpz(i)==1 )   call getiout(pz,lmxbj+1,lhh(nkaph,i))!lh for lo
+      enddo
+      allocate( ehl(n0,nspec),rsml(n0,nspec))
+      ehl=-999d0
+      rsml=-999d0
+      
+      if(master_mpi) then
+         write(stdo,"('mmm --- MTO setting ---')")
+         do i=1,nspec
+         write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
+         write(stdo,"('mmm rsmh  ',i4,100f6.2)")i,  rsmh(1:lmxbj+1,i)
+         write(stdo,"('mmm   eh  ',i4,100f6.2)")i,    eh(1:lmxbj+1,i)
+         write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
+         write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
+         write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
+         write(stdo,"('mmm lh    ',i4,100i3)")i,   lhh(1:nkaph,i)
+         enddo
+      endif
       end subroutine m_lmfinit_init
+
+      subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
+      integer:: iin,iout,i
+      real(8):: a(iin)
+      do i=iin,1,-1
+         if(a(i)>0) then
+            iout=i-1 !angular mom
+            exit
+         endif
+      enddo
+      end
+      subroutine getiout10(a,iin,iout) !a(1:iout-1) can be >10
+      real(8):: a(iin)
+      integer:: iin,iout,i
+      do i=iin,1,-1
+         if(a(i)>10d0-1d-6) then
+            iout=i-1 !angular mom
+            exit
+         endif
+      enddo
+      end
       end module m_lmfinit
 
 
@@ -2573,3 +2629,5 @@ Cr          vconst(2) = potential shift of L end region (PGF)
 Cr          vconst(3) = potential shift of R end region (PGF)
 !!mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm      
       
+
+         

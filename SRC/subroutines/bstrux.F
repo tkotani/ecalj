@@ -206,6 +206,8 @@ C       This line augments onsite extended local orbitals only
 C       if (ia .eq. ib) ik = 2
 C       This line augments extended local orbitals all sites
           call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+          
+          
 C       Position in h; l,k indices for orbitals connected w/ ib
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Loop over blocks of envelope functions

@@ -1,9 +1,12 @@
       module m_uspecb
       integer,allocatable,protected:: nkapii(:)
+      
       contains
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: nkaph,nspec
+      use m_lmfinit,only: nkaph,nspec,nkapii_=>nkapii,nkaphh,
+     &     rsmhss=>rsmh,rsmh2ss=>rsmh2,ehss=>eh,eh2ss=>eh2,lhh,lpzex,rsml,ehl
+c      use m_elocp,only: rsml,ehl
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -91,6 +94,8 @@ C ... Passed parameters
          allocate(nkapii(nspec))
          init=.false.
       endif
+      
+       
 c      if (mode .eq. -1) then
 c        return
 c      elseif (mode .eq. 0) then
@@ -137,7 +142,7 @@ C     ... make nkapi,npzi
               lpzi = max(lpzi,lpzl)
             enddo
             npzi = 0
-            if (lpzi .gt. 1 .and. (mode.ge.2 .and. mode.le.4)) npzi = 1
+            if (lpzi .gt. 1 .and. (mode.ge.2 .and. mode.le.4)) npzi = 1 !for +10 +20
 C     ... Count number of envelope energy channels nkapi (<=nkaph).
 C         There are the following possibilities:
 C         1. energy channel nkaph is a local orbital
@@ -164,7 +169,7 @@ C     ... unpack rsmh,eh; make lh
               call dpzero(eh(1,1,is),n0*nkap0)
               call dpzero(rsmh(1,1,is),n0*nkap0)
            endif
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
+c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
             lh(:,is) = -1
             nkapii(is) = nkapi
             do ikap = 1, nkapi
@@ -218,6 +223,16 @@ c            if (mode .eq. 4) kkap = 1
             enddo
             nkape = max(nkape,nkapi)
             npze = max(npze,npzi)
+cccccccccccccccccc            
+c          print *,"qqqqqqq1",lh(:,is)
+c          print *,"qqqqqqq1",rsmh(:,1,is)
+c          print *,"qqqqqqq1",eh(:,1,is)
+c          print *,"qqqqqqq1",rsmh(:,2,is)
+c          print *,"qqqqqqq1",eh(:,2,is)
+c          print *,"qqqqqqq1",mode,is,nkapii(is),nkape
+c          print *,' qqqq nkape=',nkape
+cccccccccccccccccccc
+
 C   --- Pack ---
           else
 c            if (mode .ge. 2) call rx('mode>1 not allowed for write')
@@ -239,10 +254,36 @@ c            if (mode .ge. 2) call rx('mode>1 not allowed for write')
         if (lpack .eq. 0) then
           if (npze.ne.0 .and. mode .eq. 2) nkape=nkaph
 c          if (npze.ne.0 .and. mode .eq. 4) nkape=1
-        endif
+       endif
+     
 c      else
 c        call rxi('uspecb: mode not implemented, mode',mode)
-c      endif
+c     endif
+
+
+cccccccccccccccccccccccccccccccccccccccc
+       if(lpack==0) then
+          is=is1
+          nkape     = nkaphh(is)
+          nkapii(is)= nkapii_(is)
+          lh(:,is)  = lhh(:,is)
+          rsmh(:,1,is) = rsmhss(:,is)
+          if(nkapii(is)==2) rsmh(:,2,is)=rsmh2ss(:,is)
+          if(lpzex(is) ==1) rsmh(:,nkaphh(is),is)=rsml(:,is)
+          eh(:,1,is) = ehss(:,is)
+          if(nkapii(is)==2) eh(:,2,is)=eh2ss(:,is)
+          if(lpzex(is)==1)  eh(:,nkaphh(is),is)=ehl(:,is)
+c          print *,"qqqqqqq",lh(:,is)
+c          print *,"qqqqqqq",rsmh(:,1,is)
+c          print *,"qqqqqqq",eh(:,1,is)
+c          print *,"qqqqqqq",rsmh(:,2,is)
+c          print *,"qqqqqqq",eh(:,2,is)
+c          print *,"qqqqqqq",mode,is,nkapii(is),nkape
+c          return
+       endif   
+ccccccccccccccccccccccccccccccccccccccccccccccc
+          
+       
       end subroutine uspecb
 
 

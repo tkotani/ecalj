@@ -5,8 +5,8 @@
       contains
       subroutine elocp() 
       use m_struc_def  
-      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0
-      use m_uspecb,only:uspecb,nkapii
+      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,ex=>ehl,rx=>rsml
+      use m_uspecb,only: uspecb,nkapii
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -22,7 +22,7 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
 c      integer n0
-c      parameter (n0=10)
+c      parameter (n0=10)hl
 cki      type(s_site)::ssite(*)
 c      type(s_site)::ssite(nbas)
 c      type(s_spec)::sspec(*)
@@ -33,7 +33,7 @@ C ... Local parameters
       integer ib,ibs,iclbsj,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,
      .nr,nrmx,nrspec
       parameter (nrmx=1501, nkap0=3)
-      integer lh(nkap0),nkape,idamax
+      integer:: lh(nkap0),nkape,idamax,nkapex
       integer ,allocatable :: ips_iv(:)
       double precision z,a,rmt,rs3,eh3,vmtz,xx
       double precision rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas),
@@ -46,6 +46,10 @@ C --- Setup ---
       call tcn('elocp')
       if(allocated(ehl)) deallocate(ehl,rsml)
       allocate( ehl(n0,nspec),rsml(n0,nspec))
+!!      
+      if(allocated(ex)) deallocate(ex,rx)
+      allocate( ex(n0,nspec),rx(n0,nspec))
+      
       ipr = iprint()
       eloc = .false.
       vsel=0d0
@@ -137,9 +141,9 @@ C   ... Make parameters for this species
         call dpzero(rsmh,n0*nkap0)
         call dpzero(eh,n0*nkap0)
         
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-        nkape=nkapii(is)
-c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
+        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapex)
+        nkape = nkapii(is)
+c       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
         
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
@@ -155,7 +159,10 @@ c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
 !!        
         rsml(1:n0,is) = rsmls(1:n0)
         ehl(1:n0,is) = ehls(1:n0)
-!!
+!! copy xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        rx(1:n0,is) = rsml(1:n0,is)
+        ex(1:n0,is) = ehls(1:n0)
+c!!
         call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
         call dcopy(n0,ehl, 1,eh(1,nkaph),1)
         call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)
