@@ -150,7 +150,7 @@ c      do  ib1 = 1, nbas
         i_copy_size=size(ssite(ib1)%pos)
         call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
 
-        call uspecb(0,2,sspec,is1,is1,lh1,rsm1,e1,nkap1)
+        call uspecb(is1,lh1,rsm1,e1,nkap1)
 C       Row info telling fsmbpw where to poke s0 made by hhibl
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
 C       For now, do not allow l blocks to be grouped.

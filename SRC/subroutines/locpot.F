@@ -429,7 +429,7 @@ C     ... Smooth Hankel tails for local orbitals
           call dpzero(eh,n0*nkap0)
 c      call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
 c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+          call uspecb(is,lh,rsmh,eh,nkape)
           nkapi=nkapii(is)
           print *,'qqx nkapi nkape=',nkapi,nkape
           if (nkape .gt. nkapi) then

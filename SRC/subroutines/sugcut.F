@@ -60,7 +60,7 @@ c      parameter (nkap0=3,n0=10)
         spid = sspec(is)%name
         nkap1 = 1
 c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
+        call uspecb(is,lh,rsmh,eh,nkap2)
         nkapi = nkapii(is)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode>1) then

@@ -114,7 +114,7 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(is,lh,rsmh,eh,nkapi)
         nkapi=nkapii(is)
 C  ...  Loop over orbitals for this species
         write(stdo,948)

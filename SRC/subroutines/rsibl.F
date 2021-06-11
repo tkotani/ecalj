@@ -538,7 +538,7 @@ c takao
 C       List of orbitals, their l- and k- indices, and ham offsets
         call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Block into groups with consecutive l and common (e,rsm)
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(is,lh,rsmh,eh,nkapi)
         call gtbsl1(7+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
         call dpzero(psi0,ng*2*nspc*nvec)

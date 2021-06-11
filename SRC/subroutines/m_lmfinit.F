@@ -2136,7 +2136,7 @@ c      enddo
       rsml=-999d0
       
       if(master_mpi) then
-         write(stdo,"('mmm --- MTO setting ---')")
+         write(stdo,"('mmm === MTO setting ===')")
          do i=1,nspec
          write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
          write(stdo,"('mmm rsmh  ',i4,100f6.2)")i,  rsmh(1:lmxbj+1,i)

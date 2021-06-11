@@ -188,7 +188,7 @@ C --- Start loop over atoms ---
         stc0=sspec(is)%stc
         call corprm(sspec,is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc,rfoc,z)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+        call uspecb(is,lh,rsmh,eh,nkape)
         nkapi=nkapii(is)
         call orbl ( ib , 0 , nlmto , iv_a_oindxo , norb , ltab , ktab 
      .   , xx , offl , xx )

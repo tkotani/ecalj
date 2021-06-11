@@ -85,11 +85,9 @@ C --- Determine shape of smooth Hankel tails for local orbitals ---
       do i_spackv=1,nbas
         ips_iv(i_spackv)=ssite(i_spackv)%spec
       enddo
+      
 C ... Loop over species containing extended local orbitals
       do  is = 1, nspec
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
         spid=sspec(is)%name
         z=sspec(is)%z
         lmxa=sspec(is)%lmxa
@@ -103,7 +101,6 @@ c        enddo
         i_copy_size=size(ssite(ib)%pz)
         call dcopy(i_copy_size,ssite(ib)%pz,1,pnzi,1)
         if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 20
-
 C   ... Average over sites within this species
         vseli=0d0 !call dpzero(vseli,4*n0)
         do  ibs = 1, nrspec
@@ -111,11 +108,9 @@ C   ... Average over sites within this species
           i_copy_size=size(ssite(ib)%pz)
           call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
           if (pnzi(idamax(lmxb+1,pnzi,1),1) .lt. 10) goto 22
-c          call dpadd(vseli,vsel(1,1,ib),1,4*n0,1/dble(nrspec))
           vseli = vseli + vsel(:,:,ib)/dble(nrspec)
    22     continue
         enddo
-
 C   ... Printout of input for parameters
         if (ipr .ge. 90/1) then
           write(stdo,261) spid
@@ -125,50 +120,32 @@ C   ... Printout of input for parameters
             if (pnz(l+1,1) .lt. 10) goto 24
             do  ibs = 1, nrspec
               ib = iclbsj ( is , ips_iv , nbas , ibs )
-
               write (stdo,260)
      .        l,ib,vsel(4,l+1,ib),(vsel(k,l+1,ib),k=2,4)
   260         format(i3,i4,4f12.6:a)
   262         format(i3,' avg',4f12.6)
             enddo
             write (stdo,262) l,vseli(4,l+1),(vseli(k,l+1),k=2,4)
-
    24       continue
           enddo
         endif
-
-C   ... Make parameters for this species
-c        call dpzero(rsmh,n0*nkap0)
-c        call dpzero(eh,n0*nkap0)
-c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapex)
-c        nkape = nkapii(is)
-        
+!!        
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
         vmtz=sspec(is)%vmtz
         a=sspec(is)%a
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
-        rsmls=0d0 !call dpzero(rsmls,n0*2)
-        ehls=0d0  !call dpzero(ehls,n0*2)
-!1102 means spin-averaged ehl,rsml
+        rsmls=0d0 
+        ehls=0d0  
         call radmsh(rmt,a,nr,rofi)
-        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
+!1102 means spin-averaged ehl,rsml
+        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi
      .       , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsmls , ehls )
-!!        
-        rsml(1:n0,is) = rsmls(1:n0)
-        ehl(1:n0,is) = ehls(1:n0)
-!! copy xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-c        rx(1:n0,is) = rsml(1:n0,is)
-c        ex(1:n0,is) = ehls(1:n0)
-cc!!
-c        call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
-c        call dcopy(n0,ehl, 1,eh(1,nkaph),1)
-c        call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)
-
+        rsml(1:n0,is) = rsmls(1:n0) !Rsmooth for PZ
+        ehl(1:n0,is) = ehls(1:n0)   !Eh for PZ
    20   continue
       enddo
-
   999 continue
       call tcx('elocp')
       if (allocated(ips_iv)) deallocate(ips_iv)

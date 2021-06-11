@@ -45,7 +45,7 @@ C ... Local parameters
 
 C --- Loop over orbitals (is,io) ---
       do  is = 1, nspec
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
+        call uspecb(is,lh,rsmh,eh,nkape)
 
         do  ik = 1, nkape
           ltop = max0(ltop,lh(ik))

@@ -146,7 +146,7 @@ C --- Start loop over atoms ---
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+        call uspecb(is,lh,rsmh,eh,nkapi)
         nkapi=nkapii(is)
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
@@ -289,7 +289,7 @@ C ... Local parameters
       nlmto = ndimh-napw
       nlma  = (lmxa+1)**2
 c      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
-      call uspecb(0,2,sspec,isa,isa,lh,rsmh,eh,nkape)
+      call uspecb(isa,lh,rsmh,eh,nkape)
       nkape=nkapii(isa)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))

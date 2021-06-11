@@ -257,7 +257,7 @@ C       List of orbitals, their l- and k- indices, and ham offsets
           call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
           ofh1 = offl1(1)
 C       Block routines into groups with common (e,rsm)
-          call uspecb(0,2,sspec,is1,is1,lh,rsmh1,eh1,nkap1)
+          call uspecb(is1,lh,rsmh1,eh1,nkap1)
           call gtbsl1(7+16,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1)
           do  iorb1 = 1, norb1
             if (blks1(iorb1) .ne. 0) then
@@ -298,7 +298,7 @@ C         List of orbitals, their l- and k- indices, and ham offsets
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             ofh2 = offl2(1)
 C         Block into groups with consecutive l and common (e,rsm)
-            call uspecb(0,2,sspec,is2,is2,xxxx,rsmh2,eh2,nkap2)
+            call uspecb(is2,xxxx,rsmh2,eh2,nkap2)
             call gtbsl1(7+16,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
             do  iorb2 = 1, norb2
               if (blks2(iorb2) .ne. 0) then

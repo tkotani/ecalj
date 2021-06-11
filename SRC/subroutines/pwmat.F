@@ -179,7 +179,7 @@ C     Could be optimized, ala hsibl, but not a critical step for GW.
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
           is = int(ssite(ib)%spec)
 
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+          call uspecb(is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
@@ -372,7 +372,7 @@ C ... Fourier coefficients of smoothed hankels for all LMTOs
           phase = exp( -img * sum( qpg*bas(:,ib)*alat )  )
           is = int(ssite(ib)%spec)
 
-          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
+          call uspecb(is,lh,rsmh,eh,nkapi)
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
           call gtbsl1(8+16,norb,ltab,ktab,rsmh,eh,ntab,blks)
 
