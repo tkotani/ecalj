@@ -2127,9 +2127,9 @@ c      enddo
       lhh=-1
       do i=1,nspec
          lmxbj = lmxb(i)
-         call getiout(rsmh, lmxbj+1,lhh(1,i))
-         if(nkapii(i)==2) call getiout(rsmh2,lmxbj+1,lhh(2,i))
-         if(lpz(i)==1 )   call getiout(pz,lmxbj+1,lhh(nkaph,i))!lh for lo
+         call getiout(rsmh(1,i), lmxbj+1,lhh(1,i))
+         if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
+         if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
       allocate( ehl(n0,nspec),rsml(n0,nspec))
       ehl=-999d0

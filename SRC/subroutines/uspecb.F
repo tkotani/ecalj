@@ -5,8 +5,8 @@
       subroutine uspecb(lpack,mode,sspec,is1,is2,lh,rsmh,eh,nkape)
       use m_struc_def  !Cgetarg
       use m_lmfinit,only: nkaph,nspec,nkapii_=>nkapii,nkaphh,
-     &     rsmhss=>rsmh,rsmh2ss=>rsmh2,ehss=>eh,eh2ss=>eh2,lhh,lpzex,rsml,ehl
-c      use m_elocp,only: rsml,ehl
+     &     rsmhss=>rsmh,rsmh2ss=>rsmh2,ehss=>eh,eh2ss=>eh2,lhh,lpzex !,rsml,ehl
+       use m_elocp,only: rsml,ehl
 C- Pack/unpack parameters related to basis
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -94,185 +94,40 @@ C ... Passed parameters
          allocate(nkapii(nspec))
          init=.false.
       endif
-      
        
-c      if (mode .eq. -1) then
-c        return
-c      elseif (mode .eq. 0) then
-c$$$        i = 0
-c$$$        j = 0
-c$$$        l = 0
-c$$$        do  is = is1, is2
-c$$$          lmxa=sspec(is)%lmxa
-c$$$          lmxb=sspec(is)%lmxb
-c$$$          i_copy_size=size(sspec(is)%pz)
-c$$$          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-c$$$          if (lmxa .gt. -1) then
-c$$$            do  k = 1, lmxb+1
-c$$$              if (pnz(k,1) .gt.  0) i = 1
-c$$$              if (pnz(k,1) .ge. 10) j = 1
-c$$$              if (pnz(k,1) .ge. 20) l = 1
+c$$$      if(lpack/=0) then
+c$$$          do  is = is1, is2
+c$$$            nkapi = mod(nkape,10)
+c$$$            npzi = 0
+c$$$            if (nkape .gt. 10) npzi = 1
+c$$$            kkap = 0
+c$$$            do  ikap = 1, nkaph
+c$$$              if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
+c$$$                kkap = kkap+1
+c$$$                call dcopy(n0,rsmh(1,kkap,is),1,orbp(1,1,ikap),1)
+c$$$                call dcopy(n0,eh(1,kkap,is),  1,orbp(1,2,ikap),1)
+c$$$              endif
 c$$$            enddo
-c$$$          endif
+c$$$            i_copy_size=size(sspec(is)%orbp)
+c$$$            call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
 c$$$        enddo
-c$$$        nkape = 10*i+100*j+1000*l
-c$$$c      elseif (mode .le. 4) then
-c        if (mode .eq. 3) call rx('uspecb: mode=3 not implemented')
-        if (lpack .eq. 0) then
+c$$$      endif
+      
+      if(lpack==0) then
           nkape = 0
           npze = 0
-        endif
-        do  is = is1, is2
-          spid=sspec(is)%name
-          call dpzero(orbp,n0*nkap0*2)
-          i_copy_size=size(sspec(is)%orbp)
-          call dcopy(i_copy_size,sspec(is)%orbp,1,orbp,1)
-          lmxb=sspec(is)%lmxb
-          i_copy_size=size(sspec(is)%pz)
-          call dcopy(i_copy_size,sspec(is)%pz,1,pnz,1)
-C   --- Unpack ---
-          if (lpack .eq. 0) then
-C     ... make nkapi,npzi
-            lpzi = 0
-            do  k = 1, lmxb+1
-              lpzl = 0
-              if (pnz(k,1) .gt.  0) lpzl = 1
-              if (pnz(k,1) .ge. 10) lpzl = 2
-              if (pnz(k,1) .ge. 20) lpzl = 3
-              lpzi = max(lpzi,lpzl)
-            enddo
-            npzi = 0
-            if (lpzi .gt. 1 .and. (mode.ge.2 .and. mode.le.4)) npzi = 1 !for +10 +20
-C     ... Count number of envelope energy channels nkapi (<=nkaph).
-C         There are the following possibilities:
-C         1. energy channel nkaph is a local orbital
-C            1a.  local orbital for this species.  Then lpzi>0
-C            1b.  local orbital for another species.  Then all rsmh=0
-C                 for channel nkaph.
-C         2. This species has no envelopes in energy channel nkapi.
-C            Then all rsmh=0
-C         Handle case 1a first:
-            nkapi = nkaph
-            if (lpzi .ne. 0) nkapi = nkaph-1
-C         Cases 1b and 2 both handled by checking for rsmh=0 in channel.
-   10       continue
-            if (dasum(n0,orbp(1,1,nkapi),1) .eq. 0) then
-              nkapi = nkapi - 1
-              if (nkapi .gt. 0) goto 10
-            endif
-C     ... unpack rsmh,eh; make lh
-            if (mode .eq. 4) then
-              call dpzero(eh(1,1,is),n0)
-              call dpzero(rsmh(1,1,is),n0)
-              nkapi = 0
-            else
-              call dpzero(eh(1,1,is),n0*nkap0)
-              call dpzero(rsmh(1,1,is),n0*nkap0)
-           endif
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
-            lh(:,is) = -1
-            nkapii(is) = nkapi
-            do ikap = 1, nkapi
-c               call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,ikap,is),1)
-               do  l = lmxb, 0, -1
-                  if (orbp(l+1,1,ikap)>0) then !rsmh(l+1,ikap,is) .gt. 0) then
-                     lh(ikap,is) = l !max l for ikap
-                     exit
-                  endif
-               enddo
-            enddo
-            do  ikap = nkapi, 1, -1
-              if (lh(ikap,is) .eq. -1) nkapii(is) = nkapii(is)-1
-            enddo
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc            
-            do  ikap = 1, nkap0
-              kkap = ikap
-c              if (mode .eq. 4) kkap = 1
-              lh(kkap,is) = -1
-            enddo
-            do  ikap = 1, nkaph
-              if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
-                kkap = ikap
-c                if (mode .eq. 4) kkap = 1
-                call dcopy(n0,orbp(1,1,ikap),1,rsmh(1,kkap,is),1)
-                call dcopy(n0,orbp(1,2,ikap),1,eh(1,kkap,is),1)
-                do  l = lmxb, 0, -1
-                  if (rsmh(l+1,kkap,is) .gt. 0) then
-                    lh(kkap,is) = l
-                    if (eh(l+1,kkap,is) .ge. 0) call rxi('species '//spid//
-     .              '%a has positive Hankel energy for l=',l)
-                    goto 116
-                  endif
-                enddo
-  116           continue
-              endif
-            enddo
-C         If no channel has orbital, eliminate kappa
-            do  ikap = nkapi, 1, -1
-              if (lh(ikap,is) .eq. -1) nkapi = nkapi-1
-            enddo
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc           
-C     ... lh for local orbital
-            kkap = nkaph
-c            if (mode .eq. 4) kkap = 1
-            do  l = 0, lmxb
-              if (pnz(l+1,1) .ne. 0) then
-                lh(kkap,is) = l
-              endif
-            enddo
-            nkape = max(nkape,nkapi)
-            npze = max(npze,npzi)
-cccccccccccccccccc            
-c          print *,"qqqqqqq1",lh(:,is)
-c          print *,"qqqqqqq1",rsmh(:,1,is)
-c          print *,"qqqqqqq1",eh(:,1,is)
-c          print *,"qqqqqqq1",rsmh(:,2,is)
-c          print *,"qqqqqqq1",eh(:,2,is)
-c          print *,"qqqqqqq1",mode,is,nkapii(is),nkape
-c          print *,' qqqq nkape=',nkape
-cccccccccccccccccccc
-
-C   --- Pack ---
-          else
-c            if (mode .ge. 2) call rx('mode>1 not allowed for write')
-            nkapi = mod(nkape,10)
-            npzi = 0
-            if (nkape .gt. 10) npzi = 1
-            kkap = 0
-            do  ikap = 1, nkaph
-              if (ikap.le.nkapi .or. ikap.eq.nkaph .and. npzi.ne.0) then
-                kkap = kkap+1
-                call dcopy(n0,rsmh(1,kkap,is),1,orbp(1,1,ikap),1)
-                call dcopy(n0,eh(1,kkap,is),  1,orbp(1,2,ikap),1)
-              endif
-            enddo
-            i_copy_size=size(sspec(is)%orbp)
-            call dcopy(i_copy_size,orbp,1,sspec(is)%orbp,1)
-          endif
-        enddo
-        if (lpack .eq. 0) then
-          if (npze.ne.0 .and. mode .eq. 2) nkape=nkaph
-c          if (npze.ne.0 .and. mode .eq. 4) nkape=1
-       endif
-     
-c      else
-c        call rxi('uspecb: mode not implemented, mode',mode)
-c     endif
-
-
-cccccccccccccccccccccccccccccccccccccccc
-       if(lpack==0) then
+          eh  = 0d0
+          rsmh= 0d0
           is=is1
           nkape     = nkaphh(is)
           nkapii(is)= nkapii_(is)
           lh(:,is)  = lhh(:,is)
           rsmh(:,1,is) = rsmhss(:,is)
-          if(nkapii(is)==2) rsmh(:,2,is)=rsmh2ss(:,is)
-          if(lpzex(is) ==1) rsmh(:,nkaphh(is),is)=rsml(:,is)
           eh(:,1,is) = ehss(:,is)
+          if(nkapii(is)==2) rsmh(:,2,is)=rsmh2ss(:,is)
           if(nkapii(is)==2) eh(:,2,is)=eh2ss(:,is)
-          if(lpzex(is)==1)  eh(:,nkaphh(is),is)=ehl(:,is)
+          if(lpzex(is)==1.and.allocated(rsml))  rsmh(:,nkaphh(is),is)=rsml(:,is)
+          if(lpzex(is)==1.and.allocated(ehl))  eh(:,nkaphh(is),is)=ehl(:,is)
 c          print *,"qqqqqqq",lh(:,is)
 c          print *,"qqqqqqq",rsmh(:,1,is)
 c          print *,"qqqqqqq",eh(:,1,is)
@@ -280,11 +135,7 @@ c          print *,"qqqqqqq",rsmh(:,2,is)
 c          print *,"qqqqqqq",eh(:,2,is)
 c          print *,"qqqqqqq",mode,is,nkapii(is),nkape
 c          return
-       endif   
+      endif   
 ccccccccccccccccccccccccccccccccccccccccccccccc
-          
-       
       end subroutine uspecb
-
-
       end module

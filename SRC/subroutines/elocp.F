@@ -5,7 +5,7 @@
       contains
       subroutine elocp() 
       use m_struc_def  
-      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,ex=>ehl,rx=>rsml
+      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0!,ex=>ehl,rx=>rsml
       use m_uspecb,only: uspecb,nkapii
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
@@ -47,8 +47,8 @@ C --- Setup ---
       if(allocated(ehl)) deallocate(ehl,rsml)
       allocate( ehl(n0,nspec),rsml(n0,nspec))
 !!      
-      if(allocated(ex)) deallocate(ex,rx)
-      allocate( ex(n0,nspec),rx(n0,nspec))
+c      if(allocated(ex)) deallocate(ex,rx)
+c      allocate( ex(n0,nspec),rx(n0,nspec))
       
       ipr = iprint()
       eloc = .false.
@@ -138,12 +138,10 @@ C   ... Printout of input for parameters
         endif
 
 C   ... Make parameters for this species
-        call dpzero(rsmh,n0*nkap0)
-        call dpzero(eh,n0*nkap0)
-        
-        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapex)
-        nkape = nkapii(is)
-c       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
+c        call dpzero(rsmh,n0*nkap0)
+c        call dpzero(eh,n0*nkap0)
+c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapex)
+c        nkape = nkapii(is)
         
         rs3=sspec(is)%rs3
         eh3=sspec(is)%eh3
@@ -153,19 +151,20 @@ c       call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkape)
         rmt=sspec(is)%rmt
         rsmls=0d0 !call dpzero(rsmls,n0*2)
         ehls=0d0  !call dpzero(ehls,n0*2)
+!1102 means spin-averaged ehl,rsml
         call radmsh(rmt,a,nr,rofi)
-        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi !1102 means spin-averaged ehl,rsml
+        call loctsh ( 1102 , spid , xx , a , nr , nr , nsp , lmxa , rofi 
      .       , iwdummy , pnui , pnzi , rs3 , eh3 , vmtz , vseli , rsmls , ehls )
 !!        
         rsml(1:n0,is) = rsmls(1:n0)
         ehl(1:n0,is) = ehls(1:n0)
 !! copy xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        rx(1:n0,is) = rsml(1:n0,is)
-        ex(1:n0,is) = ehls(1:n0)
-c!!
-        call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
-        call dcopy(n0,ehl, 1,eh(1,nkaph),1)
-        call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)
+c        rx(1:n0,is) = rsml(1:n0,is)
+c        ex(1:n0,is) = ehls(1:n0)
+cc!!
+c        call dcopy(n0,rsml,1,rsmh(1,nkaph),1)
+c        call dcopy(n0,ehl, 1,eh(1,nkaph),1)
+c        call uspecb(1,1,sspec,is,is,lh,rsmh,eh,nkaph)
 
    20   continue
       enddo
