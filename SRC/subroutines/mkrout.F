@@ -1,6 +1,7 @@
       module m_mkrout
       use m_struc_def
-      use m_uspecb,only:uspecb,nkapii
+      use m_uspecb,only:uspecb
+      use m_lmfinit,only:nkapii,lhh
       public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)
@@ -215,7 +216,7 @@ C   ... Set up all radial head and tail envelope functions, and their bc's
           allocate(xh_rv(nr*(lmxh+1)*nkaph))
           allocate(vh_rv((lmxh+1)*nkaph))
           allocate(dh_rv((lmxh+1)*nkaph))
-          call fradhd ( nkaph , eh, rsmh , lh, lmxh , nr, rofi_rv, fh_rv , xh_rv , vh_rv , dh_rv )
+          call fradhd ( nkaph , eh, rsmh , lhh(:,is), lmxh , nr, rofi_rv, fh_rv , xh_rv , vh_rv , dh_rv )
           allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
           allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
           allocate(vp_rv((lmxa+1)*(kmax+1)))

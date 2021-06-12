@@ -95,7 +95,7 @@ C     .      ' start=',i4,' stop=',i4)
      .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
       use m_struc_def  !Cgetarg
       use m_prlcb1
-      use m_lmfinit,only:lat_alat
+      use m_lmfinit,only:lat_alat,lhh,nkaphh,nkapii
       use m_lattic,only: lat_qlat
       use m_lattic,only: lat_vol
       use m_uspecb,only:uspecb
@@ -208,12 +208,11 @@ C       This line augments extended local orbitals all sites
 c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
           call uspecb(is,lh,rsmh,eh,nkapi)
           
-          
 C       Position in h; l,k indices for orbitals connected w/ ib
           call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
 C       Loop over blocks of envelope functions
-          do  ik = 1, nkapi
-            nlmh = (lh(ik)+1)**2
+          do  ik = 1, nkaphh(is)
+            nlmh = (lhh(ik,is)+1)**2
             if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
             if (nlmh .gt. nlma .and. ia.eq.ib)
      .      call rx('augmbl: nlmh.gt.nlma')

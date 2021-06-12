@@ -1,6 +1,6 @@
       subroutine sugcut(mode,sspec)
       use m_struc_def       
-      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0
+      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
       use m_uspecb,only:uspecb,nkapii
 C- Find max recip for each spec and orbital block, store in struct.
@@ -61,6 +61,7 @@ c      parameter (nkap0=3,n0=10)
         nkap1 = 1
 c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(is,lh,rsmh,eh,nkap2)
+        nkap2 = nkaphh(is)
         nkapi = nkapii(is)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         if (mode>1) then
@@ -77,14 +78,14 @@ c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkap2)
         gg0 = gg
         do  ik = nkap1, nkap2
           lcut = -1
-          do  l  = 0, lh(ik)
+          do  l  = 0, lhh(ik,is)
             e = eh(l+1,ik)
             rsm = rsmh(l+1,ik)
             if (rsm .ne. 0) then
-              if (l .lt. lh(ik) .and. l .gt. lcut) then
+              if (l .lt. lhh(ik,is) .and. l .gt. lcut) then
                 lcut = l-1
    12           lcut = lcut+1
-                if (lcut .lt. lh(ik)) then
+                if (lcut .lt. lhh(ik,is)) then
                   if (rsmh(lcut+2,ik).eq.rsm .and. eh(lcut+2,ik).eq.e) goto 12
                 endif
               endif

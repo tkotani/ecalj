@@ -5,10 +5,10 @@
      .    rveps , rvvxc , valvef , xcore , focexc , focex , focec , focvxc 
      .    , sqloc , sqlocc , saloc , qval , qsc , job , rhobg , nlibu , 
      .     lmaxu , vorb , lldau )
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkaph,stdo,lxcf,lhh,nkapii,nkaphh
       use m_MPItk,only: master_mpi
       use m_struc_def  
-      use m_uspecb,only:uspecb,nkapii
+      use m_uspecb,only:uspecb
 C- Make the potential at the atomic sites and augmentation matrices.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -431,6 +431,7 @@ c      call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
 c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
           call uspecb(is,lh,rsmh,eh,nkape)
           nkapi=nkapii(is)
+          nkape=nkaphh(is)
           print *,'qqx nkapi nkape=',nkapi,nkape
           if (nkape .gt. nkapi) then
             call dcopy(n0,rsmh(1,nkaph),1,rsml,1)
@@ -446,7 +447,7 @@ C     ... Use effective potentials with modified xc
           call augmat ( z , rmt , rsma , lmxa , pnu , pnz , kmax , nlml
      .           , a , nr , nsp , lso , rofi , rwgt , rv_a_ocg, iv_a_ojcg, iv_a_oidxcg
      .           , ssite(ib)%rv_a_ov0 , v1 , v2 , gpotb , gpot0 ( j1 ) , nkaph , nkapi , 
-     .           lmxb , lh , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
+     .           lmxb , lhh(:,is) , eh , rsmh , ehl , rsml , rs3 , vmtz , lcplxp , lmaxu 
      .           , vorb , lldau ( ib ) , iblu , idu , sv_p_osig ( 1 , ib ) , sv_p_otau 
      .           ( 1 , ib ) , sv_p_oppi ( 1 , ib ) , ppnl ( 1 , 1 , 1 , ib ) , 
      .           hab ( 1 , 1 , 1 , ib ) , vab ( 1 , 1 , 1 , ib ) , sab ( 1 , 1 

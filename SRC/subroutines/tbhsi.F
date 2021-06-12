@@ -1,6 +1,7 @@
       subroutine tbhsi(sspec,nspec,nermx,net,et,ipet,nrt,rt,iprt,ltop)
       use m_uspecb,only:uspecb
       use m_struc_def,only:s_spec
+      use m_lmfinit,only: nkaphh,lhh
 C- Table of orbital envelope energies and smoothing radii
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -38,23 +39,16 @@ C ... Local parameters
       double precision x1,x2,rsmh(n0,nkap0),eh(n0,nkap0)
       logical dcmpre
       dcmpre(x1,x2) = dabs(x1-x2) .lt. 1d-8
-
       net = 0
       nrt = 0
       ltop = -1
-
 C --- Loop over orbitals (is,io) ---
       do  is = 1, nspec
         call uspecb(is,lh,rsmh,eh,nkape)
-
-        do  ik = 1, nkape
-          ltop = max0(ltop,lh(ik))
-C       l2 = -1
-          do  l = 0, lh(ik)
+        do  ik = 1, nkaphh(is) !nkape
+          ltop = max0(ltop,lhh(ik,is))
+          do  l = 0, lhh(ik,is)
             if (rsmh(l+1,ik) .gt. 0) then
-C         if (l .gt. l2) then
-C         call gtbsl(l,lh(ik),eh(1,ik),rsmh(1,ik),l2)
-
 C     ... Find eh, or add it to list
               j = 0
               do  k = 1, net
@@ -94,7 +88,6 @@ C     ... Find rmsh, or add it to list
           enddo
         enddo
       enddo
-
 C ... Debugging printout
 C      write (*,400) net,nrt,ltop
 C  400 format(/' tbhsi: ',i4,' energies,',i4,'  radii,  ltop=',i3)
@@ -102,6 +95,5 @@ C      write (*,401) (et(j),j=1,net)
 C  401 format('  E=',10f8.3)
 C      write (*,402) (rt(j),j=1,nrt)
 C  402 format('  R=',10f8.3)
-
       end
 

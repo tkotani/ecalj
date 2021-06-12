@@ -1,9 +1,7 @@
       subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, !,slat
      .     numq,nevec,evl,evec,ewgt,f)
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh
       use m_uspecb,only:uspecb
-
-
       use m_struc_def 
 C- Force from smoothed hamiltonian (constant potential) and overlap
 C ----------------------------------------------------------------------
@@ -161,10 +159,10 @@ C         Column info telling fsmbl where to poke s0 made by hhibl
           call gtbsl1(4+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
 
 C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
-          do  i1 = 1, nkap1
-            do  i2 = 1, nkap2
-              nlm1 = (lh1(i1)+1)**2
-              nlm2 = (lh2(i2)+1)**2
+          do  i1 = 1, nkaphh(is1) !nkap1
+            do  i2 = 1, nkaphh(is2) !nkap2
+              nlm1 = (lhh(i1,is1)+1)**2
+              nlm2 = (lhh(i2,is2)+1)**2
               if (nlm1 .gt. nlms .or. nlm2 .gt. nlms)
      .        call rx('fsmbl: increase nlms')
               call hhigbl ( 11 , p1 , p2 , q , rsm1 ( 1 , i1 ) , rsm2 ( 1 , 

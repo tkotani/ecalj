@@ -28,7 +28,7 @@ C ... Passed parameters
 
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: nbas,nspec,stdo
+      use m_lmfinit,only: nbas,nspec,stdo,lhh
       use m_uspecb,only:uspecb,nkapii
 
 
@@ -115,18 +115,17 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         call radwgt(rmt,a,nr,rwgt)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(is,lh,rsmh,eh,nkapi)
-        nkapi=nkapii(is)
 C  ...  Loop over orbitals for this species
         write(stdo,948)
-        do  ik = 1, nkapi
+        do  ik = 1, nkapii(is)
           l2 = -1
-          do  l1  = 0, lh(ik)
+          do  l1  = 0, lhh(ik,is)
             e = eh(l1+1,ik)
             rsm = rsmh(l1+1,ik)
             if (rsm .ne. 0 .and. l1 .gt. l2) then
               l2 = l1-1
    12         l2 = l2+1
-              if (l2 .lt. lh(ik)) then
+              if (l2 .lt. lhh(ik,is)) then
                 if (rsmh(l2+2,ik).eq.rsm .and. eh(l2+2,ik).eq.e) goto 12
               endif
 
