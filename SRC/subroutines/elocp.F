@@ -5,8 +5,8 @@
       contains
       subroutine elocp() 
       use m_struc_def  
-      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0!,ex=>ehl,rx=>rsml
-      use m_uspecb,only: uspecb,nkapii
+      use m_lmfinit,only: nkaph,stdo,nspec,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,n0,nkapii!,ex=>ehl,rx=>rsml
+c      use m_uspecb,only: uspecb
 C- Make envlope parameters for extended local orbitals
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -33,7 +33,7 @@ C ... Local parameters
       integer ib,ibs,iclbsj,ipr,iprint,is,k,l,lmxa,lmxb,nglob,nkap0,
      .nr,nrmx,nrspec
       parameter (nrmx=1501, nkap0=3)
-      integer:: lh(nkap0),nkape,idamax,nkapex
+      integer:: nkape,idamax,nkapex !lh(nkap0),
       integer ,allocatable :: ips_iv(:)
       double precision z,a,rmt,rs3,eh3,vmtz,xx
       double precision rofi(nrmx),vseli(4,n0),vsel(4,n0,nbas),

@@ -28,8 +28,8 @@ C ... Passed parameters
 
       subroutine chkxpn(ssite,sspec)
       use m_struc_def  !Cgetarg
-      use m_lmfinit,only: nbas,nspec,stdo,lhh
-      use m_uspecb,only:uspecb,nkapii
+      use m_lmfinit,only: nbas,nspec,stdo,lhh,nkapii
+      use m_uspecb,only:uspecb
 
 
 C- Check accuracy of Pkl expansions of augmented functions
@@ -43,7 +43,7 @@ C ... Local parameters
       parameter (k0=20, nlm0=25, nrx=201)
       parameter (nkap0=3,n0=10)
       integer:: ib1 , is , iclbsj , nr , j1 
-     ., nch , lmxa , kmax , lh(nkap0) , nkapi , ik , l1 , l2 , l , 
+     ., nch , lmxa , kmax , nkapi , ik , l1 , l2 , l ,  !lh(nkap0) , 
      .lmax , nlm , k , i , ilm , ipr
       integer ,allocatable :: ips_iv(:)
 
@@ -114,7 +114,7 @@ C        call u_spec_a(sspec,is,lmxa,lmxh,kmax,rsma)
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(is,lh,rsmh,eh,nkapi)
+        call uspecb(is,rsmh,eh)
 C  ...  Loop over orbitals for this species
         write(stdo,948)
         do  ik = 1, nkapii(is)

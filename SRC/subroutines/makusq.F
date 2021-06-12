@@ -1,11 +1,11 @@
       subroutine makusq(mode,nsites,isite,
      .     nev,isp,iq,q,evec,  aus)
       use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nbas,nlmax,nsp,nspc,nkapii,lhh
       use m_suham,only: ndham=>ham_ndham,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv       
-      use m_uspecb,only:uspecb,nkapii
+      use m_uspecb,only:uspecb
 C- Accumulate coefficients of (u,s) in all augmentation spheres at one k-pt
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -108,7 +108,7 @@ c      double precision ppnl(nppn,n0,nsp,nbas)
 C ... Local parameters
       integer nkap0
       parameter (nkap0=3)
-      integer lh(nkap0)
+c      integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0),rsma,a,rmt
       integer igetss,ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i
 ckino Dec.12.2011:         integer,pointer :: iv_p_oiprmb(:) =>NULL()
@@ -146,7 +146,7 @@ C --- Start loop over atoms ---
         nr=sspec(is)%nr
         rmt=sspec(is)%rmt
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(is,lh,rsmh,eh,nkapi)
+        call uspecb(is,rsmh,eh)
         nkapi=nkapii(is)
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
@@ -157,7 +157,7 @@ C   --- Set up all radial head and tail functions, and their BC's
         allocate(xh_rv(nr*(lmxh+1)*nkapi))
         allocate(vh_rv((lmxh+1)*nkapi))
         allocate(dh_rv((lmxh+1)*nkapi))
-        call fradhd ( nkapi , eh , rsmh , lh , lmxh , nr , rofi_rv 
+        call fradhd ( nkapi , eh , rsmh , lhh(:,is) , lmxh , nr , rofi_rv 
      .  , fh_rv , xh_rv , vh_rv , dh_rv )
         allocate(fp_rv(nr*(lmxa+1)*(kmax+1)))
         allocate(xp_rv(nr*(lmxa+1)*(kmax+1)))
@@ -188,8 +188,8 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
       subroutine pusq1(mode,ia,isp,nspc,iprmb,nlmax,lmxh,nbas,ssite,
      .sspec,q,ndham,ndimh,napw,igvapw,nev,evec,vh,dh,vp,dp,ppnl, !slat,
      .     au,as,az)
-      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg
-      use m_uspecb,only:uspecb,nkapii
+      use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
+      use m_uspecb,only:uspecb
 
 
       use m_struc_def  !Cgetarg
@@ -266,7 +266,7 @@ c      type(s_lat)::slat
 C ... Local parameters
       integer nkap0,nlmxx
       parameter (nkap0=3,nlmxx=121)
-      integer lh(nkap0)
+c      integer lh(nkap0)
       complex(8) ,allocatable :: b_zv(:)
       complex(8) ,allocatable :: a_zv(:)
       integer isa,lmxa,lmxha,kmax,nlma,ivec,
@@ -289,7 +289,7 @@ C ... Local parameters
       nlmto = ndimh-napw
       nlma  = (lmxa+1)**2
 c      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
-      call uspecb(isa,lh,rsmh,eh,nkape)
+      call uspecb(isa,rsmh,eh)
       nkape=nkapii(isa)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))

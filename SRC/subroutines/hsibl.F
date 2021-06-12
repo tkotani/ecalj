@@ -109,7 +109,7 @@ C     Shared variables
       integer ,allocatable :: iv_iv(:)
       complex(8) ,allocatable :: wk2_zv(:)
       integer iprt(n0,nkap0,nermx),ipet(n0,nkap0,nermx),
-     .ncut(n0,nkap0),lh(nkap0)
+     .ncut(n0,nkap0)!,lh(nkap0)
       integer norb1,ltab1(n0*nkap0),ktab1(n0*nkap0),offl1(n0*nkap0),
      .blks1(n0*nkap0),ntab1(n0*nkap0)
       integer norb2,ltab2(n0*nkap0),ktab2(n0*nkap0),offl2(n0*nkap0),
@@ -257,7 +257,7 @@ C       List of orbitals, their l- and k- indices, and ham offsets
           call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
           ofh1 = offl1(1)
 C       Block routines into groups with common (e,rsm)
-          call uspecb(is1,lh,rsmh1,eh1,nkap1)
+          call uspecb(is1,rsmh1,eh1)
           call gtbsl1(7+16,norb1,ltab1,ktab1,rsmh1,eh1,ntab1,blks1)
           do  iorb1 = 1, norb1
             if (blks1(iorb1) .ne. 0) then
@@ -298,7 +298,7 @@ C         List of orbitals, their l- and k- indices, and ham offsets
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             ofh2 = offl2(1)
 C         Block into groups with consecutive l and common (e,rsm)
-            call uspecb(is2,xxxx,rsmh2,eh2,nkap2)
+            call uspecb(is2,rsmh2,eh2)
             call gtbsl1(7+16,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
             do  iorb2 = 1, norb2
               if (blks2(iorb2) .ne. 0) then

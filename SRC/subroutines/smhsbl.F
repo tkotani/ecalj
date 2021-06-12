@@ -304,7 +304,7 @@ c     #endif
 c          i_copy_size=size(ssite(ib1)%pos)
 c          call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
           p1=ssite(ib1)%pos
-          call uspecb(is1,lh1,rsm1,e1,nkap1)
+          call uspecb(is1,rsm1,e1)
 C       Row info telling smhsbl where to poke s0 made by hhibl
           call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
           call gtbsl1(8+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
@@ -313,7 +313,7 @@ C       Row info telling smhsbl where to poke s0 made by hhibl
 c            i_copy_size=size(ssite(ib2)%pos)
 c            call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
             p2=ssite(ib2)%pos
-            call uspecb(is2,lh2,rsm2,e2,nkap2)
+            call uspecb(is2,rsm2,e2)
 C         Column info telling smhsbl where to poke s0 made by hhibl
             call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
             call gtbsl1(8+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)

@@ -1,8 +1,8 @@
       subroutine sugcut(mode,sspec)
       use m_struc_def       
-      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh
+      use m_lmfinit,only: nspec,alat=>lat_alat,tol=>lat_tolft,n0,nkap0,nkaphh,lhh,nkapii
       use m_supot,only: gv=>rv_a_ogv,ng=>lat_ng
-      use m_uspecb,only:uspecb,nkapii
+      use m_uspecb,only:uspecb
 C- Find max recip for each spec and orbital block, store in struct.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -60,7 +60,7 @@ c      parameter (nkap0=3,n0=10)
         spid = sspec(is)%name
         nkap1 = 1
 c        call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkapi)
-        call uspecb(is,lh,rsmh,eh,nkap2)
+        call uspecb(is,rsmh,eh)
         nkap2 = nkaphh(is)
         nkapi = nkapii(is)
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
