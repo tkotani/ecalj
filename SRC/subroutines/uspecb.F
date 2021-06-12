@@ -2,7 +2,7 @@
       contains
       subroutine uspecb(is,rsmh,eh)
       use m_lmfinit,only: nkaph,nspec,nkapii,n0,nkap0,
-     &     rsmhss=>rsmh,rsmh2ss=>rsmh2,ehss=>eh,eh2ss=>eh2,lhh,lpzex,sspec=>v_sspec 
+     &     rsmh1ss=>rsmh1,rsmh2ss=>rsmh2,eh1ss=>eh1,eh2ss=>eh2,lhh,lpzex,sspec=>v_sspec 
       use m_elocp,only: rsml,ehl
 C output only -----------------------------------------------------------------
 Ci         :1,2,3: parameters consist of rsmh,eh, where:
@@ -24,8 +24,8 @@ C ----------------------------------------------------------------------
       real(8):: rsmh(n0,nkap0,is:is) , eh(n0,nkap0,is:is)
       eh  = 0d0
       rsmh= 0d0
-      rsmh(:,1,is) = rsmhss(:,is)
-      eh(:,1,is)   = ehss(:,is)
+      rsmh(:,1,is) = rsmh1ss(:,is)
+      eh(:,1,is)   = eh1ss(:,is)
       if(nkapii(is)==2) rsmh(:,2,is)=rsmh2ss(:,is)
       if(nkapii(is)==2) eh(:,2,is)=eh2ss(:,is)
       if(lpzex(is)==1.and.allocated(rsml)) rsmh(:,nkaph,is)=rsml(:,is)

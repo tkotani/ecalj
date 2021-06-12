@@ -46,7 +46,7 @@ c      type(s_spec)::sspec(*)
       double precision hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
       double precision v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
       double precision pnu(n0,2),pz(n0,2),qat(n0,2),rcfa(2)
-      double precision rtab(n0,2),etab(n0,2),orbp(n0,2,nkap0)
+      double precision rtab(n0,2),etab(n0,2)!,orbp(n0,2,nkap0)
       double precision rs3,eh3,vmtz
       integer idmod(n0)
       integer:: iofa, i_dum,ifile_handle

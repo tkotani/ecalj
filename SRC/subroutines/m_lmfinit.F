@@ -48,13 +48,13 @@
 !! ... SPEC
       real(8),protected:: omax1(3),omax2(3),wsrmax,sclwsr
       character*8,protected:: slabl(mxspec)
-      integer,protected:: lmxbx=-1,lmxax,nkaph
+      integer,protected:: lmxbx=-1,lmxax,nkaph,nkapi
       logical,allocatable,protected:: mxcst1(:),mxcst2(:),mxcst4(:)
-      integer,allocatable,protected:: idxdn(:,:), grp(:),grp2(:),
+      integer,allocatable,protected:: idxdn(:,:,:), grp(:),grp2(:),
      .     idu(:,:),lmxb(:),lmxa(:),idmod(:,:),iq1(:,:),ivso(:,:),
      .     kmxt(:),kmxv(:),lfoca(:),lmxl(:),lxi(:),nxi(:),nr(:),lmxpb(:), nmcore(:),
      &  nkapii(:),nkaphh(:) 
-      real(8),allocatable,protected:: rsmh(:,:),rsmh2(:,:),eh(:,:),eh2(:,:),
+      real(8),allocatable,protected:: rsmh1(:,:),rsmh2(:,:),eh1(:,:),eh2(:,:),
      .     hcr(:,:),rs3(:),rham(:),alpha(:,:),ehvl(:,:),dv(:), uh(:,:),jh(:,:),
      .     qpol(:,:),stni(:),tbvso(:,:),
      .     pnu(:,:,:),qnu(:,:,:),      pnudefault(:,:),qnudefault(:,:),qnudummy(:,:),
@@ -327,7 +327,7 @@ c      integer,parameter:: mxspec=256
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf,iin,iout
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik
       logical :: ipr10,fullmesh
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
@@ -821,7 +821,7 @@ C     --- Species (old CLASS) ---
 
       allocate(pnu(n0,nsp,nspec),qnu(n0,nsp,nspec),
      .     pz(n0,nsp,nspec),amom(n0,nspec),idmod(n0,nspec),
-     .     rsmh(n0,nspec),eh(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
+     .     rsmh1(n0,nspec),eh1(n0,nspec),rsmh2(n0,nspec),eh2(n0,nspec),
      .     pb1(nspec),pb2(nspec),lmxpb(nspec),
      .     ehvl(n0,nspec),
      .     qpol(n0,nspec),stni(nspec),tbvso(4,nspec),
@@ -832,7 +832,7 @@ C     --- Species (old CLASS) ---
      .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
      .     colxbs(3,nspec),radxbs(nspec),
-     .     idxdn(n0,nspec),
+     .     idxdn(n0,nkap0,nspec),
      .     hcr(n0,nspec),       !alpha(n0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
      .     dv(nspec),grp(nspec),grp2(nspec),
@@ -847,13 +847,13 @@ C     --- Species (old CLASS) ---
       mxcst2=F
       mxcst4=F
       nkapii=1
-      nkaph = 1
+      nkapi = 1
       lpzi = 0 !1
       
       qpol = NULLR
-      rsmh = 0d0
+      rsmh1 = 0d0
       rsmh2 = 0d0
-      eh  = 0d0
+      eh1  = 0d0
       eh2 = 0d0
       hcr = NULLR
       idmod = NULLI
@@ -956,17 +956,17 @@ C     nlbji: ditto, but used to specify number of default values
 
 C     ... Basis set for lmf
         nm='SPEC_ATOM_RSMH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       rsmh(1:nlbj,j),cindx=jj,nout=nout,nmin=nlbj,def_r8v=zerov,
+     .       rsmh1(1:nlbj,j),cindx=jj,nout=nout,nmin=nlbj,def_r8v=zerov,
      .       note='Smoothing radii for basis')
         nn = NULLI
         if (nout .gt. 0) nn = nout
-C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
+C     Find nn=lmax+1 for which rsmh1 ne 0 => reduce # EH required
         do  i = 1, nlbj
-           if (rsmh(i,j) .eq. 0) cycle
+           if (rsmh1(i,j) .eq. 0) cycle
            nn = i
         enddo
         nm='SPEC_ATOM_EH'; call gtv(trim(nm),tksw(prgnam,nm),
-     .       eh(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
+     .       eh1(1:nlbj,j),nmin=nn,cindx=jj,def_r8v=zerov,
      .       note='Kinetic energies for basis')
         nn = NULLI
         if (nout>0) nn = nout
@@ -977,7 +977,7 @@ C     Find nn=lmax+1 for which rsmh ne 0 => reduce # EH required
            nn = NULLI
            sw = tksw(prgnam,nm)
            if (nout>0) then
-              nkaph=2
+              nkapi=2
               nkapii(j)=2
               nn = nout
               sw = 1
@@ -1056,7 +1056,7 @@ C     rsmv(j) = rmt(j)*.5d0   !Not input
         rint(j) = NULLI         !No default for now
         rcut(j) = NULLI         !No default for now
         rs3(j) = NULLI          !If sought, default will be set below
-        idxdn(:,j) = 1
+        idxdn(:,:,j) = 1
         pnu(1,1,j) = NULLI      !If sought, default will be set below
         qnu(1,1,j) = NULLI      !If sought, default will be set below
 
@@ -1253,10 +1253,9 @@ c     else
            nn = 1
 c     endif
            nm='SPEC_ATOM_IDXDN'; call gtv(trim(nm),tksw(prgnam,nm),
-     .          idxdn(1:nlbj,j),nmin=nlbj,
+     .          idxdn(1:nlbj,1,j),nmin=nlbj,
      .          def_i4v=(/(nn,i=1,nlbj)/),cindx=jj,
-     .          note='downfolding index: 0, auto; 1, no dnf; 2, fold down;'//
-     .          ' 3, neglect')
+     .          note='orbital index: 1, use; 3, unuse')
 
 C     'Hard Core' radius entering into strux
            nm='SPEC_ATOM_HCR'; call gtv(trim(nm),tksw(prgnam,nm),
@@ -1373,7 +1372,7 @@ C     ... Cleanup after looping over species data
       if (io_help==0) then
          call imxmn(nspec,lmxa,1,i0,lmxax) !Maximum L-cutoff
          nlmax = (lmxax+1)**2
-         nkaph = nkaph + lpzi     !-1
+         nkaph = nkapi + lpzi     !-1
          mxorb= nkaph*nlmax
       endif
  79   continue
@@ -1874,9 +1873,29 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%hcr=hcr(:,j)
           v_sspec(j)%idmod=idmod(:,j)
           v_sspec(j)%ehvl=ehvl(:,j)
-          ix = 1
-          ix(1:1+lmxb(j)) = idxdn(1:1+lmxb(j),j)
-          v_sspec(j)%idxdn = ix
+          
+cccccccccccccccccccccccccccccccccccccccccc
+          do  ik = 1, nkap0
+             if (ik == nkaph .and. sum(lpz)>0) then
+                call ivset(idxdn(1,ik,j),1,n0,4)
+                do  lp1  = 1, lmxb(j)+1
+                   if (pz(lp1,1,j) .ne.  0) then
+                      call pz2idx(1,pz(lp1,1,j),idxdn(lp1,ik,j))
+                   endif
+                enddo
+             endif
+             if (ik > nkaph) call ivset(idxdn(1,ik,j),1,n0,4)
+             if (ik <= nkapi) then
+                do lp1 = 1, lmxb(j)+1
+                   if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
+                   if (ik==2.and.rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
+                enddo
+             endif
+          enddo
+          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
+cccccccccccccccccccccccccccccccccccccccccccccccc          
+c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
+          
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)
           v_sspec(j)%uh=uh(:,j)
@@ -1888,13 +1907,15 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%lmxb=lmxb(j)
           v_sspec(j)%lmxl=lmxl(j)
           v_sspec(j)%lmxpb=lmxpb(j)
-          orbp=0d0 !call dpzero(orbp,n0*2*nkap0)
-          call dcopy(n0,rsmh(1,j),1,orbp(1,1,1),1)
-          call dcopy(n0,eh(1,j),1,orbp(1,2,1),1)
+          
+          orbp=1d10 
+          call dcopy(n0,rsmh1(1,j),1,orbp(1,1,1),1)
+          call dcopy(n0,eh1(1,j),1,orbp(1,2,1),1)
           call dcopy(n0,rsmh2(1,j),1,orbp(1,1,2),1)
           call dcopy(n0,eh2(1,j),1,orbp(1,2,2),1)
           i_copy_size=size(v_sspec(j)%orbp)
           call dcopy(i_copy_size,orbp,1,v_sspec(j)%orbp,1)
+
           v_sspec(j)%mass = mass(j)
           v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 !!     Pack P,Q,PZ for both spins
@@ -1952,9 +1973,10 @@ C --- Allocate and copy input to sspec ---
       if( nsp==1 .and. int(ctrl_lrel)==2 ) call rx('rdccat: Dirac equation requires NSPIN=2')
 !! ... Suppress inversion when noncollinear magnetism, SX, NLO
       if(lso.ne. 0) ctrl_noinv=1 !lqp = lqp-bitand(lqp,1)+1
+      
 !! ... Setup for idxdn ... ctrl->lham,4 is automatic downfolding switch
-      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
-      call suidx(nkaph,j,nspec,v_sspec)
+c      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
+c      call suidx(nkaph,j,nspec,v_sspec)
 !! Set default values for species data
       call defspc(v_sspec)
       
@@ -2127,7 +2149,7 @@ c      enddo
       lhh=-1
       do i=1,nspec
          lmxbj = lmxb(i)
-         call getiout(rsmh(1,i), lmxbj+1,lhh(1,i))
+         call getiout(rsmh1(1,i), lmxbj+1,lhh(1,i))
          if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
          if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
@@ -2139,8 +2161,8 @@ c      enddo
          write(stdo,"('mmm === MTO setting ===')")
          do i=1,nspec
          write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
-         write(stdo,"('mmm rsmh  ',i4,100f6.2)")i,  rsmh(1:lmxbj+1,i)
-         write(stdo,"('mmm   eh  ',i4,100f6.2)")i,    eh(1:lmxbj+1,i)
+         write(stdo,"('mmm rsmh1  ',i4,100f6.2)")i,  rsmh1(1:lmxbj+1,i)
+         write(stdo,"('mmm   eh1  ',i4,100f6.2)")i,    eh1(1:lmxbj+1,i)
          write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
          write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
          write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
