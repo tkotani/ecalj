@@ -90,7 +90,7 @@ c        endif
 !--------------------------------------------      
       subroutine m_writeham_write() 
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,lso,nsp
-      use m_suham,only: ham_ldham
+       use m_lmfinit,only: ham_ldham
 c      use m_hamindex, only: norbmto
       use m_hamindex, only: ngrp,symops,norbmto,ibastab,ltab,ktab,offl !, symops_af
       integer:: ldim,iorb,ib,is,i,jobgw

@@ -835,7 +835,7 @@ C     --- Species (old CLASS) ---
      .     nxi(nspec),exi(n0,nspec),rint(nspec),rcut(nspec),
      .     spec_a(nspec),z(nspec),nr(nspec),mass(nspec),eref(nspec),
      .     coreh(nspec),coreq(2,nspec),
-     .     colxbs(3,nspec),radxbs(nspec),
+     .     colxbs(3,nspec),radxbs(nspec), 
      .     idxdn(n0,nkap0,nspec),
      .     hcr(n0,nspec),       !alpha(n0,nspec),
      .     idu(4,nspec),uh(4,nspec),jh(4,nspec),
@@ -2020,9 +2020,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
   110   continue
         ldham(iprior) = indx
  112  continue
-      
 C     Default value for hamiltonian dimension
-      ham_ldham=ldham(1)
+      ham_ndham=ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc

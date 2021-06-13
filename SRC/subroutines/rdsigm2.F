@@ -133,7 +133,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     mxorb,stdo,nl
       use m_mkqp,only: bz_nabc
       use m_mkqp,only: bz_nkp
-      use m_suham,only: ham_ldham
+      use m_lmfinit,only: ham_ldham
       use m_lattic,only: lat_plat,rv_a_opos
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
@@ -743,7 +743,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       use m_hamindex,only: symops_af,napwmx
       use m_MPItk,only: procid,master
       use m_ext,only:sname
-      use m_suham,only: ham_ldham
+      use m_lmfinit,only: ham_ldham
 #if MPI | MPIK
       include "mpif.h"
 #endif

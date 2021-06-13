@@ -10,7 +10,7 @@ c      private
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only: master_mpi,procid,master
       use m_shortn3,only: shortn3_initialize,shortn3
-      use m_suham,only: ldham=>ham_ldham
+      use m_lmfinit,only: ldham=>ham_ldham
       integer:: ifiese
       integer,allocatable ::  kv_iv(:,:) 
       real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum

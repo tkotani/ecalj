@@ -10,7 +10,7 @@ CSFCPP#define F90 1
       use m_lattic,only: lat_qlat, lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
-      use m_suham,only: ndham=>ham_ndham,ham_ldham,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_lmfinit,only: ndham=>ham_ndham,ham_ldham,ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_subzi, only: lwtkb,nevmx,numq,  lswtk,wtkb=>rv_a_owtkb,swtk=>rv_a_oswtk
       use m_mkqp,only: wtkp=>rv_a_owtkp
       use m_mkpot,only: qval_=>qval

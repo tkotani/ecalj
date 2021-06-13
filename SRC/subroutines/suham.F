@@ -24,7 +24,7 @@ Clxxx  npwpad: a 'safety' padding to npwmax in case npwmax
 Clxxx        : underestimates actual upper limit
 Cr Remarks
 Cr   This routine generates energy-independent hamiltonian setup.
-Cr  *It generates and packs a table of hamiltonian offsets offH,
+Cr  *It generates and packs a table of hamiltonian offsets offH, 
 Cr   orbital permutation indices oindxo.
 Cr
 Cu Updates

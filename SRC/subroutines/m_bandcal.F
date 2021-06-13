@@ -1,6 +1,6 @@
       module m_bandcal
       use m_struc_def
-      use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_lmfinit,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_qplist,only: nkp
       use m_lmfinit, only: nsp,nlibu,lmaxu,nbas,nl
       use m_subzi, only: numq

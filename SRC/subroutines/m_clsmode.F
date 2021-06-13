@@ -1,7 +1,7 @@
       module m_clsmode
 !! CLS: Core-level spectroscopy !too confusing notation see suclst.
       use m_lmfinit, only: lmet=>bz_lmet,nbas,nsp,ssite=>v_ssite,sspec=>v_sspec,nlmax,nspc,nl,lso
-      use m_suham,only:   ndham=>ham_ndham
+      use m_lmfinit,only:   ndham=>ham_ndham
       use m_mkqp,only: nkp=>bz_nkp
       use m_MPItk,only: master_mpi
       use m_mkpot,only: ppnl_rv 

@@ -1,10 +1,10 @@
       subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu)
       use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nl,n0,nppn,nlibu,lmaxu,nlibu,lldau
-      use m_suham,only: ndham=>ham_ndham,ham_ldham
+      use m_lmfinit,only: ndham=>ham_ndham,ham_ldham
       use m_mkpot,only: ppnl=>ppnl_rv 
       use m_subzi, only: wtkb=>rv_a_owtkb
       use m_igv2x,only: ndimh
-      use m_suham,only:  ndhamx=>ham_ndhamx 
+      use m_lmfinit,only:  ndhamx=>ham_ndhamx 
 C- Calculate density matrix for LDA+U channels
 C ----------------------------------------------------------------------
 Ci Inputs

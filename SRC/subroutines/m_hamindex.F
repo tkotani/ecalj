@@ -26,7 +26,7 @@
       contains
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_hamindex_init(ljobgw)
-      use m_suham,only: iv_a_oindxo, ham_ldham
+      use m_suham,only: iv_a_oindxo
       use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
       use m_struc_def           !Cgetarg
@@ -37,7 +37,7 @@ c     &     napwk,napwmx,igv2,igv2rev, !for APW part of rotation (for rdsigm2.F)
 c     &     imx
 c     &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
-     &     ham_pwmode,ham_pwemax,
+     &     ham_pwmode,ham_pwemax,ham_ldham,
      &     lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use m_shortn3,only: shortn3_initialize,shortn3

@@ -15,7 +15,7 @@
       use m_lmfinit,only: sspec=>v_sspec,ssite=>v_ssite,nsp,n0,ctrl_lfrce,lrout,nbas
       use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
       use m_mkpot,only: hab_rv,sab_rv
-      use m_suham,only: ham_ndham
+      use m_lmfinit,only: ham_ndham
       use m_subzi,only: numq
       integer:: ib,is,nr,lmxl,nlml
 !! contribution to force via band 
@@ -57,7 +57,7 @@
       use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph
      & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
-      use m_suham,only: ham_ldham
+      use m_lmfinit,only: ham_ldham
       use m_struc_def
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
 c      use m_mkrou3,only: mkrou3

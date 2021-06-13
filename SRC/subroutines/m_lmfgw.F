@@ -11,12 +11,12 @@
       subroutine m_lmfgw_init()
 c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
-     & nkap0,alat=>lat_alat
+     & nkap0,alat=>lat_alat,ham_ldham, ndham=>ham_ndham
       use m_supot,only: k1,k2,k3
       use m_MPItk,only: master_mpi,mlog
-      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml,ham_ldham
+      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
-      use m_suham,only: iv_a_oindxo,ham_ldham, ndham=>ham_ndham
+      use m_suham,only: iv_a_oindxo
       use m_mkpot,only: m_mkpot_novxc
       integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,ldim,lmaxa,ifilnlaindx,
      & lmxax,ifinlaindx,ndima,npqn,mxint

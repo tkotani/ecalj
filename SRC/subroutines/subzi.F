@@ -12,7 +12,7 @@ c      real(8),allocatable,protected :: rv_a_oswtk(:)
       use m_ext,only: sname
       use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,stdo
       use m_mkqp,only: ntet=> bz_ntet ,bz_nkp
-      use m_suham,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
+      use m_lmfinit,only: ndham=>ham_ndham,ndhamx=>ham_ndhamx
       use m_mkpot,only:  qval
       use m_MPItk,only: master_mpi
 C- Brillouin-integration setup

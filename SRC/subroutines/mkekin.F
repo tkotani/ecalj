@@ -1,9 +1,9 @@
       subroutine mkekin( sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev,sumtv)
       use m_struc_def  
-      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp,ham_ldham
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
-      use m_suham,only: iv_a_oindxo,ham_ldham
+      use m_suham,only: iv_a_oindxo
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
