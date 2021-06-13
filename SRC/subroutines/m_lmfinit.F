@@ -1145,8 +1145,7 @@ C     call snit
            nm='SPEC_ATOM_PZ'; call gtv(trim(nm),tksw(prgnam,nm),
      .          pz(1:nlaj,1,j),def_r8v=zerov,nmin=nlaji,cindx=jj,note=
      .          'Starting semicore log der. parameters'//
-     .          '%N%10fAdd 10 to attach Hankel tail'//
-     .          '%N%10fAdd 20 to include perturbatively',nout=nout)
+     .          '%N%10fAdd 10 to attach Hankel tail',nout=nout)
            if (nout>0) then
               if (dasum(nlaj,pz(1,1,j),1) /= 0) then
                  lpzi = max(lpzi,1) !,2
@@ -1156,7 +1155,7 @@ C     call snit
                  endif   
               endif   
            endif
-           if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10(or +20) mode exist or not.
+           if(maxval(pz(1:nout,1,j))>10d0) lpztail=.true. ! PZ +10 mode exist or not.
            
 !     ! correct qnu jun2012takao  2012july->mod(int(pz...,10)
 !     ! our four cases are
@@ -1874,30 +1873,35 @@ C --- Allocate and copy input to sspec ---
           v_sspec(j)%idmod=idmod(:,j)
           v_sspec(j)%ehvl=ehvl(:,j)
           
-cccccccccccccccccccccccccccccccccccccccccc
+!! idxdn= 1 or 3  (or 10,11 for LO)
+Cr     1  Orbital is included as "active" orbitals, which means
+Cr           they are included in the hamiltonian and diagonalized
+Cr     3   Neglected.
+Cr     10  Orbital is a local orbital whose value and slope are
+Cr         constructed to be zero at the MT boundary.
+Cr         It is included in the basis.
+Cr     11  Orbital is a local orbital with a smooth Hankel tail
+Cr         and it is included in the basis.
           do  ik = 1, nkap0
-             if (ik == nkaph .and. sum(lpz)>0) then
-                idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
-                do  lp1  = 1, lmxb(j)+1
-                   if (pz(lp1,1,j) .ne.  0) then
-c                      call pz2idx(1,pz(lp1,1,j),idxdn(lp1,ik,j))
-                      if(pz(lp1,1,j)>=20) idxdn(lp1,ik,j)=12
-                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=11
-                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=10
-                   endif
-                enddo
-             endif
-             if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
              if (ik <= nkapi) then
                 do lp1 = 1, lmxb(j)+1
                    if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
                    if (ik==2.and.rsmh2(lp1,j)<=0) idxdn(lp1,ik,j)=3
                 enddo
              endif
+             if (ik == nkaph .and. sum(lpz)>0) then
+                idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
+                do  lp1  = 1, lmxb(j)+1
+                   if (pz(lp1,1,j) .ne.  0) then
+                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=11
+                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=10
+                   endif
+                enddo
+             endif
+             if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
+             idxdn(lmxb(j)+ 2:,ik,j)=3 
           enddo
           call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
-cccccccccccccccccccccccccccccccccccccccccccccccc          
-c          call dcopy(n0*nkap0,idxdn(1,1,j),1,v_sspec(j)%idxdn,1) ! = idxdn
           
           v_sspec(j)%idu = idu(:,j)
           v_sspec(j)%jh=jh(:,j)

@@ -6,7 +6,6 @@ Ci   mode  :1s digit
 Ci           1 if to reverse the sense of rotation
 Ci   nbas  :size of basis
 Ci   nl    :(global maximum l) + 1
-Ci   indxsh:permutation indices ordering orbitals in downfolding order
 Ci   eula  :Euler angles for noncollinear spins
 Ci   neul  :1  if Euler angles are l-independent
 Ci          nl if Euler angles are l-dependent

@@ -181,8 +181,6 @@ ropcsm.o \
 roplat.o \
 ropyln1.o \
 ropyln.o \
-rotevs.o \
-roth.o \
 rothrm.o \
 rotpnt.o \
 rotspu.o \

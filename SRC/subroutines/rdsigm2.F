@@ -123,7 +123,8 @@ c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_suham,only:iv_a_oindxo,iv_a_ooffH
+      use m_suham,only:iv_a_oindxo !,offH
+      use m_hamindex,only: offH
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
       use m_hft2rs
@@ -172,7 +173,7 @@ C MPI
 c      logical mlog
 c      integer procid,mpipid,master
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
-      double precision alf(2)
+c      double precision alf(2)
 C     integer os
       double precision plat(3,3),qp(3),tolq,rsstol,qlat(3,3),rotm(3,3),qoff(3),ddot
 c      double precision emin,emax,asig,bsig,efit,sigp(10)
@@ -190,7 +191,7 @@ ckino delete integer(4) def.      integer(4):: ndhamx,debugmode
       integer:: ndhamx,debugmode
       complex(8):: sene(ndimh,ndimh),zv_dummy(1)
       real(8):: rv_dummy(1)
-      integer:: i_copy_size,nhrss,sigswitch
+      integer:: i_copy_size,nhrss,sigswitch,ibas
       real(8),allocatable::hrss(:)
       logical:: l_dummy_isanrg, isanrg, debug=.false.
 !!
@@ -207,8 +208,8 @@ c      stdo = globalvariables%stdo
       lrsig = mod(mode,10)
       lwsig = 0
       moditp = mod(mode/10,10)
-      alf(1) = 1
-      alf(2) = 0
+c      alf(1) = 1
+c      alf(2) = 0
       nscnts = 0
       lqoffo = 0
       lfbzout = .false.
@@ -234,10 +235,11 @@ c      if (lrsig .ge. 4) hreal = 1
         lfbzin = .false.
       endif
       if (cmdopt('--mixsig=',9,0,outs)) then
-        j = 0
-        i = parg('--mixsig=',4,outs,j,len(outs),', ',2,2,ifac,alf)
-        if(i/=1.and.i/=2)
-     &    call rx('rdsigm: failed to parse arguments to --mixsig=')
+         call rx('rdsigm: not support --mixsig anymore')
+c        j = 0
+c        i = parg('--mixsig=',4,outs,j,len(outs),', ',2,2,ifac,alf)
+c        if(i/=1.and.i/=2)
+c     &    call rx('rdsigm: failed to parse arguments to --mixsig=')
       endif
       call info(10,1,0,' RDSIGM: read file sigm and create '//
      .'%?#n#REAL#COMPLEX# sigma(R) by FT ...',hreal,0)
@@ -288,11 +290,11 @@ c$$$      endif
      .  '%?#(n==1)#%N%9fFile k-mesh is offset by:%3:2g#%j#'//
      .  ' ',isw(lfbzin),isw(ddot(3,qoffi,1,qoffi,1).ne.0),qoffi,0,0)
       endif
-      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-        call info5(30,0,0,
-     .  '%9fUse for sigma: %d*(file sigm)%?#n# + '//
-     .  '%d*(file sigm1)',alf(1),isw(alf(2).ne.0),alf(2),0,0)
-      endif
+c      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
+cc        call info5(30,0,0,
+c     .  '%9fUse for sigma: %d*(file sigm)%?#n# + '//
+c     .  '%d*(file sigm1)',alf(1),isw(alf(2).ne.0),alf(2),0,0)
+c      endif
 
 !! --- Read header of sigma(orbital basis) from file ---
 !! ... Read k-mesh parameters
@@ -343,8 +345,11 @@ C      if(debug) print *, '!!'; i = 1000*0 + 10*hreal + 0
       if (mod(lssym,4) .ge. 2) i = 10*hreal + 0
       if (ltrans) i = i + 10000
       if(debug) print *,' rrrrrrrrrr go to hft2rs i=',i
+c      do ibas=1,nbas+1
+c         write(6,*) 'offffff',ibas, offH(1,1,ibas),offH2(1,1,ibas)
+c      enddo   
       call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , 1 ,
-     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , iv_a_ooffH
+     .    nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrp , rsrnge , offH
      .    , 1 , nbas , ndimh , ndimh , zv_dummy , plat , rv_a_opos ,  iv_a_ontabs ,
      .    iv_a_oiaxs , ndhrs , rv_dummy )
       if(debug) print *,'seneinterp: FFFFFFF size iv_p_ontabls ndhrs=',size(iv_a_ontabs),ndhrs
@@ -394,7 +399,7 @@ C     call prmx('q for which sigma is read',w(oqp),3,3,nqp)
 !! ... Loop over spins, keeping sig in full BZ for only one spin
 !!     if (procid .eq. master) then
         do 1201 isp = 1, nsp
-          if(debug) print *,' seneinterp:do 1201 start isp lsplts,alf=',isp,lsplts,alf
+          if(debug) print *,' seneinterp:do 1201 start isp lsplts=',isp,lsplts
           if(debug) print *,'    ndimh nk1nk2nk3,nqp=', ndimh,nk1,nk2,nk3,nqp
           if(debug) print *,'    lshft,ifis=',lshft(1),lshft(2),lshft(3),ifis
 !!     If sigma file not spin polarized, use sigma from spin 1
@@ -405,9 +410,9 @@ c            call iosigh(3,0,1,ndimh,nk1,nk2,nk3,nqp,
 c     .      lshft(1),lshft(2),lshft(3),ifis)
           endif
 !!     If to mix in some other sigma file, set up ifis2
-          if (alf(2) .ne. 0) then
-            stop 'seneinterp: alf(2)/=0 is now commmented out' 
-          endif
+c          if (alf(2) .ne. 0) then
+c            stop 'seneinterp: alf(2)/=0 is now commmented out' 
+c          endif
           if(debug) print *,'    8888 isp nsp=',isp,nsp
 
 C ... FT sfz and copy sfz(T) to hrs
@@ -415,12 +420,12 @@ C ... FT sfz and copy sfz(T) to hrs
           if (ltrans) i = i + 10000
 C ... titus
 C      call hft2rs(i,nk1,nk2,nk3,k1,k2,k3,qoff,isp,nsp,nbas,w(og),w(oag)
-C     .  ,nsgrps,rsrnge,w(ooffH),ib,ib,nlmaa,ndimh,w(osfz),plat,
+C     .  ,nsgrps,rsrnge,w(offH),ib,ib,nlmaa,ndimh,w(osfz),plat,
 C     .  w(opos),ontabs,
 C     .  oiaxs,ndhrs,w(ohrs))
 C ... titus
           call hft2rs ( i , nk1 , nk2 , nk3 , k1 , k2 , k3 , qoff , isp
-     .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , iv_a_ooffH      
+     .         , nsp , nbas , rv_a_osymgr , rv_a_oag , nsgrps , rsrnge , offH      
      .         , 1 , nbas , ndimh , ndimh , sfz ( 1 , 1 , 1 , 1 , 1 , isp )
      .         , plat , rv_a_opos ,iv_a_ontabs , iv_a_oiaxs , ndhrs , rv_a_ohrs )
           print *,' seneinterp:do 1201 end i ndimh ndhrs=',i,ndimh,ndhrs
@@ -436,10 +441,9 @@ C ... Check that FT replicates sigma(k) at file qp to tolerance rsstol
 C     rsstol = 1d-6
 C     print *, '!!'
 C     if (alf(1) .ne. 1 .or. alf(2) .ne. 0 .or. .true.) then
-      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-        call info0(20,0,0,' skipping check of Bloch summed sigma'//
-     .  ' (sigma scaled) ')
-      else
+c      if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
+c        call info0(20,0,0,' skipping check of Bloch summed sigma (sigma scaled) ')
+c      else
         j1 = 0
         if (lssym .ge. 4) j1 = 2
 c        if (procid .eq. master) then
@@ -450,7 +454,7 @@ c        if (procid .eq. master) then
      .      , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
 c        endif
-      endif
+c      endif
       if(debug) print *,' a8 end of chksgr 3333333333'
       if ( .not. ( cmdopt ( '--wsig' , 6 , 0 , outs ) .or.cmdopt ( '-wsig' , 5 , 0 , outs ) ) ) then
 c        if (associated(rv_p_oqp)) nullify(rv_p_oqp)
@@ -514,15 +518,14 @@ C        call rx0('done')
 C   ... Check how well symmetrized FT replicates sigma(k) at file qp
 c        if (procid .eq. master) then
           rsstol = 0
-          if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
-            call info0(20,0,0,' skipping check of symmetrized sigma'//
-     .      ' (sigma scaled) ')
-          else
+c          if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
+c            call info0(20,0,0,' skipping check of symmetrized sigma (sigma scaled) ')
+c          else
             call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
      .          , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
 c          endif
-        endif
+c        endif
 C   ... Broadcast R.S. sigma after symmetrization
       endif
       if(debug) print *,' a8 6666666666666'
@@ -915,7 +918,7 @@ Ci   ifis  :file logical unit for sigma
 Ci   rsrnge:maximum length for connecting vectors in sigma(R)
 Cio Inputs/Outputs:
 Cio  sham  :struct for parameters defining hamiltonian; see routine uham
-Cio    Elts read: ldham ooffH oindxo sigp rsstol
+Cio    Elts read: ldham offH oindxo sigp rsstol
 Cio    Stored:    nqsig oqsig ndhrs ontabs oiaxs ohrs
 Cio Outputs:
 Co   lwsig :0  No special transformations of sigma
@@ -1065,7 +1068,7 @@ C MPI
 c      logical mlog
 c      integer procid,mpipid,master
 C ... for mixing sigma files: Use alf1*sigm + alf2*sigm1
-      double precision alf(2)
+c      double precision alf(2)
 C     integer os
       double precision qp(3),tolq,rsstol,rotm(3,3),ddot  !plat(3,3),qlat(3,3)
 c      double precision emin,emax,asig,bsig,efit !,qoff(3)
@@ -1111,8 +1114,8 @@ c      stdo = globalvariables%stdo
       lrsig = 2  !mod(mode,10)
       lwsig = 0
       moditp = 1 !mod(mode/10,10)
-      alf(1) = 1
-      alf(2) = 0
+c      alf(1) = 1
+c      alf(2) = 0
       nscnts = 0
       lfbzout = .false.
       hreal = 0 
@@ -1294,10 +1297,10 @@ c                   if (latvec(1,tolq,plat, qp - qp_rv(:,iq1))) goto 460 ! bugfi
  460        continue
 
 c ... scalced sigm. alf(1:2)
-            if (alf(1) .ne. 1d0) then
-               call rx('not use alf. use ScaledSigma in ctrl file')
-c              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
-            endif
+c            if (alf(1) .ne. 1d0) then
+c               call rx('not use alf. use ScaledSigma in ctrl file')
+cc              call dscal ( ndimsig_r * * 2 * 2 , alf ( 1 ) , sigm_zv , 1 )
+c            endif
 c ... rotate sigm. w(osigm) at qp ---> w(ofbz) at stars of qp.
 C       call zprm('sigm',2,w(osigm),ndimsig_r,ndimsig_r,ndimsig_r)
             if(mtosigmaonly.or.ldim==ndimsig_r) then

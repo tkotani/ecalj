@@ -1,17 +1,10 @@
       subroutine augmbl ( mode , ssite , sspec ,  isp , lcplxp  !slat ,
      .   , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb , ndimh , napw 
      .   , igapw , h , hso , s )
+      use m_struc_def           
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
-
-
-      use m_struc_def           !Cgetarg
-      use m_lmfinit,only: nbas,nkaph
-
-
-      use m_lmfinit,only:lat_alat
-      use m_lattic,only: lat_qlat
-      use m_lattic,only: lat_vol
-
+      use m_lmfinit,only: nbas,nkaph,lat_alat
+      use m_lattic,only: lat_qlat, lat_vol
 
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------

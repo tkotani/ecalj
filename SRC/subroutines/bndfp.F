@@ -300,14 +300,16 @@ c      character*8:: charext
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* and HamiltonianPMTinfo
       writeham= cmdopt0('--writeham')
-      if(writeham) then
-         call m_writeham_init()
-         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-      endif      
+      if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
+c      if(writeham) then
+c         call m_writeham_init()
+c         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
+c     endif
+      
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw) ! from (smrho,rhoat), give potential.  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      call m_mkpot_init(llmfgw)!from(smrho,rhoat), get potential. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
 !! elind for accelarating convergence. Not used so often. Need examination.
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
@@ -323,11 +325,11 @@ c      character*8:: charext
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
-      if(onlyonce) then
-         call gen_hamindex(.true., jobgw==0) !index for hamiltonian
-         if(writeham) call m_writeham_write() 
-         onlyonce=.false.
-      endif
+c      if(onlyonce) then
+c         call gen_hamindex(.true., jobgw==0) !index for hamiltonian
+c         if(writeham) call m_writeham_write() 
+c         onlyonce=.false.
+c      endif
 ! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
 ! different number of k points. For example, you may change NKABC, and run job_pdos.
       if(plbnd/=0) then

@@ -10,11 +10,16 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       real(8) , allocatable,protected ::  rv_a_osymgr (:)
       integer , allocatable,protected ::  iv_a_oistab (:)
       integer,protected:: lat_npgrp,lat_nsgrp,ctrl_nclass
+      
+      integer,allocatable:: iclasstaf_(:)
+      real(8),allocatable:: symops_af_(:,:,:), ag_af_(:,:)
+      integer:: ngrpaf_
+      
       private pvsym2
       contains
 
       subroutine mksymaf(v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite)!all input
-      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
+c      use m_hamindex,only: iclasstaf,symops_af,ag_af,ngrpaf
 !     mksymaf sets data above used in sugw.F. a little complicated...
       use m_struc_def,only: s_site
       intent(in)::       v_ssite,iv_a_oips_in,nbas,imaster,strn2,lc,slabl_,mxspec,nsite
@@ -42,13 +47,13 @@ c     &     rv_a_oag,rv_a_osymgr, iv_a_oistab
       call mksym(lc,slabl_,strn2,v_ssite2,iv_a_oips) 
       if(imaster) call poppr()
       if(imaster) write(6,"(a)")' AF: mksym, generator= SYMGRP+SYMGRPAF= '//trim(strn2)
-      ngrpaf     = lat_nsgrp 
-      allocate(iclasstaf(nbas),symops_af(3,3,ngrpaf),ag_af(3,ngrpaf))
-      call dcopy ( ngrpaf * 9 , rv_a_osymgr , 1 , symops_af , 1 )
-      call dcopy ( ngrpaf * 3 , rv_a_oag ,    1 , ag_af , 1 )
-      if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf
+      ngrpaf_     = lat_nsgrp 
+      allocate(iclasstaf_(nbas),symops_af_(3,3,ngrpaf_),ag_af_(3,ngrpaf_))
+      call dcopy ( ngrpaf_ * 9 , rv_a_osymgr , 1 , symops_af_ , 1 )
+      call dcopy ( ngrpaf_ * 3 , rv_a_oag ,    1 , ag_af_ , 1 )
+      if(imaster) write(6,"(a,i3)") ' AF: ngrpaf=',ngrpaf_
       do ib=1,nbas
-         iclasstaf(ib)=v_ssite2(ib)%class
+         iclasstaf_(ib)=v_ssite2(ib)%class
       enddo
       deallocate(v_ssite2)
       end subroutine

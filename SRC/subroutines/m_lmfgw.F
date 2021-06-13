@@ -2,6 +2,12 @@
       integer,protected:: jobgw=-999
       
       contains
+      subroutine m_lmfgw_setjobgw(ijob)
+      integer:: ijob
+      jobgw=ijob
+      if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
+      end
+      
       subroutine m_lmfgw_init()
 c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
@@ -28,16 +34,6 @@ c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       data dig /'1','2','3','4','5','6','7','8','9'/
 c     integer:: idxdn(n0,nkap0)
 c      qbg = ctrl_zbak(1) !homogenious background charge
-      if(master_mpi) then
-         write(stdo,*)
-         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
-         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
-         write(stdo,*) '   1 : GW setup mode'
-         write(stdo,*) ' job 0 or 1?'
-         read (5,*) jobgw
-      endif
-      call mpibc1(jobgw,1,2, mlog,'bndfp','jobgw')
-      if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
 !!=====================================================================
 !! jobgw=1      
       if(jobgw/=0) then

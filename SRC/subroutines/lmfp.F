@@ -21,6 +21,9 @@
       use m_bandcal,only: dmatu
       use m_qplist,only: m_qplist_init
       use m_mkpot,only: amom 
+      use m_writeham,only: m_writeham_init, m_writeham_write
+      use m_lmfgw,only: m_lmfgw_setjobgw
+      use m_hamindex,only: m_hamindex_init
 c      use m_uspecb,only:uspecb
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
@@ -60,7 +63,8 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer,parameter:: nm=3
       character(512):: aaachar
       character(10):: i2char
-      
+      logical:: writeham
+      integer:: jobgw
 #if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
@@ -96,17 +100,29 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
            write(ifipos) itrlx,rv_a_opos
         endif   
       endif
-!!=== Re-entry for lshr (share mode); but share mode is currently commented out.
-!!   (probably share mode should be recovered outside of fortran)
-      if(master_mpi) write(stdo,*)' lmfp : potential and basis setup ... '
-! --- Monopole Madelung matrix (kept for future).
-      if(.false.) then
-        allocate(rv_a_omad(nbas**2))
-        call madmat (rv_a_omad )
+      
+!!Get jobgw for lmfgw mode
+      jobgw=0
+      if(master_mpi.and.llmfgw) then
+         write(stdo,*)
+         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
+         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
+         write(stdo,*) '   1 : GW setup mode'
+         write(stdo,*) ' job 0 or 1?'
+         read (5,*) jobgw
       endif
+      call mpibc1(jobgw,1,2, mlog,'lmfp','jobgw')
+      call m_lmfgw_setjobgw(jobgw)
+      
 !! array allocated in supot rhoat smrho     
       call m_supot_init() ! get G vectors for charge
       call m_suham_init(sspec,ssite)  ! sspec ssite are modified.
+      call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
+      
+      writeham= cmdopt0('--writeham')
+      if(writeham) call m_writeham_init()
+      if(writeham) call m_writeham_write()
+      
       if( ctrl_quit==8 ) call rx0('quit = ham')
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
@@ -123,6 +139,13 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       if(nlibu>0) call m_ldau_init()
       if(nlibu>0.and.ctrl_quit==16 ) call rx0('quit = dmat')
       
+!!=== Re-entry for lshr (shear mode); but shear mode is currently commented out.
+!!   (probably shear mode should be recovered outside of fortran)
+      if(master_mpi) write(stdo,*)' lmfp : potential and basis setup ... '
+      if(.false.) then 
+        allocate(rv_a_omad(nbas**2))
+        call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
+      endif
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.

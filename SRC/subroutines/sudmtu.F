@@ -190,7 +190,6 @@ C             Skip comment lines
 C ... Initial printout
       call praldm(0,51,51,havesh,nbas,nsp,lmaxu,lldau,sspec,ssite,
      .' dmats read from disk',dmatu)
-
       ivsiz = nsp*nlibu*(lmaxu*2+1)**2
       call mpibc1(dmatu,2*ivsiz,4,mlog,'sudmtu','dmatu')
       call mpibc1(havesh,1,2,.false.,' ',' ')
@@ -202,9 +201,8 @@ C ... Density matrix in real or spherical harmonics (fixed by idvsh)
       endif
 
 C ... Symmetrize dmatu (symdmu requires real harmonics)
-      allocate(dmwk_zv(abs(-ivsiz)))
-      if (-ivsiz<0) dmwk_zv(:)=0.0d0
-
+      allocate(dmwk_zv(ivsiz))
+      dmwk_zv=0d0
       if (havesh .eq. 1) then
         call rotycs(-1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
         havesh = 0

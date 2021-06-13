@@ -151,161 +151,152 @@ C Local parameters
       integer indx,iposn,l,m,iprior,j,lgunit,idxdn(n0,nkap0),is,ib,i,
      .ltab(n0),nd,ndim,ipr,maxp,ik,ndimi(n0H,nkap0),isum,jb,
      .nglob,stdo,stdl,lmxb,lmxa,ibp1,idxpr
-      logical lx,lprmib
+      logical lx,lprmib,lz
       character*80 outs,strn*5
       parameter (maxp=3)
 
       logical:: l_dummy_isanrg, isanrg
 
 C --- Setup ---
-      if (nkaph .gt. nkap0) call rx('makidx: increase nkap0')
-      stdo = lgunit(1)
-      stdl = lgunit(2)
-      lprmib = iprma(1) .gt. 0
+c      if (nkaph .gt. nkap0) call rx('makidx: increase nkap0')
+c      lprmib = iprma(1) .gt. 0
 
-      call getpr(ipr)
-      if (offH(1,1,1) .eq. -1) goto 100
-      if (lprmib) then
-C        do  jb = ib1, ib2
-C          ib = iprma(jb)
-C          if (ib .le. 0) call rx('makidx: bad permutation array')
-C          call iinit(offH(1,1,ib),n0H*nkap0)
-C        enddo
-C        ib = iprma(ib2+1)
-C        call iinit(offH(1,1,ib),n0H*nkap0)
-      else
-        call iinit(offH(1,1,ib1),n0H*nkap0*(ib2-ib1+2))
-      endif
-      nd = dlog(dble(ib2)) / dlog(10d0)
-      if (ipr .ge. 50) write(stdo,333)
-  333 format(/' Makidx:  basis arranged in downfolding order:'
-     ./'  ib',5x,'low',6x,'intermed',7x,'high',8x,'.. offH ..')
-
-C --- For each site ib = ib1 ... ib2, make offH(ib) ---
-      do  jb = ib1, ib2
-        if (lprmib) then
-          ib = iprma(jb)
-          ibp1 = iprma(jb+1)
-        else
-          ib = jb
-          ibp1 = jb+1
-        endif
-        is = ips(ib)
-
-        i_copy_size=size(sspec(is)%idxdn)
-        call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
-        lmxb=sspec(is)%lmxb
-        lmxa=sspec(is)%lmxa
-
-C       orbs > lmxb always high; orbs > lmxa always neglected
-        do  ik = 1, nkaph
-          do  l = lmxb+1, nl-1
-            if (idxpr(idxdn(l+1,ik)) .lt. 3) idxdn(l+1,ik) = 3
-            if (idxpr(idxdn(l+1,ik)) .lt. 4 .and. l .gt. lmxa)
-     .      idxdn(l+1,ik) = 4
-          enddo
-        enddo
-        i_copy_size=size(sspec(is)%idxdn)
-        call icopy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
-c        sspec(is)%idxdn = idxdn
-        ndimi=0 !call iinit(ndimi,n0H*nkap0)
-        if (nl .gt. n0) call rx('makidx need more space for idxdn')
-
-C   ... Assemble offH(1..maxp,1..nkaph) for this site
-        do  ik = 1, nkaph
-          call awrit2('%x%,ni+',outs,80,0,nd+4,ib)
-          if (ik .ne. 1) call awrit2('%x%npk%i+',outs,80,0,nd+2,ik)
-          call mkidx2(nl,maxp,idxdn(1,ik),ltab,ndimi(1,ik),outs)
-          do  iprior = 1, maxp
-            ndim = offH(iprior,ik,ib) + ndimi(iprior,ik)
-            if (ik .lt. nkaph) offH(iprior,ik+1,ib) = ndim
-            if (ik .eq. nkaph) offH(iprior,1,ibp1) = ndim
-          enddo
-          if (isum(maxp,ndimi(1,ik),1) .ne. 0 .and. ipr .ge. 50)
-     .    call awrit4('%(n*13-11)p%j%,5i%,5i%,5i',
-     .    outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
-     .    offH(3,ik,ib))
-C
-C     .      call awrit4('%(n*13-11)p %,5i%,5i%,5i',
-C     .      outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
-C     .      offH(3,ik,ib))
-        enddo
-
-C   ... Fill out offH for kappa's between nkaph and nkap0
-        do  ik = nkaph+1, nkap0
-          do  iprior = 1, maxp
-            offH(iprior,ik,ib) = offH(iprior,1,ibp1)
-          enddo
-        enddo
-
-C   ... Concatenate l+i and l+i+h blocks
-        do  ik = 1, nkaph
-          offH(maxp+1,ik,ibp1) = offH(maxp+1,1,ib)
-     .    + isum(nkaph,ndimi(1,1),n0H)
-     .    + isum(nkaph,ndimi(2,1),n0H)
-     .    + isum(ik-1,ndimi(1,1),1)
-     .    + isum(ik-1,ndimi(2,1),1)
-          offH(maxp+2,ik,ibp1) = offH(maxp+2,1,ib)
-     .    + isum(nkaph,ndimi(1,1),n0H)
-     .    + isum(nkaph,ndimi(2,1),n0H)
-     .    + isum(nkaph,ndimi(3,1),n0H)
-     .    + isum(ik-1,ndimi(1,1),1)
-     .    + isum(ik-1,ndimi(2,1),1)
-     .    + isum(ik-1,ndimi(3,1),1)
-        enddo
-        do  ik = nkaph+1, nkap0
-          do  iprior = maxp+1, maxp+2
-            offH(maxp+1,ik,ib) = offH(maxp+1,nkaph,ib)
-     .      + ndimi(1,nkaph) + ndimi(2,nkaph)
-            offH(maxp+2,ik,ib) = offH(maxp+2,nkaph,ib)
-     .      + ndimi(1,nkaph) + ndimi(2,nkaph) + ndimi(3,nkaph)
-          enddo
-        enddo
-      enddo
-C     This should never be needed
-C     do  ik = 1, nkaph-1
-C       do  iprior = 1, maxp
-C         offH(iprior,ik+1,ib2+1) = offH(iprior,1,ib2+1)
-C       enddo
-C     enddo
+      
+c$$$      if (offH(1,1,1) .eq. -1) goto 100
+c$$$      if (lprmib) then
+c$$$      else
+c$$$        call iinit(offH(1,1,ib1),n0H*nkap0*(ib2-ib1+2))
+c$$$      endif
+c$$$      nd = dlog(dble(ib2)) / dlog(10d0)
+c$$$      if (ipr .ge. 50) write(stdo,333)
+c$$$  333 format(/' Makidx:  basis arranged in downfolding order:'
+c$$$     ./'  ib',5x,'low',6x,'intermed',7x,'high',8x,'.. offH ..')
+c$$$
+c$$$C --- For each site ib = ib1 ... ib2, make offH(ib) ---
+c$$$      do  jb = ib1, ib2
+c$$$        if (lprmib) then
+c$$$          ib = iprma(jb)
+c$$$          ibp1 = iprma(jb+1)
+c$$$        else
+c$$$          ib = jb
+c$$$          ibp1 = jb+1
+c$$$        endif
+c$$$        is = ips(ib)
+c$$$
+c$$$        i_copy_size=size(sspec(is)%idxdn)
+c$$$        call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
+c$$$        lmxb=sspec(is)%lmxb
+c$$$        lmxa=sspec(is)%lmxa
+c$$$
+c$$$C       orbs > lmxb always high; orbs > lmxa always neglected
+c$$$        do  ik = 1, nkaph
+c$$$          do  l = lmxb+1, nl-1
+c$$$            if (idxpr(idxdn(l+1,ik)) .lt. 3) idxdn(l+1,ik) = 3
+c$$$            if (idxpr(idxdn(l+1,ik)) .lt. 4 .and. l .gt. lmxa)
+c$$$     .      idxdn(l+1,ik) = 4
+c$$$          enddo
+c$$$        enddo
+c$$$        i_copy_size=size(sspec(is)%idxdn)
+c$$$        call icopy(i_copy_size,idxdn,1,sspec(is)%idxdn,1)
+c$$$ccccccccccccccccccccc
+c$$$c        cycle
+c$$$cccccccccccccccccccc        
+c$$$c        sspec(is)%idxdn = idxdn
+c$$$        ndimi=0 !call iinit(ndimi,n0H*nkap0)
+c$$$        if (nl .gt. n0) call rx('makidx need more space for idxdn')
+c$$$
+c$$$C   ... Assemble offH(1..maxp,1..nkaph) for this site
+c$$$        do  ik = 1, nkaph
+c$$$          call awrit2('%x%,ni+',outs,80,0,nd+4,ib)
+c$$$          if (ik .ne. 1) call awrit2('%x%npk%i+',outs,80,0,nd+2,ik)
+c$$$          call mkidx2(nl,maxp,idxdn(1,ik),ltab,ndimi(1,ik),outs)
+c$$$          do  iprior = 1, maxp
+c$$$            ndim = offH(iprior,ik,ib) + ndimi(iprior,ik)
+c$$$            if (ik .lt. nkaph) offH(iprior,ik+1,ib) = ndim
+c$$$            if (ik .eq. nkaph) offH(iprior,1,ibp1) = ndim
+c$$$          enddo
+c$$$          if (isum(maxp,ndimi(1,ik),1) .ne. 0 .and. ipr .ge. 50)
+c$$$     .    call awrit4('%(n*13-11)p%j%,5i%,5i%,5i',
+c$$$     .    outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
+c$$$     .    offH(3,ik,ib))
+c$$$C
+c$$$C     .      call awrit4('%(n*13-11)p %,5i%,5i%,5i',
+c$$$C     .      outs,80,-stdo,maxp+1,offH(1,ik,ib),offH(2,ik,ib),
+c$$$C     .      offH(3,ik,ib))
+c$$$        enddo
+c$$$
+c$$$C   ... Fill out offH for kappa's between nkaph and nkap0
+c$$$        do  ik = nkaph+1, nkap0
+c$$$          do  iprior = 1, maxp
+c$$$            offH(iprior,ik,ib) = offH(iprior,1,ibp1)
+c$$$          enddo
+c$$$        enddo
+c$$$
+c$$$C   ... Concatenate l+i and l+i+h blocks
+c$$$        do  ik = 1, nkaph
+c$$$          offH(maxp+1,ik,ibp1) = offH(maxp+1,1,ib)
+c$$$     .    + isum(nkaph,ndimi(1,1),n0H)
+c$$$     .    + isum(nkaph,ndimi(2,1),n0H)
+c$$$     .    + isum(ik-1,ndimi(1,1),1)
+c$$$     .    + isum(ik-1,ndimi(2,1),1)
+c$$$          offH(maxp+2,ik,ibp1) = offH(maxp+2,1,ib)
+c$$$     .    + isum(nkaph,ndimi(1,1),n0H)
+c$$$     .    + isum(nkaph,ndimi(2,1),n0H)
+c$$$     .    + isum(nkaph,ndimi(3,1),n0H)
+c$$$     .    + isum(ik-1,ndimi(1,1),1)
+c$$$     .    + isum(ik-1,ndimi(2,1),1)
+c$$$     .    + isum(ik-1,ndimi(3,1),1)
+c$$$        enddo
+c$$$        do  ik = nkaph+1, nkap0
+c$$$          do  iprior = maxp+1, maxp+2
+c$$$            offH(maxp+1,ik,ib) = offH(maxp+1,nkaph,ib)
+c$$$     .      + ndimi(1,nkaph) + ndimi(2,nkaph)
+c$$$            offH(maxp+2,ik,ib) = offH(maxp+2,nkaph,ib)
+c$$$     .      + ndimi(1,nkaph) + ndimi(2,nkaph) + ndimi(3,nkaph)
+c$$$          enddo
+c$$$        enddo
+c$$$      enddo
+c$$$      
+c$$$C     This should never be needed
+c$$$C     do  ik = 1, nkaph-1
+c$$$C       do  iprior = 1, maxp
+c$$$C         offH(iprior,ik+1,ib2+1) = offH(iprior,1,ib2+1)
+c$$$C       enddo
+c$$$C     enddo
 
 C --- Make iprmb ---
-  100 continue
-      indx = 0
+c  100 continue
 C     For now, require that morb = nl*nkaph
 Changenglob      mxorb = nglob('mxorb')
 c      mxorb = globalvariables%mxorb
-      i = nl**2*nkaph
-Ckino isanrg is logical function,       call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
-      l_dummy_isanrg=isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
-      call iinit(ndimi,n0H*nkap0)
+c      i = nl**2*nkaph
+cCkino isanrg is logical function,       call isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
+c      l_dummy_isanrg=isanrg(mxorb,i,i,'makidx:','mxorb', .true.)
+c     call iinit(ndimi,n0H*nkap0)
+c      ndimi=0
+      call getpr(ipr)
+      stdo = lgunit(1)
+      stdl = lgunit(2)
+      indx = 0
       do  112  iprior = 1, maxp+1
-C       iposn = 0
         do  110  jb = ib1, ib2
-          if (lprmib) then
-            ib = iprma(jb)
-            ibp1 = iprma(jb+1)
-          else
-            ib = jb
-            ibp1 = jb+1
-          endif
+          ib = jb
+          ibp1 = jb+1
           is = ips(ib)
           iposn = mxorb*(ib-1)
-
           i_copy_size=size(sspec(is)%idxdn)
           call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
-
           do  1121 ik = 1, nkaph
           do  111  l = 0, nl-1
-            lx = iabs(idxpr(idxdn(l+1,ik))) .eq. iprior .or.
-     .        iabs(idxpr(idxdn(l+1,ik))) .gt. iprior .and.
-     .        iprior .gt. maxp
+             lz =.false.
+             if( (idxdn(l+1,ik)==10.or.idxdn(l+1,ik)==11) .and. iprior==1) lz=.true.
+             lx = lz .or. (idxdn(l+1,ik)==iprior)
             do  120  m = -l, l
               iposn = iposn+1
               if (lx) then
                 indx = indx+1
                 iprmb(iposn) = indx
-                ndimi(iprior,ik) = ndimi(iprior,ik)+1
+c                ndimi(iprior,ik) = ndimi(iprior,ik)+1
               endif
   120       continue
   111     continue
@@ -314,56 +305,56 @@ C       iposn = 0
         ldham(iprior) = indx
   112 continue
 
-C --- Printout ---
-      if (ipr .lt. 10) return
-      if (nkaph .eq. 1) then
-        call awrit4('dm  L %i  I %i  H %i  N %i ',' ',80,stdl,ldham(1),
-     .  ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
-      else
-        call icopy(nkaph,ndimi(1,1),n0H,ltab,1)
-        call awrit3('%xdm  L %i (%n:1i )',outs,80,0,ldham(1),nkaph,
-     .  ltab)
-        call icopy(nkaph,ndimi(2,1),n0H,ltab,1)
-        call awrit3('%a  I %i (%n:1i )',outs,80,0,ldham(2)-ldham(1),
-     .  nkaph,ltab)
-        call icopy(nkaph,ndimi(3,1),n0H,ltab,1)
-        call awrit4('%a  H %i (%n:1i )  N %i',outs,80,-stdl,
-     .  ldham(3)-ldham(2),nkaph,ltab,ldham(4)-ldham(3))
-      endif
-      if (ipr .lt. 20) return
-      call awrit5('%?;(n>=30);%N;; Makidx:  hamiltonian dimensions'//
-     .' Low, Int, High, Negl: %i %i %i %i',' ',80,stdo,ipr,ldham(1),
-     .ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
-      if (ipr .ge. 40 .or. (ipr .gt. 30 .and. nkaph .gt. 1)) then
-        write(stdo,345)
-  345   format(' kappa',3x,
-     .  'Low',3x,'Int',3x,'High',2x,'L+I',2x,'L+I+H',2x,'Neglected')
-        if (nkaph .gt. 1) then
-          do  ik = 1, nkaph
-            i = isum(3,ndimi(1,ik),1)
-            write(stdo,346) ik, (ndimi(j,ik), j=1,3),
-     .      ndimi(1,ik)+ndimi(2,ik),i,nl**2*(ib2-ib1+1)-i
-  346       format(i4,2x,5i6,i8)
-  347       format(1x,a5,5i6,i8)
-          enddo
-          strn = ' all '
-        else
-          strn = '  -  '
-        endif
-        write(stdo,347) strn, ldham(1),ldham(2)-
-     .  ldham(1),ldham(3)-ldham(2),ldham(2),ldham(3),ldham(4)-
-     .  ldham(3)
-      endif
-ccccccccccccccccccccccccccccccccccc
-c      do  ib = ib1, ib2+1
-c         print '(i5,5i5,2x,5i5,2x,5i5)', ib,(offH(j,1,ib), j=1,15)
-c      enddo
+c$$$C --- Printout ---
+c$$$      if (ipr .lt. 10) return
+c$$$      if (nkaph .eq. 1) then
+c$$$        call awrit4('dm  L %i  I %i  H %i  N %i ',' ',80,stdl,ldham(1),
+c$$$     .  ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
+c$$$      else
+c$$$        call icopy(nkaph,ndimi(1,1),n0H,ltab,1)
+c$$$        call awrit3('%xdm  L %i (%n:1i )',outs,80,0,ldham(1),nkaph,
+c$$$     .  ltab)
+c$$$        call icopy(nkaph,ndimi(2,1),n0H,ltab,1)
+c$$$        call awrit3('%a  I %i (%n:1i )',outs,80,0,ldham(2)-ldham(1),
+c$$$     .  nkaph,ltab)
+c$$$        call icopy(nkaph,ndimi(3,1),n0H,ltab,1)
+c$$$        call awrit4('%a  H %i (%n:1i )  N %i',outs,80,-stdl,
+c$$$     .  ldham(3)-ldham(2),nkaph,ltab,ldham(4)-ldham(3))
+c$$$      endif
+c$$$      if (ipr .lt. 20) return
+c$$$      call awrit5('%?;(n>=30);%N;; Makidx:  hamiltonian dimensions'//
+c$$$     .' Low, Int, High, Negl: %i %i %i %i',' ',80,stdo,ipr,ldham(1),
+c$$$     .ldham(2)-ldham(1),ldham(3)-ldham(2),ldham(4)-ldham(3))
+c$$$      if (ipr .ge. 40 .or. (ipr .gt. 30 .and. nkaph .gt. 1)) then
+c$$$        write(stdo,345)
+c$$$  345   format(' kappa',3x,
+c$$$     .  'Low',3x,'Int',3x,'High',2x,'L+I',2x,'L+I+H',2x,'Neglected')
+c$$$        if (nkaph .gt. 1) then
+c$$$          do  ik = 1, nkaph
+c$$$            i = isum(3,ndimi(1,ik),1)
+c$$$            write(stdo,346) ik, (ndimi(j,ik), j=1,3),
+c$$$     .      ndimi(1,ik)+ndimi(2,ik),i,nl**2*(ib2-ib1+1)-i
+c$$$  346       format(i4,2x,5i6,i8)
+c$$$  347       format(1x,a5,5i6,i8)
+c$$$          enddo
+c$$$          strn = ' all '
+c$$$        else
+c$$$          strn = '  -  '
+c$$$        endif
+c$$$        write(stdo,347) strn, ldham(1),ldham(2)-
+c$$$     .  ldham(1),ldham(3)-ldham(2),ldham(2),ldham(3),ldham(4)-
+c$$$     .  ldham(3)
+c$$$      endif
+c$$$ccccccccccccccccccccccccccccccccccc
+c$$$      do  ib = ib1, ib2+1
+c$$$         print '(i5,5i5,2x,5i5,2x,5i5)', ib,(offH(j,1,ib), j=1,5)
+c$$$      enddo
 c      i = 0
 c      do  210  ib = ib1, ib2
 c      do  210  ik = 1,  nkaph
 c      do  210  m = 1,  nl**2
 c        i = i+1
-c        print '(6i5)', ib, ik, m, i, iprmb(i)
+c        write(6,"('iperbbb ',6i5)") ib, ik, m, i, iprmb(i)
 c  210 continue
 c      call rx('done')
 cccccccccccccccccccccccccccccccccc
@@ -458,15 +449,15 @@ Cr                means it is downfolded and included in a perturbative way
 Cr     3    3     Orbital is treated as an "high" orbital, which means
 Cr                means it is included in augmentation for tails of other
 Cr                orbitals, but is otherwise not part of the basis.
-Cr     4    4     Orbital is completely neglected (no orbital is defined)
+Crxxx     4    4     Orbital is completely neglected (no orbital is defined)
 Cr    10    1     Orbital is a local orbital whose value and slope are
 Cr                constructed to be zero at the MT boundary.
 Cr                It is included in the basis.
 Cr    11    1     Orbital is a local orbital with a smooth Hankel tail
 Cr                and it is included in the basis.
-Cr    12    2     Orbital is a local orbital with a smooth Hankel tail
-Cr                It is incorporated perturbatively to the hamiltonian
-Cr                and is not assembled as part of the hamiltonian matrix
+Crxxx    12    2     Orbital is a local orbital with a smooth Hankel tail
+Crxxx                It is incorporated perturbatively to the hamiltonian
+Crxxx                and is not assembled as part of the hamiltonian matrix
 Cr
 Cu Updates
 Cu   24 Jun 04 First created
