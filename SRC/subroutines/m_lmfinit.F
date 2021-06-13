@@ -26,7 +26,7 @@
       integer,protected:: irs1,irs2,irs3,irs4,irs5,irs11, lat_nkqmx,nat,lxcf
       character(256),protected:: header,symg=' ',   symgaf=' '!for Antiferro
       logical,protected :: ham_frzwf,ham_ewald
-      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,
+      integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
      &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
      &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
@@ -98,7 +98,7 @@
       integer,protected:: nitmv,prmint_mi,prmint_mx,prmint_nseq(11),gd_modt(3),gd_nmodt=1
       integer,protected:: pwmode,ncutovl  !ncutovl is by takao. not in lm-7.0beta.npwpad,
       real(8),protected:: pwemax,pwemin,oveps,delta_stabilize
-      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:)
+      integer , allocatable,protected ::  iv_a_oips (:)   ,  lpz(:),lpzex(:),lhh(:,:),iprmb(:)
 !! CG coefficient      
       real(8) , allocatable,protected  ::  rv_a_ocg (:)
       real(8) , allocatable,protected  ::  rv_a_ocy (:)
@@ -109,7 +109,7 @@
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
      &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
      &     bz_ndos,              !bndfp
-     &     lat_ldist=0 
+     &     lat_ldist=0
       logical,protected:: irs1x10,irsrot !(irsrot is not tested)
       real(8),protected:: ham_seref, bz_w,bz_ef0,bz_def0, !iors,bndfp
      &     lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin
@@ -121,9 +121,12 @@
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
-      integer,protected:: leks,lrout,plbnd 
-ccccccccccccccccccc
-      real(8),allocatable:: rsml(:,:),ehl(:,:)
+      integer,protected:: leks,lrout,plbnd
+cccccccccccccccccccccccccccccccccccccccccccccccccc      
+      real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+      integer::  ham_ndham,ham_ndhamx,ham_nspx,ham_ldham(16),ldham(16)
+cccccccccccccccccccccccccccccccccc
 cccccccccccccccccc      
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:)
@@ -327,8 +330,9 @@ c      integer,parameter:: mxspec=256
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik
-      logical :: ipr10,fullmesh
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m
+      logical :: ipr10,fullmesh,lzz
+      integer,parameter:: maxp=3
 !! Stage 1  read ctrl file ---------------------    
       procid = mpipid(1)
       nproc  = mpipid(0)
@@ -1986,10 +1990,63 @@ c      j=3+10 ! no downfolding j=3 ; j=+10 nfp-style basis:
 c      call suidx(nkaph,j,nspec,v_sspec)
 !! Set default values for species data
       call defspc(v_sspec)
-      
+!!      
       lxcf = ctrl_lxcf
       nspc = 1
       if( lso==1 ) nspc = 2
+
+      
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!      
+      allocate( iprmb(nbas * nl**2 * maxp ) )
+      indx = 0
+      do 112 iprior = 1, maxp
+      do 110 ib = 1,nbas
+          ibp1 = ib+1
+          is = v_ssite(ib)%spec
+          iposn = mxorb*(ib-1)
+          do  1121 ik = 1, nkaph
+          do  111  l = 0, nl-1
+            lzz =.false.
+            if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11) .and. iprior==1) lzz=.true.
+            do   m = -l, l
+              iposn = iposn+1
+              if (lzz .or. (idxdn(l+1,ik,is)==iprior)) then
+                indx = indx+1
+                iprmb(iposn) = indx
+             endif
+            enddo 
+  111     continue
+ 1121     continue
+  110   continue
+        ldham(iprior) = indx
+ 112  continue
+      
+C     Default value for hamiltonian dimension
+      ham_ldham=ldham(1)
+C ... Make rest of ldham
+      ldham(4) = nspc
+      ldham(5) = ldham(1) * nspc
+      ldham(6) = ldham(2) * nspc
+      ldham(7) = ldham(3) * nspc
+      nspx  = nsp
+      if(lso/=0) nspx = 1
+      ldham(8) = nspx
+      ham_ldham=ldham
+      if(nspc==2.and.nsp==2) then !spinoffdiag=.true. 
+         ham_nspx= 1               
+         ham_ndhamx = ham_ndham*2
+      elseif(nspc==1.and.nsp==2) then! spinoffdiag=.false.    !spin no-offdiagonal
+         ham_nspx= 2 
+         ham_ndhamx= ham_ndham
+      elseif(nspc==1.and.nsp==1) then !paramagnetic
+         ham_nspx= 1            !nsp/nspc
+         ham_ndhamx= ham_ndham
+      else
+         call rx('m_lmfinit: nspc==2 but nsp=1')
+      endif
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      
+      
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
       if (procid .eq. master) then
          nat = nbas

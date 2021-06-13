@@ -1,6 +1,6 @@
       module m_suham
       integer, allocatable,protected ::  iv_a_oindxo (:)
-      integer, protected:: ham_npwmin, ham_ndham,pot_nlma, pot_nlml,ham_lmxax,ham_ldham(16),ham_nspx,ham_ndhamx
+      integer, protected:: ham_npwmin, pot_nlma, pot_nlml, ham_nspx,ham_ndham,ham_ndhamx,ham_ldham(16)
 !! ssite%pnu ssite%pz sspec%ngcut are given
       
       contains
@@ -10,6 +10,8 @@
      &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
+
+      use m_lmfinit,only: nspxi=>ham_nspx,ndhami=>ham_ndham,ndhamxi=>ham_ndhamx,ldhami=>ham_ldham,ldx=>ldham
 C- Hamiltonian setup
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
 Cl   npwmin:lower limit to number of PWs, estimated by sweeping
@@ -35,7 +37,7 @@ C ----------------------------------------------------------------------
       implicit none
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      integer nkap0,n0H
+      integer nkap0,n0H,ham_lmxax
       parameter (nkap0=3,n0H=5)
       integer, allocatable ::  offH (:,:,:)
       integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
@@ -48,7 +50,7 @@ C ----------------------------------------------------------------------
      .xx
       integer n0,nqdiv,npwpad
       parameter (n0=10,nqdiv=12)
-      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
+c      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
 
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
@@ -147,7 +149,7 @@ C         Poke spec starting pnu to site
         call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
         lmxax = max(lmxax,lmxa)
    20 continue
-      ham_lmxax=lmxax
+c      ham_lmxax=lmxax
       pot_nlma=nvi
       pot_nlml=nvl
       alat=lat_alat
@@ -254,6 +256,13 @@ c         spinoffdiag=.false.    !paramagnetic
       else
          call rx('suham: nspc==2 but nsp=1')
       endif
+ccccccccccccccccccccccccc
+      nspxi  =ham_nspx
+      ndhami =ham_ndham
+      ndhamxi=ham_ndhamx
+      ldhami=ham_ldham
+      ldx=ham_ldham
+ccccccccccccccccccccccccc      
       end subroutine m_suham_init
       
       end module m_suham
