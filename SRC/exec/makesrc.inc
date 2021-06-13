@@ -215,7 +215,6 @@ suclst.o \
 sudmtu.o \
 sugcut.o \
 suham.o \
-suidx.o \
 suldau.o \
 sumlst.o \
 sumsro.o \
