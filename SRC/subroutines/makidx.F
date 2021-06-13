@@ -25,7 +25,7 @@ Ci     Stored:    idxdn
 Ci   ips   :species table: site ib belongs to species ips(ib)
 Ci         :Used here to point to idxdn appropriate for site ib
 Co Outputs
-Co   offH  :Tables of hamiltonian offsets in the lower, intermediate
+Co   offH  :Tables of hamiltonian offsets in the lower  intermediate
 Co         :and higher blocks.
 Co         : offH(m,ik,ib) contains the total number of orbitals in
 Co         : downfolding block envelope function ik, site ib.
@@ -117,10 +117,10 @@ Cr
 Cr  *offH(m,ik,ib) contains the total number of orbitals in block
 Cr   m for all sites i=1..ib-1.  m is a block index:
 Cr     m = 1  => lower block
-Cr     m = 2  => intermediate block
+Crxxx     m = 2  => intermediate block
 Cr     m = 3  => higher block
-Cr     m = 4  => lower+intermediate block
-Cr     m = 5  => lower+intermediate+higher block
+Crxxx     m = 4  => lower+intermediate block
+Crxxx     m = 5  => lower+intermediate+higher block
 Cr
 Cr   offH(m,ik,ib) is set for ib=ib1..ib2+1.  Thus the size of block m
 Cr   for site ib = offH(m,1,ib+1) - offH(m,1,ib).  The size of a block
@@ -354,18 +354,19 @@ C --- Printout ---
      .  ldham(1),ldham(3)-ldham(2),ldham(2),ldham(3),ldham(4)-
      .  ldham(3)
       endif
-
-C      do  200  ib = ib1, ib2+1
-C  200 print '(i5,5i5,2x,5i5,2x,5i5)', ib,(offH(j,1,ib), j=1,15)
-C      i = 0
-C      do  210  ib = ib1, ib2
-C      do  210  ik = 1,  nkaph
-C      do  210  m = 1,  nl**2
-C        i = i+1
-C        print '(6i5)', ib, ik, m, i, iprmb(i)
-C  210 continue
-C      call rx('done')
-
+ccccccccccccccccccccccccccccccccccc
+c      do  ib = ib1, ib2+1
+c         print '(i5,5i5,2x,5i5,2x,5i5)', ib,(offH(j,1,ib), j=1,15)
+c      enddo
+c      i = 0
+c      do  210  ib = ib1, ib2
+c      do  210  ik = 1,  nkaph
+c      do  210  m = 1,  nl**2
+c        i = i+1
+c        print '(6i5)', ib, ik, m, i, iprmb(i)
+c  210 continue
+c      call rx('done')
+cccccccccccccccccccccccccccccccccc
       end subroutine makidx
 
       subroutine mkidx2(nl,maxp,idxdn,ltab,ndimi,outs)

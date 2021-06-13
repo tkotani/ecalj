@@ -208,7 +208,6 @@ soprm.o \
 spcgrp.o \
 splcls.o \
 splwts.o \
-stoner.o \
 strx00.o \
 subzi.o \
 suclst.o \

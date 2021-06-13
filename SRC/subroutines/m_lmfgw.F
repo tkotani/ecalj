@@ -22,11 +22,11 @@ c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       integer,allocatable:: lmxa(:),konft(:,:,:),ipc(:),ipcx(:)
       real(8) ::xx(5),pnu(n0,2),pnz(n0,2)
       character lsym(0:n0-1)*1, lorb(3)*1, dig(9)*1, strn4*4
-      integer:: idxdn(n0,nkap0),fopnx
+      integer:: fopnx
       data lsym /'s','p','d','f','g','5','6','7','8','9'/
       data lorb /'p','d','l'/
       data dig /'1','2','3','4','5','6','7','8','9'/
-      
+c     integer:: idxdn(n0,nkap0)
 c      qbg = ctrl_zbak(1) !homogenious background charge
       if(master_mpi) then
          write(stdo,*)
@@ -118,7 +118,7 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
             call dcopy  (i_copy_size ,ssite(ib)%pnu,1,pnu,1)
             i_copy_size=size(ssite(ib)%pnu)
             call dcopy  (i_copy_size,ssite(ib)%pz, 1,pnz,1)
-            call icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
+c            call icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
             if (lmaxa .gt. -1) then
               do  l = 0, lmaxa
                 npqn = 2
@@ -127,8 +127,8 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
                   konf = pnu(l+1,1)
                   if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
                   strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-                  if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
-     .            call chcase(0,1,strn4(2:2))
+c                  if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
+c     .            call chcase(0,1,strn4(2:2))
                   write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')
      .            ipqn, l, ipb(ib), ndima, strn4
                   ndima = ndima + (2*l+1)

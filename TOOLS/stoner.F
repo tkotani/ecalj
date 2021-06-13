@@ -1,4 +1,4 @@
-      subroutine stoner(nl,nbas,nclass,clabl,iclass,idxdn,ef,dr,npts,
+      subroutine stoner_unusednow(nl,nbas,nclass,clabl,iclass,idxdn,ef,dr,npts,
      .zos,index,stni,ammax,mnpts,io,Nbar,emag,
      .mwk,amom,e)
 C- Do generalised self consistent Stoner model for the d-band
