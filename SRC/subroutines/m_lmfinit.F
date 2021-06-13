@@ -1877,14 +1877,17 @@ C --- Allocate and copy input to sspec ---
 cccccccccccccccccccccccccccccccccccccccccc
           do  ik = 1, nkap0
              if (ik == nkaph .and. sum(lpz)>0) then
-                call ivset(idxdn(1,ik,j),1,n0,4)
+                idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
                 do  lp1  = 1, lmxb(j)+1
                    if (pz(lp1,1,j) .ne.  0) then
-                      call pz2idx(1,pz(lp1,1,j),idxdn(lp1,ik,j))
+c                      call pz2idx(1,pz(lp1,1,j),idxdn(lp1,ik,j))
+                      if(pz(lp1,1,j)>=20) idxdn(lp1,ik,j)=12
+                      if(pz(lp1,1,j)>=10) idxdn(lp1,ik,j)=11
+                      if(pz(lp1,1,j)>  0) idxdn(lp1,ik,j)=10
                    endif
                 enddo
              endif
-             if (ik > nkaph) call ivset(idxdn(1,ik,j),1,n0,4)
+             if (ik > nkaph) idxdn(:,ik,j)=3 !call ivset(idxdn(1,ik,j),1,n0,4)
              if (ik <= nkapi) then
                 do lp1 = 1, lmxb(j)+1
                    if (ik==1.and.rsmh1(lp1,j)<=0) idxdn(lp1,ik,j)=3
