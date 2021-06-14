@@ -6,7 +6,7 @@
 c      integer, private:: ham_npwmin !
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
-      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,iprmb,
      &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph, pot_nlma, pot_nlml 
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
@@ -123,6 +123,7 @@ c      ldham(7) = ldham(3) * nspc
 c      ldham(8) = nspx
 c      ham_ldham=ldham
 
+      iv_a_oindxo=iprmb
 C     Default value for hamiltonian dimension
       ham_ndham=ldham(1)
       
