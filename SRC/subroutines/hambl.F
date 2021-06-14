@@ -1,10 +1,7 @@
       subroutine hambl(lso,isp,qin, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi, h, s, hso)
-      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,lcplxp ,nsp
-c      use m_mkpot,only: 
-c     o    smpot=>zv_a_osmpot, vconst, sv_p_osig, sv_p_otau, sv_p_oppi
+      use m_lmfinit,only: nbas , ssite=>v_ssite , sspec=>v_sspec,lcplxp ,nsp,iprmb
       use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
       use m_supot,only: k1,k2,k3
-      use m_suham,only: iv_a_oindxo
       use m_struc_def,only: s_rv1, s_site, s_spec
       use m_lattic,only:lat_plat,lat_qlat
 C- Make the LDA hamiltonian and overlap for one k-point.
@@ -118,7 +115,7 @@ C ... Skip LDA H, S
 
 C --- Augmentation part of hamiltonian and overlap ---
       call augmbl ( mode0 + 10 * mode1 , ssite , sspec , isp !slat , 
-     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iv_a_oindxo 
+     .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb 
      .    , ndimh , napw , igvapw , h , hso , s )
 
 
@@ -132,10 +129,10 @@ C --- Add alfa S+ S ---
 C ... Optionally set average istl potential to zero
       vavg = 0
       call smhsbl ( mode0 , ssite , sspec ,  vavg + vconst , !slat ,
-     . q , ndimh , iv_a_oindxo , napw , igvapw , h , s )
+     . q , ndimh , iprmb , napw , igvapw , h , s )
       if (mode0 .eq. 1) goto 100
       call hsibl ( ssite , sspec ,  k1 , k2 , k3 , smpot , isp !slat ,
-     . , q , ndimh , iv_a_oindxo , napw , igvapw , h )
+     . , q , ndimh , iprmb , napw , igvapw , h )
 
 C --- Alternatively, smoothed H and S done completely numerically ---
 C      call upack1('lat nabc',slat,ngabc)

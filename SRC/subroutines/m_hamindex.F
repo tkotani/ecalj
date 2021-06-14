@@ -26,7 +26,7 @@
       contains
 cssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_hamindex_init(ljobgw)
-      use m_suham,only: iv_a_oindxo
+c      use m_suham,only: iv_a_oindxo
       use m_supot,only: rv_a_ogv
       use m_mksym,only: rv_a_osymgr,rv_a_oag,lat_nsgrp, iclasstaf_,symops_af_,ag_af_,ngrpaf_
       use m_struc_def           !Cgetarg
@@ -37,8 +37,8 @@ c     &     napwk,napwmx,igv2,igv2rev, !for APW part of rotation (for rdsigm2.F)
 c     &     imx
 c     &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
       use m_lmfinit,only:
-     &     ham_pwmode,ham_pwemax,ham_ldham,
-     &     lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0
+     &     ham_pwmode,pwemax,ham_ldham,
+     &     lat_alat,nl,ctrl_nbas,ssite=>v_ssite,sspec=>v_sspec,n0,nkap0,iprmb
       use m_lattic,only: lat_qlat,lat_plat,rv_a_opos
       use m_shortn3,only: shortn3_initialize,shortn3
 !!-- Set up m_hamiltonian. Index for Hamiltonian. --
@@ -48,8 +48,6 @@ c     &  ,ngrpaf,symops_af,ag_af,iclasstaf, ngrp_original
 !!#Inputs
 Co all output is in m_hamindex
 C
-Cr     iprmb is hard to understand (Mark's convension).  But, in anyway,
-Cr     it is converted into clean indexing for Hamiltonian block.
 Cr As you see in subroutine rotwv, the index for Hamiltonian reads as;
 c      do iorb=1,norbmto             !orbital-blocks are specified by ibas, l, and k.
 c        ibas  = ibastab(iorb)
@@ -76,7 +74,7 @@ c      integer iprmb(*),nl
       integer:: nkabc(3),nkp,lshft(3),pwmode,napwx,ig,nini
       integer:: nk1,nk2,nk3,ik1,ik2,ik3,ikt
       integer,allocatable:: kv(:)
-      real(8):: pwgmax, pwemax, pwgmin, pwemin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
+      real(8):: pwgmax, pwgmin, QpGcut_psi,qxx(3),qtarget(3),platt(3,3),q(3),qx(3),qqx(3)
       integer:: ngp, ifiqg,iq,fopnx,nnn(3),ixx,ndummy,nqbz___ 
 c      real(8):: qplist(3,nkp)
       logical:: siginit, qpgexist,debug=.false. !,no_qpgpsi
@@ -130,7 +128,7 @@ c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       ndimham = 0 !dimension of mto part of hamiltonian
       do  ib = 1, nbas
         is=ssite(ib)%spec
-        call orbl(ib,0,ldim,iv_a_oindxo,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim)!iprmb
         do iorb = 1, norb
           norbmto = norbmto+1
           if(ltabx(iorb,ib)>lxx)  lxx = ltabx(iorb,ib)
@@ -149,7 +147,7 @@ c      if(iprx) write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       do  ib = 1, nbas
         is=ssite(ib)%spec
         spid(ib)=sspec(is)%name
-        call orbl(ib,0,ldim,iv_a_oindxo,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
+        call orbl(ib,0,ldim,iprmb,norb,ltabx(:,ib),ktabx(:,ib),off,offlx(:,ib),ndim) !iprmb
         do  iorb = 1, norb
           norbmto=norbmto+1
           ibastab(norbmto)= ib
@@ -344,7 +342,7 @@ c              if(debug)print *
 !! === rotation of APW. (not the IPW part for GW).===
 c$$$ 1012 continue
       pwmode=ham_pwmode
-      pwemax=ham_pwemax
+c      pwemax=ham_pwemax
 c     pwemin=ham_pwemin
       if(pwmode==0.or.pwemax<1d-8) then
         if(allocated(napwk)) deallocate(napwk)

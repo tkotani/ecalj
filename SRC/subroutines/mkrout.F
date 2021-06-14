@@ -53,10 +53,8 @@
       end
 !!-------------------------------
       subroutine mkrout( sv_p_oqkkl, sv_p_oeqkkl, orhoat_out, hab,sab, qbyl, hbyl)
-
-      use m_suham,only: iv_a_oindxo
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,procid,master,nkaph
-     & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo
+     & , sspec=>v_sspec,ssite=>v_ssite,nbas,nsp,lekkl,lrout,n0,nab,stdo,iprmb
       use m_lmfinit,only: ham_ldham
       use m_struc_def
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
@@ -191,7 +189,7 @@ C --- Start loop over atoms ---
 c        call uspecb(0,1,sspec,is,is,lh,rsmh,eh,nkapi)
         call uspecb(is,rsmh,eh)
         nkapi=nkapii(is)
-        call orbl ( ib , 0 , nlmto , iv_a_oindxo , norb , ltab , ktab 
+        call orbl ( ib , 0 , nlmto , iprmb , norb , ltab , ktab 
      .   , xx , offl , xx )
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)
         is=ssite(ib)%spec

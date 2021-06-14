@@ -1,16 +1,16 @@
       module m_suham
-      integer,allocatable,protected ::  iv_a_oindxo (:)
+c      integer,allocatable,protected ::  iv_a_oindxo (:)
       integer,protected:: ham_ndham, ham_ndhamx,ham_nspx
 !! ssite%pnu ssite%pz sspec%ngcut are given
       contains
 c      integer, private:: ham_npwmin !
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
-      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,iprmb,
-     &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph, pot_nlma, pot_nlml 
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,iprmb,nbas,nl,nspec,
+     &     pwmode=>ham_pwmode,pwemax,pwemin
+     &     ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo
       use m_supot,only: lat_ng, rv_a_ogv
-      use m_lattic,only: lat_qlat,lat_plat
-
+      use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
 c      use m_lmfinit,only:ndhami=>ham_ndham,ndhamxi=>ham_ndhamx
 c  nspxi=>ham_nspx,   ,ldhami=>ham_ldham,ldx=>ldham   
 C- Hamiltonian setup
@@ -43,124 +43,44 @@ c      integer:: ham_ldham(16)
       parameter (nkap0=3,n0H=5)
       integer, allocatable ::  offH (:,:,:)
       integer hord,i,i1,i2,iprint,ldhamx(16),ldim, !lgen3,lham,
-     .lgunit,lidim,lihdim,nbas,nclasp,ndim,neul,nl,
-     .nlspcp,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
-     .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
+     . lidim,lihdim,nclasp,ndim,neul,
+     .nlspcp,nspx,nttab,partok,igets,nvi,nvl, !lfp,
+     .ib,is,lmxa,lmxl,isw,nbf,lmxax,
      .     j1,j2,j3,m,npw,npwmin,npwmax
       integer:: ndham=0
-      double precision pwemin,pwemax,plat(3,3),qlat(3,3),q(3),Gmin,Gmax,
-     .xx
+      double precision q(3),Gmin,Gmax,xx
       integer n0,nqdiv,npwpad
       parameter (n0=10,nqdiv=12)
 c      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
-
 C ... Needed for iostr
       double precision ckbas,cksumf,kap2(10)
       integer:: oalph , oiax , ontab , os , ng
       real(8),allocatable :: rv_a_ogvx(:)
-
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
-
       integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
       logical ltmp,iostr,bittst,adnf
       character*80 outs,gfopts
-      double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),alat,tolgv
+      double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),tolgv
       integer,allocatable:: ips(:)
       integer,parameter:: maxp=3
       integer:: idxdn(n0,nkap0),ltab(n0),ndimi(n0H,nkap0),iprior,ik,ibp1,isum,l,idxpr
-
-      nbas=ctrl_nbas
-      nspec=ctrl_nspec
-      nl=ctrl_nl
-      pwmode=ham_pwmode
-      pwemin=ham_pwemin
-      pwemax=ham_pwemax
-      nspx  = nsp
-      if(lso/=0) nspx = 1
-      ndim = nbas * nl**2 * nkaph
-      if (allocated(offH)) deallocate(offH)
-      allocate(offH(n0h,nkap0,nbas+1))
-      offH(:,:,:)=0
-      allocate(iv_a_oindxo(abs(ndim+3)))
-      stdo = lgunit(1)
-
+      
 C --- Hamiltonian offsets, orbital permutation table ---
-      call iinit(ldhamx,16)
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
-      else
-        allocate(ips(nbas))
-        do  ib = 1, nbas
-          ips(ib) = ssite(ib)%spec
-        enddo  
-        call makidx ( nl , nkaph , 1 , nbas , 0 , sspec , ips 
-     .       , offH , iv_a_oindxo , ldhamx )
-        deallocate(ips)
-c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c$$$C     ... Assemble offH(1..maxp,1..nkaph) for this site
-c$$$        offH(:,:,:)=0 !we only need offH(1,1,ib) which is offset of Hamiltonian dim for ib
-c$$$        do ib=1,nbas
-c$$$          ibp1 = ib+1
-c$$$          is = ssite(ib)%spec
-c$$$          i_copy_size=size(sspec(is)%idxdn)
-c$$$          call icopy(i_copy_size,sspec(is)%idxdn,1,idxdn,1)
-c$$$          do ik = 1,nkaph
-c$$$             call mkidx2(nl,maxp,idxdn(1,ik),ltab,ndimi(1,ik),outs)
-c$$$             iprior = 1
-c$$$             ndim = offH(1,ik,ib) + ndimi(1,ik)
-c$$$             if (ik <  nkaph) offH(1,ik+1,ib) = ndim
-c$$$             if (ik == nkaph) offH(1,1,ibp1)  = ndim
-c$$$          enddo   
-c$$$        enddo
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc        
       endif
-cC ... Make rest of ldham
-c      ldham(4) = nspc
-c      ldham(5) = ldham(1) * nspc
-c      ldham(6) = ldham(2) * nspc
-c      ldham(7) = ldham(3) * nspc
-c      ldham(8) = nspx
-c      ham_ldham=ldham
-
-      iv_a_oindxo=iprmb
-C     Default value for hamiltonian dimension
-      ham_ndham=ldham(1)
-      
+c      ndim = nbas * nl**2 * nkaph
+c      allocate(iv_a_oindxo(abs(ndim+3)))
+c      iv_a_oindxo=iprmb
 C ------- Potential- and implementation- specific setup -------
-      alat=lat_alat
-      plat=lat_plat
-      qlat=lat_qlat
-c      nvi = 0
-c      nvl = 0
-c     lmxax = -1
-      
-c$$$      do  20  ib = 1, nbas
-c$$$        is=ssite(ib)%spec
-c$$$        i_copy_size=size(sspec(is)%p)
-c$$$        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-c$$$        i_copy_size=size(sspec(is)%pz)
-c$$$        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-c$$$        call dcopy(n0,pz,1,pz(1,2),1)
-c$$$        i_copy_size=size(ssite(ib)%pnu)
-c$$$        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
-c$$$        i_copy_size=size(ssite(ib)%pz)
-c$$$        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
-c$$$ 20   continue
-      
-c      ham_lmxax=lmxax
-c      pot_nlma=nvi
-c      pot_nlml=nvl
-c      alat=lat_alat
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
       call sugcut ( 1 , sspec) !modify sspec%ngcut
 C   ... PW setup : estimate upper bound to number of G vectors
 C     to set up upper bound to hamiltonian dimension
-      
-      pwmode = ham_pwmode
-      pwemax = ham_pwemax
-      ndham  = ldham(1)
+      ham_ndham = ldham(1)
+      ndham     = ldham(1)
       if (pwemax>0 .and. mod(pwmode,10)>0) then
         Gmin = dsqrt(pwemin)
         Gmax = dsqrt(pwemax)
@@ -196,7 +116,6 @@ C     to set up upper bound to hamiltonian dimension
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
         ham_ndham = ndham
-        
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
 !     nspx*nspc=nsp
@@ -208,7 +127,6 @@ C     to set up upper bound to hamiltonian dimension
      .    '%d  =>  npw = %i,  ndham = %i',
      .    pwemin,pwemax,npw,ndham,0)
         endif
-
 C    ...  Printout
         if (iprint() .ge. 40) then
           call pshpr(0)
@@ -245,15 +163,7 @@ c         spinoffdiag=.false.    !paramagnetic
       else
          call rx('suham: nspc==2 but nsp=1')
       endif
-ccccccccccccccccccccccccc
-c      nspxi  =ham_nspx
-c      ndhami =ham_ndham
-c      ndhamxi=ham_ndhamx
-c      ldhami=ham_ldham
-c      ldx=ham_ldham
-ccccccccccccccccccccccccc      
       end subroutine m_suham_init
-      
       end module m_suham
 
 

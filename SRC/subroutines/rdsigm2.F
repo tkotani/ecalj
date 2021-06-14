@@ -36,8 +36,8 @@
       end subroutine
       
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
-      use m_lmfinit,only: plat,mxorb,nbas,nl
-      use m_suham,only:  iv_a_oindxo
+      use m_lmfinit,only: plat,mxorb,nbas,nl,iprmb
+c      use m_suham,only:  iprmb
       integer:: i, mode, isp, ispsigm,iwdummy,ival!lrsig
       real(8):: hreal,qp(3)
       logical:: debug=.false.
@@ -53,7 +53,7 @@ c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
          ispsigm=isp
       endif
 !! bloch: we need hrs(means real space) and iaxs(pair table) for FFT.
-      call bloch (mode,qp,nl,plat,mxorb,iv_a_oindxo,1
+      call bloch (mode,qp,nl,plat,mxorb,iprmb,1
      &           , ival ( iv_a_ontabs , nbas + 1 )
      &           , iv_a_oiaxs , rv_a_ohrs, ham_ndhrs, ispsigm, nspsigm , ndimsig , ndimsig 
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
@@ -123,7 +123,7 @@ c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
-      use m_suham,only:iv_a_oindxo !,offH
+c      use m_suham,only:iprmb !,offH
       use m_hamindex,only: offH
 !     iv_a_oiaxs,rv_a_ohrs,rv_p_oqsig , ,iv_a_ontabs
       use m_mksym,only: rv_a_osymgr ,iv_a_oistab,rv_a_oag,lat_nsgrp
@@ -133,7 +133,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     mxorb,stdo,nl
       use m_mkqp,only: bz_nabc
       use m_mkqp,only: bz_nkp
-      use m_lmfinit,only: ham_ldham
+      use m_lmfinit,only: ham_ldham,iprmb
       use m_lattic,only: lat_plat,rv_a_opos
       implicit none
 !! seneinterp is used in hambls.F case (store real-space sigma to ham_rv_a_ohrs)
@@ -319,7 +319,7 @@ c      print *,'nscnts111=',nscnts
       if(debug) print *,'seneinterp: debug EEEEEEEEEE'
       plat = lat_plat
       nsgrp= lat_nsgrp
-      call offshp ( iv_a_oindxo , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
+      call offshp ( iprmb , 1 , nbas , 2 , 0 , ndimh , 0 , ndhrs )
       k1=nk1
       k2=nk2
       k3=nk3
@@ -451,7 +451,7 @@ c        if (procid .eq. master) then
           if(debug) print *,'a8 22222222222 goto chksgr'
 !! --- chksgr read again sigm file---> but it is not for generating new quantities, just for check.
           call chksgr ( j1 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .      , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+     .      , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .      , rsstol , i , rv_p_oqp , nbas , 0 , rotm , iwdummy )
 c        endif
 c      endif
@@ -502,7 +502,7 @@ C       Use 10*2 for hermitian matrices, 10*1 for symmetric ones
         call istbpm ( iv_a_oistab , nbas , nsgrp , istb2_iv )
 c        nl = globalvariables%nl
        if(debug) print *,' a8 44444444444444'
-        call rsmsym ( i , plat , mxorb , iv_a_oindxo , ndimh , nbas ,
+        call rsmsym ( i , plat , mxorb , iprmb , ndimh , nbas ,
      .          rv_a_opos , nl , nsp , 1 , nttabs , iv_a_ontabs , iv_a_oiaxs
      .        , rv_a_osymgr , istb2_iv , nsgrp , ndhrs , hrss , rv_a_ohrs )
         if (allocated(istb2_iv)) deallocate(istb2_iv)
@@ -522,7 +522,7 @@ c          if (alf(1) .ne. 1 .or. alf(2) .ne. 0) then
 c            call info0(20,0,0,' skipping check of symmetrized sigma (sigma scaled) ')
 c          else
             call chksgr ( 0 , ltrans , kcplx , plat , nsp , ndimh , ifis
-     .          , hreal , iv_a_oindxo , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
+     .          , hreal , iprmb , nttabs , iv_a_oiaxs , rv_a_ohrs , ndhrs 
      .          , rsstol , i , 0 , nbas , 0 , rotm , iwdummy )
 c          endif
 c        endif
@@ -546,11 +546,11 @@ c$$$            if (lonesp .eq. 1) then
 c$$$              if (nsp .eq. 1) call rx(
 c$$$     .        'onesp option nonsensical unless sigma file is spin pol')
 c$$$              call siged ( 1 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
-c$$$     .           , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
+c$$$     .           , ham_iprmb , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$            if (ledit .eq. 1) then
 c$$$              call siged ( 0 , nbas , nsp , ndhrs , plat , lat_rv_a_opos , ndimh
-c$$$     .             , ham_iv_a_oindxo , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
+c$$$     .             , ham_iprmb , hreal , ham_iv_a_ontabs , ham_iv_a_oiaxs , ham_rv_a_ohrs )
 c$$$            endif
 c$$$
 c$$$C       Handle case q-mesh for file output differs from file input
@@ -634,7 +634,7 @@ c$$$              enddo
 c$$$C         call prmx('qp',w(oqp),3,3,nqp)
 c$$$            endif
 c$$$            call chksgr ( 1 , ltrans , kcplx , plat , nsp , ndimh , ifis2
-c$$$     .          , hreal , ham_iv_a_oindxo , nttabs , ham_iv_a_oiaxs , ham_rv_a_ohrs , ndhrs 
+c$$$     .          , hreal , ham_iprmb , nttabs , ham_iv_a_oiaxs , ham_rv_a_ohrs , ndhrs 
 c$$$     .          , rsstol , nqp , rv_p_oqp , nbas , lrot , rotm , delt_rv )
 c$$$            call fclose(ifis2)
 c$$$            call rx0('done writing sigma, file sigm2')

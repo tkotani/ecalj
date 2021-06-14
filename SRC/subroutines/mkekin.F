@@ -1,9 +1,8 @@
       subroutine mkekin( sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,smpot,smrho,sumev,sumtv)
       use m_struc_def  
-      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp,ham_ldham
+      use m_lmfinit,only:lso,nkaph,nsp,nspc,stdo,nbas,ssite=>v_ssite,sspec=>v_sspec,lcplxp,ham_ldham,iprmb
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
-      use m_suham,only: iv_a_oindxo
 C- Evaluate the valence kinetic energy
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -195,7 +194,7 @@ C --- Integral rhout*veff, part from augmentation ---
         kmax=sspec(is)%kmxt
         lmxh=sspec(is)%lmxb
         if (lmxa .eq. -1) goto 10
-        call orbl ( ib , 0 , ndimh , iv_a_oindxo , norb , ltab , ktab 
+        call orbl ( ib , 0 , ndimh , iprmb , norb , ltab , ktab 
      .   , xx , offl , xx )
 C       Block into groups of consecutive l
         call gtbsl1(4,norb,ltab,ktab,xx,xx,ntab,blks)

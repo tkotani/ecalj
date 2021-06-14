@@ -11,12 +11,12 @@
       subroutine m_lmfgw_init()
 c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
-     & nkap0,alat=>lat_alat,ham_ldham
+     & nkap0,alat=>lat_alat,ham_ldham,iprmb
       use m_supot,only: k1,k2,k3
       use m_MPItk,only: master_mpi,mlog
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
-      use m_suham,only: iv_a_oindxo, ndham=>ham_ndham
+      use m_suham,only: ndham=>ham_ndham
       use m_mkpot,only: m_mkpot_novxc
       integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,ldim,lmaxa,ifilnlaindx,
      & lmxax,ifinlaindx,ndima,npqn,mxint
@@ -78,7 +78,7 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
         do  ib = 1, nbas
           lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
           if (lmxa(ib) .gt. -1) then
-            call orbl ( ib , 0 , ldim , iv_a_oindxo , norb , ltab , ktab , xx , offl , i1 )
+            call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
             write(ifildima,"(3i10)") i1
           endif
        enddo

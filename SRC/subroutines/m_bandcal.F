@@ -9,7 +9,7 @@
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
-     &      pwmode=>ham_pwmode,pwemax=>ham_pwemax,stdl
+     &      pwmode=>ham_pwmode,pwemax,stdl
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,

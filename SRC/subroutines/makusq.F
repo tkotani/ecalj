@@ -1,7 +1,6 @@
       subroutine makusq(mode,nsites,isite,
      .     nev,isp,iq,q,evec,  aus)
-      use m_suham,only: iv_a_oindxo
-      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,ham_ldham
+      use m_lmfinit,only: ssite=>v_ssite,sspec=>v_sspec,nbas,nlmax,nsp,nspc,nkapii,lhh,ham_ldham,iprmb
       use m_suham,only: ndham=>ham_ndham
       use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
       use m_mkpot,only: ppnl=>ppnl_rv       
@@ -166,7 +165,7 @@ C   --- Set up all radial head and tail functions, and their BC's
         call fradpk ( kmax , rsma , lmxa , nr , rofi_rv , fp_rv 
      .  , xp_rv , vp_rv , dp_rv )
 C   --- Add to the coefficient for the projection onto (u,s) for this site
-        call pusq1 ( mode , ib , isp , nspc , iv_a_oindxo , nlmax , lmxh 
+        call pusq1 ( mode , ib , isp , nspc , iprmb , nlmax , lmxh 
      .   , nbas , ssite , sspec ,  q , ndham , ndimh , napw , igvapw !slat ,
      .   , nev , evec , vh_rv , dh_rv , vp_rv , dp_rv , ppnl ( 1 , 1 , 
      .   1 , ib ) , aus ( 1 , 1 , 1 , 1 , i , iq ) , aus ( 1 , 1 , 2 , 

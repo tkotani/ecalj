@@ -6,7 +6,7 @@ c      public:: m_igv2x_set,napw,igv2x
 c      private
       contains
       subroutine m_igv2x_set(qp) !Set napw and igv2x for given qp
-      use m_lmfinit,only: pwmode=>ham_pwmode,pwemin=>ham_pwemin,pwemax=>ham_pwemax,alat=>lat_alat,stdo,nspc
+      use m_lmfinit,only: pwmode=>ham_pwmode,pwemin,pwemax,alat=>lat_alat,stdo,nspc
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only: master_mpi,procid,master
       use m_shortn3,only: shortn3_initialize,shortn3

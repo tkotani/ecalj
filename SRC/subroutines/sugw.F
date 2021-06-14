@@ -1,8 +1,8 @@
       subroutine sugw (jobgw) 
       use m_struc_def,only: s_rv1, s_spec, s_site 
-      use m_suham,only: iv_a_oindxo,ndham=>ham_ndham
+      use m_suham,only: ndham=>ham_ndham
       use m_lmfinit, only: 
-     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,
+     &     ham_pwmode,pwemin,pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,iprmb,
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
@@ -114,7 +114,7 @@ C ... For PW basis
 c      integer:: oigv2
 c      integer ,allocatable :: kv_iv(:)
       integer pwmode
-      double precision pwemin,pwemax,pwgmin,pwgmax,eomin
+      double precision pwgmin,pwgmax,eomin
 
 C ... for reading self-energy
 c      integer nqsig
@@ -230,8 +230,6 @@ c      napw = 0
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
       ldim=ldham(1,1)
       pwmode= ham_pwmode
-      pwemin= ham_pwemin
-      pwemax= ham_pwemax
       allocate(evl(ndham,nsp))
 !! ndima
       ndima = 0
@@ -260,7 +258,7 @@ c$$$        open(newunit= ifildima,file='ldima')
 c$$$        do  ib = 1, nbas
 c$$$          lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
 c$$$          if (lmxa(ib) .gt. -1) then
-c$$$            call orbl ( ib , 0 , ldim , iv_a_oindxo , norb , ltab , ktab , xx , offl , i1 )
+c$$$            call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
 c$$$            write(ifildima,"(3i10)") i1
 c$$$          endif
 c$$$       enddo
@@ -752,7 +750,7 @@ c     if (mod(loldpw,2) .eq. 0) then
              inn=0
              if(debug) print *,'goto pwmat'
              call pwmat (  ssite , sspec , nbas , ndimh , napw, !slat ,
-     .            igv2x, iv_a_oindxo , q , ngp , nlmax , ngvecp , gmax , inn, 
+     .            igv2x, iprmb , q , ngp , nlmax , ngvecp , gmax , inn, 
      .            ppovl, phovl )
              if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
              if(debug) print *,'sss: phovl=',sum(abs(phovl))

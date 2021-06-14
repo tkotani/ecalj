@@ -105,7 +105,7 @@
       integer , allocatable,protected  ::  iv_a_oidxcg (:)
       integer , allocatable,protected  ::  iv_a_ojcg (:) 
 !!      
-      integer,protected:: ham_pwmode,ham_pwemax,ham_pwemin,ham_nkaph,ham_nlibu,
+      integer,protected:: ham_pwmode,ham_nkaph,ham_nlibu,
      &     ctrl_noinv,nlmax,mxorb,ctrl_lfrce,bz_nevmx,
      &     ham_neula,ham_nbf,ham_lsig,ctrl_lmet,bz_nabcin(3)=NULLI,
      &     bz_ndos,              !bndfp
@@ -1842,8 +1842,6 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
       ham_udiag=ham_udiag
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
-      ham_pwemin=pwemin
-      ham_pwemax=pwemax
       ham_oveps=oveps
       ham_delta_stabilize=delta_stabilize !takao sep2010
       if (procid==master) then
