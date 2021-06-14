@@ -121,11 +121,12 @@
       integer,protected:: lmaxu,nlibu
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
-      integer,protected:: leks,lrout,plbnd
+      integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
+
 cccccccccccccccccccccccccccccccccccccccccccccccccc      
       real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-      integer::  ham_ndham,ham_ndhamx,ham_nspx,ham_ldham(16),ldham(16)
+      integer::  ham_ndham,ham_ndhamx
 cccccccccccccccccccccccccccccccccc
 cccccccccccccccccc      
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
@@ -330,7 +331,7 @@ c      integer,parameter:: mxspec=256
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
-      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m
+      integer :: ctrl_nspec_bakup,inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl
       logical :: ipr10,fullmesh,lzz
       integer,parameter:: maxp=3
 !! Stage 1  read ctrl file ---------------------    
@@ -2021,7 +2022,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
         ldham(iprior) = indx
  112  continue
 C     Default value for hamiltonian dimension
-      ham_ndham=ldham(1)
+      ham_ndham= ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
@@ -2043,6 +2044,15 @@ C ... Make rest of ldham
       else
          call rx('m_lmfinit: nspc==2 but nsp=1')
       endif
+      nvi=0
+      nvl=0
+      do  ib = 1, nbas
+        is=v_ssite(ib)%spec
+        nvi = nvi + (lmxa(is)+1)**2
+        nvl = nvl + (lmxl(is)+1)**2
+      enddo
+      pot_nlma=nvi
+      pot_nlml=nvl
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       

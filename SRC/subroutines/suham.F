@@ -1,13 +1,13 @@
       module m_suham
       integer, allocatable,protected ::  iv_a_oindxo (:)
-      integer, protected:: ham_npwmin, pot_nlma, pot_nlml, ham_nspx,ham_ndham,ham_ndhamx,ham_ldham(16)
+      integer, protected:: ham_npwmin !
 !! ssite%pnu ssite%pz sspec%ngcut are given
-      
+      integer,private:: ham_nspx,ham_ndham,ham_ndhamx,ham_ldham(16)
       contains
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
       use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,
-     &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph
+     &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph, pot_nlma, pot_nlml 
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
 
@@ -113,8 +113,6 @@ c$$$          enddo
 c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc        
       endif
-C     Default value for hamiltonian dimension
-      ham_ndham=ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
@@ -123,6 +121,9 @@ C ... Make rest of ldham
       ldham(8) = nspx
       ham_ldham=ldham
 
+C     Default value for hamiltonian dimension
+      ham_ndham=ldham(1)
+      
 C ------- Potential- and implementation- specific setup -------
       alat=lat_alat
       plat=lat_plat
@@ -150,14 +151,15 @@ C         Poke spec starting pnu to site
         lmxax = max(lmxax,lmxa)
    20 continue
 c      ham_lmxax=lmxax
-      pot_nlma=nvi
-      pot_nlml=nvl
+c      pot_nlma=nvi
+c      pot_nlml=nvl
       alat=lat_alat
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
       call sugcut ( 1 , sspec) !modify sspec%ngcut
 C   ... PW setup : estimate upper bound to number of G vectors
-C       to set up upper bound to hamiltonian dimension
+C     to set up upper bound to hamiltonian dimension
+      
       pwmode = ham_pwmode
       pwemax = ham_pwemax
       ndham  = ldham(1)
@@ -173,32 +175,21 @@ C       to set up upper bound to hamiltonian dimension
             do  j2 = 0, nqdiv
               do  j3 = 0, nqdiv
                 do   m = 1, 3
-                  q(m) = (qlat(m,1)/nqdiv)*j1 +
-     .            (qlat(m,2)/nqdiv)*j2 +
-     .            (qlat(m,3)/nqdiv)*j3
+                  q(m) = (qlat(m,1)/nqdiv)*j1 +(qlat(m,2)/nqdiv)*j2 +(qlat(m,3)/nqdiv)*j3
                 enddo
                 call pshpr(iprint()-40)
-ctakao nqdiv is large but fixed... So this is safer?
-c              call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-c     .          xx,xx,xx)
-c             write(6,"('GVLST2:goto q=',3f13.5)")q
-c             call shorbz(q,q,qlat,plat)
-                call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     &          xx,xx,xx)
+                call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
                 call poppr
                 npwmin = min(npwmin,npw)
                 npwmax = max(npwmax,npw)
               enddo
             enddo
           enddo
-c          if (npwpad .lt. 0) then
-            npwpad = max(nint((npwmax-npwmin)*0.2d0),3)
-c          endif
+          npwpad = max(nint((npwmax-npwmin)*0.2d0),3) !we need this for safe?
         else
           call dpzero(q,3)
           call pshpr(iprint()-40)
-          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,
-     .    xx,xx,xx)
+          call gvlst2(alat,plat,q,0,0,0,Gmin,Gmax,0,0,0,npw,xx,xx,xx,xx)
           call poppr
           npwmin = npw
           npwmax = npw
@@ -206,8 +197,9 @@ c          endif
         endif
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-        ham_npwmin=npwmin
+        ham_npwmin= npwmin
         ham_ndham = ndham
+        
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
 !! Note spinoffdiag=T case: we use nspc,nsp,nspx,ndhamx (a little complicated, I think).
 !     nspx*nspc=nsp
@@ -257,11 +249,11 @@ c         spinoffdiag=.false.    !paramagnetic
          call rx('suham: nspc==2 but nsp=1')
       endif
 ccccccccccccccccccccccccc
-      nspxi  =ham_nspx
+c      nspxi  =ham_nspx
       ndhami =ham_ndham
       ndhamxi=ham_ndhamx
-      ldhami=ham_ldham
-      ldx=ham_ldham
+c      ldhami=ham_ldham
+c      ldx=ham_ldham
 ccccccccccccccccccccccccc      
       end subroutine m_suham_init
       

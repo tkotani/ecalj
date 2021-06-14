@@ -3,7 +3,7 @@
       use m_ldau,only: vorb
       use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce,stdl
-      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
       use m_density,only: osmrho, orhoat !main input density

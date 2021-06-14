@@ -33,7 +33,7 @@
 !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
 !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
-      use m_suham,only: iv_a_oindxo, nchan=>pot_nlma, nvl=>pot_nlml
+      use m_suham,only: iv_a_oindxo
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
@@ -44,7 +44,7 @@
      &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
      &     , ndham=>ham_ndham,ham_ldham
-     &     , ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+     &     , ndhamx=>ham_ndhamx,nspx=>ham_nspx , nchan=>pot_nlma, nvl=>pot_nlml
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos

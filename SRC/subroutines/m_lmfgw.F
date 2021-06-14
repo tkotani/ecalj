@@ -14,7 +14,7 @@ c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
      & nkap0,alat=>lat_alat,ham_ldham, ndham=>ham_ndham
       use m_supot,only: k1,k2,k3
       use m_MPItk,only: master_mpi,mlog
-      use m_suham,only: nchan=>pot_nlma, nvl=>pot_nlml
+      use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
       use m_suham,only: iv_a_oindxo
       use m_mkpot,only: m_mkpot_novxc

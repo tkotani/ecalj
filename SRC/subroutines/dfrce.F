@@ -1,5 +1,5 @@
       subroutine dfrce (job, sv_p_orhoat , sv_p_orhat1 , elind , qmom , smrho , smrout , dfh )
-      use m_suham,only: nvl=>pot_nlml
+      use m_lmfinit,only: nvl=>pot_nlml
       use m_supot,only: rv_a_ogv,iv_a_okv
       use m_struc_def 
       use m_lmfinit,only:lat_alat,nsp,nbas,nspec,ssite=>v_ssite,sspec=>v_sspec
