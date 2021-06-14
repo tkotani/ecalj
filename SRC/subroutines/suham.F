@@ -1,9 +1,9 @@
       module m_suham
       integer, allocatable,protected ::  iv_a_oindxo (:)
-      integer, protected:: ham_npwmin !
 !! ssite%pnu ssite%pz sspec%ngcut are given
       integer,private:: ham_nspx,ham_ndham,ham_ndhamx,ham_ldham(16)
       contains
+c      integer, private:: ham_npwmin !
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
       use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,
@@ -11,7 +11,8 @@
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
 
-      use m_lmfinit,only: nspxi=>ham_nspx,ndhami=>ham_ndham,ndhamxi=>ham_ndhamx,ldhami=>ham_ldham,ldx=>ldham
+      use m_lmfinit,only:ndhami=>ham_ndham,ndhamxi=>ham_ndhamx
+c  nspxi=>ham_nspx,   ,ldhami=>ham_ldham,ldx=>ldham   
 C- Hamiltonian setup
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
 Cl   npwmin:lower limit to number of PWs, estimated by sweeping
@@ -197,7 +198,7 @@ C     to set up upper bound to hamiltonian dimension
         endif
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-        ham_npwmin= npwmin
+c        ham_npwmin= npwmin
         ham_ndham = ndham
         
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
@@ -259,6 +260,9 @@ ccccccccccccccccccccccccc
       
       end module m_suham
 
+
+
+      
 csssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine mptauof(symops,ng,plat,nbas,bas,
      &iclass,miat,tiat,invg,delta)
