@@ -1,7 +1,7 @@
       module m_suham
-      integer, allocatable,protected ::  iv_a_oindxo (:)
+      integer,allocatable,protected ::  iv_a_oindxo (:)
+      integer,protected:: ham_ndham, ham_ndhamx,ham_nspx
 !! ssite%pnu ssite%pz sspec%ngcut are given
-      integer,private:: ham_nspx,ham_ndham,ham_ndhamx,ham_ldham(16)
       contains
 c      integer, private:: ham_npwmin !
       subroutine m_suham_init(sspec,ssite)
@@ -11,7 +11,7 @@ c      integer, private:: ham_npwmin !
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
 
-      use m_lmfinit,only:ndhami=>ham_ndham,ndhamxi=>ham_ndhamx
+c      use m_lmfinit,only:ndhami=>ham_ndham,ndhamxi=>ham_ndhamx
 c  nspxi=>ham_nspx,   ,ldhami=>ham_ldham,ldx=>ldham   
 C- Hamiltonian setup
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
@@ -38,6 +38,7 @@ C ----------------------------------------------------------------------
       implicit none
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
+      integer:: ham_ldham(16)
       integer nkap0,n0H,ham_lmxax
       parameter (nkap0=3,n0H=5)
       integer, allocatable ::  offH (:,:,:)
@@ -251,8 +252,8 @@ c         spinoffdiag=.false.    !paramagnetic
       endif
 ccccccccccccccccccccccccc
 c      nspxi  =ham_nspx
-      ndhami =ham_ndham
-      ndhamxi=ham_ndhamx
+c      ndhami =ham_ndham
+c      ndhamxi=ham_ndhamx
 c      ldhami=ham_ldham
 c      ldx=ham_ldham
 ccccccccccccccccccccccccc      

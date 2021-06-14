@@ -1,6 +1,6 @@
       module m_procar
       use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc
-      use m_lmfinit,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx 
+      use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham,nspx=>ham_nspx 
       use m_igv2x,only: igv2x,napw
       use m_mkpot,only: ppnl_rv
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid

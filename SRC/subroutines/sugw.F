@@ -1,9 +1,9 @@
       subroutine sugw (jobgw) 
       use m_struc_def,only: s_rv1, s_spec, s_site 
-      use m_suham,only: iv_a_oindxo
+      use m_suham,only: iv_a_oindxo,ndham=>ham_ndham
       use m_lmfinit, only: 
-     &ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham, ndham=>ham_ndham,
-     &ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
+     &     ham_pwmode,ham_pwemin,ham_pwemax,ham_oveps,lrsig=>ham_lsig,stdl,ham_ldham,
+     &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
       use m_seneinterp,only: getsenex, senex,dsene

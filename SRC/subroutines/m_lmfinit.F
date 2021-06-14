@@ -126,7 +126,7 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccc      
       real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-      integer::  ham_ndham,ham_ndhamx
+c      integer::  ham_ndham,ham_ndhamx
 cccccccccccccccccccccccccccccccccc
 cccccccccccccccccc      
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
@@ -1997,7 +1997,7 @@ c      call suidx(nkaph,j,nspec,v_sspec)
       if( lso==1 ) nspc = 2
 
       
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!      
       allocate( iprmb(nbas * nl**2 * maxp ) )
       indx = 0
       do 112 iprior = 1, maxp
@@ -2022,7 +2022,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
         ldham(iprior) = indx
  112  continue
 C     Default value for hamiltonian dimension
-      ham_ndham= ldham(1)
+c      ham_ndham= ldham(1)
 C ... Make rest of ldham
       ldham(4) = nspc
       ldham(5) = ldham(1) * nspc
@@ -2032,18 +2032,6 @@ C ... Make rest of ldham
       if(lso/=0) nspx = 1
       ldham(8) = nspx
       ham_ldham=ldham
-      if(nspc==2.and.nsp==2) then !spinoffdiag=.true. 
-         ham_nspx= 1               
-         ham_ndhamx = ham_ndham*2
-      elseif(nspc==1.and.nsp==2) then! spinoffdiag=.false.    !spin no-offdiagonal
-         ham_nspx= 2 
-         ham_ndhamx= ham_ndham
-      elseif(nspc==1.and.nsp==1) then !paramagnetic
-         ham_nspx= 1            !nsp/nspc
-         ham_ndhamx= ham_ndham
-      else
-         call rx('m_lmfinit: nspc==2 but nsp=1')
-      endif
       nvi=0
       nvl=0
       do  ib = 1, nbas
@@ -2053,7 +2041,7 @@ C ... Make rest of ldham
       enddo
       pot_nlma=nvi
       pot_nlml=nvl
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       
 C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
