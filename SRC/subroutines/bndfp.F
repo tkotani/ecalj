@@ -266,7 +266,6 @@ c      character*8:: charext
 !! ----------------------------
       call tcn ('bndfp')
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
-      
 !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
 !  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
       if(initd) then
@@ -311,7 +310,7 @@ c     endif
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw)!from(smrho,rhoat), get potential. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      call m_mkpot_init(llmfgw) !from(smrho,rhoat), get potential. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
 !! elind for accelarating convergence. Not used so often. Need examination.
       elind = ham_elind
       if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
@@ -362,7 +361,7 @@ c      endif
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-
+      
 !! MPIK k point divider. From iqini to iqend for each processor.    
 #if MPIK
       sttime = MPI_WTIME()
@@ -434,7 +433,6 @@ c     i        etolv,etolc)
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
 !! end of band plot mode
-      
 !! New eferm determined from evlall
       call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !Get new eferm, sev, wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
@@ -458,7 +456,7 @@ c     i        etolv,etolc)
       dosw(2)= eferm+bz_dosmax  ! lowest energy limit to plot dos
       if(master_mpi.and.(tdos.or.ldos/=0)) then
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
-         allocate( dos_rv(ndos,2*nspx))
+         allocate( dos_rv(ndos,nspx+1)) !for xxxdif
          if(cmdopt0('--tdostetf')) ltet=.false. !oct2015
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
@@ -470,14 +468,15 @@ c     i        etolv,etolc)
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
          endif
          if( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
-         open(newunit=ifi,file='dos.tot.'//trim(sname))
+         open(newunit=ifi, file='dos.tot.'//trim(sname) )
          open(newunit=ifii,file='dosi.tot.'//trim(sname))
          dee=(dosw(2)-dosw(1))/(ndos-1d0)
+         dosi=0d0
          do ipts=1,ndos
             eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
-            dosi(1:nsp)= dosi(1:nsp) + dos_rv(ipts,isp)*dee
-            write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nsp)
-            write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nsp)
+            dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
+            write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx)
+            write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)
          enddo
          close(ifi)
          close(ifii)
