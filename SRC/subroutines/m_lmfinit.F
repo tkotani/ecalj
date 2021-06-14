@@ -124,7 +124,7 @@
       integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
 
 cccccccccccccccccccccccccccccccccccccccccccccccccc      
-      real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
+c      real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 c      integer::  ham_ndham,ham_ndhamx
 cccccccccccccccccccccccccccccccccc
@@ -1931,7 +1931,8 @@ Cr         and it is included in the basis.
           v_sspec(j)%mass = mass(j)
           v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 !!     Pack P,Q,PZ for both spins
-          v_sspec(j)%p = pnu(1:n0*nsp,1,j) 
+          v_sspec(j)%p = pnu(1:n0*nsp,1,j)
+          if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j)   !takao
           v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
           v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
@@ -1998,6 +1999,12 @@ c      call suidx(nkaph,j,nspec,v_sspec)
 
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!      
+      do  20  ib = 1, nbas
+        is=v_ssite(ib)%spec
+        v_ssite(ib)%pnu=v_sspec(is)%p
+        v_ssite(ib)%pz=v_sspec(is)%pz
+   20 continue
+
       allocate( iprmb(nbas * nl**2 * maxp ) )
       indx = 0
       do 112 iprior = 1, maxp
@@ -2214,9 +2221,9 @@ c      enddo
          if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
          if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
-      allocate( ehl(n0,nspec),rsml(n0,nspec))
-      ehl=-999d0
-      rsml=-999d0
+c      allocate( ehl(n0,nspec),rsml(n0,nspec))
+c      ehl=-999d0
+c      rsml=-999d0
       
       if(master_mpi) then
          write(stdo,"('mmm === MTO setting ===')")

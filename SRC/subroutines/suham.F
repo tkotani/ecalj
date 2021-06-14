@@ -6,7 +6,7 @@
 c      integer, private:: ham_npwmin !
       subroutine m_suham_init(sspec,ssite)
       use m_struc_def  
-      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,
+      use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,
      &     ham_pwmode,ham_pwemax,ham_pwemin,lat_alat, lat_alat,lat_tolft,nkaph, pot_nlma, pot_nlml 
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: lat_qlat,lat_plat
@@ -38,11 +38,11 @@ C ----------------------------------------------------------------------
       implicit none
       type(s_spec)::sspec(*)
       type(s_site)::ssite(*)
-      integer:: ham_ldham(16)
+c      integer:: ham_ldham(16)
       integer nkap0,n0H,ham_lmxax
       parameter (nkap0=3,n0H=5)
       integer, allocatable ::  offH (:,:,:)
-      integer hord,i,i1,i2,iprint,ldham(16),ldim, !lgen3,lham,
+      integer hord,i,i1,i2,iprint,ldhamx(16),ldim, !lgen3,lham,
      .lgunit,lidim,lihdim,nbas,nclasp,ndim,neul,nl,
      .nlspcp,nspec,nspx,nttab,partok,igets,nvi,nvl, !lfp,
      .ib,is,lmxa,lmxl,stdo,isw,nbf,lmxax,pwmode,
@@ -86,7 +86,7 @@ C ... Needed for iostr
       stdo = lgunit(1)
 
 C --- Hamiltonian offsets, orbital permutation table ---
-      call iinit(ldham,16)
+      call iinit(ldhamx,16)
       if (mod(pwmode,10) .eq. 2) then
         call info0(20,0,0,' suham: LMTO basis will be excluded')
       else
@@ -95,7 +95,7 @@ C --- Hamiltonian offsets, orbital permutation table ---
           ips(ib) = ssite(ib)%spec
         enddo  
         call makidx ( nl , nkaph , 1 , nbas , 0 , sspec , ips 
-     .       , offH , iv_a_oindxo , ldham )
+     .       , offH , iv_a_oindxo , ldhamx )
         deallocate(ips)
 c$$$ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c$$$C     ... Assemble offH(1..maxp,1..nkaph) for this site
@@ -115,13 +115,13 @@ c$$$          enddo
 c$$$        enddo
 c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc        
       endif
-C ... Make rest of ldham
-      ldham(4) = nspc
-      ldham(5) = ldham(1) * nspc
-      ldham(6) = ldham(2) * nspc
-      ldham(7) = ldham(3) * nspc
-      ldham(8) = nspx
-      ham_ldham=ldham
+cC ... Make rest of ldham
+c      ldham(4) = nspc
+c      ldham(5) = ldham(1) * nspc
+c      ldham(6) = ldham(2) * nspc
+c      ldham(7) = ldham(3) * nspc
+c      ldham(8) = nspx
+c      ham_ldham=ldham
 
 C     Default value for hamiltonian dimension
       ham_ndham=ldham(1)
@@ -130,32 +130,27 @@ C ------- Potential- and implementation- specific setup -------
       alat=lat_alat
       plat=lat_plat
       qlat=lat_qlat
-      nvi = 0
-      nvl = 0
-      lmxax = -1
-      do  20  ib = 1, nbas
-        is=ssite(ib)%spec
-        lmxa=sspec(is)%lmxa
-        lmxl=sspec(is)%lmxl
-        i_copy_size=size(sspec(is)%p)
-        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
-        i_copy_size=size(sspec(is)%pz)
-        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
-        call dcopy(n0,pz,1,pz(1,2),1)
-C         Augmentation dimensioning parameters
-        nvi = nvi + (lmxa+1)**2
-        nvl = nvl + (lmxl+1)**2
-C         Poke spec starting pnu to site
-        i_copy_size=size(ssite(ib)%pnu)
-        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
-        i_copy_size=size(ssite(ib)%pz)
-        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
-        lmxax = max(lmxax,lmxa)
-   20 continue
+c      nvi = 0
+c      nvl = 0
+c     lmxax = -1
+      
+c$$$      do  20  ib = 1, nbas
+c$$$        is=ssite(ib)%spec
+c$$$        i_copy_size=size(sspec(is)%p)
+c$$$        call dcopy(i_copy_size,sspec(is)%p,1,pnu,1)
+c$$$        i_copy_size=size(sspec(is)%pz)
+c$$$        call dcopy(i_copy_size,sspec(is)%pz,1,pz,1)
+c$$$        call dcopy(n0,pz,1,pz(1,2),1)
+c$$$        i_copy_size=size(ssite(ib)%pnu)
+c$$$        call dcopy(i_copy_size,pnu,1,ssite(ib)%pnu,1)
+c$$$        i_copy_size=size(ssite(ib)%pz)
+c$$$        call dcopy(i_copy_size,pz,1,ssite(ib)%pz,1)
+c$$$ 20   continue
+      
 c      ham_lmxax=lmxax
 c      pot_nlma=nvi
 c      pot_nlml=nvl
-      alat=lat_alat
+c      alat=lat_alat
       call info5(30,0,0,' suham :  %i augmentation'//
      .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
       call sugcut ( 1 , sspec) !modify sspec%ngcut
@@ -199,7 +194,6 @@ C     to set up upper bound to hamiltonian dimension
         endif
         ndham = npwmax + npwpad
         if (mod(pwmode,10) .ne. 2) ndham = ldham(1) + npwmax + npwpad
-c        ham_npwmin= npwmin
         ham_ndham = ndham
         
 !! Dimension maximum of Hamiltonian is ndhamx (ispx=1,nspx)
