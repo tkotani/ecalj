@@ -1,19 +1,16 @@
       module m_suham
-c      integer,allocatable,protected ::  iv_a_oindxo (:)
-      integer,protected:: ham_ndham, ham_ndhamx,ham_nspx
-!! ssite%pnu ssite%pz sspec%ngcut are given
+      integer,protected:: ham_ndham, ham_ndhamx,ham_nspx  !only these integers returned. 
       contains
-c      integer, private:: ham_npwmin !
-      subroutine m_suham_init(sspec,ssite)
+      subroutine m_suham_init()
       use m_struc_def  
       use m_lmfinit,only:lso, ctrl_nbas,ctrl_nspec, ctrl_nl,nspc,nsp,ldham,iprmb,nbas,nl,nspec,
      &     pwmode=>ham_pwmode,pwemax,pwemin
      &     ,alat=>lat_alat, lat_tolft,nkaph, pot_nlma, pot_nlml ,stdo
       use m_supot,only: lat_ng, rv_a_ogv
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
-c      use m_lmfinit,only:ndhami=>ham_ndham,ndhamxi=>ham_ndhamx
-c  nspxi=>ham_nspx,   ,ldhami=>ham_ldham,ldx=>ldham   
-C- Hamiltonian setup
+      use m_MPItk,only:master_mpi
+!! Hamiltonian dimensiton: APW part
+!!       ham_ndham,ham_ndhamx,ham_nspx
 Cl   ndim  :total number of lmto orbitals = nl**2 * nbas
 Cl   npwmin:lower limit to number of PWs, estimated by sweeping
 Cl         :over a fine mesh of qp.
@@ -21,62 +18,28 @@ Cl   npwmax:upper limit to number of PWs, estimated by sweeping
 Cl         :over a fine mesh of qp.
 Cl   nqdiv: loop over mesh of q-points to estimate npwmax
 Cl        : nqdiv is fineness of q-mesh.
-Clxxx  npwpad: a 'safety' padding to npwmax in case npwmax
-Clxxx        : underestimates actual upper limit
-Cr Remarks
-Cr   This routine generates energy-independent hamiltonian setup.
-Cr  *It generates and packs a table of hamiltonian offsets offH, 
-Cr   orbital permutation indices oindxo.
-Cr
-Cu Updates
-Cu   07 Jul 08 Make sham->ndham = estimate for upper dimension of
+Cl  npwpad: a 'safety' padding to npwmax in case npwmax
+Cl        : underestimates actual upper limit !required???
+Cu     ndham = estimate for upper dimension of
 Cu             hamiltonian, including possible PW part
-Cu             Make sham->lmxax = largest lmax in basis
-Cu   18 Apr 05 Force small parameter p -> 0 in 2-center turned on (ASA)
-Cu   14 Feb 03 Makes and packs magnetic field B.sigma
 C ----------------------------------------------------------------------
       implicit none
-      type(s_spec)::sspec(*)
-      type(s_site)::ssite(*)
-c      integer:: ham_ldham(16)
-      integer nkap0,n0H,ham_lmxax
-      parameter (nkap0=3,n0H=5)
-      integer, allocatable ::  offH (:,:,:)
       integer hord,i,i1,i2,iprint,ldhamx(16),ldim, !lgen3,lham,
      . lidim,lihdim,nclasp,ndim,neul,
-     .nlspcp,nspx,nttab,partok,igets,nvi,nvl, !lfp,
-     .ib,is,lmxa,lmxl,isw,nbf,lmxax,
-     .     j1,j2,j3,m,npw,npwmin,npwmax
+     .nlspcp,nspx,nttab,partok,igets,nvi,nvl, 
+     .ib,is,lmxa,lmxl,isw,nbf,lmxax, j1,j2,j3,m,npw,npwmin,npwmax
       integer:: ndham=0
       double precision q(3),Gmin,Gmax,xx
-      integer n0,nqdiv,npwpad
-      parameter (n0=10,nqdiv=12)
-c      equivalence (ldim,ldham(1)),(lidim,ldham(2)),(lihdim,ldham(3))
-C ... Needed for iostr
+      integer,parameter:: nqdiv=12
+      integer ::npwpad
       double precision ckbas,cksumf,kap2(10)
       integer:: oalph , oiax , ontab , os , ng
       real(8),allocatable :: rv_a_ogvx(:)
       integer ,allocatable :: kv_iv(:)
       integer ,allocatable :: igv2_iv(:)
       integer:: obas , oo , opp , oeula , opti , obs , omagf,i_copy_size
-      logical ltmp,iostr,bittst,adnf
-      character*80 outs,gfopts
-      double precision qss(4),vmtz,pnu(n0,2),pz(n0,2),tolgv
-      integer,allocatable:: ips(:)
-      integer,parameter:: maxp=3
-      integer:: idxdn(n0,nkap0),ltab(n0),ndimi(n0H,nkap0),iprior,ik,ibp1,isum,l,idxpr
-      
 C --- Hamiltonian offsets, orbital permutation table ---
-      if (mod(pwmode,10) .eq. 2) then
-        call info0(20,0,0,' suham: LMTO basis will be excluded')
-      endif
-c      ndim = nbas * nl**2 * nkaph
-c      allocate(iv_a_oindxo(abs(ndim+3)))
-c      iv_a_oindxo=iprmb
-C ------- Potential- and implementation- specific setup -------
-      call info5(30,0,0,' suham :  %i augmentation'//
-     .' channels, %i local potential channels  Maximum lmxa=%i', nvi,nvl,lmxax,0,0)
-      call sugcut ( 1 , sspec) !modify sspec%ngcut
+      if (mod(pwmode,10)==2.and.master_mpi) write(stdo,"(a)")' suham: no MTO basis'
 C   ... PW setup : estimate upper bound to number of G vectors
 C     to set up upper bound to hamiltonian dimension
       ham_ndham = ldham(1)

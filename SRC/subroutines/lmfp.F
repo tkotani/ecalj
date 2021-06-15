@@ -10,7 +10,7 @@
      &     lat_vol,lat_nkd,lat_awald,lat_nkq
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
       use m_ext,only: sname
-      use m_MPItk,only: procid,master,mlog,master_mpi
+      use m_MPItk,only: mlog,master_mpi
       use m_iors,only: Iors
       use m_supot,only: m_supot_init,k1,k2,k3
       use m_suham,only: m_suham_init
@@ -116,7 +116,8 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       
 !! array allocated in supot rhoat smrho     
       call m_supot_init() ! get G vectors for charge
-      call m_suham_init(sspec,ssite)  ! sspec ssite are modified.
+      call sugcut( 1, sspec) ! modify sspec%ngcut
+      call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
       call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
       
       writeham= cmdopt0('--writeham')
@@ -302,13 +303,13 @@ C     ... Restore minimum gradient positions if this is last step
 !! If explicitly told to read from atom files after atom movmment
          call smshft(ctrl_lfrce) !sctrl,sham,slat,
 !! Write restart file (to include new positions)
-         if (procid .eq. master) then ! .and. .not. lshr) then
+         if (master_mpi) then ! .and. .not. lshr) then
             ifi = ifile_handle()
             open(ifi,file='rst.'//trim(sname),form='unformatted') 
             k = iors (iter , .true., - ifi )
             close(ifi)
          endif
-         if (procid .eq. master) then
+         if ( master_mpi) then
             write(stdo,*)' Delete mixing and band weights files ...'
             ifi = unlink('mixm.'//trim(sname))
             ifi = unlink('wkp.'//trim(sname))
@@ -316,7 +317,7 @@ C     ... Restore minimum gradient positions if this is last step
          call parms0(0,0,0d0,0) !   reset mixing block
 !! Exit when maximum number of iterations encountered
          if (itrlx .eq. nitrlx) then
-            if (procid .eq. master) then
+            if (master_mpi) then
                call tcx('lmfp')
                call fexit(1,111,' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
             else
