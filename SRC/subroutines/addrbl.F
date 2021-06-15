@@ -1,4 +1,15 @@
-CSFCPP#define F90 1
+C     SFCPP#define F90 1
+      module m_addrbl
+c      use m_subzi, only: swtk=>rv_a_oswtk
+      real(8),allocatable:: swtk(:,:,:)
+      
+      contains
+      subroutine m_addrbl_allocate_swtk(ndham,nsp,nkp)
+      integer::ndham,nsp,nkp
+      if(allocated(swtk)) deallocate(swtk)
+      allocate(swtk(ndham,nsp,nkp))
+      end
+      
       subroutine addrbl ( isp,q, lrout,
      .     iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      .     evec,evl,nevl,  ef0,def, !emin,emax, !ndos,dos,
@@ -12,7 +23,7 @@ CSFCPP#define F90 1
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
       use m_lmfinit,only: iprmb,ham_ldham 
-      use m_subzi, only: lwtkb,nevmx,numq,  lswtk,wtkb=>rv_a_owtkb,swtk=>rv_a_oswtk
+      use m_subzi, only: lwtkb,nevmx,numq,  lswtk,wtkb=>rv_a_owtkb
       use m_mkqp,only: wtkp=>rv_a_owtkp
       use m_mkpot,only: qval_=>qval
 C- Adds to the smooth and local output density and to eigval sum
@@ -339,3 +350,4 @@ c     nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
       end subroutine addsds
 
 
+      end module 

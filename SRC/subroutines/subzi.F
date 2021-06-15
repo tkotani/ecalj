@@ -1,6 +1,6 @@
       module m_subzi
-      integer:: lwtkb=-1
-      real(8),allocatable :: rv_a_owtkb(:,:,:),rv_a_oswtk(:,:,:)
+      integer,protected:: lwtkb=-1
+      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
       
       integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
       integer,protected:: numq=1, lswtk=0!,ldos=0
@@ -8,6 +8,10 @@ c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
 c      real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
+      subroutine m_subzi_setlwtkb(lwtkbin )
+      integer:: lwtkbin
+      lwtkb = lwtkbin
+      end
       subroutine m_subzi_init(lwt) !, mpsord) !, efermi)
       use m_ext,only: sname
       use m_lmfinit, only: nsp,nspc, nevmxin=>bz_nevmx, lmet=>bz_lmet, qbg=>zbak,stdo
@@ -103,7 +107,7 @@ c      real(8):: qbg
 !!
       nkp=bz_nkp
       if(allocated(rv_a_owtkb)) deallocate(rv_a_owtkb)
-      if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
+c      if(allocated(rv_a_oswtk)) deallocate(rv_a_oswtk)
 
 c      qbg = ctrl_zbak(1)        !homogenious background charge
       zval=qval-qbg
@@ -150,8 +154,9 @@ C           Broadcast lwtkb,efermi,wtkb
       lswtk = -2
       if (nspc .eq. 2) then
         if (lwtkb .eq. 1) lswtk = 1
-        if (allocated(rv_a_oswtk)) deallocate( rv_a_oswtk )
-        allocate(rv_a_oswtk(ndham,nsp,nkp))
+c        if (allocated(rv_a_oswtk)) deallocate( rv_a_oswtk )
+c        allocate(rv_a_oswtk(ndham,nsp,nkp))
+c        call m_addrbl_allocate_swtk(ndham,nsp,nkp)
       endif
       if (nevmx .eq. 0) then
         nevmx = (int(zval) + 1)/2

@@ -1,5 +1,6 @@
       module m_bzintegration
-      use m_subzi,only: rv_a_owtkb,rv_a_oswtk !rewritten! need to protect them somehow
+      use m_addrbl,only: swtk
+      use m_subzi,only: rv_a_owtkb !rewritten! need to protect them somehow
       contains
       subroutine m_bzintegration_init(evlall, eferm,sev,sumqv,vnow)!,goto99)
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -39,14 +40,14 @@ c      if(lmet>=0) then
             call bzwtsf2 ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg, !note qval is output
      .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .            , dosrng , rv_a_owtkp , evlall ,  lswtk , rv_a_oswtk 
+     .            , dosrng , rv_a_owtkp , evlall ,  lswtk , swtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill,vnow)
          else
 !     ! vnow june22013
             call bzwtsf ( ndham , ndham , nsp , nspc , nkabc ( 1 ) , nkabc 
      .           ( 2 ) , nkabc ( 3 ) , nkp , ntet , iv_a_oidtet , qval-qbg , 
      .           fsmom , lmet.ne.0 , ltet , bz_n , ndos , bz_w 
-     .           , dosrng , rv_a_owtkp , evlall , lswtk , rv_a_oswtk 
+     .           , dosrng , rv_a_owtkp , evlall , lswtk , swtk 
      .           , eferm , sev , rv_a_owtkb , sumqv ( 1 , 2 ) , lwtkb ,lfill, vnow)
          endif
 !     ! june2013 magfield is added

@@ -12,13 +12,13 @@
 !io        :Symmetrized on output
 !io  orhoat:vector of offsets containing site density
 !io        :Symmetrized on output
-!o  qbyl  :site- and l-decomposed charges
-!o  hbyl  :site- and l-decomposed one-electron energies
-!o  frc   :forces
-!o   dmatu: density matrix in m_bandcal
+!  qbyl  :site- and l-decomposed charges
+!  hbyl  :site- and l-decomposed one-electron energies
+!o   dmatu:   density matrix in m_bandcal
 !o   evalall: eigenvalue in m_bandcal
-!o   frc: force in m_mkrout
-      
+!o   frc:    force in m_mkrout
+!i  vorb --> use m_ldau in m_mkpot
+!      
       logical,private:: binit=.true.,initd=.true.
       real(8),private:: dmxp(33) 
       contains
@@ -33,8 +33,7 @@
 !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
 !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
-      use m_suham,only: iv_a_oindxondham=>ham_ndham,
-     &     ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_suham,only: ndham=>ham_ndham, ndhamx=>ham_ndhamx,nspx=>ham_nspx 
       use m_lmfinit, only: n0,nab,nppn,ncutovl,lso,ndos=>bz_ndos,bz_ef0,bz_w,fsmom=>bz_fsmom,
      &     bz_dosmax,lmet=>bz_lmet,bz_fsmommethod,bz_n,
      &     ctrl_nspec,ctrl_pfloat,ldos=>ctrl_ldos,qbg=>zbak,lfrce=>ctrl_lfrce,
@@ -45,12 +44,12 @@
      &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
      &     ,ham_ldham
-     &     ,  nchan=>pot_nlma, nvl=>pot_nlml
+     &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Sigmainit
-      use m_subzi, only: m_subzi_init, lwtkb,numq,lswtk,rv_a_owtkb,rv_a_oswtk !,ldos
+      use m_subzi, only: m_subzi_init, lwtkb,numq,lswtk,rv_a_owtkb,m_subzi_setlwtkb !,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -69,7 +68,7 @@
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
       use m_bzintegration,only: m_bzintegration_init
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
-c      use m_ldau,only: vorb
+      use m_addrbl,only: m_addrbl_allocate_swtk
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -317,7 +316,8 @@ c     endif
       dmxp(33) = elind
 !! Setup for BZ integration wtkb
 !! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
-      call m_subzi_init(lrout>0) 
+      call m_subzi_init(lrout>0)
+      if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) 
@@ -498,7 +498,7 @@ c     i        etolv,etolc)
       enddo
 !! Accumurate quantities for determined wtkb. Originally called as second pass.
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
-         lwtkb = 1
+         call m_subzi_setlwtkb(1)
          call mpi_barrier(MPI_comm_world,ierr)
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lrout,lwtkb)

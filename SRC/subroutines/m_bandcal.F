@@ -11,13 +11,13 @@
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
      &      pwmode=>ham_pwmode,pwemax,stdl
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb,rv_a_oswtk
+      use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
      o    osmpot, vconst, sv_p_osig, sv_p_otau, sv_p_oppi
       use m_seneinterp,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
-      
+      use m_addrbl,only: addrbl,swtk
 !! outputs of bandcal ---------------------------
       real(8),protected::  sumqv(3,2),sumev(3,2)
       integer,allocatable,protected:: ndimhx_(:),nev_(:),nevls(:,:)
@@ -85,7 +85,7 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
       if(nlibu>0)  dmatu=0d0    !density matrix for U initialization
       sumev = 0d0
       sumqv = 0d0
-      if (lswtk==1)  rv_a_oswtk=0d0
+      if (lswtk==1)  swtk=0d0
       do 2010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
@@ -231,7 +231,7 @@ c               call readindensitymodesetting() !dummy
       call dfqkkl( sv_p_oqkkl ) !zero clear 
       if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
       if (lfrce>0)  frcband  = 0d0
-      if (lswtk==1) rv_a_oswtk=0d0
+      if (lswtk==1) swtk=0d0
       if(lso/=0) orbtm_rv=0d0
       if(allocated(smrho_out)) deallocate(smrho_out)
       allocate( smrho_out(k1*k2*k3*numq*nsp) )
@@ -300,7 +300,7 @@ c      if (allocated(dos_rv))   deallocate(dos_rv)
          nnn=size(sumev);    call mpibc2_real(sumev,nnn,'bndfp_sumev')
          nnn=size(smrho_out); call mpibc2_complex(smrho_out,nnn,'bndfp_smrho')
          if (lswtk==1) then
-            nnn=size(rv_a_oswtk);  call mpibc2_complex(rv_a_oswtk,'bndfp_swtk') 
+            nnn=size(swtk);  call mpibc2_complex(swtk,'bndfp_swtk') 
          endif 
          do  ib = 1, nbas
          do  i = 1, 3
