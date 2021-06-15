@@ -94,7 +94,7 @@ c     &  dwgtall, ndos, eminp+ef0, emaxp+ef0,.false.,wkd,pdosall)
       enddo
       enddo
 #if MPIK
-      call mpibc2( pdosalla, ndos*nsp*nchanp*nbas, 4 , mlog , 'writepdos' , 'pdosalla' )
+      call mpibc2_real( pdosalla, ndos*nsp*nchanp*nbas, 'writepdos_pdosalla' )
 #endif
       if(procid==0) then !master only
       allocate(pdosp (ndos,nchanp))

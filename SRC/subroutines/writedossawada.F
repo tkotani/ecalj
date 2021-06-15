@@ -98,7 +98,7 @@ c      vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
       enddo
       enddo
 #if MPIK
-      call mpibc2( pdosalla, ndos, 4 , mlog , 'writedossawada' , 'pdosalla' )
+      call mpibc2_real( pdosalla, ndos, 'writedossawada_pdosalla' )
 #endif
       if(procid==0) then        !master only
          allocate(pdosp (ndos,0:nbas))

@@ -172,8 +172,8 @@ C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
         enddo
       enddo
 C ... Combine sum-of-sphere charges from separate threads
-      call mpibc2(sqloc,1,4,mlog,'ovlocr','sqloc')
-      call mpibc2(slmom,1,4,mlog,'ovlocr','slmom')
+      call mpibc2_real(sqloc,1,'ovlocr_sqloc')
+      call mpibc2_real(slmom,1,'ovlocr_slmom')
 
 C     Debugging printout
 C      print 345, procid, (dval(w(orhoat(1,ib)),445), ib=1,20)

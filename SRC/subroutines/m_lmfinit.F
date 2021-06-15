@@ -10,6 +10,12 @@
 !      i=53           ! i=00110101 binary (lowest order byte)
 !      j=45           ! j=00101101 binary (lowest order byte)
 !      k=iand(i,j)    ! k=00100101 binary (lowest order byte)
+Ci   alat  :length scale of lattice and basis vectors, a.u.
+Ci   ng    :number of G-vectors
+Ci   gv    :list of reciprocal lattice vectors G (gvlist.f)
+Ci   tol   :tolerance in wave function precision:
+Ci         :Here wave function cutoff for g-vectors whose wave
+Ci          functions are less than tol.
       
       use m_ext,only :sname               ! sname contains extension. foobar of ctrl.foobar
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
@@ -122,29 +128,10 @@
       integer,allocatable,protected::lldau(:)
       logical,protected:: lpztail=.false.
       integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
-
-cccccccccccccccccccccccccccccccccccccccccccccccccc      
-c      real(8),allocatable:: rsml(:,:),ehl(:,:) !not pretected yet
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-c      integer::  ham_ndham,ham_ndhamx
-cccccccccccccccccccccccccccccccccc
-cccccccccccccccccc      
+      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
       type(s_site),allocatable:: v_ssite(:)
-c      real(8):: ham_eterms(20)
-c-----------------------
-!! These are (probably) rewritten in other subroutines.
-!!      So, we need to look for modules for these variables.      
-c      integer::
-c     &     lat_ldist=0, !lmfp,mksym
-c     &     bz_nkp,bz_ntet, !mkqp
-c     &     lat_nkd,lat_nkq,      !lattic
-c     &     ham_nqsig,ham_ndhrs,  !rdsigm2
-c     &     lat_ng, lat_nabc(3),         !supot
-c      real(8)::    ham_ehf,  ! bndfp to lmfp
-c     &     ham_ehk,  ! bndfp,chkdmu to lmfp
-c     &     lat_gmax, !supot
-c     &     lat_awald,lat_vol,lat_qlat(3,3), !lattic
       
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
@@ -183,20 +170,15 @@ C  arg  5:   mx:   order of rational function extrapolation
 C  arg  6:   mi:   number of midpoint rules
 C  arg  7-17 nseq: sequence of no. midpoint divisions
 C     arg  18:        offset to bs workspace
-!!------------------------------------------------
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
-      subroutine m_lmfinit_init(prgnam)! recrd,recln,nrecs, prgnam) !rdctrl2
-c      integer,intent(in):: recln,nrecs
-c      character*(recln),intent(in):: recrd(nrecs)
-!     ! rdctrl2 sets all data in m_lmfinit
+      subroutine m_lmfinit_init(prgnam)
       use m_rdfiln,only: recln,nrecs,recrd
       use m_struc_func
       use m_toksw,only:tksw
       use m_gtv
-!! Set initial data to m_lmfinit. 
-!! All the initial data is pushed into m_lmfinit
+!! All the initial data are pushed into m_lmfinit
 !! ----------------------------------------------------------------------
 !! Inputs
 !!   recrd (recln*nrecs) : preprocessed input
@@ -230,40 +212,17 @@ Cg         :Used for dimensioning the indexing arrays involved in
 Cg         :assembling the hamiltonian;
 Cg   nbas  :number of atoms in the basis
 Cg   nkaph :The maximum number of radial functions centered at
-Cg         :particular R and l channel used in the lmto basis.
+Cg         :particular R and l channel used in the lmto basis. +1 when we have lo
 Cg   nl    :1+Maximum l-cutoff for augmentation
 Cg   npl   :(not set by rdctrl) number of principal layers (layer geometries)
-Cg   nkaph :The maximum number of "principal quantum" numbers centered
-Cg         :at a particular R and l channel --- energies for one Rl
-Cg         :at which augmentation (phi-phidot) functions are made.
-Cg   nsp   :1 if not spin-polarized; otherwise 2
+Cg   nkaphh :The maximum number of "principal quantum" numbers centered at a particular R and l channel --- energies for one Rl
+Cg         :at which augmentation (phi-phidot) functions are made. +1 is added when we have lo
+Cg   nsp   :1 if not spin-polarized; otherwise 2. nspc and nspx are 
 Cg   nspec :number of species
 Cg   stde  :standard error file
 Cg   stdl  :standard log file
 Cg   stdo  :standard output file
-Cr Remarks
-Cr rdctrl does:
-Cr  Read input data specified by tokens (see token_init.F)
-co------------------      
-Cu Aug 2020. All data is pushed into m_lmfinit
-Cu   19 Sep 07 (TK+MvS) Adapted from rdctrl, 1st cut at new input
-Cu   20 Oct 06 Broadcast species so floating sites work properly in MPI
-Cu   06 Aug 06 Remove defaults for STR RMAX and HCR
-Cu   24 Nov 05 Remove mpi-specific calls
-Cu   08 Jul 05 Assign nat as global variable
-Cu             fix bug so --rdbasp works again
-Cu   27 Mar 05 Add read option --rs=.,.,2,.. -> add 512 to lrs
-Cu   21 Dec 04 Add switch to rotate FP local density on file read
-Cu   16 Aug 04 Changes for extended local orbitals
-Cu   18 Jun 04 printout of correct LDA+GGA functional
-Cu   20 Dec 03 --rs rechecked in case made part of CMD in ctrl file
-Cu   07 Sep 03 (lmf) rdctrl can read basis info from basis file
-Cu   21 May 03 Added setup for sham->sigp
-Cu   20 Mar 03 Change default for ctrl->tol:3 = etol
-Cu   18 Mar 03 Added handling for fully relativistic case
-Cu   15 Feb 02 (ATP) Added MPI parallelization
-Cu   24 Aug 01 Extended to handle local orbitals.
-Cu   28 Apr 98 code for new category 'OPTICS'
+Cr  Read input data specified by tokens (see m_toksw.F)
 C ----------------------------------------------------------------------
       implicit none
 #if MPI | MPIK
@@ -2005,27 +1964,46 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
 
       allocate( iprmb(nbas * nl**2 * maxp ) )
       indx = 0
-      do 112 iprior = 1, maxp
+c$$$      do 112 iprior = 1, maxp
+c$$$      do 110 ib = 1,nbas
+c$$$          ibp1 = ib+1
+c$$$          is = v_ssite(ib)%spec
+c$$$          iposn = mxorb*(ib-1)
+c$$$          do  1121 ik = 1, nkaph
+c$$$          do  111  l = 0, nl-1
+c$$$            lzz =.false.
+c$$$            if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11) .and. iprior==1) lzz=.true.
+c$$$            do   m = -l, l
+c$$$              iposn = iposn+1
+c$$$              if (lzz .or. (idxdn(l+1,ik,is)==iprior)) then
+c$$$                indx = indx+1
+c$$$                iprmb(iposn) = indx
+c$$$             endif
+c$$$            enddo 
+c$$$  111     continue
+c$$$ 1121     continue
+c$$$  110   continue
+c$$$        ldham(iprior) = indx
+c$$$  112  continue
+      
+      ldham=0
       do 110 ib = 1,nbas
-          ibp1 = ib+1
-          is = v_ssite(ib)%spec
-          iposn = mxorb*(ib-1)
-          do  1121 ik = 1, nkaph
-          do  111  l = 0, nl-1
-            lzz =.false.
-            if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11) .and. iprior==1) lzz=.true.
-            do   m = -l, l
-              iposn = iposn+1
-              if (lzz .or. (idxdn(l+1,ik,is)==iprior)) then
-                indx = indx+1
-                iprmb(iposn) = indx
+         is = v_ssite(ib)%spec
+         iposn = mxorb*(ib-1)
+         do 1121 ik = 1, nkaph
+           do     l = 0, nl-1
+           do     m = -l, l
+             iposn = iposn+1
+             if( (idxdn(l+1,ik,is)==10.or.idxdn(l+1,ik,is)==11).or. idxdn(l+1,ik,is)==1 )  then
+               indx = indx+1
+               iprmb(iposn) = indx
              endif
-            enddo 
-  111     continue
+           enddo 
+           enddo
  1121     continue
-  110   continue
-        ldham(iprior) = indx
- 112  continue
+  110 continue
+      ldham(1) = indx
+        
 C     Default value for hamiltonian dimension
 c      ham_ndham= ldham(1)
 C ... Make rest of ldham

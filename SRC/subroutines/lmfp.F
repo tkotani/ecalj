@@ -33,13 +33,11 @@ c      use m_uspecb,only:uspecb
 !! (Most of) all data in modules are 'protected'.
 !! Thus data in m_lmfinit, m_lattic, m_mksy, m_ext, ... are fixed during iteration.
 !! Currently rhoat, smrho, smpot in m_supot are iterated. ham_ehf _ehk changed by iterations.      
-!! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
 !! We don't maintain the share mode.
-!!      Probably, we need to re-design it (maybe outside of fortran code).
 !     sspec :struct for species-specific information; see routine uspec
 !     ssite :struct for site-specific information; see routine usite
-!   sspec and ssite are not clearly protecetd ---> iors can modify it.
-!   But, these are fixed before going into do 2000/1000 loop (I think).      
+!     sspec and ssite are not protecetd ---> iors can modify it.
+!     But, these are fixed before going into do 2000/1000 loop (I think).      
 ! Memo for LDA+U
 !     lmaxu : max l for a U (used for dimensioning)
 !     nlibu : total number of U blocks
@@ -47,6 +45,8 @@ c      use m_uspecb,only:uspecb
 !! Unused irlxsh: counter for shear relaxations.  irlxsh=0 => new step
 !!      
 !! --> history is removed to avoid confusions. See ecalj@github  
+!! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
+!!      Probably, we need to re-design it (maybe outside of fortran code).
       implicit none
       character strn*120, alabl*8, flg*3
       logical :: cmdopt,llmfgw,xyzfrz(3),lbin,cmdopt0 !,lshr=.false.
@@ -69,24 +69,22 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer:: ierr
       include "mpif.h"
 #endif
-!! Sep2020 takao: --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
-!! --rs=3 => always read from atom file !2020aug.
-!! Sep2020 comment " Shorten site positions" removed.
-      
+!! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
+!! --rs=3 => always read from atom file 
+!! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
       call tcn('lmfp')
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       ipr=iprint() !call getpr(ipr) !ipr is pring verbose control
       maxit = ctrl_maxit
       irs1x = irs1
-      if(ipr>=30) call praugm(sspec,0) !Printout properties of species
-      
+      if(ipr>=30) call praugm(sspec,0) !Printout only: properties of species
 !! atomic position Relaxation setup (MD mode)
       itrlx = 1
-      nitrlx= ctrl_nitmv  !num of iteration cycle of relaxiation
-      mdprm = ctrl_mdprm  ! c       lshr = nint(mdprm(1)) .gt. 100 !lshr mode switch 
+      nitrlx= ctrl_nitmv  ! num of iteration cycle of relaxiation
+      mdprm = ctrl_mdprm  ! MD(relxation) setup
       if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation
       if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
-      if( nitrlx>0 ) then  ! nitrlx >0 is for atomic position relaxiation
+      if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
         allocate(indrx_iv(2,3*nbas))
         call rlxstp(natrlx, nvrelx, indrx_iv,  xyzfrz, pdim )
         icom = 0
@@ -100,7 +98,6 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
            write(ifipos) itrlx,rv_a_opos
         endif   
       endif
-      
 !!Get jobgw for lmfgw mode
       jobgw=0
       if(master_mpi.and.llmfgw) then
@@ -112,14 +109,12 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
          read (5,*) jobgw
       endif
       call mpibc1(jobgw,1,2, mlog,'lmfp','jobgw')
-      call m_lmfgw_setjobgw(jobgw)
-      
-!! array allocated in supot rhoat smrho     
+      call m_lmfgw_setjobgw(jobgw) 
+!! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
       call sugcut( 1, sspec) ! modify sspec%ngcut
-      call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
       call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
-      
+      call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
       writeham= cmdopt0('--writeham')
       if(writeham) call m_writeham_init()
       if(writeham) call m_writeham_write()
@@ -139,10 +134,8 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(nlibu>0.and.ctrl_quit==16 ) call rx0('quit = dmat')
-      
-!!=== Re-entry for lshr (shear mode); but shear mode is currently commented out.
-!!   (probably shear mode should be recovered outside of fortran)
-      if(master_mpi) write(stdo,*)' lmfp : potential and basis setup ... '
+!!=== NOTE: shear mode is currently commented out.
+!!   (probably shear mode should be recovered outside of fortran).
       if(.false.) then 
         allocate(rv_a_omad(nbas**2))
         call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
@@ -218,11 +211,11 @@ C    +10 -> invoke smshft(1) after file read.
                aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
                write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
                endif
-               call bndfp(iter, llmfgw) !get total energies ham_ehf and ham_ehk
+               call bndfp(iter, llmfgw) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot
-!     --density (plot density) is moved to locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
+!   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
             if(master_mpi .and. ctrl_quit/=4) then
                if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
@@ -280,16 +273,13 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
             ssite(ibas)%pos = pos_move(:,ibas) !warn
          enddo
 C     ... Exit when relaxation converged or maximum number of iterations
-         if (icom==1) then !takao 
-            if (master_mpi) then
+         if(icom==1) then !takao 
+            if(master_mpi) then
                flg = 'C67' !what? 
                call nwitsv(1+2,ctrl_nvario,flg,nsp,amom,etot)
-               call tcx('lmfp')
-               call fexit(0,111,' LMFP: relaxation converged after %i iteration(s)',itrlx)
-            else
-               call tcx('lmfp')
-               call fexit(0,111,' ',0)
+               write(stdo,"(a,i5)")' LMFP: relaxation converged after iteration(s) of ',itrlx
             endif
+            exit
          endif
 C     ... Restore minimum gradient positions if this is last step
          if (itrlx==nitrlx) then
@@ -315,32 +305,10 @@ C     ... Restore minimum gradient positions if this is last step
             ifi = unlink('wkp.'//trim(sname))
          endif
          call parms0(0,0,0d0,0) !   reset mixing block
-!! Exit when maximum number of iterations encountered
-         if (itrlx .eq. nitrlx) then
-            if (master_mpi) then
-               call tcx('lmfp')
-               call fexit(1,111,' LMFP: relaxation incomplete after %i iteration(s)',nitrlx)
-            else
-               call tcx('lmfp')
-               call fexit(1,111,' ',0)
-            endif
-         endif
+         if(itrlx==nitrlx.and.master_mpi) write(stdo,"(a)")' LMFP: relaxation incomplete'
  2000 continue
-!! Write positions to file
  9998 continue
-      if (cmdopt('--wpos=',7,0,strn) .or. cmdopt('--wpos:mode1:',13,0,strn)) then
-         allocate(pos_move(3,nbas))
-         do ibas=1,nbas
-            pos_move(:,ibas) = ssite(ibas)%pos
-         enddo
-         gam=lat_gam
-         allocate(wk_rv(3*nbas))
-         call rdistn (pos_move , wk_rv , nbas , gam (1) , gam(2) , gam ( 3 ) , 1 / gam1 )
-         if (allocated(wk_rv)) deallocate(wk_rv)
-         if (allocated(pos_move)) deallocate(pos_move)
-      endif 
       if(master_mpi.and.nitrlx>0) close(ifipos)
-c      if(allocated(ftot_rv)) deallocate(ftot_rv)
       if(allocated(p_rv)) deallocate(p_rv)
       if(allocated(w_rv)) deallocate(w_rv)
       if(allocated(indrx_iv)) deallocate(indrx_iv)

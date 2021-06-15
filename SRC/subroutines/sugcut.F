@@ -9,19 +9,8 @@ Ci Inputs
 Ci   mode  :1 make cutoffs for standard envelope functions
 Ci         :2 make cutoffs for extended local orbitals
 Ci         :3 combination 1+2
-Ci   nspec :number of species
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read:
-Ci     Stored:    name ngcut
-Ci     Passed to: uspecb
-Ci   alat  :length scale of lattice and basis vectors, a.u.
-Ci   ng    :number of G-vectors
-Ci   gv    :list of reciprocal lattice vectors G (gvlist.f)
-Ci   tol   :tolerance in wave function precision:
-Ci         :Here wave function cutoff for g-vectors whose wave
-Ci          functions are less than tol.
 Co Outputs
-Cr Remarks
+Co    sspec%ngcut
 Cu Updates
 Cu   16 Aug 04 New mode for getting cutoffs, local orbs.
 Cu             Changed argument list

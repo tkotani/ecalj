@@ -145,8 +145,8 @@ C       ... Loop over reciprocal lattice vectors
 C ... Combine cv from separate threads
 #if MPI | MPIK
       deallocate(kpproc, stat=ierr)
-      call mpibc2(cv,ng*nsp*2,4,mlog,'ovlpfa','cv')
-      call mpibc2(sum,2,4,mlog,'ovlpfa','sum')
+      call mpibc2_real(cv,ng*nsp*2,'ovlpfa_cv')
+      call mpibc2_real(sum,2,'ovlpfa_sum')
 C     Debugging
 C     ifi = fopna('out',-1,0)
 C     call ywrm(0,'cv',3,ifi,'(9f20.10)',cv,1,ng,ng,1)
