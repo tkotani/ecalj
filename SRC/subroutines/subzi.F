@@ -1,11 +1,8 @@
       module m_subzi
       integer,protected:: lwtkb=-1
       real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
-      
       integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
       integer,protected:: numq=1, lswtk=0!,ldos=0
-c      real(8),allocatable,protected :: rv_a_owtkb(:,:,:)
-c      real(8),allocatable,protected :: rv_a_oswtk(:)
 
       contains
       subroutine m_subzi_setlwtkb(lwtkbin )

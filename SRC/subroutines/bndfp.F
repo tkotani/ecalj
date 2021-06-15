@@ -49,7 +49,7 @@
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Sigmainit
-      use m_subzi, only: m_subzi_init, lwtkb,numq,lswtk,rv_a_owtkb,m_subzi_setlwtkb !,ldos
+      use m_subzi, only: m_subzi_init, lwtkb,numq,rv_a_owtkb,m_subzi_setlwtkb !,ldos
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -278,7 +278,6 @@ c      character*8:: charext
          call parms0(0,0,0d0,0) !reset mixing block
          initd=.false.
       endif
-!!      
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
@@ -295,17 +294,11 @@ c      character*8:: charext
       endif
       ltet = ntet>0
       alfa = 0
-      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* and HamiltonianPMTinfo
       writeham= cmdopt0('--writeham')
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-c      if(writeham) then
-c         call m_writeham_init()
-c         open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
-c     endif
-      
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
@@ -317,7 +310,6 @@ c     endif
 !! Setup for BZ integration wtkb
 !! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
       call m_subzi_init(lrout>0)
-      if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
 !   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
 !   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
       if(lpztail) call sugcut(2, sspec) 
@@ -326,11 +318,6 @@ c     endif
          if (lrout .eq. 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
-c      if(onlyonce) then
-c         call gen_hamindex(.true., jobgw==0) !index for hamiltonian
-c         if(writeham) call m_writeham_write() 
-c         onlyonce=.false.
-c      endif
 ! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
 ! different number of k points. For example, you may change NKABC, and run job_pdos.
       if(plbnd/=0) then
@@ -339,13 +326,11 @@ c      endif
          close(ifi)             
          call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
       endif     
-      
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
 !! OUTPUTs by sigmainit are stored in m_seneinterp
 !! In future, we should make this block to a subroutine which shows clear i/o.
-!!      
       sigmamode = (lrsig/=0)
       if( llmfgw.and.jobgw==0 ) then
          continue
@@ -354,7 +339,6 @@ c      endif
          siginit=.false. !this is equivalent to broad casting.
       endif              
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
-      
 !! == GW driver and finish ==
       if(llmfgw) then
          call sugw(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
@@ -381,6 +365,7 @@ c      endif
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
 ! lwtkb=-1      
+      if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
       call m_bandcal_init(iqini,iqend,lrout, eferm,ifih,lwtkb) 
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
@@ -407,7 +392,6 @@ c      endif
          if(master_mpi.and.iq==1)write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nev_(iq))
       enddo
       enddo
-      
 !! pdos mode (--mkprocar and --fullmesh)
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
@@ -419,12 +403,8 @@ c      endif
 !! Write bands in bands-plotting case: loop over qp getting evals from array ===
       if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,eferm)
       if(plbnd/=0.and.master_mpi) then
-            write(stdo,*)' Writing bands to bands file ...'
-            if(nsyml/=0) call writeband(eferm,evtop,ecbot)
-c              call writeband(stdo,nkp,nsyml,nspx,nsp,ndhamx, !,fsmom/=NULLR,vnow
-c     i        xdatt,nqp_syml,nqp2n_syml,nevls,evlall,qplist,labeli,labele,alat,eferm,evtop,ecbot,
-c     i        sname,nqps_syml,nqpe_syml,nsyml,dqsyml,
-c     i        etolv,etolc)
+         write(stdo,*)' Writing bands to bands file ...'
+         if(nsyml/=0) call writeband(eferm,evtop,ecbot)
       endif
       if(plbnd/=0.and.fsmom/=NULLR) then
          write(stdo,"(a)")'Caution: fsmom(fixed moment on). In sc cycle, we use additional bias mag. field  '
@@ -482,7 +462,6 @@ c     i        etolv,etolc)
          close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
-      
 !! AllReduce band quantities.  eterms should be cleaned up in future.   
       call m_bandcal_allreduce(lrout,lwtkb)
       emin=1d9
@@ -503,7 +482,6 @@ c     i        etolv,etolc)
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
       endif
-      
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
 !!    dos window
       dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos  
@@ -512,17 +490,13 @@ c     i        etolv,etolc)
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
-      
 !! write orbital moment      
-      if(lwtkb==1 .and. lso /=0) call iorbtm() !write out orbital moment
-
+      if(lwtkb==1 .and. lso/=0) call iorbtm() !write out orbital moment
 !! Assemble output density, energies and forces ===============================
       if (lrout/=0) call m_bandcal_symsmrho()  !smrho_out Symmetrize smooth density
       call m_mkrout_init() !get force frc, Symmetrized atomic density orhoat_out, and hbyl,qbyl
-
 !!  New boundary conditions pnu for phi and phidot
       if (lrout/=0.and.lpnu>0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
-      
 c$$$!! --- print out qbyl ---
 c$$$      if(master_mpi) then
 c$$$         open(newunit=ifqbyl,file='qbyl.'//trim(sname))
@@ -533,7 +507,6 @@ c$$$           write(ifqbyl,"(i4, i3,i2,10f12.6)")ib, ispec, sspec(ispec)%lmxa, 
 c$$$         enddo  
 c$$$         close(ifqbyl)
 c$$$      endif
-      
 !! Evaluate Harris energy ---
       call mkehkf(1,sev,sumtv,eharris)
 c      amom=sumqv(2,1)           !valence only magnetic moment.
@@ -579,12 +552,9 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
       ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy
       call m_mkpot_deallocate()
       call m_bandcal_clean()
-c      if (allocated(qbyl_rv)) deallocate(qbyl_rv,hbyl_rv)
       call tcx('bndfp')
       end subroutine bndfp
       end module m_bndfp
-
-
 
       
 #if MPIK

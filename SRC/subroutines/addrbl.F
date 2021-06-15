@@ -240,24 +240,9 @@ C ... Add to local density coefficients
      .        ndham , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-C       call zprm3('smrho after rlocbl',0,smrho,k1,k2,k3)
       endif
-
-C      print *, 'after rlocbl'
-C      do  i = 1, 3
-C        print 543, f(:,i)
-C      enddo
-
-
 C ... Weights for spin moments
-      if (lswtk .gt. 0 .and. nspc .eq. 2) then
-c this section is moved in bndfp.F
-c        if (ndimhx .ne. nevl) then 
-c          call info0(30,0,0,' addrbl: eigenvector matrix not square'
-c     .    //' ... spin weights not evaluated')
-c          lswtk = -2
-c        else
-CSFCPP#if F90
+      if (lswtk>0 .and. nspc==2) then
           allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))
           call zcopy(ndimhx**2,evec,1,evecc,1)
           call zgetrf(nevl,nevl,evecc,ndimhx,ipiv,i)
@@ -270,20 +255,10 @@ CSFCPP#if F90
               swtk(i,2,iq) = swtk(i,2,iq) + evecc(i,2,k,1)*evec(k,1,i,2)
      .        - evecc(i,2,k,2)*evec(k,2,i,2)
             enddo
-C        print 345,i,swtk(i,1,iq),swtk(i,2,iq), swtk(i,1,iq)+swtk(i,2,iq)
-C  345   format(i4,3f14.8)
           enddo
           deallocate(evecc,work)
-c        endif
-CSFCPP#else
-CSFCPP        lswtk = -2
-CSFCPP#endif
       endif
-
-CSFCPP#if F90
       deallocate(qpgv,qpg2v,ylv)
-CSFCPP#endif
-
       call tcx('addrbl')
       end subroutine addrbl
 
