@@ -1,9 +1,6 @@
-      subroutine rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom 
-     . , vsum )
-      use m_struc_def  !Cgetarg
-      use m_lmfinit,only: nsp
-
-
+      subroutine rhomom (sv_p_orhoat, qmom,vsum)
+      use m_struc_def 
+      use m_lmfinit,only: nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
 C- Multipole moments of valence sphere densities
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -28,13 +25,8 @@ Cu   22 Apr 00 Adapted from nfp rhomom.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer:: nbas
       type(s_rv1) :: sv_p_orhoat(3,*)
-
       real(8):: qmom(1) , vsum
-      type(s_site)::ssite(*)
-      type(s_spec)::sspec(*)
-
 C ... Local parameters
       integer:: stdo , ipr , iprint , lgunit , nrmx , 
      .j1 , ib , is , igetss , lmxl , nr , nlml , ilm , j , lfoc
@@ -42,19 +34,13 @@ C ... Local parameters
       real(8) ,allocatable :: rwgt_rv(:)
       real(8) ,allocatable :: h_rv(:)
       real(8) ,allocatable :: v_rv(:)
-
       parameter( nrmx=1501)
-      double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,
-     .ceh,rfoc,vs1,vs2
-C ... Heap
-
+      double precision fpi,y0,z,qc,a,rmt,qcorg,qcorh,qsc,cofg,cofh,rg,ceh,rfoc,vs1,vs2
 C --- Setup ---
       ipr  = iprint()
       stdo = lgunit(1)
       fpi  = 16d0*datan(1d0)
       y0   = 1d0/dsqrt(fpi)
-Changenglob      nsp  = nglob('nsp')
-c      nsp  = globalvariables%nsp
       allocate(rofi_rv(nrmx))
       allocate(rwgt_rv(nrmx))
       allocate(h_rv(nrmx))

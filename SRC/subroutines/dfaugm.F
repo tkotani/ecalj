@@ -8,13 +8,7 @@ Ci   nbas  :size of basis
 Ci   lcplxp:if nonzero allocate space for complex ppi
 Ci   lso   :flag for SO coupling
 Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec
-Ci     Stored:
-Ci     Passed to:
 Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read: lmxa lmxb kmxt
-Ci     Stored:
-Ci     Passed to:
 Co Outputs
 Co   osig  :memory allocated
 Co   otau  :memory allocated

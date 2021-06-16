@@ -145,7 +145,7 @@ c      complex(8) ,allocatable :: t_zv(:,:)
       double precision sigp(10)
       logical:: readeferm
       double precision esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,eharris,eksham,
+     .  sumtv,eharris,eksham,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -188,7 +188,7 @@ ctakao
       integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
       integer,allocatable::igx(:,:,:,:)
       real(8):: wgc(0:1,0:1,0:1),qpara(3)
-      real(8):: www,qmm(3),qqq(3),sumtvxxx,sevxxx
+      real(8):: www,qmm(3),qqq(3),sumtvxxx
       integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc 
       logical::bzwtsf_bisection !noshorbz,
       real(8):: qpx(3)          !qpo(3),
@@ -394,7 +394,7 @@ c      character*8:: charext
       if(plbnd/=0)            call rx0('plot band mode done')
 !! end of band plbnd/=0, that is, band plot mode.
       
-!! New eferm determined from evlall 
+!! New eferm and wtkb determined from evlall 
       call m_subzi_bzintegration(evlall,swtk,  eferm,sev,sumqv,vnow) !Get eferm, and wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
       if(lmet==0.and. master_mpi)
@@ -428,13 +428,13 @@ c      character*8:: charext
             call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
          endif
-         if( lso==1 ) call dscal ( ndos , .5d0 , dos_rv , 1 )
+         if(lso==1) dos_rv=0.5d0*dos_rv !call dscal ( ndos , .5d0 , dos_rv , 1 )
          open(newunit=ifi, file='dos.tot.'//trim(sname) )
          open(newunit=ifii,file='dosi.tot.'//trim(sname))
          dee=(dosw(2)-dosw(1))/(ndos-1d0)
          dosi=0d0
          do ipts=1,ndos
-            eee=dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
+            eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
             dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
             write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx)
             write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)
@@ -457,6 +457,7 @@ c      character*8:: charext
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo
+      
 !! Accumurate sum of BZ 
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)

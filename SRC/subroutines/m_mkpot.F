@@ -1,6 +1,6 @@
       module m_mkpot
 !! http://dx.doi.org/10.7566/JPSJ.84.034702
-      use m_ldau,only: vorb
+      use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U 
       use m_supot,only: k1,k2,k3
       use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce,stdl
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
@@ -28,16 +28,18 @@
       real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
       
       integer,private:: lfrce
-      
+
+      private:: mkpot
       contains
       subroutine m_mkpot_novxc()
       integer:: i,lfrzw
       write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
       allocate( sv_p_osigx(3,nbas), sv_p_otaux(3,nbas), sv_p_oppix(3,nbas))
-      call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
-      allocate( vesrmt(nbas))
       allocate( spotx(k1,k2,k3,nsp)) !smooth potential without XC
-      allocate(  qmom(nvl))
+      call dfaugm(sv_p_osigx, sv_p_otaux, sv_p_oppix) !for sig,tau,ppi without XC(LDA)
+
+      allocate( vesrmt(nbas))
+      allocate(  qmom(nvl)) !rhomom
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
       allocate(  hab_rv(nab*n0*nsp*nbas))
       allocate(  vab_rv(nab*n0*nsp*nbas))
@@ -50,11 +52,11 @@
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
       i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
 !     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
-         call mkpot (i, 0, osmrho , orhoat , 
+      call mkpot (i, 0, osmrho , orhoat , 
      o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv)
-         deallocate(vesrmt,qmom,gpot0,vval,hab_rv,vab_rv,sab_rv,ppnl_rv,fes1_rv)
+      deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv)
       end subroutine 
-      
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_init(llmfgw)
       integer:: i,lfrzw,lfrce
       real(8) ::qbz
@@ -85,50 +87,23 @@
       allocate(  sab_rv(nab*n0*nsp*nbas))
       allocate( ppnl_rv(nppn,n0,nsp,nbas))
       allocate( fes1_rv(3*nbas))
-c      allocate( vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
       call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
-      
-c      call mkpot (lfrce,
-c     i    osmrho, orhoat , qbg  
-c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi,   qmom, vconst, vesrmt
-c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
-c     o  , vval , fes1_rv , i , vorb )
-         call mkpot (i, lfrce, osmrho , orhoat, 
+      call mkpot (i, lfrce, osmrho , orhoat, 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv)
       call togpr()
       end subroutine
-
-!!------------------------------------------------------
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_energyterms(smrho_out,orhoat_out)
       use m_struc_def
       type(s_rv1):: orhoat_out(:,:)
       complex(8) :: smrho_out(:)
-c      integer:: lfrzw
-c      lfrzw = 0
-c      if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
-!! Arrays used in the generation of the potential ---
-c      allocate( vesrmt(nbas))
-c      allocate( osmpot(k1,k2,k3,nsp)) !smooth potential without XC
-c      allocate( qmom(nvl))
-c      allocate( gpot0(nvl))
-c      allocate( vval(nchan))
-c      allocate(  hab_rv(nab*n0*nsp*nbas))
-c      allocate(  vab_rv(nab*n0*nsp*nbas))
-c      allocate(  sab_rv(nab*n0*nsp*nbas))
-c     allocate( ppnl_rv(nppn,n0,nsp,nbas))
       if(allocated(fes2_rv)) deallocate(fes2_rv)
       allocate( fes2_rv(3*nbas))
-c      call mkpot (lfrce,
-c     i    smrho_out, orhoat_out , qbg  
-c     o  , osmpot, sv_p_osig, sv_p_otau, sv_p_oppi ,   qmom, vconst, vesrmt
-c     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , gpot0 
-c     o  , vval , fes2_rv , 0 , vorb ) !job=0
          call mkpot (0, lfrce, smrho_out , orhoat_out , 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv)
       end subroutine
-
 !!------------------------------------------------------
       subroutine m_mkpot_deallocate()
       if (allocated(vesrmt)) then
@@ -136,7 +111,6 @@ c     o  , vval , fes2_rv , 0 , vorb ) !job=0
      &    sv_p_oppi,sv_p_otau,sv_p_osig,osmpot)
       endif
       end
-      
 !!------------------------------------------------------
       subroutine mkpot (
      i     job, lfrce,  smrho, sv_p_orhoat,  
@@ -360,13 +334,10 @@ C    If problems, Maybe even look at sm part only, or local part only.
       ipl = ipr
       if (lso/=0 .and. lcplxp==0) call rx('mkpot: incompatible lso,lcplxp')
       if (isum(nbas,lldau,1)/=0 .and. lcplxp==0) call rx('mkpot: incompatible ldau,lcplxp')
-      lxcfun = lxcf !globalvariables%lxcf
+      lxcfun = lxcf 
       pi   = 4d0*datan(1d0)
       ngabc=lat_nabc
       vol=lat_vol
-c      i_copy_size=size(ham_eterms)
-c      call dcopy(i_copy_size,ham_eterms,1,eterms,1)
-
 C$$$ enforce_positive_smrho() is now used only in smvxc2 Nov30 2010.
 C$$$      if(enforce_positive_smrho()) then
 C$$$!!== negative smrho check==
@@ -413,7 +384,7 @@ C --- Printout for smooth background charge ---
       endif
 
 C --- Smooth electrostatic potential ---
-      call rhomom ( nbas , ssite , sspec , sv_p_orhoat , qmom , vsum )
+      call rhomom (sv_p_orhoat,  qmom,vsum)
       vconst = -vsum/vol
 C      if (ipr .ge. 40) write (stdo,334) vsum,vconst
 C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
@@ -424,30 +395,6 @@ C  334 format(' vsum=',f14.6,'   vconst=',f14.6)
       call smves ( i , nbas , ssite , sspec ,  k1 , k2 , k3 ,  !slat ,
      .qmom , gpot0 , vval , hpot0_rv , sgp0 , smrho , smpot , vconst 
      ., smq , qsmc , fes , rhvsm , zvnsm , zsum , vesrmt , qbg )
-
-cccccccccccccccccc
-c      print *,'vvv fix smves'
-c      open(2021,file='smpot.bk')
-c      do i3=1,k3
-c      do i2=1,k2
-c      do i1=1,k1
-c        read(2021,"(2d23.15)")smpot(i1,i2,i3,1)
-cc        write(2021,"(2d23.15)")smpot(i1,i2,i3,1)
-c      enddo
-c      enddo
-c      enddo
-c      close(2021)
-c      stop 'eeeeeeeeeeeeeeeeeee'
-cccccccccccccccccc
-c
-c      if(itest==1) then
-c      print *,'vvv: skip smves for smpot'
-c      smpot(:,:,:,1)=smpotbk
-c      deallocate(smpotbk)
-c      stop 'xxxxxxxxxxxxxx'
-c      endif
-ccccccccccccccccc
-
       smag = 0
       if (nsp .eq. 2) then
         call mshint(vol,1,n1,n2,n3,k1,k2,k3,smrho,smag,sum2)
@@ -456,12 +403,6 @@ ccccccccccccccccc
       if (allocated(hpot0_rv)) deallocate(hpot0_rv)
 
 C --- Add smooth exchange-correlation potential ---
-c      rveps=0d0
-c      rvvxc=0d0 
-c      rvepsv=0d0
-c      rvexv=0d0
-c      rvecv=0d0
-c      rvvxcv=0d0
       if (mod(job,1000) .lt. 100) then
         allocate(smvxc_zv(k1*k2*k3*nsp),smvx_zv(k1*k2*k3*nsp),
      &  smvc_zv(k1*k2*k3*nsp),smexc_zv(k1*k2*k3), fxc_rv(3,nbas))
@@ -470,28 +411,13 @@ c      rvvxcv=0d0
         smvc_zv(:) =0d0
         smexc_zv(:)=0d0
         fxc_rv(:,:)  =0d0
-C   ... Compute int smrho*exc(smrho) and int smrho*vxc(smrho)
-
-Ctakao2012feb --- comment out
-C$$$        call smvxc2 ( 0 ,slat, nsp , lxcfun , vol , n1 , n2 , n3 , k1 , k2
-C$$$     .  , k3 , smrho , smvxc_zv , smvx_zv , smvc_zv , smexc_zv  !, wdummy
-C$$$     .  , rvepsv , rvexv , rvecv , rvvxcv , vxcavg )
-C$$$C        call mshdot(vol,nsp,n1,n2,n3,k1,k2,k3,smrho,w(osmvxc),
-C$$$C     .    tmp,tmp(2))
-C$$$c        call poppr
-C$$$        rvepsv(1) = rvepsv(1) + rvepsv(2)
-C$$$        rvvxcv(1) = rvvxcv(1) + rvvxcv(2)
-
 C   ... Smooth exchange-correlation potential
-c        call dpzero ( smvxc_zv , k1 * k2 * k3 * nsp )
-c        call dpzero ( smexc_zv , k1 * k2 * k3 )
         smvxc_zv=0d0
         smexc_zv=0d0
         call smvxcm ( ssite , sspec , nbas , lfrce , k1 , k2 , !slat , 
      .  k3 , smrho , smpot , smvxc_zv , smvx_zv , smvc_zv , 
      .  smexc_zv , repsm , repsmx , repsmc , rmusm , rvmusm , rvepsm 
      .  , fcexc0 , fcex0 , fcec0 , fcvxc0 , fxc_rv )
-c        if ( lfrce .ne. 0 ) call dpadd ( fes , fxc_rv , 1 , 3 * nbas, 1d0 )
         if ( lfrce .ne. 0 ) fes = fes+fxc_rv
         if (allocated(fxc_rv)) deallocate(fxc_rv)
         if (allocated(smexc_zv)) deallocate(smexc_zv)
@@ -545,19 +471,6 @@ C ... Combine spin-up and spin-down integrals
       fcexa(1)  = fcexa(1) + fcexa(2)
       fceca(1)  = fceca(1) + fceca(2)
       fcvxca(1) = fcvxca(1) + fcvxca(2)
-
-C --- Total energy terms ---
-C ... Integral of valence density times xc potential(valence density)
-c      if (mod(job,1000) .lt. 100) then
-c        rvepsv(1) = rvepsv(1) + rvepva
-c        rvexv(1)  = rvexv(1) + rvexva
-c        rvecv(1)  = rvecv(1) + rvecva
-c        rvvxcv(1) = rvvxcv(1) + rvvxva
-c      endif
-c      if (mod(mod(job/1000,10),2) .eq. 1) then
-c        rveps(1) = rveps(1) + rvepsa
-c        rvvxc(1) = rvvxc(1) + rvvxca
-c      endif
 
 C ... Integral of valence density times estatic potential
       valves = rhvsm + vvesat

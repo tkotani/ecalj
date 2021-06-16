@@ -175,7 +175,7 @@ C      call zprm3('rho-out(q)',w(osmro),k1,k2,k3)
 C --- Multipole moments of the output density ---
       allocate(qmout_rv(nvl))
       call pshpr(0)
-      call rhomom ( nbas , ssite , sspec , sv_p_orhat1 , qmout_rv , vsum )
+      call rhomom (sv_p_orhat1 , qmout_rv , vsum )
       call poppr
       qmout_rv = qmout_rv- qmom(1:nvl)
 C --- Lindhard dielectric function ---
