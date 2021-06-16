@@ -49,7 +49,7 @@
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
       use m_seneinterp,only: Sigmainit
-      use m_subzi, only: m_subzi_init, lwtkb,numq,rv_a_owtkb,m_subzi_setlwtkb !,ldos
+      use m_subzi, only: m_subzi_init, lwtkb,numq,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -66,7 +66,7 @@
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
-      use m_bzintegration,only: m_bzintegration_init
+c      use m_bzintegration,only: m_bzintegration_init
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
       use m_addrbl,only: m_addrbl_allocate_swtk
 Ci   nbas  : size of basis
@@ -139,7 +139,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
      .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
      .  ,  mpipid , ldham(16) , ldim
       integer:: os , osoptc
-      real(8) ,allocatable :: fh_rv(:)
+      real(8) :: fh_rv(3,nbas)
 c      real(8) ,allocatable :: fes2_rv(:)
 c      complex(8) ,allocatable :: t_zv(:,:)
       integer ,allocatable :: ips_iv(:)
@@ -267,17 +267,6 @@ c      character*8:: charext
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 !  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
 !  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
-      if(initd) then
-         dmxp   = 0d0
-         dmxp(2) = mix_b
-         dmxp(3) = mix_wc
-         dmxp(4:5)= mix_w(1:2)
-         dmxp(6) = int(mix_nsave)
-         dmxp(7) = int(mix_mmix)
-         dmxp(9)= mix_bv
-         call parms0(0,0,0d0,0) !reset mixing block
-         initd=.false.
-      endif
       debug    = cmdopt0('--debugbndfp')
       tdos     = cmdopt0('--tdos')
       fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
@@ -296,22 +285,19 @@ c      character*8:: charext
       alfa = 0
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
-!! Write out Hamiltonian HamiltonianPMT.* and HamiltonianPMTinfo
+!! Write out Hamiltonian HamiltonianPMT.* 
       writeham= cmdopt0('--writeham')
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
       if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
-      call m_mkpot_init(llmfgw) !from(smrho,rhoat), get potential. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-!! elind for accelarating convergence. Not used so often. Need examination.
-      elind = ham_elind
-      if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
-      dmxp(33) = elind
+      call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
+                                !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
 !! Setup for BZ integration wtkb
 !! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
       call m_subzi_init(lrout>0)
-!   TK think sspec%ngcut of local orbital is changing when PZ=+10 mode (hankel tail mode)
-!   because Hankel's e may be changing. ! lpztail: local orbital of 2nd type(hankel tail) +10 exist or not
+!   Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing.
+!   lpztail: if T, local orbital of 2nd type(hankel tail).
       if(lpztail) call sugcut(2, sspec) 
       if(cmdopt0('--cls')) then !clsmode
           call rxx(lso==1,'CLS not implemented in noncoll case') 
@@ -412,9 +398,10 @@ c      character*8:: charext
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
-!! end of band plot mode
+!! end of band plbnd/=0, that is, band plot mode.
+      
 !! New eferm determined from evlall
-      call m_bzintegration_init(evlall,  eferm,sev,sumqv,vnow) !Get new eferm, sev, wtkb...
+      call m_subzi_bzintegration(evlall,  eferm,sev,sumqv,vnow) !Get new eferm, sev, wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
       if(lmet==0.and. master_mpi)
      &     write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
@@ -475,7 +462,7 @@ c      character*8:: charext
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo
-!! Accumurate quantities for determined wtkb. Originally called as second pass.
+!! Accumurate sum of BZ 
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)
          call mpi_barrier(MPI_comm_world,ierr)
@@ -514,11 +501,10 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
 !      (note: we now use NonMagneticCORE mode as default)
 !! Evaluate KS total energy, correction to Harris force ---
       if(lrout/=0) then
+        elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
+        if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
 !!   ... Correction to harris force
-        if(lfrce>0 ) then
-           allocate( fh_rv(3*nbas)  )
-          call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,  fh_rv )
-        endif
+        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,  fh_rv )
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
@@ -533,16 +519,25 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
            call togpr()
         endif
 !! --- Add together force terms ---
-!! fes1_rv: contribution to HF forces from estat + xc potential   This is for input  density  !=3rd term in (B.5) in JPSJ.84.034705
-!! fes2_rv: contribution to KS forces from estat + xc potential   This is for output density
-!! fh_rv      : 1st term  in (B.5)
+!! fes1_rv: contribution to HF forces from estat + xc potential
+!           This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
+!! fes2_rv: contribution to KS forces from estat + xc potential.   This is for output density
+!! fh_rv      : 1st term in (B.5)
 !! input frc  : 2nd term in (B.5). Puley term
-!! output frc  : total
-        if(lfrce> 0) then
-           call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
-           deallocate(fh_rv)
+!! output frc : total
+        if(lfrce> 0) call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
+!! Mixing input and output densities. orhoat and osmrho are returned.
+        if(initd) then
+         dmxp   = 0d0
+         dmxp(2) = mix_b
+         dmxp(3) = mix_wc
+         dmxp(4:5)= mix_w(1:2)
+         dmxp(6) = int(mix_nsave)
+         dmxp(7) = int(mix_mmix)
+         dmxp(9)= mix_bv
+         call parms0(0,0,0d0,0) !reset mixing block
+         initd=.false.
         endif
-!     !   --- Mix input and output densities ---
         call mixrho(iter,qval-qbg,elind,dmxp, orhoat_out,orhoat, smrho_out,osmrho)
         qdiff=dmxp(11)
       else
