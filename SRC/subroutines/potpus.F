@@ -1,8 +1,6 @@
       subroutine potpus(z,rmax,lmxa,v,vdif,a,nr,nsp,lso,rofi,pnu,pnz,
      .ehl,rsml,rs3,vmtz,nab,n0,pp,ppnl,hab,vab,sab,sodb)
       use m_lmfinit,only: stdo,lrel_g=>lrel
-
-
 C- Potential parameters for potential and boundary condition
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -129,7 +127,7 @@ Cu   16.05.00  (mvs) adapted from mc,nfp potpsr.f
 Cu   02.01.95  (mvs) spin polarized
 Cu   02.09.94  (msm) Potential vdif is included by perturbation.
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C ... Passed parameters
       integer lmxa,lso,nr,nsp,n0,nab,nppn
       parameter (nppn=12)
@@ -167,27 +165,12 @@ C     Spin-Orbit related parameters
      .x21,x11,x22,x12,vx00,vx01,vx10,vx11,
      .vx0z,vxz0,vx1z,vxz1,vxzz,vxzu,vxuz,vxzs,vxsz
       common /cc/ cc
-
-C ... Setup
-Changenglob      lrel = nglob('lrel')
       lrel = lrel_g !globalvariables%lrel
-Changenglob      stdo = nglob('stdo')
-c      stdo = globalvariables%stdo
       call getpr(ipr)
-C     lorthd = 0
       lorthz = 0
       if (lorthz .ne. 0) call rx('lorthz not implemented')
-C      print *, '!!'
-C      ipr=60
-      call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
-     .lpz,nrbig,rofi,rwgt,xx)
-C      call vxtrap(4,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,
-C     .  lpz,nrbig,rofi,rwgt,vbig)
-C      call prrmsh('rofi',rofi,rofi,nrbig,nrbig,1)
-C      call prrmsh('rwgt',rofi,rwgt,nrbig,nrbig,1)
-C      call prrmsh('vbig',rofi,vbig,nrx,nrbig,nsp)
+      call vxtrap(1,z,rmax,lmxa,v,a,nr,nsp,pnz,rs3,vmtz,nrx,lpz,nrbig,rofi,rwgt,xx)
       b = rmax/(dexp(a*nr - a) - 1d0)
-
 C ... Gradient of average v (for spin-orbit)
       if (lso .ne. 0) then
         if (lrel .eq. 0) call rx('spin-orbit requires REL=1')
@@ -197,16 +180,13 @@ C ... Gradient of average v (for spin-orbit)
         enddo
         call radgra(a,b,nr,rofi,vavg,dv)
       endif
-
 C --- Loop over spins, lmxa ---
       do  80  i = 1, nsp
-
         call dpzero(hab(1,1,i),nab*n0)
         call dpzero(vab(1,1,i),nab*n0)
         call dpzero(sab(1,1,i),nab*n0)
         if (lso .ne. 0) call dpzero(sodb(1,1,i,1),nab*n0)
         if (lso .ne. 0) call dpzero(sodb(1,1,i,2),nab*n0)
-
         if (ipr .ge. 40) then
           call awrit4('%N potpus %?#n==2# spin %i #%j#: pnu =%n:1,6d',' ',
      .    80,stdo,nsp,i,lmxa+1,pnu(1,i))
@@ -221,7 +201,6 @@ C --- Loop over spins, lmxa ---
   698     format(' l',8x,'enu',9x,'v',11x,'c',10x,'srdel',
      .    8x,'qpar',8x,'ppar')
         endif
-
 C --- Loop over l ---
         do  10  l = 0, lmxa
           k = l+1
@@ -233,23 +212,18 @@ C --- Loop over l ---
           if (lpzi(l) .ne. 0) moda(l) = 6
 C ... Semicore wf gz and its sphere boundary parameters
           if (lpzi(l) .ne. 0) then
-c          print *,'zzzzzzzzzz000 1'
             call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnz(1,i),4,
      .      gz,gp,ez,phz,dphz,phzp,dphzp,pz)
-c          print *,'zzzzzzzzzz000 2'
-
 C   ... Keep local copies of gz for SO coupling
             if (lso .ne. 0) then
               call dcopy(nr,gz,1,pzi(1,l,i),1)
               ezum(l,i) = ez
             endif
-
 C       Extend local orbital to large mesh; match gz to envelope
             if (lpzi(l) .gt. 1) then
               call dcopy(nr,gz,1,gzbig,1)
               call dcopy(nr,gz(1,2),1,gzbig(1+nrbig),1)
-              call rwftai(5,rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k),
-     .        rsml(k),gzbig)
+              call rwftai(5,rmax,a,nr,nrbig,rofi,phz,dphz,xx,l,ehl(k), rsml(k),gzbig)
 C         If rwftai scales gzbig, rescale phz,gz
               if (gzbig(nr) .ne. gz(nr,1)) then
                 xx = gzbig(nr)/gz(nr,1)
@@ -260,51 +234,23 @@ C         If rwftai scales gzbig, rescale phz,gz
                 call dscal(nr,xx,gz(1,1),1)
                 call dscal(nr,xx,gz(1,2),1)
               endif
-C         call prrmsh('gz',rofi,gz,nr,nr,2)
-C         call prrmsh('gzbig',rofi,gzbig,nrbig,nrbig,2)
-C          call gprdsr(0,gzbig,gzbig,nrbig,1,nr,z,ez,ez,l,v(1,i),rofi,
-C     .      rwgt,q)
-C          call gprdsr(0,gzbig,gzbig,nrbig,nr,nrbig,z,ez,ez,l,vbig(1,i),rofi,
-C     .      rwgt,q2)
-
 C     ... Recopy gz for SO coupling
               if (lso .ne. 0) call dcopy(nr,gz,1,pzi(1,l,i),1)
-
             endif
-
           else
             phz = 0
             dphz = 0
           endif
-
 C ... Valence w.f. g,gp, and their sphere boundary parameters
-c          print *,'zzzzzzzzzz1'
-          call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,
-     .    ev,phi,dphi,phip,dphip,p)
-c          print *,'zzzzzzzzzz2'
+          call makrwf(10,z,rmax,l,v(1,i),a,nr,rofi,pnu(1,i),2,g,gp,ev,phi,dphi,phip,dphip,p)
 C     <g H g> = e <g g> = e
 C     <g H gp> = <g (H-e) gp> + e <g gp> = <g g> = 1
 C     <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e p = ep
           ghg = ev
           ghgp = 1
           gphgp = ev*p
-
           dlphi  = rmax*dphi/phi
           dlphip = rmax*dphip/phip
-C     call prrmsh('g',rofi,g,nr,nr,2)
-C     call prrmsh('gp',rofi,gp,nr,nr,2)
-
-C     debugging
-C     Fit radial valence function on an extended mesh to sm Hankels
-C     if (lpzi(l) .gt. 1) then
-C       call dcopy(nr,g,1,gbig,1)
-C       tphi = ev - (v(nr,i)-2*z/rmax)
-C       call rwftai(3,rmax,a,nr,nrbig,rofi,phi,dphi,tphi,l,ev,
-C    .    rsml(k),gbig)
-C       call prrmsh('gval',rofi,gbig,nrbig,nrbig,1)
-C       stop
-C     endif
-
 C ... Integrate g and gp outward on extended mesh
 C     large component gp done nonrelativistically ... ok for large r
 C     small component gp computed large component gp
@@ -340,28 +286,28 @@ C ... Keep local copies of phi and phidot for SO coupling
             enum(l,i) = ev
           endif
 
-C   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
-#if SCALEGZ
-          if (lpzi(l) .ne. 0) then
-
-CC       debugging ... check that mode 0 works properly when g and gp
-CC       are not orthogonal.  The next line
-C        call ortrwf(10,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-CC       Should produce the same D as if g,gp were orthogonalized
-CC       and then computed, as done in the next two lines
-C        call ortrwf(12,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-C        call ortrwf(11,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-
-            call ortrwf(0,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
-            call dscal(nr*2,1/D,gz,1)
-            phz = phz/D
-            dphz = dphz/D
-            phzp = phzp/D
-            dphzp = dphzp/D
-C       call prrmsh('gz',rofi,gz,nr,nr,2)
-
-          endif
-#endif
+c$$$C   ... Scale gz so that <|gz-P(g,gp)|^2> = 1
+c$$$#if SCALEGZ
+c$$$          if (lpzi(l) .ne. 0) then
+c$$$
+c$$$CC       debugging ... check that mode 0 works properly when g and gp
+c$$$CC       are not orthogonal.  The next line
+c$$$C        call ortrwf(10,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
+c$$$CC       Should produce the same D as if g,gp were orthogonalized
+c$$$CC       and then computed, as done in the next two lines
+c$$$C        call ortrwf(12,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
+c$$$C        call ortrwf(11,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
+c$$$
+c$$$            call ortrwf(0,z,l,v(1,i),nr,nr,nr,rofi,rwgt,ev,ev,ez,g,gp,gz,D)
+c$$$            call dscal(nr*2,1/D,gz,1)
+c$$$            phz = phz/D
+c$$$            dphz = dphz/D
+c$$$            phzp = phzp/D
+c$$$            dphzp = dphzp/D
+c$$$C       call prrmsh('gz',rofi,gz,nr,nr,2)
+c$$$
+c$$$          endif
+c$$$#endif
 
 C ... 2nd generation potential parameters (Methfessel scaling)
           umegam = -(phi*ghgp/phip)*(-l-1-dlphi)/(-l-1-dlphip)
@@ -396,7 +342,6 @@ C ... NMTO potential parameters, no backwards integration, <phi phi>=1
           ppnl(11,k,i) = phz
           ppnl(12,k,i) = dphz
 
-
 C ... 2nd generation potential sc parameters (Methfessel scaling)
 C     NB: overwrites c,vl,srdel,q,qpar
 C     ppars not saved; only printed out
@@ -417,20 +362,20 @@ C     ppars not saved; only printed out
             write(stdo,699) l,'(sc)',ez,vl,c,srdel,qpar,ppar
           endif
 
-C --- Rescale gp parameters and normalization of gp ---
-#if ORTHPHD
-          if (lorthd .ne. 0) then
-            call ortrwf(2,z,l,v,nrbig,nr,nrbig,rofi,rwgt,ev,ev,ez,g,gp,xx,xx)
-C      <g H gp> = <g (H-e) gp> = 1/sqrt(p)
-C      <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e = e
-            ghgp = 1/sqrt(p)
-            gphgp = ev
-C      Scaling of gp -> phip, <gp gp> also scaled
-            phip = phip/sqrt(p)
-            dphip = dphip/sqrt(p)
-            p = 1
-          endif
-#endif
+c$$$C --- Rescale gp parameters and normalization of gp ---
+c$$$#if ORTHPHD
+c$$$          if (lorthd .ne. 0) then
+c$$$            call ortrwf(2,z,l,v,nrbig,nr,nrbig,rofi,rwgt,ev,ev,ez,g,gp,xx,xx)
+c$$$C      <g H gp> = <g (H-e) gp> = 1/sqrt(p)
+c$$$C      <gp H gp> = <gp (H-e) gp> + e <gp gp> = <gp g> + e = e
+c$$$            ghgp = 1/sqrt(p)
+c$$$            gphgp = ev
+c$$$C      Scaling of gp -> phip, <gp gp> also scaled
+c$$$            phip = phip/sqrt(p)
+c$$$            dphip = dphip/sqrt(p)
+c$$$            p = 1
+c$$$          endif
+c$$$#endif
 
 C --- Integrals of w.f. products with spherical potential ---
           fllp1 = l*(l+1)
@@ -526,13 +471,6 @@ C        call prrmsh('gz',rofi,gz,nr,nr,2)
 
             enddo
           endif
-
-c|    write(stdo,290) l,v00,v10,v11
-c|290 format(' l=',i4,'   vij=',3f12.6)
-c|    write(stdo,291) l,d00,d10,d11
-c|291 format(' l=',i4,'   dij=',3f12.6)
-c|    write(stdo,292) l,v00+d00,v10+d10,v11+d11
-c|292 format(' l=',i4,'   sum=',3f12.6)
 
           v00 = v00 + d00
           v10 = v10 + d10
@@ -711,10 +649,6 @@ C     print *, 'zero out potpus local orbitals'
             hab(8,k,i) = hzu
             hab(9,k,i) = hzs
 
-
-C     scus(1,k,i) = phz
-C     scus(2,k,i) = dphz
-
 C ... NMTO potential parameters for local orbitals
 C     Note that (s0z,s1z) = <(phi,phidot)|gz0>. We need <(phi,phidot)|gz>.
 C     Let i=1 or 2 and define s_iz = (<phi|gz>,<phidot|gz>) for i=1,2
@@ -775,16 +709,11 @@ C --- Printout ---
             enddo
 
           endif
-C     stop 'here'
         endif
-
    80 continue
-
 
 C ... Calculate spin-orbit parameters
       if (lso .ne. 0) then
-c        call soprm(5,psi,dpsi,nr,nsp,lmxa,lmxa,v,dv,enum,
-c     .    z,rofi,rwgt,wrk,sop)
         call soprm(5,lpzi,psi,dpsi,pzi,nr,nsp,lmxa,lmxa,v,dv,enum,
      .  ezum,z,rofi,rwgt,wrk,sop,sopz)
 
@@ -923,7 +852,6 @@ C  ...  Make the local orbitals spin off-diagonal radial integrals
             sodb(8,k,2,2) = vxzu
             sodb(9,k,2,2) = vxzs
           endif
-
         enddo
 
 C  ... Print the so radial integrals of phi,phidot
@@ -947,9 +875,7 @@ C            write(stdo,811) l,'o',(sodb(ir,k,i,2),ir=1,4)
 C          enddo
 C        enddo
 C        stop
-
       endif
-
       end
 
       subroutine pvpus1(r,f,df,g,dg,Tfg,Tgf)

@@ -100,9 +100,9 @@ C ----------------------------------------------------------------------
       master = 0
 c      n = isign(1,mpsord) * mod(iabs(mpsord),100)
       numq = 1
-      if (lmet .eq. 4) numq = 3
+c      if (lmet .eq. 4) numq = 3 !we don't allow lmet=4 
       lwtkb = 0
-      if ( lmet .gt. 0 .and. ( lmet .ne. 4 .or. ltet ) ) then
+      if ( lmet .gt. 0 ) then
         allocate(rv_a_owtkb(ndham,nsp,nkp))
       endif
       if (nevmx .ge. 0) then
