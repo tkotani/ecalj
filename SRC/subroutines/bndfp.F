@@ -3,10 +3,6 @@
 !     ! From density osmrhod and osmrho, m_mkpot_init gives  osmpot, and sv_p_osig, sv_p_otau, sv_p_oppi (potential)
 !     ! Then we do band calcultion m_bandcal_init. It gives osmrho_out and orhoat_out.
 !     ! Finally, osmrho and orhoat are returned after mixing procedure (mixrho).
-      module m_bndfp
-      use m_density,only: orhoat,osmrho  !i/o unprotected: input and output
-      real(8),protected:: ham_ehf, ham_ehk      !output
-      real(8),protected:: eferm, qdiff          !output 
 !----------------------------      
 !io  smrho :smooth density
 !io        :Symmetrized on output
@@ -18,9 +14,12 @@
 !o   evalall: eigenvalue in m_bandcal
 !o   frc:    force in m_mkrout
 !i  vorb --> use m_ldau in m_mkpot
-!      
+      module m_bndfp
+      use m_density,only: orhoat,osmrho  !i/o unprotected: input and output
+      real(8),protected:: ham_ehf, ham_ehk      !output
+      real(8),protected:: eferm, qdiff          !output 
+!!      
       logical,private:: binit=.true.,initd=.true.
-      real(8),private:: dmxp(33) 
       contains
       
       subroutine m_bndfp_ef_set(bz_ef00) !called from iors.F. grep 'use m_bndfp'
@@ -41,10 +40,10 @@
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
-     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
+c     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
-     &     ,ham_ldham
      &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
+c     &     ,ham_ldham
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
@@ -68,7 +67,7 @@
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
 c      use m_bzintegration,only: m_bzintegration_init
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
-      use m_addrbl,only: m_addrbl_allocate_swtk
+      use m_addrbl,only: m_addrbl_allocate_swtk,swtk
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -135,9 +134,9 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       character strn*120,strn2*120
       integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
      .  , i , iq , ismidb, lrep ,  nev  , lgunit , igets , mpsord ,  isw  
-     .  , ifi , fxst ,   i1 , i2 , nfilem , iobzwt ,   nll, lnoxc 
+     .  , ifi , fxst ,   i1 , i2 , nfilem ,   nll, lnoxc 
      .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
-     .  ,  mpipid , ldham(16) , ldim
+     .  ,  mpipid !, ldham(16) !, ldim
       integer:: os , osoptc
       real(8) :: fh_rv(3,nbas)
 c      real(8) ,allocatable :: fes2_rv(:)
@@ -146,7 +145,7 @@ c      complex(8) ,allocatable :: t_zv(:,:)
       double precision sigp(10)
       logical:: readeferm
       double precision esmearm,sev,efermr,
-     .  sev00,sev1,sumtv,alfa,eharris,eksham,
+     .  sev00,sev1,sumtv,eharris,eksham,
      .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
      .  ,qp(3),shftqp(3),elind,dum,evtop,
      .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
@@ -265,24 +264,19 @@ c      character*8:: charext
 !! ----------------------------
       call tcn ('bndfp')
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
-!  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
 !  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
-      debug    = cmdopt0('--debugbndfp')
-      tdos     = cmdopt0('--tdos')
-      fsmode   = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
-      ipr  = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-      idummy = unlink('RSEQ_ERROR')! Remove RSEQ_ERROR here because
-                                   ! this error is fatal only when it is converged. takaoNov28_2010
-      allocate(evl(ndhamx,nspx))
-      ldham = ham_ldham
-      ldim  = ldham(1)
+      debug  = cmdopt0('--debugbndfp')
+      tdos   = cmdopt0('--tdos')  !total dos mode or not
+      fsmode = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+      ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       eksham    = 0d0
+      ltet = ntet>0 !tetrahedron method or not
+      idummy = unlink('RSEQ_ERROR')! Clean RSEQ_ERROR.
+      allocate(evl(ndhamx,nspx))
       if(binit) then 
-         eferm =bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
+         eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          binit=.false.
       endif
-      ltet = ntet>0
-      alfa = 0
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
@@ -293,15 +287,15 @@ c      character*8:: charext
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
                                 !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-!! Setup for BZ integration wtkb
-!! NOTE: if (we have wkp.* file).and.lmet==2, wkp file is used for wkpb.
+!! Setup for wtkb for BZ integration.
+!! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
       call m_subzi_init(lrout>0)
 !   Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing.
 !   lpztail: if T, local orbital of 2nd type(hankel tail).
       if(lpztail) call sugcut(2, sspec) 
       if(cmdopt0('--cls')) then !clsmode
           call rxx(lso==1,'CLS not implemented in noncoll case') 
-         if (lrout .eq. 0) call rx('bndfp: need output density for cls')
+         if (lrout == 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
 ! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
@@ -331,7 +325,6 @@ c      character*8:: charext
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-      
 !! MPIK k point divider. From iqini to iqend for each processor.    
 #if MPIK
       sttime = MPI_WTIME()
@@ -358,12 +351,13 @@ c      character*8:: charext
       sttime = MPI_WTIME()
       if(writeham) close(ifih)
       if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
+      
 !! Broadcast. Use allreduce to avoid knowing which node to which node.
 !! Because mpi is f77, ndimhx_ and so on are not protected.
       nnn = size(ndimhx_)
-      call mpibc2_int(ndimhx_,nnn,'bndfp_ndimhx_') !all reduce 
+      call mpibc2_int(ndimhx_,nnn,'bndfp_ndimhx_') !all reduce (instead of which node to which node).
       nnn = size(nev_)
-      call mpibc2_int(nev_,nnn,'bndfp_nev_') !all reduce (to avoid which node to which node).
+      call mpibc2_int(nev_,nnn,'bndfp_nev_') !all reduce 
       nnn = size(nevls)
       call mpibc2_int(nevls,nnn,'bndfp_nevls') !all reduce (to avoid which node to which node).
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
@@ -400,8 +394,8 @@ c      character*8:: charext
       if(plbnd/=0)            call rx0('plot band mode done')
 !! end of band plbnd/=0, that is, band plot mode.
       
-!! New eferm determined from evlall
-      call m_subzi_bzintegration(evlall,  eferm,sev,sumqv,vnow) !Get new eferm, sev, wtkb...
+!! New eferm determined from evlall 
+      call m_subzi_bzintegration(evlall,swtk,  eferm,sev,sumqv,vnow) !Get eferm, and wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
       if(lmet==0.and. master_mpi)
      &     write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
@@ -413,18 +407,18 @@ c      character*8:: charext
          write(ifi,"(d24.16,d24.16 ' # number of electrons qval-qbg, qbg=')") qval-qbg,qbg
          write(ifi,"(d24.16, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
          write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
-         write(ifi,
-     &     "('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
+         write(ifi,"('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
          write(ifi,"('# NOTE: Not by band plot mode')")
          close(ifi)             
       endif
+      
 !! Generate total DOS  emin=dosw(1) emax=dosw(2) dos range
-      dosw(1)= emin -0.5d0      ! lowest energy limit to plot dos
-      dosw(2)= eferm+bz_dosmax  ! lowest energy limit to plot dos
       if(master_mpi.and.(tdos.or.ldos/=0)) then
+         dosw(1)= emin -0.5d0   ! lowest energy limit to plot dos
+         dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
          allocate( dos_rv(ndos,nspx+1)) !for xxxdif
-         if(cmdopt0('--tdostetf')) ltet=.false. !oct2015
+         if(cmdopt0('--tdostetf')) ltet=.false. ! Set tetrahedron=F 
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
      &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , efermxxx ,
@@ -449,7 +443,8 @@ c      character*8:: charext
          close(ifii)
       endif
       if(tdos) call rx0('Done tdos mode:')
-!! AllReduce band quantities.  eterms should be cleaned up in future.   
+      
+!! AllReduce band quantities.  
       call m_bandcal_allreduce(lrout,lwtkb)
       emin=1d9
       do iq = 1, nkp
@@ -469,19 +464,21 @@ c      character*8:: charext
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lrout,lwtkb)
       endif
+      
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
 !!    dos window
-      dosw(1)= emin-0.5d0       ! lowest energy limit to plot dos  
-      dosw(2)= eferm+bz_dosmax  ! highest energy limit to plot dos 
       if (cmdopt0('--cls')) then
+         dosw(1)= emin-0.5d0    ! lowest energy limit to plot dos  
+         dosw(2)= eferm+bz_dosmax ! highest energy limit to plot dos 
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
+      
 !! write orbital moment      
       if(lwtkb==1 .and. lso/=0) call iorbtm() !write out orbital moment
 !! Assemble output density, energies and forces ===============================
-      if (lrout/=0) call m_bandcal_symsmrho()  !smrho_out Symmetrize smooth density
-      call m_mkrout_init() !get force frc, Symmetrized atomic density orhoat_out, and hbyl,qbyl
+      if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
+      call m_mkrout_init() !Get force frc, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
 !!  New boundary conditions pnu for phi and phidot
       if (lrout/=0.and.lpnu>0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
 c$$$!! --- print out qbyl ---
@@ -526,22 +523,10 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
 !! input frc  : 2nd term in (B.5). Puley term
 !! output frc : total
         if(lfrce> 0) call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
-!! Mixing input and output densities. orhoat and osmrho are returned.
-        if(initd) then
-         dmxp   = 0d0
-         dmxp(2) = mix_b
-         dmxp(3) = mix_wc
-         dmxp(4:5)= mix_w(1:2)
-         dmxp(6) = int(mix_nsave)
-         dmxp(7) = int(mix_mmix)
-         dmxp(9)= mix_bv
-         call parms0(0,0,0d0,0) !reset mixing block
-         initd=.false.
-        endif
-        call mixrho(iter,qval-qbg,elind,dmxp, orhoat_out,orhoat, smrho_out,osmrho)
-        qdiff=dmxp(11)
+!! Mixing input (osmrho,orhoat) and output (osmrho_out,orhoat_out). Output are orhoat and osmrho.
+        call mixrho(iter,qval-qbg,elind, orhoat_out,orhoat, smrho_out,osmrho,qdiff) !mixrho keeps history in it.
       else
-         eksham = 0d0
+        eksham = 0d0
       endif
       ham_ehf= eharris !Harris total energy
       ham_ehk= eksham  !Hohenberg-Kohn-Sham total energy

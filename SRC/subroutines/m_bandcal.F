@@ -28,9 +28,9 @@
       logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
       contains
-! Set up Hamiltonian, diagonalization and accumulation to srout and so on.
-      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,ifih,lwtkb) !,kpproc)
-c     &     evlall,dos_rv,dmatu,orbtm_rv,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, frc, ndimhx_,nev_)
+!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+! Set up Hamiltonian, diagonalization
+      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,ifih,lwtkb) 
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
       integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig
@@ -183,9 +183,9 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
             endif
             
             if(plbnd==0.and.lwtkb/=-1) then !lwtkb=-1,0,1
-               if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
                if(nlibu>0.and.nev>0.and.lwtkb==0) call rx('metal weights required for LDA+U calculation')
-               if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu)
+               if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
+               if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu) !density matrix
                if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
             endif
             
@@ -218,8 +218,9 @@ c               call readindensitymodesetting() !dummy
       if(call_m_bandcal_2nd) close(ifig)
       deallocate(evl)
       end subroutine
-!!
+!!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0) !,emin,emax)!,ndos)
+!accumulation by addrbl
       implicit none
       integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas
       real(8):: qp(3),ef0,def=0d0,xv(3)
@@ -227,7 +228,6 @@ c               call readindensitymodesetting() !dummy
       complex(8),allocatable :: t_zv(:,:)
       logical:: cmdopt0
       if(master_mpi) write(stdo,*)' mmmmm m_bandcal_2nd'
-!accumulation      
       call dfqkkl( sv_p_oqkkl ) !zero clear 
       if(lekkl==1) call dfqkkl( sv_p_oeqkkl ) !zero clear
       if (lfrce>0)  frcband  = 0d0
@@ -279,7 +279,7 @@ c               call readindensitymodesetting() !dummy
       close(ifig)
       deallocate(evl)
       end subroutine
-
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
       subroutine m_bandcal_clean()
       if (allocated(orbtm_rv)) deallocate(orbtm_rv)
 c      if (allocated(dos_rv))   deallocate(dos_rv)
@@ -290,7 +290,7 @@ c      if (allocated(dos_rv))   deallocate(dos_rv)
       if(allocated(sv_p_oeqkkl))deallocate( sv_p_oeqkkl)
       deallocate(evlall)
       end
-
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !     !  Allreduce density-related quantities
       subroutine m_bandcal_allreduce(lrout,lwtkb)
       integer:: lrout,nnn,ib,i,lwtkb

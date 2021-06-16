@@ -97,8 +97,8 @@ C --- Make and print out magnetic moment ---
         return
       endif
 !! --- Setup for fixed-spin moment method ---
-!!      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
       if (fmom==NULLR .or. lwtkb .eq. 0) return
+c      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf2: check logic of lwtkb')
 
       call tcn('bzwtsf2')
 
@@ -316,6 +316,7 @@ c      stdo = globalvariables%stdo
 !!== Setup for fixed-spin moment method ==
 c      if (fmom .eq. 0 .or. lwtkb .eq. 0) return
       if (fmom==NULLR .or. lwtkb .eq. 0) return
+c      if (fmom==NULLR .or. lwtkb .eq. 0) call rx('bzwtsf:check logic of lwtkb')
       call tcn('bzwtsf')
       call dpzero(vhold,12)
       vnow = 0

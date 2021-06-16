@@ -1,9 +1,10 @@
-      subroutine mixrho(iter, qval, elind, dmxp, sv_p_orhnew, sv_p_orhold, smrnew, smrho )
+      subroutine mixrho(iter, qval, elind, sv_p_orhnew, sv_p_orhold, smrnew, smrho,rmsdel)
       use m_struc_def
       use m_supot,only: iv_a_okv,rv_a_ogv,k1,k2,k3
       use m_lmfinit,only:lat_alat,nbas,stdo,stdl, mixmod=>sstrnmix,ssite=>v_ssite,sspec=>v_sspec,nsp
       use m_lattic,only: lat_vol
       use m_supot,only: lat_nabc, lat_ng
+      use m_lmfinit, only:   mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix
 
 !!= Mix old and new charge densities =
 !!  Takao's version: real space mixing of smrho. It works OK. However,
@@ -177,7 +178,8 @@ Cu   22 Jun 00 spin polarized
 Cu   30 May 00 Adapted from nfp mix_rho
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
+      real(8),save::  dmxp(25)
+
 #if MPI | MPIK
       include "mpif.h"
       integer numprocs, ierr, status(MPI_STATUS_SIZE)
@@ -202,7 +204,7 @@ c      type(s_site)::ssite(*)
 c      type(s_spec)::sspec(*)
 c      type(s_lat)::slat
 
-      double precision qval,elind,dmxp(25)
+      double precision qval,elind
       double complex smrnew(k1,k2,k3,nsp),smrho(k1,k2,k3,nsp)
 C ... Local parameters
       integer lgunit,i,i1,i2,i3,ib,ipl,ipr,is,k0,k9,kmxv,
@@ -236,9 +238,21 @@ C ... Local parameters
       real(8),allocatable:: w_oa(:),w_oaa(:),w_ocn(:)
       logical::       noelind
       logical:: mixrealsmooth
-      logical:: init=.true.
-      if (mixmod .eq. 'none') return
+      logical:: init=.true., initd=.true.
       call tcn('mixrho')
+      if (mixmod .eq. 'none') return
+!  Initial setup for mixrho (charge mixing). This is used in mixrho-parmax.
+      if(initd) then
+         dmxp   = 0d0
+         dmxp(2) = mix_b
+         dmxp(3) = mix_wc
+         dmxp(4:5)= mix_w(1:2)
+         dmxp(6) = mix_nsave
+         dmxp(7) = mix_mmix
+         dmxp(9) = mix_bv
+         call parms0(0,0,0d0,0) !reset mixing block
+         initd=.false.
+      endif
 
       nnnew=0
 c      open(1898,file='test2vvv_smrho')
