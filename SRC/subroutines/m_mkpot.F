@@ -1,34 +1,31 @@
-      module m_mkpot
-!! http://dx.doi.org/10.7566/JPSJ.84.034702
+      module m_mkpot ! http://dx.doi.org/10.7566/JPSJ.84.034702
       use m_ldau,only: vorb !input. 'U-V_LDA(couter term)' of LDA+U 
       use m_supot,only: k1,k2,k3
-      use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,ctrl_lfrce,stdl
+      use m_lmfinit,only: nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn
+     & ,lfrce=>ctrl_lfrce,stdl
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_MPItk,only: master_mpi,mlog
       use m_struc_def,only: s_rv1
       use m_density,only: osmrho, orhoat !main input density
       use m_elocp,only: elocp
       
-      type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral (C.6)
-      type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau         (C.5)
-      type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma       (C.4)
-      complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of (34)
+      type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
+      type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau            (C.5)
+      type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma          (C.4)
+      complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
       type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:) !without xc term
       type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:)
       type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected   :: spotx(:,:,:,:)
 
-      real(8),protected:: qval
-      real(8),allocatable,protected :: gpot0(:), hab_rv(:),ppnl_rv(:,:,:,:), qmom(:)
-      real(8),allocatable,protected :: sab_rv(:),  vab_rv(:),vval(:),sav_rv(:)
-      real(8),protected:: qsc,vconst 
-      real(8),allocatable,protected :: vesrmt(:)
-      real(8),allocatable,protected :: fes1_rv(:), fes2_rv(:) !force terms
       real(8),protected:: utot,rhoexc,xcore,valvef,amom,  valves,cpnves,rhovxc !energy terms
+      real(8),allocatable,protected:: fes1_rv(:), fes2_rv(:) !force terms
+      real(8),allocatable,protected :: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
+      real(8),protected:: qval,vconst,qsc
       
-      integer,private:: lfrce
-
+!! private
+      real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
       private:: mkpot
       contains
       subroutine m_mkpot_novxc()
@@ -52,19 +49,19 @@
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
       i = 1 + 10*lfrzw + 100    ! Adding 100 means excluding XC(LDA) part. nolxc=T
 !     We obtain sv_p_osigx, sv_p_otaux, sv_p_oppix, smpotx  without XC
-      call mkpot (i, 0, osmrho , orhoat , 
+      call mkpot (i, osmrho , orhoat , 
      o     spotx, sv_p_osigx , sv_p_otaux , sv_p_oppix, fes1_rv)
       deallocate(vesrmt,qmom,ppnl_rv,hab_rv,vab_rv,sab_rv,gpot0,vval,fes1_rv)
       end subroutine 
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine m_mkpot_init(llmfgw)
-      integer:: i,lfrzw,lfrce
+      integer:: i,lfrzw!,lfrce
       real(8) ::qbz
       logical :: llmfgw,fsmode,fullmesh,cmdopt0
-      lfrce=ctrl_lfrce
-      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
-      if(fsmode) fullmesh=.true.
-      if(cmdopt0('--band').or.fullmesh) lfrce = 0
+c      lfrce=ctrl_lfrce
+c      fullmesh = cmdopt0('--fullmesh') !full mesh stop just after do 2010 iq loop.
+c      if(fsmode) fullmesh=.true.
+c      if(cmdopt0('--band').or.fullmesh) lfrce = 0
       lfrzw = 0
       if(ham_frzwf) lfrzw = 1   !freeze all augmentation wave
 !! Make the potential and total energy terms for given density (smrho,rhoat,qbg)  ---
@@ -90,7 +87,7 @@
       call togpr()
       allocate( sv_p_osig(3,nbas), sv_p_otau(3,nbas), sv_p_oppi(3,nbas))
       call dfaugm(sv_p_osig, sv_p_otau, sv_p_oppi ) !allocation for sig,tau,ppi integrals
-      call mkpot (i, lfrce, osmrho , orhoat, 
+      call mkpot (i, osmrho , orhoat, 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes1_rv)
       call togpr()
       end subroutine
@@ -101,7 +98,7 @@
       complex(8) :: smrho_out(:)
       if(allocated(fes2_rv)) deallocate(fes2_rv)
       allocate( fes2_rv(3*nbas))
-         call mkpot (0, lfrce, smrho_out , orhoat_out , 
+         call mkpot (0, smrho_out , orhoat_out , 
      o     osmpot, sv_p_osig , sv_p_otau , sv_p_oppi, fes2_rv)
       end subroutine
 !!------------------------------------------------------
@@ -113,7 +110,7 @@
       end
 !!------------------------------------------------------
       subroutine mkpot (
-     i     job, lfrce,  smrho, sv_p_orhoat,  
+     i    job, smrho, sv_p_orhoat,  
      o    smpot, sv_p_osig, sv_p_otau, sv_p_oppi, fes ) 
 !Note other output in module area
 c for job=0      
@@ -263,7 +260,7 @@ C    1000s job bit set.
 C 6. Make <vxc_nn> and compare to integrals made here.
 C    If problems, Maybe even look at sm part only, or local part only.
       implicit none
-      integer job,lfrce,i1,i2,i3,ispec
+      integer job,i1,i2,i3,ispec
       type(s_rv1) :: sv_p_orhoat(3,nbas)
       type(s_rv1) :: sv_p_oppi(nbas)
       type(s_rv1) :: sv_p_otau(nbas)

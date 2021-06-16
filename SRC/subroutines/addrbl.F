@@ -10,7 +10,7 @@ c      use m_subzi, only: swtk=>rv_a_oswtk
       allocate(swtk(ndham,nsp,nkp))
       end
       
-      subroutine addrbl ( isp,q, lrout,
+      subroutine addrbl ( isp,q, 
      .     iq,lfrce, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      .     evec,evl,nevl,  ef0,def, !emin,emax, !ndos,dos,
      o      smrho, sumqv,sumev, sv_p_oqkkl,sv_p_oeqkkl, f)
@@ -49,8 +49,6 @@ Ci         :4 BZ integration with 3-point scheme
 Ci   lwtkb :0 set of weights is not given; use 3-point interpolation
 Ci         :1 or 2 given a set of weights
 Ci         :-1 needs weights, but not yet available
-Ci   lrout :0 no eigenvectors generated; exit after accumulating
-Ci         :  eigenvalue weights and dos
 Ci   wtkb  :integration weights, needed if lwtkb is 1 or 2
 Ci   lswtk :<1 do nothing
 Ci         :1 given a set of weights, make 'spin weights' swtk
@@ -101,8 +99,7 @@ Cu   22 May 00 Adapted from nfp add_densw.f
 C ----------------------------------------------------------------------
       implicit none
 C ... Passed parameters
-      integer isp,iq,lrout,
-     .lfrce !,ndos !,numq,lekkl !,lcplxp,napw,igapw(3,napw)ndham,ndimh,
+      integer isp,iq,lfrce 
       integer nevl
       double precision def,ef0,emax,emin,qval,vconst !,wtkp(*)
       real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
@@ -192,7 +189,7 @@ c      if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
 c     .emin,emax,ndos,dos(1,1,isp)) !,esmear
 
 C ... Force from smooth analytic hamiltonian and overlap
-      if (lfrce .gt. 0 .and. lrout .gt. 0) then
+      if (lfrce .gt. 0 ) then
         call rxx(nspc.ne.1,'forces not implemented in noncoll case')
         vavg = vconst
 c        print *, '!! avg=1=smpot=1'; vavg=1; smpot=1 !; nevec=1
@@ -223,24 +220,24 @@ C        enddo
       endif
 
 C ... Add to smooth density
-      if (lrout .gt. 0) then
-        call rsibl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
+c      if (lrout .gt. 0) then
+      call rsibl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .   iq , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
 C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
-      endif
+c      endif
 C      print *, 'after rsibl'
 C      do  i = 1, 3
 C        print 543, f(:,i)
 C      enddo
 
 C ... Add to local density coefficients
-      if (lrout .gt. 0) then
-        call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
+c      if (lrout .gt. 0) then
+      call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .        ndham , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-      endif
+c      endif
 C ... Weights for spin moments
       if (lswtk>0 .and. nspc==2) then
           allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))

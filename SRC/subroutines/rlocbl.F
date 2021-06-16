@@ -1,4 +1,3 @@
-c#define USEOPTIONAL
       module m_prlcb
       contains
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
@@ -159,8 +158,6 @@ C ----------------------------------------------------------------------
       use m_prlcb,only:   prlcb2,prlcb3
       use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
       use m_lattic,only: lat_qlat
-
-
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -316,8 +313,7 @@ C ... Find maximum sizes needed to allocate strux; allocate them
         OPPIHP => sv_p_oppi(2,ia)%v 
         OSIGHP => sv_p_osig(2,ia)%v 
 C   --- Strux to expand all orbitals and their gradients at site ia ---
-        call bstrux ( 1 ,  ssite , sspec ,rv_a_ocg , iv_a_oidxcg !slat ,
-     .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+        call bstrux ( 1 , ia , pa , rsma , q , 
      .      kmax , nlma , ndimh , napw , igvapw , w_ob , w_odb )
 C   --- Loop over eigenstates ---
 C       In noncollinear case, isp=1 always => need internal ispc=1..2

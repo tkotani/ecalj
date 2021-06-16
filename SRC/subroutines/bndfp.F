@@ -15,10 +15,10 @@
 !o   frc:    force in m_mkrout
 !i  vorb --> use m_ldau in m_mkpot
       module m_bndfp
-      use m_density,only: orhoat,osmrho  !i/o unprotected: input and output
-      real(8),protected:: ham_ehf, ham_ehk      !output
-      real(8),protected:: eferm, qdiff          !output 
-!!      
+      use m_density,only: orhoat,osmrho     !input/output unprotected
+      real(8),protected:: ham_ehf, ham_ehk  !output
+      real(8),protected:: eferm, qdiff      !output 
+!! other ouput are in modules m_mkpot, m_bandcal       
       logical,private:: binit=.true.,initd=.true.
       contains
       
@@ -55,7 +55,7 @@ c     &     ,ham_ldham
       use m_lmfgw,only: m_lmfgw_init,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
-     o  , ppnl_rv , hab_rv , vab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
+     o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
@@ -65,7 +65,6 @@ c     &     ,ham_ldham
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
-c      use m_bzintegration,only: m_bzintegration_init
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
 Ci   nbas  : size of basis
@@ -81,7 +80,7 @@ Ci   ndham :dimensioning parameter, at least as large as largest
 Ci         :hamiltonian dimension
 Ci   leks  :>0 make the Hohnberg-Kohn-Sham energy
 Ci         :>1 use the HKS forces
-Ci   lrout :>0 generate output density and attendant quantities
+Ci   lrout : =1 generate output density and attendant quantities, =0 do not
 Ci   lfrce : 0 suppress generation of forces
 Ci   lpnu=1  : =1 means new pnu's
 Ci   dmxp  :vector of mixing parameters; see mixrho.f for dmxp(1..25)
@@ -113,7 +112,7 @@ Cr   (4) evaluate hf (and KS, if leks) energy by BZ integration
 Cr   (5) mixrho the output density to make a new input density.
 Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       implicit none
-      logical :: llmfgw
+      
       include "mpif.h"
       integer ierr, status(MPI_STATUS_SIZE)
       integer MAX_PROCS
@@ -121,146 +120,20 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       integer resultlen
       character*(MPI_MAX_PROCESSOR_NAME) name
       character*10 shortname(0:MAX_PROCS-1)
-      character*20 ext
-      character*26 datim
-      double precision starttime, endtime
-      integer obuf,oqptr
-      integer igetss,lmxh,nlmh,nelt(3),kmax !,nlma
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
-      integer nbx,iter,maxit
-      integer:: lpnu=1 
-      logical lgors,ltet,cmdopt,cmdopt0,cmdopt2
-      character strn*120,strn2*120
-      integer:: ipr , iprint , isp , jsp , ispc , isum , nglob 
-     .  , i , iq , ismidb, lrep ,  nev  , lgunit , igets , mpsord ,  isw  
-     .  , ifi , fxst ,   i1 , i2 , nfilem ,   nll, lnoxc 
-     .  , iv(10) , parg , nk1 , nk2 , nk3 , lshft(3) 
-     .  ,  mpipid !, ldham(16) !, ldim
-      integer:: os , osoptc
-      real(8) :: fh_rv(3,nbas)
-c      real(8) ,allocatable :: fes2_rv(:)
-c      complex(8) ,allocatable :: t_zv(:,:)
-      integer ,allocatable :: ips_iv(:)
-      double precision sigp(10)
-      logical:: readeferm
-      double precision esmearm,sev,efermr,
-     .  sumtv,eharris,eksham,
-     .  dosw(2),dgets !,sumev(2,3),sumqv(3,2)
-     .  ,qp(3),shftqp(3),elind,dum,evtop,
-     .  ecbot,rsrnge,xv(20),dosrng,dval !,eomin ,vrmt(nbas)
-!!    PW basis igv2x(:,:)
-      integer ,allocatable :: kv_iv(:)
-      double precision pwgmin,pwgmax
-      logical T, F
-c!!     for spin-orbit
-c      complex(8) ,allocatable :: auso_zv(:)
-c!!     for partial dos
-c      complex(8) ,allocatable :: ausp_zv(:)
-c!!     for Mulliken
-c      integer:: moddos , lsites(nbas) , ng , iomoms , nchmx , lmdim , lmxch
-c      logical:: mullwrite=.false.
-c      real(8) ,allocatable :: doswt_rv(:)
-c      integer ,allocatable :: chan_iv(:),chan0_iv(:)
-!!     for pzhev
-c      integer:: nblk,nprow,npcol,nmx
-!!     for LDA+U
-c      real(8) ,allocatable :: ausu_rv(:)
-c      double complex vorb(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-c      integer:: i_spackv, i_spacks
-c      integer ::iwdummy
-      logical :: debug=.false.  !debug is only for check write. However, it can cause error
-!for 'make check',
-!because fp/test/test.fp assumes 'something not inserted in console output'.
-c      data T /.true./ F /.false./
-c      integer,allocatable:: nevls(:,:)
-ctakao
-      integer :: ifiogw,ifiese,og,ib,ig,iorb,is,nsgrp,uspec_size,nspec
-      logical :: nexist,sigmamode,ok !, newsigmasw
-      character spid*8
-      integer :: ib1,ib2,ii,ik1,ik2,ik3,j1,j2,ikx
-      integer:: nhmax , nknknk , jx , nsp_dummy , ndimh_dummy
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) 
-      integer:: isize_hamm(3)
-      real(8):: rrr(3),rrrr
-      complex(8):: pi2i
-      real(8),allocatable:: range(:,:)!,pos(:,:)
-      integer:: j1x,j2x,ix1,ix2,ix3 !ikc(3,0:1,0:1,0:1), igshift(3,0:1,0:1,0:1),
-      integer,allocatable::igx(:,:,:,:)
-      real(8):: wgc(0:1,0:1,0:1),qpara(3)
-      real(8):: www,qmm(3),qqq(3),sumtvxxx
-      integer:: iktm,ikt,igvecc(3),nkk(3),igvecc0(3), nnspc 
-      logical::bzwtsf_bisection !noshorbz,
-      real(8):: qpx(3)          !qpo(3),
-
-      integer:: iqini,iqend
-c      complex(8),allocatable:: smrhobk(:)
-      real(8),allocatable::evl(:,:) ! evlall(:,:,:),
-      integer:: idummy
-c      real(8):: epsnevec
-      logical:: onlyonce=.true.
-      logical:: isanrg, l_dummy_isanrg,oncewrite !, savez,getz,gotosecondpass,initiqisp
-      integer:: getef, i_dummy_getef,ifig!, ndimsig
-c      integer:: n_listwf
-      integer, allocatable:: listwf(:)
-      integer:: ix99 !,nevec unused.
-      real(8)::eseavrmean
-c      logical:: mtosigmaonly
-      real(8)::scaledsigma
-c      real(8):: qsfz(3,100)
-      integer:: nqps,ii1,ii2,ii4,iq1 !, fxsts
-      logical:: lfx
-
-      integer:: unlink
-!! for mpi and mpik, parallel write
-      integer:: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
-      integer:: ifis2,ipts,ifid
-      real(8):: eee
-      logical :: tdos !,pdos
-      integer:: ifves,ifvesintatm,ifvesintloc,ispec,ifvbm,ifqbyl,il
-
-      real(8):: rydberg=13.6058d0,evll,qrmtx,qsetsum,esold, vnow
-c      integer,allocatable:: ndimhx_(:),nev_(:)
-      integer:: npri,ibas,ifiqb,ifiwv,lmxa, ifimag
-      real(8),parameter::    NULLR =-99999
-
-      integer,parameter:: noutmx=48
-      integer:: iout,nout,nlatout(3,noutmx),iapw
-      real(8)::ppin(3)
-
-      logical:: fsmode,allband !for --fermisurface for xcrysden.
-      integer:: ififm
-      real(8):: qshort(3)
-! add --fermisurface #1 #2 #3
-! only implemented for lmf-MPIK now.
-      integer:: ini,iend,nbxx,ival
-      integer:: l,m,ilm,nlma,iband,hreal,mode,nttabs
-      character*256:: sss,s222
-      character*1000::ccc
-      logical:: fullmesh,PROCARon
-
-      integer:: ntete,init,ient,nevmin,ifip,ifisyml
-      real(8):: qx(3)
-      real(8),allocatable:: wkd(:), pdosall(:,:,:)
-      character*3::charnum3
-      character*100::filenm(2)
-      real(8):: emin
-
-      logical:: writeham=.false.
+      
+      logical:: llmfgw
+      logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.  
+      logical:: fullmesh,PROCARon,writeham=.false.
+      logical:: fsmode !for --fermisurface for xcrysden.
       logical,save:: siginit=.true. 
-   
-      integer::npairmx,ikpd,ifqplist
-      integer,allocatable:: nqwgt(:,:,:)
-      real(8):: tpioa,pi=4d0*datan(1d0)
-      complex(8):: aaaa,img=(0d0,1d0)
-
-      real(8):: pnu(n0,2),pnz(n0,2),pmean,symxx(3,3),qvec(3),dee,dosi(2)
-      integer:: i_copy_size, ndummy1,ndummy2,ndummy3,ncount,nbandx,ifii
-      logical:: phispinsym,ljobgw
-      integer:: ifih,ifile_handle,nnn
-c      character*8:: charext
-      real(8):: efermxxx 
+      integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
+      integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn
+      real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
+      real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin
       real(8),allocatable:: dos_rv(:,:)
+      real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
       call tcn ('bndfp')
       if(master_mpi) write(stdo,"(a)") 'bndfp:start'
@@ -269,10 +142,9 @@ c      character*8:: charext
       tdos   = cmdopt0('--tdos')  !total dos mode or not
       fsmode = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
-      eksham    = 0d0
       ltet = ntet>0 !tetrahedron method or not
       idummy = unlink('RSEQ_ERROR')! Clean RSEQ_ERROR.
-      allocate(evl(ndhamx,nspx))
+c      allocate(evl(ndhamx,nspx))
       if(binit) then 
          eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          binit=.false.
@@ -422,8 +294,8 @@ c      character*8:: charext
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
      &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , efermxxx ,
-     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 integrated dos dos_rv
-            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dos_rv ) !derivative 'integrated dos -> DOS'
+     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dos_rv
+            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dos_rv) !derivative 'integrated dos -> DOS'
          else
             call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
@@ -445,7 +317,7 @@ c      character*8:: charext
       if(tdos) call rx0('Done tdos mode:')
       
 !! AllReduce band quantities.  
-      call m_bandcal_allreduce(lrout,lwtkb)
+      if(lrout/=0) call m_bandcal_allreduce(lwtkb)
       emin=1d9
       do iq = 1, nkp
          qp=qplist(:,iq)
@@ -458,12 +330,12 @@ c      character*8:: charext
          enddo
       enddo
       
-!! Accumurate sum of BZ 
+!! Accumurate sum in BZ for wtkb
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)
          call mpi_barrier(MPI_comm_world,ierr)
          call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
-         call m_bandcal_allreduce(lrout,lwtkb)
+         call m_bandcal_allreduce(lwtkb)
       endif
       
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
@@ -481,7 +353,7 @@ c      character*8:: charext
       if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
       call m_mkrout_init() !Get force frc, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
 !!  New boundary conditions pnu for phi and phidot
-      if (lrout/=0.and.lpnu>0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
+      if (lrout/=0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
 c$$$!! --- print out qbyl ---
 c$$$      if(master_mpi) then
 c$$$         open(newunit=ifqbyl,file='qbyl.'//trim(sname))

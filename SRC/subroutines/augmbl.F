@@ -82,23 +82,6 @@ Cu   18 May 00 Adapted from nfp augm_q.f
 Cu   1998      (DLN) parallel version for SGI
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
-#if MPI
-      include "mpif.h"
-      integer procid, master, numprocs, ierr, status(MPI_STATUS_SIZE)
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*20 ext
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      double precision starttime, endtime
-      logical mlog,cmdopt
-      integer i,lgunit
-      character*120 strn
-#endif
       integer:: mode , lcplxp , isp , ndimh , napw , igapw(3,napw), iprmb(ndimh),i_copy_size,numprocs
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
@@ -106,195 +89,69 @@ C ... Passed parameters
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
-C ... Local parameters
       integer nlmbx,nlmax,ktop0,lofb,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
       complex(8),allocatable:: b(:)
       double complex g(lofb)
-      integer:: ia , isa , kmax , lmxa , lmxha ,  nglob , nlma 
-     .    , nlmha ,  mode1 , nlmto
+      integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
+     .    , nlmb ,  mode1 , nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
       integer:: initbas, endbas
       logical:: debug=.false.
-#if MPI
-      integer, dimension(:), allocatable :: bproc
-      complex(8) ,allocatable :: h_zv(:),
-     & hbuf_zv(:),  s_zv(:), sbuf_zv(:),  hso_zv(:)
-#endif
 C--------------------------
       call tcn ('augmbl')
-#if MPI
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
-      master = 0
-      mlog = cmdopt('--mlog',6,0,strn)
-#else
-      numprocs=1
-#endif
-
-C --- Setup ---
-c      nbas  = globalvariables%nbas
-c      nkaph = globalvariables%nkaph
       mode0 = mod(mode,10)
       mode1 = mod(mode/10,10)
       nlmto = ndimh-napw
       alat=lat_alat
-c      i_copy_size=size(lat_qlat)
-c      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
       qlat=lat_qlat
       vol=lat_vol
       allocate (b(lofb*ndimh))
-C --- Loop over augmentation sites --- ---
-#if MPI
-      allocate(h_zv(abs(-ndimh*ndimh)))
-      if (-ndimh*ndimh<0) h_zv(:)=0.0d0
-
-      allocate(s_zv(abs(-ndimh*ndimh)))
-      if (-ndimh*ndimh<0) s_zv(:)=0.0d0
-
-      if (lcplxp .ne. 0) then
-        allocate(hso_zv(abs(-ndimh*ndimh)))
-        if (-ndimh*ndimh<0) hso_zv(:)=0.0d0
-
-      endif
-      allocate (bproc(0:numprocs), stat=ierr)
-      call dstrbp(nbas,numprocs,1,bproc(0))
-      initbas=bproc(procid)
-      endbas =bproc(procid+1)-1
-#else
+!! no MPI now
       initbas=1
       endbas=nbas
-#endif
-
       do  ia = initbas, endbas
-#if MPI
-        if (mlog .and. ia .eq. bproc(procid)) then
-          call gettime(datim)
-          call awrit4(' augmbl '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' starting atoms %i to %i',' ',256,lgunit(3),
-     .    procid,numprocs,bproc(procid),bproc(procid+1)-1)
-        endif
-#endif
         isa=ssite(ia)%spec
-        i_copy_size=size(ssite(ia)%pos)
-        call dcopy(i_copy_size,ssite(ia)%pos,1,pa,1)
-        lmxa=sspec(isa)%lmxa
-        lmxha=sspec(isa)%lmxb
-        kmax=sspec(isa)%kmxt
+        pa=ssite(ia)%pos
+        lmxa=sspec(isa)%lmxa !max l of augmentation
+        lmxb=sspec(isa)%lmxb !max l of basis
+        kmax=sspec(isa)%kmxt !max of radial k
         rsma=sspec(isa)%rsma
-        nlmha = (lmxha+1)**2
-        nlma  = (lmxa+1)**2
-        if (lmxa .eq. -1) goto 10
+        nlmb = (lmxb+1)**2
+        nlma = (lmxa+1)**2
+        if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-        call bstrux ( 0 ,  ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat ,
-     .      , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
-     .      kmax , nlma , ndimh , napw , igapw , b , xx )
+        call bstrux ( 0 ,  ia , pa , rsma , q , 
+     .       kmax , nlma , ndimh , napw , igapw , b , xx )
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
-#if MPI
         if (lcplxp .eq. 0) then
-          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
-     .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s_zv , h_zv )
-        else
-          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
-     .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
-     .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
-     .      , nlmto , s_zv , h_zv , hso_zv )
-        endif
-#else
-        if (lcplxp .eq. 0) then
-          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxha , nlmha 
+          call augq12 ( mode0 , ia , isp , nkaph , iprmb , lmxb , nlmb 
      .      , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s , h )
         else
-          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxha 
-     .      , nlmha , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
+          call augq2z ( mode0 , mode1 , ia , isp , nkaph , iprmb , lmxb 
+     .      , nlmb , kmax , nlma , sv_p_osig ( 3 , ia ) %v , sv_p_oppi( 3 , ia )%v 
      .      , sv_p_osig ( 2 , ia ) %v , sv_p_oppi( 2 , ia )%v , b , ndimh 
      .      , nlmto , s , h , hso )
         endif
-#endif
-        if(debug) print *,'augg 1111111'
 C   --- Add B+ sig B to S and B+ ppi B to H ---
-#if MPI
-        call augqs3 (kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s_zv )
-        if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
-          call augqp3(kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h_zv )
-        elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
-          call augq3z(mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v,b,h_zv,hso_zv)
-        endif
-#else
         call augqs3( kmax, lmxa, nlma, ndimh, isp, g, sv_p_osig( 1, ia )%v, b, s)
         if (mode0 .eq. 0 .and. lcplxp .eq. 0) then
           call augqp3( kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h )
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
           call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         endif
-#endif
         if(debug) print *,'augg 222222 ia=',ia
-   10   continue
-C ... end loop over ia
       enddo
-#if MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-      allocate(hbuf_zv(ndimh*ndimh))
-      call mpi_allreduce ( h_zv , hbuf_zv , 2 * ndimh * ndimh 
-     ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-      if (mlog) then
-        call gettime(datim)
-        call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce h ndimh=%i',' ',256,lgunit(3),
-     .  procid,numprocs,ndimh)
-      endif
-      call daxpy ( 2 * ndimh * ndimh , 1d0 , hbuf_zv , 1 , h , 1 )
-      if (allocated(hbuf_zv)) deallocate(hbuf_zv)
-      allocate(sbuf_zv(ndimh*ndimh))
-      call mpi_allreduce ( s_zv , sbuf_zv , 2 * ndimh * ndimh 
-     ., mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-      if (mlog) then
-        call gettime(datim)
-        call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce s ndimh=%i',' ',256,lgunit(3),
-     .  procid,numprocs,ndimh)
-      endif
-      call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , s , 1 )
-      if (allocated(sbuf_zv)) deallocate(sbuf_zv)
-      if (lcplxp .ne. 0) then
-        allocate(sbuf_zv(ndimh*ndimh))
-        call mpi_allreduce ( hso_zv , sbuf_zv , 2 * ndimh * ndimh 
-     .  , mpi_double_precision , mpi_sum , mpi_comm_world , ierr )
-        if (mlog) then
-          call gettime(datim)
-          call awrit3(' augmbl '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' allreduce hso ndimh=%i',' ',256,lgunit(3),
-     .    procid,numprocs,ndimh)
-        endif
-        call daxpy ( 2 * ndimh * ndimh , 1d0 , sbuf_zv , 1 , hso , 1 )
-        if (allocated(sbuf_zv)) deallocate(sbuf_zv)
-        if (allocated(hso_zv)) deallocate(hso_zv)
-      endif
-      if (allocated(s_zv)) deallocate(s_zv)
-      if (allocated(h_zv)) deallocate(h_zv)
-      deallocate(bproc, stat=ierr)
-#endif
       deallocate (b)
       call tcx ('augmbl')
       end subroutine augmbl
 
-      subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
+      subroutine augq12(mode,ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
      .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h)
 C- Add one and two-center terms to hamiltonian and overlap matrix
 C ----------------------------------------------------------------------
@@ -306,8 +163,8 @@ Ci   ia    :augmentation site about which strux are expanded
 Ci   isp   :current spin channel
 Ci   nkaph :dimensions augmentation matrices
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   nlmha :dimensions augmentation potential matrix at site a
-Ci   lmxha :dimensions sighh at site a
+Ci   nlmb :dimensions augmentation potential matrix at site a
+Ci   lmxb :dimensions sighh at site a
 Ci   kmax  :polynomial cutoff
 Ci   nlma  :augmentation L-cutoff
 Ci   sighh :augmentation head-head overlap matrix
@@ -331,11 +188,11 @@ Cu   14 Aug 02 Added overlap-only option
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer mode,ia,isp,kmax,nkaph,ndimh,nlma,lmxha,nlmha,iprmb(1)
+      integer mode,ia,isp,kmax,nkaph,ndimh,nlma,lmxb,nlmb,iprmb(1)
       integer nlmto
       double precision
-     .sighh(nkaph,nkaph,0:lmxha,1), ppihh(nkaph,nkaph,nlmha,nlmha,1),
-     .sighp(nkaph,0:kmax,0:lmxha,1),ppihp(nkaph,0:kmax,nlmha,nlma,1)
+     .sighh(nkaph,nkaph,0:lmxb,1), ppihh(nkaph,nkaph,nlmb,nlmb,1),
+     .sighp(nkaph,0:kmax,0:lmxb,1),ppihp(nkaph,0:kmax,nlmb,nlma,1)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),h(ndimh,ndimh)
 C ... Local parameters
       integer iorb,ik1,j,k,ilma,i1,i2,ilm1,ilm2,l1,n0,nkap0,jorb,ik2,l2
@@ -414,7 +271,7 @@ C     ... One-center terms
       end subroutine augq12
 
 
-      subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxha,nlmha,kmax,
+      subroutine augq2z(mode,mode1,ia,isp,nkaph,iprmb,lmxb,nlmb,kmax,
      .nlma,sighh,ppihh,sighp,ppihp,b,ndimh,nlmto,s,h,hso)
 
 C- Add one and two-center terms to h,s for complex potential
@@ -429,8 +286,8 @@ Ci   ia    :augmentation site about which strux are expanded
 Ci   isp   :current spin channel
 Ci   nkaph :dimensions augmentation matrices
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   nlmha :dimensions augmentation potential matrix at site a
-Ci   lmxha :dimensions sighh at site a
+Ci   nlmb :dimensions augmentation potential matrix at site a
+Ci   lmxb :dimensions sighh at site a
 Ci   kmax  :polynomial cutoff
 Ci   nlma  :augmentation L-cutoff
 Ci   sighh :augmentation head-head overlap matrix
@@ -469,13 +326,13 @@ Cu   14 Aug 02 Added overlap-only option
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-      integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxha,nlmha,iprmb(1),
+      integer mode,mode1,ia,isp,kmax,nkaph,nlma,lmxb,nlmb,iprmb(1),
      .ndimh,nlmto
       double precision
-     .sighh(nkaph,nkaph,0:lmxha,1),sighp(nkaph,0:kmax,0:lmxha,1)
+     .sighh(nkaph,nkaph,0:lmxb,1),sighp(nkaph,0:kmax,0:lmxb,1)
       double complex
-     .ppihh(nkaph,nkaph,nlmha,nlmha,isp+2*mode1),
-     .ppihp(nkaph,0:kmax,nlmha,nlma,isp+2*mode1)
+     .ppihh(nkaph,nkaph,nlmb,nlmb,isp+2*mode1),
+     .ppihp(nkaph,0:kmax,nlmb,nlma,isp+2*mode1)
       double complex b(0:kmax,nlma,ndimh),s(ndimh,ndimh),
      .h(ndimh,ndimh),hso(ndimh,ndimh)
 C ... Local parameters

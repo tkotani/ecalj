@@ -292,8 +292,10 @@ c      call uspecb(0,1,sspec,isa,isa,lh,rsmh,eh,nkape)
       nkape=nkapii(isa)
 C --- Make strux to expand all orbitals at site ia ---
       allocate(b_zv((kmax+1)*nlma*ndimh))
-      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 
-     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+c      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat , 
+c     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
+c     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
+      call bstrux ( 2 ,  ia , pa , rsma , q , 
      .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
 C     ksp is the current spin index in both cases:

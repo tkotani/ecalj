@@ -27,6 +27,7 @@
 !! ------------------------------------------------     
       logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
+      
       contains
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 ! Set up Hamiltonian, diagonalization
@@ -39,20 +40,16 @@
       complex(8),allocatable :: t_zv(:,:)
       integer::  pidorigin,iprint,i,ibas
       logical:: ltet,cmdopt0,dmatuinit=.true.
-      if(master_mpi) write(stdo,*)' mmmmm m_bandcal_init'
-      
+      if(master_mpi) write(stdo,*)' m_bandcal_init: start'
       sigmamode = mod(lrsig,10)/=0
       writeham= cmdopt0('--writeham')
       PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
       debug    = cmdopt0('--debugbndfp')
-c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
 !! pdos mode = PROCARon .and. fullmesh (--mkprocar and --fullmesh. See job_pdos).      
       ltet = ntet>0
-      if(plbnd==0.and.lso/=0.and.lwtkb==0)call rx('metal weights required to get orb.moment')
-      
+      if(plbnd==0.and.lso/=0.and.lwtkb==0) call rx('metal weights required to get orb.moment')
       if(lso/=0) allocate(orbtm_rv(nl,nsp,nbas)) !for spin-orbit coupling
       if(lso/=0) orbtm_rv=0d0
-      
       allocate( evlall(ndhamx,nspx,nkp))
       if(lfrce>0) then
          allocate( frcband(3,1:nbas*numq)) !force for band
@@ -116,7 +113,10 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
 !! sigmat = Sigma-Vxc is generated in a basis of ndimsig (usually MTOs only) 
 !!     ... Bloch transform sigm(RS)-sigm(k). :RS means realspace
 !! Main input  => ham_iv_a_oiaxs,ham_rv_a_ohrs
-!! Main output sene. See m_seneinterp
+!     ! Main output sene. See m_seneinterp
+
+!! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
+!! Hamm and ovlm are made from smooth part and augmentation part.           
             hamm=0d0
             ovlm=0d0
             if(lso==1) then !L.S case
@@ -133,7 +133,7 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
                  hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
-            else ! No SO or Lz.Sz case
+            else ! No SO or Lz.Sz case (spin diagonal)
               call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
@@ -158,21 +158,21 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
                 endif
             endif
              
-             allocate(t_zv(ndimhx,nmx))
+            allocate(t_zv(ndimhx,nmx))
 !! == Diagonalize Hamiltonian ==
 !! ndimhx: dimension of Hamitonian
 !! hamm:Hamiltonian, ovlm: overlap matrix
 !! t_zv:eigenfunciton. evl: eigenvalue.
 !! nmx: input, number of requested eigenvalues(functions). If nmx=0, no eigenfunctions but all eigenvalues.
 !! nev: out number of obtained eigenfvalues(funcitons)
-             call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
-             if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
+            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
+            if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
              
-             if(call_m_bandcal_2nd) then
+            if(call_m_bandcal_2nd) then
                 write(ifig) nev,nmx,ndimhx
                 write(ifig) evl(1:nev,jsp)
                 write(ifig) t_zv(1:ndimhx,1:nmx)
-             endif
+            endif
            
 !! nev: number of eigenvalues 
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
@@ -183,16 +183,16 @@ c      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh s
             endif
             
             if(plbnd==0.and.lwtkb/=-1) then !lwtkb=-1,0,1
-               if(nlibu>0.and.nev>0.and.lwtkb==0) call rx('metal weights required for LDA+U calculation')
-               if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
-               if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu) !density matrix
-               if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
+              if(nlibu>0.and.nev>0.and.lwtkb==0) call rx('metal weights required for LDA+U calculation')
+              if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
+              if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu) !density matrix
+              if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
             endif
             
             if(lrout/=0.and.lwtkb>=0) then
 c               call readindensitymodesetting() !dummy
                !Accumulate output density and sampling DOS. To make DOS when lmet=4
-               call addrbl (jsp, qp, lrout
+               call addrbl (jsp, qp 
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
@@ -206,12 +206,12 @@ c               call readindensitymodesetting() !dummy
  2010 continue                  !end of iq loop
 !! ... Average forces so net force on system is zero (APW case)
       if (pwemax>0.and.mod(pwmode,10)>0.and.lfrce/=0) then
-         do i = 1, 3
-           xv(i)=sum(frcband(i,1:nbas))/nbas
+        do i = 1, 3
+          xv(i)=sum(frcband(i,1:nbas))/nbas
         enddo
-        do  ibas= 1, nbas
-            frcband(:,ibas) = frcband(:,ibas) - xv(:)
-         enddo
+        do ibas= 1, nbas
+          frcband(:,ibas) = frcband(:,ibas) - xv(:)
+        enddo
       endif
       if(PROCARon) call m_procar_closeprocar()
       if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid
@@ -257,13 +257,13 @@ c               call readindensitymodesetting() !dummy
             if( lso/=0)            call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
             if( nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, t_zv,  dmatu)
             if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
-            if( lrout/=0 ) then
+c            if( lrout/=0 ) then
 c               call readindensitymodesetting() !dummy
-               call addrbl (jsp, qp, lrout
+               call addrbl (jsp, qp
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
-            endif     
+c            endif     
             if(allocated(t_zv)) deallocate(t_zv)
 12005    continue 
 12010 continue    
@@ -292,10 +292,10 @@ c      if (allocated(dos_rv))   deallocate(dos_rv)
       end
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 !     !  Allreduce density-related quantities
-      subroutine m_bandcal_allreduce(lrout,lwtkb)
-      integer:: lrout,nnn,ib,i,lwtkb
+      subroutine m_bandcal_allreduce(lwtkb)
+      integer:: nnn,ib,i,lwtkb
       if(debug) print *,'goto m_bandcal_allreduce'
-      if (lrout .ne. 0) then
+c      if (lrout .ne. 0) then
          nnn=size(sumqv);    call mpibc2_real(sumqv,nnn,'bndfp_sumqv') 
          nnn=size(sumev);    call mpibc2_real(sumev,nnn,'bndfp_sumev')
          nnn=size(smrho_out); call mpibc2_complex(smrho_out,nnn,'bndfp_smrho')
@@ -322,7 +322,7 @@ c         if( ndos>0 ) call mpibc2_real(dos_rv,nnn,'bndfp_dos')
          if(nlibu>0)  call mpibc2_complex(dmatu,nnn,'bndfp_dmatu') 
          if(lso/=0.and.lwtkb/=-1) nnn=size(orbtm_rv)
          if(lso/=0.and.lwtkb/=-1) call mpibc2_real(orbtm_rv,nnn,'bndfp_orbtm') 
-      endif
+c      endif
       end subroutine
       
 !!------------------------------
