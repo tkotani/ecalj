@@ -71,7 +71,7 @@ c     & laf,ibasf !,ldima,pos,natom
       complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:), rcxq(:,:,:,:)
       logical :: debug=.false. , realomega, imagomega, nolfco=.false.
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
-      integer:: i_reduction_npm, i_reduction_nwhis,  i_reduction_nmbas2
+      integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
       call MPI__consoleout('hx0fp0_sc')
@@ -90,8 +90,6 @@ c     & laf,ibasf !,ldima,pos,natom
       elseif(ixc==10011) then
          write(6,*) " OK ixc=10011 crpa mode "
          crpa=.true.
-c$$$      elseif(ixc==1011) then
-c$$$         write(6,*) 'OK ixc=1011 Add W0W0I part at q=0'
       else
          write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
          call Rx( 'error: give allowed arg for hx0fp0_sc.')
@@ -241,10 +239,10 @@ c$$$      endif
         endif
 !! Reduction rcxq in the Spin-axis
         write(6,*) 'MPI__AllreduceSumS start'
-        do i_reduction_npm=1,npm
-        do i_reduction_nwhis=1,nwhis
-        do i_reduction_nmbas2=1,nmbas2
-          call MPI__AllreduceSumS( rcxq(1,i_reduction_nmbas2,i_reduction_nwhis,i_reduction_npm), nmbas1)
+        do i_red_npm=1,npm
+        do i_red_nwhis=1,nwhis
+        do i_red_nmbas2=1,nmbas2
+          call MPI__AllreduceSumS( rcxq(1,i_red_nmbas2,i_red_nwhis,i_red_npm), nmbas1)
         enddo
         enddo
         enddo
@@ -286,8 +284,7 @@ c$$$      endif
       write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
       call cputid(0)
       if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
-      if(ixc==10011  ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
-c$$$      if(ixc==1011) call rx0( ' OK! hx0fp0_sc ixc=1011 W0W0Ionly mode')
+      if(ixc==10011  ) call rx0( ' OK! hx0fp0_sc ixc=10011 Sergey F. mode')
       end program hx0fp0_sc 
 
 

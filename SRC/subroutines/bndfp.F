@@ -355,15 +355,7 @@ c      allocate(evl(ndhamx,nspx))
 !!  New boundary conditions pnu for phi and phidot
       if (lrout/=0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
 c$$$!! --- print out qbyl ---
-c$$$      if(master_mpi) then
-c$$$         open(newunit=ifqbyl,file='qbyl.'//trim(sname))
-c$$$         write(ifqbyl,"(i5)")nbas
-c$$$         do  ib = 1, nbas
-c$$$           ispec=ssite(ib)%spec
-c$$$           write(ifqbyl,"(i4, i3,i2,10f12.6)")ib, ispec, sspec(ispec)%lmxa, (sum(qbyl_rv(il,1:nsp,ib)),il=1,sspec(ispec)%lmxa+1)
-c$$$         enddo  
-c$$$         close(ifqbyl)
-c$$$      endif
+c$$$      if(master_mpi) call writeqpyl()
 !! Evaluate Harris energy ---
       call mkehkf(1,sev,sumtv,eharris)
 c      amom=sumqv(2,1)           !valence only magnetic moment.
@@ -407,56 +399,23 @@ c      amom=sumqv(2,1)           !valence only magnetic moment.
       call m_bandcal_clean()
       call tcx('bndfp')
       end subroutine bndfp
-      end module m_bndfp
 
-      
-#if MPIK
-      subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
-C- Collect eb from various processors (MPI)
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   kpproc
-Ci   ndham :leading dimension of eb
-Ci   nkp   :number of irreducible k-points (bzmesh.f)
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   eb    :energy bands; alias eband
-Co Outputs
-C ----------------------------------------------------------------------
-      implicit none
-      include "mpif.h"
-      integer kpproc(0:*),ndham,nkp,nsp
-      double precision eb(ndham,*)
-      integer i,ista,iend
-      integer procid,master
-      integer numprocs, ierr
-      integer, dimension(:),allocatable :: offset,length
-      real(8) ,allocatable :: buf_rv(:)
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      allocate (offset(0:numprocs), stat=ierr)
-      allocate (length(0:numprocs), stat=ierr)
-      offset(0) = 0
-      do  i = 0, numprocs-1
-        ista = kpproc(i)
-        iend = kpproc(i+1)-1
-        length(i) = (iend - ista + 1)*nsp*ndham
-        offset(i+1) = offset(i) + length(i)
-      enddo
-      ista = kpproc(procid)
-      allocate(buf_rv(ndham*nkp*nsp))
-#ifdef KINODEBUG
-      write(*,*)'kino allocate bug_rv',ndham*nkp*nsp
-#endif
-      call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
-     .( procid ) , mpi_double_precision , buf_rv , length , offset 
-     ., mpi_double_precision , mpi_comm_world , ierr )
-      call dcopy ( ndham * nsp * nkp , buf_rv , 1 , eb , 1 )
-      if (allocated(buf_rv)) deallocate(buf_rv)
-      deallocate(offset, stat=ierr)
-      deallocate(length, stat=ierr)
-      end subroutine xmpbnd
-#endif
 
+      subroutine writeqpyl()
+      use m_ext,only: sname
+      use m_lmfinit,only:nbas,ssite=>v_ssite,sspec=>v_sspec,nsp
+      use m_mkrout,only: qbyl_rv
+      integer::ib,ispec,ifqbyl,il
+      open(newunit=ifqbyl,file='qbyl.'//trim(sname))
+      write(ifqbyl,"(i5)") nbas
+      do  ib = 1, nbas
+         ispec=ssite(ib)%spec
+         write(ifqbyl,"(i4, i3,i2,10f12.6)")
+     &   ib,ispec,sspec(ispec)%lmxa,( sum(qbyl_rv(il,1:nsp,ib)), il=1,sspec(ispec)%lmxa+1)
+      enddo  
+      close(ifqbyl)
+      end
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
       subroutine readindensitymodesetting()
 !! If necessary, need to recover this but it should be much simpler.
 !! By chaningt wtkb, this will give density for given iq ib.
@@ -496,3 +455,51 @@ c$$$            enddo
 c$$$         endif
 c$$$      endif   
       end
+
+      end module m_bndfp
+
+      
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+#if MPIK
+      subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
+C- Collect eb from various processors (MPI)
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   kpproc
+Ci   ndham :leading dimension of eb
+Ci   nkp   :number of irreducible k-points (bzmesh.f)
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   eb    :energy bands; alias eband
+Co Outputs
+C ----------------------------------------------------------------------
+      implicit none
+      include "mpif.h"
+      integer kpproc(0:*),ndham,nkp,nsp
+      double precision eb(ndham,*)
+      integer i,ista,iend
+      integer procid,master
+      integer numprocs, ierr
+      integer, dimension(:),allocatable :: offset,length
+      real(8) ,allocatable :: buf_rv(:)
+      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
+      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
+      allocate (offset(0:numprocs), stat=ierr)
+      allocate (length(0:numprocs), stat=ierr)
+      offset(0) = 0
+      do  i = 0, numprocs-1
+        ista = kpproc(i)
+        iend = kpproc(i+1)-1
+        length(i) = (iend - ista + 1)*nsp*ndham
+        offset(i+1) = offset(i) + length(i)
+      enddo
+      ista = kpproc(procid)
+      allocate(buf_rv(ndham*nkp*nsp))
+      call mpi_allgatherv ( eb ( 1 , 1 + nsp * ( ista - 1 ) ) , length 
+     .( procid ) , mpi_double_precision , buf_rv , length , offset 
+     ., mpi_double_precision , mpi_comm_world , ierr )
+      call dcopy ( ndham * nsp * nkp , buf_rv , 1 , eb , 1 )
+      if (allocated(buf_rv)) deallocate(buf_rv)
+      deallocate(offset, stat=ierr)
+      deallocate(length, stat=ierr)
+      end subroutine xmpbnd
+#endif
