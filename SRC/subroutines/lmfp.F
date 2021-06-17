@@ -1,7 +1,7 @@
       subroutine lmfp(llmfgw)
       use m_lmfinit,only: irs1,irs2,lhf,bz_nevmx,bz_lmet, irs1x10, 
      &     ctrl_mdprm,ctrl_maxit,nbas,nl,nspec,nsp,
-     &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_quit,ctrl_tol,
+     &     qbg=>zbak,ctrl_ldos,ctrl_nitmv,ctrl_nvario,ctrl_tol,
      &     ham_seref,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
      &     sspec=>v_sspec, ssite=>v_ssite, 
@@ -58,7 +58,7 @@ c      use m_uspecb,only:uspecb
       real(8):: seref,etot(2),qtol,etol
       integer, allocatable :: indrx_iv(:,:) ! for relaxation
       real(8), allocatable :: pos_move(:,:),  ftot_rv(:), wk_rv(:), p_rv(:),w_rv(:)
-      real(8), allocatable :: rv_a_omad (:) !   Madelung matrix if necessary
+      real(8), allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
 c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       integer,parameter:: nm=3
       character(512):: aaachar
@@ -119,7 +119,7 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       if(writeham) call m_writeham_init()
       if(writeham) call m_writeham_write()
       
-      if( ctrl_quit==8 ) call rx0('quit = ham')
+      if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
       if (lrout == 0 .and. ctrl_lfrce /= 0) then
         write(stdo,"(a)") 'Error: output density required when forces sought.\n'//
      &              '      To make output density turn off HF=t and/or NEVMX<0'
@@ -133,7 +133,7 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       if (lrout == 0 ) maxit = 1
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
-      if(nlibu>0.and.ctrl_quit==16 ) call rx0('quit = dmat')
+      if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
 !!=== NOTE: shear mode is currently commented out.
 !!   (probably shear mode should be recovered outside of fortran).
       if(.false.) then 
@@ -211,13 +211,13 @@ C    +10 -> invoke smshft(1) after file read.
                aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
                write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
                endif
-               call bndfp(iter, llmfgw) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
+               call bndfp(iter, llmfgw, plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif
 !! Check convergence of dmatu (density matrix for LDA+U) and update it. Get vorbdmat (U potential)
             if(nlibu>0.and.lrout>0) call m_ldau_vorbset(ham_ehk,dmatu) !set new vorb from dmat by bndfp-mkpot
 !   Things for --density (plot density) are in locpot.F(rho1mt and rho2mt) and mkpot.F(smooth part).
 !! Write restart file (skip if --quit=band) ---
-            if(master_mpi .and. ctrl_quit/=4) then
+            if(master_mpi .and. (.not.cmdopt0('--quit=band'))) then
                if(irs2>0 .and. (lrout>0.or.maxit==0)) then ! .and. irlxsh==0) then
                   lbin = irs2/=2
                   ifi = ifile_handle() 
@@ -253,7 +253,7 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
                if (iter .ge. maxit) lsc = 1
                if (iter .lt. maxit) lsc = 3
             endif
-            if( ctrl_quit==4 ) call rx0 ( 'lmf : exit (--quit=band)' )
+            if( cmdopt0('--quit=band')) call rx0('lmf-MPIK : exit (--quit=band)')
             if( lsc <= 2) exit  !self-consistency exit
  1000    continue               ! ---------------- SCF (iteration) loop end ----
          if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)

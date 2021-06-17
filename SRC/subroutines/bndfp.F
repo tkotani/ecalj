@@ -28,7 +28,9 @@
       binit=.false.
       end
       
-      subroutine bndfp(iter, llmfgw)
+      subroutine bndfp(iter, llmfgw, plbnd)
+! llmfgw=T is for generating eigenfunctions for GW calculations, no iteration.
+! plbnd/=0 means band plot mode. no iteration.      
 !     ! All read only in bndfp. Data are stored in modules such as m_bandcal, m_mkpot
 !     ! For example,, rightafter call m_bandcal_init, we can get evalall, which is used in other modules.
       use m_supot,only: ngabc=>lat_nabc,k1,k2,k3 !for charge mesh
@@ -41,7 +43,7 @@
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
 c     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
-     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,plbnd,leks,lrout
+     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,leks,lrout
      &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
 c     &     ,ham_ldham
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
@@ -64,7 +66,7 @@ c     &     ,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
-     o     evlall,smrho_out,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
+     o     evlall,smrho_out,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
 Ci   nbas  : size of basis
@@ -122,7 +124,8 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       character*10 shortname(0:MAX_PROCS-1)
       integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
-      
+
+      integer:: plbnd
       logical:: llmfgw
       logical:: ltet,cmdopt0,sigmamode,tdos,debug=.false.  
       logical:: fullmesh,PROCARon,writeham=.false.
@@ -131,7 +134,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
       integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn
       real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
-      real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin
+      real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
       real(8),allocatable:: dos_rv(:,:)
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
@@ -143,12 +146,22 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       fsmode = cmdopt0('--fermisurface')! Fermi surfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
       ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
       ltet = ntet>0 !tetrahedron method or not
-      idummy = unlink('RSEQ_ERROR')! Clean RSEQ_ERROR.
-c      allocate(evl(ndhamx,nspx))
+      idummy = unlink('RSEQ_ERROR') ! Clean RSEQ_ERROR.
+      
+!! FermiEnergy eferm is from ctrl.*, rst.* or efermi.lmf.
       if(binit) then 
          eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          binit=.false.
       endif
+!  Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
+!  different number of k points. For example, you may change NKABC, and run job_pdos.
+      if(plbnd/=0) then
+         open(newunit=ifi,file='efermi.lmf')
+         read(ifi,*) eferm
+         close(ifi)             
+         call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
+      endif
+      
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
       if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
@@ -159,6 +172,7 @@ c      allocate(evl(ndhamx,nspx))
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
                                 !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
 !! Setup for wtkb for BZ integration.
 !! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
       call m_subzi_init(lrout>0)
@@ -170,14 +184,6 @@ c      allocate(evl(ndhamx,nspx))
          if (lrout == 0) call rx('bndfp: need output density for cls')
          call m_clsmode_init()
       endif
-! Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
-! different number of k points. For example, you may change NKABC, and run job_pdos.
-      if(plbnd/=0) then
-         open(newunit=ifi,file='efermi.lmf')
-         read(ifi,*) eferm
-         close(ifi)             
-         call mpibc1(eferm,1,4,.false.,'bndfp','eferm')
-      endif     
 !! === \Sigma-Vxc to ham_rv_a_ohrs. Neighbor table ham_iv_a_oiaxs ====
 !! ndimsig is the dimension of the self-energy. 
 !! ndimsig = ldim means we use only projection onto MTO spaces even when PMT. !aug2012takao
@@ -217,7 +223,7 @@ c      allocate(evl(ndhamx,nspx))
 ! lwtkb=0 no weight
 ! lwtkb=-1      
       if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-      call m_bandcal_init(iqini,iqend,lrout, eferm,ifih,lwtkb) 
+      call m_bandcal_init(iqini,iqend,lrout,eferm,ifih,lwtkb) !All input. get evlall
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
@@ -250,24 +256,24 @@ c      allocate(evl(ndhamx,nspx))
       if(fullmesh.and.procaron) call m_procar_writepdos(evlall,nev_,eferm,kpproc)
       if(fullmesh.and.procaron) call rx0('Done pdos: --mkprocar & --fullmesh. Check by "grep k-point PROCAR.*.*"')
 !! boltztrap data 
-      if( cmdopt0('--boltztrap')) call writeboltztrap()
+      if( cmdopt0('--boltztrap')) call writeboltztrap(eferm)
       if( cmdopt0('--boltztrap')) call rx0('Done boltztrap: boltztrap.* are generated')
 !! Write bands in bands-plotting case: loop over qp getting evals from array ===
-      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(ndhamx,nspx,nkp,evlall,qplist,eferm)
+      if(plbnd/=0.and.master_mpi.and.fsmode) call writefs(eferm) !fermi surface
       if(plbnd/=0.and.master_mpi) then
          write(stdo,*)' Writing bands to bands file ...'
          if(nsyml/=0) call writeband(eferm,evtop,ecbot)
       endif
       if(plbnd/=0.and.fsmom/=NULLR) then
-         write(stdo,"(a)")'Caution: fsmom(fixed moment on). In sc cycle, we use additional bias mag. field  '
-         write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
+       write(stdo,"(a)")'Caution: fsmom(fixed moment). In sc cycle, we use additional bias mag field  '
+       write(stdo,"(a)")'Caution: Mag.field is written in MagField. But it is not used for --band mode!'
       endif
       if(plbnd/=0.and.fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
       if(plbnd/=0)            call rx0('plot band mode done')
 !! end of band plbnd/=0, that is, band plot mode.
       
 !! New eferm and wtkb determined from evlall 
-      call m_subzi_bzintegration(evlall,swtk,  eferm,sev,sumqv,vnow) !Get eferm, and wtkb...
+      call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm, and wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
       if(lmet==0.and. master_mpi)
      &     write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
@@ -276,11 +282,10 @@ c      allocate(evl(ndhamx,nspx))
          write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
          write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-         write(ifi,"(d24.16,d24.16 ' # number of electrons qval-qbg, qbg=')") qval-qbg,qbg
-         write(ifi,"(d24.16, ' # mag. mom (nup-ndown)=')") sumqv(2,1) 
+         write(ifi,"(d24.16,d24.16 ' #before: number of electrons at sites qval, qbg=')") qval,qbg
+         write(ifi,"(d24.16, ' #band: charge(nup+nspin), mag.mom(nup-ndown)=')")qvalm(1), qvalm(2)
          write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
-         write(ifi,"('# NOTE: These valuse are overwritten by lmf(-MPIK) in SC loop')")
-         write(ifi,"('# NOTE: Not by band plot mode')")
+         write(ifi,"('# NOTE: This file is overwritten by lmf-MPIK SC loop')")
          close(ifi)             
       endif
       
@@ -358,7 +363,6 @@ c$$$!! --- print out qbyl ---
 c$$$      if(master_mpi) call writeqpyl()
 !! Evaluate Harris energy ---
       call mkehkf(1,sev,sumtv,eharris)
-c      amom=sumqv(2,1)           !valence only magnetic moment.
 !     If necessary, we need to use core as valence or something else.
 !      (note: we now use NonMagneticCORE mode as default)
 !! Evaluate KS total energy, correction to Harris force ---

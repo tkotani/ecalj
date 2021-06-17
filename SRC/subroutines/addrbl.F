@@ -1,6 +1,4 @@
-C     SFCPP#define F90 1
       module m_addrbl
-c      use m_subzi, only: swtk=>rv_a_oswtk
       real(8),allocatable:: swtk(:,:,:)
       
       contains
@@ -17,9 +15,9 @@ c      use m_subzi, only: swtk=>rv_a_oswtk
       use m_struc_def 
       use m_suham,only: 
      &     ndham=>ham_ndham,ndhamx=>ham_ndhamx,nspx=>ham_nspx
-      use m_lmfinit,only:lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
+      use m_lmfinit,only:alat=>lat_alat,nbas, ssite=>v_ssite,sspec=>v_sspec,nsp,nspc,lmet=>bz_lmet,lekkl,lcplxp,
      &     zbak !,ldos=>ctrl_ldos!,bz_dosw
-      use m_lattic,only: lat_qlat, lat_vol
+      use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
       use m_lmfinit,only: iprmb,ham_ldham 
@@ -58,7 +56,7 @@ Ci   ldos  :if nonzero, accumulate density-of-states
 Ci   k1,k2,k3 dimensions of smpot,smrho
 Ci   smpot :smooth potential on uniform mesh (mkpot.f), for forces
 Ci   vconst:additional constant potential
-Co   numq  :number of Fermi levels. Usu. 1, but numq=3 if lmet=4
+Co   numq=1  :number of Fermi levels. Usu. 1, but numq=3 if lmet=4
 Ci   qval  :total valence charge
 Ci   evec  :eigenvectors
 Ci   evl   :eigenvalues
@@ -98,48 +96,27 @@ Cu   17 Jun 00 spin polarized
 Cu   22 May 00 Adapted from nfp add_densw.f
 C ----------------------------------------------------------------------
       implicit none
-C ... Passed parameters
       integer isp,iq,lfrce 
       integer nevl
-      double precision def,ef0,emax,emin,qval,vconst !,wtkp(*)
+      double precision def,ef0,emax,emin,qval,vconst 
       real(8):: q(3), evl(ndham,nsp), sumev(2,3), sumqv(3,2), f(3,*)
-!     !dos(ndos,2,isp) !wtkb(ndham,nsp,1) , swtk(ndham,nsp,1) ,
-c      type(s_site)::ssite(*)
-c      type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-c      type(s_ham)::sham
       type(s_rv1) :: sv_p_oppi(3,1)
       type(s_rv1) :: sv_p_otau(3,1)
       type(s_rv1) :: sv_p_osig(3,1)
       type(s_rv1) :: sv_p_oeqkkl(3,1)
       type(s_rv1) :: sv_p_oqkkl(3,1)
-      double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),
-     .smpot(k1,k2,k3,isp)
-C ... Local parameters
-      integer:: i , k , nevec , nglob , ngabc(3) , n1 , n2 , 
-     . n3 ,  lmxax , lmxa , nlmax , nlmto , ig !ndimhx ,
-      double precision vavg,wgt,alat,qlat(3,3),tpiba,vol
-      equivalence (n1,ngabc(1)),(n2,ngabc(2)),(n3,ngabc(3))
+      double complex evec(ndimh,nspc,ndimh,nspc),smrho(k1,k2,k3,isp),smpot(k1,k2,k3,isp)
+      integer:: i , k , nevec , lmxax , lmxa , nlmax , nlmto , ig 
+      double precision vavg,wgt,tpiba
       integer ipiv(ndimh*2),i_copy_size
       complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
       double precision ewgt(ndimh*nspc*numq),epsnevec
 
       qval= qval_- zbak 
-c      emin=bz_dosw(1)
-c      emax=bz_dosw(2)
-      
       if (lwtkb .lt. 0) return
       call tcn('addrbl')
       nlmto = ndimh-napw
-c      ndimhx = ndimh*nspc
-      i_copy_size=size(lat_nabc)
-      call icopy(i_copy_size,lat_nabc,1,ngabc,1)
-C     Setup for PW part of basis
-      alat=lat_alat
-      i_copy_size=size(lat_qlat)
-      call dcopy(i_copy_size,lat_qlat,1,qlat,1)
-C     Find largest lmxa ... should be made elsewhere
       lmxax = -1
       do  i = 1, nbas
         k=ssite(i)%spec
@@ -147,24 +124,16 @@ C     Find largest lmxa ... should be made elsewhere
         lmxax = max(lmxax,lmxa)
       enddo
       nlmax=(lmxax+1)**2
-CSFCPP#if F90
-      if (napw .gt. 0) then
+      if (napw>0) then
         allocate(ylv(napw,nlmax),qpgv(3,napw),qpg2v(napw))
         tpiba = 2d0*4d0*datan(1d0)/alat
         do  ig = 1, napw
           qpgv(:,ig) = tpiba * ( q + matmul(qlat,igapw(:,ig)) )
         enddo
-        call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw),
-     .  lmxax,napw,ylv,qpg2v)
+        call ropyln(napw,qpgv(1,1:napw),qpgv(2,1:napw),qpgv(3,1:napw), lmxax,napw,ylv,qpg2v)
       else
         allocate(ylv(1,1),qpgv(1,1),qpg2v(1))
       endif
-CSFCPP#else
-CSFCPP      if (napw .gt. 0) then
-CSFCPP        call rx('require F90 for PW code')
-CSFCPP      endif
-CSFCPP#endif
-
 C --- Decide how many states to include and make their weights ---
 C ... Case band weights not passed: make sampling weights
       if (lwtkb .eq. 0) then
@@ -183,11 +152,6 @@ C ... Case band weights are passed
    10   continue
    12   continue
       endif
-
-C ... Add to sampling dos
-c      if (ldos .eq. 1) call addsds(nevl,evl(1,isp),abs(wtkp(iq))/nsp,
-c     .emin,emax,ndos,dos(1,1,isp)) !,esmear
-
 C ... Force from smooth analytic hamiltonian and overlap
       if (lfrce .gt. 0 ) then
         call rxx(nspc.ne.1,'forces not implemented in noncoll case')
@@ -195,49 +159,26 @@ C ... Force from smooth analytic hamiltonian and overlap
 c        print *, '!! avg=1=smpot=1'; vavg=1; smpot=1 !; nevec=1
 C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
-
-        if (nlmto .gt. 0) then
+        if (nlmto>0) then
           call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh , !slat ,
      .     nlmto , iprmb , numq , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f )
         endif
-C        print *, 'after fsmbl'
-C        do  i = 1, 3
-C          print 543, f(:,i)
-C  543     format(1p3e15.7)
-C        enddo
-
-        if (napw .gt. 0) then
-          vol=lat_vol
+        if (napw>0) then
           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iprmb 
      .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
-C        print *, 'after fsmblpw'
-C        do  i = 1, 3
-C          print 543, f(:,i)
-C        enddo
         endif
       endif
-
 C ... Add to smooth density
-c      if (lrout .gt. 0) then
       call rsibl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .   iq , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
-C       call zprm3('smrho after rsibl',0,smrho,k1,k2,k3)
-c      endif
-C      print *, 'after rsibl'
-C      do  i = 1, 3
-C        print 543, f(:,i)
-C      enddo
-
 C ... Add to local density coefficients
-c      if (lrout .gt. 0) then
       call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
      .        ndham , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
-c      endif
 C ... Weights for spin moments
       if (lswtk>0 .and. nspc==2) then
           allocate(evecc(ndimh,2,ndimh,2),work(ndimh,2,ndimh,2))

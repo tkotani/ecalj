@@ -6,7 +6,7 @@
       contains
 !! LDA+U initialization
       subroutine m_ldau_init()
-      use m_lmfinit,only: nlibu,nsp,lmaxu,ctrl_quit,lmaxu,nsp,nlibu
+      use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
       integer:: i,idmatu
       idmatu=nsp*nlibu*(lmaxu*2+1)**2
       if(init) then
@@ -19,7 +19,7 @@
 !! vorb LDA+U mixing
       subroutine m_ldau_vorbset(eks,dmatu)
       use m_chkdmu,only: Chkdmu
-      use m_lmfinit,only: nlibu,nsp,lmaxu,ctrl_quit,lmaxu,nsp,nlibu
+      use m_lmfinit,only: nlibu,nsp,lmaxu,lmaxu,nsp,nlibu
       complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
       real(8):: eks
       call chkdmu(eks,dmatu, dmato, vorb)

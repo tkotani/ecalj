@@ -35,7 +35,7 @@ Ci          functions are less than tol.
       integer,protected:: nspc,stdo,stdl,procid,nproc,master=0,nspx,
      &     ctrl_lxcf,ctrl_nbas,ctrl_lfp,ctrl_lrel,ctrl_lves, 
      &     ctrl_maxit ,ctrl_modep(3),ctrl_nl,ctrl_nesabc(3),ctrl_nitmv,ctrl_nspin,
-     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat,ctrl_quit
+     &     ctrl_nspec,ctrl_nsite,ctrl_nvario,ctrl_pfloat
      &     ,ham_lxcf,gga,ftmesh(3),nmto=0,lrsigx=0
      &     ,nsp=1,lrel=1,lso=0,ham_udiag=0,ggax
       real(8),protected:: pmin(n0),pmax(n0),ham_pmax(10),ham_pmin(10),
@@ -45,7 +45,7 @@ Ci          functions are less than tol.
      &     ,ham_elind,ham_oveps,ham_rsrnge,ham_rsstol,ham_scaledsigma
      &     ,ham_delta_stabilize 
 !! ... OPTIONS
-      integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,quit,nl,lpfloat
+      integer,protected ::lves, ctrl_smalit(2),smalit(2),nesabc(3), lstonr(3)=0,nl,lpfloat
       real(8),protected:: rmines,rmaxes
       logical,protected :: lhf,lcd4
 !! ... STRUC 
@@ -549,24 +549,24 @@ C     --- Options ---
      .     nmin=3,def_i4v=(/100,100,100/),
      .     note='No. divisions when searching for empty spheres')
       outs = ' '
-      nm='OPTIONS_Q'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
-     .     note='Use Q=show, Q=atom, or Q=band to quit after '//
-     .     'input, sphere calc or band pass.'//
-     .     '%N%3fCommand-line `--quit=string'' overrides input file')
-      if (outs=='SHOW' .or. outs=='show' .or.
-     .     cmdopt('--quit=show',11,0,a)) then; quit=1
-      elseif (outs=='ATOM' .or. outs=='atom' .or.
-     .        cmdopt('--quit=atom',11,0,a)) then; quit=2
-      elseif (outs=='BAND' .or. outs=='band' .or.
-     .        cmdopt('--quit=band',11,0,a)) then; quit=4
-      elseif (outs=='HAM' .or. outs=='ham' .or.
-     .        cmdopt('--quit=ham',10,0,a)) then; quit=8
-      elseif (outs=='dmat' .or.
-     .        cmdopt('--quit=dmat',11,0,a)) then; quit=16
-      elseif (outs==' ') then
-      else
-         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
-      endif
+c$$$      nm='OPTIONS_Q'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
+c$$$     .     note='Use Q=show, Q=atom, or Q=band to quit after '//
+c$$$     .     'input, sphere calc or band pass.'//
+c$$$     .     '%N%3fCommand-line `--quit=string'' overrides input file')
+c$$$      if (outs=='SHOW' .or. outs=='show' .or.
+c$$$     .     cmdopt('--quit=show',11,0,a)) then; quit=1
+c$$$      elseif (outs=='ATOM' .or. outs=='atom' .or.
+c$$$     .        cmdopt('--quit=atom',11,0,a)) then; quit=2
+c$$$      elseif (outs=='BAND' .or. outs=='band' .or.
+c$$$     .        cmdopt('--quit=band',11,0,a)) then; quit=4
+c$$$      elseif (outs=='HAM' .or. outs=='ham' .or.
+c$$$     .        cmdopt('--quit=ham',10,0,a)) then; quit=8
+c$$$      elseif (outs=='dmat' .or.
+c$$$     .        cmdopt('--quit=dmat',11,0,a)) then; quit=16
+c$$$      elseif (outs==' ') then
+c$$$      else
+c$$$         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
+c$$$  endif
       nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
      .     def_i4=1,note=       !feb2012takao
      .     'Controls how band CG is determined in floating Pnu.'//
@@ -1735,7 +1735,7 @@ C            Add 100*k to compute response function only each kth iteration
       ctrl_nvario=nvario
       ctrl_omax1 = omax1
       ctrl_omax2 = omax2
-      ctrl_quit  = quit
+c      ctrl_quit  = quit
       ctrl_rmaxes= rmaxes
       ctrl_rmines= rmines
       ctrl_sclwsr= sclwsr
@@ -2131,12 +2131,9 @@ c      enddo
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
      
-!! Stage 3: initial setting.===================================
-!!  Show and quit
-      if( quit == 1 ) then
-        write(6,"(a)") prgnam//"Q=SHOW encountered"
-        call rx0(prgnam)
-      endif
+      if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
+      
+!! Stage 3: initial settings ===================================
 !!  Total energy mode setting
       if (cmdopt('--etot',6,0,strn)) then
         mdprm=0 !!!  No forces or dynamics
@@ -2404,8 +2401,7 @@ Cr   nspin   number of spins
 Cr   nvario  number of variables to output
 Cr   omax1   sphere overlap constraints, type 1
 Cr   omax2   sphere overlap constraints, type 2
-Cr   pfloat  stop after:  1 show  2 atom  4 bands
-Cr   quit    stop after:  1 show  2 atom  4 bands
+Cr   pfloat  =1
 Cr   rmaxes  upper limit to ES radius when finding new empty spheres
 Cr   rmines  lower limit to ES radius when finding new empty spheres
 Cr   sclwsr  scale wsr until reaching this fractional vol

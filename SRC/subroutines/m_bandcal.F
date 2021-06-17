@@ -191,7 +191,7 @@
             
             if(lrout/=0.and.lwtkb>=0) then
 c               call readindensitymodesetting() !dummy
-               !Accumulate output density and sampling DOS. To make DOS when lmet=4
+               !Accumulate output density and sampling DOS. 
                call addrbl (jsp, qp 
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
      &              , t_zv,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv

@@ -1,6 +1,6 @@
       subroutine mkewgt(lmet,wgt,qval,ndimh,evl,ef0,def,!esmear-->BZ_W and BZ_N instead,
      .     numq,nevec,ewgt,sumev,sumqv)
-      use m_lmfinit,only: bz_w,bz_n
+      use m_lmfinit,only: bz_w,bz_n,stdo
 C- State-dependent weights for sampling BZ integration.
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -24,7 +24,7 @@ Ci         :Integer part <0 => Fermi-Dirac broadening used
 Ci         :Fractional part is the temperature
 Ci         :(see delstp.f)
 Ci         :integer part above 100's digit is stripped.
-Ci   numq  :number of trial Fermi levels
+Ci   numq=1 only  :number of trial Fermi levels
 Co Outputs
 Co   nevec :number of states with nonzero weights
 Co   ewgt  :weights
@@ -47,14 +47,11 @@ C ... Passed parameters
       double precision def,ef0,qval,wgt !esmear,
       double precision evl(ndimh),ewgt(numq,1),sumev(2,3),sumqv(3)
 C ... Local parameters
-      integer stdo,lgunit,i,i1,i2,ie,iprint,iq,k,nord
+      integer i,i1,i2,ie,iprint,iq,k,nord
       double precision dn,eff,fevec,fn,sn,width,wtop,wx,x
-
-      stdo = lgunit(1)
       if (qval/2 .gt. ndimh) call fexit2(-1,111,'%N Exit -1 : MKEWGT: '
      .//'Basis with ndimh=%i is insufficient to carry q/2=%d states',
      .ndimh,qval/2)
-
 C --- Nonmetal case ---
       if (lmet .eq. 0) then
         if (numq .ne. 1) call rxi('mkewgt: nonmetal but numq=',numq)
@@ -70,33 +67,33 @@ C --- Nonmetal case ---
           sumev(2,1) = 0d0
           sumqv(1) = sumqv(1) + wgt*ewgt(1,i)
         enddo
-
 C --- Metal case: require three fermi levels ---
       else
-        if (numq .ne. 3) call rxi('mkewgt: metal but numq=',numq)
-c        width = dabs(esmear) - int(dabs(esmear))
-c        nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
-        width= abs(bz_w)
-        nord = bz_n
-        nevec = 0
-        do  ie = 1, ndimh
-          wx = 0d0
-          do  k = 1, 3
-            eff = ef0 + (k-2)*def
-            x = (evl(ie)-eff)/width
-            call delstp(nord,x,dn,fn,sn)
-            ewgt(k,ie) = fn
-            sumqv(k) = sumqv(k) + wgt*ewgt(k,ie)
-            sumev(1,k) = sumev(1,k) + wgt*ewgt(k,ie)*evl(ie)
-            sumev(2,k) = sumev(2,k) - wgt*width*sn
-            wx = dmax1(wx,dabs(ewgt(k,ie)))
-          enddo
-          if (wx .lt. 1d-8) goto 80
-C          write(stdo,268) ie,evl(ie),wx,(ewgt(k,ie),k=1,numq)
-C  268     format(i5,f10.6,d13.2,8f12.6)
-          nevec = ie
-        enddo
-  80    continue
+         if(numq/=3) call rxi('mkewgt: metal but numq=',numq)
+c$$$        if (numq .ne. 3) call rxi('mkewgt: metal but numq=',numq)
+c$$$c        width = dabs(esmear) - int(dabs(esmear))
+c$$$c        nord = dsign(1d0,esmear) * mod(int(dabs(esmear)),100)
+c$$$        width= abs(bz_w)
+c$$$        nord = bz_n
+c$$$        nevec = 0
+c$$$        do  ie = 1, ndimh
+c$$$          wx = 0d0
+c$$$          do  k = 1, 3
+c$$$            eff = ef0 + (k-2)*def
+c$$$            x = (evl(ie)-eff)/width
+c$$$            call delstp(nord,x,dn,fn,sn)
+c$$$            ewgt(k,ie) = fn
+c$$$            sumqv(k) = sumqv(k) + wgt*ewgt(k,ie)
+c$$$            sumev(1,k) = sumev(1,k) + wgt*ewgt(k,ie)*evl(ie)
+c$$$            sumev(2,k) = sumev(2,k) - wgt*width*sn
+c$$$            wx = dmax1(wx,dabs(ewgt(k,ie)))
+c$$$          enddo
+c$$$          if (wx .lt. 1d-8) goto 80
+c$$$C          write(stdo,268) ie,evl(ie),wx,(ewgt(k,ie),k=1,numq)
+c$$$C  268     format(i5,f10.6,d13.2,8f12.6)
+c$$$          nevec = ie
+c$$$        enddo
+c$$$  80    continue
       endif
 
 !! this print out is confusing because we make truncation of sigm now in fpgw/exec/hqpe_sc

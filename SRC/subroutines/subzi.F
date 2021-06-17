@@ -77,7 +77,6 @@ Cu Updates
 Cu   09 Jun 07 Setup for spin weights (noncollinear case)
 Cu   11 Oct 02 (ATP) MPI
 Cu   21 Mar 01 Added printout; argument list changed
-Cu   23 Jan 01 set numq=3 for lmet=4 always
 C ----------------------------------------------------------------------
       implicit none
       logical ltet,lwt,tdos,cmdopt0,PROCARon,fullmesh
@@ -99,7 +98,7 @@ C ----------------------------------------------------------------------
       procid = mpipid(1)
       master = 0
 c      n = isign(1,mpsord) * mod(iabs(mpsord),100)
-      numq = 1
+c      numq = 1
 c      if (lmet .eq. 4) numq = 3 !we don't allow lmet=4 
       lwtkb = 0
       if ( lmet .gt. 0 ) then

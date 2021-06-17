@@ -1,4 +1,4 @@
-      subroutine writeboltztrap()
+      subroutine writeboltztrap(eferm)
       use m_lmfinit,only: nlmax,nsp,nbas,stdo,sspec=>v_sspec,ssite=>v_ssite,nlmax,nspc,qbg=>zbak,alat=>lat_alat
       use m_suham,only: ndhamx=>ham_ndhamx,ndham=>ham_ndham
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize,procid
@@ -24,9 +24,9 @@
          nbandx=min(nbandx,ndhamx)
       endif
       
-      open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
-      read(ifi,*)  eferm
-      close(ifi)
+c      open(newunit=ifi,file='efermi.lmf') !readin fermi energy from efermi.lmf
+c      read(ifi,*)  eferm
+c      close(ifi)
       
       open(newunit=ifi,file=trim(sname)//'.intrans_template.boltztrap')
       write(ifi,"(a)")'GENE          # format '
