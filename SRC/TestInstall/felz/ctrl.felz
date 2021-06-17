@@ -23,7 +23,7 @@ CONST   gmax=13 nit=100 nmix=3 beta=0.5 conv=1d-4 convc=1d-4
 STRUC   NBAS=1 NSPEC=1 NL=5
         ALAT=a PLAT= .5 .5 .5  .5 -.5 .5  .5 .5 -.5
 % const so=0
-OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 PFLOAT=0
+OPTIONS NSPIN=2 REL=T SO={so} XCFUN=2 
 SYMGRP  i*i
 SYMGRP  find
 BZ      NKABC=nk TETRA=1 METAL=3 EF0=0.058 DELEF=0.01 N=1 W=0.02

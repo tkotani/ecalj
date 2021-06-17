@@ -1,4 +1,4 @@
-include ../Makefile.define
+#include ../Makefile.define
 
 # directroy where input/output files are saved.
 TARGET=gas_eps_lmfh

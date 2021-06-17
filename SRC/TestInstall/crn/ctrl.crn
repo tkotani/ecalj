@@ -23,7 +23,7 @@ PLOTCLS echo .25 10 0 1 | pldos -fplot -lst="1;3;5" -lst2="2;4;6" dos-cls.crn
 HEADER  CrN in orthorhombic setting afm structure (a)
 VERS    LMF-6.14 LMASA-6.14 LM:7 FP:7
 IO      SHOW=F HELP=F VERBOS=verb WKP=F
-OPTIONS NSPIN=2 REL=T PFLOAT=0
+OPTIONS NSPIN=2 REL=T 
 CONST   nk=2 nk2=2 rr=1/(2*sqrt(2))
         b=5.649096655 c=7.759189467
         v0=476.516436 vfrac=0.9815569941 v=v0*vfrac

@@ -375,7 +375,6 @@ SITE    ATOM=A POS= 0 0 0
 OPTIONS NSPIN={nsp} REL=t TPAN={tp} XCFUN=2 XCN={xcn} HF={hf}
         Q =BAND INVIT=T GRCOR={lmh} LMH={lmh} SO={so} SHARM={sharm}
         CCOR={ccor} TWOC={twoc} GAMMA={gamrep} SAVVEC={gfmod>=10} SCR={scr}
-        PFLOAT=0
 % ifdef Li | Na | K | Rb | Cs | Ba | Sr
 FIT     WVS=1 1  NFIT=2  EFIT=-.2 -1
 % endif

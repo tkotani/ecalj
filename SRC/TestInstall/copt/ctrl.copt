@@ -21,7 +21,6 @@ CLEAN   rm -f atm.copt ctrl.copt log.copt moms.copt out.lmf.copt wkp.copt spec.p
 OPTIONS NSPIN={nsp} REL=T CCOR={ccor}
         SCR={scr} TWOC={twoc} GAMMA={gamma} NSPH={nsph} HF=hf
         NONCOL={nc} SO={so}
-        PFLOAT=0
 % ifdef minx
         MSTAT: t,f,t,.001,.015 NMOVE=5
 % endif

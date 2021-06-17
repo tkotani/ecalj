@@ -29,7 +29,6 @@ STRUC     NBAS=9 NCLASS=2 NSPEC=2 ALAT=8.37
                0.00000000 0.00000000 1.43369176*4
 CONST     nit=1  nk=5 hf=f nsp=1 nkgw=4
 OPTIONS   NSPIN=nsp REL=T HF=hf ASA[ CCOR={ccor} NSPH={nsph} ]
-          PFLOAT=0
 ... For Stuttgart only
           NITATOM=20 CHARGE=F FATBAND=F AFM=F FS=F CARTESIAN=T WRIBAS=F 
           NRXC=1 NONLOC=F CORDRD=F 

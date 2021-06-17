@@ -8,7 +8,6 @@ TESTION lmfa --no-iactiv c -vzbak=1
 CLEAN   rm -f ctrl.c moms.c atm.c mixm.c rst.c save.c log.c hssn.c wkp.c bsmv.c syml.c bnds.c
 OPTIONS NSPIN=2 REL=t FRZ=0 NRMIX=2 TPAN=0 HF=hf ESP=F XCN=0 LMH=0
         XCFUN=2 FORCES=12
-        PFLOAT=0
 % ifdef minx
         MSTAT: t,f,t,.0005,.002 NMOVE=10
 % endif

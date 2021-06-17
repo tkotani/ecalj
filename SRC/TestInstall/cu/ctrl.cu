@@ -56,7 +56,6 @@ HAM     NSPIN=1 REL=t XCFUN=2
 GW      NKABC=nkgw GCUTB=2.7 GCUTX=2.2
 % const hf=f
 OPTIONS NSPIN=1 REL=t XCFUN=2 HF={hf}
-        PFLOAT=0
 BZ      NKABC=nk BZJOB=bzj W=.002 NPTS=1001 SAVDOS=t
 # Because bigbas=t is really large, use a more cautious metal treatment
 % ifdef bigbas

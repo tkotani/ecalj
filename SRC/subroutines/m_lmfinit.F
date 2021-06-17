@@ -548,30 +548,12 @@ C     --- Options ---
       nm='OPTIONS_NESABC'; call gtv(trim(nm),tksw(prgnam,nm),nesabc,
      .     nmin=3,def_i4v=(/100,100,100/),
      .     note='No. divisions when searching for empty spheres')
-      outs = ' '
-c$$$      nm='OPTIONS_Q'; call gtv(trim(nm),tksw(prgnam,nm),outs,nmin=10,
-c$$$     .     note='Use Q=show, Q=atom, or Q=band to quit after '//
-c$$$     .     'input, sphere calc or band pass.'//
-c$$$     .     '%N%3fCommand-line `--quit=string'' overrides input file')
-c$$$      if (outs=='SHOW' .or. outs=='show' .or.
-c$$$     .     cmdopt('--quit=show',11,0,a)) then; quit=1
-c$$$      elseif (outs=='ATOM' .or. outs=='atom' .or.
-c$$$     .        cmdopt('--quit=atom',11,0,a)) then; quit=2
-c$$$      elseif (outs=='BAND' .or. outs=='band' .or.
-c$$$     .        cmdopt('--quit=band',11,0,a)) then; quit=4
-c$$$      elseif (outs=='HAM' .or. outs=='ham' .or.
-c$$$     .        cmdopt('--quit=ham',10,0,a)) then; quit=8
-c$$$      elseif (outs=='dmat' .or.
-c$$$     .        cmdopt('--quit=dmat',11,0,a)) then; quit=16
-c$$$      elseif (outs==' ') then
-c$$$      else
-c$$$         call rx('OPTIONS_Q= must contain one of SHOW, ATOM, or BAND')
-c$$$  endif
-      nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
-     .     def_i4=1,note=       !feb2012takao
-     .     'Controls how band CG is determined in floating Pnu.'//
-     .     '%N%5f0 Band CG found by traditional method'//
-     .     '%N%5f1 Band CG found from true energy moment of density')
+      lpfloat=1
+c$$$      nm='OPTIONS_PFLOAT';call gtv(trim(nm),tksw(prgnam,nm),lpfloat,
+c$$$     .     def_i4=1,note=       !feb2012takao
+c$$$     .     'Controls how band CG is determined in floating Pnu.'//
+c$$$     .     '%N%5f0 Band CG found by traditional method'//
+c$$$     .     '%N%5f1 Band CG found from true energy moment of density')
 c$$$      nm='OPTIONS_SCR'; call gtv(trim(nm),tksw(prgnam,nm),lscr,
 c$$$     .     def_i4=0,note='Use scr to accelerate convergence:'//
 c$$$     .     '%N%3f0 do nothing'//

@@ -1,7 +1,16 @@
- mpi size=           1
- ---------  START LMFA  
+===START LMFA   =====================================
+ mpisize=           1
  HEADER Fe test spin pol, f-orbitals for cls and mull
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   mpipid=           0
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
+mmm rsmh1     1  1.16  1.16  1.16  1.16
+mmm   eh1     1 -0.10 -0.10 -0.10 -0.10
+mmm rsmh2    1  1.16  1.16  1.16  0.00
+mmm  eh2     1 -1.10 -1.10 -1.10  0.00
+mmm pz       1  0.00  0.00  0.00  0.00
+mmm lh       1  3  2
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -25,15 +34,8 @@ ttt: pnu qat=  2  0     4.660     0.000
 ttt: pnu qat=  2  1     4.410     0.000
 ttt: pnu qat=  2  2     3.800    -2.200
 ttt: pnu qat=  2  3     4.130     0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   1.900   1.900
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
-=== Charge for l: Qtot=Qv=     0   1.000   1.000
-=== Charge for l: Qtot=Qv=     1   0.000   0.000
-=== Charge for l: Qtot=Qv=     2   4.100   4.100
-=== Charge for l: Qtot=Qv=     3   0.000   0.000
 
+conf:------------------------------------------------------
 conf:SPEC_ATOM= Fe : --- Table for atomic configuration ---
 conf:  isp  l  int(P) int(P)z    Qval     Qcore   CoreConf
 conf:    1  0       4  0         1.000    3.000 => 1,2,3,
@@ -46,120 +48,14 @@ conf:    2  2       3  0         4.100    0.000 =>
 conf:    2  3       4  0         0.000    0.000 => 
 usedQ=     2.000     0.000     6.000     0.000
 
- Species Fe:  Z=26  Qc=18  R=2.324967  Q=0  mom=-2.2
- mesh:   rmt=2.324967  rmax=49.589065  a=0.03  nr=321  nr(rmax)=423
+conf: Species Fe:  Z=26  Qc=18  R=2.324967  Q=0  mom=-2.2
+conf:   rmt=2.324967  rmax=49.589065  a=0.03  nr=321  nr(rmax)=423
  goto atomc xxx
  atomsc nmcore=           0
 
   iter     qint         drho          vh0          rho0          vsum     beta
- >> level: 1  CPUsec=      0.03  enter newrho
- >>      0.04   exit  newrho          0.00
     1   26.000000   3.315E+03      130.0000    0.1293E+03      -52.2170   0.30
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.04  enter newrho
- >>      0.04   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.05   exit  newrho          0.00
- >> level: 1  CPUsec=      0.05  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.06   exit  newrho          0.00
- >> level: 1  CPUsec=      0.06  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.07  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.07   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.08   exit  newrho          0.00
- >> level: 1  CPUsec=      0.08  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
    52   26.000000   3.819E-05      234.0125    0.1701E+05     -160.8066   0.30
- >> level: 1  CPUsec=      0.09  enter newrho
- >>      0.09   exit  newrho          0.00
 
  end of atomsc xxxxx
  vsum=  -160.80658393632342                1
@@ -192,26 +88,34 @@ usedQ=     2.000     0.000     6.000     0.000
     rho: r>rmt  0.896639   r<rmt  4.203361   qtot  5.100000
  tailsm: end
 conf: Core rhoc(rmt)= 0.010971 spillout= 0.014702
-conf:-----------------------------------------------------
  Fit with Hankel e=-19.588292 coeff=750.846970
  end of freats: spid nmcore=Fe                 0
-Exit 0 LMFA                             on tt480s
- CPU time:    0.095s     Wed Jun  2 11:55:39 2021   on 
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.09       0.09   main
-      0      0      0       53       0.00       0.05   `--newrho
- mpi size=           2
- ---------  START LMF  
+OK! end of LMFA ======================
+===START LMF   =====================================
+ mpisize=           4
  HEADER Fe test spin pol, f-orbitals for cls and mull
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+  bndfp (warning): no sigm file found ... LDA calculation only
+  mpipid=           2
   mpipid=           0
+  mpipid=           3
+  mpipid=           1
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
+mmm rsmh1     1  1.16  1.16  1.16  1.16
+mmm   eh1     1 -0.10 -0.10 -0.10 -0.10
+mmm rsmh2    1  1.16  1.16  1.16  0.00
+mmm  eh2     1 -1.10 -1.10 -1.10  0.00
+mmm pz       1  0.00  0.00  0.00  0.00
+mmm lh       1  3  2
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
    0.500000  -0.500000   0.500000        1.000000  -1.000000   0.000000
    0.500000   0.500000  -0.500000        1.000000   0.000000  -1.000000
-  mpipid=           1
   Cell vol= 79.765082
 
  LATTC:  as= 2.000   tol=1.00E-08   alat= 5.42352   awald= 0.465
@@ -222,12 +126,11 @@ Exit 0 LMFA                             on tt480s
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
  BZMESH:  32 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.03  enter lmfp
+ >> level: 1  CPUsec=      0.02  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
-  lmfp : potential and basis setup ... 
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -235,9 +138,6 @@ Exit 0 LMFA                             on tt480s
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
-
- Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
- suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -248,18 +148,20 @@ Exit 0 LMFA                             on tt480s
   Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
   Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
+ gen_hamindex: not readin QGpsi.
 
  suham:  q-dependent PW basis with  Emin = 0 < E < 3.
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
-bndfp:start
-bndfp:start
-   Atomic Positions from rst/ctrl. 
-   Note: rst and ctrl may contain different atomic positions when DYN mode
-ib clabel pos =    1    Fe       0.00000       0.00000       0.00000
+ -------- qplist --------           0
+
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1  Fe        0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
  --- BNDFP:  begin iteration 1 of 1
+bndfp:start
 
  esmsmves
    16   16   16      2899      2899
@@ -284,7 +186,11 @@ effective screening medium method jesm=  0
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000780
+ qqx nkapi nkape=           2           2
+ qqx nkapi nkape=           2           2
+ qqx nkapi nkape=           2           2
 
  Energy terms:             smooth           local           total
    rhoval*vef             -4.927066       -86.790906       -91.717972
@@ -299,9 +205,8 @@ effective screening medium method jesm=  0
 
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- -------- qplist --------           0
  ... Start MPI k-loop ...
-  mmmmm m_bandcal_init
+  m_bandcal_init: start
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    34   25    9
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    35   25   10
@@ -318,42 +223,13 @@ effective screening medium method jesm=  0
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    31   25    6
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    31   25    6
- bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    35   25   10
- bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    32   25    7
- bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
- bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    34   25    9
- ... Done MPI k-loop: elapsed time=   0.2662
- bndfp_ndimhx_          32   7.4269852700582763E-313
- bndfp_ndimhx_          32   0.0000000000000000     
- bndfp_nev_          32   0.0000000000000000     
- bndfp_nev_          32   6.5781869534745411E-313
- bndfp_nevls          64   6.5781869534745411E-313
- bndfp_nevls          64   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_qkkl       12800   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_qkkl       12800   0.0000000000000000     
- bndfp_qkkl        5120   0.0000000000000000     
- bndfp_qkkl        5120   0.0000000000000000     
- bndfp_qkkl        2048   0.0000000000000000     
- bndfp_qkkl        2048   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
+ ... Done MPI k-loop: elapsed time=   0.1816
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008965;   8.000000 electrons
+         Sum occ. bands:   -1.285643, incl. Bloechl correction: -0.005839
+         Mag. moment:      -2.252310
+Generating TDOS: efermi, and dos window=    0.0090  -0.5000   1.5090
  bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   34   30
  bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   34   30
  bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   35   31
@@ -379,7 +255,6 @@ effective screening medium method jesm=  0
  bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 1 ndimh nev=   35   31
  bndfp: kpt   12 of   32 k isp=  0.7500  0.2500  0.7500 2 ndimh nev=   35   31
  bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 1 ndimh nev=   34   30
- bndfp_rhosig           1   0.0000000000000000     
  bndfp: kpt   13 of   32 k isp=  1.0000 -0.7500  0.0000 2 ndimh nev=   34   30
  bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 1 ndimh nev=   32   30
  bndfp: kpt   14 of   32 k isp=  1.0000 -0.5000  0.2500 2 ndimh nev=   32   30
@@ -419,46 +294,22 @@ effective screening medium method jesm=  0
  bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   32   30
  bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   32   30
  bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   32   30
-
- BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.008965;   8.000000 electrons
-         Sum occ. bands:   -1.285643, incl. Bloechl correction: -0.005839
-         Mag. moment:      -2.252310
-
- Saved qp weights ...
   mmmmm m_bandcal_2nd
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_qkkl       12800  0.12226231736364040     
- bndfp_qkkl        5120 -0.13115887186886732     
- bndfp_qkkl       12800   5.2085327766225049E-002
- bndfp_qkkl        5120  -2.3782952539010176E-002
- bndfp_qkkl        2048   4.8584655673432640E-002
- bndfp_orbtm           8   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
 
  IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
     1    Fe           1    0.000000   -0.001592   -0.070705    0.000323
     1    Fe           2    0.000000    0.001882    0.033249    0.000021
  total orbital moment   1:   -0.036822
- bndfp_qkkl        2048   1.1283168129527715E-002
- bndfp_orbtm           8   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
-... Generating total DOS
+
+ Smooth density not symmetrized (ngrp=1)
+
  mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
    1    6.977743    2.539107    4.438637     -2.298722   -0.308680   -1.990042
 
  Symmetrize density..
-
- Smooth density not symmetrized (ngrp=1)
-
 
  Make new boundary conditions for phi,phidot..
   ebar: 
@@ -471,14 +322,14 @@ effective screening medium method jesm=  0
 
  site    1   species   1:Fe      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.210034    0.028721    4.584798    4.730449    4.500000    4.730449
- spn 2 0    0.192357   -0.109053    4.550390    4.703772    4.500000    4.703772
- 1     0    0.227621   -0.219982    4.304074    4.328910    4.250000    4.328910
- spn 2 0    0.186271   -0.275368    4.281633    4.328752    4.250000    4.328752
- 2     0    1.890660   -0.319372    3.539659    3.462971    3.147584    3.462971
- spn 2 0    4.244057   -0.249529    3.816931    3.759535    3.147584    3.759535
- 3     0    0.011196   -0.565300    4.108266    4.113598    4.102416    4.113598
- spn 2 0    0.015547   -0.737287    4.104490    4.109900    4.102416    4.109900
+ 0     0    0.210034   -0.320416    4.584798    4.593127    4.500000    4.593127
+ spn 2 0    0.192357   -0.376828    4.550390    4.592967    4.500000    4.592967
+ 1     0    0.227621   -0.155047    4.304074    4.347661    4.250000    4.347661
+ spn 2 0    0.186271   -0.230380    4.281633    4.341622    4.250000    4.341622
+ 2     0    1.890660   -0.111981    3.539659    3.741543    3.147584    3.741543
+ spn 2 0    4.244057   -0.146720    3.816931    3.870705    3.147584    3.870705
+ 3     0    0.011196   -0.097838    4.108266    4.127582    4.102416    4.127582
+ spn 2 0    0.015547   -0.151032    4.104490    4.126629    4.102416    4.126629
 
  Harris energy:
  sumev=       -1.285643  val*vef=     -91.717972   sumtv=      90.432329
@@ -518,7 +369,7 @@ effective screening medium method jesm=  0
  Kohn-Sham energy:
  sumtv=       90.660138  sumtc=      2484.196936   ekin=     2574.857074
  rhoep=     -107.274027   utot=     -5008.616284   ehks=    -2541.033237
- mag. mom=     0.000000  (bands)       -2.252310  (output rho)
+ mag. mom=    -2.252310
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  mixrealsmooth= T
@@ -535,21 +386,28 @@ effective screening medium method jesm=  0
 
    it  1  of  1    ehf=   -2541.033297   ehk=   -2541.033237
 x rel=1 nit=1 so=2 pwmode=11 mmom=-2.2523103 ehf=-2541.0332967 ehk=-2541.0332367
- >>      0.79   exit  lmfp            0.76
-Exit 0 LMF                              on tt480s
- CPU time:    0.790s     Wed Jun  2 11:55:41 2021   on 
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.79       0.79   main
-      0      0      0        1       0.76       0.76   `--lmfp
-
- ---- LMF     
- mpi size=           2
- ---------  START LMF  
+ >>      0.73   exit  lmfp            0.71
+OK! end of LMF ======================
+===START LMF   =====================================
+ mpisize=           4
  HEADER Fe test spin pol, f-orbitals for cls and mull
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+ nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+  bndfp (warning): no sigm file found ... LDA calculation only
+  mpipid=           2
   mpipid=           1
+  mpipid=           3
   mpipid=           0
+mmm === MTO setting ===
+mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    2    2
+mmm rsmh1     1  1.16  1.16  1.16  1.16
+mmm   eh1     1 -0.10 -0.10 -0.10 -0.10
+mmm rsmh2    1  1.16  1.16  1.16  0.00
+mmm  eh2     1 -1.10 -1.10 -1.10  0.00
+mmm pz       1  0.00  0.00  0.00  0.00
+mmm lh       1  3  2
 
                 Plat                                  Qlat
    0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
@@ -565,12 +423,11 @@ Exit 0 LMF                              on tt480s
  MKSYM:  found 1 space group operations; adding inversion generated 2 ops
  
  BZMESH:  32 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.03  enter lmfp
+ >> level: 1  CPUsec=      0.08  enter lmfp
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  Fe       2.325  0.930    3    4         3  0.581  1.162    15    1   0.930
-  lmfp : potential and basis setup ... 
 
  MSHSIZ: mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
          generated from gmax = 13.0 a.u. : 2899 vectors of 4096 (70%)
@@ -578,9 +435,6 @@ Exit 0 LMF                              on tt480s
  GVLST2: gmax = 13.0 a.u. created 2899 vectors of 4096 (70%)
          (input) mesh has 16 x 16 x 16 divisions; length 0.294, 0.294, 0.294
  SGVSYM: 2899 symmetry stars found for 2899 reciprocal lattice vectors
-
- Makidx:  hamiltonian dimensions Low, Int, High, Negl: 25 0 7 0
- suham :  16 augmentation channels, 16 local potential channels  Maximum lmxa=3
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
  spec      l    rsm    eh     gmax    last term    cutoff
@@ -591,16 +445,18 @@ Exit 0 LMF                              on tt480s
   Fe       0*   1.16  -1.10   6.395    1.24E-06     369 
   Fe       1*   1.16  -1.10   6.825    1.36E-06     429 
   Fe       2    1.16  -1.10   7.254    1.68E-06     531 
+ gen_hamindex: not readin QGpsi.
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
-bndfp:start
-bndfp:start
-   Atomic Positions from rst/ctrl. 
-   Note: rst and ctrl may contain different atomic positions when DYN mode
-ib clabel pos =    1    Fe       0.00000       0.00000       0.00000
+ -------- qplist --------           0
+
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1  Fe        0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
  --- BNDFP:  begin iteration 1 of 1
+bndfp:start
 
  esmsmves
    16   16   16      2899      2899
@@ -625,7 +481,11 @@ effective screening medium method jesm=  0
 
  site  1  z= 26.0  rmt= 2.32497  nr=321   a=0.030  nlml=16  rg=0.581  Vfloat=T
  sm core charge = 0.687311 (sphere) + 0.014701 (spillout) = 0.702013
+ qqx nkapi nkape=           2           2
+ qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000780
+ qqx nkapi nkape=           2           2
+ qqx nkapi nkape=           2           2
 
  Energy terms:             smooth           local           total
    rhoval*vef             -4.927066       -86.790906       -91.717972
@@ -640,9 +500,8 @@ effective screening medium method jesm=  0
 
  Charges:  valence     8.00000   cores    18.00000   nucleii   -26.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- -------- qplist --------           0
  ... Start MPI k-loop ...
-  mmmmm m_bandcal_init
+  m_bandcal_init: start
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     1 of    32 k=  0.2500  0.0000  0.0000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     2 of    32 k=  0.2500  0.2500  0.2500 ndimh = nmto+napw =    25   25    0
@@ -659,43 +518,13 @@ effective screening medium method jesm=  0
  bndfp: kpt     7 of    32 k=  0.5000  0.2500  0.5000 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
  bndfp: kpt     8 of    32 k=  0.5000  0.5000  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt     9 of    32 k=  0.7500 -0.5000  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    10 of    32 k=  0.7500 -0.2500  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    11 of    32 k=  0.7500  0.0000  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    12 of    32 k=  0.7500  0.2500  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    13 of    32 k=  1.0000 -0.7500  0.0000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    14 of    32 k=  1.0000 -0.5000  0.2500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    15 of    32 k=  1.0000 -0.2500  0.5000 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
- bndfp: kpt    16 of    32 k=  1.0000  0.0000  0.7500 ndimh = nmto+napw =    25   25    0
- ... Done MPI k-loop: elapsed time=   0.2521
- bndfp_ndimhx_          32   5.3049894786483449E-313
- bndfp_ndimhx_          32   0.0000000000000000     
- bndfp_nev_          32   0.0000000000000000     
- bndfp_nevls          64   0.0000000000000000     
- bndfp_nev_          32   5.3049894786483449E-313
- bndfp_nevls          64   5.3049894786483449E-313
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_qkkl       12800   0.0000000000000000     
- bndfp_qkkl        5120   0.0000000000000000     
- bndfp_qkkl        2048   0.0000000000000000     
- bndfp_qkkl       12800   0.0000000000000000     
- bndfp_qkkl        5120   0.0000000000000000     
- bndfp_qkkl        2048   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
+ ... Done MPI k-loop: elapsed time=   0.1612
+
+ BZWTS : --- Tetrahedron Integration ---
+ BZINTS: Fermi energy:      0.008910;   8.000000 electrons
+         Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
+         Mag. moment:      -2.247982
+Generating TDOS: efermi, and dos window=    0.0089  -0.5000   1.5089
  bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 1 ndimh nev=   25   25
  bndfp: kpt    1 of   32 k isp=  0.2500  0.0000  0.0000 2 ndimh nev=   25   25
  bndfp: kpt    2 of   32 k isp=  0.2500  0.2500  0.2500 1 ndimh nev=   25   25
@@ -760,46 +589,22 @@ effective screening medium method jesm=  0
  bndfp: kpt   31 of   32 k isp=  1.2500 -0.2500  0.2500 2 ndimh nev=   25   25
  bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 1 ndimh nev=   25   25
  bndfp: kpt   32 of   32 k isp=  1.2500  0.0000  0.5000 2 ndimh nev=   25   25
-
- BZWTS : --- Tetrahedron Integration ---
- BZINTS: Fermi energy:      0.008910;   8.000000 electrons
-         Sum occ. bands:   -1.283747, incl. Bloechl correction: -0.006003
-         Mag. moment:      -2.247982
-
- Saved qp weights ...
   mmmmm m_bandcal_2nd
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumqv           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_sumev           6   0.0000000000000000     
- bndfp_smrho        8192
- bndfp_smrho        8192
- bndfp_qkkl       12800   1.7693436206825539E-002
- bndfp_qkkl        5120   9.4175743062092199E-002
- bndfp_qkkl       12800   5.5793822890941565E-003
- bndfp_qkkl        5120   1.4424644959180671E-003
- bndfp_qkkl        2048  0.91363412525797771     
- bndfp_orbtm           8   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
- bndfp_qkkl        2048  0.97483092882164324     
- bndfp_orbtm           8   0.0000000000000000     
- bndfp_rhosig           1   0.0000000000000000     
 
  IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
     1    Fe           1    0.000000   -0.001589   -0.070033    0.000331
     1    Fe           2    0.000000    0.001881    0.033205    0.000017
  total orbital moment   1:   -0.036188
-... Generating total DOS
+
+ Smooth density not symmetrized (ngrp=1)
+
  mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
    1    6.976506    2.480909    4.495598     -2.294846   -0.298406   -1.996440
 
  Symmetrize density..
-
- Smooth density not symmetrized (ngrp=1)
-
 
  Make new boundary conditions for phi,phidot..
   ebar: 
@@ -812,14 +617,14 @@ effective screening medium method jesm=  0
 
  site    1   species   1:Fe      
  l  idmod     ql         ebar        pold        ptry        pfree        pnew
- 0     0    0.210076   -0.338850    4.584798    4.584798    4.500000    4.584798
- spn 2 0    0.192292   -0.468990    4.550390    4.550390    4.500000    4.550390
- 1     0    0.227729   -0.315525    4.304074    4.304074    4.250000    4.304074
- spn 2 0    0.186129   -0.467989    4.281633    4.281633    4.250000    4.281633
- 2     0    1.891699   -0.258120    3.539659    3.539659    3.147584    3.539659
- spn 2 0    4.241537   -0.202177    3.816931    3.816931    3.147584    3.816931
- 3     0    0.011326   -0.784221    4.108266    4.108266    4.102416    4.108266
- spn 2 0    0.015718   -0.978769    4.104490    4.104490    4.102416    4.104490
+ 0     0    0.210076   -0.320270    4.584798    4.593193    4.500000    4.593193
+ spn 2 0    0.192292   -0.376896    4.550390    4.592936    4.500000    4.592936
+ 1     0    0.227729   -0.154945    4.304074    4.347691    4.250000    4.347691
+ spn 2 0    0.186129   -0.230549    4.281633    4.341572    4.250000    4.341572
+ 2     0    1.891699   -0.111523    3.539659    3.742114    3.147584    3.742114
+ spn 2 0    4.241537   -0.146526    3.816931    3.870870    3.147584    3.870870
+ 3     0    0.011326   -0.097245    4.108266    4.127603    4.102416    4.127603
+ spn 2 0    0.015718   -0.150765    4.104490    4.126639    4.102416    4.126639
 
  Harris energy:
  sumev=       -1.283747  val*vef=     -91.717972   sumtv=      90.434225
@@ -859,7 +664,7 @@ effective screening medium method jesm=  0
  Kohn-Sham energy:
  sumtv=       90.434235  sumtc=      2484.196936   ekin=     2574.631171
  rhoep=     -107.251568   utot=     -5008.411004   ehks=    -2541.031401
- mag. mom=     0.000000  (bands)       -2.247982  (output rho)
+ mag. mom=    -2.247982
   
  mixing: mode=A  nmix=6  beta=.5  elind=-1  kill=3
  mixrealsmooth= T
@@ -876,13 +681,5 @@ effective screening medium method jesm=  0
 
    it  1  of  1    ehf=   -2541.031401   ehk=   -2541.031401
 x rel=1 nit=1 so=2 mmom=-2.2479823 ehf=-2541.0314011 ehk=-2541.0314014
- >>      0.60   exit  lmfp            0.57
-Exit 0 LMF                              on tt480s
- CPU time:    0.596s     Wed Jun  2 11:55:41 2021   on 
-
-  ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
-  entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.60       0.60   main
-      0      0      0        1       0.57       0.57   `--lmfp
-
- ---- LMF     
+ >>      0.59   exit  lmfp            0.51
+OK! end of LMF ======================
