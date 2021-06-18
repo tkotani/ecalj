@@ -13,7 +13,12 @@
 !o   dmatu:   density matrix in m_bandcal
 !o   evalall: eigenvalue in m_bandcal
 !o   frc:    force in m_mkrout
-!i  vorb --> use m_ldau in m_mkpot
+!     i  vorb --> use m_ldau in m_mkpot
+!!--- key quntities --------------     
+!  evlall  : eigenvalues
+!  eferm   : Fermi energy
+!     eksham   : DFT(Kohn-Sham)  total energy
+!     eharris  : Harris foulkner total energy      
       module m_bndfp
       use m_density,only: orhoat,osmrho     !input/output unprotected
       real(8),protected:: ham_ehf, ham_ehk  !output
@@ -42,15 +47,13 @@
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
-c     &     mix_b,mix_bv,mix_w,mix_wc,mix_nsave,mix_mmix,
      &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,leks,lrout
      &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
-c     &     ,ham_ldham
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
-      use m_seneinterp,only: Sigmainit
-      use m_subzi, only: m_subzi_init, lwtkb,numq,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
+      use m_rdsigm2,only: m_rdsigm2_init
+      use m_subzi, only: m_subzi_init, lwtkb,rv_a_owtkb,m_subzi_setlwtkb,m_subzi_bzintegration
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
@@ -66,9 +69,11 @@ c     &     ,ham_ldham
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
-     o     evlall,smrho_out,sumev,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
+     o     evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
       use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
+      use m_sugw,only: m_sugw_init
+      use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -163,7 +168,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       endif
       
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz spin symmetrized      
+      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz are spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
       writeham= cmdopt0('--writeham')
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
@@ -193,13 +198,13 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       if( llmfgw.and.jobgw==0 ) then
          continue
       elseif( sigmamode.and.siginit ) then
-         call sigmainit()
+         call m_rdsigm2_init()
          siginit=.false. !this is equivalent to broad casting.
       endif              
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
-         call sugw(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
+         call m_sugw_init(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
@@ -345,9 +350,9 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       
 !! Core-level spectroscopy --- m_clsmode_set1 is called in m_bandcal
 !!    dos window
-      if (cmdopt0('--cls')) then
-         dosw(1)= emin-0.5d0    ! lowest energy limit to plot dos  
-         dosw(2)= eferm+bz_dosmax ! highest energy limit to plot dos 
+      if(cmdopt0('--cls')) then
+         dosw(1)= emin  - 0.5d0    ! lowest energy limit to plot dos  
+         dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos 
          if (master_mpi) call m_clsmode_finalize(eferm,ndimh,ndhamx,nspx,nkp,dosw,evlall)
         call rx0('Done cls mode:')
       endif
@@ -358,30 +363,30 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
       call m_mkrout_init() !Get force frc, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
 !!  New boundary conditions pnu for phi and phidot
-      if (lrout/=0) call pnunew(eferm ) !ssite%pnu ssite%pz are changed
-c$$$!! --- print out qbyl ---
-c$$$      if(master_mpi) call writeqpyl()
-!! Evaluate Harris energy ---
-      call mkehkf(1,sev,sumtv,eharris)
-!     If necessary, we need to use core as valence or something else.
-!      (note: we now use NonMagneticCORE mode as default)
-!! Evaluate KS total energy, correction to Harris force ---
+      if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
+c$$$      if(master_mpi) call writeqpyl() !if you like to print writeqbyl
+!! Evaluate Harris-foukner energy 
+      call m_mkehkf_etot1(sev, eharris)
+!    If necessary, we need to use core as valence or something else.
+!     (note: we now use NonMagneticCORE mode as default)
+      
+!! Evaluate KS total energy, and correction to Harris force ---
       if(lrout/=0) then
         elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
         if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
 !!   ... Correction to harris force
-        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,  fh_rv )
+        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,         fh_rv)
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
            call togpr()
-           call mkekin (sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
+           call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev, sumtv)
            call m_mkpot_energyterms(smrho_out, orhoat_out)
            if(cmdopt0('--density')) then
               call mpi_barrier(MPI_comm_world,ierr)  
               call rx0('end of --density mode')
            endif  
-           call mkehkf(2,sev,sumtv,eksham) 
+           call m_mkehkf_etot2(sev,sumtv, eksham) 
            call togpr()
         endif
 !! --- Add together force terms ---

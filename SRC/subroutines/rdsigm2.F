@@ -1,13 +1,12 @@
-      module m_seneinterp
-      public:: getsenex,sigmainit,senex,dsene
-      
+      module m_rdsigm2
+      public:: m_rdsigm2_init, getsenex, senex, dsene !getsenex returns the self-energy term.
+
       private
       complex(8),allocatable,protected:: sene(:,:),senex(:,:)
-      real(8) , allocatable,protected ::  rv_a_ohrs (:)
+      real(8), allocatable,protected ::  rv_a_ohrs (:)
       integer, allocatable,protected :: iv_a_oiaxs(:)
       integer, allocatable,protected :: iv_a_ontabs(:)
       integer,protected:: ndimsig,nspsigm,ham_ndhrs,ham_nqsig
-
       integer,private :: nsizeohrs,nsizeoiaxs,nsizeontabs,noqsig
       real(8) , allocatable,private ::  rv_p_oqsig (:)  !not yet protected (rdsigm2 rewrite this)
       contains
@@ -30,11 +29,11 @@
       senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
       deallocate(ovliovl,sene)
       end subroutine
-      
+!sssssssssssssssssssssssssssssssssssssssss      
       subroutine dsene()
       deallocate(senex)
       end subroutine
-      
+!sssssssssssssssssssssssssssssssssssssssss      
       subroutine getsene(qp,isp) !(lrsig,qp,isp) !call after sigmainit
       use m_lmfinit,only: plat,mxorb,nbas,nl,iprmb
 c      use m_suham,only:  iprmb
@@ -59,6 +58,7 @@ c      if (mod(i/10,10) >= 4) hreal = 1 !this is lrsig in hambles.
      &           , 0 , ndimsig, 0 , ndimsig , 0 , sene, iwdummy, iwdummy )
                if(debug) print *,'end of bloch sene'
       end subroutine getsene
+!sssssssssssssssssssssssssssssssssssssssss      
       
 ! takao expected to replace bloch to be a simple version seneinterp2. But not yet...
 c     call seneinterp2(qp,nbas,nk1,nk2,nk3,plat, !npair,nlat,qwgt,npairmx,qsmesh,
@@ -122,6 +122,7 @@ c$$$          enddo
 c$$$          enddo
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
+!sssssssssssssssssssssssssssssssssssssssss      
       subroutine seneinterp(nbas,nsp,ndimh,ifis,rsrnge, nk1,nk2,nk3,sfz)!,sham
 c      use m_suham,only:iprmb !,offH
       use m_hamindex,only: offH
@@ -738,7 +739,7 @@ C       call prmx('qp',w(oqp),3,3,nqp)
       
       
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine sigmainit()
+      subroutine m_rdsigm2_init()
       use m_lmfinit,only : rsrnge=>ham_rsrnge,nbas,pwmode=>ham_pwmode
       use m_hamindex,only: symops_af,napwmx
       use m_MPItk,only: procid,master
@@ -844,7 +845,7 @@ c$$$            deallocate(pos,npair)
 
  9995 continue
       call rx('sigmainit: readin error of sigm file')
-      end subroutine sigmainit
+      end subroutine m_rdsigm2_init
       
 !!--------------------------------------------------------------------------------------------
       subroutine rdsigm2(nbas_dummy,nsp,ifis, 
@@ -1348,7 +1349,7 @@ c      endif ! exit of MPI master loop
       if (allocated(gstar_iv)) deallocate(gstar_iv)
       print *,'xxxxxxx end rdsigm2 xxxx'
       end subroutine rdsigm2
-      end module m_seneinterp
+      end module m_rdsigm2
 
 
 
@@ -1356,7 +1357,7 @@ c      endif ! exit of MPI master loop
 
 
 !!--- xxxx -----future version... hamfb3k, bloch will be replaced -----------------
-      module m_seneinput_notusedyet
+      module m_seneinput_futureversion_unusedyet
       implicit none
       integer(4),allocatable:: npair(:,:), nlat(:,:,:,:)
       integer(4)::npairmx
@@ -1543,4 +1544,4 @@ c         print *,'888 loop out', ix1,ix2,ix3,j1-ldim,j2-ldim
  1019 continue
       call tcx('seneinterp2')
       end subroutine seneinterp2
-      end module m_seneinput_notusedyet
+      end module 

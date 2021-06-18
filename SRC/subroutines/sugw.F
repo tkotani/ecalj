@@ -1,4 +1,9 @@
-      subroutine sugw (jobgw) 
+      module m_sugw
+      private
+      public:: m_sugw_init
+      
+      contains
+      subroutine m_sugw_init (jobgw) 
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham
       use m_lmfinit, only: 
@@ -6,7 +11,7 @@
      &     ham_scaledsigma,lat_alat,mxorb,nkaph,nsp,nspc,nl,mxorb,ssite=>v_ssite,sspec=>v_sspec,nbas,lcplxp,n0,nppn,nkap0
       use m_lattic,only: lat_plat, lat_qlat
       use m_supot,only: lat_nabc, lat_gmax
-      use m_seneinterp,only: getsenex, senex,dsene
+      use m_rdsigm2,only: getsenex, senex,dsene
       use m_mksym,only: lat_npgrp,lat_nsgrp
       use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
@@ -164,8 +169,8 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 #endif
 
 !! --- Setup ---
-      call tcn ('sugw')
-      if(iprint()>10) print *,'sugw:'
+      call tcn ('m_sugw_init')
+      if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
       sigmamode = mod(lrsig,10) .ne. 0
 
 !! june2013 magfield is added
@@ -859,8 +864,8 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
           call fclr('evec',fopna('evec',-1,4))
         endif
       endif
-      call tcx('sugw')
-      end subroutine sugw
+      call tcx('m_sugw_init')
+      end subroutine m_sugw_init
 
 
 
@@ -915,58 +920,6 @@ C --- File write ---
 
 
 
-      subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)
-
-C- Write LATTC file
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   alat  :length scale of lattice and basis vectors, a.u.
-Ci   plat  :primitive lattice vectors, in units of alat
-Ci   nbas  :size of basis, including floating orbitals sites
-Ci   nat   :size of true basis (exclude floating orbitals sites)
-Ci   ipb   :index to true basis (excluding floating orbitals)
-Ci         :given site index including those orbitals
-Ci   lmxax :global maximum of lmxa
-Ci   lmxa  :augmentation l-cutoff
-Ci   nsp   :2 for spin-polarized case, otherwise 1
-Ci   konf  :principal quantum numbers
-Co Outputs
-Co   file LATTC is written to disk
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   05 Jul 05 handle sites with lmxa=-1 -> no augmentation
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-      integer nbas,nat,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
-      integer ipb(nbas)
-      real(8) :: plat(3,3),alat
-      integer ifi,ib,isp,fopnx
-      open(newunit=ifi,file='LATTC')
-      write(ifi,"(e24.16)") alat
-      write(ifi,"(3e24.16)") plat(1:3,1)
-      write(ifi,"(3e24.16)") plat(1:3,2)
-      write(ifi,"(3e24.16)") plat(1:3,3)
-      write(ifi,*) ' -1d10 ! This is dummy. True QpGcut_psi is in GWIN0'
-      write(ifi,*) ' ------------------------------------------- '
-      write(ifi,"(2i4,' ! nbas lmxax (max l for argumentaion)')")
-     .nat,lmxax
-      write(ifi,*) ' ------------------------------------------- '
-      do  isp = 1, nsp
-        write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... '
-     .  , ' isp=',2i2)")isp
-        do  ib = 1, nbas
-          if (lmxa(ib) .gt. -1) then
-            write(ifi,"('   ',99i4)")
-     .      ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
-          endif
-        enddo
-      enddo
-      close(ifi)
-      end subroutine wlattc
 c--------------------------------------------------------------------
       subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
      inbas, rmax, bas,
@@ -1020,71 +973,5 @@ c
       end subroutine mkppovl2
 
 
-C      subroutine fmain
-CC- debugs pvsug1
-C      implicit none
-C
-C      integer nbas
-C      parameter (nbas=8)
-C      integer ipc(nbas),lmxa(nbas),ipcx(nbas)
-C      data ipc/3,1,4,3,2,6,5,1/
-C      data lmxa/-1,1,4,-1,2,6,-1,1/
-C
-C      call pvsug1(nbas,lmxa,ipc,ipcx)
-C
-C      end
-      subroutine pvsug1(nbas,lmxa,ipc,ipcx)
 
-C- Remakes class table, expunging classes with floating orbitals.
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   nbas  :size of basis
-Ci   lmxa  :augmentation l-cutoff
-Ci   ipc   :class table: site ib belongs to class ipc(ib)
-Co Inputs/Outputs
-Co   ipcx  :expunged class table: classes with lmxa=-1 are expunged
-Co         :and the remaining classes are sequentially renumbered
-Co         :preserving the order of the remaining classes.
-Cl Local variables
-Cl         :
-Cr Remarks
-Cr
-Cu Updates
-Cu   27 Mar 07
-C ----------------------------------------------------------------------
-      implicit none
-C ... Passed parameters
-      integer nbas,lmxa(nbas),ipc(nbas),ipcx(nbas)
-C ... Local parameters
-      integer i,ip,ic,ipskip,nelim
-      integer prm(nbas)
-
-      call ivshel(1,nbas,ipc,prm,.true.)
-C      do  i = 1, nbas
-C        prm(i) = prm(i)+1
-C      enddo
-
-C     nelim = number of classes that have been eliminated so far
-      nelim = 0
-C     ipskip is the number of the last class that was skipped.
-C     Multiple occurrences of a skipped class must still only
-C     reduce the net number of classes by one.
-C     We must avoid incrementing nelim when multiple sites
-C     correspond to a skipped class.
-      ipskip = 0
-C     Loop over sites in order of increasing class index, ip
-      do  i = 1, nbas
-        ip = prm(i)+1
-        ic = ipc(ip)
-C       Test whether this class should be purged
-        if (lmxa(ip) .lt. 0) then
-          if (ipskip .ne. ic) nelim = nelim+1
-          ipskip = ic
-          ipcx(ip) = -1
-        else
-          ipcx(ip) = ic - nelim
-        endif
-      enddo
-      end subroutine pvsug1
-
-
+      end module 

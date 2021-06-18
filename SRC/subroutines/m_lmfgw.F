@@ -1,5 +1,7 @@
       module m_lmfgw
-      integer,protected:: jobgw=-999
+      private
+      public:: m_lmfgw_init,m_lmfgw_setjobgw
+      integer,public,protected:: jobgw=-999
       
       contains
       subroutine m_lmfgw_setjobgw(ijob)
@@ -8,8 +10,7 @@
       if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
       end
       
-      subroutine m_lmfgw_init()
-c      use m_density,only: zv_a_osmrho=>osmrho,sv_a_oorhat=>orhoat
+      subroutine m_lmfgw_init() !writing files for GW calculaiton
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
      & nkap0,alat=>lat_alat,ham_ldham,iprmb
       use m_supot,only: k1,k2,k3
@@ -152,4 +153,124 @@ c     .            call chcase(0,1,strn4(2:2))
       call fexit(0,1,' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
 !!================================================      
       end subroutine
-      end module
+      
+C      subroutine fmain
+CC- debugs pvsug1
+C      implicit none
+C
+C      integer nbas
+C      parameter (nbas=8)
+C      integer ipc(nbas),lmxa(nbas),ipcx(nbas)
+C      data ipc/3,1,4,3,2,6,5,1/
+C      data lmxa/-1,1,4,-1,2,6,-1,1/
+C
+C      call pvsug1(nbas,lmxa,ipc,ipcx)
+C
+C      end
+      subroutine pvsug1(nbas,lmxa,ipc,ipcx)
+
+C- Remakes class table, expunging classes with floating orbitals.
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   nbas  :size of basis
+Ci   lmxa  :augmentation l-cutoff
+Ci   ipc   :class table: site ib belongs to class ipc(ib)
+Co Inputs/Outputs
+Co   ipcx  :expunged class table: classes with lmxa=-1 are expunged
+Co         :and the remaining classes are sequentially renumbered
+Co         :preserving the order of the remaining classes.
+Cl Local variables
+Cl         :
+Cr Remarks
+Cr
+Cu Updates
+Cu   27 Mar 07
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+      integer nbas,lmxa(nbas),ipc(nbas),ipcx(nbas)
+C ... Local parameters
+      integer i,ip,ic,ipskip,nelim
+      integer prm(nbas)
+
+      call ivshel(1,nbas,ipc,prm,.true.)
+C      do  i = 1, nbas
+C        prm(i) = prm(i)+1
+C      enddo
+
+C     nelim = number of classes that have been eliminated so far
+      nelim = 0
+C     ipskip is the number of the last class that was skipped.
+C     Multiple occurrences of a skipped class must still only
+C     reduce the net number of classes by one.
+C     We must avoid incrementing nelim when multiple sites
+C     correspond to a skipped class.
+      ipskip = 0
+C     Loop over sites in order of increasing class index, ip
+      do  i = 1, nbas
+        ip = prm(i)+1
+        ic = ipc(ip)
+C       Test whether this class should be purged
+        if (lmxa(ip) .lt. 0) then
+          if (ipskip .ne. ic) nelim = nelim+1
+          ipskip = ic
+          ipcx(ip) = -1
+        else
+          ipcx(ip) = ic - nelim
+        endif
+      enddo
+      end subroutine pvsug1
+
+      subroutine wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konf)
+C- Write LATTC file
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   alat  :length scale of lattice and basis vectors, a.u.
+Ci   plat  :primitive lattice vectors, in units of alat
+Ci   nbas  :size of basis, including floating orbitals sites
+Ci   nat   :size of true basis (exclude floating orbitals sites)
+Ci   ipb   :index to true basis (excluding floating orbitals)
+Ci         :given site index including those orbitals
+Ci   lmxax :global maximum of lmxa
+Ci   lmxa  :augmentation l-cutoff
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   konf  :principal quantum numbers
+Co Outputs
+Co   file LATTC is written to disk
+Cl Local variables
+Cl         :
+Cr Remarks
+Cr
+Cu Updates
+Cu   05 Jul 05 handle sites with lmxa=-1 -> no augmentation
+C ----------------------------------------------------------------------
+      implicit none
+C ... Passed parameters
+      integer nbas,nat,nsp,lmxax,lmxa(nbas),konf(0:lmxax,nbas,nsp)
+      integer ipb(nbas)
+      real(8) :: plat(3,3),alat
+      integer ifi,ib,isp,fopnx
+      open(newunit=ifi,file='LATTC')
+      write(ifi,"(e24.16)") alat
+      write(ifi,"(3e24.16)") plat(1:3,1)
+      write(ifi,"(3e24.16)") plat(1:3,2)
+      write(ifi,"(3e24.16)") plat(1:3,3)
+      write(ifi,*) ' -1d10 ! This is dummy. True QpGcut_psi is in GWIN0'
+      write(ifi,*) ' ------------------------------------------- '
+      write(ifi,"(2i4,' ! nbas lmxax (max l for argumentaion)')")
+     .nat,lmxax
+      write(ifi,*) ' ------------------------------------------- '
+      do  isp = 1, nsp
+        write(ifi,"(' -- ibas lmxa konf(s) konf(p) konf(d)... '
+     .  , ' isp=',2i2)")isp
+        do  ib = 1, nbas
+          if (lmxa(ib) .gt. -1) then
+            write(ifi,"('   ',99i4)")
+     .      ipb(ib),lmxa(ib),konf(0:lmxa(ib),ib,isp)
+          endif
+        enddo
+      enddo
+      close(ifi)
+      end subroutine wlattc
+      
+      end module m_lmfgw

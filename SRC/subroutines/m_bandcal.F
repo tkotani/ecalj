@@ -1,43 +1,42 @@
       module m_bandcal
-      use m_struc_def
-      use m_suham,only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
-      use m_qplist,only: nkp
-      use m_lmfinit, only: nsp,nlibu,lmaxu,nbas,nl
-      use m_subzi, only: numq
+      use m_struc_def,only: s_rv1
+      use m_suham,  only: ndhamx=>ham_ndhamx,nspx=>ham_nspx 
+      use m_qplist, only: nkp
+      use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl
       use m_mkqp,only: ntet=> bz_ntet
       use m_qplist,only: qplist
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
-     &      pwmode=>ham_pwmode,pwemax,stdl
+     &     pwmode=>ham_pwmode,pwemax,stdl
       use m_MPItk,only: mlog, master_mpi, procid,strprocid, numprocs=>nsize, mlog_MPIiq
       use m_subzi, only: m_subzi_init, nevmx,lswtk,rv_a_owtkb
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate,k1,k2,k3,
      o    osmpot, vconst, sv_p_osig, sv_p_otau, sv_p_oppi
-      use m_seneinterp,only: senex,getsenex,dsene
+      use m_rdsigm2,only: senex,getsenex,dsene
       use m_procar,only: m_procar_init,m_procar_closeprocar
       use m_clsmode,only: m_clsmode_set1
       use m_addrbl,only: addrbl,swtk
-!! outputs of bandcal ---------------------------
-      real(8),protected::  sumqv(3,2),sumev(3,2)
-      integer,allocatable,protected:: ndimhx_(:),nev_(:),nevls(:,:)
-      real(8),allocatable,protected:: evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
+!! outputs ---------------------------
+      integer,allocatable,protected::     ndimhx_(:),nev_(:),nevls(:,:)
+      real(8),allocatable,protected::     evlall(:,:,:),frcband(:,:), orbtm_rv(:,:,:)
       complex(8),allocatable,protected::  smrho_out(:),dmatu(:,:,:,:)
       type(s_rv1),allocatable,protected:: sv_p_oeqkkl(:,:), sv_p_oqkkl(:,:)
 !! ------------------------------------------------     
       logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham
       logical,private:: dmatuinit=.true.
+      real(8),private::  sumqv(3,2),sumev(3,2)
       
       contains
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 ! Set up Hamiltonian, diagonalization
       subroutine m_bandcal_init(iqini,iqend,lrout,ef0,ifih,lwtkb) 
       implicit none
-      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!,ovlmtoi(:,:),ovliovl(:,:) 
+      complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!Hamiltonian,Overlapmatrix
       integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig
       real(8):: qp(3),ef0,def=0d0,xv(3)
-      real(8),allocatable:: evl(:,:)
-      complex(8),allocatable :: t_zv(:,:)
+      real(8),allocatable:: evl(:,:) !eigenvalue
+      complex(8),allocatable :: evec(:,:) !eigenvector
       integer::  pidorigin,iprint,i,ibas
       logical:: ltet,cmdopt0,dmatuinit=.true.
       if(master_mpi) write(stdo,*)' m_bandcal_init: start'
@@ -52,7 +51,7 @@
       if(lso/=0) orbtm_rv=0d0
       allocate( evlall(ndhamx,nspx,nkp))
       if(lfrce>0) then
-         allocate( frcband(3,1:nbas*numq)) !force for band
+         allocate( frcband(3,1:nbas)) !force for band
          frcband  = 0d0
       endif   
       allocate( ndimhx_(nkp),nev_(nkp),nevls(nkp,nspx))
@@ -69,7 +68,7 @@
          allocate( sv_p_oeqkkl(3,nbas), sv_p_oqkkl(3,nbas))
          call dfqkkl( sv_p_oqkkl ) !zero clear 
          if(lekkl==1) call dfqkkl( sv_p_oeqkkl )!zero clear
-         allocate( smrho_out(k1*k2*k3*numq*nsp) )
+         allocate( smrho_out(k1*k2*k3*nsp) )
          smrho_out = 0d0
       endif
 
@@ -158,20 +157,22 @@
                 endif
             endif
              
-            allocate(t_zv(ndimhx,nmx))
+            allocate(evec(ndimhx,nmx))
 !! == Diagonalize Hamiltonian ==
 !! ndimhx: dimension of Hamitonian
 !! hamm:Hamiltonian, ovlm: overlap matrix
-!! t_zv:eigenfunciton. evl: eigenvalue.
-!! nmx: input, number of requested eigenvalues(functions). If nmx=0, no eigenfunctions but all eigenvalues.
+!! evec:eigenfunciton. evl: eigenvalue.
+!! 
+!! nmx: input, number of requested eigenvalues(functions).
+!!      If nmx=0, no eigenfunctions but all eigenvalues. <== WARNNNNNNNNNN!
 !! nev: out number of obtained eigenfvalues(funcitons)
-            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), t_zv, epsovl)
-            if(writeham.and.master_mpi) call prtev(t_zv, ndimhx , evl(1, jsp ) , nmx , nev )
+            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, jsp ), evec, epsovl)
+            if(writeham.and.master_mpi) call prtev(evec, ndimhx , evl(1, jsp ) , nmx , nev )
              
             if(call_m_bandcal_2nd) then
                 write(ifig) nev,nmx,ndimhx
                 write(ifig) evl(1:nev,jsp)
-                write(ifig) t_zv(1:ndimhx,1:nmx)
+                write(ifig) evec(1:ndimhx,1:nmx)
             endif
            
 !! nev: number of eigenvalues 
@@ -184,9 +185,9 @@
             
             if(plbnd==0.and.lwtkb/=-1) then !lwtkb=-1,0,1
               if(nlibu>0.and.nev>0.and.lwtkb==0) call rx('metal weights required for LDA+U calculation')
-              if(lso/=0)  call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv) !Orbital magnetic moment 
-              if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, t_zv,  dmatu) !density matrix
-              if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
+              if(lso/=0)  call mkorbm(jsp, nev, iq,qp, evec,  orbtm_rv) !Orbital magnetic moment 
+              if(nlibu>0.and.nev>0) call mkdmtu(jsp, iq, qp, nev, evec,  dmatu) !density matrix
+              if(cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
             endif
             
             if(lrout/=0.and.lwtkb>=0) then
@@ -194,11 +195,11 @@ c               call readindensitymodesetting() !dummy
                !Accumulate output density and sampling DOS. 
                call addrbl (jsp, qp 
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , t_zv,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
+     &              , evec,evl,nev,  ef0,def  !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
             endif     
-            if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,t_zv,ndimhx,nmx)
-            if(allocated(t_zv)) deallocate(t_zv)
+            if(PROCARon) call m_procar_init(iq,isp,ef0,evl,ndimh,jsp,qp,nev,evec,ndimhx,nmx)
+            if(allocated(evec)) deallocate(evec)
  2005    continue !== end loop over isp (main loop in parallel mode)==
          if(allocated(hamm)) deallocate(hamm,ovlm)
          ndimhx_(iq)= ndimhx
@@ -225,7 +226,7 @@ c               call readindensitymodesetting() !dummy
       integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:)
-      complex(8),allocatable :: t_zv(:,:)
+      complex(8),allocatable :: evec(:,:)
       logical:: cmdopt0
       if(master_mpi) write(stdo,*)' mmmmm m_bandcal_2nd'
       call dfqkkl( sv_p_oqkkl ) !zero clear 
@@ -234,7 +235,7 @@ c               call readindensitymodesetting() !dummy
       if (lswtk==1) swtk=0d0
       if(lso/=0) orbtm_rv=0d0
       if(allocated(smrho_out)) deallocate(smrho_out)
-      allocate( smrho_out(k1*k2*k3*numq*nsp) )
+      allocate( smrho_out(k1*k2*k3*nsp) )
       smrho_out = 0d0
       sumev = 0d0 
       sumqv = 0d0
@@ -249,22 +250,22 @@ c               call readindensitymodesetting() !dummy
             jsp = isp
             if(lso==1) jsp = 1
             read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set
-            if (allocated(t_zv)) deallocate(t_zv)
-            allocate(t_zv(ndimhx,nmx))
+            if (allocated(evec)) deallocate(evec)
+            allocate(evec(ndimhx,nmx))
             read(ifig) evl(1:nev,jsp)
-            read(ifig) t_zv(1:ndimhx,1:nmx)
+            read(ifig) evec(1:ndimhx,1:nmx)
             evl(nev+1:ndhamx,jsp)=1d99 !to skip these data
-            if( lso/=0)            call mkorbm(jsp, nev, iq,qp, t_zv,  orbtm_rv)
-            if( nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, t_zv,  dmatu)
-            if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv) !all inputs
+            if( lso/=0)            call mkorbm(jsp, nev, iq,qp, evec,  orbtm_rv)
+            if( nlibu>0.and.nev>0) call mkdmtu(jsp, iq,qp, nev, evec,  dmatu)
+            if( cmdopt0('--cls'))  call m_clsmode_set1(nmx,jsp,iq,qp,nev,evec) !all inputs
 c            if( lrout/=0 ) then
 c               call readindensitymodesetting() !dummy
                call addrbl (jsp, qp
      .              , iq , lfrce,  osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi
-     &              , t_zv,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
+     &              , evec,evl,nev,  ef0,def !emin,emax,ndos, dos_rv
      o              , smrho_out, sumqv, sumev, sv_p_oqkkl,sv_p_oeqkkl, frcband)
 c            endif     
-            if(allocated(t_zv)) deallocate(t_zv)
+            if(allocated(evec)) deallocate(evec)
 12005    continue 
 12010 continue    
 !! ... Average forces so net force on system is zero (APW case)
