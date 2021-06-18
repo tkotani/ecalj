@@ -1310,7 +1310,7 @@ c     nm='SPEC_ATOM_RADIUS'; call gtv(trim(nm),tksw(prgnam,nm),
 c     .  radxbs(j),def_r8=xxx,cindx=jj,note='Radius for xbs')
 
          nkaphh(j) = nkapii(j) + lpzex(j)
-         print *,'nkaphh(j) = nkapii(j) + lpzex(j)',nkaphh(j),nkapii(j), lpzex(j)
+c         if(master_mpi) write('ispec: nkaphh = nkapii+ lpzex(j)',i3,3i2)") j,nkaphh(j),nkapii(j),lpzex(j)
  1111 continue  ! Loop over species
 
       
@@ -2110,11 +2110,11 @@ c      enddo
       endif
 #if MPI | MPIK
       call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      print *,' mpipid=',procid
+c      print *,' mpipid=',procid
       call MPI_BARRIER( MPI_COMM_WORLD, ierr )
 #endif
-     
       if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
+
       
 !! Stage 3: initial settings ===================================
 !!  Total energy mode setting
@@ -2126,8 +2126,9 @@ c      enddo
         ctrl_maxit=1
       endif
       if(lhf) ctrl_maxit= 1
-!! scaler rel       
-      call setcc(lrel) !lrel/=0 means scaler relativistiv c=274.074d0 in a.u.
+!! scalar rel       
+      call setcc(lrel) !lrel/=0 means scalar relativistiv c=274.074d0 in a.u.
+!!
       fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !fullmesh stop just after do 2010 iq loop.
       lrout = 1 ! Whether to evaluate output density and/or KS energy
       leks = 1
@@ -2144,7 +2145,6 @@ c      enddo
       endif
       if(ctrl_lmet/=0 .and. .not.ltet) ctrl_ldos=1
       if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
-      
 !! LDA+U block (it was suldau.F)
       nlibu = 0
       lmaxu = 0
@@ -2160,14 +2160,12 @@ c      enddo
           endif
         enddo
       enddo
-      if (nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
-      
+      if (master_mpi.and.nlibu/=0) write(stdo,"(' LDA+U: block(s) lmaxu =',2i4)") nlibu,lmaxu
 !! lso  =0 (no so): =1(L.S): =2(LzSz).
       lcplxp = 0
       lekkl  = ctrl_pfloat
       if (lso .ne. 0)    lcplxp = 1
       if (sum(lldau)/=0) lcplxp = 1
-      
 ! lhh, nkapii, nkaphh (nkaphh = nkapii(1 or 2) +1) if extented local orbital exist)
       allocate(lhh(nkap0,nspec))
       lhh=-1
@@ -2177,24 +2175,22 @@ c      enddo
          if(nkapii(i)==2) call getiout(rsmh2(1,i),lmxbj+1,lhh(2,i))
          if(lpz(i)==1 )   call getiout(pz(1,1,i),lmxbj+1,lhh(nkaph,i))!lh for lo
       enddo
-c      allocate( ehl(n0,nspec),rsml(n0,nspec))
-c      ehl=-999d0
-c      rsml=-999d0
-      
       if(master_mpi) then
+         write(stdo,*)
          write(stdo,"('mmm === MTO setting ===')")
          do i=1,nspec
-         write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
-         write(stdo,"('mmm rsmh1  ',i4,100f6.2)")i,  rsmh1(1:lmxbj+1,i)
-         write(stdo,"('mmm   eh1  ',i4,100f6.2)")i,    eh1(1:lmxbj+1,i)
-         write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
-         write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
-         write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
-         write(stdo,"('mmm lh    ',i4,100i3)")i,   lhh(1:nkaph,i)
+          write(stdo,"('mmm ispec lmxb lpzex nkapii nkaphh=',10i5)")i,lmxb(i),lpzex(i),nkapii(i),nkaphh(i)
+          write(stdo,"('mmm rsmh1  ',i4,100f6.2)")i,  rsmh1(1:lmxbj+1,i)
+          write(stdo,"('mmm   eh1  ',i4,100f6.2)")i,    eh1(1:lmxbj+1,i)
+          write(stdo,"('mmm rsmh2 ',i4,100f6.2)")i, rsmh2(1:lmxbj+1,i)
+          write(stdo,"('mmm  eh2  ',i4,100f6.2)")i,   eh2(1:lmxbj+1,i)
+          write(stdo,"('mmm pz    ',i4,100f6.2)")i,   pz(1:lmxbj+1,1,i)
+          write(stdo,"('mmm lh    ',i4,100i3)")i,   lhh(1:nkaph,i)
          enddo
       endif
       end subroutine m_lmfinit_init
 
+      
       subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
       integer:: iin,iout,i
       real(8):: a(iin)

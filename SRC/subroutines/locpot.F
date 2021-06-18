@@ -432,7 +432,7 @@ c          call uspecb(0,2,sspec,is,is,lh,rsmh,eh,nkape)
           call uspecb(is,rsmh,eh)
           nkapi=nkapii(is)
           nkape=nkaphh(is)
-          print *,'qqx nkapi nkape=',nkapi,nkape
+c          print *,'qqx nkapi nkape=',nkapi,nkape
           if (nkape .gt. nkapi) then
             call dcopy(n0,rsmh(1,nkaph),1,rsml,1)
             call dcopy(n0,eh(1,nkaph),  1,ehl, 1)

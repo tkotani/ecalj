@@ -169,7 +169,7 @@ c 1013       continue
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(.not.master_mpi) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (master_mpi) then
+      if (master_mpi.and.nsyml>0) then
          open(newunit=ifqplist,file='QPLIST')
          print *,'-------- qplist --------',nsyml
          iq=0

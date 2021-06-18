@@ -1,6 +1,5 @@
-      subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,
-     .igstar,lpbc)
-      use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
+      subroutine bzmesh(plat,qb,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx,igstar,lpbc)
+      use m_ext,only: sname   !file extension. Open a file like file='ctrl.'//trim(sname)
 C- Divides the reciprocal lattice into microcells
 C-----------------------------------------------------------------------
 Ci Inputs:
@@ -104,52 +103,27 @@ C ... Passed parameters
       logical lshft(3)
       integer n1,n2,n3,nqmx,ng,nq,igstar(0:*),ipq(n1,n2,n3),lpbc
       double precision qb(3,3),wgt(nqmx),plat(3,3),qp(3,nqmx),g(9,1)
-C ... Local parameters
       logical lsgrp
       integer i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,
      .is(3),iwgt,j1,j2,j3,lgunit,lpbc01,lpbc2,lstar,m1,m2,m3,ndmx,nn1,
      .nn2,nn3,stdo,nsgrp,mxxyz
       double precision w0,x1,x2,x3,swgt,v(3),v1(3),rb(3,3)
-C ... External calls
-      external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,
-     .grpop,iinit,projql,rx,rxx
+      external asymop,awrit5,awrit6,bzmsh0,dinv33,dpzero,fexit,getpr,grpop,iinit,projql,rx,rxx
       character*1 chr(0:2)
-#if DEBUG
-      character*30 sg
-      double precision ag(3)
-#endif
-#if QP0
-C     --- use only points centered within dq from q0
-      integer ifi
-      double precision q0(3),dq,ddot
-C      data q0 /0.370925d0,-0.401855d0,0.370925d0/,dq/.15d0/
-      data q0 /0.339995d0,0.339995d0,0.339995d0/,dq/.15d0/
-      integer k,m
-#endif
-
       call getpr(ipr)
       stdo = lgunit(1)
       ndmx = mxxyz()
       lstar = igstar(0)
-c      print *,'lstar xxx=',lstar
       lpbc01 = mod(lpbc,100)
       lpbc2  = lpbc/100
       nsgrp = wgt(1)
       chr(2) = ' '
       chr(0) = '*'
       if (nsgrp .ne. wgt(1)) call rx('bzmesh: invalid input wgt(1)')
-C     lpbc2 = 1
       if (lstar .ne. 0 .and. max(n1,n2,n3) .gt. ndmx)
      .call rx('bzmesh: too many divisions to accomodate ndmx')
-      if (min(n1,n2,n3) .lt. 1) 
-     .call rx('bzmesh: improper specification of k-mesh')
-
+      if (min(n1,n2,n3) .lt. 1) call rx('bzmesh: improper specification of k-mesh')
       call bzmsh0(plat,lshft,lpbc01,n1,n2,n3,is,ifac,rb,qb)
-#if DEBUG
-      if (ipr .ge. 80) print 356
-  356 format(/' BZMESH: qp mapping'/' i1..i3',25x,'qp',16x,'iq   ig g')
-      call dpzero(ag,3)
-#endif
       m1 = n1*ifac(1)
       m2 = n2*ifac(2)
       m3 = n3*ifac(3)
@@ -163,11 +137,6 @@ C     lpbc2 = 1
       nn3 = 6*m3
 
 C --- For each of (n1*n2*n3) qp, find irreducible set ---
-C     Loops written without 'do' construct for freedom in choosing
-C     loop order
-C     do  20  i3 = 0, n3-1
-C     do  20  i2 = 0, n2-1
-C     do  20  i1 = 0, n1-1
       i1 = 0
       i3 = 0
 c   23 continue
@@ -188,15 +157,6 @@ C   ... Add qp to list if not flagged as symmetry-related to a prior
         v(1) = ii1*qb(1,1) + ii2*qb(1,2) + ii3*qb(1,3)
         v(2) = ii1*qb(2,1) + ii2*qb(2,2) + ii3*qb(2,3)
         v(3) = ii1*qb(3,1) + ii2*qb(3,2) + ii3*qb(3,3)
-C         call prmx('kpt',v,3,3,1)
-#if QP0
-        call dcopy(3,v,1,v1,1)
-        call daxpy(3,-1d0,q0,1,v1,1)
-C          print 156, ddot(3,v1,1,v1,1), v1
-C  156     format(4f15.6)
-        if (ddot(3,v1,1,v1,1) .gt. dq*dq) goto 20
-#endif
-
 C     --- Mark each qp in the star of q as equivalent to this qp ---
         iwgt = 0
         lsgrp = .false.
@@ -214,22 +174,10 @@ C     --- Mark each qp in the star of q as equivalent to this qp ---
           j2 = idnint(x2)
           j3 = idnint(x3)
           if (max(dabs(x1-j1),dabs(x2-j2),dabs(x3-j3)) .gt. 1d-4) then
-C              print *, 'ii1,ii2,ii3=',ii1,ii2,ii3
-C              print *, 'x1,x2,x3=',sngl(x1),sngl(x2),sngl(x3)
-C              print *, 'ig,qb,rb,v,g,v1=',ig
-C              call prm('(3f12.6)',qb,3,3)
-C              call prm('(3f12.6)',rb,3,3)
-C              call prm('(3f12.6)',v,3,1)
-C              call prm('(3f12.6)',g(9*ig-8),3,3)
-C              call prm('(3f12.6)',v1,3,1)
             call awrit2(' qp%3:1,3;3d -> %3:1,3;3d is not'//
      .      ' on k-mesh',' ',80,stdo,v,v1)
             call rx('BZMESH: symops incompatible with this mesh')
           endif
-C           call prmx('rotated kpt',v1,3,3,1)
-C            if (ig .ne. 1 .and. ipr .ge.
-C            call awrit2(' qp%3:1,3;3d rotated from %3:1,3;3d',
-C     .        ' ',80,stdo,v1,v)
 C ..        scale shifted point or discard if shifted off mesh
           if (lshft(1) .and. mod(abs(j1),2).eq.1) goto 25
           if (lshft(2) .and. mod(abs(j2),2).eq.1) goto 25
@@ -255,26 +203,6 @@ C ...       Ensure (j1,j2,j3) in first quadrant of Q
             elseif (lstar .ne. 0) then
               call rx('bzmesh: bad igstar(0)')
             endif
-C              OLD conventions
-C              if (lstar .eq. 1) then
-C                igstar(igcnt) = j1 + ndmx*j2 + ndmx**2*j3
-C              elseif (lstar .eq. 2) then
-C                igstar(nq+1) = j1 + ndmx*j2 + ndmx**2*j3
-C              elseif (lstar .eq. -1) then
-C                igstar(igcnt) = ig
-C              elseif (lstar .eq. -2) then
-C                ii = j1 + (j2-1)*n1 + (j3-1)*n1*n2
-C                igstar(ii) = ig
-C              endif
-c#if DEBUG
-c            if (ipr .ge. 80 .and. ng .gt. 0) then
-c              call dpzero(ag,3)
-c              call asymop(g(1,ig),ag,' ',sg)
-c              call awrit6(' (%i,%i,%i)%15p%3:1,6;11D'//
-c     .        ' %,5i  %,3i '//sg//'%a',' ',80,stdo,j1,j2,j3,
-c     .        v1,ipq(j1,j2,j3),ig)
-c            endif
-c#endif
           endif
           call rxx(j1.lt.0.or.j2.lt.0.or.j3.lt.0,'neg j in bzmesh')
    25   continue
@@ -307,32 +235,18 @@ C  20 continue
        exit
  23   continue
 C ... Done accumulating inequivalent qp
-
-      if (ipr .ge. 20) then
-        call awrit6(' BZMESH:  %i irreducible QP from %i'//
-     .  ' ( %i %i %i )  shift=%3:1l',' ',80,
-     .  stdo,nq,n1*n2*n3,n1,n2,n3,lshft)
-        call awrit5('bz  nq %i ( %i %i %i )  shift %3:1l',' ',80,
-     .  lgunit(2),nq,n1,n2,n3,lshft)
+      if (ipr>= 20) then
+         write(stdo,"(a,i5,a,3i4,a,3l)") " BZMESH:  ",nq," irreducible QP from ",n1,n2,n3," shift=",lshft
+c        call awrit6(' BZMESH:  %i irreducible QP from %i'//
+c     .  ' ( %i %i %i )  shift=%3:1l',' ',80,
+c     .  stdo,nq,n1*n2*n3,n1,n2,n3,lshft)
+        call awrit5('bz  nq %i ( %i %i %i )  shift %3:1l',' ',80,lgunit(2),nq,n1,n2,n3,lshft)
       endif
-#if  QP0
-      call awrit3('          %i points within dq=%1;6d  swgt=%1;6d',
-     .     ' ',80,stdo,igcnt,dq,swgt)
-      open(newunit=ifi,file='QPTS.'//trim(sname))
-      write(ifi,333) nq, n1,n2,n3,0
-  333 format(4i5,i8)
-      do  70  iq = 1, nq
-        write(ifi,334) iq,(qp(m,iq),m=1,3), wgt(iq)
- 70   continue
-      close(ifi)
-  334 format(i5,1p,4d18.10)
-#else
       if (lstar .ne. 0) igstar(0) = n1 + ndmx*n2 + ndmx**2*n3
       if (lstar .lt. 0) igstar(0) = -igstar(0)
       if (igcnt .ne. n1*n2*n3) call rx('bug in bzmesh')
       if (dabs(swgt-2) .gt. 1.d-9) call fexit(-1,111,
      .' Exit -1 BZMESH: QP weights sum to %1;6d but must sum to 2',swgt)
-#endif
       if (ipr .ge. 50) then
         write(stdo,663)
   663   format(14x,'Qx',10x,'Qy',10x,'Qz',6x,'Multiplicity    Weight')
@@ -427,7 +341,6 @@ C  ifort -g -cm -axW -WB -c bzmesh.f
 C  ifort -g -cm -c bzmesh.f
 C     implicit none
       integer i1mach
-
       mxxyz = (dble((i1mach(9)))/2.01d0) ** (1d0/3d0)
       end
 

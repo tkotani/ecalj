@@ -4,6 +4,7 @@
      .   f , gpot0 , hpot0 , qsmc , zsum , vrmt )
       use m_struc_def
       use m_lmfinit,only: nsp, lat_alat
+      use m_MPItk,only: master_mpi,mlog
       use m_lattic,only: lat_vol
 
       use m_lattic,only: lat_plat
@@ -26,7 +27,6 @@ C ... Passed parameters
       real(8), intent(out) :: zsum, qsmc
       complex(kind(0d0)), intent(in) :: smrho(k1, k2, k3, 2), cgsum(ng)
       complex(kind(0d0)), intent(out) :: smpot(k1, k2, k3), cv(ng), cg1(ng)
-c      type(s_lat)::slat
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
 
@@ -34,14 +34,10 @@ C ... Local parameters
       integer, save :: jesm = 0, jtresm
       real(8), save :: sa0, tresm, z1esm, z2esm, z0esm, vesmp, vesmm, eesmp, eesmm
       logical, save :: esm_init = .true.
-
-      logical :: cmdopt, mlog
+      
       logical ::  twrite = .true.
-
       character(len=120) strn
-      integer :: procid, master = 0
       integer :: stdo, ig, i, j, lgunit, mpipid, ifiese, ierr, ib, is, i_copy_size, ik3, ik2, ik1!, nsp
-
       real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
       real(8) :: alat, plat(3,3), vol, eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
       real(8) :: pi, epi, tpiba, tpiba2
@@ -49,16 +45,11 @@ C ... Local parameters
       complex(kind(0d0)), parameter :: ci=(0d0, 1d0)
       complex(kind(0d0)), allocatable:: vtmp(:,:,:), cwork(:)
 
-      allocate(vtmp(k1, k2, k3), cwork(ng))
-
       call tcn('esmsmves')
-c      nsp   = globalvariables%nsp
-      mlog = cmdopt('--mlog',6,0,strn)
-      procid = mpipid(1)
-
+      allocate(vtmp(k1, k2, k3), cwork(ng))
+      
       pi  = 4d0*datan(1d0)
       epi = 8d0*pi
-
       alat = lat_alat
       vol = lat_vol
       tpiba = 2*pi/alat
@@ -67,7 +58,6 @@ c      nsp   = globalvariables%nsp
       plat = lat_plat
 
       if( esm_init ) then
-
         jtresm=0
         tresm=0d0
         z1esm=0d0
@@ -76,7 +66,7 @@ c      nsp   = globalvariables%nsp
         vesmm=0d0
         eesmp=0d0
         eesmm=0d0
-        if ( procid == master ) then
+        if (master_mpi ) then
           open(newunit=ifiese,file='esm_input.dat',status='old',err=201)
           read(ifiese,*,err=201) jesm
           read(ifiese,*,err=201) jtresm,tresm
@@ -85,12 +75,16 @@ c      nsp   = globalvariables%nsp
           read(ifiese,*,err=201) eesmp,eesmm
           close(ifiese)
  201      continue
-          if(jesm==0) then
-             write(stdo,"(a)") ' esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
-             return
-          endif   
+        endif  
+        call mpibc1(jesm, 1, 2, mlog,'esmsmves','jesm')
+        if(jesm==0) then
+           if(master_mpi) write(stdo,"(a)") ' esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
+           call tcx('esmsmves')
+           return
+        endif
+          
+        if (master_mpi ) then
           tresm=-tresm
-
           z0esm =  alat*plat(3,3)*0.5d0
           sa0 = alat*alat*abs(plat(1,1)*plat(2,2)-plat(2,1)*plat(1,2))
           write(stdo,*)
@@ -145,7 +139,7 @@ c      nsp   = globalvariables%nsp
         call mpibc1(sa0, 1, 4, mlog,'esmsmves','sa0')
 #endif
         if( jesm == 0 ) then
-          if ( procid == master ) write(stdo,*)'jesm=0 return'
+          if ( master_mpi ) write(stdo,*)'jesm=0 return'
           esm_init = .false.
           call tcx('esmsmves')
           return
@@ -155,7 +149,7 @@ c      nsp   = globalvariables%nsp
       endif
 
       if( jesm == 0 ) then
-        if ( procid == master ) write(stdo,*)'jesm=0 return'
+        if ( master_mpi ) write(stdo,*)'jesm=0 return'
         call tcx('esmsmves')
         return
       endif
@@ -175,10 +169,7 @@ c      nsp   = globalvariables%nsp
       call vesgcm ( nbas , ssite , sspec , cy , qmom , !slat , 
      .   ng , gv , kv , cv , cg1 , cwork, k1 , k2,  k3 , smpot, f , gpot0 , hpot0 , qsmc , zsum , vrmt)
 
-      if ( procid == master ) then
-        write(stdo,*) "eh=",eh
-      endif
-
+      if ( master_mpi ) write(stdo,*) "eh=",eh
       call tcx('esmsmves')
       return
 
@@ -217,7 +208,7 @@ C
 
       call gvgetf(ng, 1, kv, k1, k2, k3, smrho(1,1,1,1), cv)
 
-      if ( procid == master ) then
+      if ( master_mpi ) then
         write(stdo,'(A,F15.8)') "smrho val =",dble(cv(1))*vol
         write(stdo,'(A,F15.8)') "comepnsating gaussinal val =",dble(cgsum(1))*vol
       endif
@@ -550,7 +541,7 @@ c.......splined esm potential
           v3work(ir3,5) = temp5/dble(k1*k2)
         enddo
 
-        if ( procid == master ) then
+        if ( master_mpi ) then
           open(newunit=ifi,file=trim(fname))
           write(ifi,'(a)') '# charge and hartree potential (planar average)'
           write(ifi,'(a,f18.8)')'# eh=',eh
