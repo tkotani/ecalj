@@ -12,7 +12,7 @@
 !  hbyl  :site- and l-decomposed one-electron energies
 !o   dmatu:   density matrix in m_bandcal
 !o   evalall: eigenvalue in m_bandcal
-!o   frc:    force in m_mkrout
+!o   force: 
 !     i  vorb --> use m_ldau in m_mkpot
 !!--- key quntities --------------     
 !  evlall  : eigenvalues
@@ -22,7 +22,8 @@
       module m_bndfp
       use m_density,only: orhoat,osmrho     !input/output unprotected
       real(8),protected:: ham_ehf, ham_ehk  !output
-      real(8),protected:: eferm, qdiff      !output 
+      real(8),protected:: eferm, qdiff !output
+      real(8),allocatable:: force(:,:)
 !! other ouput are in modules m_mkpot, m_bandcal       
       logical,private:: binit=.true.,initd=.true.
       contains
@@ -70,7 +71,7 @@
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
-      use m_mkrout,only: m_mkrout_init,orhoat_out,frc,hbyl_rv,qbyl_rv
+      use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
       use m_sugw,only: m_sugw_init
       use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
@@ -137,10 +138,10 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       logical:: fsmode !for --fermisurface for xcrysden.
       logical,save:: siginit=.true. 
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-      integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn
+      integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn,ib
       real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-      real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:)
+      real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
       call tcn ('bndfp')
@@ -158,8 +159,8 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
          eferm = bz_ef0 !! eferm is from ctrl file when m_bndfp_ef_set in not called (binit=T)
          binit=.false.
       endif
-!  Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different when we use
-!  different number of k points. For example, you may change NKABC, and run job_pdos.
+!  Get eferm from efermi.lmf for plbnd mode. Note that efermi.lmf can be different from efermi in rst.* file.
+!  For example, you may change NKABC, and run job_pdos (lmf-MPIK --quit=band only modify efermi.lmf, without touching rst.*).
       if(plbnd/=0) then
          open(newunit=ifi,file='efermi.lmf')
          read(ifi,*) eferm
@@ -287,7 +288,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
          write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm
          write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
          write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot
-         write(ifi,"(d24.16,d24.16 ' #before: number of electrons at sites qval, qbg=')") qval,qbg
+         write(ifi,"(d24.16,d24.16 ' #before: number of electrons total at sites:qval, backg:qbg=')") qval,qbg
          write(ifi,"(d24.16, ' #band: charge(nup+nspin), mag.mom(nup-ndown)=')")qvalm(1), qvalm(2)
          write(ifi,"(3i10,'    # Used k point to determine Ef')") nkabc
          write(ifi,"('# NOTE: This file is overwritten by lmf-MPIK SC loop')")
@@ -305,7 +306,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
      &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dosi_rv , ndos , efermxxx ,
      &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
-            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv) !derivative 'integrated DOS dosi_rv -> DOS dos_rv'
+            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv) ! 'integrated DOS dosi_rv -> DOS dos_rv'
          else
             call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
@@ -357,31 +358,33 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
         call rx0('Done cls mode:')
       endif
       
-!! write orbital moment      
+!! write out orbital moment      
       if(lwtkb==1 .and. lso/=0) call iorbtm() !write out orbital moment
 !! Assemble output density, energies and forces ===============================
       if (lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out Symmetrize smooth density
-      call m_mkrout_init() !Get force frc, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
+      call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
 !!  New boundary conditions pnu for phi and phidot
       if (lrout/=0) call pnunew(eferm) !ssite%pnu ssite%pz are revised.
-c$$$      if(master_mpi) call writeqpyl() !if you like to print writeqbyl
-!! Evaluate Harris-foukner energy 
-      call m_mkehkf_etot1(sev, eharris)
-!    If necessary, we need to use core as valence or something else.
-!     (note: we now use NonMagneticCORE mode as default)
+c$$$  if(master_mpi) call writeqpyl() !if you like to print writeqbyl
       
-!! Evaluate KS total energy, and correction to Harris force ---
+!! Evaluate Harris-foukner energy 
+!     (note: we now use NonMagneticCORE mode as default)
+      call m_mkehkf_etot1(sev, eharris)
+      
+!! Evaluate KS total energy and Force ---
       if(lrout/=0) then
+        allocate(qmom_in(nvl))
+        qmom_in=qmom !
         elind = ham_elind ! accelarating convergence. Not used so often. Need examination.
         if(ham_elind<0d0) elind=-(3*pi**2*(qval-qsc-qbg)/vol)**.66666d0*ham_elind
-!!   ... Correction to harris force
-        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,         fh_rv)
+!!   ... Correction to harris force ! qmom is given by m_mkpot_init for input dentisy.
+c        if(lfrce>0 ) call dfrce (lfrce,orhoat,orhoat_out,elind,qmom,osmrho,smrho_out,         fh_rv)
 !!   ... Evaluate KS total energy and output magnetic moment
         eksham = 0d0
         if(leks>=1) then
            call togpr()
            call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
-           call m_mkpot_energyterms(smrho_out, orhoat_out)
+           call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
            if(cmdopt0('--density')) then
               call mpi_barrier(MPI_comm_world,ierr)  
               call rx0('end of --density mode')
@@ -393,12 +396,18 @@ c$$$      if(master_mpi) call writeqpyl() !if you like to print writeqbyl
 !! fes1_rv: contribution to HF forces from estat + xc potential
 !           This is for input  density !=3rd term in (B.5) in JPSJ.84.034705
 !! fes2_rv: contribution to KS forces from estat + xc potential.   This is for output density
-!! fh_rv      : 1st term in (B.5)
-!! input frc  : 2nd term in (B.5). Puley term
-!! output frc : total
-        if(lfrce> 0) call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frc )
+!! frcbandsym : 1st term in (B.5)  (puley? need check)
+!! fh_rv      : 2nd term in (B.5)  (need check)
+!! force : total
+        if(lfrce> 0) then
+         if(allocated(force)) deallocate(force)
+         allocate(force(3,nbas))
+         call dfrce (lfrce,orhoat,orhoat_out,elind,qmom_in,osmrho,smrho_out,  fh_rv)
+         call totfrc(leks, fes1_rv, fes2_rv, fh_rv, frcbandsym, force)
+        endif
+        deallocate(qmom_in)
 !! Mixing input (osmrho,orhoat) and output (osmrho_out,orhoat_out). Output are orhoat and osmrho.
-        call mixrho(iter,qval-qbg,elind, orhoat_out,orhoat, smrho_out,osmrho,qdiff) !mixrho keeps history in it.
+        call mixrho(iter,qval-qbg,elind, orhoat_out,orhoat, smrho_out,osmrho, qdiff) !mixrho keeps history in it.
       else
         eksham = 0d0
       endif

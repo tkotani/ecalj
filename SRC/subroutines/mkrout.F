@@ -2,10 +2,10 @@
       use m_struc_def
       use m_uspecb,only:uspecb
       use m_lmfinit,only:nkapii,lhh
-      public:: orhoat_out, frc, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
+      public:: orhoat_out, frcbandsym, qbyl_rv,hbyl_rv, m_mkrout_init,sumec,sumtc,sumt0
       
       type(s_rv1),protected,allocatable :: orhoat_out(:,:)
-      real(8),allocatable,protected::  frc(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
+      real(8),allocatable,protected::  frcbandsym(:,:), hbyl_rv(:,:,:), qbyl_rv(:,:,:)
       real(8),protected:: sumec,sumtc,sumt0
       
       private
@@ -20,9 +20,9 @@
 !! contribution to force via band 
 !! for force      
       if(ctrl_lfrce>0 ) then
-        if(allocated(frc)) deallocate(frc)
-        allocate(frc(3,nbas)) !for forces
-        frc=frcband         !part of atomic force from band part        
+        if(allocated(frcbandsym)) deallocate(frcbandsym)
+        allocate(frcbandsym(3,nbas)) !for forces
+        frcbandsym=frcband         !part of atomic force from band part        
       endif
 !!      
       if(.not.allocated(orhoat_out)) allocate(orhoat_out(3,nbas))
@@ -46,8 +46,8 @@
       endif
       call mkrout(sv_p_oqkkl,sv_p_oeqkkl, orhoat_out, hab_rv,sab_rv,qbyl_rv,hbyl_rv)
       if (lrout/=00) then
-!!  Symmetrize output atomic density and forces
-         call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frc)
+!!  Symmetrize output atomic density and forces frcbandsym is symmetrized
+         call symrhoat ( orhoat_out, qbyl_rv, hbyl_rv, frcbandsym)
       endif
       end
 !!-------------------------------

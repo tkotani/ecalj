@@ -14,8 +14,7 @@
       use m_iors,only: Iors
       use m_supot,only: m_supot_init,k1,k2,k3
       use m_suham,only: m_suham_init
-      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff
-      use m_mkrout,only: frc_rv=>frc
+      use m_bndfp,only: Bndfp,   ham_ehf,ham_ehk,qdiff,force
       use m_ldau,only: m_ldau_init,m_ldau_vorbset
       use m_chkdmu,only: eorb
       use m_bandcal,only: dmatu
@@ -265,7 +264,7 @@ c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc
          mdprm = ctrl_mdprm !MD setting
 !! Relax atomic positions.   !--> shear mode removed. probably outside of fortran code if necessary
          call relax( ssite , sspec , itrlx , indrx_iv 
-     .        , natrlx, nvrelx, frc_rv , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
+     .        , natrlx, nvrelx, force , p_rv , w_rv , 0 , 0d0 , pos_move, icom )
 !!  warn: Updating positions in ssite structure ==> t.kotani think this is confusing because
 !!        'positions written in ctrl' and 'positions written in rst' can be different.
          if(master_mpi) write(ifipos) itrlx,pos_move
