@@ -6,7 +6,6 @@
       use m_lmfinit,only: nsp, lat_alat
       use m_lattic,only: lat_vol
 
-
       use m_lattic,only: lat_plat
 C-Make ESM electrostatic potential of density given in real space
 C ----------------------------------------------------------------------
@@ -78,8 +77,7 @@ c      nsp   = globalvariables%nsp
         eesmp=0d0
         eesmm=0d0
         if ( procid == master ) then
-          ifiese=101
-          open(ifiese,file='esm_input.dat',status='old',err=201)
+          open(newunit=ifiese,file='esm_input.dat',status='old',err=201)
           read(ifiese,*,err=201) jesm
           read(ifiese,*,err=201) jtresm,tresm
           read(ifiese,*,err=201) z1esm,z2esm
@@ -87,6 +85,10 @@ c      nsp   = globalvariables%nsp
           read(ifiese,*,err=201) eesmp,eesmm
           close(ifiese)
  201      continue
+          if(jesm==0) then
+             write(stdo,"(a)") ' esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
+             return
+          endif   
           tresm=-tresm
 
           z0esm =  alat*plat(3,3)*0.5d0
@@ -203,7 +205,7 @@ C
       real(8) :: temp1, temp2, temp3, temp4, temp5, clat, delc, z1esm1, z2esm1, z, tg, als, bls, ars, brs
       integer, parameter :: ndat = 5
 
-      integer :: ir, ii, ir1, ir2, ir3, ig1, ig2
+      integer :: ir, ii, ir1, ir2, ir3, ig1, ig2,ifi
 
       allocate (v(k1,k2,k3), g(ng), v3(k3), gpas(k1,k2), xidz(k1,k2,4))
       xidz(1:k1,1:k2,1:4) = (0.d0, 0.d0)
@@ -549,18 +551,18 @@ c.......splined esm potential
         enddo
 
         if ( procid == master ) then
-          open(unit=49,file=fname)
-          write(49,'(a)') '# charge and hartree potential (planar average)'
-          write(49,'(a,f18.8)')'# eh=',eh
-          write(49,'(a)')'#z-coordinate, smooth density, esm potential, gaussian density, spin density, splined esm potential'
-
+          open(newunit=ifi,file=trim(fname))
+          write(ifi,'(a)') '# charge and hartree potential (planar average)'
+          write(ifi,'(a,f18.8)')'# eh=',eh
+          write(ifi,'(a)')'#z-coordinate, smooth density, esm potential, gaussian density, spin density, splined esm potential'
+          
           do ir3=k3/2+1,k3
             temp1 = v3work(ir3,1)
             temp2 = v3work(ir3,2)
             temp3 = v3work(ir3,3)
             temp4 = v3work(ir3,4)
             temp5 = v3work(ir3,5)
-            write(49,'(E16.7,5E17.8)') dble(ir3-k3-1)*delc,temp1,temp2,temp3,temp4,temp5
+            write(ifi,'(E16.7,5E17.8)') dble(ir3-k3-1)*delc,temp1,temp2,temp3,temp4,temp5
             if( jesm == 2 )then
               if( ir3-k3/2-1 < 5 ) then
                 ii = ir3-k3/2
@@ -576,7 +578,7 @@ c.......splined esm potential
             temp3 = v3work(ir3,3)
             temp4 = v3work(ir3,4)
             temp5 = v3work(ir3,5)
-            write(49,'(E16.7,5E17.8)') dble(ir3-1)*delc,temp1,temp2,temp3,temp4,temp5
+            write(ifi,'(E16.7,5E17.8)') dble(ir3-1)*delc,temp1,temp2,temp3,temp4,temp5
             if( jesm == 2 .or. jesm == 3 ) then
               if( k3/2-ir3 < 5) then
                 ii = k3/2-ir3+1
@@ -589,19 +591,19 @@ c.......splined esm potential
           if( jesm == 2 ) then
 c           least-square fit at left surface
             call lsfit(ndat,xdl,ydl,als,bls)
-            write(49,'(A)')'# left surface: e = a * z + b'
-            write(49,'(A,2F18.8)')'# als(au,ev/a)=',als,als*angstr/ev
-            write(49,'(A,2F18.8)')'# bls(au,ev)  =',bls,bls/ev
+            write(ifi,'(A)')'# left surface: e = a * z + b'
+            write(ifi,'(A,2F18.8)')'# als(au,ev/a)=',als,als*angstr/ev
+            write(ifi,'(A,2F18.8)')'# bls(au,ev)  =',bls,bls/ev
           endif
 
           if( jesm == 2 .or. jesm == 3 ) then
 c           least-square fit at right surface
             call lsfit(ndat,xdr,ydr,ars,brs)
-            write(49,'(A)')'# right surface: e = a * z + b'
-            write(49,'(A,2F18.8)')'# ars(au,ev/a)=',ars,ars*angstr/ev
-            write(49,'(A,2F18.8)')'# brs(au,ev)  =',brs,brs/ev
+            write(ifi,'(A)')'# right surface: e = a * z + b'
+            write(ifi,'(A,2F18.8)')'# ars(au,ev/a)=',ars,ars*angstr/ev
+            write(ifi,'(A,2F18.8)')'# brs(au,ev)  =',brs,brs/ev
           endif
-          close(49)
+          close(ifi)
         endif
       endif !endif of if(twrite)then
 

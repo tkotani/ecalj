@@ -145,7 +145,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
       call tcn ('bndfp')
-      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
+c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 !  Too complicated to touch it. Probably, it is better to write new mixing routine by yourself
       debug  = cmdopt0('--debugbndfp')
       tdos   = cmdopt0('--tdos')  !total dos mode or not
@@ -281,8 +281,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
 !! New eferm and wtkb determined from evlall 
       call m_subzi_bzintegration(evlall,swtk,  eferm,sev,qvalm,vnow) !Get eferm, and wtkb...
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
-      if(lmet==0.and. master_mpi)
-     &     write(stdo,"('Highest occ., Ef, Lowest unocc.=',3f10.5)")evtop,eferm,ecbot,eferm
+      if(lmet==0.and. master_mpi) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
       if(master_mpi) then
          open(newunit=ifi,file='efermi.lmf')
          write(ifi,"(d24.16, ' # (Ry) Fermi energy given by lmf')") eferm

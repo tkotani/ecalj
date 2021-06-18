@@ -146,6 +146,7 @@ C ----------------------------------------------------------------------
       integer norb,ntab(n0*nkap0),blks(n0*nkap0)
       double precision pnu(n0,2),pnz(n0,2),qcorg,qcorh,qsc,cofg,cofh
       integer ::iwdummy,i_copy_size,ifx,nlmto
+      real(8):: dat(6,nbas)
       nlmto= ham_ldham(1)
       ipr  = iprint()
       pi   = 4d0*datan(1d0)
@@ -155,13 +156,6 @@ C ----------------------------------------------------------------------
       sumtc = 0d0
       sumec = 0d0
       sumt0 = 0d0
-      if (ipr.ge.30 .and. lrout.gt.0) then
-        write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
-        if (nsp .eq. 1) write(stdo,201)
-        if (nsp .eq. 2) write(stdo,202)
-  201   format(/' mkrout:  Qtrue      sm,loc       local')
-  202   format(/' mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')
-      endif
       do  ib = 1, nbas
         is = int(ssite(ib)%spec)
         rsma=sspec(is)%rsma
@@ -285,10 +279,13 @@ C   --- Print charges for information ---
             sums1 = sum1 - 2d0 * ddot ( nr , rwgt_rv , 1 , orhoat_out( 1 , ib )%v, 1 ) / y0
             sums2 = sum2 - 2d0 * ddot ( nr , rwgt_rv , 1 , orhoat_out( 2 , ib )%v, 1 ) / y0
           endif
-          if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
-          if (ipr.ge.30 .and. nsp .eq. 2)
-     .      write(stdo,200) ib,sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2
- 200      format(i4,3f12.6,2x,3f12.6)
+c          if (ipr.ge.30 .and. nsp .eq. 1) write(stdo,200) ib,sum1,sum2,sum1-sum2
+c          if (ipr.ge.30 .and. nsp .eq. 2)
+c     .      write(stdo,200) ib,sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2
+c 200      format(i4,3f12.6,2x,3f12.6)
+
+          if(nsp==1) dat(1:3,ib) = [sum1,sum2,sum1-sum2]
+          if(nsp==2) dat(1:6,ib) = [sum1,sum2,sum1-sum2, -sums1,-sums2,-sums1+sums2]
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.controlled by uhval.aftest file. See elsewhere.
@@ -317,6 +314,7 @@ C       Contribution to mag outsite rmt: extrapolate tail to infinity
 C   --- Make new core density and core eigenvalue sum ---
         if (lfoc .eq. 0) then
           call pshpr(ipr+11)
+          write(stdo,*)
           call getcor ( 0 , z , a , pnu , pnz , nr , lmxa , rofi_rv , ssite(ib)%rv_a_ov1 
      .      , kcor , lcor , qcor , smec , smtc , orhoat_out( 3 , ib )%v 
      .      , ncore , 0d0 , 0d0,   sspec(is)%nmcore)
@@ -324,12 +322,13 @@ C   --- Make new core density and core eigenvalue sum ---
           sumtc = sumtc + smtc
           sumec = sumec + smec
         else
-          if (ipr .ge. 41) write(stdo,288) stc0
-  288     format(' foca..  use smtc = ',f14.6)
+c          if (ipr .ge. 81) write(stdo,288) stc0
+c  288     format(' foca..  use smtc = ',f14.6)
           sumtc = sumtc + stc0
           sumt0 = sumt0 + stc0
           call dpcopy ( sspec(is)%rv_a_orhoc , orhoat_out( 3 , ib )%v , 1 , nr* nsp , 1d0 )
-        endif
+       endif
+!     !
         if (allocated(dmatl_rv)) deallocate(dmatl_rv)
         if (allocated(cpp_rv)) deallocate(cpp_rv)
         if (allocated(chp_rv)) deallocate(chp_rv)
@@ -352,6 +351,18 @@ C   --- Make new core density and core eigenvalue sum ---
         if (allocated(rofi_rv)) deallocate(rofi_rv)
    10   continue
       enddo
+      if (ipr.ge.30 .and. lrout.gt.0) then
+c          write(stdo,"(a)")' mkrout: site(class) decomposed charge and magnetic moment. class->lmchk'
+          if (nsp .eq. 1) write(stdo,201)
+          if (nsp .eq. 2) write(stdo,202)
+ 201      format(/' mkrout:  Qtrue      sm,loc       local')
+ 202      format(/' mkrout:  Qtrue      sm,loc       local',8x,'true mm   smooth mm    local mm')
+          do ib=1,nbas
+             write(stdo,200) ib,dat(1:3*nsp,ib)
+ 200         format(i4,3f12.6,2x,3f12.6)
+          enddo   
+      endif
+      
 C --- Put sumec,sumtc into etot struct ---
 c      ham_eterms=eterms
       call tcx('mkrout')

@@ -207,8 +207,9 @@ C    +10 -> invoke smshft(1) after file read.
 !     ! Make and diagonalize hamiltonian, make new charge density ---
             if(maxit/=0) then
                if (master_mpi) then
-               aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
-               write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
+                  aaachar=trim(i2char(iter))//" of "//trim(i2char(maxit))
+                  write(stdo,*)
+                  write(stdo,"(a)") trim(" --- BNDFP:  begin iteration "//aaachar)
                endif
                call bndfp(iter, llmfgw, plbnd) !Main part of band calculation. Get total energies ham_ehf and ham_ehk
             endif

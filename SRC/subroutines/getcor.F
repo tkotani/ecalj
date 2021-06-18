@@ -93,7 +93,7 @@ c      nsp = globalvariables%nsp
 
       jpr = 0
       if (ipr .ge. 30) jpr = 1
-      if (ipr .ge. 45) jpr = 2
+c      if (ipr .ge. 45) jpr = 2
       tol = 1d-8
       call dpzero(rhoc,   nr*nsp)
       b = rofi(nr)/(dexp(a*(nr-1))-1)

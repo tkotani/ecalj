@@ -158,6 +158,9 @@ c     .  , i_copy_size , i_spackv + 1 - 1 , pos0_rv )
 C --- Start loop over classes ---
       allocate(ipa_iv(nbas))
       allocate(pos_rv(3*nbas))
+      if (iprint() .ge. 35) then
+         write(stdo,"(a)")'                qbyl        hbyl        ebar   '
+      endif   
       do  ic = 1, nclass
         call psymr0 ( - 2 , ic , nbas , ipc_iv , pos0_rv , pos_rv 
      .  , ipa_iv , nrclas )
@@ -168,8 +171,8 @@ C --- Start loop over classes ---
           lmxa=sspec(is)%lmxa
           nr=sspec(is)%nr
           nlml = (lmxl+1)**2
-          if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
-  800     format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
+c          if (ipr .ge. 40) write(stdo,800) ic,nrclas,nlml
+c  800     format(/' Symmetry class',i3,'   nrclas=',i3,'   nlml=',i3)
 
 C   ... Make the projectors; make to at least to l=1 for forces
           nlmx = max0(nlml,4)
@@ -184,7 +187,7 @@ C   ... Apply the projectors to rhoat
             call psymr1 ( nrclas , ipa_iv , nr , nlml , nsp , nlmx , sym_rv 
      .       , rho_rv , sv_p_orhoat , 2 )
 C   ... Symmetrize site charges and eigval sum
-            call psymrq ( nrclas , nsp , ipa_iv , lmxa , qbyl , hbyl )
+            call psymrq ( nrclas , nsp , ipa_iv , lmxa , qbyl , hbyl ) !write qbyl
           endif
 C   ... Symmetrize the forces
           if ( lf .ne. 0 ) call psymrf ( nrclas , ipa_iv , nlmx , sym_rv 
@@ -251,17 +254,18 @@ C ... Local parameters
         enddo
       enddo
       if (iprint() .ge. 35) then
-        write(stdo,"(a)")' psymrq: symmetrized l-charge qbyl, hbyl and ebar     '
-        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
-        write(stdo,770) (ipa(ia),ia = 1,nrclas)
+c         write(stdo,"(a)")'                qbyl        hbyl        ebar   '
+c        write(stdo,"(a)")'   ebar=hbyl/qbyl= center of gravity of occpied states'
+c        write(stdo,770) (ipa(ia),ia = 1,nrclas)
 c  770   format(' symmetrized qbyl,hbyl for class containing atom site ib=',20i3)
-  770   format(' atom site ib=',255i3)
+c  770   format(' atom site ib=',255i3)
         if (nsp .eq. 1) write(stdo,780)
-     .  (l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
+     .  (ipa(1),l,qsum(l+1,1),hsum(l+1,1), hsum(l+1,1)/qsum(l+1,1), l=0,lmxa)
         if (nsp .eq. 2) write(stdo,781)
-     .  (l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
-  780   format(' l=',i5,3f12.6)
-  781   format(' l=',i5,3f12.6,'   spin 2',3f12.6)
+     .  (ipa(1),l,(qsum(l+1,isp),hsum(l+1,isp),hsum(l+1,isp)/qsum(l+1,isp),isp=1,nsp), l=0,lmxa)
+  780   format('ib=',i3,' l=',i2,3f12.6)
+ 781    format('ib=',i3,' l=',i2,3f12.6,'   spin 2',3f12.6)
+        write(stdo,*)'-----------------------------------------------'
       endif
       do  ia = 1, nrclas
         ib = ipa(ia)
@@ -304,8 +308,8 @@ C ... Copy to all sites in class
         call pysmr1 ( wgt , nr , nlml , nsp , sym ( 1 , 1 , ia ) , rho 
      .   , sv_p_orhoat( icmp , ib )%v , nn )
       enddo
-      if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml
-  100 format(' psymr: did',i5,'  of',i5)
+c      if (iprint() .ge. 40) write(stdo,100) nn,nlml*nlml
+c  100 format(' psymr: did',i5,'  of',i5)
       end subroutine psymr1
 
 
