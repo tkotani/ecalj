@@ -89,7 +89,7 @@
      .lgunit,lmaxa,lmxax,lsig,mx,mxint,n1,n2,n3,nat,
      .ncore,ndima,nevl,nev,nglob,ngp,ngp_p, 
      .ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn,npgrp,
-     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, stdo,
+     .nphimx,npqn,nqbz,nqibz,nqnum,nqnumx,nqtot,nr,nsgrp,iqibz,imx, 
      & ifigwb,ifigwa,ifinormchk,ifinlaindx,ifigw1,ifildima,ifigwn,
      & ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
       complex(8) ,allocatable :: aus_zv(:)
@@ -161,7 +161,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:),ovlmtoi(:,:),ovliovl(:,:) 
       integer,allocatable:: iantiferro(:)
 
-      integer:: lpdiag=0
+      integer:: lpdiag=0,stdo
       character spid*8
 
 #if MPI | MPIK
@@ -170,22 +170,17 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
 
 !! --- Setup ---
       call tcn ('m_sugw_init')
+      stdo = lgunit(1)
       if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
       sigmamode = mod(lrsig,10) .ne. 0
 
 !! june2013 magfield is added
-      ifimag = ifile_handle()
-      inquire(unit=ifimag,opened=nexist)
-      if(nexist) stop 'sugw:ifimag used already (too sloppy manner ; fix this). '
       open(ifimag,file='MagField',status='old',err=112)
+      read(ifimag,*,err=112) vnow
+      close(ifimag)
       magexist=.true.
-      if(magexist) then
-         open(ifimag,file='MagField',status='old')
-         read(ifimag,*)vnow
-         close(ifimag)
-         write(6,"('Add mag.field to eval. -vnow/2 for isp=1, +vnow/2 for isp=2. vnow=',d13.6)")vnow
-         goto 113
-      endif   
+      write(6,"('Add mag.field to eval. -vnow/2 for isp=1, +vnow/2 for isp=2. vnow=',d13.6)")vnow
+      goto 113
  112  continue
       magexist=.false.
  113  continue
@@ -203,7 +198,6 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       npgrp =lat_npgrp
       nsgrp =lat_nsgrp
       call fftz30(n1,n2,n3,k1,k2,k3)
-      stdo = lgunit(1)
       lchk = 1
       lwvxc = .not. cmdopt0('--novxc')
 
@@ -916,61 +910,6 @@ C --- File write ---
       endif
 
       end subroutine ioaindx
-
-
-
-
-c--------------------------------------------------------------------
-      subroutine mkppovl2(alat,plat,qlat, ng1,ngvec1,ng2,ngvec2,
-     inbas, rmax, bas,
-     oppovl)
-C- < G1 | G2 > matrix where G1 denotes IPW, zero within MT sphere.
-      implicit none
-      integer ::  nbas, ng1,ng2,nx(3),
-     .ig1,ig2, ngvec1(3,ng1),ngvec2(3,ng2),
-     .n1x,n2x,n3x,n1m,n2m,n3m
-      real(8) :: tripl,rmax(nbas),pi
-      real(8) :: plat(3,3),qlat(3,3),
-     .alat,tpibaqlat(3,3),voltot, bas(3,nbas)
-C     complex(8) :: img =(0d0,1d0)
-      complex(8) :: ppovl(ng1,ng2)
-      complex(8),allocatable :: ppox(:,:,:)
-      logical:: debug=.false.
-c-----------------------------------------------------
-C     print *,' mkppovl2:'
-      pi        = 4d0*datan(1d0)
-      voltot    = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-      tpibaqlat =  2*pi/alat *qlat
-c < G1 | G2 >
-      n1x = maxval( ngvec2(1,:)) - minval( ngvec1(1,:))
-      n1m = minval( ngvec2(1,:)) - maxval( ngvec1(1,:))
-      n2x = maxval( ngvec2(2,:)) - minval( ngvec1(2,:))
-      n2m = minval( ngvec2(2,:)) - maxval( ngvec1(2,:))
-      n3x = maxval( ngvec2(3,:)) - minval( ngvec1(3,:))
-      n3m = minval( ngvec2(3,:)) - maxval( ngvec1(3,:))
-c
-      if(debug) print *,' mkppovl2: 1 ',n1x,n1m,n2x,n2m,n3x,n3m
-      allocate( ppox(n1m:n1x,n2m:n2x,n3m:n3x) )
-      ppox = 1d99
-      do ig1  = 1, ng1
-        do ig2  = 1, ng2
-          nx(1:3) = ngvec2(1:3,ig2) - ngvec1(1:3,ig1) ! G2-G1
-          if( ppox(nx(1),nx(2),nx(3)) .eq. 1d99 ) then
-            call matgg2(alat,bas,rmax,nbas,voltot, tpibaqlat,
-     i      nx(1:3), ! G2 -G1
-     o      ppox( nx(1),nx(2),nx(3)))
-          endif
-        enddo
-      enddo
-      if(debug) print *,' mkppovl2: 2 ',n1x,n1m,n2x,n2m,n3x,n3m
-      do ig1 = 1,ng1
-        do ig2 = 1,ng2
-          nx(1:3) = ngvec2(1:3,ig2) -ngvec1(1:3,ig1) ! G2-G1
-          ppovl(ig1,ig2) = ppox( nx(1),nx(2),nx(3) )
-        enddo
-      enddo
-      deallocate(ppox)
-      end subroutine mkppovl2
 
 
 

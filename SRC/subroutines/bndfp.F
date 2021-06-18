@@ -140,7 +140,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn
       real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
-      real(8),allocatable:: dos_rv(:,:)
+      real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:)
       real(8),parameter::  NULLR =-99999,pi=4d0*datan(1d0)
 !! ----------------------------
       call tcn ('bndfp')
@@ -299,13 +299,13 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
          dosw(1)= emin -0.5d0   ! lowest energy limit to plot dos
          dosw(2)= eferm+bz_dosmax ! lowest energy limit to plot dos
          write(stdo,"(a,3f9.4)") 'Generating TDOS: efermi, and dos window= ',eferm,dosw
-         allocate( dos_rv(ndos,nspx+1)) !for xxxdif
+         allocate( dosi_rv(ndos,nspx),dos_rv(ndos,nspx)) !for xxxdif
          if(cmdopt0('--tdostetf')) ltet=.false. ! Set tetrahedron=F 
          if(ltet) then 
             call bzints(nkabc(1),nkabc(2),nkabc(3), evlall 
-     &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dos_rv , ndos , efermxxx ,
-     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dos_rv
-            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dos_rv) !derivative 'integrated dos -> DOS'
+     &           , dum , nkp , ndhamx , ndhamx , nspx , dosw(1), dosw(2), dosi_rv , ndos , efermxxx ,
+     &           1, ntet , iv_a_oidtet , dum , dum ) !job=1 give IntegratedDos to dosi_rv
+            call xxxdif(dosw(1),dosw(2),ndos,nspx,0,dosi_rv,dos_rv) !derivative 'integrated DOS dosi_rv -> DOS dos_rv'
          else
             call makdos (nkp, ndhamx, ndhamx, nspx, rv_a_owtkp, evlall,bz_n, bz_w
      .           , - 6d0 , dosw ( 1 ) , dosw ( 2 ) , ndos , dos_rv )
@@ -465,6 +465,23 @@ c$$$         endif
 c$$$      endif   
       end
 
+      subroutine xxxdif(emin,emax,npts,ndos,mode,dosi,dos)
+!! Differentiate Number of States to make DOS
+      implicit none
+      integer npts,ndos,mode
+      real(8):: dosi(npts,ndos), dos(npts,ndos),emin,emax
+      integer ip,idos,k
+      double precision bin
+      bin = 2*(emax-emin)/dble(npts-1)
+      do  idos = 1, ndos
+        do ip = 2, npts-1
+           dos(ip,idos) = (dosi(ip+1,idos) - dosi(ip-1,idos)) / bin
+        enddo   
+        dos(1,idos)    = dos(2,idos)
+        dos(npts,idos) = dos(npts-1,idos)
+      enddo  
+      end
+      
       end module m_bndfp
 
       
