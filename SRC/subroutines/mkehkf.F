@@ -1,6 +1,5 @@
       module m_mkehkf
       contains
-      
       subroutine m_mkehkf_etot1(sev, etot)
       use m_struc_def
       use m_lmfinit,only: nsp,stdo,stdl

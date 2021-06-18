@@ -16,13 +16,12 @@
       use m_bandcal,only: sv_p_oqkkl,sv_p_oeqkkl,frcband
       use m_mkpot,only: hab_rv,sab_rv
       use m_suham,only: ham_ndham
-      use m_subzi,only: numq
       integer:: ib,is,nr,lmxl,nlml
 !! contribution to force via band 
 !! for force      
       if(ctrl_lfrce>0 ) then
         if(allocated(frc)) deallocate(frc)
-        allocate(frc(3,nbas*numq)) !for forces
+        allocate(frc(3,nbas)) !for forces
         frc=frcband         !part of atomic force from band part        
       endif
 !!      

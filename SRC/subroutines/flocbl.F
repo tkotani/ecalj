@@ -1,5 +1,5 @@
       subroutine flocbl(nbas,ia,kmax,nkaph,lmxha,nlmha,nlma,lmxa,nlmto,
-     .ndimh,iprmb,isp,evl,evec,ewgt,numq,cPkL,db,da,wk,ppipp,ppippz,
+     .ndimh,iprmb,isp,evl,evec,ewgt,cPkL,db,da,wk,ppipp,ppippz,
      .sigpp,ppihp,ppihpz,sighp,lcplxp,f)
 C- Force contribution from augmentation at site ia.
 C ----------------------------------------------------------------------
@@ -15,7 +15,6 @@ Ci   ndimh :dimension of hamiltonian
 Ci   evl   :eigenvalue
 Ci   evec  :eigenvector
 Ci   ewgt  :eigenvector weight
-Ci   numq  :number of trial fermi levels
 Ci   cPkL  :PkL expansion eigenvector at site ia.
 Ci   b     :structure constants, needed for PW contribution
 Ci   db    :gradient of structure constants, needed to make grad psi
@@ -42,8 +41,8 @@ C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
       integer ia,kmax,lmxa,nkaph,nbas,nlmto,ndimh,nlma,lmxha,lcplxp,
-     .nlmha,numq,isp,iprmb(1)
-      double precision evl,f(3,nbas,numq),ewgt(numq),
+     .nlmha,isp,iprmb(1)
+      double precision evl,f(3,nbas),ewgt,
      .sigpp(0:kmax,0:kmax,0:lmxa,isp),sighp(nkaph,0:kmax,0:lmxha,isp),
      .ppihp(nkaph,0:kmax,nlmha,nlma,isp),
      .ppipp(0:kmax,0:kmax,nlma,nlma,isp)
@@ -107,13 +106,9 @@ C   --- Force term is (grad psi_kL) * (ppi-evl*sig)*evec ---
           enddo
 c|          write (6,300) ia,ib,m,sum
 c|  300     format(' ia=',i3,'  ib=',i3,'   m=',i2,'   sum=',2f12.6)
-
-          do  iq = 1, numq
-            wt = ewgt(iq)
-            f(m,ib,iq) = f(m,ib,iq) - wt*sum
-            f(m,ia,iq) = f(m,ia,iq) + wt*sum
-          enddo
-
+          wt = ewgt
+          f(m,ib) = f(m,ib) - wt*sum
+          f(m,ia) = f(m,ia) + wt*sum
         enddo
 
    10   continue
@@ -138,10 +133,8 @@ C ... Force term is (grad psi_kL) * (ppi-evl*sig)*evec
             sum = sum + 2d0*dconjg(da(k,ilm,m))*wk(k,ilm)
           enddo
         enddo
-        do  iq = 1, numq
-          wt = ewgt(iq)
-          f(m,ia,iq) = f(m,ia,iq) + wt*sum
-        enddo
+        wt = ewgt
+        f(m,ia) = f(m,ia) + wt*sum
       enddo
 
       call tcx('flocbl')

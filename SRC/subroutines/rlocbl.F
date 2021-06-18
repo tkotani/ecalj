@@ -1,7 +1,7 @@
       module m_prlcb
       contains
       subroutine prlcb2(job,ia,nkaph,iprmb,nlmha,kmax,nlma,isp,cPkL,
-     .     nlmto,evec,ewgt,numq,evl,qhh,qhp)
+     .     nlmto,evec,ewgt,evl,qhh,qhp)
 C- Add one and two-center terms to density coeffs
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -17,7 +17,6 @@ Ci   isp   :spin channel
 Ci   cPkL  :PkL expansion eigenvector at site ia.
 Ci   nlmto :dimension of lmto component of basis
 Ci   evec  :eigenvector
-Ci   numq  :number of trial fermi levels
 Ci   ewgt  :eigenvector weight
 Ci   evl   :energy weight (job=1)
 Co Outputs
@@ -32,9 +31,9 @@ Cu             Option to accumulate energy-weighted output density
 Cu   27 Aug 01 Extended to local orbitals.
 C ----------------------------------------------------------------------
       implicit none
-      integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,numq,iprmb(1)
-      double precision qhh(nkaph,nkaph,nlmha,nlmha,numq,isp),
-     .     qhp(nkaph,0:kmax,nlmha,nlma,numq,isp),ewgt(numq)
+      integer job,ia,kmax,nkaph,isp,nlmto,nlma,nlmha,iprmb(1)
+      double precision qhh(nkaph,nkaph,nlmha,nlmha,isp),
+     .     qhp(nkaph,0:kmax,nlmha,nlma,isp),ewgt !(numq)
       real(8),optional::evl
       double complex evec(nlmto),cPkL(0:kmax,nlma)
 C ... Local parameters
@@ -59,21 +58,21 @@ C     Block into groups of consecutive l
         do  ilm1 = nlm11, nlm12
           i1 = i1+1
 C     ... Accumulate products H*Pkl
-          do  iq = 1, numq
+c          do  iq = 1, numq
             if (job .eq. 0) then
               do  k = 0, kmax
                 do  ilma = 1, nlma
-                  qhp(ik1,k,ilm1,ilma,iq,isp)= qhp(ik1,k,ilm1,ilma,iq,isp)
-     .            + 2d0*dconjg(evec(i1))*cPkL(k,ilma)*ewgt(iq)
+                  qhp(ik1,k,ilm1,ilma,isp)= qhp(ik1,k,ilm1,ilma,isp)
+     .            + 2d0*dconjg(evec(i1))*cPkL(k,ilma)*ewgt !(iq)
                 enddo
               enddo
             else
               do  k = 0, kmax
-                qhp(ik1,k,ilm1,ilm1,iq,isp)= qhp(ik1,k,ilm1,ilm1,iq,isp)
-     .          + evl*2d0*dconjg(evec(i1))*cPkL(k,ilm1)*ewgt(iq)
+                qhp(ik1,k,ilm1,ilm1,isp)= qhp(ik1,k,ilm1,ilm1,isp)
+     .          + evl*2d0*dconjg(evec(i1))*cPkL(k,ilm1)*ewgt !(iq)
               enddo
             endif
-          enddo
+c          enddo
 C     ... Accumulate products H*H
           do  io2 = 1, norb
             l2  = ltab(io2)
@@ -84,17 +83,17 @@ C     ... Accumulate products H*H
             do  ilm2 = nlm21, nlm22
               i2 = i2+1
               if (job .eq. 0) then
-                do  iq = 1, numq
-                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .            dconjg(evec(i1))*evec(i2)*ewgt(iq)
-                enddo
+c                do  iq = 1, numq
+                  qhh(ik1,ik2,ilm1,ilm2,isp) =
+     .            qhh(ik1,ik2,ilm1,ilm2,isp) +
+     .            dconjg(evec(i1))*evec(i2)*ewgt !(iq)
+c                enddo
               elseif (job .eq. 1 .and. ilm1 .eq. ilm2) then
-                do  iq = 1, numq
-                  qhh(ik1,ik2,ilm1,ilm2,iq,isp) =
-     .            qhh(ik1,ik2,ilm1,ilm2,iq,isp) +
-     .            evl*dconjg(evec(i1))*evec(i2)*ewgt(iq)
-                enddo
+c                do  iq = 1, numq
+                  qhh(ik1,ik2,ilm1,ilm2,isp) =
+     .            qhh(ik1,ik2,ilm1,ilm2,isp) +
+     .            evl*dconjg(evec(i1))*evec(i2)*ewgt !(iq)
+c                enddo
               endif
             enddo
           enddo
@@ -103,7 +102,7 @@ C     ... Accumulate products H*H
       call tcx('prlcb2')
       end subroutine prlcb2
 !!
-      subroutine prlcb3(job,kmax,nlma,isp,cPkL,numq,ewgt,evl,qpp)
+      subroutine prlcb3(job,kmax,nlma,isp,cPkL,ewgt,evl,qpp)
 C- Add to local density coefficients for one state
 C ----------------------------------------------------------------------
 Ci Inputs
@@ -125,33 +124,33 @@ Cu   05 Jul 08 (T. Kotani)
 Cu             Option to accumulate energy-weighted output density
 C ----------------------------------------------------------------------
       implicit none
-      integer job,kmax,nlma,isp,numq
+      integer job,kmax,nlma,isp!,numq
       double complex cPkL(0:kmax,nlma)
-      double precision qpp(0:kmax,0:kmax,nlma,nlma,numq,isp),ewgt(numq)
+      double precision qpp(0:kmax,0:kmax,nlma,nlma,isp),ewgt !(numq)
       real(8),optional::evl
       double precision fac
       integer iq,ilm2,ilm1,k1,k2
       call tcn('prlcb3')
-      do  iq = 1, numq
-        fac = ewgt(iq)
-        if (job .eq. 1) fac = evl*ewgt(iq)
+c      do  iq = 1, numq
+        fac = ewgt !(iq)
+        if (job .eq. 1) fac = evl*ewgt !(iq)
         do  ilm2 = 1, nlma
           do  ilm1 = 1, nlma
             do  k1 = 0, kmax
               do  k2 = 0, kmax
-                qpp(k1,k2,ilm1,ilm2,iq,isp)= qpp(k1,k2,ilm1,ilm2,iq,isp)
+                qpp(k1,k2,ilm1,ilm2,isp)= qpp(k1,k2,ilm1,ilm2,isp)
      .          + fac*dconjg(cPkL(k1,ilm1))*cPkL(k2,ilm2)
               enddo
             enddo
           enddo
         enddo
-      enddo
+c      enddo
       call tcx('prlcb3')
       end subroutine prlcb3
       end module m_prlcb
 !!
       subroutine rlocbl ( ssite , sspec , lfrce , nbas , isp  ! slat ,
-     .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , numq , nevec 
+     .     , q , ndham , ndimh , nspc , napw , igvapw , iprmb , nevec 
      .     , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .     , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
       use m_struc_def,only: s_site,s_spec,s_rv1
@@ -183,7 +182,6 @@ Ci   nspc  :2 for coupled spins; otherwise 1
 Ci   napw  :number of G vectors in PW basis (gvlst2.f)
 Ci   igvapw:G vectors in PW basis, units of qlat (gvlst2.f)
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   numq  :number of trial fermi levels
 Ci   nevec :number of occupied eigenvectors
 Ci   evec  :eigenvectors
 Ci   ewgt  :eigenvector weights
@@ -242,13 +240,13 @@ Cu   17 Jun 00 spin polarized
 Cu   25 May 00 Adapted from nfp rloc_q.f
 C ----------------------------------------------------------------------
       implicit none
-      integer lfrce,nbas,isp,ndimh,nspc,numq,nevec,lcplxp,lekkl,
+      integer lfrce,nbas,isp,ndimh,nspc,nevec,lcplxp,lekkl,
      .iprmb(1),ndham,napw,igvapw(3,napw)
       type(s_rv1),target:: sv_p_oppi(3,1), sv_p_otau(3,1), sv_p_osig(3,1),
      &                     sv_p_oeqkkl(3,1), sv_p_oqkkl(3,1)
       real(8),pointer:: OQPP(:), OQHP(:),OQHH(:),OEQPP(:),OEQHP(:),OEQHH(:),OPPIPP(:)
      &     ,OSIGPP(:),OPPIHP(:), OSIGHP(:)
-      real(8):: q(3), ewgt(numq,nevec) , evl(ndham,isp) , f(3,nbas,numq)
+      real(8):: q(3), ewgt(nevec) , evl(ndham,isp) , f(3,nbas)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
       double complex evec(ndimh,nspc,nevec)
@@ -288,7 +286,7 @@ C ... Find maximum sizes needed to allocate strux; allocate them
       if (kmaxx .gt. ktop0) call rxi('rlocbl: ktop0.lt.kmax=',kmax)
       allocate(w_ob(ndimh*nlmax*(kmaxx+1)), w_odb(ndimh*nlmax*(kmaxx+1)*3))
       if (lfrce .ne. 0) then
-        allocate(w_oxf(3*nbas*numq))
+        allocate(w_oxf(3*nbas))
         w_oxf=0d0
       endif
 !! Loop over augmentation sites ---
@@ -328,21 +326,21 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
             call rlocb1(ndimh,nlma,kmax, evec(1,ispc,ivec), w_ob, cPkL)
 !!  ... Add to local density coefficients for one state
             call prlcb3 ( job=0 , kmax=kmax , nlma=nlma , isp=ksp ,
-     .        cpkl=cpkl, numq=numq, ewgt=ewgt(1,ivec),                                qpp=OQPP)
+     .        cpkl=cpkl, ewgt=ewgt(ivec),                                qpp=OQPP)
             call prlcb2 ( job=0 , ia=ia , nkaph=nkaph , iprmb=iprmb ,
      .         nlmha=nlmha , kmax=kmax, nlma=nlma, isp=ksp , cpkl=cpkl, nlmto=nlmto , 
-     .         evec=evec(1,ispc,ivec), ewgt=ewgt(1,ivec), numq=numq,        qhh=OQHH, qhp=OQHP)
+     .         evec=evec(1,ispc,ivec), ewgt=ewgt(ivec),    qhh=OQHH, qhp=OQHP)
             if (lekkl .eq. 1) then
-               call prlcb3(1, kmax, nlma, ksp, cpkl, numq, ewgt(1,ivec), evl(ivec,isp) , OEQPP)
+               call prlcb3(1, kmax, nlma, ksp, cpkl, ewgt(ivec), evl(ivec,isp) , OEQPP)
                call prlcb2(1, ia, nkaph,iprmb,nlmha,kmax,nlma ,ksp , cpkl , nlmto ,  
-     .              evec(1,ispc,ivec), ewgt(1,ivec), numq , evl ( ivec , isp ) , OEQHH , OEQHP)
+     .              evec(1,ispc,ivec), ewgt(ivec),  evl ( ivec , isp ) , OEQHH , OEQHP)
             endif
 !! ... Contribution to forces
             if (lfrce .ne. 0) then
               call rxx(nspc.ne.1,'forces not implemented in noncoll case')
               call flocbl ( nbas , ia , kmax , nkaph , lmxha , nlmha , nlma 
      .            , lmxa , nlmto , ndimh , iprmb , ksp , evl ( ivec , isp ) , evec 
-     .            ( 1 , ispc , ivec ) , ewgt ( 1 , ivec ) , numq , cpkl , w_odb
+     .            ( 1 , ispc , ivec ) , ewgt (ivec ) ,  cpkl , w_odb
      .            , da , wk , OPPIPP , OPPIPP , OSIGPP , OPPIHP
      .            , OPPIHP , OSIGHP , lcplxp , w_oxf )
             endif
@@ -350,7 +348,7 @@ C       whereas ispc is spin index in the noncoll case, but 1 for coll.
         enddo
 c   10   continue
       enddo !end loop over ia
-      if (lfrce .ne. 0) call daxpy(3*nbas*numq,1d0,w_oxf,1,f,1)
+      if (lfrce .ne. 0) call daxpy(3*nbas,1d0,w_oxf,1,f,1)
       deallocate(cPkL,da,wk,w_ob,w_odb)
       if(lfrce /=0) deallocate(w_oxf)
       call tcx('rlocbl')

@@ -21,7 +21,7 @@
       use m_supot,only: lat_nabc,k1,k2,k3
       use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
       use m_lmfinit,only: iprmb,ham_ldham 
-      use m_subzi, only: lwtkb,nevmx,numq,  lswtk,wtkb=>rv_a_owtkb
+      use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
       use m_mkqp,only: wtkp=>rv_a_owtkp
       use m_mkpot,only: qval_=>qval
 C- Adds to the smooth and local output density and to eigval sum
@@ -56,7 +56,6 @@ Ci   ldos  :if nonzero, accumulate density-of-states
 Ci   k1,k2,k3 dimensions of smpot,smrho
 Ci   smpot :smooth potential on uniform mesh (mkpot.f), for forces
 Ci   vconst:additional constant potential
-Co   numq=1  :number of Fermi levels. Usu. 1, but numq=3 if lmet=4
 Ci   qval  :total valence charge
 Ci   evec  :eigenvectors
 Ci   evl   :eigenvalues
@@ -111,7 +110,7 @@ C ----------------------------------------------------------------------
       integer ipiv(ndimh*2),i_copy_size
       complex(8),allocatable:: evecc(:,:,:,:),work(:,:,:,:)
       real(8),allocatable:: qpgv(:,:),qpg2v(:),ylv(:,:)
-      double precision ewgt(ndimh*nspc*numq),epsnevec
+      double precision ewgt(ndimh*nspc),epsnevec
 
       qval= qval_- zbak 
       if (lwtkb .lt. 0) return
@@ -139,12 +138,11 @@ C ... Case band weights not passed: make sampling weights
       if (lwtkb .eq. 0) then
         call rxx(nspc.ne.1,'lwtkb=0 not implemented in noncoll case')
         wgt = abs(wtkp(iq))/nsp
-        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def,numq, !!esmear
+        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),ef0,def, !!esmear
      .  nevec,ewgt,sumev,sumqv(1,isp))
-        call dscal(nevec*numq,wgt,ewgt,1)
+        call dscal(nevec,wgt,ewgt,1)
 C ... Case band weights are passed
       else
-        if (numq .ne. 1) call rx('addbrl: incompatible numq')
         call dcopy(nevl,wtkb(1,isp,iq),1,ewgt,1)
         do  10  i = nevl, 1, -1
           nevec = i
@@ -161,22 +159,22 @@ C        print *, '!! smpot=vavg'; smpot=vavg
 C       call zprm('evecs',2,evec,ndimh,ndimh,nevec)
         if (nlmto>0) then
           call fsmbl ( nbas , ssite , sspec ,  vavg , q , ndimh , !slat ,
-     .     nlmto , iprmb , numq , nevec , evl ( 1 , isp ) , evec , 
+     .     nlmto , iprmb , nevec , evl ( 1 , isp ) , evec , 
      .     ewgt , f )
         endif
         if (napw>0) then
           call fsmbpw ( nbas , ssite , sspec , vavg , ndimh , nlmto , iprmb 
-     .     , numq , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
+     .     , nevec , evl ( 1 , isp ) , evec , ewgt , napw , qpgv 
      .     , qpg2v , ylv , nlmax , lmxax , alat , dsqrt ( vol ) , f )
         endif
       endif
 C ... Add to smooth density
-      call rsibl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
-     .   iq , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
+      call rsibl ( ssite , sspec , lfrce , nbas , isp , q , 
+     .   iq , ndimh , nspc , napw , igapw , iprmb , nevec 
      .   , evec , ewgt , k1 , k2 , k3 , smpot , smrho , f )
 C ... Add to local density coefficients
-      call rlocbl ( ssite , sspec , lfrce , nbas , isp , q , !slat , 
-     .        ndham , ndimh , nspc , napw , igapw , iprmb , numq , nevec 
+      call rlocbl ( ssite , sspec , lfrce , nbas , isp , q ,
+     .        ndham , ndimh , nspc , napw , igapw , iprmb ,  nevec 
      .        , evec , ewgt , evl , sv_p_osig , sv_p_otau , sv_p_oppi , lcplxp 
      .        , lekkl , sv_p_oqkkl , sv_p_oeqkkl , f )
 C ... Weights for spin moments

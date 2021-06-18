@@ -1,5 +1,5 @@
       subroutine fsmbl(nbas,ssite,sspec,vavg,q,ndimh,nlmto,iprmb, !,slat
-     .     numq,nevec,evl,evec,ewgt,f)
+     .     nevec,evl,evec,ewgt,f)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,lhh,nkaphh
       use m_uspecb,only:uspecb
       use m_struc_def 
@@ -23,7 +23,6 @@ Ci   vavg  :constant potential (MT zero) to be added to h
 Ci   q     :Bloch wave vector
 Ci   ndimh :dimension of hamiltonian
 Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   numq  :number of trial Fermi levels
 Ci   nevec :number of occupied eigenvectors
 Ci   evl   :eigenvalues
 Ci   evec  :eigenvectors
@@ -39,31 +38,12 @@ Cu   10 Sep 01 Extended to local orbitals.
 Cu   23 May 00 Adapted from nfp fsm_q.f
 C ----------------------------------------------------------------------
       implicit none
-C     ... Passed parameters
       integer:: i_copy_size,iloop
-#if MPI
-      include "mpif.h"
-      integer pid, procid, master, numprocs, ierr,
-     .status(MPI_STATUS_SIZE)
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen,i,lgunit
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*20 ext
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      double precision starttime, endtime
-      logical mlog,cmdopt
-      character*120 strn
-#endif
-      integer nbas,ndimh,nlmto,nevec,numq,iprmb(nlmto)
+      integer nbas,ndimh,nlmto,nevec,iprmb(nlmto)
       real(8):: q(3)
       type(s_site)::ssite(*)
       type(s_spec)::sspec(*)
-c      type(s_lat)::slat
-
-      double precision evl(ndimh),f(3,nbas,numq),ewgt(numq,nevec),vavg
+      double precision evl(ndimh),f(3,nbas),ewgt(nevec),vavg
       double complex evec(ndimh,ndimh)
 C ... Local parameters
       integer nlms,k0,n0,nkap0
@@ -80,84 +60,27 @@ C ... Local parameters
      .e2(n0,nkap0),rsm2(n0,nkap0),p2(3),xx(n0)
       double complex  s(nlms,nlms,0:k0,nkap0,nkap0)
       double complex ds(nlms,nlms,0:k0,3,nkap0,nkap0),ccc,sum
-#if MPI
-      double precision, dimension(:,:,:), allocatable :: xf
-      double precision, dimension(:),     allocatable :: buffer
-      integer, dimension(:,:), allocatable :: index
-      integer iloop,ib
-#endif
 C ... Heap
       integer:: iloopend
-
-C --- Setup ---
       if (nevec .le. 0) return
       call tcn ('fsmbl')
-
-#if MPI
-      allocate(xf(1:3,1:nbas,1:numq), stat=ierr)
-      call dcopy(3*nbas*numq,0d0,0,xf,1)
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-      call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-      call strcop(shortname(procid),name,10,'.',i)
-      namelen(procid) = i-1
-      master = 0
-      mlog = cmdopt('--mlog',6,0,strn)
-      if (mlog) then
-        do  pid = 0, numprocs-1
-          call MPI_BCAST(shortname(pid),10,MPI_CHARACTER,pid,
-     .    MPI_COMM_WORLD,ierr)
-          call MPI_BCAST(namelen(pid),1,MPI_INTEGER,pid,
-     .    MPI_COMM_WORLD,ierr)
-        enddo
-      endif
-#endif
-c      nbas  = globalvariables%nbas
-C --- Loop over first and second site indices ---
-#if MPI
-      allocate (index(0:numprocs-1,0:nbas-1), stat=ierr)
-      call dstrbp(nbas,numprocs,-1,index(0,0))
-c      do  iloop = 1, index(procid,0)
-      iloopend=index(procid,0)
-#else
       iloopend=nbas
-#endif
-
-
       do  iloop = 1, iloopend
-#if MPI
-        ib1 = index(procid,iloop)
-        if (mlog) then
-          call gettime(datim)
-          call awrit4(' fsmbl '//datim//' Process %i of %i on '
-     .    //shortname(procid)(1:namelen(procid))//
-     .    ' starting atom %i of %i',' ',256,lgunit(3),
-     .    procid,numprocs,ib1,index(procid,0))
-        endif
-#else
         ib1=iloop
-#endif
-
         is1=ssite(ib1)%spec
-        i_copy_size=size(ssite(ib1)%pos)
-        call dcopy(i_copy_size,ssite(ib1)%pos,1,p1,1)
-
+        p1 =ssite(ib1)%pos
         call uspecb(is1,rsm1,e1)
 C       Row info telling fsmbl where to poke s0 made by hhibl
         call orbl(ib1,0,nlmto,iprmb,norb1,ltab1,ktab1,xx,offl1,xx)
         call gtbsl1(4+16,norb1,ltab1,ktab1,rsm1,e1,ntab1,blks1)
-
         do  ib2 = ib1+1, nbas
-
           is2=ssite(ib2)%spec
           i_copy_size=size(ssite(ib2)%pos)
           call dcopy(i_copy_size,ssite(ib2)%pos,1,p2,1)
-
           call uspecb(is2,rsm2,e2)
 C         Column info telling fsmbl where to poke s0 made by hhibl
           call orbl(ib2,0,nlmto,iprmb,norb2,ltab2,ktab2,xx,offl2,xx)
           call gtbsl1(4+16,norb2,ltab2,ktab2,rsm2,e2,ntab2,blks2)
-
 C     ... M.E. <1> and <KE> between all envelopes connecting ib1 and ib2
           do  i1 = 1, nkaphh(is1) !nkap1
             do  i2 = 1, nkaphh(is2) !nkap2
@@ -187,11 +110,9 @@ C             l1,ik1 = l and kaph indices, needed to locate block in s0
                   ik1 = ktab1(io1)
                   nlm11 = l1**2+1
                   nlm12 = nlm11 + blks1(io1)-1
-
 C         ... Loop over occupied eigenstates and x,y,z
                   do  ivec = 1, nevec
                     do  m = 1, 3
-
 C           ... Loop over orbital pairs within the groups
                       sum = 0d0
 C               i2 = hamiltonian offset
@@ -208,16 +129,9 @@ C                 i1 = orbital index in iprmb order
                           sum = sum + dconjg(evec(i1,ivec))*ccc*evec(i2,ivec)
                         enddo
                       enddo
-                      do  iq = 1, numq
-                        wt = ewgt(iq,ivec)
-#if MPI
-                        xf(m,ib1,iq) = xf(m,ib1,iq) - 2*wt*sum
-                        xf(m,ib2,iq) = xf(m,ib2,iq) + 2*wt*sum
-#else
-                        f(m,ib1,iq) = f(m,ib1,iq) - 2*wt*sum
-                        f(m,ib2,iq) = f(m,ib2,iq) + 2*wt*sum
-#endif
-                      enddo
+                      wt = ewgt(ivec)
+                      f(m,ib1) = f(m,ib1) - 2*wt*sum
+                      f(m,ib2) = f(m,ib2) + 2*wt*sum
                     enddo
                   enddo
 
@@ -228,34 +142,7 @@ C                 i1 = orbital index in iprmb order
 
         enddo
       enddo
-
-#if MPI
-      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
-      allocate(buffer(1:3*nbas*numq), stat=ierr)
-      call MPI_ALLREDUCE(xf,buffer,3*nbas*numq,
-     .MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-      if (mlog) then
-        call gettime(datim)
-        call awrit3(' fsmbl '//datim//' Process %i of %i on '
-     .  //shortname(procid)(1:namelen(procid))//
-     .  ' allreduce f 3*nbas*numq=%i',' ',256,lgunit(3),
-     .  procid,numprocs,3*nbas*numq)
-      endif
-      call daxpy(3*nbas*numq,1d0,buffer,1,f,1)
-      deallocate(buffer, stat=ierr)
-      deallocate(index, stat=ierr)
-#endif
-
-C      write(6,*) '---- END OF FSMBL ---'
-C      do  ib = 1, nbas
-C        do  iq = 1, numq
-C          write(stdo,220) ib,iq,(f(m,ib,iq),m=1,3)
-C  220     format(2i5,3f12.6)
-C        enddo
-C      enddo
-
       call tcx ('fsmbl')
-
       end subroutine fsmbl
 
 

@@ -1,6 +1,5 @@
       subroutine dfqkkl( sv_p_oqkkl )
       use m_lmfinit,only: nkaph,nspc,nsp,nbas,ssite=>v_ssite,sspec=>v_sspec
-      use m_subzi, only: numq
       use m_struc_def  !Cgetarg
 C- Allocates arrays to accumulate local output density
 C ----------------------------------------------------------------------
@@ -14,7 +13,6 @@ Ci   sspec :struct for species-specific information; see routine uspec
 Ci     Elts read: lmxa lmxb kmxt
 Ci     Stored:    *
 Ci     Passed to: *
-Ci   numq  :number of Fermi levels for which to accumulate c.d.
 Co Outputs
 Co   oqkkl :memory is allocated for qkkl
 Cl Local variables
@@ -30,7 +28,6 @@ Cu   22 Apr 00 Adapted from nfp df_qkkl.f
 C ----------------------------------------------------------------------
 C     implicit none
 C ... Passed parameters
-c      integer:: numq
       type(s_rv1) :: sv_p_oqkkl(3,nbas)
 c      type(s_site)::ssite(*)
 c      type(s_spec)::sspec(*)
@@ -54,15 +51,15 @@ C   ... Case Pkl*Pkl
         if(allocated(sv_p_oqkkl(1,ib)%v)) then
            deallocate(sv_p_oqkkl(1,ib)%v,sv_p_oqkkl(2,ib)%v,sv_p_oqkkl(3,ib)%v)
         endif
-        allocate(sv_p_oqkkl(1,ib)%v(nelt1*numq*nsp*nspc))
+        allocate(sv_p_oqkkl(1,ib)%v(nelt1*nsp*nspc))
         sv_p_oqkkl(1,ib)%v=0d0
 C   ... Case Pkl*Hsm
         nelt2 = (kmax+1)*nkaph*nlma*nlmh
-        allocate(sv_p_oqkkl(2,ib)%v(nelt2*numq*nsp*nspc))
+        allocate(sv_p_oqkkl(2,ib)%v(nelt2*nsp*nspc))
         sv_p_oqkkl(2,ib)%v=0d0
 C   ... Case Hsm*Hsm
         nelt3 = nkaph*nkaph*nlmh*nlmh
-        allocate(sv_p_oqkkl(3,ib)%v(nelt3*numq*nsp*nspc))
+        allocate(sv_p_oqkkl(3,ib)%v(nelt3*nsp*nspc))
         sv_p_oqkkl(3,ib)%v=0d0
 c|        write(6,836) nelt1,nelt3,nelt2
 c|  836   format('   nelt=',3i6)

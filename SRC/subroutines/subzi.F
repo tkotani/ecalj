@@ -3,14 +3,13 @@ Co Outputs
 Co   lwtkb :0 weights are neither required nor available a priori
 Co         :1 weights are available
 Co         :-1 weights are not yet
-Coxxx   numq  :number of Fermi levels. =1 fixed (numq=3 is not used now).
 Co   lswtk :Flags whether to make 'spin weights' swtk
 Co         :-2 do not make spin weights
 Co         : 1 spin weights array allocated; make them
       integer,protected:: lwtkb=-1
       real(8),allocatable,protected :: rv_a_owtkb(:,:,:) ! wtkb : integration weights. it might be from wkp.*
       integer,protected:: nevmx=0 !for band mode plbnd=1. --->nev=min(nevmx,ndimhx) =0
-      integer,protected:: numq=1, lswtk=0
+      integer,protected:: lswtk=0
 
       contains
       
@@ -97,9 +96,6 @@ C ----------------------------------------------------------------------
       nevmx=nevmxin !initial contdition except  cmdopt0('--band').or.fullmesh 
       procid = mpipid(1)
       master = 0
-c      n = isign(1,mpsord) * mod(iabs(mpsord),100)
-c      numq = 1
-c      if (lmet .eq. 4) numq = 3 !we don't allow lmet=4 
       lwtkb = 0
       if ( lmet .gt. 0 ) then
         allocate(rv_a_owtkb(ndham,nsp,nkp))

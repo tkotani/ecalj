@@ -29,7 +29,7 @@ Co   wp    :Bloechl quadrature weights (job = 2)
 Cu Updates
 Cu   17 Jan 05 Returns sumwp
 C ----------------------------------------------------------------------
-C     implicit none
+      implicit none
 C Passed parameters
       integer n1,n2,n3,nq,nband,nbmx,nsp,idtet(0:4,*),nr,job,ntet
       double precision ep(nbmx,nsp,nq),dos(nr,nsp),wp(nband,nsp,nq),

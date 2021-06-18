@@ -21,6 +21,8 @@ Ci          functions are less than tol.
       use m_struc_def,only: s_spec,s_site ! spec and site structures.
       use m_MPItk,only: master_mpi
       implicit none
+      
+!!---- initial settings read from ctrl and processed -------
       logical,parameter::  T=.true., F=.false.
       integer,parameter::  NULLI=-99999,nkap0=3,mxspec=256,lstrn=10000
       integer,parameter::  n0=10,nppn=12, nab=9 !bndfp
@@ -129,9 +131,9 @@ Ci          functions are less than tol.
       logical,protected:: lpztail=.false.
       integer,protected:: leks,lrout,plbnd,  pot_nlma,  pot_nlml,ham_nspx,ham_ldham(16),ldham(16)
       
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      type(s_spec),allocatable:: v_sspec(:) !no protection of type%foobar. Need improvement
-      type(s_site),allocatable:: v_ssite(:)
+!! sspec and ssite are unprotected (be careful)
+      type(s_spec),allocatable:: v_sspec(:) !(nspec: number of species in the cell)
+      type(s_site),allocatable:: v_ssite(:) !(nbas: number of atoms)
       
 !! ... old memo for molecular dynamics section DYN
 C   structure of mdprm:
@@ -170,7 +172,6 @@ C  arg  5:   mx:   order of rational function extrapolation
 C  arg  6:   mi:   number of midpoint rules
 C  arg  7-17 nseq: sequence of no. midpoint divisions
 C     arg  18:        offset to bs workspace
-      
 !!ssssssssssssssssssssssssssssssssssssssssssssssssss      
       contains 
       subroutine m_lmfinit_init(prgnam)

@@ -8,14 +8,14 @@
       use m_struc_def,only: s_rv1
       use m_density,only: osmrho, orhoat !main input density
       use m_elocp,only: elocp
-      
+!! output ------------------------------------------------------------------      
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau            (C.5)
       type(s_rv1),allocatable,protected  :: sv_p_osig(:,:) !sigma          (C.4)
       complex(8),allocatable,protected   :: osmpot(:,:,:,:)!0th component of Eq.(34)
 
-      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:) !without xc term
-      type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:)
+      type(s_rv1),allocatable,protected  :: sv_p_oppix(:,:) !pi-integral without xc term
+      type(s_rv1),allocatable,protected  :: sv_p_otaux(:,:) !tau
       type(s_rv1),allocatable,protected  :: sv_p_osigx(:,:)
       complex(8),allocatable,protected   :: spotx(:,:,:,:)
 
@@ -23,7 +23,7 @@
       real(8),allocatable,protected:: fes1_rv(:), fes2_rv(:) !force terms
       real(8),allocatable,protected :: hab_rv(:), sab_rv(:), ppnl_rv(:,:,:,:), qmom(:),vesrmt(:)
       real(8),protected:: qval,vconst,qsc
-      
+!!---------------------------------------------------------------------------      
 !! private
       real(8),allocatable,protected,private :: gpot0(:),vval(:),vab_rv(:)
       private:: mkpot

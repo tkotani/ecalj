@@ -380,7 +380,7 @@ c$$$      if(master_mpi) call writeqpyl() !if you like to print writeqbyl
         eksham = 0d0
         if(leks>=1) then
            call togpr()
-           call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev, sumtv)
+           call mkekin(sv_p_osig,sv_p_otau,sv_p_oppi,sv_p_oqkkl,vconst,osmpot,smrho_out,sev,  sumtv)
            call m_mkpot_energyterms(smrho_out, orhoat_out)
            if(cmdopt0('--density')) then
               call mpi_barrier(MPI_comm_world,ierr)  
