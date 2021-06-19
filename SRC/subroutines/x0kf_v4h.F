@@ -33,7 +33,7 @@
 !! See x0kf_v4hz.
 !! We have OUTPUT to private variables nkmin ... jpmc.
       integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
-      integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp,job,icount, nmbas
+      integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,it,itp,job,icount, nmbas
       integer::  nwgt(nqbz) 
       real(8):: q(3), imagweight, wpw_k, wpw_kq
       logical :: iww2=.true., eibzmode, crpa, exchange=.false.
@@ -196,7 +196,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
-      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp
+      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,it,itp
       real(8):: q(3)
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
