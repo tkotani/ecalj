@@ -23,15 +23,11 @@ c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,
       public sxcf_scz
       contains
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-      subroutine sxcf_scz(qip,ef,esmr, 
-     i isp, irkip,nrkip,  nq,  !wgt0,
-     i exchange,!screen, 
-     i jobsw, hermitianW,
+      subroutine sxcf_scz(qip,ef,esmr,isp,irkip,nrkip,nq,exchange,jobsw,hermitianW,
      o zsec,coh,nbandmx)
       intent(in)          qip,ef,esmr, 
      i isp, irkip,nrkip,  nq,  !wgt0,
      i exchange,!screen, 
-c     i wklm,lxklm,         
      i jobsw, hermitianW
      i          ,nbandmx
       intent(out) :: zsec , coh

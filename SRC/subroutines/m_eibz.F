@@ -72,7 +72,7 @@ c     &     idteti, nstar,irk,nstbz
       intent(in)::         nspinmx,nq,q,iprintx
       integer   ::    nspinmx,nq,iqxini,iqxend,iqq,is,kr,kx,igrp
       integer,allocatable:: neibz(:),nwgt(:,:),igx(:,:,:),igxt(:,:,:)
-      logical:: eibz4sig,tiii=.false.,tiiiout,iprintx
+      logical:: eibz4sig,tiiiout,iprintx
       real(8):: q(3,nq)
       allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 
       allocate(nrkip_all(nspinmx,nqibz,ngrp,nq)) !this is global 

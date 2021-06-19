@@ -138,7 +138,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       logical:: fsmode !for --fermisurface for xcrysden.
       logical,save:: siginit=.true. 
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-      integer:: iqini,iqend,idummy, unlink,ifih,ifii,nnn,ib
+      integer:: iqini,iqend,idummy, unlink,ifih,ifii,ib
       real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
       real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
@@ -238,12 +238,9 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       
 !! Broadcast. Use allreduce to avoid knowing which node to which node.
 !! Because mpi is f77, ndimhx_ and so on are not protected.
-      nnn = size(ndimhx_)
-      call mpibc2_int(ndimhx_,nnn,'bndfp_ndimhx_') !all reduce (instead of which node to which node).
-      nnn = size(nev_)
-      call mpibc2_int(nev_,nnn,'bndfp_nev_') !all reduce 
-      nnn = size(nevls)
-      call mpibc2_int(nevls,nnn,'bndfp_nevls') !all reduce (to avoid which node to which node).
+      call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
+      call mpibc2_int(nev_,   size(nev_),   'bndfp_nev_') !all reduce 
+      call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls') !all reduce (to avoid which node to which node).
       call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
       evtop=-9999
       ecbot=9999

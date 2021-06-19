@@ -1,8 +1,10 @@
       module m_readepswklm
       use m_readq0p,only: nq0i
       implicit none
-      real(8),allocatable:: dmlx(:,:),epinvq0i(:,:),wklm(:)
+      
+      real(8),allocatable,protected:: dmlx(:,:),epinvq0i(:,:),wklm(:)
       integer,protected:: lxklm
+      
       contains
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS      
       subroutine readepswklm()

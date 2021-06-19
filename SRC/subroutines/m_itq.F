@@ -128,8 +128,10 @@ c      ngpmx = ngpmx_in
       module m_selectqp
       use m_keyvalue,only: GETKEYVALUE
       implicit none
-      integer nq
-      real(8),allocatable ::q(:,:)
+      
+      integer,protected:: nq
+      real(8),allocatable,protected ::q(:,:)
+
       contains
       subroutine getqpoint(selectqp,nqibz,qibz)
       real(8):: qibz(3,nqibz)

@@ -21,8 +21,8 @@
      &     Onoff_write_pkm4crpa,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
       integer,public:: nwf
-      
-      private
+!------------------------------      
+      private 
       integer:: ifgeigW,ifcphiW,norbtx,imx
       complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
       integer::nwf_ev
