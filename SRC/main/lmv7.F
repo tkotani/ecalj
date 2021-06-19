@@ -76,8 +76,8 @@
       call m_rdfiln_init()
       
 !! Read recrd of ctrl file into m_lmfinit
-!!    rdctrl2 sets all initial condition to the module m_lmfinit.
-!!    rdctrl2 allow expression like ALAT=7.88*1.1
+!!    Set all initial condition to the module m_lmfinit.
+!!    it allow expression like ALAT=7.88*1.1
       call m_lmfinit_init(prgnam) !--> all initianl data go into m_lmfinit
       
 !! Lattice and Symmetry

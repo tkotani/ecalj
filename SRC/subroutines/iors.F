@@ -205,7 +205,7 @@ C       Abort with error message if file is missing (lfail = .true.)
   997         continue
             endif
           endif
-          call mpibc1(lfail,1,1,mlog,'iors','read error')
+          call mpibc1_logical(lfail,1,'iors_read error')
           if (lfail) goto 998
         endif
         if (procid .eq. master) then
@@ -276,10 +276,10 @@ C       if (isanrg(nsp0,  nsp,nsp,  msg,'nsp', .true.)) goto 999
           lfail = isanrg(lrel0, lrel,lrel,msgw,'lrel',.false.)
           call fsanrg(abs(vs1),1.00d0,abs(vs),0d0,' ','file''s version',.true.)
         endif
-        call mpibc1(nbas0,1,2,mlog,'iors','nbas0')
-        call mpibc1(nat0,1,2,mlog,'iors','nat0')
-        call mpibc1(plat,9,4,mlog,'iors','plat')
-        call mpibc1(nit,1,2,mlog,'iors','nit')
+        call mpibc1_int(nbas0,1,'iors_nbas0')
+        call mpibc1_int(nat0,1,'iors_nat0')
+        call mpibc1_real(plat,9,'iors_plat')
+        call mpibc1_int(nit,1,'iors_nit')
 C   --- Read smooth charge density ---
         allocate(zv_a_osmrho(k1*k2*k3*nsp))
         zv_a_osmrho(:)=0d0
@@ -328,7 +328,7 @@ C   ... If cell volume changed, scale smooth density to maintain charge
               call dpcopy ( zv_a_osmrho, zv_a_osmrho, 1 , 2 * k1 * k2 * k3* nsp , vfac )
             endif
           endif
-          call mpibc1 ( zv_a_osmrho , 2 * k1 * k2 * k3 * nsp , 4 , mlog, 'iors' , 'smrho' )
+          call mpibc1_complex(zv_a_osmrho, size(zv_a_osmrho), 'iors_smrho' )
   115     continue
 C   --- Read information related to dynamics ---
 C       For compatibility with nfp, read record into wk
@@ -340,7 +340,7 @@ C       For compatibility with nfp, read record into wk
             call dfdump(wk,100,jfi)
           endif
         endif
-        call mpibc1(wk,3,4,mlog,'iors','wk')
+        call mpibc1_real(wk,3,'iors_wk')
         if (irs4 .ne. 0) then
           call awrit0('%a ef window,',ignore,len(ignore),0)
         else
@@ -374,9 +374,9 @@ C         Must be enough sites to read from rst file
               read(jfi,*,err=999,end=999) vel
             endif
           endif
-          call mpibc1(pos,3,4,mlog,'iors','pos')
-          call mpibc1(force,3,4,mlog,'iors','force')
-          call mpibc1(vel,3,4,mlog,'iors','vel')
+          call mpibc1_real(pos,3,'iors_pos')
+          call mpibc1_real(force,3,'iors_force')
+          call mpibc1_real(vel,3,'iors_vel')
           if (ib .gt. nbas) goto 10
 C         rst file positions in pos0
           if (lshear) then
@@ -452,11 +452,11 @@ c     ... read(but don't use) extra info since record is present
               read(jfi,*) rsma0,rsmr0,rsmv0,lmxv0,lmxr,lmxb0,kmax0
             endif
           endif
-          call mpibc1(lmxa0,1,2,mlog,'iors','lmxa0')
-          call mpibc1(lmxl0,1,2,mlog,'iors','lmxl0')
-          call mpibc1(nr0,1,2,mlog,'iors','nr0')
-          call mpibc1(a0,1,4,mlog,'iors','a0')
-          call mpibc1(qc,1,4,mlog,'iors','qc')
+          call mpibc1_int(lmxa0,1,'iors_lmxa0')
+          call mpibc1_int(lmxl0,1,'iors_lmxl0')
+          call mpibc1_int(nr0,1,'iors_nr0')
+          call mpibc1_real(a0,1,'iors_a0')
+          call mpibc1_real(qc,1,'iors_qc')
           if (is == -1 ) call rx('iors: need check for is==-1')
 C         is = -1 -> pack spec struc with file parameters
 c$$$         if(is==-1) then       
@@ -513,8 +513,8 @@ c          call dpzero(ql,2*n0)
             enddo
           endif
           do  isp = 1, nsp
-            call mpibc1(pnu(1,isp),lmxa0+1,4,mlog,'iors','pnu')
-            call mpibc1(pnz(1,isp),lmxa0+1,4,mlog,'iors','pnu')
+            call mpibc1_real(pnu(1,isp),lmxa0+1,'iors_pnu')
+            call mpibc1_real(pnz(1,isp),lmxa0+1,'iors_pnu')
 C       ... For backwards compatibility: prior versions wrote pnu for pnz
             do  l = 0, lmxa0+1
               if (pnu(l+1,isp) .eq. mod(pnz(l+1,isp),10d0))
@@ -627,11 +627,11 @@ C     ... FP local densities rho1,rho2,rhoc and potentials v0, v1
                 call dscal ( nr0 * 2 , 2d0 , ssite(ib)%rv_a_ov1 , 1 )
               endif
             endif
-            call mpibc1( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , mlog , 'iors' , 'rhoat(1)' )
-            call mpibc1( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , mlog , 'iors' , 'rhoat(2)' )
-            call mpibc1( sv_p_orhoat( 3 , ib )%v , nr  * nsp , 4 ,       mlog , 'iors' , 'rhoat(3)' )
-            call mpibc1( ssite(ib)%rv_a_ov0 , nr * nsp , 4 , mlog , 'iors' , 'v0' )
-            call mpibc1( ssite(ib)%rv_a_ov1 , nr * nsp , 4 , mlog , 'iors' , 'v1' )
+            call mpibc1_real( sv_p_orhoat(1,ib)%v, size(sv_p_orhoat(1,ib)%v), 'iors_rhoat(1)' )
+            call mpibc1_real( sv_p_orhoat(2,ib)%v, size(sv_p_orhoat(2,ib)%v), 'iors_rhoat(2)' )
+            call mpibc1_real( sv_p_orhoat(3,ib)%v, size(sv_p_orhoat(3,ib)%v), 'iors_rhoat(3)' )
+            call mpibc1_real( ssite(ib)%rv_a_ov0 , size(ssite(ib)%rv_a_ov0) , 'iors_v0' )
+            call mpibc1_real( ssite(ib)%rv_a_ov1 , size(ssite(ib)%rv_a_ov1) , 'iors_v1' )
 c          endif
 C     ... store data in strucs
           sspec(is)%a=a
@@ -677,10 +677,10 @@ C   --- Read data on free-atom core states and fit to fa density ---
             lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
             call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           endif
-          call mpibc1(qc,1,4,mlog,'iors','qc')
-          call mpibc1(cof,1,4,mlog,'iors','cof')
-          call mpibc1(eh,1,4,mlog,'iors','eh')
-          call mpibc1(stc,1,4,mlog,'iors','stc')
+          call mpibc1_real(qc,1, 'iors_qc')
+          call mpibc1_real(cof,1,'iors_cof')
+          call mpibc1_real(eh,1, 'iors_eh')
+          call mpibc1_real(stc,1,'iors_stc')
 C     ... FP core densities
             if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
             allocate(sspec(is)%rv_a_orhoc(abs(nr*nsp)))
@@ -699,7 +699,7 @@ C           spin-split core density
                 call dpscop ( sspec(is)%rv_a_orhoc , sspec(is)%rv_a_orhoc , i , 1 , 1 + i , 1d0  )
               endif
             endif
-            call mpibc1 ( sspec(is)%rv_a_orhoc , nr * nsp , 4 , mlog , 'iors' , 'rhoca'  )
+            call mpibc1_real(sspec(is)%rv_a_orhoc, size(sspec(is)%rv_a_orhoc), 'iors_rhoca'  )
             call dpzero(exi,n0)
             call dpzero(hfc,n0*2)
             if (procid .eq. master) then
@@ -720,10 +720,10 @@ C           spin-split core density
                 call dpscop(hfc,hfc,i,1,1+i,1d0)
               endif
             endif
-            call mpibc1(rsmfa,1,4,mlog,'iors','rsmfa')
-            call mpibc1(nxi,1,2,mlog,'iors','nxi')
-            call mpibc1(exi,nxi,4,mlog,'iors','exi')
-            call mpibc1(hfc,nsp*nxi,4,mlog,'iors','hfc')
+            call mpibc1_real(rsmfa,1,'iors_rsmfa')
+            call mpibc1_int(nxi,1,'iors_nxi')
+            call mpibc1_real(exi,nxi,'iors_exi')
+            call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
@@ -762,10 +762,10 @@ c   ... Copy or rescale cores, in case foca was switched on or off
    40       continue
           enddo
         do i_site=1,nbas
-          call mpibc1_s_site(ssite(i_site),mlog,'iors','ssite')
+          call mpibc1_s_site(ssite(i_site),'iors_ssite')
         enddo
         do i_spec=1,nspec
-          call mpibc1_s_spec(sspec(i_spec),mlog,'iors','sspec')
+          call mpibc1_s_spec(sspec(i_spec),'iors_sspec')
         enddo
 c        RWiors='read'
 C --- Output ---

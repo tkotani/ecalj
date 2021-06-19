@@ -1267,9 +1267,9 @@ C     'Hard Core' radius entering into strux
               idu(lxx,j) = mod(idu(lxx,j),10)
            enddo  
         endif
-        call mpibc1(idu(:,j),4,2,mlog,'readctrl','idu')
-        call mpibc1(uh(:,j),4,4,mlog,'readctrl','uh')
-        call mpibc1(jh(:,j),4,4,mlog,'readctrl','jh')
+        call mpibc1_int(idu(:,j),4,'m_lmfinit_idu')
+        call mpibc1_int(uh(:,j),4,'m_lmfinit_uh')
+        call mpibc1_int(jh(:,j),4,'m_lmfinit_jh')
 
         nm='SPEC_ATOM_PBAS'; call gtv(trim(nm),tksw(prgnam,nm),pb1(j),
      .       nmin=10,cindx=jj,note='product basis for GW')
@@ -1778,7 +1778,7 @@ c      call dcopy(i_copy_size,dabc,1,ham_dabc,1)
          endif
       endif
       ham_lsig=lrsigx
-      call mpibc1(ham_lsig,1,2,mlog,'bndfp','ham_lsig')
+      call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
       ham_rsrnge=rsrnge
       ham_rsstol=rsstol
       ham_udiag=ham_udiag
@@ -2019,7 +2019,7 @@ C     Make nat = number of real atoms as nbas - # sites w/ floating orbitals
             if (l .eq. -1) nat = nat-1
          enddo
       endif
-      call mpibc1(nat,1,2,0,'rdctrl','nat')
+      call mpibc1_int(nat,1,'m_lmfinit_nat')
       ctrl_modep=2
       allocate(wowk(nbas))
       wowk=0
@@ -2098,9 +2098,6 @@ c         rv_a_opos(:,i_spackv)= v_ssite( i_spackv )%pos
             endif
          endif
       endif
-c      do i_spec=1,nspec
-c         call mpibc1_s_spec(v_sspec(i_spec),.false.,'rdctrl','sspec')
-c      enddo
 !! Debugging printout ---
       if (io_help == 0 .and. io_show > 1) then
          print *, '---------- contents of sstrn ------------'

@@ -76,7 +76,7 @@ C ... Local parameters
           close(ifiese)
  201      continue
         endif  
-        call mpibc1(jesm, 1, 2, mlog,'esmsmves','jesm')
+        call mpibc1_int(jesm, 1,'esmsmves_jesm')
         if(jesm==0) then
            if(master_mpi) write(stdo,"(a)") ' esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
            call tcx('esmsmves')
@@ -126,17 +126,17 @@ C ... Local parameters
 
 #if MPI|MPIK
         call mpi_barrier(mpi_comm_world,ierr)
-        call mpibc1(jesm, 1, 2, mlog,'esmsmves','jesm')
-        call mpibc1(jtresm, 1, 2, mlog,'esmsmves','jtresm')
-        call mpibc1(tresm, 1, 4, mlog,'esmsmves','tresm')
-        call mpibc1(z1esm, 1, 4, mlog,'esmsmves','z1esm')
-        call mpibc1(z2esm, 1, 4, mlog,'esmsmves','z2esm')
-        call mpibc1(vesmp, 1, 4, mlog,'esmsmves','vesmp')
-        call mpibc1(vesmm, 1, 4, mlog,'esmsmves','vesmm')
-        call mpibc1(eesmp, 1, 4, mlog,'esmsmves','eesmp')
-        call mpibc1(eesmm, 1, 4, mlog,'esmsmves','eesmm')
-        call mpibc1(z0esm, 1, 4, mlog,'esmsmves','z0esm')
-        call mpibc1(sa0, 1, 4, mlog,'esmsmves','sa0')
+c        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
+        call mpibc1_int (jtresm,1,'esmsmves_jtresm')
+        call mpibc1_real(tresm, 1,'esmsmves_tresm')
+        call mpibc1_real(z1esm, 1,'esmsmves_z1esm')
+        call mpibc1_real(z2esm, 1,'esmsmves_z2esm')
+        call mpibc1_real(vesmp, 1,'esmsmves_vesmp')
+        call mpibc1_real(vesmm, 1,'esmsmves_vesmm')
+        call mpibc1_real(eesmp, 1,'esmsmves_eesmp')
+        call mpibc1_real(eesmm, 1,'esmsmves_eesmm')
+        call mpibc1_real(z0esm, 1,'esmsmves_z0esm')
+        call mpibc1_real(sa0,   1,'esmsmves_sa0')
 #endif
         if( jesm == 0 ) then
           if ( master_mpi ) write(stdo,*)'jesm=0 return'

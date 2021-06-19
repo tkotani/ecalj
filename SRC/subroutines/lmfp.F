@@ -64,10 +64,10 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
       character(10):: i2char
       logical:: writeham
       integer:: jobgw
-#if (MPI |MPIK)
+c#if (MPI |MPIK)
       integer:: ierr
       include "mpif.h"
-#endif
+c#endif
 !! --rs=3 mode is removed. (--rs=3 meand fixed density Harris-foukner MD).
 !! --rs=3 => always read from atom file 
 !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
@@ -107,7 +107,7 @@ c      complex(8),allocatable::vorbdmat(:),dmatu(:),dmatoa(:) !LDA+U
          write(stdo,*) ' job 0 or 1?'
          read (5,*) jobgw
       endif
-      call mpibc1(jobgw,1,2, mlog,'lmfp','jobgw')
+      call mpibc1_int(jobgw,1,'lmfp_jobgw')
       call m_lmfgw_setjobgw(jobgw) 
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init() ! get G vectors for charge
@@ -157,10 +157,10 @@ C    +10 -> invoke smshft(1) after file read.
             if(lbin)       open(ifi,file='rst.'//trim(sname),form='unformatted')
             if(.not. lbin) open(ifi,file='rsta.'//trim(sname)) 
          endif
-         call mpibc1(ifi,1,2,mlog,'lmfp','ifi')
+         call mpibc1_int(ifi,1,'lmfp_ifi')
          k = iors(nit1 , lbin , ifi ) ! read rst file. sspec ssite modified  !bz_w in iros removed
          if (master_mpi) close(ifi) 
-         call mpibc1(k,1,2,mlog,'lmfp','k')
+         call mpibc1_int(k,1,'lmfp_k')
          do ibas=1,nbas 
             rv_a_opos(:,ibas) = ssite(ibas)%pos
          enddo
@@ -247,7 +247,7 @@ C    +10 -> invoke smshft(1) after file read.
      &              leks+i, etol, qtol, qdiff, 'cxhi', amom, etot, lsc)
 c     &              leks+i, etol, qtol, qdiff dmxp(11), 'cxhi', amom, etot, lsc)
             endif
-            call mpibc1(lsc,1,2,mlog,'lmfp','lsc')
+            call mpibc1_int(lsc,1,'lmfp_lsc')
             if (lsc==2 .and. (.not. lhf) .and. maxit>1) lsc = 3
             if (lsc==1 .and. lrout>0 .or. lsc==3) then
                if (iter .ge. maxit) lsc = 1

@@ -160,11 +160,6 @@ C --- handle read exception ---
       else
         aiomom = .false.
       endif
-
    99 continue
-C      call mpibc1(pl,nl*nsp,4,.false.,'aiomom','pl')
-C      call mpibc1(ql,3*nl*nsp,4,.false.,'aiomom','ql')
-C      call mpibc1(rh,1,4,.false.,'aiomom','ql')
-C      call mpibc1(vrmax,2,4,.false.,'aiomom','ql')
       end
 

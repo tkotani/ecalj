@@ -1,14 +1,4 @@
-      subroutine mpibc2int(vec,label)
-      use m_MPItk,only: mlog
-      character funnam*(1), label*(*)
-      integer::nnn,cast
-      real(8):: vec(:) 
-      nnn=size(vec)
-      cast=2
-      funnam=''
-      call mpibc2(vec,nnn,cast,mlog,funnam,label)
-      end
-
+! all reduce
       subroutine mpibc2_int(vec,nnn,label)
       use m_MPItk,only: mlog
       character funnam*(1), label*(*)
@@ -19,7 +9,6 @@ c      print *,trim(label),nnn,vec(1)
       funnam=''
       call mpibc2(vec,nnn,cast,mlog,funnam,label)
       end
-
       subroutine mpibc2_real(vec,nnn,label)
       use m_MPItk,only: mlog
       character funnam*(1), label*(*)
@@ -40,7 +29,45 @@ c      print *,trim(label),nnn
       funnam=''
       call mpibc2(vec,nnn,cast,mlog,funnam,label)
       end
-      
+! master to world      
+      subroutine mpibc1_logical(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      real(8):: vec(*) 
+      cast=1
+      funnam=''
+      call mpibc1(vec,nnn,cast,mlog,funnam,label)
+      end
+      subroutine mpibc1_int(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      real(8):: vec(*) 
+      cast=2
+      funnam=''
+      call mpibc1(vec,nnn,cast,mlog,funnam,label)
+      end
+      subroutine mpibc1_real(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      real(8):: vec(*) 
+      cast=4
+      funnam=''
+      call mpibc1(vec,nnn,cast,mlog,funnam,label)
+      end
+      subroutine mpibc1_complex(vec,nnn,label)
+      use m_MPItk,only: mlog
+      character funnam*(1), label*(*)
+      integer::nnn,cast
+      complex(8):: vec(*) 
+c      print *,trim(label),nnn
+      cast=6
+      funnam=''
+      call mpibc1(vec,nnn,cast,mlog,funnam,label)
+      end
+
       
       subroutine mpibc1(vec,n,cast,mlog,funnam,label)
 C- Broadcasts a vector from master node to the world (MPI)
@@ -126,140 +153,8 @@ C     .  cast)
 #endif
 
       end
-
-      subroutine mpibcc(vec,n,mlog,funnam,label)
-C- Special purpose mpibc1 for broadcasting character strings (MPI)
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   vec   :vector to broadcast
-Ci   n     :length of vector
-Ci   mlog  : T write message to mlog file
-Ci   funnam:string used in writing message (function name)
-Ci   label :string used in writing message (variable name)
-Co Outputs
-Cl Local variables
-Cr Remarks
-Cr
-Cu Updates
-Cu   09 Jul 07 First created
-C ----------------------------------------------------------------------
-C     implicit none
-#if MPI|MPIK
-      include "mpif.h"
-      integer numprocs, ierr
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      character*256 strn
-      logical lgunit
-      integer procid,master
-#endif
-C ... Passed parameters
-      logical mlog
-      integer n
-      character vec(n)*(*)
-      character funnam*(*), label*(*)
-C ... Local parameters
-
-#if MPI|MPIK
-      if (n .le. 0) return
-      master = 0
-      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-
-      call MPI_BCAST(vec,n,MPI_CHARACTER,
-     .master,MPI_COMM_WORLD,ierr)
-
-#endif
-
-      end
-
-      subroutine mpibc3(vec,n,cast,pid,mlog,funnam,label)
-C- Broadcasts a vector from specified node to the world (MPI)
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   vec   :vector to broadcast
-Ci   n     :length of vector
-Ci   cast  :cast of vector:
-Ci         : 2 int
-Ci         : 4 double
-Ci         : 6 double complex
-Ci   mlog  : T write message to mlog file
-Ci   funnam:string used in writing message (function name)
-Ci   label :string used in writing message (variable name)
-Co Outputs
-Cl Local variables
-Cr Remarks
-Cr
-Cu Updates
-Cu   14 Apr 03 First created
-C ----------------------------------------------------------------------
-C     implicit none
-#if MPI|MPIK
-      include "mpif.h"
-      integer numprocs, ierr
-      integer MAX_PROCS
-      parameter (MAX_PROCS = 100)
-      integer resultlen
-      character*(MPI_MAX_PROCESSOR_NAME) name
-      character*10 shortname(0:MAX_PROCS-1)
-      character*26 datim
-      integer namelen(0:MAX_PROCS-1)
-      character*256 strn
-      logical lgunit
-      integer procid,master
-#endif
-C ... Passed parameters
-      logical mlog
-      integer n,cast,pid
-      double precision vec(n)
-      character funnam*(*), label*(*)
-C ... Local parameters
-
-#if MPI|MPIK
-      if (n .le. 0) return
-      master = 0
-C      call MPI_COMM_RANK( MPI_COMM_WORLD, procid, ierr )
-C      call MPI_COMM_SIZE( MPI_COMM_WORLD, numprocs, ierr )
-
-      if (cast .eq. 2) then
-        call MPI_BCAST(vec,n,MPI_INTEGER,
-     .  pid,MPI_COMM_WORLD,ierr)
-
-      elseif (cast .eq. 4) then
-        call MPI_BCAST(vec,n,MPI_DOUBLE_PRECISION,
-     .  pid,MPI_COMM_WORLD,ierr)
-
-      elseif (cast .eq. 6) then
-        call MPI_BCAST(vec,2*n,MPI_DOUBLE_PRECISION,
-     .  pid,MPI_COMM_WORLD,ierr)
-
-      else
-        call rxi('mpibc3: cast not implemented',cast)
-
-      endif
-
-C      if (mlog) then
-C        call MPI_GET_PROCESSOR_NAME(name, resultlen, ierr)
-C        call strcop(shortname(procid),name,10,'.',ierr)
-C        namelen(procid) = ierr-1
-C
-C        call gettime(datim)
-C        strn = ' '//funnam//' '//datim//' Process %i of %i on '
-C     .    //shortname(procid)(1:namelen(procid))//' bcast '//label//
-C     .    ' (%i %?#n==2#int##%?#n==4#d.p.##%?#n==6#d.c.##)'
-C
-C        call awrit6(strn,' ',-256,lgunit(3),procid,numprocs,n,cast,cast,
-C     .    cast)
-C      endif
-#endif
-
-      end
-
+c$$$      subroutine mpibc3(vec,n,cast,pid,mlog,funnam,label) !   this is removed at 19jun2021
+      
       subroutine mpibc2(vec,n,cast,mlog,funnam,label)
 C- Performs MPI_ALLREDUCE on a vector (MPI)
 C ----------------------------------------------------------------------
@@ -343,7 +238,6 @@ C ... Local parameters
         call awrit2(strn,' ',-256,lgunit(3),procid,numprocs)
       endif
 #endif
-
       end
 
       integer function mpipid(mode)
@@ -384,7 +278,6 @@ C     implicit none
 #else
       mpipid = 0
 #endif
-
       end
 C      subroutine fmain
 C      integer n

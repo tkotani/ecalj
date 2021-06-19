@@ -178,7 +178,7 @@ C     Wait for all proccesses to synchronize
 C     Re-broadcast entire species structure, and arrays used below
 cki      call mpibc1(sspec,nspec*nint(sspec(1)%size),4,0,'rdovfa','sspec')
       do i_spec=1,nspec
-        call mpibc1_s_spec(sspec(i_spec),.false.,'rdovfa','sspec')
+        call mpibc1_s_spec(sspec(i_spec),'rdovfa_sspec')
       enddo
 
       if (procid .eq. master) then

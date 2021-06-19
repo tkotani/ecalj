@@ -1,8 +1,6 @@
       subroutine ovlocr ( nbas , ssite , sspec ,  nxi0 , nxi 
      .  , exi , hfc , rsmfa , rv_a_orhofa , sv_p_orhoat , sqloc, slmom )
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nsp,stdo
-
-
       use m_struc_def
 C- Makes the site densities for overlapped free atoms.
 C ----------------------------------------------------------------------
@@ -44,14 +42,14 @@ c      parameter(nrmx=1501,nlmx=64,ktop0=25)
      .p2(3),q(3) !,b0(ktop0+1),acof((ktop0+1),nlmx,2)
       real(8),allocatable:: acof(:,:,:),b0(:,:),rofi(:),rwgt(:)
       complex(8),allocatable:: b(:,:)
-#if MPI | MPIK
-C      include "mpif.h"
-      integer, dimension(:),allocatable :: ibproc
-      integer ierr,pid
-      integer procid, master, mpipid, numprocs
-      logical mlog,cmdopt
-      character strn*120
-#endif
+c$$$#if MPI | MPIK
+c$$$C      include "mpif.h"
+c$$$      integer, dimension(:),allocatable :: ibproc
+c$$$      integer ierr,pid
+c$$$      integer procid, master, mpipid, numprocs
+c$$$      logical mlog,cmdopt
+c$$$      character strn*120
+c$$$#endif
       data q /0d0,0d0,0d0/
       integer:: ibini,ibend
 
@@ -59,34 +57,34 @@ C      include "mpif.h"
       ipr  = iprint()
 c      stdo = lgunit(1)
 c      nsp  = globalvariables%nsp
-#if MPI | MPIK
-      procid = mpipid(1)
-      numprocs = mpipid(0)
-      master = 0
-      mlog = cmdopt('--mlog',6,0,strn)
-#endif
+c$$$#if MPI | MPIK
+c$$$      procid = mpipid(1)
+c$$$      numprocs = mpipid(0)
+c$$$      master = 0
+c$$$      mlog = cmdopt('--mlog',6,0,strn)
+c$$$#endif
 C --- Loop over sites where density is made ---
       sqloc = 0
       slmom = 0
-#if MPI | MPIK
-      call info0(31,1,0,' ovlocr: make sphere densities from '//
-     .'overlapping FA densities (parallel)')
-      allocate (ibproc(0:numprocs), stat=ierr)
-      call pshpr(ipr-10)
-      call dstrbp(nbas,numprocs,1,ibproc(0))
-      call poppr
-      ipr = 0
-      call pshpr(10)
-      ibini= ibproc(procid)
-      ibend= ibproc(procid+1)-1
-#else
+c$$$#if MPI | MPIK
+c$$$      call info0(31,1,0,' ovlocr: make sphere densities from '//
+c$$$     .'overlapping FA densities (parallel)')
+c$$$      allocate (ibproc(0:numprocs), stat=ierr)
+c$$$      call pshpr(ipr-10)
+c$$$      call dstrbp(nbas,numprocs,1,ibproc(0))
+c$$$      call poppr
+c$$$      ipr = 0
+c$$$      call pshpr(10)
+c$$$      ibini= ibproc(procid)
+c$$$      ibend= ibproc(procid+1)-1
+c$$$#else
       if (ipr .ge. 30) write (stdo,300)
   300 format(/' Free atom and overlapped crystal site charges:'
      ./'   ib    true(FA)    smooth(FA)  true(OV)',
      .'    smooth(OV)    local')
       ibini= 1
       ibend= nbas
-#endif
+c$$$#endif
       do  ib = ibini,ibend
         is=ssite(ib)%spec
         p1(:)=ssite(ib)%pos(:)
@@ -140,52 +138,52 @@ c            call dpzero(b0,(kmxv+1)*nlmh)
         deallocate(acof,b)
       enddo
 
-#if MPI | MPIK
-      call poppr
-
-C ... Combine sphere densities from separate threads
-      do  pid = 0, numprocs-1
-        do  ib = ibproc(pid), ibproc(pid+1)-1
-
-          is=ssite(ib)%spec
-
-
-          nr=sspec(is)%nr
-          lmxl=sspec(is)%lmxl
-
-          nlml = (lmxl+1)**2
-          call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
-     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
-
-          call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
-     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
-
-          call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
-     .     0 , 'ovlocr' , 'rhoat(1)' )
-
-C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
-C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-C          call MPI_BCAST(w(orhoat(2,ib)),nr*nlml*nsp,
-C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-C          call MPI_BCAST(w(orhoat(3,ib)),nr*nsp,
-C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
-        enddo
-      enddo
-C ... Combine sum-of-sphere charges from separate threads
-      call mpibc2_real(sqloc,1,'ovlocr_sqloc')
-      call mpibc2_real(slmom,1,'ovlocr_slmom')
-
-C     Debugging printout
-C      print 345, procid, (dval(w(orhoat(1,ib)),445), ib=1,20)
-C      print 345, procid, (dval(w(orhoat(2,ib)),445), ib=1,20)
-C      print 345, procid, (dval(w(orhoat(3,ib)),445), ib=1,20)
-C  345 format(i4,20f10.5)
-C     print *, procid, iprint()
-
-      deallocate(ibproc, stat=ierr)
-C     call rx0('done')
-#endif
-
+c$$$#if MPI | MPIK
+c$$$      call poppr
+c$$$
+c$$$C ... Combine sphere densities from separate threads
+c$$$      do  pid = 0, numprocs-1
+c$$$        do  ib = ibproc(pid), ibproc(pid+1)-1
+c$$$
+c$$$          is=ssite(ib)%spec
+c$$$
+c$$$
+c$$$          nr=sspec(is)%nr
+c$$$          lmxl=sspec(is)%lmxl
+c$$$
+c$$$          nlml = (lmxl+1)**2
+c$$$          call mpibc3 ( sv_p_orhoat( 1 , ib )%v , nr * nlml * nsp , 4 , 
+c$$$     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
+c$$$
+c$$$          call mpibc3 ( sv_p_orhoat( 2 , ib )%v , nr * nlml * nsp , 4 , 
+c$$$     .     pid , 0 , 'ovlocr' , 'rhoat(1)' )
+c$$$
+c$$$          call mpibc3 ( sv_p_orhoat( 3 , ib )%v , nr * nsp , 4 , pid , 
+c$$$     .     0 , 'ovlocr' , 'rhoat(1)' )
+c$$$
+c$$$C          call MPI_BCAST(w(orhoat(1,ib)),nr*nlml*nsp,
+c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+c$$$C          call MPI_BCAST(w(orhoat(2,ib)),nr*nlml*nsp,
+c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+c$$$C          call MPI_BCAST(w(orhoat(3,ib)),nr*nsp,
+c$$$C     .      MPI_DOUBLE_PRECISION,pid,MPI_COMM_WORLD,ierr)
+c$$$        enddo
+c$$$      enddo
+c$$$C ... Combine sum-of-sphere charges from separate threads
+c$$$      call mpibc2_real(sqloc,1,'ovlocr_sqloc')
+c$$$      call mpibc2_real(slmom,1,'ovlocr_slmom')
+c$$$
+c$$$C     Debugging printout
+c$$$C      print 345, procid, (dval(w(orhoat(1,ib)),445), ib=1,20)
+c$$$C      print 345, procid, (dval(w(orhoat(2,ib)),445), ib=1,20)
+c$$$C      print 345, procid, (dval(w(orhoat(3,ib)),445), ib=1,20)
+c$$$C  345 format(i4,20f10.5)
+c$$$C     print *, procid, iprint()
+c$$$
+c$$$      deallocate(ibproc, stat=ierr)
+c$$$C     call rx0('done')
+c$$$#endif
+c$$$
       call tcx('ovlocr')
       end subroutine ovlocr
 
