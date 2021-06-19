@@ -3,7 +3,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmelt, Setppovlz, Setppovlz_chipm, Deallocate_zmel,
+      use m_zmel,only     : Get_zmel_init, Get_zmel,Get_zmeltt,Setppovlz, Setppovlz_chipm, Deallocate_zmel,
      o     zmel,zmeltt
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
@@ -318,8 +318,6 @@ c      real(8):: wgtq0p
           
 !! === open WVR,WVI ===
           if(.not.exchange) then
-c            ifrcw  = iopen('WVR.'//charnum5(kx),0,-1,mrecl)
-c            ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
             open(newunit=ifrcw,  file='WVR.'//charnum5(kx), action='read',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
             open(newunit=ifrcwi, file='WVI.'//charnum5(kx), action='read',form='unformatted',
@@ -327,16 +325,10 @@ c            ifrcwi = iopen('WVI.'//charnum5(kx),0,-1,mrecl)
           endif
           nrot=0
           do irot = 1,ngrp
-c            if( kx <= nqibz) then
-              kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
-              if(kr==0) cycle   ! next irot
-              qbz_kr= qbz (:,kr) 
-c            else
-c              kr=-99999         !for sanity check
-c              qbz_kr= 0d0
-c              if( wgt0(kx-nqibz,irot)==0d0 ) cycle ! next irot
-c            endif
-            nrot=nrot+1
+             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
+             if(kr==0) cycle    ! next irot
+             qbz_kr= qbz (:,kr) 
+             nrot=nrot+1
           enddo  
 
 !! === loop 1000 over rotations irot ===
@@ -344,7 +336,6 @@ c            endif
             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
             qbz_kr= qbz (:,kr) 
-
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
             ekq = readeval(qk, isp) 
@@ -355,8 +346,6 @@ c            if(GaussSmear()) ddw= 10d0
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
-c            nt0p = nocc (ekc,efp,.true.,nstatetot)
-c            nt0m = nocc (ekc,efm,.true.,nstatetot)
             nt0p = nocc (ekq,efp,.true.,nstatetot)+ nctot
             nt0m = nocc (ekq,efm,.true.,nstatetot)+ nctot
             if(exchange) then
@@ -372,8 +361,9 @@ c            nt0m = nocc (ekc,efm,.true.,nstatetot)
             nstate = nctot + nbmax ! = nstate for the case of correlation
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 ! this return zmeltt (for exchange), or zmel (for correlation)
-            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-     &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
+            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0)
+            if(     exchange) call Get_zmeltt()!return zmeltt 
+            if(.not.exchange) call Get_zmel()  !rerutn zmel
             if(debug) write(6,*)' end of get_zmelt'
             wtt = wk(kr)
             if(eibz4sig()) then

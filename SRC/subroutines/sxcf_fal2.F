@@ -19,7 +19,7 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readqg,only:readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmelt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
+      use m_zmel,only: Get_zmel_init,Get_zmel,Get_zmeltt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
      &     zmel,zmeltt          !ppovlz,
 !!
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
@@ -597,8 +597,10 @@ c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) call Deallocate_zmel()
             if(allocated(zmeltt)) call Deallocate_zmeltt()
 ! this return zmeltt (for exchange), or zmel (for correlation)
-            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp,
-     &       ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
+c            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp, ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
+            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp,nbmax,ntqxx,nctot,ncc=0)
+            if(     exchange) call Get_zmeltt()!return zmeltt 
+            if(.not.exchange) call Get_zmel()  !rerutn zmel
             if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
             else
