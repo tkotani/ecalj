@@ -288,7 +288,7 @@ c        endif
       allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
       do is = 1,nspin
         do ip = 1,nq
-          call READEVAL(q(1,ip),is,eqt)
+          eqt= READEVAL(q(1,ip),is)
           eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
           eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- eftrue)
         enddo
@@ -622,9 +622,7 @@ c            write(6,*)'evec orth=',i,j,sum(dconjg(evec(:,i)*evec(:,j)))
           allocate(evec_inv(nev,nhdim))
           evec_inv = matmul(ovl(1:nev,1:nev),dconjg(transpose(evec(:,1:nev)))) !note ovl means ovlinv
           deallocate(ovl)
-c          evec_inv = evec
-c          call matcinv(nhdim,evec_inv)
-          call READEVAL(q(:,iqxx), is, evaliq)
+          evaliq = READEVAL(q(:,iqxx), is)
           nsym = sum(eibzsym(:,:,iqxx))
           do it=1,1             !no-time reversal yet !it=1,-1,-2 !c.f. x0kf_v4h
             do igrp=1,ngrp      !A-rotator

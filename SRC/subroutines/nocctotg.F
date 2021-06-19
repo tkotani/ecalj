@@ -15,7 +15,7 @@ c nqbz    = no. k-points
       wgt       = 0d0
       do is = 1,ispin
         do k   = 1,nqbz
-          call readeval(qbz(:,k),is,  ekt)
+          ekt= readeval(qbz(:,k),is)
           wiocc = 0d0
           do it = 1,nband
             if(    ekt(it)  + 0.5d0*esmr < ef  ) then

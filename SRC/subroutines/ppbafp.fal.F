@@ -177,7 +177,7 @@ c$$$      end
      i       rmel, cmel, nbloch,nctot,ncc,itps,
      o       rmelt,cmelt)
       use m_readqg, only : readqg
-      use m_readeigen,only : readgeig
+      use m_readeigen,only : readgeigf
 c-----------------------------------------------------
       implicit none
       real(8),intent(in):: q(3),q_rk(3),qik(3),ginv(3,3)
@@ -202,11 +202,11 @@ c-----------------------------------------------------
       call readqg('QGpsi',q,    qt,   ngp1, ngvecpB1) !qt is used q in practice.
       call readqg('QGpsi',q_rk, q_rkt,ngp2, ngvecpB2)
       if(debug) write(6,*)'drvmelp: goto readgeig'
-      call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
-      call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
-      if(debug) write(6,*)'drvmelp2: endof readgeig'
-      if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
-      if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
+      geig1= readgeigf(q,ispq)       !call readgeig(q,    ngpmx_in, ispq, qu1, geig1)
+      geig2= readgeigf(q_rk,ispq_rk) !call readgeig(q_rk, ngpmx_in, ispq_rk, qu2, geig2)
+c      if(debug) write(6,*)'drvmelp2: endof readgeig'
+c      if(sum(abs(qt-qu1))>1d-10) call rx( 'drvmelp2;qu1/=qu1x')
+c      if(sum(abs(q_rkt-qu2))>1d-10) call rx( 'drvmelp2;qu2/=qu2x')
       if(debug) write(6,*)' drvmelp2:end of read geig '
       qdiff = matmul(symope,qik)  - qt + q_rkt
       ! rk    -q  +(q-rk) is not zero.

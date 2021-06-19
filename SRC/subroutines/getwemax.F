@@ -127,7 +127,7 @@ c$$$      enddo
       omegac =  0d0 !-1d99
       do is = 1,nspinmx
         do ip = 1,nq
-          call readeval(q(1,ip),is,eqt)
+          eqt = readeval(q(1,ip),is)
           do it=1,ntq
             eee = eqt(itq(it)) - 2d0*deltaw  !2.d0*(-1d0-shtw)*deltaw
 c            write(6,*)' is ip it eee=',eee,eqt(itq(it))
@@ -157,7 +157,7 @@ c      endif
       eminc =  0d0 !1d99
       do is = 1, nspinmx
         do iq = 1, nqbz
-          call readeval(qbz(1,iq),is,eqt)
+          eqt= readeval(qbz(1,iq),is)
 c          print *
           do ib=1,nband
             eee = eqt(ib)

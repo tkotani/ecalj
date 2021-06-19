@@ -573,39 +573,12 @@ c     ekino
       
 cc --- read LDA eigenvalues
       ntq = nwf
-cc     ntp0=ntq
-c      allocate(eqx(ntq,nq,nspin),eqx0(ntq,nq,nspin),eqt(nband))
-c      do      is = 1,nspin
-c      do      ip = 1,nq
-cc        iq       = idxk (q(1,ip),qbze,nqbze)
-cc        call rwdd1   (ifev(is), iq, nband, eqt) !direct access read b,hb and e(q,t)
-c        call readeval(q(1,ip),is,eqt)
-cc        write(6,*)' eqt=',eqt
-c        eqx0(1:ntq,ip,is) = eqt(itq(1:ntq))
-c        eqx (1:ntq,ip,is) = rydberg()*(eqt(itq(1:ntq))- ef)
-c      enddo
-c      enddo
-c      deallocate(eqt)
-
 c --- info
       call winfo(6,nspin,nq,ntq,is,nbloch
      &     ,0,0,nqbz,nqibz,ef,deltaw,alat,esmr)
-
-c
       iii=ivsumxxx(irk,nqibz*ngrp)
       write(6,*) " sum of nonzero iirk=",iii, nqbz
 
-c-------------------------------------------------------------
-c debug:
-c      allocate(eqt(nband))
-c      do ip = 1,nqbz
-c        call readeval(qbz(1,ip),1,eqt)         
-c        write(80,"('***',3f10.5)")qbz(:,ip)
-c        do is=1,nband
-c           write(80,"(i5,f12.6)")is,eqt(is)
-c        enddo
-c      enddo
-   
 c Rt vectors
       allocate (rt(3,nqbz),rt8(3,8,nqbz),qbz0(3,nqbz))
 c      write(6,"(a,9f9.4)")'qbas=',qbas
@@ -637,11 +610,9 @@ c index for k and k+bb
       do is = 1,nspin
       do iq = 1,nqbz
          qxx = qbz(:,iq)
-         call readeval(qxx,is,eqt)
+         eqt= readeval(qxx,is)
          ini=1
          do i=1,nband
-c           write(6,*)'eqeq',eqt(i),eomin,eqt(nwf)
-c            if (eqt(i)>eomin) then
             if( (eqt(i)-ef)*rydberg() >eomin) then
              inii=i
              exit

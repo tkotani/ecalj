@@ -84,15 +84,9 @@ c RS: legas mode is not implemented..
       endif
 c
       do is = 1,ispin
-        do iq = 1,nqibz
-          call readeval(qibz(:,iq),is, ekt(1,iq,is) )
-c        call catch1 (qibz,iq,3,nqibz,qx)
-c         call fbz2(qx,  ginv,index_qbz,n_index_qbz,qbz,nqbz,
-c     o              qbzx,kpx)
-c        call rwdd1( ifev(is),   !read eigenvalues
-c     d              kpx,nband,
-c     o              ekt(1,iq,is) )
-        enddo
+      do iq = 1,nqibz
+          ekt(:,iq,is) = readeval(qibz(:,iq),is)
+      enddo
       enddo
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then

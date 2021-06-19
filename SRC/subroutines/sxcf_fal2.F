@@ -445,7 +445,7 @@ c      allocate(expikt(natom))
         q = qip(1:3,ip) 
         write (*,*) ip,'  out of ',nq,'  k-points ' ! call cputid  (0)
         if(ixc==2) then
-          call readeval(q,isp,eqx)
+          eqx= readeval(q,isp)
           do iw = iwini,iwend
             do i  = 1,ntq
               omega(i,iw) = eqx(itq(i)) + 2d0*(dble(iw)-shtw)*deltaw
@@ -460,7 +460,7 @@ c        dwplot=0.01
         enddo
         endif
 
-        call readeval(q, isp, eq(1,ip))
+        eq(:,ip)= readeval(q, isp) 
 !! we only consider bzcase()==1
         if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
         if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
@@ -565,7 +565,7 @@ c            endif
 
 c qk = q - rk, rk is inside 1st BZ, not restricted to the irreducible BZ
             qk =  q - qbz_kr    ! qbz(:,kr)
-            call readeval(qk, isp, ekq)
+            ekq = readeval(qk, isp)
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = nocc (ekc,ef,.true.,nstatetot)
             ddw= .5d0

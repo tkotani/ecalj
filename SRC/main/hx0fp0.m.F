@@ -247,7 +247,7 @@ c      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),
       logical:: readw0w0itest=.false.,hx0
 
 c      real(8)::ebmx
-      integer:: ifq0p,ifwc,ifif !nbmx,mtet(3),
+      integer:: ifq0p,ifwc,ifif,ierr !nbmx,mtet(3),
       real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
 c      integer:: nqbze,nqibze
 c      real(8),allocatable:: qbze(:,:),qibze(:,:)
@@ -629,22 +629,21 @@ c     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
             rcxq=0d0
           endif
           do kx = 1, nqbz
-            call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-            call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+            ekxx1(1:nband, kx)  = readeval(qbz(:,kx),   is )
+            ekxx2(1:nband, kx)  = readeval(q+qbz(:,kx), isf)
           enddo
           call gettetwt(q,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) 
 !! == x0kf_v4hz is the main routine to accumalte imaginary part of x0 into rcxq ==
-          call x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
-          call x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
-          call x0kf_v4hz(        q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa, 
-     o         rcxq)           !  rcxq is the accumulating variable for spins 
+          ierr = x0kf_v4hz_init(0, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
+          ierr = x0kf_v4hz_init(1, q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa)
+          call   x0kf_v4hz     (   q, is, isf, iq, nmbas_in, eibzmode, nwgt(:,iq),crpa, rcxq) 
+               !  rcxq is the accumulating variable for spins 
 !!    Symmetrize and convert to Enu basis by dconjg(tranpsoce(zcousq)*rcxq8zcousq if eibzmode
           if(is==nspinmx.or.chipm) then !Apr2015. TK think ".or.chipm" is required for chipm mode
                                         !Because rcxq is calculated for each is, symmetrized and its contribution
                                         !is added to zxq in dpsion5.
-            call x0kf_v4hz_symmetrize( q, iq, 
-     i       nolfco, zzr, nmbas_in, chipm, eibzmode, eibzsym(:,:,iq),
-     o       rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
+            call x0kf_v4hz_symmetrize(q,iq,nolfco,zzr,nmbas_in,chipm,eibzmode,eibzsym(:,:,iq),rcxq)
+            !  crystal symmetry of rcxq is recovered for EIBZ mode.
           endif
           call tetdeallocate() !--> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
           if(debug) write(6,"(a)") ' --- goto dpsion5 --- '

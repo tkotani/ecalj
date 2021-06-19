@@ -295,7 +295,7 @@ c      real(8):: wgtq0p
         if(sum(irkip(:,:,ip))==0) cycle ! next ip
         write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
         q(1:3)= qip(1:3,ip)
-        call readeval(q,isp,eq)
+        eq= readeval(q,isp)
         do i  = 1,ntq
           omega(i) = eq(itq(i)) 
         enddo
@@ -347,7 +347,7 @@ c            endif
 
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
-            call readeval(qk, isp, ekq) 
+            ekq = readeval(qk, isp) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = nocc (ekc,ef,.true.,nstatetot)
 c            ddw= .5d0

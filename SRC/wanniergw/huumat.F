@@ -14,7 +14,7 @@ c modified by Takahi Miyake, May, 2004
 c originally written by Takao Kotani, April, 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
-      use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval,Readcphi,Readgeig
+      use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval,Readcphif,Readgeigf
 
       use m_read_bzdata,only: read_bzdata,
      & ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,qbas, ginv,
@@ -662,10 +662,12 @@ cr   ibas_indx(1:ldim2) : ibas index.
       uum = 0d0
       do 1050 ispin=1,nspin
        allocate(cphi1 (nlmto,nband),cphi2(nlmto,nband) )
-       call readcphi(q1, nlmto, ispin, quu, cphi1)
-c       call checkagree(q1,q1x,' q1 ne quu')
-       call readcphi(q2, nlmto, ispin, quu, cphi2)
-c       call checkagree(q2,quu,' q2 ne quu')
+c       call readcphi(q1, nlmto, ispin, quu, cphi1)
+cc       call checkagree(q1,q1x,' q1 ne quu')
+c       call readcphi(q2, nlmto, ispin, quu, cphi2)
+cc       call checkagree(q2,quu,' q2 ne quu')
+       cphi1= readcphif(q1,ispin) !call readcphi(q1, nlmto, ispin, quu, cphi1)
+       cphi2= readcphif(q2,ispin) !call readcphi(q2, nlmto, ispin, quu, cphi2)
 
        do 1020 ia1 = 1,nlmto
          ibas1= ibas_indx(ia1)
@@ -724,9 +726,9 @@ c            do j2= j2min,j2max
  1020  continue
 
 c ... Interstitial Plane Wave part
-       call readgeig(q1, ngpmx, ispin, quu, geig1)
+       geig1=readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
 c       call checkagree(q1,quu,' q1 ne quu eig')
-       call readgeig(q2, ngpmx, ispin, quu, geig2)
+       geig2=readgeigf(q2,ispin) !call readgeig(q2, ngpmx, ispin, quu, geig2)
 c       call checkagree(q2,quu,' q1 ne quu eig')
        if (ixc.ne.4) then
 c         do j1=j1min,j1max

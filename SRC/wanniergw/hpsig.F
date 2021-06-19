@@ -14,7 +14,7 @@ c
 c Takashi Miyake, June 2004
 c-------------------------------------------------
       use m_readqg,only: Readngmx,ngcmx,Readqg0,Readqg
-      use m_readeigen,only:init_readeigen,init_readeigen2,readcphi,readgeig
+      use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf
       use m_read_bzdata,ngrp2=>ngrp
 
       use m_genallcf_v3,ncore2=>ncore
@@ -431,8 +431,8 @@ cr   n_indx   (1;ldim2) : n index (phi=1 phidot=2 localorbital=3)
 cr   l_indx   (1:ldim2) : l index
 cr   ibas_indx(1:ldim2) : ibas index.
        allocate( cphi1 (nlmto,nband) )
-       call readcphi(q1, nlmto, ispin, quu, cphi1)
-c       call checkagree(q1,q1x,' q1 ne quu')
+       cphi1 = readcphif(q1,ispin) !     call readcphi(q1, nlmto, ispin, quu, cphi1)
+                                   !     call checkagree(q1,q1x,' q1 ne quu')
 
        do 1020 ia = 1,nlmto
 c          do j1= j1min,j1max
@@ -449,7 +449,7 @@ c          do j1= j1min,j1max
 c       write(*,*)'MT part done'
 
 c ... Interstitial Plane Wave part
-       call readgeig(q1, ngpmx, ispin, quu, geig1)
+       geig1=readgeigf(q1,ispin) !call readgeig(q1, ngpmx, ispin, quu, geig1)
 c       call checkagree(q1,quu,' q1 ne quu eig')
 c       do j1=j1min,j1max
        do j1  = iko_ixs(ispin),iko_fxs(ispin)

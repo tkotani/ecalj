@@ -16,7 +16,7 @@
      &     il, in, im, mnl=>nlnm , nl,nn,nlnmx
       use m_rdpp,only: Rdpp,    !"call rdpp" generate following data.
      &     nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
-      use m_readeigen,only: Readcphi,Readgeig 
+      use m_readeigen,only: Readcphif !,Readgeigf
       use m_read_bzdata,only: 
      i     nqbz,nqibz,  qbas,ginv,qbz,qibz,wbz,
      i     done_read_bzdata  
@@ -163,9 +163,9 @@ c     i                 ppbrd)           !radial integrals
       nmini=1
       nqini=1
       call get_zmelt2(exchange,  
-     &   kvec,irot,rkvec,ngcxxx,ngbxxx,    !MPB        for  MPB_rkvec
-     &      nmini,nmmax,ispm,nctot,  !middle-phi for  phi_{q-rkvec}
-     &    q,nqini,nqmax,ispq,ncc  )  !end-phi    for  phi_q
+     &   kvec,irot,rkvec,           !ngcxxx,ngbxxx,    !MPB        for  MPB_rkvec
+     &    nmini,nmmax,ispm ,nctot,  !middle-phi for  phi_{q-rkvec}
+     &    q,nqini,nqmax,ispq ,ncc  )  !end-phi    for  phi_q
       end subroutine get_zmelt
 !! ----------------------------------------
 cold  ntqxx--->nqmax
@@ -201,17 +201,17 @@ cold  nbmax -->nmmax
 !! <rkvec,1:ngb   q-rkvec, 1:nmtot | q, 1:nqtot>
 !! ----------------------------------------
       subroutine get_zmelt2(exchange,
-     &   kvec,irot,rkvec,   ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
+     &   kvec,irot,rkvec,          !  ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc)  !end state for phi_q
       intent(in)::          exchange,
-     &   kvec,irot,rkvec,   ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
+     &   kvec,irot,rkvec,          !  ngcxxx,ngbxxx,  !MPB for       MPB_rkvec
      &   nmini,nmmax,ispm,nctot,   !middle for    phi_{q-rkvec}
      &    q,nqini,nqmax,ispq,ncc   !end state for phi_q
 !! \parameter all inputs
 !! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
       logical:: exchange
-      integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,nqmax, ngbxxx,ngcxxx!,nbcut !ngc,ngb,
+      integer:: invr,nxx,itp,irot,isp,kr,no,nmmax,nqmax !, ngbxxx,ngcxxx!,nbcut !ngc,ngb,
       integer:: iatomp(natom),nmini,nqini,nctot,ncc
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
      &  , quu(3),q(3), kvec(3),rkvec(3),wtt
@@ -243,7 +243,7 @@ cold  nbmax -->nmmax
       if(sum(abs(q-q_bk))>tolq) then
 c         print *,' go to readcphi',q,nlmto,ispq,quu
 ccccccccccccccccccccccccccccccccc         
-         call readcphi(q, nlmto,ispq, quu, cphim )
+         cphim= readcphif(q,ispq)
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          q_bk=q
       endif
@@ -255,7 +255,8 @@ ccccccccccccccccccccccccccccccccc
 !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       qk =  q - rkvec        
       if(sum(abs(qk-qk_bk))>tolq) then
-         call readcphi(qk, nlmto,ispm, quu, cphim)
+c         call readcphi(qk, nlmto,ispm, quu, cphim)
+         cphim= readcphif(qk, ispm)
          qk_bk=qk
       endif
 c      call getsrdpp2( nclass,nl,nxx)

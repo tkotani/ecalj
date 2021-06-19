@@ -4,7 +4,7 @@ c      contains
      i    npw,mesh,nsp,nband,ldim2,ngpmx,  
      i    geig,cphi,nwf,  
      o    phipw,phiaug,phitot)
-      use m_readeigen,only: readcphi,readgeig
+c      use m_readeigen,only: readcphif,readgeig
 cccccccccccccccccccccccccccccccccccccc
       use m_QG,only:ngp
 cccccccccccccccccccccccccccccccccccccc

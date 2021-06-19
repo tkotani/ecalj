@@ -112,7 +112,7 @@ c maximum no. occupied states
       noccx      = 0
       do  is = 1,nspin
         do iq = 1,nqbz
-          call readeval(qbz(:,iq),is, ekt(1,iq))
+          ekt(:,iq)= readeval(qbz(:,iq),is)
         enddo
         noccxt  = noccx1 (ekt,nqbz,nband,ef)
         if (noccxt .gt. noccx) noccx = noccxt

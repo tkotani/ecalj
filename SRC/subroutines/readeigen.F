@@ -17,7 +17,7 @@
 !!                  See lmfgw (q-vector with irr flag in QGpsi).
       implicit none
 !-------------------------------
-      public:: Readeval, Readgeig, Readcphi, Init_readeigen, Init_readeigen2, Lowesteval,
+      public:: Readeval, Readgeigf, Readcphif, Readcphifq, Init_readeigen, Init_readeigen2, Lowesteval,
      &     Onoff_write_pkm4crpa,
      &     Init_readeigen_mlw_noeval, Init_readeigen_phi_noeval, Readcphiw, Readgeigw
       integer,public:: nwf
@@ -44,6 +44,7 @@
       integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:)
      & ,offset_tbl(:),offset_rev_tbl(:,:,:)
       logical,private:: Wpkm4crpa=.false.
+      real(8),private :: quu(3)
 
       contains
       subroutine onoff_write_pkm4crpa(lll) 
@@ -85,9 +86,8 @@
 
 
 !> Return ev(1:nband) for given q(1:3) and isp 
-      subroutine readeval(q,isp, ev)
-      intent(in)  ::       q,isp
-      intent(out) ::             ev
+      function readeval(q,isp) result(ev)
+      intent(in)  ::    q,isp
       integer :: isp
       real(8) :: q(3), ev(nband)
       integer:: iq,iqindx,i
@@ -103,7 +103,7 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       if(debug) then
         write(6,"(9f9.4)")ev(1:9)
       endif
-      end subroutine
+      end function
 
       subroutine findemaxmin_r(emax,emin)
       real(8):: emax,emin,eee
@@ -121,6 +121,15 @@ c      iq = iqindx(q, ginv,qtt,nqtt)
       end subroutine
 
 !> Return ev(1:nband) for given q(1:3) and isp 
+      function readgeigf(q,isp) result(geigen)
+      real(8),intent(in):: q(3)
+      integer,intent(in):: isp
+      real(8):: qu(3)
+      complex(8):: geigen(ngpmx,nband)
+      call readgeig(q,ngpmx,isp,qu,geigen)
+      end
+
+      
       subroutine readgeig(q,ngp_in,isp, qu,geigen)
       real(8),intent(in) :: q(3)
       integer,intent(in) :: isp,ngp_in
@@ -209,6 +218,19 @@ c      endif
       end subroutine readgeig
 
 !!
+      function readcphif(q,isp) result(cphif)
+      integer,intent(in):: isp
+      real(8),intent(in):: q(3)
+      real(8) :: qu(3)
+      complex(8):: cphif(ldim2,nband)
+      call readcphi(q,ldim2,isp, qu, cphif)
+      quu=qu
+      end
+      function readcphifq() result(qu) ! I think this is not ncessary now
+      real(8):: qu(3)                  ! I think qu=q now.
+      qu=quu
+      end function
+      
       subroutine readcphi(q,ldim2,isp,  qu,cphif)
 !!-- return mto part of eigenfunction for given q(1:3) and isp
       real(8), intent(in) :: q(3)
@@ -216,20 +238,13 @@ c      endif
       integer, intent(in)  :: isp
       real(8), intent(out)  :: qu(3)
       complex(8), intent(out)  :: cphif(ldim2,nband)
-
       integer:: iq,iqindx,ikpisp,iqq,iorb,ibaso,ibas,k,l,
      & ini1,ini2,iend1,iend2,igg,ig,iqi,i,igxt
       real(8)   :: qrot(3) ,qout(3)
       complex(8):: phase,cphifr(ldim2,nband),phaseatom !takao 1->*->nband
-!      complex(8),parameter:: img=(0d0,1d0),img2pi=2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       complex(8),parameter:: img=(0d0,1d0) ! MIZUHO-IR
-
-      complex(8):: img2pi ! MIZUHO-IR
-      img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-Cstop2rx 2013.08.09 kino      if(init2) stop 'readcphi: modele is not initialized yet'
+      complex(8):: img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
       if(init2) call rx( 'readcphi: modele is not initialized yet')
-!! nqtt=nqnum. (aug2012. It was nqtt/2 before aug2012 when we use shorbz). See lm7k/fp/suham.F
-c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector.
       call iqindx2_(q, iq, qu) !qu is used q. q-qu= G vectors. qu=qtt(:,iq)
 !!  For given iq, iqq = iqmap(iq)
 !! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))  and  qtt(:,iqq) = qtti(:,iqi)
@@ -247,7 +262,6 @@ c      call iqindx2(q,ginv,qtt,nqtt/2, iq, qu) !qu is used q. q-qu is a G vector
       endif
       if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ldim2,ldim2,norbtx,
      &                sum(cphifr(1:ldim2,1:nband)),sum(abs(cphifr(1:ldim2,1:nband)))
-!!
       igxt=1 !not timereversal
       call rotmto(qtt(:,iqq),cphifr,ldim2,nband,
      i  norbtx,ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,

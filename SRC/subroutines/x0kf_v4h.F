@@ -24,24 +24,15 @@
       contains
       
 !--------------------------------------------------------------------------      
-      subroutine X0kf_v4hz_init (
+      function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa) result(ierr)
+      intent(in)::            job,q,isp_k,isp_kq, iq, nmbas,eibzmode, nwgt, crpa
 !! === initialzation for calling x0kf_v4h.
 !! Get ncount index for x0kf_v4h in the private variables
 !! Call job=0 and job=1 successively.      
 !!   ncount, ngb and nqibz are the key to estimate computational efforts.
 !! See x0kf_v4hz.
-!! OUTPUT: all private variables nkmin ... jpmc.
-     i                  job,q,isp_k,isp_kq,
-     i     iq,  
-     i     nmbas, 
-     i     eibzmode, 
-     i     nwgt, crpa) 
-      intent(in)::      job,q, isp_k,isp_kq,
-     i     iq,  
-     i     nmbas, 
-     i     eibzmode, 
-     i     nwgt,crpa
-      integer::  irot=1         !, ntqxx,nbmax!,nctot
+!! We have OUTPUT to private variables nkmin ... jpmc.
+      integer::  irot=1,ierr         !, ntqxx,nbmax!,nctot
       integer:: k,isp_k,isp_kq, iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp,job,icount, nmbas
       integer::  nwgt(nqbz) 
       real(8):: q(3), imagweight, wpw_k, wpw_kq
@@ -145,14 +136,14 @@ c          itp_(ibib,jpm,k)= -999
 !! constraint RPA mode (juelich verison)
           if(crpa) then
             if(n1b(ibib,k,jpm) <= nband) then
-              call readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k,   wpw_k) !k  n1b
+              wpw_k= readpkm4crpa(n1b(ibib,k,jpm),   rk(:,k), isp_k)
             else
               wpw_k=0d0
             endif  
             if(n2b(ibib,k,jpm) <= nband) then
-              call readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq,  wpw_kq) !kq n2b
+              wpw_kq= readpkm4crpa(n2b(ibib,k,jpm), q+rk(:,k), isp_kq)
             else
-              wpw_kq=0d0
+              wpw_kq= 0d0
             endif  
           endif
           do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 !iiww=iw+ihw(ibib,k)-1
@@ -174,14 +165,14 @@ c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,i
  1251    continue
  110  continue
       ncount = icount
+      ierr=0
       if(job==0) write(6,"('x0kf_v4hz_init: job=0 ncount ngb nqibz=',3i8)") ncount, ngb, nqibz
-      end subroutine x0kf_v4hz_init
+      end function x0kf_v4hz_init
 
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz (  q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa, 
-     o                    rcxq )
-      intent(in)   ::         q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa 
-      intent(inout)::     rcxq
+      subroutine X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa, rcxq)
+c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcxq) result(rcxq)!not rxcq to bothI/O
+      intent(in)   ::        q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa 
 !! === calculate chi0, or chi0_pm ===
 !! We calculate imaginary part of chi0 along real axis.
 !!
@@ -205,8 +196,7 @@ c                write(6,"(a,6i5,d13.5)")'uuuuu k it itp iw jpm whw=',icount,k,i
 !! nlmto   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 !!
-      integer:: k,isp_k,isp_kq 
-     &  ,iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp
+      integer:: k,isp_k,isp_kq,iq, jpm, ibib, iw,igb2,igb1,ngb,it,itp
       real(8):: q(3)
       complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
       complex(8) :: imag=(0d0,1d0),trc,aaa 
@@ -270,7 +260,7 @@ c
         if(kold/=k) then 
 c          write(6,'(" x0kf_v4hz: do1000 q,k=",3f8.4,2x,3f8.4)') q,rk(:,k)
            call Get_zmelt2(exchange,  !this gives matrix element zmel(igb,it,itp)
-     &       q,irot,q,ngc,ngb, ! MPB
+     &       q,irot,q,!ngc,ngb, ! MPB
      &       nkmin(k), nkmax(k), isp_k,nctot, ! middle state. index of eigen is mkmin:mkmin+nt0-1  + nctot
      &       q+rk(:,k),nkqmin(k),nkqmax(k),isp_kq,ncc) ! end state.   index of eigen is nkqmin:nkqmin+ntp0-1 +ncc 
            call Dconjg_zmel()   !zmel = dconjg(zmel)
@@ -309,23 +299,22 @@ c----------------------------
       write(6,"(' --- x0kf_v4hz: end')") !, 3d13.5)")
       if(debug) write(6,"(' --- ', 3d13.5)")
      &     sum(abs(rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm))),sum((rcxq(1:nmbas,1:nmbas,1:nwhis,1:npm)))
+c      end function x0kf_v4hz
       end subroutine x0kf_v4hz
       
 !! --------------------------------------------------------------------------------
-      subroutine X0kf_v4hz_symmetrize (
-     i     q, iq,  nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, 
-     o     rcxq)
+      subroutine X0kf_v4hz_symmetrize(q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym, rcxq)
       use m_readqgcou,only: qtt_, nqnum
       use m_rotMPB,only:  rotMPB2 
+      intent(in)::                    q, iq, nolfco, zzr,nmbas, chipmzzr, eibzmode, eibzsym
 !! === symmetrization for EPIBZ mode ===
-      implicit none
-      integer(4):: natom!,isp_k,isp_kq   !nsp,npm,nwhis,
-     &  ,nclass,nnc,iq,iatom,nctot,nbmx,iopen !nbloch,nl,nqibz,
+      integer(4):: 
+     &   nnc,iq,iatom,nctot,nbmx,iopen !nbloch,nl,nqibz,
      &  ,jpm,ibib,itps,nt0,ntp0,ngp_kq,ngp_k,it,itp,iw,igb2,igb1, 
      &  nn,no,isx,iclose,k !nbnbx,nqbz
       real(8):: q(3),ebmx !,rk(3,nqbz),wk(nqbz) qbas(3,3),ginv(3,3),
-      complex   (8):: rcxq (nmbas,nmbas,nwhis,npm)
-      complex(8) :: imag=(0d0,1d0),trc,aaa !phase(natom),
+      complex(8):: rcxq (nmbas,nmbas,nwhis,npm)
+      complex(8):: imag=(0d0,1d0),trc,aaa !phase(natom),
       integer(4):: nadd(3) !ngpmx, ngcmx, nqbze, !nband,
 c      integer(4) ::  nbnb(nqbz,npm), n1b(nbnbx,nqbz,npm), n2b(nbnbx,nqbz,npm)
       logical,parameter:: debug=.false.
@@ -654,11 +643,7 @@ c$$$        deallocate(zcousqr,rcxq0,rcxq00,rcxqtr)
         if(debug) call cputid2(' --- qqqqq222end:',0)
       endif  
  9999 continue
-!kino 2014.08.19 use automatic deallocation,      deallocate(cphi_k,cphi_kq,geig_kq,geig_k)
       write(6,"(' --- x0kf_v4hz_symmetrize: end')")
       end subroutine x0kf_v4hz_symmetrize
       end module m_x0kf
-
-      
-
 

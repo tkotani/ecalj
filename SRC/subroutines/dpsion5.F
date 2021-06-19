@@ -190,8 +190,6 @@ C---  realomega case
             deallocate(rrr)
          endif
          rmatt = rmatt/pi ; if(debug) write(6,*)'dpsion5: RRR 6666'
-!     ! takao remove if(nolfc) block here.
-c     write(6,*) " --- realomega dgemm--- "
 !     ! WARN! I think npm==2.and.chipm does not make sense. apr2012.
          if(npm==2.and.chipm) call rx( 'x0kf_v4h:npm==2.and.chipm is not meaningful probably')
 !     ! Note rcxq is negative now (converted at the top of this routine !!!

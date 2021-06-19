@@ -43,7 +43,7 @@ c      ngpmx = ngpmx_in
          allocate(eqt(nband))
          do is = 1,nspin
             do ip = 1,nq
-               call READEVAL(qibz(1,ip),is, eqt)
+               eqt= readeval(qibz(1,ip),is)
                do iband=1,nband
                   ntq = max(iband,ntq)
                   if(eqt(iband)-eftrue>ebmx_sig) exit
@@ -66,7 +66,7 @@ c      ngpmx = ngpmx_in
       allocate(eqt(nband))
       do is = 1,nspinmx
          do ip = 1,nq   
-            call READEVAL(qibz(1,ip),is, eqt)
+            eqt= READEVAL(qibz(1,ip),is)
             if(lntq) then
                read(ifih,*) ntqxx ! ntqxx = ntq !jun2016
             else  

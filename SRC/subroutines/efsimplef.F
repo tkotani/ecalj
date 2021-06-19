@@ -77,13 +77,7 @@ c      write(6,*)' valn=valn+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz
-          call readeval(qibz(:,iq),is, ekt(1,iq,is) )
-c        call catch1 (qibz,iq,3,nqibz,qx)
-c         call fbz2(qx,  ginv,index_qbz,n_index_qbz,qbz,nqbz,
-c     o              qbzx,kpx)
-c        call rwdd1( ifev(is),   !read eigenvalues
-c     d              kpx,nband,
-c     o              ekt(1,iq,is) )
+          ekt(:,iq,is) = readeval(qibz(:,iq),is)
         enddo
       enddo
 c
@@ -313,19 +307,12 @@ c      write(6,*)' valn=vanl+zbak =',valn
 c
       do is = 1,nspin
         do iq = 1,nqibz
-          call readeval(qibz(:,iq),is, ekt(1,iq,is) )
-c        call catch1 (qibz,iq,3,nqibz,qx)
-c         call fbz2(qx,  ginv,index_qbz,n_index_qbz,qbz,nqbz,
-c     o              qbzx,kpx)
-c        call rwdd1( ifev(is),   !read eigenvalues
-c     d              kpx,nband,
-c     o              ekt(1,iq,is) )
+          ekt(:,iq,is) = readeval(qibz(:,iq),is)
         enddo
       enddo
 c
       if(abs(sum(wibz(1:nqibz))-2d0)>1d-10) then
         write(6,*) 'sum (wibz)=', sum(wibz(1:nqibz))
-Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
         call rx( 'efsimplef2: wibzsumerr')
       endif
       do is = 1,nspin
@@ -334,17 +321,10 @@ Cstop2rx 2013.08.09 kino        stop 'efsimplef2: wibzsumerr'
           if(nspin==2) wgt(1:nband,iq,is) = wgt(1:nband,iq,is)/2d0
         enddo
       enddo
-
 c ekt and wgt
       call dcopy ( nband*nqibz*nspin, ekt,1, ektx ,1)
       call dcopy ( nband*nqibz*nspin, wgt,1, wgtx ,1)
       call sortea( ektx,ieaord,nband*nqibz*nspin,isig)
-c
-c      write(6,*)nband,nqibz,nspin,nband*nqibz*nspin
-c      do ik  = 1, nband*nqibz*nspin
-c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
-c      enddo
-c
       if (mpi__root) then
          if8301=ifile_handle()
          open(if8301,file = "DOSACC.lda")
@@ -523,10 +503,7 @@ c---------------------------------------------------------------
       Emax=-1d9
       do isp =1, nspin
         do kx = 1, nqbz
-c        call rwdd1 (ifev(isp), kx, nband, ekxxx(1:nband,kx,isp) )
-c          write(6,"('readeval in finemaxmin',3f10.6,i8,i3,255f12.8)") qbz(:,kx), kx,isp
-          call readeval(qbz(:,kx), isp,ekxxx(1:nband,kx,isp) )
-c          write(6,"('readeval in finemaxmin',255f12.8)")ekxxx(1:nband,kx,isp)
+          ekxxx(1:nband,kx,isp) = readeval(qbz(:,kx), isp)
           do i=1,nband
             eee= ekxxx(i,kx,isp)
 c            print *,i,eee 
