@@ -32,7 +32,7 @@
 !! Subroutines      
       public:: Get_zmelt, Get_zmelt2,
      &       Dconjg_zmel, Deallocate_zmel, Deallocate_zmeltt,
-     &       Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
+     &       Setppovlz, Setppovlz_chipm,  Mptauof_zmel , Get_zmelt_modex0
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   
       complex(8),allocatable,protected,public :: zmeltt(:,:,:) 
@@ -48,7 +48,8 @@
       logical,private:: init=.true.
       complex(8),allocatable,private :: cphiq(:,:), cphim(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
-
+      logical:: modex0=.false.
+      integer:: nkmin, nkqmin, isp_k, isp_kq
       contains
 !----------------------------------------------------
       subroutine Dconjg_zmel()
@@ -145,7 +146,15 @@ c     i                 ppbrd)           !radial integrals
       enddo  
       end subroutine ppbafp_v2_zmel
 
-      
+!! ------------------------------------
+      subroutine get_zmelt_modex0(n1,n2,n3,n4)
+      integer:: n1,n2,n3,n4
+      modex0=.true.
+      nkmin =n1
+      nkqmin=n2
+      isp_k =n3
+      isp_kq=n4
+      end
 !! ------------------------------------
       subroutine get_zmelt(exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngcxxx,ngbxxx,nmmax,nqmax, nctot,ncc)
       intent(in)::         exchange,q,kx, kvec,irot,rkvec,kr,isp,  ngcxxx,ngbxxx,nmmax,nqmax, nctot,ncc
@@ -162,6 +171,12 @@ c     i                 ppbrd)           !radial integrals
       ispm = isp
       nmini=1
       nqini=1
+      if(modex0) then
+         nmini= nkmin ! (k)
+         nqini= nkqmin! (k)
+         ispm = isp_k
+         ispq = isp_kq
+      endif   
       call get_zmelt2(exchange,  
      &   kvec,irot,rkvec,           !ngcxxx,ngbxxx,    !MPB        for  MPB_rkvec
      &    nmini,nmmax,ispm ,nctot,  !middle-phi for  phi_{q-rkvec}

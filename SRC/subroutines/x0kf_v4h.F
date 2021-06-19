@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmelt2,Dconjg_zmel,Deallocate_zmel, zmel 
+      use m_zmel,only     : Get_zmelt,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmelt_modex0
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -215,7 +215,7 @@ c      function X0kf_v4hz ( q, isp_k,isp_kq, iq, nmbas, eibzmode, nwgt, crpa,rcx
       real(8)::  wpw_k,wpw_kq!, vec_kcrpa(3),vec_kqcrpa(3)
       integer::  irot=1         !, ntqxx,nbmax!,nctot
       integer::  neibz,icc,ig,eibzmoden,ikp,i,j,itimer,icount,iele!,ngbb !eibzsym(ngrp,-1:1),
-      integer:: ieqbz,kold !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
+      integer:: ieqbz,kold,nxxxx !igx(ngrp*2,nqbz),igxt(ngrp*2,nqbz),
 c      integer,allocatable:: it_(:,:,:),itp_(:,:,:)
 !!-----------------------------------------------------------
 !! Main loop over k-points ---------------------------------------------------------
@@ -258,11 +258,16 @@ c
         if(debug) call cputid(0)
         k = kc(icount)
         if(kold/=k) then 
-c          write(6,'(" x0kf_v4hz: do1000 q,k=",3f8.4,2x,3f8.4)') q,rk(:,k)
-           call Get_zmelt2(exchange,  !this gives matrix element zmel(igb,it,itp)
-     &       q,irot,q,!ngc,ngb, ! MPB
-     &       nkmin(k), nkmax(k), isp_k,nctot, ! middle state. index of eigen is mkmin:mkmin+nt0-1  + nctot
-     &       q+rk(:,k),nkqmin(k),nkqmax(k),isp_kq,ncc) ! end state.   index of eigen is nkqmin:nkqmin+ntp0-1 +ncc 
+           call Get_zmelt_modex0(nkmin(k),nkqmin(k),isp_k,isp_kq)
+           call Get_zmelt(exchange,  !this gives matrix element zmel(igb,it,itp)
+     &       q+rk(:,k), nxxxx, q, irot, q, nxxxx, nxxxx,  !ngc,ngb, ! MPB
+     &          nxxxx, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
+c           isp_k,nctot,         ! middle state. index of eigen is mkmin:mkmin+nt0-1  + nctot
+c     &       q+rk(:,k),nkqmin(k),isp_kq,ncc) ! end state.   index of eigen is nkqmin:nkqmin+ntp0-1 +ncc 
+c           call Get_zmelt2(exchange,  !this gives matrix element zmel(igb,it,itp)
+c     &       q,irot,q,!ngc,ngb, ! MPB
+c     &       nkmin(k), nkmax(k), isp_k,nctot, ! middle state. index of eigen is mkmin:mkmin+nt0-1  + nctot
+c     &       q+rk(:,k),nkqmin(k),nkqmax(k),isp_kq,ncc) ! end state.   index of eigen is nkqmin:nkqmin+ntp0-1 +ncc 
            call Dconjg_zmel()   !zmel = dconjg(zmel)
            kold=k
         endif
