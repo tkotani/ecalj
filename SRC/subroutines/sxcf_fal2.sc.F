@@ -195,14 +195,14 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
 ! local arrays
 c      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
-      complex(8),allocatable :: vcoul(:,:),w3p(:,:,:)   
+      complex(8),allocatable :: vcoul(:,:) 
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
       complex(8),allocatable :: zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:)
       complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),zmel1(:) !,expikt(:)
       complex(8), allocatable :: zmel1_(:,:,:), zw3(:,:,:),zw3x(:,:)
       complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
       complex(8),allocatable :: ppovl(:,:),zcousq(:,:)
-      complex(8),allocatable :: z1r(:,:),z2r(:,:),w3pi(:,:)
+c      complex(8),allocatable :: z1r(:),z2r(:),w3p(:)   
 
       real(8), parameter :: wfaccut=1d-8
       complex(8), parameter :: img=(0d0,1d0)
@@ -337,8 +337,6 @@ c      real(8):: wgtq0p
             ekq = readeval(qk, isp) 
             ekc(nctot+1:nctot+nband) = ekq (1:nband)
             nt0 = nocc (ekc,ef,.true.,nstatetot)
-c            ddw= .5d0
-c            if(GaussSmear()) ddw= 10d0
             ddw= 10d0
             efp= ef+ddw*esmr
             efm= ef-ddw*esmr
@@ -369,8 +367,6 @@ c            if(GaussSmear()) ddw= 10d0
 !! --- exchange section ---
 !!--------------------------------------------------------
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
-!!            We use the matrix elements zmeltt. Now given by "call get_zmelt"
-!!
 c We need to check following comments ----     
 c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
 c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
@@ -378,53 +374,23 @@ c
 c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
               allocate(vcoud_(ngb)) 
               vcoud_= vcoud 
-c              vc = vcoud(1)     ! save vcoud(1)
-              if (kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
-              allocate(z1r(ntqxx,ngb),z2r(ntqxx,ngb),w3pi(ntqxx,ntqxx))
-              allocate(w3p(nctot+nbmax,ntqxx,ntqxx))
-              do  it = 1, nctot+nbmax
-                do  ivc = 1, ngb
-                  do  itp = 1, ntqxx
-                    z1r(itp,ivc) = zmeltt(it,itp,ivc) * vcoud_(ivc)
-                    z2r(itp,ivc) = zmeltt(it,itp,ivc)
-                  enddo         ! ivc
-                enddo           ! it
-                call zgemm('N','C',ntqxx,ntqxx,ngb,(1d0,0d0),z1r,ntqxx,
-     .           z2r,ntqxx,(0d0,0d0),w3pi,ntqxx)
-                do  itp = 1, ntqxx
-                  do itpp = 1, ntqxx
-                    w3p(it,itp,itpp) = w3pi(itp,itpp)
-                  enddo
-                enddo
-              enddo
-c              vcoud(1) = vc     !restore vcoud(1)
-              deallocate(z1r,z2r,w3pi,vcoud_)
-              if(verbose()>=30) call cputid2(' complete w3p',0)
-c              deallocate(zmeltt)
-              if(debug) then
-                do  it  = 1,nctot+nbmax; do  itp = 1,ntqxx
-                  write(6,"(' w3p =',2i4,2d14.6)") it,itp,w3p(it,itp,itp)
-                enddo;    enddo
-              endif
-!! --- Correct weigts wfac for valence by esmr
-              do it = nctot+1, nctot+nbmax
-                wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
-                w3p(it,1:ntqxx,1:ntqxx) = wfac * w3p(it,1:ntqxx,1:ntqxx)
-              enddo
-!! apr2015 correct weights for core-hole case
-              if(corehole) then
-                 do it = 1, nctot
-                 w3p(it,1:ntqxx,1:ntqxx) = wcorehole(it,isp) * w3p(it,1:ntqxx,1:ntqxx)
+              if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+              do 8010 itpp= 1,ntqxx
+              do 8011 itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
+                if(jobsw==5.and.(itpp/=itp)) cycle
+                block
+                 complex(8):: z1r(ngb),z2r(ngb),w3p(nctot+nbmax)
+                 real(8) :: wfacx,wcorehole
+                 do it = 1, nctot+nbmax
+                  w3p(it)= sum(zmeltt(it,itp,:) * vcoud_(:)* dconjg(zmeltt(it,itp,:)))
+                  if(it>nctot)               w3p(it) = w3p(it) * wfacx(-1d99, ef, ekc(it), esmr)
+                  if(corehole.and.it<=nctot) w3p(it) = w3p(it) * wcorehole(it,isp) 
                  enddo
-              endif
-              do itpp=1,ntqxx
-                do itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-                  if(jobsw==5.and.(itpp/=itp)) cycle
-                  zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     &             - wtt * sum( w3p(:,itp,itpp) )
-                enddo
-              enddo
-              deallocate( w3p)
+                 zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
+                end block
+ 8011         continue
+ 8010         continue
+              deallocate(vcoud_)
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
 !! ============== End of exchange section ======================
