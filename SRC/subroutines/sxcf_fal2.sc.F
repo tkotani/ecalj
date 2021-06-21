@@ -70,11 +70,10 @@ c      use m_freq,only: freq_r,nw_i,nw, freqx,wx !,dwdummy,
 !!     NOTE: matrix element is given by "call get_zmelt". It returns  zmelt or zmeltt.
 !!
 !! jobsw switch
-!!  1-5 scGW mode.
+!!  1,3,5scGW mode.
 !!   diag+@EF      jobsw==1 SE_nn'(ef)+delta_nn'(SE_nn(e_n)-SE_nn(ef))
 !!   xxx modeB (Not Available now)  jobsw==2 SE_nn'((e_n+e_n')/2)  !we need to recover comment out for jobsw==2, and test.
 !!   mode A        jobsw==3 (SE_nn'(e_n)+SE_nn'(e_n'))/2 (Usually usued in QSGW).
-!!   @Ef           jobsw==4 SE_nn'(ef) 
 !!   diagonly      jobsw==5 delta_nn' SE_nn(e_n) (not efficient memoryuse; but we don't use this mode so often).
 !!
 !! Output file in hsfp0 should contain hermitean part of SE
@@ -217,7 +216,7 @@ c      integer :: bzcase !fixed to be 1
       character(5) :: charnum5
 c      integer :: iopen,iclose
       integer :: invrot
-      complex(8) ::  wintzsg_npm !wintzav,
+c      complex(8) ::  wintzsg_npm !wintzav,
       integer :: nocc
       real(8) :: wfacx
       real(8) :: wfacx2
@@ -234,7 +233,7 @@ c      real(8):: wgtq0p
       integer::verbose,ififr !,ifile_handle
       real(8):: ua2_(niw),freqw1
       integer :: istate,  nt_max !nbcutc,nbcutin, 
-      real(8):: q_r(3),qk(3),omegat
+      real(8):: q_r(3),qk(3)!,omegat
       logical::  oncew, onceww, eibz4sig,  timemix
 
       integer,allocatable:: ixss(:,:),iirx(:)
@@ -252,11 +251,12 @@ c      real(8):: wgtq0p
       integer:: ifcorehole,ixx
       real(8):: tolq=1d-8
 !!----------------------------------------------------------------
+      if (.not.(jobsw==1.or.jobsw==3.or.jobsw==5)) call rx('sxcf_scz: jobsw=1or3or5')
+      if(verbose()>=90) debug=.true.
       timemix=.false.
       pi  = 4d0*datan(1d0)
       fpi = 4d0*pi
       debug=.false.
-      if(verbose()>=90) debug=.true.
 !! core-hole mode can work but we need to turn it on by hand.
       corehole=.false.
       if(corehole) then
@@ -460,63 +460,40 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                enddo   
             enddo
             deallocate(zw)
-            
 !! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
 !! it   : intermediate state of G.
-            allocate(zwzi(nstate,ntqxx,ntqxx)) 
+            allocate(zwzi(nstate,ntqxx,ntqxx))
+            block
+            real(8)::    esmrx(nstate),omegat(ntqxx)
+            complex(8):: wintzsg_npm       
+            esmrx(1:nctot)=0d0
+            esmrx(nctot+1:nstate)=esmr
+            omegat(1:ntqxx) = omega(1:ntqxx)
+            if (jobsw==1) omegat = ef
             do 1400 itpp= 1,ntqxx
             do 1410 itp = 1,ntqxx
-                if((jobsw==5).and.(itpp/=itp)) cycle
-                if (jobsw==1.or.jobsw==4) then
-                  omegat = ef !c   elseif (jobsw==2) omegat=.5d0*(omega(itp)+omega(itpp))
-                else
-                  omegat = omega(itp)
-                endif  
-                do 1420  it = 1,nstate
-                  we =.5d0*( omegat -ekc(it))
-                  if(it <= nctot) then
-                    esmrx = 0d0
-                  else
-                    esmrx = esmr
-                  endif   
-!! ua_auto may be recovered in future...
-c     if(ua_auto) then
-c     ratio = .5d0 *( abs(zwz(niw,it,itp,itp  )/zwz0(it,itp,itp  ))
-c     &                     +abs(zwz(niw,it,itpp,itpp)/zwz0(it,itpp,itpp)) )
-c     call gen_ua(ratio,niw,freqx,  expa_,ua_)
-c     endif
-!! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
+               if((jobsw==5).and.(itpp/=itp)) cycle
+               do 1420  it = 1,nstate
+                  we =.5d0*( omegat(itp) -ekc(it))
+!     ! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
                   zwzi(it,itp,itpp) = 
      &                 wintzsg_npm (npm, zwz(1,it,itp,itpp), zwz(0,it,itp,itpp) 
-     &                 ,freqx,wx,ua_,expa_,we,niw,esmrx)
- 1420           continue
-c 1410       continue  
-c 1400       continue  
-!! Contribution to Sigma_{ij}(e_i)
-c            do 1500 itpp= 1,ntqxx
-c            do 1510 itp = 1,ntqxx
-                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(zwzi(:,itp,itpp)) 
-c 1510       continue
-c 1500       continue
+     &                 ,freqx,wx,ua_,expa_,we,niw,esmrx(it))
+ 1420          continue
+               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(zwzi(:,itp,itpp)) 
  1410       continue  
- 1400       continue  
-            deallocate(zwz) !zwzs
-            if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
-            deallocate(zwzi)
-            if(jobsw==4) goto 2002
+ 1400       continue
+            end block
+            deallocate(zwz,zwzi)
 
 !! -------------------------------------------------------------------
 !!  Contribution to SEc(qt,w) from the poles of G (integral along real axis)
 !!    Currently, jobsw =1,3,5 are allowed...
 !!    The variable we means \omega_epsilon in Eq.(55) in PRB76,165106 (2007)
 !! -------------------------------------------------------------------
-            if(timemix) call timeshow("goto Sec pole part k-cycle")
             if(debug)  write(6,*)'GOTO contribution to SEc(qt,w) from the poles of G'
-            if (.not.(jobsw == 1 .or. jobsw == 3.or.jobsw==5)) then
-              call rx( 'sxcf_fal3_scz: jobsw /= 1 3 5')
-            endif
 !! Get index nwxi nwx nt_max. finish quickly. We can simplify this...
             call get_nwx(omega,ntq,ntqxx,nt0p,nt0m,nstate,freq_r,
      i       nw_i,nw,esmr,ef,ekc,wfaccut,nctot,nband,debug,
