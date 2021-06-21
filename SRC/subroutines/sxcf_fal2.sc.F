@@ -466,8 +466,9 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
 !! it   : intermediate state of G.
             allocate(zwzi(nstate,ntqxx,ntqxx))
             block
-            real(8)::    esmrx(nstate),omegat(ntqxx)
-            complex(8):: wintzsg_npm       
+            real(8):: esmrx(nstate),omegat(ntqxx)
+            real(8):: wgtim(0:npm*niw)
+!     , wintzsg_npm_wgtim(0:npm*niw),wintzsg_npm_wgtimxxx(0:npm*niw)
             esmrx(1:nctot)=0d0
             esmrx(nctot+1:nstate)=esmr
             omegat(1:ntqxx) = omega(1:ntqxx)
@@ -476,13 +477,12 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             do 1410 itp = 1,ntqxx
                if((jobsw==5).and.(itpp/=itp)) cycle
                do 1420  it = 1,nstate
-                  we =.5d0*( omegat(itp) -ekc(it))
 !     ! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
-                  zwzi(it,itp,itpp) = 
-     &                 wintzsg_npm (npm, zwz(1,it,itp,itpp), zwz(0,it,itp,itpp) 
-     &                 ,freqx,wx,ua_,expa_,we,niw,esmrx(it))
+                  we = .5d0*(omegat(itp)-ekc(it))
+                  call wintzsg_npm_wgtim(npm,freqx,wx,ua_,expa_,we,niw,esmrx(it), wgtim)
+                  zwzi(it,itp,itpp) = wtt*sum(wgtim(:)*zwz(:,it,itp,itpp))
  1420          continue
-               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(zwzi(:,itp,itpp)) 
+               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + sum(zwzi(:,itp,itpp)) 
  1410       continue  
  1400       continue
             end block

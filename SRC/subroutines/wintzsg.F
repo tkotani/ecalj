@@ -1,4 +1,143 @@
-!> gaussian smeared-pole version of wintz.
+      subroutine wintzsg_npm_wgtim(npm,x,wt,a,expa,we,nx,esmr, wgtim)
+      implicit none
+      integer(4),intent(in)::npm,nx
+c      complex(8),intent(in) ::v(npm*nx),v0
+      real(8),intent(in):: x(nx),wt(nx),expa(nx),we,esmr,a
+      integer(4) :: i
+      real(8):: we2,weh,wel,weh2,wel2,cons,
+     & omd,omd2,rup,rdn,sss,sig2,omd2w
+c      complex(8) :: wwz,wintz_npm, img=(0d0,1d0),sum,   wintzsg1 
+      real(8)    :: wintsf,errsum=0d0,derfcx,derfc
+      integer(4) :: ie,nav = 2000
+      real(8),parameter :: pi=3.1415926535897932d0, rmax=2d0
+      !rmax =2 is by ferdi. Is it optimum? See wintz
+      real(8)::sig, smxowx, ee, omg, ww,cons1,cons2,xx,aw,eee,aw2
+      integer(4) ix,verbose
+      logical :: test
+      real(8):: wgtim(0:npm*nx)
+      if(esmr==0d0) then
+        call wintz_npm_wgtim(npm,x,wt,a,expa,we,nx, wgtim)
+        return
+      endif
+      sig  = .5d0*esmr
+      sig2 = 2d0*sig**2
+      we2  = we**2
+c      sum  = 0d0
+      wgtim=0d0
+!! simple integration scheme.
+      do  i = 1,nx
+        omd   = 1d0/x(i) - 1d0
+        omd2w = omd**2 + we2
+! pole weight is given by   1- exp (-R^2/sig2) = 1/N \int_0^R exp(- x^2/sig2) 2 pi r dr
+! Gauss theorem---> but is this correct? Not three dimentional...
+        if(omd2w/sig2 > 5d-3) then
+          cons = (1d0 - exp (- omd2w/sig2))/omd2w
+        else
+          cons = ( 1d0/sig2 - omd2w/sig2**2/2d0
+     &               + omd2w**2/sig2**3/6d0  - omd2w**3/sig2**4/24d0
+     &               + omd2w**4/sig2**5/120d0- omd2w**5/sig2**6/720d0 )
+       endif
+       wgtim(i)= wgtim(i)+ we*cons*wt(i)/(x(i)**2)*(-1d0/pi)
+       wgtim(0)= wgtim(0)- we*cons*expa(i)*wt(i)/(x(i)**2)*(-1d0/pi)
+c        sum  = sum + we*cons*( v(i)-v0*expa(i) ) *wt(i)/(x(i)**2)
+          if(npm==2) then !Asymmetric contribution for
+            wgtim(i+nx) = wgtim(i+nx) - cons*omd*wt(i)/(x(i)**2)*(-1d0/pi)
+          endif
+      enddo
+!! --- Gaussian part -------------------------------------
+        aw = abs(a*we)
+        aw2 = aw**2
+        if(aw<6d0) then
+          eee = we**2/sig2
+          wgtim(0)=wgtim(0)+ dsign(1d0,we)*.5d0*exp(aw2)*( derfcx(sqrt(aw2+eee)) -derfcx(aw) )
+c        sumgauss1=sumgauss
+        else !April2004
+          wgtim(0)= wgtim(0) -.5d0* (2d0/(a*we)/pi)*
+     &    sqrt(pi)/2d0*
+     &       (1d0 - 1d0/2d0/aw2*
+     &         (1d0 - 3d0/2d0/aw2*
+     &           (1d0 - 5d0/2d0/aw2*
+     &             (1d0 - 7d0/2d0/aw2* 
+     &               (1d0 - 9d0/2d0/aw2*
+     &                 (1d0 - 11d0/2d0/aw2 
+     &     ))))))
+      endif
+c      wintzsg_npm = -sum/pi  + sumgauss
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine wintz_npm_wgtim(npm,x,wt,a,expa,we,nx, wgtim)
+c takao complex version of wint by ferdi
+c 92.02.24
+c wintz = < [w'=-inf,inf] (i/2pi) v(w')/(w+w'-e) >
+
+c the integration is done along the imaginary axis
+c w' ==> iw', w' is now real
+c wintz = - < [w'=0,inf] v(iw') (1/pi) (w-e)/{(w-e)^2 + w'^2} >
+
+c transform: x = 1/(1+w')
+c wintz = - < [x=0,1] v(iw') (1/pi) (w-e)/{(w-e)^2 + w'^2}x^2 >
+
+c the integrand is peak around w'=0 or x=1 when we=w-e=0
+c to handel the problem, add and substract the singular part as follows:
+c wintz = - < [x=0,1] {v(iw') - v(0)exp(-a^2 w'^2)}
+c                   *(1/pi) (w-e)/{(w-e)^2 + w'^2}x^2 >
+c        - (1/2) v(0) sgn(w-e) exp(a^2 (w-e)^2) erfc(a|w-e|)
+c the second term of the integral can be done analytically, which
+c results in the last term
+
+c when we=w-e ==> 0, (1/pi) (w-e)/{(w-e)^2 + w'^2} ==> delta(w')
+c the integral becomes -v(0)/2
+
+c v       = v(iw')
+c v0      = v(0)
+c x       = s.o.
+c wt      = weights for integration
+c a       = a constant determining the range of exp(-a^2 w'^2)
+c expa(x) = exp(-a^2 w'^2)
+c we      = w - e
+c nx      = no. x points
+      implicit real*8 (a-h,o-z)
+      integer:: nx,i,npm
+      real(8):: x(nx),wt(nx),expa(nx)
+c      complex(8) ::v(nx),v0,sum,img=(0d0,1d0),wintz
+      real(8) :: rmax=2d0 !rmax =2 is by ferdi. Is it optimum? See wintz
+      real(8),parameter:: pi=3.1415926535897932d0,tol=1d-8
+      real(8):: wgtim(0:npm*nx)
+c if w = e the integral = -v(0)/2
+c frequency integral
+      if (dabs(we)< tol) call rx1( 'wintz: |w-e| < tol',we)
+      we2  = we*we
+      sum  = 0d0
+      wgtim = 0d0
+      if (dabs(we) < rmax/a) then
+         do       i = 1,nx
+            omd   = 1d0/x(i) - 1d0
+            onemx      = 1.d0 - x(i)
+            cons       = 1d0/(we2*x(i)*x(i) + onemx*onemx)
+            wgtim(i)= wgtim(i)+ we*cons*wt(i)*(-1d0/pi)
+            wgtim(0)= wgtim(0)+ we*cons*(-expa(i))*wt(i)*(-1d0/pi)
+            if(npm==2) then     !Asymmetric contribution for
+               wgtim(i+nx) = wgtim(i+nx) - cons*omd*wt(i)*(-1d0/pi)
+            endif
+         enddo
+         wgtim(0)= wgtim(0)-0.5d0*dsign(1.d0,we)*dexp(we2*a*a)*derfc(a*dabs(we))
+      else
+         do       i = 1,nx
+            omd   = 1d0/x(i) - 1d0 !this was missing. I added this at 25June2008
+            onemx      = 1.d0 - x(i)
+            cons       = 1d0/(we2*x(i)*x(i) + onemx*onemx)
+            wgtim(i)= wgtim(i)+ we*cons*wt(i)*(-1d0/pi)
+            if(npm==2) then     !Asymmetric contribution for
+               wgtim(i+nx)= wgtim(i+nx) - cons* omd*wt(i)*(-1d0/pi)
+            endif
+         enddo
+      endif
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      
+      
+!     > gaussian smeared-pole version of wintz.
 !! takao developed from wintz by ferdi.
 !! Assume that each eigenvale, and w-e as a result, has the width of esmr( Ry).
       complex(8) function wintzsg_npm(npm,v,v0,x,wt,a,expa,we, 
