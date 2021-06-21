@@ -196,13 +196,14 @@ c      complex(8) :: cphiq(nlmto,nband), cphikq(nlmto,nband)
 c      real(8),intent(in) :: freq_r(nw_i:nw)
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:),uaa(:,:)
       complex(8),allocatable :: vcoul(:,:) 
-      complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
-      complex(8),allocatable :: zwz(:,:,:,:), zwz0(:,:,:),zwzi(:,:,:)
+      complex(8),allocatable :: zzzmel(:,:,:)
+      complex(8),allocatable :: zw (:,:)
+      complex(8),allocatable:: zwz(:,:,:,:)
+      complex(8),allocatable :: zwz0(:,:,:),zwzi(:,:,:)
       complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),zmel1(:) !,expikt(:)
       complex(8), allocatable :: zmel1_(:,:,:), zw3(:,:,:),zw3x(:,:)
       complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
       complex(8),allocatable :: ppovl(:,:),zcousq(:,:)
-c      complex(8),allocatable :: z1r(:),z2r(:),w3p(:)   
 
       real(8), parameter :: wfaccut=1d-8
       complex(8), parameter :: img=(0d0,1d0)
@@ -238,7 +239,7 @@ c      real(8):: wgtq0p
 
       integer,allocatable:: ixss(:,:),iirx(:)
       real(8),allocatable:: we_(:,:),wfac_(:,:)
-      complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:)
+      complex(8),allocatable:: zw3av(:,:),zmelw(:,:,:),w3p(:),wtff(:)
       integer:: noccx
       real(8)::polinta
       logical,allocatable:: ititpskip(:,:)
@@ -246,9 +247,9 @@ c      real(8):: wgtq0p
       logical:: tote=.false.
       logical:: hermitianW
 
-      real(8),allocatable:: wcorehole(:,:),vcoud_(:)
+      real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
       logical:: corehole
-      integer:: ifcorehole
+      integer:: ifcorehole,ixx
       real(8):: tolq=1d-8
 !!----------------------------------------------------------------
       timemix=.false.
@@ -372,25 +373,24 @@ c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
 c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
 c     
 c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
-              allocate(vcoud_(ngb)) 
-              vcoud_= vcoud 
+              allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
+              vcoud_= vcoud
               if(kx == iqini) vcoud_(1) = wklm(1)* fpi*sqrt(fpi) /wk(kx)
+              do it=1,nctot+nbmax
+                 wtff(it)= wfacx(-1d99, ef, ekc(it), esmr)
+              enddo   
               do 8010 itpp= 1,ntqxx
               do 8011 itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                 if(jobsw==5.and.(itpp/=itp)) cycle
-                block
-                 complex(8):: z1r(ngb),z2r(ngb),w3p(nctot+nbmax)
-                 real(8) :: wfacx,wcorehole
-                 do it = 1, nctot+nbmax
-                  w3p(it)= sum(zmeltt(it,itp,:) * vcoud_(:)* dconjg(zmeltt(it,itp,:)))
-                  if(it>nctot)               w3p(it) = w3p(it) * wfacx(-1d99, ef, ekc(it), esmr)
-                  if(corehole.and.it<=nctot) w3p(it) = w3p(it) * wcorehole(it,isp) 
-                 enddo
-                 zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
-                end block
+                do it = 1, nctot+nbmax
+                   w3p(it)= sum(zmeltt(it,itp,:) * vcoud_(:)* dconjg(zmeltt(it,itpp,:)))
+                enddo
+                w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
+                if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
+                zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
  8011         continue
  8010         continue
-              deallocate(vcoud_)
+              deallocate(vcoud_,wtff,w3p)
               cycle             ! next irot do 1000 loop
             endif               ! end of if(exchange)
 !! ============== End of exchange section ======================
@@ -438,46 +438,45 @@ c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
 !! Then get zwz0 and zwz
 !! zwz0 = (zmel*)*(W(*omega=0)   -v)*zmel
 !! zwz =  (zmel*)*(W(i*omega(ix))-v)*zmel
-            allocate( zwz0(        nstate,ntqxx,ntqxx))
-            allocate( zwz (niw*npm,nstate,ntqxx,ntqxx)) 
+c            allocate( zwz0(        nstate,ntqxx,ntqxx))
+            allocate( zwz(0:niw*npm,nstate,ntqxx,ntqxx)) 
             allocate( zw (nblochpmx,nblochpmx))
-            ix = 1 + (0 - nw_i) !at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
-            read(ifrcw,rec=ix) zw ! direct access read Wc(0) = W(0) - v
-            call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o       zwz0)                   
-            do 1380 istate=1,nstate 
-              zwz0(istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw) Hermitian part.
-     &         (zwz0(istate,1:ntqxx,1:ntqxx)
-     &         + dconjg(transpose(zwz0(istate,1:ntqxx,1:ntqxx))))/2d0 
- 1380       continue
-            do 1390 ix=1,niw    !niw is usually ~10 points.
-              read(ifrcwi,rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
-              call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb,   
-     o         zwz(ix,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-              do 1395 istate=1,nstate
-                zw(1:ntqxx,1:ntqxx)= zwz(ix,istate,1:ntqxx,1:ntqxx)
-                zwz(ix,istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw)  Harmitian part
-     &           ( zw(1:ntqxx,1:ntqxx)
-     &           + dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0 
-                if(npm==2) then ! w(iw) - w(-iw) Anti Hermitian part
-                  zwz(ix+niw,istate,1:ntqxx,1:ntqxx) = 
-     &             ( zw(1:ntqxx,1:ntqxx)
-     &             - dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0/img
-                endif
- 1395         continue
- 1390       continue
+            do ixx=0,niw        !niw is usually ~10 points.
+               if(ixx==0) then
+                  ix = 1 + (0 - nw_i) !at omega=0 ! nw_i=0 (Time reversal) or nw_i =-nw
+                  read(ifrcw,rec=ix) zw ! direct access read Wc(0) = W(0) - v
+               elseif(ixx>0) then
+                  ix = ixx
+                  read(ifrcwi,rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
+               endif
+c     call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb, zwz(0,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
+c     do istate=1,nstate !hermitian part
+c     zwz(0,istate,1:ntqxx,1:ntqxx) = 
+c     &                  (zwz(0,istate,1:ntqxx,1:ntqxx) + dconjg(transpose(zwz(0,istate,1:ntqxx,1:ntqxx))))/2d0 
+c     enddo
+               call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb, zwz(ixx,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(i w)-v)*zmel
+               do istate=1,nstate
+                  zw(1:ntqxx,1:ntqxx)= zwz(ix,istate,1:ntqxx,1:ntqxx)
+                  zwz(ix,istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw)  Harmitian part
+     &                 ( zw(1:ntqxx,1:ntqxx)     + dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0 
+                  if(npm==2) then ! w(iw) - w(-iw) Anti Hermitian part
+                     zwz(ix+niw,istate,1:ntqxx,1:ntqxx) = 
+     &                    ( zw(1:ntqxx,1:ntqxx)  - dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0/img
+                  endif
+               enddo   
+            enddo
             deallocate(zw)
+            
 !! Integration along imag axis for zwz(omega) for given it,itp,itpp
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
 !! it   : intermediate state of G.
             allocate(zwzi(nstate,ntqxx,ntqxx)) 
             do 1400 itpp= 1,ntqxx
-              do 1410 itp = 1,ntqxx
+            do 1410 itp = 1,ntqxx
                 if((jobsw==5).and.(itpp/=itp)) cycle
                 if (jobsw==1.or.jobsw==4) then
-                  omegat = ef
-c               elseif (jobsw==2)               omegat=.5d0*(omega(itp)+omega(itpp))
+                  omegat = ef !c   elseif (jobsw==2) omegat=.5d0*(omega(itp)+omega(itpp))
                 else
                   omegat = omega(itp)
                 endif  
@@ -496,20 +495,21 @@ c     call gen_ua(ratio,niw,freqx,  expa_,ua_)
 c     endif
 !! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
                   zwzi(it,itp,itpp) = 
-     &             wintzsg_npm (npm, zwz(1,it,itp,itpp), zwz0(it,itp,itpp) 
-     &             ,freqx,wx,ua_,expa_,we,niw,esmrx)
+     &                 wintzsg_npm (npm, zwz(1,it,itp,itpp), zwz(0,it,itp,itpp) 
+     &                 ,freqx,wx,ua_,expa_,we,niw,esmrx)
  1420           continue
- 1410         continue  
- 1400       continue  
-            deallocate(zwz0,zwz) !zwzs
-            if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
+c 1410       continue  
+c 1400       continue  
 !! Contribution to Sigma_{ij}(e_i)
-            do  1500 itpp= 1,ntqxx
-              do 1510 itp = 1,ntqxx
-                if( jobsw==5.and.(itpp/=itp)) cycle
+c            do 1500 itpp= 1,ntqxx
+c            do 1510 itp = 1,ntqxx
                 zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(zwzi(:,itp,itpp)) 
- 1510         continue
- 1500       continue
+c 1510       continue
+c 1500       continue
+ 1410       continue  
+ 1400       continue  
+            deallocate(zwz) !zwzs
+            if(debug) print *,'zzzzzzzzz sum zwzi ',sum(abs(zwzi(:,:,:)))
             deallocate(zwzi)
             if(jobsw==4) goto 2002
 
