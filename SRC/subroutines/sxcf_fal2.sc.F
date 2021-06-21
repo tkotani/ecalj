@@ -198,7 +198,7 @@ c      real(8),intent(in) :: freq_r(nw_i:nw)
       complex(8),allocatable :: zzzmel(:,:,:)
       complex(8),allocatable :: zw (:,:)
       complex(8),allocatable:: zwz(:,:,:,:)
-      complex(8),allocatable :: zwz0(:,:,:),zwzi(:,:,:)
+      complex(8),allocatable :: zwz0(:,:,:)!,zwzi(:,:,:)
       complex(8),allocatable :: zwix(:,:),zwzix(:,:,:),zmel1(:) !,expikt(:)
       complex(8), allocatable :: zmel1_(:,:,:), zw3(:,:,:),zw3x(:,:)
       complex(8), allocatable :: zwz4(:,:),zwz44(:,:),pomat(:,:), zwzs(:)
@@ -222,7 +222,7 @@ c      complex(8) ::  wintzsg_npm !wintzav,
       real(8) :: wfacx2
       real(8) :: weavx2
       complex(8) :: alagr3z
-      complex(8) :: alagr3z2
+      complex(8) :: alagr3z2,zadd
 
       integer:: ndummy1,ndummy2,nlmtobnd,nt0
       real(8):: wexx
@@ -249,7 +249,7 @@ c      real(8):: wgtq0p
       real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
       logical:: corehole
       integer:: ifcorehole,ixx
-      real(8):: tolq=1d-8
+      real(8):: tolq=1d-8!,wgt3(3)
 !!----------------------------------------------------------------
       if (.not.(jobsw==1.or.jobsw==3.or.jobsw==5)) call rx('sxcf_scz: jobsw=1or3or5')
       if(verbose()>=90) debug=.true.
@@ -464,29 +464,30 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
 !! itp  : left-hand end of expternal band index.
 !! itpp : right-hand end of expternal band index.
 !! it   : intermediate state of G.
-            allocate(zwzi(nstate,ntqxx,ntqxx))
+c            allocate(zwzi(ntqxx,ntqxx))
             block
             real(8):: esmrx(nstate),omegat(ntqxx)
-            real(8):: wgtim(0:npm*niw)
+            real(8):: wgtim(0:npm*niw,ntqxx,nstate)
 !     , wintzsg_npm_wgtim(0:npm*niw),wintzsg_npm_wgtimxxx(0:npm*niw)
             esmrx(1:nctot)=0d0
             esmrx(nctot+1:nstate)=esmr
             omegat(1:ntqxx) = omega(1:ntqxx)
             if (jobsw==1) omegat = ef
+!     ! Gaussian smearing. Integration weight wgtim along im axis for zwz(0:niw*npm) 
+            do itp = 1,ntqxx
+            do  it = 1,nstate
+               we = .5d0*(omegat(itp)-ekc(it))
+               call wintzsg_npm_wgtim(npm,freqx,wx,ua_,expa_,we,niw,esmrx(it), wgtim(:,itp,it))
+            enddo
+            enddo
             do 1400 itpp= 1,ntqxx
             do 1410 itp = 1,ntqxx
                if((jobsw==5).and.(itpp/=itp)) cycle
-               do 1420  it = 1,nstate
-!     ! Gaussian smearing. Integration along im axis. zwz(1:niw) and zwz0 are used.
-                  we = .5d0*(omegat(itp)-ekc(it))
-                  call wintzsg_npm_wgtim(npm,freqx,wx,ua_,expa_,we,niw,esmrx(it), wgtim)
-                  zwzi(it,itp,itpp) = wtt*sum(wgtim(:)*zwz(:,it,itp,itpp))
- 1420          continue
-               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + sum(zwzi(:,itp,itpp)) 
+               zsec(itp,itpp,ip) = zsec(itp,itpp,ip) + wtt*sum(wgtim(:,itp,:)*zwz(:,:,itp,itpp))
  1410       continue  
  1400       continue
             end block
-            deallocate(zwz,zwzi)
+            deallocate(zwz) 
 
 !! -------------------------------------------------------------------
 !!  Contribution to SEc(qt,w) from the poles of G (integral along real axis)
@@ -530,35 +531,39 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
             endif
 !! jobsw==3
             if( jobsw==3) then
-              allocate(zwz44(3,ntqxx),zwz4(ntqxx,3))
+c     allocate(zwz4(ntqxx,3))
+              block
+              real(8)::wgt3(3,nt_max,ntqxx)
               do itp=1,ntqxx
-                do it=1,nt_max
+              do it=1,nt_max
                   if(ititpskip(it,itp)) cycle
-                  we =  we_(it,itp) 
                   ixs=  ixss(it,itp)
-                  zmel1(:)=dconjg(zmel(:,it,itp))
-                  zwz4=0d0
-                  do ix0=1,3
-                    ix=ixs+ix0-2
-                    do igb2=1,ngb 
-! !                     **** most time consuming part ******
-                      zz2=sum(zmel1(1:ngb)*zw3(1:ngb,igb2, iirx(itp)*ix)  )
-                      call zaxpy(ntqxx,zz2,zmel1_(1,igb2,it),1,zwz4(1,ix0),1)
-                    enddo
-                  enddo  
-                  zwz44 = transpose(zwz4)
+                  we =  we_(it,itp) 
+                  if(npm==1) call alagr3z2wgt(we,freq_r(ixs-1),wgt3(:,it,itp))
+                  if(npm==2) call alagr3zwgt (we,freq_r(ixs-1),wgt3(:,it,itp))
+               enddo
+               enddo
+               do itp=1,ntqxx
+               do it=1,nt_max
+                  if(ititpskip(it,itp)) cycle
+                  ixs=  ixss(it,itp)
                   do itpp=1,ntqxx
-                    if(npm==1) then
-                      zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                 + wfac_(it,itp) * alagr3z2(we,freq_r(ixs-1),zwz44(1,itpp),itp==itpp ) !mar015 ,itp,itpp)
-                    else
-                      zsec(itp,itpp,ip) = zsec(itp,itpp,ip) 
-     .                 + wfac_(it,itp) * alagr3z(we,freq_r(ixs-1),zwz44(1,itpp))
-                    endif
+                     zadd =    wgt3(1,it,itp)* sum(matmul( dconjg(zmel(:,it,itp)),
+     &                          zw3(:,:,iirx(itp)*(ixs+1-2)))*zmel(:,it,itpp))
+     &                       + wgt3(2,it,itp)* sum(matmul( dconjg(zmel(:,it,itp)),
+     &                          zw3(:,:,iirx(itp)*(ixs+2-2)))*zmel(:,it,itpp))
+     &                       + wgt3(3,it,itp)* sum(matmul( dconjg(zmel(:,it,itp)),
+     &                          zw3(:,:,iirx(itp)*(ixs+3-2)))*zmel(:,it,itpp))
+                     if(npm==1) then
+                        if(itp==itpp.and.dimag(zadd)>0d0) zadd=dreal(zadd)
+                        zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zadd
+                     else
+                        zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zadd
+                     endif
                   enddo
                 enddo
               enddo
-              deallocate(zwz44,zwz4)
+              end block
             endif
 
 !! jobsw=1,5 Sigma are calculated.

@@ -1,3 +1,66 @@
+!> even function version of alagr3z2wgt
+!! return the interpolated value on x for fi(xi).
+!! We assume even function.
+!! Imag part is corrected to be >0
+      subroutine alagr3z2wgt(x,xi, wgt) !mar2015  i,j) -->ieqj)
+      implicit none
+c      integer(4), intent(in) :: i,j
+      logical:: ieqj
+      real(8),    intent(in) ::  x, xi(3)
+c      complex(8), intent(in) :: fi(3)
+      integer(4) :: n
+      real(8) :: amatinv(3,3),amat(3,3),ratio,detxx,wgt(3)
+c--- Assure that dimag(fi) is positive.
+      if(x<0d0) call rx( ' alagr3z2: x<0d0')
+      amat(1:3,1) = 1d0
+      amat(1:3,2) = xi(1:3)**2
+      amat(1:3,3) = xi(1:3)**4
+      call minv33(amat,amatinv)
+c      alagr3z2 = dcmplx (
+c     &          sum (matmul(amatinv,dreal(fi)) * (/1d0,x**2,x**4/) ),
+c     &          sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
+      wgt=matmul([1d0,x**2,x**4], amatinv)
+c--- imag part of alagr3z is positive because interpolation could give
+c    negative values even if all fi(i) <0.
+c
+c      if(ieqj) then !mar2015 if(i==j) then
+c        if(dimag(alagr3z2)>0d0 ) then
+c          alagr3z2 = dcmplx( dreal(alagr3z2),0d0)
+c        endif
+c      endif !(i==j)
+      end
+c -----------------------------------
+      complex(8) function alagr3zwgt (x,xi,wgt)
+c complex version of fi
+c 92.03.02
+c three-point interpolation with arbitrary mesh
+c given a function fi at three points xi, the routine interpolates
+c the function at x
+c f(x) = [ { (x-x2)(x-x3) } / { (x1-x2)(x1-x3) } ] f1
+c      + [ { (x-x1)(x-x3) } / { (x2-x1)(x2-x3) } ] f2
+c      + [ { (x-x1)(x-x2) } / { (x3-x1)(x3-x2) } ] f3
+c
+c x  = the point at which the function is to be interpolated
+c xi(3) = points where the function is given
+c fi(3) = the function at xi
+      implicit real*8 (a-h,o-z)
+      real(8):: xi(3),wgt(3)
+      complex(8) :: fi(3)
+      xx1        = x-xi(1)
+      xx2        = x-xi(2)
+      xx3        = x-xi(3)
+      x12        = xi(1)-xi(2)
+      x13        = xi(1)-xi(3)
+      x23        = xi(2)-xi(3)
+      wgt(1)     = xx2*xx3/(x12*x13)
+      wgt(2)     = - xx1*xx3/(x12*x23)
+      wgt(3)     = xx1*xx2*fi(3)/(x13*x23)
+c      alagr3z    = xx2*xx3*fi(1)/(x12*x13)
+c     .           - xx1*xx3*fi(2)/(x12*x23)
+c     .           + xx1*xx2*fi(3)/(x13*x23)
+      return
+      end
+
       subroutine wintzsg_npm_wgtim(npm,x,wt,a,expa,we,nx,esmr, wgtim)
       implicit none
       integer(4),intent(in)::npm,nx
