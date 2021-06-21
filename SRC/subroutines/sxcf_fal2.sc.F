@@ -449,20 +449,14 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                   ix = ixx
                   read(ifrcwi,rec=ix) zw ! direct access read Wc(i*omega)=W(i*omega)-v
                endif
-c     call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb, zwz(0,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(0)-v)*zmel
-c     do istate=1,nstate !hermitian part
-c     zwz(0,istate,1:ntqxx,1:ntqxx) = 
-c     &                  (zwz(0,istate,1:ntqxx,1:ntqxx) + dconjg(transpose(zwz(0,istate,1:ntqxx,1:ntqxx))))/2d0 
-c     enddo
                call matzwz2(2, zw(1:ngb,1:ngb), zmel, ntqxx, nstate,ngb, zwz(ixx,1:nstate,1:ntqxx,1:ntqxx)) ! zwz = zmel*(W(i w)-v)*zmel
-               do istate=1,nstate
-                  zw(1:ntqxx,1:ntqxx)= zwz(ix,istate,1:ntqxx,1:ntqxx)
-                  zwz(ix,istate,1:ntqxx,1:ntqxx) = ! w(iw) + w(-iw)  Harmitian part
-     &                 ( zw(1:ntqxx,1:ntqxx)     + dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0 
-                  if(npm==2) then ! w(iw) - w(-iw) Anti Hermitian part
-                     zwz(ix+niw,istate,1:ntqxx,1:ntqxx) = 
-     &                    ( zw(1:ntqxx,1:ntqxx)  - dconjg(transpose(zw(1:ntqxx,1:ntqxx))) )/2d0/img
-                  endif
+               do istate = 1,nstate
+                  block
+                  complex(8):: zwx(ntqxx,ntqxx)
+                  zwx = zwz(ix,istate,1:ntqxx,1:ntqxx)
+                  zwz(ix,istate,1:ntqxx,1:ntqxx) = ( zwx+dconjg(transpose(zwx)))/2d0                   ! w(iw) + w(-iw)  Harmitian part
+                  if(npm==2) zwz(ix+niw,istate,1:ntqxx,1:ntqxx) = (zwx-dconjg(transpose(zwx)))/2d0/img ! w(iw) - w(-iw) Anti Hermitian part
+                  end block
                enddo   
             enddo
             deallocate(zw)
