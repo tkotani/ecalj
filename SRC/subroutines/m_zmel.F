@@ -224,7 +224,6 @@ cold  nbmax -->nmmax
       real(8) :: symope(3,3),shtv(3),tr(3,natom),qk(3),det
      &  , quu(3),q(3), kvec(3),rkvec(3),wtt
       complex(8),allocatable :: zzzmel(:,:,:),zw (:,:)
-c      integer:: nmtot,nqtot
       real(8),allocatable :: drealzzzmel(:,:,:), dimagzzzmel(:,:,:) ,ppb(:)
       complex(8),parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
       complex(8):: expikt(natom)
@@ -232,9 +231,8 @@ c      integer:: nmtot,nqtot
       logical:: oncew
       real(8),parameter::tolq=1d-8
       integer::ispq,ispm,iii,itps
-!!
+      
       if(allocated(zmel)) deallocate(zmel)
-c      if(allocated(zmeltt)) deallocate(zmeltt)
       if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel2 in m_zmel: start'
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
@@ -248,8 +246,6 @@ c      if(allocated(zmeltt)) deallocate(zmeltt)
       endif
 
       if(sum(abs(q-q_bk))>tolq) then
-c         print *,' go to readcphi',q,nlmto,ispq,quu
-ccccccccccccccccccccccccccccccccc         
          cphim= readcphif(q,ispq)
          cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
          q_bk=q

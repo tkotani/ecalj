@@ -341,11 +341,9 @@ c      integer :: bzcase !fixed to be 1
             ntqxx = nbandmx(ip) !mar2015
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
-!! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-!!     zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
+!!  Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0)
-            call Get_zmel()  !rerutn zmel 
-            if(debug) write(6,*)' end of get_zmelt'
+            if(debug) write(6,*)' end of get_zmel'
             wtt = wk(kr)
             if(eibz4sig()) then
               wtt=wtt*nrkip(kx,irot,ip) 
@@ -503,7 +501,7 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
               do it=1,nt_max
                  block
                  real(8)::wgt3(3) !,nt_max,ntqxx)
-                 complex(8)::zadd(ngb),zaddx,zw33(ngb,ngb)
+                 complex(8)::zadd(ntqxx),zaddx,zw33(ngb,ngb)
                   if(ititpskip(it,itp)) cycle
                   ixs=  ixss(it,itp)
                   we =  we_(it,itp) 
@@ -513,9 +511,9 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                   zw33 = wgt3(1)*zw3(:,:,iirx(itp)*(ixs+1-2))  !zw33(ib,ib,it,itp)
      &                 + wgt3(2)*zw3(:,:,iirx(itp)*(ixs+2-2)) 
      &                 + wgt3(3)*zw3(:,:,iirx(itp)*(ixs+3-2)) 
-                  zadd(:) = matmul(dconjg(zmel(:,it,itp)),zw33) 
+                  zadd(:) = matmul(matmul(dconjg(zmel(:,it,itp)),zw33),zmel(:,it,:))
                   do itpp=1,ntqxx
-                     zaddx = sum(zadd(:)*zmel(:,it,itpp))
+                     zaddx = zadd(itpp)
                      if(itp==itpp.and.dimag(zaddx)>0d0) zaddx=dreal(zaddx)
                      if(npm==1) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
                      if(npm==2) zsec(itp,itpp,ip)=zsec(itp,itpp,ip)+ wfac_(it,itp)* zaddx
@@ -523,10 +521,8 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                  end block
               enddo
               enddo
-            endif
-
 !! jobsw=1,5 Sigma are calculated.
-            if( jobsw==1.or.jobsw==5) then !need improvement if necessary.
+            elseif( jobsw==1.or.jobsw==5) then !need improvement if necessary.
                allocate(zmel1(ngb)) 
               do itp=1,ntqxx
                 do it=1,nt_max
