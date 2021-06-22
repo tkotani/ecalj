@@ -3,8 +3,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only     : Get_zmel_init, Get_zmel,Get_zmeltt,Setppovlz, Setppovlz_chipm, Deallocate_zmel,
-     o     zmel,zmeltt
+      use m_zmel,only : Get_zmel_init, Get_zmel,Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
@@ -320,7 +319,7 @@ c      integer :: bzcase !fixed to be 1
           do 1000 irot = 1,ngrp
             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
-            qbz_kr= qbz (:,kr) 
+            qbz_kr= qbz (:,kr) !rotated qbz vector. 
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
             ekq = readeval(qk, isp) 
@@ -343,22 +342,18 @@ c      integer :: bzcase !fixed to be 1
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
+!!     zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0)
-            if(     exchange) call Get_zmeltt()!return zmeltt  for exchange mode
-            if(.not.exchange) call Get_zmel()  !rerutn zmel    for correlation mode 
+            call Get_zmel()  !rerutn zmel 
             if(debug) write(6,*)' end of get_zmelt'
             wtt = wk(kr)
             if(eibz4sig()) then
               wtt=wtt*nrkip(kx,irot,ip) 
             endif   
 !!--------------------------------------------------------
-!! --- exchange section ---
+! --- exchange section ---
+!  S[i,j=1,nbloch] <psi(q,itp) |psi(q-rk,n) B(rk,i)> v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,itpp)>
 !!--------------------------------------------------------
-c We need to check following comments ----     
-c     S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
-c     v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-c     
-c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
             if(exchange) then   !At the bottom of this block, cycle do 1000 irot.
               allocate(vcoud_(ngb),wtff(nctot+nbmax),w3p(nctot+nbmax)) 
               vcoud_= vcoud
@@ -370,7 +365,7 @@ c     > z1p(j,n,t) = S[i=1,nbloch] <psi(q,t) | psi(q-rk,n) B(rk,i)> v(k)(i,j)
               do 8011 itp = 1,ntqxx !S[j=1,nbloch]  z1p(j,t,n) <B(rk,j) psi(q-rk,n) |psi(q,t')>
                 if(jobsw==5.and.(itpp/=itp)) cycle
                 do it = 1, nctot+nbmax
-                   w3p(it)= sum(zmeltt(it,itp,:) * vcoud_(:)* dconjg(zmeltt(it,itpp,:)))
+                   w3p(it)= sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp))
                 enddo
                 w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
                 if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
@@ -591,6 +586,7 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
         if (allocated(vcoul)) deallocate(vcoul)
  1001 continue                  ! end do ip
       end subroutine sxcf_scz
+      
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
       subroutine weightset4intreal(nctot,esmr,omega,ekc,freq_r,nw_i,nw,
      i     ntqxx,nt0m,nt0p,ef,nwx,nwxi,nt_max,wfaccut,wtt,

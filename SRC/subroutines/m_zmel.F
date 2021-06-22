@@ -1,6 +1,5 @@
 !! Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz.
-!!  "call get_zmel" or "call get_zmeltt" return zmel or zmeltt (different ordering of index).
-!!  zmel (exchange=F for index ordering for correlation) or zmeltt (exchange=T for exchange).
+!!  "call get_zmel" return zmel 
 !!  All dependencies (use foobar below ) are inputs (must be protected).
       module m_zmel 
       use m_genallcf_v3,only:  
@@ -25,17 +24,14 @@
       use m_readclasst,only: Readclasst,iclasst !iclass and iclasst is the same?
 !! q-dependent
       use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
-      implicit none
 !!------------------------------------------------------
 !! SUBROUTINES
-      public:: Get_zmel_init, Get_zmel, Get_zmeltt, Get_zmel_modex0,
-     &         Dconjg_zmel, Deallocate_zmel, Deallocate_zmeltt,
+      public:: Get_zmel_init, Get_zmel, Get_zmel_modex0,
+     &         Dconjg_zmel, Deallocate_zmel, 
      &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
       complex(8),allocatable,protected,public :: zmel(:,:,:)   !for  Get_zmel
-      complex(8),allocatable,protected,public :: zmeltt(:,:,:) !for  Get_zmeltt
 !!------------------------------------------------------
-
 !! set by Mptauof_zmel in advance
       private
       integer,allocatable,private :: miat(:,:)     ! mptauof_zmel
@@ -50,6 +46,7 @@
       logical:: modex0=.false. 
       integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot
       logical:: debug=.false.
+
       contains
 !----------------------------------------------------
       subroutine Dconjg_zmel()
@@ -58,9 +55,9 @@
       subroutine Deallocate_zmel()
       deallocate(zmel)
       end
-      subroutine Deallocate_zmeltt()
-      deallocate(zmeltt)
-      end
+c      subroutine Deallocate_zmeltt()
+c      deallocate(zmeltt)
+c      end
 !----------------------------------------------------
       subroutine setppovlz(q,matz)
       intent(in)::         q,matz
@@ -187,12 +184,12 @@ cold  nbmax -->nmmax
 !!note: For usual correlation mode, I think nctot=0
 !!note: For self-energy mode;   we calculate <iq1|\Sigma |iq2> , where iq1 and iq2 are in nqmax.
 !!       nstate = nctot+nmmax
-!!       allocate(zmeltt(ngb,    nstate,  nqmax))
-!!       zmeltt= < MPB     phi   | phi   > (but true matrix elements are for <phi|phi MPB> (complex conjugate).
+!!       allocate(zmelt(MPB,  intermediate phi nstate,  external state phi ntqxx))
+!!       zmelt= < MPB     phi   | phi   > 
 !!               <rkvec q-rkvec  |  q    >
  !                      cphim    | cphiq 
 !                       ispm     | ispq
-!            nctot+  nmini:nmmax | ncc + nqini:nqmax
+!            nctot+  nmini:nmmax | ncc + nqini:ntqxx
 !                    middle state| end state
 !
 !!--- For dielectric funciton, we use irot=1 kvec=rkvec=q. We calulate \chi(q).
@@ -206,12 +203,9 @@ cold  nbmax -->nmmax
 !                      (cphi_k   | cphi_kq !in x0kf)
 !                    middle state| end state
 !
-!!     rkvec= rk(:,k)-qq  ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
-!!     kvec = rk(:,k)-qq  ! k
-!!
 !! NOTE: dimension
 !!  nmtot = nctot+ nmmax-mnini+1
-!!  nqtot = ncc  + nqmax-nqini+1
+!!  nqtot = ncc  + ntqxx-nqini+1
 !! <rkvec,1:ngb   q-rkvec, 1:nmtot | q, 1:nqtot>
 !! ----------------------------------------
       subroutine get_zmelt2(exchange,
@@ -240,9 +234,9 @@ c      integer:: nmtot,nqtot
       integer::ispq,ispm,iii,itps
 !!
       if(allocated(zmel)) deallocate(zmel)
-      if(allocated(zmeltt)) deallocate(zmeltt)
+c      if(allocated(zmeltt)) deallocate(zmeltt)
       if(verbose()>80) debug=.true.
-      if(debug) write(*,*) 'get_zmel in m_zmel: start'
+      if(debug) write(*,*) 'get_zmel2 in m_zmel: start'
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
       if(.not.done_rdpp)        call rx('m_zmel: not yet call rdpp')
       if(.not.done_read_bzdata) call rx('m_zmel: not yet call read_bzdata')
@@ -263,7 +257,7 @@ ccccccccccccccccccccccccccccccccc
 
       allocate( rmelt(ngb, nctot+nmmax, ncc+nqmax), ! nstate= nctot+nband
      &  cmelt(ngb, nctot+nmmax, ncc+nqmax))
-      if(debug) write(*,*) 'get_zmel in m_zmel: 22222222'
+      if(debug) write(*,*) 'get_zmel2 in m_zmel: 22222222'
 
 !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       qk =  q - rkvec        
@@ -283,7 +277,7 @@ c      call getsrdpp2( nclass,nl,nxx)
 !! Note spin-dependence. Look for ixx==8 in hbas.m.F calling basnfp.F, which gives ppbrd.
       allocate( ppb(nlnmx*nlnmx*mdimx*nclass))
       ppb = ppbir(:,irot,ispq) 
-      if(debug) write(*,*) 'get_zmel in m_zmel: 3333333333'
+      if(debug) write(*,*) 'get_zmel2 in m_zmel: 3333333333'
 
 !! phase factors expikt(ia) is for exp(ik.T(R))
       do ia = 1,natom
@@ -426,50 +420,46 @@ c               if(timemix) call timeshow("22222 k-cycle")
       if(allocated(zzzmel))deallocate(zzzmel) !rmel,cmel)
       if(debug) write(6,*) ' sxcf: goto wtt'
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
-!! === End of zmelt ; we now have matrix element zmelt= rmelt + img* cmelt === 
-      end
-!sssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine get_zmeltt()   !call rightafter Get_zmelt_init(exchange=T)
-      implicit none
-      integer::verbose
-!Get zmel.  Multipled by ppovlz and reformat, INPUT rmelt,cmelt,ppovlz
-!! exchnge case ordering for given rmelt,cmelt,ppovlz
-      if(debug) write(*,*) 'exchange mode 0000 ngb nmtot nqtot',ngb,nmtot,nqtot
-      allocate( zmel (ngb, nmtot, nqtot))
-      zmel = dcmplx (rmelt,cmelt)
-      if(debug) write(*,*) 'exchange mode 1111'
-      deallocate(rmelt,cmelt)
-!! OUTPUT zmeltt convenient for exchange
-      allocate(zmeltt(nmtot,nqtot,ngb))
-      if(verbose()>39) then
-         write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
-         write(*,*)'zgemmsize',nqtot*nmtot,ngb,ngb
-         write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
-         write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
-         write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
-      endif
-      call flush(6)	
-      call zgemm('T','N',nqtot*nmtot,ngb,ngb,(1d0,0d0),
-     .     zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,nqtot*nmtot )
-      deallocate(zmel)
-      end subroutine
-!sssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine get_zmel()   !call rightafter Get_zmelt_init(exchange=F)
-! Get zmeltt      
-!     ! Convenient for correlation. INPUT rmelt,cmelt,ppovlz
-      implicit none
-      if(debug) write(*,*) 'correlation mode 0000'
+! INPUT rmelt,cmelt,ppovlz
+      block
+      complex(8),allocatable :: zmeltt(:,:,:)   !for  Get_zmel
       allocate(zmeltt(ngb, nmtot, nqtot))
       zmeltt= dcmplx (rmelt,-cmelt) !zmeltt= <itp|it,ib>
       deallocate(rmelt,cmelt)
-!     ! zmel(igb,it*itp) = C(ppovlz)*N(zmeltt(:,it*itp))
-!     !  C means Hermitian conjugate, N means normal
-!     ! http://www.netlib.org/lapack/lapack-3.1.1/html/zgemm.f.html
+!! zmel(igb,it,itp) = C(ppovlz)*N(zmeltt(:,it*itp))
+!! C means Hermitian conjugate, N means normal
       allocate( zmel (ngb, nmtot, nqtot) )
-      if(debug) write(6,'("4 zzzppp222aaa ",3d13.5)') sum(abs(zmeltt)),sum(zmeltt)
       call zgemm('C','N',ngb, nmtot*nqtot,ngb,(1d0,0d0),
      .     ppovlz, ngb, zmeltt,ngb, (0d0,0d0),zmel,ngb)
       deallocate(zmeltt)
-      if(debug) write(*,*)'get_zmel: ',nmtot,ngb,nqtot,sum(abs(zmel(1:ngb,1:nmtot,1:nqtot)))
+      end block
       end subroutine
+!sssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine Get_zmel()
+      end subroutine
+c$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssss
+c$$$      subroutine get_zmeltt()   !call rightafter Get_zmelt_init(exchange=T)
+c$$$      implicit none
+c$$$      integer::verbose
+c$$$!Get zmel.  Multipled by ppovlz and reformat, INPUT rmelt,cmelt,ppovlz
+c$$$!! exchnge case ordering for given rmelt,cmelt,ppovlz
+c$$$      if(debug) write(*,*) 'exchange mode 0000 ngb nmtot nqtot',ngb,nmtot,nqtot
+c$$$      allocate( zmel (ngb, nmtot, nqtot))
+c$$$      zmel = dcmplx (rmelt,cmelt)
+c$$$      if(debug) write(*,*) 'exchange mode 1111'
+c$$$      deallocate(rmelt,cmelt)
+c$$$!! OUTPUT zmeltt convenient for exchange
+c$$$      allocate(zmeltt(nmtot,nqtot,ngb))
+c$$$      if(verbose()>39) then
+c$$$         write(*,*)'info: USE GEMM FOR SUM (zmeltt=zmel*ppovlz) in sxcf_fal2.sc.F'
+c$$$         write(*,*)'zgemmsize',nqtot*nmtot,ngb,ngb
+c$$$         write(*,*)'size ,zmel',size(zmel,dim=1),size(zmel,dim=2),size(zmel,dim=3)
+c$$$         write(*,*)'size ,ppovlz',size(ppovlz,dim=1),size(ppovlz,dim=2)
+c$$$         write(*,*)'size ,zmeltt',size(zmeltt,dim=1),size(zmeltt,dim=2),size(zmeltt,dim=3)
+c$$$      endif
+c$$$      call flush(6)	
+c$$$      call zgemm('T','N',nqtot*nmtot,ngb,ngb,(1d0,0d0),
+c$$$     .     zmel,ngb,ppovlz,ngb,(0d0,0d0),zmeltt,nqtot*nmtot )
+c$$$      deallocate(zmel)
+c$$$      end subroutine
       end module m_zmel

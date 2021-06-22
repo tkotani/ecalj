@@ -19,8 +19,8 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readqg,only:readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmel_init,Get_zmel,Get_zmeltt,Setppovlz, Deallocate_zmel,Deallocate_zmeltt,
-     &     zmel,zmeltt          !ppovlz,
+      use m_zmel,only: Get_zmel_init,Get_zmel,Setppovlz, Deallocate_zmel,
+     &     zmel
 !!
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
       implicit none
@@ -587,20 +587,13 @@ c        if(GaussSmear) ddw= 10d0
               if(onceww(3)) write(6,*)' nbmax=',nbmax
             endif
             nstate = nctot + nbmax ! = nstate for the case of correlation
-
 !! all are identical.
             ntp0 = ntq
             ntqxx= ntp0
-
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
-c            if(debug) write(6,*)'zzBBB ppovlz =',sum(abs(ppovlz(:,:))),kx,irot
             if(allocated(zmel)) call Deallocate_zmel()
-            if(allocated(zmeltt)) call Deallocate_zmeltt()
-! this return zmeltt (for exchange), or zmel (for correlation)
-c            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp, ngc,ngb,nbmax,ntqxx,nctot,ncc=0)
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp,nbmax,ntqxx,nctot,ncc=0)
-            if(     exchange) call Get_zmeltt()!return zmeltt 
-            if(.not.exchange) call Get_zmel()  !rerutn zmel
+            call Get_zmel()  !rerutn zmel
             if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
             else
@@ -614,24 +607,6 @@ c            call get_zmelt(exchange,q,kx,qibz_k,irot,qbz_kr,kr,isp, ngc,ngb,nbm
 !!--------------------------------------------------------
 !! === exchange section ===
 !!--------------------------------------------------------
-c
-c S[i,j=1,nbloch] <psi(q,t) |psi(q-rk,n) B(rk,i)>
-c                        v(k)(i,j) <B(rk,j) psi(q-rk,n) |psi(q,t')>
-c
-c> z1p(j,t,t') = S[i=1,nbloch] <psi(q,t') | psi(q-rk,t) B(rk,i)> v(k)(i,j)
-!! NOTE: zmel(igb, nctot+nbmax, ntp0) ---> <phi phi  |igb>
-
-c --- screened exchange case ----
-c          if(screen) then
-c            ix = 1
-c            nrec=(kx-iqini)*nw+ix
-c            if(bzcase()==2) nrec= (kx-1)*nw+ix
-c            read(ifrcw,rec=nrec) zw  ! Readin W(0) - v
-c            vcoul = vcoul + zw(1:ngb,1:ngb) !c  screen test
-c          endif
-
-c          allocate( zmel(ngb, nctot+nbmax, ntp0), w3p( nctot+nbmax,ntp0))
-c          zmel  = dcmplx (rmelt,cmelt)
             if(exchange) then
               allocate( w3p( nctot+nbmax,ntp0))
               do 992 itp = 1,ntp0
@@ -644,7 +619,7 @@ c                    write(6,*)'wklm(1) vc=',wklm(1),vc
                     else
                       vc= vcoud(ivc)
                     endif
-                    w3p(it,itp) = w3p(it,itp)+ vc * abs(zmeltt(it,itp,ivc))**2
+                    w3p(it,itp) = w3p(it,itp)+ vc * abs(zmel(ivc,it,itp))**2
  994              continue
  993            continue
  992          continue
@@ -655,7 +630,6 @@ c                    write(6,*)'wklm(1) vc=',wklm(1),vc
                   enddo
                 enddo
               endif
-
 !! Write the Spectrum function for exchange May. 2001. 
 !!!!!! Probably, Need to fix this....
               if(ifexsp/=0) then
@@ -666,7 +640,6 @@ c                    write(6,*)'wklm(1) vc=',wklm(1),vc
                   enddo
                 enddo
               endif
-
 !! --- Correct weigts wfac for valence by esmr
               do it = nctot+1, nctot+nbmax
                 wfac = wfacx(-1d99, ef, ekc(it), esmr) !gaussian
