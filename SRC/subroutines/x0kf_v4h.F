@@ -1,7 +1,7 @@
       module m_x0kf
       use m_keyvalue,only : Getkeyvalue
       use m_pkm4crpa,only : Readpkm4crpa
-      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0,get_zmel
+      use m_zmel,only     : Get_zmel_init,Dconjg_zmel,Deallocate_zmel, zmel ,get_zmel_modex0
       use m_freq,only:  npm, nwhis
       use m_genallcf_v3,only:  nsp=>nspin ,nlmto,nctot,ngrp
       use m_read_bzdata,only:  nqbz,qbas,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -261,7 +261,6 @@ c
 !     this gives matrix element zmel(igb,it,itp)
            call Get_zmel_modex0(nkmin(k),nkqmin(k),isp_k,isp_kq)
            call Get_zmel_init(exchange, q+rk(:,k), q, irot, q, nxxxx, nkmax(k),nkqmax(k),nctot,ncc)
-           call Get_zmel()    !Get zmel
            call Dconjg_zmel() !zmel = dconjg(zmel)
            kold=k
         endif

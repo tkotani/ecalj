@@ -3,7 +3,7 @@
       use m_readqg,only   : readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only   : getkeyvalue
-      use m_zmel,only : Get_zmel_init, Get_zmel,Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
+      use m_zmel,only : Get_zmel_init, Setppovlz, Setppovlz_chipm, Deallocate_zmel, zmel
       use m_itq,only: itq,ntq
       use m_genallcf_v3,only: nlmto,nsp=>nspin,nctot,ngrp,niw,ecore !,symgg
       use m_READ_BZDATA,only: qbas,ginv,nstbz,qibz,qbz,wk=>wbz,nqibz,nqbz
@@ -218,7 +218,7 @@ c      integer :: bzcase !fixed to be 1
       real(8) :: wfacx
       real(8) :: wfacx2
       real(8) :: weavx2
-      complex(8) :: alagr3z
+      complex(8) :: alagr3z,w3pp
       complex(8) :: alagr3z2!,zadd
 
       integer:: ndummy1,ndummy2,nlmtobnd,nt0
@@ -241,7 +241,7 @@ c      integer :: bzcase !fixed to be 1
       logical:: hermitianW
 
       real(8),allocatable:: wcorehole(:,:),vcoud_(:),wfft(:)
-      logical:: corehole
+      logical:: corehole,iprx
       integer:: ifcorehole,ixx
       real(8):: tolq=1d-8!,wgt3(3)
 !!----------------------------------------------------------------
@@ -279,23 +279,14 @@ c      integer :: bzcase !fixed to be 1
       if(nctot/=0) ekc(1:nctot)= ecore(1:nctot,isp)!-ecorem ! core
       nlmtobnd    = nlmto*nband
       nstatetot   = nctot + nband
-!!== ip loop to spedify external q ==
-      do 1001 ip = 1,nq         
-        if(sum(irkip(:,:,ip))==0) cycle ! next ip
-        write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
-        q(1:3)= qip(1:3,ip)
-        eq= readeval(q,isp)
-        omega(:) = eq(itq(:)) !1:ntq
 !! we only consider bzcase()==1 now
-        if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
-        if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-!! NOTE total number of 
-!!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
-!!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
+      if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
+      if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
+c      do 1001 ip = 1,nq         
         iqini = 1
         iqend = nqibz             !no sum for offset-Gamma points.
         do 1100 kx = iqini,iqend 
-          if(sum(irkip(kx,:,ip))==0) cycle ! next kx
+          if(sum(irkip(kx,:,:))==0) cycle ! next kx
           write(6,*) ' ### do 1100 start kx=',kx,' from ',iqini,' through', iqend
           qibz_k = qibz(:,kx)
           if(timemix) call timeshow("11111 k-cycle")
@@ -308,17 +299,22 @@ c      integer :: bzcase !fixed to be 1
             open(newunit=ifrcwi, file='WVI.'//charnum5(kx), action='read',form='unformatted',
      &          status='unknown',access='direct',recl=mrecl)
           endif
-          nrot=0
-          do irot = 1,ngrp
-             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
-             if(kr==0) cycle    ! next irot
-             qbz_kr= qbz (:,kr) 
-             nrot=nrot+1
-          enddo  
-!! === loop 1000 over rotations irot ===
-          do 1000 irot = 1,ngrp
+        do 1000 irot = 1,ngrp !over rotations irot ===
+          if(sum(irkip(kx,irot,:))==0) cycle ! next ip
+!==  ip loop to spedify external q ==
+          do 1001 ip = 1,nq         
+            write (6,*) ip,'  out of ',nq,'  k-points(extrnal q) '
+            q(1:3)= qip(1:3,ip)
+            eq= readeval(q,isp)
+            omega(:) = eq(itq(:)) !1:ntq
+!! NOTE total number of 
+!!    kx loop(do 1100) and irot loop (do 1000) makes all the k mesh points.
+!!    When iqini=1 (Gamma point), we use effective W(q=0) defined in the paper.
             kr = irkip(kx,irot,ip) ! index for rotated kr in the FBZ
             if(kr==0) cycle
+cccccccccccccccccccccccccccccccccccccccccccccc
+c            write(6,*)'krikp=',kr,kx,irot,' ip ',ip
+cccccccccccccccccccccccccccccccccccccccccccccc
             qbz_kr= qbz (:,kr) !rotated qbz vector. 
 !! no. occupied (core+valence) and unoccupied states at q-rk
             qk =  q - qbz_kr        
@@ -341,9 +337,22 @@ c      integer :: bzcase !fixed to be 1
             ntqxx = nbandmx(ip) !mar2015
             if(debug) write(6,*)' sxcf: nbmax nctot nt0p =',nbmax,nctot,nt0p
             nstate = nctot + nbmax ! = nstate for the case of correlation
+c            if(ip==4.and.kx==6.and.irot==3) then
+c               write(6,"(a,l,10i4)")'pppp3:', exchange,irot,isp,nbmax,ntqxx,nctot
+c               write(6,"(a,10(3f9.3,x))")'pppp3:', q,qibz_k,qbz_kr
+c               iprx=.true.
+c            endif
 !!  Get zmel(it,ib,itpp) = <phi(q,it) B(qbz_kr,ib) |phi(ittp,q-qbz_kr)>
-            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0)
-            if(debug) write(6,*)' end of get_zmel'
+            call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp, nbmax,ntqxx,nctot,ncc=0,iprx=debug)
+c$$$            iprx=.false.
+c$$$            it  =1
+c$$$            itp=1
+c$$$            itpp=1
+c$$$            w3pp= sum(dconjg(zmel(:,it,itp)) * zmel(:,it,itpp))
+c$$$            if(ip==4.and. itp==itpp.and.itpp==1.and.kx==6.and.irot==3) then
+c$$$               write(6,"(a,3i4,f9.5,f9.5,12f10.5)")'ppppp3',ip,kx,irot, w3pp
+c$$$            endif
+c$$$            
             wtt = wk(kr)
             if(eibz4sig()) then
               wtt=wtt*nrkip(kx,irot,ip) 
@@ -364,10 +373,27 @@ c      integer :: bzcase !fixed to be 1
                 if(jobsw==5.and.(itpp/=itp)) cycle
                 do it = 1, nctot+nbmax
                    w3p(it)= sum(dconjg(zmel(:,it,itp)) * vcoud_(:)* zmel(:,it,itpp))
+                   w3pp= sum(dconjg(zmel(:,it,itp)) * zmel(:,it,itpp))
+c                   if(ip==4.and. itp==itpp.and.itpp==1.and.kx==6.and.irot==3) then
+c                      write(6,"(a,3i4,f9.5,f9.5,12f10.5)")'ppppp1',ip,kx,irot, w3p(it),w3pp,abs(sum(vcoud_(1:ngb)))
+c                   endif   
                 enddo
                 w3p(nctot+1:nctot+nbmax) = w3p(nctot+1:nctot+nbmax) * wtff(nctot+1:nctot+nbmax)
+c                if(ip==4.and. itp==itpp.and.itpp==1.and.kx==6.and.irot==3) then
+c                 write(6,"(a,3i4,f9.5,f9.5,x,2f10.5)")'ppppp1',ip,kx,irot, eq(1),wtt, sum( w3p(:) )
+c                endif
+
                 if(corehole) w3p(1:nctot) = w3p(1:nctot) * wcorehole(1:nctot,isp) 
                 zsec(itp,itpp,ip) = zsec(itp,itpp,ip) - wtt * sum( w3p(:) )
+
+c                block
+c                real(8):: hartree,rydberg
+c                hartree=2d0*rydberg()
+c                if(ip==4.and.itp==itpp.and.itpp==1) then
+c                 write(6,"(a,3i4,f10.5,f10.5)")'ppppp2',ip,kx,irot, hartree*zsec(itp,itpp,ip)
+c                endif
+c                end block
+
  8011         continue
  8010         continue
               deallocate(vcoud_,wtff,w3p)
@@ -571,16 +597,17 @@ c            allocate( zwz0(        nstate,ntqxx,ntqxx))
                 write(6,'(" fffffff zsec=",i3,2d15.7)') itp,zsec(itp,itp,ip)
               enddo
             endif
- 1000     continue              ! end do irot
-          close(ifvcoud)
+c        if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
+ 1001 continue                  ! end do ip
+ 1000 continue                  ! end do irot
+c          close(ifvcoud)
           if(.not.exchange) then
             close(ifrcw)
             close(ifrcwi)
           endif   
- 1100   continue                ! end of kx-loop
-        if(irot==1) write(6,"('  sum(abs(zsec))=',d23.15)") sum(abs(zsec))
-        if (allocated(vcoul)) deallocate(vcoul)
- 1001 continue                  ! end do ip
+ 1100 continue                ! end of kx-loop
+c 1001 continue                  ! end do ip
+c        if (allocated(vcoul)) deallocate(vcoul)
       end subroutine sxcf_scz
       
 !SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS

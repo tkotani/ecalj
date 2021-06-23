@@ -19,7 +19,7 @@ c     d nl,nnc,nclass,natom,mdimx,
       use m_readqg,only:readqg0
       use m_readeigen,only: readeval
       use m_keyvalue,only: getkeyvalue
-      use m_zmel,only: Get_zmel_init,Get_zmel,Setppovlz, Deallocate_zmel,
+      use m_zmel,only: Get_zmel_init,Setppovlz, Deallocate_zmel,
      &     zmel
 !!
       use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
@@ -593,7 +593,6 @@ c        if(GaussSmear) ddw= 10d0
 !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
             if(allocated(zmel)) call Deallocate_zmel()
             call Get_zmel_init(exchange,q,qibz_k,irot,qbz_kr,isp,nbmax,ntqxx,nctot,ncc=0)
-            call Get_zmel()  !rerutn zmel
             if(kx<= nqibz) then
               wtt = wk(kr)      !         wtx = 1d0
             else

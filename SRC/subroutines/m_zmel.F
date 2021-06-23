@@ -26,7 +26,7 @@
       use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
 !!------------------------------------------------------
 !! SUBROUTINES
-      public:: Get_zmel_init, Get_zmel, Get_zmel_modex0,
+      public:: Get_zmel_init, Get_zmel_modex0,
      &         Dconjg_zmel, Deallocate_zmel, 
      &         Setppovlz, Setppovlz_chipm,  Mptauof_zmel 
 !! OUTPUT:  zmel for exchange=F, zmeltt for exchange=T.
@@ -34,17 +34,17 @@
 !!------------------------------------------------------
 !! set by Mptauof_zmel in advance
       private
-      integer,allocatable,private :: miat(:,:)     ! mptauof_zmel
+      integer,allocatable,private :: miat(:,:)     
       real(8),allocatable,private :: tiat(:,:,:),shtvg(:,:)  
-      real(8),allocatable,private :: ppbir(:,:,:)  ! ppbafp_v2_zmel 
+      real(8),allocatable,private :: ppbir(:,:,:)  
       complex(8),allocatable,private :: ppovlz(:,:)        
       real(8),private:: qbasinv(3,3),q_bk(3)=1d10,qk_bk(3)=1d10
       logical,private:: init=.true.
-      complex(8),allocatable,private :: cphiq(:,:), cphim(:,:)
+      complex(8),allocatable,private :: cphiq(:,:), cphim(:,:),cphitemp(:,:)
       real(8),allocatable,private :: rmelt(:,:,:),cmelt(:,:,:)
 !! set by Get_zmel_modex0, which is called right before Get_zmel_init in x0kf_v4h
       logical:: modex0=.false. 
-      integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot
+      integer:: nkmin, nkqmin, isp_k, isp_kq,nmtot,nqtot,ispq_bk,ispm_bk
       logical:: debug=.false.
 
       contains
@@ -152,15 +152,17 @@ c     i                 ppbrd)           !radial integrals
       isp_k =n3
       isp_kq=n4
       end
+      
 !! ------------------------------------
-      subroutine get_zmel_init(exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc)
-      intent(in)::         exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc
+      subroutine get_zmel_init(exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx)
+      intent(in)::             exchange,q,kvec,irot,rkvec,isp, nmmax,nqmax, nctot,ncc,iprx
 !! Get <phiq(q,ncc+nqmax,ispq) |phim(q-rkvec,nctot+nmmax,ispm) MPB(rkvec,ngb)> ZO^-1
-!! Right after call get_zmel_init, call get_zmel or get_zmeltt to get zmel (or zmeltt).
+!! Right after call get_zmel_init, we get zmel defined in this module.
 !! kvec is in the IBZ, rk = Rot_irot(kvec)
 !! \parameter all inputs
-!! \parameter output=rmelt,clemt  matrix <MPB psi|psi>
+!! \parameter matrix <MPB psi|psi>
       logical:: exchange
+      logical,optional:: iprx
       integer:: isp,nmmax,nqmax,irot,ispq,ispm,nmini,nqini, nctot,ncc
       real(8) ::  quu(3),q(3), kvec(3),rkvec(3)
       ispq = isp
@@ -172,7 +174,12 @@ c     i                 ppbrd)           !radial integrals
          nqini= nkqmin! (k)
          ispm = isp_k
          ispq = isp_kq
-      endif   
+      endif
+      if(present(iprx).and.iprx) then
+         print *,'ppp modex0',modex0
+         write(6,"(a,l,10i4)")'pppp3:',exchange,irot,nmini,nmmax,ispm,nctot,nqini,nqmax,ispq,ncc
+         write(6,"(a,10(3f9.3,x))") 'pppp3:',q, kvec,rkvec
+      endif         
       call get_zmelt2(exchange,  
      &    kvec,irot,rkvec,          ! MPB_rkvec
      &    nmini,nmmax,ispm ,nctot,  ! middle-phi for  phi_{q-rkvec}
@@ -233,7 +240,6 @@ cold  nbmax -->nmmax
       integer::ispq,ispm,iii,itps
       
       if(allocated(zmel)) deallocate(zmel)
-      if(verbose()>80) debug=.true.
       if(debug) write(*,*) 'get_zmel2 in m_zmel: start'
       if(.not.done_genallcf_v3) call rx('m_zmel: not yet call genallcf_v3')
       if(.not.done_rdpp)        call rx('m_zmel: not yet call rdpp')
@@ -241,14 +247,15 @@ cold  nbmax -->nmmax
 
       if(init) then
          call minv33(qbas,qbasinv)
-         allocate( cphiq(nlmto,nband), cphim(nlmto,nband))
+         allocate( cphiq(nlmto,nband), cphim(nlmto,nband), cphitemp(nlmto,nband))
          init=.false.
       endif
 
       if(sum(abs(q-q_bk))>tolq) then
-         cphim= readcphif(q,ispq)
-         cphiq(1:nlmto,1:ntq) = cphim(1:nlmto,itq(1:ntq))
+         cphitemp= readcphif(q,ispq)
+         cphiq(1:nlmto,1:ntq) = cphitemp(1:nlmto,itq(1:ntq))
          q_bk=q
+         ispq_bk=ispq
       endif
 
       allocate( rmelt(ngb, nctot+nmmax, ncc+nqmax), ! nstate= nctot+nband
@@ -257,10 +264,10 @@ cold  nbmax -->nmmax
 
 !! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       qk =  q - rkvec        
-      if(sum(abs(qk-qk_bk))>tolq) then
-c         call readcphi(qk, nlmto,ispm, quu, cphim)
-         cphim= readcphif(qk, ispm)
-         qk_bk=qk
+      if(sum(abs(qk-qk_bk))>tolq.or.ispm/=ispm_bk) then
+         cphim= readcphif(qk, ispm) !all readin but we need only bands nmini:nmmax
+         qk_bk= qk
+         ispm_bk= ispm
       endif
 c      call getsrdpp2( nclass,nl,nxx)
 !! Rotate atomic positions invrot*R = R' + T
@@ -309,7 +316,8 @@ c      call getsrdpp2( nclass,nl,nxx)
      d              mdimx,nlmto,nbloch,nlnmx, natom,nclass,
      o              zzzmel)
       endif  
-      if(debug) write(6,'("5555 zzzmelsum ",3i5,3d13.5)') nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
+      if(debug) write(6,'("5555 zzzmelsum ",3i5,3d13.5)')nbloch,nmtot,nqtot,sum(abs(zzzmel)),sum(zzzmel)
+      if(debug) write(6,'("6666 chim      ",4i5,4d13.5)')nmini,nmmax,nqini,nqmax,sum(cphim(:,nmini:nmmax)),sum(cphiq(:,nqini:nqmax))
 !! IPW 
       allocate(drealzzzmel(nbloch,nmtot,nqtot),dimagzzzmel(nbloch,nmtot,nqtot))
       drealzzzmel=dreal(zzzmel)
@@ -334,7 +342,6 @@ c      if(verbose()>50) call timeshowx("5 after drvmelp")
             cmelt(:, it,:) =0d0
          enddo
       endif
-
 !! NOTE:=========================================
 !! zmelt = rmelt(igb(rkvec), iocc(q), iunocc(q-rkvec)) + i* cmelt
 !! iunocc: band index at target  q.
@@ -347,72 +354,6 @@ c      if(verbose()>50) call timeshowx("5 after drvmelp")
 !!                   igc is for given 
 !! See readgeig in drvmelp2.
 !! ==================================================
-c-------------------------------------------------------------------------
-c$$$!! smbasis 
-c$$$!! smbasis ---need to fix this
-!!  Read pomatr
-c$$$      if(smbasis()) then  !this smbasis if block is from hsfp0.sc.m.F
-c$$$         write(6,*)' smooth mixed basis : augmented zmel'
-c$$$         ifpomat = iopen('POmat',0,-1,0) !oct2005
-c$$$         nkpo = nqibz+nq0i
-c$$$         nnmx=0
-c$$$         nomx=0
-c$$$         do ikpo=1,nkpo
-c$$$            read(ifpomat) q_r,nn_,no,iqx !readin reduction matrix pomat
-c$$$            if(nn_>nnmx) nnmx=nn_
-c$$$            if(no>nomx) nomx=no
-c$$$            allocate( pomat(nn_,no) )
-c$$$            read(ifpomat) pomat
-c$$$            deallocate(pomat)
-c$$$         enddo
-c$$$         isx = iclose("POmat")
-c$$$         ifpomat = iopen('POmat',0,-1,0) !oct2005
-c$$$         allocate( pomatr(nnmx,nomx,nkpo),qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
-c$$$         do ikpo=1,nkpo
-c$$$            read(ifpomat) qrr(:,ikpo),nn_,no,iqx !readin reduction matrix pomat
-c$$$            nnr(ikpo)=nn_
-c$$$            nor(ikpo)=no
-c$$$            read(ifpomat) pomatr(1:nn_,1:no,ikpo)
-c$$$         enddo
-c$$$         isx = iclose("POmat")
-c$$$         write(6,*)"Read end of POmat ---"
-c$$$      endif
-c-------------------------------------
-c$$$               if(smbasis()) then !
-c$$$                  ntp0= nqmax
-c$$$                  nn= nnr(kx)
-c$$$                  no= nor(kx)
-c$$$                  allocate( pomat(nn,no) )
-c$$$                  pomat= pomatr(1:nn,1:no,kx)
-c$$$                  if( sum(abs(kvec-qrr(:,kx)))>1d-10 .and.kx <= nqibz ) then
-c$$$                     call rx( 'qibz/= qrr')
-c$$$                  endif
-c$$$                  if(no /= ngb.and.kx <= nqibz) then
-c$$$!!     A bit sloppy check only for kx<nqibz because qibze is not supplied...
-c$$$                     write(6,"(' q  ngb  ',3d13.5,3i5)")  kvec,ngb
-c$$$                     write(6,"(' q_r  nn no',3d13.5,3i5)") q_r,nn,no
-c$$$                     call rx( 'x0kf_v2h: POmat err no/=ngb')
-c$$$                  endif
-c$$$                  if(timemix) call timeshow("xxx2222 k-cycle")
-c$$$                  ngb = nn      ! Renew ngb !!!
-c$$$                  allocate ( zmel  (nn, nctot+nmmax, ntp0) )
-c$$$                  call matm( pomat, dcmplx(rmelt,cmelt), zmel, 
-c$$$     &                 nn, no, (nctot+nmmax)*ntp0 )
-c$$$                  deallocate(rmelt, cmelt)
-c$$$                  allocate( rmelt(ngb, nctot+nmmax, ntp0), !ngb is reduced.
-c$$$     &                 cmelt(ngb, nctot+nmmax, ntp0) )
-c$$$                  rmelt = dreal(zmel)
-c$$$                  cmelt = dimag(zmel)
-c$$$                  deallocate(zmel,pomat)
-c$$$               else
-c$$$                  nn=ngb
-c$$$                  no=ngb
-c$$$               endif
-
-c      if( oncew() ) then
-c         write(6,"('ngb nn no=',3i6)") ngb,nn,no
-c      endif
-c               if(timemix) call timeshow("22222 k-cycle")
       if(allocated(zzzmel))deallocate(zzzmel) !rmel,cmel)
       if(debug) write(6,*) ' sxcf: goto wtt'
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)")sum(rmelt),sum(cmelt)
@@ -431,8 +372,8 @@ c               if(timemix) call timeshow("22222 k-cycle")
       end block
       end subroutine
 !sssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine Get_zmel()
-      end subroutine
+c      subroutine Get_zmel()
+c      end subroutine
 c$$$!sssssssssssssssssssssssssssssssssssssssssssssssssssss
 c$$$      subroutine get_zmeltt()   !call rightafter Get_zmelt_init(exchange=T)
 c$$$      implicit none
