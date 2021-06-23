@@ -180,9 +180,7 @@ c        open(if671,file='COH')
       esmr  = esmr_in !read from GWinput
       esmref= esmr
       call ReadGwinputKeys()
-c      call getkeyvalue("GWinput","iSigMode",iSigMode,default=3 )
       if(diagonly) call SetIsigMode(5)
-c      write(6,"('  nbmx ebmx from GWinput=',i8,d13.5)") nbmx_sig,ebmx_sig
       call pshprt(30)
       voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3))) ! primitive cell volume
 c$$$!! ef is taken as rs for the empty-sphere test case of legas=T case 
@@ -226,10 +224,8 @@ c$$$      endif
       call INIT_READEIGEN() ! initialization for readeigen readchpi readgeig.
       call INIT_READEIGEN2()! initialize m_readeigen
       call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel
-!!    'call rdpp' is moved into get_zmel ====
       call Readngmx2() !return ngpmx and ngcmx in m_readqg
       write(6,*)' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
-!!   call Rdpp is moved to m_zmel. =>ppbrd = Radial integrals
       call pshprt(60)
       if(.not.exchange.or.(exchange.and.screen)) then !screen means screened exchange case
          call readfreq_r() !Readin WV.d and freq_r 
@@ -238,13 +234,13 @@ c      call READEFERMI() !! efermi by tetrahedron.
 c      ef = ef_read
 !! Determine Fermi energy ef for given valn (legas=T), or Get charge given by z and konf.==
       legas=.false. ! if legas=T, homogenius electron gas test case.
-      call efsimplef2ax( legas, esmref, 
+      call efsimplef2ax(legas, esmref, 
      o     valn, ef)
       eftrue = ef
       if(ixc==3) then
          ef = LOWESTEVAL() -1d-3 !lowesteigen(nspin,nband,qbz,nqbz) - 1d-3 !lowesteb was
       endif
-!!      
+!!--------------      
       write(6,'(" --- computational conditions --- ")')
       write(6,'("    deltaw  =",f13.6)') deltaw
       write(6,'("    esmr    =",f13.6)') esmr
@@ -252,7 +248,6 @@ c      ef = ef_read
       write(6,*)' ef    =',ef
       write(6,*)' esmr  =',esmr
       write(6,*)' valn  =',valn
-c      write(6,*)' ntot  =',ntot
       
 !! Core-exchange case. We set Ef just below the valence eigenvalue (to pick up only cores).==
 ! exonly removed
@@ -274,7 +269,6 @@ c        endif
       call anfcond()
       nspinmx = nspin
       if(laf) nspinmx=1         !!! Antiferro case. Only calculate up spin
-      
 !! itq.
 !!  We calculate <ki|\sigma|kj> for i \in itq (and j \in itq).
 !!  During iteration, we use NTQXX file, to keep itq set.
@@ -315,7 +309,7 @@ c        endif
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
       allocate(zsec(ntq,ntq,nq))!, coh(ntq,nq) ) kount(nqibz,nq),
       do 2000 is = 1,nspinmx
-        zsec  = 0d0
+        zsec = 0d0
         if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
 !! == ip loop to spedify external q ==
         call sxcf_scz (qip= q, ef= ef,esmr= esmr, isp= is,   
@@ -357,19 +351,11 @@ c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
 c$$$          end do
 c$$$        endif
  2001   continue
-!! eibz4sig symmetrization. MPI__AllreduceSum in zsecsym.
-        if(eibz4sig()) then
-          call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-        endif
+        if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
         call MPI__AllreduceSum( zsec,ntq*ntq*nq )
-        if(MPI__root) then
-          call HsWriteResult() !internal subroutine. 
-        endif                   !MPI__root
- 2000 continue                  !end of spin-loop
+        if(MPI__root) call HsWriteResult() !internal subroutine. 
+ 2000 continue     !end of spin-loop
       call cputid(0)
-      write(6,*) '--- end of hsfp0_sc --- irank=',MPI__rank
-      call flush(6)
-c      call MPI__Finalize  
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
