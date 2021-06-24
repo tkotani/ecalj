@@ -157,7 +157,7 @@ c      use m_subzi, only: lwtkb,lswtk
       implicit none
       logical:: lfill=.false.,ltet
       logical:: debug,cmdopt0 !goto99,
-      integer:: ierr,ifimag,i,ifi,ifile_handle!,iobzwt
+      integer:: ierr,ifimag,i,ifi,ifile_handle,unlink !,iobzwt
       real(8):: dosrng,evlall(*),sev,sumqv(3,*),eferm,vnow,ef0,bz_ef
       real(8),parameter::    NULLR =-99999
       real(8):: swtk(*)

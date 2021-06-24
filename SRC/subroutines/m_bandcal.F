@@ -146,7 +146,7 @@
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
      &           iq,nkp,qp,ndimh,ndimh-napw,napw
             if(writeham) then 
-                write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
+c                write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
                 if(lso==1) then !L.S case 
                   write(ifih) ovlm(1:ndimhx,1:ndimhx,1:4) 

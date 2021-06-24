@@ -109,11 +109,10 @@ c      if(.not.master_mpi) return
       ldim=ldham(1) !ham_ldham(1)
 c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim))
-      print *,'pppppppp',ldim,norbmto,ibastab
-      print *,'offl',offl
-      print *,'ltab',ltab
-      print *,'ktab',ktab
-      
+c      print *,'pppppppp',ldim,norbmto,ibastab
+c      print *,'offl',offl
+c      print *,'ltab',ltab
+c      print *,'ktab',ktab
       do iorb = 1, norbmto      !Total number of MTO's (without m)
          ib   = ibastab(iorb)
          is   = ssite(ib)%spec
@@ -122,8 +121,6 @@ c     write(6,*) ' ib l  k offl(iorb)+1  offl(iorb)+2*l+1  trim(spec)'
          l_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ltab(iorb)
          k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
       enddo
-c            stop 'xxxxxxxxxxxxxxx'
-
       write(6,*) ' i  ib l  k trim(spec)'
       do i= 1, ldim
          ib   = ib_table(i)
