@@ -164,27 +164,10 @@ c         write(*,*) 't=',t
       d1mach(3) = (b**(1.0-t))
       d1mach(4) = log(b)/log(10.0)
       end subroutine mkdcon
-c$$$
-c$$$
-c$$$#if 0
-c$$$      integer function unlink(filename)
-c$$$      implicit none
-c$$$       character(*):: filename
-c$$$       integer:: istart,iend,unusedfid,i
-c$$$       logical:: L      
-c$$$       unlink=1
-c$$$       istart=100; iend=999
-c$$$      do i=istart,iend
-c$$$        inquire(i,opened=L)
-c$$$        if (.not.L) then
-c$$$          unusedfid=i
-c$$$          return
-c$$$        endif
-c$$$      enddo
-c$$$      unusedfid=0
-c$$$      if (unusedfid==0) return
-c$$$      open(unusedfid,file=filename)
-c$$$      close(unusedfid,status='delete')
-c$$$      unlink=0
-c$$$      end function unlink
-c$$$#endif
+      
+      integer function unlink(filename)
+      integer:: id
+      character(*):: filename
+      open(newunit=id,file=filename)
+      close(id,status='delete')
+      end function unlink
