@@ -115,8 +115,8 @@ c#endif
       call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
       call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
       writeham= cmdopt0('--writeham')
-      if(writeham) call m_writeham_init()
-      if(writeham) call m_writeham_write()
+      if(writeham.and.master_mpi) call m_writeham_init()
+      if(writeham.and.master_mpi) call m_writeham_write()
       
       if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
       if (lrout == 0 .and. ctrl_lfrce /= 0) then

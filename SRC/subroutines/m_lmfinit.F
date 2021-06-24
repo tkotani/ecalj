@@ -1872,7 +1872,11 @@ Cr         and it is included in the basis.
           v_sspec(j)%mxcst= 1*isw(mxcst1(j))+2*isw(mxcst2(j))+4*isw(mxcst4(j))
 !!     Pack P,Q,PZ for both spins
           v_sspec(j)%p = pnu(1:n0*nsp,1,j)
-          if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j)   !takao
+          if(nsp==2) pz(1:n0,2,j) = pz(1:n0,1,j) !takao
+ccccccccccccccc unused area but fill zero to avoid NaN stop
+          if(nsp==1) v_sspec(j)%p(n0+1:2*n0)  = 0d0
+          if(nsp==1) v_sspec(j)%pz(n0+1:2*n0) = 0d0
+ccccccccccccccc          
           v_sspec(j)%pz= pz(1:n0*nsp,1,j)  
           v_sspec(j)%q = qnu(1:n0*nsp,1,j) 
           v_sspec(j)%z=z(j)
@@ -1944,7 +1948,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
         v_ssite(ib)%pnu=v_sspec(is)%p
         v_ssite(ib)%pz=v_sspec(is)%pz
    20 continue
+cccccccccccccccccccccccccccccccccccccccccccc
+      print *,'333xxx000 ibas pnu=',v_ssite(1)%pnu
+cccccccccccccccccccccccccccccccccccccccccccc
 
+      
       allocate( iprmb(nbas * nl**2 * maxp ) )
       indx = 0
 c$$$      do 112 iprior = 1, maxp

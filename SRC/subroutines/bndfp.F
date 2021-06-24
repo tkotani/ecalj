@@ -48,7 +48,7 @@
      &     ham_scaledsigma,ham_pmin,ham_pmax, !
      &     alat=>lat_alat,stdo,stdl,procid,master, !bz_doswin, 
      &     nkaph,nlmax,nl,nbas,nsp, ham_frzwf, bz_dosmax,
-     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,ssite=>v_ssite,sspec=>v_sspec, lpztail,leks,lrout
+     &     lcplxp ,  lekkl,lmaxu,nlibu,lldau,sspec=>v_sspec, lpztail,leks,lrout
      &     ,  nchan=>pot_nlma, nvl=>pot_nlml,nspc
       use m_ext,only: sname     !file extension. Open a file like file='ctrl.'//trim(sname)
       use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,iv_a_ostar,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
@@ -169,7 +169,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       endif
       
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot
-      if(cmdopt0('--phispinsym')) call phispinsym_set(ssite) !pnu,pz are spin symmetrized      
+      if(cmdopt0('--phispinsym')) call phispinsym_ssite_set() !pnu,pz are spin symmetrized      
 !! Write out Hamiltonian HamiltonianPMT.* 
       writeham= cmdopt0('--writeham')
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')

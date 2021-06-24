@@ -59,20 +59,22 @@
       allocate( auspp(nlmax,ndhamx,3,nsp,nbas) )
       auspp = 0d0
       call makusq(1, nbas,0, nev,jsp,1,qp,t_zv, auspp )
-      if(nspx==1) then !spinoffdiagmode 
-         jspini=1
-         jspend=2
-      else
+c      if(nspx==1) then !spinoffdiagmode 
+c         jspini=1
+c         jspend=2
+c      else
          jspini=isp
          jspend=isp
-      endif
-      do jspp= jspini, jspend
+c      endif
+c      do jspp= jspini, jspend
+c     print *,'jspp=',jspp
+         jspp=isp
          if(jspp==1) iprocar=iprocar1
          if(jspp==2) iprocar=iprocar2
          if(debug) write(stdo,*) 'm_procar',iprocar1,iprocar2,jspp,iprocar,ef0,nlmax,ndham,nspc,nsp,nbas
-                  ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"//
-     &                 "      f-3      f-2      f-1       f0       f1       f2       f3"//
-     &                 "                                                                                 tot"
+         ccc="ion        s       py       pz       px      dxy      dyz      dz2      dxz   dx2-y2"//
+     &        "      f-3      f-2      f-1       f0       f1       f2       f3"//
+     &        "                                                                                 tot"
          write(iprocar,*)
          write(iprocar,*)
          write(iprocar,"('k-point ',i4,' :    ',3f11.8,'     weight = -------  : x =',f15.8)")iq,qp,xdatt(iq)
@@ -108,7 +110,7 @@
                if(fullmesh) dwgtall(1:nchanp,ib,iband,jspp,iq) = dwgt(1:nchanp)
             enddo
          enddo
-      enddo
+c      enddo
 c      if(debug) print *,'mmmmmmmm procid sum dwgt check=',procid,iq,jsp,sum(dwgtall),nev
       deallocate( auspp )
       end subroutine
