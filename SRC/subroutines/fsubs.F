@@ -165,9 +165,9 @@ c         write(*,*) 't=',t
       d1mach(4) = log(b)/log(10.0)
       end subroutine mkdcon
       
-      integer function unlink(filename)
-      integer:: id
-      character(*):: filename
-      open(newunit=id,file=filename)
-      close(id,status='delete')
-      end function unlink
+c$$$      integer function unlink(filename)
+c$$$      integer:: id
+c$$$      character(*):: filename
+c$$$      open(newunit=id,file=filename)
+c$$$      close(id,status='delete')
+c$$$      end function unlink
