@@ -2,18 +2,19 @@
       integer,parameter,private:: nsymlmax=100
 
       real(8),allocatable,protected:: qplist(:,:)
-      integer,protected:: nkp,nsyml=0
+      integer,protected:: nkp,nsyml=0,iqini,iqend
       integer,protected:: nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
       integer,protected:: nqp2n_syml(nsymlmax)
       real(8),allocatable,protected:: xdatt(:)
       real(8),protected:: dqsyml(nsymlmax),etolv,etolc
       character*20,protected ::labeli(nsymlmax),labele(nsymlmax)
+      integer, allocatable,protected :: kpproc(:)
       
       contains
       subroutine m_qplist_init(plbnd) !,readeferm,eferm)
-      use m_lmfinit,only: nspc,stdo
+      use m_lmfinit,only: nspc,stdo,procid,master
       use m_mkqp,only: rv_p_oqp,rv_a_owtkp
-      use m_MPItk,only: master_mpi,mlog
+      use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
       use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
       use m_lattic,only: qlat=>lat_qlat
       use m_ext,only: sname
@@ -194,7 +195,19 @@ c 1013       continue
       if(PROCARon) then    
         if(.not.master_mpi) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
-      endif  
+      endif
+
+!! MPIK k point divider. From iqini to iqend for each processor.    
+#if MPIK
+c      if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
+      allocate (kpproc(0:numprocs))
+      call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
+      iqini = kpproc(procid)
+      iqend = kpproc(procid+1)-1
+#else
+      iqini=1
+      iqend=nkp
+#endif
       end subroutine
       
       end module

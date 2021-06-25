@@ -23,6 +23,7 @@
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_lmfgw,only: m_lmfgw_setjobgw
       use m_hamindex,only: m_hamindex_init
+      use m_bstrux,only: m_bstrux_init
 c      use m_uspecb,only:uspecb
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
@@ -188,7 +189,9 @@ C    +10 -> invoke smshft(1) after file read.
       
 !! Get q point list at which we do band calculations.
 !! we can move this outside of iteration cycle.
-      if(.not.llmfgw) call m_qplist_init(plbnd)
+      if(.not.llmfgw) call m_qplist_init(plbnd) !generate iqini: iqend for each nodes
+!! Get all structure constants for nbas and qplist
+      call m_bstrux_init()
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))

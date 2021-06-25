@@ -5,7 +5,7 @@
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
       use m_lattic,only: lat_qlat, lat_vol
-      use m_bstrux,only: bstrux
+      use m_bstrux,only: bstrux,bstr,iq_bstrux
 
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
@@ -98,7 +98,7 @@ C ----------------------------------------------------------------------
       integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
      .    , nlmb ,  mode1 , nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
-      integer:: initbas, endbas,lm
+      integer:: initbas, endbas,lm,iq
       logical:: debug=.false.
       complex(8):: zxx(1)
 C--------------------------
@@ -127,12 +127,18 @@ C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
         
         allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
-c        call bstrux ( 0 ,  ia , pa , rsma , q , 
-        call bstrux ( 2 ,  ia , pa , rsma , q , 
-     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
+ccc        call bstrux ( 0 ,  ia , pa , rsma , q , 
+c        call bstrux ( 2 ,  ia , pa , rsma , q , 
+c     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
+c        do lm=1,nlma
+c           b(:,lm,:) = transpose(bx(:,lm,:))
+c        enddo
+        iq = iq_bstrux(q)
+        call zcopy(ndimh*(kmax+1)*nlma, bstr(:,ia,iq),1,bx,1 )
         do lm=1,nlma
            b(:,lm,:) = transpose(bx(:,lm,:))
-        enddo   
+        enddo
+        
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
         if (lcplxp .eq. 0) then

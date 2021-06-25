@@ -2039,7 +2039,7 @@ c      deallocate(wowk,pnu,qnu,pz,amom,idmod,rsmh,eh,rsmh2,eh2,pb1,pb2,
       deallocate(wowk,pnu,qnu    ,amom,idmod,                  pb1,pb2,
      .     lmxpb,qpol,stni,tbvso,iq1,ivso,rg,rsma,rfoca,rsmfa,rcfa,nxi,
      .     exi,rint,rcut,coreq,mass,colxbs,radxbs,rs3,rham,idxdn,hcr,
-     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxt,kmxv,
+     .     rmt,idu,uh,jh,dv,grp,grp2,mxcst1,mxcst2,mxcst4,kmxv,  !kmxt,
      .     lfoca,eref,lmxl,lxi,coreh,          spec_a,z,nr,rsmv,
 c    .     lfoca,eref,lmxl,lxi,coreh,lmxa,lmxb,spec_a,z,nr,rsmv,
      .     pos,vel,eula,vshft,ips,irlx) 

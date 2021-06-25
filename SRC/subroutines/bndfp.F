@@ -65,7 +65,8 @@
       use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
-     &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml
+     &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
+     &  iqini,iqend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
@@ -128,7 +129,6 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       integer resultlen
       character*(MPI_MAX_PROCESSOR_NAME) name
       character*10 shortname(0:MAX_PROCS-1)
-      integer, dimension(:),allocatable :: kpproc
       double precision sttime,entime
 
       integer:: plbnd
@@ -138,7 +138,7 @@ Cu Updates before github 2009 was removed. See history github ecalj after 2009.
       logical:: fsmode !for --fermisurface for xcrysden.
       logical,save:: siginit=.true. 
       integer:: iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts
-      integer:: iqini,iqend,idummy, unlink,ifih,ifii,ib
+      integer:: idummy, unlink,ifih,ifii,ib
       real(8):: sev,sumtv,eharris,eksham,  dosw(2),elind,dum,evtop,ecbot,qp(3)
       real(8):: fh_rv(3,nbas),vnow,eee,dosi(2),dee,efermxxx,emin,qvalm(2)
       real(8),allocatable:: dosi_rv(:,:),dos_rv(:,:),qmom_in(:)
@@ -209,18 +209,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
-!! MPIK k point divider. From iqini to iqend for each processor.    
-#if MPIK
-      sttime = MPI_WTIME()
-      if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
-      allocate (kpproc(0:numprocs), stat=ierr)
-      call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
-      iqini = kpproc(procid)
-      iqend = kpproc(procid+1)-1
-#else
-      iqini=1
-      iqend=nkp
-#endif
 !! Set up Hamiltonian and diagonalization in m_bandcal_init
 !! To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
 !     ! ndimhx_ is protected, but allows writing to other nodes because MPI_BCAST is f77, assumed-size array
@@ -228,6 +216,7 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 ! lwtkb=1 accumulate weight
 ! lwtkb=0 no weight
 ! lwtkb=-1      
+      sttime = MPI_WTIME()
       if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
       call m_bandcal_init(iqini,iqend,lrout,eferm,ifih,lwtkb) !All input. get evlall
       entime = MPI_WTIME()
