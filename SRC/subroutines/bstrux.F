@@ -1,5 +1,165 @@
-      module m_prlcb1
+      module m_bstrux
+
+      public:: bstrux!, bstr,dbstr
+      
       contains
+
+c$$$      subroutine m_bstrux_init(mode,q)
+c$$$      parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
+c$$$      
+c$$$      allocate( b(ndimh,nlmax,0:kmax,nbas) )
+c$$$      do ia=1,nbas
+c$$$        isa=ssite(ia)%spec
+c$$$        pa=ssite(ia)%pos
+c$$$        lmxa=sspec(isa)%lmxa !max l of augmentation
+c$$$        lmxb=sspec(isa)%lmxb !max l of basis
+c$$$        kmax=sspec(isa)%kmxt !max of radial k
+c$$$        rsma=sspec(isa)%rsma
+c$$$        nlmb = (lmxb+1)**2
+c$$$        nlma = (lmxa+1)**2
+c$$$        if (lmxa .eq. -1) cycle
+c$$$C   --- Make strux to expand all orbitals at site ia ---
+c$$$        call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
+c$$$        call bstrux ( 1 ,  ia , pa , rsma , q , 
+c$$$     .       kmax , nlma , ndimh , napw , igapw , bstr(:,:,:,ia) , dbstr(:,:,:,ia) )
+c$$$      enddo 
+c$$$      end
+      
+      subroutine bstrux(mode ,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw, b,db)
+      use m_struc_def  
+      use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg,
+     &     indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
+      use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
+      use m_uspecb,only: uspecb
+C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   mode  :Whether b or both db are used, and determines ordering
+Ci   mode  :0 Only b            b = b(0:kmax, nlma, ndimh)
+Ci          1 Both b and db     b = b(ndimh, nlma, 0:kmax)
+Ci          2 Only b            b = b(ndimh, nlma, 0:kmax)
+Ci   slat  :struct for lattice information; see routine ulat
+Ci     Elts read: alat qlat vol
+Ci     Stored:
+Ci     Passed to: hxpbl hxpgbl
+Ci   ssite :struct for site-specific information; see routine usite
+Ci     Elts read: spec pos
+Ci     Stored:
+Ci     Passed to:
+Ci   sspec :struct for species-specific information; see routine uspec
+Ci     Elts read:
+Ci     Stored:
+Ci     Passed to: uspecb
+Ci   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
+Ci   indxcg:index for Clebsch Gordon coefficients
+Ci   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
+Ci   cy    :Normalization constants for spherical harmonics
+Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
+Ci   nbas  :size of basis
+Ci   ia    :augmentation around site ia
+Ci   pa    :position of site ia
+Ci   rsma  :augmentation smoothing radius
+Ci   q     :q-point for Bloch sum
+Ci   kmax  :polynomial cutoff
+Ci   nlma  :number of augmentation channels
+Ci   ndimh :dimension of hamiltonian
+Ci   napw  :number of PWs in basis
+Ci   igapw :list of APW PWs
+Ci   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
+Ci   alat  :length scale of lattice and basis vectors, a.u.
+Cl Local variables
+Cl   nlmto :number of lmto's = ndimh - napw
+Co Outputs
+Co   b     : mode0  b(0:kmax,nlma, ndimh)
+Co         : mode1  b(ndimh, nlma, 0:kmax)
+Co         : mode2  b(ndimh, nlma, 0:kmax)
+Co   db    : mode1  db(ndimh,nlma, 0:kmax, 3)
+Co         :        Gradient is wrt head shift; use -db for grad wrt pa
+Cr Remarks
+Cr   Coefficients b are referred to as C_kL in the LMTO book.
+Cr   bstrux requires an F90 compiler
+Cu Updates
+Cu   14 Jan 09 Bug fix, mode=2
+Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
+C ----------------------------------------------------------------------
+      implicit none
+      real(8):: pa(3) , q(3)
+      double precision rsma
+      integer kmax,ndimh,mode,ia,nlma,napw
+      integer igapw(3,napw)
+      double complex b(*)  !b(0:kmax,nlma,ndimh) mode 0;
+      !b(ndimh,nlma,0:kmax) mode 1,2
+      double complex db(*) !db(ndimh,nlma,0:kmax,3)
+C ... Local parameters
+      integer nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,norb,nlmh
+      parameter (nlmbx=25,n0=10,nkap0=3)
+      integer lh(nkap0)
+      double precision eh(n0,nkap0),rsmh(n0,nkap0)
+      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
+      double precision p(3),xx,srvol
+      complex(8),allocatable:: b0(:),db0(:)
+      real(8),allocatable:: bos(:)
+      srvol = dsqrt(vol)
+      nlmto = ndimh-napw
+C     Zero out strux to eliminate contributions from local orbitals
+      call dpzero(b,(kmax+1)*nlma*ndimh*2)
+      if (mode .eq. 1) then
+        call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
+      endif
+C --- b for MTO  (Written as C_kl in LMTO book) ---
+      if (nlmto .gt. 0) then
+        allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
+        call dpzero(b0,(kmax+1)*nlma*nlmbx*2)
+        if (mode .eq. 1) then
+          call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
+          allocate(db0((kmax+1)*nlma*nlmbx*3))
+        endif
+        do  ib = 1, nbas
+          is= ssite(ib)%spec
+          p = ssite(ib)%pos
+          call uspecb(is,rsmh,eh)          
+C       Position in h; l,k indices for orbitals connected w/ ib
+          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
+C       Loop over blocks of envelope functions
+          do  ik = 1, nkaphh(is)
+            nlmh = (lhh(ik,is)+1)**2
+            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
+            if (nlmh .gt. nlma .and. ia.eq.ib)
+     .      call rx('augmbl: nlmh.gt.nlma')
+            if (mode .eq. 0.or.mode .eq. 2) then
+              call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
+     .        nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)!,slat
+            elseif (mode .eq. 1) then
+              call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
+     .        nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,b0, !slat,
+     .        db0)
+            else
+              call rxi('bfactor: bad mode',mode)
+            endif
+            if (ib .eq. ia) then
+              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
+              call paugq2(kmax,nlmh,nlma,bos,b0)
+            endif
+C         Note: indices of b are ordered differently by mode (see Outputs)
+            if (mode .eq. 0) then
+              call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,
+     .        b0,b)
+            elseif (mode .eq. 1) then
+              call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
+     .        nlma,kmax,b0,db0,b,db)
+            elseif (mode .eq. 2) then
+              call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab,
+     .        ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx,
+     .        nlma=nlma,kmax=kmax,b0=b0,b=b)
+            endif
+          enddo
+        enddo
+        deallocate(b0,bos)
+        if (mode .eq. 1) deallocate(db0)
+      endif
+      call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
+      end subroutine bstrux
+!!
       subroutine prlcb1(mode,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
      .nlma,kmax,b0,db0,b,db)
 C- Poke strux and grads from b0,db0 to full arrays b,db
@@ -72,145 +232,7 @@ C     Block into groups of consecutive l
         endif
       enddo
       end subroutine prlcb1
-      end module m_prlcb1
-
-c      subroutine bstrux(mode,ssite,sspec,cg,indxcg,jcg,cy,iprmb, !,slat
-c     .nbas,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,b,db)
-      subroutine bstrux(mode ,ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw, b,db)
-      use m_struc_def  
-      use m_prlcb1,only: prlcb1
-      use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ssite=>v_ssite,sspec=>v_sspec,cg=>rv_a_ocg,
-     &     indxcg=>iv_a_oidxcg,jcg=>iv_a_ojcg,cy=>rv_a_ocy,iprmb,nbas
-      use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
-      use m_uspecb,only: uspecb
-C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
-C ----------------------------------------------------------------------
-Ci Inputs
-Ci   mode  :Whether b or both db are used, and determines ordering
-Ci   mode  :0 Only b            b = b(0:kmax, nlma, ndimh)
-Ci          1 Both b and db     b = b(ndimh, nlma, 0:kmax)
-Ci          2 Only b            b = b(ndimh, nlma, 0:kmax)
-Ci   slat  :struct for lattice information; see routine ulat
-Ci     Elts read: alat qlat vol
-Ci     Stored:
-Ci     Passed to: hxpbl hxpgbl
-Ci   ssite :struct for site-specific information; see routine usite
-Ci     Elts read: spec pos
-Ci     Stored:
-Ci     Passed to:
-Ci   sspec :struct for species-specific information; see routine uspec
-Ci     Elts read:
-Ci     Stored:
-Ci     Passed to: uspecb
-Ci   cg    :Clebsch Gordon coefficients, stored in condensed form (scg.f)
-Ci   indxcg:index for Clebsch Gordon coefficients
-Ci   jcg   :L q.n. for the C.G. coefficients stored in condensed form (scg.f)
-Ci   cy    :Normalization constants for spherical harmonics
-Ci   iprmb :permutations ordering orbitals in l+i+h blocks (makidx.f)
-Ci   nbas  :size of basis
-Ci   ia    :augmentation around site ia
-Ci   pa    :position of site ia
-Ci   rsma  :augmentation smoothing radius
-Ci   q     :q-point for Bloch sum
-Ci   kmax  :polynomial cutoff
-Ci   nlma  :number of augmentation channels
-Ci   ndimh :dimension of hamiltonian
-Ci   napw  :number of PWs in basis
-Ci   igapw :list of APW PWs
-Ci   qlat  :primitive reciprocal lattice vectors, in units of 2*pi/alat
-Ci   alat  :length scale of lattice and basis vectors, a.u.
-Cl Local variables
-Cl   nlmto :number of lmto's = ndimh - napw
-Co Outputs
-Co   b     : mode0  b(0:kmax,nlma, ndimh)
-Co         : mode1  b(ndimh, nlma, 0:kmax)
-Co         : mode2  b(ndimh, nlma, 0:kmax)
-Co   db    : mode1  db(ndimh,nlma, 0:kmax, 3)
-Co         :        Gradient is wrt head shift; use -db for grad wrt pa
-Cr Remarks
-Cr   Coefficients b are referred to as C_kL in the LMTO book.
-Cr   bstrux requires an F90 compiler
-Cu Updates
-Cu   14 Jan 09 Bug fix, mode=2
-Cu   05 Jul 08 (T. Kotani) adapted from augmbl; new PW part.
-C ----------------------------------------------------------------------
-      implicit none
-      real(8):: pa(3) , q(3)
-      double precision rsma
-      integer kmax,ndimh,mode,ia,nlma,napw
-      integer igapw(3,napw)
-      double complex b(*)  !b(0:kmax,nlma,ndimh) mode 0;
-      !b(ndimh,nlma,0:kmax) mode 1,2
-      double complex db(*) !db(ndimh,nlma,0:kmax,3)
-C ... Local parameters
-      integer nlmto,nlmbx,ib,is,ik,n0,nkap0,nkapi,norb,nlmh
-      parameter (nlmbx=25,n0=10,nkap0=3)
-      integer lh(nkap0)
-      double precision eh(n0,nkap0),rsmh(n0,nkap0)
-      integer ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0)
-      double precision p(3),xx,srvol
-      complex(8),allocatable:: b0(:),db0(:),bos(:)
-      srvol = dsqrt(vol)
-      nlmto = ndimh-napw
-C     Zero out strux to eliminate contributions from local orbitals
-      call dpzero(b,(kmax+1)*nlma*ndimh*2)
-      if (mode .eq. 1) then
-        call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
-      endif
-C --- b for MTO  (Written as C_kl in LMTO book) ---
-      if (nlmto .gt. 0) then
-        allocate(b0((kmax+1)*nlma*nlmbx),bos((kmax+1)*nlmbx))
-        call dpzero(b0,(kmax+1)*nlma*nlmbx*2)
-        if (mode .eq. 1) then
-          call dpzero(db,(kmax+1)*nlma*ndimh*3*2)
-          allocate(db0((kmax+1)*nlma*nlmbx*3))
-        endif
-        do  ib = 1, nbas
-          is= ssite(ib)%spec
-          p = ssite(ib)%pos
-          call uspecb(is,rsmh,eh)          
-C       Position in h; l,k indices for orbitals connected w/ ib
-          call orbl(ib,0,nlmto,iprmb,norb,ltab,ktab,xx,offl,xx)
-C       Loop over blocks of envelope functions
-          do  ik = 1, nkaphh(is)
-            nlmh = (lhh(ik,is)+1)**2
-            if (nlmh .gt. nlmbx) call rxi('augmbl: need nlmbx',nlmh)
-            if (nlmh .gt. nlma .and. ia.eq.ib)
-     .      call rx('augmbl: nlmh.gt.nlma')
-            if (mode .eq. 0.or.mode .eq. 2) then
-              call hxpbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .        nlma,kmax,nlma,cg,indxcg,jcg,cy,b0)!,slat
-            elseif (mode .eq. 1) then
-              call hxpgbl(p,pa,q,rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,
-     .        nlma,kmax,nlmbx,nlma,cg,indxcg,jcg,cy,b0, !slat,
-     .        db0)
-            else
-              call rxi('bfactor: bad mode',mode)
-            endif
-            if (ib .eq. ia) then
-              call hxpos(rsmh(1,ik),rsma,eh(1,ik),kmax,nlmh,kmax,bos)
-              call paugq2(kmax,nlmh,nlma,bos,b0)
-            endif
-C         Note: indices of b are ordered differently by mode (see Outputs)
-            if (mode .eq. 0) then
-              call paugq1(kmax,nlma,kmax,ik,norb,ltab,ktab,rsmh,offl,
-     .        b0,b)
-            elseif (mode .eq. 1) then
-              call prlcb1(1,ndimh,ik,norb,ltab,ktab,rsmh,offl,nlmbx,
-     .        nlma,kmax,b0,db0,b,db)
-            elseif (mode .eq. 2) then
-              call prlcb1(mode=0,ndimh=ndimh,ik=ik,norb=norb,ltab=ltab,
-     .        ktab=ktab,rsmh=rsmh,offl=offl,nlmbx=nlmbx,
-     .        nlma=nlma,kmax=kmax,b0=b0,b=b)
-            endif
-          enddo
-        enddo
-        deallocate(b0,bos)
-        if (mode .eq. 1) deallocate(db0)
-      endif
-      call paugqp(mode,kmax,nlma,kmax,ndimh,napw,igapw,alat,qlat,srvol,q,pa,rsma,b,b,db)
-      end subroutine bstrux
-
+      
 
       subroutine paugq1(kmax,nlma,k0,ik,norb,ltab,ktab,rsmh,offl,b0,b)
 C- Poke strux from b0 to full array b
@@ -454,7 +476,6 @@ C        endif
       enddo
       end subroutine paugqp
 
-
       subroutine paugq2(kmax,nlmh,nlma,bos,b0)
 C- Subtract on-site strux for ib=ia, leaving tail expansion
 C ----------------------------------------------------------------------
@@ -483,5 +504,5 @@ C ... Local parameters
       enddo
       end subroutine paugq2
 
-
+      end module m_bstrux
 

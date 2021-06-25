@@ -189,8 +189,7 @@ C   --- Add to the coefficient for the projection onto (u,s) for this site
      .     au,as,az)
       use m_lmfinit,only: rv_a_ocy,rv_a_ocg, iv_a_oidxcg, iv_a_ojcg,nkapii
       use m_uspecb,only:uspecb
-
-
+      use m_bstrux,only: bstrux
       use m_struc_def  !Cgetarg
 C- Add to the coefficient for the projection onto (u,s) for one site
 C ----------------------------------------------------------------------
@@ -273,7 +272,7 @@ c      integer lh(nkap0)
       double precision eh(n0,nkap0),rsmh(n0,nkap0)
       double precision rsma,pa(3),rmt,
      .phi,phip,dphi,dlphi,dphip,dlphip,det,rotp(nlmxx,2,2)
-      integer ::iwdummy
+      complex(8):: zdummy(1)
       integer:: i_copy_size
       call tcn ('pusq1')
       isa=ssite(ia)%spec
@@ -296,7 +295,7 @@ c      call bstrux ( 2 , ssite , sspec , rv_a_ocg , iv_a_oidxcg !slat ,
 c     .     , iv_a_ojcg , rv_a_ocy , iprmb , nbas , ia , pa , rsma , q , 
 c     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
       call bstrux ( 2 ,  ia , pa , rsma , q , 
-     .     kmax , nlma , ndimh , napw , igvapw , b_zv , iwdummy )
+     .     kmax , nlma , ndimh , napw , igvapw , b_zv , zdummy )
 C     In noncollinear case, isp=1 always => need internal ispc=1..2
 C     ksp is the current spin index in both cases:
 C     ksp = isp  in the collinear case

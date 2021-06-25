@@ -157,6 +157,7 @@ c      enddo
       use m_prlcb,only:   prlcb2,prlcb3
       use m_lmfinit,only: iv_a_oidxcg,iv_a_ojcg,rv_a_ocy,rv_a_ocg,lat_alat,nkaph
       use m_lattic,only: lat_qlat
+      use m_bstrux,only: bstrux
 C- Accumulates the local atomic densities.
 C ----------------------------------------------------------------------
 Ci Inputs

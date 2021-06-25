@@ -5,6 +5,7 @@
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
       use m_lattic,only: lat_qlat, lat_vol
+      use m_bstrux,only: bstrux
 
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
@@ -92,13 +93,14 @@ C ----------------------------------------------------------------------
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
       integer nlmbx,nlmax,ktop0,lofb,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
-      complex(8),allocatable:: b(:)
+      complex(8),allocatable:: b(:,:,:),bx(:,:,:)
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
      .    , nlmb ,  mode1 , nlmto
       double precision rsma,pa(3),xx,alat,qlat(3,3),vol
-      integer:: initbas, endbas
+      integer:: initbas, endbas,lm
       logical:: debug=.false.
+      complex(8):: zxx(1)
 C--------------------------
       call tcn ('augmbl')
       mode0 = mod(mode,10)
@@ -107,7 +109,7 @@ C--------------------------
       alat=lat_alat
       qlat=lat_qlat
       vol=lat_vol
-      allocate (b(lofb*ndimh))
+c      allocate (b(lofb*ndimh))
 !! no MPI now
       initbas=1
       endbas=nbas
@@ -123,8 +125,14 @@ C--------------------------
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
-        call bstrux ( 0 ,  ia , pa , rsma , q , 
-     .       kmax , nlma , ndimh , napw , igapw , b , xx )
+        
+        allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
+c        call bstrux ( 0 ,  ia , pa , rsma , q , 
+        call bstrux ( 2 ,  ia , pa , rsma , q , 
+     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
+        do lm=1,nlma
+           b(:,lm,:) = transpose(bx(:,lm,:))
+        enddo   
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
         if (lcplxp .eq. 0) then
@@ -145,9 +153,10 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
           call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         endif
+        deallocate(b,bx)
         if(debug) print *,'augg 222222 ia=',ia
       enddo
-      deallocate (b)
+c      deallocate (b)
       call tcx ('augmbl')
       end subroutine augmbl
 
