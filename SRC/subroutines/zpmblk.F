@@ -263,63 +263,63 @@ C           sizes and offsets to SRC and DST blocks, row index
   100   continue
       endif
       end
-#if TEST
-      subroutine fmain
-      implicit none
-      integer nblk,ioffs(5),ioffd(5),iprm(4)
-      double precision s(10),d(10)
-      integer nmax,i,mode
-
-      ioffs(1) = 0
-      ioffs(2) = 1
-      ioffs(3) = 3
-      ioffs(4) = 6
-      ioffs(5) = 10
-
-      ioffd(1) = 0
-      ioffd(2) = 2
-      ioffd(3) = 6
-      ioffd(4) = 9
-      ioffd(5) = 10
-
-      nblk = 4
-
-      iprm(1) = 2
-      iprm(2) = 4
-      iprm(3) = 3
-      iprm(4) = 1
-
-      do  i = 1, 10
-        s(i) = 1.1d0*i
-      enddo
-
-      print 332, ioffs
-  332 format(10i3)
-      print 332, ioffd
-      print 332, iprm
-
-C     Do the permutation
-C     NB: 4000 should have no effect; just tests different branch.
-      call dpzero(d,10)
-      mode = 4100
-      call pmblk(nblk,iprm,ioffs,ioffd,1,s,mode,0d0,1,1,d,nmax)
-
-      print 333, (s(i), i=1,10)
-      print 333, (d(i), i=1,10)
-  333 format(10f8.1)
-
-C     Undo the permutation
-      mode = 0200
-      call dpzero(s,10)
-      call pmblk(nblk,iprm,ioffd,ioffs,1,d,mode,0d0,1,1,s,nmax)
-      print 333, (s(i), i=1,10)
-
-C     Same permutation, but use mode for sequential DST order
-      call dpzero(d,10)
-      mode = 4120
-      call pmblk(nblk,iprm,ioffs,ioffd,1,s,mode,0d0,1,1,d,nmax)
-      print 333, (d(i), i=1,10)
-
-      end
-#endif
-
+c$$$#if TEST
+c$$$      subroutine fmain
+c$$$      implicit none
+c$$$      integer nblk,ioffs(5),ioffd(5),iprm(4)
+c$$$      double precision s(10),d(10)
+c$$$      integer nmax,i,mode
+c$$$
+c$$$      ioffs(1) = 0
+c$$$      ioffs(2) = 1
+c$$$      ioffs(3) = 3
+c$$$      ioffs(4) = 6
+c$$$      ioffs(5) = 10
+c$$$
+c$$$      ioffd(1) = 0
+c$$$      ioffd(2) = 2
+c$$$      ioffd(3) = 6
+c$$$      ioffd(4) = 9
+c$$$      ioffd(5) = 10
+c$$$
+c$$$      nblk = 4
+c$$$
+c$$$      iprm(1) = 2
+c$$$      iprm(2) = 4
+c$$$      iprm(3) = 3
+c$$$      iprm(4) = 1
+c$$$
+c$$$      do  i = 1, 10
+c$$$        s(i) = 1.1d0*i
+c$$$      enddo
+c$$$
+c$$$      print 332, ioffs
+c$$$  332 format(10i3)
+c$$$      print 332, ioffd
+c$$$      print 332, iprm
+c$$$
+c$$$C     Do the permutation
+c$$$C     NB: 4000 should have no effect; just tests different branch.
+c$$$      call dpzero(d,10)
+c$$$      mode = 4100
+c$$$      call pmblk(nblk,iprm,ioffs,ioffd,1,s,mode,0d0,1,1,d,nmax)
+c$$$
+c$$$      print 333, (s(i), i=1,10)
+c$$$      print 333, (d(i), i=1,10)
+c$$$  333 format(10f8.1)
+c$$$
+c$$$C     Undo the permutation
+c$$$      mode = 0200
+c$$$      call dpzero(s,10)
+c$$$      call pmblk(nblk,iprm,ioffd,ioffs,1,d,mode,0d0,1,1,s,nmax)
+c$$$      print 333, (s(i), i=1,10)
+c$$$
+c$$$C     Same permutation, but use mode for sequential DST order
+c$$$      call dpzero(d,10)
+c$$$      mode = 4120
+c$$$      call pmblk(nblk,iprm,ioffs,ioffd,1,s,mode,0d0,1,1,d,nmax)
+c$$$      print 333, (d(i), i=1,10)
+c$$$
+c$$$      end
+c$$$#endif
+c$$$

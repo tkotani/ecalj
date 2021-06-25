@@ -767,8 +767,12 @@ c     if (mod(loldpw,2) .eq. 0) then
                    ppovld(i) = ppovl(i,i)
                 enddo
              endif
-             call zqinvb('h',ppovl,ngp,ngp,ndimh, pwz,ngp, ierr)
-             if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
+!     ! inversion of hermitian ppovl
+             call matcinv(ngp,ppovl)
+             pwz = matmul(ppovl,pwz)
+             deallocate(ppovl)
+c             call zqinvb('h',ppovl,ngp,ngp,ndimh, pwz,ngp, ierr)
+c             if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
           endif
           if(debug) print *,' goto gwb write...'
 C     --- File output, jobgw=1 ---
@@ -827,7 +831,7 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
              deallocate(testc,testcd)
              write(ifinormchk,*)
           endif                 !------------- end of lchk=1
-          if (ngp .gt. 0) deallocate(ppovl,pwz)
+          if (ngp .gt. 0) deallocate(pwz)
           if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
 !     !   ... Subtract <psi|vxc|psi> from starting evl=e(lda+sigma-vxc)
 !     !       evl should contain e(lda+sigma-vxc)

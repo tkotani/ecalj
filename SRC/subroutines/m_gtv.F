@@ -477,6 +477,7 @@ Ckino isanrg is logical function,       call isanrg(sw,0,2,' gtv','sw',.true.)
 C ... Local copy of nmin that always exists
       nminl = min(1,sizez)
 C     DEC fortran: nmin can exis for gtv_none, even if not in arg lst
+      lrqdn=.true.
       if (ig .ne. '---') then
         lrqdn = .false.
         if (present(nmin)) then

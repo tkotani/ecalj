@@ -105,17 +105,23 @@ c     .......... form next diagonal element of matrix t ..........
         f = 0.0d0
         g = tau(1,l)
 C ... use tau1,1:l) and tau(2,1:l) as work array ...
-        do  180  j = 1, l
-          tau(1,j) = 0
-          tau(2,j) = 0
-  180   continue
+c        do  180  j = 1, l
+c          tau(1,j) = 0
+c          tau(2,j) = 0
+c     180   continue
+        tau = 0d0
         do  220  k = 1, l
-          call yyxcpy(k-1,ar(i,k),-ai(i,k),ar(k,1),ai(k,1),nm,
-     .    tau,tau(2,1),2,.true.)
-          call yyaxpy(l-k+1,ar(i,k),-ai(i,k),ar(k,k),ai(k,k),1,
-     .    tau(1,k),tau(2,k),2,.true.)
+c          call yyxcpy(k-1,ar(i,k),-ai(i,k),ar(k,1),ai(k,1),nm,
+c     .          tau,tau(2,1),2,.true.)
+c          call yyaxpy(l-k+1,ar(i,k),-ai(i,k),ar(k,k),ai(k,k),1,
+c     .         tau(1,k),tau(2,k),2,.true.)
+           tau(1,1:k-1) =  ar(i,k)*ar(k,1:k-1) + ai(i,k)*ai(k,1:k-1) + tau(1,1:k-1)
+           tau(2,1:k-1) = -ar(i,k)*ai(k,1:k-1) - ai(i,k)*ar(k,1:k-1) + tau(2,1:k-1)
+           tau(1,k:l)   =  ar(i,k)*ar(k,k:l)   + ai(i,k)*ai(k,k:l)   + tau(1,k:l)
+           tau(2,k:l)   =  ar(i,k)*ai(k,k:l)   - ai(i,k)*ar(k,k:l)   + tau(2,k:l)
   220   continue
-        call dcopy(l,tau,2,e,1)
+c        call dcopy(l,tau,2,e,1)
+        e(1:l) = tau(1,1:l)
         tau(1,l) = g
         do  240  j = 1, l
           e(j) = e(j)/h

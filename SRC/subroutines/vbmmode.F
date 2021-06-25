@@ -1,13 +1,13 @@
 !! vbmmode !Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
       subroutine vbmmode()    
 !! write vbmcbm.*      
-      use m_lmfinit,only: sspec=>v_sspec,ssite=>v_ssite,nbas,ctrl_nspec
+      use m_lmfinit,only: sspec=>v_sspec,ssite=>v_ssite,nbas,ctrl_nspec,vol
       use m_ext,only:sname
       implicit none
       character(120):: vbmlll
       real(8):: rydberg=13.6058d0,esold
       integer:: ifvesatm,ispec,ifves,ifvesintloc,ib,ifvbm,ifvesintatm
-      real(8):: vol,vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
+      real(8):: vessm,sumvesloc,sumvesatm,vref,vesloc,evbm,ecbm
       real(8),allocatable::vesatm(:)
       logical:: lfill=.false.,ixx
 !     ! === VBM CBM section. Mar2013takao === just output

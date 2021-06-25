@@ -287,7 +287,7 @@ c      integer,parameter:: mxspec=256
       character*256:: sss
       logical:: sexist
       integer:: ibas,ierr,lc, iqnu
-      logical:: ltet
+c      logical:: ltet
       integer:: ifzbak
       
       integer,allocatable :: iv_a_oips_bakup (:)
@@ -2148,7 +2148,7 @@ c      print *,' mpipid=',procid
       else
          plbnd=0
       endif
-      if(ctrl_lmet/=0 .and. .not.ltet) ctrl_ldos=1
+      if(ctrl_lmet/=0 ) ctrl_ldos=1
       if(ctrl_ldos==0 .and. ctrl_lmet==0) bz_ndos = 1
 !! LDA+U block (it was suldau.F)
       nlibu = 0

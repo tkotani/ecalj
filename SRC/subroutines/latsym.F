@@ -24,7 +24,7 @@
       character,intent(in)::  prgnam*(*)
       integer:: ibas,lc,j,iprint
       integer,parameter::recln=511
-      logical ::cmdopt,ipr10
+      logical ::cmdopt,ipr10=.false.
       character strn*(recln),strn2*(recln),outs(recln)
 !! lattice set up      
       call m_lattic_init() 

@@ -296,7 +296,7 @@ Co        (sign) <0, intended that caller update nmix for next call.
 C  MvS Feb 04 use sigin as input sigma if available (lsigin=T)
 C             Add mixnit as parameter
       implicit none
-      logical lsigin
+c      logical lsigin
       integer,parameter:: nda=1
       integer:: nmix,mmix
       integer(4),parameter:: mxsav=10
@@ -336,10 +336,10 @@ C             Add mixnit as parameter
  902  continue
       a(:,0,1) = sss      !output
 C     if input sigma available, use it instead of file a(:,0,2)
-      if (lsigin) then
-        write(6,*)'... using input sigma read from sigm file'
-        a(:,0,2) = sigin  !input
-      endif
+c      if (lsigin) then
+c        write(6,*)'... using input sigma read from sigm file'
+c        a(:,0,2) = sigin  !input
+c      endif
       write(6,*)'sum sss=',sum(abs(sss))
       imix=9
       mmix = min(max(nitr-1,0),imix)
