@@ -125,19 +125,20 @@ c      allocate (b(lofb*ndimh))
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
         call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
+
         
+ccccc        call bstrux ( 0 ,  ia , pa , rsma , q , 
         allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
-ccc        call bstrux ( 0 ,  ia , pa , rsma , q , 
-c        call bstrux ( 2 ,  ia , pa , rsma , q , 
-c     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
-c        do lm=1,nlma
-c           b(:,lm,:) = transpose(bx(:,lm,:))
-c        enddo
-        iq = iq_bstrux(q)
-        call zcopy(ndimh*(kmax+1)*nlma, bstr(:,ia,iq),1,bx,1 )
+        call bstrux ( 2 ,  ia , pa , rsma , q , 
+     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
         do lm=1,nlma
            b(:,lm,:) = transpose(bx(:,lm,:))
         enddo
+c        iq = iq_bstrux(q)
+c        call zcopy(ndimh*(kmax+1)*nlma, bstr(:,ia,iq),1,bx,1 )
+c        do lm=1,nlma
+c           b(:,lm,:) = transpose(bx(:,lm,:))
+c        enddo
         
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---

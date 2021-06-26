@@ -1,8 +1,11 @@
       module m_qplist
       integer,parameter,private:: nsymlmax=100
 
+      integer,allocatable,protected:: iprocq(:,:) !rank divider
+      integer,protected:: iqini,iqend,ispx        !iqini iqend
+      
       real(8),allocatable,protected:: qplist(:,:)
-      integer,protected:: nkp,nsyml=0,iqini,iqend
+      integer,protected:: nkp,nsyml=0
       integer,protected:: nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
       integer,protected:: nqp2n_syml(nsymlmax)
       real(8),allocatable,protected:: xdatt(:)
@@ -11,26 +14,29 @@
       integer, allocatable,protected :: kpproc(:)
       
       contains
-      subroutine m_qplist_init(plbnd) !,readeferm,eferm)
-      use m_lmfinit,only: nspc,stdo,procid,master
+      subroutine m_qplist_init(plbnd,llmfgw) !,readeferm,eferm)
+      use m_lmfinit,only: nspx,stdo,procid,master
       use m_mkqp,only: rv_p_oqp,rv_a_owtkp
-      use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
+      use m_MPItk,only: master_mpi,mlog
       use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
       use m_lattic,only: qlat=>lat_qlat
       use m_ext,only: sname
       intent(in)::             plbnd
 c      intent(out)::                  readeferm,eferm
       integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
-      logical:: masslineon(nsymlmax)
+      logical:: masslineon(nsymlmax),llmfgw
       integer:: plbnd,ifqplist,nkk1,nkk2,nkk3,ik1,ik2,ik3,iq,ifi,ifisyml,isyml,i,ierr
       logical:: cmdopt0,fullmesh,PROCARon,readeferm,fsmode
-      integer:: ikp,ifbnd,nsymln,onesp
+      integer:: ikp,ifbnd,nsymln,onesp,jobgw
       real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq,eferm
       real(8)::  totxdatt
-      integer:: ifile_handle, fxsts,ii
+      integer:: ifile_handle, fxsts,ii,ifiproc
       character(512)::schar
       character(3):: charnum3
       character(50)::infoq
+      integer:: nqnum, ngpmx ,nqbz,nqi,iqq,isp,ifiqg,irr,ngp ,imx,nqibz
+      real(8):: QpGcut_psi,q(3)
+!!      
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)
@@ -39,7 +45,27 @@ c      intent(out)::                  readeferm,eferm
       PROCARon = cmdopt0('--mkprocar')
       readeferm=.false.
       if(allocated(qplist)) deallocate(qplist)
-      if(master_mpi .and. plbnd==0) then
+      
+!! GW driver mode !read QGpsi
+      if(master_mpi .and. llmfgw) then 
+         open(newunit=ifiqg,file='QGpsi',form='unformatted',status='old')
+         read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
+         nkp = nqnum
+         allocate(qplist(3,nqi))
+         open(newunit=ifqplist,file='QPLIST.lmfgw')
+         nkp=0
+         do iq=1,nqnum
+            read(ifiqg) q,ngp,irr
+            read (ifiqg)
+            if(irr==0) cycle
+            nkp = nkp+1
+            qplist(:,nkp)=q
+            write(ifqplist,"(i5,3f23.15,3x,3f23.15)")nkp, qplist(:,nkp)
+         enddo
+         close(ifiqg)
+         close(ifqplist)
+!! self-consistent calculaiton      
+      elseif(master_mpi .and. plbnd==0) then
          nkp=bz_nkp
          allocate(qplist(3,nkp))
          qplist= rv_p_oqp !call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
@@ -48,8 +74,9 @@ c      intent(out)::                  readeferm,eferm
             write(ifqplist,"(i5,3f23.15,3x,3f23.15)")iq, qplist(:,iq), rv_a_owtkp(iq)/2d0
          enddo 
          close(ifqplist)
+!! plbnd/=1 band plot mode         
       elseif(master_mpi) then
-         if(cmdopt0('--onesp') .and. nspc==1) onesp = 1
+         if(cmdopt0('--onesp') .and. nspx==1) onesp = 1
          if(fullmesh) then
             nkp = nkk1*nkk2*nkk3
             allocate(qplist(3,nkp))
@@ -164,13 +191,14 @@ c 1013       continue
          endif
          if (nkp <= 0) call rx('bndfp: nkp<=0') ! quit if nkp==0
       endif
+
       
 !! broadcase nkp and qplist
       call mpibc1( nkp,1,2,mlog,'bndfp','nkp')
       call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
       if(.not.master_mpi) allocate(qplist(3,nkp))
       call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
-      if (master_mpi.and.nsyml>0) then
+      if (master_mpi.and.nsyml>0) then !plbnd mode
          open(newunit=ifqplist,file='QPLIST')
          print *,'-------- qplist --------',nsyml
          iq=0
@@ -196,18 +224,59 @@ c 1013       continue
         if(.not.master_mpi) allocate(xdatt(nkp))
         call mpibc1( xdatt, nkp , 4 , .false. , 'bndfp' , 'xdatt'  )
       endif
-
-!! MPIK k point divider. From iqini to iqend for each processor.    
-#if MPIK
-c      if(master_mpi) write(stdo,"(a)") ' ... Start MPI k-loop ...'
-      allocate (kpproc(0:numprocs))
-      call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
-      iqini = kpproc(procid)
-      iqend = kpproc(procid+1)-1
-#else
-      iqini=1
-      iqend=nkp
-#endif
       end subroutine
       
+!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      subroutine m_qplist_qspdivider(llmfgw)
+! Set iqini,iqend ispx for each rank (procid)
+      use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
+      use m_lmfinit,only: nspx,stdo,procid,master
+      use m_ext,only: sname
+      implicit none
+      integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp
+      logical:: llmfgw
+!! --- rank divider ----------------------------------------
+!! MPIK k point divider. From iqini to iqend for each processor.
+      if(.not.llmfgw) then !not efficient for spin improvement needed
+         allocate (kpproc(0:numprocs))
+         call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
+         iqini = kpproc(procid)
+         iqend = kpproc(procid+1)-1
+!! lmfgw  still use original definition. slightly compicated
+      else
+         allocate(kpproc(0:numprocs))
+         allocate(iprocq(nkp,nspx)) !iprocq(nqi,nsp))
+         call dstrbp(nkp,numprocs/nspx,1,kpproc(0)) !mpik distribution
+         do iprocid= 0,numprocs/nspx-1
+            iqinix = kpproc(iprocid)
+            iqendx = kpproc(iprocid+1)-1
+            do iqq = iqinix,iqendx
+               iprocq(iqq,1) = iprocid
+               if(nspx==2) iprocq(iqq,2) = iprocid + numprocs/nspx !memo. nspx=nsp but nspx=1 for SO=1
+            enddo
+            if(iprocid == procid) then !for current rank
+               iqini = iqinix
+               iqend = iqendx
+               ispx = 1
+            elseif(iprocid + numprocs/nspx == procid) then
+               iqini = iqinix
+               iqend = iqendx
+               ispx  = 2
+            endif   
+         enddo
+         if(master_mpi) then
+            open(newunit=ifiproc,file='lmfgw_kdivider')
+            write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
+            write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
+            do isp=1,nspx
+            do iqq=1,nkp !nqi
+                  write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
+            enddo
+            enddo
+            close(ifiproc)
+         endif    
+      endif
+      
+      end subroutine
       end module
+      

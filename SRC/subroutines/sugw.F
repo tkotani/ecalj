@@ -21,6 +21,7 @@
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
+      use m_qplist,only: iprocq
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -143,9 +144,9 @@ c      integer,allocatable:: igv2(:,:)
       integer(4)::   irr,nqi, nmcore !feb2012takao nk1,nk2,nk3, 
 c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, OK?
 
-      integer:: nbalance,iqq,nrr,ifiproc,iproc,iadd,ldw
+      integer:: nbalance,nrr,ifiproc,iproc,iadd,ldw
+      integer:: iqq
       logical:: rank0
-      integer,allocatable:: iprocq(:,:)
       character*256:: ext
 
       logical ::nexist,magexist  !! june2013 magfield is added for fsmom mode.
@@ -185,8 +186,8 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       magexist=.false.
  113  continue
 
-      rank0=.false.
-      if(procid==master) rank0=.true.
+c      rank0=.false.
+c      if(procid==master) rank0=.true.
       call getpr(ipr)
       alat=lat_alat
       n1 = lat_nabc(1)
@@ -348,7 +349,7 @@ c      endif
         rewind ifigwn
         ifigwn = fopna('gw2',-1,4)
         rewind ifigwn
-        if(rank0) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
+        if(master_mpi) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
         allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
         iat = 0
         do  i = 1, nbas
@@ -361,7 +362,7 @@ c      endif
             iantiferro(iat)=ssite(i)%iantiferro
           endif
         enddo
-        if(rank0) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
+        if(master_mpi) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
         print *,'iantiferro=',iantiferro
         deallocate(ips,lmxa)
 
@@ -386,8 +387,8 @@ c      endif
         enddo
 C   ... Atom data (gwa)
         call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
-        if(rank0) ifigwa = fopna('gwa',-1,4)
-        if(rank0) rewind ifigwa
+        if(master_mpi) ifigwa = fopna('gwa',-1,4)
+        if(master_mpi) rewind ifigwa
         do  ib = 1, nbas
           is=ssite(ib)%spec
           i_copy_size=size(ssite(ib)%pnu)
@@ -420,16 +421,16 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
             b = rmt(ib)/(dexp(a*nr-a)-1d0)
             call radmsh(rmt(ib),a,nr,rofi)
             call radwgt(rmt(ib),a,nr,rwgt)
-            if(rank0)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
-            if(rank0)write(ifigwa) konfig(0:lmaxa)
-            if(rank0)write(ifigwa) rofi
+            if(master_mpi)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
+            if(master_mpi)write(ifigwa) konfig(0:lmaxa)
+            if(master_mpi)write(ifigwa) rofi
 !!         Write orthonormalized valence wave functions for this atom
             do  l = 0, lmaxa
               do  i = 1, nsp
-                if(rank0)write(ifigwa) l,i
-                if(rank0)write(ifigwa) gval(1:nr,1,l,1,i)
-                if(rank0)write(ifigwa) gval(1:nr,1,l,2,i)
-                if (konfig(l) .ge. 10.and.rank0) write(ifigwa) gval(1:nr,1,l,3,i)
+                if(master_mpi)write(ifigwa) l,i
+                if(master_mpi)write(ifigwa) gval(1:nr,1,l,1,i)
+                if(master_mpi)write(ifigwa) gval(1:nr,1,l,2,i)
+                if (konfig(l) .ge. 10.and.master_mpi) write(ifigwa) gval(1:nr,1,l,3,i)
               enddo
             enddo
 !!         Core wave functions for this atom
@@ -442,16 +443,16 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
               do  isp = 1, nsp
                 do  konf = l+1, mod(konfig(l),10)-1
                   icore = icore+1
-                  if(rank0)write(ifigwa) icore, l, isp, konf, ecore(icore)+vshft
-                  if(rank0)write(ifigwa) gcore(1:nr,1,icore)
+                  if(master_mpi)write(ifigwa) icore, l, isp, konf, ecore(icore)+vshft
+                  if(master_mpi)write(ifigwa) gcore(1:nr,1,icore)
                 enddo
               enddo
             enddo
             deallocate(rofi,rwgt,gcore,gval)
           endif
         enddo
-        if(rank0) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
-        if(rank0) call fclr('gwa',ifigwa)
+        if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
+        if(master_mpi) call fclr('gwa',ifigwa)
       else
         call rxi('sugw: bad jobgw',jobgw)
       endif
@@ -465,7 +466,7 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       endif
 
 !! Write, or read ngpmx
-      if(rank0) then
+      if(master_mpi) then
          ifigwb = fopna('gwb',-1,4)
          if (jobgw .eq. 1) then
          write(ifigwb) ngpmx
@@ -475,7 +476,6 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
       endif
 
 !! mar2012 rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
-      nqtot=nqnum
       nnn=nqibz
 
 !! --- Evecs and matrix elements of vxc for irr qp ---
@@ -485,10 +485,10 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
         if (.not. cmdopt0('--novxc')) then
            ifievec = fopna('evec',-1,4)
            rewind ifievec
-           if(rank0) write(ifievec) ndham, nsp, nnn !, nqnum
+           if(master_mpi) write(ifievec) ndham, nsp, nnn !, nqnum
            ifiv = fopna('vxc',-1,4)
            rewind ifiv
-           if(rank0) write(ifiv) ndham, nsp, nnn
+           if(master_mpi) write(ifiv) ndham, nsp, nnn
         endif
         endif
       endif
@@ -499,53 +499,67 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
            write(6,*)' Scaled Sigma method: ScaledSigma=',ham_scaledsigma
          endif   
       endif
-      iqibz=0
 
-!!  === jobgw divider apr2013takao ===
-      nbalance = nqi*nsp/numproc 
-      if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
-      if(iprint()>10) print *,'nbalance=',nbalance
-      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") ham_oveps
-      iproc = numproc-1         !from bottom
-      allocate(iprocq(nqi,nsp))
-      iqq  = 0
-      iadd = 0
-      do iq = 1, nqtot
-         read(ifiqg)  q,  ngp, irr   
-         read(ifiqg)  
-         if(irr==0) cycle
-         iqq = iqq + 1
-         do isp  = 1, nsp
-            iadd = iadd+1
-            iprocq(iqq,isp)=iproc
-            if(iadd == nbalance) then
-               iproc = iproc-1
-               iadd = 0
-            endif  
-         enddo
-      enddo
-      nrr=iqq
-      if(nqi/=nrr) call rxi('sugw: nqi/=nrr=',nrr)
+      
+      
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+c      nqtot=nqnum
+c$$$!!  === jobgw divider apr2013takao ===
+c$$$      nbalance = nqi*nsp/numproc 
+c$$$      if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
+c$$$      if(iprint()>10) print *,'nbalance=',nbalance
+c$$$      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") ham_oveps
+c$$$      iproc = numproc-1         !from bottom
+c$$$      if(allocated(iprocq)) deallocate(iprocq)
+c$$$      allocate(iprocq(nqi,nsp))
+c$$$      iqq  = 0
+c$$$      iadd = 0
+c$$$      do iq = 1, nqtot
+c$$$         read(ifiqg)  q,  ngp, irr   
+c$$$         read(ifiqg)  
+c$$$         if(irr==0) cycle
+c$$$         iqq = iqq + 1
+c$$$         do isp  = 1, nsp
+c$$$            iadd = iadd+1
+c$$$            iprocq(iqq,isp)=iproc
+c$$$            if(iadd == nbalance) then
+c$$$               iproc = iproc-1
+c$$$               iadd = 0
+c$$$            endif  
+c$$$         enddo
+c$$$      enddo
+c$$$      nrr=iqq
+c$$$      if(nqi/=nrr) call rxi('sugw: nqi/=nrr=',nrr)
+c$$$      if(master_mpi) then
+c$$$         ifiproc = fopnx('lmfgw_kdivider',2,2,-1)
+c$$$         call fextg(ext)
+c$$$         write(ifiproc,"(a,'    ! extension ')") trim(ext)
+c$$$         write(ifiproc,"(3i10,'    ! nqi nsp numproc')") nqi, nsp, numproc
+c$$$         do isp=1,nsp
+c$$$         do iqq=1,nqi
+c$$$            write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
+c$$$         enddo
+c$$$         enddo
+c$$$         call fclose(ifiproc)
+c$$$      endif
+c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
 
-      if(rank0) then
-         ifiproc = fopnx('lmfgw_kdivider',2,2,-1)
-         call fextg(ext)
-         write(ifiproc,"(a,'    ! extension ')") trim(ext)
-         write(ifiproc,"(3i10,'    ! nqi nsp numproc')") nqi, nsp, numproc
-         do isp=1,nsp
-         do iqq=1,nqi
-            write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
-         enddo
-         enddo
-         call fclose(ifiproc)
-      endif    
-!!
-      rewind ifiqg
-      read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
+!! ... Read QGpsi !takao feb2012 ---> Not QGcou now
+c      rewind ifiqg
+c      read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
+!!      
       if(pwmode<10) call shortn3_initialize(qlat)
       if(debug)print *,' goto 1001 procid=',procid
+cccccccccccccccccccccccc
+c            do isp=1,nspc
+c            do iqq=1,nqtot !nqi
+c                  write(stdo,"('xxxxxiqq ',3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
+c            enddo
+c            enddo
+ccccccccccccccccccccccccccccccc      
       iqq=0
-      do 1001 iq = 1, nqtot
+      iqibz=0
+      do 1001 iq = 1, nqnum
         read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
         ! eigenfunction expansion at this q
         ! expansion of the Coulomb interaction
@@ -609,7 +623,7 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
           call zhev_tk4(ndimh,ham,ovl,ndimh,nev,evl(1,isp),evec,epsovl)
 c     if(iq==1)write(stdl,"('fp evl',8f8.4)")(evl(i,isp),i=1,nev)
           write(6,"(' sugw:  kpt isp=',i8,i2,' of ',i8, ' k= ',3f9.5, ' ndimh= ',i5,
-     &    ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqtot,qp,ndimh,procid,lwvxc,nev
+     &    ' irank=',i4, ' lwvxc=',l,' nev=',i5)")  iq,isp,nqnum,qp,ndimh,procid,lwvxc,nev
           call prtev(evec,ndimh,evl(1,isp),ndimh,nev)
           if (ndham .gt. nev) evl(1+nev:ndham,isp)=1d20 !this is also given in lmf2gw nov2015. 
           if(mod(iq,10) .ne. 1) call poppr

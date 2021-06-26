@@ -18,7 +18,7 @@
       use m_ldau,only: m_ldau_init,m_ldau_vorbset
       use m_chkdmu,only: eorb
       use m_bandcal,only: dmatu
-      use m_qplist,only: m_qplist_init
+      use m_qplist,only: m_qplist_init,m_qplist_qspdivider
       use m_mkpot,only: amom 
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_lmfgw,only: m_lmfgw_setjobgw
@@ -134,12 +134,15 @@ c#endif
 !! LDA+U initialization
       if(nlibu>0) call m_ldau_init()
       if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
+      
 !!=== NOTE: shear mode is currently commented out.
 !!   (probably shear mode should be recovered outside of fortran).
-      if(.false.) then 
-        allocate(rv_a_omad(nbas**2))
-        call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
-      endif
+
+c     if(.false.) then 
+c        allocate(rv_a_omad(nbas**2))
+c        call madmat (rv_a_omad ) !Monopole Madelung matrix (kept for future).
+c     endif
+      
 !! Initial density Read atm.* or rst.*   rhoat smrho in supot
 !!  --- Read restart file or overlap free atom densities ---
 !!    irs1x tells what to read and whether to invoke smshft.
@@ -187,11 +190,12 @@ C    +10 -> invoke smshft(1) after file read.
          call rx0('--getq mode done')
       endif
       
-!! Get q point list at which we do band calculations.
-!! we can move this outside of iteration cycle.
-      if(.not.llmfgw) call m_qplist_init(plbnd) !generate iqini: iqend for each nodes
+!! Get q point list at which we do band calculations
+      if(.not.(llmfgw.and.jobgw==0)) call m_qplist_init(plbnd,llmfgw) 
+      if(.not.(llmfgw.and.jobgw==0)) call m_qplist_qspdivider(llmfgw) !generate iqini:iqend,ispx for each nodes
+      
 !! Get all structure constants for nbas and qplist
-      call m_bstrux_init()
+c      call m_bstrux_init()
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
