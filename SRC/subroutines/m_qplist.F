@@ -36,7 +36,8 @@ c      intent(out)::                  readeferm,eferm
       character(50)::infoq
       integer:: nqnum, ngpmx ,nqbz,nqi,iqq,isp,ifiqg,irr,ngp ,imx,nqibz
       real(8):: QpGcut_psi,q(3)
-!!      
+!     !
+      if(master_mpi) write(stdo,*) 'm_qplistinit:start'
       nkk1=nkabc(1)
       nkk2=nkabc(2)
       nkk3=nkabc(3)

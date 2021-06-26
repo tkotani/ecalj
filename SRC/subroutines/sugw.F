@@ -3,7 +3,7 @@
       public:: m_sugw_init
       
       contains
-      subroutine m_sugw_init (jobgw) 
+      subroutine m_sugw_init () !jobgw) 
       use m_struc_def,only: s_rv1, s_spec, s_site 
       use m_suham,only: ndham=>ham_ndham
       use m_lmfinit, only: 
@@ -80,7 +80,7 @@
 !! memo: check shortned mechanism.  
 !! ----------------------------------------------------------------------
       integer:: i_copy_size,ham_lsig
-      integer:: jobgw , lh(n0)
+      integer:: jobgw=1 , lh(n0)
       real(8):: rsml(n0), ehl(n0) 
       logical :: lwvxc,cmdopt0
       integer fopna,fopnx,i,i1,i2,iat,ib,ibr,icore,ierr,ifeigen,!ifi,
@@ -222,8 +222,8 @@ c        write(stdo,*) '  job= 1 : GW setup mode; creates: files gwb,gw1,gw2,gwa
 c        write(stdo,*) '  job=?'
 c        read (5,*) jobgw
 c      endif
-      if(iprint()>10) write(stdo,'(/a,i2)')' gw setup, jobgw', jobgw
-      if(jobgw<=-2.or.jobgw>=2) call rx('jobgw number error')
+c      if(iprint()>10) write(stdo,'(/a,i2)')' gw setup, jobgw', jobgw
+c      if(jobgw<=-2.or.jobgw>=2) call rx('jobgw number error')
       lsig = 1
 c      napw = 0
       i_copy_size=size(ham_ldham)
@@ -564,8 +564,10 @@ ccccccccccccccccccccccccccccccc
         ! eigenfunction expansion at this q
         ! expansion of the Coulomb interaction
         if(irr==1) iqibz=iqibz+1
+        
         lwvxc = lsig>0 .and. jobgw==1 .and. iqibz<=nqibz
         if (cmdopt0('--novxc')) lwvxc = .false.
+        
         if(allocated(ngvecp)) deallocate(ngvecp)
         allocate(ngvecp(3,max(ngp,1)))
         if(ngp==0) then !dummy 
@@ -574,7 +576,8 @@ ccccccccccccccccccccccccccccccc
         else
            read (ifiqg)  ngvecp
         endif
-        if (jobgw/=1) deallocate(ngvecp) 
+        if (jobgw/=1) deallocate(ngvecp)
+        
 !! calculate only for irr=1 case
         if(irr==0) then
           cycle

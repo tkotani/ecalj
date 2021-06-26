@@ -21,7 +21,7 @@
       use m_qplist,only: m_qplist_init,m_qplist_qspdivider
       use m_mkpot,only: amom 
       use m_writeham,only: m_writeham_init, m_writeham_write
-      use m_lmfgw,only: m_lmfgw_setjobgw
+      use m_lmfgw,only: m_lmfgw_init
       use m_hamindex,only: m_hamindex_init
       use m_bstrux,only: m_bstrux_init
 c      use m_uspecb,only:uspecb
@@ -73,16 +73,31 @@ c#endif
 !! --rs=3 => always read from atom file 
 !! Sep2020 comment " Shorten site positions" removed. (we are useing shortn3 mainly now)
       call tcn('lmfp')
+      
+!!Get jobgw for lmfgw mode. Quit for job=0
+      jobgw=0
+      if(master_mpi.and.llmfgw) then
+         write(stdo,*)
+         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
+         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
+         write(stdo,*) '   1 : GW setup mode'
+         write(stdo,*) ' job 0 or 1?'
+         read (5,*) jobgw
+      endif
+      call mpibc1_int(jobgw,1,'lmfp_jobgw')
+      if(llmfgw.and.jobgw==0) call m_lmfgw_init() ! Get LATTIC and so on.
+      if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
+!!      
       etot(1) = 0 ! Total energy mode --etot ==>moved to m_lmfinit ---
       ipr=iprint() !call getpr(ipr) !ipr is pring verbose control
       maxit = ctrl_maxit
       irs1x = irs1
       if(ipr>=30) call praugm(sspec,0) !Printout only: properties of species
-!! atomic position Relaxation setup (MD mode)
+!! Atomic position Relaxation setup (MD mode)
       itrlx = 1
-      nitrlx= ctrl_nitmv  ! num of iteration cycle of relaxiation
-      mdprm = ctrl_mdprm  ! MD(relxation) setup
-      if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation
+      nitrlx= ctrl_nitmv  ! num of iteration cycle for atomic relaxiation (outer loop)
+      mdprm = ctrl_mdprm  ! MD(relxation) condition setup
+      if( nint(mdprm(1))== 0) nitrlx = 0 !no relaxiation. Only sc calculation for given atomic position.
       if( nint(mdprm(1))>0 .and. nint(mdprm(1))<4 ) call rx('lmf not set up for MD yet')
       if( nitrlx>0 ) then   !nitrlx >0 is for atomic position relaxiation
         allocate(indrx_iv(2,3*nbas))
@@ -98,20 +113,8 @@ c#endif
            write(ifipos) itrlx,rv_a_opos
         endif   
       endif
-!!Get jobgw for lmfgw mode
-      jobgw=0
-      if(master_mpi.and.llmfgw) then
-         write(stdo,*)
-         write(stdo,*) '=== lmfgw-MPIK: Choose one of following jobs: ==='
-         write(stdo,*) '   0 : init mode; creates files SYMOPS, LATTC, CLASS, NLAindx, ldima'
-         write(stdo,*) '   1 : GW setup mode'
-         write(stdo,*) ' job 0 or 1?'
-         read (5,*) jobgw
-      endif
-      call mpibc1_int(jobgw,1,'lmfp_jobgw')
-      call m_lmfgw_setjobgw(jobgw) 
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
-      call m_supot_init() ! get G vectors for charge
+      call m_supot_init()    ! get G vectors for charge
       call sugcut( 1, sspec) ! modify sspec%ngcut
       call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
       call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
@@ -150,6 +153,7 @@ C     0    read from atom file  atm
 C     1    read from binary     rst 
 C     2    read from ascii      rsta
 C    +10 -> invoke smshft(1) after file read.
+      write(6,*) 'goto end of reading rst or atm',irs1x
       if (irs1x == 0) then ! read overlap free-atom densities
          call rdovfa()     ! superposition of spherical atomic densities by lmfa.
          nit1 = 0
@@ -176,7 +180,8 @@ C    +10 -> invoke smshft(1) after file read.
             call smshft(1)
          endif
       endif
-      
+      write(6,*) 'end of reading rst or atm'
+           
 !!  tolerances for convergence check. q charge and e energy
       qtol = ctrl_tol(1)
       etol = ctrl_tol(3)
@@ -191,8 +196,8 @@ C    +10 -> invoke smshft(1) after file read.
       endif
       
 !! Get q point list at which we do band calculations
-      if(.not.(llmfgw.and.jobgw==0)) call m_qplist_init(plbnd,llmfgw) 
-      if(.not.(llmfgw.and.jobgw==0)) call m_qplist_qspdivider(llmfgw) !generate iqini:iqend,ispx for each nodes
+      call m_qplist_init(plbnd,llmfgw)
+      call m_qplist_qspdivider(llmfgw) !generate iqini:iqend,ispx for each nodes
       
 !! Get all structure constants for nbas and qplist
 c      call m_bstrux_init()

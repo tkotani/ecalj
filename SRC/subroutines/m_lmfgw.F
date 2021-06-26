@@ -1,14 +1,14 @@
       module m_lmfgw
       private
-      public:: m_lmfgw_init,m_lmfgw_setjobgw
-      integer,public,protected:: jobgw=-999
+      public:: m_lmfgw_init !,m_lmfgw_setjobgw
+c      integer,public,protected:: jobgw=-999
       
       contains
-      subroutine m_lmfgw_setjobgw(ijob)
-      integer:: ijob
-      jobgw=ijob
-      if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
-      end
+c      subroutine m_lmfgw_setjobgw(ijob)
+c      integer:: ijob
+c      jobgw=ijob
+c      if(.not.( jobgw==0.or.jobgw==1)) call rx(' lmf-MPIK is only for jobgw=0,1 now')
+c      end
       
       subroutine m_lmfgw_init() !writing files for GW calculaiton
       use m_lmfinit,only:nbas,stdo,qbg=>zbak,ham_frzwf,lmaxu,nsp,nlibu,n0,nab,nppn,sspec=>v_sspec,ssite=>v_ssite,
@@ -18,7 +18,6 @@
       use m_lmfinit,only: nchan=>pot_nlma, nvl=>pot_nlml
       use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat
       use m_suham,only: ndham=>ham_ndham
-      use m_mkpot,only: m_mkpot_novxc
       integer:: i,lfrzw,i1,i_copy_size,ib,ifildima,ificlass,ipqn,is,isp,konf,l,ldim,lmaxa,ifilnlaindx,
      & lmxax,ifinlaindx,ndima,npqn,mxint
       integer:: ltab(n0*nkap0),ktab(n0*nkap0),offl(n0*nkap0),norb,nat,ipb(nbas)
@@ -36,11 +35,11 @@
 c     integer:: idxdn(n0,nkap0)
 c      qbg = ctrl_zbak(1) !homogenious background charge
 !!=====================================================================
-!! jobgw=1      
-      if(jobgw/=0) then
-        call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA))
-        return
-      endif
+c!! jobgw=1      
+c      if(jobgw/=0) then
+c        call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA))
+c        return
+c      endif
 !!=====================================================================
 !! jobgw=0      
 !!  Count number of atoms : exclude floating orbitals
@@ -102,8 +101,7 @@ c      qbg = ctrl_zbak(1) !homogenious background charge
         enddo
         call wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konft)
 !! NLAindx
-        ifinlaindx = fopnx('NLAindx',2,2,-1)
-        rewind ifinlaindx
+        open(newunit=ifinlaindx,file='NLAindx')
         write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
         ndima = 0
 !!    This loop order is backwardly compatible with prior versions
@@ -134,13 +132,14 @@ c     .            call chcase(0,1,strn4(2:2))
             endif
           enddo
         enddo
-        call fclr(' ',ifinlaindx)
+        close(ifinlaindx)
 !! CLASS
-        ificlass = fopnx('CLASS',2,2,-1)
-        rewind ificlass
+c        ificlass = fopnx('CLASS',2,2,-1)
+        open(newunit=ificlass,file="CLASS")
+c        rewind ificlass
         allocate(ipc(nbas),ipcx(nbas))
         do ib=1,nbas
-           ipc(ib) = ssite(ib)%class !call spackv_array_copy_i8_i('u',ssite(ib)%class,1,ib,ipc)
+           ipc(ib) = ssite(ib)%class 
         enddo
         call pvsug1(nbas,lmxa,ipc,ipcx)
         do  i = 1, nbas
@@ -148,9 +147,10 @@ c     .            call chcase(0,1,strn4(2:2))
               write(ificlass,'(2I4)') ipb(i), ipcx(i)
            endif
         enddo
-      deallocate(ipc,ipcx)
-      call fclr(' ',ificlass)
-      call fexit(0,1,' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
+        deallocate(ipc,ipcx)
+        close(ificlass)
+c      call fclr(' ',ificlass)
+c      call fexit(0,1,' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
 !!================================================      
       end subroutine
       

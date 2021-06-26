@@ -58,7 +58,7 @@
       use m_rsibl_ev, only : rsibl_ev ! to plot wavefunction in the fat band mode
       use m_struc_def,only : s_rv1
       use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
-      use m_lmfgw,only: m_lmfgw_init,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
+      use m_lmfgw,only: m_lmfgw_init !,jobgw !,sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,
      o    osmpot, qmom, vconst, sv_p_osig, sv_p_otau, sv_p_oppi 
      o  , ppnl_rv , hab_rv , sab_rv , qval , qsc , fes1_rv , fes2_rv
@@ -76,6 +76,7 @@
       use m_addrbl,only: m_addrbl_allocate_swtk,swtk
       use m_sugw,only: m_sugw_init
       use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
+      use m_mkpot,only: m_mkpot_novxc
 Ci   nbas  : size of basis
 Ci   nsp   : number of spins
 Ci   nlibu : total number of LDA+U blocks (used to dimension dmatu and vorb)
@@ -174,7 +175,8 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
       writeham= cmdopt0('--writeham')
       if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
 !! Make one-particle potential without XC part for GWdriver: lmfgw mode 
-      if(llmfgw) call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
+      if(llmfgw) call m_mkpot_novxc() !Get osigx,otaux oppix spotx (without XC(LDA)) !
+               !call m_lmfgw_init() ! Get jobgw. Get sig,tau,ppi,spot without XC(LDA) via mkpot.
 !! Generate one-body potential and energy-related quantities. See use m_mkpot:
       call m_mkpot_init(llmfgw) !from (smrho,rhoat), get one-particle potential.
                                 !  mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
@@ -196,16 +198,16 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
 !! OUTPUTs by sigmainit are stored in m_seneinterp
 !! In future, we should make this block to a subroutine which shows clear i/o.
       sigmamode = (lrsig/=0)
-      if( llmfgw.and.jobgw==0 ) then
-         continue
-      elseif( sigmamode.and.siginit ) then
+c      if( llmfgw.and.jobgw==0 ) then
+c         continue
+      if( sigmamode.and.siginit ) then
          call m_rdsigm2_init()
          siginit=.false. !this is equivalent to broad casting.
       endif              
       if(sigmamode.and.master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
 !! == GW driver and finish ==
       if(llmfgw) then
-         call m_sugw_init(jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
+         call m_sugw_init() !jobgw) ! NOTE: Sigma-Vxc in real space is give by rv_a_ohrs.
          call tcx('bndfp')
          call rx0('sugw mode')  !exit program here normally.
       endif
