@@ -1,8 +1,8 @@
       module m_qplist
       integer,parameter,private:: nsymlmax=100
 
-      integer,allocatable,protected:: iprocq(:,:) !rank divider
-      integer,protected:: iqini,iqend,ispx        !iqini iqend
+      integer,allocatable,protected:: iprocq(:,:),ispp(:) !rank divider
+      integer,protected:: iqini,iqend             !iqini iqend
       
       real(8),allocatable,protected:: qplist(:,:)
       integer,protected:: nkp,nsyml=0
@@ -234,8 +234,10 @@ c 1013       continue
       use m_lmfinit,only: nspx,stdo,procid,master
       use m_ext,only: sname
       implicit none
-      integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp
+      integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount
       logical:: llmfgw
+      integer,allocatable::iqvec(:),ispin(:),iproc(:)
+      allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
 !! --- rank divider ----------------------------------------
 !! MPIK k point divider. From iqini to iqend for each processor.
       if(.not.llmfgw) then !not efficient for spin improvement needed
@@ -247,24 +249,29 @@ c 1013       continue
       else
          allocate(kpproc(0:numprocs))
          allocate(iprocq(nkp,nspx)) !iprocq(nqi,nsp))
-         call dstrbp(nkp,numprocs/nspx,1,kpproc(0)) !mpik distribution
-         do iprocid= 0,numprocs/nspx-1
-            iqinix = kpproc(iprocid)
-            iqendx = kpproc(iprocid+1)-1
-            do iqq = iqinix,iqendx
-               iprocq(iqq,1) = iprocid
-               if(nspx==2) iprocq(iqq,2) = iprocid + numprocs/nspx !memo. nspx=nsp but nspx=1 for SO=1
-            enddo
-            if(iprocid == procid) then !for current rank
-               iqini = iqinix
-               iqend = iqendx
-               ispx = 1
-            elseif(iprocid + numprocs/nspx == procid) then
-               iqini = iqinix
-               iqend = iqendx
-               ispx  = 2
-            endif   
+         call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
+         icount = 0
+         do iprocid = 0,numprocs-1
+         do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
+           icount=icount+1
+           iqvec(icount) = (iqs+1)/nspx
+           ispin(icount) = mod(iqs+1,nspx)+1
+           iproc(icount) = iprocid
          enddo
+         enddo
+         ncount=icount
+         do icount=1,ncount
+         if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
+            iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
+         enddo
+         
+         if(master_mpi) then
+            write(6,*)'mmmmmmmmm111 ',nkp*nspx
+            do iprocid= 0,numprocs-1
+               write(6,*)'mmmmmmm111 ', iprocid,kpproc(iprocid),kpproc(iprocid+1)-1
+            enddo
+         endif
+!!         
          if(master_mpi) then
             open(newunit=ifiproc,file='lmfgw_kdivider')
             write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
