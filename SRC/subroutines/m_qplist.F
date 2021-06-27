@@ -231,7 +231,8 @@ c 1013       continue
       subroutine m_qplist_qspdivider()!llmfgw)
 ! Set iqini,iqend ispx for each rank (procid)
       use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
-      use m_lmfinit,only: nspx,stdo,procid,master
+      use m_lmfinit,only: stdo,procid,master
+      use m_suham,  only: nspx=>ham_nspx 
       use m_ext,only: sname
       implicit none
       integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse
@@ -265,14 +266,13 @@ c      else
          if(nspx==2) iqini = (iqsi+1)/nspx
          iqend = iqse
          if(nspx==2) iqend = (iqse+1)/nspx
-         
          ispini = mod(iqsi+1,nspx)+1
          ispend = mod(iqse+1,nspx)+1
          
-         print *,'mmmm111xx ',procid,iqini,iqend
-         print *,'mmmm111xx ',procid,ispini,ispend
+         write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank iqini  iqend =', procid,iqini,iqend
+         write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank ispini ispend=', procid,ispini,ispend
           
-!!--- lmfgw divider
+!!--- write lmfgw_divider ---------
          icount = 0
          do iprocid = 0,numprocs-1
          do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
@@ -294,7 +294,7 @@ c      else
             write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
             do isp=1,nspx
             do iqq=1,nkp !nqi
-                  write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
+               write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
             enddo
             enddo
             close(ifiproc)

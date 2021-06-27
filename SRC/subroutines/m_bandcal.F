@@ -33,7 +33,7 @@
       subroutine m_bandcal_init(iqini,iqend,ispini,ispend,lrout,ef0,ifih,lwtkb) 
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!Hamiltonian,Overlapmatrix
-      integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig,ispini,ispend
+      integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig,ispini,ispend,ispendx
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:) !eigenvalue
       complex(8),allocatable :: evec(:,:) !eigenvector
@@ -90,12 +90,12 @@
          nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
          if(lso==1) then
             allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
-            ispinit = 2         !if lso, nsp=2
          else   
             if(lso/=1) allocate(hamm(ndimh,ndimh,1),ovlm(ndimh,ndimh,1)) !only for one spin
-            ispinit=1
-         endif   
-         do 2005 isp = ispinit,nsp
+         endif
+         ispendx = nsp
+         if(lso==1) ispendx=1
+         do 2005 isp = 1,ispendx
 ccccccccccccccc
            if(iq==iqini.and.ispini==2.and.isp==1) cycle
            if(iq==iqend.and.ispend==1.and.isp==2) cycle
@@ -227,7 +227,7 @@ c               call readindensitymodesetting() !dummy
       subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout,ef0) !,emin,emax)!,ndos)
 !accumulation by addrbl
       implicit none
-      integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend
+      integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend,ispendx
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: evec(:,:)
@@ -248,9 +248,9 @@ c               call readindensitymodesetting() !dummy
       do 12010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          call m_Igv2x_set(qp)   ! Get napw and so on for given qp
-         if(lso==1) ispinit = 2
-         if(lso/=1) ispinit=1
-         do 12005 isp = ispinit,nsp
+         ispendx = nsp
+         if(lso==1) ispendx=1
+         do 12005 isp = 1,ispendx
 ccccccccccccccc           
            if(iq==iqini.and.ispini==2.and.isp==1) cycle
            if(iq==iqend.and.ispend==1.and.isp==2) cycle
