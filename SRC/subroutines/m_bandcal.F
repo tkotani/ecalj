@@ -30,10 +30,10 @@
       contains
 !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
 ! Set up Hamiltonian, diagonalization
-      subroutine m_bandcal_init(iqini,iqend,lrout,ef0,ifih,lwtkb) 
+      subroutine m_bandcal_init(iqini,iqend,ispini,ispend,lrout,ef0,ifih,lwtkb) 
       implicit none
       complex(8),allocatable:: hamm(:,:,:),ovlm(:,:,:)!Hamiltonian,Overlapmatrix
-      integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig
+      integer:: iq,nmx,ispinit,isp,jsp,nev,ifih,lwtkb,iqini,iqend,lrout,ifig,ispini,ispend
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:) !eigenvalue
       complex(8),allocatable :: evec(:,:) !eigenvector
@@ -96,6 +96,10 @@
             ispinit=1
          endif   
          do 2005 isp = ispinit,nsp
+ccccccccccccccc
+           if(iq==iqini.and.ispini==2.and.isp==1) cycle
+           if(iq==iqend.and.ispend==1.and.isp==2) cycle
+ccccccccccccccc           
             jsp = isp
             if(lso==1) jsp = 1
 !! hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
@@ -220,10 +224,10 @@ c               call readindensitymodesetting() !dummy
       deallocate(evl)
       end subroutine
 !!ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine m_bandcal_2nd(iqini,iqend,lrout,ef0) !,emin,emax)!,ndos)
+      subroutine m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout,ef0) !,emin,emax)!,ndos)
 !accumulation by addrbl
       implicit none
-      integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas
+      integer:: iq,nmx,ispinit,isp,jsp,nev,iqini,iqend,lrout,ifig,i,ibas,ispini,ispend
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:)
       complex(8),allocatable :: evec(:,:)
@@ -247,6 +251,10 @@ c               call readindensitymodesetting() !dummy
          if(lso==1) ispinit = 2
          if(lso/=1) ispinit=1
          do 12005 isp = ispinit,nsp
+ccccccccccccccc           
+           if(iq==iqini.and.ispini==2.and.isp==1) cycle
+           if(iq==iqend.and.ispend==1.and.isp==2) cycle
+ccccccccccccccc           
             jsp = isp
             if(lso==1) jsp = 1
             read(ifig) nev,nmx  !ndimhx <---supplied by m_Igv2x_set

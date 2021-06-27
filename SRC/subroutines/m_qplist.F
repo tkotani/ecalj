@@ -2,7 +2,7 @@
       integer,parameter,private:: nsymlmax=100
 
       integer,allocatable,protected:: iprocq(:,:),ispp(:) !rank divider
-      integer,protected:: iqini,iqend             !iqini iqend
+      integer,protected:: iqini,iqend,ispini,ispend      !for current rank
       
       real(8),allocatable,protected:: qplist(:,:)
       integer,protected:: nkp,nsyml=0
@@ -228,50 +228,66 @@ c 1013       continue
       end subroutine
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine m_qplist_qspdivider(llmfgw)
+      subroutine m_qplist_qspdivider()!llmfgw)
 ! Set iqini,iqend ispx for each rank (procid)
       use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
       use m_lmfinit,only: nspx,stdo,procid,master
       use m_ext,only: sname
       implicit none
-      integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount
-      logical:: llmfgw
+      integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse
+c      logical:: llmfgw
       integer,allocatable::iqvec(:),ispin(:),iproc(:)
       allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
 !! --- rank divider ----------------------------------------
+      
+!     ! we will unify them in future
+      
 !! MPIK k point divider. From iqini to iqend for each processor.
-      if(.not.llmfgw) then !not efficient for spin improvement needed
-         allocate (kpproc(0:numprocs))
-         call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
-         iqini = kpproc(procid)
-         iqend = kpproc(procid+1)-1
-!! lmfgw  still use original definition. slightly compicated
-      else
+c      if(.false.) then !.not.llmfgw) then !not efficient for spin improvement needed
+c         allocate (kpproc(0:numprocs))
+c         call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
+c         iqini = kpproc(procid)
+c         iqend = kpproc(procid+1)-1
+c          print *,'mmmm111xx ',procid,iqini,iqend
+cc!! lmfgw  still use original definition. slightly compicated
+c      else
+
+!---------------------------------------------------------------      
          allocate(kpproc(0:numprocs))
-         allocate(iprocq(nkp,nspx)) !iprocq(nqi,nsp))
+         allocate(iprocq(nkp,nspx)) 
          call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
+!! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....
+!! range for the procid
+         iqsi = kpproc(procid)
+         iqse = kpproc(procid+1)-1
+         
+         iqini = iqsi
+         if(nspx==2) iqini = (iqsi+1)/nspx
+         iqend = iqse
+         if(nspx==2) iqend = (iqse+1)/nspx
+         
+         ispini = mod(iqsi+1,nspx)+1
+         ispend = mod(iqse+1,nspx)+1
+         
+         print *,'mmmm111xx ',procid,iqini,iqend
+         print *,'mmmm111xx ',procid,ispini,ispend
+          
+!!--- lmfgw divider
          icount = 0
          do iprocid = 0,numprocs-1
          do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
            icount=icount+1
-           iqvec(icount) = (iqs+1)/nspx
+           iqvec(icount) = iqs
+           if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
            ispin(icount) = mod(iqs+1,nspx)+1
            iproc(icount) = iprocid
          enddo
          enddo
          ncount=icount
          do icount=1,ncount
-         if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
+            if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
             iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
          enddo
-         
-         if(master_mpi) then
-            write(6,*)'mmmmmmmmm111 ',nkp*nspx
-            do iprocid= 0,numprocs-1
-               write(6,*)'mmmmmmm111 ', iprocid,kpproc(iprocid),kpproc(iprocid+1)-1
-            enddo
-         endif
-!!         
          if(master_mpi) then
             open(newunit=ifiproc,file='lmfgw_kdivider')
             write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
@@ -283,8 +299,7 @@ c 1013       continue
             enddo
             close(ifiproc)
          endif    
-      endif
-      
+c      endif
       end subroutine
       end module
       

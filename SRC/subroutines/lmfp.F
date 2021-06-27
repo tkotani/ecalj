@@ -197,7 +197,7 @@ C    +10 -> invoke smshft(1) after file read.
       
 !! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,llmfgw)
-      call m_qplist_qspdivider(llmfgw) !generate iqini:iqend,ispx for each nodes
+      call m_qplist_qspdivider()!llmfgw)   !generate iqini:iqend,isini,isend  for each nodes
       
 !! Get all structure constants for nbas and qplist
 c      call m_bstrux_init()

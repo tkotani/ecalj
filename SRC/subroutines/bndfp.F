@@ -66,7 +66,7 @@
       use m_writeham,only: m_writeham_init, m_writeham_write
       use m_qplist,only:  qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv,
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
-     &  iqini,iqend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
+     &  iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
       use m_shortn3,only: shortn3, shortn3_initialize
       use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
@@ -220,7 +220,7 @@ c         continue
 ! lwtkb=-1      
       sttime = MPI_WTIME()
       if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-      call m_bandcal_init(iqini,iqend,lrout,eferm,ifih,lwtkb) !All input. get evlall
+      call m_bandcal_init(iqini,iqend,ispini,ispend,lrout,eferm,ifih,lwtkb) !All input. get evlall
       entime = MPI_WTIME()
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       sttime = MPI_WTIME()
@@ -232,7 +232,7 @@ c         continue
       call mpibc2_int(ndimhx_,size(ndimhx_),'bndfp_ndimhx_') !all reduce (instead of which node to which node).
       call mpibc2_int(nev_,   size(nev_),   'bndfp_nev_') !all reduce 
       call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls') !all reduce (to avoid which node to which node).
-      call xmpbnd(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
+      call xmpbnd2(kpproc,ndhamx,nkp,nspx,evlall) !all eigenvalues broadcasted
       evtop=-9999
       ecbot=9999
       do iq=1,nkp
@@ -332,7 +332,7 @@ c         continue
       if(lmet>0 .and. lwtkb==-1 .and. lrout>0) then 
          call m_subzi_setlwtkb(1)
          call mpi_barrier(MPI_comm_world,ierr)
-         call m_bandcal_2nd(iqini,iqend,lrout, eferm) !accumulate smrho_out and so on.
+         call m_bandcal_2nd(iqini,iqend,ispini,ispend,lrout, eferm) !accumulate smrho_out and so on.
          call m_bandcal_allreduce(lwtkb)
       endif
       
@@ -481,8 +481,6 @@ c$$$      endif
       end module m_bndfp
 
       
-!sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
-#if MPIK
       subroutine xmpbnd(kpproc,ndham,nkp,nsp,eb)
 C- Collect eb from various processors (MPI)
 C ----------------------------------------------------------------------
@@ -524,4 +522,45 @@ C ----------------------------------------------------------------------
       deallocate(offset, stat=ierr)
       deallocate(length, stat=ierr)
       end subroutine xmpbnd
-#endif
+
+      !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
+      subroutine xmpbnd2(kpproc,ndham,nkp,nspx,eb)
+      use m_lmfinit, only: stdo,stdl,procid,master
+      use m_MPItk,only: mlog, master_mpi, strprocid, numprocs=>nsize, mlog_MPIiq
+C- Collect eb from various processors (MPI)
+C ----------------------------------------------------------------------
+Ci Inputs
+Ci   kpproc
+Ci   ndham :leading dimension of eb
+Ci   nkp   :number of irreducible k-points (bzmesh.f)
+Ci   nsp   :2 for spin-polarized case, otherwise 1
+Ci   eb    :energy bands; alias eband
+Co Outputs
+C ----------------------------------------------------------------------
+      implicit none
+      include "mpif.h"
+      integer:: kpproc(0:*),ndham,nkp,nspx
+      double precision eb(ndham,*) 
+      integer i,ista,iend, ierr
+      integer, dimension(:),allocatable :: offset,length
+      real(8) ,allocatable :: buf_rv(:)
+      allocate (offset(0:numprocs), stat=ierr)
+      allocate (length(0:numprocs), stat=ierr)
+      offset(0) = 0
+      do  i = 0, numprocs-1
+        ista = kpproc(i)
+        iend = kpproc(i+1)-1
+        length(i) = (iend - ista + 1)*ndham !nsp*ndham
+        offset(i+1) = offset(i) + length(i)
+      enddo
+      ista = kpproc(procid)
+      allocate(buf_rv(ndham*nkp*nspx))
+      call mpi_allgatherv ( eb(1,ista) , length( procid ), mpi_double_precision, buf_rv , length , offset 
+     ., mpi_double_precision , mpi_comm_world , ierr )
+      call dcopy ( ndham * nspx * nkp , buf_rv , 1 , eb , 1 )
+      if (allocated(buf_rv)) deallocate(buf_rv)
+      deallocate(offset, stat=ierr)
+      deallocate(length, stat=ierr)
+      end subroutine xmpbnd2
+
+      

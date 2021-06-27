@@ -137,7 +137,7 @@ c     include "mpif.h"
       if(debug) print *,'mmmm procid sum dwgt check=',procid,sum(dwgtall)
 c      if(PROCARon.and.fullmesh) then
 c         call mpi_barrier(MPI_comm_world,ierr)  
-         call xmpbnd(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
+         call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,nspx,dwgtall) 
          if(master_mpi) then  
 c            if(debug) print *,'mmmmm tot procid sum dwgt check=',procid,sum(dwgtall)
 !! tetrahedron without symmetry
