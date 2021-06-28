@@ -1,11 +1,11 @@
       module m_qplist
       integer,parameter,private:: nsymlmax=100
 
-      integer,allocatable,protected:: iprocq(:,:),ispp(:) !rank divider
+      integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
       integer,protected:: iqini,iqend,ispini,ispend      !for current rank
       
       real(8),allocatable,protected:: qplist(:,:)
-      integer,protected:: nkp,nsyml=0
+      integer,protected:: nkp,nsyml=0, ngpmx ,nqi,iqibzmax
       integer,protected:: nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
       integer,protected:: nqp2n_syml(nsymlmax)
       real(8),allocatable,protected:: xdatt(:)
@@ -27,14 +27,14 @@ c      intent(out)::                  readeferm,eferm
       logical:: masslineon(nsymlmax),llmfgw
       integer:: plbnd,ifqplist,nkk1,nkk2,nkk3,ik1,ik2,ik3,iq,ifi,ifisyml,isyml,i,ierr
       logical:: cmdopt0,fullmesh,PROCARon,readeferm,fsmode
-      integer:: ikp,ifbnd,nsymln,onesp,jobgw
+      integer:: ikp,ifbnd,nsymln,onesp=0,jobgw
       real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq,eferm
       real(8)::  totxdatt
       integer:: ifile_handle, fxsts,ii,ifiproc
       character(512)::schar
       character(3):: charnum3
       character(50)::infoq
-      integer:: nqnum, ngpmx ,nqbz,nqi,iqq,isp,ifiqg,irr,ngp ,imx,nqibz
+      integer:: nqnum, nqbz,iqq,isp,ifiqg,irr,ngp ,imx,nqibz,iqibz
       real(8):: QpGcut_psi,q(3)
 !     !
       if(master_mpi) write(stdo,*) 'm_qplistinit:start'
@@ -47,26 +47,35 @@ c      intent(out)::                  readeferm,eferm
       readeferm=.false.
       if(allocated(qplist)) deallocate(qplist)
       
-!! GW driver mode !read QGpsi
-      if(master_mpi .and. llmfgw) then 
+!! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
+      if(.not.master_mpi) then
+         continue
+      elseif(llmfgw) then 
          open(newunit=ifiqg,file='QGpsi',form='unformatted',status='old')
          read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz ,nqi ,imx,nqibz
-         nkp = nqnum
-         allocate(qplist(3,nqi))
+         allocate(qplist(3,nqi), ngplist(nqi), ngvecp(3,ngpmx,nqi))
+         ngvecp=0
          open(newunit=ifqplist,file='QPLIST.lmfgw')
          nkp=0
+         iqibz=0
          do iq=1,nqnum
             read(ifiqg) q,ngp,irr
-            read (ifiqg)
-            if(irr==0) cycle
+            if(irr==0) then
+               read(ifiqg)
+               cycle
+            endif   
+            if(irr==1)       iqibz=iqibz+1
+            if(iqibz==nqibz) iqibzmax=iq
             nkp = nkp+1
-            qplist(:,nkp)=q
-            write(ifqplist,"(i5,3f23.15,3x,3f23.15)")nkp, qplist(:,nkp)
+            qplist(:,nkp) = q
+            ngplist(nkp)  = ngp
+            read(ifiqg) ngvecp(1:3,1:ngp,nkp)
+            write(ifqplist,"(i5,3f23.15)")nkp, qplist(:,nkp) !,ngplist(nkp)
          enddo
          close(ifiqg)
          close(ifqplist)
 !! self-consistent calculaiton      
-      elseif(master_mpi .and. plbnd==0) then
+      elseif(plbnd==0) then
          nkp=bz_nkp
          allocate(qplist(3,nkp))
          qplist= rv_p_oqp !call dcopy(3*nkp, rv_p_oqp,1,qplist,1)
@@ -76,7 +85,7 @@ c      intent(out)::                  readeferm,eferm
          enddo 
          close(ifqplist)
 !! plbnd/=1 band plot mode         
-      elseif(master_mpi) then
+      else
          if(cmdopt0('--onesp') .and. nspx==1) onesp = 1
          if(fullmesh) then
             nkp = nkk1*nkk2*nkk3
@@ -195,10 +204,19 @@ c 1013       continue
 
       
 !! broadcase nkp and qplist
-      call mpibc1( nkp,1,2,mlog,'bndfp','nkp')
-      call mpibc1( onesp,1,2,mlog,'bndfp','onesp')
+      call mpibc1_int( nkp,1,  'qplit_nkp')
+      call mpibc1_int( onesp,1,'qplist_onesp')
       if(.not.master_mpi) allocate(qplist(3,nkp))
-      call mpibc1 ( qplist, 3 * nkp , 4 , .false. , 'bndfp' , 'qp'  )
+      call mpibc1_real(qplist, 3*nkp , 'qplist_qp'  )
+! !
+      if(llmfgw) then
+         if(.not.master_mpi) allocate(ngplist(nkp))
+         call mpibc1_int(ngpmx,1,      'qplist_ngpmx')
+         if(.not.master_mpi) allocate(ngvecp(3,ngpmx,nkp))
+         call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
+         call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
+      endif
+!!      
       if (master_mpi.and.nsyml>0) then !plbnd mode
          open(newunit=ifqplist,file='QPLIST')
          print *,'-------- qplist --------',nsyml
