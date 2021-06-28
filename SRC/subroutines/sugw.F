@@ -19,7 +19,7 @@
      &     ppn=>ppnl_rv
       use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
-      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,m_Igv2x_set
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
       use m_qplist,only: iprocq
       implicit none
@@ -594,6 +594,7 @@ ccccccccccccccccccccccccccccccc
 
 !!!  ... For this qp, G vectors for PW basis and hamiltonian dimension
         call m_Igv2x_set(qp)    ! get napw and igv2x
+c        call m_Igv2x_init(qp)    ! get napw and igv2x
 
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))

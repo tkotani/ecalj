@@ -5,7 +5,7 @@
       use m_lmfinit,only: nsp,nlibu,lmaxu,nbas,nl
       use m_mkqp,only: ntet=> bz_ntet
       use m_qplist,only: qplist
-      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
       use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lekkl,
      &     lmet=>bz_lmet,stdo,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce=>ctrl_lfrce,
      &     pwmode=>ham_pwmode,pwemax,stdl
@@ -86,7 +86,7 @@
          qp = qplist(:,iq)
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
          if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
-         call m_Igv2x_set(qp)   ! Get napw and so on for given qp
+         call m_Igv2x_setiq(iq) !qp)   ! Get napw and so on for given qp
          nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
          if(lso==1) then
             allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
@@ -247,7 +247,7 @@ c               call readindensitymodesetting() !dummy
       open(newunit=ifig,file='eigze_'//trim(strprocid),form='unformatted')
       do 12010 iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
-         call m_Igv2x_set(qp)   ! Get napw and so on for given qp
+         call m_Igv2x_setiq(iq) !qp)   ! Get napw and so on for given qp
          ispendx = nsp
          if(lso==1) ispendx=1
          do 12005 isp = 1,ispendx

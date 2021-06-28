@@ -23,7 +23,7 @@ C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
       use m_qplist,only: qplist,iqini,iqend
       use m_lmfinit,only: lfrce=>ctrl_lfrce,nlmax,kmxt,nspec,nbas,ssite=>v_ssite,sspec=>v_sspec
       use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
-      use m_igv2x,only: napw, igvapwin=>igv2x, ndimh,m_Igv2x_set
+      use m_igv2x,only: napw, igvapwin=>igv2x, ndimh,m_Igv2x_setiq
       integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
       real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma
       integer,allocatable:: igvapw(:,:)
@@ -38,7 +38,7 @@ ccccccccccccccccccccccccc
       if(lfrce/=0) allocate( dbstr(ndimhmax*nlmax*(kmaxx+1)*3,nbas,iqini:iqend))
       do 1200 iq = iqini, iqend !This is a big iq loop
         qin = qplist(:,iq) !qin
-        call m_Igv2x_set(qin)    ! Get napw and so on for given qp
+        call m_Igv2x_setiq(iq) !qin)    ! Get napw and so on for given qp
         if(napw/=0) allocate(igvapw(3,napw))
         print *,'iqini,iqend=',iqini,iqend,napw
 ccccccccccccccccccccccccccccccccccccc
