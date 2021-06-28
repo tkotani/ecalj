@@ -8,6 +8,7 @@
       use m_struc_def,only: s_rv1
       use m_density,only: osmrho, orhoat !main input density
       use m_elocp,only: elocp
+      use m_bstrux,only: m_bstrux_init
 !! output ------------------------------------------------------------------      
       type(s_rv1),allocatable,protected  :: sv_p_oppi(:,:) !pi-integral Eq.(C.6)
       type(s_rv1),allocatable,protected  :: sv_p_otau(:,:) !tau            (C.5)
@@ -123,7 +124,7 @@ Co         xcore  = rhoc * total potential
 Co         valvef = smrhov * vsm + sum_ib valvef_ib
 Co           valvef_ib = rhov * vtrue - smrhov * vsm)_ib
 Co         amom   = system magnetic moment
-      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, lcplxp,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf
+      use m_lmfinit,only:lso,nbas, ssite=>v_ssite, sspec=>v_sspec, lcplxp,nlibu,lmaxu,lldau,nsp,lat_alat,lxcf,lpzex
       use m_lattic,only: lat_plat,lat_qlat, lat_vol
       use m_supot,only: k1,k2,k3,lat_nabc
       use m_MPItk,only: master_mpi
@@ -435,6 +436,8 @@ C   ... Smooth exchange-correlation potential
 
 C --- Make parameters for extended local orbitals ---
       call elocp() !nbas,nsp,ssite,sspec,job) !set ehl and rsml for local orbitals
+      if(sum(lpzex)/=0) call m_bstrux_init() !We make structure constant (C_akL Eq.(38) in /JPSJ.84.034702)
+                                             !when we have extended local orbital.
 
 C --- Make local potential at atomic sites and augmentation matrices ---
       rhobg=qbg/vol

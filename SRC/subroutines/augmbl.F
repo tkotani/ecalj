@@ -5,7 +5,7 @@
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
       use m_lattic,only: lat_qlat, lat_vol
-      use m_bstrux,only: bstrux,bstr,iq_bstrux
+      use m_bstrux,only: bstrux,bstr,bstrux_set !,iq_bstrux
 
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------
@@ -93,7 +93,7 @@ C ----------------------------------------------------------------------
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
       integer nlmbx,nlmax,ktop0,lofb,mode0
       parameter (ktop0=20, nlmbx=49, nlmax=49, lofb=(ktop0+1)*nlmax)
-      complex(8),allocatable:: b(:,:,:),bx(:,:,:)
+      complex(8),allocatable:: b(:,:,:),bx(:,:,:),bb(:,:,:)
       double complex g(lofb)
       integer:: ia , isa , kmax , lmxa , lmxb ,  nglob , nlma 
      .    , nlmb ,  mode1 , nlmto
@@ -124,21 +124,28 @@ c      allocate (b(lofb*ndimh))
         nlma = (lmxa+1)**2
         if (lmxa .eq. -1) cycle
 C   --- Make strux to expand all orbitals at site ia ---
-        call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
+c        call rxx((kmax+1)*nlma .gt. lofb, 'augmbl: increase lofb')
 
         
-ccccc        call bstrux ( 0 ,  ia , pa , rsma , q , 
-        allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
-        call bstrux ( 2 ,  ia , pa , rsma , q , 
-     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
-        do lm=1,nlma
-           b(:,lm,:) = transpose(bx(:,lm,:))
-        enddo
-c        iq = iq_bstrux(q)
-c        call zcopy(ndimh*(kmax+1)*nlma, bstr(:,ia,iq),1,bx,1 )
+cccccccall bstrux ( 0 ,  ia , pa , rsma , q ,
+c        if(allocated(b)) deallocate(b)
+c        if(allocated(bx)) deallocate(bx)
+c        allocate( bx(ndimh,nlma,0:kmax),b(0:kmax,nlma,ndimh))
+c        call bstrux ( 2 ,  ia , pa , rsma , q , 
+c     .       kmax , nlma , ndimh , napw , igapw , bx , zxx )
 c        do lm=1,nlma
 c           b(:,lm,:) = transpose(bx(:,lm,:))
 c        enddo
+        
+        call bstrux_set(ia,q)
+        if(allocated(b)) deallocate(b)
+        allocate( b(0:kmax,nlma,ndimh) )
+c        print *,'bbbbbbbbb '
+c        print *,'bbbbbbbbb ',q
+        do lm=1,nlma
+           b(:,lm,:) = transpose(bstr(:,lm,:)) !-b(:,lm,:)
+c           print *,'bbbbbbbbb lm sum=',lm,sum(abs(bb(:,lm,:))),sum(abs(b(:,lm,:)))
+        enddo
         
         if(debug) print *,'end of bstrux'
 C   --- Add 1-center and 2-center terms ---
@@ -160,7 +167,7 @@ C   --- Add B+ sig B to S and B+ ppi B to H ---
         elseif (mode0 .eq. 0 .and. lcplxp .ne. 0) then
           call augq3z( mode1, kmax, nlma, ndimh, isp, g, sv_p_oppi( 1, ia )%v, b, h, hso)
         endif
-        deallocate(b,bx)
+        deallocate(b)
         if(debug) print *,'augg 222222 ia=',ia
       enddo
 c      deallocate (b)

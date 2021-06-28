@@ -1,6 +1,6 @@
 !! explanations are old, some are obsolate 
       module m_struc_def
-      public s_rv1, s_nv2, s_spec, s_site
+      public s_rv1, s_nv2, s_cv2,s_cv3,s_cv4,s_spec, s_site
       private
       
       type s_rv1
@@ -10,6 +10,16 @@
       type s_nv2
       integer,allocatable:: nv2(:,:)
       end type s_nv2
+
+      type s_cv2
+      complex(8),allocatable:: cv2(:,:)
+      end type s_cv2
+      type s_cv3
+      complex(8),allocatable:: cv3(:,:,:)
+      end type s_cv3
+      type s_cv4
+      complex(8),allocatable:: cv4(:,:,:,:)
+      end type s_cv4
       
 !! --- explanation of s_spec --- (some are obsolate)
 Cr  name    purpose

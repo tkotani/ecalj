@@ -1949,7 +1949,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc!!
         v_ssite(ib)%pz=v_sspec(is)%pz
    20 continue
 cccccccccccccccccccccccccccccccccccccccccccc
-      print *,'333xxx000 ibas pnu=',v_ssite(1)%pnu
+c      print *,'333xxx000 ibas pnu=',v_ssite(1)%pnu
 cccccccccccccccccccccccccccccccccccccccccccc
 
       

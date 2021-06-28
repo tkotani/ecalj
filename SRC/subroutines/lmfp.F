@@ -5,7 +5,7 @@
      &     ham_seref,ctrl_lfrce,
      &     lat_gam,lat_alat, lat_ldist,
      &     sspec=>v_sspec, ssite=>v_ssite, 
-     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks,plbnd
+     &     sstrnsymg, symgaf, nat, lldau,nlibu,lmaxu,stdo,lrout,leks,plbnd,lpzex
       use m_lattic,only: lat_dist,lat_plat,qlat=>lat_qlat,rv_a_opos,rv_a_odlv,rv_a_oqlv,
      &     lat_vol,lat_nkd,lat_awald,lat_nkq
       use m_mksym,only: rv_a_oag,rv_a_osymgr,iv_a_oistab,lat_nsgrp
@@ -198,15 +198,18 @@ C    +10 -> invoke smshft(1) after file read.
       
 !! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,llmfgw)
-      call m_qplist_qspdivider()!llmfgw)   !generate iqini:iqend,isini,isend  for each nodes
-!!
+      call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
+!! G vectors for qplist
       call m_igv2xall_init()
-!! Get all structure constants for nbas and qplist
-c      call m_bstrux_init()
       
 !! === Main iteration loops ===
       if( nitrlx>=1 ) allocate(pos_move(3,nbas))
       do 2000 itrlx = 1,max(1,nitrlx) ! loop for atomic position relaxiation (molecular dynamics) ===
+!! Get all structure constants for nbas and qplist
+         if(sum(lpzex)==0) call m_bstrux_init() !this reads ssite%pos %pz and so on.
+              ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here
+              ! if we have no extended local orbital.
+              ! When we have extentede local obtail, we run m_bstrux_init after elocp in mkpot.
          if( ipr>=30 ) then ! Write atom positions 
            write(stdo,"(/1x,a/' site spec',8x,'pos (Cartesian coordinates)',9x,
      &     'pos (multiples of plat)')") 'Basis, after reading restart file'

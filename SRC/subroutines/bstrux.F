@@ -1,22 +1,33 @@
       module m_bstrux
-C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
-      public:: bstrux, bstr, dbstr, iq_bstrux
-      complex(8),allocatable,protected:: bstr(:,:,:),dbstr(:,:,:)
+!! Structure constants for P_kL expansion of Bloch lmto + PW around site ia
+      use m_struc_def,only: s_cv3,s_cv4
+      public:: bstrux_set, bstr, dbstr, m_bstrux_init
+      complex(8),pointer,protected::  bstr(:,:,:)
+      complex(8),pointer,protected:: dbstr(:,:,:,:)
+      
+      type(s_cv3),allocatable,protected,private,target:: p_bstr(:,:)
+      type(s_cv4),allocatable,protected,private,target:: p_dbstr(:,:)
       real(8),allocatable,private:: qall(:,:)
       contains
       
-      integer function iq_bstrux(q)
+      subroutine bstrux_set(ia,q)
       use m_qplist,only: qplist,iqini,iqend
+      use m_lmfinit,only: lfrce=>ctrl_lfrce
+      implicit none
       real(8):: q(3),eps=1d-10
-      integer:: iq
-      do iq=iqini,iqend
-         if( sum( (q-qall(:,iq))**2 )<eps) then
-            iq_bstrux=iq
-            return
+      integer:: iq,iqx,ia
+      iq=-999
+      do iqx=iqini,iqend
+         if( sum( (q-qall(:,iqx))**2 )<eps) then
+            iq=iqx
+            exit
          endif
       enddo
-      write(6,*) q
-      call rx('iq_bstrux')
+c      print *,' bbbbbbbbbb iq q=',iq,q
+      if(iq==-999) call rx('err:bstrux_set')
+      bstr => p_bstr(ia,iq)%cv3
+      if(lfrce/=0) dbstr=> p_dbstr(ia,iq)%cv4
+c      write(6,*) q
       end
          
       subroutine m_bstrux_init() !q for qplist --> not yet for sugw.
@@ -27,53 +38,51 @@ C- Structure constants for P_kL expansion of Bloch lmto + PW around site ia
       integer:: kmaxx,ia,isa,lmxa,lmxb,kmax,nlmb,nlma,mode,inn(3),ig,iq,ndimhmax
       real(8):: pa(3),qin(3),q(3),qlatinv(3,3),rsma
       integer,allocatable:: igvapw(:,:)
-      kmaxx = maxval(kmxt(1:nspec))
+c      kmaxx = maxval(kmxt(1:nspec))
+c     ndimhmax=999 !dummy
+      if(allocated(qall)) deallocate(qall,p_bstr,p_dbstr)
       allocate(qall(3,iqini:iqend))
-ccccccccccccccccccccccccccccccccccccccccccccc
-
+      allocate(p_bstr(nbas,iqini:iqend),p_dbstr(nbas,iqini:iqend)) !iqini:iqend for each rank
       
-      ndimhmax=999 !dummy
-ccccccccccccccccccccccccc
-      allocate(               bstr(ndimhmax*nlmax*(kmaxx+1),  nbas,iqini:iqend))
-      if(lfrce/=0) allocate( dbstr(ndimhmax*nlmax*(kmaxx+1)*3,nbas,iqini:iqend))
       do 1200 iq = iqini, iqend !This is a big iq loop
         qin = qplist(:,iq) !qin
-        call m_Igv2x_setiq(iq) !qin)    ! Get napw and so on for given qp
-        if(napw/=0) allocate(igvapw(3,napw))
+        call m_Igv2x_setiq(iq) ! Get napw,ndimh, and so on for given iq
+        allocate(igvapw(3,napw))
         print *,'iqini,iqend=',iqini,iqend,napw
 ccccccccccccccccccccccccccccccccccccc
-!! this is from hambl.F ---------
+!! See hambl.F calling augmbl, calling bstrux_set
 !! input and output
 !!   qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))) for h,o,hso
 !! internal
 !!   qpg(ig) = tpiba * ( q  + matmul(qlat,igapw(1:3,ig)))
 !!  NOTE: both qpg are the same for given ig.
 !! qlat*igapw = qlat*igqwin + (qin-q) ---> igvapw = igvapwin + matmul(qlatinv,qin-q)
-       qlatinv = transpose(plat)
-       call shorbz(qin,q,qlat,plat) !is this fine?
-       call rtoint(matmul(qlatinv,qin-q),inn,3)
-       do ig=1,napw
-        igvapw(:,ig) = inn + igvapwin(:,ig)
-       enddo  
+        qlatinv = transpose(plat)
+        call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
+        call rtoint(matmul(qlatinv,qin-q),inn,3) 
+        do ig=1,napw
+           igvapw(:,ig) = inn + igvapwin(:,ig)
+        enddo  
 ccccccccccccccccccccccccccccccccccccc
         do ia=1,nbas
-        isa=ssite(ia)%spec
-        pa=ssite(ia)%pos
-        lmxa=sspec(isa)%lmxa !max l of augmentation
-        lmxb=sspec(isa)%lmxb !max l of basis
-        kmax=sspec(isa)%kmxt !max of radial k
-        rsma=sspec(isa)%rsma
-        nlmb = (lmxb+1)**2
-        nlma = (lmxa+1)**2
-        if (lmxa .eq. -1) cycle
-C   --- Make strux to expand all orbitals at site ia ---
-        mode = 2
-        qall(:,iq)=q
-        if(lfrce/=0) mode=1
-        call bstrux ( mode ,  ia , pa , rsma , q , 
-     .       kmax , nlma , ndimh , napw , igvapw , bstr(:,ia,iq) , dbstr(:,ia,iq) )
+           isa=ssite(ia)%spec
+           pa=ssite(ia)%pos
+           lmxa=sspec(isa)%lmxa !max l of augmentation
+           lmxb=sspec(isa)%lmxb !max l of basis
+           kmax=sspec(isa)%kmxt !max of radial k
+           rsma=sspec(isa)%rsma
+           nlma = (lmxa+1)**2
+           if (lmxa .eq. -1) cycle
+           allocate(                p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) )
+           if(lfrce/=0) allocate(  p_dbstr(ia,iq)%cv4(ndimh,nlma,0:kmax,3) )
+!  --- Make strux to expand all orbitals at site ia ---
+           qall(:,iq)=q
+           mode = 2
+           if(lfrce/=0) mode=1
+           call bstrux ( mode ,  ia , pa , rsma , q , 
+     .          kmax , nlma , ndimh , napw , igvapw , p_bstr(ia,iq)%cv3, p_dbstr(ia,iq)%cv4 )
         enddo 
-        if(napw/=0)  deallocate(igvapw)
+        deallocate(igvapw)
  1200 continue
       end
       
