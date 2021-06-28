@@ -19,7 +19,7 @@
      &     zbak !,ldos=>ctrl_ldos!,bz_dosw
       use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
       use m_supot,only: lat_nabc,k1,k2,k3
-      use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
       use m_lmfinit,only: iprmb,ham_ldham 
       use m_subzi, only: lwtkb,nevmx, lswtk,wtkb=>rv_a_owtkb
       use m_mkqp,only: wtkp=>rv_a_owtkp

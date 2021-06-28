@@ -1,9 +1,10 @@
       module m_igv2x
       use m_struc_def,only: s_nv2
-      integer,protected,pointer :: igv2x(:,:)
-      integer,protected,pointer ::napw,ndimh,ndimhx
-
+      public:: m_igv2xall_init, m_igv2x_setiq
+      integer,protected,pointer,public :: igv2x(:,:)
+      integer,protected,pointer,public ::napw,ndimh,ndimhx
       
+      private
       integer,protected,private,target ::napw_z,ndimh_z,ndimhx_z
       type(s_nv2),allocatable,target,protected,private:: igv2xall(:)
       integer,allocatable,target,protected,private:: napwall(:),ndimhall(:),ndimhxall(:),igv2x_z(:,:)
@@ -19,27 +20,27 @@
       igv2x => igv2xall(iq)%n
       end
       
-!!-----------------------------      
-      subroutine m_Igv2x_set(qpin) ! Get napw and so on for given qp
-      use m_qplist,only: qplist,iqini,iqend
-      real(8)::qpin(3),qp(3)
-      integer::iq,iqx
-c      if(init) then
-c         call m_igv2xall_init()
-c         init=.false.
-c      endif
-      do iqx= iqini,iqend
-         qp = qplist(:,iqx)
-         if(sum((qp-qpin)**2)<1d-8) then
-            iq=iqx
-            exit
-         endif
-      enddo
-      napw  => napwall(iq) 
-      ndimh => ndimhall(iq)
-      ndimhx=> ndimhxall(iq)
-      igv2x => igv2xall(iq)%n
-      end
+c$$$!!-----------------------------      
+c$$$      subroutine m_Igv2x_set(qpin) ! Get napw and so on for given qp
+c$$$      use m_qplist,only: qplist,iqini,iqend
+c$$$      real(8)::qpin(3),qp(3)
+c$$$      integer::iq,iqx
+c$$$c      if(init) then
+c$$$c         call m_igv2xall_init()
+c$$$c         init=.false.
+c$$$c      endif
+c$$$      do iqx= iqini,iqend
+c$$$         qp = qplist(:,iqx)
+c$$$         if(sum((qp-qpin)**2)<1d-8) then
+c$$$            iq=iqx
+c$$$            exit
+c$$$         endif
+c$$$      enddo
+c$$$      napw  => napwall(iq) 
+c$$$      ndimh => ndimhall(iq)
+c$$$      ndimhx=> ndimhxall(iq)
+c$$$      igv2x => igv2xall(iq)%n
+c$$$      end
 !!-----------------------------      
       subroutine m_igv2xall_init()
       use m_qplist,only: qplist,iqini,iqend
@@ -70,7 +71,8 @@ c      endif
       integer:: ifiese
       integer,allocatable ::  kv_iv(:,:) 
       real(8):: ppin(3),qp(3),qqq(3),pwgmin,pwgmax,dum
-      logical:: init=.true.,debug,cmdopt0
+      logical:: debug,cmdopt0
+      logical,save:: init=.true.
       integer,parameter:: noutmx=48
       integer:: iout,nout,nlatout(3,noutmx),iapw,napwx
       debug    = cmdopt0('--debugbndfp')

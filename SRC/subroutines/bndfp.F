@@ -68,7 +68,7 @@
      &     nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,
      &  iqini,iqend,ispini,ispend,kpproc    ! MPIK divider. iqini:iqend are node-dependent
       use m_shortn3,only: shortn3, shortn3_initialize
-      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x
       use m_procar,only: m_procar_init,dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos
       use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce,
      o     evlall,smrho_out,sv_p_oqkkl,sv_p_oeqkkl, ndimhx_,nev_,nevls,m_bandcal_symsmrho
