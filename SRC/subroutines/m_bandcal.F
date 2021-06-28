@@ -102,7 +102,8 @@ ccccccccccccccc
 ccccccccccccccc           
             jsp = isp
             if(lso==1) jsp = 1
-!! hambl calls augmbl.  augmbl calculates C_kl(=array b in the program)
+! Hambl calls augmbl.
+! See Appendix C in http://dx.doi.org/10.7566/JPSJ.84.034702
 !! finally makes F~F~=F0F0+(F1F1-F2F2), which is overlap matrix, s.
 !! Note that F2=Hankel head at a site + Hankel tail contributions from the other site.
             

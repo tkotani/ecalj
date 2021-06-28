@@ -56,8 +56,8 @@ c$$$      end
          napwall(iq) = napw_z
          ndimhall(iq)= ndimh_z
          ndimhxall(iq)=ndimhx_z
-         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iqini,iqend,procid
-         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iq,napw,ndimh,ndimhx
+c         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iqini,iqend,procid
+cc         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iq,napw,ndimh,ndimhx
       enddo
       end subroutine
       
