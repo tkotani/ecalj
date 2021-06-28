@@ -37,7 +37,7 @@
       real(8):: qp(3),ef0,def=0d0,xv(3)
       real(8),allocatable:: evl(:,:) !eigenvalue
       complex(8),allocatable :: evec(:,:) !eigenvector
-      integer::  pidorigin,iprint,i,ibas
+      integer::  iprint,i,ibas
       logical:: ltet,cmdopt0,dmatuinit=.true.
       if(master_mpi) write(stdo,*)' m_bandcal_init: start'
       sigmamode = mod(lrsig,10)/=0
