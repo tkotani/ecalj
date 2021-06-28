@@ -1,11 +1,67 @@
       module m_igv2x
-c      public:: m_igv2x_set,napw,igv2x
-      integer,allocatable,protected:: igv2x(:,:)
-      integer,protected::napw,ndimh,ndimhx
+      use m_struc_def,only: s_nv2
+      integer,protected,pointer :: igv2x(:,:)
+      integer,protected,pointer ::napw,ndimh,ndimhx
+
       
-c      private
+      integer,protected,private,target ::napw_z,ndimh_z,ndimhx_z
+      type(s_nv2),allocatable,target,protected,private:: igv2xall(:)
+      integer,allocatable,target,protected,private:: napwall(:),ndimhall(:),ndimhxall(:),igv2x_z(:,:)
+      logical,private:: init=.true.
       contains
-      subroutine m_igv2x_set(qp) !Set napw and igv2x for given qp
+      
+!!-----------------------------      
+      subroutine m_Igv2x_setiq(iq) ! Get napw and so on for given qp
+      integer:: iq
+      napw  => napwall(iq) 
+      ndimh => ndimhall(iq)
+      ndimhx=> ndimhxall(iq)
+      igv2x => igv2xall(iq)%n
+      end
+      
+!!-----------------------------      
+      subroutine m_Igv2x_set(qpin) ! Get napw and so on for given qp
+      use m_qplist,only: qplist,iqini,iqend
+      real(8)::qpin(3),qp(3)
+      integer::iq,iqx
+c      if(init) then
+c         call m_igv2xall_init()
+c         init=.false.
+c      endif
+      do iqx= iqini,iqend
+         qp = qplist(:,iqx)
+         if(sum((qp-qpin)**2)<1d-8) then
+            iq=iqx
+            exit
+         endif
+      enddo
+      napw  => napwall(iq) 
+      ndimh => ndimhall(iq)
+      ndimhx=> ndimhxall(iq)
+      igv2x => igv2xall(iq)%n
+      end
+!!-----------------------------      
+      subroutine m_igv2xall_init()
+      use m_qplist,only: qplist,iqini,iqend
+      use m_MPItk,only: master_mpi,procid,master
+      integer:: iq
+      real(8):: qp(3)
+      allocate(igv2xall(iqini:iqend),napwall(iqini:iqend),ndimhall(iqini:iqend),ndimhxall(iqini:iqend))
+      do iq = iqini, iqend !This is a big iq loop
+         qp = qplist(:,iq)
+         call m_Igv2x_init(qp)   ! Get napw and so on for given qp
+         allocate( igv2xall(iq)%n(3,napw_z) )
+         igv2xall(iq)%n = igv2x_z
+         napwall(iq) = napw_z
+         ndimhall(iq)= ndimh_z
+         ndimhxall(iq)=ndimhx_z
+         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iqini,iqend,procid
+         write(6,*) 'xxxiiiiiiiiiqqqqqqqq',iq,napw,ndimh,ndimhx
+      enddo
+      end subroutine
+      
+!!-----------------------------      
+      subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp
       use m_lmfinit,only: pwmode=>ham_pwmode,pwemin,pwemax,alat=>lat_alat,stdo,nspc
       use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
       use m_MPItk,only: master_mpi,procid,master
@@ -36,7 +92,7 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
          endif
       endif
       
-      if(allocated(igv2x)) deallocate(igv2x)
+      if(allocated(igv2x_z)) deallocate(igv2x_z)
       if (pwemax>0 .and. mod(pwmode,10)>0) then
          pwgmin = pwemin**.5d0
          pwgmax = pwemax**.5d0
@@ -44,13 +100,13 @@ c      print *,'mmmmmmm master_mpi=',master_mpi,procid,master
          if (mod(pwmode/10,10) == 1) qqq = qp !pwmode 1 in 10th digit means q-dependent nw
          call pshpr(1) !gvlst2 calls shortn3_initialize==>confusing(but initialization qlat is the same)
          call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,0,napwx,napwx,dum,dum,dum,dum) !get napw
-         napw=napwx
-         allocate(igv2x(3,napw), kv_iv(3,napw))
-         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw,napw,kv_iv,dum,dum,igv2x)
+         napw_z=napwx
+         allocate(igv2x_z(3,napw_z), kv_iv(3,napw_z))
+         call gvlst2(alat,plat,qqq,0,0,0,pwgmin,pwgmax,0,2,napw_z,napw_z,kv_iv,dum,dum,igv2x_z)
          call poppr
          if (pwmode<10) then
-            do iapw=1,napw
-               igv2x(:,iapw)=igv2x(:,iapw)+nlatout(:,1)
+            do iapw=1,napw_z
+               igv2x_z(:,iapw)=igv2x_z(:,iapw)+nlatout(:,1)
             enddo
          endif
          deallocate(kv_iv)      !we only keep 
@@ -59,11 +115,20 @@ c         if (ndimh .gt. ndham) then
 c            call rx('bndfp:something wrong ndimh>ndham')
 c         endif
       else
-         napw=0 
-         allocate(igv2x(1,1))   !dummy
+         napw_z=0 
+         allocate(igv2x_z(1,1))   !dummy
       endif
-      ndimh = ldham(1)+napw     ! ldim+napw
-      if (mod(pwmode,10)==2) ndimh = napw !APW-only mode
-      ndimhx = ndimh*nspc       !this is iq-dependent.
+      ndimh_z = ldham(1)+napw_z     ! ldim+napw
+      if (mod(pwmode,10)==2) ndimh_z = napw_z !APW-only mode
+      ndimhx_z = ndimh_z*nspc       !this is iq-dependent.
+
+
+cccccccccccccccccccccc
+c      if(allocated(igv2x)) deallocate(igv2x)
+c      allocate(igv2x(3,napw_z))
+c      igv2x=igv2x_z !xall(iq)%n
+ccccccccccccccccccccc
+
+      
       end
       end module

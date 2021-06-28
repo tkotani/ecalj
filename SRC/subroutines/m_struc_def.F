@@ -1,10 +1,15 @@
 !! explanations are old, some are obsolate 
       module m_struc_def
-      public s_rv1, s_spec, s_site
+      public s_rv1, s_nv2, s_spec, s_site
       private
+      
       type s_rv1
       real(8),allocatable:: v(:)
       end type s_rv1
+      
+      type s_nv2
+      integer,allocatable:: n(:,:)
+      end type s_nv2
       
 !! --- explanation of s_spec --- (some are obsolate)
 Cr  name    purpose

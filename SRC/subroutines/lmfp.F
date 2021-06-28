@@ -24,6 +24,7 @@
       use m_lmfgw,only: m_lmfgw_init
       use m_hamindex,only: m_hamindex_init
       use m_bstrux,only: m_bstrux_init
+      use m_igv2x,only: m_igv2xall_init
 c      use m_uspecb,only:uspecb
 !! = Main routine of lmf = (following document is roughly checked at May2021)
 !! lmfp contains two loops after initialization
@@ -198,7 +199,8 @@ C    +10 -> invoke smshft(1) after file read.
 !! Get q point list at which we do band calculations
       call m_qplist_init(plbnd,llmfgw)
       call m_qplist_qspdivider()!llmfgw)   !generate iqini:iqend,isini,isend  for each nodes
-      
+!!
+      call m_igv2xall_init()
 !! Get all structure constants for nbas and qplist
 c      call m_bstrux_init()
       
