@@ -17,7 +17,7 @@
       napw  => napwall(iq) 
       ndimh => ndimhall(iq)
       ndimhx=> ndimhxall(iq)
-      igv2x => igv2xall(iq)%n
+      igv2x => igv2xall(iq)%nv2
       end
       
 c$$$!!-----------------------------      
@@ -51,8 +51,8 @@ c$$$      end
       do iq = iqini, iqend !This is a big iq loop
          qp = qplist(:,iq)
          call m_Igv2x_init(qp)   ! Get napw and so on for given qp
-         allocate( igv2xall(iq)%n(3,napw_z) )
-         igv2xall(iq)%n = igv2x_z
+         allocate( igv2xall(iq)%nv2(3,napw_z) )
+         igv2xall(iq)%nv2 = igv2x_z
          napwall(iq) = napw_z
          ndimhall(iq)= ndimh_z
          ndimhxall(iq)=ndimhx_z
@@ -128,7 +128,7 @@ c         endif
 cccccccccccccccccccccc
 c      if(allocated(igv2x)) deallocate(igv2x)
 c      allocate(igv2x(3,napw_z))
-c      igv2x=igv2x_z !xall(iq)%n
+c      igv2x=igv2x_z !xall(iq)%nv2
 ccccccccccccccccccccc
 
       

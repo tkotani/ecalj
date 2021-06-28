@@ -3,7 +3,6 @@
 
       integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
       integer,protected:: iqini,iqend,ispini,ispend      !for current rank
-      
       real(8),allocatable,protected:: qplist(:,:)
       integer,protected:: nkp,nsyml=0, ngpmx ,nqi,iqibzmax
       integer,protected:: nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
@@ -64,14 +63,15 @@ c      intent(out)::                  readeferm,eferm
                read(ifiqg)
                cycle
             endif   
-            if(irr==1)       iqibz=iqibz+1
-            if(iqibz==nqibz) iqibzmax=iq
             nkp = nkp+1
             qplist(:,nkp) = q
             ngplist(nkp)  = ngp
+            iqibz=iqibz+1
+            if(iqibz==nqibz) iqibzmax=nkp
             read(ifiqg) ngvecp(1:3,1:ngp,nkp)
             write(ifqplist,"(i5,3f23.15)")nkp, qplist(:,nkp) !,ngplist(nkp)
          enddo
+c         print *,' nqibz iqibzmax=',nqibz,iqibzmax
          close(ifiqg)
          close(ifqplist)
 !! self-consistent calculaiton      
@@ -215,6 +215,7 @@ c 1013       continue
          if(.not.master_mpi) allocate(ngvecp(3,ngpmx,nkp))
          call mpibc1_int(ngplist, nkp, 'qplist_ngp' )
          call mpibc1_int( ngvecp,  3*ngpmx*nkp,  'qplist_ngvecp' )
+         call mpibc1_int( iqibzmax,1, 'qplist_iqibzmax')
       endif
 !!      
       if (master_mpi.and.nsyml>0) then !plbnd mode

@@ -13,15 +13,15 @@
       use m_supot,only: lat_nabc, lat_gmax
       use m_rdsigm2,only: getsenex, senex,dsene
       use m_mksym,only: lat_npgrp,lat_nsgrp
-      use m_shortn3,only: shortn3_initialize,shortn3
+c      use m_shortn3,only: shortn3_initialize,shortn3
       use m_mkpot,only: 
      &     smpot=>osmpot, sv_p_osig, sv_p_otau, sv_p_oppi, vconst, vesrmt, sv_p_osig, sv_p_otau, sv_p_oppi,
      &     ppn=>ppnl_rv
       use m_mkpot,only: sv_p_osigx,sv_p_otaux,sv_p_oppix,spotx
       use m_MPItk,only: numproc=>nsize,procid,master,master_mpi
-      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq!,m_Igv2x_set
+      use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq
       use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
-      use m_qplist,only: iprocq
+      use m_qplist,only: qplist,ngplist,ngvecp, iqini,iqend,ispini,ispend,iqibzmax      !for current rank iprocq,
       implicit none
 !! == Driver for fpgw (to prepare eigenfuncitons for fpgw) ==
 !! NOTE: following documents are not carefully examined. Not believe everything.
@@ -95,12 +95,12 @@
      & ificlass,ifievec,ifievecx,ifigw2,ifiqbz,ifievv
       complex(8) ,allocatable :: aus_zv(:)
       real(8) ,allocatable :: ww_rv(:)
-      real(8) q(3),QpGcut_psi,QpGcut_cou,dum,dval,
+      real(8):: QpGcut_psi,QpGcut_cou,dum,dval,
      .xx(5),gmax,pnu(n0,2),pnz(n0,2),ecore(50),a,z,rmt(nbas),b,vshft,
      .alat,alfa,ef0,plat(3,3),qlat(3,3),qp(3),qpos,q_p(3), !,qx(3)
      .epsovl,dgets
       integer ,allocatable:: ips(:),ipc(:),ipcx(:),lmxa(:),
-     .nlindx(:,:,:),ngvecp(:,:),ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:)
+     .nlindx(:,:,:),ngvecp_p(:,:) !takao feb2012 ,ngvecc(:,:) ,ngvecp(:,:)
       integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:)
       real(8) ,allocatable:: wk(:,:),
      .bas(:,:),rofi(:),rwgt(:),gcore(:,:,:),gval(:,:,:,:,:),evl(:,:)
@@ -186,8 +186,7 @@ c      complex(8):: sfz(nk1,nk2,nk3,ndham,ndham,*) !takao assume ndham =ndimh, O
       magexist=.false.
  113  continue
 
-c      rank0=.false.
-c      if(procid==master) rank0=.true.
+!!--------------------      
       call getpr(ipr)
       alat=lat_alat
       n1 = lat_nabc(1)
@@ -213,19 +212,7 @@ c      if(procid==master) rank0=.true.
         ipb(i) = nat
       enddo
 
-c!! Select jobgw
-c      if (jobgw .eq. -999) then
-c        write(stdo,*) ' lmfgw: Select following job:'
-c        write(stdo,*) '  job=-1 : creates files:  GWinput, QPNT, QIBZ, Q0P, QGpsi, QGcou, KPTin1BZ'
-c        write(stdo,*) '  job= 0 : init mode; creates files: SYMOPS, LATTC, CLASS, NLAindx, ldima'
-c        write(stdo,*) '  job= 1 : GW setup mode; creates: files gwb,gw1,gw2,gwa,vxc,evec,rhoMT.*,normchk'
-c        write(stdo,*) '  job=?'
-c        read (5,*) jobgw
-c      endif
-c      if(iprint()>10) write(stdo,'(/a,i2)')' gw setup, jobgw', jobgw
-c      if(jobgw<=-2.or.jobgw>=2) call rx('jobgw number error')
       lsig = 1
-c      napw = 0
       i_copy_size=size(ham_ldham)
       call icopy(i_copy_size,ham_ldham,1,ldham,1)
       ldim=ldham(1,1)
@@ -249,89 +236,6 @@ c      napw = 0
         endif
       enddo
 
-c$$$!! === Make files SYMOPS, LATTC, CLASS, NLAindx, ldima ===
-c$$$      if (jobgw==0 .and. rank0) then
-c$$$        call info(30,1,1,' Creating files SYMOPS, LATTC, CLASS, NLAindx, ldima',0,0)
-c$$$        allocate(lmxa(nbas),bas(3,nbas)) 
-c$$$!! ldima
-c$$$        open(newunit= ifildima,file='ldima') 
-c$$$        do  ib = 1, nbas
-c$$$          lmxa(ib) = sspec(int(ssite(ib)%spec))%lmxa  !int(sspec(ips(ib))%lmxa)
-c$$$          if (lmxa(ib) .gt. -1) then
-c$$$            call orbl ( ib , 0 , ldim , iprmb , norb , ltab , ktab , xx , offl , i1 )
-c$$$            write(ifildima,"(3i10)") i1
-c$$$          endif
-c$$$       enddo
-c$$$       close(ifildima)
-c$$$!! LATTC
-c$$$        lmxax = mxint(nbas,lmxa)
-c$$$        allocate(konft(0:lmxax,nbas,nsp))
-c$$$        do ib = 1, nbas
-c$$$           is = ssite(ib)%spec
-c$$$           call dcopy(size(ssite(ib)%pnu), ssite(ib)%pnu,1,pnu,1)
-c$$$           call dcopy(size(ssite(ib)%pz),  ssite(ib)%pz, 1,pnz,1)
-c$$$           do  isp = 1, nsp
-c$$$              do  l  = 0, lmxa(ib)
-c$$$                 konft(l,ib,isp) = pnu(l+1,isp)
-c$$$                 if( mod(pnz(l+1,isp),10d0) .lt. pnu(l+1,isp) .and. pnz(l+1,isp) .gt. 0) then
-c$$$                    konft(l,ib,isp) = mod(pnz(l+1,isp),10d0)
-c$$$                 endif    
-c$$$              enddo
-c$$$           enddo
-c$$$        enddo
-c$$$        call wlattc(alat,plat,nbas,nat,ipb,lmxax,lmxa,nsp,konft)
-c$$$!! NLAindx
-c$$$        ifinlaindx = fopnx('NLAindx',2,2,-1)
-c$$$        rewind ifinlaindx
-c$$$        write(ifinlaindx,'(''----NLAindx start---------------''/I6)') ndima
-c$$$        ndima = 0
-c$$$!!    This loop order is backwardly compatible with prior versions
-c$$$        do  ipqn = 1, 3
-c$$$          do  ib = 1, nbas
-c$$$            is =  ssite(ib)%spec
-c$$$            lmaxa=sspec(is)%lmxa
-c$$$            i_copy_size=size(ssite(ib)%pnu)
-c$$$            call dcopy  (i_copy_size ,ssite(ib)%pnu,1,pnu,1)
-c$$$            i_copy_size=size(ssite(ib)%pnu)
-c$$$            call dcopy  (i_copy_size,ssite(ib)%pz, 1,pnz,1)
-c$$$            call icopy(sspec(is)%idxdn,sspec(is)%idxdn,1,idxdn,1)
-c$$$            if (lmaxa .gt. -1) then
-c$$$              do  l = 0, lmaxa
-c$$$                npqn = 2
-c$$$                if (pnz(l+1,1) .ne. 0) npqn = 3
-c$$$                if (ipqn .le. npqn) then
-c$$$                  konf = pnu(l+1,1)
-c$$$                  if (ipqn .eq. 3) konf = mod(pnz(l+1,1),10d0)
-c$$$                  strn4 = dig(konf)//lsym(l)//'_'//lorb(ipqn)
-c$$$                  if (idxdn(l+1,1) .eq. 1 .or. idxdn(l+1,2) .eq. 1)
-c$$$     .            call chcase(0,1,strn4(2:2))
-c$$$                  write(ifinlaindx,'(i6,i3,i4,i6,4x,a)')
-c$$$     .            ipqn, l, ipb(ib), ndima, strn4
-c$$$                  ndima = ndima + (2*l+1)
-c$$$                endif
-c$$$              enddo
-c$$$            endif
-c$$$          enddo
-c$$$        enddo
-c$$$        call fclr(' ',ifinlaindx)
-c$$$!! CLASS
-c$$$        ificlass = fopnx('CLASS',2,2,-1)
-c$$$        rewind ificlass
-c$$$        allocate(ipc(nbas),ipcx(nbas))
-c$$$        do ib=1,nbas
-c$$$           ipc(ib) = ssite(ib)%class !call spackv_array_copy_i8_i('u',ssite(ib)%class,1,ib,ipc)
-c$$$        enddo
-c$$$        call pvsug1(nbas,lmxa,ipc,ipcx)
-c$$$        do  i = 1, nbas
-c$$$           if(lmxa(i) .gt. -1) then
-c$$$              write(ificlass,'(2I4)') ipb(i), ipcx(i)
-c$$$           endif
-c$$$        enddo
-c$$$        deallocate(ipc,ipcx)
-c$$$        call fclr(' ',ificlass)
-c$$$        call fexit(0,1,' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima',0)
-c$$$      endif
-
 !! ==== Read file NLAindx ====
       allocate(nlindx(3,0:lmxax,nat))
       ifinlaindx = fopnx('NLAindx',2,1,-1)
@@ -343,122 +247,120 @@ c      endif
 !! ==== Write, or read past header information, file gwb ====
       ifigwb = fopna('gwb',-1,4)
       rewind ifigwb
-      if(jobgw==1) then
-        ef0 = 1d99                !dummy
-        ifigwn = fopna('gw1',-1,4)
-        rewind ifigwn
-        ifigwn = fopna('gw2',-1,4)
-        rewind ifigwn
-        if(master_mpi) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
-        allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
-        iat = 0
-        do  i = 1, nbas
-          lmaxa = int( sspec(int(ssite(i)%spec))%lmxa )
-          if (lmaxa .gt. -1) then
+      
+      ef0 = 1d99                !dummy
+      ifigwn = fopna('gw1',-1,4)
+      rewind ifigwn
+      ifigwn = fopna('gw2',-1,4)
+      rewind ifigwn
+      if(master_mpi) write(ifigwb) nat,nsp,ndima,ndham,alat,qlat,ef0,nqbz,plat,nqnum,nqi
+      allocate(ips(nbas),lmxa(nat),bas(3,nat),iantiferro(nat))
+      iat = 0
+      do  i = 1, nbas
+         lmaxa = int( sspec(int(ssite(i)%spec))%lmxa )
+         if (lmaxa .gt. -1) then
             iat = iat + 1
             if (iat .gt. nat) call rx('bug in sugw')
             bas(:,iat)=ssite(i)%pos
             lmxa(iat) = lmaxa
             iantiferro(iat)=ssite(i)%iantiferro
-          endif
-        enddo
-        if(master_mpi) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
-        print *,'iantiferro=',iantiferro
-        deallocate(ips,lmxa)
+         endif
+      enddo
+      if(master_mpi) write(ifigwb) lmxa(1:nat), bas(1:3,1:nat)
+      print *,'iantiferro=',iantiferro
+      deallocate(ips,lmxa)
 
-!!   ... Determine nphimx
-        nphimx = 0
-        do  i = 1, nbas
-          is=ssite(i)%spec
-          i_copy_size=size(ssite(i)%pnu)
-          call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
-          i_copy_size=size(ssite(i)%pz)
-          call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          z=sspec(is)%z
-          rmt(i)=sspec(is)%rmt
-          lmaxa = int(sspec(is)%lmxa)
-          nmcore=sspec(is)%nmcore
-          if (lmaxa .gt. -1) then
+!     !   ... Determine nphimx
+      nphimx = 0
+      do  i = 1, nbas
+         is=ssite(i)%spec
+         i_copy_size=size(ssite(i)%pnu)
+         call dcopy(i_copy_size,ssite(i)%pnu,1,pnu,1)
+         i_copy_size=size(ssite(i)%pz)
+         call dcopy(i_copy_size,ssite(i)%pz,1,pnz,1)
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         z=sspec(is)%z
+         rmt(i)=sspec(is)%rmt
+         lmaxa = int(sspec(is)%lmxa)
+         nmcore=sspec(is)%nmcore
+         if (lmaxa .gt. -1) then
             call atwf(0,a,lmaxa,nr,nsp,pnu,pnz,rsml,ehl,rmt(i),z,w,i1,ncore,konfig,ecore,w,w,nmcore)
             nphimx = max(nphimx,i1)
-          endif
-        enddo
-C   ... Atom data (gwa)
-        call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
-        if(master_mpi) ifigwa = fopna('gwa',-1,4)
-        if(master_mpi) rewind ifigwa
-        do  ib = 1, nbas
-          is=ssite(ib)%spec
-          i_copy_size=size(ssite(ib)%pnu)
-          call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
-          i_copy_size=size(ssite(ib)%pz)
-          call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
-          a=sspec(is)%a
-          nr=sspec(is)%nr
-          z=sspec(is)%z
-          rmt(ib)=sspec(is)%rmt
-          lmaxa = int(sspec(is)%lmxa)
-c          call spacks_copy('u',sspec(is)%name,is,is,spid,is)
-          spid=sspec(is)%name
-c          print *,' ssssssss spid='//spid//'###'
-          if (lmaxa .gt. -1) then
+         endif
+      enddo
+      
+!! Atom data (gwa)
+      call info(30,1,1,' ... Generate core wave functions (file gwa)', 0,0)
+      if(master_mpi) ifigwa = fopna('gwa',-1,4)
+      if(master_mpi) rewind ifigwa
+      do  ib = 1, nbas
+         is=ssite(ib)%spec
+         i_copy_size=size(ssite(ib)%pnu)
+         call dcopy(i_copy_size,ssite(ib)%pnu,1,pnu,1)
+         i_copy_size=size(ssite(ib)%pz)
+         call dcopy(i_copy_size,ssite(ib)%pz,1,pnz,1)
+         a=sspec(is)%a
+         nr=sspec(is)%nr
+         z=sspec(is)%z
+         rmt(ib)=sspec(is)%rmt
+         lmaxa = int(sspec(is)%lmxa)
+c     call spacks_copy('u',sspec(is)%name,is,is,spid,is)
+         spid=sspec(is)%name
+c     print *,' ssssssss spid='//spid//'###'
+         if (lmaxa .gt. -1) then
             call atwf ( 0 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
-     .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
-     .       , w ,nmcore)
+     .           , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , i1 , ncore , konfig , ecore , w 
+     .           , w ,nmcore)
             allocate(rofi(nr),rwgt(nr),gcore(nr,2,ncore))
             allocate(gval(nr,2,0:lmaxa,nphimx,nsp))
             call dpzero(gval,nr*2*(1+lmaxa)*nphimx*nsp)
 !     !         Create augmented wave functions for this atom
-c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
+c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
             rsml=rsmlss(:,is)
             ehl= ehlss(:,is)
             call atwf ( 03 , a , lmaxa , nr , nsp , pnu , pnz , rsml , ehl
-     .       , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
-     .       , gcore , gval ,nmcore)
-!!         Header data for this atom
+     .           , rmt ( ib ) , z , ssite(ib)%rv_a_ov0 , nphimx , ncore , konfig , ecore 
+     .           , gcore , gval ,nmcore)
+!     !         Header data for this atom
             b = rmt(ib)/(dexp(a*nr-a)-1d0)
             call radmsh(rmt(ib),a,nr,rofi)
             call radwgt(rmt(ib),a,nr,rwgt)
             if(master_mpi)write(ifigwa) z, nr, a, b, rmt(ib), lmaxa, nsp, ncore,spid
             if(master_mpi)write(ifigwa) konfig(0:lmaxa)
             if(master_mpi)write(ifigwa) rofi
-!!         Write orthonormalized valence wave functions for this atom
+!     !         Write orthonormalized valence wave functions for this atom
             do  l = 0, lmaxa
-              do  i = 1, nsp
-                if(master_mpi)write(ifigwa) l,i
-                if(master_mpi)write(ifigwa) gval(1:nr,1,l,1,i)
-                if(master_mpi)write(ifigwa) gval(1:nr,1,l,2,i)
-                if (konfig(l) .ge. 10.and.master_mpi) write(ifigwa) gval(1:nr,1,l,3,i)
-              enddo
+               do  i = 1, nsp
+                  if(master_mpi)write(ifigwa) l,i
+                  if(master_mpi)write(ifigwa) gval(1:nr,1,l,1,i)
+                  if(master_mpi)write(ifigwa) gval(1:nr,1,l,2,i)
+                  if (konfig(l) .ge. 10.and.master_mpi) write(ifigwa) gval(1:nr,1,l,3,i)
+               enddo
             enddo
-!!         Core wave functions for this atom
+!     !         Core wave functions for this atom
             icore = 0
             vshft = vesrmt(ib)
-!!        As of v6.11, shift is included in v0, passed in vval to
-!!         locpot, in routine mkpot.f
+!     !        As of v6.11, shift is included in v0, passed in vval to
+!     !         locpot, in routine mkpot.f
             vshft = 0
             do  l = 0, lmaxa
-              do  isp = 1, nsp
-                do  konf = l+1, mod(konfig(l),10)-1
-                  icore = icore+1
-                  if(master_mpi)write(ifigwa) icore, l, isp, konf, ecore(icore)+vshft
-                  if(master_mpi)write(ifigwa) gcore(1:nr,1,icore)
-                enddo
-              enddo
+               do  isp = 1, nsp
+                  do  konf = l+1, mod(konfig(l),10)-1
+                     icore = icore+1
+                     if(master_mpi)write(ifigwa) icore, l, isp, konf, ecore(icore)+vshft
+                     if(master_mpi)write(ifigwa) gcore(1:nr,1,icore)
+                  enddo
+               enddo
             enddo
             deallocate(rofi,rwgt,gcore,gval)
-          endif
-        enddo
-        if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
-        if(master_mpi) call fclr('gwa',ifigwa)
-      else
-        call rxi('sugw: bad jobgw',jobgw)
-      endif
+         endif
+      enddo
+      if(master_mpi) write(ifigwa) iantiferro(1:nat) !iantiferro may2015
+      if(master_mpi) call fclr('gwa',ifigwa)
 
 !! == GW setup loop over k-points ==
-      if (lchk .ge. 1 .and. jobgw .eq. 1) then
+      if (lchk>=1 ) then
         ifinormchk = fopna('normchk',-1,0)
         rewind ifinormchk
         write(ifinormchk,849)
@@ -468,28 +370,20 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
 !! Write, or read ngpmx
       if(master_mpi) then
          ifigwb = fopna('gwb',-1,4)
-         if (jobgw .eq. 1) then
          write(ifigwb) ngpmx
-         else
-         read(ifigwb)
-         endif
       endif
-
-!! mar2012 rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
-      nnn=nqibz
 
 !! --- Evecs and matrix elements of vxc for irr qp ---
 !!    Note: this routine should use only irr qp.
       if (lsig > 0) then
-        if (jobgw==1) then
         if (.not. cmdopt0('--novxc')) then
+           nnn=nqibz      !!! mar2012 rotwv mode. on regular mesh, only eigenfunctions for nqibz are required.
            ifievec = fopna('evec',-1,4)
            rewind ifievec
            if(master_mpi) write(ifievec) ndham, nsp, nnn !, nqnum
            ifiv = fopna('vxc',-1,4)
            rewind ifiv
            if(master_mpi) write(ifiv) ndham, nsp, nnn
-        endif
         endif
       endif
 
@@ -500,107 +394,21 @@ c            call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
          endif   
       endif
 
-      
-      
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-c      nqtot=nqnum
-c$$$!!  === jobgw divider apr2013takao ===
-c$$$      nbalance = nqi*nsp/numproc 
-c$$$      if(mod(nqi*nsp,numproc)/=0) nbalance = nbalance+1
-c$$$      if(iprint()>10) print *,'nbalance=',nbalance
-c$$$      if(iprint()>10) write(6,"(' HAM_OVEPS=',d11.2)") ham_oveps
-c$$$      iproc = numproc-1         !from bottom
-c$$$      if(allocated(iprocq)) deallocate(iprocq)
-c$$$      allocate(iprocq(nqi,nsp))
-c$$$      iqq  = 0
-c$$$      iadd = 0
-c$$$      do iq = 1, nqtot
-c$$$         read(ifiqg)  q,  ngp, irr   
-c$$$         read(ifiqg)  
-c$$$         if(irr==0) cycle
-c$$$         iqq = iqq + 1
-c$$$         do isp  = 1, nsp
-c$$$            iadd = iadd+1
-c$$$            iprocq(iqq,isp)=iproc
-c$$$            if(iadd == nbalance) then
-c$$$               iproc = iproc-1
-c$$$               iadd = 0
-c$$$            endif  
-c$$$         enddo
-c$$$      enddo
-c$$$      nrr=iqq
-c$$$      if(nqi/=nrr) call rxi('sugw: nqi/=nrr=',nrr)
-c$$$      if(master_mpi) then
-c$$$         ifiproc = fopnx('lmfgw_kdivider',2,2,-1)
-c$$$         call fextg(ext)
-c$$$         write(ifiproc,"(a,'    ! extension ')") trim(ext)
-c$$$         write(ifiproc,"(3i10,'    ! nqi nsp numproc')") nqi, nsp, numproc
-c$$$         do isp=1,nsp
-c$$$         do iqq=1,nqi
-c$$$            write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
-c$$$         enddo
-c$$$         enddo
-c$$$         call fclose(ifiproc)
-c$$$      endif
-c$$$cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-
-!! ... Read QGpsi !takao feb2012 ---> Not QGcou now
-c      rewind ifiqg
-c      read(ifiqg) nqnum, ngpmx ,QpGcut_psi,nqbz,nqi,imx,nqibz
-!!      
-      if(pwmode<10) call shortn3_initialize(qlat)
       if(debug)print *,' goto 1001 procid=',procid
-cccccccccccccccccccccccc
-c            do isp=1,nspc
-c            do iqq=1,nqtot !nqi
-c                  write(stdo,"('xxxxxiqq ',3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
-c            enddo
-c            enddo
-ccccccccccccccccccccccccccccccc      
-      iqq=0
-      iqibz=0
-      do 1001 iq = 1, nqnum
-        read (ifiqg)  q,  ngp, irr   ! q, and number of G vectors for
-        ! eigenfunction expansion at this q
-        ! expansion of the Coulomb interaction
-        if(irr==1) iqibz=iqibz+1
-        
-        lwvxc = lsig>0 .and. jobgw==1 .and. iqibz<=nqibz
+      do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
+        qp  = qplist(:,iq) !  ... For this qp, G vectors for PW basis and hamiltonian dimension
+        ngp = ngplist(iq)
+        lwvxc = lsig>0 .and. iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
-        
-        if(allocated(ngvecp)) deallocate(ngvecp)
-        allocate(ngvecp(3,max(ngp,1)))
-        if(ngp==0) then !dummy 
-           read (ifiqg)
-           ngvecp=-99999
-        else
-           read (ifiqg)  ngvecp
-        endif
-        if (jobgw/=1) deallocate(ngvecp)
-        
-!! calculate only for irr=1 case
-        if(irr==0) then
-          cycle
-        endif
- 1021   continue
-
-!! cycle when this iqq is not for procid apr2013takao
-        iqq = iqq+1
-        if(iprocq(iqq,1)/=procid .and. iprocq(iqq,nsp)/=procid) then
-          if(allocated(ngvecp)) deallocate(ngvecp)
-          cycle
-        endif  
-        qp = q
-
-!!!  ... For this qp, G vectors for PW basis and hamiltonian dimension
-        call m_Igv2x_setiq(iqq)! (qp)    ! get napw and igv2x
-c        call m_Igv2x_init(qp)    ! get napw and igv2x
-
+        call m_Igv2x_setiq(iq)! (qp)    ! Set napw ndimh ndimhx and igv2x
         allocate(ham(ndimh,ndimh),ovl(ndimh,ndimh),evec(ndimh,ndimh))
         allocate(vxc(ndimh,ndimh))
         allocate(cphi(ndima,ndimh,nsp),cphin(2,ndimh,nsp))
         do 1002 isp = 1, nsp
-          if(iprocq(iqq,isp)/=procid) cycle !cycle when isp for iqq is not for procid 
+ccccccccccccccc
+           if(iq==iqini.and.ispini==2.and.isp==1) cycle
+           if(iq==iqend.and.ispend==1.and.isp==2) cycle
+ccccccccccccccc           
           lso=0
           if(lso==1) call rx('sugw:lso=1 is not yet')
 !! LDA Hamiltonian and overlap matrices for this qp ---
@@ -609,7 +417,7 @@ c        call m_Igv2x_init(qp)    ! get napw and igv2x
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) then
             write(ifiv) ndimh,ldim,qp 
-            write(ifiv) q,vxc
+            write(ifiv) qp,vxc
           endif
 !! LDA + sigma Hamiltonian for this qp ---
           if(sigmamode) then ! See m_bandcal.F
@@ -634,7 +442,7 @@ c     if(iq==1)write(stdl,"('fp evl',8f8.4)")(evl(i,isp),i=1,nev)
           if(debug) write(6,"(' sugw:procid iq isp lwvxc= ',3i3,' ',l)")procid, iq,isp,lwvxc 
           if (lwvxc) then
              ifievec = fopna('evec',-1,4)
-             write(ifievec) q, evec(1:ndimh,1:ndimh),nev
+             write(ifievec) qp, evec(1:ndimh,1:ndimh),nev
           endif
           if(magexist) then
              if(isp==1) evl(1:ndimh,isp)=evl(1:ndimh,isp) - vnow/2d0
@@ -763,11 +571,11 @@ c     if (mod(loldpw,2) .eq. 0) then
 !     !            inn = qlatinv*(qp-q)
 !!!!  NOTE: from 20Sep2012, we set qp=q (shorbz is in hambl.F. In other words, q supplied to hambl
 !!!!  do not need to be short enough).
-             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
+c             if(sum(abs(qp-q))>1d-8) stop 'sugw:qp/=q; qp=p sep2012'
              inn=0
              if(debug) print *,'goto pwmat'
              call pwmat (  ssite , sspec , nbas , ndimh , napw, !slat ,
-     .            igv2x, iprmb , q , ngp , nlmax , ngvecp , gmax , inn, 
+     .            igv2x, iprmb , qp , ngp , nlmax , ngvecp(1,1,iq) , gmax , inn, 
      .            ppovl, phovl )
              if(debug) print *,'sss: ppovl=',sum(abs(ppovl))
              if(debug) print *,'sss: phovl=',sum(abs(phovl))
@@ -789,20 +597,18 @@ c     if (mod(loldpw,2) .eq. 0) then
              call matcinv(ngp,ppovl)
              pwz = matmul(ppovl,pwz)
              deallocate(ppovl)
-c             call zqinvb('h',ppovl,ngp,ngp,ndimh, pwz,ngp, ierr)
-c             if (ierr .ne. 0) call rx('zqinvb failed to invert ppovl')
           endif
           if(debug) print *,' goto gwb write...'
 C     --- File output, jobgw=1 ---
           ifigwb = fopna('gwb',-1,4)
-          write (ifigwb) q, ndimh, iq
-          if(debug) write (6,"('q ndimh=',3f10.5,i10)") q, ndimh
+          write (ifigwb) qp, ndimh, iq
+          if(debug) write (6,"('q ndimh=',3f10.5,i10)") qp, ndimh
           write (ifigwb) evl(1:ndimh,isp),cphi(:,:,isp)
           write (ifigwb) ngp 
-          if(ngp >0 ) write (ifigwb) ngvecp, pwz 
-          if(ngp ==0) write (ifigwb) ngvecp
+          if(ngp >0 ) write (ifigwb) ngvecp(1:3,1:ngp,iq), pwz 
+          if(ngp ==0) write (ifigwb) ngvecp(1:3,1:ngp,iq)
           ifigw1 = fopna('gw1',-1,4)
-          write(ifigw1) q, (evl(i,isp),i=1,ndimh)
+          write(ifigw1) qp, (evl(i,isp),i=1,ndimh)
 C     call prmx('e(H+sigma-vxc)',evl,ndimh,ndimh,1)
           
 C     ... Overlap checking.   Define:
@@ -826,11 +632,11 @@ C     xx(2) = sum over augmentation phi only.
 C     xx(3) = IPW contribution to phi+ phi
 C     xx(4) = IPW contribution to phi+ phi, using diagonal part only
              ifinormchk = fopna('normchk',-1,0)
-             if (abs(sum(q-qp)) .gt. 1d-10) then
-                write(ifinormchk,555) iq,q,qp
-             else
-                write(ifinormchk,555) iq,q
-             endif
+c             if (abs(sum(q-qp)) .gt. 1d-10) then
+c                write(ifinormchk,555) iq,qp,qp
+c             else
+                write(ifinormchk,555) iq,qp
+c             endif
  555         format('# iq',i5,'   q',3f12.6:'  shortened q',3f12.6)
              do  i1 = 1, ndimh
                 xx(1) = cphin(1,i1,isp)
@@ -850,7 +656,7 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
              write(ifinormchk,*)
           endif                 !------------- end of lchk=1
           if (ngp .gt. 0) deallocate(pwz)
-          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
+c          if (isp .eq. nsp) deallocate(ngvecp) !takao feb2012 ,ngvecc)
 !     !   ... Subtract <psi|vxc|psi> from starting evl=e(lda+sigma-vxc)
 !     !       evl should contain e(lda+sigma-vxc)
           allocate(testc(ndimh,ndimh))
@@ -862,7 +668,7 @@ C     xx(2) = sum(dconjg(cphi(1:nchan,i1,isp))*cphi(1:nchan,i2,isp))
              end do
           end do
           ifigw2 = fopna('gw2',-1,4)
-          write(ifigw2) q, (evl(i,isp),i=1,ndimh)
+          write(ifigw2) qp, (evl(i,isp),i=1,ndimh)
           deallocate(testc)
  1002  continue             ! Loop over spins
         deallocate(ham,ovl,evec,vxc,cphi,cphin)!,igv2)

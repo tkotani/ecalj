@@ -8,7 +8,7 @@
       end type s_rv1
       
       type s_nv2
-      integer,allocatable:: n(:,:)
+      integer,allocatable:: nv2(:,:)
       end type s_nv2
       
 !! --- explanation of s_spec --- (some are obsolate)
