@@ -684,7 +684,7 @@ C --- Printout smooth density mixing data ---
       call rhoqm(smrnew,k1,k2,k3,n1,n2,n3,nsp,vol,qscr)
 C     if (ipr .gt. 30) write(stdo,100)
 C    .  sumo*fac,sumu*fac,sums*fac,rms,summ*fac
-      if (ipr .gt. 30) then
+      if (ipr >45) then
         write(stdo,100)
      .  qin(1),qout(1),qscr(1),rms,beta*qscr(1)+(1-beta)*qin(1)
         if (nsp .eq. 2) write(stdo,101)
@@ -949,7 +949,7 @@ c            smrho(i1,i2,i3,isp)=minimumrho
           write(6,"(a,2i8,d13.5)") ' mixrho: warning. negative smrho; isp number min=',isp,nnnx,smmin
 c          print *,'enforce smrho >',minimumrho
         else
-          if(iprint()>10) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
+          if(iprint()>45) write(6,"(a,i3)") ' mixrho: all smrho are positive for isp=',isp
         endif
       enddo
 C$$$      nnnew=0
@@ -1274,7 +1274,7 @@ C ... Restore rho,amag -> rho+,rho-
       call splrho(1,nsp,nr,nlml,rho1,rho2,rho3)
       call splrho(1,nsp,nr,nlml,rhn1,rhn2,rhn3)
 
-      if (iprint() .gt. 30) then
+      if (iprint() >45 ) then
         write(stdo,100) ib,qold,qnew,qnew,dif,qmix
   100   format(' site ',i4,f12.6,5f14.6)
 C  100   format(' site ',i4,f12.6,f14.6,14x,2f14.6)

@@ -321,9 +321,11 @@ c         continue
          qp=qplist(:,iq)
          do isp = 1, nspx 
           jsp = isp
-          if(iprint()>20) write(*,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
-     &      iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
-          if(iprint()>=35) write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+          if(master_mpi.and.iprint()>=35) then
+            write(stdo,'(" bndfp: kpt",i5," of",i5, " k isp=",3f8.4,i2," ndimh nev=",2i5)')
+     &            iq,nkp,qp,jsp,ndimhx_(iq),nevls(iq,jsp)
+            write(stdo,"(9f8.4)") (evlall(i,jsp,iq), i=1,nevls(iq,jsp))
+          endif  
           emin= min(minval( evlall(1:nevls(iq,jsp),jsp,iq)),emin)
          enddo
       enddo

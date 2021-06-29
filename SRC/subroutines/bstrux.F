@@ -46,7 +46,7 @@ c      write(6,*) q
         qin = qplist(:,iq) !qin
         call m_Igv2x_setiq(iq) ! Get napw,ndimh, and so on for given iq
         allocate(igvapw(3,napw))
-        print *,'iqini,iqend=',iqini,iqend,napw
+c        print *,'iqini,iqend=',iqini,iqend,napw
 ccccccccccccccccccccccccccccccccccccc
 !! See hambl.F calling augmbl, calling bstrux_set
 !! input and output
