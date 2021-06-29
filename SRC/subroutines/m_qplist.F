@@ -13,21 +13,20 @@
       integer, allocatable,protected :: kpproc(:)
       
       contains
-      subroutine m_qplist_init(plbnd,llmfgw) !,readeferm,eferm)
+      subroutine m_qplist_init(plbnd,llmfgw) 
       use m_lmfinit,only: nspx,stdo,procid,master
       use m_mkqp,only: rv_p_oqp,rv_a_owtkp
       use m_MPItk,only: master_mpi,mlog
       use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
       use m_lattic,only: qlat=>lat_qlat
       use m_ext,only: sname
-      intent(in)::             plbnd
-c      intent(out)::                  readeferm,eferm
+      intent(in)::             plbnd,llmfgw
       integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
       logical:: masslineon(nsymlmax),llmfgw
       integer:: plbnd,ifqplist,nkk1,nkk2,nkk3,ik1,ik2,ik3,iq,ifi,ifisyml,isyml,i,ierr
-      logical:: cmdopt0,fullmesh,PROCARon,readeferm,fsmode
+      logical:: cmdopt0,fullmesh,PROCARon,fsmode 
       integer:: ikp,ifbnd,nsymln,onesp=0,jobgw
-      real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq,eferm
+      real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
       real(8)::  totxdatt
       integer:: ifile_handle, fxsts,ii,ifiproc
       character(512)::schar
@@ -43,7 +42,7 @@ c      intent(out)::                  readeferm,eferm
       fullmesh = cmdopt0('--fullmesh').or. cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
       fsmode   = cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
       PROCARon = cmdopt0('--mkprocar')
-      readeferm=.false.
+c      readeferm=.false.
       if(allocated(qplist)) deallocate(qplist)
       
 !! GW driver mode !Read QGpsi Get ngplist,ngvecp in addition to qplist.
@@ -247,7 +246,8 @@ c 1013       continue
       end subroutine
       
 !sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-      subroutine m_qplist_qspdivider()!llmfgw)
+      subroutine m_qplist_qspdivider()
+!! MPIK k point divider. From iqini to iqend for each processor.
 ! Set iqini,iqend ispx for each rank (procid)
       use m_MPItk,only: master_mpi,mlog, numprocs=>nsize
       use m_lmfinit,only: stdo,procid,master
@@ -255,70 +255,55 @@ c 1013       continue
       use m_ext,only: sname
       implicit none
       integer:: iprocid,iqendx,iqinix,iqq,ifiproc,isp,ispx,icount,iqs,ncount,iqsi,iqse
-c      logical:: llmfgw
       integer,allocatable::iqvec(:),ispin(:),iproc(:)
       allocate(iqvec(nkp*nspx),ispin(nkp*nspx),iproc(nkp*nspx))
-!! --- rank divider ----------------------------------------
-      
-!     ! we will unify them in future
-      
-!! MPIK k point divider. From iqini to iqend for each processor.
-c      if(.false.) then !.not.llmfgw) then !not efficient for spin improvement needed
-c         allocate (kpproc(0:numprocs))
-c         call dstrbp(nkp,numprocs,1,kpproc(0)) !mpik distribution
-c         iqini = kpproc(procid)
-c         iqend = kpproc(procid+1)-1
-c          print *,'mmmm111xx ',procid,iqini,iqend
-cc!! lmfgw  still use original definition. slightly compicated
-c      else
-
 !---------------------------------------------------------------      
-         allocate(kpproc(0:numprocs))
-         allocate(iprocq(nkp,nspx)) 
-         call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
-!! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....
-!! range for the procid
-         iqsi = kpproc(procid)
-         iqse = kpproc(procid+1)-1
-         
-         iqini = iqsi
-         if(nspx==2) iqini = (iqsi+1)/nspx
-         iqend = iqse
-         if(nspx==2) iqend = (iqse+1)/nspx
-         ispini = mod(iqsi+1,nspx)+1
-         ispend = mod(iqse+1,nspx)+1
-         
-         write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank iqini  iqend =', procid,iqini,iqend
-         write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank ispini ispend=', procid,ispini,ispend
-          
-!!--- write lmfgw_divider ---------
-         icount = 0
-         do iprocid = 0,numprocs-1
+      allocate(kpproc(0:numprocs))
+      allocate(iprocq(nkp,nspx)) 
+      call dstrbp(nkp*nspx,numprocs,1,kpproc(0)) !mpik distribution
+!     ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....
+!     ! range for the procid
+      iqsi = kpproc(procid)
+      iqse = kpproc(procid+1)-1
+      
+      iqini = iqsi
+      if(nspx==2) iqini = (iqsi+1)/nspx
+      iqend = iqse
+      if(nspx==2) iqend = (iqse+1)/nspx
+      ispini = mod(iqsi+1,nspx)+1
+      ispend = mod(iqse+1,nspx)+1
+      
+      write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank iqini  iqend =', procid,iqini,iqend
+      write(stdo,"(a,3i5)") 'm_qplist_qspdivider: rank ispini ispend=', procid,ispini,ispend
+      
+!     !--- write lmfgw_divider ---------
+      icount = 0
+      do iprocid = 0,numprocs-1
          do iqs     = kpproc(iprocid),kpproc(iprocid+1)-1
-           icount=icount+1
-           iqvec(icount) = iqs
-           if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
-           ispin(icount) = mod(iqs+1,nspx)+1
-           iproc(icount) = iprocid
+            icount=icount+1
+            iqvec(icount) = iqs
+            if(nspx==2) iqvec(icount) =  (iqs+1)/nspx
+            ispin(icount) = mod(iqs+1,nspx)+1
+            iproc(icount) = iprocid
          enddo
-         enddo
-         ncount=icount
-         do icount=1,ncount
-            if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
-            iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
-         enddo
-         if(master_mpi) then
-            open(newunit=ifiproc,file='lmfgw_kdivider')
-            write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
-            write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
-            do isp=1,nspx
-            do iqq=1,nkp !nqi
+      enddo
+      ncount=icount
+      do icount=1,ncount
+c     if(master_mpi) write(6,*)'mmmmmmmmm111 ',icount, iqvec(icount),ispin(icount),iproc(icount)
+         iprocq(iqvec(icount),ispin(icount)) = iproc(icount)
+      enddo
+      if(master_mpi) then
+         open(newunit=ifiproc,file='lmfgw_kdivider')
+         write(ifiproc,"(a,'    ! extension ')") '.'//trim(sname)
+         write(ifiproc,"(3i10,'    ! nqi nspx numproc')") nkp, nspx, numprocs
+         do isp=1,nspx
+            do iqq=1,nkp        !nqi
                write(ifiproc,"(3i9,'  ! iqq isp irank')") iqq, isp, iprocq(iqq,isp) 
             enddo
-            enddo
-            close(ifiproc)
-         endif    
-c      endif
+         enddo
+         close(ifiproc)
+      endif    
       end subroutine
-      end module
+      
+      end module m_qplist
       

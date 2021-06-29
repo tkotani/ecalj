@@ -65,7 +65,7 @@ C     ----------------------------------------------------------------------
       type(s_rv1) :: sv_p_oppi(3,nbas)
       type(s_rv1) :: sv_p_otau(3,nbas)
       type(s_rv1) :: sv_p_osig(3,nbas)
-      double precision alfa
+c      double precision alfa
       real(8):: q(3), vconst
       complex(8):: smpot(k1,k2,k3,nsp)
       double complex h(ndimh,ndimh),s(ndimh,ndimh),hso(ndimh,ndimh)
@@ -107,11 +107,11 @@ C --- Augmentation part of hamiltonian and overlap ---
      .    , lcplxp , q , sv_p_osig , sv_p_otau , sv_p_oppi , iprmb 
      .    , ndimh , napw , igvapw , h , hso , s )
 C --- Add alfa S+ S ---
-      if (dabs(alfa) .gt. 1d-10 .and. mode0 .eq. 0)  then
-        call z2herm('U',ndimh,ndimh,s)
-        call zgemm('C','N',ndimh,ndimh,ndimh,dcmplx(alfa,0d0),
-     .  s,ndimh,s,ndimh,dcmplx(1d0,0d0),h,ndimh)
-      endif
+c      if (dabs(alfa) .gt. 1d-10 .and. mode0 .eq. 0)  then
+c        call z2herm('U',ndimh,ndimh,s)
+c        call zgemm('C','N',ndimh,ndimh,ndimh,dcmplx(alfa,0d0),
+c     .  s,ndimh,s,ndimh,dcmplx(1d0,0d0),h,ndimh)
+c      endif
 C ... Optionally set average istl potential to zero
       vavg = 0
       call smhsbl ( mode0 , ssite , sspec ,  vavg + vconst , !slat ,

@@ -65,7 +65,6 @@ chgmsh.o \
 chkdmu.o \
 clabel.o \
 clsset.o \
-cmplat.o \
 config.o \
 contet.o \
 cshear.o \
