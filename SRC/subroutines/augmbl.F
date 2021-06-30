@@ -5,7 +5,7 @@
       use m_lmfinit,only: rv_a_ocg , iv_a_oidxcg , iv_a_ojcg , rv_a_ocy
       use m_lmfinit,only: nbas,nkaph,lat_alat
       use m_lattic,only: lat_qlat, lat_vol
-      use m_bstrux,only: bstrux,bstr,bstrux_set !,iq_bstrux
+      use m_bstrux,only: bstr,bstrux_set !,iq_bstrux
 
 C- Adds augmentation part of H and S
 C ----------------------------------------------------------------------

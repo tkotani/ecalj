@@ -173,7 +173,7 @@ C ... for core hole
       
       integer,parameter:: nbasmx=1000
       logical,save:: secondcall(1:nbasmx)=.false.
-      logical :: cmdopt,phispinsym
+      logical :: phispinsym,cmdopt0
       character*20::strib
       character strn*120
       real(8):: ov0mean,pmean
@@ -317,7 +317,7 @@ C   --- Make potential and energy terms at this site ---
      .       , rhobg , efg ( 1 , ib ),ifivesint )
 
 !! write density 1st(true) component and counter components.
-        if(cmdopt('--density',9,0,strn).and.master_mpi.and.secondcall(ib)) then
+        if(cmdopt0('--density').and.master_mpi.and.secondcall(ib)) then
            write(stdo,"(' TotalValenceChange diff in MT;  ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc
            write(strib,'(i10)') ib
            ibx= fopna('rho1MT.'//trim(adjustl(strib)),-1,0)
@@ -336,7 +336,7 @@ c              k= ir + (lm-1)*nr  + (isp-1)*nr*nlml
              enddo
            enddo
            call fclose('rho2MT.'//trim(adjustl(strib)))
-        elseif(cmdopt('--density',9,0,strn).and.master_mpi) then
+        elseif(cmdopt0('--density').and.master_mpi) then
           secondcall(ib)=.true.
         endif
 
@@ -353,7 +353,7 @@ C   ... Update the potential used to define basis set
         endif
        
 !! spin averaged oV0 to generate phi and phidot. takaoAug2019
-        phispinsym= cmdopt('--phispinsym',12,0,strn)
+        phispinsym= cmdopt0('--phispinsym')
         if(phispinsym) then
            if(master_mpi.and.nsp==2) then
              write(6,*) 'locpot: --phispinsym mode: use spin-averaged potential for phi and phidot'

@@ -306,8 +306,8 @@ c         continue
          do ipts=1,ndos
             eee= dosw(1)+ (ipts-1d0)*(dosw(2)-dosw(1))/(ndos-1d0)-efermxxx !I think efermxxx=eferm
             dosi(1:nspx)= dosi(1:nspx) + dos_rv(ipts,1:nspx)*dee
-            write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx)
-            write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)
+            write(ifi,"(255(f13.5,x))") eee,  (dos_rv(ipts,isp),isp=1,nspx) !dos
+            write(ifii,"(255(f13.5,x))") eee, (dosi(isp),isp=1,nspx)        !integrated dos
          enddo
          close(ifi)
          close(ifii)
