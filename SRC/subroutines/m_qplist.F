@@ -1,15 +1,18 @@
       module m_qplist
-      integer,parameter,private:: nsymlmax=100
+!! control all q points list (but still only for lmf part now june2021). 
 
       integer,allocatable,protected:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:) !rank divider
-      integer,protected:: iqini,iqend,ispini,ispend      !for current rank
       real(8),allocatable,protected:: qplist(:,:)
-      integer,protected:: nkp,nsyml=0, ngpmx ,nqi,iqibzmax
-      integer,protected:: nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
+      
+      integer,parameter,private:: nsymlmax=100
+      integer,protected:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax)
       integer,protected:: nqp2n_syml(nsymlmax)
-      real(8),allocatable,protected:: xdatt(:)
-      real(8),protected:: dqsyml(nsymlmax),etolv,etolc
       character*20,protected ::labeli(nsymlmax),labele(nsymlmax)
+      real(8),allocatable,protected:: xdatt(:)
+
+      integer,protected:: iqini,iqend,ispini,ispend      !for current rank
+      real(8),protected:: dqsyml(nsymlmax),etolv,etolc
+      integer,protected:: nkp,ngpmx ,nqi,iqibzmax
       integer, allocatable,protected :: kpproc(:)
       
       contains
