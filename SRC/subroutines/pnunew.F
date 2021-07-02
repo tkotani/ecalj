@@ -76,14 +76,13 @@ ckino Dec.12.2011:         real(8),pointer :: rv_p_ov0(:) =>NULL()
       logical:: lsemicorepz,phispinsym,cmdopt
       real(8):: pmean
       character strn*120
-     
 
       pi = 4d0*datan(1d0)
       stdo = lgunit(1)
       call info(30,1,0,' Make new boundary conditions for phi,phidot..',0,0)
       call getpr(ipr)
       if(ipr>=30) then
-         print *, ' ebar: '
+         print *, ' pnunew: ebar: '
          print *, '   without lo    : ebar = center of gravity of occupied states'
          print *, '   with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.'
          print *, '                   ebar for valence is at the center of gravity of occ. states.'
@@ -108,10 +107,6 @@ C --- For each site, do ---
         mxcst=sspec(is)%mxcst
 
         if (lmxa .eq. -1) goto 10
-c        do i_spacks=is,is
-c          call spacks_copy('u',sspec(i_spacks)%name,is,is,spid,i_spacks)
-c        enddo
-c        call r8tos8(sspec(is)%name,spid)
         spid=sspec(is)%name
 
         if (mod(mxcst/4,2) .ne. 0) call ivset(idmod,1,n0,1)
@@ -140,7 +135,6 @@ c                write(*,"(a,2i3,l,5f12.4)") 'zzzzz ',m,isp,lpz,pnu(m,isp),pnz(m
               endif
             endif
 
-C         if (dabs(qbyl(m,isp,ib)) .gt. 1d-8 .and. .not. lpz) then
             if (dabs(qbyl(m,isp,ib)) .gt. 1d-8) then
               ebar = hbyl(m,isp,ib)/qbyl(m,isp,ib)
 C       ... Log derivative by direct num integration
@@ -152,8 +146,6 @@ C       ... Log derivative by direct num integration
               allocate(rofi_rv(nr*2))
               call radmsh ( rmt , a , nr , rofi_rv )
               allocate(v0i_rv(nr))
-ckino Dec.12.2011:                 call dpscop ( rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
-ckino Dec.28.2011:                 call dpscop ( ssite(ib)%rv_p_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) ,
               call dpscop ( ssite(ib)%rv_a_ov0 , v0i_rv , nr , 1 + nr * ( isp - 1 ) , 
      .         1 , 1d0 )
 
@@ -224,7 +216,7 @@ c                print *,'zzzzzz p1=',p1,dl
               endif
 
 C       ... Estimate new pnz for semicore state
-              if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then
+              if (lpz .and. int(mod(pnz(m,1),10d0)).lt.int(pnu(m,1))) then !local obital is semicore
                 val(1) = rmt
                 dnz = dtan(pi*(0.5d0-mod(pnz(m,isp),10d0)))
                 slo(1) = dnz + 1d0

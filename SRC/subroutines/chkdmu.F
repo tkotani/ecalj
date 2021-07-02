@@ -170,6 +170,7 @@ C       This block requires dmatu to be in spherical harmonics
           call rotycs(1,dmatu,nbas,nsp,lmaxu,sspec,ssite,lldau)
           havesh = 1
        endif
+       
 cccccccccccccccccccccccccccccccccccccccccccccccccccc   
 !! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
@@ -212,6 +213,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
           endif
 !! broadcast uhx       
           call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
+! Averaged dmatu up dn.
           do iblu =1,2
              fac=1d0
              if(iblu==2) fac=-1d0

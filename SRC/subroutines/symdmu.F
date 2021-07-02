@@ -57,7 +57,7 @@ C ... Local parameters
       double precision rmat(16,16),r(-3:3,-3:3),ddot
       double complex sdmat(-3:3,-3:3,2,2)
 C ... for spinor rotations
-      logical cmdopt
+      logical cmdopt0
       double precision eula(3),ddet33,xx
 CSFCPP#if F90 | AUTO_ARRAY
 C      integer i,j
@@ -71,7 +71,7 @@ CSFCPP#endif
       character *40 str
 
       rms = 0
-      if (cmdopt('--nosymdm',9,0,str) .or. ng .eq. 0) return
+      if (cmdopt0('--nosymdm') .or. ng .eq. 0) return
 
 C --- Setup for spinor part ---
       lwarn = 0

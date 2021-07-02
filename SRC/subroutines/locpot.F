@@ -169,11 +169,11 @@ C ... for core hole
      .v1(:),v2(:),v1es(:),v2es(:),efg(:,:),zz(:)
       logical lfltwf
       integer:: i , nglob , ipr , iprint , j1 , ib , is , lmxl 
-     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna
+     .     , lmxa , nr , lmxb , kmax , lfoc , nrml , nlml,ifivesint,fopna,ifi
       
       integer,parameter:: nbasmx=1000
       logical,save:: secondcall(1:nbasmx)=.false.
-      logical :: phispinsym,cmdopt0
+      logical :: phispinsym,cmdopt0,readov0,v0fix
       character*20::strib
       character strn*120
       real(8):: ov0mean,pmean
@@ -368,12 +368,48 @@ C   ... Update the potential used to define basis set
                  ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
               enddo
            enddo
-           if(master_mpi.and.nsp==2)then
-              do l=0,lmxa
-              write(6,"('  ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
-              enddo
-           endif
         endif
+           
+ccccccccccccccccccccccccccccccccccccccc
+        v0fix= cmdopt0('--v0fix')
+        if(v0fix) then
+           inquire(file='v0pot.'//char(48+ib),exist=readov0)
+           if(readov0) then
+              block 
+              real(8):: ov0(nr)
+              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
+              read(ifi) ov0(1:nr)
+              close(ifi)
+              do ir=1,nr
+              do isp=1,nsp
+                 ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0(ir)
+              enddo
+              enddo
+              end block
+           else
+              do ir=1,nr
+                ov0mean = 0d0
+                do isp=1,nsp
+                 ov0mean = ov0mean + ssite(ib)%rv_a_ov0( ir + nr*(isp-1) )
+                enddo
+                ov0mean = ov0mean/nsp !spin averaged
+                do isp=1,nsp
+                 ssite(ib)%rv_a_ov0(ir + nr*(isp-1))= ov0mean
+                enddo
+              enddo
+              open(newunit=ifi,file='v0pot.'//char(48+ib),form='unformatted')
+              write(ifi) ssite(ib)%rv_a_ov0(1:nr)
+              close(ifi)
+              if(ib==nbas) readov0=.true.
+           endif
+        endif   
+ccccccccccccccccccccccccccccccccccccccc
+        if(master_mpi.and.nsp==2)then
+           do l=0,lmxa
+              write(6,"('  ibas l=',2i3,' pnu(1:nsp) pnz(1:nsp)=',4f10.5)") ib,l,pnu(l+1,1:nsp),pnz(l+1,1:nsp)
+           enddo
+        endif
+           
       
 C   ... Store the potential used in mkrout to calculate the core
         do  i = 0, nsp-1
