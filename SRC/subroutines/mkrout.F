@@ -291,7 +291,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !! experimental block to keep magnetic moment for AF.controlled by uhval.aftest file. See elsewhere.
           if( nsp==2.and.procid==master) then
              if(ib==1) then
-                open(newunit=ifx,file='uhval.aftest',position='append')
+                open(newunit=ifx,file='mmagfield.aftest',position='append')
                 write(ifx,"('          ',f23.15)",advance='no') -sums1
              else
                 write(ifx,"(2x,f23.15)",advance='no') -sums1

@@ -1,5 +1,5 @@
       subroutine sudmtu(dmatu,vorb)
-      use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec
+      use m_lmfinit,only: nbas,nsp,nlibu,lmaxu,lldau,ssite=>v_ssite,sspec=>v_sspec,stdo
       use m_mksym,only: g=>rv_a_osymgr,istab=>iv_a_oistab, ng =>lat_nsgrp
 C- Initialize site density matrix and vorb  for LDA+U
 C ----------------------------------------------------------------------
@@ -57,7 +57,7 @@ C     integer nglob,stdo
       double precision nocc(-3:3,2),iv(7)
       integer idu(4),igetss,is,idmat,fxst,iblu,nlm,nlmu,a2vec,nn
       double precision uh(4),jh(4),eorb,tmp(2,7,7),xx
-      character str*80,spid*8,aaa*4
+      character str*80,spid*8,aaa*24
       complex(8) ,allocatable :: dmwk_zv(:)
       real(8):: uhx,uhxx
 C ... MPI
@@ -271,32 +271,22 @@ C ... Make Vorb (ldau requires spherical harmonics)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc       
 !! experimental block to keep magnetic moment for AF.
        inquire(file='mmtarget.aftest',exist=mmtargetx)
-       inquire(file='uhval.aftest',exist=eee)
-       if(mmtargetx.and. (procid==master).and.(.not.eee)) then
-          ib = 1 !setting assumed
-          l  = 2 
-          is = int(ssite(ib)%spec)
-          nn = size(sspec(is)%uh)
-          call dcopy(nn,sspec(is)%uh,1,uh,1)
-          uhx = uh(l+1)
-          write(6,"('sudmtu: mmtarget mode. Use UH in ctrl at start',f10.6)")uhx
-       elseif(mmtargetx.and. (procid==master)) then
+       inquire(file='mmagfield.aftest',exist=eee)
+       if(mmtargetx.and. (procid==master)) then
           uhx=0d0
-          open(newunit=ifx,file='uhval.aftest')
+          open(newunit=ifx,file='mmagfield.aftest')
           do
              read(ifx,*,end=1112,err=1112) uhxx,aaa
-             if(aaa=='!uhx') uhx=uhxx
+             if(trim(aaa)=='!magfield') uhx=uhxx
           enddo
  1112     continue
           close(ifx)
-          write(6,"('sudmtu: mmtarget mode. Readin UH from uhval.aftest=',f10.6)")uhx
-       endif   
-       if(mmtargetx.and. (procid==master)) then
-          open(newunit=ifx,file='uhval.aftest')
-          write(ifx,"(d23.15,1x,'!uhx :UH read from previous uhval.aftest or ctrl')") uhx
+          write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
+          open(newunit=ifx,file='mmagfield.aftest')
+          write(ifx,"(d23.15,1x,'! Magfield is read from previous mmagfield.aftest')") uhx
           close(ifx)
+          call mpibc1_real(uhx,1,'sudmtu_uhx')
        endif
-       call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       iblu = 0
@@ -323,7 +313,8 @@ c        enddo
         do  22  l = 0, i
           if (idu(l+1) .ne. 0) then
             iblu = iblu+1
-            if(.not.mmtargetx) uhx=uh(l+1)
+c            if(.not.mmtargetx) uhx=uh(l+1)
+            uhx=uh(l+1)
             call ldau(idu(l+1),l,iblu,uhx,jh(l+1),dmatu,nsp,
      .      lmaxu,vorb,eorb)
 C            call prdmts(0,30,30,0,' sudmtu:  Vorb in spherical harm',ib,
