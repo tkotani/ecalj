@@ -285,8 +285,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           open(newunit=ifx,file='mmagfield.aftest')
           write(ifx,"(d23.15,1x,'! Magfield is read from previous mmagfield.aftest')") uhx
           close(ifx)
-          call mpibc1_real(uhx,1,'sudmtu_uhx')
        endif
+       call mpibc1_real(uhx,1,'sudmtu_uhx')
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       iblu = 0

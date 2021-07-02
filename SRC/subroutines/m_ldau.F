@@ -27,8 +27,8 @@
 
       integer,parameter:: nx=1000
       logical:: mmtargetx
-      real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas)
-      integer:: nit,ibas,mmhist(nx),ifx,ncount,iblu
+      real(8):: alpha,mmtarget, uhhist(nx),uhx,sss(1),fac,mmsite(nbas),mmhist(nx)
+      integer:: nit,ibas,ifx,ncount=0,iblu,i
 
       call chkdmu(eks,dmatu, dmato, vorb)
       dmato=dmatu
@@ -57,25 +57,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              enddo
  1112        continue
              close(ifx)
-             write(6,"('mmaftest: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
+             write(stdo,"('mmaftest: ',i5,f10.6,2x,12f10.6)")nit,uhx,(mmsite(ibas),ibas=1,nbas)
 !     ! Generate new uhx based on the  history of uhx mmsites for given mm
 !     ! test uh          
              uhx= uhx + alpha*(mmhist(nit)-mmtarget)**2 - 2d0*(mmhist(nit)-mmtarget)
-             write(stdo,"('mmhist0: MagF MMom ',i5, 3d13.4)" ) nit,uhx,mmhist(nit)
+             write(stdo,"('mmhist0: MagF MMom ',i5, 2d13.4)" ) nit,uhx,mmhist(nit)
              sss(1)=uhx
              call mixmag(sss)
              uhx=sss(1)
-             write(stdo,"('mmhist:  MagF MMom ',i5, 3d13.4)") nit,uhx,mmhist(nit)
+             write(stdo,"('mmhist:  MagF MMom ',i5, 2d13.4)") nit,uhx,mmhist(nit)
              if(ncount==0) then
                 open(newunit=ifx,file="mixmag.aftest")
                 close(ifx,status='delete')
                 ncount=1
              endif
-             open(newunit=ifx,file='mmagfiled.aftest',position='append')
-             write(ifx,"(d23.15,'!magfield')") uhx 
+             open(newunit=ifx,file='mmagfield.aftest',position='append')
+             write(ifx,"(d23.15,' !magfield')") uhx 
              close(ifx)
           endif
 !! broadcast uhx       
+c          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
           call mpibc1_real(uhx,1,'m_ldau_magfield') 
           vorbav=0d0
           do i=-lmaxu,lmaxu
@@ -84,8 +85,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           do iblu =1,2
              fac=1d0
              if(iblu==2) fac=-1d0
-             vorb(:,:,1,iblu) = vorb(:,:,1,iblu) + uhx*fac*vorbav(:,:)
-             vorb(:,:,2,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:)
+             vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
           enddo
        endif
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
