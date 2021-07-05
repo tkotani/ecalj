@@ -47,9 +47,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              open(newunit=ifx,file='mmagfield.aftest')
              nit=0
              mmsite=0d0
+             mmhist=mmtarget !this gives we use uhx when mmsite are not read
              uhx=0d0
              do
-                read(ifx,*,end=1112,err=1112) uhx
+                read(ifx,*,end=1112,err=1112) uhx 
                 read(ifx,*,end=1112,err=1112) (mmsite(ibas),ibas=1,nbas)
                 nit=nit+1
                 mmhist(nit)=(mmsite(1)-mmsite(2))/2d0
