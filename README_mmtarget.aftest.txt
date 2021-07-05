@@ -1,4 +1,4 @@
-QSGW+{U}
+QSGW+{B}
 Memo for NiSe 02jul2021
 
 === Install ===
@@ -8,18 +8,22 @@ move old ecalj to ecalj_backup or something.
 Then run 'git clone' from bitbucket.
 
 
-== QSGW+{U} ===
-We can run QSGW+{U} calculation. We need to follow instruction below.
+== QSGW+{B} ===
+We can run QSGW+{B} calculation. We need to follow instruction below.
+Here B is the alternative magnetic field to keep the magnetic moment
+with keeping the antiferro order. Antiferro version of the Fixed moment method.
 
 Current code is only for crystal structure of Antiferro-magnetic NiSe
 (because of minor reason not woking for NiO).
 
-Because of numerical instability of calculation, we have to use 'fixed moment method'.
-If you set 0.1 in the file 'mmtarget.aftest.
-It try to find out U values (J=0), to keep the size of magnetic moment 0.1 (and -0.1 at down sites).
+If you set 0.1 in the file 'mmtarget.aftest.',
+lmf-MPIK try to find out U values (J=0),
+to keep the size of magnetic moment 0.1 (and -0.1 at down sites).
 
-When you succeeded QSGW+{U} calcultion, you can get the size of U so as to keep the magnetic moment.
-After iteration cycle become stable (converged), you can plot band structures, and so on.
+When you succeeded QSGW+{B} calcultion, you can get the size of B field,
+so as to keep the specified magnetic moments, given in mmtarget.aftest.
+After iteration cycle become stable (converged),
+you can plot band structures, and so on.
 
 === Setting ===
 1. ctrl.nise:
@@ -32,9 +36,11 @@ In addtion,
 (this means inversion with (0,0,1/2) translation gives AF symmetry).
 ---
 IDU=0 0 2
+UH=0 0 0
+JH=0 0 0
  for Niup and for Nidn (FLL mode of LDA+U).
-UH and JH are not meaningful for the aftest mode.
-(we set JH is zero, and UH is controlled automatically in the progam, and shown in output file).
+ You can supply UH and JH if you like to run QSGW+U+{B} or something.
+ But we did not test it yet.
 ---
 ScaledSigma=0.8
  to rmove overshoot of QSGW.
@@ -60,31 +66,39 @@ GaussianFilterX0 0.05  <-- smoothing the density of state for the polarization f
 esmr   0.03            <-- smoothing the pole of G in G \times W.
 
 You can use my setting
-(try n1n2n3 4 4 4, at first. If you like try 5 5 5 to check stability---but 4 4 4 is probably not so bad).
+Try n1n2n3 4 4 4, at first.
+If you like try 5 5 5 to check stability---but 4 4 4 is probably not so bad.
 
 3. mmtarget.aftest:
 ----------------
 Put a file 'mmtarget.aftest' which is specifing the magnetic moment. (sigle line).
 When a file mmtarget.aftest exist, lmf-MPIK works in the "AFTEST" mode.
- Even if IDU=0 0 2, UH is only meaningful as the initial condition.
- lmf-MPIK is adding bias field (UH) so as to keep the magnetic moment given in mmtrget.aftest.
-  Use gwsc_sym (included) instead of gwsc. Probably better to  keep symmetry.
+lmf-MPIK is adding bias field so as to keep the magnetic moment given in mmtrget.aftest.
+Use gwsc_sym (included) instead of gwsc. Probably this is necessary to perform numerically stable
+converence.
 
-4. Required commandline arguments.
---phispinsym : spin symmetrized SPEC_ATOM_P,PZ. This is probably not necessary but use this makes things safer.
+4. Required commandline arguments.(this is automatic when you use gwsc_sym calling run_arg2 in it).
+--phispinsym : spin symmetrized SPEC_ATOM_P,PZ.
+               This is probably not necessary but use this makes things safer.
 --v0fix  : fix the radial potentail to generate radial functions.
            At the beginig of lmf-MPIK, it generates v0pot.xxx files containing the potential.
            When v0pot* file exist, lmf-MPIK read v0pot* files.
 
-If you use gwsc_sym, which callsed run_arg2, it automatically includes --phispinsym and --v0fix when runnnig gwsc.
-WARN!!!: You have to usr run_arg2 even in job_band and so on.
+If you use gwsc_sym, which callsed run_arg2,
+it automatically includes --phispinsym and --v0fix when runnnig gwsc.
+
+-------------------------
+WARN!!!: You have to use run_arg2 even in job_band and so on.
+test it please.
+-------------------------
 
 
-=== Convergence check === 
-We have two convergence. As you know, QSGW made from two iteration cycle.
-Big iteration is *.run cycle (RUN cycle). lmf-MPIK makes an inner iteration cycle
-(lmf cyle. each line in save.nise. or itr shown in llmf).
-
+=== Convergence check ===================
+We have two convergence.
+As you know, QSGW made from two iteration cycle.
+Big iteration is GW cycle (*run).
+lmf-MPIK makes an inner iteration cycle
+(lmf cyle; each line in save.nise. It is shown in llmf.*run).
 
 * Check of lmf cycle (inner cycle for given sigm file):
 >grep -n -A2 -B2 'From last ' llmf
@@ -99,11 +113,12 @@ For example, it shows
 Here diffe(q)= 0.000003 (0.000013) show energy and density difference from previous lmf iteration.
 When they become smaller than tol. It is judged as converged. (CONV and CONVC in ctrl).
 In NiSe, diffe is slight larger than cliteron and going to run until NIT (upper limit).
-But no problem in QSGW usually (for purpose to get band structure--- we may use a little loose CONV CONVC probably).
+But no problem in QSGW usually
+(for purpose to get band structure--- we may use a little loose CONV CONVC probably).
 
 * magnetic moment check of lmf cycle (inner cycle for give sigm file):
 We need to check the magnetic moments
-are really controlled to be the number given in mmtarget.aftest in lmf.
+are really controlled to be the given number in mmtarget.aftest in lmf.
 To check it, we need to do 
 > grep -A4 'true mm' llmf
 (or grep -A4 'true mm' llmf_lda')
@@ -115,15 +130,17 @@ mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
 ---------
 You see true mm are almost 0.2 (and -0.2) for ibas=1 (Niup) and ibas=2 (Nidn).
 
-*uhval.aftest
-
+*mmagfield.aftest
+This contains magnetic field to controll the size of magnetic moment.
+Right after lmf-MPIK finished, mmagfield.aftest is essentially deleted (only single line).
 
 * magnetic moment check of RUN cycle.
 Read and check the script hmmom (inlcuded), and run
 ./hhmom
 It shows like 
 ...
- run ix=,160 ,uhval: 37 0.002732 0.199157 -0.200829 -0.005411 0.004808
+xxxxxxxxx
+run ix=,160 ,uhval: 37 0.002732 0.199157 -0.200829 -0.005411 0.004808
  run ix=,161 ,uhval: 72 0.003801 0.200180 -0.199685 -0.003650 0.003424
  run ix=,162 ,uhval: 21 0.005352 0.199403 -0.200113 -0.003975 0.003251
  run ix=,163 ,uhval: 45 0.007362 0.199974 -0.199989 -0.002940 0.002785
@@ -142,6 +159,11 @@ So, manetic moments are well controlled to be ~0.2.
 But we see UH value (U value) is changing from 0.002732 to 0.007699.
 This implies instability of bias field so as to keep the magnetic moment=0.2.
 
+grep mmaftest llmf, shows current converging status (see hmmom).
+
+
+* grep 'true mm' llmf -A4, show how lmf-MPI is going to be converged
+  as for magnetic moments for given sigm.nise
 
 * save.nise check:
 save.nise is not showing total energy in QSGW; just take

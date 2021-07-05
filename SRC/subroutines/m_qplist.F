@@ -66,7 +66,10 @@ c      readeferm=.false.
                cycle
             endif   
             nkp = nkp+1
-            qplist(:,nkp) = q
+ccccccccccccccccccccccccccccccccccccccc            
+c            qplist(:,nkp) = q
+            qplist(:,nkp) = q + [1d-7,2d-7,3d-7]
+ccccccccccccccccccccccccccccccccccccccc            
             ngplist(nkp)  = ngp
             iqibz=iqibz+1
             if(iqibz==nqibz) iqibzmax=nkp

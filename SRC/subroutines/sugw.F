@@ -396,7 +396,8 @@ c     call uspecb(0,4,sspec,is,is,lh,rsml,ehl,i)
 
       if(debug)print *,' goto 1001 procid=',procid
       do 1001 iq = iqini,iqend ! iqini:iqend for this procid 
-        qp  = qplist(:,iq) !  ... For this qp, G vectors for PW basis and hamiltonian dimension
+        qp  = qplist(:,iq)     !  ... For this qp, G vectors for PW basis and hamiltonian dimension
+         
         ngp = ngplist(iq)
         lwvxc = lsig>0 .and. iq<=iqibzmax
         if (cmdopt0('--novxc')) lwvxc = .false.
@@ -411,9 +412,19 @@ ccccccccccccccc
 ccccccccccccccc           
           lso=0
           if(lso==1) call rx('sugw:lso=1 is not yet')
-!! LDA Hamiltonian and overlap matrices for this qp ---
+!     ! LDA Hamiltonian and overlap matrices for this qp ---
+          
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          qp  = qplist(:,iq)    !  ... For this qp, G vectors for PW basis and hamiltonian dimension
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          
           call hambl(lso,isp,qp, spotx,vconst,sv_p_osigx,sv_p_otaux,sv_p_oppix, vxc,ovl,w) !H(LDA) wihout vxc
           call hambl(lso,isp,qp, smpot,vconst,sv_p_osig, sv_p_otau, sv_p_oppi,  ham,ovl,w) !H(LDA) and O
+          
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc            
+          qp = qplist(:,iq) - [1d-7,2d-7,3d-7]
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            
           vxc = ham - vxc ! vxc(LDA) part 
           if (lwvxc) then
             write(ifiv) ndimh,ldim,qp 
