@@ -86,6 +86,8 @@ c#endif
          read (5,*) jobgw
       endif
       call mpibc1_int(jobgw,1,'lmfp_jobgw')
+!index for hamiltonian gen_hamindex      
+      call m_hamindex_init(jobgw==0) 
       if(llmfgw.and.jobgw==0) call m_lmfgw_init() ! Get LATTIC and so on.
       if(llmfgw.and.jobgw==0) call rx0(' OK! '//'lmfgw mode=0 generated LATTC CLASS NLAindx ldima')
 !!      
@@ -117,7 +119,6 @@ c#endif
 !! Array allocated in supot rhoat smrho. We have to store all fixed quantites in modules.
       call m_supot_init()    ! get G vectors for charge
       call sugcut( 1, sspec) ! modify sspec%ngcut
-      call m_hamindex_init(jobgw==0) !index for hamiltonian gen_hamindex
       call m_suham_init()    ! Get estimated dimension of Hamiltonian (probably simplified in future).
       writeham= cmdopt0('--writeham')
       if(writeham.and.master_mpi) call m_writeham_init()

@@ -87,6 +87,8 @@
                nq0i = nq0i00
             endif
             if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPS>.')
+            allocate(epslgroup(nq0i))
+            epslgroup=0
             allocate( q0i(3,nq0i) )
             print *,' nq0i=',nq0i
             if(nq0i00>0) then
@@ -100,8 +102,6 @@
             if(nq0i0>0) then
                call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0)
                allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
-               allocate(epslgroup(nq0i))
-               epslgroup=0
                do i=1, nq0i0
                read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
                write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
