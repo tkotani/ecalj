@@ -1,20 +1,18 @@
 ===START LMFA   =====================================
  mpisize=           1
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
-mmm rsmh1     1  1.05  1.05  1.05
-mmm   eh1     1 -0.01 -0.01 -0.01
+mmm rsmh1    1  1.05  1.05  1.05
+mmm   eh1    1 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.05  1.05  1.05
 mmm  eh2     1 -1.00 -1.00 -1.00
 mmm pz       1  0.00  0.00  0.00
 mmm lh       1  2  2
 mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
-mmm rsmh1     2  0.90  0.90  0.90
-mmm   eh1     2 -0.01 -0.01 -0.01
+mmm rsmh1    2  0.90  0.90  0.90
+mmm   eh1    2 -0.01 -0.01 -0.01
 mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
@@ -145,30 +143,19 @@ OK! end of LMFA ======================
 ===START LMF   =====================================
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           1
-  mpipid=           3
-  mpipid=           2
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
-mmm rsmh1     1  1.05  1.05  1.05
-mmm   eh1     1 -0.01 -0.01 -0.01
+mmm rsmh1    1  1.05  1.05  1.05
+mmm   eh1    1 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.05  1.05  1.05
 mmm  eh2     1 -1.00 -1.00 -1.00
 mmm pz       1  0.00  0.00  0.00
 mmm lh       1  2  2
 mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
-mmm rsmh1     2  0.90  0.90  0.90
-mmm   eh1     2 -0.01 -0.01 -0.01
+mmm rsmh1    2  0.90  0.90  0.90
+mmm   eh1    2 -0.01 -0.01 -0.01
 mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
@@ -209,8 +196,9 @@ mmm lh       2  2  2
  Generator(frac): r4z::(1/2,1/2,1/2) i::(1/2,1/2,-1/2) r2(1,1,-0)
  MKSYM:  found 16 space group operations ... includes inversion
  
- BZMESH:  6 irreducible QP from 64 ( 4 4 4 )  shift= T T T
+ BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
  >> level: 1  CPUsec=      0.03  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -235,23 +223,43 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
  iors  : empty file ... nothing read
 
  rdovfa: read and overlap free-atom densities (mesh density) ...
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
  rdovfa: expected Zr,      read Zr       with rmt=  2.1000  mesh   343  0.030
  rdovfa: expected O,       read O        with rmt=  1.8000  mesh   231  0.030
 
- Smooth charge on mesh:           27.197243
- Sum of local charges:             4.802756
+ Free atom and overlapped crystal site charges:
+   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local
+    1    1.190012    1.270547    1.512593    1.593128   -0.080535
+    2    1.190012    1.270547    1.512593    1.593128   -0.080535
+    3    5.011584    3.770627    5.392143    4.151185    1.240957
+    4    5.011584    3.770627    5.392143    4.151185    1.240957
+    5    5.011584    3.770627    5.392143    4.151185    1.240957
+ end of reading rst or atm
+ end of reading rst or atm
+    6    5.011584    3.770627    5.392143    4.151185    1.240957
+
+ Smooth charge on mesh:           27.197242
+ Sum of local charges:             4.802757
  Total valence charge:            31.999999
  Sum of core charges:             80.000000
  Sum of nuclear charges:        -112.000000
  Homogeneous background:           0.000000
  Deviation from neutrality:       -0.000001
- -------- qplist --------           0
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2    1),  (    3 3)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4    1),  (    5 5)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    1 1)
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6    1),  (    6 6)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -261,123 +269,95 @@ mmm lh       2  2  2
    4  O         0.000000   0.500000   1.103087    0.000000   0.500000   0.780000
    5  O         0.500000   0.000000   0.311127    0.500000   0.000000   0.220000
    6  O         0.500000   0.000000   1.018234    0.500000   0.000000   0.720000
+
  --- BNDFP:  begin iteration 1 of 1
-bndfp:start
-
- esmsmves
-   24   24   24      3579      3579
-   6.71519   0.00000   0.00000
-   0.00000   6.71519   0.00000
-   0.00000   0.00000   9.49671
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     4.748     0.000     0.000 sa0=     45.09
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.522417  avg sphere pot= 0.297228  vconst=-0.522417
 
- smooth rhoves    221.590594   charge    27.197243
+ smooth rhoves    221.590584   charge    27.197242
  smvxcm: all smrho_w is positive
- smooth rhoeps =  -49.594839   rhomu =  -64.862935  avg vxc =   -0.933564 
+ smooth rhoeps =  -49.594837   rhomu =  -64.862933  avg vxc =   -0.933564 
 
  locpot:
 
  site  1  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.005721
 
  site  2  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.005721
 
  site  3  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.003400
 
  site  4  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.003400
 
  site  5  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.003400
 
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.003400
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -79.726280      -102.796142      -182.522422
-   rhoval*ves            -81.215969       -54.907021      -136.122990
-   psnuc*ves             524.397156    -60223.390283    -59698.993127
-   utot                  221.590594    -30139.148652    -29917.558059
-   rho*exc               -49.594839      -455.878832      -505.473671
-   rho*vxc               -64.862935      -604.414056      -669.276991
-   valence chg            27.197243         4.802756        31.999999
+   rhoval*vef            -79.726273      -102.796148      -182.522421
+   rhoval*ves            -81.215977       -54.907012      -136.122990
+   psnuc*ves             524.397145    -60223.390273    -59698.993128
+   utot                  221.590584    -30139.148643    -29917.558059
+   rho*exc               -49.594837      -455.878834      -505.473671
+   rho*vxc               -64.862933      -604.414058      -669.276991
+   valence chg            27.197242         4.802757        31.999999
    core charge            80.000000        -0.000001        79.999999
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.1726
+ ... Done MPI k-loop: elapsed time=   0.2435
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: -0.062678;  32 electrons;  Sum occ. bands: -15.015887
  VBmax = -0.062678  CBmin = 0.566273  gap = 0.628951 Ry = 8.55373 eV
-Highest occ., Ef, Lowest unocc.=  -0.06268   0.25180   0.56627
-Highest occ., Ef, Lowest unocc.=   0.25180
+ HOMO; Ef; LUMO =  -0.062678   0.251797   0.566273
 Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
- bndfp: kpt    1 of    6 k isp=  0.1250  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    2 of    6 k isp=  0.3750  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    3 of    6 k isp=  0.3750  0.3750  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    4 of    6 k isp=  0.1250  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    5 of    6 k isp=  0.3750  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    6 of    6 k isp=  0.3750  0.3750  0.2652 1 ndimh nev=  108   21
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local
    1    0.511689    0.556378   -0.044689
    2    0.511689    0.556378   -0.044689
    3    6.362468    4.346503    2.015965
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
    4    6.388095    4.353745    2.034351
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
    5    6.362468    4.346503    2.015965
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
    6    6.388095    4.353745    2.034351
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -73.86805  sum tc=   115.26778  rho(rmax) 0.00000
 
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -422,26 +402,12 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  2     0    0.009662   -0.267502    3.100000    3.181812    3.147584    3.181812
 
  Harris energy:
- sumev=      -15.015887  val*vef=    -182.522422   sumtv=     167.506535
+ sumev=      -15.015887  val*vef=    -182.522421   sumtv=     167.506535
  sumec=     -295.472216  cor*vef=    -756.629116   ttcor=   15276.039407
  rhoeps=    -505.473671     utot=  -29917.558059    ehar=  -14979.485787
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
 
- Harris correction to forces: shift in free-atom density              
-  ib         delta-n dVes             delta-n dVxc               total
-   1   -0.00    0.00   -0.00     0.00   -0.00   -0.00    -0.00    0.00    0.00
-   2    0.00   -0.00   -0.00    -0.00    0.00    0.00     0.00   -0.00   -0.00
-   3    0.00   -0.00 -113.17     0.00   -0.00  -12.05    -0.00    0.00  125.21
-   4    0.00   -0.00 -113.17    -0.00    0.00  -12.05     0.00   -0.00  125.21
-   5   -0.00   -0.00  113.17    -0.00    0.00   12.05     0.00   -0.00 -125.21
-   6   -0.00   -0.00  113.17     0.00   -0.00   12.05    -0.00    0.00 -125.21
- shift forces to make zero average correction:           -0.00   -0.00    0.00
-
- srhov:    -61.310141   -124.372934   -185.683075 sumev=  -15.015887   sumtv=  170.667188
- jesm=0 return
-
+ srhov:    -61.310141   -124.372935   -185.683075 sumev=  -15.015887   sumtv=  170.667188
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.527201  avg sphere pot= 0.301141  vconst=-0.527201
 
  smooth rhoves    214.717495   charge    23.988747
@@ -480,6 +446,19 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  Kohn-Sham energy:
  sumtv=      170.667188  sumtc=     15275.953625   ekin=    15446.620813
  rhoep=     -507.743686   utot=    -29916.304118   ehks=   -14977.426991
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1   -0.00    0.00   -0.00     0.00   -0.00   -0.00    -0.00    0.00    0.00
+   2    0.00   -0.00    0.00    -0.00    0.00    0.00     0.00   -0.00   -0.00
+   3    0.00   -0.00 -113.17     0.00   -0.00  -12.05    -0.00    0.00  125.21
+   4   -0.00   -0.00 -113.17    -0.00    0.00  -12.05     0.00   -0.00  125.21
+   5   -0.00   -0.00  113.17    -0.00    0.00   12.05     0.00   -0.00 -125.21
+   6   -0.00   -0.00  113.17     0.00   -0.00   12.05    -0.00    0.00 -125.21
+ shift forces to make zero average correction:            0.00   -0.00    0.00
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
@@ -496,47 +475,34 @@ Generating TDOS: efermi, and dos window=    0.2518  -0.5000   1.7518
  mixing: mode=A  nmix=1  beta=1  elind=1.698
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
- mixrho:  sought 1 iter from file mixm; read 1.  RMS DQ=2.57e-2
- AMIX: Reducing nmix to  0: t_j exceeds tm: tj=*********
+ mixrho:  sought 1 iter from file mixm; read 0.  RMS DQ=2.57e-2
  AMIX: nmix=0 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.57D-02
  mixrho: add corrections to qcell smrho = -0.13143D-06 -0.30690D-09
  unscreened rms difference:  smooth  0.021912   local  0.045568
    screened rms difference:  smooth  0.021912   local  0.045568   tot  0.025673
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=  -14979.485787   ehk=  -14977.426991
 h nitq=1 force=1 fp=1 ehf=-14979.4857874 ehk=-14977.4269909
- >>      0.58   exit  lmfp            0.55
+ >>      0.90   exit  lmfp            0.86
 OK! end of LMF ======================
 ===START LMF   =====================================
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           1
-  mpipid=           3
-  mpipid=           2
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
-mmm rsmh1     1  1.05  1.05  1.05
-mmm   eh1     1 -0.01 -0.01 -0.01
+mmm rsmh1    1  1.05  1.05  1.05
+mmm   eh1    1 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.05  1.05  1.05
 mmm  eh2     1 -1.00 -1.00 -1.00
 mmm pz       1  0.00  0.00  0.00
 mmm lh       1  2  2
 mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
-mmm rsmh1     2  0.90  0.90  0.90
-mmm   eh1     2 -0.01 -0.01 -0.01
+mmm rsmh1    2  0.90  0.90  0.90
+mmm   eh1    2 -0.01 -0.01 -0.01
 mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
@@ -577,8 +543,9 @@ mmm lh       2  2  2
  Generator(frac): r4z::(1/2,1/2,1/2) i::(1/2,1/2,-1/2) r2(1,1,-0)
  MKSYM:  found 16 space group operations ... includes inversion
  
- BZMESH:  6 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.08  enter lmfp
+ BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
+ >> level: 1  CPUsec=      0.06  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -587,6 +554,7 @@ mmm lh       2  2  2
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
+ goto end of reading rst or atm           1
  SGVSYM: 312 symmetry stars found for 3579 reciprocal lattice vectors
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
@@ -601,14 +569,24 @@ mmm lh       2  2  2
   O        1*   0.90  -0.01  10.119    2.69E-05    3579*
   O        2    0.90  -0.01  10.694    2.12E-04    3579*
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
+ goto end of reading rst or atm           1
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
+ goto end of reading rst or atm           1
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
- -------- qplist --------           0
+ end of reading rst or atm
+ end of reading rst or atm
+ m_qplistinit:start
+ end of reading rst or atm
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    1 1)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2    1),  (    3 3)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6    1),  (    6 6)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4    1),  (    5 5)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -620,35 +598,24 @@ mmm lh       2  2  2
    6  O         0.500000   0.000000   1.018234    0.500000   0.000000   0.720000
 
  iors  : write restart file (ascii, mesh density) 
- >>      0.14   exit  lmfp            0.05
+ >>      0.13   exit  lmfp            0.06
 OK! end of LMF ======================
 ===START LMF   =====================================
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           2
-  mpipid=           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
-mmm rsmh1     1  1.05  1.05  1.05
-mmm   eh1     1 -0.01 -0.01 -0.01
+mmm rsmh1    1  1.05  1.05  1.05
+mmm   eh1    1 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.05  1.05  1.05
 mmm  eh2     1 -1.00 -1.00 -1.00
-  mpipid=           3
-  mpipid=           1
 mmm pz       1  0.00  0.00  0.00
 mmm lh       1  2  2
 mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
-mmm rsmh1     2  0.90  0.90  0.90
-mmm   eh1     2 -0.01 -0.01 -0.01
+mmm rsmh1    2  0.90  0.90  0.90
+mmm   eh1    2 -0.01 -0.01 -0.01
 mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
@@ -689,8 +656,9 @@ mmm lh       2  2  2
  Generator(frac): r4z::(1/2,1/2,1/2) i::(1/2,1/2,-1/2) r2(1,1,-0)
  MKSYM:  found 16 space group operations ... includes inversion
  
- BZMESH:  6 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.04  enter lmfp
+ BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
+ >> level: 1  CPUsec=      0.03  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -699,6 +667,8 @@ mmm lh       2  2  2
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
  SGVSYM: 312 symmetry stars found for 3579 reciprocal lattice vectors
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
@@ -715,12 +685,21 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
+ goto end of reading rst or atm           1
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
- -------- qplist --------           0
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
+ m_qplistinit:start
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4    1),  (    5 5)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6    1),  (    6 6)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2    1),  (    3 3)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    1 1)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -730,20 +709,9 @@ mmm lh       2  2  2
    4  O         0.000000   0.500000   1.103087    0.000000   0.500000   0.780000
    5  O         0.500000   0.000000   0.311127    0.500000   0.000000   0.220000
    6  O         0.500000   0.000000   1.018234    0.500000   0.000000   0.720000
+
  --- BNDFP:  begin iteration 1 of 1
-bndfp:start
-
- esmsmves
-   24   24   24      3579      3579
-   6.71519   0.00000   0.00000
-   0.00000   6.71519   0.00000
-   0.00000   0.00000   9.49671
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     4.748     0.000     0.000 sa0=     45.09
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.512870  avg sphere pot= 0.301141  vconst=-0.512870
 
  smooth rhoves    212.318525   charge    23.988747
@@ -754,53 +722,29 @@ effective screening medium method jesm=  0
 
  site  1  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.009484
 
  site  2  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.009484
 
  site  3  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
 
  site  4  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
 
  site  5  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
 
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
 
  Energy terms:             smooth           local           total
    rhoval*vef            -53.564708      -121.377551      -174.942259
    rhoval*ves            -73.690284       -52.428109      -126.118394
    psnuc*ves             498.327334    -60209.442715    -59711.115381
-   utot                  212.318525    -30130.935412    -29918.616888
+   utot                  212.318525    -30130.935412    -29918.616887
    rho*exc               -45.445618      -461.641945      -507.087563
    rho*vxc               -59.427014      -611.981528      -671.408542
    valence chg            23.988747         8.011253        32.000000
@@ -808,45 +752,52 @@ effective screening medium method jesm=  0
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.1727
+ ... Done MPI k-loop: elapsed time=   0.2943
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: 0.344997;  32 electrons;  Sum occ. bands: -4.660890
  VBmax = 0.344997  CBmin = 0.439674  gap = 0.094677 Ry = 1.28760 eV
-Highest occ., Ef, Lowest unocc.=   0.34500   0.39234   0.43967
-Highest occ., Ef, Lowest unocc.=   0.39234
+ HOMO; Ef; LUMO =   0.344997   0.392336   0.439674
 Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
- bndfp: kpt    1 of    6 k isp=  0.1250  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    2 of    6 k isp=  0.3750  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    3 of    6 k isp=  0.3750  0.3750  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    4 of    6 k isp=  0.1250  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    5 of    6 k isp=  0.3750  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    6 of    6 k isp=  0.3750  0.3750  0.2652 1 ndimh nev=  108   21
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
+
+
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local
    1    1.877225    1.525460    0.351764
    2    1.877225    1.525460    0.351764
    3    5.043794    3.860056    1.183737
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    4    5.068510    3.868163    1.200347
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    5    5.043794    3.860056    1.183737
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    6    5.068510    3.868163    1.200347
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -891,26 +842,12 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  2     0    0.029344    0.074540    3.181812    3.190261    3.147584    3.190261
 
  Harris energy:
- sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281370
+ sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281369
  sumec=     -287.415949  cor*vef=    -748.486336   ttcor=   15275.952894
- rhoeps=    -507.087563     utot=  -29918.616888    ehar=  -14979.470188
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
-
- Harris correction to forces: shift in free-atom density              
-  ib         delta-n dVes             delta-n dVxc               total
-   1    0.00    0.00   -0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
-   2   -0.00   -0.00   -0.00    -0.00   -0.00   -0.00     0.00    0.00    0.00
-   3    0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
-   4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
-   5   -0.00    0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
-   6    0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
- shift forces to make zero average correction:            0.00    0.00   -0.00
+ rhoeps=    -507.087563     utot=  -29918.616887    ehar=  -14979.470188
 
  srhov:    -54.205401   -106.420764   -160.626165 sumev=   -4.660890   sumtv=  155.965276
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.567051  avg sphere pot= 0.299828  vconst=-0.567051
 
  smooth rhoves    224.013133   charge    26.528304
@@ -934,7 +871,7 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=F
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -67.191660      -109.965721      -177.157381
+   rhoval*vef            -67.191660      -109.965720      -177.157381
    rhoval*ves            -90.038037       -42.861412      -132.899449
    psnuc*ves             538.064303    -60212.708470    -59674.644167
    utot                  224.013133    -30127.784941    -29903.771808
@@ -949,6 +886,19 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  Kohn-Sham energy:
  sumtv=      155.965276  sumtc=     15275.057293   ekin=    15431.022568
  rhoep=     -503.878033   utot=    -29903.771808   ehks=   -14976.627272
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00   -0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
+   2    0.00   -0.00    0.00    -0.00   -0.00   -0.00     0.00    0.00    0.00
+   3    0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
+   4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
+   5   -0.00    0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
+   6    0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
+ shift forces to make zero average correction:            0.00   -0.00    0.00
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
@@ -965,47 +915,35 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  mixing: mode=A  nmix=1  beta=1  elind=1.698
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
- mixrho:  sought 1 iter from file mixm; read 2.  RMS DQ=2.85e-2
+ mixrho:  sought 1 iter from file mixm; read 1.  RMS DQ=2.85e-2
  AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.85D-02
    tj: 0.52762
- mixrho: add corrections to qcell smrho = -0.96100D-07 -0.22441D-09
+ mixrho: add corrections to qcell smrho = -0.96100D-07 -0.22440D-09
  unscreened rms difference:  smooth  0.011535   local  0.048179
    screened rms difference:  smooth  0.011535   local  0.048179   tot  0.028505
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627272
-x nitq=1 force=1 fp=1 ehf=-14979.4701876 ehk=-14976.6272725
- >>      0.58   exit  lmfp            0.54
+x nitq=1 force=1 fp=1 ehf=-14979.4701876 ehk=-14976.6272724
+ >>      1.01   exit  lmfp            0.99
 OK! end of LMF ======================
 ===START LMF   =====================================
  mpisize=           4
  HEADER ZrO_2 fluorite in tetragonal setting, with tetragonal distortion dc is the shift of the oxygens in units of the c-axis
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           0
-  mpipid=           2
-  mpipid=           1
-  mpipid=           3
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    2    0    2    2
-mmm rsmh1     1  1.05  1.05  1.05
-mmm   eh1     1 -0.01 -0.01 -0.01
+mmm rsmh1    1  1.05  1.05  1.05
+mmm   eh1    1 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.05  1.05  1.05
 mmm  eh2     1 -1.00 -1.00 -1.00
 mmm pz       1  0.00  0.00  0.00
 mmm lh       1  2  2
 mmm ispec lmxb lpzex nkapii nkaphh=    2    2    0    2    2
-mmm rsmh1     2  0.90  0.90  0.90
-mmm   eh1     2 -0.01 -0.01 -0.01
+mmm rsmh1    2  0.90  0.90  0.90
+mmm   eh1    2 -0.01 -0.01 -0.01
 mmm rsmh2    2  0.90  0.90  0.90
 mmm  eh2     2 -1.00 -1.00 -1.00
 mmm pz       2  0.00  0.00  0.00
@@ -1046,16 +984,20 @@ mmm lh       2  2  2
  Generator(frac): r4z::(1/2,1/2,1/2) i::(1/2,1/2,-1/2) r2(1,1,-0)
  MKSYM:  found 16 space group operations ... includes inversion
  
- BZMESH:  6 irreducible QP from 64 ( 4 4 4 )  shift= T T T
- >> level: 1  CPUsec=      0.08  enter lmfp
+ BZMESH:      6 irreducible QP from    4   4   4 shift=TTT
+ >> level: 1  CPUsec=      0.04  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  Zr       2.100  0.700    2    4         2  0.525  1.050    15    1   0.840
  O        1.800  0.600    2    4         2  0.450  0.900    15    0   0.720
+ goto end of reading rst or atm           2
+ goto end of reading rst or atm           2
 
  GVLST2: gmax = 7.939 a.u. created 3579 vectors of 13824 (25%)
          (input) mesh has 24 x 24 x 24 divisions; length 0.280, 0.280, 0.396
+ goto end of reading rst or atm           2
  SGVSYM: 312 symmetry stars found for 3579 reciprocal lattice vectors
 
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-08
@@ -1072,12 +1014,20 @@ mmm lh       2  2  2
   O        0*   0.90  -1.00   9.538    3.42E-06    3579*
   O        1*   0.90  -1.00  10.119    2.69E-05    3579*
   O        2    0.90  -1.00  10.694    2.12E-04    3579*
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           2
 
  iors  : read restart file (ascii, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
- -------- qplist --------           0
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (    4    1),  (    5 5)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (    2    1),  (    3 3)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (    6    1),  (    6 6)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (    1 1)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
@@ -1087,20 +1037,9 @@ mmm lh       2  2  2
    4  O         0.000000   0.500000   1.103087    0.000000   0.500000   0.780000
    5  O         0.500000   0.000000   0.311127    0.500000   0.000000   0.220000
    6  O         0.500000   0.000000   1.018234    0.500000   0.000000   0.720000
+
  --- BNDFP:  begin iteration 1 of 1
-bndfp:start
-
- esmsmves
-   24   24   24      3579      3579
-   6.71519   0.00000   0.00000
-   0.00000   6.71519   0.00000
-   0.00000   0.00000   9.49671
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     4.748     0.000     0.000 sa0=     45.09
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.512870  avg sphere pot= 0.301141  vconst=-0.512870
 
  smooth rhoves    212.318525   charge    23.988747
@@ -1111,53 +1050,29 @@ effective screening medium method jesm=  0
 
  site  1  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.009484
 
  site  2  z= 40.0  rmt= 2.10000  nr=343   a=0.030  nlml= 9  rg=0.525  Vfloat=T
  sm core charge = 8.953564 (sphere) + 0.587622 (spillout) = 9.541186
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.009484
 
  site  3  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
- qqx nkapi nkape=           2           2
 
  site  4  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
 
  site  5  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
 
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=T
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.004299
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
 
  Energy terms:             smooth           local           total
    rhoval*vef            -53.564708      -121.377551      -174.942259
    rhoval*ves            -73.690284       -52.428109      -126.118394
    psnuc*ves             498.327334    -60209.442715    -59711.115381
-   utot                  212.318525    -30130.935412    -29918.616888
+   utot                  212.318525    -30130.935412    -29918.616887
    rho*exc               -45.445618      -461.641945      -507.087563
    rho*vxc               -59.427014      -611.981528      -671.408542
    valence chg            23.988747         8.011253        32.000000
@@ -1165,45 +1080,52 @@ effective screening medium method jesm=  0
 
  Charges:  valence    32.00000   cores    80.00000   nucleii  -112.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of     6 k=  0.1250  0.1250  0.0884 ndimh = nmto+napw =   108  108    0
- ... Done MPI k-loop: elapsed time=   0.1733
+ ... Done MPI k-loop: elapsed time=   0.5192
 
  BZWTS : --- Non-metal sampling ---
  Fermi energy: 0.344997;  32 electrons;  Sum occ. bands: -4.660890
  VBmax = 0.344997  CBmin = 0.439674  gap = 0.094677 Ry = 1.28760 eV
-Highest occ., Ef, Lowest unocc.=   0.34500   0.39234   0.43967
-Highest occ., Ef, Lowest unocc.=   0.39234
+ HOMO; Ef; LUMO =   0.344997   0.392336   0.439674
 Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
- bndfp: kpt    1 of    6 k isp=  0.1250  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    2 of    6 k isp=  0.3750  0.1250  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    3 of    6 k isp=  0.3750  0.3750  0.0884 1 ndimh nev=  108   21
- bndfp: kpt    4 of    6 k isp=  0.1250  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    5 of    6 k isp=  0.3750  0.1250  0.2652 1 ndimh nev=  108   21
- bndfp: kpt    6 of    6 k isp=  0.3750  0.3750  0.2652 1 ndimh nev=  108   21
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
+
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
+
+
+ getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
+ sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  mkrout:  Qtrue      sm,loc       local
    1    1.877225    1.525460    0.351764
    2    1.877225    1.525460    0.351764
    3    5.043794    3.860056    1.183737
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    4    5.068510    3.868163    1.200347
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    5    5.043794    3.860056    1.183737
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
    6    5.068510    3.868163    1.200347
- getcor:  qcore=  2.00  qsc=  2.00  konf = 2  2  3 
- sum q= 2.00  sum ec=   -71.85399  sum tc=   115.04370  rho(rmax) 0.00000
 
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1248,26 +1170,12 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  2     0    0.029344    0.074540    3.181812    3.190261    3.147584    3.190261
 
  Harris energy:
- sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281370
+ sumev=       -4.660890  val*vef=    -174.942259   sumtv=     170.281369
  sumec=     -287.415949  cor*vef=    -748.486336   ttcor=   15275.952894
- rhoeps=    -507.087563     utot=  -29918.616888    ehar=  -14979.470188
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
- smvxcm: all smrho_w is positive
-
- Harris correction to forces: shift in free-atom density              
-  ib         delta-n dVes             delta-n dVxc               total
-   1    0.00    0.00   -0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
-   2   -0.00   -0.00    0.00    -0.00   -0.00   -0.00     0.00    0.00    0.00
-   3    0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
-   4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
-   5   -0.00   -0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
-   6    0.00   -0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
- shift forces to make zero average correction:           -0.00   -0.00   -0.00
+ rhoeps=    -507.087563     utot=  -29918.616887    ehar=  -14979.470188
 
  srhov:    -54.205401   -106.420764   -160.626165 sumev=   -4.660890   sumtv=  155.965276
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.567051  avg sphere pot= 0.299828  vconst=-0.567051
 
  smooth rhoves    224.013133   charge    26.528304
@@ -1291,7 +1199,7 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  site  6  z=  8.0  rmt= 1.80000  nr=231   a=0.030  nlml= 9  rg=0.450  Vfloat=F
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -67.191660      -109.965721      -177.157381
+   rhoval*vef            -67.191660      -109.965720      -177.157381
    rhoval*ves            -90.038037       -42.861412      -132.899449
    psnuc*ves             538.064303    -60212.708470    -59674.644167
    utot                  224.013133    -30127.784941    -29903.771808
@@ -1306,6 +1214,19 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  Kohn-Sham energy:
  sumtv=      155.965276  sumtc=     15275.057293   ekin=    15431.022568
  rhoep=     -503.878033   utot=    -29903.771808   ehks=   -14976.627272
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+ smvxcm: all smrho_w is positive
+
+ Harris correction to forces: shift in free-atom density              
+  ib         delta-n dVes             delta-n dVxc               total
+   1    0.00    0.00   -0.00     0.00    0.00    0.00    -0.00   -0.00   -0.00
+   2    0.00   -0.00    0.00    -0.00   -0.00   -0.00     0.00    0.00    0.00
+   3   -0.00   -0.00   60.94     0.00   -0.00   -0.76    -0.00    0.00  -60.19
+   4   -0.00   -0.00   60.94    -0.00    0.00   -0.76     0.00   -0.00  -60.19
+   5   -0.00    0.00  -60.94    -0.00    0.00    0.76     0.00   -0.00   60.19
+   6    0.00    0.00  -60.94     0.00   -0.00    0.76    -0.00    0.00   60.19
+ shift forces to make zero average correction:            0.00   -0.00   -0.00
 
  Forces, with eigenvalue correction
   ib           estatic                  eigval                    total
@@ -1322,15 +1243,14 @@ Generating TDOS: efermi, and dos window=    0.3923  -0.5000   1.8923
  mixing: mode=A  nmix=1  beta=1  elind=1.698
  mixrealsmooth= T
  wgtsmooth=   8.5051727179971462E-003
- mixrho:  sought 1 iter from file mixm; read 2.  RMS DQ=2.85e-2
+ mixrho:  sought 1 iter from file mixm; read 1.  RMS DQ=2.85e-2
  AMIX: nmix=1 mmix=8  nelts= 18016  beta=1.00000  tm= 5.00000  rmsdel=2.85D-02
    tj: 0.52762
  mixrho: add corrections to qcell smrho = -0.96100D-07 -0.22441D-09
  unscreened rms difference:  smooth  0.011535   local  0.048179
    screened rms difference:  smooth  0.011535   local  0.048179   tot  0.028505
- mixrho: all smrho are positive for isp=  1
 
    it  1  of  1    ehf=  -14979.470188   ehk=  -14976.627272
-x nitq=1 force=1 fp=1 ehf=-14979.4701876 ehk=-14976.6272725
- >>      0.64   exit  lmfp            0.56
+x nitq=1 force=1 fp=1 ehf=-14979.4701876 ehk=-14976.6272724
+ >>      1.42   exit  lmfp            1.39
 OK! end of LMF ======================

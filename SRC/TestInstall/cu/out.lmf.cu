@@ -1,11 +1,10 @@
 ===START LMFA   =====================================
  mpisize=           1
- nkaphh(j) = nkapii(j) + lpzex(j)           1           1           0
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    1    1
-mmm rsmh1     1  2.50  2.50  1.00  0.00
-mmm   eh1     1 -0.01 -0.01 -0.01 -0.01
+mmm rsmh1    1  2.50  2.50  1.00  0.00
+mmm   eh1    1 -0.01 -0.01 -0.01 -0.01
 mmm rsmh2    1  0.00  0.00  0.00  0.00
 mmm  eh2     1  0.00  0.00  0.00  0.00
 mmm pz       1  5.50  5.50  4.50  0.00
@@ -103,7 +102,7 @@ conf:   rmt=2.311271  rmax=48.805862  a=0.025  nr=393  nr(rmax)=515
    51   29.000000   4.211E-05      274.8263    0.2631E+05     -130.7915   0.30
 
  end of atomsc xxxxx
- vsum=  -130.79144076069792                1
+ vsum=  -130.79144080568264                1
 
  sumev=-4.333254  etot=-3304.416258  eref=-3304.434500  diff= 0.018242
 
@@ -163,23 +162,16 @@ Sum of reference energies:                  -3304.434500000000
 OK! end of LMFA ======================
 ===START LMF   =====================================
  mpisize=           4
- nkaphh(j) = nkapii(j) + lpzex(j)           1           1           0
- nkaphh(j) = nkapii(j) + lpzex(j)           1           1           0
- nkaphh(j) = nkapii(j) + lpzex(j)           1           1           0
- nkaphh(j) = nkapii(j) + lpzex(j)           1           1           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           2
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    3    0    1    1
-mmm rsmh1     1  2.50  2.50  1.00  0.00
-mmm   eh1     1 -0.01 -0.01 -0.01 -0.01
+mmm rsmh1    1  2.50  2.50  1.00  0.00
+mmm   eh1    1 -0.01 -0.01 -0.01 -0.01
 mmm rsmh2    1  0.00  0.00  0.00  0.00
 mmm  eh2     1  0.00  0.00  0.00  0.00
 mmm pz       1  5.50  5.50  4.50  0.00
 mmm lh       1  2  2
-  mpipid=           3
-  mpipid=           1
 
                 Plat                                  Qlat
    0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
@@ -248,17 +240,21 @@ mmm lh       1  2  2
  Generator(frac): i*r3(1,1,-1) r4x
  MKSYM:  found 48 space group operations ... includes inversion
  
- BZMESH:  60 irreducible QP from 512 ( 8 8 8 )  shift= T T T
+ BZMESH:     60 irreducible QP from    8   8   8 shift=TTT
  TETIRR: sorting 3072 tetrahedra ...
  264 inequivalent ones found
- >> level: 1  CPUsec=      0.08  enter lmfp
+ >> level: 1  CPUsec=      0.09  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  A        2.311  0.925    3    4         3  0.578  1.156    15    1   0.925
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
 
  MSHSIZ: mesh has 11 x 11 x 11 divisions; length 0.437, 0.437, 0.437
          generated from gmax = 9.0 a.u. : 941 vectors of 1331 (70%)
+ goto end of reading rst or atm           1
 
  GVLST2: gmax = 9.0 a.u. created 941 vectors of 1331 (70%)
          (input) mesh has 11 x 11 x 11 divisions; length 0.437, 0.437, 0.437
@@ -269,7 +265,7 @@ mmm lh       1  2  2
   A        0*   2.50  -0.01   2.974    2.30E-05      27 
   A        1    2.50  -0.01   3.093    1.29E-06      51 
   A        2    1.00  -0.01   8.508    1.16E-06     869 
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
  iors  : empty file ... nothing read
@@ -280,7 +276,12 @@ mmm lh       1  2  2
  ovlpfa: overlap smooth part of FA densities
  total smooth Q = 4.646654
 
- ovlocr: make sphere densities from overlapping FA densities (parallel)
+ Free atom and overlapped crystal site charges:
+   ib    true(FA)    smooth(FA)  true(OV)    smooth(OV)    local
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
+    1    9.796164    3.442818   10.275300    3.921954    6.353346
 
  Smooth charge on mesh:            4.646654
  Sum of local charges:             6.353346
@@ -288,55 +289,44 @@ mmm lh       1  2  2
  Sum of core charges:             18.000000
  Sum of nuclear charges:         -29.000000
  Homogeneous background:           0.000000
- Deviation from neutrality:       -0.000000
- -------- qplist --------           0
+ Deviation from neutrality:        0.000000
+ end of reading rst or atm
+ m_qplistinit:start
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (   16    1),  (   3030)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   46    1),  (   6060)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   31    1),  (   4545)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (   1515)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
    1  A         0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+
  --- BNDFP:  begin iteration 1 of 12
-bndfp:start
-
- esmsmves
-   11   11   11       941       941
-   0.00000   3.39900   3.39900
-   3.39900   0.00000   3.39900
-   3.39900   3.39900   0.00000
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     0.000     0.000     0.000 sa0=     11.55
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.554993  avg sphere pot= 0.633521  vconst=-0.554993
 
  smooth rhoves     11.022237   charge     4.646654
  smvxcm: all smrho_w is positive
- smooth rhoeps =   -3.843801   rhomu =   -5.010455  avg vxc =   -0.851784 
+ smooth rhoeps =   -3.843801   rhomu =   -5.010456  avg vxc =   -0.851784 
 
  locpot:
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- potential shift to crystal energy zero:    0.000013
+ potential shift to crystal energy zero:    0.000012
 
  Energy terms:             smooth           local           total
-   rhoval*vef            -12.156987      -177.336819      -189.493805
-   rhoval*ves            -46.689417      -115.324371      -162.013788
-   psnuc*ves              68.733890    -12976.662453    -12907.928563
-   utot                   11.022237     -6545.993412     -6534.971175
-   rho*exc                -3.843801      -126.414296      -130.258096
-   rho*vxc                -5.010455      -167.409313      -172.419769
+   rhoval*vef            -12.156988      -177.336818      -189.493806
+   rhoval*ves            -46.689418      -115.324370      -162.013788
+   psnuc*ves              68.733893    -12976.662455    -12907.928563
+   utot                   11.022237     -6545.993413     -6534.971175
+   rho*exc                -3.843801      -126.414296      -130.258097
+   rho*vxc                -5.010456      -167.409313      -172.419769
    valence chg             4.646654         6.353346        11.000000
    core charge            18.000000        -0.000000        18.000000
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
-    hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
+    hom background     0.00000   deviation from neutrality:      0.00000
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -353,74 +343,13 @@ effective screening medium method jesm=  0
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0468
+ ... Done MPI k-loop: elapsed time=   0.0841
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.144577;  11.000000 electrons
          Sum occ. bands:   -0.853241, incl. Bloechl correction: -0.006586
 Generating TDOS: efermi, and dos window=    0.1446  -0.5000   1.6446
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1    9.927753    3.113494    6.814259
@@ -428,7 +357,7 @@ Generating TDOS: efermi, and dos window=    0.1446  -0.5000   1.6446
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -447,13 +376,12 @@ Generating TDOS: efermi, and dos window=    0.1446  -0.5000   1.6446
  3     1    0.023532   -0.061245    4.110000    4.125360    4.102416    4.110000
 
  Harris energy:
- sumev=       -0.853241  val*vef=    -189.493805   sumtv=     188.640564
+ sumev=       -0.853241  val*vef=    -189.493806   sumtv=     188.640564
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    3171.756639
- rhoeps=    -130.258096     utot=   -6534.971175    ehar=   -3304.832068
+ rhoeps=    -130.258097     utot=   -6534.971175    ehar=   -3304.832068
 
  srhov:     -6.360832   -168.222947   -174.583779 sumev=   -0.853241   sumtv=  173.730538
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.677273  avg sphere pot= 0.653661  vconst=-0.677273
 
  smooth rhoves     13.178917   charge     4.185741
@@ -469,7 +397,7 @@ Generating TDOS: efermi, and dos window=    0.1446  -0.5000   1.6446
    rhoval*vef             -7.030294      -175.113437      -182.143731
    rhoval*ves            -50.182882      -106.215168      -156.398050
    psnuc*ves              76.540716    -12962.871091    -12886.330375
-   utot                   13.178917     -6534.543129     -6521.364212
+   utot                   13.178917     -6534.543129     -6521.364213
    rho*exc                -3.054117      -125.587140      -128.641257
    rho*vxc                -3.974963      -166.302313      -170.277276
    valence chg             4.185741         6.814259        11.000000
@@ -479,30 +407,25 @@ Generating TDOS: efermi, and dos window=    0.1446  -0.5000   1.6446
     hom background     0.00000   deviation from neutrality:      0.00000
 
  Kohn-Sham energy:
- sumtv=      173.730538  sumtc=      3171.756639   ekin=     3345.487177
- rhoep=     -128.641257   utot=     -6521.364212   ehks=    -3304.518292
+ sumtv=      173.730538  sumtc=      3171.756639   ekin=     3345.487178
+ rhoep=     -128.641257   utot=     -6521.364213   ehks=    -3304.518292
   
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  mixrealsmooth= T
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=3.60e-2
- charges:       old           new         screened      rms diff       lin mix
- smooth       4.646654      4.185741      4.185741      0.045849      4.185741
- site    1    6.353346      6.814259      6.814259      0.019256      6.814259
  AMIX: nmix=0 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=3.60D-02
  mixrho: add corrections to qcell smrho = -0.23316D-07 -0.29688D-09
  unscreened rms difference:  smooth  0.045849   local  0.019256
    screened rms difference:  smooth  0.045849   local  0.019256   tot  0.035987
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of 12    ehf=      -0.397568   ehk=      -0.083792
 h nk=8 bigbas=0 ehf=-.3975678 ehk=-.0837925
- --- BNDFP:  begin iteration 2 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 2 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.633049  avg sphere pot= 0.653661  vconst=-0.633049
 
  smooth rhoves     12.286148   charge     4.185741
@@ -513,17 +436,13 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000645
 
  Energy terms:             smooth           local           total
    rhoval*vef             -7.713664      -175.301697      -183.015361
-   rhoval*ves            -48.957953      -107.937662      -156.895615
-   psnuc*ves              73.530250    -12964.307473    -12890.777223
-   utot                   12.286148     -6536.122568     -6523.836419
+   rhoval*ves            -48.957953      -107.937662      -156.895616
+   psnuc*ves              73.530250    -12964.307473    -12890.777224
+   utot                   12.286148     -6536.122568     -6523.836420
    rho*exc                -3.109207      -125.879109      -128.988316
    rho*vxc                -4.047536      -166.689181      -170.736716
    valence chg             4.185741         6.814259        11.000000
@@ -531,7 +450,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -548,73 +466,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0775
+ ... Done MPI k-loop: elapsed time=   0.2065
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.191168;  11.000000 electrons
          Sum occ. bands:   -7.093537, incl. Bloechl correction: -0.013293
 Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.391031    1.889094    8.501937
@@ -622,7 +479,7 @@ Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -641,13 +498,12 @@ Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
  3     1    0.010349   -0.615446    4.110000    4.111973    4.102416    4.110000
 
  Harris energy:
- sumev=       -7.093537  val*vef=    -183.015361   sumtv=     175.921823
+ sumev=       -7.093537  val*vef=    -183.015361   sumtv=     175.921824
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    3171.756639
- rhoeps=    -128.988316     utot=   -6523.836419    ehar=   -3305.146273
+ rhoeps=    -128.988316     utot=   -6523.836420    ehar=   -3305.146273
 
- srhov:     -4.200079   -222.070552   -226.270631 sumev=   -7.093537   sumtv=  219.177094
- jesm=0 return
-
+ srhov:     -4.200079   -222.070552   -226.270631 sumev=   -7.093537   sumtv=  219.177093
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.400483  avg sphere pot= 0.664691  vconst=-0.400483
 
  smooth rhoves      4.818396   charge     2.498063
@@ -661,9 +517,9 @@ Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
 
  Energy terms:             smooth           local           total
    rhoval*vef             -3.180685      -205.534191      -208.714876
-   rhoval*ves            -36.498704      -142.152533      -178.651237
-   psnuc*ves              46.135497    -12991.549490    -12945.413994
-   utot                    4.818396     -6566.851012     -6562.032615
+   rhoval*ves            -36.498704      -142.152532      -178.651237
+   psnuc*ves              46.135497    -12991.549490    -12945.413993
+   utot                    4.818396     -6566.851011     -6562.032615
    rho*exc                -1.661083      -131.002602      -132.663685
    rho*vxc                -2.159363      -173.451554      -175.610917
    valence chg             2.498063         8.501937        11.000000
@@ -673,21 +529,17 @@ Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
     hom background     0.00000   deviation from neutrality:     -0.00000
 
  Kohn-Sham energy:
- sumtv=      219.177094  sumtc=      3171.756639   ekin=     3390.933733
+ sumtv=      219.177093  sumtc=      3171.756639   ekin=     3390.933733
  rhoep=     -132.663685   utot=     -6562.032615   ehks=    -3303.762566
   
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=9.09e-2  last it=3.60e-2
- charges:       old           new         screened      rms diff       lin mix
- smooth       4.185741      2.498063      2.498063      0.024246      2.498063
- site    1    6.814259      8.501937      8.501937      0.064870      8.501937
  AMIX: nmix=1 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=9.09D-02
    tj: 0.82101
  mixrho: add corrections to qcell smrho = -0.11103D-07 -0.14137D-09
  unscreened rms difference:  smooth  0.024246   local  0.064870
    screened rms difference:  smooth  0.024246   local  0.064870   tot  0.090874
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -695,10 +547,9 @@ Generating TDOS: efermi, and dos window=   -0.1912  -0.5000   1.3088
  From last iter    ehf=      -0.397568   ehk=      -0.083792
  diffe(q)= -0.314205 (0.090874)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.7117731 ehk=.6719335
- --- BNDFP:  begin iteration 3 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 3 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.604915  avg sphere pot= 0.655635  vconst=-0.604915
 
  smooth rhoves     10.955967   charge     3.883666
@@ -709,14 +560,10 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000597
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -6.576698      -181.158821      -187.735520
+   rhoval*vef             -6.576698      -181.158822      -187.735520
    rhoval*ves            -47.654907      -113.403665      -161.058572
    psnuc*ves              69.566842    -12968.686245    -12899.119404
    utot                   10.955967     -6541.044955     -6530.088988
@@ -727,7 +574,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -744,73 +590,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0788
+ ... Done MPI k-loop: elapsed time=   0.2079
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.121679;  11.000000 electrons
-         Sum occ. bands:   -4.729081, incl. Bloechl correction: -0.011778
+         Sum occ. bands:   -4.729080, incl. Bloechl correction: -0.011778
 Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.274203    2.258616    8.015587
@@ -818,7 +603,7 @@ Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -837,13 +622,12 @@ Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
  3     1    0.013587   -0.419417    4.110000    4.116636    4.102416    4.110000
 
  Harris energy:
- sumev=       -4.729081  val*vef=    -187.735520   sumtv=     183.006439
+ sumev=       -4.729080  val*vef=    -187.735520   sumtv=     183.006439
  sumec=        0.000000  cor*vef=       0.000000   ttcor=    3171.756639
  rhoeps=    -129.516299     utot=   -6530.088988    ehar=   -3304.842208
 
- srhov:     -4.839652   -203.034353   -207.874005 sumev=   -4.729081   sumtv=  203.144925
- jesm=0 return
-
+ srhov:     -4.839652   -203.034352   -207.874004 sumev=   -4.729080   sumtv=  203.144924
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.476735  avg sphere pot= 0.666104  vconst=-0.476735
 
  smooth rhoves      6.772582   charge     2.984414
@@ -856,11 +640,11 @@ Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -4.183503      -195.306394      -199.489896
-   rhoval*ves            -41.181371      -129.701838      -170.883209
-   psnuc*ves              54.726535    -12980.016447    -12925.289912
-   utot                    6.772582     -6554.859143     -6548.086561
-   rho*exc                -2.045659      -129.270665      -131.316325
+   rhoval*vef             -4.183503      -195.306393      -199.489896
+   rhoval*ves            -41.181372      -129.701837      -170.883209
+   psnuc*ves              54.726536    -12980.016447    -12925.289911
+   utot                    6.772582     -6554.859142     -6548.086560
+   rho*exc                -2.045659      -129.270665      -131.316324
    rho*vxc                -2.660386      -171.163634      -173.824020
    valence chg             2.984414         8.015587        11.000000
    core charge            18.000000        -0.000000        18.000000
@@ -869,21 +653,17 @@ Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
     hom background     0.00000   deviation from neutrality:      0.00000
 
  Kohn-Sham energy:
- sumtv=      203.144925  sumtc=      3171.756639   ekin=     3374.901564
- rhoep=     -131.316325   utot=     -6548.086561   ehks=    -3304.501321
+ sumtv=      203.144924  sumtc=      3171.756639   ekin=     3374.901563
+ rhoep=     -131.316324   utot=     -6548.086560   ehks=    -3304.501321
   
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 2.  RMS DQ=4.40e-2  last it=9.09e-2
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.883666      2.984414      2.984414      0.012620      2.984414
- site    1    7.116334      8.015587      8.015587      0.032800      8.015587
  AMIX: nmix=2 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=4.40D-02
    tj:-1.03927  -0.10625
  mixrho: add corrections to qcell smrho = -0.30441D-06 -0.38759D-08
  unscreened rms difference:  smooth  0.012620   local  0.032800
    screened rms difference:  smooth  0.012620   local  0.032800   tot  0.044025
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -891,10 +671,9 @@ Generating TDOS: efermi, and dos window=   -0.1217  -0.5000   1.3783
  From last iter    ehf=      -0.711773   ehk=       0.671934
  diffe(q)=  0.304065 (0.044025)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.4077077 ehk=-.0668209
- --- BNDFP:  begin iteration 4 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 4 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.545146  avg sphere pot= 0.668895  vconst=-0.545146
 
  smooth rhoves      8.671497   charge     3.362221
@@ -905,10 +684,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000549
 
  Energy terms:             smooth           local           total
@@ -923,7 +698,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -940,73 +714,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0785
+ ... Done MPI k-loop: elapsed time=   0.2188
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:      0.066062;  11.000000 electrons
          Sum occ. bands:   -1.734814, incl. Bloechl correction: -0.007558
 Generating TDOS: efermi, and dos window=    0.0661  -0.5000   1.5661
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.006010    2.935456    7.070553
@@ -1014,7 +727,7 @@ Generating TDOS: efermi, and dos window=    0.0661  -0.5000   1.5661
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1038,8 +751,7 @@ Generating TDOS: efermi, and dos window=    0.0661  -0.5000   1.5661
  rhoeps=    -130.152452     utot=   -6535.528778    ehar=   -3304.787376
 
  srhov:     -5.820463   -174.784474   -180.604937 sumev=   -1.734814   sumtv=  178.870123
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.633468  avg sphere pot= 0.658285  vconst=-0.633468
 
  smooth rhoves     11.622224   charge     3.929447
@@ -1071,15 +783,11 @@ Generating TDOS: efermi, and dos window=    0.0661  -0.5000   1.5661
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 3.  RMS DQ=2.43e-2  last it=4.40e-2
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.362221      3.929447      3.929447      0.007483      3.929447
- site    1    7.637779      7.070553      7.070553      0.019601      7.070553
  AMIX: nmix=3 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=2.43D-02
    tj: 0.76321  -0.24310  -0.00278
  mixrho: add corrections to qcell smrho = -0.15776D-06 -0.20086D-08
  unscreened rms difference:  smooth  0.007483   local  0.019601
    screened rms difference:  smooth  0.007483   local  0.019601   tot  0.024318
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -1087,10 +795,9 @@ Generating TDOS: efermi, and dos window=    0.0661  -0.5000   1.5661
  From last iter    ehf=      -0.407708   ehk=      -0.066821
  diffe(q)=  0.054831 (0.024318)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.3528764 ehk=-.2358721
- --- BNDFP:  begin iteration 5 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 5 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.570017  avg sphere pot= 0.662708  vconst=-0.570017
 
  smooth rhoves      9.528920   charge     3.555451
@@ -1101,14 +808,10 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000560
 
  Energy terms:             smooth           local           total
-   rhoval*vef             -5.478201      -184.923907      -190.402109
+   rhoval*vef             -5.478201      -184.923908      -190.402109
    rhoval*ves            -45.930153      -117.336551      -163.266704
    psnuc*ves              64.987992    -12970.137903    -12905.149910
    utot                    9.528920     -6543.737227     -6534.208307
@@ -1119,7 +822,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -1136,73 +838,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0812
+ ... Done MPI k-loop: elapsed time=   0.2217
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.014429;  11.000000 electrons
          Sum occ. bands:   -2.765369, incl. Bloechl correction: -0.009079
 Generating TDOS: efermi, and dos window=   -0.0144  -0.5000   1.4856
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.107144    2.683239    7.423905
@@ -1210,7 +851,7 @@ Generating TDOS: efermi, and dos window=   -0.0144  -0.5000   1.4856
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1234,8 +875,7 @@ Generating TDOS: efermi, and dos window=   -0.0144  -0.5000   1.4856
  rhoeps=    -129.945879     utot=   -6534.208307    ehar=   -3304.760807
 
  srhov:     -5.487174   -184.461023   -189.948197 sumev=   -2.765369   sumtv=  187.182828
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.574641  avg sphere pot= 0.662487  vconst=-0.574641
 
  smooth rhoves      9.656570   charge     3.576095
@@ -1267,16 +907,12 @@ Generating TDOS: efermi, and dos window=   -0.0144  -0.5000   1.4856
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=9.70e-4  last it=2.43e-2
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.555451      3.576095      3.576095      0.000347      3.576095
- site    1    7.444549      7.423905      7.423905      0.000768      7.423905
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: nmix=2 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=9.70D-04
    tj:-0.04331  -0.00109
  mixrho: add corrections to qcell smrho = -0.12110D-07 -0.15419D-09
  unscreened rms difference:  smooth  0.000347   local  0.000768
    screened rms difference:  smooth  0.000347   local  0.000768   tot  0.000970
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -1284,10 +920,9 @@ Generating TDOS: efermi, and dos window=   -0.0144  -0.5000   1.4856
  From last iter    ehf=      -0.352876   ehk=      -0.235872
  diffe(q)=  0.026570 (0.000970)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.3263067 ehk=-.3260045
- --- BNDFP:  begin iteration 6 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 6 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571791  avg sphere pot= 0.662665  vconst=-0.571791
 
  smooth rhoves      9.571667   charge     3.561435
@@ -1298,10 +933,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000558
 
  Energy terms:             smooth           local           total
@@ -1316,7 +947,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -1333,73 +963,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0801
+ ... Done MPI k-loop: elapsed time=   0.2149
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.020515;  11.000000 electrons
          Sum occ. bands:   -2.851611, incl. Bloechl correction: -0.009203
 Generating TDOS: efermi, and dos window=   -0.0205  -0.5000   1.4795
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.116130    2.663360    7.452770
@@ -1407,7 +976,7 @@ Generating TDOS: efermi, and dos window=   -0.0205  -0.5000   1.4795
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1431,8 +1000,7 @@ Generating TDOS: efermi, and dos window=   -0.0205  -0.5000   1.4795
  rhoeps=    -129.931048     utot=   -6534.136094    ehar=   -3304.760734
 
  srhov:     -5.458720   -185.248220   -190.706941 sumev=   -2.851611   sumtv=  187.855330
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.569663  avg sphere pot= 0.662829  vconst=-0.569663
 
  smooth rhoves      9.501721   charge     3.547230
@@ -1464,16 +1032,12 @@ Generating TDOS: efermi, and dos window=   -0.0205  -0.5000   1.4795
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=6.83e-4  last it=9.70e-4
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.561435      3.547230      3.547230      0.000201      3.547230
- site    1    7.438565      7.452770      7.452770      0.000518      7.452770
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: nmix=2 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=6.83D-04
    tj: 0.33583   0.00509
  mixrho: add corrections to qcell smrho = -0.34565D-07 -0.44010D-09
  unscreened rms difference:  smooth  0.000201   local  0.000518
    screened rms difference:  smooth  0.000201   local  0.000518   tot  0.000683
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -1481,10 +1045,9 @@ Generating TDOS: efermi, and dos window=   -0.0205  -0.5000   1.4795
  From last iter    ehf=      -0.326307   ehk=      -0.326005
  diffe(q)=  0.000072 (0.000683)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.3262342 ehk=-.3261488
- --- BNDFP:  begin iteration 7 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 7 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571487  avg sphere pot= 0.662691  vconst=-0.571487
 
  smooth rhoves      9.560764   charge     3.558869
@@ -1495,10 +1058,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000558
 
  Energy terms:             smooth           local           total
@@ -1513,7 +1072,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -1530,73 +1088,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0801
+ ... Done MPI k-loop: elapsed time=   0.2027
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.019274;  11.000000 electrons
          Sum occ. bands:   -2.833626, incl. Bloechl correction: -0.009175
 Generating TDOS: efermi, and dos window=   -0.0193  -0.5000   1.4807
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.114510    2.667674    7.446837
@@ -1604,7 +1101,7 @@ Generating TDOS: efermi, and dos window=   -0.0193  -0.5000   1.4807
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1628,8 +1125,7 @@ Generating TDOS: efermi, and dos window=   -0.0193  -0.5000   1.4807
  rhoeps=    -129.935134     utot=   -6534.175507    ehar=   -3304.760730
 
  srhov:     -5.465520   -185.071917   -190.537437 sumev=   -2.833626   sumtv=  187.703811
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.570633  avg sphere pot= 0.662778  vconst=-0.570633
 
  smooth rhoves      9.532766   charge     3.553163
@@ -1661,16 +1157,12 @@ Generating TDOS: efermi, and dos window=   -0.0193  -0.5000   1.4807
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=2.57e-4  last it=6.83e-4
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.558869      3.553163      3.553163      0.000082      3.553163
- site    1    7.441131      7.446837      7.446837      0.000202      7.446837
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: nmix=2 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=2.57D-04
    tj:-0.28729   0.11022
  mixrho: add corrections to qcell smrho = -0.43586D-07 -0.55496D-09
  unscreened rms difference:  smooth  0.000082   local  0.000202
    screened rms difference:  smooth  0.000082   local  0.000202   tot  0.000257
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -1678,10 +1170,9 @@ Generating TDOS: efermi, and dos window=   -0.0193  -0.5000   1.4807
  From last iter    ehf=      -0.326234   ehk=      -0.326149
  diffe(q)=  0.000004 (0.000257)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.3262305 ehk=-.3262183
- --- BNDFP:  begin iteration 8 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 8 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571307  avg sphere pot= 0.662732  vconst=-0.571307
 
  smooth rhoves      9.554408   charge     3.557396
@@ -1692,10 +1183,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000558
 
  Energy terms:             smooth           local           total
@@ -1710,7 +1197,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -1727,73 +1213,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0940
+ ... Done MPI k-loop: elapsed time=   0.1340
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.018741;  11.000000 electrons
          Sum occ. bands:   -2.825995, incl. Bloechl correction: -0.009164
 Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.113771    2.669475    7.444296
@@ -1801,7 +1226,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -1825,8 +1250,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  rhoeps=    -129.936690     utot=   -6534.186383    ehar=   -3304.760733
 
  srhov:     -5.468001   -184.999057   -190.467058 sumev=   -2.825995   sumtv=  187.641063
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571059  avg sphere pot= 0.662754  vconst=-0.571059
 
  smooth rhoves      9.546210   charge     3.555704
@@ -1858,9 +1282,6 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=7.98e-5  last it=2.57e-4
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.557396      3.555704      3.555704      0.000026      3.555704
- site    1    7.442604      7.444296      7.444296      0.000061      7.444296
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: condition of normal eqns >100000. Reducing nmix to 1
  AMIX: nmix=1 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=7.98D-05
@@ -1868,7 +1289,6 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  mixrho: add corrections to qcell smrho = -0.45494D-07 -0.57926D-09
  unscreened rms difference:  smooth  0.000026   local  0.000061
    screened rms difference:  smooth  0.000026   local  0.000061   tot  0.000080
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -1876,10 +1296,9 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  From last iter    ehf=      -0.326230   ehk=      -0.326218
  diffe(q)= -0.000002 (0.000080)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=0 ehf=-.326233 ehk=-.3262317
- --- BNDFP:  begin iteration 9 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 9 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571245  avg sphere pot= 0.662743  vconst=-0.571245
 
  smooth rhoves      9.552147   charge     3.556842
@@ -1890,10 +1309,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=16  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
- qqx nkapi nkape=           1           1
  potential shift to crystal energy zero:    0.000558
 
  Energy terms:             smooth           local           total
@@ -1908,7 +1323,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    18   18    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    18   18    0
@@ -1925,73 +1339,12 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    18   18    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    18   18    0
- ... Done MPI k-loop: elapsed time=   0.0942
+ ... Done MPI k-loop: elapsed time=   0.1498
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.018528;  11.000000 electrons
          Sum occ. bands:   -2.822934, incl. Bloechl correction: -0.009159
 Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   18   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   18   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   18   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   18   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   18   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   18   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   18   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   18   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   18   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   18   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   18   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   18   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   18   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   18   14
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.113462    2.670237    7.443225
@@ -1999,7 +1352,7 @@ Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -2023,8 +1376,7 @@ Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
  rhoeps=    -129.937396     utot=   -6534.193198    ehar=   -3304.760735
 
  srhov:     -5.469141   -184.967426   -190.436566 sumev=   -2.822934   sumtv=  187.613633
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571238  avg sphere pot= 0.662745  vconst=-0.571238
 
  smooth rhoves      9.551870   charge     3.556775
@@ -2056,9 +1408,6 @@ Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=2.35e-6  last it=7.98e-5
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.556842      3.556775      3.556775      0.000001      3.556775
- site    1    7.443158      7.443225      7.443225      0.000002      7.443225
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: condition of normal eqns >100000. Reducing nmix to 1
  AMIX: nmix=1 mmix=8  nelts=  2405  beta=1.00000  tm= 5.00000  rmsdel=2.35D-06
@@ -2066,7 +1415,6 @@ Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
  mixrho: add corrections to qcell smrho = -0.45484D-07 -0.57913D-09
  unscreened rms difference:  smooth  0.000001   local  0.000002
    screened rms difference:  smooth  0.000001   local  0.000002   tot  0.000002
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -2074,23 +1422,16 @@ Generating TDOS: efermi, and dos window=   -0.0185  -0.5000   1.4815
  From last iter    ehf=      -0.326233   ehk=      -0.326232
  diffe(q)= -0.000002 (0.000002)    tol= 0.000010 (0.000010)   more=F
 c nk=8 bigbas=0 ehf=-.3262351 ehk=-.326235
- >>      1.23   exit  lmfp            1.15
+ >>      2.66   exit  lmfp            2.57
 OK! end of LMF ======================
 ===START LMF   =====================================
  mpisize=           4
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           3
-  mpipid=           2
-  mpipid=           1
-  mpipid=           0
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    4    0    2    2
-mmm rsmh1     1  2.50  2.50  1.00  0.00  0.00
-mmm   eh1     1 -0.01 -0.01 -0.01 -0.01 -0.01
+mmm rsmh1    1  2.50  2.50  1.00  0.00  0.00
+mmm   eh1    1 -0.01 -0.01 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.30  0.00  1.00  1.30  0.00
 mmm  eh2     1 -1.00 -1.00 -1.00 -0.01 -0.01
 mmm pz       1  5.50  5.50  4.50  0.00  0.00
@@ -2163,10 +1504,11 @@ mmm lh       1  2  3  2
  Generator(frac): i*r3(1,1,-1) r4x
  MKSYM:  found 48 space group operations ... includes inversion
  
- BZMESH:  60 irreducible QP from 512 ( 8 8 8 )  shift= T T T
+ BZMESH:     60 irreducible QP from    8   8   8 shift=TTT
  TETIRR: sorting 3072 tetrahedra ...
  264 inequivalent ones found
- >> level: 1  CPUsec=      0.05  enter lmfp
+ >> level: 1  CPUsec=      0.10  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
@@ -2187,32 +1529,32 @@ mmm lh       1  2  3  2
   A        0    1.30  -1.00   5.718    2.28E-06     259 
   A        2    1.00  -1.00   8.508    1.16E-06     869 
   A        3    1.30  -0.01   6.806    2.09E-06     411 
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
          site   1, species A       : augmentation lmax changed from 3 to 4
          site   1, species A       : inflate local density from nlm= 16 to 25
- -------- qplist --------           0
+ end of reading rst or atm
+ m_qplistinit:start
+ end of reading rst or atm
+ end of reading rst or atm
+ end of reading rst or atm
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (   46    1),  (   6060)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (   16    1),  (   3030)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (   1515)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   31    1),  (   4545)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
    1  A         0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+
  --- BNDFP:  begin iteration 1 of 12
-bndfp:start
-
- esmsmves
-   11   11   11       941       941
-   0.00000   3.39900   3.39900
-   3.39900   0.00000   3.39900
-   3.39900   3.39900   0.00000
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     0.000     0.000     0.000 sa0=     11.55
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.571242  avg sphere pot= 0.662745  vconst=-0.571242
 
  smooth rhoves      9.552001   charge     3.556801
@@ -2223,11 +1565,7 @@ effective screening medium method jesm=  0
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000558
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
 
  Energy terms:             smooth           local           total
    rhoval*vef             -5.469166      -184.966732      -190.435899
@@ -2241,7 +1579,6 @@ effective screening medium method jesm=  0
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    31   31    0
@@ -2258,74 +1595,13 @@ effective screening medium method jesm=  0
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.1420
+ ... Done MPI k-loop: elapsed time=   0.1817
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.018806;  11.000000 electrons
          Sum occ. bands:   -2.825415, incl. Bloechl correction: -0.009153
 Generating TDOS: efermi, and dos window=   -0.0188  -0.5000   1.4812
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   31   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   31   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   31   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   31   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.128183    2.833411    7.294772
@@ -2333,7 +1609,7 @@ Generating TDOS: efermi, and dos window=   -0.0188  -0.5000   1.4812
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -2358,8 +1634,7 @@ Generating TDOS: efermi, and dos window=   -0.0188  -0.5000   1.4812
  rhoeps=    -129.937395     utot=   -6534.192967    ehar=   -3304.763240
 
  srhov:     -5.929810   -184.355896   -190.285706 sumev=   -2.825415   sumtv=  187.460291
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.581228  avg sphere pot= 0.653085  vconst=-0.581228
 
  smooth rhoves     10.109125   charge     3.705228
@@ -2392,23 +1667,18 @@ Generating TDOS: efermi, and dos window=   -0.0188  -0.5000   1.4812
  mixrealsmooth= T
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 0.  RMS DQ=4.03e-3
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.556801      3.705228      3.705228      0.003489      3.705228
- site    1    7.443199      7.294772      7.294772      0.004828      7.294772
  AMIX: nmix=0 mmix=8  nelts=  2567  beta=1.00000  tm= 5.00000  rmsdel=4.03D-03
  mixrho: add corrections to qcell smrho = -0.28596D-07 -0.36410D-09
  unscreened rms difference:  smooth  0.003489   local  0.004828
    screened rms difference:  smooth  0.003489   local  0.004828   tot  0.004029
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
    it  1  of 12    ehf=      -0.328740   ehk=      -0.328669
 i nk=8 bigbas=1 pwmode=0 oveps=0 ehf=-.32874 ehk=-.3286686
- --- BNDFP:  begin iteration 2 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 2 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.581163  avg sphere pot= 0.653085  vconst=-0.581163
 
  smooth rhoves     10.109074   charge     3.705228
@@ -2419,10 +1689,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000127
 
  Energy terms:             smooth           local           total
@@ -2437,7 +1703,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    31   31    0
@@ -2454,74 +1719,13 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.1697
+ ... Done MPI k-loop: elapsed time=   0.3176
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.020713;  11.000000 electrons
          Sum occ. bands:   -2.853660, incl. Bloechl correction: -0.009204
 Generating TDOS: efermi, and dos window=   -0.0207  -0.5000   1.4793
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   31   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   31   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   31   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   31   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.131732    2.824840    7.306891
@@ -2529,7 +1733,7 @@ Generating TDOS: efermi, and dos window=   -0.0207  -0.5000   1.4793
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -2554,8 +1758,7 @@ Generating TDOS: efermi, and dos window=   -0.0207  -0.5000   1.4793
  rhoeps=    -129.927540     utot=   -6534.053397    ehar=   -3304.763177
 
  srhov:     -5.992884   -184.684129   -190.677013 sumev=   -2.853660   sumtv=  187.823353
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.579170  avg sphere pot= 0.653068  vconst=-0.579170
 
  smooth rhoves     10.043246   charge     3.693109
@@ -2587,15 +1790,11 @@ Generating TDOS: efermi, and dos window=   -0.0207  -0.5000   1.4793
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 1.  RMS DQ=7.06e-4  last it=4.03e-3
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.705228      3.693109      3.693109      0.000177      3.693109
- site    1    7.294772      7.306891      7.306891      0.000504      7.306891
  AMIX: nmix=1 mmix=8  nelts=  2567  beta=1.00000  tm= 5.00000  rmsdel=7.06D-04
    tj: 0.08237
  mixrho: add corrections to qcell smrho = -0.27092D-07 -0.34495D-09
  unscreened rms difference:  smooth  0.000177   local  0.000504
    screened rms difference:  smooth  0.000177   local  0.000504   tot  0.000706
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -2603,10 +1802,9 @@ Generating TDOS: efermi, and dos window=   -0.0207  -0.5000   1.4793
  From last iter    ehf=      -0.328740   ehk=      -0.328669
  diffe(q)=  0.000063 (0.000706)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=1 pwmode=0 oveps=0 ehf=-.3286769 ehk=-.3285711
- --- BNDFP:  begin iteration 3 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 3 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.579969  avg sphere pot= 0.653070  vconst=-0.579969
 
  smooth rhoves     10.060686   charge     3.694107
@@ -2617,10 +1815,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000134
 
  Energy terms:             smooth           local           total
@@ -2635,7 +1829,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    31   31    0
@@ -2652,74 +1845,13 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.1807
+ ... Done MPI k-loop: elapsed time=   0.2726
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.014055;  11.000000 electrons
          Sum occ. bands:   -2.757338, incl. Bloechl correction: -0.009050
 Generating TDOS: efermi, and dos window=   -0.0141  -0.5000   1.4859
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   31   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   31   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   31   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   31   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.121519    2.844848    7.276671
@@ -2727,7 +1859,7 @@ Generating TDOS: efermi, and dos window=   -0.0141  -0.5000   1.4859
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -2752,8 +1884,7 @@ Generating TDOS: efermi, and dos window=   -0.0141  -0.5000   1.4859
  rhoeps=    -129.950964     utot=   -6534.319756    ehar=   -3304.763318
 
  srhov:     -6.020272   -183.674396   -189.694667 sumev=   -2.757338   sumtv=  186.937329
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.584657  avg sphere pot= 0.653080  vconst=-0.584657
 
  smooth rhoves     10.213952   charge     3.723329
@@ -2785,15 +1916,11 @@ Generating TDOS: efermi, and dos window=   -0.0141  -0.5000   1.4859
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 2.  RMS DQ=1.64e-3  last it=7.06e-4
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.694107      3.723329      3.723329      0.000386      3.723329
- site    1    7.305893      7.276671      7.276671      0.001200      7.276671
  AMIX: nmix=2 mmix=8  nelts=  2567  beta=1.00000  tm= 5.00000  rmsdel=1.64D-03
    tj: 0.69965  -0.00288
  mixrho: add corrections to qcell smrho = -0.27555D-07 -0.35084D-09
  unscreened rms difference:  smooth  0.000386   local  0.001200
    screened rms difference:  smooth  0.000386   local  0.001200   tot  0.001644
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -2801,10 +1928,9 @@ Generating TDOS: efermi, and dos window=   -0.0141  -0.5000   1.4859
  From last iter    ehf=      -0.328677   ehk=      -0.328571
  diffe(q)= -0.000141 (0.001644)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=1 pwmode=0 oveps=0 ehf=-.3288181 ehk=-.3282764
- --- BNDFP:  begin iteration 4 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 4 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.580840  avg sphere pot= 0.653072  vconst=-0.580840
 
  smooth rhoves     10.095156   charge     3.702237
@@ -2815,10 +1941,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000135
 
  Energy terms:             smooth           local           total
@@ -2833,7 +1955,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    31   31    0
@@ -2850,74 +1971,13 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.1971
+ ... Done MPI k-loop: elapsed time=   0.2843
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.018665;  11.000000 electrons
          Sum occ. bands:   -2.823670, incl. Bloechl correction: -0.009156
 Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   31   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   31   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   31   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   31   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.128469    2.831122    7.297347
@@ -2925,7 +1985,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -2950,8 +2010,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  rhoeps=    -129.934788     utot=   -6534.139521    ehar=   -3304.763165
 
  srhov:     -6.001565   -184.368100   -190.369665 sumev=   -2.823670   sumtv=  187.545996
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.580908  avg sphere pot= 0.653065  vconst=-0.580908
 
  smooth rhoves     10.097097   charge     3.702653
@@ -2983,9 +2042,6 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 3.  RMS DQ=1.87e-5  last it=1.64e-3
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.702237      3.702653      3.702653      0.000020      3.702653
- site    1    7.297763      7.297347      7.297347      0.000015      7.297347
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: condition of normal eqns >100000. Reducing nmix to 1
  AMIX: nmix=1 mmix=8  nelts=  2567  beta=1.00000  tm= 5.00000  rmsdel=1.87D-05
@@ -2993,7 +2049,6 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  mixrho: add corrections to qcell smrho = -0.24169D-07 -0.30774D-09
  unscreened rms difference:  smooth  0.000020   local  0.000015
    screened rms difference:  smooth  0.000020   local  0.000015   tot  0.000019
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -3001,10 +2056,9 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  From last iter    ehf=      -0.328818   ehk=      -0.328276
  diffe(q)=  0.000153 (0.000019)    tol= 0.000010 (0.000010)   more=T
 i nk=8 bigbas=1 pwmode=0 oveps=0 ehf=-.3286652 ehk=-.328665
- --- BNDFP:  begin iteration 5 of 12
-bndfp:start
- jesm=0 return
 
+ --- BNDFP:  begin iteration 5 of 12
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.580867  avg sphere pot= 0.653065  vconst=-0.580867
 
  smooth rhoves     10.095876   charge     3.702418
@@ -3015,10 +2069,6 @@ bndfp:start
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000135
 
  Energy terms:             smooth           local           total
@@ -3033,7 +2083,6 @@ bndfp:start
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of    60 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of    60 k= -0.0625  0.1875  0.1875 ndimh = nmto+napw =    31   31    0
@@ -3050,74 +2099,13 @@ bndfp:start
  bndfp: kpt    13 of    60 k= -0.4375  0.5625  0.8125 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    14 of    60 k= -0.5625  0.6875  0.9375 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    15 of    60 k= -0.6875  0.8125  1.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.1964
+ ... Done MPI k-loop: elapsed time=   0.3106
 
  BZWTS : --- Tetrahedron Integration ---
  BZINTS: Fermi energy:     -0.018709;  11.000000 electrons
          Sum occ. bands:   -2.824260, incl. Bloechl correction: -0.009157
 Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
- bndfp: kpt    1 of   60 k isp=  0.0625  0.0625  0.0625 1 ndimh nev=   31   14
- bndfp: kpt    2 of   60 k isp= -0.0625  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt    3 of   60 k isp= -0.1875  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt    4 of   60 k isp= -0.3125  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt    5 of   60 k isp= -0.4375  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt    6 of   60 k isp= -0.5625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt    7 of   60 k isp= -0.6875  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt    8 of   60 k isp= -0.8125  0.9375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt    9 of   60 k isp=  0.0625  0.0625  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   10 of   60 k isp= -0.0625  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   11 of   60 k isp= -0.1875  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   12 of   60 k isp= -0.3125  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   13 of   60 k isp= -0.4375  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   14 of   60 k isp= -0.5625  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   15 of   60 k isp= -0.6875  0.8125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   16 of   60 k isp=  0.0625  0.0625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   17 of   60 k isp= -0.0625  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   18 of   60 k isp= -0.1875  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   19 of   60 k isp= -0.3125  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   20 of   60 k isp= -0.4375  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   21 of   60 k isp= -0.5625  0.6875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   22 of   60 k isp=  0.0625  0.0625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   23 of   60 k isp= -0.0625  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   24 of   60 k isp= -0.1875  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   25 of   60 k isp= -0.3125  0.4375  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   26 of   60 k isp= -0.4375  0.5625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   27 of   60 k isp=  0.0625  0.0625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   28 of   60 k isp= -0.0625  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   29 of   60 k isp= -0.1875  0.3125  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   30 of   60 k isp=  0.0625  0.0625  1.3125 1 ndimh nev=   31   14
- bndfp: kpt   31 of   60 k isp= -0.0625  0.1875  1.4375 1 ndimh nev=   31   14
- bndfp: kpt   32 of   60 k isp=  0.0625  0.0625  1.5625 1 ndimh nev=   31   14
- bndfp: kpt   33 of   60 k isp=  0.1875  0.1875  0.1875 1 ndimh nev=   31   14
- bndfp: kpt   34 of   60 k isp=  0.0625  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   35 of   60 k isp= -0.0625  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   36 of   60 k isp= -0.1875  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   37 of   60 k isp= -0.3125  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   38 of   60 k isp= -0.4375  0.8125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   39 of   60 k isp=  0.1875  0.1875  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   40 of   60 k isp=  0.0625  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   41 of   60 k isp= -0.0625  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   42 of   60 k isp= -0.1875  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   43 of   60 k isp= -0.3125  0.6875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   44 of   60 k isp=  0.1875  0.1875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   45 of   60 k isp=  0.0625  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   46 of   60 k isp= -0.0625  0.4375  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   47 of   60 k isp= -0.1875  0.5625  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   48 of   60 k isp=  0.1875  0.1875  0.9375 1 ndimh nev=   31   14
- bndfp: kpt   49 of   60 k isp=  0.0625  0.3125  1.0625 1 ndimh nev=   31   14
- bndfp: kpt   50 of   60 k isp=  0.1875  0.1875  1.1875 1 ndimh nev=   31   14
- bndfp: kpt   51 of   60 k isp=  0.3125  0.3125  0.3125 1 ndimh nev=   31   14
- bndfp: kpt   52 of   60 k isp=  0.1875  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   53 of   60 k isp=  0.0625  0.5625  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   54 of   60 k isp= -0.0625  0.6875  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   55 of   60 k isp=  0.3125  0.3125  0.5625 1 ndimh nev=   31   14
- bndfp: kpt   56 of   60 k isp=  0.1875  0.4375  0.6875 1 ndimh nev=   31   14
- bndfp: kpt   57 of   60 k isp=  0.0625  0.5625  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   58 of   60 k isp=  0.3125  0.3125  0.8125 1 ndimh nev=   31   14
- bndfp: kpt   59 of   60 k isp=  0.4375  0.4375  0.4375 1 ndimh nev=   31   14
- bndfp: kpt   60 of   60 k isp=  0.3125  0.5625  0.5625 1 ndimh nev=   31   14
   mmmmm m_bandcal_2nd
- mkrout: site(class) decomposed charge and magnetic moment. class->lmchk
 
  mkrout:  Qtrue      sm,loc       local
    1   10.128519    2.830998    7.297521
@@ -3125,7 +2113,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  Symmetrize density..
 
  Make new boundary conditions for phi,phidot..
-  ebar: 
+  pnunew: ebar: 
     without lo    : ebar = center of gravity of occupied states
     with lo & PZ>P: ebar for lo is meaningless(zero is shown). Use empty-sphere PZ.
                     ebar for valence is at the center of gravity of occ. states.
@@ -3150,8 +2138,7 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  rhoeps=    -129.934639     utot=   -6534.137827    ehar=   -3304.763165
 
  srhov:     -6.001430   -184.374036   -190.375466 sumev=   -2.824260   sumtv=  187.551205
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.580879  avg sphere pot= 0.653065  vconst=-0.580879
 
  smooth rhoves     10.096160   charge     3.702479
@@ -3183,17 +2170,13 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  mixing: mode=A  nmix=3  beta=1  elind=1.291
  wgtsmooth=   2.7410122234342145E-002
  mixrho:  sought 3 iter from file mixm; read 4.  RMS DQ=3.14e-6  last it=1.87e-5
- charges:       old           new         screened      rms diff       lin mix
- smooth       3.702418      3.702479      3.702479      0.000005      3.702479
- site    1    7.297582      7.297521      7.297521      0.000002      7.297521
  AMIX: condition of normal eqns >100000. Reducing nmix to 2
  AMIX: condition of normal eqns >100000. Reducing nmix to 1
  AMIX: nmix=1 mmix=8  nelts=  2567  beta=1.00000  tm= 5.00000  rmsdel=3.14D-06
    tj:-0.19971
- mixrho: add corrections to qcell smrho = -0.26509D-07 -0.33752D-09
+ mixrho: add corrections to qcell smrho = -0.26508D-07 -0.33752D-09
  unscreened rms difference:  smooth  0.000005   local  0.000002
    screened rms difference:  smooth  0.000005   local  0.000002   tot  0.000003
- mixrho: all smrho are positive for isp=  1
 
  iors  : write restart file (binary, mesh density) 
 
@@ -3201,23 +2184,16 @@ Generating TDOS: efermi, and dos window=   -0.0187  -0.5000   1.4813
  From last iter    ehf=      -0.328665   ehk=      -0.328665
  diffe(q)=  0.000000 (0.000003)    tol= 0.000010 (0.000010)   more=F
 c nk=8 bigbas=1 pwmode=0 oveps=0 ehf=-.3286649 ehk=-.3286647
- >>      1.77   exit  lmfp            1.72
+ >>      3.25   exit  lmfp            3.15
 OK! end of LMF ======================
 ===START LMF   =====================================
  mpisize=           4
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
- nkaphh(j) = nkapii(j) + lpzex(j)           2           2           0
   bndfp (warning): no sigm file found ... LDA calculation only
-  mpipid=           0
-  mpipid=           1
-  mpipid=           3
-  mpipid=           2
+
 mmm === MTO setting ===
 mmm ispec lmxb lpzex nkapii nkaphh=    1    4    0    2    2
-mmm rsmh1     1  2.50  2.50  1.00  0.00  0.00
-mmm   eh1     1 -0.01 -0.01 -0.01 -0.01 -0.01
+mmm rsmh1    1  2.50  2.50  1.00  0.00  0.00
+mmm   eh1    1 -0.01 -0.01 -0.01 -0.01 -0.01
 mmm rsmh2    1  1.30  0.00  1.00  1.30  0.00
 mmm  eh2     1 -1.00 -1.00 -1.00 -0.01 -0.01
 mmm pz       1  5.50  5.50  4.50  0.00  0.00
@@ -3290,17 +2266,21 @@ mmm lh       1  2  3  2
  Generator(frac): i*r3(1,1,-1) r4x
  MKSYM:  found 48 space group operations ... includes inversion
  
- BZMESH:  60 irreducible QP from 512 ( 8 8 8 )  shift= T T T
+ BZMESH:     60 irreducible QP from    8   8   8 shift=TTT
  TETIRR: sorting 3072 tetrahedra ...
  264 inequivalent ones found
- >> level: 1  CPUsec=      0.09  enter lmfp
+ >> level: 1  CPUsec=      0.07  enter lmfp
+ gen_hamindex: not readin QGpsi.
 
  species data:  augmentation                           density
  spec       rmt   rsma lmxa kmxa      lmxl     rg   rsmv  kmxv foca   rfoca
  A        2.311  0.925    4    4         4  0.578  1.156    15    1   0.925
+ goto end of reading rst or atm           1
 
  MSHSIZ: mesh has 11 x 11 x 11 divisions; length 0.437, 0.437, 0.437
          generated from gmax = 9.0 a.u. : 941 vectors of 1331 (70%)
+ goto end of reading rst or atm           1
+ goto end of reading rst or atm           1
 
  GVLST2: gmax = 9.0 a.u. created 941 vectors of 1331 (70%)
          (input) mesh has 11 x 11 x 11 divisions; length 0.437, 0.437, 0.437
@@ -3314,17 +2294,25 @@ mmm lh       1  2  3  2
   A        0    1.30  -1.00   5.718    2.28E-06     259 
   A        2    1.00  -1.00   8.508    1.16E-06     869 
   A        3    1.30  -0.01   6.806    2.09E-06     411 
- gen_hamindex: not readin QGpsi.
+ goto end of reading rst or atm           1
 
  iors  : read restart file (binary, mesh density) 
          use from  restart file: ef window, positions, pnu 
          ignore in restart file: *
+ end of reading rst or atm
+ end of reading rst or atm
+ m_qplistinit:start
   --- Readin syml file --- 
+ end of reading rst or atm
+ end of reading rst or atm
    41   0.5000   0.5000   0.5000    0.0000   0.0000   0.0000 L Gamma
    41   0.0000   0.0000   0.0000    1.0000   0.0000   0.0000 Gamma X
    21   1.0000   0.0000   0.0000    1.0000   0.5000   0.0000 X W
    41   1.0000   0.5000   0.0000    0.0000   0.0000   0.0000 W Gamma
 nsyml nkp=    4  144
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    1, (   37    1),  (   7272)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    2, (   73    1),  (  108**)
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    3, (  109    1),  (  144**)
  -------- qplist --------           4
     1   0.500   0.500   0.500  <-- isyml= 001
     2   0.487   0.487   0.487 
@@ -3470,24 +2458,14 @@ nsyml nkp=    4  144
   142   0.050   0.025   0.000 
   143   0.025   0.013   0.000 
   144   0.000   0.000   0.000 
+m_qplist_qspdivider: rank,(iqini,ispini),(iqend,ispend)=    0, (    1    1),  (   3636)
 
  Basis, after reading restart file
  site spec        pos (Cartesian coordinates)         pos (multiples of plat)
    1  A         0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+
  --- BNDFP:  begin iteration 1 of 1
-bndfp:start
-
- esmsmves
-   11   11   11       941       941
-   0.00000   3.39900   3.39900
-   3.39900   0.00000   3.39900
-   3.39900   3.39900   0.00000
-effective screening medium method jesm=  0
- jtresm,tresm=  0     0.000
- z0esm,z1esm,z2esm=     0.000     0.000     0.000 sa0=     11.55
-
- jesm=0 return
-
+ esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
  smves:: avg es pot at rmt= 0.580873  avg sphere pot= 0.653065  vconst=-0.580873
 
  smooth rhoves     10.095981   charge     3.702445
@@ -3498,10 +2476,6 @@ effective screening medium method jesm=  0
 
  site  1  z= 29.0  rmt= 2.31127  nr=393   a=0.025  nlml=25  rg=0.578  Vfloat=T
  sm core charge = 0.263001 (sphere) + 0.004646 (spillout) = 0.267647
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
- qqx nkapi nkape=           2           2
  potential shift to crystal energy zero:    0.000135
 
  Energy terms:             smooth           local           total
@@ -3516,7 +2490,6 @@ effective screening medium method jesm=  0
 
  Charges:  valence    11.00000   cores    18.00000   nucleii   -29.00000
     hom background     0.00000   deviation from neutrality:     -0.00000
- ... Start MPI k-loop ...
   m_bandcal_init: start
  bndfp: kpt     1 of   144 k=  0.5000  0.5000  0.5000 ndimh = nmto+napw =    31   31    0
  bndfp: kpt     2 of   144 k=  0.4875  0.4875  0.4875 ndimh = nmto+napw =    31   31    0
@@ -3554,7 +2527,7 @@ effective screening medium method jesm=  0
  bndfp: kpt    34 of   144 k=  0.0875  0.0875  0.0875 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    35 of   144 k=  0.0750  0.0750  0.0750 ndimh = nmto+napw =    31   31    0
  bndfp: kpt    36 of   144 k=  0.0625  0.0625  0.0625 ndimh = nmto+napw =    31   31    0
- ... Done MPI k-loop: elapsed time=   0.3380
+ ... Done MPI k-loop: elapsed time=   0.4829
   Writing bands to bands file ...
 ikpoff=    2   41
 ikpoff=    3   82
@@ -3705,9 +2678,9 @@ ikpoff=    5  144
  bndfp: kpt  143 of  144 k jsp=  0.02500  0.01250  0.00000 1 nev=   31
  bndfp: kpt  144 of  144 k jsp=  0.00000  0.00000  0.00000 1 nev=   31
 Exit 0 plot band mode done
- CPU time:    0.511s     Thu Jun 17 15:35:43 2021   on 
+ CPU time:    0.811s     Thu Jul  8 22:33:08 2021   on 
 
   ==== xxxxxxxxx ====     calls      == cpu time ===   depth 1
   entry   xxxx  xxxx                per call  total  (depth is by TIM= in ctrl.*.)
-      0      0      0        1       0.51       0.51   main
+      0      0      0        1       0.81       0.81   main
       0      0    -10        0       0.00       0.00   `--lmfp
