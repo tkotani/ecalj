@@ -68,8 +68,8 @@ c      readeferm=.false.
             nkp = nkp+1
 ccccccccccccccccccccccccccccccccccccccc            
 c            qplist(:,nkp) = q
-            qplist(:,nkp) = q + [1d-7,2d-7,3d-7]
-ccccccccccccccccccccccccccccccccccccccc            
+            qplist(:,nkp) = q + [1d-6,2d-6,3d-6]
+ccccccccccccccccccccccccccccccccccccccc     
             ngplist(nkp)  = ngp
             iqibz=iqibz+1
             if(iqibz==nqibz) iqibzmax=nkp

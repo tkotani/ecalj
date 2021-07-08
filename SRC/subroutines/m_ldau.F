@@ -73,7 +73,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 ncount=1
              endif
              open(newunit=ifx,file='mmagfield.aftest',position='append')
-             write(ifx,"(d23.15,' !magfield')") uhx 
+             write(ifx,"(d23.15,' !Magfield')") uhx 
              close(ifx)
           endif
 !! broadcast uhx       
@@ -83,9 +83,9 @@ c          call MPI_Bcast(uhx, 1, MPI_REAL8, 0, MPI_COMM_WORLD, ierr)
           do i=-lmaxu,lmaxu
              vorbav(i,i) =  1d0
           enddo
-          do iblu =1,2
+          do iblu =1,2 !6
              fac=1d0
-             if(iblu==2) fac=-1d0
+             if(iblu==2) fac=-1d0 !>3) fac=-1d0
              vorb(:,:,1,iblu) = vorb(:,:,1,iblu) - uhx*fac*vorbav(:,:) 
           enddo
        endif

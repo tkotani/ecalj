@@ -277,13 +277,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           open(newunit=ifx,file='mmagfield.aftest')
           do
              read(ifx,*,end=1112,err=1112) uhxx,aaa
-             if(trim(aaa)=='!magfield') uhx=uhxx
+             uhx=uhxx
+             if(trim(aaa)=='!Magfield') uhx=uhxx
           enddo
  1112     continue
           close(ifx)
           write(stdo,"('sudmtu: mmtarget mode. Readin Magfield from mmagfield.aftest=',f10.6)")uhx
           open(newunit=ifx,file='mmagfield.aftest')
-          write(ifx,"(d23.15,1x,'! Magfield is read from previous mmagfield.aftest')") uhx
+          write(ifx,"(d23.15,1x,'!Magfield is read from previous mmagfield.aftest')") uhx
           close(ifx)
        endif
        call mpibc1_real(uhx,1,'sudmtu_uhx')
