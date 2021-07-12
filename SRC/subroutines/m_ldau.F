@@ -119,7 +119,7 @@ c      logical lsigin
       real(8),allocatable::norm(:),a(:,:,:)
       integer(4),allocatable:: kpvt(:)
       integer(4)::ret
-      character*8 fff
+      character*20 fff
       logical fexist
       real(8):: acc
       integer(4):: ido,ifile_handle
