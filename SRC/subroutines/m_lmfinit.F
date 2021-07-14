@@ -1255,9 +1255,9 @@ C     'Hard Core' radius entering into strux
         if(procid==master .and. sum(abs(idu(:,j)))/=0) then 
            inquire(file='sigm.'//trim(sname),exist=sexist)
            if(sexist) then
-              write(6,*)'We find sigm file --> noLDA+U-> set UH=JH=0'
               do lxx=0+1,3+1
                  if(idu(lxx,j)>10) then
+                    write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxx,j
                     uh(lxx,j) = 0d0
                     jh(lxx,j) = 0d0
                  endif
