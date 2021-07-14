@@ -95,7 +95,7 @@ Cr
      &nx(0:1),ny(0:1),nz(0:1), mx(0:1), my(0:1), mz(0:1),ix1,ix2,ix3,
      &igshift(3,0:1,0:1,0:1), ikc(3,0:1,0:1,0:1)
       real(8):: qsmesh(3,nk1,nk2,nk3), qpara(3),qqq(3),qin(3),plat(3,3)
-      real(8):: eps=1d-6, qmesh(3), qmeshm(3,0:1,0:1,0:1),qmin(3),qmax(3),qx(3),qqqm(3)
+      real(8):: eps=1d-5, qmesh(3), qmeshm(3,0:1,0:1,0:1),qmin(3),qmax(3),qx(3),qqqm(3)
 c      real(8),allocatable:: qmesh(:,:,:,:)
 
 c Get projected q.-> ik1, ik2 ik3 for given q.
