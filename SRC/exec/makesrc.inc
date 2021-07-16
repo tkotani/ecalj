@@ -656,6 +656,7 @@ m_readQGcou.o\
 m_pbindex.o \
 m_rotMPB.o \
 m_iqindx_qtt.o \
+m_iqindx_wan.o \
 rotwave.o \
 rotcg.o \
 rotgvec.o\

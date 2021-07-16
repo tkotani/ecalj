@@ -215,13 +215,13 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
            if(debug) write(6,*)' niw nw=',niw,nw
            isf = is
            do kx = 1, nqbz
-              ekxx1(1:nband,kx) = readeval(qbz(:,kx),is)     !,  ekxx1(1:nband, kx) ) !read eigenvalue
-              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !, ekxx2(1:nband, kx) )
+              ekxx1(1:nband,kx) = readeval(qbz(:,kx),    is ) ! read eigenvalue
+              ekxx2(1:nband,kx) = readeval(qp+qbz(:,kx), isf) !
            enddo
-           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband,eibzmode) ! Tetrahedron weight for x0kf_v4hz
-           ierr= x0kf_v4hz_init(0, qp, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa)
-           ierr= x0kf_v4hz_init(1, qp, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa)
-           call  x0kf_v4hz(        qp, is, isf, iq,  nmbas_in, eibzmode, nwgt(:,iq),crpa, rcxq)
+           call gettetwt(qp,iq,is,isf,nwgt(:,iq),ekxx1,ekxx2,nband=nband,eibzmode=eibzmode) ! Tetrahedron weight for x0kf_v4hz
+           ierr=x0kf_v4hz_init(0, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+           ierr=x0kf_v4hz_init(1, qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa)
+           call x0kf_v4hz(        qp, is,isf, iq, nmbas_in, eibzmode=eibzmode, nwgt=nwgt(:,iq),crpa=crpa, rcxq=rcxq)
                 !  rcxq is accumulating for spins 
            call tetdeallocate()
  1003   continue
@@ -229,8 +229,8 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
 !!   That is, we get dconjg(tranpsoce(zcousq))*rcxq*zcousq for eibzmode
         if(eibzmode)  then
            call x0kf_v4hz_symmetrize( qp, iq, 
-     i       nolfco, zzr, nmbas_in, chipm, eibzmode, eibzsym(:,:,iq),
-     o       rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
+     i       nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq),
+     o       rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
         endif
 !! Reduction rcxq in the Spin-axis
         write(6,*) 'MPI__AllreduceSumS start'
