@@ -48,11 +48,11 @@
         read(outs(5:),*) k
         call Setpr(k) 
       endif
-      if(master_mpi) call setpr(-100) !iprint() is negative except master
+      if(.not.master_mpi) call setpr(-100) !iprint() is negative except master
 !! help and quit      
-      if (cmdopt0('--input')) then 
+      if (cmdopt0('--help')) then 
          call m_lmfinit_init(prgnam) ! show help and quit for --input
-         call Rx0('end of --input(--help) mode')
+         call Rx0('end of help mode')
       endif   
 !! New pdos mode (use --mkprocar and --fullmesh together). and exit ===
 !! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos

@@ -309,34 +309,30 @@ c      lfp = 1
       call gtv_setrcd(recrd,nrecs,recln,stdo,stdl,stde)
 C --- Initialize ---
       call toksw_init(debug)
-      if (cmdopt('--show',6,0,a))  io_show = 1 !iosw=3 in old code
       if (procid .ne. master) io_show = 0
-      if (cmdopt('--input',7,0,a)) io_help = 1 !optio=0 in old code
+      if (cmdopt0('--show') ) io_show = 1 
+c      if (cmdopt0('--input')) io_help = 1 
+      if (cmdopt0('--help') ) io_help = 1
       call gtv_setio(debug,io_show,io_help)
-      if (io_help .eq. 1) then
-        write(stdo,332)
-  332   format(/' Token',t19,'Input   cast  (size,min)'/
-     .  ' ------------------------------------------')
-      elseif (io_show .ne. 0) then
-        write(stdo,333)
-  333   format(/' Token',t19,
-     .  'Input   cast  (size,min,read,def)     result')
+      if (io_help == 1) then
+        write(stdo,"(/' Token',t19,'Input   cast  (size,min)'/
+     .  ' ------------------------------------------')")
+      elseif(io_show/=0) then
+        write(stdo,"(/' Token',t19,'Input   cast  (size,min,read,def)     result')")
       endif
 C     --- IO ---
       nm='IO_SHOW'; call gtv(trim(nm),tksw(prgnam,nm),io_show,def_i4=
      .     0,note='Echo data as it is read from input file')
-      if (cmdopt('--show',6,0,a)) io_show = 1
-      if (procid .ne. master) io_show = 0
-      if (cmdopt('--show=',7,0,a)) then
-         i = 7
-         i = a2vec(a,len(a),i,2,' ',1,1,1,it,io_show)
-      endif
-      call gtv_setio(debug,io_show,io_help) ! In case io_show changed
-      nm='IO_HELP'; call gtv(trim(nm),tksw(prgnam,nm),io_help,
-     .     def_i4=0, note='Show what input would be sought, '//
-     .     'without attempting to read data')
-      if (cmdopt('--input',7,0,a)) io_help = 1 !optio=0 in old code
-      if (io_help == 1) io_show = 1
+      if (cmdopt0('--show')     ) io_show = 1
+      if (procid .ne. master    ) io_show = 0
+c      call gtv_setio(debug,io_show,io_help) ! In case io_show changed
+!!      
+c      nm='IO_HELP'; call gtv(trim(nm),tksw(prgnam,nm),io_help,
+c     .     def_i4=0, note='Show what input would be sought, '//
+c     .     'without attempting to read data')
+c      if (cmdopt0('--input')) io_help = 1 
+c      if (cmdopt0('--help'))  io_help = 1 
+      if (io_help == 1      ) io_show = 1
       call gtv_setio(debug,io_show,io_help) ! In case io_help changed
 
 !     !--- CONST --- for backword compatibility. We will remove this.
@@ -1657,7 +1653,12 @@ c         mix_nitu = i0
          nm='DYN_MSTAT_PDEF'; call gtv(trim(nm),tksw(prgnam,nm),lat_defm,
      .        def_r8v=zerov,note='Lattice deformation modes')
       endif
-      if (io_help > 0) call cexit(0,1)
+      if (io_help >0) then
+         write(stdo,*)
+         write(stdo,"(a)")'==============================================='
+         call lmhelp(prgnam)
+         call cexit(0,1)
+      endif   
 cccc  end of read input parameter ccccccccccccccccccccccccccxxxxxxxxxxxxxxxx
       
 !! Stage 2  Reorganize ctrl_* in module m_lmfinit ---------------------

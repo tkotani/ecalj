@@ -1370,10 +1370,10 @@ C ... vec directives
         call awrit0('%a',aa,80,-i1mach(2))
       endif
       goto 10
-
 C --- General error exit ---
   999 call fexit(-1,1,' Exit -1: rdfiln: parse failed, line %i',nrd)
       end
+      
       subroutine rdfile(unit,cch,recrd,mxrecs,a,recl,nr)
 C- Reads entire disk file into recrd, calling rdfiln.
       implicit none
@@ -1386,7 +1386,6 @@ C- Reads entire disk file into recrd, calling rdfiln.
       integer nlin(0:mxlev),list(lstsiz,mxlev),
      .ilist(mxlev),nlist(0:mxlev)
       character vnam(mxlev)*16
-
       nr = 0
    10 call rdfiln(unit,cch,mxlev,loop0,nlin,list,lstsiz,
      .ilist,nlist,vnam,ctbl,mxchr,a,recrd(nr*recl),recl,nr)
@@ -1441,9 +1440,7 @@ C ----------------------------------------------------------------
 C Local variables
       logical a2bin,ltmp,liffa
       integer j0,i0,i1,k
-
       liffa = .true.
-
    10 continue
       call skipbl(a,recl,j)
       j0 = j
@@ -1502,6 +1499,7 @@ C ... Put j at last nw char, equivalent to pos of a2bin above
       call skpblb(a,j-1,j)
       j = j+1
       end
+      
       subroutine pvfil1(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,ja,a,t)
 C- Kernel of rdfiln that parses string with substitutions
 C ----------------------------------------------------------------
@@ -1547,10 +1545,9 @@ C Local variables
       endif
       jaa = ja0-1
       ja = ja0
-
       if (pvfil2(recla,recla,jaa,aa,cex,nchr,mxchr,ctbl,ja,a)) goto 10
-
       end
+      
       logical function pvfil2(reclr,recla,jr,recrd,cex,nchr,mxchr,ctbl,
      .ja,a)
 C- Kernel of rdfiln that parses string with substitutions
@@ -1846,8 +1843,8 @@ C   ... if a name for a vector, replace with ascii rep of entire vector
 
   999 continue
       call pvfil3('could',' not',' parse',recrd,1,reclr)
-
       end
+      
       subroutine pvfil3(s1,s2,s3,recrd,jr,reclr)
 C- Error exit
       implicit none
@@ -1863,14 +1860,13 @@ C- Error exit
       enddo   
       call setpr(20)
       call fexit(-1,009,aa,0d0)
-
       end
+      
       logical function rdstrn(unit,a,len,lopt)
 C- Read one line from logical unit
       integer unit,len
       logical lopt
       character*1 a(len)
-
       rdstrn = .true.
       read(unit,10,end=20,err=20) a
       if (lopt) print 10, a
@@ -2026,7 +2022,6 @@ C ... count number of characters in each macro string
         call word(argsub(i),1,j1,j2)
         nchar(i,2) = j2
       enddo
-
 C     i = which string holds current value of macro
 C     j = pointer to current index in string
       i = 1
@@ -2035,7 +2030,6 @@ C     j = pointer to current index in string
       ls = len(strn)
       call skpblb(strn,len(strn),i)
       ls = i+1
-
 C --- macro substitution ---
    30 continue
       do  i = 2, nmaca(imac)
@@ -2066,9 +2060,21 @@ C     Move past current word
       if (j .le. ls) goto 30
       err = imac
       strout = strn(1:ls)
-
 C --- Error exit ---
    99 continue
-
       end
+
+      subroutine findctrlstart(nfilin)
+! if we find 'ctrlstart', locate reading at the next line of ctrlstart.
+!     this is useful if you like to use script, GWinput, ctrl in a file.
+      implicit none
+      integer:: nfilin
+      character(len=9):: strn, ccc
+      do
+        read(nfilin,"(a)",err=1010,end=1010) strn
+        if(strn == 'ctrlstart') return
+      enddo
+ 1010 continue
+      rewind(nfilin)
+      end subroutine findctrlstart
 
