@@ -689,6 +689,26 @@ C     !======================================================
       return
       end subroutine MPI__AllreduceSum
 
+C     !======================================================
+      subroutine MPI__reduceSum( root, data, sizex )
+      implicit none
+      integer, intent(in) :: sizex,root
+      complex(8), intent(inout) :: data(sizex)
+      complex(8), allocatable   :: mpi__data(:) 
+
+      if( mpi__size == 1 ) return
+
+      allocate(mpi__data(sizex))
+      mpi__data = data
+
+      call MPI_reduce( mpi__data, data, sizex,
+     &     MPI_DOUBLE_COMPLEX, MPI_SUM, root, MPI_COMM_WORLD, mpi__info )
+
+      deallocate( mpi__data )
+
+      return
+      end subroutine MPI__reduceSum
+
 
 
 C     !======================================================

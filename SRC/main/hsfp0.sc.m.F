@@ -94,7 +94,7 @@ c     &                          !ppbir,miat,tiat,shtvg,
      &     MPI__Initialize,MPI__real8send,MPI__real8recv,MPI__send_iv,MPI__recv_iv,MPI__sxcf_rankdivider,
      &     MPI__Finalize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum,
      &     MPI__consoleout,
-     &     MPI__barrier
+     &     MPI__barrier, MPI__reduceSum
       use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_readfreq_r,only: Readfreq_r, nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i,nw, freq_r
       use m_readq0p,only: ReadQ0P, nq0i, wqt,q0i
@@ -133,7 +133,8 @@ c
       logical :: exchange, hermitianW, screen = .false. 
       integer,allocatable:: irkip(:,:,:,:), nrkip(:,:,:,:)
       real(8),allocatable:: vxcfp(:,:,:), eqt(:), eq(:), eqx(:,:,:),eqx0(:,:,:)
-      complex(8),allocatable:: zsec(:,:,:)  
+      complex(8),allocatable,target:: zsecall(:,:,:,:)
+      complex(8),pointer::zsec(:,:,:)
 c---------------------------------------
 c      if(cohtest) then          !currently not used (may need fixing if necessary)
 c        screen = .true.
@@ -289,7 +290,18 @@ c        endif
       enddo
       deallocate(eqt)
 !!-----------------------------------------------------------------------
-      call Hswriteinit() !internal subroutine.  Write initial part of output files
+      call Hswriteinit()        !internal subroutine.  Write initial part of output files
+!!      
+      if(ixc==3.and.nctot==0) then !make dummy SEXcore
+         allocate(zsecall(ntq,ntq,nq,1)) !, coh(ntq,nq) ) kount(nqibz,nq),
+         zsecall = 0d0
+         do is=1,nspinmx
+            zsec => zsecall(:,:,:,1)
+            call HsWriteResult() !internal subroutine.
+         enddo
+         goto 9999
+      endif
+      
 !! Offset Gamma point Q0P (slightly shifted from Gamma)
       call Readq0p()
       call Readepswklm()
@@ -307,10 +319,11 @@ c        endif
 !! Main loop to calculate the the self-energy SEx(ip) or SEc(ip)
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
-      allocate(zsec(ntq,ntq,nq))!, coh(ntq,nq) ) kount(nqibz,nq),
+      allocate(zsecall(ntq,ntq,nq,nspinmx)) !, coh(ntq,nq) ) kount(nqibz,nq),
+      zsecall = 0d0
+      
       do 2000 is = 1,nspinmx
-        zsec = 0d0
-        if(ixc==3.and.nctot==0) goto 2001 !make dummy SEXcore
+        zsec => zsecall(:,:,:,is)
 !! == ip loop to spedify external q ==
         call sxcf_scz (qip= q, ef= ef,esmr= esmr, isp= is,   
      i   irkip= irkip(is,:,:,:),nrkip= nrkip(is,:,:,:),nq= nq,
@@ -350,11 +363,18 @@ c$$$ccc   6600   format (' qreal =',3f8.4,'   SEx(q) =',d13.5)
 c$$$            write (663,"(2f14.6)") qm/qfermi, qfermi
 c$$$          end do
 c$$$        endif
- 2001   continue
         if(eibz4sig())call zsecsym(zsec,ntq,nq,nband,nbandmx,nspinmx, eibzsym,ngrp,tiii,q,is)
-        call MPI__AllreduceSum( zsec,ntq*ntq*nq )
-        if(MPI__root) call HsWriteResult() !internal subroutine. 
- 2000 continue     !end of spin-loop
+ 2000 continue   !end of spin-loop
+!!      
+      call MPI__reduceSum(root=0, data=zsecall, sizex=ntq*ntq*nq*nspinmx )
+      if(MPI__root) then
+        do is=1,nspinmx
+        zsec => zsecall(:,:,:,is)
+        call HsWriteResult() !internal subroutine.
+        enddo
+      endif
+!!      
+ 9999 continue
       call cputid(0)
       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
