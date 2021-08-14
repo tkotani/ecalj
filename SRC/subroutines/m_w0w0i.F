@@ -6,9 +6,10 @@
 !! See the Friedlich's paper. 
 !! output
       implicit none
-      public:: Finalizew4p,w0w0i
+      public:: w0w0i
       complex(8),allocatable,protected,public :: w0(:),w0i(:),llmat(:,:)
 
+      private
       contains
 c----------------------------------------------------------      
       subroutine finalizew4p()
@@ -16,7 +17,6 @@ c      use m_w0w0i,only: llmat
       integer:: i,igb,ifw4p
       real(8):: qv(3,3)
       complex(8),allocatable:: wmu(:,:)
-      if(.not.w4pmode) return
 !! Finalize w4phonon
 !! wmuk(ix)= matmul(wmu,qv) ==> wmu= matmul(wmuk,qvinv)
       do i=1,3
@@ -90,6 +90,8 @@ c$$$      endif
       enddo   
 !! modivy files WVR and WVI
       call ModifyWV0()
+!!
+      if(w4pmode) call FinalizeW4p() !W for phonon mode finalized.
       end subroutine w0w0i
 c-------------------------------------------------
       subroutine modifyWV0()

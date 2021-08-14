@@ -55,7 +55,7 @@ c     & nband,itq,ngcmx,ngpmx, ppovlz, ppbir,shtvg, miat,tiat , ntq
       use m_x0kf,only: X0kf_v4hz, X0kf_v4hz_symmetrize,X0kf_v4hz_init
       use m_eibz,only:Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
-      use m_w0w0i,only: Finalizew4p,w0w0i
+      use m_w0w0i,only: w0w0i
       implicit none
 !! ------------------------------------------------
 !! We calculate chi0 by the follwoing three steps.

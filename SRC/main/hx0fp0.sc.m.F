@@ -54,8 +54,8 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_readhbe,only: Readhbe, nband !, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
-      use m_llw,only:     WVRllwR,WVIllwI,MPI__sendllw
-      use m_w0w0i,only:   Finalizew4p,w0w0i
+      use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
+      use m_w0w0i,only:   w0w0i
 !! MPI
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
      &     MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
@@ -271,11 +271,10 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
 !! == Divergent part and non-analytic constant part of W(0) ==
       call MPI__barrier()
       call MPI__sendllw(iqxend) !!! Send all LLW data to mpi_root.
-      if(MPI__rank == 0 ) then  ! MIZUHO-IR only on root node
+!! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
 !!  With w0 and w0i, we modify W0W0i. Files WVI and WVR are modified. jun2020
-        call W0w0i(nw_i,nw,nq0i,niw,q0i)  ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI
-        call FinalizeW4p()  
-      endif
+      if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i)
+!      
       write(6,*) '--- end of hx0fp0_sc --- irank=',MPI__rank
       call cputid(0)
       if(ixc==11     ) call rx0( ' OK! hx0fp0_sc ixc=11 Sergey F. mode')
