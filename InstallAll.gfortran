@@ -5,7 +5,8 @@ function my_error() {
 }
 
 # for ubuntu
-MATH='-lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
+MATH=-lmkl_rt
+#'-lblas -llapack /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
 #MATH='/usr/lib/x86_64-linux-gnu/libblas.so.3 /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3'
 #MATH='/usr/local/lib/libblas.a /usr/local/lib/liblapack.a /usr/local/lib/libfftw3.a'
 #MATH='/usr/lib/x86_64-linux-gnu/libfftw3.so.3 /usr/lib/liblapack.so.3gf /usr/lib/libblas.so.3gf'

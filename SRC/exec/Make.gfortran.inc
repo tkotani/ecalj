@@ -3,12 +3,6 @@ FC = mpif90 -Wsurprising -Wmaybe-uninitialized
 LK = mpif90 
 LIBMATH = -lmkl_rt
 
-#  -fcheck=array-temps,bounds,do,mem,pointer,recursion
-#FC = gfortran
-#LK = gfortran
-# LIBMATH =/usr/lib/x86_64-linux-gnu/libblas.so.3 \
-# /usr/lib/x86_64-linux-gnu/liblapack.so.3 /usr/lib/x86_64-linux-gnu/libfftw3.so.3
-
 module = -J$(moddir) -I$(moddir)
 
 ##############################
