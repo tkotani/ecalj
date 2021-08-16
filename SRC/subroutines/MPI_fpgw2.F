@@ -224,214 +224,214 @@ C     ! intialize MPI and
          call chdir(cwd)        ! recover current working directory
       endif
 
-C     ! get arguments
-      narg = iargc()
-      do i=1, narg
-         call getarg(i,arg)
-           if( .false. ) then
-         else if( arg == "-nq" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeQ
-         else if( arg == "-ns" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeS
-         else if( arg == "-np" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeP
-         else if( arg == "-nb" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeB
-         else if( arg == "-nm" ) then
-            call getarg(i+1,arg)
-            read(arg,*) mpi__sizeM
-         end if
-      end do
-      mpi__sizeW = mpi__sizeP
+c$$$C     ! get arguments
+c$$$      narg = iargc()
+c$$$      do i=1, narg
+c$$$         call getarg(i,arg)
+c$$$           if( .false. ) then
+c$$$         else if( arg == "-nq" ) then
+c$$$            call getarg(i+1,arg)
+c$$$            read(arg,*) mpi__sizeQ
+c$$$         else if( arg == "-ns" ) then
+c$$$            call getarg(i+1,arg)
+c$$$            read(arg,*) mpi__sizeS
+c$$$         else if( arg == "-np" ) then
+c$$$            call getarg(i+1,arg)
+c$$$            read(arg,*) mpi__sizeP
+c$$$         else if( arg == "-nb" ) then
+c$$$            call getarg(i+1,arg)
+c$$$            read(arg,*) mpi__sizeB
+c$$$         else if( arg == "-nm" ) then
+c$$$            call getarg(i+1,arg)
+c$$$            read(arg,*) mpi__sizeM
+c$$$         end if
+c$$$      end do
+c$$$      mpi__sizeW = mpi__sizeP
 
 C     ! in case no arguments, set as default
-      if(  mpi__sizeQ == 1 .and. 
-     .     mpi__sizeS == 1 .and. 
-     .     mpi__sizeP == 1 .and. 
-     .     mpi__sizeB == 1 .and. 
-     .     mpi__sizeM == 1 ) then
+c      if(  mpi__sizeQ == 1 .and. 
+c     .     mpi__sizeS == 1 .and. 
+c     .     mpi__sizeP == 1 .and. 
+c     .     mpi__sizeB == 1 .and. 
+c     .     mpi__sizeM == 1 ) then
          mpi__sizeQ = mpi__size
          mpi__sizeS = 1
          mpi__sizeP = 1
          mpi__sizeB = 1
          mpi__sizeM = 1
-      end if
+c      end if
 
-      if (mpi__root) then
-      write(6,'(a,10I5)')'mpi_size,Q,S,P,B,M=', mpi__size,
-     .   mpi__sizeQ,mpi__sizeS,mpi__sizeP,mpi__sizeB,mpi__sizeM
-      endif
+c      if (mpi__root) then
+c      write(6,'(a,10I5)')'mpi_size,Q,S,P,B,M=', mpi__size,
+c     .   mpi__sizeQ,mpi__sizeS,mpi__sizeP,mpi__sizeB,mpi__sizeM
+c      endif
 
-C     ! check inconsistent settings
-      if( mpi__sizeQ*mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM /= mpi__size ) then
-         write(6,*) "MPI size mismatch, mpirun -np size program -nq NQ -ns NS ..."
-         write(6,*) "size must be nq*ns*..."
-         call MPI_Finalize ( mpi__info )
-         call rx( ' MPI size mismatch' )
-      end if
+cC     ! check inconsistent settings
+c      if( mpi__sizeQ*mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM /= mpi__size ) then
+c         write(6,*) "MPI size mismatch, mpirun -np size program -nq NQ -ns NS ..."
+c         write(6,*) "size must be nq*ns*..."
+c         call MPI_Finalize ( mpi__info )
+c         call rx( ' MPI size mismatch' )
+c      end ifb
 
 C     ! determine ranks
       allocate( vrankQ(0:mpi__size-1) )
-      allocate( vrankS(0:mpi__size-1) )
-      allocate( vrankP(0:mpi__size-1) )
-      allocate( vrankB(0:mpi__size-1) )
-      allocate( vrankM(0:mpi__size-1) )
+c      allocate( vrankS(0:mpi__size-1) )
+c      allocate( vrankP(0:mpi__size-1) )
+c      allocate( vrankB(0:mpi__size-1) )
+c      allocate( vrankM(0:mpi__size-1) )
       
       do i=0, mpi__size-1
          n = i
-         vrankM(i) = mod(n,mpi__sizeM)
-         n = n / mpi__sizeM
-         vrankB(i) = mod(n,mpi__sizeB)
-         n = n / mpi__sizeB
-         vrankP(i) = mod(n,mpi__sizeP)
-         n = n / mpi__sizeP
-         vrankS(i) = mod(n,mpi__sizeS)
-         n = n / mpi__sizeS
+c         vrankM(i) = mod(n,mpi__sizeM)
+c         n = n / mpi__sizeM
+c         vrankB(i) = mod(n,mpi__sizeB)
+c         n = n / mpi__sizeB
+c         vrankP(i) = mod(n,mpi__sizeP)
+c         n = n / mpi__sizeP
+c         vrankS(i) = mod(n,mpi__sizeS)
+c         n = n / mpi__sizeS
          vrankQ(i) = mod(n,mpi__sizeQ)
       end do
 
-      if (mpi__root) then
-      write(6,*)'MPI rank information'
-      write(6,'(a,$)') 'vrankQ='; write(6,'(10i5)') vrankQ
-      write(6,'(a,$)') 'vrankS='; write(6,'(10i5)') vrankS
-      write(6,'(a,$)') 'vrankP='; write(6,'(10i5)') vrankP
-      write(6,'(a,$)') 'vrankB='; write(6,'(10i5)') vrankB
-      write(6,'(a,$)') 'vrankM='; write(6,'(10i5)') vrankM
-      endif
+c      if (mpi__root) then
+c      write(6,*)'MPI rank information'
+c      write(6,'(a,$)') 'vrankQ='; write(6,'(10i5)') vrankQ
+c      write(6,'(a,$)') 'vrankS='; write(6,'(10i5)') vrankS
+c      write(6,'(a,$)') 'vrankP='; write(6,'(10i5)') vrankP
+c      write(6,'(a,$)') 'vrankB='; write(6,'(10i5)') vrankB
+c      write(6,'(a,$)') 'vrankM='; write(6,'(10i5)') vrankM
+c      endif
 
 C     ! rank of this process
       mpi__rankQ = vrankQ(mpi__rank)
-      mpi__rankS = vrankS(mpi__rank)
-      mpi__rankP = vrankP(mpi__rank)
-      mpi__rankB = vrankB(mpi__rank)
-      mpi__rankM = vrankM(mpi__rank)
-      mpi__rankW = mpi__rankP
+c      mpi__rankS = vrankS(mpi__rank)
+c      mpi__rankP = vrankP(mpi__rank)
+c      mpi__rankB = vrankB(mpi__rank)
+c      mpi__rankM = vrankM(mpi__rank)
+c      mpi__rankW = mpi__rankP
 
 
 C     ! root or not of this process
       mpi__rootQ = ( mpi__rankQ == 0 )
-      mpi__rootS = ( mpi__rankS == 0 )
-      mpi__rootP = ( mpi__rankP == 0 )
-      mpi__rootB = ( mpi__rankB == 0 )
-      mpi__rootM = ( mpi__rankM == 0 )
+      mpi__rootS = .true. !( mpi__rankS == 0 )
+      mpi__rootP = .true. !( mpi__rankP == 0 )
+      mpi__rootB = .true. !( mpi__rankB == 0 )
+      mpi__rootM = .true. !( mpi__rankM == 0 )
       
       
-C     ! setup Q-parallel
-C     !  commQ for among other Q, same S,P,B,M
-      allocate( ranklistQ(0:mpi__sizeQ-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistQ(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeQ, ranklistQ, mpi__groupQ, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupQ, mpi__commQ, mpi__info )
-      deallocate( ranklistQ )
+c$$$C     ! setup Q-parallel
+c$$$C     !  commQ for among other Q, same S,P,B,M
+c$$$      allocate( ranklistQ(0:mpi__sizeQ-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankB(j) == mpi__rankB .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistQ(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeQ, ranklistQ, mpi__groupQ, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupQ, mpi__commQ, mpi__info )
+c$$$      deallocate( ranklistQ )
 
 
-C     ! setup S-parallel
-C     !  commS for among other S, same Q,P,B,M
-      allocate( ranklistS(0:mpi__sizeS-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistS(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeS, ranklistS, mpi__groupS, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupS, mpi__commS, mpi__info )
-      deallocate( ranklistS )
+c$$$C     ! setup S-parallel
+c$$$C     !  commS for among other S, same Q,P,B,M
+c$$$      allocate( ranklistS(0:mpi__sizeS-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankB(j) == mpi__rankB .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistS(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeS, ranklistS, mpi__groupS, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupS, mpi__commS, mpi__info )
+c$$$      deallocate( ranklistS )
 
 
-C     ! setup P-parallel
-C     !  commP for among other P, same Q,B,M
-      allocate( ranklistP(0:mpi__sizeP-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankB(j) == mpi__rankB .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistP(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeP, ranklistP, mpi__groupP, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupP, mpi__commP, mpi__info )
-      deallocate( ranklistP )
+c$$$C     ! setup P-parallel
+c$$$C     !  commP for among other P, same Q,B,M
+c$$$      allocate( ranklistP(0:mpi__sizeP-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankB(j) == mpi__rankB .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistP(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeP, ranklistP, mpi__groupP, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupP, mpi__commP, mpi__info )
+c$$$      deallocate( ranklistP )
       
-C     ! setup B-parallel
-C     !  commB for among other B, same Q,P,M
-      allocate( ranklistB(0:mpi__sizeB-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankM(j) == mpi__rankM ) then
-            ranklistB(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeB, ranklistB, mpi__groupB, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupB, mpi__commB, mpi__info )
-      deallocate( ranklistB )
+c$$$C     ! setup B-parallel
+c$$$C     !  commB for among other B, same Q,P,M
+c$$$      allocate( ranklistB(0:mpi__sizeB-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankM(j) == mpi__rankM ) then
+c$$$            ranklistB(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeB, ranklistB, mpi__groupB, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupB, mpi__commB, mpi__info )
+c$$$      deallocate( ranklistB )
+c$$$
+c$$$C     ! setup M-parallel      
+c$$$C     !  commM for among other M, same Q,P,B
+c$$$      allocate( ranklistM(0:mpi__sizeM-1) )
+c$$$      i=0
+c$$$      do j=0, mpi__size-1
+c$$$         if(  vrankQ(j) == mpi__rankQ .and.
+c$$$     .        vrankS(j) == mpi__rankS .and.
+c$$$     .        vrankP(j) == mpi__rankP .and.
+c$$$     .        vrankB(j) == mpi__rankB ) then
+c$$$            ranklistM(i) = j
+c$$$            i=i+1
+c$$$         end if
+c$$$      end do
+c$$$      call MPI_Group_incl( mpi__group,
+c$$$     .     mpi__sizeM, ranklistM, mpi__groupM, mpi__info )
+c$$$      call MPI_Comm_create( MPI_COMM_WORLD,
+c$$$     .     mpi__groupM, mpi__commM, mpi__info )
+c$$$      deallocate( ranklistM )
 
-C     ! setup M-parallel      
-C     !  commM for among other M, same Q,P,B
-      allocate( ranklistM(0:mpi__sizeM-1) )
-      i=0
-      do j=0, mpi__size-1
-         if(  vrankQ(j) == mpi__rankQ .and.
-     .        vrankS(j) == mpi__rankS .and.
-     .        vrankP(j) == mpi__rankP .and.
-     .        vrankB(j) == mpi__rankB ) then
-            ranklistM(i) = j
-            i=i+1
-         end if
-      end do
-      call MPI_Group_incl( mpi__group,
-     .     mpi__sizeM, ranklistM, mpi__groupM, mpi__info )
-      call MPI_Comm_create( MPI_COMM_WORLD,
-     .     mpi__groupM, mpi__commM, mpi__info )
-      deallocate( ranklistM )
-
-#if SCALAPACK
-C     ! setup ScaLapack process list
-      allocate( imap(0:mpi__sizeM-1) )
-      
-      do i=0, mpi__sizeM-1
-         imap(i) = mpi__rankQ * (mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankS * (mpi__sizeP*mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankP * (mpi__sizeB*mpi__sizeM)
-     .        +    mpi__rankB * (mpi__sizeM) + i
-      end do
-
-      call BLACS_GET( 0, 0, mpi__Mhandle )
-      call BLACS_GRIDMAP( mpi__Mhandle, imap, 1, 1, mpi__sizeM )
-      deallocate(imap)
-#endif
+c$$$#if SCALAPACK
+c$$$C     ! setup ScaLapack process list
+c$$$      allocate( imap(0:mpi__sizeM-1) )
+c$$$      
+c$$$      do i=0, mpi__sizeM-1
+c$$$         imap(i) = mpi__rankQ * (mpi__sizeS*mpi__sizeP*mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankS * (mpi__sizeP*mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankP * (mpi__sizeB*mpi__sizeM)
+c$$$     .        +    mpi__rankB * (mpi__sizeM) + i
+c$$$      end do
+c$$$
+c$$$      call BLACS_GET( 0, 0, mpi__Mhandle )
+c$$$      call BLACS_GRIDMAP( mpi__Mhandle, imap, 1, 1, mpi__sizeM )
+c$$$      deallocate(imap)
+c$$$#endif
       return
       end subroutine MPI__InitializeQSPBM
 

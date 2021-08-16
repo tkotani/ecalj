@@ -60,8 +60,8 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
      &     MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
      &     MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
-     &     MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
-     &     MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
+     &     MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
+     &     MPI__barrier !, MPI__rankQ MPI__Qranktab,
 !! ------------------------------------------------------------------------      
       implicit none
       real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
@@ -74,6 +74,7 @@ c     & laf,ibasf !,ldima,pos,natom
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr
 !-------------------------------------------------------------------------
       call MPI__InitializeQSPBM()
+c      call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       if(verbose()>=100) debug=.true.
@@ -242,8 +243,9 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
         enddo
         enddo
         write(6,*) 'MPI__AllreduceSumS end'
-!! We only need rcxq hereafter. Correct? 
-        if(.not.MPI__rootS) exit
+c!! We only need rcxq hereafter. Correct? 
+c        if(.not.MPI__rootS) exit
+        
 !! Hilbert transform . Genrerate Real part from Imaginary part. ======
         if(realomega) allocate( zxq(nmbas1,nmbas2,nw_i:nw) )
         if(imagomega) allocate( zxqi(nmbas1,nmbas2,niw)    )
