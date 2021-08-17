@@ -33,7 +33,7 @@ c
 c      integer(4):: konfig(0:nl-1,nclass) !konf(nl,nclass)
       real(8)   :: valn,ef
 c
-      integer(4) :: nbnqnsp,ix,ikx,ikini,nne
+      integer(4) :: nbnqnsp,ix,ikx=-9999,ikini,nne
       real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini
      &            ,eee2,wwg2 ,enumef
 c      real(8) :: efp,efm,wwgo,wfacef
@@ -104,10 +104,10 @@ c        write(6,*) ik,ieaord(ik),ektx(ieaord(ik)),wgtx(ieaord(ik))
 c      enddo
 c
       if (mpi__root) then
-         if8301=ifile_handle()
-         open(if8301,file = "DOSACC.lda")
-         if8302=ifile_handle()
-         open(if8302,file = "DOSACC2.lda")
+c         if8301=ifile_handle()
+         open(newunit=if8301,file = "DOSACC.lda")
+c         if8302=ifile_handle()
+         open(newunit=if8302,file = "DOSACC2.lda")
       endif
       wwg = 0d0
       wwg2= 0d0
@@ -259,13 +259,13 @@ c
       real(8)   :: wibz(nqibz),valn,ef, z(nclass),qibz(3,nqibz)
       integer(4):: iclass(natom),konfig(0:nl-1,nclass),ierr
 c
-      integer(4) :: nbnqnsp,ix,ikx,ikini,nne
+      integer(4) :: nbnqnsp,ix,ikx=-99999,ikini,nne
       real(8)    :: ew1,ew2,ein,valx,enumef_gauss,esmr, efini
      &            ,eee2,wwg2 ,enumef
 c      real(8) :: efp,efm,wwgo,wfacef
       logical :: legas,autoew,GaussSmear=.true. !is external
 
-      integer(4):: nqbz,ifile_handle,if8301,if8302
+      integer(4):: nqbz,if8301,if8302 !ifile_handle,
 c      integer(4):: n_index_qbz,index_qbz(n_index_qbz,n_index_qbz,n_index_qbz)
       real(8)   :: qbz(3,nqbz)
       integer:: ifzbak
@@ -326,10 +326,10 @@ c ekt and wgt
       call dcopy ( nband*nqibz*nspin, wgt,1, wgtx ,1)
       call sortea( ektx,ieaord,nband*nqibz*nspin,isig)
       if (mpi__root) then
-         if8301=ifile_handle()
-         open(if8301,file = "DOSACC.lda")
-         if8302=ifile_handle()
-         open(if8302,file = "DOSACC2.lda")
+c         if8301=ifile_handle()
+         open(newunit=if8301,file = "DOSACC.lda")
+c         if8302=ifile_handle()
+         open(newunit=if8302,file = "DOSACC2.lda")
       endif
       wwg = 0d0
       wwg2= 0d0
@@ -531,14 +531,15 @@ c$$$      Emax = maxval(ekxxx)
 c$$$      Emin = minval(ekxxx)
 c$$$      deallocate(ekxxx)
 c$$$      end
-      subroutine readomgc(ifinin,omg_c)
-      real(8)::omg_c,blank
-      integer::ifinin,is,iopen,iclose
-      ifinin=iopen('GWIN_V2',1,0,0)
-      read(ifinin,*)
-      read(ifinin,*)
-      read(ifinin,*) blank,omg_c !omg_c is frequency parameter
-      ! freq2(iw)=dw(iw-1)+dw**2(iw-1)**2/2/omg_c
-      ! quadratic term is essential for energy > omg_c
-      is=iclose('GWIN_V2')
-      end
+
+c$$$      subroutine readomgc(ifinin,omg_c)
+c$$$      real(8)::omg_c,blank
+c$$$      integer::ifinin,is,iopen,iclose
+c$$$      ifinin=iopen('GWIN_V2',1,0,0)
+c$$$      read(ifinin,*)
+c$$$      read(ifinin,*)
+c$$$      read(ifinin,*) blank,omg_c !omg_c is frequency parameter
+c$$$      ! freq2(iw)=dw(iw-1)+dw**2(iw-1)**2/2/omg_c
+c$$$      ! quadratic term is essential for energy > omg_c
+c$$$      is=iclose('GWIN_V2')
+c$$$      end
