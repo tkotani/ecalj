@@ -16,7 +16,7 @@
 !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
 !      
       use m_ReadEfermi,only: Readefermi,ef
-      use m_readqg,only: Readngmx2,Readqg0,ngpmx,ngcmx
+      use m_readqg,only: Readngmx2,ngpmx,ngcmx
       use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
       use m_read_bzdata,only: Read_bzdata, !<--- 'call read_bzdata' sets up following data.
      &   ngrp2=>ngrp,nqbz,nqibz,n1,n2,n3,qbas,ginv,
@@ -55,13 +55,10 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_eibz,only:    Seteibz, nwgt,neibz,igx,igxt,eibzsym
       use m_x0kf,only:    X0kf_v4hz, X0kf_v4hz_symmetrize, X0kf_v4hz_init
       use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
-      use m_w0w0i,only:   w0w0i
 !! MPI
-      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__InitializeQ, !,MPI__InitializeQSPBM,MPI__hx0fp0_rankdivider2S,
-     &     MPI__Qtask, !MPI__Ss,MPI__Se, 
-     &     MPI__Finalize,MPI__root,
-     &     MPI__Broadcast,MPI__rank,MPI__size, 
-     &     MPI__consoleout,MPI__barrier  !,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__allreducesumS
+      use m_mpi,only: MPI__hx0fp0_rankdivider2Q, MPI__Qtask, 
+     &     MPI__Initialize, MPI__Finalize,MPI__root,
+     &     MPI__Broadcast, MPI__rank,MPI__size, MPI__consoleout,MPI__barrier  
 !! ------------------------------------------------------------------------      
       implicit none
       integer:: MPI__Ss,MPI__Se
@@ -75,9 +72,7 @@ c      logical,allocatable:: MPI__Qtask(:)
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr
 !-------------------------------------------------------------------------
-      call MPI__InitializeQ()
-c      call MPI__InitializeQSPBM()
-c      call MPI__Initialize()
+      call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
       if(verbose()>=100) debug=.true.
@@ -98,7 +93,7 @@ c      call MPI__Initialize()
          write(6,*)'we only allow ixc==11 or 10011. Given ixc=',ixc
          call Rx( 'error: give allowed arg for hx0fp0_sc.')
       endif
-      allocate(zzr(1,1))       !dummy !zzr is required for chi^+- mode for hx0fp0
+      allocate(zzr(1,1))  !dummy !zzr is required for chi^+- mode for hx0fp0
       hartree= 2d0*rydberg()
       call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
       call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
@@ -107,86 +102,56 @@ c      call MPI__Initialize()
       call Readefermi() !Readin EFERMI
       call Readhbe()    !Read dimensions 
       call ReadGWinputKeys() !Readin dataset in GWinput
-c      write(6,"(' nbcut nbcut2=',2i5)") nbcut,nbcut2
-c      if(ngrp/= ngrp2)  call rx( 'ngrp inconsistent: BZDATA and GWIN_V2')
-c      if(nlmto/=nlmtot) call rx( ' hx0fp0_sc: nlmto/=nlmtot in hbe.d')
-c      if(nqbz /=nqbzt ) call rx( ' hx0fp0_sc: nqbz /=nqbzt  in hbe.d')
-!! --- Readin Offset Gamma --------
-      call Readq0p()
-c      write(6,"(' ### nqibz nq0i nq0iadd=', 3i5)")nqibz,nq0i,nq0iadd
-!! --- Read Qpoints
-c      call Readngmx('QGpsi',ngpmx), call Readngmx('QGcou',ngcmx)
+      call Readq0p()    !Readin Offset Gamma 
       call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
       call Setqbze()    ! extented BZ points list
-c      write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
+!  write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W, ngpmx: max of PWs for phi
 !! Get space-group transformation information. See header of mptaouof.
-!! But we only use symops=E for hx0fp0 mode. c.f hsfp0.sc 
+!! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc 
       ngrpx = 1 !no space-group symmetry operation in hx0fp0. ng=1 means E only.
       allocate(symope(3,3))
       symope(1:3,1) = [1d0,0d0,0d0]
       symope(1:3,2) = [0d0,1d0,0d0]
       symope(1:3,3) = [0d0,0d0,1d0]
-      call Mptauof_zmel(symope,ngrpx) !Since we only use E, 
-c      if(verbose()>=40) write (*,*)' hsfp0.sc.m.F: end of mptauof_x'
+      call Mptauof_zmel(symope,ngrpx) 
 !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
 !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
-!! Set itq in m_zmel
-      call Setitq()
-!! ... initialization of readEigen !readin m_hamindex
-      call Init_readeigen() !nband,mrece)!EVU EVD are stored in m_readeigen
-      call Init_readeigen2() !mrecb,nlmto,mrecg)
+      call Setitq()         ! Set itq in m_zmel
+      call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
+      call Init_readeigen2() 
 !! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm 
       realomega = .true.
       imagomega = .true.
       call Getfreq2(.false.,realomega,imagomega,ua,iprintx)!tetra,
-!! Write freq_r (real omega). Read from hsfp0
-      if(realomega .and. mpi__root) then
-         open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
+      if(realomega .and. mpi__root) then  ! Write freq_r (real omega). Read from hsfp0.
+         open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies 
          write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
          do iw= nw_i,-1
-            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw 
+            write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw !negative frequecncies for x0
          enddo
          do iw= 0,nw
-            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw 
+            write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw    !positive frequecncies for x0
          enddo
          close(ifif)
       endif
 !! We first accumulate Imaginary parts. Then do K-K transformation to get real part.
-c      noccxv = maxocc2 (nspin,ef, nband, qbze,nqbze) 
-c        !max no. of occupied valence states
-c      if(noccxv>nband) call Rx( 'hx0fp0_sc: all the bands filled! too large Ef')
-c     noccx  = noccxv + nctot ! We usually assume nctot=0
-c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB 
+! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB 
       iqxini = 1 
       iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-!!      
       if(MPI__root) then  ! I think it is not so meaningful to give a subroutine for writing WV.d.
         open(newunit=ifwd, file='WV.d', action='write')
         write (ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
         close(ifwd)
       endif
-!! Array for eigenvalues.
-      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-!! EIBZ mode
-      eibzmode = eibz4x0()
-      call Seteibz(iqxini,iqxend,iprintx)
-!! W4phonon. !still developing...
-!!      call Setw4pmode()
-      
+      allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz)) ! For eigenvalues.
+      eibzmode = eibz4x0()                ! EIBZ mode
+      call Seteibz(iqxini,iqxend,iprintx) ! EIBZ mode
+!!    call Setw4pmode() !W4phonon. !still developing...
 !! Rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
-c      call MPI__hx0fp0_rankdivider2S(nspin)
       MPI__Ss = 1
       MPI__Se = nspin
-c      allocate(mpi__Qtask(iqxini:iqxend))
-c      do iq=iqxini, iqxend
-c         if( mod(iq-1,mpi__size) == mpi__rank) then
-c            mpi__Qtask(iq) = .true. 
-c            write(6,'("irank iq=",i5,i5)') MPI__rank,iq
-c         else   
-c            mpi__Qtask(iq) = .false. 
-c         endif   
-c      enddo
+
       
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE:o iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
@@ -223,7 +188,7 @@ c      enddo
         call Setppovlz(qp,matz=.not.eibz4x0())
         allocate( rcxq(nmbas1,nmbas2,nwhis,npm)) 
         rcxq = 0d0
-        do 1003 is = MPI__Ss,MPI__Se !is=1,nspin
+        do 1003 is = MPI__Ss,MPI__Se !is=1,nspin. rcxq is acuumulated for spins
            write(6,"(' ### ',2i4,' out of nqibz+n0qi+nq0iadd nsp=',2i4,' ### ')")iq,is,nqibz+nq0i+nq0iadd,nspin
            if(debug) write(6,*)' niw nw=',niw,nw
            isf = is
