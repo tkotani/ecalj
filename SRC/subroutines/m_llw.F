@@ -276,11 +276,11 @@ c----------------------------------------------------------
       end subroutine
 c----------------------------------------------------------
       subroutine MPI__sendllw(iqxend) !for hx0fp0_sc
-      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
-     &     MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
-     &     MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
-     &     MPI__Qranktab,MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
-     &     MPI__barrier, MPI__rankQ,MPI__rootQ,MPI__rootS
+      use m_mpi,only:   !MPI__hx0fp0_rankdivider2Q, !MPI__hx0fp0_rankdivider2S, 
+     &     MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ, !MPI__rank,
+     &     MPI__size,MPI__Qranktab,MPI__rankQ,MPI__rootQ
+c !MPI__barrier, MPI__consoleout, !MPI__Ss,MPI__Se, MPI__allreducesumS,
+c     &      !,MPI__rootS
 !     ! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
       intent(in)::            iqxend
       integer:: iq0,dest,src,iq,iqxend

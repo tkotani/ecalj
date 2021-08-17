@@ -57,13 +57,15 @@ c     & laf,ibasf !,ldima,pos,natom
       use m_llw,only:     WVRllwR,WVIllwI,w4pmode,MPI__sendllw
       use m_w0w0i,only:   w0w0i
 !! MPI
-      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__hx0fp0_rankdivider2S,
-     &     MPI__Qtask,MPI__InitializeQSPBM,MPI__Finalize,MPI__root,
-     &     MPI__Broadcast,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__rank,MPI__size,
-     &     MPI__consoleout,MPI__Ss,MPI__Se, MPI__allreducesumS,
-     &     MPI__barrier !, MPI__rankQ MPI__Qranktab,
+      use m_mpi,only: MPI__hx0fp0_rankdivider2Q,MPI__InitializeQ, !,MPI__InitializeQSPBM,MPI__hx0fp0_rankdivider2S,
+     &     MPI__Qtask, !MPI__Ss,MPI__Se, 
+     &     MPI__Finalize,MPI__root,
+     &     MPI__Broadcast,MPI__rank,MPI__size, 
+     &     MPI__consoleout,MPI__barrier  !,MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__allreducesumS
 !! ------------------------------------------------------------------------      
       implicit none
+      integer:: MPI__Ss,MPI__Se
+c      logical,allocatable:: MPI__Qtask(:)
       real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi, sqfourpi= sqrt(fourpi)
       integer:: iq,isf,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,nmbas1,nmbas2,nmbas_in,ifif
       real(8):: ua=1d0, qp(3), quu(3), hartree, rydberg, schi=-9999
@@ -73,7 +75,8 @@ c     & laf,ibasf !,ldima,pos,natom
       logical :: hx0, eibzmode, crpa, eibz4x0,iprintx=.false.,chipm=.false., localfieldcorrectionllw
       integer:: i_red_npm, i_red_nwhis,  i_red_nmbas2,ierr
 !-------------------------------------------------------------------------
-      call MPI__InitializeQSPBM()
+      call MPI__InitializeQ()
+c      call MPI__InitializeQSPBM()
 c      call MPI__Initialize()
       call MPI__consoleout('hx0fp0_sc')
       call cputid (0)
@@ -169,13 +172,22 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
       call Seteibz(iqxini,iqxend,iprintx)
 !! W4phonon. !still developing...
 !!      call Setw4pmode()
+      
 !! Rank divider
       call MPI__hx0fp0_rankdivider2Q(iqxini,iqxend)
-      call MPI__hx0fp0_rankdivider2S(nspin)
-      write(6,'("irank=",i5," allocated(MPI__qtask)=",L5)')MPI__rank,allocated(MPI__qtask)
-      do iq = iqxini,iqxend
-        if(MPI__qtask(iq)) write(6,'("irank iq=",i5,i5)') MPI__rank,iq
-      enddo
+c      call MPI__hx0fp0_rankdivider2S(nspin)
+      MPI__Ss = 1
+      MPI__Se = nspin
+c      allocate(mpi__Qtask(iqxini:iqxend))
+c      do iq=iqxini, iqxend
+c         if( mod(iq-1,mpi__size) == mpi__rank) then
+c            mpi__Qtask(iq) = .true. 
+c            write(6,'("irank iq=",i5,i5)') MPI__rank,iq
+c         else   
+c            mpi__Qtask(iq) = .false. 
+c         endif   
+c      enddo
+      
 !! == Calculate x0(q,iw) and W == main loop 1001 for iq. 
 !! NOTE:o iq=1 (q=0,0,0) write 'EPS0inv', which is used for iq>nqibz for ixc=11 mode
 !! Thus it is necessary to do iq=1 in advance to performom iq >nqibz. 
@@ -233,16 +245,17 @@ c     nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
      i       nolfco, zzr, nmbas_in, chipm, eibzmode=eibzmode, eibzsym=eibzsym(:,:,iq),
      o       rcxq=rcxq)              !  crystal symmetry of rcxq is recovered for EIBZ mode.
         endif
-!! Reduction rcxq in the Spin-axis
-        write(6,*) 'MPI__AllreduceSumS start'
-        do i_red_npm=1,npm
-        do i_red_nwhis=1,nwhis
-        do i_red_nmbas2=1,nmbas2
-          call MPI__AllreduceSumS( rcxq(1,i_red_nmbas2,i_red_nwhis,i_red_npm), nmbas1)
-        enddo
-        enddo
-        enddo
-        write(6,*) 'MPI__AllreduceSumS end'
+        
+c!! Reduction rcxq in the Spin-axis
+c        write(6,*) 'MPI__AllreduceSumS start'
+c        do i_red_npm=1,npm
+c        do i_red_nwhis=1,nwhis
+c        do i_red_nmbas2=1,nmbas2
+c          call MPI__AllreduceSumS( rcxq(1,i_red_nmbas2,i_red_nwhis,i_red_npm), nmbas1)
+c        enddo
+c        enddo
+c        enddo
+c        write(6,*) 'MPI__AllreduceSumS end'
 c!! We only need rcxq hereafter. Correct? 
 c        if(.not.MPI__rootS) exit
         
