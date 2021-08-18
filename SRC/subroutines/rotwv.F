@@ -445,7 +445,7 @@ c$$$      end
       integer, intent(in) :: n
       integer, intent(out) :: ii(n)
       integer::i
-      real(8):: eps=1d-6,aa !eps=1d-8 until aug2012
+      real(8):: eps=1d-5,aa !eps=1d-8 until aug2012
       do i=1,n
         ii(i)=nint(a(i))
         if(abs(ii(i)-a(i))>eps)then
