@@ -1,7 +1,7 @@
       module m_writeham
       use m_MPItk,only: master_mpi
       
-      integer,private:: ififft
+      integer,private:: ififft,ifspec
       logical,private:: initset1=.true.,writeham=.false.
       contains
 !!
@@ -122,15 +122,19 @@ c      print *,'ktab',ktab
          k_table (offl(iorb)+1: offl(iorb)+2*ltab(iorb)+1) = ktab(iorb)
       enddo
       write(6,*) ' i  ib l  k trim(spec)'
+      if(writeham) open(newunit=ifspec,file="atmspc")
+      if(writeham) write(ifspec,*) ldim,nsp
       do i= 1, ldim
          ib   = ib_table(i)
          is   = ssite(ib)%spec
          spid = sspec(is)%name
          write(6,"(i3,x,3i3,x,a)")i, ib_table(i),l_table(i),k_table(i),trim(spid)
+         write(ifspec,"(i3,x,a,x,3i4)") i,trim(spid),ib_table(i),l_table(i),k_table(i) !sakakibara
       enddo
       if(writeham) write(ififft)ldim,lso,nsp
       if(writeham) write(ififft)ib_table,l_table,k_table
       if(writeham) close(ififft)
+      if(writeham) close(ifspec)
       deallocate(ib_table,l_table,k_table)
       end subroutine
       end module

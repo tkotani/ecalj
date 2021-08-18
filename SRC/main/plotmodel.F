@@ -85,11 +85,7 @@ c        write(6,'(" qplist ix xdata q=",i5,f9.4,x,3f9.4)')ix,xdat(ix),qplistsy(
                end do
             end do
 
-            if(epsovl<1.000001d-14) then
-               call zhev_tk2(NS,ham,ovl,NS,nev,evl(ikp,1:NS),t_zv,lprint,savez,getz,ifig) 
-            else  
-               call zhev_tk3(NS,ham,ovl,NS,nev,evl(ikp,1:NS),t_zv,lprint,savez,getz,ifig,epsovl) 
-            endif
+            call zhev_tk4(NS,ham,ovl,NS,nev,evl(ikp,1:NS),t_zv,epsovl) 
             if(jsp==1.and.debug)then
                do n=1,nev
                   write(idum, "(2i4,f13.7)") i,jsp,evl(ikp,n)

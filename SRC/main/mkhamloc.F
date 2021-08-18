@@ -247,9 +247,7 @@ cccccccccccccccccccccc diagonalization process! ccccccccccccccccccccccccccc
          allocate(hamD(LD,LD),ovlD(LD,LD),c_D(LD,LD),evl_D(LD))
          ovlD(1:LD,1:LD)=ovlF(1:LD,1:LD)
          hamD(1:LD,1:LD)=hamF(1:LD,1:LD)
-         if(epsdum  < 1.000001d-14) call zhev_tk2(LD,hamD,ovlD,LD,nev(rq),evl_D,c_D,lprint,savez,getz,ifig)
-         if(epsdum >= 1.000001d-14)
-     .   call zhev_tk3(LD,hamD,ovlD,LD,nev(rq),evl_D,c_D,lprint,savez,getz,ifig,epsdum)
+         call zhev_tk4(LD,hamD,ovlD,LD,nev(rq),evl_D,c_D,epsdum)
 
          nmax=1
          do i=1,nev(rq)

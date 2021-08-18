@@ -167,7 +167,6 @@ c      if(master_mpi) write(stdo,"(a)") 'bndfp:start'
          read(ifi,*) eferm
          close(ifi)             
          call mpibc1_real(eferm,1,'bndfp_eferm')
->>>>>>> d678c0
       endif
       
 !! Set spin-symmetrized pnu. aug2019. See also in pnunew and locpot

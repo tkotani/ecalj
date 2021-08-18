@@ -135,13 +135,8 @@ c     if(lso==1) NS=NS*2 !L.S mode
 !     Diagonalize
          allocate(evl_P(1:NP),c_P(1:NP,1:NP))
          
-         if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis
-            call zhev_tk2(NP,hamP,ovlP,NP,nevP,evl_P,c_P,lprint,savez,getz,ifig)
-            call zhev_tk2(NS,hamS,ovlS,NS,nevS,evl_S,c_S,lprint,savez,getz,ifig) 
-         else                    
-            call zhev_tk3(NP,hamP,ovlP,NP,nevP,evl_P,c_P,lprint,savez,getz,ifig,epsovl)
-            call zhev_tk3(NS,hamS,ovlS,NS,nevS,evl_S,c_S,lprint,savez,getz,ifig,epsovl)
-         endif
+         call zhev_tk4(NP,hamP,ovlP,NP,nevP,evl_P,c_P,epsovl)
+         call zhev_tk4(NS,hamS,ovlS,NS,nevS,evl_S,c_S,epsovl)
          if(nevS.ne.NS) stop "error! nevS"
          write(ilog,*) "NS,nevS,NM,NP,nevP",NS,nevS,NM,NP,nevP
          
@@ -173,11 +168,7 @@ c             if(j==s)prj(j,s)=1d0
          ovlC  = ovlS
 c        ovlC  = matmul( lft,rgt)
          
-         if(epsovl<1.000001d-14) then !epsovl is the trancation to remove poor linear-dependency basis          
-            call zhev_tk2(NS,hamC,ovlC,NS,nevC,evl_C,c_C,lprint,savez,getz,ifig)
-         else
-            call zhev_tk3(NS,hamC,ovlC,NS,nevC,evl_C,c_C,lprint,savez,getz,ifig,epsovl)
-         endif
+         call zhev_tk4(NS,hamC,ovlC,NS,nevC,evl_C,c_C,epsovl)
 
          if(debug)then
             do i=1,nevC
