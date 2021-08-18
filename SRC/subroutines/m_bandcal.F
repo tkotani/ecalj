@@ -87,11 +87,10 @@
          if(debug) print *,' do 2010 iq procid=',iq,procid,iq,iqini,iqend
          if(iq==iqini) call mlog_MPIiq(iq,iqini,iqend)
          call m_Igv2x_setiq(iq) !qp)   ! Get napw and so on for given qp
-         nmx=min(nevmx,ndimhx)!nmx: max number of eigenfunctions we will obtain. Smaller is faster.
          if(lso==1) then
             allocate(hamm(ndimh,ndimh,4),ovlm(ndimh,ndimh,4)) !spin offdiagonal included
          else   
-            if(lso/=1) allocate(hamm(ndimh,ndimh,1),ovlm(ndimh,ndimh,1)) !only for one spin
+            allocate(hamm(ndimh,ndimh,1),ovlm(ndimh,ndimh,1)) !only for one spin
          endif
          ispendx = nsp
          if(lso==1) ispendx=1
@@ -123,13 +122,13 @@ ccccccccccccccc
 !! Hamm and ovlm are made from smooth part and augmentation part.           
             hamm=0d0
             ovlm=0d0
-            if(lso==1) then !L.S case
+            if(lso==1) then !L.S case nspc=2
               call hambl(lso,1,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &              hamm(1,1,   1),ovlm(1,1, 1),hamm(1,1, 3)) !isp=1
               call hambl(lso,2,qp,   osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &              hamm(1,1,   2),ovlm(1,1, 2),hamm(1,1, 3)) !isp=2 note readme in hambl
-              call sopert2 ( hamm , hamm ) !SO case 
-              call sopert2 ( ovlm , ovlm )
+              call sopert2 ( hamm , hamm ) !SO case re-ordering.
+              call sopert2 ( ovlm , ovlm ) !SO case re-ordering.
               if(sigmamode) then
                  call getsenex(qp, 1, ndimh,ovlm(1,1, 1))
                  hamm(:,:,1) = hamm(:,:,1) + ham_scaledsigma*senex !senex_up= Vxc(QSGW)-Vxc(LDA)
@@ -137,7 +136,7 @@ ccccccccccccccc
                  hamm(:,:,2) = hamm(:,:,2) + ham_scaledsigma*senex !senex_dn= Vxc(QSGW)-Vxc(LDA)
                  call dsene()
               endif
-            else ! No SO or Lz.Sz case (spin diagonal)
+            else ! No SO or Lz.Sz case (spin diagonal) nspc=1
               call hambl(lso,isp,qp, osmpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,
      &           hamm(1,1, 1),ovlm(1,1, 1),hamm(1,1, 3)) ! hamm(1,1,3) is dummy
               if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
@@ -146,6 +145,7 @@ ccccccccccccccc
                  call dsene()
               endif
             endif 
+            nmx=min(nevmx,ndimhx) !nmx: max number of eigenfunctions we will obtain. Smaller is faster.
             
             if(iprint()>=30) 
      &      write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4," ndimh = nmto+napw = ",3i5,f13.5)')
@@ -153,12 +153,12 @@ ccccccccccccccc
             if(writeham) then 
 c                write(stdo,"(a,3f9.5)") "Hamiltonian: Writing hamm and ovlm for qp= ",qp
                 write(ifih) qp,ndimhx,lso,epsovl,jsp
-                if(lso==1) then !L.S case 
-                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1:4) 
-                  write(ifih) hamm(1:ndimhx,1:ndimhx,1:4)
-                else  !nspc=1 spin diagonal case
-                  write(ifih) ovlm(1:ndimhx,1:ndimhx,1)
-                  write(ifih) hamm(1:ndimhx,1:ndimhx,1)
+                if(lso==1) then !L.S case ndimhx=ndimh*nspc nspc=2
+                  write(ifih) ovlm !Note sopert2. When you read, use ovlm(1:ndimhx, 1:ndimhx)
+                  write(ifih) hamm 
+                else  !spin diagonal case nspc=1 ndimhx=ndimh
+                  write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
+                  write(ifih) hamm
                 endif
             endif
              
