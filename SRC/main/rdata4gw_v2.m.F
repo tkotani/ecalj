@@ -267,8 +267,8 @@ c      if(zvztest()==1) then
 c        ippovlc_test = .true.
 c      endif
 c      if(ippovlc_test) open (ippovlc,form='unformatted',file='PPOVLC')
-      ippovl0=ifile_handle()
-      if(ppovl0l) open (ippovl0,form='unformatted',file='PPOVL0')
+c      ippovl0=ifile_handle()
+      if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='PPOVL0')
       call readin6(ix1,idum2,idum3,idum4) ! ingczero)
 c      call headver('rdata4gw_v2',ix1)
       mmm=normcheck()
@@ -286,10 +286,10 @@ c      call headver('rdata4gw_v2',ix1)
       n1q=nnn(1); n2q=nnn(2); n3q = nnn(3)
 
 !! --- Readin QGpsi and QGcou ---
-      ifiqg  = ifile_handle()
-      open(ifiqg ,file='QGpsi',form='unformatted')
-      ifiqgc = ifile_handle()
-      open(ifiqgc,file='QGcou',form='unformatted')
+c      ifiqg  = ifile_handle()
+      open(newunit=ifiqg ,file='QGpsi',form='unformatted')
+c     ifiqgc = ifile_handle()
+      open(newunit=ifiqgc,file='QGcou',form='unformatted')
       read(ifiqg  ) nqnum , ngpmx, QpGcut_psi,nnnn
       read(ifiqgc ) nqnumc, ngcmx, QpGcut_Cou
       nqtt=nqnum
@@ -309,8 +309,8 @@ c      call headver('rdata4gw_v2',ix1)
 
 !! --- Readin Q0P
       print *, 'reading QOP'
-      iq0p=ifile_handle()
-      open (iq0p,file='Q0P')
+c      iq0p=ifile_handle()
+      open (newunit=iq0p,file='Q0P')
       read (iq0p,*) nq0i,iq0pin,nq0iadd
       allocate( wt(nq0i+nq0iadd),q0i(1:3,nq0i+nq0iadd) )
       do i=1,nq0i+nq0iadd
@@ -319,7 +319,7 @@ c      call headver('rdata4gw_v2',ix1)
       close(iq0p)
 
 !! --- Readin DATA4GW_V2
-      ifi = 104 !ifile_handle()
+      ifi = ifile_handle()
       open(ifi,file='DATA4GW_V2',form='unformatted')
       call gwinput0_v2(ifi,
      &     nsp,   nbas,   nclass, nrmx,   ncoremx,
@@ -460,8 +460,8 @@ c     write(6,*) ' smooth mixed basis=',smbasis()
       nxx= -999; lxx= -999; ibxx=-999
       allocate(nrad(nbas), nindx_r(ldim2,nbas),lindx_r(ldim2,nbas))
       nrad = 0
-      ifnlax=ifile_handle()
-      open(ifnlax,file='@MNLA_core')
+c      ifnlax=ifile_handle()
+      open(newunit=ifnlax,file='@MNLA_core')
 c      ifnlax = iopen('@MNLA_core',1,-1,0)
       write(ifnlax,"(a)") '    m    n    l  icore ibas   ' ! Index for core
       write(ifnlax,'(" ------- core ------------")')
@@ -531,8 +531,8 @@ Cstop2rx 2013.08.09 kino          stop ' rdata xxx1: ncore(ic)/=icore'
       enddo
 !! ... hbe.d
 c      ifhbed = iopen('hbe.d',1,-1,0)
-      ifhbed=ifile_handle()
-      open(ifhbed,file='hbe.d')
+c      ifhbed=ifile_handle()
+      open(newunit=ifhbed,file='hbe.d')
       nqbz  = n1q*n2q*n3q
       ndble = 8
 c     nword = 4
@@ -546,8 +546,8 @@ c     nword = 4
 
 !!--- save eigenvalues to EValue, qtti, nqtti also ---
 c      ifev= iopen('EValue',0,-1,0)    !feb2012takao
-      ifev= ifile_handle()
-      open(ifev,file='EValue',form='unformatted')
+c      ifev= ifile_handle()
+      open(newunit=ifev,file='EValue',form='unformatted')
       write(ifev) nband, nqtti, nsp
       write(ifev) qtti(1:3,1:nqtti) !qtti
       write(ifev) evl(1:nband, 1:nqtti, 1:nsp )
@@ -559,30 +559,29 @@ c      ife0   = iopen('eig0.chk', 1,-1,0) ! chech write for eigenfunction at gam
 c      ifcphi = iopen('CPHI', 0,-1,mrecb) !  the augmentation wave.
 c      ifgeig = iopen('GEIG', 0,-1,mrecg) ! Coefficienets of eigenfunction for q+G wave.
 c      ifv    = iopen('VXCFP',0,-1,0)
-      ifec=ifile_handle()
-      open(ifec, file='ECORE')
-      ifphi=ifile_handle()
-      open(ifphi,file='PHIVC',form='unformatted')
-      ife0=ifile_handle()
-      open(ife0,file='eig0.chk')
-      ifcphi =ifile_handle()
-      open(ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
-      ifgeig=ifile_handle()
+c      ifec=ifile_handle()
+      open(newunit=ifec, file='ECORE')
+c      ifphi=ifile_handle()
+      open(newunit=ifphi,file='PHIVC',form='unformatted')
+c      ife0=ifile_handle()
+      open(newunit=ife0,file='eig0.chk')
+c      ifcphi =ifile_handle()
+      open(newunit=ifcphi,file='CPHI',form='unformatted',access='direct',recl=mrecb)
+c      ifgeig=ifile_handle()
       if(mrecg>0) then
-        open(ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
+        open(newunit=ifgeig,file='GEIG',form='unformatted',access='direct',recl=mrecg)
       else
-        open(ifgeig,file='GEIG',form='unformatted') !this is dummy
+        open(newunit=ifgeig,file='GEIG',form='unformatted') !this is dummy
       endif
-      ifv=ifile_handle()
-      open(ifv,file='VXCFP',form='unformatted')
-
+c      ifv=ifile_handle()
+      open(newunit=ifv,file='VXCFP',form='unformatted')
       write(ifv) nband,nqi ! mar2012takao  write(ifv) nband,nqtti    !feb2012takao
 !! --- augmentation wave numbering--- idxnlmc in index.f order
 !     m,n,l,ic order. On the other hand, fplmto gives m l n ic  for valence!
 !     This ordering is important for psi2b_v2 and psibc_v2 in x0kf_v2 and sxcf_v2, and so on.
 c      ifoc = iopen('@MNLA_CPHI',1,-1,0)
-      ifoc=ifile_handle()
-      open(ifoc,file='@MNLA_CPHI')
+c      ifoc=ifile_handle()
+      open(newunit=ifoc,file='@MNLA_CPHI')
       write(ifoc,"('    m    n    l ibas')")
       allocate(nvmax(0:lmxamx,nclass))
       nvmax=0
@@ -1044,9 +1043,9 @@ c
           n2= ncindx(icore)
           l2= lcindx(icore)
           if(ifcore(l2)==-99) then
-            ifcore(l2)=9022 +l2
+c            ifcore(l2)=9022 +l2
             fcore='Core_ibas'//charnum3(ibas)//'_l'//char(48+l2)//'.chk'
-            open(ifcore(l2),file=fcore)
+            open(newunit=ifcore(l2),file=fcore)
           endif
           write(ifcore(l2),"(' --- --- --- --- n=',i5)") n2
           do ir=1,nr(ic)
@@ -1105,10 +1104,10 @@ C ... norm check
 ! --- end of atomic part --------------------------------------------
 
       if(checknorm) then
-        inorm = 222
-        inormo= 223
-        open(inorm, file = "normchk.dia")
-        open(inormo,file = "normchk.off")
+c        inorm = 222
+c        inormo= 223
+        open(newunit=inorm, file = "normchk.dia")
+        open(newunit=inormo,file = "normchk.off")
         write(inorm,849)
         write(inormo,849)
  849    format('#       IPW    ',
@@ -1138,8 +1137,8 @@ c     enddo
 c     endif
 
 c      ifnband = iopen('NBANDikp',1,-1,0)
-      ifnband=ifile_handle()
-      open(ifnband,file='NBANDikp')
+c      ifnband=ifile_handle()
+      open(newunit=ifnband,file='NBANDikp')
       write(ifnband,"(2i12,' !nband(larger than any)  nqtti')")nband,nqtti
       write(ifnband,"('------ nband ------  ikp ---')")
 
@@ -1255,7 +1254,7 @@ c     ic=ic_given
             enddo
             do ib= 1, nbandx
               gg=0d0
-              open(iffr,file='radial_ib'//xt(ib))
+              open(newunit=iffr,file='radial_ib'//xt(ib))
               write(6,*) " radial_ib=", ib
               do ix= 1,ldim2
                 l  = lindx(ix)
@@ -1555,8 +1554,8 @@ c$$$      endif
 
 !! --- required Input for hvccfp0 ---
 c      ifhvccfp  = iopen('HVCCIN',0,-1,0)
-      ifhvccfp=ifile_handle()
-      open(ifhvccfp,file='HVCCIN',form='unformatted')
+c      ifhvccfp=ifile_handle()
+      open(newunit=ifhvccfp,file='HVCCIN',form='unformatted')
       write(ifhvccfp) alat, plat,qlat,nqtti, nbas,nband
       write(ifhvccfp) qtti(:,1:nqtti), bas, rmax
       ifi = 6661
@@ -1572,8 +1571,8 @@ c     print *,' end of bzmesh'
 c     deallocate(IPQ,WGT)
 
 C ... Readin qibz form QIBZ
-      ifiqibz = 6662
-      open (ifiqibz, file='QIBZ') !write q-points in IBZ.
+c      ifiqibz = 6662
+      open(newunit=ifiqibz, file='QIBZ') !write q-points in IBZ.
       read (ifiqibz,*) nqibz
       allocate(qibz(3,nqibz))
       do iqibz = 1,nqibz
@@ -1590,8 +1589,8 @@ C ... Readin qibz form QIBZ
       write(6,"('  symops = ',a30)")symgrpo
       write(6,'("  qibz=",i3,3f12.5)')(i,qibz(1:3,i),i=1,nqibz)
 !!
-      ifnqibz = 888
-      open(ifnqibz,file='NQIBZ')
+c      ifnqibz = 888
+      open(newunit=ifnqibz,file='NQIBZ')
       write(ifnqibz,"(3i10,'  ! nqibz nq0i nqibz+nq0i+nq0iadd')") nqibz,nq0i,nqibz+nq0i+nq0iadd
       close(ifnqibz)
 
@@ -1729,7 +1728,7 @@ c      enddo
 
 !! PPOVLGG,PPOVLG oct2012
       if(debug) print *,' --- goto PPOVLG section ---',nggg,ngcgp,nqnumt-nqini+1
-      open(ippovlgg,file= "PPOVLGG",form='unformatted')
+      open(newunit=ippovlgg,file= "PPOVLGG",form='unformatted')
       write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
       write(ippovlgg) nvgcgp(1:3,1:ngcgp)
       write(ippovlgg) nvggg(1:3,1:nggg)
@@ -1746,14 +1745,14 @@ c      enddo
       print *,' --- Write PPOVLG ----'
       do 2010 iqi = nqini, nqnumt    !nqibz + nq0i + iadd
 
-        ippovlg = 1221+iqi
-        inquire(unit=ippovlg, opened=noo)
-        if(noo) call rx('rdata4gw_v2: ippovlg poor assignment of file id. Fix it')
-        open( ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
-        ippovli = 3221+iqi
-        inquire(unit=ippovli, opened=noo)
-        if(noo) call rx('rdata4gw_v2: ippovli poor assignment of file id. Fix it')
-        open( ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
+c        ippovlg = 1221+iqi
+c        inquire(unit=ippovlg, opened=noo)
+c        if(noo) call rx('rdata4gw_v2: ippovlg poor assignment of file id. Fix it')
+        open(newunit=ippovlg,file= "PPOVLG."//charnum3(iqi),form='unformatted')
+c        ippovli = 3221+iqi
+c        inquire(unit=ippovli, opened=noo)
+c        if(noo) call rx('rdata4gw_v2: ippovli poor assignment of file id. Fix it')
+        open(newunit=ippovli,file= "PPOVLI."//charnum3(iqi),form='unformatted')
 
         qx  = qibze(1:3,iqi)
         if(debug) write(*,"('init do 2010 qx=',3f13.5)")qx
@@ -1877,8 +1876,8 @@ c     if(smbasis()) deallocate(ppmt)
 !! ===  Write LMTO file ===
       print *
       write(6,*) " --- Write LMTO file(crystal structure and so on) ---"
-      ifigwin=888
-      open (ifigwin,file='LMTO')
+c      ifigwin=888
+      open(newunit=ifigwin,file='LMTO')
 !     > SYMMETRY
       write(ifigwin,*)"SYMMETRY---------------------------------------"
       write(ifigwin,*)"symmetry group (symgrp)"
