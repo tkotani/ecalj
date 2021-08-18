@@ -24,7 +24,7 @@ c      use m_work,only: rv_a_opnu,
 c     & rv_a_obxc , rv_a_ogrrme ,  rv_a_opmpol , rv_a_opnu , rv_a_opp , rv_a_opprel,
 c     & rv_a_oqnu , rv_a_oqpp , rv_a_oqt , rv_a_orhrmx ,
 c     &     rv_a_osop , rv_a_ovdif , rv_a_oves , rv_a_ovintr , rv_a_ovrmax
-      use m_supot,only: rv_a_omad 
+c      use m_supot,only: rv_a_omad 
       use m_mksym,only: iv_a_oics
       use m_lmfinit,only: lso,  ctrl_nl,ctrl_nspin,ctrl_nclass,ctrl_nl,ctrl_nspec,ctrl_nbas,
      &    ham_neula,ham_nbf,ham_nlibu,ctrl_nclass,rv_a_opos
